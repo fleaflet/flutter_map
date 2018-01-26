@@ -5,7 +5,8 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^0.1.0
-  leaflet_flutter: ../leaflet_flutter
+  leaflet_flutter:
+    path: ../leaflet_flutter
 
 dev_dependencies:
   flutter_test:
