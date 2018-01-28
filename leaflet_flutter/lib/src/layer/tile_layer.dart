@@ -101,7 +101,7 @@ class _TileLayerState extends State<TileLayer> {
     var zoom = this._tileZoom;
     var maxZoom = this.options.maxZoom;
 
-    if (zoom == null) return;
+    if (zoom == null) return null;
 
     for (var z in this._levels.keys) {
       if (_levels[z].children.length > 0 || z == zoom) {
