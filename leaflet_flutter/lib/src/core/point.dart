@@ -34,4 +34,14 @@ class Point<T extends num> extends math.Point<T> {
   Point scaleBy(Point point) {
     return new Point(this.x * point.x, this.y * point.y);
   }
+
+  Point round() {
+    var x = this.x is double ? this.x.round() : this.x;
+    var y = this.y is double ? this.y.round() : this.y;
+    return new Point(x, y);
+  }
+
+  Point multiplyBy(num n) {
+      return new Point(this.x * n, this.y * n);
+  }
 }

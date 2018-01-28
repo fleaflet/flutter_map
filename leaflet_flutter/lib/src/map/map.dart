@@ -24,11 +24,36 @@ class MapOptions {
 
 class MapState {
   final MapOptions options;
-  double zoom = 13.0;
+  double zoom = 1.0;
+  LatLng _lastCenter;
+  Point _pixelOrigin;
 
   MapState(this.options);
 
-  Point size;
+  Point _size;
+
+  set size(Point s) {
+    _size = s;
+    _init();
+  }
+
+  Point get size => _size;
+
+  void _init() {
+    _move(center, zoom);
+  }
+
+  void _move(LatLng center, double zoom, [data]) {
+    if (zoom == null) {
+      zoom = this.zoom;
+    }
+
+//    var zoomChanged = this.zoom != zoom;
+    this.zoom = zoom;
+    this._lastCenter = center;
+    this._pixelOrigin = this.getNewPixelOrigin(center);
+    // todo: events
+  }
 
   LatLng get center {
     return layerPointToLatLng(_centerLayerPoint);
@@ -64,5 +89,14 @@ class MapState {
 
   Bounds getPixelWorldBounds(double zoom) {
     return options.crs.getProjectedBounds(zoom == null ? this.zoom : zoom);
+  }
+
+  Point getPixelOrigin() {
+    return _pixelOrigin;
+  }
+
+  Point getNewPixelOrigin(LatLng center, [double zoom]) {
+    var viewHalf = this.size / 2;
+    return (this.project(center, zoom) - viewHalf).round();
   }
 }

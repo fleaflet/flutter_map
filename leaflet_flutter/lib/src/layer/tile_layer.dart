@@ -48,8 +48,10 @@ class _TileLayerState extends State<TileLayer> {
   Tuple2<double, double> _wrapY;
   double _tileZoom;
   List<Widget> tiles = [];
+  Level _level;
 
   Map<String, Tile> _tiles = {};
+  Map<double, Level> _levels = {};
 
   void initState() {
     super.initState();
@@ -89,10 +91,45 @@ class _TileLayerState extends State<TileLayer> {
     var tileZoom = this._clampZoom(zoom.round().toDouble());
     if (_tileZoom != tileZoom) {
       _tileZoom = tileZoom;
-//      _updateLevels();
+      _updateLevels();
       _resetGrid();
     }
     _setZoomTransforms(center, zoom);
+  }
+
+  Level _updateLevels() {
+    var zoom = this._tileZoom;
+    var maxZoom = this.options.maxZoom;
+
+    if (zoom == null) return;
+
+    for (var z in this._levels.keys) {
+      if (_levels[z].children.length > 0 || z == zoom) {
+        _levels[z].zIndex = maxZoom = (zoom - z).abs();
+      } else {
+        _levels.remove(z);
+      }
+    }
+    var level = _levels[zoom];
+    var map = this.map;
+
+    if (level == null) {
+      level = _levels[zoom] = new Level();
+      level.zIndex = maxZoom;
+      level.origin = map.project(map.unproject(map.getPixelOrigin()), zoom);
+      level.zoom = zoom;
+
+      _setZoomTransform(level, map.center, map.zoom);
+    }
+    this._level = level;
+    return level;
+  }
+
+  void _setZoomTransform(Level level, LatLng center, double zoom) {
+    var scale = map.getZoomScale(zoom, level.zoom);
+    var translate = level.origin.multiplyBy(scale) - map.getNewPixelOrigin(center, zoom).round();
+    level.translatePoint = translate;
+    level.scale = scale;
   }
 
   void _setZoomTransforms(center, zoom) {
@@ -283,7 +320,7 @@ class _TileLayerState extends State<TileLayer> {
   }
 
   Point _getTilePos(Coords coords) {
-    return coords.scaleBy(this.getTileSize()) /*- this._level.origin */;
+    return coords.scaleBy(this.getTileSize()) - this._level.origin;
   }
 }
 
@@ -292,6 +329,15 @@ class Tile {
   final coords;
   bool current;
   Tile(this.el, this.coords, this.current);
+}
+
+class Level {
+  List children;
+  double zIndex;
+  Point origin;
+  double zoom;
+  Point translatePoint;
+  double scale;
 }
 
 class Coords<T extends num> extends Point<T> {
