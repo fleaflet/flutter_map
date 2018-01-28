@@ -7,6 +7,8 @@ homepage:
 dependencies:
   flutter:
     sdk: flutter
+  latlong: any
+  tuple: any
 
 dev_dependencies:
   test: ^0.12.0

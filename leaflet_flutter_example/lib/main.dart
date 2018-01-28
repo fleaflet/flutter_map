@@ -19,7 +19,20 @@ class MyApp extends StatelessWidget {
         body: new Center(
           child: new AspectRatio(
             aspectRatio: 1.0,
-            child: new Leaflet(),
+            child: new Leaflet(
+              options: new MapOptions(),
+              layers: [
+                new TileLayerOptions(
+                  urlTemplate: "https://api.tiles.mapbox.com/v4/"
+                      "{id}/{z}/{x}/{y}.png?access_token={accessToken}",
+                  additionalOptions: {
+                    'accessToken':
+                        'pk.eyJ1Ijoiam9obnByeWFuIiwiYSI6ImNqY3VyZmlybjExZXoycXZ0bmdldml3Z2EifQ.kLtehVgGf0EnSo-K4h5G2A',
+                    'id': 'mapbox.streets',
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
