@@ -132,9 +132,10 @@ class _TileLayerState extends State<TileLayer> {
     level.scale = scale;
   }
 
-  void _setZoomTransforms(center, zoom) {
-    // TODO: support multiple "levels"
-//    for (var i in this._levels)
+  void _setZoomTransforms(LatLng center, double zoom) {
+    for (var i in this._levels.keys) {
+      this._setZoomTransform(_levels[i], center, zoom);
+    }
   }
 
   _resetGrid() {
