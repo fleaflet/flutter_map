@@ -6,25 +6,27 @@ import 'package:leaflet_flutter/src/geo/crs/crs.dart';
 
 class MapOptions {
   final Crs crs;
-  final LatLng center;
   final double zoom;
   final double minZoom;
   final double maxZoom;
   final List<LayerOptions> layers;
+  LatLng center;
 
   MapOptions({
     this.crs: const Epsg3857(),
     this.center,
-    this.zoom,
+    this.zoom = 13.0,
     this.minZoom,
     this.maxZoom,
     this.layers,
-  });
+  }) {
+    if (center == null) center = new LatLng(50.5, 30.51);
+  }
 }
 
 class MapState {
   final MapOptions options;
-  double zoom = 1.0;
+  double zoom;
   LatLng _lastCenter;
   Point _pixelOrigin;
 
@@ -39,8 +41,11 @@ class MapState {
 
   Point get size => _size;
 
+  LatLng get center => getCenter() ?? options.center;
+
   void _init() {
-    _move(center, zoom);
+    this.zoom = options.zoom;
+    _move(options.center, zoom);
   }
 
   void _move(LatLng center, double zoom, [data]) {
@@ -55,7 +60,10 @@ class MapState {
     // todo: events
   }
 
-  LatLng get center {
+  LatLng getCenter() {
+    if (_lastCenter != null) {
+      return _lastCenter;
+    }
     return layerPointToLatLng(_centerLayerPoint);
   }
 

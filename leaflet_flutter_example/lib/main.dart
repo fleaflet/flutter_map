@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:latlong/latlong.dart';
 import 'package:leaflet_flutter/leaflet_flutter.dart';
 
 void main() => runApp(new MyApp());
@@ -20,7 +21,10 @@ class MyApp extends StatelessWidget {
           child: new AspectRatio(
             aspectRatio: 1.0,
             child: new Leaflet(
-              options: new MapOptions(),
+              options: new MapOptions(
+                center: new LatLng(51.5, -0.09),
+                zoom: 13.0,
+              ),
               layers: [
                 new TileLayerOptions(
                   urlTemplate: "https://api.tiles.mapbox.com/v4/"

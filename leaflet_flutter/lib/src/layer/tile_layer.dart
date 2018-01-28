@@ -107,9 +107,11 @@ class _TileLayerState extends State<TileLayer> {
       if (_levels[z].children.length > 0 || z == zoom) {
         _levels[z].zIndex = maxZoom = (zoom - z).abs();
       } else {
+        _removeTilesAtZoom(z);
         _levels.remove(z);
       }
     }
+
     var level = _levels[zoom];
     var map = this.map;
 
@@ -127,7 +129,8 @@ class _TileLayerState extends State<TileLayer> {
 
   void _setZoomTransform(Level level, LatLng center, double zoom) {
     var scale = map.getZoomScale(zoom, level.zoom);
-    var translate = level.origin.multiplyBy(scale) - map.getNewPixelOrigin(center, zoom).round();
+    var pixelOrigin = map.getNewPixelOrigin(center, zoom).round();
+    var translate = level.origin.multiplyBy(scale) - pixelOrigin;
     level.translatePoint = translate;
     level.scale = scale;
   }
@@ -136,6 +139,23 @@ class _TileLayerState extends State<TileLayer> {
     for (var i in this._levels.keys) {
       this._setZoomTransform(_levels[i], center, zoom);
     }
+  }
+
+  void _removeTilesAtZoom(double zoom) {
+    for (var key in _tiles.keys) {
+      if (_tiles[key].coords.z != zoom) {
+        continue;
+      }
+      _removeTile(key);
+    }
+  }
+
+  void _removeTile(String key) {
+    var tile = _tiles[key];
+    if (tile == null) {
+      return;
+    }
+    _tiles.remove(key);
   }
 
   _resetGrid() {
@@ -232,7 +252,16 @@ class _TileLayerState extends State<TileLayer> {
         _addTile(queue[i]);
       }
     }
-//    return new Text("tileRange = ${tileRange.min} ${tileRange.max}");
+//    var level = _level;
+//    var levelWidget = new Positioned(
+//      key: new Key(map.zoom.toString()),
+//      left: level?.origin?.x?.roundToDouble() ?? 0.0,
+//      top: level?.origin?.y?.roundToDouble() ?? 0.0,
+//      right: 0.0,
+//      bottom: 0.0,
+//      child: new Stack(children: tiles),
+//    );
+
     return new Container(
       child: new Stack(
         children: tiles,
@@ -286,10 +315,10 @@ class _TileLayerState extends State<TileLayer> {
     var tileSize = getTileSize();
     return new Positioned(
       key: new Key(coords.toString()),
-      left: point.x,
-      top: point.y,
-      width: tileSize.x,
-      height: tileSize.y,
+      left: point.x.roundToDouble(),
+      top: point.y.roundToDouble(),
+      width: tileSize.x.roundToDouble(),
+      height: tileSize.y.roundToDouble(),
       child: new Container(
         color: Colors.deepOrange,
         child: tile,
