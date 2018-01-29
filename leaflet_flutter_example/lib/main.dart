@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
                       "{id}/{z}/{x}/{y}.png?access_token={accessToken}",
                   additionalOptions: {
                     'accessToken':
-                        'pk.eyJ1Ijoiam9obnByeWFuIiwiYSI6ImNqY3VyZmlybjExZXoycXZ0bmdldml3Z2EifQ.kLtehVgGf0EnSo-K4h5G2A',
+                        '<YOUR_ACCESS_TOKEN>',
                     'id': 'mapbox.streets',
                   },
                 ),
