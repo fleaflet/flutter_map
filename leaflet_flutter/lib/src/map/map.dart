@@ -29,6 +29,7 @@ class MapState {
   double zoom;
   LatLng _lastCenter;
   Point _pixelOrigin;
+  Point panOffset = new Point(0.0, 0.0);
 
   MapState(this.options);
 
@@ -58,6 +59,10 @@ class MapState {
     this._lastCenter = center;
     this._pixelOrigin = this.getNewPixelOrigin(center);
     // todo: events
+  }
+
+  void panBy(Point offset) {
+    panOffset += offset;
   }
 
   LatLng getCenter() {

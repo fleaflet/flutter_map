@@ -268,6 +268,13 @@ class _TileLayerState extends State<TileLayer> {
 //      child: new Stack(children: tiles),
 //    );
 
+    var level = new Positioned(
+      left: _level.translatePoint.x,
+      top: _level.translatePoint.y,
+//      width: _level.scale
+      child: new Stack(children: tiles),
+    );
+
     return new GestureDetector(
       onScaleStart: _handleScaleStart,
       onScaleUpdate: _handleScaleUpdate,
@@ -276,7 +283,6 @@ class _TileLayerState extends State<TileLayer> {
         child: new Stack(
           children: tiles,
         ),
-        color: Colors.amber[50],
       ),
     );
   }
@@ -294,11 +300,13 @@ class _TileLayerState extends State<TileLayer> {
     var scale = details.scale;
     var dx = latestPoint.dx - _scaleStartOffset.dx;
     var dy = latestPoint.dy - _scaleStartOffset.dy;
+    var offset = new Point(dx, dy);
     var newCenterPoint = map.project(map.center) - new Point(dx, dy);
     var newCenter = map.unproject(newCenterPoint);
     var newZoom = map.zoom;
     setState(() {
       map.move(newCenter, newZoom);
+      map.panBy(offset);
     });
   }
 
@@ -350,10 +358,11 @@ class _TileLayerState extends State<TileLayer> {
   Widget _initTile(Widget tile, Coords coords, Point point) {
     var tileSize = getTileSize();
 //    var key = new Key(_tileCoordsToKey(coords) + "$point:$tileSize");
+//    var pixelOrigin = this.map.getPixelOrigin();
     return new Positioned(
 //      key: key,
-      left: point.x.roundToDouble(),
-      top: point.y.roundToDouble(),
+      left: point.x.roundToDouble() + map.panOffset.x,
+      top: point.y.roundToDouble() + map.panOffset.y,
       width: tileSize.x.roundToDouble(),
       height: tileSize.y.roundToDouble(),
       child: new Container(
