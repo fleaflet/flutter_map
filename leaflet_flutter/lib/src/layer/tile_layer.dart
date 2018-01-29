@@ -59,7 +59,10 @@ class _TileLayerState extends State<TileLayer> {
   }
 
   Widget createTile(Coords coords) {
-    return new Image.network(getTileUrl(coords));
+    return new Image.network(
+      getTileUrl(coords),
+      key: new Key(_tileCoordsToKey(coords)),
+    );
   }
 
   String getTileUrl(Coords coords) {
@@ -211,9 +214,7 @@ class _TileLayerState extends State<TileLayer> {
 
   // Gridlayer._update()
   Widget build(BuildContext context) {
-    var center = new LatLng(51.505, -0.09);
-
-    var pixelBounds = _getTiledPixelBounds(center);
+    var pixelBounds = _getTiledPixelBounds(map.center);
     var tileRange = _pxBoundsToTileRange(pixelBounds);
     var tileCenter = tileRange.getCenter();
     var queue = <Coords>[];
@@ -234,12 +235,16 @@ class _TileLayerState extends State<TileLayer> {
         if (!this._isValidTile(coords)) {
           continue;
         }
-        var tile = _tiles[_tileCoordsToKey(coords)];
-        if (tile != null) {
-          tile.current = true;
-        } else {
-          queue.add(coords);
-        }
+
+        // Add all valid tiles to the queue on Flutter
+        queue.add(coords);
+
+//        var tile = _tiles[_tileCoordsToKey(coords)];
+//        if (tile != null) {
+//          tile.current = true;
+//        } else {
+//          queue.add(coords);
+//        }
       }
     }
 
@@ -247,6 +252,7 @@ class _TileLayerState extends State<TileLayer> {
       return (a.distanceTo(tileCenter) - b.distanceTo(tileCenter)).toInt();
     });
 
+    tiles.clear();
     if (queue.length > 0) {
       for (var i = 0; i < queue.length; i++) {
         _addTile(queue[i]);
@@ -262,12 +268,42 @@ class _TileLayerState extends State<TileLayer> {
 //      child: new Stack(children: tiles),
 //    );
 
-    return new Container(
-      child: new Stack(
-        children: tiles,
+    return new GestureDetector(
+      onScaleStart: _handleScaleStart,
+      onScaleUpdate: _handleScaleUpdate,
+      onScaleEnd: _handleScaleEnd,
+      child: new Container(
+        child: new Stack(
+          children: tiles,
+        ),
+        color: Colors.amber[50],
       ),
-      color: Colors.amber[50],
     );
+  }
+
+  Offset _scaleStartOffset;
+  void _handleScaleStart(ScaleStartDetails details) {
+    _scaleStartOffset = details.focalPoint;
+  }
+
+  void _handleScaleUpdate(ScaleUpdateDetails details) {
+    if (_scaleStartOffset == null) {
+      return;
+    }
+    var latestPoint = details.focalPoint;
+    var scale = details.scale;
+    var dx = latestPoint.dx - _scaleStartOffset.dx;
+    var dy = latestPoint.dy - _scaleStartOffset.dy;
+    var newCenterPoint = map.project(map.center) - new Point(dx, dy);
+    var newCenter = map.unproject(newCenterPoint);
+    var newZoom = map.zoom;
+    setState(() {
+      map.move(newCenter, newZoom);
+    });
+  }
+
+  void _handleScaleEnd(ScaleEndDetails details) {
+    _scaleStartOffset = null;
   }
 
   Bounds _getTiledPixelBounds(LatLng center) {
@@ -313,14 +349,14 @@ class _TileLayerState extends State<TileLayer> {
 
   Widget _initTile(Widget tile, Coords coords, Point point) {
     var tileSize = getTileSize();
+//    var key = new Key(_tileCoordsToKey(coords) + "$point:$tileSize");
     return new Positioned(
-      key: new Key(coords.toString()),
+//      key: key,
       left: point.x.roundToDouble(),
       top: point.y.roundToDouble(),
       width: tileSize.x.roundToDouble(),
       height: tileSize.y.roundToDouble(),
       child: new Container(
-        color: Colors.deepOrange,
         child: tile,
       ),
     );
@@ -331,6 +367,8 @@ class _TileLayerState extends State<TileLayer> {
 //    var key = _tileCoordsToKey(coords);
     var tile = createTile(_wrapCoords(coords));
     tile = _initTile(tile, coords, tilePos);
+    var key = _tileCoordsToKey(coords);
+    _tiles[key] = new Tile(null, coords, true);
     setState(() {
       this.tiles.add(tile);
     });

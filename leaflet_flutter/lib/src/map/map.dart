@@ -45,10 +45,10 @@ class MapState {
 
   void _init() {
     this.zoom = options.zoom;
-    _move(options.center, zoom);
+    move(options.center, zoom);
   }
 
-  void _move(LatLng center, double zoom, [data]) {
+  void move(LatLng center, double zoom, [data]) {
     if (zoom == null) {
       zoom = this.zoom;
     }
