@@ -1,7 +1,5 @@
 import 'dart:math' as math;
 
-import 'package:leaflet_flutter/src/core/util.dart' as util;
-import 'package:leaflet_flutter/src/geo/latlng_bounds.dart';
 import 'package:tuple/tuple.dart';
 import 'package:latlong/latlong.dart';
 import 'package:leaflet_flutter/src/core/bounds.dart';
@@ -53,34 +51,6 @@ abstract class Crs {
   bool get infinite;
   Tuple2<double, double> get wrapLng;
   Tuple2<double, double> get wrapLat;
-
-  LatLng wrapLatLng(LatLng latlng) {
-    var lng = this.wrapLng != null
-        ? util.wrapNum(latlng.longitude, this.wrapLng, true)
-        : latlng.longitude;
-    var lat = this.wrapLat != null
-        ? util.wrapNum(latlng.latitude, this.wrapLat, true)
-        : latlng.latitude;
-    return new LatLng(lat, lng);
-  }
-
-  LatLngBounds wrapLatLngBounds(LatLngBounds bounds) {
-    var center = bounds.getCenter();
-    var newCenter = this.wrapLatLng(center);
-    var latShift = center.latitude - newCenter.latitude;
-    var lngShift = center.longitude - newCenter.longitude;
-
-    if (latShift == 0 && lngShift == 0) {
-      return bounds;
-    }
-
-    var sw = bounds.sw,
-        ne = bounds.ne,
-        newSw = new LatLng(sw.latitude - latShift, sw.longitude - lngShift),
-        newNe = new LatLng(ne.latitude - latShift, ne.longitude - lngShift);
-
-    return new LatLngBounds(newSw, newNe);
-  }
 }
 
 abstract class Earth extends Crs {

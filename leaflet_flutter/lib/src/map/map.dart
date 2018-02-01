@@ -3,7 +3,6 @@ import 'package:leaflet_flutter/leaflet_flutter.dart';
 import 'package:leaflet_flutter/src/core/bounds.dart';
 import 'package:leaflet_flutter/src/core/point.dart';
 import 'package:leaflet_flutter/src/geo/crs/crs.dart';
-import 'package:leaflet_flutter/src/geo/latlng_bounds.dart';
 
 class MapOptions {
   final Crs crs;
@@ -116,9 +115,5 @@ class MapState {
   Point getNewPixelOrigin(LatLng center, [double zoom]) {
     var viewHalf = this.size / 2;
     return (this.project(center, zoom) - viewHalf).round();
-  }
-
-  LatLngBounds wrapLatLngBounds(LatLngBounds latlngBounds) {
-    return this.options.crs.wrapLatLngBounds(latlngBounds);
   }
 }

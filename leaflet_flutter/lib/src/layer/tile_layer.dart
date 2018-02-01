@@ -409,27 +409,6 @@ class _TileLayerState extends State<TileLayer>
     return true;
   }
 
-  Tuple2<LatLng, LatLng>_tileCoordsToNwSe(Coords coords) {
-    var map = this.map,
-        tileSize = this.getTileSize(),
-        nwPoint = coords.scaleBy(tileSize),
-        sePoint = nwPoint+ tileSize,
-        nw = map.unproject(nwPoint, coords.z),
-        se = map.unproject(sePoint, coords.z);
-    return new Tuple2<LatLng, LatLng>(nw, se);
-  }
-
-  // converts tile coordinates to its geographical bounds
-  LatLngBounds _tileCoordsToBounds(Coords coords) {
-    var bp = this._tileCoordsToNwSe(coords);
-        var bounds = new LatLngBounds(bp.item1, bp.item2);
-
-//    if (!this.options.noWrap) {
-      bounds = this.map.wrapLatLngBounds(bounds);
-//    }
-    return bounds;
-  }
-
   String _tileCoordsToKey(Coords coords) {
     return "${coords.x}:${coords.y}:${coords.z}";
   }

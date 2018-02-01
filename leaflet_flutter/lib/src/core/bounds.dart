@@ -20,7 +20,7 @@ class Bounds<T extends num> {
       newMin = point;
       newMax = point;
     } else {
-      var minX = math.min(point.x, point.x);
+      var minX = math.min(point.x, this.min.x);
       var maxX = math.max(point.x, this.max.x);
       var minY = math.min(point.y, this.min.y);
       var maxY = math.max(point.y, this.max.y);
