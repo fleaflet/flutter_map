@@ -279,36 +279,6 @@ class _TileLayerState extends State<TileLayer>
       }
     }
 
-    // The map's scale
-    var scale = map.getZoomScale(map.zoom, _level.zoom);
-    // the center of the map in global pixel coordinates
-    var pixelOrigin = map.getNewPixelOrigin(map.center, map.zoom).round();
-    // the level's origin relative to the center of the map.
-    var levelPoint = _level.origin.multiplyBy(scale) - pixelOrigin;
-
-    var levelWidget = new Positioned(
-      left: levelPoint.x,
-      top: levelPoint.y,
-      child: new Container(
-        color: Colors.lightBlue,
-        width: 5.0,
-        height: 5.0,
-      ),
-    );
-    tiles.add(levelWidget);
-
-    var centerPoint = map.project(map.center) - pixelOrigin;
-    var centerWidget = new Positioned(
-      left: centerPoint.x,
-      top: centerPoint.y,
-      child: new Container(
-        color: Colors.red,
-        width: 5.0,
-        height: 5.0,
-      ),
-    );
-    tiles.add(centerWidget);
-
     return new GestureDetector(
       onScaleStart: _handleScaleStart,
       onScaleUpdate: _handleScaleUpdate,
