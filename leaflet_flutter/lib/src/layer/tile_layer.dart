@@ -42,8 +42,8 @@ class TileLayer extends StatefulWidget {
 class _TileLayerState extends State<TileLayer> {
   MapState get map => widget.mapState;
   TileLayerOptions get options => widget.options;
-  Point _tileSize;
-  Bounds _globalTileRange;
+//  Point _tileSize;
+//  Bounds _globalTileRange;
   Tuple2<double, double> _wrapX;
   Tuple2<double, double> _wrapY;
   double _tileZoom;
@@ -106,13 +106,17 @@ class _TileLayerState extends State<TileLayer> {
 
     if (zoom == null) return null;
 
+    List<double> toRemove = [];
     for (var z in this._levels.keys) {
       if (_levels[z].children.length > 0 || z == zoom) {
         _levels[z].zIndex = maxZoom = (zoom - z).abs();
       } else {
-        _removeTilesAtZoom(z);
-        _levels.remove(z);
+        toRemove.add(z);
       }
+    }
+    for (var z in toRemove) {
+      _removeTilesAtZoom(z);
+      _levels.remove(z);
     }
 
     var level = _levels[zoom];
@@ -145,10 +149,14 @@ class _TileLayerState extends State<TileLayer> {
   }
 
   void _removeTilesAtZoom(double zoom) {
+    List<String> toRemove = [];
     for (var key in _tiles.keys) {
       if (_tiles[key].coords.z != zoom) {
         continue;
       }
+      toRemove.add(key);
+    }
+    for (var key in toRemove) {
       _removeTile(key);
     }
   }
@@ -165,12 +173,12 @@ class _TileLayerState extends State<TileLayer> {
     var map = this.map;
     var crs = map.options.crs;
     var tileSize = this.getTileSize();
-    this._tileSize = tileSize;
+//    this._tileSize = tileSize;
     var tileZoom = _tileZoom;
 
     var bounds = map.getPixelWorldBounds(_tileZoom);
     if (bounds != null) {
-      _globalTileRange = _pxBoundsToTileRange(bounds);
+//      _globalTileRange = _pxBoundsToTileRange(bounds);
     }
 
     // wrapping
@@ -227,6 +235,9 @@ class _TileLayerState extends State<TileLayer> {
       }
     }
 
+    // if the zoom level differs, call _setView to reset levels and prune old tiles...
+    _setView(map.center, map.zoom);
+
     for (var j = tileRange.min.y; j <= tileRange.max.y; j++) {
       for (var i = tileRange.min.x; i <= tileRange.max.x; i++) {
         var coords = new Coords(i.toDouble(), j.toDouble());
@@ -258,6 +269,33 @@ class _TileLayerState extends State<TileLayer> {
         _addTile(queue[i]);
       }
     }
+
+    var scale = map.getZoomScale(map.zoom, _level.zoom);
+    var pixelOrigin = map.getNewPixelOrigin(map.center, map.zoom).round();
+    var levelPoint = _level.origin.multiplyBy(scale) - pixelOrigin;
+
+    var levelWidget = new Positioned(
+      left: levelPoint.x,
+      top: levelPoint.y,
+      child: new Container(
+        color: Colors.lightBlue,
+        width: 5.0,
+        height: 5.0,
+      ),
+    );
+    tiles.add(levelWidget);
+
+    var centerPoint = map.project(map.center) - this._level.origin + _level.translatePoint;
+    var centerWidget = new Positioned(
+      left: centerPoint.x,
+      top: centerPoint.y,
+      child: new Container(
+        color: Colors.red,
+        width: 5.0,
+        height: 5.0,
+      ),
+    );
+    tiles.add(centerWidget);
 //    var level = _level;
 //    var levelWidget = new Positioned(
 //      key: new Key(map.zoom.toString()),
@@ -268,12 +306,17 @@ class _TileLayerState extends State<TileLayer> {
 //      child: new Stack(children: tiles),
 //    );
 
-    var level = new Positioned(
-      left: _level.translatePoint.x,
-      top: _level.translatePoint.y,
-//      width: _level.scale
-      child: new Stack(children: tiles),
-    );
+//    var level = new Positioned(
+//      left: _level.translatePoint.x,
+//      top: _level.translatePoint.y,
+////      width: _level.scale
+//      child: new Container(
+//        width: 186.0,
+//        height: 186.0,
+//        child: new Stack(children: tiles),
+//        color: Colors.blue,
+//      ),
+//    );
 
     return new GestureDetector(
       onScaleStart: _handleScaleStart,
@@ -283,35 +326,34 @@ class _TileLayerState extends State<TileLayer> {
         child: new Stack(
           children: tiles,
         ),
+        color: Colors.grey[300],
       ),
     );
   }
 
-  Offset _scaleStartOffset;
+  Offset _panStart = new Offset(0.0, 0.0);
+  double _mapZoomStart = 1.0;
   void _handleScaleStart(ScaleStartDetails details) {
-    _scaleStartOffset = details.focalPoint;
+    setState(() {
+      _mapZoomStart = map.zoom;
+      _panStart = details.focalPoint;
+    });
   }
 
   void _handleScaleUpdate(ScaleUpdateDetails details) {
-    if (_scaleStartOffset == null) {
-      return;
-    }
-    var latestPoint = details.focalPoint;
-    var scale = details.scale;
-    var dx = latestPoint.dx - _scaleStartOffset.dx;
-    var dy = latestPoint.dy - _scaleStartOffset.dy;
-    var offset = new Point(dx, dy);
-    var newCenterPoint = map.project(map.center) - new Point(dx, dy);
-    var newCenter = map.unproject(newCenterPoint);
-    var newZoom = map.zoom;
     setState(() {
+      var dScale = details.scale;
+      var dx = _panStart.dx - details.focalPoint.dx;
+      var dy = _panStart.dy - details.focalPoint.dy;
+      var newCenterPoint = map.project(map.center) - new Point(dx, dy);
+      var newCenter = map.unproject(newCenterPoint);
+      var newZoom = _mapZoomStart * dScale;
       map.move(newCenter, newZoom);
-      map.panBy(offset);
     });
   }
 
   void _handleScaleEnd(ScaleEndDetails details) {
-    _scaleStartOffset = null;
+    setState(() {});
   }
 
   Bounds _getTiledPixelBounds(LatLng center) {
@@ -357,14 +399,15 @@ class _TileLayerState extends State<TileLayer> {
 
   Widget _initTile(Widget tile, Coords coords, Point point) {
     var tileSize = getTileSize();
-//    var key = new Key(_tileCoordsToKey(coords) + "$point:$tileSize");
-//    var pixelOrigin = this.map.getPixelOrigin();
+    var left =
+        point.x.roundToDouble() - (_level.translatePoint.x * _level.scale);
+    var top =
+        point.y.roundToDouble() - (_level.translatePoint.y * _level.scale);
     return new Positioned(
-//      key: key,
-      left: point.x.roundToDouble() + map.panOffset.x,
-      top: point.y.roundToDouble() + map.panOffset.y,
-      width: tileSize.x.roundToDouble(),
-      height: tileSize.y.roundToDouble(),
+      left: left,
+      top: top,
+      width: tileSize.x.roundToDouble() * _level.scale,
+      height: tileSize.y.roundToDouble() * _level.scale,
       child: new Container(
         child: tile,
       ),
@@ -373,7 +416,6 @@ class _TileLayerState extends State<TileLayer> {
 
   void _addTile(Coords coords) {
     var tilePos = _getTilePos(coords);
-//    var key = _tileCoordsToKey(coords);
     var tile = createTile(_wrapCoords(coords));
     tile = _initTile(tile, coords, tilePos);
     var key = _tileCoordsToKey(coords);
@@ -409,7 +451,7 @@ class Tile {
 }
 
 class Level {
-  List children;
+  List children = [];
   double zIndex;
   Point origin;
   double zoom;

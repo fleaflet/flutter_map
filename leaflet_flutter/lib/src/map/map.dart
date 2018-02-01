@@ -65,6 +65,10 @@ class MapState {
     panOffset += offset;
   }
 
+  void panTo(Point offset) {
+    panOffset = offset;
+  }
+
   LatLng getCenter() {
     if (_lastCenter != null) {
       return _lastCenter;

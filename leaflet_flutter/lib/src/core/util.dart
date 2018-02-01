@@ -16,5 +16,5 @@ double wrapNum(double x, Tuple2<double, double> range, [bool includeMax]) {
   var max = range.item2;
   var min = range.item1;
   var d = max - min;
-  return x == max && includeMax ? x : ((x - min) % d + d) % d + min;
+  return x == max && includeMax != null ? x : ((x - min) % d + d) % d + min;
 }
