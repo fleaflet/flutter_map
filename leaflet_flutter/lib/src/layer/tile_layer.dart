@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:latlong/latlong.dart';
 import 'package:leaflet_flutter/src/core/bounds.dart';
 import 'package:leaflet_flutter/src/core/point.dart';
+import 'package:leaflet_flutter/src/geo/latlng_bounds.dart';
 import 'package:leaflet_flutter/src/map/map.dart';
 import 'package:leaflet_flutter/src/core/util.dart' as util;
 import 'package:tuple/tuple.dart';
@@ -43,6 +44,7 @@ class _TileLayerState extends State<TileLayer>
     with SingleTickerProviderStateMixin {
   MapState get map => widget.mapState;
   TileLayerOptions get options => widget.options;
+  Bounds _globalTileRange;
   Tuple2<double, double> _wrapX;
   Tuple2<double, double> _wrapY;
   double _tileZoom;
@@ -126,7 +128,12 @@ class _TileLayerState extends State<TileLayer>
     if (level == null) {
       level = _levels[zoom] = new Level();
       level.zIndex = maxZoom;
-      level.origin = map.project(map.unproject(map.getPixelOrigin()), zoom);
+      var newOrigin = map.project(map.unproject(map.getPixelOrigin()), zoom);
+      if (newOrigin != null) {
+        level.origin = newOrigin;
+      } else {
+        level.origin = new Point(0.0, 0.0);
+      }
       level.zoom = zoom;
 
       _setZoomTransform(level, map.center, map.zoom);
@@ -138,6 +145,9 @@ class _TileLayerState extends State<TileLayer>
   void _setZoomTransform(Level level, LatLng center, double zoom) {
     var scale = map.getZoomScale(zoom, level.zoom);
     var pixelOrigin = map.getNewPixelOrigin(center, zoom).round();
+    if (level.origin == null) {
+      return;
+    }
     var translate = level.origin.multiplyBy(scale) - pixelOrigin;
     level.translatePoint = translate;
     level.scale = scale;
@@ -175,6 +185,11 @@ class _TileLayerState extends State<TileLayer>
     var crs = map.options.crs;
     var tileSize = this.getTileSize();
     var tileZoom = _tileZoom;
+
+    var bounds = map.getPixelWorldBounds(_tileZoom);
+    if (bounds != null) {
+      _globalTileRange = _pxBoundsToTileRange(bounds);
+    }
 
     // wrapping
     this._wrapX = crs.wrapLng;
@@ -263,11 +278,11 @@ class _TileLayerState extends State<TileLayer>
     // the center of the map in global pixel coordinates
     var pixelOrigin = map.getNewPixelOrigin(map.center, map.zoom).round();
     // the level's origin relative to the center of the map.
-    var levelPoint = _level.origin - pixelOrigin;
+    var levelPoint = _level.origin.multiplyBy(scale) - pixelOrigin;
 
     var levelWidget = new Positioned(
-      left: -levelPoint.x,
-      top: -levelPoint.y,
+      left: levelPoint.x,
+      top: levelPoint.y,
       child: new Container(
         color: Colors.lightBlue,
         width: 5.0,
@@ -322,7 +337,14 @@ class _TileLayerState extends State<TileLayer>
       var newZoom = _mapZoomStart * dScale;
       var newCenterPoint = _mapStartPoint + new Point(dx, dy);
       var newCenter = map.unproject(newCenterPoint);
-      map.move(newCenter, newZoom);
+      if (newZoom != _mapZoomStart) {
+        map.move(map.center, newZoom);
+      } else {
+        if (newCenter == null) {
+          return;
+        }
+        map.move(newCenter, map.zoom);
+      }
     });
   }
 
@@ -333,14 +355,12 @@ class _TileLayerState extends State<TileLayer>
 
   void _handleScaleEnd(ScaleEndDetails details) {
     final double magnitude = details.velocity.pixelsPerSecond.distance;
-    if (magnitude < _kMinFlingVelocity)
-      return;
+    if (magnitude < _kMinFlingVelocity) return;
     final Offset direction = details.velocity.pixelsPerSecond / magnitude;
     final double distance = (Offset.zero & context.size).shortestSide;
-    _flingAnimation = new Tween<Offset>(
-        begin: _offset,
-        end: _offset - direction * distance
-    ).animate(_controller);
+    _flingAnimation =
+        new Tween<Offset>(begin: _offset, end: _offset - direction * distance)
+            .animate(_controller);
     _controller
       ..value = 0.0
       ..fling(velocity: magnitude / 1000.0);
@@ -372,7 +392,42 @@ class _TileLayerState extends State<TileLayer>
   }
 
   bool _isValidTile(Coords coords) {
+    var crs = map.options.crs;
+    if (!crs.infinite) {
+      var bounds = _globalTileRange;
+      if ((crs.wrapLng == null &&
+              (coords.x < bounds.min.x || coords.x > bounds.max.x)) ||
+          (crs.wrapLat == null &&
+              (coords.y < bounds.min.y || coords.y > bounds.max.y))) {
+        return false;
+      }
+    }
+
+    // don't load tile if it doesn't intersect the bounds in options
+//    var tileBounds = this._tileCoordsToBounds(coords);
+//    return latLngBounds(this.options.bounds).overlaps(tileBounds);
     return true;
+  }
+
+  Tuple2<LatLng, LatLng>_tileCoordsToNwSe(Coords coords) {
+    var map = this.map,
+        tileSize = this.getTileSize(),
+        nwPoint = coords.scaleBy(tileSize),
+        sePoint = nwPoint+ tileSize,
+        nw = map.unproject(nwPoint, coords.z),
+        se = map.unproject(sePoint, coords.z);
+    return new Tuple2<LatLng, LatLng>(nw, se);
+  }
+
+  // converts tile coordinates to its geographical bounds
+  LatLngBounds _tileCoordsToBounds(Coords coords) {
+    var bp = this._tileCoordsToNwSe(coords);
+        var bounds = new LatLngBounds(bp.item1, bp.item2);
+
+//    if (!this.options.noWrap) {
+      bounds = this.map.wrapLatLngBounds(bounds);
+//    }
+    return bounds;
   }
 
   String _tileCoordsToKey(Coords coords) {

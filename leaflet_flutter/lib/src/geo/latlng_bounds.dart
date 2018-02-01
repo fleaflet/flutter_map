@@ -28,4 +28,9 @@ class LatLngBounds {
       ne.longitude = math.max(ne2.longitude, ne.longitude);
     }
   }
+
+  LatLng getCenter() {
+    return new LatLng((this.sw.latitude + this.ne.latitude) / 2,
+        (this.sw.longitude + this.ne.longitude) / 2);
+  }
 }

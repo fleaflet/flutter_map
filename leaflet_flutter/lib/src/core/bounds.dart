@@ -5,12 +5,13 @@ class Bounds<T extends num> {
   final Point<T> min;
   final Point<T> max;
 
-//  const Bounds(Point<T> a, Point<T> b) {
-//    extend(a);
-//    extend(b);
-//  }
+  factory Bounds(Point<T> a, Point<T> b) {
+    var bounds1 = new Bounds._(a, b);
+    var bounds2 = bounds1.extend(a);
+    return bounds2.extend(b);
+  }
 
-  const Bounds(this.min, this.max);
+  const Bounds._(this.min, this.max);
 
   Bounds extend(Point<T> point) {
     Point<T> newMin;
@@ -26,7 +27,7 @@ class Bounds<T extends num> {
       newMin = new Point(minX, minY);
       newMax = new Point(maxX, maxY);
     }
-    return new Bounds(newMin, newMax);
+    return new Bounds._(newMin, newMax);
   }
 
   Point getCenter() {

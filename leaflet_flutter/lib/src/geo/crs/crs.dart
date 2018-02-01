@@ -1,5 +1,7 @@
 import 'dart:math' as math;
 
+import 'package:leaflet_flutter/src/core/util.dart' as util;
+import 'package:leaflet_flutter/src/geo/latlng_bounds.dart';
 import 'package:tuple/tuple.dart';
 import 'package:latlong/latlong.dart';
 import 'package:leaflet_flutter/src/core/bounds.dart';
@@ -14,15 +16,24 @@ abstract class Crs {
   const Crs();
 
   Point latLngToPoint(LatLng latlng, double zoom) {
-    var projectedPoint = this.projection.project(latlng);
-    var scale = this.scale(zoom);
-    return transformation.transform(projectedPoint, scale);
+    try {
+      var projectedPoint = this.projection.project(latlng);
+      var scale = this.scale(zoom);
+      return transformation.transform(projectedPoint, scale);
+    } catch(e) {
+      return null;
+    }
   }
 
   LatLng pointToLatLng(Point point, double zoom) {
     var scale = this.scale(zoom);
     var untransformedPoint = this.transformation.untransform(point, scale);
+    try {
+
     return projection.unproject(untransformedPoint);
+    } catch(e) {
+      return null;
+    }
   }
 
   double scale(double zoom) {
@@ -42,6 +53,34 @@ abstract class Crs {
   bool get infinite;
   Tuple2<double, double> get wrapLng;
   Tuple2<double, double> get wrapLat;
+
+  LatLng wrapLatLng(LatLng latlng) {
+    var lng = this.wrapLng != null
+        ? util.wrapNum(latlng.longitude, this.wrapLng, true)
+        : latlng.longitude;
+    var lat = this.wrapLat != null
+        ? util.wrapNum(latlng.latitude, this.wrapLat, true)
+        : latlng.latitude;
+    return new LatLng(lat, lng);
+  }
+
+  LatLngBounds wrapLatLngBounds(LatLngBounds bounds) {
+    var center = bounds.getCenter();
+    var newCenter = this.wrapLatLng(center);
+    var latShift = center.latitude - newCenter.latitude;
+    var lngShift = center.longitude - newCenter.longitude;
+
+    if (latShift == 0 && lngShift == 0) {
+      return bounds;
+    }
+
+    var sw = bounds.sw,
+        ne = bounds.ne,
+        newSw = new LatLng(sw.latitude - latShift, sw.longitude - lngShift),
+        newNe = new LatLng(ne.latitude - latShift, ne.longitude - lngShift);
+
+    return new LatLngBounds(newSw, newNe);
+  }
 }
 
 abstract class Earth extends Crs {
@@ -64,10 +103,9 @@ class Epsg3857 extends Earth {
 }
 
 abstract class Projection {
-  final Bounds<double> bounds;
+  const Projection();
 
-  const Projection(this.bounds);
-
+  Bounds<double> get bounds;
   Point project(LatLng latlng);
   LatLng unproject(Point point);
 }
@@ -76,12 +114,14 @@ class SphericalMercator extends Projection {
   static const int r = 6378137;
   static const double maxLatitude = 85.0511287798;
   static const double _boundsD = r * math.PI;
-  static const Bounds<double> _bounds = const Bounds<double>(
-    const Point<double>(-_boundsD, -_boundsD),
-    const Point<double>(_boundsD, _boundsD),
+  static Bounds<double> _bounds = new Bounds<double>(
+    new  Point<double>(-_boundsD, -_boundsD),
+    new  Point<double>(_boundsD, _boundsD),
   );
 
-  const SphericalMercator() : super(_bounds);
+  const SphericalMercator() : super();
+
+  Bounds<double> get bounds => _bounds;
 
   Point project(LatLng latlng) {
     var d = math.PI / 180;
