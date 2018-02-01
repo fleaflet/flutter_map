@@ -19,7 +19,7 @@ abstract class Crs {
       var scale = this.scale(zoom);
       return transformation.transform(projectedPoint, scale);
     } catch(e) {
-      return null;
+      return new Point(0.0, 0.0);
     }
   }
 

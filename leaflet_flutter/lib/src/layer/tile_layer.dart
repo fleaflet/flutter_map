@@ -1,9 +1,10 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:latlong/latlong.dart';
 import 'package:leaflet_flutter/src/core/bounds.dart';
 import 'package:leaflet_flutter/src/core/point.dart';
-import 'package:leaflet_flutter/src/geo/latlng_bounds.dart';
 import 'package:leaflet_flutter/src/map/map.dart';
 import 'package:leaflet_flutter/src/core/util.dart' as util;
 import 'package:tuple/tuple.dart';
@@ -62,9 +63,14 @@ class _TileLayerState extends State<TileLayer>
   }
 
   Widget createTile(Coords coords) {
-    return new Image.network(
-      getTileUrl(coords),
+    var blankImageBytes = new Uint8List(0);
+    return new FadeInImage(
+      fadeInDuration: const Duration(milliseconds: 100),
       key: new Key(_tileCoordsToKey(coords)),
+      // here `bytes` is a Uint8List containing the bytes for the in-memory image
+      placeholder: new MemoryImage(blankImageBytes),
+      image: new NetworkImage(getTileUrl(coords)),
+      fit: BoxFit.fill,
     );
   }
 
@@ -416,11 +422,13 @@ class _TileLayerState extends State<TileLayer>
   Widget _initTile(Widget tile, Coords coords, Point point) {
     var tileSize = getTileSize();
     var pos = (point + _level.translatePoint).multiplyBy(_level.scale);
+    var width = tileSize.x.roundToDouble() * _level.scale;
+    var height = tileSize.y.roundToDouble() * _level.scale;
     return new Positioned(
       left: pos.x,
       top: pos.y,
-      width: tileSize.x.roundToDouble() * _level.scale,
-      height: tileSize.y.roundToDouble() * _level.scale,
+      width: width,
+      height: height,
       child: new Container(
         child: tile,
       ),
