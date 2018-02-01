@@ -273,7 +273,10 @@ class _TileLayerState extends State<TileLayer>
       return (a.distanceTo(tileCenter) - b.distanceTo(tileCenter)).toInt();
     });
 
-    tiles.clear();
+    const maxLength = 12;
+    var numExtraTiles = tiles.length - maxLength;
+    if (numExtraTiles < 0) numExtraTiles = 0;
+    tiles = tiles.sublist(numExtraTiles);
     if (queue.length > 0) {
       for (var i = 0; i < queue.length; i++) {
         _addTile(queue[i]);
@@ -308,7 +311,7 @@ class _TileLayerState extends State<TileLayer>
   void _handleScaleUpdate(ScaleUpdateDetails details) {
     setState(() {
       var dScale = details.scale;
-      for (var i =0; i < 4; i++) {
+      for (var i =0; i < 2; i++) {
         dScale = math.sqrt(dScale);
       }
       var dx = _panStart.dx - details.focalPoint.dx;
