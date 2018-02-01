@@ -42,8 +42,6 @@ class TileLayer extends StatefulWidget {
 class _TileLayerState extends State<TileLayer> {
   MapState get map => widget.mapState;
   TileLayerOptions get options => widget.options;
-//  Point _tileSize;
-//  Bounds _globalTileRange;
   Tuple2<double, double> _wrapX;
   Tuple2<double, double> _wrapY;
   double _tileZoom;
@@ -173,13 +171,7 @@ class _TileLayerState extends State<TileLayer> {
     var map = this.map;
     var crs = map.options.crs;
     var tileSize = this.getTileSize();
-//    this._tileSize = tileSize;
     var tileZoom = _tileZoom;
-
-    var bounds = map.getPixelWorldBounds(_tileZoom);
-    if (bounds != null) {
-//      _globalTileRange = _pxBoundsToTileRange(bounds);
-    }
 
     // wrapping
     this._wrapX = crs.wrapLng;
@@ -249,13 +241,6 @@ class _TileLayerState extends State<TileLayer> {
 
         // Add all valid tiles to the queue on Flutter
         queue.add(coords);
-
-//        var tile = _tiles[_tileCoordsToKey(coords)];
-//        if (tile != null) {
-//          tile.current = true;
-//        } else {
-//          queue.add(coords);
-//        }
       }
     }
 
@@ -296,27 +281,6 @@ class _TileLayerState extends State<TileLayer> {
       ),
     );
     tiles.add(centerWidget);
-//    var level = _level;
-//    var levelWidget = new Positioned(
-//      key: new Key(map.zoom.toString()),
-//      left: level?.origin?.x?.roundToDouble() ?? 0.0,
-//      top: level?.origin?.y?.roundToDouble() ?? 0.0,
-//      right: 0.0,
-//      bottom: 0.0,
-//      child: new Stack(children: tiles),
-//    );
-
-//    var level = new Positioned(
-//      left: _level.translatePoint.x,
-//      top: _level.translatePoint.y,
-////      width: _level.scale
-//      child: new Container(
-//        width: 186.0,
-//        height: 186.0,
-//        child: new Stack(children: tiles),
-//        color: Colors.blue,
-//      ),
-//    );
 
     return new GestureDetector(
       onScaleStart: _handleScaleStart,
@@ -373,23 +337,6 @@ class _TileLayerState extends State<TileLayer> {
   }
 
   bool _isValidTile(Coords coords) {
-    // TODO: determine why _globalTileRange / _pxBoundsToTileRange produces a
-    // range of this format:
-    //
-    // min: (0, 8192)
-    // max: (8191, 0)
-
-//    var crs = map.options.crs;
-//    if (!crs.infinite) {
-//      var bounds = this._globalTileRange;
-//      if ((crs.wrapLng == null &&
-//              (coords.x < bounds.min.x || coords.x > bounds.max.x)) ||
-//          (crs.wrapLat == null &&
-//              (coords.y < bounds.min.y || coords.y > bounds.max.y))) {
-//        return false;
-//      }
-//    }
-
     return true;
   }
 
