@@ -39,7 +39,8 @@ class TileLayer extends StatefulWidget {
   }
 }
 
-class _TileLayerState extends State<TileLayer> {
+class _TileLayerState extends State<TileLayer>
+    with SingleTickerProviderStateMixin {
   MapState get map => widget.mapState;
   TileLayerOptions get options => widget.options;
   Tuple2<double, double> _wrapX;
@@ -54,6 +55,8 @@ class _TileLayerState extends State<TileLayer> {
   void initState() {
     super.initState();
     _resetView();
+    _controller = new AnimationController(vsync: this)
+      ..addListener(_handleFlingAnimation);
   }
 
   Widget createTile(Coords coords) {
@@ -255,13 +258,16 @@ class _TileLayerState extends State<TileLayer> {
       }
     }
 
+    // The map's scale
     var scale = map.getZoomScale(map.zoom, _level.zoom);
+    // the center of the map in global pixel coordinates
     var pixelOrigin = map.getNewPixelOrigin(map.center, map.zoom).round();
-    var levelPoint = _level.origin.multiplyBy(scale) - pixelOrigin;
+    // the level's origin relative to the center of the map.
+    var levelPoint = _level.origin - pixelOrigin;
 
     var levelWidget = new Positioned(
-      left: levelPoint.x,
-      top: levelPoint.y,
+      left: -levelPoint.x,
+      top: -levelPoint.y,
       child: new Container(
         color: Colors.lightBlue,
         width: 5.0,
@@ -270,7 +276,7 @@ class _TileLayerState extends State<TileLayer> {
     );
     tiles.add(levelWidget);
 
-    var centerPoint = map.project(map.center) - this._level.origin + _level.translatePoint;
+    var centerPoint = map.project(map.center) - pixelOrigin;
     var centerWidget = new Positioned(
       left: centerPoint.x,
       top: centerPoint.y,
@@ -296,11 +302,14 @@ class _TileLayerState extends State<TileLayer> {
   }
 
   Offset _panStart = new Offset(0.0, 0.0);
-  double _mapZoomStart = 1.0;
+  double _mapZoomStart;
+  Point _mapStartPoint;
   void _handleScaleStart(ScaleStartDetails details) {
     setState(() {
+      _mapStartPoint = map.project(map.center);
       _mapZoomStart = map.zoom;
       _panStart = details.focalPoint;
+      _controller.stop();
     });
   }
 
@@ -309,15 +318,41 @@ class _TileLayerState extends State<TileLayer> {
       var dScale = details.scale;
       var dx = _panStart.dx - details.focalPoint.dx;
       var dy = _panStart.dy - details.focalPoint.dy;
-      var newCenterPoint = map.project(map.center) - new Point(dx, dy);
-      var newCenter = map.unproject(newCenterPoint);
+      _offset = new Offset(dx, dy);
       var newZoom = _mapZoomStart * dScale;
+      var newCenterPoint = _mapStartPoint + new Point(dx, dy);
+      var newCenter = map.unproject(newCenterPoint);
       map.move(newCenter, newZoom);
     });
   }
 
+  Offset _offset = new Offset(0.0, 0.0);
+  AnimationController _controller;
+  Animation<Offset> _flingAnimation;
+  static const double _kMinFlingVelocity = 800.0;
+
   void _handleScaleEnd(ScaleEndDetails details) {
-    setState(() {});
+    final double magnitude = details.velocity.pixelsPerSecond.distance;
+    if (magnitude < _kMinFlingVelocity)
+      return;
+    final Offset direction = details.velocity.pixelsPerSecond / magnitude;
+    final double distance = (Offset.zero & context.size).shortestSide;
+    _flingAnimation = new Tween<Offset>(
+        begin: _offset,
+        end: _offset - direction * distance
+    ).animate(_controller);
+    _controller
+      ..value = 0.0
+      ..fling(velocity: magnitude / 1000.0);
+  }
+
+  void _handleFlingAnimation() {
+    setState(() {
+      _offset = _flingAnimation.value;
+      var newCenterPoint = _mapStartPoint + new Point(_offset.dx, _offset.dy);
+      var newCenter = map.unproject(newCenterPoint);
+      map.move(newCenter, map.zoom);
+    });
   }
 
   Bounds _getTiledPixelBounds(LatLng center) {
@@ -346,13 +381,10 @@ class _TileLayerState extends State<TileLayer> {
 
   Widget _initTile(Widget tile, Coords coords, Point point) {
     var tileSize = getTileSize();
-    var left =
-        point.x.roundToDouble() - (_level.translatePoint.x * _level.scale);
-    var top =
-        point.y.roundToDouble() - (_level.translatePoint.y * _level.scale);
+    var pos = (point + _level.translatePoint).multiplyBy(_level.scale);
     return new Positioned(
-      left: left,
-      top: top,
+      left: pos.x,
+      top: pos.y,
       width: tileSize.x.roundToDouble() * _level.scale,
       height: tileSize.y.roundToDouble() * _level.scale,
       child: new Container(
