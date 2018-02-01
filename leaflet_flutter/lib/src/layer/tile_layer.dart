@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:latlong/latlong.dart';
@@ -292,9 +293,9 @@ class _TileLayerState extends State<TileLayer>
     );
   }
 
+  Point _mapStartPoint;
   Offset _panStart = new Offset(0.0, 0.0);
   double _mapZoomStart;
-  Point _mapStartPoint;
   void _handleScaleStart(ScaleStartDetails details) {
     setState(() {
       _mapStartPoint = map.project(map.center);
@@ -307,6 +308,9 @@ class _TileLayerState extends State<TileLayer>
   void _handleScaleUpdate(ScaleUpdateDetails details) {
     setState(() {
       var dScale = details.scale;
+      for (var i =0; i < 4; i++) {
+        dScale = math.sqrt(dScale);
+      }
       var dx = _panStart.dx - details.focalPoint.dx;
       var dy = _panStart.dy - details.focalPoint.dy;
       _offset = new Offset(dx, dy);
