@@ -10,6 +10,7 @@ class MapOptions {
   final double minZoom;
   final double maxZoom;
   final List<LayerOptions> layers;
+  final bool debug;
   LatLng center;
 
   MapOptions({
@@ -19,6 +20,7 @@ class MapOptions {
     this.minZoom,
     this.maxZoom,
     this.layers,
+    this.debug = false,
   }) {
     if (center == null) center = new LatLng(50.5, 30.51);
   }

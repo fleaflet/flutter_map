@@ -283,6 +283,10 @@ class _TileLayerState extends State<TileLayer>
       }
     }
 
+    if (map.options.debug) {
+      _addDebugTiles();
+    }
+
     return new GestureDetector(
       onScaleStart: _handleScaleStart,
       onScaleUpdate: _handleScaleUpdate,
@@ -311,7 +315,7 @@ class _TileLayerState extends State<TileLayer>
   void _handleScaleUpdate(ScaleUpdateDetails details) {
     setState(() {
       var dScale = details.scale;
-      for (var i =0; i < 2; i++) {
+      for (var i = 0; i < 2; i++) {
         dScale = math.sqrt(dScale);
       }
       var dx = _panStart.dx - details.focalPoint.dx;
@@ -329,6 +333,38 @@ class _TileLayerState extends State<TileLayer>
         map.move(newCenter, map.zoom);
       }
     });
+  }
+
+  List<Widget> _addDebugTiles() {
+    // The map's scale
+    var scale = map.getZoomScale(map.zoom, _level.zoom);
+    // the center of the map in global pixel coordinates
+    var pixelOrigin = map.getNewPixelOrigin(map.center, map.zoom).round();
+    // the level's origin relative to the center of the map.
+    var levelPoint = _level.origin.multiplyBy(scale) - pixelOrigin;
+
+    var levelWidget = new Positioned(
+      left: levelPoint.x,
+      top: levelPoint.y,
+      child: new Container(
+        color: Colors.lightBlue,
+        width: 5.0,
+        height: 5.0,
+      ),
+    );
+    tiles.add(levelWidget);
+
+    var centerPoint = map.project(map.center) - pixelOrigin;
+    var centerWidget = new Positioned(
+      left: centerPoint.x,
+      top: centerPoint.y,
+      child: new Container(
+        color: Colors.red,
+        width: 5.0,
+        height: 5.0,
+      ),
+    );
+    tiles.add(centerWidget);
   }
 
   Offset _offset = new Offset(0.0, 0.0);
@@ -398,9 +434,9 @@ class _TileLayerState extends State<TileLayer>
 
   Widget _initTile(Widget tile, Coords coords, Point point) {
     var tileSize = getTileSize();
-    var pos = (point + _level.translatePoint).multiplyBy(_level.scale);
-    var width = tileSize.x.roundToDouble() * _level.scale;
-    var height = tileSize.y.roundToDouble() * _level.scale;
+    var pos = (point).multiplyBy(_level.scale) + _level.translatePoint;
+    var width = tileSize.x * _level.scale;
+    var height = tileSize.y * _level.scale;
     return new Positioned(
       left: pos.x,
       top: pos.y,
