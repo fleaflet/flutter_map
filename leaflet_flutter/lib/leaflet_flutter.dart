@@ -21,16 +21,18 @@ class Leaflet extends StatefulWidget {
 
 class LeafletState extends State<Leaflet> {
   MapOptions get options => widget.options;
+  MapState mapState;
 
   initState() {
     super.initState();
+    mapState = new MapState(options);
   }
 
   Widget build(BuildContext context) {
     return new LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
-      var mapState = new MapState(options);
-      mapState.size = new Point<double>(constraints.maxWidth, constraints.maxHeight);
+      mapState.size =
+          new Point<double>(constraints.maxWidth, constraints.maxHeight);
       return new Container(
         child: new Stack(
           children: widget.layers

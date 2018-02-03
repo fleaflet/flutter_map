@@ -18,7 +18,7 @@ abstract class Crs {
       var projectedPoint = this.projection.project(latlng);
       var scale = this.scale(zoom);
       return transformation.transform(projectedPoint, scale);
-    } catch(e) {
+    } catch (e) {
       return new Point(0.0, 0.0);
     }
   }
@@ -27,9 +27,8 @@ abstract class Crs {
     var scale = this.scale(zoom);
     var untransformedPoint = this.transformation.untransform(point, scale);
     try {
-
-    return projection.unproject(untransformedPoint);
-    } catch(e) {
+      return projection.unproject(untransformedPoint);
+    } catch (e) {
       return null;
     }
   }
@@ -85,8 +84,8 @@ class SphericalMercator extends Projection {
   static const double maxLatitude = 85.0511287798;
   static const double _boundsD = r * math.PI;
   static Bounds<double> _bounds = new Bounds<double>(
-    new  Point<double>(-_boundsD, -_boundsD),
-    new  Point<double>(_boundsD, _boundsD),
+    new Point<double>(-_boundsD, -_boundsD),
+    new Point<double>(_boundsD, _boundsD),
   );
 
   const SphericalMercator() : super();

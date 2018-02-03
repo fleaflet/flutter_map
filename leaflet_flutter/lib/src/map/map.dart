@@ -32,6 +32,7 @@ class MapState {
   LatLng _lastCenter;
   Point _pixelOrigin;
   Point panOffset = new Point(0.0, 0.0);
+  bool _initialized = false;
 
   MapState(this.options);
 
@@ -39,7 +40,10 @@ class MapState {
 
   set size(Point s) {
     _size = s;
-    _init();
+    if (!_initialized) {
+      _init();
+      _initialized = true;
+    }
   }
 
   Point get size => _size;
@@ -56,7 +60,6 @@ class MapState {
       zoom = this.zoom;
     }
 
-//    var zoomChanged = this.zoom != zoom;
     this.zoom = zoom;
     this._lastCenter = center;
     this._pixelOrigin = this.getNewPixelOrigin(center);

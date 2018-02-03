@@ -335,7 +335,7 @@ class _TileLayerState extends State<TileLayer>
     });
   }
 
-  List<Widget> _addDebugTiles() {
+  void _addDebugTiles() {
     // The map's scale
     var scale = map.getZoomScale(map.zoom, _level.zoom);
     // the center of the map in global pixel coordinates
