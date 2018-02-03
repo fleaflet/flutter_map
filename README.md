@@ -2,6 +2,8 @@
 
 A flutter implementation of [leaflet](http://leafletjs.com/)
 
+![](https://raw.githubusercontent.com/apptreesoftware/fleaflet/master/docs/fleaflet_logo.png)
+
 ## Running the Example
 
 To use, you'll need a mapbox key:
