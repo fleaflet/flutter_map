@@ -4,6 +4,8 @@
 
 A flutter implementation of [leaflet].
 
+![Demo](https://i.imgur.com/QGO0Boq.gifv)
+
 ## Running the Example
 
 To use, you'll need a mapbox key:
