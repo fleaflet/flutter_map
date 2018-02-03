@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
                 layers: [
                   new TileLayerOptions(
                     urlTemplate: "https://api.tiles.mapbox.com/v4/"
-                        "{id}/{z}/{x}/{y}.png?access_token={accessToken}",
+                        "{id}/{z}/{x}/{y}@2x.png?access_token={accessToken}",
                     additionalOptions: {
                       'accessToken': 'pk.eyJ1Ijoiam9obnByeWFuIiwiYSI6ImNqY3ppYWRvdTB1bDAyeXFvaWpqN3Axa3AifQ.A5vqeiXONIqW6lD2YjXt4g',
                       'id': 'mapbox.streets',
