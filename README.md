@@ -4,7 +4,7 @@
 
 A flutter implementation of [leaflet].
 
-![Demo](https://i.imgur.com/QGO0Boq.gifv)
+![Demo](https://i.imgur.com/QGO0Boq.gif)
 
 ## Running the Example
 
