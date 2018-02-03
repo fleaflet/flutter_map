@@ -4,9 +4,9 @@
 
 A flutter implementation of [leaflet].
 
-![Screenshot](https://i.imgur.com/SXaJrL5.png)
+[Video](https://drive.google.com/file/d/14srd4ERdgRr68TtLmG6Aho9L1pGOyFF7/view?usp=sharing)
 
-[Demo Video](https://drive.google.com/file/d/14srd4ERdgRr68TtLmG6Aho9L1pGOyFF7/view?usp=sharing)
+![Screenshot](https://i.imgur.com/10mBN86.png)
 
 ## Running the Example
 
