@@ -2,7 +2,7 @@
 
 A flutter implementation of [leaflet](http://leafletjs.com/)
 
-![](https://raw.githubusercontent.com/apptreesoftware/fleaflet/master/docs/fleaflet_logo.png)
+![Fleaflet Logo](https://i.imgur.com/Q8Z6wZH.png)
 
 ## Running the Example
 
