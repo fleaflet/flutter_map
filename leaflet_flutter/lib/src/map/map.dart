@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:latlong/latlong.dart';
 import 'package:leaflet_flutter/leaflet_flutter.dart';
 import 'package:leaflet_flutter/src/core/bounds.dart';
@@ -28,15 +30,18 @@ class MapOptions {
 
 class MapState {
   final MapOptions options;
+  final StreamController<Null> _onMovedSink;
   double zoom;
   LatLng _lastCenter;
   Point _pixelOrigin;
   Point panOffset = new Point(0.0, 0.0);
   bool _initialized = false;
 
-  MapState(this.options);
+  MapState(this.options) : _onMovedSink = new StreamController.broadcast();
 
   Point _size;
+
+  Stream<Null> get onMoved => _onMovedSink.stream;
 
   set size(Point s) {
     _size = s;
@@ -63,7 +68,7 @@ class MapState {
     this.zoom = zoom;
     this._lastCenter = center;
     this._pixelOrigin = this.getNewPixelOrigin(center);
-    // todo: events
+    _onMovedSink.add(null);
   }
 
   void panBy(Point offset) {

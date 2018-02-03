@@ -32,9 +32,22 @@ class MyApp extends StatelessWidget {
                     urlTemplate: "https://api.tiles.mapbox.com/v4/"
                         "{id}/{z}/{x}/{y}@2x.png?access_token={accessToken}",
                     additionalOptions: {
-                      'accessToken': 'pk.eyJ1Ijoiam9obnByeWFuIiwiYSI6ImNqY3ppYWRvdTB1bDAyeXFvaWpqN3Axa3AifQ.A5vqeiXONIqW6lD2YjXt4g',
+                      'accessToken':
+                          'pk.eyJ1Ijoiam9obnByeWFuIiwiYSI6ImNqY3ppYWRvdTB1bDAyeXFvaWpqN3Axa3AifQ.A5vqeiXONIqW6lD2YjXt4g',
                       'id': 'mapbox.streets',
                     },
+                  ),
+                  new MarkerLayerOptions(
+                    markers: [
+                      new Marker(
+                        point: new LatLng(51.5, -0.09),
+                        builder: (ctx) => new Container(
+                              width: 20.0,
+                              height: 20.0,
+                              color: Colors.lightBlue,
+                            ),
+                      ),
+                    ],
                   ),
                 ],
               ),

@@ -8,6 +8,7 @@ import 'package:leaflet_flutter/src/map/map.dart';
 
 export 'src/layer/layer.dart';
 export 'src/layer/tile_layer.dart';
+export 'src/layer/marker_layer.dart';
 export 'src/map/map.dart';
 
 class Leaflet extends StatefulWidget {
@@ -35,13 +36,19 @@ class LeafletState extends State<Leaflet> {
           new Point<double>(constraints.maxWidth, constraints.maxHeight);
       return new Container(
         child: new Stack(
-          children: widget.layers
-              .map(
-                (opts) => new TileLayer(options: opts, mapState: mapState),
-              )
-              .toList(),
+          children: widget.layers.map(_createLayer).toList(),
         ),
       );
     });
+  }
+
+  Widget _createLayer(LayerOptions options) {
+    if (options is TileLayerOptions) {
+      return new TileLayer(options: options, mapState: mapState);
+    }
+    if (options is MarkerLayerOptions) {
+      return new MarkerLayer(options, mapState);
+    }
+    return null;
   }
 }
