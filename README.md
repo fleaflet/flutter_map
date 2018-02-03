@@ -1,8 +1,8 @@
-# Fleaflet (Experimental)
+![Fleaflet Logo](https://i.imgur.com/1bYXdK8.png)
 
-A flutter implementation of [leaflet](http://leafletjs.com/)
+**Experimental**
 
-![Fleaflet Logo](https://i.imgur.com/Q8Z6wZH.png)
+A flutter implementation of [leaflet].
 
 ## Running the Example
 
@@ -12,4 +12,5 @@ To use, you'll need a mapbox key:
 2. open leaflet_flutter_example/lib/main.dart and paste the API key into the
 `additionalOptions` map.
 
+[leaflet]: http://leafletjs.com/
 [mapbox]: https://www.mapbox.com/
