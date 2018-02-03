@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:latlong/latlong.dart';
 import 'package:fleaflet/fleaflet.dart';
+import 'package:meta/meta.dart';
 
 class MarkerLayerOptions extends LayerOptions {
   final List<Marker> markers;
@@ -10,7 +11,14 @@ class MarkerLayerOptions extends LayerOptions {
 class Marker {
   final LatLng point;
   final WidgetBuilder builder;
-  Marker({this.point, this.builder});
+  final double width;
+  final double height;
+  Marker({
+    @required this.point,
+    @required this.builder,
+    this.width = 30.0,
+    this.height = 30.0,
+  });
 }
 
 class MarkerLayer extends StatelessWidget {
@@ -30,8 +38,10 @@ class MarkerLayer extends StatelessWidget {
               map.getPixelOrigin();
           markers.add(
             new Positioned(
-              left: pos.x,
-              top: pos.y,
+              width: markerOpt.width,
+              height: markerOpt.height,
+              left: pos.x - markerOpt.width / 2,
+              top: pos.y - markerOpt.height / 2,
               child: markerOpt.builder(context),
             ),
           );
