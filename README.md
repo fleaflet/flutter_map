@@ -1,4 +1,4 @@
-# Leaflet for Flutter
+# Fleaflet (Experimental)
 
 A flutter implementation of [leaflet](http://leafletjs.com/)
 
@@ -11,4 +11,3 @@ To use, you'll need a mapbox key:
 `additionalOptions` map.
 
 [mapbox]: https://www.mapbox.com/
-

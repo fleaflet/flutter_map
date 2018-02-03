@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart' show Colors, MaterialColor;
 import 'package:flutter/widgets.dart';
-import 'package:leaflet_flutter/leaflet_flutter.dart';
+import 'package:fleaflet/fleaflet.dart';
 
 class GestureExperiment extends State<Leaflet> {
   double xOffset = 0.0;

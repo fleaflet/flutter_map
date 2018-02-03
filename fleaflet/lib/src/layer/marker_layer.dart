@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:latlong/latlong.dart';
-import 'package:leaflet_flutter/leaflet_flutter.dart';
+import 'package:fleaflet/fleaflet.dart';
 
 class MarkerLayerOptions extends LayerOptions {
   final List<Marker> markers;

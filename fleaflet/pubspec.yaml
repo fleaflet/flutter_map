@@ -1,0 +1,16 @@
+name: fleaflet
+description: A flutter implementation of Leaflet
+version: 0.0.1
+authors:
+- John Ryan <john.p.ryan4@gmail.com>
+homepage:
+- https://github.com/apptreesoftware/fleaflet
+
+dependencies:
+  flutter:
+    sdk: flutter
+  latlong: any
+  tuple: any
+
+dev_dependencies:
+  test: ^0.12.0

@@ -4,10 +4,10 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:latlong/latlong.dart';
-import 'package:leaflet_flutter/src/core/bounds.dart';
-import 'package:leaflet_flutter/src/core/point.dart';
-import 'package:leaflet_flutter/src/map/map.dart';
-import 'package:leaflet_flutter/src/core/util.dart' as util;
+import 'package:fleaflet/src/core/bounds.dart';
+import 'package:fleaflet/src/core/point.dart';
+import 'package:fleaflet/src/map/map.dart';
+import 'package:fleaflet/src/core/util.dart' as util;
 import 'package:tuple/tuple.dart';
 import 'layer.dart';
 

@@ -2,9 +2,9 @@ library leaflet_flutter;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:leaflet_flutter/leaflet_flutter.dart';
-import 'package:leaflet_flutter/src/core/point.dart';
-import 'package:leaflet_flutter/src/map/map.dart';
+import 'package:fleaflet/fleaflet.dart';
+import 'package:fleaflet/src/core/point.dart';
+import 'package:fleaflet/src/map/map.dart';
 
 export 'src/layer/layer.dart';
 export 'src/layer/tile_layer.dart';

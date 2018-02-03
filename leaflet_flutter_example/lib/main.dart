@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:latlong/latlong.dart';
-import 'package:leaflet_flutter/leaflet_flutter.dart';
+import 'package:fleaflet/fleaflet.dart';
 
 void main() => runApp(new MyApp());
 
