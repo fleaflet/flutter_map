@@ -283,10 +283,6 @@ class _TileLayerState extends State<TileLayer>
       }
     }
 
-    if (map.options.debug) {
-      _addDebugTiles();
-    }
-
     return new GestureDetector(
       onScaleStart: _handleScaleStart,
       onScaleUpdate: _handleScaleUpdate,
@@ -300,14 +296,33 @@ class _TileLayerState extends State<TileLayer>
     );
   }
 
-  Point _mapStartPoint;
-  Offset _panStart = new Offset(0.0, 0.0);
+  Point _offsetToPoint(Offset offset) {
+    return new Point(offset.dx, offset.dy);
+  }
+
+  Offset _pointToOffset(Point point) {
+    return new Offset(point.x, point.y);
+  }
+
+  LatLng _mapCenterStart;
   double _mapZoomStart;
+  Point _focalPointStart;
+
+  Offset _animationOffset = Offset.zero;
+
   void _handleScaleStart(ScaleStartDetails details) {
     setState(() {
-      _mapStartPoint = map.project(map.center);
       _mapZoomStart = map.zoom;
-      _panStart = details.focalPoint;
+      _mapCenterStart = map.center;
+
+      // Get the widget's offset
+      var renderObject = context.findRenderObject() as RenderBox;
+      var boxOffset = renderObject.localToGlobal(Offset.zero);
+
+      // determine the focal point within the widget
+      var localFocalPoint = _offsetToPoint(details.focalPoint - boxOffset);
+      _focalPointStart = localFocalPoint;
+
       _controller.stop();
     });
   }
@@ -318,77 +333,51 @@ class _TileLayerState extends State<TileLayer>
       for (var i = 0; i < 2; i++) {
         dScale = math.sqrt(dScale);
       }
-      var dx = _panStart.dx - details.focalPoint.dx;
-      var dy = _panStart.dy - details.focalPoint.dy;
-      _offset = new Offset(dx, dy);
+      var renderObject = context.findRenderObject() as RenderBox;
+      var boxOffset = renderObject.localToGlobal(Offset.zero);
+
+      // Draw the focal point
+      var localFocalPoint = _offsetToPoint(details.focalPoint - boxOffset);
+
+      // get the focal point in global coordinates
+      var dFocalPoint = localFocalPoint - _focalPointStart;
+
+      var focalCenterDistance = localFocalPoint - (map.size / 2);
+      var newCenter = map.project(_mapCenterStart) +
+          focalCenterDistance.multiplyBy(1 - 1 / dScale) -
+          dFocalPoint;
+
+      var offsetPt = newCenter - map.project(_mapCenterStart);
+      _animationOffset = _pointToOffset(offsetPt);
+
       var newZoom = _mapZoomStart * dScale;
-      var newCenterPoint = _mapStartPoint + new Point(dx, dy);
-      var newCenter = map.unproject(newCenterPoint);
-      if (newZoom != _mapZoomStart) {
-        map.move(map.center, newZoom);
-      } else {
-        if (newCenter == null) {
-          return;
-        }
-        map.move(newCenter, map.zoom);
-      }
+      map.move(map.unproject(newCenter), newZoom);
     });
   }
 
-  void _addDebugTiles() {
-    // The map's scale
-    var scale = map.getZoomScale(map.zoom, _level.zoom);
-    // the center of the map in global pixel coordinates
-    var pixelOrigin = map.getNewPixelOrigin(map.center, map.zoom).round();
-    // the level's origin relative to the center of the map.
-    var levelPoint = _level.origin.multiplyBy(scale) - pixelOrigin;
-
-    var levelWidget = new Positioned(
-      left: levelPoint.x,
-      top: levelPoint.y,
-      child: new Container(
-        color: Colors.lightBlue,
-        width: 5.0,
-        height: 5.0,
-      ),
-    );
-    tiles.add(levelWidget);
-
-    var centerPoint = map.project(map.center) - pixelOrigin;
-    var centerWidget = new Positioned(
-      left: centerPoint.x,
-      top: centerPoint.y,
-      child: new Container(
-        color: Colors.red,
-        width: 5.0,
-        height: 5.0,
-      ),
-    );
-    tiles.add(centerWidget);
-  }
-
-  Offset _offset = new Offset(0.0, 0.0);
   AnimationController _controller;
   Animation<Offset> _flingAnimation;
-  static const double _kMinFlingVelocity = 800.0;
+  static const double _kMinFlingVelocity = 1.0;
 
   void _handleScaleEnd(ScaleEndDetails details) {
     final double magnitude = details.velocity.pixelsPerSecond.distance;
     if (magnitude < _kMinFlingVelocity) return;
     final Offset direction = details.velocity.pixelsPerSecond / magnitude;
     final double distance = (Offset.zero & context.size).shortestSide;
-    _flingAnimation =
-        new Tween<Offset>(begin: _offset, end: _offset - direction * distance)
-            .animate(_controller);
+    _flingAnimation = new Tween<Offset>(
+            begin: _animationOffset,
+            end: _animationOffset - direction * distance)
+        .animate(_controller);
     _controller
       ..value = 0.0
-      ..fling(velocity: magnitude / 1000.0);
+      ..fling(velocity: magnitude / 2000.0);
   }
 
   void _handleFlingAnimation() {
     setState(() {
-      _offset = _flingAnimation.value;
-      var newCenterPoint = _mapStartPoint + new Point(_offset.dx, _offset.dy);
+      _animationOffset = _flingAnimation.value;
+      var newCenterPoint = map.project(_mapCenterStart) +
+          new Point(_animationOffset.dx, _animationOffset.dy);
       var newCenter = map.unproject(newCenterPoint);
       map.move(newCenter, map.zoom);
     });
@@ -421,10 +410,6 @@ class _TileLayerState extends State<TileLayer>
         return false;
       }
     }
-
-    // don't load tile if it doesn't intersect the bounds in options
-//    var tileBounds = this._tileCoordsToBounds(coords);
-//    return latLngBounds(this.options.bounds).overlaps(tileBounds);
     return true;
   }
 

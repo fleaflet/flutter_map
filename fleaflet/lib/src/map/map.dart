@@ -34,7 +34,6 @@ class MapState {
   double zoom;
   LatLng _lastCenter;
   Point _pixelOrigin;
-  Point panOffset = new Point(0.0, 0.0);
   bool _initialized = false;
 
   MapState(this.options) : _onMovedSink = new StreamController.broadcast();
@@ -43,6 +42,7 @@ class MapState {
 
   Stream<Null> get onMoved => _onMovedSink.stream;
 
+  Point get size => _size;
   set size(Point s) {
     _size = s;
     if (!_initialized) {
@@ -50,8 +50,6 @@ class MapState {
       _initialized = true;
     }
   }
-
-  Point get size => _size;
 
   LatLng get center => getCenter() ?? options.center;
 
@@ -69,14 +67,6 @@ class MapState {
     this._lastCenter = center;
     this._pixelOrigin = this.getNewPixelOrigin(center);
     _onMovedSink.add(null);
-  }
-
-  void panBy(Point offset) {
-    panOffset += offset;
-  }
-
-  void panTo(Point offset) {
-    panOffset = offset;
   }
 
   LatLng getCenter() {
