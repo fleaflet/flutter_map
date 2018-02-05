@@ -9,7 +9,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: 'Leaflet example',
+      title: 'Fleaflet',
       theme: new ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -30,8 +30,7 @@ class MyApp extends StatelessWidget {
                   urlTemplate: "https://api.tiles.mapbox.com/v4/"
                       "{id}/{z}/{x}/{y}@2x.png?access_token={accessToken}",
                   additionalOptions: {
-                    'accessToken':
-                        'pk.eyJ1Ijoiam9obnByeWFuIiwiYSI6ImNqY3ppYWRvdTB1bDAyeXFvaWpqN3Axa3AifQ.A5vqeiXONIqW6lD2YjXt4g',
+                    'accessToken': '<PUT_ACCESS_TOKEN_HERE>',
                     'id': 'mapbox.streets',
                   },
                 ),
