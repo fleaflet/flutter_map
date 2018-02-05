@@ -2,25 +2,25 @@ library leaflet_flutter;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:fleaflet/fleaflet.dart';
-import 'package:fleaflet/src/core/point.dart';
-import 'package:fleaflet/src/map/map.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/core/point.dart';
+import 'package:flutter_map/src/map/map.dart';
 
 export 'src/layer/layer.dart';
 export 'src/layer/tile_layer.dart';
 export 'src/layer/marker_layer.dart';
 export 'src/map/map.dart';
 
-class Leaflet extends StatefulWidget {
+class FlutterMap extends StatefulWidget {
   final List<LayerOptions> layers;
   final MapOptions options;
-  Leaflet({this.options, this.layers});
+  FlutterMap({this.options, this.layers});
   State<StatefulWidget> createState() {
-    return new LeafletState();
+    return new _FlutterMapState();
   }
 }
 
-class LeafletState extends State<Leaflet> {
+class _FlutterMapState extends State<FlutterMap> {
   MapOptions get options => widget.options;
   MapState mapState;
 

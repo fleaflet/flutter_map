@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:latlong/latlong.dart';
-import 'package:fleaflet/fleaflet.dart';
+import 'package:flutter_map/flutter_map.dart';
 
 void main() => runApp(new MyApp());
 
@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
         body: new Center(
           child: new Padding(
             padding: new EdgeInsets.all(8.0),
-            child: new Leaflet(
+            child: new FlutterMap(
               options: new MapOptions(
                 center: new LatLng(51.5, -0.09),
                 zoom: 13.0,
@@ -49,7 +49,7 @@ class MyApp extends StatelessWidget {
                       height: 80.0,
                       point: new LatLng(51.51, -0.10),
                       builder: (ctx) => new Container(
-                            child: new FlutterLogo(),
+                            child: new FlutterLogo(colors: Colors.green,),
                           ),
                     ),
                     new Marker(
@@ -57,7 +57,7 @@ class MyApp extends StatelessWidget {
                       height: 80.0,
                       point: new LatLng(51.52, -0.08),
                       builder: (ctx) => new Container(
-                            child: new FlutterLogo(),
+                            child: new FlutterLogo(colors: Colors.purple),
                           ),
                     ),
                   ],

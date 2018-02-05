@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:latlong/latlong.dart';
-import 'package:fleaflet/fleaflet.dart';
-import 'package:fleaflet/src/core/bounds.dart';
-import 'package:fleaflet/src/core/point.dart';
-import 'package:fleaflet/src/geo/crs/crs.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/core/bounds.dart';
+import 'package:flutter_map/src/core/point.dart';
+import 'package:flutter_map/src/geo/crs/crs.dart';
 
 class MapOptions {
   final Crs crs;

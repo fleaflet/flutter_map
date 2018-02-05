@@ -1,4 +1,4 @@
-import 'package:fleaflet/src/core/util.dart';
+import 'package:flutter_map/src/core/util.dart';
 import 'package:test/test.dart';
 
 void main() {

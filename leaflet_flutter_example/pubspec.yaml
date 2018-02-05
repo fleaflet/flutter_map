@@ -1,12 +1,12 @@
-name: leaflet_flutter_example
+name: flutter_map_example
 description: A new Flutter project.
 
 dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^0.1.0
-  fleaflet:
-    path: ../fleaflet
+  flutter_map:
+    path: ../flutter_map
 
 dev_dependencies:
   flutter_test:
