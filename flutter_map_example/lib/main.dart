@@ -49,7 +49,9 @@ class MyApp extends StatelessWidget {
                       height: 80.0,
                       point: new LatLng(51.51, -0.10),
                       builder: (ctx) => new Container(
-                            child: new FlutterLogo(colors: Colors.green,),
+                            child: new FlutterLogo(
+                              colors: Colors.green,
+                            ),
                           ),
                     ),
                     new Marker(
