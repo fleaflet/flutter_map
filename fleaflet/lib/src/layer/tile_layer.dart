@@ -357,7 +357,7 @@ class _TileLayerState extends State<TileLayer>
 
   AnimationController _controller;
   Animation<Offset> _flingAnimation;
-  static const double _kMinFlingVelocity = 1.0;
+  static const double _kMinFlingVelocity = 800.0;
 
   void _handleScaleEnd(ScaleEndDetails details) {
     final double magnitude = details.velocity.pixelsPerSecond.distance;
@@ -370,7 +370,7 @@ class _TileLayerState extends State<TileLayer>
         .animate(_controller);
     _controller
       ..value = 0.0
-      ..fling(velocity: magnitude / 2000.0);
+      ..fling(velocity: magnitude / 1000.0);
   }
 
   void _handleFlingAnimation() {
