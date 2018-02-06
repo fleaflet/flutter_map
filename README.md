@@ -18,3 +18,24 @@ To use, you'll need a mapbox key:
 
 [leaflet]: http://leafletjs.com/
 [mapbox]: https://www.mapbox.com/
+
+
+
+## Features
+This package is under active development. 
+The following roadmap is focused on the features we require at AppTree. We welcome
+any contributions for items both on and off of the roadmap.
+
+[x] - Inline maps
+[x] - Pinch to zoom
+[x] - Panning
+[x] - Markers
+[ ] - Package structure cleanup
+[ ] - Improve pinch to zoom ( zoom directly to focal point )
+[ ] - Zooming removes too many tiles from other levels
+[ ] - Improve image fetching & caching
+[ ] - UI Settings support ( disable pan/zoom etc.)
+[ ] - Current location support
+[ ] - Documentation
+[ ] - Polylines
+
