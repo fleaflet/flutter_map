@@ -55,7 +55,22 @@ Configure the map using `MapOptions` and layer options:
 
 see the `flutter_map_example/` folder for a working example app.
 
-## Running the Example
+## Mapbox tiles
+
+The example uses OpenStreetMap tiles. Use TileLayerOptions to configure other
+tile providers:
+
+```dart
+new TileLayerOptions(
+  urlTemplate: "https://api.tiles.mapbox.com/v4/"
+      "{id}/{z}/{x}/{y}@2x.png?access_token={accessToken}",
+  additionalOptions: {
+    'accessToken': '<PUT_ACCESS_TOKEN_HERE>',
+    'id': 'mapbox.streets',
+  },
+),
+```
+
 
 To use, you'll need a mapbox key:
 
