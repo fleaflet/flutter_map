@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:latlong/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:meta/meta.dart';
 
 class MarkerLayerOptions extends LayerOptions {
   final List<Marker> markers;
@@ -14,8 +13,8 @@ class Marker {
   final double width;
   final double height;
   Marker({
-    @required this.point,
-    @required this.builder,
+    this.point,
+    this.builder,
     this.width = 30.0,
     this.height = 30.0,
   });
