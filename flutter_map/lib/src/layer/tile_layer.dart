@@ -9,6 +9,7 @@ import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/core/util.dart' as util;
 import 'package:tuple/tuple.dart';
+import 'package:quiver/core.dart';
 import 'layer.dart';
 
 class TileLayerOptions extends LayerOptions {
@@ -50,7 +51,6 @@ class _TileLayerState extends State<TileLayer>
   Tuple2<double, double> _wrapX;
   Tuple2<double, double> _wrapY;
   double _tileZoom;
-  List<Widget> tiles = [];
   Level _level;
 
   Map<String, Tile> _tiles = {};
@@ -63,37 +63,14 @@ class _TileLayerState extends State<TileLayer>
       ..addListener(_handleFlingAnimation);
   }
 
-  Widget createTile(Coords coords) {
-    var blankImageBytes = new Uint8List(0);
-    return new FadeInImage(
-      fadeInDuration: const Duration(milliseconds: 100),
-      key: new Key(_tileCoordsToKey(coords)),
-      // here `bytes` is a Uint8List containing the bytes for the in-memory image
-      placeholder: new MemoryImage(blankImageBytes),
-      image: new NetworkImage(getTileUrl(coords)),
-      fit: BoxFit.fill,
-    );
-  }
-
   String getTileUrl(Coords coords) {
     var data = <String, String>{
       'x': coords.x.round().toString(),
       'y': coords.y.round().toString(),
-      'z': _getZoomForUrl().round().toString(),
+      'z': coords.z.round().toString(),
     };
     var allOpts = new Map.from(data)..addAll(this.options.additionalOptions);
     return util.template(this.options.urlTemplate, allOpts);
-  }
-
-  double _getZoomForUrl() {
-    var zoom = _tileZoom;
-    var maxZoom = options.maxZoom;
-    var zoomReverse = options.zoomReverse;
-    var zoomOffset = options.zoomOffset;
-    if (zoomReverse == true) {
-      zoom = maxZoom - zoom;
-    }
-    return zoom + zoomOffset;
   }
 
   void _resetView() {
@@ -124,9 +101,9 @@ class _TileLayerState extends State<TileLayer>
         toRemove.add(z);
       }
     }
+
     for (var z in toRemove) {
       _removeTilesAtZoom(z);
-      _levels.remove(z);
     }
 
     var level = _levels[zoom];
@@ -184,7 +161,7 @@ class _TileLayerState extends State<TileLayer>
     if (tile == null) {
       return;
     }
-    _tiles.remove(key);
+    _tiles[key].current = false;
   }
 
   _resetGrid() {
@@ -237,7 +214,6 @@ class _TileLayerState extends State<TileLayer>
     return new Point(options.tileSize, options.tileSize);
   }
 
-  // Gridlayer._update()
   Widget build(BuildContext context) {
     var pixelBounds = _getTiledPixelBounds(map.center);
     var tileRange = _pxBoundsToTileRange(pixelBounds);
@@ -252,7 +228,6 @@ class _TileLayerState extends State<TileLayer>
       }
     }
 
-    // if the zoom level differs, call _setView to reset levels and prune old tiles...
     _setView(map.center, map.zoom);
 
     for (var j = tileRange.min.y; j <= tileRange.max.y; j++) {
@@ -269,18 +244,33 @@ class _TileLayerState extends State<TileLayer>
       }
     }
 
-    queue.sort((a, b) {
+    if (queue.length > 0) {
+      for (var i = 0; i < queue.length; i++) {
+        _tiles[_tileCoordsToKey(queue[i])] =
+            new Tile(_wrapCoords(queue[i]), true);
+      }
+    }
+
+    var tilesToRender = <Tile>[];
+    for (var tile in _tiles.values) {
+      if ((tile.coords.z - _level.zoom).abs() > 1) {
+        continue;
+      }
+      tilesToRender.add(tile);
+    }
+    tilesToRender.sort((aTile, bTile) {
+      var a = aTile.coords;
+      var b = bTile.coords;
+      // a = 13, b = 12, b is less than a, the result should be positive.
+      if (a.z != b.z) {
+        return (b.z - a.z).toInt();
+      }
       return (a.distanceTo(tileCenter) - b.distanceTo(tileCenter)).toInt();
     });
 
-    const maxLength = 12;
-    var numExtraTiles = tiles.length - maxLength;
-    if (numExtraTiles < 0) numExtraTiles = 0;
-    tiles = tiles.sublist(numExtraTiles);
-    if (queue.length > 0) {
-      for (var i = 0; i < queue.length; i++) {
-        _addTile(queue[i]);
-      }
+    var tileWidgets = <Widget>[];
+    for (var tile in tilesToRender) {
+      tileWidgets.add(_createTileWidget(tile.coords));
     }
 
     return new GestureDetector(
@@ -289,7 +279,7 @@ class _TileLayerState extends State<TileLayer>
       onScaleEnd: _handleScaleEnd,
       child: new Container(
         child: new Stack(
-          children: tiles,
+          children: tileWidgets,
         ),
         color: Colors.grey[300],
       ),
@@ -417,31 +407,31 @@ class _TileLayerState extends State<TileLayer>
     return "${coords.x}:${coords.y}:${coords.z}";
   }
 
-  Widget _initTile(Widget tile, Coords coords, Point point) {
+  Widget _createTileWidget(Coords coords) {
+    var tilePos = _getTilePos(coords);
+    var level = _levels[coords.z];
     var tileSize = getTileSize();
-    var pos = (point).multiplyBy(_level.scale) + _level.translatePoint;
-    var width = tileSize.x * _level.scale;
-    var height = tileSize.y * _level.scale;
+    var pos = (tilePos).multiplyBy(level.scale) + level.translatePoint;
+    var width = tileSize.x * level.scale;
+    var height = tileSize.y * level.scale;
+    var blankImageBytes = new Uint8List(0);
+
     return new Positioned(
       left: pos.x,
       top: pos.y,
       width: width,
       height: height,
       child: new Container(
-        child: tile,
+        child: new FadeInImage(
+          fadeInDuration: const Duration(milliseconds: 100),
+          key: new Key(_tileCoordsToKey(coords)),
+          // here `bytes` is a Uint8List containing the bytes for the in-memory image
+          placeholder: new MemoryImage(blankImageBytes),
+          image: new NetworkImage(getTileUrl(coords)),
+          fit: BoxFit.fill,
+        ),
       ),
     );
-  }
-
-  void _addTile(Coords coords) {
-    var tilePos = _getTilePos(coords);
-    var tile = createTile(_wrapCoords(coords));
-    tile = _initTile(tile, coords, tilePos);
-    var key = _tileCoordsToKey(coords);
-    _tiles[key] = new Tile(null, coords, true);
-    setState(() {
-      this.tiles.add(tile);
-    });
   }
 
   _wrapCoords(Coords coords) {
@@ -458,15 +448,15 @@ class _TileLayerState extends State<TileLayer>
   }
 
   Point _getTilePos(Coords coords) {
-    return coords.scaleBy(this.getTileSize()) - this._level.origin;
+    var level = _levels[coords.z];
+    return coords.scaleBy(this.getTileSize()) - level.origin;
   }
 }
 
 class Tile {
-  final el;
-  final coords;
+  final Coords coords;
   bool current;
-  Tile(this.el, this.coords, this.current);
+  Tile(this.coords, this.current);
 }
 
 class Level {
@@ -482,4 +472,12 @@ class Coords<T extends num> extends Point<T> {
   T z;
   Coords(T x, T y) : super(x, y);
   String toString() => 'Coords($x, $y, $z)';
+  bool operator ==(other) {
+    if (other is Coords) {
+      return this.x == other.x && this.y == other.y && this.z == other.z;
+    }
+    return false;
+  }
+
+  int get hashCode => hash3(x, y, z);
 }
