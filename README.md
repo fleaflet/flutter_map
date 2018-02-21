@@ -92,7 +92,7 @@ any contributions for items both on and off of the roadmap.
 - [x] Markers
 - [ ] Package structure cleanup
 - [ ] Improve pinch to zoom ( zoom directly to focal point )
-- [ ] Zooming removes too many tiles from other levels
+- [x] Zooming removes too many tiles from other levels
 - [ ] Improve image fetching & caching
 - [ ] UI Settings support ( disable pan/zoom etc.)
 - [ ] Current location support
