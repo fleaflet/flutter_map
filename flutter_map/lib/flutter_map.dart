@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/point.dart';
+import 'package:flutter_map/src/gestures/gestures.dart';
 import 'package:flutter_map/src/map/map.dart';
 
 export 'src/layer/layer.dart';
@@ -20,7 +21,8 @@ class FlutterMap extends StatefulWidget {
   }
 }
 
-class _FlutterMapState extends State<FlutterMap> {
+class _FlutterMapState extends State<FlutterMap>
+    with MapGestureMixin, SingleTickerProviderStateMixin {
   MapOptions get options => widget.options;
   MapState mapState;
 
@@ -34,9 +36,16 @@ class _FlutterMapState extends State<FlutterMap> {
         builder: (BuildContext context, BoxConstraints constraints) {
       mapState.size =
           new Point<double>(constraints.maxWidth, constraints.maxHeight);
-      return new Container(
-        child: new Stack(
-          children: widget.layers.map(_createLayer).toList(),
+      var layerWidgets = widget.layers.map(_createLayer).toList();
+      return new GestureDetector(
+        onScaleStart: handleScaleStart,
+        onScaleUpdate: handleScaleUpdate,
+        onScaleEnd: handleScaleEnd,
+        onTapUp: handleTapUp,
+        child: new Container(
+          child: new Stack(
+            children: layerWidgets,
+          ),
         ),
       );
     });

@@ -6,6 +6,8 @@ import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/geo/crs/crs.dart';
 
+typedef TapCallback(LatLng point);
+
 class MapOptions {
   final Crs crs;
   final double zoom;
@@ -13,6 +15,8 @@ class MapOptions {
   final double maxZoom;
   final List<LayerOptions> layers;
   final bool debug;
+  final bool interactive;
+  final TapCallback onTap;
   LatLng center;
 
   MapOptions({
@@ -23,6 +27,8 @@ class MapOptions {
     this.maxZoom,
     this.layers,
     this.debug = false,
+    this.interactive = true,
+    this.onTap,
   }) {
     if (center == null) center = new LatLng(50.5, 30.51);
   }
@@ -30,17 +36,18 @@ class MapOptions {
 
 class MapState {
   final MapOptions options;
-  final StreamController<Null> _onMovedSink;
+  final StreamController<Null> _onMoveSink;
+
   double zoom;
   LatLng _lastCenter;
   Point _pixelOrigin;
   bool _initialized = false;
 
-  MapState(this.options) : _onMovedSink = new StreamController.broadcast();
+  MapState(this.options) : _onMoveSink = new StreamController.broadcast();
 
   Point _size;
 
-  Stream<Null> get onMoved => _onMovedSink.stream;
+  Stream<Null> get onMoved => _onMoveSink.stream;
 
   Point get size => _size;
   set size(Point s) {
@@ -66,7 +73,7 @@ class MapState {
     this.zoom = zoom;
     this._lastCenter = center;
     this._pixelOrigin = this.getNewPixelOrigin(center);
-    _onMovedSink.add(null);
+    _onMoveSink.add(null);
   }
 
   LatLng getCenter() {
