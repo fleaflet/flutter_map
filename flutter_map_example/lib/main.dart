@@ -74,7 +74,8 @@ class HomePage extends StatelessWidget {
                 layers: [
                   new TileLayerOptions(
                     urlTemplate:
-                        "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                    subdomains: ['a','b','c']
                   ),
                   new MarkerLayerOptions(markers: markers)
                 ],
