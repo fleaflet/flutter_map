@@ -17,7 +17,9 @@ class TileLayerOptions extends LayerOptions {
   final double maxZoom;
   final bool zoomReverse;
   final double zoomOffset;
+  final List<String> subdomains;
   Map<String, String> additionalOptions;
+
   TileLayerOptions({
     this.urlTemplate,
     this.tileSize = 256.0,
@@ -25,6 +27,7 @@ class TileLayerOptions extends LayerOptions {
     this.zoomReverse = false,
     this.zoomOffset = 0.0,
     this.additionalOptions = const <String, String>{},
+    this.subdomains = const <String>[],
   });
 }
 
@@ -64,6 +67,7 @@ class _TileLayerState extends State<TileLayer> {
       'x': coords.x.round().toString(),
       'y': coords.y.round().toString(),
       'z': coords.z.round().toString(),
+      's': _getSubdomain(coords)
     };
     var allOpts = new Map.from(data)..addAll(this.options.additionalOptions);
     return util.template(this.options.urlTemplate, allOpts);
@@ -354,6 +358,14 @@ class _TileLayerState extends State<TileLayer> {
   Point _getTilePos(Coords coords) {
     var level = _levels[coords.z];
     return coords.scaleBy(this.getTileSize()) - level.origin;
+  }
+
+  String _getSubdomain(Coords coords) {
+    if (options.subdomains.isEmpty) {
+      return "";
+    }
+    var index = (coords.x + coords.y).round() % this.options.subdomains.length;
+    return options.subdomains[index];
   }
 }
 
