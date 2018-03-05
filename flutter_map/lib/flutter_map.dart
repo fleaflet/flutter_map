@@ -10,6 +10,7 @@ import 'package:flutter_map/src/map/map.dart';
 export 'src/layer/layer.dart';
 export 'src/layer/tile_layer.dart';
 export 'src/layer/marker_layer.dart';
+export 'src/layer/polyline_layer.dart';
 export 'src/map/map.dart';
 
 class FlutterMap extends StatefulWidget {
@@ -57,6 +58,9 @@ class _FlutterMapState extends State<FlutterMap>
     }
     if (options is MarkerLayerOptions) {
       return new MarkerLayer(options, mapState);
+    }
+    if (options is PolylineLayerOptions) {
+      return new PolylineLayer(options,mapState);;
     }
     return null;
   }
