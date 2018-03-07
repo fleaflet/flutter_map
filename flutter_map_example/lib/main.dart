@@ -17,6 +17,7 @@ class MyApp extends StatelessWidget {
       routes: <String, WidgetBuilder>{
         TapToAddPage.route: (context) => new TapToAddPage(),
         EsriPage.route: (context) => new EsriPage(),
+        PolylinePage.route: (context) => new PolylinePage(),
       },
     );
   }
@@ -73,10 +74,9 @@ class HomePage extends StatelessWidget {
                 ),
                 layers: [
                   new TileLayerOptions(
-                    urlTemplate:
-                        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                    subdomains: ['a','b','c']
-                  ),
+                      urlTemplate:
+                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                      subdomains: ['a', 'b', 'c']),
                   new MarkerLayerOptions(markers: markers)
                 ],
               ),
@@ -186,6 +186,56 @@ class EsriPage extends StatelessWidget {
   }
 }
 
+class PolylinePage extends StatelessWidget {
+  static const String route = "polyline";
+
+  Widget build(BuildContext context) {
+    var points = <LatLng>[
+      new LatLng(51.5, -0.09),
+      new LatLng(53.3498, -6.2603),
+      new LatLng(48.8566, 2.3522),
+    ];
+    return new Scaffold(
+      appBar: new AppBar(title: new Text("Polylines")),
+      drawer: _buildDrawer(context, TapToAddPage.route),
+      body: new Padding(
+        padding: new EdgeInsets.all(8.0),
+        child: new Column(
+          children: [
+            new Padding(
+              padding: new EdgeInsets.only(top: 8.0, bottom: 8.0),
+              child: new Text("Polylines"),
+            ),
+            new Flexible(
+              child: new FlutterMap(
+                options: new MapOptions(
+                  center: new LatLng(51.5, -0.09),
+                  zoom: 5.0,
+                ),
+                layers: [
+                  new TileLayerOptions(
+                      urlTemplate:
+                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                      subdomains: ['a', 'b', 'c']),
+                  new PolylineLayerOptions(
+                    polylines: [
+                      new Polyline(
+                          points: points,
+                        strokeWidth: 4.0,
+                        color: Colors.purple
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class AppDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     return new AppBar(
@@ -223,6 +273,13 @@ Drawer _buildDrawer(BuildContext context, String currentRoute) {
           selected: currentRoute == EsriPage.route,
           onTap: () {
             Navigator.popAndPushNamed(context, EsriPage.route);
+          },
+        ),
+        new ListTile(
+          title: const Text('Polylines'),
+          selected: currentRoute == EsriPage.route,
+          onTap: () {
+            Navigator.popAndPushNamed(context, PolylinePage.route);
           },
         ),
       ],
