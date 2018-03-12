@@ -52,6 +52,7 @@ class MapState {
   Point get size => _size;
   set size(Point s) {
     _size = s;
+    _pixelOrigin = getNewPixelOrigin(this._lastCenter);
     if (!_initialized) {
       _init();
       _initialized = true;
