@@ -22,8 +22,7 @@ class FlutterMap extends StatefulWidget {
   }
 }
 
-class _FlutterMapState extends State<FlutterMap>
-    with MapGestureMixin, SingleTickerProviderStateMixin {
+class _FlutterMapState extends MapGestureMixin {
   MapOptions get options => widget.options;
   MapState mapState;
 
@@ -60,7 +59,7 @@ class _FlutterMapState extends State<FlutterMap>
       return new MarkerLayer(options, mapState);
     }
     if (options is PolylineLayerOptions) {
-      return new PolylineLayer(options,mapState);;
+      return new PolylineLayer(options, mapState);
     }
     return null;
   }
