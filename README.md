@@ -62,7 +62,7 @@ tile providers:
 
 ```dart
 new TileLayerOptions(
-  urlTemplate: "https://api.tiles.mapbox.com/v4/"
+  urlTemplate: "https://api.mapbox.com/v4/"
       "{id}/{z}/{x}/{y}@2x.png?access_token={accessToken}",
   additionalOptions: {
     'accessToken': '<PUT_ACCESS_TOKEN_HERE>',
