@@ -36,9 +36,9 @@ class PolylineLayer extends StatelessWidget {
             var pos = map.project(point);
             pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
                 map.getPixelOrigin();
-            polylineOpt.offsets.add(new Offset(pos.x, pos.y));
+            polylineOpt.offsets.add(new Offset(pos.x.toDouble(), pos.y.toDouble()));
             if (i > 0 && i < polylineOpt.points.length) {
-              polylineOpt.offsets.add(new Offset(pos.x, pos.y));
+              polylineOpt.offsets.add(new Offset(pos.x.toDouble(), pos.y.toDouble()));
             }
             i++;
           }

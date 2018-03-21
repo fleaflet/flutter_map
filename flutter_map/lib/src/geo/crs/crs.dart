@@ -17,7 +17,7 @@ abstract class Crs {
     try {
       var projectedPoint = this.projection.project(latlng);
       var scale = this.scale(zoom);
-      return transformation.transform(projectedPoint, scale);
+      return transformation.transform(projectedPoint, scale.toDouble());
     } catch (e) {
       return new Point(0.0, 0.0);
     }
@@ -25,7 +25,7 @@ abstract class Crs {
 
   LatLng pointToLatLng(Point point, double zoom) {
     var scale = this.scale(zoom);
-    var untransformedPoint = this.transformation.untransform(point, scale);
+    var untransformedPoint = this.transformation.untransform(point, scale.toDouble());
     try {
       return projection.unproject(untransformedPoint);
     } catch (e) {
@@ -33,7 +33,7 @@ abstract class Crs {
     }
   }
 
-  double scale(double zoom) {
+  num scale(double zoom) {
     return 256 * math.pow(2, zoom);
   }
 
@@ -42,8 +42,8 @@ abstract class Crs {
 
     var b = projection.bounds;
     var s = this.scale(zoom);
-    var min = this.transformation.transform(b.min, s);
-    var max = this.transformation.transform(b.max, s);
+    var min = this.transformation.transform(b.min, s.toDouble());
+    var max = this.transformation.transform(b.max, s.toDouble());
     return new Bounds(min, max);
   }
 
@@ -117,7 +117,7 @@ class Transformation {
   final num d;
   const Transformation(this.a, this.b, this.c, this.d);
 
-  Point transform(Point<double> point, double scale) {
+  Point transform(Point<num> point, double scale) {
     if (scale == null) {
       scale = 1.0;
     }
