@@ -57,12 +57,17 @@ see the `flutter_map_example/` folder for a working example app.
 
 ## Mapbox tiles
 
-The example uses OpenStreetMap tiles. Use TileLayerOptions to configure other
-tile providers:
+You can use map tiles from a number of
+[free and paid map suppliers](http://leafletjs.com/plugins.html#basemap-providers),
+or you can host your own map tiles.
+
+The example uses OpenStreetMap tiles, which are free but can be slow.
+
+Use TileLayerOptions to configure other tile providers, such as [mapbox]:
 
 ```dart
 new TileLayerOptions(
-  urlTemplate: "https://api.tiles.mapbox.com/v4/"
+  urlTemplate: "https://api.mapbox.com/v4/"
       "{id}/{z}/{x}/{y}@2x.png?access_token={accessToken}",
   additionalOptions: {
     'accessToken': '<PUT_ACCESS_TOKEN_HERE>',
