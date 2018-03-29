@@ -38,7 +38,9 @@ class MapState {
   final MapOptions options;
   final StreamController<Null> _onMoveSink;
 
-  double zoom;
+  double _zoom;
+  double get zoom => _zoom;
+
   LatLng _lastCenter;
   Point _pixelOrigin;
   bool _initialized = false;
@@ -52,7 +54,7 @@ class MapState {
   Point get size => _size;
   set size(Point s) {
     _size = s;
-    _pixelOrigin = getNewPixelOrigin(this._lastCenter);
+    _pixelOrigin = getNewPixelOrigin(_lastCenter);
     if (!_initialized) {
       _init();
       _initialized = true;
@@ -62,18 +64,22 @@ class MapState {
   LatLng get center => getCenter() ?? options.center;
 
   void _init() {
-    this.zoom = options.zoom;
+    _zoom = options.zoom;
     move(options.center, zoom);
+  }
+
+  void dispose() {
+    _onMoveSink.close();
   }
 
   void move(LatLng center, double zoom, [data]) {
     if (zoom == null) {
-      zoom = this.zoom;
+      zoom = _zoom;
     }
 
-    this.zoom = zoom;
-    this._lastCenter = center;
-    this._pixelOrigin = this.getNewPixelOrigin(center);
+    _zoom = zoom;
+    _lastCenter = center;
+    _pixelOrigin = getNewPixelOrigin(center);
     _onMoveSink.add(null);
   }
 
@@ -86,14 +92,14 @@ class MapState {
 
   Point project(LatLng latlng, [double zoom]) {
     if (zoom == null) {
-      zoom = this.zoom;
+      zoom = _zoom;
     }
     return options.crs.latLngToPoint(latlng, zoom);
   }
 
   LatLng unproject(Point point, [double zoom]) {
     if (zoom == null) {
-      zoom = this.zoom;
+      zoom = _zoom;
     }
     return options.crs.pointToLatLng(point, zoom);
   }
@@ -107,13 +113,13 @@ class MapState {
   }
 
   double getZoomScale(double toZoom, double fromZoom) {
-    var crs = this.options.crs;
-    fromZoom = fromZoom == null ? this.zoom : fromZoom;
+    var crs = options.crs;
+    fromZoom = fromZoom == null ? _zoom : fromZoom;
     return crs.scale(toZoom) / crs.scale(fromZoom);
   }
 
   Bounds getPixelWorldBounds(double zoom) {
-    return options.crs.getProjectedBounds(zoom == null ? this.zoom : zoom);
+    return options.crs.getProjectedBounds(zoom == null ? _zoom : zoom);
   }
 
   Point getPixelOrigin() {
@@ -121,7 +127,7 @@ class MapState {
   }
 
   Point getNewPixelOrigin(LatLng center, [double zoom]) {
-    var viewHalf = this.size / 2;
-    return (this.project(center, zoom) - viewHalf).round();
+    var viewHalf = _size / 2;
+    return (project(center, zoom) - viewHalf).round();
   }
 }
