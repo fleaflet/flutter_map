@@ -4,41 +4,22 @@ import 'package:latlong/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/point.dart';
-import 'package:flutter_map/src/geo/crs/crs.dart';
 
-typedef TapCallback(LatLng point);
+class MapControllerImpl implements MapController {
+  MapState state;
 
-class MapOptions {
-  final Crs crs;
-  final double zoom;
-  final double minZoom;
-  final double maxZoom;
-  final List<LayerOptions> layers;
-  final bool debug;
-  final bool interactive;
-  final TapCallback onTap;
-  LatLng center;
-
-  MapOptions({
-    this.crs: const Epsg3857(),
-    this.center,
-    this.zoom = 13.0,
-    this.minZoom,
-    this.maxZoom,
-    this.layers,
-    this.debug = false,
-    this.interactive = true,
-    this.onTap,
-  }) {
-    if (center == null) center = new LatLng(50.5, 30.51);
+  void move(LatLng center, double zoom) {
+    state.move(center, zoom);
   }
 }
 
-class MapState {
+class MapState  {
   final MapOptions options;
   final StreamController<Null> _onMoveSink;
 
-  double zoom;
+  double _zoom;
+  double get zoom => _zoom;
+
   LatLng _lastCenter;
   Point _pixelOrigin;
   bool _initialized = false;
@@ -52,7 +33,7 @@ class MapState {
   Point get size => _size;
   set size(Point s) {
     _size = s;
-    _pixelOrigin = getNewPixelOrigin(this._lastCenter);
+    _pixelOrigin = getNewPixelOrigin(_lastCenter);
     if (!_initialized) {
       _init();
       _initialized = true;
@@ -62,18 +43,22 @@ class MapState {
   LatLng get center => getCenter() ?? options.center;
 
   void _init() {
-    this.zoom = options.zoom;
+    _zoom = options.zoom;
     move(options.center, zoom);
   }
 
-  void move(LatLng center, double zoom, [dynamic data]) {
+  void dispose() {
+    _onMoveSink.close();
+  }
+
+  void move(LatLng center, double zoom) {
     if (zoom == null) {
-      zoom = this.zoom;
+      zoom = _zoom;
     }
 
-    this.zoom = zoom;
-    this._lastCenter = center;
-    this._pixelOrigin = this.getNewPixelOrigin(center);
+    _zoom = zoom;
+    _lastCenter = center;
+    _pixelOrigin = getNewPixelOrigin(center);
     _onMoveSink.add(null);
   }
 
@@ -86,14 +71,14 @@ class MapState {
 
   Point project(LatLng latlng, [double zoom]) {
     if (zoom == null) {
-      zoom = this.zoom;
+      zoom = _zoom;
     }
     return options.crs.latLngToPoint(latlng, zoom);
   }
 
   LatLng unproject(Point point, [double zoom]) {
     if (zoom == null) {
-      zoom = this.zoom;
+      zoom = _zoom;
     }
     return options.crs.pointToLatLng(point, zoom);
   }
@@ -107,13 +92,13 @@ class MapState {
   }
 
   double getZoomScale(double toZoom, double fromZoom) {
-    var crs = this.options.crs;
-    fromZoom = fromZoom == null ? this.zoom : fromZoom;
+    var crs = options.crs;
+    fromZoom = fromZoom == null ? _zoom : fromZoom;
     return crs.scale(toZoom) / crs.scale(fromZoom);
   }
 
   Bounds getPixelWorldBounds(double zoom) {
-    return options.crs.getProjectedBounds(zoom == null ? this.zoom : zoom);
+    return options.crs.getProjectedBounds(zoom == null ? _zoom : zoom);
   }
 
   Point getPixelOrigin() {
