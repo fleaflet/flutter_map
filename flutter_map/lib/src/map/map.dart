@@ -106,7 +106,7 @@ class MapState  {
   }
 
   Point getNewPixelOrigin(LatLng center, [double zoom]) {
-    var viewHalf = _size / 2;
-    return (project(center, zoom) - viewHalf).round();
+    var viewHalf = this.size / 2.0;
+    return (this.project(center, zoom) - viewHalf).round();
   }
 }

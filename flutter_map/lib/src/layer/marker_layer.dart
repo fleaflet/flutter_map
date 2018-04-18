@@ -40,8 +40,8 @@ class MarkerLayer extends StatelessWidget {
             new Positioned(
               width: markerOpt.width,
               height: markerOpt.height,
-              left: pos.x - markerOpt.width / 2,
-              top: pos.y - markerOpt.height / 2,
+              left: (pos.x - markerOpt.width / 2).toDouble(),
+              top: (pos.y - markerOpt.height / 2).toDouble(),
               child: markerOpt.builder(context),
             ),
           );

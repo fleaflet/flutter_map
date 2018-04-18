@@ -13,7 +13,7 @@ class Bounds<T extends num> {
 
   const Bounds._(this.min, this.max);
 
-  Bounds extend(Point<T> point) {
+  Bounds<T> extend(Point<T> point) {
     Point<T> newMin;
     Point<T> newMax;
     if (this.min == null && this.max == null) {
@@ -30,8 +30,8 @@ class Bounds<T extends num> {
     return new Bounds._(newMin, newMax);
   }
 
-  Point getCenter() {
-    return new Point(
+  Point<double> getCenter() {
+    return new Point<double>(
       (min.x + max.x) / 2,
       (min.y + max.y) / 2,
     );

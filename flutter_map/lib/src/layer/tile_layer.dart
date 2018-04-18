@@ -69,7 +69,7 @@ class _TileLayerState extends State<TileLayer> {
       'z': coords.z.round().toString(),
       's': _getSubdomain(coords)
     };
-    var allOpts = new Map.from(data)..addAll(this.options.additionalOptions);
+    Map<String,String> allOpts = new Map.from(data)..addAll(this.options.additionalOptions);
     return util.template(this.options.urlTemplate, allOpts);
   }
 
@@ -164,7 +164,7 @@ class _TileLayerState extends State<TileLayer> {
     _tiles[key].current = false;
   }
 
-  _resetGrid() {
+  void _resetGrid() {
     var map = this.map;
     var crs = map.options.crs;
     var tileSize = this.getTileSize();
@@ -217,7 +217,7 @@ class _TileLayerState extends State<TileLayer> {
   Widget build(BuildContext context) {
     var pixelBounds = _getTiledPixelBounds(map.center);
     var tileRange = _pxBoundsToTileRange(pixelBounds);
-    var tileCenter = tileRange.getCenter();
+    Point<double> tileCenter = tileRange.getCenter();
     var queue = <Coords>[];
 
     // mark tiles as out of view...
@@ -259,8 +259,8 @@ class _TileLayerState extends State<TileLayer> {
       tilesToRender.add(tile);
     }
     tilesToRender.sort((aTile, bTile) {
-      var a = aTile.coords;
-      var b = bTile.coords;
+      Coords<double> a = aTile.coords;
+      Coords<double> b = bTile.coords;
       // a = 13, b = 12, b is less than a, the result should be positive.
       if (a.z != b.z) {
         return (b.z - a.z).toInt();
@@ -285,7 +285,7 @@ class _TileLayerState extends State<TileLayer> {
     var mapZoom = map.zoom;
     var scale = map.getZoomScale(mapZoom, this._tileZoom);
     var pixelCenter = map.project(center, this._tileZoom).floor();
-    var halfSize = map.size / (scale * 2);
+    Point<num> halfSize = map.size / (scale * 2);
     return new Bounds(pixelCenter - halfSize, pixelCenter + halfSize);
   }
 
@@ -325,10 +325,10 @@ class _TileLayerState extends State<TileLayer> {
     var blankImageBytes = new Uint8List(0);
 
     return new Positioned(
-      left: pos.x,
-      top: pos.y,
-      width: width,
-      height: height,
+      left: pos.x.toDouble(),
+      top: pos.y.toDouble(),
+      width: width.toDouble(),
+      height: height.toDouble(),
       child: new Container(
         child: new FadeInImage(
           fadeInDuration: const Duration(milliseconds: 100),
@@ -342,7 +342,7 @@ class _TileLayerState extends State<TileLayer> {
     );
   }
 
-  _wrapCoords(Coords coords) {
+  Coords _wrapCoords(Coords coords) {
     var newCoords = new Coords(
       _wrapX != null
           ? util.wrapNum(coords.x.toDouble(), _wrapX)
@@ -351,7 +351,7 @@ class _TileLayerState extends State<TileLayer> {
           ? util.wrapNum(coords.y.toDouble(), _wrapY)
           : coords.y.toDouble(),
     );
-    newCoords.z = coords.z;
+    newCoords.z = coords.z.toDouble();
     return newCoords;
   }
 
@@ -388,7 +388,7 @@ class Coords<T extends num> extends Point<T> {
   T z;
   Coords(T x, T y) : super(x, y);
   String toString() => 'Coords($x, $y, $z)';
-  bool operator ==(other) {
+  bool operator ==(dynamic other) {
     if (other is Coords) {
       return this.x == other.x && this.y == other.y && this.z == other.z;
     }
