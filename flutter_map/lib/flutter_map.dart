@@ -4,14 +4,15 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/point.dart';
+import 'package:flutter_map/src/geo/crs/crs.dart';
 import 'package:flutter_map/src/gestures/gestures.dart';
 import 'package:flutter_map/src/map/map.dart';
+import 'package:latlong/latlong.dart';
 
 export 'src/layer/layer.dart';
 export 'src/layer/tile_layer.dart';
 export 'src/layer/marker_layer.dart';
 export 'src/layer/polyline_layer.dart';
-export 'src/map/map.dart';
 
 class FlutterMap extends StatefulWidget {
   /// A set of layers' options to used to create the layers on the map
@@ -27,37 +28,70 @@ class FlutterMap extends StatefulWidget {
   /// used!
   final MapOptions options;
 
-  /// A [MapState], used to control the map
-  final MapState mapState;
+  /// A [MapController], used to control the map
+  final MapControllerImpl _mapController;
 
   FlutterMap({
     Key key,
     this.options,
     this.layers,
-    this.mapState,
-  })
-      : super(key: key);
+    MapController mapController,
+  })  : _mapController = mapController ?? new MapController(),
+        super(key: key);
 
   _FlutterMapState createState() => new _FlutterMapState();
 }
 
+abstract class MapController {
+  /// Moves the map to a specific location and zoom level
+  void move(LatLng center, double zoom);
+
+  factory MapController() => new MapControllerImpl();
+}
+
+typedef TapCallback(LatLng point);
+
+class MapOptions {
+  final Crs crs;
+  final double zoom;
+  final double minZoom;
+  final double maxZoom;
+  final List<LayerOptions> layers;
+  final bool debug;
+  final bool interactive;
+  final TapCallback onTap;
+  LatLng center;
+
+  MapOptions({
+    this.crs: const Epsg3857(),
+    this.center,
+    this.zoom = 13.0,
+    this.minZoom,
+    this.maxZoom,
+    this.layers,
+    this.debug = false,
+    this.interactive = true,
+    this.onTap,
+  }) {
+    if (center == null) center = new LatLng(50.5, 30.51);
+  }
+}
+
 class _FlutterMapState extends MapGestureMixin {
-  MapOptions get options => widget.options;
+  MapOptions get options => widget.options ?? new MapOptions();
   MapState mapState;
 
   initState() {
     super.initState();
-    mapState = widget.mapState ?? new MapState(options);
+    mapState = new MapState(options);
+    widget._mapController.state = mapState;
   }
 
   void didUpdateWidget(FlutterMap oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (widget.mapState != oldWidget.mapState) {
-      final MapState newMapState = widget.mapState ?? new MapState(options);
-      if (newMapState == mapState) return;
-      if (mapState != null) mapState.dispose();
-      mapState = newMapState;
+    if (widget._mapController != oldWidget._mapController) {
+      widget._mapController.state = mapState;
     }
   }
 

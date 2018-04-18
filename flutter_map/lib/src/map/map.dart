@@ -4,37 +4,16 @@ import 'package:latlong/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/point.dart';
-import 'package:flutter_map/src/geo/crs/crs.dart';
 
-typedef TapCallback(LatLng point);
+class MapControllerImpl implements MapController {
+  MapState state;
 
-class MapOptions {
-  final Crs crs;
-  final double zoom;
-  final double minZoom;
-  final double maxZoom;
-  final List<LayerOptions> layers;
-  final bool debug;
-  final bool interactive;
-  final TapCallback onTap;
-  LatLng center;
-
-  MapOptions({
-    this.crs: const Epsg3857(),
-    this.center,
-    this.zoom = 13.0,
-    this.minZoom,
-    this.maxZoom,
-    this.layers,
-    this.debug = false,
-    this.interactive = true,
-    this.onTap,
-  }) {
-    if (center == null) center = new LatLng(50.5, 30.51);
+  void move(LatLng center, double zoom) {
+    state.move(center, zoom);
   }
 }
 
-class MapState {
+class MapState  {
   final MapOptions options;
   final StreamController<Null> _onMoveSink;
 
@@ -72,7 +51,7 @@ class MapState {
     _onMoveSink.close();
   }
 
-  void move(LatLng center, double zoom, [data]) {
+  void move(LatLng center, double zoom) {
     if (zoom == null) {
       zoom = _zoom;
     }
