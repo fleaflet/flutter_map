@@ -66,7 +66,7 @@ class MapState {
     move(options.center, zoom);
   }
 
-  void move(LatLng center, double zoom, [data]) {
+  void move(LatLng center, double zoom, [dynamic data]) {
     if (zoom == null) {
       zoom = this.zoom;
     }
@@ -121,7 +121,7 @@ class MapState {
   }
 
   Point getNewPixelOrigin(LatLng center, [double zoom]) {
-    var viewHalf = this.size / 2;
+    var viewHalf = this.size / 2.0;
     return (this.project(center, zoom) - viewHalf).round();
   }
 }

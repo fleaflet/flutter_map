@@ -125,6 +125,6 @@ abstract class MapGestureMixin extends State<FlutterMap>
   }
 
   Offset _pointToOffset(Point point) {
-    return new Offset(point.x, point.y);
+    return new Offset(point.x.toDouble(), point.y.toDouble());
   }
 }

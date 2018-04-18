@@ -12,11 +12,11 @@ class Point<T extends num> extends math.Point<T> {
   }
 
   Point<T> floor() {
-    return new Point(x.floor(), y.floor());
+    return new Point<T>(x.floor(), y.floor());
   }
 
-  Point<T> unscaleBy(Point point) {
-    return new Point(x / point.x, y / point.y);
+  Point<T> unscaleBy(Point<T> point) {
+    return new Point<T>(x / point.x, y / point.y);
   }
 
   Point<T> operator +(math.Point<T> other) {
