@@ -1,3 +1,7 @@
+## [0.0.4] - 4/18/2018
+
+- Add marker anchor support (#27, #30)
+
 ## [0.0.3] - 4/18/2018
 
 - fixed Dart 2.0 type errors (#23)
