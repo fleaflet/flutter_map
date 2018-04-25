@@ -13,11 +13,13 @@ class Marker {
   final WidgetBuilder builder;
   final double width;
   final double height;
+  final List<double> anchor;
   Marker({
     this.point,
     this.builder,
     this.width = 30.0,
     this.height = 30.0,
+    this.anchor = const [15.0, 15.0]
   });
 }
 
@@ -40,8 +42,8 @@ class MarkerLayer extends StatelessWidget {
             new Positioned(
               width: markerOpt.width,
               height: markerOpt.height,
-              left: (pos.x - markerOpt.width / 2).toDouble(),
-              top: (pos.y - markerOpt.height / 2).toDouble(),
+              left: (pos.x - (markerOpt.width - markerOpt.anchor[0])).toDouble(),
+              top: (pos.y - (markerOpt.height - markerOpt.anchor[1])).toDouble(),
               child: markerOpt.builder(context),
             ),
           );
