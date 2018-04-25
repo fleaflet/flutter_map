@@ -8,7 +8,46 @@ class MarkerLayerOptions extends LayerOptions {
   MarkerLayerOptions({this.markers = const []});
 }
 
-enum MarkerAnchor {
+class Anchor {
+  final double left;
+  final double top;
+
+  Anchor(this.left, this.top);
+
+  Anchor._(double width, double height, AnchorPos anchor)
+      : left = _leftOffset(width, anchor),
+        top = _topOffset(width, anchor);
+
+  static double _leftOffset(double width, AnchorPos anchor) {
+    switch (anchor) {
+      case AnchorPos.left:
+        return 0.0;
+      case AnchorPos.right:
+        return width;
+      case AnchorPos.top:
+      case AnchorPos.bottom:
+      case AnchorPos.center:
+      default:
+        return width / 2;
+    }
+  }
+
+  static double _topOffset(double height, AnchorPos anchor) {
+    switch (anchor) {
+      case AnchorPos.top:
+        return 0.0;
+      case AnchorPos.bottom:
+        return height;
+      case AnchorPos.left:
+      case AnchorPos.right:
+      case AnchorPos.center:
+      default:
+        return height / 2;
+    }
+  }
+}
+
+enum AnchorPos {
   left,
   right,
   top,
@@ -21,13 +60,17 @@ class Marker {
   final WidgetBuilder builder;
   final double width;
   final double height;
-  final MarkerAnchor anchor;
-  Marker(
-      {this.point,
-      this.builder,
-      this.width = 30.0,
-      this.height = 30.0,
-      this.anchor = MarkerAnchor.center});
+  final Anchor _anchor;
+
+  Marker({
+    this.point,
+    this.builder,
+    this.width = 30.0,
+    this.height = 30.0,
+    AnchorPos anchor,
+    Anchor customAnchor,
+  }) : this._anchor =
+            customAnchor ?? new Anchor._(width, height, anchor);
 }
 
 class MarkerLayer extends StatelessWidget {
@@ -49,13 +92,9 @@ class MarkerLayer extends StatelessWidget {
             new Positioned(
               width: markerOpt.width,
               height: markerOpt.height,
-              left: (pos.x -
-                      (markerOpt.width -
-                          _leftOffset(markerOpt.width, markerOpt.anchor)))
+              left: (pos.x - (markerOpt.width - markerOpt._anchor.left))
                   .toDouble(),
-              top: (pos.y -
-                      (markerOpt.height -
-                          _topOffset(markerOpt.height, markerOpt.anchor)))
+              top: (pos.y - (markerOpt.height - markerOpt._anchor.top))
                   .toDouble(),
               child: markerOpt.builder(context),
             ),
@@ -68,33 +107,5 @@ class MarkerLayer extends StatelessWidget {
         );
       },
     );
-  }
-
-  static double _leftOffset(double width, MarkerAnchor anchor) {
-    switch (anchor) {
-      case MarkerAnchor.left:
-        return 0.0;
-      case MarkerAnchor.right:
-        return width;
-      case MarkerAnchor.top:
-      case MarkerAnchor.bottom:
-      case MarkerAnchor.center:
-      default:
-        return width / 2;
-    }
-  }
-
-  static double _topOffset(double height, MarkerAnchor anchor) {
-    switch (anchor) {
-      case MarkerAnchor.top:
-        return 0.0;
-      case MarkerAnchor.bottom:
-        return height;
-      case MarkerAnchor.left:
-      case MarkerAnchor.right:
-      case MarkerAnchor.center:
-      default:
-        return height / 2;
-    }
   }
 }

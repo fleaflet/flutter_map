@@ -417,11 +417,13 @@ class MarkerAnchorPage extends StatefulWidget {
 }
 
 class MarkerAnchorPageState extends State<MarkerAnchorPage> {
-  MarkerAnchor markerAnchor;
+  AnchorPos anchorPos;
+  Anchor anchor;
 
   void initState() {
     super.initState();
-    markerAnchor = MarkerAnchor.center;
+    anchorPos = AnchorPos.center;
+    anchor = null;
   }
 
   Widget build(BuildContext context) {
@@ -433,7 +435,7 @@ class MarkerAnchorPageState extends State<MarkerAnchorPage> {
           builder: (ctx) => new Container(
                 child: new FlutterLogo(),
               ),
-          anchor: markerAnchor),
+          anchor: anchorPos),
       new Marker(
           width: 80.0,
           height: 80.0,
@@ -443,7 +445,7 @@ class MarkerAnchorPageState extends State<MarkerAnchorPage> {
                   colors: Colors.green,
                 ),
               ),
-          anchor: MarkerAnchor.center),
+          anchor: anchorPos),
       new Marker(
           width: 80.0,
           height: 80.0,
@@ -451,7 +453,7 @@ class MarkerAnchorPageState extends State<MarkerAnchorPage> {
           builder: (ctx) => new Container(
                 child: new FlutterLogo(colors: Colors.purple),
               ),
-          anchor: markerAnchor),
+          anchor: anchorPos),
     ];
 
     return new Scaffold(
@@ -472,23 +474,31 @@ class MarkerAnchorPageState extends State<MarkerAnchorPage> {
                 children: <Widget>[
                   new MaterialButton(
                     child: new Text("Left"),
-                    onPressed: () =>
-                        setState(() => markerAnchor = MarkerAnchor.left),
+                    onPressed: () => setState(() {
+                          anchorPos = AnchorPos.left;
+                          anchor = null;
+                        }),
                   ),
                   new MaterialButton(
                     child: new Text("Right"),
-                    onPressed: () =>
-                        setState(() => markerAnchor = MarkerAnchor.right),
+                    onPressed: () => setState(() {
+                          anchorPos = AnchorPos.right;
+                          anchor = null;
+                        }),
                   ),
                   new MaterialButton(
                     child: new Text("Top"),
-                    onPressed: () =>
-                        setState(() => markerAnchor = MarkerAnchor.top),
+                    onPressed: () => setState(() {
+                          anchorPos = AnchorPos.top;
+                          anchor = null;
+                        }),
                   ),
                   new MaterialButton(
                     child: new Text("Bottom"),
-                    onPressed: () =>
-                        setState(() => markerAnchor = MarkerAnchor.bottom),
+                    onPressed: () => setState(() {
+                          anchorPos = AnchorPos.bottom;
+                          anchor = null;
+                        }),
                   ),
                 ],
               ),
@@ -499,8 +509,18 @@ class MarkerAnchorPageState extends State<MarkerAnchorPage> {
                 children: <Widget>[
                   new MaterialButton(
                     child: new Text("Center"),
+                    onPressed: () => setState(() {
+                          anchorPos = AnchorPos.center;
+                          anchor = null;
+                        }),
+                  ),
+                  new MaterialButton(
+                    child: new Text("Custom"),
                     onPressed: () => setState(
-                        () => markerAnchor = MarkerAnchor.center),
+                          () {
+                            anchor = new Anchor(50.0, 50.0);
+                          },
+                        ),
                   ),
                 ],
               ),
