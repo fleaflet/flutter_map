@@ -8,19 +8,26 @@ class MarkerLayerOptions extends LayerOptions {
   MarkerLayerOptions({this.markers = const []});
 }
 
+enum MarkerAnchor {
+  left,
+  right,
+  top,
+  bottom,
+  center,
+}
+
 class Marker {
   final LatLng point;
   final WidgetBuilder builder;
   final double width;
   final double height;
-  final List<double> anchor;
-  Marker({
-    this.point,
-    this.builder,
-    this.width = 30.0,
-    this.height = 30.0,
-    this.anchor = const [15.0, 15.0]
-  });
+  final MarkerAnchor anchor;
+  Marker(
+      {this.point,
+      this.builder,
+      this.width = 30.0,
+      this.height = 30.0,
+      this.anchor = MarkerAnchor.center});
 }
 
 class MarkerLayer extends StatelessWidget {
@@ -42,8 +49,14 @@ class MarkerLayer extends StatelessWidget {
             new Positioned(
               width: markerOpt.width,
               height: markerOpt.height,
-              left: (pos.x - (markerOpt.width - markerOpt.anchor[0])).toDouble(),
-              top: (pos.y - (markerOpt.height - markerOpt.anchor[1])).toDouble(),
+              left: (pos.x -
+                      (markerOpt.width -
+                          _leftOffset(markerOpt.width, markerOpt.anchor)))
+                  .toDouble(),
+              top: (pos.y -
+                      (markerOpt.height -
+                          _topOffset(markerOpt.height, markerOpt.anchor)))
+                  .toDouble(),
               child: markerOpt.builder(context),
             ),
           );
@@ -55,5 +68,33 @@ class MarkerLayer extends StatelessWidget {
         );
       },
     );
+  }
+
+  static double _leftOffset(double width, MarkerAnchor anchor) {
+    switch (anchor) {
+      case MarkerAnchor.left:
+        return 0.0;
+      case MarkerAnchor.right:
+        return width;
+      case MarkerAnchor.top:
+      case MarkerAnchor.bottom:
+      case MarkerAnchor.center:
+      default:
+        return width / 2;
+    }
+  }
+
+  static double _topOffset(double height, MarkerAnchor anchor) {
+    switch (anchor) {
+      case MarkerAnchor.top:
+        return 0.0;
+      case MarkerAnchor.bottom:
+        return height;
+      case MarkerAnchor.left:
+      case MarkerAnchor.right:
+      case MarkerAnchor.center:
+      default:
+        return height / 2;
+    }
   }
 }

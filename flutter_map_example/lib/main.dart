@@ -19,6 +19,7 @@ class MyApp extends StatelessWidget {
         EsriPage.route: (context) => new EsriPage(),
         PolylinePage.route: (context) => new PolylinePage(),
         MapControllerPage.route: (context) => new MapControllerPage(),
+        MarkerAnchorPage.route: (context) => new MarkerAnchorPage(),
       },
     );
   }
@@ -289,6 +290,13 @@ Drawer _buildDrawer(BuildContext context, String currentRoute) {
             Navigator.popAndPushNamed(context, MapControllerPage.route);
           },
         ),
+        new ListTile(
+          title: const Text('Marker Anchors'),
+          selected: currentRoute == MarkerAnchorPage.route,
+          onTap: () {
+            Navigator.popAndPushNamed(context, MarkerAnchorPage.route);
+          },
+        ),
       ],
     ),
   );
@@ -380,6 +388,125 @@ class MapControllerPageState extends State<MapControllerPage> {
             new Flexible(
               child: new FlutterMap(
                 mapController: mapController,
+                options: new MapOptions(
+                  center: new LatLng(51.5, -0.09),
+                  zoom: 5.0,
+                ),
+                layers: [
+                  new TileLayerOptions(
+                      urlTemplate:
+                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                      subdomains: ['a', 'b', 'c']),
+                  new MarkerLayerOptions(markers: markers)
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class MarkerAnchorPage extends StatefulWidget {
+  static const String route = '/marker_anchors';
+  @override
+  MarkerAnchorPageState createState() {
+    return new MarkerAnchorPageState();
+  }
+}
+
+class MarkerAnchorPageState extends State<MarkerAnchorPage> {
+  MarkerAnchor markerAnchor;
+
+  void initState() {
+    super.initState();
+    markerAnchor = MarkerAnchor.center;
+  }
+
+  Widget build(BuildContext context) {
+    var markers = <Marker>[
+      new Marker(
+          width: 80.0,
+          height: 80.0,
+          point: new LatLng(51.5, -0.09),
+          builder: (ctx) => new Container(
+                child: new FlutterLogo(),
+              ),
+          anchor: markerAnchor),
+      new Marker(
+          width: 80.0,
+          height: 80.0,
+          point: new LatLng(53.3498, -6.2603),
+          builder: (ctx) => new Container(
+                child: new FlutterLogo(
+                  colors: Colors.green,
+                ),
+              ),
+          anchor: MarkerAnchor.center),
+      new Marker(
+          width: 80.0,
+          height: 80.0,
+          point: new LatLng(48.8566, 2.3522),
+          builder: (ctx) => new Container(
+                child: new FlutterLogo(colors: Colors.purple),
+              ),
+          anchor: markerAnchor),
+    ];
+
+    return new Scaffold(
+      appBar: new AppBar(title: new Text("Marker Anchor Points")),
+      drawer: _buildDrawer(context, MarkerAnchorPage.route),
+      body: new Padding(
+        padding: new EdgeInsets.all(8.0),
+        child: new Column(
+          children: [
+            new Padding(
+              padding: new EdgeInsets.only(top: 8.0, bottom: 8.0),
+              child: new Text(
+                  "Markers can be anchored to the top, bottom, left or right."),
+            ),
+            new Padding(
+              padding: new EdgeInsets.only(top: 8.0, bottom: 8.0),
+              child: new Row(
+                children: <Widget>[
+                  new MaterialButton(
+                    child: new Text("Left"),
+                    onPressed: () =>
+                        setState(() => markerAnchor = MarkerAnchor.left),
+                  ),
+                  new MaterialButton(
+                    child: new Text("Right"),
+                    onPressed: () =>
+                        setState(() => markerAnchor = MarkerAnchor.right),
+                  ),
+                  new MaterialButton(
+                    child: new Text("Top"),
+                    onPressed: () =>
+                        setState(() => markerAnchor = MarkerAnchor.top),
+                  ),
+                  new MaterialButton(
+                    child: new Text("Bottom"),
+                    onPressed: () =>
+                        setState(() => markerAnchor = MarkerAnchor.bottom),
+                  ),
+                ],
+              ),
+            ),
+            new Padding(
+              padding: new EdgeInsets.only(top: 8.0, bottom: 8.0),
+              child: new Row(
+                children: <Widget>[
+                  new MaterialButton(
+                    child: new Text("Center"),
+                    onPressed: () => setState(
+                        () => markerAnchor = MarkerAnchor.center),
+                  ),
+                ],
+              ),
+            ),
+            new Flexible(
+              child: new FlutterMap(
                 options: new MapOptions(
                   center: new LatLng(51.5, -0.09),
                   zoom: 5.0,
