@@ -6,7 +6,7 @@ A flutter implementation of [leaflet].
 
 [Video](https://drive.google.com/file/d/14srd4ERdgRr68TtLmG6Aho9L1pGOyFF7/view?usp=sharing)
 
-![Screenshot](https://i.imgur.com/10mBN86.png)
+![Screenshot](https://i.imgur.com/I84kptO.png)
 
 ## Usage
 
