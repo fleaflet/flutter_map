@@ -68,9 +68,9 @@ class Marker {
     this.width = 30.0,
     this.height = 30.0,
     AnchorPos anchor,
-    Anchor customAnchor,
+    Anchor anchorOverride,
   }) : this._anchor =
-            customAnchor ?? new Anchor._(width, height, anchor);
+            anchorOverride ?? new Anchor._(width, height, anchor);
 }
 
 class MarkerLayer extends StatelessWidget {
