@@ -8,19 +8,69 @@ class MarkerLayerOptions extends LayerOptions {
   MarkerLayerOptions({this.markers = const []});
 }
 
+class Anchor {
+  final double left;
+  final double top;
+
+  Anchor(this.left, this.top);
+
+  Anchor._(double width, double height, AnchorPos anchor)
+      : left = _leftOffset(width, anchor),
+        top = _topOffset(width, anchor);
+
+  static double _leftOffset(double width, AnchorPos anchor) {
+    switch (anchor) {
+      case AnchorPos.left:
+        return 0.0;
+      case AnchorPos.right:
+        return width;
+      case AnchorPos.top:
+      case AnchorPos.bottom:
+      case AnchorPos.center:
+      default:
+        return width / 2;
+    }
+  }
+
+  static double _topOffset(double height, AnchorPos anchor) {
+    switch (anchor) {
+      case AnchorPos.top:
+        return 0.0;
+      case AnchorPos.bottom:
+        return height;
+      case AnchorPos.left:
+      case AnchorPos.right:
+      case AnchorPos.center:
+      default:
+        return height / 2;
+    }
+  }
+}
+
+enum AnchorPos {
+  left,
+  right,
+  top,
+  bottom,
+  center,
+}
+
 class Marker {
   final LatLng point;
   final WidgetBuilder builder;
   final double width;
   final double height;
-  final List<double> anchor;
+  final Anchor _anchor;
+
   Marker({
     this.point,
     this.builder,
     this.width = 30.0,
     this.height = 30.0,
-    this.anchor = const [15.0, 15.0]
-  });
+    AnchorPos anchor,
+    Anchor anchorOverride,
+  }) : this._anchor =
+            anchorOverride ?? new Anchor._(width, height, anchor);
 }
 
 class MarkerLayer extends StatelessWidget {
@@ -42,8 +92,10 @@ class MarkerLayer extends StatelessWidget {
             new Positioned(
               width: markerOpt.width,
               height: markerOpt.height,
-              left: (pos.x - (markerOpt.width - markerOpt.anchor[0])).toDouble(),
-              top: (pos.y - (markerOpt.height - markerOpt.anchor[1])).toDouble(),
+              left: (pos.x - (markerOpt.width - markerOpt._anchor.left))
+                  .toDouble(),
+              top: (pos.y - (markerOpt.height - markerOpt._anchor.top))
+                  .toDouble(),
               child: markerOpt.builder(context),
             ),
           );
