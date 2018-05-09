@@ -31,26 +31,26 @@ class MapControllerPageState extends State<MapControllerPage> {
         height: 80.0,
         point: london,
         builder: (ctx) => new Container(
-          child: new FlutterLogo(),
-        ),
+              child: new FlutterLogo(),
+            ),
       ),
       new Marker(
         width: 80.0,
         height: 80.0,
         point: dublin,
         builder: (ctx) => new Container(
-          child: new FlutterLogo(
-            colors: Colors.green,
-          ),
-        ),
+              child: new FlutterLogo(
+                colors: Colors.green,
+              ),
+            ),
       ),
       new Marker(
         width: 80.0,
         height: 80.0,
         point: paris,
         builder: (ctx) => new Container(
-          child: new FlutterLogo(colors: Colors.purple),
-        ),
+              child: new FlutterLogo(colors: Colors.purple),
+            ),
       ),
     ];
 
@@ -86,6 +86,28 @@ class MapControllerPageState extends State<MapControllerPage> {
                 ],
               ),
             ),
+            new Padding(
+              padding: new EdgeInsets.only(top: 8.0, bottom: 8.0),
+              child: new Row(
+                children: <Widget>[
+                  new MaterialButton(
+                    child: new Text("Fit Bounds"),
+                    onPressed: () {
+                      var bounds = new LatLngBounds();
+                      bounds.extend(dublin);
+                      bounds.extend(paris);
+                      bounds.extend(london);
+                      mapController.fitBounds(
+                        bounds,
+                        new FitBoundsOptions(
+                          padding: new Point<double>(30.0, 0.0),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
             new Flexible(
               child: new FlutterMap(
                 mapController: mapController,
@@ -96,7 +118,7 @@ class MapControllerPageState extends State<MapControllerPage> {
                 layers: [
                   new TileLayerOptions(
                       urlTemplate:
-                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                       subdomains: ['a', 'b', 'c']),
                   new MarkerLayerOptions(markers: markers)
                 ],

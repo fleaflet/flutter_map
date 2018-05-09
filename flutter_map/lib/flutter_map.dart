@@ -3,6 +3,7 @@ library leaflet_flutter;
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/geo/crs/crs.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/map.dart';
@@ -13,6 +14,8 @@ export 'src/layer/tile_layer.dart';
 export 'src/layer/marker_layer.dart';
 export 'src/layer/polyline_layer.dart';
 export 'src/geo/crs/crs.dart';
+export 'src/geo/latlng_bounds.dart';
+export 'package:flutter_map/src/core/point.dart';
 
 class FlutterMap extends StatefulWidget {
   /// A set of layers' options to used to create the layers on the map
@@ -45,6 +48,7 @@ class FlutterMap extends StatefulWidget {
 abstract class MapController {
   /// Moves the map to a specific location and zoom level
   void move(LatLng center, double zoom);
+  void fitBounds(LatLngBounds bounds, FitBoundsOptions options);
 
   factory MapController() => new MapControllerImpl();
 }
@@ -75,4 +79,16 @@ class MapOptions {
   }) {
     if (center == null) center = new LatLng(50.5, 30.51);
   }
+}
+
+class FitBoundsOptions {
+  final Point<double> padding;
+  final double maxZoom;
+  final double zoom;
+
+  FitBoundsOptions({
+    this.padding = const Point<double>(0.0, 0.0),
+    this.maxZoom = 17.0,
+    this.zoom,
+  });
 }

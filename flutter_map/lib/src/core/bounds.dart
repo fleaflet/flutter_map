@@ -37,5 +37,9 @@ class Bounds<T extends num> {
     );
   }
 
+  Point<T> get size {
+    return this.max - this.min;
+  }
+
   String toString() => "Bounds($min, $max)";
 }
