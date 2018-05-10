@@ -28,6 +28,9 @@ class MapControllerImpl implements MapController {
   }
 
   bool get ready => _state != null;
+
+  LatLng get center => _state.center;
+  double get zoom => _state.zoom;
 }
 
 class MapState {
@@ -77,6 +80,10 @@ class MapState {
     _lastCenter = center;
     _pixelOrigin = getNewPixelOrigin(center);
     _onMoveSink.add(null);
+
+    if (options.onPositionChanged != null) {
+      options.onPositionChanged(new MapPosition(center: center, zoom: zoom));
+    }
   }
 
   void fitBounds(LatLngBounds bounds, FitBoundsOptions options) {
@@ -116,7 +123,7 @@ class MapState {
       {bool inside = false}) {
     var zoom = this.zoom ?? 0.0;
     var min = this.options.minZoom ?? 0.0;
-    var max = this.options.maxZoom ?? double.INFINITY;
+    var max = this.options.maxZoom ?? double.infinity;
     var nw = bounds.northWest;
     var se = bounds.southEast;
     var size = this.size - padding;
@@ -177,4 +184,3 @@ class MapState {
     return (this.project(center, zoom) - viewHalf).round();
   }
 }
-

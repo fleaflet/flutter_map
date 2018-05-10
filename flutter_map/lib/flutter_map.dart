@@ -53,11 +53,14 @@ abstract class MapController {
   void fitBounds(LatLngBounds bounds, FitBoundsOptions options);
   bool get ready;
   Future<Null> get onReady;
+  LatLng get center;
+  double get zoom;
 
   factory MapController() => new MapControllerImpl();
 }
 
 typedef TapCallback(LatLng point);
+typedef PositionCallback(MapPosition position);
 
 class MapOptions {
   final Crs crs;
@@ -68,6 +71,7 @@ class MapOptions {
   final bool debug;
   final bool interactive;
   final TapCallback onTap;
+  final PositionCallback onPositionChanged;
   LatLng center;
 
   MapOptions({
@@ -80,6 +84,7 @@ class MapOptions {
     this.debug = false,
     this.interactive = true,
     this.onTap,
+    this.onPositionChanged,
   }) {
     if (center == null) center = new LatLng(50.5, 30.51);
   }
@@ -95,4 +100,10 @@ class FitBoundsOptions {
     this.maxZoom = 17.0,
     this.zoom,
   });
+}
+
+class MapPosition {
+  final LatLng center;
+  final double zoom;
+  MapPosition({this.center, this. zoom});
 }
