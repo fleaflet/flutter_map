@@ -18,6 +18,7 @@ class TileLayerOptions extends LayerOptions {
   final bool zoomReverse;
   final double zoomOffset;
   final List<String> subdomains;
+  final Color backgroundColor;
   Map<String, String> additionalOptions;
 
   TileLayerOptions({
@@ -28,6 +29,7 @@ class TileLayerOptions extends LayerOptions {
     this.zoomOffset = 0.0,
     this.additionalOptions = const <String, String>{},
     this.subdomains = const <String>[],
+    this.backgroundColor = Colors.grey[300],
   });
 }
 
@@ -277,7 +279,7 @@ class _TileLayerState extends State<TileLayer> {
       child: new Stack(
         children: tileWidgets,
       ),
-      color: Colors.grey[300],
+      color: this.options.backgroundColor,
     );
   }
 
