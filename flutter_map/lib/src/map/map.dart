@@ -8,15 +8,26 @@ import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/point.dart';
 
 class MapControllerImpl implements MapController {
-  MapState state;
+  Completer<Null> _readyCompleter = new Completer<Null>();
+  MapState _state;
+
+  Future<Null> get onReady => _readyCompleter.future;
+  void set state(MapState state) {
+    _state = state;
+    if (!_readyCompleter.isCompleted) {
+      _readyCompleter.complete();
+    }
+  }
 
   void move(LatLng center, double zoom) {
-    state.move(center, zoom);
+    _state.move(center, zoom);
   }
 
   void fitBounds(LatLngBounds bounds, FitBoundsOptions options) {
-    state.fitBounds(bounds, options);
+    _state.fitBounds(bounds, options);
   }
+
+  bool get ready => _state != null;
 }
 
 class MapState {

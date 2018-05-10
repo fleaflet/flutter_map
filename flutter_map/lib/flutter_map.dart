@@ -1,5 +1,7 @@
 library leaflet_flutter;
 
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -49,6 +51,8 @@ abstract class MapController {
   /// Moves the map to a specific location and zoom level
   void move(LatLng center, double zoom);
   void fitBounds(LatLngBounds bounds, FitBoundsOptions options);
+  bool get ready;
+  Future<Null> get onReady;
 
   factory MapController() => new MapControllerImpl();
 }
