@@ -23,7 +23,11 @@ class MapControllerImpl implements MapController {
     _state.move(center, zoom);
   }
 
-  void fitBounds(LatLngBounds bounds, FitBoundsOptions options) {
+  void fitBounds(
+    LatLngBounds bounds, {
+    FitBoundsOptions options =
+        const FitBoundsOptions(padding: const Point(24.0, 24.0)),
+  }) {
     _state.fitBounds(bounds, options);
   }
 

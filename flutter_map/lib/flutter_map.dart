@@ -50,7 +50,10 @@ class FlutterMap extends StatefulWidget {
 abstract class MapController {
   /// Moves the map to a specific location and zoom level
   void move(LatLng center, double zoom);
-  void fitBounds(LatLngBounds bounds, FitBoundsOptions options);
+  void fitBounds(
+    LatLngBounds bounds, {
+    FitBoundsOptions options,
+  });
   bool get ready;
   Future<Null> get onReady;
   LatLng get center;
@@ -95,7 +98,7 @@ class FitBoundsOptions {
   final double maxZoom;
   final double zoom;
 
-  FitBoundsOptions({
+  const FitBoundsOptions({
     this.padding = const Point<double>(0.0, 0.0),
     this.maxZoom = 17.0,
     this.zoom,
@@ -105,5 +108,5 @@ class FitBoundsOptions {
 class MapPosition {
   final LatLng center;
   final double zoom;
-  MapPosition({this.center, this. zoom});
+  MapPosition({this.center, this.zoom});
 }
