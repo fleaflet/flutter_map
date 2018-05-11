@@ -1,4 +1,7 @@
-## [0.0.5] - 4/18/2018
+## [0.0.5] - 3/11/2018
+- fitBounds, onPositionChanged (#39)
+
+## [0.0.5] - 3/11/2018
 
 - make tile background customizable (#36)
 - use transparent_image as placeholder image (#37)
