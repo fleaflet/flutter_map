@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:latlong/latlong.dart';
@@ -31,7 +29,7 @@ class TileLayerOptions extends LayerOptions {
     this.zoomOffset = 0.0,
     this.additionalOptions = const <String, String>{},
     this.subdomains = const <String>[],
-    this.backgroundColor = Colors.grey[300],
+    this.backgroundColor = const Color(0xFFE0E0E0), // grey 300
     this.placeholderImage,
   });
 }
