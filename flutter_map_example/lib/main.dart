@@ -5,9 +5,6 @@ import 'package:flutter_map_example/pages/map_controller.dart';
 import 'package:flutter_map_example/pages/marker_anchor.dart';
 import 'package:flutter_map_example/pages/polyline.dart';
 import 'package:flutter_map_example/pages/tap_to_add.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
-import 'package:latlong/latlong.dart';
-import 'package:flutter_map/flutter_map.dart';
 
 void main() => runApp(new MyApp());
 

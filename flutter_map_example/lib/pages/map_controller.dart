@@ -99,7 +99,7 @@ class MapControllerPageState extends State<MapControllerPage> {
                       bounds.extend(london);
                       mapController.fitBounds(
                         bounds,
-                        new FitBoundsOptions(
+                        options: new FitBoundsOptions(
                           padding: new Point<double>(30.0, 0.0),
                         ),
                       );
