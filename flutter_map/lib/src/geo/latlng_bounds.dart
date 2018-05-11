@@ -4,12 +4,15 @@ import 'package:latlong/latlong.dart';
 class LatLngBounds {
   LatLng sw;
   LatLng ne;
-  LatLngBounds(LatLng corner1, LatLng corner2) {
+  LatLngBounds([LatLng corner1, LatLng corner2]) {
     extend(corner1);
     extend(corner2);
   }
 
   void extend(LatLng latlng) {
+    if (latlng == null) {
+      return;
+    }
     _extend(latlng, latlng);
   }
 
@@ -27,5 +30,19 @@ class LatLngBounds {
       ne.latitude = math.max(ne2.latitude, ne.latitude);
       ne.longitude = math.max(ne2.longitude, ne.longitude);
     }
+  }
+
+  double get west => southWest.longitude;
+  double get south => southWest.latitude;
+  double get east => northEast.longitude;
+  double get north => northEast.latitude;
+
+  LatLng get southWest => sw;
+  LatLng get northEast => ne;
+  LatLng get northWest => new LatLng(north, west);
+  LatLng get southEast => new LatLng(south, east);
+
+  bool get isValid {
+    return sw != null && ne != null;
   }
 }

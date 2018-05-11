@@ -37,6 +37,10 @@ abstract class Crs {
     return 256 * math.pow(2, zoom);
   }
 
+  num zoom(double scale) {
+    return math.log(scale / 256) / math.ln2;
+  }
+
   Bounds getProjectedBounds(double zoom) {
     if (this.infinite) return null;
 
