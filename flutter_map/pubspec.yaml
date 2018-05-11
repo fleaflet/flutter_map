@@ -14,3 +14,4 @@ dependencies:
   latlong: ^0.4.0
   tuple: ^1.0.0
   quiver: ^0.28.0
+  transparent_image: ^0.1.0
