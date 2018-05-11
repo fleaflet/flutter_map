@@ -68,7 +68,7 @@ class Epsg3857 extends Earth {
   final String code = 'EPSG:3857';
   final Projection projection;
   final Transformation transformation;
-  static const num _scale = 0.5 / (math.PI * SphericalMercator.r);
+  static const num _scale = 0.5 / (math.pi * SphericalMercator.r);
   const Epsg3857()
       : projection = const SphericalMercator(),
         transformation = const Transformation(_scale, 0.5, -_scale, 0.5),
@@ -86,7 +86,7 @@ abstract class Projection {
 class SphericalMercator extends Projection {
   static const int r = 6378137;
   static const double maxLatitude = 85.0511287798;
-  static const double _boundsD = r * math.PI;
+  static const double _boundsD = r * math.pi;
   static Bounds<double> _bounds = new Bounds<double>(
     new Point<double>(-_boundsD, -_boundsD),
     new Point<double>(_boundsD, _boundsD),
@@ -97,7 +97,7 @@ class SphericalMercator extends Projection {
   Bounds<double> get bounds => _bounds;
 
   Point project(LatLng latlng) {
-    var d = math.PI / 180;
+    var d = math.pi / 180;
     var max = maxLatitude;
     var lat = math.max(math.min(max, latlng.latitude), -max);
     var sin = math.sin(lat * d);
@@ -107,9 +107,9 @@ class SphericalMercator extends Projection {
   }
 
   LatLng unproject(Point point) {
-    var d = 180 / math.PI;
+    var d = 180 / math.pi;
     return new LatLng(
-        (2 * math.atan(math.exp(point.y / r)) - (math.PI / 2)) * d,
+        (2 * math.atan(math.exp(point.y / r)) - (math.pi / 2)) * d,
         point.x * d / r);
   }
 }
