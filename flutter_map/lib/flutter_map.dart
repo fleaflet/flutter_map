@@ -1,4 +1,4 @@
-library leaflet_flutter;
+library flutter_map;
 
 import 'dart:async';
 
@@ -9,8 +9,10 @@ import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/geo/crs/crs.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/map.dart';
+import 'package:flutter_map/src/plugins/plugin.dart';
 import 'package:latlong/latlong.dart';
 
+export 'src/plugins/plugin.dart';
 export 'src/layer/layer.dart';
 export 'src/layer/tile_layer.dart';
 export 'src/layer/marker_layer.dart';
@@ -75,6 +77,7 @@ class MapOptions {
   final bool interactive;
   final TapCallback onTap;
   final PositionCallback onPositionChanged;
+  final List<MapPlugin> plugins;
   LatLng center;
 
   MapOptions({
@@ -88,6 +91,7 @@ class MapOptions {
     this.interactive = true,
     this.onTap,
     this.onPositionChanged,
+    this.plugins = const [],
   }) {
     if (center == null) center = new LatLng(50.5, 30.51);
   }

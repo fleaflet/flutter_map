@@ -3,6 +3,7 @@ import 'package:flutter_map_example/pages/esri.dart';
 import 'package:flutter_map_example/pages/home.dart';
 import 'package:flutter_map_example/pages/map_controller.dart';
 import 'package:flutter_map_example/pages/marker_anchor.dart';
+import 'package:flutter_map_example/pages/plugin_api.dart';
 import 'package:flutter_map_example/pages/polyline.dart';
 import 'package:flutter_map_example/pages/tap_to_add.dart';
 
@@ -24,6 +25,7 @@ class MyApp extends StatelessWidget {
         PolylinePage.route: (context) => new PolylinePage(),
         MapControllerPage.route: (context) => new MapControllerPage(),
         MarkerAnchorPage.route: (context) => new MarkerAnchorPage(),
+        PluginPage.route: (context) => new PluginPage(),
       },
     );
   }
