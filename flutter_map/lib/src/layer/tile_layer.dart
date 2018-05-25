@@ -1,8 +1,7 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:latlong/latlong.dart';
+import 'package:transparent_image/transparent_image.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/map/map.dart';
@@ -17,6 +16,8 @@ class TileLayerOptions extends LayerOptions {
   final bool zoomReverse;
   final double zoomOffset;
   final List<String> subdomains;
+  final Color backgroundColor;
+  ImageProvider placeholderImage;
   Map<String, String> additionalOptions;
 
   TileLayerOptions({
@@ -27,6 +28,8 @@ class TileLayerOptions extends LayerOptions {
     this.zoomOffset = 0.0,
     this.additionalOptions = const <String, String>{},
     this.subdomains = const <String>[],
+    this.backgroundColor = const Color(0xFFE0E0E0), // grey[300]
+    this.placeholderImage,
   });
 }
 
@@ -276,7 +279,7 @@ class _TileLayerState extends State<TileLayer> {
       child: new Stack(
         children: tileWidgets,
       ),
-      color: Colors.grey[300],
+      color: this.options.backgroundColor,
     );
   }
 
@@ -321,7 +324,6 @@ class _TileLayerState extends State<TileLayer> {
     var pos = (tilePos).multiplyBy(level.scale) + level.translatePoint;
     var width = tileSize.x * level.scale;
     var height = tileSize.y * level.scale;
-    var blankImageBytes = new Uint8List(0);
 
     return new Positioned(
       left: pos.x.toDouble(),
@@ -332,8 +334,9 @@ class _TileLayerState extends State<TileLayer> {
         child: new FadeInImage(
           fadeInDuration: const Duration(milliseconds: 100),
           key: new Key(_tileCoordsToKey(coords)),
-          // here `bytes` is a Uint8List containing the bytes for the in-memory image
-          placeholder: new MemoryImage(blankImageBytes),
+          placeholder: options.placeholderImage != null
+              ? options.placeholderImage
+              : new MemoryImage(kTransparentImage),
           image: new NetworkImage(getTileUrl(coords)),
           fit: BoxFit.fill,
         ),

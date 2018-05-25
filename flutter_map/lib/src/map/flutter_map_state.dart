@@ -22,7 +22,9 @@ class FlutterMapState extends MapGestureMixin {
         builder: (BuildContext context, BoxConstraints constraints) {
       mapState.size =
           new Point<double>(constraints.maxWidth, constraints.maxHeight);
-      var layerWidgets = widget.layers.map(_createLayer).toList();
+      var layerWidgets = widget.layers
+          .map((layer) => _createLayer(layer, widget.options.plugins))
+          .toList();
       return new GestureDetector(
         onScaleStart: handleScaleStart,
         onScaleUpdate: handleScaleUpdate,
@@ -37,7 +39,7 @@ class FlutterMapState extends MapGestureMixin {
     });
   }
 
-  Widget _createLayer(LayerOptions options) {
+  Widget _createLayer(LayerOptions options, List<MapPlugin> plugins) {
     if (options is TileLayerOptions) {
       return new TileLayer(options: options, mapState: mapState);
     }
@@ -46,6 +48,11 @@ class FlutterMapState extends MapGestureMixin {
     }
     if (options is PolylineLayerOptions) {
       return new PolylineLayer(options, mapState);
+    }
+    for (var plugin in plugins) {
+      if (plugin.supportsLayer(options)) {
+        return plugin.createLayer(options, mapState);
+      }
     }
     return null;
   }

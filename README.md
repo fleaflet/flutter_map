@@ -98,7 +98,7 @@ any contributions for items both on and off of the roadmap.
 - [ ] Package structure cleanup
 - [ ] Improve pinch to zoom ( zoom directly to focal point )
 - [x] Zooming removes too many tiles from other levels
-- [ ] Improve image fetching & caching
+- [x] Improve image fetching & caching
 - [ ] UI Settings support ( disable pan/zoom etc.)
 - [ ] Current location support
 - [ ] Documentation
