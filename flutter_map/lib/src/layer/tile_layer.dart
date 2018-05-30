@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:latlong/latlong.dart';
@@ -56,6 +58,7 @@ class _TileLayerState extends State<TileLayer> {
   Tuple2<double, double> _wrapY;
   double _tileZoom;
   Level _level;
+  StreamSubscription _moveSub;
 
   Map<String, Tile> _tiles = {};
   Map<double, Level> _levels = {};
@@ -63,6 +66,18 @@ class _TileLayerState extends State<TileLayer> {
   void initState() {
     super.initState();
     _resetView();
+    _moveSub = map.onMoved.listen((_) => _handleMove());
+  }
+
+  void dispose() {
+    super.dispose();
+    _moveSub?.cancel();
+  }
+
+  void _handleMove() {
+    setState(() {
+      this._resetView();
+    });
   }
 
   String getTileUrl(Coords coords) {

@@ -1,4 +1,7 @@
-## [0.0.5] - 3/11/2018
+## [0.0.8] - 3/11/2018
+- bug: TileLayer not listening to onMoved events from MapController
+
+## [0.0.6] - 3/11/2018
 - fitBounds, onPositionChanged (#39)
 
 ## [0.0.5] - 3/11/2018
