@@ -37,8 +37,26 @@ class Bounds<T extends num> {
     );
   }
 
+  Point<T> get bottomLeft => new Point(min.x, max.y);
+  Point<T> get topRight => new Point(max.x, min.y);
+  Point<T> get topLeft => min;
+  Point<T> get bottomRight => max;
+
   Point<T> get size {
     return this.max - this.min;
+  }
+
+  bool contains(Point<T> point) {
+    var min = point;
+    var max = point;
+    return containsBounds(new Bounds(min, max));
+  }
+
+  bool containsBounds(Bounds<T> b) {
+    return (b.min.x >= this.min.x) &&
+        (b.max.x <= this.max.x) &&
+        (b.min.y <= this.min.y) &&
+        (b.max.y <= this.max.y);
   }
 
   String toString() => "Bounds($min, $max)";

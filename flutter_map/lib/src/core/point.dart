@@ -44,4 +44,6 @@ class Point<T extends num> extends math.Point<T> {
   Point multiplyBy(num n) {
       return new Point(this.x * n, this.y * n);
   }
+
+  String toString() => "Point ($x, $y)";
 }
