@@ -367,7 +367,7 @@ class _TileLayerState extends State<TileLayer> {
     var height = tileSize.y * level.scale;
 
     return new Positioned(
-      left: pos.x.toDouble()
+      left: pos.x.toDouble(),
       top: pos.y.toDouble(),
       width: width.toDouble(),
       height: height.toDouble(),
