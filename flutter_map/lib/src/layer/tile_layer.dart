@@ -325,11 +325,7 @@ class _TileLayerState extends State<TileLayer> {
   }
 
   Bounds _getTiledPixelBounds(LatLng center) {
-    var mapZoom = map.zoom;
-    var scale = map.getZoomScale(mapZoom, this._tileZoom);
-    var pixelCenter = map.project(center, this._tileZoom).floor();
-    Point<num> halfSize = map.size / (scale * 2);
-    return new Bounds(pixelCenter - halfSize, pixelCenter + halfSize);
+    return map.getPixelBounds(_tileZoom);
   }
 
   Bounds _pxBoundsToTileRange(Bounds bounds) {

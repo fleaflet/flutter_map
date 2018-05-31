@@ -69,8 +69,7 @@ class Marker {
     this.height = 30.0,
     AnchorPos anchor,
     Anchor anchorOverride,
-  }) : this._anchor =
-            anchorOverride ?? new Anchor._(width, height, anchor);
+  }) : this._anchor = anchorOverride ?? new Anchor._(width, height, anchor);
 }
 
 class MarkerLayer extends StatelessWidget {
@@ -86,16 +85,27 @@ class MarkerLayer extends StatelessWidget {
         var markers = <Widget>[];
         for (var markerOpt in this.markerOpts.markers) {
           var pos = map.project(markerOpt.point);
+          var bounds = map.getPixelBounds(map.zoom);
+          var latlngBounds = new LatLngBounds(
+              map.unproject(bounds.bottomLeft), map.unproject(bounds.topRight));
           pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
               map.getPixelOrigin();
+
+          var pixelPosX =
+              (pos.x - (markerOpt.width - markerOpt._anchor.left)).toDouble();
+          var pixelPosY =
+              (pos.y - (markerOpt.height - markerOpt._anchor.top)).toDouble();
+
+          if (!latlngBounds.contains(markerOpt.point)) {
+            continue;
+          }
+
           markers.add(
             new Positioned(
               width: markerOpt.width,
               height: markerOpt.height,
-              left: (pos.x - (markerOpt.width - markerOpt._anchor.left))
-                  .toDouble(),
-              top: (pos.y - (markerOpt.height - markerOpt._anchor.top))
-                  .toDouble(),
+              left: pixelPosX,
+              top: pixelPosY,
               child: markerOpt.builder(context),
             ),
           );

@@ -45,4 +45,19 @@ class LatLngBounds {
   bool get isValid {
     return sw != null && ne != null;
   }
+
+  bool contains(LatLng point) {
+    var sw2 = point;
+    var ne2 = point;
+    return containsBounds(new LatLngBounds(sw2, ne2));
+  }
+
+  bool containsBounds(LatLngBounds bounds) {
+    var sw2 = bounds.sw;
+    var ne2 = bounds.ne;
+    return (sw2.latitude >= sw.latitude) &&
+        (ne2.latitude <= ne.latitude) &&
+        (sw2.longitude >= sw.longitude) &&
+        (ne2.longitude <= ne.longitude);
+  }
 }

@@ -187,4 +187,11 @@ class MapState {
     var viewHalf = this.size / 2.0;
     return (this.project(center, zoom) - viewHalf).round();
   }
+Bounds getPixelBounds(double zoom) {
+    var mapZoom = zoom;
+    var scale = getZoomScale(mapZoom, zoom);
+    var pixelCenter = project(center, zoom).floor();
+    Point<num> halfSize = size / (scale * 2);
+    return new Bounds(pixelCenter - halfSize, pixelCenter + halfSize);
+  }
 }
