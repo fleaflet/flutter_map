@@ -1,4 +1,7 @@
-## [0.0.8] - 3/11/2018
+## [0.0.9] - 3/31/2018
+- add LatlngBounds.contains, avoid rendering out-of-view markers in MarkerLayer
+
+## [0.0.8] - 3/31/2018
 - bug: rendering far-away tiles was causing a GPU crash on the simulator. add
   tile pruning to TileLayer
 
