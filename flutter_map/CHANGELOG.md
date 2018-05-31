@@ -1,4 +1,8 @@
 ## [0.0.8] - 3/11/2018
+- bug: rendering far-away tiles was causing a GPU crash on the simulator. add
+  tile pruning to TileLayer
+
+## [0.0.7] - 3/11/2018
 - bug: TileLayer not listening to onMoved events from MapController
 
 ## [0.0.6] - 3/11/2018
