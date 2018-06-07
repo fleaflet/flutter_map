@@ -9,7 +9,6 @@ import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/core/util.dart' as util;
 import 'package:tuple/tuple.dart';
-import 'package:quiver/core.dart';
 import 'layer.dart';
 
 class TileLayerOptions extends LayerOptions {
@@ -434,5 +433,5 @@ class Coords<T extends num> extends Point<T> {
     return false;
   }
 
-  int get hashCode => hash3(x, y, z);
+  int get hashCode => hashValues(x.hashCode, y.hashCode, z.hashCode);
 }
