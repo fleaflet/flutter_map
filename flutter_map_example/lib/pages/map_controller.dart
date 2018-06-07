@@ -31,6 +31,7 @@ class MapControllerPageState extends State<MapControllerPage> {
         height: 80.0,
         point: london,
         builder: (ctx) => new Container(
+          key: new Key("blue"),
               child: new FlutterLogo(),
             ),
       ),
@@ -40,6 +41,7 @@ class MapControllerPageState extends State<MapControllerPage> {
         point: dublin,
         builder: (ctx) => new Container(
               child: new FlutterLogo(
+                key: new Key("green"),
                 colors: Colors.green,
               ),
             ),
@@ -49,6 +51,7 @@ class MapControllerPageState extends State<MapControllerPage> {
         height: 80.0,
         point: paris,
         builder: (ctx) => new Container(
+          key: new Key("purple"),
               child: new FlutterLogo(colors: Colors.purple),
             ),
       ),
@@ -68,7 +71,7 @@ class MapControllerPageState extends State<MapControllerPage> {
                   new MaterialButton(
                     child: new Text("London"),
                     onPressed: () {
-                      mapController.move(london, 5.0);
+                      mapController.move(london, 18.0);
                     },
                   ),
                   new MaterialButton(
@@ -114,6 +117,8 @@ class MapControllerPageState extends State<MapControllerPage> {
                 options: new MapOptions(
                   center: new LatLng(51.5, -0.09),
                   zoom: 5.0,
+                  maxZoom: 5.0,
+                  minZoom: 3.0
                 ),
                 layers: [
                   new TileLayerOptions(
