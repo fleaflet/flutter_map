@@ -6,6 +6,7 @@ import 'package:flutter_map_example/pages/marker_anchor.dart';
 import 'package:flutter_map_example/pages/plugin_api.dart';
 import 'package:flutter_map_example/pages/polyline.dart';
 import 'package:flutter_map_example/pages/tap_to_add.dart';
+import 'package:flutter_map_example/pages/offline_map.dart';
 
 Drawer buildDrawer(BuildContext context, String currentRoute) {
   return new Drawer(
@@ -63,6 +64,13 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           selected: currentRoute == PluginPage.route,
           onTap: () {
             Navigator.popAndPushNamed(context, PluginPage.route);
+          },
+        ),
+        new ListTile(
+          title: const Text('Offline Map'),
+          selected: currentRoute == OfflineMapPage.route,
+          onTap: () {
+            Navigator.popAndPushNamed(context, OfflineMapPage.route);
           },
         ),
       ],
