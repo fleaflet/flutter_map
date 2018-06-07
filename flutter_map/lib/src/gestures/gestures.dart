@@ -70,13 +70,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
       var offsetPt = newCenter - map.project(_mapCenterStart);
       _animationOffset = _pointToOffset(offsetPt);
 
-      //Abide to min/max zoom
       var newZoom = _mapZoomStart * dScale;
-      if (options.maxZoom != null)
-        newZoom = (newZoom > options.maxZoom) ? options.maxZoom : newZoom;
-      if (options.minZoom != null)
-        newZoom = (newZoom < options.minZoom) ? options.minZoom : newZoom;
-
       map.move(map.unproject(newCenter), newZoom);
     });
   }

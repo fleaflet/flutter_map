@@ -84,6 +84,14 @@ class MapState {
       zoom = _zoom;
     }
 
+    // Abide to min/max zoom
+    if (options.maxZoom != null) {
+      zoom = (zoom > options.maxZoom) ? options.maxZoom : zoom;
+    }
+    if (options.minZoom != null) {
+      zoom = (zoom < options.minZoom) ? options.minZoom : zoom;
+    }
+
     _zoom = zoom;
     _lastCenter = center;
     _pixelOrigin = getNewPixelOrigin(center);
