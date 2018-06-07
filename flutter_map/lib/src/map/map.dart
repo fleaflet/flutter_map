@@ -76,8 +76,20 @@ class MapState {
   }
 
   void move(LatLng center, double zoom) {
+    if (options.isOutOfBounds(center)) {
+      return;
+    }
+
     if (zoom == null) {
       zoom = _zoom;
+    }
+
+    // Abide to min/max zoom
+    if (options.maxZoom != null) {
+      zoom = (zoom > options.maxZoom) ? options.maxZoom : zoom;
+    }
+    if (options.minZoom != null) {
+      zoom = (zoom < options.minZoom) ? options.minZoom : zoom;
     }
 
     _zoom = zoom;
@@ -187,7 +199,8 @@ class MapState {
     var viewHalf = this.size / 2.0;
     return (this.project(center, zoom) - viewHalf).round();
   }
-Bounds getPixelBounds(double zoom) {
+
+  Bounds getPixelBounds(double zoom) {
     var mapZoom = zoom;
     var scale = getZoomScale(mapZoom, zoom);
     var pixelCenter = project(center, zoom).floor();

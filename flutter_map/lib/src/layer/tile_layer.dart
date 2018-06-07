@@ -9,7 +9,6 @@ import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/core/util.dart' as util;
 import 'package:tuple/tuple.dart';
-import 'package:quiver/core.dart';
 import 'layer.dart';
 
 class TileLayerOptions extends LayerOptions {
@@ -20,6 +19,7 @@ class TileLayerOptions extends LayerOptions {
   final double zoomOffset;
   final List<String> subdomains;
   final Color backgroundColor;
+  final bool offlineMode;
 
   /// When panning the map, keep this many rows and columns of tiles before
   /// unloading them.
@@ -38,6 +38,7 @@ class TileLayerOptions extends LayerOptions {
     this.keepBuffer = 2,
     this.backgroundColor = const Color(0xFFE0E0E0), // grey[300]
     this.placeholderImage,
+    this.offlineMode = false,
   });
 }
 
@@ -374,7 +375,9 @@ class _TileLayerState extends State<TileLayer> {
           placeholder: options.placeholderImage != null
               ? options.placeholderImage
               : new MemoryImage(kTransparentImage),
-          image: new NetworkImage(getTileUrl(coords)),
+          image: options.offlineMode == true
+              ? new AssetImage(getTileUrl(coords))
+              : new NetworkImage(getTileUrl(coords)),
           fit: BoxFit.fill,
         ),
       ),
@@ -434,5 +437,5 @@ class Coords<T extends num> extends Point<T> {
     return false;
   }
 
-  int get hashCode => hash3(x, y, z);
+  int get hashCode => hashValues(x.hashCode, y.hashCode, z.hashCode);
 }
