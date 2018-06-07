@@ -1,14 +1,24 @@
-## [0.0.9] - 3/31/2018
+## [0.0.10] - 6/7/2018
+- update .gitignore (#40)
+- Applied constraints to zoom on gesture update if min or max options set (#46)
+- Pan Boundary with 2 new MapOptions variables: swPanBoundary and nePanBoundary
+(#47)
+- OfflineMode bool variable added to TileLayerOptions for AssetImage Widget use (#48)
+- remove quiver dep (#32)
+
+Thanks to contributors @avioli, @bcko, and @alfanhui for this release!
+
+## [0.0.9] - 5/31/2018
 - add LatlngBounds.contains, avoid rendering out-of-view markers in MarkerLayer
 
-## [0.0.8] - 3/31/2018
+## [0.0.8] - 5/31/2018
 - bug: rendering far-away tiles was causing a GPU crash on the simulator. add
   tile pruning to TileLayer
 
-## [0.0.7] - 3/11/2018
+## [0.0.7] - 5/29/2018
 - bug: TileLayer not listening to onMoved events from MapController
 
-## [0.0.6] - 3/11/2018
+## [0.0.6] - 5/11/2018
 - fitBounds, onPositionChanged (#39)
 
 ## [0.0.5] - 3/11/2018
