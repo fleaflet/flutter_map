@@ -1,2 +1,26 @@
 .idea
 .dart_tool/
+.DS_Store
+.atom/
+.idea
+.packages
+.pub/
+build/
+ios/.generated/
+packages
+pubspec.lock
+.flutter-plugins
+.vscode/
+
+# Temp files in Example
+/flutter_map_example/.DS_Store
+/flutter_map_example/.atom/
+/flutter_map_example/.idea
+/flutter_map_example/.packages
+/flutter_map_example/.pub/
+/flutter_map_example/build/
+/flutter_map_example/ios/.generated/
+/flutter_map_example/packages
+/flutter_map_example/pubspec.lock
+/flutter_map_example/.flutter-plugins
+/flutter_map_example/.vscode/
