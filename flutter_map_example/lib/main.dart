@@ -6,6 +6,7 @@ import 'package:flutter_map_example/pages/marker_anchor.dart';
 import 'package:flutter_map_example/pages/plugin_api.dart';
 import 'package:flutter_map_example/pages/polyline.dart';
 import 'package:flutter_map_example/pages/tap_to_add.dart';
+import 'package:flutter_map_example/pages/offline_map.dart';
 
 void main() => runApp(new MyApp());
 
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
         MapControllerPage.route: (context) => new MapControllerPage(),
         MarkerAnchorPage.route: (context) => new MarkerAnchorPage(),
         PluginPage.route: (context) => new PluginPage(),
+        OfflineMapPage.route: (context) => new OfflineMapPage(),
       },
     );
   }

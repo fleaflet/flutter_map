@@ -14,3 +14,38 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/offlineMap/12/2177/
+    - assets/offlineMap/12/2178/
+    - assets/offlineMap/12/2179/
+    - assets/offlineMap/12/2180/
+    - assets/offlineMap/12/2181/
+    - assets/offlineMap/13/4354/
+    - assets/offlineMap/13/4355/
+    - assets/offlineMap/13/4356/
+    - assets/offlineMap/13/4357/
+    - assets/offlineMap/13/4358/
+    - assets/offlineMap/13/4359/
+    - assets/offlineMap/13/4360/
+    - assets/offlineMap/13/4361/
+    - assets/offlineMap/13/4362/
+    - assets/offlineMap/13/4363/
+    - assets/offlineMap/14/8709/
+    - assets/offlineMap/14/8710/
+    - assets/offlineMap/14/8711/
+    - assets/offlineMap/14/8712/
+    - assets/offlineMap/14/8713/
+    - assets/offlineMap/14/8714/
+    - assets/offlineMap/14/8715/
+    - assets/offlineMap/14/8716/
+    - assets/offlineMap/14/8717/
+    - assets/offlineMap/14/8718/
+    - assets/offlineMap/14/8719/
+    - assets/offlineMap/14/8720/
+    - assets/offlineMap/14/8721/
+    - assets/offlineMap/14/8722/
+    - assets/offlineMap/14/8723/
+    - assets/offlineMap/14/8724/
+    - assets/offlineMap/14/8725/
+    - assets/offlineMap/14/8726/
+    - assets/offlineMap/14/8727/
