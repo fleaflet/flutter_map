@@ -23,7 +23,7 @@ class OfflineMapPage extends StatelessWidget {
                 options: new MapOptions(
                   center: new LatLng(56.704173, 11.543808),
                   minZoom: 12.0,
-                  maxZoom: 16.0,
+                  maxZoom: 14.0,
                   zoom: 13.0,
                   swPanBoundary: LatLng(56.6877, 11.5089),
                   nePanBoundary: LatLng(56.7378, 11.6644),
@@ -31,7 +31,7 @@ class OfflineMapPage extends StatelessWidget {
                 layers: [
                   new TileLayerOptions(
                     offlineMode: true,
-                    maxZoom: 16.0,
+                    maxZoom: 14.0,
                     urlTemplate: "assets/offlineMap/{z}/{x}/{y}.png",
                   ),
                 ],
