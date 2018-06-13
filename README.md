@@ -86,6 +86,31 @@ To use, you'll need a mapbox key:
 [leaflet]: http://leafletjs.com/
 [mapbox]: https://www.mapbox.com/
 
+## Offline maps
+[Follow this guide to grab offline tiles](https://tilemill-project.github.io/tilemill/docs/guides/osm-bright-mac-quickstart/)<br>
+Once you have your map exported to `.mbtiles`, you can use [mbtilesToPng](https://github.com/alfanhui/mbtilesToPngs) to unpack into `/{z}/{x}/{y}.png`. Move this to Assets folder and add  Asset directories to `pubspec.yaml`. Minimum required fields for offline maps are:
+```
+new FlutterMap(
+  options: new MapOptions(
+    center: new LatLng(56.704173, 11.543808),
+    minZoom: <offline map minimum zoom>,
+    maxZoom: <offline map maximum zoom>,
+    zoom: 13.0,
+    swPanBoundary: LatLng(56.6877, 11.5089),
+    nePanBoundary: LatLng(56.7378, 11.6644),
+  ),
+  layers: [
+    new TileLayerOptions(
+      offlineMode: true,
+      maxZoom: <offline map maximum zoom>,
+      urlTemplate: "assets/offlineMap/{z}/{x}/{y}.png",
+    ),
+  ],
+),
+```
+Make sure PanBoundaries are within offline map boundary to stop missing asset errors.<br>
+See the `flutter_map_example/` folder for a working example.<br>
+
 ## Features
 This package is under active development. 
 The following roadmap is focused on the features we require at AppTree. We welcome
@@ -99,7 +124,8 @@ any contributions for items both on and off of the roadmap.
 - [ ] Improve pinch to zoom ( zoom directly to focal point )
 - [x] Zooming removes too many tiles from other levels
 - [x] Improve image fetching & caching
-- [ ] UI Settings support ( disable pan/zoom etc.)
+- [x] UI Settings support ( disable pan/zoom etc.)
 - [ ] Current location support
 - [ ] Documentation
 - [ ] Polylines
+- [x] Offline map support
