@@ -1,8 +1,9 @@
+import 'dart:ui';
+
 import 'package:flutter/widgets.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'dart:ui';
 
 class PolylineLayerOptions extends LayerOptions {
   final List<Polyline> polylines;
@@ -27,6 +28,15 @@ class PolylineLayer extends StatelessWidget {
   PolylineLayer(this.polylineOpts, this.map);
 
   Widget build(BuildContext context) {
+    return new LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints bc) {
+        final size = new Size(bc.maxWidth, bc.maxHeight);
+        return _build(context, size);
+      },
+    );
+  }
+
+  Widget _build(BuildContext context, Size size) {
     return new StreamBuilder<int>(
       stream: map.onMoved, // a Stream<int> or null
       builder: (BuildContext context, _) {
@@ -35,8 +45,7 @@ class PolylineLayer extends StatelessWidget {
           var i = 0;
           for (var point in polylineOpt.points) {
             var pos = map.project(point);
-            pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
-                map.getPixelOrigin();
+            pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) - map.getPixelOrigin();
             polylineOpt.offsets.add(new Offset(pos.x.toDouble(), pos.y.toDouble()));
             if (i > 0 && i < polylineOpt.points.length) {
               polylineOpt.offsets.add(new Offset(pos.x.toDouble(), pos.y.toDouble()));
@@ -50,6 +59,7 @@ class PolylineLayer extends StatelessWidget {
           polylines.add(
             new CustomPaint(
               painter: new PolylinePainter(polylineOpt),
+              size: size,
             ),
           );
         }
@@ -73,8 +83,11 @@ class PolylinePainter extends CustomPainter {
     if (polylineOpt.offsets.isEmpty) {
       return;
     }
-    var paint = new Paint()..color = polylineOpt.color;
-    paint.strokeWidth = polylineOpt.strokeWidth;
+    final rect = Offset.zero & size;
+    canvas.clipRect(rect);
+    final paint = new Paint()
+      ..color = polylineOpt.color
+      ..strokeWidth = polylineOpt.strokeWidth;
     canvas.drawPoints(PointMode.lines, polylineOpt.offsets, paint);
   }
 
