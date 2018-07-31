@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map_example/pages/esri.dart';
 import 'package:flutter_map_example/pages/home.dart';
 import 'package:flutter_map_example/pages/map_controller.dart';
+import 'package:flutter_map_example/pages/animated_map_controller.dart';
 import 'package:flutter_map_example/pages/marker_anchor.dart';
 import 'package:flutter_map_example/pages/plugin_api.dart';
 import 'package:flutter_map_example/pages/polyline.dart';
@@ -50,6 +51,13 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           selected: currentRoute == MapControllerPage.route,
           onTap: () {
             Navigator.popAndPushNamed(context, MapControllerPage.route);
+          },
+        ),
+        new ListTile(
+          title: const Text('Animated MapController'),
+          selected: currentRoute == AnimatedMapControllerPage.route,
+          onTap: () {
+            Navigator.popAndPushNamed(context, AnimatedMapControllerPage.route);
           },
         ),
         new ListTile(
