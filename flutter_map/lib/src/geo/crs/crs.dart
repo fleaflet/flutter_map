@@ -2,9 +2,9 @@ import 'dart:math' as math;
 
 import 'package:tuple/tuple.dart';
 import 'package:latlong/latlong.dart';
-import 'package:flutter_map/src/core/bounds.dart';
 
-import 'package:flutter_map/src/core/point.dart';
+import '../../core/bounds.dart';
+import '../../core/point.dart';
 
 abstract class Crs {
   String get code;

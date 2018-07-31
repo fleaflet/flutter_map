@@ -4,12 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:latlong/latlong.dart';
 import 'package:transparent_image/transparent_image.dart';
-import 'package:flutter_map/src/core/bounds.dart';
-import 'package:flutter_map/src/core/point.dart';
-import 'package:flutter_map/src/map/map.dart';
-import 'package:flutter_map/src/core/util.dart' as util;
 import 'package:tuple/tuple.dart';
 import 'layer.dart';
+
+import '../core/bounds.dart';
+import '../core/point.dart';
+import '../map/map.dart';
+import '../core/util.dart' as util;
 
 class TileLayerOptions extends LayerOptions {
   final String urlTemplate;

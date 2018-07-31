@@ -1,9 +1,10 @@
 import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
+
+import '../../flutter_map.dart';
+import '../map/map.dart';
 
 class PolylineLayerOptions extends LayerOptions {
   final List<Polyline> polylines;
