@@ -1,3 +1,12 @@
+## [0.0.11] - 6/7/2018
+- fix LICENSE spelling error
+- double-tap to zoom (#62)
+- Fix polyline overlap issue (#67)
+- Offline map example (#53)
+
+Thanks to contributors @alfanhui, @avioli, @solid-software, and @vinicentus for
+this release!
+
 ## [0.0.10] - 6/7/2018
 - update .gitignore (#40)
 - Applied constraints to zoom on gesture update if min or max options set (#46)
