@@ -1,4 +1,7 @@
-## [0.0.11] - 6/7/2018
+## [0.0.11] - 8/2/2018
+- upgrade to latlong from 0.4.0 to 0.5.3
+
+## [0.0.11] - 7/31/2018
 - fix LICENSE spelling error
 - double-tap to zoom (#62)
 - Fix polyline overlap issue (#67)
