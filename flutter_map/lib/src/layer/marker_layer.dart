@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/map/map.dart';
+import '../map/map.dart';
 import 'package:latlong/latlong.dart';
-import 'package:flutter_map/flutter_map.dart';
+import '../../flutter_map.dart';
 
 class MarkerLayerOptions extends LayerOptions {
   final List<Marker> markers;

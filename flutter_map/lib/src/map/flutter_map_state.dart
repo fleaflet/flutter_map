@@ -1,8 +1,9 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/core/point.dart';
-import 'package:flutter_map/src/gestures/gestures.dart';
-import 'package:flutter_map/src/map/map.dart';
+
+import '../../flutter_map.dart';
+import '../core/point.dart';
+import '../gestures/gestures.dart';
+import '../map/map.dart';
 
 class FlutterMapState extends MapGestureMixin {
   final MapControllerImpl mapController;

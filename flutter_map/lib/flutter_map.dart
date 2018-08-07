@@ -4,14 +4,14 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/core/point.dart';
-import 'package:flutter_map/src/geo/crs/crs.dart';
-import 'package:flutter_map/src/map/flutter_map_state.dart';
-import 'package:flutter_map/src/map/map.dart';
-import 'package:flutter_map/src/plugins/plugin.dart';
 import 'package:latlong/latlong.dart';
 
+import 'flutter_map.dart';
+import 'src/core/point.dart';
+import 'src/geo/crs/crs.dart';
+import 'src/map/flutter_map_state.dart';
+import 'src/map/map.dart';
+import 'src/plugins/plugin.dart';
 export 'src/plugins/plugin.dart';
 export 'src/layer/layer.dart';
 export 'src/layer/tile_layer.dart';
@@ -19,7 +19,7 @@ export 'src/layer/marker_layer.dart';
 export 'src/layer/polyline_layer.dart';
 export 'src/geo/crs/crs.dart';
 export 'src/geo/latlng_bounds.dart';
-export 'package:flutter_map/src/core/point.dart';
+export 'src/core/point.dart';
 
 class FlutterMap extends StatefulWidget {
   /// A set of layers' options to used to create the layers on the map

@@ -2,10 +2,11 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/core/point.dart';
-import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
-import 'package:flutter_map/flutter_map.dart';
+
+import '../core/point.dart';
+import '../map/map.dart';
+import '../../flutter_map.dart';
 
 abstract class MapGestureMixin extends State<FlutterMap>
     with TickerProviderStateMixin {
