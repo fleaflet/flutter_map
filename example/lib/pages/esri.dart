@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/pages/tap_to_add.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import '../pages/tap_to_add.dart';
+import '../widgets/drawer.dart';
 import 'package:latlong/latlong.dart';
 
 class EsriPage extends StatelessWidget {

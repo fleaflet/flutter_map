@@ -1,14 +1,16 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:latlong/latlong.dart';
-import 'package:transparent_image/transparent_image.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/point.dart';
-import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/core/util.dart' as util;
+import 'package:flutter_map/src/map/map.dart';
+import 'package:latlong/latlong.dart';
+import 'package:transparent_image/transparent_image.dart';
 import 'package:tuple/tuple.dart';
+
 import 'layer.dart';
 
 class TileLayerOptions extends LayerOptions {
@@ -19,7 +21,25 @@ class TileLayerOptions extends LayerOptions {
   final double zoomOffset;
   final List<String> subdomains;
   final Color backgroundColor;
+  ///Turns on/off the offlineMode.
+  ///
+  ///Requires the urlTemplate to target assets or a filesystem path.
+  ///
+  ///Example:
+  ///
+  ///```dart
+  ///urlTemplate: "assets/map/anholt_osmbright/{z}/{x}/{y}.png",
+  ///```
+  ///
+  ///or:
+  ///
+  ///```dart
+  ///urlTemplate: "/storage/emulated/0/tiles/some_place/{z}/{x}/{y}.png",
+  ///```
   final bool offlineMode;
+  ///Reads the layers in offlineMode from the device filesystem.
+  ///Requires permissions to read the device files in Android.
+  final bool fromAssets;
 
   /// When panning the map, keep this many rows and columns of tiles before
   /// unloading them.
@@ -39,6 +59,7 @@ class TileLayerOptions extends LayerOptions {
     this.backgroundColor = const Color(0xFFE0E0E0), // grey[300]
     this.placeholderImage,
     this.offlineMode = false,
+    this.fromAssets = true,
   });
 }
 
@@ -58,6 +79,7 @@ class TileLayer extends StatefulWidget {
 
 class _TileLayerState extends State<TileLayer> {
   MapState get map => widget.mapState;
+
   TileLayerOptions get options => widget.options;
   Bounds _globalTileRange;
   Tuple2<double, double> _wrapX;
@@ -375,13 +397,23 @@ class _TileLayerState extends State<TileLayer> {
           placeholder: options.placeholderImage != null
               ? options.placeholderImage
               : new MemoryImage(kTransparentImage),
-          image: options.offlineMode == true
-              ? new AssetImage(getTileUrl(coords))
-              : new NetworkImage(getTileUrl(coords)),
+          image: _getImageProvider(getTileUrl(coords)),
           fit: BoxFit.fill,
         ),
       ),
     );
+  }
+  
+  ImageProvider _getImageProvider(String url) {
+    if (options.offlineMode) {
+      if (options.fromAssets) {
+        return new AssetImage(url);
+      } else {
+        return new FileImage(new File(url));
+      }
+    } else {
+      return new NetworkImage(url);
+    }
   }
 
   Coords _wrapCoords(Coords coords) {
@@ -414,6 +446,7 @@ class _TileLayerState extends State<TileLayer> {
 class Tile {
   final Coords coords;
   bool current;
+
   Tile(this.coords, this.current);
 }
 
@@ -428,8 +461,11 @@ class Level {
 
 class Coords<T extends num> extends Point<T> {
   T z;
+
   Coords(T x, T y) : super(x, y);
+
   String toString() => 'Coords($x, $y, $z)';
+
   bool operator ==(dynamic other) {
     if (other is Coords) {
       return this.x == other.x && this.y == other.y && this.z == other.z;

@@ -12,5 +12,5 @@ dependencies:
   flutter:
     sdk: flutter
   latlong: ^0.5.3
-  tuple: ^1.0.0
+  tuple: ^1.0.1
   transparent_image: ^0.1.0

@@ -1,17 +1,18 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:flutter_map/src/core/center_zoom.dart';
-import 'package:latlong/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/bounds.dart';
+import 'package:flutter_map/src/core/center_zoom.dart';
 import 'package:flutter_map/src/core/point.dart';
+import 'package:latlong/latlong.dart';
 
 class MapControllerImpl implements MapController {
   Completer<Null> _readyCompleter = new Completer<Null>();
   MapState _state;
 
   Future<Null> get onReady => _readyCompleter.future;
+
   set state(MapState state) {
     _state = state;
     if (!_readyCompleter.isCompleted) {
@@ -34,6 +35,7 @@ class MapControllerImpl implements MapController {
   bool get ready => _state != null;
 
   LatLng get center => _state.center;
+
   double get zoom => _state.zoom;
 }
 
@@ -42,6 +44,7 @@ class MapState {
   final StreamController<Null> _onMoveSink;
 
   double _zoom;
+
   double get zoom => _zoom;
 
   LatLng _lastCenter;
@@ -55,6 +58,7 @@ class MapState {
   Stream<Null> get onMoved => _onMoveSink.stream;
 
   Point get size => _size;
+
   set size(Point s) {
     _size = s;
     _pixelOrigin = getNewPixelOrigin(_lastCenter);

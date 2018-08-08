@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map_example/pages/esri.dart';
-import 'package:flutter_map_example/pages/home.dart';
-import 'package:flutter_map_example/pages/map_controller.dart';
-import 'package:flutter_map_example/pages/animated_map_controller.dart';
-import 'package:flutter_map_example/pages/marker_anchor.dart';
-import 'package:flutter_map_example/pages/plugin_api.dart';
-import 'package:flutter_map_example/pages/polyline.dart';
-import 'package:flutter_map_example/pages/tap_to_add.dart';
-import 'package:flutter_map_example/pages/offline_map.dart';
+import './pages/esri.dart';
+import './pages/home.dart';
+import './pages/map_controller.dart';
+import './pages/animated_map_controller.dart';
+import './pages/marker_anchor.dart';
+import './pages/plugin_api.dart';
+import './pages/polyline.dart';
+import './pages/tap_to_add.dart';
+import './pages/offline_map.dart';
 
 void main() => runApp(new MyApp());
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import '../widgets/drawer.dart';
 import 'package:latlong/latlong.dart';
 
 class PluginPage extends StatelessWidget {
