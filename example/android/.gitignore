@@ -7,3 +7,6 @@
 /build
 /captures
 GeneratedPluginRegistrant.java
+.settings/
+*.project
+*.classpath
