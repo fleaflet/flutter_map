@@ -14,13 +14,44 @@ import 'package:tuple/tuple.dart';
 import 'layer.dart';
 
 class TileLayerOptions extends LayerOptions {
+  ///Defines the structure to create the URLs for the tiles.
+  ///
+  ///Example:
+  ///
+  ///https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png
+  ///
+  ///Is translated to this:
+  ///
+  ///https://a.tile.openstreetmap.org/12/2177/1259.png
   final String urlTemplate;
+  ///Size for the tile.
+  ///Default is 256
   final double tileSize;
+  ///Determiantes the max zoom applicable.
+  ///In most tile providers goes from 0 to 19.
   final double maxZoom;
+
   final bool zoomReverse;
   final double zoomOffset;
+  ///List of subdomains for the URL.
+  ///
+  ///Example:
+  ///
+  ///Subdomains = {a,b,c}
+  ///
+  ///and the URL is as follows:
+  ///
+  ///https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png
+  ///
+  ///then:
+  ///
+  ///https://a.tile.openstreetmap.org/{z}/{x}/{y}.png
+  ///https://b.tile.openstreetmap.org/{z}/{x}/{y}.png
+  ///https://c.tile.openstreetmap.org/{z}/{x}/{y}.png
   final List<String> subdomains;
+  ///Color shown behind the tiles.
   final Color backgroundColor;
+
   ///Turns on/off the offlineMode.
   ///
   ///Requires the urlTemplate to target assets or a filesystem path.
@@ -37,8 +68,11 @@ class TileLayerOptions extends LayerOptions {
   ///urlTemplate: "/storage/emulated/0/tiles/some_place/{z}/{x}/{y}.png",
   ///```
   final bool offlineMode;
-  ///Reads the layers in offlineMode from the device filesystem.
-  ///Requires permissions to read the device files in Android.
+
+  ///Reads the tiles from the assets folder in the project.
+  ///If true, reads the tiles from the project assets folder.
+  ///If false, reads the tiles from the device filesystem.
+  ///The later requires permissions to read the device files in Android.
   final bool fromAssets;
 
   /// When panning the map, keep this many rows and columns of tiles before
@@ -403,7 +437,7 @@ class _TileLayerState extends State<TileLayer> {
       ),
     );
   }
-  
+
   ImageProvider _getImageProvider(String url) {
     if (options.offlineMode) {
       if (options.fromAssets) {
