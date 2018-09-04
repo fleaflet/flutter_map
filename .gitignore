@@ -11,6 +11,10 @@ packages
 pubspec.lock
 .flutter-plugins
 .vscode/
+GeneratedPluginRegistrant.h
+GeneratedPluginRegistrant.m
+GeneratedPluginRegistrant.java
+ios/Flutter/Generated.xcconfig
 
 # Temp files in Example
 /flutter_map_example/.DS_Store
