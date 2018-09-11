@@ -36,6 +36,8 @@ class MapControllerImpl implements MapController {
 
   LatLng get center => _state.center;
 
+  LatLngBounds get bounds => _state.bounds;
+
   double get zoom => _state.zoom;
 }
 

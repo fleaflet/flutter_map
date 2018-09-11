@@ -59,6 +59,7 @@ abstract class MapController {
   bool get ready;
   Future<Null> get onReady;
   LatLng get center;
+  LatLngBounds get bounds;
   double get zoom;
 
   factory MapController() => new MapControllerImpl();
