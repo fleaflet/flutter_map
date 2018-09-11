@@ -48,6 +48,7 @@ class MapState {
   double get zoom => _zoom;
 
   LatLng _lastCenter;
+  LatLngBounds _lastBounds;
   Point _pixelOrigin;
   bool _initialized = false;
 
@@ -69,6 +70,8 @@ class MapState {
   }
 
   LatLng get center => getCenter() ?? options.center;
+
+  LatLngBounds get bounds => getBounds();
 
   void _init() {
     _zoom = options.zoom;
@@ -98,6 +101,7 @@ class MapState {
 
     _zoom = zoom;
     _lastCenter = center;
+    _lastBounds = _calculateBounds();
     _pixelOrigin = getNewPixelOrigin(center);
     _onMoveSink.add(null);
 
@@ -119,6 +123,22 @@ class MapState {
       return _lastCenter;
     }
     return layerPointToLatLng(_centerLayerPoint);
+  }
+
+  LatLngBounds getBounds() {
+    if (_lastBounds != null) {
+      return _lastBounds;
+    }
+
+    return _calculateBounds();
+  }
+
+  LatLngBounds _calculateBounds() {
+    var bounds = getPixelBounds(zoom);
+    return new LatLngBounds(
+      unproject(bounds.bottomLeft),
+      unproject(bounds.topRight),
+    );
   }
 
   CenterZoom _getBoundsCenterZoom(
