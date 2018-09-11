@@ -130,6 +130,7 @@ class FitBoundsOptions {
 
 class MapPosition {
   final LatLng center;
+  final LatLngBounds bounds;
   final double zoom;
-  MapPosition({this.center, this.zoom});
+  MapPosition({this.center, this.bounds, this.zoom});
 }
