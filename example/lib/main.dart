@@ -8,6 +8,7 @@ import './pages/plugin_api.dart';
 import './pages/polyline.dart';
 import './pages/tap_to_add.dart';
 import './pages/offline_map.dart';
+import './pages/on_tap.dart';
 
 void main() => runApp(new MyApp());
 
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
         MarkerAnchorPage.route: (context) => new MarkerAnchorPage(),
         PluginPage.route: (context) => new PluginPage(),
         OfflineMapPage.route: (context) => new OfflineMapPage(),
+        OnTapPage.route: (context) => new OnTapPage(),
       },
     );
   }
