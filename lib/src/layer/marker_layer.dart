@@ -85,9 +85,6 @@ class MarkerLayer extends StatelessWidget {
         var markers = <Widget>[];
         for (var markerOpt in this.markerOpts.markers) {
           var pos = map.project(markerOpt.point);
-          var bounds = map.getPixelBounds(map.zoom);
-          var latlngBounds = new LatLngBounds(
-              map.unproject(bounds.bottomLeft), map.unproject(bounds.topRight));
           pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
               map.getPixelOrigin();
 
@@ -96,7 +93,7 @@ class MarkerLayer extends StatelessWidget {
           var pixelPosY =
               (pos.y - (markerOpt.height - markerOpt._anchor.top)).toDouble();
 
-          if (!latlngBounds.contains(markerOpt.point)) {
+          if (!map.bounds.contains(markerOpt.point)) {
             continue;
           }
 

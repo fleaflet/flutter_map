@@ -61,6 +61,7 @@ abstract class MapController {
   bool get ready;
   Future<Null> get onReady;
   LatLng get center;
+  LatLngBounds get bounds;
   double get zoom;
 
   factory MapController() => new MapControllerImpl();
@@ -132,6 +133,7 @@ class FitBoundsOptions {
 
 class MapPosition {
   final LatLng center;
+  final LatLngBounds bounds;
   final double zoom;
-  MapPosition({this.center, this.zoom});
+  MapPosition({this.center, this.bounds, this.zoom});
 }

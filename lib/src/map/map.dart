@@ -36,6 +36,8 @@ class MapControllerImpl implements MapController {
 
   LatLng get center => _state.center;
 
+  LatLngBounds get bounds => _state.bounds;
+
   double get zoom => _state.zoom;
 }
 
@@ -48,6 +50,7 @@ class MapState {
   double get zoom => _zoom;
 
   LatLng _lastCenter;
+  LatLngBounds _lastBounds;
   Point _pixelOrigin;
   bool _initialized = false;
 
@@ -69,6 +72,8 @@ class MapState {
   }
 
   LatLng get center => getCenter() ?? options.center;
+
+  LatLngBounds get bounds => getBounds();
 
   void _init() {
     _zoom = options.zoom;
@@ -98,11 +103,16 @@ class MapState {
 
     _zoom = zoom;
     _lastCenter = center;
+    _lastBounds = _calculateBounds();
     _pixelOrigin = getNewPixelOrigin(center);
     _onMoveSink.add(null);
 
     if (options.onPositionChanged != null) {
-      options.onPositionChanged(new MapPosition(center: center, zoom: zoom));
+      options.onPositionChanged(new MapPosition(
+        center: center,
+        bounds: bounds,
+        zoom: zoom,
+      ));
     }
   }
 
@@ -119,6 +129,22 @@ class MapState {
       return _lastCenter;
     }
     return layerPointToLatLng(_centerLayerPoint);
+  }
+
+  LatLngBounds getBounds() {
+    if (_lastBounds != null) {
+      return _lastBounds;
+    }
+
+    return _calculateBounds();
+  }
+
+  LatLngBounds _calculateBounds() {
+    var bounds = getPixelBounds(zoom);
+    return new LatLngBounds(
+      unproject(bounds.bottomLeft),
+      unproject(bounds.topRight),
+    );
   }
 
   CenterZoom _getBoundsCenterZoom(

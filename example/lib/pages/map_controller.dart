@@ -13,6 +13,7 @@ class MapControllerPage extends StatefulWidget {
 }
 
 class MapControllerPageState extends State<MapControllerPage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   static LatLng london = new LatLng(51.5, -0.09);
   static LatLng paris = new LatLng(48.8566, 2.3522);
   static LatLng dublin = new LatLng(53.3498, -6.2603);
@@ -31,7 +32,7 @@ class MapControllerPageState extends State<MapControllerPage> {
         height: 80.0,
         point: london,
         builder: (ctx) => new Container(
-          key: new Key("blue"),
+              key: new Key("blue"),
               child: new FlutterLogo(),
             ),
       ),
@@ -51,13 +52,14 @@ class MapControllerPageState extends State<MapControllerPage> {
         height: 80.0,
         point: paris,
         builder: (ctx) => new Container(
-          key: new Key("purple"),
+              key: new Key("purple"),
               child: new FlutterLogo(colors: Colors.purple),
             ),
       ),
     ];
 
     return new Scaffold(
+      key: _scaffoldKey,
       appBar: new AppBar(title: new Text("MapController")),
       drawer: buildDrawer(context, MapControllerPage.route),
       body: new Padding(
@@ -108,6 +110,22 @@ class MapControllerPageState extends State<MapControllerPage> {
                       );
                     },
                   ),
+                  new MaterialButton(
+                    child: new Text("Get Bounds"),
+                    onPressed: () {
+                      final bounds = mapController.bounds;
+
+                      _scaffoldKey.currentState.showSnackBar(new SnackBar(
+                        content: new Text(
+                          'Map bounds: \n'
+                              'E: ${bounds.east} \n'
+                              'N: ${bounds.north} \n'
+                              'W: ${bounds.west} \n'
+                              'S: ${bounds.south}',
+                        ),
+                      ));
+                    },
+                  ),
                 ],
               ),
             ),
@@ -118,7 +136,7 @@ class MapControllerPageState extends State<MapControllerPage> {
                   center: new LatLng(51.5, -0.09),
                   zoom: 5.0,
                   maxZoom: 5.0,
-                  minZoom: 3.0
+                  minZoom: 3.0,
                 ),
                 layers: [
                   new TileLayerOptions(
