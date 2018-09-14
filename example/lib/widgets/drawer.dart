@@ -8,6 +8,7 @@ import '../pages/offline_map.dart';
 import '../pages/plugin_api.dart';
 import '../pages/polyline.dart';
 import '../pages/tap_to_add.dart';
+import '../pages/on_tap.dart';
 
 Drawer buildDrawer(BuildContext context, String currentRoute) {
   return new Drawer(
@@ -79,6 +80,13 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           selected: currentRoute == OfflineMapPage.route,
           onTap: () {
             Navigator.popAndPushNamed(context, OfflineMapPage.route);
+          },
+        ),
+        new ListTile(
+          title: const Text('OnTap'),
+          selected: currentRoute == OnTapPage.route,
+          onTap: () {
+            Navigator.popAndPushNamed(context, OnTapPage.route);
           },
         ),
       ],
