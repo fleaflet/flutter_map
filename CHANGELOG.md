@@ -1,3 +1,14 @@
+## [0.1.2] - 8/21/2018
+- Added polyline customisation options (#94)
+- Expose map bounds (#99)
+- Added onTap example (#103)
+- route bugfix (#104)
+- options is now required (#105)
+- Project refactor and changes to offline map #85
+
+Thanks to @LJaraCastillo, @ubilabs, @xqwzts, @vinicentus, and @lsaudon for this
+release!
+
 ## [0.1.0] - 8/21/2018
 - Set Dart SDK to ">=2.0.0 <3.0.0"
 
