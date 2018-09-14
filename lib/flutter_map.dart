@@ -30,6 +30,8 @@ class FlutterMap extends StatefulWidget {
 
   /// [MapOptions] to create a [MapState] with
   ///
+  /// This property must not be null.
+  ///
   /// Please note: If both [options] and [mapState] are set, mapState's options
   /// will take precedence, but the [:onTap:] callback of the options will be
   /// used!
@@ -40,7 +42,7 @@ class FlutterMap extends StatefulWidget {
 
   FlutterMap({
     Key key,
-    this.options,
+    @required this.options,
     this.layers,
     MapController mapController,
   })  : _mapController = mapController ?? new MapController(),
