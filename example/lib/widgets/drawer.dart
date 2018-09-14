@@ -41,7 +41,7 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
         ),
         new ListTile(
           title: const Text('Polylines'),
-          selected: currentRoute == EsriPage.route,
+          selected: currentRoute == PolylinePage.route,
           onTap: () {
             Navigator.popAndPushNamed(context, PolylinePage.route);
           },
