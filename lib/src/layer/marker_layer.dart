@@ -102,7 +102,7 @@ class MarkerLayer extends StatelessWidget {
   }
 
   Widget _buildMarkerWidget(BuildContext context, Marker markerOpt) {
-    final markerPos = _getMarkerPosition(markerOpt);
+    final markerPos = _calcMarkerPosition(markerOpt);
     final markerWidget = markerOpts.onTap == null
         ? markerOpt.builder(context)
         : GestureDetector(
@@ -118,7 +118,7 @@ class MarkerLayer extends StatelessWidget {
     );
   }
 
-  Point _getMarkerPosition(Marker markerOpt) {
+  Point _calcMarkerPosition(Marker markerOpt) {
     var scale = map.getZoomScale(map.zoom, map.zoom);
     var pos =
         map.project(markerOpt.point).multiplyBy(scale) - map.getPixelOrigin();
