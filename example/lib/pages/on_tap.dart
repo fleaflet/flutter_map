@@ -7,46 +7,46 @@ class OnTapPage extends StatefulWidget {
   static const String route = 'on_tap';
 
   @override
-  OnTapPageState createState() {
-    return new OnTapPageState();
-  }
+  OnTapPageState createState() => OnTapPageState();
 }
 
 class OnTapPageState extends State<OnTapPage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  static LatLng london = new LatLng(51.5, -0.09);
-  static LatLng paris = new LatLng(48.8566, 2.3522);
-  static LatLng dublin = new LatLng(53.3498, -6.2603);
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  static LatLng london = LatLng(51.5, -0.09);
+  static LatLng paris = LatLng(48.8566, 2.3522);
+  static LatLng dublin = LatLng(53.3498, -6.2603);
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
+    return Scaffold(
       key: _scaffoldKey,
-      appBar: new AppBar(title: new Text("OnTap")),
+      appBar: AppBar(title: Text("OnTap")),
       drawer: buildDrawer(context, OnTapPage.route),
-      body: new Padding(
-        padding: new EdgeInsets.all(8.0),
-        child: new Column(
+      body: Padding(
+        padding: EdgeInsets.all(8.0),
+        child: Column(
           children: [
-            new Padding(
-              padding: new EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: new Text("Try tapping on the markers"),
+            Padding(
+              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+              child: Text("Try tapping on the markers"),
             ),
-            new Flexible(
-              child: new FlutterMap(
-                options: new MapOptions(
-                  center: new LatLng(51.5, -0.09),
+            Flexible(
+              child: FlutterMap(
+                options: MapOptions(
+                  center: LatLng(51.5, -0.09),
                   zoom: 5.0,
                   maxZoom: 5.0,
                   minZoom: 3.0,
                 ),
                 layers: [
-                  new TileLayerOptions(
+                  TileLayerOptions(
                       urlTemplate:
                           "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                       subdomains: ['a', 'b', 'c']),
-                  new MarkerLayerOptions(
-                      markers: _buildMarkers(), onTap: _handleMarkerTap)
+                  MarkerLayerOptions(
+                    markers: _buildMarkers(),
+                    onTap: _handleMarkerTap,
+                  )
                 ],
               ),
             ),
@@ -58,10 +58,11 @@ class OnTapPageState extends State<OnTapPage> {
 
   List<Marker> _buildMarkers() => [
         Marker(
-            width: 80.0,
-            height: 80.0,
-            point: london,
-            builder: (ctx) => FlutterLogo(colors: Colors.blue)),
+          width: 80.0,
+          height: 80.0,
+          point: london,
+          builder: (ctx) => FlutterLogo(colors: Colors.blue),
+        ),
         Marker(
           width: 80.0,
           height: 80.0,
