@@ -18,54 +18,8 @@ class OnTapPageState extends State<OnTapPage> {
   static LatLng paris = new LatLng(48.8566, 2.3522);
   static LatLng dublin = new LatLng(53.3498, -6.2603);
 
+  @override
   Widget build(BuildContext context) {
-    var markers = <Marker>[
-      new Marker(
-        width: 80.0,
-        height: 80.0,
-        point: london,
-        builder: (ctx) => new Container(
-                child: new GestureDetector(
-              onTap: () {
-                _scaffoldKey.currentState.showSnackBar(new SnackBar(
-                  content: new Text("Tapped on blue FlutterLogo Marker"),
-                ));
-              },
-              child: new FlutterLogo(),
-            )),
-      ),
-      new Marker(
-        width: 80.0,
-        height: 80.0,
-        point: dublin,
-        builder: (ctx) => new Container(
-                child: new GestureDetector(
-              onTap: () {
-                _scaffoldKey.currentState.showSnackBar(new SnackBar(
-                  content: new Text("Tapped on green FlutterLogo Marker"),
-                ));
-              },
-              child: new FlutterLogo(
-                colors: Colors.green,
-              ),
-            )),
-      ),
-      new Marker(
-        width: 80.0,
-        height: 80.0,
-        point: paris,
-        builder: (ctx) => new Container(
-                child: new GestureDetector(
-              onTap: () {
-                _scaffoldKey.currentState.showSnackBar(new SnackBar(
-                  content: new Text("Tapped on purple FlutterLogo Marker"),
-                ));
-              },
-              child: new FlutterLogo(colors: Colors.purple),
-            )),
-      ),
-    ];
-
     return new Scaffold(
       key: _scaffoldKey,
       appBar: new AppBar(title: new Text("OnTap")),
@@ -91,13 +45,59 @@ class OnTapPageState extends State<OnTapPage> {
                       urlTemplate:
                           "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                       subdomains: ['a', 'b', 'c']),
-                  new MarkerLayerOptions(markers: markers)
+                  new MarkerLayerOptions(
+                      markers: _buildMarkers(), onTap: _handleMarkerTap)
                 ],
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  List<Marker> _buildMarkers() => [
+        Marker(
+            width: 80.0,
+            height: 80.0,
+            point: london,
+            builder: (ctx) => FlutterLogo(colors: Colors.blue)),
+        Marker(
+          width: 80.0,
+          height: 80.0,
+          point: dublin,
+          builder: (ctx) => FlutterLogo(colors: Colors.green),
+        ),
+        Marker(
+          width: 80.0,
+          height: 80.0,
+          point: paris,
+          builder: (ctx) => GestureDetector(
+                onTap: () =>
+                    showSnackBarMsg("Tapped on purple FlutterLogo Marker"),
+                child: FlutterLogo(colors: Colors.purple),
+              ),
+        ),
+      ];
+
+  void _handleMarkerTap(Marker marker) {
+    final point = marker.point;
+    String city;
+    if (point == london) {
+      city = "London";
+    } else if (point == dublin) {
+      city = "Dublin";
+    } else if (point == paris) {
+      city = "Paris";
+    } else {
+      city = "unknown";
+    }
+    showSnackBarMsg("Tapped on $city FlutterLogo Marker");
+  }
+
+  void showSnackBarMsg(String text) {
+    _scaffoldKey.currentState.showSnackBar(
+      SnackBar(content: Text(text)),
     );
   }
 }
