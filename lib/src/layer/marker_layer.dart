@@ -3,9 +3,12 @@ import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
 
+typedef MarkerTapCallback(Marker marker);
+
 class MarkerLayerOptions extends LayerOptions {
   final List<Marker> markers;
-  MarkerLayerOptions({this.markers = const []});
+  final MarkerTapCallback onTap;
+  MarkerLayerOptions({this.markers = const [], this.onTap});
 }
 
 class Anchor {
@@ -99,17 +102,23 @@ class MarkerLayer extends StatelessWidget {
   }
 
   Widget _buildMarkerWidget(BuildContext context, Marker markerOpt) {
-    final markerPos = _calcMarkerPosition(markerOpt);
+    final markerPos = _getMarkerPosition(markerOpt);
+    final markerWidget = markerOpts.onTap == null
+        ? markerOpt.builder(context)
+        : GestureDetector(
+            onTap: () => markerOpts.onTap(markerOpt),
+            child: markerOpt.builder(context),
+          );
     return Positioned(
       width: markerOpt.width,
       height: markerOpt.height,
       left: markerPos.x,
       top: markerPos.y,
-      child: markerOpt.builder(context),
+      child: markerWidget,
     );
   }
 
-  Point _calcMarkerPosition(Marker markerOpt) {
+  Point _getMarkerPosition(Marker markerOpt) {
     var scale = map.getZoomScale(map.zoom, map.zoom);
     var pos =
         map.project(markerOpt.point).multiplyBy(scale) - map.getPixelOrigin();
