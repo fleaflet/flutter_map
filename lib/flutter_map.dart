@@ -79,7 +79,7 @@ class MapOptions {
   final bool debug;
   final bool interactive;
   final TapCallback onTap;
-  final PositionCallback onPositionChanged;
+  final PositionListener positionListener;
   final List<MapPlugin> plugins;
   LatLng center;
   LatLng swPanBoundary;
@@ -95,7 +95,7 @@ class MapOptions {
     this.debug = false,
     this.interactive = true,
     this.onTap,
-    this.onPositionChanged,
+    this.positionListener,
     this.plugins = const [],
     this.swPanBoundary,
     this.nePanBoundary,
@@ -136,4 +136,13 @@ class MapPosition {
   final LatLngBounds bounds;
   final double zoom;
   MapPosition({this.center, this.bounds, this.zoom});
+}
+
+class PositionListener {
+  PositionCallback onChanged;
+  Duration debounce;
+  PositionListener({
+    @required this.onChanged,
+    this.debounce = Duration.zero,
+  });
 }

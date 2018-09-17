@@ -6,6 +6,7 @@ import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/center_zoom.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:latlong/latlong.dart';
+import 'package:rxdart/transformers.dart' show DebounceStreamTransformer;
 
 class MapControllerImpl implements MapController {
   Completer<Null> _readyCompleter = new Completer<Null>();
@@ -44,6 +45,7 @@ class MapControllerImpl implements MapController {
 class MapState {
   final MapOptions options;
   final StreamController<Null> _onMoveSink;
+  final _MapPositionStream _mapPositionStream;
 
   double _zoom;
 
@@ -54,7 +56,9 @@ class MapState {
   Point _pixelOrigin;
   bool _initialized = false;
 
-  MapState(this.options) : _onMoveSink = new StreamController.broadcast();
+  MapState(this.options)
+      : _onMoveSink = StreamController.broadcast(),
+        _mapPositionStream = _MapPositionStream(options.positionListener);
 
   Point _size;
 
@@ -78,10 +82,12 @@ class MapState {
   void _init() {
     _zoom = options.zoom;
     move(options.center, zoom);
+    _mapPositionStream.init();
   }
 
   void dispose() {
     _onMoveSink.close();
+    _mapPositionStream.dispose();
   }
 
   void move(LatLng center, double zoom) {
@@ -107,13 +113,11 @@ class MapState {
     _pixelOrigin = getNewPixelOrigin(center);
     _onMoveSink.add(null);
 
-    if (options.onPositionChanged != null) {
-      options.onPositionChanged(new MapPosition(
-        center: center,
-        bounds: bounds,
-        zoom: zoom,
-      ));
-    }
+    _mapPositionStream.add(MapPosition(
+      center: center,
+      bounds: bounds,
+      zoom: zoom,
+    ));
   }
 
   void fitBounds(LatLngBounds bounds, FitBoundsOptions options) {
@@ -237,4 +241,42 @@ class MapState {
     Point<num> halfSize = size / (scale * 2);
     return new Bounds(pixelCenter - halfSize, pixelCenter + halfSize);
   }
+}
+
+class _MapPositionStream {
+  _MapPositionStream(this._listener)
+      : _mapPositionSink = StreamController.broadcast();
+
+  final StreamController<MapPosition> _mapPositionSink;
+  final PositionListener _listener;
+
+  void init() {
+    if (_listener != null) {
+      _mapPositionSink.stream
+          .transform(DebounceStreamTransformer(_listener.debounce))
+          .distinct(_comparePositions)
+          .listen(_listener.onChanged);
+    }
+  }
+
+  void dispose() => _mapPositionSink.close();
+
+  void add(MapPosition mapPosition) => _mapPositionSink.add(mapPosition);
+
+  bool _comparePositions(MapPosition p1, MapPosition p2) {
+    if (p1 == p2) return true;
+    return _comparePosDouble(p1.zoom, p2.zoom) &&
+        _compareLatLng(p1.center, p2.center) &&
+        _compareLatLngBounds(p1.bounds, p2.bounds);
+  }
+
+  bool _compareLatLngBounds(LatLngBounds b1, LatLngBounds b2) =>
+      _compareLatLng(b1.sw, b2.sw) && _compareLatLng(b1.ne, b2.ne);
+
+  bool _compareLatLng(LatLng l1, LatLng l2) =>
+      _comparePosDouble(l1.latitude, l2.latitude) &&
+      _comparePosDouble(l1.longitude, l2.longitude);
+
+  bool _comparePosDouble(double d1, double d2) =>
+      d1.toStringAsFixed(6) == d2.toStringAsFixed(6);
 }
