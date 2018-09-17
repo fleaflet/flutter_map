@@ -82,37 +82,41 @@ class MarkerLayer extends StatelessWidget {
     return new StreamBuilder<int>(
       stream: map.onMoved, // a Stream<int> or null
       builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-        var markers = <Widget>[];
-        for (var markerOpt in this.markerOpts.markers) {
-          var pos = map.project(markerOpt.point);
-          pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
-              map.getPixelOrigin();
-
-          var pixelPosX =
-              (pos.x - (markerOpt.width - markerOpt._anchor.left)).toDouble();
-          var pixelPosY =
-              (pos.y - (markerOpt.height - markerOpt._anchor.top)).toDouble();
-
-          if (!map.bounds.contains(markerOpt.point)) {
-            continue;
-          }
-
-          markers.add(
-            new Positioned(
-              width: markerOpt.width,
-              height: markerOpt.height,
-              left: pixelPosX,
-              top: pixelPosY,
-              child: markerOpt.builder(context),
-            ),
-          );
-        }
         return new Container(
           child: new Stack(
-            children: markers,
+            children: _buildMarkers(context),
           ),
         );
       },
     );
+  }
+
+  List<Widget> _buildMarkers(BuildContext context) {
+    return markerOpts.markers
+        .where((it) => map.bounds.contains(it.point))
+        .map((it) => _buildMarkerWidget(context, it))
+        .toList();
+  }
+
+  Widget _buildMarkerWidget(BuildContext context, Marker markerOpt) {
+    final markerPos = _calcMarkerPosition(markerOpt);
+    return Positioned(
+      width: markerOpt.width,
+      height: markerOpt.height,
+      left: markerPos.x,
+      top: markerPos.y,
+      child: markerOpt.builder(context),
+    );
+  }
+
+  Point _calcMarkerPosition(Marker markerOpt) {
+    var scale = map.getZoomScale(map.zoom, map.zoom);
+    var pos =
+        map.project(markerOpt.point).multiplyBy(scale) - map.getPixelOrigin();
+    var pixelPosX =
+        (pos.x - (markerOpt.width - markerOpt._anchor.left)).toDouble();
+    var pixelPosY =
+        (pos.y - (markerOpt.height - markerOpt._anchor.top)).toDouble();
+    return Point(pixelPosX, pixelPosY);
   }
 }
