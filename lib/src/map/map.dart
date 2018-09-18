@@ -85,20 +85,11 @@ class MapState {
   }
 
   void move(LatLng center, double zoom) {
-    if (options.isOutOfBounds(center)) {
+    zoom = _fitZoomToBounds(zoom);
+    final mapMoved = center != _lastCenter || zoom != _zoom;
+
+    if (!mapMoved || options.isOutOfBounds(center)) {
       return;
-    }
-
-    if (zoom == null) {
-      zoom = _zoom;
-    }
-
-    // Abide to min/max zoom
-    if (options.maxZoom != null) {
-      zoom = (zoom > options.maxZoom) ? options.maxZoom : zoom;
-    }
-    if (options.minZoom != null) {
-      zoom = (zoom < options.minZoom) ? options.minZoom : zoom;
     }
 
     _zoom = zoom;
@@ -114,6 +105,20 @@ class MapState {
         zoom: zoom,
       ));
     }
+  }
+
+  double _fitZoomToBounds(double zoom) {
+    if (zoom == null) {
+      zoom = _zoom;
+    }
+    // Abide to min/max zoom
+    if (options.maxZoom != null) {
+      zoom = (zoom > options.maxZoom) ? options.maxZoom : zoom;
+    }
+    if (options.minZoom != null) {
+      zoom = (zoom < options.minZoom) ? options.minZoom : zoom;
+    }
+    return zoom;
   }
 
   void fitBounds(LatLngBounds bounds, FitBoundsOptions options) {
