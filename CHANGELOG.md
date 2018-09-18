@@ -1,3 +1,9 @@
+## [0.1.3] - 9/18/2018
+- fix identical map position callbacks (#111)
+- Prune tiles bug fix (#112)
+
+Thanks to @IhorKlimov and @tomwyr for this release!
+
 ## [0.1.2] - 8/21/2018
 - Added polyline customisation options (#94)
 - Expose map bounds (#99)
