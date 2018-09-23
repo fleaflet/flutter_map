@@ -52,6 +52,9 @@ class TileLayerOptions extends LayerOptions {
   ///Color shown behind the tiles.
   final Color backgroundColor;
 
+  ///Container Widget decoration
+  final Decoration decoration;
+
   ///Turns on/off the offlineMode.
   ///
   ///Requires the urlTemplate to target assets or a filesystem path.
@@ -91,6 +94,7 @@ class TileLayerOptions extends LayerOptions {
     this.subdomains = const <String>[],
     this.keepBuffer = 2,
     this.backgroundColor = const Color(0xFFE0E0E0), // grey[300]
+    this.decoration = const BoxDecoration(),
     this.placeholderImage,
     this.offlineMode = false,
     this.fromAssets = true,
@@ -378,6 +382,7 @@ class _TileLayerState extends State<TileLayer> {
         children: tileWidgets,
       ),
       color: this.options.backgroundColor,
+      decoration: this.options.decoration
     );
   }
 
