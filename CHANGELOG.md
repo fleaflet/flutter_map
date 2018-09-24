@@ -1,3 +1,8 @@
+## [0.1.4] - 9/24/2018
+- Polygon Support (#118)
+
+Thanks to @JulianBerger for this release!
+
 ## [0.1.3] - 9/18/2018
 - fix identical map position callbacks (#111)
 - Prune tiles bug fix (#112)
