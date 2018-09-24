@@ -124,7 +124,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
   void handleDoubleTap(TapPosition tapPosition) {
     final centerPos = _pointToOffset(map.size) / 2.0;
     final newZoom = _getDoubleTapZoom(map.zoom, 2.0);
-    final focalDelta = tapPosition.relative - centerPos;
+    final focalDelta = _getDoubleTapFocalDelta(
+        centerPos, tapPosition.relative, newZoom - map.zoom);
     final newCenter = _offsetToCrs(centerPos + focalDelta);
     _startDoubleTapAnimation(newZoom, newCenter);
   }
@@ -134,6 +135,26 @@ abstract class MapGestureMixin extends State<FlutterMap>
       dScale = math.sqrt(dScale);
     }
     return startZoom * dScale;
+  }
+
+  Offset _getDoubleTapFocalDelta(
+      Offset centerPos, Offset tapPos, double zoomDiff) {
+    final tapDelta = tapPos - centerPos;
+    final zoomScale = 1 / math.pow(2, zoomDiff);
+    // map center offset within which double-tap won't
+    // cause zooming to previously invisible area
+    final maxDelta = centerPos * (1 - zoomScale);
+    final tappedOutExtent =
+        tapDelta.dx.abs() > maxDelta.dx || tapDelta.dy.abs() > maxDelta.dy;
+    return tappedOutExtent
+        ? _projectDeltaOnBounds(tapDelta, maxDelta)
+        : tapDelta;
+  }
+
+  Offset _projectDeltaOnBounds(Offset delta, Offset maxDelta) {
+    final weightX = delta.dx.abs() / maxDelta.dx;
+    final weightY = delta.dy.abs() / maxDelta.dy;
+    return delta / math.max(weightX, weightY);
   }
 
   void _startDoubleTapAnimation(double newZoom, LatLng newCenter) {
