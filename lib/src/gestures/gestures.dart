@@ -1,11 +1,11 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/core/point.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/gestures/latlng_tween.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
-import 'package:flutter_map/flutter_map.dart';
+import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 
 abstract class MapGestureMixin extends State<FlutterMap>
     with TickerProviderStateMixin {
@@ -20,7 +20,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
   Offset _animationOffset = Offset.zero;
 
   AnimationController _doubleTapController;
-  Animation _doubleTapAnimation;
+  Animation _doubleTapZoomAnimation;
+  Animation _doubleTapCenterAnimation;
 
   FlutterMap get widget;
   MapState get mapState;
@@ -96,47 +97,51 @@ abstract class MapGestureMixin extends State<FlutterMap>
       ..fling(velocity: magnitude / 1000.0);
   }
 
-  void handleTapUp(TapUpDetails details) {
+  void handleTap(TapPosition position) {
     if (options.onTap == null) {
       return;
     }
-    // Get the widget's offset
-    var renderObject = context.findRenderObject() as RenderBox;
-    var boxOffset = renderObject.localToGlobal(Offset.zero);
-    var width = renderObject.size.width;
-    var height = renderObject.size.height;
-
-    // convert the point to global coordinates
-    var localPoint = _offsetToPoint(details.globalPosition - boxOffset);
-    var localPointCenterDistance =
-        new Point((width / 2) - localPoint.x, (height / 2) - localPoint.y);
-    var mapCenter = map.project(map.center);
-    var point = mapCenter - localPointCenterDistance;
-    var latlng = map.unproject(point);
-
+    final latlng = _offsetToCrs(position.relative);
     // emit the event
     options.onTap(latlng);
   }
 
-  void handleDoubleTap() {
-    ///Currently zooms in the center of the screen
-    ///TODO: change the newCenter to be where the user tapped, see https://github.com/flutter/flutter/issues/10048
+  LatLng _offsetToCrs(Offset offset) {
+    // Get the widget's offset
+    var renderObject = context.findRenderObject() as RenderBox;
+    var width = renderObject.size.width;
+    var height = renderObject.size.height;
 
-    _mapZoomStart = map.zoom;
-    _mapCenterStart = map.center;
+    // convert the point to global coordinates
+    var localPoint = _offsetToPoint(offset);
+    var localPointCenterDistance =
+        new Point((width / 2) - localPoint.x, (height / 2) - localPoint.y);
+    var mapCenter = map.project(map.center);
+    var point = mapCenter - localPointCenterDistance;
+    return map.unproject(point);
+  }
 
-    double dScale = 2.0;
+  void handleDoubleTap(TapPosition tapPosition) {
+    final centerPos = _pointToOffset(map.size) / 2.0;
+    final newZoom = _getDoubleTapZoom(map.zoom, 2.0);
+    final focalDelta = tapPosition.relative - centerPos;
+    final newCenter = _offsetToCrs(centerPos + focalDelta);
+    _startDoubleTapAnimation(newZoom, newCenter);
+  }
+
+  double _getDoubleTapZoom(double startZoom, double dScale) {
     for (var i = 0; i < 2; i++) {
       dScale = math.sqrt(dScale);
     }
+    return startZoom * dScale;
+  }
 
-    double newZoom = _mapZoomStart * dScale;
-
-    _doubleTapAnimation = new Tween<double>(
-      begin: _mapZoomStart,
-      end: newZoom,
-    )
-        .chain(new CurveTween(curve: Curves.fastOutSlowIn))
+  void _startDoubleTapAnimation(double newZoom, LatLng newCenter) {
+    _doubleTapZoomAnimation = Tween<double>(begin: map.zoom, end: newZoom)
+        .chain(CurveTween(curve: Curves.fastOutSlowIn))
+        .animate(_doubleTapController);
+    _doubleTapCenterAnimation = LatLngTween(begin: map.center, end: newCenter)
+        .chain(CurveTween(curve: Curves.fastOutSlowIn))
         .animate(_doubleTapController);
     _doubleTapController
       ..value = 0.0
@@ -144,9 +149,11 @@ abstract class MapGestureMixin extends State<FlutterMap>
   }
 
   void _handleDoubleTapZoomAnimation() {
-    var newCenter = map.project(_mapCenterStart);
     setState(() {
-      map.move(map.unproject(newCenter), _doubleTapAnimation.value);
+      map.move(
+        _doubleTapCenterAnimation.value,
+        _doubleTapZoomAnimation.value,
+      );
     });
   }
 
