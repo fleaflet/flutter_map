@@ -61,15 +61,17 @@ class Marker {
   final double width;
   final double height;
   final Anchor _anchor;
+  final bool isStaticScale;
 
-  Marker({
-    this.point,
-    this.builder,
-    this.width = 30.0,
-    this.height = 30.0,
-    AnchorPos anchor,
-    Anchor anchorOverride,
-  }) : this._anchor = anchorOverride ?? new Anchor._(width, height, anchor);
+  Marker(
+      {this.point,
+      this.builder,
+      this.width = 30.0,
+      this.height = 30.0,
+      AnchorPos anchor,
+      Anchor anchorOverride,
+      this.isStaticScale = true})
+      : this._anchor = anchorOverride ?? new Anchor._(width, height, anchor);
 }
 
 class MarkerLayer extends StatelessWidget {
@@ -79,19 +81,42 @@ class MarkerLayer extends StatelessWidget {
   MarkerLayer(this.markerOpts, this.map);
 
   Widget build(BuildContext context) {
+    //For some reason, it has to be -.5, or else the marker moves around minZoom
+    var minZoom =
+        map.options.zoom - .5 < map.zoom ? map.options.zoom - .5 : map.zoom;
+    var maxZoom =
+        map.options.zoom - .5 >= map.zoom ? map.options.zoom - .5 : map.zoom;
     return new StreamBuilder<int>(
       stream: map.onMoved, // a Stream<int> or null
       builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
         var markers = <Widget>[];
         for (var markerOpt in this.markerOpts.markers) {
+          var width, height, pixelPosX, pixelPosY;
           var pos = map.project(markerOpt.point);
           pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
               map.getPixelOrigin();
 
-          var pixelPosX =
-              (pos.x - (markerOpt.width - markerOpt._anchor.left)).toDouble();
-          var pixelPosY =
-              (pos.y - (markerOpt.height - markerOpt._anchor.top)).toDouble();
+          if (markerOpt.isStaticScale) {
+            width = markerOpt.width;
+            height = markerOpt.height;
+
+            pixelPosX = (pos.x - (width - markerOpt._anchor.left)).toDouble();
+            pixelPosY = (pos.y - (height - markerOpt._anchor.top)).toDouble();
+          } else {
+            width = markerOpt.width / map.getZoomScale(minZoom, maxZoom);
+            height = markerOpt.height / map.getZoomScale(minZoom, maxZoom);
+
+            pixelPosX = (pos.x -
+                    (width -
+                        (markerOpt._anchor.left /
+                            map.getZoomScale(minZoom, maxZoom))))
+                .toDouble();
+            pixelPosY = (pos.y -
+                    (height -
+                        (markerOpt._anchor.top /
+                            map.getZoomScale(minZoom, maxZoom))))
+                .toDouble();
+          }
 
           if (!map.bounds.contains(markerOpt.point)) {
             continue;
@@ -99,8 +124,8 @@ class MarkerLayer extends StatelessWidget {
 
           markers.add(
             new Positioned(
-              width: markerOpt.width,
-              height: markerOpt.height,
+              width: width,
+              height: height,
               left: pixelPosX,
               top: pixelPosY,
               child: markerOpt.builder(context),
