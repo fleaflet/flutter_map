@@ -3,7 +3,7 @@ import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
 
-typedef MarkerTapCallback(Marker marker);
+typedef void MarkerTapCallback(Marker marker);
 
 class MarkerLayerOptions extends LayerOptions {
   final List<Marker> markers;
