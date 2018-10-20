@@ -136,5 +136,6 @@ class MapPosition {
   final LatLng center;
   final LatLngBounds bounds;
   final double zoom;
-  MapPosition({this.center, this.bounds, this.zoom});
+  final bool hasGesture;
+  MapPosition({this.center, this.bounds, this.zoom, this.hasGesture = false});
 }
