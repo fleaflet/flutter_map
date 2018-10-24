@@ -10,6 +10,7 @@ import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:tuple/tuple.dart';
+import 'package:flutter_image/network.dart';
 
 import 'layer.dart';
 
@@ -446,7 +447,7 @@ class _TileLayerState extends State<TileLayer> {
         return new FileImage(new File(url));
       }
     } else {
-      return new NetworkImage(url);
+      return new NetworkImageWithRetry(url);
     }
   }
 
