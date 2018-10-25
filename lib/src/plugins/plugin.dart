@@ -4,5 +4,5 @@ import 'package:flutter_map/src/map/map.dart';
 
 abstract class MapPlugin {
   bool supportsLayer(LayerOptions options);
-  Widget createLayer(LayerOptions options, MapState mapState);
+  Widget createLayer(LayerOptions options, MapState mapState, Stream<Null> stream);
 }

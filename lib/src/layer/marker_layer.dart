@@ -8,7 +8,8 @@ typedef void MarkerTapCallback(Marker marker);
 class MarkerLayerOptions extends LayerOptions {
   final List<Marker> markers;
   final MarkerTapCallback onTap;
-  MarkerLayerOptions({this.markers = const [], this.onTap});
+  MarkerLayerOptions({this.markers = const [], this.onTap, rebuild})
+      : super(rebuild: rebuild);
 }
 
 class Anchor {
@@ -78,12 +79,13 @@ class Marker {
 class MarkerLayer extends StatelessWidget {
   final MarkerLayerOptions markerOpts;
   final MapState map;
+  final Stream<Null> stream;
 
-  MarkerLayer(this.markerOpts, this.map);
+  MarkerLayer(this.markerOpts, this.map, this.stream);
 
   Widget build(BuildContext context) {
     return new StreamBuilder<int>(
-      stream: map.onMoved, // a Stream<int> or null
+      stream: stream, // a Stream<int> or null
       builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
         return new Container(
           child: new Stack(

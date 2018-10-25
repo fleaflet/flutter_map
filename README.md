@@ -14,7 +14,7 @@ Add flutter_map to your pubspec:
 
 ```yaml
 dependencies:
-  flutter_map: ^0.0.1
+  flutter_map: ^0.1.4
 ```
 
 Configure the map using `MapOptions` and layer options:
