@@ -5,7 +5,8 @@ import 'package:flutter_map/flutter_map.dart';
 
 class MarkerLayerOptions extends LayerOptions {
   final List<Marker> markers;
-  MarkerLayerOptions({this.markers = const []});
+  MarkerLayerOptions({this.markers = const [], rebuild})
+      : super(rebuild: rebuild);
 }
 
 class Anchor {
@@ -75,12 +76,13 @@ class Marker {
 class MarkerLayer extends StatelessWidget {
   final MarkerLayerOptions markerOpts;
   final MapState map;
+  final Stream<Null> stream;
 
-  MarkerLayer(this.markerOpts, this.map);
+  MarkerLayer(this.markerOpts, this.map, this.stream);
 
   Widget build(BuildContext context) {
     return new StreamBuilder<int>(
-      stream: map.onMoved, // a Stream<int> or null
+      stream: stream, // a Stream<int> or null
       builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
         var markers = <Widget>[];
         for (var markerOpt in this.markerOpts.markers) {

@@ -3,9 +3,11 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/gestures/gestures.dart';
 import 'package:flutter_map/src/map/map.dart';
+import 'package:async/async.dart';
 
 class FlutterMapState extends MapGestureMixin {
   final MapControllerImpl mapController;
+  final List<StreamGroup<Null>> groups = <StreamGroup<Null>>[];
   MapOptions get options => widget.options ?? new MapOptions();
   MapState mapState;
 
@@ -17,7 +19,31 @@ class FlutterMapState extends MapGestureMixin {
     mapController.state = mapState;
   }
 
+  void _dispose() {
+    groups.forEach((group) => group.close());
+    groups.clear();
+  }
+
+
+  @override
+  void dispose() {
+    _dispose();
+    super.dispose();
+  }
+
+  Stream<Null> _merge(LayerOptions options) {
+    if(options?.rebuild == null)
+      return mapState.onMoved;
+
+    StreamGroup<Null> group = new StreamGroup<Null>();
+    group.add(mapState.onMoved);
+    group.add(options.rebuild);
+    groups.add(group);
+    return group.stream;
+  }
+
   Widget build(BuildContext context) {
+    _dispose();
     return new LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
       mapState.size =
@@ -32,6 +58,8 @@ class FlutterMapState extends MapGestureMixin {
         onTapUp: handleTapUp,
         onDoubleTap: handleDoubleTap,
         child: new Container(
+          width: constraints.maxWidth,
+          height: constraints.maxHeight,
           child: new Stack(
             children: layerWidgets,
           ),
@@ -42,20 +70,23 @@ class FlutterMapState extends MapGestureMixin {
 
   Widget _createLayer(LayerOptions options, List<MapPlugin> plugins) {
     if (options is TileLayerOptions) {
-      return new TileLayer(options: options, mapState: mapState);
+      return new TileLayer(options: options, mapState: mapState, stream: _merge(options));
     }
     if (options is MarkerLayerOptions) {
-      return new MarkerLayer(options, mapState);
+      return new MarkerLayer(options, mapState, _merge(options));
     }
     if (options is PolylineLayerOptions) {
-      return new PolylineLayer(options, mapState);
+      return new PolylineLayer(options, mapState, _merge(options));
     }
     if (options is PolygonLayerOptions) {
-      return new PolygonLayer(options, mapState);
+      return new PolygonLayer(options, mapState, _merge(options));
+    }
+    if (options is CircleLayerOptions) {
+      return new CircleLayer(options, mapState);
     }
     for (var plugin in plugins) {
       if (plugin.supportsLayer(options)) {
-        return plugin.createLayer(options, mapState);
+        return plugin.createLayer(options, mapState, _merge(options));
       }
     }
     return null;
