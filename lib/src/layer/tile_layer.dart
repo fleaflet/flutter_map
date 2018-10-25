@@ -95,16 +95,18 @@ class TileLayerOptions extends LayerOptions {
     this.placeholderImage,
     this.offlineMode = false,
     this.fromAssets = true,
-  });
+    rebuild}) : super(rebuild: rebuild);
 }
 
 class TileLayer extends StatefulWidget {
   final TileLayerOptions options;
   final MapState mapState;
+  final Stream<Null> stream;
 
   TileLayer({
     this.options,
     this.mapState,
+    this.stream,
   });
 
   State<StatefulWidget> createState() {
@@ -129,7 +131,7 @@ class _TileLayerState extends State<TileLayer> {
   void initState() {
     super.initState();
     _resetView();
-    _moveSub = map.onMoved.listen((_) => _handleMove());
+    _moveSub = widget.stream.listen((_) => _handleMove());
   }
 
   void dispose() {
