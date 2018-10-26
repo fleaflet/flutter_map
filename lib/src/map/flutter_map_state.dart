@@ -82,10 +82,7 @@ class FlutterMapState extends MapGestureMixin {
       return new PolygonLayer(options, mapState, _merge(options));
     }
     if (options is CircleLayerOptions) {
-      return new CircleLayer(options, mapState);
-    }
-    if (options is CircleLayerOptions) {
-      return new CircleLayer(options, mapState);
+      return new CircleLayer(options, mapState, _merge(options));
     }
     for (var plugin in plugins) {
       if (plugin.supportsLayer(options)) {
