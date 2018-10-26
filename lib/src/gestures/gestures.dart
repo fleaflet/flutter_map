@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_map/src/core/location_utils.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
@@ -27,12 +28,14 @@ abstract class MapGestureMixin extends State<FlutterMap>
   MapState get map => mapState;
   MapOptions get options;
 
+  LatLng _latlng;
+
   @override
   void initState() {
     super.initState();
-    _controller = new AnimationController(vsync: this)
+    _controller = AnimationController(vsync: this)
       ..addListener(_handleFlingAnimation);
-    _doubleTapController = new AnimationController(
+    _doubleTapController = AnimationController(
         vsync: this, duration: Duration(milliseconds: 200))
       ..addListener(_handleDoubleTapZoomAnimation);
   }
@@ -87,7 +90,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
     if (magnitude < _kMinFlingVelocity) return;
     final Offset direction = details.velocity.pixelsPerSecond / magnitude;
     final double distance = (Offset.zero & context.size).shortestSide;
-    _flingAnimation = new Tween<Offset>(
+    _flingAnimation = Tween<Offset>(
             begin: _animationOffset,
             end: _animationOffset - direction * distance)
         .animate(_controller);
@@ -97,25 +100,105 @@ abstract class MapGestureMixin extends State<FlutterMap>
   }
 
   void handleTapUp(TapUpDetails details) {
-    if (options.onTap == null) {
-      return;
-    }
     // Get the widget's offset
     var renderObject = context.findRenderObject() as RenderBox;
     var boxOffset = renderObject.localToGlobal(Offset.zero);
     var width = renderObject.size.width;
     var height = renderObject.size.height;
-
     // convert the point to global coordinates
-    var localPoint = _offsetToPoint(details.globalPosition - boxOffset);
-    var localPointCenterDistance =
-        new Point((width / 2) - localPoint.x, (height / 2) - localPoint.y);
-    var mapCenter = map.project(map.center);
-    var point = mapCenter - localPointCenterDistance;
-    var latlng = map.unproject(point);
+    _latlng =
+        map.offsetToLatLng(details.globalPosition, boxOffset, width, height);
+  }
 
-    // emit the event
-    options.onTap(latlng);
+  void handleTap() {
+    if (_latlng == null) {
+      return;
+    }
+    var map = _getElementTouched();
+    if (map != null) {
+      var layer = map.keys.first;
+      if (layer.onTap != null) {
+        layer.onTap(map[layer], _latlng);
+      }
+    } else if (options.onTap != null) options.onTap(_latlng);
+  }
+
+  void handleLongPress() {
+    if (_latlng == null) {
+      return;
+    }
+    var map = _getElementTouched();
+    if (map != null) {
+      var layer = map.keys.first;
+      if (layer.onTap != null) {
+        layer.onLongPress(map[layer], _latlng);
+      }
+    } else if (options.onLongPress != null) options.onLongPress(_latlng);
+  }
+
+  /// Returns a map of the layer and the element toched.
+  Map _getElementTouched() {
+    for (var layer in widget.layers.reversed) {
+      if (layer is PolygonLayerOptions) {
+        var polygon = _getPolygonByLocation(layer);
+        if (polygon != null) return {layer: polygon};
+      } else if (layer is PolylineLayerOptions) {
+        var polyline = _getPolylineByLocation(layer);
+        if (polyline != null) return {layer: polyline};
+      } else if (layer is CircleLayerOptions) {
+        var circle = _getCircleByLocation(layer);
+        if (circle != null) return {layer: circle};
+      }
+    }
+    return null;
+  }
+
+  /// Returns the polygon that contains the [location] and
+  /// is on top of the other polygons.
+  ///
+  /// Returns null if no polygon was touched.
+  Polygon _getPolygonByLocation(PolygonLayerOptions layer) {
+    for (var polygon in layer.polygons.reversed) {
+      if (LocationUtils.containsLocation(
+          _latlng.latitude, _latlng.longitude, polygon.points)) {
+        return polygon;
+      }
+    }
+    return null;
+  }
+
+  /// Returns the polyline that contains the [location] in its path and
+  /// is on top of the other polylines.
+  ///
+  /// Returns null if no polyline was touched.
+  Polyline _getPolylineByLocation(PolylineLayerOptions layer) {
+    for (var polyline in layer.polylines.reversed) {
+      ///Calculates an amount of meters of tolerance for the line
+      ///considering the width. When zoomed out is more dificul to tap on
+      ///the line so this distance helps compensate using the width and
+      ///the meters per pixel for the current zoom level. In conclusion,
+      ///a thicker line will be easier to tap.
+      var meters = map.getMetersPerPixel(_latlng.latitude) *
+          (polyline.strokeWidth * 0.5);
+      if (LocationUtils.isPointInPolyline(_latlng, polyline.points,
+          toleratedDistance: meters)) {
+        return polyline;
+      }
+    }
+    return null;
+  }
+
+  /// Returns the Circle that contains the [location].
+  ///
+  /// Returns null if no Circle was touched.
+  CircleMarker _getCircleByLocation(CircleLayerOptions layer) {
+    for (var circle in layer.circles.reversed) {
+      Circle c = Circle(circle.center, circle.radius);
+      if (c.isPointInside(_latlng)) {
+        return circle;
+      }
+    }
+    return null;
   }
 
   void handleDoubleTap() {
@@ -132,11 +215,11 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
     double newZoom = _mapZoomStart * dScale;
 
-    _doubleTapAnimation = new Tween<double>(
+    _doubleTapAnimation = Tween<double>(
       begin: _mapZoomStart,
       end: newZoom,
     )
-        .chain(new CurveTween(curve: Curves.fastOutSlowIn))
+        .chain(CurveTween(curve: Curves.fastOutSlowIn))
         .animate(_doubleTapController);
     _doubleTapController
       ..value = 0.0
@@ -154,18 +237,18 @@ abstract class MapGestureMixin extends State<FlutterMap>
     setState(() {
       _animationOffset = _flingAnimation.value;
       var newCenterPoint = map.project(_mapCenterStart) +
-          new Point(_animationOffset.dx, _animationOffset.dy);
+          Point(_animationOffset.dx, _animationOffset.dy);
       var newCenter = map.unproject(newCenterPoint);
       map.move(newCenter, map.zoom);
     });
   }
 
   Point _offsetToPoint(Offset offset) {
-    return new Point(offset.dx, offset.dy);
+    return Point(offset.dx, offset.dy);
   }
 
   Offset _pointToOffset(Point point) {
-    return new Offset(point.x.toDouble(), point.y.toDouble());
+    return Offset(point.x.toDouble(), point.y.toDouble());
   }
 
   @override

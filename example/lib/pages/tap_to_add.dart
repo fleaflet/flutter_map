@@ -8,7 +8,7 @@ class TapToAddPage extends StatefulWidget {
   static const String route = '/tap';
 
   State<StatefulWidget> createState() {
-    return new TapToAddPageState();
+    return TapToAddPageState();
   }
 }
 
@@ -17,39 +17,39 @@ class TapToAddPageState extends State<TapToAddPage> {
 
   Widget build(BuildContext context) {
     var markers = tappedPoints.map((latlng) {
-      return new Marker(
+      return Marker(
         width: 80.0,
         height: 80.0,
         point: latlng,
-        builder: (ctx) => new Container(
-          child: new FlutterLogo(),
+        builder: (ctx) => Container(
+          child: FlutterLogo(),
         ),
       );
     }).toList();
 
-    return new Scaffold(
-      appBar: new AppBar(title: new Text("Tap to add pins")),
+    return Scaffold(
+      appBar: AppBar(title: Text("Tap to add pins")),
       drawer: buildDrawer(context, TapToAddPage.route),
-      body: new Padding(
-        padding: new EdgeInsets.all(8.0),
-        child: new Column(
+      body: Padding(
+        padding: EdgeInsets.all(8.0),
+        child: Column(
           children: [
-            new Padding(
-              padding: new EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: new Text("Tap to add pins"),
+            Padding(
+              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+              child: Text("Tap to add pins"),
             ),
-            new Flexible(
-              child: new FlutterMap(
-                options: new MapOptions(
-                    center: new LatLng(45.5231, -122.6765),
+            Flexible(
+              child: FlutterMap(
+                options: MapOptions(
+                    center: LatLng(45.5231, -122.6765),
                     zoom: 13.0,
                     onTap: _handleTap),
                 layers: [
-                  new TileLayerOptions(
+                  TileLayerOptions(
                     urlTemplate:
                     "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
                   ),
-                  new MarkerLayerOptions(markers: markers)
+                  MarkerLayerOptions(markers: markers)
                 ],
               ),
             ),

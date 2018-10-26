@@ -3,13 +3,13 @@ import 'package:flutter_map/flutter_map.dart';
 import '../widgets/drawer.dart';
 import 'package:latlong/latlong.dart';
 
-class PolylinePage extends StatefulWidget {
-  static const String route = "polyline";
+class PolygonPage extends StatefulWidget {
+  static const String route = "polygon";
   @override
-  State createState() => PolylinePageState();
+  State createState() => PolygonPageState();
 }
 
-class PolylinePageState extends State<PolylinePage> {
+class PolygonPageState extends State<PolygonPage> {
   String _eventMessage = "Tap on the map and its elements!";
 
   Widget build(BuildContext context) {
@@ -24,15 +24,15 @@ class PolylinePageState extends State<PolylinePage> {
       LatLng(53.215497, 6.564996),
     ];
     return Scaffold(
-      appBar: AppBar(title: Text("Polylines")),
-      drawer: buildDrawer(context, PolylinePage.route),
+      appBar: AppBar(title: Text("Polygons")),
+      drawer: buildDrawer(context, PolygonPage.route),
       body: Padding(
         padding: EdgeInsets.all(8.0),
         child: Column(
           children: [
             Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: Text("Polylines"),
+              child: Text("Polygons"),
             ),
             Text(
               "$_eventMessage",
@@ -48,25 +48,29 @@ class PolylinePageState extends State<PolylinePage> {
                 ),
                 layers: [
                   TileLayerOptions(
-                      urlTemplate:
-                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                      subdomains: ['a', 'b', 'c']),
-                  PolylineLayerOptions(
-                    polylines: [
-                      Polyline(
-                        key: Key("route_a"),
+                    urlTemplate:
+                        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                    subdomains: ['a', 'b', 'c'],
+                  ),
+                  PolygonLayerOptions(
+                    polygons: [
+                      Polygon(
+                        key: Key("zone_a"),
                         points: pointsA,
-                        strokeWidth: 10.0,
-                        color: Colors.purple,
-                        isDotted: true,
+                        //borderStrokeWidth: 4.0,
+                        borderColor: Colors.purple,
+                        closeFigure: true,
+                        color: Color(
+                            0x509C27B0), // Colors.purple with less opacity
                       ),
-                      Polyline(
-                        key: Key("route_b"),
+                      Polygon(
+                        key: Key("zone_b"),
                         points: pointsB,
-                        strokeWidth: 10.0,
-                        color: Colors.red,
-                        displayPoints: true,
-                        pointsWidth: 8.0,
+                        borderStrokeWidth: 4.0,
+                        borderColor: Colors.red,
+                        closeFigure: true,
+                        color:
+                            Color(0x50F44336), // Colors.red with less opacity
                       ),
                     ],
                     onTap: _handleTap,
@@ -98,16 +102,16 @@ class PolylinePageState extends State<PolylinePage> {
     });
   }
 
-  void _handleTap(Polyline polyline, LatLng location) {
-    var message = "Tapped on polyline #${polyline.key}. LatLng = $location";
+  void _handleTap(Polygon polygon, LatLng location) {
+    var message = "Tapped on polygon #${polygon.key}. LatLng = $location";
     print(message);
     setState(() {
       this._eventMessage = message;
     });
   }
 
-  void _handleLongPress(Polyline polyline, LatLng location) {
-    var message = "Long Press on polyline #${polyline.key}. LatLng = $location";
+  void _handleLongPress(Polygon polygon, LatLng location) {
+    var message = "Long press on polygon #${polygon.key}. LatLng = $location";
     print(message);
     setState(() {
       this._eventMessage = message;

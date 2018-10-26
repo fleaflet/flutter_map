@@ -76,18 +76,16 @@ new TileLayerOptions(
 ),
 ```
 
-
 To use, you'll need a mapbox key:
 
 1. Create a [Mapbox] account to get an api key
-2. open leaflet_flutter_example/lib/main.dart and paste the API key into the
-`additionalOptions` map.
-
+2. open leaflet_flutter_example/lib/main.dart and paste the API key into the`additionalOptions` map.
 
 ## Offline maps
-[Follow this guide to grab offline tiles](https://tilemill-project.github.io/tilemill/docs/guides/osm-bright-mac-quickstart/)<br>
-Once you have your map exported to `.mbtiles`, you can use [mbtilesToPng](https://github.com/alfanhui/mbtilesToPngs) to unpack into `/{z}/{x}/{y}.png`. Move this to Assets folder and add  Asset directories to `pubspec.yaml`. Minimum required fields for offline maps are:
-```
+
+[Follow this guide to grab offline tiles](https://tilemill-project.github.io/tilemill/docs/guides/osm-bright-mac-quickstart/) Once you have your map exported to `.mbtiles`, you can use [mbtilesToPng](https://github.com/alfanhui/mbtilesToPngs) to unpack into `/{z}/{x}/{y}.png`. Move this to Assets folder and add  Asset directories to `pubspec.yaml`. Minimum required fields for offline maps are:
+
+```dart
 new FlutterMap(
   options: new MapOptions(
     center: new LatLng(56.704173, 11.543808),
@@ -106,12 +104,14 @@ new FlutterMap(
   ],
 ),
 ```
-Make sure PanBoundaries are within offline map boundary to stop missing asset errors.<br>
-See the `flutter_map_example/` folder for a working example.<br>
+
+Make sure PanBoundaries are within offline map boundary to stop missing asset errors.
+
+See the `flutter_map_example/` folder for a working example.
 
 ## Roadmap
 
-For the latest roadmap, please see the [Issue Tracker] 
+For the latest roadmap, please see the [Issue Tracker]
 
 [Leaflet]: http://leafletjs.com/
 [Mapbox]: https://www.mapbox.com/

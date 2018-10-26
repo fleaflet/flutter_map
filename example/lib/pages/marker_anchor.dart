@@ -7,7 +7,7 @@ class MarkerAnchorPage extends StatefulWidget {
   static const String route = '/marker_anchors';
   @override
   MarkerAnchorPageState createState() {
-    return new MarkerAnchorPageState();
+    return MarkerAnchorPageState();
   }
 }
 
@@ -23,76 +23,76 @@ class MarkerAnchorPageState extends State<MarkerAnchorPage> {
 
   Widget build(BuildContext context) {
     var markers = <Marker>[
-      new Marker(
+      Marker(
           width: 80.0,
           height: 80.0,
-          point: new LatLng(51.5, -0.09),
-          builder: (ctx) => new Container(
-            child: new FlutterLogo(),
+          point: LatLng(51.5, -0.09),
+          builder: (ctx) => Container(
+            child: FlutterLogo(),
           ),
           anchor: anchorPos,
           anchorOverride: anchorOverride),
-      new Marker(
+      Marker(
           width: 80.0,
           height: 80.0,
-          point: new LatLng(53.3498, -6.2603),
-          builder: (ctx) => new Container(
-            child: new FlutterLogo(
+          point: LatLng(53.3498, -6.2603),
+          builder: (ctx) => Container(
+            child: FlutterLogo(
               colors: Colors.green,
             ),
           ),
           anchor: anchorPos,
           anchorOverride: anchorOverride),
-      new Marker(
+      Marker(
           width: 80.0,
           height: 80.0,
-          point: new LatLng(48.8566, 2.3522),
-          builder: (ctx) => new Container(
-            child: new FlutterLogo(colors: Colors.purple),
+          point: LatLng(48.8566, 2.3522),
+          builder: (ctx) => Container(
+            child: FlutterLogo(colors: Colors.purple),
           ),
           anchor: anchorPos,
           anchorOverride: anchorOverride),
     ];
 
-    return new Scaffold(
-      appBar: new AppBar(title: new Text("Marker Anchor Points")),
+    return Scaffold(
+      appBar: AppBar(title: Text("Marker Anchor Points")),
       drawer: buildDrawer(context, MarkerAnchorPage.route),
-      body: new Padding(
-        padding: new EdgeInsets.all(8.0),
-        child: new Column(
+      body: Padding(
+        padding: EdgeInsets.all(8.0),
+        child: Column(
           children: [
-            new Padding(
-              padding: new EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: new Text(
+            Padding(
+              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+              child: Text(
                   "Markers can be anchored to the top, bottom, left or right."),
             ),
-            new Padding(
-              padding: new EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: new Row(
+            Padding(
+              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+              child: Row(
                 children: <Widget>[
-                  new MaterialButton(
-                    child: new Text("Left"),
+                  MaterialButton(
+                    child: Text("Left"),
                     onPressed: () => setState(() {
                       anchorPos = AnchorPos.left;
                       anchorOverride = null;
                     }),
                   ),
-                  new MaterialButton(
-                    child: new Text("Right"),
+                  MaterialButton(
+                    child: Text("Right"),
                     onPressed: () => setState(() {
                       anchorPos = AnchorPos.right;
                       anchorOverride = null;
                     }),
                   ),
-                  new MaterialButton(
-                    child: new Text("Top"),
+                  MaterialButton(
+                    child: Text("Top"),
                     onPressed: () => setState(() {
                       anchorPos = AnchorPos.top;
                       anchorOverride = null;
                     }),
                   ),
-                  new MaterialButton(
-                    child: new Text("Bottom"),
+                  MaterialButton(
+                    child: Text("Bottom"),
                     onPressed: () => setState(() {
                       anchorPos = AnchorPos.bottom;
                       anchorOverride = null;
@@ -101,40 +101,40 @@ class MarkerAnchorPageState extends State<MarkerAnchorPage> {
                 ],
               ),
             ),
-            new Padding(
-              padding: new EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: new Row(
+            Padding(
+              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+              child: Row(
                 children: <Widget>[
-                  new MaterialButton(
-                    child: new Text("Center"),
+                  MaterialButton(
+                    child: Text("Center"),
                     onPressed: () => setState(() {
                       anchorPos = AnchorPos.center;
                       anchorOverride = null;
                     }),
                   ),
-                  new MaterialButton(
-                    child: new Text("Custom"),
+                  MaterialButton(
+                    child: Text("Custom"),
                     onPressed: () => setState(
                           () {
-                        anchorOverride = new Anchor(80.0, 80.0);
+                        anchorOverride = Anchor(80.0, 80.0);
                       },
                     ),
                   ),
                 ],
               ),
             ),
-            new Flexible(
-              child: new FlutterMap(
-                options: new MapOptions(
-                  center: new LatLng(51.5, -0.09),
+            Flexible(
+              child: FlutterMap(
+                options: MapOptions(
+                  center: LatLng(51.5, -0.09),
                   zoom: 5.0,
                 ),
                 layers: [
-                  new TileLayerOptions(
+                  TileLayerOptions(
                       urlTemplate:
                       "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                       subdomains: ['a', 'b', 'c']),
-                  new MarkerLayerOptions(markers: markers)
+                  MarkerLayerOptions(markers: markers)
                 ],
               ),
             ),

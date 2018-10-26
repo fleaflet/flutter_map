@@ -70,7 +70,7 @@ class Marker {
     this.height = 30.0,
     AnchorPos anchor,
     Anchor anchorOverride,
-  }) : this._anchor = anchorOverride ?? new Anchor._(width, height, anchor);
+  }) : this._anchor = anchorOverride ?? Anchor._(width, height, anchor);
 }
 
 class MarkerLayer extends StatelessWidget {
@@ -81,7 +81,7 @@ class MarkerLayer extends StatelessWidget {
   MarkerLayer(this.markerOpts, this.map, this.stream);
 
   Widget build(BuildContext context) {
-    return new StreamBuilder<int>(
+    return StreamBuilder<int>(
       stream: stream, // a Stream<int> or null
       builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
         var markers = <Widget>[];
@@ -100,7 +100,7 @@ class MarkerLayer extends StatelessWidget {
           }
 
           markers.add(
-            new Positioned(
+            Positioned(
               width: markerOpt.width,
               height: markerOpt.height,
               left: pixelPosX,
@@ -109,8 +109,8 @@ class MarkerLayer extends StatelessWidget {
             ),
           );
         }
-        return new Container(
-          child: new Stack(
+        return Container(
+          child: Stack(
             children: markers,
           ),
         );

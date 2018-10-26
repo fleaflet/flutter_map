@@ -6,7 +6,7 @@ class Bounds<T extends num> {
   final Point<T> max;
 
   factory Bounds(Point<T> a, Point<T> b) {
-    var bounds1 = new Bounds._(a, b);
+    var bounds1 = Bounds._(a, b);
     var bounds2 = bounds1.extend(a);
     return bounds2.extend(b);
   }
@@ -24,21 +24,21 @@ class Bounds<T extends num> {
       var maxX = math.max(point.x, this.max.x);
       var minY = math.min(point.y, this.min.y);
       var maxY = math.max(point.y, this.max.y);
-      newMin = new Point(minX, minY);
-      newMax = new Point(maxX, maxY);
+      newMin = Point(minX, minY);
+      newMax = Point(maxX, maxY);
     }
-    return new Bounds._(newMin, newMax);
+    return Bounds._(newMin, newMax);
   }
 
   Point<double> getCenter() {
-    return new Point<double>(
+    return Point<double>(
       (min.x + max.x) / 2,
       (min.y + max.y) / 2,
     );
   }
 
-  Point<T> get bottomLeft => new Point(min.x, max.y);
-  Point<T> get topRight => new Point(max.x, min.y);
+  Point<T> get bottomLeft => Point(min.x, max.y);
+  Point<T> get topRight => Point(max.x, min.y);
   Point<T> get topLeft => min;
   Point<T> get bottomRight => max;
 
@@ -49,7 +49,7 @@ class Bounds<T extends num> {
   bool contains(Point<T> point) {
     var min = point;
     var max = point;
-    return containsBounds(new Bounds(min, max));
+    return containsBounds(Bounds(min, max));
   }
 
   bool containsBounds(Bounds<T> b) {

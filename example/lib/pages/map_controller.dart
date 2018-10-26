@@ -8,82 +8,82 @@ class MapControllerPage extends StatefulWidget {
 
   @override
   MapControllerPageState createState() {
-    return new MapControllerPageState();
+    return MapControllerPageState();
   }
 }
 
 class MapControllerPageState extends State<MapControllerPage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  static LatLng london = new LatLng(51.5, -0.09);
-  static LatLng paris = new LatLng(48.8566, 2.3522);
-  static LatLng dublin = new LatLng(53.3498, -6.2603);
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  static LatLng london = LatLng(51.5, -0.09);
+  static LatLng paris = LatLng(48.8566, 2.3522);
+  static LatLng dublin = LatLng(53.3498, -6.2603);
 
   MapController mapController;
 
   void initState() {
     super.initState();
-    mapController = new MapController();
+    mapController = MapController();
   }
 
   Widget build(BuildContext context) {
     var markers = <Marker>[
-      new Marker(
+      Marker(
         width: 80.0,
         height: 80.0,
         point: london,
-        builder: (ctx) => new Container(
-              key: new Key("blue"),
-              child: new FlutterLogo(),
+        builder: (ctx) => Container(
+              key: Key("blue"),
+              child: FlutterLogo(),
             ),
       ),
-      new Marker(
+      Marker(
         width: 80.0,
         height: 80.0,
         point: dublin,
-        builder: (ctx) => new Container(
-              child: new FlutterLogo(
-                key: new Key("green"),
+        builder: (ctx) => Container(
+              child: FlutterLogo(
+                key: Key("green"),
                 colors: Colors.green,
               ),
             ),
       ),
-      new Marker(
+      Marker(
         width: 80.0,
         height: 80.0,
         point: paris,
-        builder: (ctx) => new Container(
-              key: new Key("purple"),
-              child: new FlutterLogo(colors: Colors.purple),
+        builder: (ctx) => Container(
+              key: Key("purple"),
+              child: FlutterLogo(colors: Colors.purple),
             ),
       ),
     ];
 
-    return new Scaffold(
+    return Scaffold(
       key: _scaffoldKey,
-      appBar: new AppBar(title: new Text("MapController")),
+      appBar: AppBar(title: Text("MapController")),
       drawer: buildDrawer(context, MapControllerPage.route),
-      body: new Padding(
-        padding: new EdgeInsets.all(8.0),
-        child: new Column(
+      body: Padding(
+        padding: EdgeInsets.all(8.0),
+        child: Column(
           children: [
-            new Padding(
-              padding: new EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: new Row(
+            Padding(
+              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+              child: Row(
                 children: <Widget>[
-                  new MaterialButton(
-                    child: new Text("London"),
+                  MaterialButton(
+                    child: Text("London"),
                     onPressed: () {
                       mapController.move(london, 18.0);
                     },
                   ),
-                  new MaterialButton(
-                    child: new Text("Paris"),
+                  MaterialButton(
+                    child: Text("Paris"),
                     onPressed: () {
                       mapController.move(paris, 5.0);
                     },
                   ),
-                  new MaterialButton(
-                    child: new Text("Dublin"),
+                  MaterialButton(
+                    child: Text("Dublin"),
                     onPressed: () {
                       mapController.move(dublin, 5.0);
                     },
@@ -91,32 +91,32 @@ class MapControllerPageState extends State<MapControllerPage> {
                 ],
               ),
             ),
-            new Padding(
-              padding: new EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: new Row(
+            Padding(
+              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+              child: Row(
                 children: <Widget>[
-                  new MaterialButton(
-                    child: new Text("Fit Bounds"),
+                  MaterialButton(
+                    child: Text("Fit Bounds"),
                     onPressed: () {
-                      var bounds = new LatLngBounds();
+                      var bounds = LatLngBounds();
                       bounds.extend(dublin);
                       bounds.extend(paris);
                       bounds.extend(london);
                       mapController.fitBounds(
                         bounds,
-                        options: new FitBoundsOptions(
-                          padding: new Point<double>(30.0, 0.0),
+                        options: FitBoundsOptions(
+                          padding: Point<double>(30.0, 0.0),
                         ),
                       );
                     },
                   ),
-                  new MaterialButton(
-                    child: new Text("Get Bounds"),
+                  MaterialButton(
+                    child: Text("Get Bounds"),
                     onPressed: () {
                       final bounds = mapController.bounds;
 
-                      _scaffoldKey.currentState.showSnackBar(new SnackBar(
-                        content: new Text(
+                      _scaffoldKey.currentState.showSnackBar(SnackBar(
+                        content: Text(
                           'Map bounds: \n'
                               'E: ${bounds.east} \n'
                               'N: ${bounds.north} \n'
@@ -129,21 +129,21 @@ class MapControllerPageState extends State<MapControllerPage> {
                 ],
               ),
             ),
-            new Flexible(
-              child: new FlutterMap(
+            Flexible(
+              child: FlutterMap(
                 mapController: mapController,
-                options: new MapOptions(
-                  center: new LatLng(51.5, -0.09),
+                options: MapOptions(
+                  center: LatLng(51.5, -0.09),
                   zoom: 5.0,
                   maxZoom: 5.0,
                   minZoom: 3.0,
                 ),
                 layers: [
-                  new TileLayerOptions(
+                  TileLayerOptions(
                       urlTemplate:
                           "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                       subdomains: ['a', 'b', 'c']),
-                  new MarkerLayerOptions(markers: markers)
+                  MarkerLayerOptions(markers: markers)
                 ],
               ),
             ),

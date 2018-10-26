@@ -110,7 +110,7 @@ class TileLayer extends StatefulWidget {
   });
 
   State<StatefulWidget> createState() {
-    return new _TileLayerState();
+    return _TileLayerState();
   }
 }
 
@@ -153,7 +153,7 @@ class _TileLayerState extends State<TileLayer> {
       'z': coords.z.round().toString(),
       's': _getSubdomain(coords)
     };
-    Map<String, String> allOpts = new Map.from(data)
+    Map<String, String> allOpts = Map.from(data)
       ..addAll(this.options.additionalOptions);
     return util.template(this.options.urlTemplate, allOpts);
   }
@@ -195,13 +195,13 @@ class _TileLayerState extends State<TileLayer> {
     var map = this.map;
 
     if (level == null) {
-      level = _levels[zoom] = new Level();
+      level = _levels[zoom] = Level();
       level.zIndex = maxZoom;
       var newOrigin = map.project(map.unproject(map.getPixelOrigin()), zoom);
       if (newOrigin != null) {
         level.origin = newOrigin;
       } else {
-        level.origin = new Point(0.0, 0.0);
+        level.origin = Point(0.0, 0.0);
       }
       level.zoom = zoom;
 
@@ -216,13 +216,13 @@ class _TileLayerState extends State<TileLayer> {
     var pixelBounds = this._getTiledPixelBounds(center);
     var tileRange = _pxBoundsToTileRange(pixelBounds);
     var margin = this.options.keepBuffer ?? 2;
-    var noPruneRange = new Bounds(
-        tileRange.bottomLeft - new Point(margin, -margin),
-        tileRange.topRight + new Point(margin, -margin));
+    var noPruneRange = Bounds(
+        tileRange.bottomLeft - Point(margin, -margin),
+        tileRange.topRight + Point(margin, -margin));
     for (var tileKey in _tiles.keys) {
       var tile = _tiles[tileKey];
       var c = tile.coords;
-      if (c.z != _tileZoom || !noPruneRange.contains(new Point(c.x, c.y))) {
+      if (c.z != _tileZoom || !noPruneRange.contains(Point(c.x, c.y))) {
         tile.current = false;
       }
     }
@@ -281,30 +281,30 @@ class _TileLayerState extends State<TileLayer> {
     // wrapping
     this._wrapX = crs.wrapLng;
     if (_wrapX != null) {
-      var first = (map.project(new LatLng(0.0, crs.wrapLng.item1), tileZoom).x /
+      var first = (map.project(LatLng(0.0, crs.wrapLng.item1), tileZoom).x /
               tileSize.x)
           .floor()
           .toDouble();
       var second =
-          (map.project(new LatLng(0.0, crs.wrapLng.item2), tileZoom).x /
+          (map.project(LatLng(0.0, crs.wrapLng.item2), tileZoom).x /
                   tileSize.y)
               .ceil()
               .toDouble();
-      _wrapX = new Tuple2(first, second);
+      _wrapX = Tuple2(first, second);
     }
 
     this._wrapY = crs.wrapLat;
     if (_wrapY != null) {
-      var first = (map.project(new LatLng(crs.wrapLat.item1, 0.0), tileZoom).y /
+      var first = (map.project(LatLng(crs.wrapLat.item1, 0.0), tileZoom).y /
               tileSize.x)
           .floor()
           .toDouble();
       var second =
-          (map.project(new LatLng(crs.wrapLat.item2, 0.0), tileZoom).y /
+          (map.project(LatLng(crs.wrapLat.item2, 0.0), tileZoom).y /
                   tileSize.y)
               .ceil()
               .toDouble();
-      _wrapY = new Tuple2(first, second);
+      _wrapY = Tuple2(first, second);
     }
   }
 
@@ -314,7 +314,7 @@ class _TileLayerState extends State<TileLayer> {
   }
 
   Point getTileSize() {
-    return new Point(options.tileSize, options.tileSize);
+    return Point(options.tileSize, options.tileSize);
   }
 
   Widget build(BuildContext context) {
@@ -335,7 +335,7 @@ class _TileLayerState extends State<TileLayer> {
 
     for (var j = tileRange.min.y; j <= tileRange.max.y; j++) {
       for (var i = tileRange.min.x; i <= tileRange.max.x; i++) {
-        var coords = new Coords(i.toDouble(), j.toDouble());
+        var coords = Coords(i.toDouble(), j.toDouble());
         coords.z = this._tileZoom;
 
         if (!this._isValidTile(coords)) {
@@ -350,7 +350,7 @@ class _TileLayerState extends State<TileLayer> {
     if (queue.length > 0) {
       for (var i = 0; i < queue.length; i++) {
         _tiles[_tileCoordsToKey(queue[i])] =
-            new Tile(_wrapCoords(queue[i]), true);
+            Tile(_wrapCoords(queue[i]), true);
       }
     }
 
@@ -376,8 +376,8 @@ class _TileLayerState extends State<TileLayer> {
       tileWidgets.add(_createTileWidget(tile.coords));
     }
 
-    return new Container(
-      child: new Stack(
+    return Container(
+      child: Stack(
         children: tileWidgets,
       ),
       color: this.options.backgroundColor,
@@ -390,9 +390,9 @@ class _TileLayerState extends State<TileLayer> {
 
   Bounds _pxBoundsToTileRange(Bounds bounds) {
     var tileSize = this.getTileSize();
-    return new Bounds(
+    return Bounds(
       bounds.min.unscaleBy(tileSize).floor(),
-      bounds.max.unscaleBy(tileSize).ceil() - new Point(1, 1),
+      bounds.max.unscaleBy(tileSize).ceil() - Point(1, 1),
     );
   }
 
@@ -422,18 +422,18 @@ class _TileLayerState extends State<TileLayer> {
     var width = tileSize.x * level.scale;
     var height = tileSize.y * level.scale;
 
-    return new Positioned(
+    return Positioned(
       left: pos.x.toDouble(),
       top: pos.y.toDouble(),
       width: width.toDouble(),
       height: height.toDouble(),
-      child: new Container(
-        child: new FadeInImage(
+      child: Container(
+        child: FadeInImage(
           fadeInDuration: const Duration(milliseconds: 100),
-          key: new Key(_tileCoordsToKey(coords)),
+          key: Key(_tileCoordsToKey(coords)),
           placeholder: options.placeholderImage != null
               ? options.placeholderImage
-              : new MemoryImage(kTransparentImage),
+              : MemoryImage(kTransparentImage),
           image: _getImageProvider(getTileUrl(coords)),
           fit: BoxFit.fill,
         ),
@@ -444,17 +444,17 @@ class _TileLayerState extends State<TileLayer> {
   ImageProvider _getImageProvider(String url) {
     if (options.offlineMode) {
       if (options.fromAssets) {
-        return new AssetImage(url);
+        return AssetImage(url);
       } else {
-        return new FileImage(new File(url));
+        return FileImage(File(url));
       }
     } else {
-      return new NetworkImageWithRetry(url);
+      return NetworkImageWithRetry(url);
     }
   }
 
   Coords _wrapCoords(Coords coords) {
-    var newCoords = new Coords(
+    var newCoords = Coords(
       _wrapX != null
           ? util.wrapNum(coords.x.toDouble(), _wrapX)
           : coords.x.toDouble(),
