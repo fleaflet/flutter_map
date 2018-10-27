@@ -19,6 +19,7 @@ export 'src/layer/marker_layer.dart';
 export 'src/layer/polyline_layer.dart';
 export 'src/layer/polygon_layer.dart';
 export 'src/layer/circle_layer.dart';
+export 'src/layer/group_layer.dart';
 export 'src/geo/crs/crs.dart';
 export 'src/geo/latlng_bounds.dart';
 export 'package:flutter_map/src/core/point.dart';
