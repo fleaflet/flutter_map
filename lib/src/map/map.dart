@@ -103,8 +103,7 @@ class MapState {
         center: center,
         bounds: bounds,
         zoom: zoom,
-        hasGesture: hasGesture
-      ));
+      ), hasGesture);
     }
   }
 

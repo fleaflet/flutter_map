@@ -69,7 +69,7 @@ abstract class MapController {
 }
 
 typedef TapCallback(LatLng point);
-typedef PositionCallback(MapPosition position);
+typedef PositionCallback(MapPosition position, bool hasGesture);
 
 class MapOptions {
   final Crs crs;
