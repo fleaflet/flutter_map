@@ -105,7 +105,7 @@ class MapControllerPageState extends State<MapControllerPage> {
                       mapController.fitBounds(
                         bounds,
                         options: new FitBoundsOptions(
-                          padding: new Point<double>(30.0, 0.0),
+                          padding: new EdgeInsets.only(left: 15.0, right: 15.0),
                         ),
                       );
                     },
