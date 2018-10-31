@@ -122,13 +122,13 @@ class MapOptions {
 }
 
 class FitBoundsOptions {
-  final Point<double> padding;
+  final EdgeInsets padding;
   final double maxZoom;
   final double zoom;
 
   const FitBoundsOptions({
-    this.padding = const Point<double>(0.0, 0.0),
-    this.maxZoom = 17.0,
+    this.padding = const EdgeInsets.all(0.0),
+    this.maxZoom = 17.0, // TODO why is this?
     this.zoom,
   });
 }
