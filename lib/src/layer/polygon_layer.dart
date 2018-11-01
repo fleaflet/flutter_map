@@ -8,7 +8,8 @@ import 'package:latlong/latlong.dart' hide Path;  // conflict with Path from UI
 
 class PolygonLayerOptions extends LayerOptions {
   final List<Polygon> polygons;
-  PolygonLayerOptions({this.polygons = const []});
+  PolygonLayerOptions({this.polygons = const [], rebuild})
+      : super(rebuild: rebuild);
 }
 
 class Polygon {
@@ -28,7 +29,9 @@ class Polygon {
 class PolygonLayer extends StatelessWidget {
   final PolygonLayerOptions polygonOpts;
   final MapState map;
-  PolygonLayer(this.polygonOpts, this.map);
+  final Stream<Null> stream;
+
+  PolygonLayer(this.polygonOpts, this.map, this.stream);
 
   Widget build(BuildContext context) {
     return new LayoutBuilder(
@@ -41,7 +44,7 @@ class PolygonLayer extends StatelessWidget {
 
   Widget _build(BuildContext context, Size size) {
     return new StreamBuilder<int>(
-      stream: map.onMoved, // a Stream<int> or null
+      stream: stream, // a Stream<int> or null
       builder: (BuildContext context, _) {
         for (var polygonOpt in polygonOpts.polygons) {
           polygonOpt.offsets.clear();

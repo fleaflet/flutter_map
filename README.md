@@ -2,7 +2,7 @@
 
 **Experimental**
 
-A flutter implementation of [leaflet].
+A Dart implementation of [Leaflet] for Flutter apps.
 
 [Video](https://drive.google.com/file/d/14srd4ERdgRr68TtLmG6Aho9L1pGOyFF7/view?usp=sharing)
 
@@ -79,12 +79,10 @@ new TileLayerOptions(
 
 To use, you'll need a mapbox key:
 
-1. Create a [mapbox] account to get an api key
+1. Create a [Mapbox] account to get an api key
 2. open leaflet_flutter_example/lib/main.dart and paste the API key into the
 `additionalOptions` map.
 
-[leaflet]: http://leafletjs.com/
-[mapbox]: https://www.mapbox.com/
 
 ## Offline maps
 [Follow this guide to grab offline tiles](https://tilemill-project.github.io/tilemill/docs/guides/osm-bright-mac-quickstart/)<br>
@@ -111,21 +109,10 @@ new FlutterMap(
 Make sure PanBoundaries are within offline map boundary to stop missing asset errors.<br>
 See the `flutter_map_example/` folder for a working example.<br>
 
-## Features
-This package is under active development. 
-The following roadmap is focused on the features we require at AppTree. We welcome
-any contributions for items both on and off of the roadmap.
+## Roadmap
 
-- [x] Inline maps
-- [x] Pinch to zoom
-- [x] Panning
-- [x] Markers
-- [ ] Package structure cleanup
-- [ ] Improve pinch to zoom ( zoom directly to focal point )
-- [x] Zooming removes too many tiles from other levels
-- [x] Improve image fetching & caching
-- [x] UI Settings support ( disable pan/zoom etc.)
-- [ ] Current location support
-- [ ] Documentation
-- [ ] Polylines
-- [x] Offline map support
+For the latest roadmap, please see the [Issue Tracker] 
+
+[Leaflet]: http://leafletjs.com/
+[Mapbox]: https://www.mapbox.com/
+[Issue Tracker]: https://github.com/apptreesoftware/flutter_map/issues
