@@ -20,8 +20,8 @@ class MapControllerImpl implements MapController {
     }
   }
 
-  void move(LatLng center, double zoom, [bool hasGesture = false]) {
-    _state.move(center, zoom, hasGesture: true);
+  void move(LatLng center, double zoom, {bool hasGesture = false}) {
+    _state.move(center, zoom, hasGesture: hasGesture);
   }
 
   void fitBounds(
