@@ -8,7 +8,8 @@ import 'package:latlong/latlong.dart';
 
 class PolylineLayerOptions extends LayerOptions {
   final List<Polyline> polylines;
-  PolylineLayerOptions({this.polylines = const []});
+  PolylineLayerOptions({this.polylines = const [], rebuild})
+      : super(rebuild: rebuild);
 }
 
 class Polyline {
@@ -32,7 +33,9 @@ class Polyline {
 class PolylineLayer extends StatelessWidget {
   final PolylineLayerOptions polylineOpts;
   final MapState map;
-  PolylineLayer(this.polylineOpts, this.map);
+  final Stream<Null> stream;
+
+  PolylineLayer(this.polylineOpts, this.map, this.stream);
 
   Widget build(BuildContext context) {
     return new LayoutBuilder(
@@ -45,7 +48,7 @@ class PolylineLayer extends StatelessWidget {
 
   Widget _build(BuildContext context, Size size) {
     return new StreamBuilder<int>(
-      stream: map.onMoved, // a Stream<int> or null
+      stream: stream, // a Stream<int> or null
       builder: (BuildContext context, _) {
         for (var polylineOpt in polylineOpts.polylines) {
           polylineOpt.offsets.clear();

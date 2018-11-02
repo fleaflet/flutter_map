@@ -23,70 +23,70 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           title: const Text('OpenStreetMap'),
           selected: currentRoute == HomePage.route,
           onTap: () {
-            Navigator.popAndPushNamed(context, HomePage.route);
+            Navigator.pushReplacementNamed(context, HomePage.route);
           },
         ),
         new ListTile(
           title: const Text('Add Pins'),
           selected: currentRoute == TapToAddPage.route,
           onTap: () {
-            Navigator.popAndPushNamed(context, TapToAddPage.route);
+            Navigator.pushReplacementNamed(context, TapToAddPage.route);
           },
         ),
         new ListTile(
           title: const Text('Esri'),
           selected: currentRoute == EsriPage.route,
           onTap: () {
-            Navigator.popAndPushNamed(context, EsriPage.route);
+            Navigator.pushReplacementNamed(context, EsriPage.route);
           },
         ),
         new ListTile(
           title: const Text('Polylines'),
           selected: currentRoute == PolylinePage.route,
           onTap: () {
-            Navigator.popAndPushNamed(context, PolylinePage.route);
+            Navigator.pushReplacementNamed(context, PolylinePage.route);
           },
         ),
         new ListTile(
           title: const Text('MapController'),
           selected: currentRoute == MapControllerPage.route,
           onTap: () {
-            Navigator.popAndPushNamed(context, MapControllerPage.route);
+            Navigator.pushReplacementNamed(context, MapControllerPage.route);
           },
         ),
         new ListTile(
           title: const Text('Animated MapController'),
           selected: currentRoute == AnimatedMapControllerPage.route,
           onTap: () {
-            Navigator.popAndPushNamed(context, AnimatedMapControllerPage.route);
+            Navigator.pushReplacementNamed(context, AnimatedMapControllerPage.route);
           },
         ),
         new ListTile(
           title: const Text('Marker Anchors'),
           selected: currentRoute == MarkerAnchorPage.route,
           onTap: () {
-            Navigator.popAndPushNamed(context, MarkerAnchorPage.route);
+            Navigator.pushReplacementNamed(context, MarkerAnchorPage.route);
           },
         ),
         new ListTile(
           title: const Text('Plugins'),
           selected: currentRoute == PluginPage.route,
           onTap: () {
-            Navigator.popAndPushNamed(context, PluginPage.route);
+            Navigator.pushReplacementNamed(context, PluginPage.route);
           },
         ),
         new ListTile(
           title: const Text('Offline Map'),
           selected: currentRoute == OfflineMapPage.route,
           onTap: () {
-            Navigator.popAndPushNamed(context, OfflineMapPage.route);
+            Navigator.pushReplacementNamed(context, OfflineMapPage.route);
           },
         ),
         new ListTile(
           title: const Text('OnTap'),
           selected: currentRoute == OnTapPage.route,
           onTap: () {
-            Navigator.popAndPushNamed(context, OnTapPage.route);
+            Navigator.pushReplacementNamed(context, OnTapPage.route);
           },
         ),
       ],

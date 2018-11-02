@@ -18,6 +18,7 @@ export 'src/layer/tile_layer.dart';
 export 'src/layer/marker_layer.dart';
 export 'src/layer/polyline_layer.dart';
 export 'src/layer/polygon_layer.dart';
+export 'src/layer/circle_layer.dart';
 export 'src/geo/crs/crs.dart';
 export 'src/geo/latlng_bounds.dart';
 export 'package:flutter_map/src/core/point.dart';
@@ -69,7 +70,7 @@ abstract class MapController {
 }
 
 typedef TapCallback(LatLng point);
-typedef PositionCallback(MapPosition position);
+typedef PositionCallback(MapPosition position, bool hasGesture);
 
 class MapOptions {
   final Crs crs;
@@ -136,5 +137,6 @@ class MapPosition {
   final LatLng center;
   final LatLngBounds bounds;
   final double zoom;
-  MapPosition({this.center, this.bounds, this.zoom});
+  final bool hasGesture;
+  MapPosition({this.center, this.bounds, this.zoom, this.hasGesture = false});
 }
