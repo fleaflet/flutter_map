@@ -48,10 +48,9 @@ class CircleLayer extends StatelessWidget {
       builder: (BuildContext context, _) {
         var circleWidgets = <Widget>[];
         for (var circle in circleOpts.circles) {
-          var pos = map.project(circle.point);
-          pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
-              map.getPixelOrigin();
-          circle.offset = new Offset(pos.x.toDouble(), pos.y.toDouble());
+
+          circle.offset = map.latlngToOffset(circle.point);
+
           circleWidgets.add(
             new CustomPaint(
               painter: new CirclePainter(circle),
