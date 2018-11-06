@@ -81,7 +81,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
       _animationOffset = _pointToOffset(offsetPt);
 
       var newZoom = _mapZoomStart * dScale;
-      map.move(map.unproject(newCenter), newZoom);
+      map.move(map.unproject(newCenter), newZoom, hasGesture: true);
     });
   }
 
@@ -229,7 +229,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
   void _handleDoubleTapZoomAnimation() {
     var newCenter = map.project(_mapCenterStart);
     setState(() {
-      map.move(map.unproject(newCenter), _doubleTapAnimation.value);
+      map.move(map.unproject(newCenter), _doubleTapAnimation.value, hasGesture: true);
     });
   }
 
@@ -239,7 +239,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
       var newCenterPoint = map.project(_mapCenterStart) +
           Point(_animationOffset.dx, _animationOffset.dy);
       var newCenter = map.unproject(newCenterPoint);
-      map.move(newCenter, map.zoom);
+      map.move(newCenter, map.zoom, hasGesture: true);
     });
   }
 

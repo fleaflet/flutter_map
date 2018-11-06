@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## [0.3.0] - 11/1/2018
+- PositionCallback now has hasGesture #139
+
+Thanks to @gimox for this release!
+
 ## [0.2.0] - 10/25/2018
 
 - Use NetworkImageWithRetry for tile layers (#145)
