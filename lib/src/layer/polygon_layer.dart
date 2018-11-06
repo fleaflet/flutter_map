@@ -18,6 +18,10 @@ class Polygon {
   final Color color;
   final double borderStrokeWidth;
   final Color borderColor;
+
+  bool get isEmpty => this.points == null || this.points.isEmpty;
+  bool get isNotEmpty => this.points != null && this.points.isNotEmpty;
+
   Polygon({
     this.points,
     this.color = const Color(0xFF00FF00),
@@ -43,39 +47,40 @@ class PolygonLayer extends StatelessWidget {
   }
 
   Widget _build(BuildContext context, Size size) {
-    return new StreamBuilder<int>(
-      stream: stream, // a Stream<int> or null
-      builder: (BuildContext context, _) {
-        for (var polygonOpt in polygonOpts.polygons) {
-          polygonOpt.offsets.clear();
-          var i = 0;
-          for (var point in polygonOpt.points) {
-
-            var offset = map.latlngToOffset(point);
-            polygonOpt.offsets.add(offset);
-            if (i > 0 && i < polygonOpt.points.length) {
-              polygonOpt.offsets.add(offset);
-            }
-            i++;
-          }
-        }
-
-        var polygons = <Widget>[];
-        for (var polygonOpt in this.polygonOpts.polygons) {
-          polygons.add(
-            new CustomPaint(
-              painter: new PolygonPainter(polygonOpt),
-              size: size,
-            ),
-          );
-        }
-
-        return new Container(
-          child: new Stack(
-            children: polygons,
+    return StreamBuilder<int>(
+      stream: map.onMoved, // a Stream<int> or null
+      builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+        return Container(
+          child: Stack(
+            children: _buildPolygons(size),
           ),
         );
       },
+    );
+  }
+
+  List<Widget> _buildPolygons(Size size) {
+    var list = polygonOpts.polygons
+        .where((polygon) => polygon.isNotEmpty)
+        .map((polygon) => _buildPolygonWidget(polygon, size))
+        .toList();
+    return list;
+  }
+
+  Widget _buildPolygonWidget(Polygon polygon, Size size) {
+    polygon.offsets.clear();
+    var i = 0;
+    for (var point in polygon.points) {
+      var offset = map.latlngToOffset(point);
+      polygon.offsets.add(offset);
+      if (i > 0 && i < polygon.points.length) {
+        polygon.offsets.add(offset);
+      }
+      i++;
+    }
+    return CustomPaint(
+      painter: PolygonPainter(polygon),
+      size: size,
     );
   }
 }

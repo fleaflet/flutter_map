@@ -46,25 +46,27 @@ class CircleLayer extends StatelessWidget {
     return new StreamBuilder<int>(
       stream: stream, // a Stream<int> or null
       builder: (BuildContext context, _) {
-        var circleWidgets = <Widget>[];
-        for (var circle in circleOpts.circles) {
-
-          circle.offset = map.latlngToOffset(circle.point);
-
-          circleWidgets.add(
-            new CustomPaint(
-              painter: new CirclePainter(circle),
-              size: size,
-            ),
-          );
-        }
-
-        return new Container(
-          child: new Stack(
-            children: circleWidgets,
+        return Container(
+          child: Stack(
+            children: _buildCircles(size),
           ),
         );
       },
+    );
+  }
+
+  List<Widget> _buildCircles(Size size) {
+    var list = circleOpts.circles
+        .map((circle) => _buildCircleWidget(circle, size))
+        .toList();
+    return list;
+  }
+
+  Widget _buildCircleWidget(CircleMarker circle, Size size) {
+    circle.offset = map.latlngToOffset(circle.point);
+    return new CustomPaint(
+      painter: new CirclePainter(circle),
+      size: size,
     );
   }
 }
