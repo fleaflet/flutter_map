@@ -6,10 +6,18 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart' hide Path;  // conflict with Path from UI
 
+typedef PolygonCallback(Polygon polygon, LatLng location);
+
 class PolygonLayerOptions extends LayerOptions {
   final List<Polygon> polygons;
-  PolygonLayerOptions({this.polygons = const [], rebuild})
-      : super(rebuild: rebuild);
+  final PolygonCallback onTap;
+  final PolygonCallback onLongPress;
+
+  PolygonLayerOptions({
+    this.polygons = const [],
+    this.onTap,
+    this.onLongPress,
+    rebuild}) : super(rebuild: rebuild);
 }
 
 class Polygon {
@@ -19,8 +27,11 @@ class Polygon {
   final double borderStrokeWidth;
   final Color borderColor;
 
+  Rect _bounds = Rect.zero;
+
   bool get isEmpty => this.points == null || this.points.isEmpty;
   bool get isNotEmpty => this.points != null && this.points.isNotEmpty;
+  Rect get bounds => this._bounds;
 
   Polygon({
     this.points,
@@ -69,12 +80,16 @@ class PolygonLayer extends StatelessWidget {
 
   Widget _buildPolygonWidget(Polygon polygon, Size size) {
     polygon.offsets.clear();
+    polygon._bounds = Rect.zero;
     var i = 0;
     for (var point in polygon.points) {
       var offset = map.latlngToOffset(point);
       polygon.offsets.add(offset);
       if (i > 0 && i < polygon.points.length) {
         polygon.offsets.add(offset);
+        polygon._bounds = polygon._bounds.expandToInclude(
+            Rect.fromPoints(polygon.offsets[i-1], offset)
+        );
       }
       i++;
     }

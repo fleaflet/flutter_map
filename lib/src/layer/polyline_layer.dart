@@ -6,10 +6,18 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
 
+typedef PolylineCallback(Polyline polyline, LatLng location);
+
+
 class PolylineLayerOptions extends LayerOptions {
   final List<Polyline> polylines;
-  PolylineLayerOptions({this.polylines = const [], rebuild})
-      : super(rebuild: rebuild);
+  final PolylineCallback onTap;
+  final PolylineCallback onLongPress;
+  PolylineLayerOptions({
+    this.polylines = const [],
+    this.onTap,
+    this.onLongPress,
+    rebuild}) : super(rebuild: rebuild);
 }
 
 class Polyline {
@@ -21,8 +29,11 @@ class Polyline {
   final Color borderColor;
   final bool isDotted;
 
+  Rect _bounds = Rect.zero;
+
   bool get isEmpty => this.points == null || this.points.isEmpty;
   bool get isNotEmpty => this.points != null && this.points.isNotEmpty;
+  Rect get bounds => this._bounds;
 
   Polyline({
     this.points,
@@ -73,12 +84,16 @@ class PolylineLayer extends StatelessWidget {
 
   Widget _buildPolylineWidget(Polyline polyline, Size size) {
     polyline.offsets.clear();
+    polyline._bounds = Rect.zero;
     var i = 0;
     for (var point in polyline.points) {
       var offset = map.latlngToOffset(point);
       polyline.offsets.add(offset);
       if (i > 0 && i < polyline.points.length) {
         polyline.offsets.add(offset);
+        polyline._bounds = polyline._bounds.expandToInclude(
+            Rect.fromPoints(polyline.offsets[i-1], offset)
+        );
       }
       i++;
     }

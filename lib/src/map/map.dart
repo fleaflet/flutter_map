@@ -6,6 +6,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/center_zoom.dart';
 import 'package:flutter_map/src/core/point.dart';
+import 'package:flutter_map/src/core/util.dart' as util;
 import 'package:latlong/latlong.dart';
 
 import 'package:flutter/material.dart';
@@ -212,6 +213,19 @@ class MapState {
     return unproject(point);
   }
 
+  LatLng offsetToLatLng(
+      Offset rawOffset, Offset boxOffset, double width, double height) {
+    var deltaOffset = rawOffset - boxOffset;
+    var localPoint = Point(deltaOffset.dx, deltaOffset.dy);
+    var localPointCenterDistance = Point(
+        (width / 2) - localPoint.x,
+        (height / 2) - localPoint.y
+    );
+    var mapCenter = project(center);
+    var point = mapCenter - localPointCenterDistance;
+    return unproject(point);
+  }
+
   Offset latlngToOffset(LatLng point) {
     var pos = project(point);
     pos = pos.multiplyBy(getZoomScale(zoom, zoom)) - getPixelOrigin();
@@ -253,5 +267,9 @@ class MapState {
     var pixelCenter = project(center, zoom).floor();
     Point<num> halfSize = size / (scale * 2);
     return new Bounds(pixelCenter - halfSize, pixelCenter + halfSize);
+  }
+
+  double getMetersPerPixel(double latitude) {
+    return util.getMetersPerPixel(256.0, this.zoom, latitude);
   }
 }
