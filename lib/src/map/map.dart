@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
+import 'dart:ui';
 
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/bounds.dart';
@@ -209,6 +210,12 @@ class MapState {
 
   LatLng layerPointToLatLng(Point point) {
     return unproject(point);
+  }
+
+  Offset latlngToOffset(LatLng point) {
+    var pos = project(point);
+    pos = pos.multiplyBy(getZoomScale(zoom, zoom)) - getPixelOrigin();
+    return Offset(pos.x.toDouble(), pos.y.toDouble());
   }
 
   Point get _centerLayerPoint {

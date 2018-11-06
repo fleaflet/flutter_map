@@ -50,11 +50,11 @@ class PolygonLayer extends StatelessWidget {
           polygonOpt.offsets.clear();
           var i = 0;
           for (var point in polygonOpt.points) {
-            var pos = map.project(point);
-            pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) - map.getPixelOrigin();
-            polygonOpt.offsets.add(new Offset(pos.x.toDouble(), pos.y.toDouble()));
+
+            var offset = map.latlngToOffset(point);
+            polygonOpt.offsets.add(offset);
             if (i > 0 && i < polygonOpt.points.length) {
-              polygonOpt.offsets.add(new Offset(pos.x.toDouble(), pos.y.toDouble()));
+              polygonOpt.offsets.add(offset);
             }
             i++;
           }
