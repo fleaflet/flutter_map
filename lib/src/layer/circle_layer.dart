@@ -5,10 +5,17 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart' hide Path; // conflict with Path from UI
 
+typedef CircleCallback(CircleMarker circle, LatLng location);
+
 class CircleLayerOptions extends LayerOptions {
   final List<CircleMarker> circles;
-  CircleLayerOptions({this.circles = const [], rebuild})
-      : super(rebuild: rebuild);
+  final CircleCallback onTap;
+  final CircleCallback onLongPress;
+  CircleLayerOptions({
+    this.circles = const [],
+    this.onTap,
+    this.onLongPress,
+    rebuild}) : super(rebuild: rebuild);
 }
 
 class CircleMarker {
@@ -17,6 +24,7 @@ class CircleMarker {
   final Color color;
   final double borderStrokeWidth;
   final Color borderColor;
+
   Offset offset = Offset.zero;
   CircleMarker({
     this.point,

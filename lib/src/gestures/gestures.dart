@@ -16,6 +16,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
   LatLng _focalStartGlobal;
   Point _focalStartLocal;
 
+  LatLng _lastTapPoint;
+
   AnimationController _controller;
   Animation<Offset> _flingAnimation;
   Offset _flingOffset = Offset.zero;
