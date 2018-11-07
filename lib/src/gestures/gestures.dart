@@ -249,7 +249,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
   /// Returns null if no Circle was touched.
   CircleMarker _circleHitTest(Rect tap, CircleLayerOptions layer) {
     for (var circle in layer.circles.reversed) {
-      if (tap.overlaps(Rect.fromCircle(center: circle.offset, radius: 10.0))) {
+      if (tap.overlaps(Rect.fromCircle(center: circle.offset, radius: circle.radius))) {
         return circle;
       }
     }
