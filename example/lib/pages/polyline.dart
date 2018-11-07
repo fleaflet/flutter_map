@@ -39,7 +39,8 @@ class PolylinePage extends StatelessWidget {
                       new Polyline(
                           points: points,
                           strokeWidth: 4.0,
-                          color: Colors.purple),
+                          color: Colors.purple,
+                      ),
                     ],
                   )
                 ],
