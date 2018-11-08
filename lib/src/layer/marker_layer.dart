@@ -97,37 +97,36 @@ class MarkerLayer extends StatelessWidget {
     return new StreamBuilder<int>(
       stream: stream, // a Stream<int> or null
       builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-        var markers = <Widget>[];
-        for (var markerOpt in this.markerOpts.markers) {
-          var pos = map.project(markerOpt.point);
-          pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
-              map.getPixelOrigin();
-
-          var pixelPosX =
-              (pos.x - (markerOpt.width - markerOpt.anchor.left)).toDouble();
-          var pixelPosY =
-              (pos.y - (markerOpt.height - markerOpt.anchor.top)).toDouble();
-
-          if (!map.bounds.contains(markerOpt.point)) {
-            continue;
-          }
-
-          markers.add(
-            new Positioned(
-              width: markerOpt.width,
-              height: markerOpt.height,
-              left: pixelPosX,
-              top: pixelPosY,
-              child: markerOpt.builder(context),
-            ),
-          );
-        }
         return new Container(
           child: new Stack(
-            children: markers,
+            children: _buildMarkers(context),
           ),
         );
       },
+    );
+  }
+
+  List<Widget> _buildMarkers(BuildContext context) {
+    var list = markerOpts.markers
+        .where((marker) => map.bounds.contains(marker.point))
+        .map((marker) => _buildMarkerWidget(context, marker))
+        .toList();
+    return list;
+  }
+
+  Widget _buildMarkerWidget(BuildContext context, Marker marker) {
+
+    Offset offset = map.latlngToOffset(marker.point).translate(
+        marker._anchor.left - marker.width,
+        marker._anchor.top - marker.height
+    );
+
+    return new Positioned(
+      width: marker.width,
+      height: marker.height,
+      left: offset.dx,
+      top: offset.dy,
+      child: marker.builder(context),
     );
   }
 }
