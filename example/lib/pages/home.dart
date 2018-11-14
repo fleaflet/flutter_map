@@ -8,16 +8,16 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     var markers = <Marker>[
       new Marker(
-        width: 80.0,
-        height: 80.0,
+        width: 30.0,
+        height: 30.0,
         point: new LatLng(51.5, -0.09),
         builder: (ctx) => new Container(
           child: new FlutterLogo(),
         ),
       ),
       new Marker(
-        width: 80.0,
-        height: 80.0,
+        width: 60.0,
+        height: 60.0,
         point: new LatLng(53.3498, -6.2603),
         builder: (ctx) => new Container(
           child: new FlutterLogo(

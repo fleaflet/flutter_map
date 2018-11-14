@@ -1,3 +1,5 @@
+import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
@@ -109,7 +111,8 @@ class MarkerLayer extends StatelessWidget {
   List<Widget> _buildMarkers(BuildContext context) {
     var list = markerOpts.markers
         .where((marker) => map.bounds.contains(marker.point))
-        .map((marker) => _buildMarkerWidget(context, marker))
+//        .map((marker) => _buildMarkerWidget(context, marker))
+        .map((marker) => EditableMarkerWidget(map, marker))
         .toList();
     return list;
   }
@@ -127,6 +130,116 @@ class MarkerLayer extends StatelessWidget {
       left: offset.dx,
       top: offset.dy,
       child: marker.builder(context),
+    );
+  }
+
+}
+
+
+
+class EditableMarkerWidget extends StatefulWidget {
+  final MapState map;
+  final Marker marker;
+
+  EditableMarkerWidget(this.map, this.marker);
+
+  @override
+  EditableMarkerWidgetState createState() => EditableMarkerWidgetState();
+
+}
+
+class EditableMarkerWidgetState extends State<EditableMarkerWidget> {
+
+  Point _origin;
+  Offset _position = Offset.zero;
+
+  // Borrowed gesture recognized lifetime
+  // management from [Draggable] source code, see
+  // https://github.com/flutter/flutter/.../widgets/drag_target.dart#L316
+  PanGestureRecognizer _immediateRecognizer;
+  int _activeCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _origin = widget.map.getPixelOrigin();
+    _position = _translate(
+        widget.map.latlngToOffset(widget.marker.point)
+    );
+    _immediateRecognizer = PanGestureRecognizer()
+      ..onStart = (DragStartDetails details) {
+        HapticFeedback.selectionClick();
+        setState(() {
+          _activeCount++;
+        });
+      }
+      ..onUpdate = (DragUpdateDetails details) {
+        setState(() {
+          _position = _position + details.delta;
+        });
+      }
+      ..onCancel = () {
+        setState(() {
+          _activeCount--;
+        });
+      }
+      ..onEnd = (DragEndDetails details) {
+        setState(() {
+          _activeCount--;
+        });
+      };
+
+  }
+
+
+  @override
+  void dispose() {
+    super.dispose();
+    _disposeRecognizerIfInactive();
+  }
+
+  void _disposeRecognizerIfInactive() {
+    if (_activeCount > 0)
+      return;
+    _immediateRecognizer.dispose();
+    _immediateRecognizer = null;
+  }
+
+  Offset _translate(Offset position) {
+    return position.translate(
+      widget.marker._anchor.left - widget.marker.width,
+      widget.marker._anchor.top - widget.marker.height
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    Point point = widget.map.getPixelOrigin();
+
+    if(!(_origin == point)) {
+      _position = _position.translate(
+          (_origin.x - point.x).toDouble(),
+          (_origin.y - point.y).toDouble()
+      );
+      _origin = point;
+    }
+
+    final bool canDrag = _activeCount < 1;
+
+    return Positioned(
+      width: widget.marker.width,
+      height: widget.marker.height,
+      left: _position.dx,
+      top: _position.dy,
+      child: Listener(
+        onPointerDown: (PointerDownEvent event) {
+          if(canDrag) {
+            _immediateRecognizer.addPointer(event);
+          }
+        },
+        child: widget.marker.builder(context),
+      ),
     );
   }
 }

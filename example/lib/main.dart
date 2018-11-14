@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import './pages/esri.dart';
 import './pages/home.dart';
 import './pages/map_controller.dart';
@@ -13,9 +14,17 @@ import './pages/on_tap.dart';
 void main() => runApp(new MyApp());
 
 class MyApp extends StatelessWidget {
+
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+
+    assert(() {
+      debugPaintPointersEnabled = false;
+      return true;
+    }());
+
     return new MaterialApp(
       title: 'Flutter Map Example',
       theme: new ThemeData(
