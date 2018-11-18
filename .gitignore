@@ -15,6 +15,7 @@ GeneratedPluginRegistrant.h
 GeneratedPluginRegistrant.m
 GeneratedPluginRegistrant.java
 ios/Flutter/Generated.xcconfig
+**/android/app/src/main/gen/
 
 # Temp files in Example
 /flutter_map_example/.DS_Store
