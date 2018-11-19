@@ -213,9 +213,13 @@ class MapState {
     return unproject(point);
   }
 
-  LatLng offsetToLatLng(
-      Offset rawOffset, Offset boxOffset, double width, double height) {
-    var deltaOffset = rawOffset - boxOffset;
+  LatLng globalOffsetToLatLng(
+      Offset globalPosition,
+      Offset boxOffset,
+      double width,
+      double height) {
+
+    var deltaOffset = globalPosition - boxOffset;
     var localPoint = Point(deltaOffset.dx, deltaOffset.dy);
     var localPointCenterDistance = Point(
         (width / 2) - localPoint.x,
@@ -225,6 +229,15 @@ class MapState {
     var point = mapCenter - localPointCenterDistance;
     return unproject(point);
   }
+
+  LatLng offsetToLatLng(Offset offset) {
+    Point pos = Point(offset.dx, offset.dy);
+//    pos = pos.multiplyBy(1/getZoomScale(zoom, zoom)) + getPixelOrigin();
+    return unproject((pos + getPixelOrigin())
+        .multiplyBy(1/getZoomScale(zoom, zoom))
+    );
+  }
+
 
   Offset latlngToOffset(LatLng point) {
     var pos = project(point);
