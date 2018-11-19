@@ -54,10 +54,16 @@ class HomePage extends StatelessWidget {
                 ),
                 layers: [
                   new TileLayerOptions(
-                      urlTemplate:
-                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                      subdomains: ['a', 'b', 'c']),
-                  new MarkerLayerOptions(markers: markers)
+                    urlTemplate:
+                    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                    subdomains: ['a', 'b', 'c']),
+                  new MarkerLayerOptions(
+                    markers: markers,
+                    editable: true,
+                    onMoved: (marker, point) {
+                      print("original: ${marker.point}, moved: $point");
+                    }
+                  ),
                 ],
               ),
             ),

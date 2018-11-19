@@ -5,10 +5,18 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
 
+typedef MarkerMovedCallback(Marker marker, LatLng point);
+
 class MarkerLayerOptions extends LayerOptions {
   final List<Marker> markers;
-  MarkerLayerOptions({this.markers = const [], rebuild})
-      : super(rebuild: rebuild);
+  final bool editable;
+  final MarkerMovedCallback onMoved;
+  MarkerLayerOptions({
+    this.markers = const [],
+    this.editable = false,
+    this.onMoved,
+    rebuild
+  }) : super(rebuild: rebuild);
 }
 
 class Anchor {
@@ -101,19 +109,19 @@ class MarkerLayer extends StatelessWidget {
       builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
         return new Container(
           child: new Stack(
-            children: _buildMarkers(context),
+            children: _buildMarkerWidgets(context),
           ),
         );
       },
     );
   }
 
-  List<Widget> _buildMarkers(BuildContext context) {
+  List<Widget> _buildMarkerWidgets(BuildContext context) {
     var list = markerOpts.markers
-        .where((marker) => map.bounds.contains(marker.point))
-//        .map((marker) => _buildMarkerWidget(context, marker))
-        .map((marker) => EditableMarkerWidget(map, marker))
-        .toList();
+        .map((marker) => markerOpts.editable ?
+          EditableMarkerWidget(marker, map, markerOpts) :
+          _buildMarkerWidget(context, marker)
+        ).toList();
     return list;
   }
 
@@ -140,8 +148,9 @@ class MarkerLayer extends StatelessWidget {
 class EditableMarkerWidget extends StatefulWidget {
   final MapState map;
   final Marker marker;
+  final MarkerLayerOptions options;
 
-  EditableMarkerWidget(this.map, this.marker);
+  EditableMarkerWidget(this.marker, this.map, this.options);
 
   @override
   EditableMarkerWidgetState createState() => EditableMarkerWidgetState();
@@ -150,32 +159,35 @@ class EditableMarkerWidget extends StatefulWidget {
 
 class EditableMarkerWidgetState extends State<EditableMarkerWidget> {
 
-  Point _origin;
-  Offset _position = Offset.zero;
+  LatLng _point;
+  Offset _offset;
 
   // Borrowed gesture recognized lifetime
   // management from [Draggable] source code, see
   // https://github.com/flutter/flutter/.../widgets/drag_target.dart#L316
-  PanGestureRecognizer _immediateRecognizer;
   int _activeCount = 0;
+  PanGestureRecognizer _immediateRecognizer;
 
   @override
   void initState() {
     super.initState();
-    _origin = widget.map.getPixelOrigin();
-    _position = _translate(
-        widget.map.latlngToOffset(widget.marker.point)
-    );
+
+    _point = widget.marker.point;
+
     _immediateRecognizer = PanGestureRecognizer()
       ..onStart = (DragStartDetails details) {
         HapticFeedback.selectionClick();
         setState(() {
           _activeCount++;
+          _offset = _translate(widget.map.latlngToOffset(_point), true);
         });
       }
       ..onUpdate = (DragUpdateDetails details) {
         setState(() {
-          _position = _position + details.delta;
+          _offset = _offset + details.delta;
+          _point = widget.map.offsetToLatLng(
+              _translate(_offset, false)
+          );
         });
       }
       ..onCancel = () {
@@ -186,11 +198,13 @@ class EditableMarkerWidgetState extends State<EditableMarkerWidget> {
       ..onEnd = (DragEndDetails details) {
         setState(() {
           _activeCount--;
+          widget.options.onMoved(
+              widget.marker, _point
+          );
         });
       };
 
   }
-
 
   @override
   void dispose() {
@@ -205,33 +219,27 @@ class EditableMarkerWidgetState extends State<EditableMarkerWidget> {
     _immediateRecognizer = null;
   }
 
-  Offset _translate(Offset position) {
+  Offset _translate(Offset position, bool toLocal) {
+    double dx = widget.marker._anchor.left - widget.marker.width;
+    double dy = widget.marker._anchor.top - widget.marker.height;
     return position.translate(
-      widget.marker._anchor.left - widget.marker.width,
-      widget.marker._anchor.top - widget.marker.height
+      toLocal ? dx : -dx,
+      toLocal ? dy : -dy,
     );
   }
 
   @override
   Widget build(BuildContext context) {
 
-    Point point = widget.map.getPixelOrigin();
-
-    if(!(_origin == point)) {
-      _position = _position.translate(
-          (_origin.x - point.x).toDouble(),
-          (_origin.y - point.y).toDouble()
-      );
-      _origin = point;
-    }
-
     final bool canDrag = _activeCount < 1;
+
+    Offset offset = _translate(widget.map.latlngToOffset(_point), true);
 
     return Positioned(
       width: widget.marker.width,
       height: widget.marker.height,
-      left: _position.dx,
-      top: _position.dy,
+      left: offset.dx,
+      top: offset.dy,
       child: Listener(
         onPointerDown: (PointerDownEvent event) {
           if(canDrag) {
