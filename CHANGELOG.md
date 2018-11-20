@@ -1,3 +1,16 @@
+## [0.3.0] - 11/1/2018
+- PositionCallback now has hasGesture #139
+
+Thanks to @gimox for this release!
+
+## [0.2.0] - 10/25/2018
+- Use NetworkImageWithRetry for tile layers (#145)
+- Add rebuild capability to LayerOptions (#144)
+- Added Circle layer (#137)
+- Prevent Map Layer Excessive Rebuilds (#131)
+
+Thanks to @kengu, @mortenboye, and @tomwyr for this release!
+
 ## [0.1.4] - 9/24/2018
 - Polygon Support (#118)
 

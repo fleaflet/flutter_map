@@ -70,7 +70,7 @@ abstract class MapController {
 }
 
 typedef TapCallback(LatLng point);
-typedef PositionCallback(MapPosition position);
+typedef PositionCallback(MapPosition position, bool hasGesture);
 
 class MapOptions {
   final Crs crs;
@@ -137,5 +137,6 @@ class MapPosition {
   final LatLng center;
   final LatLngBounds bounds;
   final double zoom;
-  MapPosition({this.center, this.bounds, this.zoom});
+  final bool hasGesture;
+  MapPosition({this.center, this.bounds, this.zoom, this.hasGesture = false});
 }

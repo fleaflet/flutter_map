@@ -1,6 +1,6 @@
 name: flutter_map
-description: A flutter implementation of Leaflet
-version: 0.1.4
+description: A Dart implementation of Leaflet for Flutter apps
+version: 0.3.0
 authors:
 - John Ryan <john.p.ryan4@gmail.com>
 homepage: https://github.com/apptreesoftware/flutter_map

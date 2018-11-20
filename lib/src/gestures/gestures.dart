@@ -149,6 +149,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
       map.move(
         _doubleTapCenterAnimation.value,
         _doubleTapZoomAnimation.value,
+        hasGesture: true,
       );
     });
   }
@@ -159,7 +160,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
       var newCenterPoint = map.project(_mapCenterStart) +
           new Point(_flingOffset.dx, _flingOffset.dy);
       var newCenter = map.unproject(newCenterPoint);
-      map.move(newCenter, map.zoom);
+      map.move(newCenter, map.zoom, hasGesture: true);
     });
   }
 
