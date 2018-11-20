@@ -1,22 +1,18 @@
 import 'package:flutter/gestures.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
 
-typedef MarkerMovedCallback(Marker marker, LatLng point);
+typedef void MarkerMovedCallback(Marker marker, LatLng point);
 
 class MarkerLayerOptions extends LayerOptions {
   final List<Marker> markers;
   final bool editable;
   final MarkerMovedCallback onMoved;
-  MarkerLayerOptions({
-    this.markers = const [],
-    this.editable = false,
-    this.onMoved,
-    rebuild
-  }) : super(rebuild: rebuild);
+  MarkerLayerOptions(
+      {this.markers = const [], this.editable = false, this.onMoved, rebuild})
+      : super(rebuild: rebuild);
 }
 
 class Anchor {
@@ -118,19 +114,16 @@ class MarkerLayer extends StatelessWidget {
 
   List<Widget> _buildMarkerWidgets(BuildContext context) {
     var list = markerOpts.markers
-        .map((marker) => markerOpts.editable ?
-          EditableMarkerWidget(marker, map, markerOpts) :
-          _buildMarkerWidget(context, marker)
-        ).toList();
+        .map((marker) => markerOpts.editable
+            ? EditableMarkerWidget(marker, map, markerOpts)
+            : _buildMarkerWidget(context, marker))
+        .toList();
     return list;
   }
 
   Widget _buildMarkerWidget(BuildContext context, Marker marker) {
-
     Offset offset = map.latlngToOffset(marker.point).translate(
-        marker._anchor.left - marker.width,
-        marker._anchor.top - marker.height
-    );
+        marker._anchor.left - marker.width, marker._anchor.top - marker.height);
 
     return new Positioned(
       width: marker.width,
@@ -140,114 +133,30 @@ class MarkerLayer extends StatelessWidget {
       child: marker.builder(context),
     );
   }
-
 }
 
-
-
-class EditableMarkerWidget extends StatefulWidget {
+class EditableMarkerWidget extends EditablePointWidget {
   final MapState map;
   final Marker marker;
   final MarkerLayerOptions options;
 
-  EditableMarkerWidget(this.marker, this.map, this.options);
-
-  @override
-  EditableMarkerWidgetState createState() => EditableMarkerWidgetState();
-
-}
-
-class EditableMarkerWidgetState extends State<EditableMarkerWidget> {
-
-  LatLng _point;
-  Offset _offset;
-
-  // Borrowed gesture recognized lifetime
-  // management from [Draggable] source code, see
-  // https://github.com/flutter/flutter/.../widgets/drag_target.dart#L316
-  int _activeCount = 0;
-  PanGestureRecognizer _immediateRecognizer;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _point = widget.marker.point;
-
-    _immediateRecognizer = PanGestureRecognizer()
-      ..onStart = (DragStartDetails details) {
-        HapticFeedback.selectionClick();
-        setState(() {
-          _activeCount++;
-          _offset = _translate(widget.map.latlngToOffset(_point), true);
-        });
-      }
-      ..onUpdate = (DragUpdateDetails details) {
-        setState(() {
-          _offset = _offset + details.delta;
-          _point = widget.map.offsetToLatLng(
-              _translate(_offset, false)
+  EditableMarkerWidget(this.marker, this.map, this.options) :
+    super(
+      map: map,
+        size: Size(marker.width, marker.height),
+        builder: marker.builder,
+        translate: (Offset position, bool toLocal) {
+          double dx = marker._anchor.left - marker.width;
+          double dy = marker._anchor.top - marker.height;
+          return position.translate(
+            toLocal ? dx : -dx,
+            toLocal ? dy : -dy,
           );
-        });
-      }
-      ..onCancel = () {
-        setState(() {
-          _activeCount--;
-        });
-      }
-      ..onEnd = (DragEndDetails details) {
-        setState(() {
-          _activeCount--;
-          widget.options.onMoved(
-              widget.marker, _point
-          );
-        });
-      };
-
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _disposeRecognizerIfInactive();
-  }
-
-  void _disposeRecognizerIfInactive() {
-    if (_activeCount > 0)
-      return;
-    _immediateRecognizer.dispose();
-    _immediateRecognizer = null;
-  }
-
-  Offset _translate(Offset position, bool toLocal) {
-    double dx = widget.marker._anchor.left - widget.marker.width;
-    double dy = widget.marker._anchor.top - widget.marker.height;
-    return position.translate(
-      toLocal ? dx : -dx,
-      toLocal ? dy : -dy,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-
-    final bool canDrag = _activeCount < 1;
-
-    Offset offset = _translate(widget.map.latlngToOffset(_point), true);
-
-    return Positioned(
-      width: widget.marker.width,
-      height: widget.marker.height,
-      left: offset.dx,
-      top: offset.dy,
-      child: Listener(
-        onPointerDown: (PointerDownEvent event) {
-          if(canDrag) {
-            _immediateRecognizer.addPointer(event);
-          }
         },
-        child: widget.marker.builder(context),
-      ),
+        index: 0,
+        points: [marker.point],
+        onDragUpdate: (int index, LatLng point) => options.onMoved(marker, point)
     );
-  }
+
+
 }
