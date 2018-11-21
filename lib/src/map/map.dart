@@ -160,14 +160,7 @@ class MapState {
     var paddingBR =
         Point<double>(options.padding.right, options.padding.bottom);
 
-    print(options.padding.left);
-    print(options.padding.right);
-    print(options.padding.top);
-    print(options.padding.bottom);
-
     var paddingTotalXY = paddingTL + paddingBR;
-
-    print(paddingTotalXY);
 
     var zoom = getBoundsZoom(bounds, paddingTotalXY, inside: false);
     zoom = math.min(options.maxZoom, zoom);

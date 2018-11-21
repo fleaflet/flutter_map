@@ -58,8 +58,6 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
       mapController.move(
           LatLng(_latTween.evaluate(animation), _lngTween.evaluate(animation)),
           _zoomTween.evaluate(animation));
-      print(
-          "Location (${_latTween.evaluate(animation)} , ${_lngTween.evaluate(animation)}) @ zoom ${_zoomTween.evaluate(animation)}");
     });
 
     animation.addStatusListener((status) {

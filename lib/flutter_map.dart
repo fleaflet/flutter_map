@@ -128,7 +128,7 @@ class FitBoundsOptions {
 
   const FitBoundsOptions({
     this.padding = const EdgeInsets.all(0.0),
-    this.maxZoom = 17.0, // TODO why is this?
+    this.maxZoom = 17.0,
     this.zoom,
   });
 }
