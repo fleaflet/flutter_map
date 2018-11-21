@@ -7,6 +7,8 @@ import 'package:flutter_map/src/core/center_zoom.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:latlong/latlong.dart';
 
+import 'package:flutter/material.dart';
+
 class MapControllerImpl implements MapController {
   Completer<Null> _readyCompleter = new Completer<Null>();
   MapState _state;
@@ -27,7 +29,7 @@ class MapControllerImpl implements MapController {
   void fitBounds(
     LatLngBounds bounds, {
     FitBoundsOptions options =
-        const FitBoundsOptions(padding: const Point(24.0, 24.0)),
+        const FitBoundsOptions(padding: EdgeInsets.all(12.0)),
   }) {
     _state.fitBounds(bounds, options);
   }
@@ -154,10 +156,13 @@ class MapState {
 
   CenterZoom _getBoundsCenterZoom(
       LatLngBounds bounds, FitBoundsOptions options) {
-    var paddingTL = options.padding;
-    var paddingBR = options.padding;
+    var paddingTL = Point<double>(options.padding.left, options.padding.top);
+    var paddingBR =
+        Point<double>(options.padding.right, options.padding.bottom);
 
-    var zoom = getBoundsZoom(bounds, paddingTL + paddingBR, inside: false);
+    var paddingTotalXY = paddingTL + paddingBR;
+
+    var zoom = getBoundsZoom(bounds, paddingTotalXY, inside: false);
     zoom = math.min(options.maxZoom, zoom);
 
     var paddingOffset = (paddingBR - paddingTL) / 2;
