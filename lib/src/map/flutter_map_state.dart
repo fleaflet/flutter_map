@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/gestures/gestures.dart';
 import 'package:flutter_map/src/map/map.dart';
+import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 import 'package:async/async.dart';
 
 class FlutterMapState extends MapGestureMixin {
@@ -51,17 +52,19 @@ class FlutterMapState extends MapGestureMixin {
       var layerWidgets = widget.layers
           .map((layer) => _createLayer(layer, widget.options.plugins))
           .toList();
-      return new GestureDetector(
-        onScaleStart: handleScaleStart,
-        onScaleUpdate: handleScaleUpdate,
-        onScaleEnd: handleScaleEnd,
-        onTapUp: handleTapUp,
+      return PositionedTapDetector(
+        onTap: handleTap,
         onDoubleTap: handleDoubleTap,
-        child: new Container(
+        child: new GestureDetector(
+          onScaleStart: handleScaleStart,
+          onScaleUpdate: handleScaleUpdate,
+          onScaleEnd: handleScaleEnd,
+          child: new Container(
           width: constraints.maxWidth,
           height: constraints.maxHeight,
-          child: new Stack(
-            children: layerWidgets,
+            child: new Stack(
+              children: layerWidgets,
+            ),
           ),
         ),
       );

@@ -13,6 +13,7 @@ dependencies:
     sdk: flutter
   tuple: ^1.0.1
   latlong: ^0.6.1
+  positioned_tap_detector: ^1.0.1
   transparent_image: ^0.1.0
   async: ^2.0.8
   flutter_image: ^1.0.0
