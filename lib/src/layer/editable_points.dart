@@ -13,11 +13,12 @@ class EditablePointsWidget extends StatefulWidget {
   final WidgetBuilder builder;
   final List<LatLng> points;
   final MapState map;
+  final bool closed;
   final double radius = 15.0;
   final double strokeWidth = 1.0;
 
   const EditablePointsWidget(
-      {Key key, this.builder, this.points, this.map})
+      {Key key, this.builder, this.points, this.map, this.closed})
       : super(key: key);
 
   @override
@@ -43,7 +44,6 @@ class _EditablePointsWidgetState extends State<EditablePointsWidget> {
   }
 
   void _onPointUpdate(int index, LatLng point) {
-//    print("_onPointUpdate($index, $point)");
     int length = _setMidPoints().length;
     for (int i = 0; i < length; i++) {
       onMidPointChanged.add(i);
@@ -51,8 +51,7 @@ class _EditablePointsWidgetState extends State<EditablePointsWidget> {
   }
 
   void _onPointTap(int index, LatLng point) {
-//    print("_onPointTap($index, $point)");
-    if(widget.points.length>2) {
+    if(widget.points.length > 2) {
       setState(() {
         widget.points.removeAt(index);
         for (int i = 0; i < widget.points.length; i++) {
@@ -107,15 +106,25 @@ class _EditablePointsWidgetState extends State<EditablePointsWidget> {
 
     _midPoints.clear();
 
-    widget.points.forEach((next) {
-      Offset offset = widget.map.latlngToOffset(next);
-      if (previous != null) {
+    if(widget.points.isNotEmpty) {
+
+      widget.points.forEach((next) {
+        Offset offset = widget.map.latlngToOffset(next);
+        if (previous != null) {
+          _midPoints.add(
+              widget.map.offsetToLatLng(_calcMidPoint(previous, offset))
+          );
+        }
+        previous = offset;
+      });
+
+      if(widget.closed) {
+        Offset offset = widget.map.latlngToOffset(widget.points.first);
         _midPoints.add(
             widget.map.offsetToLatLng(_calcMidPoint(previous, offset))
         );
       }
-      previous = offset;
-    });
+    }
 
     return _midPoints;
   }
