@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
@@ -136,16 +135,4 @@ class PolygonPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(PolygonPainter other) => false;
-}
-
-double _dist(Offset v, Offset w) {
-  return sqrt(_dist2(v, w));
-}
-
-double _dist2(Offset v, Offset w) {
-  return _sqr(v.dx - w.dx) + _sqr(v.dy - w.dy);
-}
-
-double _sqr(double x) {
-  return x * x;
 }
