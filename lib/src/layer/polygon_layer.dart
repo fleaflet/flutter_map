@@ -2,20 +2,29 @@ import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/layer/editable_points.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart' hide Path;  // conflict with Path from UI
 
 typedef PolygonCallback(Polygon polygon, LatLng location);
+typedef PolygonMovedCallback(Polygon polygon, LatLng point);
+typedef PolygonChangedCallback(Polygon polygon, LatLng point);
 
 class PolygonLayerOptions extends LayerOptions {
   final List<Polygon> polygons;
   final PolygonCallback onTap;
   final PolygonCallback onLongPress;
+  final bool editable;
+  final PolygonMovedCallback onMoved;
+  final PolygonChangedCallback onChanged;
 
   PolygonLayerOptions({
     this.polygons = const [],
     this.onTap,
     this.onLongPress,
+    this.editable = false,
+    this.onMoved,
+    this.onChanged,
     rebuild}) : super(rebuild: rebuild);
 }
 
@@ -72,8 +81,16 @@ class PolygonLayer extends StatelessWidget {
   List<Widget> _buildPolygons(Size size) {
     var list = polygonOpts.polygons
         .where((polygon) => polygon.isNotEmpty)
-        .map((polygon) => _buildPolygonWidget(polygon, size))
-        .toList();
+        .map((polygon) => polygonOpts.editable
+          ? EditablePointsWidget(
+            builder: (BuildContext context) =>
+                _buildPolygonWidget(polygon, size),
+            points: polygon.points,
+            map: map,
+            closed: true,
+          )
+          : _buildPolygonWidget(polygon, size)
+        ).toList();
     return list;
   }
 

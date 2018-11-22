@@ -3,16 +3,25 @@ import 'package:flutter_map/flutter_map.dart';
 import '../widgets/drawer.dart';
 import 'package:latlong/latlong.dart';
 
-class PolygonPage extends StatelessWidget {
+class PolygonPage extends StatefulWidget {
   static const String route = "polygon";
 
+  @override
+  State<StatefulWidget> createState() => _PolygonPageState();
+
+}
+
+class _PolygonPageState extends State<PolygonPage> {
+
+  bool _isEditing = false;
+
+  final points = <LatLng>[
+    new LatLng(51.5, -0.09),
+    new LatLng(53.3498, -6.2603),
+    new LatLng(48.8566, 2.3522),
+  ];
+
   Widget build(BuildContext context) {
-    var points = <LatLng>[
-      new LatLng(51.5, -0.09),
-      new LatLng(53.3498, -6.2603),
-      new LatLng(48.8566, 2.3522),
-//      new LatLng(51.5, -0.09),
-    ];
     return new Scaffold(
       appBar: new AppBar(title: new Text("Polygons")),
       drawer: buildDrawer(context, PolygonPage.route),
@@ -44,13 +53,24 @@ class PolygonPage extends StatelessWidget {
                           color: Colors.purpleAccent,
                       ),
                     ],
-//                    editable: true,
+                    editable: _isEditing,
                   )
                 ],
               ),
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => setState((){
+          _isEditing = !_isEditing;
+        }),
+       tooltip: _isEditing ? 'Apply' : "Edit",
+          backgroundColor: Colors.white,
+          child: Icon(
+              _isEditing ? Icons.check : Icons.edit,
+              color: Colors.black
+          ),
       ),
     );
   }
