@@ -84,26 +84,46 @@ abstract class MapGestureMixin extends State<FlutterMap>
       ..fling(velocity: magnitude / 1000.0);
   }
 
-  void handleTapUp(TapUpDetails details) {
-
-    // Get the widget's offset
-    var renderObject = context.findRenderObject() as RenderBox;
-    var boxOffset = renderObject.localToGlobal(Offset.zero);
-    var width = renderObject.size.width;
-    var height = renderObject.size.height;
-
-    // convert the point to global coordinates
-    _lastTapPoint =
-        map.offsetToLatLng(details.globalPosition, boxOffset, width, height);
-  }
+//  void handleTapUp(TapPosition position) {
+//
+//    // Get the widget's offset
+//    var renderObject = context.findRenderObject() as RenderBox;
+//    var boxOffset = renderObject.localToGlobal(Offset.zero);
+//    var width = renderObject.size.width;
+//    var height = renderObject.size.height;
+//
+//    // convert the point to global coordinates
+//    _lastTapPoint =
+//        map.offsetToLatLng(details.globalPosition, boxOffset, width, height);
+//  }
 
   void handleTap(TapPosition position) {
-    if (options.onTap == null) {
-      return;
-    }
-    final latlng = _offsetToCrs(position.relative);
+    _lastTapPoint = _offsetToCrs(position.relative);
+
+    var test = _elementHitTest(_lastTapPoint);
+
     // emit the event
-    options.onTap(latlng);
+    if (test != null) {
+      var layer = test.keys.first;
+      if (layer.onTap != null) {
+        layer.onTap(test[layer], _lastTapPoint);
+      }
+    } else if (options.onTap != null) options.onTap(_lastTapPoint);
+  }
+
+  void handleLongPress(TapPosition position) {
+
+    _lastTapPoint = _offsetToCrs(position.relative);
+
+    var test = _elementHitTest(_lastTapPoint);
+
+    // emit the event
+    if (test != null) {
+      var layer = test.keys.first;
+      if (layer.onTap != null) {
+        layer.onLongPress(test[layer], _lastTapPoint);
+      }
+    } else if (options.onTap != null) options.onLongPress(_lastTapPoint);
   }
 
   LatLng _offsetToCrs(Offset offset) {
