@@ -116,22 +116,15 @@ class PolygonPainter extends CustomPainter {
       ..color = polygonOpt.color;
     final borderPaint = polygonOpt.borderStrokeWidth > 0.0
         ? (new Paint()
+      ..style = PaintingStyle.stroke
       ..color = polygonOpt.borderColor
       ..strokeWidth = polygonOpt.borderStrokeWidth)
         : null;
 
     _paintPolygon(canvas, polygonOpt.offsets, paint);
 
-    double borderRadius = (polygonOpt.borderStrokeWidth / 2);
     if (polygonOpt.borderStrokeWidth > 0.0) {
-        _paintLine(canvas, polygonOpt.offsets, borderRadius, borderPaint);
-    }
-  }
-
-  void _paintLine(Canvas canvas, List<Offset> offsets, double radius, Paint paint) {
-    canvas.drawPoints(PointMode.lines, offsets, paint);
-    for (var offset in offsets) {
-      canvas.drawCircle(offset, radius, paint);
+        _paintPolygon(canvas, polygonOpt.offsets, borderPaint);
     }
   }
 

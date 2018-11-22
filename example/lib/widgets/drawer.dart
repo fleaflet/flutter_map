@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map_example/pages/polygon.dart';
 import '../pages/animated_map_controller.dart';
 import '../pages/esri.dart';
 import '../pages/home.dart';
@@ -45,6 +46,13 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           selected: currentRoute == PolylinePage.route,
           onTap: () {
             Navigator.pushReplacementNamed(context, PolylinePage.route);
+          },
+        ),
+        new ListTile(
+          title: const Text('Polygons'),
+          selected: currentRoute == PolygonPage.route,
+          onTap: () {
+            Navigator.pushReplacementNamed(context, PolygonPage.route);
           },
         ),
         new ListTile(

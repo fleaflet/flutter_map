@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_map_example/pages/polygon.dart';
 import './pages/esri.dart';
 import './pages/home.dart';
 import './pages/map_controller.dart';
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
         EsriPage.route: (context) => new EsriPage(),
         PolylinePage.route: (context) => new PolylinePage(),
         MapControllerPage.route: (context) => new MapControllerPage(),
+        PolygonPage.route: (context) => new PolygonPage(),
         AnimatedMapControllerPage.route: (context) => new AnimatedMapControllerPage(),
         MarkerAnchorPage.route: (context) => new MarkerAnchorPage(),
         PluginPage.route: (context) => new PluginPage(),
