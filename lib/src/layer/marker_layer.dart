@@ -123,7 +123,7 @@ class MarkerLayer extends StatelessWidget {
 
   Widget _buildMarkerWidget(BuildContext context, Marker marker) {
     Offset offset = map.latlngToOffset(marker.point).translate(
-        marker._anchor.left - marker.width, marker._anchor.top - marker.height);
+        marker.anchor.left - marker.width, marker.anchor.top - marker.height);
 
     return new Positioned(
       width: marker.width,
@@ -146,8 +146,8 @@ class EditableMarkerWidget extends EditablePointWidget {
         size: Size(marker.width, marker.height),
         builder: marker.builder,
         translate: (Offset position, bool toLocal) {
-          double dx = marker._anchor.left - marker.width;
-          double dy = marker._anchor.top - marker.height;
+          double dx = marker.anchor.left - marker.width;
+          double dy = marker.anchor.top - marker.height;
           return position.translate(
             toLocal ? dx : -dx,
             toLocal ? dy : -dy,

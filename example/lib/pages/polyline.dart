@@ -42,6 +42,7 @@ class PolylinePage extends StatelessWidget {
                           color: Colors.purple,
                       ),
                     ],
+                    editable: true,
                   )
                 ],
               ),
