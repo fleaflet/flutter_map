@@ -3,15 +3,25 @@ import 'package:flutter_map/flutter_map.dart';
 import '../widgets/drawer.dart';
 import 'package:latlong/latlong.dart';
 
-class PolylinePage extends StatelessWidget {
+class PolylinePage extends StatefulWidget {
   static const String route = "polyline";
 
+  @override
+  State<StatefulWidget> createState() => _PolylinePageState();
+
+}
+
+class _PolylinePageState extends State<PolylinePage> {
+
+  bool _isEditing = false;
+
+  final points = <LatLng>[
+    new LatLng(51.5, -0.09),
+    new LatLng(53.3498, -6.2603),
+    new LatLng(48.8566, 2.3522),
+  ];
+
   Widget build(BuildContext context) {
-    var points = <LatLng>[
-      new LatLng(51.5, -0.09),
-      new LatLng(53.3498, -6.2603),
-      new LatLng(48.8566, 2.3522),
-    ];
     return new Scaffold(
       appBar: new AppBar(title: new Text("Polylines")),
       drawer: buildDrawer(context, PolylinePage.route),
@@ -42,7 +52,7 @@ class PolylinePage extends StatelessWidget {
                           color: Colors.purple,
                       ),
                     ],
-                    editable: true,
+                    editable:  _isEditing,
                   )
                 ],
               ),
@@ -50,6 +60,17 @@ class PolylinePage extends StatelessWidget {
           ],
         ),
       ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => setState((){
+            _isEditing = !_isEditing;
+          }),
+          tooltip: _isEditing ? 'Apply' : "Edit",
+          backgroundColor: Colors.white,
+          child: Icon(
+              _isEditing ? Icons.check : Icons.edit,
+              color: Colors.black
+          ),
+        ),
     );
   }
 }
