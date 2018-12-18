@@ -13,17 +13,17 @@ abstract class Crs {
 
   const Crs();
 
-  Point latLngToPoint(LatLng latlng, double zoom) {
+  CustomPoint latLngToPoint(LatLng latlng, double zoom) {
     try {
       var projectedPoint = this.projection.project(latlng);
       var scale = this.scale(zoom);
       return transformation.transform(projectedPoint, scale.toDouble());
     } catch (e) {
-      return new Point(0.0, 0.0);
+      return new CustomPoint(0.0, 0.0);
     }
   }
 
-  LatLng pointToLatLng(Point point, double zoom) {
+  LatLng pointToLatLng(CustomPoint point, double zoom) {
     var scale = this.scale(zoom);
     var untransformedPoint = this.transformation.untransform(point, scale.toDouble());
     try {
@@ -79,8 +79,8 @@ abstract class Projection {
   const Projection();
 
   Bounds<double> get bounds;
-  Point project(LatLng latlng);
-  LatLng unproject(Point point);
+  CustomPoint project(LatLng latlng);
+  LatLng unproject(CustomPoint point);
 }
 
 class SphericalMercator extends Projection {
@@ -88,25 +88,25 @@ class SphericalMercator extends Projection {
   static const double maxLatitude = 85.0511287798;
   static const double _boundsD = r * math.pi;
   static Bounds<double> _bounds = new Bounds<double>(
-    new Point<double>(-_boundsD, -_boundsD),
-    new Point<double>(_boundsD, _boundsD),
+    new CustomPoint<double>(-_boundsD, -_boundsD),
+    new CustomPoint<double>(_boundsD, _boundsD),
   );
 
   const SphericalMercator() : super();
 
   Bounds<double> get bounds => _bounds;
 
-  Point project(LatLng latlng) {
+  CustomPoint project(LatLng latlng) {
     var d = math.pi / 180;
     var max = maxLatitude;
     var lat = math.max(math.min(max, latlng.latitude), -max);
     var sin = math.sin(lat * d);
 
-    return new Point(
+    return new CustomPoint(
         r * latlng.longitude * d, r * math.log((1 + sin) / (1 - sin)) / 2);
   }
 
-  LatLng unproject(Point point) {
+  LatLng unproject(CustomPoint point) {
     var d = 180 / math.pi;
     return new LatLng(
         (2 * math.atan(math.exp(point.y / r)) - (math.pi / 2)) * d,
@@ -121,21 +121,21 @@ class Transformation {
   final num d;
   const Transformation(this.a, this.b, this.c, this.d);
 
-  Point transform(Point<num> point, double scale) {
+  CustomPoint transform(CustomPoint<num> point, double scale) {
     if (scale == null) {
       scale = 1.0;
     }
     var x = scale * (a * point.x + b);
     var y = scale * (c * point.y + d);
-    return new Point(x, y);
+    return new CustomPoint(x, y);
   }
 
-  Point untransform(Point point, double scale) {
+  CustomPoint untransform(CustomPoint point, double scale) {
     if (scale == null) {
       scale = 1.0;
     }
     var x = (point.x / scale - b) / a;
     var y = (point.y / scale - d) / c;
-    return new Point(x, y);
+    return new CustomPoint(x, y);
   }
 }

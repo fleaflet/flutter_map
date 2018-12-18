@@ -49,7 +49,7 @@ class FlutterMapState extends MapGestureMixin {
     return new LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
       mapState.size =
-          new Point<double>(constraints.maxWidth, constraints.maxHeight);
+          new CustomPoint<double>(constraints.maxWidth, constraints.maxHeight);
       var layerWidgets = widget.layers
           .map((layer) => _createLayer(layer, widget.options.plugins))
           .toList();

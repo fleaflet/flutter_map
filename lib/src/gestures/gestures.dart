@@ -14,7 +14,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
   LatLng _mapCenterStart;
   double _mapZoomStart;
   LatLng _focalStartGlobal;
-  Point _focalStartLocal;
+  CustomPoint _focalStartLocal;
 
   AnimationController _controller;
   Animation<Offset> _flingAnimation;
@@ -97,7 +97,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
     // convert the point to global coordinates
     var localPoint = _offsetToPoint(offset);
     var localPointCenterDistance =
-        new Point((width / 2) - localPoint.x, (height / 2) - localPoint.y);
+        new CustomPoint((width / 2) - localPoint.x, (height / 2) - localPoint.y);
     var mapCenter = map.project(map.center);
     var point = mapCenter - localPointCenterDistance;
     return map.unproject(point);
@@ -158,17 +158,17 @@ abstract class MapGestureMixin extends State<FlutterMap>
     setState(() {
       _flingOffset = _flingAnimation.value;
       var newCenterPoint = map.project(_mapCenterStart) +
-          new Point(_flingOffset.dx, _flingOffset.dy);
+          new CustomPoint(_flingOffset.dx, _flingOffset.dy);
       var newCenter = map.unproject(newCenterPoint);
       map.move(newCenter, map.zoom, hasGesture: true);
     });
   }
 
-  Point _offsetToPoint(Offset offset) {
-    return new Point(offset.dx, offset.dy);
+  CustomPoint _offsetToPoint(Offset offset) {
+    return new CustomPoint(offset.dx, offset.dy);
   }
 
-  Offset _pointToOffset(Point point) {
+  Offset _pointToOffset(CustomPoint point) {
     return new Offset(point.x.toDouble(), point.y.toDouble());
   }
 
