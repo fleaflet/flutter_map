@@ -78,7 +78,6 @@ class MapOptions {
   final double zoom;
   final double minZoom;
   final double maxZoom;
-  final List<LayerOptions> layers;
   final bool debug;
   final bool interactive;
   final TapCallback onTap;
@@ -94,7 +93,6 @@ class MapOptions {
     this.zoom = 13.0,
     this.minZoom,
     this.maxZoom,
-    this.layers,
     this.debug = false,
     this.interactive = true,
     this.onTap,
