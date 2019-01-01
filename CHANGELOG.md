@@ -1,3 +1,12 @@
+## [0.4.0] - 12/31/2018
+- Zoom to focal point on double tap and scale gestures (#121)
+- Make anchor field public (#172)
+- FitBoundsOptions now uses EdgeInsets padding
+- Add GroupLayer
+- Update README
+
+Thanks to @tomwyr, @csjames, @kengu, @ocularrhythm for this release!
+
 ## [0.3.0] - 11/1/2018
 - PositionCallback now has hasGesture #139
 
