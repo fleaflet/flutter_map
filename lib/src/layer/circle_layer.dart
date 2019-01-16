@@ -17,10 +17,13 @@ class CircleMarker {
   final Color color;
   final double borderStrokeWidth;
   final Color borderColor;
+  final bool useRadiusInMeter;
   Offset offset = Offset.zero;
+  num realRadius = 0;
   CircleMarker({
     this.point,
     this.radius,
+    this.useRadiusInMeter = false,
     this.color = const Color(0xFF00FF00),
     this.borderStrokeWidth = 0.0,
     this.borderColor = const Color(0xFFFFFF00),
@@ -52,6 +55,17 @@ class CircleLayer extends StatelessWidget {
           pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
               map.getPixelOrigin();
           circle.offset = new Offset(pos.x.toDouble(), pos.y.toDouble());
+
+          if(circle.useRadiusInMeter)
+          {
+            var r = Distance().offset(circle.point, circle.radius , 180);
+            var rpos = map.project(r);
+            rpos = rpos .multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
+                map.getPixelOrigin();
+
+            circle.realRadius = rpos.y - pos.y;
+          }
+
           circleWidgets.add(
             new CustomPaint(
               painter: new CirclePainter(circle),
@@ -88,7 +102,7 @@ class CirclePainter extends CustomPainter {
           ..strokeWidth = circle.borderStrokeWidth)
         : null;
 
-    _paintCircle(canvas, circle.offset, circle.radius, paint);
+    _paintCircle(canvas, circle.offset, circle.useRadiusInMeter ? circle.realRadius : circle.radius, paint);
   }
 
   void _paintCircle(Canvas canvas, Offset offset, double radius, Paint paint) {

@@ -9,6 +9,7 @@ import './pages/polyline.dart';
 import './pages/tap_to_add.dart';
 import './pages/offline_map.dart';
 import './pages/on_tap.dart';
+import './pages/circle.dart';
 
 void main() => runApp(new MyApp());
 
@@ -32,6 +33,7 @@ class MyApp extends StatelessWidget {
         PluginPage.route: (context) => new PluginPage(),
         OfflineMapPage.route: (context) => new OfflineMapPage(),
         OnTapPage.route: (context) => new OnTapPage(),
+        CirclePage.route: (context) => new CirclePage(),
       },
     );
   }
