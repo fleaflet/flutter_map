@@ -12,26 +12,26 @@ class HomePage extends StatelessWidget {
         height: 80.0,
         point: new LatLng(51.5, -0.09),
         builder: (ctx) => new Container(
-          child: new FlutterLogo(),
-        ),
+              child: new FlutterLogo(),
+            ),
       ),
       new Marker(
         width: 80.0,
         height: 80.0,
         point: new LatLng(53.3498, -6.2603),
         builder: (ctx) => new Container(
-          child: new FlutterLogo(
-            colors: Colors.green,
-          ),
-        ),
+              child: new FlutterLogo(
+                colors: Colors.green,
+              ),
+            ),
       ),
       new Marker(
         width: 80.0,
         height: 80.0,
         point: new LatLng(48.8566, 2.3522),
         builder: (ctx) => new Container(
-          child: new FlutterLogo(colors: Colors.purple),
-        ),
+              child: new FlutterLogo(colors: Colors.purple),
+            ),
       ),
     ];
 
@@ -55,7 +55,7 @@ class HomePage extends StatelessWidget {
                 layers: [
                   new TileLayerOptions(
                       urlTemplate:
-                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                       subdomains: ['a', 'b', 'c']),
                   new MarkerLayerOptions(markers: markers)
                 ],
