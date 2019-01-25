@@ -59,5 +59,4 @@ class GroupLayer extends StatelessWidget {
     }
     throw ("Unknown options type for GeometryLayer: $options");
   }
-
 }
