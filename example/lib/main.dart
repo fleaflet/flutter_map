@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map_example/pages/moving_markers.dart';
 import './pages/esri.dart';
 import './pages/home.dart';
 import './pages/map_controller.dart';
@@ -34,6 +35,7 @@ class MyApp extends StatelessWidget {
         PluginPage.route: (context) => new PluginPage(),
         OfflineMapPage.route: (context) => new OfflineMapPage(),
         OnTapPage.route: (context) => new OnTapPage(),
+        MovingMarkersPage.route: (context) => new MovingMarkersPage(),
         CirclePage.route: (context) => new CirclePage(),
         OverlayImagePage.route: (context) => new OverlayImagePage(),
       },

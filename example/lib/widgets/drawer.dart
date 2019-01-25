@@ -9,6 +9,7 @@ import '../pages/plugin_api.dart';
 import '../pages/polyline.dart';
 import '../pages/tap_to_add.dart';
 import '../pages/on_tap.dart';
+import '../pages/moving_markers.dart';
 import '../pages/circle.dart';
 import '../pages/overlay_image.dart';
 
@@ -89,6 +90,13 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           selected: currentRoute == OnTapPage.route,
           onTap: () {
             Navigator.pushReplacementNamed(context, OnTapPage.route);
+          },
+        ),
+        new ListTile(
+          title: const Text('Moving Markers'),
+          selected: currentRoute == MovingMarkersPage.route,
+          onTap: () {
+            Navigator.pushReplacementNamed(context, MovingMarkersPage.route);
           },
         ),
         new ListTile(
