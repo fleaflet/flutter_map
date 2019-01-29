@@ -14,19 +14,20 @@ class MovingMarkersPage extends StatefulWidget {
   }
 }
 
-class _MovingMarkersPageState extends State<MovingMarkersPage>
-    with SingleTickerProviderStateMixin {
-  LatLng point;
+class _MovingMarkersPageState extends State<MovingMarkersPage> {
+  Marker _marker;
   Timer _timer;
-  AnimationController controller;
+  int _markerIndex = 0;
 
   void initState() {
     super.initState();
+    _marker = _markers[_markerIndex];
     _timer = Timer.periodic(Duration(seconds: 1), (_) {
-      setState(() {});
+      setState(() {
+        _marker = _markers[_markerIndex];
+        _markerIndex = (_markerIndex + 1) % _markers.length;
+      });
     });
-    controller = AnimationController(
-        duration: const Duration(milliseconds: 2000), vsync: this);
   }
 
   void dispose() {
@@ -35,15 +36,6 @@ class _MovingMarkersPageState extends State<MovingMarkersPage>
   }
 
   Widget build(BuildContext context) {
-    var marker = new Marker(
-      width: 80.0,
-      height: 80.0,
-      point: point,
-      builder: (ctx) => new Container(
-            child: new FlutterLogo(),
-          ),
-    );
-
     return new Scaffold(
       appBar: new AppBar(title: new Text("Home")),
       drawer: buildDrawer(context, MovingMarkersPage.route),
@@ -53,7 +45,7 @@ class _MovingMarkersPageState extends State<MovingMarkersPage>
           children: [
             new Padding(
               padding: new EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: new Text("This is an examples of moving a marker around"),
+              child: new Text("This is a map that is showing (51.5, -0.9)."),
             ),
             new Flexible(
               child: new FlutterMap(
@@ -66,7 +58,7 @@ class _MovingMarkersPageState extends State<MovingMarkersPage>
                       urlTemplate:
                           "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                       subdomains: ['a', 'b', 'c']),
-                  new MarkerLayerOptions(markers: <Marker>[marker])
+                  new MarkerLayerOptions(markers: <Marker>[_marker])
                 ],
               ),
             ),
@@ -81,11 +73,17 @@ List<Marker> _markers = [
   new Marker(
     width: 80.0,
     height: 80.0,
+    point: new LatLng(51.5, -0.09),
+    builder: (ctx) => new Container(
+          child: new FlutterLogo(),
+        ),
+  ),
+  new Marker(
+    width: 80.0,
+    height: 80.0,
     point: new LatLng(53.3498, -6.2603),
     builder: (ctx) => new Container(
-          child: new FlutterLogo(
-            colors: Colors.green,
-          ),
+          child: new FlutterLogo(),
         ),
   ),
   new Marker(
@@ -93,7 +91,7 @@ List<Marker> _markers = [
     height: 80.0,
     point: new LatLng(48.8566, 2.3522),
     builder: (ctx) => new Container(
-          child: new FlutterLogo(colors: Colors.purple),
+          child: new FlutterLogo(),
         ),
   ),
 ];
