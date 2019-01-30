@@ -56,7 +56,7 @@ class TileLayerOptions extends LayerOptions {
   ///Color shown behind the tiles.
   final Color backgroundColor;
 
-  /// the class to provide the tiles The default is
+  /// Provider to load the tiles The default is
   /// NetworkTileProvider, which loads tile images from network.
   ///
   /// In order to use images from the asset folder set this option
