@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import '../widgets/drawer.dart';
 import 'package:latlong/latlong.dart';
+
+import '../widgets/drawer.dart';
 
 class OfflineMapPage extends StatelessWidget {
   static const String route = '/offline_map';
@@ -30,7 +31,7 @@ class OfflineMapPage extends StatelessWidget {
                 ),
                 layers: [
                   new TileLayerOptions(
-                    offlineMode: true,
+                    tileProvider: AssetTileProvider(),
                     maxZoom: 14.0,
                     urlTemplate: "assets/map/anholt_osmbright/{z}/{x}/{y}.png",
                   ),
