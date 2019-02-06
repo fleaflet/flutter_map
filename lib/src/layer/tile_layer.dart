@@ -25,6 +25,10 @@ class TileLayerOptions extends LayerOptions {
   ///https://a.tile.openstreetmap.org/12/2177/1259.png
   final String urlTemplate;
 
+  /// If `true`, inverses Y axis numbering for tiles (turn this on for
+  /// [TMS](https://en.wikipedia.org/wiki/Tile_Map_Service) services).
+  final bool tms;
+
   ///Size for the tile.
   ///Default is 256
   final double tileSize;
@@ -96,6 +100,7 @@ class TileLayerOptions extends LayerOptions {
       this.backgroundColor = const Color(0xFFE0E0E0), // grey[300]
       this.placeholderImage,
       this.tileProvider = const NetworkTileProvider(),
+      this.tms = false,
       rebuild})
       : super(rebuild: rebuild);
 }
@@ -495,9 +500,16 @@ abstract class TileProvider {
       'z': coords.z.round().toString(),
       's': _getSubdomain(coords, options)
     };
+    if (options.tms) {
+      data['y'] = _invertY(coords.y.round(), coords.z.round()).toString();
+    }
     Map<String, String> allOpts = new Map.from(data)
       ..addAll(options.additionalOptions);
     return util.template(options.urlTemplate, allOpts);
+  }
+
+  int _invertY(int y, int z) {
+    return ((1 << z) - 1) - y;
   }
 
   String _getSubdomain(Coords coords, TileLayerOptions options) {
