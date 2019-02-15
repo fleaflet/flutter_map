@@ -7,6 +7,8 @@ import 'package:flutter_map/src/core/center_zoom.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:latlong/latlong.dart';
 
+import 'package:flutter/material.dart';
+
 class MapControllerImpl implements MapController {
   Completer<Null> _readyCompleter = new Completer<Null>();
   MapState _state;
@@ -20,14 +22,14 @@ class MapControllerImpl implements MapController {
     }
   }
 
-  void move(LatLng center, double zoom) {
-    _state.move(center, zoom);
+  void move(LatLng center, double zoom, {bool hasGesture = false}) {
+    _state.move(center, zoom, hasGesture: hasGesture);
   }
 
   void fitBounds(
     LatLngBounds bounds, {
     FitBoundsOptions options =
-        const FitBoundsOptions(padding: const Point(24.0, 24.0)),
+        const FitBoundsOptions(padding: EdgeInsets.all(12.0)),
   }) {
     _state.fitBounds(bounds, options);
   }
@@ -35,6 +37,8 @@ class MapControllerImpl implements MapController {
   bool get ready => _state != null;
 
   LatLng get center => _state.center;
+
+  LatLngBounds get bounds => _state.bounds;
 
   double get zoom => _state.zoom;
 }
@@ -48,6 +52,7 @@ class MapState {
   double get zoom => _zoom;
 
   LatLng _lastCenter;
+  LatLngBounds _lastBounds;
   Point _pixelOrigin;
   bool _initialized = false;
 
@@ -70,6 +75,8 @@ class MapState {
 
   LatLng get center => getCenter() ?? options.center;
 
+  LatLngBounds get bounds => getBounds();
+
   void _init() {
     _zoom = options.zoom;
     move(options.center, zoom);
@@ -79,15 +86,33 @@ class MapState {
     _onMoveSink.close();
   }
 
-  void move(LatLng center, double zoom) {
-    if (options.isOutOfBounds(center)) {
+  void move(LatLng center, double zoom, {hasGesture = false}) {
+    zoom = _fitZoomToBounds(zoom);
+    final mapMoved = center != _lastCenter || zoom != _zoom;
+
+    if (!mapMoved || options.isOutOfBounds(center)) {
       return;
     }
 
+    _zoom = zoom;
+    _lastCenter = center;
+    _lastBounds = _calculateBounds();
+    _pixelOrigin = getNewPixelOrigin(center);
+    _onMoveSink.add(null);
+
+    if (options.onPositionChanged != null) {
+      options.onPositionChanged(new MapPosition(
+        center: center,
+        bounds: bounds,
+        zoom: zoom,
+      ), hasGesture);
+    }
+  }
+
+  double _fitZoomToBounds(double zoom) {
     if (zoom == null) {
       zoom = _zoom;
     }
-
     // Abide to min/max zoom
     if (options.maxZoom != null) {
       zoom = (zoom > options.maxZoom) ? options.maxZoom : zoom;
@@ -95,15 +120,7 @@ class MapState {
     if (options.minZoom != null) {
       zoom = (zoom < options.minZoom) ? options.minZoom : zoom;
     }
-
-    _zoom = zoom;
-    _lastCenter = center;
-    _pixelOrigin = getNewPixelOrigin(center);
-    _onMoveSink.add(null);
-
-    if (options.onPositionChanged != null) {
-      options.onPositionChanged(new MapPosition(center: center, zoom: zoom));
-    }
+    return zoom;
   }
 
   void fitBounds(LatLngBounds bounds, FitBoundsOptions options) {
@@ -121,12 +138,31 @@ class MapState {
     return layerPointToLatLng(_centerLayerPoint);
   }
 
+  LatLngBounds getBounds() {
+    if (_lastBounds != null) {
+      return _lastBounds;
+    }
+
+    return _calculateBounds();
+  }
+
+  LatLngBounds _calculateBounds() {
+    var bounds = getPixelBounds(zoom);
+    return new LatLngBounds(
+      unproject(bounds.bottomLeft),
+      unproject(bounds.topRight),
+    );
+  }
+
   CenterZoom _getBoundsCenterZoom(
       LatLngBounds bounds, FitBoundsOptions options) {
-    var paddingTL = options.padding;
-    var paddingBR = options.padding;
+    var paddingTL = Point<double>(options.padding.left, options.padding.top);
+    var paddingBR =
+        Point<double>(options.padding.right, options.padding.bottom);
 
-    var zoom = getBoundsZoom(bounds, paddingTL + paddingBR, inside: false);
+    var paddingTotalXY = paddingTL + paddingBR;
+
+    var zoom = getBoundsZoom(bounds, paddingTotalXY, inside: false);
     zoom = math.min(options.maxZoom, zoom);
 
     var paddingOffset = (paddingBR - paddingTL) / 2;

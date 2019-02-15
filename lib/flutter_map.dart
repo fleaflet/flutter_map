@@ -17,6 +17,9 @@ export 'src/layer/layer.dart';
 export 'src/layer/tile_layer.dart';
 export 'src/layer/marker_layer.dart';
 export 'src/layer/polyline_layer.dart';
+export 'src/layer/polygon_layer.dart';
+export 'src/layer/circle_layer.dart';
+export 'src/layer/group_layer.dart';
 export 'src/geo/crs/crs.dart';
 export 'src/geo/latlng_bounds.dart';
 export 'package:flutter_map/src/core/point.dart';
@@ -30,6 +33,8 @@ class FlutterMap extends StatefulWidget {
 
   /// [MapOptions] to create a [MapState] with
   ///
+  /// This property must not be null.
+  ///
   /// Please note: If both [options] and [mapState] are set, mapState's options
   /// will take precedence, but the [:onTap:] callback of the options will be
   /// used!
@@ -40,7 +45,7 @@ class FlutterMap extends StatefulWidget {
 
   FlutterMap({
     Key key,
-    this.options,
+    @required this.options,
     this.layers,
     MapController mapController,
   })  : _mapController = mapController ?? new MapController(),
@@ -59,13 +64,14 @@ abstract class MapController {
   bool get ready;
   Future<Null> get onReady;
   LatLng get center;
+  LatLngBounds get bounds;
   double get zoom;
 
   factory MapController() => new MapControllerImpl();
 }
 
 typedef TapCallback(LatLng point);
-typedef PositionCallback(MapPosition position);
+typedef PositionCallback(MapPosition position, bool hasGesture);
 
 class MapOptions {
   final Crs crs;
@@ -117,12 +123,12 @@ class MapOptions {
 }
 
 class FitBoundsOptions {
-  final Point<double> padding;
+  final EdgeInsets padding;
   final double maxZoom;
   final double zoom;
 
   const FitBoundsOptions({
-    this.padding = const Point<double>(0.0, 0.0),
+    this.padding = const EdgeInsets.all(0.0),
     this.maxZoom = 17.0,
     this.zoom,
   });
@@ -130,6 +136,8 @@ class FitBoundsOptions {
 
 class MapPosition {
   final LatLng center;
+  final LatLngBounds bounds;
   final double zoom;
-  MapPosition({this.center, this.zoom});
+  final bool hasGesture;
+  MapPosition({this.center, this.bounds, this.zoom, this.hasGesture = false});
 }
