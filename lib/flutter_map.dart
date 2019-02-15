@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/geo/crs/crs.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/map.dart';
@@ -71,6 +70,7 @@ abstract class MapController {
 }
 
 typedef TapCallback(LatLng point);
+typedef LongPressCallback(LatLng point);
 typedef PositionCallback(MapPosition position, bool hasGesture);
 
 class MapOptions {
@@ -82,6 +82,7 @@ class MapOptions {
   final bool debug;
   final bool interactive;
   final TapCallback onTap;
+  final LongPressCallback onLongPress;
   final PositionCallback onPositionChanged;
   final List<MapPlugin> plugins;
   LatLng center;
@@ -98,6 +99,7 @@ class MapOptions {
     this.debug = false,
     this.interactive = true,
     this.onTap,
+    this.onLongPress,
     this.onPositionChanged,
     this.plugins = const [],
     this.swPanBoundary,
