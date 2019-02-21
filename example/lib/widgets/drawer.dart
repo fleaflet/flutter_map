@@ -10,6 +10,8 @@ import '../pages/polyline.dart';
 import '../pages/tap_to_add.dart';
 import '../pages/on_tap.dart';
 import '../pages/moving_markers.dart';
+import '../pages/circle.dart';
+import '../pages/overlay_image.dart';
 
 Drawer buildDrawer(BuildContext context, String currentRoute) {
   return new Drawer(
@@ -59,7 +61,8 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           title: const Text('Animated MapController'),
           selected: currentRoute == AnimatedMapControllerPage.route,
           onTap: () {
-            Navigator.pushReplacementNamed(context, AnimatedMapControllerPage.route);
+            Navigator.pushReplacementNamed(
+                context, AnimatedMapControllerPage.route);
           },
         ),
         new ListTile(
@@ -95,6 +98,20 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           selected: currentRoute == MovingMarkersPage.route,
           onTap: () {
             Navigator.pushReplacementNamed(context, MovingMarkersPage.route);
+          },
+        ),
+        new ListTile(
+          title: const Text('Circle'),
+          selected: currentRoute == CirclePage.route,
+          onTap: () {
+            Navigator.pushReplacementNamed(context, CirclePage.route);
+          },
+        ),
+        new ListTile(
+          title: const Text('Overlay Image'),
+          selected: currentRoute == OverlayImagePage.route,
+          onTap: () {
+            Navigator.pushReplacementNamed(context, OverlayImagePage.route);
           },
         ),
       ],
