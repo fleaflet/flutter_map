@@ -111,7 +111,7 @@ class TileLayerOptions extends LayerOptions {
       this.offlineMode = false,
       this.tms = false,
       this.fromAssets = true,
-        this.cachedTiles = true,
+      this.cachedTiles = true,
       rebuild})
       : super(rebuild: rebuild);
 }
@@ -171,7 +171,7 @@ class _TileLayerState extends State<TileLayer> {
       'z': coords.z.round().toString(),
       's': _getSubdomain(coords)
     };
-    if(this.options.tms) {
+    if (this.options.tms) {
       data['y'] = _invertY(coords.y.round(), coords.z.round()).toString();
     }
     Map<String, String> allOpts = new Map.from(data)
@@ -247,7 +247,8 @@ class _TileLayerState extends State<TileLayer> {
     for (var tileKey in _tiles.keys) {
       var tile = _tiles[tileKey];
       var c = tile.coords;
-      if (c.z != _tileZoom || !noPruneRange.contains(new CustomPoint(c.x, c.y))) {
+      if (c.z != _tileZoom ||
+          !noPruneRange.contains(new CustomPoint(c.x, c.y))) {
         tile.current = false;
       }
     }
@@ -474,9 +475,9 @@ class _TileLayerState extends State<TileLayer> {
         return new FileImage(new File(url));
       }
     } else {
-      if(options.cachedTiles){
+      if (options.cachedTiles) {
         return new CachedNetworkImageProvider(url);
-      }else{
+      } else {
         return new NetworkImageWithRetry(url);
       }
     }
