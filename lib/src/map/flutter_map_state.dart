@@ -26,7 +26,6 @@ class FlutterMapState extends MapGestureMixin {
     groups.clear();
   }
 
-
   @override
   void dispose() {
     _dispose();
@@ -34,8 +33,7 @@ class FlutterMapState extends MapGestureMixin {
   }
 
   Stream<Null> _merge(LayerOptions options) {
-    if(options?.rebuild == null)
-      return mapState.onMoved;
+    if (options?.rebuild == null) return mapState.onMoved;
 
     StreamGroup<Null> group = new StreamGroup<Null>();
     group.add(mapState.onMoved);
@@ -81,7 +79,8 @@ class FlutterMapState extends MapGestureMixin {
 
   Widget _createLayer(LayerOptions options, List<MapPlugin> plugins) {
     if (options is TileLayerOptions) {
-      return new TileLayer(options: options, mapState: mapState, stream: _merge(options));
+      return new TileLayer(
+          options: options, mapState: mapState, stream: _merge(options));
     }
     if (options is MarkerLayerOptions) {
       return new MarkerLayer(options, mapState, _merge(options));
