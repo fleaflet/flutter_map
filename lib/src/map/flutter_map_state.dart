@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/gestures/gestures.dart';
 import 'package:flutter_map/src/layer/group_layer.dart';
+import 'package:flutter_map/src/layer/overlay_image_layer.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 import 'package:async/async.dart';
@@ -96,6 +97,9 @@ class FlutterMapState extends MapGestureMixin {
     }
     if (options is GroupLayerOptions) {
       return new GroupLayer(options, mapState, _merge(options));
+    }
+    if (options is OverlayImageLayerOptions) {
+      return new OverlayImageLayer(options, mapState, _merge(options));
     }
     for (var plugin in plugins) {
       if (plugin.supportsLayer(options)) {

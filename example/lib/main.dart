@@ -10,6 +10,8 @@ import './pages/polyline.dart';
 import './pages/tap_to_add.dart';
 import './pages/offline_map.dart';
 import './pages/on_tap.dart';
+import './pages/circle.dart';
+import './pages/overlay_image.dart';
 
 void main() => runApp(new MyApp());
 
@@ -34,6 +36,8 @@ class MyApp extends StatelessWidget {
         OfflineMapPage.route: (context) => new OfflineMapPage(),
         OnTapPage.route: (context) => new OnTapPage(),
         MovingMarkersPage.route: (context) => new MovingMarkersPage(),
+        CirclePage.route: (context) => new CirclePage(),
+        OverlayImagePage.route: (context) => new OverlayImagePage(),
       },
     );
   }

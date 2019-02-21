@@ -57,6 +57,10 @@ class GroupLayer extends StatelessWidget {
       return new PolygonLayer(
           options, map, options.rebuild);
     }
+    if (options is OverlayImageLayerOptions) {
+      return new OverlayImageLayer(
+          options, map, options.rebuild);
+    }
     throw ("Unknown options type for GeometryLayer: $options");
   }
 }
