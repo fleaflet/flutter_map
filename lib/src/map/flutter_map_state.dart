@@ -53,6 +53,19 @@ class FlutterMapState extends MapGestureMixin {
       var layerWidgets = widget.layers
           .map((layer) => _createLayer(layer, widget.options.plugins))
           .toList();
+
+      var layerWidgetsContainer = new Container(
+        width: constraints.maxWidth,
+        height: constraints.maxHeight,
+        child: new Stack(
+          children: layerWidgets,
+        ),
+      );
+
+      if (!options.interactive) {
+        return layerWidgetsContainer;
+      }
+
       return PositionedTapDetector(
         onTap: handleTap,
         onDoubleTap: handleDoubleTap,
@@ -60,13 +73,7 @@ class FlutterMapState extends MapGestureMixin {
           onScaleStart: handleScaleStart,
           onScaleUpdate: handleScaleUpdate,
           onScaleEnd: handleScaleEnd,
-          child: new Container(
-          width: constraints.maxWidth,
-          height: constraints.maxHeight,
-            child: new Stack(
-              children: layerWidgets,
-            ),
-          ),
+          child: layerWidgetsContainer,
         ),
       );
     });
