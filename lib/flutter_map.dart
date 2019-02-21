@@ -71,6 +71,7 @@ abstract class MapController {
 }
 
 typedef TapCallback(LatLng point);
+typedef LongPressCallback(LatLng point);
 typedef PositionCallback(MapPosition position, bool hasGesture);
 
 class MapOptions {
@@ -81,6 +82,7 @@ class MapOptions {
   final bool debug;
   final bool interactive;
   final TapCallback onTap;
+  final LongPressCallback onLongPress;
   final PositionCallback onPositionChanged;
   final List<MapPlugin> plugins;
   LatLng center;
@@ -96,6 +98,7 @@ class MapOptions {
     this.debug = false,
     this.interactive = true,
     this.onTap,
+    this.onLongPress,
     this.onPositionChanged,
     this.plugins = const [],
     this.swPanBoundary,

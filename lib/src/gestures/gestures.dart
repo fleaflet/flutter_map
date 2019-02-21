@@ -88,6 +88,15 @@ abstract class MapGestureMixin extends State<FlutterMap>
     options.onTap(latlng);
   }
 
+  void handleLongPress(TapPosition position) {
+    if (options.onLongPress == null) {
+      return;
+    }
+    final latlng = _offsetToCrs(position.relative);
+    // emit the event
+    options.onLongPress(latlng);
+  }
+
   LatLng _offsetToCrs(Offset offset) {
     // Get the widget's offset
     var renderObject = context.findRenderObject() as RenderBox;
@@ -96,8 +105,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
     // convert the point to global coordinates
     var localPoint = _offsetToPoint(offset);
-    var localPointCenterDistance =
-        new CustomPoint((width / 2) - localPoint.x, (height / 2) - localPoint.y);
+    var localPointCenterDistance = new CustomPoint(
+        (width / 2) - localPoint.x, (height / 2) - localPoint.y);
     var mapCenter = map.project(map.center);
     var point = mapCenter - localPointCenterDistance;
     return map.unproject(point);
