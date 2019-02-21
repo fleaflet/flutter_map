@@ -105,8 +105,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
     // convert the point to global coordinates
     var localPoint = _offsetToPoint(offset);
-    var localPointCenterDistance =
-        new CustomPoint((width / 2) - localPoint.x, (height / 2) - localPoint.y);
+    var localPointCenterDistance = new CustomPoint(
+        (width / 2) - localPoint.x, (height / 2) - localPoint.y);
     var mapCenter = map.project(map.center);
     var point = mapCenter - localPointCenterDistance;
     return map.unproject(point);
