@@ -11,6 +11,7 @@ import 'package:latlong/latlong.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:tuple/tuple.dart';
 import 'package:flutter_image/network.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import 'layer.dart';
 
@@ -84,6 +85,12 @@ class TileLayerOptions extends LayerOptions {
   ///The later requires permissions to read the device files in Android.
   final bool fromAssets;
 
+  /// Use CachedNetworkImageProvider instead NetworkImageWithRetry
+  /// If true, every tile loaded will be storage on cache memory
+  /// If false, will download every tiles again after every restart the app
+  /// default is true
+  final bool cachedTiles;
+
   /// When panning the map, keep this many rows and columns of tiles before
   /// unloading them.
   final int keepBuffer;
@@ -104,6 +111,7 @@ class TileLayerOptions extends LayerOptions {
       this.offlineMode = false,
       this.tms = false,
       this.fromAssets = true,
+      this.cachedTiles = true,
       rebuild})
       : super(rebuild: rebuild);
 }
@@ -163,7 +171,7 @@ class _TileLayerState extends State<TileLayer> {
       'z': coords.z.round().toString(),
       's': _getSubdomain(coords)
     };
-    if(this.options.tms) {
+    if (this.options.tms) {
       data['y'] = _invertY(coords.y.round(), coords.z.round()).toString();
     }
     Map<String, String> allOpts = new Map.from(data)
@@ -239,7 +247,8 @@ class _TileLayerState extends State<TileLayer> {
     for (var tileKey in _tiles.keys) {
       var tile = _tiles[tileKey];
       var c = tile.coords;
-      if (c.z != _tileZoom || !noPruneRange.contains(new CustomPoint(c.x, c.y))) {
+      if (c.z != _tileZoom ||
+          !noPruneRange.contains(new CustomPoint(c.x, c.y))) {
         tile.current = false;
       }
     }
@@ -466,7 +475,11 @@ class _TileLayerState extends State<TileLayer> {
         return new FileImage(new File(url));
       }
     } else {
-      return new NetworkImageWithRetry(url);
+      if (options.cachedTiles) {
+        return new CachedNetworkImageProvider(url);
+      } else {
+        return new NetworkImageWithRetry(url);
+      }
     }
   }
 

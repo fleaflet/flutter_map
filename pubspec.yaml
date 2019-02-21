@@ -17,3 +17,4 @@ dependencies:
   transparent_image: ^0.1.0
   async: ^2.0.8
   flutter_image: ^1.0.0
+  cached_network_image: ^0.5.1
