@@ -1,48 +1,48 @@
 import 'dart:math' as math;
 
-class Point<T extends num> extends math.Point<T> {
-  const Point(num x, num y) : super(x, y);
+class CustomPoint<T extends num> extends math.Point<T> {
+  const CustomPoint(num x, num y) : super(x, y);
 
-  Point<T> operator /(num /*T|int*/ factor) {
-    return new Point<T>(x / factor, y / factor);
+  CustomPoint<T> operator /(num /*T|int*/ factor) {
+    return new CustomPoint<T>(x / factor, y / factor);
   }
 
-  Point<T> ceil() {
-    return new Point(x.ceil(), y.ceil());
+  CustomPoint<T> ceil() {
+    return new CustomPoint(x.ceil(), y.ceil());
   }
 
-  Point<T> floor() {
-    return new Point<T>(x.floor(), y.floor());
+  CustomPoint<T> floor() {
+    return new CustomPoint<T>(x.floor(), y.floor());
   }
 
-  Point<T> unscaleBy(Point<T> point) {
-    return new Point<T>(x / point.x, y / point.y);
+  CustomPoint<T> unscaleBy(CustomPoint<T> point) {
+    return new CustomPoint<T>(x / point.x, y / point.y);
   }
 
-  Point<T> operator +(math.Point<T> other) {
-    return new Point<T>(x + other.x, y + other.y);
+  CustomPoint<T> operator +(math.Point<T> other) {
+    return new CustomPoint<T>(x + other.x, y + other.y);
   }
 
-  Point<T> operator -(math.Point<T> other) {
-    return new Point<T>(x - other.x, y - other.y);
+  CustomPoint<T> operator -(math.Point<T> other) {
+    return new CustomPoint<T>(x - other.x, y - other.y);
   }
 
-  Point<T> operator *(num /*T|int*/ factor) {
-    return new Point<T>((x * factor), (y * factor));
+  CustomPoint<T> operator *(num /*T|int*/ factor) {
+    return new CustomPoint<T>((x * factor), (y * factor));
   }
 
-  Point scaleBy(Point point) {
-    return new Point(this.x * point.x, this.y * point.y);
+  CustomPoint scaleBy(CustomPoint point) {
+    return new CustomPoint(this.x * point.x, this.y * point.y);
   }
 
-  Point round() {
+  CustomPoint round() {
     var x = this.x is double ? this.x.round() : this.x;
     var y = this.y is double ? this.y.round() : this.y;
-    return new Point(x, y);
+    return new CustomPoint(x, y);
   }
 
-  Point multiplyBy(num n) {
-      return new Point(this.x * n, this.y * n);
+  CustomPoint multiplyBy(num n) {
+      return new CustomPoint(this.x * n, this.y * n);
   }
 
   String toString() => "Point ($x, $y)";

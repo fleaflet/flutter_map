@@ -53,18 +53,18 @@ class MapState {
 
   LatLng _lastCenter;
   LatLngBounds _lastBounds;
-  Point _pixelOrigin;
+  CustomPoint _pixelOrigin;
   bool _initialized = false;
 
   MapState(this.options) : _onMoveSink = new StreamController.broadcast();
 
-  Point _size;
+  CustomPoint _size;
 
   Stream<Null> get onMoved => _onMoveSink.stream;
 
-  Point get size => _size;
+  CustomPoint get size => _size;
 
-  set size(Point s) {
+  set size(CustomPoint s) {
     _size = s;
     _pixelOrigin = getNewPixelOrigin(_lastCenter);
     if (!_initialized) {
@@ -156,9 +156,9 @@ class MapState {
 
   CenterZoom _getBoundsCenterZoom(
       LatLngBounds bounds, FitBoundsOptions options) {
-    var paddingTL = Point<double>(options.padding.left, options.padding.top);
+    var paddingTL = CustomPoint<double>(options.padding.left, options.padding.top);
     var paddingBR =
-        Point<double>(options.padding.right, options.padding.bottom);
+        CustomPoint<double>(options.padding.right, options.padding.bottom);
 
     var paddingTotalXY = paddingTL + paddingBR;
 
@@ -175,7 +175,7 @@ class MapState {
     );
   }
 
-  double getBoundsZoom(LatLngBounds bounds, Point<double> padding,
+  double getBoundsZoom(LatLngBounds bounds, CustomPoint<double> padding,
       {bool inside = false}) {
     var zoom = this.zoom ?? 0.0;
     var min = this.options.minZoom ?? 0.0;
@@ -193,25 +193,25 @@ class MapState {
     return math.max(min, math.min(max, zoom));
   }
 
-  Point project(LatLng latlng, [double zoom]) {
+  CustomPoint project(LatLng latlng, [double zoom]) {
     if (zoom == null) {
       zoom = _zoom;
     }
     return options.crs.latLngToPoint(latlng, zoom);
   }
 
-  LatLng unproject(Point point, [double zoom]) {
+  LatLng unproject(CustomPoint point, [double zoom]) {
     if (zoom == null) {
       zoom = _zoom;
     }
     return options.crs.pointToLatLng(point, zoom);
   }
 
-  LatLng layerPointToLatLng(Point point) {
+  LatLng layerPointToLatLng(CustomPoint point) {
     return unproject(point);
   }
 
-  Point get _centerLayerPoint {
+  CustomPoint get _centerLayerPoint {
     return size / 2;
   }
 
@@ -231,11 +231,11 @@ class MapState {
     return options.crs.getProjectedBounds(zoom == null ? _zoom : zoom);
   }
 
-  Point getPixelOrigin() {
+  CustomPoint getPixelOrigin() {
     return _pixelOrigin;
   }
 
-  Point getNewPixelOrigin(LatLng center, [double zoom]) {
+  CustomPoint getNewPixelOrigin(LatLng center, [double zoom]) {
     var viewHalf = this.size / 2.0;
     return (this.project(center, zoom) - viewHalf).round();
   }
@@ -244,7 +244,7 @@ class MapState {
     var mapZoom = zoom;
     var scale = getZoomScale(mapZoom, zoom);
     var pixelCenter = project(center, zoom).floor();
-    Point<num> halfSize = size / (scale * 2);
+    CustomPoint<num> halfSize = size / (scale * 2);
     return new Bounds(pixelCenter - halfSize, pixelCenter + halfSize);
   }
 }
