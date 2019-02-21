@@ -45,5 +45,5 @@ class CustomPoint<T extends num> extends math.Point<T> {
       return new CustomPoint(this.x * n, this.y * n);
   }
 
-  String toString() => "Point ($x, $y)";
+  String toString() => "CustomPoint ($x, $y)";
 }
