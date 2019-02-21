@@ -8,11 +8,11 @@ class CirclePage extends StatelessWidget {
   Widget build(BuildContext context) {
     var circleMarkers = <CircleMarker>[
       new CircleMarker(
-        point: new LatLng(51.5, -0.09),
-        color: Colors.blue.withOpacity(0.7),
-        useRadiusInMeter: true,
-        radius: 2000// 2000 meters | 2 km
-      ),
+          point: new LatLng(51.5, -0.09),
+          color: Colors.blue.withOpacity(0.7),
+          useRadiusInMeter: true,
+          radius: 2000 // 2000 meters | 2 km
+          ),
     ];
 
     return new Scaffold(
@@ -35,7 +35,7 @@ class CirclePage extends StatelessWidget {
                 layers: [
                   new TileLayerOptions(
                       urlTemplate:
-                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                       subdomains: ['a', 'b', 'c']),
                   new CircleLayerOptions(circles: circleMarkers)
                 ],

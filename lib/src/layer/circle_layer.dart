@@ -56,11 +56,10 @@ class CircleLayer extends StatelessWidget {
               map.getPixelOrigin();
           circle.offset = new Offset(pos.x.toDouble(), pos.y.toDouble());
 
-          if(circle.useRadiusInMeter)
-          {
-            var r = Distance().offset(circle.point, circle.radius , 180);
+          if (circle.useRadiusInMeter) {
+            var r = Distance().offset(circle.point, circle.radius, 180);
             var rpos = map.project(r);
-            rpos = rpos .multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
+            rpos = rpos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
                 map.getPixelOrigin();
 
             circle.realRadius = rpos.y - pos.y;
@@ -102,7 +101,8 @@ class CirclePainter extends CustomPainter {
           ..strokeWidth = circle.borderStrokeWidth)
         : null;
 
-    _paintCircle(canvas, circle.offset, circle.useRadiusInMeter ? circle.realRadius : circle.radius, paint);
+    _paintCircle(canvas, circle.offset,
+        circle.useRadiusInMeter ? circle.realRadius : circle.radius, paint);
   }
 
   void _paintCircle(Canvas canvas, Offset offset, double radius, Paint paint) {

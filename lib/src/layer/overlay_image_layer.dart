@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 import 'dart:ui';
 import 'dart:ui' as ui;
 
@@ -11,7 +10,6 @@ import 'package:flutter/painting.dart' as img;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
-import 'package:latlong/latlong.dart' hide Path;  // conflict with Path from UI
 
 class OverlayImageLayerOptions extends LayerOptions {
   final List<OverlayImage> overlayImages;
@@ -33,24 +31,24 @@ class OverlayImage {
   });
 }
 
-Future<ui.Image> _loadImage(img.ImageProvider imageProvider) async
-{
-    img.ImageStream stream = imageProvider.resolve(img.ImageConfiguration.empty);
-    Completer<ui.Image> completer = new Completer<ui.Image>();
-    void listener(img.ImageInfo frame, bool synchronousCall) {
-      final ui.Image image = frame.image;
-      completer.complete(image);
-      stream.removeListener(listener);
-    }
-    stream.addListener(listener);
-    return completer.future;
+Future<ui.Image> _loadImage(img.ImageProvider imageProvider) async {
+  img.ImageStream stream = imageProvider.resolve(img.ImageConfiguration.empty);
+  Completer<ui.Image> completer = new Completer<ui.Image>();
+  void listener(img.ImageInfo frame, bool synchronousCall) {
+    final ui.Image image = frame.image;
+    completer.complete(image);
+    stream.removeListener(listener);
+  }
+
+  stream.addListener(listener);
+  return completer.future;
 }
 
 class OverlayImageLayer extends StatelessWidget {
   final OverlayImageLayerOptions overlayImageOpts;
   final MapState map;
   final Stream<Null> stream;
-  
+
   OverlayImageLayer(this.overlayImageOpts, this.map, this.stream);
 
   Widget build(BuildContext context) {
@@ -69,13 +67,17 @@ class OverlayImageLayer extends StatelessWidget {
         for (var overlayImageOpt in overlayImageOpts.overlayImages) {
           overlayImageOpt.offsets.clear();
           var pos1 = map.project(overlayImageOpt.bounds.northWest);
-          pos1 = pos1.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) - map.getPixelOrigin();
+          pos1 = pos1.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
+              map.getPixelOrigin();
           var pos2 = map.project(overlayImageOpt.bounds.southEast);
-          pos2 = pos2.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) - map.getPixelOrigin();
+          pos2 = pos2.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
+              map.getPixelOrigin();
 
-          overlayImageOpt.offsets.add(new Offset(pos1.x.toDouble(), pos1.y.toDouble()));
-          overlayImageOpt.offsets.add(new Offset(pos2.x.toDouble(), pos2.y.toDouble()));
-          _loadImage(overlayImageOpt.imageProvider).then((image){
+          overlayImageOpt.offsets
+              .add(new Offset(pos1.x.toDouble(), pos1.y.toDouble()));
+          overlayImageOpt.offsets
+              .add(new Offset(pos2.x.toDouble(), pos2.y.toDouble()));
+          _loadImage(overlayImageOpt.imageProvider).then((image) {
             overlayImageOpt.image = image;
           });
         }
@@ -109,29 +111,19 @@ class OverlayImagePainter extends CustomPainter {
     final rect = Offset.zero & size;
     canvas.clipRect(rect);
     final paint = new Paint()
-    ..color = Color.fromRGBO(255, 255, 255, overlayImageOpt.opacity);
-    //..blendMode = BlendMode.modulate;
-    
+      ..color = Color.fromRGBO(255, 255, 255, overlayImageOpt.opacity);
 
-    final Size imageSize = new Size(overlayImageOpt.image.width.toDouble(), overlayImageOpt.image.height.toDouble());
+    final Size imageSize = new Size(overlayImageOpt.image.width.toDouble(),
+        overlayImageOpt.image.height.toDouble());
     final Rect inputSubrect = Offset.zero & imageSize;
 
-    canvas.drawImageRect(overlayImageOpt.image, inputSubrect, Rect.fromPoints(overlayImageOpt.offsets[0], overlayImageOpt.offsets[1]), paint);
+    canvas.drawImageRect(
+        overlayImageOpt.image,
+        inputSubrect,
+        Rect.fromPoints(overlayImageOpt.offsets[0], overlayImageOpt.offsets[1]),
+        paint);
   }
-
 
   @override
   bool shouldRepaint(OverlayImagePainter other) => false;
-}
-
-double _dist(Offset v, Offset w) {
-  return sqrt(_dist2(v, w));
-}
-
-double _dist2(Offset v, Offset w) {
-  return _sqr(v.dx - w.dx) + _sqr(v.dy - w.dy);
-}
-
-double _sqr(double x) {
-  return x * x;
 }

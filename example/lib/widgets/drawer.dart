@@ -61,7 +61,8 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           title: const Text('Animated MapController'),
           selected: currentRoute == AnimatedMapControllerPage.route,
           onTap: () {
-            Navigator.pushReplacementNamed(context, AnimatedMapControllerPage.route);
+            Navigator.pushReplacementNamed(
+                context, AnimatedMapControllerPage.route);
           },
         ),
         new ListTile(

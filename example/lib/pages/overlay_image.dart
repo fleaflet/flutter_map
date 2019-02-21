@@ -8,10 +8,10 @@ class OverlayImagePage extends StatelessWidget {
   Widget build(BuildContext context) {
     var overlayImages = <OverlayImage>[
       new OverlayImage(
-        bounds: LatLngBounds(LatLng(51.5, -0.09),LatLng(48.8566, 2.3522)),
-        opacity: 0.8,
-        imageProvider: NetworkImage('https://images.pexels.com/photos/231009/pexels-photo-231009.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=300&w=600')
-      ),
+          bounds: LatLngBounds(LatLng(51.5, -0.09), LatLng(48.8566, 2.3522)),
+          opacity: 0.8,
+          imageProvider: NetworkImage(
+              'https://images.pexels.com/photos/231009/pexels-photo-231009.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=300&w=600')),
     ];
 
     return new Scaffold(
@@ -34,7 +34,7 @@ class OverlayImagePage extends StatelessWidget {
                 layers: [
                   new TileLayerOptions(
                       urlTemplate:
-                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                       subdomains: ['a', 'b', 'c']),
                   new OverlayImageLayerOptions(overlayImages: overlayImages)
                 ],
