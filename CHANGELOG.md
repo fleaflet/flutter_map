@@ -1,3 +1,18 @@
+## [0.5.0] - 2/21/2019
+
+- add cached network image support (#204)
+- Use PositionedTapDetector only in interactive mode (#207)
+- Allow defining CircleMarkerRadius in meters (#213)
+- support for tms tile coordinates (#214)
+- add moving markers example
+- add long press gesture for markers (#229)
+- add patreon badge to README
+- rename Point to CustomPoint (#187)
+- remove layers property from MapOptions (#193)
+
+Thanks to @SamuelRioTz, @jecoz, @4kssoft, @bugWebDeveloper, @RaimundWege,
+@vincetus, and @etzuk for this release!
+
 ## [0.4.0] - 12/31/2018
 - Zoom to focal point on double tap and scale gestures (#121)
 - Make anchor field public (#172)
@@ -62,7 +77,8 @@ this release!
 - Applied constraints to zoom on gesture update if min or max options set (#46)
 - Pan Boundary with 2 new MapOptions variables: swPanBoundary and nePanBoundary
 (#47)
-- OfflineMode bool variable added to TileLayerOptions for AssetImage Widget use (#48)
+- OfflineMode bool variable added to TileLayerOptions for AssetImage Widget use
+(#48)
 - remove quiver dep (#32)
 
 Thanks to contributors @avioli, @bcko, and @alfanhui for this release!
