@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_image/network.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/core/util.dart' as util;
@@ -10,8 +12,6 @@ import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:tuple/tuple.dart';
-import 'package:flutter_image/network.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 import 'layer.dart';
 
@@ -63,7 +63,10 @@ class TileLayerOptions extends LayerOptions {
   final Color backgroundColor;
 
   /// Provider to load the tiles. The default is
-  /// NetworkTileProvider, which loads tile images from network.
+  /// CachedNetworkTileProvider, which loads tile images from network and
+  /// caches them offline.
+  ///
+  /// If you don't want to cache the tiles, use NetworkTileProvider instead.
   ///
   /// In order to use images from the asset folder set this option
   /// to AssetTileProvider()
@@ -84,12 +87,6 @@ class TileLayerOptions extends LayerOptions {
   ///
   final TileProvider tileProvider;
 
-  /// Use CachedNetworkImageProvider instead NetworkImageWithRetry
-  /// If true, every tile loaded will be storage on cache memory
-  /// If false, will download every tiles again after every restart the app
-  /// default is true
-  final bool cachedTiles;
-
   /// When panning the map, keep this many rows and columns of tiles before
   /// unloading them.
   final int keepBuffer;
@@ -107,9 +104,8 @@ class TileLayerOptions extends LayerOptions {
       this.keepBuffer = 2,
       this.backgroundColor = const Color(0xFFE0E0E0), // grey[300]
       this.placeholderImage,
-      this.tileProvider = const NetworkTileProvider(),
+      this.tileProvider = const CachedNetworkTileProvider(),
       this.tms = false,
-      this.cachedTiles = true,
       rebuild})
       : super(rebuild: rebuild);
 }
@@ -439,7 +435,7 @@ class _TileLayerState extends State<TileLayer> {
           placeholder: options.placeholderImage != null
               ? options.placeholderImage
               : new MemoryImage(kTransparentImage),
-          image: options.tileProvider.getImageForCoords(coords, this.options),
+          image: options.tileProvider.getImage(coords, this.options),
           fit: BoxFit.fill,
         ),
       ),
@@ -501,7 +497,7 @@ class Coords<T extends num> extends CustomPoint<T> {
 abstract class TileProvider {
   const TileProvider();
 
-  ImageProvider getImageForCoords(Coords coords, TileLayerOptions options);
+  ImageProvider getImage(Coords coords, TileLayerOptions options);
 
   String _getTileUrl(Coords coords, TileLayerOptions options) {
     var data = <String, String>{
@@ -531,34 +527,32 @@ abstract class TileProvider {
   }
 }
 
-class NetworkTileProvider extends TileProvider {
-  const NetworkTileProvider();
+class CachedNetworkTileProvider extends TileProvider {
+  const CachedNetworkTileProvider();
 
   @override
-  ImageProvider getImageForCoords(
-      Coords<num> coords, TileLayerOptions options) {
-
-    if (options.cachedTiles) {
-      return new CachedNetworkImageProvider(_getTileUrl(coords, options));
-    } else {
-      return new NetworkImageWithRetry(_getTileUrl(coords, options));
-    }
+  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
+    return new CachedNetworkImageProvider(_getTileUrl(coords, options));
   }
 }
 
+class NetworkTileProvider extends TileProvider {
+  @override
+  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
+    return new NetworkImageWithRetry(_getTileUrl(coords, options));
+  }
+}
 
 class AssetTileProvider extends TileProvider {
   @override
-  ImageProvider getImageForCoords(
-      Coords<num> coords, TileLayerOptions options) {
+  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
     return AssetImage(_getTileUrl(coords, options));
   }
 }
 
 class FileTileProvider extends TileProvider {
   @override
-  ImageProvider getImageForCoords(
-      Coords<num> coords, TileLayerOptions options) {
+  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
     return FileImage(new File(_getTileUrl(coords, options)));
   }
 }
