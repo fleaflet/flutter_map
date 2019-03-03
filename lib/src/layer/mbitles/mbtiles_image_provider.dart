@@ -6,23 +6,26 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 class MBTilesImageProvider extends TileProvider {
+  final String asset;
   final File mbtilesFile;
+
   Future<Database> database;
   Database _loadedDb;
   bool isDisposed = false;
 
-  MBTilesImageProvider._(this.mbtilesFile) {
+  MBTilesImageProvider._({this.asset, this.mbtilesFile}) {
     database = _loadMBTilesDatabase();
   }
 
-  @deprecated
-  factory MBTilesImageProvider.fromAsset() => throw Exception("not supported");
+  factory MBTilesImageProvider.fromAsset(String asset) =>
+      MBTilesImageProvider._(asset: asset);
 
   factory MBTilesImageProvider.fromFile(File mbtilesFile) =>
-      MBTilesImageProvider._(mbtilesFile);
+      MBTilesImageProvider._(mbtilesFile: mbtilesFile);
 
   void dispose() {
     if (_loadedDb != null) {
@@ -33,28 +36,40 @@ class MBTilesImageProvider extends TileProvider {
   }
 
   Future<Database> _loadMBTilesDatabase() async {
-    print("FILE is ${mbtilesFile.path}");
-    if (_loadedDb == null) _loadedDb = await openDatabase(mbtilesFile.path);
+    if (_loadedDb == null) {
+      var file = mbtilesFile ?? await copyFileFromAssets();
 
-    print("DATABASE LOADED");
-    var count = await _loadedDb.rawQuery("SELECT COUNT(*) FROM sqlite_master");
-    print("COUNT: $count");
-    if (isDisposed) {
-      _loadedDb.close();
-      _loadedDb = null;
-      throw new Exception("Tileprovider is already disposed");
+      _loadedDb = await openDatabase(file.path);
+
+      if (isDisposed) {
+        _loadedDb.close();
+        _loadedDb = null;
+        throw new Exception("Tileprovider is already disposed");
+      }
+
+      return _loadedDb;
     }
+  }
 
-    return _loadedDb;
+  Future<File> copyFileFromAssets() async {
+    var tempDir = await getTemporaryDirectory();
+    var filename = asset.split("/").last;
+    var file = File("${tempDir.path}/$filename");
+
+    var data = await rootBundle.load(asset);
+    file.writeAsBytesSync(
+        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
+        flush: true);
+    return file;
   }
 
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
-    var x = coords.x.round();
+    var x = coords.x.toInt();
     var y = options.tms
-        ? invertY(coords.y.round(), coords.z.round())
-        : coords.y.round();
-    var z = coords.z.round();
+        ? invertY(coords.y.toInt(), coords.z.toInt())
+        : coords.y.toInt();
+    var z = coords.z.toInt();
 
     return MBTileImage(
       database,
