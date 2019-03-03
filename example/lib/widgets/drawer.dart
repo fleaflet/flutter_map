@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map_example/pages/offline_mbtiles_map.dart';
 import '../pages/animated_map_controller.dart';
 import '../pages/esri.dart';
 import '../pages/home.dart';
@@ -84,6 +85,14 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           selected: currentRoute == OfflineMapPage.route,
           onTap: () {
             Navigator.pushReplacementNamed(context, OfflineMapPage.route);
+          },
+        ),
+        new ListTile(
+          title: const Text('Offline Map (using MBTiles)'),
+          selected: currentRoute == OfflineMBTilesMapPage.route,
+          onTap: () {
+            Navigator.pushReplacementNamed(
+                context, OfflineMBTilesMapPage.route);
           },
         ),
         new ListTile(

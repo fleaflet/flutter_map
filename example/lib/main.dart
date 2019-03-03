@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map_example/pages/offline_mbtiles_map.dart';
 import './pages/moving_markers.dart';
 import './pages/esri.dart';
 import './pages/home.dart';
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
       theme: new ThemeData(
         primarySwatch: mapBoxBlue,
       ),
-      home: new HomePage(),
+      home: new OfflineMBTilesMapPage(),
       routes: <String, WidgetBuilder>{
         TapToAddPage.route: (context) => new TapToAddPage(),
         EsriPage.route: (context) => new EsriPage(),
@@ -35,6 +36,7 @@ class MyApp extends StatelessWidget {
         MarkerAnchorPage.route: (context) => new MarkerAnchorPage(),
         PluginPage.route: (context) => new PluginPage(),
         OfflineMapPage.route: (context) => new OfflineMapPage(),
+        OfflineMBTilesMapPage.route: (context) => new OfflineMBTilesMapPage(),
         OnTapPage.route: (context) => new OnTapPage(),
         MovingMarkersPage.route: (context) => new MovingMarkersPage(),
         CirclePage.route: (context) => new CirclePage(),

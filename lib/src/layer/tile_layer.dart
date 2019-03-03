@@ -507,14 +507,14 @@ abstract class TileProvider {
       's': _getSubdomain(coords, options)
     };
     if (options.tms) {
-      data['y'] = _invertY(coords.y.round(), coords.z.round()).toString();
+      data['y'] = invertY(coords.y.round(), coords.z.round()).toString();
     }
     Map<String, String> allOpts = new Map.from(data)
       ..addAll(options.additionalOptions);
     return util.template(options.urlTemplate, allOpts);
   }
 
-  int _invertY(int y, int z) {
+  int invertY(int y, int z) {
     return ((1 << z) - 1) - y;
   }
 
