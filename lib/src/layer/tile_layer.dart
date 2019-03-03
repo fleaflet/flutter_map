@@ -149,6 +149,7 @@ class _TileLayerState extends State<TileLayer> {
   void dispose() {
     super.dispose();
     _moveSub?.cancel();
+    options.tileProvider.dispose();
   }
 
   void _handleMove() {
@@ -498,6 +499,8 @@ abstract class TileProvider {
   const TileProvider();
 
   ImageProvider getImage(Coords coords, TileLayerOptions options);
+
+  dispose() {}
 
   String _getTileUrl(Coords coords, TileLayerOptions options) {
     var data = <String, String>{

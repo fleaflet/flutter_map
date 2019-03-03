@@ -27,14 +27,6 @@ class MBTilesImageProvider extends TileProvider {
   factory MBTilesImageProvider.fromFile(File mbtilesFile) =>
       MBTilesImageProvider._(mbtilesFile: mbtilesFile);
 
-  void dispose() {
-    if (_loadedDb != null) {
-      _loadedDb.close();
-      _loadedDb = null;
-    }
-    isDisposed = true;
-  }
-
   Future<Database> _loadMBTilesDatabase() async {
     if (_loadedDb == null) {
       var file = mbtilesFile ?? await copyFileFromAssets();
@@ -51,6 +43,15 @@ class MBTilesImageProvider extends TileProvider {
     }
   }
 
+  @override
+  void dispose() {
+    if (_loadedDb != null) {
+      _loadedDb.close();
+      _loadedDb = null;
+    }
+    isDisposed = true;
+  }
+
   Future<File> copyFileFromAssets() async {
     var tempDir = await getTemporaryDirectory();
     var filename = asset.split("/").last;
@@ -65,11 +66,11 @@ class MBTilesImageProvider extends TileProvider {
 
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
-    var x = coords.x.toInt();
+    var x = coords.x.round();
     var y = options.tms
-        ? invertY(coords.y.toInt(), coords.z.toInt())
-        : coords.y.toInt();
-    var z = coords.z.toInt();
+        ? invertY(coords.y.round(), coords.z.round())
+        : coords.y.round();
+    var z = coords.z.round();
 
     return MBTileImage(
       database,
@@ -106,9 +107,10 @@ class MBTileImage extends ImageProvider<MBTileImage> {
     final Uint8List bytes =
         result.length > 0 ? result.first["tile_data"] : null;
 
-    if (bytes == null) print("FAILED to load for coords: $coords");
-
-    return await PaintingBinding.instance.instantiateImageCodec(bytes);
+    if (bytes == null)
+      return Future<Codec>.error("Failed to load tile for coords: $coords");
+    else
+      return await PaintingBinding.instance.instantiateImageCodec(bytes);
   }
 
   @override
