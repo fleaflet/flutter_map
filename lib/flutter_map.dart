@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/geo/crs/crs.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/map.dart';
@@ -20,6 +19,7 @@ export 'src/layer/polyline_layer.dart';
 export 'src/layer/polygon_layer.dart';
 export 'src/layer/circle_layer.dart';
 export 'src/layer/group_layer.dart';
+export 'src/layer/overlay_image_layer.dart';
 export 'src/geo/crs/crs.dart';
 export 'src/geo/latlng_bounds.dart';
 export 'package:flutter_map/src/core/point.dart';
@@ -71,6 +71,7 @@ abstract class MapController {
 }
 
 typedef TapCallback(LatLng point);
+typedef LongPressCallback(LatLng point);
 typedef PositionCallback(MapPosition position, bool hasGesture);
 
 class MapOptions {
@@ -78,10 +79,10 @@ class MapOptions {
   final double zoom;
   final double minZoom;
   final double maxZoom;
-  final List<LayerOptions> layers;
   final bool debug;
   final bool interactive;
   final TapCallback onTap;
+  final LongPressCallback onLongPress;
   final PositionCallback onPositionChanged;
   final List<MapPlugin> plugins;
   LatLng center;
@@ -94,10 +95,10 @@ class MapOptions {
     this.zoom = 13.0,
     this.minZoom,
     this.maxZoom,
-    this.layers,
     this.debug = false,
     this.interactive = true,
     this.onTap,
+    this.onLongPress,
     this.onPositionChanged,
     this.plugins = const [],
     this.swPanBoundary,

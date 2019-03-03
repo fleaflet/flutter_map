@@ -1,3 +1,5 @@
+[![Patreon](https://img.shields.io/badge/patreon-donate-blue.svg)](https://www.patreon.com/johnpryan)
+
 # flutter_map
 
 **Experimental**

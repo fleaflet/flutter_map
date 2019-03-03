@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/gestures/gestures.dart';
 import 'package:flutter_map/src/layer/group_layer.dart';
+import 'package:flutter_map/src/layer/overlay_image_layer.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 import 'package:async/async.dart';
@@ -26,7 +27,6 @@ class FlutterMapState extends MapGestureMixin {
     groups.clear();
   }
 
-
   @override
   void dispose() {
     _dispose();
@@ -34,8 +34,7 @@ class FlutterMapState extends MapGestureMixin {
   }
 
   Stream<Null> _merge(LayerOptions options) {
-    if(options?.rebuild == null)
-      return mapState.onMoved;
+    if (options?.rebuild == null) return mapState.onMoved;
 
     StreamGroup<Null> group = new StreamGroup<Null>();
     group.add(mapState.onMoved);
@@ -49,24 +48,32 @@ class FlutterMapState extends MapGestureMixin {
     return new LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
       mapState.size =
-          new Point<double>(constraints.maxWidth, constraints.maxHeight);
+          new CustomPoint<double>(constraints.maxWidth, constraints.maxHeight);
       var layerWidgets = widget.layers
           .map((layer) => _createLayer(layer, widget.options.plugins))
           .toList();
+
+      var layerWidgetsContainer = new Container(
+        width: constraints.maxWidth,
+        height: constraints.maxHeight,
+        child: new Stack(
+          children: layerWidgets,
+        ),
+      );
+
+      if (!options.interactive) {
+        return layerWidgetsContainer;
+      }
+
       return PositionedTapDetector(
         onTap: handleTap,
+        onLongPress: handleLongPress,
         onDoubleTap: handleDoubleTap,
         child: new GestureDetector(
           onScaleStart: handleScaleStart,
           onScaleUpdate: handleScaleUpdate,
           onScaleEnd: handleScaleEnd,
-          child: new Container(
-          width: constraints.maxWidth,
-          height: constraints.maxHeight,
-            child: new Stack(
-              children: layerWidgets,
-            ),
-          ),
+          child: layerWidgetsContainer,
         ),
       );
     });
@@ -74,7 +81,8 @@ class FlutterMapState extends MapGestureMixin {
 
   Widget _createLayer(LayerOptions options, List<MapPlugin> plugins) {
     if (options is TileLayerOptions) {
-      return new TileLayer(options: options, mapState: mapState, stream: _merge(options));
+      return new TileLayer(
+          options: options, mapState: mapState, stream: _merge(options));
     }
     if (options is MarkerLayerOptions) {
       return new MarkerLayer(options, mapState, _merge(options));
@@ -90,6 +98,9 @@ class FlutterMapState extends MapGestureMixin {
     }
     if (options is GroupLayerOptions) {
       return new GroupLayer(options, mapState, _merge(options));
+    }
+    if (options is OverlayImageLayerOptions) {
+      return new OverlayImageLayer(options, mapState, _merge(options));
     }
     for (var plugin in plugins) {
       if (plugin.supportsLayer(options)) {
