@@ -54,7 +54,6 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
         CurvedAnimation(parent: controller, curve: Curves.fastOutSlowIn);
 
     controller.addListener(() {
-      // Note that the mapController.move doesn't seem to like the zoom animation. This may be a bug in flutter_map.
       mapController.move(
           LatLng(_latTween.evaluate(animation), _lngTween.evaluate(animation)),
           _zoomTween.evaluate(animation));
@@ -165,7 +164,7 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
                 options: new MapOptions(
                     center: new LatLng(51.5, -0.09),
                     zoom: 5.0,
-                    maxZoom: 5.0,
+                    maxZoom: 10.0,
                     minZoom: 3.0),
                 layers: [
                   new TileLayerOptions(
