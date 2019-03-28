@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import './pages/moving_markers.dart';
 import './pages/esri.dart';
+import './pages/scalebar.dart';
 import './pages/home.dart';
 import './pages/map_controller.dart';
 import './pages/animated_map_controller.dart';
@@ -39,6 +40,7 @@ class MyApp extends StatelessWidget {
         MovingMarkersPage.route: (context) => new MovingMarkersPage(),
         CirclePage.route: (context) => new CirclePage(),
         OverlayImagePage.route: (context) => new OverlayImagePage(),
+        ScaleBarPage.route: (context) => new ScaleBarPage(),
       },
     );
   }

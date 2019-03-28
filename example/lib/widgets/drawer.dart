@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../pages/animated_map_controller.dart';
+import '../pages/scalebar.dart';
 import '../pages/esri.dart';
 import '../pages/home.dart';
 import '../pages/map_controller.dart';
@@ -112,6 +113,13 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           selected: currentRoute == OverlayImagePage.route,
           onTap: () {
             Navigator.pushReplacementNamed(context, OverlayImagePage.route);
+          },
+        ),
+        new ListTile(
+          title: const Text('ScaleBar'),
+          selected: currentRoute == ScaleBarPage.route,
+          onTap: () {
+            Navigator.pushReplacementNamed(context, ScaleBarPage.route);
           },
         ),
       ],
