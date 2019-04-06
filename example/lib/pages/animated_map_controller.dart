@@ -12,7 +12,8 @@ class AnimatedMapControllerPage extends StatefulWidget {
   }
 }
 
-class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage> with TickerProviderStateMixin {
+class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
+    with TickerProviderStateMixin {
   // Note the addition of the TickerProviderStateMixin here. If you are getting an error like
   // 'The class 'TickerProviderStateMixin' can't be used as a mixin because it extends a class other than Object.'
   // in your IDE, you can probably fix it by adding an analysis_options.yaml file to your project
@@ -34,23 +35,29 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage> wi
     mapController = new MapController();
   }
 
-  void _animatedMapMove (LatLng destLocation, double destZoom) {
+  void _animatedMapMove(LatLng destLocation, double destZoom) {
     // Create some tweens. These serve to split up the transition from one location to another.
     // In our case, we want to split the transition be<tween> our current map center and the destination.
-    final _latTween = new Tween<double>(begin: mapController.center.latitude, end: destLocation.latitude);
-    final _lngTween = new Tween<double>(begin: mapController.center.longitude, end: destLocation.longitude);
-    final _zoomTween = new Tween<double>(begin: mapController.zoom, end: destZoom);
+    final _latTween = new Tween<double>(
+        begin: mapController.center.latitude, end: destLocation.latitude);
+    final _lngTween = new Tween<double>(
+        begin: mapController.center.longitude, end: destLocation.longitude);
+    final _zoomTween =
+        new Tween<double>(begin: mapController.zoom, end: destZoom);
 
     // Create a new animation controller that has a duration and a TickerProvider.
-    AnimationController controller = AnimationController(duration: const Duration(milliseconds: 500), vsync: this);
+    AnimationController controller = AnimationController(
+        duration: const Duration(milliseconds: 500), vsync: this);
     // The animation determines what path the animation will take. You can try different Curves values, although I found
     // fastOutSlowIn to be my favorite.
-    Animation<double> animation =  CurvedAnimation(parent: controller, curve: Curves.fastOutSlowIn);
+    Animation<double> animation =
+        CurvedAnimation(parent: controller, curve: Curves.fastOutSlowIn);
 
     controller.addListener(() {
       // Note that the mapController.move doesn't seem to like the zoom animation. This may be a bug in flutter_map.
-      mapController.move(LatLng(_latTween.evaluate(animation), _lngTween.evaluate(animation)), _zoomTween.evaluate(animation));
-      print("Location (${_latTween.evaluate(animation)} , ${_lngTween.evaluate(animation)}) @ zoom ${_zoomTween.evaluate(animation)}");
+      mapController.move(
+          LatLng(_latTween.evaluate(animation), _lngTween.evaluate(animation)),
+          _zoomTween.evaluate(animation));
     });
 
     animation.addStatusListener((status) {
@@ -63,7 +70,6 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage> wi
     });
 
     controller.forward();
-
   }
 
   Widget build(BuildContext context) {
@@ -73,29 +79,29 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage> wi
         height: 80.0,
         point: london,
         builder: (ctx) => new Container(
-          key: new Key("blue"),
-          child: new FlutterLogo(),
-        ),
+              key: new Key("blue"),
+              child: new FlutterLogo(),
+            ),
       ),
       new Marker(
         width: 80.0,
         height: 80.0,
         point: dublin,
         builder: (ctx) => new Container(
-          child: new FlutterLogo(
-            key: new Key("green"),
-            colors: Colors.green,
-          ),
-        ),
+              child: new FlutterLogo(
+                key: new Key("green"),
+                colors: Colors.green,
+              ),
+            ),
       ),
       new Marker(
         width: 80.0,
         height: 80.0,
         point: paris,
         builder: (ctx) => new Container(
-          key: new Key("purple"),
-          child: new FlutterLogo(colors: Colors.purple),
-        ),
+              key: new Key("purple"),
+              child: new FlutterLogo(colors: Colors.purple),
+            ),
       ),
     ];
 
@@ -145,7 +151,7 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage> wi
                       mapController.fitBounds(
                         bounds,
                         options: new FitBoundsOptions(
-                          padding: new Point<double>(30.0, 0.0),
+                          padding: new EdgeInsets.only(left: 15.0, right: 15.0),
                         ),
                       );
                     },
@@ -160,12 +166,11 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage> wi
                     center: new LatLng(51.5, -0.09),
                     zoom: 5.0,
                     maxZoom: 5.0,
-                    minZoom: 3.0
-                ),
+                    minZoom: 3.0),
                 layers: [
                   new TileLayerOptions(
                       urlTemplate:
-                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                       subdomains: ['a', 'b', 'c']),
                   new MarkerLayerOptions(markers: markers)
                 ],

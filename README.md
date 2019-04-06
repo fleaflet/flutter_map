@@ -1,8 +1,10 @@
+[![Patreon](https://img.shields.io/badge/patreon-donate-blue.svg)](https://www.patreon.com/johnpryan)
+
 # flutter_map
 
 **Experimental**
 
-A flutter implementation of [leaflet].
+A Dart implementation of [Leaflet] for Flutter apps.
 
 [Video](https://drive.google.com/file/d/14srd4ERdgRr68TtLmG6Aho9L1pGOyFF7/view?usp=sharing)
 
@@ -14,7 +16,7 @@ Add flutter_map to your pubspec:
 
 ```yaml
 dependencies:
-  flutter_map: ^0.0.1
+  flutter_map: any # or the latest version on Pub
 ```
 
 Configure the map using `MapOptions` and layer options:
@@ -53,9 +55,10 @@ Configure the map using `MapOptions` and layer options:
   }
 ```
 
-see the `flutter_map_example/` folder for a working example app.
+See the `flutter_map_example/` folder for a working example app.
 
-## Mapbox tiles
+
+## Mapbox Tiles
 
 You can use map tiles from a number of
 [free and paid map suppliers](http://leafletjs.com/plugins.html#basemap-providers),
@@ -76,20 +79,18 @@ new TileLayerOptions(
 ),
 ```
 
-
 To use, you'll need a mapbox key:
 
-1. Create a [mapbox] account to get an api key
-2. open leaflet_flutter_example/lib/main.dart and paste the API key into the
-`additionalOptions` map.
+1. Create a [Mapbox] account to get an API key
+2. Open `leaflet_flutter_example/lib/main.dart` and paste the API key into the
+`additionalOptions` map
 
-[leaflet]: http://leafletjs.com/
-[mapbox]: https://www.mapbox.com/
 
 ## Offline maps
 [Follow this guide to grab offline tiles](https://tilemill-project.github.io/tilemill/docs/guides/osm-bright-mac-quickstart/)<br>
 Once you have your map exported to `.mbtiles`, you can use [mbtilesToPng](https://github.com/alfanhui/mbtilesToPngs) to unpack into `/{z}/{x}/{y}.png`. Move this to Assets folder and add  Asset directories to `pubspec.yaml`. Minimum required fields for offline maps are:
-```
+
+```dart
 new FlutterMap(
   options: new MapOptions(
     center: new LatLng(56.704173, 11.543808),
@@ -108,24 +109,15 @@ new FlutterMap(
   ],
 ),
 ```
+
 Make sure PanBoundaries are within offline map boundary to stop missing asset errors.<br>
 See the `flutter_map_example/` folder for a working example.<br>
 
-## Features
-This package is under active development. 
-The following roadmap is focused on the features we require at AppTree. We welcome
-any contributions for items both on and off of the roadmap.
 
-- [x] Inline maps
-- [x] Pinch to zoom
-- [x] Panning
-- [x] Markers
-- [ ] Package structure cleanup
-- [ ] Improve pinch to zoom ( zoom directly to focal point )
-- [x] Zooming removes too many tiles from other levels
-- [x] Improve image fetching & caching
-- [x] UI Settings support ( disable pan/zoom etc.)
-- [ ] Current location support
-- [ ] Documentation
-- [ ] Polylines
-- [x] Offline map support
+## Roadmap
+
+For the latest roadmap, please see the [Issue Tracker] 
+
+[Leaflet]: http://leafletjs.com/
+[Mapbox]: https://www.mapbox.com/
+[Issue Tracker]: https://github.com/apptreesoftware/flutter_map/issues

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import '../widgets/drawer.dart';
 import 'package:latlong/latlong.dart';
+
+import '../widgets/drawer.dart';
 
 class MarkerAnchorPage extends StatefulWidget {
   static const String route = '/marker_anchors';
@@ -13,45 +14,55 @@ class MarkerAnchorPage extends StatefulWidget {
 
 class MarkerAnchorPageState extends State<MarkerAnchorPage> {
   AnchorPos anchorPos;
-  Anchor anchorOverride;
 
   void initState() {
     super.initState();
-    anchorPos = AnchorPos.center;
-    anchorOverride = null;
+    anchorPos = AnchorPos.align(AnchorAlign.center);
+  }
+
+  void _setAnchorAlignPos(AnchorAlign alignOpt) {
+    setState(() {
+      anchorPos = AnchorPos.align(alignOpt);
+    });
+  }
+
+  void _setAnchorExactlyPos(Anchor anchor) {
+    setState(() {
+      anchorPos = AnchorPos.exactly(anchor);
+    });
   }
 
   Widget build(BuildContext context) {
     var markers = <Marker>[
       new Marker(
-          width: 80.0,
-          height: 80.0,
-          point: new LatLng(51.5, -0.09),
-          builder: (ctx) => new Container(
-            child: new FlutterLogo(),
-          ),
-          anchor: anchorPos,
-          anchorOverride: anchorOverride),
-      new Marker(
-          width: 80.0,
-          height: 80.0,
-          point: new LatLng(53.3498, -6.2603),
-          builder: (ctx) => new Container(
-            child: new FlutterLogo(
-              colors: Colors.green,
+        width: 80.0,
+        height: 80.0,
+        point: new LatLng(51.5, -0.09),
+        builder: (ctx) => new Container(
+              child: new FlutterLogo(),
             ),
-          ),
-          anchor: anchorPos,
-          anchorOverride: anchorOverride),
+        anchorPos: anchorPos,
+      ),
       new Marker(
-          width: 80.0,
-          height: 80.0,
-          point: new LatLng(48.8566, 2.3522),
-          builder: (ctx) => new Container(
-            child: new FlutterLogo(colors: Colors.purple),
-          ),
-          anchor: anchorPos,
-          anchorOverride: anchorOverride),
+        width: 80.0,
+        height: 80.0,
+        point: new LatLng(53.3498, -6.2603),
+        builder: (ctx) => new Container(
+              child: new FlutterLogo(
+                colors: Colors.green,
+              ),
+            ),
+        anchorPos: anchorPos,
+      ),
+      new Marker(
+        width: 80.0,
+        height: 80.0,
+        point: new LatLng(48.8566, 2.3522),
+        builder: (ctx) => new Container(
+              child: new FlutterLogo(colors: Colors.purple),
+            ),
+        anchorPos: anchorPos,
+      ),
     ];
 
     return new Scaffold(
@@ -72,31 +83,19 @@ class MarkerAnchorPageState extends State<MarkerAnchorPage> {
                 children: <Widget>[
                   new MaterialButton(
                     child: new Text("Left"),
-                    onPressed: () => setState(() {
-                      anchorPos = AnchorPos.left;
-                      anchorOverride = null;
-                    }),
+                    onPressed: () => _setAnchorAlignPos(AnchorAlign.left),
                   ),
                   new MaterialButton(
                     child: new Text("Right"),
-                    onPressed: () => setState(() {
-                      anchorPos = AnchorPos.right;
-                      anchorOverride = null;
-                    }),
+                    onPressed: () => _setAnchorAlignPos(AnchorAlign.right),
                   ),
                   new MaterialButton(
                     child: new Text("Top"),
-                    onPressed: () => setState(() {
-                      anchorPos = AnchorPos.top;
-                      anchorOverride = null;
-                    }),
+                    onPressed: () => _setAnchorAlignPos(AnchorAlign.top),
                   ),
                   new MaterialButton(
                     child: new Text("Bottom"),
-                    onPressed: () => setState(() {
-                      anchorPos = AnchorPos.bottom;
-                      anchorOverride = null;
-                    }),
+                    onPressed: () => _setAnchorAlignPos(AnchorAlign.bottom),
                   ),
                 ],
               ),
@@ -107,18 +106,11 @@ class MarkerAnchorPageState extends State<MarkerAnchorPage> {
                 children: <Widget>[
                   new MaterialButton(
                     child: new Text("Center"),
-                    onPressed: () => setState(() {
-                      anchorPos = AnchorPos.center;
-                      anchorOverride = null;
-                    }),
+                    onPressed: () => _setAnchorAlignPos(AnchorAlign.center),
                   ),
                   new MaterialButton(
                     child: new Text("Custom"),
-                    onPressed: () => setState(
-                          () {
-                        anchorOverride = new Anchor(80.0, 80.0);
-                      },
-                    ),
+                    onPressed: () => _setAnchorExactlyPos(Anchor(80.0, 80.0)),
                   ),
                 ],
               ),
@@ -132,7 +124,7 @@ class MarkerAnchorPageState extends State<MarkerAnchorPage> {
                 layers: [
                   new TileLayerOptions(
                       urlTemplate:
-                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                       subdomains: ['a', 'b', 'c']),
                   new MarkerLayerOptions(markers: markers)
                 ],

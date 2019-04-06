@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/geo/crs/crs.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/map.dart';
@@ -17,6 +16,10 @@ export 'src/layer/layer.dart';
 export 'src/layer/tile_layer.dart';
 export 'src/layer/marker_layer.dart';
 export 'src/layer/polyline_layer.dart';
+export 'src/layer/polygon_layer.dart';
+export 'src/layer/circle_layer.dart';
+export 'src/layer/group_layer.dart';
+export 'src/layer/overlay_image_layer.dart';
 export 'src/geo/crs/crs.dart';
 export 'src/geo/latlng_bounds.dart';
 export 'package:flutter_map/src/core/point.dart';
@@ -30,6 +33,8 @@ class FlutterMap extends StatefulWidget {
 
   /// [MapOptions] to create a [MapState] with
   ///
+  /// This property must not be null.
+  ///
   /// Please note: If both [options] and [mapState] are set, mapState's options
   /// will take precedence, but the [:onTap:] callback of the options will be
   /// used!
@@ -40,7 +45,7 @@ class FlutterMap extends StatefulWidget {
 
   FlutterMap({
     Key key,
-    this.options,
+    @required this.options,
     this.layers,
     MapController mapController,
   })  : _mapController = mapController ?? new MapController(),
@@ -59,23 +64,25 @@ abstract class MapController {
   bool get ready;
   Future<Null> get onReady;
   LatLng get center;
+  LatLngBounds get bounds;
   double get zoom;
 
   factory MapController() => new MapControllerImpl();
 }
 
 typedef TapCallback(LatLng point);
-typedef PositionCallback(MapPosition position);
+typedef LongPressCallback(LatLng point);
+typedef PositionCallback(MapPosition position, bool hasGesture);
 
 class MapOptions {
   final Crs crs;
   final double zoom;
   final double minZoom;
   final double maxZoom;
-  final List<LayerOptions> layers;
   final bool debug;
   final bool interactive;
   final TapCallback onTap;
+  final LongPressCallback onLongPress;
   final PositionCallback onPositionChanged;
   final List<MapPlugin> plugins;
   LatLng center;
@@ -88,10 +95,10 @@ class MapOptions {
     this.zoom = 13.0,
     this.minZoom,
     this.maxZoom,
-    this.layers,
     this.debug = false,
     this.interactive = true,
     this.onTap,
+    this.onLongPress,
     this.onPositionChanged,
     this.plugins = const [],
     this.swPanBoundary,
@@ -117,12 +124,12 @@ class MapOptions {
 }
 
 class FitBoundsOptions {
-  final Point<double> padding;
+  final EdgeInsets padding;
   final double maxZoom;
   final double zoom;
 
   const FitBoundsOptions({
-    this.padding = const Point<double>(0.0, 0.0),
+    this.padding = const EdgeInsets.all(0.0),
     this.maxZoom = 17.0,
     this.zoom,
   });
@@ -130,6 +137,8 @@ class FitBoundsOptions {
 
 class MapPosition {
   final LatLng center;
+  final LatLngBounds bounds;
   final double zoom;
-  MapPosition({this.center, this.zoom});
+  final bool hasGesture;
+  MapPosition({this.center, this.bounds, this.zoom, this.hasGesture = false});
 }

@@ -3,40 +3,20 @@ import 'package:flutter_map/flutter_map.dart';
 import '../widgets/drawer.dart';
 import 'package:latlong/latlong.dart';
 
-class HomePage extends StatelessWidget {
-  static const String route = '/';
+class CirclePage extends StatelessWidget {
+  static const String route = 'circle';
   Widget build(BuildContext context) {
-    var markers = <Marker>[
-      new Marker(
-        width: 80.0,
-        height: 80.0,
-        point: new LatLng(51.5, -0.09),
-        builder: (ctx) => new Container(
-              child: new FlutterLogo(),
-            ),
-      ),
-      new Marker(
-        width: 80.0,
-        height: 80.0,
-        point: new LatLng(53.3498, -6.2603),
-        builder: (ctx) => new Container(
-              child: new FlutterLogo(
-                colors: Colors.green,
-              ),
-            ),
-      ),
-      new Marker(
-        width: 80.0,
-        height: 80.0,
-        point: new LatLng(48.8566, 2.3522),
-        builder: (ctx) => new Container(
-              child: new FlutterLogo(colors: Colors.purple),
-            ),
-      ),
+    var circleMarkers = <CircleMarker>[
+      new CircleMarker(
+          point: new LatLng(51.5, -0.09),
+          color: Colors.blue.withOpacity(0.7),
+          useRadiusInMeter: true,
+          radius: 2000 // 2000 meters | 2 km
+          ),
     ];
 
     return new Scaffold(
-      appBar: new AppBar(title: new Text("Home")),
+      appBar: new AppBar(title: new Text("Circle")),
       drawer: buildDrawer(context, route),
       body: new Padding(
         padding: new EdgeInsets.all(8.0),
@@ -50,14 +30,14 @@ class HomePage extends StatelessWidget {
               child: new FlutterMap(
                 options: new MapOptions(
                   center: new LatLng(51.5, -0.09),
-                  zoom: 5.0,
+                  zoom: 11.0,
                 ),
                 layers: [
                   new TileLayerOptions(
                       urlTemplate:
                           "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                       subdomains: ['a', 'b', 'c']),
-                  new MarkerLayerOptions(markers: markers)
+                  new CircleLayerOptions(circles: circleMarkers)
                 ],
               ),
             ),
