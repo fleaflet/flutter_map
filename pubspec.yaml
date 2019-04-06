@@ -14,3 +14,5 @@ dependencies:
   tuple: ^1.0.1
   latlong: ^0.6.1
   transparent_image: ^0.1.0
+dev_dependencies:
+  pedantic: ^1.4.0
