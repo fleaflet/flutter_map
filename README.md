@@ -55,8 +55,13 @@ Configure the map using `MapOptions` and layer options:
   }
 ```
 
-See the `flutter_map_example/` folder for a working example app.
+### Run the example
 
+See the `example/` folder for a working example app.
+
+To run it, in a terminal cd into the folder.
+Then execute `ulimit -S -n 2048` ([ref](https://github.com/trentpiercy/trace/issues/1#issuecomment-404494469)).
+Then execute `flutter run` with a running emulator.
 
 ## Mapbox Tiles
 
