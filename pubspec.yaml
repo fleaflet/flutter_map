@@ -11,10 +11,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  tuple: ^1.0.1
+  tuple: ^1.0.2
   latlong: ^0.6.1
-  positioned_tap_detector: ^1.0.1
+  positioned_tap_detector: ^1.0.2
   transparent_image: ^0.1.0
   async: ^2.0.8
   flutter_image: ^1.0.0
-  cached_network_image: ^0.5.1
+  cached_network_image: ^0.7.0
