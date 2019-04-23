@@ -32,10 +32,10 @@ class OverlayImage {
 }
 
 Future<ui.Image> _loadImage(img.ImageProvider imageProvider) async {
-  img.ImageStream stream = imageProvider.resolve(img.ImageConfiguration.empty);
-  Completer<ui.Image> completer = new Completer<ui.Image>();
+  var stream = imageProvider.resolve(img.ImageConfiguration.empty);
+  var completer = Completer<ui.Image>();
   void listener(img.ImageInfo frame, bool synchronousCall) {
-    final ui.Image image = frame.image;
+    var image = frame.image;
     completer.complete(image);
     stream.removeListener(listener);
   }
@@ -51,17 +51,18 @@ class OverlayImageLayer extends StatelessWidget {
 
   OverlayImageLayer(this.overlayImageOpts, this.map, this.stream);
 
+  @override
   Widget build(BuildContext context) {
-    return new LayoutBuilder(
+    return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints bc) {
-        final size = new Size(bc.maxWidth, bc.maxHeight);
+        final size = Size(bc.maxWidth, bc.maxHeight);
         return _build(context, size);
       },
     );
   }
 
   Widget _build(BuildContext context, Size size) {
-    return new StreamBuilder<int>(
+    return StreamBuilder<int>(
       stream: stream, // a Stream<int> or null
       builder: (BuildContext context, _) {
         for (var overlayImageOpt in overlayImageOpts.overlayImages) {
@@ -74,26 +75,26 @@ class OverlayImageLayer extends StatelessWidget {
               map.getPixelOrigin();
 
           overlayImageOpt.offsets
-              .add(new Offset(pos1.x.toDouble(), pos1.y.toDouble()));
+              .add(Offset(pos1.x.toDouble(), pos1.y.toDouble()));
           overlayImageOpt.offsets
-              .add(new Offset(pos2.x.toDouble(), pos2.y.toDouble()));
+              .add(Offset(pos2.x.toDouble(), pos2.y.toDouble()));
           _loadImage(overlayImageOpt.imageProvider).then((image) {
             overlayImageOpt.image = image;
           });
         }
 
         var overlayImages = <Widget>[];
-        for (var overlayImageOpt in this.overlayImageOpts.overlayImages) {
+        for (var overlayImageOpt in overlayImageOpts.overlayImages) {
           overlayImages.add(
-            new CustomPaint(
-              painter: new OverlayImagePainter(overlayImageOpt),
+            CustomPaint(
+              painter: OverlayImagePainter(overlayImageOpt),
               size: size,
             ),
           );
         }
 
-        return new Container(
-          child: new Stack(
+        return Container(
+          child: Stack(
             children: overlayImages,
           ),
         );
@@ -108,14 +109,14 @@ class OverlayImagePainter extends CustomPainter {
   OverlayImagePainter(this.overlayImageOpt);
   @override
   void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
+    var rect = Offset.zero & size;
     canvas.clipRect(rect);
-    final paint = new Paint()
+    var paint = Paint()
       ..color = Color.fromRGBO(255, 255, 255, overlayImageOpt.opacity);
 
-    final Size imageSize = new Size(overlayImageOpt.image.width.toDouble(),
+    var imageSize = Size(overlayImageOpt.image.width.toDouble(),
         overlayImageOpt.image.height.toDouble());
-    final Rect inputSubrect = Offset.zero & imageSize;
+    var inputSubrect = Offset.zero & imageSize;
 
     canvas.drawImageRect(
         overlayImageOpt.image,

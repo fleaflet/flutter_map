@@ -36,17 +36,18 @@ class CircleLayer extends StatelessWidget {
   final Stream<Null> stream;
   CircleLayer(this.circleOpts, this.map, this.stream);
 
+  @override
   Widget build(BuildContext context) {
-    return new LayoutBuilder(
+    return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints bc) {
-        final size = new Size(bc.maxWidth, bc.maxHeight);
+        final size = Size(bc.maxWidth, bc.maxHeight);
         return _build(context, size);
       },
     );
   }
 
   Widget _build(BuildContext context, Size size) {
-    return new StreamBuilder<int>(
+    return StreamBuilder<int>(
       stream: stream, // a Stream<int> or null
       builder: (BuildContext context, _) {
         var circleWidgets = <Widget>[];
@@ -54,7 +55,7 @@ class CircleLayer extends StatelessWidget {
           var pos = map.project(circle.point);
           pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
               map.getPixelOrigin();
-          circle.offset = new Offset(pos.x.toDouble(), pos.y.toDouble());
+          circle.offset = Offset(pos.x.toDouble(), pos.y.toDouble());
 
           if (circle.useRadiusInMeter) {
             var r = Distance().offset(circle.point, circle.radius, 180);
@@ -66,15 +67,15 @@ class CircleLayer extends StatelessWidget {
           }
 
           circleWidgets.add(
-            new CustomPaint(
-              painter: new CirclePainter(circle),
+            CustomPaint(
+              painter: CirclePainter(circle),
               size: size,
             ),
           );
         }
 
-        return new Container(
-          child: new Stack(
+        return Container(
+          child: Stack(
             children: circleWidgets,
           ),
         );
@@ -91,7 +92,7 @@ class CirclePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
     canvas.clipRect(rect);
-    final paint = new Paint()
+    final paint = Paint()
       ..style = PaintingStyle.fill
       ..color = circle.color;
 

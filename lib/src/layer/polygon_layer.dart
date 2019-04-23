@@ -32,17 +32,18 @@ class PolygonLayer extends StatelessWidget {
 
   PolygonLayer(this.polygonOpts, this.map, this.stream);
 
+  @override
   Widget build(BuildContext context) {
-    return new LayoutBuilder(
+    return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints bc) {
-        final size = new Size(bc.maxWidth, bc.maxHeight);
+        final size = Size(bc.maxWidth, bc.maxHeight);
         return _build(context, size);
       },
     );
   }
 
   Widget _build(BuildContext context, Size size) {
-    return new StreamBuilder<int>(
+    return StreamBuilder<int>(
       stream: stream, // a Stream<int> or null
       builder: (BuildContext context, _) {
         for (var polygonOpt in polygonOpts.polygons) {
@@ -51,26 +52,26 @@ class PolygonLayer extends StatelessWidget {
           for (var point in polygonOpt.points) {
             var pos = map.project(point);
             pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) - map.getPixelOrigin();
-            polygonOpt.offsets.add(new Offset(pos.x.toDouble(), pos.y.toDouble()));
+            polygonOpt.offsets.add(Offset(pos.x.toDouble(), pos.y.toDouble()));
             if (i > 0 && i < polygonOpt.points.length) {
-              polygonOpt.offsets.add(new Offset(pos.x.toDouble(), pos.y.toDouble()));
+              polygonOpt.offsets.add(Offset(pos.x.toDouble(), pos.y.toDouble()));
             }
             i++;
           }
         }
 
         var polygons = <Widget>[];
-        for (var polygonOpt in this.polygonOpts.polygons) {
+        for (var polygonOpt in polygonOpts.polygons) {
           polygons.add(
-            new CustomPaint(
-              painter: new PolygonPainter(polygonOpt),
+            CustomPaint(
+              painter: PolygonPainter(polygonOpt),
               size: size,
             ),
           );
         }
 
-        return new Container(
-          child: new Stack(
+        return Container(
+          child: Stack(
             children: polygons,
           ),
         );
@@ -90,18 +91,18 @@ class PolygonPainter extends CustomPainter {
     }
     final rect = Offset.zero & size;
     canvas.clipRect(rect);
-    final paint = new Paint()
+    final paint = Paint()
       ..style = PaintingStyle.fill
       ..color = polygonOpt.color;
     final borderPaint = polygonOpt.borderStrokeWidth > 0.0
-        ? (new Paint()
+        ? (Paint()
       ..color = polygonOpt.borderColor
       ..strokeWidth = polygonOpt.borderStrokeWidth)
         : null;
 
     _paintPolygon(canvas, polygonOpt.offsets, paint);
 
-    double borderRadius = (polygonOpt.borderStrokeWidth / 2);
+    var borderRadius = (polygonOpt.borderStrokeWidth / 2);
     if (polygonOpt.borderStrokeWidth > 0.0) {
         _paintLine(canvas, polygonOpt.offsets, borderRadius, borderPaint);
     }
@@ -115,7 +116,7 @@ class PolygonPainter extends CustomPainter {
   }
 
   void _paintPolygon(Canvas canvas, List<Offset> offsets, Paint paint) {
-    Path path = new Path();
+    var path = Path();
     path.addPolygon(offsets, true);
     canvas.drawPath(path, paint);
   }
