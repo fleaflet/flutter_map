@@ -90,7 +90,7 @@ class MapOptions {
   LatLng nePanBoundary;
 
   MapOptions({
-    this.crs: const Epsg3857(),
+    this.crs = const Epsg3857(),
     this.center,
     this.zoom = 13.0,
     this.minZoom,

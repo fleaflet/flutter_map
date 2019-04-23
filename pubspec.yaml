@@ -6,7 +6,7 @@ authors:
 homepage: https://github.com/apptreesoftware/flutter_map
 
 environment:
-  sdk: ">=2.0.0 <3.0.0"
+  sdk: ">=2.1.0 <3.0.0"
 
 dependencies:
   flutter:
@@ -18,3 +18,5 @@ dependencies:
   async: ^2.0.8
   flutter_image: ^1.0.0
   cached_network_image: ^0.7.0
+dev_dependencies:
+  pedantic: ^1.4.0

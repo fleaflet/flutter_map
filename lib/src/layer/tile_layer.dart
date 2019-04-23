@@ -205,7 +205,7 @@ class _TileLayerState extends State<TileLayer> {
 
     List<double> toRemove = [];
     for (var z in this._levels.keys) {
-      if (_levels[z].children.length > 0 || z == zoom) {
+      if (_levels[z].children.isNotEmpty || z == zoom) {
         _levels[z].zIndex = maxZoom = (zoom - z).abs();
       } else {
         toRemove.add(z);
@@ -373,7 +373,7 @@ class _TileLayerState extends State<TileLayer> {
       }
     }
 
-    if (queue.length > 0) {
+    if (queue.isNotEmpty) {
       for (var i = 0; i < queue.length; i++) {
         _tiles[_tileCoordsToKey(queue[i])] =
             new Tile(_wrapCoords(queue[i]), true);
