@@ -20,11 +20,13 @@ class MapControllerPageState extends State<MapControllerPage> {
 
   MapController mapController;
 
+  @override
   void initState() {
     super.initState();
     mapController = new MapController();
   }
 
+  @override
   Widget build(BuildContext context) {
     var markers = <Marker>[
       new Marker(

@@ -7,6 +7,7 @@ import 'package:latlong/latlong.dart';
 class EsriPage extends StatelessWidget {
   static const String route = "esri";
 
+  @override
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(title: new Text("Esri")),

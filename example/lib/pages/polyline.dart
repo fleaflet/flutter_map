@@ -6,6 +6,7 @@ import 'package:latlong/latlong.dart';
 class PolylinePage extends StatelessWidget {
   static const String route = "polyline";
 
+  @override
   Widget build(BuildContext context) {
     var points = <LatLng>[
       new LatLng(51.5, -0.09),

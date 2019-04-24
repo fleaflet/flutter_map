@@ -6,6 +6,7 @@ import 'package:latlong/latlong.dart';
 class PluginPage extends StatelessWidget {
   static const String route = "plugins";
 
+  @override
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(title: new Text("Plugins")),
