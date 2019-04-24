@@ -24,8 +24,8 @@ class TapToAddPageState extends State<TapToAddPage> {
         height: 80.0,
         point: latlng,
         builder: (ctx) => new Container(
-          child: new FlutterLogo(),
-        ),
+              child: new FlutterLogo(),
+            ),
       );
     }).toList();
 
@@ -49,7 +49,7 @@ class TapToAddPageState extends State<TapToAddPage> {
                 layers: [
                   new TileLayerOptions(
                     urlTemplate:
-                    "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                        "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
                   ),
                   new MarkerLayerOptions(markers: markers)
                 ],
