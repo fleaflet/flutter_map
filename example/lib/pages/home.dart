@@ -5,6 +5,8 @@ import 'package:latlong/latlong.dart';
 
 class HomePage extends StatelessWidget {
   static const String route = '/';
+
+  @override
   Widget build(BuildContext context) {
     var markers = <Marker>[
       new Marker(

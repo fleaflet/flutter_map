@@ -7,6 +7,7 @@ import '../widgets/drawer.dart';
 class TapToAddPage extends StatefulWidget {
   static const String route = '/tap';
 
+  @override
   State<StatefulWidget> createState() {
     return new TapToAddPageState();
   }
@@ -15,6 +16,7 @@ class TapToAddPage extends StatefulWidget {
 class TapToAddPageState extends State<TapToAddPage> {
   List<LatLng> tappedPoints = [];
 
+  @override
   Widget build(BuildContext context) {
     var markers = tappedPoints.map((latlng) {
       return new Marker(

@@ -5,6 +5,8 @@ import 'package:latlong/latlong.dart';
 
 class OverlayImagePage extends StatelessWidget {
   static const String route = 'overlay_image';
+
+  @override
   Widget build(BuildContext context) {
     var overlayImages = <OverlayImage>[
       new OverlayImage(

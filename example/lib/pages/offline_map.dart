@@ -5,6 +5,8 @@ import 'package:latlong/latlong.dart';
 
 class OfflineMapPage extends StatelessWidget {
   static const String route = '/offline_map';
+
+  @override
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(title: new Text("Offline Map")),

@@ -18,6 +18,7 @@ class OnTapPageState extends State<OnTapPage> {
   static LatLng paris = new LatLng(48.8566, 2.3522);
   static LatLng dublin = new LatLng(53.3498, -6.2603);
 
+  @override
   Widget build(BuildContext context) {
     var markers = <Marker>[
       new Marker(

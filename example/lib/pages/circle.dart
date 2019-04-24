@@ -5,6 +5,8 @@ import 'package:latlong/latlong.dart';
 
 class CirclePage extends StatelessWidget {
   static const String route = 'circle';
+
+  @override
   Widget build(BuildContext context) {
     var circleMarkers = <CircleMarker>[
       new CircleMarker(

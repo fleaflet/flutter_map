@@ -19,6 +19,7 @@ class _MovingMarkersPageState extends State<MovingMarkersPage> {
   Timer _timer;
   int _markerIndex = 0;
 
+  @override
   void initState() {
     super.initState();
     _marker = _markers[_markerIndex];
@@ -30,11 +31,13 @@ class _MovingMarkersPageState extends State<MovingMarkersPage> {
     });
   }
 
+  @override
   void dispose() {
     super.dispose();
     _timer.cancel();
   }
 
+  @override
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(title: new Text("Home")),

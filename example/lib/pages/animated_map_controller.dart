@@ -30,6 +30,7 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
 
   MapController mapController;
 
+  @override
   void initState() {
     super.initState();
     mapController = new MapController();
@@ -72,6 +73,7 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
     controller.forward();
   }
 
+  @override
   Widget build(BuildContext context) {
     var markers = <Marker>[
       new Marker(

@@ -15,6 +15,7 @@ class MarkerAnchorPage extends StatefulWidget {
 class MarkerAnchorPageState extends State<MarkerAnchorPage> {
   AnchorPos anchorPos;
 
+  @override
   void initState() {
     super.initState();
     anchorPos = AnchorPos.align(AnchorAlign.center);
@@ -32,6 +33,7 @@ class MarkerAnchorPageState extends State<MarkerAnchorPage> {
     });
   }
 
+  @override
   Widget build(BuildContext context) {
     var markers = <Marker>[
       new Marker(
