@@ -5,7 +5,7 @@ import 'package:latlong/latlong.dart';
 import '../widgets/drawer.dart';
 
 class PolylinePage extends StatelessWidget {
-  static const String route = "polyline";
+  static const String route = 'polyline';
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +15,7 @@ class PolylinePage extends StatelessWidget {
       LatLng(48.8566, 2.3522),
     ];
     return Scaffold(
-      appBar: AppBar(title: Text("Polylines")),
+      appBar: AppBar(title: Text('Polylines')),
       drawer: buildDrawer(context, PolylinePage.route),
       body: Padding(
         padding: EdgeInsets.all(8.0),
@@ -23,7 +23,7 @@ class PolylinePage extends StatelessWidget {
           children: [
             Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: Text("Polylines"),
+              child: Text('Polylines'),
             ),
             Flexible(
               child: FlutterMap(
@@ -34,7 +34,7 @@ class PolylinePage extends StatelessWidget {
                 layers: [
                   TileLayerOptions(
                       urlTemplate:
-                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                       subdomains: ['a', 'b', 'c']),
                   PolylineLayerOptions(
                     polylines: [

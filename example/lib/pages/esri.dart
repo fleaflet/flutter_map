@@ -6,12 +6,12 @@ import '../pages/tap_to_add.dart';
 import '../widgets/drawer.dart';
 
 class EsriPage extends StatelessWidget {
-  static const String route = "esri";
+  static const String route = 'esri';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Esri")),
+      appBar: AppBar(title: Text('Esri')),
       drawer: buildDrawer(context, TapToAddPage.route),
       body: Padding(
         padding: EdgeInsets.all(8.0),
@@ -19,7 +19,7 @@ class EsriPage extends StatelessWidget {
           children: [
             Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: Text("Esri"),
+              child: Text('Esri'),
             ),
             Flexible(
               child: FlutterMap(
@@ -30,7 +30,7 @@ class EsriPage extends StatelessWidget {
                 layers: [
                   TileLayerOptions(
                     urlTemplate:
-                        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+                        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
                   ),
                 ],
               ),

@@ -30,7 +30,7 @@ class TapToAddPageState extends State<TapToAddPage> {
     }).toList();
 
     return Scaffold(
-      appBar: AppBar(title: Text("Tap to add pins")),
+      appBar: AppBar(title: Text('Tap to add pins')),
       drawer: buildDrawer(context, TapToAddPage.route),
       body: Padding(
         padding: EdgeInsets.all(8.0),
@@ -38,7 +38,7 @@ class TapToAddPageState extends State<TapToAddPage> {
           children: [
             Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: Text("Tap to add pins"),
+              child: Text('Tap to add pins'),
             ),
             Flexible(
               child: FlutterMap(
@@ -49,7 +49,7 @@ class TapToAddPageState extends State<TapToAddPage> {
                 layers: [
                   TileLayerOptions(
                     urlTemplate:
-                        "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   ),
                   MarkerLayerOptions(markers: markers)
                 ],

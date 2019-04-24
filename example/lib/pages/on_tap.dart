@@ -30,7 +30,7 @@ class OnTapPageState extends State<OnTapPage> {
                 child: GestureDetector(
               onTap: () {
                 _scaffoldKey.currentState.showSnackBar(SnackBar(
-                  content: Text("Tapped on blue FlutterLogo Marker"),
+                  content: Text('Tapped on blue FlutterLogo Marker'),
                 ));
               },
               child: FlutterLogo(),
@@ -44,7 +44,7 @@ class OnTapPageState extends State<OnTapPage> {
                 child: GestureDetector(
               onTap: () {
                 _scaffoldKey.currentState.showSnackBar(SnackBar(
-                  content: Text("Tapped on green FlutterLogo Marker"),
+                  content: Text('Tapped on green FlutterLogo Marker'),
                 ));
               },
               child: FlutterLogo(
@@ -60,7 +60,7 @@ class OnTapPageState extends State<OnTapPage> {
                 child: GestureDetector(
               onTap: () {
                 _scaffoldKey.currentState.showSnackBar(SnackBar(
-                  content: Text("Tapped on purple FlutterLogo Marker"),
+                  content: Text('Tapped on purple FlutterLogo Marker'),
                 ));
               },
               child: FlutterLogo(colors: Colors.purple),
@@ -70,7 +70,7 @@ class OnTapPageState extends State<OnTapPage> {
 
     return Scaffold(
       key: _scaffoldKey,
-      appBar: AppBar(title: Text("OnTap")),
+      appBar: AppBar(title: Text('OnTap')),
       drawer: buildDrawer(context, OnTapPage.route),
       body: Padding(
         padding: EdgeInsets.all(8.0),
@@ -78,7 +78,7 @@ class OnTapPageState extends State<OnTapPage> {
           children: [
             Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: Text("Try tapping on the markers"),
+              child: Text('Try tapping on the markers'),
             ),
             Flexible(
               child: FlutterMap(
@@ -91,7 +91,7 @@ class OnTapPageState extends State<OnTapPage> {
                 layers: [
                   TileLayerOptions(
                       urlTemplate:
-                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                       subdomains: ['a', 'b', 'c']),
                   MarkerLayerOptions(markers: markers)
                 ],

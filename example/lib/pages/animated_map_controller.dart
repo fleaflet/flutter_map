@@ -62,7 +62,7 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
     });
 
     animation.addStatusListener((status) {
-      print("$status");
+      print('$status');
       if (status == AnimationStatus.completed) {
         controller.dispose();
       } else if (status == AnimationStatus.dismissed) {
@@ -81,7 +81,7 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
         height: 80.0,
         point: london,
         builder: (ctx) => Container(
-              key: Key("blue"),
+              key: Key('blue'),
               child: FlutterLogo(),
             ),
       ),
@@ -91,7 +91,7 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
         point: dublin,
         builder: (ctx) => Container(
               child: FlutterLogo(
-                key: Key("green"),
+                key: Key('green'),
                 colors: Colors.green,
               ),
             ),
@@ -101,14 +101,14 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
         height: 80.0,
         point: paris,
         builder: (ctx) => Container(
-              key: Key("purple"),
+              key: Key('purple'),
               child: FlutterLogo(colors: Colors.purple),
             ),
       ),
     ];
 
     return Scaffold(
-      appBar: AppBar(title: Text("Animated MapController")),
+      appBar: AppBar(title: Text('Animated MapController')),
       drawer: buildDrawer(context, AnimatedMapControllerPage.route),
       body: Padding(
         padding: EdgeInsets.all(8.0),
@@ -119,19 +119,19 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
               child: Row(
                 children: <Widget>[
                   MaterialButton(
-                    child: Text("London"),
+                    child: Text('London'),
                     onPressed: () {
                       _animatedMapMove(london, 10.0);
                     },
                   ),
                   MaterialButton(
-                    child: Text("Paris"),
+                    child: Text('Paris'),
                     onPressed: () {
                       _animatedMapMove(paris, 5.0);
                     },
                   ),
                   MaterialButton(
-                    child: Text("Dublin"),
+                    child: Text('Dublin'),
                     onPressed: () {
                       _animatedMapMove(dublin, 5.0);
                     },
@@ -144,7 +144,7 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
               child: Row(
                 children: <Widget>[
                   MaterialButton(
-                    child: Text("Fit Bounds"),
+                    child: Text('Fit Bounds'),
                     onPressed: () {
                       var bounds = LatLngBounds();
                       bounds.extend(dublin);
@@ -172,7 +172,7 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
                 layers: [
                   TileLayerOptions(
                       urlTemplate:
-                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                       subdomains: ['a', 'b', 'c']),
                   MarkerLayerOptions(markers: markers)
                 ],

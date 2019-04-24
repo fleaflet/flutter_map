@@ -18,7 +18,7 @@ class OverlayImagePage extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: Text("Circle")),
+      appBar: AppBar(title: Text('Circle')),
       drawer: buildDrawer(context, route),
       body: Padding(
         padding: EdgeInsets.all(8.0),
@@ -26,7 +26,7 @@ class OverlayImagePage extends StatelessWidget {
           children: [
             Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: Text("This is a map that is showing (51.5, -0.9)."),
+              child: Text('This is a map that is showing (51.5, -0.9).'),
             ),
             Flexible(
               child: FlutterMap(
@@ -37,7 +37,7 @@ class OverlayImagePage extends StatelessWidget {
                 layers: [
                   TileLayerOptions(
                       urlTemplate:
-                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                       subdomains: ['a', 'b', 'c']),
                   OverlayImageLayerOptions(overlayImages: overlayImages)
                 ],
