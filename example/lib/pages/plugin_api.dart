@@ -61,7 +61,7 @@ class MyCustomPlugin implements MapPlugin {
         style: style,
       );
     }
-    throw ('Unknown options type for MyCustom'
+    throw Exception('Unknown options type for MyCustom'
         'plugin: $options');
   }
 
