@@ -9,28 +9,28 @@ class PluginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(title: new Text("Plugins")),
+    return Scaffold(
+      appBar: AppBar(title: Text("Plugins")),
       drawer: buildDrawer(context, PluginPage.route),
-      body: new Padding(
-        padding: new EdgeInsets.all(8.0),
-        child: new Column(
+      body: Padding(
+        padding: EdgeInsets.all(8.0),
+        child: Column(
           children: [
-            new Flexible(
-              child: new FlutterMap(
-                options: new MapOptions(
-                  center: new LatLng(51.5, -0.09),
+            Flexible(
+              child: FlutterMap(
+                options: MapOptions(
+                  center: LatLng(51.5, -0.09),
                   zoom: 5.0,
                   plugins: [
-                    new MyCustomPlugin(),
+                    MyCustomPlugin(),
                   ],
                 ),
                 layers: [
-                  new TileLayerOptions(
+                  TileLayerOptions(
                       urlTemplate:
                           "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                       subdomains: ['a', 'b', 'c']),
-                  new MyCustomPluginOptions(text: "I'm a plugin!"),
+                  MyCustomPluginOptions(text: "I'm a plugin!"),
                 ],
               ),
             ),
@@ -51,12 +51,12 @@ class MyCustomPlugin implements MapPlugin {
   Widget createLayer(
       LayerOptions options, MapState mapState, Stream<Null> stream) {
     if (options is MyCustomPluginOptions) {
-      var style = new TextStyle(
+      var style = TextStyle(
         fontWeight: FontWeight.bold,
         fontSize: 24.0,
         color: Colors.red,
       );
-      return new Text(
+      return Text(
         options.text,
         style: style,
       );
