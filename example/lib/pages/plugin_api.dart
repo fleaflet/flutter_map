@@ -47,7 +47,8 @@ class MyCustomPluginOptions extends LayerOptions {
 
 class MyCustomPlugin implements MapPlugin {
   @override
-  Widget createLayer(LayerOptions options, MapState mapState, Stream<Null> stream) {
+  Widget createLayer(
+      LayerOptions options, MapState mapState, Stream<Null> stream) {
     if (options is MyCustomPluginOptions) {
       var style = new TextStyle(
         fontWeight: FontWeight.bold,
