@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import '../widgets/drawer.dart';
 import 'package:latlong/latlong.dart';
+
+import '../widgets/drawer.dart';
 
 class AnimatedMapControllerPage extends StatefulWidget {
   static const String route = 'map_controller_animated';

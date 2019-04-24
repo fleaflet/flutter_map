@@ -2,8 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import '../widgets/drawer.dart';
 import 'package:latlong/latlong.dart';
+
+import '../widgets/drawer.dart';
 
 class MovingMarkersPage extends StatefulWidget {
   static const String route = '/moving_markers';

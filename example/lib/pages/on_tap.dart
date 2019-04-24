@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import '../widgets/drawer.dart';
 import 'package:latlong/latlong.dart';
+
+import '../widgets/drawer.dart';
 
 class OnTapPage extends StatefulWidget {
   static const String route = 'on_tap';
