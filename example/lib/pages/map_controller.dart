@@ -35,7 +35,7 @@ class MapControllerPageState extends State<MapControllerPage> {
         height: 80.0,
         point: london,
         builder: (ctx) => Container(
-              key: Key("blue"),
+              key: Key('blue'),
               child: FlutterLogo(),
             ),
       ),
@@ -45,7 +45,7 @@ class MapControllerPageState extends State<MapControllerPage> {
         point: dublin,
         builder: (ctx) => Container(
               child: FlutterLogo(
-                key: Key("green"),
+                key: Key('green'),
                 colors: Colors.green,
               ),
             ),
@@ -55,7 +55,7 @@ class MapControllerPageState extends State<MapControllerPage> {
         height: 80.0,
         point: paris,
         builder: (ctx) => Container(
-              key: Key("purple"),
+              key: Key('purple'),
               child: FlutterLogo(colors: Colors.purple),
             ),
       ),
@@ -63,7 +63,7 @@ class MapControllerPageState extends State<MapControllerPage> {
 
     return Scaffold(
       key: _scaffoldKey,
-      appBar: AppBar(title: Text("MapController")),
+      appBar: AppBar(title: Text('MapController')),
       drawer: buildDrawer(context, MapControllerPage.route),
       body: Padding(
         padding: EdgeInsets.all(8.0),
@@ -74,19 +74,19 @@ class MapControllerPageState extends State<MapControllerPage> {
               child: Row(
                 children: <Widget>[
                   MaterialButton(
-                    child: Text("London"),
+                    child: Text('London'),
                     onPressed: () {
                       mapController.move(london, 18.0);
                     },
                   ),
                   MaterialButton(
-                    child: Text("Paris"),
+                    child: Text('Paris'),
                     onPressed: () {
                       mapController.move(paris, 5.0);
                     },
                   ),
                   MaterialButton(
-                    child: Text("Dublin"),
+                    child: Text('Dublin'),
                     onPressed: () {
                       mapController.move(dublin, 5.0);
                     },
@@ -99,7 +99,7 @@ class MapControllerPageState extends State<MapControllerPage> {
               child: Row(
                 children: <Widget>[
                   MaterialButton(
-                    child: Text("Fit Bounds"),
+                    child: Text('Fit Bounds'),
                     onPressed: () {
                       var bounds = LatLngBounds();
                       bounds.extend(dublin);
@@ -114,7 +114,7 @@ class MapControllerPageState extends State<MapControllerPage> {
                     },
                   ),
                   MaterialButton(
-                    child: Text("Get Bounds"),
+                    child: Text('Get Bounds'),
                     onPressed: () {
                       final bounds = mapController.bounds;
 
@@ -144,7 +144,7 @@ class MapControllerPageState extends State<MapControllerPage> {
                 layers: [
                   TileLayerOptions(
                       urlTemplate:
-                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                       subdomains: ['a', 'b', 'c']),
                   MarkerLayerOptions(markers: markers)
                 ],

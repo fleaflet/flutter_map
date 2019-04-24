@@ -10,7 +10,7 @@ class OfflineMapPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Offline Map")),
+      appBar: AppBar(title: Text('Offline Map')),
       drawer: buildDrawer(context, route),
       body: Padding(
         padding: EdgeInsets.all(8.0),
@@ -19,7 +19,7 @@ class OfflineMapPage extends StatelessWidget {
             Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
               child: Text(
-                  "This is an offline map that is showing Anholt Island, Denmark."),
+                  'This is an offline map that is showing Anholt Island, Denmark.'),
             ),
             Flexible(
               child: FlutterMap(
@@ -35,7 +35,7 @@ class OfflineMapPage extends StatelessWidget {
                   TileLayerOptions(
                     offlineMode: true,
                     maxZoom: 14.0,
-                    urlTemplate: "assets/map/anholt_osmbright/{z}/{x}/{y}.png",
+                    urlTemplate: 'assets/map/anholt_osmbright/{z}/{x}/{y}.png',
                   ),
                 ],
               ),

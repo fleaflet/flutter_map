@@ -41,7 +41,7 @@ class _MovingMarkersPageState extends State<MovingMarkersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Home")),
+      appBar: AppBar(title: Text('Home')),
       drawer: buildDrawer(context, MovingMarkersPage.route),
       body: Padding(
         padding: EdgeInsets.all(8.0),
@@ -49,7 +49,7 @@ class _MovingMarkersPageState extends State<MovingMarkersPage> {
           children: [
             Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: Text("This is a map that is showing (51.5, -0.9)."),
+              child: Text('This is a map that is showing (51.5, -0.9).'),
             ),
             Flexible(
               child: FlutterMap(
@@ -60,7 +60,7 @@ class _MovingMarkersPageState extends State<MovingMarkersPage> {
                 layers: [
                   TileLayerOptions(
                       urlTemplate:
-                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                       subdomains: ['a', 'b', 'c']),
                   MarkerLayerOptions(markers: <Marker>[_marker])
                 ],

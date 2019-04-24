@@ -5,12 +5,12 @@ import 'package:latlong/latlong.dart';
 import '../widgets/drawer.dart';
 
 class PluginPage extends StatelessWidget {
-  static const String route = "plugins";
+  static const String route = 'plugins';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Plugins")),
+      appBar: AppBar(title: Text('Plugins')),
       drawer: buildDrawer(context, PluginPage.route),
       body: Padding(
         padding: EdgeInsets.all(8.0),
@@ -28,7 +28,7 @@ class PluginPage extends StatelessWidget {
                 layers: [
                   TileLayerOptions(
                       urlTemplate:
-                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                       subdomains: ['a', 'b', 'c']),
                   MyCustomPluginOptions(text: "I'm a plugin!"),
                 ],
@@ -43,7 +43,7 @@ class PluginPage extends StatelessWidget {
 
 class MyCustomPluginOptions extends LayerOptions {
   final String text;
-  MyCustomPluginOptions({this.text = ""});
+  MyCustomPluginOptions({this.text = ''});
 }
 
 class MyCustomPlugin implements MapPlugin {
@@ -61,8 +61,8 @@ class MyCustomPlugin implements MapPlugin {
         style: style,
       );
     }
-    throw ("Unknown options type for MyCustom"
-        "plugin: $options");
+    throw ('Unknown options type for MyCustom'
+        'plugin: $options');
   }
 
   @override

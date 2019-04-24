@@ -68,7 +68,7 @@ class MarkerAnchorPageState extends State<MarkerAnchorPage> {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: Text("Marker Anchor Points")),
+      appBar: AppBar(title: Text('Marker Anchor Points')),
       drawer: buildDrawer(context, MarkerAnchorPage.route),
       body: Padding(
         padding: EdgeInsets.all(8.0),
@@ -77,26 +77,26 @@ class MarkerAnchorPageState extends State<MarkerAnchorPage> {
             Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
               child: Text(
-                  "Markers can be anchored to the top, bottom, left or right."),
+                  'Markers can be anchored to the top, bottom, left or right.'),
             ),
             Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
               child: Row(
                 children: <Widget>[
                   MaterialButton(
-                    child: Text("Left"),
+                    child: Text('Left'),
                     onPressed: () => _setAnchorAlignPos(AnchorAlign.left),
                   ),
                   MaterialButton(
-                    child: Text("Right"),
+                    child: Text('Right'),
                     onPressed: () => _setAnchorAlignPos(AnchorAlign.right),
                   ),
                   MaterialButton(
-                    child: Text("Top"),
+                    child: Text('Top'),
                     onPressed: () => _setAnchorAlignPos(AnchorAlign.top),
                   ),
                   MaterialButton(
-                    child: Text("Bottom"),
+                    child: Text('Bottom'),
                     onPressed: () => _setAnchorAlignPos(AnchorAlign.bottom),
                   ),
                 ],
@@ -107,11 +107,11 @@ class MarkerAnchorPageState extends State<MarkerAnchorPage> {
               child: Row(
                 children: <Widget>[
                   MaterialButton(
-                    child: Text("Center"),
+                    child: Text('Center'),
                     onPressed: () => _setAnchorAlignPos(AnchorAlign.center),
                   ),
                   MaterialButton(
-                    child: Text("Custom"),
+                    child: Text('Custom'),
                     onPressed: () => _setAnchorExactlyPos(Anchor(80.0, 80.0)),
                   ),
                 ],
@@ -126,7 +126,7 @@ class MarkerAnchorPageState extends State<MarkerAnchorPage> {
                 layers: [
                   TileLayerOptions(
                       urlTemplate:
-                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                       subdomains: ['a', 'b', 'c']),
                   MarkerLayerOptions(markers: markers)
                 ],
