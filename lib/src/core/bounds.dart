@@ -6,7 +6,7 @@ class Bounds<T extends num> {
   final CustomPoint<T> max;
 
   factory Bounds(CustomPoint<T> a, CustomPoint<T> b) {
-    var bounds1 = new Bounds._(a, b);
+    var bounds1 = Bounds._(a, b);
     var bounds2 = bounds1.extend(a);
     return bounds2.extend(b);
   }
@@ -16,48 +16,49 @@ class Bounds<T extends num> {
   Bounds<T> extend(CustomPoint<T> point) {
     CustomPoint<T> newMin;
     CustomPoint<T> newMax;
-    if (this.min == null && this.max == null) {
+    if (min == null && max == null) {
       newMin = point;
       newMax = point;
     } else {
-      var minX = math.min(point.x, this.min.x);
-      var maxX = math.max(point.x, this.max.x);
-      var minY = math.min(point.y, this.min.y);
-      var maxY = math.max(point.y, this.max.y);
-      newMin = new CustomPoint(minX, minY);
-      newMax = new CustomPoint(maxX, maxY);
+      var minX = math.min(point.x, min.x);
+      var maxX = math.max(point.x, max.x);
+      var minY = math.min(point.y, min.y);
+      var maxY = math.max(point.y, max.y);
+      newMin = CustomPoint(minX, minY);
+      newMax = CustomPoint(maxX, maxY);
     }
-    return new Bounds._(newMin, newMax);
+    return Bounds._(newMin, newMax);
   }
 
   CustomPoint<double> getCenter() {
-    return new CustomPoint<double>(
+    return CustomPoint<double>(
       (min.x + max.x) / 2,
       (min.y + max.y) / 2,
     );
   }
 
-  CustomPoint<T> get bottomLeft => new CustomPoint(min.x, max.y);
-  CustomPoint<T> get topRight => new CustomPoint(max.x, min.y);
+  CustomPoint<T> get bottomLeft => CustomPoint(min.x, max.y);
+  CustomPoint<T> get topRight => CustomPoint(max.x, min.y);
   CustomPoint<T> get topLeft => min;
   CustomPoint<T> get bottomRight => max;
 
   CustomPoint<T> get size {
-    return this.max - this.min;
+    return max - min;
   }
 
   bool contains(CustomPoint<T> point) {
     var min = point;
     var max = point;
-    return containsBounds(new Bounds(min, max));
+    return containsBounds(Bounds(min, max));
   }
 
   bool containsBounds(Bounds<T> b) {
-    return (b.min.x >= this.min.x) &&
-        (b.max.x <= this.max.x) &&
-        (b.min.y >= this.min.y) &&
-        (b.max.y <= this.max.y);
+    return (b.min.x >= min.x) &&
+        (b.max.x <= max.x) &&
+        (b.min.y >= min.y) &&
+        (b.max.y <= max.y);
   }
 
-  String toString() => "Bounds($min, $max)";
+  @override
+  String toString() => 'Bounds($min, $max)';
 }

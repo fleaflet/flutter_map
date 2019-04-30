@@ -1,11 +1,11 @@
 import 'package:tuple/tuple.dart';
 
-var _templateRe = new RegExp(r"\{ *([\w_-]+) *\}");
+var _templateRe = RegExp(r'\{ *([\w_-]+) *\}');
 String template(String str, Map<String, String> data) {
   return str.replaceAllMapped(_templateRe, (Match match) {
     var value = data[match.group(1)];
     if (value == null) {
-      throw ("No value provided for variable ${match.group(1)}");
+      throw Exception('No value provided for variable ${match.group(1)}');
     } else {
       return value;
     }

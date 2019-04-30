@@ -24,6 +24,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
   Animation _doubleTapZoomAnimation;
   Animation _doubleTapCenterAnimation;
 
+  @override
   FlutterMap get widget;
   MapState get mapState;
   MapState get map => mapState;
@@ -32,11 +33,11 @@ abstract class MapGestureMixin extends State<FlutterMap>
   @override
   void initState() {
     super.initState();
-    _controller = new AnimationController(vsync: this)
+    _controller = AnimationController(vsync: this)
       ..addListener(_handleFlingAnimation);
-    _doubleTapController = new AnimationController(
-        vsync: this, duration: Duration(milliseconds: 200))
-      ..addListener(_handleDoubleTapZoomAnimation);
+    _doubleTapController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 200))
+          ..addListener(_handleDoubleTapZoomAnimation);
   }
 
   void handleScaleStart(ScaleStartDetails details) {
@@ -66,14 +67,19 @@ abstract class MapGestureMixin extends State<FlutterMap>
   }
 
   void handleScaleEnd(ScaleEndDetails details) {
-    final double magnitude = details.velocity.pixelsPerSecond.distance;
-    if (magnitude < _kMinFlingVelocity) return;
-    final Offset direction = details.velocity.pixelsPerSecond / magnitude;
-    final double distance = (Offset.zero & context.size).shortestSide;
-    _flingAnimation = new Tween<Offset>(
+    var magnitude = details.velocity.pixelsPerSecond.distance;
+    if (magnitude < _kMinFlingVelocity) {
+      return;
+    }
+
+    var direction = details.velocity.pixelsPerSecond / magnitude;
+    var distance = (Offset.zero & context.size).shortestSide;
+
+    _flingAnimation = Tween<Offset>(
       begin: _flingOffset,
       end: _flingOffset - direction * distance,
     ).animate(_controller);
+
     _controller
       ..value = 0.0
       ..fling(velocity: magnitude / 1000.0);
@@ -105,7 +111,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
     // convert the point to global coordinates
     var localPoint = _offsetToPoint(offset);
-    var localPointCenterDistance = new CustomPoint(
+    var localPointCenterDistance = CustomPoint(
         (width / 2) - localPoint.x, (height / 2) - localPoint.y);
     var mapCenter = map.project(map.center);
     var point = mapCenter - localPointCenterDistance;
@@ -167,18 +173,18 @@ abstract class MapGestureMixin extends State<FlutterMap>
     setState(() {
       _flingOffset = _flingAnimation.value;
       var newCenterPoint = map.project(_mapCenterStart) +
-          new CustomPoint(_flingOffset.dx, _flingOffset.dy);
+          CustomPoint(_flingOffset.dx, _flingOffset.dy);
       var newCenter = map.unproject(newCenterPoint);
       map.move(newCenter, map.zoom, hasGesture: true);
     });
   }
 
   CustomPoint _offsetToPoint(Offset offset) {
-    return new CustomPoint(offset.dx, offset.dy);
+    return CustomPoint(offset.dx, offset.dy);
   }
 
   Offset _pointToOffset(CustomPoint point) {
-    return new Offset(point.x.toDouble(), point.y.toDouble());
+    return Offset(point.x.toDouble(), point.y.toDouble());
   }
 
   Offset get _mapOffset =>

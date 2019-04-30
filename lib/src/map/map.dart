@@ -10,9 +10,10 @@ import 'package:latlong/latlong.dart';
 import 'package:flutter/material.dart';
 
 class MapControllerImpl implements MapController {
-  Completer<Null> _readyCompleter = new Completer<Null>();
+  final Completer<Null> _readyCompleter = Completer<Null>();
   MapState _state;
 
+  @override
   Future<Null> get onReady => _readyCompleter.future;
 
   set state(MapState state) {
@@ -22,10 +23,12 @@ class MapControllerImpl implements MapController {
     }
   }
 
+  @override
   void move(LatLng center, double zoom, {bool hasGesture = false}) {
     _state.move(center, zoom, hasGesture: hasGesture);
   }
 
+  @override
   void fitBounds(
     LatLngBounds bounds, {
     FitBoundsOptions options =
@@ -34,12 +37,16 @@ class MapControllerImpl implements MapController {
     _state.fitBounds(bounds, options);
   }
 
+  @override
   bool get ready => _state != null;
 
+  @override
   LatLng get center => _state.center;
 
+  @override
   LatLngBounds get bounds => _state.bounds;
 
+  @override
   double get zoom => _state.zoom;
 }
 
@@ -56,7 +63,7 @@ class MapState {
   CustomPoint _pixelOrigin;
   bool _initialized = false;
 
-  MapState(this.options) : _onMoveSink = new StreamController.broadcast();
+  MapState(this.options) : _onMoveSink = StreamController.broadcast();
 
   CustomPoint _size;
 
@@ -101,18 +108,18 @@ class MapState {
     _onMoveSink.add(null);
 
     if (options.onPositionChanged != null) {
-      options.onPositionChanged(new MapPosition(
-        center: center,
-        bounds: bounds,
-        zoom: zoom,
-      ), hasGesture);
+      options.onPositionChanged(
+          MapPosition(
+            center: center,
+            bounds: bounds,
+            zoom: zoom,
+          ),
+          hasGesture);
     }
   }
 
   double _fitZoomToBounds(double zoom) {
-    if (zoom == null) {
-      zoom = _zoom;
-    }
+    zoom ??= _zoom;
     // Abide to min/max zoom
     if (options.maxZoom != null) {
       zoom = (zoom > options.maxZoom) ? options.maxZoom : zoom;
@@ -125,7 +132,7 @@ class MapState {
 
   void fitBounds(LatLngBounds bounds, FitBoundsOptions options) {
     if (!bounds.isValid) {
-      throw ("Bounds are not valid.");
+      throw Exception('Bounds are not valid.');
     }
     var target = _getBoundsCenterZoom(bounds, options);
     move(target.center, target.zoom);
@@ -148,7 +155,7 @@ class MapState {
 
   LatLngBounds _calculateBounds() {
     var bounds = getPixelBounds(zoom);
-    return new LatLngBounds(
+    return LatLngBounds(
       unproject(bounds.bottomLeft),
       unproject(bounds.topRight),
     );
@@ -156,7 +163,8 @@ class MapState {
 
   CenterZoom _getBoundsCenterZoom(
       LatLngBounds bounds, FitBoundsOptions options) {
-    var paddingTL = CustomPoint<double>(options.padding.left, options.padding.top);
+    var paddingTL =
+        CustomPoint<double>(options.padding.left, options.padding.top);
     var paddingBR =
         CustomPoint<double>(options.padding.right, options.padding.bottom);
 
@@ -169,7 +177,7 @@ class MapState {
     var swPoint = project(bounds.southWest, zoom);
     var nePoint = project(bounds.northEast, zoom);
     var center = unproject((swPoint + nePoint) / 2 + paddingOffset, zoom);
-    return new CenterZoom(
+    return CenterZoom(
       center: center,
       zoom: zoom,
     );
@@ -178,12 +186,12 @@ class MapState {
   double getBoundsZoom(LatLngBounds bounds, CustomPoint<double> padding,
       {bool inside = false}) {
     var zoom = this.zoom ?? 0.0;
-    var min = this.options.minZoom ?? 0.0;
-    var max = this.options.maxZoom ?? double.infinity;
+    var min = options.minZoom ?? 0.0;
+    var max = options.maxZoom ?? double.infinity;
     var nw = bounds.northWest;
     var se = bounds.southEast;
     var size = this.size - padding;
-    var boundsSize = new Bounds(project(se, zoom), project(nw, zoom)).size;
+    var boundsSize = Bounds(project(se, zoom), project(nw, zoom)).size;
     var scaleX = size.x / boundsSize.x;
     var scaleY = size.y / boundsSize.y;
     var scale = inside ? math.max(scaleX, scaleY) : math.min(scaleX, scaleY);
@@ -194,16 +202,12 @@ class MapState {
   }
 
   CustomPoint project(LatLng latlng, [double zoom]) {
-    if (zoom == null) {
-      zoom = _zoom;
-    }
+    zoom ??= _zoom;
     return options.crs.latLngToPoint(latlng, zoom);
   }
 
   LatLng unproject(CustomPoint point, [double zoom]) {
-    if (zoom == null) {
-      zoom = _zoom;
-    }
+    zoom ??= _zoom;
     return options.crs.pointToLatLng(point, zoom);
   }
 
@@ -236,15 +240,15 @@ class MapState {
   }
 
   CustomPoint getNewPixelOrigin(LatLng center, [double zoom]) {
-    var viewHalf = this.size / 2.0;
-    return (this.project(center, zoom) - viewHalf).round();
+    var viewHalf = size / 2.0;
+    return (project(center, zoom) - viewHalf).round();
   }
 
   Bounds getPixelBounds(double zoom) {
     var mapZoom = zoom;
     var scale = getZoomScale(mapZoom, zoom);
     var pixelCenter = project(center, zoom).floor();
-    CustomPoint<num> halfSize = size / (scale * 2);
-    return new Bounds(pixelCenter - halfSize, pixelCenter + halfSize);
+    var halfSize = size / (scale * 2);
+    return Bounds(pixelCenter - halfSize, pixelCenter + halfSize);
   }
 }

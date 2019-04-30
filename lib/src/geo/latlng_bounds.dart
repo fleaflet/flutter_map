@@ -22,8 +22,8 @@ class LatLngBounds {
 
   void _extend(LatLng sw2, LatLng ne2) {
     if (sw == null && ne == null) {
-      sw = new LatLng(sw2.latitude, sw2.longitude);
-      ne = new LatLng(ne2.latitude, ne2.longitude);
+      sw = LatLng(sw2.latitude, sw2.longitude);
+      ne = LatLng(ne2.latitude, ne2.longitude);
     } else {
       sw.latitude = math.min(sw2.latitude, sw.latitude);
       sw.longitude = math.min(sw2.longitude, sw.longitude);
@@ -39,8 +39,8 @@ class LatLngBounds {
 
   LatLng get southWest => sw;
   LatLng get northEast => ne;
-  LatLng get northWest => new LatLng(north, west);
-  LatLng get southEast => new LatLng(south, east);
+  LatLng get northWest => LatLng(north, west);
+  LatLng get southEast => LatLng(south, east);
 
   bool get isValid {
     return sw != null && ne != null;
@@ -49,7 +49,7 @@ class LatLngBounds {
   bool contains(LatLng point) {
     var sw2 = point;
     var ne2 = point;
-    return containsBounds(new LatLngBounds(sw2, ne2));
+    return containsBounds(LatLngBounds(sw2, ne2));
   }
 
   bool containsBounds(LatLngBounds bounds) {

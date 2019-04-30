@@ -1,42 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import '../widgets/drawer.dart';
 import 'package:latlong/latlong.dart';
 
-class PolylinePage extends StatelessWidget {
-  static const String route = "polyline";
+import '../widgets/drawer.dart';
 
+class PolylinePage extends StatelessWidget {
+  static const String route = 'polyline';
+
+  @override
   Widget build(BuildContext context) {
     var points = <LatLng>[
-      new LatLng(51.5, -0.09),
-      new LatLng(53.3498, -6.2603),
-      new LatLng(48.8566, 2.3522),
+      LatLng(51.5, -0.09),
+      LatLng(53.3498, -6.2603),
+      LatLng(48.8566, 2.3522),
     ];
-    return new Scaffold(
-      appBar: new AppBar(title: new Text("Polylines")),
+    return Scaffold(
+      appBar: AppBar(title: Text('Polylines')),
       drawer: buildDrawer(context, PolylinePage.route),
-      body: new Padding(
-        padding: new EdgeInsets.all(8.0),
-        child: new Column(
+      body: Padding(
+        padding: EdgeInsets.all(8.0),
+        child: Column(
           children: [
-            new Padding(
-              padding: new EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: new Text("Polylines"),
+            Padding(
+              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+              child: Text('Polylines'),
             ),
-            new Flexible(
-              child: new FlutterMap(
-                options: new MapOptions(
-                  center: new LatLng(51.5, -0.09),
+            Flexible(
+              child: FlutterMap(
+                options: MapOptions(
+                  center: LatLng(51.5, -0.09),
                   zoom: 5.0,
                 ),
                 layers: [
-                  new TileLayerOptions(
+                  TileLayerOptions(
                       urlTemplate:
-                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                       subdomains: ['a', 'b', 'c']),
-                  new PolylineLayerOptions(
+                  PolylineLayerOptions(
                     polylines: [
-                      new Polyline(
+                      Polyline(
                           points: points,
                           strokeWidth: 4.0,
                           color: Colors.purple),
