@@ -15,8 +15,9 @@ class GroupLayer extends StatelessWidget {
 
   GroupLayer(this.groupOpts, this.map, this.stream);
 
+  @override
   Widget build(BuildContext context) {
-    return new LayoutBuilder(
+    return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints bc) {
         return _build(context);
       },
@@ -26,10 +27,12 @@ class GroupLayer extends StatelessWidget {
   Widget _build(BuildContext context) {
     var layers = <Widget>[];
 
-    groupOpts.group.forEach((options) => layers.add(_createLayer(options)));
+    for (var options in groupOpts.group) {
+      layers.add(_createLayer(options));
+    }
 
-    return new Container(
-      child: new Stack(
+    return Container(
+      child: Stack(
         children: layers,
       ),
     );
@@ -37,20 +40,20 @@ class GroupLayer extends StatelessWidget {
 
   Widget _createLayer(LayerOptions options) {
     if (options is MarkerLayerOptions) {
-      return new MarkerLayer(options, map, options.rebuild);
+      return MarkerLayer(options, map, options.rebuild);
     }
     if (options is CircleLayerOptions) {
-      return new CircleLayer(options, map, options.rebuild);
+      return CircleLayer(options, map, options.rebuild);
     }
     if (options is PolylineLayerOptions) {
-      return new PolylineLayer(options, map, options.rebuild);
+      return PolylineLayer(options, map, options.rebuild);
     }
     if (options is PolygonLayerOptions) {
-      return new PolygonLayer(options, map, options.rebuild);
+      return PolygonLayer(options, map, options.rebuild);
     }
     if (options is OverlayImageLayerOptions) {
-      return new OverlayImageLayer(options, map, options.rebuild);
+      return OverlayImageLayer(options, map, options.rebuild);
     }
-    throw ("Unknown options type for GeometryLayer: $options");
+    throw Exception('Unknown options type for GeometryLayer: $options');
   }
 }

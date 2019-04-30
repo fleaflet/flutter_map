@@ -11,7 +11,7 @@
 - remove layers property from MapOptions (#193)
 
 Thanks to @SamuelRioTz, @jecoz, @4kssoft, @bugWebDeveloper, @RaimundWege,
-@vincetus, and @etzuk for this release!
+@vinicentus, and @etzuk for this release!
 
 ## [0.4.0] - 12/31/2018
 - Zoom to focal point on double tap and scale gestures (#121)
@@ -58,7 +58,7 @@ Thanks to @LJaraCastillo, @ubilabs, @xqwzts, @vinicentus, and @lsaudon for this
 release!
 
 ## [0.1.0] - 8/21/2018
-- Set Dart SDK to ">=2.0.0 <3.0.0"
+- Set Dart SDK to 2
 
 ## [0.0.11] - 8/2/2018
 - upgrade to latlong from 0.4.0 to 0.5.3
