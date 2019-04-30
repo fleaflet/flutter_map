@@ -284,13 +284,12 @@ class _TileLayerState extends State<TileLayer> {
     // wrapping
     _wrapX = crs.wrapLng;
     if (_wrapX != null) {
-      var first = (map.project(LatLng(0.0, crs.wrapLng.item1), tileZoom).x /
-              tileSize.x)
-          .floor()
-          .toDouble();
+      var first =
+          (map.project(LatLng(0.0, crs.wrapLng.item1), tileZoom).x / tileSize.x)
+              .floor()
+              .toDouble();
       var second =
-          (map.project(LatLng(0.0, crs.wrapLng.item2), tileZoom).x /
-                  tileSize.y)
+          (map.project(LatLng(0.0, crs.wrapLng.item2), tileZoom).x / tileSize.y)
               .ceil()
               .toDouble();
       _wrapX = Tuple2(first, second);
@@ -298,13 +297,12 @@ class _TileLayerState extends State<TileLayer> {
 
     _wrapY = crs.wrapLat;
     if (_wrapY != null) {
-      var first = (map.project(LatLng(crs.wrapLat.item1, 0.0), tileZoom).y /
-              tileSize.x)
-          .floor()
-          .toDouble();
+      var first =
+          (map.project(LatLng(crs.wrapLat.item1, 0.0), tileZoom).y / tileSize.x)
+              .floor()
+              .toDouble();
       var second =
-          (map.project(LatLng(crs.wrapLat.item2, 0.0), tileZoom).y /
-                  tileSize.y)
+          (map.project(LatLng(crs.wrapLat.item2, 0.0), tileZoom).y / tileSize.y)
               .ceil()
               .toDouble();
       _wrapY = Tuple2(first, second);
@@ -514,7 +512,7 @@ abstract class TileProvider {
     if (options.tms) {
       data['y'] = _invertY(coords.y.round(), coords.z.round()).toString();
     }
-    var allOpts = Map.from(data)
+    var allOpts = Map<String, String>.from(data)
       ..addAll(options.additionalOptions);
     return util.template(options.urlTemplate, allOpts);
   }
