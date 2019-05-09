@@ -55,8 +55,13 @@ Configure the map using `MapOptions` and layer options:
   }
 ```
 
-See the `flutter_map_example/` folder for a working example app.
+### Run the example
 
+See the `example/` folder for a working example app.
+
+To run it, in a terminal cd into the folder.
+Then execute `ulimit -S -n 2048` ([ref](https://github.com/trentpiercy/trace/issues/1#issuecomment-404494469)).
+Then execute `flutter run` with a running emulator.
 
 ## Mapbox Tiles
 
@@ -88,7 +93,8 @@ To use, you'll need a mapbox key:
 
 ## Offline maps
 [Follow this guide to grab offline tiles](https://tilemill-project.github.io/tilemill/docs/guides/osm-bright-mac-quickstart/)<br>
-Once you have your map exported to `.mbtiles`, you can use [mbtilesToPng](https://github.com/alfanhui/mbtilesToPngs) to unpack into `/{z}/{x}/{y}.png`. Move this to Assets folder and add  Asset directories to `pubspec.yaml`. Minimum required fields for offline maps are:
+Once you have your map exported to `.mbtiles`, you can use [mbtilesToPng](https://github.com/alfanhui/mbtilesToPngs) to unpack into `/{z}/{x}/{y}.png`. 
+Move this to Assets folder and add asset directories to `pubspec.yaml`. Minimum required fields for offline maps are:
 
 ```dart
 new FlutterMap(
@@ -102,7 +108,7 @@ new FlutterMap(
   ),
   layers: [
     new TileLayerOptions(
-      offlineMode: true,
+      tileProvider: AssetTileProvider(),
       maxZoom: <offline map maximum zoom>,
       urlTemplate: "assets/offlineMap/{z}/{x}/{y}.png",
     ),
@@ -112,6 +118,8 @@ new FlutterMap(
 
 Make sure PanBoundaries are within offline map boundary to stop missing asset errors.<br>
 See the `flutter_map_example/` folder for a working example.<br>
+
+Note that there is also `FileTileProvider()`, which you can use to load tiles from the filesystem.
 
 
 ## Roadmap

@@ -62,34 +62,31 @@ class TileLayerOptions extends LayerOptions {
   ///Color shown behind the tiles.
   final Color backgroundColor;
 
-  ///Turns on/off the offlineMode.
+  /// Provider to load the tiles. The default is CachedNetworkTileProvider,
+  /// which loads tile images from network and caches them offline.
   ///
-  ///Requires the urlTemplate to target assets or a filesystem path.
+  /// If you don't want to cache the tiles, use NetworkTileProvider instead.
   ///
-  ///Example:
+  /// In order to use images from the asset folder set this option to
+  /// AssetTileProvider() Note that it requires the urlTemplate to target
+  /// assets, for example:
   ///
   ///```dart
   ///urlTemplate: "assets/map/anholt_osmbright/{z}/{x}/{y}.png",
   ///```
   ///
-  ///or:
+  /// In order to use images from the filesystem set this option to
+  /// FileTileProvider() Note that it requires the urlTemplate to target the
+  /// file system, for example:
   ///
   ///```dart
   ///urlTemplate: "/storage/emulated/0/tiles/some_place/{z}/{x}/{y}.png",
   ///```
-  final bool offlineMode;
-
-  ///Reads the tiles from the assets folder in the project.
-  ///If true, reads the tiles from the project assets folder.
-  ///If false, reads the tiles from the device filesystem.
-  ///The later requires permissions to read the device files in Android.
-  final bool fromAssets;
-
-  /// Use CachedNetworkImageProvider instead NetworkImageWithRetry
-  /// If true, every tile loaded will be storage on cache memory
-  /// If false, will download every tiles again after every restart the app
-  /// default is true
-  final bool cachedTiles;
+  ///
+  /// Furthermore you create your custom implementation by subclassing
+  /// TileProvider
+  ///
+  final TileProvider tileProvider;
 
   /// When panning the map, keep this many rows and columns of tiles before
   /// unloading them.
@@ -108,10 +105,8 @@ class TileLayerOptions extends LayerOptions {
       this.keepBuffer = 2,
       this.backgroundColor = const Color(0xFFE0E0E0), // grey[300]
       this.placeholderImage,
-      this.offlineMode = false,
+      this.tileProvider = const CachedNetworkTileProvider(),
       this.tms = false,
-      this.fromAssets = true,
-      this.cachedTiles = true,
       rebuild})
       : super(rebuild: rebuild);
 }
@@ -127,8 +122,9 @@ class TileLayer extends StatefulWidget {
     this.stream,
   });
 
+  @override
   State<StatefulWidget> createState() {
-    return new _TileLayerState();
+    return _TileLayerState();
   }
 }
 
@@ -143,52 +139,36 @@ class _TileLayerState extends State<TileLayer> {
   Level _level;
   StreamSubscription _moveSub;
 
-  Map<String, Tile> _tiles = {};
-  Map<double, Level> _levels = {};
+  final Map<String, Tile> _tiles = {};
+  final Map<double, Level> _levels = {};
 
+  @override
   void initState() {
     super.initState();
     _resetView();
     _moveSub = widget.stream.listen((_) => _handleMove());
   }
 
+  @override
   void dispose() {
     super.dispose();
     _moveSub?.cancel();
+    options.tileProvider.dispose();
   }
 
   void _handleMove() {
     setState(() {
       _pruneTiles();
-      this._resetView();
+      _resetView();
     });
   }
 
-  String getTileUrl(Coords coords) {
-    var data = <String, String>{
-      'x': coords.x.round().toString(),
-      'y': coords.y.round().toString(),
-      'z': coords.z.round().toString(),
-      's': _getSubdomain(coords)
-    };
-    if (this.options.tms) {
-      data['y'] = _invertY(coords.y.round(), coords.z.round()).toString();
-    }
-    Map<String, String> allOpts = new Map.from(data)
-      ..addAll(this.options.additionalOptions);
-    return util.template(this.options.urlTemplate, allOpts);
-  }
-
-  int _invertY(int y, int z) {
-    return ((1 << z) - 1) - y;
-  }
-
   void _resetView() {
-    this._setView(map.center, map.zoom);
+    _setView(map.center, map.zoom);
   }
 
   void _setView(LatLng center, double zoom) {
-    var tileZoom = this._clampZoom(zoom.round().toDouble());
+    var tileZoom = _clampZoom(zoom.round().toDouble());
     if (_tileZoom != tileZoom) {
       _tileZoom = tileZoom;
       _updateLevels();
@@ -198,14 +178,14 @@ class _TileLayerState extends State<TileLayer> {
   }
 
   Level _updateLevels() {
-    var zoom = this._tileZoom;
-    var maxZoom = this.options.maxZoom;
+    var zoom = _tileZoom;
+    var maxZoom = options.maxZoom;
 
     if (zoom == null) return null;
 
-    List<double> toRemove = [];
-    for (var z in this._levels.keys) {
-      if (_levels[z].children.length > 0 || z == zoom) {
+    var toRemove = <double>[];
+    for (var z in _levels.keys) {
+      if (_levels[z].children.isNotEmpty || z == zoom) {
         _levels[z].zIndex = maxZoom = (zoom - z).abs();
       } else {
         toRemove.add(z);
@@ -220,35 +200,34 @@ class _TileLayerState extends State<TileLayer> {
     var map = this.map;
 
     if (level == null) {
-      level = _levels[zoom] = new Level();
+      level = _levels[zoom] = Level();
       level.zIndex = maxZoom;
       var newOrigin = map.project(map.unproject(map.getPixelOrigin()), zoom);
       if (newOrigin != null) {
         level.origin = newOrigin;
       } else {
-        level.origin = new CustomPoint(0.0, 0.0);
+        level.origin = CustomPoint(0.0, 0.0);
       }
       level.zoom = zoom;
 
       _setZoomTransform(level, map.center, map.zoom);
     }
-    this._level = level;
+    _level = level;
     return level;
   }
 
   void _pruneTiles() {
     var center = map.center;
-    var pixelBounds = this._getTiledPixelBounds(center);
+    var pixelBounds = _getTiledPixelBounds(center);
     var tileRange = _pxBoundsToTileRange(pixelBounds);
-    var margin = this.options.keepBuffer ?? 2;
-    var noPruneRange = new Bounds(
-        tileRange.bottomLeft - new CustomPoint(margin, -margin),
-        tileRange.topRight + new CustomPoint(margin, -margin));
+    var margin = options.keepBuffer ?? 2;
+    var noPruneRange = Bounds(
+        tileRange.bottomLeft - CustomPoint(margin, -margin),
+        tileRange.topRight + CustomPoint(margin, -margin));
     for (var tileKey in _tiles.keys) {
       var tile = _tiles[tileKey];
       var c = tile.coords;
-      if (c.z != _tileZoom ||
-          !noPruneRange.contains(new CustomPoint(c.x, c.y))) {
+      if (c.z != _tileZoom || !noPruneRange.contains(CustomPoint(c.x, c.y))) {
         tile.current = false;
       }
     }
@@ -267,13 +246,13 @@ class _TileLayerState extends State<TileLayer> {
   }
 
   void _setZoomTransforms(LatLng center, double zoom) {
-    for (var i in this._levels.keys) {
-      this._setZoomTransform(_levels[i], center, zoom);
+    for (var i in _levels.keys) {
+      _setZoomTransform(_levels[i], center, zoom);
     }
   }
 
   void _removeTilesAtZoom(double zoom) {
-    List<String> toRemove = [];
+    var toRemove = <String>[];
     for (var key in _tiles.keys) {
       if (_tiles[key].coords.z != zoom) {
         continue;
@@ -296,7 +275,7 @@ class _TileLayerState extends State<TileLayer> {
   void _resetGrid() {
     var map = this.map;
     var crs = map.options.crs;
-    var tileSize = this.getTileSize();
+    var tileSize = getTileSize();
     var tileZoom = _tileZoom;
 
     var bounds = map.getPixelWorldBounds(_tileZoom);
@@ -305,32 +284,30 @@ class _TileLayerState extends State<TileLayer> {
     }
 
     // wrapping
-    this._wrapX = crs.wrapLng;
+    _wrapX = crs.wrapLng;
     if (_wrapX != null) {
-      var first = (map.project(new LatLng(0.0, crs.wrapLng.item1), tileZoom).x /
-              tileSize.x)
-          .floor()
-          .toDouble();
+      var first =
+          (map.project(LatLng(0.0, crs.wrapLng.item1), tileZoom).x / tileSize.x)
+              .floor()
+              .toDouble();
       var second =
-          (map.project(new LatLng(0.0, crs.wrapLng.item2), tileZoom).x /
-                  tileSize.y)
+          (map.project(LatLng(0.0, crs.wrapLng.item2), tileZoom).x / tileSize.y)
               .ceil()
               .toDouble();
-      _wrapX = new Tuple2(first, second);
+      _wrapX = Tuple2(first, second);
     }
 
-    this._wrapY = crs.wrapLat;
+    _wrapY = crs.wrapLat;
     if (_wrapY != null) {
-      var first = (map.project(new LatLng(crs.wrapLat.item1, 0.0), tileZoom).y /
-              tileSize.x)
-          .floor()
-          .toDouble();
+      var first =
+          (map.project(LatLng(crs.wrapLat.item1, 0.0), tileZoom).y / tileSize.x)
+              .floor()
+              .toDouble();
       var second =
-          (map.project(new LatLng(crs.wrapLat.item2, 0.0), tileZoom).y /
-                  tileSize.y)
+          (map.project(LatLng(crs.wrapLat.item2, 0.0), tileZoom).y / tileSize.y)
               .ceil()
               .toDouble();
-      _wrapY = new Tuple2(first, second);
+      _wrapY = Tuple2(first, second);
     }
   }
 
@@ -340,19 +317,20 @@ class _TileLayerState extends State<TileLayer> {
   }
 
   CustomPoint getTileSize() {
-    return new CustomPoint(options.tileSize, options.tileSize);
+    return CustomPoint(options.tileSize, options.tileSize);
   }
 
+  @override
   Widget build(BuildContext context) {
     var pixelBounds = _getTiledPixelBounds(map.center);
     var tileRange = _pxBoundsToTileRange(pixelBounds);
-    CustomPoint<double> tileCenter = tileRange.getCenter();
+    var tileCenter = tileRange.getCenter();
     var queue = <Coords>[];
 
     // mark tiles as out of view...
-    for (var key in this._tiles.keys) {
-      var c = this._tiles[key].coords;
-      if (c.z != this._tileZoom) {
+    for (var key in _tiles.keys) {
+      var c = _tiles[key].coords;
+      if (c.z != _tileZoom) {
         _tiles[key].current = false;
       }
     }
@@ -361,10 +339,10 @@ class _TileLayerState extends State<TileLayer> {
 
     for (var j = tileRange.min.y; j <= tileRange.max.y; j++) {
       for (var i = tileRange.min.x; i <= tileRange.max.x; i++) {
-        var coords = new Coords(i.toDouble(), j.toDouble());
-        coords.z = this._tileZoom;
+        var coords = Coords(i.toDouble(), j.toDouble());
+        coords.z = _tileZoom;
 
-        if (!this._isValidTile(coords)) {
+        if (!_isValidTile(coords)) {
           continue;
         }
 
@@ -373,10 +351,9 @@ class _TileLayerState extends State<TileLayer> {
       }
     }
 
-    if (queue.length > 0) {
+    if (queue.isNotEmpty) {
       for (var i = 0; i < queue.length; i++) {
-        _tiles[_tileCoordsToKey(queue[i])] =
-            new Tile(_wrapCoords(queue[i]), true);
+        _tiles[_tileCoordsToKey(queue[i])] = Tile(_wrapCoords(queue[i]), true);
       }
     }
 
@@ -402,11 +379,11 @@ class _TileLayerState extends State<TileLayer> {
       tileWidgets.add(_createTileWidget(tile.coords));
     }
 
-    return new Container(
-      child: new Stack(
+    return Container(
+      child: Stack(
         children: tileWidgets,
       ),
-      color: this.options.backgroundColor,
+      color: options.backgroundColor,
     );
   }
 
@@ -415,10 +392,10 @@ class _TileLayerState extends State<TileLayer> {
   }
 
   Bounds _pxBoundsToTileRange(Bounds bounds) {
-    var tileSize = this.getTileSize();
-    return new Bounds(
+    var tileSize = getTileSize();
+    return Bounds(
       bounds.min.unscaleBy(tileSize).floor(),
-      bounds.max.unscaleBy(tileSize).ceil() - new CustomPoint(1, 1),
+      bounds.max.unscaleBy(tileSize).ceil() - CustomPoint(1, 1),
     );
   }
 
@@ -437,7 +414,7 @@ class _TileLayerState extends State<TileLayer> {
   }
 
   String _tileCoordsToKey(Coords coords) {
-    return "${coords.x}:${coords.y}:${coords.z}";
+    return '${coords.x}:${coords.y}:${coords.z}';
   }
 
   Widget _createTileWidget(Coords coords) {
@@ -448,43 +425,27 @@ class _TileLayerState extends State<TileLayer> {
     var width = tileSize.x * level.scale;
     var height = tileSize.y * level.scale;
 
-    return new Positioned(
+    return Positioned(
       left: pos.x.toDouble(),
       top: pos.y.toDouble(),
       width: width.toDouble(),
       height: height.toDouble(),
-      child: new Container(
-        child: new FadeInImage(
+      child: Container(
+        child: FadeInImage(
           fadeInDuration: const Duration(milliseconds: 100),
-          key: new Key(_tileCoordsToKey(coords)),
+          key: Key(_tileCoordsToKey(coords)),
           placeholder: options.placeholderImage != null
               ? options.placeholderImage
-              : new MemoryImage(kTransparentImage),
-          image: _getImageProvider(getTileUrl(coords)),
+              : MemoryImage(kTransparentImage),
+          image: options.tileProvider.getImage(coords, options),
           fit: BoxFit.fill,
         ),
       ),
     );
   }
 
-  ImageProvider _getImageProvider(String url) {
-    if (options.offlineMode) {
-      if (options.fromAssets) {
-        return new AssetImage(url);
-      } else {
-        return new FileImage(new File(url));
-      }
-    } else {
-      if (options.cachedTiles) {
-        return new CachedNetworkImageProvider(url);
-      } else {
-        return new NetworkImageWithRetry(url);
-      }
-    }
-  }
-
   Coords _wrapCoords(Coords coords) {
-    var newCoords = new Coords(
+    var newCoords = Coords(
       _wrapX != null
           ? util.wrapNum(coords.x.toDouble(), _wrapX)
           : coords.x.toDouble(),
@@ -498,15 +459,7 @@ class _TileLayerState extends State<TileLayer> {
 
   CustomPoint _getTilePos(Coords coords) {
     var level = _levels[coords.z];
-    return coords.scaleBy(this.getTileSize()) - level.origin;
-  }
-
-  String _getSubdomain(Coords coords) {
-    if (options.subdomains.isEmpty) {
-      return "";
-    }
-    var index = (coords.x + coords.y).round() % this.options.subdomains.length;
-    return options.subdomains[index];
+    return coords.scaleBy(getTileSize()) - level.origin;
   }
 }
 
@@ -531,14 +484,82 @@ class Coords<T extends num> extends CustomPoint<T> {
 
   Coords(T x, T y) : super(x, y);
 
+  @override
   String toString() => 'Coords($x, $y, $z)';
 
+  @override
   bool operator ==(dynamic other) {
     if (other is Coords) {
-      return this.x == other.x && this.y == other.y && this.z == other.z;
+      return x == other.x && y == other.y && z == other.z;
     }
     return false;
   }
 
+  @override
   int get hashCode => hashValues(x.hashCode, y.hashCode, z.hashCode);
+}
+
+abstract class TileProvider {
+  const TileProvider();
+
+  ImageProvider getImage(Coords coords, TileLayerOptions options);
+
+  dispose() {}
+
+  String _getTileUrl(Coords coords, TileLayerOptions options) {
+    var data = <String, String>{
+      'x': coords.x.round().toString(),
+      'y': coords.y.round().toString(),
+      'z': coords.z.round().toString(),
+      's': _getSubdomain(coords, options)
+    };
+    if (options.tms) {
+      data['y'] = invertY(coords.y.round(), coords.z.round()).toString();
+    }
+    var allOpts = Map<String, String>.from(data)
+      ..addAll(options.additionalOptions);
+    return util.template(options.urlTemplate, allOpts);
+  }
+
+  int invertY(int y, int z) {
+    return ((1 << z) - 1) - y;
+  }
+
+  String _getSubdomain(Coords coords, TileLayerOptions options) {
+    if (options.subdomains.isEmpty) {
+      return '';
+    }
+    var index = (coords.x + coords.y).round() % options.subdomains.length;
+    return options.subdomains[index];
+  }
+}
+
+class CachedNetworkTileProvider extends TileProvider {
+  const CachedNetworkTileProvider();
+
+  @override
+  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
+    return CachedNetworkImageProvider(_getTileUrl(coords, options));
+  }
+}
+
+class NetworkTileProvider extends TileProvider {
+  @override
+  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
+    return NetworkImageWithRetry(_getTileUrl(coords, options));
+  }
+}
+
+class AssetTileProvider extends TileProvider {
+  @override
+  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
+    return AssetImage(_getTileUrl(coords, options));
+  }
+}
+
+class FileTileProvider extends TileProvider {
+  @override
+  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
+    return FileImage(File(_getTileUrl(coords, options)));
+  }
 }

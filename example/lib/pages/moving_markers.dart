@@ -2,15 +2,16 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import '../widgets/drawer.dart';
 import 'package:latlong/latlong.dart';
+
+import '../widgets/drawer.dart';
 
 class MovingMarkersPage extends StatefulWidget {
   static const String route = '/moving_markers';
 
   @override
   _MovingMarkersPageState createState() {
-    return new _MovingMarkersPageState();
+    return _MovingMarkersPageState();
   }
 }
 
@@ -19,6 +20,7 @@ class _MovingMarkersPageState extends State<MovingMarkersPage> {
   Timer _timer;
   int _markerIndex = 0;
 
+  @override
   void initState() {
     super.initState();
     _marker = _markers[_markerIndex];
@@ -30,35 +32,37 @@ class _MovingMarkersPageState extends State<MovingMarkersPage> {
     });
   }
 
+  @override
   void dispose() {
     super.dispose();
     _timer.cancel();
   }
 
+  @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(title: new Text("Home")),
+    return Scaffold(
+      appBar: AppBar(title: Text('Home')),
       drawer: buildDrawer(context, MovingMarkersPage.route),
-      body: new Padding(
-        padding: new EdgeInsets.all(8.0),
-        child: new Column(
+      body: Padding(
+        padding: EdgeInsets.all(8.0),
+        child: Column(
           children: [
-            new Padding(
-              padding: new EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: new Text("This is a map that is showing (51.5, -0.9)."),
+            Padding(
+              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+              child: Text('This is a map that is showing (51.5, -0.9).'),
             ),
-            new Flexible(
-              child: new FlutterMap(
-                options: new MapOptions(
-                  center: new LatLng(51.5, -0.09),
+            Flexible(
+              child: FlutterMap(
+                options: MapOptions(
+                  center: LatLng(51.5, -0.09),
                   zoom: 5.0,
                 ),
                 layers: [
-                  new TileLayerOptions(
+                  TileLayerOptions(
                       urlTemplate:
-                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                       subdomains: ['a', 'b', 'c']),
-                  new MarkerLayerOptions(markers: <Marker>[_marker])
+                  MarkerLayerOptions(markers: <Marker>[_marker])
                 ],
               ),
             ),
@@ -70,28 +74,28 @@ class _MovingMarkersPageState extends State<MovingMarkersPage> {
 }
 
 List<Marker> _markers = [
-  new Marker(
+  Marker(
     width: 80.0,
     height: 80.0,
-    point: new LatLng(51.5, -0.09),
-    builder: (ctx) => new Container(
-          child: new FlutterLogo(),
+    point: LatLng(51.5, -0.09),
+    builder: (ctx) => Container(
+          child: FlutterLogo(),
         ),
   ),
-  new Marker(
+  Marker(
     width: 80.0,
     height: 80.0,
-    point: new LatLng(53.3498, -6.2603),
-    builder: (ctx) => new Container(
-          child: new FlutterLogo(),
+    point: LatLng(53.3498, -6.2603),
+    builder: (ctx) => Container(
+          child: FlutterLogo(),
         ),
   ),
-  new Marker(
+  Marker(
     width: 80.0,
     height: 80.0,
-    point: new LatLng(48.8566, 2.3522),
-    builder: (ctx) => new Container(
-          child: new FlutterLogo(),
+    point: LatLng(48.8566, 2.3522),
+    builder: (ctx) => Container(
+          child: FlutterLogo(),
         ),
   ),
 ];
