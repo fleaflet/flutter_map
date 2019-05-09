@@ -62,22 +62,23 @@ class TileLayerOptions extends LayerOptions {
   ///Color shown behind the tiles.
   final Color backgroundColor;
 
-  /// Provider to load the tiles. The default is
-  /// CachedNetworkTileProvider, which loads tile images from network and
-  /// caches them offline.
+  /// Provider to load the tiles. The default is CachedNetworkTileProvider,
+  /// which loads tile images from network and caches them offline.
   ///
   /// If you don't want to cache the tiles, use NetworkTileProvider instead.
   ///
-  /// In order to use images from the asset folder set this option
-  /// to AssetTileProvider()
-  ///  Note that it requires the urlTemplate to target assets, e.g.:
+  /// In order to use images from the asset folder set this option to
+  /// AssetTileProvider() Note that it requires the urlTemplate to target
+  /// assets, for example:
+  ///
   ///```dart
   ///urlTemplate: "assets/map/anholt_osmbright/{z}/{x}/{y}.png",
   ///```
   ///
-  /// In order to use images from the filesystem set this option
-  //  to FileTileProvider()
-  ///  Note that it requires the urlTemplate to target the file system, e.g.:
+  /// In order to use images from the filesystem set this option to
+  /// FileTileProvider() Note that it requires the urlTemplate to target the
+  /// file system, for example:
+  ///
   ///```dart
   ///urlTemplate: "/storage/emulated/0/tiles/some_place/{z}/{x}/{y}.png",
   ///```
@@ -559,6 +560,6 @@ class AssetTileProvider extends TileProvider {
 class FileTileProvider extends TileProvider {
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
-    return FileImage(new File(_getTileUrl(coords, options)));
+    return FileImage(File(_getTileUrl(coords, options)));
   }
 }
