@@ -124,13 +124,6 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
             Navigator.pushReplacementNamed(context, OverlayImagePage.route);
           },
         ),
-        new ListTile(
-          title: const Text('Follow My Location'),
-          selected: currentRoute == FollowMyLocationPage.route,
-          onTap: () {
-            Navigator.pushReplacementNamed(context, FollowMyLocationPage.route);
-          },
-        ),
       ],
     ),
   );
