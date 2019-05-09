@@ -108,7 +108,9 @@ class MapOptions {
   //if there is a pan boundary, do not cross
   bool isOutOfBounds(LatLng center) {
     if (swPanBoundary != null && nePanBoundary != null) {
-      if (center.latitude < swPanBoundary.latitude ||
+      if (center == null) {
+        return true;
+      } else if (center.latitude < swPanBoundary.latitude ||
           center.latitude > nePanBoundary.latitude) {
         return true;
       } else if (center.longitude < swPanBoundary.longitude ||
