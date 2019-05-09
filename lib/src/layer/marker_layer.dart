@@ -76,6 +76,7 @@ class Marker {
   final double width;
   final double height;
   final Anchor anchor;
+  final double minZoom;
 
   Marker({
     this.point,
@@ -83,6 +84,7 @@ class Marker {
     this.width = 30.0,
     this.height = 30.0,
     AnchorPos anchorPos,
+    this.minZoom = 0.0,
   }) : anchor = Anchor._forPos(anchorPos, width, height);
 }
 
@@ -100,6 +102,9 @@ class MarkerLayer extends StatelessWidget {
       builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
         var markers = <Widget>[];
         for (var markerOpt in markerOpts.markers) {
+          if (map.zoom < markerOpt.minZoom) {
+            continue;
+          }
           var pos = map.project(markerOpt.point);
           pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
               map.getPixelOrigin();
