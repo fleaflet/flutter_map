@@ -14,6 +14,7 @@ import 'package:latlong/latlong.dart';
 export 'package:flutter_map/src/core/point.dart';
 export 'src/geo/crs/crs.dart';
 export 'src/geo/latlng_bounds.dart';
+export 'src/layer/mbtiles/mbtiles_image_provider.dart';
 export 'src/layer/circle_layer.dart';
 export 'src/layer/group_layer.dart';
 export 'src/layer/layer.dart';

@@ -8,6 +8,7 @@ import '../pages/map_controller.dart';
 import '../pages/marker_anchor.dart';
 import '../pages/moving_markers.dart';
 import '../pages/offline_map.dart';
+import '../pages/offline_mbtiles_map.dart';
 import '../pages/on_tap.dart';
 import '../pages/overlay_image.dart';
 import '../pages/plugin_api.dart';
@@ -85,6 +86,14 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           selected: currentRoute == OfflineMapPage.route,
           onTap: () {
             Navigator.pushReplacementNamed(context, OfflineMapPage.route);
+          },
+        ),
+        ListTile(
+          title: const Text('Offline Map (using MBTiles)'),
+          selected: currentRoute == OfflineMBTilesMapPage.route,
+          onTap: () {
+            Navigator.pushReplacementNamed(
+                context, OfflineMBTilesMapPage.route);
           },
         ),
         ListTile(
