@@ -5,6 +5,7 @@
 .pub/
 build/
 ios/.generated/
+ios/.symlinks/
 packages
 pubspec.lock
 .flutter-plugins
