@@ -167,7 +167,7 @@ class _TileLayerState extends State<TileLayer> {
   }
 
   void _setView(LatLng center, double zoom) {
-    var tileZoom = _clampZoom(zoom);
+    var tileZoom = _clampZoom(zoom.round().toDouble());
     if (_tileZoom != tileZoom) {
       _tileZoom = tileZoom;
       _updateLevels();
