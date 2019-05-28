@@ -12,8 +12,11 @@ import 'package:flutter_map/src/map/map.dart';
 
 class OverlayImageLayerOptions extends LayerOptions {
   final List<OverlayImage> overlayImages;
-  OverlayImageLayerOptions({this.overlayImages = const [], rebuild})
-      : super(rebuild: rebuild);
+
+  OverlayImageLayerOptions({
+    this.overlayImages = const [],
+    Stream<void> rebuild,
+  }) : super(rebuild: rebuild);
 }
 
 class OverlayImage {
@@ -46,7 +49,7 @@ Future<ui.Image> _loadImage(img.ImageProvider imageProvider) async {
 class OverlayImageLayer extends StatelessWidget {
   final OverlayImageLayerOptions overlayImageOpts;
   final MapState map;
-  final Stream<Null> stream;
+  final Stream<void> stream;
 
   OverlayImageLayer(this.overlayImageOpts, this.map, this.stream);
 

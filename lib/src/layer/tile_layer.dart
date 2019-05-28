@@ -113,7 +113,7 @@ class TileLayerOptions extends LayerOptions {
 class TileLayer extends StatefulWidget {
   final TileLayerOptions options;
   final MapState mapState;
-  final Stream<Null> stream;
+  final Stream<void> stream;
 
   TileLayer({
     this.options,

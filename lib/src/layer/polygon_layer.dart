@@ -7,8 +7,11 @@ import 'package:latlong/latlong.dart' hide Path; // conflict with Path from UI
 
 class PolygonLayerOptions extends LayerOptions {
   final List<Polygon> polygons;
-  PolygonLayerOptions({this.polygons = const [], rebuild})
-      : super(rebuild: rebuild);
+
+  PolygonLayerOptions({
+    this.polygons = const [],
+    Stream<void> rebuild,
+  }) : super(rebuild: rebuild);
 }
 
 class Polygon {
@@ -29,7 +32,7 @@ class Polygon {
 class PolygonLayer extends StatelessWidget {
   final PolygonLayerOptions polygonOpts;
   final MapState map;
-  final Stream<Null> stream;
+  final Stream<void> stream;
 
   PolygonLayer(this.polygonOpts, this.map, this.stream);
 

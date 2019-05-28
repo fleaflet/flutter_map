@@ -7,8 +7,11 @@ import 'package:latlong/latlong.dart' hide Path; // conflict with Path from UI
 
 class CircleLayerOptions extends LayerOptions {
   final List<CircleMarker> circles;
-  CircleLayerOptions({this.circles = const [], rebuild})
-      : super(rebuild: rebuild);
+
+  CircleLayerOptions({
+    this.circles = const [],
+    Stream<void> rebuild,
+  }) : super(rebuild: rebuild);
 }
 
 class CircleMarker {
@@ -34,7 +37,8 @@ class CircleMarker {
 class CircleLayer extends StatelessWidget {
   final CircleLayerOptions circleOpts;
   final MapState map;
-  final Stream<Null> stream;
+  final Stream<void> stream;
+
   CircleLayer(this.circleOpts, this.map, this.stream);
 
   @override

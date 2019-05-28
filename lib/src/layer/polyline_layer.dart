@@ -8,8 +8,11 @@ import 'package:latlong/latlong.dart';
 
 class PolylineLayerOptions extends LayerOptions {
   final List<Polyline> polylines;
-  PolylineLayerOptions({this.polylines = const [], rebuild})
-      : super(rebuild: rebuild);
+
+  PolylineLayerOptions({
+    this.polylines = const [],
+    Stream<void> rebuild,
+  }) : super(rebuild: rebuild);
 }
 
 class Polyline {
@@ -34,7 +37,7 @@ class Polyline {
 class PolylineLayer extends StatelessWidget {
   final PolylineLayerOptions polylineOpts;
   final MapState map;
-  final Stream<Null> stream;
+  final Stream<void> stream;
 
   PolylineLayer(this.polylineOpts, this.map, this.stream);
 

@@ -5,8 +5,11 @@ import 'package:latlong/latlong.dart';
 
 class MarkerLayerOptions extends LayerOptions {
   final List<Marker> markers;
-  MarkerLayerOptions({this.markers = const [], rebuild})
-      : super(rebuild: rebuild);
+
+  MarkerLayerOptions({
+    this.markers = const [],
+    Stream<void> rebuild,
+  }) : super(rebuild: rebuild);
 }
 
 class Anchor {
@@ -92,7 +95,7 @@ class Marker {
 class MarkerLayer extends StatelessWidget {
   final MarkerLayerOptions markerOpts;
   final MapState map;
-  final Stream<Null> stream;
+  final Stream<void> stream;
 
   MarkerLayer(this.markerOpts, this.map, this.stream);
 

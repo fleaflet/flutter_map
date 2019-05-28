@@ -10,7 +10,7 @@ import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 
 class FlutterMapState extends MapGestureMixin {
   final MapControllerImpl mapController;
-  final List<StreamGroup<Null>> groups = <StreamGroup<Null>>[];
+  final List<StreamGroup<void>> groups = <StreamGroup<void>>[];
 
   @override
   MapOptions get options => widget.options ?? MapOptions();
@@ -41,10 +41,10 @@ class FlutterMapState extends MapGestureMixin {
     super.dispose();
   }
 
-  Stream<Null> _merge(LayerOptions options) {
+  Stream<void> _merge(LayerOptions options) {
     if (options?.rebuild == null) return mapState.onMoved;
 
-    var group = StreamGroup<Null>();
+    var group = StreamGroup<void>();
     group.add(mapState.onMoved);
     group.add(options.rebuild);
     groups.add(group);

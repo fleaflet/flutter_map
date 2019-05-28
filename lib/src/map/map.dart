@@ -8,14 +8,12 @@ import 'package:flutter_map/src/core/center_zoom.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:latlong/latlong.dart';
 
-import 'package:flutter/material.dart';
-
 class MapControllerImpl implements MapController {
-  final Completer<Null> _readyCompleter = Completer<Null>();
+  final Completer<void> _readyCompleter = Completer<void>();
   MapState _state;
 
   @override
-  Future<Null> get onReady => _readyCompleter.future;
+  Future<void> get onReady => _readyCompleter.future;
 
   set state(MapState state) {
     _state = state;
@@ -52,7 +50,7 @@ class MapControllerImpl implements MapController {
 
 class MapState {
   final MapOptions options;
-  final StreamController<Null> _onMoveSink;
+  final StreamController<void> _onMoveSink;
 
   double _zoom;
 
@@ -67,7 +65,7 @@ class MapState {
 
   CustomPoint _size;
 
-  Stream<Null> get onMoved => _onMoveSink.stream;
+  Stream<void> get onMoved => _onMoveSink.stream;
 
   CustomPoint get size => _size;
 

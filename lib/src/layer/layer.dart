@@ -1,4 +1,5 @@
 class LayerOptions {
-  Stream<Null> rebuild;
+  Stream<void> rebuild;
+
   LayerOptions({this.rebuild});
 }

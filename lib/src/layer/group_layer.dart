@@ -11,7 +11,7 @@ class GroupLayerOptions extends LayerOptions {
 class GroupLayer extends StatelessWidget {
   final GroupLayerOptions groupOpts;
   final MapState map;
-  final Stream<Null> stream;
+  final Stream<void> stream;
 
   GroupLayer(this.groupOpts, this.map, this.stream);
 
