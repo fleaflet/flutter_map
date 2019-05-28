@@ -101,9 +101,9 @@ class MarkerLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<int>(
-      stream: stream, // a Stream<int> or null
-      builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+    return StreamBuilder<void>(
+      stream: stream, // a Stream<void> or null
+      builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
         var markers = <Widget>[];
         for (var markerOpt in markerOpts.markers) {
           var pos = map.project(markerOpt.point);
