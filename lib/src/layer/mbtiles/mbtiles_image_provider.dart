@@ -32,13 +32,12 @@ class MBTilesImageProvider extends TileProvider {
       _loadedDb = await openDatabase(file.path);
 
       if (isDisposed) {
-        _loadedDb.close();
+        await _loadedDb.close();
         _loadedDb = null;
-        throw new Exception("Tileprovider is already disposed");
+        throw Exception('Tileprovider is already disposed');
       }
-
-      return _loadedDb;
     }
+    return _loadedDb;
   }
 
   @override
