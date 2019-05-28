@@ -20,6 +20,7 @@ class CircleMarker {
   final bool useRadiusInMeter;
   Offset offset = Offset.zero;
   num realRadius = 0;
+
   CircleMarker({
     this.point,
     this.radius,
@@ -53,15 +54,13 @@ class CircleLayer extends StatelessWidget {
         var circleWidgets = <Widget>[];
         for (var circle in circleOpts.circles) {
           var pos = map.project(circle.point);
-          pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
-              map.getPixelOrigin();
+          pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) - map.getPixelOrigin();
           circle.offset = Offset(pos.x.toDouble(), pos.y.toDouble());
 
           if (circle.useRadiusInMeter) {
             var r = Distance().offset(circle.point, circle.radius, 180);
             var rpos = map.project(r);
-            rpos = rpos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
-                map.getPixelOrigin();
+            rpos = rpos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) - map.getPixelOrigin();
 
             circle.realRadius = rpos.y - pos.y;
           }
@@ -86,6 +85,7 @@ class CircleLayer extends StatelessWidget {
 
 class CirclePainter extends CustomPainter {
   final CircleMarker circle;
+
   CirclePainter(this.circle);
 
   @override
@@ -96,8 +96,7 @@ class CirclePainter extends CustomPainter {
       ..style = PaintingStyle.fill
       ..color = circle.color;
 
-    _paintCircle(canvas, circle.offset,
-        circle.useRadiusInMeter ? circle.realRadius : circle.radius, paint);
+    _paintCircle(canvas, circle.offset, circle.useRadiusInMeter ? circle.realRadius : circle.radius, paint);
   }
 
   void _paintCircle(Canvas canvas, Offset offset, double radius, Paint paint) {

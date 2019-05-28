@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
-import 'package:latlong/latlong.dart' hide Path;  // conflict with Path from UI
+import 'package:latlong/latlong.dart' hide Path; // conflict with Path from UI
 
 class PolygonLayerOptions extends LayerOptions {
   final List<Polygon> polygons;
@@ -17,6 +17,7 @@ class Polygon {
   final Color color;
   final double borderStrokeWidth;
   final Color borderColor;
+
   Polygon({
     this.points,
     this.color = const Color(0xFF00FF00),
@@ -82,6 +83,7 @@ class PolygonLayer extends StatelessWidget {
 
 class PolygonPainter extends CustomPainter {
   final Polygon polygonOpt;
+
   PolygonPainter(this.polygonOpt);
 
   @override
@@ -96,15 +98,15 @@ class PolygonPainter extends CustomPainter {
       ..color = polygonOpt.color;
     final borderPaint = polygonOpt.borderStrokeWidth > 0.0
         ? (Paint()
-      ..color = polygonOpt.borderColor
-      ..strokeWidth = polygonOpt.borderStrokeWidth)
+          ..color = polygonOpt.borderColor
+          ..strokeWidth = polygonOpt.borderStrokeWidth)
         : null;
 
     _paintPolygon(canvas, polygonOpt.offsets, paint);
 
     var borderRadius = (polygonOpt.borderStrokeWidth / 2);
     if (polygonOpt.borderStrokeWidth > 0.0) {
-        _paintLine(canvas, polygonOpt.offsets, borderRadius, borderPaint);
+      _paintLine(canvas, polygonOpt.offsets, borderRadius, borderPaint);
     }
   }
 

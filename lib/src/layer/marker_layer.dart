@@ -57,8 +57,11 @@ class Anchor {
 
 class AnchorPos<T> {
   AnchorPos._(this.value);
+
   T value;
+
   static AnchorPos exactly(Anchor anchor) => AnchorPos._(anchor);
+
   static AnchorPos align(AnchorAlign alignOpt) => AnchorPos._(alignOpt);
 }
 
@@ -101,13 +104,10 @@ class MarkerLayer extends StatelessWidget {
         var markers = <Widget>[];
         for (var markerOpt in markerOpts.markers) {
           var pos = map.project(markerOpt.point);
-          pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
-              map.getPixelOrigin();
+          pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) - map.getPixelOrigin();
 
-          var pixelPosX =
-              (pos.x - (markerOpt.width - markerOpt.anchor.left)).toDouble();
-          var pixelPosY =
-              (pos.y - (markerOpt.height - markerOpt.anchor.top)).toDouble();
+          var pixelPosX = (pos.x - (markerOpt.width - markerOpt.anchor.left)).toDouble();
+          var pixelPosY = (pos.y - (markerOpt.height - markerOpt.anchor.top)).toDouble();
 
           if (!map.bounds.contains(markerOpt.point)) {
             continue;

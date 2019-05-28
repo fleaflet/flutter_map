@@ -2,11 +2,10 @@ import 'dart:async';
 import 'dart:ui';
 import 'dart:ui' as ui;
 
+import 'package:flutter/painting.dart' as img;
 import 'package:flutter/rendering.dart' as img;
 import 'package:flutter/services.dart' as img;
 import 'package:flutter/widgets.dart' as img;
-import 'package:flutter/painting.dart' as img;
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
@@ -68,16 +67,12 @@ class OverlayImageLayer extends StatelessWidget {
         for (var overlayImageOpt in overlayImageOpts.overlayImages) {
           overlayImageOpt.offsets.clear();
           var pos1 = map.project(overlayImageOpt.bounds.northWest);
-          pos1 = pos1.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
-              map.getPixelOrigin();
+          pos1 = pos1.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) - map.getPixelOrigin();
           var pos2 = map.project(overlayImageOpt.bounds.southEast);
-          pos2 = pos2.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
-              map.getPixelOrigin();
+          pos2 = pos2.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) - map.getPixelOrigin();
 
-          overlayImageOpt.offsets
-              .add(Offset(pos1.x.toDouble(), pos1.y.toDouble()));
-          overlayImageOpt.offsets
-              .add(Offset(pos2.x.toDouble(), pos2.y.toDouble()));
+          overlayImageOpt.offsets.add(Offset(pos1.x.toDouble(), pos1.y.toDouble()));
+          overlayImageOpt.offsets.add(Offset(pos2.x.toDouble(), pos2.y.toDouble()));
           _loadImage(overlayImageOpt.imageProvider).then((image) {
             overlayImageOpt.image = image;
           });
@@ -106,23 +101,20 @@ class OverlayImageLayer extends StatelessWidget {
 class OverlayImagePainter extends CustomPainter {
   final OverlayImage overlayImageOpt;
   BoxFit boxfit = BoxFit.fitWidth;
+
   OverlayImagePainter(this.overlayImageOpt);
+
   @override
   void paint(Canvas canvas, Size size) {
     var rect = Offset.zero & size;
     canvas.clipRect(rect);
-    var paint = Paint()
-      ..color = Color.fromRGBO(255, 255, 255, overlayImageOpt.opacity);
+    var paint = Paint()..color = Color.fromRGBO(255, 255, 255, overlayImageOpt.opacity);
 
-    var imageSize = Size(overlayImageOpt.image.width.toDouble(),
-        overlayImageOpt.image.height.toDouble());
+    var imageSize = Size(overlayImageOpt.image.width.toDouble(), overlayImageOpt.image.height.toDouble());
     var inputSubrect = Offset.zero & imageSize;
 
-    canvas.drawImageRect(
-        overlayImageOpt.image,
-        inputSubrect,
-        Rect.fromPoints(overlayImageOpt.offsets[0], overlayImageOpt.offsets[1]),
-        paint);
+    canvas.drawImageRect(overlayImageOpt.image, inputSubrect,
+        Rect.fromPoints(overlayImageOpt.offsets[0], overlayImageOpt.offsets[1]), paint);
   }
 
   @override

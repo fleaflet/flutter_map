@@ -33,15 +33,12 @@ class PolylinePage extends StatelessWidget {
                 ),
                 layers: [
                   TileLayerOptions(
-                      urlTemplate:
-                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      subdomains: ['a', 'b', 'c']),
+                    urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    subdomains: ['a', 'b', 'c'],
+                  ),
                   PolylineLayerOptions(
                     polylines: [
-                      Polyline(
-                          points: points,
-                          strokeWidth: 4.0,
-                          color: Colors.purple),
+                      Polyline(points: points, strokeWidth: 4.0, color: Colors.purple),
                     ],
                   )
                 ],

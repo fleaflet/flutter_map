@@ -21,11 +21,9 @@ class MBTilesImageProvider extends TileProvider {
     database = _loadMBTilesDatabase();
   }
 
-  factory MBTilesImageProvider.fromAsset(String asset) =>
-      MBTilesImageProvider._(asset: asset);
+  factory MBTilesImageProvider.fromAsset(String asset) => MBTilesImageProvider._(asset: asset);
 
-  factory MBTilesImageProvider.fromFile(File mbtilesFile) =>
-      MBTilesImageProvider._(mbtilesFile: mbtilesFile);
+  factory MBTilesImageProvider.fromFile(File mbtilesFile) => MBTilesImageProvider._(mbtilesFile: mbtilesFile);
 
   Future<Database> _loadMBTilesDatabase() async {
     if (_loadedDb == null) {
@@ -54,22 +52,18 @@ class MBTilesImageProvider extends TileProvider {
 
   Future<File> copyFileFromAssets() async {
     var tempDir = await getTemporaryDirectory();
-    var filename = asset.split("/").last;
-    var file = File("${tempDir.path}/$filename");
+    var filename = asset.split('/').last;
+    var file = File('${tempDir.path}/$filename');
 
     var data = await rootBundle.load(asset);
-    file.writeAsBytesSync(
-        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
-        flush: true);
+    file.writeAsBytesSync(data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes), flush: true);
     return file;
   }
 
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
     var x = coords.x.round();
-    var y = options.tms
-        ? invertY(coords.y.round(), coords.z.round())
-        : coords.y.round();
+    var y = options.tms ? invertY(coords.y.round(), coords.z.round()) : coords.y.round();
     var z = coords.z.round();
 
     return MBTileImage(
@@ -100,18 +94,18 @@ class MBTileImage extends ImageProvider<MBTileImage> {
   Future<Codec> _loadAsync(MBTileImage key) async {
     assert(key == this);
 
-    final Database db = await key.database;
-    List<Map> result = await db.rawQuery("select tile_data from tiles "
-        "where zoom_level = ${coords.z} AND "
-        "tile_column = ${coords.x} AND "
-        "tile_row = ${coords.y} limit 1");
-    final Uint8List bytes =
-        result.length > 0 ? result.first["tile_data"] : null;
+    final db = await key.database;
+    List<Map> result = await db.rawQuery('select tile_data from tiles '
+        'where zoom_level = ${coords.z} AND '
+        'tile_column = ${coords.x} AND '
+        'tile_row = ${coords.y} limit 1');
+    final Uint8List bytes = result.isNotEmpty ? result.first['tile_data'] : null;
 
-    if (bytes == null)
-      return Future<Codec>.error("Failed to load tile for coords: $coords");
-    else
+    if (bytes == null) {
+      return Future<Codec>.error('Failed to load tile for coords: $coords');
+    } else {
       return await PaintingBinding.instance.instantiateImageCodec(bytes);
+    }
   }
 
   @override
@@ -124,6 +118,6 @@ class MBTileImage extends ImageProvider<MBTileImage> {
 
   @override
   bool operator ==(other) {
-    return other is MBTileImage && coords == other?.coords;
+    return other is MBTileImage && coords == other.coords;
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/center_zoom.dart';
@@ -31,8 +32,7 @@ class MapControllerImpl implements MapController {
   @override
   void fitBounds(
     LatLngBounds bounds, {
-    FitBoundsOptions options =
-        const FitBoundsOptions(padding: EdgeInsets.all(12.0)),
+    FitBoundsOptions options = const FitBoundsOptions(padding: EdgeInsets.all(12.0)),
   }) {
     _state.fitBounds(bounds, options);
   }
@@ -114,7 +114,8 @@ class MapState {
             bounds: bounds,
             zoom: zoom,
           ),
-          hasGesture, isUserGesture);
+          hasGesture,
+          isUserGesture);
     }
   }
 
@@ -161,12 +162,9 @@ class MapState {
     );
   }
 
-  CenterZoom _getBoundsCenterZoom(
-      LatLngBounds bounds, FitBoundsOptions options) {
-    var paddingTL =
-        CustomPoint<double>(options.padding.left, options.padding.top);
-    var paddingBR =
-        CustomPoint<double>(options.padding.right, options.padding.bottom);
+  CenterZoom _getBoundsCenterZoom(LatLngBounds bounds, FitBoundsOptions options) {
+    var paddingTL = CustomPoint<double>(options.padding.left, options.padding.top);
+    var paddingBR = CustomPoint<double>(options.padding.right, options.padding.bottom);
 
     var paddingTotalXY = paddingTL + paddingBR;
 
@@ -183,8 +181,7 @@ class MapState {
     );
   }
 
-  double getBoundsZoom(LatLngBounds bounds, CustomPoint<double> padding,
-      {bool inside = false}) {
+  double getBoundsZoom(LatLngBounds bounds, CustomPoint<double> padding, {bool inside = false}) {
     var zoom = this.zoom ?? 0.0;
     var min = options.minZoom ?? 0.0;
     var max = options.maxZoom ?? double.infinity;

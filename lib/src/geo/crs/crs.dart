@@ -1,14 +1,15 @@
 import 'dart:math' as math;
 
-import 'package:tuple/tuple.dart';
-import 'package:latlong/latlong.dart';
 import 'package:flutter_map/src/core/bounds.dart';
-
 import 'package:flutter_map/src/core/point.dart';
+import 'package:latlong/latlong.dart';
+import 'package:tuple/tuple.dart';
 
 abstract class Crs {
   String get code;
+
   Projection get projection;
+
   Transformation get transformation;
 
   const Crs();
@@ -52,7 +53,9 @@ abstract class Crs {
   }
 
   bool get infinite;
+
   Tuple2<double, double> get wrapLng;
+
   Tuple2<double, double> get wrapLat;
 }
 
@@ -91,7 +94,9 @@ abstract class Projection {
   const Projection();
 
   Bounds<double> get bounds;
+
   CustomPoint project(LatLng latlng);
+
   LatLng unproject(CustomPoint point);
 }
 
@@ -116,16 +121,13 @@ class SphericalMercator extends Projection {
     var lat = math.max(math.min(max, latlng.latitude), -max);
     var sin = math.sin(lat * d);
 
-    return CustomPoint(
-        r * latlng.longitude * d, r * math.log((1 + sin) / (1 - sin)) / 2);
+    return CustomPoint(r * latlng.longitude * d, r * math.log((1 + sin) / (1 - sin)) / 2);
   }
 
   @override
   LatLng unproject(CustomPoint point) {
     var d = 180 / math.pi;
-    return LatLng(
-        (2 * math.atan(math.exp(point.y / r)) - (math.pi / 2)) * d,
-        point.x * d / r);
+    return LatLng((2 * math.atan(math.exp(point.y / r)) - (math.pi / 2)) * d, point.x * d / r);
   }
 }
 
@@ -134,6 +136,7 @@ class Transformation {
   final num b;
   final num c;
   final num d;
+
   const Transformation(this.a, this.b, this.c, this.d);
 
   CustomPoint transform(CustomPoint<num> point, double scale) {

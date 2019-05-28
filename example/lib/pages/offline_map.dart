@@ -18,8 +18,7 @@ class OfflineMapPage extends StatelessWidget {
           children: [
             Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: Text(
-                  'This is an offline map that is showing Anholt Island, Denmark.'),
+              child: Text('This is an offline map that is showing Anholt Island, Denmark.'),
             ),
             Flexible(
               child: FlutterMap(
@@ -32,7 +31,7 @@ class OfflineMapPage extends StatelessWidget {
                   nePanBoundary: LatLng(56.7378, 11.6644),
                 ),
                 layers: [
-                  new TileLayerOptions(
+                  TileLayerOptions(
                     tileProvider: AssetTileProvider(),
                     maxZoom: 14.0,
                     urlTemplate: 'assets/map/anholt_osmbright/{z}/{x}/{y}.png',

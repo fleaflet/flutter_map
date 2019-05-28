@@ -7,8 +7,7 @@ import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 
-abstract class MapGestureMixin extends State<FlutterMap>
-    with TickerProviderStateMixin {
+abstract class MapGestureMixin extends State<FlutterMap> with TickerProviderStateMixin {
   static const double _kMinFlingVelocity = 800.0;
 
   LatLng _mapCenterStart;
@@ -26,18 +25,19 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
   @override
   FlutterMap get widget;
+
   MapState get mapState;
+
   MapState get map => mapState;
+
   MapOptions get options;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this)
-      ..addListener(_handleFlingAnimation);
-    _doubleTapController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 200))
-          ..addListener(_handleDoubleTapZoomAnimation);
+    _controller = AnimationController(vsync: this)..addListener(_handleFlingAnimation);
+    _doubleTapController = AnimationController(vsync: this, duration: Duration(milliseconds: 200))
+      ..addListener(_handleDoubleTapZoomAnimation);
   }
 
   void handleScaleStart(ScaleStartDetails details) {
@@ -111,8 +111,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
     // convert the point to global coordinates
     var localPoint = _offsetToPoint(offset);
-    var localPointCenterDistance = CustomPoint(
-        (width / 2) - localPoint.x, (height / 2) - localPoint.y);
+    var localPointCenterDistance = CustomPoint((width / 2) - localPoint.x, (height / 2) - localPoint.y);
     var mapCenter = map.project(map.center);
     var point = mapCenter - localPointCenterDistance;
     return map.unproject(point);
@@ -121,24 +120,19 @@ abstract class MapGestureMixin extends State<FlutterMap>
   void handleDoubleTap(TapPosition tapPosition) {
     final centerPos = _pointToOffset(map.size) / 2.0;
     final newZoom = _getZoomForScale(map.zoom, 2.0);
-    final focalDelta = _getDoubleTapFocalDelta(
-        centerPos, tapPosition.relative, newZoom - map.zoom);
+    final focalDelta = _getDoubleTapFocalDelta(centerPos, tapPosition.relative, newZoom - map.zoom);
     final newCenter = _offsetToCrs(centerPos + focalDelta);
     _startDoubleTapAnimation(newZoom, newCenter);
   }
 
-  Offset _getDoubleTapFocalDelta(
-      Offset centerPos, Offset tapPos, double zoomDiff) {
+  Offset _getDoubleTapFocalDelta(Offset centerPos, Offset tapPos, double zoomDiff) {
     final tapDelta = tapPos - centerPos;
     final zoomScale = 1 / math.pow(2, zoomDiff);
     // map center offset within which double-tap won't
     // cause zooming to previously invisible area
     final maxDelta = centerPos * (1 - zoomScale);
-    final tappedOutExtent =
-        tapDelta.dx.abs() > maxDelta.dx || tapDelta.dy.abs() > maxDelta.dy;
-    return tappedOutExtent
-        ? _projectDeltaOnBounds(tapDelta, maxDelta)
-        : tapDelta;
+    final tappedOutExtent = tapDelta.dx.abs() > maxDelta.dx || tapDelta.dy.abs() > maxDelta.dy;
+    return tappedOutExtent ? _projectDeltaOnBounds(tapDelta, maxDelta) : tapDelta;
   }
 
   Offset _projectDeltaOnBounds(Offset delta, Offset maxDelta) {
@@ -173,8 +167,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
   void _handleFlingAnimation() {
     setState(() {
       _flingOffset = _flingAnimation.value;
-      var newCenterPoint = map.project(_mapCenterStart) +
-          CustomPoint(_flingOffset.dx, _flingOffset.dy);
+      var newCenterPoint = map.project(_mapCenterStart) + CustomPoint(_flingOffset.dx, _flingOffset.dy);
       var newCenter = map.unproject(newCenterPoint);
       map.move(newCenter, map.zoom, hasGesture: true, isUserGesture: true);
     });
@@ -188,11 +181,9 @@ abstract class MapGestureMixin extends State<FlutterMap>
     return Offset(point.x.toDouble(), point.y.toDouble());
   }
 
-  Offset get _mapOffset =>
-      (context.findRenderObject() as RenderBox).localToGlobal(Offset.zero);
+  Offset get _mapOffset => (context.findRenderObject() as RenderBox).localToGlobal(Offset.zero);
 
-  double _getZoomForScale(double startZoom, double scale) =>
-      startZoom + math.log(scale) / math.ln2;
+  double _getZoomForScale(double startZoom, double scale) => startZoom + math.log(scale) / math.ln2;
 
   @override
   void dispose() {

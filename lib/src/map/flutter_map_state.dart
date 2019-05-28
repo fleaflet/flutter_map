@@ -1,3 +1,4 @@
+import 'package:async/async.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/point.dart';
@@ -6,7 +7,6 @@ import 'package:flutter_map/src/layer/group_layer.dart';
 import 'package:flutter_map/src/layer/overlay_image_layer.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
-import 'package:async/async.dart';
 
 class FlutterMapState extends MapGestureMixin {
   final MapControllerImpl mapController;
@@ -54,13 +54,9 @@ class FlutterMapState extends MapGestureMixin {
   @override
   Widget build(BuildContext context) {
     _dispose();
-    return LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-      mapState.size =
-          CustomPoint<double>(constraints.maxWidth, constraints.maxHeight);
-      var layerWidgets = widget.layers
-          .map((layer) => _createLayer(layer, widget.options.plugins))
-          .toList();
+    return LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
+      mapState.size = CustomPoint<double>(constraints.maxWidth, constraints.maxHeight);
+      var layerWidgets = widget.layers.map((layer) => _createLayer(layer, widget.options.plugins)).toList();
 
       var layerWidgetsContainer = Container(
         width: constraints.maxWidth,
@@ -90,8 +86,7 @@ class FlutterMapState extends MapGestureMixin {
 
   Widget _createLayer(LayerOptions options, List<MapPlugin> plugins) {
     if (options is TileLayerOptions) {
-      return TileLayer(
-          options: options, mapState: mapState, stream: _merge(options));
+      return TileLayer(options: options, mapState: mapState, stream: _merge(options));
     }
     if (options is MarkerLayerOptions) {
       return MarkerLayer(options, mapState, _merge(options));

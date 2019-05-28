@@ -13,8 +13,7 @@ class AnimatedMapControllerPage extends StatefulWidget {
   }
 }
 
-class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
-    with TickerProviderStateMixin {
+class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage> with TickerProviderStateMixin {
   // Note the addition of the TickerProviderStateMixin here. If you are getting an error like
   // 'The class 'TickerProviderStateMixin' can't be used as a mixin because it extends a class other than Object.'
   // in your IDE, you can probably fix it by adding an analysis_options.yaml file to your project
@@ -40,24 +39,19 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
   void _animatedMapMove(LatLng destLocation, double destZoom) {
     // Create some tweens. These serve to split up the transition from one location to another.
     // In our case, we want to split the transition be<tween> our current map center and the destination.
-    final _latTween = Tween<double>(
-        begin: mapController.center.latitude, end: destLocation.latitude);
-    final _lngTween = Tween<double>(
-        begin: mapController.center.longitude, end: destLocation.longitude);
+    final _latTween = Tween<double>(begin: mapController.center.latitude, end: destLocation.latitude);
+    final _lngTween = Tween<double>(begin: mapController.center.longitude, end: destLocation.longitude);
     final _zoomTween = Tween<double>(begin: mapController.zoom, end: destZoom);
 
     // Create a animation controller that has a duration and a TickerProvider.
-    var controller = AnimationController(
-        duration: const Duration(milliseconds: 500), vsync: this);
+    var controller = AnimationController(duration: const Duration(milliseconds: 500), vsync: this);
     // The animation determines what path the animation will take. You can try different Curves values, although I found
     // fastOutSlowIn to be my favorite.
-    Animation<double> animation =
-        CurvedAnimation(parent: controller, curve: Curves.fastOutSlowIn);
+    Animation<double> animation = CurvedAnimation(parent: controller, curve: Curves.fastOutSlowIn);
 
     controller.addListener(() {
       mapController.move(
-          LatLng(_latTween.evaluate(animation), _lngTween.evaluate(animation)),
-          _zoomTween.evaluate(animation));
+          LatLng(_latTween.evaluate(animation), _lngTween.evaluate(animation)), _zoomTween.evaluate(animation));
     });
 
     animation.addStatusListener((status) {
@@ -163,16 +157,12 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
             Flexible(
               child: FlutterMap(
                 mapController: mapController,
-                options: MapOptions(
-                    center: LatLng(51.5, -0.09),
-                    zoom: 5.0,
-                    maxZoom: 10.0,
-                    minZoom: 3.0),
+                options: MapOptions(center: LatLng(51.5, -0.09), zoom: 5.0, maxZoom: 10.0, minZoom: 3.0),
                 layers: [
                   TileLayerOptions(
-                      urlTemplate:
-                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      subdomains: ['a', 'b', 'c']),
+                    urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    subdomains: ['a', 'b', 'c'],
+                  ),
                   MarkerLayerOptions(markers: markers)
                 ],
               ),

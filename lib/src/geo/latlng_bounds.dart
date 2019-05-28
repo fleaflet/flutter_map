@@ -1,9 +1,11 @@
 import 'dart:math' as math;
+
 import 'package:latlong/latlong.dart';
 
 class LatLngBounds {
   LatLng _sw;
   LatLng _ne;
+
   LatLngBounds([LatLng corner1, LatLng corner2]) {
     extend(corner1);
     extend(corner2);
@@ -33,13 +35,19 @@ class LatLngBounds {
   }
 
   double get west => southWest.longitude;
+
   double get south => southWest.latitude;
+
   double get east => northEast.longitude;
+
   double get north => northEast.latitude;
 
   LatLng get southWest => _sw;
+
   LatLng get northEast => _ne;
+
   LatLng get northWest => LatLng(north, west);
+
   LatLng get southEast => LatLng(south, east);
 
   bool get isValid {
