@@ -99,7 +99,7 @@ class MBTileImage extends ImageProvider<MBTileImage> {
   Future<Codec> _loadAsync(MBTileImage key) async {
     assert(key == this);
 
-    final Database db = await key.database;
+    final db = await key.database;
     List<Map> result = await db.rawQuery('select tile_data from tiles '
         'where zoom_level = ${coords.z} AND '
         'tile_column = ${coords.x} AND '
