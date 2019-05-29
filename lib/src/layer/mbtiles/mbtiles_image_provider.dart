@@ -107,10 +107,10 @@ class MBTileImage extends ImageProvider<MBTileImage> {
     final Uint8List bytes =
         result.length > 0 ? result.first['tile_data'] : null;
 
-    if (bytes == null)
+    if (bytes == null) {
       return Future<Codec>.error('Failed to load tile for coords: $coords');
-    else
-      return await PaintingBinding.instance.instantiateImageCodec(bytes);
+    }
+    return await PaintingBinding.instance.instantiateImageCodec(bytes);
   }
 
   @override
