@@ -503,7 +503,7 @@ abstract class TileProvider {
 
   ImageProvider getImage(Coords coords, TileLayerOptions options);
 
-  dispose() {}
+  void dispose() {}
 
   String _getTileUrl(Coords coords, TileLayerOptions options) {
     var data = <String, String>{
