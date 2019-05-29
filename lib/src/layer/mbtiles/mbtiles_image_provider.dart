@@ -38,9 +38,9 @@ class MBTilesImageProvider extends TileProvider {
         _loadedDb = null;
         throw Exception('Tileprovider is already disposed');
       }
-
-      return _loadedDb;
     }
+
+    return _loadedDb;
   }
 
   @override
@@ -123,6 +123,6 @@ class MBTileImage extends ImageProvider<MBTileImage> {
 
   @override
   bool operator ==(other) {
-    return other is MBTileImage && coords == other?.coords;
+    return other is MBTileImage && coords == other.coords;
   }
 }
