@@ -36,7 +36,7 @@ class MBTilesImageProvider extends TileProvider {
       if (isDisposed) {
         _loadedDb.close();
         _loadedDb = null;
-        throw new Exception("Tileprovider is already disposed");
+        throw new Exception('Tileprovider is already disposed');
       }
 
       return _loadedDb;
@@ -54,8 +54,8 @@ class MBTilesImageProvider extends TileProvider {
 
   Future<File> copyFileFromAssets() async {
     var tempDir = await getTemporaryDirectory();
-    var filename = asset.split("/").last;
-    var file = File("${tempDir.path}/$filename");
+    var filename = asset.split('/').last;
+    var file = File('${tempDir.path}/$filename');
 
     var data = await rootBundle.load(asset);
     file.writeAsBytesSync(
@@ -100,15 +100,15 @@ class MBTileImage extends ImageProvider<MBTileImage> {
     assert(key == this);
 
     final Database db = await key.database;
-    List<Map> result = await db.rawQuery("select tile_data from tiles "
-        "where zoom_level = ${coords.z} AND "
-        "tile_column = ${coords.x} AND "
-        "tile_row = ${coords.y} limit 1");
+    List<Map> result = await db.rawQuery('select tile_data from tiles '
+        'where zoom_level = ${coords.z} AND '
+        'tile_column = ${coords.x} AND '
+        'tile_row = ${coords.y} limit 1');
     final Uint8List bytes =
-        result.length > 0 ? result.first["tile_data"] : null;
+        result.length > 0 ? result.first['tile_data'] : null;
 
     if (bytes == null)
-      return Future<Codec>.error("Failed to load tile for coords: $coords");
+      return Future<Codec>.error('Failed to load tile for coords: $coords');
     else
       return await PaintingBinding.instance.instantiateImageCodec(bytes);
   }
