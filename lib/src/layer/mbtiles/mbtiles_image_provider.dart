@@ -105,7 +105,7 @@ class MBTileImage extends ImageProvider<MBTileImage> {
         'tile_column = ${coords.x} AND '
         'tile_row = ${coords.y} limit 1');
     final Uint8List bytes =
-        result.length > 0 ? result.first['tile_data'] : null;
+        result.isNotEmpty ? result.first['tile_data'] : null;
 
     if (bytes == null) {
       return Future<Codec>.error('Failed to load tile for coords: $coords');
