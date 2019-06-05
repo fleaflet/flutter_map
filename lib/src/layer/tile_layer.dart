@@ -422,7 +422,7 @@ class _TileLayerState extends State<TileLayer> {
 
   Widget _createTileWidget(Coords coords) {
     var tilePos = _getTilePos(coords);
-    var level = _levels[coords.z];
+    var level = _levels[10.0];
     var tileSize = getTileSize();
     var pos = (tilePos).multiplyBy(level.scale) + level.translatePoint;
     var width = tileSize.x * level.scale;
