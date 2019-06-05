@@ -440,7 +440,7 @@ class _TileLayerState extends State<TileLayer> {
           image: options.tileProvider.getImage(coords, options),
           fit: BoxFit.fill,
         ),
-      ),
+      );
 
     return Positioned(
       left: pos.x.toDouble(),
