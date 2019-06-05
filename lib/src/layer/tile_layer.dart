@@ -92,6 +92,9 @@ class TileLayerOptions extends LayerOptions {
   final int keepBuffer;
   ImageProvider placeholderImage;
   Map<String, String> additionalOptions;
+  
+  //function to create custom tile
+  final Function(Coords coords) tileWidget;
 
   TileLayerOptions(
       {this.urlTemplate,
@@ -106,6 +109,7 @@ class TileLayerOptions extends LayerOptions {
       this.placeholderImage,
       this.tileProvider = const CachedNetworkTileProvider(),
       this.tms = false,
+      this.tileWidget,
       rebuild})
       : super(rebuild: rebuild);
 }
@@ -424,12 +428,9 @@ class _TileLayerState extends State<TileLayer> {
     var width = tileSize.x * level.scale;
     var height = tileSize.y * level.scale;
 
-    return Positioned(
-      left: pos.x.toDouble(),
-      top: pos.y.toDouble(),
-      width: width.toDouble(),
-      height: height.toDouble(),
-      child: Container(
+    final Widget content = options.tileWidget != null 
+    ? options.tileWidget(coords)
+    : Container(
         child: FadeInImage(
           fadeInDuration: const Duration(milliseconds: 100),
           key: Key(_tileCoordsToKey(coords)),
@@ -440,6 +441,13 @@ class _TileLayerState extends State<TileLayer> {
           fit: BoxFit.fill,
         ),
       ),
+
+    return Positioned(
+      left: pos.x.toDouble(),
+      top: pos.y.toDouble(),
+      width: width.toDouble(),
+      height: height.toDouble(),
+      child: content
     );
   }
 
