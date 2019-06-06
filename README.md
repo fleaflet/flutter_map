@@ -93,7 +93,7 @@ To use, you'll need a mapbox key:
 
 ## Offline maps
 [Follow this guide to grab offline tiles](https://tilemill-project.github.io/tilemill/docs/guides/osm-bright-mac-quickstart/)<br>
-Once you have your map exported to `.mbtiles`, you can use [mbtilesToPng](https://github.com/alfanhui/mbtilesToPngs) to unpack into `/{z}/{x}/{y}.png`. 
+Once you have your map exported to `.mbtiles`, you can use [mbtilesToPng](https://github.com/alfanhui/mbtilesToPngs) to unpack into `/{z}/{x}/{y}.png`.
 Move this to Assets folder and add asset directories to `pubspec.yaml`. Minimum required fields for offline maps are:
 
 ```dart
@@ -121,10 +121,14 @@ See the `flutter_map_example/` folder for a working example.<br>
 
 Note that there is also `FileTileProvider()`, which you can use to load tiles from the filesystem.
 
+## Plugins
+
+- [flutter_map_marker_cluster](https://github.com/lpongetti/flutter_map_marker_cluster): Provides Beautiful Animated Marker Clustering functionality
+
 
 ## Roadmap
 
-For the latest roadmap, please see the [Issue Tracker] 
+For the latest roadmap, please see the [Issue Tracker]
 
 [Leaflet]: http://leafletjs.com/
 [Mapbox]: https://www.mapbox.com/
