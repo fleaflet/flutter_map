@@ -143,7 +143,8 @@ class MapControllerPageState extends State<MapControllerPage> {
                 ),
                 layers: [
                   TileLayerOptions(
-                    urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    urlTemplate:
+                        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     subdomains: ['a', 'b', 'c'],
                   ),
                   MarkerLayerOptions(markers: markers)

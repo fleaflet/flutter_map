@@ -18,7 +18,8 @@ class OfflineMBTilesMapPage extends StatelessWidget {
           children: [
             Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: Text('This is an offline map of Berlin, Germany using a single MBTiles file. '
+              child: Text(
+                  'This is an offline map of Berlin, Germany using a single MBTiles file. '
                   'The file was built from the Stamen toner map data (http://maps.stamen.com).\n\n'
                   '(Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under ODbL.)'),
             ),
@@ -37,7 +38,8 @@ class OfflineMBTilesMapPage extends StatelessWidget {
                 ),
                 layers: [
                   TileLayerOptions(
-                    tileProvider: MBTilesImageProvider.fromAsset('assets/berlin.mbtiles'),
+                    tileProvider:
+                        MBTilesImageProvider.fromAsset('assets/berlin.mbtiles'),
                     maxZoom: 14.0,
                     backgroundColor: Colors.white,
                     tms: true,

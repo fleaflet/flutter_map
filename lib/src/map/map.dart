@@ -23,14 +23,17 @@ class MapControllerImpl implements MapController {
   }
 
   @override
-  void move(LatLng center, double zoom, {bool hasGesture = false, isUserGesture = false}) {
-    _state.move(center, zoom, hasGesture: hasGesture, isUserGesture: isUserGesture);
+  void move(LatLng center, double zoom,
+      {bool hasGesture = false, isUserGesture = false}) {
+    _state.move(center, zoom,
+        hasGesture: hasGesture, isUserGesture: isUserGesture);
   }
 
   @override
   void fitBounds(
     LatLngBounds bounds, {
-    FitBoundsOptions options = const FitBoundsOptions(padding: EdgeInsets.all(12.0)),
+    FitBoundsOptions options =
+        const FitBoundsOptions(padding: EdgeInsets.all(12.0)),
   }) {
     _state.fitBounds(bounds, options);
   }
@@ -91,7 +94,8 @@ class MapState {
     _onMoveSink.close();
   }
 
-  void move(LatLng center, double zoom, {hasGesture = false, isUserGesture = false}) {
+  void move(LatLng center, double zoom,
+      {hasGesture = false, isUserGesture = false}) {
     zoom = _fitZoomToBounds(zoom);
     final mapMoved = center != _lastCenter || zoom != _zoom;
 
@@ -160,9 +164,12 @@ class MapState {
     );
   }
 
-  CenterZoom _getBoundsCenterZoom(LatLngBounds bounds, FitBoundsOptions options) {
-    var paddingTL = CustomPoint<double>(options.padding.left, options.padding.top);
-    var paddingBR = CustomPoint<double>(options.padding.right, options.padding.bottom);
+  CenterZoom _getBoundsCenterZoom(
+      LatLngBounds bounds, FitBoundsOptions options) {
+    var paddingTL =
+        CustomPoint<double>(options.padding.left, options.padding.top);
+    var paddingBR =
+        CustomPoint<double>(options.padding.right, options.padding.bottom);
 
     var paddingTotalXY = paddingTL + paddingBR;
 
@@ -179,7 +186,8 @@ class MapState {
     );
   }
 
-  double getBoundsZoom(LatLngBounds bounds, CustomPoint<double> padding, {bool inside = false}) {
+  double getBoundsZoom(LatLngBounds bounds, CustomPoint<double> padding,
+      {bool inside = false}) {
     var zoom = this.zoom ?? 0.0;
     var min = options.minZoom ?? 0.0;
     var max = options.maxZoom ?? double.infinity;

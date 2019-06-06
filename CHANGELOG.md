@@ -2,6 +2,7 @@
 - Updated to support new error message formats. 
 - Updated flutter sdk dependency to v1.5.9
 
+Thanks to @slightfoot for this release!
 ## [0.5.3] - 5/21/2019
 - update dependencies (#288)
 

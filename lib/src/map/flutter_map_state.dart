@@ -54,9 +54,13 @@ class FlutterMapState extends MapGestureMixin {
   @override
   Widget build(BuildContext context) {
     _dispose();
-    return LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
-      mapState.size = CustomPoint<double>(constraints.maxWidth, constraints.maxHeight);
-      var layerWidgets = widget.layers.map((layer) => _createLayer(layer, widget.options.plugins)).toList();
+    return LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+      mapState.size =
+          CustomPoint<double>(constraints.maxWidth, constraints.maxHeight);
+      var layerWidgets = widget.layers
+          .map((layer) => _createLayer(layer, widget.options.plugins))
+          .toList();
 
       var layerWidgetsContainer = Container(
         width: constraints.maxWidth,
@@ -86,7 +90,8 @@ class FlutterMapState extends MapGestureMixin {
 
   Widget _createLayer(LayerOptions options, List<MapPlugin> plugins) {
     if (options is TileLayerOptions) {
-      return TileLayer(options: options, mapState: mapState, stream: _merge(options));
+      return TileLayer(
+          options: options, mapState: mapState, stream: _merge(options));
     }
     if (options is MarkerLayerOptions) {
       return MarkerLayer(options, mapState, _merge(options));

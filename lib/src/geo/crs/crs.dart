@@ -26,7 +26,8 @@ abstract class Crs {
 
   LatLng pointToLatLng(CustomPoint point, double zoom) {
     var scale = this.scale(zoom);
-    var untransformedPoint = transformation.untransform(point, scale.toDouble());
+    var untransformedPoint =
+        transformation.untransform(point, scale.toDouble());
     try {
       return projection.unproject(untransformedPoint);
     } catch (e) {
@@ -121,13 +122,15 @@ class SphericalMercator extends Projection {
     var lat = math.max(math.min(max, latlng.latitude), -max);
     var sin = math.sin(lat * d);
 
-    return CustomPoint(r * latlng.longitude * d, r * math.log((1 + sin) / (1 - sin)) / 2);
+    return CustomPoint(
+        r * latlng.longitude * d, r * math.log((1 + sin) / (1 - sin)) / 2);
   }
 
   @override
   LatLng unproject(CustomPoint point) {
     var d = 180 / math.pi;
-    return LatLng((2 * math.atan(math.exp(point.y / r)) - (math.pi / 2)) * d, point.x * d / r);
+    return LatLng((2 * math.atan(math.exp(point.y / r)) - (math.pi / 2)) * d,
+        point.x * d / r);
   }
 }
 

@@ -220,8 +220,9 @@ class _TileLayerState extends State<TileLayer> {
     var pixelBounds = _getTiledPixelBounds(center);
     var tileRange = _pxBoundsToTileRange(pixelBounds);
     var margin = options.keepBuffer ?? 2;
-    var noPruneRange =
-        Bounds(tileRange.bottomLeft - CustomPoint(margin, -margin), tileRange.topRight + CustomPoint(margin, -margin));
+    var noPruneRange = Bounds(
+        tileRange.bottomLeft - CustomPoint(margin, -margin),
+        tileRange.topRight + CustomPoint(margin, -margin));
     for (var tileKey in _tiles.keys) {
       var tile = _tiles[tileKey];
       var c = tile.coords;
@@ -284,15 +285,27 @@ class _TileLayerState extends State<TileLayer> {
     // wrapping
     _wrapX = crs.wrapLng;
     if (_wrapX != null) {
-      var first = (map.project(LatLng(0.0, crs.wrapLng.item1), tileZoom).x / tileSize.x).floor().toDouble();
-      var second = (map.project(LatLng(0.0, crs.wrapLng.item2), tileZoom).x / tileSize.y).ceil().toDouble();
+      var first =
+          (map.project(LatLng(0.0, crs.wrapLng.item1), tileZoom).x / tileSize.x)
+              .floor()
+              .toDouble();
+      var second =
+          (map.project(LatLng(0.0, crs.wrapLng.item2), tileZoom).x / tileSize.y)
+              .ceil()
+              .toDouble();
       _wrapX = Tuple2(first, second);
     }
 
     _wrapY = crs.wrapLat;
     if (_wrapY != null) {
-      var first = (map.project(LatLng(crs.wrapLat.item1, 0.0), tileZoom).y / tileSize.x).floor().toDouble();
-      var second = (map.project(LatLng(crs.wrapLat.item2, 0.0), tileZoom).y / tileSize.y).ceil().toDouble();
+      var first =
+          (map.project(LatLng(crs.wrapLat.item1, 0.0), tileZoom).y / tileSize.x)
+              .floor()
+              .toDouble();
+      var second =
+          (map.project(LatLng(crs.wrapLat.item2, 0.0), tileZoom).y / tileSize.y)
+              .ceil()
+              .toDouble();
       _wrapY = Tuple2(first, second);
     }
   }
@@ -389,8 +402,10 @@ class _TileLayerState extends State<TileLayer> {
     var crs = map.options.crs;
     if (!crs.infinite) {
       var bounds = _globalTileRange;
-      if ((crs.wrapLng == null && (coords.x < bounds.min.x || coords.x > bounds.max.x)) ||
-          (crs.wrapLat == null && (coords.y < bounds.min.y || coords.y > bounds.max.y))) {
+      if ((crs.wrapLng == null &&
+              (coords.x < bounds.min.x || coords.x > bounds.max.x)) ||
+          (crs.wrapLat == null &&
+              (coords.y < bounds.min.y || coords.y > bounds.max.y))) {
         return false;
       }
     }
@@ -418,7 +433,9 @@ class _TileLayerState extends State<TileLayer> {
         child: FadeInImage(
           fadeInDuration: const Duration(milliseconds: 100),
           key: Key(_tileCoordsToKey(coords)),
-          placeholder: options.placeholderImage != null ? options.placeholderImage : MemoryImage(kTransparentImage),
+          placeholder: options.placeholderImage != null
+              ? options.placeholderImage
+              : MemoryImage(kTransparentImage),
           image: options.tileProvider.getImage(coords, options),
           fit: BoxFit.fill,
         ),
@@ -428,8 +445,12 @@ class _TileLayerState extends State<TileLayer> {
 
   Coords _wrapCoords(Coords coords) {
     var newCoords = Coords(
-      _wrapX != null ? util.wrapNum(coords.x.toDouble(), _wrapX) : coords.x.toDouble(),
-      _wrapY != null ? util.wrapNum(coords.y.toDouble(), _wrapY) : coords.y.toDouble(),
+      _wrapX != null
+          ? util.wrapNum(coords.x.toDouble(), _wrapX)
+          : coords.x.toDouble(),
+      _wrapY != null
+          ? util.wrapNum(coords.y.toDouble(), _wrapY)
+          : coords.y.toDouble(),
     );
     newCoords.z = coords.z.toDouble();
     return newCoords;
@@ -496,7 +517,8 @@ abstract class TileProvider {
     if (options.tms) {
       data['y'] = invertY(coords.y.round(), coords.z.round()).toString();
     }
-    var allOpts = Map<String, String>.from(data)..addAll(options.additionalOptions);
+    var allOpts = Map<String, String>.from(data)
+      ..addAll(options.additionalOptions);
     return util.template(options.urlTemplate, allOpts);
   }
 

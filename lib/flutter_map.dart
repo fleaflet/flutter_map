@@ -77,7 +77,8 @@ abstract class MapController {
 
 typedef void TapCallback(LatLng point);
 typedef void LongPressCallback(LatLng point);
-typedef void PositionCallback(MapPosition position, bool hasGesture, bool isUserGesture);
+typedef void PositionCallback(
+    MapPosition position, bool hasGesture, bool isUserGesture);
 
 class MapOptions {
   final Crs crs;
@@ -118,9 +119,11 @@ class MapOptions {
     if (swPanBoundary != null && nePanBoundary != null) {
       if (center == null) {
         return true;
-      } else if (center.latitude < swPanBoundary.latitude || center.latitude > nePanBoundary.latitude) {
+      } else if (center.latitude < swPanBoundary.latitude ||
+          center.latitude > nePanBoundary.latitude) {
         return true;
-      } else if (center.longitude < swPanBoundary.longitude || center.longitude > nePanBoundary.longitude) {
+      } else if (center.longitude < swPanBoundary.longitude ||
+          center.longitude > nePanBoundary.longitude) {
         return true;
       }
     }

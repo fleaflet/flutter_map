@@ -57,7 +57,10 @@ class Bounds<T extends num> {
   }
 
   bool containsBounds(Bounds<T> b) {
-    return (b.min.x >= min.x) && (b.max.x <= max.x) && (b.min.y >= min.y) && (b.max.y <= max.y);
+    return (b.min.x >= min.x) &&
+        (b.max.x <= max.x) &&
+        (b.min.y >= min.y) &&
+        (b.max.y <= max.y);
   }
 
   @override

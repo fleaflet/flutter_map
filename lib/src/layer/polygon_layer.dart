@@ -55,10 +55,12 @@ class PolygonLayer extends StatelessWidget {
           var i = 0;
           for (var point in polygonOpt.points) {
             var pos = map.project(point);
-            pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) - map.getPixelOrigin();
+            pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
+                map.getPixelOrigin();
             polygonOpt.offsets.add(Offset(pos.x.toDouble(), pos.y.toDouble()));
             if (i > 0 && i < polygonOpt.points.length) {
-              polygonOpt.offsets.add(Offset(pos.x.toDouble(), pos.y.toDouble()));
+              polygonOpt.offsets
+                  .add(Offset(pos.x.toDouble(), pos.y.toDouble()));
             }
             i++;
           }
@@ -113,7 +115,8 @@ class PolygonPainter extends CustomPainter {
     }
   }
 
-  void _paintLine(Canvas canvas, List<Offset> offsets, double radius, Paint paint) {
+  void _paintLine(
+      Canvas canvas, List<Offset> offsets, double radius, Paint paint) {
     canvas.drawPoints(PointMode.lines, offsets, paint);
     for (var offset in offsets) {
       canvas.drawCircle(offset, radius, paint);

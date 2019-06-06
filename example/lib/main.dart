@@ -32,7 +32,8 @@ class MyApp extends StatelessWidget {
         EsriPage.route: (context) => EsriPage(),
         PolylinePage.route: (context) => PolylinePage(),
         MapControllerPage.route: (context) => MapControllerPage(),
-        AnimatedMapControllerPage.route: (context) => AnimatedMapControllerPage(),
+        AnimatedMapControllerPage.route: (context) =>
+            AnimatedMapControllerPage(),
         MarkerAnchorPage.route: (context) => MarkerAnchorPage(),
         PluginPage.route: (context) => PluginPage(),
         OfflineMapPage.route: (context) => OfflineMapPage(),
