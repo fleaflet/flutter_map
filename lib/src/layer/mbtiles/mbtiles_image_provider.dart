@@ -34,13 +34,13 @@ class MBTilesImageProvider extends TileProvider {
       _loadedDb = await openDatabase(file.path);
 
       if (isDisposed) {
-        _loadedDb.close();
+        await _loadedDb.close();
         _loadedDb = null;
-        throw new Exception("Tileprovider is already disposed");
+        throw Exception('Tileprovider is already disposed');
       }
-
-      return _loadedDb;
     }
+
+    return _loadedDb;
   }
 
   @override
@@ -54,8 +54,8 @@ class MBTilesImageProvider extends TileProvider {
 
   Future<File> copyFileFromAssets() async {
     var tempDir = await getTemporaryDirectory();
-    var filename = asset.split("/").last;
-    var file = File("${tempDir.path}/$filename");
+    var filename = asset.split('/').last;
+    var file = File('${tempDir.path}/$filename');
 
     var data = await rootBundle.load(asset);
     file.writeAsBytesSync(
@@ -99,18 +99,18 @@ class MBTileImage extends ImageProvider<MBTileImage> {
   Future<Codec> _loadAsync(MBTileImage key) async {
     assert(key == this);
 
-    final Database db = await key.database;
-    List<Map> result = await db.rawQuery("select tile_data from tiles "
-        "where zoom_level = ${coords.z} AND "
-        "tile_column = ${coords.x} AND "
-        "tile_row = ${coords.y} limit 1");
+    final db = await key.database;
+    List<Map> result = await db.rawQuery('select tile_data from tiles '
+        'where zoom_level = ${coords.z} AND '
+        'tile_column = ${coords.x} AND '
+        'tile_row = ${coords.y} limit 1');
     final Uint8List bytes =
-        result.length > 0 ? result.first["tile_data"] : null;
+        result.isNotEmpty ? result.first['tile_data'] : null;
 
-    if (bytes == null)
-      return Future<Codec>.error("Failed to load tile for coords: $coords");
-    else
-      return await PaintingBinding.instance.instantiateImageCodec(bytes);
+    if (bytes == null) {
+      return Future<Codec>.error('Failed to load tile for coords: $coords');
+    }
+    return await PaintingBinding.instance.instantiateImageCodec(bytes);
   }
 
   @override
@@ -123,6 +123,6 @@ class MBTileImage extends ImageProvider<MBTileImage> {
 
   @override
   bool operator ==(other) {
-    return other is MBTileImage && coords == other?.coords;
+    return other is MBTileImage && coords == other.coords;
   }
 }
