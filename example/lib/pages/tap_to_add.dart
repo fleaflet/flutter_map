@@ -42,14 +42,10 @@ class TapToAddPageState extends State<TapToAddPage> {
             ),
             Flexible(
               child: FlutterMap(
-                options: MapOptions(
-                    center: LatLng(45.5231, -122.6765),
-                    zoom: 13.0,
-                    onTap: _handleTap),
+                options: MapOptions(center: LatLng(45.5231, -122.6765), zoom: 13.0, onTap: _handleTap),
                 layers: [
                   TileLayerOptions(
-                    urlTemplate:
-                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   ),
                   MarkerLayerOptions(markers: markers)
                 ],

@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+
 import 'point.dart';
 
 class Bounds<T extends num> {
@@ -38,8 +39,11 @@ class Bounds<T extends num> {
   }
 
   CustomPoint<T> get bottomLeft => CustomPoint(min.x, max.y);
+
   CustomPoint<T> get topRight => CustomPoint(max.x, min.y);
+
   CustomPoint<T> get topLeft => min;
+
   CustomPoint<T> get bottomRight => max;
 
   CustomPoint<T> get size {
@@ -53,10 +57,7 @@ class Bounds<T extends num> {
   }
 
   bool containsBounds(Bounds<T> b) {
-    return (b.min.x >= min.x) &&
-        (b.max.x <= max.x) &&
-        (b.min.y >= min.y) &&
-        (b.max.y <= max.y);
+    return (b.min.x >= min.x) && (b.max.x <= max.x) && (b.min.y >= min.y) && (b.max.y <= max.y);
   }
 
   @override

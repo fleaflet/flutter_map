@@ -12,13 +12,14 @@ import 'package:flutter_map/src/plugins/plugin.dart';
 import 'package:latlong/latlong.dart';
 
 export 'package:flutter_map/src/core/point.dart';
+
 export 'src/geo/crs/crs.dart';
 export 'src/geo/latlng_bounds.dart';
-export 'src/layer/mbtiles/mbtiles_image_provider.dart';
 export 'src/layer/circle_layer.dart';
 export 'src/layer/group_layer.dart';
 export 'src/layer/layer.dart';
 export 'src/layer/marker_layer.dart';
+export 'src/layer/mbtiles/mbtiles_image_provider.dart';
 export 'src/layer/overlay_image_layer.dart';
 export 'src/layer/polygon_layer.dart';
 export 'src/layer/polyline_layer.dart';
@@ -55,14 +56,20 @@ class FlutterMap extends StatefulWidget {
 abstract class MapController {
   /// Moves the map to a specific location and zoom level
   void move(LatLng center, double zoom);
+
   void fitBounds(
     LatLngBounds bounds, {
     FitBoundsOptions options,
   });
+
   bool get ready;
-  Future<Null> get onReady;
+
+  Future<void> get onReady;
+
   LatLng get center;
+
   LatLngBounds get bounds;
+
   double get zoom;
 
   factory MapController() => MapControllerImpl();
@@ -111,11 +118,9 @@ class MapOptions {
     if (swPanBoundary != null && nePanBoundary != null) {
       if (center == null) {
         return true;
-      } else if (center.latitude < swPanBoundary.latitude ||
-          center.latitude > nePanBoundary.latitude) {
+      } else if (center.latitude < swPanBoundary.latitude || center.latitude > nePanBoundary.latitude) {
         return true;
-      } else if (center.longitude < swPanBoundary.longitude ||
-          center.longitude > nePanBoundary.longitude) {
+      } else if (center.longitude < swPanBoundary.longitude || center.longitude > nePanBoundary.longitude) {
         return true;
       }
     }
@@ -140,5 +145,6 @@ class MapPosition {
   final LatLngBounds bounds;
   final double zoom;
   final bool hasGesture;
+
   MapPosition({this.center, this.bounds, this.zoom, this.hasGesture = false});
 }

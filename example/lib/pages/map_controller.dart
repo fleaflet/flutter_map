@@ -121,10 +121,10 @@ class MapControllerPageState extends State<MapControllerPage> {
                       _scaffoldKey.currentState.showSnackBar(SnackBar(
                         content: Text(
                           'Map bounds: \n'
-                              'E: ${bounds.east} \n'
-                              'N: ${bounds.north} \n'
-                              'W: ${bounds.west} \n'
-                              'S: ${bounds.south}',
+                          'E: ${bounds.east} \n'
+                          'N: ${bounds.north} \n'
+                          'W: ${bounds.west} \n'
+                          'S: ${bounds.south}',
                         ),
                       ));
                     },
@@ -143,9 +143,9 @@ class MapControllerPageState extends State<MapControllerPage> {
                 ),
                 layers: [
                   TileLayerOptions(
-                      urlTemplate:
-                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      subdomains: ['a', 'b', 'c']),
+                    urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    subdomains: ['a', 'b', 'c'],
+                  ),
                   MarkerLayerOptions(markers: markers)
                 ],
               ),

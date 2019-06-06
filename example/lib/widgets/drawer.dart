@@ -63,8 +63,7 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           title: const Text('Animated MapController'),
           selected: currentRoute == AnimatedMapControllerPage.route,
           onTap: () {
-            Navigator.pushReplacementNamed(
-                context, AnimatedMapControllerPage.route);
+            Navigator.pushReplacementNamed(context, AnimatedMapControllerPage.route);
           },
         ),
         ListTile(
@@ -92,8 +91,7 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           title: const Text('Offline Map (using MBTiles)'),
           selected: currentRoute == OfflineMBTilesMapPage.route,
           onTap: () {
-            Navigator.pushReplacementNamed(
-                context, OfflineMBTilesMapPage.route);
+            Navigator.pushReplacementNamed(context, OfflineMBTilesMapPage.route);
           },
         ),
         ListTile(

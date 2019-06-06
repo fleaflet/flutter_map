@@ -1,20 +1,19 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/center_zoom.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:latlong/latlong.dart';
 
-import 'package:flutter/material.dart';
-
 class MapControllerImpl implements MapController {
-  final Completer<Null> _readyCompleter = Completer<Null>();
+  final Completer<void> _readyCompleter = Completer<void>();
   MapState _state;
 
   @override
-  Future<Null> get onReady => _readyCompleter.future;
+  Future<void> get onReady => _readyCompleter.future;
 
   set state(MapState state) {
     _state = state;
@@ -31,8 +30,7 @@ class MapControllerImpl implements MapController {
   @override
   void fitBounds(
     LatLngBounds bounds, {
-    FitBoundsOptions options =
-        const FitBoundsOptions(padding: EdgeInsets.all(12.0)),
+    FitBoundsOptions options = const FitBoundsOptions(padding: EdgeInsets.all(12.0)),
   }) {
     _state.fitBounds(bounds, options);
   }
@@ -52,7 +50,7 @@ class MapControllerImpl implements MapController {
 
 class MapState {
   final MapOptions options;
-  final StreamController<Null> _onMoveSink;
+  final StreamController<void> _onMoveSink;
 
   double _zoom;
 
@@ -67,7 +65,7 @@ class MapState {
 
   CustomPoint _size;
 
-  Stream<Null> get onMoved => _onMoveSink.stream;
+  Stream<void> get onMoved => _onMoveSink.stream;
 
   CustomPoint get size => _size;
 
@@ -114,7 +112,8 @@ class MapState {
             bounds: bounds,
             zoom: zoom,
           ),
-          hasGesture, isUserGesture);
+          hasGesture,
+          isUserGesture);
     }
   }
 
@@ -161,12 +160,9 @@ class MapState {
     );
   }
 
-  CenterZoom _getBoundsCenterZoom(
-      LatLngBounds bounds, FitBoundsOptions options) {
-    var paddingTL =
-        CustomPoint<double>(options.padding.left, options.padding.top);
-    var paddingBR =
-        CustomPoint<double>(options.padding.right, options.padding.bottom);
+  CenterZoom _getBoundsCenterZoom(LatLngBounds bounds, FitBoundsOptions options) {
+    var paddingTL = CustomPoint<double>(options.padding.left, options.padding.top);
+    var paddingBR = CustomPoint<double>(options.padding.right, options.padding.bottom);
 
     var paddingTotalXY = paddingTL + paddingBR;
 
@@ -183,8 +179,7 @@ class MapState {
     );
   }
 
-  double getBoundsZoom(LatLngBounds bounds, CustomPoint<double> padding,
-      {bool inside = false}) {
+  double getBoundsZoom(LatLngBounds bounds, CustomPoint<double> padding, {bool inside = false}) {
     var zoom = this.zoom ?? 0.0;
     var min = options.minZoom ?? 0.0;
     var max = options.maxZoom ?? double.infinity;

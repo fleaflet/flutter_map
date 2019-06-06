@@ -5,8 +5,11 @@ import 'package:latlong/latlong.dart';
 
 class MarkerLayerOptions extends LayerOptions {
   final List<Marker> markers;
-  MarkerLayerOptions({this.markers = const [], rebuild})
-      : super(rebuild: rebuild);
+
+  MarkerLayerOptions({
+    this.markers = const [],
+    Stream<void> rebuild,
+  }) : super(rebuild: rebuild);
 }
 
 class Anchor {
@@ -57,8 +60,11 @@ class Anchor {
 
 class AnchorPos<T> {
   AnchorPos._(this.value);
+
   T value;
+
   static AnchorPos exactly(Anchor anchor) => AnchorPos._(anchor);
+
   static AnchorPos align(AnchorAlign alignOpt) => AnchorPos._(alignOpt);
 }
 
@@ -89,25 +95,22 @@ class Marker {
 class MarkerLayer extends StatelessWidget {
   final MarkerLayerOptions markerOpts;
   final MapState map;
-  final Stream<Null> stream;
+  final Stream<void> stream;
 
   MarkerLayer(this.markerOpts, this.map, this.stream);
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<int>(
-      stream: stream, // a Stream<int> or null
-      builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+    return StreamBuilder<void>(
+      stream: stream, // a Stream<void> or null
+      builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
         var markers = <Widget>[];
         for (var markerOpt in markerOpts.markers) {
           var pos = map.project(markerOpt.point);
-          pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
-              map.getPixelOrigin();
+          pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) - map.getPixelOrigin();
 
-          var pixelPosX =
-              (pos.x - (markerOpt.width - markerOpt.anchor.left)).toDouble();
-          var pixelPosY =
-              (pos.y - (markerOpt.height - markerOpt.anchor.top)).toDouble();
+          var pixelPosX = (pos.x - (markerOpt.width - markerOpt.anchor.left)).toDouble();
+          var pixelPosY = (pos.y - (markerOpt.height - markerOpt.anchor.top)).toDouble();
 
           if (!map.bounds.contains(markerOpt.point)) {
             continue;

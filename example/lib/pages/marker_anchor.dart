@@ -6,6 +6,7 @@ import '../widgets/drawer.dart';
 
 class MarkerAnchorPage extends StatefulWidget {
   static const String route = '/marker_anchors';
+
   @override
   MarkerAnchorPageState createState() {
     return MarkerAnchorPageState();
@@ -76,8 +77,7 @@ class MarkerAnchorPageState extends State<MarkerAnchorPage> {
           children: [
             Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: Text(
-                  'Markers can be anchored to the top, bottom, left or right.'),
+              child: Text('Markers can be anchored to the top, bottom, left or right.'),
             ),
             Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
@@ -125,9 +125,9 @@ class MarkerAnchorPageState extends State<MarkerAnchorPage> {
                 ),
                 layers: [
                   TileLayerOptions(
-                      urlTemplate:
-                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      subdomains: ['a', 'b', 'c']),
+                    urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    subdomains: ['a', 'b', 'c'],
+                  ),
                   MarkerLayerOptions(markers: markers)
                 ],
               ),
