@@ -12,7 +12,7 @@ class EsriPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Esri')),
-      drawer: buildDrawer(context, TapToAddPage.route),
+      drawer: buildDrawer(context, route),
       body: Padding(
         padding: EdgeInsets.all(8.0),
         child: Column(
