@@ -1,9 +1,5 @@
 include: package:pedantic/analysis_options.yaml
 
-analyzer:
-  exclude:
-    - example/*
-
 linter:
   rules:
     - always_declare_return_types
