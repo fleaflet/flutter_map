@@ -424,23 +424,24 @@ class _TileLayerState extends State<TileLayer> {
     var width = tileSize.x * level.scale;
     var height = tileSize.y * level.scale;
 
-    return Positioned(
-      left: pos.x.toDouble(),
-      top: pos.y.toDouble(),
-      width: width.toDouble(),
-      height: height.toDouble(),
-      child: Container(
-        child: FadeInImage(
-          fadeInDuration: const Duration(milliseconds: 100),
-          key: Key(_tileCoordsToKey(coords)),
-          placeholder: options.placeholderImage != null
-              ? options.placeholderImage
-              : MemoryImage(kTransparentImage),
-          image: options.tileProvider.getImage(coords, options),
-          fit: BoxFit.fill,
-        ),
+    final Widget content = Container(
+      child: FadeInImage(
+        fadeInDuration: const Duration(milliseconds: 100),
+        key: Key(_tileCoordsToKey(coords)),
+        placeholder: options.placeholderImage != null
+            ? options.placeholderImage
+            : MemoryImage(kTransparentImage),
+        image: options.tileProvider.getImage(coords, options),
+        fit: BoxFit.fill,
       ),
     );
+
+    return Positioned(
+        left: pos.x.toDouble(),
+        top: pos.y.toDouble(),
+        width: width.toDouble(),
+        height: height.toDouble(),
+        child: content);
   }
 
   Coords _wrapCoords(Coords coords) {
@@ -503,7 +504,7 @@ abstract class TileProvider {
 
   ImageProvider getImage(Coords coords, TileLayerOptions options);
 
-  dispose() {}
+  void dispose() {}
 
   String _getTileUrl(Coords coords, TileLayerOptions options) {
     var data = <String, String>{

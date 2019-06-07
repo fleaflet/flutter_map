@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
 
@@ -93,6 +94,17 @@ class MarkerLayer extends StatelessWidget {
 
   MarkerLayer(this.markerOpts, this.map, this.stream);
 
+  bool _boundsContainsMarker(Marker marker) {
+    var pixelPoint = map.project(marker.point);
+
+    final width = marker.width - marker.anchor.left;
+    final height = marker.height - marker.anchor.top;
+
+    var sw = CustomPoint(pixelPoint.x + width, pixelPoint.y - height);
+    var ne = CustomPoint(pixelPoint.x - width, pixelPoint.y + height);
+    return map.pixelBounds.containsPartialBounds(Bounds(sw, ne));
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<int>(
@@ -109,7 +121,7 @@ class MarkerLayer extends StatelessWidget {
           var pixelPosY =
               (pos.y - (markerOpt.height - markerOpt.anchor.top)).toDouble();
 
-          if (!map.bounds.contains(markerOpt.point)) {
+          if (!_boundsContainsMarker(markerOpt)) {
             continue;
           }
 
