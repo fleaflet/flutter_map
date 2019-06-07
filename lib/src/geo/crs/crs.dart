@@ -25,7 +25,8 @@ abstract class Crs {
 
   LatLng pointToLatLng(CustomPoint point, double zoom) {
     var scale = this.scale(zoom);
-    var untransformedPoint = transformation.untransform(point, scale.toDouble());
+    var untransformedPoint =
+        transformation.untransform(point, scale.toDouble());
     try {
       return projection.unproject(untransformedPoint);
     } catch (e) {
@@ -57,30 +58,30 @@ abstract class Crs {
 }
 
 // Custom CRS for non geographical maps
-	class CrsSimple extends Crs {
-    @override
-	  final String code = 'CRS.SIMPLE';
+class CrsSimple extends Crs {
+  @override
+  final String code = 'CRS.SIMPLE';
 
-    @override
-	  final Projection projection;
+  @override
+  final Projection projection;
 
-    @override
-	  final Transformation transformation;
-	
-	  CrsSimple():
-	    projection = const LonLat(),
-	    transformation = Transformation(1, 0, -1, 0),
-	    super();
-	
-	  @override
-	  bool get infinite => false;
-	
-	  @override
-	  Tuple2<double, double> get wrapLat => null;
-	
-	  @override
-	  Tuple2<double, double> get wrapLng => null;
-	}
+  @override
+  final Transformation transformation;
+
+  CrsSimple()
+      : projection = const _LonLat(),
+        transformation = Transformation(1, 0, -1, 0),
+        super();
+
+  @override
+  bool get infinite => false;
+
+  @override
+  Tuple2<double, double> get wrapLat => null;
+
+  @override
+  Tuple2<double, double> get wrapLng => null;
+}
 
 abstract class Earth extends Crs {
   @override
@@ -121,29 +122,25 @@ abstract class Projection {
   LatLng unproject(CustomPoint point);
 }
 
+class _LonLat extends Projection {
+  static final Bounds<double> _bounds = Bounds<double>(
+      CustomPoint<double>(-180.0, -90.0), CustomPoint<double>(180.0, 90.0));
 
-class LonLat extends Projection {
-	  static final Bounds<double> _bounds = Bounds<double>(
-	    CustomPoint<double>(-180.0, -90.0),
-	    CustomPoint<double>(180.0, 90.0)
-	  );
-	
-	  const LonLat() : super();
+  const _LonLat() : super();
 
-    @override
-	  Bounds<double> get bounds => _bounds;
-	
-    @override
-	  CustomPoint project(LatLng latlng) {
-	    return  CustomPoint(latlng.longitude, latlng.latitude);
-	  }
-	
-    @override
-	  LatLng unproject(CustomPoint point) {
-	    return LatLng(point.y, point.x);
-	  }
-	
-	}
+  @override
+  Bounds<double> get bounds => _bounds;
+
+  @override
+  CustomPoint project(LatLng latlng) {
+    return CustomPoint(latlng.longitude, latlng.latitude);
+  }
+
+  @override
+  LatLng unproject(CustomPoint point) {
+    return LatLng(point.y, point.x);
+  }
+}
 
 class SphericalMercator extends Projection {
   static const int r = 6378137;
@@ -173,8 +170,7 @@ class SphericalMercator extends Projection {
   @override
   LatLng unproject(CustomPoint point) {
     var d = 180 / math.pi;
-    return LatLng(
-        (2 * math.atan(math.exp(point.y / r)) - (math.pi / 2)) * d,
+    return LatLng((2 * math.atan(math.exp(point.y / r)) - (math.pi / 2)) * d,
         point.x * d / r);
   }
 }
