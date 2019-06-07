@@ -109,7 +109,7 @@ class PolygonPainter extends CustomPainter {
   }
 
   void _paintLine(Canvas canvas, List<Offset> offsets, double radius, Paint paint) {
-    canvas.drawPoints(PointMode.lines, offsets, paint);
+    canvas.drawPoints(PointMode.lines, [...offsets, offsets[0]], paint);
     for (var offset in offsets) {
       canvas.drawCircle(offset, radius, paint);
     }
