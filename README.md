@@ -1,14 +1,9 @@
-[![Patreon](https://img.shields.io/badge/patreon-donate-blue.svg)](https://www.patreon.com/johnpryan)
+[![BuildStatus](https://api.travis-ci.org/johnpryan/flutter_map.svg?branch=master)](https://api.travis-ci.org/johnpryan/flutter_map.svg?branch=master)
+[![Pub](https://img.shields.io/pub/v/flutter_map.svg)](https://pub.dartlang.org/packages/flutter_map)
 
 # flutter_map
 
-**Experimental**
-
 A Dart implementation of [Leaflet] for Flutter apps.
-
-[Video](https://drive.google.com/file/d/14srd4ERdgRr68TtLmG6Aho9L1pGOyFF7/view?usp=sharing)
-
-![Screenshot](https://i.imgur.com/I84kptO.png)
 
 ## Usage
 
