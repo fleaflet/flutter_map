@@ -63,6 +63,13 @@ class Bounds<T extends num> {
         (b.max.y <= max.y);
   }
 
+  bool containsPartialBounds(Bounds<T> b) {
+    return (b.min.x <= max.x) &&
+        (b.max.x >= min.x) &&
+        (b.min.y <= max.y) &&
+        (b.max.y >= min.y);
+  }
+
   @override
   String toString() => 'Bounds($min, $max)';
 }

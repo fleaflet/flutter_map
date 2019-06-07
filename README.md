@@ -74,14 +74,16 @@ The example uses OpenStreetMap tiles, which are free but can be slow.
 Use TileLayerOptions to configure other tile providers, such as [mapbox]:
 
 ```dart
-new TileLayerOptions(
-  urlTemplate: "https://api.mapbox.com/v4/"
-      "{id}/{z}/{x}/{y}@2x.png?access_token={accessToken}",
-  additionalOptions: {
-    'accessToken': '<PUT_ACCESS_TOKEN_HERE>',
-    'id': 'mapbox.streets',
-  },
-),
+Widget build(ctx) {
+  return TileLayerOptions(
+    urlTemplate: "https://api.mapbox.com/v4/"
+        "{id}/{z}/{x}/{y}@2x.png?access_token={accessToken}",
+    additionalOptions: {
+      'accessToken': '<PUT_ACCESS_TOKEN_HERE>',
+      'id': 'mapbox.streets',
+    },
+  );
+}
 ```
 
 To use, you'll need a mapbox key:
@@ -93,27 +95,26 @@ To use, you'll need a mapbox key:
 
 ## Offline maps
 [Follow this guide to grab offline tiles](https://tilemill-project.github.io/tilemill/docs/guides/osm-bright-mac-quickstart/)<br>
-Once you have your map exported to `.mbtiles`, you can use [mbtilesToPng](https://github.com/alfanhui/mbtilesToPngs) to unpack into `/{z}/{x}/{y}.png`. 
+Once you have your map exported to `.mbtiles`, you can use [mbtilesToPng](https://github.com/alfanhui/mbtilesToPngs) to unpack into `/{z}/{x}/{y}.png`.
 Move this to Assets folder and add asset directories to `pubspec.yaml`. Minimum required fields for offline maps are:
 
 ```dart
-new FlutterMap(
-  options: new MapOptions(
-    center: new LatLng(56.704173, 11.543808),
-    minZoom: <offline map minimum zoom>,
-    maxZoom: <offline map maximum zoom>,
-    zoom: 13.0,
-    swPanBoundary: LatLng(56.6877, 11.5089),
-    nePanBoundary: LatLng(56.7378, 11.6644),
-  ),
-  layers: [
-    new TileLayerOptions(
-      tileProvider: AssetTileProvider(),
-      maxZoom: <offline map maximum zoom>,
-      urlTemplate: "assets/offlineMap/{z}/{x}/{y}.png",
+Widget build(ctx) {
+  return FlutterMap(
+    options: MapOptions(
+      center: LatLng(56.704173, 11.543808),
+      zoom: 13.0,
+      swPanBoundary: LatLng(56.6877, 11.5089),
+      nePanBoundary: LatLng(56.7378, 11.6644),
     ),
-  ],
-),
+    layers: [
+      TileLayerOptions(
+        tileProvider: AssetTileProvider(),
+        urlTemplate: "assets/offlineMap/{z}/{x}/{y}.png",
+      ),
+    ],
+  );
+}
 ```
 
 Make sure PanBoundaries are within offline map boundary to stop missing asset errors.<br>
@@ -121,10 +122,14 @@ See the `flutter_map_example/` folder for a working example.<br>
 
 Note that there is also `FileTileProvider()`, which you can use to load tiles from the filesystem.
 
+## Plugins
+
+- [flutter_map_marker_cluster](https://github.com/lpongetti/flutter_map_marker_cluster): Provides Beautiful Animated Marker Clustering functionality
+
 
 ## Roadmap
 
-For the latest roadmap, please see the [Issue Tracker] 
+For the latest roadmap, please see the [Issue Tracker]
 
 [Leaflet]: http://leafletjs.com/
 [Mapbox]: https://www.mapbox.com/

@@ -11,8 +11,8 @@ import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/plugins/plugin.dart';
 import 'package:latlong/latlong.dart';
 
-export 'package:flutter_map/src/core/point.dart';
-
+export 'src/core/center_zoom.dart';
+export 'src/core/point.dart';
 export 'src/geo/crs/crs.dart';
 export 'src/geo/latlng_bounds.dart';
 export 'src/layer/circle_layer.dart';

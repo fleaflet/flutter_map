@@ -2,7 +2,23 @@
 - Updated to support new error message formats. 
 - Updated flutter sdk dependency to v1.5.9
 
+Note: 0.6.x releases are compatible with Flutter's `dev` channel
+
 Thanks to @slightfoot for this release!
+
+## [0.5.4] - 6/7/2019
+- fix markers on edge of screen disappearing (#313)
+- dart analysis fixes (#300)
+- add border circle (#299)
+- add dotted line to polygon (#295)
+- fix example esri page (#292)
+- add flutter_map_marker_cluster package to README (#309)
+
+Note: 0.5.x releases are compatible with Flutter's `stable` channel, currently
+v1.5.4-hotfix.2 and 0.6.x releases (also on the `flutter_map` `dev` branch) is a
+version of flutter_map compatible with Flutter's `dev` channel
+
+Thanks to @lpongetti @FalkF @Victor-emil @lsaudon and @lorenzo for this release!
 ## [0.5.3] - 5/21/2019
 - update dependencies (#288)
 

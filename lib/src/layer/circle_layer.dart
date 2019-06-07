@@ -104,6 +104,16 @@ class CirclePainter extends CustomPainter {
 
     _paintCircle(canvas, circle.offset,
         circle.useRadiusInMeter ? circle.realRadius : circle.radius, paint);
+
+    if (circle.borderStrokeWidth > 0) {
+      final paint = Paint()
+        ..style = PaintingStyle.stroke
+        ..color = circle.borderColor
+        ..strokeWidth = circle.borderStrokeWidth;
+
+      _paintCircle(canvas, circle.offset,
+          circle.useRadiusInMeter ? circle.realRadius : circle.radius, paint);
+    }
   }
 
   void _paintCircle(Canvas canvas, Offset offset, double radius, Paint paint) {

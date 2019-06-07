@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
 
@@ -50,7 +51,7 @@ class Anchor {
     }
   }
 
-  factory Anchor._forPos(AnchorPos pos, double width, double height) {
+  factory Anchor.forPos(AnchorPos pos, double width, double height) {
     if (pos == null) return Anchor._(width, height, null);
     if (pos.value is AnchorAlign) return Anchor._(width, height, pos.value);
     if (pos.value is Anchor) return pos.value;
@@ -89,7 +90,7 @@ class Marker {
     this.width = 30.0,
     this.height = 30.0,
     AnchorPos anchorPos,
-  }) : anchor = Anchor._forPos(anchorPos, width, height);
+  }) : anchor = Anchor.forPos(anchorPos, width, height);
 }
 
 class MarkerLayer extends StatelessWidget {
@@ -98,6 +99,17 @@ class MarkerLayer extends StatelessWidget {
   final Stream<void> stream;
 
   MarkerLayer(this.markerOpts, this.map, this.stream);
+
+  bool _boundsContainsMarker(Marker marker) {
+    var pixelPoint = map.project(marker.point);
+
+    final width = marker.width - marker.anchor.left;
+    final height = marker.height - marker.anchor.top;
+
+    var sw = CustomPoint(pixelPoint.x + width, pixelPoint.y - height);
+    var ne = CustomPoint(pixelPoint.x - width, pixelPoint.y + height);
+    return map.pixelBounds.containsPartialBounds(Bounds(sw, ne));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +127,7 @@ class MarkerLayer extends StatelessWidget {
           var pixelPosY =
               (pos.y - (markerOpt.height - markerOpt.anchor.top)).toDouble();
 
-          if (!map.bounds.contains(markerOpt.point)) {
+          if (!_boundsContainsMarker(markerOpt)) {
             continue;
           }
 

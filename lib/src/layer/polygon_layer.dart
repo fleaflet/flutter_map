@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
@@ -20,12 +21,14 @@ class Polygon {
   final Color color;
   final double borderStrokeWidth;
   final Color borderColor;
+  final bool isDotted;
 
   Polygon({
     this.points,
     this.color = const Color(0xFF00FF00),
     this.borderStrokeWidth = 0.0,
     this.borderColor = const Color(0xFFFFFF00),
+    this.isDotted = false,
   });
 }
 
@@ -111,13 +114,39 @@ class PolygonPainter extends CustomPainter {
 
     var borderRadius = (polygonOpt.borderStrokeWidth / 2);
     if (polygonOpt.borderStrokeWidth > 0.0) {
-      _paintLine(canvas, polygonOpt.offsets, borderRadius, borderPaint);
+      if (polygonOpt.isDotted) {
+        var spacing = polygonOpt.borderStrokeWidth * 1.5;
+        _paintDottedLine(canvas, polygonOpt.offsets, borderRadius, spacing, borderPaint);
+      } else {
+        _paintLine(canvas, polygonOpt.offsets, borderRadius, borderPaint);
+      }
     }
   }
 
-  void _paintLine(
-      Canvas canvas, List<Offset> offsets, double radius, Paint paint) {
-    canvas.drawPoints(PointMode.lines, offsets, paint);
+  void _paintDottedLine(Canvas canvas, List<Offset> offsets, double radius,
+      double stepLength, Paint paint) {
+    var startDistance = 0.0;
+    for (var i = 0; i < offsets.length - 1; i++) {
+      var o0 = offsets[i];
+      var o1 = offsets[i + 1];
+      var totalDistance = _dist(o0, o1);
+      var distance = startDistance;
+      while (distance < totalDistance) {
+        var f1 = distance / totalDistance;
+        var f0 = 1.0 - f1;
+        var offset = Offset(o0.dx * f0 + o1.dx * f1, o0.dy * f0 + o1.dy * f1);
+        canvas.drawCircle(offset, radius, paint);
+        distance += stepLength;
+      }
+      startDistance = distance < totalDistance
+          ? stepLength - (totalDistance - distance)
+          : distance - totalDistance;
+    }
+    canvas.drawCircle(polygonOpt.offsets.last, radius, paint);
+  }
+
+  void _paintLine(Canvas canvas, List<Offset> offsets, double radius, Paint paint) {
+    canvas.drawPoints(PointMode.lines, [...offsets, offsets[0]], paint);
     for (var offset in offsets) {
       canvas.drawCircle(offset, radius, paint);
     }
@@ -131,4 +160,16 @@ class PolygonPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(PolygonPainter other) => false;
+
+  double _dist(Offset v, Offset w) {
+    return sqrt(_dist2(v, w));
+  }
+
+  double _dist2(Offset v, Offset w) {
+    return _sqr(v.dx - w.dx) + _sqr(v.dy - w.dy);
+  }
+
+  double _sqr(double x) {
+    return x * x;
+  }
 }

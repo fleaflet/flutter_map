@@ -61,6 +61,7 @@ class MapState {
 
   LatLng _lastCenter;
   LatLngBounds _lastBounds;
+  Bounds _lastPixelBounds;
   CustomPoint _pixelOrigin;
   bool _initialized = false;
 
@@ -85,6 +86,8 @@ class MapState {
 
   LatLngBounds get bounds => getBounds();
 
+  Bounds get pixelBounds => getLastPixelBounds();
+
   void _init() {
     _zoom = options.zoom;
     move(options.center, zoom);
@@ -105,6 +108,7 @@ class MapState {
 
     _zoom = zoom;
     _lastCenter = center;
+    _lastPixelBounds = getPixelBounds(_zoom);
     _lastBounds = _calculateBounds();
     _pixelOrigin = getNewPixelOrigin(center);
     _onMoveSink.add(null);
@@ -137,7 +141,7 @@ class MapState {
     if (!bounds.isValid) {
       throw Exception('Bounds are not valid.');
     }
-    var target = _getBoundsCenterZoom(bounds, options);
+    var target = getBoundsCenterZoom(bounds, options);
     move(target.center, target.zoom);
   }
 
@@ -156,15 +160,23 @@ class MapState {
     return _calculateBounds();
   }
 
+  Bounds getLastPixelBounds() {
+    if (_lastPixelBounds != null) {
+      return _lastPixelBounds;
+    }
+
+    return getPixelBounds(zoom);
+  }
+
   LatLngBounds _calculateBounds() {
-    var bounds = getPixelBounds(zoom);
+    var bounds = getLastPixelBounds();
     return LatLngBounds(
       unproject(bounds.bottomLeft),
       unproject(bounds.topRight),
     );
   }
 
-  CenterZoom _getBoundsCenterZoom(
+  CenterZoom getBoundsCenterZoom(
       LatLngBounds bounds, FitBoundsOptions options) {
     var paddingTL =
         CustomPoint<double>(options.padding.left, options.padding.top);
