@@ -1,3 +1,6 @@
+## [0.6.1] - 5/28/2019
+- merge 0.5.4 and 0.5.5 into `dev` branch
+
 ## [0.6.0] - 5/28/2019
 - Updated to support new error message formats. 
 - Updated flutter sdk dependency to v1.5.9
