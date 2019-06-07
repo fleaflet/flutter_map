@@ -93,7 +93,7 @@ class TileLayerOptions extends LayerOptions {
   ImageProvider placeholderImage;
   Map<String, String> additionalOptions;
   
-  //function to create custom tile
+  // Function to create custom tile
   final Function(Coords coords) tileWidget;
 
   TileLayerOptions(
