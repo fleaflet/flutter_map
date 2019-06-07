@@ -11,6 +11,7 @@ import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/plugins/plugin.dart';
 import 'package:latlong/latlong.dart';
 
+export 'src/core/bounds.dart';
 export 'src/core/center_zoom.dart';
 export 'src/core/point.dart';
 export 'src/geo/crs/crs.dart';
@@ -72,7 +73,8 @@ abstract class MapController {
 
 typedef void TapCallback(LatLng point);
 typedef void LongPressCallback(LatLng point);
-typedef void PositionCallback(MapPosition position, bool hasGesture, bool isUserGesture);
+typedef void PositionCallback(
+    MapPosition position, bool hasGesture, bool isUserGesture);
 
 class MapOptions {
   final Crs crs;
