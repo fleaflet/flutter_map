@@ -3,7 +3,7 @@ description: A Dart implementation of Leaflet for Flutter apps
 version: 0.5.5+1
 authors:
 - John Ryan <john.p.ryan4@gmail.com>
-homepage: https://github.com/apptreesoftware/flutter_map
+homepage: https://github.com/johnpryan/flutter_map
 
 environment:
   sdk: ">=2.2.2 <3.0.0"
@@ -22,4 +22,7 @@ dependencies:
   path_provider: ^0.5.0+1
 
 dev_dependencies:
-  pedantic: ^1.7.0
+  pedantic: ^1.5.0
+  flutter_test:
+    sdk: flutter
+  test: ^1.6.0
