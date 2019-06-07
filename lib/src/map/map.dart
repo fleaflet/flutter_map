@@ -138,7 +138,7 @@ class MapState {
     if (!bounds.isValid) {
       throw Exception('Bounds are not valid.');
     }
-    var target = _getBoundsCenterZoom(bounds, options);
+    var target = getBoundsCenterZoom(bounds, options);
     move(target.center, target.zoom);
   }
 
@@ -173,7 +173,7 @@ class MapState {
     );
   }
 
-  CenterZoom _getBoundsCenterZoom(
+  CenterZoom getBoundsCenterZoom(
       LatLngBounds bounds, FitBoundsOptions options) {
     var paddingTL =
         CustomPoint<double>(options.padding.left, options.padding.top);

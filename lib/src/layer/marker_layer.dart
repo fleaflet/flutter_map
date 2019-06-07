@@ -48,7 +48,7 @@ class Anchor {
     }
   }
 
-  factory Anchor._forPos(AnchorPos pos, double width, double height) {
+  factory Anchor.forPos(AnchorPos pos, double width, double height) {
     if (pos == null) return Anchor._(width, height, null);
     if (pos.value is AnchorAlign) return Anchor._(width, height, pos.value);
     if (pos.value is Anchor) return pos.value;
@@ -84,7 +84,7 @@ class Marker {
     this.width = 30.0,
     this.height = 30.0,
     AnchorPos anchorPos,
-  }) : anchor = Anchor._forPos(anchorPos, width, height);
+  }) : anchor = Anchor.forPos(anchorPos, width, height);
 }
 
 class MarkerLayer extends StatelessWidget {
