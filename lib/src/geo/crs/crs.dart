@@ -56,6 +56,32 @@ abstract class Crs {
   Tuple2<double, double> get wrapLat;
 }
 
+// Custom CRS for non geographical maps
+	class CrsSimple extends Crs {
+    @override
+	  final String code = 'CRS.SIMPLE';
+
+    @override
+	  final Projection projection;
+
+    @override
+	  final Transformation transformation;
+	
+	  CrsSimple():
+	    projection = const LonLat(),
+	    transformation = Transformation(1, 0, -1, 0),
+	    super();
+	
+	  @override
+	  bool get infinite => false;
+	
+	  @override
+	  Tuple2<double, double> get wrapLat => null;
+	
+	  @override
+	  Tuple2<double, double> get wrapLng => null;
+	}
+
 abstract class Earth extends Crs {
   @override
   bool get infinite => false;
@@ -94,6 +120,30 @@ abstract class Projection {
   CustomPoint project(LatLng latlng);
   LatLng unproject(CustomPoint point);
 }
+
+
+class LonLat extends Projection {
+	  static final Bounds<double> _bounds = Bounds<double>(
+	    CustomPoint<double>(-180.0, -90.0),
+	    CustomPoint<double>(180.0, 90.0)
+	  );
+	
+	  const LonLat() : super();
+
+    @override
+	  Bounds<double> get bounds => _bounds;
+	
+    @override
+	  CustomPoint project(LatLng latlng) {
+	    return  CustomPoint(latlng.longitude, latlng.latitude);
+	  }
+	
+    @override
+	  LatLng unproject(CustomPoint point) {
+	    return LatLng(point.y, point.x);
+	  }
+	
+	}
 
 class SphericalMercator extends Projection {
   static const int r = 6378137;
