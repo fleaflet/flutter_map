@@ -11,7 +11,6 @@ import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/plugins/plugin.dart';
 import 'package:latlong/latlong.dart';
 
-export 'src/core/center_zoom.dart';
 export 'src/core/point.dart';
 export 'src/geo/crs/crs.dart';
 export 'src/geo/latlng_bounds.dart';
@@ -25,7 +24,6 @@ export 'src/layer/polygon_layer.dart';
 export 'src/layer/polyline_layer.dart';
 export 'src/layer/tile_layer.dart';
 export 'src/plugins/plugin.dart';
-export 'src/core/center_zoom.dart';
 
 class FlutterMap extends StatefulWidget {
   /// A set of layers' options to used to create the layers on the map
