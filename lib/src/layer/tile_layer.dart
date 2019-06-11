@@ -16,15 +16,15 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'layer.dart';
 
 class TileLayerOptions extends LayerOptions {
-  ///Defines the structure to create the URLs for the tiles.
+  /// Defines the structure to create the URLs for the tiles.
   ///
-  ///Example:
+  /// Example:
   ///
-  ///https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png
+  /// https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png
   ///
-  ///Is translated to this:
+  /// Is translated to this:
   ///
-  ///https://a.tile.openstreetmap.org/12/2177/1259.png
+  /// https://a.tile.openstreetmap.org/12/2177/1259.png
   final String urlTemplate;
 
   /// If `true`, inverses Y axis numbering for tiles (turn this on for
@@ -102,7 +102,7 @@ class TileLayerOptions extends LayerOptions {
       this.additionalOptions = const <String, String>{},
       this.subdomains = const <String>[],
       this.keepBuffer = 2,
-      this.backgroundColor = const Color(0xFFE0E0E0), // grey[300]
+      this.backgroundColor = const Color(0xFFE0E0E0),
       this.placeholderImage,
       this.tileProvider = const CachedNetworkTileProvider(),
       this.tms = false,
@@ -565,7 +565,6 @@ class FileTileProvider extends TileProvider {
 }
 
 class CustomTileProvider extends TileProvider {
-
   String Function(Coords coors, TileLayerOptions options) customTileUrl;
 
   CustomTileProvider({@required this.customTileUrl});
