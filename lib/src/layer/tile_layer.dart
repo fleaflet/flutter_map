@@ -563,3 +563,20 @@ class FileTileProvider extends TileProvider {
     return FileImage(File(_getTileUrl(coords, options)));
   }
 }
+
+class CustomTileProvider extends TileProvider {
+
+  String Function(Coords coors, TileLayerOptions options) customTileUrl;
+
+  CustomTileProvider({@required this.customTileUrl});
+
+  @override
+  String _getTileUrl(Coords coords, TileLayerOptions options) {
+    return customTileUrl(coords, options);
+  }
+
+  @override
+  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
+    return AssetImage(_getTileUrl(coords, options));
+  }
+}
