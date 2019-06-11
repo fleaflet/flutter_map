@@ -13,6 +13,8 @@ before_script:
   - git clone https://github.com/flutter/flutter.git -b stable
   - ./flutter/bin/flutter doctor
 script:
+  - ./flutter/bin/cache/dart-sdk/bin/dartfmt --set-exit-if-changed -n .
+  - ./flutter/bin/cache/dart-sdk/bin/dartanalyzer .
   - ./flutter/bin/flutter test
 cache:
   directories:
