@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
-import 'package:latlong/latlong.dart' hide Path;  // conflict with Path from UI
+import 'package:latlong/latlong.dart' hide Path; // conflict with Path from UI
 
 class PolygonLayerOptions extends LayerOptions {
   final List<Polygon> polygons;
@@ -56,10 +56,12 @@ class PolygonLayer extends StatelessWidget {
           var i = 0;
           for (var point in polygonOpt.points) {
             var pos = map.project(point);
-            pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) - map.getPixelOrigin();
+            pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
+                map.getPixelOrigin();
             polygonOpt.offsets.add(Offset(pos.x.toDouble(), pos.y.toDouble()));
             if (i > 0 && i < polygonOpt.points.length) {
-              polygonOpt.offsets.add(Offset(pos.x.toDouble(), pos.y.toDouble()));
+              polygonOpt.offsets
+                  .add(Offset(pos.x.toDouble(), pos.y.toDouble()));
             }
             i++;
           }
@@ -102,8 +104,8 @@ class PolygonPainter extends CustomPainter {
       ..color = polygonOpt.color;
     final borderPaint = polygonOpt.borderStrokeWidth > 0.0
         ? (Paint()
-      ..color = polygonOpt.borderColor
-      ..strokeWidth = polygonOpt.borderStrokeWidth)
+          ..color = polygonOpt.borderColor
+          ..strokeWidth = polygonOpt.borderStrokeWidth)
         : null;
 
     _paintPolygon(canvas, polygonOpt.offsets, paint);
@@ -112,7 +114,8 @@ class PolygonPainter extends CustomPainter {
     if (polygonOpt.borderStrokeWidth > 0.0) {
       if (polygonOpt.isDotted) {
         var spacing = polygonOpt.borderStrokeWidth * 1.5;
-        _paintDottedLine(canvas, polygonOpt.offsets, borderRadius, spacing, borderPaint);
+        _paintDottedLine(
+            canvas, polygonOpt.offsets, borderRadius, spacing, borderPaint);
       } else {
         _paintLine(canvas, polygonOpt.offsets, borderRadius, borderPaint);
       }
@@ -141,7 +144,8 @@ class PolygonPainter extends CustomPainter {
     canvas.drawCircle(polygonOpt.offsets.last, radius, paint);
   }
 
-  void _paintLine(Canvas canvas, List<Offset> offsets, double radius, Paint paint) {
+  void _paintLine(
+      Canvas canvas, List<Offset> offsets, double radius, Paint paint) {
     canvas.drawPoints(PointMode.lines, [...offsets, offsets[0]], paint);
     for (var offset in offsets) {
       canvas.drawCircle(offset, radius, paint);
