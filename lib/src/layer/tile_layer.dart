@@ -565,7 +565,6 @@ class FileTileProvider extends TileProvider {
 }
 
 class CustomTileProvider extends TileProvider {
-
   String Function(Coords coors, TileLayerOptions options) customTileUrl;
 
   CustomTileProvider({@required this.customTileUrl});
