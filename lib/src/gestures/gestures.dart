@@ -72,17 +72,27 @@ abstract class MapGestureMixin extends State<FlutterMap>
       return;
     }
 
+    const k = 2.0;
+    // pixel per milliseconds
+    var mms = magnitude / 1000.0;
+    // animation milliseconds
+    var ms = magnitude / k;
+    // pixel distance
+    var distance = mms * ms;
     var direction = details.velocity.pixelsPerSecond / magnitude;
-    var distance = (Offset.zero & context.size).shortestSide;
+
+    Animation<double> animation =
+        CurvedAnimation(parent: _controller, curve: Curves.decelerate);
 
     _flingAnimation = Tween<Offset>(
       begin: _flingOffset,
-      end: _flingOffset - direction * distance,
-    ).animate(_controller);
+      end: _flingOffset - (direction * distance),
+    ).animate(animation);
 
     _controller
       ..value = 0.0
-      ..fling(velocity: magnitude / 1000.0);
+      ..duration = Duration(milliseconds: ms.toInt())
+      ..forward();
   }
 
   void handleTap(TapPosition position) {
@@ -111,8 +121,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
     // convert the point to global coordinates
     var localPoint = _offsetToPoint(offset);
-    var localPointCenterDistance = CustomPoint(
-        (width / 2) - localPoint.x, (height / 2) - localPoint.y);
+    var localPointCenterDistance =
+        CustomPoint((width / 2) - localPoint.x, (height / 2) - localPoint.y);
     var mapCenter = map.project(map.center);
     var point = mapCenter - localPointCenterDistance;
     return map.unproject(point);
