@@ -52,7 +52,7 @@ class CircleLayer extends StatelessWidget {
   }
 
   Widget _build(BuildContext context, Size size) {
-    return StreamBuilder<int>(
+    return StreamBuilder<void>(
       stream: stream, // a Stream<int> or null
       builder: (BuildContext context, _) {
         var circleWidgets = <Widget>[];
