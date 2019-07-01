@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong/latlong.dart';
 
-import '../pages/tap_to_add.dart';
 import '../widgets/drawer.dart';
 
 class EsriPage extends StatelessWidget {
@@ -12,7 +11,7 @@ class EsriPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Esri')),
-      drawer: buildDrawer(context, TapToAddPage.route),
+      drawer: buildDrawer(context, route),
       body: Padding(
         padding: EdgeInsets.all(8.0),
         child: Column(

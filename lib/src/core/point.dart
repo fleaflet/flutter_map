@@ -45,7 +45,7 @@ class CustomPoint<T extends num> extends math.Point<T> {
   }
 
   CustomPoint multiplyBy(num n) {
-      return CustomPoint(x * n, y * n);
+    return CustomPoint(x * n, y * n);
   }
 
   @override

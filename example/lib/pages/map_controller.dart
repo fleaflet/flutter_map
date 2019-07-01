@@ -121,10 +121,10 @@ class MapControllerPageState extends State<MapControllerPage> {
                       _scaffoldKey.currentState.showSnackBar(SnackBar(
                         content: Text(
                           'Map bounds: \n'
-                              'E: ${bounds.east} \n'
-                              'N: ${bounds.north} \n'
-                              'W: ${bounds.west} \n'
-                              'S: ${bounds.south}',
+                          'E: ${bounds.east} \n'
+                          'N: ${bounds.north} \n'
+                          'W: ${bounds.west} \n'
+                          'S: ${bounds.south}',
                         ),
                       ));
                     },

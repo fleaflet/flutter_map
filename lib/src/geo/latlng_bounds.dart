@@ -47,6 +47,9 @@ class LatLngBounds {
   }
 
   bool contains(LatLng point) {
+    if (!isValid) {
+      return false;
+    }
     var sw2 = point;
     var ne2 = point;
     return containsBounds(LatLngBounds(sw2, ne2));

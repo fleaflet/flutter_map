@@ -16,47 +16,46 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'layer.dart';
 
 class TileLayerOptions extends LayerOptions {
-  ///Defines the structure to create the URLs for the tiles.
+  /// Defines the structure to create the URLs for the tiles.
   ///
-  ///Example:
+  /// Example:
   ///
-  ///https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png
+  /// https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png
   ///
-  ///Is translated to this:
+  /// Is translated to this:
   ///
-  ///https://a.tile.openstreetmap.org/12/2177/1259.png
+  /// https://a.tile.openstreetmap.org/12/2177/1259.png
   final String urlTemplate;
 
   /// If `true`, inverses Y axis numbering for tiles (turn this on for
   /// [TMS](https://en.wikipedia.org/wiki/Tile_Map_Service) services).
   final bool tms;
 
-  ///Size for the tile.
-  ///Default is 256
+  /// Size for the tile.
+  /// Default is 256
   final double tileSize;
 
-  ///Determiantes the max zoom applicable.
-  ///In most tile providers goes from 0 to 19.
+  /// The max zoom applicable. In most tile providers goes from 0 to 19.
   final double maxZoom;
 
   final bool zoomReverse;
   final double zoomOffset;
 
-  ///List of subdomains for the URL.
+  /// List of subdomains for the URL.
   ///
-  ///Example:
+  /// Example:
   ///
-  ///Subdomains = {a,b,c}
+  /// Subdomains = {a,b,c}
   ///
-  ///and the URL is as follows:
+  /// and the URL is as follows:
   ///
-  ///https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png
+  /// https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png
   ///
-  ///then:
+  /// then:
   ///
-  ///https://a.tile.openstreetmap.org/{z}/{x}/{y}.png
-  ///https://b.tile.openstreetmap.org/{z}/{x}/{y}.png
-  ///https://c.tile.openstreetmap.org/{z}/{x}/{y}.png
+  /// https://a.tile.openstreetmap.org/{z}/{x}/{y}.png
+  /// https://b.tile.openstreetmap.org/{z}/{x}/{y}.png
+  /// https://c.tile.openstreetmap.org/{z}/{x}/{y}.png
   final List<String> subdomains;
 
   ///Color shown behind the tiles.
@@ -71,17 +70,17 @@ class TileLayerOptions extends LayerOptions {
   /// AssetTileProvider() Note that it requires the urlTemplate to target
   /// assets, for example:
   ///
-  ///```dart
-  ///urlTemplate: "assets/map/anholt_osmbright/{z}/{x}/{y}.png",
-  ///```
+  /// ```dart
+  /// urlTemplate: "assets/map/anholt_osmbright/{z}/{x}/{y}.png",
+  /// ```
   ///
   /// In order to use images from the filesystem set this option to
   /// FileTileProvider() Note that it requires the urlTemplate to target the
   /// file system, for example:
   ///
-  ///```dart
-  ///urlTemplate: "/storage/emulated/0/tiles/some_place/{z}/{x}/{y}.png",
-  ///```
+  /// ```dart
+  /// urlTemplate: "/storage/emulated/0/tiles/some_place/{z}/{x}/{y}.png",
+  /// ```
   ///
   /// Furthermore you create your custom implementation by subclassing
   /// TileProvider
@@ -103,7 +102,7 @@ class TileLayerOptions extends LayerOptions {
       this.additionalOptions = const <String, String>{},
       this.subdomains = const <String>[],
       this.keepBuffer = 2,
-      this.backgroundColor = const Color(0xFFE0E0E0), // grey[300]
+      this.backgroundColor = const Color(0xFFE0E0E0),
       this.placeholderImage,
       this.tileProvider = const CachedNetworkTileProvider(),
       this.tms = false,
@@ -425,23 +424,24 @@ class _TileLayerState extends State<TileLayer> {
     var width = tileSize.x * level.scale;
     var height = tileSize.y * level.scale;
 
-    return Positioned(
-      left: pos.x.toDouble(),
-      top: pos.y.toDouble(),
-      width: width.toDouble(),
-      height: height.toDouble(),
-      child: Container(
-        child: FadeInImage(
-          fadeInDuration: const Duration(milliseconds: 100),
-          key: Key(_tileCoordsToKey(coords)),
-          placeholder: options.placeholderImage != null
-              ? options.placeholderImage
-              : MemoryImage(kTransparentImage),
-          image: options.tileProvider.getImage(coords, options),
-          fit: BoxFit.fill,
-        ),
+    final Widget content = Container(
+      child: FadeInImage(
+        fadeInDuration: const Duration(milliseconds: 100),
+        key: Key(_tileCoordsToKey(coords)),
+        placeholder: options.placeholderImage != null
+            ? options.placeholderImage
+            : MemoryImage(kTransparentImage),
+        image: options.tileProvider.getImage(coords, options),
+        fit: BoxFit.fill,
       ),
     );
+
+    return Positioned(
+        left: pos.x.toDouble(),
+        top: pos.y.toDouble(),
+        width: width.toDouble(),
+        height: height.toDouble(),
+        child: content);
   }
 
   Coords _wrapCoords(Coords coords) {
@@ -504,7 +504,7 @@ abstract class TileProvider {
 
   ImageProvider getImage(Coords coords, TileLayerOptions options);
 
-  dispose() {}
+  void dispose() {}
 
   String _getTileUrl(Coords coords, TileLayerOptions options) {
     var data = <String, String>{
@@ -561,5 +561,21 @@ class FileTileProvider extends TileProvider {
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
     return FileImage(File(_getTileUrl(coords, options)));
+  }
+}
+
+class CustomTileProvider extends TileProvider {
+  String Function(Coords coors, TileLayerOptions options) customTileUrl;
+
+  CustomTileProvider({@required this.customTileUrl});
+
+  @override
+  String _getTileUrl(Coords coords, TileLayerOptions options) {
+    return customTileUrl(coords, options);
+  }
+
+  @override
+  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
+    return AssetImage(_getTileUrl(coords, options));
   }
 }
