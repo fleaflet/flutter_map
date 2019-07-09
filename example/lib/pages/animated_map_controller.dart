@@ -61,7 +61,6 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
     });
 
     animation.addStatusListener((status) {
-      print('$status');
       if (status == AnimationStatus.completed) {
         controller.dispose();
       } else if (status == AnimationStatus.dismissed) {
