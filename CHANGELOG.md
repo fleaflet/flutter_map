@@ -1,3 +1,8 @@
+## [0.5.6] - 7/9/2019
+- fix compatibility with flutter 1.7.8 (stable) (#296)
+
+Thanks to @MichalMisiaszek for the heads up and @slightfoot for help with
+upgrading (#296)!
 ## [0.5.4] - 6/7/2019
 - fix markers on edge of screen disappearing (#313)
 - dart analysis fixes (#300)
