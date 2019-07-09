@@ -24,8 +24,8 @@ class TapToAddPageState extends State<TapToAddPage> {
         height: 80.0,
         point: latlng,
         builder: (ctx) => Container(
-              child: FlutterLogo(),
-            ),
+          child: FlutterLogo(),
+        ),
       );
     }).toList();
 
