@@ -1,8 +1,8 @@
 import 'dart:math';
-import 'dart:ui' as UI;
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/map/map.dart';
+import 'package:flutter_map/plugin_api.dart';
 import './scalebar_utils.dart' as util;
 
 class ScaleLayerPluginOption extends LayerOptions {
@@ -95,7 +95,7 @@ class ScalePainter extends CustomPainter {
   Color lineColor;
 
   @override
-  void paint(UI.Canvas canvas, UI.Size size) {
+  void paint(ui.Canvas canvas, ui.Size size) {
     final paint = Paint()
       ..color = lineColor
       ..strokeCap = StrokeCap.square
@@ -103,9 +103,7 @@ class ScalePainter extends CustomPainter {
 
     var sizeForStartEnd = 4;
     var paddingLeft = padding == null ? 0 : padding.left + sizeForStartEnd / 2;
-    var paddingRight = padding == null ? 0 : padding.right;
     var paddingTop = padding == null ? 0 : padding.top;
-    var paddingBottom = padding == null ? 0 : padding.bottom;
 
     var textSpan = TextSpan(style: textStyle, text: text);
     var textPainter = TextPainter(text: textSpan, textDirection: TextDirection.ltr)..layout();
