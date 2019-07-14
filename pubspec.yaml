@@ -19,7 +19,7 @@ dependencies:
   # todo(johnpryan): use stable version
   # https://github.com/flutter/flutter_image/pull/15
   flutter_image: ^2.0.0-dev.1
-  cached_network_image: ^1.0.0
+  cached_network_image: ^1.1.0
   sqflite: ^1.1.5
   path_provider: ^1.1.0
 
