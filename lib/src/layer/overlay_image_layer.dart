@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:ui';
-import 'dart:ui' as ui;
 
 import 'package:flutter/rendering.dart' as img;
 import 'package:flutter/services.dart' as img;
@@ -42,7 +41,7 @@ class OverlayImageLayer extends StatelessWidget {
       stream: stream, // a Stream<int> or null
       builder: (BuildContext context, _) {
         final zoomScale = map.getZoomScale(map.zoom, map.zoom);
-        final origin = map.getPixelOrigin();
+        final pixelOrigin = map.getPixelOrigin();
         return ClipRect(
           child: Stack(
             children: <Widget>[
@@ -52,11 +51,11 @@ class OverlayImageLayer extends StatelessWidget {
                     final upperLeftPixel = map
                             .project(overlayImage.bounds.northWest)
                             .multiplyBy(zoomScale) -
-                        origin;
+                        pixelOrigin;
                     final bottomRightPixel = map
                             .project(overlayImage.bounds.southEast)
                             .multiplyBy(zoomScale) -
-                        origin;
+                        pixelOrigin;
                     return Positioned(
                       left: upperLeftPixel.x.toDouble(),
                       top: upperLeftPixel.y.toDouble(),
@@ -66,7 +65,8 @@ class OverlayImageLayer extends StatelessWidget {
                       child: Image(
                         image: overlayImage.imageProvider,
                         fit: img.BoxFit.fill,
-                        color:Color.fromRGBO(255, 255, 255, overlayImage.opacity),
+                        color:
+                            Color.fromRGBO(255, 255, 255, overlayImage.opacity),
                         colorBlendMode: img.BlendMode.dstATop,
                       ),
                     );
