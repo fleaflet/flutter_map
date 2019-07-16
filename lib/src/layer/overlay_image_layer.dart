@@ -21,7 +21,6 @@ class OverlayImage {
   final LatLngBounds bounds;
   final img.ImageProvider imageProvider;
   final double opacity;
-  final List<Offset> _offsets = [];
 
   OverlayImage({
     this.bounds,
