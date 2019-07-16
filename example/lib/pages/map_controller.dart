@@ -20,6 +20,7 @@ class MapControllerPageState extends State<MapControllerPage> {
   static LatLng dublin = LatLng(53.3498, -6.2603);
 
   MapController mapController;
+  double rotation = 0.0;
 
   @override
   void initState() {
@@ -129,6 +130,20 @@ class MapControllerPageState extends State<MapControllerPage> {
                       ));
                     },
                   ),
+                  Text('Rotation:'),
+                  Expanded(
+                    child: Slider(
+                      value: rotation,
+                      min: 0.0,
+                      max: 360,
+                      onChanged: (degree) {
+                        setState(() {
+                          rotation = degree;
+                        });
+                        mapController.rotate(degree);
+                      },
+                    ),
+                  )
                 ],
               ),
             ),
