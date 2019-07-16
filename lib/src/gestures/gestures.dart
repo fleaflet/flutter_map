@@ -73,8 +73,12 @@ abstract class MapGestureMixin extends State<FlutterMap>
       return;
     }
 
+
     var direction = details.velocity.pixelsPerSecond / magnitude;
     var distance = (Offset.zero & context.size).shortestSide;
+
+  	print(direction);
+
 
     _flingAnimation = Tween<Offset>(
       begin: _flingOffset,
@@ -172,13 +176,11 @@ abstract class MapGestureMixin extends State<FlutterMap>
   }
 
   void _handleFlingAnimation() {
-    setState(() {
       _flingOffset = _flingAnimation.value;
       var newCenterPoint = map.project(_mapCenterStart) +
           CustomPoint(_flingOffset.dx, _flingOffset.dy);
       var newCenter = map.unproject(newCenterPoint);
       map.move(newCenter, map.zoom, hasGesture: true, isUserGesture: true);
-    });
   }
 
   CustomPoint _offsetToPoint(Offset offset) {
