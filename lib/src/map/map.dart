@@ -57,6 +57,7 @@ class MapControllerImpl implements MapController {
     if (onRotationChanged != null) onRotationChanged(degree);
   }
 
+
   @override
   ValueChanged<double> onRotationChanged;
 }
