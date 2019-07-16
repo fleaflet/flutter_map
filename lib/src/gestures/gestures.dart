@@ -6,6 +6,7 @@ import 'package:flutter_map/src/gestures/latlng_tween.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
+import 'package:vector_math/vector_math_64.dart';
 
 abstract class MapGestureMixin extends State<FlutterMap>
     with TickerProviderStateMixin {
@@ -46,7 +47,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
       _mapCenterStart = map.center;
 
       // determine the focal point within the widget
-      final focalOffset = details.focalPoint - _mapOffset;
+      final focalOffset = details.localFocalPoint;
       _focalStartLocal = _offsetToPoint(focalOffset);
       _focalStartGlobal = _offsetToCrs(focalOffset);
 
@@ -56,7 +57,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
   void handleScaleUpdate(ScaleUpdateDetails details) {
     setState(() {
-      final focalOffset = _offsetToPoint(details.focalPoint - _mapOffset);
+      final focalOffset = _offsetToPoint(details.localFocalPoint);
       final newZoom = _getZoomForScale(_mapZoomStart, details.scale);
       final focalStartPt = map.project(_focalStartGlobal, newZoom);
       final newCenterPt = focalStartPt - focalOffset + map.size / 2.0;
@@ -188,6 +189,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
     return Offset(point.x.toDouble(), point.y.toDouble());
   }
 
+  // This is no longer needed
   Offset get _mapOffset =>
       (context.findRenderObject() as RenderBox).localToGlobal(Offset.zero);
 

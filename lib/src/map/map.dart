@@ -50,6 +50,12 @@ class MapControllerImpl implements MapController {
 
   @override
   double get zoom => _state.zoom;
+
+  @override
+  void rotate(double degree) => onRotationChanged(degree);
+
+  @override
+  ValueChanged<double> onRotationChanged;
 }
 
 class MapState {

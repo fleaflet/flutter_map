@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/point.dart';
@@ -5,12 +7,14 @@ import 'package:flutter_map/src/gestures/gestures.dart';
 import 'package:flutter_map/src/layer/group_layer.dart';
 import 'package:flutter_map/src/layer/overlay_image_layer.dart';
 import 'package:flutter_map/src/map/map.dart';
+import 'package:latlong/latlong.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 import 'package:async/async.dart';
 
 class FlutterMapState extends MapGestureMixin {
   final MapControllerImpl mapController;
   final List<StreamGroup<Null>> groups = <StreamGroup<Null>>[];
+  double rotation = 0.0;
 
   @override
   MapOptions get options => widget.options ?? MapOptions();
@@ -24,7 +28,10 @@ class FlutterMapState extends MapGestureMixin {
   void initState() {
     super.initState();
     mapState = MapState(options);
+    rotation = options.rotation;
     mapController.state = mapState;
+    mapController.onRotationChanged =
+        (degree) => setState(() => rotation = degree);
   }
 
   void _dispose() {
@@ -51,40 +58,80 @@ class FlutterMapState extends MapGestureMixin {
     return group.stream;
   }
 
+  static const _rad90 = 90.0 * pi / 180.0;
+
   @override
   Widget build(BuildContext context) {
     _dispose();
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
-      mapState.size =
-          CustomPoint<double>(constraints.maxWidth, constraints.maxHeight);
+      double angle;
+      double width;
+      double height;
+
+      // only do the rotation maths if we have a rotation
+      if (rotation != 0.0) {
+        angle = degToRadian(rotation);
+        final rangle90 = sin(_rad90 - angle).abs();
+        final sinangle = sin(angle).abs();
+        // to make sure that the whole screen is filled with the map after rotation
+        // we enlarge the drawing area over the available screen size
+        width = (constraints.maxWidth * rangle90) +
+            (constraints.maxHeight * sinangle);
+        height = (constraints.maxHeight * rangle90) +
+            (constraints.maxWidth * sinangle);
+
+        mapState.size = CustomPoint<double>(width, height);
+      } else {
+        mapState.size =
+            CustomPoint<double>(constraints.maxWidth, constraints.maxHeight);
+      }
+
       var layerWidgets = widget.layers
           .map((layer) => _createLayer(layer, widget.options.plugins))
           .toList();
 
-      var layerWidgetsContainer = Container(
-        width: constraints.maxWidth,
-        height: constraints.maxHeight,
-        child: Stack(
-          children: layerWidgets,
-        ),
+      var layerStack = Stack(
+        children: layerWidgets,
       );
+
+      Widget mapRoot;
 
       if (!options.interactive) {
-        return layerWidgetsContainer;
+        mapRoot = layerStack;
+      } else {
+        mapRoot = PositionedTapDetector(
+          onTap: handleTap,
+          onLongPress: handleLongPress,
+          onDoubleTap: handleDoubleTap,
+          child: GestureDetector(
+            onScaleStart: handleScaleStart,
+            onScaleUpdate: handleScaleUpdate,
+            onScaleEnd: handleScaleEnd,
+            child: layerStack,
+          ),
+        );
       }
 
-      return PositionedTapDetector(
-        onTap: handleTap,
-        onLongPress: handleLongPress,
-        onDoubleTap: handleDoubleTap,
-        child: GestureDetector(
-          onScaleStart: handleScaleStart,
-          onScaleUpdate: handleScaleUpdate,
-          onScaleEnd: handleScaleEnd,
-          child: layerWidgetsContainer,
-        ),
-      );
+      if (rotation != 0.0) {
+        // By using an OverflowBox with the enlarged drawing area all the layers
+        // act as if the area really would be that big. So no changes in any layer
+        // logic is necessary for the rotation
+        return ClipRect(
+          child: Transform.rotate(
+            angle: angle,
+            child: OverflowBox(
+              minWidth: width,
+              maxWidth: width,
+              minHeight: height,
+              maxHeight: height,
+              child: mapRoot,
+            ),
+          ),
+        );
+      } else {
+        return mapRoot;
+      }
     });
   }
 
