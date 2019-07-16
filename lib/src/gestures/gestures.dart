@@ -77,8 +77,9 @@ abstract class MapGestureMixin extends State<FlutterMap>
     var direction = details.velocity.pixelsPerSecond / magnitude;
     var distance = (Offset.zero & context.size).shortestSide;
 
-  	print(direction);
-
+    // correct fling direction with rotation
+    var v = Matrix4.rotationZ(-degToRadian(mapState.rotation)) * Vector4(direction.dx,direction.dy,0,0);
+    direction = Offset(v.x,v.y);
 
     _flingAnimation = Tween<Offset>(
       begin: _flingOffset,

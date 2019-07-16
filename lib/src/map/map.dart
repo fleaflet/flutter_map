@@ -52,7 +52,10 @@ class MapControllerImpl implements MapController {
   double get zoom => _state.zoom;
 
   @override
-  void rotate(double degree) => onRotationChanged(degree);
+  void rotate(double degree) {
+    _state.rotation = degree;
+    if (onRotationChanged != null) onRotationChanged(degree);
+  }
 
   @override
   ValueChanged<double> onRotationChanged;
@@ -63,6 +66,7 @@ class MapState {
   final StreamController<Null> _onMoveSink;
 
   double _zoom;
+  double rotation;
 
   double get zoom => _zoom;
 
@@ -72,7 +76,7 @@ class MapState {
   CustomPoint _pixelOrigin;
   bool _initialized = false;
 
-  MapState(this.options) : _onMoveSink = StreamController.broadcast();
+  MapState(this.options) : rotation = options.rotation, _onMoveSink = StreamController.broadcast();
 
   CustomPoint _size;
 
