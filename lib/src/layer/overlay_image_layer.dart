@@ -31,14 +31,9 @@ class OverlayImageLayer extends StatelessWidget {
   OverlayImageLayer(this.overlayImageOpts, this.map, this.stream);
 
   @override
-  _OverlayImageLayerState createState() => _OverlayImageLayerState();
-}
-
-class _OverlayImageLayerState extends State<OverlayImageLayer> {
-  @override
   Widget build(BuildContext context) {
     return StreamBuilder<int>(
-      stream: widget.stream, // a Stream<int> or null
+      stream: stream,
       builder: (BuildContext context, _) {
         final zoomScale = map.getZoomScale(map.zoom, map.zoom);
         final pixelOrigin = map.getPixelOrigin();
