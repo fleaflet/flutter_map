@@ -2,11 +2,6 @@ import 'dart:async';
 import 'dart:ui';
 import 'dart:ui' as ui;
 
-import 'package:flutter/rendering.dart' as img;
-import 'package:flutter/services.dart' as img;
-import 'package:flutter/widgets.dart' as img;
-import 'package:flutter/painting.dart' as img;
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
@@ -18,7 +13,7 @@ class OverlayImageLayerOptions extends LayerOptions {
 }
 
 class OverlayImage {
-  final img.ImageProvider imageProvider;
+  final ImageProvider imageProvider;
   final double opacity;
   final LatLngBounds bounds;
   final List<Offset> offsets = [];
@@ -31,12 +26,11 @@ class OverlayImage {
   });
 }
 
-Future<ui.Image> _loadImage(img.ImageProvider imageProvider) async {
-  var stream = imageProvider.resolve(img.ImageConfiguration.empty);
+Future<ui.Image> _loadImage(ImageProvider imageProvider) async {
+  var stream = imageProvider.resolve(ImageConfiguration.empty);
   var completer = Completer<ui.Image>();
-  img.ImageStreamListener listener;
-  listener =
-      img.ImageStreamListener((img.ImageInfo frame, bool synchronousCall) {
+  ImageStreamListener listener;
+  listener = ImageStreamListener((ImageInfo frame, bool synchronousCall) {
     var image = frame.image;
     completer.complete(image);
     stream.removeListener(listener);
@@ -46,7 +40,7 @@ Future<ui.Image> _loadImage(img.ImageProvider imageProvider) async {
   return completer.future;
 }
 
-class OverlayImageLayer extends img.StatefulWidget {
+class OverlayImageLayer extends StatefulWidget {
   final OverlayImageLayerOptions overlayImageOpts;
   final MapState map;
   final Stream<Null> stream;
@@ -57,7 +51,7 @@ class OverlayImageLayer extends img.StatefulWidget {
   _OverlayImageLayerState createState() => _OverlayImageLayerState();
 }
 
-class _OverlayImageLayerState extends img.State<OverlayImageLayer> {
+class _OverlayImageLayerState extends State<OverlayImageLayer> {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -77,26 +71,30 @@ class _OverlayImageLayerState extends img.State<OverlayImageLayer> {
         for (var overlayImageOpt in widget.overlayImageOpts.overlayImages) {
           overlayImageOpt.offsets.clear();
           var pos1 = widget.map.project(overlayImageOpt.bounds.northWest);
-          pos1 = pos1.multiplyBy(widget.map.getZoomScale(widget.map.zoom, widget.map.zoom)) -
+          pos1 = pos1.multiplyBy(
+                  widget.map.getZoomScale(widget.map.zoom, widget.map.zoom)) -
               widget.map.getPixelOrigin();
           var pos2 = widget.map.project(overlayImageOpt.bounds.southEast);
-          pos2 = pos2.multiplyBy(widget.map.getZoomScale(widget.map.zoom, widget.map.zoom)) -
+          pos2 = pos2.multiplyBy(
+                  widget.map.getZoomScale(widget.map.zoom, widget.map.zoom)) -
               widget.map.getPixelOrigin();
 
           overlayImageOpt.offsets
               .add(Offset(pos1.x.toDouble(), pos1.y.toDouble()));
           overlayImageOpt.offsets
               .add(Offset(pos2.x.toDouble(), pos2.y.toDouble()));
-          _loadImage(overlayImageOpt.imageProvider).then((image) { 
+          _loadImage(overlayImageOpt.imageProvider).then((image) {
             setState(() {
               overlayImageOpt.image = image;
             });
           });
           overlayImages.add(
-            overlayImageOpt.image == null ? img.Container() : CustomPaint(
-              painter: OverlayImagePainter(overlayImageOpt),
-              size: size,
-            ),
+            overlayImageOpt.image == null
+                ? Container()
+                : CustomPaint(
+                    painter: OverlayImagePainter(overlayImageOpt),
+                    size: size,
+                  ),
           );
         }
 
