@@ -2,11 +2,6 @@ import 'dart:async';
 import 'dart:ui';
 import 'dart:ui' as ui;
 
-import 'package:flutter/rendering.dart' as img;
-import 'package:flutter/services.dart' as img;
-import 'package:flutter/widgets.dart' as img;
-import 'package:flutter/painting.dart' as img;
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
@@ -18,7 +13,7 @@ class OverlayImageLayerOptions extends LayerOptions {
 }
 
 class OverlayImage {
-  final img.ImageProvider imageProvider;
+  final ImageProvider imageProvider;
   final double opacity;
   final LatLngBounds bounds;
   final List<Offset> offsets = [];
@@ -31,12 +26,11 @@ class OverlayImage {
   });
 }
 
-Future<ui.Image> _loadImage(img.ImageProvider imageProvider) async {
-  var stream = imageProvider.resolve(img.ImageConfiguration.empty);
+Future<ui.Image> _loadImage(ImageProvider imageProvider) async {
+  var stream = imageProvider.resolve(ImageConfiguration.empty);
   var completer = Completer<ui.Image>();
-  img.ImageStreamListener listener;
-  listener =
-      img.ImageStreamListener((img.ImageInfo frame, bool synchronousCall) {
+  ImageStreamListener listener;
+  listener = ImageStreamListener((ImageInfo frame, bool synchronousCall) {
     var image = frame.image;
     completer.complete(image);
     stream.removeListener(listener);
@@ -46,13 +40,18 @@ Future<ui.Image> _loadImage(img.ImageProvider imageProvider) async {
   return completer.future;
 }
 
-class OverlayImageLayer extends StatelessWidget {
+class OverlayImageLayer extends StatefulWidget {
   final OverlayImageLayerOptions overlayImageOpts;
   final MapState map;
   final Stream<Null> stream;
 
   OverlayImageLayer(this.overlayImageOpts, this.map, this.stream);
 
+  @override
+  _OverlayImageLayerState createState() => _OverlayImageLayerState();
+}
+
+class _OverlayImageLayerState extends State<OverlayImageLayer> {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -65,33 +64,37 @@ class OverlayImageLayer extends StatelessWidget {
 
   Widget _build(BuildContext context, Size size) {
     return StreamBuilder<int>(
-      stream: stream, // a Stream<int> or null
+      stream: widget.stream, // a Stream<int> or null
       builder: (BuildContext context, _) {
-        for (var overlayImageOpt in overlayImageOpts.overlayImages) {
+        var overlayImages = <Widget>[];
+
+        for (var overlayImageOpt in widget.overlayImageOpts.overlayImages) {
           overlayImageOpt.offsets.clear();
-          var pos1 = map.project(overlayImageOpt.bounds.northWest);
-          pos1 = pos1.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
-              map.getPixelOrigin();
-          var pos2 = map.project(overlayImageOpt.bounds.southEast);
-          pos2 = pos2.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
-              map.getPixelOrigin();
+          var pos1 = widget.map.project(overlayImageOpt.bounds.northWest);
+          pos1 = pos1.multiplyBy(
+                  widget.map.getZoomScale(widget.map.zoom, widget.map.zoom)) -
+              widget.map.getPixelOrigin();
+          var pos2 = widget.map.project(overlayImageOpt.bounds.southEast);
+          pos2 = pos2.multiplyBy(
+                  widget.map.getZoomScale(widget.map.zoom, widget.map.zoom)) -
+              widget.map.getPixelOrigin();
 
           overlayImageOpt.offsets
               .add(Offset(pos1.x.toDouble(), pos1.y.toDouble()));
           overlayImageOpt.offsets
               .add(Offset(pos2.x.toDouble(), pos2.y.toDouble()));
           _loadImage(overlayImageOpt.imageProvider).then((image) {
-            overlayImageOpt.image = image;
+            setState(() {
+              overlayImageOpt.image = image;
+            });
           });
-        }
-
-        var overlayImages = <Widget>[];
-        for (var overlayImageOpt in overlayImageOpts.overlayImages) {
           overlayImages.add(
-            CustomPaint(
-              painter: OverlayImagePainter(overlayImageOpt),
-              size: size,
-            ),
+            overlayImageOpt.image == null
+                ? Container()
+                : CustomPaint(
+                    painter: OverlayImagePainter(overlayImageOpt),
+                    size: size,
+                  ),
           );
         }
 
