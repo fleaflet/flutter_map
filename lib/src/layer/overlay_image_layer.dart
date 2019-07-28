@@ -32,7 +32,7 @@ class OverlayImageLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<int>(
+    return StreamBuilder<void>(
       stream: stream,
       builder: (BuildContext context, _) {
         final zoomScale = map.getZoomScale(map.zoom, map.zoom);
