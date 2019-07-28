@@ -33,7 +33,7 @@ class Polygon {
 class PolygonLayer extends StatelessWidget {
   final PolygonLayerOptions polygonOpts;
   final MapState map;
-  final Stream<Null> stream;
+  final Stream stream;
 
   PolygonLayer(this.polygonOpts, this.map, this.stream);
 
@@ -48,7 +48,7 @@ class PolygonLayer extends StatelessWidget {
   }
 
   Widget _build(BuildContext context, Size size) {
-    return StreamBuilder<void>(
+    return StreamBuilder(
       stream: stream, // a Stream<void> or null
       builder: (BuildContext context, _) {
         for (var polygonOpt in polygonOpts.polygons) {
