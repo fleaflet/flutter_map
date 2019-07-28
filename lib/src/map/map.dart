@@ -57,7 +57,6 @@ class MapControllerImpl implements MapController {
     if (onRotationChanged != null) onRotationChanged(degree);
   }
 
-
   @override
   ValueChanged<double> onRotationChanged;
 }
@@ -77,7 +76,9 @@ class MapState {
   CustomPoint _pixelOrigin;
   bool _initialized = false;
 
-  MapState(this.options) : rotation = options.rotation, _onMoveSink = StreamController.broadcast();
+  MapState(this.options)
+      : rotation = options.rotation,
+        _onMoveSink = StreamController.broadcast();
 
   CustomPoint _size;
 
