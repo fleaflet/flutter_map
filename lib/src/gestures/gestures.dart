@@ -192,10 +192,6 @@ abstract class MapGestureMixin extends State<FlutterMap>
     return Offset(point.x.toDouble(), point.y.toDouble());
   }
 
-  // This is no longer needed
-  Offset get _mapOffset =>
-      (context.findRenderObject() as RenderBox).localToGlobal(Offset.zero);
-
   double _getZoomForScale(double startZoom, double scale) =>
       startZoom + math.log(scale) / math.ln2;
 
