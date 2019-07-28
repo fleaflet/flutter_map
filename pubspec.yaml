@@ -1,6 +1,6 @@
 name: flutter_map
 description: A Dart implementation of Leaflet for Flutter apps
-version: 0.5.6
+version: 0.7.0
 authors:
 - John Ryan <john.p.ryan4@gmail.com>
 homepage: https://github.com/johnpryan/flutter_map
@@ -16,9 +16,7 @@ dependencies:
   positioned_tap_detector: ^1.0.2
   transparent_image: ^1.0.0
   async: ^2.1.0
-  # todo(johnpryan): use stable version
-  # https://github.com/flutter/flutter_image/pull/15
-  flutter_image: ^2.0.0-dev.1
+  flutter_image: ^2.0.0
   cached_network_image: ^1.0.0
   sqflite: ^1.1.5
   path_provider: ^1.1.0
