@@ -4,7 +4,6 @@ description: A new Flutter project.
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^0.1.0
   flutter_map:
     path: ../
 
