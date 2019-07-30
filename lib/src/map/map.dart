@@ -88,11 +88,11 @@ class MapState {
 
   set size(CustomPoint s) {
     _size = s;
-    _pixelOrigin = getNewPixelOrigin(_lastCenter);
     if (!_initialized) {
       _init();
       _initialized = true;
     }
+    _pixelOrigin = getNewPixelOrigin(_lastCenter);
   }
 
   LatLng get center => getCenter() ?? options.center;
@@ -115,7 +115,7 @@ class MapState {
     zoom = _fitZoomToBounds(zoom);
     final mapMoved = center != _lastCenter || zoom != _zoom;
 
-    if (!mapMoved || options.isOutOfBounds(center) || !bounds.isValid) {
+    if (_lastCenter != null && (!mapMoved || options.isOutOfBounds(center) || !bounds.isValid)) {
       return;
     }
 
