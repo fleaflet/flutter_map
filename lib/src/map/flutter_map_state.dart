@@ -25,6 +25,12 @@ class FlutterMapState extends MapGestureMixin {
   FlutterMapState(this.mapController);
 
   @override
+  void didUpdateWidget(FlutterMap oldWidget) {
+    mapState.options = options;
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   void initState() {
     super.initState();
     mapState = MapState(options);

@@ -62,7 +62,7 @@ class MapControllerImpl implements MapController {
 }
 
 class MapState {
-  final MapOptions options;
+  MapOptions options;
   final StreamController<Null> _onMoveSink;
 
   double _zoom;
