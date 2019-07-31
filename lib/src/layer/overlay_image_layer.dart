@@ -62,7 +62,7 @@ class OverlayImageLayer extends StatelessWidget {
                         fit: BoxFit.fill,
                         color:
                             Color.fromRGBO(255, 255, 255, overlayImage.opacity),
-                        colorBlendMode: BlendMode.dstATop,
+                        colorBlendMode: BlendMode.modulate,
                       ),
                     );
                   },
