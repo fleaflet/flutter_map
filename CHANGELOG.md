@@ -1,3 +1,11 @@
+## [0.7.0+2] - 7/31/2019
+- Fix OverlayImage with transparency (#382)
+
+Thanks to @4kssoft for this release!
+
+## [0.7.0+1] - 7/30/2019
+- update MapState options when FlutterMap widget options change (#380)
+
 ## [0.7.0] - 7/27/2019
 - compatability with flutter's stable and master channels
 - add scalebar (#356)
