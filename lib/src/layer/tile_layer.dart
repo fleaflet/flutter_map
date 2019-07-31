@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -16,80 +17,76 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'layer.dart';
 
 class TileLayerOptions extends LayerOptions {
-  ///Defines the structure to create the URLs for the tiles.
+  /// Defines the structure to create the URLs for the tiles.
   ///
-  ///Example:
+  /// Example:
   ///
-  ///https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png
+  /// https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png
   ///
-  ///Is translated to this:
+  /// Is translated to this:
   ///
-  ///https://a.tile.openstreetmap.org/12/2177/1259.png
+  /// https://a.tile.openstreetmap.org/12/2177/1259.png
   final String urlTemplate;
 
   /// If `true`, inverses Y axis numbering for tiles (turn this on for
   /// [TMS](https://en.wikipedia.org/wiki/Tile_Map_Service) services).
   final bool tms;
 
-  ///Size for the tile.
-  ///Default is 256
+  /// Size for the tile.
+  /// Default is 256
   final double tileSize;
 
-  ///Determiantes the max zoom applicable.
-  ///In most tile providers goes from 0 to 19.
+  /// The max zoom applicable. In most tile providers goes from 0 to 19.
   final double maxZoom;
 
   final bool zoomReverse;
   final double zoomOffset;
 
-  ///List of subdomains for the URL.
+  /// List of subdomains for the URL.
   ///
-  ///Example:
+  /// Example:
   ///
-  ///Subdomains = {a,b,c}
+  /// Subdomains = {a,b,c}
   ///
-  ///and the URL is as follows:
+  /// and the URL is as follows:
   ///
-  ///https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png
+  /// https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png
   ///
-  ///then:
+  /// then:
   ///
-  ///https://a.tile.openstreetmap.org/{z}/{x}/{y}.png
-  ///https://b.tile.openstreetmap.org/{z}/{x}/{y}.png
-  ///https://c.tile.openstreetmap.org/{z}/{x}/{y}.png
+  /// https://a.tile.openstreetmap.org/{z}/{x}/{y}.png
+  /// https://b.tile.openstreetmap.org/{z}/{x}/{y}.png
+  /// https://c.tile.openstreetmap.org/{z}/{x}/{y}.png
   final List<String> subdomains;
 
   ///Color shown behind the tiles.
   final Color backgroundColor;
 
-  ///Turns on/off the offlineMode.
+  /// Provider to load the tiles. The default is CachedNetworkTileProvider,
+  /// which loads tile images from network and caches them offline.
   ///
-  ///Requires the urlTemplate to target assets or a filesystem path.
+  /// If you don't want to cache the tiles, use NetworkTileProvider instead.
   ///
-  ///Example:
+  /// In order to use images from the asset folder set this option to
+  /// AssetTileProvider() Note that it requires the urlTemplate to target
+  /// assets, for example:
   ///
-  ///```dart
-  ///urlTemplate: "assets/map/anholt_osmbright/{z}/{x}/{y}.png",
-  ///```
+  /// ```dart
+  /// urlTemplate: "assets/map/anholt_osmbright/{z}/{x}/{y}.png",
+  /// ```
   ///
-  ///or:
+  /// In order to use images from the filesystem set this option to
+  /// FileTileProvider() Note that it requires the urlTemplate to target the
+  /// file system, for example:
   ///
-  ///```dart
-  ///urlTemplate: "/storage/emulated/0/tiles/some_place/{z}/{x}/{y}.png",
-  ///```
-  final bool offlineMode;
-
-  ///Reads the tiles from the assets folder in the project.
-  ///If true, reads the tiles from the project assets folder.
-  ///If false, reads the tiles from the device filesystem.
-  ///The later requires permissions to read the device files in Android.
-  final bool fromAssets;
-
-  /// Use CachedNetworkImageProvider instead NetworkImageWithRetry
-  /// If true, every tile loaded will be storage on cache memory
-  /// If false, will download every tiles again after every restart the app
-  /// default is true
-  final bool cachedTiles;
+  /// ```dart
+  /// urlTemplate: "/storage/emulated/0/tiles/some_place/{z}/{x}/{y}.png",
+  /// ```
+  ///
+  /// Furthermore you create your custom implementation by subclassing
+  /// TileProvider
+  ///
+  final TileProvider tileProvider;
 
   /// When panning the map, keep this many rows and columns of tiles before
   /// unloading them.
@@ -106,12 +103,10 @@ class TileLayerOptions extends LayerOptions {
       this.additionalOptions = const <String, String>{},
       this.subdomains = const <String>[],
       this.keepBuffer = 2,
-      this.backgroundColor = const Color(0xFFE0E0E0), // grey[300]
+      this.backgroundColor = const Color(0xFFE0E0E0),
       this.placeholderImage,
-      this.offlineMode = false,
+      this.tileProvider = const CachedNetworkTileProvider(),
       this.tms = false,
-      this.fromAssets = true,
-      this.cachedTiles = true,
       rebuild})
       : super(rebuild: rebuild);
 }
@@ -158,6 +153,7 @@ class _TileLayerState extends State<TileLayer> {
   void dispose() {
     super.dispose();
     _moveSub?.cancel();
+    options.tileProvider.dispose();
   }
 
   void _handleMove() {
@@ -165,25 +161,6 @@ class _TileLayerState extends State<TileLayer> {
       _pruneTiles();
       _resetView();
     });
-  }
-
-  String getTileUrl(Coords coords) {
-    var data = <String, String>{
-      'x': coords.x.round().toString(),
-      'y': coords.y.round().toString(),
-      'z': coords.z.round().toString(),
-      's': _getSubdomain(coords)
-    };
-    if (options.tms) {
-      data['y'] = _invertY(coords.y.round(), coords.z.round()).toString();
-    }
-    var allOpts = Map<String, String>.from(data)
-      ..addAll(options.additionalOptions);
-    return util.template(options.urlTemplate, allOpts);
-  }
-
-  int _invertY(int y, int z) {
-    return ((1 << z) - 1) - y;
   }
 
   void _resetView() {
@@ -309,13 +286,12 @@ class _TileLayerState extends State<TileLayer> {
     // wrapping
     _wrapX = crs.wrapLng;
     if (_wrapX != null) {
-      var first = (map.project(LatLng(0.0, crs.wrapLng.item1), tileZoom).x /
-              tileSize.x)
-          .floor()
-          .toDouble();
+      var first =
+          (map.project(LatLng(0.0, crs.wrapLng.item1), tileZoom).x / tileSize.x)
+              .floor()
+              .toDouble();
       var second =
-          (map.project(LatLng(0.0, crs.wrapLng.item2), tileZoom).x /
-                  tileSize.y)
+          (map.project(LatLng(0.0, crs.wrapLng.item2), tileZoom).x / tileSize.y)
               .ceil()
               .toDouble();
       _wrapX = Tuple2(first, second);
@@ -323,13 +299,12 @@ class _TileLayerState extends State<TileLayer> {
 
     _wrapY = crs.wrapLat;
     if (_wrapY != null) {
-      var first = (map.project(LatLng(crs.wrapLat.item1, 0.0), tileZoom).y /
-              tileSize.x)
-          .floor()
-          .toDouble();
+      var first =
+          (map.project(LatLng(crs.wrapLat.item1, 0.0), tileZoom).y / tileSize.x)
+              .floor()
+              .toDouble();
       var second =
-          (map.project(LatLng(crs.wrapLat.item2, 0.0), tileZoom).y /
-                  tileSize.y)
+          (map.project(LatLng(crs.wrapLat.item2, 0.0), tileZoom).y / tileSize.y)
               .ceil()
               .toDouble();
       _wrapY = Tuple2(first, second);
@@ -405,10 +380,10 @@ class _TileLayerState extends State<TileLayer> {
     }
 
     return Container(
+      color: options.backgroundColor,
       child: Stack(
         children: tileWidgets,
       ),
-      color: options.backgroundColor,
     );
   }
 
@@ -450,39 +425,24 @@ class _TileLayerState extends State<TileLayer> {
     var width = tileSize.x * level.scale;
     var height = tileSize.y * level.scale;
 
-    return Positioned(
-      left: pos.x.toDouble(),
-      top: pos.y.toDouble(),
-      width: width.toDouble(),
-      height: height.toDouble(),
-      child: Container(
-        child: FadeInImage(
-          fadeInDuration: const Duration(milliseconds: 100),
-          key: Key(_tileCoordsToKey(coords)),
-          placeholder: options.placeholderImage != null
-              ? options.placeholderImage
-              : MemoryImage(kTransparentImage),
-          image: _getImageProvider(getTileUrl(coords)),
-          fit: BoxFit.fill,
-        ),
+    final Widget content = Container(
+      child: FadeInImage(
+        fadeInDuration: const Duration(milliseconds: 100),
+        key: Key(_tileCoordsToKey(coords)),
+        placeholder: options.placeholderImage != null
+            ? options.placeholderImage
+            : MemoryImage(kTransparentImage),
+        image: options.tileProvider.getImage(coords, options),
+        fit: BoxFit.fill,
       ),
     );
-  }
 
-  ImageProvider _getImageProvider(String url) {
-    if (options.offlineMode) {
-      if (options.fromAssets) {
-        return AssetImage(url);
-      } else {
-        return FileImage(File(url));
-      }
-    } else {
-      if (options.cachedTiles) {
-        return CachedNetworkImageProvider(url);
-      } else {
-        return NetworkImageWithRetry(url);
-      }
-    }
+    return Positioned(
+        left: pos.x.toDouble(),
+        top: pos.y.toDouble(),
+        width: width.toDouble(),
+        height: height.toDouble(),
+        child: content);
   }
 
   Coords _wrapCoords(Coords coords) {
@@ -501,14 +461,6 @@ class _TileLayerState extends State<TileLayer> {
   CustomPoint _getTilePos(Coords coords) {
     var level = _levels[coords.z];
     return coords.scaleBy(getTileSize()) - level.origin;
-  }
-
-  String _getSubdomain(Coords coords) {
-    if (options.subdomains.isEmpty) {
-      return '';
-    }
-    var index = (coords.x + coords.y).round() % options.subdomains.length;
-    return options.subdomains[index];
   }
 }
 
@@ -546,4 +498,85 @@ class Coords<T extends num> extends CustomPoint<T> {
 
   @override
   int get hashCode => hashValues(x.hashCode, y.hashCode, z.hashCode);
+}
+
+abstract class TileProvider {
+  const TileProvider();
+
+  ImageProvider getImage(Coords coords, TileLayerOptions options);
+
+  void dispose() {}
+
+  String _getTileUrl(Coords coords, TileLayerOptions options) {
+    var data = <String, String>{
+      'x': coords.x.round().toString(),
+      'y': coords.y.round().toString(),
+      'z': coords.z.round().toString(),
+      's': _getSubdomain(coords, options)
+    };
+    if (options.tms) {
+      data['y'] = invertY(coords.y.round(), coords.z.round()).toString();
+    }
+    var allOpts = Map<String, String>.from(data)
+      ..addAll(options.additionalOptions);
+    return util.template(options.urlTemplate, allOpts);
+  }
+
+  int invertY(int y, int z) {
+    return ((1 << z) - 1) - y;
+  }
+
+  String _getSubdomain(Coords coords, TileLayerOptions options) {
+    if (options.subdomains.isEmpty) {
+      return '';
+    }
+    var index = (coords.x + coords.y).round() % options.subdomains.length;
+    return options.subdomains[index];
+  }
+}
+
+class CachedNetworkTileProvider extends TileProvider {
+  const CachedNetworkTileProvider();
+
+  @override
+  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
+    return CachedNetworkImageProvider(_getTileUrl(coords, options));
+  }
+}
+
+class NetworkTileProvider extends TileProvider {
+  @override
+  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
+    return NetworkImageWithRetry(_getTileUrl(coords, options));
+  }
+}
+
+class AssetTileProvider extends TileProvider {
+  @override
+  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
+    return AssetImage(_getTileUrl(coords, options));
+  }
+}
+
+class FileTileProvider extends TileProvider {
+  @override
+  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
+    return FileImage(File(_getTileUrl(coords, options)));
+  }
+}
+
+class CustomTileProvider extends TileProvider {
+  String Function(Coords coors, TileLayerOptions options) customTileUrl;
+
+  CustomTileProvider({@required this.customTileUrl});
+
+  @override
+  String _getTileUrl(Coords coords, TileLayerOptions options) {
+    return customTileUrl(coords, options);
+  }
+
+  @override
+  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
+    return AssetImage(_getTileUrl(coords, options));
+  }
 }

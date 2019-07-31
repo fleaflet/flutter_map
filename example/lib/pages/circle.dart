@@ -13,6 +13,7 @@ class CirclePage extends StatelessWidget {
       CircleMarker(
           point: LatLng(51.5, -0.09),
           color: Colors.blue.withOpacity(0.7),
+          borderStrokeWidth: 2,
           useRadiusInMeter: true,
           radius: 2000 // 2000 meters | 2 km
           ),

@@ -11,13 +11,14 @@ import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/plugins/plugin.dart';
 import 'package:latlong/latlong.dart';
 
-export 'package:flutter_map/src/core/point.dart';
+export 'src/core/point.dart';
 export 'src/geo/crs/crs.dart';
 export 'src/geo/latlng_bounds.dart';
 export 'src/layer/circle_layer.dart';
 export 'src/layer/group_layer.dart';
 export 'src/layer/layer.dart';
 export 'src/layer/marker_layer.dart';
+export 'src/layer/mbtiles/mbtiles_image_provider.dart';
 export 'src/layer/overlay_image_layer.dart';
 export 'src/layer/polygon_layer.dart';
 export 'src/layer/polyline_layer.dart';
@@ -54,6 +55,8 @@ class FlutterMap extends StatefulWidget {
 abstract class MapController {
   /// Moves the map to a specific location and zoom level
   void move(LatLng center, double zoom);
+  void rotate(double degree);
+
   void fitBounds(
     LatLngBounds bounds, {
     FitBoundsOptions options,
@@ -64,16 +67,20 @@ abstract class MapController {
   LatLngBounds get bounds;
   double get zoom;
 
+  ValueChanged<double> onRotationChanged;
+
   factory MapController() => MapControllerImpl();
 }
 
 typedef void TapCallback(LatLng point);
 typedef void LongPressCallback(LatLng point);
-typedef void PositionCallback(MapPosition position, bool hasGesture);
+typedef void PositionCallback(
+    MapPosition position, bool hasGesture, bool isUserGesture);
 
 class MapOptions {
   final Crs crs;
   final double zoom;
+  final double rotation;
   final double minZoom;
   final double maxZoom;
   final bool debug;
@@ -90,6 +97,7 @@ class MapOptions {
     this.crs = const Epsg3857(),
     this.center,
     this.zoom = 13.0,
+    this.rotation = 0.0,
     this.minZoom,
     this.maxZoom,
     this.debug = false,
@@ -108,7 +116,9 @@ class MapOptions {
   //if there is a pan boundary, do not cross
   bool isOutOfBounds(LatLng center) {
     if (swPanBoundary != null && nePanBoundary != null) {
-      if (center.latitude < swPanBoundary.latitude ||
+      if (center == null) {
+        return true;
+      } else if (center.latitude < swPanBoundary.latitude ||
           center.latitude > nePanBoundary.latitude) {
         return true;
       } else if (center.longitude < swPanBoundary.longitude ||

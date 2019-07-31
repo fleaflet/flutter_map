@@ -1,3 +1,51 @@
+## [0.7.0] - 7/27/2019
+- compatability with flutter's stable and master channels
+- add scalebar (#356)
+- add rotation (#359)
+- fix OverlayLayer bug (#360)
+- fix rotation pan issue (#363, #365)
+
+Thanks to @kimlet, @escamoteur, @4kssoft for this release! 
+
+## [0.5.6] - 7/9/2019
+- fix compatibility with flutter 1.7.8 (stable) (#296)
+
+Thanks to @MichalMisiaszek for the heads up and @slightfoot for help with
+upgrading (#296)!
+
+## [0.6.x] - 6/7/2019
+- temporary releases compatable with early flutter releases
+
+## [0.5.4] - 6/7/2019
+- fix markers on edge of screen disappearing (#313)
+- dart analysis fixes (#300)
+- add border circle (#299)
+- add dotted line to polygon (#295)
+- fix example esri page (#292)
+- add flutter_map_marker_cluster package to README (#309)
+
+Note: 0.5.x releases are compatable with Flutter's `stable` channel, currently
+v1.5.4-hotfix.2 and 0.6.x releases (also on the `flutter_map` `dev` branch) is a
+version of flutter_map compatible with Flutter's `dev` channel
+
+Thanks to @lpongetti @FalkF @Victor-emil @lsaudon and @lorenzo for this release!
+
+## [0.5.3] - 5/21/2019
+- update dependencies (#288)
+
+## [0.5.2] - 5/20/2019
+- fix zooming issue (#281)
+
+## [0.5.1] - 5/17/2019
+
+- add mbtiles
+- add formatting and linter rules
+- Fix null pointer in isOutOfBounds (#274)
+- add isUserGesture (#237)
+- fix emulator pinching error
+
+Thanks to @avbk, @OrKoN, @pintomic, @wmcshane, @manhluong for this release!
+
 ## [0.5.0] - 2/21/2019
 
 - add cached network image support (#204)

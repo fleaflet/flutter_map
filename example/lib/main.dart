@@ -8,9 +8,11 @@ import './pages/map_controller.dart';
 import './pages/marker_anchor.dart';
 import './pages/moving_markers.dart';
 import './pages/offline_map.dart';
+import './pages/offline_mbtiles_map.dart';
 import './pages/on_tap.dart';
 import './pages/overlay_image.dart';
 import './pages/plugin_api.dart';
+import './pages/plugin_scalebar.dart';
 import './pages/polyline.dart';
 import './pages/tap_to_add.dart';
 
@@ -35,7 +37,9 @@ class MyApp extends StatelessWidget {
             AnimatedMapControllerPage(),
         MarkerAnchorPage.route: (context) => MarkerAnchorPage(),
         PluginPage.route: (context) => PluginPage(),
+        PluginScaleBar.route: (context) => PluginScaleBar(),
         OfflineMapPage.route: (context) => OfflineMapPage(),
+        OfflineMBTilesMapPage.route: (context) => OfflineMBTilesMapPage(),
         OnTapPage.route: (context) => OnTapPage(),
         MovingMarkersPage.route: (context) => MovingMarkersPage(),
         CirclePage.route: (context) => CirclePage(),

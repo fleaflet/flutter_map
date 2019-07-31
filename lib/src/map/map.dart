@@ -24,8 +24,10 @@ class MapControllerImpl implements MapController {
   }
 
   @override
-  void move(LatLng center, double zoom, {bool hasGesture = false}) {
-    _state.move(center, zoom, hasGesture: hasGesture);
+  void move(LatLng center, double zoom,
+      {bool hasGesture = false, isUserGesture = false}) {
+    _state.move(center, zoom,
+        hasGesture: hasGesture, isUserGesture: isUserGesture);
   }
 
   @override
@@ -48,22 +50,35 @@ class MapControllerImpl implements MapController {
 
   @override
   double get zoom => _state.zoom;
+
+  @override
+  void rotate(double degree) {
+    _state.rotation = degree;
+    if (onRotationChanged != null) onRotationChanged(degree);
+  }
+
+  @override
+  ValueChanged<double> onRotationChanged;
 }
 
 class MapState {
-  final MapOptions options;
+  MapOptions options;
   final StreamController<Null> _onMoveSink;
 
   double _zoom;
+  double rotation;
 
   double get zoom => _zoom;
 
   LatLng _lastCenter;
   LatLngBounds _lastBounds;
+  Bounds _lastPixelBounds;
   CustomPoint _pixelOrigin;
   bool _initialized = false;
 
-  MapState(this.options) : _onMoveSink = StreamController.broadcast();
+  MapState(this.options)
+      : rotation = options.rotation,
+        _onMoveSink = StreamController.broadcast();
 
   CustomPoint _size;
 
@@ -84,6 +99,8 @@ class MapState {
 
   LatLngBounds get bounds => getBounds();
 
+  Bounds get pixelBounds => getLastPixelBounds();
+
   void _init() {
     _zoom = options.zoom;
     move(options.center, zoom);
@@ -93,16 +110,18 @@ class MapState {
     _onMoveSink.close();
   }
 
-  void move(LatLng center, double zoom, {hasGesture = false}) {
+  void move(LatLng center, double zoom,
+      {hasGesture = false, isUserGesture = false}) {
     zoom = _fitZoomToBounds(zoom);
     final mapMoved = center != _lastCenter || zoom != _zoom;
 
-    if (!mapMoved || options.isOutOfBounds(center)) {
+    if (!mapMoved || options.isOutOfBounds(center) || !bounds.isValid) {
       return;
     }
 
     _zoom = zoom;
     _lastCenter = center;
+    _lastPixelBounds = getPixelBounds(_zoom);
     _lastBounds = _calculateBounds();
     _pixelOrigin = getNewPixelOrigin(center);
     _onMoveSink.add(null);
@@ -114,7 +133,8 @@ class MapState {
             bounds: bounds,
             zoom: zoom,
           ),
-          hasGesture);
+          hasGesture,
+          isUserGesture);
     }
   }
 
@@ -134,7 +154,7 @@ class MapState {
     if (!bounds.isValid) {
       throw Exception('Bounds are not valid.');
     }
-    var target = _getBoundsCenterZoom(bounds, options);
+    var target = getBoundsCenterZoom(bounds, options);
     move(target.center, target.zoom);
   }
 
@@ -153,15 +173,23 @@ class MapState {
     return _calculateBounds();
   }
 
+  Bounds getLastPixelBounds() {
+    if (_lastPixelBounds != null) {
+      return _lastPixelBounds;
+    }
+
+    return getPixelBounds(zoom);
+  }
+
   LatLngBounds _calculateBounds() {
-    var bounds = getPixelBounds(zoom);
+    var bounds = getLastPixelBounds();
     return LatLngBounds(
       unproject(bounds.bottomLeft),
       unproject(bounds.topRight),
     );
   }
 
-  CenterZoom _getBoundsCenterZoom(
+  CenterZoom getBoundsCenterZoom(
       LatLngBounds bounds, FitBoundsOptions options) {
     var paddingTL =
         CustomPoint<double>(options.padding.left, options.padding.top);

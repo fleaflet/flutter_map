@@ -15,6 +15,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
+    - assets/berlin.mbtiles
     - assets/map/anholt_osmbright/12/2177/
     - assets/map/anholt_osmbright/12/2178/
     - assets/map/anholt_osmbright/12/2179/

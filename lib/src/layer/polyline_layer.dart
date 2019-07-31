@@ -48,8 +48,8 @@ class PolylineLayer extends StatelessWidget {
   }
 
   Widget _build(BuildContext context, Size size) {
-    return StreamBuilder<int>(
-      stream: stream, // a Stream<int> or null
+    return StreamBuilder<void>(
+      stream: stream, // a Stream<void> or null
       builder: (BuildContext context, _) {
         for (var polylineOpt in polylineOpts.polylines) {
           polylineOpt.offsets.clear();

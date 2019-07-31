@@ -55,14 +55,12 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
         CurvedAnimation(parent: controller, curve: Curves.fastOutSlowIn);
 
     controller.addListener(() {
-      // Note that the mapController.move doesn't seem to like the zoom animation. This may be a bug in flutter_map.
       mapController.move(
           LatLng(_latTween.evaluate(animation), _lngTween.evaluate(animation)),
           _zoomTween.evaluate(animation));
     });
 
     animation.addStatusListener((status) {
-      print('$status');
       if (status == AnimationStatus.completed) {
         controller.dispose();
       } else if (status == AnimationStatus.dismissed) {
@@ -81,29 +79,29 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
         height: 80.0,
         point: london,
         builder: (ctx) => Container(
-              key: Key('blue'),
-              child: FlutterLogo(),
-            ),
+          key: Key('blue'),
+          child: FlutterLogo(),
+        ),
       ),
       Marker(
         width: 80.0,
         height: 80.0,
         point: dublin,
         builder: (ctx) => Container(
-              child: FlutterLogo(
-                key: Key('green'),
-                colors: Colors.green,
-              ),
-            ),
+          child: FlutterLogo(
+            key: Key('green'),
+            colors: Colors.green,
+          ),
+        ),
       ),
       Marker(
         width: 80.0,
         height: 80.0,
         point: paris,
         builder: (ctx) => Container(
-              key: Key('purple'),
-              child: FlutterLogo(colors: Colors.purple),
-            ),
+          key: Key('purple'),
+          child: FlutterLogo(colors: Colors.purple),
+        ),
       ),
     ];
 
@@ -167,7 +165,7 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
                 options: MapOptions(
                     center: LatLng(51.5, -0.09),
                     zoom: 5.0,
-                    maxZoom: 5.0,
+                    maxZoom: 10.0,
                     minZoom: 3.0),
                 layers: [
                   TileLayerOptions(

@@ -18,7 +18,7 @@ class OverlayImagePage extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: Text('Circle')),
+      appBar: AppBar(title: Text('Overlay Image')),
       drawer: buildDrawer(context, route),
       body: Padding(
         padding: EdgeInsets.all(8.0),

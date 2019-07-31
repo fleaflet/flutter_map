@@ -33,7 +33,7 @@ class OfflineMapPage extends StatelessWidget {
                 ),
                 layers: [
                   TileLayerOptions(
-                    offlineMode: true,
+                    tileProvider: AssetTileProvider(),
                     maxZoom: 14.0,
                     urlTemplate: 'assets/map/anholt_osmbright/{z}/{x}/{y}.png',
                   ),

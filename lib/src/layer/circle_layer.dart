@@ -47,8 +47,8 @@ class CircleLayer extends StatelessWidget {
   }
 
   Widget _build(BuildContext context, Size size) {
-    return StreamBuilder<int>(
-      stream: stream, // a Stream<int> or null
+    return StreamBuilder<void>(
+      stream: stream, // a Stream<void> or null
       builder: (BuildContext context, _) {
         var circleWidgets = <Widget>[];
         for (var circle in circleOpts.circles) {
@@ -98,6 +98,16 @@ class CirclePainter extends CustomPainter {
 
     _paintCircle(canvas, circle.offset,
         circle.useRadiusInMeter ? circle.realRadius : circle.radius, paint);
+
+    if (circle.borderStrokeWidth > 0) {
+      final paint = Paint()
+        ..style = PaintingStyle.stroke
+        ..color = circle.borderColor
+        ..strokeWidth = circle.borderStrokeWidth;
+
+      _paintCircle(canvas, circle.offset,
+          circle.useRadiusInMeter ? circle.realRadius : circle.radius, paint);
+    }
   }
 
   void _paintCircle(Canvas canvas, Offset offset, double radius, Paint paint) {
