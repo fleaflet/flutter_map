@@ -1,3 +1,29 @@
+## [0.7.0+2] - 7/31/2019
+- Fix OverlayImage with transparency (#382)
+
+Thanks to @4kssoft for this release!
+
+## [0.7.0+1] - 7/30/2019
+- update MapState options when FlutterMap widget options change (#380)
+
+## [0.7.0] - 7/27/2019
+- compatability with flutter's stable and master channels
+- add scalebar (#356)
+- add rotation (#359)
+- fix OverlayLayer bug (#360)
+- fix rotation pan issue (#363, #365)
+
+Thanks to @kimlet, @escamoteur, @4kssoft for this release! 
+
+## [0.5.6] - 7/9/2019
+- fix compatibility with flutter 1.7.8 (stable) (#296)
+
+Thanks to @MichalMisiaszek for the heads up and @slightfoot for help with
+upgrading (#296)!
+
+## [0.6.x] - 6/7/2019
+- temporary releases compatable with early flutter releases
+
 ## [0.5.4] - 6/7/2019
 - fix markers on edge of screen disappearing (#313)
 - dart analysis fixes (#300)

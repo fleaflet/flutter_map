@@ -50,13 +50,23 @@ class MapControllerImpl implements MapController {
 
   @override
   double get zoom => _state.zoom;
+
+  @override
+  void rotate(double degree) {
+    _state.rotation = degree;
+    if (onRotationChanged != null) onRotationChanged(degree);
+  }
+
+  @override
+  ValueChanged<double> onRotationChanged;
 }
 
 class MapState {
-  final MapOptions options;
+  MapOptions options;
   final StreamController<Null> _onMoveSink;
 
   double _zoom;
+  double rotation;
 
   double get zoom => _zoom;
 
@@ -66,7 +76,9 @@ class MapState {
   CustomPoint _pixelOrigin;
   bool _initialized = false;
 
-  MapState(this.options) : _onMoveSink = StreamController.broadcast();
+  MapState(this.options)
+      : rotation = options.rotation,
+        _onMoveSink = StreamController.broadcast();
 
   CustomPoint _size;
 
@@ -76,11 +88,11 @@ class MapState {
 
   set size(CustomPoint s) {
     _size = s;
-    _pixelOrigin = getNewPixelOrigin(_lastCenter);
     if (!_initialized) {
       _init();
       _initialized = true;
     }
+    _pixelOrigin = getNewPixelOrigin(_lastCenter);
   }
 
   LatLng get center => getCenter() ?? options.center;
@@ -103,7 +115,8 @@ class MapState {
     zoom = _fitZoomToBounds(zoom);
     final mapMoved = center != _lastCenter || zoom != _zoom;
 
-    if (!mapMoved || options.isOutOfBounds(center) || !bounds.isValid) {
+    if (_lastCenter != null &&
+        (!mapMoved || options.isOutOfBounds(center) || !bounds.isValid)) {
       return;
     }
 

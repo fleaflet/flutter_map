@@ -20,6 +20,7 @@ class MapControllerPageState extends State<MapControllerPage> {
   static LatLng dublin = LatLng(53.3498, -6.2603);
 
   MapController mapController;
+  double rotation = 0.0;
 
   @override
   void initState() {
@@ -35,29 +36,29 @@ class MapControllerPageState extends State<MapControllerPage> {
         height: 80.0,
         point: london,
         builder: (ctx) => Container(
-              key: Key('blue'),
-              child: FlutterLogo(),
-            ),
+          key: Key('blue'),
+          child: FlutterLogo(),
+        ),
       ),
       Marker(
         width: 80.0,
         height: 80.0,
         point: dublin,
         builder: (ctx) => Container(
-              child: FlutterLogo(
-                key: Key('green'),
-                colors: Colors.green,
-              ),
-            ),
+          child: FlutterLogo(
+            key: Key('green'),
+            colors: Colors.green,
+          ),
+        ),
       ),
       Marker(
         width: 80.0,
         height: 80.0,
         point: paris,
         builder: (ctx) => Container(
-              key: Key('purple'),
-              child: FlutterLogo(colors: Colors.purple),
-            ),
+          key: Key('purple'),
+          child: FlutterLogo(colors: Colors.purple),
+        ),
       ),
     ];
 
@@ -129,6 +130,20 @@ class MapControllerPageState extends State<MapControllerPage> {
                       ));
                     },
                   ),
+                  Text('Rotation:'),
+                  Expanded(
+                    child: Slider(
+                      value: rotation,
+                      min: 0.0,
+                      max: 360,
+                      onChanged: (degree) {
+                        setState(() {
+                          rotation = degree;
+                        });
+                        mapController.rotate(degree);
+                      },
+                    ),
+                  )
                 ],
               ),
             ),

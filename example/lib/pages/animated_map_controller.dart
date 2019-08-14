@@ -61,7 +61,6 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
     });
 
     animation.addStatusListener((status) {
-      print('$status');
       if (status == AnimationStatus.completed) {
         controller.dispose();
       } else if (status == AnimationStatus.dismissed) {
@@ -80,29 +79,29 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
         height: 80.0,
         point: london,
         builder: (ctx) => Container(
-              key: Key('blue'),
-              child: FlutterLogo(),
-            ),
+          key: Key('blue'),
+          child: FlutterLogo(),
+        ),
       ),
       Marker(
         width: 80.0,
         height: 80.0,
         point: dublin,
         builder: (ctx) => Container(
-              child: FlutterLogo(
-                key: Key('green'),
-                colors: Colors.green,
-              ),
-            ),
+          child: FlutterLogo(
+            key: Key('green'),
+            colors: Colors.green,
+          ),
+        ),
       ),
       Marker(
         width: 80.0,
         height: 80.0,
         point: paris,
         builder: (ctx) => Container(
-              key: Key('purple'),
-              child: FlutterLogo(colors: Colors.purple),
-            ),
+          key: Key('purple'),
+          child: FlutterLogo(colors: Colors.purple),
+        ),
       ),
     ];
 
