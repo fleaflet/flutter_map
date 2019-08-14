@@ -4,9 +4,48 @@ import 'package:latlong/latlong.dart';
 class LatLngBounds {
   LatLng _sw;
   LatLng _ne;
+
   LatLngBounds([LatLng corner1, LatLng corner2]) {
     extend(corner1);
     extend(corner2);
+  }
+
+  LatLngBounds.fromPoints(List<LatLng> points) {
+    if (points != null && points.isNotEmpty) {
+      num minX;
+      num maxX;
+      num minY;
+      num maxY;
+
+      for (var point in points) {
+        num x = point.longitudeInRad;
+        num y = point.latitudeInRad;
+
+        if (minX == null || minX > x) {
+          minX = x;
+        }
+
+        if (minY == null || minY > y) {
+          minY = y;
+        }
+
+        if (maxX == null || maxX < x) {
+          maxX = x;
+        }
+
+        if (maxY == null || maxY < y) {
+          maxY = y;
+        }
+      }
+
+      _sw = LatLng(radianToDeg(minY), radianToDeg(minX));
+      _ne = LatLng(radianToDeg(maxY), radianToDeg(maxX));
+    }
+    else
+    {
+      _sw = LatLng(0, 0);
+      _ne = LatLng(0, 0);
+    }
   }
 
   void extend(LatLng latlng) {
@@ -62,5 +101,13 @@ class LatLngBounds {
         (ne2.latitude <= _ne.latitude) &&
         (sw2.longitude >= _sw.longitude) &&
         (ne2.longitude <= _ne.longitude);
+  }
+
+  bool isOverlapping(LatLngBounds bounds) {
+    // check if bounding box rectangle is outside the other, if it is then it's considered not overlapping
+    if (_sw.latitude > bounds._ne.latitude || _ne.latitude < bounds._sw.latitude || _ne.longitude < bounds._sw.longitude || _sw.longitude > bounds._ne.longitude) {
+      return false;
+    }
+    return true;
   }
 }

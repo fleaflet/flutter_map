@@ -8,8 +8,9 @@ import 'package:latlong/latlong.dart' hide Path; // conflict with Path from UI
 
 class PolygonLayerOptions extends LayerOptions {
   final List<Polygon> polygons;
+  final bool polygonCulling; /// screen space culling of polygons based on bounding box
 
-  PolygonLayerOptions({this.polygons = const [], rebuild})
+  PolygonLayerOptions({this.polygons = const [], this.polygonCulling = false, rebuild})
       : super(rebuild: rebuild);
 }
 
@@ -20,6 +21,7 @@ class Polygon {
   final double borderStrokeWidth;
   final Color borderColor;
   final bool isDotted;
+  LatLngBounds boundingBox;
 
   Polygon({
     this.points,
@@ -27,7 +29,9 @@ class Polygon {
     this.borderStrokeWidth = 0.0,
     this.borderColor = const Color(0xFFFFFF00),
     this.isDotted = false,
-  });
+  }){
+    boundingBox = LatLngBounds.fromPoints(points);
+  }
 }
 
 class PolygonLayer extends StatelessWidget {
@@ -52,33 +56,46 @@ class PolygonLayer extends StatelessWidget {
     return StreamBuilder(
       stream: stream, // a Stream<void> or null
       builder: (BuildContext context, _) {
-        for (var polygonOpt in polygonOpts.polygons) {
-          polygonOpt.offsets.clear();
+        var polygons = <Widget>[];
+
+        for (var polygon in polygonOpts.polygons) {
+          polygon.offsets.clear();
           var i = 0;
-          for (var point in polygonOpt.points) {
+
+          if(polygonOpts.polygonCulling && !polygon.boundingBox.isOverlapping(map.bounds))
+          {
+            // skip this polygon as it's offscreen
+            continue;
+          }
+
+          for (var point in polygon.points) {
             var pos = map.project(point);
             pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
                 map.getPixelOrigin();
-            polygonOpt.offsets.add(Offset(pos.x.toDouble(), pos.y.toDouble()));
-            if (i > 0 && i < polygonOpt.points.length) {
-              polygonOpt.offsets
+            polygon.offsets.add(Offset(pos.x.toDouble(), pos.y.toDouble()));
+            if (i > 0 && i < polygon.points.length) {
+              polygon.offsets
                   .add(Offset(pos.x.toDouble(), pos.y.toDouble()));
             }
             i++;
           }
+
+          polygons.add(
+            CustomPaint(
+              painter: PolygonPainter(polygon),
+              size: size,
+            ),
+          );
         }
+
+        debugPrint('Rendered Polygons: ${polygons.length}');
 
         return Container(
           child: Stack(
-            children: [
-              for (final polygonOpt in polygonOpts.polygons)
-                CustomPaint(
-                  painter: PolygonPainter(polygonOpt),
-                  size: size,
-                ),
-            ],
+            children: polygons,
           ),
         );
+        
       },
     );
   }
