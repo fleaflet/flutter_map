@@ -62,8 +62,7 @@ class PolygonLayer extends StatelessWidget {
           polygon.offsets.clear();
           var i = 0;
 
-          if(polygonOpts.polygonCulling && !polygon.boundingBox.isOverlapping(map.bounds))
-          {
+          if (polygonOpts.polygonCulling && !polygon.boundingBox.isOverlapping(map.bounds)) {
             // skip this polygon as it's offscreen
             continue;
           }
@@ -87,8 +86,6 @@ class PolygonLayer extends StatelessWidget {
             ),
           );
         }
-
-        debugPrint('Rendered Polygons: ${polygons.length}');
 
         return Container(
           child: Stack(

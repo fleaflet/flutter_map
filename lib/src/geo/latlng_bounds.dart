@@ -41,11 +41,6 @@ class LatLngBounds {
       _sw = LatLng(radianToDeg(minY), radianToDeg(minX));
       _ne = LatLng(radianToDeg(maxY), radianToDeg(maxX));
     }
-    else
-    {
-      _sw = LatLng(0, 0);
-      _ne = LatLng(0, 0);
-    }
   }
 
   void extend(LatLng latlng) {
@@ -104,6 +99,9 @@ class LatLngBounds {
   }
 
   bool isOverlapping(LatLngBounds bounds) {
+    if (!isValid) {
+      return false;
+    }
     // check if bounding box rectangle is outside the other, if it is then it's considered not overlapping
     if (_sw.latitude > bounds._ne.latitude || _ne.latitude < bounds._sw.latitude || _ne.longitude < bounds._sw.longitude || _sw.longitude > bounds._ne.longitude) {
       return false;
