@@ -25,9 +25,9 @@ class MapControllerImpl implements MapController {
 
   @override
   void move(LatLng center, double zoom,
-      {bool hasGesture = false, isUserGesture = false}) {
+      {bool hasGesture = false}) {
     _state.move(center, zoom,
-        hasGesture: hasGesture, isUserGesture: isUserGesture);
+        hasGesture: hasGesture);
   }
 
   @override
@@ -111,7 +111,7 @@ class MapState {
   }
 
   void move(LatLng center, double zoom,
-      {hasGesture = false, isUserGesture = false}) {
+      {hasGesture = false}) {
     zoom = _fitZoomToBounds(zoom);
     final mapMoved = center != _lastCenter || zoom != _zoom;
 
@@ -134,8 +134,7 @@ class MapState {
             bounds: bounds,
             zoom: zoom,
           ),
-          hasGesture,
-          isUserGesture);
+          hasGesture);
     }
   }
 
