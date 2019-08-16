@@ -210,7 +210,11 @@ abstract class MapGestureMixin extends State<FlutterMap>
       final focalOffset = _offsetToPoint(details.localFocalPoint);
       final verticalOffset = _pointToOffset(_focalStartLocal - focalOffset).dy;
       final newZoom = _mapZoomStart - verticalOffset / 360 * zoom;
-      map.move(map.center, newZoom, hasGesture: true, isUserGesture: true);
+      final min = options.minZoom ?? 0.0;
+      final max = options.maxZoom ?? double.infinity;
+      final actualZoom = math.max(min, math.min(max, newZoom));
+
+      map.move(map.center, actualZoom, hasGesture: true, isUserGesture: true);
     });
   }
 
