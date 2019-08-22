@@ -55,19 +55,31 @@ class FlutterMap extends StatefulWidget {
   FlutterMapState createState() => FlutterMapState(_mapController);
 }
 
+/// Controller to programmatically interact with [FlutterMap].
+///
+/// It allows for map movement through [move], rotation through [rotate]
+/// and to fit the map bounds with [fitBounds].
+///
+/// It also provides current map properties.
 abstract class MapController {
   /// Moves the map to a specific location and zoom level
   void move(LatLng center, double zoom);
+
+  /// Sets the map rotation to a certain degrees angle (in decimal).
   void rotate(double degree);
 
-  void fitBounds(
-    LatLngBounds bounds, {
-    FitBoundsOptions options,
-  });
+  /// Fits the map bounds. Optional constraints can be defined
+  /// through the [options] parameter.
+  void fitBounds(LatLngBounds bounds, {FitBoundsOptions options});
+
   bool get ready;
+
   Future<Null> get onReady;
+
   LatLng get center;
+
   LatLngBounds get bounds;
+
   double get zoom;
 
   ValueChanged<double> onRotationChanged;
