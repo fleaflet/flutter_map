@@ -25,19 +25,22 @@ export 'package:flutter_map/src/layer/polyline_layer.dart';
 export 'package:flutter_map/src/layer/tile_layer.dart';
 export 'package:flutter_map/src/plugins/plugin.dart';
 
+/// Renders a map composed of a list of layers powered by [LayerOptions].
+///
+/// Use a [MapController] to interact programmatically with the map.
 class FlutterMap extends StatefulWidget {
-  /// A set of layers' options to used to create the layers on the map
+  /// A set of layers' options to used to create the layers on the map.
   ///
   /// Usually a list of [TileLayerOptions], [MarkerLayerOptions] and
   /// [PolylineLayerOptions].
   final List<LayerOptions> layers;
 
-  /// [MapOptions] to create a [MapState] with
+  /// [MapOptions] to create a [MapState] with.
   ///
   /// This property must not be null.
   final MapOptions options;
 
-  /// A [MapController], used to control the map
+  /// A [MapController], used to control the map.
   final MapControllerImpl _mapController;
 
   FlutterMap({
