@@ -213,7 +213,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
       final max = options.maxZoom ?? double.infinity;
       final actualZoom = math.max(min, math.min(max, newZoom));
 
-      map.move(map.center, actualZoom, hasGesture: true, isUserGesture: true);
+      map.move(map.center, actualZoom, hasGesture: true);
     });
   }
 
