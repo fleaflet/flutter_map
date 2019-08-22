@@ -11,19 +11,19 @@ import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/plugins/plugin.dart';
 import 'package:latlong/latlong.dart';
 
-export 'src/core/point.dart';
-export 'src/geo/crs/crs.dart';
-export 'src/geo/latlng_bounds.dart';
-export 'src/layer/circle_layer.dart';
-export 'src/layer/group_layer.dart';
-export 'src/layer/layer.dart';
-export 'src/layer/marker_layer.dart';
-export 'src/layer/mbtiles/mbtiles_image_provider.dart';
-export 'src/layer/overlay_image_layer.dart';
-export 'src/layer/polygon_layer.dart';
-export 'src/layer/polyline_layer.dart';
-export 'src/layer/tile_layer.dart';
-export 'src/plugins/plugin.dart';
+export 'package:flutter_map/src/core/point.dart';
+export 'package:flutter_map/src/geo/crs/crs.dart';
+export 'package:flutter_map/src/geo/latlng_bounds.dart';
+export 'package:flutter_map/src/layer/circle_layer.dart';
+export 'package:flutter_map/src/layer/group_layer.dart';
+export 'package:flutter_map/src/layer/layer.dart';
+export 'package:flutter_map/src/layer/marker_layer.dart';
+export 'package:flutter_map/src/layer/mbtiles/mbtiles_image_provider.dart';
+export 'package:flutter_map/src/layer/overlay_image_layer.dart';
+export 'package:flutter_map/src/layer/polygon_layer.dart';
+export 'package:flutter_map/src/layer/polyline_layer.dart';
+export 'package:flutter_map/src/layer/tile_layer.dart';
+export 'package:flutter_map/src/plugins/plugin.dart';
 
 class FlutterMap extends StatefulWidget {
   /// A set of layers' options to used to create the layers on the map

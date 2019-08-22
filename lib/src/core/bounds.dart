@@ -1,5 +1,5 @@
 import 'dart:math' as math;
-import 'point.dart';
+import 'package:flutter_map/src/core/point.dart';
 
 class Bounds<T extends num> {
   final CustomPoint<T> min;

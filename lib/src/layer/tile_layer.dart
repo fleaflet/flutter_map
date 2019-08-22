@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -14,7 +13,8 @@ import 'package:tuple/tuple.dart';
 import 'package:flutter_image/network.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-import 'layer.dart';
+import 'package:flutter_map/flutter_map.dart';
+
 
 class TileLayerOptions extends LayerOptions {
   /// Defines the structure to create the URLs for the tiles.
