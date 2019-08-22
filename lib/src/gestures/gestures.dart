@@ -194,10 +194,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
     _doubleTapHoldMaxDelay?.cancel();
 
     if (++_tapUpCounter == 1) {
-      _doubleTapHoldMaxDelay = Timer(
-          const Duration(milliseconds: 350),
-          _resetDoubleTapHold
-      );
+      _doubleTapHoldMaxDelay =
+          Timer(const Duration(milliseconds: 350), _resetDoubleTapHold);
     }
   }
 
@@ -221,7 +219,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
     _doubleTapHoldMaxDelay?.cancel();
     _tapUpCounter = 0;
   }
-  
+
   void _handleFlingAnimation() {
     _flingOffset = _flingAnimation.value;
     var newCenterPoint = map.project(_mapCenterStart) +
