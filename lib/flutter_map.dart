@@ -101,12 +101,16 @@ typedef void PositionCallback(MapPosition position, bool hasGesture);
 ///
 /// Through [crs] the Coordinate Reference System can be
 /// defined, it defaults to [Epsg3857].
+///
+/// Checks if a coordinate is outside of the map's
+/// defined boundaries.
 class MapOptions {
   final Crs crs;
   final double zoom;
   final double rotation;
   final double minZoom;
   final double maxZoom;
+  @deprecated
   final bool debug; // TODO no usage outside of constructor. Marked for removal?
   final bool interactive;
   final TapCallback onTap;
@@ -166,6 +170,7 @@ class FitBoundsOptions {
   });
 }
 
+/// Position's type for [PositionCallback].
 class MapPosition {
   final LatLng center;
   final LatLngBounds bounds;

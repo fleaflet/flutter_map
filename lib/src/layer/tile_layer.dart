@@ -15,7 +15,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:flutter_map/flutter_map.dart';
 
-
 class TileLayerOptions extends LayerOptions {
   /// Defines the structure to create the URLs for the tiles.
   ///
