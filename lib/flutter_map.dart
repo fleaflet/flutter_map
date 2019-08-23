@@ -27,6 +27,8 @@ export 'package:flutter_map/src/plugins/plugin.dart';
 /// Renders a map composed of a list of layers powered by [LayerOptions].
 ///
 /// Use a [MapController] to interact programmatically with the map.
+///
+/// Through [MapOptions] map's callbacks and properties can be defined.
 class FlutterMap extends StatefulWidget {
   /// A set of layers' options to used to create the layers on the map.
   ///
@@ -90,13 +92,22 @@ typedef void TapCallback(LatLng point);
 typedef void LongPressCallback(LatLng point);
 typedef void PositionCallback(MapPosition position, bool hasGesture);
 
+/// Allows you to provide your map's starting properties for [zoom], [rotation]
+/// and [center].
+/// Zoom, pan boundary and interactivity constraints can be specified here too.
+///
+/// Callbacks for [onTap], [onLongPress] and [onPositionChanged] can be
+/// registered here.
+///
+/// Through [crs] the Coordinate Reference System can be
+/// defined, it defaults to [Epsg3857].
 class MapOptions {
   final Crs crs;
   final double zoom;
   final double rotation;
   final double minZoom;
   final double maxZoom;
-  final bool debug;
+  final bool debug; // TODO no usage outside of constructor. Marked for removal?
   final bool interactive;
   final TapCallback onTap;
   final LongPressCallback onLongPress;
