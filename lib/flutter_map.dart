@@ -17,7 +17,6 @@ export 'package:flutter_map/src/layer/circle_layer.dart';
 export 'package:flutter_map/src/layer/group_layer.dart';
 export 'package:flutter_map/src/layer/layer.dart';
 export 'package:flutter_map/src/layer/marker_layer.dart';
-export 'package:flutter_map/src/layer/mbtiles/mbtiles_image_provider.dart';
 export 'package:flutter_map/src/layer/overlay_image_layer.dart';
 export 'package:flutter_map/src/layer/polygon_layer.dart';
 export 'package:flutter_map/src/layer/polyline_layer.dart';
