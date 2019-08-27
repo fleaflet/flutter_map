@@ -6,6 +6,13 @@ import 'package:flutter_map/src/core/bounds.dart';
 
 import 'package:flutter_map/src/core/point.dart';
 
+/// An abstract representation of a [Coordinate Reference System][qgis_crs_def].
+///
+/// The main objective of a CRS is to handle the conversion between surface
+/// points of objects of different dimensions. In our case 3D and 2D objects.
+///
+///
+/// [qgis_crs_def]: https://docs.qgis.org/testing/en/docs/gentle_gis_introduction/coordinate_reference_systems.html
 abstract class Crs {
   String get code;
   Projection get projection;
