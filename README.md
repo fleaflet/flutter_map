@@ -1,5 +1,5 @@
 [![BuildStatus](https://api.travis-ci.org/johnpryan/flutter_map.svg?branch=master)](https://travis-ci.org/johnpryan/flutter_map)
-[![Pub](https://img.shields.io/pub/v/flutter_map.svg)](https://pub.dartlang.org/packages/flutter_map)
+[![Pub](https://img.shields.io/pub/v/flutter_map.svg)](https://pub.dev/packages/flutter_map)
 
 # flutter_map
 
@@ -128,4 +128,4 @@ For the latest roadmap, please see the [Issue Tracker]
 
 [Leaflet]: http://leafletjs.com/
 [Mapbox]: https://www.mapbox.com/
-[Issue Tracker]: https://github.com/apptreesoftware/flutter_map/issues
+[Issue Tracker]: https://github.com/johnpryan/flutter_map/issues
