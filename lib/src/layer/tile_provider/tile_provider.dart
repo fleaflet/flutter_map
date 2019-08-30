@@ -15,12 +15,12 @@ abstract class TileProvider {
 
   void dispose() {}
 
-  String _getTileUrl(Coords coords, TileLayerOptions options) {
+  String getTileUrl(Coords coords, TileLayerOptions options) {
     var data = <String, String>{
       'x': coords.x.round().toString(),
       'y': coords.y.round().toString(),
       'z': coords.z.round().toString(),
-      's': _getSubdomain(coords, options)
+      's': getSubdomain(coords, options)
     };
     if (options.tms) {
       data['y'] = invertY(coords.y.round(), coords.z.round()).toString();
@@ -34,7 +34,7 @@ abstract class TileProvider {
     return ((1 << z) - 1) - y;
   }
 
-  String _getSubdomain(Coords coords, TileLayerOptions options) {
+  String getSubdomain(Coords coords, TileLayerOptions options) {
     if (options.subdomains.isEmpty) {
       return '';
     }
@@ -48,28 +48,28 @@ class CachedNetworkTileProvider extends TileProvider {
 
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
-    return CachedNetworkImageProvider(_getTileUrl(coords, options));
+    return CachedNetworkImageProvider(getTileUrl(coords, options));
   }
 }
 
 class NetworkTileProvider extends TileProvider {
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
-    return NetworkImageWithRetry(_getTileUrl(coords, options));
+    return NetworkImageWithRetry(getTileUrl(coords, options));
   }
 }
 
 class AssetTileProvider extends TileProvider {
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
-    return AssetImage(_getTileUrl(coords, options));
+    return AssetImage(getTileUrl(coords, options));
   }
 }
 
 class FileTileProvider extends TileProvider {
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
-    return FileImage(File(_getTileUrl(coords, options)));
+    return FileImage(File(getTileUrl(coords, options)));
   }
 }
 
@@ -79,12 +79,12 @@ class CustomTileProvider extends TileProvider {
   CustomTileProvider({@required this.customTileUrl});
 
   @override
-  String _getTileUrl(Coords coords, TileLayerOptions options) {
+  String getTileUrl(Coords coords, TileLayerOptions options) {
     return customTileUrl(coords, options);
   }
 
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
-    return AssetImage(_getTileUrl(coords, options));
+    return AssetImage(getTileUrl(coords, options));
   }
 }
