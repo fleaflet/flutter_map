@@ -8,17 +8,6 @@
       <excludeFolder url="file://$MODULE_DIR$/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
-      <excludeFolder url="file://$MODULE_DIR$/example/.dart_tool" />
-      <excludeFolder url="file://$MODULE_DIR$/example/.pub" />
-      <excludeFolder url="file://$MODULE_DIR$/example/build" />
-      <excludeFolder url="file://$MODULE_DIR$/example/build/app/intermediates/assets/debug/flutter_assets/packages" />
-      <excludeFolder url="file://$MODULE_DIR$/example/build/app/intermediates/assets/profile/flutter_assets/packages" />
-      <excludeFolder url="file://$MODULE_DIR$/example/build/app/intermediates/flutter/debug/flutter_assets/packages" />
-      <excludeFolder url="file://$MODULE_DIR$/example/build/app/intermediates/flutter/profile/flutter_assets/packages" />
-      <excludeFolder url="file://$MODULE_DIR$/example/build/flutter_assets/packages" />
-      <excludeFolder url="file://$MODULE_DIR$/example/build/ios/Debug-iphonesimulator/Runner.app/flutter_assets/packages" />
-      <excludeFolder url="file://$MODULE_DIR$/example/build/ios/iphonesimulator/Runner.app/flutter_assets/packages" />
-      <excludeFolder url="file://$MODULE_DIR$/example/ios/Flutter/flutter_assets/packages" />
       <excludeFolder url="file://$MODULE_DIR$/../leaflet_flutter/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/../leaflet_flutter/build" />
     </content>
