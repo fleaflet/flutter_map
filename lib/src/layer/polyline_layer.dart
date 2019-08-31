@@ -103,7 +103,6 @@ class PolylinePainter extends CustomPainter {
       ..strokeWidth = polylineOpt.strokeWidth
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round
-      ..style = PaintingStyle.stroke
       ..blendMode = BlendMode.src;
 
     final filterPaint = Paint()
@@ -111,7 +110,6 @@ class PolylinePainter extends CustomPainter {
       ..strokeWidth = polylineOpt.strokeWidth
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round
-      ..style = PaintingStyle.stroke
       ..blendMode = BlendMode.dstOut;
 
     final borderPaint = polylineOpt.borderStrokeWidth > 0.0
@@ -121,11 +119,10 @@ class PolylinePainter extends CustomPainter {
               polylineOpt.strokeWidth + polylineOpt.borderStrokeWidth
           ..strokeCap = StrokeCap.round
           ..strokeJoin = StrokeJoin.round
-          ..style = PaintingStyle.stroke
           ..blendMode = BlendMode.src)
         : null;
-    var radius = polylineOpt.strokeWidth / 2;
-    var borderRadius = radius + (polylineOpt.borderStrokeWidth / 2);
+    var radius = paint.strokeWidth / 2;
+    var borderRadius = borderPaint?.strokeWidth ?? 0 / 2;
     if (polylineOpt.isDotted) {
       var spacing = polylineOpt.strokeWidth * 1.5;
       canvas.saveLayer(rect, Paint());
@@ -138,6 +135,9 @@ class PolylinePainter extends CustomPainter {
       _paintDottedLine(canvas, polylineOpt.offsets, radius, spacing, paint);
       canvas.restore();
     } else {
+      paint.style = PaintingStyle.stroke;
+      filterPaint.style = PaintingStyle.stroke;
+      borderPaint?.style = PaintingStyle.stroke;
       canvas.saveLayer(rect, Paint());
       if (borderPaint != null) {
         _paintLine(canvas, polylineOpt.offsets, borderRadius, borderPaint);
