@@ -148,9 +148,12 @@ class PolylinePainter extends CustomPainter {
 
   void _paintLine(
       Canvas canvas, List<Offset> offsets, double radius, Paint paint) {
-    canvas.drawPoints(PointMode.lines, offsets, paint);
-    for (var offset in offsets) {
-      canvas.drawCircle(offset, radius, paint);
+    if (offsets.isNotEmpty) {
+      final path = ui.Path()..moveTo(offsets[0].dx, offsets[0].dy);
+      for (var offset in offsets) {
+        path.lineTo(offset.dx, offset.dy);
+      }
+      canvas.drawPath(path, paint);
     }
   }
 
