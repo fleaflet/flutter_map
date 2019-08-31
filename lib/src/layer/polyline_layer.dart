@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'dart:ui';
+import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -100,27 +100,51 @@ class PolylinePainter extends CustomPainter {
     canvas.clipRect(rect);
     final paint = Paint()
       ..color = polylineOpt.color
-      ..strokeWidth = polylineOpt.strokeWidth;
+      ..strokeWidth = polylineOpt.strokeWidth
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..style = PaintingStyle.stroke
+      ..blendMode = BlendMode.src;
+
+    final filterPaint = Paint()
+      ..color = polylineOpt.borderColor.withAlpha(255)
+      ..strokeWidth = polylineOpt.strokeWidth
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..style = PaintingStyle.stroke
+      ..blendMode = BlendMode.dstOut;
+
     final borderPaint = polylineOpt.borderStrokeWidth > 0.0
         ? (Paint()
           ..color = polylineOpt.borderColor
           ..strokeWidth =
-              polylineOpt.strokeWidth + polylineOpt.borderStrokeWidth)
+              polylineOpt.strokeWidth + polylineOpt.borderStrokeWidth
+          ..strokeCap = StrokeCap.round
+          ..strokeJoin = StrokeJoin.round
+          ..style = PaintingStyle.stroke
+          ..blendMode = BlendMode.src)
         : null;
     var radius = polylineOpt.strokeWidth / 2;
     var borderRadius = radius + (polylineOpt.borderStrokeWidth / 2);
     if (polylineOpt.isDotted) {
       var spacing = polylineOpt.strokeWidth * 1.5;
+      canvas.saveLayer(rect, Paint());
       if (borderPaint != null) {
         _paintDottedLine(
             canvas, polylineOpt.offsets, borderRadius, spacing, borderPaint);
+        _paintDottedLine(
+            canvas, polylineOpt.offsets, radius, spacing, filterPaint);
       }
       _paintDottedLine(canvas, polylineOpt.offsets, radius, spacing, paint);
+      canvas.restore();
     } else {
+      canvas.saveLayer(rect, Paint());
       if (borderPaint != null) {
         _paintLine(canvas, polylineOpt.offsets, borderRadius, borderPaint);
+        _paintLine(canvas, polylineOpt.offsets, radius, filterPaint);
       }
       _paintLine(canvas, polylineOpt.offsets, radius, paint);
+      canvas.restore();
     }
   }
 
