@@ -1,4 +1,4 @@
-## [0.7.2] - 8/20/2019
+## [0.7.2] - 8/30/2019
 - expose TileProvider.getTileUrl (#401)
 
 Thanks to @kengu for this release!
