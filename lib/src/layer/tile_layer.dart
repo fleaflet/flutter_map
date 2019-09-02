@@ -355,13 +355,11 @@ class _TileLayerState extends State<TileLayer> {
       }
     }
 
-    var tilesToRender = <Tile>[];
-    for (var tile in _tiles.values) {
-      if ((tile.coords.z - _level.zoom).abs() > 1) {
-        continue;
-      }
-      tilesToRender.add(tile);
-    }
+    var tilesToRender = <Tile>[
+      for (var tile in _tiles.values)
+        if ((tile.coords.z - _level.zoom).abs() <= 1) tile
+    ];
+
     tilesToRender.sort((aTile, bTile) {
       Coords<double> a = aTile.coords;
       Coords<double> b = bTile.coords;
@@ -372,10 +370,9 @@ class _TileLayerState extends State<TileLayer> {
       return (a.distanceTo(tileCenter) - b.distanceTo(tileCenter)).toInt();
     });
 
-    var tileWidgets = <Widget>[];
-    for (var tile in tilesToRender) {
-      tileWidgets.add(_createTileWidget(tile.coords));
-    }
+    var tileWidgets = <Widget>[
+      for (var tile in tilesToRender) _createTileWidget(tile.coords)
+    ];
 
     return Container(
       color: options.backgroundColor,

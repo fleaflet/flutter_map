@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
 
+/// [LayerOptions] that describe a layer composed by multiple built-in layers.
 class GroupLayerOptions extends LayerOptions {
   List<LayerOptions> group = <LayerOptions>[];
 
@@ -25,11 +26,9 @@ class GroupLayer extends StatelessWidget {
   }
 
   Widget _build(BuildContext context) {
-    var layers = <Widget>[];
-
-    for (var options in groupOpts.group) {
-      layers.add(_createLayer(options));
-    }
+    var layers = <Widget>[
+      for (var options in groupOpts.group) _createLayer(options)
+    ];
 
     return Container(
       child: Stack(
