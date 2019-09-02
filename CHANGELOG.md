@@ -1,3 +1,7 @@
+## [0.7.2] - 8/20/2019
+- expose TileProvider.getTileUrl (#401)
+
+Thanks to @kengu for this release!
 ## [0.7.1] - 8/28/2019
 - upgrade to cached_network_image ^1.1.0 (#358)
 - documentation (#400)

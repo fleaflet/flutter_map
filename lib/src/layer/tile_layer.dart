@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/core/util.dart' as util;
@@ -12,7 +11,7 @@ import 'package:latlong/latlong.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:tuple/tuple.dart';
 
-export 'package:flutter_map/src/layer/tile_provider/tile_provider.dart';
+import 'layer.dart';
 
 class TileLayerOptions extends LayerOptions {
   /// Defines the structure to create the URLs for the tiles.
