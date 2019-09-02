@@ -41,6 +41,7 @@ class PolygonLayer extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints bc) {
+        // TODO unused BoxContraints should remove?
         final size = Size(bc.maxWidth, bc.maxHeight);
         return _build(context, size);
       },
