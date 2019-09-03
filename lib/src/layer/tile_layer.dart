@@ -382,8 +382,8 @@ class _TileLayerState extends State<TileLayer> {
     ];
 
     tilesToRender.sort((aTile, bTile) {
-      Coords<double> a = aTile.coords;
-      Coords<double> b = bTile.coords;
+      final a = aTile.coords; // TODO there was an implicit casting here.
+      final b = bTile.coords;
       // a = 13, b = 12, b is less than a, the result should be positive.
       if (a.z != b.z) {
         return (b.z - a.z).toInt();
