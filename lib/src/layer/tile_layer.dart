@@ -13,6 +13,8 @@ import 'package:tuple/tuple.dart';
 
 import 'layer.dart';
 
+/// Describes the needed properties to create a tile-based layer.
+/// A tile is an image binded to a specific geographical position.
 class TileLayerOptions extends LayerOptions {
   /// Defines the structure to create the URLs for the tiles.
   ///
@@ -88,7 +90,27 @@ class TileLayerOptions extends LayerOptions {
   /// When panning the map, keep this many rows and columns of tiles before
   /// unloading them.
   final int keepBuffer;
+
+  /// Placeholder to show until tile images are fetched by the provider.
   ImageProvider placeholderImage;
+
+  /// Static informations that should replace placeholders in the [urlTemplate].
+  /// Applying API keys is a good example on how to use this parameter.
+  ///
+  /// Example:
+  ///
+  /// ```dart
+  ///
+  /// TileLayerOptions(
+  ///     urlTemplate: "https://api.tiles.mapbox.com/v4/"
+  ///                  "{id}/{z}/{x}/{y}@2x.png?access_token={accessToken}",
+  ///     additionalOptions: {
+  ///         'accessToken': '<PUT_ACCESS_TOKEN_HERE>',
+  ///          'id': 'mapbox.streets',
+  ///     },
+  /// ),
+  /// ```
+  ///
   Map<String, String> additionalOptions;
 
   TileLayerOptions(
