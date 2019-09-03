@@ -43,11 +43,19 @@ class Bounds<T extends num> {
     );
   }
 
+  /// Bottom-Left corner's point.
   CustomPoint<T> get bottomLeft => CustomPoint(min.x, max.y);
+
+  /// Top-Right corner's point.
   CustomPoint<T> get topRight => CustomPoint(max.x, min.y);
+
+  /// Top-Left corner's point.
   CustomPoint<T> get topLeft => min;
+
+  /// Bottom-Right corner's point.
   CustomPoint<T> get bottomRight => max;
 
+  /// A point that contains the difference between the point's axis projections.
   CustomPoint<T> get size {
     return max - min;
   }
