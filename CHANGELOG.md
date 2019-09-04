@@ -1,3 +1,15 @@
+## [0.7.2] - 8/30/2019
+- expose TileProvider.getTileUrl (#401)
+
+Thanks to @kengu for this release!
+## [0.7.1] - 8/28/2019
+- upgrade to cached_network_image ^1.1.0 (#358)
+- documentation (#400)
+- remove isUserGesture (#389)
+- fix initialization exception (#379)
+
+Thanks to @escamoteur, @wmcschane, and @GregorySech for this release!
+
 ## [0.7.0+2] - 7/31/2019
 - Fix OverlayImage with transparency (#382)
 
