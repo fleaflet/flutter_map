@@ -1,6 +1,7 @@
 library flutter_map;
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -150,4 +151,70 @@ class MapPosition {
   final bool hasGesture;
 
   MapPosition({this.center, this.bounds, this.zoom, this.hasGesture = false});
+}
+
+/// Extension that prevents any tiles outside the bounds from ever being
+/// displayed, regardless of zoom level
+class AdaptiveBoundariesMapOptions extends MapOptions {
+  static const double initialZoom = 13;
+
+  final Size screenSize;
+  final MapController controller;
+  final double pixelDensityRatio;
+
+  AdaptiveBoundariesMapOptions({
+    @required this.screenSize,
+    @required this.controller,
+    @required this.pixelDensityRatio,
+    @required LatLng center,
+    @required double minZoom,
+    @required double maxZoom,
+    @required LatLng swPanBoundary,
+    @required LatLng nePanBoundary,
+  }) : super(
+    center: center,
+    minZoom: minZoom,
+    maxZoom: maxZoom,
+    swPanBoundary: swPanBoundary,
+    nePanBoundary: nePanBoundary,
+    zoom: initialZoom,
+  );
+
+  /// More conservative calculation which accounts for screen size
+  @override
+  bool isOutOfBounds(LatLng point) {
+    final screenWidthInDegrees = _calculateScreenWidthInDegrees();
+    final screenHeightInDegrees = _calculateScreenHeightInDegrees();
+    final corners =
+    _getCornerCoordinates(screenHeightInDegrees, screenWidthInDegrees);
+    return corners.any(super.isOutOfBounds);
+  }
+
+  Iterable<LatLng> _getCornerCoordinates(
+      double screenHeightInDegrees, double screenWidthInDegrees) sync* {
+    final halfScreenHeight = screenHeightInDegrees / 2;
+    final halfScreenWidth = screenWidthInDegrees / 2;
+
+    for (var latPower in [0, 1]) {
+      for (var lonPower in [0, 1]) {
+        yield LatLng(center.latitude + pow(-1, latPower) * halfScreenHeight,
+            center.longitude + pow(-1, lonPower) * halfScreenWidth);
+      }
+    }
+  }
+
+  double _calculateScreenWidthInDegrees() {
+    final zoom = _getControllerZoom();
+    final degreesPerPixel = 360 / pow(2, zoom + 8);
+    return screenSize.width * pixelDensityRatio * degreesPerPixel;
+  }
+
+  double _calculateScreenHeightInDegrees() =>
+      screenSize.height *
+          pixelDensityRatio *
+          180 /
+          pow(2, _getControllerZoom() + 8);
+
+  double _getControllerZoom() =>
+      controller.ready ? controller.zoom : initialZoom;
 }
