@@ -1,6 +1,7 @@
 library flutter_map;
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -21,8 +22,8 @@ export 'package:flutter_map/src/layer/overlay_image_layer.dart';
 export 'package:flutter_map/src/layer/polygon_layer.dart';
 export 'package:flutter_map/src/layer/polyline_layer.dart';
 export 'package:flutter_map/src/layer/tile_layer.dart';
-export 'package:flutter_map/src/layer/tile_provider/tile_provider.dart';
 export 'package:flutter_map/src/layer/tile_provider/mbtiles_image_provider.dart';
+export 'package:flutter_map/src/layer/tile_provider/tile_provider.dart';
 export 'package:flutter_map/src/plugins/plugin.dart';
 
 /// Renders a map composed of a list of layers powered by [LayerOptions].
@@ -177,5 +178,67 @@ class MapPosition {
   final LatLngBounds bounds;
   final double zoom;
   final bool hasGesture;
+
   MapPosition({this.center, this.bounds, this.zoom, this.hasGesture = false});
+}
+
+/// Extension that prevents any tiles outside the bounds from ever being
+/// displayed, regardless of zoom level
+class AdaptiveBoundariesMapOptions extends MapOptions {
+  static const double initialZoom = 13;
+
+  final Size screenSize;
+  final MapController controller;
+
+  AdaptiveBoundariesMapOptions({
+    @required this.screenSize,
+    @required this.controller,
+    @required LatLng center,
+    @required double minZoom,
+    @required double maxZoom,
+    @required LatLng swPanBoundary,
+    @required LatLng nePanBoundary,
+  }) : super(
+          center: center,
+          minZoom: minZoom,
+          maxZoom: maxZoom,
+          swPanBoundary: swPanBoundary,
+          nePanBoundary: nePanBoundary,
+          zoom: initialZoom,
+        );
+
+  /// More conservative calculation which accounts for screen size
+  @override
+  bool isOutOfBounds(LatLng point) {
+    final screenWidthInDegrees = _calculateScreenWidthInDegrees();
+    final screenHeightInDegrees = _calculateScreenHeightInDegrees();
+    final corners =
+        _getCornerCoordinates(screenHeightInDegrees, screenWidthInDegrees);
+    return corners.any(super.isOutOfBounds);
+  }
+
+  Iterable<LatLng> _getCornerCoordinates(
+      double screenHeightInDegrees, double screenWidthInDegrees) sync* {
+    final halfScreenHeight = screenHeightInDegrees / 2;
+    final halfScreenWidth = screenWidthInDegrees / 2;
+    const signs = [-1, 1];
+    for (var latSign in signs) {
+      for (var lonSign in signs) {
+        yield LatLng(center.latitude + latSign * halfScreenHeight,
+            center.longitude + lonSign * halfScreenWidth);
+      }
+    }
+  }
+
+  double _calculateScreenWidthInDegrees() {
+    final zoom = _getControllerZoom();
+    final degreesPerPixel = 360 / pow(2, zoom + 8);
+    return screenSize.width * degreesPerPixel;
+  }
+
+  double _calculateScreenHeightInDegrees() =>
+      screenSize.height * 180 / pow(2, _getControllerZoom() + 8) * 4 / 3;
+
+  double _getControllerZoom() =>
+      controller.ready ? controller.zoom : initialZoom;
 }
