@@ -118,6 +118,8 @@ class MapOptions {
   final LongPressCallback onLongPress;
   final PositionCallback onPositionChanged;
   final List<MapPlugin> plugins;
+  final bool slideOnBoundaries;
+  final Size screenSize;
   LatLng center;
   LatLng swPanBoundary;
   LatLng nePanBoundary;
@@ -135,11 +137,15 @@ class MapOptions {
     this.onLongPress,
     this.onPositionChanged,
     this.plugins = const [],
+    this.slideOnBoundaries = false,
+    this.screenSize,
     this.swPanBoundary,
     this.nePanBoundary,
   }) {
     center ??= LatLng(50.5, 30.51);
     assert(!isOutOfBounds(center)); //You cannot start outside pan boundary
+    assert(!slideOnBoundaries || screenSize != null,
+        'screenSize must be set in order to enable boundary sliding.');
   }
 
   //if there is a pan boundary, do not cross
