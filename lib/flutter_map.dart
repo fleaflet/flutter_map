@@ -219,20 +219,20 @@ class AdaptiveBoundariesMapOptions extends MapOptions {
   bool isOutOfBounds(LatLng point) {
     final screenWidthInDegrees = _calculateScreenWidthInDegrees();
     final screenHeightInDegrees = _calculateScreenHeightInDegrees();
-    final corners =
-        _getCornerCoordinates(screenHeightInDegrees, screenWidthInDegrees);
+    final corners = _getCornerCoordinates(
+        screenHeightInDegrees, screenWidthInDegrees, point);
     return corners.any(super.isOutOfBounds);
   }
 
-  Iterable<LatLng> _getCornerCoordinates(
-      double screenHeightInDegrees, double screenWidthInDegrees) sync* {
+  Iterable<LatLng> _getCornerCoordinates(double screenHeightInDegrees,
+      double screenWidthInDegrees, LatLng point) sync* {
     final halfScreenHeight = screenHeightInDegrees / 2;
     final halfScreenWidth = screenWidthInDegrees / 2;
     const signs = [-1, 1];
     for (var latSign in signs) {
       for (var lonSign in signs) {
-        yield LatLng(center.latitude + latSign * halfScreenHeight,
-            center.longitude + lonSign * halfScreenWidth);
+        yield LatLng(point.latitude + latSign * halfScreenHeight,
+            point.longitude + lonSign * halfScreenWidth);
       }
     }
   }
