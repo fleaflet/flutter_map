@@ -160,25 +160,23 @@ class AdaptiveBoundariesMapOptions extends MapOptions {
 
   final Size screenSize;
   final MapController controller;
-  final double pixelDensityRatio;
 
   AdaptiveBoundariesMapOptions({
     @required this.screenSize,
     @required this.controller,
-    @required this.pixelDensityRatio,
     @required LatLng center,
     @required double minZoom,
     @required double maxZoom,
     @required LatLng swPanBoundary,
     @required LatLng nePanBoundary,
   }) : super(
-    center: center,
-    minZoom: minZoom,
-    maxZoom: maxZoom,
-    swPanBoundary: swPanBoundary,
-    nePanBoundary: nePanBoundary,
-    zoom: initialZoom,
-  );
+          center: center,
+          minZoom: minZoom,
+          maxZoom: maxZoom,
+          swPanBoundary: swPanBoundary,
+          nePanBoundary: nePanBoundary,
+          zoom: initialZoom,
+        );
 
   /// More conservative calculation which accounts for screen size
   @override
@@ -186,7 +184,7 @@ class AdaptiveBoundariesMapOptions extends MapOptions {
     final screenWidthInDegrees = _calculateScreenWidthInDegrees();
     final screenHeightInDegrees = _calculateScreenHeightInDegrees();
     final corners =
-    _getCornerCoordinates(screenHeightInDegrees, screenWidthInDegrees);
+        _getCornerCoordinates(screenHeightInDegrees, screenWidthInDegrees);
     return corners.any(super.isOutOfBounds);
   }
 
@@ -194,11 +192,11 @@ class AdaptiveBoundariesMapOptions extends MapOptions {
       double screenHeightInDegrees, double screenWidthInDegrees) sync* {
     final halfScreenHeight = screenHeightInDegrees / 2;
     final halfScreenWidth = screenWidthInDegrees / 2;
-
-    for (var latPower in [0, 1]) {
-      for (var lonPower in [0, 1]) {
-        yield LatLng(center.latitude + pow(-1, latPower) * halfScreenHeight,
-            center.longitude + pow(-1, lonPower) * halfScreenWidth);
+    const signs = [-1, 1];
+    for (var latSign in signs) {
+      for (var lonSign in signs) {
+        yield LatLng(center.latitude + latSign * halfScreenHeight,
+            center.longitude + lonSign * halfScreenWidth);
       }
     }
   }
@@ -206,14 +204,11 @@ class AdaptiveBoundariesMapOptions extends MapOptions {
   double _calculateScreenWidthInDegrees() {
     final zoom = _getControllerZoom();
     final degreesPerPixel = 360 / pow(2, zoom + 8);
-    return screenSize.width * pixelDensityRatio * degreesPerPixel;
+    return screenSize.width * degreesPerPixel;
   }
 
   double _calculateScreenHeightInDegrees() =>
-      screenSize.height *
-          pixelDensityRatio *
-          180 /
-          pow(2, _getControllerZoom() + 8);
+      screenSize.height / pow(2, _getControllerZoom() + 8) * 180 * 4 / 3;
 
   double _getControllerZoom() =>
       controller.ready ? controller.zoom : initialZoom;
