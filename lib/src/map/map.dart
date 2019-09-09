@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:math' as math;
+import 'dart:math';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/center_zoom.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:latlong/latlong.dart';
-
-import 'package:flutter/material.dart';
 
 class MapControllerImpl implements MapController {
   final Completer<Null> _readyCompleter = Completer<Null>();
@@ -108,13 +108,41 @@ class MapState {
     _onMoveSink.close();
   }
 
+  double _calculateScreenWidthInDegrees(double zoom) {
+    final degreesPerPixel = 360 / pow(2, zoom + 8);
+    return options.screenSize.width * degreesPerPixel;
+  }
+
+  double _calculateScreenHeightInDegrees(double zoom) =>
+      options.screenSize.height / pow(2, zoom + 8) * 180 * 4 / 3;
+
   void move(LatLng center, double zoom, {hasGesture = false}) {
     zoom = _fitZoomToBounds(zoom);
     final mapMoved = center != _lastCenter || zoom != _zoom;
 
-    if (_lastCenter != null &&
-        (!mapMoved || options.isOutOfBounds(center) || !bounds.isValid)) {
+    if (_lastCenter != null && (!mapMoved || !bounds.isValid)) {
       return;
+    }
+
+    if (options.isOutOfBounds(center)) {
+      if (!options.slideOnBoundaries) {
+        return;
+      }
+      final halfScreenWidth = _calculateScreenWidthInDegrees(zoom) / 2;
+      final halfScreenHeight = _calculateScreenHeightInDegrees(zoom) / 2;
+      var southernBoundary = options.swPanBoundary.latitude + halfScreenHeight;
+      var northernBoundary = options.nePanBoundary.latitude - halfScreenHeight;
+      var westernBoundary = options.swPanBoundary.longitude + halfScreenWidth;
+      var easternBoundary = options.nePanBoundary.longitude - halfScreenWidth;
+      if (southernBoundary > northernBoundary ||
+          westernBoundary > easternBoundary) {
+        return;
+      }
+      final clampedLatitude =
+          center.latitude.clamp(southernBoundary, northernBoundary);
+      final clampedLongitude =
+          center.longitude.clamp(westernBoundary, easternBoundary);
+      center = LatLng(clampedLatitude, clampedLongitude);
     }
 
     _zoom = zoom;
