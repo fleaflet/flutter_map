@@ -211,6 +211,7 @@ class AdaptiveBoundariesMapOptions extends MapOptions {
           swPanBoundary: swPanBoundary,
           nePanBoundary: nePanBoundary,
           zoom: initialZoom,
+          slideOnBoundaries: true,
         );
 
   /// More conservative calculation which accounts for screen size
