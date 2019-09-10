@@ -29,10 +29,9 @@ class MapControllerImpl implements MapController {
   }
 
   @override
-  void fitBounds(
-    LatLngBounds bounds, {
+  void fitBounds(LatLngBounds bounds, {
     FitBoundsOptions options =
-        const FitBoundsOptions(padding: EdgeInsets.all(12.0)),
+    const FitBoundsOptions(padding: EdgeInsets.all(12.0)),
   }) {
     _state.fitBounds(bounds, options);
   }
@@ -128,21 +127,7 @@ class MapState {
       if (!options.slideOnBoundaries) {
         return;
       }
-      final halfScreenWidth = _calculateScreenWidthInDegrees(zoom) / 2;
-      final halfScreenHeight = _calculateScreenHeightInDegrees(zoom) / 2;
-      var southernBoundary = options.swPanBoundary.latitude + halfScreenHeight;
-      var northernBoundary = options.nePanBoundary.latitude - halfScreenHeight;
-      var westernBoundary = options.swPanBoundary.longitude + halfScreenWidth;
-      var easternBoundary = options.nePanBoundary.longitude - halfScreenWidth;
-      if (southernBoundary > northernBoundary ||
-          westernBoundary > easternBoundary) {
-        return;
-      }
-      final clampedLatitude =
-          center.latitude.clamp(southernBoundary, northernBoundary);
-      final clampedLongitude =
-          center.longitude.clamp(westernBoundary, easternBoundary);
-      center = LatLng(clampedLatitude, clampedLongitude);
+      center = _slideCenter(zoom, center);
     }
 
     _zoom = zoom;
@@ -161,6 +146,26 @@ class MapState {
           ),
           hasGesture);
     }
+  }
+
+  LatLng _slideCenter(double zoom, LatLng center) {
+    final halfScreenWidth = _calculateScreenWidthInDegrees(zoom) / 2;
+    final halfScreenHeight = _calculateScreenHeightInDegrees(zoom) / 2;
+    var southernBoundary = options.swPanBoundary.latitude + halfScreenHeight;
+    var northernBoundary = options.nePanBoundary.latitude - halfScreenHeight;
+    var westernBoundary = options.swPanBoundary.longitude + halfScreenWidth;
+    var easternBoundary = options.nePanBoundary.longitude - halfScreenWidth;
+    
+    final clampedLatitude =
+    southernBoundary <= northernBoundary
+        ? center.latitude.clamp(southernBoundary, northernBoundary)
+        : _lastCenter.latitude;
+    final clampedLongitude =
+    westernBoundary <= easternBoundary
+        ? center.longitude.clamp(westernBoundary, easternBoundary)
+        : _lastCenter.longitude;
+    center = LatLng(clampedLatitude, clampedLongitude);
+    return center;
   }
 
   double _fitZoomToBounds(double zoom) {
@@ -214,12 +219,12 @@ class MapState {
     );
   }
 
-  CenterZoom getBoundsCenterZoom(
-      LatLngBounds bounds, FitBoundsOptions options) {
+  CenterZoom getBoundsCenterZoom(LatLngBounds bounds,
+      FitBoundsOptions options) {
     var paddingTL =
-        CustomPoint<double>(options.padding.left, options.padding.top);
+    CustomPoint<double>(options.padding.left, options.padding.top);
     var paddingBR =
-        CustomPoint<double>(options.padding.right, options.padding.bottom);
+    CustomPoint<double>(options.padding.right, options.padding.bottom);
 
     var paddingTotalXY = paddingTL + paddingBR;
 
