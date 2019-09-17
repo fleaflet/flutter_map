@@ -1,5 +1,7 @@
 import 'dart:math' as math;
 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/rendering.dart';
 import 'package:tuple/tuple.dart';
 import 'package:latlong/latlong.dart';
 import 'package:flutter_map/src/core/bounds.dart';
@@ -120,6 +122,14 @@ abstract class Projection {
   Bounds<double> get bounds;
   CustomPoint project(LatLng latlng);
   LatLng unproject(CustomPoint point);
+
+  @protected
+  double inclusive(double value) {
+    if (value.compareTo(-90) < 0) return -90;
+    if (value.compareTo(90) > 0) return 90;
+
+    return value;
+  }
 }
 
 class _LonLat extends Projection {
@@ -138,7 +148,7 @@ class _LonLat extends Projection {
 
   @override
   LatLng unproject(CustomPoint point) {
-    return LatLng(point.y, point.x);
+    return LatLng(inclusive(point.y), inclusive(point.x));
   }
 }
 
@@ -170,8 +180,9 @@ class SphericalMercator extends Projection {
   @override
   LatLng unproject(CustomPoint point) {
     var d = 180 / math.pi;
-    return LatLng((2 * math.atan(math.exp(point.y / r)) - (math.pi / 2)) * d,
-        point.x * d / r);
+    return LatLng(
+        inclusive((2 * math.atan(math.exp(point.y / r)) - (math.pi / 2)) * d),
+        inclusive(point.x * d / r));
   }
 }
 
