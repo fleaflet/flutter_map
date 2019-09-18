@@ -6,6 +6,13 @@ import 'package:flutter_map/src/core/bounds.dart';
 
 import 'package:flutter_map/src/core/point.dart';
 
+/// An abstract representation of a [Coordinate Reference System][qgis_crs_def].
+///
+/// The main objective of a CRS is to handle the conversion between surface
+/// points of objects of different dimensions. In our case 3D and 2D objects.
+///
+///
+/// [qgis_crs_def]: https://docs.qgis.org/testing/en/docs/gentle_gis_introduction/coordinate_reference_systems.html
 abstract class Crs {
   String get code;
   Projection get projection;
@@ -13,6 +20,8 @@ abstract class Crs {
 
   const Crs();
 
+  /// Converts a point on the sphere surface (with a certain zoom) in a
+  /// map point.
   CustomPoint latLngToPoint(LatLng latlng, double zoom) {
     try {
       var projectedPoint = projection.project(latlng);
@@ -23,6 +32,7 @@ abstract class Crs {
     }
   }
 
+  /// Converts a map point to the sphere coordinate (at a certain zoom).
   LatLng pointToLatLng(CustomPoint point, double zoom) {
     var scale = this.scale(zoom);
     var untransformedPoint =
@@ -34,14 +44,17 @@ abstract class Crs {
     }
   }
 
+  /// Zoom to Scale function.
   num scale(double zoom) {
     return 256 * math.pow(2, zoom);
   }
 
+  /// Scale to Zoom function.
   num zoom(double scale) {
     return math.log(scale / 256) / math.ln2;
   }
 
+  /// Rescales the bounds to a given zoom value.
   Bounds getProjectedBounds(double zoom) {
     if (infinite) return null;
 
@@ -53,7 +66,9 @@ abstract class Crs {
   }
 
   bool get infinite;
+
   Tuple2<double, double> get wrapLng;
+
   Tuple2<double, double> get wrapLat;
 }
 
@@ -96,6 +111,7 @@ abstract class Earth extends Crs {
   const Earth() : super();
 }
 
+/// The most common CRS used for rendering maps.
 class Epsg3857 extends Earth {
   @override
   final String code = 'EPSG:3857';
@@ -112,6 +128,10 @@ class Epsg3857 extends Earth {
       : projection = const SphericalMercator(),
         transformation = const Transformation(_scale, 0.5, -_scale, 0.5),
         super();
+
+  // TODO Epsg3857 seems to have latitude limits. https://epsg.io/3857
+  //@override
+  //Tuple2<double, double> get wrapLat => const Tuple2(-85.06, 85.06);
 }
 
 abstract class Projection {

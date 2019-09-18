@@ -93,12 +93,11 @@ class FlutterMapState extends MapGestureMixin {
             CustomPoint<double>(constraints.maxWidth, constraints.maxHeight);
       }
 
-      var layerWidgets = widget.layers
-          .map((layer) => _createLayer(layer, widget.options.plugins))
-          .toList();
-
       var layerStack = Stack(
-        children: layerWidgets,
+        children: [
+          for (final layer in widget.layers)
+            _createLayer(layer, widget.options.plugins)
+        ],
       );
 
       Widget mapRoot;

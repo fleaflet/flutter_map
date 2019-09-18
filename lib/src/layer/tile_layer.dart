@@ -13,6 +13,8 @@ import 'package:tuple/tuple.dart';
 
 import 'layer.dart';
 
+/// Describes the needed properties to create a tile-based layer.
+/// A tile is an image binded to a specific geographical position.
 class TileLayerOptions extends LayerOptions {
   /// Defines the structure to create the URLs for the tiles.
   ///
@@ -88,7 +90,27 @@ class TileLayerOptions extends LayerOptions {
   /// When panning the map, keep this many rows and columns of tiles before
   /// unloading them.
   final int keepBuffer;
+
+  /// Placeholder to show until tile images are fetched by the provider.
   ImageProvider placeholderImage;
+
+  /// Static informations that should replace placeholders in the [urlTemplate].
+  /// Applying API keys is a good example on how to use this parameter.
+  ///
+  /// Example:
+  ///
+  /// ```dart
+  ///
+  /// TileLayerOptions(
+  ///     urlTemplate: "https://api.tiles.mapbox.com/v4/"
+  ///                  "{id}/{z}/{x}/{y}@2x.png?access_token={accessToken}",
+  ///     additionalOptions: {
+  ///         'accessToken': '<PUT_ACCESS_TOKEN_HERE>',
+  ///          'id': 'mapbox.streets',
+  ///     },
+  /// ),
+  /// ```
+  ///
   Map<String, String> additionalOptions;
 
   TileLayerOptions(
@@ -354,16 +376,14 @@ class _TileLayerState extends State<TileLayer> {
       }
     }
 
-    var tilesToRender = <Tile>[];
-    for (var tile in _tiles.values) {
-      if ((tile.coords.z - _level.zoom).abs() > 1) {
-        continue;
-      }
-      tilesToRender.add(tile);
-    }
+    var tilesToRender = <Tile>[
+      for (var tile in _tiles.values)
+        if ((tile.coords.z - _level.zoom).abs() <= 1) tile
+    ];
+
     tilesToRender.sort((aTile, bTile) {
-      Coords<double> a = aTile.coords;
-      Coords<double> b = bTile.coords;
+      final a = aTile.coords; // TODO there was an implicit casting here.
+      final b = bTile.coords;
       // a = 13, b = 12, b is less than a, the result should be positive.
       if (a.z != b.z) {
         return (b.z - a.z).toInt();
@@ -371,10 +391,9 @@ class _TileLayerState extends State<TileLayer> {
       return (a.distanceTo(tileCenter) - b.distanceTo(tileCenter)).toInt();
     });
 
-    var tileWidgets = <Widget>[];
-    for (var tile in tilesToRender) {
-      tileWidgets.add(_createTileWidget(tile.coords));
-    }
+    var tileWidgets = <Widget>[
+      for (var tile in tilesToRender) _createTileWidget(tile.coords)
+    ];
 
     return Container(
       color: options.backgroundColor,
