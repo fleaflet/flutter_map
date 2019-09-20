@@ -113,7 +113,7 @@ class MapState {
   }
 
   double _calculateScreenHeightInDegrees(double zoom) =>
-      options.screenSize.height / pow(2, zoom + 8) * 180 * 4 / 3;
+      options.screenSize.height / pow(2, zoom + 8) * 170.102258;
 
   void move(LatLng center, double zoom, {hasGesture = false}) {
     zoom = _fitZoomToBounds(zoom);
@@ -127,7 +127,7 @@ class MapState {
       if (!options.slideOnBoundaries) {
         return;
       }
-      center = _slideCenter(zoom, center);
+      center = options.containPoint(center, _lastCenter ?? center);
     }
 
     _zoom = zoom;
@@ -146,26 +146,6 @@ class MapState {
           ),
           hasGesture);
     }
-  }
-
-  LatLng _slideCenter(double zoom, LatLng center) {
-    final halfScreenWidth = _calculateScreenWidthInDegrees(zoom) / 2;
-    final halfScreenHeight = _calculateScreenHeightInDegrees(zoom) / 2;
-    var southernBoundary = options.swPanBoundary.latitude + halfScreenHeight;
-    var northernBoundary = options.nePanBoundary.latitude - halfScreenHeight;
-    var westernBoundary = options.swPanBoundary.longitude + halfScreenWidth;
-    var easternBoundary = options.nePanBoundary.longitude - halfScreenWidth;
-    
-    final clampedLatitude =
-    southernBoundary <= northernBoundary
-        ? center.latitude.clamp(southernBoundary, northernBoundary)
-        : _lastCenter.latitude;
-    final clampedLongitude =
-    westernBoundary <= easternBoundary
-        ? center.longitude.clamp(westernBoundary, easternBoundary)
-        : _lastCenter.longitude;
-    center = LatLng(clampedLatitude, clampedLongitude);
-    return center;
   }
 
   double _fitZoomToBounds(double zoom) {
