@@ -29,9 +29,10 @@ class MapControllerImpl implements MapController {
   }
 
   @override
-  void fitBounds(LatLngBounds bounds, {
+  void fitBounds(
+    LatLngBounds bounds, {
     FitBoundsOptions options =
-    const FitBoundsOptions(padding: EdgeInsets.all(12.0)),
+        const FitBoundsOptions(padding: EdgeInsets.all(12.0)),
   }) {
     _state.fitBounds(bounds, options);
   }
@@ -199,12 +200,12 @@ class MapState {
     );
   }
 
-  CenterZoom getBoundsCenterZoom(LatLngBounds bounds,
-      FitBoundsOptions options) {
+  CenterZoom getBoundsCenterZoom(
+      LatLngBounds bounds, FitBoundsOptions options) {
     var paddingTL =
-    CustomPoint<double>(options.padding.left, options.padding.top);
+        CustomPoint<double>(options.padding.left, options.padding.top);
     var paddingBR =
-    CustomPoint<double>(options.padding.right, options.padding.bottom);
+        CustomPoint<double>(options.padding.right, options.padding.bottom);
 
     var paddingTotalXY = paddingTL + paddingBR;
 
