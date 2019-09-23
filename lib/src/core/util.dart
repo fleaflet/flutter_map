@@ -1,6 +1,10 @@
 import 'package:tuple/tuple.dart';
 
 var _templateRe = RegExp(r'\{ *([\w_-]+) *\}');
+
+/// Replaces the templating placeholders with the provided data map.
+///
+/// Throws an [Exception] if any placeholder remains unresolved.
 String template(String str, Map<String, String> data) {
   return str.replaceAllMapped(_templateRe, (Match match) {
     var value = data[match.group(1)];

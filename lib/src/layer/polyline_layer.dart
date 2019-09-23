@@ -67,19 +67,15 @@ class PolylineLayer extends StatelessWidget {
           }
         }
 
-        var polylines = <Widget>[];
-        for (var polylineOpt in polylineOpts.polylines) {
-          polylines.add(
-            CustomPaint(
-              painter: PolylinePainter(polylineOpt),
-              size: size,
-            ),
-          );
-        }
-
         return Container(
           child: Stack(
-            children: polylines,
+            children: [
+              for (final polylineOpt in polylineOpts.polylines)
+                CustomPaint(
+                  painter: PolylinePainter(polylineOpt),
+                  size: size,
+                ),
+            ],
           ),
         );
       },
