@@ -108,14 +108,6 @@ class MapState {
     _onMoveSink.close();
   }
 
-  double _calculateScreenWidthInDegrees(double zoom) {
-    final degreesPerPixel = 360 / pow(2, zoom + 8);
-    return options.screenSize.width * degreesPerPixel;
-  }
-
-  double _calculateScreenHeightInDegrees(double zoom) =>
-      options.screenSize.height / pow(2, zoom + 8) * 170.102258;
-
   void move(LatLng center, double zoom, {hasGesture = false}) {
     zoom = _fitZoomToBounds(zoom);
     final mapMoved = center != _lastCenter || zoom != _zoom;
