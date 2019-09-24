@@ -14,6 +14,7 @@ import 'package:async/async.dart';
 class FlutterMapState extends MapGestureMixin {
   final MapControllerImpl mapController;
   final List<StreamGroup<Null>> groups = <StreamGroup<Null>>[];
+  final _positionedTapController = PositionedTapController();
   double rotation = 0.0;
 
   @override
@@ -106,13 +107,16 @@ class FlutterMapState extends MapGestureMixin {
         mapRoot = layerStack;
       } else {
         mapRoot = PositionedTapDetector(
-          onTap: handleTap,
-          onLongPress: handleLongPress,
+          controller: _positionedTapController,
           onDoubleTap: handleDoubleTap,
           child: GestureDetector(
             onScaleStart: handleScaleStart,
             onScaleUpdate: handleScaleUpdate,
             onScaleEnd: handleScaleEnd,
+            onTap: _positionedTapController.onTap,
+            onLongPress: _positionedTapController.onLongPress,
+            onTapDown: _positionedTapController.onTapDown,
+            onTapUp: handleOnTapUp,
             child: layerStack,
           ),
         );
