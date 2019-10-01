@@ -108,6 +108,8 @@ class FlutterMapState extends MapGestureMixin {
       } else {
         mapRoot = PositionedTapDetector(
           controller: _positionedTapController,
+          onTap: handleTap,
+          onLongPress: handleLongPress,
           onDoubleTap: handleDoubleTap,
           child: GestureDetector(
             onScaleStart: handleScaleStart,
