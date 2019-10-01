@@ -58,36 +58,6 @@ To run it, in a terminal cd into the folder.
 Then execute `ulimit -S -n 2048` ([ref](https://github.com/trentpiercy/trace/issues/1#issuecomment-404494469)).
 Then execute `flutter run` with a running emulator.
 
-## Mapbox Tiles
-
-You can use map tiles from a number of
-[free and paid map suppliers](http://leafletjs.com/plugins.html#basemap-providers),
-or you can host your own map tiles.
-
-The example uses OpenStreetMap tiles, which are free but can be slow.
-
-Use TileLayerOptions to configure other tile providers, such as [mapbox]:
-
-```dart
-Widget build(ctx) {
-  return TileLayerOptions(
-    urlTemplate: "https://api.mapbox.com/v4/"
-        "{id}/{z}/{x}/{y}@2x.png?access_token={accessToken}",
-    additionalOptions: {
-      'accessToken': '<PUT_ACCESS_TOKEN_HERE>',
-      'id': 'mapbox.streets',
-    },
-  );
-}
-```
-
-To use, you'll need a mapbox key:
-
-1. Create a [Mapbox] account to get an API key
-2. Open `leaflet_flutter_example/lib/main.dart` and paste the API key into the
-`additionalOptions` map
-
-
 ## Offline maps
 [Follow this guide to grab offline tiles](https://tilemill-project.github.io/tilemill/docs/guides/osm-bright-mac-quickstart/)<br>
 Once you have your map exported to `.mbtiles`, you can use [mbtilesToPng](https://github.com/alfanhui/mbtilesToPngs) to unpack into `/{z}/{x}/{y}.png`.
