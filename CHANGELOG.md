@@ -1,3 +1,15 @@
+## [0.7.3] - 10/3/2019
+- Update changelog (#408)
+- Readability improvements (#410)
+- add double-tap-hold zoom (#393)
+- Fix Unsupported Operation and add missing onTap and onLongPress methods (#436)
+- Fix error when unproject bottomLeft or topRight and lat are < -90 or > 90 or
+  lng are < -180 or > 180
+- Fix/transparent polyline (#407)
+
+Thanks to @yywwuing, @GregorySech, @avimak, @kengu, @lpongetti, and @2ZeroSix
+for this release!
+
 ## [0.7.2] - 8/30/2019
 - expose TileProvider.getTileUrl (#401)
 
