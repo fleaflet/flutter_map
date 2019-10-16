@@ -4,6 +4,7 @@ import '../pages/animated_map_controller.dart';
 import '../pages/circle.dart';
 import '../pages/esri.dart';
 import '../pages/home.dart';
+import '../pages/live_location.dart';
 import '../pages/map_controller.dart';
 import '../pages/marker_anchor.dart';
 import '../pages/moving_markers.dart';
@@ -130,6 +131,13 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           selected: currentRoute == OverlayImagePage.route,
           onTap: () {
             Navigator.pushReplacementNamed(context, OverlayImagePage.route);
+          },
+        ),
+        ListTile(
+          title: const Text('Live Location Update'),
+          selected: currentRoute == LiveLocationPage.route,
+          onTap: () {
+            Navigator.pushReplacementNamed(context, LiveLocationPage.route);
           },
         ),
       ],
