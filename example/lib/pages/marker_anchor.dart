@@ -67,6 +67,9 @@ class MarkerAnchorPageState extends State<MarkerAnchorPage> {
       ),
     ];
 
+    double screenWidth = MediaQuery.of(context).size.width;
+    double minWidth = (screenWidth - 16) / 4;
+
     return Scaffold(
       appBar: AppBar(title: Text('Marker Anchor Points')),
       drawer: buildDrawer(context, MarkerAnchorPage.route),
@@ -85,18 +88,22 @@ class MarkerAnchorPageState extends State<MarkerAnchorPage> {
                 children: <Widget>[
                   MaterialButton(
                     child: Text('Left'),
+                    minWidth: minWidth,
                     onPressed: () => _setAnchorAlignPos(AnchorAlign.left),
                   ),
                   MaterialButton(
                     child: Text('Right'),
+                    minWidth: minWidth,
                     onPressed: () => _setAnchorAlignPos(AnchorAlign.right),
                   ),
                   MaterialButton(
                     child: Text('Top'),
+                    minWidth: minWidth,
                     onPressed: () => _setAnchorAlignPos(AnchorAlign.top),
                   ),
                   MaterialButton(
                     child: Text('Bottom'),
+                    minWidth: minWidth,
                     onPressed: () => _setAnchorAlignPos(AnchorAlign.bottom),
                   ),
                 ],
@@ -108,10 +115,12 @@ class MarkerAnchorPageState extends State<MarkerAnchorPage> {
                 children: <Widget>[
                   MaterialButton(
                     child: Text('Center'),
+                    minWidth: minWidth,
                     onPressed: () => _setAnchorAlignPos(AnchorAlign.center),
                   ),
                   MaterialButton(
                     child: Text('Custom'),
+                    minWidth: minWidth,
                     onPressed: () => _setAnchorExactlyPos(Anchor(80.0, 80.0)),
                   ),
                 ],
