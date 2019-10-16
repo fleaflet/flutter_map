@@ -1,3 +1,27 @@
+## [0.7.3] - 10/3/2019
+- Update changelog (#408)
+- Readability improvements (#410)
+- add double-tap-hold zoom (#393)
+- Fix Unsupported Operation and add missing onTap and onLongPress methods (#436)
+- Fix error when unproject bottomLeft or topRight and lat are < -90 or > 90 or
+  lng are < -180 or > 180
+- Fix/transparent polyline (#407)
+
+Thanks to @yywwuing, @GregorySech, @avimak, @kengu, @lpongetti, and @2ZeroSix
+for this release!
+
+## [0.7.2] - 8/30/2019
+- expose TileProvider.getTileUrl (#401)
+
+Thanks to @kengu for this release!
+## [0.7.1] - 8/28/2019
+- upgrade to cached_network_image ^1.1.0 (#358)
+- documentation (#400)
+- remove isUserGesture (#389)
+- fix initialization exception (#379)
+
+Thanks to @escamoteur, @wmcschane, and @GregorySech for this release!
+
 ## [0.7.0+2] - 7/31/2019
 - Fix OverlayImage with transparency (#382)
 

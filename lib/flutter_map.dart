@@ -2,7 +2,6 @@ library flutter_map;
 
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/geo/crs/crs.dart';
@@ -11,33 +10,39 @@ import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/plugins/plugin.dart';
 import 'package:latlong/latlong.dart';
 
-export 'src/core/point.dart';
-export 'src/geo/crs/crs.dart';
-export 'src/geo/latlng_bounds.dart';
-export 'src/layer/circle_layer.dart';
-export 'src/layer/group_layer.dart';
-export 'src/layer/layer.dart';
-export 'src/layer/marker_layer.dart';
-export 'src/layer/mbtiles/mbtiles_image_provider.dart';
-export 'src/layer/overlay_image_layer.dart';
-export 'src/layer/polygon_layer.dart';
-export 'src/layer/polyline_layer.dart';
-export 'src/layer/tile_layer.dart';
-export 'src/plugins/plugin.dart';
+export 'package:flutter_map/src/core/point.dart';
+export 'package:flutter_map/src/geo/crs/crs.dart';
+export 'package:flutter_map/src/geo/latlng_bounds.dart';
+export 'package:flutter_map/src/layer/circle_layer.dart';
+export 'package:flutter_map/src/layer/group_layer.dart';
+export 'package:flutter_map/src/layer/layer.dart';
+export 'package:flutter_map/src/layer/marker_layer.dart';
+export 'package:flutter_map/src/layer/overlay_image_layer.dart';
+export 'package:flutter_map/src/layer/polygon_layer.dart';
+export 'package:flutter_map/src/layer/polyline_layer.dart';
+export 'package:flutter_map/src/layer/tile_layer.dart';
+export 'package:flutter_map/src/layer/tile_provider/tile_provider.dart';
+export 'package:flutter_map/src/layer/tile_provider/mbtiles_image_provider.dart';
+export 'package:flutter_map/src/plugins/plugin.dart';
 
+/// Renders a map composed of a list of layers powered by [LayerOptions].
+///
+/// Use a [MapController] to interact programmatically with the map.
+///
+/// Through [MapOptions] map's callbacks and properties can be defined.
 class FlutterMap extends StatefulWidget {
-  /// A set of layers' options to used to create the layers on the map
+  /// A set of layers' options to used to create the layers on the map.
   ///
   /// Usually a list of [TileLayerOptions], [MarkerLayerOptions] and
   /// [PolylineLayerOptions].
   final List<LayerOptions> layers;
 
-  /// [MapOptions] to create a [MapState] with
+  /// [MapOptions] to create a [MapState] with.
   ///
   /// This property must not be null.
   final MapOptions options;
 
-  /// A [MapController], used to control the map
+  /// A [MapController], used to control the map.
   final MapControllerImpl _mapController;
 
   FlutterMap({
@@ -52,19 +57,31 @@ class FlutterMap extends StatefulWidget {
   FlutterMapState createState() => FlutterMapState(_mapController);
 }
 
+/// Controller to programmatically interact with [FlutterMap].
+///
+/// It allows for map movement through [move], rotation through [rotate]
+/// and to fit the map bounds with [fitBounds].
+///
+/// It also provides current map properties.
 abstract class MapController {
   /// Moves the map to a specific location and zoom level
   void move(LatLng center, double zoom);
+
+  /// Sets the map rotation to a certain degrees angle (in decimal).
   void rotate(double degree);
 
-  void fitBounds(
-    LatLngBounds bounds, {
-    FitBoundsOptions options,
-  });
+  /// Fits the map bounds. Optional constraints can be defined
+  /// through the [options] parameter.
+  void fitBounds(LatLngBounds bounds, {FitBoundsOptions options});
+
   bool get ready;
+
   Future<Null> get onReady;
+
   LatLng get center;
+
   LatLngBounds get bounds;
+
   double get zoom;
 
   ValueChanged<double> onRotationChanged;
@@ -74,16 +91,28 @@ abstract class MapController {
 
 typedef void TapCallback(LatLng point);
 typedef void LongPressCallback(LatLng point);
-typedef void PositionCallback(
-    MapPosition position, bool hasGesture, bool isUserGesture);
+typedef void PositionCallback(MapPosition position, bool hasGesture);
 
+/// Allows you to provide your map's starting properties for [zoom], [rotation]
+/// and [center].
+/// Zoom, pan boundary and interactivity constraints can be specified here too.
+///
+/// Callbacks for [onTap], [onLongPress] and [onPositionChanged] can be
+/// registered here.
+///
+/// Through [crs] the Coordinate Reference System can be
+/// defined, it defaults to [Epsg3857].
+///
+/// Checks if a coordinate is outside of the map's
+/// defined boundaries.
 class MapOptions {
   final Crs crs;
   final double zoom;
   final double rotation;
   final double minZoom;
   final double maxZoom;
-  final bool debug;
+  @deprecated
+  final bool debug; // TODO no usage outside of constructor. Marked for removal?
   final bool interactive;
   final TapCallback onTap;
   final LongPressCallback onLongPress;
@@ -142,6 +171,7 @@ class FitBoundsOptions {
   });
 }
 
+/// Position's type for [PositionCallback].
 class MapPosition {
   final LatLng center;
   final LatLngBounds bounds;

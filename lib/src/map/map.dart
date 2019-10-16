@@ -24,10 +24,8 @@ class MapControllerImpl implements MapController {
   }
 
   @override
-  void move(LatLng center, double zoom,
-      {bool hasGesture = false, isUserGesture = false}) {
-    _state.move(center, zoom,
-        hasGesture: hasGesture, isUserGesture: isUserGesture);
+  void move(LatLng center, double zoom, {bool hasGesture = false}) {
+    _state.move(center, zoom, hasGesture: hasGesture);
   }
 
   @override
@@ -78,6 +76,7 @@ class MapState {
 
   MapState(this.options)
       : rotation = options.rotation,
+        _zoom = options.zoom,
         _onMoveSink = StreamController.broadcast();
 
   CustomPoint _size;
@@ -102,7 +101,6 @@ class MapState {
   Bounds get pixelBounds => getLastPixelBounds();
 
   void _init() {
-    _zoom = options.zoom;
     move(options.center, zoom);
   }
 
@@ -110,8 +108,7 @@ class MapState {
     _onMoveSink.close();
   }
 
-  void move(LatLng center, double zoom,
-      {hasGesture = false, isUserGesture = false}) {
+  void move(LatLng center, double zoom, {hasGesture = false}) {
     zoom = _fitZoomToBounds(zoom);
     final mapMoved = center != _lastCenter || zoom != _zoom;
 
@@ -134,8 +131,7 @@ class MapState {
             bounds: bounds,
             zoom: zoom,
           ),
-          hasGesture,
-          isUserGesture);
+          hasGesture);
     }
   }
 
@@ -220,6 +216,8 @@ class MapState {
     var nw = bounds.northWest;
     var se = bounds.southEast;
     var size = this.size - padding;
+    // Prevent negative size which results in NaN zoom value later on in the calculation
+    size = CustomPoint(math.max(0, size.x), math.max(0, size.y));
     var boundsSize = Bounds(project(se, zoom), project(nw, zoom)).size;
     var scaleX = size.x / boundsSize.x;
     var scaleY = size.y / boundsSize.y;

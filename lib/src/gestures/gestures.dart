@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -24,6 +25,9 @@ abstract class MapGestureMixin extends State<FlutterMap>
   AnimationController _doubleTapController;
   Animation _doubleTapZoomAnimation;
   Animation _doubleTapCenterAnimation;
+
+  int _tapUpCounter = 0;
+  Timer _doubleTapHoldMaxDelay;
 
   @override
   FlutterMap get widget;
@@ -56,6 +60,11 @@ abstract class MapGestureMixin extends State<FlutterMap>
   }
 
   void handleScaleUpdate(ScaleUpdateDetails details) {
+    if (_tapUpCounter == 1) {
+      _handleDoubleTapHold(details);
+      return;
+    }
+
     setState(() {
       final focalOffset = _offsetToPoint(details.localFocalPoint);
       final newZoom = _getZoomForScale(_mapZoomStart, details.scale);
@@ -68,6 +77,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
   }
 
   void handleScaleEnd(ScaleEndDetails details) {
+    _resetDoubleTapHold();
+
     var magnitude = details.velocity.pixelsPerSecond.distance;
     if (magnitude < _kMinFlingVelocity) {
       return;
@@ -101,6 +112,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
   }
 
   void handleLongPress(TapPosition position) {
+    _resetDoubleTapHold();
+
     if (options.onLongPress == null) {
       return;
     }
@@ -125,6 +138,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
   }
 
   void handleDoubleTap(TapPosition tapPosition) {
+    _resetDoubleTapHold();
+
     final centerPos = _pointToOffset(map.size) / 2.0;
     final newZoom = _getZoomForScale(map.zoom, 2.0);
     final focalDelta = _getDoubleTapFocalDelta(
@@ -171,9 +186,38 @@ abstract class MapGestureMixin extends State<FlutterMap>
         _doubleTapCenterAnimation.value,
         _doubleTapZoomAnimation.value,
         hasGesture: true,
-        isUserGesture: true,
       );
     });
+  }
+
+  void handleOnTapUp(TapUpDetails details) {
+    _doubleTapHoldMaxDelay?.cancel();
+
+    if (++_tapUpCounter == 1) {
+      _doubleTapHoldMaxDelay =
+          Timer(const Duration(milliseconds: 350), _resetDoubleTapHold);
+    }
+  }
+
+  void _handleDoubleTapHold(ScaleUpdateDetails details) {
+    _doubleTapHoldMaxDelay?.cancel();
+
+    setState(() {
+      final zoom = map.zoom;
+      final focalOffset = _offsetToPoint(details.localFocalPoint);
+      final verticalOffset = _pointToOffset(_focalStartLocal - focalOffset).dy;
+      final newZoom = _mapZoomStart - verticalOffset / 360 * zoom;
+      final min = options.minZoom ?? 0.0;
+      final max = options.maxZoom ?? double.infinity;
+      final actualZoom = math.max(min, math.min(max, newZoom));
+
+      map.move(map.center, actualZoom, hasGesture: true);
+    });
+  }
+
+  void _resetDoubleTapHold() {
+    _doubleTapHoldMaxDelay?.cancel();
+    _tapUpCounter = 0;
   }
 
   void _handleFlingAnimation() {
@@ -181,7 +225,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
     var newCenterPoint = map.project(_mapCenterStart) +
         CustomPoint(_flingOffset.dx, _flingOffset.dy);
     var newCenter = map.unproject(newCenterPoint);
-    map.move(newCenter, map.zoom, hasGesture: true, isUserGesture: true);
+    map.move(newCenter, map.zoom, hasGesture: true);
   }
 
   CustomPoint _offsetToPoint(Offset offset) {

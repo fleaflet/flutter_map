@@ -41,6 +41,7 @@ class PolygonLayer extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints bc) {
+        // TODO unused BoxContraints should remove?
         final size = Size(bc.maxWidth, bc.maxHeight);
         return _build(context, size);
       },
@@ -67,19 +68,15 @@ class PolygonLayer extends StatelessWidget {
           }
         }
 
-        var polygons = <Widget>[];
-        for (var polygonOpt in polygonOpts.polygons) {
-          polygons.add(
-            CustomPaint(
-              painter: PolygonPainter(polygonOpt),
-              size: size,
-            ),
-          );
-        }
-
         return Container(
           child: Stack(
-            children: polygons,
+            children: [
+              for (final polygonOpt in polygonOpts.polygons)
+                CustomPaint(
+                  painter: PolygonPainter(polygonOpt),
+                  size: size,
+                ),
+            ],
           ),
         );
       },
