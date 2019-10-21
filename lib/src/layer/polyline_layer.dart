@@ -19,6 +19,8 @@ class Polyline {
   final Color color;
   final double borderStrokeWidth;
   final Color borderColor;
+  final List<Color> gradientColors;
+  final List<double> colorsStop;
   final bool isDotted;
   Polyline({
     this.points,
@@ -26,6 +28,8 @@ class Polyline {
     this.color = const Color(0xFF00FF00),
     this.borderStrokeWidth = 0.0,
     this.borderColor = const Color(0xFFFFFF00),
+    this.gradientColors,
+    this.colorsStop,
     this.isDotted = false,
   });
 }
@@ -85,6 +89,7 @@ class PolylineLayer extends StatelessWidget {
 
 class PolylinePainter extends CustomPainter {
   final Polyline polylineOpt;
+
   PolylinePainter(this.polylineOpt);
 
   @override
@@ -95,11 +100,16 @@ class PolylinePainter extends CustomPainter {
     final rect = Offset.zero & size;
     canvas.clipRect(rect);
     final paint = Paint()
-      ..color = polylineOpt.color
       ..strokeWidth = polylineOpt.strokeWidth
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round
       ..blendMode = BlendMode.src;
+
+    if (polylineOpt.gradientColors == null) {
+      paint.color = polylineOpt.color;
+    } else {
+      paint.shader = _paintGradient();
+    }
 
     final filterPaint = Paint()
       ..color = polylineOpt.borderColor.withAlpha(255)
@@ -175,6 +185,23 @@ class PolylinePainter extends CustomPainter {
       }
       canvas.drawPath(path, paint);
     }
+  }
+
+  ui.Gradient _paintGradient() => ui.Gradient.linear(polylineOpt.offsets.first,
+      polylineOpt.offsets.last, polylineOpt.gradientColors, _getColorsStop());
+
+  List<double> _getColorsStop() => (polylineOpt.colorsStop != null &&
+          polylineOpt.colorsStop.length == polylineOpt.gradientColors.length)
+      ? polylineOpt.colorsStop
+      : _calculateColorsStop();
+
+  List<double> _calculateColorsStop() {
+    final colorsStopInterval = 1.0 / polylineOpt.gradientColors.length;
+    return polylineOpt.gradientColors
+        .map((gradientColor) =>
+            polylineOpt.gradientColors.indexOf(gradientColor) *
+            colorsStopInterval)
+        .toList();
   }
 
   @override
