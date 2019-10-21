@@ -60,6 +60,10 @@ class TileLayerOptions extends LayerOptions {
 
   ///Color shown behind the tiles.
   final Color backgroundColor;
+  
+  ///Opacity of the rendered tile
+  final double opacity;
+
 
   /// Provider to load the tiles. The default is CachedNetworkTileProvider,
   /// which loads tile images from network and caches them offline.
@@ -126,6 +130,7 @@ class TileLayerOptions extends LayerOptions {
       this.placeholderImage,
       this.tileProvider = const CachedNetworkTileProvider(),
       this.tms = false,
+      this.opacity = 1.0,
       rebuild})
       : super(rebuild: rebuild);
 }
@@ -395,10 +400,13 @@ class _TileLayerState extends State<TileLayer> {
       for (var tile in tilesToRender) _createTileWidget(tile.coords)
     ];
 
-    return Container(
-      color: options.backgroundColor,
-      child: Stack(
-        children: tileWidgets,
+    return Opacity(
+      opacity: options.opacity,
+      child: Container(
+        color: options.backgroundColor,
+        child: Stack(
+          children: tileWidgets,
+        ),
       ),
     );
   }
