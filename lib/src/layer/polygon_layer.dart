@@ -8,9 +8,11 @@ import 'package:latlong/latlong.dart' hide Path; // conflict with Path from UI
 
 class PolygonLayerOptions extends LayerOptions {
   final List<Polygon> polygons;
-  final bool polygonCulling; /// screen space culling of polygons based on bounding box
+  final bool polygonCulling;
 
-  PolygonLayerOptions({this.polygons = const [], this.polygonCulling = false, rebuild})
+  /// screen space culling of polygons based on bounding box
+  PolygonLayerOptions(
+      {this.polygons = const [], this.polygonCulling = false, rebuild})
       : super(rebuild: rebuild);
 }
 
@@ -29,7 +31,7 @@ class Polygon {
     this.borderStrokeWidth = 0.0,
     this.borderColor = const Color(0xFFFFFF00),
     this.isDotted = false,
-  }){
+  }) {
     boundingBox = LatLngBounds.fromPoints(points);
   }
 }
@@ -62,7 +64,8 @@ class PolygonLayer extends StatelessWidget {
           polygon.offsets.clear();
           var i = 0;
 
-          if (polygonOpts.polygonCulling && !polygon.boundingBox.isOverlapping(map.bounds)) {
+          if (polygonOpts.polygonCulling &&
+              !polygon.boundingBox.isOverlapping(map.bounds)) {
             // skip this polygon as it's offscreen
             continue;
           }
@@ -73,8 +76,7 @@ class PolygonLayer extends StatelessWidget {
                 map.getPixelOrigin();
             polygon.offsets.add(Offset(pos.x.toDouble(), pos.y.toDouble()));
             if (i > 0 && i < polygon.points.length) {
-              polygon.offsets
-                  .add(Offset(pos.x.toDouble(), pos.y.toDouble()));
+              polygon.offsets.add(Offset(pos.x.toDouble(), pos.y.toDouble()));
             }
             i++;
           }
@@ -92,7 +94,6 @@ class PolygonLayer extends StatelessWidget {
             children: polygons,
           ),
         );
-        
       },
     );
   }
