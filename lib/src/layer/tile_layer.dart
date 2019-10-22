@@ -60,10 +60,9 @@ class TileLayerOptions extends LayerOptions {
 
   ///Color shown behind the tiles.
   final Color backgroundColor;
-  
+
   ///Opacity of the rendered tile
   final double opacity;
-
 
   /// Provider to load the tiles. The default is CachedNetworkTileProvider,
   /// which loads tile images from network and caches them offline.
