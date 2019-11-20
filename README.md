@@ -50,6 +50,42 @@ Configure the map using `MapOptions` and layer options:
   }
 ```
 
+Configure the map to use [Azure Maps](https://azure.com/maps) by using the following `MapOptions` and layer options:
+
+```dart
+Widget build(BuildContext context) {
+    return new FlutterMap(
+      options: new MapOptions(
+        center: new LatLng(51.5, -0.09),
+        zoom: 13.0,
+      ),
+      layers: [
+        new TileLayerOptions(
+          urlTemplate: "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style=main&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
+          additionalOptions: {
+            'subscriptionKey': '<YOUR_AZURE_MAPS_SUBSCRIPTON_KEY>'
+          },
+        ),
+        new MarkerLayerOptions(
+          markers: [
+            new Marker(
+              width: 80.0,
+              height: 80.0,
+              point: new LatLng(51.5, -0.09),
+              builder: (ctx) =>
+              new Container(
+                child: new FlutterLogo(),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+```
+
+To use Azure Maps you will need to [setup an account and get a subscription key](https://docs.microsoft.com/en-us/azure/azure-maps/quick-demo-map-app)
+
 ### Run the example
 
 See the `example/` folder for a working example app.
