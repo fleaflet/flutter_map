@@ -10,7 +10,8 @@ addons:
       - libstdc++6
       - fonts-droid-fallback
 before_script:
-  - git clone https://github.com/flutter/flutter.git -b stable ~/flutter
+  # TODO(domesticmouse): revert back to stable after next release
+  - git clone https://github.com/flutter/flutter.git -b beta ~/flutter
   - ~/flutter/bin/flutter doctor
 script:
   - ~/flutter/bin/cache/dart-sdk/bin/dartfmt --set-exit-if-changed -n .
