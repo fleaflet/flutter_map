@@ -87,7 +87,10 @@ class MBTileImage extends ImageProvider<MBTileImage> {
   MBTileImage(this.database, this.coords);
 
   @override
-  ImageStreamCompleter load(MBTileImage key, Future<Codec> ignored(Uint8List bytes, {int cacheHeight, int cacheWidth})) {
+  ImageStreamCompleter load(
+      MBTileImage key,
+      Future<Codec> ignored(Uint8List bytes,
+          {int cacheHeight, int cacheWidth})) {
     return MultiFrameImageStreamCompleter(
         codec: _loadAsync(key),
         scale: 1,
