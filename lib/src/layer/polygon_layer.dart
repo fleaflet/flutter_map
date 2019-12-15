@@ -33,7 +33,7 @@ class Polygon {
 class PolygonLayer extends StatelessWidget {
   final PolygonLayerOptions polygonOpts;
   final MapState map;
-  final Stream<Null> stream;
+  final Stream stream;
 
   PolygonLayer(this.polygonOpts, this.map, this.stream);
 
@@ -41,6 +41,7 @@ class PolygonLayer extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints bc) {
+        // TODO unused BoxContraints should remove?
         final size = Size(bc.maxWidth, bc.maxHeight);
         return _build(context, size);
       },
@@ -48,8 +49,8 @@ class PolygonLayer extends StatelessWidget {
   }
 
   Widget _build(BuildContext context, Size size) {
-    return StreamBuilder<int>(
-      stream: stream, // a Stream<int> or null
+    return StreamBuilder(
+      stream: stream, // a Stream<void> or null
       builder: (BuildContext context, _) {
         for (var polygonOpt in polygonOpts.polygons) {
           polygonOpt.offsets.clear();
@@ -67,19 +68,15 @@ class PolygonLayer extends StatelessWidget {
           }
         }
 
-        var polygons = <Widget>[];
-        for (var polygonOpt in polygonOpts.polygons) {
-          polygons.add(
-            CustomPaint(
-              painter: PolygonPainter(polygonOpt),
-              size: size,
-            ),
-          );
-        }
-
         return Container(
           child: Stack(
-            children: polygons,
+            children: [
+              for (final polygonOpt in polygonOpts.polygons)
+                CustomPaint(
+                  painter: PolygonPainter(polygonOpt),
+                  size: size,
+                ),
+            ],
           ),
         );
       },

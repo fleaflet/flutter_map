@@ -15,7 +15,10 @@ class HomePage extends StatelessWidget {
         height: 80.0,
         point: LatLng(51.5, -0.09),
         builder: (ctx) => Container(
-          child: FlutterLogo(),
+          child: FlutterLogo(
+            colors: Colors.blue,
+            key: ObjectKey(Colors.blue),
+          ),
         ),
       ),
       Marker(
@@ -25,6 +28,7 @@ class HomePage extends StatelessWidget {
         builder: (ctx) => Container(
           child: FlutterLogo(
             colors: Colors.green,
+            key: ObjectKey(Colors.green),
           ),
         ),
       ),
@@ -33,7 +37,10 @@ class HomePage extends StatelessWidget {
         height: 80.0,
         point: LatLng(48.8566, 2.3522),
         builder: (ctx) => Container(
-          child: FlutterLogo(colors: Colors.purple),
+          child: FlutterLogo(
+            colors: Colors.purple,
+            key: ObjectKey(Colors.purple),
+          ),
         ),
       ),
     ];
@@ -57,9 +64,14 @@ class HomePage extends StatelessWidget {
                 ),
                 layers: [
                   TileLayerOptions(
-                      urlTemplate:
-                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      subdomains: ['a', 'b', 'c']),
+                    urlTemplate:
+                        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    subdomains: ['a', 'b', 'c'],
+                    // For example purposes. It is recommended to use
+                    // TileProvider with a caching and retry strategy, like
+                    // NetworkTileProvider or CachedNetworkTileProvider
+                    tileProvider: NonCachingNetworkTileProvider(),
+                  ),
                   MarkerLayerOptions(markers: markers)
                 ],
               ),

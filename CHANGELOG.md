@@ -1,8 +1,53 @@
+## [0.7.3] - 10/3/2019
+- Update changelog (#408)
+- Readability improvements (#410)
+- add double-tap-hold zoom (#393)
+- Fix Unsupported Operation and add missing onTap and onLongPress methods (#436)
+- Fix error when unproject bottomLeft or topRight and lat are < -90 or > 90 or
+  lng are < -180 or > 180
+- Fix/transparent polyline (#407)
+
+Thanks to @yywwuing, @GregorySech, @avimak, @kengu, @lpongetti, and @2ZeroSix
+for this release!
+
+## [0.7.2] - 8/30/2019
+- expose TileProvider.getTileUrl (#401)
+
+Thanks to @kengu for this release!
+## [0.7.1] - 8/28/2019
+- upgrade to cached_network_image ^1.1.0 (#358)
+- documentation (#400)
+- remove isUserGesture (#389)
+- fix initialization exception (#379)
+
+Thanks to @escamoteur, @wmcschane, and @GregorySech for this release!
+
+## [0.7.0+2] - 7/31/2019
+- Fix OverlayImage with transparency (#382)
+
+Thanks to @4kssoft for this release!
+
+## [0.7.0+1] - 7/30/2019
+- update MapState options when FlutterMap widget options change (#380)
+
+## [0.7.0] - 7/27/2019
+- compatability with flutter's stable and master channels
+- add scalebar (#356)
+- add rotation (#359)
+- fix OverlayLayer bug (#360)
+- fix rotation pan issue (#363, #365)
+
+Thanks to @kimlet, @escamoteur, @4kssoft for this release! 
+
 ## [0.5.6] - 7/9/2019
 - fix compatibility with flutter 1.7.8 (stable) (#296)
 
 Thanks to @MichalMisiaszek for the heads up and @slightfoot for help with
 upgrading (#296)!
+
+## [0.6.x] - 6/7/2019
+- temporary releases compatable with early flutter releases
+
 ## [0.5.4] - 6/7/2019
 - fix markers on edge of screen disappearing (#313)
 - dart analysis fixes (#300)
