@@ -11,6 +11,7 @@ addons:
       - fonts-droid-fallback
 before_script:
   - git clone https://github.com/flutter/flutter.git -b stable ~/flutter
+  - ~/flutter/bin/flutter config --no-analytics
   - ~/flutter/bin/flutter doctor
 script:
   - ~/flutter/bin/cache/dart-sdk/bin/dartfmt --set-exit-if-changed -n .
