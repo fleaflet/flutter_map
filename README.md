@@ -12,6 +12,7 @@ Add flutter_map to your pubspec:
 ```yaml
 dependencies:
   flutter_map: any # or the latest version on Pub
+  #flutter_map: 0.7.3 # for flutter 1.12.13 and before
 ```
 
 Configure the map using `MapOptions` and layer options:

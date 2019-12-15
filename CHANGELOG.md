@@ -1,3 +1,7 @@
+## [0.8.0] - 16/12/2019
+- Breaking change to support flutter 1.12.13+hotfix.5 on
+- Update support for new flutter_image method signature (#472, #473, #476)
+
 ## [0.7.3] - 10/3/2019
 - Update changelog (#408)
 - Readability improvements (#410)
