@@ -1,4 +1,4 @@
-package com.johnpryan.leafletflutterexample;
+package me.jpryan.example;
 
 import android.os.Bundle;
 import io.flutter.embedding.android.FlutterActivity;
