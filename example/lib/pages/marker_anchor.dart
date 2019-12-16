@@ -81,7 +81,7 @@ class MarkerAnchorPageState extends State<MarkerAnchorPage> {
             ),
             Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: Row(
+              child: Wrap(
                 children: <Widget>[
                   MaterialButton(
                     child: Text('Left'),
@@ -99,18 +99,10 @@ class MarkerAnchorPageState extends State<MarkerAnchorPage> {
                     child: Text('Bottom'),
                     onPressed: () => _setAnchorAlignPos(AnchorAlign.bottom),
                   ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: Row(
-                children: <Widget>[
                   MaterialButton(
                     child: Text('Center'),
                     onPressed: () => _setAnchorAlignPos(AnchorAlign.center),
-                  ),
-                  MaterialButton(
+                  ),                 MaterialButton(
                     child: Text('Custom'),
                     onPressed: () => _setAnchorExactlyPos(Anchor(80.0, 80.0)),
                   ),
