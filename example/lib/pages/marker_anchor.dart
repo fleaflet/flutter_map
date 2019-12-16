@@ -102,7 +102,8 @@ class MarkerAnchorPageState extends State<MarkerAnchorPage> {
                   MaterialButton(
                     child: Text('Center'),
                     onPressed: () => _setAnchorAlignPos(AnchorAlign.center),
-                  ),                 MaterialButton(
+                  ),
+                  MaterialButton(
                     child: Text('Custom'),
                     onPressed: () => _setAnchorExactlyPos(Anchor(80.0, 80.0)),
                   ),
