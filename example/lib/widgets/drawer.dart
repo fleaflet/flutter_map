@@ -14,6 +14,7 @@ import '../pages/overlay_image.dart';
 import '../pages/plugin_api.dart';
 import '../pages/plugin_scalebar.dart';
 import '../pages/polyline.dart';
+import '../pages/sliding_map.dart';
 import '../pages/tap_to_add.dart';
 
 Drawer buildDrawer(BuildContext context, String currentRoute) {
@@ -131,6 +132,12 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           onTap: () {
             Navigator.pushReplacementNamed(context, OverlayImagePage.route);
           },
+        ),
+        ListTile(
+          title: const Text('Sliding Map'),
+          selected: currentRoute == SlidingMapPage.route,
+          onTap: () =>
+              Navigator.pushReplacementNamed(context, SlidingMapPage.route),
         ),
       ],
     ),

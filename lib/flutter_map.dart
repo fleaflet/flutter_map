@@ -188,8 +188,8 @@ class MapOptions {
       return _safeArea.containPoint(point, fallback);
     } else {
       return LatLng(
-        center.latitude.clamp(swPanBoundary.latitude, nePanBoundary.latitude),
-        center.longitude
+        point.latitude.clamp(swPanBoundary.latitude, nePanBoundary.latitude),
+        point.longitude
             .clamp(swPanBoundary.longitude, nePanBoundary.longitude),
       );
     }

@@ -14,6 +14,7 @@ import './pages/overlay_image.dart';
 import './pages/plugin_api.dart';
 import './pages/plugin_scalebar.dart';
 import './pages/polyline.dart';
+import './pages/sliding_map.dart';
 import './pages/tap_to_add.dart';
 
 void main() => runApp(MyApp());
@@ -44,6 +45,7 @@ class MyApp extends StatelessWidget {
         MovingMarkersPage.route: (context) => MovingMarkersPage(),
         CirclePage.route: (context) => CirclePage(),
         OverlayImagePage.route: (context) => OverlayImagePage(),
+        SlidingMapPage.route: (_) => SlidingMapPage(),
       },
     );
   }
