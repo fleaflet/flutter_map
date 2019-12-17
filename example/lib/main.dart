@@ -13,6 +13,7 @@ import './pages/on_tap.dart';
 import './pages/overlay_image.dart';
 import './pages/plugin_api.dart';
 import './pages/plugin_scalebar.dart';
+import './pages/plugin_zoombuttons.dart';
 import './pages/polyline.dart';
 import './pages/tap_to_add.dart';
 
@@ -38,6 +39,7 @@ class MyApp extends StatelessWidget {
         MarkerAnchorPage.route: (context) => MarkerAnchorPage(),
         PluginPage.route: (context) => PluginPage(),
         PluginScaleBar.route: (context) => PluginScaleBar(),
+        PluginZoomButtons.route: (context) => PluginZoomButtons(),
         OfflineMapPage.route: (context) => OfflineMapPage(),
         OfflineMBTilesMapPage.route: (context) => OfflineMBTilesMapPage(),
         OnTapPage.route: (context) => OnTapPage(),

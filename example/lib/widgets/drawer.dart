@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map_example/pages/plugin_zoombuttons.dart';
 
 import '../pages/animated_map_controller.dart';
 import '../pages/circle.dart';
@@ -87,6 +88,13 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           selected: currentRoute == PluginScaleBar.route,
           onTap: () {
             Navigator.pushReplacementNamed(context, PluginScaleBar.route);
+          },
+        ),
+        ListTile(
+          title: const Text('ZoomButtons Plugins'),
+          selected: currentRoute == PluginZoomButtons.route,
+          onTap: () {
+            Navigator.pushReplacementNamed(context, PluginZoomButtons.route);
           },
         ),
         ListTile(
