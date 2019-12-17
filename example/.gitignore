@@ -9,3 +9,4 @@ ios/.symlinks/
 packages
 pubspec.lock
 .flutter-plugins
+*.iml
