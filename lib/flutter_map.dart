@@ -106,6 +106,11 @@ typedef void PositionCallback(MapPosition position, bool hasGesture);
 ///
 /// Checks if a coordinate is outside of the map's
 /// defined boundaries.
+///
+/// If you download offline tiles dynamically, you can set [adaptiveBoundaries]
+/// to true (make sure to pass [screenSize] and an external [controller]), which
+/// will enforce panning/zooming to ensure there is never a need to display
+/// tiles outside the boundaries set by [swPanBoundary] and [nePanBoundary].
 class MapOptions {
   final Crs crs;
   final double zoom;
@@ -121,9 +126,6 @@ class MapOptions {
   final List<MapPlugin> plugins;
   final bool slideOnBoundaries;
   final Size screenSize;
-
-  /// Prevent any tiles outside the bounds from ever being displayed by
-  /// limiting zoom level if necessary
   final bool adaptiveBoundaries;
   final MapController controller;
   LatLng center;
@@ -147,8 +149,8 @@ class MapOptions {
     this.onPositionChanged,
     this.plugins = const [],
     this.slideOnBoundaries = false,
-    this.screenSize,
     this.adaptiveBoundaries = false,
+    this.screenSize,
     this.controller,
     this.swPanBoundary,
     this.nePanBoundary,
@@ -157,8 +159,8 @@ class MapOptions {
     _safeAreaZoom = zoom;
     assert(slideOnBoundaries ||
         !isOutOfBounds(center)); //You cannot start outside pan boundary
-    assert(!slideOnBoundaries || screenSize != null,
-        'screenSize must be set in order to enable boundary sliding.');
+    assert(!adaptiveBoundaries || screenSize != null,
+        'screenSize must be set in order to enable adaptive boundaries.');
     assert(!adaptiveBoundaries || controller != null,
         'controller must be set in order to enable adaptive boundaries.');
   }
