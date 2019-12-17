@@ -1,3 +1,26 @@
+## [0.8.0] - 12/16/2019
+Added Flutter 1.12 support
+
+- Polygon Culling (#449)
+- fix marker anchor sample (#448, #427)
+- upgrade imageloader for Flutter 1.12 (#478)
+- Tidying up project files (#469)
+
+Thanks to @raacker, @Varuni-Punchihewa, @wmcshane, @domesticmouse, and @kimlet
+for this release!
+
+## [0.7.3] - 10/3/2019
+- Update changelog (#408)
+- Readability improvements (#410)
+- add double-tap-hold zoom (#393)
+- Fix Unsupported Operation and add missing onTap and onLongPress methods (#436)
+- Fix error when unproject bottomLeft or topRight and lat are < -90 or > 90 or
+  lng are < -180 or > 180
+- Fix/transparent polyline (#407)
+
+Thanks to @yywwuing, @GregorySech, @avimak, @kengu, @lpongetti, and @2ZeroSix
+for this release!
+
 ## [0.7.2] - 8/30/2019
 - expose TileProvider.getTileUrl (#401)
 

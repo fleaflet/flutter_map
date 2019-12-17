@@ -1,5 +1,5 @@
 [![BuildStatus](https://api.travis-ci.org/johnpryan/flutter_map.svg?branch=master)](https://travis-ci.org/johnpryan/flutter_map)
-[![Pub](https://img.shields.io/pub/v/flutter_map.svg)](https://pub.dartlang.org/packages/flutter_map)
+[![Pub](https://img.shields.io/pub/v/flutter_map.svg)](https://pub.dev/packages/flutter_map)
 
 # flutter_map
 
@@ -50,6 +50,42 @@ Configure the map using `MapOptions` and layer options:
   }
 ```
 
+Configure the map to use [Azure Maps](https://azure.com/maps) by using the following `MapOptions` and layer options:
+
+```dart
+Widget build(BuildContext context) {
+    return new FlutterMap(
+      options: new MapOptions(
+        center: new LatLng(51.5, -0.09),
+        zoom: 13.0,
+      ),
+      layers: [
+        new TileLayerOptions(
+          urlTemplate: "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style=main&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
+          additionalOptions: {
+            'subscriptionKey': '<YOUR_AZURE_MAPS_SUBSCRIPTON_KEY>'
+          },
+        ),
+        new MarkerLayerOptions(
+          markers: [
+            new Marker(
+              width: 80.0,
+              height: 80.0,
+              point: new LatLng(51.5, -0.09),
+              builder: (ctx) =>
+              new Container(
+                child: new FlutterLogo(),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+```
+
+To use Azure Maps you will need to [setup an account and get a subscription key](https://docs.microsoft.com/en-us/azure/azure-maps/quick-demo-map-app)
+
 ### Run the example
 
 See the `example/` folder for a working example app.
@@ -57,36 +93,6 @@ See the `example/` folder for a working example app.
 To run it, in a terminal cd into the folder.
 Then execute `ulimit -S -n 2048` ([ref](https://github.com/trentpiercy/trace/issues/1#issuecomment-404494469)).
 Then execute `flutter run` with a running emulator.
-
-## Mapbox Tiles
-
-You can use map tiles from a number of
-[free and paid map suppliers](http://leafletjs.com/plugins.html#basemap-providers),
-or you can host your own map tiles.
-
-The example uses OpenStreetMap tiles, which are free but can be slow.
-
-Use TileLayerOptions to configure other tile providers, such as [mapbox]:
-
-```dart
-Widget build(ctx) {
-  return TileLayerOptions(
-    urlTemplate: "https://api.mapbox.com/v4/"
-        "{id}/{z}/{x}/{y}@2x.png?access_token={accessToken}",
-    additionalOptions: {
-      'accessToken': '<PUT_ACCESS_TOKEN_HERE>',
-      'id': 'mapbox.streets',
-    },
-  );
-}
-```
-
-To use, you'll need a mapbox key:
-
-1. Create a [Mapbox] account to get an API key
-2. Open `leaflet_flutter_example/lib/main.dart` and paste the API key into the
-`additionalOptions` map
-
 
 ## Offline maps
 [Follow this guide to grab offline tiles](https://tilemill-project.github.io/tilemill/docs/guides/osm-bright-mac-quickstart/)<br>
@@ -120,6 +126,7 @@ Note that there is also `FileTileProvider()`, which you can use to load tiles fr
 ## Plugins
 
 - [flutter_map_marker_cluster](https://github.com/lpongetti/flutter_map_marker_cluster): Provides Beautiful Animated Marker Clustering functionality
+- [user_location](https://github.com/igaurab/user_location_plugin): A plugin to handle and plot the current user location in FlutterMap
 
 
 ## Roadmap
@@ -128,4 +135,4 @@ For the latest roadmap, please see the [Issue Tracker]
 
 [Leaflet]: http://leafletjs.com/
 [Mapbox]: https://www.mapbox.com/
-[Issue Tracker]: https://github.com/apptreesoftware/flutter_map/issues
+[Issue Tracker]: https://github.com/johnpryan/flutter_map/issues

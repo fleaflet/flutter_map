@@ -59,6 +59,13 @@ class NetworkTileProvider extends TileProvider {
   }
 }
 
+class NonCachingNetworkTileProvider extends TileProvider {
+  @override
+  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
+    return NetworkImage(getTileUrl(coords, options));
+  }
+}
+
 class AssetTileProvider extends TileProvider {
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {

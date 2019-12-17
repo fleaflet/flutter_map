@@ -21,8 +21,8 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
     child: ListView(
       children: <Widget>[
         const DrawerHeader(
-          child: const Center(
-            child: const Text('Flutter Map Examples'),
+          child: Center(
+            child: Text('Flutter Map Examples'),
           ),
         ),
         ListTile(
