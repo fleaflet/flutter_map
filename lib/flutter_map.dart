@@ -51,8 +51,7 @@ class FlutterMap extends StatefulWidget {
     @required this.options,
     this.layers,
     MapController mapController,
-  })
-      : _mapController = mapController ?? MapController(),
+  })  : _mapController = mapController ?? MapController(),
         super(key: key);
 
   @override
@@ -159,9 +158,9 @@ class MapOptions {
     assert(slideOnBoundaries ||
         !isOutOfBounds(center)); //You cannot start outside pan boundary
     assert(!slideOnBoundaries || screenSize != null,
-    'screenSize must be set in order to enable boundary sliding.');
+        'screenSize must be set in order to enable boundary sliding.');
     assert(!adaptiveBoundaries || controller != null,
-    'controller must be set in order to enable adaptive boundaries.');
+        'controller must be set in order to enable adaptive boundaries.');
   }
 
   //if there is a pan boundary, do not cross
@@ -189,8 +188,7 @@ class MapOptions {
     } else {
       return LatLng(
         point.latitude.clamp(swPanBoundary.latitude, nePanBoundary.latitude),
-        point.longitude
-            .clamp(swPanBoundary.longitude, nePanBoundary.longitude),
+        point.longitude.clamp(swPanBoundary.longitude, nePanBoundary.longitude),
       );
     }
   }
@@ -228,8 +226,7 @@ class MapOptions {
   double _calculateScreenHeightInDegrees() =>
       screenSize.height * 170.102258 / pow(2, _getControllerZoom() + 8);
 
-  double _getControllerZoom() =>
-      controller.ready ? controller.zoom : zoom;
+  double _getControllerZoom() => controller.ready ? controller.zoom : zoom;
 }
 
 class FitBoundsOptions {
@@ -267,8 +264,7 @@ class _SafeArea {
   bool contains(point) =>
       isLatitudeBlocked || isLongitudeBlocked ? false : bounds.contains(point);
 
-  LatLng containPoint(LatLng point, LatLng fallback) =>
-      LatLng(
+  LatLng containPoint(LatLng point, LatLng fallback) => LatLng(
         isLatitudeBlocked
             ? fallback.latitude
             : point.latitude.clamp(bounds.south, bounds.north),
