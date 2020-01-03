@@ -1,3 +1,8 @@
+## [0.8.1] - 1/3/2019
+- Add ZoomButtonsPlugin (#487)
+
+Thanks to @moovida for this release!
+
 ## [0.8.0] - 12/16/2019
 Added Flutter 1.12 support
 
