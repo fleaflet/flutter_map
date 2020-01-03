@@ -1,9 +1,6 @@
-import 'dart:math';
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
-import './scalebar_utils.dart' as util;
 
 class ZoomButtonsPluginOption extends LayerOptions {
   final int minZoom;
@@ -12,12 +9,18 @@ class ZoomButtonsPluginOption extends LayerOptions {
   final double padding;
   final Alignment alignment;
 
-  ZoomButtonsPluginOption({this.minZoom = 1, this.maxZoom = 18, this.mini = true, this.padding = 2.0, this.alignment = Alignment.topRight});
+  ZoomButtonsPluginOption(
+      {this.minZoom = 1,
+      this.maxZoom = 18,
+      this.mini = true,
+      this.padding = 2.0,
+      this.alignment = Alignment.topRight});
 }
 
 class ZoomButtonsPlugin implements MapPlugin {
   @override
-  Widget createLayer(LayerOptions options, MapState mapState, Stream<Null> stream) {
+  Widget createLayer(
+      LayerOptions options, MapState mapState, Stream<Null> stream) {
     if (options is ZoomButtonsPluginOption) {
       return ZoomButtons(options, mapState, stream);
     }
@@ -34,7 +37,8 @@ class ZoomButtons extends StatelessWidget {
   final ZoomButtonsPluginOption zoomButtonsOpts;
   final MapState map;
   final Stream<Null> stream;
-  FitBoundsOptions options = const FitBoundsOptions(padding: EdgeInsets.all(12.0));
+  final FitBoundsOptions options =
+      const FitBoundsOptions(padding: EdgeInsets.all(12.0));
 
   ZoomButtons(this.zoomButtonsOpts, this.map, this.stream);
 
@@ -46,9 +50,12 @@ class ZoomButtons extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Padding(
-            padding: EdgeInsets.only(left: zoomButtonsOpts.padding, top: zoomButtonsOpts.padding, right: zoomButtonsOpts.padding),
+            padding: EdgeInsets.only(
+                left: zoomButtonsOpts.padding,
+                top: zoomButtonsOpts.padding,
+                right: zoomButtonsOpts.padding),
             child: FloatingActionButton(
-              heroTag: "zoomInButton",
+              heroTag: 'zoomInButton',
               mini: zoomButtonsOpts.mini,
               onPressed: () {
                 var bounds = map.getBounds();
@@ -66,7 +73,7 @@ class ZoomButtons extends StatelessWidget {
           Padding(
             padding: EdgeInsets.all(zoomButtonsOpts.padding),
             child: FloatingActionButton(
-              heroTag: "zoomOutButton",
+              heroTag: 'zoomOutButton',
               mini: zoomButtonsOpts.mini,
               onPressed: () {
                 var bounds = map.getBounds();

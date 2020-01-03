@@ -27,17 +27,17 @@ class PluginZoomButtons extends StatelessWidget {
                 ),
                 layers: [
                   TileLayerOptions(
-                    urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    urlTemplate:
+                        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     subdomains: ['a', 'b', 'c'],
                     tileProvider: NonCachingNetworkTileProvider(),
                   ),
                   ZoomButtonsPluginOption(
-                    minZoom: 4,
-                    maxZoom: 19,
-                    mini: true,
-                    padding: 10,
-                    alignment: Alignment.bottomRight
-                  )
+                      minZoom: 4,
+                      maxZoom: 19,
+                      mini: true,
+                      padding: 10,
+                      alignment: Alignment.bottomRight)
                 ],
               ),
             ),

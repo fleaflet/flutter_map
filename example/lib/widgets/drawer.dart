@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map_example/pages/plugin_zoombuttons.dart';
 
 import '../pages/animated_map_controller.dart';
 import '../pages/circle.dart';
@@ -14,6 +13,7 @@ import '../pages/on_tap.dart';
 import '../pages/overlay_image.dart';
 import '../pages/plugin_api.dart';
 import '../pages/plugin_scalebar.dart';
+import '../pages/plugin_zoombuttons.dart';
 import '../pages/polyline.dart';
 import '../pages/tap_to_add.dart';
 
