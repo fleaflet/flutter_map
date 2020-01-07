@@ -9,7 +9,8 @@ import 'package:latlong/latlong.dart';
 class PolylineLayerOptions extends LayerOptions {
   final List<Polyline> polylines;
 
-  PolylineLayerOptions({this.polylines = const [], rebuild}) : super(rebuild: rebuild);
+  PolylineLayerOptions({this.polylines = const [], rebuild})
+      : super(rebuild: rebuild);
 }
 
 class Polyline {
@@ -61,10 +62,12 @@ class PolylineLayer extends StatelessWidget {
           var i = 0;
           for (var point in polylineOpt.points) {
             var pos = map.project(point);
-            pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) - map.getPixelOrigin();
+            pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
+                map.getPixelOrigin();
             polylineOpt.offsets.add(Offset(pos.x.toDouble(), pos.y.toDouble()));
             if (i > 0 && i < polylineOpt.points.length) {
-              polylineOpt.offsets.add(Offset(pos.x.toDouble(), pos.y.toDouble()));
+              polylineOpt.offsets
+                  .add(Offset(pos.x.toDouble(), pos.y.toDouble()));
             }
             i++;
           }
@@ -107,7 +110,9 @@ class PolylinePainter extends CustomPainter {
     if (polylineOpt.gradientColors == null) {
       paint.color = polylineOpt.color;
     } else {
-      polylineOpt.gradientColors.isNotEmpty ? paint.shader = _paintGradient() : paint.color = polylineOpt.color;
+      polylineOpt.gradientColors.isNotEmpty
+          ? paint.shader = _paintGradient()
+          : paint.color = polylineOpt.color;
     }
 
     final filterPaint = Paint()
@@ -120,7 +125,8 @@ class PolylinePainter extends CustomPainter {
     final borderPaint = polylineOpt.borderStrokeWidth > 0.0
         ? (Paint()
           ..color = polylineOpt.borderColor
-          ..strokeWidth = polylineOpt.strokeWidth + polylineOpt.borderStrokeWidth
+          ..strokeWidth =
+              polylineOpt.strokeWidth + polylineOpt.borderStrokeWidth
           ..strokeCap = StrokeCap.round
           ..strokeJoin = StrokeJoin.round
           ..blendMode = BlendMode.src)
@@ -131,8 +137,10 @@ class PolylinePainter extends CustomPainter {
       var spacing = polylineOpt.strokeWidth * 1.5;
       canvas.saveLayer(rect, Paint());
       if (borderPaint != null) {
-        _paintDottedLine(canvas, polylineOpt.offsets, borderRadius, spacing, borderPaint);
-        _paintDottedLine(canvas, polylineOpt.offsets, radius, spacing, filterPaint);
+        _paintDottedLine(
+            canvas, polylineOpt.offsets, borderRadius, spacing, borderPaint);
+        _paintDottedLine(
+            canvas, polylineOpt.offsets, radius, spacing, filterPaint);
       }
       _paintDottedLine(canvas, polylineOpt.offsets, radius, spacing, paint);
       canvas.restore();
@@ -150,7 +158,8 @@ class PolylinePainter extends CustomPainter {
     }
   }
 
-  void _paintDottedLine(Canvas canvas, List<Offset> offsets, double radius, double stepLength, Paint paint) {
+  void _paintDottedLine(Canvas canvas, List<Offset> offsets, double radius,
+      double stepLength, Paint paint) {
     var startDistance = 0.0;
     for (var i = 0; i < offsets.length - 1; i++) {
       var o0 = offsets[i];
@@ -164,12 +173,15 @@ class PolylinePainter extends CustomPainter {
         canvas.drawCircle(offset, radius, paint);
         distance += stepLength;
       }
-      startDistance = distance < totalDistance ? stepLength - (totalDistance - distance) : distance - totalDistance;
+      startDistance = distance < totalDistance
+          ? stepLength - (totalDistance - distance)
+          : distance - totalDistance;
     }
     canvas.drawCircle(polylineOpt.offsets.last, radius, paint);
   }
 
-  void _paintLine(Canvas canvas, List<Offset> offsets, double radius, Paint paint) {
+  void _paintLine(
+      Canvas canvas, List<Offset> offsets, double radius, Paint paint) {
     if (offsets.isNotEmpty) {
       final path = ui.Path()..moveTo(offsets[0].dx, offsets[0].dy);
       for (var offset in offsets) {
@@ -179,18 +191,20 @@ class PolylinePainter extends CustomPainter {
     }
   }
 
-  ui.Gradient _paintGradient() => ui.Gradient.linear(
-      polylineOpt.offsets.first, polylineOpt.offsets.last, polylineOpt.gradientColors, _getColorsStop());
+  ui.Gradient _paintGradient() => ui.Gradient.linear(polylineOpt.offsets.first,
+      polylineOpt.offsets.last, polylineOpt.gradientColors, _getColorsStop());
 
-  List<double> _getColorsStop() =>
-      (polylineOpt.colorsStop != null && polylineOpt.colorsStop.length == polylineOpt.gradientColors.length)
-          ? polylineOpt.colorsStop
-          : _calculateColorsStop();
+  List<double> _getColorsStop() => (polylineOpt.colorsStop != null &&
+          polylineOpt.colorsStop.length == polylineOpt.gradientColors.length)
+      ? polylineOpt.colorsStop
+      : _calculateColorsStop();
 
   List<double> _calculateColorsStop() {
     final colorsStopInterval = 1.0 / polylineOpt.gradientColors.length;
     return polylineOpt.gradientColors
-        .map((gradientColor) => polylineOpt.gradientColors.indexOf(gradientColor) * colorsStopInterval)
+        .map((gradientColor) =>
+            polylineOpt.gradientColors.indexOf(gradientColor) *
+            colorsStopInterval)
         .toList();
   }
 
