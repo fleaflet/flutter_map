@@ -108,7 +108,9 @@ class PolylinePainter extends CustomPainter {
     if (polylineOpt.gradientColors == null) {
       paint.color = polylineOpt.color;
     } else {
-      paint.shader = _paintGradient();
+      polylineOpt.gradientColors.isNotEmpty
+          ? paint.shader = _paintGradient()
+          : paint.color = polylineOpt.color;
     }
 
     final filterPaint = Paint()
