@@ -14,6 +14,13 @@ class PolylinePage extends StatelessWidget {
       LatLng(53.3498, -6.2603),
       LatLng(48.8566, 2.3522),
     ];
+
+    var pointsGradient = <LatLng>[
+      LatLng(55.5, -0.09),
+      LatLng(54.3498, -6.2603),
+      LatLng(52.8566, 2.3522),
+    ];
+
     return Scaffold(
       appBar: AppBar(title: Text('Polylines')),
       drawer: buildDrawer(context, PolylinePage.route),
@@ -43,7 +50,20 @@ class PolylinePage extends StatelessWidget {
                           strokeWidth: 4.0,
                           color: Colors.purple),
                     ],
-                  )
+                  ),
+                  PolylineLayerOptions(
+                    polylines: [
+                      Polyline(
+                        points: pointsGradient,
+                        strokeWidth: 4.0,
+                        gradientColors: [
+                          Color(0xffE40203),
+                          Color(0xffFEED00),
+                          Color(0xff007E2D),
+                        ],
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
