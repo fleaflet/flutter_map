@@ -88,7 +88,6 @@ Widget build(BuildContext context) {
 To use Azure Maps you will need to [setup an account and get a subscription key](https://docs.microsoft.com/en-us/azure/azure-maps/quick-demo-map-app)
 
 ### Open Street Map provider
-
 Configure the map to use [Open Street Map](https://openstreetmap.org) by using the following `MapOptions` and layer options:
 
 ```dart
@@ -100,8 +99,8 @@ Widget build(BuildContext context) {
       ),
       layers: [
         new TileLayerOptions(
-         urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-         subdomains: ['a', 'b', 'c']
+          urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+          subdomains: ['a', 'b', 'c']
         ),
         new MarkerLayerOptions(
           markers: [
