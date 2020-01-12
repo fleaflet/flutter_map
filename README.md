@@ -13,8 +13,8 @@ Add flutter_map to your pubspec:
 dependencies:
   flutter_map: any # or the latest version on Pub
 ```
-
-Configure the map using `MapOptions` and layer options:
+### Mapbox provider
+Configure the map to use [Mapbox](https://mapbox.com) by using the following `MapOptions` and layer options:
 
 ```dart
   Widget build(BuildContext context) {
@@ -50,6 +50,7 @@ Configure the map using `MapOptions` and layer options:
   }
 ```
 
+### Azure Maps provider
 Configure the map to use [Azure Maps](https://azure.com/maps) by using the following `MapOptions` and layer options:
 
 ```dart
@@ -85,6 +86,40 @@ Widget build(BuildContext context) {
 ```
 
 To use Azure Maps you will need to [setup an account and get a subscription key](https://docs.microsoft.com/en-us/azure/azure-maps/quick-demo-map-app)
+
+### Open Street Map provider
+
+Configure the map to use [Open Street Map](https://openstreetmap.org) by using the following `MapOptions` and layer options:
+
+```dart
+Widget build(BuildContext context) {
+    return new FlutterMap(
+      options: new MapOptions(
+        center: new LatLng(51.5, -0.09),
+        zoom: 13.0,
+      ),
+      layers: [
+        new TileLayerOptions(
+         urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+         subdomains: ['a', 'b', 'c']
+        ),
+        new MarkerLayerOptions(
+          markers: [
+            new Marker(
+              width: 80.0,
+              height: 80.0,
+              point: new LatLng(51.5, -0.09),
+              builder: (ctx) =>
+              new Container(
+                child: new FlutterLogo(),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+```
 
 ### Run the example
 
