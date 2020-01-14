@@ -13,8 +13,7 @@ Add flutter_map to your pubspec:
 dependencies:
   flutter_map: any # or the latest version on Pub
 ```
-### Mapbox provider
-Configure the map to use [Mapbox](https://mapbox.com) by using the following `MapOptions` and layer options:
+Configure the map using `MapOptions` and layer options:
 
 ```dart
   Widget build(BuildContext context) {
