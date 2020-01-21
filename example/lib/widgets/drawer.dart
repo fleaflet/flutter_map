@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map_example/pages/wms_tile_layer.dart';
 
 import '../pages/animated_map_controller.dart';
 import '../pages/circle.dart';
@@ -31,6 +32,13 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           selected: currentRoute == HomePage.route,
           onTap: () {
             Navigator.pushReplacementNamed(context, HomePage.route);
+          },
+        ),
+        ListTile(
+          title: const Text('WMS Layer'),
+          selected: currentRoute == WMSLayerPage.route,
+          onTap: (){
+            Navigator.pushReplacementNamed(context, WMSLayerPage.route);
           },
         ),
         ListTile(

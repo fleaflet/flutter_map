@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/core/util.dart' as util;
+import 'package:flutter_map/src/geo/crs/crs.dart';
 import 'package:flutter_map/src/layer/tile_provider/tile_provider.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
@@ -30,6 +31,9 @@ class TileLayerOptions extends LayerOptions {
   /// If `true`, inverses Y axis numbering for tiles (turn this on for
   /// [TMS](https://en.wikipedia.org/wiki/Tile_Map_Service) services).
   final bool tms;
+
+  /// If not `null`, then tiles will pull's WMS protocol requests
+  final WMSTileLayerOptions wmsOptions;
 
   /// Size for the tile.
   /// Default is 256
@@ -129,9 +133,53 @@ class TileLayerOptions extends LayerOptions {
       this.placeholderImage,
       this.tileProvider = const CachedNetworkTileProvider(),
       this.tms = false,
+      this.wmsOptions = null,
       this.opacity = 1.0,
       rebuild})
       : super(rebuild: rebuild);
+}
+
+class WMSTileLayerOptions {
+  final service = 'WMS';
+  final request = 'GetMap';
+
+  /// url of WMS service.
+  /// Ex.: 'http://ows.mundialis.de/services/service?'
+  final String baseUrl;
+
+  /// list of WMS layers to show
+  final List<String> layers;
+
+  /// list of WMS styles
+  final List<String> styles;
+
+  /// WMS image format (use 'image/png' for layers with transparency)
+  final String format;
+
+  /// Version of the WMS service to use
+  final String version;
+
+  /// If true, WMS request parameter keys will be uppercase
+  final bool uppercase;
+
+  /// tile transperency flag
+  final bool transparent;
+
+  // TODO find a way to implicit pass of current map [Crs]
+  final Crs crs;
+
+  WMSTileLayerOptions(
+      {@required this.baseUrl,
+      this.layers = const [],
+      this.styles = const [],
+      this.format = 'image/jpeg',
+      this.version = '1.1.1',
+      this.transparent = true,
+      this.crs = const Epsg3857(),
+      this.uppercase = false});
+
+  String get url =>
+      '${baseUrl}service=${service}&request=${request}&format=${format}&transparent=${transparent}&layers=${layers.join(',')}&styles=${styles.join(',')}';
 }
 
 class TileLayer extends StatefulWidget {
