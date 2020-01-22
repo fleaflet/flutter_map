@@ -199,11 +199,12 @@ class WMSTileLayerOptions {
     buffer.write(baseUrl);
     buffer.write('&service=$service');
     buffer.write('&request=$request');
-    buffer.write('&layers=${layers.join(',')}');
-    buffer.write('&styles=${styles.join(',')}');
+    buffer.write('&layers=${Uri.encodeComponent(layers.join(','))}');
+    buffer.write('&styles=${Uri.encodeComponent(styles.join(','))}');
     buffer.write('&format=${Uri.encodeComponent(format)}');
     buffer.write('&srs=${Uri.encodeComponent(crs.code)}');
     buffer.write('&version=$version');
+    buffer.write('&transparent=$transparent');
     buffer.write('&width=$tileSize');
     buffer.write('&height=$tileSize');
     buffer.write('&bbox=${bbox.join(',')}');
