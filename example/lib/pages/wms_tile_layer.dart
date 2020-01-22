@@ -17,23 +17,19 @@ class WMSLayerPage extends StatelessWidget {
           children: [
             Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: Text('This is a map that is showing (51.5, -0.9).'),
+              child: Text('This is a map that is showing (42.58, 12.43).'),
             ),
             Flexible(
               child: FlutterMap(
                 options: MapOptions(
-                  center: LatLng(51.5, -0.09),
-                  zoom: 11.0,
+                  center: LatLng(42.58, 12.43),
+                  zoom: 6.0,
                 ),
                 layers: [
                   TileLayerOptions(
-                      urlTemplate:
-                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      subdomains: ['a', 'b', 'c']),
-                  TileLayerOptions(
                     wmsOptions: WMSTileLayerOptions(
-                      baseUrl: 'http://ows.mundialis.de/services/service?',
-                      layers: ['TOPO-WMS'],
+                      baseUrl: 'http://maps.heigit.org/osm-wms/service?',
+                      layers: ['europe_wms:hs_srtm_europa'],
                     )
                   )
                 ],
