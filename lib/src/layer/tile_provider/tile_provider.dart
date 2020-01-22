@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_image/network.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/util.dart' as util;
 
 export 'package:flutter_map/src/layer/tile_provider/mbtiles_image_provider.dart';
@@ -16,7 +17,7 @@ abstract class TileProvider {
   void dispose() {}
 
   String getTileUrl(Coords coords, TileLayerOptions options) {
-    if(options.wmsOptions != null) return _getWMSUrl(coords, options);
+    if(options.wmsOptions != null) return options.wmsOptions.getUrl(coords, options.tileSize.toInt());
     var data = <String, String>{
       'x': coords.x.round().toString(),
       'y': coords.y.round().toString(),
@@ -41,21 +42,6 @@ abstract class TileProvider {
     }
     var index = (coords.x + coords.y).round() % options.subdomains.length;
     return options.subdomains[index];
-  }
-
-  String _getWMSUrl(Coords coords, TileLayerOptions options) {
-    final tileSize = CustomPoint(options.tileSize, options.tileSize);
-    final nvPoint = coords.scaleBy(tileSize);
-    final sePoint = nvPoint + tileSize;
-    final nvCoords = options.wmsOptions.crs.pointToLatLng(nvPoint, coords.z);
-    final seCoords = options.wmsOptions.crs.pointToLatLng(sePoint, coords.z);
-    final bbox = [
-      seCoords.longitude,
-      seCoords.latitude,
-      nvCoords.longitude,
-      nvCoords.latitude
-    ];
-    return '${options.wmsOptions.url}&width=${options.tileSize}&height=${options.tileSize}&srs=EPSG4326&bbox=${bbox.join(',')}';
   }
 }
 

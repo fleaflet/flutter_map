@@ -159,14 +159,14 @@ class WMSTileLayerOptions {
   /// Version of the WMS service to use
   final String version;
 
-  /// If true, WMS request parameter keys will be uppercase
-  final bool uppercase;
-
   /// tile transperency flag
   final bool transparent;
 
   // TODO find a way to implicit pass of current map [Crs]
   final Crs crs;
+
+  /// other request parameters
+  final Map<String, String> otherParameters;
 
   WMSTileLayerOptions(
       {@required this.baseUrl,
@@ -176,10 +176,40 @@ class WMSTileLayerOptions {
       this.version = '1.1.1',
       this.transparent = true,
       this.crs = const Epsg3857(),
-      this.uppercase = false});
+      this.otherParameters = const {},
+      });
 
-  String get url =>
-      '${baseUrl}service=${service}&request=${request}&format=${format}&transparent=${transparent}&layers=${layers.join(',')}&styles=${styles.join(',')}';
+  String getUrl(Coords coords, int tileSize){
+    final tileSizePoint = CustomPoint(tileSize, tileSize);
+    final nvPoint = coords.scaleBy(tileSizePoint);
+    final sePoint = nvPoint + tileSizePoint;
+    final nvCoords = crs.pointToLatLng(nvPoint, coords.z);
+    final seCoords = crs.pointToLatLng(sePoint, coords.z);
+    final nv = crs.projection.project(nvCoords);
+    final se = crs.projection.project(seCoords);
+    final bounds = Bounds(nv, se);
+    final bbox = [
+      bounds.min.x,
+      bounds.min.y,
+      bounds.max.x,
+      bounds.max.y
+    ];
+
+    final buffer = StringBuffer();
+    buffer.write(baseUrl);
+    buffer.write('&service=$service');
+    buffer.write('&request=$request');
+    buffer.write('&layers=${layers.join(',')}');
+    buffer.write('&styles=${styles.join(',')}');
+    buffer.write('&format=${Uri.encodeComponent(format)}');
+    buffer.write('&srs=${Uri.encodeComponent(crs.code)}');
+    buffer.write('&version=$version');
+    buffer.write('&width=$tileSize');
+    buffer.write('&height=$tileSize');
+    buffer.write('&bbox=${bbox.join(',')}');
+    otherParameters.forEach((k,v)=>buffer.write('&$k=$v'));
+    return buffer.toString();
+  }
 }
 
 class TileLayer extends StatefulWidget {
