@@ -133,6 +133,25 @@ class Epsg3857 extends Earth {
   //Tuple2<double, double> get wrapLat => const Tuple2(-85.06, 85.06);
 }
 
+/// A common CRS among GIS enthusiasts. Uses simple Equirectangular projection.
+class Epsg4326 extends Earth {
+
+  @override
+  final String code = 'EPSG:4326';
+
+  @override
+  final Projection projection;
+
+  @override
+  final Transformation transformation;
+
+  const Epsg4326()
+      : projection = const _LonLat(),
+        transformation = const Transformation(1/180, 0.5, -1/180, 0.5),
+        super();
+
+}
+
 abstract class Projection {
   const Projection();
 

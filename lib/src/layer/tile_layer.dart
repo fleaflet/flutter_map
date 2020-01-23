@@ -168,18 +168,41 @@ class WMSTileLayerOptions {
   /// other request parameters
   final Map<String, String> otherParameters;
 
-  WMSTileLayerOptions(
-      {@required this.baseUrl,
-      this.layers = const [],
-      this.styles = const [],
-      this.format = 'image/jpeg',
-      this.version = '1.1.1',
-      this.transparent = true,
-      this.crs = const Epsg3857(),
-      this.otherParameters = const {},
-      });
+  String _encodedBaseUrl;
 
-  String getUrl(Coords coords, int tileSize){
+  double _versionNumber;
+
+  WMSTileLayerOptions({
+    @required this.baseUrl,
+    this.layers = const [],
+    this.styles = const [],
+    this.format = 'image/png',
+    this.version = '1.1.1',
+    this.transparent = true,
+    this.crs = const Epsg3857(),
+    this.otherParameters = const {},
+  }) {
+    _versionNumber = double.tryParse(version.split('.').take(2).join('.')) ?? 0;
+    _encodedBaseUrl = _buildEncodedBaseUrl();
+  }
+
+  String _buildEncodedBaseUrl() {
+    final projectionKey = _versionNumber >= 1.3 ? 'crs' : 'srs';
+    final buffer = StringBuffer(baseUrl)
+      ..write('&service=$service')
+      ..write('&request=$request')
+      ..write('&layers=${layers.map(Uri.encodeComponent).join(',')}')
+      ..write('&styles=${styles.map(Uri.encodeComponent).join(',')}')
+      ..write('&format=${Uri.encodeComponent(format)}')
+      ..write('&$projectionKey=${Uri.encodeComponent(crs.code)}')
+      ..write('&version=${Uri.encodeComponent(version)}')
+      ..write('&transparent=$transparent');
+    otherParameters
+        .forEach((k, v) => buffer.write('&$k=${Uri.encodeComponent(v)}'));
+    return buffer.toString();
+  }
+
+  String getUrl(Coords coords, int tileSize) {
     final tileSizePoint = CustomPoint(tileSize, tileSize);
     final nvPoint = coords.scaleBy(tileSizePoint);
     final sePoint = nvPoint + tileSizePoint;
@@ -188,27 +211,14 @@ class WMSTileLayerOptions {
     final nv = crs.projection.project(nvCoords);
     final se = crs.projection.project(seCoords);
     final bounds = Bounds(nv, se);
-    final bbox = [
-      bounds.min.x,
-      bounds.min.y,
-      bounds.max.x,
-      bounds.max.y
-    ];
+    final bbox = (_versionNumber >= 1.3 && crs is Epsg4326)
+        ? [bounds.min.y, bounds.min.x, bounds.max.y, bounds.max.x]
+        : [bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y];
 
-    final buffer = StringBuffer();
-    buffer.write(baseUrl);
-    buffer.write('&service=$service');
-    buffer.write('&request=$request');
-    buffer.write('&layers=${layers.join(',')}');
-    buffer.write('&styles=${styles.join(',')}');
-    buffer.write('&format=${Uri.encodeComponent(format)}');
-    buffer.write('&srs=${Uri.encodeComponent(crs.code)}');
-    buffer.write('&version=$version');
-    buffer.write('&transparent=$transparent');
+    final buffer = StringBuffer(_encodedBaseUrl);
     buffer.write('&width=$tileSize');
     buffer.write('&height=$tileSize');
     buffer.write('&bbox=${bbox.join(',')}');
-    otherParameters.forEach((k,v)=>buffer.write('&$k=$v'));
     return buffer.toString();
   }
 }
