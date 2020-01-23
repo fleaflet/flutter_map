@@ -35,7 +35,6 @@ class PolygonPage extends StatelessWidget {
       LatLng(44.399, 1.76),
     ];
 
-
     return Scaffold(
       appBar: AppBar(title: Text('Polygons')),
       drawer: buildDrawer(context, PolygonPage.route),

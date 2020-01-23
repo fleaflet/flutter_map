@@ -140,8 +140,8 @@ class PolygonPainter extends CustomPainter {
       double stepLength, Paint paint) {
     var startDistance = 0.0;
     for (var i = 0; i < offsets.length; i++) {
-      var o0 = offsets[i%offsets.length];
-      var o1 = offsets[(i + 1)%offsets.length];
+      var o0 = offsets[i % offsets.length];
+      var o1 = offsets[(i + 1) % offsets.length];
       var totalDistance = _dist(o0, o1);
       var distance = startDistance;
       while (distance < totalDistance) {
