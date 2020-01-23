@@ -16,6 +16,8 @@ import './pages/plugin_scalebar.dart';
 import './pages/plugin_zoombuttons.dart';
 import './pages/polyline.dart';
 import './pages/tap_to_add.dart';
+import './pages/polygon.dart';
+import 'pages/polyline.dart';
 
 void main() => runApp(MyApp());
 
@@ -46,6 +48,7 @@ class MyApp extends StatelessWidget {
         MovingMarkersPage.route: (context) => MovingMarkersPage(),
         CirclePage.route: (context) => CirclePage(),
         OverlayImagePage.route: (context) => OverlayImagePage(),
+        PolygonPage.route: (context) => PolygonPage(),
       },
     );
   }
