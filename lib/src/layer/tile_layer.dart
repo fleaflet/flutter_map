@@ -133,6 +133,7 @@ class TileLayerOptions extends LayerOptions {
       this.placeholderImage,
       this.tileProvider = const CachedNetworkTileProvider(),
       this.tms = false,
+      // ignore: avoid_init_to_null
       this.wmsOptions = null,
       this.opacity = 1.0,
       rebuild})
