@@ -37,7 +37,7 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
         ListTile(
           title: const Text('WMS Layer'),
           selected: currentRoute == WMSLayerPage.route,
-          onTap: (){
+          onTap: () {
             Navigator.pushReplacementNamed(context, WMSLayerPage.route);
           },
         ),
