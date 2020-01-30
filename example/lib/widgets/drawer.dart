@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-
 import '../pages/animated_map_controller.dart';
+
 import '../pages/circle.dart';
 import '../pages/esri.dart';
 import '../pages/home.dart';
@@ -16,6 +16,7 @@ import '../pages/plugin_scalebar.dart';
 import '../pages/plugin_zoombuttons.dart';
 import '../pages/polyline.dart';
 import '../pages/tap_to_add.dart';
+import '../pages/wms_tile_layer.dart';
 
 Drawer buildDrawer(BuildContext context, String currentRoute) {
   return Drawer(
@@ -31,6 +32,13 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           selected: currentRoute == HomePage.route,
           onTap: () {
             Navigator.pushReplacementNamed(context, HomePage.route);
+          },
+        ),
+        ListTile(
+          title: const Text('WMS Layer'),
+          selected: currentRoute == WMSLayerPage.route,
+          onTap: () {
+            Navigator.pushReplacementNamed(context, WMSLayerPage.route);
           },
         ),
         ListTile(

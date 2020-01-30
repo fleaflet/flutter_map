@@ -14,7 +14,9 @@ import 'package:flutter_map/src/core/point.dart';
 /// points of objects of different dimensions. In our case 3D and 2D objects.
 abstract class Crs {
   String get code;
+
   Projection get projection;
+
   Transformation get transformation;
 
   const Crs();
@@ -128,16 +130,35 @@ class Epsg3857 extends Earth {
         transformation = const Transformation(_scale, 0.5, -_scale, 0.5),
         super();
 
-  // TODO Epsg3857 seems to have latitude limits. https://epsg.io/3857
-  //@override
-  //Tuple2<double, double> get wrapLat => const Tuple2(-85.06, 85.06);
+// TODO Epsg3857 seems to have latitude limits. https://epsg.io/3857
+//@override
+//Tuple2<double, double> get wrapLat => const Tuple2(-85.06, 85.06);
+}
+
+/// A common CRS among GIS enthusiasts. Uses simple Equirectangular projection.
+class Epsg4326 extends Earth {
+  @override
+  final String code = 'EPSG:4326';
+
+  @override
+  final Projection projection;
+
+  @override
+  final Transformation transformation;
+
+  const Epsg4326()
+      : projection = const _LonLat(),
+        transformation = const Transformation(1 / 180, 0.5, -1 / 180, 0.5),
+        super();
 }
 
 abstract class Projection {
   const Projection();
 
   Bounds<double> get bounds;
+
   CustomPoint project(LatLng latlng);
+
   LatLng unproject(CustomPoint point);
 
   double _inclusive(Comparable start, Comparable end, double value) {
@@ -221,6 +242,7 @@ class Transformation {
   final num b;
   final num c;
   final num d;
+
   const Transformation(this.a, this.b, this.c, this.d);
 
   CustomPoint transform(CustomPoint<num> point, double scale) {
