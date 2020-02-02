@@ -86,6 +86,8 @@ abstract class MapController {
 
   ValueChanged<double> onRotationChanged;
 
+  Stream<MapPosition> get position;
+
   factory MapController() => MapControllerImpl();
 }
 
