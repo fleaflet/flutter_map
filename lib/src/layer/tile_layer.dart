@@ -5,7 +5,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/core/util.dart' as util;
-import 'package:flutter_map/src/geo/crs/crs.dart';
 import 'package:flutter_map/src/layer/tile_provider/tile_provider.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
@@ -31,9 +30,6 @@ class TileLayerOptions extends LayerOptions {
   /// If `true`, inverses Y axis numbering for tiles (turn this on for
   /// [TMS](https://en.wikipedia.org/wiki/Tile_Map_Service) services).
   final bool tms;
-
-  /// If not `null`, then tiles will pull's WMS protocol requests
-  final WMSTileLayerOptions wmsOptions;
 
   /// Size for the tile.
   /// Default is 256
@@ -133,95 +129,9 @@ class TileLayerOptions extends LayerOptions {
       this.placeholderImage,
       this.tileProvider = const CachedNetworkTileProvider(),
       this.tms = false,
-      // ignore: avoid_init_to_null
-      this.wmsOptions = null,
       this.opacity = 1.0,
       rebuild})
       : super(rebuild: rebuild);
-}
-
-class WMSTileLayerOptions {
-  final service = 'WMS';
-  final request = 'GetMap';
-
-  /// url of WMS service.
-  /// Ex.: 'http://ows.mundialis.de/services/service?'
-  final String baseUrl;
-
-  /// list of WMS layers to show
-  final List<String> layers;
-
-  /// list of WMS styles
-  final List<String> styles;
-
-  /// WMS image format (use 'image/png' for layers with transparency)
-  final String format;
-
-  /// Version of the WMS service to use
-  final String version;
-
-  /// tile transperency flag
-  final bool transparent;
-
-  // TODO find a way to implicit pass of current map [Crs]
-  final Crs crs;
-
-  /// other request parameters
-  final Map<String, String> otherParameters;
-
-  String _encodedBaseUrl;
-
-  double _versionNumber;
-
-  WMSTileLayerOptions({
-    @required this.baseUrl,
-    this.layers = const [],
-    this.styles = const [],
-    this.format = 'image/png',
-    this.version = '1.1.1',
-    this.transparent = true,
-    this.crs = const Epsg3857(),
-    this.otherParameters = const {},
-  }) {
-    _versionNumber = double.tryParse(version.split('.').take(2).join('.')) ?? 0;
-    _encodedBaseUrl = _buildEncodedBaseUrl();
-  }
-
-  String _buildEncodedBaseUrl() {
-    final projectionKey = _versionNumber >= 1.3 ? 'crs' : 'srs';
-    final buffer = StringBuffer(baseUrl)
-      ..write('&service=$service')
-      ..write('&request=$request')
-      ..write('&layers=${layers.map(Uri.encodeComponent).join(',')}')
-      ..write('&styles=${styles.map(Uri.encodeComponent).join(',')}')
-      ..write('&format=${Uri.encodeComponent(format)}')
-      ..write('&$projectionKey=${Uri.encodeComponent(crs.code)}')
-      ..write('&version=${Uri.encodeComponent(version)}')
-      ..write('&transparent=$transparent');
-    otherParameters
-        .forEach((k, v) => buffer.write('&$k=${Uri.encodeComponent(v)}'));
-    return buffer.toString();
-  }
-
-  String getUrl(Coords coords, int tileSize) {
-    final tileSizePoint = CustomPoint(tileSize, tileSize);
-    final nvPoint = coords.scaleBy(tileSizePoint);
-    final sePoint = nvPoint + tileSizePoint;
-    final nvCoords = crs.pointToLatLng(nvPoint, coords.z);
-    final seCoords = crs.pointToLatLng(sePoint, coords.z);
-    final nv = crs.projection.project(nvCoords);
-    final se = crs.projection.project(seCoords);
-    final bounds = Bounds(nv, se);
-    final bbox = (_versionNumber >= 1.3 && crs is Epsg4326)
-        ? [bounds.min.y, bounds.min.x, bounds.max.y, bounds.max.x]
-        : [bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y];
-
-    final buffer = StringBuffer(_encodedBaseUrl);
-    buffer.write('&width=$tileSize');
-    buffer.write('&height=$tileSize');
-    buffer.write('&bbox=${bbox.join(',')}');
-    return buffer.toString();
-  }
 }
 
 class TileLayer extends StatefulWidget {
@@ -251,6 +161,8 @@ class _TileLayerState extends State<TileLayer> {
   double _tileZoom;
   Level _level;
   StreamSubscription _moveSub;
+
+  Map outstandingTileLoads = {}; /// new, store outstanding tiles in a list, if there is a network problem this may get large..so we may redraw a lot of unnecessary tiles, but how to avoid ?
 
   final Map<String, Tile> _tiles = {};
   final Map<double, Level> _levels = {};
@@ -340,11 +252,22 @@ class _TileLayerState extends State<TileLayer> {
     for (var tileKey in _tiles.keys) {
       var tile = _tiles[tileKey];
       var c = tile.coords;
-      if (c.z != _tileZoom || !noPruneRange.contains(CustomPoint(c.x, c.y))) {
+
+      if (c.z != _tileZoom && !hasOutstandingTileLoads()) {
         tile.current = false;
       }
+
+      if( !noPruneRange.contains(CustomPoint(c.x, c.y) ) ) { /// new, idea is to only remove tiles when outstanding that are outside area, but not zoom as we have a backup
+        print("REMOVING ${tile.coords}!!!"); /// new, remove this when not debugging
+        tile.current = false;
+        outstandingTileLoads.remove( coordsToKey(c) );
+      }
     }
-    _tiles.removeWhere((s, tile) => tile.current == false);
+
+    if( !hasOutstandingTileLoads() ) {
+      _tiles.removeWhere((s, tile) => tile.current == false);
+    }
+
   }
 
   void _setZoomTransform(Level level, LatLng center, double zoom) {
@@ -373,11 +296,14 @@ class _TileLayerState extends State<TileLayer> {
       toRemove.add(key);
     }
     for (var key in toRemove) {
-      _removeTile(key);
+      if( !hasOutstandingTileLoads() )
+        _removeTile(key); /// new code, not really happy with this, we'll only remove not relevant zoomed tiles if we don't have outstanding
+                          /// I'm hoping that at least prunes out of area tiles can get removed...
     }
   }
 
   void _removeTile(String key) {
+
     var tile = _tiles[key];
     if (tile == null) {
       return;
@@ -443,7 +369,7 @@ class _TileLayerState extends State<TileLayer> {
     // mark tiles as out of view...
     for (var key in _tiles.keys) {
       var c = _tiles[key].coords;
-      if (c.z != _tileZoom) {
+      if (c.z != _tileZoom && !hasOutstandingTileLoads()) { /// new, not quite happy with some of this, we may have outstanding tiles for a long time, is this ok still ?
         _tiles[key].current = false;
       }
     }
@@ -472,7 +398,7 @@ class _TileLayerState extends State<TileLayer> {
 
     var tilesToRender = <Tile>[
       for (var tile in _tiles.values)
-        if ((tile.coords.z - _level.zoom).abs() <= 1) tile
+          if ((tile.coords.z - _level.zoom).abs() <= 1 || hasOutstandingTileLoads() ) tile /// new, keeps tiles when others aren't loaded yet...
     ];
 
     tilesToRender.sort((aTile, bTile) {
@@ -488,6 +414,8 @@ class _TileLayerState extends State<TileLayer> {
     var tileWidgets = <Widget>[
       for (var tile in tilesToRender) _createTileWidget(tile.coords)
     ];
+
+    print( "${tilesToRender.length} tiles to render...${outstandingTileLoads.length} outstanding in queue"); /// debugging, needs to be removed..can we cull extra if > a certain amount ?
 
     return Opacity(
       opacity: options.opacity,
@@ -538,6 +466,8 @@ class _TileLayerState extends State<TileLayer> {
     var width = tileSize.x * level.scale;
     var height = tileSize.y * level.scale;
 
+    outstandingTileLoads[ coordsToKey(coords) ] = 1; /// new code, add not loaded tiles to a list
+
     final Widget content = Container(
       child: FadeInImage(
         fadeInDuration: const Duration(milliseconds: 100),
@@ -545,7 +475,7 @@ class _TileLayerState extends State<TileLayer> {
         placeholder: options.placeholderImage != null
             ? options.placeholderImage
             : MemoryImage(kTransparentImage),
-        image: options.tileProvider.getImage(coords, options),
+            image: _imageProviderFinishedCheck(coords, options), /// new code, capture when finishes loading
         fit: BoxFit.fill,
       ),
     );
@@ -556,6 +486,26 @@ class _TileLayerState extends State<TileLayer> {
         width: width.toDouble(),
         height: height.toDouble(),
         child: content);
+  }
+
+  bool hasOutstandingTileLoads() {
+    return outstandingTileLoads.length > 0;
+  }
+  
+  String coordsToKey (Coords c) {
+    return "${c.x}:${c.y}:${c.z}";
+  }
+
+  ImageProvider _imageProviderFinishedCheck(coords, options) { /// new code, get a callback when image loaded, worth passing a callback in here for customisation ?
+    ImageProvider newImageProvider = options.tileProvider.getImage(coords, options);
+    newImageProvider.resolve(ImageConfiguration()).addListener(
+      ImageStreamListener(
+          (info,call) {
+            outstandingTileLoads.remove( coordsToKey(coords) );
+          },
+      ),
+    );
+    return newImageProvider;
   }
 
   Coords _wrapCoords(Coords coords) {
