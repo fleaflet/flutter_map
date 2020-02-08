@@ -16,8 +16,9 @@ abstract class TileProvider {
   void dispose() {}
 
   String getTileUrl(Coords coords, TileLayerOptions options) {
-    if (options.wmsOptions != null)
-      return options.wmsOptions.getUrl(coords, options.tileSize.toInt());
+    var urlTemplate = (options.wmsOptions != null)
+        ? options.wmsOptions.getUrl(coords, options.tileSize.toInt())
+        : options.urlTemplate;
     var data = <String, String>{
       'x': coords.x.round().toString(),
       'y': coords.y.round().toString(),
@@ -29,7 +30,7 @@ abstract class TileProvider {
     }
     var allOpts = Map<String, String>.from(data)
       ..addAll(options.additionalOptions);
-    return util.template(options.urlTemplate, allOpts);
+    return util.template(urlTemplate, allOpts);
   }
 
   int invertY(int y, int z) {
