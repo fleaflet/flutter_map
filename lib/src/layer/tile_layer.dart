@@ -260,7 +260,7 @@ class _TileLayerState extends State<TileLayer> {
       if( !noPruneRange.contains(CustomPoint(c.x, c.y) ) ) { /// new, idea is to only remove tiles when outstanding that are outside area, but not zoom as we have a backup
         print("REMOVING ${tile.coords}!!!"); /// new, remove this when not debugging
         tile.current = false;
-        outstandingTileLoads.remove( coordsToKey(c) );
+        outstandingTileLoads.remove(_tileCoordsToKey(c));
       }
     }
 
@@ -466,7 +466,7 @@ class _TileLayerState extends State<TileLayer> {
     var width = tileSize.x * level.scale;
     var height = tileSize.y * level.scale;
 
-    outstandingTileLoads[ coordsToKey(coords) ] = 1; /// new code, add not loaded tiles to a list
+    outstandingTileLoads[_tileCoordsToKey(coords)] = 1; /// new code, add not loaded tiles to a list
 
     final Widget content = Container(
       child: FadeInImage(
@@ -491,17 +491,13 @@ class _TileLayerState extends State<TileLayer> {
   bool hasOutstandingTileLoads() {
     return outstandingTileLoads.length > 0;
   }
-  
-  String coordsToKey (Coords c) {
-    return "${c.x}:${c.y}:${c.z}";
-  }
 
   ImageProvider _imageProviderFinishedCheck(coords, options) { /// new code, get a callback when image loaded, worth passing a callback in here for customisation ?
     ImageProvider newImageProvider = options.tileProvider.getImage(coords, options);
     newImageProvider.resolve(ImageConfiguration()).addListener(
       ImageStreamListener(
           (info,call) {
-            outstandingTileLoads.remove( coordsToKey(coords) );
+            outstandingTileLoads.remove(_tileCoordsToKey(coords));
           },
       ),
     );
