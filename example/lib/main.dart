@@ -14,9 +14,9 @@ import './pages/overlay_image.dart';
 import './pages/plugin_api.dart';
 import './pages/plugin_scalebar.dart';
 import './pages/plugin_zoombuttons.dart';
+import './pages/polygon.dart';
 import './pages/polyline.dart';
 import './pages/tap_to_add.dart';
-import './pages/polygon.dart';
 import 'pages/polyline.dart';
 
 void main() => runApp(MyApp());
