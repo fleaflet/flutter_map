@@ -168,6 +168,8 @@ class _TileLayerState extends State<TileLayer> {
 
   final Map _outstandingTileLoads = {};
 
+  bool testVar = true;
+
   @override
   void initState() {
     super.initState();
@@ -264,7 +266,7 @@ class _TileLayerState extends State<TileLayer> {
       }
     }
 
-    _tiles.removeWhere((s, tile) => ((tile.current == false) && (DateTime.now().difference(tile.addedTime).inMilliseconds > 200)));
+    _tiles.removeWhere((s, tile) => (tile.current == false));
   }
 
 
@@ -369,7 +371,7 @@ class _TileLayerState extends State<TileLayer> {
       }
     }
 
-
+print("build");
 
     _setView(map.center, map.zoom);
 
@@ -389,7 +391,7 @@ class _TileLayerState extends State<TileLayer> {
 
     if (queue.isNotEmpty) {
       for (var i = 0; i < queue.length; i++) {
-        _tiles[_tileCoordsToKey(queue[i])] = Tile(_wrapCoords(queue[i]), true, DateTime.now());
+        _tiles[_tileCoordsToKey(queue[i])] = Tile(_wrapCoords(queue[i]), true);
       }
     }
 
@@ -403,10 +405,12 @@ class _TileLayerState extends State<TileLayer> {
       final b = bTile.coords;
       // a = 13, b = 12, b is less than a, the result should be positive.
       if (a.z != b.z) {
-        return (b.z - a.z).toInt();
+        return (a.z - b.z).toInt(); // swapped this around...this seems to fix transitions...
       }
       return (a.distanceTo(tileCenter) - b.distanceTo(tileCenter)).toInt();
     });
+
+    print("before create");
 
     var tileWidgets = <Widget>[
       for (var tile in tilesToRender) _createTileWidget(tile.coords)
@@ -552,9 +556,8 @@ class _TileLayerState extends State<TileLayer> {
 class Tile {
   final Coords coords;
   bool current;
-  DateTime addedTime;
 
-  Tile(this.coords, this.current, this.addedTime);
+  Tile(this.coords, this.current);
 }
 
 class Level {
