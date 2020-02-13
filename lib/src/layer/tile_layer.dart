@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -162,10 +163,10 @@ class _TileLayerState extends State<TileLayer> {
   Level _level;
   StreamSubscription _moveSub;
 
-  Map outstandingTileLoads = {}; /// new, store outstanding tiles in a list, if there is a network problem this may get large..so we may redraw a lot of unnecessary tiles, but how to avoid ?
-
   final Map<String, Tile> _tiles = {};
   final Map<double, Level> _levels = {};
+
+  final Map _outstandingTileLoads = {};
 
   @override
   void initState() {
@@ -252,23 +253,20 @@ class _TileLayerState extends State<TileLayer> {
     for (var tileKey in _tiles.keys) {
       var tile = _tiles[tileKey];
       var c = tile.coords;
-
-      if (c.z != _tileZoom && !hasOutstandingTileLoads()) {
+      if (c.z != _tileZoom || !noPruneRange.contains(CustomPoint(c.x, c.y))) {
         tile.current = false;
       }
 
-      if( !noPruneRange.contains(CustomPoint(c.x, c.y) ) ) { /// new, idea is to only remove tiles when outstanding that are outside area, but not zoom as we have a backup
-        print("REMOVING ${tile.coords}!!!"); /// new, remove this when not debugging
-        tile.current = false;
-        outstandingTileLoads.remove(_tileCoordsToKey(c));
+      for( var outStandingTilekey in _outstandingTileLoads.keys) {
+        if(_tileOverlaps(_outstandingTileLoads[outStandingTilekey], c)  && (!_outstandingTileLoads.containsKey(_tileCoordsToKey(c)))) {
+          tile.current = true;
+        }
       }
     }
 
-    if( !hasOutstandingTileLoads() ) {
-      _tiles.removeWhere((s, tile) => tile.current == false);
-    }
-
+    _tiles.removeWhere((s, tile) => ((tile.current == false) && (DateTime.now().difference(tile.addedTime).inMilliseconds > 200)));
   }
+
 
   void _setZoomTransform(Level level, LatLng center, double zoom) {
     var scale = map.getZoomScale(zoom, level.zoom);
@@ -296,14 +294,11 @@ class _TileLayerState extends State<TileLayer> {
       toRemove.add(key);
     }
     for (var key in toRemove) {
-      if( !hasOutstandingTileLoads() )
-        _removeTile(key); /// new code, not really happy with this, we'll only remove not relevant zoomed tiles if we don't have outstanding
-                          /// I'm hoping that at least prunes out of area tiles can get removed...
+      _removeTile(key);
     }
   }
 
   void _removeTile(String key) {
-
     var tile = _tiles[key];
     if (tile == null) {
       return;
@@ -369,10 +364,12 @@ class _TileLayerState extends State<TileLayer> {
     // mark tiles as out of view...
     for (var key in _tiles.keys) {
       var c = _tiles[key].coords;
-      if (c.z != _tileZoom && !hasOutstandingTileLoads()) { /// new, not quite happy with some of this, we may have outstanding tiles for a long time, is this ok still ?
+      if (c.z != _tileZoom) {
         _tiles[key].current = false;
       }
     }
+
+
 
     _setView(map.center, map.zoom);
 
@@ -392,13 +389,13 @@ class _TileLayerState extends State<TileLayer> {
 
     if (queue.isNotEmpty) {
       for (var i = 0; i < queue.length; i++) {
-        _tiles[_tileCoordsToKey(queue[i])] = Tile(_wrapCoords(queue[i]), true);
+        _tiles[_tileCoordsToKey(queue[i])] = Tile(_wrapCoords(queue[i]), true, DateTime.now());
       }
     }
 
     var tilesToRender = <Tile>[
       for (var tile in _tiles.values)
-          if ((tile.coords.z - _level.zoom).abs() <= 1 || hasOutstandingTileLoads() ) tile /// new, keeps tiles when others aren't loaded yet...
+        if (((tile.coords.z - _level.zoom).abs() <= 1) || (_tileOverlapsOutstandingTiles(tile.coords))) tile
     ];
 
     tilesToRender.sort((aTile, bTile) {
@@ -415,7 +412,7 @@ class _TileLayerState extends State<TileLayer> {
       for (var tile in tilesToRender) _createTileWidget(tile.coords)
     ];
 
-    print( "${tilesToRender.length} tiles to render...${outstandingTileLoads.length} outstanding in queue"); /// debugging, needs to be removed..can we cull extra if > a certain amount ?
+    print("toRender ${tilesToRender.length}, Outstanding: ${_outstandingTileLoads.length}");
 
     return Opacity(
       opacity: options.opacity,
@@ -466,8 +463,6 @@ class _TileLayerState extends State<TileLayer> {
     var width = tileSize.x * level.scale;
     var height = tileSize.y * level.scale;
 
-    outstandingTileLoads[_tileCoordsToKey(coords)] = 1; /// new code, add not loaded tiles to a list
-
     final Widget content = Container(
       child: FadeInImage(
         fadeInDuration: const Duration(milliseconds: 100),
@@ -475,33 +470,18 @@ class _TileLayerState extends State<TileLayer> {
         placeholder: options.placeholderImage != null
             ? options.placeholderImage
             : MemoryImage(kTransparentImage),
-            image: _imageProviderFinishedCheck(coords, options), /// new code, capture when finishes loading
+        image: _imageProviderFinishedCheck(coords, options),
         fit: BoxFit.fill,
       ),
     );
 
+
     return Positioned(
-        left: pos.x.toDouble(),
-        top: pos.y.toDouble(),
-        width: width.toDouble(),
-        height: height.toDouble(),
-        child: content);
-  }
-
-  bool hasOutstandingTileLoads() {
-    return outstandingTileLoads.length > 0;
-  }
-
-  ImageProvider _imageProviderFinishedCheck(coords, options) { /// new code, get a callback when image loaded, worth passing a callback in here for customisation ?
-    ImageProvider newImageProvider = options.tileProvider.getImage(coords, options);
-    newImageProvider.resolve(ImageConfiguration()).addListener(
-      ImageStreamListener(
-          (info,call) {
-            outstandingTileLoads.remove(_tileCoordsToKey(coords));
-          },
-      ),
-    );
-    return newImageProvider;
+              left: pos.x.toDouble(),
+              top: pos.y.toDouble(),
+              width: width.toDouble(),
+              height: height.toDouble(),
+              child: content);
   }
 
   Coords _wrapCoords(Coords coords) {
@@ -521,13 +501,60 @@ class _TileLayerState extends State<TileLayer> {
     var level = _levels[coords.z];
     return coords.scaleBy(getTileSize()) - level.origin;
   }
+
+  _tileOverlapsOutstandingTiles( tile ) {
+    bool hasOverlap = false;
+    _outstandingTileLoads.forEach((s, outStandingTile) {
+      if( _tileOverlaps(tile, outStandingTile)) {
+        hasOverlap = true;
+      };
+    });
+    return hasOverlap;
+  }
+
+  bool _tileOverlaps(Coords a, Coords b) {
+    Coords bigger  = b;
+    Coords smaller = a;
+
+    if( a.z == b.z ) return false;
+    if( a.z > b.z ) {
+      bigger  = a;
+      smaller = b;
+    }
+
+    int zoomDiff     = (bigger.z - smaller.z).toInt();
+    int adjustRatio  = pow(2, zoomDiff).toInt();
+
+    if( adjustRatio == 0 ) adjustRatio = 1;
+    int coverSquareX = ( bigger.x.toInt() / adjustRatio ).toInt();
+    int coverSquareY = ( bigger.y.toInt() / adjustRatio ).toInt();
+
+    if( (coverSquareX == smaller.x) && (coverSquareY == smaller.y ) ) {
+      return true;
+    }
+    return false;
+  }
+
+  ImageProvider _imageProviderFinishedCheck(coords, options) {
+    ImageProvider newImageProvider = options.tileProvider.getImage(coords, options);
+    _outstandingTileLoads[_tileCoordsToKey(coords)] = coords;
+    newImageProvider.resolve(ImageConfiguration()).addListener(
+      ImageStreamListener(
+            (info,call) {
+          _outstandingTileLoads.remove(_tileCoordsToKey(coords));
+        },
+      ),
+    );
+    return newImageProvider;
+  }
 }
 
 class Tile {
   final Coords coords;
   bool current;
+  DateTime addedTime;
 
-  Tile(this.coords, this.current);
+  Tile(this.coords, this.current, this.addedTime);
 }
 
 class Level {
@@ -558,3 +585,5 @@ class Coords<T extends num> extends CustomPoint<T> {
   @override
   int get hashCode => hashValues(x.hashCode, y.hashCode, z.hashCode);
 }
+
+
