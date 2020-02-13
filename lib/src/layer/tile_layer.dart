@@ -168,7 +168,8 @@ class _TileLayerState extends State<TileLayer> {
 
   final Map _outstandingTileLoads = {};
 
-  bool testVar = true;
+  LatLng _prevCenter;
+  LatLng _currentCenter;
 
   @override
   void initState() {
@@ -196,6 +197,7 @@ class _TileLayerState extends State<TileLayer> {
   }
 
   void _setView(LatLng center, double zoom) {
+
     var tileZoom = _clampZoom(zoom.round().toDouble());
     if (_tileZoom != tileZoom) {
       _tileZoom = tileZoom;
@@ -371,12 +373,23 @@ class _TileLayerState extends State<TileLayer> {
       }
     }
 
-print("build");
-
     _setView(map.center, map.zoom);
 
-    for (var j = tileRange.min.y; j <= tileRange.max.y; j++) {
-      for (var i = tileRange.min.x; i <= tileRange.max.x; i++) {
+    int miny = tileRange.min.y;
+    int maxy = tileRange.max.y;
+    int minx = tileRange.min.x;
+    int maxx = tileRange.max.x;
+
+    if(_prevCenter == null) _prevCenter = map.center;
+    if( map.center.latitude < _prevCenter.latitude)   maxy++;   //Up
+    if( map.center.latitude > _prevCenter.latitude)   miny--;   //Down
+    if( map.center.longitude > _prevCenter.longitude) maxx++; //Left
+    if( map.center.longitude < _prevCenter.longitude) minx--; //Right
+
+    _prevCenter = map.center;
+
+    for (var j = miny; j <= maxy; j++) {
+      for (var i = minx; i <= maxx; i++) {
         var coords = Coords(i.toDouble(), j.toDouble());
         coords.z = _tileZoom;
 
@@ -409,8 +422,6 @@ print("build");
       }
       return (a.distanceTo(tileCenter) - b.distanceTo(tileCenter)).toInt();
     });
-
-    print("before create");
 
     var tileWidgets = <Widget>[
       for (var tile in tilesToRender) _createTileWidget(tile.coords)
