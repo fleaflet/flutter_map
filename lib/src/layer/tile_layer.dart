@@ -117,6 +117,12 @@ class TileLayerOptions extends LayerOptions {
   ///
   Map<String, String> additionalOptions;
 
+  /// Try and grab tiles in advance for pan direction
+  int greedyTileCount;
+
+  /// Keep an old tile, until the new one has downloaded
+  bool useFallbackTiles;
+
   TileLayerOptions(
       {this.urlTemplate,
       this.tileSize = 256.0,
@@ -131,6 +137,8 @@ class TileLayerOptions extends LayerOptions {
       this.tileProvider = const CachedNetworkTileProvider(),
       this.tms = false,
       this.opacity = 1.0,
+      this.greedyTileCount = 1,
+      this.useFallbackTiles = true,
       rebuild})
       : super(rebuild: rebuild);
 }
@@ -262,7 +270,7 @@ class _TileLayerState extends State<TileLayer> {
       }
 
       for( var outStandingTilekey in _outstandingTileLoads.keys) {
-        if(_tileOverlaps(_outstandingTileLoads[outStandingTilekey], c)  && (!_outstandingTileLoads.containsKey(_tileCoordsToKey(c)))) {
+        if(options.useFallbackTiles && _tileOverlaps(_outstandingTileLoads[outStandingTilekey], c)  && (!_outstandingTileLoads.containsKey(_tileCoordsToKey(c)))) {
           tile.current = true;
         }
       }
@@ -381,10 +389,11 @@ class _TileLayerState extends State<TileLayer> {
     int maxx = tileRange.max.x;
 
     if(_prevCenter == null) _prevCenter = map.center;
-    if( map.center.latitude < _prevCenter.latitude)   maxy++;   //Up
-    if( map.center.latitude > _prevCenter.latitude)   miny--;   //Down
-    if( map.center.longitude > _prevCenter.longitude) maxx++; //Left
-    if( map.center.longitude < _prevCenter.longitude) minx--; //Right
+
+    if( map.center.latitude < _prevCenter.latitude)   maxy += options.greedyTileCount; //Up
+    if( map.center.latitude > _prevCenter.latitude)   miny -= options.greedyTileCount; //Down
+    if( map.center.longitude > _prevCenter.longitude) maxx += options.greedyTileCount; //Left
+    if( map.center.longitude < _prevCenter.longitude) minx -= options.greedyTileCount; //Right
 
     _prevCenter = map.center;
 
@@ -410,7 +419,7 @@ class _TileLayerState extends State<TileLayer> {
 
     var tilesToRender = <Tile>[
       for (var tile in _tiles.values)
-        if (((tile.coords.z - _level.zoom).abs() <= 1) || (_tileOverlapsOutstandingTiles(tile.coords))) tile
+        if (((tile.coords.z - _level.zoom).abs() <= 1) || (options.useFallbackTiles && _tileOverlapsOutstandingTiles(tile.coords))) tile
     ];
 
     tilesToRender.sort((aTile, bTile) {
