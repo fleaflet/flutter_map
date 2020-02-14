@@ -274,7 +274,7 @@ class _TileLayerState extends State<TileLayer> {
   final Map<String, Tile> _tiles = {};
   final Map<double, Level> _levels = {};
 
-  final Map _outstandingTileLoads = {};
+  Map _outstandingTileLoads = {};
 
   LatLng _prevCenter;
   LatLng _currentCenter;
@@ -299,7 +299,13 @@ class _TileLayerState extends State<TileLayer> {
     setState(() {
       /// See comments on this.tilePruneSmoothing above
       var timeSinceLastPrune = DateTime.now().difference(lastPruneTime).inMilliseconds;
-      if( timeSinceLastPrune > options.tilePruneSmoothing ) {
+
+      /// Try and keep outstanding tile list tidy if not used for an hour for example.
+      if(timeSinceLastPrune > 3600000) _outstandingTileLoads = {};
+
+      /// Frequent pruning before tileloads can cause a jarring flashing experience,
+      /// so back off pruning every time unless opted out.
+      if(timeSinceLastPrune > options.tilePruneSmoothing) {
         lastPruneTime = DateTime.now();
         _pruneTiles();
       }
@@ -376,6 +382,9 @@ class _TileLayerState extends State<TileLayer> {
         tile.current = false;
       }
 
+      /// _outstandingTileLoads is a list of tiles not completed (see callback later)
+      /// So if they aren't completed, we will check to see if there is another
+      /// tile that covers it, if so, don't mark it for pruning yet.
       for( var outStandingTilekey in _outstandingTileLoads.keys) {
         if(options.useFallbackTiles && _tileOverlaps(_outstandingTileLoads[outStandingTilekey], c)  && (!_outstandingTileLoads.containsKey(_tileCoordsToKey(c)))) {
           tile.current = true;
@@ -495,6 +504,8 @@ class _TileLayerState extends State<TileLayer> {
     int minx = tileRange.min.x;
     int maxx = tileRange.max.x;
 
+    /// We try and preload some tiles if option set, so with panning there isn't such
+    /// a delay in loading the next tile.
     if(_prevCenter == null) _prevCenter = map.center;
 
     if( map.center.latitude < _prevCenter.latitude)   maxy += options.greedyTileCount; //Up
@@ -524,6 +535,8 @@ class _TileLayerState extends State<TileLayer> {
       }
     }
 
+    /// Display a tile if its in the correct level, OR it's a tile that overlaps
+    /// a tile that hasn't finished loading yet.
     var tilesToRender = <Tile>[
       for (var tile in _tiles.values)
         if (((tile.coords.z - _level.zoom).abs() <= 1) || (options.useFallbackTiles && _tileOverlapsOutstandingTiles(tile.coords))) tile
@@ -534,7 +547,7 @@ class _TileLayerState extends State<TileLayer> {
       final b = bTile.coords;
       // a = 13, b = 12, b is less than a, the result should be positive.
       if (a.z != b.z) {
-        return (a.z - b.z).toInt(); // swapped this around...this seems to fix transitions...
+        return (a.z - b.z).toInt(); // swapped this around...but double check
       }
       return (a.distanceTo(tileCenter) - b.distanceTo(tileCenter)).toInt();
     });
@@ -631,6 +644,9 @@ class _TileLayerState extends State<TileLayer> {
     return coords.scaleBy(getTileSize()) - level.origin;
   }
 
+  /// Check a tile against a list of outstanding tiles, and return true
+  /// if it overlaps/covers (on a different zoom level) one
+  /// (we probably don't want to prune it yet)
   _tileOverlapsOutstandingTiles( tile ) {
     bool hasOverlap = false;
     _outstandingTileLoads.forEach((s, outStandingTile) {
@@ -641,6 +657,9 @@ class _TileLayerState extends State<TileLayer> {
     return hasOverlap;
   }
 
+  /// Check if one tile 'overlaps/covers' in terms of zoom another tile.
+  /// As tiles increase by a factor of 2 each zoom, we can calculate
+  /// if one tile is 'higher' than another, but covers it.
   bool _tileOverlaps(Coords a, Coords b) {
     Coords bigger  = b;
     Coords smaller = a;
@@ -664,6 +683,8 @@ class _TileLayerState extends State<TileLayer> {
     return false;
   }
 
+  /// An image callback, so that we can do something when a tile has finished
+  /// loading. Used to try and help keep older tiles until it's finished loading.
   ImageProvider _imageProviderFinishedCheck(coords, options) {
     ImageProvider newImageProvider = options.tileProvider.getImage(coords, options);
     _outstandingTileLoads[_tileCoordsToKey(coords)] = coords;
@@ -672,6 +693,10 @@ class _TileLayerState extends State<TileLayer> {
             (info,call) {
           _outstandingTileLoads.remove(_tileCoordsToKey(coords));
         },
+        onError: ((e, trace) {
+          print( "Image not loaded, error: $e");
+          _outstandingTileLoads.remove(_tileCoordsToKey(coords));
+        })
       ),
     );
     return newImageProvider;
