@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/core/util.dart' as util;
+import 'package:flutter_map/src/geo/crs/crs.dart';
 import 'package:flutter_map/src/layer/tile_provider/tile_provider.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
@@ -31,6 +32,9 @@ class TileLayerOptions extends LayerOptions {
   /// If `true`, inverses Y axis numbering for tiles (turn this on for
   /// [TMS](https://en.wikipedia.org/wiki/Tile_Map_Service) services).
   final bool tms;
+
+  /// If not `null`, then tiles will pull's WMS protocol requests
+  final WMSTileLayerOptions wmsOptions;
 
   /// Size for the tile.
   /// Default is 256
@@ -117,11 +121,20 @@ class TileLayerOptions extends LayerOptions {
   ///
   Map<String, String> additionalOptions;
 
-  /// Try and grab tiles in advance for pan direction
+  /// Try and grab tiles in advance for pan direction. 1 probably a good balance.
+  /// Don't set this much higher than one, or there may be too many tile requests.
+  /// 0 May be better if network limited for example.
   int greedyTileCount;
 
   /// Keep an old tile, until the new one has downloaded
   bool useFallbackTiles;
+
+  /// pruning tiles every move can lead to clunky flashing where prunes happen
+  /// before loads, so try and back skip some prunes. Example 40ms. For some
+  /// apps it may be better at 0, or even increased for very old devices.
+  /// Maybe we could be intelligent and calculate if we need to back off pruning..
+  /// ...tbd
+  int tilePruneSmoothing;
 
   TileLayerOptions(
       {this.urlTemplate,
@@ -136,11 +149,98 @@ class TileLayerOptions extends LayerOptions {
       this.placeholderImage,
       this.tileProvider = const CachedNetworkTileProvider(),
       this.tms = false,
+      // ignore: avoid_init_to_null
+      this.wmsOptions = null,
       this.opacity = 1.0,
       this.greedyTileCount = 1,
       this.useFallbackTiles = true,
+      this.tilePruneSmoothing = 40,
       rebuild})
       : super(rebuild: rebuild);
+}
+
+class WMSTileLayerOptions {
+  final service = 'WMS';
+  final request = 'GetMap';
+
+  /// url of WMS service.
+  /// Ex.: 'http://ows.mundialis.de/services/service?'
+  final String baseUrl;
+
+  /// list of WMS layers to show
+  final List<String> layers;
+
+  /// list of WMS styles
+  final List<String> styles;
+
+  /// WMS image format (use 'image/png' for layers with transparency)
+  final String format;
+
+  /// Version of the WMS service to use
+  final String version;
+
+  /// tile transperency flag
+  final bool transparent;
+
+  // TODO find a way to implicit pass of current map [Crs]
+  final Crs crs;
+
+  /// other request parameters
+  final Map<String, String> otherParameters;
+
+  String _encodedBaseUrl;
+
+  double _versionNumber;
+
+  WMSTileLayerOptions({
+    @required this.baseUrl,
+    this.layers = const [],
+    this.styles = const [],
+    this.format = 'image/png',
+    this.version = '1.1.1',
+    this.transparent = true,
+    this.crs = const Epsg3857(),
+    this.otherParameters = const {},
+  }) {
+    _versionNumber = double.tryParse(version.split('.').take(2).join('.')) ?? 0;
+    _encodedBaseUrl = _buildEncodedBaseUrl();
+  }
+
+  String _buildEncodedBaseUrl() {
+    final projectionKey = _versionNumber >= 1.3 ? 'crs' : 'srs';
+    final buffer = StringBuffer(baseUrl)
+      ..write('&service=$service')
+      ..write('&request=$request')
+      ..write('&layers=${layers.map(Uri.encodeComponent).join(',')}')
+      ..write('&styles=${styles.map(Uri.encodeComponent).join(',')}')
+      ..write('&format=${Uri.encodeComponent(format)}')
+      ..write('&$projectionKey=${Uri.encodeComponent(crs.code)}')
+      ..write('&version=${Uri.encodeComponent(version)}')
+      ..write('&transparent=$transparent');
+    otherParameters
+        .forEach((k, v) => buffer.write('&$k=${Uri.encodeComponent(v)}'));
+    return buffer.toString();
+  }
+
+  String getUrl(Coords coords, int tileSize) {
+    final tileSizePoint = CustomPoint(tileSize, tileSize);
+    final nvPoint = coords.scaleBy(tileSizePoint);
+    final sePoint = nvPoint + tileSizePoint;
+    final nvCoords = crs.pointToLatLng(nvPoint, coords.z);
+    final seCoords = crs.pointToLatLng(sePoint, coords.z);
+    final nv = crs.projection.project(nvCoords);
+    final se = crs.projection.project(seCoords);
+    final bounds = Bounds(nv, se);
+    final bbox = (_versionNumber >= 1.3 && crs is Epsg4326)
+        ? [bounds.min.y, bounds.min.x, bounds.max.y, bounds.max.x]
+        : [bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y];
+
+    final buffer = StringBuffer(_encodedBaseUrl);
+    buffer.write('&width=$tileSize');
+    buffer.write('&height=$tileSize');
+    buffer.write('&bbox=${bbox.join(',')}');
+    return buffer.toString();
+  }
 }
 
 class TileLayer extends StatefulWidget {
@@ -179,6 +279,8 @@ class _TileLayerState extends State<TileLayer> {
   LatLng _prevCenter;
   LatLng _currentCenter;
 
+  DateTime lastPruneTime = DateTime.now();
+
   @override
   void initState() {
     super.initState();
@@ -195,7 +297,12 @@ class _TileLayerState extends State<TileLayer> {
 
   void _handleMove() {
     setState(() {
-      _pruneTiles();
+      /// See comments on this.tilePruneSmoothing above
+      var timeSinceLastPrune = DateTime.now().difference(lastPruneTime).inMilliseconds;
+      if( timeSinceLastPrune > options.tilePruneSmoothing ) {
+        lastPruneTime = DateTime.now();
+        _pruneTiles();
+      }
       _resetView();
     });
   }
@@ -435,8 +542,6 @@ class _TileLayerState extends State<TileLayer> {
     var tileWidgets = <Widget>[
       for (var tile in tilesToRender) _createTileWidget(tile.coords)
     ];
-
-    print("toRender ${tilesToRender.length}, Outstanding: ${_outstandingTileLoads.length}");
 
     return Opacity(
       opacity: options.opacity,
