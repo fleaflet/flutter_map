@@ -556,18 +556,7 @@ class _TileLayerState extends State<TileLayer> {
       for (var tile in tilesToRender) _createTileWidget(tile.coords)
     ];
 
-<<<<<<< HEAD
-    return Container(
-        color: options.backgroundColor,
-        child: Stack(
-          children: tileWidgets,
-        ),
-    );
-
-    /*return Opacity(
-=======
     return Opacity(
->>>>>>> 3ddb353fccafc0c84254b3803daf218ef3f5a48b
       opacity: options.opacity,
       child: Container(
         color: options.backgroundColor,
@@ -576,7 +565,6 @@ class _TileLayerState extends State<TileLayer> {
         ),
       ),
     );
-    */
 
   }
 
@@ -629,8 +617,7 @@ class _TileLayerState extends State<TileLayer> {
         fit: BoxFit.fill,
       ),
     );
-
-
+    
     return Positioned(
               left: pos.x.toDouble(),
               top: pos.y.toDouble(),
@@ -708,10 +695,6 @@ class _TileLayerState extends State<TileLayer> {
         },
         onError: ((e, trace) {
           print( "Image not loaded, error: $e");
-<<<<<<< HEAD
-=======
-          _outstandingTileLoads.remove(_tileCoordsToKey(coords));
->>>>>>> 3ddb353fccafc0c84254b3803daf218ef3f5a48b
         })
       ),
     );
