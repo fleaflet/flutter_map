@@ -273,10 +273,9 @@ class _TileLayerState extends State<TileLayer> {
   final Map<String, Tile> _tiles = {};
   final Map<double, Level> _levels = {};
 
-  Map _outstandingTileLoads = {};
+  final Map _outstandingTileLoads = {};
 
   LatLng _prevCenter;
-  LatLng _currentCenter;
 
   @override
   void initState() {
@@ -494,7 +493,7 @@ class _TileLayerState extends State<TileLayer> {
 
     /// We try and preload some tiles if option set, so with panning there isn't such
     /// a delay in loading the next tile.
-    if(_prevCenter == null) _prevCenter = map.center;
+    _prevCenter ??= map.center;
 
     if( map.center.latitude < _prevCenter.latitude)   maxy += options.greedyTileCount; //Up
     if( map.center.latitude > _prevCenter.latitude)   miny -= options.greedyTileCount; //Down
@@ -637,12 +636,10 @@ class _TileLayerState extends State<TileLayer> {
   /// Check a tile against a list of outstanding tiles, and return true
   /// if it overlaps/covers (on a different zoom level) one
   /// (we probably don't want to prune it yet)
-  _tileOverlapsOutstandingTiles( tile ) {
-    bool hasOverlap = false;
+  bool _tileOverlapsOutstandingTiles( tile ) {
+    var hasOverlap = false;
     _outstandingTileLoads.forEach((s, outStandingTile) {
-      if( _tileOverlaps(tile, outStandingTile)) {
-        hasOverlap = true;
-      };
+      if( _tileOverlaps(tile, outStandingTile)) hasOverlap = true;
     });
     return hasOverlap;
   }
@@ -651,8 +648,8 @@ class _TileLayerState extends State<TileLayer> {
   /// As tiles increase by a factor of 2 each zoom, we can calculate
   /// if one tile is 'higher' than another, but covers it.
   bool _tileOverlaps(Coords a, Coords b) {
-    Coords bigger  = b;
-    Coords smaller = a;
+    var bigger  = b;
+    var smaller = a;
 
     if( a.z == b.z ) return false;
     if( a.z > b.z ) {
@@ -660,12 +657,12 @@ class _TileLayerState extends State<TileLayer> {
       smaller = b;
     }
 
-    int zoomDiff     = (bigger.z - smaller.z).toInt();
-    int adjustRatio  = pow(2, zoomDiff).toInt();
+    var zoomDiff     = (bigger.z - smaller.z).toInt();
+    var adjustRatio  = pow(2, zoomDiff).toInt();
 
     if( adjustRatio == 0 ) adjustRatio = 1;
-    int coverSquareX = ( bigger.x.toInt() / adjustRatio ).toInt();
-    int coverSquareY = ( bigger.y.toInt() / adjustRatio ).toInt();
+    var coverSquareX = bigger.x.toInt() ~/ adjustRatio;
+    var coverSquareY = bigger.y.toInt() ~/ adjustRatio;
 
     if( (coverSquareX == smaller.x) && (coverSquareY == smaller.y ) ) {
       return true;
@@ -673,19 +670,19 @@ class _TileLayerState extends State<TileLayer> {
     return false;
   }
 
-  _setTileToBePruned(tile) {
-    if(tile.toBePrunedTime == null) tile.toBePrunedTime = DateTime.now();
+  void _setTileToBePruned(tile) {
+    tile.toBePrunedTime ??= DateTime.now();
     tile.current = false;
   }
 
-  _setTileToBeKept(tile) {
+  void _setTileToBeKept(tile) {
     tile.current = true;
     tile.toBePrunedTime = null;
   }
 
   /// Only prune tiles if they are over x milliseconds old, to smooth flashes when
   /// a tile is missing
-  _tileIsToBePruned(tile) {
+  bool _tileIsToBePruned(tile) {
     if((tile.current == false) && !(tile.toBePrunedTime == null)
         && (DateTime.now().difference(tile.toBePrunedTime).inMilliseconds > options.tilePruneSmoothing)) {
       return true;
@@ -705,7 +702,7 @@ class _TileLayerState extends State<TileLayer> {
           _outstandingTileLoads.remove(_tileCoordsToKey(coords));
         },
         onError: ((e, trace) {
-          print( "Image not loaded, error: $e");
+          print( 'Image not loaded, error: $e');
         })
       ),
     );
