@@ -372,7 +372,9 @@ class _TileLayerState extends State<TileLayer> {
       /// So if they aren't completed, we will check to see if there is another
       /// tile that covers it, if so, don't mark it for pruning yet.
       for( var outStandingTilekey in _outstandingTileLoads.keys) {
-        if(options.useFallbackTiles && _tileOverlaps(_outstandingTileLoads[outStandingTilekey], c)  && (!_outstandingTileLoads.containsKey(_tileCoordsToKey(c)))) {
+        if(options.useFallbackTiles
+            && _tileOverlaps(_outstandingTileLoads[outStandingTilekey], c)
+            && (!_outstandingTileLoads.containsKey(_tileCoordsToKey(c)))) {
           _setTileToBeKept(tile);
         }
       }
@@ -525,7 +527,9 @@ class _TileLayerState extends State<TileLayer> {
     /// a tile that hasn't finished loading yet.
     var tilesToRender = <Tile>[
       for (var tile in _tiles.values)
-        if (((tile.coords.z - _level.zoom).abs() <= 1) || (options.useFallbackTiles && _tileOverlapsOutstandingTiles(tile.coords))) tile
+        if (((tile.coords.z - _level.zoom).abs() <= 1)
+            || (options.useFallbackTiles
+                && _tileOverlapsOutstandingTiles(tile.coords))) tile
     ];
 
     tilesToRender.sort((aTile, bTile) {
