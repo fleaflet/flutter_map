@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/core/util.dart' as util;
+import 'package:flutter_map/src/geo/crs/crs.dart';
 import 'package:flutter_map/src/layer/tile_provider/tile_provider.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
@@ -31,6 +32,9 @@ class TileLayerOptions extends LayerOptions {
   /// If `true`, inverses Y axis numbering for tiles (turn this on for
   /// [TMS](https://en.wikipedia.org/wiki/Tile_Map_Service) services).
   final bool tms;
+
+  /// If not `null`, then tiles will pull's WMS protocol requests
+  final WMSTileLayerOptions wmsOptions;
 
   /// Size for the tile.
   /// Default is 256
@@ -117,11 +121,20 @@ class TileLayerOptions extends LayerOptions {
   ///
   Map<String, String> additionalOptions;
 
-  /// Try and grab tiles in advance for pan direction
+  /// Try and grab tiles in advance for pan direction. 1 probably a good balance.
+  /// Don't set this much higher than one, or there may be too many tile requests.
+  /// 0 May be better if network limited for example.
   int greedyTileCount;
 
   /// Keep an old tile, until the new one has downloaded
   bool useFallbackTiles;
+
+  /// pruning tiles every move can lead to clunky flashing where prunes happen
+  /// before loads, so try and back skip some prunes. Example 40ms. For some
+  /// apps it may be better at 0, or even increased for very old devices.
+  /// Maybe we could be intelligent and calculate if we need to back off pruning..
+  /// ...tbd
+  int tilePruneSmoothing;
 
   TileLayerOptions(
       {this.urlTemplate,
@@ -136,11 +149,98 @@ class TileLayerOptions extends LayerOptions {
       this.placeholderImage,
       this.tileProvider = const CachedNetworkTileProvider(),
       this.tms = false,
+      // ignore: avoid_init_to_null
+      this.wmsOptions = null,
       this.opacity = 1.0,
       this.greedyTileCount = 1,
       this.useFallbackTiles = true,
+      this.tilePruneSmoothing = 40,
       rebuild})
       : super(rebuild: rebuild);
+}
+
+class WMSTileLayerOptions {
+  final service = 'WMS';
+  final request = 'GetMap';
+
+  /// url of WMS service.
+  /// Ex.: 'http://ows.mundialis.de/services/service?'
+  final String baseUrl;
+
+  /// list of WMS layers to show
+  final List<String> layers;
+
+  /// list of WMS styles
+  final List<String> styles;
+
+  /// WMS image format (use 'image/png' for layers with transparency)
+  final String format;
+
+  /// Version of the WMS service to use
+  final String version;
+
+  /// tile transperency flag
+  final bool transparent;
+
+  // TODO find a way to implicit pass of current map [Crs]
+  final Crs crs;
+
+  /// other request parameters
+  final Map<String, String> otherParameters;
+
+  String _encodedBaseUrl;
+
+  double _versionNumber;
+
+  WMSTileLayerOptions({
+    @required this.baseUrl,
+    this.layers = const [],
+    this.styles = const [],
+    this.format = 'image/png',
+    this.version = '1.1.1',
+    this.transparent = true,
+    this.crs = const Epsg3857(),
+    this.otherParameters = const {},
+  }) {
+    _versionNumber = double.tryParse(version.split('.').take(2).join('.')) ?? 0;
+    _encodedBaseUrl = _buildEncodedBaseUrl();
+  }
+
+  String _buildEncodedBaseUrl() {
+    final projectionKey = _versionNumber >= 1.3 ? 'crs' : 'srs';
+    final buffer = StringBuffer(baseUrl)
+      ..write('&service=$service')
+      ..write('&request=$request')
+      ..write('&layers=${layers.map(Uri.encodeComponent).join(',')}')
+      ..write('&styles=${styles.map(Uri.encodeComponent).join(',')}')
+      ..write('&format=${Uri.encodeComponent(format)}')
+      ..write('&$projectionKey=${Uri.encodeComponent(crs.code)}')
+      ..write('&version=${Uri.encodeComponent(version)}')
+      ..write('&transparent=$transparent');
+    otherParameters
+        .forEach((k, v) => buffer.write('&$k=${Uri.encodeComponent(v)}'));
+    return buffer.toString();
+  }
+
+  String getUrl(Coords coords, int tileSize) {
+    final tileSizePoint = CustomPoint(tileSize, tileSize);
+    final nvPoint = coords.scaleBy(tileSizePoint);
+    final sePoint = nvPoint + tileSizePoint;
+    final nvCoords = crs.pointToLatLng(nvPoint, coords.z);
+    final seCoords = crs.pointToLatLng(sePoint, coords.z);
+    final nv = crs.projection.project(nvCoords);
+    final se = crs.projection.project(seCoords);
+    final bounds = Bounds(nv, se);
+    final bbox = (_versionNumber >= 1.3 && crs is Epsg4326)
+        ? [bounds.min.y, bounds.min.x, bounds.max.y, bounds.max.x]
+        : [bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y];
+
+    final buffer = StringBuffer(_encodedBaseUrl);
+    buffer.write('&width=$tileSize');
+    buffer.write('&height=$tileSize');
+    buffer.write('&bbox=${bbox.join(',')}');
+    return buffer.toString();
+  }
 }
 
 class TileLayer extends StatefulWidget {
@@ -174,10 +274,12 @@ class _TileLayerState extends State<TileLayer> {
   final Map<String, Tile> _tiles = {};
   final Map<double, Level> _levels = {};
 
-  final Map _outstandingTileLoads = {};
+  Map _outstandingTileLoads = {};
 
   LatLng _prevCenter;
   LatLng _currentCenter;
+
+  DateTime lastPruneTime = DateTime.now();
 
   @override
   void initState() {
@@ -195,7 +297,18 @@ class _TileLayerState extends State<TileLayer> {
 
   void _handleMove() {
     setState(() {
-      _pruneTiles();
+      /// See comments on this.tilePruneSmoothing above
+      var timeSinceLastPrune = DateTime.now().difference(lastPruneTime).inMilliseconds;
+
+      /// Try and keep outstanding tile list tidy if not used for an hour for example.
+      if(timeSinceLastPrune > 3600000) _outstandingTileLoads = {};
+
+      /// Frequent pruning before tileloads can cause a jarring flashing experience,
+      /// so back off pruning every time unless opted out.
+      if(timeSinceLastPrune > options.tilePruneSmoothing) {
+        lastPruneTime = DateTime.now();
+        _pruneTiles();
+      }
       _resetView();
     });
   }
@@ -269,6 +382,9 @@ class _TileLayerState extends State<TileLayer> {
         tile.current = false;
       }
 
+      /// _outstandingTileLoads is a list of tiles not completed (see callback later)
+      /// So if they aren't completed, we will check to see if there is another
+      /// tile that covers it, if so, don't mark it for pruning yet.
       for( var outStandingTilekey in _outstandingTileLoads.keys) {
         if(options.useFallbackTiles && _tileOverlaps(_outstandingTileLoads[outStandingTilekey], c)  && (!_outstandingTileLoads.containsKey(_tileCoordsToKey(c)))) {
           tile.current = true;
@@ -388,6 +504,8 @@ class _TileLayerState extends State<TileLayer> {
     int minx = tileRange.min.x;
     int maxx = tileRange.max.x;
 
+    /// We try and preload some tiles if option set, so with panning there isn't such
+    /// a delay in loading the next tile.
     if(_prevCenter == null) _prevCenter = map.center;
 
     if( map.center.latitude < _prevCenter.latitude)   maxy += options.greedyTileCount; //Up
@@ -417,6 +535,8 @@ class _TileLayerState extends State<TileLayer> {
       }
     }
 
+    /// Display a tile if its in the correct level, OR it's a tile that overlaps
+    /// a tile that hasn't finished loading yet.
     var tilesToRender = <Tile>[
       for (var tile in _tiles.values)
         if (((tile.coords.z - _level.zoom).abs() <= 1) || (options.useFallbackTiles && _tileOverlapsOutstandingTiles(tile.coords))) tile
@@ -427,7 +547,7 @@ class _TileLayerState extends State<TileLayer> {
       final b = bTile.coords;
       // a = 13, b = 12, b is less than a, the result should be positive.
       if (a.z != b.z) {
-        return (a.z - b.z).toInt(); // swapped this around...this seems to fix transitions...
+        return (a.z - b.z).toInt(); // swapped this around...but double check
       }
       return (a.distanceTo(tileCenter) - b.distanceTo(tileCenter)).toInt();
     });
@@ -436,9 +556,14 @@ class _TileLayerState extends State<TileLayer> {
       for (var tile in tilesToRender) _createTileWidget(tile.coords)
     ];
 
-    print("toRender ${tilesToRender.length}, Outstanding: ${_outstandingTileLoads.length}");
+    return Container(
+        color: options.backgroundColor,
+        child: Stack(
+          children: tileWidgets,
+        ),
+    );
 
-    return Opacity(
+    /*return Opacity(
       opacity: options.opacity,
       child: Container(
         color: options.backgroundColor,
@@ -447,6 +572,8 @@ class _TileLayerState extends State<TileLayer> {
         ),
       ),
     );
+    */
+
   }
 
   Bounds _getTiledPixelBounds(LatLng center) {
@@ -526,6 +653,9 @@ class _TileLayerState extends State<TileLayer> {
     return coords.scaleBy(getTileSize()) - level.origin;
   }
 
+  /// Check a tile against a list of outstanding tiles, and return true
+  /// if it overlaps/covers (on a different zoom level) one
+  /// (we probably don't want to prune it yet)
   _tileOverlapsOutstandingTiles( tile ) {
     bool hasOverlap = false;
     _outstandingTileLoads.forEach((s, outStandingTile) {
@@ -536,6 +666,9 @@ class _TileLayerState extends State<TileLayer> {
     return hasOverlap;
   }
 
+  /// Check if one tile 'overlaps/covers' in terms of zoom another tile.
+  /// As tiles increase by a factor of 2 each zoom, we can calculate
+  /// if one tile is 'higher' than another, but covers it.
   bool _tileOverlaps(Coords a, Coords b) {
     Coords bigger  = b;
     Coords smaller = a;
@@ -559,6 +692,8 @@ class _TileLayerState extends State<TileLayer> {
     return false;
   }
 
+  /// An image callback, so that we can do something when a tile has finished
+  /// loading. Used to try and help keep older tiles until it's finished loading.
   ImageProvider _imageProviderFinishedCheck(coords, options) {
     ImageProvider newImageProvider = options.tileProvider.getImage(coords, options);
     _outstandingTileLoads[_tileCoordsToKey(coords)] = coords;
@@ -567,6 +702,9 @@ class _TileLayerState extends State<TileLayer> {
             (info,call) {
           _outstandingTileLoads.remove(_tileCoordsToKey(coords));
         },
+        onError: ((e, trace) {
+          print( "Image not loaded, error: $e");
+        })
       ),
     );
     return newImageProvider;
