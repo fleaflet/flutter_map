@@ -607,11 +607,11 @@ class _TileLayerState extends State<TileLayer> {
     );
 
     return Positioned(
-              left: pos.x.toDouble(),
-              top: pos.y.toDouble(),
-              width: width.toDouble(),
-              height: height.toDouble(),
-              child: content);
+        left: pos.x.toDouble(),
+        top: pos.y.toDouble(),
+        width: width.toDouble(),
+        height: height.toDouble(),
+        child: content);
   }
 
   Coords _wrapCoords(Coords coords) {
