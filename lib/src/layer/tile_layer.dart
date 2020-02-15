@@ -303,7 +303,6 @@ class _TileLayerState extends State<TileLayer> {
   }
 
   void _setView(LatLng center, double zoom) {
-
     var tileZoom = _clampZoom(zoom.round().toDouble());
     if (_tileZoom != tileZoom) {
       _tileZoom = tileZoom;
@@ -370,10 +369,10 @@ class _TileLayerState extends State<TileLayer> {
       /// _outstandingTileLoads is a list of tiles not completed (see callback later)
       /// So if they aren't completed, we will check to see if there is another
       /// tile that covers it, if so, don't mark it for pruning yet.
-      for( var outStandingTilekey in _outstandingTileLoads.keys) {
-        if(options.useFallbackTiles
-            && _tileOverlaps(_outstandingTileLoads[outStandingTilekey], c)
-            && (!_outstandingTileLoads.containsKey(_tileCoordsToKey(c)))) {
+      for (var outStandingTilekey in _outstandingTileLoads.keys) {
+        if (options.useFallbackTiles &&
+            _tileOverlaps(_outstandingTileLoads[outStandingTilekey], c) &&
+            (!_outstandingTileLoads.containsKey(_tileCoordsToKey(c)))) {
           _setTileToBeKept(tile);
         }
       }
@@ -381,7 +380,6 @@ class _TileLayerState extends State<TileLayer> {
 
     _tiles.removeWhere((s, tile) => (_tileIsToBePruned(tile)));
   }
-
 
   void _setZoomTransform(Level level, LatLng center, double zoom) {
     var scale = map.getZoomScale(zoom, level.zoom);
@@ -495,10 +493,14 @@ class _TileLayerState extends State<TileLayer> {
     /// a delay in loading the next tile.
     _prevCenter ??= map.center;
 
-    if( map.center.latitude < _prevCenter.latitude)   maxy += options.greedyTileCount; //Up
-    if( map.center.latitude > _prevCenter.latitude)   miny -= options.greedyTileCount; //Down
-    if( map.center.longitude > _prevCenter.longitude) maxx += options.greedyTileCount; //Left
-    if( map.center.longitude < _prevCenter.longitude) minx -= options.greedyTileCount; //Right
+    if (map.center.latitude < _prevCenter.latitude)
+      maxy += options.greedyTileCount; //Up
+    if (map.center.latitude > _prevCenter.latitude)
+      miny -= options.greedyTileCount; //Down
+    if (map.center.longitude > _prevCenter.longitude)
+      maxx += options.greedyTileCount; //Left
+    if (map.center.longitude < _prevCenter.longitude)
+      minx -= options.greedyTileCount; //Right
 
     _prevCenter = map.center;
 
@@ -518,7 +520,8 @@ class _TileLayerState extends State<TileLayer> {
 
     if (queue.isNotEmpty) {
       for (var i = 0; i < queue.length; i++) {
-        _tiles[_tileCoordsToKey(queue[i])] = Tile(_wrapCoords(queue[i]), true, null);
+        _tiles[_tileCoordsToKey(queue[i])] =
+            Tile(_wrapCoords(queue[i]), true, null);
       }
     }
 
@@ -526,9 +529,10 @@ class _TileLayerState extends State<TileLayer> {
     /// a tile that hasn't finished loading yet.
     var tilesToRender = <Tile>[
       for (var tile in _tiles.values)
-        if (((tile.coords.z - _level.zoom).abs() <= 1)
-            || (options.useFallbackTiles
-                && _tileOverlapsOutstandingTiles(tile.coords))) tile
+        if (((tile.coords.z - _level.zoom).abs() <= 1) ||
+            (options.useFallbackTiles &&
+                _tileOverlapsOutstandingTiles(tile.coords)))
+          tile
     ];
 
     tilesToRender.sort((aTile, bTile) {
@@ -554,7 +558,6 @@ class _TileLayerState extends State<TileLayer> {
         ),
       ),
     );
-
   }
 
   Bounds _getTiledPixelBounds(LatLng center) {
@@ -636,10 +639,10 @@ class _TileLayerState extends State<TileLayer> {
   /// Check a tile against a list of outstanding tiles, and return true
   /// if it overlaps/covers (on a different zoom level) one
   /// (we probably don't want to prune it yet)
-  bool _tileOverlapsOutstandingTiles( tile ) {
+  bool _tileOverlapsOutstandingTiles(tile) {
     var hasOverlap = false;
     _outstandingTileLoads.forEach((s, outStandingTile) {
-      if( _tileOverlaps(tile, outStandingTile)) hasOverlap = true;
+      if (_tileOverlaps(tile, outStandingTile)) hasOverlap = true;
     });
     return hasOverlap;
   }
@@ -648,23 +651,23 @@ class _TileLayerState extends State<TileLayer> {
   /// As tiles increase by a factor of 2 each zoom, we can calculate
   /// if one tile is 'higher' than another, but covers it.
   bool _tileOverlaps(Coords a, Coords b) {
-    var bigger  = b;
+    var bigger = b;
     var smaller = a;
 
-    if( a.z == b.z ) return false;
-    if( a.z > b.z ) {
-      bigger  = a;
+    if (a.z == b.z) return false;
+    if (a.z > b.z) {
+      bigger = a;
       smaller = b;
     }
 
-    var zoomDiff     = (bigger.z - smaller.z).toInt();
-    var adjustRatio  = pow(2, zoomDiff).toInt();
+    var zoomDiff = (bigger.z - smaller.z).toInt();
+    var adjustRatio = pow(2, zoomDiff).toInt();
 
-    if( adjustRatio == 0 ) adjustRatio = 1;
+    if (adjustRatio == 0) adjustRatio = 1;
     var coverSquareX = bigger.x.toInt() ~/ adjustRatio;
     var coverSquareY = bigger.y.toInt() ~/ adjustRatio;
 
-    if( (coverSquareX == smaller.x) && (coverSquareY == smaller.y ) ) {
+    if ((coverSquareX == smaller.x) && (coverSquareY == smaller.y)) {
       return true;
     }
     return false;
@@ -683,29 +686,28 @@ class _TileLayerState extends State<TileLayer> {
   /// Only prune tiles if they are over x milliseconds old, to smooth flashes when
   /// a tile is missing
   bool _tileIsToBePruned(tile) {
-    if((tile.current == false) && !(tile.toBePrunedTime == null)
-        && (DateTime.now().difference(tile.toBePrunedTime).inMilliseconds > options.tilePruneSmoothing)) {
+    if ((tile.current == false) &&
+        !(tile.toBePrunedTime == null) &&
+        (DateTime.now().difference(tile.toBePrunedTime).inMilliseconds >
+            options.tilePruneSmoothing)) {
       return true;
     }
     return false;
   }
 
-
   /// An image callback, so that we can do something when a tile has finished
   /// loading. Used to try and help keep older tiles until it's finished loading.
   ImageProvider _imageProviderFinishedCheck(coords, options) {
-    ImageProvider newImageProvider = options.tileProvider.getImage(coords, options);
+    ImageProvider newImageProvider =
+        options.tileProvider.getImage(coords, options);
     _outstandingTileLoads[_tileCoordsToKey(coords)] = coords;
     newImageProvider.resolve(ImageConfiguration()).addListener(
-      ImageStreamListener(
-            (info,call) {
-          _outstandingTileLoads.remove(_tileCoordsToKey(coords));
-        },
-        onError: ((e, trace) {
-          print( 'Image not loaded, error: $e');
-        })
-      ),
-    );
+          ImageStreamListener((info, call) {
+            _outstandingTileLoads.remove(_tileCoordsToKey(coords));
+          }, onError: ((e, trace) {
+            print('Image not loaded, error: $e');
+          })),
+        );
     return newImageProvider;
   }
 }
@@ -746,5 +748,3 @@ class Coords<T extends num> extends CustomPoint<T> {
   @override
   int get hashCode => hashValues(x.hashCode, y.hashCode, z.hashCode);
 }
-
-
