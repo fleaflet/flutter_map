@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -130,10 +131,9 @@ class TileLayerOptions extends LayerOptions {
   bool useFallbackTiles;
 
   /// pruning tiles every move can lead to clunky flashing where prunes happen
-  /// before loads, so try and back skip some prunes. Example 40ms. For some
+  /// before loads, so keep tiles back a short bit. Example 60ms. For some
   /// apps it may be better at 0, or even increased for very old devices.
   /// Maybe we could be intelligent and calculate if we need to back off pruning..
-  /// ...tbd
   int tilePruneSmoothing;
 
   TileLayerOptions(
@@ -154,7 +154,7 @@ class TileLayerOptions extends LayerOptions {
       this.opacity = 1.0,
       this.greedyTileCount = 1,
       this.useFallbackTiles = true,
-      this.tilePruneSmoothing = 40,
+      this.tilePruneSmoothing = 60,
       rebuild})
       : super(rebuild: rebuild);
 }
@@ -279,10 +279,9 @@ class _TileLayerState extends State<TileLayer> {
   LatLng _prevCenter;
   LatLng _currentCenter;
 
-  DateTime lastPruneTime = DateTime.now();
-
   @override
   void initState() {
+    imageCache.clear();
     super.initState();
     _resetView();
     _moveSub = widget.stream.listen((_) => _handleMove());
@@ -297,18 +296,7 @@ class _TileLayerState extends State<TileLayer> {
 
   void _handleMove() {
     setState(() {
-      /// See comments on this.tilePruneSmoothing above
-      var timeSinceLastPrune = DateTime.now().difference(lastPruneTime).inMilliseconds;
-
-      /// Try and keep outstanding tile list tidy if not used for an hour for example.
-      if(timeSinceLastPrune > 3600000) _outstandingTileLoads = {};
-
-      /// Frequent pruning before tileloads can cause a jarring flashing experience,
-      /// so back off pruning every time unless opted out.
-      if(timeSinceLastPrune > options.tilePruneSmoothing) {
-        lastPruneTime = DateTime.now();
-        _pruneTiles();
-      }
+      _pruneTiles();
       _resetView();
     });
   }
@@ -379,7 +367,7 @@ class _TileLayerState extends State<TileLayer> {
       var tile = _tiles[tileKey];
       var c = tile.coords;
       if (c.z != _tileZoom || !noPruneRange.contains(CustomPoint(c.x, c.y))) {
-        tile.current = false;
+        _setTileToBePruned(tile);
       }
 
       /// _outstandingTileLoads is a list of tiles not completed (see callback later)
@@ -387,12 +375,12 @@ class _TileLayerState extends State<TileLayer> {
       /// tile that covers it, if so, don't mark it for pruning yet.
       for( var outStandingTilekey in _outstandingTileLoads.keys) {
         if(options.useFallbackTiles && _tileOverlaps(_outstandingTileLoads[outStandingTilekey], c)  && (!_outstandingTileLoads.containsKey(_tileCoordsToKey(c)))) {
-          tile.current = true;
+          _setTileToBeKept(tile);
         }
       }
     }
 
-    _tiles.removeWhere((s, tile) => (tile.current == false));
+    _tiles.removeWhere((s, tile) => (_tileIsToBePruned(tile)));
   }
 
 
@@ -431,7 +419,7 @@ class _TileLayerState extends State<TileLayer> {
     if (tile == null) {
       return;
     }
-    _tiles[key].current = false;
+    _setTileToBePruned(_tiles[key]);
   }
 
   void _resetGrid() {
@@ -493,7 +481,7 @@ class _TileLayerState extends State<TileLayer> {
     for (var key in _tiles.keys) {
       var c = _tiles[key].coords;
       if (c.z != _tileZoom) {
-        _tiles[key].current = false;
+        _setTileToBePruned(_tiles[key]);
       }
     }
 
@@ -531,7 +519,7 @@ class _TileLayerState extends State<TileLayer> {
 
     if (queue.isNotEmpty) {
       for (var i = 0; i < queue.length; i++) {
-        _tiles[_tileCoordsToKey(queue[i])] = Tile(_wrapCoords(queue[i]), true);
+        _tiles[_tileCoordsToKey(queue[i])] = Tile(_wrapCoords(queue[i]), true, null);
       }
     }
 
@@ -617,7 +605,7 @@ class _TileLayerState extends State<TileLayer> {
         fit: BoxFit.fill,
       ),
     );
-    
+
     return Positioned(
               left: pos.x.toDouble(),
               top: pos.y.toDouble(),
@@ -683,6 +671,27 @@ class _TileLayerState extends State<TileLayer> {
     return false;
   }
 
+  _setTileToBePruned(tile) {
+    if(tile.toBePrunedTime == null) tile.toBePrunedTime = DateTime.now();
+    tile.current = false;
+  }
+
+  _setTileToBeKept(tile) {
+    tile.current = true;
+    tile.toBePrunedTime = null;
+  }
+
+  /// Only prune tiles if they are over x milliseconds old, to smooth flashes when
+  /// a tile is missing
+  _tileIsToBePruned(tile) {
+    if((tile.current == false) && !(tile.toBePrunedTime == null)
+        && (DateTime.now().difference(tile.toBePrunedTime).inMilliseconds > options.tilePruneSmoothing)) {
+      return true;
+    }
+    return false;
+  }
+
+
   /// An image callback, so that we can do something when a tile has finished
   /// loading. Used to try and help keep older tiles until it's finished loading.
   ImageProvider _imageProviderFinishedCheck(coords, options) {
@@ -704,9 +713,10 @@ class _TileLayerState extends State<TileLayer> {
 
 class Tile {
   final Coords coords;
+  DateTime toBePrunedTime;
   bool current;
 
-  Tile(this.coords, this.current);
+  Tile(this.coords, this.current, this.toBePrunedTime);
 }
 
 class Level {
