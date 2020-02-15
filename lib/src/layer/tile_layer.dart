@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -281,7 +280,6 @@ class _TileLayerState extends State<TileLayer> {
 
   @override
   void initState() {
-    imageCache.clear();
     super.initState();
     _resetView();
     _moveSub = widget.stream.listen((_) => _handleMove());
