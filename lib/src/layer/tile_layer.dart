@@ -274,6 +274,7 @@ class _TileLayerState extends State<TileLayer> {
   final Map<double, Level> _levels = {};
 
   final Map _outstandingTileLoads = {};
+  final Map _recentTilesCompleted = {};
 
   LatLng _prevCenter;
 
@@ -359,6 +360,10 @@ class _TileLayerState extends State<TileLayer> {
     var noPruneRange = Bounds(
         tileRange.bottomLeft - CustomPoint(margin, -margin),
         tileRange.topRight + CustomPoint(margin, -margin));
+
+    /// Just some housekeeping if the apps been running a while
+    _tidyRecentTilesCompleted();
+
     for (var tileKey in _tiles.keys) {
       var tile = _tiles[tileKey];
       var c = tile.coords;
@@ -683,9 +688,18 @@ class _TileLayerState extends State<TileLayer> {
     tile.toBePrunedTime = null;
   }
 
+  void _tidyRecentTilesCompleted() {
+    /// Assume tiles may not be available locally if over a day old
+    _recentTilesCompleted.removeWhere((key,timeCompleted) => DateTime.now().difference(timeCompleted).inMinutes >= 1440);
+  }
+
   /// Only prune tiles if they are over x milliseconds old, to smooth flashes when
   /// a tile is missing
   bool _tileIsToBePruned(tile) {
+    /// We don't want to bother keeping any backup tiles if there are none outsanding
+    /////////////////////////////////if( tile.current == false && (_outstandingTileLoads.length == 0)) return true;
+
+    /// Allow a smoothing time for tiles to exist
     if ((tile.current == false) &&
         !(tile.toBePrunedTime == null) &&
         (DateTime.now().difference(tile.toBePrunedTime).inMilliseconds >
@@ -698,12 +712,25 @@ class _TileLayerState extends State<TileLayer> {
   /// An image callback, so that we can do something when a tile has finished
   /// loading. Used to try and help keep older tiles until it's finished loading.
   ImageProvider _imageProviderFinishedCheck(coords, options) {
+    var coordsKey = _tileCoordsToKey(coords);
     ImageProvider newImageProvider =
         options.tileProvider.getImage(coords, options);
-    _outstandingTileLoads[_tileCoordsToKey(coords)] = coords;
+
+    if(!_recentTilesCompleted.containsKey(coordsKey)) _outstandingTileLoads[coordsKey] = coords;
+
     newImageProvider.resolve(ImageConfiguration()).addListener(
           ImageStreamListener((info, call) {
-            _outstandingTileLoads.remove(_tileCoordsToKey(coords));
+            _recentTilesCompleted[coordsKey] = DateTime.now();
+
+            /// Check to see if this has made no outstanding tiles now
+            var prevLength = _outstandingTileLoads.length;
+            _outstandingTileLoads.remove(coordsKey);
+
+            /// If so, we'll just do a final refresh to clear out old tiles
+            /// Otherwise old tiles may hang about in front, which is bad for
+            /// transparent tiles.
+            if(_outstandingTileLoads.length == 0 && (prevLength != 0)) _handleMove();
+
           }, onError: ((e, trace) {
             print('Image not loaded, error: $e');
           })),
