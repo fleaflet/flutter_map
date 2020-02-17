@@ -697,10 +697,6 @@ class _TileLayerState extends State<TileLayer> {
   /// Only prune tiles if they are over x milliseconds old, to smooth flashes when
   /// a tile is missing
   bool _tileIsToBePruned(tile) {
-    /// We don't want to bother keeping any backup tiles if there are none outsanding
-    /////////////////////////////////if( tile.current == false && (_outstandingTileLoads.length == 0)) return true;
-
-    /// Allow a smoothing time for tiles to exist
     if ((tile.current == false) &&
         !(tile.toBePrunedTime == null) &&
         (DateTime.now().difference(tile.toBePrunedTime).inMilliseconds >
