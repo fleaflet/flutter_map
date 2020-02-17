@@ -690,7 +690,8 @@ class _TileLayerState extends State<TileLayer> {
 
   void _tidyRecentTilesCompleted() {
     /// Assume tiles may not be available locally if over a day old
-    _recentTilesCompleted.removeWhere((key,timeCompleted) => DateTime.now().difference(timeCompleted).inMinutes >= 1440);
+    _recentTilesCompleted.removeWhere((key, timeCompleted) =>
+        DateTime.now().difference(timeCompleted).inMinutes >= 1440);
   }
 
   /// Only prune tiles if they are over x milliseconds old, to smooth flashes when
@@ -716,7 +717,8 @@ class _TileLayerState extends State<TileLayer> {
     ImageProvider newImageProvider =
         options.tileProvider.getImage(coords, options);
 
-    if(!_recentTilesCompleted.containsKey(coordsKey)) _outstandingTileLoads[coordsKey] = coords;
+    if (!_recentTilesCompleted.containsKey(coordsKey))
+      _outstandingTileLoads[coordsKey] = coords;
 
     newImageProvider.resolve(ImageConfiguration()).addListener(
           ImageStreamListener((info, call) {
@@ -729,8 +731,8 @@ class _TileLayerState extends State<TileLayer> {
             /// If so, we'll just do a final refresh to clear out old tiles
             /// Otherwise old tiles may hang about in front, which is bad for
             /// transparent tiles.
-            if(_outstandingTileLoads.length == 0 && (prevLength != 0)) _handleMove();
-
+            if (_outstandingTileLoads.length == 0 && (prevLength != 0))
+              _handleMove();
           }, onError: ((e, trace) {
             print('Image not loaded, error: $e');
           })),
