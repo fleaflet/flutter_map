@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
-import 'dart:io'; /// /////////////////////////only needed for debugging...
+import 'dart:io';
+
+/// /////////////////////////only needed for debugging...
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -135,23 +137,24 @@ class TileLayerOptions extends LayerOptions {
 
   TileLayerOptions(
       {this.urlTemplate,
-        this.tileSize = 256.0,
-        this.maxZoom = 18.0,
-        this.zoomReverse = false,
-        this.zoomOffset = 0.0,
-        this.additionalOptions = const <String, String>{},
-        this.subdomains = const <String>[],
-        ///this.keepBuffer = 2, /// deprecated, see above
-        this.backgroundColor = const Color(0xFFE0E0E0),
-        this.placeholderImage,
-        this.tileProvider = const CachedNetworkTileProvider(),
-        this.tms = false,
-        // ignore: avoid_init_to_null
-        this.wmsOptions = null,
-        this.opacity = 1.0,
-        this.greedyTileCount = 0,
-        this.backupTileExpansionStrategy = const [1,2,3,-1,-2],
-        rebuild})
+      this.tileSize = 256.0,
+      this.maxZoom = 18.0,
+      this.zoomReverse = false,
+      this.zoomOffset = 0.0,
+      this.additionalOptions = const <String, String>{},
+      this.subdomains = const <String>[],
+
+      ///this.keepBuffer = 2, /// deprecated, see above
+      this.backgroundColor = const Color(0xFFE0E0E0),
+      this.placeholderImage,
+      this.tileProvider = const CachedNetworkTileProvider(),
+      this.tms = false,
+      // ignore: avoid_init_to_null
+      this.wmsOptions = null,
+      this.opacity = 1.0,
+      this.greedyTileCount = 0,
+      this.backupTileExpansionStrategy = const [1, 2, 3, -1, -2],
+      rebuild})
       : super(rebuild: rebuild);
 }
 
@@ -315,7 +318,6 @@ class _TileLayerState extends State<TileLayer> {
     _setZoomTransforms(center, zoom);
   }
 
-
   Level _updateLevels() {
     var zoom = _tileZoom;
     var maxZoom = options.maxZoom;
@@ -380,26 +382,26 @@ class _TileLayerState extends State<TileLayer> {
     _wrapX = crs.wrapLng;
     if (_wrapX != null) {
       var first =
-      (map.project(LatLng(0.0, crs.wrapLng.item1), tileZoom).x / tileSize.x)
-          .floor()
-          .toDouble();
+          (map.project(LatLng(0.0, crs.wrapLng.item1), tileZoom).x / tileSize.x)
+              .floor()
+              .toDouble();
       var second =
-      (map.project(LatLng(0.0, crs.wrapLng.item2), tileZoom).x / tileSize.y)
-          .ceil()
-          .toDouble();
+          (map.project(LatLng(0.0, crs.wrapLng.item2), tileZoom).x / tileSize.y)
+              .ceil()
+              .toDouble();
       _wrapX = Tuple2(first, second);
     }
 
     _wrapY = crs.wrapLat;
     if (_wrapY != null) {
       var first =
-      (map.project(LatLng(crs.wrapLat.item1, 0.0), tileZoom).y / tileSize.x)
-          .floor()
-          .toDouble();
+          (map.project(LatLng(crs.wrapLat.item1, 0.0), tileZoom).y / tileSize.x)
+              .floor()
+              .toDouble();
       var second =
-      (map.project(LatLng(crs.wrapLat.item2, 0.0), tileZoom).y / tileSize.y)
-          .ceil()
-          .toDouble();
+          (map.project(LatLng(crs.wrapLat.item2, 0.0), tileZoom).y / tileSize.y)
+              .ceil()
+              .toDouble();
       _wrapY = Tuple2(first, second);
     }
   }
@@ -424,7 +426,8 @@ class _TileLayerState extends State<TileLayer> {
 
     /// Just a little bit of housekeeping we don't need to run too much
     /// to keep an eye on old tiles in a completed tile check
-    if( DateTime.now().difference(_lastTileListCleanupTime) > Duration(seconds: _secondsBetweenListCleanups) ) {
+    if (DateTime.now().difference(_lastTileListCleanupTime) >
+        Duration(seconds: _secondsBetweenListCleanups)) {
       _lastTileListCleanupTime = DateTime.now();
     }
 
@@ -469,11 +472,10 @@ class _TileLayerState extends State<TileLayer> {
         /// on our expansion strategy. Example of backupTileExpansionStrategy
         /// would be [1,2,3,-1] which means if we are zoom 14, we'll check 13,
         /// then 12, 11, then 15.
-        if(_outstandingTileLoads.containsKey(_tileCoordsToKey(coords)) ||
-            !_recentTilesCompleted.containsKey(_tileCoordsToKey(coords))
-        ) {
-
+        if (_outstandingTileLoads.containsKey(_tileCoordsToKey(coords)) ||
+            !_recentTilesCompleted.containsKey(_tileCoordsToKey(coords))) {
           Coords backupCoords;
+
           /// If we've found backuptiles, we don't want to pursue any more
           var haveBackup = false;
 
@@ -486,17 +488,15 @@ class _TileLayerState extends State<TileLayer> {
             var ratio = pow(2, levelDifference);
 
             if (!haveBackup) {
-
               var extras = (1 / ratio).abs();
 
               for (var a = 0; a < extras; a++) {
                 for (var b = 0; b < extras; b++) {
-
                   var backupZoom = _tileZoom - levelDifference;
-                  if( backupZoom > options.maxZoom || backupZoom < 0) continue;
+                  if (backupZoom > options.maxZoom || backupZoom < 0) continue;
 
-                  backupCoords =
-                      Coords((i ~/ ratio + a).toDouble(), (j ~/ ratio + b).toDouble());
+                  backupCoords = Coords(
+                      (i ~/ ratio + a).toDouble(), (j ~/ ratio + b).toDouble());
                   backupCoords.z = backupZoom;
 
                   var tileKey = _tileCoordsToKey(backupCoords);
@@ -504,8 +504,7 @@ class _TileLayerState extends State<TileLayer> {
                   /// It shouldn't end up both completed && outstanding, but it
                   /// could be possible if was in cache but not any more...
                   if (_recentTilesCompleted.containsKey(tileKey) &&
-                    !_outstandingTileLoads.containsKey(tileKey)
-                  ) {
+                      !_outstandingTileLoads.containsKey(tileKey)) {
                     _backupTiles[tileKey] = Tile(backupCoords, false);
                     haveBackup = true;
                   }
@@ -538,10 +537,8 @@ class _TileLayerState extends State<TileLayer> {
       return (a.distanceTo(tileCenter) - b.distanceTo(tileCenter)).toInt();
     });
 
-
     var backupTilesToRender = <Tile>[
-      for (var tile in _backupTiles.values)
-        tile
+      for (var tile in _backupTiles.values) tile
     ];
 
     var allTilesToRender = backupTilesToRender + tilesToRender;
@@ -578,7 +575,7 @@ class _TileLayerState extends State<TileLayer> {
     if (!crs.infinite) {
       var bounds = _globalTileRange;
       if ((crs.wrapLng == null &&
-          (coords.x < bounds.min.x || coords.x > bounds.max.x)) ||
+              (coords.x < bounds.min.x || coords.x > bounds.max.x)) ||
           (crs.wrapLat == null &&
               (coords.y < bounds.min.y || coords.y > bounds.max.y))) {
         return false;
@@ -624,45 +621,45 @@ class _TileLayerState extends State<TileLayer> {
   ImageProvider _imageProviderFinishedCheck(coords, options) {
     var coordsKey = _tileCoordsToKey(coords);
     ImageProvider newImageProvider =
-    options.tileProvider.getImage(coords, options);
+        options.tileProvider.getImage(coords, options);
 
     if (!_recentTilesCompleted.containsKey(coordsKey))
       _outstandingTileLoads[coordsKey] = DateTime.now();
 
     newImageProvider.resolve(ImageConfiguration()).addListener(
-      ImageStreamListener((info, call) {
-        _recentTilesCompleted[coordsKey] = DateTime.now();
+          ImageStreamListener((info, call) {
+            _recentTilesCompleted[coordsKey] = DateTime.now();
 
-        /// Check to see if this has made no outstanding tiles now
-        var prevLength = _outstandingTileLoads.length;
-        _outstandingTileLoads.remove(coordsKey);
+            /// Check to see if this has made no outstanding tiles now
+            var prevLength = _outstandingTileLoads.length;
+            _outstandingTileLoads.remove(coordsKey);
 
-        /// If so, we'll just do a final refresh to clear out old tiles
-        /// Otherwise old tiles may hang about in front, which is bad for
-        /// transparent tiles.
-        if (_outstandingTileLoads.length == 0 && (prevLength != 0)) { /// ////       Do we want to do some tidying of the lists ??????
-        }
-      }, onError: ((e, trace) {
-        print('Image not loaded, error: $e');
-      })),
-    );
+            /// If so, we'll just do a final refresh to clear out old tiles
+            /// Otherwise old tiles may hang about in front, which is bad for
+            /// transparent tiles.
+            if (_outstandingTileLoads.length == 0 && (prevLength != 0)) {
+              /// ////       Do we want to do some tidying of the lists ??????
+            }
+          }, onError: ((e, trace) {
+            print('Image not loaded, error: $e');
+          })),
+        );
     return newImageProvider;
   }
 
   void _tidyOldTileListEntries() {
-
     /// We don't want to consider a tile outstanding forever, but it may vary
     /// We could tie it into some tileretry/timeout setting somewhere, but that
     /// may be quite tricky, so currently we'll suggest 1 day. It will get removed
     /// if the tile is tried another time and completed.
     _outstandingTileLoads.removeWhere((key, timeCompleted) =>
-    DateTime.now().difference(timeCompleted).inMinutes >= 1440);
+        DateTime.now().difference(timeCompleted).inMinutes >= 1440);
 
     /// We only want to try and use our retries within a reasonable session
     /// So we'll assume people will be fine with a reset of our retries every
     /// day
     _recentTilesCompleted.removeWhere((key, timeCompleted) =>
-      DateTime.now().difference(timeCompleted).inMinutes >= 1440);
+        DateTime.now().difference(timeCompleted).inMinutes >= 1440);
   }
 
   Coords _wrapCoords(Coords coords) {
@@ -683,7 +680,6 @@ class _TileLayerState extends State<TileLayer> {
     return coords.scaleBy(getTileSize()) - level.origin;
   }
 }
-
 
 class Tile {
   final Coords coords;
