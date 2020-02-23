@@ -1,8 +1,5 @@
 import 'dart:async';
 import 'dart:math';
-import 'dart:io';
-
-/// /////////////////////////only needed for debugging...
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -487,11 +484,13 @@ class _TileLayerState extends State<TileLayer> {
           options.backupTileExpansionStrategy.forEach((levelDifference) {
             var ratio = pow(2, levelDifference);
 
+            /// If we need covering tiles from a higher zoom we may need
+            /// several tiles to cover each 'larger' tile, extraTileFactor.
             if (!haveBackup) {
-              var extras = (1 / ratio).abs();
+              var extraTileFactor = (1 / ratio).abs();
 
-              for (var a = 0; a < extras; a++) {
-                for (var b = 0; b < extras; b++) {
+              for (var a = 0; a < extraTileFactor; a++) {
+                for (var b = 0; b < extraTileFactor; b++) {
                   var backupZoom = _tileZoom - levelDifference;
                   if (backupZoom > options.maxZoom || backupZoom < 0) continue;
 
