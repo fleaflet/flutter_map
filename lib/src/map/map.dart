@@ -272,7 +272,7 @@ class MapState {
   }
 
   Bounds getPixelBounds(double zoom) {
-    var mapZoom = this.zoom;
+    var mapZoom = this.zoom; 
     var scale = getZoomScale(mapZoom, zoom);
     var pixelCenter = project(center, zoom).floor();
     var halfSize = size / (scale * 2);
