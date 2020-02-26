@@ -149,7 +149,7 @@ class TileLayerOptions extends LayerOptions {
       // ignore: avoid_init_to_null
       this.wmsOptions = null,
       this.opacity = 1.0,
-      this.greedyTileCount = 0,
+      this.greedyTileCount = 1,
       this.backupTileExpansionStrategy = const [1, 2, 3, -1, -2],
       rebuild})
       : super(rebuild: rebuild);
