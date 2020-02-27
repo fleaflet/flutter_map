@@ -5,7 +5,7 @@ import 'package:proj4dart/proj4dart.dart' as proj4;
 
 import '../widgets/drawer.dart';
 
-class CustomCrsPage extends StatelessWidget {
+class CustomCrsPage extends StatefulWidget {
   static const String route = 'custom_crs';
 
   /// EPSG:4326 is a predefined projection ships with proj4dart
@@ -22,45 +22,57 @@ class CustomCrsPage extends StatelessWidget {
     512,
     256,
     128,
-    64,
-    32,
-    16,
-    8,
-    4,
-    2,
-    1,
-    0.5,
-    0.25,
-    0.125
   ];
-  final double maxZoom = (resolutions.length - 1).toDouble();
 
-  // Define the CRS
+  @override
+  _CustomCrsPageState createState() => _CustomCrsPageState();
+}
+
+class _CustomCrsPageState extends State<CustomCrsPage> {
+  var point = proj4.Point(x: 65.05166470332148, y: -19.171744826394896);
+  var initText = 'Map centered to';
+  final double maxZoom = (CustomCrsPage.resolutions.length - 1).toDouble();
+
   final Proj4Crs epsg3413CRS = Proj4Crs.fromFactory(
-      code: 'EPSG:3413', proj4Projection: epsg3413, resolutions: resolutions);
+      code: 'EPSG:3413',
+      proj4Projection: CustomCrsPage.epsg3413,
+      resolutions: CustomCrsPage.resolutions);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Custom CRS (EPSG:3413)')),
-      drawer: buildDrawer(context, route),
+      drawer: buildDrawer(context, CustomCrsPage.route),
       body: Padding(
         padding: EdgeInsets.all(8.0),
         child: Column(
           children: [
             Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child:
-                  Text('This is a map that is showing (64.75777, -18.46302).'),
+              child: Text(
+                  '$initText (${point.x.toStringAsFixed(5)}, ${point.y.toStringAsFixed(5)}) in EPSG:4326.'),
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+              child: Text(
+                  'Which is (${CustomCrsPage.epsg4326.transform(CustomCrsPage.epsg3413, point).x.toStringAsFixed(2)}, ${CustomCrsPage.epsg4326.transform(CustomCrsPage.epsg3413, point).y.toStringAsFixed(2)}) in EPSG:3413.'),
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+              child: Text('Tap on map to get more coordinates!'),
             ),
             Flexible(
               child: FlutterMap(
                 options: MapOptions(
                   // Set the default CRS
                   crs: epsg3413CRS,
-                  center: LatLng(64.75777213671648, -18.463028416855547),
+                  center: LatLng(point.x, point.y),
                   zoom: 1.0,
                   maxZoom: maxZoom,
+                  onTap: (p) => setState(() {
+                    initText = 'You clicked at';
+                    point = proj4.Point(x: p.latitude, y: p.longitude);
+                  }),
                 ),
                 layers: [
                   TileLayerOptions(
