@@ -135,7 +135,9 @@ class PolygonPainter extends CustomPainter {
     }
     final rect = Offset.zero & size;
     _paintPolygon(canvas, rect);
+  }
 
+  void _paintBorder(Canvas canvas) {
     if (polygonOpt.borderStrokeWidth > 0.0) {
       var borderRadius = (polygonOpt.borderStrokeWidth / 2);
 
@@ -201,9 +203,11 @@ class PolygonPainter extends CustomPainter {
   }
 
   void _paintPolygon(Canvas canvas, Rect rect) {
+    final paint = Paint();
+
     if (null != polygonOpt.holeOffsetsList) {
-      canvas.saveLayer(rect, Paint());
-      final paint = Paint()..style = PaintingStyle.fill;
+      canvas.saveLayer(rect, paint);
+      paint.style = PaintingStyle.fill;
 
       for (var offsets in polygonOpt.holeOffsetsList) {
         var path = Path();
@@ -219,16 +223,20 @@ class PolygonPainter extends CustomPainter {
       path.addPolygon(polygonOpt.offsets, true);
       canvas.drawPath(path, paint);
 
+      _paintBorder(canvas);
+
       canvas.restore();
     } else {
       canvas.clipRect(rect);
-      final paint = Paint()
+      paint
         ..style = PaintingStyle.fill
         ..color = polygonOpt.color;
 
       var path = Path();
       path.addPolygon(polygonOpt.offsets, true);
       canvas.drawPath(path, paint);
+
+      _paintBorder(canvas);
     }
   }
 
