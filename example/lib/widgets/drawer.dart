@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../pages/animated_map_controller.dart';
 
+import '../pages/animated_map_controller.dart';
 import '../pages/circle.dart';
+import '../pages/custom_crs.dart';
 import '../pages/esri.dart';
 import '../pages/home.dart';
 import '../pages/map_controller.dart';
@@ -39,6 +40,13 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           selected: currentRoute == WMSLayerPage.route,
           onTap: () {
             Navigator.pushReplacementNamed(context, WMSLayerPage.route);
+          },
+        ),
+        ListTile(
+          title: const Text('Custom CRS'),
+          selected: currentRoute == CustomCrsPage.route,
+          onTap: () {
+            Navigator.pushReplacementNamed(context, CustomCrsPage.route);
           },
         ),
         ListTile(
