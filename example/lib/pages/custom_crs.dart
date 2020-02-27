@@ -53,7 +53,7 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Custom CRS (EPSG:3413)')),
+      appBar: AppBar(title: Text('Custom CRS')),
       drawer: buildDrawer(context, CustomCrsPage.route),
       body: Padding(
         padding: EdgeInsets.all(8.0),
