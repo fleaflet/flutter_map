@@ -194,6 +194,7 @@ class Proj4Crs extends Crs {
   factory Proj4Crs.fromFactory({
     @required String code,
     @required proj4.Projection proj4Projection,
+    Transformation transformation,
     List<CustomPoint> origins,
     Bounds<double> bounds,
     List<double> scales,
@@ -201,7 +202,6 @@ class Proj4Crs extends Crs {
   }) {
     final Projection projection =
         Proj4Projection(proj4Projection: proj4Projection, bounds: bounds);
-    Transformation transformation;
     List<Transformation> transformations;
     var infinite = null == bounds;
     List<double> finalScales;
@@ -216,7 +216,7 @@ class Proj4Crs extends Crs {
     }
 
     if (null == origins || origins.isEmpty) {
-      transformation = Transformation(1, 0, -1, 0);
+      transformation ??= Transformation(1, 0, -1, 0);
     } else {
       if (origins.length == 1) {
         var origin = origins[0];
