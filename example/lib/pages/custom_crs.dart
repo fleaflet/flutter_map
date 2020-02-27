@@ -8,6 +8,11 @@ import '../widgets/drawer.dart';
 class CustomCrsPage extends StatefulWidget {
   static const String route = 'custom_crs';
 
+  @override
+  _CustomCrsPageState createState() => _CustomCrsPageState();
+}
+
+class _CustomCrsPageState extends State<CustomCrsPage> {
   /// EPSG:4326 is a predefined projection ships with proj4dart
   static final proj4.Projection epsg4326 = proj4.Projection('EPSG:4326');
 
@@ -23,20 +28,15 @@ class CustomCrsPage extends StatefulWidget {
     256,
     128,
   ];
+  final double maxZoom = (resolutions.length - 1).toDouble();
 
-  @override
-  _CustomCrsPageState createState() => _CustomCrsPageState();
-}
+  // Define CRS
+  final Proj4Crs epsg3413CRS = Proj4Crs.fromFactory(
+      code: 'EPSG:3413', proj4Projection: epsg3413, resolutions: resolutions);
 
-class _CustomCrsPageState extends State<CustomCrsPage> {
+  // Define start center
   var point = proj4.Point(x: 65.05166470332148, y: -19.171744826394896);
   var initText = 'Map centered to';
-  final double maxZoom = (CustomCrsPage.resolutions.length - 1).toDouble();
-
-  final Proj4Crs epsg3413CRS = Proj4Crs.fromFactory(
-      code: 'EPSG:3413',
-      proj4Projection: CustomCrsPage.epsg3413,
-      resolutions: CustomCrsPage.resolutions);
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +55,7 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
             Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
               child: Text(
-                  'Which is (${CustomCrsPage.epsg4326.transform(CustomCrsPage.epsg3413, point).x.toStringAsFixed(2)}, ${CustomCrsPage.epsg4326.transform(CustomCrsPage.epsg3413, point).y.toStringAsFixed(2)}) in EPSG:3413.'),
+                  'Which is (${epsg4326.transform(epsg3413, point).x.toStringAsFixed(2)}, ${epsg4326.transform(epsg3413, point).y.toStringAsFixed(2)}) in EPSG:3413.'),
             ),
             Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
