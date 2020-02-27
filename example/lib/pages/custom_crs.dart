@@ -48,17 +48,28 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+              padding: EdgeInsets.only(top: 8.0, bottom: 2.0),
+              child: Text(
+                'This map is in EPSG:3413',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue,
+                  fontSize: 16.0,
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: 8.0, bottom: 2.0),
               child: Text(
                   '$initText (${point.x.toStringAsFixed(5)}, ${point.y.toStringAsFixed(5)}) in EPSG:4326.'),
             ),
             Padding(
-              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+              padding: EdgeInsets.only(top: 2.0, bottom: 2.0),
               child: Text(
                   'Which is (${epsg4326.transform(epsg3413, point).x.toStringAsFixed(2)}, ${epsg4326.transform(epsg3413, point).y.toStringAsFixed(2)}) in EPSG:3413.'),
             ),
             Padding(
-              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+              padding: EdgeInsets.only(top: 2.0, bottom: 8.0),
               child: Text('Tap on map to get more coordinates!'),
             ),
             Flexible(
