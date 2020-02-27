@@ -8,10 +8,11 @@ import '../widgets/drawer.dart';
 class CustomCrsPage extends StatelessWidget {
   static const String route = 'custom_crs';
 
-  /// Define projections
   /// EPSG:4326 is a predefined projection ships with proj4dart
-  /// EPSG:3413 is a user-defined projection from a valid Proj4 definition string
   static final proj4.Projection epsg4326 = proj4.Projection('EPSG:4326');
+
+  /// EPSG:3413 is a user-defined projection from a valid Proj4 definition string
+  /// From: http://epsg.io/3413, proj definition: http://epsg.io/3413.proj4
   static final proj4.Projection epsg3413 = proj4.Projection.add('EPSG:3413',
       '+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs');
   static final List<double> resolutions = [
