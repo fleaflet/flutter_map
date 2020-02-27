@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong/latlong.dart';
-import 'package:flutter_map/src/core/bounds.dart';
 import 'package:proj4dart/proj4dart.dart' as proj4;
 
 import '../widgets/drawer.dart';
@@ -14,41 +14,72 @@ class CustomCrsPage extends StatefulWidget {
 }
 
 class _CustomCrsPageState extends State<CustomCrsPage> {
-  /// EPSG:4326 is a predefined projection ships with proj4dart
-  static final proj4.Projection epsg4326 = proj4.Projection('EPSG:4326');
+  Proj4Crs epsg3413CRS;
 
-  /// EPSG:3413 is a user-defined projection from a valid Proj4 definition string
-  /// From: http://epsg.io/3413, proj definition: http://epsg.io/3413.proj4
-  static final proj4.Projection epsg3413 = proj4.Projection.add('EPSG:3413',
-      '+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs');
-  static final List<double> resolutions = [
-    16384,
-    8192,
-    4096,
-    2048,
-    1024,
-    512,
-    256,
-    128,
-  ];
-  // Bounds for CRS
-  static final Bounds<double> epsg3413Bounds = Bounds<double>(
-    CustomPoint<double>(-4511619.0, -4511336.0),
-    CustomPoint<double>(4510883.0, 4510996.0),
-  );
-  final double maxZoom = (resolutions.length - 1).toDouble();
-
-  // Define CRS
-  final Proj4Crs epsg3413CRS = Proj4Crs.fromFactory(
-    code: 'EPSG:3413',
-    proj4Projection: epsg3413,
-    resolutions: resolutions,
-    bounds: epsg3413Bounds,
-  );
+  double maxZoom;
 
   // Define start center
-  var point = proj4.Point(x: 65.05166470332148, y: -19.171744826394896);
-  var initText = 'Map centered to';
+  proj4.Point point = proj4.Point(x: 65.05166470332148, y: -19.171744826394896);
+
+  String initText = 'Map centered to';
+
+  proj4.Projection epsg4326;
+
+  proj4.Projection epsg3413;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // EPSG:4326 is a predefined projection ships with proj4dart
+    epsg4326 = proj4.Projection('EPSG:4326');
+
+    // EPSG:3413 is a user-defined projection from a valid Proj4 definition string
+    // From: http://epsg.io/3413, proj definition: http://epsg.io/3413.proj4
+    epsg3413 = proj4.Projection.add('EPSG:3413',
+        '+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs');
+
+    final resolutions = <double>[
+      32768,
+      16384,
+      8192,
+      4096,
+      2048,
+      1024,
+      512,
+      256,
+      128,
+    ];
+
+    final epsg3413Bounds = Bounds<double>(
+      CustomPoint<double>(-4511619.0, -4511336.0),
+      CustomPoint<double>(4510883.0, 4510996.0),
+    );
+
+    maxZoom = (resolutions.length - 1).toDouble();
+
+    // Define CRS
+    epsg3413CRS = Proj4Crs.fromFactory(
+      // CRS code
+      code: 'EPSG:3413',
+      // your proj4 delegate
+      proj4Projection: epsg3413,
+      // Resolution factors (projection units per pixel, for example meters/pixel)
+      // for zoom levels; specify either scales or resolutions, not both
+      resolutions: resolutions,
+      // Bounds for CRS (if not specified layer's which uses this CRS will be infinite)
+      bounds: epsg3413Bounds,
+      // Tile origin, in projected coordinates
+      // some goeserver changes origin based on zoom level and some are not at all (use null)
+      // @see https://github.com/kartena/Proj4Leaflet/pull/171
+      origins: null,
+      // Scale factors (pixels per projection unit, for example pixels/meter) for zoom levels;
+      // specify either scales or resolutions, not both
+      scales: null,
+      // The transformation to use when transforming projected coordinates into pixel coordinates
+      transformation: null,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,12 +104,14 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
             Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 2.0),
               child: Text(
-                  '$initText (${point.x.toStringAsFixed(5)}, ${point.y.toStringAsFixed(5)}) in EPSG:4326.'),
+                '$initText (${point.x.toStringAsFixed(5)}, ${point.y.toStringAsFixed(5)}) in EPSG:4326.',
+              ),
             ),
             Padding(
               padding: EdgeInsets.only(top: 2.0, bottom: 2.0),
               child: Text(
-                  'Which is (${epsg4326.transform(epsg3413, point).x.toStringAsFixed(2)}, ${epsg4326.transform(epsg3413, point).y.toStringAsFixed(2)}) in EPSG:3413.'),
+                'Which is (${epsg4326.transform(epsg3413, point).x.toStringAsFixed(2)}, ${epsg4326.transform(epsg3413, point).y.toStringAsFixed(2)}) in EPSG:3413.',
+              ),
             ),
             Padding(
               padding: EdgeInsets.only(top: 2.0, bottom: 8.0),
@@ -91,6 +124,7 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
                   crs: epsg3413CRS,
                   center: LatLng(point.x, point.y),
                   zoom: 3.0,
+                  // Set maxZoom usually scales / resolutions.length - 1
                   maxZoom: maxZoom,
                   onTap: (p) => setState(() {
                     initText = 'You clicked at';
