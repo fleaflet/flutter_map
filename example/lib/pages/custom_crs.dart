@@ -39,6 +39,7 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
     epsg3413 = proj4.Projection.add('EPSG:3413',
         '+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs');
 
+    // 9 example zoom level resolutions
     final resolutions = <double>[
       32768,
       16384,
@@ -67,12 +68,14 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
       // Resolution factors (projection units per pixel, for example meters/pixel)
       // for zoom levels; specify either scales or resolutions, not both
       resolutions: resolutions,
-      // Bounds for CRS (if not specified layer's which uses this CRS will be infinite)
+      // Bounds of the CRS, in projected coordinates
+      // (if not specified, the layer's which uses this CRS will be infinite)
       bounds: epsg3413Bounds,
-      // Tile origin, in projected coordinates
-      // some goeserver changes origin based on zoom level and some are not at all (use null)
+      // Tile origin, in projected coordinates, if set, this overrides the transformation option
+      // Some goeserver changes origin based on zoom level
+      // and some are not at all (use explicit/implicit null or use [CustomPoint(0, 0)])
       // @see https://github.com/kartena/Proj4Leaflet/pull/171
-      origins: null,
+      origins: [CustomPoint(0, 0)],
       // Scale factors (pixels per projection unit, for example pixels/meter) for zoom levels;
       // specify either scales or resolutions, not both
       scales: null,
@@ -124,7 +127,8 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
                   crs: epsg3413CRS,
                   center: LatLng(point.x, point.y),
                   zoom: 3.0,
-                  // Set maxZoom usually scales / resolutions.length - 1
+                  // Set maxZoom usually scales.length - 1 OR resolutions.length - 1
+                  // but not greater
                   maxZoom: maxZoom,
                   onTap: (p) => setState(() {
                     initText = 'You clicked at';

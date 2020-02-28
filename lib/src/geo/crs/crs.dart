@@ -224,6 +224,7 @@ class Proj4Crs extends Crs {
       } else {
         transformations =
             origins.map((p) => Transformation(1, -p.x, -1, p.y)).toList();
+        transformation = null;
       }
     }
 
