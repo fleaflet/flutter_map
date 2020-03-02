@@ -1,11 +1,11 @@
 import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart';
-import 'package:tuple/tuple.dart';
-import 'package:latlong/latlong.dart';
 import 'package:flutter_map/src/core/bounds.dart';
-
 import 'package:flutter_map/src/core/point.dart';
+import 'package:latlong/latlong.dart';
+import 'package:proj4dart/proj4dart.dart' as proj4;
+import 'package:tuple/tuple.dart';
 
 /// An abstract representation of a
 /// [Coordinate Reference System](https://docs.qgis.org/testing/en/docs/gentle_gis_introduction/coordinate_reference_systems.html).
@@ -152,6 +152,200 @@ class Epsg4326 extends Earth {
         super();
 }
 
+/// Custom CRS
+class Proj4Crs extends Crs {
+  @override
+  String code;
+
+  @override
+  final Projection projection;
+
+  @override
+  final Transformation transformation;
+
+  @override
+  bool infinite;
+
+  @override
+  Tuple2<double, double> get wrapLat => null;
+
+  @override
+  Tuple2<double, double> get wrapLng => null;
+
+  final List<Transformation> _transformations;
+
+  final List<double> _scales;
+
+  Proj4Crs({
+    @required this.code,
+    @required this.projection,
+    @required this.transformation,
+    @required this.infinite,
+    @required List<Transformation> transformations,
+    @required List<double> scales,
+  })  : assert(null != code),
+        assert(null != projection),
+        assert(null != transformation || null != transformations),
+        assert(null != infinite),
+        assert(null != scales),
+        _transformations = transformations,
+        _scales = scales;
+
+  factory Proj4Crs.fromFactory({
+    @required String code,
+    @required proj4.Projection proj4Projection,
+    Transformation transformation,
+    List<CustomPoint> origins,
+    Bounds<double> bounds,
+    List<double> scales,
+    List<double> resolutions,
+  }) {
+    final Projection projection =
+        Proj4Projection(proj4Projection: proj4Projection, bounds: bounds);
+    List<Transformation> transformations;
+    var infinite = null == bounds;
+    List<double> finalScales;
+
+    if (null != scales && scales.isNotEmpty) {
+      finalScales = scales;
+    } else if (null != resolutions && resolutions.isNotEmpty) {
+      finalScales = resolutions.map((r) => 1 / r).toList(growable: false);
+    } else {
+      throw Exception(
+          'Please provide scales or resolutions to determine scales');
+    }
+
+    if (null == origins || origins.isEmpty) {
+      transformation ??= Transformation(1, 0, -1, 0);
+    } else {
+      if (origins.length == 1) {
+        var origin = origins[0];
+        transformation = Transformation(1, -origin.x, -1, origin.y);
+      } else {
+        transformations =
+            origins.map((p) => Transformation(1, -p.x, -1, p.y)).toList();
+        transformation = null;
+      }
+    }
+
+    return Proj4Crs(
+      code: code,
+      projection: projection,
+      transformation: transformation,
+      infinite: infinite,
+      transformations: transformations,
+      scales: finalScales,
+    );
+  }
+
+  /// Converts a point on the sphere surface (with a certain zoom) in a
+  /// map point.
+  @override
+  CustomPoint latLngToPoint(LatLng latlng, double zoom) {
+    try {
+      var projectedPoint = projection.project(latlng);
+      var scale = this.scale(zoom);
+      var transformation = _getTransformationByZoom(zoom);
+
+      return transformation.transform(projectedPoint, scale.toDouble());
+    } catch (e) {
+      return CustomPoint(0.0, 0.0);
+    }
+  }
+
+  /// Converts a map point to the sphere coordinate (at a certain zoom).
+  @override
+  LatLng pointToLatLng(CustomPoint point, double zoom) {
+    var scale = this.scale(zoom);
+    var transformation = _getTransformationByZoom(zoom);
+
+    var untransformedPoint =
+        transformation.untransform(point, scale.toDouble());
+    try {
+      return projection.unproject(untransformedPoint);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Rescales the bounds to a given zoom value.
+  @override
+  Bounds getProjectedBounds(double zoom) {
+    if (infinite) return null;
+
+    var b = projection.bounds;
+    var s = scale(zoom);
+
+    var transformation = _getTransformationByZoom(zoom);
+
+    var min = transformation.transform(b.min, s.toDouble());
+    var max = transformation.transform(b.max, s.toDouble());
+    return Bounds(min, max);
+  }
+
+  /// Zoom to Scale function.
+  @override
+  num scale(double zoom) {
+    var iZoom = zoom.floor();
+    if (zoom == iZoom) {
+      return _scales[iZoom];
+    } else {
+      // Non-integer zoom, interpolate
+      var baseScale = _scales[iZoom];
+      var nextScale = _scales[iZoom + 1];
+      var scaleDiff = nextScale - baseScale;
+      var zDiff = (zoom - iZoom);
+      return baseScale + scaleDiff * zDiff;
+    }
+  }
+
+  /// Scale to Zoom function.
+  @override
+  num zoom(double scale) {
+    // Find closest number in this._scales, down
+    var downScale = _closestElement(_scales, scale);
+    var downZoom = _scales.indexOf(downScale);
+    // Check if scale is downScale => return array index
+    if (scale == downScale) {
+      return downZoom;
+    }
+    if (downScale == null) {
+      return double.negativeInfinity;
+    }
+    // Interpolate
+    var nextZoom = downZoom + 1;
+    var nextScale = _scales[nextZoom];
+    if (nextScale == null) {
+      return double.infinity;
+    }
+    var scaleDiff = nextScale - downScale;
+    return (scale - downScale) / scaleDiff + downZoom;
+  }
+
+  /// Get the closest lowest element in an array
+  double _closestElement(List<double> array, double element) {
+    var low;
+    for (var i = array.length - 1; i >= 0; i--) {
+      if (array[i] <= element && (null == low || low < array[i])) {
+        low = array[i];
+      }
+    }
+    return low;
+  }
+
+  /// returns Transformation object based on zoom
+  Transformation _getTransformationByZoom(double zoom) {
+    if (null == _transformations) {
+      return transformation;
+    }
+
+    var iZoom = zoom.floor();
+    var lastIdx = _transformations.length - 1;
+
+    return _transformations[iZoom > lastIdx ? lastIdx : iZoom];
+  }
+}
+
 abstract class Projection {
   const Projection();
 
@@ -234,6 +428,36 @@ class SphericalMercator extends Projection {
         inclusiveLat(
             (2 * math.atan(math.exp(point.y / r)) - (math.pi / 2)) * d),
         inclusiveLng(point.x * d / r));
+  }
+}
+
+class Proj4Projection extends Projection {
+  final proj4.Projection epsg4326;
+
+  final proj4.Projection proj4Projection;
+
+  @override
+  final Bounds<double> bounds;
+
+  Proj4Projection({
+    @required this.proj4Projection,
+    @required this.bounds,
+  }) : epsg4326 = proj4.Projection('EPSG:4326');
+
+  @override
+  CustomPoint project(LatLng latlng) {
+    var point = epsg4326.transform(
+        proj4Projection, proj4.Point(x: latlng.longitude, y: latlng.latitude));
+
+    return CustomPoint(point.x, point.y);
+  }
+
+  @override
+  LatLng unproject(CustomPoint point) {
+    var point2 = proj4Projection.transform(
+        epsg4326, proj4.Point(x: point.x, y: point.y));
+
+    return LatLng(inclusiveLat(point2.y), inclusiveLng(point2.x));
   }
 }
 

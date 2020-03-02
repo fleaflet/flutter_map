@@ -22,6 +22,7 @@ dependencies:
   sqflite: ^1.1.5
   path_provider: ^1.5.1
   vector_math: ^2.0.0
+  proj4dart: ^1.0.0
 
 dev_dependencies:
   pedantic: ^1.8.0
