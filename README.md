@@ -124,9 +124,46 @@ Widget build(BuildContext context) {
 
 ### Custom CRS
 
-By default flutter_map supports only WGS84 (EPSG:4326) and Google Mercator (EPSG:3857) projections. With the integration of [proj4dart](https://github.com/maRci002/proj4dart) a map with any custom coordinate reference systems (CRS) can be defined and used.
+By default flutter_map supports only WGS84 (EPSG:4326) and Google Mercator (EPSG:3857) projections. With the integration of [proj4dart](https://github.com/maRci002/proj4dart) any coordinate reference systems (CRS) can be defined and used. For more details visit [Custom CRS demo page](./example/lib/pages/custom_crs/Readme.md).
 
-### Run the example
+Define custom CRS:
+
+```dart
+var resolutions = <double>[32768, 16384, 8192, 4096, 2048, 1024, 512, 256, 128];
+var maxZoom = (resolutions.length - 1).toDouble();
+
+var epsg3413CRS = Proj4Crs.fromFactory(
+  code: 'EPSG:3413',
+  proj4Projection:
+      proj4.Projection.add('EPSG:3413', '+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs'),
+  resolutions: resolutions
+);
+```
+
+Use Custom CRS in map and in WMS layers:
+
+```dart
+child: FlutterMap(
+  options: MapOptions(
+    // Set the map's CRS
+    crs: epsg3413CRS,
+    center: LatLng(65.05166470332148, -19.171744826394896),
+    maxZoom: maxZoom,
+  ),
+  layers: [
+    TileLayerOptions(
+      wmsOptions: WMSTileLayerOptions(
+        // Set the WMS layer's CRS too
+        crs: epsg3413CRS,
+        baseUrl: 'https://www.gebco.net/data_and_products/gebco_web_services/north_polar_view_wms/mapserv?',
+        layers: ['gebco_north_polar_view'],
+      ),
+    ),
+  ],
+);
+```
+
+## Run the example
 
 See the `example/` folder for a working example app.
 
