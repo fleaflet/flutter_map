@@ -163,16 +163,20 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
               child: FlutterMap(
                 mapController: mapController,
                 options: MapOptions(
-                    center: LatLng(51.5, -0.09),
-                    zoom: 5.0,
-                    maxZoom: 10.0,
-                    minZoom: 3.0),
+                  center: LatLng(51.5, -0.09),
+                  zoom: 5.0,
+                  maxZoom: 10.0,
+                  minZoom: 3.0,
+                ),
                 layers: [
-                  TileLayerOptions(
+                  TileLayerWidget(
+                    options: TileLayerOptions(
                       urlTemplate:
                           'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      subdomains: ['a', 'b', 'c']),
-                  MarkerLayerOptions(markers: markers)
+                      subdomains: ['a', 'b', 'c'],
+                    ),
+                  ),
+                  MarkerLayerWidget(markers: markers)
                 ],
               ),
             ),

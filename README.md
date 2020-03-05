@@ -27,30 +27,33 @@ Ensure the following permission is present in your Android Manifest file, locate
 Configure the map using `MapOptions` and layer options:
 
 ```dart
-Widget build(BuildContext context) {
-  return new FlutterMap(
-    options: new MapOptions(
-      center: new LatLng(51.5, -0.09),
-      zoom: 13.0,
-    ),
-    layers: [
-      new TileLayerOptions(
-        urlTemplate: "https://api.tiles.mapbox.com/v4/"
-            "{id}/{z}/{x}/{y}@2x.png?access_token={accessToken}",
-        additionalOptions: {
-          'accessToken': '<PUT_ACCESS_TOKEN_HERE>',
-          'id': 'mapbox.streets',
-        },
+  Widget build(BuildContext context) {
+    return FlutterMap(
+      options: MapOptions(
+        center: LatLng(51.5, -0.09),
+        zoom: 13.0,
       ),
-      new MarkerLayerOptions(
-        markers: [
-          new Marker(
-            width: 80.0,
-            height: 80.0,
-            point: new LatLng(51.5, -0.09),
-            builder: (ctx) =>
-            new Container(
-              child: new FlutterLogo(),
+      layers: [
+        TileLayerWidget(
+          options: TileLayerOptions(
+            urlTemplate: "https://api.tiles.mapbox.com/v4/"
+                "{id}/{z}/{x}/{y}@2x.png?access_token={accessToken}",
+            additionalOptions: {
+              'accessToken': '<PUT_ACCESS_TOKEN_HERE>',
+              'id': 'mapbox.streets',
+            },
+          ),
+        )
+        MarkerLayerWidget(
+          markers: [
+            Marker(
+              width: 80.0,
+              height: 80.0,
+              point: LatLng(51.5, -0.09),
+              builder: (ctx) =>
+              Container(
+                child: FlutterLogo(),
+              ),
             ),
           ),
         ],
@@ -66,27 +69,30 @@ Configure the map to use [Azure Maps](https://azure.com/maps) by using the follo
 
 ```dart
 Widget build(BuildContext context) {
-  return new FlutterMap(
-    options: new MapOptions(
-      center: new LatLng(51.5, -0.09),
-      zoom: 13.0,
-    ),
-    layers: [
-      new TileLayerOptions(
-        urlTemplate: "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style=main&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
-        additionalOptions: {
-          'subscriptionKey': '<YOUR_AZURE_MAPS_SUBSCRIPTON_KEY>'
-        },
+    return FlutterMap(
+      options: MapOptions(
+        center: LatLng(51.5, -0.09),
+        zoom: 13.0,
       ),
-      new MarkerLayerOptions(
-        markers: [
-          new Marker(
-            width: 80.0,
-            height: 80.0,
-            point: new LatLng(51.5, -0.09),
-            builder: (ctx) =>
-            new Container(
-              child: new FlutterLogo(),
+      layers: [
+        TileLayerWidget(
+          options: TileLayerOptions(
+            urlTemplate: "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style=main&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
+            additionalOptions: {
+              'subscriptionKey': '<YOUR_AZURE_MAPS_SUBSCRIPTON_KEY>'
+            },
+          ),
+        ),
+        MarkerLayerWidget(
+          markers: [
+            Marker(
+              width: 80.0,
+              height: 80.0,
+              point: LatLng(51.5, -0.09),
+              builder: (ctx) =>
+              Container(
+                child: FlutterLogo(),
+              ),
             ),
           ),
         ],
@@ -104,25 +110,28 @@ Configure the map to use [Open Street Map](https://openstreetmap.org) by using t
 
 ```dart
 Widget build(BuildContext context) {
-  return new FlutterMap(
-    options: new MapOptions(
-      center: new LatLng(51.5, -0.09),
-      zoom: 13.0,
-    ),
-    layers: [
-      new TileLayerOptions(
-        urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        subdomains: ['a', 'b', 'c']
+    return FlutterMap(
+      options: MapOptions(
+        center: LatLng(51.5, -0.09),
+        zoom: 13.0,
       ),
-      new MarkerLayerOptions(
-        markers: [
-          new Marker(
-            width: 80.0,
-            height: 80.0,
-            point: new LatLng(51.5, -0.09),
-            builder: (ctx) =>
-            new Container(
-              child: new FlutterLogo(),
+      layers: [
+        TileLayerWidget(
+          options: TileLayerOptions(
+            urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            subdomains: ['a', 'b', 'c']
+          ),
+        )
+        MarkerLayerWidget(
+          markers: [
+            Marker(
+              width: 80.0,
+              height: 80.0,
+              point: LatLng(51.5, -0.09),
+              builder: (ctx) =>
+              Container(
+                child: FlutterLogo(),
+              ),
             ),
           ),
         ],
@@ -199,10 +208,12 @@ Widget build(ctx) {
       nePanBoundary: LatLng(56.7378, 11.6644),
     ),
     layers: [
-      TileLayerOptions(
-        tileProvider: AssetTileProvider(),
-        urlTemplate: "assets/offlineMap/{z}/{x}/{y}.png",
-      ),
+      TileLayerWidget(
+        options: TileLayerOptions(
+          tileProvider: AssetTileProvider(),
+          urlTemplate: "assets/offlineMap/{z}/{x}/{y}.png",
+        ),
+      )
     ],
   );
 }
@@ -215,6 +226,33 @@ Note that there is also `FileTileProvider()`, which you can use to load tiles fr
 
 ## Plugins
 
+Can create widget/plugin
+
+```dart
+class DisplayCenterWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    // Access to mapState
+    var mapState = MapStateInheritedWidget.of(context).mapState;
+
+    var style = TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 24.0,
+        color: Colors.yellow,
+        backgroundColor: Colors.black);
+
+    return Center(
+      child: Text(
+        'Lat=${mapState.center.latitude} Lng=${mapState.center.longitude}',
+        style: style,
+      ),
+    );
+  }
+}
+```
+ 
+
+__Old available plugins (need to be updated)__
 - [flutter_map_marker_cluster](https://github.com/lpongetti/flutter_map_marker_cluster): Provides Beautiful Animated Marker Clustering functionality
 - [user_location](https://github.com/igaurab/user_location_plugin): A plugin to handle and plot the current user location in FlutterMap
 - [flutter_map_tappable_polyline](https://github.com/OwnWeb/flutter_map_tappable_polyline): A plugin to add `onTap` callback to `Polyline`

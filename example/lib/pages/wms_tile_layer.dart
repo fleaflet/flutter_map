@@ -26,11 +26,14 @@ class WMSLayerPage extends StatelessWidget {
                   zoom: 6.0,
                 ),
                 layers: [
-                  TileLayerOptions(
+                  TileLayerWidget(
+                    options: TileLayerOptions(
                       wmsOptions: WMSTileLayerOptions(
-                    baseUrl: 'http://maps.heigit.org/osm-wms/service?',
-                    layers: ['europe_wms:hs_srtm_europa'],
-                  ))
+                        baseUrl: 'http://maps.heigit.org/osm-wms/service?',
+                        layers: ['europe_wms:hs_srtm_europa'],
+                      ),
+                    ),
+                  )
                 ],
               ),
             ),

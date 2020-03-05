@@ -4,12 +4,6 @@ import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
 
-class MarkerLayerOptions extends LayerOptions {
-  final List<Marker> markers;
-  MarkerLayerOptions({this.markers = const [], rebuild})
-      : super(rebuild: rebuild);
-}
-
 class Anchor {
   final double left;
   final double top;
@@ -87,60 +81,60 @@ class Marker {
   }) : anchor = Anchor.forPos(anchorPos, width, height);
 }
 
-class MarkerLayer extends StatelessWidget {
-  final MarkerLayerOptions markerOpts;
-  final MapState map;
-  final Stream<Null> stream;
+class MarkerLayerWidget extends StatelessWidget {
+  final List<Marker> markers;
 
-  MarkerLayer(this.markerOpts, this.map, this.stream);
+  MarkerLayerWidget({
+    Key key,
+    @required this.markers,
+  }) : super(key: key);
 
-  bool _boundsContainsMarker(Marker marker) {
-    var pixelPoint = map.project(marker.point);
+  bool _boundsContainsMarker(MapState mapState, Marker marker) {
+    var pixelPoint = mapState.project(marker.point);
 
     final width = marker.width - marker.anchor.left;
     final height = marker.height - marker.anchor.top;
 
     var sw = CustomPoint(pixelPoint.x + width, pixelPoint.y - height);
     var ne = CustomPoint(pixelPoint.x - width, pixelPoint.y + height);
-    return map.pixelBounds.containsPartialBounds(Bounds(sw, ne));
+    return mapState.pixelBounds.containsPartialBounds(Bounds(sw, ne));
   }
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<int>(
-      stream: stream, // a Stream<int> or null
-      builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-        var markers = <Widget>[];
-        for (var markerOpt in markerOpts.markers) {
-          var pos = map.project(markerOpt.point);
-          pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
-              map.getPixelOrigin();
+    final mapState = MapStateInheritedWidget.of(context).mapState;
+    final children = <Widget>[];
 
-          var pixelPosX =
-              (pos.x - (markerOpt.width - markerOpt.anchor.left)).toDouble();
-          var pixelPosY =
-              (pos.y - (markerOpt.height - markerOpt.anchor.top)).toDouble();
+    for (var marker in markers) {
+      var pos = mapState.project(marker.point);
+      pos = pos.multiplyBy(mapState.getZoomScale(
+            mapState.zoom,
+            mapState.zoom,
+          )) -
+          mapState.getPixelOrigin();
 
-          if (!_boundsContainsMarker(markerOpt)) {
-            continue;
-          }
+      var pixelPosX = (pos.x - (marker.width - marker.anchor.left)).toDouble();
+      var pixelPosY = (pos.y - (marker.height - marker.anchor.top)).toDouble();
 
-          markers.add(
-            Positioned(
-              width: markerOpt.width,
-              height: markerOpt.height,
-              left: pixelPosX,
-              top: pixelPosY,
-              child: markerOpt.builder(context),
-            ),
-          );
-        }
-        return Container(
-          child: Stack(
-            children: markers,
-          ),
-        );
-      },
+      if (!_boundsContainsMarker(mapState, marker)) {
+        continue;
+      }
+
+      children.add(
+        Positioned(
+          width: marker.width,
+          height: marker.height,
+          left: pixelPosX,
+          top: pixelPosY,
+          child: marker.builder(context),
+        ),
+      );
+    }
+
+    return Container(
+      child: Stack(
+        children: children,
+      ),
     );
   }
 }

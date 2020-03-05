@@ -60,6 +60,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
   }
 
   void handleScaleUpdate(ScaleUpdateDetails details) {
+    //_lastRotation = (round(details.rotation * 180 / math.pi));
+
     if (_tapUpCounter == 1) {
       _handleDoubleTapHold(details);
       return;

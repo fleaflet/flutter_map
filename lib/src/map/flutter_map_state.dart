@@ -1,19 +1,16 @@
+import 'dart:async';
 import 'dart:math';
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/gestures/gestures.dart';
-import 'package:flutter_map/src/layer/group_layer.dart';
-import 'package:flutter_map/src/layer/overlay_image_layer.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
-import 'package:async/async.dart';
+
 
 class FlutterMapState extends MapGestureMixin {
   final MapControllerImpl mapController;
-  final List<StreamGroup<Null>> groups = <StreamGroup<Null>>[];
   final _positionedTapController = PositionedTapController();
   double rotation = 0.0;
 
@@ -24,6 +21,13 @@ class FlutterMapState extends MapGestureMixin {
   MapState mapState;
 
   FlutterMapState(this.mapController);
+  StreamSubscription _sub;
+
+  @override
+  void dispose() {
+    _sub?.cancel();
+    super.dispose();
+  }
 
   @override
   void didUpdateWidget(FlutterMap oldWidget) {
@@ -37,39 +41,16 @@ class FlutterMapState extends MapGestureMixin {
     mapState = MapState(options);
     rotation = options.rotation;
     mapController.state = mapState;
+    _sub = mapState.forceRebuild.listen((_) => setState(() {}));
+
     mapController.onRotationChanged =
         (degree) => setState(() => rotation = degree);
-  }
-
-  void _dispose() {
-    for (var group in groups) {
-      group.close();
-    }
-
-    groups.clear();
-  }
-
-  @override
-  void dispose() {
-    _dispose();
-    super.dispose();
-  }
-
-  Stream<Null> _merge(LayerOptions options) {
-    if (options?.rebuild == null) return mapState.onMoved;
-
-    var group = StreamGroup<Null>();
-    group.add(mapState.onMoved);
-    group.add(options.rebuild);
-    groups.add(group);
-    return group.stream;
   }
 
   static const _rad90 = 90.0 * pi / 180.0;
 
   @override
   Widget build(BuildContext context) {
-    _dispose();
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
       double angle;
@@ -95,10 +76,7 @@ class FlutterMapState extends MapGestureMixin {
       }
 
       var layerStack = Stack(
-        children: [
-          for (final layer in widget.layers)
-            _createLayer(layer, widget.options.plugins)
-        ],
+        children: widget.layers,
       );
 
       Widget mapRoot;
@@ -128,52 +106,27 @@ class FlutterMapState extends MapGestureMixin {
         // By using an OverflowBox with the enlarged drawing area all the layers
         // act as if the area really would be that big. So no changes in any layer
         // logic is necessary for the rotation
-        return ClipRect(
-          child: Transform.rotate(
-            angle: angle,
-            child: OverflowBox(
-              minWidth: width,
-              maxWidth: width,
-              minHeight: height,
-              maxHeight: height,
-              child: mapRoot,
+        return MapStateInheritedWidget(
+          mapState: mapState,
+          child: ClipRect(
+            child: Transform.rotate(
+              angle: angle,
+              child: OverflowBox(
+                minWidth: width,
+                maxWidth: width,
+                minHeight: height,
+                maxHeight: height,
+                child: mapRoot,
+              ),
             ),
           ),
         );
       } else {
-        return mapRoot;
+        return MapStateInheritedWidget(
+          mapState: mapState,
+          child: mapRoot,
+        );
       }
     });
-  }
-
-  Widget _createLayer(LayerOptions options, List<MapPlugin> plugins) {
-    for (var plugin in plugins) {
-      if (plugin.supportsLayer(options)) {
-        return plugin.createLayer(options, mapState, _merge(options));
-      }
-    }
-    if (options is TileLayerOptions) {
-      return TileLayer(
-          options: options, mapState: mapState, stream: _merge(options));
-    }
-    if (options is MarkerLayerOptions) {
-      return MarkerLayer(options, mapState, _merge(options));
-    }
-    if (options is PolylineLayerOptions) {
-      return PolylineLayer(options, mapState, _merge(options));
-    }
-    if (options is PolygonLayerOptions) {
-      return PolygonLayer(options, mapState, _merge(options));
-    }
-    if (options is CircleLayerOptions) {
-      return CircleLayer(options, mapState, _merge(options));
-    }
-    if (options is GroupLayerOptions) {
-      return GroupLayer(options, mapState, _merge(options));
-    }
-    if (options is OverlayImageLayerOptions) {
-      return OverlayImageLayer(options, mapState, _merge(options));
-    }
-    return null;
   }
 }

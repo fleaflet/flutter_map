@@ -17,6 +17,7 @@ import '../pages/plugin_scalebar.dart';
 import '../pages/plugin_zoombuttons.dart';
 import '../pages/polyline.dart';
 import '../pages/tap_to_add.dart';
+import '../pages/user_position.dart';
 import '../pages/wms_tile_layer.dart';
 
 Drawer buildDrawer(BuildContext context, String currentRoute) {
@@ -154,6 +155,13 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           selected: currentRoute == OverlayImagePage.route,
           onTap: () {
             Navigator.pushReplacementNamed(context, OverlayImagePage.route);
+          },
+        ),
+        ListTile(
+          title: const Text('User position plugin'),
+          selected: currentRoute == UserPostionPage.route,
+          onTap: () {
+            Navigator.pushReplacementNamed(context, UserPostionPage.route);
           },
         ),
       ],

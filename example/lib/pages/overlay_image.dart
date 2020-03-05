@@ -35,11 +35,14 @@ class OverlayImagePage extends StatelessWidget {
                   zoom: 6.0,
                 ),
                 layers: [
-                  TileLayerOptions(
+                  TileLayerWidget(
+                    options: TileLayerOptions(
                       urlTemplate:
                           'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      subdomains: ['a', 'b', 'c']),
-                  OverlayImageLayerOptions(overlayImages: overlayImages)
+                      subdomains: ['a', 'b', 'c'],
+                    ),
+                  ),
+                  OverlayImageLayerWidget(images: overlayImages),
                 ],
               ),
             ),

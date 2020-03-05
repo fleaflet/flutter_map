@@ -7,9 +7,10 @@ void main() {
   testWidgets('flutter_map', (tester) async {
     await tester.pumpWidget(TestApp());
     expect(find.byType(FlutterMap), findsOneWidget);
-    expect(find.byType(TileLayer), findsOneWidget);
     expect(find.byType(RawImage), findsWidgets);
-    expect(find.byType(MarkerLayer), findsWidgets);
+    expect(find.byType(TileLayerWidget), findsOneWidget);
+    expect(find.byType(FadeInImage), findsWidgets);
+    expect(find.byType(MarkerLayerWidget), findsWidgets);
     expect(find.byType(FlutterLogo), findsOneWidget);
   });
 }
@@ -58,11 +59,14 @@ class _TestAppState extends State<TestApp> {
                 zoom: 13.0,
               ),
               layers: [
-                TileLayerOptions(
+                TileLayerWidget(
+                  options: TileLayerOptions(
                     urlTemplate:
                         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    subdomains: ['a', 'b', 'c']),
-                MarkerLayerOptions(markers: _markers),
+                    subdomains: ['a', 'b', 'c'],
+                  ),
+                ),
+                MarkerLayerWidget(markers: _markers),
               ],
             ),
           ),

@@ -157,11 +157,14 @@ class MapControllerPageState extends State<MapControllerPage> {
                   minZoom: 3.0,
                 ),
                 layers: [
-                  TileLayerOptions(
+                  TileLayerWidget(
+                    options: TileLayerOptions(
                       urlTemplate:
                           'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      subdomains: ['a', 'b', 'c']),
-                  MarkerLayerOptions(markers: markers)
+                      subdomains: ['a', 'b', 'c'],
+                    ),
+                  ),
+                  MarkerLayerWidget(markers: markers)
                 ],
               ),
             ),

@@ -11,7 +11,10 @@ double toRadians(double degrees) {
 }
 
 LatLng calculateEndingGlobalCoordinates(
-    LatLng start, double startBearing, double distance) {
+  LatLng start,
+  double startBearing,
+  double distance,
+) {
   var mSemiMajorAxis = 6378137.0; //WGS84 major axis
   var mSemiMinorAxis = (1.0 - 1.0 / 298.257223563) * 6378137.0;
   var mFlattening = 1.0 / 298.257223563;

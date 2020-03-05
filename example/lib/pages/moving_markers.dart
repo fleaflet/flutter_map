@@ -16,26 +16,12 @@ class MovingMarkersPage extends StatefulWidget {
 }
 
 class _MovingMarkersPageState extends State<MovingMarkersPage> {
-  Marker _marker;
-  Timer _timer;
-  int _markerIndex = 0;
+  MapController mapController;
 
   @override
   void initState() {
     super.initState();
-    _marker = _markers[_markerIndex];
-    _timer = Timer.periodic(Duration(seconds: 1), (_) {
-      setState(() {
-        _marker = _markers[_markerIndex];
-        _markerIndex = (_markerIndex + 1) % _markers.length;
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _timer.cancel();
+    mapController = MapController();
   }
 
   @override
@@ -53,16 +39,21 @@ class _MovingMarkersPageState extends State<MovingMarkersPage> {
             ),
             Flexible(
               child: FlutterMap(
+                mapController: mapController,
                 options: MapOptions(
                   center: LatLng(51.5, -0.09),
                   zoom: 5.0,
                 ),
                 layers: [
-                  TileLayerOptions(
+                  TileLayerWidget(
+                    options: TileLayerOptions(
                       urlTemplate:
                           'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      subdomains: ['a', 'b', 'c']),
-                  MarkerLayerOptions(markers: <Marker>[_marker])
+                      subdomains: ['a', 'b', 'c'],
+                      tileProvider: NonCachingNetworkTileProvider(),
+                    ),
+                  ),
+                  MovingMarker(),
                 ],
               ),
             ),
@@ -99,3 +90,41 @@ List<Marker> _markers = [
     ),
   ),
 ];
+
+class MovingMarker extends StatefulWidget {
+  @override
+  _MovingMarker createState() {
+    return _MovingMarker();
+  }
+}
+
+class _MovingMarker extends State<MovingMarker> {
+  Marker _marker;
+  Timer _timer;
+  int _markerIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _marker = _markers[_markerIndex];
+    _timer = Timer.periodic(Duration(seconds: 1), (_) {
+      setState(() {
+        _marker = _markers[_markerIndex];
+        _markerIndex = (_markerIndex + 1) % _markers.length;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _timer.cancel();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MarkerLayerWidget(
+      markers: [_marker],
+    );
+  }
+}

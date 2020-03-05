@@ -1,16 +1,7 @@
-import 'dart:async';
 import 'dart:ui';
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
-
-class OverlayImageLayerOptions extends LayerOptions {
-  final List<OverlayImage> overlayImages;
-
-  OverlayImageLayerOptions({this.overlayImages = const [], rebuild})
-      : super(rebuild: rebuild);
-}
 
 class OverlayImage {
   final LatLngBounds bounds;
@@ -26,31 +17,26 @@ class OverlayImage {
   });
 }
 
-class OverlayImageLayer extends StatelessWidget {
-  final OverlayImageLayerOptions overlayImageOpts;
-  final MapState map;
-  final Stream<Null> stream;
+class OverlayImageLayerWidget extends StatelessWidget {
+  final List<OverlayImage> images;
 
-  OverlayImageLayer(this.overlayImageOpts, this.map, this.stream);
+  OverlayImageLayerWidget({ this.images = const [] });
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<void>(
-      stream: stream,
-      builder: (BuildContext context, _) {
-        return ClipRect(
-          child: Stack(
-            children: <Widget>[
-              for (var overlayImage in overlayImageOpts.overlayImages)
-                _positionedForOverlay(overlayImage),
-            ],
-          ),
-        );
-      },
+    var mapState = MapStateInheritedWidget.of(context).mapState;
+
+    return ClipRect(
+      child: Stack(
+        children: <Widget>[
+          for (var overlayImage in images)
+            _positionedForOverlay(overlayImage, mapState),
+        ],
+      ),
     );
   }
 
-  Positioned _positionedForOverlay(OverlayImage overlayImage) {
+  Positioned _positionedForOverlay(OverlayImage overlayImage, MapState map) {
     final zoomScale =
         map.getZoomScale(map.zoom, map.zoom); // TODO replace with 1?
     final pixelOrigin = map.getPixelOrigin();

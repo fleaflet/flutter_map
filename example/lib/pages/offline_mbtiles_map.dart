@@ -36,12 +36,15 @@ class OfflineMBTilesMapPage extends StatelessWidget {
                   nePanBoundary: LatLng(52.540084, 13.527795),
                 ),
                 layers: [
-                  TileLayerOptions(
+                  TileLayerWidget(
+                    options: TileLayerOptions(
                       tileProvider: MBTilesImageProvider.fromAsset(
                           'assets/berlin.mbtiles'),
                       maxZoom: 14.0,
                       backgroundColor: Colors.white,
-                      tms: true),
+                      tms: true,
+                    ),
+                  ),
                 ],
               ),
             ),

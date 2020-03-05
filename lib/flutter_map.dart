@@ -7,23 +7,26 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/geo/crs/crs.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/map.dart';
-import 'package:flutter_map/src/plugins/plugin.dart';
 import 'package:latlong/latlong.dart';
 
 export 'package:flutter_map/src/core/point.dart';
 export 'package:flutter_map/src/geo/crs/crs.dart';
 export 'package:flutter_map/src/geo/latlng_bounds.dart';
-export 'package:flutter_map/src/layer/circle_layer.dart';
-export 'package:flutter_map/src/layer/group_layer.dart';
-export 'package:flutter_map/src/layer/layer.dart';
-export 'package:flutter_map/src/layer/marker_layer.dart';
-export 'package:flutter_map/src/layer/overlay_image_layer.dart';
-export 'package:flutter_map/src/layer/polygon_layer.dart';
-export 'package:flutter_map/src/layer/polyline_layer.dart';
+export 'package:flutter_map/src/core/bounds.dart';
+export 'package:flutter_map/src/core/center_zoom.dart';
+export 'package:flutter_map/src/map/map.dart';
+
 export 'package:flutter_map/src/layer/tile_layer.dart';
 export 'package:flutter_map/src/layer/tile_provider/tile_provider.dart';
 export 'package:flutter_map/src/layer/tile_provider/mbtiles_image_provider.dart';
-export 'package:flutter_map/src/plugins/plugin.dart';
+
+// Layers
+export 'package:flutter_map/src/layer/polyline.layer.dart';
+export 'package:flutter_map/src/layer/overlay.layer.dart';
+export 'package:flutter_map/src/layer/maker.layer.dart';
+export 'package:flutter_map/src/layer/tile.layer.dart';
+export 'package:flutter_map/src/layer/circle.layer.dart';
+export 'package:flutter_map/src/layer/polygon.layer.dart';
 
 /// Renders a map composed of a list of layers powered by [LayerOptions].
 ///
@@ -31,24 +34,19 @@ export 'package:flutter_map/src/plugins/plugin.dart';
 ///
 /// Through [MapOptions] map's callbacks and properties can be defined.
 class FlutterMap extends StatefulWidget {
-  /// A set of layers' options to used to create the layers on the map.
-  ///
-  /// Usually a list of [TileLayerOptions], [MarkerLayerOptions] and
-  /// [PolylineLayerOptions].
-  final List<LayerOptions> layers;
-
   /// [MapOptions] to create a [MapState] with.
   ///
   /// This property must not be null.
   final MapOptions options;
+  final List<Widget> layers;
 
   /// A [MapController], used to control the map.
   final MapControllerImpl _mapController;
 
   FlutterMap({
     Key key,
+    this.layers = const [],
     @required this.options,
-    this.layers,
     MapController mapController,
   })  : _mapController = mapController ?? MapController(),
         super(key: key);
@@ -117,7 +115,6 @@ class MapOptions {
   final TapCallback onTap;
   final LongPressCallback onLongPress;
   final PositionCallback onPositionChanged;
-  final List<MapPlugin> plugins;
   LatLng center;
   LatLng swPanBoundary;
   LatLng nePanBoundary;
@@ -134,7 +131,6 @@ class MapOptions {
     this.onTap,
     this.onLongPress,
     this.onPositionChanged,
-    this.plugins = const [],
     this.swPanBoundary,
     this.nePanBoundary,
   }) {

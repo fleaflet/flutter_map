@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import './pages/animated_map_controller.dart';
 import './pages/circle.dart';
 import './pages/custom_crs/custom_crs.dart';
@@ -17,6 +16,7 @@ import './pages/plugin_scalebar.dart';
 import './pages/plugin_zoombuttons.dart';
 import './pages/polyline.dart';
 import './pages/tap_to_add.dart';
+import './pages/user_position.dart';
 import './pages/wms_tile_layer.dart';
 
 void main() => runApp(MyApp());
@@ -50,6 +50,7 @@ class MyApp extends StatelessWidget {
         OverlayImagePage.route: (context) => OverlayImagePage(),
         WMSLayerPage.route: (context) => WMSLayerPage(),
         CustomCrsPage.route: (context) => CustomCrsPage(),
+        UserPostionPage.route: (context) => UserPostionPage()
       },
     );
   }

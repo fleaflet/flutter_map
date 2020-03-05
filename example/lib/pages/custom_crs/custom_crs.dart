@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong/latlong.dart';
 import 'package:proj4dart/proj4dart.dart' as proj4;
 
@@ -138,17 +137,19 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
                   }),
                 ),
                 layers: [
-                  TileLayerOptions(
-                    opacity: 1.0,
-                    backgroundColor: Colors.transparent,
-                    wmsOptions: WMSTileLayerOptions(
-                      // Set the WMS layer's CRS
-                      crs: epsg3413CRS,
-                      transparent: true,
-                      format: 'image/jpeg',
-                      baseUrl:
-                          'https://www.gebco.net/data_and_products/gebco_web_services/north_polar_view_wms/mapserv?',
-                      layers: ['gebco_north_polar_view'],
+                  TileLayerWidget(
+                    options: TileLayerOptions(
+                      opacity: 1.0,
+                      backgroundColor: Colors.transparent,
+                      wmsOptions: WMSTileLayerOptions(
+                        // Set the WMS layer's CRS
+                        crs: epsg3413CRS,
+                        transparent: true,
+                        format: 'image/jpeg',
+                        baseUrl:
+                            'https://www.gebco.net/data_and_products/gebco_web_services/north_polar_view_wms/mapserv?',
+                        layers: ['gebco_north_polar_view'],
+                      ),
                     ),
                   ),
                 ],

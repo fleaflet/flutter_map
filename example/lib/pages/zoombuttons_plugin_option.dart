@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/plugin_api.dart';
 
-class ZoomButtonsPluginOption extends LayerOptions {
+class ZoomButtonsPluginOption {
   final int minZoom;
   final int maxZoom;
   final bool mini;
@@ -17,33 +16,17 @@ class ZoomButtonsPluginOption extends LayerOptions {
       this.alignment = Alignment.topRight});
 }
 
-class ZoomButtonsPlugin implements MapPlugin {
-  @override
-  Widget createLayer(
-      LayerOptions options, MapState mapState, Stream<Null> stream) {
-    if (options is ZoomButtonsPluginOption) {
-      return ZoomButtons(options, mapState, stream);
-    }
-    throw Exception('Unknown options type for ZoomButtonsPlugin: $options');
-  }
-
-  @override
-  bool supportsLayer(LayerOptions options) {
-    return options is ZoomButtonsPluginOption;
-  }
-}
-
-class ZoomButtons extends StatelessWidget {
+class ZoomButtonsPlugin extends StatelessWidget {
   final ZoomButtonsPluginOption zoomButtonsOpts;
-  final MapState map;
-  final Stream<Null> stream;
   final FitBoundsOptions options =
       const FitBoundsOptions(padding: EdgeInsets.all(12.0));
 
-  ZoomButtons(this.zoomButtonsOpts, this.map, this.stream);
+  ZoomButtonsPlugin({@required this.zoomButtonsOpts});
 
   @override
   Widget build(BuildContext context) {
+    var map = MapStateInheritedWidget.of(context).mapState;
+
     return Align(
       alignment: zoomButtonsOpts.alignment,
       child: Column(
@@ -65,6 +48,7 @@ class ZoomButtons extends StatelessWidget {
                   zoom = zoomButtonsOpts.minZoom as double;
                 } else {
                   map.move(centerZoom.center, zoom);
+                  map.rebuild();
                 }
               },
               child: Icon(Icons.zoom_in),
@@ -83,6 +67,7 @@ class ZoomButtons extends StatelessWidget {
                   zoom = zoomButtonsOpts.maxZoom as double;
                 } else {
                   map.move(centerZoom.center, zoom);
+                  map.rebuild();
                 }
               },
               child: Icon(Icons.zoom_out),

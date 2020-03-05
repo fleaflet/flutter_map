@@ -2,10 +2,9 @@ import 'dart:math';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/plugin_api.dart';
 import './scalebar_utils.dart' as util;
 
-class ScaleLayerPluginOption extends LayerOptions {
+class ScaleLayerPluginOption {
   TextStyle textStyle;
   Color lineColor;
   double lineWidth;
@@ -18,26 +17,9 @@ class ScaleLayerPluginOption extends LayerOptions {
       this.padding});
 }
 
-class ScaleLayerPlugin implements MapPlugin {
-  @override
-  Widget createLayer(
-      LayerOptions options, MapState mapState, Stream<Null> stream) {
-    if (options is ScaleLayerPluginOption) {
-      return ScaleLayer(options, mapState, stream);
-    }
-    throw Exception('Unknown options type for ScaleLayerPlugin: $options');
-  }
-
-  @override
-  bool supportsLayer(LayerOptions options) {
-    return options is ScaleLayerPluginOption;
-  }
-}
-
-class ScaleLayer extends StatelessWidget {
+class ScaleLayerPlugin extends StatelessWidget {
   final ScaleLayerPluginOption scaleLayerOpts;
-  final MapState map;
-  final Stream<Null> stream;
+  
   final scale = [
     25000000,
     15000000,
@@ -64,10 +46,12 @@ class ScaleLayer extends StatelessWidget {
     5
   ];
 
-  ScaleLayer(this.scaleLayerOpts, this.map, this.stream);
+  ScaleLayerPlugin(this.scaleLayerOpts);
 
   @override
   Widget build(BuildContext context) {
+    var map = MapStateInheritedWidget.of(context).mapState;
+
     var zoom = map.zoom;
     var distance = scale[max(0, min(20, zoom.round() + 2))].toDouble();
     var center = map.center;

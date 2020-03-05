@@ -1,15 +1,8 @@
 import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart' hide Path; // conflict with Path from UI
-
-class CircleLayerOptions extends LayerOptions {
-  final List<CircleMarker> circles;
-  CircleLayerOptions({this.circles = const [], rebuild})
-      : super(rebuild: rebuild);
-}
 
 class CircleMarker {
   final LatLng point;
@@ -30,11 +23,10 @@ class CircleMarker {
   });
 }
 
-class CircleLayer extends StatelessWidget {
-  final CircleLayerOptions circleOpts;
-  final MapState map;
-  final Stream<Null> stream;
-  CircleLayer(this.circleOpts, this.map, this.stream);
+class CircleLayerWidget extends StatelessWidget {
+  final List<CircleMarker> circles;
+
+  CircleLayerWidget({ @required this.circles });
 
   @override
   Widget build(BuildContext context) {
@@ -47,39 +39,36 @@ class CircleLayer extends StatelessWidget {
   }
 
   Widget _build(BuildContext context, Size size) {
-    return StreamBuilder<void>(
-      stream: stream, // a Stream<void> or null
-      builder: (BuildContext context, _) {
-        var circleWidgets = <Widget>[];
-        for (var circle in circleOpts.circles) {
-          var pos = map.project(circle.point);
-          pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
-              map.getPixelOrigin();
-          circle.offset = Offset(pos.x.toDouble(), pos.y.toDouble());
+    var map = MapStateInheritedWidget.of(context).mapState;
 
-          if (circle.useRadiusInMeter) {
-            var r = Distance().offset(circle.point, circle.radius, 180);
-            var rpos = map.project(r);
-            rpos = rpos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
-                map.getPixelOrigin();
+    var circleWidgets = <Widget>[];
+    for (var circle in circles) {
+      var pos = map.project(circle.point);
+      pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
+          map.getPixelOrigin();
+      circle.offset = Offset(pos.x.toDouble(), pos.y.toDouble());
 
-            circle.realRadius = rpos.y - pos.y;
-          }
+      if (circle.useRadiusInMeter) {
+        var r = Distance().offset(circle.point, circle.radius, 180);
+        var rpos = map.project(r);
+        rpos = rpos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
+            map.getPixelOrigin();
 
-          circleWidgets.add(
-            CustomPaint(
-              painter: CirclePainter(circle),
-              size: size,
-            ),
-          );
-        }
+        circle.realRadius = rpos.y - pos.y;
+      }
 
-        return Container(
-          child: Stack(
-            children: circleWidgets,
-          ),
-        );
-      },
+      circleWidgets.add(
+        CustomPaint(
+          painter: CirclePainter(circle),
+          size: size,
+        ),
+      );
+    }
+
+    return Container(
+      child: Stack(
+        children: circleWidgets,
+      ),
     );
   }
 }

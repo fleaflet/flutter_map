@@ -37,11 +37,14 @@ class CirclePage extends StatelessWidget {
                   zoom: 11.0,
                 ),
                 layers: [
-                  TileLayerOptions(
+                  TileLayerWidget(
+                    options: TileLayerOptions(
                       urlTemplate:
                           'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      subdomains: ['a', 'b', 'c']),
-                  CircleLayerOptions(circles: circleMarkers)
+                      subdomains: ['a', 'b', 'c'],
+                    ),
+                  ),
+                  CircleLayerWidget(circles: circleMarkers)
                 ],
               ),
             ),

@@ -11,11 +11,9 @@ import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
 import 'package:tuple/tuple.dart';
 
-import 'layer.dart';
-
 /// Describes the needed properties to create a tile-based layer.
 /// A tile is an image binded to a specific geographical position.
-class TileLayerOptions extends LayerOptions {
+class TileLayerOptions {
   /// Defines the structure to create the URLs for the tiles.
   ///
   /// Example:
@@ -152,42 +150,41 @@ class TileLayerOptions extends LayerOptions {
   // it can 0 to avoid fade in
   final Duration tileFadeInDuration;
 
-  TileLayerOptions(
-      {this.urlTemplate,
-      this.tileSize = 256.0,
-      this.minZoom = 0.0,
-      this.maxZoom = 18.0,
-      this.minNativeZoom,
-      this.maxNativeZoom,
-      this.zoomReverse = false,
-      this.zoomOffset = 0.0,
-      this.additionalOptions = const <String, String>{},
-      this.subdomains = const <String>[],
-      this.keepBuffer = 2,
-      this.backgroundColor = const Color(0xFFE0E0E0),
-      this.placeholderImage,
-      this.errorImage,
-      this.tileProvider = const CachedNetworkTileProvider(),
-      this.tms = false,
-      // ignore: avoid_init_to_null
-      this.wmsOptions = null,
-      this.opacity = 1.0,
-      // Tiles will not update more than once every `updateInterval` milliseconds
-      // (default 200) when panning.
-      // It can be 0 (but it will calculating for loading tiles every frame when panning / zooming, flutter is fast)
-      // This can save some fps and even bandwidth
-      // (ie. when fast panning / animating between long distances in short time)
-      int updateInterval = 200,
-      // Tiles fade in duration in milliseconds (default 100),
-      // it can 0 to avoid fade in
-      int tileFadeInDuration = 100,
-      rebuild})
-      : updateInterval =
+  TileLayerOptions({
+    this.urlTemplate,
+    this.tileSize = 256.0,
+    this.minZoom = 0.0,
+    this.maxZoom = 18.0,
+    this.minNativeZoom,
+    this.maxNativeZoom,
+    this.zoomReverse = false,
+    this.zoomOffset = 0.0,
+    this.additionalOptions = const <String, String>{},
+    this.subdomains = const <String>[],
+    this.keepBuffer = 2,
+    this.backgroundColor = const Color(0xFFE0E0E0),
+    this.placeholderImage,
+    this.errorImage,
+    this.tileProvider = const CachedNetworkTileProvider(),
+    this.tms = false,
+    // ignore: avoid_init_to_null
+    this.wmsOptions = null,
+    this.opacity = 1.0,
+    // Tiles will not update more than once every `updateInterval` milliseconds
+    // (default 200) when panning.
+    // It can be 0 (but it will calculating for loading tiles every frame when panning / zooming, flutter is fast)
+    // This can save some fps and even bandwidth
+    // (ie. when fast panning / animating between long distances in short time)
+    int updateInterval = 200,
+    // Tiles fade in duration in milliseconds (default 100),
+    // it can 0 to avoid fade in
+    int tileFadeInDuration = 100,
+  })  : updateInterval =
             updateInterval <= 0 ? null : Duration(milliseconds: updateInterval),
         tileFadeInDuration = tileFadeInDuration <= 0
             ? null
             : Duration(milliseconds: tileFadeInDuration),
-        super(rebuild: rebuild);
+        super();
 }
 
 class WMSTileLayerOptions {

@@ -63,16 +63,17 @@ class HomePage extends StatelessWidget {
                   zoom: 5.0,
                 ),
                 layers: [
-                  TileLayerOptions(
-                    urlTemplate:
-                        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    subdomains: ['a', 'b', 'c'],
-                    // For example purposes. It is recommended to use
-                    // TileProvider with a caching and retry strategy, like
-                    // NetworkTileProvider or CachedNetworkTileProvider
-                    tileProvider: NonCachingNetworkTileProvider(),
+                  TileLayerWidget(
+                    options: TileLayerOptions(
+                      urlTemplate:
+                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      subdomains: ['a', 'b', 'c'],
+                      tileProvider: NonCachingNetworkTileProvider(),
+                    ),
                   ),
-                  MarkerLayerOptions(markers: markers)
+                  MarkerLayerWidget(
+                    markers: markers,
+                  )
                 ],
               ),
             ),

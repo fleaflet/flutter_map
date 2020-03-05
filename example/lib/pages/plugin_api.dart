@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong/latlong.dart';
 
 import '../widgets/drawer.dart';
@@ -21,16 +21,17 @@ class PluginPage extends StatelessWidget {
                 options: MapOptions(
                   center: LatLng(51.5, -0.09),
                   zoom: 5.0,
-                  plugins: [
-                    MyCustomPlugin(),
-                  ],
                 ),
                 layers: [
-                  TileLayerOptions(
+                  TileLayerWidget(
+                    options: TileLayerOptions(
                       urlTemplate:
                           'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      subdomains: ['a', 'b', 'c']),
-                  MyCustomPluginOptions(text: "I'm a plugin!"),
+                      subdomains: ['a', 'b', 'c'],
+                    ),
+                  ),
+                  MyCustomPluginWidget(),
+                  DisplayCenterWidget(),
                 ],
               ),
             ),
@@ -41,32 +42,36 @@ class PluginPage extends StatelessWidget {
   }
 }
 
-class MyCustomPluginOptions extends LayerOptions {
-  final String text;
-  MyCustomPluginOptions({this.text = ''});
+class MyCustomPluginWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    var style = TextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: 24.0,
+      color: Colors.red,
+    );
+
+    return Text("I'm a plugin", style: style);
+  }
 }
 
-class MyCustomPlugin implements MapPlugin {
+class DisplayCenterWidget extends StatelessWidget {
   @override
-  Widget createLayer(
-      LayerOptions options, MapState mapState, Stream<Null> stream) {
-    if (options is MyCustomPluginOptions) {
-      var style = TextStyle(
+  Widget build(BuildContext context) {
+    // Access to mapState
+    var mapState = MapStateInheritedWidget.of(context).mapState;
+
+    var style = TextStyle(
         fontWeight: FontWeight.bold,
         fontSize: 24.0,
-        color: Colors.red,
-      );
-      return Text(
-        options.text,
-        style: style,
-      );
-    }
-    throw Exception('Unknown options type for MyCustom'
-        'plugin: $options');
-  }
+        color: Colors.yellow,
+        backgroundColor: Colors.black);
 
-  @override
-  bool supportsLayer(LayerOptions options) {
-    return options is MyCustomPluginOptions;
+    return Center(
+      child: Text(
+        'Lat=${mapState.center.latitude} Lng=${mapState.center.longitude}',
+        style: style,
+      ),
+    );
   }
 }

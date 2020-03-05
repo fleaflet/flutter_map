@@ -31,10 +31,13 @@ class _TestAppState extends State<TestApp> {
                 zoom: 13.0,
               ),
               layers: [
-                TileLayerOptions(
+                TileLayerWidget(
+                  options: TileLayerOptions(
                     urlTemplate:
                         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    subdomains: ['a', 'b', 'c']),
+                    subdomains: ['a', 'b', 'c'],
+                  ),
+                ),
               ],
             ),
           ),

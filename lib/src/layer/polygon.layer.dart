@@ -6,16 +6,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart' hide Path; // conflict with Path from UI
 
-class PolygonLayerOptions extends LayerOptions {
-  final List<Polygon> polygons;
-  final bool polygonCulling;
-
-  /// screen space culling of polygons based on bounding box
-  PolygonLayerOptions(
-      {this.polygons = const [], this.polygonCulling = false, rebuild})
-      : super(rebuild: rebuild);
-}
-
 class Polygon {
   final List<LatLng> points;
   final List<Offset> offsets = [];
@@ -43,12 +33,11 @@ class Polygon {
   }
 }
 
-class PolygonLayer extends StatelessWidget {
-  final PolygonLayerOptions polygonOpts;
-  final MapState map;
-  final Stream stream;
+class PolygonLayerWidget extends StatelessWidget {
+  final List<Polygon> polygons;
+  final bool polygonCulling;
 
-  PolygonLayer(this.polygonOpts, this.map, this.stream);
+  PolygonLayerWidget({this.polygons = const [], this.polygonCulling = false});
 
   @override
   Widget build(BuildContext context) {
@@ -62,53 +51,49 @@ class PolygonLayer extends StatelessWidget {
   }
 
   Widget _build(BuildContext context, Size size) {
-    return StreamBuilder(
-      stream: stream, // a Stream<void> or null
-      builder: (BuildContext context, _) {
-        var polygons = <Widget>[];
+    var map = MapStateInheritedWidget.of(context).mapState;
+    var children = <Widget>[];
 
-        for (var polygon in polygonOpts.polygons) {
-          polygon.offsets.clear();
+    for (var polygon in polygons) {
+      polygon.offsets.clear();
 
-          if (null != polygon.holeOffsetsList) {
-            for (var offsets in polygon.holeOffsetsList) {
-              offsets.clear();
-            }
-          }
-
-          if (polygonOpts.polygonCulling &&
-              !polygon.boundingBox.isOverlapping(map.bounds)) {
-            // skip this polygon as it's offscreen
-            continue;
-          }
-
-          _fillOffsets(polygon.offsets, polygon.points);
-
-          if (null != polygon.holePointsList) {
-            for (var i = 0, len = polygon.holePointsList.length; i < len; ++i) {
-              _fillOffsets(
-                  polygon.holeOffsetsList[i], polygon.holePointsList[i]);
-            }
-          }
-
-          polygons.add(
-            CustomPaint(
-              painter: PolygonPainter(polygon),
-              size: size,
-            ),
-          );
+      if (null != polygon.holeOffsetsList) {
+        for (var offsets in polygon.holeOffsetsList) {
+          offsets.clear();
         }
+      }
 
-        return Container(
-          child: Stack(
-            children: polygons,
-          ),
-        );
-      },
+      if (polygonCulling && !polygon.boundingBox.isOverlapping(map.bounds)) {
+        // skip this polygon as it's offscreen
+        continue;
+      }
+
+      _fillOffsets(polygon.offsets, polygon.points, map);
+
+      if (null != polygon.holePointsList) {
+        for (var i = 0, len = polygon.holePointsList.length; i < len; ++i) {
+          _fillOffsets(
+              polygon.holeOffsetsList[i], polygon.holePointsList[i], map);
+        }
+      }
+
+      children.add(
+        CustomPaint(
+          painter: PolygonPainter(polygon),
+          size: size,
+        ),
+      );
+    }
+
+    return Container(
+      child: Stack(
+        children: children,
+      ),
     );
   }
 
-  void _fillOffsets(final List<Offset> offsets, final List<LatLng> points) {
+  void _fillOffsets(
+      final List<Offset> offsets, final List<LatLng> points, MapState map) {
     for (var i = 0, len = points.length; i < len; ++i) {
       var point = points[i];
 
