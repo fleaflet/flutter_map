@@ -108,6 +108,6 @@ Proj4Crs has multiple uses:
     );
   ```
 
-For complete code (with point transformation from one projection to another) see [page source code]('./custom_crs.dart').
+For complete code (with point transformation from one projection to another) see the page source code. This is how it looks like:
 
 ![Custom CRS](./custom_crs.png)
