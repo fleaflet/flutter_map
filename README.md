@@ -122,6 +122,10 @@ Widget build(BuildContext context) {
 }
 ```
 
+### Custom CRS
+
+By default flutter_map supports only WGS84 (EPSG:4326) and Google Mercator (EPSG:3857) projections. With the integration of [proj4dart](https://github.com/maRci002/proj4dart) a map with any custom coordinate reference systems (CRS) can be defined and used.
+
 ### Run the example
 
 See the `example/` folder for a working example app.
