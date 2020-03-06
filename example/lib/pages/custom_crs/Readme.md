@@ -96,7 +96,7 @@ Proj4Crs has multiple uses:
   ```dart
     TileLayerOptions(
       opacity: 1.0,
-      backgroundColor: Colors.white.withOpacity(0),
+      backgroundColor: Colors.transparent,
       wmsOptions: WMSTileLayerOptions(
         // Set the WMS layer's CRS
         crs: epsg3413CRS,
