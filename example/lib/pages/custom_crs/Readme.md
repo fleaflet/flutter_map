@@ -33,7 +33,7 @@ You can use your previously registered `proj4.Projection` to create a custom CRS
 - `<List<double>>` `resolutions`: an array of zoom factors (projection units per pixel, eg. meters/pixel)
 - `<List<double>>` `scales`: scale factors (pixels per projection unit); specify either scales or resolutions, but not both!
 - `<List<CustomPoint>>` `origins`: tile origin in projected coordinates (for TileLayer). Why is it needed? GeoServer by default can define different origins (top left coordinates) for each zoom levels. In case of origin mismatch the tile will be drawn on the wrong place: the map will jump at such zoom levels. If your origins vary with zoom levels the number of origins must match the number of resolutions. You can get the desired origins from a `GetCapabilities` WMTS call from geoserver e.g. `http://[ip:port]/geoserver/gwc/service/wmts?request=GetCapabilities`. This results an XML, and you have to look up for the `TopLeftCorner`s for each TileMatrix of your TileMatrixSet.  
-<img src="./origins.png" height="500">
+![Tile Origins](./origins.png)
 - `<Transformation>` `transformation`: the transformation to use when transforming projected coordinates into pixel coordinates
 
 An example:
