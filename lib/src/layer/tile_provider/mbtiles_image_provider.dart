@@ -76,6 +76,7 @@ class MBTilesImageProvider extends TileProvider {
     return MBTileImage(
       database,
       Coords<int>(x, y)..z = z,
+      mbtilesFile?.path ?? asset,
     );
   }
 }
@@ -83,8 +84,9 @@ class MBTilesImageProvider extends TileProvider {
 class MBTileImage extends ImageProvider<MBTileImage> {
   final Future<Database> database;
   final Coords<int> coords;
+  final String fileUrl;
 
-  MBTileImage(this.database, this.coords);
+  MBTileImage(this.database, this.coords, this.fileUrl);
 
   @override
   ImageStreamCompleter load(MBTileImage key, decode) {
@@ -124,6 +126,6 @@ class MBTileImage extends ImageProvider<MBTileImage> {
 
   @override
   bool operator ==(other) {
-    return other is MBTileImage && coords == other.coords;
+    return other is MBTileImage && coords == other.coords && fileUrl == other.fileUrl;
   }
 }
