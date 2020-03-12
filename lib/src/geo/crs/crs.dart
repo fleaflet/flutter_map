@@ -200,7 +200,7 @@ class Proj4Crs extends Crs {
     List<double> scales,
     List<double> resolutions,
   }) {
-    final Projection projection =
+    final projection =
         Proj4Projection(proj4Projection: proj4Projection, bounds: bounds);
     List<Transformation> transformations;
     var infinite = null == bounds;
@@ -302,7 +302,7 @@ class Proj4Crs extends Crs {
   /// Scale to Zoom function.
   @override
   num zoom(double scale) {
-    // Find closest number in this._scales, down
+    // Find closest number in _scales, down
     var downScale = _closestElement(_scales, scale);
     var downZoom = _scales.indexOf(downScale);
     // Check if scale is downScale => return array index
@@ -324,10 +324,12 @@ class Proj4Crs extends Crs {
 
   /// Get the closest lowest element in an array
   double _closestElement(List<double> array, double element) {
-    var low;
+    double low;
     for (var i = array.length - 1; i >= 0; i--) {
-      if (array[i] <= element && (null == low || low < array[i])) {
-        low = array[i];
+      var curr = array[i];
+
+      if (curr <= element && (null == low || low < curr)) {
+        low = curr;
       }
     }
     return low;
@@ -339,7 +341,7 @@ class Proj4Crs extends Crs {
       return transformation;
     }
 
-    var iZoom = zoom.floor();
+    var iZoom = zoom.round();
     var lastIdx = _transformations.length - 1;
 
     return _transformations[iZoom > lastIdx ? lastIdx : iZoom];
