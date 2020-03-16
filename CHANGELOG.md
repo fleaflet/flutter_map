@@ -1,9 +1,9 @@
-## [0.8.2] - 1/7/2019
+## [0.8.2] - 1/7/2020
 - add polyline with gradient (#452)
 
 Thanks to @SebWojd for this release!
 
-## [0.8.1] - 1/3/2019
+## [0.8.1] - 1/3/2020
 - Add ZoomButtonsPlugin (#487)
 
 Thanks to @moovida for this release!
