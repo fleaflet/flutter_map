@@ -1,9 +1,9 @@
 import 'dart:math' as math;
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:latlong/latlong.dart';
+import 'package:meta/meta.dart';
 import 'package:proj4dart/proj4dart.dart' as proj4;
 import 'package:tuple/tuple.dart';
 
@@ -155,7 +155,7 @@ class Epsg4326 extends Earth {
 /// Custom CRS
 class Proj4Crs extends Crs {
   @override
-  String code;
+  final String code;
 
   @override
   final Projection projection;
@@ -164,19 +164,19 @@ class Proj4Crs extends Crs {
   final Transformation transformation;
 
   @override
-  bool infinite;
+  final bool infinite;
 
   @override
-  Tuple2<double, double> get wrapLat => null;
+  final Tuple2<double, double> wrapLat = null;
 
   @override
-  Tuple2<double, double> get wrapLng => null;
+  final Tuple2<double, double> wrapLng = null;
 
   final List<Transformation> _transformations;
 
   final List<double> _scales;
 
-  Proj4Crs({
+  Proj4Crs._({
     @required this.code,
     @required this.projection,
     @required this.transformation,
@@ -228,7 +228,7 @@ class Proj4Crs extends Crs {
       }
     }
 
-    return Proj4Crs(
+    return Proj4Crs._(
       code: code,
       projection: projection,
       transformation: transformation,
