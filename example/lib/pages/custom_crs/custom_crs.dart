@@ -4,7 +4,7 @@ import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong/latlong.dart';
 import 'package:proj4dart/proj4dart.dart' as proj4;
 
-import '../widgets/drawer.dart';
+import '../../widgets/drawer.dart';
 
 class CustomCrsPage extends StatefulWidget {
   static const String route = 'custom_crs';
@@ -138,7 +138,7 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
                 layers: [
                   TileLayerOptions(
                     opacity: 1.0,
-                    backgroundColor: Colors.white.withOpacity(0),
+                    backgroundColor: Colors.transparent,
                     wmsOptions: WMSTileLayerOptions(
                       // Set the WMS layer's CRS
                       crs: epsg3413CRS,
