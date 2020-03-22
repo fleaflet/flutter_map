@@ -201,7 +201,7 @@ class Proj4Crs extends Crs {
     List<double> resolutions,
   }) {
     final projection =
-        Proj4Projection(proj4Projection: proj4Projection, bounds: bounds);
+        _Proj4Projection(proj4Projection: proj4Projection, bounds: bounds);
     List<Transformation> transformations;
     var infinite = null == bounds;
     List<double> finalScales;
@@ -433,7 +433,7 @@ class SphericalMercator extends Projection {
   }
 }
 
-class Proj4Projection extends Projection {
+class _Proj4Projection extends Projection {
   final proj4.Projection epsg4326;
 
   final proj4.Projection proj4Projection;
@@ -441,10 +441,11 @@ class Proj4Projection extends Projection {
   @override
   final Bounds<double> bounds;
 
-  Proj4Projection({
+  _Proj4Projection({
     @required this.proj4Projection,
     @required this.bounds,
-  }) : epsg4326 = proj4.Projection('EPSG:4326');
+  })  : assert(null != proj4Projection),
+        epsg4326 = proj4.Projection.WGS84;
 
   @override
   CustomPoint project(LatLng latlng) {
