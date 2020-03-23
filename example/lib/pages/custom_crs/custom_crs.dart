@@ -36,8 +36,10 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
 
     // EPSG:3413 is a user-defined projection from a valid Proj4 definition string
     // From: http://epsg.io/3413, proj definition: http://epsg.io/3413.proj4
-    epsg3413 = proj4.Projection.add('EPSG:3413',
-        '+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs');
+    // Find Projection by name or define it if not exists
+    epsg3413 = proj4.Projection('EPSG:3413') ??
+        proj4.Projection.add('EPSG:3413',
+            '+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs');
 
     // 9 example zoom level resolutions
     final resolutions = <double>[
