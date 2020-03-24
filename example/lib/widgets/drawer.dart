@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map_example/pages/auto_cached_tiles.dart';
+import 'package:flutter_map_example/pages/custom_crs/custom_crs.dart';
 
 import '../pages/animated_map_controller.dart';
 import '../pages/circle.dart';
-import '../pages/custom_crs.dart';
 import '../pages/esri.dart';
 import '../pages/home.dart';
 import '../pages/map_controller.dart';
@@ -27,6 +28,12 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           child: Center(
             child: Text('Flutter Map Examples'),
           ),
+        ),
+        ListTile(
+          title: const Text('AutoCachedTiles'),
+          selected: currentRoute == AutoCachedTilesPage.route,
+          onTap: () => Navigator.pushReplacementNamed(
+              context, AutoCachedTilesPage.route),
         ),
         ListTile(
           title: const Text('OpenStreetMap'),

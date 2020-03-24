@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map_example/pages/auto_cached_tiles.dart';
 
 import './pages/animated_map_controller.dart';
 import './pages/circle.dart';
@@ -50,6 +51,7 @@ class MyApp extends StatelessWidget {
         OverlayImagePage.route: (context) => OverlayImagePage(),
         WMSLayerPage.route: (context) => WMSLayerPage(),
         CustomCrsPage.route: (context) => CustomCrsPage(),
+        AutoCachedTilesPage.route: (context) => AutoCachedTilesPage(),
       },
     );
   }

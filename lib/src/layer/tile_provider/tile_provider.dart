@@ -7,6 +7,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/util.dart' as util;
 
 export 'package:flutter_map/src/layer/tile_provider/mbtiles_image_provider.dart';
+export 'package:flutter_map/src/layer/tile_provider/storage_caching_tile_provider/storage_caching_tile_provider.dart';
 
 abstract class TileProvider {
   const TileProvider();
