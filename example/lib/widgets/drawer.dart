@@ -30,17 +30,17 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           ),
         ),
         ListTile(
-          title: const Text('AutoCachedTiles'),
-          selected: currentRoute == AutoCachedTilesPage.route,
-          onTap: () => Navigator.pushReplacementNamed(
-              context, AutoCachedTilesPage.route),
-        ),
-        ListTile(
           title: const Text('OpenStreetMap'),
           selected: currentRoute == HomePage.route,
           onTap: () {
             Navigator.pushReplacementNamed(context, HomePage.route);
           },
+        ),
+        ListTile(
+          title: const Text('AutoCachedTiles'),
+          selected: currentRoute == AutoCachedTilesPage.route,
+          onTap: () => Navigator.pushReplacementNamed(
+              context, AutoCachedTilesPage.route),
         ),
         ListTile(
           title: const Text('WMS Layer'),

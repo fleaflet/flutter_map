@@ -4,10 +4,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/tile_layer.dart';
-import 'package:flutter_map/src/layer/tile_provider/storage_caching_tile_provider/storage_caching_db.dart';
+import 'package:flutter_map/src/layer/tile_provider/storage_caching_tile_provider/tile_storage_caching_manager.dart';
 import 'package:flutter_map/src/layer/tile_provider/tile_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:tuple/tuple.dart';
+export 'package:flutter_map/src/layer/tile_provider/storage_caching_tile_provider/tile_storage_caching_manager.dart';
 
 ///Provider that persist loaded raster tiles inside local sqlite db
 /// [cachedValidDuration] - valid time period since [DateTime.now]
@@ -28,12 +29,6 @@ class StorageCachingTileProvider extends TileProvider {
     return CachedTileImageProvider(tileUrl,
         Coords<int>(coords.x.toInt(), coords.y.toInt())..z = coords.z.toInt());
   }
-
-  /// [maxTileCount] - maximum number of persisted tiles, default value is 3000,
-  /// and average tile size ~ 0.017 mb -> so default cache size ~ 51 mb.
-  /// To avoid collisions this method should be called before widget build.
-  static Future<void> changeMaxTileCount(int maxTileCount) async =>
-      TileStorageCachingManager.changeMaxTileCount(maxTileCount);
 
   /// Caching tile area by provided [bounds], zoom edges and [options].
   /// The maximum number of tiles to load is [kMaxPreloadTileAreaCount].

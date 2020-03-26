@@ -7,12 +7,13 @@ import 'package:sqflite/sqflite.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:tuple/tuple.dart';
 
+/// Singleton for managing tile sqlite db.
 class TileStorageCachingManager {
   static TileStorageCachingManager _instance;
 
   /// default value of maximum number of persisted tiles,
   /// and average tile size ~ 0.017 mb -> so default cache size ~ 51 mb
-  static int kDefaultMaxTileCount = 3000;
+  static final int kDefaultMaxTileCount = 3000;
   static final kMaxRefreshRowsCount = 5;
   static final String _kDbName = 'tile_cach.db';
   static final String _kTilesTable = 'tiles';
@@ -54,7 +55,7 @@ class TileStorageCachingManager {
     return _db;
   }
 
-  Future<String> get _path async {
+  static Future<String> get _path async {
     final databasePath = await getDatabasesPath();
     final path = join(databasePath, _kDbName);
     await Directory(databasePath).create(recursive: true);
@@ -71,9 +72,13 @@ class TileStorageCachingManager {
 	        END;
       ''';
 
-  void _onConfigure(Database db) async {}
+  Future<void> _onConfigure(Database db) async {}
 
-  void _onCreate(Database db, int version) async {
+  Future<void> _onCreate(Database db, int version) => _createCacheTable(db);
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {}
+
+  static Future<void> _createCacheTable(Database db) async {
     final batch = db.batch();
     batch.execute('DROP TABLE IF EXISTS $_kTilesTable');
     batch.execute('''
@@ -96,8 +101,6 @@ class TileStorageCachingManager {
     batch.execute(_getSizeTriggerQuery(kDefaultMaxTileCount));
     await batch.commit();
   }
-
-  void _onUpgrade(Database db, int oldVersion, int newVersion) async {}
 
   Future<Tuple2<Uint8List, DateTime>> getTile(Coords coords,
       {Duration valid}) async {
@@ -127,11 +130,41 @@ class TileStorageCachingManager {
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  static Future<void> changeMaxTileCount(int maxTileCount) async {
+  /// [maxTileCount] - maximum number of persisted tiles, default value is 3000,
+  /// and average tile size ~ 0.017 mb -> so default cache size ~ 51 mb.
+  /// To avoid collisions this method should be called before widget build.
+  static Future<void> changeMaxTileCount(int maxTileAmount) async {
     final db = await _getInstance().database;
     await db.transaction((txn) async {
       await txn.execute('DROP TRIGGER $_kSizeTriggerName');
-      await txn.execute(_getSizeTriggerQuery(maxTileCount));
+      await txn.execute(_getSizeTriggerQuery(maxTileAmount));
     });
+  }
+
+  /// clean cached tiles db
+  static Future<void> cleanCache() async {
+    if (!(await isDbFileExists)) return;
+    final db = await _getInstance().database;
+    await _createCacheTable(db);
+  }
+
+  /// [File] with cached tiles db
+  static Future<File> get dbFile async => File(await _path);
+
+  /// [bool] flag for [dbFile] existence
+  static Future<bool> get isDbFileExists async => (await dbFile).exists();
+
+  /// cached tiles db sizes in bytes
+  static Future<int> get cacheDbSize async {
+    if (!(await isDbFileExists)) return 0;
+    return File((await _path)).length();
+  }
+
+  /// cached tiles amount
+  static Future<int> get cachedTilesAmount async {
+    if (!(await isDbFileExists)) return 0;
+    final db = await _getInstance().database;
+    List<Map> result = await db.rawQuery('select count(*) from $_kTilesTable');
+    return result.isNotEmpty ? result.first['count(*)'] : 0;
   }
 }
