@@ -199,9 +199,16 @@ Widget build(ctx) {
 ```
 
 Make sure PanBoundaries are within offline map boundary to stop missing asset errors.<br>
-See the `flutter_map_example/` folder for a working example.
 
-Note that there is also `FileTileProvider()`, which you can use to load tiles from the filesystem.
+
+Note that there is also next classes for offline tiles:
+* `FileTileProvider`, which you can use to load tiles from the filesystem;
+* `StorageCachingTileProvider`, caches all browsing tiles in local db;
+* `TileStorageCachingManager`, manages local tile db. This class
+has easy static api for config db size, loading and preloading tiles.
+`StorageCachingTileProvider` uses this class under the hood.
+
+See the `flutter_map_example/` folder for a working examples.
 
 ## Plugins
 
