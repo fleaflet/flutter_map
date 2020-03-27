@@ -1,9 +1,9 @@
 import 'dart:math' as math;
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:latlong/latlong.dart';
+import 'package:meta/meta.dart';
 import 'package:proj4dart/proj4dart.dart' as proj4;
 import 'package:tuple/tuple.dart';
 
@@ -155,7 +155,7 @@ class Epsg4326 extends Earth {
 /// Custom CRS
 class Proj4Crs extends Crs {
   @override
-  String code;
+  final String code;
 
   @override
   final Projection projection;
@@ -164,19 +164,19 @@ class Proj4Crs extends Crs {
   final Transformation transformation;
 
   @override
-  bool infinite;
+  final bool infinite;
 
   @override
-  Tuple2<double, double> get wrapLat => null;
+  final Tuple2<double, double> wrapLat = null;
 
   @override
-  Tuple2<double, double> get wrapLng => null;
+  final Tuple2<double, double> wrapLng = null;
 
   final List<Transformation> _transformations;
 
   final List<double> _scales;
 
-  Proj4Crs({
+  Proj4Crs._({
     @required this.code,
     @required this.projection,
     @required this.transformation,
@@ -200,8 +200,8 @@ class Proj4Crs extends Crs {
     List<double> scales,
     List<double> resolutions,
   }) {
-    final Projection projection =
-        Proj4Projection(proj4Projection: proj4Projection, bounds: bounds);
+    final projection =
+        _Proj4Projection(proj4Projection: proj4Projection, bounds: bounds);
     List<Transformation> transformations;
     var infinite = null == bounds;
     List<double> finalScales;
@@ -228,7 +228,7 @@ class Proj4Crs extends Crs {
       }
     }
 
-    return Proj4Crs(
+    return Proj4Crs._(
       code: code,
       projection: projection,
       transformation: transformation,
@@ -302,7 +302,7 @@ class Proj4Crs extends Crs {
   /// Scale to Zoom function.
   @override
   num zoom(double scale) {
-    // Find closest number in this._scales, down
+    // Find closest number in _scales, down
     var downScale = _closestElement(_scales, scale);
     var downZoom = _scales.indexOf(downScale);
     // Check if scale is downScale => return array index
@@ -324,10 +324,12 @@ class Proj4Crs extends Crs {
 
   /// Get the closest lowest element in an array
   double _closestElement(List<double> array, double element) {
-    var low;
+    double low;
     for (var i = array.length - 1; i >= 0; i--) {
-      if (array[i] <= element && (null == low || low < array[i])) {
-        low = array[i];
+      var curr = array[i];
+
+      if (curr <= element && (null == low || low < curr)) {
+        low = curr;
       }
     }
     return low;
@@ -339,7 +341,7 @@ class Proj4Crs extends Crs {
       return transformation;
     }
 
-    var iZoom = zoom.floor();
+    var iZoom = zoom.round();
     var lastIdx = _transformations.length - 1;
 
     return _transformations[iZoom > lastIdx ? lastIdx : iZoom];
@@ -431,7 +433,7 @@ class SphericalMercator extends Projection {
   }
 }
 
-class Proj4Projection extends Projection {
+class _Proj4Projection extends Projection {
   final proj4.Projection epsg4326;
 
   final proj4.Projection proj4Projection;
@@ -439,10 +441,11 @@ class Proj4Projection extends Projection {
   @override
   final Bounds<double> bounds;
 
-  Proj4Projection({
+  _Proj4Projection({
     @required this.proj4Projection,
     @required this.bounds,
-  }) : epsg4326 = proj4.Projection('EPSG:4326');
+  })  : assert(null != proj4Projection),
+        epsg4326 = proj4.Projection.WGS84;
 
   @override
   CustomPoint project(LatLng latlng) {
