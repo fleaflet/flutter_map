@@ -154,7 +154,7 @@ class _AutoCachedTilesPageContentState
           );
         });
     if (result == null || result == currentMaxTileAmount) return;
-    await TileStorageCachingManager.changeMaxTileCount(result);
+    await TileStorageCachingManager.changeMaxTileAmount(result);
   }
 
   bool _checkTileLoadParams() {

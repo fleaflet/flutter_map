@@ -163,7 +163,7 @@ class TileStorageCachingManager {
   /// [maxTileAmount] - maximum number of persisted tiles, default value is 3000,
   /// and average tile size ~ 0.017 mb -> so default cache size ~ 51 mb.
   /// To avoid collisions this method should be called before widget build.
-  static Future<void> changeMaxTileCount(int maxTileAmount) async {
+  static Future<void> changeMaxTileAmount(int maxTileAmount) async {
     assert(maxTileAmount > 0, 'maxTileAmount must be bigger then 0');
     final db = await _getInstance().database;
     await db.transaction((txn) async {

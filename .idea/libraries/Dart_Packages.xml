@@ -348,7 +348,7 @@
         <entry key="proj4dart">
           <value>
             <list>
-              <option value="$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/proj4dart-1.0.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/proj4dart-1.0.4/lib" />
             </list>
           </value>
         </entry>
@@ -558,7 +558,7 @@
         <entry key="wkt_parser">
           <value>
             <list>
-              <option value="$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/wkt_parser-1.0.3/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/wkt_parser-1.0.7/lib" />
             </list>
           </value>
         </entry>
@@ -626,7 +626,7 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/platform-2.2.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/pool-1.4.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/positioned_tap_detector-1.0.3/lib" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/proj4dart-1.0.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/proj4dart-1.0.4/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/pub_semver-1.4.2/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/quiver-2.0.5/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/shelf-0.7.5/lib" />
@@ -655,7 +655,7 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/vm_service-2.3.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/watcher-0.9.7+13/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/web_socket_channel-1.1.0/lib" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/wkt_parser-1.0.3/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/wkt_parser-1.0.7/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/xml-3.5.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dartlang.org/yaml-2.2.0/lib" />
       <root url="file://$USER_HOME$/development/flutter/bin/cache/pkg/sky_engine/lib" />
