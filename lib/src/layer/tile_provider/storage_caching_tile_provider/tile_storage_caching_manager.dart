@@ -13,17 +13,21 @@ class TileStorageCachingManager {
 
   /// default value of maximum number of persisted tiles,
   /// and average tile size ~ 0.017 mb -> so default cache size ~ 51 mb
-  static final int kDefaultMaxTileCount = 3000;
-  static final kMaxRefreshRowsCount = 5;
+  static const int kDefaultMaxTileAmount = 3000;
+  static final kMaxRefreshRowsCount = 10;
   static final String _kDbName = 'tile_cach.db';
   static final String _kTilesTable = 'tiles';
   static final String _kZoomLevelColumn = 'zoom_level';
   static final String _kTileRowColumn = 'tile_row';
   static final String _kTileColumnColumn = 'tile_column';
   static final String _kTileDataColumn = 'tile_data';
-  static final String _kIdColumn = '_id';
   static final String _kUpdateDateColumn = '_lastUpdateColumn';
   static final String _kSizeTriggerName = 'size_trigger';
+
+  static final String _kTileCacheConfigTable = 'config';
+  static final String _kConfigKeyColumn = 'config_key';
+  static final String _kConfigValueColumn = 'config_value';
+  static final String _kMaxTileAmountConfig = 'max_tiles_amount_config';
   Database _db;
 
   final _lock = Lock();
@@ -64,26 +68,47 @@ class TileStorageCachingManager {
 
   static String _getSizeTriggerQuery(int tileCount) => '''
         CREATE TRIGGER $_kSizeTriggerName 
-	      BEFORE INSERT on $_kTilesTable
+	      AFTER INSERT on $_kTilesTable
 	      WHEN (select count(*) from $_kTilesTable) > $tileCount
 	        BEGIN
-		        DELETE from $_kTilesTable where $_kIdColumn in 
-		          (select $_kIdColumn  from $_kTilesTable order by $_kUpdateDateColumn asc LIMIT $kMaxRefreshRowsCount);
+		        DELETE from $_kTilesTable where $_kUpdateDateColumn <= 
+		          (select $_kUpdateDateColumn  from $_kTilesTable 
+		            order by $_kUpdateDateColumn asc 
+		            LIMIT 1 OFFSET $kMaxRefreshRowsCount);
 	        END;
       ''';
 
   Future<void> _onConfigure(Database db) async {}
 
-  Future<void> _onCreate(Database db, int version) => _createCacheTable(db);
+  Future<void> _onCreate(Database db, int version) async {
+    await _createConfigTable(db);
+    await _createCacheTable(db);
+  }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {}
 
-  static Future<void> _createCacheTable(Database db) async {
+  Future<void> _createConfigTable(Database db) async {
+    final batch = db.batch();
+    batch.execute('DROP TABLE IF EXISTS $_kTileCacheConfigTable');
+    batch.execute('''
+      CREATE TABLE $_kTileCacheConfigTable(
+        $_kConfigKeyColumn TEXT NOT NULL,
+        $_kConfigValueColumn TEXT NOT NULL
+      )
+    ''');
+    batch.execute('''
+      CREATE UNIQUE INDEX idx_config_key
+      ON $_kTileCacheConfigTable($_kConfigKeyColumn);
+    ''');
+    await batch.commit();
+  }
+
+  static Future<void> _createCacheTable(Database db,
+      {int maxTileAmount = kDefaultMaxTileAmount}) async {
     final batch = db.batch();
     batch.execute('DROP TABLE IF EXISTS $_kTilesTable');
     batch.execute('''
       CREATE TABLE $_kTilesTable(
-        $_kIdColumn INTEGER PRIMARY KEY AUTOINCREMENT,
         $_kZoomLevelColumn INTEGER NOT NULL,
         $_kTileColumnColumn INTEGER NOT NULL,
         $_kTileRowColumn INTEGER NOT NULL,
@@ -98,13 +123,16 @@ class TileStorageCachingManager {
          $_kTileRowColumn
        )
     ''');
-    batch.execute(_getSizeTriggerQuery(kDefaultMaxTileCount));
+    batch.execute(_getSizeTriggerQuery(maxTileAmount));
     await batch.commit();
   }
 
-  Future<Tuple2<Uint8List, DateTime>> getTile(Coords coords,
+  /// Get local tile by tile index [Coords].
+  /// Return [Tuple2], where [Tuple2.item1] is bytes of tile image,
+  /// [Tuple2.item2] - last update [DateTime] of this tile.
+  static Future<Tuple2<Uint8List, DateTime>> getTile(Coords coords,
       {Duration valid}) async {
-    List<Map> result = await (await database)
+    List<Map> result = await (await _getInstance().database)
         .rawQuery('select $_kTileDataColumn, $_kUpdateDateColumn from tiles '
             'where $_kZoomLevelColumn = ${coords.z} AND '
             '$_kTileColumnColumn = ${coords.x} AND '
@@ -112,32 +140,61 @@ class TileStorageCachingManager {
     return result.isNotEmpty
         ? Tuple2(
             result.first[_kTileDataColumn],
-            DateTime.fromMicrosecondsSinceEpoch(
-                result.first[_kUpdateDateColumn]))
+            DateTime.fromMillisecondsSinceEpoch(
+                1000 * result.first[_kUpdateDateColumn]))
         : null;
   }
 
-  Future<void> saveTile(Uint8List tile, Coords cords) async {
-    await (await database).insert(
+  /// Save tile bytes [tile] with [cords] to local database.
+  /// Also saves update timestamp [DateTime.now].
+  static Future<void> saveTile(Uint8List tile, Coords cords) async {
+    await (await _getInstance().database).insert(
         _kTilesTable,
         {
           _kZoomLevelColumn: cords.z,
           _kTileColumnColumn: cords.x,
           _kTileRowColumn: cords.y,
-          _kUpdateDateColumn: DateTime.now().millisecondsSinceEpoch,
+          _kUpdateDateColumn: (DateTime.now().millisecondsSinceEpoch ~/ 1000),
           _kTileDataColumn: tile
         },
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  /// [maxTileCount] - maximum number of persisted tiles, default value is 3000,
+  /// [maxTileAmount] - maximum number of persisted tiles, default value is 3000,
   /// and average tile size ~ 0.017 mb -> so default cache size ~ 51 mb.
   /// To avoid collisions this method should be called before widget build.
   static Future<void> changeMaxTileCount(int maxTileAmount) async {
+    assert(maxTileAmount > 0, 'maxTileAmount must be bigger then 0');
     final db = await _getInstance().database;
     await db.transaction((txn) async {
       await txn.execute('DROP TRIGGER $_kSizeTriggerName');
       await txn.execute(_getSizeTriggerQuery(maxTileAmount));
+      await txn.insert(
+          _kTileCacheConfigTable,
+          {
+            _kConfigKeyColumn: _kMaxTileAmountConfig,
+            _kConfigValueColumn: maxTileAmount.toString()
+          },
+          conflictAlgorithm: ConflictAlgorithm.replace);
+      List<Map> currentTilesAmountResult =
+          await txn.rawQuery('select count(*) from $_kTilesTable');
+      final currentTilesAmount = currentTilesAmountResult.isNotEmpty
+          ? currentTilesAmountResult.first['count(*)']
+          : 0;
+      // if current tileAmount bigger then new one, then
+      // from tile tables deleted most oldest overflow rows.
+      if (currentTilesAmount > maxTileAmount) {
+        List<Map> lastValidTileDateResult = await txn
+            .rawQuery('select $_kUpdateDateColumn from $_kTilesTable order by'
+                ' $_kUpdateDateColumn asc '
+                'limit 1 offset ${currentTilesAmount - maxTileAmount}');
+        if (lastValidTileDateResult.isEmpty) return;
+        final lastValidTileDate =
+            lastValidTileDateResult.first[_kUpdateDateColumn];
+        if (lastValidTileDate == null) return;
+        await txn.delete(_kTilesTable,
+            where: '$_kUpdateDateColumn <= ?', whereArgs: [lastValidTileDate]);
+      }
     });
   }
 
@@ -145,7 +202,8 @@ class TileStorageCachingManager {
   static Future<void> cleanCache() async {
     if (!(await isDbFileExists)) return;
     final db = await _getInstance().database;
-    await _createCacheTable(db);
+    final maxTileAmount = await maxCachedTilesAmount;
+    await _createCacheTable(db, maxTileAmount: maxTileAmount);
   }
 
   /// [File] with cached tiles db
@@ -166,5 +224,16 @@ class TileStorageCachingManager {
     final db = await _getInstance().database;
     List<Map> result = await db.rawQuery('select count(*) from $_kTilesTable');
     return result.isNotEmpty ? result.first['count(*)'] : 0;
+  }
+
+  /// current maxCachedTilesAmount
+  static Future<int> get maxCachedTilesAmount async {
+    if (!(await isDbFileExists)) return kDefaultMaxTileAmount;
+    final db = await _getInstance().database;
+    List<Map> result = await db.rawQuery(
+        'select $_kConfigValueColumn from $_kTileCacheConfigTable where $_kConfigKeyColumn = "$_kMaxTileAmountConfig" limit 1');
+    return result.isNotEmpty
+        ? int.parse(result.first[_kConfigValueColumn])
+        : kDefaultMaxTileAmount;
   }
 }

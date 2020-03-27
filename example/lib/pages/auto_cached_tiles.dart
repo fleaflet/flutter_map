@@ -87,35 +87,111 @@ class _AutoCachedTilesPageContentState
     });
   }
 
-  Future<void> _loadMap(
-      StorageCachingTileProvider tileProvider, TileLayerOptions options) async {
-    _hideKeyboard();
+  void _calculateApproxTileAmount() {
+    if (!_checkTileLoadParams()) return;
+    final zoomMin = int.tryParse(minZoomController.text);
+    final zoomMax = int.tryParse(maxZoomController.text) ?? zoomMin;
+    final approximateTileCount =
+        StorageCachingTileProvider.approximateTileAmount(
+            bounds: _selectedBounds, minZoom: zoomMin, maxZoom: zoomMax);
+    showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+              title: Text('Aproximate tile amount'),
+              content: Text(
+                '~ $approximateTileCount',
+                style: Theme.of(ctx).textTheme.headline4,
+              ),
+              actions: <Widget>[
+                FlatButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: Text('Ok'),
+                )
+              ],
+            ));
+  }
+
+  void _changeSettings() async {
+    final currentMaxTileAmount =
+        await TileStorageCachingManager.maxCachedTilesAmount;
+    final result = await showDialog<int>(
+        context: context,
+        builder: (ctx) {
+          final tileAmountController = TextEditingController();
+          tileAmountController.text = currentMaxTileAmount.toString();
+          return AlertDialog(
+            title: Text('Change max caching tile amount'),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('Cancel'),
+                onPressed: () => Navigator.of(ctx).pop(),
+              ),
+              FlatButton(
+                child: Text('Ok'),
+                onPressed: () => Navigator.of(ctx)
+                    .pop(int.tryParse(tileAmountController.text ?? '')),
+              )
+            ],
+            content: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text('max cach tile amount: '),
+                SizedBox(
+                  width: 8,
+                ),
+                Expanded(
+                  // width: width / 3,
+                  child: TextField(
+                    inputFormatters: [
+                      WhitelistingTextInputFormatter.digitsOnly
+                    ],
+                    keyboardType: TextInputType.number,
+                    controller: tileAmountController,
+                  ),
+                )
+              ],
+            ),
+          );
+        });
+    if (result == null || result == currentMaxTileAmount) return;
+    await TileStorageCachingManager.changeMaxTileCount(result);
+  }
+
+  bool _checkTileLoadParams() {
     final zoomMin = int.tryParse(minZoomController.text);
     final zoomMax = int.tryParse(maxZoomController.text) ?? zoomMin;
     if (zoomMin == null) {
       _showErrorSnack('At least zoomMin must be defined!');
-      return;
+      return false;
     }
     if (zoomMin < 0 || zoomMin > 19) {
       _showErrorSnack('valid zoom value must be inside 1..19 range');
-      return;
+      return false;
     }
     if (zoomMax < zoomMin) {
       _showErrorSnack('Max zoom must be bigger than min zoom');
-      return;
+      return false;
     }
     if (_selectedBounds == null) {
       _showErrorSnack('bounds of caching area are not defined');
-      return;
+      return false;
     }
+    return true;
+  }
+
+  Future<void> _loadMap(
+      StorageCachingTileProvider tileProvider, TileLayerOptions options) async {
+    _hideKeyboard();
+    if (!_checkTileLoadParams()) return;
+    final zoomMin = int.tryParse(minZoomController.text);
+    final zoomMax = int.tryParse(maxZoomController.text) ?? zoomMin;
     final approximateTileCount =
-        StorageCachingTileProvider.approximateTileRange(
-                bounds: _selectedBounds, minZoom: zoomMin, maxZoom: zoomMax)
-            .length;
-    if (approximateTileCount >
-        StorageCachingTileProvider.kMaxPreloadTileAreaCount) {
+        StorageCachingTileProvider.approximateTileAmount(
+            bounds: _selectedBounds, minZoom: zoomMin, maxZoom: zoomMax);
+    final maxTilesAmount = await TileStorageCachingManager.maxCachedTilesAmount;
+    if (approximateTileCount > maxTilesAmount) {
       _showErrorSnack(
-          'tiles ammount $approximateTileCount bigger than default ${StorageCachingTileProvider.kMaxPreloadTileAreaCount}');
+          'tiles ammount $approximateTileCount bigger than current maximum $maxTilesAmount');
       return;
     }
     await showDialog<void>(
@@ -405,12 +481,20 @@ class _AutoCachedTilesPageContentState
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: <Widget>[
                 IconButton(
+                  icon: Icon(Icons.settings),
+                  onPressed: _changeSettings,
+                ),
+                IconButton(
                   icon: Icon(Icons.delete),
                   onPressed: _deleteCachedMap,
                 ),
                 IconButton(
                   icon: Icon(Icons.cloud_download),
                   onPressed: () => _loadMap(tileProvider, tileLayerOptions),
+                ),
+                IconButton(
+                  icon: Icon(Icons.straighten),
+                  onPressed: _calculateApproxTileAmount,
                 ),
                 IconButton(
                   icon: Icon(Icons.filter_center_focus),

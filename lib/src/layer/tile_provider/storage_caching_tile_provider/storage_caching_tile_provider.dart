@@ -17,8 +17,6 @@ export 'package:flutter_map/src/layer/tile_provider/storage_caching_tile_provide
 class StorageCachingTileProvider extends TileProvider {
   static final kMaxPreloadTileAreaCount = 3000;
   final Duration cachedValidDuration;
-  final TileStorageCachingManager _tileStorageCachingManager =
-      TileStorageCachingManager();
 
   StorageCachingTileProvider(
       {this.cachedValidDuration = const Duration(days: 1)});
@@ -33,7 +31,7 @@ class StorageCachingTileProvider extends TileProvider {
   /// Caching tile area by provided [bounds], zoom edges and [options].
   /// The maximum number of tiles to load is [kMaxPreloadTileAreaCount].
   /// To check tiles number before calling this method, use
-  /// [approximateTileRange].
+  /// [approximateTileAmount].
   /// Return [Tuple3] with uploaded tile index as [Tuple3.item1],
   /// errors count as [Tuple3.item2], and total tiles count need to be downloaded
   /// as [Tuple3.item3]
@@ -55,13 +53,41 @@ class StorageCachingTileProvider extends TileProvider {
         // get network tile
         final bytes = (await http.get(url)).bodyBytes;
         // save tile to cache
-        await _tileStorageCachingManager.saveTile(bytes, cord);
+        await TileStorageCachingManager.saveTile(bytes, cord);
       } catch (e) {
         errorsCount++;
         if (errorHandler != null) errorHandler(e);
       }
       yield Tuple3(i + 1, errorsCount, tilesRange.length);
     }
+  }
+
+  ///Get approximate tile amount from bounds and zoom edges.
+  ///[crs] and [tileSize] is optional.
+  static int approximateTileAmount(
+      {@required LatLngBounds bounds,
+      @required int minZoom,
+      @required int maxZoom,
+      Crs crs = const Epsg3857(),
+      tileSize = const CustomPoint(256, 256)}) {
+    assert(minZoom <= maxZoom, 'minZoom > maxZoom');
+    var amount = 0;
+    for (var zoomLevel in List<int>.generate(
+        maxZoom - minZoom + 1, (index) => index + minZoom)) {
+      final nwPoint = crs
+          .latLngToPoint(bounds.northWest, zoomLevel.toDouble())
+          .unscaleBy(tileSize)
+          .floor();
+      final sePoint = crs
+              .latLngToPoint(bounds.southEast, zoomLevel.toDouble())
+              .unscaleBy(tileSize)
+              .ceil() -
+          CustomPoint(1, 1);
+      final a = sePoint.x - nwPoint.x + 1;
+      final b = sePoint.y - nwPoint.y + 1;
+      amount += a * b;
+    }
+    return amount;
   }
 
   ///Get tileRange from bounds and zoom edges.
@@ -100,8 +126,6 @@ class CachedTileImageProvider extends ImageProvider<Coords<int>> {
   final String url;
   final Coords<int> coords;
   final Duration cacheValidDuration;
-  final TileStorageCachingManager _tileStorageCachingManager =
-      TileStorageCachingManager();
 
   CachedTileImageProvider(this.url, this.coords,
       {this.cacheValidDuration = const Duration(days: 1),
@@ -122,7 +146,7 @@ class CachedTileImageProvider extends ImageProvider<Coords<int>> {
       SynchronousFuture(coords);
 
   Future<Codec> _loadAsync() async {
-    final localBytes = await _tileStorageCachingManager.getTile(coords);
+    final localBytes = await TileStorageCachingManager.getTile(coords);
     var bytes = localBytes?.item1;
     if ((DateTime.now().millisecondsSinceEpoch -
             (localBytes?.item2?.millisecondsSinceEpoch ?? 0)) >
@@ -131,7 +155,7 @@ class CachedTileImageProvider extends ImageProvider<Coords<int>> {
         // get network tile
         bytes = (await http.get(url)).bodyBytes;
         // save tile to cache
-        await _tileStorageCachingManager.saveTile(bytes, coords);
+        await TileStorageCachingManager.saveTile(bytes, coords);
       } catch (e) {
         if (netWorkErrorHandler != null) netWorkErrorHandler(e);
       }
