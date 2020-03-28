@@ -100,7 +100,7 @@ class _AutoCachedTilesPageContentState
               title: Text('Aproximate tile amount'),
               content: Text(
                 '~ $approximateTileCount',
-                style: Theme.of(ctx).textTheme.headline4,
+                style: Theme.of(ctx).textTheme.display1,
               ),
               actions: <Widget>[
                 FlatButton(
@@ -282,7 +282,7 @@ class _AutoCachedTilesPageContentState
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  Text('BOUNDS', style: Theme.of(context).textTheme.subtitle1),
+                  Text('BOUNDS', style: Theme.of(context).textTheme.subhead),
                   SizedBox(
                     width: boundsInputSize,
                     child: TextField(
@@ -351,7 +351,7 @@ class _AutoCachedTilesPageContentState
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                Text('ZOOM', style: Theme.of(context).textTheme.subtitle1),
+                Text('ZOOM', style: Theme.of(context).textTheme.subhead),
                 SizedBox(
                   width: zoomInputWidth,
                   child: TextField(
@@ -417,7 +417,7 @@ class _AutoCachedTilesPageContentState
                 alignment: Alignment.center,
                 child: Text(
                   (tileIndex / tileAmount * 100).toInt().toString(),
-                  style: Theme.of(context).textTheme.subtitle1,
+                  style: Theme.of(context).textTheme.subhead,
                 ),
               )
             ],
@@ -427,7 +427,7 @@ class _AutoCachedTilesPageContentState
           height: 8,
         ),
         Text('$tileIndex/$tileAmount',
-            style: Theme.of(context).textTheme.subtitle2)
+            style: Theme.of(context).textTheme.subtitle)
       ],
     );
   }
