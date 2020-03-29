@@ -16,11 +16,13 @@ class OverlayImage {
   final LatLngBounds bounds;
   final ImageProvider imageProvider;
   final double opacity;
+  final bool gaplessPlayback;
 
   OverlayImage({
     this.bounds,
     this.imageProvider,
     this.opacity = 1.0,
+    this.gaplessPlayback = false,
   });
 }
 
@@ -68,7 +70,7 @@ class OverlayImageLayer extends StatelessWidget {
         fit: BoxFit.fill,
         color: Color.fromRGBO(255, 255, 255, overlayImage.opacity),
         colorBlendMode: BlendMode.modulate,
-        gaplessPlayback: true,
+        gaplessPlayback: overlayImage.gaplessPlayback,
       ),
     );
   }
