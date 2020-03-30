@@ -120,6 +120,10 @@ class TileLayerOptions extends LayerOptions {
   ///
   Map<String, String> additionalOptions;
 
+  // Tiles will not update more than once every `updateInterval` milliseconds when panning.
+  // This can save some bandwidth (fast panning / fast animate move) / fps
+  final int updateInterval;
+
   TileLayerOptions(
       {this.urlTemplate,
       this.tileSize = 256.0,
@@ -136,8 +140,10 @@ class TileLayerOptions extends LayerOptions {
       // ignore: avoid_init_to_null
       this.wmsOptions = null,
       this.opacity = 1.0,
+      this.updateInterval = 50,
       rebuild})
-      : super(rebuild: rebuild);
+      : assert(updateInterval >= 0),
+        super(rebuild: rebuild);
 }
 
 class WMSTileLayerOptions {
@@ -251,7 +257,7 @@ class _TileLayerState extends State<TileLayer> {
   double _tileZoom;
   Level _level;
   StreamSubscription _moveSub;
-  final _throttleUpdate = PublishSubject<void>();
+  PublishSubject<void> _throttleUpdate;
 
   final Map<String, Tile> _tiles = {};
   final Map<double, Level> _levels = {};
@@ -263,9 +269,11 @@ class _TileLayerState extends State<TileLayer> {
     _update(null);
     _moveSub = widget.stream.listen((_) => _handleMove());
 
-    _throttleUpdate
-        .throttleTime(Duration(milliseconds: 50))
-        .listen((_) => _update(null));
+    _throttleUpdate = widget.options.updateInterval == 0
+        ? null
+        : (PublishSubject<void>()
+          ..throttleTime(Duration(milliseconds: 50))
+          ..listen((_) => _update(null)));
   }
 
   @override
@@ -653,9 +661,20 @@ class _TileLayerState extends State<TileLayer> {
 
   void _handleMove() {
     setState(() {
-      // _update(null);
-      _throttleUpdate.add(null);
-      _setZoomTransforms(map.center, map.zoom);
+      var zoom = _clampZoom(map.zoom);
+
+      if ((zoom - _tileZoom).abs() >= 1) {
+        // It was a zoom lvl change
+        _setView(map.center, zoom);
+      } else {
+        if (null == _throttleUpdate) {
+          _update(null);
+        } else {
+          _throttleUpdate.add(null);
+        }
+
+        _setZoomTransforms(map.center, map.zoom);
+      }
     });
   }
 
@@ -698,7 +717,7 @@ class _TileLayerState extends State<TileLayer> {
 
     // _update just loads more tiles. If the tile zoom level differs too much
     // from the map's, let _setView reset levels and prune old tiles.
-    if ((zoom - _tileZoom).abs() >= 1) {
+    if ((zoom - _tileZoom).abs() > 1) {
       _setView(center, zoom);
       return;
     }
