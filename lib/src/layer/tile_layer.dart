@@ -372,13 +372,17 @@ class _TileLayerState extends State<TileLayer> {
       }
     }
 
+    // TODO: remove diagnostic
     if (toRemove.isNotEmpty) {
       print('_prune+abort ---------------------');
     }
 
     for (var key in toRemove) {
       var tile = _tiles[key];
+      // TODO: remove diagnostic
       print('_prune+abort: ${tile.coords}');
+
+      tile.tileReady = null;
       tile.dispose();
       _tiles.remove(key);
     }
@@ -859,7 +863,8 @@ class Tile {
   DateTime loaded;
 
   // callback when tile is ready / error occurred
-  final TileReady tileReady;
+  // it maybe be null forinstance when download aborted
+  TileReady tileReady;
   ImageInfo imageInfo;
   ImageStream _stream;
   ImageStreamListener _listener;
@@ -884,19 +889,24 @@ class Tile {
     if (evict && imageProvider != null) {
       imageProvider
           .evict()
-          .then((bool succ) => print('evict tile: $coords -> $succ'));
+          .then((bool succ) => print('evict tile: $coords -> $succ'))
+          .catchError((error) => print('evict tile: $coords -> $error'));
     }
 
     _stream?.removeListener(_listener);
   }
 
   void _tileOnLoad(ImageInfo imageInfo, bool synchronousCall) {
-    this.imageInfo = imageInfo;
-    tileReady(coords, null, this);
+    if (null != tileReady) {
+      this.imageInfo = imageInfo;
+      tileReady(coords, null, this);
+    }
   }
 
   void _tileOnError(dynamic exception, StackTrace stackTrace) {
-    tileReady(coords, exception, this);
+    if (null != tileReady) {
+      tileReady(coords, exception, this);
+    }
   }
 }
 
