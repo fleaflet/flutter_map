@@ -272,7 +272,7 @@ class _TileLayerState extends State<TileLayer> {
     _throttleUpdate = widget.options.updateInterval == 0
         ? null
         : (PublishSubject<void>()
-          ..throttleTime(Duration(milliseconds: 50))
+          ..throttleTime(Duration(milliseconds: widget.options.updateInterval))
           ..listen((_) => _update(null)));
   }
 
@@ -422,7 +422,7 @@ class _TileLayerState extends State<TileLayer> {
       var lvl = entry.value;
 
       if (z == zoom || _hasLevelChildren(z)) {
-        lvl.zIndex = maxZoom = (zoom - z).abs();
+        lvl.zIndex = maxZoom - (zoom - z).abs();
       } else {
         toRemove.add(z);
       }
