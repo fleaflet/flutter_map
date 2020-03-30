@@ -120,9 +120,11 @@ class TileLayerOptions extends LayerOptions {
   ///
   Map<String, String> additionalOptions;
 
-  // Tiles will not update more than once every `updateInterval` milliseconds when panning.
-  // This can save some bandwidth (fast panning / fast animate move) / fps
-  final int updateInterval;
+  // Tiles will not update more than once every `updateInterval` when panning.
+  // This can save some bandwidth (ie. when fast panning / fast panning) / fps
+  final Duration updateInterval;
+
+  final Duration tileFadeInDuration;
 
   TileLayerOptions(
       {this.urlTemplate,
@@ -140,9 +142,11 @@ class TileLayerOptions extends LayerOptions {
       // ignore: avoid_init_to_null
       this.wmsOptions = null,
       this.opacity = 1.0,
-      this.updateInterval = 50,
+      this.updateInterval = const Duration(milliseconds: 50),
+      this.tileFadeInDuration = const Duration(milliseconds: 200),
       rebuild})
-      : assert(updateInterval >= 0),
+      : assert(tileFadeInDuration != null && !tileFadeInDuration.isNegative),
+        assert(updateInterval != null && !updateInterval.isNegative),
         super(rebuild: rebuild);
 }
 
@@ -269,10 +273,10 @@ class _TileLayerState extends State<TileLayer> {
     _update(null);
     _moveSub = widget.stream.listen((_) => _handleMove());
 
-    _throttleUpdate = widget.options.updateInterval == 0
+    _throttleUpdate = options.updateInterval.inMicroseconds == 0
         ? null
         : (PublishSubject<void>()
-          ..throttleTime(Duration(milliseconds: widget.options.updateInterval))
+          ..throttleTime(options.updateInterval)
           ..listen((_) => _update(null)));
   }
 
@@ -334,38 +338,27 @@ class _TileLayerState extends State<TileLayer> {
     var width = tileSize.x * level.scale;
     var height = tileSize.y * level.scale;
 
-    /*
-      FadeInImage(
-        fadeInDuration: const Duration(milliseconds: 100),
-        key: Key(_tileCoordsToKey(coords)),
-        placeholder: options.placeholderImage != null
-            ? options.placeholderImage
-            : MemoryImage(kTransparentImage),
-        image: tile.image,
+    final Widget content = AnimatedOpacity(
+      key: Key(tile.coordsKey),
+      opacity: tile.active || tile.fadeStarted ? 1.0 : 0.0,
+      duration: options.tileFadeInDuration,
+      onEnd: tile.onAnimateEnd,
+      child: RawImage(
+        image: tile.imageInfo.image,
         fit: BoxFit.fill,
       ),
-
-     */
-
-    Widget content = RawImage(
-      key: Key(_tileCoordsToKey(coords)),
-      image: tile.imageInfo.image,
-      fit: BoxFit.fill,
     );
-/*
-    content = Container(
-        height: 200,
-        decoration: BoxDecoration(
-            // color: Colors.green,
-            image: DecorationImage(image: MemoryImage(kTransparentImage))));
-*/
+
+    tile.fadeStarted = true;
+
     return Positioned(
-        key: Key(_tileCoordsToKey(coords)),
-        left: pos.x.toDouble(),
-        top: pos.y.toDouble(),
-        width: width.toDouble(),
-        height: height.toDouble(),
-        child: content);
+      key: Key(tile.coordsKey),
+      left: pos.x.toDouble(),
+      top: pos.y.toDouble(),
+      width: width.toDouble(),
+      height: height.toDouble(),
+      child: content,
+    );
   }
 
   void _abortLoading() {
@@ -822,14 +815,18 @@ class _TileLayerState extends State<TileLayer> {
     }
 
     tile.loaded = DateTime.now();
-    tile.active = true; // TODO ??
 
     setState(() {});
 
     if (_noTilesToLoad()) {
-      // Wait a bit more than 0.2 secs (the duration of the tile fade-in)
+      // Wait a bit more than tileFadeInDuration (the duration of the tile fade-in)
       // to trigger a pruning.
-      Future.delayed(Duration(milliseconds: 250), _pruneTiles);
+      Future.delayed(
+        options.tileFadeInDuration + const Duration(milliseconds: 50),
+        () {
+          setState(_pruneTiles);
+        },
+      );
     }
   }
 
@@ -881,6 +878,8 @@ class Tile {
   bool active;
   DateTime loaded;
 
+  bool fadeStarted = false;
+
   // callback when tile is ready / error occurred
   // it maybe be null forinstance when download aborted
   TileReady tileReady;
@@ -913,6 +912,10 @@ class Tile {
     }
 
     _stream?.removeListener(_listener);
+  }
+
+  void onAnimateEnd() {
+    active = true;
   }
 
   void _tileOnLoad(ImageInfo imageInfo, bool synchronousCall) {
