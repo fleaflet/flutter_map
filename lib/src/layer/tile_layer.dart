@@ -9,7 +9,6 @@ import 'package:flutter_map/src/geo/crs/crs.dart';
 import 'package:flutter_map/src/layer/tile_provider/tile_provider.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:tuple/tuple.dart';
 
 import 'layer.dart';
@@ -261,7 +260,7 @@ class _TileLayerState extends State<TileLayer> {
   double _tileZoom;
   Level _level;
   StreamSubscription _moveSub;
-  PublishSubject<void> _throttleUpdate;
+  StreamController<LatLng> _throttleUpdate;
 
   final Map<String, Tile> _tiles = {};
   final Map<double, Level> _levels = {};
@@ -273,11 +272,17 @@ class _TileLayerState extends State<TileLayer> {
     _update(null);
     _moveSub = widget.stream.listen((_) => _handleMove());
 
-    _throttleUpdate = options.updateInterval.inMicroseconds == 0
-        ? null
-        : (PublishSubject<void>()
-          ..throttleTime(options.updateInterval)
-          ..listen((_) => _update(null)));
+    if (options.updateInterval.inMicroseconds == 0) {
+      _throttleUpdate = null;
+    } else {
+      _throttleUpdate = StreamController<LatLng>(sync: true);
+      util
+          .bindAndCreateThrottleStreamWithTrailingCall<LatLng>(
+            _throttleUpdate,
+            options.updateInterval,
+          )
+          .listen(_update);
+    }
   }
 
   @override
@@ -815,6 +820,9 @@ class _TileLayerState extends State<TileLayer> {
     }
 
     tile.loaded = DateTime.now();
+    if (options.tileFadeInDuration.inMicroseconds == 0) {
+      tile.active = true;
+    }
 
     setState(() {});
 
