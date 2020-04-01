@@ -276,12 +276,11 @@ class _TileLayerState extends State<TileLayer> {
       _throttleUpdate = null;
     } else {
       _throttleUpdate = StreamController<LatLng>(sync: true);
-      util
-          .bindAndCreateThrottleStreamWithTrailingCall<LatLng>(
-            _throttleUpdate,
-            options.updateInterval,
-          )
-          .listen(_update);
+      _throttleUpdate.stream.transform(
+        util.throttleStreamTransformerWithTrailingCall<LatLng>(
+          options.updateInterval,
+        ),
+      )..listen(_update);
     }
   }
 

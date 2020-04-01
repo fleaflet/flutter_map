@@ -25,38 +25,35 @@ double wrapNum(double x, Tuple2<double, double> range, [bool includeMax]) {
   return x == max && includeMax != null ? x : ((x - min) % d + d) % d + min;
 }
 
-Stream<T> bindAndCreateThrottleStreamWithTrailingCall<T>(
-    StreamController<T> sc, Duration duration) {
+StreamTransformer<T, T> throttleStreamTransformerWithTrailingCall<T>(
+    Duration duration) {
   Timer timer;
   T recentData;
-  var isClosed = false;
   var trailingCall = false;
 
-  return StreamTransformer<T, T>.fromHandlers(
-      handleData: (T data, EventSink<T> sink) {
+  void Function(T data, EventSink<T> sink) throttleHandler;
+  throttleHandler = (T data, EventSink<T> sink) {
     recentData = data;
 
     if (timer == null) {
-      if (!trailingCall) {
-        sink.add(recentData);
+      sink.add(recentData);
+      timer = Timer(duration, () {
+        timer = null;
 
-        timer = Timer(duration, () {
-          timer = null;
-
-          if (trailingCall) {
-            trailingCall = false;
-
-            if (!isClosed) {
-              sc.add(recentData);
-            }
-          }
-        });
-      }
+        if (trailingCall) {
+          trailingCall = false;
+          throttleHandler(recentData, sink);
+        }
+      });
     } else {
       trailingCall = true;
     }
-  }, handleDone: (EventSink<T> sink) {
-    isClosed = true;
-    sink.close();
-  }).bind(sc.stream);
+  };
+
+  return StreamTransformer<T, T>.fromHandlers(
+      handleData: throttleHandler,
+      handleDone: (EventSink<T> sink) {
+        timer?.cancel();
+        sink.close();
+      });
 }
