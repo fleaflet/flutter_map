@@ -38,8 +38,24 @@ class TileLayerOptions extends LayerOptions {
   /// Default is 256
   final double tileSize;
 
-  /// The max zoom applicable. In most tile providers goes from 0 to 19.
+  // The minimum zoom level down to which this layer will be
+  // displayed (inclusive).
+  final double minZoom;
+
+  /// The maximum zoom level up to which this layer will be
+  /// displayed (inclusive).
+  /// In most tile providers goes from 0 to 19.
   final double maxZoom;
+
+  // Minimum zoom number the tile source has available. If it is specified,
+  // the tiles on all zoom levels lower than minNativeZoom will be loaded
+  // from minNativeZoom level and auto-scaled.
+  final double minNativeZoom;
+
+  // Maximum zoom number the tile source has available. If it is specified,
+  // the tiles on all zoom levels higher than maxNativeZoom will be loaded
+  // from maxNativeZoom level and auto-scaled.
+  final double maxNativeZoom;
 
   final bool zoomReverse;
   final double zoomOffset;
@@ -129,7 +145,10 @@ class TileLayerOptions extends LayerOptions {
   TileLayerOptions(
       {this.urlTemplate,
       this.tileSize = 256.0,
+      this.minZoom = 0.0,
       this.maxZoom = 18.0,
+      this.minNativeZoom,
+      this.maxNativeZoom,
       this.zoomReverse = false,
       this.zoomOffset = 0.0,
       this.additionalOptions = const <String, String>{},
@@ -142,7 +161,7 @@ class TileLayerOptions extends LayerOptions {
       // ignore: avoid_init_to_null
       this.wmsOptions = null,
       this.opacity = 1.0,
-      this.updateInterval = const Duration(milliseconds: 50),
+      this.updateInterval = const Duration(milliseconds: 150),
       this.tileFadeInDuration = const Duration(milliseconds: 100),
       rebuild})
       : assert(tileFadeInDuration != null && !tileFadeInDuration.isNegative),
@@ -437,8 +456,8 @@ class _TileLayerState extends State<TileLayer> {
     }
 
     var zoom = map.zoom;
-    if (zoom > options.maxZoom) {
-      // TODO: min!
+    if (zoom > options.maxZoom || zoom < options.minZoom) {
+      // TODO: _removeAllTiles ??
       // _removeAllTiles();
       return;
     }
@@ -558,14 +577,22 @@ class _TileLayerState extends State<TileLayer> {
   }
 
   double _clampZoom(double zoom) {
-    // TODO
+    if (null != options.minNativeZoom && zoom < options.minNativeZoom) {
+      return options.minNativeZoom;
+    }
+
+    if (null != options.maxNativeZoom && options.maxNativeZoom < zoom) {
+      return options.maxNativeZoom;
+    }
+
     return zoom;
   }
 
   void _setView(LatLng center, double zoom) {
     var tileZoom = _clampZoom(zoom.roundToDouble());
-    if ((options.maxZoom != null && tileZoom > options.maxZoom)) {
-      // TODO: minZoom !
+    if ((options.maxZoom != null && tileZoom > options.maxZoom) ||
+        (options.minZoom != null && tileZoom < options.minZoom)) {
+      // TODO: tileZoom = null ??
       // tileZoom = null;
     }
 
