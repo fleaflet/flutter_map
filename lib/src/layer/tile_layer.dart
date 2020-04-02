@@ -98,7 +98,7 @@ class TileLayerOptions extends LayerOptions {
   final int keepBuffer;
 
   /// Placeholder to show until tile images are fetched by the provider.
-  ImageProvider placeholderImage;
+  final ImageProvider placeholderImage;
 
   /// Static informations that should replace placeholders in the [urlTemplate].
   /// Applying API keys is a good example on how to use this parameter.
@@ -117,10 +117,11 @@ class TileLayerOptions extends LayerOptions {
   /// ),
   /// ```
   ///
-  Map<String, String> additionalOptions;
+  final Map<String, String> additionalOptions;
 
   // Tiles will not update more than once every `updateInterval` when panning.
-  // This can save some bandwidth (ie. when fast panning / fast panning) / fps
+  // This can save some fps and even bandwidth
+  // (ie. when fast panning / animating between long distances in short time)
   final Duration updateInterval;
 
   final Duration tileFadeInDuration;
@@ -473,6 +474,7 @@ class _TileLayerState extends State<TileLayer> {
     }
 
     for (var key in toRemove) {
+      // TODO: remove diagnostic
       print('_prune: ${_tiles[key].coords}');
       _removeTile(key);
     }
@@ -616,12 +618,10 @@ class _TileLayerState extends State<TileLayer> {
     if (_wrapX != null) {
       var first =
           (map.project(LatLng(0.0, crs.wrapLng.item1), tileZoom).x / tileSize.x)
-              .floor()
-              .toDouble();
+              .floorToDouble();
       var second =
           (map.project(LatLng(0.0, crs.wrapLng.item2), tileZoom).x / tileSize.y)
-              .ceil()
-              .toDouble();
+              .ceilToDouble();
       _wrapX = Tuple2(first, second);
     }
 
@@ -629,24 +629,22 @@ class _TileLayerState extends State<TileLayer> {
     if (_wrapY != null) {
       var first =
           (map.project(LatLng(crs.wrapLat.item1, 0.0), tileZoom).y / tileSize.x)
-              .floor()
-              .toDouble();
+              .floorToDouble();
       var second =
           (map.project(LatLng(crs.wrapLat.item2, 0.0), tileZoom).y / tileSize.y)
-              .ceil()
-              .toDouble();
+              .ceilToDouble();
       _wrapY = Tuple2(first, second);
     }
   }
 
   void _handleMove() {
     setState(() {
-      var zoom = _clampZoom(map.zoom.roundToDouble());
+      var zoom = _clampZoom(map.zoom);
 
       if ((zoom - _tileZoom).abs() >= 1) {
         // It was a zoom lvl change
         // TODO: remove diagnostic
-        print('Zoom change: $_tileZoom --> $zoom');
+        print('Zoom change: $_tileZoom --> ${zoom.roundToDouble()}');
 
         _setView(map.center, zoom);
       } else {
@@ -682,7 +680,7 @@ class _TileLayerState extends State<TileLayer> {
     var tileRange = _pxBoundsToTileRange(pixelBounds);
     var tileCenter = tileRange.getCenter();
     var queue = <Coords<num>>[];
-    var margin = options.keepBuffer ?? 2;
+    var margin = options.keepBuffer;
     var noPruneRange = Bounds(
       tileRange.bottomLeft - CustomPoint(margin, -margin),
       tileRange.topRight + CustomPoint(margin, -margin),
@@ -846,7 +844,7 @@ class _TileLayerState extends State<TileLayer> {
     var tileSize = getTileSize();
     return Bounds(
       bounds.min.unscaleBy(tileSize).floor(),
-      bounds.max.unscaleBy(tileSize).ceil() - CustomPoint(1, 1),
+      bounds.max.unscaleBy(tileSize).ceil() - const CustomPoint(1, 1),
     );
   }
 
