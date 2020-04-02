@@ -142,7 +142,7 @@ class TileLayerOptions extends LayerOptions {
       this.wmsOptions = null,
       this.opacity = 1.0,
       this.updateInterval = const Duration(milliseconds: 50),
-      this.tileFadeInDuration = const Duration(milliseconds: 200),
+      this.tileFadeInDuration = const Duration(milliseconds: 100),
       rebuild})
       : assert(tileFadeInDuration != null && !tileFadeInDuration.isNegative),
         assert(updateInterval != null && !updateInterval.isNegative),
@@ -352,7 +352,7 @@ class _TileLayerState extends State<TileLayer> {
 
     final Widget content = AnimatedOpacity(
       key: Key(tile.coordsKey),
-      opacity: tile.active || tile.fadeStarted ? 1.0 : 0.0,
+      opacity: tile.fadeStarted ? 1.0 : 0.0,
       duration: options.tileFadeInDuration,
       onEnd: tile.onAnimateEnd,
       child: RawImage(
@@ -361,7 +361,9 @@ class _TileLayerState extends State<TileLayer> {
       ),
     );
 
-    tile.fadeStarted = true;
+    if (null != tile.imageInfo) {
+      tile.fadeStarted = true;
+    }
 
     return Positioned(
       key: Key(tile.coordsKey),
