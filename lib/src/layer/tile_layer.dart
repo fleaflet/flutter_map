@@ -261,6 +261,7 @@ class _TileLayerState extends State<TileLayer> {
   Level _level;
   StreamSubscription _moveSub;
   StreamController<LatLng> _throttleUpdate;
+  CustomPoint _tileSize;
 
   final Map<String, Tile> _tiles = {};
   final Map<double, Level> _levels = {};
@@ -268,6 +269,8 @@ class _TileLayerState extends State<TileLayer> {
   @override
   void initState() {
     super.initState();
+
+    _tileSize = CustomPoint(options.tileSize, options.tileSize);
     _resetView();
     _update(null);
     _moveSub = widget.stream.listen((_) => _handleMove());
@@ -296,25 +299,30 @@ class _TileLayerState extends State<TileLayer> {
 
   @override
   Widget build(BuildContext context) {
-    var pixelBounds = _getTiledPixelBounds(map.center);
-    var tileRange = _pxBoundsToTileRange(pixelBounds);
+    // var pixelBounds = _getTiledPixelBounds(map.center);
+    // var tileRange = _pxBoundsToTileRange(pixelBounds);
 
-    var tileCenter = tileRange.getCenter();
+    // var tileCenter = tileRange.getCenter();
     var tilesToRender = <Tile>[
       for (var tile in _tiles.values)
         // if ((tile.coords.z - _level.zoom).abs() <= 1) tile
-        if (tile.imageInfo != null)
-          tile
+        // if (tile.imageInfo != null)
+        tile
     ];
 
     tilesToRender.sort((aTile, bTile) {
-      final a = aTile.coords; // TODO there was an implicit casting here.
+      final a = aTile.coords;
       final b = bTile.coords;
-      // a = 13, b = 12, b is less than a, the result should be positive.
-      if (a.z != b.z) {
-        return (b.z - a.z).toInt();
+
+      var zIndexA = _levels[a.z].zIndex;
+      var zIndexB = _levels[b.z].zIndex;
+
+      if (zIndexA == zIndexB) {
+        // (a.distanceTo(tileCenter) - b.distanceTo(tileCenter)).toInt(); <-- no matters since Positioned don't care about this, however we use this when sorting tiles to download
+        return 0;
+      } else {
+        return zIndexB.compareTo(zIndexA);
       }
-      return (a.distanceTo(tileCenter) - b.distanceTo(tileCenter)).toInt();
     });
 
     var tileWidgets = <Widget>[
@@ -335,7 +343,7 @@ class _TileLayerState extends State<TileLayer> {
   Widget _createTileWidget(Tile tile) {
     var coords = tile.coords;
 
-    var tilePos = _getTilePos(coords);
+    var tilePos = tile.tilePos; // _getTilePos(coords);
     var level = _levels[coords.z];
     var tileSize = getTileSize();
     var pos = (tilePos).multiplyBy(level.scale) + level.translatePoint;
@@ -348,7 +356,7 @@ class _TileLayerState extends State<TileLayer> {
       duration: options.tileFadeInDuration,
       onEnd: tile.onAnimateEnd,
       child: RawImage(
-        image: tile.imageInfo.image,
+        image: tile.imageInfo?.image,
         fit: BoxFit.fill,
       ),
     );
@@ -394,7 +402,7 @@ class _TileLayerState extends State<TileLayer> {
   }
 
   CustomPoint getTileSize() {
-    return CustomPoint(options.tileSize, options.tileSize);
+    return _tileSize;
   }
 
   bool _hasLevelChildren(double lvl) {
@@ -578,7 +586,7 @@ class _TileLayerState extends State<TileLayer> {
   }
 
   void _setView(LatLng center, double zoom) {
-    var tileZoom = _clampZoom(zoom.round().toDouble());
+    var tileZoom = _clampZoom(zoom.roundToDouble());
     if ((options.maxZoom != null && tileZoom > options.maxZoom)) {
       // TODO: minZoom !
       // tileZoom = null;
@@ -658,10 +666,13 @@ class _TileLayerState extends State<TileLayer> {
 
   void _handleMove() {
     setState(() {
-      var zoom = _clampZoom(map.zoom);
+      var zoom = _clampZoom(map.zoom.roundToDouble());
 
       if ((zoom - _tileZoom).abs() >= 1) {
         // It was a zoom lvl change
+        // TODO: remove diagnostic
+        print('Zoom change: $_tileZoom --> $zoom');
+
         _setView(map.center, zoom);
       } else {
         if (null == _throttleUpdate) {
@@ -838,7 +849,8 @@ class _TileLayerState extends State<TileLayer> {
   }
 
   CustomPoint _getTilePos(Coords coords) {
-    return coords.scaleBy(getTileSize()) - _level.origin;
+    var level = _levels[coords.z];
+    return coords.scaleBy(getTileSize()) - level.origin;
   }
 
   Coords _wrapCoords(Coords coords) {
