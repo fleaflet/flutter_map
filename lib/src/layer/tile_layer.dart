@@ -299,31 +299,7 @@ class _TileLayerState extends State<TileLayer> {
 
   @override
   Widget build(BuildContext context) {
-    // var pixelBounds = _getTiledPixelBounds(map.center);
-    // var tileRange = _pxBoundsToTileRange(pixelBounds);
-
-    // var tileCenter = tileRange.getCenter();
-    var tilesToRender = <Tile>[
-      for (var tile in _tiles.values)
-        // if ((tile.coords.z - _level.zoom).abs() <= 1) tile
-        // if (tile.imageInfo != null)
-        tile
-    ];
-
-    tilesToRender.sort((aTile, bTile) {
-      final a = aTile.coords;
-      final b = bTile.coords;
-
-      var zIndexA = _levels[a.z].zIndex;
-      var zIndexB = _levels[b.z].zIndex;
-
-      if (zIndexA == zIndexB) {
-        // (a.distanceTo(tileCenter) - b.distanceTo(tileCenter)).toInt(); <-- no matters since Positioned don't care about this, however we use this when sorting tiles to download
-        return 0;
-      } else {
-        return zIndexB.compareTo(zIndexA);
-      }
-    });
+    var tilesToRender = _tiles.values.toList()..sort();
 
     var tileWidgets = <Widget>[
       for (var tile in tilesToRender) _createTileWidget(tile)
@@ -341,10 +317,8 @@ class _TileLayerState extends State<TileLayer> {
   }
 
   Widget _createTileWidget(Tile tile) {
-    var coords = tile.coords;
-
-    var tilePos = tile.tilePos; // _getTilePos(coords);
-    var level = _levels[coords.z];
+    var tilePos = tile.tilePos;
+    var level = tile.level;
     var tileSize = getTileSize();
     var pos = (tilePos).multiplyBy(level.scale) + level.translatePoint;
     var width = tileSize.x * level.scale;
@@ -437,6 +411,7 @@ class _TileLayerState extends State<TileLayer> {
 
     for (var z in toRemove) {
       _removeTilesAtZoom(z);
+      _levels.remove(z);
     }
 
     var level = _levels[zoom];
@@ -444,9 +419,7 @@ class _TileLayerState extends State<TileLayer> {
 
     if (level == null) {
       level = _levels[zoom] = Level();
-
       level.zIndex = maxZoom;
-
       level.origin = map.project(map.unproject(map.getPixelOrigin()), zoom) ??
           CustomPoint(0.0, 0.0);
       level.zoom = zoom;
@@ -511,7 +484,7 @@ class _TileLayerState extends State<TileLayer> {
       if (entry.value.coords.z != zoom) {
         continue;
       }
-      _removeTile(entry.key);
+      toRemove.add(entry.key);
     }
 
     for (var key in toRemove) {
@@ -814,6 +787,7 @@ class _TileLayerState extends State<TileLayer> {
       coordsKey: tileCoordsToKey,
       tilePos: _getTilePos(coords),
       current: true,
+      level: _levels[coords.z],
       imageProvider:
           options.tileProvider.getImage(_wrapCoords(coords), options),
       tileReady: _tileReady,
@@ -888,11 +862,12 @@ class _TileLayerState extends State<TileLayer> {
 
 typedef void TileReady(Coords<double> coords, dynamic error, Tile tile);
 
-class Tile {
+class Tile implements Comparable<Tile> {
   final String coordsKey;
   final Coords<double> coords;
   final CustomPoint<num> tilePos;
   final ImageProvider imageProvider;
+  final Level level;
 
   bool current;
   bool retain;
@@ -914,6 +889,7 @@ class Tile {
     this.tilePos,
     this.imageProvider,
     this.tileReady,
+    this.level,
     this.current = false,
     this.active = false,
     this.retain = false,
@@ -949,6 +925,19 @@ class Tile {
   void _tileOnError(dynamic exception, StackTrace stackTrace) {
     if (null != tileReady) {
       tileReady(coords, exception, this);
+    }
+  }
+
+  @override
+  int compareTo(Tile other) {
+    var zIndexA = level.zIndex;
+    var zIndexB = other.level.zIndex;
+
+    if (zIndexA == zIndexB) {
+      // (a.distanceTo(tileCenter) - b.distanceTo(tileCenter)).toInt(); <-- no matters since Positioned don't care about this, however we use this when sorting tiles to download
+      return 0;
+    } else {
+      return zIndexB.compareTo(zIndexA);
     }
   }
 }
