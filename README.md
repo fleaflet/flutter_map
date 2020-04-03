@@ -5,7 +5,7 @@
 
 A Dart implementation of [Leaflet] for Flutter apps.
 
-## Usage
+## Installation
 
 Add flutter_map to your pubspec:
 
@@ -13,6 +13,16 @@ Add flutter_map to your pubspec:
 dependencies:
   flutter_map: any # or the latest version on Pub
 ```
+
+### Android
+
+Ensure the following permission is present in your Android Manifest file, located in `<project root>/android/app/src/main/AndroidManifest.xml`:
+
+```xml
+<uses-permission android:name="android.permission.INTERNET"/>
+```
+
+## Usage
 
 Configure the map using `MapOptions` and layer options:
 
