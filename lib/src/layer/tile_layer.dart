@@ -57,7 +57,10 @@ class TileLayerOptions extends LayerOptions {
   // from maxNativeZoom level and auto-scaled.
   final double maxNativeZoom;
 
+  // If set to true, the zoom number used in tile URLs will be reversed (`maxZoom - zoom` instead of `zoom`)
   final bool zoomReverse;
+
+  // The zoom number used in tile URLs will be offset with this value.
   final double zoomOffset;
 
   /// List of subdomains for the URL.
