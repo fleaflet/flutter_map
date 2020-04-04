@@ -963,9 +963,14 @@ class Tile implements Comparable<Tile> {
     this.retain = false,
     this.loadError = false,
   }) {
-    _imageStream = imageProvider.resolve(ImageConfiguration());
-    _listener = ImageStreamListener(_tileOnLoad, onError: _tileOnError);
-    _imageStream.addListener(_listener);
+    try {
+      _imageStream = imageProvider.resolve(ImageConfiguration());
+      _listener = ImageStreamListener(_tileOnLoad, onError: _tileOnError);
+      _imageStream.addListener(_listener);
+    } catch (e, s) {
+      // make sure all exception is handled - #444
+      _tileOnError(e, s);
+    }
   }
 
   // call this before GC!
