@@ -360,7 +360,7 @@ class _TileLayerState extends State<TileLayer> {
     }
 
     return Positioned(
-      key: Key(tile.coordsKey),
+      key: ValueKey(tile.coordsKey),
       left: pos.x.toDouble(),
       top: pos.y.toDouble(),
       width: width.toDouble(),
@@ -455,10 +455,16 @@ class _TileLayerState extends State<TileLayer> {
       return;
     }
 
-    var zoom = map.zoom;
-    if (zoom > options.maxZoom || zoom < options.minZoom) {
-      // TODO: _removeAllTiles ??
-      // _removeAllTiles();
+    var zoom = _tileZoom;
+    if (zoom == null) {
+      // TODO: remove diagnostic
+      print('_removeAllTiles');
+
+      // TODO: this is fair enough
+      // however if MapOptions has the same maxZoom as this TileLayer then
+      // this shouldn't happen (fix at MapOptions! -- double tap ok but two finger scale need some fix)
+      // TODO: MapOptions need minZoom too
+      _removeAllTiles();
       return;
     }
 
@@ -592,8 +598,14 @@ class _TileLayerState extends State<TileLayer> {
     var tileZoom = _clampZoom(zoom.roundToDouble());
     if ((options.maxZoom != null && tileZoom > options.maxZoom) ||
         (options.minZoom != null && tileZoom < options.minZoom)) {
-      // TODO: tileZoom = null ??
-      // tileZoom = null;
+      // TODO: this is fair enough
+      // however if MapOptions has the same maxZoom as this TileLayer then
+      // this shouldn't happen (fix at MapOptions! -- double tap ok but two finger scale need some fix)
+      // TODO: MapOptions need minZoom too
+      tileZoom = null;
+
+      // TODO: remove diagnostic
+      print('Zoom become null');
     }
 
     _tileZoom = tileZoom;
@@ -665,25 +677,42 @@ class _TileLayerState extends State<TileLayer> {
   }
 
   void _handleMove() {
-    setState(() {
-      var zoom = _clampZoom(map.zoom);
+    var tileZoom = _clampZoom(map.zoom.roundToDouble());
 
-      if ((zoom - _tileZoom).abs() >= 1) {
+    if (_tileZoom == null) {
+      // if there is no _tileZoom available it means we are out within zoom level
+      // we will restory fully via _setView call if we are back on trail
+      if ((options.maxZoom != null && tileZoom <= options.maxZoom) &&
+          (options.minZoom != null && tileZoom >= options.minZoom)) {
+        _tileZoom = tileZoom;
+
         // It was a zoom lvl change
         // TODO: remove diagnostic
-        print('Zoom change: $_tileZoom --> ${zoom.roundToDouble()}');
+        print('Zoom restored from null to $tileZoom');
 
-        _setView(map.center, zoom);
-      } else {
-        if (null == _throttleUpdate) {
-          _update(null);
-        } else {
-          _throttleUpdate.add(null);
-        }
-
-        _setZoomTransforms(map.center, map.zoom);
+        setState(() {
+          _setView(map.center, tileZoom);
+        });
       }
-    });
+    } else {
+      setState(() {
+        if ((tileZoom - _tileZoom).abs() >= 1) {
+          // It was a zoom lvl change
+          // TODO: remove diagnostic
+          print('Zoom change: $_tileZoom --> ${tileZoom}');
+
+          _setView(map.center, tileZoom);
+        } else {
+          if (null == _throttleUpdate) {
+            _update(null);
+          } else {
+            _throttleUpdate.add(null);
+          }
+
+          _setZoomTransforms(map.center, map.zoom);
+        }
+      });
+    }
   }
 
   Bounds _getTiledPixelBounds(LatLng center) {
