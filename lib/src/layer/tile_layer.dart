@@ -392,15 +392,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       }
     }
 
-    // TODO: remove diagnostic
-    if (toRemove.isNotEmpty) {
-      print('_prune+abort ---------------------');
-    }
-
     for (var key in toRemove) {
       var tile = _tiles[key];
-      // TODO: remove diagnostic
-      print('_prune+abort: ${tile.coords}');
 
       tile.tileReady = null;
       tile.dispose();
@@ -468,9 +461,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     var zoom = _tileZoom;
     if (zoom == null) {
-      // TODO: remove diagnostic
-      print('_removeAllTiles');
-
       _removeAllTiles();
       return;
     }
@@ -500,14 +490,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       }
     }
 
-    // TODO: remove diagnostic
-    if (toRemove.isNotEmpty) {
-      print('_prune ---------------------');
-    }
-
     for (var key in toRemove) {
-      // TODO: remove diagnostic
-      print('_prune: ${_tiles[key].coords}');
       _removeTile(key);
     }
   }
@@ -605,9 +588,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     var tileZoom = _clampZoom(zoom.roundToDouble());
     if ((options.maxZoom != null && tileZoom > options.maxZoom) ||
         (options.minZoom != null && tileZoom < options.minZoom)) {
-      // TODO: remove diagnostic
-      print('Zoom become null');
-
       tileZoom = null;
     }
 
@@ -688,11 +668,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       if ((options.maxZoom != null && tileZoom <= options.maxZoom) &&
           (options.minZoom != null && tileZoom >= options.minZoom)) {
         _tileZoom = tileZoom;
-
-        // It was a zoom lvl change
-        // TODO: remove diagnostic
-        print('Zoom restored from null to $tileZoom');
-
         setState(() {
           _setView(map.center, tileZoom);
         });
@@ -701,9 +676,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       setState(() {
         if ((tileZoom - _tileZoom).abs() >= 1) {
           // It was a zoom lvl change
-          // TODO: remove diagnostic
-          print('Zoom change: $_tileZoom --> ${tileZoom}');
-
           _setView(map.center, tileZoom);
         } else {
           if (null == _throttleUpdate) {
@@ -785,11 +757,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     queue.sort((a, b) =>
         (a.distanceTo(tileCenter) - b.distanceTo(tileCenter)).toInt());
 
-    // TODO: remove diagnostic
-    if (queue.isNotEmpty) {
-      print('_addTile ---------------------');
-    }
-
     for (var i = 0; i < queue.length; i++) {
       _addTile(queue[i]);
     }
@@ -835,9 +802,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   }
 
   void _addTile(Coords<double> coords) {
-    // TODO: remove diagnostic
-    print('_fetch tile: $coords');
-
     var tileCoordsToKey = _tileCoordsToKey(coords);
     _tiles[tileCoordsToKey] = Tile(
       coords: coords,
@@ -968,7 +932,7 @@ class Tile implements Comparable<Tile> {
       _listener = ImageStreamListener(_tileOnLoad, onError: _tileOnError);
       _imageStream.addListener(_listener);
     } catch (e, s) {
-      // make sure all exception is handled - #444
+      // make sure all exception is handled - #444 / #536
       _tileOnError(e, s);
     }
   }
