@@ -460,10 +460,6 @@ class _TileLayerState extends State<TileLayer> {
       // TODO: remove diagnostic
       print('_removeAllTiles');
 
-      // TODO: this is fair enough
-      // however if MapOptions has the same maxZoom as this TileLayer then
-      // this shouldn't happen (fix at MapOptions! -- double tap ok but two finger scale need some fix)
-      // TODO: MapOptions need minZoom too
       _removeAllTiles();
       return;
     }
@@ -598,14 +594,10 @@ class _TileLayerState extends State<TileLayer> {
     var tileZoom = _clampZoom(zoom.roundToDouble());
     if ((options.maxZoom != null && tileZoom > options.maxZoom) ||
         (options.minZoom != null && tileZoom < options.minZoom)) {
-      // TODO: this is fair enough
-      // however if MapOptions has the same maxZoom as this TileLayer then
-      // this shouldn't happen (fix at MapOptions! -- double tap ok but two finger scale need some fix)
-      // TODO: MapOptions need minZoom too
-      tileZoom = null;
-
       // TODO: remove diagnostic
       print('Zoom become null');
+
+      tileZoom = null;
     }
 
     _tileZoom = tileZoom;

@@ -1,13 +1,12 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/center_zoom.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:latlong/latlong.dart';
-
-import 'package:flutter/material.dart';
 
 class MapControllerImpl implements MapController {
   final Completer<Null> _readyCompleter = Completer<Null>();
@@ -109,7 +108,7 @@ class MapState {
   }
 
   void move(LatLng center, double zoom, {hasGesture = false}) {
-    zoom = _fitZoomToBounds(zoom);
+    zoom = fitZoomToBounds(zoom);
     final mapMoved = center != _lastCenter || zoom != _zoom;
 
     if (_lastCenter != null &&
@@ -135,7 +134,7 @@ class MapState {
     }
   }
 
-  double _fitZoomToBounds(double zoom) {
+  double fitZoomToBounds(double zoom) {
     zoom ??= _zoom;
     // Abide to min/max zoom
     if (options.maxZoom != null) {
