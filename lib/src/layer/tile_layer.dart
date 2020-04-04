@@ -119,6 +119,9 @@ class TileLayerOptions extends LayerOptions {
   /// Placeholder to show until tile images are fetched by the provider.
   final ImageProvider placeholderImage;
 
+  /// Tile image to show in place of the tile that failed to load.
+  final ImageProvider errorImage;
+
   /// Static informations that should replace placeholders in the [urlTemplate].
   /// Applying API keys is a good example on how to use this parameter.
   ///
@@ -159,6 +162,7 @@ class TileLayerOptions extends LayerOptions {
       this.keepBuffer = 2,
       this.backgroundColor = const Color(0xFFE0E0E0),
       this.placeholderImage,
+      this.errorImage,
       this.tileProvider = const CachedNetworkTileProvider(),
       this.tms = false,
       // ignore: avoid_init_to_null
@@ -273,7 +277,7 @@ class TileLayer extends StatefulWidget {
   }
 }
 
-class _TileLayerState extends State<TileLayer> {
+class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   MapState get map => widget.mapState;
 
   TileLayerOptions get options => widget.options;
@@ -347,20 +351,10 @@ class _TileLayerState extends State<TileLayer> {
     var width = tileSize.x * level.scale;
     var height = tileSize.y * level.scale;
 
-    final Widget content = AnimatedOpacity(
-      key: Key(tile.coordsKey),
-      opacity: tile.fadeStarted ? 1.0 : 0.0,
-      duration: options.tileFadeInDuration,
-      onEnd: tile.onAnimateEnd,
-      child: RawImage(
-        image: tile.imageInfo?.image,
-        fit: BoxFit.fill,
-      ),
+    final Widget content = AnimatedTile(
+      tile: tile,
+      errorImage: options.errorImage,
     );
-
-    if (null != tile.imageInfo) {
-      tile.fadeStarted = true;
-    }
 
     return Positioned(
       key: ValueKey(tile.coordsKey),
@@ -846,6 +840,8 @@ class _TileLayerState extends State<TileLayer> {
   void _tileReady(Coords<double> coords, dynamic error, Tile tile) {
     if (null != error) {
       print(error);
+
+      tile.loadError = true;
     }
 
     var key = _tileCoordsToKey(coords);
@@ -855,8 +851,11 @@ class _TileLayerState extends State<TileLayer> {
     }
 
     tile.loaded = DateTime.now();
-    if (options.tileFadeInDuration.inMicroseconds == 0) {
+    if (options.tileFadeInDuration.inMicroseconds == 0 ||
+        (tile.loadError && null == options.errorImage)) {
       tile.active = true;
+    } else {
+      tile.startFadeInAnimation(options.tileFadeInDuration, this);
     }
 
     setState(() {});
@@ -921,15 +920,19 @@ class Tile implements Comparable<Tile> {
   bool current;
   bool retain;
   bool active;
+  bool loadError;
   DateTime loaded;
 
-  bool fadeStarted = false;
+  AnimationController animationController;
+  double get opacity => animationController == null
+      ? (active ? 1.0 : 0.0)
+      : animationController.value;
 
   // callback when tile is ready / error occurred
   // it maybe be null forinstance when download aborted
   TileReady tileReady;
   ImageInfo imageInfo;
-  ImageStream _stream;
+  ImageStream _imageStream;
   ImageStreamListener _listener;
 
   Tile({
@@ -942,10 +945,11 @@ class Tile implements Comparable<Tile> {
     this.current = false,
     this.active = false,
     this.retain = false,
+    this.loadError = false,
   }) {
-    _stream = imageProvider.resolve(ImageConfiguration());
+    _imageStream = imageProvider.resolve(ImageConfiguration());
     _listener = ImageStreamListener(_tileOnLoad, onError: _tileOnError);
-    _stream.addListener(_listener);
+    _imageStream.addListener(_listener);
   }
 
   // call this before GC!
@@ -957,11 +961,21 @@ class Tile implements Comparable<Tile> {
           .catchError((error) => print('evict tile: $coords -> $error'));
     }
 
-    _stream?.removeListener(_listener);
+    animationController?.removeStatusListener(_onAnimateEnd);
+    _imageStream?.removeListener(_listener);
   }
 
-  void onAnimateEnd() {
-    active = true;
+  void startFadeInAnimation(Duration duration, TickerProvider vsync) {
+    animationController = AnimationController(duration: duration, vsync: vsync)
+      ..addStatusListener(_onAnimateEnd);
+
+    animationController.forward();
+  }
+
+  void _onAnimateEnd(AnimationStatus status) {
+    if (status == AnimationStatus.completed) {
+      active = true;
+    }
   }
 
   void _tileOnLoad(ImageInfo imageInfo, bool synchronousCall) {
@@ -983,11 +997,83 @@ class Tile implements Comparable<Tile> {
     var zIndexB = other.level.zIndex;
 
     if (zIndexA == zIndexB) {
-      // (a.distanceTo(tileCenter) - b.distanceTo(tileCenter)).toInt(); <-- no matters since Positioned don't care about this, however we use this when sorting tiles to download
       return 0;
     } else {
       return zIndexB.compareTo(zIndexA);
     }
+  }
+
+  @override
+  int get hashCode => coords.hashCode;
+
+  @override
+  bool operator ==(other) {
+    return other is Tile && coords == other.coords;
+  }
+}
+
+class AnimatedTile extends StatefulWidget {
+  final Tile tile;
+  final ImageProvider errorImage;
+
+  AnimatedTile({Key key, this.tile, this.errorImage})
+      : assert(null != tile),
+        super(key: key);
+
+  @override
+  _AnimatedTileState createState() => _AnimatedTileState();
+}
+
+class _AnimatedTileState extends State<AnimatedTile> {
+  bool listenerAttached = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: widget.tile.opacity,
+      child: (widget.tile.loadError && widget.errorImage != null)
+          ? Image(
+              image: widget.errorImage,
+              fit: BoxFit.fill,
+            )
+          : RawImage(
+              image: widget.tile.imageInfo?.image,
+              fit: BoxFit.fill,
+            ),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (null != widget.tile.animationController) {
+      widget.tile.animationController.addListener(_handleChange);
+      listenerAttached = true;
+    }
+  }
+
+  @override
+  void dispose() {
+    if (listenerAttached) {
+      widget.tile.animationController?.removeListener(_handleChange);
+    }
+
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(AnimatedTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (!listenerAttached && null != widget.tile.animationController) {
+      widget.tile.animationController.addListener(_handleChange);
+      listenerAttached = true;
+    }
+  }
+
+  void _handleChange() {
+    setState(() {});
   }
 }
 
