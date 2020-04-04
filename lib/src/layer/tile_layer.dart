@@ -6,10 +6,10 @@ import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/core/util.dart' as util;
 import 'package:flutter_map/src/geo/crs/crs.dart';
+import 'package:flutter_map/src/layer/image_tile.dart';
 import 'package:flutter_map/src/layer/tile_provider/tile_provider.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
-import 'package:transparent_image/transparent_image.dart';
 import 'package:tuple/tuple.dart';
 
 import 'layer.dart';
@@ -116,9 +116,12 @@ class TileLayerOptions extends LayerOptions {
   ///          'id': 'mapbox.streets',
   ///     },
   /// ),
-  /// ```
+  ///
   ///
   Map<String, String> additionalOptions;
+
+  // Enables tile coordinates printed on every tile and a tile borders
+  final bool tileDebugInfo;
 
   TileLayerOptions(
       {this.urlTemplate,
@@ -136,6 +139,7 @@ class TileLayerOptions extends LayerOptions {
       // ignore: avoid_init_to_null
       this.wmsOptions = null,
       this.opacity = 1.0,
+      this.tileDebugInfo = false,
       rebuild})
       : super(rebuild: rebuild);
 }
@@ -190,16 +194,12 @@ class WMSTileLayerOptions {
   String _buildEncodedBaseUrl() {
     final projectionKey = _versionNumber >= 1.3 ? 'crs' : 'srs';
     final buffer = StringBuffer(baseUrl)
-      ..write('&service=$service')
-      ..write('&request=$request')
-      ..write('&layers=${layers.map(Uri.encodeComponent).join(',')}')
-      ..write('&styles=${styles.map(Uri.encodeComponent).join(',')}')
-      ..write('&format=${Uri.encodeComponent(format)}')
-      ..write('&$projectionKey=${Uri.encodeComponent(crs.code)}')
-      ..write('&version=${Uri.encodeComponent(version)}')
-      ..write('&transparent=$transparent');
-    otherParameters
-        .forEach((k, v) => buffer.write('&$k=${Uri.encodeComponent(v)}'));
+      ..write('&service=$service')..write('&request=$request')..write(
+          '&layers=${layers.map(Uri.encodeComponent).join(',')}')..write(
+          '&styles=${styles.map(Uri.encodeComponent).join(',')}')..write(
+          '&format=${Uri.encodeComponent(format)}')..write('&$projectionKey=${Uri.encodeComponent(crs.code)}')..write(
+          '&version=${Uri.encodeComponent(version)}')..write('&transparent=$transparent');
+    otherParameters.forEach((k, v) => buffer.write('&$k=${Uri.encodeComponent(v)}'));
     return buffer.toString();
   }
 
@@ -254,6 +254,7 @@ class _TileLayerState extends State<TileLayer> {
 
   final Map<String, Tile> _tiles = {};
   final Map<double, Level> _levels = {};
+  final Set<Coords> _downloadedCoords = {};
 
   @override
   void initState() {
@@ -331,7 +332,7 @@ class _TileLayerState extends State<TileLayer> {
 
   void _pruneTiles() {
     var center = map.center;
-    var pixelBounds = _getTiledPixelBounds(center);
+    var pixelBounds = _getTiledPixelBounds(center, _tileZoom);
     var tileRange = _pxBoundsToTileRange(pixelBounds);
     var margin = options.keepBuffer ?? 2;
     var noPruneRange = Bounds(
@@ -400,26 +401,34 @@ class _TileLayerState extends State<TileLayer> {
     _wrapX = crs.wrapLng;
     if (_wrapX != null) {
       var first =
-          (map.project(LatLng(0.0, crs.wrapLng.item1), tileZoom).x / tileSize.x)
-              .floor()
-              .toDouble();
+      (map
+          .project(LatLng(0.0, crs.wrapLng.item1), tileZoom)
+          .x / tileSize.x)
+          .floor()
+          .toDouble();
       var second =
-          (map.project(LatLng(0.0, crs.wrapLng.item2), tileZoom).x / tileSize.y)
-              .ceil()
-              .toDouble();
+      (map
+          .project(LatLng(0.0, crs.wrapLng.item2), tileZoom)
+          .x / tileSize.y)
+          .ceil()
+          .toDouble();
       _wrapX = Tuple2(first, second);
     }
 
     _wrapY = crs.wrapLat;
     if (_wrapY != null) {
       var first =
-          (map.project(LatLng(crs.wrapLat.item1, 0.0), tileZoom).y / tileSize.x)
-              .floor()
-              .toDouble();
+      (map
+          .project(LatLng(crs.wrapLat.item1, 0.0), tileZoom)
+          .y / tileSize.x)
+          .floor()
+          .toDouble();
       var second =
-          (map.project(LatLng(crs.wrapLat.item2, 0.0), tileZoom).y / tileSize.y)
-              .ceil()
-              .toDouble();
+      (map
+          .project(LatLng(crs.wrapLat.item2, 0.0), tileZoom)
+          .y / tileSize.y)
+          .ceil()
+          .toDouble();
       _wrapY = Tuple2(first, second);
     }
   }
@@ -435,10 +444,12 @@ class _TileLayerState extends State<TileLayer> {
 
   @override
   Widget build(BuildContext context) {
-    var pixelBounds = _getTiledPixelBounds(map.center);
+    var pixelBounds = _getTiledPixelBounds(map.center, _tileZoom);
     var tileRange = _pxBoundsToTileRange(pixelBounds);
+
     var tileCenter = tileRange.getCenter();
     var queue = <Coords>[];
+    var bgQueue = <Coords>[];
 
     // mark tiles as out of view...
     for (var key in _tiles.keys) {
@@ -449,6 +460,8 @@ class _TileLayerState extends State<TileLayer> {
     }
 
     _setView(map.center, map.zoom);
+
+    var isCurrentLevelDownloaded = true;
 
     for (var j = tileRange.min.y; j <= tileRange.max.y; j++) {
       for (var i = tileRange.min.x; i <= tileRange.max.x; i++) {
@@ -461,6 +474,47 @@ class _TileLayerState extends State<TileLayer> {
 
         // Add all valid tiles to the queue on Flutter
         queue.add(coords);
+
+        if (!_downloadedCoords.contains(coords)) {
+          isCurrentLevelDownloaded = false;
+        }
+      }
+    }
+
+    if (!isCurrentLevelDownloaded) {
+      for (var zoomToCheck = _tileZoom.toInt() - 1; zoomToCheck >= 0; zoomToCheck--) {
+        var pixelBoundsForLevel = _getTiledPixelBounds(map.center, zoomToCheck.toDouble());
+        var tileRangeForLevel = _pxBoundsToTileRange(pixelBoundsForLevel);
+
+        var tempTiles = <Coords>[];
+
+        if (!_levels.containsKey(zoomToCheck)) {
+          break;
+        }
+
+        for (var j = tileRangeForLevel.min.y; j <= tileRangeForLevel.max.y; j++) {
+          for (var i = tileRangeForLevel.min.x; i <= tileRangeForLevel.max.x; i++) {
+            var coords = Coords(i.toDouble(), j.toDouble());
+            coords.z = zoomToCheck.toDouble();
+
+            if (!_isValidTile(coords)) {
+              continue;
+            }
+
+            // Add all valid tiles to the queue on Flutter
+            tempTiles.add(coords);
+          }
+        }
+
+        for (var coords in tempTiles) {
+          if (_downloadedCoords.contains(coords)) {
+            bgQueue.add(coords);
+          }
+        }
+        var areAllTilesFromZoomDownloaded = !tempTiles.any((element) => !_downloadedCoords.contains(element));
+        if (areAllTilesFromZoomDownloaded) {
+          break;
+        }
       }
     }
 
@@ -470,24 +524,27 @@ class _TileLayerState extends State<TileLayer> {
       }
     }
 
-    var tilesToRender = <Tile>[
-      for (var tile in _tiles.values)
-        if ((tile.coords.z - _level.zoom).abs() <= 1) tile
-    ];
+    var tilesToRender = <Tile>[for (var tile in _tiles.values) if (tile.coords.z == _tileZoom) tile];
+
+    if (bgQueue.isNotEmpty) {
+      for (var i = 0; i < bgQueue.length; i++) {
+        var tile = Tile(_wrapCoords(bgQueue[i]), true);
+        _tiles[_tileCoordsToKey(bgQueue[i])] = tile;
+        tilesToRender.add(tile);
+      }
+    }
 
     tilesToRender.sort((aTile, bTile) {
       final a = aTile.coords; // TODO there was an implicit casting here.
       final b = bTile.coords;
       // a = 13, b = 12, b is less than a, the result should be positive.
       if (a.z != b.z) {
-        return (b.z - a.z).toInt();
+        return (a.z - b.z).toInt();
       }
       return (a.distanceTo(tileCenter) - b.distanceTo(tileCenter)).toInt();
     });
 
-    var tileWidgets = <Widget>[
-      for (var tile in tilesToRender) _createTileWidget(tile.coords)
-    ];
+    var tileWidgets = <Widget>[for (var tile in tilesToRender) _createTileWidget(tile)];
 
     return Opacity(
       opacity: options.opacity,
@@ -500,8 +557,8 @@ class _TileLayerState extends State<TileLayer> {
     );
   }
 
-  Bounds _getTiledPixelBounds(LatLng center) {
-    return map.getPixelBounds(_tileZoom);
+  Bounds _getTiledPixelBounds(LatLng center, double zoom) {
+    return map.getPixelBounds(zoom);
   }
 
   Bounds _pxBoundsToTileRange(Bounds bounds) {
@@ -516,10 +573,8 @@ class _TileLayerState extends State<TileLayer> {
     var crs = map.options.crs;
     if (!crs.infinite) {
       var bounds = _globalTileRange;
-      if ((crs.wrapLng == null &&
-              (coords.x < bounds.min.x || coords.x > bounds.max.x)) ||
-          (crs.wrapLat == null &&
-              (coords.y < bounds.min.y || coords.y > bounds.max.y))) {
+      if ((crs.wrapLng == null && (coords.x < bounds.min.x || coords.x > bounds.max.x)) ||
+          (crs.wrapLat == null && (coords.y < bounds.min.y || coords.y > bounds.max.y))) {
         return false;
       }
     }
@@ -530,7 +585,8 @@ class _TileLayerState extends State<TileLayer> {
     return '${coords.x}:${coords.y}:${coords.z}';
   }
 
-  Widget _createTileWidget(Coords coords) {
+  Widget _createTileWidget(Tile tile) {
+    var coords = tile.coords;
     var tilePos = _getTilePos(coords);
     var level = _levels[coords.z];
     var tileSize = getTileSize();
@@ -538,16 +594,29 @@ class _TileLayerState extends State<TileLayer> {
     var width = tileSize.x * level.scale;
     var height = tileSize.y * level.scale;
 
+    final tileWidget = ImageTile(
+      key: Key(_tileCoordsToKey(coords)),
+      options: options,
+      coords: coords,
+      size: Size(width, height),
+      listener: _tileDownloaded,
+    );
+
     final Widget content = Container(
-      child: FadeInImage(
-        fadeInDuration: const Duration(milliseconds: 100),
-        key: Key(_tileCoordsToKey(coords)),
-        placeholder: options.placeholderImage != null
-            ? options.placeholderImage
-            : MemoryImage(kTransparentImage),
-        image: options.tileProvider.getImage(coords, options),
-        fit: BoxFit.fill,
-      ),
+      decoration: options.tileDebugInfo ? BoxDecoration(border: Border.all()) : null,
+      child: options.tileDebugInfo
+          ? Stack(
+              fit: StackFit.expand,
+              children: <Widget>[
+                tileWidget,
+                Align(
+                  alignment: Alignment.center,
+                  child: Text('x: ${coords.x.toStringAsFixed(0)} y: ${coords.y.toStringAsFixed(0)} '
+                      'z: ${coords.z.toStringAsFixed(0)}'),
+                ),
+              ],
+            )
+          : tileWidget,
     );
 
     return Positioned(
@@ -556,6 +625,17 @@ class _TileLayerState extends State<TileLayer> {
         width: width.toDouble(),
         height: height.toDouble(),
         child: content);
+  }
+
+  void _tileDownloaded(Coords coords) {
+    _downloadedCoords.add(coords);
+    if(_tiles.values.every((element) => _downloadedCoords.contains(element.coords))) {
+      WidgetsBinding.instance.addPostFrameCallback((_){
+        setState(() {
+        });
+      });
+
+    }
   }
 
   Coords _wrapCoords(Coords coords) {
@@ -582,6 +662,9 @@ class Tile {
   bool current;
 
   Tile(this.coords, this.current);
+
+  @override
+  String toString() => 'Tile(coords: $coords, current: $current)';
 }
 
 class Level {
@@ -591,6 +674,9 @@ class Level {
   double zoom;
   CustomPoint translatePoint;
   double scale;
+
+  @override
+  String toString() => 'Level(zoom: $zoom, scale: $scale, zIndex: $zIndex, childrenCount: ${children.length}';
 }
 
 class Coords<T extends num> extends CustomPoint<T> {
