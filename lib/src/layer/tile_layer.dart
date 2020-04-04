@@ -141,11 +141,15 @@ class TileLayerOptions extends LayerOptions {
   ///
   final Map<String, String> additionalOptions;
 
-  // Tiles will not update more than once every `updateInterval` when panning.
+  // Tiles will not update more than once every `updateInterval` milliseconds
+  // (default 200) when panning.
+  // It can be 0 (but it will calculating for loading tiles every frame when panning / zooming, flutter is fast)
   // This can save some fps and even bandwidth
   // (ie. when fast panning / animating between long distances in short time)
   final Duration updateInterval;
 
+  // Tiles fade in duration in milliseconds (default 100),
+  // it can 0 to avoid fade in
   final Duration tileFadeInDuration;
 
   TileLayerOptions(
@@ -168,11 +172,21 @@ class TileLayerOptions extends LayerOptions {
       // ignore: avoid_init_to_null
       this.wmsOptions = null,
       this.opacity = 1.0,
-      this.updateInterval = const Duration(milliseconds: 150),
-      this.tileFadeInDuration = const Duration(milliseconds: 100),
+      // Tiles will not update more than once every `updateInterval` milliseconds
+      // (default 200) when panning.
+      // It can be 0 (but it will calculating for loading tiles every frame when panning / zooming, flutter is fast)
+      // This can save some fps and even bandwidth
+      // (ie. when fast panning / animating between long distances in short time)
+      int updateInterval = 200,
+      // Tiles fade in duration in milliseconds (default 100),
+      // it can 0 to avoid fade in
+      int tileFadeInDuration = 100,
       rebuild})
-      : assert(tileFadeInDuration != null && !tileFadeInDuration.isNegative),
-        assert(updateInterval != null && !updateInterval.isNegative),
+      : updateInterval =
+            updateInterval <= 0 ? null : Duration(milliseconds: updateInterval),
+        tileFadeInDuration = tileFadeInDuration <= 0
+            ? null
+            : Duration(milliseconds: tileFadeInDuration),
         super(rebuild: rebuild);
 }
 
@@ -302,7 +316,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     _update(null);
     _moveSub = widget.stream.listen((_) => _handleMove());
 
-    if (options.updateInterval.inMicroseconds == 0) {
+    if (options.updateInterval == null) {
       _throttleUpdate = null;
     } else {
       _throttleUpdate = StreamController<LatLng>(sync: true);
@@ -851,7 +865,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     }
 
     tile.loaded = DateTime.now();
-    if (options.tileFadeInDuration.inMicroseconds == 0 ||
+    if (options.tileFadeInDuration == null ||
         (tile.loadError && null == options.errorImage)) {
       tile.active = true;
     } else {
@@ -864,7 +878,9 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       // Wait a bit more than tileFadeInDuration (the duration of the tile fade-in)
       // to trigger a pruning.
       Future.delayed(
-        options.tileFadeInDuration + const Duration(milliseconds: 50),
+        options.tileFadeInDuration != null
+            ? options.tileFadeInDuration + const Duration(milliseconds: 50)
+            : const Duration(milliseconds: 50),
         () {
           setState(_pruneTiles);
         },
