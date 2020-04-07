@@ -147,6 +147,11 @@ class FlutterMapState extends MapGestureMixin {
   }
 
   Widget _createLayer(LayerOptions options, List<MapPlugin> plugins) {
+    for (var plugin in plugins) {
+      if (plugin.supportsLayer(options)) {
+        return plugin.createLayer(options, mapState, _merge(options));
+      }
+    }
     if (options is TileLayerOptions) {
       return TileLayer(
           options: options, mapState: mapState, stream: _merge(options));
@@ -168,11 +173,6 @@ class FlutterMapState extends MapGestureMixin {
     }
     if (options is OverlayImageLayerOptions) {
       return OverlayImageLayer(options, mapState, _merge(options));
-    }
-    for (var plugin in plugins) {
-      if (plugin.supportsLayer(options)) {
-        return plugin.createLayer(options, mapState, _merge(options));
-      }
     }
     return null;
   }

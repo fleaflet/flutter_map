@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import './pages/animated_map_controller.dart';
 
+import './pages/animated_map_controller.dart';
 import './pages/circle.dart';
+import './pages/custom_crs/custom_crs.dart';
 import './pages/esri.dart';
 import './pages/home.dart';
 import './pages/map_controller.dart';
@@ -47,7 +48,8 @@ class MyApp extends StatelessWidget {
         MovingMarkersPage.route: (context) => MovingMarkersPage(),
         CirclePage.route: (context) => CirclePage(),
         OverlayImagePage.route: (context) => OverlayImagePage(),
-        WMSLayerPage.route: (context) => WMSLayerPage()
+        WMSLayerPage.route: (context) => WMSLayerPage(),
+        CustomCrsPage.route: (context) => CustomCrsPage(),
       },
     );
   }

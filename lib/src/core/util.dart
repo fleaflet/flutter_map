@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:tuple/tuple.dart';
 
 var _templateRe = RegExp(r'\{ *([\w_-]+) *\}');
@@ -21,4 +23,37 @@ double wrapNum(double x, Tuple2<double, double> range, [bool includeMax]) {
   var min = range.item1;
   var d = max - min;
   return x == max && includeMax != null ? x : ((x - min) % d + d) % d + min;
+}
+
+StreamTransformer<T, T> throttleStreamTransformerWithTrailingCall<T>(
+    Duration duration) {
+  Timer timer;
+  T recentData;
+  var trailingCall = false;
+
+  void Function(T data, EventSink<T> sink) throttleHandler;
+  throttleHandler = (T data, EventSink<T> sink) {
+    recentData = data;
+
+    if (timer == null) {
+      sink.add(recentData);
+      timer = Timer(duration, () {
+        timer = null;
+
+        if (trailingCall) {
+          trailingCall = false;
+          throttleHandler(recentData, sink);
+        }
+      });
+    } else {
+      trailingCall = true;
+    }
+  };
+
+  return StreamTransformer<T, T>.fromHandlers(
+      handleData: throttleHandler,
+      handleDone: (EventSink<T> sink) {
+        timer?.cancel();
+        sink.close();
+      });
 }
