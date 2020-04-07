@@ -299,6 +299,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   Tuple2<double, double> _wrapX;
   Tuple2<double, double> _wrapY;
   double _tileZoom;
+  //ignore: unused_field
   Level _level;
   StreamSubscription _moveSub;
   StreamController<LatLng> _throttleUpdate;
@@ -783,6 +784,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     return '${coords.x}:${coords.y}:${coords.z}';
   }
 
+  //ignore: unused_element
   Coords _keyToTileCoords(String key) {
     var k = key.split(':');
     var coords = Coords(double.parse(k[0]), double.parse(k[1]));
