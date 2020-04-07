@@ -1,5 +1,25 @@
+## [0.9.0] - 4/6/2020
+- Improve tile management (#572) - This is a huge improvement aligns
+  tile rendering with Leaflet's behavior. 
+- Wms Support (#500)
+- Update README for open street maps (#495)
+- Support custom CRS (#529)
+- Proj4dart update (#541)
+- Fix changelog (#511)
+- Fix multiple origins bouncing (#548)
+- Add android permissions instructions to README (#569)
+- Add an option for gapless playback on OverlayImage (#566)
+- Add flutter_map_tappable_polyline plugin to README (#563)
+- Move plugins to front of checks so they can override defaults (#555)
+- Support holed polygons (#526)
+
+**Big** thanks to @maRci002 for this release! See pull request #572 for details.
+
+Thanks to @marCi002, @bugDim88, @buggamer, @pumano, @fegyi001, @jpeiffer,
+@syonip, @pento, @tuarrep, and @ibrierley for this release!
+
 ## [0.8.2] - 1/7/2020
-- add polyline with gradient (#452)
+- Add polyline with gradient (#452)
 
 Thanks to @SebWojd for this release!
 
