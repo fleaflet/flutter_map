@@ -21,7 +21,7 @@ abstract class TileProvider {
         : options.urlTemplate;
 
     var z = _getZoomForUrl(coords, options);
-    
+
     var data = <String, String>{
       'x': coords.x.round().toString(),
       'y': coords.y.round().toString(),
