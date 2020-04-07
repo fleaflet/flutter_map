@@ -16,20 +16,34 @@ abstract class TileProvider {
   void dispose() {}
 
   String getTileUrl(Coords coords, TileLayerOptions options) {
-    if (options.wmsOptions != null)
+    if (options.wmsOptions != null) {
       return options.wmsOptions.getUrl(coords, options.tileSize.toInt());
+    }
+
+    var z = _getZoomForUrl(coords, options);
+
     var data = <String, String>{
       'x': coords.x.round().toString(),
       'y': coords.y.round().toString(),
-      'z': coords.z.round().toString(),
+      'z': z.round().toString(),
       's': getSubdomain(coords, options)
     };
     if (options.tms) {
-      data['y'] = invertY(coords.y.round(), coords.z.round()).toString();
+      data['y'] = invertY(coords.y.round(), z.round()).toString();
     }
     var allOpts = Map<String, String>.from(data)
       ..addAll(options.additionalOptions);
     return util.template(options.urlTemplate, allOpts);
+  }
+
+  double _getZoomForUrl(Coords coords, TileLayerOptions options) {
+    var zoom = coords.z;
+
+    if (options.zoomReverse) {
+      zoom = options.maxZoom - zoom;
+    }
+
+    return zoom += options.zoomOffset;
   }
 
   int invertY(int y, int z) {
