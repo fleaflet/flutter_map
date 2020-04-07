@@ -152,6 +152,11 @@ class TileLayerOptions extends LayerOptions {
   // it can 0 to avoid fade in
   final Duration tileFadeInDuration;
 
+  // If a Tile was loaded with error and if this flag is true, then TileProvider
+  // will be asked to evict Image during _pruneTiles / _abortLoading calls
+  // (see #576 - even Error Images are cached in flutter)
+  final bool evictErrorTiles;
+
   TileLayerOptions(
       {this.urlTemplate,
       this.tileSize = 256.0,
@@ -167,6 +172,7 @@ class TileLayerOptions extends LayerOptions {
       this.backgroundColor = const Color(0xFFE0E0E0),
       this.placeholderImage,
       this.errorImage,
+      this.evictErrorTiles = false,
       this.tileProvider = const CachedNetworkTileProvider(),
       this.tms = false,
       // ignore: avoid_init_to_null
@@ -397,7 +403,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       var tile = _tiles[key];
 
       tile.tileReady = null;
-      tile.dispose();
+      tile.dispose(tile.loadError && options.evictErrorTiles);
       _tiles.remove(key);
     }
   }
@@ -799,7 +805,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       return;
     }
 
-    tile.dispose();
+    tile.dispose(tile.loadError && options.evictErrorTiles);
     _tiles.remove(key);
   }
 
@@ -942,10 +948,13 @@ class Tile implements Comparable<Tile> {
   // call this before GC!
   void dispose([bool evict = false]) {
     if (evict && imageProvider != null) {
-      imageProvider
-          .evict()
-          .then((bool succ) => print('evict tile: $coords -> $succ'))
-          .catchError((error) => print('evict tile: $coords -> $error'));
+      try {
+        imageProvider.evict().catchError(print);
+      } catch (e) {
+        // this may be never called because catchError will handle errors, however
+        // we want to avoid random crashes like in #444 / #536
+        print(e);
+      }
     }
 
     animationController?.removeStatusListener(_onAnimateEnd);
