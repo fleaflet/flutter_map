@@ -83,6 +83,10 @@ class TileLayerOptions extends LayerOptions {
   ///Color shown behind the tiles.
   final Color backgroundColor;
 
+  /// ColorFilter for the tiles to implement grayscale or similar effects.
+  /// https://api.flutter.dev/flutter/dart-ui/ColorFilter/ColorFilter.matrix.html
+  final ColorFilter colorFilter;
+
   ///Opacity of the rendered tile
   final double opacity;
 
@@ -171,6 +175,7 @@ class TileLayerOptions extends LayerOptions {
       this.tms = false,
       // ignore: avoid_init_to_null
       this.wmsOptions = null,
+      this.colorFilter = null,
       this.opacity = 1.0,
       // Tiles will not update more than once every `updateInterval` milliseconds
       // (default 200) when panning.
@@ -347,14 +352,26 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       for (var tile in tilesToRender) _createTileWidget(tile)
     ];
 
+    var content = options.colorFilter == null
+        ? Container(
+            color: options.backgroundColor,
+            child: Stack(
+              children: tileWidgets,
+            ),
+          )
+        : ColorFiltered(
+            colorFilter: options.colorFilter,
+            child: Container(
+              color: options.backgroundColor,
+              child: Stack(
+                children: tileWidgets,
+              ),
+            ),
+          );
+
     return Opacity(
       opacity: options.opacity,
-      child: Container(
-        color: options.backgroundColor,
-        child: Stack(
-          children: tileWidgets,
-        ),
-      ),
+      child: content,
     );
   }
 
@@ -906,6 +923,7 @@ class Tile implements Comparable<Tile> {
   DateTime loaded;
 
   AnimationController animationController;
+
   double get opacity => animationController == null
       ? (active ? 1.0 : 0.0)
       : animationController.value;
