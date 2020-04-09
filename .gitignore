@@ -1,13 +1,7 @@
-.idea
 .dart_tool/
-.DS_Store
-.atom/
-.idea
-.packages
-.pub/
 build/
 ios/.generated/
-packages
+.packages
 pubspec.lock
 .flutter-plugins
 .vscode/
@@ -17,14 +11,17 @@ GeneratedPluginRegistrant.java
 ios/Flutter/Generated.xcconfig
 
 # Temp files in Example
-/flutter_map_example/.DS_Store
-/flutter_map_example/.atom/
-/flutter_map_example/.idea
-/flutter_map_example/.packages
-/flutter_map_example/.pub/
-/flutter_map_example/build/
-/flutter_map_example/ios/.generated/
-/flutter_map_example/packages
-/flutter_map_example/pubspec.lock
-/flutter_map_example/.flutter-plugins
-/flutter_map_example/.vscode/
+/example/.DS_Store
+/example/.atom/
+/example/.idea
+/example/.packages
+/example/.pub/
+/example/build/
+/example/ios/.generated/
+/example/packages
+/example/pubspec.lock
+/example/.flutter-plugins
+/example/.vscode/
+/example/.flutter-plugins-dependencies
+/example/ios/Flutter/flutter_export_environment.sh
+/example/ios/Flutter/Flutter.podspec

@@ -8,32 +8,45 @@ import 'package:latlong/latlong.dart' hide Path; // conflict with Path from UI
 
 class PolygonLayerOptions extends LayerOptions {
   final List<Polygon> polygons;
+  final bool polygonCulling;
 
-  PolygonLayerOptions({this.polygons = const [], rebuild})
+  /// screen space culling of polygons based on bounding box
+  PolygonLayerOptions(
+      {this.polygons = const [], this.polygonCulling = false, rebuild})
       : super(rebuild: rebuild);
 }
 
 class Polygon {
   final List<LatLng> points;
   final List<Offset> offsets = [];
+  final List<List<LatLng>> holePointsList;
+  final List<List<Offset>> holeOffsetsList;
   final Color color;
   final double borderStrokeWidth;
   final Color borderColor;
+  final bool disableHolesBorder;
   final bool isDotted;
+  LatLngBounds boundingBox;
 
   Polygon({
     this.points,
+    this.holePointsList,
     this.color = const Color(0xFF00FF00),
     this.borderStrokeWidth = 0.0,
     this.borderColor = const Color(0xFFFFFF00),
+    this.disableHolesBorder = false,
     this.isDotted = false,
-  });
+  }) : holeOffsetsList = null == holePointsList
+            ? null
+            : List.generate(holePointsList.length, (_) => []) {
+    boundingBox = LatLngBounds.fromPoints(points);
+  }
 }
 
 class PolygonLayer extends StatelessWidget {
   final PolygonLayerOptions polygonOpts;
   final MapState map;
-  final Stream<Null> stream;
+  final Stream stream;
 
   PolygonLayer(this.polygonOpts, this.map, this.stream);
 
@@ -41,6 +54,7 @@ class PolygonLayer extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints bc) {
+        // TODO unused BoxContraints should remove?
         final size = Size(bc.maxWidth, bc.maxHeight);
         return _build(context, size);
       },
@@ -48,30 +62,38 @@ class PolygonLayer extends StatelessWidget {
   }
 
   Widget _build(BuildContext context, Size size) {
-    return StreamBuilder<void>(
+    return StreamBuilder(
       stream: stream, // a Stream<void> or null
       builder: (BuildContext context, _) {
-        for (var polygonOpt in polygonOpts.polygons) {
-          polygonOpt.offsets.clear();
-          var i = 0;
-          for (var point in polygonOpt.points) {
-            var pos = map.project(point);
-            pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
-                map.getPixelOrigin();
-            polygonOpt.offsets.add(Offset(pos.x.toDouble(), pos.y.toDouble()));
-            if (i > 0 && i < polygonOpt.points.length) {
-              polygonOpt.offsets
-                  .add(Offset(pos.x.toDouble(), pos.y.toDouble()));
-            }
-            i++;
-          }
-        }
-
         var polygons = <Widget>[];
-        for (var polygonOpt in polygonOpts.polygons) {
+
+        for (var polygon in polygonOpts.polygons) {
+          polygon.offsets.clear();
+
+          if (null != polygon.holeOffsetsList) {
+            for (var offsets in polygon.holeOffsetsList) {
+              offsets.clear();
+            }
+          }
+
+          if (polygonOpts.polygonCulling &&
+              !polygon.boundingBox.isOverlapping(map.bounds)) {
+            // skip this polygon as it's offscreen
+            continue;
+          }
+
+          _fillOffsets(polygon.offsets, polygon.points);
+
+          if (null != polygon.holePointsList) {
+            for (var i = 0, len = polygon.holePointsList.length; i < len; ++i) {
+              _fillOffsets(
+                  polygon.holeOffsetsList[i], polygon.holePointsList[i]);
+            }
+          }
+
           polygons.add(
             CustomPaint(
-              painter: PolygonPainter(polygonOpt),
+              painter: PolygonPainter(polygon),
               size: size,
             ),
           );
@@ -84,6 +106,20 @@ class PolygonLayer extends StatelessWidget {
         );
       },
     );
+  }
+
+  void _fillOffsets(final List<Offset> offsets, final List<LatLng> points) {
+    for (var i = 0, len = points.length; i < len; ++i) {
+      var point = points[i];
+
+      var pos = map.project(point);
+      pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
+          map.getPixelOrigin();
+      offsets.add(Offset(pos.x.toDouble(), pos.y.toDouble()));
+      if (i > 0) {
+        offsets.add(Offset(pos.x.toDouble(), pos.y.toDouble()));
+      }
+    }
   }
 }
 
@@ -98,26 +134,40 @@ class PolygonPainter extends CustomPainter {
       return;
     }
     final rect = Offset.zero & size;
-    canvas.clipRect(rect);
-    final paint = Paint()
-      ..style = PaintingStyle.fill
-      ..color = polygonOpt.color;
-    final borderPaint = polygonOpt.borderStrokeWidth > 0.0
-        ? (Paint()
-          ..color = polygonOpt.borderColor
-          ..strokeWidth = polygonOpt.borderStrokeWidth)
-        : null;
+    _paintPolygon(canvas, rect);
+  }
 
-    _paintPolygon(canvas, polygonOpt.offsets, paint);
-
-    var borderRadius = (polygonOpt.borderStrokeWidth / 2);
+  void _paintBorder(Canvas canvas) {
     if (polygonOpt.borderStrokeWidth > 0.0) {
+      var borderRadius = (polygonOpt.borderStrokeWidth / 2);
+
+      final borderPaint = polygonOpt.borderStrokeWidth > 0.0
+          ? (Paint()
+            ..color = polygonOpt.borderColor
+            ..strokeWidth = polygonOpt.borderStrokeWidth)
+          : null;
+
       if (polygonOpt.isDotted) {
         var spacing = polygonOpt.borderStrokeWidth * 1.5;
         _paintDottedLine(
             canvas, polygonOpt.offsets, borderRadius, spacing, borderPaint);
+
+        if (!polygonOpt.disableHolesBorder &&
+            null != polygonOpt.holeOffsetsList) {
+          for (var offsets in polygonOpt.holeOffsetsList) {
+            _paintDottedLine(
+                canvas, offsets, borderRadius, spacing, borderPaint);
+          }
+        }
       } else {
         _paintLine(canvas, polygonOpt.offsets, borderRadius, borderPaint);
+
+        if (!polygonOpt.disableHolesBorder &&
+            null != polygonOpt.holeOffsetsList) {
+          for (var offsets in polygonOpt.holeOffsetsList) {
+            _paintLine(canvas, offsets, borderRadius, borderPaint);
+          }
+        }
       }
     }
   }
@@ -141,7 +191,7 @@ class PolygonPainter extends CustomPainter {
           ? stepLength - (totalDistance - distance)
           : distance - totalDistance;
     }
-    canvas.drawCircle(polygonOpt.offsets.last, radius, paint);
+    canvas.drawCircle(offsets.last, radius, paint);
   }
 
   void _paintLine(
@@ -152,10 +202,42 @@ class PolygonPainter extends CustomPainter {
     }
   }
 
-  void _paintPolygon(Canvas canvas, List<Offset> offsets, Paint paint) {
-    var path = Path();
-    path.addPolygon(offsets, true);
-    canvas.drawPath(path, paint);
+  void _paintPolygon(Canvas canvas, Rect rect) {
+    final paint = Paint();
+
+    if (null != polygonOpt.holeOffsetsList) {
+      canvas.saveLayer(rect, paint);
+      paint.style = PaintingStyle.fill;
+
+      for (var offsets in polygonOpt.holeOffsetsList) {
+        var path = Path();
+        path.addPolygon(offsets, true);
+        canvas.drawPath(path, paint);
+      }
+
+      paint
+        ..color = polygonOpt.color
+        ..blendMode = BlendMode.srcOut;
+
+      var path = Path();
+      path.addPolygon(polygonOpt.offsets, true);
+      canvas.drawPath(path, paint);
+
+      _paintBorder(canvas);
+
+      canvas.restore();
+    } else {
+      canvas.clipRect(rect);
+      paint
+        ..style = PaintingStyle.fill
+        ..color = polygonOpt.color;
+
+      var path = Path();
+      path.addPolygon(polygonOpt.offsets, true);
+      canvas.drawPath(path, paint);
+
+      _paintBorder(canvas);
+    }
   }
 
   @override

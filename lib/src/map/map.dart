@@ -1,13 +1,12 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/center_zoom.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:latlong/latlong.dart';
-
-import 'package:flutter/material.dart';
 
 class MapControllerImpl implements MapController {
   final Completer<Null> _readyCompleter = Completer<Null>();
@@ -24,10 +23,8 @@ class MapControllerImpl implements MapController {
   }
 
   @override
-  void move(LatLng center, double zoom,
-      {bool hasGesture = false, isUserGesture = false}) {
-    _state.move(center, zoom,
-        hasGesture: hasGesture, isUserGesture: isUserGesture);
+  void move(LatLng center, double zoom, {bool hasGesture = false}) {
+    _state.move(center, zoom, hasGesture: hasGesture);
   }
 
   @override
@@ -57,13 +54,12 @@ class MapControllerImpl implements MapController {
     if (onRotationChanged != null) onRotationChanged(degree);
   }
 
-
   @override
   ValueChanged<double> onRotationChanged;
 }
 
 class MapState {
-  final MapOptions options;
+  MapOptions options;
   final StreamController<Null> _onMoveSink;
 
   double _zoom;
@@ -77,7 +73,10 @@ class MapState {
   CustomPoint _pixelOrigin;
   bool _initialized = false;
 
-  MapState(this.options) : rotation = options.rotation, _onMoveSink = StreamController.broadcast();
+  MapState(this.options)
+      : rotation = options.rotation,
+        _zoom = options.zoom,
+        _onMoveSink = StreamController.broadcast();
 
   CustomPoint _size;
 
@@ -87,11 +86,11 @@ class MapState {
 
   set size(CustomPoint s) {
     _size = s;
-    _pixelOrigin = getNewPixelOrigin(_lastCenter);
     if (!_initialized) {
       _init();
       _initialized = true;
     }
+    _pixelOrigin = getNewPixelOrigin(_lastCenter);
   }
 
   LatLng get center => getCenter() ?? options.center;
@@ -101,7 +100,6 @@ class MapState {
   Bounds get pixelBounds => getLastPixelBounds();
 
   void _init() {
-    _zoom = options.zoom;
     move(options.center, zoom);
   }
 
@@ -109,12 +107,12 @@ class MapState {
     _onMoveSink.close();
   }
 
-  void move(LatLng center, double zoom,
-      {hasGesture = false, isUserGesture = false}) {
-    zoom = _fitZoomToBounds(zoom);
+  void move(LatLng center, double zoom, {hasGesture = false}) {
+    zoom = fitZoomToBounds(zoom);
     final mapMoved = center != _lastCenter || zoom != _zoom;
 
-    if (!mapMoved || options.isOutOfBounds(center) || !bounds.isValid) {
+    if (_lastCenter != null &&
+        (!mapMoved || options.isOutOfBounds(center) || !bounds.isValid)) {
       return;
     }
 
@@ -132,12 +130,11 @@ class MapState {
             bounds: bounds,
             zoom: zoom,
           ),
-          hasGesture,
-          isUserGesture);
+          hasGesture);
     }
   }
 
-  double _fitZoomToBounds(double zoom) {
+  double fitZoomToBounds(double zoom) {
     zoom ??= _zoom;
     // Abide to min/max zoom
     if (options.maxZoom != null) {
@@ -218,6 +215,8 @@ class MapState {
     var nw = bounds.northWest;
     var se = bounds.southEast;
     var size = this.size - padding;
+    // Prevent negative size which results in NaN zoom value later on in the calculation
+    size = CustomPoint(math.max(0, size.x), math.max(0, size.y));
     var boundsSize = Bounds(project(se, zoom), project(nw, zoom)).size;
     var scaleX = size.x / boundsSize.x;
     var scaleY = size.y / boundsSize.y;

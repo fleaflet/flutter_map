@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../pages/animated_map_controller.dart';
 import '../pages/circle.dart';
+import '../pages/custom_crs/custom_crs.dart';
 import '../pages/esri.dart';
 import '../pages/home.dart';
 import '../pages/map_controller.dart';
@@ -13,16 +14,18 @@ import '../pages/on_tap.dart';
 import '../pages/overlay_image.dart';
 import '../pages/plugin_api.dart';
 import '../pages/plugin_scalebar.dart';
+import '../pages/plugin_zoombuttons.dart';
 import '../pages/polyline.dart';
 import '../pages/tap_to_add.dart';
+import '../pages/wms_tile_layer.dart';
 
 Drawer buildDrawer(BuildContext context, String currentRoute) {
   return Drawer(
     child: ListView(
       children: <Widget>[
         const DrawerHeader(
-          child: const Center(
-            child: const Text('Flutter Map Examples'),
+          child: Center(
+            child: Text('Flutter Map Examples'),
           ),
         ),
         ListTile(
@@ -30,6 +33,20 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           selected: currentRoute == HomePage.route,
           onTap: () {
             Navigator.pushReplacementNamed(context, HomePage.route);
+          },
+        ),
+        ListTile(
+          title: const Text('WMS Layer'),
+          selected: currentRoute == WMSLayerPage.route,
+          onTap: () {
+            Navigator.pushReplacementNamed(context, WMSLayerPage.route);
+          },
+        ),
+        ListTile(
+          title: const Text('Custom CRS'),
+          selected: currentRoute == CustomCrsPage.route,
+          onTap: () {
+            Navigator.pushReplacementNamed(context, CustomCrsPage.route);
           },
         ),
         ListTile(
@@ -87,6 +104,13 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           selected: currentRoute == PluginScaleBar.route,
           onTap: () {
             Navigator.pushReplacementNamed(context, PluginScaleBar.route);
+          },
+        ),
+        ListTile(
+          title: const Text('ZoomButtons Plugins'),
+          selected: currentRoute == PluginZoomButtons.route,
+          onTap: () {
+            Navigator.pushReplacementNamed(context, PluginZoomButtons.route);
           },
         ),
         ListTile(

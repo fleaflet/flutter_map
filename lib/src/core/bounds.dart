@@ -1,6 +1,8 @@
 import 'dart:math' as math;
-import 'point.dart';
+import 'package:flutter_map/src/core/point.dart';
 
+/// Rectangular bound delimited by orthogonal lines passing through two
+/// points.
 class Bounds<T extends num> {
   final CustomPoint<T> min;
   final CustomPoint<T> max;
@@ -13,6 +15,8 @@ class Bounds<T extends num> {
 
   const Bounds._(this.min, this.max);
 
+  /// Creates a new [Bounds] obtained by expanding the current ones with a new
+  /// point.
   Bounds<T> extend(CustomPoint<T> point) {
     CustomPoint<T> newMin;
     CustomPoint<T> newMax;
@@ -30,18 +34,28 @@ class Bounds<T extends num> {
     return Bounds._(newMin, newMax);
   }
 
+  /// This [Bounds] cental point.
   CustomPoint<double> getCenter() {
+    //TODO should this be a getter?
     return CustomPoint<double>(
       (min.x + max.x) / 2,
       (min.y + max.y) / 2,
     );
   }
 
+  /// Bottom-Left corner's point.
   CustomPoint<T> get bottomLeft => CustomPoint(min.x, max.y);
+
+  /// Top-Right corner's point.
   CustomPoint<T> get topRight => CustomPoint(max.x, min.y);
+
+  /// Top-Left corner's point.
   CustomPoint<T> get topLeft => min;
+
+  /// Bottom-Right corner's point.
   CustomPoint<T> get bottomRight => max;
 
+  /// A point that contains the difference between the point's axis projections.
   CustomPoint<T> get size {
     return max - min;
   }

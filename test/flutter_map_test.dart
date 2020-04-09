@@ -8,7 +8,7 @@ void main() {
     await tester.pumpWidget(TestApp());
     expect(find.byType(FlutterMap), findsOneWidget);
     expect(find.byType(TileLayer), findsOneWidget);
-    expect(find.byType(FadeInImage), findsWidgets);
+    expect(find.byType(RawImage), findsWidgets);
     expect(find.byType(MarkerLayer), findsWidgets);
     expect(find.byType(FlutterLogo), findsOneWidget);
   });

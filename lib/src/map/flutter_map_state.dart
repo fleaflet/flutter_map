@@ -14,6 +14,7 @@ import 'package:async/async.dart';
 class FlutterMapState extends MapGestureMixin {
   final MapControllerImpl mapController;
   final List<StreamGroup<Null>> groups = <StreamGroup<Null>>[];
+  final _positionedTapController = PositionedTapController();
   double rotation = 0.0;
 
   @override
@@ -23,6 +24,12 @@ class FlutterMapState extends MapGestureMixin {
   MapState mapState;
 
   FlutterMapState(this.mapController);
+
+  @override
+  void didUpdateWidget(FlutterMap oldWidget) {
+    mapState.options = options;
+    super.didUpdateWidget(oldWidget);
+  }
 
   @override
   void initState() {
@@ -87,12 +94,11 @@ class FlutterMapState extends MapGestureMixin {
             CustomPoint<double>(constraints.maxWidth, constraints.maxHeight);
       }
 
-      var layerWidgets = widget.layers
-          .map((layer) => _createLayer(layer, widget.options.plugins))
-          .toList();
-
       var layerStack = Stack(
-        children: layerWidgets,
+        children: [
+          for (final layer in widget.layers)
+            _createLayer(layer, widget.options.plugins)
+        ],
       );
 
       Widget mapRoot;
@@ -101,6 +107,7 @@ class FlutterMapState extends MapGestureMixin {
         mapRoot = layerStack;
       } else {
         mapRoot = PositionedTapDetector(
+          controller: _positionedTapController,
           onTap: handleTap,
           onLongPress: handleLongPress,
           onDoubleTap: handleDoubleTap,
@@ -108,6 +115,10 @@ class FlutterMapState extends MapGestureMixin {
             onScaleStart: handleScaleStart,
             onScaleUpdate: handleScaleUpdate,
             onScaleEnd: handleScaleEnd,
+            onTap: _positionedTapController.onTap,
+            onLongPress: _positionedTapController.onLongPress,
+            onTapDown: _positionedTapController.onTapDown,
+            onTapUp: handleOnTapUp,
             child: layerStack,
           ),
         );
@@ -136,6 +147,11 @@ class FlutterMapState extends MapGestureMixin {
   }
 
   Widget _createLayer(LayerOptions options, List<MapPlugin> plugins) {
+    for (var plugin in plugins) {
+      if (plugin.supportsLayer(options)) {
+        return plugin.createLayer(options, mapState, _merge(options));
+      }
+    }
     if (options is TileLayerOptions) {
       return TileLayer(
           options: options, mapState: mapState, stream: _merge(options));
@@ -157,11 +173,6 @@ class FlutterMapState extends MapGestureMixin {
     }
     if (options is OverlayImageLayerOptions) {
       return OverlayImageLayer(options, mapState, _merge(options));
-    }
-    for (var plugin in plugins) {
-      if (plugin.supportsLayer(options)) {
-        return plugin.createLayer(options, mapState, _merge(options));
-      }
     }
     return null;
   }
