@@ -13,6 +13,19 @@ import 'package:tuple/tuple.dart';
 
 import 'layer.dart';
 
+enum EvictErrorTileStrategy {
+  // never evict error Tiles
+  none,
+  // evict error Tiles during _pruneTiles / _abortLoading calls
+  dispose,
+  // evict error Tiles which are not visible anymore but respect margin (see keepBuffer option)
+  // (Tile's zoom level not equals current _tileZoom or Tile is out of viewport)
+  notVisibleRespectMargin,
+  // evict error Tiles which are not visible anymore
+  // (Tile's zoom level not equals current _tileZoom or Tile is out of viewport)
+  notVisible,
+}
+
 /// Describes the needed properties to create a tile-based layer.
 /// A tile is an image binded to a specific geographical position.
 class TileLayerOptions extends LayerOptions {
@@ -152,43 +165,43 @@ class TileLayerOptions extends LayerOptions {
   // it can 0 to avoid fade in
   final Duration tileFadeInDuration;
 
-  // If a Tile was loaded with error and if this flag is true, then TileProvider
-  // will be asked to evict Image during _pruneTiles / _abortLoading calls
+  // If a Tile was loaded with error and if strategy isn't `none` then TileProvider
+  // will be asked to evict Image based on current strategy
   // (see #576 - even Error Images are cached in flutter)
-  final bool evictErrorTiles;
+  final EvictErrorTileStrategy evictErrorTileStrategy;
 
-  TileLayerOptions(
-      {this.urlTemplate,
-      this.tileSize = 256.0,
-      this.minZoom = 0.0,
-      this.maxZoom = 18.0,
-      this.minNativeZoom,
-      this.maxNativeZoom,
-      this.zoomReverse = false,
-      this.zoomOffset = 0.0,
-      this.additionalOptions = const <String, String>{},
-      this.subdomains = const <String>[],
-      this.keepBuffer = 2,
-      this.backgroundColor = const Color(0xFFE0E0E0),
-      this.placeholderImage,
-      this.errorImage,
-      this.evictErrorTiles = false,
-      this.tileProvider = const CachedNetworkTileProvider(),
-      this.tms = false,
-      // ignore: avoid_init_to_null
-      this.wmsOptions = null,
-      this.opacity = 1.0,
-      // Tiles will not update more than once every `updateInterval` milliseconds
-      // (default 200) when panning.
-      // It can be 0 (but it will calculating for loading tiles every frame when panning / zooming, flutter is fast)
-      // This can save some fps and even bandwidth
-      // (ie. when fast panning / animating between long distances in short time)
-      int updateInterval = 200,
-      // Tiles fade in duration in milliseconds (default 100),
-      // it can 0 to avoid fade in
-      int tileFadeInDuration = 100,
-      rebuild})
-      : updateInterval =
+  TileLayerOptions({
+    this.urlTemplate,
+    this.tileSize = 256.0,
+    this.minZoom = 0.0,
+    this.maxZoom = 18.0,
+    this.minNativeZoom,
+    this.maxNativeZoom,
+    this.zoomReverse = false,
+    this.zoomOffset = 0.0,
+    this.additionalOptions = const <String, String>{},
+    this.subdomains = const <String>[],
+    this.keepBuffer = 2,
+    this.backgroundColor = const Color(0xFFE0E0E0),
+    this.placeholderImage,
+    this.errorImage,
+    this.evictErrorTileStrategy = EvictErrorTileStrategy.none,
+    this.tileProvider = const CachedNetworkTileProvider(),
+    this.tms = false,
+    // ignore: avoid_init_to_null
+    this.wmsOptions = null,
+    this.opacity = 1.0,
+    // Tiles will not update more than once every `updateInterval` milliseconds
+    // (default 200) when panning.
+    // It can be 0 (but it will calculating for loading tiles every frame when panning / zooming, flutter is fast)
+    // This can save some fps and even bandwidth
+    // (ie. when fast panning / animating between long distances in short time)
+    int updateInterval = 200,
+    // Tiles fade in duration in milliseconds (default 100),
+    // it can 0 to avoid fade in
+    int tileFadeInDuration = 100,
+    rebuild,
+  })  : updateInterval =
             updateInterval <= 0 ? null : Duration(milliseconds: updateInterval),
         tileFadeInDuration = tileFadeInDuration <= 0
             ? null
@@ -403,7 +416,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       var tile = _tiles[key];
 
       tile.tileReady = null;
-      tile.dispose(tile.loadError && options.evictErrorTiles);
+      tile.dispose(tile.loadError &&
+          options.evictErrorTileStrategy != EvictErrorTileStrategy.none);
       _tiles.remove(key);
     }
   }
@@ -760,6 +774,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       }
     }
 
+    _evictErrorTilesBasedOnStrategy(tileRange);
+
     // sort tile queue to load tiles in order of their distance to center
     queue.sort((a, b) =>
         (a.distanceTo(tileCenter) - b.distanceTo(tileCenter)).toInt());
@@ -805,7 +821,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       return;
     }
 
-    tile.dispose(tile.loadError && options.evictErrorTiles);
+    tile.dispose(tile.loadError &&
+        options.evictErrorTileStrategy != EvictErrorTileStrategy.none);
     _tiles.remove(key);
   }
 
@@ -821,6 +838,46 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
           options.tileProvider.getImage(_wrapCoords(coords), options),
       tileReady: _tileReady,
     );
+  }
+
+  void _evictErrorTilesBasedOnStrategy(Bounds tileRange) {
+    if (options.evictErrorTileStrategy ==
+        EvictErrorTileStrategy.notVisibleRespectMargin) {
+      var toRemove = <String>[];
+      for (var entry in _tiles.entries) {
+        var tile = entry.value;
+
+        if (tile.loadError && !tile.current) {
+          toRemove.add(entry.key);
+        }
+      }
+
+      for (var key in toRemove) {
+        var tile = _tiles[key];
+
+        tile.dispose(true);
+        _tiles.remove(key);
+      }
+    } else if (options.evictErrorTileStrategy ==
+        EvictErrorTileStrategy.notVisible) {
+      var toRemove = <String>[];
+      for (var entry in _tiles.entries) {
+        var tile = entry.value;
+        var c = tile.coords;
+
+        if (tile.loadError &&
+            (!tile.current || !tileRange.contains(CustomPoint(c.x, c.y)))) {
+          toRemove.add(entry.key);
+        }
+      }
+
+      for (var key in toRemove) {
+        var tile = _tiles[key];
+
+        tile.dispose(true);
+        _tiles.remove(key);
+      }
+    }
   }
 
   void _tileReady(Coords<double> coords, dynamic error, Tile tile) {
