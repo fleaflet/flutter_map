@@ -317,6 +317,42 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     _update(null);
     _moveSub = widget.stream.listen((_) => _handleMove());
 
+    _initThrottleUpdate();
+  }
+
+  @override
+  void didUpdateWidget(TileLayer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    var reloadTiles = false;
+
+    final oldUrl = oldWidget.options.urlTemplate ??
+        oldWidget.options?.wmsOptions?._encodedBaseUrl;
+    final newUrl = options.urlTemplate ?? options?.wmsOptions?._encodedBaseUrl;
+    if (oldUrl != newUrl) {
+      // URL has been changed drop all Tiles and reload them
+      reloadTiles = true;
+    }
+
+    if (oldWidget.options.tileSize != options.tileSize) {
+      // tileSize has been changed drop all Tiles and reload them
+      _tileSize = CustomPoint(options.tileSize, options.tileSize);
+      reloadTiles = true;
+    }
+
+    if (oldWidget.options.updateInterval != options.updateInterval) {
+      // updateInterval has been changed
+      _throttleUpdate?.close();
+      _initThrottleUpdate();
+    }
+
+    if (reloadTiles) {
+      _removeAllTiles();
+      _resetView();
+      _update(null);
+    }
+  }
+
+  void _initThrottleUpdate() {
     if (options.updateInterval == null) {
       _throttleUpdate = null;
     } else {
@@ -331,12 +367,12 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    super.dispose();
-
     _removeAllTiles();
     _moveSub?.cancel();
     options.tileProvider.dispose();
     _throttleUpdate?.close();
+
+    super.dispose();
   }
 
   @override
