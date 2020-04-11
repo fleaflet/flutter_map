@@ -352,22 +352,15 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       for (var tile in tilesToRender) _createTileWidget(tile)
     ];
 
-    var content = options.colorFilter == null
-        ? Container(
-            color: options.backgroundColor,
-            child: Stack(
-              children: tileWidgets,
-            ),
-          )
-        : ColorFiltered(
-            colorFilter: options.colorFilter,
-            child: Container(
-              color: options.backgroundColor,
-              child: Stack(
-                children: tileWidgets,
-              ),
-            ),
-          );
+    Widget content = Container(
+      color: options.backgroundColor,
+      child: Stack(
+        children: tileWidgets,
+      ),
+    );
+    if (options.colorFilter != null) {
+      content = ColorFiltered(colorFilter: options.colorFilter, child: content);
+    }
 
     return Opacity(
       opacity: options.opacity,
