@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -47,20 +48,20 @@ class TileLayerOptions extends LayerOptions {
   /// In most tile providers goes from 0 to 19.
   final double maxZoom;
 
-  // Minimum zoom number the tile source has available. If it is specified,
-  // the tiles on all zoom levels lower than minNativeZoom will be loaded
-  // from minNativeZoom level and auto-scaled.
+  /// Minimum zoom number the tile source has available. If it is specified,
+  /// the tiles on all zoom levels lower than minNativeZoom will be loaded
+  /// from minNativeZoom level and auto-scaled.
   final double minNativeZoom;
 
-  // Maximum zoom number the tile source has available. If it is specified,
-  // the tiles on all zoom levels higher than maxNativeZoom will be loaded
-  // from maxNativeZoom level and auto-scaled.
+  /// Maximum zoom number the tile source has available. If it is specified,
+  /// the tiles on all zoom levels higher than maxNativeZoom will be loaded
+  /// from maxNativeZoom level and auto-scaled.
   final double maxNativeZoom;
 
-  // If set to true, the zoom number used in tile URLs will be reversed (`maxZoom - zoom` instead of `zoom`)
+  /// If set to true, the zoom number used in tile URLs will be reversed (`maxZoom - zoom` instead of `zoom`)
   final bool zoomReverse;
 
-  // The zoom number used in tile URLs will be offset with this value.
+  /// The zoom number used in tile URLs will be offset with this value.
   final double zoomOffset;
 
   /// List of subdomains for the URL.
@@ -80,10 +81,10 @@ class TileLayerOptions extends LayerOptions {
   /// https://c.tile.openstreetmap.org/{z}/{x}/{y}.png
   final List<String> subdomains;
 
-  ///Color shown behind the tiles.
+  /// Color shown behind the tiles.
   final Color backgroundColor;
 
-  ///Opacity of the rendered tile
+  /// Opacity of the rendered tile
   final double opacity;
 
   /// Provider to load the tiles. The default is CachedNetworkTileProvider,
@@ -141,52 +142,75 @@ class TileLayerOptions extends LayerOptions {
   ///
   final Map<String, String> additionalOptions;
 
-  // Tiles will not update more than once every `updateInterval` milliseconds
-  // (default 200) when panning.
-  // It can be 0 (but it will calculating for loading tiles every frame when panning / zooming, flutter is fast)
-  // This can save some fps and even bandwidth
-  // (ie. when fast panning / animating between long distances in short time)
+  /// Tiles will not update more than once every `updateInterval` milliseconds
+  /// (default 200) when panning.
+  /// It can be 0 (but it will calculating for loading tiles every frame when panning / zooming, flutter is fast)
+  /// This can save some fps and even bandwidth
+  /// (ie. when fast panning / animating between long distances in short time)
   final Duration updateInterval;
 
-  // Tiles fade in duration in milliseconds (default 100),
-  // it can 0 to avoid fade in
+  /// Tiles fade in duration in milliseconds (default 100),
+  /// Use 0 to avoid fade in
   final Duration tileFadeInDuration;
 
-  TileLayerOptions(
-      {this.urlTemplate,
-      this.tileSize = 256.0,
-      this.minZoom = 0.0,
-      this.maxZoom = 18.0,
-      this.minNativeZoom,
-      this.maxNativeZoom,
-      this.zoomReverse = false,
-      this.zoomOffset = 0.0,
-      this.additionalOptions = const <String, String>{},
-      this.subdomains = const <String>[],
-      this.keepBuffer = 2,
-      this.backgroundColor = const Color(0xFFE0E0E0),
-      this.placeholderImage,
-      this.errorImage,
-      this.tileProvider = const CachedNetworkTileProvider(),
-      this.tms = false,
-      // ignore: avoid_init_to_null
-      this.wmsOptions = null,
-      this.opacity = 1.0,
-      // Tiles will not update more than once every `updateInterval` milliseconds
-      // (default 200) when panning.
-      // It can be 0 (but it will calculating for loading tiles every frame when panning / zooming, flutter is fast)
-      // This can save some fps and even bandwidth
-      // (ie. when fast panning / animating between long distances in short time)
-      int updateInterval = 200,
-      // Tiles fade in duration in milliseconds (default 100),
-      // it can 0 to avoid fade in
-      int tileFadeInDuration = 100,
-      rebuild})
-      : updateInterval =
+  /// If `true`, it will request four tiles of half the specified size and a
+  /// bigger zoom level in place of one to utilize the high resolution.
+  /// It is advised to use retinaMode if display supports it, write code like this:
+  /// TileLayerOptions(
+  ///     retinaMode: true && MediaQuery.of(context).devicePixelRatio > 1.0,
+  /// ),
+  final bool retinaMode;
+
+  TileLayerOptions({
+    this.urlTemplate,
+    double tileSize = 256.0,
+    double minZoom = 0.0,
+    double maxZoom = 18.0,
+    this.minNativeZoom,
+    this.maxNativeZoom,
+    this.zoomReverse = false,
+    double zoomOffset = 0.0,
+    this.additionalOptions = const <String, String>{},
+    this.subdomains = const <String>[],
+    this.keepBuffer = 2,
+    this.backgroundColor = const Color(0xFFE0E0E0),
+    this.placeholderImage,
+    this.errorImage,
+    this.tileProvider = const CachedNetworkTileProvider(),
+    this.tms = false,
+    // ignore: avoid_init_to_null
+    this.wmsOptions = null,
+    this.opacity = 1.0,
+    // Tiles will not update more than once every `updateInterval` milliseconds
+    // (default 200) when panning.
+    // It can be 0 (but it will calculating for loading tiles every frame when panning / zooming, flutter is fast)
+    // This can save some fps and even bandwidth
+    // (ie. when fast panning / animating between long distances in short time)
+    int updateInterval = 200,
+    // Tiles fade in duration in milliseconds (default 100),
+    // it can 0 to avoid fade in
+    int tileFadeInDuration = 100,
+    this.retinaMode = false,
+    rebuild,
+  })  : updateInterval =
             updateInterval <= 0 ? null : Duration(milliseconds: updateInterval),
         tileFadeInDuration = tileFadeInDuration <= 0
             ? null
             : Duration(milliseconds: tileFadeInDuration),
+        maxZoom =
+            wmsOptions == null && retinaMode && maxZoom > 0.0 && !zoomReverse
+                ? maxZoom - 1.0
+                : maxZoom,
+        minZoom =
+            wmsOptions == null && retinaMode && maxZoom > 0.0 && zoomReverse
+                ? math.max(minZoom + 1.0, 0.0)
+                : minZoom,
+        zoomOffset = wmsOptions == null && retinaMode && maxZoom > 0.0
+            ? (zoomReverse ? zoomOffset - 1.0 : zoomOffset + 1.0)
+            : zoomOffset,
+        tileSize = wmsOptions == null && retinaMode && maxZoom > 0.0
+            ? (tileSize / 2.0).floorToDouble()
+            : tileSize,
         super(rebuild: rebuild);
 }
 
@@ -253,7 +277,7 @@ class WMSTileLayerOptions {
     return buffer.toString();
   }
 
-  String getUrl(Coords coords, int tileSize) {
+  String getUrl(Coords coords, int tileSize, bool retinaMode) {
     final tileSizePoint = CustomPoint(tileSize, tileSize);
     final nvPoint = coords.scaleBy(tileSizePoint);
     final sePoint = nvPoint + tileSizePoint;
@@ -267,8 +291,8 @@ class WMSTileLayerOptions {
         : [bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y];
 
     final buffer = StringBuffer(_encodedBaseUrl);
-    buffer.write('&width=$tileSize');
-    buffer.write('&height=$tileSize');
+    buffer.write('&width=${retinaMode ? tileSize * 2 : tileSize}');
+    buffer.write('&height=${retinaMode ? tileSize * 2 : tileSize}');
     buffer.write('&bbox=${bbox.join(',')}');
     return buffer.toString();
   }
@@ -343,6 +367,12 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       // updateInterval has been changed
       _throttleUpdate?.close();
       _initThrottleUpdate();
+    }
+
+    if (oldWidget.options.retinaMode != options.retinaMode) {
+      // retinaMode has been changed drop all Tiles and reload them.
+      // Note: tileSize is changed too so reloadTiles should be `true` at this point
+      reloadTiles = true;
     }
 
     if (reloadTiles) {
