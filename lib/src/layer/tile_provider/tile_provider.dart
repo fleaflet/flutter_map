@@ -28,7 +28,7 @@ abstract class TileProvider {
       'y': coords.y.round().toString(),
       'z': z.round().toString(),
       's': getSubdomain(coords, options),
-      // 'r': options.retinaMode ? '@2x' : '',
+      'r': '@2x',
     };
     if (options.tms) {
       data['y'] = invertY(coords.y.round(), z.round()).toString();

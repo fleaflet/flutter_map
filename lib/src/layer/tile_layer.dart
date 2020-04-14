@@ -18,6 +18,10 @@ import 'layer.dart';
 /// A tile is an image binded to a specific geographical position.
 class TileLayerOptions extends LayerOptions {
   /// Defines the structure to create the URLs for the tiles.
+  /// `{s}` means one of the available subdomains (can be omitted)
+  /// `{z}` zoom level
+  /// `{x}` and `{y}` — tile coordinates
+  /// `{r}` can be used to add "&commat;2x" to the URL to load retina tiles (can be omitted)
   ///
   /// Example:
   ///
@@ -132,7 +136,7 @@ class TileLayerOptions extends LayerOptions {
   ///
   /// TileLayerOptions(
   ///     urlTemplate: "https://api.tiles.mapbox.com/v4/"
-  ///                  "{id}/{z}/{x}/{y}@2x.png?access_token={accessToken}",
+  ///                  "{id}/{z}/{x}/{y}{r}.png?access_token={accessToken}",
   ///     additionalOptions: {
   ///         'accessToken': '<PUT_ACCESS_TOKEN_HERE>',
   ///          'id': 'mapbox.streets',
@@ -155,6 +159,12 @@ class TileLayerOptions extends LayerOptions {
 
   /// If `true`, it will request four tiles of half the specified size and a
   /// bigger zoom level in place of one to utilize the high resolution.
+  ///
+  /// If `true` then MapOptions's `maxZoom` should be `maxZoom - 1` since retinaMode
+  /// just simulates retina display by playing with `zoomOffset`.
+  /// If geoserver supports retina `@2` tiles then it it advised to use them
+  /// instead of simulating it (use {r} in the [urlTemplate])
+  ///
   /// It is advised to use retinaMode if display supports it, write code like this:
   /// TileLayerOptions(
   ///     retinaMode: true && MediaQuery.of(context).devicePixelRatio > 1.0,
