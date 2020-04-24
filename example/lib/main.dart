@@ -18,6 +18,7 @@ import './pages/plugin_zoombuttons.dart';
 import './pages/polyline.dart';
 import './pages/tap_to_add.dart';
 import './pages/wms_tile_layer.dart';
+import './pages/tile_loading_error_handle.dart';
 
 void main() => runApp(MyApp());
 
@@ -50,6 +51,7 @@ class MyApp extends StatelessWidget {
         OverlayImagePage.route: (context) => OverlayImagePage(),
         WMSLayerPage.route: (context) => WMSLayerPage(),
         CustomCrsPage.route: (context) => CustomCrsPage(),
+        TileLoadingErrorHandle.route: (context) => TileLoadingErrorHandle(),
       },
     );
   }

@@ -18,6 +18,7 @@ import '../pages/plugin_zoombuttons.dart';
 import '../pages/polyline.dart';
 import '../pages/tap_to_add.dart';
 import '../pages/wms_tile_layer.dart';
+import '../pages/tile_loading_error_handle.dart';
 
 Drawer buildDrawer(BuildContext context, String currentRoute) {
   return Drawer(
@@ -154,6 +155,13 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           selected: currentRoute == OverlayImagePage.route,
           onTap: () {
             Navigator.pushReplacementNamed(context, OverlayImagePage.route);
+          },
+        ),
+        ListTile(
+          title: const Text('Tile loading error handle'),
+          selected: currentRoute == OverlayImagePage.route,
+          onTap: () {
+            Navigator.pushReplacementNamed(context, TileLoadingErrorHandle.route);
           },
         ),
       ],
