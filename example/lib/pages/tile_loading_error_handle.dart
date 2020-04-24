@@ -35,7 +35,6 @@ class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
                     center: LatLng(51.5, -0.09),
                     zoom: 5.0,
                     onPositionChanged: (MapPosition mapPosition, bool _) {
-                      print('++++++++++++++++++++++++++++++++++');
                       _needLoadingError = true;
                     },
                   ),
