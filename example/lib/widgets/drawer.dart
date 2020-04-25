@@ -159,7 +159,7 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
         ),
         ListTile(
           title: const Text('Tile loading error handle'),
-          selected: currentRoute == OverlayImagePage.route,
+          selected: currentRoute == TileLoadingErrorHandle.route,
           onTap: () {
             Navigator.pushReplacementNamed(context, TileLoadingErrorHandle.route);
           },

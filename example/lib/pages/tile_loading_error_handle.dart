@@ -30,7 +30,6 @@ class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
             Flexible(
               child: Builder(builder: (BuildContext context) {
                 return FlutterMap(
-                  mapController: MapController(),
                   options: MapOptions(
                     center: LatLng(51.5, -0.09),
                     zoom: 5.0,
