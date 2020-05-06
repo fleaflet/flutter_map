@@ -884,6 +884,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       print(error);
 
       tile.loadError = true;
+    } else {
+      tile.loadError = false;
     }
 
     var key = _tileCoordsToKey(coords);
