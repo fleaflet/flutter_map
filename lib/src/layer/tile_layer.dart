@@ -146,16 +146,29 @@ class TileLayerOptions extends LayerOptions {
   ///
   final Map<String, String> additionalOptions;
 
-  /// Tiles will not update more than once every `updateInterval` milliseconds
-  /// (default 200) when panning.
-  /// It can be 0 (but it will calculating for loading tiles every frame when panning / zooming, flutter is fast)
+  /// Tiles will not update more than once every `updateInterval`
+  /// (default 200 milliseconds) when panning.
+  /// It can be null (but it will calculating for loading tiles every frame when panning / zooming, flutter is fast)
   /// This can save some fps and even bandwidth
   /// (ie. when fast panning / animating between long distances in short time)
   final Duration updateInterval;
 
   /// Tiles fade in duration in milliseconds (default 100),
-  /// Use 0 to avoid fade in
+  /// it can be null to avoid fade in
   final Duration tileFadeInDuration;
+
+  /// Opacity start value when Tile starts fade in (0.0 - 1.0)
+  /// Takes effect if `tileFadeInDuration` is not null
+  final double tileFadeInStart;
+
+  /// Opacity start value when an exists Tile starts fade in with different Url (0.0 - 1.0)
+  /// Takes effect when `tileFadeInDuration` is not null and if `overrideTilesWhenUrlChanges` if true
+  final double tileFadeInStartWhenOverride;
+
+  /// `false`: current Tiles will be first dropped and then reload via new url (default)
+  /// `true`: current Tiles will be visible until new ones aren't loaded (new Tiles are loaded independently)
+  /// @see https://github.com/johnpryan/flutter_map/issues/583
+  final bool overrideTilesWhenUrlChanges;
 
   /// If `true`, it will request four tiles of half the specified size and a
   /// bigger zoom level in place of one to utilize the high resolution.
@@ -200,6 +213,9 @@ class TileLayerOptions extends LayerOptions {
     // Tiles fade in duration in milliseconds (default 100),
     // it can 0 to avoid fade in
     int tileFadeInDuration = 100,
+    this.tileFadeInStart = 0.0,
+    this.tileFadeInStartWhenOverride = 0.0,
+    this.overrideTilesWhenUrlChanges = false,
     this.retinaMode = false,
     rebuild,
   })  : updateInterval =
@@ -207,6 +223,9 @@ class TileLayerOptions extends LayerOptions {
         tileFadeInDuration = tileFadeInDuration <= 0
             ? null
             : Duration(milliseconds: tileFadeInDuration),
+        assert(tileFadeInStart >= 0.0 && tileFadeInStart <= 1.0),
+        assert(tileFadeInStartWhenOverride >= 0.0 &&
+            tileFadeInStartWhenOverride <= 1.0),
         maxZoom =
             wmsOptions == null && retinaMode && maxZoom > 0.0 && !zoomReverse
                 ? maxZoom - 1.0
@@ -359,30 +378,35 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     super.didUpdateWidget(oldWidget);
     var reloadTiles = false;
 
-    final oldUrl = oldWidget.options.urlTemplate ??
-        oldWidget.options?.wmsOptions?._encodedBaseUrl;
-    final newUrl = options.urlTemplate ?? options?.wmsOptions?._encodedBaseUrl;
-    if (oldUrl != newUrl) {
-      // URL has been changed drop all Tiles and reload them
-      reloadTiles = true;
-    }
-
     if (oldWidget.options.tileSize != options.tileSize) {
-      // tileSize has been changed drop all Tiles and reload them
       _tileSize = CustomPoint(options.tileSize, options.tileSize);
       reloadTiles = true;
     }
 
+    if (oldWidget.options.retinaMode != options.retinaMode) {
+      reloadTiles = true;
+    }
+
     if (oldWidget.options.updateInterval != options.updateInterval) {
-      // updateInterval has been changed
       _throttleUpdate?.close();
       _initThrottleUpdate();
     }
 
-    if (oldWidget.options.retinaMode != options.retinaMode) {
-      // retinaMode has been changed drop all Tiles and reload them.
-      // Note: tileSize is changed too so reloadTiles should be `true` at this point
-      reloadTiles = true;
+    if (!reloadTiles) {
+      final oldUrl = oldWidget.options.wmsOptions?._encodedBaseUrl ??
+          oldWidget.options.urlTemplate;
+      final newUrl = options.wmsOptions?._encodedBaseUrl ?? options.urlTemplate;
+      if (oldUrl != newUrl) {
+        if (options.overrideTilesWhenUrlChanges) {
+          for (var tile in _tiles.values) {
+            tile.imageProvider = options.tileProvider
+                .getImage(_wrapCoords(tile.coords), options);
+            tile.loadTileImage();
+          }
+        } else {
+          reloadTiles = true;
+        }
+      }
     }
 
     if (reloadTiles) {
@@ -898,6 +922,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       print(error);
 
       tile.loadError = true;
+    } else {
+      tile.loadError = false;
     }
 
     var key = _tileCoordsToKey(coords);
@@ -906,12 +932,20 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       return;
     }
 
+    var fadeInStart = tile.loaded == null
+        ? options.tileFadeInStart
+        : options.tileFadeInStartWhenOverride;
     tile.loaded = DateTime.now();
     if (options.tileFadeInDuration == null ||
+        fadeInStart == 1.0 ||
         (tile.loadError && null == options.errorImage)) {
       tile.active = true;
     } else {
-      tile.startFadeInAnimation(options.tileFadeInDuration, this);
+      tile.startFadeInAnimation(
+        options.tileFadeInDuration,
+        this,
+        from: fadeInStart,
+      );
     }
 
     setState(() {});
@@ -972,7 +1006,7 @@ class Tile implements Comparable<Tile> {
   final String coordsKey;
   final Coords<double> coords;
   final CustomPoint<num> tilePos;
-  final ImageProvider imageProvider;
+  ImageProvider imageProvider;
   final Level level;
 
   bool current;
@@ -1005,10 +1039,20 @@ class Tile implements Comparable<Tile> {
     this.retain = false,
     this.loadError = false,
   }) {
+    loadTileImage();
+  }
+
+  void loadTileImage() {
     try {
+      final oldImageStream = _imageStream;
       _imageStream = imageProvider.resolve(ImageConfiguration());
-      _listener = ImageStreamListener(_tileOnLoad, onError: _tileOnError);
-      _imageStream.addListener(_listener);
+
+      if (_imageStream.key != oldImageStream?.key) {
+        oldImageStream?.removeListener(_listener);
+
+        _listener = ImageStreamListener(_tileOnLoad, onError: _tileOnError);
+        _imageStream.addListener(_listener);
+      }
     } catch (e, s) {
       // make sure all exception is handled - #444 / #536
       _tileOnError(e, s);
@@ -1028,11 +1072,14 @@ class Tile implements Comparable<Tile> {
     _imageStream?.removeListener(_listener);
   }
 
-  void startFadeInAnimation(Duration duration, TickerProvider vsync) {
+  void startFadeInAnimation(Duration duration, TickerProvider vsync,
+      {double from}) {
+    animationController?.removeStatusListener(_onAnimateEnd);
+
     animationController = AnimationController(duration: duration, vsync: vsync)
       ..addStatusListener(_onAnimateEnd);
 
-    animationController.forward();
+    animationController.forward(from: from);
   }
 
   void _onAnimateEnd(AnimationStatus status) {
@@ -1050,7 +1097,8 @@ class Tile implements Comparable<Tile> {
 
   void _tileOnError(dynamic exception, StackTrace stackTrace) {
     if (null != tileReady) {
-      tileReady(coords, exception, this);
+      tileReady(
+          coords, exception ?? 'Unknown exception during loadTileImage', this);
     }
   }
 
