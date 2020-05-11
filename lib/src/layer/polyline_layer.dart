@@ -8,9 +8,19 @@ import 'package:latlong/latlong.dart';
 
 class PolylineLayerOptions extends LayerOptions {
   final List<Polyline> polylines;
+  final bool polylineCulling;
 
-  PolylineLayerOptions({this.polylines = const [], rebuild})
-      : super(rebuild: rebuild);
+  PolylineLayerOptions({
+    this.polylines = const [],
+    this.polylineCulling = false,
+    rebuild,
+  }) : super(rebuild: rebuild) {
+    if (polylineCulling) {
+      for (var polyline in polylines) {
+        polyline.boundingBox = LatLngBounds.fromPoints(polyline.points);
+      }
+    }
+  }
 }
 
 class Polyline {
@@ -23,6 +33,7 @@ class Polyline {
   final List<Color> gradientColors;
   final List<double> colorsStop;
   final bool isDotted;
+  LatLngBounds boundingBox;
 
   Polyline({
     this.points,
@@ -57,35 +68,46 @@ class PolylineLayer extends StatelessWidget {
     return StreamBuilder<void>(
       stream: stream, // a Stream<void> or null
       builder: (BuildContext context, _) {
+        var polylines = <Widget>[];
+
         for (var polylineOpt in polylineOpts.polylines) {
           polylineOpt.offsets.clear();
-          var i = 0;
-          for (var point in polylineOpt.points) {
-            var pos = map.project(point);
-            pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
-                map.getPixelOrigin();
-            polylineOpt.offsets.add(Offset(pos.x.toDouble(), pos.y.toDouble()));
-            if (i > 0 && i < polylineOpt.points.length) {
-              polylineOpt.offsets
-                  .add(Offset(pos.x.toDouble(), pos.y.toDouble()));
-            }
-            i++;
+
+          if (polylineOpts.polylineCulling &&
+              !polylineOpt.boundingBox.isOverlapping(map.bounds)) {
+            // skip this polyline as it's offscreen
+            continue;
           }
+
+          _fillOffsets(polylineOpt.offsets, polylineOpt.points);
+
+          polylines.add(CustomPaint(
+            painter: PolylinePainter(polylineOpt),
+            size: size,
+          ));
         }
 
         return Container(
           child: Stack(
-            children: [
-              for (final polylineOpt in polylineOpts.polylines)
-                CustomPaint(
-                  painter: PolylinePainter(polylineOpt),
-                  size: size,
-                ),
-            ],
+            children: polylines,
           ),
         );
       },
     );
+  }
+
+  void _fillOffsets(final List<Offset> offsets, final List<LatLng> points) {
+    for (var i = 0, len = points.length; i < len; ++i) {
+      var point = points[i];
+
+      var pos = map.project(point);
+      pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
+          map.getPixelOrigin();
+      offsets.add(Offset(pos.x.toDouble(), pos.y.toDouble()));
+      if (i > 0) {
+        offsets.add(Offset(pos.x.toDouble(), pos.y.toDouble()));
+      }
+    }
   }
 }
 
