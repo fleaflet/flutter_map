@@ -28,9 +28,10 @@ class MBTilesImageProvider extends TileProvider {
   factory MBTilesImageProvider.fromFile(File mbtilesFile) =>
       MBTilesImageProvider._(mbtilesFile: mbtilesFile);
 
-  Future<Database> _loadMBTilesDatabase() async {
+   Future<Database> _loadMBTilesDatabase() async {
     if (_loadedDb == null) {
-      var file = mbtilesFile ?? await copyFileFromAssets();
+      var file =
+          await copyFileFromFile(mbtilesFile) ?? await copyFileFromAssets();
 
       _loadedDb = await openDatabase(file.path);
 
@@ -59,6 +60,15 @@ class MBTilesImageProvider extends TileProvider {
     var file = File('${tempDir.path}/$filename');
 
     var data = await rootBundle.load(asset);
+    file.writeAsBytesSync(
+        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
+        flush: true);
+    return file;
+  }
+
+  Future<File> copyFileFromFile(File myfile) async {
+    var file = myfile;
+    var data = myfile.readAsBytesSync();
     file.writeAsBytesSync(
         data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
         flush: true);
