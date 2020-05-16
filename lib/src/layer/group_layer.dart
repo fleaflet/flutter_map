@@ -9,6 +9,19 @@ class GroupLayerOptions extends LayerOptions {
   GroupLayerOptions({this.group});
 }
 
+class GroupLayerWidget extends StatelessWidget {
+  final GroupLayerOptions options;
+
+  GroupLayerWidget({@required this.options});
+  
+  @override
+  Widget build(BuildContext context) {
+    final mapState = MapState.of(context);
+    return GroupLayer(options, mapState, mapState.onMoved);
+  }
+}
+
+
 class GroupLayer extends StatelessWidget {
   final GroupLayerOptions groupOpts;
   final MapState map;

@@ -26,6 +26,18 @@ class OverlayImage {
   });
 }
 
+class OverlayImageLayerWidget extends StatelessWidget {
+  final OverlayImageLayerOptions options;
+
+  OverlayImageLayerWidget({@required this.options});
+
+  @override
+  Widget build(BuildContext context) {
+    final mapState = MapState.of(context);
+    return OverlayImageLayer(options, mapState, mapState.onMoved);
+  }
+}
+
 class OverlayImageLayer extends StatelessWidget {
   final OverlayImageLayerOptions overlayImageOpts;
   final MapState map;

@@ -17,6 +17,7 @@ import './pages/plugin_scalebar.dart';
 import './pages/plugin_zoombuttons.dart';
 import './pages/polyline.dart';
 import './pages/tap_to_add.dart';
+import './pages/widgets.dart';
 import './pages/wms_tile_layer.dart';
 
 void main() => runApp(MyApp());
@@ -32,6 +33,7 @@ class MyApp extends StatelessWidget {
       ),
       home: HomePage(),
       routes: <String, WidgetBuilder>{
+        WidgetsPage.route: (context) => WidgetsPage(),
         TapToAddPage.route: (context) => TapToAddPage(),
         EsriPage.route: (context) => EsriPage(),
         PolylinePage.route: (context) => PolylinePage(),

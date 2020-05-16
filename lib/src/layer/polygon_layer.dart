@@ -49,6 +49,17 @@ class Polygon {
             : List.generate(holePointsList.length, (_) => []);
 }
 
+class PolygonLayerWidget extends StatelessWidget {
+  final PolygonLayerOptions options;
+  PolygonLayerWidget({@required this.options});
+
+  @override
+  Widget build(BuildContext context) {
+    final mapState = MapState.of(context);
+    return PolygonLayer(options, mapState, mapState.onMoved);
+  }
+}
+
 class PolygonLayer extends StatelessWidget {
   final PolygonLayerOptions polygonOpts;
   final MapState map;

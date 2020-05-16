@@ -274,6 +274,28 @@ class WMSTileLayerOptions {
   }
 }
 
+class TileLayerWidget extends StatefulWidget {
+  final TileLayerOptions options;
+
+  TileLayerWidget({@required this.options});
+
+  @override
+  State<StatefulWidget> createState() => _TileLayerWidgetState();
+}
+
+class _TileLayerWidgetState extends State<TileLayerWidget> {
+  @override
+  Widget build(BuildContext context) {
+    final mapState = MapState.of(context);
+
+    return TileLayer(
+      mapState: mapState,
+      stream: mapState.onMoved,
+      options: widget.options,
+    );
+  }
+}
+
 class TileLayer extends StatefulWidget {
   final TileLayerOptions options;
   final MapState mapState;
@@ -310,8 +332,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   @override
   void initState() {
-    super.initState();
-
     _tileSize = CustomPoint(options.tileSize, options.tileSize);
     _resetView();
     _update(null);
@@ -327,16 +347,18 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         ),
       )..listen(_update);
     }
+
+    super.initState();
   }
 
   @override
   void dispose() {
-    super.dispose();
-
     _removeAllTiles();
     _moveSub?.cancel();
     options.tileProvider.dispose();
     _throttleUpdate?.close();
+
+    super.dispose();
   }
 
   @override

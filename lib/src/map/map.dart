@@ -6,6 +6,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/center_zoom.dart';
 import 'package:flutter_map/src/core/point.dart';
+import 'package:flutter_map/src/map/map_state_widget.dart';
 import 'package:latlong/latlong.dart';
 
 class MapControllerImpl implements MapController {
@@ -105,6 +106,10 @@ class MapState {
 
   void dispose() {
     _onMoveSink.close();
+  }
+
+  void forceRebuild() {
+    _onMoveSink?.add(null);
   }
 
   void move(LatLng center, double zoom, {hasGesture = false}) {
@@ -276,5 +281,15 @@ class MapState {
     var pixelCenter = project(center, zoom).floor();
     var halfSize = size / (scale * 2);
     return Bounds(pixelCenter - halfSize, pixelCenter + halfSize);
+  }
+
+  static MapState of(BuildContext context, {bool nullOk = false}) {
+    assert(context != null);
+    assert(nullOk != null);
+    final widget = context.dependOnInheritedWidgetOfExactType<MapStateInheritedWidget>();
+    if (nullOk || widget != null) {
+      return widget?.mapState;
+    }
+    throw FlutterError('MapState.of() called with a context that does not contain a FlutterMap.');
   }
 }
