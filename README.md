@@ -35,11 +35,13 @@ Widget build(BuildContext context) {
     ),
     layers: [
       new TileLayerOptions(
-        urlTemplate: "https://api.tiles.mapbox.com/v4/"
+        urlTemplate: "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}"
             "{id}/{z}/{x}/{y}@2x.png?access_token={accessToken}",
+        zoomOffset: -1,
+        tileSize: 512,
         additionalOptions: {
           'accessToken': '<PUT_ACCESS_TOKEN_HERE>',
-          'id': 'mapbox.streets',
+          'id': 'mapbox/streets-v11',
         },
       ),
       new MarkerLayerOptions(
