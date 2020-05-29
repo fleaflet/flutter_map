@@ -428,7 +428,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
           for (var tile in _tiles.values) {
             tile.imageProvider = options.tileProvider
                 .getImage(_wrapCoords(tile.coords), options);
-            tile.loadTileImage();
+            tile.fetchImage();
           }
         } else {
           reloadTiles = true;
@@ -936,7 +936,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   void _addTile(Coords<double> coords) {
     var tileCoordsToKey = _tileCoordsToKey(coords);
-    _tiles[tileCoordsToKey] = Tile(
+    var tile = Tile(
       coords: coords,
       coordsKey: tileCoordsToKey,
       tilePos: _getTilePos(coords),
@@ -946,6 +946,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
           options.tileProvider.getImage(_wrapCoords(coords), options),
       tileReady: _tileReady,
     );
+    _tiles[tileCoordsToKey] = tile;
+    tile.fetchImage();
   }
 
   void _tileReady(Coords<double> coords, dynamic error, Tile tile) {
@@ -1078,26 +1080,7 @@ class Tile implements Comparable<Tile> {
     this.active = false,
     this.retain = false,
     this.loadError = false,
-  }) {
-    loadTileImage();
-  }
-
-  void loadTileImage() {
-    try {
-      final oldImageStream = _imageStream;
-      _imageStream = imageProvider.resolve(ImageConfiguration());
-
-      if (_imageStream.key != oldImageStream?.key) {
-        oldImageStream?.removeListener(_listener);
-
-        _listener = ImageStreamListener(_tileOnLoad, onError: _tileOnError);
-        _imageStream.addListener(_listener);
-      }
-    } catch (e, s) {
-      // make sure all exception is handled - #444 / #536
-      _tileOnError(e, s);
-    }
-  }
+  });
 
   // call this before GC!
   void dispose([bool evict = false]) {
@@ -1126,6 +1109,17 @@ class Tile implements Comparable<Tile> {
   void _onAnimateEnd(AnimationStatus status) {
     if (status == AnimationStatus.completed) {
       active = true;
+    }
+  }
+
+  void fetchImage() {
+    try {
+      _imageStream = imageProvider.resolve(ImageConfiguration());
+      _listener = ImageStreamListener(_tileOnLoad, onError: _tileOnError);
+      _imageStream.addListener(_listener);
+    } catch (e, s) {
+      // make sure all exception is handled - #444 / #536
+      _tileOnError(e, s);
     }
   }
 
@@ -1168,8 +1162,11 @@ class AnimatedTile extends StatefulWidget {
   final Tile tile;
   final ImageProvider errorImage;
 
-  AnimatedTile({Key key, @required this.tile, this.errorImage})
-      : assert(null != tile),
+  AnimatedTile({
+    Key key,
+    @required this.tile,
+    this.errorImage,
+  })  : assert(null != tile),
         super(key: key);
 
   @override
@@ -1198,7 +1195,6 @@ class _AnimatedTileState extends State<AnimatedTile> {
   @override
   void initState() {
     super.initState();
-
     if (null != widget.tile.animationController) {
       widget.tile.animationController.addListener(_handleChange);
       listenerAttached = true;
