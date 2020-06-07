@@ -251,18 +251,18 @@ class MapState {
 
   double getZoomScale(double toZoom, double fromZoom) {
     var crs = options.crs;
-    fromZoom = fromZoom == null ? _zoom : fromZoom;
+    fromZoom = fromZoom ?? _zoom;
     return crs.scale(toZoom) / crs.scale(fromZoom);
   }
 
   double getScaleZoom(double scale, double fromZoom) {
     var crs = options.crs;
-    fromZoom = fromZoom == null ? _zoom : fromZoom;
+    fromZoom = fromZoom ?? _zoom;
     return crs.zoom(scale * crs.scale(fromZoom));
   }
 
   Bounds getPixelWorldBounds(double zoom) {
-    return options.crs.getProjectedBounds(zoom == null ? _zoom : zoom);
+    return options.crs.getProjectedBounds(zoom ?? _zoom);
   }
 
   CustomPoint getPixelOrigin() {
