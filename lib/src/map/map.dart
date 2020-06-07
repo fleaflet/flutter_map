@@ -100,7 +100,11 @@ class MapState {
   Bounds get pixelBounds => getLastPixelBounds();
 
   void _init() {
-    move(options.center, zoom);
+    if (options.bounds != null) {
+      fitBounds(options.bounds, options.boundsOptions);
+    } else {
+      move(options.center, zoom);
+    }
   }
 
   void dispose() {
