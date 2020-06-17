@@ -14,7 +14,7 @@ import 'package:tuple/tuple.dart';
 import 'layer.dart';
 
 /// Describes the needed properties to create a tile-based layer.
-/// A tile is an image binded to a specific geographical position.
+/// A tile is an image bound to a specific geographical position.
 class TileLayerOptions extends LayerOptions {
   /// Defines the structure to create the URLs for the tiles.
   ///
