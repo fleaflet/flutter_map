@@ -20,6 +20,7 @@ import '../pages/polyline.dart';
 import '../pages/sliding_map.dart';
 import '../pages/tap_to_add.dart';
 import '../pages/tile_loading_error_handle.dart';
+import '../pages/widgets.dart';
 import '../pages/wms_tile_layer.dart';
 
 Widget _buildMenuItem(
@@ -161,6 +162,13 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           selected: currentRoute == SlidingMapPage.route,
           onTap: () =>
               Navigator.pushReplacementNamed(context, SlidingMapPage.route),
+        ),
+        ListTile(
+          title: const Text('Widgets'),
+          selected: currentRoute == WidgetsPage.route,
+          onTap: () {
+            Navigator.pushReplacementNamed(context, WidgetsPage.route);
+          },
         ),
         ListTile(
           title: const Text('Live Location Update'),

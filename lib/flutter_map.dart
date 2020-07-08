@@ -38,6 +38,9 @@ class FlutterMap extends StatefulWidget {
   /// [PolylineLayerOptions].
   final List<LayerOptions> layers;
 
+  /// A set of layers' widgets to used to create the layers on the map.
+  final List<Widget> children;
+
   /// [MapOptions] to create a [MapState] with.
   ///
   /// This property must not be null.
@@ -49,7 +52,8 @@ class FlutterMap extends StatefulWidget {
   FlutterMap({
     Key key,
     @required this.options,
-    this.layers,
+    this.layers = const [],
+    this.children = const [],
     MapController mapController,
   })  : _mapController = mapController ?? MapController(),
         super(key: key);

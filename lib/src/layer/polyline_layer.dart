@@ -47,6 +47,17 @@ class Polyline {
   });
 }
 
+class PolylineLayerWidget extends StatelessWidget {
+  final PolylineLayerOptions options;
+  PolylineLayerWidget({@required this.options});
+
+  @override
+  Widget build(BuildContext context) {
+    final mapState = MapState.of(context);
+    return PolylineLayer(options, mapState, mapState.onMoved);
+  }
+}
+
 class PolylineLayer extends StatelessWidget {
   final PolylineLayerOptions polylineOpts;
   final MapState map;
