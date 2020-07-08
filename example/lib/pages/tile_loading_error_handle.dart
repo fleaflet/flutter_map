@@ -14,7 +14,7 @@ class TileLoadingErrorHandle extends StatefulWidget {
 class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
   @override
   Widget build(BuildContext context) {
-    bool _needLoadingError = true;
+    var _needLoadingError = true;
 
     return Scaffold(
       appBar: AppBar(title: Text('Tile Loading Error Handle')),

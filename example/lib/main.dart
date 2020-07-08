@@ -19,8 +19,8 @@ import './pages/plugin_zoombuttons.dart';
 import './pages/polyline.dart';
 import './pages/sliding_map.dart';
 import './pages/tap_to_add.dart';
-import './pages/wms_tile_layer.dart';
 import './pages/tile_loading_error_handle.dart';
+import './pages/wms_tile_layer.dart';
 
 void main() => runApp(MyApp());
 
