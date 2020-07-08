@@ -5,6 +5,8 @@ ios/.generated/
 pubspec.lock
 .flutter-plugins
 .vscode/
+.idea
+*.iml
 GeneratedPluginRegistrant.h
 GeneratedPluginRegistrant.m
 GeneratedPluginRegistrant.java

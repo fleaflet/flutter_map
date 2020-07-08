@@ -1,3 +1,6 @@
+## [UNRELEASED]
+- Fix TileLayer/Tiles not getting disposed correctly (#595)
+
 ## [0.9.0] - 4/6/2020
 - Improve tile management (#572) - This is a huge improvement aligns
   tile rendering with Leaflet's behavior. 

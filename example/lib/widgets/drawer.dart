@@ -173,7 +173,8 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           title: const Text('Tile loading error handle'),
           selected: currentRoute == TileLoadingErrorHandle.route,
           onTap: () {
-            Navigator.pushReplacementNamed(context, TileLoadingErrorHandle.route);
+            Navigator.pushReplacementNamed(
+                context, TileLoadingErrorHandle.route);
           },
         ),
       ],
