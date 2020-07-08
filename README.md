@@ -56,6 +56,15 @@ Widget build(BuildContext context) {
 }
 ```
 
+Alternatively initialize the map by specifying bounds instead of center and zoom.
+
+```dart
+MapOptions(
+  bounds: LatLngBounds(LatLng(58.8, 6.1), LatLng(59, 6.2)),
+  boundsOptions: FitBoundsOptions(padding: EdgeInsets.all(8.0)),
+),
+```
+
 ### Azure Maps provider
 
 Configure the map to use [Azure Maps](https://azure.com/maps) by using the following `MapOptions` and layer options:

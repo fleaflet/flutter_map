@@ -90,12 +90,14 @@ abstract class MapController {
   factory MapController() => MapControllerImpl();
 }
 
-typedef void TapCallback(LatLng point);
-typedef void LongPressCallback(LatLng point);
-typedef void PositionCallback(MapPosition position, bool hasGesture);
+typedef TapCallback = void Function(LatLng point);
+typedef LongPressCallback = void Function(LatLng point);
+typedef PositionCallback = void Function(MapPosition position, bool hasGesture);
 
 /// Allows you to provide your map's starting properties for [zoom], [rotation]
-/// and [center].
+/// and [center]. Alternatively you can provide [bounds] instead of [center].
+/// If both, [center] and [bounds] are provided, bounds will take preference
+/// over [center].
 /// Zoom, pan boundary and interactivity constraints can be specified here too.
 ///
 /// Callbacks for [onTap], [onLongPress] and [onPositionChanged] can be
@@ -129,6 +131,8 @@ class MapOptions {
   final bool adaptiveBoundaries;
   final MapController controller;
   LatLng center;
+  LatLngBounds bounds;
+  FitBoundsOptions boundsOptions;
   LatLng swPanBoundary;
   LatLng nePanBoundary;
 
@@ -138,6 +142,8 @@ class MapOptions {
   MapOptions({
     this.crs = const Epsg3857(),
     this.center,
+    this.bounds,
+    this.boundsOptions = const FitBoundsOptions(),
     this.zoom = 13.0,
     this.rotation = 0.0,
     this.minZoom,

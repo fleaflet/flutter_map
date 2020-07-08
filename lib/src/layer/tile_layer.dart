@@ -1002,7 +1002,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   }
 }
 
-typedef void TileReady(Coords<double> coords, dynamic error, Tile tile);
+typedef TileReady = void Function(
+    Coords<double> coords, dynamic error, Tile tile);
 
 class Tile implements Comparable<Tile> {
   final String coordsKey;
@@ -1129,7 +1130,7 @@ class AnimatedTile extends StatefulWidget {
   final Tile tile;
   final ImageProvider errorImage;
 
-  AnimatedTile({Key key, this.tile, this.errorImage})
+  AnimatedTile({Key key, @required this.tile, this.errorImage})
       : assert(null != tile),
         super(key: key);
 
