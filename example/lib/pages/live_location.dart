@@ -44,7 +44,8 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
       serviceEnabled = await _locationService.serviceEnabled();
 
       if (serviceEnabled) {
-        _permission = await _locationService.requestPermission();
+        var permission = await _locationService.requestPermission();
+        _permission = permission == PermissionStatus.GRANTED;
 
         if (_permission) {
           location = await _locationService.getLocation();
