@@ -20,6 +20,7 @@ import '../pages/polyline.dart';
 import '../pages/sliding_map.dart';
 import '../pages/tap_to_add.dart';
 import '../pages/wms_tile_layer.dart';
+import '../pages/tile_loading_error_handle.dart';
 
 Widget _buildMenuItem(
     BuildContext context, Widget title, String routeName, String currentRoute) {
@@ -166,6 +167,13 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           selected: currentRoute == LiveLocationPage.route,
           onTap: () {
             Navigator.pushReplacementNamed(context, LiveLocationPage.route);
+          },
+        ),
+        ListTile(
+          title: const Text('Tile loading error handle'),
+          selected: currentRoute == TileLoadingErrorHandle.route,
+          onTap: () {
+            Navigator.pushReplacementNamed(context, TileLoadingErrorHandle.route);
           },
         ),
       ],

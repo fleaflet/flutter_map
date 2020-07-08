@@ -14,6 +14,8 @@ import 'package:tuple/tuple.dart';
 
 import 'layer.dart';
 
+typedef ErrorTileCallBack = void Function(Tile tile, dynamic error);
+
 /// Describes the needed properties to create a tile-based layer.
 /// A tile is an image bound to a specific geographical position.
 class TileLayerOptions extends LayerOptions {
@@ -184,6 +186,9 @@ class TileLayerOptions extends LayerOptions {
   /// ),
   final bool retinaMode;
 
+  /// This callback will be execute if some errors by getting tile
+  final ErrorTileCallBack errorTileCallback;
+
   TileLayerOptions({
     this.urlTemplate,
     double tileSize = 256.0,
@@ -217,6 +222,7 @@ class TileLayerOptions extends LayerOptions {
     this.tileFadeInStartWhenOverride = 0.0,
     this.overrideTilesWhenUrlChanges = false,
     this.retinaMode = false,
+    this.errorTileCallback,
     rebuild,
   })  : updateInterval =
             updateInterval <= 0 ? null : Duration(milliseconds: updateInterval),
@@ -924,6 +930,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       print(error);
 
       tile.loadError = true;
+
+      if (options.errorTileCallback != null) {
+        options.errorTileCallback(tile, error);
+      }
     } else {
       tile.loadError = false;
     }

@@ -20,6 +20,7 @@ import './pages/polyline.dart';
 import './pages/sliding_map.dart';
 import './pages/tap_to_add.dart';
 import './pages/wms_tile_layer.dart';
+import './pages/tile_loading_error_handle.dart';
 
 void main() => runApp(MyApp());
 
@@ -54,6 +55,7 @@ class MyApp extends StatelessWidget {
         WMSLayerPage.route: (context) => WMSLayerPage(),
         CustomCrsPage.route: (context) => CustomCrsPage(),
         LiveLocationPage.route: (context) => LiveLocationPage(),
+        TileLoadingErrorHandle.route: (context) => TileLoadingErrorHandle(),
       },
     );
   }
