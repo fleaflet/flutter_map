@@ -137,6 +137,55 @@ Widget build(BuildContext context) {
 }
 ```
 
+### Widget Layers
+
+__Use the new way to create layers__ (compatible with previous version)
+
+```dart
+Widget build(BuildContext context) {
+  return FlutterMap(
+    options: MapOptions(
+      center: LatLng(51.5, -0.09),
+      zoom: 13.0,
+    ),
+    layers: [
+      MarkerLayerOptions(
+        markers: [
+          Marker(
+            width: 80.0,
+            height: 80.0,
+            point: LatLng(51.5, -0.09),
+            builder: (ctx) =>
+            Container(
+              child: FlutterLogo(),
+            ),
+          ),
+        ],
+      ),
+    ]
+    children: <Widget>[
+      TileLayerWidget(options: TileLayerOptions(
+        urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        subdomains: ['a', 'b', 'c']
+      )),
+      MarkerLayerWidget(options: MarkerLayerOptions(
+        markers: [
+          Marker(
+            width: 80.0,
+            height: 80.0,
+            point: LatLng(51.5, -0.09),
+            builder: (ctx) =>
+            Container(
+              child: FlutterLogo(),
+            ),
+          ),
+        ],
+      )),
+    ],
+  );
+}
+```
+
 ### Custom CRS
 
 By default flutter_map supports only WGS84 (EPSG:4326) and Google Mercator (EPSG:3857) projections. With the integration of [proj4dart](https://github.com/maRci002/proj4dart) any coordinate reference systems (CRS) can be defined and used.

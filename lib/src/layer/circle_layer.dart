@@ -30,6 +30,19 @@ class CircleMarker {
   });
 }
 
+class CircleLayerWidget extends StatelessWidget {
+  final CircleLayerOptions options;
+
+  CircleLayerWidget({@required this.options});
+  
+  @override
+  Widget build(BuildContext context) {
+    final mapState = MapState.of(context);
+    return CircleLayer(options, mapState, mapState.onMoved);
+  }
+}
+
+
 class CircleLayer extends StatelessWidget {
   final CircleLayerOptions circleOpts;
   final MapState map;
