@@ -16,6 +16,7 @@ import './pages/plugin_api.dart';
 import './pages/plugin_scalebar.dart';
 import './pages/plugin_zoombuttons.dart';
 import './pages/polyline.dart';
+import './pages/sliding_map.dart';
 import './pages/tap_to_add.dart';
 import './pages/wms_tile_layer.dart';
 
@@ -48,6 +49,7 @@ class MyApp extends StatelessWidget {
         MovingMarkersPage.route: (context) => MovingMarkersPage(),
         CirclePage.route: (context) => CirclePage(),
         OverlayImagePage.route: (context) => OverlayImagePage(),
+        SlidingMapPage.route: (_) => SlidingMapPage(),
         WMSLayerPage.route: (context) => WMSLayerPage(),
         CustomCrsPage.route: (context) => CustomCrsPage(),
       },

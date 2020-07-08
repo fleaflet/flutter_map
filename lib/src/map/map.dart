@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -111,9 +112,15 @@ class MapState {
     zoom = fitZoomToBounds(zoom);
     final mapMoved = center != _lastCenter || zoom != _zoom;
 
-    if (_lastCenter != null &&
-        (!mapMoved || options.isOutOfBounds(center) || !bounds.isValid)) {
+    if (_lastCenter != null && (!mapMoved || !bounds.isValid)) {
       return;
+    }
+
+    if (options.isOutOfBounds(center)) {
+      if (!options.slideOnBoundaries) {
+        return;
+      }
+      center = options.containPoint(center, _lastCenter ?? center);
     }
 
     _zoom = zoom;
