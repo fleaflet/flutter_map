@@ -1,4 +1,4 @@
-## 0.10.0
+## [0.10.0] - 7/7/2020
 - add package:meta dependency, set cached_network_image to 2.0.0
 - Support retina mode (#585)
 - Handle exception on move without internet connection (#600)
