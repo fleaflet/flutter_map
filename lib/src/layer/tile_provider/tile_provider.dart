@@ -17,7 +17,8 @@ abstract class TileProvider {
 
   String getTileUrl(Coords coords, TileLayerOptions options) {
     var urlTemplate = (options.wmsOptions != null)
-        ? options.wmsOptions.getUrl(coords, options.tileSize.toInt())
+        ? options.wmsOptions
+            .getUrl(coords, options.tileSize.toInt(), options.retinaMode)
         : options.urlTemplate;
 
     var z = _getZoomForUrl(coords, options);
@@ -26,7 +27,8 @@ abstract class TileProvider {
       'x': coords.x.round().toString(),
       'y': coords.y.round().toString(),
       'z': z.round().toString(),
-      's': getSubdomain(coords, options)
+      's': getSubdomain(coords, options),
+      'r': '@2x',
     };
     if (options.tms) {
       data['y'] = invertY(coords.y.round(), z.round()).toString();
