@@ -1092,6 +1092,8 @@ class Tile implements Comparable<Tile> {
 
   void startFadeInAnimation(Duration duration, TickerProvider vsync,
       {double from}) {
+    animationController?.removeStatusListener(_onAnimateEnd);
+
     animationController = AnimationController(duration: duration, vsync: vsync)
       ..addStatusListener(_onAnimateEnd);
 
