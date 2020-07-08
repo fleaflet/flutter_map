@@ -960,7 +960,9 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       );
     }
 
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
 
     if (_noTilesToLoad()) {
       // Wait a bit more than tileFadeInDuration (the duration of the tile fade-in)
@@ -970,7 +972,9 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
             ? options.tileFadeInDuration + const Duration(milliseconds: 50)
             : const Duration(milliseconds: 50),
         () {
-          setState(_pruneTiles);
+          if (mounted) {
+            setState(_pruneTiles);
+          }
         },
       );
     }
@@ -1082,13 +1086,12 @@ class Tile implements Comparable<Tile> {
     }
 
     animationController?.removeStatusListener(_onAnimateEnd);
+    animationController?.dispose();
     _imageStream?.removeListener(_listener);
   }
 
   void startFadeInAnimation(Duration duration, TickerProvider vsync,
       {double from}) {
-    animationController?.removeStatusListener(_onAnimateEnd);
-
     animationController = AnimationController(duration: duration, vsync: vsync)
       ..addStatusListener(_onAnimateEnd);
 
@@ -1197,7 +1200,9 @@ class _AnimatedTileState extends State<AnimatedTile> {
   }
 
   void _handleChange() {
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 }
 

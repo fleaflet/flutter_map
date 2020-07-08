@@ -126,7 +126,8 @@ class MBTileImage extends ImageProvider<MBTileImage> {
 
   @override
   bool operator ==(other) {
-    return other is MBTileImage && coords == other.coords 
-      && filePath == other.filePath;
+    return other is MBTileImage &&
+        coords == other.coords &&
+        filePath == other.filePath;
   }
 }

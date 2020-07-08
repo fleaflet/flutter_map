@@ -177,8 +177,7 @@ class FlutterMapState extends MapGestureMixin {
     assert(false, """
 Can't find correct layer for $options. Perhaps when you create your FlutterMap you need something like this:
 
-    options: new MapOptions(plugins: [MyFlutterMapPlugin()])"""
-    );
+    options: new MapOptions(plugins: [MyFlutterMapPlugin()])""");
     return null;
   }
 }

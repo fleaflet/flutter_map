@@ -12,7 +12,6 @@ class LiveLocationPage extends StatefulWidget {
 }
 
 class _LiveLocationPageState extends State<LiveLocationPage> {
-
   LocationData _currentLocation;
   MapController _mapController;
 
@@ -50,7 +49,9 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
         if (_permission) {
           location = await _locationService.getLocation();
           _currentLocation = location;
-          _locationService.onLocationChanged().listen((LocationData result) async {
+          _locationService
+              .onLocationChanged()
+              .listen((LocationData result) async {
             if (mounted) {
               setState(() {
                 _currentLocation = result;
@@ -58,11 +59,9 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                 // If Live Update is enabled, move map center
                 if (_liveUpdate) {
                   _mapController.move(
-                      LatLng(
-                          _currentLocation.latitude,
+                      LatLng(_currentLocation.latitude,
                           _currentLocation.longitude),
-                      _mapController.zoom
-                  );
+                      _mapController.zoom);
                 }
               });
             }
@@ -70,7 +69,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
         }
       } else {
         serviceRequestResult = await _locationService.requestService();
-        if(serviceRequestResult){
+        if (serviceRequestResult) {
           initLocationService();
           return;
         }
@@ -93,7 +92,8 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
     // Until currentLocation is initially updated, Widget can locate to 0, 0
     // by default or store previous location value to show.
     if (_currentLocation != null) {
-      currentLatLng = LatLng(_currentLocation.latitude, _currentLocation.longitude);
+      currentLatLng =
+          LatLng(_currentLocation.latitude, _currentLocation.longitude);
     } else {
       currentLatLng = LatLng(0, 0);
     }
@@ -121,23 +121,25 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
           children: [
             Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: _serviceError.isEmpty ?
-                Text('This is a map that is showing '
-                  '(${currentLatLng.latitude}, ${currentLatLng.longitude}).') :
-                Text('Error occured while acquiring location. Error Message : '
-                    '$_serviceError'),
+              child: _serviceError.isEmpty
+                  ? Text('This is a map that is showing '
+                      '(${currentLatLng.latitude}, ${currentLatLng.longitude}).')
+                  : Text(
+                      'Error occured while acquiring location. Error Message : '
+                      '$_serviceError'),
             ),
             Flexible(
               child: FlutterMap(
                 mapController: _mapController,
                 options: MapOptions(
-                  center: LatLng(currentLatLng.latitude, currentLatLng.longitude),
+                  center:
+                      LatLng(currentLatLng.latitude, currentLatLng.longitude),
                   zoom: 5.0,
                 ),
                 layers: [
                   TileLayerOptions(
                     urlTemplate:
-                    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     subdomains: ['a', 'b', 'c'],
                     // For example purposes. It is recommended to use
                     // TileProvider with a caching and retry strategy, like
@@ -152,8 +154,8 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-          onPressed: () => _liveUpdate = !_liveUpdate,
-          child: _liveUpdate ? Icon(Icons.location_on) : Icon(Icons.location_off),
+        onPressed: () => _liveUpdate = !_liveUpdate,
+        child: _liveUpdate ? Icon(Icons.location_on) : Icon(Icons.location_off),
       ),
     );
   }

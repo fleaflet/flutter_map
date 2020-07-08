@@ -30,7 +30,6 @@ class GroupLayer extends StatelessWidget {
     return StreamBuilder(
       stream: stream,
       builder: (BuildContext context, _) {
-
         var layers = <Widget>[
           for (var options in groupOpts.group) _createLayer(options)
         ];
