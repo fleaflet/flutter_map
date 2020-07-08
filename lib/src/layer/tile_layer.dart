@@ -704,8 +704,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     }
 
     _pruneTiles();
-
-    _setZoomTransforms(center, zoom);
   }
 
   void _setZoomTransforms(LatLng center, double zoom) {
@@ -765,12 +763,14 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     if (_tileZoom == null) {
       // if there is no _tileZoom available it means we are out within zoom level
-      // we will restory fully via _setView call if we are back on trail
+      // we will restore fully via _setView call if we are back on trail
       if ((options.maxZoom != null && tileZoom <= options.maxZoom) &&
           (options.minZoom != null && tileZoom >= options.minZoom)) {
         _tileZoom = tileZoom;
         setState(() {
           _setView(map.center, tileZoom);
+
+          _setZoomTransforms(map.center, map.zoom);
         });
       }
     } else {
@@ -778,6 +778,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         if ((tileZoom - _tileZoom).abs() >= 1) {
           // It was a zoom lvl change
           _setView(map.center, tileZoom);
+
+          _setZoomTransforms(map.center, map.zoom);
         } else {
           if (null == _throttleUpdate) {
             _update(null);
