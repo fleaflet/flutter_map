@@ -5,6 +5,7 @@ import './pages/circle.dart';
 import './pages/custom_crs/custom_crs.dart';
 import './pages/esri.dart';
 import './pages/home.dart';
+import './pages/live_location.dart';
 import './pages/map_controller.dart';
 import './pages/marker_anchor.dart';
 import './pages/moving_markers.dart';
@@ -52,6 +53,7 @@ class MyApp extends StatelessWidget {
         SlidingMapPage.route: (_) => SlidingMapPage(),
         WMSLayerPage.route: (context) => WMSLayerPage(),
         CustomCrsPage.route: (context) => CustomCrsPage(),
+        LiveLocationPage.route: (context) => LiveLocationPage(),
       },
     );
   }
