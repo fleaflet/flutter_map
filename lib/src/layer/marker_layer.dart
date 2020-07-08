@@ -91,7 +91,7 @@ class MarkerLayerWidget extends StatelessWidget {
   final MarkerLayerOptions options;
 
   MarkerLayerWidget({@required this.options});
-  
+
   @override
   Widget build(BuildContext context) {
     final mapState = MapState.of(context);
