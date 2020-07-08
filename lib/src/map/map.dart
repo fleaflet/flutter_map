@@ -296,10 +296,12 @@ class MapState {
   static MapState of(BuildContext context, {bool nullOk = false}) {
     assert(context != null);
     assert(nullOk != null);
-    final widget = context.dependOnInheritedWidgetOfExactType<MapStateInheritedWidget>();
+    final widget =
+        context.dependOnInheritedWidgetOfExactType<MapStateInheritedWidget>();
     if (nullOk || widget != null) {
       return widget?.mapState;
     }
-    throw FlutterError('MapState.of() called with a context that does not contain a FlutterMap.');
+    throw FlutterError(
+        'MapState.of() called with a context that does not contain a FlutterMap.');
   }
 }

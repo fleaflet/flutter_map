@@ -99,8 +99,9 @@ class FlutterMapState extends MapGestureMixin {
       var layerStack = Stack(
         children: [
           ...widget.children ?? [],
-          ...widget.layers
-              .map((layer) => _createLayer(layer, widget.options.plugins)) ?? [],
+          ...widget.layers.map(
+                  (layer) => _createLayer(layer, widget.options.plugins)) ??
+              [],
         ],
       );
 

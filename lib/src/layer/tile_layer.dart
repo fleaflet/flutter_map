@@ -391,6 +391,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   @override
   void initState() {
+    super.initState();
     _tileSize = CustomPoint(options.tileSize, options.tileSize);
     _resetView();
     _update(null);
