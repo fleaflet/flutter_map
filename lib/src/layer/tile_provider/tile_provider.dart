@@ -16,9 +16,9 @@ abstract class TileProvider {
   void dispose() {}
 
   String getTileUrl(Coords coords, TileLayerOptions options) {
-    if (options.wmsOptions != null) {
-      return options.wmsOptions.getUrl(coords, options.tileSize.toInt());
-    }
+    var urlTemplate = (options.wmsOptions != null)
+        ? options.wmsOptions.getUrl(coords, options.tileSize.toInt())
+        : options.urlTemplate;
 
     var z = _getZoomForUrl(coords, options);
 
@@ -33,7 +33,7 @@ abstract class TileProvider {
     }
     var allOpts = Map<String, String>.from(data)
       ..addAll(options.additionalOptions);
-    return util.template(options.urlTemplate, allOpts);
+    return util.template(urlTemplate, allOpts);
   }
 
   double _getZoomForUrl(Coords coords, TileLayerOptions options) {
