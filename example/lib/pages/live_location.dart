@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong/latlong.dart';
 import 'package:location/location.dart';
 
@@ -114,7 +115,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
 
     return Scaffold(
       appBar: AppBar(title: Text('Home')),
-      //drawer: buildDrawer(context, route),
+      drawer: buildDrawer(context, LiveLocationPage.route),
       body: Padding(
         padding: EdgeInsets.all(8.0),
         child: Column(
