@@ -57,11 +57,15 @@ class MapControllerImpl implements MapController {
 
   @override
   ValueChanged<double> onRotationChanged;
+
+  @override
+  Stream<MapPosition> get position => _state._positionSink.stream;
 }
 
 class MapState {
   MapOptions options;
   final StreamController<Null> _onMoveSink;
+  final StreamController<MapPosition> _positionSink;
 
   double _zoom;
   double rotation;
@@ -77,7 +81,8 @@ class MapState {
   MapState(this.options)
       : rotation = options.rotation,
         _zoom = options.zoom,
-        _onMoveSink = StreamController.broadcast();
+        _onMoveSink = StreamController.broadcast(),
+        _positionSink = StreamController.broadcast();
 
   CustomPoint _size;
 
@@ -131,21 +136,19 @@ class MapState {
       center = options.containPoint(center, _lastCenter ?? center);
     }
 
+    var mapPosition = MapPosition(
+        center: center, bounds: bounds, zoom: zoom, hasGesture: hasGesture);
+
     _zoom = zoom;
     _lastCenter = center;
     _lastPixelBounds = getPixelBounds(_zoom);
     _lastBounds = _calculateBounds();
     _pixelOrigin = getNewPixelOrigin(center);
     _onMoveSink.add(null);
+    _positionSink.add(mapPosition);
 
     if (options.onPositionChanged != null) {
-      options.onPositionChanged(
-          MapPosition(
-            center: center,
-            bounds: bounds,
-            zoom: zoom,
-          ),
-          hasGesture);
+      options.onPositionChanged(mapPosition, hasGesture);
     }
   }
 
