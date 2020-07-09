@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import './pages/animated_map_controller.dart';
 
+import './pages/animated_map_controller.dart';
 import './pages/circle.dart';
+import './pages/custom_crs/custom_crs.dart';
 import './pages/esri.dart';
 import './pages/home.dart';
+import './pages/live_location.dart';
 import './pages/map_controller.dart';
 import './pages/marker_anchor.dart';
 import './pages/moving_markers.dart';
@@ -15,7 +17,10 @@ import './pages/plugin_api.dart';
 import './pages/plugin_scalebar.dart';
 import './pages/plugin_zoombuttons.dart';
 import './pages/polyline.dart';
+import './pages/sliding_map.dart';
 import './pages/tap_to_add.dart';
+import './pages/tile_loading_error_handle.dart';
+import './pages/widgets.dart';
 import './pages/wms_tile_layer.dart';
 
 void main() => runApp(MyApp());
@@ -31,6 +36,7 @@ class MyApp extends StatelessWidget {
       ),
       home: HomePage(),
       routes: <String, WidgetBuilder>{
+        WidgetsPage.route: (context) => WidgetsPage(),
         TapToAddPage.route: (context) => TapToAddPage(),
         EsriPage.route: (context) => EsriPage(),
         PolylinePage.route: (context) => PolylinePage(),
@@ -47,7 +53,11 @@ class MyApp extends StatelessWidget {
         MovingMarkersPage.route: (context) => MovingMarkersPage(),
         CirclePage.route: (context) => CirclePage(),
         OverlayImagePage.route: (context) => OverlayImagePage(),
-        WMSLayerPage.route: (context) => WMSLayerPage()
+        SlidingMapPage.route: (_) => SlidingMapPage(),
+        WMSLayerPage.route: (context) => WMSLayerPage(),
+        CustomCrsPage.route: (context) => CustomCrsPage(),
+        LiveLocationPage.route: (context) => LiveLocationPage(),
+        TileLoadingErrorHandle.route: (context) => TileLoadingErrorHandle(),
       },
     );
   }

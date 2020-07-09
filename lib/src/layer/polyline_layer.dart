@@ -8,9 +8,19 @@ import 'package:latlong/latlong.dart';
 
 class PolylineLayerOptions extends LayerOptions {
   final List<Polyline> polylines;
+  final bool polylineCulling;
 
-  PolylineLayerOptions({this.polylines = const [], rebuild})
-      : super(rebuild: rebuild);
+  PolylineLayerOptions({
+    this.polylines = const [],
+    this.polylineCulling = false,
+    rebuild,
+  }) : super(rebuild: rebuild) {
+    if (polylineCulling) {
+      for (var polyline in polylines) {
+        polyline.boundingBox = LatLngBounds.fromPoints(polyline.points);
+      }
+    }
+  }
 }
 
 class Polyline {
@@ -23,6 +33,7 @@ class Polyline {
   final List<Color> gradientColors;
   final List<double> colorsStop;
   final bool isDotted;
+  LatLngBounds boundingBox;
 
   Polyline({
     this.points,
@@ -34,6 +45,17 @@ class Polyline {
     this.colorsStop,
     this.isDotted = false,
   });
+}
+
+class PolylineLayerWidget extends StatelessWidget {
+  final PolylineLayerOptions options;
+  PolylineLayerWidget({@required this.options});
+
+  @override
+  Widget build(BuildContext context) {
+    final mapState = MapState.of(context);
+    return PolylineLayer(options, mapState, mapState.onMoved);
+  }
 }
 
 class PolylineLayer extends StatelessWidget {
@@ -57,35 +79,46 @@ class PolylineLayer extends StatelessWidget {
     return StreamBuilder<void>(
       stream: stream, // a Stream<void> or null
       builder: (BuildContext context, _) {
+        var polylines = <Widget>[];
+
         for (var polylineOpt in polylineOpts.polylines) {
           polylineOpt.offsets.clear();
-          var i = 0;
-          for (var point in polylineOpt.points) {
-            var pos = map.project(point);
-            pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
-                map.getPixelOrigin();
-            polylineOpt.offsets.add(Offset(pos.x.toDouble(), pos.y.toDouble()));
-            if (i > 0 && i < polylineOpt.points.length) {
-              polylineOpt.offsets
-                  .add(Offset(pos.x.toDouble(), pos.y.toDouble()));
-            }
-            i++;
+
+          if (polylineOpts.polylineCulling &&
+              !polylineOpt.boundingBox.isOverlapping(map.bounds)) {
+            // skip this polyline as it's offscreen
+            continue;
           }
+
+          _fillOffsets(polylineOpt.offsets, polylineOpt.points);
+
+          polylines.add(CustomPaint(
+            painter: PolylinePainter(polylineOpt),
+            size: size,
+          ));
         }
 
         return Container(
           child: Stack(
-            children: [
-              for (final polylineOpt in polylineOpts.polylines)
-                CustomPaint(
-                  painter: PolylinePainter(polylineOpt),
-                  size: size,
-                ),
-            ],
+            children: polylines,
           ),
         );
       },
     );
+  }
+
+  void _fillOffsets(final List<Offset> offsets, final List<LatLng> points) {
+    for (var i = 0, len = points.length; i < len; ++i) {
+      var point = points[i];
+
+      var pos = map.project(point);
+      pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
+          map.getPixelOrigin();
+      offsets.add(Offset(pos.x.toDouble(), pos.y.toDouble()));
+      if (i > 0) {
+        offsets.add(Offset(pos.x.toDouble(), pos.y.toDouble()));
+      }
+    }
   }
 }
 
@@ -105,7 +138,7 @@ class PolylinePainter extends CustomPainter {
       ..strokeWidth = polylineOpt.strokeWidth
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round
-      ..blendMode = BlendMode.src;
+      ..blendMode = BlendMode.srcOver;
 
     if (polylineOpt.gradientColors == null) {
       paint.color = polylineOpt.color;
@@ -129,10 +162,10 @@ class PolylinePainter extends CustomPainter {
               polylineOpt.strokeWidth + polylineOpt.borderStrokeWidth
           ..strokeCap = StrokeCap.round
           ..strokeJoin = StrokeJoin.round
-          ..blendMode = BlendMode.src)
+          ..blendMode = BlendMode.srcOver)
         : null;
     var radius = paint.strokeWidth / 2;
-    var borderRadius = borderPaint?.strokeWidth ?? 0 / 2;
+    var borderRadius = (borderPaint?.strokeWidth ?? 0) / 2;
     if (polylineOpt.isDotted) {
       var spacing = polylineOpt.strokeWidth * 1.5;
       canvas.saveLayer(rect, Paint());
@@ -150,16 +183,17 @@ class PolylinePainter extends CustomPainter {
       borderPaint?.style = PaintingStyle.stroke;
       canvas.saveLayer(rect, Paint());
       if (borderPaint != null) {
-        _paintLine(canvas, polylineOpt.offsets, borderRadius, borderPaint);
-        _paintLine(canvas, polylineOpt.offsets, radius, filterPaint);
+        _paintLine(canvas, polylineOpt.offsets, borderPaint);
+        _paintLine(canvas, polylineOpt.offsets, filterPaint);
       }
-      _paintLine(canvas, polylineOpt.offsets, radius, paint);
+      _paintLine(canvas, polylineOpt.offsets, paint);
       canvas.restore();
     }
   }
 
   void _paintDottedLine(Canvas canvas, List<Offset> offsets, double radius,
       double stepLength, Paint paint) {
+    final path = ui.Path();
     var startDistance = 0.0;
     for (var i = 0; i < offsets.length - 1; i++) {
       var o0 = offsets[i];
@@ -170,18 +204,19 @@ class PolylinePainter extends CustomPainter {
         var f1 = distance / totalDistance;
         var f0 = 1.0 - f1;
         var offset = Offset(o0.dx * f0 + o1.dx * f1, o0.dy * f0 + o1.dy * f1);
-        canvas.drawCircle(offset, radius, paint);
+        path.addOval(Rect.fromCircle(center: offset, radius: radius));
         distance += stepLength;
       }
       startDistance = distance < totalDistance
           ? stepLength - (totalDistance - distance)
           : distance - totalDistance;
     }
-    canvas.drawCircle(polylineOpt.offsets.last, radius, paint);
+    path.addOval(
+        Rect.fromCircle(center: polylineOpt.offsets.last, radius: radius));
+    canvas.drawPath(path, paint);
   }
 
-  void _paintLine(
-      Canvas canvas, List<Offset> offsets, double radius, Paint paint) {
+  void _paintLine(Canvas canvas, List<Offset> offsets, Paint paint) {
     if (offsets.isNotEmpty) {
       final path = ui.Path()..moveTo(offsets[0].dx, offsets[0].dy);
       for (var offset in offsets) {

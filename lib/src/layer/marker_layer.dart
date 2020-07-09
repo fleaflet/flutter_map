@@ -87,6 +87,18 @@ class Marker {
   }) : anchor = Anchor.forPos(anchorPos, width, height);
 }
 
+class MarkerLayerWidget extends StatelessWidget {
+  final MarkerLayerOptions options;
+
+  MarkerLayerWidget({@required this.options});
+
+  @override
+  Widget build(BuildContext context) {
+    final mapState = MapState.of(context);
+    return MarkerLayer(options, mapState, mapState.onMoved);
+  }
+}
+
 class MarkerLayer extends StatelessWidget {
   final MarkerLayerOptions markerOpts;
   final MapState map;

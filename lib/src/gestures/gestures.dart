@@ -236,8 +236,11 @@ abstract class MapGestureMixin extends State<FlutterMap>
     return Offset(point.x.toDouble(), point.y.toDouble());
   }
 
-  double _getZoomForScale(double startZoom, double scale) =>
-      startZoom + math.log(scale) / math.ln2;
+  double _getZoomForScale(double startZoom, double scale) {
+    var resultZoom = startZoom + math.log(scale) / math.ln2;
+
+    return map.fitZoomToBounds(resultZoom);
+  }
 
   @override
   void dispose() {

@@ -16,12 +16,26 @@ class OverlayImage {
   final LatLngBounds bounds;
   final ImageProvider imageProvider;
   final double opacity;
+  final bool gaplessPlayback;
 
   OverlayImage({
     this.bounds,
     this.imageProvider,
     this.opacity = 1.0,
+    this.gaplessPlayback = false,
   });
+}
+
+class OverlayImageLayerWidget extends StatelessWidget {
+  final OverlayImageLayerOptions options;
+
+  OverlayImageLayerWidget({@required this.options});
+
+  @override
+  Widget build(BuildContext context) {
+    final mapState = MapState.of(context);
+    return OverlayImageLayer(options, mapState, mapState.onMoved);
+  }
 }
 
 class OverlayImageLayer extends StatelessWidget {
@@ -68,6 +82,7 @@ class OverlayImageLayer extends StatelessWidget {
         fit: BoxFit.fill,
         color: Color.fromRGBO(255, 255, 255, overlayImage.opacity),
         colorBlendMode: BlendMode.modulate,
+        gaplessPlayback: overlayImage.gaplessPlayback,
       ),
     );
   }

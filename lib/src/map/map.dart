@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/center_zoom.dart';
 import 'package:flutter_map/src/core/point.dart';
+import 'package:flutter_map/src/map/map_state_widget.dart';
 import 'package:latlong/latlong.dart';
-
-import 'package:flutter/material.dart';
 
 class MapControllerImpl implements MapController {
   final Completer<Null> _readyCompleter = Completer<Null>();
@@ -106,20 +106,34 @@ class MapState {
   Bounds get pixelBounds => getLastPixelBounds();
 
   void _init() {
-    move(options.center, zoom);
+    if (options.bounds != null) {
+      fitBounds(options.bounds, options.boundsOptions);
+    } else {
+      move(options.center, zoom);
+    }
   }
 
   void dispose() {
     _onMoveSink.close();
   }
 
+  void forceRebuild() {
+    _onMoveSink?.add(null);
+  }
+
   void move(LatLng center, double zoom, {hasGesture = false}) {
-    zoom = _fitZoomToBounds(zoom);
+    zoom = fitZoomToBounds(zoom);
     final mapMoved = center != _lastCenter || zoom != _zoom;
 
-    if (_lastCenter != null &&
-        (!mapMoved || options.isOutOfBounds(center) || !bounds.isValid)) {
+    if (_lastCenter != null && (!mapMoved || !bounds.isValid)) {
       return;
+    }
+
+    if (options.isOutOfBounds(center)) {
+      if (!options.slideOnBoundaries) {
+        return;
+      }
+      center = options.containPoint(center, _lastCenter ?? center);
     }
 
     var mapPosition = MapPosition(
@@ -138,7 +152,7 @@ class MapState {
     }
   }
 
-  double _fitZoomToBounds(double zoom) {
+  double fitZoomToBounds(double zoom) {
     zoom ??= _zoom;
     // Abide to min/max zoom
     if (options.maxZoom != null) {
@@ -251,18 +265,18 @@ class MapState {
 
   double getZoomScale(double toZoom, double fromZoom) {
     var crs = options.crs;
-    fromZoom = fromZoom == null ? _zoom : fromZoom;
+    fromZoom = fromZoom ?? _zoom;
     return crs.scale(toZoom) / crs.scale(fromZoom);
   }
 
   double getScaleZoom(double scale, double fromZoom) {
     var crs = options.crs;
-    fromZoom = fromZoom == null ? _zoom : fromZoom;
+    fromZoom = fromZoom ?? _zoom;
     return crs.zoom(scale * crs.scale(fromZoom));
   }
 
   Bounds getPixelWorldBounds(double zoom) {
-    return options.crs.getProjectedBounds(zoom == null ? _zoom : zoom);
+    return options.crs.getProjectedBounds(zoom ?? _zoom);
   }
 
   CustomPoint getPixelOrigin() {
@@ -280,5 +294,17 @@ class MapState {
     var pixelCenter = project(center, zoom).floor();
     var halfSize = size / (scale * 2);
     return Bounds(pixelCenter - halfSize, pixelCenter + halfSize);
+  }
+
+  static MapState of(BuildContext context, {bool nullOk = false}) {
+    assert(context != null);
+    assert(nullOk != null);
+    final widget =
+        context.dependOnInheritedWidgetOfExactType<MapStateInheritedWidget>();
+    if (nullOk || widget != null) {
+      return widget?.mapState;
+    }
+    throw FlutterError(
+        'MapState.of() called with a context that does not contain a FlutterMap.');
   }
 }
