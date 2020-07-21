@@ -8,8 +8,11 @@ import 'package:flutter_map/src/map/map.dart';
 class OverlayImageLayerOptions extends LayerOptions {
   final List<OverlayImage> overlayImages;
 
-  OverlayImageLayerOptions({this.overlayImages = const [], rebuild})
-      : super(rebuild: rebuild);
+  OverlayImageLayerOptions({
+    Key key,
+    this.overlayImages = const [],
+    rebuild,
+  }) : super(key: key, rebuild: rebuild);
 }
 
 class OverlayImage {
@@ -29,7 +32,7 @@ class OverlayImage {
 class OverlayImageLayerWidget extends StatelessWidget {
   final OverlayImageLayerOptions options;
 
-  OverlayImageLayerWidget({@required this.options});
+  OverlayImageLayerWidget({@required this.options}) : super(key: options.key);
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +46,8 @@ class OverlayImageLayer extends StatelessWidget {
   final MapState map;
   final Stream<Null> stream;
 
-  OverlayImageLayer(this.overlayImageOpts, this.map, this.stream);
+  OverlayImageLayer(this.overlayImageOpts, this.map, this.stream)
+      : super(key: overlayImageOpts.key);
 
   @override
   Widget build(BuildContext context) {

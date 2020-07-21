@@ -11,10 +11,11 @@ class PolylineLayerOptions extends LayerOptions {
   final bool polylineCulling;
 
   PolylineLayerOptions({
+    Key key,
     this.polylines = const [],
     this.polylineCulling = false,
     rebuild,
-  }) : super(rebuild: rebuild) {
+  }) : super(key: key, rebuild: rebuild) {
     if (polylineCulling) {
       for (var polyline in polylines) {
         polyline.boundingBox = LatLngBounds.fromPoints(polyline.points);
@@ -49,7 +50,7 @@ class Polyline {
 
 class PolylineLayerWidget extends StatelessWidget {
   final PolylineLayerOptions options;
-  PolylineLayerWidget({@required this.options});
+  PolylineLayerWidget({@required this.options}) : super(key: options.key);
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +64,8 @@ class PolylineLayer extends StatelessWidget {
   final MapState map;
   final Stream<Null> stream;
 
-  PolylineLayer(this.polylineOpts, this.map, this.stream);
+  PolylineLayer(this.polylineOpts, this.map, this.stream)
+      : super(key: polylineOpts.key);
 
   @override
   Widget build(BuildContext context) {

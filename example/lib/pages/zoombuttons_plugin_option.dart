@@ -13,16 +13,19 @@ class ZoomButtonsPluginOption extends LayerOptions {
   final IconData zoomInIcon;
   final IconData zoomOutIcon;
 
-  ZoomButtonsPluginOption(
-      {this.minZoom = 1,
-      this.maxZoom = 18,
-      this.mini = true,
-      this.padding = 2.0,
-      this.alignment = Alignment.topRight,
-      this.zoomInColor,
-      this.zoomInIcon = Icons.zoom_in,
-      this.zoomOutColor,
-      this.zoomOutIcon = Icons.zoom_out});
+  ZoomButtonsPluginOption({
+    Key key,
+    this.minZoom = 1,
+    this.maxZoom = 18,
+    this.mini = true,
+    this.padding = 2.0,
+    this.alignment = Alignment.topRight,
+    this.zoomInColor,
+    this.zoomInIcon = Icons.zoom_in,
+    this.zoomOutColor,
+    this.zoomOutIcon = Icons.zoom_out,
+    rebuild,
+  }) : super(key: key, rebuild: rebuild);
 }
 
 class ZoomButtonsPlugin implements MapPlugin {
@@ -48,7 +51,8 @@ class ZoomButtons extends StatelessWidget {
   final FitBoundsOptions options =
       const FitBoundsOptions(padding: EdgeInsets.all(12.0));
 
-  ZoomButtons(this.zoomButtonsOpts, this.map, this.stream);
+  ZoomButtons(this.zoomButtonsOpts, this.map, this.stream)
+      : super(key: zoomButtonsOpts.key);
 
   @override
   Widget build(BuildContext context) {

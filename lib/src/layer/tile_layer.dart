@@ -190,6 +190,7 @@ class TileLayerOptions extends LayerOptions {
   final ErrorTileCallBack errorTileCallback;
 
   TileLayerOptions({
+    Key key,
     this.urlTemplate,
     double tileSize = 256.0,
     double minZoom = 0.0,
@@ -246,7 +247,7 @@ class TileLayerOptions extends LayerOptions {
         tileSize = wmsOptions == null && retinaMode && maxZoom > 0.0
             ? (tileSize / 2.0).floorToDouble()
             : tileSize,
-        super(rebuild: rebuild);
+        super(key: key, rebuild: rebuild);
 }
 
 class WMSTileLayerOptions {
@@ -336,7 +337,7 @@ class WMSTileLayerOptions {
 class TileLayerWidget extends StatefulWidget {
   final TileLayerOptions options;
 
-  TileLayerWidget({@required this.options});
+  TileLayerWidget({@required this.options}) : super(key: options.key);
 
   @override
   State<StatefulWidget> createState() => _TileLayerWidgetState();
@@ -364,7 +365,7 @@ class TileLayer extends StatefulWidget {
     this.options,
     this.mapState,
     this.stream,
-  });
+  }) : super(key: options.key);
 
   @override
   State<StatefulWidget> createState() {

@@ -12,10 +12,11 @@ class PolygonLayerOptions extends LayerOptions {
 
   /// screen space culling of polygons based on bounding box
   PolygonLayerOptions({
+    Key key,
     this.polygons = const [],
     this.polygonCulling = false,
     rebuild,
-  }) : super(rebuild: rebuild) {
+  }) : super(key: key, rebuild: rebuild) {
     if (polygonCulling) {
       for (var polygon in polygons) {
         polygon.boundingBox = LatLngBounds.fromPoints(polygon.points);
@@ -51,7 +52,7 @@ class Polygon {
 
 class PolygonLayerWidget extends StatelessWidget {
   final PolygonLayerOptions options;
-  PolygonLayerWidget({@required this.options});
+  PolygonLayerWidget({@required this.options}) : super(key: options.key);
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +66,8 @@ class PolygonLayer extends StatelessWidget {
   final MapState map;
   final Stream stream;
 
-  PolygonLayer(this.polygonOpts, this.map, this.stream);
+  PolygonLayer(this.polygonOpts, this.map, this.stream)
+      : super(key: polygonOpts.key);
 
   @override
   Widget build(BuildContext context) {
