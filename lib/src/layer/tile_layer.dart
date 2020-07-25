@@ -455,8 +455,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         ),
       )..listen(_update);
     }
-
-    super.initState();
   }
 
   @override

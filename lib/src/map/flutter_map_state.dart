@@ -15,6 +15,7 @@ import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 
 class FlutterMapState extends MapGestureMixin {
   final Key _layerStackKey = GlobalKey();
+  final Key _positionedTapDetector = GlobalKey();
   final MapControllerImpl mapController;
   final List<StreamGroup<Null>> groups = <StreamGroup<Null>>[];
   final _positionedTapController = PositionedTapController();
@@ -113,6 +114,7 @@ class FlutterMapState extends MapGestureMixin {
         mapRoot = layerStack;
       } else {
         mapRoot = PositionedTapDetector(
+          key: _positionedTapDetector,
           controller: _positionedTapController,
           onTap: handleTap,
           onLongPress: handleLongPress,
