@@ -1079,7 +1079,7 @@ class Tile implements Comparable<Tile> {
     this.retain = false,
     this.loadError = false,
   }) {
-    Timer.run(loadTileImage);
+    loadTileImage();
   }
 
   void loadTileImage() {
@@ -1132,14 +1132,14 @@ class Tile implements Comparable<Tile> {
   void _tileOnLoad(ImageInfo imageInfo, bool synchronousCall) {
     if (null != tileReady) {
       this.imageInfo = imageInfo;
-      tileReady(coords, null, this);
+      Timer.run(() => tileReady(coords, null, this));
     }
   }
 
   void _tileOnError(dynamic exception, StackTrace stackTrace) {
     if (null != tileReady) {
-      tileReady(
-          coords, exception ?? 'Unknown exception during loadTileImage', this);
+      Timer.run(() => tileReady(
+          coords, exception ?? 'Unknown exception during loadTileImage', this));
     }
   }
 
