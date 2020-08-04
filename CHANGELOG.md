@@ -1,3 +1,6 @@
+## [0.10.1+1] - 8/4/2020
+- fix possible issue with code published in previous version
+
 ## [0.10.1] - 8/4/2020
 - Controller position stream (#505)
 - Fix gray tiles when tile image is already available (#715)
