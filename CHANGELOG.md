@@ -1,3 +1,11 @@
+## [0.10.1] - 8/4/2020
+- Controller position stream (#505)
+- Fix gray tiles when tile image is already available (#715)
+- Key management (#695)
+- migrate to androidx (#697)
+
+Thanks to @maRci002, @4F2E4A2E, and @porfirioribeiro
+
 ## [0.10.0] - 7/7/2020
 - add package:meta dependency, set cached_network_image to 2.0.0
 - Support retina mode (#585)
