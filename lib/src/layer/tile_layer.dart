@@ -936,7 +936,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   void _addTile(Coords<double> coords) {
     var tileCoordsToKey = _tileCoordsToKey(coords);
-    _tiles[tileCoordsToKey] = Tile(
+    var tile = _tiles[tileCoordsToKey] = Tile(
       coords: coords,
       coordsKey: tileCoordsToKey,
       tilePos: _getTilePos(coords),
@@ -946,6 +946,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
           options.tileProvider.getImage(_wrapCoords(coords), options),
       tileReady: _tileReady,
     );
+
+    tile.loadTileImage();
   }
 
   void _tileReady(Coords<double> coords, dynamic error, Tile tile) {
@@ -1078,9 +1080,7 @@ class Tile implements Comparable<Tile> {
     this.active = false,
     this.retain = false,
     this.loadError = false,
-  }) {
-    loadTileImage();
-  }
+  });
 
   void loadTileImage() {
     try {
@@ -1132,14 +1132,14 @@ class Tile implements Comparable<Tile> {
   void _tileOnLoad(ImageInfo imageInfo, bool synchronousCall) {
     if (null != tileReady) {
       this.imageInfo = imageInfo;
-      Timer.run(() => tileReady(coords, null, this));
+      tileReady(coords, null, this);
     }
   }
 
   void _tileOnError(dynamic exception, StackTrace stackTrace) {
     if (null != tileReady) {
-      Timer.run(() => tileReady(
-          coords, exception ?? 'Unknown exception during loadTileImage', this));
+      tileReady(
+          coords, exception ?? 'Unknown exception during loadTileImage', this);
     }
   }
 
