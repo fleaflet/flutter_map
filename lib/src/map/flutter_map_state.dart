@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:async/async.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/point.dart';
@@ -11,9 +12,10 @@ import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/map/map_state_widget.dart';
 import 'package:latlong/latlong.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
-import 'package:async/async.dart';
 
 class FlutterMapState extends MapGestureMixin {
+  final Key _layerStackKey = GlobalKey();
+  final Key _positionedTapDetectorKey = GlobalKey();
   final MapControllerImpl mapController;
   final List<StreamGroup<Null>> groups = <StreamGroup<Null>>[];
   final _positionedTapController = PositionedTapController();
@@ -97,6 +99,7 @@ class FlutterMapState extends MapGestureMixin {
       }
 
       var layerStack = Stack(
+        key: _layerStackKey,
         children: [
           ...widget.children ?? [],
           ...widget.layers.map(
@@ -111,6 +114,7 @@ class FlutterMapState extends MapGestureMixin {
         mapRoot = layerStack;
       } else {
         mapRoot = PositionedTapDetector(
+          key: _positionedTapDetectorKey,
           controller: _positionedTapController,
           onTap: handleTap,
           onLongPress: handleLongPress,
