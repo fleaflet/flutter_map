@@ -1079,7 +1079,7 @@ class Tile implements Comparable<Tile> {
     this.retain = false,
     this.loadError = false,
   }) {
-    loadTileImage();
+    Timer.run(loadTileImage);
   }
 
   void loadTileImage() {
