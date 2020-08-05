@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map_example/pages/interactive_test_page.dart';
 
 import './pages/animated_map_controller.dart';
 import './pages/circle.dart';
@@ -58,6 +59,7 @@ class MyApp extends StatelessWidget {
         CustomCrsPage.route: (context) => CustomCrsPage(),
         LiveLocationPage.route: (context) => LiveLocationPage(),
         TileLoadingErrorHandle.route: (context) => TileLoadingErrorHandle(),
+        InteractiveTestPage.route: (context) => InteractiveTestPage(),
       },
     );
   }

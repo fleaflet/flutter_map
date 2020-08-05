@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map_example/pages/interactive_test_page.dart';
 
 import '../pages/animated_map_controller.dart';
 import '../pages/circle.dart';
@@ -184,6 +185,12 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
             Navigator.pushReplacementNamed(
                 context, TileLoadingErrorHandle.route);
           },
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Interactive flags test page'),
+          InteractiveTestPage.route,
+          currentRoute,
         ),
       ],
     ),

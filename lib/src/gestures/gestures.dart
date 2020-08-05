@@ -244,9 +244,6 @@ abstract class MapGestureMixin extends State<FlutterMap>
   void handleOnTapUp(TapUpDetails details) {
     _doubleTapHoldMaxDelay?.cancel();
 
-    _doubleTapController.stop();
-    _flingController.stop();
-
     if (++_tapUpCounter == 1) {
       _doubleTapHoldMaxDelay =
           Timer(const Duration(milliseconds: 350), _resetDoubleTapHold);
