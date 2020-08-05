@@ -19,7 +19,6 @@ class FlutterMapState extends MapGestureMixin {
   final MapControllerImpl mapController;
   final List<StreamGroup<Null>> groups = <StreamGroup<Null>>[];
   final _positionedTapController = PositionedTapController();
-  double rotation = 0.0;
 
   @override
   MapOptions get options => widget.options ?? MapOptions();
@@ -31,18 +30,16 @@ class FlutterMapState extends MapGestureMixin {
 
   @override
   void didUpdateWidget(FlutterMap oldWidget) {
-    mapState.options = options;
     super.didUpdateWidget(oldWidget);
+    mapState.options = options;
   }
 
   @override
   void initState() {
     super.initState();
     mapState = MapState(options);
-    rotation = options.rotation;
     mapController.state = mapState;
-    mapController.onRotationChanged =
-        (degree) => setState(() => rotation = degree);
+    mapController.onRotationChanged = (degree) => setState(() => {});
   }
 
   void _dispose() {
@@ -79,6 +76,7 @@ class FlutterMapState extends MapGestureMixin {
       double angle;
       double width;
       double height;
+      var rotation = mapState.rotation;
 
       // only do the rotation maths if we have a rotation
       if (rotation != 0.0) {

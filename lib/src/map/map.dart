@@ -50,9 +50,9 @@ class MapControllerImpl implements MapController {
   double get zoom => _state.zoom;
 
   @override
-  void rotate(double degree) {
-    _state.rotation = degree;
+  void rotate(double degree, {bool hasGesture = false}) {
     if (onRotationChanged != null) onRotationChanged(degree);
+    _state.rotate(degree, hasGesture: hasGesture);
   }
 
   @override
@@ -115,10 +115,20 @@ class MapState {
 
   void dispose() {
     _onMoveSink.close();
+    _positionSink.close();
   }
 
   void forceRebuild() {
     _onMoveSink?.add(null);
+  }
+
+  void rotate(double degree, {bool hasGesture = false}) {
+    rotation = degree;
+
+    if (!hasGesture) {
+      // make sure layers rebuild correctly if this method was called from MapController
+      _onMoveSink.add(null);
+    }
   }
 
   void move(LatLng center, double zoom, {hasGesture = false}) {
