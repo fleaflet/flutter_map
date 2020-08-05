@@ -14,7 +14,6 @@ import 'package:latlong/latlong.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 
 class FlutterMapState extends MapGestureMixin {
-  final Key _layerStackKey = GlobalKey();
   final Key _positionedTapDetectorKey = GlobalKey();
   final MapControllerImpl mapController;
   final List<StreamGroup<Null>> groups = <StreamGroup<Null>>[];
@@ -30,8 +29,8 @@ class FlutterMapState extends MapGestureMixin {
 
   @override
   void didUpdateWidget(FlutterMap oldWidget) {
-    super.didUpdateWidget(oldWidget);
     mapState.options = options;
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -96,39 +95,31 @@ class FlutterMapState extends MapGestureMixin {
             CustomPoint<double>(constraints.maxWidth, constraints.maxHeight);
       }
 
-      var layerStack = Stack(
-        key: _layerStackKey,
-        children: [
-          ...widget.children ?? [],
-          ...widget.layers.map(
-                  (layer) => _createLayer(layer, widget.options.plugins)) ??
-              [],
-        ],
-      );
-
-      Widget mapRoot;
-
-      if (!options.interactive) {
-        mapRoot = layerStack;
-      } else {
-        mapRoot = PositionedTapDetector(
-          key: _positionedTapDetectorKey,
-          controller: _positionedTapController,
-          onTap: handleTap,
-          onLongPress: handleLongPress,
-          onDoubleTap: handleDoubleTap,
-          child: GestureDetector(
-            onScaleStart: handleScaleStart,
-            onScaleUpdate: handleScaleUpdate,
-            onScaleEnd: handleScaleEnd,
-            onTap: _positionedTapController.onTap,
-            onLongPress: _positionedTapController.onLongPress,
-            onTapDown: _positionedTapController.onTapDown,
-            onTapUp: handleOnTapUp,
-            child: layerStack,
+      Widget mapRoot = PositionedTapDetector(
+        key: _positionedTapDetectorKey,
+        controller: _positionedTapController,
+        onTap: handleTap,
+        onLongPress: handleLongPress,
+        onDoubleTap: handleDoubleTap,
+        child: GestureDetector(
+          onScaleStart: handleScaleStart,
+          onScaleUpdate: handleScaleUpdate,
+          onScaleEnd: handleScaleEnd,
+          onTap: _positionedTapController.onTap,
+          onLongPress: _positionedTapController.onLongPress,
+          onTapDown: _positionedTapController.onTapDown,
+          onTapUp: handleOnTapUp,
+          child: Stack(
+            children: [
+              if (widget.children != null && widget.children.isNotEmpty)
+                ...widget.children,
+              if (widget.layers != null && widget.layers.isNotEmpty)
+                ...widget.layers
+                    .map((layer) => _createLayer(layer, widget.options.plugins))
+            ],
           ),
-        );
-      }
+        ),
+      );
 
       if (rotation != 0.0) {
         // By using an OverflowBox with the enlarged drawing area all the layers

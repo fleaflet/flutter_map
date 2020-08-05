@@ -96,6 +96,23 @@ abstract class MapController {
   factory MapController() => MapControllerImpl();
 }
 
+class InteractiveFlags {
+  static const int all =
+      move | fling | pinchZoom | doubleTapZoom | rotate /* | skew */;
+  static const int none = 0;
+
+  static const int move = 1 << 0;
+  static const int fling = 1 << 1;
+  static const int pinchZoom = 1 << 2;
+  static const int doubleTapZoom = 1 << 3;
+  static const int rotate = 1 << 4;
+  // TODO: static const int skew = 1 << 5;
+
+  static bool hasFlag(int flags, int currentFlag) {
+    return flags & currentFlag != 0;
+  }
+}
+
 typedef TapCallback = void Function(LatLng point);
 typedef LongPressCallback = void Function(LatLng point);
 typedef PositionCallback = void Function(MapPosition position, bool hasGesture);
@@ -127,7 +144,9 @@ class MapOptions {
   final double maxZoom;
   @deprecated
   final bool debug; // TODO no usage outside of constructor. Marked for removal?
+  @Deprecated('use interactiveFlags instead')
   final bool interactive;
+  final int interactiveFlags;
   final TapCallback onTap;
   final LongPressCallback onLongPress;
   final PositionCallback onPositionChanged;
@@ -155,7 +174,9 @@ class MapOptions {
     this.minZoom,
     this.maxZoom,
     this.debug = false,
-    this.interactive = true,
+    this.interactive,
+    // TODO: when [interactive] is removed change this to [int interactiveFlags = InteractiveFlags.all] and remove [interactiveFlags] from initializer list
+    int interactiveFlags,
     this.onTap,
     this.onLongPress,
     this.onPositionChanged,
@@ -166,7 +187,10 @@ class MapOptions {
     this.controller,
     this.swPanBoundary,
     this.nePanBoundary,
-  }) {
+  }) : interactiveFlags = interactiveFlags ??
+            (interactive == false
+                ? InteractiveFlags.none
+                : InteractiveFlags.all) {
     center ??= LatLng(50.5, 30.51);
     _safeAreaZoom = zoom;
     assert(slideOnBoundaries ||
