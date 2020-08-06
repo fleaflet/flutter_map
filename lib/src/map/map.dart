@@ -24,8 +24,8 @@ class MapControllerImpl implements MapController {
   }
 
   @override
-  void move(LatLng center, double zoom, {bool hasGesture = false}) {
-    _state.move(center, zoom, hasGesture: hasGesture);
+  void move(LatLng center, double zoom, {String id}) {
+    _state.move(center, zoom, id: id, source: MapEventSource.mapController);
   }
 
   @override
@@ -50,13 +50,9 @@ class MapControllerImpl implements MapController {
   double get zoom => _state.zoom;
 
   @override
-  void rotate(double degree, {bool hasGesture = false}) {
-    if (onRotationChanged != null) onRotationChanged(degree);
-    _state.rotate(degree, hasGesture: hasGesture);
+  void rotate(double degree, {String id}) {
+    _state.rotate(degree, id: id, source: MapEventSource.mapController);
   }
-
-  @override
-  ValueChanged<double> onRotationChanged;
 
   @override
   Stream<MapPosition> get position => _state?._positionSink?.stream;
@@ -67,6 +63,7 @@ class MapControllerImpl implements MapController {
 
 class MapState {
   MapOptions options;
+  final ValueChanged<double> onRotationChanged;
   final StreamController<Null> _onMoveSink;
   final StreamController<MapPosition> _positionSink;
   final StreamController<MapEvent> _mapEventSink;
@@ -82,7 +79,7 @@ class MapState {
   CustomPoint _pixelOrigin;
   bool _initialized = false;
 
-  MapState(this.options)
+  MapState(this.options, this.onRotationChanged)
       : rotation = options.rotation,
         _zoom = options.zoom,
         _onMoveSink = StreamController.broadcast(),
@@ -118,6 +115,52 @@ class MapState {
     }
   }
 
+  void _handleMoveEmit(LatLng targetCenter, double targetZoom, hasGesture,
+      MapEventSource source, String id) {
+    if (source == MapEventSource.flingAnimationController) {
+      emitMapEvent(
+        MapEventFling(
+          center: _lastCenter,
+          zoom: _zoom,
+          targetCenter: targetCenter,
+          targetZoom: targetZoom,
+          source: source,
+        ),
+      );
+    } else if (source == MapEventSource.doubleTapZoomAnimationController) {
+      emitMapEvent(
+        MapEventDoubleTapZoom(
+          center: _lastCenter,
+          zoom: _zoom,
+          targetCenter: targetCenter,
+          targetZoom: targetZoom,
+          source: source,
+        ),
+      );
+    } else if (source == MapEventSource.onDrag) {
+      emitMapEvent(
+        MapEventMove(
+          center: _lastCenter,
+          zoom: _zoom,
+          targetCenter: targetCenter,
+          targetZoom: targetZoom,
+          source: source,
+        ),
+      );
+    } else if (source == MapEventSource.mapController) {
+      emitMapEvent(
+        MapEventMove(
+          id: id,
+          center: _lastCenter,
+          zoom: _zoom,
+          targetCenter: targetCenter,
+          targetZoom: targetZoom,
+          source: source,
+        ),
+      );
+    }
+  }
+
   void emitMapEvent(MapEvent event) {
     assert(null != event);
     _mapEventSink.add(event);
@@ -133,18 +176,28 @@ class MapState {
     _onMoveSink?.add(null);
   }
 
-  void rotate(double degree, {bool hasGesture = false}) {
-    rotation = degree;
+  void rotate(double degree,
+      {bool hasGesture = false, MapEventSource source, String id}) {
+    if (degree != rotation) {
+      rotation = degree;
+      onRotationChanged(rotation);
 
-    if (!hasGesture) {
-      // make sure layers rebuild correctly if this method was called from MapController
-      _onMoveSink.add(null);
+      emitMapEvent(MapEventRotate(
+        id: id,
+        center: _lastCenter,
+        zoom: _zoom,
+        source: source,
+      ));
+
+      if (!hasGesture) {
+        // make sure layers rebuild correctly if this method was called from MapController
+        _onMoveSink.add(null);
+      }
     }
   }
 
   void move(LatLng center, double zoom,
-      {hasGesture = false,
-      MapEventSource source = MapEventSource.mapController}) {
+      {hasGesture = false, MapEventSource source, String id}) {
     zoom = fitZoomToBounds(zoom);
     final mapMoved = center != _lastCenter || zoom != _zoom;
 
@@ -158,6 +211,8 @@ class MapState {
       }
       center = options.containPoint(center, _lastCenter ?? center);
     }
+
+    _handleMoveEmit(center, zoom, hasGesture, source, id);
 
     var mapPosition = MapPosition(
         center: center, bounds: bounds, zoom: zoom, hasGesture: hasGesture);

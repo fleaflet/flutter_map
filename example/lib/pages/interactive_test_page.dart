@@ -11,8 +11,8 @@ class InteractiveTestPage extends StatefulWidget {
 
   @override
   State createState() {
-    // TODO: try out InteractiveTestPageState it is using StreamBuilder
-    return InteractiveTestPageWithoutBooleansState();
+    // TODO: try out InteractiveTestPageState it is using StreamBuilder for update Events view and using boolean flags for Filter
+    return InteractiveTestPageAlternativeState();
   }
 }
 
@@ -185,14 +185,13 @@ class InteractiveTestPageState extends State<InteractiveTestPage> {
   }
 }
 
-class InteractiveTestPageWithoutBooleansState
-    extends State<InteractiveTestPage> {
+class InteractiveTestPageAlternativeState extends State<InteractiveTestPage> {
   MapController mapController;
 
   // Enable pinchZoom and doubleTapZoomBy by default
   int flags = InteractiveFlags.pinchZoom | InteractiveFlags.doubleTapZoom;
 
-  // Here is the last moveEvent which is not extends MapEventWithMove
+  // Here is the last moveEvent
   MapEvent lastMapEvent;
 
   StreamSubscription<MapEvent> subscription;
@@ -207,10 +206,12 @@ class InteractiveTestPageWithoutBooleansState
       // use stream transformer or anything you want
       subscription = mapController.mapEventStream.listen((MapEvent mapEvent) {
         setState(() {
-          print(mapEvent);
-          if (mapEvent is! MapEventWithMove) {
-            lastMapEvent = mapEvent;
-          }
+          // uncomment to filter specific events (hot reload won't take any effect,
+          // because this callback is already registered in initState, so after hot reload
+          // you should go away another page then come back OR just use hot restart...)
+          // if (mapEvent is! MapEventWithMove) {
+          lastMapEvent = mapEvent;
+          //}
         });
       });
     });
@@ -228,7 +229,7 @@ class InteractiveTestPageWithoutBooleansState
   void updateFlags(int flag) {
     if (InteractiveFlags.hasFlag(flags, flag)) {
       // remove flag from flags
-      flags -= flag;
+      flags &= ~flag;
     } else {
       // add flag to flags
       flags |= flag;

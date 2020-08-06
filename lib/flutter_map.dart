@@ -92,8 +92,6 @@ abstract class MapController {
 
   double get zoom;
 
-  ValueChanged<double> onRotationChanged;
-
   Stream<MapPosition> get position;
 
   Stream<MapEvent> get mapEventStream;

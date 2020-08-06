@@ -122,31 +122,33 @@ abstract class MapGestureMixin extends State<FlutterMap>
     _flingOffset = _pointToOffset(_focalStartLocal - focalOffset);
 
     if (hasMove || hasPinchZoom || hasRotate) {
-      setState(() {
-        if (hasMove || hasPinchZoom) {
-          final newZoom = hasPinchZoom
-              ? _getZoomForScale(_mapZoomStart, details.scale)
-              : map.zoom;
-          LatLng newCenter;
-          if (hasMove) {
-            final focalStartPt = map.project(_focalStartGlobal, newZoom);
-            final newCenterPt = focalStartPt - focalOffset + map.size / 2.0;
-            newCenter = map.unproject(newCenterPt, newZoom);
-          } else {
-            newCenter = map.center;
-          }
-          map.move(
-            newCenter,
-            newZoom,
-            hasGesture: true,
-            source: MapEventSource.onDrag,
-          );
+      if (hasMove || hasPinchZoom) {
+        final newZoom = hasPinchZoom
+            ? _getZoomForScale(_mapZoomStart, details.scale)
+            : map.zoom;
+        LatLng newCenter;
+        if (hasMove) {
+          final focalStartPt = map.project(_focalStartGlobal, newZoom);
+          final newCenterPt = focalStartPt - focalOffset + map.size / 2.0;
+          newCenter = map.unproject(newCenterPt, newZoom);
+        } else {
+          newCenter = map.center;
         }
+        map.move(
+          newCenter,
+          newZoom,
+          hasGesture: true,
+          source: MapEventSource.onDrag,
+        );
+      }
 
-        if (hasRotate) {
-          map.rotate(map.rotation + details.rotation, hasGesture: true);
-        }
-      });
+      if (hasRotate) {
+        map.rotate(
+          map.rotation + details.rotation,
+          hasGesture: true,
+          source: MapEventSource.onDrag,
+        );
+      }
     }
   }
 
@@ -324,14 +326,12 @@ abstract class MapGestureMixin extends State<FlutterMap>
   }
 
   void _handleDoubleTapZoomAnimation() {
-    setState(() {
-      map.move(
-        _doubleTapCenterAnimation.value,
-        _doubleTapZoomAnimation.value,
-        hasGesture: true,
-        source: MapEventSource.doubleTapZoomAnimationController,
-      );
-    });
+    map.move(
+      _doubleTapCenterAnimation.value,
+      _doubleTapZoomAnimation.value,
+      hasGesture: true,
+      source: MapEventSource.doubleTapZoomAnimationController,
+    );
   }
 
   void handleOnTapUp(TapUpDetails details) {
@@ -349,23 +349,20 @@ abstract class MapGestureMixin extends State<FlutterMap>
     var flags = options.interactiveFlags;
     // TODO: is this pinchZoom? never seen this fired
     if (InteractiveFlags.hasFlag(flags, InteractiveFlags.pinchZoom)) {
-      setState(() {
-        final zoom = map.zoom;
-        final focalOffset = _offsetToPoint(details.localFocalPoint);
-        final verticalOffset =
-            _pointToOffset(_focalStartLocal - focalOffset).dy;
-        final newZoom = _mapZoomStart - verticalOffset / 360 * zoom;
-        final min = options.minZoom ?? 0.0;
-        final max = options.maxZoom ?? double.infinity;
-        final actualZoom = math.max(min, math.min(max, newZoom));
+      final zoom = map.zoom;
+      final focalOffset = _offsetToPoint(details.localFocalPoint);
+      final verticalOffset = _pointToOffset(_focalStartLocal - focalOffset).dy;
+      final newZoom = _mapZoomStart - verticalOffset / 360 * zoom;
+      final min = options.minZoom ?? 0.0;
+      final max = options.maxZoom ?? double.infinity;
+      final actualZoom = math.max(min, math.min(max, newZoom));
 
-        map.move(
-          map.center,
-          actualZoom,
-          hasGesture: true,
-          source: MapEventSource.doubleTapHold,
-        );
-      });
+      map.move(
+        map.center,
+        actualZoom,
+        hasGesture: true,
+        source: MapEventSource.doubleTapHold,
+      );
     }
   }
 
