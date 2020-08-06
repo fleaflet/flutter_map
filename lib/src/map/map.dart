@@ -59,13 +59,17 @@ class MapControllerImpl implements MapController {
   ValueChanged<double> onRotationChanged;
 
   @override
-  Stream<MapPosition> get position => _state._positionSink.stream;
+  Stream<MapPosition> get position => _state?._positionSink?.stream;
+
+  @override
+  Stream<MapEvent> get mapEventStream => _state?._mapEventSink?.stream;
 }
 
 class MapState {
   MapOptions options;
   final StreamController<Null> _onMoveSink;
   final StreamController<MapPosition> _positionSink;
+  final StreamController<MapEvent> _mapEventSink;
 
   double _zoom;
   double rotation;
@@ -82,7 +86,8 @@ class MapState {
       : rotation = options.rotation,
         _zoom = options.zoom,
         _onMoveSink = StreamController.broadcast(),
-        _positionSink = StreamController.broadcast();
+        _positionSink = StreamController.broadcast(),
+        _mapEventSink = StreamController.broadcast();
 
   CustomPoint _size;
 
@@ -113,9 +118,15 @@ class MapState {
     }
   }
 
+  void emitMapEvent(MapEvent event) {
+    assert(null != event);
+    _mapEventSink.add(event);
+  }
+
   void dispose() {
     _onMoveSink.close();
     _positionSink.close();
+    _mapEventSink.close();
   }
 
   void forceRebuild() {
@@ -131,7 +142,9 @@ class MapState {
     }
   }
 
-  void move(LatLng center, double zoom, {hasGesture = false}) {
+  void move(LatLng center, double zoom,
+      {hasGesture = false,
+      MapEventSource source = MapEventSource.mapController}) {
     zoom = fitZoomToBounds(zoom);
     final mapMoved = center != _lastCenter || zoom != _zoom;
 

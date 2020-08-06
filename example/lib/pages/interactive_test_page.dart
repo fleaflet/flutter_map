@@ -68,71 +68,84 @@ class InteractiveTestPageState extends State<InteractiveTestPage> {
         padding: EdgeInsets.all(8.0),
         child: Column(
           children: [
-            Padding(
-              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  MaterialButton(
-                    child: Text('Move'),
-                    color: move ? Colors.greenAccent : Colors.redAccent,
-                    onPressed: () {
-                      setState(() {
-                        move = !move;
-                      });
-                    },
-                  ),
-                  MaterialButton(
-                    child: Text('Fling'),
-                    color: fling ? Colors.greenAccent : Colors.redAccent,
-                    onPressed: () {
-                      setState(() {
-                        fling = !fling;
-                      });
-                    },
-                  ),
-                  MaterialButton(
-                    child: Text('Pinch zoom'),
-                    color: pinchZoom ? Colors.greenAccent : Colors.redAccent,
-                    onPressed: () {
-                      setState(() {
-                        pinchZoom = !pinchZoom;
-                      });
-                    },
-                  ),
-                ],
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                MaterialButton(
+                  child: Text('Move'),
+                  color: move ? Colors.greenAccent : Colors.redAccent,
+                  onPressed: () {
+                    setState(() {
+                      move = !move;
+                    });
+                  },
+                ),
+                MaterialButton(
+                  child: Text('Fling'),
+                  color: fling ? Colors.greenAccent : Colors.redAccent,
+                  onPressed: () {
+                    setState(() {
+                      fling = !fling;
+                    });
+                  },
+                ),
+                MaterialButton(
+                  child: Text('Pinch zoom'),
+                  color: pinchZoom ? Colors.greenAccent : Colors.redAccent,
+                  onPressed: () {
+                    setState(() {
+                      pinchZoom = !pinchZoom;
+                    });
+                  },
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                MaterialButton(
+                  child: Text('Double tap zoom'),
+                  color: doubleTapZoom ? Colors.greenAccent : Colors.redAccent,
+                  onPressed: () {
+                    setState(() {
+                      doubleTapZoom = !doubleTapZoom;
+                    });
+                  },
+                ),
+                MaterialButton(
+                  child: Text('Rotate'),
+                  color: rotate ? Colors.greenAccent : Colors.redAccent,
+                  onPressed: () {
+                    setState(() {
+                      rotate = !rotate;
+                    });
+                  },
+                ),
+                MaterialButton(
+                  color: Colors.grey,
+                  child: Text('Skew'),
+                  onPressed: null,
+                ),
+              ],
             ),
             Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  MaterialButton(
-                    child: Text('Double tap zoom'),
-                    color:
-                        doubleTapZoom ? Colors.greenAccent : Colors.redAccent,
-                    onPressed: () {
-                      setState(() {
-                        doubleTapZoom = !doubleTapZoom;
-                      });
-                    },
-                  ),
-                  MaterialButton(
-                    child: Text('Rotate'),
-                    color: rotate ? Colors.greenAccent : Colors.redAccent,
-                    onPressed: () {
-                      setState(() {
-                        rotate = !rotate;
-                      });
-                    },
-                  ),
-                  MaterialButton(
-                    color: Colors.grey,
-                    child: Text('Skew'),
-                    onPressed: null,
-                  ),
-                ],
+              child: Center(
+                child: StreamBuilder<MapEvent>(
+                  stream: mapController.mapEventStream,
+                  builder:
+                      (BuildContext context, AsyncSnapshot<MapEvent> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.none ||
+                        !snapshot.hasData) {
+                      return Text('No MapEvent fired');
+                    }
+
+                    return Text(
+                      'Current event: ${snapshot.data.runtimeType}\nSource: ${snapshot.data.source}',
+                      textAlign: TextAlign.center,
+                    );
+                  },
+                ),
               ),
             ),
             Flexible(

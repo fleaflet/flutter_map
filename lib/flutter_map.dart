@@ -6,6 +6,7 @@ import 'dart:math';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/geo/crs/crs.dart';
+import 'package:flutter_map/src/gestures/interactive_flags.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/plugins/plugin.dart';
@@ -14,6 +15,8 @@ import 'package:latlong/latlong.dart';
 export 'package:flutter_map/src/core/point.dart';
 export 'package:flutter_map/src/geo/crs/crs.dart';
 export 'package:flutter_map/src/geo/latlng_bounds.dart';
+export 'package:flutter_map/src/gestures/interactive_flags.dart';
+export 'package:flutter_map/src/gestures/map_events.dart';
 export 'package:flutter_map/src/layer/circle_layer.dart';
 export 'package:flutter_map/src/layer/group_layer.dart';
 export 'package:flutter_map/src/layer/layer.dart';
@@ -93,24 +96,9 @@ abstract class MapController {
 
   Stream<MapPosition> get position;
 
+  Stream<MapEvent> get mapEventStream;
+
   factory MapController() => MapControllerImpl();
-}
-
-class InteractiveFlags {
-  static const int all =
-      move | fling | pinchZoom | doubleTapZoom | rotate /* | skew */;
-  static const int none = 0;
-
-  static const int move = 1 << 0;
-  static const int fling = 1 << 1;
-  static const int pinchZoom = 1 << 2;
-  static const int doubleTapZoom = 1 << 3;
-  static const int rotate = 1 << 4;
-  // TODO: static const int skew = 1 << 5;
-
-  static bool hasFlag(int flags, int currentFlag) {
-    return flags & currentFlag != 0;
-  }
 }
 
 typedef TapCallback = void Function(LatLng point);
