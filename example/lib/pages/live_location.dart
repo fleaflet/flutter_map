@@ -21,7 +21,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
 
   String _serviceError = '';
 
-  var interActiveFlags = InteractiveFlags.all;
+  var interActiveFlags = InteractiveFlag.all;
 
   final Location _locationService = Location();
 
@@ -164,16 +164,16 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
               _liveUpdate = !_liveUpdate;
 
               if (_liveUpdate) {
-                interActiveFlags = InteractiveFlags.rotate |
-                    InteractiveFlags.pinchZoom |
-                    InteractiveFlags.doubleTapZoom;
+                interActiveFlags = InteractiveFlag.rotate |
+                    InteractiveFlag.pinchZoom |
+                    InteractiveFlag.doubleTapZoom;
 
                 Scaffold.of(context).showSnackBar(SnackBar(
                   content: Text(
                       'In live update mode only zoom and rotation are enable'),
                 ));
               } else {
-                interActiveFlags = InteractiveFlags.all;
+                interActiveFlags = InteractiveFlag.all;
               }
             });
           },

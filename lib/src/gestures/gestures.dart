@@ -3,7 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/gestures/interactive_flags.dart';
+import 'package:flutter_map/src/gestures/interactive_flag.dart';
 import 'package:flutter_map/src/gestures/latlng_tween.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
@@ -57,15 +57,15 @@ abstract class MapGestureMixin extends State<FlutterMap>
     super.didUpdateWidget(oldWidget);
 
     var flags = options.interactiveFlags;
-    if (!InteractiveFlags.hasFlag(flags, InteractiveFlags.fling)) {
+    if (!InteractiveFlag.hasFlag(flags, InteractiveFlag.fling)) {
       closeFlingController(MapEventSource.interactiveFlagsChanged);
     }
-    if (!InteractiveFlags.hasFlag(flags, InteractiveFlags.doubleTapZoom)) {
+    if (!InteractiveFlag.hasFlag(flags, InteractiveFlag.doubleTapZoom)) {
       closeDoubleTapController(MapEventSource.interactiveFlagsChanged);
     }
 
     if (_rotationStarted &&
-        !InteractiveFlags.hasFlag(flags, InteractiveFlags.rotate)) {
+        !InteractiveFlag.hasFlag(flags, InteractiveFlag.rotate)) {
       _rotationStarted = false;
       map.emitMapEvent(
         MapEventRotateEnd(
@@ -115,7 +115,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
     _focalStartGlobal = _offsetToCrs(focalOffset);
 
     var flags = options.interactiveFlags;
-    if (InteractiveFlags.hasFlag(flags, InteractiveFlags.move)) {
+    if (InteractiveFlag.hasFlag(flags, InteractiveFlag.move)) {
       map.emitMapEvent(
         MapEventMoveStart(
           center: map.center,
@@ -133,10 +133,10 @@ abstract class MapGestureMixin extends State<FlutterMap>
     }
 
     var flags = options.interactiveFlags;
-    var hasMove = InteractiveFlags.hasFlag(flags, InteractiveFlags.move);
+    var hasMove = InteractiveFlag.hasFlag(flags, InteractiveFlag.move);
     var hasPinchZoom =
-        InteractiveFlags.hasFlag(flags, InteractiveFlags.pinchZoom);
-    var hasRotate = InteractiveFlags.hasFlag(flags, InteractiveFlags.rotate);
+        InteractiveFlag.hasFlag(flags, InteractiveFlag.pinchZoom);
+    var hasRotate = InteractiveFlag.hasFlag(flags, InteractiveFlag.rotate);
 
     final focalOffset = _offsetToPoint(details.localFocalPoint);
     _flingOffset = _pointToOffset(_focalStartLocal - focalOffset);
@@ -195,8 +195,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
     _resetDoubleTapHold();
 
     if (_rotationStarted &&
-        InteractiveFlags.hasFlag(
-            options.interactiveFlags, InteractiveFlags.rotate)) {
+        InteractiveFlag.hasFlag(
+            options.interactiveFlags, InteractiveFlag.rotate)) {
       _rotationStarted = false;
       map.emitMapEvent(
         MapEventRotateEnd(
@@ -207,8 +207,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
       );
     }
 
-    if (InteractiveFlags.hasFlag(
-        options.interactiveFlags, InteractiveFlags.move)) {
+    if (InteractiveFlag.hasFlag(
+        options.interactiveFlags, InteractiveFlag.move)) {
       map.emitMapEvent(
         MapEventMoveEnd(
           center: map.center,
@@ -218,8 +218,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
       );
     }
 
-    var hasFling = InteractiveFlags.hasFlag(
-        options.interactiveFlags, InteractiveFlags.fling);
+    var hasFling = InteractiveFlag.hasFlag(
+        options.interactiveFlags, InteractiveFlag.fling);
     var magnitude = details.velocity.pixelsPerSecond.distance;
     if (magnitude < _kMinFlingVelocity || !hasFling) {
       if (hasFling) {
@@ -318,8 +318,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
     closeFlingController(MapEventSource.doubleTap);
     closeDoubleTapController(MapEventSource.doubleTap);
 
-    if (InteractiveFlags.hasFlag(
-        options.interactiveFlags, InteractiveFlags.doubleTapZoom)) {
+    if (InteractiveFlag.hasFlag(
+        options.interactiveFlags, InteractiveFlag.doubleTapZoom)) {
       final centerPos = _pointToOffset(map.size) / 2.0;
       final newZoom = _getZoomForScale(map.zoom, 2.0);
       final focalDelta = _getDoubleTapFocalDelta(
@@ -400,7 +400,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
     var flags = options.interactiveFlags;
     // TODO: is this pinchZoom? never seen this fired
-    if (InteractiveFlags.hasFlag(flags, InteractiveFlags.pinchZoom)) {
+    if (InteractiveFlag.hasFlag(flags, InteractiveFlag.pinchZoom)) {
       final zoom = map.zoom;
       final focalOffset = _offsetToPoint(details.localFocalPoint);
       final verticalOffset = _pointToOffset(_focalStartLocal - focalOffset).dy;

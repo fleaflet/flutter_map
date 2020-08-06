@@ -6,7 +6,7 @@ import 'dart:math';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/geo/crs/crs.dart';
-import 'package:flutter_map/src/gestures/interactive_flags.dart';
+import 'package:flutter_map/src/gestures/interactive_flag.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/map.dart';
@@ -16,7 +16,7 @@ import 'package:latlong/latlong.dart';
 export 'package:flutter_map/src/core/point.dart';
 export 'package:flutter_map/src/geo/crs/crs.dart';
 export 'package:flutter_map/src/geo/latlng_bounds.dart';
-export 'package:flutter_map/src/gestures/interactive_flags.dart';
+export 'package:flutter_map/src/gestures/interactive_flag.dart';
 export 'package:flutter_map/src/gestures/map_events.dart';
 export 'package:flutter_map/src/layer/circle_layer.dart';
 export 'package:flutter_map/src/layer/group_layer.dart';
@@ -175,7 +175,7 @@ class MapOptions {
     this.boundsOptions = const FitBoundsOptions(),
     this.zoom = 13.0,
     this.rotation = 0.0,
-    this.rotationThreshold = 35.0,
+    this.rotationThreshold = 20.0,
     this.minZoom,
     this.maxZoom,
     this.debug = false,
@@ -194,8 +194,8 @@ class MapOptions {
     this.nePanBoundary,
   }) : interactiveFlags = interactiveFlags ??
             (interactive == false
-                ? InteractiveFlags.none
-                : InteractiveFlags.all) {
+                ? InteractiveFlag.none
+                : InteractiveFlag.all) {
     center ??= LatLng(50.5, 30.51);
     _safeAreaZoom = zoom;
     assert(slideOnBoundaries ||

@@ -32,21 +32,21 @@ class InteractiveTestPageState extends State<InteractiveTestPage> {
   }
 
   int _collectInteractiveFlags() {
-    var flags = InteractiveFlags.none;
+    var flags = InteractiveFlag.none;
     if (move) {
-      flags = flags | InteractiveFlags.move; // use |= operator
+      flags = flags | InteractiveFlag.move; // use |= operator
     }
     if (fling) {
-      flags |= InteractiveFlags.fling;
+      flags |= InteractiveFlag.fling;
     }
     if (pinchZoom) {
-      flags |= InteractiveFlags.pinchZoom;
+      flags |= InteractiveFlag.pinchZoom;
     }
     if (doubleTapZoom) {
-      flags |= InteractiveFlags.doubleTapZoom;
+      flags |= InteractiveFlag.doubleTapZoom;
     }
     if (rotate) {
-      flags |= InteractiveFlags.rotate;
+      flags |= InteractiveFlag.rotate;
     }
 
     return flags;
@@ -189,7 +189,7 @@ class InteractiveTestPageAlternativeState extends State<InteractiveTestPage> {
   MapController mapController;
 
   // Enable pinchZoom and doubleTapZoomBy by default
-  int flags = InteractiveFlags.pinchZoom | InteractiveFlags.doubleTapZoom;
+  int flags = InteractiveFlag.pinchZoom | InteractiveFlag.doubleTapZoom;
 
   // Here is the last moveEvent
   MapEvent lastMapEvent;
@@ -227,7 +227,7 @@ class InteractiveTestPageAlternativeState extends State<InteractiveTestPage> {
   }
 
   void updateFlags(int flag) {
-    if (InteractiveFlags.hasFlag(flags, flag)) {
+    if (InteractiveFlag.hasFlag(flags, flag)) {
       // remove flag from flags
       flags &= ~flag;
     } else {
@@ -260,35 +260,35 @@ class InteractiveTestPageAlternativeState extends State<InteractiveTestPage> {
               children: <Widget>[
                 MaterialButton(
                   child: Text('Move'),
-                  color: InteractiveFlags.hasFlag(flags, InteractiveFlags.move)
+                  color: InteractiveFlag.hasFlag(flags, InteractiveFlag.move)
                       ? Colors.greenAccent
                       : Colors.redAccent,
                   onPressed: () {
                     setState(() {
-                      updateFlags(InteractiveFlags.move);
+                      updateFlags(InteractiveFlag.move);
                     });
                   },
                 ),
                 MaterialButton(
                   child: Text('Fling'),
-                  color: InteractiveFlags.hasFlag(flags, InteractiveFlags.fling)
+                  color: InteractiveFlag.hasFlag(flags, InteractiveFlag.fling)
                       ? Colors.greenAccent
                       : Colors.redAccent,
                   onPressed: () {
                     setState(() {
-                      updateFlags(InteractiveFlags.fling);
+                      updateFlags(InteractiveFlag.fling);
                     });
                   },
                 ),
                 MaterialButton(
                   child: Text('Pinch zoom'),
-                  color: InteractiveFlags.hasFlag(
-                          flags, InteractiveFlags.pinchZoom)
-                      ? Colors.greenAccent
-                      : Colors.redAccent,
+                  color:
+                      InteractiveFlag.hasFlag(flags, InteractiveFlag.pinchZoom)
+                          ? Colors.greenAccent
+                          : Colors.redAccent,
                   onPressed: () {
                     setState(() {
-                      updateFlags(InteractiveFlags.pinchZoom);
+                      updateFlags(InteractiveFlag.pinchZoom);
                     });
                   },
                 ),
@@ -299,25 +299,24 @@ class InteractiveTestPageAlternativeState extends State<InteractiveTestPage> {
               children: <Widget>[
                 MaterialButton(
                   child: Text('Double tap zoom'),
-                  color: InteractiveFlags.hasFlag(
-                          flags, InteractiveFlags.doubleTapZoom)
+                  color: InteractiveFlag.hasFlag(
+                          flags, InteractiveFlag.doubleTapZoom)
                       ? Colors.greenAccent
                       : Colors.redAccent,
                   onPressed: () {
                     setState(() {
-                      updateFlags(InteractiveFlags.doubleTapZoom);
+                      updateFlags(InteractiveFlag.doubleTapZoom);
                     });
                   },
                 ),
                 MaterialButton(
                   child: Text('Rotate'),
-                  color:
-                      InteractiveFlags.hasFlag(flags, InteractiveFlags.rotate)
-                          ? Colors.greenAccent
-                          : Colors.redAccent,
+                  color: InteractiveFlag.hasFlag(flags, InteractiveFlag.rotate)
+                      ? Colors.greenAccent
+                      : Colors.redAccent,
                   onPressed: () {
                     setState(() {
-                      updateFlags(InteractiveFlags.rotate);
+                      updateFlags(InteractiveFlag.rotate);
                     });
                   },
                 ),
