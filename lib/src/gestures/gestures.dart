@@ -71,7 +71,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
         MapEventRotateEnd(
           center: map.center,
           zoom: map.zoom,
-          source: MapEventSource.dragStart,
+          source: MapEventSource.interactiveFlagsChanged,
         ),
       );
     }
@@ -175,7 +175,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
           MapEventRotateStart(
             center: map.center,
             zoom: map.zoom,
-            source: MapEventSource.dragStart,
+            source: MapEventSource.onDrag,
           ),
         );
       }
@@ -202,7 +202,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
         MapEventRotateEnd(
           center: map.center,
           zoom: map.zoom,
-          source: MapEventSource.dragStart,
+          source: MapEventSource.dragEnd,
         ),
       );
     }
