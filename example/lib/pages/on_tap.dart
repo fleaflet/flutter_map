@@ -14,7 +14,6 @@ class OnTapPage extends StatefulWidget {
 }
 
 class OnTapPageState extends State<OnTapPage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   static LatLng london = LatLng(51.5, -0.09);
   static LatLng paris = LatLng(48.8566, 2.3522);
   static LatLng dublin = LatLng(53.3498, -6.2603);
@@ -29,7 +28,7 @@ class OnTapPageState extends State<OnTapPage> {
         builder: (ctx) => Container(
             child: GestureDetector(
           onTap: () {
-            _scaffoldKey.currentState.showSnackBar(SnackBar(
+            Scaffold.of(ctx).showSnackBar(SnackBar(
               content: Text('Tapped on blue FlutterLogo Marker'),
             ));
           },
@@ -43,7 +42,7 @@ class OnTapPageState extends State<OnTapPage> {
         builder: (ctx) => Container(
             child: GestureDetector(
           onTap: () {
-            _scaffoldKey.currentState.showSnackBar(SnackBar(
+            Scaffold.of(ctx).showSnackBar(SnackBar(
               content: Text('Tapped on green FlutterLogo Marker'),
             ));
           },
@@ -59,7 +58,7 @@ class OnTapPageState extends State<OnTapPage> {
         builder: (ctx) => Container(
             child: GestureDetector(
           onTap: () {
-            _scaffoldKey.currentState.showSnackBar(SnackBar(
+            Scaffold.of(ctx).showSnackBar(SnackBar(
               content: Text('Tapped on purple FlutterLogo Marker'),
             ));
           },
@@ -69,7 +68,6 @@ class OnTapPageState extends State<OnTapPage> {
     ];
 
     return Scaffold(
-      key: _scaffoldKey,
       appBar: AppBar(title: Text('OnTap')),
       drawer: buildDrawer(context, OnTapPage.route),
       body: Padding(

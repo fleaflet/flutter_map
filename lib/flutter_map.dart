@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/geo/crs/crs.dart';
 import 'package:flutter_map/src/gestures/interactive_flags.dart';
+import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/plugins/plugin.dart';
@@ -73,10 +74,25 @@ class FlutterMap extends StatefulWidget {
 /// It also provides current map properties.
 abstract class MapController {
   /// Moves the map to a specific location and zoom level
-  void move(LatLng center, double zoom);
+  ///
+  /// Optionally provide [id] attribute and if you listen to [mapEventStream] later
+  /// a [MapEventMove] event will be emitted (if move was success) with same [id] attribute.
+  /// Event's source attribute will be [MapEventSource.mapController].
+  ///
+  /// returns `true` if move was success
+  /// (for example it won't be success if navigating to same place with same zoom
+  /// or if center is out of bounds and [slideOnBoundaries] isn't enabled)
+  bool move(LatLng center, double zoom, {String id});
 
   /// Sets the map rotation to a certain degrees angle (in decimal).
-  void rotate(double degree);
+  ///
+  /// Optionally provide [id] attribute and if you listen to [mapEventStream] later
+  /// a [MapEventRotate] event will be emitted (if rotate was success) with same [id] attribute.
+  /// Event's source attribute will be [MapEventSource.mapController].
+  ///
+  /// returns `true` if rotate was success
+  /// (it won't be success if rotate is same as the old rotate)
+  bool rotate(double degree, {String id});
 
   /// Fits the map bounds. Optional constraints can be defined
   /// through the [options] parameter.
@@ -93,8 +109,6 @@ abstract class MapController {
   double get zoom;
 
   double get rotation;
-
-  Stream<MapPosition> get position;
 
   Stream<MapEvent> get mapEventStream;
 

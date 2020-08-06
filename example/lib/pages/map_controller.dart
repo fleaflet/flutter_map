@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong/latlong.dart';
@@ -15,7 +17,6 @@ class MapControllerPage extends StatefulWidget {
 }
 
 class MapControllerPageState extends State<MapControllerPage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   static LatLng london = LatLng(51.5, -0.09);
   static LatLng paris = LatLng(48.8566, 2.3522);
   static LatLng dublin = LatLng(53.3498, -6.2603);
@@ -64,7 +65,6 @@ class MapControllerPageState extends State<MapControllerPage> {
     ];
 
     return Scaffold(
-      key: _scaffoldKey,
       appBar: AppBar(title: Text('MapController')),
       drawer: buildDrawer(context, MapControllerPage.route),
       body: Padding(
@@ -116,22 +116,24 @@ class MapControllerPageState extends State<MapControllerPage> {
                       );
                     },
                   ),
-                  MaterialButton(
-                    child: Text('Get Bounds'),
-                    onPressed: () {
-                      final bounds = mapController.bounds;
+                  Builder(builder: (BuildContext context) {
+                    return MaterialButton(
+                      child: Text('Get Bounds'),
+                      onPressed: () {
+                        final bounds = mapController.bounds;
 
-                      _scaffoldKey.currentState.showSnackBar(SnackBar(
-                        content: Text(
-                          'Map bounds: \n'
-                          'E: ${bounds.east} \n'
-                          'N: ${bounds.north} \n'
-                          'W: ${bounds.west} \n'
-                          'S: ${bounds.south}',
-                        ),
-                      ));
-                    },
-                  ),
+                        Scaffold.of(context).showSnackBar(SnackBar(
+                          content: Text(
+                            'Map bounds: \n'
+                            'E: ${bounds.east} \n'
+                            'N: ${bounds.north} \n'
+                            'W: ${bounds.west} \n'
+                            'S: ${bounds.south}',
+                          ),
+                        ));
+                      },
+                    );
+                  }),
                   Text('Rotation:'),
                   Expanded(
                     child: Slider(
@@ -187,27 +189,61 @@ class CurrentLocation extends StatefulWidget {
 }
 
 class _CurrentLocationState extends State<CurrentLocation> {
+  static const _eventKey = 'position-key';
+
   var icon = Icons.gps_not_fixed;
+  StreamSubscription<MapEvent> mapEventSubscription;
+
+  @override
+  void dispose() {
+    mapEventSubscription?.cancel();
+    super.dispose();
+  }
+
+  void setIcon(IconData newIcon) {
+    if (newIcon != icon && mounted) {
+      setState(() {
+        icon = newIcon;
+      });
+    }
+  }
 
   void _moveToCurrent() async {
     var location = Location();
 
     try {
-      var currentLocation = await location.getLocation();
-      widget.mapController.move(
-          LatLng(currentLocation.latitude, currentLocation.longitude), 18);
+      await mapEventSubscription?.cancel();
 
-      setState(() {
-        icon = Icons.gps_fixed;
-      });
-      await widget.mapController.position.first;
-      setState(() {
-        icon = Icons.gps_not_fixed;
-      });
+      var mapEventStream = widget.mapController.mapEventStream;
+      if (mapEventStream == null) {
+        setIcon(Icons.gps_off);
+        return;
+      }
+
+      var currentLocation = await location.getLocation();
+      var moved = widget.mapController.move(
+        LatLng(currentLocation.latitude, currentLocation.longitude),
+        18,
+        id: _eventKey,
+      );
+
+      if (moved) {
+        setIcon(Icons.gps_fixed);
+
+        mapEventSubscription = mapEventStream.listen((MapEvent event) {
+          if (event is MapEventMove && event.id == _eventKey) {
+            setIcon(Icons.gps_not_fixed);
+
+            mapEventSubscription.cancel();
+          }
+        });
+      } else {
+        setIcon(Icons.gps_not_fixed);
+      }
     } catch (e) {
-      setState(() {
-        icon = Icons.gps_off;
-      });
+      await mapEventSubscription?.cancel();
+
+      setIcon(Icons.gps_off);
     }
   }
 
