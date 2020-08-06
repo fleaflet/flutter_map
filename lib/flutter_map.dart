@@ -180,7 +180,7 @@ class MapOptions {
     this.maxZoom,
     this.debug = false,
     this.interactive,
-    // TODO: when [interactive] is removed change this to [int interactiveFlags = InteractiveFlags.all] and remove [interactiveFlags] from initializer list
+    // TODO: when [interactive] is removed change this to [this.interactiveFlags = InteractiveFlags.all] and remove [interactiveFlags] from initializer list
     int interactiveFlags,
     this.onTap,
     this.onLongPress,
