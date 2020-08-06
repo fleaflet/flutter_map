@@ -169,7 +169,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
     if (hasRotate) {
       if (!_rotationStarted &&
-          _rotationAccumlator >= options.rotationThreshold) {
+          _rotationAccumlator.abs() >= options.rotationThreshold) {
         _rotationStarted = true;
         map.emitMapEvent(
           MapEventRotateStart(
@@ -180,12 +180,14 @@ abstract class MapGestureMixin extends State<FlutterMap>
         );
       }
 
-      map.rotate(
-        map.rotation + rotationDiff,
-        hasGesture: true,
-        simulateMove: !mapMoved,
-        source: MapEventSource.onDrag,
-      );
+      if (_rotationStarted) {
+        map.rotate(
+          map.rotation + rotationDiff,
+          hasGesture: true,
+          simulateMove: !mapMoved,
+          source: MapEventSource.onDrag,
+        );
+      }
     }
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+
 import 'map.dart';
 
 class MapStateInheritedWidget extends InheritedWidget {
@@ -12,10 +13,10 @@ class MapStateInheritedWidget extends InheritedWidget {
 
   @override
   bool updateShouldNotify(MapStateInheritedWidget oldWidget) {
-    return oldWidget.mapState.zoom == mapState.zoom &&
-        oldWidget.mapState.center == mapState.center &&
-        oldWidget.mapState.bounds == mapState.bounds &&
-        oldWidget.mapState.rotation == mapState.rotation;
+    // mapState will be the same because FlutterMapState create MapState object just once
+    // and pass the same instance to the old / new MapStateInheritedWidget
+    // Moreover MapStateInheritedWidget isn't cached so all of it's child will be updated no matter if we return here with false
+    return true;
   }
 
   static MapStateInheritedWidget of(BuildContext context) {
