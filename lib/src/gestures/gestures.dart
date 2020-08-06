@@ -164,21 +164,20 @@ abstract class MapGestureMixin extends State<FlutterMap>
       );
     }
 
+    var hasFling = InteractiveFlags.hasFlag(
+        options.interactiveFlags, InteractiveFlags.fling);
     var magnitude = details.velocity.pixelsPerSecond.distance;
-    if (magnitude < _kMinFlingVelocity) {
-      map.emitMapEvent(
-        MapEventFlingNotStarted(
-          center: map.center,
-          zoom: map.zoom,
-          source: MapEventSource.dragEnd,
-        ),
-      );
+    if (magnitude < _kMinFlingVelocity || !hasFling) {
+      if (hasFling) {
+        map.emitMapEvent(
+          MapEventFlingNotStarted(
+            center: map.center,
+            zoom: map.zoom,
+            source: MapEventSource.dragEnd,
+          ),
+        );
+      }
 
-      return;
-    }
-
-    if (!InteractiveFlags.hasFlag(
-        options.interactiveFlags, InteractiveFlags.fling)) {
       return;
     }
 
