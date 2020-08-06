@@ -50,6 +50,9 @@ class MapControllerImpl implements MapController {
   double get zoom => _state.zoom;
 
   @override
+  double get rotation => _state.rotation;
+
+  @override
   void rotate(double degree, {String id}) {
     _state.rotate(degree, id: id, source: MapEventSource.mapController);
   }
@@ -176,38 +179,49 @@ class MapState {
     _onMoveSink?.add(null);
   }
 
-  void rotate(double degree,
-      {bool hasGesture = false, MapEventSource source, String id}) {
+  bool rotate(
+    double degree, {
+    bool hasGesture = false,
+    bool simulateMove = false,
+    MapEventSource source,
+    String id,
+  }) {
     if (degree != rotation) {
-      rotation = degree;
       onRotationChanged(rotation);
-
       emitMapEvent(MapEventRotate(
         id: id,
+        currentRotation: rotation,
+        targetRotation: degree,
         center: _lastCenter,
         zoom: _zoom,
         source: source,
       ));
 
-      if (!hasGesture) {
+      rotation = degree;
+
+      if (!hasGesture || simulateMove) {
         // make sure layers rebuild correctly if this method was called from MapController
         _onMoveSink.add(null);
       }
+
+      return true;
     }
+
+    return false;
   }
 
-  void move(LatLng center, double zoom,
+  bool move(LatLng center, double zoom,
       {hasGesture = false, MapEventSource source, String id}) {
     zoom = fitZoomToBounds(zoom);
     final mapMoved = center != _lastCenter || zoom != _zoom;
 
     if (_lastCenter != null && (!mapMoved || !bounds.isValid)) {
-      return;
+      return false;
     }
 
     if (options.isOutOfBounds(center)) {
       if (!options.slideOnBoundaries) {
-        return;
+        return false;
       }
       center = options.containPoint(center, _lastCenter ?? center);
     }
@@ -228,6 +242,8 @@ class MapState {
     if (options.onPositionChanged != null) {
       options.onPositionChanged(mapPosition, hasGesture);
     }
+
+    return true;
   }
 
   double fitZoomToBounds(double zoom) {

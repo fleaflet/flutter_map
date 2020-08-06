@@ -92,6 +92,8 @@ abstract class MapController {
 
   double get zoom;
 
+  double get rotation;
+
   Stream<MapPosition> get position;
 
   Stream<MapEvent> get mapEventStream;
@@ -126,6 +128,8 @@ class MapOptions {
   final Crs crs;
   final double zoom;
   final double rotation;
+  // Rotation threshold in degree
+  final double rotationThreshold;
   final double minZoom;
   final double maxZoom;
   @deprecated
@@ -157,6 +161,7 @@ class MapOptions {
     this.boundsOptions = const FitBoundsOptions(),
     this.zoom = 13.0,
     this.rotation = 0.0,
+    this.rotationThreshold = 35.0,
     this.minZoom,
     this.maxZoom,
     this.debug = false,

@@ -151,7 +151,25 @@ class MapEventDoubleTapZoomEnd extends MapEvent {
 
 class MapEventRotate extends MapEvent {
   final String id;
+  final double currentRotation;
+  final double targetRotation;
 
-  MapEventRotate({MapEventSource source, this.id, LatLng center, double zoom})
+  MapEventRotate({
+    this.id,
+    this.currentRotation,
+    this.targetRotation,
+    MapEventSource source,
+    LatLng center,
+    double zoom,
+  }) : super(source: source, center: center, zoom: zoom);
+}
+
+class MapEventRotateStart extends MapEvent {
+  MapEventRotateStart({MapEventSource source, LatLng center, double zoom})
+      : super(source: source, center: center, zoom: zoom);
+}
+
+class MapEventRotateEnd extends MapEvent {
+  MapEventRotateEnd({MapEventSource source, LatLng center, double zoom})
       : super(source: source, center: center, zoom: zoom);
 }

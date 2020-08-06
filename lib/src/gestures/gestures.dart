@@ -14,6 +14,10 @@ abstract class MapGestureMixin extends State<FlutterMap>
     with TickerProviderStateMixin {
   static const double _kMinFlingVelocity = 800.0;
 
+  double _lastRotation = 0.0;
+  double _rotationAccumlator = 0.0;
+  bool _rotationStarted = false;
+
   LatLng _mapCenterStart;
   double _mapZoomStart;
   LatLng _focalStartGlobal;
@@ -59,6 +63,18 @@ abstract class MapGestureMixin extends State<FlutterMap>
     if (!InteractiveFlags.hasFlag(flags, InteractiveFlags.doubleTapZoom)) {
       closeDoubleTapController(MapEventSource.interactiveFlagsChanged);
     }
+
+    if (_rotationStarted &&
+        !InteractiveFlags.hasFlag(flags, InteractiveFlags.rotate)) {
+      _rotationStarted = false;
+      map.emitMapEvent(
+        MapEventRotateEnd(
+          center: map.center,
+          zoom: map.zoom,
+          source: MapEventSource.dragStart,
+        ),
+      );
+    }
   }
 
   void closeFlingController(MapEventSource source) {
@@ -88,6 +104,10 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
     _mapZoomStart = map.zoom;
     _mapCenterStart = map.center;
+
+    _rotationStarted = false;
+    _lastRotation = 0.0;
+    _rotationAccumlator = 0.0;
 
     // determine the focal point within the widget
     final focalOffset = details.localFocalPoint;
@@ -121,39 +141,69 @@ abstract class MapGestureMixin extends State<FlutterMap>
     final focalOffset = _offsetToPoint(details.localFocalPoint);
     _flingOffset = _pointToOffset(_focalStartLocal - focalOffset);
 
-    if (hasMove || hasPinchZoom || hasRotate) {
-      if (hasMove || hasPinchZoom) {
-        final newZoom = hasPinchZoom
-            ? _getZoomForScale(_mapZoomStart, details.scale)
-            : map.zoom;
-        LatLng newCenter;
-        if (hasMove) {
-          final focalStartPt = map.project(_focalStartGlobal, newZoom);
-          final newCenterPt = focalStartPt - focalOffset + map.size / 2.0;
-          newCenter = map.unproject(newCenterPt, newZoom);
-        } else {
-          newCenter = map.center;
-        }
-        map.move(
-          newCenter,
-          newZoom,
-          hasGesture: true,
-          source: MapEventSource.onDrag,
+    var mapMoved = false;
+    if (hasMove || hasPinchZoom) {
+      final newZoom = hasPinchZoom
+          ? _getZoomForScale(_mapZoomStart, details.scale)
+          : map.zoom;
+      LatLng newCenter;
+      if (hasMove) {
+        final focalStartPt = map.project(_focalStartGlobal, newZoom);
+        final newCenterPt = focalStartPt - focalOffset + map.size / 2.0;
+        newCenter = map.unproject(newCenterPt, newZoom);
+      } else {
+        newCenter = map.center;
+      }
+      mapMoved = map.move(
+        newCenter,
+        newZoom,
+        hasGesture: true,
+        source: MapEventSource.onDrag,
+      );
+    }
+
+    var newRotation = radianToDeg(details.rotation);
+    var rotationDiff = newRotation - _lastRotation;
+    _rotationAccumlator += rotationDiff;
+    _lastRotation = newRotation;
+
+    if (hasRotate) {
+      if (!_rotationStarted &&
+          _rotationAccumlator >= options.rotationThreshold) {
+        _rotationStarted = true;
+        map.emitMapEvent(
+          MapEventRotateStart(
+            center: map.center,
+            zoom: map.zoom,
+            source: MapEventSource.dragStart,
+          ),
         );
       }
 
-      if (hasRotate) {
-        map.rotate(
-          map.rotation + details.rotation,
-          hasGesture: true,
-          source: MapEventSource.onDrag,
-        );
-      }
+      map.rotate(
+        map.rotation + rotationDiff,
+        hasGesture: true,
+        simulateMove: !mapMoved,
+        source: MapEventSource.onDrag,
+      );
     }
   }
 
   void handleScaleEnd(ScaleEndDetails details) {
     _resetDoubleTapHold();
+
+    if (_rotationStarted &&
+        InteractiveFlags.hasFlag(
+            options.interactiveFlags, InteractiveFlags.rotate)) {
+      _rotationStarted = false;
+      map.emitMapEvent(
+        MapEventRotateEnd(
+          center: map.center,
+          zoom: map.zoom,
+          source: MapEventSource.dragStart,
+        ),
+      );
+    }
 
     if (InteractiveFlags.hasFlag(
         options.interactiveFlags, InteractiveFlags.move)) {
