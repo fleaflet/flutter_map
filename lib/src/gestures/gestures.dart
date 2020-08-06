@@ -205,12 +205,11 @@ abstract class MapGestureMixin extends State<FlutterMap>
     closeFlingController(MapEventSource.tap);
     closeDoubleTapController(MapEventSource.tap);
 
-    if (options.onTap == null) {
-      return;
-    }
     final latlng = _offsetToCrs(position.relative);
-    // emit the event
-    options.onTap(latlng);
+    if (options.onTap != null) {
+      // emit the event
+      options.onTap(latlng);
+    }
 
     map.emitMapEvent(
       MapEventTap(
@@ -228,12 +227,11 @@ abstract class MapGestureMixin extends State<FlutterMap>
     closeFlingController(MapEventSource.longPress);
     closeDoubleTapController(MapEventSource.longPress);
 
-    if (options.onLongPress == null) {
-      return;
-    }
     final latlng = _offsetToCrs(position.relative);
-    // emit the event
-    options.onLongPress(latlng);
+    if (options.onLongPress != null) {
+      // emit the event
+      options.onLongPress(latlng);
+    }
 
     map.emitMapEvent(
       MapEventLongPress(

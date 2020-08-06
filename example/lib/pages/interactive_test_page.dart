@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong/latlong.dart';
@@ -9,9 +11,8 @@ class InteractiveTestPage extends StatefulWidget {
 
   @override
   State createState() {
-    // TODO: try out InteractiveTestPageWithoutBooleansState
-    // return InteractiveTestPageWithoutBooleansState();
-    return InteractiveTestPageState();
+    // TODO: try out InteractiveTestPageState it is using StreamBuilder
+    return InteractiveTestPageWithoutBooleansState();
   }
 }
 
@@ -188,12 +189,40 @@ class InteractiveTestPageWithoutBooleansState
     extends State<InteractiveTestPage> {
   MapController mapController;
 
+  // Enable pinchZoom and doubleTapZoomBy by default
   int flags = InteractiveFlags.pinchZoom | InteractiveFlags.doubleTapZoom;
+
+  // Here is the last moveEvent which is not extends MapEventWithMove
+  MapEvent lastMapEvent;
+
+  StreamSubscription<MapEvent> subscription;
 
   @override
   void initState() {
     super.initState();
     mapController = MapController();
+
+    mapController.onReady.then((_) {
+      // at this point we can listen to [mapEventStream]
+      // use stream transformer or anything you want
+      subscription = mapController.mapEventStream.listen((MapEvent mapEvent) {
+        setState(() {
+          print(mapEvent);
+          if (mapEvent is! MapEventWithMove) {
+            lastMapEvent = mapEvent;
+          }
+        });
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    if (subscription != null) {
+      subscription.cancel();
+    }
+
+    super.dispose();
   }
 
   void updateFlags(int flag) {
@@ -301,30 +330,11 @@ class InteractiveTestPageWithoutBooleansState
             Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
               child: Center(
-                child: FutureBuilder<Null>(
-                  future: mapController.onReady,
-                  builder:
-                      (BuildContext context, AsyncSnapshot<Null> snapshot) {
-                    if (snapshot.connectionState != ConnectionState.done) {
-                      return Text('No MapEvent fired');
-                    }
-
-                    return StreamBuilder<MapEvent>(
-                      stream: mapController.mapEventStream,
-                      builder: (BuildContext context,
-                          AsyncSnapshot<MapEvent> snapshot) {
-                        if (snapshot.connectionState == ConnectionState.none ||
-                            !snapshot.hasData) {
-                          return Text('No MapEvent fired');
-                        }
-
-                        return Text(
-                          'Current event: ${snapshot.data.runtimeType}\nSource: ${snapshot.data.source}',
-                          textAlign: TextAlign.center,
-                        );
-                      },
-                    );
-                  },
+                child: Text(
+                  lastMapEvent == null
+                      ? 'No MapEvent fired'
+                      : 'Current event: ${lastMapEvent.runtimeType}\nSource: ${lastMapEvent.source}',
+                  textAlign: TextAlign.center,
                 ),
               ),
             ),

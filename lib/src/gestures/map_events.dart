@@ -22,7 +22,20 @@ abstract class MapEvent {
   // current zoom when event is emitted
   final double zoom;
 
-  const MapEvent({this.source, this.center, this.zoom});
+  MapEvent({this.source, this.center, this.zoom});
+}
+
+abstract class MapEventWithMove extends MapEvent {
+  final LatLng targetCenter;
+  final double targetZoom;
+
+  MapEventWithMove({
+    this.targetCenter,
+    this.targetZoom,
+    MapEventSource source,
+    LatLng center,
+    double zoom,
+  }) : super(source: source, center: center, zoom: zoom);
 }
 
 class MapEventTap extends MapEvent {
@@ -47,19 +60,23 @@ class MapEventLongPress extends MapEvent {
   }) : super(source: source, center: center, zoom: zoom);
 }
 
-class MapEventMove extends MapEvent {
+class MapEventMove extends MapEventWithMove {
   final String id;
-  final LatLng targetCenter;
-  final double targetZoom;
 
   MapEventMove({
     this.id,
-    this.targetCenter,
-    this.targetZoom,
+    LatLng targetCenter,
+    double targetZoom,
     MapEventSource source,
     LatLng center,
     double zoom,
-  }) : super(source: source, center: center, zoom: zoom);
+  }) : super(
+          targetCenter: targetCenter,
+          targetZoom: targetZoom,
+          source: source,
+          center: center,
+          zoom: zoom,
+        );
 }
 
 class MapEventMoveStart extends MapEvent {
@@ -72,17 +89,20 @@ class MapEventMoveEnd extends MapEvent {
       : super(source: source, center: center, zoom: zoom);
 }
 
-class MapEventFling extends MapEvent {
-  final LatLng targetCenter;
-  final double targetZoom;
-
+class MapEventFling extends MapEventWithMove {
   MapEventFling({
-    this.targetCenter,
-    this.targetZoom,
+    LatLng targetCenter,
+    double targetZoom,
     MapEventSource source,
     LatLng center,
     double zoom,
-  }) : super(source: source, center: center, zoom: zoom);
+  }) : super(
+          targetCenter: targetCenter,
+          targetZoom: targetZoom,
+          source: source,
+          center: center,
+          zoom: zoom,
+        );
 }
 
 /// Emits when InteractiveFlags contains fling and there wasn't enough velocity
@@ -102,17 +122,20 @@ class MapEventFlingEnd extends MapEvent {
       : super(source: source, center: center, zoom: zoom);
 }
 
-class MapEventDoubleTapZoom extends MapEvent {
-  final LatLng targetCenter;
-  final double targetZoom;
-
+class MapEventDoubleTapZoom extends MapEventWithMove {
   MapEventDoubleTapZoom({
-    this.targetCenter,
-    this.targetZoom,
+    LatLng targetCenter,
+    double targetZoom,
     MapEventSource source,
     LatLng center,
     double zoom,
-  }) : super(source: source, center: center, zoom: zoom);
+  }) : super(
+          targetCenter: targetCenter,
+          targetZoom: targetZoom,
+          source: source,
+          center: center,
+          zoom: zoom,
+        );
 }
 
 class MapEventDoubleTapZoomStart extends MapEvent {
