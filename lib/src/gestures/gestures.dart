@@ -236,7 +236,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
     }
 
     var direction = details.velocity.pixelsPerSecond / magnitude;
-    var distance = (Offset.zero & context.size).shortestSide;
+    var distance =
+        (Offset.zero & Size(mapState.size.x, mapState.size.y)).shortestSide;
 
     if (mapState.rotation != 0.0) {
       // correct fling direction with rotation
@@ -298,10 +299,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
   }
 
   LatLng _offsetToCrs(Offset offset) {
-    // Get the widget's offset
-    var renderObject = context.findRenderObject() as RenderBox;
-    var width = renderObject.size.width;
-    var height = renderObject.size.height;
+    var width = mapState.size.x;
+    var height = mapState.size.y;
 
     // convert the point to global coordinates
     var localPoint = _offsetToPoint(offset);
