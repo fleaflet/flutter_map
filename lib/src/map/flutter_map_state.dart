@@ -36,7 +36,9 @@ class FlutterMapState extends MapGestureMixin {
   @override
   void initState() {
     super.initState();
-    mapState = MapState(options, (degree) => mounted ?? setState(() => {}));
+    mapState = MapState(options, (degree) {
+      if (mounted) setState(() => {});
+    });
     mapController.state = mapState;
   }
 

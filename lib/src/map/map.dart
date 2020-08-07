@@ -182,17 +182,18 @@ class MapState {
     String id,
   }) {
     if (degree != rotation) {
+      var oldRotation = rotation;
+      rotation = degree;
+
       onRotationChanged(rotation);
       emitMapEvent(MapEventRotate(
         id: id,
-        currentRotation: rotation,
-        targetRotation: degree,
+        currentRotation: oldRotation,
+        targetRotation: rotation,
         center: _lastCenter,
         zoom: _zoom,
         source: source,
       ));
-
-      rotation = degree;
 
       if (!hasGesture || simulateMove) {
         // make sure layers rebuild correctly if this method was called from MapController
@@ -223,9 +224,6 @@ class MapState {
 
     _handleMoveEmit(center, zoom, hasGesture, source, id);
 
-    var mapPosition = MapPosition(
-        center: center, bounds: bounds, zoom: zoom, hasGesture: hasGesture);
-
     _zoom = zoom;
     _lastCenter = center;
     _lastPixelBounds = getPixelBounds(_zoom);
@@ -234,6 +232,9 @@ class MapState {
     _onMoveSink.add(null);
 
     if (options.onPositionChanged != null) {
+      var mapPosition = MapPosition(
+          center: center, bounds: bounds, zoom: zoom, hasGesture: hasGesture);
+
       options.onPositionChanged(mapPosition, hasGesture);
     }
 
