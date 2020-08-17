@@ -63,15 +63,26 @@ class MapControllerImpl implements MapController {
 }
 
 class MapState {
+  static const _rad90 = 90.0 * math.pi / 180.0;
+
   MapOptions options;
   final ValueChanged<double> onRotationChanged;
   final StreamController<Null> _onMoveSink;
   final StreamController<MapEvent> _mapEventSink;
 
   double _zoom;
-  double rotation;
+  double _rotation;
+  double _rotationRad;
 
   double get zoom => _zoom;
+  double get rotation => _rotation;
+
+  set rotation(double rotation) {
+    _rotation = rotation;
+    _rotationRad = degToRadian(rotation);
+  }
+
+  double get rotationRad => _rotationRad;
 
   LatLng _lastCenter;
   LatLngBounds _lastBounds;
@@ -80,23 +91,56 @@ class MapState {
   bool _initialized = false;
 
   MapState(this.options, this.onRotationChanged)
-      : rotation = options.rotation,
+      : _rotation = options.rotation,
+        _rotationRad = degToRadian(options.rotation),
         _zoom = options.zoom,
         _onMoveSink = StreamController.broadcast(),
         _mapEventSink = StreamController.broadcast();
 
-  CustomPoint _size;
-
   Stream<Null> get onMoved => _onMoveSink.stream;
+
+  // Original size of the map where rotation isn't calculated
+  CustomPoint _originalSize;
+
+  CustomPoint get originalSize => _originalSize;
+
+  void setOriginalSize(double width, double height) {
+    if (_originalSize == null ||
+        _originalSize.x != width ||
+        _originalSize.y != height) {
+      _originalSize = CustomPoint<double>(width, height);
+
+      _updateSizeByOriginalSizeAndRotation();
+    }
+  }
+
+  // Extended size of the map where rotation is calculated
+  CustomPoint _size;
 
   CustomPoint get size => _size;
 
-  set size(CustomPoint s) {
-    _size = s;
+  void _updateSizeByOriginalSizeAndRotation() {
+    final originalWidth = _originalSize.x;
+    final originalHeight = _originalSize.y;
+
+    if (_rotation != 0.0) {
+      final rangle90 = math.sin(_rad90 - _rotationRad).abs();
+      final sinangle = math.sin(_rotationRad).abs();
+      // to make sure that the whole screen is filled with the map after rotation
+      // we enlarge the drawing area over the available screen size
+      final width = (originalWidth * rangle90) + (originalHeight * sinangle);
+      final height = (originalHeight * rangle90) + (originalWidth * sinangle);
+
+      _size = CustomPoint<double>(width, height);
+    } else {
+      _size = CustomPoint<double>(originalWidth, originalHeight);
+    }
+
     if (!_initialized) {
       _init();
       _initialized = true;
     }
+
     _pixelOrigin = getNewPixelOrigin(_lastCenter);
   }
 
@@ -181,15 +225,16 @@ class MapState {
     MapEventSource source,
     String id,
   }) {
-    if (degree != rotation) {
-      var oldRotation = rotation;
+    if (degree != _rotation) {
+      var oldRotation = _rotation;
       rotation = degree;
+      _updateSizeByOriginalSizeAndRotation();
 
-      onRotationChanged(rotation);
+      onRotationChanged(_rotation);
       emitMapEvent(MapEventRotate(
         id: id,
         currentRotation: oldRotation,
-        targetRotation: rotation,
+        targetRotation: _rotation,
         center: _lastCenter,
         zoom: _zoom,
         source: source,

@@ -59,7 +59,8 @@ class FlutterMap extends StatefulWidget {
     this.layers = const [],
     this.children = const [],
     MapController mapController,
-  })  : _mapController = mapController ?? MapController(),
+  })  : assert(options != null, 'MapOptions cannot be null!'),
+        _mapController = mapController,
         super(key: key);
 
   @override
@@ -159,18 +160,18 @@ class MapOptions {
   final Size screenSize;
   final bool adaptiveBoundaries;
   final MapController controller;
-  LatLng center;
-  LatLngBounds bounds;
-  FitBoundsOptions boundsOptions;
-  LatLng swPanBoundary;
-  LatLng nePanBoundary;
+  final LatLng center;
+  final LatLngBounds bounds;
+  final FitBoundsOptions boundsOptions;
+  final LatLng swPanBoundary;
+  final LatLng nePanBoundary;
 
   _SafeArea _safeAreaCache;
   double _safeAreaZoom;
 
   MapOptions({
     this.crs = const Epsg3857(),
-    this.center,
+    LatLng center,
     this.bounds,
     this.boundsOptions = const FitBoundsOptions(),
     this.zoom = 13.0,
@@ -192,11 +193,9 @@ class MapOptions {
     this.controller,
     this.swPanBoundary,
     this.nePanBoundary,
-  }) : interactiveFlags = interactiveFlags ??
-            (interactive == false
-                ? InteractiveFlag.none
-                : InteractiveFlag.all) {
-    center ??= LatLng(50.5, 30.51);
+  })  : interactiveFlags = interactiveFlags ??
+            (interactive == false ? InteractiveFlag.none : InteractiveFlag.all),
+        center = center == null ? LatLng(50.5, 30.51) : center {
     _safeAreaZoom = zoom;
     assert(slideOnBoundaries ||
         !isOutOfBounds(center)); //You cannot start outside pan boundary

@@ -1,16 +1,13 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:async/async.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/gestures/gestures.dart';
 import 'package:flutter_map/src/layer/group_layer.dart';
 import 'package:flutter_map/src/layer/overlay_image_layer.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/map/map_state_widget.dart';
-import 'package:latlong/latlong.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 
 class FlutterMapState extends MapGestureMixin {
@@ -20,17 +17,19 @@ class FlutterMapState extends MapGestureMixin {
   final _positionedTapController = PositionedTapController();
 
   @override
-  MapOptions get options => widget.options ?? MapOptions();
+  MapOptions get options => widget.options;
 
   @override
   MapState mapState;
 
-  FlutterMapState(this.mapController);
+  FlutterMapState(MapController mapController)
+      : mapController = mapController ?? MapController();
 
   @override
   void didUpdateWidget(FlutterMap oldWidget) {
-    mapState.options = options;
     super.didUpdateWidget(oldWidget);
+
+    mapState.options = options;
   }
 
   @override
@@ -42,7 +41,7 @@ class FlutterMapState extends MapGestureMixin {
     mapController.state = mapState;
   }
 
-  void _dispose() {
+  void _disposeStreamGroups() {
     for (var group in groups) {
       group.close();
     }
@@ -52,7 +51,9 @@ class FlutterMapState extends MapGestureMixin {
 
   @override
   void dispose() {
-    _dispose();
+    _disposeStreamGroups();
+    mapState.dispose();
+
     super.dispose();
   }
 
@@ -66,35 +67,12 @@ class FlutterMapState extends MapGestureMixin {
     return group.stream;
   }
 
-  static const _rad90 = 90.0 * pi / 180.0;
-
   @override
   Widget build(BuildContext context) {
-    _dispose();
+    _disposeStreamGroups();
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
-      double angle;
-      double width;
-      double height;
-      var rotation = mapState.rotation;
-
-      // only do the rotation maths if we have a rotation
-      if (rotation != 0.0) {
-        angle = degToRadian(rotation);
-        final rangle90 = sin(_rad90 - angle).abs();
-        final sinangle = sin(angle).abs();
-        // to make sure that the whole screen is filled with the map after rotation
-        // we enlarge the drawing area over the available screen size
-        width = (constraints.maxWidth * rangle90) +
-            (constraints.maxHeight * sinangle);
-        height = (constraints.maxHeight * rangle90) +
-            (constraints.maxWidth * sinangle);
-
-        mapState.size = CustomPoint<double>(width, height);
-      } else {
-        mapState.size =
-            CustomPoint<double>(constraints.maxWidth, constraints.maxHeight);
-      }
+      mapState.setOriginalSize(constraints.maxWidth, constraints.maxHeight);
 
       Widget mapRoot = PositionedTapDetector(
         key: _positionedTapDetectorKey,
@@ -116,13 +94,14 @@ class FlutterMapState extends MapGestureMixin {
                 ...widget.children,
               if (widget.layers != null && widget.layers.isNotEmpty)
                 ...widget.layers
-                    .map((layer) => _createLayer(layer, widget.options.plugins))
+                    .map((layer) => _createLayer(layer, options.plugins))
             ],
           ),
         ),
       );
 
-      if (rotation != 0.0) {
+      if (mapState.rotation != 0.0) {
+        var size = mapState.size;
         // By using an OverflowBox with the enlarged drawing area all the layers
         // act as if the area really would be that big. So no changes in any layer
         // logic is necessary for the rotation
@@ -130,12 +109,12 @@ class FlutterMapState extends MapGestureMixin {
           mapState: mapState,
           child: ClipRect(
             child: OverflowBox(
-              minWidth: width,
-              maxWidth: width,
-              minHeight: height,
-              maxHeight: height,
+              minWidth: size.x,
+              maxWidth: size.x,
+              minHeight: size.y,
+              maxHeight: size.y,
               child: Transform.rotate(
-                angle: angle,
+                angle: mapState.rotationRad,
                 child: mapRoot,
               ),
             ),
