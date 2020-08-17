@@ -129,13 +129,13 @@ class FlutterMapState extends MapGestureMixin {
         return MapStateInheritedWidget(
           mapState: mapState,
           child: ClipRect(
-            child: Transform.rotate(
-              angle: angle,
-              child: OverflowBox(
-                minWidth: width,
-                maxWidth: width,
-                minHeight: height,
-                maxHeight: height,
+            child: OverflowBox(
+              minWidth: width,
+              maxWidth: width,
+              minHeight: height,
+              maxHeight: height,
+              child: Transform.rotate(
+                angle: angle,
                 child: mapRoot,
               ),
             ),

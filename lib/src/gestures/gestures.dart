@@ -15,7 +15,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
   static const double _kMinFlingVelocity = 800.0;
 
   double _lastRotation = 0.0;
-  double _rotationAccumlator = 0.0;
+  double _rotationAccumulator = 0.0;
   bool _rotationStarted = false;
 
   LatLng _mapCenterStart;
@@ -107,12 +107,12 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
     _rotationStarted = false;
     _lastRotation = 0.0;
-    _rotationAccumlator = 0.0;
+    _rotationAccumulator = 0.0;
 
     // determine the focal point within the widget
     final focalOffset = details.localFocalPoint;
     _focalStartLocal = _offsetToPoint(focalOffset);
-    _focalStartGlobal = _offsetToCrs(focalOffset);
+    _focalStartGlobal = _offsetToCrs(focalOffset, false);
 
     var flags = options.interactiveFlags;
     if (InteractiveFlag.hasFlag(flags, InteractiveFlag.move)) {
@@ -164,12 +164,12 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
     var newRotation = radianToDeg(details.rotation);
     var rotationDiff = newRotation - _lastRotation;
-    _rotationAccumlator += rotationDiff;
+    _rotationAccumulator += rotationDiff;
     _lastRotation = newRotation;
 
     if (hasRotate) {
       if (!_rotationStarted &&
-          _rotationAccumlator.abs() >= options.rotationThreshold) {
+          _rotationAccumulator.abs() >= options.rotationThreshold) {
         _rotationStarted = true;
         map.emitMapEvent(
           MapEventRotateStart(
@@ -260,7 +260,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
     closeFlingController(MapEventSource.tap);
     closeDoubleTapController(MapEventSource.tap);
 
-    final latlng = _offsetToCrs(position.relative);
+    final latlng = _offsetToCrs(position.relative, true);
     if (options.onTap != null) {
       // emit the event
       options.onTap(latlng);
@@ -282,7 +282,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
     closeFlingController(MapEventSource.longPress);
     closeDoubleTapController(MapEventSource.longPress);
 
-    final latlng = _offsetToCrs(position.relative);
+    final latlng = _offsetToCrs(position.relative, true);
     if (options.onLongPress != null) {
       // emit the event
       options.onLongPress(latlng);
@@ -298,9 +298,16 @@ abstract class MapGestureMixin extends State<FlutterMap>
     );
   }
 
-  LatLng _offsetToCrs(Offset offset) {
+  LatLng _offsetToCrs(Offset offset, bool calcWithRotation) {
     var width = mapState.size.x;
     var height = mapState.size.y;
+
+    if (calcWithRotation && mapState.rotation != 0.0) {
+      // correct fling direction with rotation
+      var v = Matrix4.rotationZ(-degToRadian(mapState.rotation)) *
+          Vector4(offset.dx, offset.dy, 0, 0);
+      offset = Offset(v.x, v.y);
+    }
 
     // convert the point to global coordinates
     var localPoint = _offsetToPoint(offset);
@@ -323,7 +330,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
       final newZoom = _getZoomForScale(map.zoom, 2.0);
       final focalDelta = _getDoubleTapFocalDelta(
           centerPos, tapPosition.relative, newZoom - map.zoom);
-      final newCenter = _offsetToCrs(centerPos + focalDelta);
+      final newCenter = _offsetToCrs(centerPos + focalDelta, true);
       _startDoubleTapAnimation(newZoom, newCenter);
     }
   }
