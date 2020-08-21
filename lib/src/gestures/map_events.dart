@@ -9,6 +9,9 @@ enum MapEventSource {
   dragStart,
   onDrag,
   dragEnd,
+  pinchStart,
+  onPinch,
+  pinchEnd,
   flingAnimationController,
   doubleTapZoomAnimationController,
   interactiveFlagsChanged,
@@ -89,8 +92,8 @@ class MapEventMoveEnd extends MapEvent {
       : super(source: source, center: center, zoom: zoom);
 }
 
-class MapEventFling extends MapEventWithMove {
-  MapEventFling({
+class MapEventFlingAnimation extends MapEventWithMove {
+  MapEventFlingAnimation({
     LatLng targetCenter,
     double targetZoom,
     MapEventSource source,
@@ -107,18 +110,20 @@ class MapEventFling extends MapEventWithMove {
 
 /// Emits when InteractiveFlags contains fling and there wasn't enough velocity
 /// to start fling animation
-class MapEventFlingNotStarted extends MapEvent {
-  MapEventFlingNotStarted({MapEventSource source, LatLng center, double zoom})
+class MapEventFlingAnimationNotStarted extends MapEvent {
+  MapEventFlingAnimationNotStarted(
+      {MapEventSource source, LatLng center, double zoom})
       : super(source: source, center: center, zoom: zoom);
 }
 
-class MapEventFlingStart extends MapEvent {
-  MapEventFlingStart({MapEventSource source, LatLng center, double zoom})
+class MapEventFlingAnimationStart extends MapEvent {
+  MapEventFlingAnimationStart(
+      {MapEventSource source, LatLng center, double zoom})
       : super(source: source, center: center, zoom: zoom);
 }
 
-class MapEventFlingEnd extends MapEvent {
-  MapEventFlingEnd({MapEventSource source, LatLng center, double zoom})
+class MapEventFlingAnimationEnd extends MapEvent {
+  MapEventFlingAnimationEnd({MapEventSource source, LatLng center, double zoom})
       : super(source: source, center: center, zoom: zoom);
 }
 

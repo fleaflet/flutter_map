@@ -74,28 +74,33 @@ class FlutterMapState extends MapGestureMixin {
         builder: (BuildContext context, BoxConstraints constraints) {
       mapState.setOriginalSize(constraints.maxWidth, constraints.maxHeight);
 
-      Widget mapRoot = PositionedTapDetector(
-        key: _positionedTapDetectorKey,
-        controller: _positionedTapController,
-        onTap: handleTap,
-        onLongPress: handleLongPress,
-        onDoubleTap: handleDoubleTap,
-        child: GestureDetector(
-          onScaleStart: handleScaleStart,
-          onScaleUpdate: handleScaleUpdate,
-          onScaleEnd: handleScaleEnd,
-          onTap: _positionedTapController.onTap,
-          onLongPress: _positionedTapController.onLongPress,
-          onTapDown: _positionedTapController.onTapDown,
-          onTapUp: handleOnTapUp,
-          child: Stack(
-            children: [
-              if (widget.children != null && widget.children.isNotEmpty)
-                ...widget.children,
-              if (widget.layers != null && widget.layers.isNotEmpty)
-                ...widget.layers
-                    .map((layer) => _createLayer(layer, options.plugins))
-            ],
+      Widget mapRoot = Listener(
+        onPointerDown: savePointer,
+        onPointerCancel: removePointer,
+        onPointerUp: removePointer,
+        child: PositionedTapDetector(
+          key: _positionedTapDetectorKey,
+          controller: _positionedTapController,
+          onTap: handleTap,
+          onLongPress: handleLongPress,
+          onDoubleTap: handleDoubleTap,
+          child: GestureDetector(
+            onScaleStart: handleScaleStart,
+            onScaleUpdate: handleScaleUpdate,
+            onScaleEnd: handleScaleEnd,
+            onTap: _positionedTapController.onTap,
+            onLongPress: _positionedTapController.onLongPress,
+            onTapDown: _positionedTapController.onTapDown,
+            onTapUp: handleOnTapUp,
+            child: Stack(
+              children: [
+                if (widget.children != null && widget.children.isNotEmpty)
+                  ...widget.children,
+                if (widget.layers != null && widget.layers.isNotEmpty)
+                  ...widget.layers
+                      .map((layer) => _createLayer(layer, options.plugins))
+              ],
+            ),
           ),
         ),
       );

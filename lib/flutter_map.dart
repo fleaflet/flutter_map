@@ -143,14 +143,30 @@ class MapOptions {
   final Crs crs;
   final double zoom;
   final double rotation;
-  // Rotation threshold in degree
+  // Rotation threshold in degree default is 20.0, use 0.0 to immediately win gesture race
+  // map starts to rotate when threshold has been achieved
   final double rotationThreshold;
+  // When rotation wins over pinchZoom and pinchMove then only rotation gesture will take effect
+  final int rotationWinGestures;
+  // Pinch Zoom threshold default is 0.3, use 0.0 to immediately win gesture race
+  // map starts to zoom when threshold has been achieved
+  final double pinchZoomThreshold;
+  // When rotation wins over pinchZoom and pinchMove then only rotation gesture will take effect only by default
+  final int pinchZoomWinGestures;
+  // Pinch Move threshold default is 40.0, use 0.0 to immediately win gesture race (note: this doesn't take any effect on drag)
+  // When pinchZoom wins over rotate and pinchMove then pinchZoom/pinchMove gestures will take effect only by default
+  final double pinchMoveThreshold;
+  // When pinchMove wins over rotate and pinchZoom then pinchZoom/pinchMove gestures will take effect only by default
+  final int pinchMoveWinGestures;
+
   final double minZoom;
   final double maxZoom;
   @deprecated
   final bool debug; // TODO no usage outside of constructor. Marked for removal?
   @Deprecated('use interactiveFlags instead')
   final bool interactive;
+
+  /// see [InteractiveFlag]
   final int interactiveFlags;
   final TapCallback onTap;
   final LongPressCallback onLongPress;
@@ -177,11 +193,23 @@ class MapOptions {
     this.zoom = 13.0,
     this.rotation = 0.0,
     this.rotationThreshold = 20.0,
+    this.rotationWinGestures = InteractiveFlag.pinchZoom |
+        InteractiveFlag.pinchMove |
+        InteractiveFlag.rotate,
+    this.pinchZoomThreshold = 4.0,
+    this.pinchZoomWinGestures = InteractiveFlag.pinchZoom |
+        InteractiveFlag.pinchMove |
+        InteractiveFlag.rotate,
+    this.pinchMoveThreshold = 40.0,
+    this.pinchMoveWinGestures = InteractiveFlag.pinchZoom |
+        InteractiveFlag.pinchMove |
+        InteractiveFlag.rotate,
     this.minZoom,
     this.maxZoom,
     this.debug = false,
     this.interactive,
-    // TODO: when [interactive] is removed change this to [this.interactiveFlags = InteractiveFlags.all] and remove [interactiveFlags] from initializer list
+
+    /// TODO: when [interactive] is removed change this to [this.interactiveFlags = InteractiveFlag.all] and remove [interactiveFlags] from initializer list
     int interactiveFlags,
     this.onTap,
     this.onLongPress,
@@ -195,7 +223,10 @@ class MapOptions {
     this.nePanBoundary,
   })  : interactiveFlags = interactiveFlags ??
             (interactive == false ? InteractiveFlag.none : InteractiveFlag.all),
-        center = center == null ? LatLng(50.5, 30.51) : center {
+        center = center == null ? LatLng(50.5, 30.51) : center,
+        assert(rotationThreshold >= 0.0),
+        assert(pinchZoomThreshold >= 0.0),
+        assert(pinchMoveThreshold >= 0.0) {
     _safeAreaZoom = zoom;
     assert(slideOnBoundaries ||
         !isOutOfBounds(center)); //You cannot start outside pan boundary

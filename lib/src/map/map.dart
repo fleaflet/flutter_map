@@ -162,7 +162,7 @@ class MapState {
       MapEventSource source, String id) {
     if (source == MapEventSource.flingAnimationController) {
       emitMapEvent(
-        MapEventFling(
+        MapEventFlingAnimation(
           center: _lastCenter,
           zoom: _zoom,
           targetCenter: targetCenter,
@@ -205,7 +205,6 @@ class MapState {
   }
 
   void emitMapEvent(MapEvent event) {
-    assert(null != event);
     _mapEventSink.add(event);
   }
 
@@ -221,7 +220,7 @@ class MapState {
   bool rotate(
     double degree, {
     bool hasGesture = false,
-    bool simulateMove = false,
+    bool simulateMove = false, // rebuild layers
     MapEventSource source,
     String id,
   }) {
@@ -231,14 +230,17 @@ class MapState {
       _updateSizeByOriginalSizeAndRotation();
 
       onRotationChanged(_rotation);
-      emitMapEvent(MapEventRotate(
-        id: id,
-        currentRotation: oldRotation,
-        targetRotation: _rotation,
-        center: _lastCenter,
-        zoom: _zoom,
-        source: source,
-      ));
+
+      emitMapEvent(
+        MapEventRotate(
+          id: id,
+          currentRotation: oldRotation,
+          targetRotation: _rotation,
+          center: _lastCenter,
+          zoom: _zoom,
+          source: source,
+        ),
+      );
 
       if (!hasGesture || simulateMove) {
         // make sure layers rebuild correctly if this method was called from MapController

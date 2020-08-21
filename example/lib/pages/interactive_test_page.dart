@@ -19,8 +19,9 @@ class InteractiveTestPage extends StatefulWidget {
 class InteractiveTestPageState extends State<InteractiveTestPage> {
   MapController mapController;
 
-  bool move = false;
-  bool fling = false;
+  bool drag = false;
+  bool flingAnimation = false;
+  bool pinchMove = true;
   bool pinchZoom = true;
   bool doubleTapZoom = true;
   bool rotate = false;
@@ -33,11 +34,14 @@ class InteractiveTestPageState extends State<InteractiveTestPage> {
 
   int _collectInteractiveFlags() {
     var flags = InteractiveFlag.none;
-    if (move) {
-      flags = flags | InteractiveFlag.move; // use |= operator
+    if (drag) {
+      flags = flags | InteractiveFlag.drag; // use |= operator
     }
-    if (fling) {
-      flags |= InteractiveFlag.fling;
+    if (flingAnimation) {
+      flags |= InteractiveFlag.flingAnimation;
+    }
+    if (pinchMove) {
+      flags |= InteractiveFlag.pinchMove;
     }
     if (pinchZoom) {
       flags |= InteractiveFlag.pinchZoom;
@@ -54,16 +58,6 @@ class InteractiveTestPageState extends State<InteractiveTestPage> {
 
   @override
   Widget build(BuildContext context) {
-    var circleMarkers = <CircleMarker>[
-      CircleMarker(
-          point: LatLng(51.5, -0.09),
-          color: Colors.blue.withOpacity(0.7),
-          borderStrokeWidth: 2,
-          useRadiusInMeter: true,
-          radius: 2000 // 2000 meters | 2 km
-          ),
-    ];
-
     return Scaffold(
       appBar: AppBar(title: Text('Test out Interactive flags!')),
       drawer: buildDrawer(context, InteractiveTestPage.route),
@@ -75,29 +69,29 @@ class InteractiveTestPageState extends State<InteractiveTestPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 MaterialButton(
-                  child: Text('Move'),
-                  color: move ? Colors.greenAccent : Colors.redAccent,
+                  child: Text('Drag'),
+                  color: drag ? Colors.greenAccent : Colors.redAccent,
                   onPressed: () {
                     setState(() {
-                      move = !move;
+                      drag = !drag;
                     });
                   },
                 ),
                 MaterialButton(
                   child: Text('Fling'),
-                  color: fling ? Colors.greenAccent : Colors.redAccent,
+                  color: flingAnimation ? Colors.greenAccent : Colors.redAccent,
                   onPressed: () {
                     setState(() {
-                      fling = !fling;
+                      flingAnimation = !flingAnimation;
                     });
                   },
                 ),
                 MaterialButton(
-                  child: Text('Pinch zoom'),
-                  color: pinchZoom ? Colors.greenAccent : Colors.redAccent,
+                  child: Text('Pinch move'),
+                  color: pinchMove ? Colors.greenAccent : Colors.redAccent,
                   onPressed: () {
                     setState(() {
-                      pinchZoom = !pinchZoom;
+                      pinchMove = !pinchMove;
                     });
                   },
                 ),
@@ -125,9 +119,13 @@ class InteractiveTestPageState extends State<InteractiveTestPage> {
                   },
                 ),
                 MaterialButton(
-                  color: Colors.grey,
-                  child: Text('Skew'),
-                  onPressed: null,
+                  child: Text('Pinch zoom'),
+                  color: pinchZoom ? Colors.greenAccent : Colors.redAccent,
+                  onPressed: () {
+                    setState(() {
+                      pinchZoom = !pinchZoom;
+                    });
+                  },
                 ),
               ],
             ),
@@ -171,10 +169,10 @@ class InteractiveTestPageState extends State<InteractiveTestPage> {
                 ),
                 layers: [
                   TileLayerOptions(
-                      urlTemplate:
-                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      subdomains: ['a', 'b', 'c']),
-                  CircleLayerOptions(circles: circleMarkers),
+                    urlTemplate:
+                        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    subdomains: ['a', 'b', 'c'],
+                  ),
                 ],
               ),
             ),
@@ -238,16 +236,6 @@ class InteractiveTestPageAlternativeState extends State<InteractiveTestPage> {
 
   @override
   Widget build(BuildContext context) {
-    var circleMarkers = <CircleMarker>[
-      CircleMarker(
-          point: LatLng(51.5, -0.09),
-          color: Colors.blue.withOpacity(0.7),
-          borderStrokeWidth: 2,
-          useRadiusInMeter: true,
-          radius: 2000 // 2000 meters | 2 km
-          ),
-    ];
-
     return Scaffold(
       appBar: AppBar(title: Text('Test out Interactive flags!')),
       drawer: buildDrawer(context, InteractiveTestPage.route),
@@ -259,36 +247,37 @@ class InteractiveTestPageAlternativeState extends State<InteractiveTestPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 MaterialButton(
-                  child: Text('Move'),
-                  color: InteractiveFlag.hasFlag(flags, InteractiveFlag.move)
+                  child: Text('Drag'),
+                  color: InteractiveFlag.hasFlag(flags, InteractiveFlag.drag)
                       ? Colors.greenAccent
                       : Colors.redAccent,
                   onPressed: () {
                     setState(() {
-                      updateFlags(InteractiveFlag.move);
+                      updateFlags(InteractiveFlag.drag);
                     });
                   },
                 ),
                 MaterialButton(
                   child: Text('Fling'),
-                  color: InteractiveFlag.hasFlag(flags, InteractiveFlag.fling)
+                  color: InteractiveFlag.hasFlag(
+                          flags, InteractiveFlag.flingAnimation)
                       ? Colors.greenAccent
                       : Colors.redAccent,
                   onPressed: () {
                     setState(() {
-                      updateFlags(InteractiveFlag.fling);
+                      updateFlags(InteractiveFlag.flingAnimation);
                     });
                   },
                 ),
                 MaterialButton(
-                  child: Text('Pinch zoom'),
+                  child: Text('Pinch move'),
                   color:
-                      InteractiveFlag.hasFlag(flags, InteractiveFlag.pinchZoom)
+                      InteractiveFlag.hasFlag(flags, InteractiveFlag.pinchMove)
                           ? Colors.greenAccent
                           : Colors.redAccent,
                   onPressed: () {
                     setState(() {
-                      updateFlags(InteractiveFlag.pinchZoom);
+                      updateFlags(InteractiveFlag.pinchMove);
                     });
                   },
                 ),
@@ -321,9 +310,16 @@ class InteractiveTestPageAlternativeState extends State<InteractiveTestPage> {
                   },
                 ),
                 MaterialButton(
-                  color: Colors.grey,
-                  child: Text('Skew'),
-                  onPressed: null,
+                  child: Text('Pinch zoom'),
+                  color:
+                      InteractiveFlag.hasFlag(flags, InteractiveFlag.pinchZoom)
+                          ? Colors.greenAccent
+                          : Colors.redAccent,
+                  onPressed: () {
+                    setState(() {
+                      updateFlags(InteractiveFlag.pinchZoom);
+                    });
+                  },
                 ),
               ],
             ),
@@ -348,10 +344,10 @@ class InteractiveTestPageAlternativeState extends State<InteractiveTestPage> {
                 ),
                 layers: [
                   TileLayerOptions(
-                      urlTemplate:
-                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      subdomains: ['a', 'b', 'c']),
-                  CircleLayerOptions(circles: circleMarkers),
+                    urlTemplate:
+                        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    subdomains: ['a', 'b', 'c'],
+                  ),
                 ],
               ),
             ),
