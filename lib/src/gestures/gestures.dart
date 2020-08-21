@@ -26,10 +26,10 @@ abstract class MapGestureMixin extends State<FlutterMap>
   var _pinchMoveStarted = false;
   var _dragStarted = false;
 
-  var _lastRotation = 0.0;
-  // normalize ScaleUpdateDetails.scale with down/up-scale when zoom starts
-  var _scaleCorrector = 0.0;
-  double _lastMapZoom;
+  // normalize ScaleUpdateDetails.scale back to 1.0 when zoom starts
+  double _scaleCorrector;
+  double _lastRotation;
+  double _lastScale;
   Offset _lastFocalLocal;
 
   LatLng _mapCenterStart;
@@ -94,6 +94,17 @@ abstract class MapGestureMixin extends State<FlutterMap>
     }
   }
 
+  void _yieldGestureWinner(int gestureWinner, bool resetStartVariables) {
+    _gestureWinner = gestureWinner;
+
+    if (resetStartVariables) {
+      // note: here we could reset to current values instead of last values
+      _scaleCorrector = 1.0 - _lastScale;
+      _focalStartLocal = _lastFocalLocal;
+      _focalStartGlobal = _offsetToCrs(_lastFocalLocal, false);
+    }
+  }
+
   int _getGestureFlags([int gesture]) {
     gesture ??= _gestureWinner;
 
@@ -133,14 +144,15 @@ abstract class MapGestureMixin extends State<FlutterMap>
   void handleScaleStart(ScaleStartDetails details) {
     _dragMode = _pointerCounter == 1;
 
-    var eventSource =
-        _dragMode ? MapEventSource.dragStart : MapEventSource.pinchStart;
+    final eventSource = _dragMode
+        ? MapEventSource.dragStart
+        : MapEventSource.multiFingerGestureStart;
     closeFlingController(eventSource);
     closeDoubleTapController(eventSource);
 
     _gestureWinner = InteractiveFlag.none;
 
-    _lastMapZoom = _mapZoomStart = mapState.zoom;
+    _mapZoomStart = mapState.zoom;
     _mapCenterStart = mapState.center;
 
     _dragStarted = false;
@@ -150,24 +162,12 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
     _lastRotation = 0.0;
     _scaleCorrector = 0.0;
+    _lastScale = 1.0;
 
     // determine the focal point within the widget
     final focalOffset = details.localFocalPoint;
     _lastFocalLocal = _focalStartLocal = focalOffset;
     _focalStartGlobal = _offsetToCrs(focalOffset, false);
-  }
-
-  void yieldGestureWinner(
-      int gestureWinner, bool resetStartVariables, double currScale) {
-    _gestureWinner = gestureWinner;
-
-    if (resetStartVariables) {
-      if (null != currScale) {
-        _scaleCorrector = currScale - 1.0;
-      }
-      _mapZoomStart = _lastMapZoom;
-      _focalStartLocal = _lastFocalLocal;
-    }
   }
 
   void handleScaleUpdate(ScaleUpdateDetails details) {
@@ -176,11 +176,13 @@ abstract class MapGestureMixin extends State<FlutterMap>
       return;
     }
 
-    var eventSource =
-        _dragMode ? MapEventSource.onDrag : MapEventSource.onPinch;
+    final eventSource =
+        _dragMode ? MapEventSource.onDrag : MapEventSource.onMultiFinger;
 
     final flags = options.interactiveFlags;
     final focalOffset = details.localFocalPoint;
+
+    final currentRotation = radianToDeg(details.rotation);
     _flingOffset = _focalStartLocal - focalOffset;
 
     if (_dragMode) {
@@ -219,58 +221,73 @@ abstract class MapGestureMixin extends State<FlutterMap>
       final hasIntRotate =
           InteractiveFlag.hasFlag(flags, InteractiveFlag.rotate);
 
-      if (!hasIntPinchMove && !hasIntPinchZoom && !hasIntRotate) {
-        // TODO értékek kimentése
-        return;
-      }
-
-      var currentRotation = radianToDeg(details.rotation);
-
-      if (_gestureWinner == InteractiveFlag.none) {
-        if (hasIntPinchZoom &&
-            (_getZoomForScale(_mapZoomStart, details.scale) - _mapZoomStart)
-                    .abs() >=
-                options.pinchZoomThreshold) {
-          print('ZOOM won.');
-          yieldGestureWinner(InteractiveFlag.pinchZoom, false, details.scale);
-        } else if (hasIntRotate &&
-            currentRotation.abs() >= options.rotationThreshold) {
-          print('Rotate won.');
-          yieldGestureWinner(InteractiveFlag.rotate, false, details.scale);
-        } else if (hasIntPinchMove &&
-            _flingOffset.distance >= options.pinchMoveThreshold) {
-          print('Move won.');
-          yieldGestureWinner(InteractiveFlag.pinchMove, false, details.scale);
+      if (hasIntPinchMove || hasIntPinchZoom || hasIntRotate) {
+        if (_gestureWinner == InteractiveFlag.none) {
+          if (hasIntPinchZoom &&
+              (_getZoomForScale(_mapZoomStart, details.scale) - _mapZoomStart)
+                      .abs() >=
+                  options.pinchZoomThreshold) {
+            print('ZOOM won.');
+            _yieldGestureWinner(InteractiveFlag.pinchZoom, true);
+          } else if (hasIntRotate &&
+              currentRotation.abs() >= options.rotationThreshold) {
+            print('Rotate won.');
+            _yieldGestureWinner(InteractiveFlag.rotate, true);
+          } else if (hasIntPinchMove &&
+              _flingOffset.distance >= options.pinchMoveThreshold) {
+            print('Move won.');
+            _yieldGestureWinner(InteractiveFlag.pinchMove, true);
+          }
         }
-      }
 
-      if (_gestureWinner != InteractiveFlag.none) {
-        final gestures = _getGestureFlags();
+        if (_gestureWinner != InteractiveFlag.none) {
+          final gestures = _getGestureFlags();
 
-        final hasGesturePinchMove =
-            InteractiveFlag.hasFlag(gestures, InteractiveFlag.pinchMove);
-        final hasGesturePinchZoom =
-            InteractiveFlag.hasFlag(gestures, InteractiveFlag.pinchZoom);
-        final hasGestureRotate =
-            InteractiveFlag.hasFlag(gestures, InteractiveFlag.rotate);
+          final hasGesturePinchMove =
+              InteractiveFlag.hasFlag(gestures, InteractiveFlag.pinchMove);
+          final hasGesturePinchZoom =
+              InteractiveFlag.hasFlag(gestures, InteractiveFlag.pinchZoom);
+          final hasGestureRotate =
+              InteractiveFlag.hasFlag(gestures, InteractiveFlag.rotate);
 
-        final hasMove = hasIntPinchMove && hasGesturePinchMove;
-        final hasZoom = hasIntPinchZoom && hasGesturePinchZoom;
-        final hasRotate = hasIntRotate && hasGestureRotate;
+          final hasMove = hasIntPinchMove && hasGesturePinchMove;
+          final hasZoom = hasIntPinchZoom && hasGesturePinchZoom;
+          final hasRotate = hasIntRotate && hasGestureRotate;
 
-        var mapMoved = false;
-        if (hasMove || hasZoom) {
-          double newZoom;
-          if (hasZoom) {
-            newZoom = _getZoomForScale(
-                _mapZoomStart, details.scale - _scaleCorrector);
+          var mapMoved = false;
+          if (hasMove || hasZoom) {
+            double newZoom;
+            if (hasZoom) {
+              newZoom = _getZoomForScale(
+                  _mapZoomStart, details.scale + _scaleCorrector);
 
-            if (!_pinchZoomStarted) {
-              if (newZoom != _mapZoomStart) {
-                _pinchZoomStarted = true;
+              if (!_pinchZoomStarted) {
+                if (newZoom != _mapZoomStart) {
+                  _pinchZoomStarted = true;
 
-                if (!_pinchMoveStarted) {
-                  // emit MoveStart event only if pinchMove hasn't started
+                  if (!_pinchMoveStarted) {
+                    // emit MoveStart event only if pinchMove hasn't started
+                    mapState.emitMapEvent(
+                      MapEventMoveStart(
+                        center: mapState.center,
+                        zoom: mapState.zoom,
+                        source: eventSource,
+                      ),
+                    );
+                  }
+                }
+              }
+            } else {
+              newZoom = mapState.zoom;
+            }
+
+            LatLng newCenter;
+            if (hasMove) {
+              if (!_pinchMoveStarted && _focalStartLocal != focalOffset) {
+                _pinchMoveStarted = true;
+
+                if (!_pinchZoomStarted) {
+                  // emit MoveStart event only if pinchZoom hasn't started
                   mapState.emitMapEvent(
                     MapEventMoveStart(
                       center: mapState.center,
@@ -280,80 +297,67 @@ abstract class MapGestureMixin extends State<FlutterMap>
                   );
                 }
               }
-            }
-          } else {
-            newZoom = mapState.zoom;
-          }
 
-          LatLng newCenter;
-          if (hasMove) {
-            if (!_pinchMoveStarted && _focalStartLocal != focalOffset) {
-              _pinchMoveStarted = true;
+              if (_pinchMoveStarted) {
+                final focalStartPt =
+                    mapState.project(_focalStartGlobal, newZoom);
+                final newCenterPt = focalStartPt -
+                    _offsetToPoint(focalOffset) +
+                    (mapState.size / 2.0);
 
-              if (!_pinchZoomStarted) {
-                // emit MoveStart event only if pinchZoom hasn't started
-                mapState.emitMapEvent(
-                  MapEventMoveStart(
-                    center: mapState.center,
-                    zoom: mapState.zoom,
-                    source: eventSource,
-                  ),
-                );
+                newCenter = mapState.unproject(newCenterPt, newZoom);
+              } else {
+                newCenter = mapState.center;
               }
-            }
-
-            if (_pinchMoveStarted) {
-              final focalStartPt = mapState.project(_focalStartGlobal, newZoom);
-              final newCenterPt = focalStartPt -
-                  _offsetToPoint(focalOffset) +
-                  (mapState.size / 2.0);
-
-              newCenter = mapState.unproject(newCenterPt, newZoom);
             } else {
               newCenter = mapState.center;
             }
-          } else {
-            newCenter = mapState.center;
-          }
 
-          mapMoved = mapState.move(
-            newCenter,
-            newZoom,
-            hasGesture: true,
-            source: eventSource,
-          );
-        }
-
-        var rotationDiff = currentRotation - _lastRotation;
-        _lastRotation = currentRotation;
-
-        if (hasRotate) {
-          if (!_rotationStarted && currentRotation != 0.0) {
-            _rotationStarted = true;
-            mapState.emitMapEvent(
-              MapEventRotateStart(
-                center: mapState.center,
-                zoom: mapState.zoom,
-                source: eventSource,
-              ),
-            );
-          }
-
-          if (_rotationStarted) {
-            mapState.rotate(
-              mapState.rotation + rotationDiff,
+            mapMoved = mapState.move(
+              newCenter,
+              newZoom,
               hasGesture: true,
-              simulateMove: !mapMoved,
               source: eventSource,
             );
+          }
+
+          var rotationDiff = currentRotation - _lastRotation;
+
+          if (hasRotate) {
+            if (!_rotationStarted && currentRotation != 0.0) {
+              _rotationStarted = true;
+              mapState.emitMapEvent(
+                MapEventRotateStart(
+                  center: mapState.center,
+                  zoom: mapState.zoom,
+                  source: eventSource,
+                ),
+              );
+            }
+
+            if (_rotationStarted) {
+              mapState.rotate(
+                mapState.rotation + rotationDiff,
+                hasGesture: true,
+                simulateMove: !mapMoved,
+                source: eventSource,
+              );
+            }
           }
         }
       }
     }
+
+    _lastRotation = currentRotation;
+    _lastScale = details.scale;
+    _lastFocalLocal = focalOffset;
   }
 
   void handleScaleEnd(ScaleEndDetails details) {
     _resetDoubleTapHold();
+
+    final eventSource =
+        _dragMode ? MapEventSource.dragEnd : MapEventSource.multiFingerEnd;
 
     if (_rotationStarted) {
       _rotationStarted = false;
@@ -361,7 +365,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
         MapEventRotateEnd(
           center: mapState.center,
           zoom: mapState.zoom,
-          source: MapEventSource.dragEnd,
+          source: eventSource,
         ),
       );
     }
@@ -372,7 +376,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
         MapEventMoveEnd(
           center: mapState.center,
           zoom: mapState.zoom,
-          source: MapEventSource.dragEnd,
+          source: eventSource,
         ),
       );
     }
@@ -386,7 +390,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
           MapEventFlingAnimationNotStarted(
             center: mapState.center,
             zoom: mapState.zoom,
-            source: MapEventSource.dragEnd,
+            source: eventSource,
           ),
         );
       }

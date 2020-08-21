@@ -143,17 +143,17 @@ class MapOptions {
   final Crs crs;
   final double zoom;
   final double rotation;
-  // Rotation threshold in degree default is 20.0, use 0.0 to immediately win gesture race
+  // Rotation threshold in degree default is 20.0
   // map starts to rotate when threshold has been achieved
   final double rotationThreshold;
   // When rotation wins over pinchZoom and pinchMove then only rotation gesture will take effect
   final int rotationWinGestures;
-  // Pinch Zoom threshold default is 0.3, use 0.0 to immediately win gesture race
+  // Pinch Zoom threshold default is 0.5
   // map starts to zoom when threshold has been achieved
   final double pinchZoomThreshold;
   // When rotation wins over pinchZoom and pinchMove then only rotation gesture will take effect only by default
   final int pinchZoomWinGestures;
-  // Pinch Move threshold default is 40.0, use 0.0 to immediately win gesture race (note: this doesn't take any effect on drag)
+  // Pinch Move threshold default is 40.0 (note: this doesn't take any effect on drag)
   // When pinchZoom wins over rotate and pinchMove then pinchZoom/pinchMove gestures will take effect only by default
   final double pinchMoveThreshold;
   // When pinchMove wins over rotate and pinchZoom then pinchZoom/pinchMove gestures will take effect only by default
@@ -193,17 +193,13 @@ class MapOptions {
     this.zoom = 13.0,
     this.rotation = 0.0,
     this.rotationThreshold = 20.0,
-    this.rotationWinGestures = InteractiveFlag.pinchZoom |
-        InteractiveFlag.pinchMove |
-        InteractiveFlag.rotate,
-    this.pinchZoomThreshold = 4.0,
-    this.pinchZoomWinGestures = InteractiveFlag.pinchZoom |
-        InteractiveFlag.pinchMove |
-        InteractiveFlag.rotate,
+    this.rotationWinGestures = InteractiveFlag.rotate,
+    this.pinchZoomThreshold = 0.5,
+    this.pinchZoomWinGestures =
+        InteractiveFlag.pinchZoom | InteractiveFlag.pinchMove,
     this.pinchMoveThreshold = 40.0,
-    this.pinchMoveWinGestures = InteractiveFlag.pinchZoom |
-        InteractiveFlag.pinchMove |
-        InteractiveFlag.rotate,
+    this.pinchMoveWinGestures =
+        InteractiveFlag.pinchZoom | InteractiveFlag.pinchMove,
     this.minZoom,
     this.maxZoom,
     this.debug = false,
