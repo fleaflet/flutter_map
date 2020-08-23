@@ -219,7 +219,7 @@ class MapOptions {
     this.nePanBoundary,
   })  : interactiveFlags = interactiveFlags ??
             (interactive == false ? InteractiveFlag.none : InteractiveFlag.all),
-        center = center == null ? LatLng(50.5, 30.51) : center,
+        center = center ?? LatLng(50.5, 30.51),
         assert(rotationThreshold >= 0.0),
         assert(pinchZoomThreshold >= 0.0),
         assert(pinchMoveThreshold >= 0.0) {

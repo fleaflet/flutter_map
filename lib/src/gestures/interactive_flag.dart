@@ -1,7 +1,7 @@
 /// Use [InteractiveFlag] to disable / enable certain events
 /// Use [InteractiveFlag.all] to enable all events, use [InteractiveFlag.none] to disable all events
 ///
-/// If you want for example use drag and rotate interactions you have two options
+/// If you want mix interactions for example drag and rotate interactions then you have two options
 /// A.) add you own flags: [InteractiveFlag.drag] | [InteractiveFlag.rotate]
 /// B.) remove unnecessary flags from all: [InteractiveFlag.all] & ~[InteractiveFlag.flingAnimation] & ~[InteractiveFlag.pinchMove] & ~[InteractiveFlag.pinchZoom] & ~[InteractiveFlag.doubleTapZoom]
 class InteractiveFlag {
@@ -28,7 +28,8 @@ class InteractiveFlag {
   static const int rotate = 1 << 5;
 
   /// Returns `true` if [leftFlags] has at least one member in [rightFlags] (intersection)
-  /// for example [leftFlags]= [InteractiveFlag.drag] | [InteractiveFlag.rotate] and [rightFlags]= [InteractiveFlag.rotate] | [InteractiveFlag.flingAnimation] will return true because both have [InteractiveFlag.rotate]
+  /// for example [leftFlags]= [InteractiveFlag.drag] | [InteractiveFlag.rotate] and [rightFlags]= [InteractiveFlag.rotate] | [InteractiveFlag.flingAnimation]
+  /// returns true because both have [InteractiveFlag.rotate] flag
   static bool hasFlag(int leftFlags, int rightFlags) {
     return leftFlags & rightFlags != 0;
   }
