@@ -8,6 +8,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/geo/crs/crs.dart';
 import 'package:flutter_map/src/gestures/interactive_flag.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
+import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/plugins/plugin.dart';
@@ -18,6 +19,7 @@ export 'package:flutter_map/src/geo/crs/crs.dart';
 export 'package:flutter_map/src/geo/latlng_bounds.dart';
 export 'package:flutter_map/src/gestures/interactive_flag.dart';
 export 'package:flutter_map/src/gestures/map_events.dart';
+export 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
 export 'package:flutter_map/src/layer/circle_layer.dart';
 export 'package:flutter_map/src/layer/group_layer.dart';
 export 'package:flutter_map/src/layer/layer.dart';
@@ -193,13 +195,13 @@ class MapOptions {
     this.zoom = 13.0,
     this.rotation = 0.0,
     this.rotationThreshold = 20.0,
-    this.rotationWinGestures = InteractiveFlag.rotate,
+    this.rotationWinGestures = MultiFingerGesture.rotate,
     this.pinchZoomThreshold = 0.5,
     this.pinchZoomWinGestures =
-        InteractiveFlag.pinchZoom | InteractiveFlag.pinchMove,
+        MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
     this.pinchMoveThreshold = 40.0,
     this.pinchMoveWinGestures =
-        InteractiveFlag.pinchZoom | InteractiveFlag.pinchMove,
+        MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
     this.minZoom,
     this.maxZoom,
     this.debug = false,

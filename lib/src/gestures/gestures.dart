@@ -15,7 +15,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
   static const double _kMinFlingVelocity = 800.0;
 
   var _dragMode = false;
-  var _gestureWinner = InteractiveFlag.none;
+  var _gestureWinner = MultiFingerGesture.none;
 
   var _pointerCounter = 0;
   void savePointer(PointerEvent event) => ++_pointerCounter;
@@ -72,8 +72,9 @@ abstract class MapGestureMixin extends State<FlutterMap>
     final oldFlags = oldWidget.options.interactiveFlags;
     final flags = options.interactiveFlags;
 
-    final oldGestures = _getGestureFlags(mapOptions: oldWidget.options);
-    final gestures = _getGestureFlags();
+    final oldGestures =
+        _getMultiFingerGestureFlags(mapOptions: oldWidget.options);
+    final gestures = _getMultiFingerGestureFlags();
 
     if (flags != oldFlags || gestures != oldGestures) {
       var emitMapEventMoveEnd = false;
@@ -87,11 +88,12 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
       if (_rotationStarted &&
           !(InteractiveFlag.hasFlag(flags, InteractiveFlag.rotate) &&
-              InteractiveFlag.hasFlag(gestures, InteractiveFlag.rotate))) {
+              MultiFingerGesture.hasFlag(
+                  gestures, MultiFingerGesture.rotate))) {
         _rotationStarted = false;
 
-        if (_gestureWinner == InteractiveFlag.rotate) {
-          _gestureWinner = InteractiveFlag.none;
+        if (_gestureWinner == MultiFingerGesture.rotate) {
+          _gestureWinner = MultiFingerGesture.none;
         }
 
         mapState.emitMapEvent(
@@ -105,23 +107,25 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
       if (_pinchZoomStarted &&
           !(InteractiveFlag.hasFlag(flags, InteractiveFlag.pinchZoom) &&
-              InteractiveFlag.hasFlag(gestures, InteractiveFlag.pinchZoom))) {
+              MultiFingerGesture.hasFlag(
+                  gestures, MultiFingerGesture.pinchZoom))) {
         _pinchZoomStarted = false;
         emitMapEventMoveEnd = true;
 
-        if (_gestureWinner == InteractiveFlag.pinchZoom) {
-          _gestureWinner = InteractiveFlag.none;
+        if (_gestureWinner == MultiFingerGesture.pinchZoom) {
+          _gestureWinner = MultiFingerGesture.none;
         }
       }
 
       if (_pinchMoveStarted &&
           !(InteractiveFlag.hasFlag(flags, InteractiveFlag.pinchMove) &&
-              InteractiveFlag.hasFlag(gestures, InteractiveFlag.pinchMove))) {
+              MultiFingerGesture.hasFlag(
+                  gestures, MultiFingerGesture.pinchMove))) {
         _pinchMoveStarted = false;
         emitMapEventMoveEnd = true;
 
-        if (_gestureWinner == InteractiveFlag.pinchMove) {
-          _gestureWinner = InteractiveFlag.none;
+        if (_gestureWinner == MultiFingerGesture.pinchMove) {
+          _gestureWinner = MultiFingerGesture.none;
         }
       }
 
@@ -143,7 +147,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
     }
   }
 
-  void _yieldGestureWinner(int gestureWinner, bool resetStartVariables) {
+  void _yieldMultiFingerGestureWinner(
+      int gestureWinner, bool resetStartVariables) {
     _gestureWinner = gestureWinner;
 
     if (resetStartVariables) {
@@ -154,19 +159,19 @@ abstract class MapGestureMixin extends State<FlutterMap>
     }
   }
 
-  int _getGestureFlags({int gesture, MapOptions mapOptions}) {
+  int _getMultiFingerGestureFlags({int gesture, MapOptions mapOptions}) {
     gesture ??= _gestureWinner;
     mapOptions ??= options;
 
-    if (gesture == InteractiveFlag.pinchZoom) {
+    if (gesture == MultiFingerGesture.pinchZoom) {
       return mapOptions.pinchZoomWinGestures;
-    } else if (gesture == InteractiveFlag.rotate) {
+    } else if (gesture == MultiFingerGesture.rotate) {
       return mapOptions.rotationWinGestures;
-    } else if (gesture == InteractiveFlag.pinchMove) {
+    } else if (gesture == MultiFingerGesture.pinchMove) {
       return mapOptions.pinchMoveWinGestures;
     }
 
-    return InteractiveFlag.none;
+    return MultiFingerGesture.none;
   }
 
   void closeFlingController(MapEventSource source) {
@@ -200,7 +205,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
     closeFlingController(eventSource);
     closeDoubleTapController(eventSource);
 
-    _gestureWinner = InteractiveFlag.none;
+    _gestureWinner = MultiFingerGesture.none;
 
     _mapZoomStart = mapState.zoom;
     _mapCenterStart = mapState.center;
@@ -272,33 +277,33 @@ abstract class MapGestureMixin extends State<FlutterMap>
           InteractiveFlag.hasFlag(flags, InteractiveFlag.rotate);
 
       if (hasIntPinchMove || hasIntPinchZoom || hasIntRotate) {
-        if (_gestureWinner == InteractiveFlag.none) {
+        if (_gestureWinner == MultiFingerGesture.none) {
           if (hasIntPinchZoom &&
               (_getZoomForScale(_mapZoomStart, details.scale) - _mapZoomStart)
                       .abs() >=
                   options.pinchZoomThreshold) {
             print('ZOOM won.');
-            _yieldGestureWinner(InteractiveFlag.pinchZoom, true);
+            _yieldMultiFingerGestureWinner(MultiFingerGesture.pinchZoom, true);
           } else if (hasIntRotate &&
               currentRotation.abs() >= options.rotationThreshold) {
             print('Rotate won.');
-            _yieldGestureWinner(InteractiveFlag.rotate, true);
+            _yieldMultiFingerGestureWinner(MultiFingerGesture.rotate, true);
           } else if (hasIntPinchMove &&
               _flingOffset.distance >= options.pinchMoveThreshold) {
             print('Move won.');
-            _yieldGestureWinner(InteractiveFlag.pinchMove, true);
+            _yieldMultiFingerGestureWinner(MultiFingerGesture.pinchMove, true);
           }
         }
 
-        if (_gestureWinner != InteractiveFlag.none) {
-          final gestures = _getGestureFlags();
+        if (_gestureWinner != MultiFingerGesture.none) {
+          final gestures = _getMultiFingerGestureFlags();
 
-          final hasGesturePinchMove =
-              InteractiveFlag.hasFlag(gestures, InteractiveFlag.pinchMove);
-          final hasGesturePinchZoom =
-              InteractiveFlag.hasFlag(gestures, InteractiveFlag.pinchZoom);
+          final hasGesturePinchMove = MultiFingerGesture.hasFlag(
+              gestures, MultiFingerGesture.pinchMove);
+          final hasGesturePinchZoom = MultiFingerGesture.hasFlag(
+              gestures, MultiFingerGesture.pinchZoom);
           final hasGestureRotate =
-              InteractiveFlag.hasFlag(gestures, InteractiveFlag.rotate);
+              MultiFingerGesture.hasFlag(gestures, MultiFingerGesture.rotate);
 
           final hasMove = hasIntPinchMove && hasGesturePinchMove;
           final hasZoom = hasIntPinchZoom && hasGesturePinchZoom;
