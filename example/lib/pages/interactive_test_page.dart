@@ -152,7 +152,10 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                   builder:
                       (BuildContext context, AsyncSnapshot<MapEvent> snapshot) {
                     if (!snapshot.hasData) {
-                      return Text('No MapEvent fired');
+                      return Text(
+                        'Current event: none\nSource: none',
+                        textAlign: TextAlign.center,
+                      );
                     }
 
                     return Text(

@@ -60,8 +60,6 @@ class HomePage extends StatelessWidget {
               child: FlutterMap(
                 options: MapOptions(
                   center: LatLng(51.5, -0.09),
-                  debugMultiFingerGestureWinner: true,
-                  enableMultiFingerGestureRace: true,
                   zoom: 5.0,
                 ),
                 layers: [
@@ -69,7 +67,6 @@ class HomePage extends StatelessWidget {
                     urlTemplate:
                         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     subdomains: ['a', 'b', 'c'],
-
                     // For example purposes. It is recommended to use
                     // TileProvider with a caching and retry strategy, like
                     // NetworkTileProvider or CachedNetworkTileProvider

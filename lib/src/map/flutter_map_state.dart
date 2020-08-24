@@ -11,7 +11,6 @@ import 'package:flutter_map/src/map/map_state_widget.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 
 class FlutterMapState extends MapGestureMixin {
-  final Key _positionedTapDetectorKey = GlobalKey();
   final MapControllerImpl mapController;
   final List<StreamGroup<Null>> groups = <StreamGroup<Null>>[];
   final _positionedTapController = PositionedTapController();
@@ -74,64 +73,55 @@ class FlutterMapState extends MapGestureMixin {
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
       mapState.setOriginalSize(constraints.maxWidth, constraints.maxHeight);
+      var size = mapState.size;
 
-      Widget mapRoot = Listener(
-        onPointerDown: savePointer,
-        onPointerCancel: removePointer,
-        onPointerUp: removePointer,
-        child: PositionedTapDetector(
-          key: _positionedTapDetectorKey,
-          controller: _positionedTapController,
-          onTap: handleTap,
-          onLongPress: handleLongPress,
-          onDoubleTap: handleDoubleTap,
-          child: GestureDetector(
-            onScaleStart: handleScaleStart,
-            onScaleUpdate: handleScaleUpdate,
-            onScaleEnd: handleScaleEnd,
-            onTap: _positionedTapController.onTap,
-            onLongPress: _positionedTapController.onLongPress,
-            onTapDown: _positionedTapController.onTapDown,
-            onTapUp: handleOnTapUp,
-            child: Stack(
-              children: [
-                if (widget.children != null && widget.children.isNotEmpty)
-                  ...widget.children,
-                if (widget.layers != null && widget.layers.isNotEmpty)
-                  ...widget.layers
-                      .map((layer) => _createLayer(layer, options.plugins))
-              ],
+      return MapStateInheritedWidget(
+        mapState: mapState,
+        child: ClipRect(
+          // By using an OverflowBox with the enlarged drawing area all the layers
+          // act as if the area really would be that big. So no changes in any layer
+          // logic is necessary for the rotation
+          child: OverflowBox(
+            minWidth: size.x,
+            maxWidth: size.x,
+            minHeight: size.y,
+            maxHeight: size.y,
+            child: Transform.rotate(
+              angle: mapState.rotationRad,
+              child: Listener(
+                onPointerDown: savePointer,
+                onPointerCancel: removePointer,
+                onPointerUp: removePointer,
+                child: PositionedTapDetector(
+                  controller: _positionedTapController,
+                  onTap: handleTap,
+                  onLongPress: handleLongPress,
+                  onDoubleTap: handleDoubleTap,
+                  child: GestureDetector(
+                    onScaleStart: handleScaleStart,
+                    onScaleUpdate: handleScaleUpdate,
+                    onScaleEnd: handleScaleEnd,
+                    onTap: _positionedTapController.onTap,
+                    onLongPress: _positionedTapController.onLongPress,
+                    onTapDown: _positionedTapController.onTapDown,
+                    onTapUp: handleOnTapUp,
+                    child: Stack(
+                      children: [
+                        if (widget.children != null &&
+                            widget.children.isNotEmpty)
+                          ...widget.children,
+                        if (widget.layers != null && widget.layers.isNotEmpty)
+                          ...widget.layers.map(
+                              (layer) => _createLayer(layer, options.plugins))
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ),
       );
-
-      if (mapState.rotation != 0.0) {
-        var size = mapState.size;
-        // By using an OverflowBox with the enlarged drawing area all the layers
-        // act as if the area really would be that big. So no changes in any layer
-        // logic is necessary for the rotation
-        return MapStateInheritedWidget(
-          mapState: mapState,
-          child: ClipRect(
-            child: OverflowBox(
-              minWidth: size.x,
-              maxWidth: size.x,
-              minHeight: size.y,
-              maxHeight: size.y,
-              child: Transform.rotate(
-                angle: mapState.rotationRad,
-                child: mapRoot,
-              ),
-            ),
-          ),
-        );
-      } else {
-        return MapStateInheritedWidget(
-          mapState: mapState,
-          child: mapRoot,
-        );
-      }
     });
   }
 
