@@ -159,19 +159,23 @@ abstract class MapGestureMixin extends State<FlutterMap>
     }
   }
 
-  int _getMultiFingerGestureFlags({int gesture, MapOptions mapOptions}) {
-    gesture ??= _gestureWinner;
+  int _getMultiFingerGestureFlags({int gestureWinner, MapOptions mapOptions}) {
+    gestureWinner ??= _gestureWinner;
     mapOptions ??= options;
 
-    if (gesture == MultiFingerGesture.pinchZoom) {
-      return mapOptions.pinchZoomWinGestures;
-    } else if (gesture == MultiFingerGesture.rotate) {
-      return mapOptions.rotationWinGestures;
-    } else if (gesture == MultiFingerGesture.pinchMove) {
-      return mapOptions.pinchMoveWinGestures;
-    }
+    if (mapOptions.enableMultiFingerGestureRace) {
+      if (gestureWinner == MultiFingerGesture.pinchZoom) {
+        return mapOptions.pinchZoomWinGestures;
+      } else if (gestureWinner == MultiFingerGesture.rotate) {
+        return mapOptions.rotationWinGestures;
+      } else if (gestureWinner == MultiFingerGesture.pinchMove) {
+        return mapOptions.pinchMoveWinGestures;
+      }
 
-    return MultiFingerGesture.none;
+      return MultiFingerGesture.none;
+    } else {
+      return MultiFingerGesture.all;
+    }
   }
 
   void closeFlingController(MapEventSource source) {
@@ -277,25 +281,33 @@ abstract class MapGestureMixin extends State<FlutterMap>
           InteractiveFlag.hasFlag(flags, InteractiveFlag.rotate);
 
       if (hasIntPinchMove || hasIntPinchZoom || hasIntRotate) {
-        if (_gestureWinner == MultiFingerGesture.none) {
+        final hasGestureRace = options.enableMultiFingerGestureRace;
+
+        if (hasGestureRace && _gestureWinner == MultiFingerGesture.none) {
           if (hasIntPinchZoom &&
               (_getZoomForScale(_mapZoomStart, details.scale) - _mapZoomStart)
                       .abs() >=
                   options.pinchZoomThreshold) {
-            print('ZOOM won.');
+            if (options.debugMultiFingerGestureWinner) {
+              print('Multi Finger Gesture winner: Pinch Zoom');
+            }
             _yieldMultiFingerGestureWinner(MultiFingerGesture.pinchZoom, true);
           } else if (hasIntRotate &&
               currentRotation.abs() >= options.rotationThreshold) {
-            print('Rotate won.');
+            if (options.debugMultiFingerGestureWinner) {
+              print('Multi Finger Gesture winner: Rotate');
+            }
             _yieldMultiFingerGestureWinner(MultiFingerGesture.rotate, true);
           } else if (hasIntPinchMove &&
               _flingOffset.distance >= options.pinchMoveThreshold) {
-            print('Move won.');
+            if (options.debugMultiFingerGestureWinner) {
+              print('Multi Finger Gesture winner: Pinch Move');
+            }
             _yieldMultiFingerGestureWinner(MultiFingerGesture.pinchMove, true);
           }
         }
 
-        if (_gestureWinner != MultiFingerGesture.none) {
+        if (!hasGestureRace || _gestureWinner != MultiFingerGesture.none) {
           final gestures = _getMultiFingerGestureFlags();
 
           final hasGesturePinchMove = MultiFingerGesture.hasFlag(

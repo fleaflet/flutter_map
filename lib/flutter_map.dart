@@ -148,33 +148,38 @@ class MapOptions {
 
   /// Prints multi finger gesture winner
   /// Helps to fine adjust [rotationThreshold] and [pinchZoomThreshold] and [pinchMoveThreshold]
+  /// Note: only takes effect if [enableMultiFingerGestureRace] is true
   final bool debugMultiFingerGestureWinner;
+
+  /// If true then [rotationThreshold] and [pinchZoomThreshold] and [pinchMoveThreshold] will race
+  /// If multiple gestures win at the same time then precedence: [pinchZoomWinGestures] > [rotationWinGestures] > [pinchMoveWinGestures]
+  final bool enableMultiFingerGestureRace;
 
   /// Rotation threshold in degree default is 20.0
   /// Map starts to rotate when [rotationThreshold] has been achieved or another multi finger gesture wins which allows [MultiFingerGesture.rotate]
-  /// Note: if [interactiveFlags] doesn't contain [InteractiveFlag.rotate] then rotate cannot win
+  /// Note: if [interactiveFlags] doesn't contain [InteractiveFlag.rotate] or [enableMultiFingerGestureRace] is false then rotate cannot win
   final double rotationThreshold;
 
   /// When [rotationThreshold] wins over [pinchZoomThreshold] and [pinchMoveThreshold] then [rotationWinGestures] gestures will be used.
-  /// By default only [MultiFingerGesture.rotate] gesture will take effect see [MultiFingerGesture] for custom setting
+  /// By default only [MultiFingerGesture.rotate] gesture will take effect see [MultiFingerGesture] for custom settings
   final int rotationWinGestures;
 
   /// Pinch Zoom threshold default is 0.5
   /// Map starts to zoom when [pinchZoomThreshold] has been achieved or another multi finger gesture wins which allows [MultiFingerGesture.pinchZoom]
-  /// Note: if [interactiveFlags] doesn't contain [InteractiveFlag.pinchZoom] then zoom cannot win
+  /// Note: if [interactiveFlags] doesn't contain [InteractiveFlag.pinchZoom] or [enableMultiFingerGestureRace] is false then zoom cannot win
   final double pinchZoomThreshold;
 
   /// When [pinchZoomThreshold] wins over [rotationThreshold] and [pinchMoveThreshold] then [pinchZoomWinGestures] gestures will be used.
-  /// By default [MultiFingerGesture.pinchZoom] and [MultiFingerGesture.pinchMove] gestures will take effect see [MultiFingerGesture] for custom setting
+  /// By default [MultiFingerGesture.pinchZoom] and [MultiFingerGesture.pinchMove] gestures will take effect see [MultiFingerGesture] for custom settings
   final int pinchZoomWinGestures;
 
   /// Pinch Move threshold default is 40.0 (note: this doesn't take any effect on drag)
   /// Map starts to move when [pinchMoveThreshold] has been achieved or another multi finger gesture wins which allows [MultiFingerGesture.pinchMove]
-  /// Note: if [interactiveFlags] doesn't contain [InteractiveFlag.pinchMove] then pinch move cannot win
+  /// Note: if [interactiveFlags] doesn't contain [InteractiveFlag.pinchMove] or [enableMultiFingerGestureRace] is false then pinch move cannot win
   final double pinchMoveThreshold;
 
   /// When [pinchMoveThreshold] wins over [rotationThreshold] and [pinchZoomThreshold] then [pinchMoveWinGestures] gestures will be used.
-  /// By default [MultiFingerGesture.pinchMove] and [MultiFingerGesture.pinchZoom] gestures will take effect see [MultiFingerGesture] for custom setting
+  /// By default [MultiFingerGesture.pinchMove] and [MultiFingerGesture.pinchZoom] gestures will take effect see [MultiFingerGesture] for custom settings
   final int pinchMoveWinGestures;
 
   final double minZoom;
@@ -184,7 +189,7 @@ class MapOptions {
   @Deprecated('use interactiveFlags instead')
   final bool interactive;
 
-  /// see [InteractiveFlag]
+  /// see [InteractiveFlag] for custom settings
   final int interactiveFlags;
   final TapCallback onTap;
   final LongPressCallback onLongPress;
@@ -211,6 +216,7 @@ class MapOptions {
     this.zoom = 13.0,
     this.rotation = 0.0,
     this.debugMultiFingerGestureWinner = false,
+    this.enableMultiFingerGestureRace = false,
     this.rotationThreshold = 20.0,
     this.rotationWinGestures = MultiFingerGesture.rotate,
     this.pinchZoomThreshold = 0.5,
