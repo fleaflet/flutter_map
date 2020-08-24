@@ -97,6 +97,10 @@ abstract class MapController {
   /// (it won't be success if rotate is same as the old rotate)
   bool rotate(double degree, {String id});
 
+  /// Calls [move] and [rotate] together however layers will rebuild just once instead of twice
+  MoveAndRotateResult moveAndRotate(LatLng center, double zoom, double degree,
+      {String id});
+
   /// Fits the map bounds. Optional constraints can be defined
   /// through the [options] parameter.
   void fitBounds(LatLngBounds bounds, {FitBoundsOptions options});
@@ -366,4 +370,11 @@ class _SafeArea {
             ? fallback.longitude
             : point.longitude.clamp(bounds.west, bounds.east),
       );
+}
+
+class MoveAndRotateResult {
+  final bool moveSuccess;
+  final bool rotateSuccess;
+
+  MoveAndRotateResult(this.moveSuccess, this.rotateSuccess);
 }

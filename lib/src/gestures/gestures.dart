@@ -332,6 +332,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
           final hasRotate = hasIntRotate && hasGestureRotate;
 
           var mapMoved = false;
+          var mapRotated = false;
           if (hasMove || hasZoom) {
             double newZoom;
             if (hasZoom) {
@@ -395,6 +396,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
               newCenter,
               newZoom,
               hasGesture: true,
+              callOnMoveSink: false,
               source: eventSource,
             );
           }
@@ -414,13 +416,17 @@ abstract class MapGestureMixin extends State<FlutterMap>
             }
 
             if (_rotationStarted) {
-              mapState.rotate(
+              mapRotated = mapState.rotate(
                 mapState.rotation + rotationDiff,
                 hasGesture: true,
-                simulateMove: !mapMoved,
+                callOnMoveSink: false,
                 source: eventSource,
               );
             }
+          }
+
+          if (mapMoved || mapRotated) {
+            mapState.rebuildLayers();
           }
         }
       }

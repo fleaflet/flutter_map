@@ -30,6 +30,13 @@ class MapControllerImpl implements MapController {
   }
 
   @override
+  MoveAndRotateResult moveAndRotate(LatLng center, double zoom, double degree,
+      {String id}) {
+    return _state.moveAndRotate(center, zoom, degree,
+        source: MapEventSource.mapController, id: id);
+  }
+
+  @override
   bool move(LatLng center, double zoom, {String id}) {
     return _state.move(center, zoom,
         id: id, source: MapEventSource.mapController);
@@ -218,14 +225,14 @@ class MapState {
     _mapEventSink.close();
   }
 
-  void forceRebuild() {
-    _onMoveSink?.add(null);
+  void rebuildLayers() {
+    _onMoveSink.add(null);
   }
 
   bool rotate(
     double degree, {
-    bool hasGesture = false,
-    bool simulateMove = false, // rebuild layers
+    hasGesture = false,
+    callOnMoveSink = true,
     MapEventSource source,
     String id,
   }) {
@@ -247,8 +254,7 @@ class MapState {
         ),
       );
 
-      if (!hasGesture || simulateMove) {
-        // make sure layers rebuild correctly if this method was called from MapController
+      if (callOnMoveSink) {
         _onMoveSink.add(null);
       }
 
@@ -258,8 +264,25 @@ class MapState {
     return false;
   }
 
+  MoveAndRotateResult moveAndRotate(LatLng center, double zoom, double degree,
+      {MapEventSource source, String id}) {
+    final moveSucc =
+        move(center, zoom, id: id, source: source, callOnMoveSink: false);
+    final rotateSucc =
+        rotate(degree, id: id, source: source, callOnMoveSink: false);
+
+    if (moveSucc || rotateSucc) {
+      _onMoveSink.add(null);
+    }
+
+    return MoveAndRotateResult(moveSucc, rotateSucc);
+  }
+
   bool move(LatLng center, double zoom,
-      {hasGesture = false, MapEventSource source, String id}) {
+      {hasGesture = false,
+      callOnMoveSink = true,
+      MapEventSource source,
+      String id}) {
     zoom = fitZoomToBounds(zoom);
     final mapMoved = center != _lastCenter || zoom != _zoom;
 
@@ -281,7 +304,9 @@ class MapState {
     _lastPixelBounds = getPixelBounds(_zoom);
     _lastBounds = _calculateBounds();
     _pixelOrigin = getNewPixelOrigin(center);
-    _onMoveSink.add(null);
+    if (callOnMoveSink) {
+      _onMoveSink.add(null);
+    }
 
     if (options.onPositionChanged != null) {
       var mapPosition = MapPosition(
