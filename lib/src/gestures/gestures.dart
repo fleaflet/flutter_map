@@ -25,6 +25,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
   var _pinchZoomStarted = false;
   var _pinchMoveStarted = false;
   var _dragStarted = false;
+  var _flingAnimationStarted = false;
 
   // Helps to reset ScaleUpdateDetails.scale back to 1.0 when a multi finger gesture wins
   double _scaleCorrector;
@@ -86,7 +87,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
       var emitMapEventMoveEnd = false;
 
       if (!InteractiveFlag.hasFlag(flags, InteractiveFlag.flingAnimation)) {
-        closeFlingController(MapEventSource.interactiveFlagsChanged);
+        closeFlingAnimationController(MapEventSource.interactiveFlagsChanged);
       }
       if (!InteractiveFlag.hasFlag(flags, InteractiveFlag.doubleTapZoom)) {
         closeDoubleTapController(MapEventSource.interactiveFlagsChanged);
@@ -184,7 +185,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
     }
   }
 
-  void closeFlingController(MapEventSource source) {
+  void closeFlingAnimationController(MapEventSource source) {
+    _flingAnimationStarted = false;
     if (_flingController.isAnimating) {
       _flingController.stop();
 
@@ -212,7 +214,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
     final eventSource = _dragMode
         ? MapEventSource.dragStart
         : MapEventSource.multiFingerGestureStart;
-    closeFlingController(eventSource);
+    closeFlingAnimationController(eventSource);
     closeDoubleTapController(eventSource);
 
     _gestureWinner = MultiFingerGesture.none;
@@ -496,7 +498,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
   }
 
   void handleTap(TapPosition position) {
-    closeFlingController(MapEventSource.tap);
+    closeFlingAnimationController(MapEventSource.tap);
     closeDoubleTapController(MapEventSource.tap);
 
     final latlng = _offsetToCrs(position.relative, true);
@@ -518,7 +520,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
   void handleLongPress(TapPosition position) {
     _resetDoubleTapHold();
 
-    closeFlingController(MapEventSource.longPress);
+    closeFlingAnimationController(MapEventSource.longPress);
     closeDoubleTapController(MapEventSource.longPress);
 
     final latlng = _offsetToCrs(position.relative, true);
@@ -560,7 +562,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
   void handleDoubleTap(TapPosition tapPosition) {
     _resetDoubleTapHold();
 
-    closeFlingController(MapEventSource.doubleTap);
+    closeFlingAnimationController(MapEventSource.doubleTap);
     closeDoubleTapController(MapEventSource.doubleTap);
 
     if (InteractiveFlag.hasFlag(
@@ -670,14 +672,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
   }
 
   void _flingAnimationStatusListener(AnimationStatus status) {
-    if (status == AnimationStatus.forward) {
-      mapState.emitMapEvent(
-        MapEventFlingAnimationStart(
-            center: mapState.center,
-            zoom: mapState.zoom,
-            source: MapEventSource.flingAnimationController),
-      );
-    } else if (status == AnimationStatus.completed) {
+    if (status == AnimationStatus.completed) {
+      _flingAnimationStarted = false;
       mapState.emitMapEvent(
         MapEventFlingAnimationEnd(
             center: mapState.center,
@@ -688,6 +684,16 @@ abstract class MapGestureMixin extends State<FlutterMap>
   }
 
   void _handleFlingAnimation() {
+    if (!_flingAnimationStarted) {
+      _flingAnimationStarted = true;
+      mapState.emitMapEvent(
+        MapEventFlingAnimationStart(
+            center: mapState.center,
+            zoom: mapState.zoom,
+            source: MapEventSource.flingAnimationController),
+      );
+    }
+
     _flingOffset = _flingAnimation.value;
     var newCenterPoint = mapState.project(_mapCenterStart) +
         CustomPoint(_flingOffset.dx, _flingOffset.dy);
