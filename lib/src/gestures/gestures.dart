@@ -26,8 +26,14 @@ abstract class MapGestureMixin extends State<FlutterMap>
   var _pinchMoveStarted = false;
   var _dragStarted = false;
 
-  // reset ScaleUpdateDetails.scale back to 1.0 when zoom starts
+  // Helps to reset ScaleUpdateDetails.scale back to 1.0 when a multi finger gesture wins
   double _scaleCorrector;
+
+  /// When a multi finger gesture wins this replaces [_focalStartGlobal]
+  LatLng _focalStartGlobalCorrector;
+
+  /// When a multi finger gesture wins this replaces [_focalStartLocal]
+  Offset _focalStartLocalCorrector;
   double _lastRotation;
   double _lastScale;
   Offset _lastFocalLocal;
@@ -154,8 +160,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
     if (resetStartVariables) {
       // note: here we could reset to current values instead of last values
       _scaleCorrector = 1.0 - _lastScale;
-      _focalStartLocal = _lastFocalLocal;
-      _focalStartGlobal = _offsetToCrs(_lastFocalLocal, false);
+      _focalStartLocalCorrector = _lastFocalLocal;
+      _focalStartGlobalCorrector = _offsetToCrs(_lastFocalLocal, false);
     }
   }
 
@@ -225,8 +231,10 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
     // determine the focal point within the widget
     final focalOffset = details.localFocalPoint;
-    _lastFocalLocal = _focalStartLocal = focalOffset;
-    _focalStartGlobal = _offsetToCrs(focalOffset, false);
+    _focalStartLocalCorrector =
+        _focalStartLocal = _lastFocalLocal = focalOffset;
+    _focalStartGlobalCorrector =
+        _focalStartGlobal = _offsetToCrs(focalOffset, false);
   }
 
   void handleScaleUpdate(ScaleUpdateDetails details) {
@@ -350,7 +358,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
             LatLng newCenter;
             if (hasMove) {
-              if (!_pinchMoveStarted && _focalStartLocal != focalOffset) {
+              if (!_pinchMoveStarted &&
+                  _focalStartLocalCorrector != focalOffset) {
                 _pinchMoveStarted = true;
 
                 if (!_pinchZoomStarted) {
@@ -367,7 +376,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
               if (_pinchMoveStarted) {
                 final focalStartPt =
-                    mapState.project(_focalStartGlobal, newZoom);
+                    mapState.project(_focalStartGlobalCorrector, newZoom);
                 final newCenterPt = focalStartPt -
                     _offsetToPoint(focalOffset) +
                     (mapState.size / 2.0);
