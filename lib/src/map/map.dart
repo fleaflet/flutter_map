@@ -11,10 +11,16 @@ import 'package:latlong/latlong.dart';
 
 class MapControllerImpl implements MapController {
   final Completer<Null> _readyCompleter = Completer<Null>();
+  final StreamController<MapEvent> _mapEventSink = StreamController.broadcast();
+  StreamSink<MapEvent> get mapEventSink => _mapEventSink.sink;
   MapState _state;
 
   @override
   Future<Null> get onReady => _readyCompleter.future;
+
+  void dispose() {
+    _mapEventSink.close();
+  }
 
   set state(MapState state) {
     _state = state;
@@ -59,7 +65,7 @@ class MapControllerImpl implements MapController {
   }
 
   @override
-  Stream<MapEvent> get mapEventStream => _state?._mapEventSink?.stream;
+  Stream<MapEvent> get mapEventStream => _mapEventSink.stream;
 }
 
 class MapState {
@@ -68,7 +74,7 @@ class MapState {
   MapOptions options;
   final ValueChanged<double> onRotationChanged;
   final StreamController<Null> _onMoveSink;
-  final StreamController<MapEvent> _mapEventSink;
+  final StreamSink<MapEvent> _mapEventSink;
 
   double _zoom;
   double _rotation;
@@ -90,12 +96,11 @@ class MapState {
   CustomPoint _pixelOrigin;
   bool _initialized = false;
 
-  MapState(this.options, this.onRotationChanged)
+  MapState(this.options, this.onRotationChanged, this._mapEventSink)
       : _rotation = options.rotation,
         _rotationRad = degToRadian(options.rotation),
         _zoom = options.zoom,
-        _onMoveSink = StreamController.broadcast(),
-        _mapEventSink = StreamController.broadcast();
+        _onMoveSink = StreamController.broadcast();
 
   Stream<Null> get onMoved => _onMoveSink.stream;
 

@@ -37,7 +37,7 @@ class FlutterMapState extends MapGestureMixin {
     super.initState();
     mapState = MapState(options, (degree) {
       if (mounted) setState(() => {});
-    });
+    }, mapController.mapEventSink);
     mapController.state = mapState;
   }
 
@@ -53,6 +53,7 @@ class FlutterMapState extends MapGestureMixin {
   void dispose() {
     _disposeStreamGroups();
     mapState.dispose();
+    mapController.dispose();
 
     super.dispose();
   }
