@@ -26,7 +26,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
   var _pinchMoveStarted = false;
   var _dragStarted = false;
 
-  // normalize ScaleUpdateDetails.scale back to 1.0 when zoom starts
+  // reset ScaleUpdateDetails.scale back to 1.0 when zoom starts
   double _scaleCorrector;
   double _lastRotation;
   double _lastScale;
