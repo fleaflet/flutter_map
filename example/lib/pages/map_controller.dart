@@ -189,14 +189,22 @@ class CurrentLocation extends StatefulWidget {
 }
 
 class _CurrentLocationState extends State<CurrentLocation> {
-  static const _eventKey = 'position-key';
+  int _eventKey = 0;
 
   var icon = Icons.gps_not_fixed;
   StreamSubscription<MapEvent> mapEventSubscription;
 
   @override
+  void initState() {
+    super.initState();
+
+    mapEventSubscription =
+        widget.mapController.mapEventStream.listen(onMapEvent);
+  }
+
+  @override
   void dispose() {
-    mapEventSubscription?.cancel();
+    mapEventSubscription.cancel();
     super.dispose();
   }
 
@@ -208,41 +216,30 @@ class _CurrentLocationState extends State<CurrentLocation> {
     }
   }
 
+  void onMapEvent(MapEvent mapEvent) {
+    if (mapEvent is MapEventMove && mapEvent.id == _eventKey.toString()) {
+      setIcon(Icons.gps_not_fixed);
+    }
+  }
+
   void _moveToCurrent() async {
+    _eventKey++;
     var location = Location();
 
     try {
-      await mapEventSubscription?.cancel();
-
-      var mapEventStream = widget.mapController.mapEventStream;
-      if (mapEventStream == null) {
-        setIcon(Icons.gps_off);
-        return;
-      }
-
       var currentLocation = await location.getLocation();
       var moved = widget.mapController.move(
         LatLng(currentLocation.latitude, currentLocation.longitude),
         18,
-        id: _eventKey,
+        id: _eventKey.toString(),
       );
 
       if (moved) {
         setIcon(Icons.gps_fixed);
-
-        mapEventSubscription = mapEventStream.listen((MapEvent event) {
-          if (event is MapEventMove && event.id == _eventKey) {
-            setIcon(Icons.gps_not_fixed);
-
-            mapEventSubscription.cancel();
-          }
-        });
       } else {
         setIcon(Icons.gps_not_fixed);
       }
     } catch (e) {
-      await mapEventSubscription?.cancel();
-
       setIcon(Icons.gps_off);
     }
   }
