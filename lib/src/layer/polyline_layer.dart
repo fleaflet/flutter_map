@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/core/util.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
 
@@ -14,8 +15,9 @@ class PolylineLayerOptions extends LayerOptions {
     Key key,
     this.polylines = const [],
     this.polylineCulling = false,
-    rebuild,
-  }) : super(key: key, rebuild: rebuild) {
+    bool rotationEnabled,
+    Stream<Null> rebuild,
+  }) : super(key: key, rebuild: rebuild, rotationEnabled: rotationEnabled) {
     if (polylineCulling) {
       for (var polyline in polylines) {
         polyline.boundingBox = LatLngBounds.fromPoints(polyline.points);
@@ -55,7 +57,13 @@ class PolylineLayerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mapState = MapState.of(context);
-    return PolylineLayer(options, mapState, mapState.onMoved);
+
+    return wrapLayer(
+      PolylineLayer(options, mapState, mapState.onMoved),
+      mapState,
+      options,
+      false,
+    );
   }
 }
 
@@ -64,23 +72,15 @@ class PolylineLayer extends StatelessWidget {
   final MapState map;
   final Stream<Null> stream;
 
-  PolylineLayer(this.polylineOpts, this.map, this.stream)
-      : super(key: polylineOpts.key);
+  PolylineLayer(this.polylineOpts, this.map, this.stream);
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints bc) {
-        final size = Size(bc.maxWidth, bc.maxHeight);
-        return _build(context, size);
-      },
-    );
-  }
-
-  Widget _build(BuildContext context, Size size) {
     return StreamBuilder<void>(
       stream: stream, // a Stream<void> or null
       builder: (BuildContext context, _) {
+        var size = polylineOpts.rotationEnabled ? map.size : map.originalSize;
+
         var polylines = <Widget>[];
 
         for (var polylineOpt in polylineOpts.polylines) {
@@ -96,7 +96,7 @@ class PolylineLayer extends StatelessWidget {
 
           polylines.add(CustomPaint(
             painter: PolylinePainter(polylineOpt),
-            size: size,
+            size: Size(size.x, size.y),
           ));
         }
 

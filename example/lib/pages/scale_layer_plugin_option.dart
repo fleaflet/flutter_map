@@ -19,8 +19,9 @@ class ScaleLayerPluginOption extends LayerOptions {
     this.lineColor = Colors.white,
     this.lineWidth = 2,
     this.padding,
-    rebuild,
-  }) : super(key: key, rebuild: rebuild);
+    bool rotationEnabled = false,
+    Stream<Null> rebuild,
+  }) : super(key: key, rebuild: rebuild, rotationEnabled: rotationEnabled);
 }
 
 class ScaleLayerPlugin implements MapPlugin {
@@ -69,8 +70,7 @@ class ScaleLayer extends StatelessWidget {
     5
   ];
 
-  ScaleLayer(this.scaleLayerOpts, this.map, this.stream)
-      : super(key: scaleLayerOpts.key);
+  ScaleLayer(this.scaleLayerOpts, this.map, this.stream);
 
   @override
   Widget build(BuildContext context) {

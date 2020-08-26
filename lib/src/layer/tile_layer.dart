@@ -224,7 +224,8 @@ class TileLayerOptions extends LayerOptions {
     this.overrideTilesWhenUrlChanges = false,
     this.retinaMode = false,
     this.errorTileCallback,
-    rebuild,
+    bool rotationEnabled,
+    Stream<Null> rebuild,
   })  : updateInterval =
             updateInterval <= 0 ? null : Duration(milliseconds: updateInterval),
         tileFadeInDuration = tileFadeInDuration <= 0
@@ -247,7 +248,7 @@ class TileLayerOptions extends LayerOptions {
         tileSize = wmsOptions == null && retinaMode && maxZoom > 0.0
             ? (tileSize / 2.0).floorToDouble()
             : tileSize,
-        super(key: key, rebuild: rebuild);
+        super(key: key, rebuild: rebuild, rotationEnabled: rotationEnabled);
 }
 
 class WMSTileLayerOptions {
@@ -334,24 +335,24 @@ class WMSTileLayerOptions {
   }
 }
 
-class TileLayerWidget extends StatefulWidget {
+class TileLayerWidget extends StatelessWidget {
   final TileLayerOptions options;
 
   TileLayerWidget({@required this.options}) : super(key: options.key);
 
   @override
-  State<StatefulWidget> createState() => _TileLayerWidgetState();
-}
-
-class _TileLayerWidgetState extends State<TileLayerWidget> {
-  @override
   Widget build(BuildContext context) {
     final mapState = MapState.of(context);
 
-    return TileLayer(
-      mapState: mapState,
-      stream: mapState.onMoved,
-      options: widget.options,
+    return util.wrapLayer(
+      TileLayer(
+        mapState: mapState,
+        stream: mapState.onMoved,
+        options: options,
+      ),
+      mapState,
+      options,
+      false,
     );
   }
 }
@@ -365,7 +366,7 @@ class TileLayer extends StatefulWidget {
     this.options,
     this.mapState,
     this.stream,
-  }) : super(key: options.key);
+  });
 
   @override
   State<StatefulWidget> createState() {

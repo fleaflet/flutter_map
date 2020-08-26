@@ -24,8 +24,9 @@ class ZoomButtonsPluginOption extends LayerOptions {
     this.zoomInIcon = Icons.zoom_in,
     this.zoomOutColor,
     this.zoomOutIcon = Icons.zoom_out,
-    rebuild,
-  }) : super(key: key, rebuild: rebuild);
+    bool rotationEnabled = false,
+    Stream<Null> rebuild,
+  }) : super(key: key, rebuild: rebuild, rotationEnabled: rotationEnabled);
 }
 
 class ZoomButtonsPlugin implements MapPlugin {
@@ -51,8 +52,7 @@ class ZoomButtons extends StatelessWidget {
   final FitBoundsOptions options =
       const FitBoundsOptions(padding: EdgeInsets.all(12.0));
 
-  ZoomButtons(this.zoomButtonsOpts, this.map, this.stream)
-      : super(key: zoomButtonsOpts.key);
+  ZoomButtons(this.zoomButtonsOpts, this.map, this.stream);
 
   @override
   Widget build(BuildContext context) {

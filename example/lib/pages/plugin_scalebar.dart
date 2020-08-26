@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong/latlong.dart';
+
 import '../widgets/drawer.dart';
 import 'scale_layer_plugin_option.dart';
 

@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/widgets.dart';
+import 'package:flutter_map/plugin_api.dart';
 import 'package:tuple/tuple.dart';
 
 var _templateRe = RegExp(r'\{ *([\w_-]+) *\}');
@@ -56,4 +58,22 @@ StreamTransformer<T, T> throttleStreamTransformerWithTrailingCall<T>(
         timer?.cancel();
         sink.close();
       });
+}
+
+Widget wrapLayer(
+    Widget layer, MapState map, LayerOptions options, bool setKey) {
+  var size = options.rotationEnabled ? map.size : map.originalSize;
+  var angle = options.rotationEnabled ? map.rotationRad : 0.0;
+
+  return OverflowBox(
+    key: setKey ? options.key : null,
+    minWidth: size.x,
+    maxWidth: size.x,
+    minHeight: size.y,
+    maxHeight: size.y,
+    child: Transform.rotate(
+      angle: angle,
+      child: layer,
+    ),
+  );
 }

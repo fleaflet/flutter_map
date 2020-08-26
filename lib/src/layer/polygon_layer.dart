@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/core/util.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart' hide Path; // conflict with Path from UI
 
@@ -15,8 +16,9 @@ class PolygonLayerOptions extends LayerOptions {
     Key key,
     this.polygons = const [],
     this.polygonCulling = false,
-    rebuild,
-  }) : super(key: key, rebuild: rebuild) {
+    bool rotationEnabled,
+    Stream<Null> rebuild,
+  }) : super(key: key, rebuild: rebuild, rotationEnabled: rotationEnabled) {
     if (polygonCulling) {
       for (var polygon in polygons) {
         polygon.boundingBox = LatLngBounds.fromPoints(polygon.points);
@@ -57,7 +59,13 @@ class PolygonLayerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mapState = MapState.of(context);
-    return PolygonLayer(options, mapState, mapState.onMoved);
+
+    return wrapLayer(
+      PolygonLayer(options, mapState, mapState.onMoved),
+      mapState,
+      options,
+      false,
+    );
   }
 }
 
@@ -66,24 +74,15 @@ class PolygonLayer extends StatelessWidget {
   final MapState map;
   final Stream stream;
 
-  PolygonLayer(this.polygonOpts, this.map, this.stream)
-      : super(key: polygonOpts.key);
+  PolygonLayer(this.polygonOpts, this.map, this.stream);
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints bc) {
-        // TODO unused BoxContraints should remove?
-        final size = Size(bc.maxWidth, bc.maxHeight);
-        return _build(context, size);
-      },
-    );
-  }
-
-  Widget _build(BuildContext context, Size size) {
     return StreamBuilder(
       stream: stream, // a Stream<void> or null
       builder: (BuildContext context, _) {
+        var size = polygonOpts.rotationEnabled ? map.size : map.originalSize;
+
         var polygons = <Widget>[];
 
         for (var polygon in polygonOpts.polygons) {
@@ -113,7 +112,7 @@ class PolygonLayer extends StatelessWidget {
           polygons.add(
             CustomPaint(
               painter: PolygonPainter(polygon),
-              size: size,
+              size: Size(size.x, size.y),
             ),
           );
         }

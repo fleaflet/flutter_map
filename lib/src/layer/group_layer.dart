@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/core/util.dart';
 import 'package:flutter_map/src/map/map.dart';
 
 /// [LayerOptions] that describe a layer composed by multiple built-in layers.
@@ -9,8 +10,9 @@ class GroupLayerOptions extends LayerOptions {
   GroupLayerOptions({
     Key key,
     this.group,
-    rebuild,
-  }) : super(key: key, rebuild: rebuild);
+    bool rotationEnabled,
+    Stream<Null> rebuild,
+  }) : super(key: key, rebuild: rebuild, rotationEnabled: rotationEnabled);
 }
 
 class GroupLayerWidget extends StatelessWidget {
@@ -21,7 +23,13 @@ class GroupLayerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mapState = MapState.of(context);
-    return GroupLayer(options, mapState, mapState.onMoved);
+
+    return wrapLayer(
+      GroupLayer(options, mapState, mapState.onMoved),
+      mapState,
+      options,
+      false,
+    );
   }
 }
 
@@ -30,19 +38,10 @@ class GroupLayer extends StatelessWidget {
   final MapState map;
   final Stream<Null> stream;
 
-  GroupLayer(this.groupOpts, this.map, this.stream) : super(key: groupOpts.key);
+  GroupLayer(this.groupOpts, this.map, this.stream);
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      // TODO unused BoxContraints should remove?
-      builder: (BuildContext context, BoxConstraints bc) {
-        return _build(context);
-      },
-    );
-  }
-
-  Widget _build(BuildContext context) {
     return StreamBuilder(
       stream: stream,
       builder: (BuildContext context, _) {
