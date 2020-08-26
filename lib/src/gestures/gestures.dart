@@ -485,15 +485,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
         (Offset.zero & Size(mapState.originalSize.x, mapState.originalSize.y))
             .shortestSide;
 
-    if (mapState.rotation != 0.0) {
-      // correct fling direction with rotation
-      var v = Matrix4.rotationZ(-mapState.rotationRad) *
-          Vector4(direction.dx, direction.dy, 0, 0);
-      direction = Offset(v.x, v.y);
-    }
-
     var _flingOffset = _focalStartLocal - _lastFocalLocal;
-
     _flingAnimation = Tween<Offset>(
       begin: _flingOffset,
       end: _flingOffset - direction * distance,
@@ -695,9 +687,17 @@ abstract class MapGestureMixin extends State<FlutterMap>
       );
     }
 
-    var newCenterPoint = mapState.project(_mapCenterStart) +
-        _offsetToPoint(_flingAnimation.value);
+    var offset = _flingAnimation.value;
+    if (mapState.rotation != 0.0) {
+      var v = Matrix4.rotationZ(-mapState.rotationRad) *
+          Vector4(offset.dx, offset.dy, 0, 0);
+      offset = Offset(v.x, v.y);
+    }
+
+    var newCenterPoint =
+        mapState.project(_mapCenterStart) + _offsetToPoint(offset);
     var newCenter = mapState.unproject(newCenterPoint);
+
     mapState.move(
       newCenter,
       mapState.zoom,
