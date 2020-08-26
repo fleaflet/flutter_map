@@ -8,7 +8,6 @@ import 'package:flutter_map/src/gestures/latlng_tween.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
-import 'package:vector_math/vector_math_64.dart';
 
 abstract class MapGestureMixin extends State<FlutterMap>
     with TickerProviderStateMixin {
@@ -255,13 +254,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
         }
 
         final oldCenterPt = mapState.project(mapState.center, mapState.zoom);
-        var localDistanceOffset = _lastFocalLocal - focalOffset;
-
-        if (mapState.rotation != 0.0) {
-          var v = Matrix4.rotationZ(-mapState.rotationRad) *
-              Vector4(localDistanceOffset.dx, localDistanceOffset.dy, 0, 0);
-          localDistanceOffset = Offset(v.x, v.y);
-        }
+        var localDistanceOffset = _rotateOffset(_lastFocalLocal - focalOffset);
 
         final newCenterPt = oldCenterPt + _offsetToPoint(localDistanceOffset);
         final newCenter = mapState.unproject(newCenterPt, mapState.zoom);
@@ -370,14 +363,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
               if (_pinchMoveStarted) {
                 final oldCenterPt = mapState.project(mapState.center, newZoom);
-                var localDistanceOffset = _lastFocalLocal - focalOffset;
-
-                if (mapState.rotation != 0.0) {
-                  var v = Matrix4.rotationZ(-mapState.rotationRad) *
-                      Vector4(
-                          localDistanceOffset.dx, localDistanceOffset.dy, 0, 0);
-                  localDistanceOffset = Offset(v.x, v.y);
-                }
+                final localDistanceOffset =
+                    _rotateOffset(_lastFocalLocal - focalOffset);
 
                 final newCenterPt =
                     oldCenterPt + _offsetToPoint(localDistanceOffset);
@@ -540,13 +527,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
   LatLng _offsetToCrs(Offset offset) {
     final focalStartPt = mapState.project(mapState.center, mapState.zoom);
-    var point = _offsetToPoint(offset) - (mapState.originalSize / 2.0);
-
-    if (mapState.rotation != 0.0) {
-      var v = Matrix4.rotationZ(-mapState.rotationRad) *
-          Vector4(point.x, point.y, 0, 0);
-      point = _offsetToPoint(Offset(v.x, v.y));
-    }
+    final point = (_offsetToPoint(offset) - (mapState.originalSize / 2.0))
+        .rotate(mapState.rotationRad);
 
     var newCenterPt = focalStartPt + point;
     return mapState.unproject(newCenterPt, mapState.zoom);
@@ -687,15 +669,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
       );
     }
 
-    var offset = _flingAnimation.value;
-    if (mapState.rotation != 0.0) {
-      var v = Matrix4.rotationZ(-mapState.rotationRad) *
-          Vector4(offset.dx, offset.dy, 0, 0);
-      offset = Offset(v.x, v.y);
-    }
-
-    var newCenterPoint =
-        mapState.project(_mapCenterStart) + _offsetToPoint(offset);
+    var newCenterPoint = mapState.project(_mapCenterStart) +
+        _offsetToPoint(_flingAnimation.value).rotate(mapState.rotationRad);
     var newCenter = mapState.unproject(newCenterPoint);
 
     mapState.move(
@@ -718,6 +693,20 @@ abstract class MapGestureMixin extends State<FlutterMap>
     var resultZoom =
         scale == 1.0 ? startZoom : startZoom + math.log(scale) / math.ln2;
     return mapState.fitZoomToBounds(resultZoom);
+  }
+
+  Offset _rotateOffset(Offset offset) {
+    final radians = mapState.rotationRad;
+    if (radians != 0.0) {
+      final cos = math.cos(radians);
+      final sin = math.sin(radians);
+      final nx = (cos * offset.dx) + (sin * offset.dy);
+      final ny = (cos * offset.dy) - (sin * offset.dx);
+
+      return Offset(nx, ny);
+    }
+
+    return offset;
   }
 
   @override
