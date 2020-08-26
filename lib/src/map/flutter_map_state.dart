@@ -77,34 +77,34 @@ class FlutterMapState extends MapGestureMixin {
 
       return MapStateInheritedWidget(
         mapState: mapState,
-        child: ClipRect(
-          // By using an OverflowBox with the enlarged drawing area all the layers
-          // act as if the area really would be that big. So no changes in any layer
-          // logic is necessary for the rotation
-          child: OverflowBox(
-            minWidth: size.x,
-            maxWidth: size.x,
-            minHeight: size.y,
-            maxHeight: size.y,
-            child: Transform.rotate(
-              angle: mapState.rotationRad,
-              child: Listener(
-                onPointerDown: savePointer,
-                onPointerCancel: removePointer,
-                onPointerUp: removePointer,
-                child: PositionedTapDetector(
-                  controller: _positionedTapController,
-                  onTap: handleTap,
-                  onLongPress: handleLongPress,
-                  onDoubleTap: handleDoubleTap,
-                  child: GestureDetector(
-                    onScaleStart: handleScaleStart,
-                    onScaleUpdate: handleScaleUpdate,
-                    onScaleEnd: handleScaleEnd,
-                    onTap: _positionedTapController.onTap,
-                    onLongPress: _positionedTapController.onLongPress,
-                    onTapDown: _positionedTapController.onTapDown,
-                    onTapUp: handleOnTapUp,
+        child: Listener(
+          onPointerDown: savePointer,
+          onPointerCancel: removePointer,
+          onPointerUp: removePointer,
+          child: PositionedTapDetector(
+            controller: _positionedTapController,
+            onTap: handleTap,
+            onLongPress: handleLongPress,
+            onDoubleTap: handleDoubleTap,
+            child: GestureDetector(
+              onScaleStart: handleScaleStart,
+              onScaleUpdate: handleScaleUpdate,
+              onScaleEnd: handleScaleEnd,
+              onTap: _positionedTapController.onTap,
+              onLongPress: _positionedTapController.onLongPress,
+              onTapDown: _positionedTapController.onTapDown,
+              onTapUp: handleOnTapUp,
+              child: ClipRect(
+                // By using an OverflowBox with the enlarged drawing area all the layers
+                // act as if the area really would be that big. So no changes in any layer
+                // logic is necessary for the rotation
+                child: OverflowBox(
+                  minWidth: size.x,
+                  maxWidth: size.x,
+                  minHeight: size.y,
+                  maxHeight: size.y,
+                  child: Transform.rotate(
+                    angle: mapState.rotationRad,
                     child: Stack(
                       children: [
                         if (widget.children != null &&
