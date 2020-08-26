@@ -1,4 +1,4 @@
-[![BuildStatus](https://api.travis-ci.org/johnpryan/flutter_map.svg?branch=master)](https://travis-ci.org/johnpryan/flutter_map)
+[![BuildStatus](https://travis-ci.com/fleaflet/flutter_map.svg?branch=master)](https://travis-ci.org/johnpryan/flutter_map)
 [![Pub](https://img.shields.io/pub/v/flutter_map.svg)](https://pub.dev/packages/flutter_map)
 
 # flutter_map
@@ -35,12 +35,8 @@ Widget build(BuildContext context) {
     ),
     layers: [
       new TileLayerOptions(
-        urlTemplate: "https://api.tiles.mapbox.com/v4/"
-            "{id}/{z}/{x}/{y}@2x.png?access_token={accessToken}",
-        additionalOptions: {
-          'accessToken': '<PUT_ACCESS_TOKEN_HERE>',
-          'id': 'mapbox.streets',
-        },
+        urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        subdomains: ['a', 'b', 'c']
       ),
       new MarkerLayerOptions(
         markers: [
@@ -58,6 +54,15 @@ Widget build(BuildContext context) {
     ],
   );
 }
+```
+
+Alternatively initialize the map by specifying bounds instead of center and zoom.
+
+```dart
+MapOptions(
+  bounds: LatLngBounds(LatLng(58.8, 6.1), LatLng(59, 6.2)),
+  boundsOptions: FitBoundsOptions(padding: EdgeInsets.all(8.0)),
+),
 ```
 
 ### Azure Maps provider
@@ -127,6 +132,55 @@ Widget build(BuildContext context) {
           ),
         ],
       ),
+    ],
+  );
+}
+```
+
+### Widget Layers
+
+__Use the new way to create layers__ (compatible with previous version)
+
+```dart
+Widget build(BuildContext context) {
+  return FlutterMap(
+    options: MapOptions(
+      center: LatLng(51.5, -0.09),
+      zoom: 13.0,
+    ),
+    layers: [
+      MarkerLayerOptions(
+        markers: [
+          Marker(
+            width: 80.0,
+            height: 80.0,
+            point: LatLng(51.5, -0.09),
+            builder: (ctx) =>
+            Container(
+              child: FlutterLogo(),
+            ),
+          ),
+        ],
+      ),
+    ]
+    children: <Widget>[
+      TileLayerWidget(options: TileLayerOptions(
+        urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        subdomains: ['a', 'b', 'c']
+      )),
+      MarkerLayerWidget(options: MarkerLayerOptions(
+        markers: [
+          Marker(
+            width: 80.0,
+            height: 80.0,
+            point: LatLng(51.5, -0.09),
+            builder: (ctx) =>
+            Container(
+              child: FlutterLogo(),
+            ),
+          ),
+        ],
+      )),
     ],
   );
 }
@@ -218,6 +272,9 @@ Note that there is also `FileTileProvider()`, which you can use to load tiles fr
 - [flutter_map_marker_cluster](https://github.com/lpongetti/flutter_map_marker_cluster): Provides Beautiful Animated Marker Clustering functionality
 - [user_location](https://github.com/igaurab/user_location_plugin): A plugin to handle and plot the current user location in FlutterMap
 - [flutter_map_tappable_polyline](https://github.com/OwnWeb/flutter_map_tappable_polyline): A plugin to add `onTap` callback to `Polyline`
+- [lat_lon_grid_plugin](https://github.com/mat8854/lat_lon_grid_plugin): Adds a latitude / longitude grid as plugin to the FlutterMap
+- [flutter_map_marker_popup](https://github.com/rorystephenson/flutter_map_marker_popup): A plugin to show customisable popups for markers.
+- [map_elevation](https://github.com/OwnWeb/map_elevation): A widget to display elevation of a track (polyline) like Leaflet.Elevation
 
 ## Roadmap
 

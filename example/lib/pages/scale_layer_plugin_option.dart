@@ -1,8 +1,10 @@
 import 'dart:math';
 import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
+
 import './scalebar_utils.dart' as util;
 
 class ScaleLayerPluginOption extends LayerOptions {
@@ -11,11 +13,14 @@ class ScaleLayerPluginOption extends LayerOptions {
   double lineWidth;
   final EdgeInsets padding;
 
-  ScaleLayerPluginOption(
-      {this.textStyle,
-      this.lineColor = Colors.white,
-      this.lineWidth = 2,
-      this.padding});
+  ScaleLayerPluginOption({
+    Key key,
+    this.textStyle,
+    this.lineColor = Colors.white,
+    this.lineWidth = 2,
+    this.padding,
+    rebuild,
+  }) : super(key: key, rebuild: rebuild);
 }
 
 class ScaleLayerPlugin implements MapPlugin {
@@ -64,7 +69,8 @@ class ScaleLayer extends StatelessWidget {
     5
   ];
 
-  ScaleLayer(this.scaleLayerOpts, this.map, this.stream);
+  ScaleLayer(this.scaleLayerOpts, this.map, this.stream)
+      : super(key: scaleLayerOpts.key);
 
   @override
   Widget build(BuildContext context) {

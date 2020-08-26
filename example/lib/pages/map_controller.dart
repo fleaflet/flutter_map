@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong/latlong.dart';
+import 'package:location/location.dart';
 
 import '../widgets/drawer.dart';
 
@@ -92,6 +93,7 @@ class MapControllerPageState extends State<MapControllerPage> {
                       mapController.move(dublin, 5.0);
                     },
                   ),
+                  CurrentLocation(mapController: mapController),
                 ],
               ),
             ),
@@ -168,6 +170,52 @@ class MapControllerPageState extends State<MapControllerPage> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class CurrentLocation extends StatefulWidget {
+  const CurrentLocation({
+    Key key,
+    @required this.mapController,
+  }) : super(key: key);
+
+  final MapController mapController;
+
+  @override
+  _CurrentLocationState createState() => _CurrentLocationState();
+}
+
+class _CurrentLocationState extends State<CurrentLocation> {
+  var icon = Icons.gps_not_fixed;
+
+  void _moveToCurrent() async {
+    var location = Location();
+
+    try {
+      var currentLocation = await location.getLocation();
+      widget.mapController.move(
+          LatLng(currentLocation.latitude, currentLocation.longitude), 18);
+
+      setState(() {
+        icon = Icons.gps_fixed;
+      });
+      await widget.mapController.position.first;
+      setState(() {
+        icon = Icons.gps_not_fixed;
+      });
+    } catch (e) {
+      setState(() {
+        icon = Icons.gps_off;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Icon(icon),
+      onPressed: _moveToCurrent,
     );
   }
 }
