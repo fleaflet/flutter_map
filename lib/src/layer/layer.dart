@@ -7,7 +7,5 @@ import 'package:flutter/foundation.dart';
 class LayerOptions {
   final Key key;
   final Stream<Null> rebuild;
-  final bool rotationEnabled;
-  LayerOptions({this.key, this.rebuild, bool rotationEnabled})
-      : rotationEnabled = rotationEnabled ?? true;
+  LayerOptions({this.key, this.rebuild});
 }

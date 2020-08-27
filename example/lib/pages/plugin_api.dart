@@ -46,9 +46,8 @@ class MyCustomPluginOptions extends LayerOptions {
   MyCustomPluginOptions({
     Key key,
     this.text = '',
-    bool rotationEnabled = false,
-    Stream<Null> rebuild,
-  }) : super(key: key, rebuild: rebuild, rotationEnabled: rotationEnabled);
+    rebuild,
+  }) : super(key: key, rebuild: rebuild);
 }
 
 class MyCustomPlugin implements MapPlugin {
@@ -63,6 +62,7 @@ class MyCustomPlugin implements MapPlugin {
       );
       return Text(
         options.text,
+        key: options.key,
         style: style,
       );
     }

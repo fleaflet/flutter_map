@@ -3,7 +3,6 @@ import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/core/util.dart';
 import 'package:flutter_map/src/map/map.dart';
 
 class OverlayImageLayerOptions extends LayerOptions {
@@ -12,9 +11,8 @@ class OverlayImageLayerOptions extends LayerOptions {
   OverlayImageLayerOptions({
     Key key,
     this.overlayImages = const [],
-    bool rotationEnabled,
-    Stream<Null> rebuild,
-  }) : super(key: key, rebuild: rebuild, rotationEnabled: rotationEnabled);
+    rebuild,
+  }) : super(key: key, rebuild: rebuild);
 }
 
 class OverlayImage {
@@ -39,13 +37,7 @@ class OverlayImageLayerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mapState = MapState.of(context);
-
-    return wrapLayer(
-      OverlayImageLayer(options, mapState, mapState.onMoved),
-      mapState,
-      options,
-      false,
-    );
+    return OverlayImageLayer(options, mapState, mapState.onMoved);
   }
 }
 
@@ -54,7 +46,8 @@ class OverlayImageLayer extends StatelessWidget {
   final MapState map;
   final Stream<Null> stream;
 
-  OverlayImageLayer(this.overlayImageOpts, this.map, this.stream);
+  OverlayImageLayer(this.overlayImageOpts, this.map, this.stream)
+      : super(key: overlayImageOpts.key);
 
   @override
   Widget build(BuildContext context) {

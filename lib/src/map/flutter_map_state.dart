@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:async/async.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/core/util.dart';
 import 'package:flutter_map/src/gestures/gestures.dart';
 import 'package:flutter_map/src/layer/group_layer.dart';
 import 'package:flutter_map/src/layer/overlay_image_layer.dart';
@@ -74,6 +73,7 @@ class FlutterMapState extends MapGestureMixin {
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
       mapState.setOriginalSize(constraints.maxWidth, constraints.maxHeight);
+      var size = mapState.size;
 
       return MapStateInheritedWidget(
         mapState: mapState,
@@ -95,20 +95,27 @@ class FlutterMapState extends MapGestureMixin {
               onTapDown: _positionedTapController.onTapDown,
               onTapUp: handleOnTapUp,
               child: ClipRect(
-                child: Stack(
-                  children: [
-                    if (widget.children != null && widget.children.isNotEmpty)
-                      ...widget.children,
-                    if (widget.layers != null && widget.layers.isNotEmpty)
-                      ...widget.layers.map(
-                        (layer) => wrapLayer(
-                          _createLayer(layer, options.plugins),
-                          mapState,
-                          layer,
-                          true,
-                        ),
-                      )
-                  ],
+                // By using an OverflowBox with the enlarged drawing area all the layers
+                // act as if the area really would be that big. So no changes in any layer
+                // logic is necessary for the rotation
+                child: OverflowBox(
+                  minWidth: size.x,
+                  maxWidth: size.x,
+                  minHeight: size.y,
+                  maxHeight: size.y,
+                  child: Transform.rotate(
+                    angle: mapState.rotationRad,
+                    child: Stack(
+                      children: [
+                        if (widget.children != null &&
+                            widget.children.isNotEmpty)
+                          ...widget.children,
+                        if (widget.layers != null && widget.layers.isNotEmpty)
+                          ...widget.layers.map(
+                              (layer) => _createLayer(layer, options.plugins))
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),

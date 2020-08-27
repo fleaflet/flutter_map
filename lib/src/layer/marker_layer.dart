@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/bounds.dart';
-import 'package:flutter_map/src/core/util.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
 
@@ -10,9 +9,8 @@ class MarkerLayerOptions extends LayerOptions {
   MarkerLayerOptions({
     Key key,
     this.markers = const [],
-    bool rotationEnabled,
-    Stream<Null> rebuild,
-  }) : super(key: key, rebuild: rebuild, rotationEnabled: rotationEnabled);
+    rebuild,
+  }) : super(key: key, rebuild: rebuild);
 }
 
 class Anchor {
@@ -100,13 +98,7 @@ class MarkerLayerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mapState = MapState.of(context);
-
-    return wrapLayer(
-      MarkerLayer(options, mapState, mapState.onMoved),
-      mapState,
-      options,
-      false,
-    );
+    return MarkerLayer(options, mapState, mapState.onMoved);
   }
 }
 
@@ -115,7 +107,8 @@ class MarkerLayer extends StatelessWidget {
   final MapState map;
   final Stream<Null> stream;
 
-  MarkerLayer(this.markerOpts, this.map, this.stream);
+  MarkerLayer(this.markerOpts, this.map, this.stream)
+      : super(key: markerOpts.key);
 
   bool _boundsContainsMarker(Marker marker) {
     var pixelPoint = map.project(marker.point);

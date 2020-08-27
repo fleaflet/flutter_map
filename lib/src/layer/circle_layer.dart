@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/core/util.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart' hide Path; // conflict with Path from UI
 
@@ -11,9 +10,8 @@ class CircleLayerOptions extends LayerOptions {
   CircleLayerOptions({
     Key key,
     this.circles = const [],
-    bool rotationEnabled,
-    Stream<Null> rebuild,
-  }) : super(key: key, rebuild: rebuild, rotationEnabled: rotationEnabled);
+    rebuild,
+  }) : super(key: key, rebuild: rebuild);
 }
 
 class CircleMarker {
@@ -43,13 +41,7 @@ class CircleLayerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mapState = MapState.of(context);
-
-    return wrapLayer(
-      CircleLayer(options, mapState, mapState.onMoved),
-      mapState,
-      options,
-      false,
-    );
+    return CircleLayer(options, mapState, mapState.onMoved);
   }
 }
 
@@ -57,15 +49,23 @@ class CircleLayer extends StatelessWidget {
   final CircleLayerOptions circleOpts;
   final MapState map;
   final Stream<Null> stream;
-  CircleLayer(this.circleOpts, this.map, this.stream);
+  CircleLayer(this.circleOpts, this.map, this.stream)
+      : super(key: circleOpts.key);
 
   @override
   Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints bc) {
+        final size = Size(bc.maxWidth, bc.maxHeight);
+        return _build(context, size);
+      },
+    );
+  }
+
+  Widget _build(BuildContext context, Size size) {
     return StreamBuilder<void>(
       stream: stream, // a Stream<void> or null
       builder: (BuildContext context, _) {
-        var size = circleOpts.rotationEnabled ? map.size : map.originalSize;
-
         var circleWidgets = <Widget>[];
         for (var circle in circleOpts.circles) {
           var pos = map.project(circle.point);
@@ -85,7 +85,7 @@ class CircleLayer extends StatelessWidget {
           circleWidgets.add(
             CustomPaint(
               painter: CirclePainter(circle),
-              size: Size(size.x, size.y),
+              size: size,
             ),
           );
         }
