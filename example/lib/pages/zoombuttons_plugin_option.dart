@@ -24,7 +24,7 @@ class ZoomButtonsPluginOption extends LayerOptions {
     this.zoomInIcon = Icons.zoom_in,
     this.zoomOutColor,
     this.zoomOutIcon = Icons.zoom_out,
-    rebuild,
+    Stream<Null> rebuild,
   }) : super(key: key, rebuild: rebuild);
 }
 

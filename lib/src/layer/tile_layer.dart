@@ -224,7 +224,7 @@ class TileLayerOptions extends LayerOptions {
     this.overrideTilesWhenUrlChanges = false,
     this.retinaMode = false,
     this.errorTileCallback,
-    rebuild,
+    Stream<Null> rebuild,
   })  : updateInterval =
             updateInterval <= 0 ? null : Duration(milliseconds: updateInterval),
         tileFadeInDuration = tileFadeInDuration <= 0
