@@ -19,7 +19,7 @@ class ScaleLayerPluginOption extends LayerOptions {
     this.lineColor = Colors.white,
     this.lineWidth = 2,
     this.padding,
-    rebuild,
+    Stream<Null> rebuild,
   }) : super(key: key, rebuild: rebuild);
 }
 

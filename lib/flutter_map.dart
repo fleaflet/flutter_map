@@ -42,10 +42,23 @@ class FlutterMap extends StatefulWidget {
   ///
   /// Usually a list of [TileLayerOptions], [MarkerLayerOptions] and
   /// [PolylineLayerOptions].
+  ///
+  /// These layers will render above [children]
   final List<LayerOptions> layers;
+
+  /// These layers won't be rotated.
+  /// Usually these are plugins which are floating above [layers]
+  ///
+  /// These layers will render above [nonRotatedChildren]
+  final List<LayerOptions> nonRotatedLayers;
 
   /// A set of layers' widgets to used to create the layers on the map.
   final List<Widget> children;
+
+  /// These layers won't be rotated.
+  ///
+  /// These layers will render above [layers]
+  final List<Widget> nonRotatedChildren;
 
   /// [MapOptions] to create a [MapState] with.
   ///
@@ -59,7 +72,9 @@ class FlutterMap extends StatefulWidget {
     Key key,
     @required this.options,
     this.layers = const [],
+    this.nonRotatedLayers = const [],
     this.children = const [],
+    this.nonRotatedChildren = const [],
     MapController mapController,
   })  : assert(options != null, 'MapOptions cannot be null!'),
         _mapController = mapController,

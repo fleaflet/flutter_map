@@ -9,7 +9,7 @@ class MarkerLayerOptions extends LayerOptions {
   MarkerLayerOptions({
     Key key,
     this.markers = const [],
-    rebuild,
+    Stream<Null> rebuild,
   }) : super(key: key, rebuild: rebuild);
 }
 
@@ -93,7 +93,7 @@ class Marker {
 class MarkerLayerWidget extends StatelessWidget {
   final MarkerLayerOptions options;
 
-  MarkerLayerWidget({@required this.options}) : super(key: options.key);
+  MarkerLayerWidget({Key key, @required this.options}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

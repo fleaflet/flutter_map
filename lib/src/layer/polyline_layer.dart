@@ -14,7 +14,7 @@ class PolylineLayerOptions extends LayerOptions {
     Key key,
     this.polylines = const [],
     this.polylineCulling = false,
-    rebuild,
+    Stream<Null> rebuild,
   }) : super(key: key, rebuild: rebuild) {
     if (polylineCulling) {
       for (var polyline in polylines) {
@@ -50,7 +50,7 @@ class Polyline {
 
 class PolylineLayerWidget extends StatelessWidget {
   final PolylineLayerOptions options;
-  PolylineLayerWidget({@required this.options}) : super(key: options.key);
+  PolylineLayerWidget({Key key, @required this.options}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

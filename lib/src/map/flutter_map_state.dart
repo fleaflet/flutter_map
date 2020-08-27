@@ -95,27 +95,42 @@ class FlutterMapState extends MapGestureMixin {
               onTapDown: _positionedTapController.onTapDown,
               onTapUp: handleOnTapUp,
               child: ClipRect(
-                // By using an OverflowBox with the enlarged drawing area all the layers
-                // act as if the area really would be that big. So no changes in any layer
-                // logic is necessary for the rotation
-                child: OverflowBox(
-                  minWidth: size.x,
-                  maxWidth: size.x,
-                  minHeight: size.y,
-                  maxHeight: size.y,
-                  child: Transform.rotate(
-                    angle: mapState.rotationRad,
-                    child: Stack(
+                child: Stack(
+                  children: [
+                    OverflowBox(
+                      minWidth: size.x,
+                      maxWidth: size.x,
+                      minHeight: size.y,
+                      maxHeight: size.y,
+                      child: Transform.rotate(
+                        angle: mapState.rotationRad,
+                        child: Stack(
+                          children: [
+                            if (widget.children != null &&
+                                widget.children.isNotEmpty)
+                              ...widget.children,
+                            if (widget.layers != null &&
+                                widget.layers.isNotEmpty)
+                              ...widget.layers.map(
+                                (layer) => _createLayer(layer, options.plugins),
+                              )
+                          ],
+                        ),
+                      ),
+                    ),
+                    Stack(
                       children: [
-                        if (widget.children != null &&
-                            widget.children.isNotEmpty)
-                          ...widget.children,
-                        if (widget.layers != null && widget.layers.isNotEmpty)
-                          ...widget.layers.map(
-                              (layer) => _createLayer(layer, options.plugins))
+                        if (widget.nonRotatedChildren != null &&
+                            widget.nonRotatedChildren.isNotEmpty)
+                          ...widget.nonRotatedChildren,
+                        if (widget.nonRotatedLayers != null &&
+                            widget.nonRotatedLayers.isNotEmpty)
+                          ...widget.nonRotatedLayers.map(
+                            (layer) => _createLayer(layer, options.plugins),
+                          )
                       ],
                     ),
-                  ),
+                  ],
                 ),
               ),
             ),

@@ -30,6 +30,8 @@ class PluginPage extends StatelessWidget {
                       urlTemplate:
                           'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                       subdomains: ['a', 'b', 'c']),
+                ],
+                nonRotatedLayers: [
                   MyCustomPluginOptions(text: "I'm a plugin!"),
                 ],
               ),
@@ -46,7 +48,7 @@ class MyCustomPluginOptions extends LayerOptions {
   MyCustomPluginOptions({
     Key key,
     this.text = '',
-    rebuild,
+    Stream<Null> rebuild,
   }) : super(key: key, rebuild: rebuild);
 }
 
