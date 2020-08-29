@@ -115,12 +115,15 @@ class MapState {
   CustomPoint get originalSize => _originalSize;
 
   void setOriginalSize(double width, double height) {
-    if (_originalSize == null ||
+    final isCurrSizeNull = _originalSize == null;
+    if (isCurrSizeNull ||
         _originalSize.x != width ||
         _originalSize.y != height) {
       _originalSize = CustomPoint<double>(width, height);
 
-      _updateSizeByOriginalSizeAndRotation(_originalSize != null);
+      // call onMoveSink to rebuild layers if screen size has been changed
+      // if size was null then _init(); will handle it
+      _updateSizeByOriginalSizeAndRotation(!isCurrSizeNull);
     }
   }
 
