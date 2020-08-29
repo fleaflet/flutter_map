@@ -76,8 +76,6 @@ class MapControllerImpl implements MapController {
 }
 
 class MapState {
-  static const _rad90 = 90.0 * math.pi / 180.0;
-
   MapOptions options;
   final ValueChanged<double> onRotationChanged;
   final StreamController<Null> _onMoveSink;
@@ -122,7 +120,7 @@ class MapState {
         _originalSize.y != height) {
       _originalSize = CustomPoint<double>(width, height);
 
-      _updateSizeByOriginalSizeAndRotation();
+      _updateSizeByOriginalSizeAndRotation(_originalSize != null);
     }
   }
 
@@ -131,17 +129,15 @@ class MapState {
 
   CustomPoint get size => _size;
 
-  void _updateSizeByOriginalSizeAndRotation() {
+  void _updateSizeByOriginalSizeAndRotation([bool callOnMoveSink = false]) {
     final originalWidth = _originalSize.x;
     final originalHeight = _originalSize.y;
 
     if (_rotation != 0.0) {
-      final rangle90 = math.sin(_rad90 - _rotationRad).abs();
-      final sinangle = math.sin(_rotationRad).abs();
-      // to make sure that the whole screen is filled with the map after rotation
-      // we enlarge the drawing area over the available screen size
-      final width = (originalWidth * rangle90) + (originalHeight * sinangle);
-      final height = (originalHeight * rangle90) + (originalWidth * sinangle);
+      final cosAngle = math.cos(_rotationRad).abs();
+      final sinAngle = math.sin(_rotationRad).abs();
+      final width = (originalWidth * cosAngle) + (originalHeight * sinAngle);
+      final height = (originalHeight * cosAngle) + (originalWidth * sinAngle);
 
       _size = CustomPoint<double>(width, height);
     } else {
@@ -154,6 +150,10 @@ class MapState {
     }
 
     _pixelOrigin = getNewPixelOrigin(_lastCenter);
+
+    if (callOnMoveSink) {
+      _onMoveSink.add(null);
+    }
   }
 
   LatLng get center => getCenter() ?? options.center;
