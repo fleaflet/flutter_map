@@ -121,9 +121,12 @@ class MapState {
         _originalSize.y != height) {
       _originalSize = CustomPoint<double>(width, height);
 
-      // call onMoveSink to rebuild layers if screen size has been changed
-      // if size was null then _init(); will handle it
-      _updateSizeByOriginalSizeAndRotation(!isCurrSizeNull);
+      _updateSizeByOriginalSizeAndRotation();
+
+      // rebuild layers if screen size has been changed
+      if (!isCurrSizeNull) {
+        _onMoveSink.add(null);
+      }
     }
   }
 
@@ -132,7 +135,7 @@ class MapState {
 
   CustomPoint get size => _size;
 
-  void _updateSizeByOriginalSizeAndRotation([bool callOnMoveSink = false]) {
+  void _updateSizeByOriginalSizeAndRotation() {
     final originalWidth = _originalSize.x;
     final originalHeight = _originalSize.y;
 
@@ -153,10 +156,6 @@ class MapState {
     }
 
     _pixelOrigin = getNewPixelOrigin(_lastCenter);
-
-    if (callOnMoveSink) {
-      _onMoveSink.add(null);
-    }
   }
 
   LatLng get center => getCenter() ?? options.center;
