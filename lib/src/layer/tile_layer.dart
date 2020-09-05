@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:collection/collection.dart' show MapEquality;
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/core/bounds.dart';
@@ -199,7 +200,7 @@ class TileLayerOptions extends LayerOptions {
     this.maxNativeZoom,
     this.zoomReverse = false,
     double zoomOffset = 0.0,
-    this.additionalOptions = const <String, String>{},
+    Map<String, String> additionalOptions,
     this.subdomains = const <String>[],
     this.keepBuffer = 2,
     this.backgroundColor = const Color(0xFFE0E0E0),
@@ -247,6 +248,11 @@ class TileLayerOptions extends LayerOptions {
         tileSize = wmsOptions == null && retinaMode && maxZoom > 0.0
             ? (tileSize / 2.0).floorToDouble()
             : tileSize,
+        // copy additionalOptions Map if not null, so we can safely compare old
+        // and new Map inside didUpdateWidget with MapEquality.
+        additionalOptions = additionalOptions == null
+            ? const <String, String>{}
+            : Map.from(additionalOptions),
         super(key: key, rebuild: rebuild);
 }
 
@@ -424,7 +430,12 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       final oldUrl = oldWidget.options.wmsOptions?._encodedBaseUrl ??
           oldWidget.options.urlTemplate;
       final newUrl = options.wmsOptions?._encodedBaseUrl ?? options.urlTemplate;
-      if (oldUrl != newUrl) {
+
+      final oldOptions = oldWidget.options.additionalOptions;
+      final newOptions = options.additionalOptions;
+
+      if (oldUrl != newUrl ||
+          !(const MapEquality()).equals(oldOptions, newOptions)) {
         if (options.overrideTilesWhenUrlChanges) {
           for (var tile in _tiles.values) {
             tile.imageProvider = options.tileProvider
