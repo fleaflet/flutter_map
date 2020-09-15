@@ -1,3 +1,45 @@
+## [0.10.1+1] - 8/4/2020
+- fix possible issue with code published in previous version
+
+## [0.10.1] - 8/4/2020
+- Controller position stream (#505)
+- Fix gray tiles when tile image is already available (#715)
+- Key management (#695)
+- migrate to androidx (#697)
+
+Thanks to @maRci002, @4F2E4A2E, and @porfirioribeiro
+
+## [0.10.0] - 7/7/2020
+- add package:meta dependency, set cached_network_image to 2.0.0
+- Support retina mode (#585)
+- Handle exception on move without internet connection (#600)
+- Fix TileLayer/Tiles not getting disposed correctly (#595)
+- Polyline culling (#611) 
+- Remove mapbox from README (#651)
+- docs update (#655)
+- Fix #595 TileLayer not getting disposed correctly (#596)
+- Support subdomains on wms layer (#516)
+- Slide map along map boundaries (#430)
+- Add example of showing current location (#447)
+- Adding an explanation when a plugin has not been activated (#477)
+- Add icons & color params for zoombuttons (#544)
+- Fix Bug 545 stacked MBTileImageProvider (#546)
+- fix #608 Empty map fails when return to same route (#609)
+- fix Flickering bug - on double click / MapController move (#579)
+- fix/group-layer-rebuid: consuming rebuild stream in group layer (#663)
+- Fix #446: Polyline rendering on web (#662)
+- Initialize map widgets with bounds or center (#646)
+- Add flutter_map_marker_popup to plugins in README.md (#603)
+- add lat lon grid plugin to readme (#601)
+- Handle exception on move without internet connection (#600)
+- Fix "plugins.flutter.io/path_provider" deprecation (#598)
+- Fix #595 TileLayer not getting disposed correctly (#596)
+- New Widget layers API (#619)
+
+Thanks to @maRci002, @beerline, @saibotma, @kuhnroyal, @porfirioribeiro, @Lootwig,
+@raacker, @wpietri, @HugoHeneault, @felixjunghans, @hlin079g6, @eugenio165,
+@fusion44, @rorystephenson, @mat8854, @dpatrongomez, @ruizalexandre 
+
 ## [0.9.0] - 4/6/2020
 - Improve tile management (#572) - This is a huge improvement aligns
   tile rendering with Leaflet's behavior. 

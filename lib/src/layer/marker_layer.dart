@@ -6,8 +6,11 @@ import 'package:latlong/latlong.dart';
 
 class MarkerLayerOptions extends LayerOptions {
   final List<Marker> markers;
-  MarkerLayerOptions({this.markers = const [], rebuild})
-      : super(rebuild: rebuild);
+  MarkerLayerOptions({
+    Key key,
+    this.markers = const [],
+    rebuild,
+  }) : super(key: key, rebuild: rebuild);
 }
 
 class Anchor {
@@ -87,12 +90,25 @@ class Marker {
   }) : anchor = Anchor.forPos(anchorPos, width, height);
 }
 
+class MarkerLayerWidget extends StatelessWidget {
+  final MarkerLayerOptions options;
+
+  MarkerLayerWidget({@required this.options}) : super(key: options.key);
+
+  @override
+  Widget build(BuildContext context) {
+    final mapState = MapState.of(context);
+    return MarkerLayer(options, mapState, mapState.onMoved);
+  }
+}
+
 class MarkerLayer extends StatelessWidget {
   final MarkerLayerOptions markerOpts;
   final MapState map;
   final Stream<Null> stream;
 
-  MarkerLayer(this.markerOpts, this.map, this.stream);
+  MarkerLayer(this.markerOpts, this.map, this.stream)
+      : super(key: markerOpts.key);
 
   bool _boundsContainsMarker(Marker marker) {
     var pixelPoint = map.project(marker.point);

@@ -43,7 +43,11 @@ class PluginPage extends StatelessWidget {
 
 class MyCustomPluginOptions extends LayerOptions {
   final String text;
-  MyCustomPluginOptions({this.text = ''});
+  MyCustomPluginOptions({
+    Key key,
+    this.text = '',
+    rebuild,
+  }) : super(key: key, rebuild: rebuild);
 }
 
 class MyCustomPlugin implements MapPlugin {
@@ -58,6 +62,7 @@ class MyCustomPlugin implements MapPlugin {
       );
       return Text(
         options.text,
+        key: options.key,
         style: style,
       );
     }
