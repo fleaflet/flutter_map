@@ -6,6 +6,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/center_zoom.dart';
 import 'package:flutter_map/src/core/point.dart';
+import 'package:flutter_map/src/map/map_state_widget.dart';
 import 'package:latlong/latlong.dart';
 
 class MapControllerImpl implements MapController {
@@ -56,11 +57,15 @@ class MapControllerImpl implements MapController {
 
   @override
   ValueChanged<double> onRotationChanged;
+
+  @override
+  Stream<MapPosition> get position => _state._positionSink.stream;
 }
 
 class MapState {
   MapOptions options;
   final StreamController<Null> _onMoveSink;
+  final StreamController<MapPosition> _positionSink;
 
   double _zoom;
   double rotation;
@@ -76,7 +81,8 @@ class MapState {
   MapState(this.options)
       : rotation = options.rotation,
         _zoom = options.zoom,
-        _onMoveSink = StreamController.broadcast();
+        _onMoveSink = StreamController.broadcast(),
+        _positionSink = StreamController.broadcast();
 
   CustomPoint _size;
 
@@ -100,21 +106,38 @@ class MapState {
   Bounds get pixelBounds => getLastPixelBounds();
 
   void _init() {
-    move(options.center, zoom);
+    if (options.bounds != null) {
+      fitBounds(options.bounds, options.boundsOptions);
+    } else {
+      move(options.center, zoom);
+    }
   }
 
   void dispose() {
     _onMoveSink.close();
   }
 
+  void forceRebuild() {
+    _onMoveSink?.add(null);
+  }
+
   void move(LatLng center, double zoom, {hasGesture = false}) {
     zoom = fitZoomToBounds(zoom);
     final mapMoved = center != _lastCenter || zoom != _zoom;
 
-    if (_lastCenter != null &&
-        (!mapMoved || options.isOutOfBounds(center) || !bounds.isValid)) {
+    if (_lastCenter != null && (!mapMoved || !bounds.isValid)) {
       return;
     }
+
+    if (options.isOutOfBounds(center)) {
+      if (!options.slideOnBoundaries) {
+        return;
+      }
+      center = options.containPoint(center, _lastCenter ?? center);
+    }
+
+    var mapPosition = MapPosition(
+        center: center, bounds: bounds, zoom: zoom, hasGesture: hasGesture);
 
     _zoom = zoom;
     _lastCenter = center;
@@ -122,15 +145,10 @@ class MapState {
     _lastBounds = _calculateBounds();
     _pixelOrigin = getNewPixelOrigin(center);
     _onMoveSink.add(null);
+    _positionSink.add(mapPosition);
 
     if (options.onPositionChanged != null) {
-      options.onPositionChanged(
-          MapPosition(
-            center: center,
-            bounds: bounds,
-            zoom: zoom,
-          ),
-          hasGesture);
+      options.onPositionChanged(mapPosition, hasGesture);
     }
   }
 
@@ -247,18 +265,18 @@ class MapState {
 
   double getZoomScale(double toZoom, double fromZoom) {
     var crs = options.crs;
-    fromZoom = fromZoom == null ? _zoom : fromZoom;
+    fromZoom = fromZoom ?? _zoom;
     return crs.scale(toZoom) / crs.scale(fromZoom);
   }
 
   double getScaleZoom(double scale, double fromZoom) {
     var crs = options.crs;
-    fromZoom = fromZoom == null ? _zoom : fromZoom;
+    fromZoom = fromZoom ?? _zoom;
     return crs.zoom(scale * crs.scale(fromZoom));
   }
 
   Bounds getPixelWorldBounds(double zoom) {
-    return options.crs.getProjectedBounds(zoom == null ? _zoom : zoom);
+    return options.crs.getProjectedBounds(zoom ?? _zoom);
   }
 
   CustomPoint getPixelOrigin() {
@@ -276,5 +294,17 @@ class MapState {
     var pixelCenter = project(center, zoom).floor();
     var halfSize = size / (scale * 2);
     return Bounds(pixelCenter - halfSize, pixelCenter + halfSize);
+  }
+
+  static MapState of(BuildContext context, {bool nullOk = false}) {
+    assert(context != null);
+    assert(nullOk != null);
+    final widget =
+        context.dependOnInheritedWidgetOfExactType<MapStateInheritedWidget>();
+    if (nullOk || widget != null) {
+      return widget?.mapState;
+    }
+    throw FlutterError(
+        'MapState.of() called with a context that does not contain a FlutterMap.');
   }
 }

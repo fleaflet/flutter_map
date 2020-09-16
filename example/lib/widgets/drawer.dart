@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map_example/pages/tile_builder_example.dart';
 
 import '../pages/animated_map_controller.dart';
 import '../pages/circle.dart';
 import '../pages/custom_crs/custom_crs.dart';
 import '../pages/esri.dart';
 import '../pages/home.dart';
+import '../pages/live_location.dart';
 import '../pages/map_controller.dart';
 import '../pages/marker_anchor.dart';
 import '../pages/moving_markers.dart';
@@ -16,8 +18,28 @@ import '../pages/plugin_api.dart';
 import '../pages/plugin_scalebar.dart';
 import '../pages/plugin_zoombuttons.dart';
 import '../pages/polyline.dart';
+import '../pages/sliding_map.dart';
 import '../pages/tap_to_add.dart';
+import '../pages/tile_loading_error_handle.dart';
+import '../pages/widgets.dart';
 import '../pages/wms_tile_layer.dart';
+
+Widget _buildMenuItem(
+    BuildContext context, Widget title, String routeName, String currentRoute) {
+  var isSelected = routeName == currentRoute;
+
+  return ListTile(
+    title: title,
+    selected: isSelected,
+    onTap: () {
+      if (isSelected) {
+        Navigator.pop(context);
+      } else {
+        Navigator.pushReplacementNamed(context, routeName);
+      }
+    },
+  );
+}
 
 Drawer buildDrawer(BuildContext context, String currentRoute) {
   return Drawer(
@@ -28,133 +50,143 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
             child: Text('Flutter Map Examples'),
           ),
         ),
-        ListTile(
-          title: const Text('OpenStreetMap'),
-          selected: currentRoute == HomePage.route,
-          onTap: () {
-            Navigator.pushReplacementNamed(context, HomePage.route);
-          },
+        _buildMenuItem(
+          context,
+          const Text('OpenStreetMap'),
+          HomePage.route,
+          currentRoute,
         ),
-        ListTile(
-          title: const Text('WMS Layer'),
-          selected: currentRoute == WMSLayerPage.route,
-          onTap: () {
-            Navigator.pushReplacementNamed(context, WMSLayerPage.route);
-          },
+        _buildMenuItem(
+          context,
+          const Text('WMS Layer'),
+          WMSLayerPage.route,
+          currentRoute,
         ),
-        ListTile(
-          title: const Text('Custom CRS'),
-          selected: currentRoute == CustomCrsPage.route,
-          onTap: () {
-            Navigator.pushReplacementNamed(context, CustomCrsPage.route);
-          },
+        _buildMenuItem(
+          context,
+          const Text('Custom CRS'),
+          CustomCrsPage.route,
+          currentRoute,
         ),
-        ListTile(
-          title: const Text('Add Pins'),
-          selected: currentRoute == TapToAddPage.route,
-          onTap: () {
-            Navigator.pushReplacementNamed(context, TapToAddPage.route);
-          },
+        _buildMenuItem(
+          context,
+          const Text('Add Pins'),
+          TapToAddPage.route,
+          currentRoute,
         ),
-        ListTile(
-          title: const Text('Esri'),
-          selected: currentRoute == EsriPage.route,
-          onTap: () {
-            Navigator.pushReplacementNamed(context, EsriPage.route);
-          },
+        _buildMenuItem(
+          context,
+          const Text('Esri'),
+          EsriPage.route,
+          currentRoute,
         ),
-        ListTile(
-          title: const Text('Polylines'),
-          selected: currentRoute == PolylinePage.route,
-          onTap: () {
-            Navigator.pushReplacementNamed(context, PolylinePage.route);
-          },
+        _buildMenuItem(
+          context,
+          const Text('Polylines'),
+          PolylinePage.route,
+          currentRoute,
         ),
-        ListTile(
-          title: const Text('MapController'),
-          selected: currentRoute == MapControllerPage.route,
-          onTap: () {
-            Navigator.pushReplacementNamed(context, MapControllerPage.route);
-          },
+        _buildMenuItem(
+          context,
+          const Text('MapController'),
+          MapControllerPage.route,
+          currentRoute,
         ),
-        ListTile(
-          title: const Text('Animated MapController'),
-          selected: currentRoute == AnimatedMapControllerPage.route,
-          onTap: () {
-            Navigator.pushReplacementNamed(
-                context, AnimatedMapControllerPage.route);
-          },
+        _buildMenuItem(
+          context,
+          const Text('Animated MapController'),
+          AnimatedMapControllerPage.route,
+          currentRoute,
         ),
-        ListTile(
-          title: const Text('Marker Anchors'),
-          selected: currentRoute == MarkerAnchorPage.route,
-          onTap: () {
-            Navigator.pushReplacementNamed(context, MarkerAnchorPage.route);
-          },
+        _buildMenuItem(
+          context,
+          const Text('Marker Anchors'),
+          MarkerAnchorPage.route,
+          currentRoute,
         ),
-        ListTile(
-          title: const Text('Plugins'),
-          selected: currentRoute == PluginPage.route,
-          onTap: () {
-            Navigator.pushReplacementNamed(context, PluginPage.route);
-          },
+        _buildMenuItem(
+          context,
+          const Text('Plugins'),
+          PluginPage.route,
+          currentRoute,
         ),
-        ListTile(
-          title: const Text('ScaleBar Plugins'),
-          selected: currentRoute == PluginScaleBar.route,
-          onTap: () {
-            Navigator.pushReplacementNamed(context, PluginScaleBar.route);
-          },
+        _buildMenuItem(
+          context,
+          const Text('ScaleBar Plugins'),
+          PluginScaleBar.route,
+          currentRoute,
         ),
-        ListTile(
-          title: const Text('ZoomButtons Plugins'),
-          selected: currentRoute == PluginZoomButtons.route,
-          onTap: () {
-            Navigator.pushReplacementNamed(context, PluginZoomButtons.route);
-          },
+        _buildMenuItem(
+          context,
+          const Text('ZoomButtons Plugins'),
+          PluginZoomButtons.route,
+          currentRoute,
         ),
-        ListTile(
-          title: const Text('Offline Map'),
-          selected: currentRoute == OfflineMapPage.route,
-          onTap: () {
-            Navigator.pushReplacementNamed(context, OfflineMapPage.route);
-          },
+        _buildMenuItem(
+          context,
+          const Text('Offline Map'),
+          OfflineMapPage.route,
+          currentRoute,
         ),
-        ListTile(
-          title: const Text('Offline Map (using MBTiles)'),
-          selected: currentRoute == OfflineMBTilesMapPage.route,
-          onTap: () {
-            Navigator.pushReplacementNamed(
-                context, OfflineMBTilesMapPage.route);
-          },
+        _buildMenuItem(
+          context,
+          const Text('Offline Map (using MBTiles)'),
+          OfflineMBTilesMapPage.route,
+          currentRoute,
         ),
-        ListTile(
-          title: const Text('OnTap'),
-          selected: currentRoute == OnTapPage.route,
-          onTap: () {
-            Navigator.pushReplacementNamed(context, OnTapPage.route);
-          },
+        _buildMenuItem(
+          context,
+          const Text('OnTap'),
+          OnTapPage.route,
+          currentRoute,
         ),
-        ListTile(
-          title: const Text('Moving Markers'),
-          selected: currentRoute == MovingMarkersPage.route,
-          onTap: () {
-            Navigator.pushReplacementNamed(context, MovingMarkersPage.route);
-          },
+        _buildMenuItem(
+          context,
+          const Text('Moving Markers'),
+          MovingMarkersPage.route,
+          currentRoute,
         ),
-        ListTile(
-          title: const Text('Circle'),
-          selected: currentRoute == CirclePage.route,
-          onTap: () {
-            Navigator.pushReplacementNamed(context, CirclePage.route);
-          },
+        _buildMenuItem(
+          context,
+          const Text('Circle'),
+          CirclePage.route,
+          currentRoute,
         ),
-        ListTile(
-          title: const Text('Overlay Image'),
-          selected: currentRoute == OverlayImagePage.route,
-          onTap: () {
-            Navigator.pushReplacementNamed(context, OverlayImagePage.route);
-          },
+        _buildMenuItem(
+          context,
+          const Text('Overlay Image'),
+          OverlayImagePage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Sliding Map'),
+          SlidingMapPage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Widgets'),
+          WidgetsPage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Live Location Update'),
+          LiveLocationPage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Tile loading error handle'),
+          TileLoadingErrorHandle.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Tile builder'),
+          TileBuilderPage.route,
+          currentRoute,
         ),
       ],
     ),

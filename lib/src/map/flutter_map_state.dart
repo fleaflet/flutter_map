@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:math';
 
+import 'package:async/async.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/point.dart';
@@ -7,11 +9,13 @@ import 'package:flutter_map/src/gestures/gestures.dart';
 import 'package:flutter_map/src/layer/group_layer.dart';
 import 'package:flutter_map/src/layer/overlay_image_layer.dart';
 import 'package:flutter_map/src/map/map.dart';
+import 'package:flutter_map/src/map/map_state_widget.dart';
 import 'package:latlong/latlong.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
-import 'package:async/async.dart';
 
 class FlutterMapState extends MapGestureMixin {
+  final Key _layerStackKey = GlobalKey();
+  final Key _positionedTapDetectorKey = GlobalKey();
   final MapControllerImpl mapController;
   final List<StreamGroup<Null>> groups = <StreamGroup<Null>>[];
   final _positionedTapController = PositionedTapController();
@@ -95,9 +99,12 @@ class FlutterMapState extends MapGestureMixin {
       }
 
       var layerStack = Stack(
+        key: _layerStackKey,
         children: [
-          for (final layer in widget.layers)
-            _createLayer(layer, widget.options.plugins)
+          ...widget.children ?? [],
+          ...widget.layers.map(
+                  (layer) => _createLayer(layer, widget.options.plugins)) ??
+              [],
         ],
       );
 
@@ -107,6 +114,7 @@ class FlutterMapState extends MapGestureMixin {
         mapRoot = layerStack;
       } else {
         mapRoot = PositionedTapDetector(
+          key: _positionedTapDetectorKey,
           controller: _positionedTapController,
           onTap: handleTap,
           onLongPress: handleLongPress,
@@ -128,20 +136,26 @@ class FlutterMapState extends MapGestureMixin {
         // By using an OverflowBox with the enlarged drawing area all the layers
         // act as if the area really would be that big. So no changes in any layer
         // logic is necessary for the rotation
-        return ClipRect(
-          child: Transform.rotate(
-            angle: angle,
-            child: OverflowBox(
-              minWidth: width,
-              maxWidth: width,
-              minHeight: height,
-              maxHeight: height,
-              child: mapRoot,
+        return MapStateInheritedWidget(
+          mapState: mapState,
+          child: ClipRect(
+            child: Transform.rotate(
+              angle: angle,
+              child: OverflowBox(
+                minWidth: width,
+                maxWidth: width,
+                minHeight: height,
+                maxHeight: height,
+                child: mapRoot,
+              ),
             ),
           ),
         );
       } else {
-        return mapRoot;
+        return MapStateInheritedWidget(
+          mapState: mapState,
+          child: mapRoot,
+        );
       }
     });
   }
@@ -174,6 +188,10 @@ class FlutterMapState extends MapGestureMixin {
     if (options is OverlayImageLayerOptions) {
       return OverlayImageLayer(options, mapState, _merge(options));
     }
+    assert(false, """
+Can't find correct layer for $options. Perhaps when you create your FlutterMap you need something like this:
+
+    options: new MapOptions(plugins: [MyFlutterMapPlugin()])""");
     return null;
   }
 }

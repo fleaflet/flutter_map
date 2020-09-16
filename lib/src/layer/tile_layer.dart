@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/core/util.dart' as util;
 import 'package:flutter_map/src/geo/crs/crs.dart';
+import 'package:flutter_map/src/layer/tile_builder/tile_builder.dart';
 import 'package:flutter_map/src/layer/tile_provider/tile_provider.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
@@ -13,10 +15,16 @@ import 'package:tuple/tuple.dart';
 
 import 'layer.dart';
 
+typedef ErrorTileCallBack = void Function(Tile tile, dynamic error);
+
 /// Describes the needed properties to create a tile-based layer.
-/// A tile is an image binded to a specific geographical position.
+/// A tile is an image bound to a specific geographical position.
 class TileLayerOptions extends LayerOptions {
   /// Defines the structure to create the URLs for the tiles.
+  /// `{s}` means one of the available subdomains (can be omitted)
+  /// `{z}` zoom level
+  /// `{x}` and `{y}` — tile coordinates
+  /// `{r}` can be used to add "&commat;2x" to the URL to load retina tiles (can be omitted)
   ///
   /// Example:
   ///
@@ -47,20 +55,20 @@ class TileLayerOptions extends LayerOptions {
   /// In most tile providers goes from 0 to 19.
   final double maxZoom;
 
-  // Minimum zoom number the tile source has available. If it is specified,
-  // the tiles on all zoom levels lower than minNativeZoom will be loaded
-  // from minNativeZoom level and auto-scaled.
+  /// Minimum zoom number the tile source has available. If it is specified,
+  /// the tiles on all zoom levels lower than minNativeZoom will be loaded
+  /// from minNativeZoom level and auto-scaled.
   final double minNativeZoom;
 
-  // Maximum zoom number the tile source has available. If it is specified,
-  // the tiles on all zoom levels higher than maxNativeZoom will be loaded
-  // from maxNativeZoom level and auto-scaled.
+  /// Maximum zoom number the tile source has available. If it is specified,
+  /// the tiles on all zoom levels higher than maxNativeZoom will be loaded
+  /// from maxNativeZoom level and auto-scaled.
   final double maxNativeZoom;
 
-  // If set to true, the zoom number used in tile URLs will be reversed (`maxZoom - zoom` instead of `zoom`)
+  /// If set to true, the zoom number used in tile URLs will be reversed (`maxZoom - zoom` instead of `zoom`)
   final bool zoomReverse;
 
-  // The zoom number used in tile URLs will be offset with this value.
+  /// The zoom number used in tile URLs will be offset with this value.
   final double zoomOffset;
 
   /// List of subdomains for the URL.
@@ -80,14 +88,10 @@ class TileLayerOptions extends LayerOptions {
   /// https://c.tile.openstreetmap.org/{z}/{x}/{y}.png
   final List<String> subdomains;
 
-  ///Color shown behind the tiles.
+  /// Color shown behind the tiles.
   final Color backgroundColor;
 
-  /// ColorFilter for the tiles to implement grayscale or similar effects.
-  /// https://api.flutter.dev/flutter/dart-ui/ColorFilter/ColorFilter.matrix.html
-  final ColorFilter colorFilter;
-
-  ///Opacity of the rendered tile
+  /// Opacity of the rendered tile
   final double opacity;
 
   /// Provider to load the tiles. The default is CachedNetworkTileProvider,
@@ -135,7 +139,7 @@ class TileLayerOptions extends LayerOptions {
   ///
   /// TileLayerOptions(
   ///     urlTemplate: "https://api.tiles.mapbox.com/v4/"
-  ///                  "{id}/{z}/{x}/{y}@2x.png?access_token={accessToken}",
+  ///                  "{id}/{z}/{x}/{y}{r}.png?access_token={accessToken}",
   ///     additionalOptions: {
   ///         'accessToken': '<PUT_ACCESS_TOKEN_HERE>',
   ///          'id': 'mapbox.streets',
@@ -145,54 +149,116 @@ class TileLayerOptions extends LayerOptions {
   ///
   final Map<String, String> additionalOptions;
 
-  // Tiles will not update more than once every `updateInterval` milliseconds
-  // (default 200) when panning.
-  // It can be 0 (but it will calculating for loading tiles every frame when panning / zooming, flutter is fast)
-  // This can save some fps and even bandwidth
-  // (ie. when fast panning / animating between long distances in short time)
+  /// Tiles will not update more than once every `updateInterval`
+  /// (default 200 milliseconds) when panning.
+  /// It can be null (but it will calculating for loading tiles every frame when panning / zooming, flutter is fast)
+  /// This can save some fps and even bandwidth
+  /// (ie. when fast panning / animating between long distances in short time)
   final Duration updateInterval;
 
-  // Tiles fade in duration in milliseconds (default 100),
-  // it can 0 to avoid fade in
+  /// Tiles fade in duration in milliseconds (default 100),
+  /// it can be null to avoid fade in
   final Duration tileFadeInDuration;
 
-  TileLayerOptions(
-      {this.urlTemplate,
-      this.tileSize = 256.0,
-      this.minZoom = 0.0,
-      this.maxZoom = 18.0,
-      this.minNativeZoom,
-      this.maxNativeZoom,
-      this.zoomReverse = false,
-      this.zoomOffset = 0.0,
-      this.additionalOptions = const <String, String>{},
-      this.subdomains = const <String>[],
-      this.keepBuffer = 2,
-      this.backgroundColor = const Color(0xFFE0E0E0),
-      this.placeholderImage,
-      this.errorImage,
-      this.tileProvider = const CachedNetworkTileProvider(),
-      this.tms = false,
-      // ignore: avoid_init_to_null
-      this.wmsOptions = null,
-      this.colorFilter = null,
-      this.opacity = 1.0,
-      // Tiles will not update more than once every `updateInterval` milliseconds
-      // (default 200) when panning.
-      // It can be 0 (but it will calculating for loading tiles every frame when panning / zooming, flutter is fast)
-      // This can save some fps and even bandwidth
-      // (ie. when fast panning / animating between long distances in short time)
-      int updateInterval = 200,
-      // Tiles fade in duration in milliseconds (default 100),
-      // it can 0 to avoid fade in
-      int tileFadeInDuration = 100,
-      rebuild})
-      : updateInterval =
+  /// Opacity start value when Tile starts fade in (0.0 - 1.0)
+  /// Takes effect if `tileFadeInDuration` is not null
+  final double tileFadeInStart;
+
+  /// Opacity start value when an exists Tile starts fade in with different Url (0.0 - 1.0)
+  /// Takes effect when `tileFadeInDuration` is not null and if `overrideTilesWhenUrlChanges` if true
+  final double tileFadeInStartWhenOverride;
+
+  /// `false`: current Tiles will be first dropped and then reload via new url (default)
+  /// `true`: current Tiles will be visible until new ones aren't loaded (new Tiles are loaded independently)
+  /// @see https://github.com/johnpryan/flutter_map/issues/583
+  final bool overrideTilesWhenUrlChanges;
+
+  /// If `true`, it will request four tiles of half the specified size and a
+  /// bigger zoom level in place of one to utilize the high resolution.
+  ///
+  /// If `true` then MapOptions's `maxZoom` should be `maxZoom - 1` since retinaMode
+  /// just simulates retina display by playing with `zoomOffset`.
+  /// If geoserver supports retina `@2` tiles then it it advised to use them
+  /// instead of simulating it (use {r} in the [urlTemplate])
+  ///
+  /// It is advised to use retinaMode if display supports it, write code like this:
+  /// TileLayerOptions(
+  ///     retinaMode: true && MediaQuery.of(context).devicePixelRatio > 1.0,
+  /// ),
+  final bool retinaMode;
+
+  /// This callback will be execute if some errors by getting tile
+  final ErrorTileCallBack errorTileCallback;
+
+  /// Function which may Wrap Tile with custom Widget
+  /// There are predefined examples in 'tile_builder.dart'
+  final TileBuilder tileBuilder;
+
+  /// Function which may wrap Tiles Container with custom Widget
+  /// There are predefined examples in 'tile_builder.dart'
+  final TilesContainerBuilder tilesContainerBuilder;
+
+  TileLayerOptions({
+    Key key,
+    this.urlTemplate,
+    double tileSize = 256.0,
+    double minZoom = 0.0,
+    double maxZoom = 18.0,
+    this.minNativeZoom,
+    this.maxNativeZoom,
+    this.zoomReverse = false,
+    double zoomOffset = 0.0,
+    this.additionalOptions = const <String, String>{},
+    this.subdomains = const <String>[],
+    this.keepBuffer = 2,
+    this.backgroundColor = const Color(0xFFE0E0E0),
+    this.placeholderImage,
+    this.errorImage,
+    this.tileProvider = const CachedNetworkTileProvider(),
+    this.tms = false,
+    // ignore: avoid_init_to_null
+    this.wmsOptions = null,
+    this.opacity = 1.0,
+    // Tiles will not update more than once every `updateInterval` milliseconds
+    // (default 200) when panning.
+    // It can be 0 (but it will calculating for loading tiles every frame when panning / zooming, flutter is fast)
+    // This can save some fps and even bandwidth
+    // (ie. when fast panning / animating between long distances in short time)
+    int updateInterval = 200,
+    // Tiles fade in duration in milliseconds (default 100),
+    // it can 0 to avoid fade in
+    int tileFadeInDuration = 100,
+    this.tileFadeInStart = 0.0,
+    this.tileFadeInStartWhenOverride = 0.0,
+    this.overrideTilesWhenUrlChanges = false,
+    this.retinaMode = false,
+    this.errorTileCallback,
+    this.tileBuilder,
+    this.tilesContainerBuilder,
+    rebuild,
+  })  : updateInterval =
             updateInterval <= 0 ? null : Duration(milliseconds: updateInterval),
         tileFadeInDuration = tileFadeInDuration <= 0
             ? null
             : Duration(milliseconds: tileFadeInDuration),
-        super(rebuild: rebuild);
+        assert(tileFadeInStart >= 0.0 && tileFadeInStart <= 1.0),
+        assert(tileFadeInStartWhenOverride >= 0.0 &&
+            tileFadeInStartWhenOverride <= 1.0),
+        maxZoom =
+            wmsOptions == null && retinaMode && maxZoom > 0.0 && !zoomReverse
+                ? maxZoom - 1.0
+                : maxZoom,
+        minZoom =
+            wmsOptions == null && retinaMode && maxZoom > 0.0 && zoomReverse
+                ? math.max(minZoom + 1.0, 0.0)
+                : minZoom,
+        zoomOffset = wmsOptions == null && retinaMode && maxZoom > 0.0
+            ? (zoomReverse ? zoomOffset - 1.0 : zoomOffset + 1.0)
+            : zoomOffset,
+        tileSize = wmsOptions == null && retinaMode && maxZoom > 0.0
+            ? (tileSize / 2.0).floorToDouble()
+            : tileSize,
+        super(key: key, rebuild: rebuild);
 }
 
 class WMSTileLayerOptions {
@@ -258,7 +324,7 @@ class WMSTileLayerOptions {
     return buffer.toString();
   }
 
-  String getUrl(Coords coords, int tileSize) {
+  String getUrl(Coords coords, int tileSize, bool retinaMode) {
     final tileSizePoint = CustomPoint(tileSize, tileSize);
     final nvPoint = coords.scaleBy(tileSizePoint);
     final sePoint = nvPoint + tileSizePoint;
@@ -272,10 +338,32 @@ class WMSTileLayerOptions {
         : [bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y];
 
     final buffer = StringBuffer(_encodedBaseUrl);
-    buffer.write('&width=$tileSize');
-    buffer.write('&height=$tileSize');
+    buffer.write('&width=${retinaMode ? tileSize * 2 : tileSize}');
+    buffer.write('&height=${retinaMode ? tileSize * 2 : tileSize}');
     buffer.write('&bbox=${bbox.join(',')}');
     return buffer.toString();
+  }
+}
+
+class TileLayerWidget extends StatefulWidget {
+  final TileLayerOptions options;
+
+  TileLayerWidget({@required this.options}) : super(key: options.key);
+
+  @override
+  State<StatefulWidget> createState() => _TileLayerWidgetState();
+}
+
+class _TileLayerWidgetState extends State<TileLayerWidget> {
+  @override
+  Widget build(BuildContext context) {
+    final mapState = MapState.of(context);
+
+    return TileLayer(
+      mapState: mapState,
+      stream: mapState.onMoved,
+      options: widget.options,
+    );
   }
 }
 
@@ -288,7 +376,7 @@ class TileLayer extends StatefulWidget {
     this.options,
     this.mapState,
     this.stream,
-  });
+  }) : super(key: options.key);
 
   @override
   State<StatefulWidget> createState() {
@@ -316,12 +404,58 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-
     _tileSize = CustomPoint(options.tileSize, options.tileSize);
     _resetView();
     _update(null);
     _moveSub = widget.stream.listen((_) => _handleMove());
 
+    _initThrottleUpdate();
+  }
+
+  @override
+  void didUpdateWidget(TileLayer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    var reloadTiles = false;
+
+    if (oldWidget.options.tileSize != options.tileSize) {
+      _tileSize = CustomPoint(options.tileSize, options.tileSize);
+      reloadTiles = true;
+    }
+
+    if (oldWidget.options.retinaMode != options.retinaMode) {
+      reloadTiles = true;
+    }
+
+    if (oldWidget.options.updateInterval != options.updateInterval) {
+      _throttleUpdate?.close();
+      _initThrottleUpdate();
+    }
+
+    if (!reloadTiles) {
+      final oldUrl = oldWidget.options.wmsOptions?._encodedBaseUrl ??
+          oldWidget.options.urlTemplate;
+      final newUrl = options.wmsOptions?._encodedBaseUrl ?? options.urlTemplate;
+      if (oldUrl != newUrl) {
+        if (options.overrideTilesWhenUrlChanges) {
+          for (var tile in _tiles.values) {
+            tile.imageProvider = options.tileProvider
+                .getImage(_wrapCoords(tile.coords), options);
+            tile.loadTileImage();
+          }
+        } else {
+          reloadTiles = true;
+        }
+      }
+    }
+
+    if (reloadTiles) {
+      _removeAllTiles();
+      _resetView();
+      _update(null);
+    }
+  }
+
+  void _initThrottleUpdate() {
     if (options.updateInterval == null) {
       _throttleUpdate = null;
     } else {
@@ -336,12 +470,12 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    super.dispose();
-
     _removeAllTiles();
     _moveSub?.cancel();
     options.tileProvider.dispose();
     _throttleUpdate?.close();
+
+    super.dispose();
   }
 
   @override
@@ -352,19 +486,22 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       for (var tile in tilesToRender) _createTileWidget(tile)
     ];
 
-    Widget content = Container(
-      color: options.backgroundColor,
-      child: Stack(
-        children: tileWidgets,
-      ),
+    var tilesContainer = Stack(
+      children: tileWidgets,
     );
-    if (options.colorFilter != null) {
-      content = ColorFiltered(colorFilter: options.colorFilter, child: content);
-    }
 
     return Opacity(
       opacity: options.opacity,
-      child: content,
+      child: Container(
+        color: options.backgroundColor,
+        child: options.tilesContainerBuilder == null
+            ? tilesContainer
+            : options.tilesContainerBuilder(
+                context,
+                tilesContainer,
+                tilesToRender,
+              ),
+      ),
     );
   }
 
@@ -379,6 +516,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     final Widget content = AnimatedTile(
       tile: tile,
       errorImage: options.errorImage,
+      tileBuilder: options.tileBuilder,
     );
 
     return Positioned(
@@ -614,8 +752,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     }
 
     _pruneTiles();
-
-    _setZoomTransforms(center, zoom);
   }
 
   void _setZoomTransforms(LatLng center, double zoom) {
@@ -675,12 +811,14 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     if (_tileZoom == null) {
       // if there is no _tileZoom available it means we are out within zoom level
-      // we will restory fully via _setView call if we are back on trail
+      // we will restore fully via _setView call if we are back on trail
       if ((options.maxZoom != null && tileZoom <= options.maxZoom) &&
           (options.minZoom != null && tileZoom >= options.minZoom)) {
         _tileZoom = tileZoom;
         setState(() {
           _setView(map.center, tileZoom);
+
+          _setZoomTransforms(map.center, map.zoom);
         });
       }
     } else {
@@ -688,6 +826,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         if ((tileZoom - _tileZoom).abs() >= 1) {
           // It was a zoom lvl change
           _setView(map.center, tileZoom);
+
+          _setZoomTransforms(map.center, map.zoom);
         } else {
           if (null == _throttleUpdate) {
             _update(null);
@@ -815,7 +955,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   void _addTile(Coords<double> coords) {
     var tileCoordsToKey = _tileCoordsToKey(coords);
-    _tiles[tileCoordsToKey] = Tile(
+    var tile = _tiles[tileCoordsToKey] = Tile(
       coords: coords,
       coordsKey: tileCoordsToKey,
       tilePos: _getTilePos(coords),
@@ -825,6 +965,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
           options.tileProvider.getImage(_wrapCoords(coords), options),
       tileReady: _tileReady,
     );
+
+    tile.loadTileImage();
   }
 
   void _tileReady(Coords<double> coords, dynamic error, Tile tile) {
@@ -832,6 +974,12 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       print(error);
 
       tile.loadError = true;
+
+      if (options.errorTileCallback != null) {
+        options.errorTileCallback(tile, error);
+      }
+    } else {
+      tile.loadError = false;
     }
 
     var key = _tileCoordsToKey(coords);
@@ -840,15 +988,25 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       return;
     }
 
+    var fadeInStart = tile.loaded == null
+        ? options.tileFadeInStart
+        : options.tileFadeInStartWhenOverride;
     tile.loaded = DateTime.now();
     if (options.tileFadeInDuration == null ||
+        fadeInStart == 1.0 ||
         (tile.loadError && null == options.errorImage)) {
       tile.active = true;
     } else {
-      tile.startFadeInAnimation(options.tileFadeInDuration, this);
+      tile.startFadeInAnimation(
+        options.tileFadeInDuration,
+        this,
+        from: fadeInStart,
+      );
     }
 
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
 
     if (_noTilesToLoad()) {
       // Wait a bit more than tileFadeInDuration (the duration of the tile fade-in)
@@ -858,7 +1016,9 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
             ? options.tileFadeInDuration + const Duration(milliseconds: 50)
             : const Duration(milliseconds: 50),
         () {
-          setState(_pruneTiles);
+          if (mounted) {
+            setState(_pruneTiles);
+          }
         },
       );
     }
@@ -900,13 +1060,14 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   }
 }
 
-typedef void TileReady(Coords<double> coords, dynamic error, Tile tile);
+typedef TileReady = void Function(
+    Coords<double> coords, dynamic error, Tile tile);
 
 class Tile implements Comparable<Tile> {
   final String coordsKey;
   final Coords<double> coords;
   final CustomPoint<num> tilePos;
-  final ImageProvider imageProvider;
+  ImageProvider imageProvider;
   final Level level;
 
   bool current;
@@ -914,9 +1075,9 @@ class Tile implements Comparable<Tile> {
   bool active;
   bool loadError;
   DateTime loaded;
+  DateTime loadStarted;
 
   AnimationController animationController;
-
   double get opacity => animationController == null
       ? (active ? 1.0 : 0.0)
       : animationController.value;
@@ -939,11 +1100,21 @@ class Tile implements Comparable<Tile> {
     this.active = false,
     this.retain = false,
     this.loadError = false,
-  }) {
+  });
+
+  void loadTileImage() {
+    loadStarted = DateTime.now();
+
     try {
+      final oldImageStream = _imageStream;
       _imageStream = imageProvider.resolve(ImageConfiguration());
-      _listener = ImageStreamListener(_tileOnLoad, onError: _tileOnError);
-      _imageStream.addListener(_listener);
+
+      if (_imageStream.key != oldImageStream?.key) {
+        oldImageStream?.removeListener(_listener);
+
+        _listener = ImageStreamListener(_tileOnLoad, onError: _tileOnError);
+        _imageStream.addListener(_listener);
+      }
     } catch (e, s) {
       // make sure all exception is handled - #444 / #536
       _tileOnError(e, s);
@@ -960,14 +1131,18 @@ class Tile implements Comparable<Tile> {
     }
 
     animationController?.removeStatusListener(_onAnimateEnd);
+    animationController?.dispose();
     _imageStream?.removeListener(_listener);
   }
 
-  void startFadeInAnimation(Duration duration, TickerProvider vsync) {
+  void startFadeInAnimation(Duration duration, TickerProvider vsync,
+      {double from}) {
+    animationController?.removeStatusListener(_onAnimateEnd);
+
     animationController = AnimationController(duration: duration, vsync: vsync)
       ..addStatusListener(_onAnimateEnd);
 
-    animationController.forward();
+    animationController.forward(from: from);
   }
 
   void _onAnimateEnd(AnimationStatus status) {
@@ -985,7 +1160,8 @@ class Tile implements Comparable<Tile> {
 
   void _tileOnError(dynamic exception, StackTrace stackTrace) {
     if (null != tileReady) {
-      tileReady(coords, exception, this);
+      tileReady(
+          coords, exception ?? 'Unknown exception during loadTileImage', this);
     }
   }
 
@@ -1013,9 +1189,14 @@ class Tile implements Comparable<Tile> {
 class AnimatedTile extends StatefulWidget {
   final Tile tile;
   final ImageProvider errorImage;
+  final TileBuilder tileBuilder;
 
-  AnimatedTile({Key key, this.tile, this.errorImage})
-      : assert(null != tile),
+  AnimatedTile({
+    Key key,
+    @required this.tile,
+    this.errorImage,
+    @required this.tileBuilder,
+  })  : assert(null != tile),
         super(key: key);
 
   @override
@@ -1027,17 +1208,21 @@ class _AnimatedTileState extends State<AnimatedTile> {
 
   @override
   Widget build(BuildContext context) {
+    final tileWidget = (widget.tile.loadError && widget.errorImage != null)
+        ? Image(
+            image: widget.errorImage,
+            fit: BoxFit.fill,
+          )
+        : RawImage(
+            image: widget.tile.imageInfo?.image,
+            fit: BoxFit.fill,
+          );
+
     return Opacity(
       opacity: widget.tile.opacity,
-      child: (widget.tile.loadError && widget.errorImage != null)
-          ? Image(
-              image: widget.errorImage,
-              fit: BoxFit.fill,
-            )
-          : RawImage(
-              image: widget.tile.imageInfo?.image,
-              fit: BoxFit.fill,
-            ),
+      child: widget.tileBuilder == null
+          ? tileWidget
+          : widget.tileBuilder(context, tileWidget, widget.tile),
     );
   }
 
@@ -1071,7 +1256,9 @@ class _AnimatedTileState extends State<AnimatedTile> {
   }
 
   void _handleChange() {
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 }
 
