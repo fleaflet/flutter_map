@@ -7,6 +7,7 @@ import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/core/util.dart' as util;
 import 'package:flutter_map/src/geo/crs/crs.dart';
+import 'package:flutter_map/src/layer/tile_builder/tile_builder.dart';
 import 'package:flutter_map/src/layer/tile_provider/tile_provider.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
@@ -189,6 +190,14 @@ class TileLayerOptions extends LayerOptions {
   /// This callback will be execute if some errors by getting tile
   final ErrorTileCallBack errorTileCallback;
 
+  /// Function which may Wrap Tile with custom Widget
+  /// There are predefined examples in 'tile_builder.dart'
+  final TileBuilder tileBuilder;
+
+  /// Function which may wrap Tiles Container with custom Widget
+  /// There are predefined examples in 'tile_builder.dart'
+  final TilesContainerBuilder tilesContainerBuilder;
+
   TileLayerOptions({
     Key key,
     this.urlTemplate,
@@ -224,6 +233,8 @@ class TileLayerOptions extends LayerOptions {
     this.overrideTilesWhenUrlChanges = false,
     this.retinaMode = false,
     this.errorTileCallback,
+    this.tileBuilder,
+    this.tilesContainerBuilder,
     rebuild,
   })  : updateInterval =
             updateInterval <= 0 ? null : Duration(milliseconds: updateInterval),
@@ -475,13 +486,21 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       for (var tile in tilesToRender) _createTileWidget(tile)
     ];
 
+    var tilesContainer = Stack(
+      children: tileWidgets,
+    );
+
     return Opacity(
       opacity: options.opacity,
       child: Container(
         color: options.backgroundColor,
-        child: Stack(
-          children: tileWidgets,
-        ),
+        child: options.tilesContainerBuilder == null
+            ? tilesContainer
+            : options.tilesContainerBuilder(
+                context,
+                tilesContainer,
+                tilesToRender,
+              ),
       ),
     );
   }
@@ -497,6 +516,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     final Widget content = AnimatedTile(
       tile: tile,
       errorImage: options.errorImage,
+      tileBuilder: options.tileBuilder,
     );
 
     return Positioned(
@@ -1055,6 +1075,7 @@ class Tile implements Comparable<Tile> {
   bool active;
   bool loadError;
   DateTime loaded;
+  DateTime loadStarted;
 
   AnimationController animationController;
   double get opacity => animationController == null
@@ -1082,6 +1103,8 @@ class Tile implements Comparable<Tile> {
   });
 
   void loadTileImage() {
+    loadStarted = DateTime.now();
+
     try {
       final oldImageStream = _imageStream;
       _imageStream = imageProvider.resolve(ImageConfiguration());
@@ -1166,9 +1189,14 @@ class Tile implements Comparable<Tile> {
 class AnimatedTile extends StatefulWidget {
   final Tile tile;
   final ImageProvider errorImage;
+  final TileBuilder tileBuilder;
 
-  AnimatedTile({Key key, @required this.tile, this.errorImage})
-      : assert(null != tile),
+  AnimatedTile({
+    Key key,
+    @required this.tile,
+    this.errorImage,
+    @required this.tileBuilder,
+  })  : assert(null != tile),
         super(key: key);
 
   @override
@@ -1180,17 +1208,21 @@ class _AnimatedTileState extends State<AnimatedTile> {
 
   @override
   Widget build(BuildContext context) {
+    final tileWidget = (widget.tile.loadError && widget.errorImage != null)
+        ? Image(
+            image: widget.errorImage,
+            fit: BoxFit.fill,
+          )
+        : RawImage(
+            image: widget.tile.imageInfo?.image,
+            fit: BoxFit.fill,
+          );
+
     return Opacity(
       opacity: widget.tile.opacity,
-      child: (widget.tile.loadError && widget.errorImage != null)
-          ? Image(
-              image: widget.errorImage,
-              fit: BoxFit.fill,
-            )
-          : RawImage(
-              image: widget.tile.imageInfo?.image,
-              fit: BoxFit.fill,
-            ),
+      child: widget.tileBuilder == null
+          ? tileWidget
+          : widget.tileBuilder(context, tileWidget, widget.tile),
     );
   }
 

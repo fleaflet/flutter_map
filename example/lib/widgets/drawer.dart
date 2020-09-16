@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map_example/pages/tile_builder_example.dart';
 
 import '../pages/animated_map_controller.dart';
 import '../pages/circle.dart';
@@ -157,33 +158,35 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           OverlayImagePage.route,
           currentRoute,
         ),
-        ListTile(
-          title: const Text('Sliding Map'),
-          selected: currentRoute == SlidingMapPage.route,
-          onTap: () =>
-              Navigator.pushReplacementNamed(context, SlidingMapPage.route),
+        _buildMenuItem(
+          context,
+          const Text('Sliding Map'),
+          SlidingMapPage.route,
+          currentRoute,
         ),
-        ListTile(
-          title: const Text('Widgets'),
-          selected: currentRoute == WidgetsPage.route,
-          onTap: () {
-            Navigator.pushReplacementNamed(context, WidgetsPage.route);
-          },
+        _buildMenuItem(
+          context,
+          const Text('Widgets'),
+          WidgetsPage.route,
+          currentRoute,
         ),
-        ListTile(
-          title: const Text('Live Location Update'),
-          selected: currentRoute == LiveLocationPage.route,
-          onTap: () {
-            Navigator.pushReplacementNamed(context, LiveLocationPage.route);
-          },
+        _buildMenuItem(
+          context,
+          const Text('Live Location Update'),
+          LiveLocationPage.route,
+          currentRoute,
         ),
-        ListTile(
-          title: const Text('Tile loading error handle'),
-          selected: currentRoute == TileLoadingErrorHandle.route,
-          onTap: () {
-            Navigator.pushReplacementNamed(
-                context, TileLoadingErrorHandle.route);
-          },
+        _buildMenuItem(
+          context,
+          const Text('Tile loading error handle'),
+          TileLoadingErrorHandle.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Tile builder'),
+          TileBuilderPage.route,
+          currentRoute,
         ),
       ],
     ),
