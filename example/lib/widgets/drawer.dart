@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map_example/pages/interactive_test_page.dart';
 
 import '../pages/animated_map_controller.dart';
 import '../pages/circle.dart';
 import '../pages/custom_crs/custom_crs.dart';
 import '../pages/esri.dart';
 import '../pages/home.dart';
+import '../pages/interactive_test_page.dart';
 import '../pages/live_location.dart';
 import '../pages/map_controller.dart';
 import '../pages/marker_anchor.dart';

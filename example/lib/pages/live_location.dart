@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong/latlong.dart';
 import 'package:location/location.dart';
+
+import '../widgets/drawer.dart';
 
 class LiveLocationPage extends StatefulWidget {
   static const String route = '/live_location';
