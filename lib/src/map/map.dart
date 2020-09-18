@@ -194,7 +194,8 @@ class MapState {
           source: source,
         ),
       );
-    } else if (source == MapEventSource.onDrag) {
+    } else if (source == MapEventSource.onDrag ||
+        source == MapEventSource.onMultiFinger) {
       emitMapEvent(
         MapEventMove(
           center: _lastCenter,
