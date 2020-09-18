@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map_example/pages/tile_builder_example.dart';
 
 import '../pages/animated_map_controller.dart';
 import '../pages/circle.dart';
@@ -20,6 +19,7 @@ import '../pages/plugin_zoombuttons.dart';
 import '../pages/polyline.dart';
 import '../pages/sliding_map.dart';
 import '../pages/tap_to_add.dart';
+import '../pages/tile_builder_example.dart';
 import '../pages/tile_loading_error_handle.dart';
 import '../pages/widgets.dart';
 import '../pages/wms_tile_layer.dart';
