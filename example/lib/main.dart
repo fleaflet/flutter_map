@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map_example/pages/interactive_test_page.dart';
 
 import './pages/animated_map_controller.dart';
 import './pages/circle.dart';
@@ -23,6 +22,7 @@ import './pages/tap_to_add.dart';
 import './pages/tile_loading_error_handle.dart';
 import './pages/widgets.dart';
 import './pages/wms_tile_layer.dart';
+import 'pages/interactive_test_page.dart';
 
 void main() => runApp(MyApp());
 
