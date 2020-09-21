@@ -5,12 +5,12 @@ import 'package:async/async.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/point.dart';
+import 'package:flutter_map/src/geo/angles.dart';
 import 'package:flutter_map/src/gestures/gestures.dart';
 import 'package:flutter_map/src/layer/group_layer.dart';
 import 'package:flutter_map/src/layer/overlay_image_layer.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/map/map_state_widget.dart';
-import 'package:latlong/latlong.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 
 class FlutterMapState extends MapGestureMixin {
@@ -82,7 +82,7 @@ class FlutterMapState extends MapGestureMixin {
 
       // only do the rotation maths if we have a rotation
       if (rotation != 0.0) {
-        angle = degToRadian(rotation);
+        angle = toRadians(rotation);
         final rangle90 = sin(_rad90 - angle).abs();
         final sinangle = sin(angle).abs();
         // to make sure that the whole screen is filled with the map after rotation

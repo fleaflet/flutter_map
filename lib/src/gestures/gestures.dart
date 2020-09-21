@@ -3,9 +3,10 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/geo/angles.dart';
 import 'package:flutter_map/src/gestures/latlng_tween.dart';
 import 'package:flutter_map/src/map/map.dart';
-import 'package:latlong/latlong.dart';
+import 'package:maps_toolkit/maps_toolkit.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 import 'package:vector_math/vector_math_64.dart';
 
@@ -88,7 +89,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
     var distance = (Offset.zero & context.size).shortestSide;
 
     // correct fling direction with rotation
-    var v = Matrix4.rotationZ(-degToRadian(mapState.rotation)) *
+    var v = Matrix4.rotationZ(-toRadians(mapState.rotation)) *
         Vector4(direction.dx, direction.dy, 0, 0);
     direction = Offset(v.x, v.y);
 

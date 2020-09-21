@@ -1,7 +1,7 @@
 import 'dart:math';
-import 'package:latlong/latlong.dart';
+import 'package:maps_toolkit/maps_toolkit.dart';
 
-const double piOver180 = PI / 180.0;
+const double piOver180 = pi / 180.0;
 double toDegrees(double radians) {
   return radians / piOver180;
 }

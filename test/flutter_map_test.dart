@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:latlong/latlong.dart';
+import 'package:maps_toolkit/maps_toolkit.dart';
 
 void main() {
   testWidgets('flutter_map', (tester) async {

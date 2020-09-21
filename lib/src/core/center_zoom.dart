@@ -1,4 +1,4 @@
-import 'package:latlong/latlong.dart';
+import 'package:maps_toolkit/maps_toolkit.dart';
 
 class CenterZoom {
   final LatLng center;
