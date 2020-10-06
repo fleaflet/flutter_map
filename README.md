@@ -162,7 +162,7 @@ Widget build(BuildContext context) {
           ),
         ],
       ),
-    ]
+    ],
     children: <Widget>[
       TileLayerWidget(options: TileLayerOptions(
         urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
