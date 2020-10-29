@@ -128,6 +128,7 @@ class MapOptions {
   @deprecated
   final bool debug; // TODO no usage outside of constructor. Marked for removal?
   final bool interactive;
+  final bool allowPanning;
   final TapCallback onTap;
   final LongPressCallback onLongPress;
   final PositionCallback onPositionChanged;
@@ -156,6 +157,7 @@ class MapOptions {
     this.maxZoom,
     this.debug = false,
     this.interactive = true,
+    this.allowPanning = true,
     this.onTap,
     this.onLongPress,
     this.onPositionChanged,
