@@ -1,3 +1,6 @@
+## [0.10.2] - 10/29/2020
+- added property `allowPanning` to `MapOptions` that allows to disable only panning while touch events are still triggered
+
 ## [0.10.1+1] - 8/4/2020
 - fix possible issue with code published in previous version
 
