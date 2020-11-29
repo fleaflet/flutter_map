@@ -227,6 +227,14 @@ class TileLayerOptions extends LayerOptions {
   // (see #576 - even Error Images are cached in flutter)
   final EvictErrorTileStrategy evictErrorTileStrategy;
 
+  /// This option is useful when you have a transparent layer: rather than
+  /// keeping the old layer visible when zooming (resulting in both layers
+  /// being temporarily visible), the old layer is removed as quickly as
+  /// possible when this is set to `true` (default `false`).
+  ///
+  /// When set to `true`, the `tileFadeIn*` options will be ignored.
+  final bool fastReplace;
+
   TileLayerOptions({
     Key key,
     this.urlTemplate,
@@ -269,6 +277,7 @@ class TileLayerOptions extends LayerOptions {
     this.tileBuilder,
     this.tilesContainerBuilder,
     this.evictErrorTileStrategy = EvictErrorTileStrategy.none,
+    this.fastReplace = false,
   })  : updateInterval =
             updateInterval <= 0 ? null : Duration(milliseconds: updateInterval),
         tileFadeInDuration = tileFadeInDuration <= 0
@@ -1083,6 +1092,18 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     var key = _tileCoordsToKey(coords);
     tile = _tiles[key];
     if (null == tile) {
+      return;
+    }
+
+    if (options.fastReplace && mounted) {
+      setState(() {
+        tile.active = true;
+
+        if (_noTilesToLoad()) {
+          // We're not waiting for anything, prune the tiles immediately.
+          _pruneTiles();
+        }
+      });
       return;
     }
 
