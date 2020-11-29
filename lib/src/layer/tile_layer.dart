@@ -232,6 +232,11 @@ class TileLayerOptions extends LayerOptions {
   /// being temporarily visible), the old layer is removed as quickly as
   /// possible when this is set to `true` (default `false`).
   ///
+  /// This option is likely to cause some flickering of the transparent layer,
+  /// most noticeable when using pinch-to-zoom. It's best used with maps that
+  /// have `interactive` set to `false`, and zoom using buttons that call
+  /// `MapController.move()`.
+  ///
   /// When set to `true`, the `tileFadeIn*` options will be ignored.
   final bool fastReplace;
 
