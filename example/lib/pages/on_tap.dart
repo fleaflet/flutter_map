@@ -48,7 +48,7 @@ class OnTapPageState extends State<OnTapPage> {
             ));
           },
           child: FlutterLogo(
-            colors: Colors.green,
+            textColor: Colors.green,
           ),
         )),
       ),
@@ -63,7 +63,7 @@ class OnTapPageState extends State<OnTapPage> {
               content: Text('Tapped on purple FlutterLogo Marker'),
             ));
           },
-          child: FlutterLogo(colors: Colors.purple),
+          child: FlutterLogo(textColor: Colors.purple),
         )),
       ),
     ];
