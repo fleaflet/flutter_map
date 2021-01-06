@@ -121,8 +121,7 @@ class TileLayerOptions extends LayerOptions {
   final TileProvider tileProvider;
   
   // If using PersistentAdvancedCacheTileProvider()
-  // First set `final Directory saveDir = await getApplicationDocumentsDirectory();`
-  // Then pass to this option `saveDir.path`
+  // Set this to: `await getApplicationDocumentsDirectory()`
   final Directory saveDir;
 
   /// When panning the map, keep this many rows and columns of tiles before
