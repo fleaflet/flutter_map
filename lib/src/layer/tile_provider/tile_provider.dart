@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:path/path.dart' as p;
+import 'package:network_to_file_image/network_to_file_image.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_image/network.dart';
@@ -93,6 +95,29 @@ class FileTileProvider extends TileProvider {
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
     return FileImage(File(getTileUrl(coords, options)));
+  }
+}
+
+class PersistentAdvancedCacheTileProvider extends TileProvider {
+  // Created by JaffaKetchup
+  @override
+  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
+    final Directory _appDocDirFolder =
+        Directory(globals.saveDir.path + '/tiles/');
+    if (!_appDocDirFolder.existsSync()) {
+      _appDocDirFolder.createSync(recursive: true);
+    }
+    return NetworkToFileImage(
+      url: getTileUrl(coords, options),
+      file: File(
+        p.join(
+            globals.saveDir.path + '/tiles/',
+            getTileUrl(coords, options)
+                .replaceAll('https://', '')
+                .replaceAll('http://', '')
+                .replaceAll("/", "")),
+      ),
+    );
   }
 }
 
