@@ -238,6 +238,17 @@ Then execute `ulimit -S -n 2048` ([ref](https://github.com/trentpiercy/trace/iss
 Then execute `flutter run` with a running emulator.
 
 ## Offline maps
+Full offline map functionality has been created by JaffaKetchup. Use `PersistentAdvancedCacheTileProvider()` as the `TileLayerOptions > tileProvider` option, and set `TileLayerOptions > saveDir` to a variable containing (await) `getApplicationDocumentsDirectory()` from library [`path_provider`](https://pub.dev/packages/path_provider).
+
+As the user scrolls around the map, tiles will be saved to `[saveDir]/tiles`. Then, when requested again, tiles will be taken from that directory if available, else a network tile request will be made. Thus, this is a file first solution.
+
+This configuration should be used where offline functionality is required because cached tiles from other tile providers can be cleaned by the system without user notification at any point. With this setup, only the user (through App Settings > Storage > Clear Storage) or the app itself can clear the tiles. It is up to the app developer (you) to manage these tiles...
+
+If your user wants to get the latest tiles from the server for tiles already loaded, you must clear the tiles folder. If the user wishes to remove tiles altogether, you must provide that functionality. This library will not handle that for you.
+
+A recommended (however untested) integration is to use another tile provider (such as the default) whilst not in 'Offline Mode' so that the newest tiles are always loaded, then switch to this provider once the user enters 'Download & Offline Mode'. Then, when the user switches back out, clear the tiles folder.
+
+## Preconfigured maps (previously 'Offline maps')
 
 [Follow this guide to grab offline tiles](https://tilemill-project.github.io/tilemill/docs/guides/osm-bright-mac-quickstart/)<br>
 Once you have your map exported to `.mbtiles`, you can use [mbtilesToPng](https://github.com/alfanhui/mbtilesToPngs) to unpack into `/{z}/{x}/{y}.png`.
