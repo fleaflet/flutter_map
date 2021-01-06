@@ -118,6 +118,11 @@ class TileLayerOptions extends LayerOptions {
   /// TileProvider
   ///
   final TileProvider tileProvider;
+  
+  // If using PersistentAdvancedCacheTileProvider()
+  // First set `final Directory saveDir = await getApplicationDocumentsDirectory();`
+  // Then pass to this option `saveDir.path`
+  final Directory saveDir;
 
   /// When panning the map, keep this many rows and columns of tiles before
   /// unloading them.
@@ -206,6 +211,7 @@ class TileLayerOptions extends LayerOptions {
     this.placeholderImage,
     this.errorImage,
     this.tileProvider = const CachedNetworkTileProvider(),
+    this.saveDir = false,
     this.tms = false,
     // ignore: avoid_init_to_null
     this.wmsOptions = null,
