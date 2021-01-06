@@ -24,7 +24,6 @@ dependencies:
   proj4dart: ^1.0.4
   meta: ^1.1.0
   network_to_file_image: ^2.3.6
-  path: ^1.7.0
 
 dev_dependencies:
   pedantic: ^1.8.0
