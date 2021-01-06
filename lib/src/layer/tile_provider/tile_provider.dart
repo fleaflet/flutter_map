@@ -103,7 +103,7 @@ class PersistentAdvancedCacheTileProvider extends TileProvider {
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
     final Directory _appDocDirFolder =
-        Directory(globals.saveDir.path + '/tiles/');
+        Directory(options.appDir + '/tiles/');
     if (!_appDocDirFolder.existsSync()) {
       _appDocDirFolder.createSync(recursive: true);
     }
@@ -111,7 +111,7 @@ class PersistentAdvancedCacheTileProvider extends TileProvider {
       url: getTileUrl(coords, options),
       file: File(
         p.join(
-            globals.saveDir.path + '/tiles/',
+            options.appDir + '/tiles/',
             getTileUrl(coords, options)
                 .replaceAll('https://', '')
                 .replaceAll('http://', '')
