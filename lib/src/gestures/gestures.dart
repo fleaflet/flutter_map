@@ -71,23 +71,19 @@ abstract class MapGestureMixin extends State<FlutterMap>
       final focalStartPt = map.project(_focalStartGlobal, newZoom);
       final newCenterPt = focalStartPt - focalOffset + map.size / 2.0;
       final newCenter = map.unproject(newCenterPt, newZoom);
-      if (options.allowPanning)
-      {
+      if (options.allowPanning) {
         map.move(newCenter, newZoom, hasGesture: true);
-      }
-      else
-      {
+      } else {
         map.move(map.center, newZoom, hasGesture: true);
       }
-       _flingOffset = _pointToOffset(_focalStartLocal - focalOffset);
+      _flingOffset = _pointToOffset(_focalStartLocal - focalOffset);
     });
   }
 
   void handleScaleEnd(ScaleEndDetails details) {
     _resetDoubleTapHold();
 
-    if (!options.allowPanning)
-    {
+    if (!options.allowPanning) {
       return;
     }
     var magnitude = details.velocity.pixelsPerSecond.distance;
@@ -151,8 +147,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
   void handleDoubleTap(TapPosition tapPosition) {
     _resetDoubleTapHold();
 
-    if (!options.allowPanning)
-    {
+    if (!options.allowPanning) {
       return;
     }
 
