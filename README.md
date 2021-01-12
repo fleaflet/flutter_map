@@ -1,6 +1,6 @@
 [![BuildStatus](https://travis-ci.com/fleaflet/flutter_map.svg?branch=master)](https://travis-ci.org/johnpryan/flutter_map)
-[![Pub](https://img.shields.io/pub/v/flutter_map.svg)](https://pub.dev/packages/flutter_map)
-[Bazilian Portuguese](README.pt-br.md)[English](README.md)
+[![Pub](https://img.shields.io/pub/v/flutter_map.svg)](https://pub.dev/packages/flutter_map)<br/>
+[Bazilian Portuguese](README.pt-br.md) | [English](README.md)
 
 # flutter_map
 
