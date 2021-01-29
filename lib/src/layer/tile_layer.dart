@@ -14,6 +14,8 @@ import 'package:tuple/tuple.dart';
 
 import 'layer.dart';
 
+typedef TemplateFunction = String Function(
+    String str, Map<String, String> data);
 typedef ErrorTileCallBack = void Function(Tile tile, dynamic error);
 
 /// Describes the needed properties to create a tile-based layer.
@@ -189,6 +191,8 @@ class TileLayerOptions extends LayerOptions {
   /// This callback will be execute if some errors by getting tile
   final ErrorTileCallBack errorTileCallback;
 
+  final TemplateFunction templateFunction;
+
   TileLayerOptions({
     Key key,
     this.urlTemplate,
@@ -224,6 +228,7 @@ class TileLayerOptions extends LayerOptions {
     this.overrideTilesWhenUrlChanges = false,
     this.retinaMode = false,
     this.errorTileCallback,
+    this.templateFunction = util.template,
     rebuild,
   })  : updateInterval =
             updateInterval <= 0 ? null : Duration(milliseconds: updateInterval),
@@ -381,6 +386,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   Tuple2<double, double> _wrapX;
   Tuple2<double, double> _wrapY;
   double _tileZoom;
+
   //ignore: unused_field
   Level _level;
   StreamSubscription _moveSub;
@@ -1057,6 +1063,7 @@ class Tile implements Comparable<Tile> {
   DateTime loaded;
 
   AnimationController animationController;
+
   double get opacity => animationController == null
       ? (active ? 1.0 : 0.0)
       : animationController.value;
