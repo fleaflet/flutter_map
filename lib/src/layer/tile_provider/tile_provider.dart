@@ -65,6 +65,7 @@ class NetworkTileProvider extends TileProvider {
 }
 
 class NonCachingNetworkTileProvider extends TileProvider {
+  const NonCachingNetworkTileProvider();
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
     return NetworkImage(getTileUrl(coords, options));
@@ -72,6 +73,7 @@ class NonCachingNetworkTileProvider extends TileProvider {
 }
 
 class AssetTileProvider extends TileProvider {
+  const AssetTileProvider();
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
     return AssetImage(getTileUrl(coords, options));
@@ -79,6 +81,7 @@ class AssetTileProvider extends TileProvider {
 }
 
 class FileTileProvider extends TileProvider {
+  const FileTileProvider();
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
     return FileImage(File(getTileUrl(coords, options)));
@@ -86,9 +89,9 @@ class FileTileProvider extends TileProvider {
 }
 
 class CustomTileProvider extends TileProvider {
-  String Function(Coords coors, TileLayerOptions options) customTileUrl;
+  final String Function(Coords coors, TileLayerOptions options) customTileUrl;
 
-  CustomTileProvider({@required this.customTileUrl});
+  const CustomTileProvider({@required this.customTileUrl});
 
   @override
   String getTileUrl(Coords coords, TileLayerOptions options) {

@@ -215,7 +215,7 @@ class TileLayerOptions extends LayerOptions {
     this.backgroundColor = const Color(0xFFE0E0E0),
     this.placeholderImage,
     this.errorImage,
-    this.tileProvider = const CachedNetworkTileProvider(),
+    this.tileProvider = const NonCachingNetworkTileProvider(),
     this.tms = false,
     // ignore: avoid_init_to_null
     this.wmsOptions = null,
