@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_image/network.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -55,15 +54,6 @@ abstract class TileProvider {
     }
     var index = (coords.x + coords.y).round() % options.subdomains.length;
     return options.subdomains[index];
-  }
-}
-
-class CachedNetworkTileProvider extends TileProvider {
-  const CachedNetworkTileProvider();
-
-  @override
-  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
-    return CachedNetworkImageProvider(getTileUrl(coords, options));
   }
 }
 

@@ -18,7 +18,6 @@ dependencies:
   transparent_image: ^1.0.0
   async: ^2.1.0
   flutter_image: ^3.0.0
-  cached_network_image: ^2.0.0
   path_provider: ^1.6.7
   vector_math: ^2.0.0
   proj4dart: ^1.0.4
