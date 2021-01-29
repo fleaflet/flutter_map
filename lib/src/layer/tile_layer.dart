@@ -231,7 +231,6 @@ class TileLayerOptions extends LayerOptions {
     this.errorTileCallback,
     Stream<Null> rebuild,
     this.templateFunction = util.template,
-    rebuild,
   })  : updateInterval =
             updateInterval <= 0 ? null : Duration(milliseconds: updateInterval),
         tileFadeInDuration = tileFadeInDuration <= 0
