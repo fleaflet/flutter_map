@@ -26,7 +26,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
   var _dragStarted = false;
   var _flingAnimationStarted = false;
 
-  // Helps to reset ScaleUpdateDetails.scale back to 1.0 when a multi finger gesture wins
+  // Helps to reset ScaleUpdateDetails.scale back to 1.0 when a multi finger
+  // gesture wins
   double _scaleCorrector;
 
   double _lastRotation;
@@ -240,9 +241,10 @@ abstract class MapGestureMixin extends State<FlutterMap>
     if (_dragMode) {
       if (InteractiveFlag.hasFlag(flags, InteractiveFlag.drag)) {
         if (!_dragStarted) {
-          // we could emit start event at [handleScaleStart], however it is
-          // possible drag will be disabled during ongoing drag then [didUpdateWidget]
-          // will emit MapEventMoveEnd and if drag is enabled again then this will emit the start event again
+          // We could emit start event at [handleScaleStart], however it is
+          // possible drag will be disabled during ongoing drag then
+          // [didUpdateWidget] will emit MapEventMoveEnd and if drag is enabled
+          // again then this will emit the start event again.
           _dragStarted = true;
           mapState.emitMapEvent(
             MapEventMoveStart(
@@ -565,8 +567,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
       Offset centerPos, Offset tapPos, double zoomDiff) {
     final tapDelta = tapPos - centerPos;
     final zoomScale = 1 / math.pow(2, zoomDiff);
-    // map center offset within which double-tap won't
-    // cause zooming to previously invisible area
+    // The map center offset within which double-tap won't cause zooming to
+    // previously invisible area
     final maxDelta = centerPos * (1 - zoomScale);
     final tappedOutExtent =
         tapDelta.dx.abs() > maxDelta.dx || tapDelta.dy.abs() > maxDelta.dy;

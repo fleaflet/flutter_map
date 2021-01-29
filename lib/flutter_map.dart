@@ -92,26 +92,29 @@ class FlutterMap extends StatefulWidget {
 abstract class MapController {
   /// Moves the map to a specific location and zoom level
   ///
-  /// Optionally provide [id] attribute and if you listen to [mapEventStream] later
-  /// a [MapEventMove] event will be emitted (if move was success) with same [id] attribute.
-  /// Event's source attribute will be [MapEventSource.mapController].
+  /// Optionally provide [id] attribute and if you listen to [mapEventStream]
+  /// later a [MapEventMove] event will be emitted (if move was success) with
+  /// same [id] attribute. Event's source attribute will be
+  /// [MapEventSource.mapController].
   ///
-  /// returns `true` if move was success
-  /// (for example it won't be success if navigating to same place with same zoom
-  /// or if center is out of bounds and [slideOnBoundaries] isn't enabled)
+  /// returns `true` if move was success (for example it won't be success if
+  /// navigating to same place with same zoom or if center is out of bounds and
+  /// [MapOptions.slideOnBoundaries] isn't enabled)
   bool move(LatLng center, double zoom, {String id});
 
   /// Sets the map rotation to a certain degrees angle (in decimal).
   ///
-  /// Optionally provide [id] attribute and if you listen to [mapEventStream] later
-  /// a [MapEventRotate] event will be emitted (if rotate was success) with same [id] attribute.
-  /// Event's source attribute will be [MapEventSource.mapController].
+  /// Optionally provide [id] attribute and if you listen to [mapEventStream]
+  /// later a [MapEventRotate] event will be emitted (if rotate was success)
+  /// with same [id] attribute. Event's source attribute will be
+  /// [MapEventSource.mapController].
   ///
-  /// returns `true` if rotate was success
-  /// (it won't be success if rotate is same as the old rotate)
+  /// returns `true` if rotate was success (it won't be success if rotate is
+  /// same as the old rotate)
   bool rotate(double degree, {String id});
 
-  /// Calls [move] and [rotate] together however layers will rebuild just once instead of twice
+  /// Calls [move] and [rotate] together however layers will rebuild just once
+  /// instead of twice
   MoveAndRotateResult moveAndRotate(LatLng center, double zoom, double degree,
       {String id});
 
@@ -164,40 +167,55 @@ class MapOptions {
   final double zoom;
   final double rotation;
 
-  /// Prints multi finger gesture winner
-  /// Helps to fine adjust [rotationThreshold] and [pinchZoomThreshold] and [pinchMoveThreshold]
+  /// Prints multi finger gesture winner Helps to fine adjust
+  /// [rotationThreshold] and [pinchZoomThreshold] and [pinchMoveThreshold]
   /// Note: only takes effect if [enableMultiFingerGestureRace] is true
   final bool debugMultiFingerGestureWinner;
 
-  /// If true then [rotationThreshold] and [pinchZoomThreshold] and [pinchMoveThreshold] will race
-  /// If multiple gestures win at the same time then precedence: [pinchZoomWinGestures] > [rotationWinGestures] > [pinchMoveWinGestures]
+  /// If true then [rotationThreshold] and [pinchZoomThreshold] and
+  /// [pinchMoveThreshold] will race If multiple gestures win at the same time
+  /// then precedence: [pinchZoomWinGestures] > [rotationWinGestures] >
+  /// [pinchMoveWinGestures]
   final bool enableMultiFingerGestureRace;
 
-  /// Rotation threshold in degree default is 20.0
-  /// Map starts to rotate when [rotationThreshold] has been achieved or another multi finger gesture wins which allows [MultiFingerGesture.rotate]
-  /// Note: if [interactiveFlags] doesn't contain [InteractiveFlag.rotate] or [enableMultiFingerGestureRace] is false then rotate cannot win
+  /// Rotation threshold in degree default is 20.0 Map starts to rotate when
+  /// [rotationThreshold] has been achieved or another multi finger gesture wins
+  /// which allows [MultiFingerGesture.rotate] Note: if [interactiveFlags]
+  /// doesn't contain [InteractiveFlag.rotate] or [enableMultiFingerGestureRace]
+  /// is false then rotate cannot win
   final double rotationThreshold;
 
-  /// When [rotationThreshold] wins over [pinchZoomThreshold] and [pinchMoveThreshold] then [rotationWinGestures] gestures will be used.
-  /// By default only [MultiFingerGesture.rotate] gesture will take effect see [MultiFingerGesture] for custom settings
+  /// When [rotationThreshold] wins over [pinchZoomThreshold] and
+  /// [pinchMoveThreshold] then [rotationWinGestures] gestures will be used. By
+  /// default only [MultiFingerGesture.rotate] gesture will take effect see
+  /// [MultiFingerGesture] for custom settings
   final int rotationWinGestures;
 
-  /// Pinch Zoom threshold default is 0.5
-  /// Map starts to zoom when [pinchZoomThreshold] has been achieved or another multi finger gesture wins which allows [MultiFingerGesture.pinchZoom]
-  /// Note: if [interactiveFlags] doesn't contain [InteractiveFlag.pinchZoom] or [enableMultiFingerGestureRace] is false then zoom cannot win
+  /// Pinch Zoom threshold default is 0.5 Map starts to zoom when
+  /// [pinchZoomThreshold] has been achieved or another multi finger gesture
+  /// wins which allows [MultiFingerGesture.pinchZoom] Note: if
+  /// [interactiveFlags] doesn't contain [InteractiveFlag.pinchZoom] or
+  /// [enableMultiFingerGestureRace] is false then zoom cannot win
   final double pinchZoomThreshold;
 
-  /// When [pinchZoomThreshold] wins over [rotationThreshold] and [pinchMoveThreshold] then [pinchZoomWinGestures] gestures will be used.
-  /// By default [MultiFingerGesture.pinchZoom] and [MultiFingerGesture.pinchMove] gestures will take effect see [MultiFingerGesture] for custom settings
+  /// When [pinchZoomThreshold] wins over [rotationThreshold] and
+  /// [pinchMoveThreshold] then [pinchZoomWinGestures] gestures will be used. By
+  /// default [MultiFingerGesture.pinchZoom] and [MultiFingerGesture.pinchMove]
+  /// gestures will take effect see [MultiFingerGesture] for custom settings
   final int pinchZoomWinGestures;
 
-  /// Pinch Move threshold default is 40.0 (note: this doesn't take any effect on drag)
-  /// Map starts to move when [pinchMoveThreshold] has been achieved or another multi finger gesture wins which allows [MultiFingerGesture.pinchMove]
-  /// Note: if [interactiveFlags] doesn't contain [InteractiveFlag.pinchMove] or [enableMultiFingerGestureRace] is false then pinch move cannot win
+  /// Pinch Move threshold default is 40.0 (note: this doesn't take any effect
+  /// on drag) Map starts to move when [pinchMoveThreshold] has been achieved or
+  /// another multi finger gesture wins which allows
+  /// [MultiFingerGesture.pinchMove] Note: if [interactiveFlags] doesn't contain
+  /// [InteractiveFlag.pinchMove] or [enableMultiFingerGestureRace] is false
+  /// then pinch move cannot win
   final double pinchMoveThreshold;
 
-  /// When [pinchMoveThreshold] wins over [rotationThreshold] and [pinchZoomThreshold] then [pinchMoveWinGestures] gestures will be used.
-  /// By default [MultiFingerGesture.pinchMove] and [MultiFingerGesture.pinchZoom] gestures will take effect see [MultiFingerGesture] for custom settings
+  /// When [pinchMoveThreshold] wins over [rotationThreshold] and
+  /// [pinchZoomThreshold] then [pinchMoveWinGestures] gestures will be used. By
+  /// default [MultiFingerGesture.pinchMove] and [MultiFingerGesture.pinchZoom]
+  /// gestures will take effect see [MultiFingerGesture] for custom settings
   final int pinchMoveWinGestures;
 
   final double minZoom;
@@ -250,7 +268,9 @@ class MapOptions {
     this.maxZoom,
     this.debug = false,
     this.interactive,
-    /// TODO: when [interactive] is removed change this to [this.interactiveFlags = InteractiveFlag.all] and remove [interactiveFlags] from initializer list
+    // TODO: Change when [interactive] is removed.
+    // Change this to [this.interactiveFlags = InteractiveFlag.all] and remove
+    // [interactiveFlags] from initializer list
     int interactiveFlags,
     this.allowPanning = true,
     this.onTap,

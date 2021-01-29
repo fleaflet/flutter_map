@@ -8,7 +8,7 @@ import 'package:proj4dart/proj4dart.dart' as proj4;
 import 'package:tuple/tuple.dart';
 
 /// An abstract representation of a
-/// [Coordinate Reference System](https://docs.qgis.org/testing/en/docs/gentle_gis_introduction/coordinate_reference_systems.html).
+/// [Coordinate Reference System](https://bit.ly/3iVKpja).
 ///
 /// The main objective of a CRS is to handle the conversion between surface
 /// points of objects of different dimensions. In our case 3D and 2D objects.

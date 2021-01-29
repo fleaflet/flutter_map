@@ -19,14 +19,13 @@ typedef TemplateFunction = String Function(
     String str, Map<String, String> data);
 typedef ErrorTileCallBack = void Function(Tile tile, dynamic error);
 
-/// Describes the needed properties to create a tile-based layer.
-/// A tile is an image bound to a specific geographical position.
+/// Describes the needed properties to create a tile-based layer. A tile is an
+/// image bound to a specific geographical position.
 class TileLayerOptions extends LayerOptions {
-  /// Defines the structure to create the URLs for the tiles.
-  /// `{s}` means one of the available subdomains (can be omitted)
-  /// `{z}` zoom level
-  /// `{x}` and `{y}` — tile coordinates
-  /// `{r}` can be used to add "&commat;2x" to the URL to load retina tiles (can be omitted)
+  /// Defines the structure to create the URLs for the tiles. `{s}` means one of
+  /// the available subdomains (can be omitted) `{z}` zoom level `{x}` and `{y}`
+  /// — tile coordinates `{r}` can be used to add "&commat;2x" to the URL to
+  /// load retina tiles (can be omitted)
   ///
   /// Example:
   ///
@@ -52,22 +51,22 @@ class TileLayerOptions extends LayerOptions {
   // displayed (inclusive).
   final double minZoom;
 
-  /// The maximum zoom level up to which this layer will be
-  /// displayed (inclusive).
-  /// In most tile providers goes from 0 to 19.
+  /// The maximum zoom level up to which this layer will be displayed
+  /// (inclusive). In most tile providers goes from 0 to 19.
   final double maxZoom;
 
-  /// Minimum zoom number the tile source has available. If it is specified,
-  /// the tiles on all zoom levels lower than minNativeZoom will be loaded
-  /// from minNativeZoom level and auto-scaled.
+  /// Minimum zoom number the tile source has available. If it is specified, the
+  /// tiles on all zoom levels lower than minNativeZoom will be loaded from
+  /// minNativeZoom level and auto-scaled.
   final double minNativeZoom;
 
-  /// Maximum zoom number the tile source has available. If it is specified,
-  /// the tiles on all zoom levels higher than maxNativeZoom will be loaded
-  /// from maxNativeZoom level and auto-scaled.
+  /// Maximum zoom number the tile source has available. If it is specified, the
+  /// tiles on all zoom levels higher than maxNativeZoom will be loaded from
+  /// maxNativeZoom level and auto-scaled.
   final double maxNativeZoom;
 
-  /// If set to true, the zoom number used in tile URLs will be reversed (`maxZoom - zoom` instead of `zoom`)
+  /// If set to true, the zoom number used in tile URLs will be reversed
+  /// (`maxZoom - zoom` instead of `zoom`)
   final bool zoomReverse;
 
   /// The zoom number used in tile URLs will be offset with this value.
@@ -151,45 +150,51 @@ class TileLayerOptions extends LayerOptions {
   ///
   final Map<String, String> additionalOptions;
 
-  /// Tiles will not update more than once every `updateInterval`
-  /// (default 200 milliseconds) when panning.
-  /// It can be null (but it will calculating for loading tiles every frame when panning / zooming, flutter is fast)
-  /// This can save some fps and even bandwidth
-  /// (ie. when fast panning / animating between long distances in short time)
+  /// Tiles will not update more than once every `updateInterval` (default 200
+  /// milliseconds) when panning. It can be null (but it will calculating for
+  /// loading tiles every frame when panning / zooming, flutter is fast) This
+  /// can save some fps and even bandwidth (ie. when fast panning / animating
+  /// between long distances in short time)
   final Duration updateInterval;
 
-  /// Tiles fade in duration in milliseconds (default 100),
-  /// it can be null to avoid fade in
+  /// Tiles fade in duration in milliseconds (default 100). This can be null to
+  /// avoid fade in.
   final Duration tileFadeInDuration;
 
-  /// Opacity start value when Tile starts fade in (0.0 - 1.0)
-  /// Takes effect if `tileFadeInDuration` is not null
+  /// Opacity start value when Tile starts fade in (0.0 - 1.0) Takes effect if
+  /// `tileFadeInDuration` is not null
   final double tileFadeInStart;
 
-  /// Opacity start value when an exists Tile starts fade in with different Url (0.0 - 1.0)
-  /// Takes effect when `tileFadeInDuration` is not null and if `overrideTilesWhenUrlChanges` if true
+  /// Opacity start value when an exists Tile starts fade in with different Url
+  /// (0.0 - 1.0) Takes effect when `tileFadeInDuration` is not null and if
+  /// `overrideTilesWhenUrlChanges` if true
   final double tileFadeInStartWhenOverride;
 
-  /// `false`: current Tiles will be first dropped and then reload via new url (default)
-  /// `true`: current Tiles will be visible until new ones aren't loaded (new Tiles are loaded independently)
-  /// @see https://github.com/johnpryan/flutter_map/issues/583
+  /// `false`: current Tiles will be first dropped and then reload via new url
+  /// (default) `true`: current Tiles will be visible until new ones aren't
+  /// loaded (new Tiles are loaded independently) @see
+  /// https://github.com/johnpryan/flutter_map/issues/583
   final bool overrideTilesWhenUrlChanges;
 
   /// If `true`, it will request four tiles of half the specified size and a
   /// bigger zoom level in place of one to utilize the high resolution.
   ///
-  /// If `true` then MapOptions's `maxZoom` should be `maxZoom - 1` since retinaMode
-  /// just simulates retina display by playing with `zoomOffset`.
-  /// If geoserver supports retina `@2` tiles then it it advised to use them
+  /// If `true` then MapOptions's `maxZoom` should be `maxZoom - 1` since
+  /// retinaMode just simulates retina display by playing with `zoomOffset`. If
+  /// geoserver supports retina `@2` tiles then it it advised to use them
   /// instead of simulating it (use {r} in the [urlTemplate])
   ///
-  /// It is advised to use retinaMode if display supports it, write code like this:
+  /// It is advised to use retinaMode if display supports it, write code like
+  /// this:
+  ///
+  /// ```dart
   /// TileLayerOptions(
   ///     retinaMode: true && MediaQuery.of(context).devicePixelRatio > 1.0,
   /// ),
+  /// ```
   final bool retinaMode;
 
-  /// This callback will be execute if some errors by getting tile
+  /// This callback will be execute if some errors occur when fetching tiles.
   final ErrorTileCallBack errorTileCallback;
 
   final TemplateFunction templateFunction;
@@ -216,13 +221,15 @@ class TileLayerOptions extends LayerOptions {
     this.wmsOptions = null,
     this.opacity = 1.0,
     // Tiles will not update more than once every `updateInterval` milliseconds
-    // (default 200) when panning.
-    // It can be 0 (but it will calculating for loading tiles every frame when panning / zooming, flutter is fast)
-    // This can save some fps and even bandwidth
-    // (ie. when fast panning / animating between long distances in short time)
+    // (default 200) when panning. It can be 0 (but it will calculating for
+    // loading tiles every frame when panning / zooming, flutter is fast) This
+    // can save some fps and even bandwidth (ie. when fast panning / animating
+    // between long distances in short time)
+    // TODO: change to Duration
     int updateInterval = 200,
-    // Tiles fade in duration in milliseconds (default 100),
-    // it can 0 to avoid fade in
+    // Tiles fade in duration in milliseconds (default 100).  This can be set to
+    // 0 to avoid fade in
+    // TODO: change to Duration
     int tileFadeInDuration = 100,
     this.tileFadeInStart = 0.0,
     this.tileFadeInStartWhenOverride = 0.0,
@@ -841,7 +848,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     return Bounds(pixelCenter - halfSize, pixelCenter + halfSize);
   }
 
-  // Private method to load tiles in the grid's active zoom level according to map bounds
+  // Private method to load tiles in the grid's active zoom level according to
+  // map bounds
   void _update(LatLng center) {
     if (map == null || _tileZoom == null) {
       return;
@@ -1001,8 +1009,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     }
 
     if (_noTilesToLoad()) {
-      // Wait a bit more than tileFadeInDuration (the duration of the tile fade-in)
-      // to trigger a pruning.
+      // Wait a bit more than tileFadeInDuration (the duration of the tile
+      // fade-in) to trigger a pruning.
       Future.delayed(
         options.tileFadeInDuration != null
             ? options.tileFadeInDuration + const Duration(milliseconds: 50)
