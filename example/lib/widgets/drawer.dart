@@ -5,6 +5,7 @@ import '../pages/circle.dart';
 import '../pages/custom_crs/custom_crs.dart';
 import '../pages/esri.dart';
 import '../pages/home.dart';
+import '../pages/interactive_test_page.dart';
 import '../pages/live_location.dart';
 import '../pages/map_controller.dart';
 import '../pages/marker_anchor.dart';
@@ -177,6 +178,12 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
             Navigator.pushReplacementNamed(
                 context, TileLoadingErrorHandle.route);
           },
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Interactive flags test page'),
+          InteractiveTestPage.route,
+          currentRoute,
         ),
       ],
     ),

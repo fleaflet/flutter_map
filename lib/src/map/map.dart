@@ -11,10 +11,16 @@ import 'package:latlong/latlong.dart';
 
 class MapControllerImpl implements MapController {
   final Completer<Null> _readyCompleter = Completer<Null>();
+  final StreamController<MapEvent> _mapEventSink = StreamController.broadcast();
+  StreamSink<MapEvent> get mapEventSink => _mapEventSink.sink;
   MapState _state;
 
   @override
   Future<Null> get onReady => _readyCompleter.future;
+
+  void dispose() {
+    _mapEventSink.close();
+  }
 
   set state(MapState state) {
     _state = state;
@@ -24,8 +30,16 @@ class MapControllerImpl implements MapController {
   }
 
   @override
-  void move(LatLng center, double zoom, {bool hasGesture = false}) {
-    _state.move(center, zoom, hasGesture: hasGesture);
+  MoveAndRotateResult moveAndRotate(LatLng center, double zoom, double degree,
+      {String id}) {
+    return _state.moveAndRotate(center, zoom, degree,
+        source: MapEventSource.mapController, id: id);
+  }
+
+  @override
+  bool move(LatLng center, double zoom, {String id}) {
+    return _state.move(center, zoom,
+        id: id, source: MapEventSource.mapController);
   }
 
   @override
@@ -50,27 +64,36 @@ class MapControllerImpl implements MapController {
   double get zoom => _state.zoom;
 
   @override
-  void rotate(double degree) {
-    _state.rotation = degree;
-    if (onRotationChanged != null) onRotationChanged(degree);
+  double get rotation => _state.rotation;
+
+  @override
+  bool rotate(double degree, {String id}) {
+    return _state.rotate(degree, id: id, source: MapEventSource.mapController);
   }
 
   @override
-  ValueChanged<double> onRotationChanged;
-
-  @override
-  Stream<MapPosition> get position => _state._positionSink.stream;
+  Stream<MapEvent> get mapEventStream => _mapEventSink.stream;
 }
 
 class MapState {
   MapOptions options;
+  final ValueChanged<double> onRotationChanged;
   final StreamController<Null> _onMoveSink;
-  final StreamController<MapPosition> _positionSink;
+  final StreamSink<MapEvent> _mapEventSink;
 
   double _zoom;
-  double rotation;
+  double _rotation;
+  double _rotationRad;
 
   double get zoom => _zoom;
+  double get rotation => _rotation;
+
+  set rotation(double rotation) {
+    _rotation = rotation;
+    _rotationRad = degToRadian(rotation);
+  }
+
+  double get rotationRad => _rotationRad;
 
   LatLng _lastCenter;
   LatLngBounds _lastBounds;
@@ -78,24 +101,60 @@ class MapState {
   CustomPoint _pixelOrigin;
   bool _initialized = false;
 
-  MapState(this.options)
-      : rotation = options.rotation,
+  MapState(this.options, this.onRotationChanged, this._mapEventSink)
+      : _rotation = options.rotation,
+        _rotationRad = degToRadian(options.rotation),
         _zoom = options.zoom,
-        _onMoveSink = StreamController.broadcast(),
-        _positionSink = StreamController.broadcast();
-
-  CustomPoint _size;
+        _onMoveSink = StreamController.broadcast();
 
   Stream<Null> get onMoved => _onMoveSink.stream;
 
+  // Original size of the map where rotation isn't calculated
+  CustomPoint _originalSize;
+
+  CustomPoint get originalSize => _originalSize;
+
+  void setOriginalSize(double width, double height) {
+    final isCurrSizeNull = _originalSize == null;
+    if (isCurrSizeNull ||
+        _originalSize.x != width ||
+        _originalSize.y != height) {
+      _originalSize = CustomPoint<double>(width, height);
+
+      _updateSizeByOriginalSizeAndRotation();
+
+      // rebuild layers if screen size has been changed
+      if (!isCurrSizeNull) {
+        _onMoveSink.add(null);
+      }
+    }
+  }
+
+  // Extended size of the map where rotation is calculated
+  CustomPoint _size;
+
   CustomPoint get size => _size;
 
-  set size(CustomPoint s) {
-    _size = s;
+  void _updateSizeByOriginalSizeAndRotation() {
+    final originalWidth = _originalSize.x;
+    final originalHeight = _originalSize.y;
+
+    if (_rotation != 0.0) {
+      final cosAngle = math.cos(_rotationRad).abs();
+      final sinAngle = math.sin(_rotationRad).abs();
+      final width = (originalWidth * cosAngle) + (originalHeight * sinAngle);
+      final height = (originalHeight * cosAngle) + (originalWidth * sinAngle);
+
+      _size = CustomPoint<double>(width, height);
+    } else {
+      _size = CustomPoint<double>(originalWidth, originalHeight);
+    }
+
     if (!_initialized) {
       _init();
       _initialized = true;
     }
+
     _pixelOrigin = getNewPixelOrigin(_lastCenter);
   }
 
@@ -113,43 +172,153 @@ class MapState {
     }
   }
 
+  void _handleMoveEmit(LatLng targetCenter, double targetZoom, hasGesture,
+      MapEventSource source, String id) {
+    if (source == MapEventSource.flingAnimationController) {
+      emitMapEvent(
+        MapEventFlingAnimation(
+          center: _lastCenter,
+          zoom: _zoom,
+          targetCenter: targetCenter,
+          targetZoom: targetZoom,
+          source: source,
+        ),
+      );
+    } else if (source == MapEventSource.doubleTapZoomAnimationController) {
+      emitMapEvent(
+        MapEventDoubleTapZoom(
+          center: _lastCenter,
+          zoom: _zoom,
+          targetCenter: targetCenter,
+          targetZoom: targetZoom,
+          source: source,
+        ),
+      );
+    } else if (source == MapEventSource.onDrag ||
+        source == MapEventSource.onMultiFinger) {
+      emitMapEvent(
+        MapEventMove(
+          center: _lastCenter,
+          zoom: _zoom,
+          targetCenter: targetCenter,
+          targetZoom: targetZoom,
+          source: source,
+        ),
+      );
+    } else if (source == MapEventSource.mapController) {
+      emitMapEvent(
+        MapEventMove(
+          id: id,
+          center: _lastCenter,
+          zoom: _zoom,
+          targetCenter: targetCenter,
+          targetZoom: targetZoom,
+          source: source,
+        ),
+      );
+    }
+  }
+
+  void emitMapEvent(MapEvent event) {
+    _mapEventSink.add(event);
+  }
+
   void dispose() {
     _onMoveSink.close();
+    _mapEventSink.close();
   }
 
-  void forceRebuild() {
-    _onMoveSink?.add(null);
+  void rebuildLayers() {
+    _onMoveSink.add(null);
   }
 
-  void move(LatLng center, double zoom, {hasGesture = false}) {
+  bool rotate(
+    double degree, {
+    hasGesture = false,
+    callOnMoveSink = true,
+    MapEventSource source,
+    String id,
+  }) {
+    if (degree != _rotation) {
+      var oldRotation = _rotation;
+      rotation = degree;
+      _updateSizeByOriginalSizeAndRotation();
+
+      onRotationChanged(_rotation);
+
+      emitMapEvent(
+        MapEventRotate(
+          id: id,
+          currentRotation: oldRotation,
+          targetRotation: _rotation,
+          center: _lastCenter,
+          zoom: _zoom,
+          source: source,
+        ),
+      );
+
+      if (callOnMoveSink) {
+        _onMoveSink.add(null);
+      }
+
+      return true;
+    }
+
+    return false;
+  }
+
+  MoveAndRotateResult moveAndRotate(LatLng center, double zoom, double degree,
+      {MapEventSource source, String id}) {
+    final moveSucc =
+        move(center, zoom, id: id, source: source, callOnMoveSink: false);
+    final rotateSucc =
+        rotate(degree, id: id, source: source, callOnMoveSink: false);
+
+    if (moveSucc || rotateSucc) {
+      _onMoveSink.add(null);
+    }
+
+    return MoveAndRotateResult(moveSucc, rotateSucc);
+  }
+
+  bool move(LatLng center, double zoom,
+      {hasGesture = false,
+      callOnMoveSink = true,
+      MapEventSource source,
+      String id}) {
     zoom = fitZoomToBounds(zoom);
     final mapMoved = center != _lastCenter || zoom != _zoom;
 
     if (_lastCenter != null && (!mapMoved || !bounds.isValid)) {
-      return;
+      return false;
     }
 
     if (options.isOutOfBounds(center)) {
       if (!options.slideOnBoundaries) {
-        return;
+        return false;
       }
       center = options.containPoint(center, _lastCenter ?? center);
     }
 
-    var mapPosition = MapPosition(
-        center: center, bounds: bounds, zoom: zoom, hasGesture: hasGesture);
+    _handleMoveEmit(center, zoom, hasGesture, source, id);
 
     _zoom = zoom;
     _lastCenter = center;
     _lastPixelBounds = getPixelBounds(_zoom);
     _lastBounds = _calculateBounds();
     _pixelOrigin = getNewPixelOrigin(center);
-    _onMoveSink.add(null);
-    _positionSink.add(mapPosition);
+    if (callOnMoveSink) {
+      _onMoveSink.add(null);
+    }
 
     if (options.onPositionChanged != null) {
+      var mapPosition = MapPosition(
+          center: center, bounds: bounds, zoom: zoom, hasGesture: hasGesture);
+
       options.onPositionChanged(mapPosition, hasGesture);
     }
+
+    return true;
   }
 
   double fitZoomToBounds(double zoom) {

@@ -9,14 +9,14 @@ class GroupLayerOptions extends LayerOptions {
   GroupLayerOptions({
     Key key,
     this.group,
-    rebuild,
+    Stream<Null> rebuild,
   }) : super(key: key, rebuild: rebuild);
 }
 
 class GroupLayerWidget extends StatelessWidget {
   final GroupLayerOptions options;
 
-  GroupLayerWidget({@required this.options}) : super(key: options.key);
+  GroupLayerWidget({Key key, @required this.options}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -34,15 +34,6 @@ class GroupLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      // TODO unused BoxContraints should remove?
-      builder: (BuildContext context, BoxConstraints bc) {
-        return _build(context);
-      },
-    );
-  }
-
-  Widget _build(BuildContext context) {
     return StreamBuilder(
       stream: stream,
       builder: (BuildContext context, _) {

@@ -229,8 +229,8 @@ class TileLayerOptions extends LayerOptions {
     this.overrideTilesWhenUrlChanges = false,
     this.retinaMode = false,
     this.errorTileCallback,
+    Stream<Null> rebuild,
     this.templateFunction = util.template,
-    rebuild,
   })  : updateInterval =
             updateInterval <= 0 ? null : Duration(milliseconds: updateInterval),
         tileFadeInDuration = tileFadeInDuration <= 0
@@ -345,16 +345,11 @@ class WMSTileLayerOptions {
   }
 }
 
-class TileLayerWidget extends StatefulWidget {
+class TileLayerWidget extends StatelessWidget {
   final TileLayerOptions options;
 
-  TileLayerWidget({@required this.options}) : super(key: options.key);
+  TileLayerWidget({Key key, @required this.options}) : super(key: key);
 
-  @override
-  State<StatefulWidget> createState() => _TileLayerWidgetState();
-}
-
-class _TileLayerWidgetState extends State<TileLayerWidget> {
   @override
   Widget build(BuildContext context) {
     final mapState = MapState.of(context);
@@ -362,7 +357,7 @@ class _TileLayerWidgetState extends State<TileLayerWidget> {
     return TileLayer(
       mapState: mapState,
       stream: mapState.onMoved,
-      options: widget.options,
+      options: options,
     );
   }
 }

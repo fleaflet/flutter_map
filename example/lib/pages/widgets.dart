@@ -28,7 +28,7 @@ class WidgetsPage extends StatelessWidget {
                     ZoomButtonsPlugin(),
                   ],
                 ),
-                layers: [
+                nonRotatedLayers: [
                   ZoomButtonsPluginOption(
                     minZoom: 4,
                     maxZoom: 19,
@@ -46,6 +46,8 @@ class WidgetsPage extends StatelessWidget {
                     ),
                   ),
                   MovingWithoutRefreshAllMapMarkers(),
+                ],
+                nonRotatedChildren: <Widget>[
                   Text(
                     'Plugin is just Text widget',
                     style: TextStyle(
