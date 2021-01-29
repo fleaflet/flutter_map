@@ -162,7 +162,7 @@ Widget build(BuildContext context) {
           ),
         ],
       ),
-    ]
+    ],
     children: <Widget>[
       TileLayerWidget(options: TileLayerOptions(
         urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -200,7 +200,7 @@ var epsg3413CRS = Proj4Crs.fromFactory(
   code: 'EPSG:3413',
   proj4Projection:
       proj4.Projection.add('EPSG:3413', '+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs'),
-  resolutions: resolutions
+  resolutions: resolutions,
 );
 ```
 
