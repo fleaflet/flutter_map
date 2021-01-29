@@ -1,3 +1,15 @@
+## [0.11.0] - 10/29/2020
+This version removes various tile providers that depend on plugins.
+This helps simplify the flutter_map release process. Tile providers can
+be implemented in your app or in a separate package.
+
+- remove mbtiles tile provider + sqlflite dependency (#787)
+- Add two finger rotation (#719)
+- add allowPanning property (#766)
+- reload map if additionalOptions changes (#740)
+
+thanks to maRci002, escamoteur, and Xennis for this release!
+
 ## [0.10.2] - 10/29/2020
 - added property `allowPanning` to `MapOptions` that allows to disable only panning while touch events are still triggered
 
