@@ -28,25 +28,25 @@ Configure the map using `MapOptions` and layer options:
 
 ```dart
 Widget build(BuildContext context) {
-  return new FlutterMap(
-    options: new MapOptions(
-      center: new LatLng(51.5, -0.09),
+  return FlutterMap(
+    options: MapOptions(
+      center: LatLng(51.5, -0.09),
       zoom: 13.0,
     ),
     layers: [
-      new TileLayerOptions(
+      TileLayerOptions(
         urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
         subdomains: ['a', 'b', 'c']
       ),
-      new MarkerLayerOptions(
+      MarkerLayerOptions(
         markers: [
-          new Marker(
+          Marker(
             width: 80.0,
             height: 80.0,
-            point: new LatLng(51.5, -0.09),
+            point: LatLng(51.5, -0.09),
             builder: (ctx) =>
-            new Container(
-              child: new FlutterLogo(),
+            Container(
+              child: FlutterLogo(),
             ),
           ),
         ],
@@ -162,7 +162,7 @@ Widget build(BuildContext context) {
           ),
         ],
       ),
-    ]
+    ],
     children: <Widget>[
       TileLayerWidget(options: TileLayerOptions(
         urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -200,7 +200,7 @@ var epsg3413CRS = Proj4Crs.fromFactory(
   code: 'EPSG:3413',
   proj4Projection:
       proj4.Projection.add('EPSG:3413', '+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs'),
-  resolutions: resolutions
+  resolutions: resolutions,
 );
 ```
 
@@ -271,6 +271,7 @@ Note that there is also `FileTileProvider()`, which you can use to load tiles fr
 
 - [flutter_map_marker_cluster](https://github.com/lpongetti/flutter_map_marker_cluster): Provides Beautiful Animated Marker Clustering functionality
 - [user_location](https://github.com/igaurab/user_location_plugin): A plugin to handle and plot the current user location in FlutterMap
+- [flutter_map_location](https://github.com/Xennis/flutter_map_location): A plugin to request and display the users location and heading on the map
 - [flutter_map_tappable_polyline](https://github.com/OwnWeb/flutter_map_tappable_polyline): A plugin to add `onTap` callback to `Polyline`
 - [lat_lon_grid_plugin](https://github.com/mat8854/lat_lon_grid_plugin): Adds a latitude / longitude grid as plugin to the FlutterMap
 - [flutter_map_marker_popup](https://github.com/rorystephenson/flutter_map_marker_popup): A plugin to show customisable popups for markers.

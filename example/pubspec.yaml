@@ -1,6 +1,9 @@
 name: flutter_map_example
 description: A new Flutter project.
 
+environment:
+  sdk: '>=2.10.0 <3.0.0'
+
 dependencies:
   flutter:
     sdk: flutter
@@ -16,7 +19,6 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/berlin.mbtiles
     - assets/map/anholt_osmbright/12/2177/
     - assets/map/anholt_osmbright/12/2178/
     - assets/map/anholt_osmbright/12/2179/

@@ -11,7 +11,6 @@ import '../pages/map_controller.dart';
 import '../pages/marker_anchor.dart';
 import '../pages/moving_markers.dart';
 import '../pages/offline_map.dart';
-import '../pages/offline_mbtiles_map.dart';
 import '../pages/on_tap.dart';
 import '../pages/overlay_image.dart';
 import '../pages/plugin_api.dart';
@@ -126,12 +125,6 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           context,
           const Text('Offline Map'),
           OfflineMapPage.route,
-          currentRoute,
-        ),
-        _buildMenuItem(
-          context,
-          const Text('Offline Map (using MBTiles)'),
-          OfflineMBTilesMapPage.route,
           currentRoute,
         ),
         _buildMenuItem(

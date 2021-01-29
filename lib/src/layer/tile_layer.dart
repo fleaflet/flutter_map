@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:collection/collection.dart' show MapEquality;
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/core/bounds.dart';
@@ -14,6 +15,8 @@ import 'package:tuple/tuple.dart';
 
 import 'layer.dart';
 
+typedef TemplateFunction = String Function(
+    String str, Map<String, String> data);
 typedef ErrorTileCallBack = void Function(Tile tile, dynamic error);
 
 /// Describes the needed properties to create a tile-based layer.
@@ -189,6 +192,8 @@ class TileLayerOptions extends LayerOptions {
   /// This callback will be execute if some errors by getting tile
   final ErrorTileCallBack errorTileCallback;
 
+  final TemplateFunction templateFunction;
+
   TileLayerOptions({
     Key key,
     this.urlTemplate,
@@ -199,7 +204,7 @@ class TileLayerOptions extends LayerOptions {
     this.maxNativeZoom,
     this.zoomReverse = false,
     double zoomOffset = 0.0,
-    this.additionalOptions = const <String, String>{},
+    Map<String, String> additionalOptions,
     this.subdomains = const <String>[],
     this.keepBuffer = 2,
     this.backgroundColor = const Color(0xFFE0E0E0),
@@ -225,6 +230,8 @@ class TileLayerOptions extends LayerOptions {
     this.retinaMode = false,
     this.errorTileCallback,
     Stream<Null> rebuild,
+    this.templateFunction = util.template,
+    rebuild,
   })  : updateInterval =
             updateInterval <= 0 ? null : Duration(milliseconds: updateInterval),
         tileFadeInDuration = tileFadeInDuration <= 0
@@ -247,6 +254,11 @@ class TileLayerOptions extends LayerOptions {
         tileSize = wmsOptions == null && retinaMode && maxZoom > 0.0
             ? (tileSize / 2.0).floorToDouble()
             : tileSize,
+        // copy additionalOptions Map if not null, so we can safely compare old
+        // and new Map inside didUpdateWidget with MapEquality.
+        additionalOptions = additionalOptions == null
+            ? const <String, String>{}
+            : Map.from(additionalOptions),
         super(key: key, rebuild: rebuild);
 }
 
@@ -376,6 +388,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   Tuple2<double, double> _wrapX;
   Tuple2<double, double> _wrapY;
   double _tileZoom;
+
   //ignore: unused_field
   Level _level;
   StreamSubscription _moveSub;
@@ -419,7 +432,12 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       final oldUrl = oldWidget.options.wmsOptions?._encodedBaseUrl ??
           oldWidget.options.urlTemplate;
       final newUrl = options.wmsOptions?._encodedBaseUrl ?? options.urlTemplate;
-      if (oldUrl != newUrl) {
+
+      final oldOptions = oldWidget.options.additionalOptions;
+      final newOptions = options.additionalOptions;
+
+      if (oldUrl != newUrl ||
+          !(const MapEquality()).equals(oldOptions, newOptions)) {
         if (options.overrideTilesWhenUrlChanges) {
           for (var tile in _tiles.values) {
             tile.imageProvider = options.tileProvider
@@ -1052,6 +1070,7 @@ class Tile implements Comparable<Tile> {
   DateTime loaded;
 
   AnimationController animationController;
+
   double get opacity => animationController == null
       ? (active ? 1.0 : 0.0)
       : animationController.value;

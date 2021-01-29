@@ -109,7 +109,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
         point: currentLatLng,
         builder: (ctx) => Container(
           child: FlutterLogo(
-            colors: Colors.blue,
+            textColor: Colors.blue,
             key: ObjectKey(Colors.blue),
           ),
         ),

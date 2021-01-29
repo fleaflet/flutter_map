@@ -28,7 +28,6 @@ export 'package:flutter_map/src/layer/overlay_image_layer.dart';
 export 'package:flutter_map/src/layer/polygon_layer.dart';
 export 'package:flutter_map/src/layer/polyline_layer.dart';
 export 'package:flutter_map/src/layer/tile_layer.dart';
-export 'package:flutter_map/src/layer/tile_provider/mbtiles_image_provider.dart';
 export 'package:flutter_map/src/layer/tile_provider/tile_provider.dart';
 export 'package:flutter_map/src/plugins/plugin.dart';
 
@@ -210,6 +209,9 @@ class MapOptions {
 
   /// see [InteractiveFlag] for custom settings
   final int interactiveFlags;
+
+  final bool allowPanning;
+
   final TapCallback onTap;
   final LongPressCallback onLongPress;
   final PositionCallback onPositionChanged;
@@ -248,9 +250,9 @@ class MapOptions {
     this.maxZoom,
     this.debug = false,
     this.interactive,
-
     /// TODO: when [interactive] is removed change this to [this.interactiveFlags = InteractiveFlag.all] and remove [interactiveFlags] from initializer list
     int interactiveFlags,
+    this.allowPanning = true,
     this.onTap,
     this.onLongPress,
     this.onPositionChanged,

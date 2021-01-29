@@ -1,6 +1,6 @@
 name: flutter_map
 description: A Dart implementation of Leaflet for Flutter apps
-version: 0.10.1+1
+version: 0.10.2
 homepage: https://github.com/johnpryan/flutter_map
 module:
   androidX: true
@@ -19,7 +19,6 @@ dependencies:
   async: ^2.1.0
   flutter_image: ^3.0.0
   cached_network_image: ^2.0.0
-  sqflite: ^1.1.5
   path_provider: ^1.6.7
   vector_math: ^2.0.0
   proj4dart: ^1.0.4

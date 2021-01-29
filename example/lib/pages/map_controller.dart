@@ -49,7 +49,7 @@ class MapControllerPageState extends State<MapControllerPage> {
         builder: (ctx) => Container(
           child: FlutterLogo(
             key: Key('green'),
-            colors: Colors.green,
+            textColor: Colors.green,
           ),
         ),
       ),
@@ -59,7 +59,7 @@ class MapControllerPageState extends State<MapControllerPage> {
         point: paris,
         builder: (ctx) => Container(
           key: Key('purple'),
-          child: FlutterLogo(colors: Colors.purple),
+          child: FlutterLogo(textColor: Colors.purple),
         ),
       ),
     ];
