@@ -9,7 +9,9 @@ class ZoomButtonsPluginOption extends LayerOptions {
   final double padding;
   final Alignment alignment;
   final Color zoomInColor;
+  final Color zoomInColorIcon;
   final Color zoomOutColor;
+  final Color zoomOutColorIcon;
   final IconData zoomInIcon;
   final IconData zoomOutIcon;
 
@@ -21,8 +23,10 @@ class ZoomButtonsPluginOption extends LayerOptions {
     this.padding = 2.0,
     this.alignment = Alignment.topRight,
     this.zoomInColor,
+    this.zoomInColorIcon,
     this.zoomInIcon = Icons.zoom_in,
     this.zoomOutColor,
+    this.zoomOutColorIcon,
     this.zoomOutIcon = Icons.zoom_out,
     rebuild,
   }) : super(key: key, rebuild: rebuild);
@@ -81,7 +85,8 @@ class ZoomButtons extends StatelessWidget {
                   map.move(centerZoom.center, zoom);
                 }
               },
-              child: Icon(zoomButtonsOpts.zoomInIcon),
+              child: Icon(zoomButtonsOpts.zoomInIcon, 
+              color: zoomButtonsOpts.zoomInColorIcon ?? IconTheme.of(context).color),
             ),
           ),
           Padding(
@@ -101,7 +106,8 @@ class ZoomButtons extends StatelessWidget {
                   map.move(centerZoom.center, zoom);
                 }
               },
-              child: Icon(zoomButtonsOpts.zoomOutIcon),
+              child: Icon(zoomButtonsOpts.zoomOutIcon, 
+              color: zoomButtonsOpts.zoomOutColorIcon ?? IconTheme.of(context).color ),
             ),
           ),
         ],
