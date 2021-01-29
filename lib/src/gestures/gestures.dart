@@ -17,7 +17,9 @@ abstract class MapGestureMixin extends State<FlutterMap>
   var _gestureWinner = MultiFingerGesture.none;
 
   var _pointerCounter = 0;
+
   void savePointer(PointerEvent event) => ++_pointerCounter;
+
   void removePointer(PointerEvent event) => --_pointerCounter;
 
   var _rotationStarted = false;
@@ -50,7 +52,9 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
   @override
   FlutterMap get widget;
+
   MapState get mapState;
+
   MapOptions get options;
 
   @override
@@ -426,7 +430,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
   void handleScaleEnd(ScaleEndDetails details) {
     _resetDoubleTapHold();
-    
+
     if (!options.allowPanning) {
       return;
     }
@@ -543,11 +547,10 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
   void handleDoubleTap(TapPosition tapPosition) {
     _resetDoubleTapHold();
-    
+
     if (!options.allowPanning) {
       return;
     }
-    
 
     closeFlingAnimationController(MapEventSource.doubleTap);
     closeDoubleTapController(MapEventSource.doubleTap);
