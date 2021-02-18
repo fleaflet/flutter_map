@@ -1,4 +1,4 @@
-## [0.11.0] - 10/29/2020
+## [0.11.0] - 01/29/2021
 This version removes various tile providers that depend on plugins.
 This helps simplify the flutter_map release process. Tile providers can
 be implemented in your app or in a separate package.
