@@ -128,6 +128,10 @@ class MarkerLayer extends StatelessWidget {
       builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
         var markers = <Widget>[];
         for (var markerOpt in markerOpts.markers) {
+          if (!_boundsContainsMarker(markerOpt)) {
+            continue;
+          }
+
           var pos = map.project(markerOpt.point);
           pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
               map.getPixelOrigin();
@@ -136,10 +140,6 @@ class MarkerLayer extends StatelessWidget {
               (pos.x - (markerOpt.width - markerOpt.anchor.left)).toDouble();
           var pixelPosY =
               (pos.y - (markerOpt.height - markerOpt.anchor.top)).toDouble();
-
-          if (!_boundsContainsMarker(markerOpt)) {
-            continue;
-          }
 
           markers.add(
             Positioned(
