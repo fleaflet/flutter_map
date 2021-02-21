@@ -110,9 +110,7 @@ class MarkerLayer extends StatelessWidget {
   MarkerLayer(this.markerOpts, this.map, this.stream)
       : super(key: markerOpts.key);
 
-  bool _boundsContainsMarker(Marker marker) {
-    var pixelPoint = map.project(marker.point);
-
+  bool _boundsContainsMarker(Marker marker, CustomPoint pixelPoint) {
     final width = marker.width - marker.anchor.left;
     final height = marker.height - marker.anchor.top;
 
@@ -128,11 +126,11 @@ class MarkerLayer extends StatelessWidget {
       builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
         var markers = <Widget>[];
         for (var markerOpt in markerOpts.markers) {
-          if (!_boundsContainsMarker(markerOpt)) {
+          var pos = map.project(markerOpt.point);
+          if (!_boundsContainsMarker(markerOpt, pos)) {
             continue;
           }
 
-          var pos = map.project(markerOpt.point);
           pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
               map.getPixelOrigin();
 
