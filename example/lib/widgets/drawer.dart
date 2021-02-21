@@ -7,6 +7,7 @@ import '../pages/esri.dart';
 import '../pages/home.dart';
 import '../pages/interactive_test_page.dart';
 import '../pages/live_location.dart';
+import '../pages/many_markers.dart';
 import '../pages/map_controller.dart';
 import '../pages/marker_anchor.dart';
 import '../pages/moving_markers.dart';
@@ -185,6 +186,13 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           InteractiveTestPage.route,
           currentRoute,
         ),
+        ListTile(
+          title: const Text('A lot of markers'),
+          selected: currentRoute == ManyMarkersPage.route,
+          onTap: () {
+            Navigator.pushReplacementNamed(context, ManyMarkersPage.route);
+          },
+        )
       ],
     ),
   );
