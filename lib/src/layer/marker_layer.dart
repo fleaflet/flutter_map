@@ -107,8 +107,17 @@ class MarkerLayer extends StatelessWidget {
   final MapState map;
   final Stream<Null> stream;
 
+  // Note: I don't know if it's okay to store mutable stuff like this in stless
+  // But it works, and stuff is discarded when something serious changes
+  /// List containing cached pixel positions of markers
+  /// Should be discarded when zoom changes
+  List<CustomPoint> _pxCache;
+  double lastZoom = 0;
+
   MarkerLayer(this.markerOpts, this.map, this.stream)
-      : super(key: markerOpts.key);
+      : super(key: markerOpts.key) {
+    _pxCache = List(markerOpts.markers.length);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -116,8 +125,16 @@ class MarkerLayer extends StatelessWidget {
       stream: stream, // a Stream<int> or null
       builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
         var markers = <Widget>[];
+        final sameZoom = map.zoom == lastZoom;
+        var i = -1;
         for (var marker in markerOpts.markers) {
-          var pxPoint = map.project(marker.point);
+          i++;
+
+          // Decide whether to use cached point or calculate it
+          var pxPoint = sameZoom ? _pxCache[i] : map.project(marker.point);
+          if (!sameZoom) {
+            _pxCache[i] = pxPoint;
+          }
 
           final width = marker.width - marker.anchor.left;
           final height = marker.height - marker.anchor.top;
@@ -140,6 +157,7 @@ class MarkerLayer extends StatelessWidget {
             ),
           );
         }
+        lastZoom = map.zoom;
         return Container(
           child: Stack(
             children: markers,
