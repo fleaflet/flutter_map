@@ -110,42 +110,34 @@ class MarkerLayer extends StatelessWidget {
   MarkerLayer(this.markerOpts, this.map, this.stream)
       : super(key: markerOpts.key);
 
-  bool _boundsContainsMarker(Marker marker, CustomPoint pixelPoint) {
-    final width = marker.width - marker.anchor.left;
-    final height = marker.height - marker.anchor.top;
-
-    var sw = CustomPoint(pixelPoint.x + width, pixelPoint.y - height);
-    var ne = CustomPoint(pixelPoint.x - width, pixelPoint.y + height);
-    return map.pixelBounds.containsPartialBounds(Bounds(sw, ne));
-  }
-
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<int>(
       stream: stream, // a Stream<int> or null
       builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
         var markers = <Widget>[];
-        for (var markerOpt in markerOpts.markers) {
-          var pos = map.project(markerOpt.point);
-          if (!_boundsContainsMarker(markerOpt, pos)) {
+        for (var marker in markerOpts.markers) {
+          var pxPoint = map.project(marker.point);
+
+          final width = marker.width - marker.anchor.left;
+          final height = marker.height - marker.anchor.top;
+          var sw = CustomPoint(pxPoint.x + width, pxPoint.y - height);
+          var ne = CustomPoint(pxPoint.x - width, pxPoint.y + height);
+
+          if (!map.pixelBounds.containsPartialBounds(Bounds(sw, ne))) {
             continue;
           }
 
-          pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
+          final pos = pxPoint.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
               map.getPixelOrigin();
-
-          var pixelPosX =
-              (pos.x - (markerOpt.width - markerOpt.anchor.left)).toDouble();
-          var pixelPosY =
-              (pos.y - (markerOpt.height - markerOpt.anchor.top)).toDouble();
 
           markers.add(
             Positioned(
-              width: markerOpt.width,
-              height: markerOpt.height,
-              left: pixelPosX,
-              top: pixelPosY,
-              child: markerOpt.builder(context),
+              width: marker.width,
+              height: marker.height,
+              left: pos.x - width,
+              top: pos.y - height,
+              child: marker.builder(context),
             ),
           );
         }
