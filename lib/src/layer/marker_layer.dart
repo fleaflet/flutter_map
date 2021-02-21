@@ -128,8 +128,7 @@ class MarkerLayer extends StatelessWidget {
             continue;
           }
 
-          final pos = pxPoint.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
-              map.getPixelOrigin();
+          final pos = pxPoint - map.getPixelOrigin();
 
           markers.add(
             Positioned(
