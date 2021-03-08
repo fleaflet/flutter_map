@@ -460,6 +460,20 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       reloadTiles = true;
     }
 
+    var maxTileZoomValue = 1.0;
+    var minTileZoomValue = 20.0;
+    for (var tile in _tiles.values) {
+      if (tile.level.zoom > maxTileZoomValue) {
+        maxTileZoomValue = tile.level.zoom;
+      }
+      if (tile.level.zoom < maxTileZoomValue) {
+        minTileZoomValue = tile.level.zoom;
+      }
+    }
+    if (maxTileZoomValue > options.maxZoom || minTileZoomValue < options.minZoom) {
+      reloadTiles=true;
+    }
+
     if (oldWidget.options.updateInterval != options.updateInterval) {
       _throttleUpdate?.close();
       _initThrottleUpdate();
