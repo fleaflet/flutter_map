@@ -229,6 +229,45 @@ child: FlutterMap(
 
 For more details visit [Custom CRS demo page](./example/lib/pages/custom_crs/Readme.md).
 
+### How to Cache Tiles (Custom TileProvider)
+
+1. Using Flutter's NetworkImage:
+Flutter has a built in ImageProvider (NetworkImage) that caches images in memory until an app restart.
+```dart
+class CachedTileProvider extends TileProvider {
+  const CachedTileProvider();
+  @override
+  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
+    return NetworkImage(getTileUrl(coords, options));
+  }
+}
+```
+
+2. Using the `cached_network_image` dependency:
+This dependency has an ImageProvider that caches to disk which means the cache persists through an app restart.
+```dart
+import 'package:cached_network_image/cached_network_image.dart';
+
+class CachedTileProvider extends TileProvider {
+  const CachedTileProvider();
+  @override
+  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
+    return CachedNetworkImageProvider(
+      getTileUrl(coords, options),
+      //Now you can set options that determine how the image gets cached via whichever plugin you use.
+    );
+  }
+}
+```
+
+Lastly we need to add the CachedTileProvider TileProvider to TileLayerOptions
+```dart
+TileLayerOptions(
+  urlTemplate: 'https://example.com/{x}/{y}/{z}',
+  tileProvider: const CachedTileProvider()
+)
+```
+
 ## Run the example
 
 See the `example/` folder for a working example app.
