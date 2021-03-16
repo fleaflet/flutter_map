@@ -1,4 +1,4 @@
-[![BuildStatus](https://travis-ci.com/fleaflet/flutter_map.svg?branch=master)](https://travis-ci.org/johnpryan/flutter_map)
+[![CI](https://github.com/fleaflet/flutter_map/workflows/Tests/badge.svg)](https://github.com/fleaflet/flutter_map/actions?query=branch%3Amaster)
 [![Pub](https://img.shields.io/pub/v/flutter_map.svg)](https://pub.dev/packages/flutter_map)
 
 # flutter_map
