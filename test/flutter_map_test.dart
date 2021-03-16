@@ -1,10 +1,53 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong/latlong.dart';
+import 'package:mockito/mockito.dart';
+
+class MockHttpClientResponse extends Mock implements HttpClientResponse {
+  final _stream = readFile();
+
+  @override
+  int get statusCode => HttpStatus.ok;
+
+  @override
+  HttpClientResponseCompressionState get compressionState =>
+      HttpClientResponseCompressionState.notCompressed;
+
+  @override
+  StreamSubscription<List<int>> listen(void Function(List<int> event) onData,
+      {Function onError, void Function() onDone, bool cancelOnError}) {
+    return _stream.listen(onData,
+        onError: onError, onDone: onDone, cancelOnError: cancelOnError);
+  }
+
+  static Stream<List<int>> readFile() => File('test/res/map.png').openRead();
+}
+
+class MockHttpClientRequest extends Mock implements HttpClientRequest {}
+
+class MockClient extends Mock implements HttpClient {
+  @override
+  Future<HttpClientRequest> getUrl(Uri url) {
+    final request = MockHttpClientRequest();
+    when(request.close()).thenAnswer((_) async {
+      return MockHttpClientResponse();
+    });
+    return Future.value(request);
+  }
+}
+
+class MockHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext securityContext) => MockClient();
+}
 
 void main() {
   testWidgets('flutter_map', (tester) async {
+    HttpOverrides.global = MockHttpOverrides();
     await tester.pumpWidget(TestApp());
     expect(find.byType(FlutterMap), findsOneWidget);
     expect(find.byType(TileLayer), findsOneWidget);
