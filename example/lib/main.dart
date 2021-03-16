@@ -18,6 +18,7 @@ import './pages/plugin_zoombuttons.dart';
 import './pages/polyline.dart';
 import './pages/sliding_map.dart';
 import './pages/tap_to_add.dart';
+import './pages/tile_builder_example.dart';
 import './pages/tile_loading_error_handle.dart';
 import './pages/widgets.dart';
 import './pages/wms_tile_layer.dart';
@@ -57,6 +58,7 @@ class MyApp extends StatelessWidget {
         CustomCrsPage.route: (context) => CustomCrsPage(),
         LiveLocationPage.route: (context) => LiveLocationPage(),
         TileLoadingErrorHandle.route: (context) => TileLoadingErrorHandle(),
+        TileBuilderPage.route: (context) => TileBuilderPage(),
         InteractiveTestPage.route: (context) => InteractiveTestPage(),
       },
     );
