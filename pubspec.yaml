@@ -24,7 +24,7 @@ dependencies:
   collection: ^1.14.0
 
 dev_dependencies:
-  pedantic: ^1.8.0
+  pedantic: ^1.11.0
   location: ^2.5.0
   flutter_test:
     sdk: flutter

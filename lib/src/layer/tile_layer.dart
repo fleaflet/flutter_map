@@ -472,7 +472,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         util.throttleStreamTransformerWithTrailingCall<LatLng>(
           options.updateInterval,
         ),
-      )..listen(_update);
+      ).listen(_update);
     }
   }
 
