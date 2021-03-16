@@ -229,6 +229,45 @@ child: FlutterMap(
 
 For more details visit [Custom CRS demo page](./example/lib/pages/custom_crs/Readme.md).
 
+### How to Cache Tiles (Custom TileProvider)
+
+1. Using Flutter's NetworkImage:
+Flutter has a built in ImageProvider (NetworkImage) that caches images in memory until an app restart.
+```dart
+class CachedTileProvider extends TileProvider {
+  const CachedTileProvider();
+  @override
+  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
+    return NetworkImage(getTileUrl(coords, options));
+  }
+}
+```
+
+2. Using the `cached_network_image` dependency:
+This dependency has an ImageProvider that caches to disk which means the cache persists through an app restart.
+```dart
+import 'package:cached_network_image/cached_network_image.dart';
+
+class CachedTileProvider extends TileProvider {
+  const CachedTileProvider();
+  @override
+  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
+    return CachedNetworkImageProvider(
+      getTileUrl(coords, options),
+      //Now you can set options that determine how the image gets cached via whichever plugin you use.
+    );
+  }
+}
+```
+
+Lastly we need to add the CachedTileProvider TileProvider to TileLayerOptions
+```dart
+TileLayerOptions(
+  urlTemplate: 'https://example.com/{x}/{y}/{z}',
+  tileProvider: const CachedTileProvider()
+)
+```
+
 ## Run the example
 
 See the `example/` folder for a working example app.
@@ -272,6 +311,7 @@ Note that there is also `FileTileProvider()`, which you can use to load tiles fr
 - [flutter_map_marker_cluster](https://github.com/lpongetti/flutter_map_marker_cluster): Provides Beautiful Animated Marker Clustering functionality
 - [user_location](https://github.com/igaurab/user_location_plugin): A plugin to handle and plot the current user location in FlutterMap
 - [flutter_map_location](https://github.com/Xennis/flutter_map_location): A plugin to request and display the users location and heading on the map
+- [flutter_map_location_marker](https://github.com/tlserver/flutter_map_location_marker): A simple and powerful plugin display the users location and heading
 - [flutter_map_tappable_polyline](https://github.com/OwnWeb/flutter_map_tappable_polyline): A plugin to add `onTap` callback to `Polyline`
 - [lat_lon_grid_plugin](https://github.com/mat8854/lat_lon_grid_plugin): Adds a latitude / longitude grid as plugin to the FlutterMap
 - [flutter_map_marker_popup](https://github.com/rorystephenson/flutter_map_marker_popup): A plugin to show customisable popups for markers.
