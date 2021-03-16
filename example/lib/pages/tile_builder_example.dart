@@ -127,7 +127,6 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
                   point: LatLng(51.5, -0.09),
                   builder: (ctx) => Container(
                     child: FlutterLogo(
-                      colors: Colors.blue,
                       key: ObjectKey(Colors.blue),
                     ),
                   ),

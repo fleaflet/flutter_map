@@ -249,7 +249,6 @@ class TileLayerOptions extends LayerOptions {
     this.templateFunction = util.template,
     this.tileBuilder,
     this.tilesContainerBuilder,
-    rebuild,
   })  : updateInterval =
             updateInterval <= 0 ? null : Duration(milliseconds: updateInterval),
         tileFadeInDuration = tileFadeInDuration <= 0
