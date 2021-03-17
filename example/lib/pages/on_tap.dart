@@ -28,7 +28,7 @@ class OnTapPageState extends State<OnTapPage> {
         builder: (ctx) => Container(
             child: GestureDetector(
           onTap: () {
-            Scaffold.of(ctx).showSnackBar(SnackBar(
+            ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
               content: Text('Tapped on blue FlutterLogo Marker'),
             ));
           },
@@ -42,7 +42,7 @@ class OnTapPageState extends State<OnTapPage> {
         builder: (ctx) => Container(
             child: GestureDetector(
           onTap: () {
-            Scaffold.of(ctx).showSnackBar(SnackBar(
+            ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
               content: Text('Tapped on green FlutterLogo Marker'),
             ));
           },
@@ -58,7 +58,7 @@ class OnTapPageState extends State<OnTapPage> {
         builder: (ctx) => Container(
             child: GestureDetector(
           onTap: () {
-            Scaffold.of(ctx).showSnackBar(SnackBar(
+            ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
               content: Text('Tapped on purple FlutterLogo Marker'),
             ));
           },
