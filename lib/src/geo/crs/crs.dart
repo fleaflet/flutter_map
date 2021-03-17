@@ -371,10 +371,7 @@ abstract class Projection {
 
   @protected
   double inclusiveLng(double value) {
-    if (value.compareTo(-180) < 0) return -180;
-    if (value.compareTo(180) > 0) return 180;
-
-    return value;
+    return _inclusive(-180.0, 180.0, value);
   }
 }
 
