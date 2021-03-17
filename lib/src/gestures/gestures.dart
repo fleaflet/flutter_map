@@ -7,7 +7,7 @@ import 'package:flutter_map/src/gestures/interactive_flag.dart';
 import 'package:flutter_map/src/gestures/latlng_tween.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong/latlong.dart';
-import 'package:positioned_tap_detector/positioned_tap_detector.dart';
+import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
 
 abstract class MapGestureMixin extends State<FlutterMap>
     with TickerProviderStateMixin {
