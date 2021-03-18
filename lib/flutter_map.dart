@@ -267,8 +267,8 @@ class MapOptions {
         MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
     this.minZoom,
     this.maxZoom,
-    this.debug = false,
-    this.interactive,
+    @Deprecated('') this.debug = false,
+    @Deprecated('Use interactiveFlags instead') this.interactive,
     // TODO: Change when [interactive] is removed.
     // Change this to [this.interactiveFlags = InteractiveFlag.all] and remove
     // [interactiveFlags] from initializer list
