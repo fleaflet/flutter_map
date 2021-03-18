@@ -2,11 +2,9 @@ name: flutter_map
 description: A Dart implementation of Leaflet for Flutter apps
 version: 0.12.0
 repository: https://github.com/johnpryan/flutter_map
-module:
-  androidX: true
-  
+
 environment:
-  sdk: ">=2.6.0 <3.0.0"
+  sdk: ">=2.7.0 <3.0.0"
   flutter: ">=2.0.0"
 
 dependencies:
