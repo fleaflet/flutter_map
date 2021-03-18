@@ -2,6 +2,7 @@
 build/
 ios/.generated/
 .packages
+# TODO: document why we don't want this file
 pubspec.lock
 .flutter-plugins
 .vscode/
@@ -11,19 +12,3 @@ GeneratedPluginRegistrant.h
 GeneratedPluginRegistrant.m
 GeneratedPluginRegistrant.java
 ios/Flutter/Generated.xcconfig
-
-# Temp files in Example
-/example/.DS_Store
-/example/.atom/
-/example/.idea
-/example/.packages
-/example/.pub/
-/example/build/
-/example/ios/.generated/
-/example/packages
-/example/pubspec.lock
-/example/.flutter-plugins
-/example/.vscode/
-/example/.flutter-plugins-dependencies
-/example/ios/Flutter/flutter_export_environment.sh
-/example/ios/Flutter/Flutter.podspec
