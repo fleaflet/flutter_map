@@ -1,5 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="me.jpryan.flutter_map_example">
+    <!-- Requried for fetching tiles -->
+    <uses-permission android:name="android.permission.INTERNET"/>
    <application
         android:label="flutter_map_example"
         android:icon="@mipmap/ic_launcher">
