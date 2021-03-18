@@ -462,7 +462,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     reloadTiles |= _isZoomOutsideMinMax();
 
-
     if (oldWidget.options.updateInterval != options.updateInterval) {
       _throttleUpdate?.close();
       _initThrottleUpdate();
@@ -499,7 +498,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   bool _isZoomOutsideMinMax() {
     for (var tile in _tiles.values) {
-      if (tile.level.zoom > (options.maxZoom ?? 1.0) || tile.level.zoom < (options.minZoom ?? 20.0)) {
+      if (tile.level.zoom > (options.maxZoom ?? 1.0) ||
+          tile.level.zoom < (options.minZoom ?? 20.0)) {
         return true;
       }
     }
@@ -511,11 +511,13 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       _throttleUpdate = null;
     } else {
       _throttleUpdate = StreamController<LatLng>(sync: true);
-      _throttleUpdate.stream.transform(
-        util.throttleStreamTransformerWithTrailingCall<LatLng>(
-          options.updateInterval,
-        ),
-      ).listen(_update);
+      _throttleUpdate.stream
+          .transform(
+            util.throttleStreamTransformerWithTrailingCall<LatLng>(
+              options.updateInterval,
+            ),
+          )
+          .listen(_update);
     }
   }
 
