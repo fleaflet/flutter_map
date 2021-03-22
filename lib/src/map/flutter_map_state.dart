@@ -21,7 +21,8 @@ class FlutterMapState extends MapGestureMixin {
   @override
   MapState mapState;
 
-  FlutterMapState(MapController mapController) : mapController = mapController ?? MapController();
+  FlutterMapState(MapController mapController)
+      : mapController = mapController ?? MapController();
 
   @override
   void didUpdateWidget(FlutterMap oldWidget) {
@@ -69,7 +70,8 @@ class FlutterMapState extends MapGestureMixin {
   @override
   Widget build(BuildContext context) {
     _disposeStreamGroups();
-    return LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
+    return LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
       mapState.setOriginalSize(constraints.maxWidth, constraints.maxHeight);
       var size = mapState.size;
 
@@ -104,8 +106,11 @@ class FlutterMapState extends MapGestureMixin {
                         angle: mapState.rotationRad,
                         child: Stack(
                           children: [
-                            if (widget.children != null && widget.children.isNotEmpty) ...widget.children,
-                            if (widget.layers != null && widget.layers.isNotEmpty)
+                            if (widget.children != null &&
+                                widget.children.isNotEmpty)
+                              ...widget.children,
+                            if (widget.layers != null &&
+                                widget.layers.isNotEmpty)
                               ...widget.layers.map(
                                 (layer) => _createLayer(layer, options.plugins),
                               )
@@ -115,9 +120,11 @@ class FlutterMapState extends MapGestureMixin {
                     ),
                     Stack(
                       children: [
-                        if (widget.nonRotatedChildren != null && widget.nonRotatedChildren.isNotEmpty)
+                        if (widget.nonRotatedChildren != null &&
+                            widget.nonRotatedChildren.isNotEmpty)
                           ...widget.nonRotatedChildren,
-                        if (widget.nonRotatedLayers != null && widget.nonRotatedLayers.isNotEmpty)
+                        if (widget.nonRotatedLayers != null &&
+                            widget.nonRotatedLayers.isNotEmpty)
                           ...widget.nonRotatedLayers.map(
                             (layer) => _createLayer(layer, options.plugins),
                           )
@@ -140,7 +147,8 @@ class FlutterMapState extends MapGestureMixin {
       }
     }
     if (options is TileLayerOptions) {
-      return TileLayer(options: options, mapState: mapState, stream: _merge(options));
+      return TileLayer(
+          options: options, mapState: mapState, stream: _merge(options));
     }
     if (options is MarkerLayerOptions) {
       return MarkerLayer(options, mapState, _merge(options));

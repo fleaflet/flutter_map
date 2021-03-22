@@ -1,5 +1,6 @@
 import 'dart:math' as math;
-import 'package:latlong/latlong.dart';
+
+import 'package:latlong2/latlong.dart';
 
 class LatLngBounds {
   LatLng _sw;
