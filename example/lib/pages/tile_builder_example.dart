@@ -43,7 +43,7 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
                     tile.loaded == null
                         ? 'Loading'
                         // sometimes result is negative which shouldn't happen, abs() corrects it
-                        : '${(tile.loaded.millisecond - tile.loadStarted.millisecond).abs()} ms',
+                        : '${(tile.loaded!.millisecond - tile.loadStarted.millisecond).abs()} ms',
                     style: Theme.of(context).textTheme.headline5,
                   ),
               ],

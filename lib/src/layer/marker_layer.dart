@@ -8,14 +8,14 @@ class MarkerLayerOptions extends LayerOptions {
   final List<Marker> markers;
 
   /// If true markers will be counter rotated to the map rotation
-  final bool rotate;
+  final bool? rotate;
 
   /// The origin of the coordinate system (relative to the upper left corner of
   /// this render object) in which to apply the matrix.
   ///
   /// Setting an origin is equivalent to conjugating the transform matrix by a
   /// translation. This property is provided just for convenience.
-  final Offset rotateOrigin;
+  final Offset? rotateOrigin;
 
   /// The alignment of the origin, relative to the size of the box.
   ///
@@ -29,15 +29,15 @@ class MarkerLayerOptions extends LayerOptions {
   /// same as an [Alignment] whose [Alignment.x] value is `1.0` if
   /// [Directionality.of] returns	 [TextDirection.ltr], and `-1.0` if
   /// [Directionality.of] returns [TextDirection.rtl].
-  final AlignmentGeometry rotateAlignment;
+  final AlignmentGeometry? rotateAlignment;
 
   MarkerLayerOptions({
-    Key key,
+    Key? key,
     this.markers = const [],
     this.rotate = false,
     this.rotateOrigin,
     this.rotateAlignment = Alignment.center,
-    Stream<Null> rebuild,
+    Stream<Null>? rebuild,
   }) : super(key: key, rebuild: rebuild);
 }
 
@@ -79,8 +79,8 @@ class Anchor {
     }
   }
 
-  factory Anchor.forPos(AnchorPos pos, double width, double height) {
-    if (pos == null) return Anchor._(width, height, null);
+  factory Anchor.forPos(AnchorPos? pos, double width, double height) {
+    if (pos == null) return Anchor._(width, height, AnchorAlign.none);
     if (pos.value is AnchorAlign) return Anchor._(width, height, pos.value);
     if (pos.value is Anchor) return pos.value;
     throw Exception('Unsupported AnchorPos value type: ${pos.runtimeType}.');
@@ -95,6 +95,7 @@ class AnchorPos<T> {
 }
 
 enum AnchorAlign {
+  none,
   left,
   right,
   top,
@@ -110,14 +111,14 @@ class Marker {
   final Anchor anchor;
 
   /// If true marker will be counter rotated to the map rotation
-  final bool rotate;
+  final bool? rotate;
 
   /// The origin of the coordinate system (relative to the upper left corner of
   /// this render object) in which to apply the matrix.
   ///
   /// Setting an origin is equivalent to conjugating the transform matrix by a
   /// translation. This property is provided just for convenience.
-  final Offset rotateOrigin;
+  final Offset? rotateOrigin;
 
   /// The alignment of the origin, relative to the size of the box.
   ///
@@ -131,28 +132,28 @@ class Marker {
   /// same as an [Alignment] whose [Alignment.x] value is `1.0` if
   /// [Directionality.of] returns	 [TextDirection.ltr], and `-1.0` if
   /// [Directionality.of] returns [TextDirection.rtl].
-  final AlignmentGeometry rotateAlignment;
+  final AlignmentGeometry? rotateAlignment;
 
   Marker({
-    this.point,
-    this.builder,
+    required this.point,
+    required this.builder,
     this.width = 30.0,
     this.height = 30.0,
     this.rotate,
     this.rotateOrigin,
     this.rotateAlignment,
-    AnchorPos anchorPos,
+    AnchorPos? anchorPos,
   }) : anchor = Anchor.forPos(anchorPos, width, height);
 }
 
 class MarkerLayerWidget extends StatelessWidget {
   final MarkerLayerOptions options;
 
-  MarkerLayerWidget({Key key, @required this.options}) : super(key: key);
+  MarkerLayerWidget({Key? key, required this.options}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final mapState = MapState.of(context);
+    final mapState = MapState.maybeOf(context)!;
     return MarkerLayer(options, mapState, mapState.onMoved);
   }
 }
@@ -160,10 +161,9 @@ class MarkerLayerWidget extends StatelessWidget {
 class MarkerLayer extends StatelessWidget {
   final MarkerLayerOptions markerLayerOptions;
   final MapState map;
-  final Stream<Null> stream;
+  final Stream<Null>? stream;
 
-  MarkerLayer(this.markerLayerOptions, this.map, this.stream)
-      : super(key: markerLayerOptions.key);
+  MarkerLayer(this.markerLayerOptions, this.map, this.stream) : super(key: markerLayerOptions.key);
 
   bool _boundsContainsMarker(Marker marker) {
     var pixelPoint = map.project(marker.point);
@@ -178,32 +178,28 @@ class MarkerLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<int>(
+    return StreamBuilder<int?>(
       stream: stream, // a Stream<int> or null
-      builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+      builder: (BuildContext context, AsyncSnapshot<int?> snapshot) {
         var markers = <Widget>[];
         for (var markerOpt in markerLayerOptions.markers) {
           var pos = map.project(markerOpt.point);
-          pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
-              map.getPixelOrigin();
+          pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) - map.getPixelOrigin();
 
-          var pixelPosX =
-              (pos.x - (markerOpt.width - markerOpt.anchor.left)).toDouble();
-          var pixelPosY =
-              (pos.y - (markerOpt.height - markerOpt.anchor.top)).toDouble();
+          var pixelPosX = (pos.x - (markerOpt.width - markerOpt.anchor.left)).toDouble();
+          var pixelPosY = (pos.y - (markerOpt.height - markerOpt.anchor.top)).toDouble();
 
           if (!_boundsContainsMarker(markerOpt)) {
             continue;
           }
 
           Widget marker;
-          if (markerOpt.rotate ?? markerLayerOptions.rotate) {
+          if (markerOpt.rotate ?? markerLayerOptions.rotate ?? false) {
             // Counter rotated marker to the map rotation
             marker = Transform.rotate(
               angle: -map.rotationRad,
               origin: markerOpt.rotateOrigin ?? markerLayerOptions.rotateOrigin,
-              alignment: markerOpt.rotateAlignment ??
-                  markerLayerOptions.rotateAlignment,
+              alignment: markerOpt.rotateAlignment ?? markerLayerOptions.rotateAlignment,
               child: markerOpt.builder(context),
             );
           } else {

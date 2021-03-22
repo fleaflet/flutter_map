@@ -18,8 +18,8 @@ class MockHttpClientResponse extends Mock implements HttpClientResponse {
       HttpClientResponseCompressionState.notCompressed;
 
   @override
-  StreamSubscription<List<int>> listen(void Function(List<int> event) onData,
-      {Function onError, void Function() onDone, bool cancelOnError}) {
+  StreamSubscription<List<int>> listen(void Function(List<int> event)? onData,
+      {Function? onError, void Function()? onDone, bool? cancelOnError}) {
     return _stream.listen(onData,
         onError: onError, onDone: onDone, cancelOnError: cancelOnError);
   }
@@ -42,7 +42,7 @@ class MockClient extends Mock implements HttpClient {
 
 class MockHttpOverrides extends HttpOverrides {
   @override
-  HttpClient createHttpClient(SecurityContext securityContext) => MockClient();
+  HttpClient createHttpClient(SecurityContext? securityContext) => MockClient();
 }
 
 void main() {

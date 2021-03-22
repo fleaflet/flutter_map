@@ -13,7 +13,7 @@ class MarkerAnchorPage extends StatefulWidget {
 }
 
 class MarkerAnchorPageState extends State<MarkerAnchorPage> {
-  AnchorPos anchorPos;
+  late AnchorPos anchorPos;
 
   @override
   void initState() {

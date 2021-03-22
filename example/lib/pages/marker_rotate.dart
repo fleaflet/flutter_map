@@ -13,9 +13,9 @@ class MarkerRotatePage extends StatefulWidget {
 }
 
 class MarkerRotatePageState extends State<MarkerRotatePage> {
-  bool rotateMarkerLondon;
-  bool rotateMarkerDublin;
-  bool rotateMarkerParis;
+  bool? rotateMarkerLondon;
+  bool? rotateMarkerDublin;
+  bool? rotateMarkerParis;
   bool rotateMarkerLayerOptions = false;
 
   @override
@@ -33,7 +33,7 @@ class MarkerRotatePageState extends State<MarkerRotatePage> {
     setState(() {
       if (rotateMarkerLondon == null) {
         rotateMarkerLondon = true;
-      } else if (rotateMarkerLondon) {
+      } else if (rotateMarkerLondon != null) {
         rotateMarkerLondon = false;
       } else {
         rotateMarkerLondon = null;
@@ -45,7 +45,7 @@ class MarkerRotatePageState extends State<MarkerRotatePage> {
     setState(() {
       if (rotateMarkerDublin == null) {
         rotateMarkerDublin = true;
-      } else if (rotateMarkerDublin) {
+      } else if (rotateMarkerDublin != null) {
         rotateMarkerDublin = false;
       } else {
         rotateMarkerDublin = null;
@@ -57,7 +57,7 @@ class MarkerRotatePageState extends State<MarkerRotatePage> {
     setState(() {
       if (rotateMarkerParis == null) {
         rotateMarkerParis = true;
-      } else if (rotateMarkerParis) {
+      } else if (rotateMarkerParis != null) {
         rotateMarkerParis = false;
       } else {
         rotateMarkerParis = null;
@@ -108,8 +108,7 @@ class MarkerRotatePageState extends State<MarkerRotatePage> {
           children: [
             Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child:
-                  Text('Markers can be counter rotated to the map rotation.'),
+              child: Text('Markers can be counter rotated to the map rotation.'),
             ),
             Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
@@ -117,8 +116,7 @@ class MarkerRotatePageState extends State<MarkerRotatePage> {
                 children: <Widget>[
                   MaterialButton(
                     onPressed: _setRotateMarkerLayerOptions,
-                    child:
-                        Text('Set by LayerOptions: $rotateMarkerLayerOptions'),
+                    child: Text('Set by LayerOptions: $rotateMarkerLayerOptions'),
                   ),
                   MaterialButton(
                     onPressed: _setRotateMarkerLondon,
@@ -143,9 +141,7 @@ class MarkerRotatePageState extends State<MarkerRotatePage> {
                 ),
                 layers: [
                   TileLayerOptions(
-                      urlTemplate:
-                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      subdomains: ['a', 'b', 'c']),
+                      urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', subdomains: ['a', 'b', 'c']),
                   MarkerLayerOptions(
                     rotate: rotateMarkerLayerOptions,
                     markers: markers,
