@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+
 import 'package:flutter_map/src/core/point.dart';
 
 /// Rectangular bound delimited by orthogonal lines passing through two
@@ -20,6 +21,7 @@ class Bounds<T extends num> {
   Bounds<T> extend(CustomPoint<T> point) {
     CustomPoint<T> newMin;
     CustomPoint<T> newMax;
+    // TODO had this any functionality before?
     if (min == null && max == null) {
       newMin = point;
       newMax = point;

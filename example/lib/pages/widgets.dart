@@ -74,8 +74,8 @@ class MovingWithoutRefreshAllMapMarkers extends StatefulWidget {
 
 class _MovingWithoutRefreshAllMapMarkersState
     extends State<MovingWithoutRefreshAllMapMarkers> {
-  Marker _marker;
-  Timer _timer;
+  Marker? _marker;
+  Timer? _timer;
   int _markerIndex = 0;
 
   @override
@@ -99,7 +99,7 @@ class _MovingWithoutRefreshAllMapMarkersState
   @override
   Widget build(BuildContext context) {
     return MarkerLayerWidget(
-      options: MarkerLayerOptions(markers: <Marker>[_marker]),
+      options: MarkerLayerOptions(markers: [_marker!]),
     );
   }
 }

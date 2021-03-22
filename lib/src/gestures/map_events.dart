@@ -15,6 +15,9 @@ enum MapEventSource {
   flingAnimationController,
   doubleTapZoomAnimationController,
   interactiveFlagsChanged,
+  fitBounds,
+  initialization,
+  custom
 }
 
 abstract class MapEvent {
@@ -25,7 +28,7 @@ abstract class MapEvent {
   // current zoom when event is emitted
   final double zoom;
 
-  MapEvent({this.source, this.center, this.zoom});
+  MapEvent({required this.source, required this.center, required this.zoom});
 }
 
 abstract class MapEventWithMove extends MapEvent {
@@ -33,11 +36,11 @@ abstract class MapEventWithMove extends MapEvent {
   final double targetZoom;
 
   MapEventWithMove({
-    this.targetCenter,
-    this.targetZoom,
-    MapEventSource source,
-    LatLng center,
-    double zoom,
+    required this.targetCenter,
+    required this.targetZoom,
+    required MapEventSource source,
+    required LatLng center,
+    required double zoom,
   }) : super(source: source, center: center, zoom: zoom);
 }
 
@@ -45,10 +48,10 @@ class MapEventTap extends MapEvent {
   final LatLng tapPosition;
 
   MapEventTap({
-    this.tapPosition,
-    MapEventSource source,
-    LatLng center,
-    double zoom,
+    required this.tapPosition,
+    required MapEventSource source,
+    required LatLng center,
+    required double zoom,
   }) : super(source: source, center: center, zoom: zoom);
 }
 
@@ -56,23 +59,23 @@ class MapEventLongPress extends MapEvent {
   final LatLng tapPosition;
 
   MapEventLongPress({
-    this.tapPosition,
-    MapEventSource source,
-    LatLng center,
-    double zoom,
+    required this.tapPosition,
+    required MapEventSource source,
+    required LatLng center,
+    required double zoom,
   }) : super(source: source, center: center, zoom: zoom);
 }
 
 class MapEventMove extends MapEventWithMove {
-  final String id;
+  final String? id;
 
   MapEventMove({
     this.id,
-    LatLng targetCenter,
-    double targetZoom,
-    MapEventSource source,
-    LatLng center,
-    double zoom,
+    required LatLng targetCenter,
+    required double targetZoom,
+    required MapEventSource source,
+    required LatLng center,
+    required double zoom,
   }) : super(
           targetCenter: targetCenter,
           targetZoom: targetZoom,
@@ -83,22 +86,28 @@ class MapEventMove extends MapEventWithMove {
 }
 
 class MapEventMoveStart extends MapEvent {
-  MapEventMoveStart({MapEventSource source, LatLng center, double zoom})
+  MapEventMoveStart(
+      {required MapEventSource source,
+      required LatLng center,
+      required double zoom})
       : super(source: source, center: center, zoom: zoom);
 }
 
 class MapEventMoveEnd extends MapEvent {
-  MapEventMoveEnd({MapEventSource source, LatLng center, double zoom})
+  MapEventMoveEnd(
+      {required MapEventSource source,
+      required LatLng center,
+      required double zoom})
       : super(source: source, center: center, zoom: zoom);
 }
 
 class MapEventFlingAnimation extends MapEventWithMove {
   MapEventFlingAnimation({
-    LatLng targetCenter,
-    double targetZoom,
-    MapEventSource source,
-    LatLng center,
-    double zoom,
+    required LatLng targetCenter,
+    required double targetZoom,
+    required MapEventSource source,
+    required LatLng center,
+    required double zoom,
   }) : super(
           targetCenter: targetCenter,
           targetZoom: targetZoom,
@@ -112,28 +121,35 @@ class MapEventFlingAnimation extends MapEventWithMove {
 /// to start fling animation
 class MapEventFlingAnimationNotStarted extends MapEvent {
   MapEventFlingAnimationNotStarted(
-      {MapEventSource source, LatLng center, double zoom})
+      {required MapEventSource source,
+      required LatLng center,
+      required double zoom})
       : super(source: source, center: center, zoom: zoom);
 }
 
 class MapEventFlingAnimationStart extends MapEvent {
   MapEventFlingAnimationStart(
-      {MapEventSource source, LatLng center, double zoom})
+      {required MapEventSource source,
+      required LatLng center,
+      required double zoom})
       : super(source: source, center: center, zoom: zoom);
 }
 
 class MapEventFlingAnimationEnd extends MapEvent {
-  MapEventFlingAnimationEnd({MapEventSource source, LatLng center, double zoom})
+  MapEventFlingAnimationEnd(
+      {required MapEventSource source,
+      required LatLng center,
+      required double zoom})
       : super(source: source, center: center, zoom: zoom);
 }
 
 class MapEventDoubleTapZoom extends MapEventWithMove {
   MapEventDoubleTapZoom({
-    LatLng targetCenter,
-    double targetZoom,
-    MapEventSource source,
-    LatLng center,
-    double zoom,
+    required LatLng targetCenter,
+    required double targetZoom,
+    required MapEventSource source,
+    required LatLng center,
+    required double zoom,
   }) : super(
           targetCenter: targetCenter,
           targetZoom: targetZoom,
@@ -145,36 +161,47 @@ class MapEventDoubleTapZoom extends MapEventWithMove {
 
 class MapEventDoubleTapZoomStart extends MapEvent {
   MapEventDoubleTapZoomStart(
-      {MapEventSource source, LatLng center, double zoom})
+      {required MapEventSource source,
+      required LatLng center,
+      required double zoom})
       : super(source: source, center: center, zoom: zoom);
 }
 
 class MapEventDoubleTapZoomEnd extends MapEvent {
-  MapEventDoubleTapZoomEnd({MapEventSource source, LatLng center, double zoom})
+  MapEventDoubleTapZoomEnd(
+      {required MapEventSource source,
+      required LatLng center,
+      required double zoom})
       : super(source: source, center: center, zoom: zoom);
 }
 
 class MapEventRotate extends MapEvent {
-  final String id;
+  final String? id;
   final double currentRotation;
   final double targetRotation;
 
   MapEventRotate({
-    this.id,
-    this.currentRotation,
-    this.targetRotation,
-    MapEventSource source,
-    LatLng center,
-    double zoom,
+    required this.id,
+    required this.currentRotation,
+    required this.targetRotation,
+    required MapEventSource source,
+    required LatLng center,
+    required double zoom,
   }) : super(source: source, center: center, zoom: zoom);
 }
 
 class MapEventRotateStart extends MapEvent {
-  MapEventRotateStart({MapEventSource source, LatLng center, double zoom})
+  MapEventRotateStart(
+      {required MapEventSource source,
+      required LatLng center,
+      required double zoom})
       : super(source: source, center: center, zoom: zoom);
 }
 
 class MapEventRotateEnd extends MapEvent {
-  MapEventRotateEnd({MapEventSource source, LatLng center, double zoom})
+  MapEventRotateEnd(
+      {required MapEventSource source,
+      required LatLng center,
+      required double zoom})
       : super(source: source, center: center, zoom: zoom);
 }

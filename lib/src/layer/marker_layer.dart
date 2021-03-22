@@ -7,9 +7,9 @@ import 'package:latlong2/latlong.dart';
 class MarkerLayerOptions extends LayerOptions {
   final List<Marker> markers;
   MarkerLayerOptions({
-    Key key,
+    Key? key,
     this.markers = const [],
-    Stream<Null> rebuild,
+    Stream<Null>? rebuild,
   }) : super(key: key, rebuild: rebuild);
 }
 
@@ -51,8 +51,8 @@ class Anchor {
     }
   }
 
-  factory Anchor.forPos(AnchorPos pos, double width, double height) {
-    if (pos == null) return Anchor._(width, height, null);
+  factory Anchor.forPos(AnchorPos? pos, double width, double height) {
+    if (pos == null) return Anchor._(width, height, AnchorAlign.none);
     if (pos.value is AnchorAlign) return Anchor._(width, height, pos.value);
     if (pos.value is Anchor) return pos.value;
     throw Exception('Unsupported AnchorPos value type: ${pos.runtimeType}.');
@@ -67,6 +67,7 @@ class AnchorPos<T> {
 }
 
 enum AnchorAlign {
+  none,
   left,
   right,
   top,
@@ -82,22 +83,22 @@ class Marker {
   final Anchor anchor;
 
   Marker({
-    this.point,
-    this.builder,
+    required this.point,
+    required this.builder,
     this.width = 30.0,
     this.height = 30.0,
-    AnchorPos anchorPos,
+    AnchorPos? anchorPos,
   }) : anchor = Anchor.forPos(anchorPos, width, height);
 }
 
 class MarkerLayerWidget extends StatelessWidget {
   final MarkerLayerOptions options;
 
-  MarkerLayerWidget({Key key, @required this.options}) : super(key: key);
+  MarkerLayerWidget({Key? key, required this.options}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final mapState = MapState.of(context);
+    final mapState = MapState.maybeOf(context)!;
     return MarkerLayer(options, mapState, mapState.onMoved);
   }
 }
@@ -105,7 +106,7 @@ class MarkerLayerWidget extends StatelessWidget {
 class MarkerLayer extends StatelessWidget {
   final MarkerLayerOptions markerOpts;
   final MapState map;
-  final Stream<Null> stream;
+  final Stream<Null>? stream;
 
   MarkerLayer(this.markerOpts, this.map, this.stream)
       : super(key: markerOpts.key);
@@ -123,9 +124,9 @@ class MarkerLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<int>(
+    return StreamBuilder<int?>(
       stream: stream, // a Stream<int> or null
-      builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+      builder: (BuildContext context, AsyncSnapshot<int?> snapshot) {
         var markers = <Widget>[];
         for (var markerOpt in markerOpts.markers) {
           var pos = map.project(markerOpt.point);

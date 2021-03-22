@@ -4,7 +4,7 @@ version: 0.12.0
 repository: https://github.com/johnpryan/flutter_map
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
   flutter: ">=2.0.0"
 
 dependencies:
@@ -19,10 +19,9 @@ dependencies:
     git: 
       url: "https://github.com/flutter/flutter_image"
       ref: null-safety
-  vector_math: ^2.0.0
+  vector_math: ^2.1.0
   proj4dart: ^1.0.4
-  meta: ^1.1.0
-  collection: ^1.14.0
+  collection: ^1.15.0
 
 dev_dependencies:
   pedantic: ^1.11.0
