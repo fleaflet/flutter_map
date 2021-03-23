@@ -249,7 +249,7 @@ release!
 - Set Dart SDK to 2
 
 ## [0.0.11] - 8/2/2018
-- upgrade to latlong2 from 0.4.0 to 0.5.3
+- upgrade to latlong from 0.4.0 to 0.5.3
 
 ## [0.0.11] - 7/31/2018
 - fix LICENSE spelling error
