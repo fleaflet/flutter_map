@@ -39,8 +39,8 @@ class CustomPoint<T extends num> extends math.Point<T> {
   }
 
   CustomPoint round() {
-    num x = this.x is double ? this.x.round() : this.x;
-    num y = this.y is double ? this.y.round() : this.y;
+    final x = this.x is double ? this.x.round() : this.x;
+    final y = this.y is double ? this.y.round() : this.y;
     return CustomPoint(x, y);
   }
 
