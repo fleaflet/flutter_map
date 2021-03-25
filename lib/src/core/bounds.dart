@@ -19,21 +19,16 @@ class Bounds<T extends num> {
   /// Creates a new [Bounds] obtained by expanding the current ones with a new
   /// point.
   Bounds<T> extend(CustomPoint<T> point) {
-    CustomPoint<T> newMin;
-    CustomPoint<T> newMax;
-    // TODO had this any functionality before?
-    if (min == null && max == null) {
-      newMin = point;
-      newMax = point;
-    } else {
-      var minX = math.min(point.x, min.x);
-      var maxX = math.max(point.x, max.x);
-      var minY = math.min(point.y, min.y);
-      var maxY = math.max(point.y, max.y);
-      newMin = CustomPoint(minX, minY);
-      newMax = CustomPoint(maxX, maxY);
-    }
-    return Bounds._(newMin, newMax);
+    return Bounds._(
+      CustomPoint(
+        math.min(point.x, min.x),
+        math.min(point.y, min.y),
+      ),
+      CustomPoint(
+        math.max(point.x, max.x),
+        math.max(point.y, max.y),
+      ),
+    );
   }
 
   /// This [Bounds] cental point.
