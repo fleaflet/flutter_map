@@ -20,10 +20,7 @@ dependencies:
       url: "https://github.com/flutter/flutter_image"
       ref: null-safety
   vector_math: ^2.1.0
-  proj4dart: 
-    git:
-      url: "https://github.com/maRci002/proj4dart"
-      ref: migrate-null-safety
+  proj4dart: ^2.0.0
   collection: ^1.15.0
 
 dev_dependencies:
