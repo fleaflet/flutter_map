@@ -37,16 +37,6 @@ class WidgetsPage extends StatelessWidget {
                     alignment: Alignment.bottomLeft,
                   )
                 ],
-                children: <Widget>[
-                  TileLayerWidget(
-                    options: TileLayerOptions(
-                      urlTemplate:
-                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      subdomains: ['a', 'b', 'c'],
-                    ),
-                  ),
-                  MovingWithoutRefreshAllMapMarkers(),
-                ],
                 nonRotatedChildren: <Widget>[
                   Text(
                     'Plugin is just Text widget',
@@ -56,6 +46,16 @@ class WidgetsPage extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                         backgroundColor: Colors.yellow),
                   )
+                ],
+                children: <Widget>[
+                  TileLayerWidget(
+                    options: TileLayerOptions(
+                      urlTemplate:
+                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      subdomains: ['a', 'b', 'c'],
+                    ),
+                  ),
+                  MovingWithoutRefreshAllMapMarkers(),
                 ],
               ),
             ),

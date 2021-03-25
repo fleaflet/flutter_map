@@ -1,20 +1,18 @@
 name: flutter_map
 description: A Dart implementation of Leaflet for Flutter apps
-version: 0.11.0
+version: 0.12.0
 repository: https://github.com/johnpryan/flutter_map
-module:
-  androidX: true
-  
+
 environment:
-  sdk: ">=2.6.0 <3.0.0"
-  flutter: ^1.10.15
+  sdk: ">=2.7.0 <3.0.0"
+  flutter: ">=2.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
   tuple: ^1.0.2
   latlong: ^0.6.1
-  positioned_tap_detector: ^1.0.2
+  positioned_tap_detector_2: ^1.0.0
   transparent_image: ^1.0.0
   async: ^2.1.0
   flutter_image: ^3.0.0
@@ -24,8 +22,9 @@ dependencies:
   collection: ^1.14.0
 
 dev_dependencies:
-  pedantic: ^1.8.0
+  pedantic: ^1.11.0
   location: ^2.5.0
   flutter_test:
     sdk: flutter
   test: ^1.9.0
+  mockito: ^4.1.4

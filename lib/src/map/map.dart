@@ -133,7 +133,7 @@ class MapState {
   // Extended size of the map where rotation is calculated
   CustomPoint _size;
 
-  CustomPoint get size => _size;
+  CustomPoint get size => _size ?? CustomPoint(0.0, 0.0);
 
   void _updateSizeByOriginalSizeAndRotation() {
     final originalWidth = _originalSize.x;
