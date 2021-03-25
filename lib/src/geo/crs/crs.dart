@@ -311,10 +311,6 @@ class Proj4Crs extends Crs {
     var nextZoom = downZoom + 1;
     var nextScale = _scales[nextZoom];
 
-    /// TODO would a null scale be valid
-    if (nextScale == null) {
-      return double.infinity;
-    }
     var scaleDiff = nextScale - downScale;
     return (scale - downScale) / scaleDiff + downZoom;
   }
