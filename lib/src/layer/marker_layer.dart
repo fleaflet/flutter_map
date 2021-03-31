@@ -102,36 +102,58 @@ class MarkerLayerWidget extends StatelessWidget {
   }
 }
 
-class MarkerLayer extends StatelessWidget {
+class MarkerLayer extends StatefulWidget {
   final MarkerLayerOptions markerOpts;
   final MapState map;
   final Stream<Null> stream;
 
-  // Note: I don't know if it's okay to store mutable stuff like this in stless
-  // But it works, and stuff is discarded when something serious changes
+  MarkerLayer(this.markerOpts, this.map, this.stream)
+      : super(key: markerOpts.key);
+
+  @override
+  _MarkerLayerState createState() => _MarkerLayerState();
+}
+
+class _MarkerLayerState extends State<MarkerLayer> {
+  var lastZoom = -1.0;
+
   /// List containing cached pixel positions of markers
   /// Should be discarded when zoom changes
-  List<CustomPoint> _pxCache;
-  double lastZoom = 0;
+  // Has a fixed length of markerOpts.markers.length - better performance:
+  // https://stackoverflow.com/questions/15943890/is-there-a-performance-benefit-in-using-fixed-length-lists-in-dart
+  var _pxCache = <CustomPoint>[];
 
-  MarkerLayer(this.markerOpts, this.map, this.stream)
-      : super(key: markerOpts.key) {
-    _pxCache = List(markerOpts.markers.length);
+  // Calling this every time markerOpts change should guarantee proper length
+  List<CustomPoint> generatePxCache() => List.generate(
+      widget.markerOpts.markers.length,
+      (i) => widget.map.project(widget.markerOpts.markers[i].point));
+
+  @override
+  void initState() {
+    super.initState();
+    _pxCache = generatePxCache();
+  }
+
+  @override
+  void didUpdateWidget(covariant MarkerLayer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    lastZoom = -1.0;
+    _pxCache = generatePxCache();
   }
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<int>(
-      stream: stream, // a Stream<int> or null
+      stream: widget.stream, // a Stream<int> or null
       builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
         var markers = <Widget>[];
-        final sameZoom = map.zoom == lastZoom;
-        var i = -1;
-        for (var marker in markerOpts.markers) {
-          i++;
+        final sameZoom = widget.map.zoom == lastZoom;
+        for (var i = 0; i < widget.markerOpts.markers.length; i++) {
+          var marker = widget.markerOpts.markers[i];
 
           // Decide whether to use cached point or calculate it
-          var pxPoint = sameZoom ? _pxCache[i] : map.project(marker.point);
+          var pxPoint =
+              sameZoom ? _pxCache[i] : widget.map.project(marker.point);
           if (!sameZoom) {
             _pxCache[i] = pxPoint;
           }
@@ -141,11 +163,11 @@ class MarkerLayer extends StatelessWidget {
           var sw = CustomPoint(pxPoint.x + width, pxPoint.y - height);
           var ne = CustomPoint(pxPoint.x - width, pxPoint.y + height);
 
-          if (!map.pixelBounds.containsPartialBounds(Bounds(sw, ne))) {
+          if (!widget.map.pixelBounds.containsPartialBounds(Bounds(sw, ne))) {
             continue;
           }
 
-          final pos = pxPoint - map.getPixelOrigin();
+          final pos = pxPoint - widget.map.getPixelOrigin();
 
           markers.add(
             Positioned(
@@ -157,7 +179,7 @@ class MarkerLayer extends StatelessWidget {
             ),
           );
         }
-        lastZoom = map.zoom;
+        lastZoom = widget.map.zoom;
         return Container(
           child: Stack(
             children: markers,
