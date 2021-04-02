@@ -12,7 +12,7 @@ class PolygonLayerOptions extends LayerOptions {
 
   /// screen space culling of polygons based on bounding box
   PolygonLayerOptions({
-    required Key key,
+    Key? key,
     this.polygons = const [],
     this.polygonCulling = false,
     required Stream<Null> rebuild,
