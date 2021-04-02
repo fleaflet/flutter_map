@@ -15,7 +15,7 @@ class PolygonLayerOptions extends LayerOptions {
     Key? key,
     this.polygons = const [],
     this.polygonCulling = false,
-    required Stream<Null> rebuild,
+    Stream<Null>? rebuild,
   }) : super(key: key, rebuild: rebuild) {
     if (polygonCulling) {
       for (var polygon in polygons) {
