@@ -81,11 +81,15 @@ class Marker {
   final double height;
   final Anchor anchor;
 
+  /// If true marker will be counter rotated to the map rotation
+  final bool rotateMarker;
+
   Marker({
     this.point,
     this.builder,
     this.width = 30.0,
     this.height = 30.0,
+    this.rotateMarker = false,
     AnchorPos anchorPos,
   }) : anchor = Anchor.forPos(anchorPos, width, height);
 }
@@ -141,13 +145,24 @@ class MarkerLayer extends StatelessWidget {
             continue;
           }
 
+          Widget marker;
+          if (markerOpt.rotateMarker) {
+            // Counter rotated marker to the map rotation
+            marker = Transform.rotate(
+              angle: -map.rotationRad,
+              child: markerOpt.builder(context),
+            );
+          } else {
+            marker = markerOpt.builder(context);
+          }
+
           markers.add(
             Positioned(
               width: markerOpt.width,
               height: markerOpt.height,
               left: pixelPosX,
               top: pixelPosY,
-              child: markerOpt.builder(context),
+              child: marker,
             ),
           );
         }
