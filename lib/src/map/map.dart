@@ -7,7 +7,7 @@ import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/center_zoom.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/map/map_state_widget.dart';
-import 'package:latlong/latlong.dart';
+import 'package:latlong2/latlong.dart';
 
 class MapControllerImpl implements MapController {
   final Completer<Null> _readyCompleter = Completer<Null>();
