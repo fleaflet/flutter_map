@@ -10,7 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  tuple: ^1.0.2
+  tuple: ^2.0.0
   latlong2: ^0.8.0
   positioned_tap_detector_2: ^1.0.0
   transparent_image: ^1.0.0
