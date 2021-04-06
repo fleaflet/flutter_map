@@ -7,7 +7,7 @@ import 'package:latlong2/latlong.dart';
 class MarkerLayerOptions extends LayerOptions {
   final List<Marker> markers;
 
-  /// If true marker will be counter rotated to the map rotation
+  /// If true markers will be counter rotated to the map rotation
   final bool rotate;
 
   /// The origin of the coordinate system (relative to the upper left corner of
