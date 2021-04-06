@@ -107,12 +107,12 @@ class MarkerLayerWidget extends StatelessWidget {
 }
 
 class MarkerLayer extends StatelessWidget {
-  final MarkerLayerOptions markerOpts;
+  final MarkerLayerOptions markerLayerOptions;
   final MapState map;
   final Stream<Null> stream;
 
-  MarkerLayer(this.markerOpts, this.map, this.stream)
-      : super(key: markerOpts.key);
+  MarkerLayer(this.markerLayerOptions, this.map, this.stream)
+      : super(key: markerLayerOptions.key);
 
   bool _boundsContainsMarker(Marker marker) {
     var pixelPoint = map.project(marker.point);
@@ -131,7 +131,7 @@ class MarkerLayer extends StatelessWidget {
       stream: stream, // a Stream<int> or null
       builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
         var markers = <Widget>[];
-        for (var markerOpt in markerOpts.markers) {
+        for (var markerOpt in markerLayerOptions.markers) {
           var pos = map.project(markerOpt.point);
           pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
               map.getPixelOrigin();
