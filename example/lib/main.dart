@@ -8,6 +8,7 @@ import './pages/home.dart';
 import './pages/live_location.dart';
 import './pages/map_controller.dart';
 import './pages/marker_anchor.dart';
+import './pages/marker_rotate.dart';
 import './pages/moving_markers.dart';
 import './pages/offline_map.dart';
 import './pages/on_tap.dart';
@@ -50,6 +51,7 @@ class MyApp extends StatelessWidget {
         PluginZoomButtons.route: (context) => PluginZoomButtons(),
         OfflineMapPage.route: (context) => OfflineMapPage(),
         OnTapPage.route: (context) => OnTapPage(),
+        MarkerRotatePage.route: (context) => MarkerRotatePage(),
         MovingMarkersPage.route: (context) => MovingMarkersPage(),
         CirclePage.route: (context) => CirclePage(),
         OverlayImagePage.route: (context) => OverlayImagePage(),
