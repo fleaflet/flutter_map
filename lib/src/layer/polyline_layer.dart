@@ -177,13 +177,11 @@ class PolylinePainter extends CustomPainter {
     } else {
       paint.style = PaintingStyle.stroke;
       canvas.saveLayer(rect, Paint());
-      if (borderPaint != null) {
-        if (filterPaint != null) {
-          filterPaint.style = PaintingStyle.stroke;
-          _paintLine(canvas, polylineOpt.offsets, borderPaint);
-        }
+      if (borderPaint != null && filterPaint != null) {
         borderPaint.style = PaintingStyle.stroke;
-        _paintLine(canvas, polylineOpt.offsets, filterPaint!);
+        _paintLine(canvas, polylineOpt.offsets, borderPaint);
+        filterPaint.style = PaintingStyle.stroke;
+        _paintLine(canvas, polylineOpt.offsets, filterPaint);
       }
       _paintLine(canvas, polylineOpt.offsets, paint);
       canvas.restore();
