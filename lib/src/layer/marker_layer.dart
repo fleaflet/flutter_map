@@ -6,9 +6,37 @@ import 'package:latlong2/latlong.dart';
 
 class MarkerLayerOptions extends LayerOptions {
   final List<Marker> markers;
+
+  /// If true markers will be counter rotated to the map rotation
+  final bool rotate;
+
+  /// The origin of the coordinate system (relative to the upper left corner of
+  /// this render object) in which to apply the matrix.
+  ///
+  /// Setting an origin is equivalent to conjugating the transform matrix by a
+  /// translation. This property is provided just for convenience.
+  final Offset rotateOrigin;
+
+  /// The alignment of the origin, relative to the size of the box.
+  ///
+  /// This is equivalent to setting an origin based on the size of the box.
+  /// If it is specified at the same time as the [rotateOrigin], both are applied.
+  ///
+  /// An [AlignmentDirectional.centerStart] value is the same as an [Alignment]
+  /// whose [Alignment.x] value is `-1.0` if [Directionality.of] returns
+  /// [TextDirection.ltr], and `1.0` if [Directionality.of] returns
+  /// [TextDirection.rtl].	 Similarly [AlignmentDirectional.centerEnd] is the
+  /// same as an [Alignment] whose [Alignment.x] value is `1.0` if
+  /// [Directionality.of] returns	 [TextDirection.ltr], and `-1.0` if
+  /// [Directionality.of] returns [TextDirection.rtl].
+  final AlignmentGeometry rotateAlignment;
+
   MarkerLayerOptions({
     Key key,
     this.markers = const [],
+    this.rotate = false,
+    this.rotateOrigin,
+    this.rotateAlignment = Alignment.center,
     Stream<Null> rebuild,
   }) : super(key: key, rebuild: rebuild);
 }
@@ -81,11 +109,38 @@ class Marker {
   final double height;
   final Anchor anchor;
 
+  /// If true marker will be counter rotated to the map rotation
+  final bool rotate;
+
+  /// The origin of the coordinate system (relative to the upper left corner of
+  /// this render object) in which to apply the matrix.
+  ///
+  /// Setting an origin is equivalent to conjugating the transform matrix by a
+  /// translation. This property is provided just for convenience.
+  final Offset rotateOrigin;
+
+  /// The alignment of the origin, relative to the size of the box.
+  ///
+  /// This is equivalent to setting an origin based on the size of the box.
+  /// If it is specified at the same time as the [rotateOrigin], both are applied.
+  ///
+  /// An [AlignmentDirectional.centerStart] value is the same as an [Alignment]
+  /// whose [Alignment.x] value is `-1.0` if [Directionality.of] returns
+  /// [TextDirection.ltr], and `1.0` if [Directionality.of] returns
+  /// [TextDirection.rtl].	 Similarly [AlignmentDirectional.centerEnd] is the
+  /// same as an [Alignment] whose [Alignment.x] value is `1.0` if
+  /// [Directionality.of] returns	 [TextDirection.ltr], and `-1.0` if
+  /// [Directionality.of] returns [TextDirection.rtl].
+  final AlignmentGeometry rotateAlignment;
+
   Marker({
     this.point,
     this.builder,
     this.width = 30.0,
     this.height = 30.0,
+    this.rotate,
+    this.rotateOrigin,
+    this.rotateAlignment,
     AnchorPos anchorPos,
   }) : anchor = Anchor.forPos(anchorPos, width, height);
 }
@@ -103,12 +158,12 @@ class MarkerLayerWidget extends StatelessWidget {
 }
 
 class MarkerLayer extends StatelessWidget {
-  final MarkerLayerOptions markerOpts;
+  final MarkerLayerOptions markerLayerOptions;
   final MapState map;
   final Stream<Null> stream;
 
-  MarkerLayer(this.markerOpts, this.map, this.stream)
-      : super(key: markerOpts.key);
+  MarkerLayer(this.markerLayerOptions, this.map, this.stream)
+      : super(key: markerLayerOptions.key);
 
   bool _boundsContainsMarker(Marker marker) {
     var pixelPoint = map.project(marker.point);
@@ -127,7 +182,7 @@ class MarkerLayer extends StatelessWidget {
       stream: stream, // a Stream<int> or null
       builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
         var markers = <Widget>[];
-        for (var markerOpt in markerOpts.markers) {
+        for (var markerOpt in markerLayerOptions.markers) {
           var pos = map.project(markerOpt.point);
           pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
               map.getPixelOrigin();
@@ -141,13 +196,27 @@ class MarkerLayer extends StatelessWidget {
             continue;
           }
 
+          Widget marker;
+          if (markerOpt.rotate ?? markerLayerOptions.rotate) {
+            // Counter rotated marker to the map rotation
+            marker = Transform.rotate(
+              angle: -map.rotationRad,
+              origin: markerOpt.rotateOrigin ?? markerLayerOptions.rotateOrigin,
+              alignment: markerOpt.rotateAlignment ??
+                  markerLayerOptions.rotateAlignment,
+              child: markerOpt.builder(context),
+            );
+          } else {
+            marker = markerOpt.builder(context);
+          }
+
           markers.add(
             Positioned(
               width: markerOpt.width,
               height: markerOpt.height,
               left: pixelPosX,
               top: pixelPosY,
-              child: markerOpt.builder(context),
+              child: marker,
             ),
           );
         }
