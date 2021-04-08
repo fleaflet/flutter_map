@@ -28,7 +28,7 @@ dev_dependencies:
   test: ^1.16.5
   mockito: ^5.0.2
 
-dependency_override: 
+dependency_overrides: 
   flutter_image: 
     git: 
       url: "https://github.com/flutter/flutter_image"
