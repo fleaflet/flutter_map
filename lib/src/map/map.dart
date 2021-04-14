@@ -30,26 +30,30 @@ class MapControllerImpl implements MapController {
   }
 
   @override
-  MoveAndRotateResult moveAndRotate(LatLng center, double zoom, double degree, {String? id}) {
-    return _state.moveAndRotate(center, zoom, degree, source: MapEventSource.mapController, id: id!);
+  MoveAndRotateResult moveAndRotate(LatLng center, double zoom, double degree,
+      {String? id}) {
+    return _state.moveAndRotate(center, zoom, degree,
+        source: MapEventSource.mapController, id: id!);
   }
 
   @override
   bool move(LatLng center, double zoom, {String? id}) {
-    return _state.move(center, zoom, id: id, source: MapEventSource.mapController);
+    return _state.move(center, zoom,
+        id: id, source: MapEventSource.mapController);
   }
 
   @override
   void fitBounds(
     LatLngBounds bounds, {
-    FitBoundsOptions? options = const FitBoundsOptions(padding: EdgeInsets.all(12.0)),
+    FitBoundsOptions? options =
+        const FitBoundsOptions(padding: EdgeInsets.all(12.0)),
   }) {
     _state.fitBounds(bounds, options!);
   }
 
   @override
-  // TODO Remove getter since _state is never null
-  bool get ready => _state != null;
+  // TODO Remove getter since ready is always true (breaking change, was '=> _state != null' when state is never null)
+  bool get ready => true;
 
   @override
   LatLng get center => _state.center;
@@ -113,7 +117,9 @@ class MapState {
 
   void setOriginalSize(double width, double height) {
     final isCurrSizeNull = _originalSize == null;
-    if (isCurrSizeNull || _originalSize!.x != width || _originalSize!.y != height) {
+    if (isCurrSizeNull ||
+        _originalSize!.x != width ||
+        _originalSize!.y != height) {
       _originalSize = CustomPoint<double>(width, height);
 
       _updateSizeByOriginalSizeAndRotation();
@@ -137,8 +143,10 @@ class MapState {
     if (_rotation != 0.0) {
       final cosAngle = math.cos(_rotationRad).abs();
       final sinAngle = math.sin(_rotationRad).abs();
-      final num width = (originalWidth * cosAngle) + (originalHeight * sinAngle);
-      final num height = (originalHeight * cosAngle) + (originalWidth * sinAngle);
+      final num width =
+          (originalWidth * cosAngle) + (originalHeight * sinAngle);
+      final num height =
+          (originalHeight * cosAngle) + (originalWidth * sinAngle);
 
       _size = CustomPoint<double>(width, height);
     } else {
@@ -167,7 +175,8 @@ class MapState {
     }
   }
 
-  void _handleMoveEmit(LatLng targetCenter, double targetZoom, hasGesture, MapEventSource source, String? id) {
+  void _handleMoveEmit(LatLng targetCenter, double targetZoom, hasGesture,
+      MapEventSource source, String? id) {
     if (source == MapEventSource.flingAnimationController) {
       emitMapEvent(
         MapEventFlingAnimation(
@@ -188,7 +197,8 @@ class MapState {
           source: source,
         ),
       );
-    } else if (source == MapEventSource.onDrag || source == MapEventSource.onMultiFinger) {
+    } else if (source == MapEventSource.onDrag ||
+        source == MapEventSource.onMultiFinger) {
       emitMapEvent(
         MapEventMove(
           center: _lastCenter!,
@@ -262,8 +272,10 @@ class MapState {
 
   MoveAndRotateResult moveAndRotate(LatLng center, double zoom, double degree,
       {required MapEventSource source, required String id}) {
-    final moveSucc = move(center, zoom, id: id, source: source, callOnMoveSink: false);
-    final rotateSucc = rotate(degree, id: id, source: source, callOnMoveSink: false);
+    final moveSucc =
+        move(center, zoom, id: id, source: source, callOnMoveSink: false);
+    final rotateSucc =
+        rotate(degree, id: id, source: source, callOnMoveSink: false);
 
     if (moveSucc || rotateSucc) {
       _onMoveSink.add(null);
@@ -273,7 +285,10 @@ class MapState {
   }
 
   bool move(LatLng center, double zoom,
-      {hasGesture = false, callOnMoveSink = true, required MapEventSource source, String? id}) {
+      {hasGesture = false,
+      callOnMoveSink = true,
+      required MapEventSource source,
+      String? id}) {
     zoom = fitZoomToBounds(zoom);
     final mapMoved = center != _lastCenter || zoom != _zoom;
 
@@ -300,7 +315,8 @@ class MapState {
     }
 
     if (options.onPositionChanged != null) {
-      var mapPosition = MapPosition(center: center, bounds: bounds, zoom: zoom, hasGesture: hasGesture);
+      var mapPosition = MapPosition(
+          center: center, bounds: bounds, zoom: zoom, hasGesture: hasGesture);
 
       options.onPositionChanged!(mapPosition, hasGesture);
     }
@@ -359,9 +375,12 @@ class MapState {
     );
   }
 
-  CenterZoom getBoundsCenterZoom(LatLngBounds bounds, FitBoundsOptions options) {
-    var paddingTL = CustomPoint<double>(options.padding.left, options.padding.top);
-    var paddingBR = CustomPoint<double>(options.padding.right, options.padding.bottom);
+  CenterZoom getBoundsCenterZoom(
+      LatLngBounds bounds, FitBoundsOptions options) {
+    var paddingTL =
+        CustomPoint<double>(options.padding.left, options.padding.top);
+    var paddingBR =
+        CustomPoint<double>(options.padding.right, options.padding.bottom);
 
     var paddingTotalXY = paddingTL + paddingBR;
 
@@ -378,7 +397,8 @@ class MapState {
     );
   }
 
-  double getBoundsZoom(LatLngBounds bounds, CustomPoint<double> padding, {bool inside = false}) {
+  double getBoundsZoom(LatLngBounds bounds, CustomPoint<double> padding,
+      {bool inside = false}) {
     var zoom = this.zoom;
     var min = options.minZoom ?? 0.0;
     var max = options.maxZoom ?? double.infinity;
@@ -449,10 +469,12 @@ class MapState {
   }
 
   static MapState? maybeOf(BuildContext context, {bool nullOk = false}) {
-    final widget = context.dependOnInheritedWidgetOfExactType<MapStateInheritedWidget>();
+    final widget =
+        context.dependOnInheritedWidgetOfExactType<MapStateInheritedWidget>();
     if (nullOk || widget != null) {
       return widget?.mapState;
     }
-    throw FlutterError('MapState.of() called with a context that does not contain a FlutterMap.');
+    throw FlutterError(
+        'MapState.of() called with a context that does not contain a FlutterMap.');
   }
 }
