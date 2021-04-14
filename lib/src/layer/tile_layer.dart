@@ -420,6 +420,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   final Map<String, Tile> _tiles = {};
   final Map<double, Level> _levels = {};
 
+  Timer? _pruneLater;
+
   @override
   void initState() {
     super.initState();
@@ -506,6 +508,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   void dispose() {
     _removeAllTiles();
     _moveSub?.cancel();
+    _pruneLater?.cancel();
     options.tileProvider.dispose();
     _throttleUpdate?.close();
 
@@ -1059,7 +1062,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     if (_noTilesToLoad()) {
       // Wait a bit more than tileFadeInDuration (the duration of the tile
       // fade-in) to trigger a pruning.
-      Future.delayed(
+      _pruneLater?.cancel();
+      _pruneLater = Timer(
         options.tileFadeInDuration != null
             ? options.tileFadeInDuration! + const Duration(milliseconds: 50)
             : const Duration(milliseconds: 50),

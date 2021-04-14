@@ -14,14 +14,12 @@ class MockHttpClientResponse extends Mock implements HttpClientResponse {
   int get statusCode => HttpStatus.ok;
 
   @override
-  HttpClientResponseCompressionState get compressionState =>
-      HttpClientResponseCompressionState.notCompressed;
+  HttpClientResponseCompressionState get compressionState => HttpClientResponseCompressionState.notCompressed;
 
   @override
   StreamSubscription<List<int>> listen(void Function(List<int> event)? onData,
       {Function? onError, void Function()? onDone, bool? cancelOnError}) {
-    return _stream.listen(onData,
-        onError: onError, onDone: onDone, cancelOnError: cancelOnError);
+    return _stream.listen(onData, onError: onError, onDone: onDone, cancelOnError: cancelOnError);
   }
 
   static Stream<List<int>> readFile() => File('test/res/map.png').openRead();
@@ -102,9 +100,7 @@ class _TestAppState extends State<TestApp> {
               ),
               layers: [
                 TileLayerOptions(
-                    urlTemplate:
-                        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    subdomains: ['a', 'b', 'c']),
+                    urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', subdomains: ['a', 'b', 'c']),
                 MarkerLayerOptions(markers: _markers),
               ],
             ),
