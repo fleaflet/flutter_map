@@ -491,7 +491,13 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
     _flingController
       ..value = 0.0
-      ..fling(velocity: magnitude / 1000.0);
+      ..fling(
+          velocity: magnitude / 1000.0,
+          springDescription: SpringDescription.withDampingRatio(
+            mass: 1.0,
+            stiffness: 1000.0,
+            ratio: 5.0,
+          ));
   }
 
   void handleTap(TapPosition position) {
