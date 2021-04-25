@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong/latlong.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../widgets/drawer.dart';
 
@@ -28,7 +28,7 @@ class OnTapPageState extends State<OnTapPage> {
         builder: (ctx) => Container(
             child: GestureDetector(
           onTap: () {
-            Scaffold.of(ctx).showSnackBar(SnackBar(
+            ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
               content: Text('Tapped on blue FlutterLogo Marker'),
             ));
           },
@@ -42,7 +42,7 @@ class OnTapPageState extends State<OnTapPage> {
         builder: (ctx) => Container(
             child: GestureDetector(
           onTap: () {
-            Scaffold.of(ctx).showSnackBar(SnackBar(
+            ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
               content: Text('Tapped on green FlutterLogo Marker'),
             ));
           },
@@ -58,7 +58,7 @@ class OnTapPageState extends State<OnTapPage> {
         builder: (ctx) => Container(
             child: GestureDetector(
           onTap: () {
-            Scaffold.of(ctx).showSnackBar(SnackBar(
+            ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
               content: Text('Tapped on purple FlutterLogo Marker'),
             ));
           },

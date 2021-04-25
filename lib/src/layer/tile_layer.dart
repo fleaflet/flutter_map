@@ -8,15 +8,30 @@ import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/core/util.dart' as util;
 import 'package:flutter_map/src/geo/crs/crs.dart';
+import 'package:flutter_map/src/layer/tile_builder/tile_builder.dart';
 import 'package:flutter_map/src/layer/tile_provider/tile_provider.dart';
 import 'package:flutter_map/src/map/map.dart';
-import 'package:latlong/latlong.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:tuple/tuple.dart';
 
 import 'layer.dart';
 
 typedef TemplateFunction = String Function(
     String str, Map<String, String> data);
+
+enum EvictErrorTileStrategy {
+  // never evict error Tiles
+  none,
+  // evict error Tiles during _pruneTiles / _abortLoading calls
+  dispose,
+  // evict error Tiles which are not visible anymore but respect margin (see keepBuffer option)
+  // (Tile's zoom level not equals current _tileZoom or Tile is out of viewport)
+  notVisibleRespectMargin,
+  // evict error Tiles which are not visible anymore
+  // (Tile's zoom level not equals current _tileZoom or Tile is out of viewport)
+  notVisible,
+}
+
 typedef ErrorTileCallBack = void Function(Tile tile, dynamic error);
 
 /// Describes the needed properties to create a tile-based layer. A tile is an
@@ -199,6 +214,19 @@ class TileLayerOptions extends LayerOptions {
 
   final TemplateFunction templateFunction;
 
+  /// Function which may Wrap Tile with custom Widget
+  /// There are predefined examples in 'tile_builder.dart'
+  final TileBuilder tileBuilder;
+
+  /// Function which may wrap Tiles Container with custom Widget
+  /// There are predefined examples in 'tile_builder.dart'
+  final TilesContainerBuilder tilesContainerBuilder;
+
+  // If a Tile was loaded with error and if strategy isn't `none` then TileProvider
+  // will be asked to evict Image based on current strategy
+  // (see #576 - even Error Images are cached in flutter)
+  final EvictErrorTileStrategy evictErrorTileStrategy;
+
   TileLayerOptions({
     Key key,
     this.urlTemplate,
@@ -238,6 +266,9 @@ class TileLayerOptions extends LayerOptions {
     this.errorTileCallback,
     Stream<Null> rebuild,
     this.templateFunction = util.template,
+    this.tileBuilder,
+    this.tilesContainerBuilder,
+    this.evictErrorTileStrategy = EvictErrorTileStrategy.none,
   })  : updateInterval =
             updateInterval <= 0 ? null : Duration(milliseconds: updateInterval),
         tileFadeInDuration = tileFadeInDuration <= 0
@@ -429,6 +460,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       reloadTiles = true;
     }
 
+    reloadTiles |= _isZoomOutsideMinMax();
+
     if (oldWidget.options.updateInterval != options.updateInterval) {
       _throttleUpdate?.close();
       _initThrottleUpdate();
@@ -463,16 +496,28 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     }
   }
 
+  bool _isZoomOutsideMinMax() {
+    for (var tile in _tiles.values) {
+      if (tile.level.zoom > (options.maxZoom ?? 1.0) ||
+          tile.level.zoom < (options.minZoom ?? 20.0)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   void _initThrottleUpdate() {
     if (options.updateInterval == null) {
       _throttleUpdate = null;
     } else {
       _throttleUpdate = StreamController<LatLng>(sync: true);
-      _throttleUpdate.stream.transform(
-        util.throttleStreamTransformerWithTrailingCall<LatLng>(
-          options.updateInterval,
-        ),
-      )..listen(_update);
+      _throttleUpdate.stream
+          .transform(
+            util.throttleStreamTransformerWithTrailingCall<LatLng>(
+              options.updateInterval,
+            ),
+          )
+          .listen(_update);
     }
   }
 
@@ -494,13 +539,21 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       for (var tile in tilesToRender) _createTileWidget(tile)
     ];
 
+    var tilesContainer = Stack(
+      children: tileWidgets,
+    );
+
     return Opacity(
       opacity: options.opacity,
       child: Container(
         color: options.backgroundColor,
-        child: Stack(
-          children: tileWidgets,
-        ),
+        child: options.tilesContainerBuilder == null
+            ? tilesContainer
+            : options.tilesContainerBuilder(
+                context,
+                tilesContainer,
+                tilesToRender,
+              ),
       ),
     );
   }
@@ -516,6 +569,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     final Widget content = AnimatedTile(
       tile: tile,
       errorImage: options.errorImage,
+      tileBuilder: options.tileBuilder,
     );
 
     return Positioned(
@@ -544,7 +598,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       var tile = _tiles[key];
 
       tile.tileReady = null;
-      tile.dispose();
+      tile.dispose(tile.loadError &&
+          options.evictErrorTileStrategy != EvictErrorTileStrategy.none);
       _tiles.remove(key);
     }
   }
@@ -904,6 +959,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       }
     }
 
+    _evictErrorTilesBasedOnStrategy(tileRange);
+
     // sort tile queue to load tiles in order of their distance to center
     queue.sort((a, b) =>
         (a.distanceTo(tileCenter) - b.distanceTo(tileCenter)).toInt());
@@ -949,7 +1006,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       return;
     }
 
-    tile.dispose();
+    tile.dispose(tile.loadError &&
+        options.evictErrorTileStrategy != EvictErrorTileStrategy.none);
     _tiles.remove(key);
   }
 
@@ -967,6 +1025,46 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     );
 
     tile.loadTileImage();
+  }
+
+  void _evictErrorTilesBasedOnStrategy(Bounds tileRange) {
+    if (options.evictErrorTileStrategy ==
+        EvictErrorTileStrategy.notVisibleRespectMargin) {
+      var toRemove = <String>[];
+      for (var entry in _tiles.entries) {
+        var tile = entry.value;
+
+        if (tile.loadError && !tile.current) {
+          toRemove.add(entry.key);
+        }
+      }
+
+      for (var key in toRemove) {
+        var tile = _tiles[key];
+
+        tile.dispose(true);
+        _tiles.remove(key);
+      }
+    } else if (options.evictErrorTileStrategy ==
+        EvictErrorTileStrategy.notVisible) {
+      var toRemove = <String>[];
+      for (var entry in _tiles.entries) {
+        var tile = entry.value;
+        var c = tile.coords;
+
+        if (tile.loadError &&
+            (!tile.current || !tileRange.contains(CustomPoint(c.x, c.y)))) {
+          toRemove.add(entry.key);
+        }
+      }
+
+      for (var key in toRemove) {
+        var tile = _tiles[key];
+
+        tile.dispose(true);
+        _tiles.remove(key);
+      }
+    }
   }
 
   void _tileReady(Coords<double> coords, dynamic error, Tile tile) {
@@ -1075,6 +1173,7 @@ class Tile implements Comparable<Tile> {
   bool active;
   bool loadError;
   DateTime loaded;
+  DateTime loadStarted;
 
   AnimationController animationController;
 
@@ -1103,6 +1202,8 @@ class Tile implements Comparable<Tile> {
   });
 
   void loadTileImage() {
+    loadStarted = DateTime.now();
+
     try {
       final oldImageStream = _imageStream;
       _imageStream = imageProvider.resolve(ImageConfiguration());
@@ -1122,10 +1223,13 @@ class Tile implements Comparable<Tile> {
   // call this before GC!
   void dispose([bool evict = false]) {
     if (evict && imageProvider != null) {
-      imageProvider
-          .evict()
-          .then((bool succ) => print('evict tile: $coords -> $succ'))
-          .catchError((error) => print('evict tile: $coords -> $error'));
+      try {
+        imageProvider.evict().catchError(print);
+      } catch (e) {
+        // this may be never called because catchError will handle errors, however
+        // we want to avoid random crashes like in #444 / #536
+        print(e);
+      }
     }
 
     animationController?.removeStatusListener(_onAnimateEnd);
@@ -1187,9 +1291,14 @@ class Tile implements Comparable<Tile> {
 class AnimatedTile extends StatefulWidget {
   final Tile tile;
   final ImageProvider errorImage;
+  final TileBuilder tileBuilder;
 
-  AnimatedTile({Key key, @required this.tile, this.errorImage})
-      : assert(null != tile),
+  AnimatedTile({
+    Key key,
+    @required this.tile,
+    this.errorImage,
+    @required this.tileBuilder,
+  })  : assert(null != tile),
         super(key: key);
 
   @override
@@ -1201,17 +1310,21 @@ class _AnimatedTileState extends State<AnimatedTile> {
 
   @override
   Widget build(BuildContext context) {
+    final tileWidget = (widget.tile.loadError && widget.errorImage != null)
+        ? Image(
+            image: widget.errorImage,
+            fit: BoxFit.fill,
+          )
+        : RawImage(
+            image: widget.tile.imageInfo?.image,
+            fit: BoxFit.fill,
+          );
+
     return Opacity(
       opacity: widget.tile.opacity,
-      child: (widget.tile.loadError && widget.errorImage != null)
-          ? Image(
-              image: widget.errorImage,
-              fit: BoxFit.fill,
-            )
-          : RawImage(
-              image: widget.tile.imageInfo?.image,
-              fit: BoxFit.fill,
-            ),
+      child: widget.tileBuilder == null
+          ? tileWidget
+          : widget.tileBuilder(context, tileWidget, widget.tile),
     );
   }
 

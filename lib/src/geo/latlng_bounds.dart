@@ -1,5 +1,5 @@
 import 'dart:math' as math;
-import 'package:latlong/latlong.dart';
+import 'package:latlong2/latlong.dart';
 
 class LatLngBounds {
   LatLng _sw;
@@ -111,5 +111,13 @@ class LatLngBounds {
       return false;
     }
     return true;
+  }
+
+  void pad(double bufferRatio) {
+    var heightBuffer = (_sw.latitude - _ne.latitude).abs() * bufferRatio;
+    var widthBuffer = (_sw.longitude - _ne.longitude).abs() * bufferRatio;
+
+    _sw = LatLng(_sw.latitude - heightBuffer, _sw.longitude - widthBuffer);
+    _ne = LatLng(_ne.latitude + heightBuffer, _ne.longitude + widthBuffer);
   }
 }

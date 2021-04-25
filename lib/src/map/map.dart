@@ -7,7 +7,7 @@ import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/center_zoom.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/map/map_state_widget.dart';
-import 'package:latlong/latlong.dart';
+import 'package:latlong2/latlong.dart';
 
 class MapControllerImpl implements MapController {
   final Completer<Null> _readyCompleter = Completer<Null>();
@@ -133,7 +133,7 @@ class MapState {
   // Extended size of the map where rotation is calculated
   CustomPoint _size;
 
-  CustomPoint get size => _size;
+  CustomPoint get size => _size ?? CustomPoint(0.0, 0.0);
 
   void _updateSizeByOriginalSizeAndRotation() {
     final originalWidth = _originalSize.x;

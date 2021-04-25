@@ -8,7 +8,7 @@ import 'package:flutter_map/src/layer/group_layer.dart';
 import 'package:flutter_map/src/layer/overlay_image_layer.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/map/map_state_widget.dart';
-import 'package:positioned_tap_detector/positioned_tap_detector.dart';
+import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
 
 class FlutterMapState extends MapGestureMixin {
   final MapControllerImpl mapController;
@@ -81,7 +81,7 @@ class FlutterMapState extends MapGestureMixin {
           onPointerDown: savePointer,
           onPointerCancel: removePointer,
           onPointerUp: removePointer,
-          child: PositionedTapDetector(
+          child: PositionedTapDetector2(
             controller: _positionedTapController,
             onTap: handleTap,
             onLongPress: handleLongPress,

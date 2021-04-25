@@ -12,7 +12,7 @@ import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/plugins/plugin.dart';
-import 'package:latlong/latlong.dart';
+import 'package:latlong2/latlong.dart';
 
 export 'package:flutter_map/src/core/point.dart';
 export 'package:flutter_map/src/geo/crs/crs.dart';
@@ -27,6 +27,7 @@ export 'package:flutter_map/src/layer/marker_layer.dart';
 export 'package:flutter_map/src/layer/overlay_image_layer.dart';
 export 'package:flutter_map/src/layer/polygon_layer.dart';
 export 'package:flutter_map/src/layer/polyline_layer.dart';
+export 'package:flutter_map/src/layer/tile_builder/tile_builder.dart';
 export 'package:flutter_map/src/layer/tile_layer.dart';
 export 'package:flutter_map/src/layer/tile_provider/tile_provider.dart';
 export 'package:flutter_map/src/plugins/plugin.dart';
@@ -266,8 +267,8 @@ class MapOptions {
         MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
     this.minZoom,
     this.maxZoom,
-    this.debug = false,
-    this.interactive,
+    @Deprecated('') this.debug = false,
+    @Deprecated('Use interactiveFlags instead') this.interactive,
     // TODO: Change when [interactive] is removed.
     // Change this to [this.interactiveFlags = InteractiveFlag.all] and remove
     // [interactiveFlags] from initializer list

@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/point.dart';
-import 'package:latlong/latlong.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 import 'package:proj4dart/proj4dart.dart' as proj4;
 import 'package:tuple/tuple.dart';
@@ -371,10 +371,7 @@ abstract class Projection {
 
   @protected
   double inclusiveLng(double value) {
-    if (value.compareTo(-180) < 0) return -180;
-    if (value.compareTo(180) > 0) return 180;
-
-    return value;
+    return _inclusive(-180.0, 180.0, value);
   }
 }
 

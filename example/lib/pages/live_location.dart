@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong/latlong.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
 
 import '../widgets/drawer.dart';
@@ -169,7 +169,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                     InteractiveFlag.pinchZoom |
                     InteractiveFlag.doubleTapZoom;
 
-                Scaffold.of(context).showSnackBar(SnackBar(
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                   content: Text(
                       'In live update mode only zoom and rotation are enable'),
                 ));

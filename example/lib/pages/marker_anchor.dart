@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong/latlong.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../widgets/drawer.dart';
 
@@ -84,28 +84,28 @@ class MarkerAnchorPageState extends State<MarkerAnchorPage> {
               child: Wrap(
                 children: <Widget>[
                   MaterialButton(
-                    child: Text('Left'),
                     onPressed: () => _setAnchorAlignPos(AnchorAlign.left),
+                    child: Text('Left'),
                   ),
                   MaterialButton(
-                    child: Text('Right'),
                     onPressed: () => _setAnchorAlignPos(AnchorAlign.right),
+                    child: Text('Right'),
                   ),
                   MaterialButton(
-                    child: Text('Top'),
                     onPressed: () => _setAnchorAlignPos(AnchorAlign.top),
+                    child: Text('Top'),
                   ),
                   MaterialButton(
-                    child: Text('Bottom'),
                     onPressed: () => _setAnchorAlignPos(AnchorAlign.bottom),
+                    child: Text('Bottom'),
                   ),
                   MaterialButton(
-                    child: Text('Center'),
                     onPressed: () => _setAnchorAlignPos(AnchorAlign.center),
+                    child: Text('Center'),
                   ),
                   MaterialButton(
-                    child: Text('Custom'),
                     onPressed: () => _setAnchorExactlyPos(Anchor(80.0, 80.0)),
+                    child: Text('Custom'),
                   ),
                 ],
               ),

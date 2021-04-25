@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong/latlong.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../widgets/drawer.dart';
 
@@ -68,7 +68,6 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 MaterialButton(
-                  child: Text('Drag'),
                   color: InteractiveFlag.hasFlag(flags, InteractiveFlag.drag)
                       ? Colors.greenAccent
                       : Colors.redAccent,
@@ -77,9 +76,9 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                       updateFlags(InteractiveFlag.drag);
                     });
                   },
+                  child: Text('Drag'),
                 ),
                 MaterialButton(
-                  child: Text('Fling'),
                   color: InteractiveFlag.hasFlag(
                           flags, InteractiveFlag.flingAnimation)
                       ? Colors.greenAccent
@@ -89,9 +88,9 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                       updateFlags(InteractiveFlag.flingAnimation);
                     });
                   },
+                  child: Text('Fling'),
                 ),
                 MaterialButton(
-                  child: Text('Pinch move'),
                   color:
                       InteractiveFlag.hasFlag(flags, InteractiveFlag.pinchMove)
                           ? Colors.greenAccent
@@ -101,6 +100,7 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                       updateFlags(InteractiveFlag.pinchMove);
                     });
                   },
+                  child: Text('Pinch move'),
                 ),
               ],
             ),
@@ -108,7 +108,6 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 MaterialButton(
-                  child: Text('Double tap zoom'),
                   color: InteractiveFlag.hasFlag(
                           flags, InteractiveFlag.doubleTapZoom)
                       ? Colors.greenAccent
@@ -118,9 +117,9 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                       updateFlags(InteractiveFlag.doubleTapZoom);
                     });
                   },
+                  child: Text('Double tap zoom'),
                 ),
                 MaterialButton(
-                  child: Text('Rotate'),
                   color: InteractiveFlag.hasFlag(flags, InteractiveFlag.rotate)
                       ? Colors.greenAccent
                       : Colors.redAccent,
@@ -129,9 +128,9 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                       updateFlags(InteractiveFlag.rotate);
                     });
                   },
+                  child: Text('Rotate'),
                 ),
                 MaterialButton(
-                  child: Text('Pinch zoom'),
                   color:
                       InteractiveFlag.hasFlag(flags, InteractiveFlag.pinchZoom)
                           ? Colors.greenAccent
@@ -141,6 +140,7 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                       updateFlags(InteractiveFlag.pinchZoom);
                     });
                   },
+                  child: Text('Pinch zoom'),
                 ),
               ],
             ),

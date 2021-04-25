@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong/latlong.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
 
 import '../widgets/drawer.dart';
@@ -76,22 +76,22 @@ class MapControllerPageState extends State<MapControllerPage> {
               child: Row(
                 children: <Widget>[
                   MaterialButton(
-                    child: Text('London'),
                     onPressed: () {
                       mapController.move(london, 18.0);
                     },
+                    child: Text('London'),
                   ),
                   MaterialButton(
-                    child: Text('Paris'),
                     onPressed: () {
                       mapController.move(paris, 5.0);
                     },
+                    child: Text('Paris'),
                   ),
                   MaterialButton(
-                    child: Text('Dublin'),
                     onPressed: () {
                       mapController.move(dublin, 5.0);
                     },
+                    child: Text('Dublin'),
                   ),
                   CurrentLocation(mapController: mapController),
                 ],
@@ -102,7 +102,6 @@ class MapControllerPageState extends State<MapControllerPage> {
               child: Row(
                 children: <Widget>[
                   MaterialButton(
-                    child: Text('Fit Bounds'),
                     onPressed: () {
                       var bounds = LatLngBounds();
                       bounds.extend(dublin);
@@ -115,14 +114,14 @@ class MapControllerPageState extends State<MapControllerPage> {
                         ),
                       );
                     },
+                    child: Text('Fit Bounds'),
                   ),
                   Builder(builder: (BuildContext context) {
                     return MaterialButton(
-                      child: Text('Get Bounds'),
                       onPressed: () {
                         final bounds = mapController.bounds;
 
-                        Scaffold.of(context).showSnackBar(SnackBar(
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           content: Text(
                             'Map bounds: \n'
                             'E: ${bounds.east} \n'
@@ -132,6 +131,7 @@ class MapControllerPageState extends State<MapControllerPage> {
                           ),
                         ));
                       },
+                      child: Text('Get Bounds'),
                     );
                   }),
                   Text('Rotation:'),

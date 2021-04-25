@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong/latlong.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../widgets/drawer.dart';
 
@@ -117,22 +117,22 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
               child: Row(
                 children: <Widget>[
                   MaterialButton(
-                    child: Text('London'),
                     onPressed: () {
                       _animatedMapMove(london, 10.0);
                     },
+                    child: Text('London'),
                   ),
                   MaterialButton(
-                    child: Text('Paris'),
                     onPressed: () {
                       _animatedMapMove(paris, 5.0);
                     },
+                    child: Text('Paris'),
                   ),
                   MaterialButton(
-                    child: Text('Dublin'),
                     onPressed: () {
                       _animatedMapMove(dublin, 5.0);
                     },
+                    child: Text('Dublin'),
                   ),
                 ],
               ),
@@ -142,7 +142,6 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
               child: Row(
                 children: <Widget>[
                   MaterialButton(
-                    child: Text('Fit Bounds'),
                     onPressed: () {
                       var bounds = LatLngBounds();
                       bounds.extend(dublin);
@@ -155,6 +154,7 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
                         ),
                       );
                     },
+                    child: Text('Fit Bounds'),
                   ),
                 ],
               ),

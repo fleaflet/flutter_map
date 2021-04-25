@@ -1,4 +1,14 @@
-## [0.11.0] - 10/29/2020
+## [0.12.0] - 3/16/2021
+TileLayerOptions now takes some additional options, templateFunction,
+tileBuilder, tilesContainerBuilder, and evictErrorTileStrategy
+
+- Evict error tiles (#577)
+- Post process tiles (#582)
+- Prevent crash when move() is called before FlutterMap has been built (#827)
+
+Thanks to gr4yscale, maRci002, MooNag, tlserver, 6y
+
+## [0.11.0] - 01/29/2021
 This version removes various tile providers that depend on plugins.
 This helps simplify the flutter_map release process. Tile providers can
 be implemented in your app or in a separate package.
