@@ -8,6 +8,7 @@ import 'package:flutter_map/src/gestures/latlng_tween.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
+import 'package:flutter/physics.dart';
 
 abstract class MapGestureMixin extends State<FlutterMap>
     with TickerProviderStateMixin {
