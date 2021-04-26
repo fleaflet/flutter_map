@@ -180,8 +180,9 @@ class _MarkerLayerState extends State<MarkerLayer> {
 
   // Calling this every time markerOpts change should guarantee proper length
   List<CustomPoint> generatePxCache() => List.generate(
-      widget.markerOpts.markers.length,
-      (i) => widget.map.project(widget.markerOpts.markers[i].point));
+        widget.markerLayerOptions.markers.length,
+        (i) => widget.map.project(widget.markerLayerOptions.markers[i].point),
+      );
 
   @override
   void initState() {
@@ -223,17 +224,18 @@ class _MarkerLayerState extends State<MarkerLayer> {
           }
 
           final pos = pxPoint - widget.map.getPixelOrigin();
-          final widget = (marker.rotate ?? widget.markerLayerOptions.rotate)
-              // Counter rotated marker to the map rotation
-              ? Transform.rotate(
-                  angle: -widget.map.rotationRad,
-                  origin: marker.rotateOrigin ??
-                      widget.markerLayerOptions.rotateOrigin,
-                  alignment: marker.rotateAlignment ??
-                      widget.markerLayerOptions.rotateAlignment,
-                  child: marker.builder(context),
-                )
-              : marker.builder(context);
+          final markerWidget =
+              (marker.rotate ?? widget.markerLayerOptions.rotate)
+                  // Counter rotated marker to the map rotation
+                  ? Transform.rotate(
+                      angle: -widget.map.rotationRad,
+                      origin: marker.rotateOrigin ??
+                          widget.markerLayerOptions.rotateOrigin,
+                      alignment: marker.rotateAlignment ??
+                          widget.markerLayerOptions.rotateAlignment,
+                      child: marker.builder(context),
+                    )
+                  : marker.builder(context);
 
           markers.add(
             Positioned(
@@ -241,7 +243,7 @@ class _MarkerLayerState extends State<MarkerLayer> {
               height: marker.height,
               left: pos.x - width,
               top: pos.y - height,
-              child: widget,
+              child: markerWidget,
             ),
           );
         }
