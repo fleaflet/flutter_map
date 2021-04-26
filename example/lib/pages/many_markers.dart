@@ -82,7 +82,9 @@ class _ManyMarkersPageState extends State<ManyMarkersPage> {
                       'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                   subdomains: ['a', 'b', 'c'],
                 ),
-                MarkerLayerOptions(markers: allMarkers.sublist(0, _sliderVal)),
+                MarkerLayerOptions(
+                    markers: allMarkers.sublist(
+                        0, min(allMarkers.length, _sliderVal))),
               ],
             ),
           ),
