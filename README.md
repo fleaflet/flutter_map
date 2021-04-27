@@ -229,45 +229,6 @@ child: FlutterMap(
 
 For more details visit [Custom CRS demo page](./example/lib/pages/custom_crs/Readme.md).
 
-### How to Cache Tiles (Custom TileProvider)
-
-1. Using Flutter's NetworkImage:
-Flutter has a built in ImageProvider (NetworkImage) that caches images in memory until an app restart.
-```dart
-class CachedTileProvider extends TileProvider {
-  const CachedTileProvider();
-  @override
-  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
-    return NetworkImage(getTileUrl(coords, options));
-  }
-}
-```
-
-2. Using the `cached_network_image` dependency:
-This dependency has an ImageProvider that caches to disk which means the cache persists through an app restart.
-```dart
-import 'package:cached_network_image/cached_network_image.dart';
-
-class CachedTileProvider extends TileProvider {
-  const CachedTileProvider();
-  @override
-  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
-    return CachedNetworkImageProvider(
-      getTileUrl(coords, options),
-      //Now you can set options that determine how the image gets cached via whichever plugin you use.
-    );
-  }
-}
-```
-
-Lastly we need to add the CachedTileProvider TileProvider to TileLayerOptions
-```dart
-TileLayerOptions(
-  urlTemplate: 'https://example.com/{x}/{y}/{z}',
-  tileProvider: const CachedTileProvider()
-)
-```
-
 ## Run the example
 
 See the `example/` folder for a working example app.
@@ -276,9 +237,11 @@ To run it, in a terminal cd into the folder.
 Then execute `ulimit -S -n 2048` ([ref](https://github.com/trentpiercy/trace/issues/1#issuecomment-404494469)).
 Then execute `flutter run` with a running emulator.
 
-## Offline maps
+## Preconfigured offline maps
 
-[Follow this guide to grab offline tiles](https://tilemill-project.github.io/tilemill/docs/guides/osm-bright-mac-quickstart/)<br>
+This method is only to use preconfigured and prepackaged offline maps. For advanced caching and ability to dynamically download an area, see the [flutter_map_tile_caching](https://github.com/JaffaKetchup/flutter_map_tile_caching) plugin.
+
+First, [follow this guide to grab the tiles](https://tilemill-project.github.io/tilemill/docs/guides/osm-bright-mac-quickstart/).<br>
 Once you have your map exported to `.mbtiles`, you can use [mbtilesToPng](https://github.com/alfanhui/mbtilesToPngs) to unpack into `/{z}/{x}/{y}.png`.
 Move this to Assets folder and add asset directories to `pubspec.yaml`. Minimum required fields for offline maps are:
 
@@ -308,6 +271,7 @@ Note that there is also `FileTileProvider()`, which you can use to load tiles fr
 
 ## Plugins
 
+- [flutter_map_tile_caching](https://github.com/JaffaKetchup/flutter_map_tile_caching): Provides ability to properly cache tiles for offline use & easily download a region of a map for later offline use
 - [flutter_map_marker_cluster](https://github.com/lpongetti/flutter_map_marker_cluster): Provides Beautiful Animated Marker Clustering functionality
 - [user_location](https://github.com/igaurab/user_location_plugin): A plugin to handle and plot the current user location in FlutterMap
 - [flutter_map_location](https://github.com/Xennis/flutter_map_location): A plugin to request and display the users location and heading on the map
