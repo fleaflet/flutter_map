@@ -161,9 +161,9 @@ class MapState {
     _pixelOrigin = getNewPixelOrigin(_lastCenter!);
   }
 
-  LatLng get center => getCenter() ?? options.center;
+  LatLng get center => getCenter();
 
-  LatLngBounds? get bounds => getBounds();
+  LatLngBounds get bounds => getBounds();
 
   Bounds get pixelBounds => getLastPixelBounds();
 
@@ -292,7 +292,7 @@ class MapState {
     zoom = fitZoomToBounds(zoom);
     final mapMoved = center != _lastCenter || zoom != _zoom;
 
-    if (_lastCenter != null && (!mapMoved || !bounds!.isValid)) {
+    if (_lastCenter != null && (!mapMoved || !bounds.isValid)) {
       return false;
     }
 
@@ -344,16 +344,16 @@ class MapState {
     move(target.center, target.zoom, source: MapEventSource.fitBounds);
   }
 
-  LatLng? getCenter() {
+  LatLng getCenter() {
     if (_lastCenter != null) {
-      return _lastCenter;
+      return _lastCenter!;
     }
     return layerPointToLatLng(_centerLayerPoint);
   }
 
-  LatLngBounds? getBounds() {
+  LatLngBounds getBounds() {
     if (_lastBounds != null) {
-      return _lastBounds;
+      return _lastBounds!;
     }
 
     return _calculateBounds();
