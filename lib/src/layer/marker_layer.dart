@@ -157,7 +157,7 @@ class MarkerLayerWidget extends StatelessWidget {
   }
 }
 
-class MarkerLayer extends StatelessWidget {
+class MarkerLayer extends StatefulWidget {
   final MarkerLayerOptions markerLayerOptions;
   final MapState map;
   final Stream<Null> stream;
@@ -165,61 +165,89 @@ class MarkerLayer extends StatelessWidget {
   MarkerLayer(this.markerLayerOptions, this.map, this.stream)
       : super(key: markerLayerOptions.key);
 
-  bool _boundsContainsMarker(Marker marker) {
-    var pixelPoint = map.project(marker.point);
+  @override
+  _MarkerLayerState createState() => _MarkerLayerState();
+}
 
-    final width = marker.width - marker.anchor.left;
-    final height = marker.height - marker.anchor.top;
+class _MarkerLayerState extends State<MarkerLayer> {
+  var lastZoom = -1.0;
 
-    var sw = CustomPoint(pixelPoint.x + width, pixelPoint.y - height);
-    var ne = CustomPoint(pixelPoint.x - width, pixelPoint.y + height);
-    return map.pixelBounds.containsPartialBounds(Bounds(sw, ne));
+  /// List containing cached pixel positions of markers
+  /// Should be discarded when zoom changes
+  // Has a fixed length of markerOpts.markers.length - better performance:
+  // https://stackoverflow.com/questions/15943890/is-there-a-performance-benefit-in-using-fixed-length-lists-in-dart
+  var _pxCache = <CustomPoint>[];
+
+  // Calling this every time markerOpts change should guarantee proper length
+  List<CustomPoint> generatePxCache() => List.generate(
+        widget.markerLayerOptions.markers.length,
+        (i) => widget.map.project(widget.markerLayerOptions.markers[i].point),
+      );
+
+  @override
+  void initState() {
+    super.initState();
+    _pxCache = generatePxCache();
+  }
+
+  @override
+  void didUpdateWidget(covariant MarkerLayer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    lastZoom = -1.0;
+    _pxCache = generatePxCache();
   }
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<int>(
-      stream: stream, // a Stream<int> or null
+      stream: widget.stream, // a Stream<int> or null
       builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
         var markers = <Widget>[];
-        for (var markerOpt in markerLayerOptions.markers) {
-          var pos = map.project(markerOpt.point);
-          pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
-              map.getPixelOrigin();
+        final sameZoom = widget.map.zoom == lastZoom;
+        for (var i = 0; i < widget.markerLayerOptions.markers.length; i++) {
+          var marker = widget.markerLayerOptions.markers[i];
 
-          var pixelPosX =
-              (pos.x - (markerOpt.width - markerOpt.anchor.left)).toDouble();
-          var pixelPosY =
-              (pos.y - (markerOpt.height - markerOpt.anchor.top)).toDouble();
+          // Decide whether to use cached point or calculate it
+          var pxPoint =
+              sameZoom ? _pxCache[i] : widget.map.project(marker.point);
+          if (!sameZoom) {
+            _pxCache[i] = pxPoint;
+          }
 
-          if (!_boundsContainsMarker(markerOpt)) {
+          final width = marker.width - marker.anchor.left;
+          final height = marker.height - marker.anchor.top;
+          var sw = CustomPoint(pxPoint.x + width, pxPoint.y - height);
+          var ne = CustomPoint(pxPoint.x - width, pxPoint.y + height);
+
+          if (!widget.map.pixelBounds.containsPartialBounds(Bounds(sw, ne))) {
             continue;
           }
 
-          Widget marker;
-          if (markerOpt.rotate ?? markerLayerOptions.rotate) {
-            // Counter rotated marker to the map rotation
-            marker = Transform.rotate(
-              angle: -map.rotationRad,
-              origin: markerOpt.rotateOrigin ?? markerLayerOptions.rotateOrigin,
-              alignment: markerOpt.rotateAlignment ??
-                  markerLayerOptions.rotateAlignment,
-              child: markerOpt.builder(context),
-            );
-          } else {
-            marker = markerOpt.builder(context);
-          }
+          final pos = pxPoint - widget.map.getPixelOrigin();
+          final markerWidget =
+              (marker.rotate ?? widget.markerLayerOptions.rotate)
+                  // Counter rotated marker to the map rotation
+                  ? Transform.rotate(
+                      angle: -widget.map.rotationRad,
+                      origin: marker.rotateOrigin ??
+                          widget.markerLayerOptions.rotateOrigin,
+                      alignment: marker.rotateAlignment ??
+                          widget.markerLayerOptions.rotateAlignment,
+                      child: marker.builder(context),
+                    )
+                  : marker.builder(context);
 
           markers.add(
             Positioned(
-              width: markerOpt.width,
-              height: markerOpt.height,
-              left: pixelPosX,
-              top: pixelPosY,
-              child: marker,
+              width: marker.width,
+              height: marker.height,
+              left: pos.x - width,
+              top: pos.y - height,
+              child: markerWidget,
             ),
           );
         }
+        lastZoom = widget.map.zoom;
         return Container(
           child: Stack(
             children: markers,
