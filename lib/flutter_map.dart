@@ -142,6 +142,7 @@ abstract class MapController {
 typedef TapCallback = void Function(LatLng point);
 typedef LongPressCallback = void Function(LatLng point);
 typedef PositionCallback = void Function(MapPosition position, bool hasGesture);
+typedef MapCreatedCallback = void Function(MapController mapController);
 
 /// Allows you to provide your map's starting properties for [zoom], [rotation]
 /// and [center]. Alternatively you can provide [bounds] instead of [center].
@@ -233,6 +234,7 @@ class MapOptions {
   final TapCallback? onTap;
   final LongPressCallback? onLongPress;
   final PositionCallback? onPositionChanged;
+  final MapCreatedCallback? onMapCreated;
   final List<MapPlugin> plugins;
   final bool slideOnBoundaries;
   final Size? screenSize;
@@ -276,6 +278,7 @@ class MapOptions {
     this.onTap,
     this.onLongPress,
     this.onPositionChanged,
+    this.onMapCreated,
     this.plugins = const [],
     this.slideOnBoundaries = false,
     this.adaptiveBoundaries = false,
