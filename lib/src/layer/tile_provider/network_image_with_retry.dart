@@ -11,7 +11,7 @@ class NetworkImageWithRetry extends ImageProvider<NetworkImageWithRetry> {
   final double scale;
   
   /// The http RetryClient that is used for the requests
-  RetryClient retryClient = RetryClient(Client());
+  final RetryClient retryClient = RetryClient(Client());
 
   NetworkImageWithRetry(this.url, {this.scale = 1.0});
 
@@ -36,7 +36,6 @@ class NetworkImageWithRetry extends ImageProvider<NetworkImageWithRetry> {
 
     final uri = Uri.parse(url);
     final response = await retryClient.get(uri);
-
     final codec = await decode(response.bodyBytes);
     final image = (await codec.getNextFrame()).image;
 
