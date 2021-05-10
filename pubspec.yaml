@@ -15,7 +15,7 @@ dependencies:
   positioned_tap_detector_2: ^1.0.0
   transparent_image: ^2.0.0
   async: ^2.1.0
-  flutter_image: any
+  http: ^0.13.2
   vector_math: ^2.1.0
   proj4dart: ^2.0.0
   collection: ^1.15.0
@@ -27,9 +27,3 @@ dev_dependencies:
     sdk: flutter
   test: ^1.16.5
   mockito: ^5.0.2
-
-dependency_overrides: 
-  flutter_image: 
-    git: 
-      url: "https://github.com/flutter/flutter_image"
-      ref: null-safety
