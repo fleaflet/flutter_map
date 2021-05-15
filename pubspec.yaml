@@ -33,4 +33,4 @@ dependency_overrides:
   flutter_image: 
     git: 
       url: "https://github.com/flutter/flutter_image"
-      ref: null-safety
+      ref: master
