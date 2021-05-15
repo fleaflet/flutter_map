@@ -19,6 +19,7 @@ import './pages/plugin_scalebar.dart';
 import './pages/plugin_zoombuttons.dart';
 import './pages/polyline.dart';
 import './pages/sliding_map.dart';
+import './pages/stateful_markers.dart';
 import './pages/tap_to_add.dart';
 import './pages/tile_builder_example.dart';
 import './pages/tile_loading_error_handle.dart';
@@ -64,6 +65,7 @@ class MyApp extends StatelessWidget {
         TileBuilderPage.route: (context) => TileBuilderPage(),
         InteractiveTestPage.route: (context) => InteractiveTestPage(),
         ManyMarkersPage.route: (context) => ManyMarkersPage(),
+        StatefulMarkersPage.route: (context) => StatefulMarkersPage(),
       },
     );
   }
