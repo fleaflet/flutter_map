@@ -31,6 +31,7 @@ dev_dependencies:
 
 dependency_overrides: 
   flutter_image: 
-    git: 
-      url: "https://github.com/flutter/flutter_image"
+    git:
+      url: "https://github.com/flutter/packages"
       ref: master
+      path: packages/flutter_image
