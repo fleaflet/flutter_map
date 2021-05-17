@@ -51,7 +51,7 @@ class MarkerAnchorPageState extends State<MarkerAnchorPage> {
         point: LatLng(53.3498, -6.2603),
         builder: (ctx) => Container(
           child: FlutterLogo(
-            colors: Colors.green,
+            textColor: Colors.green,
           ),
         ),
         anchorPos: anchorPos,
@@ -61,7 +61,7 @@ class MarkerAnchorPageState extends State<MarkerAnchorPage> {
         height: 80.0,
         point: LatLng(48.8566, 2.3522),
         builder: (ctx) => Container(
-          child: FlutterLogo(colors: Colors.purple),
+          child: FlutterLogo(textColor: Colors.purple),
         ),
         anchorPos: anchorPos,
       ),
@@ -84,28 +84,28 @@ class MarkerAnchorPageState extends State<MarkerAnchorPage> {
               child: Wrap(
                 children: <Widget>[
                   MaterialButton(
-                    child: Text('Left'),
                     onPressed: () => _setAnchorAlignPos(AnchorAlign.left),
+                    child: Text('Left'),
                   ),
                   MaterialButton(
-                    child: Text('Right'),
                     onPressed: () => _setAnchorAlignPos(AnchorAlign.right),
+                    child: Text('Right'),
                   ),
                   MaterialButton(
-                    child: Text('Top'),
                     onPressed: () => _setAnchorAlignPos(AnchorAlign.top),
+                    child: Text('Top'),
                   ),
                   MaterialButton(
-                    child: Text('Bottom'),
                     onPressed: () => _setAnchorAlignPos(AnchorAlign.bottom),
+                    child: Text('Bottom'),
                   ),
                   MaterialButton(
-                    child: Text('Center'),
                     onPressed: () => _setAnchorAlignPos(AnchorAlign.center),
+                    child: Text('Center'),
                   ),
                   MaterialButton(
-                    child: Text('Custom'),
                     onPressed: () => _setAnchorExactlyPos(Anchor(80.0, 80.0)),
+                    child: Text('Custom'),
                   ),
                 ],
               ),

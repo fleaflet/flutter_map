@@ -1,4 +1,4 @@
-[![BuildStatus](https://travis-ci.com/fleaflet/flutter_map.svg?branch=master)](https://travis-ci.org/johnpryan/flutter_map)
+[![CI](https://github.com/fleaflet/flutter_map/workflows/Tests/badge.svg)](https://github.com/fleaflet/flutter_map/actions?query=branch%3Amaster)
 [![Pub](https://img.shields.io/pub/v/flutter_map.svg)](https://pub.dev/packages/flutter_map)
 
 # flutter_map
@@ -28,25 +28,25 @@ Configure the map using `MapOptions` and layer options:
 
 ```dart
 Widget build(BuildContext context) {
-  return new FlutterMap(
-    options: new MapOptions(
-      center: new LatLng(51.5, -0.09),
+  return FlutterMap(
+    options: MapOptions(
+      center: LatLng(51.5, -0.09),
       zoom: 13.0,
     ),
     layers: [
-      new TileLayerOptions(
+      TileLayerOptions(
         urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
         subdomains: ['a', 'b', 'c']
       ),
-      new MarkerLayerOptions(
+      MarkerLayerOptions(
         markers: [
-          new Marker(
+          Marker(
             width: 80.0,
             height: 80.0,
-            point: new LatLng(51.5, -0.09),
+            point: LatLng(51.5, -0.09),
             builder: (ctx) =>
-            new Container(
-              child: new FlutterLogo(),
+            Container(
+              child: FlutterLogo(),
             ),
           ),
         ],
@@ -162,7 +162,7 @@ Widget build(BuildContext context) {
           ),
         ],
       ),
-    ]
+    ],
     children: <Widget>[
       TileLayerWidget(options: TileLayerOptions(
         urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -200,7 +200,7 @@ var epsg3413CRS = Proj4Crs.fromFactory(
   code: 'EPSG:3413',
   proj4Projection:
       proj4.Projection.add('EPSG:3413', '+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs'),
-  resolutions: resolutions
+  resolutions: resolutions,
 );
 ```
 
@@ -237,9 +237,11 @@ To run it, in a terminal cd into the folder.
 Then execute `ulimit -S -n 2048` ([ref](https://github.com/trentpiercy/trace/issues/1#issuecomment-404494469)).
 Then execute `flutter run` with a running emulator.
 
-## Offline maps
+## Preconfigured offline maps
 
-[Follow this guide to grab offline tiles](https://tilemill-project.github.io/tilemill/docs/guides/osm-bright-mac-quickstart/)<br>
+This method is only to use preconfigured and prepackaged offline maps. For advanced caching and ability to dynamically download an area, see the [flutter_map_tile_caching](https://github.com/JaffaKetchup/flutter_map_tile_caching) plugin.
+
+First, [follow this guide to grab the tiles](https://tilemill-project.github.io/tilemill/docs/guides/osm-bright-mac-quickstart/).<br>
 Once you have your map exported to `.mbtiles`, you can use [mbtilesToPng](https://github.com/alfanhui/mbtilesToPngs) to unpack into `/{z}/{x}/{y}.png`.
 Move this to Assets folder and add asset directories to `pubspec.yaml`. Minimum required fields for offline maps are:
 
@@ -269,12 +271,16 @@ Note that there is also `FileTileProvider()`, which you can use to load tiles fr
 
 ## Plugins
 
+- [flutter_map_tile_caching](https://github.com/JaffaKetchup/flutter_map_tile_caching): Provides ability to properly cache tiles for offline use & easily download a region of a map for later offline use
 - [flutter_map_marker_cluster](https://github.com/lpongetti/flutter_map_marker_cluster): Provides Beautiful Animated Marker Clustering functionality
 - [user_location](https://github.com/igaurab/user_location_plugin): A plugin to handle and plot the current user location in FlutterMap
+- [flutter_map_location](https://github.com/Xennis/flutter_map_location): A plugin to request and display the users location and heading on the map
+- [flutter_map_location_marker](https://github.com/tlserver/flutter_map_location_marker): A simple and powerful plugin display the users location and heading
 - [flutter_map_tappable_polyline](https://github.com/OwnWeb/flutter_map_tappable_polyline): A plugin to add `onTap` callback to `Polyline`
 - [lat_lon_grid_plugin](https://github.com/mat8854/lat_lon_grid_plugin): Adds a latitude / longitude grid as plugin to the FlutterMap
 - [flutter_map_marker_popup](https://github.com/rorystephenson/flutter_map_marker_popup): A plugin to show customisable popups for markers.
 - [map_elevation](https://github.com/OwnWeb/map_elevation): A widget to display elevation of a track (polyline) like Leaflet.Elevation
+- [flutter_map_floating_marker_titles](https://github.com/androidseb/flutter_map_floating_marker_titles): Displaying floating marker titles on the map view
 
 ## Roadmap
 

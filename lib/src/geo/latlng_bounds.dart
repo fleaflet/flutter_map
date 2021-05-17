@@ -19,8 +19,8 @@ class LatLngBounds {
       num maxY;
 
       for (var point in points) {
-        var x = toRadians(point.longitude);
-        var y = toRadians(point.latitude);
+        num x = toRadians(point.longitude);
+        num y = toRadians(point.latitude);
 
         if (minX == null || minX > x) {
           minX = x;
@@ -103,7 +103,8 @@ class LatLngBounds {
     if (!isValid) {
       return false;
     }
-    // check if bounding box rectangle is outside the other, if it is then it's considered not overlapping
+    // check if bounding box rectangle is outside the other, if it is then it's
+    // considered not overlapping
     if (_sw.latitude > bounds._ne.latitude ||
         _ne.latitude < bounds._sw.latitude ||
         _ne.longitude < bounds._sw.longitude ||
@@ -111,5 +112,13 @@ class LatLngBounds {
       return false;
     }
     return true;
+  }
+
+  void pad(double bufferRatio) {
+    var heightBuffer = (_sw.latitude - _ne.latitude).abs() * bufferRatio;
+    var widthBuffer = (_sw.longitude - _ne.longitude).abs() * bufferRatio;
+
+    _sw = LatLng(_sw.latitude - heightBuffer, _sw.longitude - widthBuffer);
+    _ne = LatLng(_ne.latitude + heightBuffer, _ne.longitude + widthBuffer);
   }
 }

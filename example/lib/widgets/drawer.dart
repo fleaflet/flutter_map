@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map_example/pages/marker_rotate.dart';
 
 import '../pages/animated_map_controller.dart';
 import '../pages/circle.dart';
 import '../pages/custom_crs/custom_crs.dart';
 import '../pages/esri.dart';
 import '../pages/home.dart';
+import '../pages/interactive_test_page.dart';
 import '../pages/live_location.dart';
+import '../pages/many_markers.dart';
 import '../pages/map_controller.dart';
 import '../pages/marker_anchor.dart';
 import '../pages/moving_markers.dart';
 import '../pages/offline_map.dart';
-import '../pages/offline_mbtiles_map.dart';
 import '../pages/on_tap.dart';
 import '../pages/overlay_image.dart';
 import '../pages/plugin_api.dart';
@@ -18,7 +20,9 @@ import '../pages/plugin_scalebar.dart';
 import '../pages/plugin_zoombuttons.dart';
 import '../pages/polyline.dart';
 import '../pages/sliding_map.dart';
+import '../pages/stateful_markers.dart';
 import '../pages/tap_to_add.dart';
+import '../pages/tile_builder_example.dart';
 import '../pages/tile_loading_error_handle.dart';
 import '../pages/widgets.dart';
 import '../pages/wms_tile_layer.dart';
@@ -105,6 +109,12 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
         ),
         _buildMenuItem(
           context,
+          const Text('Marker Rotate'),
+          MarkerRotatePage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
           const Text('Plugins'),
           PluginPage.route,
           currentRoute,
@@ -125,12 +135,6 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           context,
           const Text('Offline Map'),
           OfflineMapPage.route,
-          currentRoute,
-        ),
-        _buildMenuItem(
-          context,
-          const Text('Offline Map (using MBTiles)'),
-          OfflineMBTilesMapPage.route,
           currentRoute,
         ),
         _buildMenuItem(
@@ -157,34 +161,55 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           OverlayImagePage.route,
           currentRoute,
         ),
-        ListTile(
-          title: const Text('Sliding Map'),
-          selected: currentRoute == SlidingMapPage.route,
-          onTap: () =>
-              Navigator.pushReplacementNamed(context, SlidingMapPage.route),
+        _buildMenuItem(
+          context,
+          const Text('Sliding Map'),
+          SlidingMapPage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Widgets'),
+          WidgetsPage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Live Location Update'),
+          LiveLocationPage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Tile loading error handle'),
+          TileLoadingErrorHandle.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Tile builder'),
+          TileBuilderPage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Interactive flags test page'),
+          InteractiveTestPage.route,
+          currentRoute,
         ),
         ListTile(
-          title: const Text('Widgets'),
-          selected: currentRoute == WidgetsPage.route,
+          title: const Text('A lot of markers'),
+          selected: currentRoute == ManyMarkersPage.route,
           onTap: () {
-            Navigator.pushReplacementNamed(context, WidgetsPage.route);
+            Navigator.pushReplacementNamed(context, ManyMarkersPage.route);
           },
         ),
-        ListTile(
-          title: const Text('Live Location Update'),
-          selected: currentRoute == LiveLocationPage.route,
-          onTap: () {
-            Navigator.pushReplacementNamed(context, LiveLocationPage.route);
-          },
-        ),
-        ListTile(
-          title: const Text('Tile loading error handle'),
-          selected: currentRoute == TileLoadingErrorHandle.route,
-          onTap: () {
-            Navigator.pushReplacementNamed(
-                context, TileLoadingErrorHandle.route);
-          },
-        ),
+        _buildMenuItem(
+          context,
+          const Text('Stateful markers'),
+          StatefulMarkersPage.route,
+          currentRoute,
+        )
       ],
     ),
   );

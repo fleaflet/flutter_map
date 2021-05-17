@@ -15,7 +15,7 @@ class PolygonLayerOptions extends LayerOptions {
     Key key,
     this.polygons = const [],
     this.polygonCulling = false,
-    rebuild,
+    Stream<Null> rebuild,
   }) : super(key: key, rebuild: rebuild) {
     if (polygonCulling) {
       for (var polygon in polygons) {
@@ -52,7 +52,7 @@ class Polygon {
 
 class PolygonLayerWidget extends StatelessWidget {
   final PolygonLayerOptions options;
-  PolygonLayerWidget({@required this.options}) : super(key: options.key);
+  PolygonLayerWidget({Key key, @required this.options}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +73,6 @@ class PolygonLayer extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints bc) {
-        // TODO unused BoxContraints should remove?
         final size = Size(bc.maxWidth, bc.maxHeight);
         return _build(context, size);
       },

@@ -6,6 +6,9 @@ import 'dart:math';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/geo/crs/crs.dart';
+import 'package:flutter_map/src/gestures/interactive_flag.dart';
+import 'package:flutter_map/src/gestures/map_events.dart';
+import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/plugins/plugin.dart';
@@ -14,6 +17,9 @@ import 'package:maps_toolkit/maps_toolkit.dart';
 export 'package:flutter_map/src/core/point.dart';
 export 'package:flutter_map/src/geo/crs/crs.dart';
 export 'package:flutter_map/src/geo/latlng_bounds.dart';
+export 'package:flutter_map/src/gestures/interactive_flag.dart';
+export 'package:flutter_map/src/gestures/map_events.dart';
+export 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
 export 'package:flutter_map/src/layer/circle_layer.dart';
 export 'package:flutter_map/src/layer/group_layer.dart';
 export 'package:flutter_map/src/layer/layer.dart';
@@ -21,8 +27,8 @@ export 'package:flutter_map/src/layer/marker_layer.dart';
 export 'package:flutter_map/src/layer/overlay_image_layer.dart';
 export 'package:flutter_map/src/layer/polygon_layer.dart';
 export 'package:flutter_map/src/layer/polyline_layer.dart';
+export 'package:flutter_map/src/layer/tile_builder/tile_builder.dart';
 export 'package:flutter_map/src/layer/tile_layer.dart';
-export 'package:flutter_map/src/layer/tile_provider/mbtiles_image_provider.dart';
 export 'package:flutter_map/src/layer/tile_provider/tile_provider.dart';
 export 'package:flutter_map/src/plugins/plugin.dart';
 
@@ -36,10 +42,23 @@ class FlutterMap extends StatefulWidget {
   ///
   /// Usually a list of [TileLayerOptions], [MarkerLayerOptions] and
   /// [PolylineLayerOptions].
+  ///
+  /// These layers will render above [children]
   final List<LayerOptions> layers;
+
+  /// These layers won't be rotated.
+  /// Usually these are plugins which are floating above [layers]
+  ///
+  /// These layers will render above [nonRotatedChildren]
+  final List<LayerOptions> nonRotatedLayers;
 
   /// A set of layers' widgets to used to create the layers on the map.
   final List<Widget> children;
+
+  /// These layers won't be rotated.
+  ///
+  /// These layers will render above [layers]
+  final List<Widget> nonRotatedChildren;
 
   /// [MapOptions] to create a [MapState] with.
   ///
@@ -53,9 +72,12 @@ class FlutterMap extends StatefulWidget {
     Key key,
     @required this.options,
     this.layers = const [],
+    this.nonRotatedLayers = const [],
     this.children = const [],
+    this.nonRotatedChildren = const [],
     MapController mapController,
-  })  : _mapController = mapController ?? MapController(),
+  })  : assert(options != null, 'MapOptions cannot be null!'),
+        _mapController = mapController,
         super(key: key);
 
   @override
@@ -70,10 +92,32 @@ class FlutterMap extends StatefulWidget {
 /// It also provides current map properties.
 abstract class MapController {
   /// Moves the map to a specific location and zoom level
-  void move(LatLng center, double zoom);
+  ///
+  /// Optionally provide [id] attribute and if you listen to [mapEventStream]
+  /// later a [MapEventMove] event will be emitted (if move was success) with
+  /// same [id] attribute. Event's source attribute will be
+  /// [MapEventSource.mapController].
+  ///
+  /// returns `true` if move was success (for example it won't be success if
+  /// navigating to same place with same zoom or if center is out of bounds and
+  /// [MapOptions.slideOnBoundaries] isn't enabled)
+  bool move(LatLng center, double zoom, {String id});
 
   /// Sets the map rotation to a certain degrees angle (in decimal).
-  void rotate(double degree);
+  ///
+  /// Optionally provide [id] attribute and if you listen to [mapEventStream]
+  /// later a [MapEventRotate] event will be emitted (if rotate was success)
+  /// with same [id] attribute. Event's source attribute will be
+  /// [MapEventSource.mapController].
+  ///
+  /// returns `true` if rotate was success (it won't be success if rotate is
+  /// same as the old rotate)
+  bool rotate(double degree, {String id});
+
+  /// Calls [move] and [rotate] together however layers will rebuild just once
+  /// instead of twice
+  MoveAndRotateResult moveAndRotate(LatLng center, double zoom, double degree,
+      {String id});
 
   /// Fits the map bounds. Optional constraints can be defined
   /// through the [options] parameter.
@@ -89,9 +133,9 @@ abstract class MapController {
 
   double get zoom;
 
-  ValueChanged<double> onRotationChanged;
+  double get rotation;
 
-  Stream<MapPosition> get position;
+  Stream<MapEvent> get mapEventStream;
 
   factory MapController() => MapControllerImpl();
 }
@@ -99,6 +143,7 @@ abstract class MapController {
 typedef TapCallback = void Function(LatLng point);
 typedef LongPressCallback = void Function(LatLng point);
 typedef PositionCallback = void Function(MapPosition position, bool hasGesture);
+typedef MapCreatedCallback = void Function(MapController mapController);
 
 /// Allows you to provide your map's starting properties for [zoom], [rotation]
 /// and [center]. Alternatively you can provide [bounds] instead of [center].
@@ -123,42 +168,118 @@ class MapOptions {
   final Crs crs;
   final double zoom;
   final double rotation;
+
+  /// Prints multi finger gesture winner Helps to fine adjust
+  /// [rotationThreshold] and [pinchZoomThreshold] and [pinchMoveThreshold]
+  /// Note: only takes effect if [enableMultiFingerGestureRace] is true
+  final bool debugMultiFingerGestureWinner;
+
+  /// If true then [rotationThreshold] and [pinchZoomThreshold] and
+  /// [pinchMoveThreshold] will race If multiple gestures win at the same time
+  /// then precedence: [pinchZoomWinGestures] > [rotationWinGestures] >
+  /// [pinchMoveWinGestures]
+  final bool enableMultiFingerGestureRace;
+
+  /// Rotation threshold in degree default is 20.0 Map starts to rotate when
+  /// [rotationThreshold] has been achieved or another multi finger gesture wins
+  /// which allows [MultiFingerGesture.rotate] Note: if [interactiveFlags]
+  /// doesn't contain [InteractiveFlag.rotate] or [enableMultiFingerGestureRace]
+  /// is false then rotate cannot win
+  final double rotationThreshold;
+
+  /// When [rotationThreshold] wins over [pinchZoomThreshold] and
+  /// [pinchMoveThreshold] then [rotationWinGestures] gestures will be used. By
+  /// default only [MultiFingerGesture.rotate] gesture will take effect see
+  /// [MultiFingerGesture] for custom settings
+  final int rotationWinGestures;
+
+  /// Pinch Zoom threshold default is 0.5 Map starts to zoom when
+  /// [pinchZoomThreshold] has been achieved or another multi finger gesture
+  /// wins which allows [MultiFingerGesture.pinchZoom] Note: if
+  /// [interactiveFlags] doesn't contain [InteractiveFlag.pinchZoom] or
+  /// [enableMultiFingerGestureRace] is false then zoom cannot win
+  final double pinchZoomThreshold;
+
+  /// When [pinchZoomThreshold] wins over [rotationThreshold] and
+  /// [pinchMoveThreshold] then [pinchZoomWinGestures] gestures will be used. By
+  /// default [MultiFingerGesture.pinchZoom] and [MultiFingerGesture.pinchMove]
+  /// gestures will take effect see [MultiFingerGesture] for custom settings
+  final int pinchZoomWinGestures;
+
+  /// Pinch Move threshold default is 40.0 (note: this doesn't take any effect
+  /// on drag) Map starts to move when [pinchMoveThreshold] has been achieved or
+  /// another multi finger gesture wins which allows
+  /// [MultiFingerGesture.pinchMove] Note: if [interactiveFlags] doesn't contain
+  /// [InteractiveFlag.pinchMove] or [enableMultiFingerGestureRace] is false
+  /// then pinch move cannot win
+  final double pinchMoveThreshold;
+
+  /// When [pinchMoveThreshold] wins over [rotationThreshold] and
+  /// [pinchZoomThreshold] then [pinchMoveWinGestures] gestures will be used. By
+  /// default [MultiFingerGesture.pinchMove] and [MultiFingerGesture.pinchZoom]
+  /// gestures will take effect see [MultiFingerGesture] for custom settings
+  final int pinchMoveWinGestures;
+
   final double minZoom;
   final double maxZoom;
   @deprecated
   final bool debug; // TODO no usage outside of constructor. Marked for removal?
+  @Deprecated('use interactiveFlags instead')
   final bool interactive;
+
+  /// see [InteractiveFlag] for custom settings
+  final int interactiveFlags;
+
+  final bool allowPanning;
+
   final TapCallback onTap;
   final LongPressCallback onLongPress;
   final PositionCallback onPositionChanged;
+  final MapCreatedCallback onMapCreated;
   final List<MapPlugin> plugins;
   final bool slideOnBoundaries;
   final Size screenSize;
   final bool adaptiveBoundaries;
   final MapController controller;
-  LatLng center;
-  LatLngBounds bounds;
-  FitBoundsOptions boundsOptions;
-  LatLng swPanBoundary;
-  LatLng nePanBoundary;
+  final LatLng center;
+  final LatLngBounds bounds;
+  final FitBoundsOptions boundsOptions;
+  final LatLng swPanBoundary;
+  final LatLng nePanBoundary;
 
   _SafeArea _safeAreaCache;
   double _safeAreaZoom;
 
   MapOptions({
     this.crs = const Epsg3857(),
-    this.center,
+    LatLng center,
     this.bounds,
     this.boundsOptions = const FitBoundsOptions(),
     this.zoom = 13.0,
     this.rotation = 0.0,
+    this.debugMultiFingerGestureWinner = false,
+    this.enableMultiFingerGestureRace = false,
+    this.rotationThreshold = 20.0,
+    this.rotationWinGestures = MultiFingerGesture.rotate,
+    this.pinchZoomThreshold = 0.5,
+    this.pinchZoomWinGestures =
+        MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
+    this.pinchMoveThreshold = 40.0,
+    this.pinchMoveWinGestures =
+        MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
     this.minZoom,
     this.maxZoom,
-    this.debug = false,
-    this.interactive = true,
+    @Deprecated('') this.debug = false,
+    @Deprecated('Use interactiveFlags instead') this.interactive,
+    // TODO: Change when [interactive] is removed.
+    // Change this to [this.interactiveFlags = InteractiveFlag.all] and remove
+    // [interactiveFlags] from initializer list
+    int interactiveFlags,
+    this.allowPanning = true,
     this.onTap,
     this.onLongPress,
     this.onPositionChanged,
+    this.onMapCreated,
     this.plugins = const [],
     this.slideOnBoundaries = false,
     this.adaptiveBoundaries = false,
@@ -166,8 +287,12 @@ class MapOptions {
     this.controller,
     this.swPanBoundary,
     this.nePanBoundary,
-  }) {
-    center ??= LatLng(50.5, 30.51);
+  })  : interactiveFlags = interactiveFlags ??
+            (interactive == false ? InteractiveFlag.none : InteractiveFlag.all),
+        center = center ?? LatLng(50.5, 30.51),
+        assert(rotationThreshold >= 0.0),
+        assert(pinchZoomThreshold >= 0.0),
+        assert(pinchMoveThreshold >= 0.0) {
     _safeAreaZoom = zoom;
     assert(slideOnBoundaries ||
         !isOutOfBounds(center)); //You cannot start outside pan boundary
@@ -286,4 +411,11 @@ class _SafeArea {
             ? fallback.longitude
             : point.longitude.clamp(bounds.west, bounds.east),
       );
+}
+
+class MoveAndRotateResult {
+  final bool moveSuccess;
+  final bool rotateSuccess;
+
+  MoveAndRotateResult(this.moveSuccess, this.rotateSuccess);
 }

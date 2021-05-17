@@ -10,7 +10,7 @@ class CircleLayerOptions extends LayerOptions {
   CircleLayerOptions({
     Key key,
     this.circles = const [],
-    rebuild,
+    Stream<Null> rebuild,
   }) : super(key: key, rebuild: rebuild);
 }
 
@@ -36,7 +36,7 @@ class CircleMarker {
 class CircleLayerWidget extends StatelessWidget {
   final CircleLayerOptions options;
 
-  CircleLayerWidget({@required this.options}) : super(key: options.key);
+  CircleLayerWidget({Key key, @required this.options}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

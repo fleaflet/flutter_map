@@ -4,6 +4,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:maps_toolkit/maps_toolkit.dart';
 import 'package:location/location.dart';
 
+import '../widgets/drawer.dart';
+
 class LiveLocationPage extends StatefulWidget {
   static const String route = '/live_location';
 
@@ -15,10 +17,12 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
   LocationData _currentLocation;
   MapController _mapController;
 
-  bool _liveUpdate = true;
+  bool _liveUpdate = false;
   bool _permission = false;
 
   String _serviceError = '';
+
+  var interActiveFlags = InteractiveFlag.all;
 
   final Location _locationService = Location();
 
@@ -105,7 +109,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
         point: currentLatLng,
         builder: (ctx) => Container(
           child: FlutterLogo(
-            colors: Colors.blue,
+            textColor: Colors.blue,
             key: ObjectKey(Colors.blue),
           ),
         ),
@@ -114,7 +118,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
 
     return Scaffold(
       appBar: AppBar(title: Text('Home')),
-      //drawer: buildDrawer(context, route),
+      drawer: buildDrawer(context, LiveLocationPage.route),
       body: Padding(
         padding: EdgeInsets.all(8.0),
         child: Column(
@@ -135,6 +139,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                   center:
                       LatLng(currentLatLng.latitude, currentLatLng.longitude),
                   zoom: 5.0,
+                  interactiveFlags: interActiveFlags,
                 ),
                 layers: [
                   TileLayerOptions(
@@ -153,10 +158,30 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _liveUpdate = !_liveUpdate,
-        child: _liveUpdate ? Icon(Icons.location_on) : Icon(Icons.location_off),
-      ),
+      floatingActionButton: Builder(builder: (BuildContext context) {
+        return FloatingActionButton(
+          onPressed: () {
+            setState(() {
+              _liveUpdate = !_liveUpdate;
+
+              if (_liveUpdate) {
+                interActiveFlags = InteractiveFlag.rotate |
+                    InteractiveFlag.pinchZoom |
+                    InteractiveFlag.doubleTapZoom;
+
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text(
+                      'In live update mode only zoom and rotation are enable'),
+                ));
+              } else {
+                interActiveFlags = InteractiveFlag.all;
+              }
+            });
+          },
+          child:
+              _liveUpdate ? Icon(Icons.location_on) : Icon(Icons.location_off),
+        );
+      }),
     );
   }
 }

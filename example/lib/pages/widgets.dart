@@ -28,13 +28,23 @@ class WidgetsPage extends StatelessWidget {
                     ZoomButtonsPlugin(),
                   ],
                 ),
-                layers: [
+                nonRotatedLayers: [
                   ZoomButtonsPluginOption(
                     minZoom: 4,
                     maxZoom: 19,
                     mini: true,
                     padding: 10,
                     alignment: Alignment.bottomLeft,
+                  )
+                ],
+                nonRotatedChildren: <Widget>[
+                  Text(
+                    'Plugin is just Text widget',
+                    style: TextStyle(
+                        fontSize: 22,
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                        backgroundColor: Colors.yellow),
                   )
                 ],
                 children: <Widget>[
@@ -46,14 +56,6 @@ class WidgetsPage extends StatelessWidget {
                     ),
                   ),
                   MovingWithoutRefreshAllMapMarkers(),
-                  Text(
-                    'Plugin is just Text widget',
-                    style: TextStyle(
-                        fontSize: 22,
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                        backgroundColor: Colors.yellow),
-                  )
                 ],
               ),
             ),

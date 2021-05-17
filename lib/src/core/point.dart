@@ -48,6 +48,20 @@ class CustomPoint<T extends num> extends math.Point<T> {
     return CustomPoint(x * n, y * n);
   }
 
+  // Clockwise rotation
+  CustomPoint rotate(num radians) {
+    if (radians != 0.0) {
+      final cos = math.cos(radians);
+      final sin = math.sin(radians);
+      final nx = (cos * x) + (sin * y);
+      final ny = (cos * y) - (sin * x);
+
+      return CustomPoint(nx, ny);
+    }
+
+    return this;
+  }
+
   @override
   String toString() => 'CustomPoint ($x, $y)';
 }
