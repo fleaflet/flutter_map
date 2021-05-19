@@ -183,7 +183,7 @@ class Proj4Crs extends Crs {
     required this.infinite,
     List<Transformation>? transformations,
     required List<double> scales,
-  })   : _transformations = transformations,
+  })  : _transformations = transformations,
         _scales = scales;
 
   factory Proj4Crs.fromFactory({
