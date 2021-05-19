@@ -286,6 +286,6 @@ Note that there is also `FileTileProvider()`, which you can use to load tiles fr
 
 For the latest roadmap, please see the [Issue Tracker]
 
-[Leaflet]: http://leafletjs.com/
+[Leaflet]: https://leafletjs.com/
 [Mapbox]: https://www.mapbox.com/
 [Issue Tracker]: https://github.com/johnpryan/flutter_map/issues
