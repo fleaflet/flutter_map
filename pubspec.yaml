@@ -11,6 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   tuple: ^2.0.0
+  intl: ^0.17.0
   latlong2: ^0.8.0
   positioned_tap_detector_2: ^1.0.0
   transparent_image: ^2.0.0
