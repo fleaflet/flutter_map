@@ -1,7 +1,7 @@
 name: flutter_map
 description: A Dart implementation of Leaflet for Flutter apps
 version: 0.13.0
-repository: https://github.com/johnpryan/flutter_map
+repository: https://github.com/fleaflet/flutter_map
 
 environment:
   sdk: '>=2.12.0 <3.0.0'
