@@ -11,7 +11,8 @@ double toRadians(double degrees) {
   return degrees * piOver180;
 }
 
-LatLng calculateEndingGlobalCoordinates(LatLng start, double startBearing, double distance) {
+LatLng calculateEndingGlobalCoordinates(
+    LatLng start, double startBearing, double distance) {
   var mSemiMajorAxis = 6378137.0; //WGS84 major axis
   var mSemiMinorAxis = (1.0 - 1.0 / 298.257223563) * 6378137.0;
   var mFlattening = 1.0 / 298.257223563;
@@ -42,10 +43,13 @@ LatLng calculateEndingGlobalCoordinates(LatLng start, double startBearing, doubl
   var uSquared = cos2Alpha * (aSquared - bSquared) / bSquared;
 
   // eq. 3
-  var A = 1 + (uSquared / 16384) * (4096 + uSquared * (-768 + uSquared * (320 - 175 * uSquared)));
+  var A = 1 +
+      (uSquared / 16384) *
+          (4096 + uSquared * (-768 + uSquared * (320 - 175 * uSquared)));
 
   // eq. 4
-  var B = (uSquared / 1024) * (256 + uSquared * (-128 + uSquared * (74 - 47 * uSquared)));
+  var B = (uSquared / 1024) *
+      (256 + uSquared * (-128 + uSquared * (74 - 47 * uSquared)));
 
   // iterate until there is a negligible change in sigma
   double deltaSigma;
@@ -71,7 +75,10 @@ LatLng calculateEndingGlobalCoordinates(LatLng start, double startBearing, doubl
         (cosSigmaM2 +
             (B / 4.0) *
                 (cosSignma * (-1 + 2 * cos2SigmaM2) -
-                    (B / 6.0) * cosSigmaM2 * (-3 + 4 * sinSigma * sinSigma) * (-3 + 4 * cos2SigmaM2)));
+                    (B / 6.0) *
+                        cosSigmaM2 *
+                        (-3 + 4 * sinSigma * sinSigma) *
+                        (-3 + 4 * cos2SigmaM2)));
 
     // eq. 7
     sigma = sOverbA + deltaSigma;
@@ -90,8 +97,11 @@ LatLng calculateEndingGlobalCoordinates(LatLng start, double startBearing, doubl
   sinSigma = sin(sigma);
 
   // eq. 8
-  var phi2 = atan2(sinU1 * cosSigma + cosU1 * sinSigma * cosAlpha1,
-      (1.0 - f) * sqrt(sin2Alpha + pow(sinU1 * sinSigma - cosU1 * cosSigma * cosAlpha1, 2.0)));
+  var phi2 = atan2(
+      sinU1 * cosSigma + cosU1 * sinSigma * cosAlpha1,
+      (1.0 - f) *
+          sqrt(sin2Alpha +
+              pow(sinU1 * sinSigma - cosU1 * cosSigma * cosAlpha1, 2.0)));
 
   // eq. 9
   // This fixes the pole crossing defect spotted by Matt Feemster. When a
@@ -103,14 +113,21 @@ LatLng calculateEndingGlobalCoordinates(LatLng start, double startBearing, doubl
   // double tanLambda = sinSigma * sinAlpha1 / (cosU1 * cosSigma - sinU1 *
   // sinSigma * cosAlpha1);
   // double lambda = Math.atan(tanLambda);
-  var lambda = atan2(sinSigma * sinAlpha1, (cosU1 * cosSigma - sinU1 * sinSigma * cosAlpha1));
+  var lambda = atan2(
+      sinSigma * sinAlpha1, (cosU1 * cosSigma - sinU1 * sinSigma * cosAlpha1));
 
   // eq. 10
   var C = (f / 16) * cos2Alpha * (4 + f * (4 - 3 * cos2Alpha));
 
   // eq. 11
-  var L =
-      lambda - (1 - C) * f * sinAlpha * (sigma + C * sinSigma * (cosSigmaM2 + C * cosSigma * (-1 + 2 * cos2SigmaM2)));
+  var L = lambda -
+      (1 - C) *
+          f *
+          sinAlpha *
+          (sigma +
+              C *
+                  sinSigma *
+                  (cosSigmaM2 + C * cosSigma * (-1 + 2 * cos2SigmaM2)));
 
   // eq. 12
   // double alpha2 = Math.atan2(sinAlpha, -sinU1 * sinSigma + cosU1 *

@@ -162,7 +162,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
     }
   }
 
-  int _getMultiFingerGestureFlags({int? gestureWinner, MapOptions? mapOptions}) {
+  int _getMultiFingerGestureFlags(
+      {int? gestureWinner, MapOptions? mapOptions}) {
     gestureWinner ??= _gestureWinner;
     mapOptions ??= options;
 
@@ -480,9 +481,10 @@ abstract class MapGestureMixin extends State<FlutterMap>
     }
 
     var direction = details.velocity.pixelsPerSecond / magnitude;
-    var distance =
-        (Offset.zero & Size(mapState.originalSize!.x as double, mapState.originalSize!.y as double))
-            .shortestSide;
+    var distance = (Offset.zero &
+            Size(mapState.originalSize!.x as double,
+                mapState.originalSize!.y as double))
+        .shortestSide;
 
     var _flingOffset = _focalStartLocal - _lastFocalLocal;
     _flingAnimation = Tween<Offset>(
