@@ -31,7 +31,7 @@ class Bounds<T extends num> {
     );
   }
 
-  /// This [Bounds] cental point.
+  /// This [Bounds] central point.
   CustomPoint<double> getCenter() {
     //TODO should this be a getter?
     return CustomPoint<double>(
