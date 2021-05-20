@@ -1,4 +1,4 @@
-## [0.13.0] - x/xx/2021
+## [0.13.0] - xx/xx/2021
 This version has support for sound null safety. For this purpose, some inactive packages were exchanged with active forks.
 
 - Sound null safety migration (#851, #870)
