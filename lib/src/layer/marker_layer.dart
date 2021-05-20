@@ -106,6 +106,7 @@ enum AnchorAlign {
 class Marker {
   final LatLng point;
   final WidgetBuilder builder;
+  final Key? key;
   final double width;
   final double height;
   final Anchor anchor;
@@ -137,6 +138,7 @@ class Marker {
   Marker({
     required this.point,
     required this.builder,
+    this.key,
     this.width = 30.0,
     this.height = 30.0,
     this.rotate,
@@ -240,6 +242,7 @@ class _MarkerLayerState extends State<MarkerLayer> {
 
           markers.add(
             Positioned(
+              key: marker.key,
               width: marker.width,
               height: marker.height,
               left: pos.x - width,

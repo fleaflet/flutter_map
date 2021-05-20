@@ -9,7 +9,7 @@ class NetworkImageWithRetry extends ImageProvider<NetworkImageWithRetry> {
 
   /// The scale to place in the [ImageInfo] object of the image.
   final double scale;
-  
+
   /// The http RetryClient that is used for the requests
   final RetryClient retryClient = RetryClient(Client());
 
@@ -17,13 +17,11 @@ class NetworkImageWithRetry extends ImageProvider<NetworkImageWithRetry> {
 
   @override
   ImageStreamCompleter load(NetworkImageWithRetry key, decode) {
-    return OneFrameImageStreamCompleter(
-        _loadWithRetry(key, decode),
+    return OneFrameImageStreamCompleter(_loadWithRetry(key, decode),
         informationCollector: () sync* {
-          yield ErrorDescription('Image provider: $this');
-          yield ErrorDescription('Image key: $key');
-        }
-    );
+      yield ErrorDescription('Image provider: $this');
+      yield ErrorDescription('Image key: $key');
+    });
   }
 
   @override
@@ -31,7 +29,8 @@ class NetworkImageWithRetry extends ImageProvider<NetworkImageWithRetry> {
     return SynchronousFuture<NetworkImageWithRetry>(this);
   }
 
-  Future<ImageInfo> _loadWithRetry(NetworkImageWithRetry key, DecoderCallback decode) async {
+  Future<ImageInfo> _loadWithRetry(
+      NetworkImageWithRetry key, DecoderCallback decode) async {
     assert(key == this);
 
     final uri = Uri.parse(url);

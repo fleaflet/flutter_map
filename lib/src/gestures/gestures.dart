@@ -2,13 +2,13 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/physics.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/gestures/interactive_flag.dart';
 import 'package:flutter_map/src/gestures/latlng_tween.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
-import 'package:flutter/physics.dart';
 
 abstract class MapGestureMixin extends State<FlutterMap>
     with TickerProviderStateMixin {
@@ -162,7 +162,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
     }
   }
 
-  int _getMultiFingerGestureFlags({int? gestureWinner, MapOptions? mapOptions}) {
+  int _getMultiFingerGestureFlags(
+      {int? gestureWinner, MapOptions? mapOptions}) {
     gestureWinner ??= _gestureWinner;
     mapOptions ??= options;
 
@@ -480,9 +481,10 @@ abstract class MapGestureMixin extends State<FlutterMap>
     }
 
     var direction = details.velocity.pixelsPerSecond / magnitude;
-    var distance =
-        (Offset.zero & Size(mapState.originalSize!.x as double, mapState.originalSize!.y as double))
-            .shortestSide;
+    var distance = (Offset.zero &
+            Size(mapState.originalSize!.x as double,
+                mapState.originalSize!.y as double))
+        .shortestSide;
 
     var _flingOffset = _focalStartLocal - _lastFocalLocal;
     _flingAnimation = Tween<Offset>(

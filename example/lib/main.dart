@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map_example/pages/network_tile_provider.dart';
 
 import './pages/animated_map_controller.dart';
 import './pages/circle.dart';
@@ -19,6 +20,7 @@ import './pages/plugin_scalebar.dart';
 import './pages/plugin_zoombuttons.dart';
 import './pages/polyline.dart';
 import './pages/sliding_map.dart';
+import './pages/stateful_markers.dart';
 import './pages/tap_to_add.dart';
 import './pages/tile_builder_example.dart';
 import './pages/tile_loading_error_handle.dart';
@@ -39,6 +41,7 @@ class MyApp extends StatelessWidget {
       ),
       home: HomePage(),
       routes: <String, WidgetBuilder>{
+        NetworkTileProviderPage.route: (context) => NetworkTileProviderPage(),
         WidgetsPage.route: (context) => WidgetsPage(),
         TapToAddPage.route: (context) => TapToAddPage(),
         EsriPage.route: (context) => EsriPage(),
@@ -64,6 +67,7 @@ class MyApp extends StatelessWidget {
         TileBuilderPage.route: (context) => TileBuilderPage(),
         InteractiveTestPage.route: (context) => InteractiveTestPage(),
         ManyMarkersPage.route: (context) => ManyMarkersPage(),
+        StatefulMarkersPage.route: (context) => StatefulMarkersPage(),
       },
     );
   }
