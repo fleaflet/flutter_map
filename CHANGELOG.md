@@ -1,3 +1,12 @@
+## [0.13.0] - xx/xx/2021
+This version has support for sound null safety. For this purpose, some inactive packages were exchanged with active forks.
+
+- Sound null safety migration (#851, #870)
+  - requires flutter version 2.0.0 or higher
+  - latlong is replaced with latlong2
+
+Thanks to escamoteur, ThexXTURBOXx, Sata51, tazik561, kengu, passsy, Ahmed-gubara and johnpryan for this release!
+
 ## [0.12.0] - 3/16/2021
 TileLayerOptions now takes some additional options, templateFunction,
 tileBuilder, tilesContainerBuilder, and evictErrorTileStrategy

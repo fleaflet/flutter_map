@@ -50,6 +50,7 @@ class Polyline {
 
 class PolylineLayerWidget extends StatelessWidget {
   final PolylineLayerOptions options;
+
   PolylineLayerWidget({Key? key, required this.options}) : super(key: key);
 
   @override

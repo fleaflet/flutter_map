@@ -36,6 +36,7 @@ linter:
     - prefer_null_aware_operators
     - prefer_single_quotes
     - prefer_typing_uninitialized_variables
+    - sort_pub_dependencies
     - test_types_in_equals
     - throw_in_finally
     - unnecessary_brace_in_string_interps

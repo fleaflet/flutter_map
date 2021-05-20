@@ -146,7 +146,7 @@ class TileLayerOptions extends LayerOptions {
   /// Tile image to show in place of the tile that failed to load.
   final ImageProvider? errorImage;
 
-  /// Static informations that should replace placeholders in the [urlTemplate].
+  /// Static information that should replace placeholders in the [urlTemplate].
   /// Applying API keys is a good example on how to use this parameter.
   ///
   /// Example:
@@ -333,7 +333,7 @@ class WMSTileLayerOptions {
   /// Version of the WMS service to use
   final String version;
 
-  /// tile transperency flag
+  /// tile transparency flag
   final bool transparent;
 
   // TODO find a way to implicit pass of current map [Crs]
@@ -1205,7 +1205,7 @@ class Tile implements Comparable<Tile> {
       : animationController!.value;
 
   // callback when tile is ready / error occurred
-  // it maybe be null forinstance when download aborted
+  // it maybe be null for instance when download aborted
   TileReady? tileReady;
   ImageInfo? imageInfo;
   ImageStream? _imageStream;
