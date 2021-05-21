@@ -65,7 +65,7 @@ MapOptions(
 ),
 ```
 
-### Azure Maps provider
+### Azure Maps Provider
 
 Configure the map to use [Azure Maps](https://azure.com/maps) by using the following `MapOptions` and layer options:
 
@@ -103,7 +103,7 @@ Widget build(BuildContext context) {
 
 To use Azure Maps you will need to [setup an account and get a subscription key](https://docs.microsoft.com/en-us/azure/azure-maps/quick-demo-map-app)
 
-### Open Street Map provider
+### Open Street Maps Provider
 
 Configure the map to use [Open Street Map](https://openstreetmap.org) by using the following `MapOptions` and layer options:
 
@@ -229,7 +229,7 @@ child: FlutterMap(
 
 For more details visit [Custom CRS demo page](./example/lib/pages/custom_crs/Readme.md).
 
-## Run the example
+## Run the Example
 
 See the `example/` folder for a working example app.
 
@@ -237,9 +237,59 @@ To run it, in a terminal cd into the folder.
 Then execute `ulimit -S -n 2048` ([ref](https://github.com/trentpiercy/trace/issues/1#issuecomment-404494469)).
 Then execute `flutter run` with a running emulator.
 
-## Preconfigured offline maps
+## Dynamic & Downloadable Offline Maps
 
-This method is only to use preconfigured and prepackaged offline maps. For advanced caching and ability to dynamically download an area, see the [flutter_map_tile_caching](https://github.com/JaffaKetchup/flutter_map_tile_caching) plugin.
+In `flutter_map`, there are no available tile providers that will provide caching or downloading, due to the extra dependencies needed to make this work. This section will guide through setting up caching and downloading functionality. If you would like to provide preconfigured and prepackaged map tiles to your app users, see the 'Preconfigured Offline Maps' section below.
+
+Full offline functionality, including caching and ability to download an area of map, is provided by the [`flutter_map_tile_caching`](https://github.com/JaffaKetchup/flutter_map_tile_caching) plugin package that is independently maintained. This will give you everything you need, however has the downsides of being an extra dependency for your app and having extra included dependencies for your app, both of which will increase your app's size and reliance on other developers.
+
+If you would like to setup this functionality using minimal or no extra dependencies, follow one of the two options below:
+
+1. Using Flutter's built-in `NetworkImage`:
+Flutter has a built in `ImageProvider` (`NetworkImage`) that only caches images in memory until an app restart. Create your own provider using the code below:
+```dart
+class CachedTileProvider extends TileProvider {
+  const CachedTileProvider();
+  @override
+  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
+    return NetworkImage(getTileUrl(coords, options));
+  }
+}
+```
+Then, add the `CachedTileProvider` `TileProvider` to the appropriate `TileLayerOptions`:
+```dart
+TileLayerOptions(
+  urlTemplate: 'https://example.com/{x}/{y}/{z}',
+  tileProvider: const CachedTileProvider()
+)
+```
+
+2. Using the `cached_network_image` dependency:
+This dependency has an `ImageProvider` that caches images to disk, which means the cache persists through an app restart. You'll need to [include the package](https://pub.dev/packages/cached_network_image/install) in your `pubspec.yaml`. Create your own provider using the code below:
+```dart
+import 'package:cached_network_image/cached_network_image.dart';
+class CachedTileProvider extends TileProvider {
+  const CachedTileProvider();
+  @override
+  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
+    return CachedNetworkImageProvider(
+      getTileUrl(coords, options),
+      //Now you can set options that determine how the image gets cached via whichever plugin you use.
+    );
+  }
+}
+```
+Then, add the `CachedTileProvider` `TileProvider` to the appropriate `TileLayerOptions`:
+```dart
+TileLayerOptions(
+  urlTemplate: 'https://example.com/{x}/{y}/{z}',
+  tileProvider: const CachedTileProvider()
+)
+```
+
+## Preconfigured Offline Maps
+
+This method is only to use preconfigured and prepackaged offline maps. For more flexibility, and to see how to setup caching and downloading, see the 'Dynamic & Downloadable Offline Maps' section above.
 
 First, [follow this guide to grab the tiles](https://tilemill-project.github.io/tilemill/docs/guides/osm-bright-mac-quickstart/).<br>
 Once you have your map exported to `.mbtiles`, you can use [mbtilesToPng](https://github.com/alfanhui/mbtilesToPngs) to unpack into `/{z}/{x}/{y}.png`.
