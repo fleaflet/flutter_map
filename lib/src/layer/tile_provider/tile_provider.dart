@@ -1,8 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/widgets.dart';
-import 'package:flutter_image/network.dart';
 import 'package:flutter_map/flutter_map.dart';
+
+import 'network_image_with_retry.dart';
 
 abstract class TileProvider {
   const TileProvider();

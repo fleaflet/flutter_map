@@ -12,7 +12,7 @@ dependencies:
   collection: ^1.15.0
   flutter:
     sdk: flutter
-  flutter_image: ^4.0.1
+  http: ^0.13.2
   intl: ^0.17.0
   latlong2: ^0.8.0
   positioned_tap_detector_2: ^1.0.0
