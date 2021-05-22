@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/gestures/interactive_flag.dart';
@@ -22,6 +23,21 @@ abstract class MapGestureMixin extends State<FlutterMap>
   void savePointer(PointerEvent event) => ++_pointerCounter;
 
   void removePointer(PointerEvent event) => --_pointerCounter;
+
+  void onPointerSignal(PointerSignalEvent pointerSignal) {
+    // Handle mouse scroll events if the enableScrollWheel parameter is enabled
+    if (pointerSignal is PointerScrollEvent &&
+        mapState.options.enableScrollWheel) {
+      // Check whether the mouse is scrolled down and calculate new zoom level
+      final delta = pointerSignal.scrollDelta.dy > 0 ? -1 : 1;
+      final newZoom = mapState.zoom + delta;
+      // Check whether the zoom level is valid and apply zoom level
+      if (newZoom >= mapState.options.minZoom &&
+          newZoom <= mapState.options.maxZoom) {
+        mapState.move(mapState.center, newZoom);
+      }
+    }
+  }
 
   var _rotationStarted = false;
   var _pinchZoomStarted = false;
