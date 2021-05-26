@@ -1,19 +1,21 @@
 import 'dart:async';
 import 'dart:math' as math;
+import 'dart:math';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/physics.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/gestures/interactive_flag.dart';
 import 'package:flutter_map/src/gestures/latlng_tween.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
-import 'package:flutter/physics.dart';
 
 abstract class MapGestureMixin extends State<FlutterMap>
     with TickerProviderStateMixin {
   static const double _kMinFlingVelocity = 800.0;
+  static const double _kDefaultMaxZoom = 25.0;
 
   var _dragMode = false;
   var _gestureWinner = MultiFingerGesture.none;
@@ -592,8 +594,10 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
   void handleScroll(Offset position, double delta) {
     // Makes scrolling slower when zoomed in
-    final scale =
-        3 - mapState.zoom / (mapState.options.maxZoom ?? double.infinity) * 1.5;
+    // The 2 is the base amount of scaling
+    // The 4 controls the influence of the current zoom level to the scale
+    final scale = 2 +
+        (mapState.options.maxZoom ?? _kDefaultMaxZoom) / (mapState.zoom * 4);
     final focalOffset = _offsetToPoint(position);
     final newZoom =
         _getZoomForScale(mapState.zoom, (delta > 0 ? -scale : scale));
@@ -675,13 +679,11 @@ abstract class MapGestureMixin extends State<FlutterMap>
   }
 
   void _handleScrollZoomAnimation() {
-    setState(() {
-      mapState.move(
-        _scrollCenterAnimation.value,
-        _scrollZoomAnimation.value,
-        hasGesture: false,
-      );
-    });
+    mapState.move(
+      _scrollCenterAnimation.value,
+      _scrollZoomAnimation.value,
+      hasGesture: false,
+    );
   }
 
   void handleOnTapUp(TapUpDetails details) {
@@ -765,8 +767,13 @@ abstract class MapGestureMixin extends State<FlutterMap>
   }
 
   double _getZoomForScale(double startZoom, double scale) {
-    var resultZoom =
-        startZoom + ((scale > 0 ? 1 : -1) * (math.log(scale.abs()) / math.ln2));
+    var resultZoom = max(
+      0,
+      min(
+        startZoom + ((scale > 0 ? 1 : -1) * (math.log(scale.abs()) / math.ln2)),
+        mapState.options.maxZoom ?? _kDefaultMaxZoom,
+      ),
+    );
     return mapState.fitZoomToBounds(resultZoom);
   }
 
