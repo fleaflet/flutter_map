@@ -122,8 +122,6 @@ abstract class MapController {
   /// through the [options] parameter.
   void fitBounds(LatLngBounds bounds, {FitBoundsOptions? options});
 
-  bool get ready;
-
   Future<Null> get onReady;
 
   LatLng get center;
@@ -221,10 +219,6 @@ class MapOptions {
 
   final double? minZoom;
   final double? maxZoom;
-  @deprecated
-  final bool debug; // TODO no usage outside of constructor. Marked for removal?
-  @Deprecated('use interactiveFlags instead')
-  final bool? interactive;
 
   /// see [InteractiveFlag] for custom settings
   final int interactiveFlags;
@@ -268,12 +262,7 @@ class MapOptions {
         MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
     this.minZoom,
     this.maxZoom,
-    @Deprecated('') this.debug = false,
-    @Deprecated('Use interactiveFlags instead') this.interactive,
-    // TODO: Change when [interactive] is removed.
-    // Change this to [this.interactiveFlags = InteractiveFlag.all] and remove
-    // [interactiveFlags] from initializer list
-    int? interactiveFlags,
+    this.interactiveFlags = InteractiveFlag.all,
     this.allowPanning = true,
     this.onTap,
     this.onLongPress,
@@ -286,9 +275,7 @@ class MapOptions {
     this.controller,
     this.swPanBoundary,
     this.nePanBoundary,
-  })  : interactiveFlags = interactiveFlags ??
-            (interactive == false ? InteractiveFlag.none : InteractiveFlag.all),
-        center = center ?? LatLng(50.5, 30.51),
+  })  : center = center ?? LatLng(50.5, 30.51),
         assert(rotationThreshold >= 0.0),
         assert(pinchZoomThreshold >= 0.0),
         assert(pinchMoveThreshold >= 0.0) {
@@ -365,7 +352,7 @@ class MapOptions {
   double _calculateScreenHeightInDegrees() =>
       screenSize!.height * 170.102258 / pow(2, _getControllerZoom() + 8);
 
-  double _getControllerZoom() => controller!.ready ? controller!.zoom : zoom;
+  double _getControllerZoom() => controller!.zoom;
 }
 
 class FitBoundsOptions {

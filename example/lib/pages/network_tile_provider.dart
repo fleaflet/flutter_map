@@ -56,7 +56,7 @@ class NetworkTileProviderPage extends StatelessWidget {
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
               child: Wrap(children: [
                 Text('This is a map that is using NetworkTileProvider.'),
-                Text('Turn on flight mode to see that images are cached.'),
+                Text('Turn on flight mode to see that images are not cached.'),
               ]),
             ),
             Flexible(

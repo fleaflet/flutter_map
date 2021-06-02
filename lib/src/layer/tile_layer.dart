@@ -925,7 +925,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     var pixelBounds = _getTiledPixelBounds(center);
     var tileRange = _pxBoundsToTileRange(pixelBounds);
-    var tileCenter = tileRange.getCenter();
+    var tileCenter = tileRange.center;
     final queue = <Coords<num>>[];
     var margin = options.keepBuffer;
     var noPruneRange = Bounds(
