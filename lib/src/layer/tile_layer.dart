@@ -111,9 +111,7 @@ class TileLayerOptions extends LayerOptions {
   final double opacity;
 
   /// Provider to load the tiles. The default is CachedNetworkTileProvider,
-  /// which loads tile images from network and caches them offline.
-  ///
-  /// If you don't want to cache the tiles, use NetworkTileProvider instead.
+  /// which loads tile images from network.
   ///
   /// In order to use images from the asset folder set this option to
   /// AssetTileProvider() Note that it requires the urlTemplate to target
