@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map_example/pages/marker_rotate.dart';
+import 'package:flutter_map_example/pages/network_tile_provider.dart';
 
 import '../pages/animated_map_controller.dart';
 import '../pages/circle.dart';
@@ -57,6 +58,12 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           context,
           const Text('OpenStreetMap'),
           HomePage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('NetworkTileProvider'),
+          NetworkTileProviderPage.route,
           currentRoute,
         ),
         _buildMenuItem(

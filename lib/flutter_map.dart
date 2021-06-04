@@ -66,18 +66,17 @@ class FlutterMap extends StatefulWidget {
   final MapOptions options;
 
   /// A [MapController], used to control the map.
-  final MapControllerImpl _mapController;
+  final MapControllerImpl? _mapController;
 
   FlutterMap({
-    Key key,
-    @required this.options,
+    Key? key,
+    required this.options,
     this.layers = const [],
     this.nonRotatedLayers = const [],
     this.children = const [],
     this.nonRotatedChildren = const [],
-    MapController mapController,
-  })  : assert(options != null, 'MapOptions cannot be null!'),
-        _mapController = mapController,
+    MapController? mapController,
+  })  : _mapController = mapController as MapControllerImpl?,
         super(key: key);
 
   @override
@@ -101,7 +100,7 @@ abstract class MapController {
   /// returns `true` if move was success (for example it won't be success if
   /// navigating to same place with same zoom or if center is out of bounds and
   /// [MapOptions.slideOnBoundaries] isn't enabled)
-  bool move(LatLng center, double zoom, {String id});
+  bool move(LatLng center, double zoom, {String? id});
 
   /// Sets the map rotation to a certain degrees angle (in decimal).
   ///
@@ -112,24 +111,22 @@ abstract class MapController {
   ///
   /// returns `true` if rotate was success (it won't be success if rotate is
   /// same as the old rotate)
-  bool rotate(double degree, {String id});
+  bool rotate(double degree, {String? id});
 
   /// Calls [move] and [rotate] together however layers will rebuild just once
   /// instead of twice
   MoveAndRotateResult moveAndRotate(LatLng center, double zoom, double degree,
-      {String id});
+      {String? id});
 
   /// Fits the map bounds. Optional constraints can be defined
   /// through the [options] parameter.
-  void fitBounds(LatLngBounds bounds, {FitBoundsOptions options});
-
-  bool get ready;
+  void fitBounds(LatLngBounds bounds, {FitBoundsOptions? options});
 
   Future<Null> get onReady;
 
   LatLng get center;
 
-  LatLngBounds get bounds;
+  LatLngBounds? get bounds;
 
   double get zoom;
 
@@ -220,39 +217,35 @@ class MapOptions {
   /// gestures will take effect see [MultiFingerGesture] for custom settings
   final int pinchMoveWinGestures;
 
-  final double minZoom;
-  final double maxZoom;
-  @deprecated
-  final bool debug; // TODO no usage outside of constructor. Marked for removal?
-  @Deprecated('use interactiveFlags instead')
-  final bool interactive;
+  final double? minZoom;
+  final double? maxZoom;
 
   /// see [InteractiveFlag] for custom settings
   final int interactiveFlags;
 
   final bool allowPanning;
 
-  final TapCallback onTap;
-  final LongPressCallback onLongPress;
-  final PositionCallback onPositionChanged;
-  final MapCreatedCallback onMapCreated;
+  final TapCallback? onTap;
+  final LongPressCallback? onLongPress;
+  final PositionCallback? onPositionChanged;
+  final MapCreatedCallback? onMapCreated;
   final List<MapPlugin> plugins;
   final bool slideOnBoundaries;
-  final Size screenSize;
+  final Size? screenSize;
   final bool adaptiveBoundaries;
-  final MapController controller;
+  final MapController? controller;
   final LatLng center;
-  final LatLngBounds bounds;
+  final LatLngBounds? bounds;
   final FitBoundsOptions boundsOptions;
-  final LatLng swPanBoundary;
-  final LatLng nePanBoundary;
+  final LatLng? swPanBoundary;
+  final LatLng? nePanBoundary;
 
-  _SafeArea _safeAreaCache;
-  double _safeAreaZoom;
+  _SafeArea? _safeAreaCache;
+  double? _safeAreaZoom;
 
   MapOptions({
     this.crs = const Epsg3857(),
-    LatLng center,
+    LatLng? center,
     this.bounds,
     this.boundsOptions = const FitBoundsOptions(),
     this.zoom = 13.0,
@@ -269,12 +262,7 @@ class MapOptions {
         MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
     this.minZoom,
     this.maxZoom,
-    @Deprecated('') this.debug = false,
-    @Deprecated('Use interactiveFlags instead') this.interactive,
-    // TODO: Change when [interactive] is removed.
-    // Change this to [this.interactiveFlags = InteractiveFlag.all] and remove
-    // [interactiveFlags] from initializer list
-    int interactiveFlags,
+    this.interactiveFlags = InteractiveFlag.all,
     this.allowPanning = true,
     this.onTap,
     this.onLongPress,
@@ -287,9 +275,7 @@ class MapOptions {
     this.controller,
     this.swPanBoundary,
     this.nePanBoundary,
-  })  : interactiveFlags = interactiveFlags ??
-            (interactive == false ? InteractiveFlag.none : InteractiveFlag.all),
-        center = center ?? LatLng(50.5, 30.51),
+  })  : center = center ?? LatLng(50.5, 30.51),
         assert(rotationThreshold >= 0.0),
         assert(pinchZoomThreshold >= 0.0),
         assert(pinchMoveThreshold >= 0.0) {
@@ -303,18 +289,18 @@ class MapOptions {
   }
 
   //if there is a pan boundary, do not cross
-  bool isOutOfBounds(LatLng center) {
+  bool isOutOfBounds(LatLng? center) {
     if (adaptiveBoundaries) {
-      return !_safeArea.contains(center);
+      return !_safeArea!.contains(center);
     }
     if (swPanBoundary != null && nePanBoundary != null) {
       if (center == null) {
         return true;
-      } else if (center.latitude < swPanBoundary.latitude ||
-          center.latitude > nePanBoundary.latitude) {
+      } else if (center.latitude < swPanBoundary!.latitude ||
+          center.latitude > nePanBoundary!.latitude) {
         return true;
-      } else if (center.longitude < swPanBoundary.longitude ||
-          center.longitude > nePanBoundary.longitude) {
+      } else if (center.longitude < swPanBoundary!.longitude ||
+          center.longitude > nePanBoundary!.longitude) {
         return true;
       }
     }
@@ -323,25 +309,26 @@ class MapOptions {
 
   LatLng containPoint(LatLng point, LatLng fallback) {
     if (adaptiveBoundaries) {
-      return _safeArea.containPoint(point, fallback);
+      return _safeArea!.containPoint(point, fallback);
     } else {
       return LatLng(
-        point.latitude.clamp(swPanBoundary.latitude, nePanBoundary.latitude),
-        point.longitude.clamp(swPanBoundary.longitude, nePanBoundary.longitude),
+        point.latitude.clamp(swPanBoundary!.latitude, nePanBoundary!.latitude),
+        point.longitude
+            .clamp(swPanBoundary!.longitude, nePanBoundary!.longitude),
       );
     }
   }
 
-  _SafeArea get _safeArea {
+  _SafeArea? get _safeArea {
     final controllerZoom = _getControllerZoom();
     if (controllerZoom != _safeAreaZoom || _safeAreaCache == null) {
       _safeAreaZoom = controllerZoom;
       final halfScreenHeight = _calculateScreenHeightInDegrees() / 2;
       final halfScreenWidth = _calculateScreenWidthInDegrees() / 2;
-      final southWestLatitude = swPanBoundary.latitude + halfScreenHeight;
-      final southWestLongitude = swPanBoundary.longitude + halfScreenWidth;
-      final northEastLatitude = nePanBoundary.latitude - halfScreenHeight;
-      final northEastLongitude = nePanBoundary.longitude - halfScreenWidth;
+      final southWestLatitude = swPanBoundary!.latitude + halfScreenHeight;
+      final southWestLongitude = swPanBoundary!.longitude + halfScreenWidth;
+      final northEastLatitude = nePanBoundary!.latitude - halfScreenHeight;
+      final northEastLongitude = nePanBoundary!.longitude - halfScreenWidth;
       _safeAreaCache = _SafeArea(
         LatLng(
           southWestLatitude,
@@ -359,19 +346,19 @@ class MapOptions {
   double _calculateScreenWidthInDegrees() {
     final zoom = _getControllerZoom();
     final degreesPerPixel = 360 / pow(2, zoom + 8);
-    return screenSize.width * degreesPerPixel;
+    return screenSize!.width * degreesPerPixel;
   }
 
   double _calculateScreenHeightInDegrees() =>
-      screenSize.height * 170.102258 / pow(2, _getControllerZoom() + 8);
+      screenSize!.height * 170.102258 / pow(2, _getControllerZoom() + 8);
 
-  double _getControllerZoom() => controller.ready ? controller.zoom : zoom;
+  double _getControllerZoom() => controller!.zoom;
 }
 
 class FitBoundsOptions {
   final EdgeInsets padding;
   final double maxZoom;
-  final double zoom;
+  final double? zoom;
 
   const FitBoundsOptions({
     this.padding = const EdgeInsets.all(0.0),
@@ -382,9 +369,9 @@ class FitBoundsOptions {
 
 /// Position's type for [PositionCallback].
 class MapPosition {
-  final LatLng center;
-  final LatLngBounds bounds;
-  final double zoom;
+  final LatLng? center;
+  final LatLngBounds? bounds;
+  final double? zoom;
   final bool hasGesture;
 
   MapPosition({this.center, this.bounds, this.zoom, this.hasGesture = false});

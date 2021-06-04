@@ -14,30 +14,30 @@ class CustomCrsPage extends StatefulWidget {
 }
 
 class _CustomCrsPageState extends State<CustomCrsPage> {
-  Proj4Crs epsg3413CRS;
+  late final Proj4Crs epsg3413CRS;
 
-  double maxZoom;
+  double? maxZoom;
 
   // Define start center
   proj4.Point point = proj4.Point(x: 65.05166470332148, y: -19.171744826394896);
 
   String initText = 'Map centered to';
 
-  proj4.Projection epsg4326;
+  late final proj4.Projection epsg4326;
 
-  proj4.Projection epsg3413;
+  late final proj4.Projection epsg3413;
 
   @override
   void initState() {
     super.initState();
 
     // EPSG:4326 is a predefined projection ships with proj4dart
-    epsg4326 = proj4.Projection('EPSG:4326');
+    epsg4326 = proj4.Projection.get('EPSG:4326')!;
 
     // EPSG:3413 is a user-defined projection from a valid Proj4 definition string
     // From: http://epsg.io/3413, proj definition: http://epsg.io/3413.proj4
     // Find Projection by name or define it if not exists
-    epsg3413 = proj4.Projection('EPSG:3413') ??
+    epsg3413 = proj4.Projection.get('EPSG:3413') ??
         proj4.Projection.add('EPSG:3413',
             '+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs');
 

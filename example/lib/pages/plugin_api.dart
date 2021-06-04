@@ -46,9 +46,9 @@ class PluginPage extends StatelessWidget {
 class MyCustomPluginOptions extends LayerOptions {
   final String text;
   MyCustomPluginOptions({
-    Key key,
+    Key? key,
     this.text = '',
-    Stream<Null> rebuild,
+    Stream<Null>? rebuild,
   }) : super(key: key, rebuild: rebuild);
 }
 

@@ -6,9 +6,9 @@ class MapStateInheritedWidget extends InheritedWidget {
   final MapState mapState;
 
   MapStateInheritedWidget({
-    Key key,
-    @required this.mapState,
-    @required Widget child,
+    Key? key,
+    required this.mapState,
+    required Widget child,
   }) : super(key: key, child: child);
 
   @override
@@ -19,7 +19,7 @@ class MapStateInheritedWidget extends InheritedWidget {
     return true;
   }
 
-  static MapStateInheritedWidget of(BuildContext context) {
+  static MapStateInheritedWidget? maybeOf(BuildContext context) {
     return context
         .dependOnInheritedWidgetOfExactType<MapStateInheritedWidget>();
   }

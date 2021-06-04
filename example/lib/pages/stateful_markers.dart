@@ -14,7 +14,7 @@ class StatefulMarkersPage extends StatefulWidget {
 }
 
 class _StatefulMarkersPageState extends State<StatefulMarkersPage> {
-  List<Marker> _markers;
+  late List<Marker> _markers;
   final Random _random = Random();
 
   @override
@@ -84,14 +84,14 @@ class _StatefulMarkersPageState extends State<StatefulMarkersPage> {
 }
 
 class _ColorMarker extends StatefulWidget {
-  _ColorMarker({Key key}) : super(key: key);
+  _ColorMarker({Key? key}) : super(key: key);
 
   @override
   _ColorMarkerState createState() => _ColorMarkerState();
 }
 
 class _ColorMarkerState extends State<_ColorMarker> {
-  Color color;
+  late final Color color;
 
   @override
   void initState() {

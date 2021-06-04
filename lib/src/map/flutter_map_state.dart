@@ -19,10 +19,11 @@ class FlutterMapState extends MapGestureMixin {
   MapOptions get options => widget.options;
 
   @override
-  MapState mapState;
+  late final MapState mapState;
 
-  FlutterMapState(MapController mapController)
-      : mapController = mapController ?? MapController();
+  FlutterMapState(MapController? mapController)
+      : mapController = mapController as MapControllerImpl? ??
+            MapController() as MapControllerImpl;
 
   @override
   void didUpdateWidget(FlutterMap oldWidget) {
@@ -41,7 +42,7 @@ class FlutterMapState extends MapGestureMixin {
 
     // Callback onMapCreated if not null
     if (options.onMapCreated != null) {
-      options.onMapCreated(mapController);
+      options.onMapCreated!(mapController);
     }
   }
 
@@ -63,11 +64,11 @@ class FlutterMapState extends MapGestureMixin {
   }
 
   Stream<Null> _merge(LayerOptions options) {
-    if (options?.rebuild == null) return mapState.onMoved;
+    if (options.rebuild == null) return mapState.onMoved;
 
     var group = StreamGroup<Null>();
     group.add(mapState.onMoved);
-    group.add(options.rebuild);
+    group.add(options.rebuild!);
     groups.add(group);
     return group.stream;
   }
@@ -103,19 +104,16 @@ class FlutterMapState extends MapGestureMixin {
                 child: Stack(
                   children: [
                     OverflowBox(
-                      minWidth: size.x,
-                      maxWidth: size.x,
-                      minHeight: size.y,
-                      maxHeight: size.y,
+                      minWidth: size.x as double?,
+                      maxWidth: size.x as double?,
+                      minHeight: size.y as double?,
+                      maxHeight: size.y as double?,
                       child: Transform.rotate(
                         angle: mapState.rotationRad,
                         child: Stack(
                           children: [
-                            if (widget.children != null &&
-                                widget.children.isNotEmpty)
-                              ...widget.children,
-                            if (widget.layers != null &&
-                                widget.layers.isNotEmpty)
+                            if (widget.children.isNotEmpty) ...widget.children,
+                            if (widget.layers.isNotEmpty)
                               ...widget.layers.map(
                                 (layer) => _createLayer(layer, options.plugins),
                               )
@@ -125,11 +123,9 @@ class FlutterMapState extends MapGestureMixin {
                     ),
                     Stack(
                       children: [
-                        if (widget.nonRotatedChildren != null &&
-                            widget.nonRotatedChildren.isNotEmpty)
+                        if (widget.nonRotatedChildren.isNotEmpty)
                           ...widget.nonRotatedChildren,
-                        if (widget.nonRotatedLayers != null &&
-                            widget.nonRotatedLayers.isNotEmpty)
+                        if (widget.nonRotatedLayers.isNotEmpty)
                           ...widget.nonRotatedLayers.map(
                             (layer) => _createLayer(layer, options.plugins),
                           )
@@ -173,10 +169,9 @@ class FlutterMapState extends MapGestureMixin {
     if (options is OverlayImageLayerOptions) {
       return OverlayImageLayer(options, mapState, _merge(options));
     }
-    assert(false, """
+    throw (StateError("""
 Can't find correct layer for $options. Perhaps when you create your FlutterMap you need something like this:
 
-    options: new MapOptions(plugins: [MyFlutterMapPlugin()])""");
-    return null;
+    options: new MapOptions(plugins: [MyFlutterMapPlugin()])"""));
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map_example/pages/network_tile_provider.dart';
 
 import './pages/animated_map_controller.dart';
 import './pages/circle.dart';
@@ -40,6 +41,7 @@ class MyApp extends StatelessWidget {
       ),
       home: HomePage(),
       routes: <String, WidgetBuilder>{
+        NetworkTileProviderPage.route: (context) => NetworkTileProviderPage(),
         WidgetsPage.route: (context) => WidgetsPage(),
         TapToAddPage.route: (context) => TapToAddPage(),
         EsriPage.route: (context) => EsriPage(),

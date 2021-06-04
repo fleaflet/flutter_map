@@ -1,8 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/widgets.dart';
-import 'package:flutter_image/network.dart';
 import 'package:flutter_map/flutter_map.dart';
+
+import 'network_image_with_retry.dart';
 
 abstract class TileProvider {
   const TileProvider();
@@ -13,7 +14,7 @@ abstract class TileProvider {
 
   String getTileUrl(Coords coords, TileLayerOptions options) {
     var urlTemplate = (options.wmsOptions != null)
-        ? options.wmsOptions
+        ? options.wmsOptions!
             .getUrl(coords, options.tileSize.toInt(), options.retinaMode)
         : options.urlTemplate;
 
@@ -31,7 +32,7 @@ abstract class TileProvider {
     }
     var allOpts = Map<String, String>.from(data)
       ..addAll(options.additionalOptions);
-    return options.templateFunction(urlTemplate, allOpts);
+    return options.templateFunction(urlTemplate!, allOpts);
   }
 
   double _getZoomForUrl(Coords coords, TileLayerOptions options) {
@@ -91,7 +92,7 @@ class FileTileProvider extends TileProvider {
 class CustomTileProvider extends TileProvider {
   final String Function(Coords coors, TileLayerOptions options) customTileUrl;
 
-  const CustomTileProvider({@required this.customTileUrl});
+  const CustomTileProvider({required this.customTileUrl});
 
   @override
   String getTileUrl(Coords coords, TileLayerOptions options) {
