@@ -49,7 +49,7 @@ class TileLayerOptions extends LayerOptions {
   /// Is translated to this:
   ///
   /// https://a.tile.openstreetmap.org/12/2177/1259.png
-  final String urlTemplate;
+  final String? urlTemplate;
 
   /// If `true`, inverses Y axis numbering for tiles (turn this on for
   /// [TMS](https://en.wikipedia.org/wiki/Tile_Map_Service) services).
@@ -242,7 +242,8 @@ class TileLayerOptions extends LayerOptions {
 
   TileLayerOptions({
     Key? key,
-    required this.urlTemplate,
+    // TODO: make required
+    this.urlTemplate,
     double tileSize = 256.0,
     double minZoom = 0.0,
     double maxZoom = 18.0,
