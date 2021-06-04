@@ -16,7 +16,8 @@ dependencies:
 
 ### Android
 
-Ensure the following permission is present in your Android Manifest file, located in `<project root>/android/app/src/main/AndroidManifest.xml`:
+Configure your app to use the `INTERNET` permission in the manifest file located
+in `<project root>/android/app/src/main/AndroidManifest.xml`:
 
 ```xml
 <uses-permission android:name="android.permission.INTERNET"/>
@@ -56,7 +57,8 @@ Widget build(BuildContext context) {
 }
 ```
 
-Alternatively initialize the map by specifying bounds instead of center and zoom.
+Alternatively, initialize the map by specifying `bounds` instead of `center` and
+`zoom`.
 
 ```dart
 MapOptions(
@@ -67,7 +69,8 @@ MapOptions(
 
 ### Azure Maps provider
 
-Configure the map to use [Azure Maps](https://azure.com/maps) by using the following `MapOptions` and layer options:
+To configure [Azure Maps](https://azure.com/maps),  use the following
+`MapOptions` and layer options:
 
 ```dart
 Widget build(BuildContext context) {
@@ -101,11 +104,13 @@ Widget build(BuildContext context) {
 }
 ```
 
-To use Azure Maps you will need to [setup an account and get a subscription key](https://docs.microsoft.com/en-us/azure/azure-maps/quick-demo-map-app)
+To use Azure Maps, [set up an account and get a subscription
+key][azure-maps-instructions]
 
 ### Open Street Map provider
 
-Configure the map to use [Open Street Map](https://openstreetmap.org) by using the following `MapOptions` and layer options:
+Configure the map to use [Open Street Map][open-street-map] by using
+the following `MapOptions` and layer options:
 
 ```dart
 Widget build(BuildContext context) {
@@ -188,9 +193,11 @@ Widget build(BuildContext context) {
 
 ### Custom CRS
 
-By default flutter_map supports only WGS84 (EPSG:4326) and Google Mercator (EPSG:3857) projections. With the integration of [proj4dart](https://github.com/maRci002/proj4dart) any coordinate reference systems (CRS) can be defined and used.
+By default flutter_map supports only WGS84 (EPSG:4326) and Google Mercator
+(EPSG:3857) projections. The [proj4dart][proj4dart] package provides additional 
+reference systems (CRS).
 
-Define custom CRS:
+To use proj4dart, first define a custom CRS:
 
 ```dart
 var resolutions = <double>[32768, 16384, 8192, 4096, 2048, 1024, 512, 256, 128];
@@ -204,7 +211,7 @@ var epsg3413CRS = Proj4Crs.fromFactory(
 );
 ```
 
-Use Custom CRS in map and in WMS layers:
+Then use the custom CRS in the map layer and in WMS layers:
 
 ```dart
 child: FlutterMap(
@@ -227,23 +234,27 @@ child: FlutterMap(
 );
 ```
 
-For more details visit [Custom CRS demo page](./example/lib/pages/custom_crs/Readme.md).
+For more details, see the  [custom CRS README][custom-crs-readme].
 
 ## Run the example
 
 See the `example/` folder for a working example app.
 
-To run it, in a terminal cd into the folder.
-Then execute `ulimit -S -n 2048` ([ref](https://github.com/trentpiercy/trace/issues/1#issuecomment-404494469)).
-Then execute `flutter run` with a running emulator.
+To run it, in a terminal cd into the folder. Then execute `ulimit -S -n 2048`
+([ref][ulimit-comment]). Then execute `flutter run` with a running emulator.
 
 ## Preconfigured offline maps
 
-This method is only to use preconfigured and prepackaged offline maps. For advanced caching and ability to dynamically download an area, see the [flutter_map_tile_caching](https://github.com/JaffaKetchup/flutter_map_tile_caching) plugin.
+This method is only to use preconfigured and prepackaged offline maps. For
+advanced caching and ability to dynamically download an area, see the
+[flutter_map_tile_caching][flutter_map_tile_caching] plugin.
 
-First, [follow this guide to grab the tiles](https://tilemill-project.github.io/tilemill/docs/guides/osm-bright-mac-quickstart/).<br>
-Once you have your map exported to `.mbtiles`, you can use [mbtilesToPng](https://github.com/alfanhui/mbtilesToPngs) to unpack into `/{z}/{x}/{y}.png`.
-Move this to Assets folder and add asset directories to `pubspec.yaml`. Minimum required fields for offline maps are:
+First, find which tiles you would like to use through a service such as
+[tilemill][tilemill]. You should have tiles exported into the `.mbtiles` format.
+
+Then use [mbtilesToPng][mbtilesToPngs] to unpack into `/{z}/{x}/{y}.png`. Move
+this to the assets folder and add the asset directories to `pubspec.yaml`. The
+minimum required fields for offline maps are:
 
 ```dart
 Widget build(ctx) {
@@ -264,10 +275,12 @@ Widget build(ctx) {
 }
 ```
 
-Make sure PanBoundaries are within offline map boundary to stop missing asset errors.<br>
+A missing asset error will be thrown if the PanBoundaries are outside the
+offline map boundary.
+
 See the `flutter_map_example/` folder for a working example.
 
-Note that there is also `FileTileProvider()`, which you can use to load tiles from the filesystem.
+See also `FileTileProvider()`, which loads tiles from the filesystem.
 
 ## Plugins
 
@@ -286,6 +299,14 @@ Note that there is also `FileTileProvider()`, which you can use to load tiles fr
 
 For the latest roadmap, please see the [Issue Tracker]
 
+[Issue Tracker]: https://github.com/johnpryan/flutter_map/issues
 [Leaflet]: http://leafletjs.com/
 [Mapbox]: https://www.mapbox.com/
-[Issue Tracker]: https://github.com/johnpryan/flutter_map/issues
+[azure-maps-instructions]: https://docs.microsoft.com/en-us/azure/azure-maps/quick-demo-map-app
+[custom-crs-readme]: ./example/lib/pages/custom_crs/Readme.md
+[flutter_map_tile_caching]: https://github.com/JaffaKetchup/flutter_map_tile_caching
+[mbTilesToPng]: https://github.com/alfanhui/mbtilesToPngs
+[open-street-map]: https://openstreetmap.org 
+[tilemill]: https://tilemill-project.github.io/tilemill/docs/guides/osm-bright-mac-quickstart/
+[ulimit-comment]: https://github.com/trentpiercy/trace/issues/1#issuecomment-404494469
+[proj4dart]: https://github.com/maRci002/proj4dart
