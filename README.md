@@ -234,38 +234,37 @@ For more details visit [Custom CRS demo page](./example/lib/pages/custom_crs/Rea
 See the `example/` folder for a working example app.
 
 To run it, in a terminal cd into the folder.
-Then execute `ulimit -S -n 2048` ([ref](https://github.com/trentpiercy/trace/issues/1#issuecomment-404494469)).
+You may need to then execute `ulimit -S -n 2048` ([ref](https://github.com/trentpiercy/trace/issues/1#issuecomment-404494469)).
 Then execute `flutter run` with a running emulator.
 
-## Dynamic & Downloadable Offline Maps
+## Dynamically Downloading & Caching Offline Maps
 
-In `flutter_map`, there are no available tile providers that will provide caching or downloading, due to the extra dependencies needed to make this work. This section will guide through setting up caching and downloading functionality. If you would like to provide preconfigured and prepackaged map tiles to your app users, see the 'Preconfigured Offline Maps' section below.
+In `flutter_map`, there are no available tile providers that will provide fully reliable caching or downloading, due to the extra dependencies needed to make this work. The only included tile provider that will handle caching at all is described below, but be aware that this is not fully functional. This section will guide through setting up caching and downloading functionality. If you would like to provide preconfigured and prepackaged map tiles to your app users, see the 'Preconfigured Offline Maps' section below.
 
 Full offline functionality, including caching and ability to download an area of map, is provided by the [`flutter_map_tile_caching`](https://github.com/JaffaKetchup/flutter_map_tile_caching) plugin package that is independently maintained. This will give you everything you need, however has the downsides of being an extra dependency for your app and having extra included dependencies for your app, both of which will increase your app's size and reliance on other developers.
 
-If you would like to setup this functionality using minimal or no extra dependencies, follow one of the two options below:
+If you would like to setup this functionality using minimal or no extra dependencies and without the plugin mentioned above, follow one of the two options below depending on your required use case (number 2 is recommended):
 
-1. Using Flutter's built-in `NetworkImage`:
-Flutter has a built in `ImageProvider` (`NetworkImage`) that only caches images in memory until an app restart. Create your own provider using the code below:
-```dart
-class CachedTileProvider extends TileProvider {
-  const CachedTileProvider();
-  @override
-  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
-    return NetworkImage(getTileUrl(coords, options));
-  }
-}
-```
-Then, add the `CachedTileProvider` `TileProvider` to the appropriate `TileLayerOptions`:
-```dart
-TileLayerOptions(
-  urlTemplate: 'https://example.com/{x}/{y}/{z}',
-  tileProvider: const CachedTileProvider()
-)
-```
+### 1. Use Flutter's built-in `NetworkImage` through the `NonCachingNetworkTileProvider`:
 
-2. Using the `cached_network_image` dependency:
-This dependency has an `ImageProvider` that caches images to disk, which means the cache persists through an app restart. You'll need to [include the package](https://pub.dev/packages/cached_network_image/install) in your `pubspec.yaml`. Create your own provider using the code below:
+Whilst the name might make you think differently, it is designed to prevent you from using it and expecting it to cache; because it doesn't.
+
+The `FlutterMap` `NonCachingNetworkTileProvider` implementaion uses `NetworkImage` which should cache images in memory until the app restart (through `Image.network`). However this is made even more confusing in the official Flutter docs. See the differences about caching between these two pages: https://api.flutter.dev/flutter/widgets/Image/Image.network.html and https://flutter.dev/docs/cookbook/images/network-image#placeholders-and-caching.
+
+These two lines conflict:
+> All network images are cached regardless of HTTP headers.
+
+, and:
+
+> The default Image.network constructor doesn’t handle more advanced functionality, such as [...] caching images to the device after they’re downloaded.
+
+Therefore, unless you want to only cache until the app is restarted, you must use the second option below.
+
+### 2. Using the `cached_network_image` dependency:
+
+This dependency has an `ImageProvider` that caches images to disk, which means the cache persists through an app restart. You'll need to [include the package](https://pub.dev/packages/cached_network_image/install) in your `pubspec.yaml`.
+
+Create your own provider using the code below:
 ```dart
 import 'package:cached_network_image/cached_network_image.dart';
 class CachedTileProvider extends TileProvider {
@@ -289,11 +288,15 @@ TileLayerOptions(
 
 ## Preconfigured Offline Maps
 
-This method is only to use preconfigured and prepackaged offline maps. For more flexibility, and to see how to setup caching and downloading, see the 'Dynamic & Downloadable Offline Maps' section above.
+This method is only to use preconfigured and prepackaged offline maps. For more flexibility, and to see how to setup caching and downloading, see the 'Dynamically Downloading & Caching Offline Maps' section above.
 
-First, [follow this guide to grab the tiles](https://tilemill-project.github.io/tilemill/docs/guides/osm-bright-mac-quickstart/).<br>
-Once you have your map exported to `.mbtiles`, you can use [mbtilesToPng](https://github.com/alfanhui/mbtilesToPngs) to unpack into `/{z}/{x}/{y}.png`.
-Move this to Assets folder and add asset directories to `pubspec.yaml`. Minimum required fields for offline maps are:
+This guide uses an open source program called [TileMill](https://tilemill-project.github.io/tilemill/). There is, however, an issue with lack of maintanace of this software. As of writing/updating on the 04th June 2021, the repo has not had an update since 13th October 2019, and there is [an issue debating what TileMill's future is](https://github.com/tilemill-project/tilemill/issues/2740). However, TileMill does still work, if not with some complicated installation process.
+
+First, install TileMill on your machine. This may be from source, or there may be a package available for your operating system. It is recommended to install the newest version. Installation instructions can be found here https://tilemill-project.github.io/tilemill/docs/install/.
+
+Then, [follow this guide to grab the tiles](https://tilemill-project.github.io/tilemill/docs/guides/osm-bright-mac-quickstart/). Once you have your map exported to `.mbtiles`, you can use [mbtilesToPng](https://github.com/alfanhui/mbtilesToPngs) to unpack into `/{z}/{x}/{y}.png`.
+
+Move this to assets folder and add the appropriate asset directories to `pubspec.yaml`. Minimum required fields for this solution are:
 
 ```dart
 Widget build(ctx) {
@@ -314,8 +317,9 @@ Widget build(ctx) {
 }
 ```
 
-Make sure PanBoundaries are within offline map boundary to stop missing asset errors.<br>
-See the `flutter_map_example/` folder for a working example.
+Make sure PanBoundaries are within offline map boundary to stop missing asset errors.
+
+See the example folder for a working example.
 
 Note that there is also `FileTileProvider()`, which you can use to load tiles from the filesystem.
 
