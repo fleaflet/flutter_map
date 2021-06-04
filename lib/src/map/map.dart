@@ -52,10 +52,6 @@ class MapControllerImpl implements MapController {
   }
 
   @override
-  // TODO Remove getter since ready is always true (breaking change, was '=> _state != null' when state is never null)
-  bool get ready => true;
-
-  @override
   LatLng get center => _state.center;
 
   @override

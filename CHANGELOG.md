@@ -4,10 +4,15 @@ This version has support for sound null safety. For this purpose, some inactive 
 - Sound null safety migration (#851, #870)
   - requires flutter version 2.0.0 or higher
   - latlong is replaced with latlong2
+  - ready-flag on map has been removed
 - Remove the package flutter_image and add http instead (#894)
   - http has to be version 0.13.2 or higher for this package (#894)
+- Removed deprecated properties
+  - debug property has been removed
+  - interactive has been replaced by interactiveFlags
+- Bounds getCenter has been replaced by center getter
 
-Thanks to escamoteur, ThexXTURBOXx, Sata51, tazik561, kengu, passsy, Ahmed-gubara, johnpryan and josxha for this release!
+Thanks to escamoteur, ThexXTURBOXx, Sata51, tazik561, kengu, passsy, Ahmed-gubara, johnpryan, josxha and andreandersson for this release!
 
 ## [0.12.0] - 3/16/2021
 TileLayerOptions now takes some additional options, templateFunction,

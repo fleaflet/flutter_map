@@ -110,10 +110,10 @@ class TileLayerOptions extends LayerOptions {
   /// Opacity of the rendered tile
   final double opacity;
 
-  /// Provider to load the tiles. The default is CachedNetworkTileProvider,
-  /// which loads tile images from network and caches them offline.
-  ///
-  /// If you don't want to cache the tiles, use NetworkTileProvider instead.
+  /// Provider to load the tiles. The default is `NonCachingNetworkTileProvider()` which
+  /// doesn't cache tiles and won't retry the HTTP request. Use `NetworkTileProvider()` for
+  /// a provider which will retry requests. For the best caching implementations, see the
+  /// flutter_map readme. 
   ///
   /// In order to use images from the asset folder set this option to
   /// AssetTileProvider() Note that it requires the urlTemplate to target
@@ -925,7 +925,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     var pixelBounds = _getTiledPixelBounds(center);
     var tileRange = _pxBoundsToTileRange(pixelBounds);
-    var tileCenter = tileRange.getCenter();
+    var tileCenter = tileRange.center;
     final queue = <Coords<num>>[];
     var margin = options.keepBuffer;
     var noPruneRange = Bounds(
