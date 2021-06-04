@@ -7,9 +7,9 @@ class GroupLayerOptions extends LayerOptions {
   List<LayerOptions> group = <LayerOptions>[];
 
   GroupLayerOptions({
-    required Key key,
-    required this.group,
-    required Stream<Null> rebuild,
+    Key? key,
+    this.group = const [],
+    Stream<Null>? rebuild,
   }) : super(key: key, rebuild: rebuild);
 }
 
