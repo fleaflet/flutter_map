@@ -37,7 +37,8 @@ StreamTransformer<T, T> throttleStreamTransformerWithTrailingCall<T>(
   T recentData;
   var trailingCall = false;
 
-  late void Function(T data, EventSink<T> sink) throttleHandler;
+  late final void Function(T data, EventSink<T> sink) throttleHandler;
+
   throttleHandler = (T data, EventSink<T> sink) {
     recentData = data;
 

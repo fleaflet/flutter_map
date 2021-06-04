@@ -15,7 +15,7 @@ class LiveLocationPage extends StatefulWidget {
 
 class _LiveLocationPageState extends State<LiveLocationPage> {
   LocationData? _currentLocation;
-  late MapController _mapController;
+  late final MapController _mapController;
 
   bool _liveUpdate = false;
   bool _permission = false;

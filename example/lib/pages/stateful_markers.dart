@@ -91,7 +91,7 @@ class _ColorMarker extends StatefulWidget {
 }
 
 class _ColorMarkerState extends State<_ColorMarker> {
-  late Color color;
+  late final Color color;
 
   @override
   void initState() {

@@ -31,22 +31,22 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
   // Helps to reset ScaleUpdateDetails.scale back to 1.0 when a multi finger
   // gesture wins
-  late double _scaleCorrector;
+  late final double _scaleCorrector;
 
-  late double _lastRotation;
-  late double _lastScale;
-  late Offset _lastFocalLocal;
+  late final double _lastRotation;
+  late final double _lastScale;
+  late final Offset _lastFocalLocal;
 
-  late LatLng _mapCenterStart;
-  late double _mapZoomStart;
-  late Offset _focalStartLocal;
+  late final LatLng _mapCenterStart;
+  late final double _mapZoomStart;
+  late final Offset _focalStartLocal;
 
-  late AnimationController _flingController;
-  late Animation<Offset> _flingAnimation;
+  late final AnimationController _flingController;
+  late final Animation<Offset> _flingAnimation;
 
-  late AnimationController _doubleTapController;
-  late Animation _doubleTapZoomAnimation;
-  late Animation _doubleTapCenterAnimation;
+  late final AnimationController _doubleTapController;
+  late final Animation _doubleTapZoomAnimation;
+  late final Animation _doubleTapCenterAnimation;
 
   int _tapUpCounter = 0;
   Timer? _doubleTapHoldMaxDelay;

@@ -19,7 +19,7 @@ class FlutterMapState extends MapGestureMixin {
   MapOptions get options => widget.options;
 
   @override
-  late MapState mapState;
+  late final MapState mapState;
 
   FlutterMapState(MapController? mapController)
       : mapController = mapController as MapControllerImpl? ??

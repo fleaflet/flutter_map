@@ -342,9 +342,9 @@ class WMSTileLayerOptions {
   /// other request parameters
   final Map<String, String> otherParameters;
 
-  late String _encodedBaseUrl;
+  late final String _encodedBaseUrl;
 
-  late double _versionNumber;
+  late final double _versionNumber;
 
   WMSTileLayerOptions({
     required this.baseUrl,
@@ -435,7 +435,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   MapState get map => widget.mapState;
 
   TileLayerOptions get options => widget.options;
-  late Bounds _globalTileRange;
+  late final Bounds _globalTileRange;
   Tuple2<double, double>? _wrapX;
   Tuple2<double, double>? _wrapY;
   double? _tileZoom;

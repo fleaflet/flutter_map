@@ -16,12 +16,12 @@ class InteractiveTestPage extends StatefulWidget {
 }
 
 class _InteractiveTestPageState extends State<InteractiveTestPage> {
-  late MapController mapController;
+  late final MapController mapController;
 
   // Enable pinchZoom and doubleTapZoomBy by default
   int flags = InteractiveFlag.pinchZoom | InteractiveFlag.doubleTapZoom;
 
-  late StreamSubscription<MapEvent> subscription;
+  late final StreamSubscription<MapEvent> subscription;
 
   @override
   void initState() {

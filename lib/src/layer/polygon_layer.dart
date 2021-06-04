@@ -35,7 +35,7 @@ class Polygon {
   final Color borderColor;
   final bool disableHolesBorder;
   final bool isDotted;
-  late LatLngBounds boundingBox;
+  late final LatLngBounds boundingBox;
 
   Polygon({
     required this.points,

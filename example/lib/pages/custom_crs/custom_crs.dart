@@ -14,7 +14,7 @@ class CustomCrsPage extends StatefulWidget {
 }
 
 class _CustomCrsPageState extends State<CustomCrsPage> {
-  late Proj4Crs epsg3413CRS;
+  late final Proj4Crs epsg3413CRS;
 
   double? maxZoom;
 
@@ -23,9 +23,9 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
 
   String initText = 'Map centered to';
 
-  late proj4.Projection epsg4326;
+  late final proj4.Projection epsg4326;
 
-  late proj4.Projection epsg3413;
+  late final proj4.Projection epsg3413;
 
   @override
   void initState() {

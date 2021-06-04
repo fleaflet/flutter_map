@@ -34,7 +34,7 @@ class Polyline {
   final List<Color>? gradientColors;
   final List<double>? colorsStop;
   final bool isDotted;
-  late LatLngBounds boundingBox;
+  late final LatLngBounds boundingBox;
 
   Polyline({
     required this.points,

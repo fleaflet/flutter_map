@@ -21,7 +21,7 @@ class MapControllerPageState extends State<MapControllerPage> {
   static LatLng paris = LatLng(48.8566, 2.3522);
   static LatLng dublin = LatLng(53.3498, -6.2603);
 
-  late MapController mapController;
+  late final MapController mapController;
   double rotation = 0.0;
 
   @override
@@ -192,7 +192,7 @@ class _CurrentLocationState extends State<CurrentLocation> {
   int _eventKey = 0;
 
   var icon = Icons.gps_not_fixed;
-  late StreamSubscription<MapEvent> mapEventSubscription;
+  late final StreamSubscription<MapEvent> mapEventSubscription;
 
   @override
   void initState() {

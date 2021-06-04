@@ -17,7 +17,7 @@ class MovingMarkersPage extends StatefulWidget {
 
 class _MovingMarkersPageState extends State<MovingMarkersPage> {
   Marker? _marker;
-  late Timer _timer;
+  late final Timer _timer;
   int _markerIndex = 0;
 
   @override

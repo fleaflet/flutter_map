@@ -13,7 +13,7 @@ class MapControllerImpl implements MapController {
   final Completer<Null> _readyCompleter = Completer<Null>();
   final StreamController<MapEvent> _mapEventSink = StreamController.broadcast();
   StreamSink<MapEvent> get mapEventSink => _mapEventSink.sink;
-  late MapState _state;
+  late final MapState _state;
 
   @override
   Future<Null> get onReady => _readyCompleter.future;
