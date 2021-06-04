@@ -32,7 +32,7 @@ double wrapNum(double x, Tuple2<double, double> range, [bool? includeMax]) {
 }
 
 StreamTransformer<T, T> throttleStreamTransformerWithTrailingCall<T>(
-    Duration? duration) {
+    Duration duration) {
   Timer? timer;
   T recentData;
   var trailingCall = false;
@@ -43,7 +43,7 @@ StreamTransformer<T, T> throttleStreamTransformerWithTrailingCall<T>(
 
     if (timer == null) {
       sink.add(recentData);
-      timer = Timer(duration!, () {
+      timer = Timer(duration, () {
         timer = null;
 
         if (trailingCall) {

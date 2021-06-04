@@ -49,7 +49,7 @@ class TileLayerOptions extends LayerOptions {
   /// Is translated to this:
   ///
   /// https://a.tile.openstreetmap.org/12/2177/1259.png
-  final String? urlTemplate;
+  final String urlTemplate;
 
   /// If `true`, inverses Y axis numbering for tiles (turn this on for
   /// [TMS](https://en.wikipedia.org/wiki/Tile_Map_Service) services).
@@ -242,7 +242,7 @@ class TileLayerOptions extends LayerOptions {
 
   TileLayerOptions({
     Key? key,
-    this.urlTemplate,
+    required this.urlTemplate,
     double tileSize = 256.0,
     double minZoom = 0.0,
     double maxZoom = 18.0,
@@ -530,7 +530,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       _throttleUpdate!.stream
           .transform(
             util.throttleStreamTransformerWithTrailingCall<LatLng?>(
-              options.updateInterval,
+              options.updateInterval!,
             ),
           )
           .listen(_update);
@@ -893,7 +893,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
           _setZoomTransforms(map.center, map.zoom);
         } else {
-          if (null == _throttleUpdate) {
+          if (_throttleUpdate == null) {
             _update(null);
           } else {
             _throttleUpdate!.add(null);
