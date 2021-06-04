@@ -113,7 +113,7 @@ class TileLayerOptions extends LayerOptions {
   /// Provider to load the tiles. The default is `NonCachingNetworkTileProvider()` which
   /// doesn't cache tiles and won't retry the HTTP request. Use `NetworkTileProvider()` for
   /// a provider which will retry requests. For the best caching implementations, see the
-  /// flutter_map readme. 
+  /// flutter_map readme.
   ///
   /// In order to use images from the asset folder set this option to
   /// AssetTileProvider() Note that it requires the urlTemplate to target
