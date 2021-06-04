@@ -436,7 +436,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   MapState get map => widget.mapState;
 
   TileLayerOptions get options => widget.options;
-  late final Bounds _globalTileRange;
+  late Bounds _globalTileRange;
   Tuple2<double, double>? _wrapX;
   Tuple2<double, double>? _wrapY;
   double? _tileZoom;
