@@ -1,4 +1,7 @@
-## [0.13.0] - xx/xx/2021
+## [0.13.1] - 6/x/2021
+This version contains hotfixes from null safety migration.
+
+## [0.13.0] - 6/4/2021
 This version has support for sound null safety. For this purpose, some inactive
 packages were exchanged with active forks.
 
