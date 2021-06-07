@@ -1,4 +1,4 @@
-## [0.13.1] - 6/x/2021
+## [0.13.1] - 6/7/2021
 This version contains hotfixes from null safety migration.
 
 ## [0.13.0] - 6/4/2021
