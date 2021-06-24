@@ -28,7 +28,7 @@ class ScaleLayerPlugin implements MapPlugin {
   Widget createLayer(
       LayerOptions options, MapState mapState, Stream<Null> stream) {
     if (options is ScaleLayerPluginOption) {
-      return ScaleLayer(options, mapState, stream);
+      return ScaleLayerWidget(options, mapState);
     }
     throw Exception('Unknown options type for ScaleLayerPlugin: $options');
   }
@@ -39,10 +39,25 @@ class ScaleLayerPlugin implements MapPlugin {
   }
 }
 
+class ScaleLayerWidget extends StatelessWidget {
+  final ScaleLayerPluginOption scaleLayerOpts;
+  final MapState map;
+  ScaleLayerWidget(this.scaleLayerOpts, this.map)
+      : super(key: scaleLayerOpts.key);
+  @override
+  Widget build(BuildContext context) {
+    final mapState = MapState.maybeOf(context);
+    return StreamBuilder<void>(
+        stream: mapState?.onMoved,
+        builder: (BuildContext context, _) {
+          return ScaleLayer(scaleLayerOpts, map);
+        });
+  }
+}
+
 class ScaleLayer extends StatelessWidget {
   final ScaleLayerPluginOption scaleLayerOpts;
   final MapState map;
-  final Stream<Null> stream;
   final scale = [
     25000000,
     15000000,
@@ -69,8 +84,7 @@ class ScaleLayer extends StatelessWidget {
     5
   ];
 
-  ScaleLayer(this.scaleLayerOpts, this.map, this.stream)
-      : super(key: scaleLayerOpts.key);
+  ScaleLayer(this.scaleLayerOpts, this.map) : super(key: scaleLayerOpts.key);
 
   @override
   Widget build(BuildContext context) {
@@ -86,15 +100,19 @@ class ScaleLayer extends StatelessWidget {
         : '${distance.toStringAsFixed(0)} m';
     var width = (end.x - (start.x as double));
 
-    return CustomPaint(
-      painter: ScalePainter(
-        width,
-        displayDistance,
-        lineColor: scaleLayerOpts.lineColor,
-        lineWidth: scaleLayerOpts.lineWidth,
-        padding: scaleLayerOpts.padding,
-        textStyle: scaleLayerOpts.textStyle,
-      ),
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints bc) {
+        return CustomPaint(
+          painter: ScalePainter(
+            width,
+            displayDistance,
+            lineColor: scaleLayerOpts.lineColor,
+            lineWidth: scaleLayerOpts.lineWidth,
+            padding: scaleLayerOpts.padding,
+            textStyle: scaleLayerOpts.textStyle,
+          ),
+        );
+      },
     );
   }
 }
