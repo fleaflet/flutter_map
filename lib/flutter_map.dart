@@ -138,8 +138,8 @@ abstract class MapController {
   factory MapController() => MapControllerImpl();
 }
 
-typedef TapCallback = void Function(TapPosition position, LatLng point);
-typedef LongPressCallback = void Function(TapPosition position, LatLng point);
+typedef TapCallback = void Function(TapPosition tapPosition, LatLng point);
+typedef LongPressCallback = void Function(TapPosition tapPosition, LatLng point);
 typedef PositionCallback = void Function(MapPosition position, bool hasGesture);
 typedef MapCreatedCallback = void Function(MapController mapController);
 
