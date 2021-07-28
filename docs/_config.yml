@@ -1,1 +1,3 @@
 theme: jekyll-theme-cayman
+title: flutter_map Documentation
+description: A port of leaflet.js for Flutter

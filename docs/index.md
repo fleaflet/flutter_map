@@ -1,37 +1,42 @@
-## Welcome to GitHub Pages
+## flutter_map Documentation
 
-You can use the [editor on GitHub](https://github.com/JaffaKetchup/flutter_map/edit/documentation/docs/index.md) to maintain and preview the content for your website in Markdown files.
+> #### UNOFFICIAL DOCUMENTATION AHEAD
+>
+> This documentation is not official and has not been verified or influenced by maintainers of `flutter_map`. For all documentation, use the official README at https://github.com/fleaflet/flutter_map.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+`flutter_map` is a mapping package for Flutter, based off 'leaflet.js'. Simple and easy to learn, yet completely customizable and configurable, it's the best choice for Flutter if Google Maps isn't your target map.
 
-### Markdown
+[![Pub](https://img.shields.io/pub/v/flutter_map.svg)](https://pub.dev/packages/flutter_map) [![likes](https://badges.bar/flutter_map/likes)](https://pub.dev/packages/flutter_map/score) [![pub points](https://badges.bar/flutter_map/pub%20points)](https://pub.dev/packages/flutter_map/score)
+[![CI](https://github.com/fleaflet/flutter_map/workflows/Tests/badge.svg?)](https://github.com/fleaflet/flutter_map/actions?query=branch%3Amaster) [![GitHub stars](https://img.shields.io/github/stars/fleaflet/flutter_map.svg?label=Stars)](https://GitHub.com/fleaflet/flutter_map/stargazers/) [![GitHub issues](https://img.shields.io/github/issues/fleaflet/flutter_map.svg?label=Issues)](https://GitHub.com/fleaflet/flutter_map/issues/) [![GitHub PRs](https://img.shields.io/github/issues-pr/fleaflet/flutter_map.svg?label=Pull%20Requests)](https://GitHub.com/fleaflet/flutter_map/pulls/)
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+### Getting Started
 
-```markdown
-Syntax highlighted code block
+Installing this package is easy, and uses the normal installation method:
 
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
+```shell
+   > flutter pub add flutter_map
 ```
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+If you urgently need the most recent version of this package that hasn't been published to pub.dev yet, use this code snippet instead in your 'pubspec.yaml' (please note that this method is not recommended):
 
-### Jekyll Themes
+```yaml
+flutter_map:
+    git:
+        url: https://github.com/fleaflet/flutter_map.git
+```
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/JaffaKetchup/flutter_map/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+On Android, you'll also need to configure your app to access the Internet. Add the following line to the manifest file located in '/android/app/src/main/AndroidManifest.xml':
+
+```xml
+<uses-permission android:name="android.permission.INTERNET"/>
+```
+
+After installing the package, import it into the necessary files in your project:
+
+```dart
+import 'package:flutter_map/flutter_map.dart';
+```
 
 ### Support or Contact
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+Having trouble with `flutter_map`? Visit [StackOverflow](https://stackoverflow.com/search?q=flutter_map) or the [GitHub Issue Tracker](https://github.com/fleaflet/flutter_map/issues), and ask away! The community will try to get back to you as soon as possible.
