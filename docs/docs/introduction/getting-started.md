@@ -19,15 +19,15 @@ sidebar_position: 1
 Installing this package is easy, and uses the normal installation method:
 
 ```shell
-   > flutter pub add flutter_map
+flutter pub add flutter_map
 ```
 
 If you urgently need the most recent version of this package that hasn't been published to pub.dev yet, use this code snippet instead in your 'pubspec.yaml' (please note that this method is not recommended):
 
 ```yaml
 flutter_map:
-    git:
-        url: https://github.com/fleaflet/flutter_map.git
+  git:
+    url: https://github.com/fleaflet/flutter_map.git
 ```
 
 On Android, you'll also need to configure your app to access the Internet. Add the following line to the manifest file located in '/android/app/src/main/AndroidManifest.xml':
