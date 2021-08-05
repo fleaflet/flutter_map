@@ -38,7 +38,7 @@ module.exports = {
       },
       items: [
         {
-          docId: "introduction/getting-started",
+          docId: "introduction/go",
           type: "doc",
           position: "left",
           label: "Docs",
@@ -58,7 +58,7 @@ module.exports = {
           items: [
             {
               label: "Docs",
-              to: "/introduction/getting-started",
+              to: "/introduction/go",
             },
           ],
         },
