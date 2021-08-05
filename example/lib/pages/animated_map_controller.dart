@@ -34,7 +34,12 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
   @override
   void initState() {
     super.initState();
-    mapController = MapController();
+    mapController = MapController(MapOptions(
+      center: LatLng(51.5, -0.09),
+      zoom: 5.0,
+      maxZoom: 10.0,
+      minZoom: 3.0,
+    ));
   }
 
   void _animatedMapMove(LatLng destLocation, double destZoom) {
@@ -162,11 +167,6 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
             Flexible(
               child: FlutterMap(
                 mapController: mapController,
-                options: MapOptions(
-                    center: LatLng(51.5, -0.09),
-                    zoom: 5.0,
-                    maxZoom: 10.0,
-                    minZoom: 3.0),
                 layers: [
                   TileLayerOptions(
                       urlTemplate:

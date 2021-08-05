@@ -29,7 +29,11 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
   @override
   void initState() {
     super.initState();
-    _mapController = MapController();
+    _mapController = MapController(MapOptions(
+      center: LatLng(0, 0),
+      zoom: 5.0,
+      interactiveFlags: interActiveFlags,
+    ));
     initLocationService();
   }
 
@@ -134,12 +138,6 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
             Flexible(
               child: FlutterMap(
                 mapController: _mapController,
-                options: MapOptions(
-                  center:
-                      LatLng(currentLatLng.latitude, currentLatLng.longitude),
-                  zoom: 5.0,
-                  interactiveFlags: interActiveFlags,
-                ),
                 layers: [
                   TileLayerOptions(
                     urlTemplate:

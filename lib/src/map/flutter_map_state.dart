@@ -21,9 +21,7 @@ class FlutterMapState extends MapGestureMixin {
   @override
   late final MapState mapState;
 
-  FlutterMapState(MapController? mapController)
-      : mapController = mapController as MapControllerImpl? ??
-            MapController() as MapControllerImpl;
+  FlutterMapState(this.mapController);
 
   @override
   void didUpdateWidget(FlutterMap oldWidget) {

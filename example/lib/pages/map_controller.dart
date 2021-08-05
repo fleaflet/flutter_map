@@ -27,7 +27,12 @@ class MapControllerPageState extends State<MapControllerPage> {
   @override
   void initState() {
     super.initState();
-    mapController = MapController();
+    mapController = MapController(MapOptions(
+      center: LatLng(51.5, -0.09),
+      zoom: 5.0,
+      maxZoom: 5.0,
+      minZoom: 3.0,
+    ));
   }
 
   @override
@@ -154,12 +159,6 @@ class MapControllerPageState extends State<MapControllerPage> {
             Flexible(
               child: FlutterMap(
                 mapController: mapController,
-                options: MapOptions(
-                  center: LatLng(51.5, -0.09),
-                  zoom: 5.0,
-                  maxZoom: 5.0,
-                  minZoom: 3.0,
-                ),
                 layers: [
                   TileLayerOptions(
                       urlTemplate:

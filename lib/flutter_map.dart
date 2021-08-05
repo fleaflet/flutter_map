@@ -63,21 +63,26 @@ class FlutterMap extends StatefulWidget {
   /// [MapOptions] to create a [MapState] with.
   ///
   /// This property must not be null.
-  final MapOptions options;
+  MapOptions get options => _mapController.options;
 
   /// A [MapController], used to control the map.
-  final MapControllerImpl? _mapController;
+  final MapControllerImpl _mapController;
 
   FlutterMap({
     Key? key,
-    required this.options,
+    MapOptions? options,
     this.layers = const [],
     this.nonRotatedLayers = const [],
     this.children = const [],
     this.nonRotatedChildren = const [],
     MapController? mapController,
-  })  : _mapController = mapController as MapControllerImpl?,
-        super(key: key);
+  })  : _mapController = mapController as MapControllerImpl? ??
+            MapController(options!) as MapControllerImpl,
+        super(key: key) {
+    if (options != null) {
+      _mapController.options = options;
+    }
+  }
 
   @override
   FlutterMapState createState() => FlutterMapState(_mapController);
@@ -134,7 +139,7 @@ abstract class MapController {
 
   Stream<MapEvent> get mapEventStream;
 
-  factory MapController() => MapControllerImpl();
+  factory MapController(MapOptions options) => MapControllerImpl(options);
 }
 
 typedef TapCallback = void Function(LatLng point);

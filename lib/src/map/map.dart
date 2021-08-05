@@ -10,10 +10,15 @@ import 'package:flutter_map/src/map/map_state_widget.dart';
 import 'package:latlong2/latlong.dart';
 
 class MapControllerImpl implements MapController {
+  MapOptions options;
   final Completer<Null> _readyCompleter = Completer<Null>();
   final StreamController<MapEvent> _mapEventSink = StreamController.broadcast();
+
+  MapControllerImpl(this.options);
   StreamSink<MapEvent> get mapEventSink => _mapEventSink.sink;
   late final MapState _state;
+
+  bool get isReady => _readyCompleter.isCompleted;
 
   @override
   Future<Null> get onReady => _readyCompleter.future;
@@ -52,16 +57,16 @@ class MapControllerImpl implements MapController {
   }
 
   @override
-  LatLng get center => _state.center;
+  LatLng get center => isReady ? _state.center : options.center;
 
   @override
-  LatLngBounds? get bounds => _state.bounds;
+  LatLngBounds? get bounds => isReady ? _state.bounds : options.bounds;
 
   @override
-  double get zoom => _state.zoom;
+  double get zoom => isReady ? _state.zoom : options.zoom;
 
   @override
-  double get rotation => _state.rotation;
+  double get rotation => isReady ? _state.rotation : options.rotation;
 
   @override
   bool rotate(double degree, {String? id}) {

@@ -26,7 +26,11 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
   @override
   void initState() {
     super.initState();
-    mapController = MapController();
+    mapController = MapController(MapOptions(
+      center: LatLng(51.5, -0.09),
+      zoom: 11.0,
+      interactiveFlags: flags,
+    ));
 
     subscription = mapController.mapEventStream.listen(onMapEvent);
   }
@@ -168,7 +172,6 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
             ),
             Flexible(
               child: FlutterMap(
-                mapController: mapController,
                 options: MapOptions(
                   center: LatLng(51.5, -0.09),
                   zoom: 11.0,
@@ -181,6 +184,7 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                     subdomains: ['a', 'b', 'c'],
                   ),
                 ],
+                mapController: mapController,
               ),
             ),
           ],
