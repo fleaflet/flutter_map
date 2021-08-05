@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map_example/pages/marker_rotate.dart';
-import 'package:flutter_map_example/pages/network_tile_provider.dart';
 
 import '../pages/animated_map_controller.dart';
 import '../pages/circle.dart';
@@ -12,7 +10,9 @@ import '../pages/live_location.dart';
 import '../pages/many_markers.dart';
 import '../pages/map_controller.dart';
 import '../pages/marker_anchor.dart';
+import '../pages/marker_rotate.dart';
 import '../pages/moving_markers.dart';
+import '../pages/network_tile_provider.dart';
 import '../pages/offline_map.dart';
 import '../pages/on_tap.dart';
 import '../pages/overlay_image.dart';
