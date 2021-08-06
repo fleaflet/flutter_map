@@ -90,6 +90,10 @@ module.exports = {
               label: "GitHub",
               href: "https://github.com/fleaflet/flutter_map",
             },
+            {
+                label: "Available Plugins",
+                href: "/plugins/list",
+            },
           ],
         },
       ],
