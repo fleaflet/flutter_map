@@ -67,7 +67,9 @@ Always specify your center within your boundaries to avoid errors. Boundaries wi
 
 ## Rotation (rotation:)
 
-Takes a double specifying the bearing of the map when it is first built. For example:
+Takes a double specifying the bearing of the map when it is first built.
+
+For example:
 
 ``` dart
         center: 180.0,
@@ -75,22 +77,15 @@ Takes a double specifying the bearing of the map when it is first built. For exa
 
 will put the South of the map at the top of the device.
 
-:::danger Incomplete Documentation Below
-Work in progress below this point on this page.
-:::
+## When Position Changed (`onPositionChanged:`)
 
-When Position Changed (onPositionChanged:)
 Takes a function with two arguments.
-Gets called whenever the map position is changed, even if it is not changed by the user.
+Gets called whenever the map position is changed, even if it is not changed by the user. For example:
+
+``` dart
         onPositionChanged: (MapPosition position, bool hasGesture) {
-                // Your logic here. 'hasGesture' dictates whether the change
-                // was due to a user interaction or something else. 'position' is
-                // the new position of the map.
+            // Your logic here. 'hasGesture' dictates whether the change
+            // was due to a user interaction or something else. 'position' is
+            // the new position of the map.
         }
-When Map Created (onMapCreated:)
-Takes a function with one argument.
-Gets called when the map is first created.
-        onPositionChanged: (MapController controller) {
-                // Your logic here. 'controller' is the map controller
-                // currently in use.
-        }
+```

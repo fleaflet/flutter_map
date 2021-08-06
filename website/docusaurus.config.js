@@ -26,15 +26,15 @@ module.exports = {
   baseUrl: "/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
-  favicon: "img/favicon.ico",
+  favicon: "img/IconV1.ico",
   organizationName: "fleaflet", // Usually your GitHub org/user name.
   projectName: "flutter_map", // Usually your repo name.
   themeConfig: {
     navbar: {
       title: "flutter_map",
       logo: {
-        alt: "flutter_map logo",
-        src: "img/logo.svg",
+        alt: "flutter_map Logo",
+        src: "img/IconV1.png",
       },
       items: [
         {
@@ -93,7 +93,7 @@ module.exports = {
           ],
         },
       ],
-      copyright: `<hr>Copyright © ${new Date().getFullYear()} flutter_map<br>Built with Docusaurus.`,
+      copyright: `<hr>Copyright © ${new Date().getFullYear()} flutter_map<br>Use of Flutter™ logo and name throughout<br>Built with Docusaurus`,
     },
     prism: {
       theme: lightCodeTheme,
