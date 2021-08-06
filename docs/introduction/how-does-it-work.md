@@ -5,6 +5,10 @@ sidebar_position: 2
 
 # How Does It Work?
 
+:::info
+This article will take you through the most popular method(s) used by tile server providers, but it can't cover everything. If this doesn't satisfy your curiosity, the OpenStreetMap foundation & Google are your friends.
+:::
+
 This library is similar to most other mapping libraries in other languages, so this applies to most other mapping libraries as well.
 
 A mapping library is usually just a wrapper for a particular language that handles requests to servers called 'tile servers'.
@@ -30,7 +34,6 @@ You may also see '/?x={x}&y={y}&zoom={z}', which isn't quite the same as the Sli
 ### Zoom
 
 Zoom refers to the zoom level. 1 is the lowest zoom level and contains the whole world in one tile. The higher the number, the more the zoom, and the more the detail, and therefore the less space covered. You can read more about this at [wiki.openstreetmap.org/wiki/Zoom_levels](https://wiki.openstreetmap.org/wiki/Zoom_levels).
-Note that many tile servers will not support past a zoom level of 18. Open Street Maps supports up to level 20.
 
 ### X & Y
 

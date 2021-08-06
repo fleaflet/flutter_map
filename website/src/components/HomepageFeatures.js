@@ -4,12 +4,11 @@ import styles from './HomepageFeatures.module.css';
 
 const FeatureList = [
   {
-    title: 'Easy to Use',
+    title: 'Easy & Powerful',
     Svg: require('../../static/img/undraw_docusaurus_mountain.svg').default,
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        flutter_map was designed to be easily setup, but with powerful configuration and functionality. From a simple Open Street Map showing your local area to a multi-appearance fitness app, flutter_map has what you need.
       </>
     ),
   },
@@ -18,18 +17,16 @@ const FeatureList = [
     Svg: require('../../static/img/undraw_docusaurus_tree.svg').default,
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        This documentation guides you through what matters most to most users, but it barely scratches the surface of the whole API. That's why you can also check-out the <a href='https://pub.dev/documentation/flutter_map/latest/flutter_map/flutter_map-library.html'>Full API Reference</a>, that also appears in your favourite IDE, helping you write code faster and more efficiently.
       </>
     ),
   },
   {
-    title: 'Powered by React',
+    title: 'Extended by the Community',
     Svg: require('../../static/img/undraw_docusaurus_react.svg').default,
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        The flutter_map community is full of people who want to help you fix a problem, people that want to see new functionality, and people who create new functionality. Over 200 PRs have been merged to date, and there are more than 10 independently maintained plugins that help you get prebuilt solutions quicker, a number which is quickly increasing.
       </>
     ),
   },

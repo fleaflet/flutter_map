@@ -48,17 +48,26 @@ module.exports = {
           label: "GitHub",
           position: "right",
         },
+        {
+          label: "Pub.dev",
+          href: "https://pub.dev/packages/flutter_map",
+          position: "right",
+        },
       ],
     },
     footer: {
       style: "dark",
       links: [
         {
-          title: "Docs",
+          title: "Documentation",
           items: [
             {
-              label: "Docs",
+              label: "Main Docs",
               to: "/introduction/go",
+            },
+            {
+              label: "Full API Reference",
+              href: 'https://pub.dev/documentation/flutter_map/latest/flutter_map/flutter_map-library.html',
             },
           ],
         },
@@ -83,21 +92,8 @@ module.exports = {
             },
           ],
         },
-        {
-          title: "More",
-          items: [
-            {
-              label: "GitHub",
-              href: "https://github.com/fleaflet/flutter_map",
-            },
-            {
-                label: "Available Plugins",
-                href: "/plugins/list",
-            },
-          ],
-        },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} flutter_map<br>Built with Docusaurus.`,
+      copyright: `<hr>Copyright © ${new Date().getFullYear()} flutter_map<br>Built with Docusaurus.`,
     },
     prism: {
       theme: lightCodeTheme,

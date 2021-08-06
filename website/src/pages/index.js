@@ -13,13 +13,15 @@ function HomepageHeader() {
       <div className="container">
         <h1 className="hero__title">{siteConfig.title}</h1>
         <p className="hero__subtitle">{siteConfig.tagline}</p>
+        <br></br>
         <div className={styles.buttons}>
           <Link
             className="button button--secondary button--lg"
             to="/introduction/go">
-            Get Started! - 5min ⏱️
+            Get Started
           </Link>
         </div>
+        <p>...on your journey toward a better mapping experience.</p>
       </div>
     </header>
   );

@@ -27,7 +27,7 @@ Just import the package as you would normally, from the command line:
     > flutter pub add flutter_map
 ```
 
-:::tip Auto Install
+:::note Auto Install
 This should automatically import the latest version of the package and create an entry for it in your 'pubspec.yaml' file. Otherwise follow the old method and add the latest version of the 'flutter_map' dependency to the pubspec.yaml manually.
 :::
 
@@ -66,16 +66,21 @@ To access the Internet to reach tile servers, ensure your app is configured to u
 
 You may also need to do this in any other applicable manifests, such as the debug one, if not already in there.
 
-### Import
+### Import & Start Coding
 
-Importing the package to use in your code is as usual as well. Just add this to the top of your file and you'll have access to everything you need:
+Importing the package to use in your code is as usual as well, but an extra import is recommended (you won't need to add this extra package to your 'pubspec.yaml' file, `flutter_map` exports it automatically for you). Just add these lines to the top every file to do with the map, and you'll have access to everything you need:
 
 ``` dart
 import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 ```
 
-You don't even need to create a special instance!
+:::tip Start Coding
+The rest of this documentation will take you through what most developers need to know to setup an advanced `flutter_map` experience for their users.
+
+However, not every detail of `flutter_map`'s extensive functionality can be documented here. So, to help you with all of the public APIs, check-out the [Full API Reference](https://pub.dev/documentation/flutter_map/latest/flutter_map/flutter_map-library.html) available at any time in the sidebar, and also while you code in your favourite IDE.
+:::
 
 ## Support & Contact
 
-Having trouble with `flutter_map`? Visit [StackOverflow](https://stackoverflow.com/search?q=flutter_map) or the [GitHub Issue Tracker](https://github.com/fleaflet/flutter_map/issues), and ask away! The community will try to get back to you as soon as possible.
+Having trouble with `flutter_map`? Check the [Full API Reference](https://pub.dev/documentation/flutter_map/latest/flutter_map/flutter_map-library.html) first to see if you can spot your issue, otherwise visit [StackOverflow](https://stackoverflow.com/search?q=flutter_map) or the [GitHub Issue Tracker](https://github.com/fleaflet/flutter_map/issues), and ask away! The community will try to get back to you as soon as possible.
