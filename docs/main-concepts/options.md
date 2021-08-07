@@ -37,7 +37,7 @@ will put the map at '[Null Island](https://en.wikipedia.org/wiki/Null_Island)' o
 
 Takes doubles, but should usually be set initially to integers (in double format).
 
-For an explanation of zoom levels, see the [How Does It Work?](/introduction/how-does-it-work#zoom) page.
+For an explanation of zoom levels, see the [How Does It Work? page](/introduction/how-does-it-work#zoom).
 
 `zoom:` specifies what the zoom level of the map should be when it is first built. `maxZoom:` specifies what the maximum zoom level can be, and should depend on your use case and/or tile server. Minimum zoom is set to 1. For example:
 

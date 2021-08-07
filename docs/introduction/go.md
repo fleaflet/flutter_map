@@ -9,12 +9,22 @@ sidebar_position: 1
 This documentation is currently being written and should not be used unless directed. It's contents may have not yet been verified, and therefore certain parts may be factually incorrect, incomplete, or otherwise misleading. You should not raise issues about documentation in the issue tracker, unless otherwise directed. Ignore any instructions within these docs to report issues.
 
 For all documentation, use the official README at [https://github.com/fleaflet/flutter_map](https://github.com/fleaflet/flutter_map), until further notice.
+
+_This is a temporary notice_
 :::
 
-`flutter_map` is a mapping package for Flutter, based off of 'leaflet.js'. Simple and easy to learn, yet completely customizable and configurable, it's the best choice for Flutter if Google Maps isn't your target map.
+`flutter_map` is a mapping package for Flutter, based off of 'leaflet.js'. Simple and easy to learn, yet completely customizable and configurable, it's the best choice for mapping in your Flutter app.
 
 [![Pub](https://img.shields.io/pub/v/flutter_map.svg)](https://pub.dev/packages/flutter_map) [![likes](https://badges.bar/flutter_map/likes)](https://pub.dev/packages/flutter_map/score) [![pub points](https://badges.bar/flutter_map/pub%20points)](https://pub.dev/packages/flutter_map/score)
 [![CI](https://github.com/fleaflet/flutter_map/workflows/Tests/badge.svg?)](https://github.com/fleaflet/flutter_map/actions?query=branch%3Amaster) [![GitHub stars](https://img.shields.io/github/stars/fleaflet/flutter_map.svg?label=Stars)](https://GitHub.com/fleaflet/flutter_map/stargazers/) [![GitHub issues](https://img.shields.io/github/issues/fleaflet/flutter_map.svg?label=Issues)](https://GitHub.com/fleaflet/flutter_map/issues/) [![GitHub PRs](https://img.shields.io/github/issues-pr/fleaflet/flutter_map.svg?label=Pull%20Requests)](https://GitHub.com/fleaflet/flutter_map/pulls/)
+
+<hr></hr>
+
+:::note Version 0.13.1
+This documentation applies to the version of `flutter_map`: 0.13.1, and some content may not apply to older versions. If the version number (<) is less than the latest version available on pub.dev ([![Pub](https://img.shields.io/pub/v/flutter_map.svg)](https://pub.dev/packages/flutter_map)), the documentation may not have been changed, in which case it should still apply.
+
+If you are migrating from an older major version of `flutter_map`, there have likely been breaking changes. See the [Migration guides](/migration/to-v0.13.1) for more information.
+:::
 
 ## Installation
 
@@ -27,8 +37,10 @@ Just import the package as you would normally, from the command line:
     > flutter pub add flutter_map
 ```
 
-:::note Auto Install
-This should automatically import the latest version of the package and create an entry for it in your 'pubspec.yaml' file. Otherwise follow the old method and add the latest version of the 'flutter_map' dependency to the pubspec.yaml manually.
+:::tip Auto Install
+This should automatically import the latest version of the package, create an entry for it in your 'pubspec.yaml' file, and run `flutter pub get`.
+
+Otherwise follow the old method and add the latest version of the 'flutter_map' dependency to the 'pubspec.yaml' file manually, then update the dependencies.
 :::
 
 ### From github.com
