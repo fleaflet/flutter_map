@@ -94,11 +94,11 @@ class LatLngBounds {
     var dLambda = degToRadian(northEast!.longitude -
         southWest!.longitude); // delta lambda = lambda2-lambda1
 
-    var Bx = math.cos(phi2) * math.cos(dLambda);
-    var By = math.cos(phi2) * math.sin(dLambda);
+    var bx = math.cos(phi2) * math.cos(dLambda);
+    var by = math.cos(phi2) * math.sin(dLambda);
     var phi3 = math.atan2(math.sin(phi1) + math.sin(phi2),
-        math.sqrt((math.cos(phi1) + Bx) * (math.cos(phi1) + Bx) + By * By));
-    var lambda3 = lambda1 + math.atan2(By, math.cos(phi1) + Bx);
+        math.sqrt((math.cos(phi1) + bx) * (math.cos(phi1) + bx) + by * by));
+    var lambda3 = lambda1 + math.atan2(by, math.cos(phi1) + bx);
 
     //phi3 and lambda3 are actually in radians and LatLng wants degrees
     return LatLng(radianToDeg(phi3), radianToDeg(lambda3));
