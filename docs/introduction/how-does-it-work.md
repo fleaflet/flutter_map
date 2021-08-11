@@ -19,13 +19,13 @@ A tile server is a server accessible on the Internet by everyone, or by only peo
 
 There are four main types of server configuration, two of which are used together by any server: WMS or WMTS & vector or raster. This wiki will focus on WMTS raster servers, such as the main OpenStreetMaps server, as it is the most commonly used option and is easier to setup and explain for beginners, but you can read about the [options for WMS](/miscellaneous/wms-servers) later on in this wiki. At the moment, [support of vector tiles](/miscellaneous/vector-tiles) is limited, but experimental functionality can be added through an existing [community maintained plugin](/plugins/list).
 
-Simplified, the server holds multiple images (usually in .png format) in a directory structure that looks something like this: '/zoom/x/y.png', which is known as the 'Slippy Map' convention (read more below). These images put together make up the whole world, or area that that tile server supports. In fact, the entire planet (compressed) takes up over 1400 GB! However, one tile is usually really small, under 20KB.
+Simplified, the server holds multiple images (usually in .png/.jpg format) in a directory structure that looks something like this: '/zoom/x/y.png', which is known as the 'Slippy Map' convention (read more below). These images put together make up the whole world, or area that that tile server supports. In fact, the entire planet (compressed) takes up over 1400 GB! However, one tile is usually really small, under 20KB.
 
 The main tile server that's free to use and open-source is the Open Street Maps tile server, as mentioned above, a server which provides access to millions of tiles covering the whole Earth. that get updated and maintained by the general public.
 
 ## 'Slippy Map' Convention
 
- > '/zoom/x/y.png' or '/x/y/zoom.png'
+ > '/zoom/x/y.png' or '/x/y/zoom.png' (can be '.jpg')
  >
  > [wiki.openstreetmap.org/wiki/Slippy_map_tilenames](https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames)
 
