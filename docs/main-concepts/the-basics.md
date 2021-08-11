@@ -8,8 +8,6 @@ sidebar_position: 1
 The main widget for the map is easy to remember. It's just:
 
 ``` dart
-import 'package:flutter_map/flutter_map.dart';
-
 FlutterMap(
     controller: ...
     options: MapOptions(),

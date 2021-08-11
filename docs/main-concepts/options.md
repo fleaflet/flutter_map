@@ -8,8 +8,6 @@ sidebar_position: 2
 The `options` property takes a `MapOptions()` object.
 
 ``` dart
-import 'package:flutter_map/flutter_map.dart';
-
 FlutterMap(
     options: MapOptions(
         ...

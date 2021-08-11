@@ -12,8 +12,6 @@ This page only talks about WMTS-supporting raster layers, which is the most comm
 As explained in the [How Does It Work? page](/introduction/how-does-it-work), tiles for a map in `flutter_map` are provided by tile providers that go inside of a `TileLayerOptions()`. That might look something like this:
 
 ``` dart
-import 'package:flutter_map/flutter_map.dart';
-
 FlutterMap(
     options: MapOptions(),
     layers: [

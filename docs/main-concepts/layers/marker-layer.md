@@ -25,9 +25,13 @@ FlutterMap(
 ),
 ```
 
-## Markers (`markers`)
+:::caution Performance Issues
+Excessive use of markers or use of complex markers will create performance issues and lag/'jank' as the user interacts with the map. You can see the effects of excessive markers on a page in the [example app](/examples/master-example), or you can [see the code itself](https://github.com/fleaflet/flutter_map/blob/master/example/lib/pages/many_markers.dart).
+:::
 
-As you can see `MarkerLayerOptions` accepts list of Markers which determines render widget, position and transformation details like size and rotation.
+## Markers (`markers:`)
+
+As you can see `MarkerLayerOptions()` accepts list of Markers which determines render widget, position and transformation details like size and rotation.
 
 | Property          | Type                 | Description                                                    |
 | :---------------- | :------------------- | :------------------------------------------------------------- |

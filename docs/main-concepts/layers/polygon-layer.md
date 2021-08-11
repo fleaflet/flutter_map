@@ -1,6 +1,6 @@
 ---
 id: polygon-layer
-sidebar_position: 4
+sidebar_position: 5
 ---
 
 # Polygon Layer
@@ -8,12 +8,11 @@ sidebar_position: 4
 You can add polygons to maps to display shapes made out of points to users using `PolygonLayerOptions()`.
 
 ``` dart
-import 'package:flutter_map/flutter_map.dart';
-
 FlutterMap(
     options: MapOptions(),
     layers: [
         PolygonLayerOptions(
+            polygonCulling: false,
             polygons: [
                 Polygon(
                   points: [LatLng(30, 40), LatLng(20, 50), LatLng(25, 45),],
@@ -25,9 +24,18 @@ FlutterMap(
 ),
 ```
 
+:::caution Inaccuracies
+Due to the nature of the Earth being a sphere, drawing lines perfectly requires large amounts of difficult maths that may not behave correctly when given certain edge-cases. Avoid creating large polygons, or polygons that cross the edges of the map, as this will create undesired results.
+:::
+:::caution Performance Issues
+Excessive use of polygons, use of `isDotted: true`, or use of complex polygons, will create performance issues and lag/'jank' as the user interacts with the map.
+
+To improve performance, enable `polygonCulling`. This should remove polygons that are out of sight, but should only be used when necessary as enabling this can further reduce performance when used unnecessarily.
+:::
+
 ## Polygons (`polygons:`)
 
-As you can see `PolygonLayerOptions` accepts list of `Polygons` which determines the shape of the polygon by defining the `LatLng` of each corner. `flutter_map` will then draw a line between each coordinate, and fill it.
+As you can see `PolygonLayerOptions()` accepts list of `Polygons` which determines the shape of the polygon by defining the `LatLng` of each corner. `flutter_map` will then draw a line between each coordinate, and fill it.
 
 | Property             | Type                  | Defaults            | Description                                                |
 | :------------------- | :-------------------- | :------------------ | :--------------------------------------------------------- |
@@ -38,7 +46,3 @@ As you can see `PolygonLayerOptions` accepts list of `Polygons` which determines
 | `borderColor`        | `Color`               | `Color(4294967040)` | Color of the border                                        |
 | `disableHolesBorder` | `bool`                | `false`             | Whether to apply the border at the edge of 'cut-outs'      |
 | `isDotted`           | `bool`                | `false`             | Whether to make the border dotted/dashed instead of solid  |
-
-:::caution Inaccuracies
-Due to the nature of the Earth being a sphere, drawing lines perfectly can be a challenge for the library. Avoid creating large polygons, or polygons that cross the edges of the map, as this will create undesired results.
-:::
