@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map_example/pages/map_inside_listview.dart';
 import 'package:flutter_map_example/pages/marker_rotate.dart';
 import 'package:flutter_map_example/pages/network_tile_provider.dart';
 
@@ -216,7 +217,13 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           const Text('Stateful markers'),
           StatefulMarkersPage.route,
           currentRoute,
-        )
+        ),
+        _buildMenuItem(
+            context,
+            const Text('Map inside listview'),
+            MapInsideListViewPage.route,
+            currentRoute
+        ),
       ],
     ),
   );
