@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map_example/pages/map_inside_listview.dart';
 import 'package:flutter_map_example/pages/network_tile_provider.dart';
 
 import './pages/animated_map_controller.dart';
@@ -68,6 +69,7 @@ class MyApp extends StatelessWidget {
         InteractiveTestPage.route: (context) => InteractiveTestPage(),
         ManyMarkersPage.route: (context) => ManyMarkersPage(),
         StatefulMarkersPage.route: (context) => StatefulMarkersPage(),
+        MapInsideListViewPage.route: (context) => MapInsideListViewPage(),
       },
     );
   }
