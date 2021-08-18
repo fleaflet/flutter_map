@@ -110,6 +110,7 @@ class Marker {
   final double width;
   final double height;
   final Anchor anchor;
+  final String? data;
 
   /// If true marker will be counter rotated to the map rotation
   final bool? rotate;
@@ -144,6 +145,7 @@ class Marker {
     this.rotate,
     this.rotateOrigin,
     this.rotateAlignment,
+    this.data,
     AnchorPos? anchorPos,
   }) : anchor = Anchor.forPos(anchorPos, width, height);
 }
