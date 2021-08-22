@@ -26,7 +26,9 @@ FlutterMap(
 ```
 
 :::caution Performance Issues
-Excessive use of markers or use of complex markers will create performance issues and lag/'jank' as the user interacts with the map. You can see the effects of excessive markers on a page in the [example app](/examples/master-example), or you can [see the code itself](https://github.com/fleaflet/flutter_map/blob/master/example/lib/pages/many_markers.dart).
+Excessive use of markers or use of complex markers will create performance issues and lag/'jank' as the user interacts with the map. According to [this comment in a PR on this matter](https://github.com/fleaflet/flutter_map/pull/826#issuecomment-820575346): "3.5k [total markers gives] 60fps when <100 [markers] visible, then maybe 45fps when 200 [markers] visible".
+
+You can see the effects of excessive markers on a page in the [example app](/examples/master-example), or you can [see the code itself](https://github.com/fleaflet/flutter_map/blob/master/example/lib/pages/many_markers.dart). If you need to use large numbers of markers, an existing [community maintained plugin](/plugins/list) might help.
 :::
 
 ## Markers (`markers:`)
