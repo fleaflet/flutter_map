@@ -55,7 +55,8 @@ When submitting a plugin & PR, please ensure:
 - the plugin includes a runnable example and/or screenshots,
 
 
-- the PR body uses correct grammar and spelling,
-- the PR body accurately and concisely represents your plugin,
-- the PR body closely follows the format below
+- the PR body & plugin description uses correct grammar and spelling,
+- the plugin description contains the words ' - IN BETA' after the author link on the same line if your plugin is in beta,
+- the plugin description accurately and concisely represents your plugin,
+- the plugin description closely follows the format below
 :::
