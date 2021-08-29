@@ -267,7 +267,7 @@ class MapState {
   }
 
   MoveAndRotateResult moveAndRotate(LatLng center, double zoom, double degree,
-      {required MapEventSource source, required String id}) {
+      {required MapEventSource source, String? id}) {
     final moveSucc =
         move(center, zoom, id: id, source: source, callOnMoveSink: false);
     final rotateSucc =
