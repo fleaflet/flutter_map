@@ -47,6 +47,7 @@ class MapControllerImpl implements MapController {
     LatLngBounds bounds, {
     FitBoundsOptions? options =
         const FitBoundsOptions(padding: EdgeInsets.all(12.0)),
+    bool inside = false
   }) {
     _state.fitBounds(bounds, options!);
   }
@@ -380,7 +381,7 @@ class MapState {
 
     var paddingTotalXY = paddingTL + paddingBR;
 
-    var zoom = getBoundsZoom(bounds, paddingTotalXY, inside: false);
+    var zoom = getBoundsZoom(bounds, paddingTotalXY, inside: options.inside);
     zoom = math.min(options.maxZoom, zoom);
 
     var paddingOffset = (paddingBR - paddingTL) / 2;

@@ -359,11 +359,13 @@ class FitBoundsOptions {
   final EdgeInsets padding;
   final double maxZoom;
   final double? zoom;
+  final bool inside;
 
   const FitBoundsOptions({
     this.padding = const EdgeInsets.all(0.0),
     this.maxZoom = 17.0,
     this.zoom,
+    this.inside = false,
   });
 }
 
