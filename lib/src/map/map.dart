@@ -47,7 +47,6 @@ class MapControllerImpl implements MapController {
     LatLngBounds bounds, {
     FitBoundsOptions? options =
         const FitBoundsOptions(padding: EdgeInsets.all(12.0)),
-    bool inside = false
   }) {
     _state.fitBounds(bounds, options!);
   }
