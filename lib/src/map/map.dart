@@ -397,7 +397,7 @@ class MapState {
 
     var paddingTotalXY = paddingTL + paddingBR;
 
-    var zoom = getBoundsZoom(bounds, paddingTotalXY, inside: false);
+    var zoom = getBoundsZoom(bounds, paddingTotalXY, inside: options.inside);
     zoom = math.min(options.maxZoom, zoom);
 
     var paddingOffset = (paddingBR - paddingTL) / 2;
