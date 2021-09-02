@@ -14,6 +14,7 @@ import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/plugins/plugin.dart';
 import 'package:latlong2/latlong.dart';
 
+export 'package:flutter_map/src/core/center_zoom.dart';
 export 'package:flutter_map/src/core/point.dart';
 export 'package:flutter_map/src/geo/crs/crs.dart';
 export 'package:flutter_map/src/geo/latlng_bounds.dart';
@@ -121,6 +122,11 @@ abstract class MapController {
   /// Fits the map bounds. Optional constraints can be defined
   /// through the [options] parameter.
   void fitBounds(LatLngBounds bounds, {FitBoundsOptions? options});
+
+  /// Calcs the new center and zoom for the map bounds. Optional constraints can be defined
+  /// through the [options] parameter.
+  CenterZoom centerZoomFitBounds(LatLngBounds bounds,
+      {FitBoundsOptions? options});
 
   Future<Null> get onReady;
 
