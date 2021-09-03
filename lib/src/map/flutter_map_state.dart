@@ -136,9 +136,7 @@ class FlutterMapState extends MapGestureMixin {
                     onLongPress: _positionedTapController.onLongPress,
                     onTapDown: _positionedTapController.onTapDown,
                     onTapUp: handleOnTapUp,
-                    child: scaleGestureDetector(
-                      child: _buildMap(size)
-                    ),
+                    child: scaleGestureDetector(child: _buildMap(size)),
                   )
                 : GestureDetector(
                     onScaleStart: handleScaleStart,
@@ -148,15 +146,14 @@ class FlutterMapState extends MapGestureMixin {
                     onLongPress: _positionedTapController.onLongPress,
                     onTapDown: _positionedTapController.onTapDown,
                     onTapUp: handleOnTapUp,
-                    child: _buildMap(size)
-                  ),
+                    child: _buildMap(size)),
           ),
         ),
       );
     });
   }
 
-  Widget _buildMap(var size){
+  Widget _buildMap(var size) {
     return ClipRect(
       child: Stack(
         children: [
@@ -169,12 +166,10 @@ class FlutterMapState extends MapGestureMixin {
               angle: mapState.rotationRad,
               child: Stack(
                 children: [
-                  if (widget.children.isNotEmpty)
-                    ...widget.children,
+                  if (widget.children.isNotEmpty) ...widget.children,
                   if (widget.layers.isNotEmpty)
                     ...widget.layers.map(
-                          (layer) =>
-                          _createLayer(layer, options.plugins),
+                      (layer) => _createLayer(layer, options.plugins),
                     )
                 ],
               ),
@@ -186,8 +181,7 @@ class FlutterMapState extends MapGestureMixin {
                 ...widget.nonRotatedChildren,
               if (widget.nonRotatedLayers.isNotEmpty)
                 ...widget.nonRotatedLayers.map(
-                      (layer) =>
-                      _createLayer(layer, options.plugins),
+                  (layer) => _createLayer(layer, options.plugins),
                 )
             ],
           ),
@@ -195,6 +189,7 @@ class FlutterMapState extends MapGestureMixin {
       ),
     );
   }
+
   Widget _createLayer(LayerOptions options, List<MapPlugin> plugins) {
     for (var plugin in plugins) {
       if (plugin.supportsLayer(options)) {
