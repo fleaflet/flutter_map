@@ -246,6 +246,10 @@ class TileLayerOptions extends LayerOptions {
   ///aligment of the attribution text on the map widget
   final Alignment attributionAlignment;
 
+
+  /// Stream to notify the [TileLayer] that it needs resetting
+  Stream<Null>? reset;
+
   TileLayerOptions({
     this.attributionAlignment = Alignment.bottomRight,
     this.attributionBuilder,
@@ -292,6 +296,7 @@ class TileLayerOptions extends LayerOptions {
     this.tilesContainerBuilder,
     this.evictErrorTileStrategy = EvictErrorTileStrategy.none,
     this.fastReplace = false,
+    this.reset
   })  : updateInterval =
             updateInterval <= 0 ? null : Duration(milliseconds: updateInterval),
         tileFadeInDuration = tileFadeInDuration <= 0
@@ -452,6 +457,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   //ignore: unused_field
   Level? _level;
   StreamSubscription? _moveSub;
+  StreamSubscription? _resetSub;
   StreamController<LatLng?>? _throttleUpdate;
   late CustomPoint _tileSize;
 
@@ -467,6 +473,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     _resetView();
     _update(null);
     _moveSub = widget.stream.listen((_) => _handleMove());
+
+    if (options.reset != null) {
+      _resetSub = options.reset?.listen((_) => _resetTiles());
+    }
 
     _initThrottleUpdate();
   }
@@ -549,6 +559,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   @override
   void dispose() {
     _removeAllTiles();
+    _resetSub?.cancel();
     _moveSub?.cancel();
     _pruneLater?.cancel();
     options.tileProvider.dispose();
@@ -741,6 +752,12 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     for (var key in toRemove) {
       _removeTile(key);
     }
+  }
+
+  ///removes all loaded tiles and resets the view
+  void _resetTiles() {
+    _removeAllTiles();
+    _resetView();
   }
 
   void _removeAllTiles() {

@@ -20,6 +20,7 @@ import './pages/plugin_api.dart';
 import './pages/plugin_scalebar.dart';
 import './pages/plugin_zoombuttons.dart';
 import './pages/polyline.dart';
+import './pages/reset_tile_layer.dart';
 import './pages/sliding_map.dart';
 import './pages/stateful_markers.dart';
 import './pages/tap_to_add.dart';
@@ -70,6 +71,7 @@ class MyApp extends StatelessWidget {
         ManyMarkersPage.route: (context) => ManyMarkersPage(),
         StatefulMarkersPage.route: (context) => StatefulMarkersPage(),
         MapInsideListViewPage.route: (context) => MapInsideListViewPage(),
+        ResetTileLayerPage.route: (context) => ResetTileLayerPage(),
       },
     );
   }
