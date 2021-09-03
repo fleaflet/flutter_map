@@ -21,6 +21,7 @@ import '../pages/plugin_api.dart';
 import '../pages/plugin_scalebar.dart';
 import '../pages/plugin_zoombuttons.dart';
 import '../pages/polyline.dart';
+import '../pages/reset_tile_layer.dart';
 import '../pages/sliding_map.dart';
 import '../pages/stateful_markers.dart';
 import '../pages/tap_to_add.dart';
@@ -210,6 +211,13 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           selected: currentRoute == ManyMarkersPage.route,
           onTap: () {
             Navigator.pushReplacementNamed(context, ManyMarkersPage.route);
+          },
+        ),
+        ListTile(
+          title: const Text('Reset Tile Layer'),
+          selected: currentRoute == ResetTileLayerPage.route,
+          onTap: () {
+            Navigator.pushReplacementNamed(context, ResetTileLayerPage.route);
           },
         ),
         _buildMenuItem(

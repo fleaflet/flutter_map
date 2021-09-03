@@ -246,53 +246,57 @@ class TileLayerOptions extends LayerOptions {
   ///aligment of the attribution text on the map widget
   final Alignment attributionAlignment;
 
-  TileLayerOptions({
-    this.attributionAlignment = Alignment.bottomRight,
-    this.attributionBuilder,
-    Key? key,
-    // TODO: make required
-    this.urlTemplate,
-    double tileSize = 256.0,
-    double minZoom = 0.0,
-    double maxZoom = 18.0,
-    this.minNativeZoom,
-    this.maxNativeZoom,
-    this.zoomReverse = false,
-    double zoomOffset = 0.0,
-    Map<String, String>? additionalOptions,
-    this.subdomains = const <String>[],
-    this.keepBuffer = 2,
-    this.backgroundColor = const Color(0xFFE0E0E0),
-    this.placeholderImage,
-    this.errorImage,
-    this.tileProvider = const NonCachingNetworkTileProvider(),
-    this.tms = false,
-    // ignore: avoid_init_to_null
-    this.wmsOptions = null,
-    this.opacity = 1.0,
-    // Tiles will not update more than once every `updateInterval` milliseconds
-    // (default 200) when panning. It can be 0 (but it will calculating for
-    // loading tiles every frame when panning / zooming, flutter is fast) This
-    // can save some fps and even bandwidth (ie. when fast panning / animating
-    // between long distances in short time)
-    // TODO: change to Duration
-    int updateInterval = 200,
-    // Tiles fade in duration in milliseconds (default 100).  This can be set to
-    // 0 to avoid fade in
-    // TODO: change to Duration
-    int tileFadeInDuration = 100,
-    this.tileFadeInStart = 0.0,
-    this.tileFadeInStartWhenOverride = 0.0,
-    this.overrideTilesWhenUrlChanges = false,
-    this.retinaMode = false,
-    this.errorTileCallback,
-    Stream<Null>? rebuild,
-    this.templateFunction = util.template,
-    this.tileBuilder,
-    this.tilesContainerBuilder,
-    this.evictErrorTileStrategy = EvictErrorTileStrategy.none,
-    this.fastReplace = false,
-  })  : updateInterval =
+  /// Stream to notify the [TileLayer] that it needs resetting
+  Stream<Null>? reset;
+
+  TileLayerOptions(
+      {this.attributionAlignment = Alignment.bottomRight,
+      this.attributionBuilder,
+      Key? key,
+      // TODO: make required
+      this.urlTemplate,
+      double tileSize = 256.0,
+      double minZoom = 0.0,
+      double maxZoom = 18.0,
+      this.minNativeZoom,
+      this.maxNativeZoom,
+      this.zoomReverse = false,
+      double zoomOffset = 0.0,
+      Map<String, String>? additionalOptions,
+      this.subdomains = const <String>[],
+      this.keepBuffer = 2,
+      this.backgroundColor = const Color(0xFFE0E0E0),
+      this.placeholderImage,
+      this.errorImage,
+      this.tileProvider = const NonCachingNetworkTileProvider(),
+      this.tms = false,
+      // ignore: avoid_init_to_null
+      this.wmsOptions = null,
+      this.opacity = 1.0,
+      // Tiles will not update more than once every `updateInterval` milliseconds
+      // (default 200) when panning. It can be 0 (but it will calculating for
+      // loading tiles every frame when panning / zooming, flutter is fast) This
+      // can save some fps and even bandwidth (ie. when fast panning / animating
+      // between long distances in short time)
+      // TODO: change to Duration
+      int updateInterval = 200,
+      // Tiles fade in duration in milliseconds (default 100).  This can be set to
+      // 0 to avoid fade in
+      // TODO: change to Duration
+      int tileFadeInDuration = 100,
+      this.tileFadeInStart = 0.0,
+      this.tileFadeInStartWhenOverride = 0.0,
+      this.overrideTilesWhenUrlChanges = false,
+      this.retinaMode = false,
+      this.errorTileCallback,
+      Stream<Null>? rebuild,
+      this.templateFunction = util.template,
+      this.tileBuilder,
+      this.tilesContainerBuilder,
+      this.evictErrorTileStrategy = EvictErrorTileStrategy.none,
+      this.fastReplace = false,
+      this.reset})
+      : updateInterval =
             updateInterval <= 0 ? null : Duration(milliseconds: updateInterval),
         tileFadeInDuration = tileFadeInDuration <= 0
             ? null
@@ -452,6 +456,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   //ignore: unused_field
   Level? _level;
   StreamSubscription? _moveSub;
+  StreamSubscription? _resetSub;
   StreamController<LatLng?>? _throttleUpdate;
   late CustomPoint _tileSize;
 
@@ -467,6 +472,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     _resetView();
     _update(null);
     _moveSub = widget.stream.listen((_) => _handleMove());
+
+    if (options.reset != null) {
+      _resetSub = options.reset?.listen((_) => _resetTiles());
+    }
 
     _initThrottleUpdate();
   }
@@ -549,6 +558,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   @override
   void dispose() {
     _removeAllTiles();
+    _resetSub?.cancel();
     _moveSub?.cancel();
     _pruneLater?.cancel();
     options.tileProvider.dispose();
@@ -741,6 +751,12 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     for (var key in toRemove) {
       _removeTile(key);
     }
+  }
+
+  ///removes all loaded tiles and resets the view
+  void _resetTiles() {
+    _removeAllTiles();
+    _resetView();
   }
 
   void _removeAllTiles() {
