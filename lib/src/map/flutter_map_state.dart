@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:async/async.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/gestures/gestures.dart';
@@ -81,6 +82,43 @@ class FlutterMapState extends MapGestureMixin {
       mapState.setOriginalSize(constraints.maxWidth, constraints.maxHeight);
       var size = mapState.size;
 
+      var scaleGestureTeam = GestureArenaTeam();
+
+      var scaleGestureDetector = ({required Widget child}) =>
+          RawGestureDetector(
+            gestures: <Type, GestureRecognizerFactory>{
+              ScaleGestureRecognizer:
+                  GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
+                      () => ScaleGestureRecognizer(),
+                      (ScaleGestureRecognizer instance) {
+                scaleGestureTeam.captain = instance;
+                instance.team ??= scaleGestureTeam;
+                instance
+                  ..onStart = handleScaleStart
+                  ..onUpdate = handleScaleUpdate
+                  ..onEnd = handleScaleEnd;
+              }),
+              VerticalDragGestureRecognizer:
+                  GestureRecognizerFactoryWithHandlers<
+                          VerticalDragGestureRecognizer>(
+                      () => VerticalDragGestureRecognizer(),
+                      (VerticalDragGestureRecognizer instance) {
+                instance.team ??= scaleGestureTeam;
+                // these empty lambdas are necessary to activate this gesture recognizer
+                instance.onUpdate = (_) {};
+              }),
+              HorizontalDragGestureRecognizer:
+                  GestureRecognizerFactoryWithHandlers<
+                          HorizontalDragGestureRecognizer>(
+                      () => HorizontalDragGestureRecognizer(),
+                      (HorizontalDragGestureRecognizer instance) {
+                instance.team ??= scaleGestureTeam;
+                instance.onUpdate = (_) {};
+              })
+            },
+            child: child,
+          );
+
       return MapStateInheritedWidget(
         mapState: mapState,
         child: Listener(
@@ -92,53 +130,64 @@ class FlutterMapState extends MapGestureMixin {
             onTap: handleTap,
             onLongPress: handleLongPress,
             onDoubleTap: handleDoubleTap,
-            child: GestureDetector(
-              onScaleStart: handleScaleStart,
-              onScaleUpdate: handleScaleUpdate,
-              onScaleEnd: handleScaleEnd,
-              onTap: _positionedTapController.onTap,
-              onLongPress: _positionedTapController.onLongPress,
-              onTapDown: _positionedTapController.onTapDown,
-              onTapUp: handleOnTapUp,
-              child: ClipRect(
-                child: Stack(
-                  children: [
-                    OverflowBox(
-                      minWidth: size.x as double?,
-                      maxWidth: size.x as double?,
-                      minHeight: size.y as double?,
-                      maxHeight: size.y as double?,
-                      child: Transform.rotate(
-                        angle: mapState.rotationRad,
-                        child: Stack(
-                          children: [
-                            if (widget.children.isNotEmpty) ...widget.children,
-                            if (widget.layers.isNotEmpty)
-                              ...widget.layers.map(
-                                (layer) => _createLayer(layer, options.plugins),
-                              )
-                          ],
-                        ),
-                      ),
-                    ),
-                    Stack(
-                      children: [
-                        if (widget.nonRotatedChildren.isNotEmpty)
-                          ...widget.nonRotatedChildren,
-                        if (widget.nonRotatedLayers.isNotEmpty)
-                          ...widget.nonRotatedLayers.map(
-                            (layer) => _createLayer(layer, options.plugins),
-                          )
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            child: options.allowPanningOnScrollingParent
+                ? GestureDetector(
+                    onTap: _positionedTapController.onTap,
+                    onLongPress: _positionedTapController.onLongPress,
+                    onTapDown: _positionedTapController.onTapDown,
+                    onTapUp: handleOnTapUp,
+                    child: scaleGestureDetector(child: _buildMap(size)),
+                  )
+                : GestureDetector(
+                    onScaleStart: handleScaleStart,
+                    onScaleUpdate: handleScaleUpdate,
+                    onScaleEnd: handleScaleEnd,
+                    onTap: _positionedTapController.onTap,
+                    onLongPress: _positionedTapController.onLongPress,
+                    onTapDown: _positionedTapController.onTapDown,
+                    onTapUp: handleOnTapUp,
+                    child: _buildMap(size)),
           ),
         ),
       );
     });
+  }
+
+  Widget _buildMap(var size) {
+    return ClipRect(
+      child: Stack(
+        children: [
+          OverflowBox(
+            minWidth: size.x as double?,
+            maxWidth: size.x as double?,
+            minHeight: size.y as double?,
+            maxHeight: size.y as double?,
+            child: Transform.rotate(
+              angle: mapState.rotationRad,
+              child: Stack(
+                children: [
+                  if (widget.children.isNotEmpty) ...widget.children,
+                  if (widget.layers.isNotEmpty)
+                    ...widget.layers.map(
+                      (layer) => _createLayer(layer, options.plugins),
+                    )
+                ],
+              ),
+            ),
+          ),
+          Stack(
+            children: [
+              if (widget.nonRotatedChildren.isNotEmpty)
+                ...widget.nonRotatedChildren,
+              if (widget.nonRotatedLayers.isNotEmpty)
+                ...widget.nonRotatedLayers.map(
+                  (layer) => _createLayer(layer, options.plugins),
+                )
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _createLayer(LayerOptions options, List<MapPlugin> plugins) {
