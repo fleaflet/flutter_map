@@ -137,43 +137,7 @@ class FlutterMapState extends MapGestureMixin {
                     onTapDown: _positionedTapController.onTapDown,
                     onTapUp: handleOnTapUp,
                     child: scaleGestureDetector(
-                      child: ClipRect(
-                        child: Stack(
-                          children: [
-                            OverflowBox(
-                              minWidth: size.x as double?,
-                              maxWidth: size.x as double?,
-                              minHeight: size.y as double?,
-                              maxHeight: size.y as double?,
-                              child: Transform.rotate(
-                                angle: mapState.rotationRad,
-                                child: Stack(
-                                  children: [
-                                    if (widget.children.isNotEmpty)
-                                      ...widget.children,
-                                    if (widget.layers.isNotEmpty)
-                                      ...widget.layers.map(
-                                        (layer) => _createLayer(
-                                            layer, options.plugins),
-                                      )
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Stack(
-                              children: [
-                                if (widget.nonRotatedChildren.isNotEmpty)
-                                  ...widget.nonRotatedChildren,
-                                if (widget.nonRotatedLayers.isNotEmpty)
-                                  ...widget.nonRotatedLayers.map(
-                                    (layer) =>
-                                        _createLayer(layer, options.plugins),
-                                  )
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
+                      child: _buildMap(size)
                     ),
                   )
                 : GestureDetector(
@@ -184,43 +148,7 @@ class FlutterMapState extends MapGestureMixin {
                     onLongPress: _positionedTapController.onLongPress,
                     onTapDown: _positionedTapController.onTapDown,
                     onTapUp: handleOnTapUp,
-                    child: ClipRect(
-                      child: Stack(
-                        children: [
-                          OverflowBox(
-                            minWidth: size.x as double?,
-                            maxWidth: size.x as double?,
-                            minHeight: size.y as double?,
-                            maxHeight: size.y as double?,
-                            child: Transform.rotate(
-                              angle: mapState.rotationRad,
-                              child: Stack(
-                                children: [
-                                  if (widget.children.isNotEmpty)
-                                    ...widget.children,
-                                  if (widget.layers.isNotEmpty)
-                                    ...widget.layers.map(
-                                      (layer) =>
-                                          _createLayer(layer, options.plugins),
-                                    )
-                                ],
-                              ),
-                            ),
-                          ),
-                          Stack(
-                            children: [
-                              if (widget.nonRotatedChildren.isNotEmpty)
-                                ...widget.nonRotatedChildren,
-                              if (widget.nonRotatedLayers.isNotEmpty)
-                                ...widget.nonRotatedLayers.map(
-                                  (layer) =>
-                                      _createLayer(layer, options.plugins),
-                                )
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                    child: _buildMap(size)
                   ),
           ),
         ),
@@ -228,6 +156,45 @@ class FlutterMapState extends MapGestureMixin {
     });
   }
 
+  Widget _buildMap(var size){
+    return ClipRect(
+      child: Stack(
+        children: [
+          OverflowBox(
+            minWidth: size.x as double?,
+            maxWidth: size.x as double?,
+            minHeight: size.y as double?,
+            maxHeight: size.y as double?,
+            child: Transform.rotate(
+              angle: mapState.rotationRad,
+              child: Stack(
+                children: [
+                  if (widget.children.isNotEmpty)
+                    ...widget.children,
+                  if (widget.layers.isNotEmpty)
+                    ...widget.layers.map(
+                          (layer) =>
+                          _createLayer(layer, options.plugins),
+                    )
+                ],
+              ),
+            ),
+          ),
+          Stack(
+            children: [
+              if (widget.nonRotatedChildren.isNotEmpty)
+                ...widget.nonRotatedChildren,
+              if (widget.nonRotatedLayers.isNotEmpty)
+                ...widget.nonRotatedLayers.map(
+                      (layer) =>
+                      _createLayer(layer, options.plugins),
+                )
+            ],
+          ),
+        ],
+      ),
+    );
+  }
   Widget _createLayer(LayerOptions options, List<MapPlugin> plugins) {
     for (var plugin in plugins) {
       if (plugin.supportsLayer(options)) {
