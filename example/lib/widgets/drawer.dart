@@ -218,12 +218,8 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           StatefulMarkersPage.route,
           currentRoute,
         ),
-        _buildMenuItem(
-            context,
-            const Text('Map inside listview'),
-            MapInsideListViewPage.route,
-            currentRoute
-        ),
+        _buildMenuItem(context, const Text('Map inside listview'),
+            MapInsideListViewPage.route, currentRoute),
       ],
     ),
   );

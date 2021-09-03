@@ -84,12 +84,13 @@ class FlutterMapState extends MapGestureMixin {
 
       var scaleGestureTeam = GestureArenaTeam();
 
-      var scaleGestureDetector = ({required Widget child}) => RawGestureDetector(
-        gestures: <Type, GestureRecognizerFactory>{
-          ScaleGestureRecognizer:
-          GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
-                  () => ScaleGestureRecognizer(),
-                  (ScaleGestureRecognizer instance) {
+      var scaleGestureDetector = ({required Widget child}) =>
+          RawGestureDetector(
+            gestures: <Type, GestureRecognizerFactory>{
+              ScaleGestureRecognizer:
+                  GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
+                      () => ScaleGestureRecognizer(),
+                      (ScaleGestureRecognizer instance) {
                 scaleGestureTeam.captain = instance;
                 instance.team ??= scaleGestureTeam;
                 instance
@@ -97,26 +98,26 @@ class FlutterMapState extends MapGestureMixin {
                   ..onUpdate = handleScaleUpdate
                   ..onEnd = handleScaleEnd;
               }),
-          VerticalDragGestureRecognizer:
-          GestureRecognizerFactoryWithHandlers<
-              VerticalDragGestureRecognizer>(
-                  () => VerticalDragGestureRecognizer(),
-                  (VerticalDragGestureRecognizer instance) {
+              VerticalDragGestureRecognizer:
+                  GestureRecognizerFactoryWithHandlers<
+                          VerticalDragGestureRecognizer>(
+                      () => VerticalDragGestureRecognizer(),
+                      (VerticalDragGestureRecognizer instance) {
                 instance.team ??= scaleGestureTeam;
                 // these empty lambdas are necessary to activate this gesture recognizer
                 instance.onUpdate = (_) {};
               }),
-          HorizontalDragGestureRecognizer:
-          GestureRecognizerFactoryWithHandlers<
-              HorizontalDragGestureRecognizer>(
-                  () => HorizontalDragGestureRecognizer(),
-                  (HorizontalDragGestureRecognizer instance) {
+              HorizontalDragGestureRecognizer:
+                  GestureRecognizerFactoryWithHandlers<
+                          HorizontalDragGestureRecognizer>(
+                      () => HorizontalDragGestureRecognizer(),
+                      (HorizontalDragGestureRecognizer instance) {
                 instance.team ??= scaleGestureTeam;
                 instance.onUpdate = (_) {};
               })
-        },
-        child: child,
-      );
+            },
+            child: child,
+          );
 
       return MapStateInheritedWidget(
         mapState: mapState,
@@ -129,90 +130,98 @@ class FlutterMapState extends MapGestureMixin {
             onTap: handleTap,
             onLongPress: handleLongPress,
             onDoubleTap: handleDoubleTap,
-            child: options.allowPanningOnScrollingParent ? GestureDetector(
-              onTap: _positionedTapController.onTap,
-              onLongPress: _positionedTapController.onLongPress,
-              onTapDown: _positionedTapController.onTapDown,
-              onTapUp: handleOnTapUp,
-              child: scaleGestureDetector(
-                child: ClipRect(
-                  child: Stack(
-                    children: [
-                      OverflowBox(
-                        minWidth: size.x as double?,
-                        maxWidth: size.x as double?,
-                        minHeight: size.y as double?,
-                        maxHeight: size.y as double?,
-                        child: Transform.rotate(
-                          angle: mapState.rotationRad,
-                          child: Stack(
-                            children: [
-                              if (widget.children.isNotEmpty) ...widget.children,
-                              if (widget.layers.isNotEmpty)
-                                ...widget.layers.map(
-                                  (layer) => _createLayer(layer, options.plugins),
-                                )
-                            ],
-                          ),
-                        ),
-                      ),
-                      Stack(
-                        children: [
-                          if (widget.nonRotatedChildren.isNotEmpty)
-                            ...widget.nonRotatedChildren,
-                          if (widget.nonRotatedLayers.isNotEmpty)
-                            ...widget.nonRotatedLayers.map(
-                              (layer) => _createLayer(layer, options.plugins),
-                            )
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ) : GestureDetector(
-              onScaleStart: handleScaleStart,
-              onScaleUpdate: handleScaleUpdate,
-              onScaleEnd: handleScaleEnd,
-              onTap: _positionedTapController.onTap,
-              onLongPress: _positionedTapController.onLongPress,
-              onTapDown: _positionedTapController.onTapDown,
-              onTapUp: handleOnTapUp,
-              child: ClipRect(
-                child: Stack(
-                  children: [
-                    OverflowBox(
-                      minWidth: size.x as double?,
-                      maxWidth: size.x as double?,
-                      minHeight: size.y as double?,
-                      maxHeight: size.y as double?,
-                      child: Transform.rotate(
-                        angle: mapState.rotationRad,
+            child: options.allowPanningOnScrollingParent
+                ? GestureDetector(
+                    onTap: _positionedTapController.onTap,
+                    onLongPress: _positionedTapController.onLongPress,
+                    onTapDown: _positionedTapController.onTapDown,
+                    onTapUp: handleOnTapUp,
+                    child: scaleGestureDetector(
+                      child: ClipRect(
                         child: Stack(
                           children: [
-                            if (widget.children.isNotEmpty) ...widget.children,
-                            if (widget.layers.isNotEmpty)
-                              ...widget.layers.map(
-                                    (layer) => _createLayer(layer, options.plugins),
-                              )
+                            OverflowBox(
+                              minWidth: size.x as double?,
+                              maxWidth: size.x as double?,
+                              minHeight: size.y as double?,
+                              maxHeight: size.y as double?,
+                              child: Transform.rotate(
+                                angle: mapState.rotationRad,
+                                child: Stack(
+                                  children: [
+                                    if (widget.children.isNotEmpty)
+                                      ...widget.children,
+                                    if (widget.layers.isNotEmpty)
+                                      ...widget.layers.map(
+                                        (layer) => _createLayer(
+                                            layer, options.plugins),
+                                      )
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Stack(
+                              children: [
+                                if (widget.nonRotatedChildren.isNotEmpty)
+                                  ...widget.nonRotatedChildren,
+                                if (widget.nonRotatedLayers.isNotEmpty)
+                                  ...widget.nonRotatedLayers.map(
+                                    (layer) =>
+                                        _createLayer(layer, options.plugins),
+                                  )
+                              ],
+                            ),
                           ],
                         ),
                       ),
                     ),
-                    Stack(
-                      children: [
-                        if (widget.nonRotatedChildren.isNotEmpty)
-                          ...widget.nonRotatedChildren,
-                        if (widget.nonRotatedLayers.isNotEmpty)
-                          ...widget.nonRotatedLayers.map(
-                                (layer) => _createLayer(layer, options.plugins),
-                          )
-                      ],
+                  )
+                : GestureDetector(
+                    onScaleStart: handleScaleStart,
+                    onScaleUpdate: handleScaleUpdate,
+                    onScaleEnd: handleScaleEnd,
+                    onTap: _positionedTapController.onTap,
+                    onLongPress: _positionedTapController.onLongPress,
+                    onTapDown: _positionedTapController.onTapDown,
+                    onTapUp: handleOnTapUp,
+                    child: ClipRect(
+                      child: Stack(
+                        children: [
+                          OverflowBox(
+                            minWidth: size.x as double?,
+                            maxWidth: size.x as double?,
+                            minHeight: size.y as double?,
+                            maxHeight: size.y as double?,
+                            child: Transform.rotate(
+                              angle: mapState.rotationRad,
+                              child: Stack(
+                                children: [
+                                  if (widget.children.isNotEmpty)
+                                    ...widget.children,
+                                  if (widget.layers.isNotEmpty)
+                                    ...widget.layers.map(
+                                      (layer) =>
+                                          _createLayer(layer, options.plugins),
+                                    )
+                                ],
+                              ),
+                            ),
+                          ),
+                          Stack(
+                            children: [
+                              if (widget.nonRotatedChildren.isNotEmpty)
+                                ...widget.nonRotatedChildren,
+                              if (widget.nonRotatedLayers.isNotEmpty)
+                                ...widget.nonRotatedLayers.map(
+                                  (layer) =>
+                                      _createLayer(layer, options.plugins),
+                                )
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ],
-                ),
-              ),
-            ) ,
+                  ),
           ),
         ),
       );
