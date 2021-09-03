@@ -240,7 +240,15 @@ class TileLayerOptions extends LayerOptions {
   /// When set to `true`, the `tileFadeIn*` options will be ignored.
   final bool fastReplace;
 
+  ///Attribution widget builder
+  final WidgetBuilder? attributionBuilder;
+
+  ///aligment of the attribution text on the map widget
+  final Alignment attributionAlignment;
+
   TileLayerOptions({
+    this.attributionAlignment = Alignment.bottomRight,
+    this.attributionBuilder,
     Key? key,
     // TODO: make required
     this.urlTemplate,
@@ -561,17 +569,27 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       children: tileWidgets,
     );
 
+    final tilesLayer = options.tilesContainerBuilder == null
+        ? tilesContainer
+        : options.tilesContainerBuilder!(
+            context,
+            tilesContainer,
+            tilesToRender,
+          );
+
+    final attributionLayer = widget.options.attributionBuilder?.call(context);
+
     return Opacity(
       opacity: options.opacity,
       child: Container(
         color: options.backgroundColor,
-        child: options.tilesContainerBuilder == null
-            ? tilesContainer
-            : options.tilesContainerBuilder!(
-                context,
-                tilesContainer,
-                tilesToRender,
-              ),
+        child: Stack(
+          alignment: widget.options.attributionAlignment,
+          children: [
+            tilesLayer,
+            if (attributionLayer != null) attributionLayer,
+          ],
+        ),
       ),
     );
   }

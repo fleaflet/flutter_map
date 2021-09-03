@@ -37,7 +37,10 @@ Widget build(BuildContext context) {
     layers: [
       TileLayerOptions(
         urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        subdomains: ['a', 'b', 'c']
+        subdomains: ['a', 'b', 'c'],
+        attributionBuilder: (_) {
+          return Text("© OpenStreetMap contributors");
+        },
       ),
       MarkerLayerOptions(
         markers: [
