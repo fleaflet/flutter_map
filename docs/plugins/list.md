@@ -14,7 +14,10 @@ Although these plugins have been checked by `flutter_map` maintainers, `flutter_
 A list is provided below (in no particular order), containing many of the open-source plugins, each with a short description by the author saying what the plugin does/what it's useful for:
 
 - [`flutter_map_tile_caching`](https://github.com/JaffaKetchup/flutter_map_tile_caching) by [JaffaKetchup](https://github.com/JaffaKetchup)  
-Provides full & advanced caching functionality, with ability to download map regions for offline use. Also includes a number of prebuilt widgets related to the topic.
+Plugin for 'flutter_map' providing advanced caching functionality, with ability to download map regions for offline use. Also includes useful prebuilt widgets.
+
+- [`vector_map_tiles`](https://github.com/greensopinion/flutter-vector-map-tiles) by [greensopinion](https://github.com/greensopinion)  
+A plugin that enables the use of vector tiles and mixed tiles with slippy maps and 'flutter_map'
 
 - [`flutter_map_marker_cluster`](https://github.com/lpongetti/flutter_map_marker_cluster) by [lpongetti](https://github.com/lpongetti)  
 Provides beautiful and animated marker clustering functionality
@@ -28,7 +31,7 @@ A simple and powerful plugin to display the users location and heading
 - [`flutter_map_tappable_polyline`](https://github.com/OwnWeb/flutter_map_tappable_polyline) by [OwnWeb](https://github.com/OwnWeb)  
 A plugin to add `onTap` callback to `Polyline`
 
-- [`lat_lon_grid_plugin`](https://github.com/mat8854/lat_lon_grid_plugin) by [mat8854](https://github.com/mat8854)  
+- [`lat_lon_grid_plugin`](https://github.com/matthiasdittmer/lat_lon_grid_plugin) by [matthiasdittmer](https://github.com/matthiasdittmer)  
 Adds a latitude / longitude grid as plugin to the `FlutterMap()`
 
 - [`flutter_map_marker_popup`](https://github.com/rorystephenson/flutter_map_marker_popup) by [rorystephenson](https://github.com/rorystephenson)  
@@ -56,7 +59,6 @@ When submitting a plugin & PR, please ensure:
 
 
 - the PR body & plugin description uses correct grammar and spelling,
-- the plugin description contains the words ' - IN BETA' after the author link on the same line if your plugin is in beta,
-- the plugin description accurately and concisely represents your plugin,
-- the plugin description closely follows the format below
+- the plugin description contains the words 'IN BETA' if your plugin is in beta,
+- the plugin description accurately and concisely represents your plugin (under 180 characters),
 :::
