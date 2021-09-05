@@ -14,6 +14,7 @@ import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/plugins/plugin.dart';
 import 'package:latlong2/latlong.dart';
 
+export 'package:flutter_map/src/core/center_zoom.dart';
 export 'package:flutter_map/src/core/point.dart';
 export 'package:flutter_map/src/geo/crs/crs.dart';
 export 'package:flutter_map/src/geo/latlng_bounds.dart';
@@ -122,6 +123,11 @@ abstract class MapController {
   /// through the [options] parameter.
   void fitBounds(LatLngBounds bounds, {FitBoundsOptions? options});
 
+  /// Calcs the new center and zoom for the map bounds. Optional constraints can be defined
+  /// through the [options] parameter.
+  CenterZoom centerZoomFitBounds(LatLngBounds bounds,
+      {FitBoundsOptions? options});
+
   Future<Null> get onReady;
 
   LatLng get center;
@@ -224,6 +230,7 @@ class MapOptions {
   final int interactiveFlags;
 
   final bool allowPanning;
+  final bool allowPanningOnScrollingParent;
 
   final TapCallback? onTap;
   final LongPressCallback? onLongPress;
@@ -244,6 +251,7 @@ class MapOptions {
   double? _safeAreaZoom;
 
   MapOptions({
+    this.allowPanningOnScrollingParent = true,
     this.crs = const Epsg3857(),
     LatLng? center,
     this.bounds,
@@ -359,11 +367,13 @@ class FitBoundsOptions {
   final EdgeInsets padding;
   final double maxZoom;
   final double? zoom;
+  final bool inside;
 
   const FitBoundsOptions({
     this.padding = const EdgeInsets.all(0.0),
     this.maxZoom = 17.0,
     this.zoom,
+    this.inside = false,
   });
 }
 
@@ -375,6 +385,16 @@ class MapPosition {
   final bool hasGesture;
 
   MapPosition({this.center, this.bounds, this.zoom, this.hasGesture = false});
+
+  @override
+  int get hashCode => center.hashCode + bounds.hashCode + zoom.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      other is MapPosition &&
+      other.center == center &&
+      other.bounds == bounds &&
+      other.zoom == zoom;
 }
 
 class _SafeArea {

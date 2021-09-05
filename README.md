@@ -37,7 +37,10 @@ Widget build(BuildContext context) {
     layers: [
       TileLayerOptions(
         urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        subdomains: ['a', 'b', 'c']
+        subdomains: ['a', 'b', 'c'],
+        attributionBuilder: (_) {
+          return Text("© OpenStreetMap contributors");
+        },
       ),
       MarkerLayerOptions(
         markers: [
@@ -347,6 +350,7 @@ See also `FileTileProvider()`, which loads tiles from the filesystem.
 - [flutter_map_marker_popup](https://github.com/rorystephenson/flutter_map_marker_popup): A plugin to show customisable popups for markers.
 - [map_elevation](https://github.com/OwnWeb/map_elevation): A widget to display elevation of a track (polyline) like Leaflet.Elevation
 - [flutter_map_floating_marker_titles](https://github.com/androidseb/flutter_map_floating_marker_titles): Displaying floating marker titles on the map view
+- [vector_map_tiles](https://pub.dev/packages/vector_map_tiles): A plugin that enables the use of vector tiles.
 
 ## Roadmap
 

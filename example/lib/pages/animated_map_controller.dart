@@ -156,6 +156,19 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
                     },
                     child: Text('Fit Bounds'),
                   ),
+                  MaterialButton(
+                    onPressed: () {
+                      var bounds = LatLngBounds();
+                      bounds.extend(dublin);
+                      bounds.extend(paris);
+                      bounds.extend(london);
+
+                      var centerZoom =
+                          mapController.centerZoomFitBounds(bounds);
+                      _animatedMapMove(centerZoom.center, centerZoom.zoom);
+                    },
+                    child: Text('Fit Bounds animated'),
+                  ),
                 ],
               ),
             ),
