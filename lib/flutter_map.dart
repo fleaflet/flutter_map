@@ -13,6 +13,7 @@ import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/plugins/plugin.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
 
 export 'package:flutter_map/src/core/center_zoom.dart';
 export 'package:flutter_map/src/core/point.dart';
@@ -143,8 +144,9 @@ abstract class MapController {
   factory MapController() => MapControllerImpl();
 }
 
-typedef TapCallback = void Function(LatLng point);
-typedef LongPressCallback = void Function(LatLng point);
+typedef TapCallback = void Function(TapPosition tapPosition, LatLng point);
+typedef LongPressCallback = void Function(
+    TapPosition tapPosition, LatLng point);
 typedef PositionCallback = void Function(MapPosition position, bool hasGesture);
 typedef MapCreatedCallback = void Function(MapController mapController);
 
