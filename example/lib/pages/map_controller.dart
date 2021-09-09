@@ -21,7 +21,7 @@ class MapControllerPageState extends State<MapControllerPage> {
   static LatLng paris = LatLng(48.8566, 2.3522);
   static LatLng dublin = LatLng(53.3498, -6.2603);
 
-  MapController mapController;
+  late final MapController mapController;
   double rotation = 0.0;
 
   @override
@@ -119,7 +119,7 @@ class MapControllerPageState extends State<MapControllerPage> {
                   Builder(builder: (BuildContext context) {
                     return MaterialButton(
                       onPressed: () {
-                        final bounds = mapController.bounds;
+                        final bounds = mapController.bounds!;
 
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           content: Text(
@@ -178,8 +178,8 @@ class MapControllerPageState extends State<MapControllerPage> {
 
 class CurrentLocation extends StatefulWidget {
   const CurrentLocation({
-    Key key,
-    @required this.mapController,
+    Key? key,
+    required this.mapController,
   }) : super(key: key);
 
   final MapController mapController;
@@ -192,7 +192,7 @@ class _CurrentLocationState extends State<CurrentLocation> {
   int _eventKey = 0;
 
   var icon = Icons.gps_not_fixed;
-  StreamSubscription<MapEvent> mapEventSubscription;
+  late final StreamSubscription<MapEvent> mapEventSubscription;
 
   @override
   void initState() {
@@ -229,7 +229,7 @@ class _CurrentLocationState extends State<CurrentLocation> {
     try {
       var currentLocation = await location.getLocation();
       var moved = widget.mapController.move(
-        LatLng(currentLocation.latitude, currentLocation.longitude),
+        LatLng(currentLocation.latitude!, currentLocation.longitude!),
         18,
         id: _eventKey.toString(),
       );

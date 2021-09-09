@@ -29,7 +29,7 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
   static LatLng paris = LatLng(48.8566, 2.3522);
   static LatLng dublin = LatLng(53.3498, -6.2603);
 
-  MapController mapController;
+  late final MapController mapController;
 
   @override
   void initState() {
@@ -155,6 +155,19 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
                       );
                     },
                     child: Text('Fit Bounds'),
+                  ),
+                  MaterialButton(
+                    onPressed: () {
+                      var bounds = LatLngBounds();
+                      bounds.extend(dublin);
+                      bounds.extend(paris);
+                      bounds.extend(london);
+
+                      var centerZoom =
+                          mapController.centerZoomFitBounds(bounds);
+                      _animatedMapMove(centerZoom.center, centerZoom.zoom);
+                    },
+                    child: Text('Fit Bounds animated'),
                   ),
                 ],
               ),

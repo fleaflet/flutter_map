@@ -16,12 +16,12 @@ class InteractiveTestPage extends StatefulWidget {
 }
 
 class _InteractiveTestPageState extends State<InteractiveTestPage> {
-  MapController mapController;
+  late final MapController mapController;
 
   // Enable pinchZoom and doubleTapZoomBy by default
   int flags = InteractiveFlag.pinchZoom | InteractiveFlag.doubleTapZoom;
 
-  StreamSubscription<MapEvent> subscription;
+  late final StreamSubscription<MapEvent> subscription;
 
   @override
   void initState() {
@@ -159,7 +159,7 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                     }
 
                     return Text(
-                      'Current event: ${snapshot.data.runtimeType}\nSource: ${snapshot.data.source}',
+                      'Current event: ${snapshot.data.runtimeType}\nSource: ${snapshot.data!.source}',
                       textAlign: TextAlign.center,
                     );
                   },

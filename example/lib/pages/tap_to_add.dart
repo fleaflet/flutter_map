@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
 
 import '../widgets/drawer.dart';
 
@@ -61,7 +62,7 @@ class TapToAddPageState extends State<TapToAddPage> {
     );
   }
 
-  void _handleTap(LatLng latlng) {
+  void _handleTap(TapPosition tapPosition, LatLng latlng) {
     setState(() {
       tappedPoints.add(latlng);
     });

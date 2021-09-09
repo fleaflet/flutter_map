@@ -48,7 +48,7 @@ class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
                       tileProvider: NonCachingNetworkTileProvider(),
                       errorTileCallback: (Tile tile, error) {
                         if (_needLoadingError) {
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                          WidgetsBinding.instance!.addPostFrameCallback((_) {
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                               duration: Duration(seconds: 1),
                               content: Text(

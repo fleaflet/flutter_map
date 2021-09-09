@@ -8,15 +8,15 @@ class ZoomButtonsPluginOption extends LayerOptions {
   final bool mini;
   final double padding;
   final Alignment alignment;
-  final Color zoomInColor;
-  final Color zoomInColorIcon;
-  final Color zoomOutColor;
-  final Color zoomOutColorIcon;
+  final Color? zoomInColor;
+  final Color? zoomInColorIcon;
+  final Color? zoomOutColor;
+  final Color? zoomOutColorIcon;
   final IconData zoomInIcon;
   final IconData zoomOutIcon;
 
   ZoomButtonsPluginOption({
-    Key key,
+    Key? key,
     this.minZoom = 1,
     this.maxZoom = 18,
     this.mini = true,
@@ -28,7 +28,7 @@ class ZoomButtonsPluginOption extends LayerOptions {
     this.zoomOutColor,
     this.zoomOutColorIcon,
     this.zoomOutIcon = Icons.zoom_out,
-    Stream<Null> rebuild,
+    Stream<Null>? rebuild,
   }) : super(key: key, rebuild: rebuild);
 }
 
@@ -82,7 +82,8 @@ class ZoomButtons extends StatelessWidget {
                 if (zoom < zoomButtonsOpts.minZoom) {
                   zoom = zoomButtonsOpts.minZoom as double;
                 } else {
-                  map.move(centerZoom.center, zoom);
+                  map.move(centerZoom.center, zoom,
+                      source: MapEventSource.custom);
                 }
               },
               child: Icon(zoomButtonsOpts.zoomInIcon,
@@ -104,7 +105,8 @@ class ZoomButtons extends StatelessWidget {
                 if (zoom > zoomButtonsOpts.maxZoom) {
                   zoom = zoomButtonsOpts.maxZoom as double;
                 } else {
-                  map.move(centerZoom.center, zoom);
+                  map.move(centerZoom.center, zoom,
+                      source: MapEventSource.custom);
                 }
               },
               child: Icon(zoomButtonsOpts.zoomOutIcon,

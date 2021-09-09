@@ -13,9 +13,9 @@ class MarkerRotatePage extends StatefulWidget {
 }
 
 class MarkerRotatePageState extends State<MarkerRotatePage> {
-  bool rotateMarkerLondon;
-  bool rotateMarkerDublin;
-  bool rotateMarkerParis;
+  bool? rotateMarkerLondon;
+  bool? rotateMarkerDublin;
+  bool? rotateMarkerParis;
   bool rotateMarkerLayerOptions = false;
 
   @override
@@ -33,7 +33,7 @@ class MarkerRotatePageState extends State<MarkerRotatePage> {
     setState(() {
       if (rotateMarkerLondon == null) {
         rotateMarkerLondon = true;
-      } else if (rotateMarkerLondon) {
+      } else if (rotateMarkerLondon != null) {
         rotateMarkerLondon = false;
       } else {
         rotateMarkerLondon = null;
@@ -45,7 +45,7 @@ class MarkerRotatePageState extends State<MarkerRotatePage> {
     setState(() {
       if (rotateMarkerDublin == null) {
         rotateMarkerDublin = true;
-      } else if (rotateMarkerDublin) {
+      } else if (rotateMarkerDublin != null) {
         rotateMarkerDublin = false;
       } else {
         rotateMarkerDublin = null;
@@ -57,7 +57,7 @@ class MarkerRotatePageState extends State<MarkerRotatePage> {
     setState(() {
       if (rotateMarkerParis == null) {
         rotateMarkerParis = true;
-      } else if (rotateMarkerParis) {
+      } else if (rotateMarkerParis != null) {
         rotateMarkerParis = false;
       } else {
         rotateMarkerParis = null;

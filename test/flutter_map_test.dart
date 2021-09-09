@@ -14,35 +14,41 @@ class MockHttpClientResponse extends Mock implements HttpClientResponse {
   int get statusCode => HttpStatus.ok;
 
   @override
+  int get contentLength => File('test/res/map.png').lengthSync();
+
+  @override
   HttpClientResponseCompressionState get compressionState =>
       HttpClientResponseCompressionState.notCompressed;
 
   @override
-  StreamSubscription<List<int>> listen(void Function(List<int> event) onData,
-      {Function onError, void Function() onDone, bool cancelOnError}) {
-    return _stream.listen(onData,
-        onError: onError, onDone: onDone, cancelOnError: cancelOnError);
+  StreamSubscription<List<int>> listen(void Function(List<int> event)? onData,
+      {Function? onError, void Function()? onDone, bool? cancelOnError}) {
+    return _stream.listen(
+      onData,
+      onError: onError,
+      onDone: onDone,
+      cancelOnError: cancelOnError,
+    );
   }
 
   static Stream<List<int>> readFile() => File('test/res/map.png').openRead();
 }
 
-class MockHttpClientRequest extends Mock implements HttpClientRequest {}
+class MockHttpClientRequest extends Mock implements HttpClientRequest {
+  @override
+  Future<HttpClientResponse> close() => Future.value(MockHttpClientResponse());
+}
 
 class MockClient extends Mock implements HttpClient {
   @override
   Future<HttpClientRequest> getUrl(Uri url) {
-    final request = MockHttpClientRequest();
-    when(request.close()).thenAnswer((_) async {
-      return MockHttpClientResponse();
-    });
-    return Future.value(request);
+    return Future.value(MockHttpClientRequest());
   }
 }
 
 class MockHttpOverrides extends HttpOverrides {
   @override
-  HttpClient createHttpClient(SecurityContext securityContext) => MockClient();
+  HttpClient createHttpClient(SecurityContext? securityContext) => MockClient();
 }
 
 void main() {

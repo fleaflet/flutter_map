@@ -16,8 +16,8 @@ class MovingMarkersPage extends StatefulWidget {
 }
 
 class _MovingMarkersPageState extends State<MovingMarkersPage> {
-  Marker _marker;
-  Timer _timer;
+  Marker? _marker;
+  late final Timer _timer;
   int _markerIndex = 0;
 
   @override
@@ -62,7 +62,7 @@ class _MovingMarkersPageState extends State<MovingMarkersPage> {
                       urlTemplate:
                           'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                       subdomains: ['a', 'b', 'c']),
-                  MarkerLayerOptions(markers: <Marker>[_marker])
+                  MarkerLayerOptions(markers: [_marker!])
                 ],
               ),
             ),

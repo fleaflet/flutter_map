@@ -7,20 +7,20 @@ class GroupLayerOptions extends LayerOptions {
   List<LayerOptions> group = <LayerOptions>[];
 
   GroupLayerOptions({
-    Key key,
-    this.group,
-    Stream<Null> rebuild,
+    Key? key,
+    this.group = const [],
+    Stream<Null>? rebuild,
   }) : super(key: key, rebuild: rebuild);
 }
 
 class GroupLayerWidget extends StatelessWidget {
   final GroupLayerOptions options;
 
-  GroupLayerWidget({Key key, @required this.options}) : super(key: key);
+  GroupLayerWidget({Key? key, required this.options}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final mapState = MapState.of(context);
+    final mapState = MapState.maybeOf(context)!;
     return GroupLayer(options, mapState, mapState.onMoved);
   }
 }
