@@ -32,7 +32,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
       final delta = pointerSignal.scrollDelta.dy > 0 ? -1 : 1;
       final newZoom = mapState.fitZoomToBounds(mapState.zoom + delta);
       // Move the map to the new zoom level
-      mapState.move(mapState.center, newZoom);
+      mapState.move(mapState.center, newZoom, source: MapEventSource.custom);
     }
   }
 
