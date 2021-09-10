@@ -8,10 +8,10 @@ environment:
   flutter: '>=2.0.0'
 
 dependencies:
-  flutter:
-    sdk: flutter
   async: ^2.6.1
   collection: ^1.15.0
+  flutter:
+    sdk: flutter
   http: ^0.13.3
   intl: ^0.17.0
   latlong2: ^0.8.0
