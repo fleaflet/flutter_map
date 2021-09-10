@@ -1,3 +1,19 @@
+## [0.14.0] - 6/7/2021
+This version contains the following changes
+- Added scroll wheel zoom support for web
+- Added TapPosition to TapCallback
+- Added center to LatLngBounds
+- Added equality operators for LatLngBounds and MapPosition
+- Added support for resetting TileLayer cache
+- Added attribution builder to TileLayer
+- Added 'inside' parameter to FitBoundsOptions
+- Added centerZoomFitBounds to MapController
+- Added vector_map_tiles to plugin section in README
+- Added option to prevent Scrollable widgets from snatching horizontal scrolling gestures
+
+Thanks to moehme, Tom Prebble, Binabh, ondbyte, Sébastien Dabet, Thomas Lüder, Kevin Thorne, 
+kimlet, TheOneWithTheBraid, David Green and Kenneth Gulbrandsøy. 
+
 ## [0.13.1] - 6/7/2021
 This version contains hotfixes from null safety migration.
 
