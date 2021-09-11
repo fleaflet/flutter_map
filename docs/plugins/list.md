@@ -11,7 +11,9 @@ There are many independently maintained 'plugins' created by the `flutter_map` c
 Although these plugins have been checked by `flutter_map` maintainers, `flutter_map` maintainers do not accept responsibility for any issues or threats posed by independently maintained plugins. Use plugins at your own risk.
 :::
 
-A list is provided below (in no particular order), containing many of the open-source plugins, each with a short description by the author saying what the plugin does/what it's useful for:
+Some pages in this documentation provide direct links to these plugins, where appropriate, to make it easier for you to find a suitable plugin. Note that the above warning applies to those links as well.
+
+However, if you're just browsing, a list is provided below (in no particular order), containing many of the open-source plugins, each with a short description by the author saying what the plugin does/what it's useful for:
 
 - [`flutter_map_tile_caching`](https://github.com/JaffaKetchup/flutter_map_tile_caching) by [JaffaKetchup](https://github.com/JaffaKetchup)  
 Plugin for 'flutter_map' providing advanced caching functionality, with ability to download map regions for offline use. Also includes useful prebuilt widgets.

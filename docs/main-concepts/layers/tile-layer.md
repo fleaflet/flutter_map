@@ -84,4 +84,4 @@ These tile providers use the `templateUrl` to get the appropriate tile from the 
 
 ### Caching
 
-Whilst `FileTileProvider()` can be used for caching, better solutions can either be constructed yourself using other packages (such as [`cached_network_image`](https://pub.dev/packages/cached_network_image)), or by using an existing [community maintained plugin](/plugins/list).
+Whilst `FileTileProvider()` can be used for caching, better solutions can either be constructed yourself using other packages (such as [`cached_network_image`](https://pub.dev/packages/cached_network_image)), or by using an existing [community maintained plugin](https://github.com/JaffaKetchup/flutter_map_tile_caching) which handles caching and statistics for you.

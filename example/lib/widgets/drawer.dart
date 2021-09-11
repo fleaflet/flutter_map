@@ -66,8 +66,7 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
         ),
         _buildMenuItem(
           context,
-          const Text('
-          '),
+          const Text(''),
           NetworkTileProviderPage.route,
           currentRoute,
         ),
