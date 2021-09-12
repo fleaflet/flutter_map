@@ -90,7 +90,7 @@ import 'package:latlong2/latlong.dart';
 :::tip Start Coding
 The rest of this documentation will take you through what most developers need to know to setup an advanced `flutter_map` experience for their users.
 
-However, not every detail of `flutter_map`'s extensive functionality can be documented here. So, to help you with all of the public APIs, check-out the [Full API Reference](https://pub.dev/documentation/flutter_map/latest/flutter_map/flutter_map-library.html) available at any time in the sidebar, and also while you code in your favourite IDE.
+However, not every detail of `flutter_map`'s extensive functionality can be documented here. So, to help you with all of the public APIs, check-out the [Full API Reference](https://pub.dev/documentation/flutter_map/latest/flutter_map/flutter_map-library.html) available at any time in the sidebar/navbar, and also while you code in your favourite IDE.
 :::
 
 ## Support & Contact

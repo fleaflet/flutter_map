@@ -6,7 +6,7 @@ sidebar_position: 2
 # Tile Layer
 
 :::info
-This page only talks about WMTS-supporting raster layers, which is the most common and default type of mapping. For information about [WMS-supporting](/miscellaneous/wms-servers) or [vector](/miscellaneous/vector-tiles) layers, visit the appropriate pages in the Miscellaneous section.
+This page only talks about WMTS-supporting raster layers, which is the most common and default type of mapping. For information about [WMS-supporting layers](/miscellaneous/wms-servers) or [vector tiles](/miscellaneous/raster-vs-vector-tiles), visit the appropriate pages in the Miscellaneous section.
 :::
 
 As explained in the [How Does It Work? page](/introduction/how-does-it-work), tiles for a map in `flutter_map` are provided by tile providers that go inside of a `TileLayerOptions()`. That might look something like this:
@@ -84,4 +84,4 @@ These tile providers use the `templateUrl` to get the appropriate tile from the 
 
 ### Caching
 
-Whilst `FileTileProvider()` can be used for caching, better solutions can either be constructed yourself using other packages (such as [`cached_network_image`](https://pub.dev/packages/cached_network_image)), or by using an existing [community maintained plugin](https://github.com/JaffaKetchup/flutter_map_tile_caching) which handles caching and statistics for you.
+Whilst `FileTileProvider()` can be used for caching, better solutions can either be constructed yourself using other packages (such as [`cached_network_image`](https://pub.dev/packages/cached_network_image)), or by using an existing [community maintained plugin (`flutter_map_tile_caching`)](https://github.com/JaffaKetchup/flutter_map_tile_caching) which handles caching and statistics for you, as well as offering methods to bulk download areas of maps.

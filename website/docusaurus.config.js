@@ -44,6 +44,11 @@ module.exports = {
           label: "Docs",
         },
         {
+            href: "https://pub.dev/documentation/flutter_map/latest/flutter_map/flutter_map-library.html",
+            label: "Full API Reference",
+            position: "left",
+        },
+        {
           href: "https://github.com/fleaflet/flutter_map",
           label: "GitHub",
           position: "right",

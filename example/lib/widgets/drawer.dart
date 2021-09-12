@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../pages/map_inside_listview.dart';
-import '../pages/marker_rotate.dart';
-import '../pages/network_tile_provider.dart';
 import '../pages/animated_map_controller.dart';
 import '../pages/circle.dart';
 import '../pages/custom_crs/custom_crs.dart';
@@ -12,6 +9,7 @@ import '../pages/interactive_test_page.dart';
 import '../pages/live_location.dart';
 import '../pages/many_markers.dart';
 import '../pages/map_controller.dart';
+import '../pages/map_inside_listview.dart';
 import '../pages/marker_anchor.dart';
 import '../pages/marker_rotate.dart';
 import '../pages/moving_markers.dart';

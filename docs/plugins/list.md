@@ -19,7 +19,7 @@ However, if you're just browsing, a list is provided below (in no particular ord
 Plugin for 'flutter_map' providing advanced caching functionality, with ability to download map regions for offline use. Also includes useful prebuilt widgets.
 
 - [`vector_map_tiles`](https://github.com/greensopinion/flutter-vector-map-tiles) by [greensopinion](https://github.com/greensopinion)  
-A plugin that enables the use of vector tiles and mixed tiles with slippy maps and 'flutter_map'
+A plugin that enables the use of vector and 'mixed' tiles with 'flutter_map' (see the [Raster vs Vector Tiles page](/miscellaneous/raster-vs-vector-tiles))
 
 - [`flutter_map_marker_cluster`](https://github.com/lpongetti/flutter_map_marker_cluster) by [lpongetti](https://github.com/lpongetti)  
 Provides beautiful and animated marker clustering functionality
