@@ -184,6 +184,11 @@ Widget build(BuildContext context) {
 ```
 
 Make sure `accessToken` is properly encoded as valid URI component.
+If you use Mapbox Studio with your own tile sets, just use URL like this:
+`https://api.mapbox.com/styles/v1/:accountName/:tileSetId/tiles/256/{z}/{x}/{y}@2x`
+where `:accountName` is your user account name and `:tileSetId` is the
+ID of your tile set, more information is 
+[here](https://docs.mapbox.com/help/glossary/style-url/).
 
 ### Widget Layers
 
