@@ -33,7 +33,7 @@ class MapControllerImpl implements MapController {
   MoveAndRotateResult moveAndRotate(LatLng center, double zoom, double degree,
       {String? id}) {
     return _state.moveAndRotate(center, zoom, degree,
-        source: MapEventSource.mapController, id: id!);
+        source: MapEventSource.mapController, id: id);
   }
 
   @override
@@ -276,7 +276,7 @@ class MapState {
   }
 
   MoveAndRotateResult moveAndRotate(LatLng center, double zoom, double degree,
-      {required MapEventSource source, required String id}) {
+      {required MapEventSource source, String? id}) {
     final moveSucc =
         move(center, zoom, id: id, source: source, callOnMoveSink: false);
     final rotateSucc =
