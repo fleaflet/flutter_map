@@ -145,6 +145,46 @@ Widget build(BuildContext context) {
 }
 ```
 
+### Mapbox provider
+
+To configure [Mapbox](https://www.mapbox.com/), you should create your
+[access token](https://docs.mapbox.com/help/getting-started/access-tokens/).
+
+You can use tiles provided and hosted by Mapbox. The list can be found
+[here](https://docs.mapbox.com/api/maps/styles/#mapbox-styles).
+
+```dart
+Widget build(BuildContext context) {
+  return new FlutterMap(
+    options: new MapOptions(
+      center: new LatLng(51.5, -0.09),
+      zoom: 13.0,
+    ),
+    layers: [
+      new TileLayerOptions(
+        urlTemplate: "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/"
+                     "{z}/{x}/{y}?access_token=$accessToken",
+      ),
+      new MarkerLayerOptions(
+        markers: [
+          new Marker(
+            width: 80.0,
+            height: 80.0,
+            point: new LatLng(51.5, -0.09),
+            builder: (ctx) =>
+            new Container(
+              child: new FlutterLogo(),
+            ),
+          ),
+        ],
+      ),
+    ],
+  );
+}
+```
+
+Make sure `accessToken` is properly encoded as valid URI component.
+
 ### Widget Layers
 
 __Use the new way to create layers__ (compatible with previous version)
