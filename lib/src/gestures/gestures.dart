@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math' as math;
+import 'dart:math';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -22,6 +24,42 @@ abstract class MapGestureMixin extends State<FlutterMap>
   void savePointer(PointerEvent event) => ++_pointerCounter;
 
   void removePointer(PointerEvent event) => --_pointerCounter;
+
+  void onPointerSignal(PointerSignalEvent pointerSignal) {
+    // Handle mouse scroll events if the enableScrollWheel parameter is enabled
+    if (pointerSignal is PointerScrollEvent &&
+        mapState.options.enableScrollWheel) {
+      if (pointerSignal.scrollDelta.dy != 0) {
+        _debounce(() {
+          // Check whether the mouse is scrolled down and calculate new zoom level
+          final delta = pointerSignal.scrollDelta.dy > 0 ? -0.25 : 0.25;
+          print(pointerSignal.scrollDelta.dy == 0);
+          final zoom = delta > 0
+              ? min(mapState.options.maxZoom ?? 19, mapState.zoom + delta)
+              : max(mapState.options.minZoom ?? 0, mapState.zoom + delta);
+          print('zoom: $zoom');
+          final newZoom = mapState.fitZoomToBounds(zoom);
+          // Move the map to the new zoom level
+          mapState.move(mapState.center, newZoom,
+              source: MapEventSource.custom);
+        });
+      }
+    }
+  }
+
+  Map timeouts = {};
+
+  void _debounce(void Function() callback) {
+    if (timeouts.containsKey(callback)) {
+      timeouts[callback].cancel();
+    }
+
+    final timer = Timer(const Duration(milliseconds: 150), () {
+      callback();
+    });
+
+    timeouts[callback] = timer;
+  }
 
   var _rotationStarted = false;
   var _pinchZoomStarted = false;
@@ -510,7 +548,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
     final latlng = _offsetToCrs(position.relative!);
     if (options.onTap != null) {
       // emit the event
-      options.onTap!(latlng);
+      options.onTap!(position, latlng);
     }
 
     mapState.emitMapEvent(
@@ -532,7 +570,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
     final latlng = _offsetToCrs(position.relative!);
     if (options.onLongPress != null) {
       // emit the event
-      options.onLongPress!(latlng);
+      options.onLongPress!(position, latlng);
     }
 
     mapState.emitMapEvent(
