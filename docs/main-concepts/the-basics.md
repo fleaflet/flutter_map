@@ -11,7 +11,7 @@ The main widget for the map is easy to remember. It's just:
 FlutterMap(
     controller: ...
     options: MapOptions(),
-    children: [
+    layers: [
 
     ],
 ),
@@ -23,4 +23,4 @@ However, if you wanted to show a widget that didn't need to interact with the ma
 
 You should place this widget inside the build method of a stateful widget. However, avoid rebuilding this widget unnecessarily, and wherever possible use a [`MapController`](controller) instead of changing state directly; this won't be possible for changing layer properties however.
 
-It takes three main properties: options, children, and a map controller which you can use to control the map from behind the scenes. These will be described in the following sections.
+It takes three main properties: options, children/layers, and a map controller which you can use to control the map from behind the scenes. These will be described in the following sections.

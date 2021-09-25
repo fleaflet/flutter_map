@@ -1,6 +1,6 @@
 ---
 id: raster-vs-vector-tiles
-sidebar_position: 3
+sidebar_position: 2
 ---
 
 # Raster vs Vector Tiles
@@ -17,7 +17,7 @@ However, raster tiles cannot be easily themed: a theme needs a whole new set of 
 
 ## Vector Tiles
 
-Vector tiles can be considered the 'newer' standard. These images usually have a .svg extension (if any), and contain an XML-based format dictating the mathematics and coordinates used to draw lines and shapes. Because these tiles are drawn at render time instead of at request/server time, theming can be used to make the map fit in better with an app's theme. The math-based image means that the images/tiles can be scaled without any loss of clarity.
+Vector tiles can be considered the 'newer' standard. These images might contain an XML-based format dictating the mathematics and coordinates used to draw lines and shapes. Because these tiles are drawn at render time instead of at request/server time, theming can be used to make the map fit in better with an app's theme. The math-based image means that the images/tiles can be scaled without any loss of clarity.
 
 However it does add complexity to the rendering process as each element needs to be parsed and painted individually, meaning an impact to performance. Text elements and certain shapes can also be rotated (unlike raster tiles) to match the user's orientation, not the orientation of the map; but calculating this rotation needs to be done every frame, meaning an even larger impact on performance.
 

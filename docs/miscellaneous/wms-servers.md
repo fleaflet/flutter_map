@@ -1,6 +1,6 @@
 ---
 id: wms-servers
-sidebar_position: 1
+sidebar_position: 3
 ---
 
 # WMS Servers
