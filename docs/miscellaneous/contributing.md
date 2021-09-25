@@ -29,7 +29,7 @@ If you don't feel comfortable coding changes yourself, start a discussion or an 
 
 Make sure you thoroughly test your changes, and consider writing automated tests.
 
-Then consider whether you need to write documentation. If you do, make sure you follow a similar format to all the other pages in these docs, and use correct spelling and grammar (consider getting a spell checker for Markdown). Then remember to change the documentation version at 'introduction/go'. Change the title of the grey box and the version, but leave the dynamic badge and other text untouched. If no new documentation is needed, don't touch the grey box.
+Then consider whether you need to write documentation. If you do, make sure you follow a similar format to all the other pages in these docs, and use correct spelling and grammar (consider getting a spell checker for Markdown). Then remember to change the documentation version at 'introduction/go'. Change the title of the grey box, the text version, and the link (to the newest migration page), but leave the dynamic badge and other text untouched. If no new documentation is needed, don't touch the grey box.
 
 After that, check if you need to add a migration guide. This is only applicable if the change was a breaking change.
 
