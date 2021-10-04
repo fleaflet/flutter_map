@@ -758,10 +758,11 @@ abstract class MapGestureMixin extends State<FlutterMap>
   void _startListeningForAnimationInterruptions() {
     if (_mapControllerAnimationInterruption != null) return;
     // cancel map animation controllers on map controller move events
-    _mapControllerAnimationInterruption = mapController.mapEventStream.where(
-      (event) => event.source == MapEventSource.mapController &&
-                 event is MapEventMove
-    ).listen(_handleAnimationInterruptions);
+    _mapControllerAnimationInterruption = mapController.mapEventStream
+        .where((event) =>
+            event.source == MapEventSource.mapController &&
+            event is MapEventMove)
+        .listen(_handleAnimationInterruptions);
   }
 
   void _stopListeningForAnimationInterruptions() {
