@@ -36,15 +36,6 @@ To improve performance, enable `polylineCulling`. This should remove polylines t
 ## Polylines (`polylines:`)
 
 As you can see `PolylineLayerOptions()` accepts list of `Polyline`s. Each determines the shape of a polyline by defining the `LatLng` of each point. `flutter_map` will then draw a line between each coordinate.
-```
-double strokeWidth = 1.0,
-  Color color = const Color(0xFF00FF00),
-  double borderStrokeWidth = 0.0,
-  Color? borderColor = const Color(0xFFFFFF00),
-  List<Color>? gradientColors,
-  List<double>? colorsStop,
-  bool isDotted = false,
-  ```
 
 | Property            | Type            | Defaults            | Description                                                                                   |
 | :------------------ | :-------------- | :------------------ | :-------------------------------------------------------------------------------------------- |

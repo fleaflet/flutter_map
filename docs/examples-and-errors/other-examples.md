@@ -1,8 +1,8 @@
 ---
-id: a
+id: other-examples
 sidebar_position: 2
 ---
 
-# Example: a
+# Other Examples
 
 No content yet.

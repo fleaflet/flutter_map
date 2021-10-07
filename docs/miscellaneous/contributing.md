@@ -19,7 +19,7 @@ If you think it might be, continue onwards.
 
 **Is the contribution to fix a bug? Do you feel comfortable coding it yourself?**
 
-If it is, and you are comfortable fixing it yourself, feel free to create an issue stating the bug, mentioning that you're working on fixing it. Then cleanly fork the main repository, and fix the bug. Make sure you only fix/add/remove what's necessary, as this helps to avoid breaking changes. If there is a quick and dirty fix, use it, at least for the time being; you can always tidy it up later.
+If it is, and you are comfortable fixing it yourself, feel free to create an issue stating the bug, mentioning that you're working on fixing it. Then cleanly fork the main repository, and fix the bug. Make sure you only fix/add/remove what's necessary, as this helps to avoid breaking changes. If there is a quick and dirty fix, try not to use it unless the bug is a big one and might take time to fix otherwise.
 
 If it isn't, open a discussion or an issue stating your request. It might be that other people have already found a way to do it. If people like the idea, and you are comfortable doing it yourself, cleanly fork the main repository. Instead of then working on the `main` branch, work in a new branch: this helps to avoid merge conflicts until the end of development. You may choose to then open a DRAFT pull request to signify that you are working on it. Make sure you only fix/add/remove what's necessary, as this helps to keep track of changes.
 

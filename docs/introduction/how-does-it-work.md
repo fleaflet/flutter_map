@@ -19,21 +19,31 @@ A tile server is a server accessible on the Internet by everyone, or by only peo
 
 There are four main types of server configuration, two of which are used together by any server: WMS or WMTS & vector or raster. This wiki will focus on WMTS raster servers, such as the main OpenStreetMaps server, as it is the most commonly used option and is easier to setup and explain for beginners, but you can read about the [options for WMS](/miscellaneous/wms-servers) later on in this wiki. At the moment, [support of vector tiles](/miscellaneous/raster-vs-vector-tiles) is limited, but experimental functionality can be added through an existing community maintained plugin.
 
-Simplified, the server holds multiple images (usually in .png/.jpg format) in a directory structure that looks something like this: '/zoom/x/y.png', which is known as the 'Slippy Map' convention (read more below). These images put together make up the whole world, or area that that tile server supports. One tile is usually really small, under 20KB, but the number of tiles to map the whole world exceeds 60-70GB when compressed.
+Simplified, the server holds multiple images in a directory structure that makes it easy to find tiles without searching for references in a database beforehand (see below). These images put together make up the whole world, or area that that tile server supports. One tile is usually really small, under 20KB, but the number of tiles to map the whole world exceeds 60-70GB when compressed.
 
-The main tile server that's free to use and open-source is the Open Street Maps tile server, as mentioned above, a server which provides access to millions of tiles covering the whole Earth. that get updated and maintained by the general public.
+The main tile server that's free to use and open-source is the Open Street Maps tile server, as mentioned above, a server which provides access to millions of tiles covering the whole Earth. that get updated and maintained by the general public. You can [find other 'semi-endorsed' public servers here](https://wiki.openstreetmap.org/wiki/Tile_servers).
+
+:::danger Terms of Service & Tile Usage Policy
+Before using a tile server (especially, but not limited to, free/open-source servers), you must read and agree to the server's Terms of Service or Tile Usage Policy. These are rules defined by the server provider, not by a mapping library (such as `flutter_map`), and define what and what you cannot do using their service/tiles.
+
+You can find the [OSM Tile Server Usage Policy here](https://operations.osmfoundation.org/policies/tiles/), and other servers will likely (but not necessarily) follow similar rules.
+
+It is always recommended to use a private or paid-for server for commercial applications as they usually have a guaranteed up-time and can offer preferable Usage Policies (as they are charging you for it).
+
+`flutter_map` does not accept responsibility for any issues or threats posed by your misuse of external tile servers. Use tile servers at your own risk.
+:::
 
 ## 'Slippy Map' Convention
 
- > '/zoom/x/y.png' or '/x/y/zoom.png' (can be '.jpg')
- >
- > [wiki.openstreetmap.org/wiki/Slippy_map_tilenames](https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames)
+_The [slippy map convention is documented extensively here](https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames), but this page provides some basics, roughly copied from that page._
 
-You may also see '/?x={x}&y={y}&zoom={z}', which isn't quite the same as the Slippy Map convention, but it works in essentially the same way, so the below article still applies.
+The standard Slippy Map path looks like this: '/zoom/x/y.png' or '/x/y/zoom.png'. To note, the image format does not have to be '.png', tile servers also commonly serve as '.jpg' images.
+
+You may also see '/?x={x}&y={y}&zoom={z}', which isn't quite the same as the Slippy Map convention, but it works in essentially the same way, so the below text still applies.
 
 ### Zoom
 
-Zoom refers to the zoom level. 1 is the lowest zoom level and contains the whole world in one tile. The higher the number, the more the zoom, and the more the detail, and therefore the less space covered. You can read more about this at [wiki.openstreetmap.org/wiki/Zoom_levels](https://wiki.openstreetmap.org/wiki/Zoom_levels).
+Zoom refers to the zoom level. 1 is the lowest zoom level and contains the whole world in one tile. The higher the number, the more the zoom, and the more the detail, and therefore the less space covered. You can read more about this at [wiki.openstreetmap.org/wiki/Zoom_levels](https://wiki.openstreetmap.org/wiki/Zoom_levels). Most servers go up to 18, some up to 19, but no servers (as of writing) have a maximum limit above 22.
 
 ### X & Y
 
@@ -43,7 +53,7 @@ X and Y are values corresponding to the longitude and latitude of a location, ho
 
 ![x/y/z to Lat/Lng](https://wiki.openstreetmap.org/w/images/thumb/1/1f/Tile_to_latlon.png/450px-Tile_to_latlon.png)
 
-These images show the mathematics required to convert between Latitude and Longitude & the x/y/z format and vice-versa respectively. All credit goes to Open Street Maps.
+These images show the mathematics required to convert between Latitude and Longitude & the x/y/z format and vice-versa respectively. All credit for the above images goes to the Open Street Maps foundation.
 
 ## Tile Providers
 
@@ -55,6 +65,6 @@ Unless you choose to make your own custom tile provider ([the guide for which ca
 
 ## Map Layers
 
-Once the tile provider has dealt with the tile, it sends it to a map layer to get painted onto the map. This can be done using canvases, or, in the case of `flutter_map`, Flutter widgets.
+Once the tile provider has dealt with the tile, it sends it to a map layer to get painted onto the map. This can be done using canvases (such as in HTML5 for the web), or, in the case of `flutter_map`, Flutter widgets.
 
-The map layers handles user interaction, such as panning, zooming, rotating and tapping.
+The map layers also handle user interaction, such as panning, zooming, rotating and tapping.

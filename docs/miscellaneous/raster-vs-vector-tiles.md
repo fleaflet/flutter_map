@@ -11,7 +11,7 @@ There are 2 main types of tiles a server can serve: raster and vector; each has 
 
 _The way these tiles work is described in more detail in the [How Does It Work? page](/introduction/how-does-it-work). This page is designed to provide information about these tiles in comparison to vector tiles._
 
-Raster tiles are the 'older' type of tile, and are raster images (usually .png or .jpg/.jpeg). These tiles are good because they can render quickly and easily, can be viewed without special software, and are readily available from most mapping services. As such, this makes them the popular choice for beginners.
+Raster tiles are the 'older' type of tile, and are raster images (usually .png or .jpg). These tiles are good because they can render quickly and easily, can be viewed without special software, and are readily available from most mapping services. As such, this makes them the popular choice for beginners.
 
 However, raster tiles cannot be easily themed: a theme needs a whole new set of map tiles. This makes apps using light and dark themes have mismatching maps. As well as this, raster tiles usually have larger file sizes meaning slower download times, and they can become blurred/pixelated when viewed at a larger scale: a problem for users when zooming between zoom levels. Another issue is that shapes/text inside tiles cannot be rotated, hence the name 'static tiles': therefore, rotating the map will not rotate the name of a road, for example.
 

@@ -64,7 +64,7 @@ Takes a `TileProvider` object specifying a tile provider to use for that layer. 
 
 Some tile providers will also take their own arguments.
 
-The provided tile providers in `flutter_map` are somewhat confusing in their naming, so you can read below to see which suits your use-case. Note that you can write your own tile provider, or use a plugin which adds more tile providers.
+The provided tile providers in `flutter_map` are ~~somewhat~~ very confusing in their naming and functionality, as their functionality has been tweaked over time without changing the names (to avoid breaking changes), so you can read below to see which suits your use-case. Note that you can write your own tile provider, or use a plugin which adds more tile providers.
 
 ### `NonCachingNetworkTileProvider()` (default)
 

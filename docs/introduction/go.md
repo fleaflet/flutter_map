@@ -92,6 +92,16 @@ The rest of this documentation will take you through what most developers need t
 However, not every detail of `flutter_map`'s extensive functionality can be documented here. So, to help you with all of the public APIs, check-out the [Full API Reference](https://pub.dev/documentation/flutter_map/latest/flutter_map/flutter_map-library.html) available at any time in the sidebar/navbar, and also while you code in your favourite IDE.
 :::
 
+:::danger Terms of Service & Tile Usage Policy
+Before using a tile server (especially, but not limited to, free/open-source servers), you must read and agree to the server's Terms of Service or Tile Usage Policy. These are rules defined by the server provider, not by a mapping library (such as `flutter_map`), and define what and what you cannot do using their service/tiles.
+
+You can find the [OSM Tile Server Usage Policy here](https://operations.osmfoundation.org/policies/tiles/), and other servers will likely (but not necessarily) follow similar rules.
+
+It is always recommended to use a private or paid-for server for commercial applications as they usually have a guaranteed up-time and can offer preferable Usage Policies (as they are charging you for it).
+
+`flutter_map` does not accept responsibility for any issues or threats posed by your misuse of external tile servers. Use tile servers at your own risk.
+:::
+
 ## Support & Contact
 
 Having trouble with `flutter_map`? Check the [Full API Reference](https://pub.dev/documentation/flutter_map/latest/flutter_map/flutter_map-library.html) first to see if you can spot your issue, otherwise visit [StackOverflow](https://stackoverflow.com/search?q=flutter_map) or the [GitHub Issue Tracker](https://github.com/fleaflet/flutter_map/issues), and ask away! The community will try to get back to you as soon as possible.
