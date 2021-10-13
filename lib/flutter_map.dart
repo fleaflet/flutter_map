@@ -360,13 +360,23 @@ class MapOptions {
   }
 
   double _calculateScreenWidthInDegrees() {
-    final zoom = _getControllerZoom();
-    final degreesPerPixel = 360 / pow(2, zoom + 8);
+
+    if(crs.code == 'CRS.SIMPLE') {
+      return screenSize!.width / pow(2, _getControllerZoom() + 8);
+    }
+
+    final degreesPerPixel = 360 / pow(2, _getControllerZoom() + 8);
     return screenSize!.width * degreesPerPixel;
   }
 
-  double _calculateScreenHeightInDegrees() =>
-      screenSize!.height * 170.102258 / pow(2, _getControllerZoom() + 8);
+  double _calculateScreenHeightInDegrees() {
+
+    if(crs.code == 'CRS.SIMPLE') {
+      return screenSize!.height / pow(2, _getControllerZoom() + 8);
+    }
+
+    return screenSize!.height * 170.102258 / pow(2, _getControllerZoom() + 8);
+  }
 
   double _getControllerZoom() => controller!.zoom;
 }
