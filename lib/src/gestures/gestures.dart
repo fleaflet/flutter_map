@@ -605,16 +605,16 @@ abstract class MapGestureMixin extends State<FlutterMap>
     if (options.onDoubleTap != null) {
       final latlng = _offsetToCrs(tapPosition.relative!);
       options.onDoubleTap!(tapPosition, latlng);
-    } else {
-      if (InteractiveFlag.hasFlag(
-          options.interactiveFlags, InteractiveFlag.doubleTapZoom)) {
-        final centerPos = _pointToOffset(mapState.originalSize!) / 2.0;
-        final newZoom = _getZoomForScale(mapState.zoom, 2.0);
-        final focalDelta = _getDoubleTapFocalDelta(
-            centerPos, tapPosition.relative!, newZoom - mapState.zoom);
-        final newCenter = _offsetToCrs(centerPos + focalDelta);
-        _startDoubleTapAnimation(newZoom, newCenter);
-      }
+    }
+
+    if (InteractiveFlag.hasFlag(
+        options.interactiveFlags, InteractiveFlag.doubleTapZoom)) {
+      final centerPos = _pointToOffset(mapState.originalSize!) / 2.0;
+      final newZoom = _getZoomForScale(mapState.zoom, 2.0);
+      final focalDelta = _getDoubleTapFocalDelta(
+          centerPos, tapPosition.relative!, newZoom - mapState.zoom);
+      final newCenter = _offsetToCrs(centerPos + focalDelta);
+      _startDoubleTapAnimation(newZoom, newCenter);
     }
   }
 
