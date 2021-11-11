@@ -26,6 +26,7 @@ class PolygonLayerOptions extends LayerOptions {
 }
 
 class Polygon {
+  List? refCad;
   final List<LatLng> points;
   final List<Offset> offsets = [];
   final List<List<LatLng>>? holePointsList;
@@ -38,6 +39,7 @@ class Polygon {
   late final LatLngBounds boundingBox;
 
   Polygon({
+    this.refCad,
     required this.points,
     this.holePointsList,
     this.color = const Color(0xFF00FF00),
