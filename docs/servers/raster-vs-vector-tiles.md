@@ -1,6 +1,6 @@
 ---
 id: raster-vs-vector-tiles
-sidebar_position: 2
+sidebar_position: 1
 ---
 
 # Raster vs Vector Tiles
@@ -17,7 +17,7 @@ However, raster tiles cannot be easily themed: a theme needs a whole new set of 
 
 ## Vector Tiles
 
-Vector tiles can be considered the 'newer' standard. These images might contain an XML-based format dictating the mathematics and coordinates used to draw lines and shapes. Because these tiles are drawn at render time instead of at request/server time, theming can be used to make the map fit in better with an app's theme. The math-based image means that the images/tiles can be scaled without any loss of clarity.
+Vector tiles can be considered the 'newer' standard. These images might contain a specialised format (such as .pbf) dictating the mathematics and coordinates used to draw lines and shapes. Because these tiles are drawn at render time instead of at request/server time, theming can be used to make the map fit in better with an app's theme. The math-based image means that the images/tiles can be scaled without any loss of clarity.
 
 However it does add complexity to the rendering process as each element needs to be parsed and painted individually, meaning an impact to performance. Text elements and certain shapes can also be rotated (unlike raster tiles) to match the user's orientation, not the orientation of the map; but calculating this rotation needs to be done every frame, meaning an even larger impact on performance.
 
@@ -26,3 +26,5 @@ However it does add complexity to the rendering process as each element needs to
 Due to the complications mentioned above, `flutter_map` does not natively support vector tiles. However, you can use an existing [community maintained plugin (`vector_map_tiles`)](https://github.com/greensopinion/flutter-vector-map-tiles) to do this.
 
 The plugin also supports 'mixed' mode to get the best of both worlds: using raster images during animations to improve performance, and vector rendering to provide sharp visuals and custom theming when idle.
+
+The example tile serves given use Raster Tiles.
