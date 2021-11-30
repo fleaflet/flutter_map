@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 
@@ -102,5 +103,17 @@ class CustomTileProvider extends TileProvider {
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
     return AssetImage(getTileUrl(coords, options));
+  }
+}
+
+///TileProvider that will cache the tile when the user visits. Thereby, when the user moves back to the same
+///tile, the cached instance will be used hence making it a smoother experience.
+class CachedTileProvider extends TileProvider {
+  const CachedTileProvider();
+  @override
+  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
+    return CachedNetworkImageProvider(
+      getTileUrl(coords, options),
+    );
   }
 }
