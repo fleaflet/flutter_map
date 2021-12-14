@@ -6,6 +6,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart';
 
+/// List of PolylineLayer to be drawn in the map
+
 class PolylineLayerOptions extends LayerOptions {
   final List<Polyline> polylines;
   final bool polylineCulling;

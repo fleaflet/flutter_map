@@ -5,6 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
 
 class OverlayImageLayerOptions extends LayerOptions {
+  /// The groups to be drawn in the map
   final List<OverlayImage> overlayImages;
 
   OverlayImageLayerOptions({

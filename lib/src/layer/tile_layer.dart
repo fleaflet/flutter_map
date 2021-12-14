@@ -1430,6 +1430,8 @@ class Level {
   late double scale;
 }
 
+/// descripe coordinates over x,y,z
+
 class Coords<T extends num> extends CustomPoint<T> {
   late T z;
 
