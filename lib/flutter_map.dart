@@ -5,13 +5,8 @@ import 'dart:math';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/geo/crs/crs.dart';
-import 'package:flutter_map/src/gestures/interactive_flag.dart';
-import 'package:flutter_map/src/gestures/map_events.dart';
-import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/map.dart';
-import 'package:flutter_map/src/plugins/plugin.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
 
@@ -31,6 +26,8 @@ export 'package:flutter_map/src/layer/polygon_layer.dart';
 export 'package:flutter_map/src/layer/polyline_layer.dart';
 export 'package:flutter_map/src/layer/tile_builder/tile_builder.dart';
 export 'package:flutter_map/src/layer/tile_layer.dart';
+export 'package:flutter_map/src/layer/tile_provider/file_tile_provider_io.dart'
+    if (dart.library.html) 'package:flutter_map/src/layer/tile_provider/file_tile_provider_web.dart';
 export 'package:flutter_map/src/layer/tile_provider/tile_provider.dart';
 export 'package:flutter_map/src/plugins/plugin.dart';
 
