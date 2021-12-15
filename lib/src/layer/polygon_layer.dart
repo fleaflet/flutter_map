@@ -19,7 +19,7 @@ class PolygonLayerOptions extends LayerOptions {
   }) : super(key: key, rebuild: rebuild) {
     if (polygonCulling) {
       for (var polygon in polygons) {
-        polygon.boundingBox = LatLngBounds.fromPoints(polygon.points);
+        polygon.boundingBox ??= LatLngBounds.fromPoints(polygon.points);
       }
     }
   }
@@ -36,7 +36,7 @@ class Polygon {
   final Color borderColor;
   final bool disableHolesBorder;
   final bool isDotted;
-  late final LatLngBounds boundingBox;
+  LatLngBounds? boundingBox;
 
   Polygon({
     this.refCad,
@@ -47,6 +47,7 @@ class Polygon {
     this.borderColor = const Color(0xFFFFFF00),
     this.disableHolesBorder = false,
     this.isDotted = false,
+    this.boundingBox,
   }) : holeOffsetsList = null == holePointsList || holePointsList.isEmpty
             ? null
             : List.generate(holePointsList.length, (_) => []);
@@ -96,10 +97,11 @@ class PolygonLayer extends StatelessWidget {
             }
           }
 
-          if (polygonOpts.polygonCulling &&
-              !polygon.boundingBox.isOverlapping(map.bounds)) {
-            // skip this polygon as it's offscreen
-            continue;
+          if (polygonOpts.polygonCulling) {
+            if (!(polygon.boundingBox?.isOverlapping(map.bounds) ?? false)) {
+              // skip this polygon as it's offscreen or it doesn't have a bounding box
+              continue;
+            }
           }
 
           _fillOffsets(polygon.offsets, polygon.points);

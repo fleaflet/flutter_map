@@ -18,7 +18,7 @@ class PolylineLayerOptions extends LayerOptions {
   }) : super(key: key, rebuild: rebuild) {
     if (polylineCulling) {
       for (var polyline in polylines) {
-        polyline.boundingBox = LatLngBounds.fromPoints(polyline.points);
+        polyline.boundingBox ??= LatLngBounds.fromPoints(polyline.points);
       }
     }
   }
@@ -34,18 +34,18 @@ class Polyline {
   final List<Color>? gradientColors;
   final List<double>? colorsStop;
   final bool isDotted;
-  late final LatLngBounds boundingBox;
+  LatLngBounds? boundingBox;
 
-  Polyline({
-    required this.points,
-    this.strokeWidth = 1.0,
-    this.color = const Color(0xFF00FF00),
-    this.borderStrokeWidth = 0.0,
-    this.borderColor = const Color(0xFFFFFF00),
-    this.gradientColors,
-    this.colorsStop,
-    this.isDotted = false,
-  });
+  Polyline(
+      {required this.points,
+      this.strokeWidth = 1.0,
+      this.color = const Color(0xFF00FF00),
+      this.borderStrokeWidth = 0.0,
+      this.borderColor = const Color(0xFFFFFF00),
+      this.gradientColors,
+      this.colorsStop,
+      this.isDotted = false,
+      this.boundingBox});
 }
 
 class PolylineLayerWidget extends StatelessWidget {
@@ -87,10 +87,12 @@ class PolylineLayer extends StatelessWidget {
         for (var polylineOpt in polylineOpts.polylines) {
           polylineOpt.offsets.clear();
 
-          if (polylineOpts.polylineCulling &&
-              !polylineOpt.boundingBox.isOverlapping(map.bounds)) {
-            // skip this polyline as it's offscreen
-            continue;
+          if (polylineOpts.polylineCulling) {
+            if (!(polylineOpt.boundingBox?.isOverlapping(map.bounds) ??
+                false)) {
+              // skip this polyline as it's offscreen or it doesn't have a bounding box
+              continue;
+            }
           }
 
           _fillOffsets(polylineOpt.offsets, polylineOpt.points);
