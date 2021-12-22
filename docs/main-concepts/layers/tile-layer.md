@@ -6,7 +6,7 @@ sidebar_position: 2
 # Tile Layer
 
 :::info
-This page only talks about WMTS-supporting raster layers, which is the most common and default type of mapping. For information about [WMS-supporting layers](/miscellaneous/wms-servers) or [vector tiles](/miscellaneous/raster-vs-vector-tiles), visit the appropriate pages in the Miscellaneous section.
+This page only talks about WMTS-supporting raster layers, which is the most common and default type of mapping. For information about [WMS-supporting layers](/miscellaneous/wms-servers) or [vector tiles](/servers/raster-vs-vector-tiles), visit the appropriate pages in the Miscellaneous section.
 :::
 
 As explained in the [How Does It Work? page](/introduction/how-does-it-work), tiles for a map in `flutter_map` are provided by tile providers that go inside of a `TileLayerOptions()`. That might look something like this:

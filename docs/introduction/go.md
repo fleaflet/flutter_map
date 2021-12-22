@@ -22,7 +22,7 @@ _This is a temporary notice_
 :::note Version 0.14.0
 This documentation applies to the version of `flutter_map`: 0.14.0, and some content may not apply to older versions. If this version number is less than the latest version available on pub.dev ([![Pub](https://img.shields.io/pub/v/flutter_map.svg)](https://pub.dev/packages/flutter_map)), the documentation may not have been changed, in which case it should still apply.
 
-If you are migrating from an older major version of `flutter_map`, there have likely been breaking changes. See the [Migration guides](/migration/to-v0.14.0) for more information.
+If you are migrating from an older major version of `flutter_map`, there have likely been breaking changes. See the [Migration guides](/miscellaneous/migration/to-v0.14.0) for more information.
 :::
 
 ## Installation

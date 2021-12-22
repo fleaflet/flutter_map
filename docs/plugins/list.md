@@ -19,7 +19,7 @@ However, if you're just browsing, a list is provided below (in no particular ord
 Provides advanced caching functionality, with ability to download map regions for offline use. Also includes useful prebuilt widgets.
 
 - [`vector_map_tiles`](https://github.com/greensopinion/flutter-vector-map-tiles) by [greensopinion](https://github.com/greensopinion)  
-A plugin that enables the use of vector and 'mixed' tiles with 'flutter_map' (see the [Raster vs Vector Tiles page](/miscellaneous/raster-vs-vector-tiles))
+A plugin that enables the use of vector and 'mixed' tiles with 'flutter_map' (see the [Raster vs Vector Tiles page](/servers/raster-vs-vector-tiles))
 
 - [`flutter_map_marker_cluster`](https://github.com/lpongetti/flutter_map_marker_cluster) by [lpongetti](https://github.com/lpongetti)  
 Provides beautiful and animated marker clustering functionality
@@ -50,19 +50,11 @@ Displaying floating marker titles on the map view
 :::tip Got Your Own Plugin?
 If you've made your own plugin that you're willing to share, you can add it to this list by creating a pull request in GitHub.
 
-When submitting a plugin & PR, please ensure:
+When submitting a plugin & PR, please ensure the plugin:
 
-- the plugin _preferably_ includes 'flutter\_map\_' in the name,
-- the plugin is available via a pub.dev installation - if you require an exception, please state this in your PR body clearly,
-- you intend to maintain the plugin for at least 6 months after PR merge - this means answering issues to the best of your ability and not archiving the repository or pub.dev page,
-
-
-- the plugin documentation includes enough information for installation and basic setup/functionality,
-- the plugin documentation uses correct grammar and spelling,
-- the plugin includes a runnable example and/or screenshots,
-
-
-- the PR body & plugin description uses correct grammar and spelling,
-- the plugin description contains the words 'IN BETA' if your plugin is in beta,
-- the plugin description accurately and concisely represents your plugin (under 180 characters),
+- _preferably_ includes 'flutter\_map\_' in the name,
+- is available via a pub.dev installation - if you require an exception, please state this in your PR body clearly,
+- has documentation including enough information for installation and basic setup/functionality,
+- includes a runnable example and/or screenshots,
+- description accurately and concisely represents your plugin (under 180 characters),
 :::
