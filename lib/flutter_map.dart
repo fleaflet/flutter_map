@@ -148,6 +148,8 @@ abstract class MapController {
   set state(MapState state);
   void dispose();
 
+  LatLng? pointToLatLng(CustomPoint point);
+
   factory MapController() => MapControllerImpl();
 }
 

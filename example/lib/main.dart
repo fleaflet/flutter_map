@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map_example/pages/epsg4326_crs.dart';
 import 'package:flutter_map_example/pages/map_inside_listview.dart';
 import 'package:flutter_map_example/pages/network_tile_provider.dart';
+import 'package:flutter_map_example/pages/point_to_latlng.dart';
 
 import './pages/animated_map_controller.dart';
 import './pages/circle.dart';
@@ -82,6 +83,7 @@ class MyApp extends StatelessWidget {
         ResetTileLayerPage.route: (context) => const ResetTileLayerPage(),
         EPSG4326Page.route: (context) => const EPSG4326Page(),
         MaxBoundsPage.route: (context) => const MaxBoundsPage(),
+        PointToLatLngPage.route: (context) => const PointToLatLngPage(),
       },
     );
   }
