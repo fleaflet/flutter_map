@@ -31,11 +31,9 @@ abstract class MapGestureMixin extends State<FlutterMap>
       if (pointerSignal.scrollDelta.dy != 0) {
         // Check whether the mouse is scrolled down and calculate new zoom level
         final delta = pointerSignal.scrollDelta.dy * (-0.01);
-        print(pointerSignal.scrollDelta.dy == 0);
         final zoom = delta > 0
             ? min(mapState.options.maxZoom ?? 19, mapState.zoom + delta)
             : max(mapState.options.minZoom ?? 0, mapState.zoom + delta);
-        print('zoom: $zoom');
         final newZoom = mapState.fitZoomToBounds(zoom);
         // Move the map to the new zoom level
         mapState.move(mapState.center, newZoom, source: MapEventSource.custom);
