@@ -295,6 +295,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
               center: mapState.center,
               zoom: mapState.zoom,
               source: eventSource,
+              localFocalPoint: details.localFocalPoint,
             ),
           );
         }
@@ -381,6 +382,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
                         center: mapState.center,
                         zoom: mapState.zoom,
                         source: eventSource,
+                        localFocalPoint: details.localFocalPoint,
                       ),
                     );
                   }
@@ -402,6 +404,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
                       center: mapState.center,
                       zoom: mapState.zoom,
                       source: eventSource,
+                      localFocalPoint: details.localFocalPoint,
                     ),
                   );
                 }
@@ -496,6 +499,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
           center: mapState.center,
           zoom: mapState.zoom,
           source: eventSource,
+          localFocalPoint: _lastFocalLocal,
         ),
       );
     }

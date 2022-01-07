@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:latlong2/latlong.dart';
 
 enum MapEventSource {
@@ -86,18 +87,24 @@ class MapEventMove extends MapEventWithMove {
 }
 
 class MapEventMoveStart extends MapEvent {
+  final Offset localFocalPoint;
+
   MapEventMoveStart(
       {required MapEventSource source,
       required LatLng center,
-      required double zoom})
+      required double zoom,
+      required this.localFocalPoint})
       : super(source: source, center: center, zoom: zoom);
 }
 
 class MapEventMoveEnd extends MapEvent {
+  final Offset localFocalPoint;
+
   MapEventMoveEnd(
       {required MapEventSource source,
       required LatLng center,
-      required double zoom})
+      required double zoom,
+      required this.localFocalPoint})
       : super(source: source, center: center, zoom: zoom);
 }
 
