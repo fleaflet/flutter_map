@@ -80,8 +80,12 @@ class MapControllerImpl implements MapController {
 
   @override
   LatLng? pointToLatLng(CustomPoint localPoint) {
-    final width = _state.size.x;
-    final height = _state.size.y;
+    if (_state.originalSize == null) {
+      return null;
+    }
+
+    final width = _state.originalSize!.x;
+    final height = _state.originalSize!.y;
 
     var localPointCenterDistance =
         CustomPoint((width / 2) - localPoint.x, (height / 2) - localPoint.y);
