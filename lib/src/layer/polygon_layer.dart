@@ -27,15 +27,15 @@ class PolygonLayerOptions extends LayerOptions {
 
 class Polygon {
   List? refCad;
-  final List<LatLng> points;
-  final List<Offset> offsets = [];
-  final List<List<LatLng>>? holePointsList;
-  final List<List<Offset>>? holeOffsetsList;
-  final Color color;
-  final double borderStrokeWidth;
-  final Color borderColor;
-  final bool disableHolesBorder;
-  final bool isDotted;
+  List<LatLng> points;
+  List<Offset> offsets = [];
+  List<List<LatLng>>? holePointsList;
+  List<List<Offset>>? holeOffsetsList;
+  Color color;
+  double borderStrokeWidth;
+  Color borderColor;
+  bool disableHolesBorder;
+  bool isDotted;
   LatLngBounds? boundingBox;
 
   Polygon({

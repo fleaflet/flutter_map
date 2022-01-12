@@ -25,15 +25,15 @@ class PolylineLayerOptions extends LayerOptions {
 }
 
 class Polyline {
-  final List<LatLng> points;
-  final List<Offset> offsets = [];
-  final double strokeWidth;
-  final Color color;
-  final double borderStrokeWidth;
-  final Color? borderColor;
-  final List<Color>? gradientColors;
-  final List<double>? colorsStop;
-  final bool isDotted;
+  List<LatLng> points;
+  List<Offset> offsets = [];
+  double strokeWidth;
+  Color color;
+  double borderStrokeWidth;
+  Color? borderColor;
+  List<Color>? gradientColors;
+  List<double>? colorsStop;
+  bool isDotted;
   LatLngBounds? boundingBox;
 
   Polyline(
