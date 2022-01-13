@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -15,10 +17,9 @@ class PointToLatLngPage extends StatefulWidget {
 
 class PointToLatlngPage extends State<PointToLatLngPage> {
   late final MapController mapController;
-  final pointX = 100.0;
-  final pointY = 100.0;
-  final pointSize = 20.0;
-  late final mapEventSubscription;
+  late final StreamSubscription mapEventSubscription;
+  final pointSize = 40.0;
+  final pointY = 200.0;
 
   LatLng? latLng;
 
@@ -27,15 +28,32 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
     super.initState();
     mapController = MapController();
 
-    mapEventSubscription = mapController.mapEventStream.listen(onMapEvent);
+    mapEventSubscription = mapController.mapEventStream
+        .listen((mapEvent) => onMapEvent(mapEvent, context));
 
-    mapController.onReady.then((_) => _updatePointLatLng());
+    Future.delayed(Duration.zero, () {
+      mapController.onReady.then((_) => _updatePointLatLng(context));
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('PointToLatlng')),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            child: Icon(Icons.rotate_right),
+            onPressed: () => mapController.rotate(60.0),
+          ),
+          SizedBox(height: 15),
+          FloatingActionButton(
+            child: Icon(Icons.cancel),
+            onPressed: () => mapController.rotate(0.0),
+          ),
+        ],
+      ),
       drawer: buildDrawer(context, PointToLatLngPage.route),
       body: Stack(
         children: [
@@ -45,14 +63,28 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
               options: MapOptions(
                 center: LatLng(51.5, -0.09),
                 zoom: 5.0,
-                maxZoom: 5.0,
                 minZoom: 3.0,
               ),
-              layers: [
-                TileLayerOptions(
-                    urlTemplate:
-                        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    subdomains: ['a', 'b', 'c']),
+              children: [
+                TileLayerWidget(
+                    options: TileLayerOptions(
+                        urlTemplate:
+                            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        subdomains: ['a', 'b', 'c'])),
+                if (latLng != null)
+                  MarkerLayerWidget(
+                      options: MarkerLayerOptions(
+                    markers: [
+                      Marker(
+                        width: pointSize,
+                        height: pointSize,
+                        point: latLng!,
+                        builder: (ctx) => Container(
+                          child: FlutterLogo(),
+                        ),
+                      )
+                    ],
+                  ))
               ],
             ),
           ),
@@ -60,31 +92,51 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
               color: Colors.white,
               height: 60,
               child: Center(
-                  child: Text(
-                'top left of square is hovering ${latLng?.latitude},${latLng?.longitude}',
-                textAlign: TextAlign.center,
+                  child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'flutter logo (${latLng?.latitude.toStringAsPrecision(4)},${latLng?.longitude.toStringAsPrecision(4)})',
+                    textAlign: TextAlign.center,
+                  ),
+                  Text(
+                    'should be in target center, but try to rotate',
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ))),
           Positioned(
-              top: pointY,
-              left: pointX,
-              child: Container(
-                  color: Colors.red, width: pointSize, height: pointSize))
+              top: pointY - pointSize / 2,
+              left: _getPointX(context) - pointSize / 2,
+              child: Icon(Icons.crop_free, size: pointSize))
         ],
       ),
     );
   }
 
-  void onMapEvent(MapEvent mapEvent) {
-    if (mapEvent is MapEventMove) {
-      _updatePointLatLng();
-    }
+  void onMapEvent(MapEvent mapEvent, BuildContext context) {
+    // if (mapEvent is MapEventMove) {
+    _updatePointLatLng(context);
+    // }
   }
 
-  void _updatePointLatLng() {
+  void _updatePointLatLng(context) {
+    final pointX = _getPointX(context);
+
     final latLng = mapController.pointToLatLng(CustomPoint(pointX, pointY));
 
     setState(() {
       this.latLng = latLng;
     });
+  }
+
+  double _getPointX(BuildContext context) {
+    return MediaQuery.of(context).size.width / 2;
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    mapEventSubscription.cancel();
   }
 }
