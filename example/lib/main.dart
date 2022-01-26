@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map_example/pages/epsg4326_crs.dart';
 import 'package:flutter_map_example/pages/map_inside_listview.dart';
 import 'package:flutter_map_example/pages/network_tile_provider.dart';
 
@@ -72,6 +73,7 @@ class MyApp extends StatelessWidget {
         StatefulMarkersPage.route: (context) => StatefulMarkersPage(),
         MapInsideListViewPage.route: (context) => MapInsideListViewPage(),
         ResetTileLayerPage.route: (context) => ResetTileLayerPage(),
+        EPSG4326Page.route: (context) => EPSG4326Page(),
       },
     );
   }
