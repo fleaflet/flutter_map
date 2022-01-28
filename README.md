@@ -362,7 +362,7 @@ For the latest roadmap, please see the [Issue Tracker]
 [azure-maps-instructions]: https://docs.microsoft.com/en-us/azure/azure-maps/quick-demo-map-app
 [custom-crs-readme]: ./example/lib/pages/custom_crs/Readme.md
 [flutter_map_tile_caching]: https://github.com/JaffaKetchup/flutter_map_tile_caching
-[mbTilesToPng]: https://github.com/alfanhui/mbtilesToPngs
+[mbTilesToPngs]: https://github.com/alfanhui/mbtilesToPngs
 [open-street-map]: https://openstreetmap.org 
 [proj4dart]: https://github.com/maRci002/proj4dart
 [tilemill]: https://tilemill-project.github.io/tilemill/docs/guides/osm-bright-mac-quickstart/
