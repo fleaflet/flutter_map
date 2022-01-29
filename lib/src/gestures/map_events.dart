@@ -28,8 +28,10 @@ enum MapEventSource {
 abstract class MapEvent {
   /// who / what issued the event
   final MapEventSource source;
+
   /// geographical coordinates related to current event
   final LatLng center;
+
   /// zoom value related to current event
   final double zoom;
 
@@ -41,6 +43,7 @@ abstract class MapEvent {
 abstract class MapEventWithMove extends MapEvent {
   /// Target coordinates of point where map is being pointed to
   final LatLng targetCenter;
+
   /// Zoom value of point where map is being pointed to
   final double targetZoom;
 
@@ -202,8 +205,10 @@ class MapEventDoubleTapZoomEnd extends MapEvent {
 class MapEventRotate extends MapEvent {
   /// Custom ID to identify related object(s)
   final String? id;
+
   /// Current rotation in radians
   final double currentRotation;
+
   /// Target rotation in radians
   final double targetRotation;
 

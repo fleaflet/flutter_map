@@ -76,19 +76,25 @@ class LatLngBounds {
 
   /// Obtain west edge of the bounds
   double get west => southWest!.longitude;
+
   /// Obtain south edge of the bounds
   double get south => southWest!.latitude;
+
   /// Obtain east edge of the bounds
   double get east => northEast!.longitude;
+
   /// Obtain north edge of the bounds
   double get north => northEast!.latitude;
 
   /// Obtain coordinates of southwest corner of the bounds
   LatLng? get southWest => _sw;
+
   /// Obtain coordinates of northeast corner of the bounds
   LatLng? get northEast => _ne;
+
   /// Obtain coordinates of northwest corner of the bounds
   LatLng get northWest => LatLng(north, west);
+
   /// Obtain coordinates of southeast corner of the bounds
   LatLng get southEast => LatLng(south, east);
 

@@ -108,11 +108,14 @@ enum AnchorAlign {
 class Marker {
   /// Coordinates of the marker
   final LatLng point;
+
   /// Function that builds UI of the marker
   final WidgetBuilder builder;
   final Key? key;
+
   /// Bounding box width of the marker
   final double width;
+
   /// Bounding box height of the marker
   final double height;
   final Anchor anchor;
