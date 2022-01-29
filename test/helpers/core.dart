@@ -17,4 +17,3 @@ String randomString([int max = 20]) {
   return base64Encode(
       List<int>.generate(max, (i) => random.nextInt(i + 1)).toList());
 }
-

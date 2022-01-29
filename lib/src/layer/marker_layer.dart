@@ -106,15 +106,21 @@ enum AnchorAlign {
 
 /// Marker object that is rendered by [MarkerLayerWidget]
 class Marker {
+  final Key? key;
+
   /// Coordinates of the marker
   final LatLng point;
+
   /// Function that builds UI of the marker
   final WidgetBuilder builder;
-  final Key? key;
+
   /// Bounding box width of the marker
   final double width;
+
   /// Bounding box height of the marker
   final double height;
+
+  /// Anchor the marker by a particular location
   final Anchor anchor;
 
   /// If true marker will be counter rotated to the map rotation
