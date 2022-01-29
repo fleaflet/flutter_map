@@ -107,7 +107,7 @@ enum AnchorAlign {
 /// Marker object that is rendered by [MarkerLayerWidget]
 class Marker {
   final Key? key;
-  
+
   /// Coordinates of the marker
   final LatLng point;
 
@@ -119,7 +119,7 @@ class Marker {
 
   /// Bounding box height of the marker
   final double height;
-  
+
   /// Anchor the marker by a particular location
   final Anchor anchor;
 
