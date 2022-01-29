@@ -5,13 +5,8 @@ import 'dart:math';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/geo/crs/crs.dart';
-import 'package:flutter_map/src/gestures/interactive_flag.dart';
-import 'package:flutter_map/src/gestures/map_events.dart';
-import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/map.dart';
-import 'package:flutter_map/src/plugins/plugin.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
 
