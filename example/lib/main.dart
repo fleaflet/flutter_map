@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map_example/pages/map_inside_listview.dart';
 import 'package:flutter_map_example/pages/network_tile_provider.dart';
 
 import './pages/animated_map_controller.dart';
@@ -19,6 +20,7 @@ import './pages/plugin_api.dart';
 import './pages/plugin_scalebar.dart';
 import './pages/plugin_zoombuttons.dart';
 import './pages/polyline.dart';
+import './pages/reset_tile_layer.dart';
 import './pages/sliding_map.dart';
 import './pages/stateful_markers.dart';
 import './pages/tap_to_add.dart';
@@ -68,6 +70,8 @@ class MyApp extends StatelessWidget {
         InteractiveTestPage.route: (context) => InteractiveTestPage(),
         ManyMarkersPage.route: (context) => ManyMarkersPage(),
         StatefulMarkersPage.route: (context) => StatefulMarkersPage(),
+        MapInsideListViewPage.route: (context) => MapInsideListViewPage(),
+        ResetTileLayerPage.route: (context) => ResetTileLayerPage(),
       },
     );
   }

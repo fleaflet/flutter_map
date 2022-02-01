@@ -37,7 +37,10 @@ Widget build(BuildContext context) {
     layers: [
       TileLayerOptions(
         urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        subdomains: ['a', 'b', 'c']
+        subdomains: ['a', 'b', 'c'],
+        attributionBuilder: (_) {
+          return Text("© OpenStreetMap contributors");
+        },
       ),
       MarkerLayerOptions(
         markers: [
@@ -141,6 +144,51 @@ Widget build(BuildContext context) {
   );
 }
 ```
+
+### Mapbox provider
+
+To configure [Mapbox](https://www.mapbox.com/), you should create your
+[access token](https://docs.mapbox.com/help/getting-started/access-tokens/).
+
+You can use tiles provided and hosted by Mapbox. The list can be found
+[here](https://docs.mapbox.com/api/maps/styles/#mapbox-styles).
+
+```dart
+Widget build(BuildContext context) {
+  return new FlutterMap(
+    options: new MapOptions(
+      center: new LatLng(51.5, -0.09),
+      zoom: 13.0,
+    ),
+    layers: [
+      new TileLayerOptions(
+        urlTemplate: "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/"
+                     "{z}/{x}/{y}?access_token=$accessToken",
+      ),
+      new MarkerLayerOptions(
+        markers: [
+          new Marker(
+            width: 80.0,
+            height: 80.0,
+            point: new LatLng(51.5, -0.09),
+            builder: (ctx) =>
+            new Container(
+              child: new FlutterLogo(),
+            ),
+          ),
+        ],
+      ),
+    ],
+  );
+}
+```
+
+Make sure `accessToken` is properly encoded as valid URI component.
+If you use Mapbox Studio with your own tile sets, just use URL like this:
+`https://api.mapbox.com/styles/v1/:accountName/:tileSetId/tiles/256/{z}/{x}/{y}@2x`
+where `:accountName` is your user account name and `:tileSetId` is the
+ID of your tile set, more information is 
+[here](https://docs.mapbox.com/help/glossary/style-url/).
 
 ### Widget Layers
 
@@ -347,6 +395,7 @@ See also `FileTileProvider()`, which loads tiles from the filesystem.
 - [flutter_map_marker_popup](https://github.com/rorystephenson/flutter_map_marker_popup): A plugin to show customisable popups for markers.
 - [map_elevation](https://github.com/OwnWeb/map_elevation): A widget to display elevation of a track (polyline) like Leaflet.Elevation
 - [flutter_map_floating_marker_titles](https://github.com/androidseb/flutter_map_floating_marker_titles): Displaying floating marker titles on the map view
+- [vector_map_tiles](https://pub.dev/packages/vector_map_tiles): A plugin that enables the use of vector tiles.
 
 ## Roadmap
 
@@ -358,7 +407,7 @@ For the latest roadmap, please see the [Issue Tracker]
 [azure-maps-instructions]: https://docs.microsoft.com/en-us/azure/azure-maps/quick-demo-map-app
 [custom-crs-readme]: ./example/lib/pages/custom_crs/Readme.md
 [flutter_map_tile_caching]: https://github.com/JaffaKetchup/flutter_map_tile_caching
-[mbTilesToPng]: https://github.com/alfanhui/mbtilesToPngs
+[mbTilesToPngs]: https://github.com/alfanhui/mbtilesToPngs
 [open-street-map]: https://openstreetmap.org 
 [proj4dart]: https://github.com/maRci002/proj4dart
 [tilemill]: https://tilemill-project.github.io/tilemill/docs/guides/osm-bright-mac-quickstart/

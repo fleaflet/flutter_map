@@ -4,8 +4,6 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/bounds.dart';
-import 'package:flutter_map/src/core/center_zoom.dart';
-import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/map/map_state_widget.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -33,7 +31,7 @@ class MapControllerImpl implements MapController {
   MoveAndRotateResult moveAndRotate(LatLng center, double zoom, double degree,
       {String? id}) {
     return _state.moveAndRotate(center, zoom, degree,
-        source: MapEventSource.mapController, id: id!);
+        source: MapEventSource.mapController, id: id);
   }
 
   @override
@@ -49,6 +47,15 @@ class MapControllerImpl implements MapController {
         const FitBoundsOptions(padding: EdgeInsets.all(12.0)),
   }) {
     _state.fitBounds(bounds, options!);
+  }
+
+  @override
+  CenterZoom centerZoomFitBounds(
+    LatLngBounds bounds, {
+    FitBoundsOptions? options =
+        const FitBoundsOptions(padding: EdgeInsets.all(12.0)),
+  }) {
+    return _state.centerZoomFitBounds(bounds, options!);
   }
 
   @override
@@ -267,7 +274,7 @@ class MapState {
   }
 
   MoveAndRotateResult moveAndRotate(LatLng center, double zoom, double degree,
-      {required MapEventSource source, required String id}) {
+      {required MapEventSource source, String? id}) {
     final moveSucc =
         move(center, zoom, id: id, source: source, callOnMoveSink: false);
     final rotateSucc =
@@ -340,6 +347,14 @@ class MapState {
     move(target.center, target.zoom, source: MapEventSource.fitBounds);
   }
 
+  CenterZoom centerZoomFitBounds(
+      LatLngBounds bounds, FitBoundsOptions options) {
+    if (!bounds.isValid) {
+      throw Exception('Bounds are not valid.');
+    }
+    return getBoundsCenterZoom(bounds, options);
+  }
+
   LatLng getCenter() {
     if (_lastCenter != null) {
       return _lastCenter!;
@@ -380,7 +395,7 @@ class MapState {
 
     var paddingTotalXY = paddingTL + paddingBR;
 
-    var zoom = getBoundsZoom(bounds, paddingTotalXY, inside: false);
+    var zoom = getBoundsZoom(bounds, paddingTotalXY, inside: options.inside);
     zoom = math.min(options.maxZoom, zoom);
 
     var paddingOffset = (paddingBR - paddingTL) / 2;

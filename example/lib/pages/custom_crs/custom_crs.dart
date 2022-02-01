@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:proj4dart/proj4dart.dart' as proj4;
@@ -132,7 +131,7 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
                   // Set maxZoom usually scales.length - 1 OR resolutions.length - 1
                   // but not greater
                   maxZoom: maxZoom,
-                  onTap: (p) => setState(() {
+                  onTap: (tapPosition, p) => setState(() {
                     initText = 'You clicked at';
                     point = proj4.Point(x: p.latitude, y: p.longitude);
                   }),
