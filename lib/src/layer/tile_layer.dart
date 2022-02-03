@@ -1444,7 +1444,7 @@ class Coords<T extends num> extends CustomPoint<T> {
   String toString() => 'Coords($x, $y, $z)';
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (other is Coords) {
       return x == other.x && y == other.y && z == other.z;
     }
