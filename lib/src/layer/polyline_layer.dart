@@ -36,7 +36,7 @@ class Polyline {
   final bool isDotted;
   final StrokeCap strokeCap;
   final StrokeJoin strokeJoin;
-  late final LatLngBounds boundingBox;
+  late LatLngBounds boundingBox;
 
   Polyline({
     required this.points,
