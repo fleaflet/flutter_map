@@ -2,7 +2,7 @@
 name: Bug Report
 about: Create a bug report to help us improve
 title: "[BUG] ..."
-labels: bug
+labels: bug, needs verification
 assignees: ''
 
 ---
@@ -36,12 +36,11 @@ Steps to reproduce the behavior:
 ---
 
 **Severity**
-Select two (one from fatality, one from frequency)
+Select two (one from fatality, one from frequency). This will help us to label the issue quicker and decide what needs attention first.
  - [ ] Non-fatal
  - [ ] Fatal
  - [ ] Uncommon
  - [ ] Common
-
 
 **Applicable Platforms**
 Only select those that you've tested on - one or more. If possible, test on a variety of platforms.
