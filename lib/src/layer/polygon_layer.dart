@@ -26,6 +26,8 @@ class PolygonLayerOptions extends LayerOptions {
 }
 
 class Polygon {
+  String polygonType;
+  List coordinates;
   List? refCad;
   List<LatLng> points;
   List<Offset> offsets = [];
@@ -39,6 +41,8 @@ class Polygon {
   LatLngBounds? boundingBox;
 
   Polygon({
+    this.polygonType = '',
+    this.coordinates = const [],
     this.refCad,
     required this.points,
     this.holePointsList,

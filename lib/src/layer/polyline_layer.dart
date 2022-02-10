@@ -25,6 +25,8 @@ class PolylineLayerOptions extends LayerOptions {
 }
 
 class Polyline {
+  String polygonType;
+  List coordinates;
   List<LatLng> points;
   List<Offset> offsets = [];
   double strokeWidth;
@@ -37,7 +39,9 @@ class Polyline {
   LatLngBounds? boundingBox;
 
   Polyline(
-      {required this.points,
+      {this.polygonType = '',
+      this.coordinates = const [],
+      required this.points,
       this.strokeWidth = 1.0,
       this.color = const Color(0xFF00FF00),
       this.borderStrokeWidth = 0.0,
