@@ -1375,20 +1375,19 @@ class _AnimatedTileState extends State<AnimatedTile> {
   Widget build(BuildContext context) {
     final tileWidget = (widget.tile.loadError && widget.errorImage != null)
         ? Image(
-            image: widget.errorImage!,
             fit: BoxFit.fill,
+            image: widget.errorImage!,
+            opacity: AlwaysStoppedAnimation(widget.tile.opacity),
           )
         : RawImage(
-            image: widget.tile.imageInfo?.image,
             fit: BoxFit.fill,
+            image: widget.tile.imageInfo?.image,
+            opacity: AlwaysStoppedAnimation(widget.tile.opacity),
           );
 
-    return Opacity(
-      opacity: widget.tile.opacity,
-      child: widget.tileBuilder == null
-          ? tileWidget
-          : widget.tileBuilder!(context, tileWidget, widget.tile),
-    );
+    return widget.tileBuilder == null
+        ? tileWidget
+        : widget.tileBuilder!(context, tileWidget, widget.tile);
   }
 
   @override
