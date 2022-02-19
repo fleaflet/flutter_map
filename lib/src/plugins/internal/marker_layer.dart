@@ -4,6 +4,17 @@ import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart';
 
+class MarkerLayerPlugin extends MapPlugin {
+  @override
+  Widget createLayer(
+      LayerOptions options, MapState mapState, Stream<Null> stream) {
+    return MarkerLayer(options as MarkerLayerOptions, mapState, stream);
+  }
+
+  @override
+  bool supportsLayer(LayerOptions options) => options is MarkerLayerOptions;
+}
+
 /// Configuration for marker layer
 class MarkerLayerOptions extends LayerOptions {
   final List<Marker> markers;

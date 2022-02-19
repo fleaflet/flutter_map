@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:collection/collection.dart' show MapEquality;
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/core/util.dart' as util;
@@ -14,7 +15,7 @@ import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:tuple/tuple.dart';
 
-import 'layer.dart';
+import '../../layer/layer.dart';
 
 typedef TemplateFunction = String Function(
     String str, Map<String, String> data);
@@ -33,6 +34,20 @@ enum EvictErrorTileStrategy {
 }
 
 typedef ErrorTileCallBack = void Function(Tile tile, dynamic error);
+
+class TileLayerPlugin extends MapPlugin {
+  @override
+  Widget createLayer(
+      LayerOptions options, MapState mapState, Stream<Null> stream) {
+    return TileLayer(
+        options: options as TileLayerOptions,
+        mapState: mapState,
+        stream: stream);
+  }
+
+  @override
+  bool supportsLayer(LayerOptions options) => options is TileLayer;
+}
 
 /// Describes the needed properties to create a tile-based layer. A tile is an
 /// image bound to a specific geographical position.

@@ -196,28 +196,6 @@ class FlutterMapState extends MapGestureMixin {
         return plugin.createLayer(options, mapState, _merge(options));
       }
     }
-    if (options is TileLayerOptions) {
-      return TileLayer(
-          options: options, mapState: mapState, stream: _merge(options));
-    }
-    if (options is MarkerLayerOptions) {
-      return MarkerLayer(options, mapState, _merge(options));
-    }
-    if (options is PolylineLayerOptions) {
-      return PolylineLayer(options, mapState, _merge(options));
-    }
-    if (options is PolygonLayerOptions) {
-      return PolygonLayer(options, mapState, _merge(options));
-    }
-    if (options is CircleLayerOptions) {
-      return CircleLayer(options, mapState, _merge(options));
-    }
-    if (options is GroupLayerOptions) {
-      return GroupLayer(options, mapState, _merge(options));
-    }
-    if (options is OverlayImageLayerOptions) {
-      return OverlayImageLayer(options, mapState, _merge(options));
-    }
     throw (StateError("""
 Can't find correct layer for $options. Perhaps when you create your FlutterMap you need something like this:
 

@@ -4,6 +4,19 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
 
+class OverlayImageLayerPlugin extends MapPlugin {
+  @override
+  Widget createLayer(
+      LayerOptions options, MapState mapState, Stream<Null> stream) {
+    return OverlayImageLayer(
+        options as OverlayImageLayerOptions, mapState, stream);
+  }
+
+  @override
+  bool supportsLayer(LayerOptions options) =>
+      options is OverlayImageLayerOptions;
+}
+
 class OverlayImageLayerOptions extends LayerOptions {
   final List<OverlayImage> overlayImages;
 

@@ -2,6 +2,17 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
 
+class GroupLayerPlugin extends MapPlugin {
+  @override
+  Widget createLayer(
+      LayerOptions options, MapState mapState, Stream<Null> stream) {
+    return GroupLayer(options as GroupLayerOptions, mapState, stream);
+  }
+
+  @override
+  bool supportsLayer(LayerOptions options) => options is GroupLayerOptions;
+}
+
 /// [LayerOptions] that describe a layer composed by multiple built-in layers.
 class GroupLayerOptions extends LayerOptions {
   List<LayerOptions> group = <LayerOptions>[];
@@ -27,10 +38,11 @@ class GroupLayerWidget extends StatelessWidget {
 
 class GroupLayer extends StatelessWidget {
   final GroupLayerOptions groupOpts;
-  final MapState map;
+  final MapState mapState;
   final Stream<Null> stream;
 
-  GroupLayer(this.groupOpts, this.map, this.stream) : super(key: groupOpts.key);
+  GroupLayer(this.groupOpts, this.mapState, this.stream)
+      : super(key: groupOpts.key);
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +50,8 @@ class GroupLayer extends StatelessWidget {
       stream: stream,
       builder: (BuildContext context, _) {
         var layers = <Widget>[
-          for (var options in groupOpts.group) _createLayer(options)
+          for (var options in groupOpts.group)
+            _createLayer(options, mapState.options.plugins)
         ];
 
         return Container(
@@ -50,21 +63,13 @@ class GroupLayer extends StatelessWidget {
     );
   }
 
-  Widget _createLayer(LayerOptions options) {
-    if (options is MarkerLayerOptions) {
-      return MarkerLayer(options, map, options.rebuild);
-    }
-    if (options is CircleLayerOptions) {
-      return CircleLayer(options, map, options.rebuild);
-    }
-    if (options is PolylineLayerOptions) {
-      return PolylineLayer(options, map, options.rebuild);
-    }
-    if (options is PolygonLayerOptions) {
-      return PolygonLayer(options, map, options.rebuild);
-    }
-    if (options is OverlayImageLayerOptions) {
-      return OverlayImageLayer(options, map, options.rebuild);
+  Widget _createLayer(LayerOptions options, List<MapPlugin> plugins) {
+    final stream = options.rebuild ?? Stream.empty();
+
+    for (var plugin in plugins) {
+      if (plugin.supportsLayer(options)) {
+        return plugin.createLayer(options, mapState, stream);
+      }
     }
     throw Exception('Unknown options type for GeometryLayer: $options');
   }

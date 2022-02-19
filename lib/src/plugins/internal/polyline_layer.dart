@@ -6,6 +6,17 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart';
 
+class PolylineLayerPlugin extends MapPlugin {
+  @override
+  Widget createLayer(
+      LayerOptions options, MapState mapState, Stream<Null> stream) {
+    return PolylineLayer(options as PolylineLayerOptions, mapState, stream);
+  }
+
+  @override
+  bool supportsLayer(LayerOptions options) => options is PolylineLayerOptions;
+}
+
 class PolylineLayerOptions extends LayerOptions {
   final List<Polyline> polylines;
   final bool polylineCulling;

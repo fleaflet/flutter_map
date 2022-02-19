@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/map.dart';
+import 'package:flutter_map/src/plugins/internal/internal_plugins.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
 
@@ -17,16 +18,16 @@ export 'package:flutter_map/src/geo/latlng_bounds.dart';
 export 'package:flutter_map/src/gestures/interactive_flag.dart';
 export 'package:flutter_map/src/gestures/map_events.dart';
 export 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
-export 'package:flutter_map/src/layer/circle_layer.dart';
-export 'package:flutter_map/src/layer/group_layer.dart';
 export 'package:flutter_map/src/layer/layer.dart';
-export 'package:flutter_map/src/layer/marker_layer.dart';
-export 'package:flutter_map/src/layer/overlay_image_layer.dart';
-export 'package:flutter_map/src/layer/polygon_layer.dart';
-export 'package:flutter_map/src/layer/polyline_layer.dart';
 export 'package:flutter_map/src/layer/tile_builder/tile_builder.dart';
-export 'package:flutter_map/src/layer/tile_layer.dart';
 export 'package:flutter_map/src/layer/tile_provider/tile_provider.dart';
+export 'package:flutter_map/src/plugins/internal/circle_layer.dart';
+export 'package:flutter_map/src/plugins/internal/group_layer.dart';
+export 'package:flutter_map/src/plugins/internal/marker_layer.dart';
+export 'package:flutter_map/src/plugins/internal/overlay_image_layer.dart';
+export 'package:flutter_map/src/plugins/internal/polygon_layer.dart';
+export 'package:flutter_map/src/plugins/internal/polyline_layer.dart';
+export 'package:flutter_map/src/plugins/internal/tile_layer.dart';
 export 'package:flutter_map/src/plugins/plugin.dart';
 
 /// Renders a map composed of a list of layers powered by [LayerOptions].
@@ -279,7 +280,7 @@ class MapOptions {
     this.onLongPress,
     this.onPositionChanged,
     this.onMapCreated,
-    this.plugins = const [],
+    List<MapPlugin> plugins = const [],
     this.slideOnBoundaries = false,
     this.adaptiveBoundaries = false,
     this.screenSize,
@@ -287,6 +288,8 @@ class MapOptions {
     this.swPanBoundary,
     this.nePanBoundary,
   })  : center = center ?? LatLng(50.5, 30.51),
+        plugins = List.unmodifiable(
+            [...InternalPlugins.internalPlugins, ...(plugins)]),
         assert(rotationThreshold >= 0.0),
         assert(pinchZoomThreshold >= 0.0),
         assert(pinchMoveThreshold >= 0.0) {

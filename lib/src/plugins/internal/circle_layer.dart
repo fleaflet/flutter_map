@@ -3,6 +3,17 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 
+class CircleLayerPlugin extends MapPlugin {
+  @override
+  Widget createLayer(
+      LayerOptions options, MapState mapState, Stream<Null> stream) {
+    return CircleLayer(options as CircleLayerOptions, mapState, stream);
+  }
+
+  @override
+  bool supportsLayer(LayerOptions options) => options is CircleLayerOptions;
+}
+
 class CircleLayerOptions extends LayerOptions {
   final List<CircleMarker> circles;
   CircleLayerOptions({
