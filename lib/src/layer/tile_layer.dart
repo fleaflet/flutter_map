@@ -349,6 +349,9 @@ class WMSTileLayerOptions {
   /// tile transparency flag
   final bool transparent;
 
+  /// Encode boolean values as uppercase in request
+  final bool uppercaseBoolValue;
+
   // TODO find a way to implicit pass of current map [Crs]
   final Crs crs;
 
@@ -366,6 +369,7 @@ class WMSTileLayerOptions {
     this.format = 'image/png',
     this.version = '1.1.1',
     this.transparent = true,
+    this.uppercaseBoolValue = false,
     this.crs = const Epsg3857(),
     this.otherParameters = const {},
   }) {
@@ -383,7 +387,8 @@ class WMSTileLayerOptions {
       ..write('&format=${Uri.encodeComponent(format)}')
       ..write('&$projectionKey=${Uri.encodeComponent(crs.code)}')
       ..write('&version=${Uri.encodeComponent(version)}')
-      ..write('&transparent=$transparent');
+      ..write(
+          '&transparent=${uppercaseBoolValue ? transparent.toString().toUpperCase() : transparent}');
     otherParameters
         .forEach((k, v) => buffer.write('&$k=${Uri.encodeComponent(v)}'));
     return buffer.toString();
@@ -1439,7 +1444,7 @@ class Coords<T extends num> extends CustomPoint<T> {
   String toString() => 'Coords($x, $y, $z)';
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     if (other is Coords) {
       return x == other.x && y == other.y && z == other.z;
     }

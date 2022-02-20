@@ -34,7 +34,9 @@ class Polyline {
   final List<Color>? gradientColors;
   final List<double>? colorsStop;
   final bool isDotted;
-  late final LatLngBounds boundingBox;
+  final StrokeCap strokeCap;
+  final StrokeJoin strokeJoin;
+  late LatLngBounds boundingBox;
 
   Polyline({
     required this.points,
@@ -45,6 +47,8 @@ class Polyline {
     this.gradientColors,
     this.colorsStop,
     this.isDotted = false,
+    this.strokeCap = StrokeCap.round,
+    this.strokeJoin = StrokeJoin.round,
   });
 }
 
@@ -139,8 +143,8 @@ class PolylinePainter extends CustomPainter {
     canvas.clipRect(rect);
     final paint = Paint()
       ..strokeWidth = polylineOpt.strokeWidth
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round
+      ..strokeCap = polylineOpt.strokeCap
+      ..strokeJoin = polylineOpt.strokeJoin
       ..blendMode = BlendMode.srcOver;
 
     if (polylineOpt.gradientColors == null) {
@@ -156,8 +160,8 @@ class PolylinePainter extends CustomPainter {
       filterPaint = Paint()
         ..color = polylineOpt.borderColor!.withAlpha(255)
         ..strokeWidth = polylineOpt.strokeWidth
-        ..strokeCap = StrokeCap.round
-        ..strokeJoin = StrokeJoin.round
+        ..strokeCap = polylineOpt.strokeCap
+        ..strokeJoin = polylineOpt.strokeJoin
         ..blendMode = BlendMode.dstOut;
     }
 
@@ -166,8 +170,8 @@ class PolylinePainter extends CustomPainter {
           ..color = polylineOpt.borderColor ?? Color(0x00000000)
           ..strokeWidth =
               polylineOpt.strokeWidth + polylineOpt.borderStrokeWidth
-          ..strokeCap = StrokeCap.round
-          ..strokeJoin = StrokeJoin.round
+          ..strokeCap = polylineOpt.strokeCap
+          ..strokeJoin = polylineOpt.strokeJoin
           ..blendMode = BlendMode.srcOver)
         : null;
     var radius = paint.strokeWidth / 2;

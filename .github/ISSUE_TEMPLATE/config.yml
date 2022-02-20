@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Community Maintained Plugins
+    url: https://flutter-map.vercel.app/plugins/list
+    about: If you need help with a plugin, please ask on there first

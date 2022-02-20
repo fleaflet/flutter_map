@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
 
 class ZoomButtonsPluginOption extends LayerOptions {
-  final int minZoom;
-  final int maxZoom;
+  final double minZoom;
+  final double maxZoom;
   final bool mini;
   final double padding;
   final Alignment alignment;
@@ -79,12 +78,11 @@ class ZoomButtons extends StatelessWidget {
                 var bounds = map.getBounds();
                 var centerZoom = map.getBoundsCenterZoom(bounds, options);
                 var zoom = centerZoom.zoom + 1;
-                if (zoom < zoomButtonsOpts.minZoom) {
-                  zoom = zoomButtonsOpts.minZoom as double;
-                } else {
-                  map.move(centerZoom.center, zoom,
-                      source: MapEventSource.custom);
+                if (zoom > zoomButtonsOpts.maxZoom) {
+                  zoom = zoomButtonsOpts.maxZoom;
                 }
+                map.move(centerZoom.center, zoom,
+                    source: MapEventSource.custom);
               },
               child: Icon(zoomButtonsOpts.zoomInIcon,
                   color: zoomButtonsOpts.zoomInColorIcon ??
@@ -102,12 +100,11 @@ class ZoomButtons extends StatelessWidget {
                 var bounds = map.getBounds();
                 var centerZoom = map.getBoundsCenterZoom(bounds, options);
                 var zoom = centerZoom.zoom - 1;
-                if (zoom > zoomButtonsOpts.maxZoom) {
-                  zoom = zoomButtonsOpts.maxZoom as double;
-                } else {
-                  map.move(centerZoom.center, zoom,
-                      source: MapEventSource.custom);
+                if (zoom < zoomButtonsOpts.minZoom) {
+                  zoom = zoomButtonsOpts.minZoom;
                 }
+                map.move(centerZoom.center, zoom,
+                    source: MapEventSource.custom);
               },
               child: Icon(zoomButtonsOpts.zoomOutIcon,
                   color: zoomButtonsOpts.zoomOutColorIcon ??

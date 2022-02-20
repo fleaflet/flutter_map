@@ -6,7 +6,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/gestures/interactive_flag.dart';
 import 'package:flutter_map/src/gestures/latlng_tween.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart';
@@ -30,35 +29,17 @@ abstract class MapGestureMixin extends State<FlutterMap>
     if (pointerSignal is PointerScrollEvent &&
         mapState.options.enableScrollWheel) {
       if (pointerSignal.scrollDelta.dy != 0) {
-        _debounce(() {
-          // Check whether the mouse is scrolled down and calculate new zoom level
-          final delta = pointerSignal.scrollDelta.dy > 0 ? -0.25 : 0.25;
-          print(pointerSignal.scrollDelta.dy == 0);
-          final zoom = delta > 0
-              ? min(mapState.options.maxZoom ?? 19, mapState.zoom + delta)
-              : max(mapState.options.minZoom ?? 0, mapState.zoom + delta);
-          print('zoom: $zoom');
-          final newZoom = mapState.fitZoomToBounds(zoom);
-          // Move the map to the new zoom level
-          mapState.move(mapState.center, newZoom,
-              source: MapEventSource.custom);
-        });
+        // Check whether the mouse is scrolled down and calculate new zoom level
+        final delta = pointerSignal.scrollDelta.dy * (-0.01);
+        final zoom = delta > 0
+            ? min(mapState.options.maxZoom ?? double.infinity,
+                mapState.zoom + delta)
+            : max(mapState.options.minZoom ?? 0, mapState.zoom + delta);
+        final newZoom = mapState.fitZoomToBounds(zoom);
+        // Move the map to the new zoom level
+        mapState.move(mapState.center, newZoom, source: MapEventSource.custom);
       }
     }
-  }
-
-  Map timeouts = {};
-
-  void _debounce(void Function() callback) {
-    if (timeouts.containsKey(callback)) {
-      timeouts[callback].cancel();
-    }
-
-    final timer = Timer(const Duration(milliseconds: 150), () {
-      callback();
-    });
-
-    timeouts[callback] = timer;
   }
 
   var _rotationStarted = false;
@@ -87,6 +68,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
   late Animation _doubleTapZoomAnimation;
   late Animation _doubleTapCenterAnimation;
 
+  StreamSubscription<MapEvent>? _mapControllerAnimationInterruption;
+
   int _tapUpCounter = 0;
   Timer? _doubleTapHoldMaxDelay;
 
@@ -94,6 +77,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
   FlutterMap get widget;
 
   MapState get mapState;
+
+  MapController get mapController;
 
   MapOptions get options;
 
@@ -226,6 +211,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
     if (_flingController.isAnimating) {
       _flingController.stop();
 
+      _stopListeningForAnimationInterruptions();
+
       mapState.emitMapEvent(
         MapEventFlingAnimationEnd(
             center: mapState.center, zoom: mapState.zoom, source: source),
@@ -236,6 +223,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
   void closeDoubleTapController(MapEventSource source) {
     if (_doubleTapController.isAnimating) {
       _doubleTapController.stop();
+
+      _stopListeningForAnimationInterruptions();
 
       mapState.emitMapEvent(
         MapEventDoubleTapZoomEnd(
@@ -658,7 +647,9 @@ abstract class MapGestureMixin extends State<FlutterMap>
             zoom: mapState.zoom,
             source: MapEventSource.doubleTapZoomAnimationController),
       );
+      _startListeningForAnimationInterruptions();
     } else if (status == AnimationStatus.completed) {
+      _stopListeningForAnimationInterruptions();
       mapState.emitMapEvent(
         MapEventDoubleTapZoomEnd(
             center: mapState.center,
@@ -717,6 +708,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
   void _flingAnimationStatusListener(AnimationStatus status) {
     if (status == AnimationStatus.completed) {
       _flingAnimationStarted = false;
+      _stopListeningForAnimationInterruptions();
       mapState.emitMapEvent(
         MapEventFlingAnimationEnd(
             center: mapState.center,
@@ -735,6 +727,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
             zoom: mapState.zoom,
             source: MapEventSource.flingAnimationController),
       );
+      _startListeningForAnimationInterruptions();
     }
 
     var newCenterPoint = mapState.project(_mapCenterStart) +
@@ -747,6 +740,26 @@ abstract class MapGestureMixin extends State<FlutterMap>
       hasGesture: true,
       source: MapEventSource.flingAnimationController,
     );
+  }
+
+  void _startListeningForAnimationInterruptions() {
+    if (_mapControllerAnimationInterruption != null) return;
+    // cancel map animation controllers on map controller move events
+    _mapControllerAnimationInterruption = mapController.mapEventStream
+        .where((event) =>
+            event.source == MapEventSource.mapController &&
+            event is MapEventMove)
+        .listen(_handleAnimationInterruptions);
+  }
+
+  void _stopListeningForAnimationInterruptions() {
+    _mapControllerAnimationInterruption?.cancel();
+    _mapControllerAnimationInterruption = null;
+  }
+
+  void _handleAnimationInterruptions(MapEvent event) {
+    closeDoubleTapController(event.source);
+    closeFlingAnimationController(event.source);
   }
 
   CustomPoint _offsetToPoint(Offset offset) {
