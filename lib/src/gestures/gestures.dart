@@ -400,15 +400,16 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
               if (_pinchMoveStarted) {
                 final oldCenterPt = mapState.project(mapState.center, newZoom);
-                final newFocalLatLong  = _offsetToCrs(_focalStartLocal,newZoom);
+                final newFocalLatLong = _offsetToCrs(_focalStartLocal, newZoom);
                 final newFocalPt = mapState.project(newFocalLatLong, newZoom);
                 final oldFocalPt = mapState.project(_focalStartLatLng, newZoom);
                 final zoomDifference = oldFocalPt - newFocalPt;
                 final moveDifference =
-                _rotateOffset(_focalStartLocal - _lastFocalLocal);
+                    _rotateOffset(_focalStartLocal - _lastFocalLocal);
 
-                final newCenterPt = oldCenterPt
-                    + zoomDifference + _offsetToPoint(moveDifference);
+                final newCenterPt = oldCenterPt +
+                    zoomDifference +
+                    _offsetToPoint(moveDifference);
                 newCenter = mapState.unproject(newCenterPt, newZoom);
               } else {
                 newCenter = mapState.center;
@@ -579,7 +580,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
   }
 
   LatLng _offsetToCrs(Offset offset, [double? zoom]) {
-    final focalStartPt = mapState.project(mapState.center, zoom ?? mapState.zoom);
+    final focalStartPt =
+        mapState.project(mapState.center, zoom ?? mapState.zoom);
     final point = (_offsetToPoint(offset) - (mapState.originalSize! / 2.0))
         .rotate(mapState.rotationRad);
 
