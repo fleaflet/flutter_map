@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 
@@ -58,12 +56,16 @@ abstract class TileProvider {
   }
 }
 
+/// NetworkTileProvider
+
 class NetworkTileProvider extends TileProvider {
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
     return NetworkImageWithRetry(getTileUrl(coords, options));
   }
 }
+
+/// NonCachingNetworkTileProvider
 
 class NonCachingNetworkTileProvider extends TileProvider {
   const NonCachingNetworkTileProvider();
@@ -73,6 +75,8 @@ class NonCachingNetworkTileProvider extends TileProvider {
   }
 }
 
+/// AssetTileProvider
+
 class AssetTileProvider extends TileProvider {
   const AssetTileProvider();
   @override
@@ -81,13 +85,7 @@ class AssetTileProvider extends TileProvider {
   }
 }
 
-class FileTileProvider extends TileProvider {
-  const FileTileProvider();
-  @override
-  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
-    return FileImage(File(getTileUrl(coords, options)));
-  }
-}
+/// CustomTileProvider
 
 class CustomTileProvider extends TileProvider {
   final String Function(Coords coors, TileLayerOptions options) customTileUrl;

@@ -3,6 +3,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 
+/// List of circles to be drawn in the map
+
 class CircleLayerOptions extends LayerOptions {
   final List<CircleMarker> circles;
   CircleLayerOptions({
