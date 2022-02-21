@@ -16,7 +16,7 @@ dependencies:
   intl: ^0.17.0
   latlong2: ^0.8.0
   meta: ^1.3.0
-  positioned_tap_detector_2: ^1.0.0
+  positioned_tap_detector_2: ^1.0.4
   proj4dart: ^2.0.0
   transparent_image: ^2.0.0
   tuple: ^2.0.0
