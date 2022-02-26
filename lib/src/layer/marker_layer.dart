@@ -8,8 +8,8 @@ import 'package:latlong2/latlong.dart';
 class MarkerLayerOptions extends LayerOptions {
   final List<Marker> markers;
 
-  /// Do we want to cache projections for performance, caching can
-  /// introduce inaccuracies if the cache is out of date
+  /// Toggle marker position caching. Enabling will improve performance, but may introducen
+  /// errors when adding/removing markers. Default is enabled (`true`).
   final bool usePxCache;
 
   /// If true markers will be counter rotated to the map rotation
@@ -195,13 +195,12 @@ class _MarkerLayerState extends State<MarkerLayer> {
   // https://stackoverflow.com/questions/15943890/is-there-a-performance-benefit-in-using-fixed-length-lists-in-dart
   var _pxCache = <CustomPoint>[];
 
-  // Calling this every time markerOpts change should guarantee proper length
+  /// Calling this every time markerOpts change should guarantee proper length
   List<CustomPoint> generatePxCache() {
     if (widget.markerLayerOptions.usePxCache) {
       return List.generate(
         widget.markerLayerOptions.markers.length,
-            (i) =>
-            widget.map.project(widget.markerLayerOptions.markers[i].point),
+        (i) => widget.map.project(widget.markerLayerOptions.markers[i].point),
       );
     }
     return [];
@@ -209,12 +208,13 @@ class _MarkerLayerState extends State<MarkerLayer> {
 
   bool updatePxCacheIfNeeded() {
     var didUpdate = false;
+
     /// markers may be modified, so update cache. Note, someone may
     /// have not added to a cache, but modified, so this won't catch
     /// this case. Parent widget setState should be called to call
     /// didUpdateWidget to force a cache reload
 
-    if(widget.markerLayerOptions.markers.length != _pxCache.length) {
+    if (widget.markerLayerOptions.markers.length != _pxCache.length) {
       _pxCache = generatePxCache();
       didUpdate = true;
     }
@@ -236,12 +236,9 @@ class _MarkerLayerState extends State<MarkerLayer> {
 
   @override
   Widget build(BuildContext context) {
-    
     return StreamBuilder<int?>(
       stream: widget.stream, // a Stream<int> or null
       builder: (BuildContext context, AsyncSnapshot<int?> snapshot) {
-
-
         var layerOptions = widget.markerLayerOptions;
         var map = widget.map;
         var usePxCache = layerOptions.usePxCache;
@@ -254,9 +251,9 @@ class _MarkerLayerState extends State<MarkerLayer> {
           var marker = layerOptions.markers[i];
 
           // Decide whether to use cached point or calculate it
-          var pxPoint =
-            usePxCache && (sameZoom || cacheUpdated) ?
-              _pxCache[i] : map.project(marker.point);
+          var pxPoint = usePxCache && (sameZoom || cacheUpdated)
+              ? _pxCache[i]
+              : map.project(marker.point);
           if (!sameZoom && usePxCache) {
             _pxCache[i] = pxPoint;
           }
@@ -271,17 +268,15 @@ class _MarkerLayerState extends State<MarkerLayer> {
           }
 
           final pos = pxPoint - map.getPixelOrigin();
-          final markerWidget =
-          (marker.rotate ?? layerOptions.rotate ?? false)
-          // Counter rotated marker to the map rotation
+          final markerWidget = (marker.rotate ?? layerOptions.rotate ?? false)
+              // Counter rotated marker to the map rotation
               ? Transform.rotate(
-            angle: -map.rotationRad,
-            origin: marker.rotateOrigin ??
-                layerOptions.rotateOrigin,
-            alignment: marker.rotateAlignment ??
-                layerOptions.rotateAlignment,
-            child: marker.builder(context),
-          )
+                  angle: -map.rotationRad,
+                  origin: marker.rotateOrigin ?? layerOptions.rotateOrigin,
+                  alignment:
+                      marker.rotateAlignment ?? layerOptions.rotateAlignment,
+                  child: marker.builder(context),
+                )
               : marker.builder(context);
 
           markers.add(
@@ -305,4 +300,3 @@ class _MarkerLayerState extends State<MarkerLayer> {
     );
   }
 }
-
