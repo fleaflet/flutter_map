@@ -59,6 +59,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
   late LatLng _mapCenterStart;
   late double _mapZoomStart;
   late Offset _focalStartLocal;
+  late LatLng _focalStartLatLng;
 
   late final AnimationController _flingController;
   late Animation<Offset> _flingAnimation;
@@ -246,6 +247,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
     _mapZoomStart = mapState.zoom;
     _mapCenterStart = mapState.center;
     _focalStartLocal = _lastFocalLocal = details.localFocalPoint;
+    _focalStartLatLng = _offsetToCrs(_focalStartLocal);
 
     _dragStarted = false;
     _pinchZoomStarted = false;
@@ -398,11 +400,16 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
               if (_pinchMoveStarted) {
                 final oldCenterPt = mapState.project(mapState.center, newZoom);
-                final localDistanceOffset =
-                    _rotateOffset(_lastFocalLocal - focalOffset);
+                final newFocalLatLong = _offsetToCrs(_focalStartLocal, newZoom);
+                final newFocalPt = mapState.project(newFocalLatLong, newZoom);
+                final oldFocalPt = mapState.project(_focalStartLatLng, newZoom);
+                final zoomDifference = oldFocalPt - newFocalPt;
+                final moveDifference =
+                    _rotateOffset(_focalStartLocal - _lastFocalLocal);
 
-                final newCenterPt =
-                    oldCenterPt + _offsetToPoint(localDistanceOffset);
+                final newCenterPt = oldCenterPt +
+                    zoomDifference +
+                    _offsetToPoint(moveDifference);
                 newCenter = mapState.unproject(newCenterPt, newZoom);
               } else {
                 newCenter = mapState.center;
@@ -572,13 +579,14 @@ abstract class MapGestureMixin extends State<FlutterMap>
     );
   }
 
-  LatLng _offsetToCrs(Offset offset) {
-    final focalStartPt = mapState.project(mapState.center, mapState.zoom);
+  LatLng _offsetToCrs(Offset offset, [double? zoom]) {
+    final focalStartPt =
+        mapState.project(mapState.center, zoom ?? mapState.zoom);
     final point = (_offsetToPoint(offset) - (mapState.originalSize! / 2.0))
         .rotate(mapState.rotationRad);
 
     var newCenterPt = focalStartPt + point;
-    return mapState.unproject(newCenterPt, mapState.zoom);
+    return mapState.unproject(newCenterPt, zoom ?? mapState.zoom);
   }
 
   void handleDoubleTap(TapPosition tapPosition) {
