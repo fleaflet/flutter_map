@@ -229,9 +229,7 @@ class PolylinePainter extends CustomPainter {
   void _paintLine(Canvas canvas, List<Offset> offsets, Paint paint) {
     if (offsets.isNotEmpty) {
       final path = ui.Path()..moveTo(offsets[0].dx, offsets[0].dy);
-      for (var offset in offsets) {
-        path.lineTo(offset.dx, offset.dy);
-      }
+      path.addPolygon(offsets, false);
       canvas.drawPath(path, paint);
     }
   }
