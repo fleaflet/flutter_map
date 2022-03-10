@@ -9,6 +9,8 @@ import '../widgets/drawer.dart';
 class InteractiveTestPage extends StatefulWidget {
   static const String route = 'interactive_test_page';
 
+  const InteractiveTestPage({Key? key}) : super(key: key);
+
   @override
   State createState() {
     return _InteractiveTestPageState();
@@ -41,7 +43,7 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
   void onMapEvent(MapEvent mapEvent) {
     if (mapEvent is! MapEventMove && mapEvent is! MapEventRotate) {
       // do not flood console with move and rotate events
-      print(mapEvent);
+      debugPrint(mapEvent.toString());
     }
   }
 
@@ -58,10 +60,10 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Test out Interactive flags!')),
+      appBar: AppBar(title: const Text('Test out Interactive flags!')),
       drawer: buildDrawer(context, InteractiveTestPage.route),
       body: Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
             Row(
@@ -76,7 +78,7 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                       updateFlags(InteractiveFlag.drag);
                     });
                   },
-                  child: Text('Drag'),
+                  child: const Text('Drag'),
                 ),
                 MaterialButton(
                   color: InteractiveFlag.hasFlag(
@@ -88,7 +90,7 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                       updateFlags(InteractiveFlag.flingAnimation);
                     });
                   },
-                  child: Text('Fling'),
+                  child: const Text('Fling'),
                 ),
                 MaterialButton(
                   color:
@@ -100,7 +102,7 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                       updateFlags(InteractiveFlag.pinchMove);
                     });
                   },
-                  child: Text('Pinch move'),
+                  child: const Text('Pinch move'),
                 ),
               ],
             ),
@@ -117,7 +119,7 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                       updateFlags(InteractiveFlag.doubleTapZoom);
                     });
                   },
-                  child: Text('Double tap zoom'),
+                  child: const Text('Double tap zoom'),
                 ),
                 MaterialButton(
                   color: InteractiveFlag.hasFlag(flags, InteractiveFlag.rotate)
@@ -128,7 +130,7 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                       updateFlags(InteractiveFlag.rotate);
                     });
                   },
-                  child: Text('Rotate'),
+                  child: const Text('Rotate'),
                 ),
                 MaterialButton(
                   color:
@@ -140,19 +142,19 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                       updateFlags(InteractiveFlag.pinchZoom);
                     });
                   },
-                  child: Text('Pinch zoom'),
+                  child: const Text('Pinch zoom'),
                 ),
               ],
             ),
             Padding(
-              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
               child: Center(
                 child: StreamBuilder<MapEvent>(
                   stream: mapController.mapEventStream,
                   builder:
                       (BuildContext context, AsyncSnapshot<MapEvent> snapshot) {
                     if (!snapshot.hasData) {
-                      return Text(
+                      return const Text(
                         'Current event: none\nSource: none',
                         textAlign: TextAlign.center,
                       );

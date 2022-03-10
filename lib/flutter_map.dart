@@ -65,7 +65,7 @@ class FlutterMap extends StatefulWidget {
   final MapOptions options;
 
   /// A [MapController], used to control the map.
-  final MapControllerImpl? _mapController;
+  final MapController mapController;
 
   FlutterMap({
     Key? key,
@@ -75,11 +75,11 @@ class FlutterMap extends StatefulWidget {
     this.children = const [],
     this.nonRotatedChildren = const [],
     MapController? mapController,
-  })  : _mapController = mapController as MapControllerImpl?,
+  })  : mapController = mapController ?? MapController(),
         super(key: key);
 
   @override
-  FlutterMapState createState() => FlutterMapState(_mapController);
+  FlutterMapState createState() => FlutterMapState();
 }
 
 /// Controller to programmatically interact with [FlutterMap].
@@ -126,7 +126,7 @@ abstract class MapController {
   CenterZoom centerZoomFitBounds(LatLngBounds bounds,
       {FitBoundsOptions? options});
 
-  Future<Null> get onReady;
+  Future<void> get onReady;
 
   LatLng get center;
 
@@ -137,6 +137,9 @@ abstract class MapController {
   double get rotation;
 
   Stream<MapEvent> get mapEventStream;
+  StreamSink<MapEvent> get mapEventSink;
+  set state(MapState state);
+  void dispose();
 
   factory MapController() => MapControllerImpl();
 }

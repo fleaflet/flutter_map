@@ -7,13 +7,15 @@ import '../widgets/drawer.dart';
 class PluginPage extends StatelessWidget {
   static const String route = 'plugins';
 
+  const PluginPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Plugins')),
+      appBar: AppBar(title: const Text('Plugins')),
       drawer: buildDrawer(context, PluginPage.route),
       body: Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
             Flexible(
@@ -48,16 +50,16 @@ class MyCustomPluginOptions extends LayerOptions {
   MyCustomPluginOptions({
     Key? key,
     this.text = '',
-    Stream<Null>? rebuild,
+    Stream<void>? rebuild,
   }) : super(key: key, rebuild: rebuild);
 }
 
 class MyCustomPlugin implements MapPlugin {
   @override
   Widget createLayer(
-      LayerOptions options, MapState mapState, Stream<Null> stream) {
+      LayerOptions options, MapState mapState, Stream<void> stream) {
     if (options is MyCustomPluginOptions) {
-      var style = TextStyle(
+      var style = const TextStyle(
         fontWeight: FontWeight.bold,
         fontSize: 24.0,
         color: Colors.red,

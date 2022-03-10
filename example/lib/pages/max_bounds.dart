@@ -7,16 +7,18 @@ import '../widgets/drawer.dart';
 class MaxBoundsPage extends StatelessWidget {
   static const String route = '/max_bounds';
 
+  const MaxBoundsPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Max Bounds edges check')),
+      appBar: AppBar(title: const Text('Max Bounds edges check')),
       drawer: buildDrawer(context, route),
       body: Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            Padding(
+            const Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
               child: Text(
                   'This is a map that has edges constrained to a latlng bounds.'),

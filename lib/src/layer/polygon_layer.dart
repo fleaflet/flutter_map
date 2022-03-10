@@ -16,7 +16,7 @@ class PolygonLayerOptions extends LayerOptions {
     Key? key,
     this.polygons = const [],
     this.polygonCulling = false,
-    Stream<Null>? rebuild,
+    Stream<void>? rebuild,
   }) : super(key: key, rebuild: rebuild) {
     if (polygonCulling) {
       for (var polygon in polygons) {
@@ -59,7 +59,7 @@ class Polygon {
 
 class PolygonLayerWidget extends StatelessWidget {
   final PolygonLayerOptions options;
-  PolygonLayerWidget({Key? key, required this.options}) : super(key: key);
+  const PolygonLayerWidget({Key? key, required this.options}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +71,7 @@ class PolygonLayerWidget extends StatelessWidget {
 class PolygonLayer extends StatelessWidget {
   final PolygonLayerOptions polygonOpts;
   final MapState map;
-  final Stream<Null>? stream;
+  final Stream<void>? stream;
 
   PolygonLayer(this.polygonOpts, this.map, this.stream)
       : super(key: polygonOpts.key);
@@ -126,10 +126,8 @@ class PolygonLayer extends StatelessWidget {
           );
         }
 
-        return Container(
-          child: Stack(
-            children: polygons,
-          ),
+        return Stack(
+          children: polygons,
         );
       },
     );
@@ -276,7 +274,7 @@ class PolygonPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(PolygonPainter other) => false;
+  bool shouldRepaint(PolygonPainter oldDelegate) => false;
 
   double _dist(Offset v, Offset w) {
     return sqrt(_dist2(v, w));

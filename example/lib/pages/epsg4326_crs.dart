@@ -7,16 +7,18 @@ import '../widgets/drawer.dart';
 class EPSG4326Page extends StatelessWidget {
   static const String route = 'EPSG4326 Page';
 
+  const EPSG4326Page({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('EPSG4326')),
+      appBar: AppBar(title: const Text('EPSG4326')),
       drawer: buildDrawer(context, route),
       body: Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            Padding(
+            const Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
               child: Text('This is a map that is showing (42.58, 12.43).'),
             ),

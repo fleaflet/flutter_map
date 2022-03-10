@@ -27,14 +27,14 @@ class ZoomButtonsPluginOption extends LayerOptions {
     this.zoomOutColor,
     this.zoomOutColorIcon,
     this.zoomOutIcon = Icons.zoom_out,
-    Stream<Null>? rebuild,
+    Stream<void>? rebuild,
   }) : super(key: key, rebuild: rebuild);
 }
 
 class ZoomButtonsPlugin implements MapPlugin {
   @override
   Widget createLayer(
-      LayerOptions options, MapState mapState, Stream<Null> stream) {
+      LayerOptions options, MapState mapState, Stream<void> stream) {
     if (options is ZoomButtonsPluginOption) {
       return ZoomButtons(options, mapState, stream);
     }
@@ -50,7 +50,7 @@ class ZoomButtonsPlugin implements MapPlugin {
 class ZoomButtons extends StatelessWidget {
   final ZoomButtonsPluginOption zoomButtonsOpts;
   final MapState map;
-  final Stream<Null> stream;
+  final Stream<void> stream;
   final FitBoundsOptions options =
       const FitBoundsOptions(padding: EdgeInsets.all(12.0));
 

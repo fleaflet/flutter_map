@@ -18,14 +18,14 @@ class ScaleLayerPluginOption extends LayerOptions {
     this.lineColor = Colors.white,
     this.lineWidth = 2,
     this.padding,
-    Stream<Null>? rebuild,
+    Stream<void>? rebuild,
   }) : super(key: key, rebuild: rebuild);
 }
 
 class ScaleLayerPlugin implements MapPlugin {
   @override
   Widget createLayer(
-      LayerOptions options, MapState mapState, Stream<Null> stream) {
+      LayerOptions options, MapState mapState, Stream<void> stream) {
     if (options is ScaleLayerPluginOption) {
       return ScaleLayerWidget(options, mapState);
     }

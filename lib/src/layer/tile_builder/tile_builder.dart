@@ -8,8 +8,11 @@ typedef TilesContainerBuilder = Widget Function(
     BuildContext context, Widget tilesContainer, List<Tile> tiles);
 
 /// Applies inversion color matrix on Tiles container which may simulate Dark mode.
-final TilesContainerBuilder darkModeTilesContainerBuilder =
-    (BuildContext context, Widget tilesContainer, List<Tile> tiles) {
+Widget darkModeTilesContainerBuilder(
+  BuildContext context,
+  Widget tilesContainer,
+  List<Tile> tiles,
+) {
   return ColorFiltered(
     colorFilter: const ColorFilter.matrix(<double>[
       -1,
@@ -35,12 +38,15 @@ final TilesContainerBuilder darkModeTilesContainerBuilder =
     ]),
     child: tilesContainer,
   );
-};
+}
 
 /// Applies inversion color matrix on Tiles which may simulate Dark mode.
 /// [darkModeTilesContainerBuilder] is better at performance because it applies color matrix on the container instead of on every Tile
-final TileBuilder darkModeTileBuilder =
-    (BuildContext context, Widget tileWidget, Tile tile) {
+Widget darkModeTileBuilder(
+  BuildContext context,
+  Widget tileWidget,
+  Tile tile,
+) {
   return ColorFiltered(
     colorFilter: const ColorFilter.matrix(<double>[
       -1,
@@ -66,11 +72,14 @@ final TileBuilder darkModeTileBuilder =
     ]),
     child: tileWidget,
   );
-};
+}
 
 /// Shows coordinates over Tiles
-final TileBuilder coordinateDebugTileBuilder =
-    (BuildContext context, Widget tileWidget, Tile tile) {
+Widget coordinateDebugTileBuilder(
+  BuildContext context,
+  Widget tileWidget,
+  Tile tile,
+) {
   final coords = tile.coords;
   final readableKey =
       '${coords.x.floor()} : ${coords.y.floor()} : ${coords.z.floor()}';
@@ -92,11 +101,14 @@ final TileBuilder coordinateDebugTileBuilder =
       ],
     ),
   );
-};
+}
 
 /// Shows the Tile loading time in ms
-final TileBuilder loadingTimeDebugTileBuilder =
-    (BuildContext context, Widget tileWidget, Tile tile) {
+Widget loadingTimeDebugTileBuilder(
+  BuildContext context,
+  Widget tileWidget,
+  Tile tile,
+) {
   var loadStarted = tile.loadStarted;
   var loaded = tile.loaded;
 
@@ -121,4 +133,4 @@ final TileBuilder loadingTimeDebugTileBuilder =
       ],
     ),
   );
-};
+}

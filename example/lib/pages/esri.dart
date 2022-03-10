@@ -7,16 +7,18 @@ import '../widgets/drawer.dart';
 class EsriPage extends StatelessWidget {
   static const String route = 'esri';
 
+  const EsriPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Esri')),
+      appBar: AppBar(title: const Text('Esri')),
       drawer: buildDrawer(context, route),
       body: Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            Padding(
+            const Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
               child: Text('Esri'),
             ),

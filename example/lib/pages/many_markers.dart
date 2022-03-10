@@ -15,6 +15,8 @@ const maxMarkersCount = 5000;
 class ManyMarkersPage extends StatefulWidget {
   static const String route = '/many_markers';
 
+  const ManyMarkersPage({Key? key}) : super(key: key);
+
   @override
   _ManyMarkersPageState createState() => _ManyMarkersPageState();
 }
@@ -53,7 +55,7 @@ class _ManyMarkersPageState extends State<ManyMarkersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('A lot of markers')),
+      appBar: AppBar(title: const Text('A lot of markers')),
       drawer: buildDrawer(context, ManyMarkersPage.route),
       body: Column(
         children: [

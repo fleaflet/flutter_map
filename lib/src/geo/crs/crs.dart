@@ -29,7 +29,7 @@ abstract class Crs {
       var scale = this.scale(zoom);
       return transformation.transform(projectedPoint, scale.toDouble());
     } catch (e) {
-      return CustomPoint(0.0, 0.0);
+      return const CustomPoint(0.0, 0.0);
     }
   }
 
@@ -86,7 +86,7 @@ class CrsSimple extends Crs {
 
   CrsSimple()
       : projection = const _LonLat(),
-        transformation = Transformation(1, 0, -1, 0),
+        transformation = const Transformation(1, 0, -1, 0),
         super();
 
   @override
@@ -211,7 +211,7 @@ class Proj4Crs extends Crs {
     }
 
     if (null == origins || origins.isEmpty) {
-      transformation ??= Transformation(1, 0, -1, 0);
+      transformation ??= const Transformation(1, 0, -1, 0);
     } else {
       if (origins.length == 1) {
         var origin = origins[0];
@@ -244,7 +244,7 @@ class Proj4Crs extends Crs {
 
       return transformation.transform(projectedPoint, scale.toDouble());
     } catch (e) {
-      return CustomPoint(0.0, 0.0);
+      return const CustomPoint(0.0, 0.0);
     }
   }
 
@@ -370,7 +370,8 @@ abstract class Projection {
 
 class _LonLat extends Projection {
   static final Bounds<double> _bounds = Bounds<double>(
-      CustomPoint<double>(-180.0, -90.0), CustomPoint<double>(180.0, 90.0));
+      const CustomPoint<double>(-180.0, -90.0),
+      const CustomPoint<double>(180.0, 90.0));
 
   const _LonLat() : super();
 
@@ -394,8 +395,8 @@ class SphericalMercator extends Projection {
   static const double maxLatitude = 85.0511287798;
   static const double _boundsD = r * math.pi;
   static final Bounds<double> _bounds = Bounds<double>(
-    CustomPoint<double>(-_boundsD, -_boundsD),
-    CustomPoint<double>(_boundsD, _boundsD),
+    const CustomPoint<double>(-_boundsD, -_boundsD),
+    const CustomPoint<double>(_boundsD, _boundsD),
   );
 
   const SphericalMercator() : super();
