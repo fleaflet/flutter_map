@@ -22,11 +22,11 @@ A clear and concise description of any alternative solutions or features you've 
 Add any other context or screenshots about the feature request here.
 
 **Applicable Platforms**
-Only select those that you've tested on - one or more. If possible, test on a variety of platforms.
+Select platforms that this request applies to.
 
- - [ ] All/any
- - [ ] Android
- - [ ] iOS
- - [ ] Web
- - [ ] Windows
- - [ ] Others (beta platforms)
+- [ ] All/any
+- [ ] Android
+- [ ] iOS
+- [ ] Web
+- [ ] Windows
+- [ ] Others (beta platforms)
