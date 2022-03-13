@@ -22,12 +22,14 @@ Add any other context about the problem here, or remove this section.
 ---
 
 **Doctors Report**
-```
-Paste your report from `flutter doctor` here
+
+```shell
+Paste your report from `flutter doctor` inside here
 ```
 
 **To Reproduce**
 Steps to reproduce the behavior:
+
 1. Go to '...'
 2. Click on '....'
 3. Scroll down to '....'
@@ -36,16 +38,24 @@ Steps to reproduce the behavior:
 ---
 
 **Severity**
-Select two (one from fatality, one from frequency). This will help us to label the issue quicker and decide what needs attention first.
- - [ ] Non-fatal
- - [ ] Fatal
- - [ ] Uncommon
- - [ ] Common
+This will help us to label the issue quicker and decide what needs attention first. Only choose fatal if the entire app crashes, otherwise choose non-fatal.
+
+- [ ] Non-Fatal
+- [ ] Fatal / App Crashes
+
+**Frequency/Rarity**
+This will help us to label the issue quicker and decide what needs attention first.
+
+- [ ] Once
+- [ ] Uncommon
+- [ ] Common
+- [ ] Always
 
 **Applicable Platforms**
 Only select those that you've tested on - one or more. If possible, test on a variety of platforms.
- - [ ] Android
- - [ ] iOS
- - [ ] Web
- - [ ] Windows
- - [ ] Others (beta platforms)
+
+- [ ] Android
+- [ ] iOS
+- [ ] Web
+- [ ] Windows
+- [ ] Others (beta platforms)

@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
+  - name: Discord Server
+    url: https://discord.gg/egEGeByf4q
+    about: Need more generalised help, or just want to talk? Join the Discord server!
   - name: Community Maintained Plugins
     url: https://flutter-map.vercel.app/plugins/list
-    about: If you need help with a plugin, please ask on there first
+    about: If you need help with a plugin, please ask on their issue tracker first
