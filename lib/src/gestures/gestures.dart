@@ -27,18 +27,20 @@ abstract class MapGestureMixin extends State<FlutterMap>
   void onPointerSignal(PointerSignalEvent pointerSignal) {
     // Handle mouse scroll events if the enableScrollWheel parameter is enabled
     if (pointerSignal is PointerScrollEvent &&
-        mapState.options.enableScrollWheel) {
-      if (pointerSignal.scrollDelta.dy != 0) {
-        // Check whether the mouse is scrolled down and calculate new zoom level
-        final delta = pointerSignal.scrollDelta.dy * (-0.01);
-        final zoom = delta > 0
-            ? min(mapState.options.maxZoom ?? double.infinity,
-                mapState.zoom + delta)
-            : max(mapState.options.minZoom ?? 0, mapState.zoom + delta);
-        final newZoom = mapState.fitZoomToBounds(zoom);
-        // Move the map to the new zoom level
-        mapState.move(mapState.center, newZoom, source: MapEventSource.custom);
-      }
+        mapState.options.enableScrollWheel &&
+        pointerSignal.scrollDelta.dy != 0) {
+      // Calculate new zoom level
+      final newZoom = (mapState.zoom + pointerSignal.scrollDelta.dy * -0.005)
+        .clamp(mapState.options.minZoom ?? 0.0, mapState.options.maxZoom ?? double.infinity);
+      // Calculate offset of mouse cursor from viewport center
+      final cursorPos = CustomPoint(pointerSignal.localPosition.dx, pointerSignal.localPosition.dy);
+      final centerOffset = (cursorPos - mapState.originalSize! / 2).rotate(mapState.rotationRad);
+      // Match new center coordinate to mouse cursor position
+      final scale = mapState.getZoomScale(newZoom, mapState.zoom);
+      final mapCenter = mapState.project(mapState.center);
+      final newCenter = mapState.unproject(mapCenter + centerOffset * (1.0 - 1.0 / scale));
+      // Move to new center and zoom level
+      mapState.move(newCenter, newZoom, source: MapEventSource.custom);
     }
   }
 
