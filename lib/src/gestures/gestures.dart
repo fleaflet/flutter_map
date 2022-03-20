@@ -45,7 +45,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
       final newCenter = mapState.unproject(mapCenter + newOffset);
       // Move to new center and zoom level
       mapState.move(mapState.center, newZoom,
-            source: MapEventSource.scrollWheel);
+          source: MapEventSource.scrollWheel);
     }
   }
 
