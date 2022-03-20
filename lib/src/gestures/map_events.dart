@@ -19,7 +19,8 @@ enum MapEventSource {
   interactiveFlagsChanged,
   fitBounds,
   initialization,
-  custom
+  custom,
+  scrollWheel,
 }
 
 /// Base event class which is emitted by MapController instance, the event
@@ -169,6 +170,23 @@ class MapEventFlingAnimationEnd extends MapEvent {
 /// Event which is fired when map is double tapped
 class MapEventDoubleTapZoom extends MapEventWithMove {
   MapEventDoubleTapZoom({
+    required LatLng targetCenter,
+    required double targetZoom,
+    required MapEventSource source,
+    required LatLng center,
+    required double zoom,
+  }) : super(
+          targetCenter: targetCenter,
+          targetZoom: targetZoom,
+          source: source,
+          center: center,
+          zoom: zoom,
+        );
+}
+
+/// Event which is fired when scroll wheel is used to zoom
+class MapEventScrollWheelZoom extends MapEventWithMove {
+  MapEventScrollWheelZoom({
     required LatLng targetCenter,
     required double targetZoom,
     required MapEventSource source,
