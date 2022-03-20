@@ -7,5 +7,6 @@ class CenterZoom {
 
   /// Zoom value
   final double zoom;
+
   CenterZoom({required this.center, required this.zoom});
 }
