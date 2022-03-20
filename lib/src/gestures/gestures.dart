@@ -30,15 +30,20 @@ abstract class MapGestureMixin extends State<FlutterMap>
         mapState.options.enableScrollWheel &&
         pointerSignal.scrollDelta.dy != 0) {
       // Calculate new zoom level
+      final minZoom = mapState.options.minZoom ?? 0.0;
+      final maxZoom = mapState.options.maxZoom ?? double.infinity;
       final newZoom = (mapState.zoom + pointerSignal.scrollDelta.dy * -0.005)
-        .clamp(mapState.options.minZoom ?? 0.0, mapState.options.maxZoom ?? double.infinity);
+          .clamp(minZoom, maxZoom);
       // Calculate offset of mouse cursor from viewport center
-      final cursorPos = CustomPoint(pointerSignal.localPosition.dx, pointerSignal.localPosition.dy);
-      final centerOffset = (cursorPos - mapState.originalSize! / 2).rotate(mapState.rotationRad);
+      final cursorPos = CustomPoint(
+          pointerSignal.localPosition.dx, pointerSignal.localPosition.dy);
+      final viewCenter = mapState.originalSize! / 2;
+      final offset = (cursorPos - viewCenter).rotate(mapState.rotationRad);
       // Match new center coordinate to mouse cursor position
       final scale = mapState.getZoomScale(newZoom, mapState.zoom);
+      final newOffset = offset * (1.0 - 1.0 / scale);
       final mapCenter = mapState.project(mapState.center);
-      final newCenter = mapState.unproject(mapCenter + centerOffset * (1.0 - 1.0 / scale));
+      final newCenter = mapState.unproject(mapCenter + newOffset);
       // Move to new center and zoom level
       mapState.move(newCenter, newZoom, source: MapEventSource.custom);
     }
