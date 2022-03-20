@@ -1,3 +1,6 @@
+> DON'T INTERACT WITH master BRANCH
+> Instead, use new default branch 'fix-merge-conflicts'. This is due to some complicated conflict resolving that went a little wrong.
+
 # flutter_map
 
 `flutter_map` is a mapping package for Flutter, based off of ['leaflet.js'](https://leafletjs.com/). Simple and easy to learn, yet completely customizable and configurable, it's the best choice for mapping in your Flutter app.
