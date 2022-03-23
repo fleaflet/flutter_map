@@ -1,9 +1,134 @@
-## [0.8.2] - 1/7/2019
-- add polyline with gradient (#452)
+## [0.14.0] - 6/7/2021
+This version contains the following changes
+- Added scroll wheel zoom support for web
+- Added TapPosition to TapCallback
+- Added center to LatLngBounds
+- Added equality operators for LatLngBounds and MapPosition
+- Added support for resetting TileLayer cache
+- Added attribution builder to TileLayer
+- Added 'inside' parameter to FitBoundsOptions
+- Added centerZoomFitBounds to MapController
+- Added vector_map_tiles to plugin section in README
+- Added option to prevent Scrollable widgets from snatching horizontal scrolling gestures
+
+Thanks to moehme, Tom Prebble, Binabh, ondbyte, Sébastien Dabet, Thomas Lüder, Kevin Thorne, 
+kimlet, TheOneWithTheBraid, David Green and Kenneth Gulbrandsøy. 
+
+## [0.13.1] - 6/7/2021
+This version contains hotfixes from null safety migration.
+
+## [0.13.0] - 6/4/2021
+This version has support for sound null safety. For this purpose, some inactive
+packages were exchanged with active forks.
+
+- Sound null safety migration (#851, #870)
+  - requires flutter version 2.0.0 or higher
+  - latlong is replaced with latlong2
+  - ready-flag on map has been removed
+- Remove the package flutter_image and add http instead (#894)
+  - http has to be version 0.13.2 or higher for this package (#894)
+- Removed deprecated properties
+  - debug property has been removed
+  - interactive has been replaced by interactiveFlags
+- Bounds getCenter has been replaced by center getter
+
+Thanks to escamoteur, ThexXTURBOXx, Sata51, tazik561, kengu, passsy,
+Ahmed-gubara, johnpryan, josxha and andreandersson for this release!
+
+## [0.12.0] - 3/16/2021
+TileLayerOptions now takes some additional options, templateFunction,
+tileBuilder, tilesContainerBuilder, and evictErrorTileStrategy
+
+- Evict error tiles (#577)
+- Post process tiles (#582)
+- Prevent crash when move() is called before FlutterMap has been built (#827)
+
+Thanks to gr4yscale, maRci002, MooNag, tlserver, 6y
+
+## [0.11.0] - 01/29/2021
+This version removes various tile providers that depend on plugins.
+This helps simplify the flutter_map release process. Tile providers can
+be implemented in your app or in a separate package.
+
+- remove mbtiles tile provider + sqlflite dependency (#787)
+- Add two finger rotation (#719)
+- add allowPanning property (#766)
+- reload map if additionalOptions changes (#740)
+
+thanks to maRci002, escamoteur, and Xennis for this release!
+
+## [0.10.2] - 10/29/2020
+- added property `allowPanning` to `MapOptions` that allows to disable only
+  panning while touch events are still triggered
+
+## [0.10.1+1] - 8/4/2020
+- fix possible issue with code published in previous version
+
+## [0.10.1] - 8/4/2020
+- Controller position stream (#505)
+- Fix gray tiles when tile image is already available (#715)
+- Key management (#695)
+- migrate to androidx (#697)
+
+Thanks to @maRci002, @4F2E4A2E, and @porfirioribeiro
+
+## [0.10.0] - 7/7/2020
+- add package:meta dependency, set cached_network_image to 2.0.0
+- Support retina mode (#585)
+- Handle exception on move without internet connection (#600)
+- Fix TileLayer/Tiles not getting disposed correctly (#595)
+- Polyline culling (#611) 
+- Remove mapbox from README (#651)
+- docs update (#655)
+- Fix #595 TileLayer not getting disposed correctly (#596)
+- Support subdomains on wms layer (#516)
+- Slide map along map boundaries (#430)
+- Add example of showing current location (#447)
+- Adding an explanation when a plugin has not been activated (#477)
+- Add icons & color params for zoombuttons (#544)
+- Fix Bug 545 stacked MBTileImageProvider (#546)
+- fix #608 Empty map fails when return to same route (#609)
+- fix Flickering bug - on double click / MapController move (#579)
+- fix/group-layer-rebuid: consuming rebuild stream in group layer (#663)
+- Fix #446: Polyline rendering on web (#662)
+- Initialize map widgets with bounds or center (#646)
+- Add flutter_map_marker_popup to plugins in README.md (#603)
+- add lat lon grid plugin to readme (#601)
+- Handle exception on move without internet connection (#600)
+- Fix "plugins.flutter.io/path_provider" deprecation (#598)
+- Fix #595 TileLayer not getting disposed correctly (#596)
+- New Widget layers API (#619)
+
+Thanks to @maRci002, @beerline, @saibotma, @kuhnroyal, @porfirioribeiro, @Lootwig,
+@raacker, @wpietri, @HugoHeneault, @felixjunghans, @hlin079g6, @eugenio165,
+@fusion44, @rorystephenson, @mat8854, @dpatrongomez, @ruizalexandre 
+
+## [0.9.0] - 4/6/2020
+- Improve tile management (#572) - This is a huge improvement aligns
+  tile rendering with Leaflet's behavior. 
+- Wms Support (#500)
+- Update README for open street maps (#495)
+- Support custom CRS (#529)
+- Proj4dart update (#541)
+- Fix changelog (#511)
+- Fix multiple origins bouncing (#548)
+- Add android permissions instructions to README (#569)
+- Add an option for gapless playback on OverlayImage (#566)
+- Add flutter_map_tappable_polyline plugin to README (#563)
+- Move plugins to front of checks so they can override defaults (#555)
+- Support holed polygons (#526)
+
+**Big** thanks to @maRci002 for this release! See pull request #572 for details.
+
+Thanks to @marCi002, @bugDim88, @buggamer, @pumano, @fegyi001, @jpeiffer,
+@syonip, @pento, @tuarrep, and @ibrierley for this release!
+
+## [0.8.2] - 1/7/2020
+- Add polyline with gradient (#452)
 
 Thanks to @SebWojd for this release!
 
-## [0.8.1] - 1/3/2019
+## [0.8.1] - 1/3/2020
 - Add ZoomButtonsPlugin (#487)
 
 Thanks to @moovida for this release!

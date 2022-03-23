@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong/latlong.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../widgets/drawer.dart';
 
@@ -29,7 +29,7 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
   static LatLng paris = LatLng(48.8566, 2.3522);
   static LatLng dublin = LatLng(53.3498, -6.2603);
 
-  MapController mapController;
+  late final MapController mapController;
 
   @override
   void initState() {
@@ -90,7 +90,7 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
         builder: (ctx) => Container(
           child: FlutterLogo(
             key: Key('green'),
-            colors: Colors.green,
+            textColor: Colors.green,
           ),
         ),
       ),
@@ -100,7 +100,7 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
         point: paris,
         builder: (ctx) => Container(
           key: Key('purple'),
-          child: FlutterLogo(colors: Colors.purple),
+          child: FlutterLogo(textColor: Colors.purple),
         ),
       ),
     ];
@@ -117,22 +117,22 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
               child: Row(
                 children: <Widget>[
                   MaterialButton(
-                    child: Text('London'),
                     onPressed: () {
                       _animatedMapMove(london, 10.0);
                     },
+                    child: Text('London'),
                   ),
                   MaterialButton(
-                    child: Text('Paris'),
                     onPressed: () {
                       _animatedMapMove(paris, 5.0);
                     },
+                    child: Text('Paris'),
                   ),
                   MaterialButton(
-                    child: Text('Dublin'),
                     onPressed: () {
                       _animatedMapMove(dublin, 5.0);
                     },
+                    child: Text('Dublin'),
                   ),
                 ],
               ),
@@ -142,7 +142,6 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
               child: Row(
                 children: <Widget>[
                   MaterialButton(
-                    child: Text('Fit Bounds'),
                     onPressed: () {
                       var bounds = LatLngBounds();
                       bounds.extend(dublin);
@@ -155,6 +154,20 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
                         ),
                       );
                     },
+                    child: Text('Fit Bounds'),
+                  ),
+                  MaterialButton(
+                    onPressed: () {
+                      var bounds = LatLngBounds();
+                      bounds.extend(dublin);
+                      bounds.extend(paris);
+                      bounds.extend(london);
+
+                      var centerZoom =
+                          mapController.centerZoomFitBounds(bounds);
+                      _animatedMapMove(centerZoom.center, centerZoom.zoom);
+                    },
+                    child: Text('Fit Bounds animated'),
                   ),
                 ],
               ),

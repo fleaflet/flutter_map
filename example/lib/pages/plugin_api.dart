@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
-import 'package:latlong/latlong.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../widgets/drawer.dart';
 
@@ -30,6 +30,8 @@ class PluginPage extends StatelessWidget {
                       urlTemplate:
                           'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                       subdomains: ['a', 'b', 'c']),
+                ],
+                nonRotatedLayers: [
                   MyCustomPluginOptions(text: "I'm a plugin!"),
                 ],
               ),
@@ -43,7 +45,11 @@ class PluginPage extends StatelessWidget {
 
 class MyCustomPluginOptions extends LayerOptions {
   final String text;
-  MyCustomPluginOptions({this.text = ''});
+  MyCustomPluginOptions({
+    Key? key,
+    this.text = '',
+    Stream<Null>? rebuild,
+  }) : super(key: key, rebuild: rebuild);
 }
 
 class MyCustomPlugin implements MapPlugin {
@@ -58,6 +64,7 @@ class MyCustomPlugin implements MapPlugin {
       );
       return Text(
         options.text,
+        key: options.key,
         style: style,
       );
     }

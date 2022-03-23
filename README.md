@@ -1,136 +1,368 @@
-[![BuildStatus](https://api.travis-ci.org/johnpryan/flutter_map.svg?branch=master)](https://travis-ci.org/johnpryan/flutter_map)
-[![Pub](https://img.shields.io/pub/v/flutter_map.svg)](https://pub.dev/packages/flutter_map)
-
 # flutter_map
 
-A Dart implementation of [Leaflet] for Flutter apps.
+A versatile mapping package for Flutter, based off of ['leaflet.js'](https://leafletjs.com/). Simple and easy to learn, yet completely customizable and configurable, it's the best choice for mapping in your Flutter app.
+
+[![Pub.dev](https://img.shields.io/pub/v/flutter_map.svg?label=Latest+Version)](https://pub.dev/packages/flutter_map) [![Checks & Tests](https://badgen.net/github/checks/fleaflet/flutter_map?label=Checks+%26+Tests&color=orange)](https://github.com/fleaflet/flutter_map/actions?query=branch%3Amaster) [![points](https://badges.bar/flutter_map/pub%20points)](https://pub.dev/packages/flutter_map/score)  
+[![stars](https://badgen.net/github/stars/fleaflet/flutter_map?label=stars&color=green&icon=github)](https://github.com/fleaflet/flutter_map/stargazers) [![likes](https://badges.bar/flutter_map/likes)](https://pub.dev/packages/flutter_map/score)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![Open Issues](https://badgen.net/github/open-issues/fleaflet/flutter_map?label=Open+Issues&color=green)](https://GitHub.com/fleaflet/flutter_map/issues) [![Open PRs](https://badgen.net/github/open-prs/fleaflet/flutter_map?label=Open+PRs&color=green)](https://GitHub.com/fleaflet/flutter_map/pulls)
+
+Join the Discord server: https://discord.gg/egEGeByf4q
+
+## Installation & Configuration
+
+Add 'flutter_map' to your 'pubspec.yaml' with the command:
+
+```shell
+> flutter pub add flutter_map
+```
+
+Include in your project with:
+
+```dart
+import 'package:flutter_map/flutter_map.dart';
+```
+
+### Android
+
+Configure your app to use the `INTERNET` permission in the manifest file located
+in `<project root>/android/app/src/main/AndroidManifest.xml`:
+
+```xml
+<uses-permission android:name="android.permission.INTERNET"/>
+```
 
 ## Usage
 
-Add flutter_map to your pubspec:
-
-```yaml
-dependencies:
-  flutter_map: any # or the latest version on Pub
-```
 Configure the map using `MapOptions` and layer options:
 
 ```dart
-  Widget build(BuildContext context) {
-    return new FlutterMap(
-      options: new MapOptions(
-        center: new LatLng(51.5, -0.09),
-        zoom: 13.0,
+Widget build(BuildContext context) {
+  return FlutterMap(
+    options: MapOptions(
+      center: LatLng(51.5, -0.09),
+      zoom: 13.0,
+    ),
+    layers: [
+      TileLayerOptions(
+        urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        subdomains: ['a', 'b', 'c'],
+        attributionBuilder: (_) {
+          return Text("© OpenStreetMap contributors");
+        },
       ),
-      layers: [
-        new TileLayerOptions(
-          urlTemplate: "https://api.tiles.mapbox.com/v4/"
-              "{id}/{z}/{x}/{y}@2x.png?access_token={accessToken}",
-          additionalOptions: {
-            'accessToken': '<PUT_ACCESS_TOKEN_HERE>',
-            'id': 'mapbox.streets',
-          },
-        ),
-        new MarkerLayerOptions(
-          markers: [
-            new Marker(
-              width: 80.0,
-              height: 80.0,
-              point: new LatLng(51.5, -0.09),
-              builder: (ctx) =>
-              new Container(
-                child: new FlutterLogo(),
-              ),
+      MarkerLayerOptions(
+        markers: [
+          Marker(
+            width: 80.0,
+            height: 80.0,
+            point: LatLng(51.5, -0.09),
+            builder: (ctx) =>
+            Container(
+              child: FlutterLogo(),
             ),
-          ],
-        ),
-      ],
-    );
-  }
+          ),
+        ],
+      ),
+    ],
+  );
+}
+```
+
+Alternatively, initialize the map by specifying `bounds` instead of `center` and
+`zoom`.
+
+```dart
+MapOptions(
+  bounds: LatLngBounds(LatLng(58.8, 6.1), LatLng(59, 6.2)),
+  boundsOptions: FitBoundsOptions(padding: EdgeInsets.all(8.0)),
+),
 ```
 
 ### Azure Maps provider
-Configure the map to use [Azure Maps](https://azure.com/maps) by using the following `MapOptions` and layer options:
+
+To configure [Azure Maps](https://azure.com/maps),  use the following
+`MapOptions` and layer options:
 
 ```dart
 Widget build(BuildContext context) {
-    return new FlutterMap(
-      options: new MapOptions(
-        center: new LatLng(51.5, -0.09),
-        zoom: 13.0,
+  return new FlutterMap(
+    options: new MapOptions(
+      center: new LatLng(51.5, -0.09),
+      zoom: 13.0,
+    ),
+    layers: [
+      new TileLayerOptions(
+        urlTemplate: "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style=main&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
+        additionalOptions: {
+          'subscriptionKey': '<YOUR_AZURE_MAPS_SUBSCRIPTON_KEY>'
+        },
       ),
-      layers: [
-        new TileLayerOptions(
-          urlTemplate: "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style=main&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
-          additionalOptions: {
-            'subscriptionKey': '<YOUR_AZURE_MAPS_SUBSCRIPTON_KEY>'
-          },
-        ),
-        new MarkerLayerOptions(
-          markers: [
-            new Marker(
-              width: 80.0,
-              height: 80.0,
-              point: new LatLng(51.5, -0.09),
-              builder: (ctx) =>
-              new Container(
-                child: new FlutterLogo(),
-              ),
+      new MarkerLayerOptions(
+        markers: [
+          new Marker(
+            width: 80.0,
+            height: 80.0,
+            point: new LatLng(51.5, -0.09),
+            builder: (ctx) =>
+            new Container(
+              child: new FlutterLogo(),
             ),
-          ],
-        ),
-      ],
-    );
-  }
+          ),
+        ],
+      ),
+    ],
+  );
+}
 ```
 
-To use Azure Maps you will need to [setup an account and get a subscription key](https://docs.microsoft.com/en-us/azure/azure-maps/quick-demo-map-app)
+To use Azure Maps, [set up an account and get a subscription
+key][azure-maps-instructions]
 
 ### Open Street Map provider
-Configure the map to use [Open Street Map](https://openstreetmap.org) by using the following `MapOptions` and layer options:
+
+Configure the map to use [Open Street Map][open-street-map] by using
+the following `MapOptions` and layer options:
 
 ```dart
 Widget build(BuildContext context) {
-    return new FlutterMap(
-      options: new MapOptions(
-        center: new LatLng(51.5, -0.09),
-        zoom: 13.0,
+  return new FlutterMap(
+    options: new MapOptions(
+      center: new LatLng(51.5, -0.09),
+      zoom: 13.0,
+    ),
+    layers: [
+      new TileLayerOptions(
+        urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        subdomains: ['a', 'b', 'c']
       ),
-      layers: [
-        new TileLayerOptions(
-          urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-          subdomains: ['a', 'b', 'c']
-        ),
-        new MarkerLayerOptions(
-          markers: [
-            new Marker(
-              width: 80.0,
-              height: 80.0,
-              point: new LatLng(51.5, -0.09),
-              builder: (ctx) =>
-              new Container(
-                child: new FlutterLogo(),
-              ),
+      new MarkerLayerOptions(
+        markers: [
+          new Marker(
+            width: 80.0,
+            height: 80.0,
+            point: new LatLng(51.5, -0.09),
+            builder: (ctx) =>
+            new Container(
+              child: new FlutterLogo(),
             ),
-          ],
-        ),
-      ],
-    );
-  }
+          ),
+        ],
+      ),
+    ],
+  );
+}
 ```
 
-### Run the example
+### Mapbox provider
+
+To configure [Mapbox](https://www.mapbox.com/), you should create your
+[access token](https://docs.mapbox.com/help/getting-started/access-tokens/).
+
+You can use tiles provided and hosted by Mapbox. The list can be found
+[here](https://docs.mapbox.com/api/maps/styles/#mapbox-styles).
+
+```dart
+Widget build(BuildContext context) {
+  return new FlutterMap(
+    options: new MapOptions(
+      center: new LatLng(51.5, -0.09),
+      zoom: 13.0,
+    ),
+    layers: [
+      new TileLayerOptions(
+        urlTemplate: "https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/"
+                     "{z}/{x}/{y}?access_token=$accessToken",
+      ),
+      new MarkerLayerOptions(
+        markers: [
+          new Marker(
+            width: 80.0,
+            height: 80.0,
+            point: new LatLng(51.5, -0.09),
+            builder: (ctx) =>
+            new Container(
+              child: new FlutterLogo(),
+            ),
+          ),
+        ],
+      ),
+    ],
+  );
+}
+```
+
+Make sure `accessToken` is properly encoded as valid URI component.
+If you use Mapbox Studio with your own tile sets, just use URL like this:
+`https://api.mapbox.com/styles/v1/:accountName/:tileSetId/tiles/256/{z}/{x}/{y}@2x`
+where `:accountName` is your user account name and `:tileSetId` is the
+ID of your tile set, more information is [here](https://docs.mapbox.com/help/glossary/style-url/).
+
+### Widget Layers
+
+__Use the new way to create layers__ (compatible with previous version)
+
+```dart
+Widget build(BuildContext context) {
+  return FlutterMap(
+    options: MapOptions(
+      center: LatLng(51.5, -0.09),
+      zoom: 13.0,
+    ),
+    layers: [
+      MarkerLayerOptions(
+        markers: [
+          Marker(
+            width: 80.0,
+            height: 80.0,
+            point: LatLng(51.5, -0.09),
+            builder: (ctx) =>
+            Container(
+              child: FlutterLogo(),
+            ),
+          ),
+        ],
+      ),
+    ],
+    children: <Widget>[
+      TileLayerWidget(options: TileLayerOptions(
+        urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        subdomains: ['a', 'b', 'c']
+      )),
+      MarkerLayerWidget(options: MarkerLayerOptions(
+        markers: [
+          Marker(
+            width: 80.0,
+            height: 80.0,
+            point: LatLng(51.5, -0.09),
+            builder: (ctx) =>
+            Container(
+              child: FlutterLogo(),
+            ),
+          ),
+        ],
+      )),
+    ],
+  );
+}
+```
+
+### Custom CRS
+
+By default flutter_map supports only WGS84 (EPSG:4326) and Google Mercator
+(EPSG:3857) projections. The [proj4dart][proj4dart] package provides additional reference systems (CRS).
+
+To use proj4dart, first define a custom CRS:
+
+```dart
+var resolutions = <double>[32768, 16384, 8192, 4096, 2048, 1024, 512, 256, 128];
+var maxZoom = (resolutions.length - 1).toDouble();
+
+var epsg3413CRS = Proj4Crs.fromFactory(
+  code: 'EPSG:3413',
+  proj4Projection:
+      proj4.Projection.add('EPSG:3413', '+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs'),
+  resolutions: resolutions,
+);
+```
+
+Then use the custom CRS in the map layer and in WMS layers:
+
+```dart
+child: FlutterMap(
+  options: MapOptions(
+    // Set the map's CRS
+    crs: epsg3413CRS,
+    center: LatLng(65.05166470332148, -19.171744826394896),
+    maxZoom: maxZoom,
+  ),
+  layers: [
+    TileLayerOptions(
+      wmsOptions: WMSTileLayerOptions(
+        // Set the WMS layer's CRS too
+        crs: epsg3413CRS,
+        baseUrl: 'https://www.gebco.net/data_and_products/gebco_web_services/north_polar_view_wms/mapserv?',
+        layers: ['gebco_north_polar_view'],
+      ),
+    ),
+  ],
+);
+```
+
+For more details, see the  [custom CRS README][custom-crs-readme].
+
+## Run the example
 
 See the `example/` folder for a working example app.
 
-To run it, in a terminal cd into the folder.
-Then execute `ulimit -S -n 2048` ([ref](https://github.com/trentpiercy/trace/issues/1#issuecomment-404494469)).
-Then execute `flutter run` with a running emulator.
+To run it, in a terminal cd into the folder. Then execute `ulimit -S -n 2048`
+([ref][ulimit-comment]). Then execute `flutter run` with a running emulator.
 
-## Offline maps
-[Follow this guide to grab offline tiles](https://tilemill-project.github.io/tilemill/docs/guides/osm-bright-mac-quickstart/)<br>
-Once you have your map exported to `.mbtiles`, you can use [mbtilesToPng](https://github.com/alfanhui/mbtilesToPngs) to unpack into `/{z}/{x}/{y}.png`.
-Move this to Assets folder and add asset directories to `pubspec.yaml`. Minimum required fields for offline maps are:
+## Downloading and caching offline maps
+
+This section provides an overview of the available caching tile providers. If
+you would like to provide preconfigured and prepackaged map tiles to your app
+users, see the 'Preconfigured Offline Maps' section below.
+
+The two available options included in flutter_map
+
+### 1. Use `NetworkImage`  by using `NonCachingNetworkTileProvider`
+
+Whilst the name might make you think differently, it is designed to prevent you
+from using it and expecting it to cache; because it doesn't.
+
+The `FlutterMap` `NonCachingNetworkTileProvider` implementaion uses
+`NetworkImage` which should cache images in memory until the app restart
+(through `Image.network`). See the [Image.network][Image.network] docs and
+[NetworkImage][NetworkImage-caching] docs for more details.
+
+### 2. Using the `cached_network_image` dependency
+
+This dependency has an `ImageProvider` that caches images to disk, which means
+the cache persists through an app restart. You'll need to [include the
+package](https://pub.dev/packages/cached_network_image/install) in your
+`pubspec.yaml`.
+
+Create your own provider using the code below:
+
+```dart
+import 'package:cached_network_image/cached_network_image.dart';
+class CachedTileProvider extends TileProvider {
+  const CachedTileProvider();
+  @override
+  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
+    return CachedNetworkImageProvider(
+      getTileUrl(coords, options),
+      //Now you can set options that determine how the image gets cached via whichever plugin you use.
+    );
+  }
+}
+```
+
+Then, add the `CachedTileProvider` `TileProvider` to the appropriate
+`TileLayerOptions`:
+
+```dart
+TileLayerOptions(
+  urlTemplate: 'https://example.com/{x}/{y}/{z}',
+  tileProvider: const CachedTileProvider()
+)
+```
+
+## Offline Maps using TileMill
+
+This section provides instructions for  preconfigured and prepackaged offline
+maps. To see how to setup caching and downloading, see the 'Dynamically
+Downloading & Caching Offline Maps' section above.
+
+This guide uses an open source program called [TileMill][tilemill-homepage].
+
+First, [install TileMill][install-tilemill] on your machine. Then, follow [these
+instructions][tilemill].
+
+Once you have your map exported to `.mbtiles`, you can use
+[mbtilesToPng][mbTilesToPngs] to unpack into `/{z}/{x}/{y}.png`.
+
+Move this to assets folder and add the appropriate asset directories to
+`pubspec.yaml`. Minimum required fields for this solution are:
 
 ```dart
 Widget build(ctx) {
@@ -151,21 +383,43 @@ Widget build(ctx) {
 }
 ```
 
-Make sure PanBoundaries are within offline map boundary to stop missing asset errors.<br>
-See the `flutter_map_example/` folder for a working example.<br>
+A missing asset error will be thrown if the PanBoundaries are outside the
+offline map boundary.
 
-Note that there is also `FileTileProvider()`, which you can use to load tiles from the filesystem.
+See the `flutter_map_example/` folder for a working example.
+
+See also `FileTileProvider()`, which loads tiles from the filesystem.
 
 ## Plugins
 
+- [flutter_map_tile_caching](https://github.com/JaffaKetchup/flutter_map_tile_caching): Provides ability to properly cache tiles for offline use & easily download a region of a map for later offline use
 - [flutter_map_marker_cluster](https://github.com/lpongetti/flutter_map_marker_cluster): Provides Beautiful Animated Marker Clustering functionality
 - [user_location](https://github.com/igaurab/user_location_plugin): A plugin to handle and plot the current user location in FlutterMap
-
+- [flutter_map_location](https://github.com/Xennis/flutter_map_location): A plugin to request and display the users location and heading on the map
+- [flutter_map_location_marker](https://github.com/tlserver/flutter_map_location_marker): A simple and powerful plugin display the users location and heading
+- [flutter_map_tappable_polyline](https://github.com/OwnWeb/flutter_map_tappable_polyline): A plugin to add `onTap` callback to `Polyline`
+- [lat_lon_grid_plugin](https://github.com/mat8854/lat_lon_grid_plugin): Adds a latitude / longitude grid as plugin to the FlutterMap
+- [flutter_map_marker_popup](https://github.com/rorystephenson/flutter_map_marker_popup): A plugin to show customisable popups for markers.
+- [map_elevation](https://github.com/OwnWeb/map_elevation): A widget to display elevation of a track (polyline) like Leaflet.Elevation
+- [flutter_map_floating_marker_titles](https://github.com/androidseb/flutter_map_floating_marker_titles): Displaying floating marker titles on the map view
+- [vector_map_tiles](https://pub.dev/packages/vector_map_tiles): A plugin that enables the use of vector tiles.
 
 ## Roadmap
 
 For the latest roadmap, please see the [Issue Tracker]
 
-[Leaflet]: http://leafletjs.com/
-[Mapbox]: https://www.mapbox.com/
 [Issue Tracker]: https://github.com/johnpryan/flutter_map/issues
+[Leaflet]: https://leafletjs.com/
+[Mapbox]: https://www.mapbox.com/
+[azure-maps-instructions]: https://docs.microsoft.com/en-us/azure/azure-maps/quick-demo-map-app
+[custom-crs-readme]: ./example/lib/pages/custom_crs/Readme.md
+[flutter_map_tile_caching]: https://github.com/JaffaKetchup/flutter_map_tile_caching
+[mbTilesToPngs]: https://github.com/alfanhui/mbtilesToPngs
+[open-street-map]: https://openstreetmap.org
+[proj4dart]: https://github.com/maRci002/proj4dart
+[tilemill]: https://tilemill-project.github.io/tilemill/docs/guides/osm-bright-mac-quickstart/
+[install-tilemill]: https://tilemill-project.github.io/tilemill/docs/install/
+[ulimit-comment]: https://github.com/trentpiercy/trace/issues/1#issuecomment-404494469
+[Image.network]: https://api.flutter.dev/flutter/widgets/Image/Image.network.html
+[NetworkImage-caching]: https://flutter.dev/docs/cookbook/images/network-image#placeholders-and-caching
+[tilemill-homepage]: https://tilemill-project.github.io/tilemill/

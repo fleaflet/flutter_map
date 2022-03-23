@@ -1,12 +1,7 @@
-import 'dart:io';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_image/network.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/core/util.dart' as util;
 
-export 'package:flutter_map/src/layer/tile_provider/mbtiles_image_provider.dart';
+import 'network_image_with_retry.dart';
 
 abstract class TileProvider {
   const TileProvider();
@@ -16,20 +11,36 @@ abstract class TileProvider {
   void dispose() {}
 
   String getTileUrl(Coords coords, TileLayerOptions options) {
-    if (options.wmsOptions != null)
-      return options.wmsOptions.getUrl(coords, options.tileSize.toInt());
+    var urlTemplate = (options.wmsOptions != null)
+        ? options.wmsOptions!
+            .getUrl(coords, options.tileSize.toInt(), options.retinaMode)
+        : options.urlTemplate;
+
+    var z = _getZoomForUrl(coords, options);
+
     var data = <String, String>{
       'x': coords.x.round().toString(),
       'y': coords.y.round().toString(),
-      'z': coords.z.round().toString(),
-      's': getSubdomain(coords, options)
+      'z': z.round().toString(),
+      's': getSubdomain(coords, options),
+      'r': '@2x',
     };
     if (options.tms) {
-      data['y'] = invertY(coords.y.round(), coords.z.round()).toString();
+      data['y'] = invertY(coords.y.round(), z.round()).toString();
     }
     var allOpts = Map<String, String>.from(data)
       ..addAll(options.additionalOptions);
-    return util.template(options.urlTemplate, allOpts);
+    return options.templateFunction(urlTemplate!, allOpts);
+  }
+
+  double _getZoomForUrl(Coords coords, TileLayerOptions options) {
+    var zoom = coords.z;
+
+    if (options.zoomReverse) {
+      zoom = options.maxZoom - zoom;
+    }
+
+    return zoom += options.zoomOffset;
   }
 
   int invertY(int y, int z) {
@@ -45,15 +56,6 @@ abstract class TileProvider {
   }
 }
 
-class CachedNetworkTileProvider extends TileProvider {
-  const CachedNetworkTileProvider();
-
-  @override
-  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
-    return CachedNetworkImageProvider(getTileUrl(coords, options));
-  }
-}
-
 class NetworkTileProvider extends TileProvider {
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
@@ -62,6 +64,7 @@ class NetworkTileProvider extends TileProvider {
 }
 
 class NonCachingNetworkTileProvider extends TileProvider {
+  const NonCachingNetworkTileProvider();
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
     return NetworkImage(getTileUrl(coords, options));
@@ -69,23 +72,17 @@ class NonCachingNetworkTileProvider extends TileProvider {
 }
 
 class AssetTileProvider extends TileProvider {
+  const AssetTileProvider();
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
     return AssetImage(getTileUrl(coords, options));
   }
 }
 
-class FileTileProvider extends TileProvider {
-  @override
-  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
-    return FileImage(File(getTileUrl(coords, options)));
-  }
-}
-
 class CustomTileProvider extends TileProvider {
-  String Function(Coords coors, TileLayerOptions options) customTileUrl;
+  final String Function(Coords coors, TileLayerOptions options) customTileUrl;
 
-  CustomTileProvider({@required this.customTileUrl});
+  const CustomTileProvider({required this.customTileUrl});
 
   @override
   String getTileUrl(Coords coords, TileLayerOptions options) {

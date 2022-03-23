@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -8,28 +7,46 @@ import 'package:flutter_map/src/map/map.dart';
 class OverlayImageLayerOptions extends LayerOptions {
   final List<OverlayImage> overlayImages;
 
-  OverlayImageLayerOptions({this.overlayImages = const [], rebuild})
-      : super(rebuild: rebuild);
+  OverlayImageLayerOptions({
+    Key? key,
+    this.overlayImages = const [],
+    Stream<Null>? rebuild,
+  }) : super(key: key, rebuild: rebuild);
 }
 
 class OverlayImage {
   final LatLngBounds bounds;
   final ImageProvider imageProvider;
   final double opacity;
+  final bool gaplessPlayback;
 
   OverlayImage({
-    this.bounds,
-    this.imageProvider,
+    required this.bounds,
+    required this.imageProvider,
     this.opacity = 1.0,
+    this.gaplessPlayback = false,
   });
+}
+
+class OverlayImageLayerWidget extends StatelessWidget {
+  final OverlayImageLayerOptions options;
+
+  OverlayImageLayerWidget({Key? key, required this.options}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final mapState = MapState.maybeOf(context)!;
+    return OverlayImageLayer(options, mapState, mapState.onMoved);
+  }
 }
 
 class OverlayImageLayer extends StatelessWidget {
   final OverlayImageLayerOptions overlayImageOpts;
   final MapState map;
-  final Stream<Null> stream;
+  final Stream<Null>? stream;
 
-  OverlayImageLayer(this.overlayImageOpts, this.map, this.stream);
+  OverlayImageLayer(this.overlayImageOpts, this.map, this.stream)
+      : super(key: overlayImageOpts.key);
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +85,7 @@ class OverlayImageLayer extends StatelessWidget {
         fit: BoxFit.fill,
         color: Color.fromRGBO(255, 255, 255, overlayImage.opacity),
         colorBlendMode: BlendMode.modulate,
+        gaplessPlayback: overlayImage.gaplessPlayback,
       ),
     );
   }

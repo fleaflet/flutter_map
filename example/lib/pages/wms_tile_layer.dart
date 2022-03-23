@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong/latlong.dart';
+import 'package:latlong2/latlong.dart';
+
 import '../widgets/drawer.dart';
 
 class WMSLayerPage extends StatelessWidget {
@@ -27,10 +28,12 @@ class WMSLayerPage extends StatelessWidget {
                 ),
                 layers: [
                   TileLayerOptions(
-                      wmsOptions: WMSTileLayerOptions(
-                    baseUrl: 'http://maps.heigit.org/osm-wms/service?',
-                    layers: ['europe_wms:hs_srtm_europa'],
-                  ))
+                    wmsOptions: WMSTileLayerOptions(
+                      baseUrl: 'https://{s}.s2maps-tiles.eu/wms/?',
+                      layers: ['s2cloudless-2018_3857'],
+                    ),
+                    subdomains: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'],
+                  )
                 ],
               ),
             ),

@@ -1,47 +1,52 @@
-import 'dart:math';
+import 'dart:async';
 
+import 'package:async/async.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/gestures/gestures.dart';
-import 'package:flutter_map/src/layer/group_layer.dart';
-import 'package:flutter_map/src/layer/overlay_image_layer.dart';
 import 'package:flutter_map/src/map/map.dart';
-import 'package:latlong/latlong.dart';
-import 'package:positioned_tap_detector/positioned_tap_detector.dart';
-import 'package:async/async.dart';
+import 'package:flutter_map/src/map/map_state_widget.dart';
+import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
 
 class FlutterMapState extends MapGestureMixin {
+  @override
   final MapControllerImpl mapController;
   final List<StreamGroup<Null>> groups = <StreamGroup<Null>>[];
   final _positionedTapController = PositionedTapController();
-  double rotation = 0.0;
 
   @override
-  MapOptions get options => widget.options ?? MapOptions();
+  MapOptions get options => widget.options;
 
   @override
-  MapState mapState;
+  late final MapState mapState;
 
-  FlutterMapState(this.mapController);
+  FlutterMapState(MapController? mapController)
+      : mapController = mapController as MapControllerImpl? ??
+            MapController() as MapControllerImpl;
 
   @override
   void didUpdateWidget(FlutterMap oldWidget) {
-    mapState.options = options;
     super.didUpdateWidget(oldWidget);
+
+    mapState.options = options;
   }
 
   @override
   void initState() {
     super.initState();
-    mapState = MapState(options);
-    rotation = options.rotation;
+    mapState = MapState(options, (degree) {
+      if (mounted) setState(() => {});
+    }, mapController.mapEventSink);
     mapController.state = mapState;
-    mapController.onRotationChanged =
-        (degree) => setState(() => rotation = degree);
+
+    // Callback onMapCreated if not null
+    if (options.onMapCreated != null) {
+      options.onMapCreated!(mapController);
+    }
   }
 
-  void _dispose() {
+  void _disposeStreamGroups() {
     for (var group in groups) {
       group.close();
     }
@@ -51,102 +56,146 @@ class FlutterMapState extends MapGestureMixin {
 
   @override
   void dispose() {
-    _dispose();
+    _disposeStreamGroups();
+    mapState.dispose();
+    mapController.dispose();
+
     super.dispose();
   }
 
   Stream<Null> _merge(LayerOptions options) {
-    if (options?.rebuild == null) return mapState.onMoved;
+    if (options.rebuild == null) return mapState.onMoved;
 
     var group = StreamGroup<Null>();
     group.add(mapState.onMoved);
-    group.add(options.rebuild);
+    group.add(options.rebuild!);
     groups.add(group);
     return group.stream;
   }
 
-  static const _rad90 = 90.0 * pi / 180.0;
-
   @override
   Widget build(BuildContext context) {
-    _dispose();
+    _disposeStreamGroups();
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
-      double angle;
-      double width;
-      double height;
+      mapState.setOriginalSize(constraints.maxWidth, constraints.maxHeight);
+      var size = mapState.size;
 
-      // only do the rotation maths if we have a rotation
-      if (rotation != 0.0) {
-        angle = degToRadian(rotation);
-        final rangle90 = sin(_rad90 - angle).abs();
-        final sinangle = sin(angle).abs();
-        // to make sure that the whole screen is filled with the map after rotation
-        // we enlarge the drawing area over the available screen size
-        width = (constraints.maxWidth * rangle90) +
-            (constraints.maxHeight * sinangle);
-        height = (constraints.maxHeight * rangle90) +
-            (constraints.maxWidth * sinangle);
+      var scaleGestureTeam = GestureArenaTeam();
 
-        mapState.size = CustomPoint<double>(width, height);
-      } else {
-        mapState.size =
-            CustomPoint<double>(constraints.maxWidth, constraints.maxHeight);
-      }
+      var scaleGestureDetector = ({required Widget child}) =>
+          RawGestureDetector(
+            gestures: <Type, GestureRecognizerFactory>{
+              ScaleGestureRecognizer:
+                  GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
+                      () => ScaleGestureRecognizer(),
+                      (ScaleGestureRecognizer instance) {
+                scaleGestureTeam.captain = instance;
+                instance.team ??= scaleGestureTeam;
+                instance
+                  ..onStart = handleScaleStart
+                  ..onUpdate = handleScaleUpdate
+                  ..onEnd = handleScaleEnd;
+              }),
+              VerticalDragGestureRecognizer:
+                  GestureRecognizerFactoryWithHandlers<
+                          VerticalDragGestureRecognizer>(
+                      () => VerticalDragGestureRecognizer(),
+                      (VerticalDragGestureRecognizer instance) {
+                instance.team ??= scaleGestureTeam;
+                // these empty lambdas are necessary to activate this gesture recognizer
+                instance.onUpdate = (_) {};
+              }),
+              HorizontalDragGestureRecognizer:
+                  GestureRecognizerFactoryWithHandlers<
+                          HorizontalDragGestureRecognizer>(
+                      () => HorizontalDragGestureRecognizer(),
+                      (HorizontalDragGestureRecognizer instance) {
+                instance.team ??= scaleGestureTeam;
+                instance.onUpdate = (_) {};
+              })
+            },
+            child: child,
+          );
 
-      var layerStack = Stack(
-        children: [
-          for (final layer in widget.layers)
-            _createLayer(layer, widget.options.plugins)
-        ],
+      return MapStateInheritedWidget(
+        mapState: mapState,
+        child: Listener(
+          onPointerDown: savePointer,
+          onPointerCancel: removePointer,
+          onPointerUp: removePointer,
+          onPointerSignal: onPointerSignal,
+          child: PositionedTapDetector2(
+            controller: _positionedTapController,
+            onTap: handleTap,
+            onLongPress: handleLongPress,
+            onDoubleTap: handleDoubleTap,
+            child: options.allowPanningOnScrollingParent
+                ? GestureDetector(
+                    onTap: _positionedTapController.onTap,
+                    onLongPress: _positionedTapController.onLongPress,
+                    onTapDown: _positionedTapController.onTapDown,
+                    onTapUp: handleOnTapUp,
+                    child: scaleGestureDetector(child: _buildMap(size)),
+                  )
+                : GestureDetector(
+                    onScaleStart: handleScaleStart,
+                    onScaleUpdate: handleScaleUpdate,
+                    onScaleEnd: handleScaleEnd,
+                    onTap: _positionedTapController.onTap,
+                    onLongPress: _positionedTapController.onLongPress,
+                    onTapDown: _positionedTapController.onTapDown,
+                    onTapUp: handleOnTapUp,
+                    child: _buildMap(size)),
+          ),
+        ),
       );
-
-      Widget mapRoot;
-
-      if (!options.interactive) {
-        mapRoot = layerStack;
-      } else {
-        mapRoot = PositionedTapDetector(
-          controller: _positionedTapController,
-          onTap: handleTap,
-          onLongPress: handleLongPress,
-          onDoubleTap: handleDoubleTap,
-          child: GestureDetector(
-            onScaleStart: handleScaleStart,
-            onScaleUpdate: handleScaleUpdate,
-            onScaleEnd: handleScaleEnd,
-            onTap: _positionedTapController.onTap,
-            onLongPress: _positionedTapController.onLongPress,
-            onTapDown: _positionedTapController.onTapDown,
-            onTapUp: handleOnTapUp,
-            child: layerStack,
-          ),
-        );
-      }
-
-      if (rotation != 0.0) {
-        // By using an OverflowBox with the enlarged drawing area all the layers
-        // act as if the area really would be that big. So no changes in any layer
-        // logic is necessary for the rotation
-        return ClipRect(
-          child: Transform.rotate(
-            angle: angle,
-            child: OverflowBox(
-              minWidth: width,
-              maxWidth: width,
-              minHeight: height,
-              maxHeight: height,
-              child: mapRoot,
-            ),
-          ),
-        );
-      } else {
-        return mapRoot;
-      }
     });
   }
 
+  Widget _buildMap(var size) {
+    return ClipRect(
+      child: Stack(
+        children: [
+          OverflowBox(
+            minWidth: size.x as double?,
+            maxWidth: size.x as double?,
+            minHeight: size.y as double?,
+            maxHeight: size.y as double?,
+            child: Transform.rotate(
+              angle: mapState.rotationRad,
+              child: Stack(
+                children: [
+                  if (widget.children.isNotEmpty) ...widget.children,
+                  if (widget.layers.isNotEmpty)
+                    ...widget.layers.map(
+                      (layer) => _createLayer(layer, options.plugins),
+                    )
+                ],
+              ),
+            ),
+          ),
+          Stack(
+            children: [
+              if (widget.nonRotatedChildren.isNotEmpty)
+                ...widget.nonRotatedChildren,
+              if (widget.nonRotatedLayers.isNotEmpty)
+                ...widget.nonRotatedLayers.map(
+                  (layer) => _createLayer(layer, options.plugins),
+                )
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _createLayer(LayerOptions options, List<MapPlugin> plugins) {
+    for (var plugin in plugins) {
+      if (plugin.supportsLayer(options)) {
+        return plugin.createLayer(options, mapState, _merge(options));
+      }
+    }
     if (options is TileLayerOptions) {
       return TileLayer(
           options: options, mapState: mapState, stream: _merge(options));
@@ -169,11 +218,9 @@ class FlutterMapState extends MapGestureMixin {
     if (options is OverlayImageLayerOptions) {
       return OverlayImageLayer(options, mapState, _merge(options));
     }
-    for (var plugin in plugins) {
-      if (plugin.supportsLayer(options)) {
-        return plugin.createLayer(options, mapState, _merge(options));
-      }
-    }
-    return null;
+    throw (StateError("""
+Can't find correct layer for $options. Perhaps when you create your FlutterMap you need something like this:
+
+    options: new MapOptions(plugins: [MyFlutterMapPlugin()])"""));
   }
 }

@@ -1,14 +1,15 @@
-import 'dart:ui';
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
-import 'package:latlong/latlong.dart' hide Path; // conflict with Path from UI
+import 'package:latlong2/latlong.dart' hide Path;
 
 class CircleLayerOptions extends LayerOptions {
   final List<CircleMarker> circles;
-  CircleLayerOptions({this.circles = const [], rebuild})
-      : super(rebuild: rebuild);
+  CircleLayerOptions({
+    Key? key,
+    this.circles = const [],
+    Stream<Null>? rebuild,
+  }) : super(key: key, rebuild: rebuild);
 }
 
 class CircleMarker {
@@ -21,8 +22,8 @@ class CircleMarker {
   Offset offset = Offset.zero;
   num realRadius = 0;
   CircleMarker({
-    this.point,
-    this.radius,
+    required this.point,
+    required this.radius,
     this.useRadiusInMeter = false,
     this.color = const Color(0xFF00FF00),
     this.borderStrokeWidth = 0.0,
@@ -30,11 +31,24 @@ class CircleMarker {
   });
 }
 
+class CircleLayerWidget extends StatelessWidget {
+  final CircleLayerOptions options;
+
+  CircleLayerWidget({Key? key, required this.options}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final mapState = MapState.maybeOf(context)!;
+    return CircleLayer(options, mapState, mapState.onMoved);
+  }
+}
+
 class CircleLayer extends StatelessWidget {
   final CircleLayerOptions circleOpts;
   final MapState map;
-  final Stream<Null> stream;
-  CircleLayer(this.circleOpts, this.map, this.stream);
+  final Stream<Null>? stream;
+  CircleLayer(this.circleOpts, this.map, this.stream)
+      : super(key: circleOpts.key);
 
   @override
   Widget build(BuildContext context) {
@@ -96,8 +110,11 @@ class CirclePainter extends CustomPainter {
       ..style = PaintingStyle.fill
       ..color = circle.color;
 
-    _paintCircle(canvas, circle.offset,
-        circle.useRadiusInMeter ? circle.realRadius : circle.radius, paint);
+    _paintCircle(
+        canvas,
+        circle.offset,
+        circle.useRadiusInMeter ? circle.realRadius as double : circle.radius,
+        paint);
 
     if (circle.borderStrokeWidth > 0) {
       final paint = Paint()
@@ -105,8 +122,11 @@ class CirclePainter extends CustomPainter {
         ..color = circle.borderColor
         ..strokeWidth = circle.borderStrokeWidth;
 
-      _paintCircle(canvas, circle.offset,
-          circle.useRadiusInMeter ? circle.realRadius : circle.radius, paint);
+      _paintCircle(
+          canvas,
+          circle.offset,
+          circle.useRadiusInMeter ? circle.realRadius as double : circle.radius,
+          paint);
     }
   }
 

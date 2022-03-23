@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
-import 'package:latlong/latlong.dart';
+import 'package:latlong2/latlong.dart';
+
 import '../widgets/drawer.dart';
 import 'zoombuttons_plugin_option.dart';
 
@@ -32,12 +33,15 @@ class PluginZoomButtons extends StatelessWidget {
                     subdomains: ['a', 'b', 'c'],
                     tileProvider: NonCachingNetworkTileProvider(),
                   ),
+                ],
+                nonRotatedLayers: [
                   ZoomButtonsPluginOption(
-                      minZoom: 4,
-                      maxZoom: 19,
-                      mini: true,
-                      padding: 10,
-                      alignment: Alignment.bottomRight)
+                    minZoom: 4,
+                    maxZoom: 19,
+                    mini: true,
+                    padding: 10,
+                    alignment: Alignment.bottomRight,
+                  ),
                 ],
               ),
             ),

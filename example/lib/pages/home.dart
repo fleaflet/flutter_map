@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong/latlong.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../widgets/drawer.dart';
 
@@ -16,7 +16,7 @@ class HomePage extends StatelessWidget {
         point: LatLng(51.5, -0.09),
         builder: (ctx) => Container(
           child: FlutterLogo(
-            colors: Colors.blue,
+            textColor: Colors.blue,
             key: ObjectKey(Colors.blue),
           ),
         ),
@@ -27,7 +27,7 @@ class HomePage extends StatelessWidget {
         point: LatLng(53.3498, -6.2603),
         builder: (ctx) => Container(
           child: FlutterLogo(
-            colors: Colors.green,
+            textColor: Colors.green,
             key: ObjectKey(Colors.green),
           ),
         ),
@@ -38,7 +38,7 @@ class HomePage extends StatelessWidget {
         point: LatLng(48.8566, 2.3522),
         builder: (ctx) => Container(
           child: FlutterLogo(
-            colors: Colors.purple,
+            textColor: Colors.purple,
             key: ObjectKey(Colors.purple),
           ),
         ),

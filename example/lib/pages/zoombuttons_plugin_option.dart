@@ -1,20 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
 
 class ZoomButtonsPluginOption extends LayerOptions {
-  final int minZoom;
-  final int maxZoom;
+  final double minZoom;
+  final double maxZoom;
   final bool mini;
   final double padding;
   final Alignment alignment;
+  final Color? zoomInColor;
+  final Color? zoomInColorIcon;
+  final Color? zoomOutColor;
+  final Color? zoomOutColorIcon;
+  final IconData zoomInIcon;
+  final IconData zoomOutIcon;
 
-  ZoomButtonsPluginOption(
-      {this.minZoom = 1,
-      this.maxZoom = 18,
-      this.mini = true,
-      this.padding = 2.0,
-      this.alignment = Alignment.topRight});
+  ZoomButtonsPluginOption({
+    Key? key,
+    this.minZoom = 1,
+    this.maxZoom = 18,
+    this.mini = true,
+    this.padding = 2.0,
+    this.alignment = Alignment.topRight,
+    this.zoomInColor,
+    this.zoomInColorIcon,
+    this.zoomInIcon = Icons.zoom_in,
+    this.zoomOutColor,
+    this.zoomOutColorIcon,
+    this.zoomOutIcon = Icons.zoom_out,
+    Stream<Null>? rebuild,
+  }) : super(key: key, rebuild: rebuild);
 }
 
 class ZoomButtonsPlugin implements MapPlugin {
@@ -40,7 +54,8 @@ class ZoomButtons extends StatelessWidget {
   final FitBoundsOptions options =
       const FitBoundsOptions(padding: EdgeInsets.all(12.0));
 
-  ZoomButtons(this.zoomButtonsOpts, this.map, this.stream);
+  ZoomButtons(this.zoomButtonsOpts, this.map, this.stream)
+      : super(key: zoomButtonsOpts.key);
 
   @override
   Widget build(BuildContext context) {
@@ -57,17 +72,21 @@ class ZoomButtons extends StatelessWidget {
             child: FloatingActionButton(
               heroTag: 'zoomInButton',
               mini: zoomButtonsOpts.mini,
+              backgroundColor:
+                  zoomButtonsOpts.zoomInColor ?? Theme.of(context).primaryColor,
               onPressed: () {
                 var bounds = map.getBounds();
                 var centerZoom = map.getBoundsCenterZoom(bounds, options);
                 var zoom = centerZoom.zoom + 1;
-                if (zoom < zoomButtonsOpts.minZoom) {
-                  zoom = zoomButtonsOpts.minZoom as double;
-                } else {
-                  map.move(centerZoom.center, zoom);
+                if (zoom > zoomButtonsOpts.maxZoom) {
+                  zoom = zoomButtonsOpts.maxZoom;
                 }
+                map.move(centerZoom.center, zoom,
+                    source: MapEventSource.custom);
               },
-              child: Icon(Icons.zoom_in),
+              child: Icon(zoomButtonsOpts.zoomInIcon,
+                  color: zoomButtonsOpts.zoomInColorIcon ??
+                      IconTheme.of(context).color),
             ),
           ),
           Padding(
@@ -75,17 +94,21 @@ class ZoomButtons extends StatelessWidget {
             child: FloatingActionButton(
               heroTag: 'zoomOutButton',
               mini: zoomButtonsOpts.mini,
+              backgroundColor: zoomButtonsOpts.zoomOutColor ??
+                  Theme.of(context).primaryColor,
               onPressed: () {
                 var bounds = map.getBounds();
                 var centerZoom = map.getBoundsCenterZoom(bounds, options);
                 var zoom = centerZoom.zoom - 1;
-                if (zoom > zoomButtonsOpts.maxZoom) {
-                  zoom = zoomButtonsOpts.maxZoom as double;
-                } else {
-                  map.move(centerZoom.center, zoom);
+                if (zoom < zoomButtonsOpts.minZoom) {
+                  zoom = zoomButtonsOpts.minZoom;
                 }
+                map.move(centerZoom.center, zoom,
+                    source: MapEventSource.custom);
               },
-              child: Icon(Icons.zoom_out),
+              child: Icon(zoomButtonsOpts.zoomOutIcon,
+                  color: zoomButtonsOpts.zoomOutColorIcon ??
+                      IconTheme.of(context).color),
             ),
           ),
         ],
