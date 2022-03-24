@@ -100,7 +100,11 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           currentRoute,
         ),
         _buildMenuItem(
-            context, const Text('Polygons'), Polygon.route, currentRoute),
+          context,
+          const Text('Polygons'),
+          PolygonPage.route,
+          currentRoute,
+        ),
         _buildMenuItem(
           context,
           const Text('MapController'),

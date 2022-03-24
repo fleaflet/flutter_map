@@ -1,8 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:latlong/latlong.dart';
-
 import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+
 import '../widgets/drawer.dart';
 
 class PolygonPage extends StatelessWidget {
@@ -67,7 +66,7 @@ class PolygonPage extends StatelessWidget {
                     Polygon(
                       points: filledPoints,
                       isFilled: true,
-                      color: Colors.purple[200],
+                      color: Colors.purple,
                       borderColor: Colors.purple,
                       borderStrokeWidth: 4.0,
                     ),
@@ -84,7 +83,7 @@ class PolygonPage extends StatelessWidget {
                       isDotted: true,
                       borderStrokeWidth: 4.0,
                       borderColor: Colors.lightBlue,
-                      color: Colors.lightBlue[300],
+                      color: Colors.lightBlue,
                     ),
                   ]),
                 ],
