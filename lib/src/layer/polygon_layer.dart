@@ -249,7 +249,7 @@ class PolygonPainter extends CustomPainter {
     } else {
       canvas.clipRect(rect);
       paint
-        ..style = PaintingStyle.fill
+        ..style = polygonOpt.isFilled ? PaintingStyle.fill : PaintingStyle.stroke;
         ..color = polygonOpt.color;
 
       var path = Path();
