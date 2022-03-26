@@ -20,6 +20,7 @@ import '../pages/overlay_image.dart';
 import '../pages/plugin_api.dart';
 import '../pages/plugin_scalebar.dart';
 import '../pages/plugin_zoombuttons.dart';
+import '../pages/polygon.dart';
 import '../pages/polyline.dart';
 import '../pages/reset_tile_layer.dart';
 import '../pages/sliding_map.dart';
@@ -96,6 +97,12 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           context,
           const Text('Polylines'),
           PolylinePage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Polygons'),
+          PolygonPage.route,
           currentRoute,
         ),
         _buildMenuItem(
