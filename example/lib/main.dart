@@ -19,6 +19,7 @@ import './pages/overlay_image.dart';
 import './pages/plugin_api.dart';
 import './pages/plugin_scalebar.dart';
 import './pages/plugin_zoombuttons.dart';
+import './pages/polygon.dart';
 import './pages/polyline.dart';
 import './pages/reset_tile_layer.dart';
 import './pages/sliding_map.dart';
@@ -61,6 +62,7 @@ class MyApp extends StatelessWidget {
         MovingMarkersPage.route: (context) => MovingMarkersPage(),
         CirclePage.route: (context) => CirclePage(),
         OverlayImagePage.route: (context) => OverlayImagePage(),
+        PolygonPage.route: (context) => PolygonPage(),
         SlidingMapPage.route: (_) => SlidingMapPage(),
         WMSLayerPage.route: (context) => WMSLayerPage(),
         CustomCrsPage.route: (context) => CustomCrsPage(),
