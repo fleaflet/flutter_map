@@ -3,6 +3,7 @@ library flutter_map;
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/core/center_zoom.dart';
 import 'package:flutter_map/src/core/point.dart';
@@ -163,6 +164,10 @@ abstract class MapController {
 typedef TapCallback = void Function(TapPosition tapPosition, LatLng point);
 typedef LongPressCallback = void Function(
     TapPosition tapPosition, LatLng point);
+typedef PointerDownCallback = void Function(PointerDownEvent event, LatLng point);
+typedef PointerUpCallback = void Function(PointerUpEvent event, LatLng point);
+typedef PointerCancelCallback = void Function(PointerCancelEvent event, LatLng point);
+typedef PointerHoverCallback = void Function(PointerHoverEvent event, LatLng point);
 typedef PositionCallback = void Function(MapPosition position, bool hasGesture);
 typedef MapCreatedCallback = void Function(MapController mapController);
 
@@ -257,6 +262,10 @@ class MapOptions {
 
   final TapCallback? onTap;
   final LongPressCallback? onLongPress;
+  final PointerDownCallback? onPointerDown;
+  final PointerUpCallback? onPointerUp;
+  final PointerCancelCallback? onPointerCancel;
+  final PointerHoverCallback? onPointerHover;
   final PositionCallback? onPositionChanged;
   final MapCreatedCallback? onMapCreated;
   final List<MapPlugin> plugins;
@@ -303,6 +312,10 @@ class MapOptions {
     this.allowPanning = true,
     this.onTap,
     this.onLongPress,
+    this.onPointerDown,
+    this.onPointerUp,
+    this.onPointerCancel,
+    this.onPointerHover,
     this.onPositionChanged,
     this.onMapCreated,
     this.plugins = const [],
