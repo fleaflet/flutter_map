@@ -5,17 +5,20 @@ sidebar_position: 1
 
 # Getting Started
 
-:::danger Unofficial Documentation
-This documentation is currently being written and should not be used unless directed. It's contents may have not yet been verified, and therefore certain parts may be factually incorrect, incomplete, or otherwise misleading. You should not raise issues about documentation in the issue tracker, unless otherwise directed. Ignore any instructions within these docs to report issues.
+:::info Beta Documentation
+This documentation is in beta. Most contents should be correct (but not yet verified), but some documentation may be missing/misleading.
 
 For all documentation, use the official README at [https://github.com/fleaflet/flutter_map](https://github.com/fleaflet/flutter_map), until further notice.
 
 _This is a temporary notice_
 :::
 
-`flutter_map` is a mapping package for Flutter, based off of 'leaflet.js'. Simple and easy to learn, yet completely customizable and configurable, it's the best choice for mapping in your Flutter app.
+A versatile mapping package for Flutter, based off of ['leaflet.js'](https://leafletjs.com/). Simple and easy to learn, yet completely customizable and configurable, it's the best choice for mapping in your Flutter app.
 
-[![Pub](https://img.shields.io/pub/v/flutter_map.svg)](https://pub.dev/packages/flutter_map) [![likes](https://badges.bar/flutter_map/likes)](https://pub.dev/packages/flutter_map/score) [![pub points](https://badges.bar/flutter_map/pub%20points)](https://pub.dev/packages/flutter_map/score)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![CI](https://github.com/fleaflet/flutter_map/workflows/Tests/badge.svg?)](https://github.com/fleaflet/flutter_map/actions?query=branch%3Amaster) [![GitHub stars](https://img.shields.io/github/stars/fleaflet/flutter_map.svg?label=Stars)](https://GitHub.com/fleaflet/flutter_map/stargazers/) [![GitHub issues](https://img.shields.io/github/issues/fleaflet/flutter_map.svg?label=Issues)](https://GitHub.com/fleaflet/flutter_map/issues/) [![GitHub PRs](https://img.shields.io/github/issues-pr/fleaflet/flutter_map.svg?label=Pull%20Requests)](https://GitHub.com/fleaflet/flutter_map/pulls/)
+[![Pub.dev](https://img.shields.io/pub/v/flutter_map.svg?label=Latest+Version)](https://pub.dev/packages/flutter_map) [![Checks & Tests](https://badgen.net/github/checks/fleaflet/flutter_map?label=Checks+%26+Tests&color=orange)](https://github.com/fleaflet/flutter_map/actions?query=branch%3Amaster) [![points](https://badges.bar/flutter_map/pub%20points)](https://pub.dev/packages/flutter_map/score)  
+[![stars](https://badgen.net/github/stars/fleaflet/flutter_map?label=stars&color=green&icon=github)](https://github.com/fleaflet/flutter_map/stargazers) [![likes](https://badges.bar/flutter_map/likes)](https://pub.dev/packages/flutter_map/score)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![Open Issues](https://badgen.net/github/open-issues/fleaflet/flutter_map?label=Open+Issues&color=green)](https://GitHub.com/fleaflet/flutter_map/issues) [![Open PRs](https://badgen.net/github/open-prs/fleaflet/flutter_map?label=Open+PRs&color=green)](https://GitHub.com/fleaflet/flutter_map/pulls)
+
+Join the Discord server: <https://discord.gg/egEGeByf4q>
 
 <hr></hr>
 

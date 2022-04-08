@@ -30,10 +30,10 @@ abstract class MapEvent {
   /// What issued the event
   final MapEventSource source;
 
-  /// geographical coordinates related to current event
+  /// Geographical coordinates related to current event
   final LatLng center;
 
-  /// zoom value related to current event
+  /// Zoom value related to current event
   final double zoom;
 
   MapEvent({required this.source, required this.center, required this.zoom});

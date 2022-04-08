@@ -1,6 +1,6 @@
 ---
 id: common-errors
-sidebar_position: 3
+sidebar_position: 2
 ---
 
 # Common Errors

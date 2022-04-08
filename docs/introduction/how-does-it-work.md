@@ -61,7 +61,7 @@ In this `flutter_map` package, the classes that conduct this maths to get these 
 
 However, these do a lot more than just the maths. They do the maths, format the appropriate URL, potentially stagger the URL (not to get rate limited by the browser or engine), make the request, get the image, process (and potentially store) the image and finally give it back to the main process to paint onto the map for the user to see.
 
-Unless you choose to make your own custom tile provider ([the guide for which can be found here](http://localhost:3000/plugins/how-to-make-a-plugin#where-a-new-layer-is-not-created)), you should never need to handle this yourself.
+Unless you choose to make your own custom tile provider ([the guide for which can be found here](/plugins/how-to-make-a-plugin#where-a-new-layer-is-not-created)), you should never need to handle this yourself.
 
 ## Map Layers
 

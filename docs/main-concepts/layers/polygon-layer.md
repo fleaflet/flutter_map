@@ -1,6 +1,6 @@
 ---
 id: polygon-layer
-sidebar_position: 5
+sidebar_position: 4
 ---
 
 # Polygon Layer
