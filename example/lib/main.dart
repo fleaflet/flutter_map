@@ -32,7 +32,6 @@ import './pages/tile_loading_error_handle.dart';
 import './pages/widgets.dart';
 import './pages/wms_tile_layer.dart';
 
-
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
