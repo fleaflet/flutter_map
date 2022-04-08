@@ -200,6 +200,16 @@ class MapState {
           source: source,
         ),
       );
+    } else if (source == MapEventSource.scrollWheel) {
+      emitMapEvent(
+        MapEventScrollWheelZoom(
+          center: _lastCenter!,
+          zoom: _zoom,
+          targetCenter: targetCenter,
+          targetZoom: targetZoom,
+          source: source,
+        ),
+      );
     } else if (source == MapEventSource.onDrag ||
         source == MapEventSource.onMultiFinger) {
       emitMapEvent(

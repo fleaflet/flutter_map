@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math' as math;
-import 'dart:math';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -27,18 +26,25 @@ abstract class MapGestureMixin extends State<FlutterMap>
   void onPointerSignal(PointerSignalEvent pointerSignal) {
     // Handle mouse scroll events if the enableScrollWheel parameter is enabled
     if (pointerSignal is PointerScrollEvent &&
-        mapState.options.enableScrollWheel) {
-      if (pointerSignal.scrollDelta.dy != 0) {
-        // Check whether the mouse is scrolled down and calculate new zoom level
-        final delta = pointerSignal.scrollDelta.dy * (-0.01);
-        final zoom = delta > 0
-            ? min(mapState.options.maxZoom ?? double.infinity,
-                mapState.zoom + delta)
-            : max(mapState.options.minZoom ?? 0, mapState.zoom + delta);
-        final newZoom = mapState.fitZoomToBounds(zoom);
-        // Move the map to the new zoom level
-        mapState.move(mapState.center, newZoom, source: MapEventSource.custom);
-      }
+        mapState.options.enableScrollWheel &&
+        pointerSignal.scrollDelta.dy != 0) {
+      // Calculate new zoom level
+      final minZoom = mapState.options.minZoom ?? 0.0;
+      final maxZoom = mapState.options.maxZoom ?? double.infinity;
+      final newZoom = (mapState.zoom + pointerSignal.scrollDelta.dy * -0.005)
+          .clamp(minZoom, maxZoom);
+      // Calculate offset of mouse cursor from viewport center
+      final cursorPos = CustomPoint(
+          pointerSignal.localPosition.dx, pointerSignal.localPosition.dy);
+      final viewCenter = mapState.originalSize! / 2;
+      final offset = (cursorPos - viewCenter).rotate(mapState.rotationRad);
+      // Match new center coordinate to mouse cursor position
+      final scale = mapState.getZoomScale(newZoom, mapState.zoom);
+      final newOffset = offset * (1.0 - 1.0 / scale);
+      final mapCenter = mapState.project(mapState.center);
+      final newCenter = mapState.unproject(mapCenter + newOffset);
+      // Move to new center and zoom level
+      mapState.move(newCenter, newZoom, source: MapEventSource.scrollWheel);
     }
   }
 
