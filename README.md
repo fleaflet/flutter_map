@@ -11,6 +11,20 @@ Join the Discord server: <https://discord.gg/egEGeByf4q>
 
 Visit the [documentation website here](https://flutter-map.vercel.app/), for all information about how to use this library.
 
+## Installation & Configuration
+
+Add 'flutter_map' to your 'pubspec.yaml' with the command:
+
+```shell
+> flutter pub add flutter_map
+```
+
+Include in your project with:
+
+```dart
+import 'package:flutter_map/flutter_map.dart';
+```
+
 Documentation is also provided within the code, and at [pub.dev documentation](https://pub.dev/documentation/flutter_map/latest/flutter_map/flutter_map-library.html), and can be viewed from within your favourite editor.
 
 If you would like to see the old documentation, see [README-OLD.md](-LINK-).
