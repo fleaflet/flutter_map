@@ -13,6 +13,7 @@ import './pages/many_markers.dart';
 import './pages/map_controller.dart';
 import './pages/marker_anchor.dart';
 import './pages/marker_rotate.dart';
+import './pages/max_bounds.dart';
 import './pages/moving_markers.dart';
 import './pages/offline_map.dart';
 import './pages/on_tap.dart';
@@ -30,7 +31,7 @@ import './pages/tile_builder_example.dart';
 import './pages/tile_loading_error_handle.dart';
 import './pages/widgets.dart';
 import './pages/wms_tile_layer.dart';
-import './pages/max_bounds.dart';
+
 
 void main() => runApp(MyApp());
 
