@@ -1,3 +1,6 @@
+> CAUTION: IF EDITING DOCUMENTATION, NOTE THAT <github.com/fleaflet/flutter_map/pull/992> IS BASED OFF 'fix-merge-conflicts' BRANCH
+> WORK THERE WHEN POSSIBLE
+
 # flutter_map
 
 A versatile mapping package for Flutter, based off of ['leaflet.js'](https://leafletjs.com/). Simple and easy to learn, yet completely customizable and configurable, it's the best choice for mapping in your Flutter app.
