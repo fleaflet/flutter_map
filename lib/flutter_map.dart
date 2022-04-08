@@ -251,6 +251,11 @@ class MapOptions {
   final LatLng? swPanBoundary;
   final LatLng? nePanBoundary;
 
+  /// Restrict outer edges of map to LatLng Bounds, to prevent gray areas when
+  /// panning or zooming. LatLngBounds(LatLng(-90, -180.0), LatLng(90.0, 180.0))
+  /// would represent the full extent of the map, so no gray area outside of it.
+  final LatLngBounds? maxBounds;
+
   _SafeArea? _safeAreaCache;
   double? _safeAreaZoom;
 
@@ -288,6 +293,7 @@ class MapOptions {
     this.controller,
     this.swPanBoundary,
     this.nePanBoundary,
+    this.maxBounds,
   })  : center = center ?? LatLng(50.5, 30.51),
         assert(rotationThreshold >= 0.0),
         assert(pinchZoomThreshold >= 0.0),
