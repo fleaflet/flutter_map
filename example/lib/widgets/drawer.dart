@@ -12,6 +12,7 @@ import '../pages/map_controller.dart';
 import '../pages/map_inside_listview.dart';
 import '../pages/marker_anchor.dart';
 import '../pages/marker_rotate.dart';
+import '../pages/max_bounds.dart';
 import '../pages/moving_markers.dart';
 import '../pages/network_tile_provider.dart';
 import '../pages/offline_map.dart';
@@ -211,6 +212,12 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           context,
           const Text('Interactive flags test page'),
           InteractiveTestPage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Max Bounds test page'),
+          MaxBoundsPage.route,
           currentRoute,
         ),
         ListTile(
