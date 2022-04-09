@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:collection/collection.dart' show MapEquality;
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/core/util.dart' as util;
@@ -249,6 +250,9 @@ class TileLayerOptions extends LayerOptions {
   /// Stream to notify the [TileLayer] that it needs resetting
   Stream<Null>? reset;
 
+  /// Only load tiles that are within these bounds
+  LatLngBounds? tileBounds;
+
   TileLayerOptions(
       {this.attributionAlignment = Alignment.bottomRight,
       this.attributionBuilder,
@@ -295,7 +299,8 @@ class TileLayerOptions extends LayerOptions {
       this.tilesContainerBuilder,
       this.evictErrorTileStrategy = EvictErrorTileStrategy.none,
       this.fastReplace = false,
-      this.reset})
+      this.reset,
+      this.tileBounds})
       : updateInterval =
             updateInterval <= 0 ? null : Duration(milliseconds: updateInterval),
         tileFadeInDuration = tileFadeInDuration <= 0
@@ -953,6 +958,22 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     return Bounds(pixelCenter - halfSize, pixelCenter + halfSize);
   }
 
+  // Take the existing pixelBounds, for the whole display. If there is a
+  // restricted tileBounds, calculate which is smaller.
+  Bounds _getRestrictedPixelBounds(
+      Bounds existingPxBounds, LatLngBounds bounds, double thisZoom) {
+    var swPixel = map.project(bounds.southWest!, thisZoom);
+    var nePixel = map.project(bounds.northEast!, thisZoom);
+
+    var newBounds = Bounds(
+        CustomPoint(math.max(swPixel.x, existingPxBounds.bottomLeft.x),
+            math.max(nePixel.y, existingPxBounds.topRight.y)),
+        CustomPoint(math.min(nePixel.x, existingPxBounds.topRight.x),
+            math.min(swPixel.y, existingPxBounds.bottomLeft.y)));
+
+    return newBounds;
+  }
+
   // Private method to load tiles in the grid's active zoom level according to
   // map bounds
   void _update(LatLng? center) {
@@ -964,6 +985,12 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     center ??= map.center;
 
     var pixelBounds = _getTiledPixelBounds(center);
+
+    if (options.tileBounds != null) {
+      pixelBounds = _getRestrictedPixelBounds(
+          pixelBounds, options.tileBounds!, _tileZoom ?? map.zoom);
+    }
+
     var tileRange = _pxBoundsToTileRange(pixelBounds);
     var tileCenter = tileRange.center;
     final queue = <Coords<num>>[];
