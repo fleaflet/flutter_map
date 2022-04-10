@@ -13,9 +13,9 @@ Join the Discord server: <https://discord.gg/egEGeByf4q>!
 
 Talk about 'flutter_map', get and give help, and receive notifications about new 'flutter_map' updates! More additions planned in the future.
 
-## [Beta Documentation](https://deploy-preview-10--fleaflet-docs.netlify.app)
+## [Beta Documentation](https://fleaflet-docs.netlify.app)
 
-View the beta documentation: <https://deploy-preview-10--fleaflet-docs.netlify.app/>!  
+View the beta documentation: <https://fleaflet-docs.netlify.app>!  
 Link liable to break and/or change. Most contents should be correct (but not yet verified), but some documentation may be missing/misleading.
 
 Any feedback is appreciated! Please comment or leave a code review on [pull request #992](/pull/992).
