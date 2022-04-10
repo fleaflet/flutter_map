@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map_example/pages/epsg4326_crs.dart';
-import 'package:flutter_map_example/pages/map_inside_listview.dart';
-import 'package:flutter_map_example/pages/marker_rotate.dart';
-import 'package:flutter_map_example/pages/network_tile_provider.dart';
 
 import '../pages/animated_map_controller.dart';
 import '../pages/circle.dart';
 import '../pages/custom_crs/custom_crs.dart';
+import '../pages/epsg4326_crs.dart';
 import '../pages/esri.dart';
 import '../pages/home.dart';
 import '../pages/interactive_test_page.dart';
@@ -70,7 +67,7 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
         ),
         _buildMenuItem(
           context,
-          const Text(''),
+          const Text('NetworkTileProvider'),
           NetworkTileProviderPage.route,
           currentRoute,
         ),

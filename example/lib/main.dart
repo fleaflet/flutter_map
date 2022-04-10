@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map_example/pages/epsg4326_crs.dart';
-import 'package:flutter_map_example/pages/map_inside_listview.dart';
-import 'package:flutter_map_example/pages/network_tile_provider.dart';
 
 import './pages/animated_map_controller.dart';
 import './pages/circle.dart';
@@ -34,6 +31,9 @@ import './pages/tile_builder_example.dart';
 import './pages/tile_loading_error_handle.dart';
 import './pages/widgets.dart';
 import './pages/wms_tile_layer.dart';
+import 'pages/epsg4326_crs.dart';
+import 'pages/map_inside_listview.dart';
+import 'pages/network_tile_provider.dart';
 
 void main() => runApp(MyApp());
 
