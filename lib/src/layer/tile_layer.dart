@@ -1381,14 +1381,11 @@ class _AnimatedTileState extends State<AnimatedTile> {
         : RawImage(
             image: widget.tile.imageInfo?.image,
             fit: BoxFit.fill,
-          );
+            opacity: widget.tile.animationController);
 
-    return Opacity(
-      opacity: widget.tile.opacity,
-      child: widget.tileBuilder == null
-          ? tileWidget
-          : widget.tileBuilder!(context, tileWidget, widget.tile),
-    );
+    return widget.tileBuilder == null
+        ? tileWidget
+        : widget.tileBuilder!(context, tileWidget, widget.tile);
   }
 
   @override
