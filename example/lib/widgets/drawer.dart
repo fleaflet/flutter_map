@@ -14,6 +14,7 @@ import '../pages/live_location.dart';
 import '../pages/many_markers.dart';
 import '../pages/map_controller.dart';
 import '../pages/marker_anchor.dart';
+import '../pages/max_bounds.dart';
 import '../pages/moving_markers.dart';
 import '../pages/offline_map.dart';
 import '../pages/on_tap.dart';
@@ -21,6 +22,7 @@ import '../pages/overlay_image.dart';
 import '../pages/plugin_api.dart';
 import '../pages/plugin_scalebar.dart';
 import '../pages/plugin_zoombuttons.dart';
+import '../pages/polygon.dart';
 import '../pages/polyline.dart';
 import '../pages/reset_tile_layer.dart';
 import '../pages/sliding_map.dart';
@@ -97,6 +99,12 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           context,
           const Text('Polylines'),
           PolylinePage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Polygons'),
+          PolygonPage.route,
           currentRoute,
         ),
         _buildMenuItem(
@@ -205,6 +213,12 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           context,
           const Text('Interactive flags test page'),
           InteractiveTestPage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Max Bounds test page'),
+          MaxBoundsPage.route,
           currentRoute,
         ),
         ListTile(

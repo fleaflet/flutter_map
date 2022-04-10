@@ -200,6 +200,16 @@ class MapState {
           source: source,
         ),
       );
+    } else if (source == MapEventSource.scrollWheel) {
+      emitMapEvent(
+        MapEventScrollWheelZoom(
+          center: _lastCenter!,
+          zoom: _zoom,
+          targetCenter: targetCenter,
+          targetZoom: targetZoom,
+          source: source,
+        ),
+      );
     } else if (source == MapEventSource.onDrag ||
         source == MapEventSource.onMultiFinger) {
       emitMapEvent(
@@ -304,6 +314,18 @@ class MapState {
         return false;
       }
       center = options.containPoint(center, _lastCenter ?? center);
+    }
+
+    // Try and fit the corners of the map inside the visible area.
+    // If it's still outside (so response is null), don't perform a move.
+    if (options.maxBounds != null) {
+      var adjustedCenter =
+          adjustCenterIfOutsideMaxBounds(center, zoom, options.maxBounds);
+      if (adjustedCenter == null) {
+        return false;
+      } else {
+        center = adjustedCenter;
+      }
     }
 
     _handleMoveEmit(center, zoom, hasGesture, source, id);
@@ -477,6 +499,69 @@ class MapState {
     var pixelCenter = project(center, zoom).floor();
     var halfSize = size / (scale * 2);
     return Bounds(pixelCenter - halfSize, pixelCenter + halfSize);
+  }
+
+  LatLng? adjustCenterIfOutsideMaxBounds(
+      LatLng testCenter, testZoom, maxBounds) {
+    LatLng? newCenter;
+
+    var swPixel = project(maxBounds.southWest!, testZoom);
+    var nePixel = project(maxBounds.northEast!, testZoom);
+
+    var centerPix = project(testCenter, testZoom);
+
+    var halfSizeX = size.x / 2;
+    var halfSizeY = size.y / 2;
+
+    // Try and find the edge value that the center could use to stay within
+    // the maxBounds. This should be ok for panning. If we zoom, it is possible
+    // there is no solution to keep all corners within the bounds. If the edges
+    // are still outside the bounds, don't return anything.
+    var leftOkCenter = math.min(swPixel.x, nePixel.x) + halfSizeX;
+    var rightOkCenter = math.max(swPixel.x, nePixel.x) - halfSizeX;
+    var topOkCenter = math.min(swPixel.y, nePixel.y) + halfSizeY;
+    var botOkCenter = math.max(swPixel.y, nePixel.y) - halfSizeY;
+
+    double? newCenterX;
+    double? newCenterY;
+
+    var wasAdjusted = false;
+
+    if (centerPix.x < leftOkCenter) {
+      wasAdjusted = true;
+      newCenterX = leftOkCenter;
+    } else if (centerPix.x > rightOkCenter) {
+      wasAdjusted = true;
+      newCenterX = rightOkCenter;
+    }
+
+    if (centerPix.y < topOkCenter) {
+      wasAdjusted = true;
+      newCenterY = topOkCenter;
+    } else if (centerPix.y > botOkCenter) {
+      wasAdjusted = true;
+      newCenterY = botOkCenter;
+    }
+
+    if (!wasAdjusted) {
+      return testCenter;
+    }
+
+    var newCx = newCenterX ?? centerPix.x;
+    var newCy = newCenterY ?? centerPix.y;
+
+    // Have a final check, see if the adjusted center is within maxBounds.
+    // If not, give up.
+    if (newCx < leftOkCenter ||
+        newCx > rightOkCenter ||
+        newCy < topOkCenter ||
+        newCy > botOkCenter) {
+      return null;
+    } else {
+      newCenter = unproject(CustomPoint(newCx, newCy), testZoom);
+    }
+
+    return newCenter;
   }
 
   static MapState? maybeOf(BuildContext context, {bool nullOk = false}) {

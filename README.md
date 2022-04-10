@@ -1,17 +1,24 @@
-[![CI](https://github.com/fleaflet/flutter_map/workflows/Tests/badge.svg)](https://github.com/fleaflet/flutter_map/actions?query=branch%3Amaster)
-[![Pub](https://img.shields.io/pub/v/flutter_map.svg)](https://pub.dev/packages/flutter_map)
-
 # flutter_map
 
-A Dart implementation of [Leaflet] for Flutter apps.
+A versatile mapping package for Flutter, based off of ['leaflet.js'](https://leafletjs.com/). Simple and easy to learn, yet completely customizable and configurable, it's the best choice for mapping in your Flutter app.
 
-## Installation
+[![Pub.dev](https://img.shields.io/pub/v/flutter_map.svg?label=Latest+Version)](https://pub.dev/packages/flutter_map) [![Checks & Tests](https://badgen.net/github/checks/fleaflet/flutter_map?label=Checks+%26+Tests&color=orange)](https://github.com/fleaflet/flutter_map/actions?query=branch%3Amaster) [![points](https://badges.bar/flutter_map/pub%20points)](https://pub.dev/packages/flutter_map/score)  
+[![stars](https://badgen.net/github/stars/fleaflet/flutter_map?label=stars&color=green&icon=github)](https://github.com/fleaflet/flutter_map/stargazers) [![likes](https://badges.bar/flutter_map/likes)](https://pub.dev/packages/flutter_map/score)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![Open Issues](https://badgen.net/github/open-issues/fleaflet/flutter_map?label=Open+Issues&color=green)](https://GitHub.com/fleaflet/flutter_map/issues) [![Open PRs](https://badgen.net/github/open-prs/fleaflet/flutter_map?label=Open+PRs&color=green)](https://GitHub.com/fleaflet/flutter_map/pulls)
 
-Add flutter_map to your pubspec:
+Join the Discord server: https://discord.gg/egEGeByf4q
 
-```yaml
-dependencies:
-  flutter_map: any # or the latest version on Pub
+## Installation & Configuration
+
+Add 'flutter_map' to your 'pubspec.yaml' with the command:
+
+```shell
+> flutter pub add flutter_map
+```
+
+Include in your project with:
+
+```dart
+import 'package:flutter_map/flutter_map.dart';
 ```
 
 ### Android
@@ -187,8 +194,7 @@ Make sure `accessToken` is properly encoded as valid URI component.
 If you use Mapbox Studio with your own tile sets, just use URL like this:
 `https://api.mapbox.com/styles/v1/:accountName/:tileSetId/tiles/256/{z}/{x}/{y}@2x`
 where `:accountName` is your user account name and `:tileSetId` is the
-ID of your tile set, more information is 
-[here](https://docs.mapbox.com/help/glossary/style-url/).
+ID of your tile set, more information is [here](https://docs.mapbox.com/help/glossary/style-url/).
 
 ### Widget Layers
 
@@ -242,8 +248,7 @@ Widget build(BuildContext context) {
 ### Custom CRS
 
 By default flutter_map supports only WGS84 (EPSG:4326) and Google Mercator
-(EPSG:3857) projections. The [proj4dart][proj4dart] package provides additional 
-reference systems (CRS).
+(EPSG:3857) projections. The [proj4dart][proj4dart] package provides additional reference systems (CRS).
 
 To use proj4dart, first define a custom CRS:
 
@@ -317,6 +322,7 @@ package](https://pub.dev/packages/cached_network_image/install) in your
 `pubspec.yaml`.
 
 Create your own provider using the code below:
+
 ```dart
 import 'package:cached_network_image/cached_network_image.dart';
 class CachedTileProvider extends TileProvider {
@@ -330,6 +336,7 @@ class CachedTileProvider extends TileProvider {
   }
 }
 ```
+
 Then, add the `CachedTileProvider` `TileProvider` to the appropriate
 `TileLayerOptions`:
 
@@ -408,7 +415,7 @@ For the latest roadmap, please see the [Issue Tracker]
 [custom-crs-readme]: ./example/lib/pages/custom_crs/Readme.md
 [flutter_map_tile_caching]: https://github.com/JaffaKetchup/flutter_map_tile_caching
 [mbTilesToPngs]: https://github.com/alfanhui/mbtilesToPngs
-[open-street-map]: https://openstreetmap.org 
+[open-street-map]: https://openstreetmap.org
 [proj4dart]: https://github.com/maRci002/proj4dart
 [tilemill]: https://tilemill-project.github.io/tilemill/docs/guides/osm-bright-mac-quickstart/
 [install-tilemill]: https://tilemill-project.github.io/tilemill/docs/install/

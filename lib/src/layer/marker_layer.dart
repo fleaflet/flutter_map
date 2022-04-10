@@ -8,6 +8,10 @@ import 'package:latlong2/latlong.dart';
 class MarkerLayerOptions extends LayerOptions {
   final List<Marker> markers;
 
+  /// Toggle marker position caching. Enabling will improve performance, but may introducen
+  /// errors when adding/removing markers. Default is enabled (`true`).
+  final bool usePxCache;
+
   /// If true markers will be counter rotated to the map rotation
   final bool? rotate;
 
@@ -38,6 +42,7 @@ class MarkerLayerOptions extends LayerOptions {
     this.rotate = false,
     this.rotateOrigin,
     this.rotateAlignment = Alignment.center,
+    this.usePxCache = true,
     Stream<Null>? rebuild,
   }) : super(key: key, rebuild: rebuild);
 }
@@ -190,11 +195,31 @@ class _MarkerLayerState extends State<MarkerLayer> {
   // https://stackoverflow.com/questions/15943890/is-there-a-performance-benefit-in-using-fixed-length-lists-in-dart
   var _pxCache = <CustomPoint>[];
 
-  // Calling this every time markerOpts change should guarantee proper length
-  List<CustomPoint> generatePxCache() => List.generate(
+  /// Calling this every time markerOpts change should guarantee proper length
+  List<CustomPoint> generatePxCache() {
+    if (widget.markerLayerOptions.usePxCache) {
+      return List.generate(
         widget.markerLayerOptions.markers.length,
         (i) => widget.map.project(widget.markerLayerOptions.markers[i].point),
       );
+    }
+    return [];
+  }
+
+  bool updatePxCacheIfNeeded() {
+    var didUpdate = false;
+
+    /// markers may be modified, so update cache. Note, someone may
+    /// have not added to a cache, but modified, so this won't catch
+    /// this case. Parent widget setState should be called to call
+    /// didUpdateWidget to force a cache reload
+
+    if (widget.markerLayerOptions.markers.length != _pxCache.length) {
+      _pxCache = generatePxCache();
+      didUpdate = true;
+    }
+    return didUpdate;
+  }
 
   @override
   void initState() {
@@ -214,15 +239,22 @@ class _MarkerLayerState extends State<MarkerLayer> {
     return StreamBuilder<int?>(
       stream: widget.stream, // a Stream<int> or null
       builder: (BuildContext context, AsyncSnapshot<int?> snapshot) {
+        var layerOptions = widget.markerLayerOptions;
+        var map = widget.map;
+        var usePxCache = layerOptions.usePxCache;
         var markers = <Widget>[];
-        final sameZoom = widget.map.zoom == lastZoom;
-        for (var i = 0; i < widget.markerLayerOptions.markers.length; i++) {
-          var marker = widget.markerLayerOptions.markers[i];
+        final sameZoom = map.zoom == lastZoom;
+
+        var cacheUpdated = updatePxCacheIfNeeded();
+
+        for (var i = 0; i < layerOptions.markers.length; i++) {
+          var marker = layerOptions.markers[i];
 
           // Decide whether to use cached point or calculate it
-          var pxPoint =
-              sameZoom ? _pxCache[i] : widget.map.project(marker.point);
-          if (!sameZoom) {
+          var pxPoint = usePxCache && (sameZoom || cacheUpdated)
+              ? _pxCache[i]
+              : map.project(marker.point);
+          if (!sameZoom && usePxCache) {
             _pxCache[i] = pxPoint;
           }
 
@@ -231,23 +263,21 @@ class _MarkerLayerState extends State<MarkerLayer> {
           var sw = CustomPoint(pxPoint.x + width, pxPoint.y - height);
           var ne = CustomPoint(pxPoint.x - width, pxPoint.y + height);
 
-          if (!widget.map.pixelBounds.containsPartialBounds(Bounds(sw, ne))) {
+          if (!map.pixelBounds.containsPartialBounds(Bounds(sw, ne))) {
             continue;
           }
 
-          final pos = pxPoint - widget.map.getPixelOrigin();
-          final markerWidget =
-              (marker.rotate ?? widget.markerLayerOptions.rotate ?? false)
-                  // Counter rotated marker to the map rotation
-                  ? Transform.rotate(
-                      angle: -widget.map.rotationRad,
-                      origin: marker.rotateOrigin ??
-                          widget.markerLayerOptions.rotateOrigin,
-                      alignment: marker.rotateAlignment ??
-                          widget.markerLayerOptions.rotateAlignment,
-                      child: marker.builder(context),
-                    )
-                  : marker.builder(context);
+          final pos = pxPoint - map.getPixelOrigin();
+          final markerWidget = (marker.rotate ?? layerOptions.rotate ?? false)
+              // Counter rotated marker to the map rotation
+              ? Transform.rotate(
+                  angle: -map.rotationRad,
+                  origin: marker.rotateOrigin ?? layerOptions.rotateOrigin,
+                  alignment:
+                      marker.rotateAlignment ?? layerOptions.rotateAlignment,
+                  child: marker.builder(context),
+                )
+              : marker.builder(context);
 
           markers.add(
             Positioned(
@@ -260,7 +290,7 @@ class _MarkerLayerState extends State<MarkerLayer> {
             ),
           );
         }
-        lastZoom = widget.map.zoom;
+        lastZoom = map.zoom;
         return Container(
           child: Stack(
             children: markers,
