@@ -148,7 +148,7 @@ class Epsg4326 extends Earth {
 
   const Epsg4326()
       : projection = const _LonLat(),
-        transformation = const Transformation(1 / 180, 0.5, -1 / 180, 0.5),
+        transformation = const Transformation(1 / 180, 1, -1 / 180, 0.5),
         super();
 }
 
