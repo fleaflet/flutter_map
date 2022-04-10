@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map_example/pages/epsg4326_crs.dart';
+import 'package:flutter_map_example/pages/map_inside_listview.dart';
+import 'package:flutter_map_example/pages/marker_rotate.dart';
+import 'package:flutter_map_example/pages/network_tile_provider.dart';
 
 import '../pages/animated_map_controller.dart';
 import '../pages/circle.dart';
@@ -232,6 +236,13 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           selected: currentRoute == ResetTileLayerPage.route,
           onTap: () {
             Navigator.pushReplacementNamed(context, ResetTileLayerPage.route);
+          },
+        ),
+        ListTile(
+          title: const Text('EPSG4326 Crs'),
+          selected: currentRoute == EPSG4326Page.route,
+          onTap: () {
+            Navigator.pushReplacementNamed(context, EPSG4326Page.route);
           },
         ),
         _buildMenuItem(
