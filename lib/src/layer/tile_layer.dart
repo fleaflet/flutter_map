@@ -952,22 +952,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     return Bounds(pixelCenter - halfSize, pixelCenter + halfSize);
   }
 
-  // Take the existing pixelBounds, for the whole display. If there is a
-  // restricted tileBounds, calculate which is smaller.
-  Bounds _getRestrictedPixelBounds(
-      Bounds existingPxBounds, LatLngBounds bounds, double thisZoom) {
-    var swPixel = map.project(bounds.southWest!, thisZoom);
-    var nePixel = map.project(bounds.northEast!, thisZoom);
-
-    var newBounds = Bounds(
-        CustomPoint(math.max(swPixel.x, existingPxBounds.bottomLeft.x),
-            math.max(nePixel.y, existingPxBounds.topRight.y)),
-        CustomPoint(math.min(nePixel.x, existingPxBounds.topRight.x),
-            math.min(swPixel.y, existingPxBounds.bottomLeft.y)));
-
-    return newBounds;
-  }
-
   // Private method to load tiles in the grid's active zoom level according to
   // map bounds
   void _update(LatLng? center) {
@@ -979,12 +963,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     center ??= map.center;
 
     var pixelBounds = _getTiledPixelBounds(center);
-
-    if (options.tileBounds != null) {
-      pixelBounds = _getRestrictedPixelBounds(
-          pixelBounds, options.tileBounds!, _tileZoom ?? map.zoom);
-    }
-
     var tileRange = _pxBoundsToTileRange(pixelBounds);
     var tileCenter = tileRange.center;
     final queue = <Coords<num>>[];
@@ -1016,6 +994,14 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       for (var i = tileRange.min.x; i <= tileRange.max.x; i++) {
         final coords = Coords(i.toDouble(), j.toDouble());
         coords.z = _tileZoom!;
+
+        if (options.tileBounds != null) {
+          var tilePxBounds = _pxBoundsToTileRange(
+              _latLngBoundsToPixelBounds(options.tileBounds!, _tileZoom!));
+          if (!_areCoordsInsideTileBounds(coords, tilePxBounds)) {
+            continue;
+          }
+        }
 
         if (!_isValidTile(coords)) {
           continue;
@@ -1056,6 +1042,22 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     }
 
     return true;
+  }
+
+  bool _areCoordsInsideTileBounds(Coords coords, Bounds? tileBounds) {
+    var bounds = tileBounds ?? _globalTileRange;
+    if ((coords.x < bounds.min.x || coords.x > bounds.max.x) ||
+        (coords.y < bounds.min.y || coords.y > bounds.max.y)) {
+      return false;
+    }
+    return true;
+  }
+
+  Bounds _latLngBoundsToPixelBounds(LatLngBounds bounds, double thisZoom) {
+    var swPixel = map.project(bounds.southWest!, thisZoom).floor();
+    var nePixel = map.project(bounds.northEast!, thisZoom).ceil();
+    var pxBounds = Bounds(swPixel, nePixel);
+    return pxBounds;
   }
 
   String _tileCoordsToKey(Coords coords) {
