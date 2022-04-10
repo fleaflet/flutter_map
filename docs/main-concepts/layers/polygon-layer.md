@@ -27,10 +27,11 @@ FlutterMap(
 :::caution Inaccuracies
 Due to the nature of the Earth being a sphere, drawing lines perfectly requires large amounts of difficult maths that may not behave correctly when given certain edge-cases. Avoid creating large polygons, or polygons that cross the edges of the map, as this may create undesired results.
 :::
-:::caution Performance Issues
-Excessive use of polygons, use of `isDotted: true`, or use of complex polygons, etc., will create performance issues and lag/'jank' as the user interacts with the map.
 
-To improve performance, enable `polygonCulling`. This should remove polygons that are out of sight, but should only be used when necessary as enabling this can further reduce performance when used unnecessarily.
+:::caution Performance Issues
+Excessive use of polygons or use of complex polygons will create performance issues and lag/'jank' as the user interacts with the map. See [Performance Issues](/examples-and-errors/common-errors#performance-issues) for more information.
+
+To improve performance, try enabling `polygonCulling`. This should remove polygons that are out of sight, but should only be used when necessary as enabling this can further reduce performance when used unnecessarily.
 :::
 
 ## Polygons (`polygons:`)

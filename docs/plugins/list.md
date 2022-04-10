@@ -59,5 +59,5 @@ When submitting a plugin & PR, please ensure the plugin:
 - is available via a pub.dev installation - if you require an exception, please state this in your PR body clearly,
 - has documentation including enough information for installation and basic setup/functionality,
 - includes a runnable example and/or screenshots,
-- description accurately and concisely represents your plugin (under 180 characters),
+- description accurately and concisely represents your plugin (under 180 characters)
 :::

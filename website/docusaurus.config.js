@@ -21,7 +21,8 @@ module.exports = {
     ],
   ],
   title: "flutter_map",
-  tagline: "A port of leaflet.js for Flutter",
+  tagline:
+    "A versatile mapping package for Flutter, based off of 'leaflet.js'. Simple and easy to learn, yet completely customizable and configurable, it's the best choice for mapping in your Flutter app.",
   url: "https://flutter-map.vercel.app",
   baseUrl: "/",
   onBrokenLinks: "throw",
@@ -44,9 +45,9 @@ module.exports = {
           label: "Docs",
         },
         {
-            href: "https://pub.dev/documentation/flutter_map/latest/flutter_map/flutter_map-library.html",
-            label: "Full API Reference",
-            position: "left",
+          href: "https://pub.dev/documentation/flutter_map/latest/flutter_map/flutter_map-library.html",
+          label: "Full API Reference",
+          position: "left",
         },
         {
           href: "https://github.com/fleaflet/flutter_map",
@@ -72,7 +73,7 @@ module.exports = {
             },
             {
               label: "Full API Reference",
-              href: 'https://pub.dev/documentation/flutter_map/latest/flutter_map/flutter_map-library.html',
+              href: "https://pub.dev/documentation/flutter_map/latest/flutter_map/flutter_map-library.html",
             },
           ],
         },

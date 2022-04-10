@@ -27,10 +27,11 @@ FlutterMap(
 :::caution Inaccuracies
 Due to the nature of the Earth being a sphere, drawing lines perfectly requires large amounts of difficult maths that may not behave correctly when given certain edge-cases. Avoid creating large polylines, or polylines that cross the edges of the map, as this may create undesired results.
 :::
-:::caution Performance Issues
-Excessive use of polylines, use of gradient colors, or use of complex polylines, etc., will create performance issues and lag/'jank' as the user interacts with the map.
 
-To improve performance, enable `polylineCulling`. This should remove polylines that are out of sight, but should only be used when necessary as enabling this can further reduce performance when used unnecessarily.
+:::caution Performance Issues
+Excessive use of polylines or use of complex polylines will create performance issues and lag/'jank' as the user interacts with the map. See [Performance Issues](/examples-and-errors/common-errors#performance-issues) for more information.
+
+To improve performance, try enabling `polylineCulling`. This should remove polylines that are out of sight, but should only be used when necessary as enabling this can further reduce performance when used unnecessarily.
 :::
 
 ## Polylines (`polylines:`)

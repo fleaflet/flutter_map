@@ -51,7 +51,7 @@ These are the available sub-subdomains for Open Street Maps' tile server, and on
 
 If you are not sure of the correct values for your server, don't specify anything. For example, the `urlTemplate` used in the example above will work without the '{s}' part.
 
-:::info
+:::info Backwards Compatibility
 There were two main reasons this option is provided:
 
 - Leaflet.js relied on this to get around browser limitations on HTTP connections ([source - second paragraph](https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Tile_servers)), and because `flutter_map` is a close port of Leaflet.js, it retains this feature.
