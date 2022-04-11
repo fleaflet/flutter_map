@@ -59,6 +59,11 @@ module.exports = {
           href: "https://pub.dev/packages/flutter_map",
           position: "right",
         },
+        {
+          label: "Discord Server",
+          href: "https://discord.gg/egEGeByf4q",
+          position: "right",
+        },
       ],
     },
     footer: {
@@ -93,13 +98,13 @@ module.exports = {
               href: "https://github.com/fleaflet/flutter_map/pulls",
             },
             {
-              label: "Discussions",
-              href: "https://github.com/fleaflet/flutter_map/discussions",
+              label: "Discord Server",
+              href: "https://discord.gg/egEGeByf4q",
             },
           ],
         },
       ],
-      copyright: `<hr>Copyright © ${new Date().getFullYear()} flutter_map<br>Use of Flutter™ logo and name throughout<br>Built with Docusaurus`,
+      copyright: `<hr>Copyright © ${new Date().getFullYear()} flutter_map<br>Use of Flutter logo and name throughout<br>Built with Docusaurus`,
     },
     prism: {
       theme: lightCodeTheme,

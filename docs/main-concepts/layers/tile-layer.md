@@ -28,8 +28,7 @@ None of the properties are programmatically required, but the bare minimum requi
 
 ## URL Template (`urlTemplate:`)
 
-Takes a string that is a valid URL, which is the template to use when the tile provider constructs the URL to request a tile from a tile server.
-For example:
+Takes a string that is a valid URL, which is the template to use when the tile provider constructs the URL to request a tile from a tile server. For example:
 
 ``` dart
         urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -58,6 +57,21 @@ There were two main reasons this option is provided:
 - Large servers used to rely on this technique to load-balance, and some small or private servers still do.
 :::
 
+## Tile Bounds (`tileBounds:`)
+
+Takes a `LatLngBounds` to restrict the layer to only loading tiles within that area. For example:
+
+``` dart
+        tileBounds: LatLngBounds(
+            LatLng(32.2934590056236, 24.328924534719548),
+            LatLng(21.792152188247265, 37.19854583903912),
+        ),
+```
+
+will restrict the tiles to only loading Egypt (a square-ish country). Note that the map can still be moved freely outside of this range.
+
+An example use-case might therefore be loading a specialised map for a region and just a basic map style elsewhere (different `urlTemplate`s). In this case, the bounded layer should go beneath the unbounded layer. Setting `backgroundColor: Colors.transparent` is also necessary on the bounded layer to ensure the other layer is visible elsewhere.
+
 ## Tile Provider (`tileProvider:`)
 
 Takes a `TileProvider` object specifying a tile provider to use for that layer. Has a default.
@@ -80,7 +94,7 @@ It will only cache tiles in memory, so do not rely on it at all to cache past an
 
 ### `AssetTileProvider()` and `FileTileProvider()`
 
-These tile providers use the `templateUrl` to get the appropriate tile from the asset store of the app, or from a file on the users device, respectively.
+These tile providers use the `templateUrl` to get the appropriate tile from the asset store of the app, or from a file on the users device, respectively. On the web, `FileTileProvider()` will automatically use `NetworkImage()` behind the scenes.
 
 ### Caching
 

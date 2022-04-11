@@ -21,9 +21,7 @@ None of the options are required, but the options property on the `FlutterMap()`
 
 ## Center (`center:`)
 
-Takes a `LatLng` object, specifying the latitude and longitude of the center of the map when it is first built.
-
-For example:  
+Takes a `LatLng` object, specifying the latitude and longitude of the center of the map when it is first built. For example:  
 
 ``` dart
         center: LatLng(0.0, 0.0),
@@ -50,16 +48,18 @@ For an explanation of zoom levels, see the [How Does It Work? page](/introductio
 Note that many tile servers will not support past a zoom level of 18. Open Street Maps supports up to level 19, and a small amount support up to level 22. Always specify the `maxZoom:` below the maximum zoom level of the server, to avoid your users seeing a void of grey tiles.
 :::
 
-## Boundaries (`bounds:`)
+## Boundaries (`maxBounds:`)
 
-Takes a `LatLngBounds` object, which takes two `LatLng` objects specifying two corners (north-west, south-east) creating a square where the map view must remain within. For example:
+Takes a `LatLngBounds` to restrict the map view within a rectangular area. For example:
 
 ``` dart
-        center: LatLngBounds(
-            LatLng(90, -90),
-            LatLng(-90, 90),
+        maxBounds: LatLngBounds(
+            LatLng(-90, -180.0),
+            LatLng(90.0, 180.0),
         ),
 ```
+
+will ensure that the gray void around the world cannot appear on screen, at least in the default projection. This is recommended for many setups.
 
 :::caution
 Always specify your center within your boundaries to avoid errors. Boundaries will take preference over center.
@@ -67,9 +67,7 @@ Always specify your center within your boundaries to avoid errors. Boundaries wi
 
 ## Rotation (`rotation:`)
 
-Takes a double specifying the bearing of the map when it is first built.
-
-For example:
+Takes a double specifying the bearing of the map when it is first built. For example:
 
 ``` dart
         center: 180.0,
@@ -77,13 +75,11 @@ For example:
 
 will put the South of the map at the top of the device.
 
-Defaults to 0: North up.
+Defaults to 0(°).
 
 ## Interactivity Settings (`interactiveFlags:`)
 
-Takes an integer represented by multiple bitwise operations simplified to objects comparable to enumerables.
-
-For example:
+Takes an integer represented by multiple bitwise operations, similar to using enumerables. For example:
 
 ``` dart
         InteractiveFlag.all & ~InteractiveFlag.rotate
