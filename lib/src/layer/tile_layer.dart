@@ -4,17 +4,12 @@ import 'dart:math' as math;
 import 'package:collection/collection.dart' show MapEquality;
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/bounds.dart';
-import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/core/util.dart' as util;
-import 'package:flutter_map/src/geo/crs/crs.dart';
-import 'package:flutter_map/src/layer/tile_builder/tile_builder.dart';
-import 'package:flutter_map/src/layer/tile_provider/tile_provider.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:tuple/tuple.dart';
-
-import 'layer.dart';
 
 typedef TemplateFunction = String Function(
     String str, Map<String, String> data);
@@ -249,6 +244,9 @@ class TileLayerOptions extends LayerOptions {
   /// Stream to notify the [TileLayer] that it needs resetting
   Stream<Null>? reset;
 
+  /// Only load tiles that are within these bounds
+  LatLngBounds? tileBounds;
+
   TileLayerOptions(
       {this.attributionAlignment = Alignment.bottomRight,
       this.attributionBuilder,
@@ -295,7 +293,8 @@ class TileLayerOptions extends LayerOptions {
       this.tilesContainerBuilder,
       this.evictErrorTileStrategy = EvictErrorTileStrategy.none,
       this.fastReplace = false,
-      this.reset})
+      this.reset,
+      this.tileBounds})
       : updateInterval =
             updateInterval <= 0 ? null : Duration(milliseconds: updateInterval),
         tileFadeInDuration = tileFadeInDuration <= 0
@@ -996,6 +995,14 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         final coords = Coords(i.toDouble(), j.toDouble());
         coords.z = _tileZoom!;
 
+        if (options.tileBounds != null) {
+          var tilePxBounds = _pxBoundsToTileRange(
+              _latLngBoundsToPixelBounds(options.tileBounds!, _tileZoom!));
+          if (!_areCoordsInsideTileBounds(coords, tilePxBounds)) {
+            continue;
+          }
+        }
+
         if (!_isValidTile(coords)) {
           continue;
         }
@@ -1035,6 +1042,22 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     }
 
     return true;
+  }
+
+  bool _areCoordsInsideTileBounds(Coords coords, Bounds? tileBounds) {
+    var bounds = tileBounds ?? _globalTileRange;
+    if ((coords.x < bounds.min.x || coords.x > bounds.max.x) ||
+        (coords.y < bounds.min.y || coords.y > bounds.max.y)) {
+      return false;
+    }
+    return true;
+  }
+
+  Bounds _latLngBoundsToPixelBounds(LatLngBounds bounds, double thisZoom) {
+    var swPixel = map.project(bounds.southWest!, thisZoom).floor();
+    var nePixel = map.project(bounds.northEast!, thisZoom).ceil();
+    var pxBounds = Bounds(swPixel, nePixel);
+    return pxBounds;
   }
 
   String _tileCoordsToKey(Coords coords) {
