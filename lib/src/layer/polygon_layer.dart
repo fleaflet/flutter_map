@@ -241,13 +241,15 @@ class PolygonPainter extends CustomPainter {
       textAlign: TextAlign.center,
       textDirection: TextDirection.ltr,
     );
-    textPainter.layout(minWidth: 0, maxWidth: dx);
-    dx = dx - textPainter.width / 2;
+    if (dx > 0) {
+      textPainter.layout(minWidth: 0, maxWidth: dx);
+      dx = dx - textPainter.width / 2;
 
-    textPainter.paint(
-      canvas,
-      Offset(dx, dy),
-    );
+      textPainter.paint(
+        canvas,
+        Offset(dx, dy),
+      );
+    }
   }
 
   void _paintPolygon(Canvas canvas, Rect rect) {
