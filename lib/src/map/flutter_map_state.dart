@@ -77,25 +77,23 @@ class FlutterMapState extends MapGestureMixin {
   Widget build(BuildContext context) {
     _disposeStreamGroups();
     return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
+        builder: (BuildContext context, BoxConstraints constraints) {
+      var hasLateSize = mapState.hasLateSize(constraints);
 
-        var hasLateSize = mapState.hasLateSize(constraints);
+      mapState.setOriginalSize(constraints.maxWidth, constraints.maxHeight);
 
-        mapState.setOriginalSize(constraints.maxWidth, constraints.maxHeight);
+      // It's possible on first call to LayoutBuilder, it may not know a size
+      // which will cause methods like fitBounds to break. These methods
+      // could be called in initIfLateSize()
+      if (hasLateSize) {
+        mapState.initIfLateSize();
+      }
+      var size = mapState.size;
 
-        // It's possible on first call to LayoutBuilder, it may not know a size
-        // which will cause methods like fitBounds to break. These methods
-        // could be called in initIfLateSize()
-        if(hasLateSize) {
-          mapState.initIfLateSize();
-        }
-        var size = mapState.size;
+      var scaleGestureTeam = GestureArenaTeam();
 
-        var scaleGestureTeam = GestureArenaTeam();
-
-        var scaleGestureDetector = ({required Widget child}) =>
-
-        RawGestureDetector(
+      var scaleGestureDetector = ({required Widget child}) =>
+          RawGestureDetector(
             gestures: <Type, GestureRecognizerFactory>{
               ScaleGestureRecognizer:
                   GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
