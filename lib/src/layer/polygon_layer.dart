@@ -37,6 +37,8 @@ class Polygon {
   final bool isDotted;
   final bool isFilled;
   late final LatLngBounds boundingBox;
+  final String? label;
+  final TextStyle labelStyle;
 
   Polygon({
     required this.points,
@@ -47,6 +49,8 @@ class Polygon {
     this.disableHolesBorder = false,
     this.isDotted = false,
     this.isFilled = false,
+    this.label,
+    this.labelStyle = const TextStyle(),
   }) : holeOffsetsList = null == holePointsList || holePointsList.isEmpty
             ? null
             : List.generate(holePointsList.length, (_) => []);
@@ -222,6 +226,30 @@ class PolygonPainter extends CustomPainter {
     }
   }
 
+  void _paintText(Canvas canvas, List<Offset> points) {
+    var dx = points.map((e) => e.dx).toList().fold<double>(
+            0.0, (previousValue, element) => previousValue + element) /
+        points.length;
+    var dy = points.map((e) => e.dy).toList().fold<double>(
+            0.0, (previousValue, element) => previousValue + element) /
+        points.length;
+
+    final textSpan =
+        TextSpan(text: polygonOpt.label, style: polygonOpt.labelStyle);
+    final textPainter = TextPainter(
+      text: textSpan,
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout(minWidth: 0, maxWidth: dx);
+    dx = dx - textPainter.width / 2;
+
+    textPainter.paint(
+      canvas,
+      Offset(dx, dy),
+    );
+  }
+
   void _paintPolygon(Canvas canvas, Rect rect) {
     final paint = Paint();
 
@@ -256,6 +284,10 @@ class PolygonPainter extends CustomPainter {
       var path = Path();
       path.addPolygon(polygonOpt.offsets, true);
       canvas.drawPath(path, paint);
+
+      if (polygonOpt.label != null) {
+        _paintText(canvas, polygonOpt.offsets);
+      }
 
       _paintBorder(canvas);
     }
