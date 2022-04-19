@@ -227,8 +227,14 @@ class PolygonPainter extends CustomPainter {
   }
 
   void _paintText(Canvas canvas, List<Offset> points) {
-    var dx = points.map((e) => e.dx).toList().fold<double>(
-            0.0, (previousValue, element) => previousValue + element) /
+    var maxDx = 0.0;
+    var minDx = double.infinity;
+    var dx = points.map((e) => e.dx).toList().fold<double>(0.0,
+            (previousValue, element) {
+          maxDx = max(maxDx, element);
+          minDx = min(minDx, element);
+          return previousValue + element;
+        }) /
         points.length;
     var dy = points.map((e) => e.dy).toList().fold<double>(
             0.0, (previousValue, element) => previousValue + element) /
@@ -240,15 +246,19 @@ class PolygonPainter extends CustomPainter {
       text: textSpan,
       textAlign: TextAlign.center,
       textDirection: TextDirection.ltr,
+      maxLines: 1,
     );
     if (dx > 0) {
-      textPainter.layout(minWidth: 0, maxWidth: dx);
+      textPainter.layout(minWidth: 0, maxWidth: double.infinity);
       dx = dx - textPainter.width / 2;
+      dy = dy - textPainter.height / 2;
 
-      textPainter.paint(
-        canvas,
-        Offset(dx, dy),
-      );
+      if (maxDx - minDx > textPainter.width) {
+        textPainter.paint(
+          canvas,
+          Offset(dx, dy),
+        );
+      }
     }
   }
 
