@@ -7,14 +7,23 @@ import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart';
 
 class PolylineLayerOptions extends LayerOptions {
+  /// List of polylines to draw.
   final List<Polyline> polylines;
+
   final bool polylineCulling;
+
+  /// {@macro newPolylinePainter.saveLayers}
+  ///
+  /// By default, this is value is set to `false` to improve performance on
+  /// layers containing a lot of polylines.
+  final bool saveLayers;
 
   PolylineLayerOptions({
     Key? key,
     this.polylines = const [],
     this.polylineCulling = false,
     Stream<Null>? rebuild,
+    this.saveLayers = false,
   }) : super(key: key, rebuild: rebuild) {
     if (polylineCulling) {
       for (var polyline in polylines) {
@@ -100,7 +109,7 @@ class PolylineLayer extends StatelessWidget {
           _fillOffsets(polylineOpt.offsets, polylineOpt.points);
 
           polylines.add(CustomPaint(
-            painter: PolylinePainter(polylineOpt),
+            painter: PolylinePainter(polylineOpt, polylineOpts.saveLayers),
             size: size,
           ));
         }
@@ -132,7 +141,13 @@ class PolylineLayer extends StatelessWidget {
 class PolylinePainter extends CustomPainter {
   final Polyline polylineOpt;
 
-  PolylinePainter(this.polylineOpt);
+  /// {@template newPolylinePainter.saveLayers}
+  /// If `true`, the canvas will be updated on every frame by calling the
+  /// methods [Canvas.saveLayer] and [Canvas.restore].
+  /// {@endtemplate}
+  final bool saveLayers;
+
+  PolylinePainter(this.polylineOpt, this.saveLayers);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -178,7 +193,7 @@ class PolylinePainter extends CustomPainter {
     var borderRadius = (borderPaint?.strokeWidth ?? 0) / 2;
     if (polylineOpt.isDotted) {
       var spacing = polylineOpt.strokeWidth * 1.5;
-      canvas.saveLayer(rect, Paint());
+      if (saveLayers) canvas.saveLayer(rect, Paint());
       if (borderPaint != null && filterPaint != null) {
         _paintDottedLine(
             canvas, polylineOpt.offsets, borderRadius, spacing, borderPaint);
@@ -186,10 +201,10 @@ class PolylinePainter extends CustomPainter {
             canvas, polylineOpt.offsets, radius, spacing, filterPaint);
       }
       _paintDottedLine(canvas, polylineOpt.offsets, radius, spacing, paint);
-      canvas.restore();
+      if (saveLayers) canvas.restore();
     } else {
       paint.style = PaintingStyle.stroke;
-      canvas.saveLayer(rect, Paint());
+      if (saveLayers) canvas.saveLayer(rect, Paint());
       if (borderPaint != null && filterPaint != null) {
         borderPaint.style = PaintingStyle.stroke;
         _paintLine(canvas, polylineOpt.offsets, borderPaint);
@@ -197,7 +212,7 @@ class PolylinePainter extends CustomPainter {
         _paintLine(canvas, polylineOpt.offsets, filterPaint);
       }
       _paintLine(canvas, polylineOpt.offsets, paint);
-      canvas.restore();
+      if (saveLayers) canvas.restore();
     }
   }
 
@@ -228,10 +243,7 @@ class PolylinePainter extends CustomPainter {
 
   void _paintLine(Canvas canvas, List<Offset> offsets, Paint paint) {
     if (offsets.isNotEmpty) {
-      final path = ui.Path()..moveTo(offsets[0].dx, offsets[0].dy);
-      for (var offset in offsets) {
-        path.lineTo(offset.dx, offset.dy);
-      }
+      final path = ui.Path()..addPolygon(offsets, false);
       canvas.drawPath(path, paint);
     }
   }
