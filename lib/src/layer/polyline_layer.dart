@@ -14,8 +14,12 @@ class PolylineLayerOptions extends LayerOptions {
 
   /// {@macro newPolylinePainter.saveLayers}
   ///
-  /// By default, this is value is set to `false` to improve performance on
+  /// By default, this value is set to `false` to improve performance on
   /// layers containing a lot of polylines.
+  ///
+  /// You might want to set this to `true` if you get unwanted darker lines
+  /// where they overlap but, keep in mind that this might reduce the
+  /// performance of the layer.
   final bool saveLayers;
 
   PolylineLayerOptions({
