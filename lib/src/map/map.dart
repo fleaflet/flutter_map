@@ -178,6 +178,26 @@ class MapState {
     }
   }
 
+  // Check if we've just got a new size constraints. Initially a layoutBuilder
+  // May not be able to calculate a size, and end up with 0,0
+  bool hasLateSize(constraints) {
+    if (options.bounds != null &&
+        originalSize != null &&
+        originalSize!.x == 0.0 &&
+        constraints.maxWidth != 0.0) {
+      return true;
+    }
+    return false;
+  }
+
+  // If we've just calculated a size, we may want to call some methods that
+  // rely on it, like fitBounds. Add any others here.
+  void initIfLateSize() {
+    if (options.bounds != null) {
+      fitBounds(options.bounds!, options.boundsOptions);
+    }
+  }
+
   void _handleMoveEmit(LatLng targetCenter, double targetZoom, hasGesture,
       MapEventSource source, String? id) {
     if (source == MapEventSource.flingAnimationController) {
