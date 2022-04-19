@@ -31,6 +31,9 @@ module.exports = {
   organizationName: "fleaflet", // Usually your GitHub org/user name.
   projectName: "flutter_map", // Usually your repo name.
   themeConfig: {
+    colorMode: {
+      defaultMode: "dark",
+    },
     navbar: {
       title: "flutter_map",
       logo: {
@@ -51,18 +54,15 @@ module.exports = {
         },
         {
           href: "https://github.com/fleaflet/flutter_map",
-          label: "GitHub",
           position: "right",
+          className: "header-github-link",
+          "aria-label": "GitHub",
         },
         {
-          label: "Pub.dev",
-          href: "https://pub.dev/packages/flutter_map",
-          position: "right",
-        },
-        {
-          label: "Discord Server",
           href: "https://discord.gg/egEGeByf4q",
           position: "right",
+          className: "header-discord-link",
+          "aria-label": "Discord",
         },
       ],
     },
@@ -79,6 +79,19 @@ module.exports = {
             {
               label: "Full API Reference",
               href: "https://pub.dev/documentation/flutter_map/latest/flutter_map/flutter_map-library.html",
+            },
+          ],
+        },
+        {
+          title: "Sources",
+          items: [
+            {
+              label: "GitHub",
+              href: "https://github.com/fleaflet/flutter_map",
+            },
+            {
+              label: "Pub.dev",
+              href: "https://pub.dev/documentation/flutter_map/",
             },
           ],
         },

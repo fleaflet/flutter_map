@@ -48,18 +48,24 @@ For an explanation of zoom levels, see the [How Does It Work? page](/introductio
 Note that many tile servers will not support past a zoom level of 18. Open Street Maps supports up to level 19, and a small amount support up to level 22. Always specify the `maxZoom:` below the maximum zoom level of the server, to avoid your users seeing a void of grey tiles.
 :::
 
-## Boundaries (`maxBounds:`)
+## Boundaries (`bounds:`, `maxBounds:`)
 
-Takes a `LatLngBounds` to restrict the map view within a rectangular area. For example:
+Takes `LatLngBounds` to restrict the map view within a rectangular area.
+
+`bounds` is only effective on first build, and is an alternative to using `center` and `zoom` to initialise the map. On the other hand, `maxBounds` is persistent and prevents the view moving outside of the area. For example:
 
 ``` dart
+        bounds: LatLngBounds(
+            LatLng(51.74920, -0.56741),
+            LatLng(51.25709, 0.34018),
+        ),
         maxBounds: LatLngBounds(
             LatLng(-90, -180.0),
             LatLng(90.0, 180.0),
         ),
 ```
 
-will ensure that the gray void around the world cannot appear on screen, at least in the default projection. This is recommended for many setups.
+will make the map center on London at first, and ensure that the gray void around the world cannot appear on screen (in the default projection).
 
 :::caution
 Always specify your center within your boundaries to avoid errors. Boundaries will take preference over center.

@@ -31,7 +31,7 @@ Due to the nature of the Earth being a sphere, drawing lines perfectly requires 
 :::caution Performance Issues
 Excessive use of polylines or use of complex polylines will create performance issues and lag/'jank' as the user interacts with the map. See [Performance Issues](/examples-and-errors/common-errors#performance-issues) for more information.
 
-To improve performance, try enabling `polylineCulling`. This should remove polylines that are out of sight, but should only be used when necessary as enabling this can further reduce performance when used unnecessarily.
+By default, `saveLayers` is set to `false` to improve performance as much as possible. However, this will make the appearance a little less 'satisfying' - overlapping lines will make the intersection appear darker. Only set to `true` is appearance matters more than performance.
 :::
 
 ## Polylines (`polylines:`)

@@ -6,7 +6,7 @@ sidebar_position: 1
 # Getting Started
 
 :::info Beta Documentation
-This documentation is currently in beta. Most contents should be correct (but not yet verified), but some documentation may be missing/misleading.
+This documentation is currently in beta. Most contents should be correct (but not yet verified), but some documentation may be missing/misleading. All documentation is relevant to the latest version on the 'master' branch, not necessarily the latest version on Pub.dev.
 
 Any feedback is appreciated! Please comment or leave a code review on [pull request #992 on GitHub](https://github.com/fleaflet/flutter_map/pull/992).
 
