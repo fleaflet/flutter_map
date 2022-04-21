@@ -6,14 +6,14 @@ sidebar_position: 3
 # Using Thunderforest
 
 :::note No Association
-`flutter_map` is in no way associated or related with Thunderforest (or Gravitystorm Limited).
+'flutter_map' is in no way associated or related with Thunderforest (or Gravitystorm Limited).
 
 Thunderstorm's home page: https://www.thunderforest.com/  
 Thunderstorm's pricing page: https://www.thunderforest.com/pricing/  
 Thunderstorm's documentation page: https://www.thunderforest.com/docs/map-tiles-api/
 :::
 
-Thunderforest is a popular tiered-payment tile provider solution, especially for generic mapping applications. Setup with `flutter_map` is relatively straightforward, but this page provides an example anyway. Note that this method uses up your 'Map Tiles API' requests.
+Thunderforest is a popular tiered-payment tile provider solution, especially for generic mapping applications. Setup with 'flutter_map' is relatively straightforward, but this page provides an example anyway. Note that this method uses up your 'Map Tiles API' requests.
 
 First, find the style you want. We'll be using OpenCycleMap to demonstrate.
 

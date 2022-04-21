@@ -5,13 +5,13 @@ sidebar_position: 1
 
 # Contributing
 
-`flutter_map` is only as big and useful as it is because of contributors. You can see a [list of current contributors here](https://github.com/fleaflet/flutter_map/graphs/contributors), and there are currently [![GitHub PRs](https://img.shields.io/github/issues-pr/fleaflet/flutter_map.svg?label=Pull%20Requests)](https://GitHub.com/fleaflet/flutter_map/pulls/), each potentially from a new contributor.
+'flutter_map' is only as big and useful as it is because of contributors. You can see a [list of current contributors here](https://github.com/fleaflet/flutter_map/graphs/contributors), and there are currently [![GitHub PRs](https://img.shields.io/github/issues-pr/fleaflet/flutter_map.svg?label=Pull%20Requests)](https://GitHub.com/fleaflet/flutter_map/pulls/), each potentially from a new contributor.
 
 Therefore, your contribution would be greatly appreciated, so we've written a guide to help you contribute successfully:
 
 ## Rough Guide
 
-**Do you think your contribution is essential to `flutter_map`/useful to all users?**
+**Do you think your contribution is essential to 'flutter_map'/useful to all users?**
 
 If not, then creating a plugin might be a good idea. To do this, see the Plugins section in these docs: there is advice, starting templates and a few rules to bear in mind. Plugins are preferred when possible as they keep the base library lightweight and easy to understand.
 

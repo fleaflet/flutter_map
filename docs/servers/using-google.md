@@ -6,7 +6,7 @@ sidebar_position: 4
 # Using Google Maps
 
 :::note No Association
-`flutter_map` is in no way associated or related with Google.
+'flutter_map' is in no way associated or related with Google.
 
 Google Maps' home page: https://developers.google.com/maps  
 Google Maps' pricing page: https://mapsplatform.google.com/pricing/

@@ -6,14 +6,14 @@ sidebar_position: 2
 # Using Mapbox
 
 :::note No Association
-`flutter_map` is in no way associated or related with Mapbox.
+'flutter_map' is in no way associated or related with Mapbox.
 
 Mapbox's Maps home page: https://www.mapbox.com/maps  
 Mapbox's Maps pricing page: https://www.mapbox.com/pricing#maps  
 Mapbox's Maps documentation: https://docs.mapbox.com/api/maps/static-tiles/
 :::
 
-Mapbox is a popular pay-as-you-go tile provider solution, especially for commerical applications. However, setup with `flutter_map` can be a bit finicky, so this page is here to help you get going with Mapbox. Note that these methods use up your 'Static Tiles API' quota.
+Mapbox is a popular pay-as-you-go tile provider solution, especially for commerical applications. However, setup with 'flutter_map' can be a bit finicky, so this page is here to help you get going with Mapbox. Note that these methods use up your 'Static Tiles API' quota.
 
 ## Pre-made Styles
 
@@ -29,7 +29,7 @@ Then make the map style public, and open the share dialog, as seen below:
 Scroll to the bottom of the dialog, and select Third Party. Then from the drop down box, select 'CARTO':
 ![Mapbox Map Style Share Dialog](flutter_map-wiki-mapbox2.jpg)
 
-You'll then need to copy the URL and use it in `flutter_map`, like in the code below.
+You'll then need to copy the URL and use it in 'flutter_map', like in the code below.
 
 ## Usage
 

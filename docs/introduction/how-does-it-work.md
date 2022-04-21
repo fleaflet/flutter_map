@@ -25,13 +25,13 @@ One tile is usually really small when rendered, under 20KB for most tiles. Howev
 The main tile server that's free to use and open-source is the Open Street Maps tile server, as mentioned above, a server which provides access to millions of tiles covering the whole Earth. that get updated and maintained by the general public. You can [find other 'semi-endorsed' public servers here](https://wiki.openstreetmap.org/wiki/Tile_servers).
 
 :::danger Terms of Service & Tile Usage Policy
-Before using a tile server (especially, but not limited to, free/open-source servers), you must read and agree to the server's Terms of Service or Tile Usage Policy. These are rules defined by the server provider, not by a mapping library (such as `flutter_map`), and define what and what you cannot do using their service/tiles.
+Before using a tile server (especially, but not limited to, free/open-source servers), you must read and agree to the server's Terms of Service or Tile Usage Policy. These are rules defined by the server provider, not by a mapping library (such as 'flutter_map'), and define what and what you cannot do using their service/tiles.
 
 You can find the [OSM Tile Server Usage Policy here](https://operations.osmfoundation.org/policies/tiles/), and other servers will likely (but not necessarily) follow similar rules.
 
 It is always recommended to use a private or paid-for server for commercial applications as they usually have a guaranteed up-time and can offer preferable Usage Policies (as they are charging you for it).
 
-`flutter_map` does not accept responsibility for any issues or threats posed by your misuse of external tile servers. Use tile servers at your own risk.
+'flutter_map' does not accept responsibility for any issues or threats posed by your misuse of external tile servers. Use tile servers at your own risk.
 :::
 
 ## 'Slippy Map' Convention
@@ -58,7 +58,7 @@ These images show the mathematics required to convert between Latitude and Longi
 
 ## Tile Providers
 
-In this `flutter_map` package, the classes that conduct this maths to get these tiles are called 'tile providers'.
+In this 'flutter_map' package, the classes that conduct this maths to get these tiles are called 'tile providers'.
 
 However, these do a lot more than just the maths. They do the maths, format the appropriate URL, potentially stagger the URL (not to get rate limited by the browser or engine), make the request, get the image, process (and potentially store) the image and finally give it back to the main process to paint onto the map for the user to see.
 
@@ -66,6 +66,6 @@ Unless you choose to make your own custom tile provider ([the guide for which ca
 
 ## Map Layers
 
-Once the tile provider has dealt with the tile, it sends it to a map layer to get painted onto the map. This can be done using canvases (such as in HTML5 for the web), or, in the case of `flutter_map`, Flutter widgets.
+Once the tile provider has dealt with the tile, it sends it to a map layer to get painted onto the map. This can be done using canvases (such as in HTML5 for the web), or, in the case of 'flutter_map', Flutter widgets.
 
 The map layers also handle user interaction, such as panning, zooming, rotating and tapping.

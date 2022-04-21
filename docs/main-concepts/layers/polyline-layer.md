@@ -31,12 +31,13 @@ Due to the nature of the Earth being a sphere, drawing lines perfectly requires 
 :::caution Performance Issues
 Excessive use of polylines or use of complex polylines will create performance issues and lag/'jank' as the user interacts with the map. See [Performance Issues](/examples-and-errors/common-errors#performance-issues) for more information.
 
-By default, `saveLayers` is set to `false` to improve performance as much as possible. However, this will make the appearance a little less 'satisfying' - overlapping lines will make the intersection appear darker. Only set to `true` is appearance matters more than performance.
+By default, `saveLayers` is set to `false` to improve performance as much as possible. However, this will make the appearance a little less 'satisfying' - overlapping lines will make the intersection appear darker. Only set to `true` is appearance matters more than performance.  
+You may also use `polylineCulling` to help improve performance, although this may make the performance worse in some cases. Another potential solution is simplifying the polyline, perhaps using an external Flutter library ['simplify'](https://pub.dev/packages/simplify).
 :::
 
 ## Polylines (`polylines:`)
 
-As you can see `PolylineLayerOptions()` accepts list of `Polyline`s. Each determines the shape of a polyline by defining the `LatLng` of each point. `flutter_map` will then draw a line between each coordinate.
+As you can see `PolylineLayerOptions()` accepts list of `Polyline`s. Each determines the shape of a polyline by defining the `LatLng` of each point. 'flutter_map' will then draw a line between each coordinate.
 
 | Property            | Type            | Defaults            | Description                                                                                   |
 | :------------------ | :-------------- | :------------------ | :-------------------------------------------------------------------------------------------- |
@@ -51,18 +52,25 @@ As you can see `PolylineLayerOptions()` accepts list of `Polyline`s. Each determ
 
 ## Converting Formats
 
-You may have a 'Google encoded' polyline, from a routing engine for example, that you want to paint as a polyline, in which case, you'll need to decode the polyline into a list of `LatLng`s to give to the `points` property.
+You may have a polyline with 'Google Polyline Encoding' (which is a lossy compression algorithm to convert coordinates into a string and back). These are often returned from routing engines, for example. In this case, you'll need to decode the polyline to the correct format first, before you can use it in a `Polyline`'s `points` argument.
 
-The easiest way to do this is use an unrelated external Flutter library called [flutter_polyline_points](https://pub.dev/packages/flutter_polyline_points), and the built-in `.map()` function. Install and import the package, `latlong2` & `flutter_map` into a new file in your project, and copy/paste the code below:
+One way to accomplish this is to use another Flutter library called ['google_polyline_algorithm'](https://pub.dev/packages/google_polyline_algorithm), together with a custom method. You can use the code snippet below, which can just be pasted into a file and imported whenever needed:
 
-```dart
-extension EncodedPolyline on String {
-    List<LatLng> decodePolyline() =>
-        PolylinePoints()
-        .decodePolyline(this)
-        .map((point) => LatLng(point.latitude, point.longitude))
-        .toList();
+``` dart
+import 'package:latlong2/latlong.dart';
+export 'package:google_polyline_algorithm/google_polyline_algorithm.dart'
+    show decodePolyline;
+
+extension PolylineExt on List<List<num>> {
+  List<LatLng> unpackPolyline() =>
+      map((p) => LatLng(p[0].toDouble(), p[1].toDouble())).toList();
 }
 ```
 
-You can now export/import this file wherever needed and convert an encoded polyline `String` to `List<LatLng>` whenever you need, just by calling `.decodePolyline()` on the `String`.
+You can then use the package and the above snippet by doing:
+
+``` dart
+import '<code_snippet_path>'
+
+decodePolyline('<encoded-polyline>').unpackPolyline(); // Returns `List<LatLng>` for a map polyline
+```

@@ -5,7 +5,7 @@ sidebar_position: 2
 
 # Common Errors (and issues)
 
-Due to the complex internal structure and composition of `flutter_map`, maps with controllers and maps using other 'advanced' features, are unfortunately prone to small, albeit annoying, errors - particularly after the null safety update v0.13.0. These errors are either:
+Due to the complex internal structure and composition of 'flutter_map', maps with controllers and maps using other 'advanced' features, are unfortunately prone to small, albeit annoying, errors - particularly after the null safety update v0.13.0. These errors are either:
 
 - a consequence of many rushed changes, and as such, are well hidden away throughout the library
 - a consequence of bad documentation
@@ -27,8 +27,7 @@ Should you find an error like this, use these steps:
 
 ## Performance Issues
 
-'flutter_map' does not use any platform specific code. This is intended to make your development experience easier and more seamless, by reducing setup/installation time and complexity.
-
+'flutter_map' does not use any platform specific code. This is intended to make your development experience easier and more seamless, by reducing setup/installation time and complexity.  
 However, this means that some of the more complicated calculations are slower than other libraries.
 
 We're slowly tracking and resolving these issues: see [issue #1165 on GitHub](https://github.com/fleaflet/flutter_map/issues/1165). Please bear with us whilst we do this: maintainer efforts are stretched at the moment.

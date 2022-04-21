@@ -9,7 +9,7 @@ sidebar_position: 2
 This page only talks about WMTS-supporting raster layers, which is the most common and default type of mapping. For information about [WMS-supporting layers](/miscellaneous/wms-servers) or [vector tiles](/servers/raster-vs-vector-tiles), visit the appropriate pages in the Miscellaneous section.
 :::
 
-As explained in the [How Does It Work? page](/introduction/how-does-it-work), tiles for a map in `flutter_map` are provided by tile providers that go inside of a `TileLayerOptions()`. That might look something like this:
+As explained in the [How Does It Work? page](/introduction/how-does-it-work), tiles for a map in 'flutter_map' are provided by tile providers that go inside of a `TileLayerOptions()`. That might look something like this:
 
 ``` dart
 FlutterMap(
@@ -53,7 +53,7 @@ If you are not sure of the correct values for your server, don't specify anythin
 :::info Backwards Compatibility
 There were two main reasons this option is provided:
 
-- Leaflet.js relied on this to get around browser limitations on HTTP connections ([source - second paragraph](https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Tile_servers)), and because `flutter_map` is a close port of Leaflet.js, it retains this feature.
+- Leaflet.js relied on this to get around browser limitations on HTTP connections ([source - second paragraph](https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Tile_servers)), and because 'flutter_map' is a close port of 'leaflet.js', it retains this feature.
 - Large servers used to rely on this technique to load-balance, and some small or private servers still do.
 :::
 
@@ -78,7 +78,7 @@ Takes a `TileProvider` object specifying a tile provider to use for that layer. 
 
 Some tile providers will also take their own arguments.
 
-The provided tile providers in `flutter_map` are ~~somewhat~~ very confusing in their naming and functionality, as their functionality has been tweaked over time without changing the names (to avoid breaking changes), so you can read below to see which suits your use-case. Note that you can write your own tile provider, or use a plugin which adds more tile providers.
+The provided tile providers in 'flutter_map' are ~~somewhat~~ very confusing in their naming and functionality, as their functionality has been tweaked over time without changing the names (to avoid breaking changes), so you can read below to see which suits your use-case. Note that you can write your own tile provider, or use a plugin which adds more tile providers.
 
 ### `NonCachingNetworkTileProvider()` (default)
 

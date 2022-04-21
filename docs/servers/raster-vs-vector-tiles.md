@@ -23,7 +23,7 @@ However it does add complexity to the rendering process as each element needs to
 
 ## Using Vector Tiles
 
-Due to the complications mentioned above, `flutter_map` does not natively support vector tiles. However, you can use an existing [community maintained plugin (`vector_map_tiles`)](https://github.com/greensopinion/flutter-vector-map-tiles) to do this.
+Due to the complications mentioned above, 'flutter_map' does not natively support vector tiles. However, you can use an existing [community maintained plugin (`vector_map_tiles`)](https://github.com/greensopinion/flutter-vector-map-tiles) to do this.
 
 The plugin also supports 'mixed' mode to get the best of both worlds: using raster images during animations to improve performance, and vector rendering to provide sharp visuals and custom theming when idle.
 

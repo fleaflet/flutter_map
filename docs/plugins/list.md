@@ -5,15 +5,17 @@ sidebar_position: 1
 
 # Plugins List
 
-There are many independently maintained 'plugins' created by the `flutter_map` community that give extra, prebuilt functionality, saving you even more time and potentially money.
+There are many independently maintained 'plugins' created by the 'flutter_map' community that give extra, prebuilt functionality, saving you even more time and potentially money.
 
 :::danger Limited Responsibility
-Although these plugins have been checked by `flutter_map` maintainers, `flutter_map` maintainers do not accept responsibility for any issues or threats posed by independently maintained plugins. Use plugins at your own risk.
+Although these plugins have been checked by 'flutter_map' maintainers, 'flutter_map' maintainers do not accept responsibility for any issues or threats posed by independently maintained plugins. Use plugins at your own risk.
 :::
 
 Some pages in this documentation provide direct links to these plugins, where appropriate, to make it easier for you to find a suitable plugin. Note that the above warning applies to those links as well.
 
 However, if you're just browsing, a list is provided below (in no particular order), containing many of the open-source plugins, each with a short description by the author saying what the plugin does/what it's useful for:
+
+## Full List
 
 - [`flutter_map_tile_caching`](https://github.com/JaffaKetchup/flutter_map_tile_caching) by [JaffaKetchup](https://github.com/JaffaKetchup)  
 Provides advanced caching functionality, with ability to download map regions for offline use.
@@ -45,19 +47,20 @@ A widget to display elevation of a track (polyline) like `Leaflet.Elevation`
 - [`flutter_map_floating_marker_titles`](https://github.com/androidseb/flutter_map_floating_marker_titles) by [androidseb](https://github.com/androidseb)  
 Displaying floating marker titles on the map view
 
-- [`poly_bool_dart`](https://github.com/mohammedX6/poly_bool_dart) by [mohammedX6](https://github.com/mohammedX6)  
-Algorithms to perform operations on polygons - ported from polybool.js
-
 - _DEPRECATED_ [`flutter_map_location`](https://github.com/Xennis/flutter_map_location) by [Xennis](https://github.com/Xennis)
 
-:::tip Got Your Own Plugin?
-If you've made your own plugin that you're willing to share, you can add it to this list by creating a pull request in GitHub.
+:::info Related Libraries
+Note that useful libraries that may be used with 'flutter_map' but are not specifically for 'flutter_map' are not listed here. These are instead mentioned and linked to in appropriate places throughout other documentation pages.
+:::
+
+## Submitting A New Plugin
+
+If you've made your own plugin that you're willing to share, you can add it to this list by creating a pull request in GitHub. We're always looking forward to see what you've made!
 
 When submitting a plugin & PR, please ensure the plugin:
 
-- _preferably_ includes 'flutter\_map\_' in the name,
-- is available via a pub.dev installation - if you require an exception, please state this in your PR body clearly,
-- has documentation including enough information for installation and basic setup/functionality,
-- includes a runnable example and/or screenshots,
-- description accurately and concisely represents your plugin (under 180 characters)
-:::
+- _preferably_ includes 'flutter\_map\_' in the name
+- is available via a pub.dev installation
+- has good documentation (information for installation and basic setup/functionality)
+- includes a runnable example and/or screenshots
+- has a description that accurately and concisely represents your plugin

@@ -36,7 +36,7 @@ To improve performance, try enabling `polygonCulling`. This should remove polygo
 
 ## Polygons (`polygons:`)
 
-As you can see `PolygonLayerOptions()` accepts list of `Polygon`s. Each determines the shape of a polygon by defining the `LatLng` of each corner. `flutter_map` will then draw a line between each coordinate, and fill it.
+As you can see `PolygonLayerOptions()` accepts list of `Polygon`s. Each determines the shape of a polygon by defining the `LatLng` of each corner. 'flutter_map' will then draw a line between each coordinate, and fill it.
 
 | Property             | Type                  | Defaults            | Description                                                |
 | :------------------- | :-------------------- | :------------------ | :--------------------------------------------------------- |
@@ -47,3 +47,11 @@ As you can see `PolygonLayerOptions()` accepts list of `Polygon`s. Each determin
 | `borderColor`        | `Color`               | `Color(0xFFFFFF00)` | Color of the border                                        |
 | `disableHolesBorder` | `bool`                | `false`             | Whether to apply the border at the edge of 'cut-outs'      |
 | `isDotted`           | `bool`                | `false`             | Whether to make the border dotted/dashed instead of solid  |
+| `label`              | `String?`             |                     | Text to display as label in center of polygon              |
+| `labelStyle`         | `TextStyle`           | `TextStyle()`       | Custom styling to apply to the label                       |
+
+### More Polygon Operations
+
+'flutter_map' doesn't provide any public methods to manipulate polygons, as these would be deemed out of scope.
+
+However, some useful methods can be found in libraries such as 'latlong2' and ['poly_bool_dart'](https://github.com/mohammedX6/poly_bool_dart). These can be applied to the input of `Polygon`'s `points` argument, and the map will do it's best to try to render them. However, more complex polygons - such as those with holes - may be painted inaccurately, and may therefore require manual adjustment (of `holePointsList`, for example).

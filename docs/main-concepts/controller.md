@@ -7,7 +7,7 @@ sidebar_position: 4
 
 The `mapController` property takes a `MapController()`, and whilst it is optional, it is strongly recommended for any map other than the most basic. It allows you to programmatically do actions with the map, such as moving it, rotating it and many other actions besides.
 
-`flutter_map` will handle disposing of this object for you, and that may not always be when you want, especially when having complex navigation in your app. If you get any errors about bad state or any errors with links to the controller, try the following method of initialising this property:
+'flutter_map' will handle disposing of this object for you, and that may not always be when you want, especially when having complex navigation in your app. If you get any errors about bad state or any errors with links to the controller, try the following method of initialising this property:
 
 ``` dart
 import 'package:flutter_map/flutter_map.dart';
