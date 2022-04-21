@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/layer/label.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart' hide Path; // conflict with Path from UI
 
@@ -37,6 +38,8 @@ class Polygon {
   final bool isDotted;
   final bool isFilled;
   late final LatLngBounds boundingBox;
+  final String? label;
+  final TextStyle labelStyle;
 
   Polygon({
     required this.points,
@@ -47,6 +50,8 @@ class Polygon {
     this.disableHolesBorder = false,
     this.isDotted = false,
     this.isFilled = false,
+    this.label,
+    this.labelStyle = const TextStyle(),
   }) : holeOffsetsList = null == holePointsList || holePointsList.isEmpty
             ? null
             : List.generate(holePointsList.length, (_) => []);
@@ -258,6 +263,15 @@ class PolygonPainter extends CustomPainter {
       canvas.drawPath(path, paint);
 
       _paintBorder(canvas);
+
+      if (polygonOpt.label != null) {
+        Label.paintText(
+          canvas,
+          polygonOpt.offsets,
+          polygonOpt.label,
+          polygonOpt.labelStyle,
+        );
+      }
     }
   }
 
