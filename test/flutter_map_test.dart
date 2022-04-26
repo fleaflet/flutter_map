@@ -54,7 +54,7 @@ class MockHttpOverrides extends HttpOverrides {
 void main() {
   testWidgets('flutter_map', (tester) async {
     HttpOverrides.global = MockHttpOverrides();
-    await tester.pumpWidget(TestApp());
+    await tester.pumpWidget(const TestApp());
     expect(find.byType(FlutterMap), findsOneWidget);
     expect(find.byType(TileLayer), findsOneWidget);
     expect(find.byType(RawImage), findsWidgets);
@@ -64,6 +64,8 @@ void main() {
 }
 
 class TestApp extends StatefulWidget {
+  const TestApp({Key? key}) : super(key: key);
+
   @override
   _TestAppState createState() => _TestAppState();
 }
@@ -74,17 +76,13 @@ class _TestAppState extends State<TestApp> {
       width: 80.0,
       height: 80.0,
       point: LatLng(45.5231, -122.6765),
-      builder: (ctx) => Container(
-        child: FlutterLogo(),
-      ),
+      builder: (ctx) => const FlutterLogo(),
     ),
     Marker(
       width: 80.0,
       height: 80.0,
       point: LatLng(40, -120), // not visible
-      builder: (ctx) => Container(
-        child: FlutterLogo(),
-      ),
+      builder: (ctx) => const FlutterLogo(),
     ),
   ];
 
@@ -98,7 +96,7 @@ class _TestAppState extends State<TestApp> {
     return MaterialApp(
       home: Scaffold(
         body: Center(
-          child: Container(
+          child: SizedBox(
             width: 200,
             height: 200,
             child: FlutterMap(

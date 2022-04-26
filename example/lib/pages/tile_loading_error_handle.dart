@@ -7,6 +7,8 @@ import '../widgets/drawer.dart';
 class TileLoadingErrorHandle extends StatefulWidget {
   static const String route = '/tile_loading_error_handle';
 
+  const TileLoadingErrorHandle({Key? key}) : super(key: key);
+
   @override
   _TileLoadingErrorHandleState createState() => _TileLoadingErrorHandleState();
 }
@@ -17,13 +19,13 @@ class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
     var _needLoadingError = true;
 
     return Scaffold(
-      appBar: AppBar(title: Text('Tile Loading Error Handle')),
+      appBar: AppBar(title: const Text('Tile Loading Error Handle')),
       drawer: buildDrawer(context, TileLoadingErrorHandle.route),
       body: Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            Padding(
+            const Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
               child: Text('Turn on Airplane mode and try to move or zoom map'),
             ),
@@ -45,15 +47,15 @@ class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
                       // For example purposes. It is recommended to use
                       // TileProvider with a caching and retry strategy, like
                       // NetworkTileProvider or CachedNetworkTileProvider
-                      tileProvider: NonCachingNetworkTileProvider(),
+                      tileProvider: const NonCachingNetworkTileProvider(),
                       errorTileCallback: (Tile tile, error) {
                         if (_needLoadingError) {
-                          WidgetsBinding.instance!.addPostFrameCallback((_) {
+                          WidgetsBinding.instance?.addPostFrameCallback((_) {
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              duration: Duration(seconds: 1),
+                              duration: const Duration(seconds: 1),
                               content: Text(
                                 error.toString(),
-                                style: TextStyle(color: Colors.black),
+                                style: const TextStyle(color: Colors.black),
                               ),
                               backgroundColor: Colors.deepOrange,
                             ));

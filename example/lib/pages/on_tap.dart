@@ -7,6 +7,8 @@ import '../widgets/drawer.dart';
 class OnTapPage extends StatefulWidget {
   static const String route = 'on_tap';
 
+  const OnTapPage({Key? key}) : super(key: key);
+
   @override
   OnTapPageState createState() {
     return OnTapPageState();
@@ -25,56 +27,53 @@ class OnTapPageState extends State<OnTapPage> {
         width: 80.0,
         height: 80.0,
         point: london,
-        builder: (ctx) => Container(
-            child: GestureDetector(
+        builder: (ctx) => GestureDetector(
           onTap: () {
-            ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
+            ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(
               content: Text('Tapped on blue FlutterLogo Marker'),
             ));
           },
-          child: FlutterLogo(),
-        )),
+          child: const FlutterLogo(),
+        ),
       ),
       Marker(
         width: 80.0,
         height: 80.0,
         point: dublin,
-        builder: (ctx) => Container(
-            child: GestureDetector(
+        builder: (ctx) => GestureDetector(
           onTap: () {
-            ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
+            ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(
               content: Text('Tapped on green FlutterLogo Marker'),
             ));
           },
-          child: FlutterLogo(
+          child: const FlutterLogo(
             textColor: Colors.green,
           ),
-        )),
+        ),
       ),
       Marker(
         width: 80.0,
         height: 80.0,
         point: paris,
-        builder: (ctx) => Container(
-            child: GestureDetector(
+        builder: (ctx) => GestureDetector(
           onTap: () {
-            ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
+            ScaffoldMessenger.of(ctx).showSnackBar(const SnackBar(
               content: Text('Tapped on purple FlutterLogo Marker'),
             ));
           },
-          child: FlutterLogo(textColor: Colors.purple),
-        )),
+          child: const FlutterLogo(textColor: Colors.purple),
+        ),
       ),
     ];
 
     return Scaffold(
-      appBar: AppBar(title: Text('OnTap')),
+      appBar: AppBar(title: const Text('OnTap')),
       drawer: buildDrawer(context, OnTapPage.route),
       body: Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            Padding(
+            const Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
               child: Text('Try tapping on the markers'),
             ),

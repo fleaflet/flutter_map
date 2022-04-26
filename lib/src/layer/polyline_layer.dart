@@ -26,7 +26,7 @@ class PolylineLayerOptions extends LayerOptions {
     Key? key,
     this.polylines = const [],
     this.polylineCulling = false,
-    Stream<Null>? rebuild,
+    Stream<void>? rebuild,
     this.saveLayers = false,
   }) : super(key: key, rebuild: rebuild) {
     if (polylineCulling) {
@@ -68,7 +68,8 @@ class Polyline {
 class PolylineLayerWidget extends StatelessWidget {
   final PolylineLayerOptions options;
 
-  PolylineLayerWidget({Key? key, required this.options}) : super(key: key);
+  const PolylineLayerWidget({Key? key, required this.options})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +81,7 @@ class PolylineLayerWidget extends StatelessWidget {
 class PolylineLayer extends StatelessWidget {
   final PolylineLayerOptions polylineOpts;
   final MapState map;
-  final Stream<Null>? stream;
+  final Stream<void>? stream;
 
   PolylineLayer(this.polylineOpts, this.map, this.stream)
       : super(key: polylineOpts.key);
@@ -118,10 +119,8 @@ class PolylineLayer extends StatelessWidget {
           ));
         }
 
-        return Container(
-          child: Stack(
-            children: polylines,
-          ),
+        return Stack(
+          children: polylines,
         );
       },
     );
@@ -186,7 +185,7 @@ class PolylinePainter extends CustomPainter {
 
     final borderPaint = polylineOpt.borderStrokeWidth > 0.0
         ? (Paint()
-          ..color = polylineOpt.borderColor ?? Color(0x00000000)
+          ..color = polylineOpt.borderColor ?? const Color(0x00000000)
           ..strokeWidth =
               polylineOpt.strokeWidth + polylineOpt.borderStrokeWidth
           ..strokeCap = polylineOpt.strokeCap
@@ -270,7 +269,7 @@ class PolylinePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(PolylinePainter other) => false;
+  bool shouldRepaint(PolylinePainter oldDelegate) => false;
 }
 
 double _dist(Offset v, Offset w) {

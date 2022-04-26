@@ -6,6 +6,9 @@ import '../widgets/drawer.dart';
 
 class MarkerRotatePage extends StatefulWidget {
   static const String route = '/marker_rotate';
+
+  const MarkerRotatePage({Key? key}) : super(key: key);
+
   @override
   MarkerRotatePageState createState() {
     return MarkerRotatePageState();
@@ -73,19 +76,15 @@ class MarkerRotatePageState extends State<MarkerRotatePage> {
         height: 80.0,
         point: LatLng(51.5, -0.09),
         rotate: rotateMarkerLondon,
-        builder: (ctx) => Container(
-          child: FlutterLogo(),
-        ),
+        builder: (ctx) => const FlutterLogo(),
       ),
       Marker(
         width: 80.0,
         height: 80.0,
         point: LatLng(53.3498, -6.2603),
         rotate: rotateMarkerDublin,
-        builder: (ctx) => Container(
-          child: FlutterLogo(
-            textColor: Colors.green,
-          ),
+        builder: (ctx) => const FlutterLogo(
+          textColor: Colors.green,
         ),
       ),
       Marker(
@@ -93,26 +92,24 @@ class MarkerRotatePageState extends State<MarkerRotatePage> {
         height: 80.0,
         point: LatLng(48.8566, 2.3522),
         rotate: rotateMarkerParis,
-        builder: (ctx) => Container(
-          child: FlutterLogo(textColor: Colors.purple),
-        ),
+        builder: (ctx) => const FlutterLogo(textColor: Colors.purple),
       ),
     ];
 
     return Scaffold(
-      appBar: AppBar(title: Text('Marker rotate by Map')),
+      appBar: AppBar(title: const Text('Marker rotate by Map')),
       drawer: buildDrawer(context, MarkerRotatePage.route),
       body: Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            Padding(
+            const Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
               child:
                   Text('Markers can be counter rotated to the map rotation.'),
             ),
             Padding(
-              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
               child: Wrap(
                 children: <Widget>[
                   MaterialButton(
