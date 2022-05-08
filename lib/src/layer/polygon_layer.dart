@@ -26,6 +26,11 @@ class PolygonLayerOptions extends LayerOptions {
   }
 }
 
+enum PolygonLabelPlacement {
+  centroid,
+  polylabel,
+}
+
 class Polygon {
   final List<LatLng> points;
   final List<Offset> offsets = [];
@@ -40,6 +45,7 @@ class Polygon {
   late final LatLngBounds boundingBox;
   final String? label;
   final TextStyle labelStyle;
+  final PolygonLabelPlacement labelPlacement;
 
   Polygon({
     required this.points,
@@ -52,6 +58,7 @@ class Polygon {
     this.isFilled = false,
     this.label,
     this.labelStyle = const TextStyle(),
+    this.labelPlacement = PolygonLabelPlacement.centroid,
   }) : holeOffsetsList = null == holePointsList || holePointsList.isEmpty
             ? null
             : List.generate(holePointsList.length, (_) => []);
@@ -268,6 +275,7 @@ class PolygonPainter extends CustomPainter {
           polygonOpt.offsets,
           polygonOpt.label,
           polygonOpt.labelStyle,
+          labelPlacement: polygonOpt.labelPlacement,
         );
       }
     }
