@@ -38,17 +38,18 @@ To improve performance, try enabling `polygonCulling`. This should remove polygo
 
 As you can see `PolygonLayerOptions()` accepts list of `Polygon`s. Each determines the shape of a polygon by defining the `LatLng` of each corner. 'flutter_map' will then draw a line between each coordinate, and fill it.
 
-| Property             | Type                  | Defaults            | Description                                                |
-| :------------------- | :-------------------- | :------------------ | :--------------------------------------------------------- |
-| `points`             | `List<LatLng>`        | required            | The coordinates of each vertex                             |
-| `holePointsList`     | `List<List<LatLng>>?` |                     | The coordinates of each vertex to 'cut-out' from the shape |
-| `color`              | `Color`               | `Color(0xFF00FF00)` | Fill color                                                 |
-| `borderStrokeWidth`  | `double`              | `0.0`               | Width of the border                                        |
-| `borderColor`        | `Color`               | `Color(0xFFFFFF00)` | Color of the border                                        |
-| `disableHolesBorder` | `bool`                | `false`             | Whether to apply the border at the edge of 'cut-outs'      |
-| `isDotted`           | `bool`                | `false`             | Whether to make the border dotted/dashed instead of solid  |
-| `label`              | `String?`             |                     | Text to display as label in center of polygon              |
-| `labelStyle`         | `TextStyle`           | `TextStyle()`       | Custom styling to apply to the label                       |
+| Property             | Type                     | Defaults                            | Description                                                |
+| :------------------- | :----------------------- | :---------------------------------- | :--------------------------------------------------------- |
+| `points`             | `List<LatLng>`           | required                            | The coordinates of each vertex                             |
+| `holePointsList`     | `List<List<LatLng>>?`    |                                     | The coordinates of each vertex to 'cut-out' from the shape |
+| `color`              | `Color`                  | `Color(0xFF00FF00)`                 | Fill color                                                 |
+| `borderStrokeWidth`  | `double`                 | `0.0`                               | Width of the border                                        |
+| `borderColor`        | `Color`                  | `Color(0xFFFFFF00)`                 | Color of the border                                        |
+| `disableHolesBorder` | `bool`                   | `false`                             | Whether to apply the border at the edge of 'cut-outs'      |
+| `isDotted`           | `bool`                   | `false`                             | Whether to make the border dotted/dashed instead of solid  |
+| `label`              | `String?`                |                                     | Text to display as label in center of polygon              |
+| `labelStyle`         | `TextStyle`              | `TextStyle()`                       | Custom styling to apply to the label                       |
+| `labelPlacement`     | `PolygonLabelPlacement`  | `PolygonLabelPlacement.polylabel`   | Where to place the label in the polygon                    |
 
 ### More Polygon Operations
 
