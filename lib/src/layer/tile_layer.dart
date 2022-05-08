@@ -242,7 +242,7 @@ class TileLayerOptions extends LayerOptions {
   final Alignment attributionAlignment;
 
   /// Stream to notify the [TileLayer] that it needs resetting
-  Stream<Null>? reset;
+  Stream<void>? reset;
 
   /// Only load tiles that are within these bounds
   LatLngBounds? tileBounds;
@@ -287,7 +287,7 @@ class TileLayerOptions extends LayerOptions {
       this.overrideTilesWhenUrlChanges = false,
       this.retinaMode = false,
       this.errorTileCallback,
-      Stream<Null>? rebuild,
+      Stream<void>? rebuild,
       this.templateFunction = util.template,
       this.tileBuilder,
       this.tilesContainerBuilder,
@@ -417,7 +417,7 @@ class WMSTileLayerOptions {
 class TileLayerWidget extends StatelessWidget {
   final TileLayerOptions options;
 
-  TileLayerWidget({Key? key, required this.options}) : super(key: key);
+  const TileLayerWidget({Key? key, required this.options}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -434,7 +434,7 @@ class TileLayerWidget extends StatelessWidget {
 class TileLayer extends StatefulWidget {
   final TileLayerOptions options;
   final MapState mapState;
-  final Stream<Null> stream;
+  final Stream<void> stream;
 
   TileLayer({
     required this.options,
@@ -1142,7 +1142,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   void _tileReady(Coords<double> coords, dynamic error, Tile? tile) {
     if (null != error) {
-      print(error);
+      debugPrint(error.toString());
 
       tile!.loadError = true;
 
@@ -1292,7 +1292,7 @@ class Tile implements Comparable<Tile> {
 
     try {
       final oldImageStream = _imageStream;
-      _imageStream = imageProvider.resolve(ImageConfiguration());
+      _imageStream = imageProvider.resolve(const ImageConfiguration());
 
       if (_imageStream!.key != oldImageStream?.key) {
         oldImageStream?.removeListener(_listener);
@@ -1311,11 +1311,13 @@ class Tile implements Comparable<Tile> {
     if (evict) {
       try {
         // ignore: return_type_invalid_for_catch_error
-        imageProvider.evict().catchError(print);
+        imageProvider.evict().catchError((e) {
+          debugPrint(e.toString());
+        });
       } catch (e) {
         // this may be never called because catchError will handle errors, however
         // we want to avoid random crashes like in #444 / #536
-        print(e);
+        debugPrint(e.toString());
       }
     }
 
@@ -1380,7 +1382,7 @@ class AnimatedTile extends StatefulWidget {
   final ImageProvider? errorImage;
   final TileBuilder? tileBuilder;
 
-  AnimatedTile({
+  const AnimatedTile({
     Key? key,
     required this.tile,
     this.errorImage,

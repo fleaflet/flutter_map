@@ -9,7 +9,8 @@ void main() {
     test(
         'should create bounds with minimum point equal to minimum argument '
         'if maximum argument point is positioned higher', () {
-      final bounds = Bounds(CustomPoint(1.0, 2.0), CustomPoint(3.0, 4.0));
+      final bounds =
+          Bounds(const CustomPoint(1.0, 2.0), const CustomPoint(3.0, 4.0));
 
       expect(bounds.min.x, equals(1.0));
       expect(bounds.min.y, equals(2.0));
@@ -18,7 +19,8 @@ void main() {
     test(
         'should create bounds with minimum point equal to maximum argument '
         'if maximum argument point is positioned lower', () {
-      final bounds = Bounds(CustomPoint(3.0, 4.0), CustomPoint(1.0, 2.0));
+      final bounds =
+          Bounds(const CustomPoint(3.0, 4.0), const CustomPoint(1.0, 2.0));
 
       expect(bounds.min.x, equals(1.0));
       expect(bounds.min.y, equals(2.0));
@@ -27,7 +29,8 @@ void main() {
     test(
         'should create bounds with maximum point equal to minimum argument '
         'if maximum argument point is positioned lower', () {
-      final bounds = Bounds(CustomPoint(1.0, 2.0), CustomPoint(0.01, 0.02));
+      final bounds =
+          Bounds(const CustomPoint(1.0, 2.0), const CustomPoint(0.01, 0.02));
 
       expect(bounds.max.x, equals(1.0));
       expect(bounds.max.y, equals(2.0));
@@ -36,7 +39,8 @@ void main() {
     test(
         'should create bounds with maximum point equal to maximum argument '
         'if maximum argument point is positioned higher', () {
-      final bounds = Bounds(CustomPoint(0.01, 0.02), CustomPoint(1.0, 2.0));
+      final bounds =
+          Bounds(const CustomPoint(0.01, 0.02), const CustomPoint(1.0, 2.0));
 
       expect(bounds.max.x, equals(1.0));
       expect(bounds.max.y, equals(2.0));
@@ -175,7 +179,9 @@ void main() {
     });
 
     test('should be convertable to string', () {
-      expect(Bounds(CustomPoint(1.1, 2.2), CustomPoint(3.3, 4.4)).toString(),
+      expect(
+          Bounds(const CustomPoint(1.1, 2.2), const CustomPoint(3.3, 4.4))
+              .toString(),
           equals('Bounds(CustomPoint (1.1, 2.2), CustomPoint (3.3, 4.4))'));
     });
 
@@ -250,62 +256,62 @@ void main() {
       test(
           'should contain compared bounds if they are completely within '
           'the bounds', () {
-        final bounds =
-            Bounds(CustomPoint(101.1, 88.1), CustomPoint(133.1, 60.3));
+        final bounds = Bounds(
+            const CustomPoint(101.1, 88.1), const CustomPoint(133.1, 60.3));
 
         expect(
-            bounds.containsBounds(
-                Bounds(CustomPoint(110.1, 77.3), CustomPoint(128.3, 65.5))),
+            bounds.containsBounds(Bounds(const CustomPoint(110.1, 77.3),
+                const CustomPoint(128.3, 65.5))),
             isTrue);
       });
 
       test(
           'should NOT contain compared bounds if they are NOT completely '
           'within the bounds', () {
-        final bounds =
-            Bounds(CustomPoint(101.1, 88.1), CustomPoint(133.1, 60.3));
+        final bounds = Bounds(
+            const CustomPoint(101.1, 88.1), const CustomPoint(133.1, 60.3));
 
         expect(
-            bounds.containsBounds(
-                Bounds(CustomPoint(110.1, 77.3), CustomPoint(133.2, 65.5))),
+            bounds.containsBounds(Bounds(const CustomPoint(110.1, 77.3),
+                const CustomPoint(133.2, 65.5))),
             isFalse);
       });
 
       test(
           'should contain compared bounds partially if at least one edge '
           'overlaps within the bounds', () {
-        final bounds =
-            Bounds(CustomPoint(101.1, 88.1), CustomPoint(133.1, 60.3));
+        final bounds = Bounds(
+            const CustomPoint(101.1, 88.1), const CustomPoint(133.1, 60.3));
 
         expect(
-            bounds.containsPartialBounds(
-                Bounds(CustomPoint(200.22, 60.2), CustomPoint(133.1, 60.3))),
+            bounds.containsPartialBounds(Bounds(const CustomPoint(200.22, 60.2),
+                const CustomPoint(133.1, 60.3))),
             isTrue);
       });
 
       test(
           'should NOT contain compared bounds partially if not a single edge '
           'overlaps within the bounds', () {
-        final bounds =
-            Bounds(CustomPoint(101.1, 88.1), CustomPoint(133.1, 60.3));
+        final bounds = Bounds(
+            const CustomPoint(101.1, 88.1), const CustomPoint(133.1, 60.3));
 
         expect(
-            bounds.containsPartialBounds(
-                Bounds(CustomPoint(200.22, 60.2), CustomPoint(133.2, 60.3))),
+            bounds.containsPartialBounds(Bounds(const CustomPoint(200.22, 60.2),
+                const CustomPoint(133.2, 60.3))),
             isFalse);
       });
 
       test('should contain given point within the bounds', () {
         expect(
-            Bounds(CustomPoint(0.0, 50.0), CustomPoint(50.0, 0.0))
-                .contains(CustomPoint(25.0, 25.0)),
+            Bounds(const CustomPoint(0.0, 50.0), const CustomPoint(50.0, 0.0))
+                .contains(const CustomPoint(25.0, 25.0)),
             isTrue);
       });
 
       test('should NOT contain given point within the bounds', () {
         expect(
-            Bounds(CustomPoint(0.0, 50.0), CustomPoint(50.0, 0.0))
-                .contains(CustomPoint(50.1, 50.1)),
+            Bounds(const CustomPoint(0.0, 50.0), const CustomPoint(50.0, 0.0))
+                .contains(const CustomPoint(50.1, 50.1)),
             isFalse);
       });
     });

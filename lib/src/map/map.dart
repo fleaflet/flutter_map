@@ -8,18 +8,21 @@ import 'package:flutter_map/src/map/map_state_widget.dart';
 import 'package:latlong2/latlong.dart';
 
 class MapControllerImpl implements MapController {
-  final Completer<Null> _readyCompleter = Completer<Null>();
+  final Completer<void> _readyCompleter = Completer<void>();
   final StreamController<MapEvent> _mapEventSink = StreamController.broadcast();
+  @override
   StreamSink<MapEvent> get mapEventSink => _mapEventSink.sink;
-  late final MapState _state;
 
   @override
-  Future<Null> get onReady => _readyCompleter.future;
+  Future<void> get onReady => _readyCompleter.future;
 
+  @override
   void dispose() {
     _mapEventSink.close();
   }
 
+  late final MapState _state;
+  @override
   set state(MapState state) {
     _state = state;
     if (!_readyCompleter.isCompleted) {
@@ -82,7 +85,7 @@ class MapControllerImpl implements MapController {
 class MapState {
   MapOptions options;
   final ValueChanged<double> onRotationChanged;
-  final StreamController<Null> _onMoveSink;
+  final StreamController<void> _onMoveSink;
   final StreamSink<MapEvent> _mapEventSink;
 
   double _zoom;
@@ -111,7 +114,7 @@ class MapState {
         _zoom = options.zoom,
         _onMoveSink = StreamController.broadcast();
 
-  Stream<Null> get onMoved => _onMoveSink.stream;
+  Stream<void> get onMoved => _onMoveSink.stream;
 
   // Original size of the map where rotation isn't calculated
   CustomPoint? _originalSize;
@@ -137,7 +140,7 @@ class MapState {
   // Extended size of the map where rotation is calculated
   CustomPoint? _size;
 
-  CustomPoint get size => _size ?? CustomPoint(0.0, 0.0);
+  CustomPoint get size => _size ?? const CustomPoint(0.0, 0.0);
 
   void _updateSizeByOriginalSizeAndRotation() {
     final originalWidth = _originalSize!.x;

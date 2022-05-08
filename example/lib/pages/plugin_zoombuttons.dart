@@ -8,13 +8,15 @@ import 'zoombuttons_plugin_option.dart';
 class PluginZoomButtons extends StatelessWidget {
   static const String route = '/plugin_zoombuttons';
 
+  const PluginZoomButtons({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('ZoomButtonsPlugins')),
+      appBar: AppBar(title: const Text('ZoomButtonsPlugins')),
       drawer: buildDrawer(context, PluginZoomButtons.route),
       body: Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
             Flexible(
@@ -31,7 +33,7 @@ class PluginZoomButtons extends StatelessWidget {
                     urlTemplate:
                         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     subdomains: ['a', 'b', 'c'],
-                    tileProvider: NonCachingNetworkTileProvider(),
+                    tileProvider: const NonCachingNetworkTileProvider(),
                   ),
                 ],
                 nonRotatedLayers: [

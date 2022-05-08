@@ -8,6 +8,9 @@ import '../widgets/drawer.dart';
 
 class ResetTileLayerPage extends StatefulWidget {
   static const String route = '/reset_tilelayer';
+
+  const ResetTileLayerPage({Key? key}) : super(key: key);
+
   @override
   ResetTileLayerPageState createState() {
     return ResetTileLayerPageState();
@@ -15,7 +18,7 @@ class ResetTileLayerPage extends StatefulWidget {
 }
 
 class ResetTileLayerPageState extends State<ResetTileLayerPage> {
-  StreamController<Null> resetController = StreamController.broadcast();
+  StreamController<void> resetController = StreamController.broadcast();
 
   String layer1 = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
   String layer2 = 'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png';
@@ -40,31 +43,29 @@ class ResetTileLayerPageState extends State<ResetTileLayerPage> {
         width: 80.0,
         height: 80.0,
         point: LatLng(51.5, -0.09),
-        builder: (ctx) => Container(
-          child: FlutterLogo(),
-        ),
+        builder: (ctx) => const FlutterLogo(),
       ),
     ];
 
     return Scaffold(
-      appBar: AppBar(title: Text('TileLayer Reset')),
+      appBar: AppBar(title: const Text('TileLayer Reset')),
       drawer: buildDrawer(context, ResetTileLayerPage.route),
       body: Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            Padding(
+            const Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
               child: Text(
                   'TileLayers can be progromatically reset, disposing of cached files'),
             ),
             Padding(
-              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
               child: Wrap(
                 children: <Widget>[
                   MaterialButton(
                     onPressed: _resetTiles,
-                    child: Text('Reset'),
+                    child: const Text('Reset'),
                   ),
                 ],
               ),

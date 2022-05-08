@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/layer/label.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart' hide Path; // conflict with Path from UI
 
@@ -15,7 +16,7 @@ class PolygonLayerOptions extends LayerOptions {
     Key? key,
     this.polygons = const [],
     this.polygonCulling = false,
-    Stream<Null>? rebuild,
+    Stream<void>? rebuild,
   }) : super(key: key, rebuild: rebuild) {
     if (polygonCulling) {
       for (var polygon in polygons) {
@@ -23,6 +24,11 @@ class PolygonLayerOptions extends LayerOptions {
       }
     }
   }
+}
+
+enum PolygonLabelPlacement {
+  centroid,
+  polylabel,
 }
 
 class Polygon {
@@ -37,6 +43,9 @@ class Polygon {
   final bool isDotted;
   final bool isFilled;
   late final LatLngBounds boundingBox;
+  final String? label;
+  final TextStyle labelStyle;
+  final PolygonLabelPlacement labelPlacement;
 
   Polygon({
     required this.points,
@@ -47,6 +56,9 @@ class Polygon {
     this.disableHolesBorder = false,
     this.isDotted = false,
     this.isFilled = false,
+    this.label,
+    this.labelStyle = const TextStyle(),
+    this.labelPlacement = PolygonLabelPlacement.centroid,
   }) : holeOffsetsList = null == holePointsList || holePointsList.isEmpty
             ? null
             : List.generate(holePointsList.length, (_) => []);
@@ -54,7 +66,7 @@ class Polygon {
 
 class PolygonLayerWidget extends StatelessWidget {
   final PolygonLayerOptions options;
-  PolygonLayerWidget({Key? key, required this.options}) : super(key: key);
+  const PolygonLayerWidget({Key? key, required this.options}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +78,7 @@ class PolygonLayerWidget extends StatelessWidget {
 class PolygonLayer extends StatelessWidget {
   final PolygonLayerOptions polygonOpts;
   final MapState map;
-  final Stream<Null>? stream;
+  final Stream<void>? stream;
 
   PolygonLayer(this.polygonOpts, this.map, this.stream)
       : super(key: polygonOpts.key);
@@ -121,10 +133,8 @@ class PolygonLayer extends StatelessWidget {
           );
         }
 
-        return Container(
-          child: Stack(
-            children: polygons,
-          ),
+        return Stack(
+          children: polygons,
         );
       },
     );
@@ -258,11 +268,21 @@ class PolygonPainter extends CustomPainter {
       canvas.drawPath(path, paint);
 
       _paintBorder(canvas);
+
+      if (polygonOpt.label != null) {
+        Label.paintText(
+          canvas,
+          polygonOpt.offsets,
+          polygonOpt.label,
+          polygonOpt.labelStyle,
+          labelPlacement: polygonOpt.labelPlacement,
+        );
+      }
     }
   }
 
   @override
-  bool shouldRepaint(PolygonPainter other) => false;
+  bool shouldRepaint(PolygonPainter oldDelegate) => false;
 
   double _dist(Offset v, Offset w) {
     return sqrt(_dist2(v, w));

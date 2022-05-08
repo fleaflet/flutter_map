@@ -43,7 +43,7 @@ class MarkerLayerOptions extends LayerOptions {
     this.rotateOrigin,
     this.rotateAlignment = Alignment.center,
     this.usePxCache = true,
-    Stream<Null>? rebuild,
+    Stream<void>? rebuild,
   }) : super(key: key, rebuild: rebuild);
 }
 
@@ -168,7 +168,7 @@ class Marker {
 class MarkerLayerWidget extends StatelessWidget {
   final MarkerLayerOptions options;
 
-  MarkerLayerWidget({Key? key, required this.options}) : super(key: key);
+  const MarkerLayerWidget({Key? key, required this.options}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -180,7 +180,7 @@ class MarkerLayerWidget extends StatelessWidget {
 class MarkerLayer extends StatefulWidget {
   final MarkerLayerOptions markerLayerOptions;
   final MapState map;
-  final Stream<Null>? stream;
+  final Stream<void>? stream;
 
   MarkerLayer(this.markerLayerOptions, this.map, this.stream)
       : super(key: markerLayerOptions.key);
@@ -239,9 +239,9 @@ class _MarkerLayerState extends State<MarkerLayer> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<int?>(
-      stream: widget.stream, // a Stream<int> or null
-      builder: (BuildContext context, AsyncSnapshot<int?> snapshot) {
+    return StreamBuilder<void>(
+      stream: widget.stream,
+      builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
         var layerOptions = widget.markerLayerOptions;
         var map = widget.map;
         var usePxCache = layerOptions.usePxCache;
@@ -294,10 +294,8 @@ class _MarkerLayerState extends State<MarkerLayer> {
           );
         }
         lastZoom = map.zoom;
-        return Container(
-          child: Stack(
-            children: markers,
-          ),
+        return Stack(
+          children: markers,
         );
       },
     );

@@ -10,9 +10,7 @@ import 'package:flutter_map/src/map/map_state_widget.dart';
 import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
 
 class FlutterMapState extends MapGestureMixin {
-  @override
-  final MapControllerImpl mapController;
-  final List<StreamGroup<Null>> groups = <StreamGroup<Null>>[];
+  final List<StreamGroup<void>> groups = <StreamGroup<void>>[];
   final _positionedTapController = PositionedTapController();
 
   @override
@@ -21,9 +19,8 @@ class FlutterMapState extends MapGestureMixin {
   @override
   late final MapState mapState;
 
-  FlutterMapState(MapController? mapController)
-      : mapController = mapController as MapControllerImpl? ??
-            MapController() as MapControllerImpl;
+  @override
+  MapController get mapController => widget.mapController;
 
   @override
   void didUpdateWidget(FlutterMap oldWidget) {
@@ -63,10 +60,10 @@ class FlutterMapState extends MapGestureMixin {
     super.dispose();
   }
 
-  Stream<Null> _merge(LayerOptions options) {
+  Stream<void> _merge(LayerOptions options) {
     if (options.rebuild == null) return mapState.onMoved;
 
-    var group = StreamGroup<Null>();
+    var group = StreamGroup<void>();
     group.add(mapState.onMoved);
     group.add(options.rebuild!);
     groups.add(group);
@@ -92,7 +89,7 @@ class FlutterMapState extends MapGestureMixin {
 
       var scaleGestureTeam = GestureArenaTeam();
 
-      var scaleGestureDetector = ({required Widget child}) =>
+      RawGestureDetector scaleGestureDetector({required Widget child}) =>
           RawGestureDetector(
             gestures: <Type, GestureRecognizerFactory>{
               ScaleGestureRecognizer:

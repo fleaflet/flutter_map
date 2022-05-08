@@ -7,6 +7,8 @@ import '../widgets/drawer.dart';
 class TileBuilderPage extends StatefulWidget {
   static const String route = '/tile_builder_example';
 
+  const TileBuilderPage({Key? key}) : super(key: key);
+
   @override
   _TileBuilderPageState createState() => _TileBuilderPageState();
 }
@@ -71,7 +73,7 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
             icon: Icon(grid ? Icons.grid_off : Icons.grid_on),
             onPressed: () => setState(() => grid = !grid),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           FloatingActionButton.extended(
             heroTag: 'coords',
             label: Text(
@@ -81,7 +83,7 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
             icon: Icon(showCoords ? Icons.unarchive : Icons.bug_report),
             onPressed: () => setState(() => showCoords = !showCoords),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           FloatingActionButton.extended(
             heroTag: 'ms',
             label: Text(
@@ -91,7 +93,7 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
             icon: Icon(loadingTime ? Icons.timer_off : Icons.timer),
             onPressed: () => setState(() => loadingTime = !loadingTime),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           FloatingActionButton.extended(
             heroTag: 'dark-light',
             label: Text(
@@ -104,7 +106,7 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
         ],
       ),
       body: Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: FlutterMap(
           options: MapOptions(
             center: LatLng(51.5, -0.09),
@@ -114,7 +116,7 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
             TileLayerOptions(
               urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
               subdomains: ['a', 'b', 'c'],
-              tileProvider: NonCachingNetworkTileProvider(),
+              tileProvider: const NonCachingNetworkTileProvider(),
               tileBuilder: tileBuilder,
               tilesContainerBuilder:
                   darkMode ? darkModeTilesContainerBuilder : null,
@@ -125,10 +127,8 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
                   width: 80.0,
                   height: 80.0,
                   point: LatLng(51.5, -0.09),
-                  builder: (ctx) => Container(
-                    child: FlutterLogo(
-                      key: ObjectKey(Colors.blue),
-                    ),
+                  builder: (ctx) => const FlutterLogo(
+                    key: ObjectKey(Colors.blue),
                   ),
                 ),
               ],

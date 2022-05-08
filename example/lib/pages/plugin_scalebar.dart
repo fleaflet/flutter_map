@@ -8,13 +8,15 @@ import 'scale_layer_plugin_option.dart';
 class PluginScaleBar extends StatelessWidget {
   static const String route = '/plugin_scalebar';
 
+  const PluginScaleBar({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('ScaleBarPlugins')),
+      appBar: AppBar(title: const Text('ScaleBarPlugins')),
       drawer: buildDrawer(context, PluginScaleBar.route),
       body: Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
             Flexible(
@@ -37,8 +39,9 @@ class PluginScaleBar extends StatelessWidget {
                   ScaleLayerPluginOption(
                     lineColor: Colors.blue,
                     lineWidth: 2,
-                    textStyle: TextStyle(color: Colors.blue, fontSize: 12),
-                    padding: EdgeInsets.all(10),
+                    textStyle:
+                        const TextStyle(color: Colors.blue, fontSize: 12),
+                    padding: const EdgeInsets.all(10),
                   ),
                 ],
               ),

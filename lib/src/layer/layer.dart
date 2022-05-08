@@ -6,6 +6,6 @@ import 'package:flutter/foundation.dart';
 /// rebuilding.
 class LayerOptions {
   final Key? key;
-  final Stream<Null>? rebuild;
+  final Stream<void>? rebuild;
   LayerOptions({this.key, this.rebuild});
 }

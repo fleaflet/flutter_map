@@ -7,6 +7,8 @@ import '../widgets/drawer.dart';
 class PolylinePage extends StatefulWidget {
   static const String route = 'polyline';
 
+  const PolylinePage({Key? key}) : super(key: key);
+
   @override
   State<PolylinePage> createState() => _PolylinePageState();
 }
@@ -26,7 +28,7 @@ class _PolylinePageState extends State<PolylinePage> {
         color: Colors.amber,
       ),
     ];
-    await Future.delayed(Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 3));
     return polyLines;
   }
 
@@ -51,10 +53,10 @@ class _PolylinePageState extends State<PolylinePage> {
     ];
 
     return Scaffold(
-        appBar: AppBar(title: Text('Polylines')),
+        appBar: AppBar(title: const Text('Polylines')),
         drawer: buildDrawer(context, PolylinePage.route),
         body: Padding(
-          padding: EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(8.0),
           child: FutureBuilder<List<Polyline>>(
             future: polylines,
             builder:
@@ -63,7 +65,7 @@ class _PolylinePageState extends State<PolylinePage> {
               if (snapshot.hasData) {
                 return Column(
                   children: [
-                    Padding(
+                    const Padding(
                       padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
                       child: Text('Polylines'),
                     ),
@@ -98,9 +100,9 @@ class _PolylinePageState extends State<PolylinePage> {
                                 points: pointsGradient,
                                 strokeWidth: 4.0,
                                 gradientColors: [
-                                  Color(0xffE40203),
-                                  Color(0xffFEED00),
-                                  Color(0xff007E2D),
+                                  const Color(0xffE40203),
+                                  const Color(0xffFEED00),
+                                  const Color(0xff007E2D),
                                 ],
                               ),
                             ],

@@ -94,10 +94,10 @@ abstract class MapGestureMixin extends State<FlutterMap>
     _flingController = AnimationController(vsync: this)
       ..addListener(_handleFlingAnimation)
       ..addStatusListener(_flingAnimationStatusListener);
-    _doubleTapController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 200))
-          ..addListener(_handleDoubleTapZoomAnimation)
-          ..addStatusListener(_doubleTapZoomStatusListener);
+    _doubleTapController = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 200))
+      ..addListener(_handleDoubleTapZoomAnimation)
+      ..addStatusListener(_doubleTapZoomStatusListener);
   }
 
   @override
@@ -326,20 +326,20 @@ abstract class MapGestureMixin extends State<FlutterMap>
                       .abs() >=
                   options.pinchZoomThreshold) {
             if (options.debugMultiFingerGestureWinner) {
-              print('Multi Finger Gesture winner: Pinch Zoom');
+              debugPrint('Multi Finger Gesture winner: Pinch Zoom');
             }
             _yieldMultiFingerGestureWinner(MultiFingerGesture.pinchZoom, true);
           } else if (hasIntRotate &&
               currentRotation.abs() >= options.rotationThreshold) {
             if (options.debugMultiFingerGestureWinner) {
-              print('Multi Finger Gesture winner: Rotate');
+              debugPrint('Multi Finger Gesture winner: Rotate');
             }
             _yieldMultiFingerGestureWinner(MultiFingerGesture.rotate, true);
           } else if (hasIntPinchMove &&
               (_focalStartLocal - focalOffset).distance >=
                   options.pinchMoveThreshold) {
             if (options.debugMultiFingerGestureWinner) {
-              print('Multi Finger Gesture winner: Pinch Move');
+              debugPrint('Multi Finger Gesture winner: Pinch Move');
             }
             _yieldMultiFingerGestureWinner(MultiFingerGesture.pinchMove, true);
           }
