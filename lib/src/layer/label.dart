@@ -11,7 +11,7 @@ class Label {
     List<Offset> points,
     String? labelText,
     TextStyle? labelStyle, {
-    PolygonLabelPlacement labelPlacement = PolygonLabelPlacement.centroid,
+    PolygonLabelPlacement labelPlacement = PolygonLabelPlacement.polylabel,
   }) {
     late Offset placementPoint;
     switch (labelPlacement) {
