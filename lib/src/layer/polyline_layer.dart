@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'dart:ui' as ui;
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart';
@@ -37,6 +37,9 @@ class PolylineLayerOptions extends LayerOptions {
   }
 }
 
+const double degToRad = pi / 180;
+const double radToDeg = 180 / pi;
+
 class Polyline {
   final List<LatLng> points;
   final List<Offset> offsets = [];
@@ -49,6 +52,8 @@ class Polyline {
   final bool isDotted;
   final StrokeCap strokeCap;
   final StrokeJoin strokeJoin;
+  final TextSpan? text;
+  final double textPosition;
   late LatLngBounds boundingBox;
 
   Polyline({
@@ -62,6 +67,8 @@ class Polyline {
     this.isDotted = false,
     this.strokeCap = StrokeCap.round,
     this.strokeJoin = StrokeJoin.round,
+    this.text,
+    this.textPosition = 0.5,
   });
 }
 
@@ -210,11 +217,29 @@ class PolylinePainter extends CustomPainter {
       if (saveLayers) canvas.saveLayer(rect, Paint());
       if (borderPaint != null && filterPaint != null) {
         borderPaint.style = PaintingStyle.stroke;
-        _paintLine(canvas, polylineOpt.offsets, borderPaint);
+        _paintLine(
+          canvas,
+          polylineOpt.offsets,
+          borderPaint,
+          text: polylineOpt.text,
+          textPosition: polylineOpt.textPosition,
+        );
         filterPaint.style = PaintingStyle.stroke;
-        _paintLine(canvas, polylineOpt.offsets, filterPaint);
+        _paintLine(
+          canvas,
+          polylineOpt.offsets,
+          filterPaint,
+          text: polylineOpt.text,
+          textPosition: polylineOpt.textPosition,
+        );
       }
-      _paintLine(canvas, polylineOpt.offsets, paint);
+      _paintLine(
+        canvas,
+        polylineOpt.offsets,
+        paint,
+        text: polylineOpt.text,
+        textPosition: polylineOpt.textPosition,
+      );
       if (saveLayers) canvas.restore();
     }
   }
@@ -244,11 +269,60 @@ class PolylinePainter extends CustomPainter {
     canvas.drawPath(path, paint);
   }
 
-  void _paintLine(Canvas canvas, List<Offset> offsets, Paint paint) {
+  void _paintLine(Canvas canvas, List<Offset> offsets, Paint paint,
+      {TextSpan? text, double textPosition = 0.5}) {
+    var _textPainter = TextPainter(
+      textDirection: TextDirection.ltr,
+      text: text ?? const TextSpan(text: ''),
+    );
+
     if (offsets.isNotEmpty) {
-      final path = ui.Path()..addPolygon(offsets, false);
+      final path = ui.Path()..moveTo(offsets[0].dx, offsets[0].dy);
+      for (var offset in offsets) {
+        path.lineTo(offset.dx, offset.dy);
+      }
       canvas.drawPath(path, paint);
+      _textPainter.layout(
+        minWidth: 0,
+        maxWidth: double.maxFinite,
+      );
+      ui.Tangent? positionText;
+      var metrics = path.computeMetrics();
+      for (var metric in metrics) {
+        positionText = metric.getTangentForOffset(metric.length * textPosition);
+
+        if (metric.length < 100.0) {
+          continue;
+        }
+      }
+      var transformedPoint = positionText!.position;
+      var drawPoint = const Offset(0.0, -17.0);
+      canvas.save();
+      canvas.translate(transformedPoint.dx, transformedPoint.dy);
+      var angleDeg = getNoneUpsideDownTextAngle(positionText.angle);
+
+      canvas.rotate((angleDeg) * degToRad);
+      _drawTextAt(drawPoint, canvas, 1, _textPainter);
+      canvas.restore();
     }
+  }
+
+  double getNoneUpsideDownTextAngle(double angelDegree) {
+    var angleDeg = -angelDegree * radToDeg;
+    angleDeg += 90;
+
+    if (angleDeg > 180) angleDeg -= 180;
+    if (angleDeg < 0) angleDeg += 180;
+
+    angleDeg -= 90;
+
+    return angleDeg;
+  }
+
+  void _drawTextAt(Offset position, Canvas canvas, scale, textPainter) {
+    var drawPosition = Offset(position.dx - textPainter.width / 2,
+        position.dy + (textPainter.height / 2));
+    textPainter.paint(canvas, drawPosition);
   }
 
   ui.Gradient _paintGradient() => ui.Gradient.linear(polylineOpt.offsets.first,
