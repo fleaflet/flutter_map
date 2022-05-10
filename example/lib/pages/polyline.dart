@@ -26,6 +26,11 @@ class _PolylinePageState extends State<PolylinePage> {
         ],
         strokeWidth: 4.0,
         color: Colors.amber,
+        text: const TextSpan(
+          text: 'Polyline Text',
+          style: TextStyle(color: Colors.black),
+        ),
+        textPosition: 0.1,
       ),
     ];
     await Future.delayed(const Duration(seconds: 3));
@@ -89,9 +94,14 @@ class _PolylinePageState extends State<PolylinePage> {
                           PolylineLayerOptions(
                             polylines: [
                               Polyline(
-                                  points: points,
-                                  strokeWidth: 4.0,
-                                  color: Colors.purple),
+                                points: points,
+                                strokeWidth: 4.0,
+                                color: Colors.purple,
+                                text: const TextSpan(
+                                  text: 'Polyline text',
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                              ),
                             ],
                           ),
                           PolylineLayerOptions(
