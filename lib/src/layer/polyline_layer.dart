@@ -54,6 +54,7 @@ class Polyline {
   final StrokeJoin strokeJoin;
   final TextSpan? text;
   final double textPosition;
+  final double textOffset;
   late LatLngBounds boundingBox;
 
   Polyline({
@@ -69,6 +70,7 @@ class Polyline {
     this.strokeJoin = StrokeJoin.round,
     this.text,
     this.textPosition = 0.5,
+    this.textOffset = 0,
   });
 }
 
@@ -223,6 +225,7 @@ class PolylinePainter extends CustomPainter {
           borderPaint,
           text: polylineOpt.text,
           textPosition: polylineOpt.textPosition,
+          textOffset: polylineOpt.textOffset,
         );
         filterPaint.style = PaintingStyle.stroke;
         _paintLine(
@@ -231,6 +234,7 @@ class PolylinePainter extends CustomPainter {
           filterPaint,
           text: polylineOpt.text,
           textPosition: polylineOpt.textPosition,
+          textOffset: polylineOpt.textOffset,
         );
       }
       _paintLine(
@@ -239,6 +243,7 @@ class PolylinePainter extends CustomPainter {
         paint,
         text: polylineOpt.text,
         textPosition: polylineOpt.textPosition,
+        textOffset: polylineOpt.textOffset,
       );
       if (saveLayers) canvas.restore();
     }
@@ -270,7 +275,7 @@ class PolylinePainter extends CustomPainter {
   }
 
   void _paintLine(Canvas canvas, List<Offset> offsets, Paint paint,
-      {TextSpan? text, double textPosition = 0.5}) {
+      {TextSpan? text, double textPosition = 0.5, double textOffset = 0}) {
     var _textPainter = TextPainter(
       textDirection: TextDirection.ltr,
       text: text ?? const TextSpan(text: ''),
@@ -296,7 +301,7 @@ class PolylinePainter extends CustomPainter {
         }
       }
       var transformedPoint = positionText!.position;
-      var drawPoint = const Offset(0.0, -17.0);
+      var drawPoint = Offset(0.0, -17.0 + textOffset);
       canvas.save();
       canvas.translate(transformedPoint.dx, transformedPoint.dy);
       var angleDeg = getNoneUpsideDownTextAngle(positionText.angle);
