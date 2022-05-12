@@ -255,6 +255,23 @@ class MapState {
           source: source,
         ),
       );
+    } else if (source == MapEventSource.custom) {
+      // for custom source, emit move event if zoom or center has changed
+      if (targetZoom != _zoom ||
+          _lastCenter == null ||
+          targetCenter.latitude != _lastCenter!.latitude ||
+          targetCenter.longitude != _lastCenter!.longitude) {
+        emitMapEvent(
+          MapEventMove(
+            id: id,
+            center: _lastCenter!,
+            zoom: _zoom,
+            targetCenter: targetCenter,
+            targetZoom: targetZoom,
+            source: source,
+          ),
+        );
+      }
     }
   }
 
