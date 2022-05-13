@@ -42,11 +42,11 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
   void _animatedMapMove(LatLng destLocation, double destZoom) {
     // Create some tweens. These serve to split up the transition from one location to another.
     // In our case, we want to split the transition be<tween> our current map center and the destination.
-    final _latTween = Tween<double>(
+    final latTween = Tween<double>(
         begin: mapController.center.latitude, end: destLocation.latitude);
-    final _lngTween = Tween<double>(
+    final lngTween = Tween<double>(
         begin: mapController.center.longitude, end: destLocation.longitude);
-    final _zoomTween = Tween<double>(begin: mapController.zoom, end: destZoom);
+    final zoomTween = Tween<double>(begin: mapController.zoom, end: destZoom);
 
     // Create a animation controller that has a duration and a TickerProvider.
     var controller = AnimationController(
@@ -58,8 +58,8 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
 
     controller.addListener(() {
       mapController.move(
-          LatLng(_latTween.evaluate(animation), _lngTween.evaluate(animation)),
-          _zoomTween.evaluate(animation));
+          LatLng(latTween.evaluate(animation), lngTween.evaluate(animation)),
+          zoomTween.evaluate(animation));
     });
 
     animation.addStatusListener((status) {
