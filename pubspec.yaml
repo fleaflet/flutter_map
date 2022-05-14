@@ -1,14 +1,14 @@
 name: flutter_map
 description: A Dart implementation of Leaflet to provide a Map widget for Flutter apps
-version: 0.14.0
+version: 0.15.0
 repository: https://github.com/fleaflet/flutter_map
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
-  flutter: '>=2.0.0'
+  sdk: ">=2.12.0 <3.0.0"
+  flutter: ">=2.0.0"
 
 dependencies:
-  async: ^2.6.1
+  async: ^2.8.2
   collection: ^1.15.0
   flutter:
     sdk: flutter
@@ -24,7 +24,7 @@ dependencies:
   vector_math: ^2.1.0
 
 dev_dependencies:
-  flutter_lints: ^1.0.4
+  flutter_lints: ">=1.0.4"
   flutter_test:
     sdk: flutter
   location: ^4.1.1

@@ -526,10 +526,10 @@ abstract class MapGestureMixin extends State<FlutterMap>
                 mapState.originalSize!.y as double))
         .shortestSide;
 
-    var _flingOffset = _focalStartLocal - _lastFocalLocal;
+    var flingOffset = _focalStartLocal - _lastFocalLocal;
     _flingAnimation = Tween<Offset>(
-      begin: _flingOffset,
-      end: _flingOffset - direction * distance,
+      begin: flingOffset,
+      end: flingOffset - direction * distance,
     ).animate(_flingController);
 
     _flingController

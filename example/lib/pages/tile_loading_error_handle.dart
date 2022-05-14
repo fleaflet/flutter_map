@@ -16,7 +16,7 @@ class TileLoadingErrorHandle extends StatefulWidget {
 class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
   @override
   Widget build(BuildContext context) {
-    var _needLoadingError = true;
+    var needLoadingError = true;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Tile Loading Error Handle')),
@@ -36,7 +36,7 @@ class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
                     center: LatLng(51.5, -0.09),
                     zoom: 5.0,
                     onPositionChanged: (MapPosition mapPosition, bool _) {
-                      _needLoadingError = true;
+                      needLoadingError = true;
                     },
                   ),
                   layers: [
@@ -49,7 +49,7 @@ class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
                       // NetworkTileProvider or CachedNetworkTileProvider
                       tileProvider: const NonCachingNetworkTileProvider(),
                       errorTileCallback: (Tile tile, error) {
-                        if (_needLoadingError) {
+                        if (needLoadingError) {
                           WidgetsBinding.instance.addPostFrameCallback((_) {
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                               duration: const Duration(seconds: 1),
@@ -60,7 +60,7 @@ class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
                               backgroundColor: Colors.deepOrange,
                             ));
                           });
-                          _needLoadingError = false;
+                          needLoadingError = false;
                         }
                       },
                     ),
