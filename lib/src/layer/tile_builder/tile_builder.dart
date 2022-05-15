@@ -109,8 +109,8 @@ Widget loadingTimeDebugTileBuilder(
   Widget tileWidget,
   Tile tile,
 ) {
-  var loadStarted = tile.loadStarted;
-  var loaded = tile.loaded;
+  final loadStarted = tile.loadStarted;
+  final loaded = tile.loaded;
 
   final time = loaded == null
       ? 'Loading'

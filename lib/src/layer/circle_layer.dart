@@ -64,15 +64,15 @@ class CircleLayer extends StatelessWidget {
     return StreamBuilder<void>(
       stream: stream, // a Stream<void> or null
       builder: (BuildContext context, _) {
-        var circleWidgets = <Widget>[];
-        for (var circle in circleOpts.circles) {
+        final circleWidgets = <Widget>[];
+        for (final circle in circleOpts.circles) {
           var pos = map.project(circle.point);
           pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
               map.getPixelOrigin();
           circle.offset = Offset(pos.x.toDouble(), pos.y.toDouble());
 
           if (circle.useRadiusInMeter) {
-            var r = const Distance().offset(circle.point, circle.radius, 180);
+            final r = const Distance().offset(circle.point, circle.radius, 180);
             var rpos = map.project(r);
             rpos = rpos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
                 map.getPixelOrigin();
