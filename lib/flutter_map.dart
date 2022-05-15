@@ -391,7 +391,7 @@ class FitBoundsOptions {
   final bool inside;
 
   const FitBoundsOptions({
-    this.padding = const EdgeInsets.all(0.0),
+    this.padding = EdgeInsets.zero,
     this.maxZoom = 17.0,
     this.zoom,
     this.inside = false,

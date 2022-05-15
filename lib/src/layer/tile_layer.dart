@@ -309,7 +309,7 @@ class TileLayerOptions extends LayerOptions {
                 : maxZoom,
         minZoom =
             wmsOptions == null && retinaMode && maxZoom > 0.0 && zoomReverse
-                ? math.max(minZoom + 1.0, 0.0)
+                ? math.max(minZoom + 1.0, 0)
                 : minZoom,
         zoomOffset = wmsOptions == null && retinaMode && maxZoom > 0.0
             ? (zoomReverse ? zoomOffset - 1.0 : zoomOffset + 1.0)
@@ -890,23 +890,23 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     // wrapping
     _wrapX = crs.wrapLng;
     if (_wrapX != null) {
-      final first = (map.project(LatLng(0.0, crs.wrapLng!.item1), tileZoom).x /
-              tileSize.x)
-          .floorToDouble();
-      final second = (map.project(LatLng(0.0, crs.wrapLng!.item2), tileZoom).x /
-              tileSize.y)
-          .ceilToDouble();
+      final first =
+          (map.project(LatLng(0, crs.wrapLng!.item1), tileZoom).x / tileSize.x)
+              .floorToDouble();
+      final second =
+          (map.project(LatLng(0, crs.wrapLng!.item2), tileZoom).x / tileSize.y)
+              .ceilToDouble();
       _wrapX = Tuple2(first, second);
     }
 
     _wrapY = crs.wrapLat;
     if (_wrapY != null) {
-      final first = (map.project(LatLng(crs.wrapLat!.item1, 0.0), tileZoom).y /
-              tileSize.x)
-          .floorToDouble();
-      final second = (map.project(LatLng(crs.wrapLat!.item2, 0.0), tileZoom).y /
-              tileSize.y)
-          .ceilToDouble();
+      final first =
+          (map.project(LatLng(crs.wrapLat!.item1, 0), tileZoom).y / tileSize.x)
+              .floorToDouble();
+      final second =
+          (map.project(LatLng(crs.wrapLat!.item2, 0), tileZoom).y / tileSize.y)
+              .ceilToDouble();
       _wrapY = Tuple2(first, second);
     }
   }
@@ -1293,7 +1293,7 @@ class Tile implements Comparable<Tile> {
 
     try {
       final oldImageStream = _imageStream;
-      _imageStream = imageProvider.resolve(const ImageConfiguration());
+      _imageStream = imageProvider.resolve(ImageConfiguration.empty);
 
       if (_imageStream!.key != oldImageStream?.key) {
         oldImageStream?.removeListener(_listener);

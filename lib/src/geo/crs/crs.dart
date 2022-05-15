@@ -104,7 +104,7 @@ abstract class Earth extends Crs {
   bool get infinite => false;
 
   @override
-  final Tuple2<double, double> wrapLng = const Tuple2(-180.0, 180.0);
+  final Tuple2<double, double> wrapLng = const Tuple2(-180, 180);
 
   @override
   final Tuple2<double, double>? wrapLat = null;

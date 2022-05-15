@@ -16,3 +16,5 @@ linter:
     avoid_dynamic_calls: true
     always_use_package_imports: true
     type_annotate_public_apis: true
+    prefer_int_literals: true
+    use_named_constants: true

@@ -73,14 +73,14 @@ class TestApp extends StatefulWidget {
 class _TestAppState extends State<TestApp> {
   final List<Marker> _markers = <Marker>[
     Marker(
-      width: 80.0,
-      height: 80.0,
+      width: 80,
+      height: 80,
       point: LatLng(45.5231, -122.6765),
       builder: (ctx) => const FlutterLogo(),
     ),
     Marker(
-      width: 80.0,
-      height: 80.0,
+      width: 80,
+      height: 80,
       point: LatLng(40, -120), // not visible
       builder: (ctx) => const FlutterLogo(),
     ),
@@ -102,7 +102,7 @@ class _TestAppState extends State<TestApp> {
             child: FlutterMap(
               options: MapOptions(
                 center: LatLng(45.5231, -122.6765),
-                zoom: 13.0,
+                zoom: 13,
               ),
               layers: [
                 TileLayerOptions(

@@ -60,7 +60,7 @@ class Anchor {
   static double _leftOffset(double width, AnchorAlign alignOpt) {
     switch (alignOpt) {
       case AnchorAlign.left:
-        return 0.0;
+        return 0;
       case AnchorAlign.right:
         return width;
       case AnchorAlign.top:
@@ -74,7 +74,7 @@ class Anchor {
   static double _topOffset(double height, AnchorAlign alignOpt) {
     switch (alignOpt) {
       case AnchorAlign.top:
-        return 0.0;
+        return 0;
       case AnchorAlign.bottom:
         return height;
       case AnchorAlign.left:
@@ -190,7 +190,7 @@ class MarkerLayer extends StatefulWidget {
 }
 
 class _MarkerLayerState extends State<MarkerLayer> {
-  double lastZoom = -1.0;
+  double lastZoom = -1;
 
   /// List containing cached pixel positions of markers
   /// Should be discarded when zoom changes

@@ -12,7 +12,7 @@ import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
 
 abstract class MapGestureMixin extends State<FlutterMap>
     with TickerProviderStateMixin {
-  static const double _kMinFlingVelocity = 800.0;
+  static const double _kMinFlingVelocity = 800;
 
   var _dragMode = false;
   var _gestureWinner = MultiFingerGesture.none;
@@ -538,9 +538,9 @@ abstract class MapGestureMixin extends State<FlutterMap>
       ..fling(
           velocity: magnitude / 1000.0,
           springDescription: SpringDescription.withDampingRatio(
-            mass: 1.0,
-            stiffness: 1000.0,
-            ratio: 5.0,
+            mass: 1,
+            stiffness: 1000,
+            ratio: 5,
           ));
   }
 
@@ -609,7 +609,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
     if (InteractiveFlag.hasFlag(
         options.interactiveFlags, InteractiveFlag.doubleTapZoom)) {
       final centerPos = _pointToOffset(mapState.originalSize!) / 2.0;
-      final newZoom = _getZoomForScale(mapState.zoom, 2.0);
+      final newZoom = _getZoomForScale(mapState.zoom, 2);
       final focalDelta = _getDoubleTapFocalDelta(
           centerPos, tapPosition.relative!, newZoom - mapState.zoom);
       final newCenter = _offsetToCrs(centerPos + focalDelta);
@@ -645,7 +645,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
         LatLngTween(begin: mapState.center, end: newCenter)
             .chain(CurveTween(curve: Curves.fastOutSlowIn))
             .animate(_doubleTapController);
-    _doubleTapController.forward(from: 0.0);
+    _doubleTapController.forward(from: 0);
   }
 
   void _doubleTapZoomStatusListener(AnimationStatus status) {

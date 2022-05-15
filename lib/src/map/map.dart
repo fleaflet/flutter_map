@@ -47,7 +47,7 @@ class MapControllerImpl implements MapController {
   void fitBounds(
     LatLngBounds bounds, {
     FitBoundsOptions? options =
-        const FitBoundsOptions(padding: EdgeInsets.all(12.0)),
+        const FitBoundsOptions(padding: EdgeInsets.all(12)),
   }) {
     _state.fitBounds(bounds, options!);
   }
@@ -56,7 +56,7 @@ class MapControllerImpl implements MapController {
   CenterZoom centerZoomFitBounds(
     LatLngBounds bounds, {
     FitBoundsOptions? options =
-        const FitBoundsOptions(padding: EdgeInsets.all(12.0)),
+        const FitBoundsOptions(padding: EdgeInsets.all(12)),
   }) {
     return _state.centerZoomFitBounds(bounds, options!);
   }
