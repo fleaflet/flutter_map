@@ -12,7 +12,7 @@ import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
 
 abstract class MapGestureMixin extends State<FlutterMap>
     with TickerProviderStateMixin {
-  static const double _kMinFlingVelocity = 800;
+  static const int _kMinFlingVelocity = 800;
 
   var _dragMode = false;
   var _gestureWinner = MultiFingerGesture.none;
