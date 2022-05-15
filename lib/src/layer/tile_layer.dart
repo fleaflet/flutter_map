@@ -1390,7 +1390,7 @@ class AnimatedTile extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _AnimatedTileState createState() => _AnimatedTileState();
+  State<AnimatedTile> createState() => _AnimatedTileState();
 }
 
 class _AnimatedTileState extends State<AnimatedTile> {
