@@ -201,7 +201,7 @@ class MapState {
     }
   }
 
-  void _handleMoveEmit(LatLng targetCenter, double targetZoom, hasGesture,
+  void _handleMoveEmit(LatLng targetCenter, double targetZoom, bool hasGesture,
       MapEventSource source, String? id) {
     if (source == MapEventSource.flingAnimationController) {
       emitMapEvent(
@@ -290,8 +290,8 @@ class MapState {
 
   bool rotate(
     double degree, {
-    hasGesture = false,
-    callOnMoveSink = true,
+    bool hasGesture = false,
+    bool callOnMoveSink = true,
     required MapEventSource source,
     String? id,
   }) {
@@ -338,8 +338,8 @@ class MapState {
   }
 
   bool move(LatLng center, double zoom,
-      {hasGesture = false,
-      callOnMoveSink = true,
+      {bool hasGesture = false,
+      bool callOnMoveSink = true,
       required MapEventSource source,
       String? id}) {
     zoom = fitZoomToBounds(zoom);

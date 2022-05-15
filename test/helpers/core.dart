@@ -3,10 +3,10 @@ import 'dart:math';
 
 bool randomBool() => Random().nextBool();
 
-int randomInt([int max = 1000, zero = true]) =>
+int randomInt([int max = 1000, bool zero = true]) =>
     min(Random().nextInt(max) + (zero ? 0 : 1), max);
 
-double randomDouble([double max = 1000.0, zero = true]) =>
+double randomDouble([double max = 1000.0, bool zero = true]) =>
     min(Random().nextDouble() * max + (zero ? 0 : 1), max);
 
 DateTime randomDateTime() =>

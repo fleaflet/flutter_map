@@ -428,7 +428,7 @@ class _SafeArea {
         isLatitudeBlocked = southWest.latitude > northEast.latitude,
         isLongitudeBlocked = southWest.longitude > northEast.longitude;
 
-  bool contains(point) =>
+  bool contains(LatLng? point) =>
       isLatitudeBlocked || isLongitudeBlocked ? false : bounds.contains(point);
 
   LatLng containPoint(LatLng point, LatLng fallback) => LatLng(

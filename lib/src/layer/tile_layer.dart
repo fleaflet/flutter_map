@@ -514,7 +514,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       final newOptions = options.additionalOptions;
 
       if (oldUrl != newUrl ||
-          !(const MapEquality()).equals(oldOptions, newOptions)) {
+          !(const MapEquality<String, String>())
+              .equals(oldOptions, newOptions)) {
         if (options.overrideTilesWhenUrlChanges) {
           for (final tile in _tiles.values) {
             tile.imageProvider = options.tileProvider
@@ -1311,6 +1312,7 @@ class Tile implements Comparable<Tile> {
     if (evict) {
       try {
         // ignore: return_type_invalid_for_catch_error
+        // ignore: implicit_dynamic_parameter
         imageProvider.evict().catchError((e) {
           debugPrint(e.toString());
         });
@@ -1372,7 +1374,7 @@ class Tile implements Comparable<Tile> {
   int get hashCode => coords.hashCode;
 
   @override
-  bool operator ==(other) {
+  bool operator ==(Object other) {
     return other is Tile && coords == other.coords;
   }
 }

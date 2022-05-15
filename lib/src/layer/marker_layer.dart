@@ -87,8 +87,10 @@ class Anchor {
 
   factory Anchor.forPos(AnchorPos? pos, double width, double height) {
     if (pos == null) return Anchor._(width, height, AnchorAlign.none);
-    if (pos.value is AnchorAlign) return Anchor._(width, height, pos.value);
-    if (pos.value is Anchor) return pos.value;
+    if (pos.value is AnchorAlign) {
+      return Anchor._(width, height, pos.value as AnchorAlign);
+    }
+    if (pos.value is Anchor) return pos.value as Anchor;
     throw Exception('Unsupported AnchorPos value type: ${pos.runtimeType}.');
   }
 }
@@ -96,8 +98,9 @@ class Anchor {
 class AnchorPos<T> {
   AnchorPos._(this.value);
   T value;
-  static AnchorPos exactly(Anchor anchor) => AnchorPos._(anchor);
-  static AnchorPos align(AnchorAlign alignOpt) => AnchorPos._(alignOpt);
+  static AnchorPos exactly(Anchor anchor) => AnchorPos<Anchor>._(anchor);
+  static AnchorPos align(AnchorAlign alignOpt) =>
+      AnchorPos<AnchorAlign>._(alignOpt);
 }
 
 enum AnchorAlign {
@@ -187,7 +190,7 @@ class MarkerLayer extends StatefulWidget {
 }
 
 class _MarkerLayerState extends State<MarkerLayer> {
-  var lastZoom = -1.0;
+  double lastZoom = -1.0;
 
   /// List containing cached pixel positions of markers
   /// Should be discarded when zoom changes

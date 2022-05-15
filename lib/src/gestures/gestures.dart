@@ -71,8 +71,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
   late Animation<Offset> _flingAnimation;
 
   late final AnimationController _doubleTapController;
-  late Animation _doubleTapZoomAnimation;
-  late Animation _doubleTapCenterAnimation;
+  late Animation<double> _doubleTapZoomAnimation;
+  late Animation<LatLng> _doubleTapCenterAnimation;
 
   StreamSubscription<MapEvent>? _mapControllerAnimationInterruption;
 

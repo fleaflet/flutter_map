@@ -1,7 +1,18 @@
 include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  strong-mode:
+    implicit-casts: false
+    implicit-dynamic: false
+  errors:
+    close_sinks: ignore
+    missing_required_param: error
+    missing_return: error
+
 linter:
   rules:
     prefer_final_locals: true
     prefer_final_in_for_each: true
     avoid_dynamic_calls: true
     always_use_package_imports: true
+    type_annotate_public_apis: true
