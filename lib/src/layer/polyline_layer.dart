@@ -30,7 +30,7 @@ class PolylineLayerOptions extends LayerOptions {
     this.saveLayers = false,
   }) : super(key: key, rebuild: rebuild) {
     if (polylineCulling) {
-      for (var polyline in polylines) {
+      for (final polyline in polylines) {
         polyline.boundingBox = LatLngBounds.fromPoints(polyline.points);
       }
     }
@@ -100,9 +100,9 @@ class PolylineLayer extends StatelessWidget {
     return StreamBuilder<void>(
       stream: stream, // a Stream<void> or null
       builder: (BuildContext context, _) {
-        var polylines = <Widget>[];
+        final polylines = <Widget>[];
 
-        for (var polylineOpt in polylineOpts.polylines) {
+        for (final polylineOpt in polylineOpts.polylines) {
           polylineOpt.offsets.clear();
 
           if (polylineOpts.polylineCulling &&
@@ -127,8 +127,9 @@ class PolylineLayer extends StatelessWidget {
   }
 
   void _fillOffsets(final List<Offset> offsets, final List<LatLng> points) {
-    for (var i = 0, len = points.length; i < len; ++i) {
-      var point = points[i];
+    final len = points.length;
+    for (var i = 0; i < len; ++i) {
+      final point = points[i];
 
       var pos = map.project(point);
       pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
@@ -192,10 +193,10 @@ class PolylinePainter extends CustomPainter {
           ..strokeJoin = polylineOpt.strokeJoin
           ..blendMode = BlendMode.srcOver)
         : null;
-    var radius = paint.strokeWidth / 2;
-    var borderRadius = (borderPaint?.strokeWidth ?? 0) / 2;
+    final radius = paint.strokeWidth / 2;
+    final borderRadius = (borderPaint?.strokeWidth ?? 0) / 2;
     if (polylineOpt.isDotted) {
-      var spacing = polylineOpt.strokeWidth * 1.5;
+      final spacing = polylineOpt.strokeWidth * 1.5;
       if (saveLayers) canvas.saveLayer(rect, Paint());
       if (borderPaint != null && filterPaint != null) {
         _paintDottedLine(
@@ -224,14 +225,14 @@ class PolylinePainter extends CustomPainter {
     final path = ui.Path();
     var startDistance = 0.0;
     for (var i = 0; i < offsets.length - 1; i++) {
-      var o0 = offsets[i];
-      var o1 = offsets[i + 1];
-      var totalDistance = _dist(o0, o1);
+      final o0 = offsets[i];
+      final o1 = offsets[i + 1];
+      final totalDistance = _dist(o0, o1);
       var distance = startDistance;
       while (distance < totalDistance) {
-        var f1 = distance / totalDistance;
-        var f0 = 1.0 - f1;
-        var offset = Offset(o0.dx * f0 + o1.dx * f1, o0.dy * f0 + o1.dy * f1);
+        final f1 = distance / totalDistance;
+        final f0 = 1.0 - f1;
+        final offset = Offset(o0.dx * f0 + o1.dx * f1, o0.dy * f0 + o1.dy * f1);
         path.addOval(Rect.fromCircle(center: offset, radius: radius));
         distance += stepLength;
       }

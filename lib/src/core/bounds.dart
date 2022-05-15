@@ -9,8 +9,8 @@ class Bounds<T extends num> {
   final CustomPoint<T> max;
 
   factory Bounds(CustomPoint<T> a, CustomPoint<T> b) {
-    var bounds1 = Bounds._(a, b);
-    var bounds2 = bounds1.extend(a);
+    final bounds1 = Bounds._(a, b);
+    final bounds2 = bounds1.extend(a);
     return bounds2.extend(b);
   }
 
@@ -55,8 +55,8 @@ class Bounds<T extends num> {
   }
 
   bool contains(CustomPoint<T> point) {
-    var min = point;
-    var max = point;
+    final min = point;
+    final max = point;
     return containsBounds(Bounds(min, max));
   }
 

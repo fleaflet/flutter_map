@@ -1,3 +1,6 @@
 include: package:flutter_lints/flutter.yaml
 linter:
   rules:
+    prefer_final_locals: true
+    prefer_final_in_for_each: true
+    avoid_dynamic_calls: true

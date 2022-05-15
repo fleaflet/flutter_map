@@ -239,19 +239,19 @@ class _MarkerLayerState extends State<MarkerLayer> {
     return StreamBuilder<void>(
       stream: widget.stream,
       builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-        var layerOptions = widget.markerLayerOptions;
-        var map = widget.map;
-        var usePxCache = layerOptions.usePxCache;
-        var markers = <Widget>[];
+        final layerOptions = widget.markerLayerOptions;
+        final map = widget.map;
+        final usePxCache = layerOptions.usePxCache;
+        final markers = <Widget>[];
         final sameZoom = map.zoom == lastZoom;
 
-        var cacheUpdated = updatePxCacheIfNeeded();
+        final cacheUpdated = updatePxCacheIfNeeded();
 
         for (var i = 0; i < layerOptions.markers.length; i++) {
-          var marker = layerOptions.markers[i];
+          final marker = layerOptions.markers[i];
 
           // Decide whether to use cached point or calculate it
-          var pxPoint = usePxCache && (sameZoom || cacheUpdated)
+          final pxPoint = usePxCache && (sameZoom || cacheUpdated)
               ? _pxCache[i]
               : map.project(marker.point);
           if (!sameZoom && usePxCache) {
@@ -260,8 +260,8 @@ class _MarkerLayerState extends State<MarkerLayer> {
 
           final width = marker.width - marker.anchor.left;
           final height = marker.height - marker.anchor.top;
-          var sw = CustomPoint(pxPoint.x + width, pxPoint.y - height);
-          var ne = CustomPoint(pxPoint.x - width, pxPoint.y + height);
+          final sw = CustomPoint(pxPoint.x + width, pxPoint.y - height);
+          final ne = CustomPoint(pxPoint.x - width, pxPoint.y + height);
 
           if (!map.pixelBounds.containsPartialBounds(Bounds(sw, ne))) {
             continue;
