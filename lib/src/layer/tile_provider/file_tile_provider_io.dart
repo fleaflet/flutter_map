@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/widgets.dart';
 
-import '../tile_layer.dart';
-import 'tile_provider.dart';
+import 'package:flutter_map/src/layer/tile_layer.dart';
+import 'package:flutter_map/src/layer/tile_provider/tile_provider.dart';
 
 /// FileTileProvider
 class FileTileProvider extends TileProvider {
