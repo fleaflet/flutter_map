@@ -87,12 +87,12 @@ class MapControllerImpl implements MapController {
     final width = _state.originalSize!.x;
     final height = _state.originalSize!.y;
 
-    var localPointCenterDistance =
+    final localPointCenterDistance =
         CustomPoint((width / 2) - localPoint.x, (height / 2) - localPoint.y);
-    var mapCenter =
+    final mapCenter =
         _state.options.crs.latLngToPoint(_state.center, _state.zoom);
 
-    var point = mapCenter - localPointCenterDistance;
+    final point = mapCenter - localPointCenterDistance;
     return _state.options.crs.pointToLatLng(point, _state.zoom);
   }
 

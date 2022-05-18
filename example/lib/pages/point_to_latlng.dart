@@ -9,6 +9,8 @@ import '../widgets/drawer.dart';
 class PointToLatLngPage extends StatefulWidget {
   static const String route = 'point_to_latlng';
 
+  const PointToLatLngPage({Key? key}) : super(key: key);
+
   @override
   PointToLatlngPage createState() {
     return PointToLatlngPage();
@@ -39,17 +41,17 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('PointToLatlng')),
+      appBar: AppBar(title: const Text('PointToLatlng')),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           FloatingActionButton(
-            child: Icon(Icons.rotate_right),
+            child: const Icon(Icons.rotate_right),
             onPressed: () => mapController.rotate(60.0),
           ),
-          SizedBox(height: 15),
+          const SizedBox(height: 15),
           FloatingActionButton(
-            child: Icon(Icons.cancel),
+            child: const Icon(Icons.cancel),
             onPressed: () => mapController.rotate(0.0),
           ),
         ],
@@ -57,36 +59,32 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
       drawer: buildDrawer(context, PointToLatLngPage.route),
       body: Stack(
         children: [
-          Container(
-            child: FlutterMap(
-              mapController: mapController,
-              options: MapOptions(
-                center: LatLng(51.5, -0.09),
-                zoom: 5.0,
-                minZoom: 3.0,
-              ),
-              children: [
-                TileLayerWidget(
-                    options: TileLayerOptions(
-                        urlTemplate:
-                            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                        subdomains: ['a', 'b', 'c'])),
-                if (latLng != null)
-                  MarkerLayerWidget(
-                      options: MarkerLayerOptions(
-                    markers: [
-                      Marker(
-                        width: pointSize,
-                        height: pointSize,
-                        point: latLng!,
-                        builder: (ctx) => Container(
-                          child: FlutterLogo(),
-                        ),
-                      )
-                    ],
-                  ))
-              ],
+          FlutterMap(
+            mapController: mapController,
+            options: MapOptions(
+              center: LatLng(51.5, -0.09),
+              zoom: 5.0,
+              minZoom: 3.0,
             ),
+            children: [
+              TileLayerWidget(
+                  options: TileLayerOptions(
+                      urlTemplate:
+                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      subdomains: ['a', 'b', 'c'])),
+              if (latLng != null)
+                MarkerLayerWidget(
+                    options: MarkerLayerOptions(
+                  markers: [
+                    Marker(
+                      width: pointSize,
+                      height: pointSize,
+                      point: latLng!,
+                      builder: (ctx) => const FlutterLogo(),
+                    )
+                  ],
+                ))
+            ],
           ),
           Container(
               color: Colors.white,
@@ -99,7 +97,7 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
                     'flutter logo (${latLng?.latitude.toStringAsPrecision(4)},${latLng?.longitude.toStringAsPrecision(4)})',
                     textAlign: TextAlign.center,
                   ),
-                  Text(
+                  const Text(
                     'should be in target center, but try to rotate',
                     textAlign: TextAlign.center,
                   ),
