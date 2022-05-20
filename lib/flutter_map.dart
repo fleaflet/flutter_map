@@ -5,6 +5,7 @@ import 'dart:math';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/core/center_zoom.dart';
+import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/geo/crs/crs.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/gestures/interactive_flag.dart';
@@ -147,6 +148,8 @@ abstract class MapController {
   StreamSink<MapEvent> get mapEventSink;
   set state(MapState state);
   void dispose();
+
+  LatLng? pointToLatLng(CustomPoint point);
 
   factory MapController() => MapControllerImpl();
 }

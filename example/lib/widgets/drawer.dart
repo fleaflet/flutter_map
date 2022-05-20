@@ -3,6 +3,7 @@ import 'package:flutter_map_example/pages/epsg4326_crs.dart';
 import 'package:flutter_map_example/pages/map_inside_listview.dart';
 import 'package:flutter_map_example/pages/marker_rotate.dart';
 import 'package:flutter_map_example/pages/network_tile_provider.dart';
+import 'package:flutter_map_example/pages/point_to_latlng.dart';
 
 import '../pages/animated_map_controller.dart';
 import '../pages/circle.dart';
@@ -250,6 +251,8 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
         ),
         _buildMenuItem(context, const Text('Map inside listview'),
             MapInsideListViewPage.route, currentRoute),
+        _buildMenuItem(context, const Text('Point to LatLng'),
+            PointToLatLngPage.route, currentRoute),
       ],
     ),
   );
