@@ -92,8 +92,26 @@ class MapControllerImpl implements MapController {
     final mapCenter =
         _state.options.crs.latLngToPoint(_state.center, _state.zoom);
 
-    final point = mapCenter - localPointCenterDistance;
+    var point = mapCenter - localPointCenterDistance;
+
+    if (_state.rotation != 0.0) {
+      point = rotatePoint(mapCenter, point);
+    }
+
     return _state.options.crs.pointToLatLng(point, _state.zoom);
+  }
+
+  CustomPoint<num> rotatePoint(
+      CustomPoint<num> mapCenter, CustomPoint<num> point) {
+    final m = Matrix4.identity()
+      ..translate(mapCenter.x.toDouble(), mapCenter.y.toDouble())
+      ..rotateZ(-_state.rotationRad)
+      ..translate(-mapCenter.x.toDouble(), -mapCenter.y.toDouble());
+
+    final tp = MatrixUtils.transformPoint(
+        m, Offset(point.x.toDouble(), point.y.toDouble()));
+
+    return CustomPoint(tp.dx, tp.dy);
   }
 
   @override

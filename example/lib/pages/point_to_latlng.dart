@@ -97,10 +97,6 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
                     'flutter logo (${latLng?.latitude.toStringAsPrecision(4)},${latLng?.longitude.toStringAsPrecision(4)})',
                     textAlign: TextAlign.center,
                   ),
-                  const Text(
-                    'should be in target center, but try to rotate',
-                    textAlign: TextAlign.center,
-                  ),
                 ],
               ))),
           Positioned(
@@ -113,9 +109,7 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
   }
 
   void onMapEvent(MapEvent mapEvent, BuildContext context) {
-    // if (mapEvent is MapEventMove) {
     _updatePointLatLng(context);
-    // }
   }
 
   void _updatePointLatLng(context) {
