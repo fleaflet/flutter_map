@@ -418,6 +418,8 @@ See also `FileTileProvider()`, which loads tiles from the filesystem.
 - [map_elevation](https://github.com/OwnWeb/map_elevation): A widget to display elevation of a track (polyline) like Leaflet.Elevation
 - [flutter_map_floating_marker_titles](https://github.com/androidseb/flutter_map_floating_marker_titles): Displaying floating marker titles on the map view
 - [vector_map_tiles](https://pub.dev/packages/vector_map_tiles): A plugin that enables the use of vector tiles.
+- [flutter_map_dragmarker](https://pub.dev/packages/flutter_map_dragmarker): A plugin that enables a marker to be dragged.
+- [flutter_map_line_editor](https://pub.dev/packages/flutter_map_line_editor): A plugin that enables creation/editing of polylines and polygons.
 
 ## Roadmap
 
