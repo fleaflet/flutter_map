@@ -7,9 +7,10 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/util.dart' as util;
-import 'package:flutter_map/src/layer/tile_layer/animated_tile.dart';
 import 'package:flutter_map/src/layer/tile_layer/coords.dart';
 import 'package:flutter_map/src/layer/tile_layer/level.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_manager.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_widget.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:tuple/tuple.dart';
@@ -66,7 +67,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   StreamController<LatLng?>? _throttleUpdate;
   late CustomPoint _tileSize;
 
-  final Map<String, Tile> _tiles = {};
+  late final TileManager _tileManager;
   final Map<double, Level> _levels = {};
 
   Timer? _pruneLater;
@@ -74,6 +75,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    _tileManager = TileManager();
     _tileSize = CustomPoint(options.tileSize, options.tileSize);
     _resetView();
     _update(null);
@@ -100,7 +102,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       reloadTiles = true;
     }
 
-    reloadTiles |= _isZoomOutsideMinMax();
+    reloadTiles |= !_tileManager.allWithinZoom(options.minZoom, options.maxZoom);
 
     if (oldWidget.options.updateInterval != options.updateInterval) {
       _throttleUpdate?.close();
@@ -119,11 +121,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
           !(const MapEquality<String, String>())
               .equals(oldOptions, newOptions)) {
         if (options.overrideTilesWhenUrlChanges) {
-          for (final tile in _tiles.values) {
-            tile.imageProvider = options.tileProvider
-                .getImage(_wrapCoords(tile.coords), options);
-            tile.loadTileImage();
-          }
+          _tileManager.reloadImages(options, _wrapX, _wrapY);
         } else {
           reloadTiles = true;
         }
@@ -131,20 +129,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     }
 
     if (reloadTiles) {
-      _removeAllTiles();
+      _tileManager.removeAll(options.evictErrorTileStrategy);
       _resetView();
       _update(null);
     }
-  }
-
-  bool _isZoomOutsideMinMax() {
-    for (final tile in _tiles.values) {
-      if (tile.level.zoom > (options.maxZoom) ||
-          tile.level.zoom < (options.minZoom)) {
-        return true;
-      }
-    }
-    return false;
   }
 
   void _initThrottleUpdate() {
@@ -164,7 +152,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    _removeAllTiles();
+    _tileManager.removeAll(options.evictErrorTileStrategy);
     _resetSub?.cancel();
     _moveSub?.cancel();
     _pruneLater?.cancel();
@@ -176,10 +164,16 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final tilesToRender = _tiles.values.toList()..sort();
-
+    final tilesToRender = _tileManager.sortedTiles();
     final tileWidgets = <Widget>[
-      for (var tile in tilesToRender) _createTileWidget(tile)
+      for (var tile in tilesToRender)
+        TileWidget(
+          tile: tile,
+          size: _tileSize,
+          errorImage: options.errorImage,
+          tileBuilder: options.tileBuilder,
+          key: ValueKey(tile.coordsKey),
+        )
     ];
 
     final tilesContainer = Stack(
@@ -211,64 +205,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     );
   }
 
-  Widget _createTileWidget(Tile tile) {
-    final tilePos = tile.tilePos;
-    final level = tile.level;
-    final tileSize = getTileSize();
-    final pos = (tilePos).multiplyBy(level.scale) + level.translatePoint;
-    final num width = tileSize.x * level.scale;
-    final num height = tileSize.y * level.scale;
-
-    final Widget content = AnimatedTile(
-      tile: tile,
-      errorImage: options.errorImage,
-      tileBuilder: options.tileBuilder,
-    );
-
-    return Positioned(
-      key: ValueKey(tile.coordsKey),
-      left: pos.x.toDouble(),
-      top: pos.y.toDouble(),
-      width: width.toDouble(),
-      height: height.toDouble(),
-      child: content,
-    );
-  }
-
-  void _abortLoading() {
-    final toRemove = <String>[];
-    for (final entry in _tiles.entries) {
-      final tile = entry.value;
-
-      if (tile.coords.z != _tileZoom) {
-        if (tile.loaded == null) {
-          toRemove.add(entry.key);
-        }
-      }
-    }
-
-    for (final key in toRemove) {
-      final tile = _tiles[key]!;
-
-      tile.tileReady = null;
-      tile.dispose(tile.loadError &&
-          options.evictErrorTileStrategy != EvictErrorTileStrategy.none);
-      _tiles.remove(key);
-    }
-  }
-
   CustomPoint getTileSize() {
     return _tileSize;
-  }
-
-  bool _hasLevelChildren(double lvl) {
-    for (final tile in _tiles.values) {
-      if (tile.coords.z == lvl) {
-        return true;
-      }
-    }
-
-    return false;
   }
 
   Level? _updateLevels() {
@@ -282,7 +220,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       final z = entry.key;
       final lvl = entry.value;
 
-      if (z == zoom || _hasLevelChildren(z)) {
+      if (z == zoom || _tileManager.anyWithZoomLevel(z)) {
         lvl.zIndex = maxZoom - (zoom - z).abs();
       } else {
         toRemove.add(z);
@@ -290,7 +228,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     }
 
     for (final z in toRemove) {
-      _removeTilesAtZoom(z);
+      _tileManager.removeAtZoom(z, options.evictErrorTileStrategy);
       _levels.remove(z);
     }
 
@@ -309,120 +247,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     return _level = level;
   }
 
-  void _pruneTiles() {
-    final zoom = _tileZoom;
-    if (zoom == null) {
-      _removeAllTiles();
-      return;
-    }
-
-    for (final entry in _tiles.entries) {
-      final tile = entry.value;
-      tile.retain = tile.current;
-    }
-
-    for (final entry in _tiles.entries) {
-      final tile = entry.value;
-
-      if (tile.current && !tile.active) {
-        final coords = tile.coords;
-        if (!_retainParent(coords.x, coords.y, coords.z, coords.z - 5)) {
-          _retainChildren(coords.x, coords.y, coords.z, coords.z + 2);
-        }
-      }
-    }
-
-    final toRemove = <String>[];
-    for (final entry in _tiles.entries) {
-      final tile = entry.value;
-
-      if (!tile.retain) {
-        toRemove.add(entry.key);
-      }
-    }
-
-    for (final key in toRemove) {
-      _removeTile(key);
-    }
-  }
-
-  void _removeTilesAtZoom(double zoom) {
-    final toRemove = <String>[];
-    for (final entry in _tiles.entries) {
-      if (entry.value.coords.z != zoom) {
-        continue;
-      }
-      toRemove.add(entry.key);
-    }
-
-    for (final key in toRemove) {
-      _removeTile(key);
-    }
-  }
-
   ///removes all loaded tiles and resets the view
   void _resetTiles() {
-    _removeAllTiles();
+    _tileManager.removeAll(options.evictErrorTileStrategy);
     _resetView();
-  }
-
-  void _removeAllTiles() {
-    final toRemove = Map<String, Tile>.from(_tiles);
-
-    for (final key in toRemove.keys) {
-      _removeTile(key);
-    }
-  }
-
-  bool _retainParent(double x, double y, double z, double minZoom) {
-    final x2 = (x / 2).floorToDouble();
-    final y2 = (y / 2).floorToDouble();
-    final z2 = z - 1;
-    final coords2 = Coords(x2, y2);
-    coords2.z = z2;
-
-    final key = _tileCoordsToKey(coords2);
-
-    final tile = _tiles[key];
-    if (tile != null) {
-      if (tile.active) {
-        tile.retain = true;
-        return true;
-      } else if (tile.loaded != null) {
-        tile.retain = true;
-      }
-    }
-
-    if (z2 > minZoom) {
-      return _retainParent(x2, y2, z2, minZoom);
-    }
-
-    return false;
-  }
-
-  void _retainChildren(double x, double y, double z, double maxZoom) {
-    for (var i = 2 * x; i < 2 * x + 2; i++) {
-      for (var j = 2 * y; j < 2 * y + 2; j++) {
-        final coords = Coords(i, j);
-        coords.z = z + 1;
-
-        final key = _tileCoordsToKey(coords);
-
-        final tile = _tiles[key];
-        if (tile != null) {
-          if (tile.active) {
-            tile.retain = true;
-            continue;
-          } else if (tile.loaded != null) {
-            tile.retain = true;
-          }
-        }
-
-        if (z + 1 < maxZoom) {
-          _retainChildren(i, j, z + 1, maxZoom);
-        }
-      }
-    }
   }
 
   void _resetView() {
@@ -449,7 +277,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     _tileZoom = tileZoom;
 
-    _abortLoading();
+    _tileManager.abortLoading(_tileZoom, options.evictErrorTileStrategy);
 
     _updateLevels();
     _resetGrid();
@@ -458,7 +286,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       _update(center);
     }
 
-    _pruneTiles();
+    _tileManager.prune(_tileZoom, options.evictErrorTileStrategy);
   }
 
   void _setZoomTransforms(LatLng center, double zoom) {
@@ -575,15 +403,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       tileRange.topRight + CustomPoint(margin, -margin),
     );
 
-    for (final entry in _tiles.entries) {
-      final tile = entry.value;
-      final c = tile.coords;
-
-      if (tile.current == true &&
-          (c.z != _tileZoom || !noPruneRange.contains(CustomPoint(c.x, c.y)))) {
-        tile.current = false;
-      }
-    }
+    _tileManager.markToPrune(_tileZoom, noPruneRange);
 
     // _update just loads more tiles. If the tile zoom level differs too much
     // from the map's, let _setView reset levels and prune old tiles.
@@ -610,23 +430,32 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
           continue;
         }
 
-        final tile = _tiles[_tileCoordsToKey(coords)];
-        if (tile != null) {
-          tile.current = true;
-        } else {
+        if (!_tileManager.markTileWithCoordsAsCurrent(coords)) {
           queue.add(coords);
         }
       }
     }
 
-    _evictErrorTilesBasedOnStrategy(tileRange);
+    _tileManager.evictErrorTilesBasedOnStrategy(tileRange, options.evictErrorTileStrategy);
 
     // sort tile queue to load tiles in order of their distance to center
     queue.sort((a, b) =>
         (a.distanceTo(tileCenter) - b.distanceTo(tileCenter)).toInt());
 
     for (var i = 0; i < queue.length; i++) {
-      _addTile(queue[i] as Coords<double>);
+      final coords = queue[i] as Coords<double>;
+      _tileManager.add(
+          coords,
+          Tile(
+            coords: coords,
+            tilePos: _getTilePos(coords),
+            current: true,
+            level: _levels[coords.z]!,
+            imageProvider:
+            options.tileProvider.getImage(coords.wrap(_wrapX, _wrapY), options),
+            tileReady: _tileReady,
+        )..loadTileImage(),
+      );
     }
   }
 
@@ -663,10 +492,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     return pxBounds;
   }
 
-  String _tileCoordsToKey(Coords coords) {
-    return '${coords.x}:${coords.y}:${coords.z}';
-  }
-
   //ignore: unused_element
   Coords _keyToTileCoords(String key) {
     final k = key.split(':');
@@ -674,73 +499,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     coords.z = double.parse(k[2]);
 
     return coords;
-  }
-
-  void _removeTile(String key) {
-    final tile = _tiles[key];
-    if (tile == null) {
-      return;
-    }
-
-    tile.dispose(tile.loadError &&
-        options.evictErrorTileStrategy != EvictErrorTileStrategy.none);
-    _tiles.remove(key);
-  }
-
-  void _addTile(Coords<double> coords) {
-    final tileCoordsToKey = _tileCoordsToKey(coords);
-    final tile = _tiles[tileCoordsToKey] = Tile(
-      coords: coords,
-      coordsKey: tileCoordsToKey,
-      tilePos: _getTilePos(coords),
-      current: true,
-      level: _levels[coords.z]!,
-      imageProvider:
-          options.tileProvider.getImage(_wrapCoords(coords), options),
-      tileReady: _tileReady,
-    );
-
-    tile.loadTileImage();
-  }
-
-  void _evictErrorTilesBasedOnStrategy(Bounds tileRange) {
-    if (options.evictErrorTileStrategy ==
-        EvictErrorTileStrategy.notVisibleRespectMargin) {
-      final toRemove = <String>[];
-      for (final entry in _tiles.entries) {
-        final tile = entry.value;
-
-        if (tile.loadError && !tile.current) {
-          toRemove.add(entry.key);
-        }
-      }
-
-      for (final key in toRemove) {
-        final tile = _tiles[key]!;
-
-        tile.dispose(true);
-        _tiles.remove(key);
-      }
-    } else if (options.evictErrorTileStrategy ==
-        EvictErrorTileStrategy.notVisible) {
-      final toRemove = <String>[];
-      for (final entry in _tiles.entries) {
-        final tile = entry.value;
-        final c = tile.coords;
-
-        if (tile.loadError &&
-            (!tile.current || !tileRange.contains(CustomPoint(c.x, c.y)))) {
-          toRemove.add(entry.key);
-        }
-      }
-
-      for (final key in toRemove) {
-        final tile = _tiles[key]!;
-
-        tile.dispose(true);
-        _tiles.remove(key);
-      }
-    }
   }
 
   void _tileReady(Coords<double> coords, dynamic error, Tile? tile) {
@@ -756,19 +514,17 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       tile!.loadError = false;
     }
 
-    final key = _tileCoordsToKey(coords);
-    tile = _tiles[key];
-    if (null == tile) {
-      return;
-    }
+
+    tile = _tileManager.tileAt(tile.coords);
+    if (tile == null) return;
 
     if (options.fastReplace && mounted) {
       setState(() {
         tile!.active = true;
 
-        if (_noTilesToLoad()) {
+        if (_tileManager.allLoaded) {
           // We're not waiting for anything, prune the tiles immediately.
-          _pruneTiles();
+          _tileManager.prune(_tileZoom, options.evictErrorTileStrategy);
         }
       });
       return;
@@ -794,7 +550,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       setState(() {});
     }
 
-    if (_noTilesToLoad()) {
+    if (_tileManager.allLoaded) {
       // Wait a bit more than tileFadeInDuration (the duration of the tile
       // fade-in) to trigger a pruning.
       _pruneLater?.cancel();
@@ -804,7 +560,9 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
             : const Duration(milliseconds: 50),
         () {
           if (mounted) {
-            setState(_pruneTiles);
+            setState((){
+              _tileManager.prune(_tileZoom, options.evictErrorTileStrategy);
+            });
           }
         },
       );
@@ -816,19 +574,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     return coords.scaleBy(getTileSize()) - level.origin!;
   }
 
-  Coords _wrapCoords(Coords coords) {
-    final newCoords = Coords(
-      _wrapX != null
-          ? util.wrapNum(coords.x.toDouble(), _wrapX!)
-          : coords.x.toDouble(),
-      _wrapY != null
-          ? util.wrapNum(coords.y.toDouble(), _wrapY!)
-          : coords.y.toDouble(),
-    );
-    newCoords.z = coords.z.toDouble();
-    return newCoords;
-  }
-
   Bounds _pxBoundsToTileRange(Bounds bounds) {
     final tileSize = getTileSize();
     return Bounds(
@@ -837,12 +582,4 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     );
   }
 
-  bool _noTilesToLoad() {
-    for (final entry in _tiles.entries) {
-      if (entry.value.loaded == null) {
-        return false;
-      }
-    }
-    return true;
-  }
 }

@@ -7,7 +7,6 @@ typedef TileReady = void Function(
     Coords<double> coords, dynamic error, Tile tile);
 
 class Tile implements Comparable<Tile> {
-  final String coordsKey;
   final Coords<double> coords;
   final CustomPoint<num> tilePos;
   ImageProvider imageProvider;
@@ -34,7 +33,6 @@ class Tile implements Comparable<Tile> {
   late ImageStreamListener _listener;
 
   Tile({
-    required this.coordsKey,
     required this.coords,
     required this.tilePos,
     required this.imageProvider,
@@ -127,6 +125,8 @@ class Tile implements Comparable<Tile> {
       return zIndexB.compareTo(zIndexA);
     }
   }
+
+  String get coordsKey => coords.key;
 
   @override
   int get hashCode => coords.hashCode;
