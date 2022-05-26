@@ -60,8 +60,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   Tuple2<double, double>? _wrapY;
   double? _tileZoom;
 
-  //ignore: unused_field
-  Level? _level;
   StreamSubscription? _moveSub;
   StreamSubscription? _resetSub;
   StreamController<LatLng?>? _throttleUpdate;
@@ -102,7 +100,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       reloadTiles = true;
     }
 
-    reloadTiles |= !_tileManager.allWithinZoom(options.minZoom, options.maxZoom);
+    reloadTiles |=
+        !_tileManager.allWithinZoom(options.minZoom, options.maxZoom);
 
     if (oldWidget.options.updateInterval != options.updateInterval) {
       _throttleUpdate?.close();
@@ -244,7 +243,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       _setZoomTransform(level, map.center, map.zoom);
     }
 
-    return _level = level;
+    return level;
   }
 
   ///removes all loaded tiles and resets the view
@@ -289,7 +288,9 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     _tileManager.prune(_tileZoom, options.evictErrorTileStrategy);
   }
 
-  void _setZoomTransforms(LatLng center, double zoom) {
+  void _setZoomTransforms() {
+    final center = map.center;
+    final zoom = map.zoom;
     for (final i in _levels.keys) {
       _setZoomTransform(_levels[i]!, center, zoom);
     }
@@ -352,7 +353,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         setState(() {
           _setView(map.center, tileZoom);
 
-          _setZoomTransforms(map.center, map.zoom);
+          _setZoomTransforms();
         });
       }
     } else {
@@ -361,7 +362,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
           // It was a zoom lvl change
           _setView(map.center, tileZoom);
 
-          _setZoomTransforms(map.center, map.zoom);
+          _setZoomTransforms();
         } else {
           if (_throttleUpdate == null) {
             _update(null);
@@ -369,7 +370,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
             _throttleUpdate!.add(null);
           }
 
-          _setZoomTransforms(map.center, map.zoom);
+          _setZoomTransforms();
         }
       });
     }
@@ -436,7 +437,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       }
     }
 
-    _tileManager.evictErrorTilesBasedOnStrategy(tileRange, options.evictErrorTileStrategy);
+    _tileManager.evictErrorTilesBasedOnStrategy(
+        tileRange, options.evictErrorTileStrategy);
 
     // sort tile queue to load tiles in order of their distance to center
     queue.sort((a, b) =>
@@ -445,15 +447,15 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     for (var i = 0; i < queue.length; i++) {
       final coords = queue[i] as Coords<double>;
       _tileManager.add(
-          coords,
-          Tile(
-            coords: coords,
-            tilePos: _getTilePos(coords),
-            current: true,
-            level: _levels[coords.z]!,
-            imageProvider:
-            options.tileProvider.getImage(coords.wrap(_wrapX, _wrapY), options),
-            tileReady: _tileReady,
+        coords,
+        Tile(
+          coords: coords,
+          tilePos: _getTilePos(coords),
+          current: true,
+          level: _levels[coords.z]!,
+          imageProvider: options.tileProvider
+              .getImage(coords.wrap(_wrapX, _wrapY), options),
+          tileReady: _tileReady,
         )..loadTileImage(),
       );
     }
@@ -492,15 +494,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     return pxBounds;
   }
 
-  //ignore: unused_element
-  Coords _keyToTileCoords(String key) {
-    final k = key.split(':');
-    final coords = Coords(double.parse(k[0]), double.parse(k[1]));
-    coords.z = double.parse(k[2]);
-
-    return coords;
-  }
-
   void _tileReady(Coords<double> coords, dynamic error, Tile? tile) {
     if (null != error) {
       debugPrint(error.toString());
@@ -513,7 +506,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     } else {
       tile!.loadError = false;
     }
-
 
     tile = _tileManager.tileAt(tile.coords);
     if (tile == null) return;
@@ -560,7 +552,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
             : const Duration(milliseconds: 50),
         () {
           if (mounted) {
-            setState((){
+            setState(() {
               _tileManager.prune(_tileZoom, options.evictErrorTileStrategy);
             });
           }
@@ -581,5 +573,4 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       bounds.max.unscaleBy(tileSize).ceil() - const CustomPoint(1, 1),
     );
   }
-
 }
