@@ -6,7 +6,7 @@ import 'package:flutter_map/src/layer/tile_layer/level.dart';
 typedef TileReady = void Function(
     Coords<double> coords, dynamic error, Tile tile);
 
-class Tile implements Comparable<Tile> {
+class Tile {
   final Coords<double> coords;
   final CustomPoint<num> tilePos;
   ImageProvider imageProvider;
@@ -114,19 +114,10 @@ class Tile implements Comparable<Tile> {
     }
   }
 
-  @override
-  int compareTo(Tile other) {
-    final zIndexA = level.zIndex;
-    final zIndexB = other.level.zIndex;
-
-    if (zIndexA == zIndexB) {
-      return 0;
-    } else {
-      return zIndexB.compareTo(zIndexA);
-    }
-  }
-
   String get coordsKey => coords.key;
+
+  double zIndex(double maxZoom, double currentZoom) =>
+      maxZoom - (currentZoom - coords.z).abs();
 
   @override
   int get hashCode => coords.hashCode;
@@ -136,4 +127,3 @@ class Tile implements Comparable<Tile> {
     return other is Tile && coords == other.coords;
   }
 }
-

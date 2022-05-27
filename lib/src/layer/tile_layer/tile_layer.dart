@@ -163,7 +163,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final tilesToRender = _tileManager.sortedTiles();
+    final tilesToRender = _tileZoom == null
+        ? _tileManager.all()
+        : _tileManager.sortedByDistanceToZoomAscending(
+            options.maxZoom, _tileZoom!);
     final tileWidgets = <Widget>[
       for (var tile in tilesToRender)
         TileWidget(
@@ -210,18 +213,14 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   Level? _updateLevels() {
     final zoom = _tileZoom;
-    final maxZoom = options.maxZoom;
 
     if (zoom == null) return null;
 
     final toRemove = <double>[];
     for (final entry in _levels.entries) {
       final z = entry.key;
-      final lvl = entry.value;
 
-      if (z == zoom || _tileManager.anyWithZoomLevel(z)) {
-        lvl.zIndex = maxZoom - (zoom - z).abs();
-      } else {
+      if (z != zoom || !_tileManager.anyWithZoomLevel(z)) {
         toRemove.add(z);
       }
     }
@@ -232,13 +231,12 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     }
 
     var level = _levels[zoom];
-    final map = this.map;
 
     if (level == null) {
-      level = _levels[zoom] = Level();
-      level.zIndex = maxZoom;
-      level.origin = map.project(map.unproject(map.getPixelOrigin()), zoom);
-      level.zoom = zoom;
+      level = _levels[zoom] = Level(
+        origin: map.project(map.unproject(map.getPixelOrigin()), zoom),
+        zoom: zoom,
+      );
 
       _setZoomTransform(level, map.center, map.zoom);
     }
@@ -299,10 +297,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   void _setZoomTransform(Level level, LatLng center, double zoom) {
     final scale = map.getZoomScale(zoom, level.zoom);
     final pixelOrigin = map.getNewPixelOrigin(center, zoom).round();
-    if (level.origin == null) {
-      return;
-    }
-    final translate = level.origin!.multiplyBy(scale) - pixelOrigin;
+    final translate = level.origin.multiplyBy(scale) - pixelOrigin;
     level.translatePoint = translate;
     level.scale = scale;
   }
@@ -369,7 +364,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
           } else {
             _throttleUpdate!.add(null);
           }
-
           _setZoomTransforms();
         }
       });
@@ -397,7 +391,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     final pixelBounds = _getTiledPixelBounds(center);
     final tileRange = _pxBoundsToTileRange(pixelBounds);
     final tileCenter = tileRange.center;
-    final queue = <Coords<num>>[];
+    final queue = <Coords<double>>[];
     final margin = options.keepBuffer;
     final noPruneRange = Bounds(
       tileRange.bottomLeft - CustomPoint(margin, -margin),
@@ -444,8 +438,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     queue.sort((a, b) =>
         (a.distanceTo(tileCenter) - b.distanceTo(tileCenter)).toInt());
 
-    for (var i = 0; i < queue.length; i++) {
-      final coords = queue[i] as Coords<double>;
+    for (final coords in queue) {
       _tileManager.add(
         coords,
         Tile(
@@ -563,7 +556,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   CustomPoint _getTilePos(Coords coords) {
     final level = _levels[coords.z as double]!;
-    return coords.scaleBy(getTileSize()) - level.origin!;
+    return coords.scaleBy(getTileSize()) - level.origin;
   }
 
   Bounds _pxBoundsToTileRange(Bounds bounds) {

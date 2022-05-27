@@ -22,7 +22,8 @@ class TileManager {
       final tile = _tiles[key]!;
 
       tile.tileReady = null;
-      tile.dispose(tile.loadError && evictionStrategy != EvictErrorTileStrategy.none);
+      tile.dispose(
+          tile.loadError && evictionStrategy != EvictErrorTileStrategy.none);
       _tiles.remove(key);
     }
   }
@@ -81,7 +82,8 @@ class TileManager {
       return;
     }
 
-    tile.dispose(tile.loadError && evictStrategy != EvictErrorTileStrategy.none);
+    tile.dispose(
+        tile.loadError && evictStrategy != EvictErrorTileStrategy.none);
     _tiles.remove(key);
   }
 
@@ -99,7 +101,6 @@ class TileManager {
     }
   }
 
-
   bool anyWithZoomLevel(double zoomLevel) {
     for (final tile in _tiles.values) {
       if (tile.coords.z == zoomLevel) {
@@ -109,7 +110,6 @@ class TileManager {
 
     return false;
   }
-
 
   void markToPrune(double? currentZoom, Bounds noPruneRange) {
     for (final entry in _tiles.entries) {
@@ -136,15 +136,18 @@ class TileManager {
 
   bool allWithinZoom(double minZoom, double maxZoom) {
     for (final tile in _tiles.values) {
-      if (tile.level.zoom > (maxZoom) ||
-          tile.level.zoom < (minZoom)) {
+      if (tile.level.zoom > (maxZoom) || tile.level.zoom < (minZoom)) {
         return false;
       }
     }
     return true;
   }
 
-  void reloadImages(TileLayerOptions options, Tuple2<double, double>? wrapX, Tuple2<double, double>? wrapY,) {
+  void reloadImages(
+    TileLayerOptions options,
+    Tuple2<double, double>? wrapX,
+    Tuple2<double, double>? wrapY,
+  ) {
     for (final tile in _tiles.values) {
       tile.imageProvider = options.tileProvider
           .getImage(tile.coords.wrap(wrapX, wrapY), options);
@@ -162,9 +165,9 @@ class TileManager {
     }
   }
 
-  void evictErrorTilesBasedOnStrategy(Bounds tileRange, EvictErrorTileStrategy evictStrategy) {
-    if (evictStrategy ==
-        EvictErrorTileStrategy.notVisibleRespectMargin) {
+  void evictErrorTilesBasedOnStrategy(
+      Bounds tileRange, EvictErrorTileStrategy evictStrategy) {
+    if (evictStrategy == EvictErrorTileStrategy.notVisibleRespectMargin) {
       final toRemove = <String>[];
       for (final entry in _tiles.entries) {
         final tile = entry.value;
@@ -201,8 +204,15 @@ class TileManager {
     }
   }
 
-  List<Tile> sortedTiles() {
-    return _tiles.values.toList()..sort();
+  List<Tile> all() {
+    return _tiles.values.toList();
+  }
+
+  List<Tile> sortedByDistanceToZoomAscending(
+      double maxZoom, double currentZoom) {
+    return [..._tiles.values]..sort((a, b) => a
+        .zIndex(maxZoom, currentZoom)
+        .compareTo(b.zIndex(maxZoom, currentZoom)));
   }
 
   void _retainChildren(double x, double y, double z, double maxZoom) {

@@ -10,6 +10,7 @@ import 'package:latlong2/latlong.dart';
 class MapControllerImpl implements MapController {
   final Completer<void> _readyCompleter = Completer<void>();
   final StreamController<MapEvent> _mapEventSink = StreamController.broadcast();
+
   @override
   StreamSink<MapEvent> get mapEventSink => _mapEventSink.sink;
 
@@ -22,6 +23,7 @@ class MapControllerImpl implements MapController {
   }
 
   late final MapState _state;
+
   @override
   set state(MapState state) {
     _state = state;
@@ -129,6 +131,7 @@ class MapState {
   double _rotationRad;
 
   double get zoom => _zoom;
+
   double get rotation => _rotation;
 
   set rotation(double rotation) {
