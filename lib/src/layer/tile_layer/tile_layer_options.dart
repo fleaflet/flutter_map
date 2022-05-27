@@ -238,54 +238,54 @@ class TileLayerOptions extends LayerOptions {
 
   TileLayerOptions(
       {this.attributionAlignment = Alignment.bottomRight,
-        this.attributionBuilder,
-        Key? key,
-        // TODO: make required
-        this.urlTemplate,
-        double tileSize = 256.0,
-        double minZoom = 0.0,
-        double maxZoom = 18.0,
-        this.minNativeZoom,
-        this.maxNativeZoom,
-        this.zoomReverse = false,
-        double zoomOffset = 0.0,
-        Map<String, String>? additionalOptions,
-        this.subdomains = const <String>[],
-        this.keepBuffer = 2,
-        this.backgroundColor = const Color(0xFFE0E0E0),
-        this.placeholderImage,
-        this.errorImage,
-        this.tileProvider = const NonCachingNetworkTileProvider(),
-        this.tms = false,
-        // ignore: avoid_init_to_null
-        this.wmsOptions = null,
-        this.opacity = 1.0,
-        // Tiles will not update more than once every `updateInterval` milliseconds
-        // (default 200) when panning. It can be 0 (but it will calculating for
-        // loading tiles every frame when panning / zooming, flutter is fast) This
-        // can save some fps and even bandwidth (ie. when fast panning / animating
-        // between long distances in short time)
-        // TODO: change to Duration
-        int updateInterval = 200,
-        // Tiles fade in duration in milliseconds (default 100).  This can be set to
-        // 0 to avoid fade in
-        // TODO: change to Duration
-        int tileFadeInDuration = 100,
-        this.tileFadeInStart = 0.0,
-        this.tileFadeInStartWhenOverride = 0.0,
-        this.overrideTilesWhenUrlChanges = false,
-        this.retinaMode = false,
-        this.errorTileCallback,
-        Stream<void>? rebuild,
-        this.templateFunction = util.template,
-        this.tileBuilder,
-        this.tilesContainerBuilder,
-        this.evictErrorTileStrategy = EvictErrorTileStrategy.none,
-        this.fastReplace = false,
-        this.reset,
-        this.tileBounds})
+      this.attributionBuilder,
+      Key? key,
+      // TODO: make required
+      this.urlTemplate,
+      double tileSize = 256.0,
+      double minZoom = 0.0,
+      double maxZoom = 18.0,
+      this.minNativeZoom,
+      this.maxNativeZoom,
+      this.zoomReverse = false,
+      double zoomOffset = 0.0,
+      Map<String, String>? additionalOptions,
+      this.subdomains = const <String>[],
+      this.keepBuffer = 2,
+      this.backgroundColor = const Color(0xFFE0E0E0),
+      this.placeholderImage,
+      this.errorImage,
+      this.tileProvider = const NonCachingNetworkTileProvider(),
+      this.tms = false,
+      // ignore: avoid_init_to_null
+      this.wmsOptions = null,
+      this.opacity = 1.0,
+      // Tiles will not update more than once every `updateInterval` milliseconds
+      // (default 200) when panning. It can be 0 (but it will calculating for
+      // loading tiles every frame when panning / zooming, flutter is fast) This
+      // can save some fps and even bandwidth (ie. when fast panning / animating
+      // between long distances in short time)
+      // TODO: change to Duration
+      int updateInterval = 200,
+      // Tiles fade in duration in milliseconds (default 100).  This can be set to
+      // 0 to avoid fade in
+      // TODO: change to Duration
+      int tileFadeInDuration = 100,
+      this.tileFadeInStart = 0.0,
+      this.tileFadeInStartWhenOverride = 0.0,
+      this.overrideTilesWhenUrlChanges = false,
+      this.retinaMode = false,
+      this.errorTileCallback,
+      Stream<void>? rebuild,
+      this.templateFunction = util.template,
+      this.tileBuilder,
+      this.tilesContainerBuilder,
+      this.evictErrorTileStrategy = EvictErrorTileStrategy.none,
+      this.fastReplace = false,
+      this.reset,
+      this.tileBounds})
       : updateInterval =
-  updateInterval <= 0 ? null : Duration(milliseconds: updateInterval),
+            updateInterval <= 0 ? null : Duration(milliseconds: updateInterval),
         tileFadeInDuration = tileFadeInDuration <= 0
             ? null
             : Duration(milliseconds: tileFadeInDuration),
@@ -293,21 +293,21 @@ class TileLayerOptions extends LayerOptions {
         assert(tileFadeInStartWhenOverride >= 0.0 &&
             tileFadeInStartWhenOverride <= 1.0),
         maxZoom =
-        wmsOptions == null && retinaMode && maxZoom > 0.0 && !zoomReverse
-            ? maxZoom - 1.0
-            : maxZoom,
+            wmsOptions == null && retinaMode && maxZoom > 0.0 && !zoomReverse
+                ? maxZoom - 1.0
+                : maxZoom,
         minZoom =
-        wmsOptions == null && retinaMode && maxZoom > 0.0 && zoomReverse
-            ? math.max(minZoom + 1.0, 0)
-            : minZoom,
+            wmsOptions == null && retinaMode && maxZoom > 0.0 && zoomReverse
+                ? math.max(minZoom + 1.0, 0)
+                : minZoom,
         zoomOffset = wmsOptions == null && retinaMode && maxZoom > 0.0
             ? (zoomReverse ? zoomOffset - 1.0 : zoomOffset + 1.0)
             : zoomOffset,
         tileSize = wmsOptions == null && retinaMode && maxZoom > 0.0
             ? (tileSize / 2.0).floorToDouble()
             : tileSize,
-  // copy additionalOptions Map if not null, so we can safely compare old
-  // and new Map inside didUpdateWidget with MapEquality.
+        // copy additionalOptions Map if not null, so we can safely compare old
+        // and new Map inside didUpdateWidget with MapEquality.
         additionalOptions = additionalOptions == null
             ? const <String, String>{}
             : Map.from(additionalOptions),
@@ -402,4 +402,3 @@ class WMSTileLayerOptions {
     return buffer.toString();
   }
 }
-

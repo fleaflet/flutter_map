@@ -166,56 +166,62 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final tilesToRender = _tileZoom == null
-        ? _tileManager.all()
-        : _tileManager.sortedByDistanceToZoomAscending(
-            options.maxZoom, _tileZoom!);
+    return StreamBuilder(
+      stream: widget.stream,
+      builder: (context, snapshot) {
+        final tilesToRender = _tileZoom == null
+            ? _tileManager.all()
+            : _tileManager.sortedByDistanceToZoomAscending(
+                options.maxZoom, _tileZoom!);
 
-    final Map<double, TileTransformation> zoomToTransformation = {};
+        final Map<double, TileTransformation> zoomToTransformation = {};
 
-    final tileWidgets = <Widget>[
-      for (var tile in tilesToRender)
-        TileWidget(
-          tile: tile,
-          size: _tileSize,
-          tileTransformation: zoomToTransformation[tile.coords.z] ??
-              (zoomToTransformation[tile.coords.z] =
-                  _transformationCalculator.transformationFor(
-                tile.coords.z,
-                map,
-              )),
-          errorImage: options.errorImage,
-          tileBuilder: options.tileBuilder,
-          key: ValueKey(tile.coordsKey),
-        )
-    ];
+        final tileWidgets = <Widget>[
+          for (var tile in tilesToRender)
+            TileWidget(
+              tile: tile,
+              size: _tileSize,
+              tileTransformation: zoomToTransformation[tile.coords.z] ??
+                  (zoomToTransformation[tile.coords.z] =
+                      _transformationCalculator.transformationFor(
+                    tile.coords.z,
+                    map,
+                  )),
+              errorImage: options.errorImage,
+              tileBuilder: options.tileBuilder,
+              key: ValueKey(tile.coordsKey),
+            )
+        ];
 
-    final tilesContainer = Stack(
-      children: tileWidgets,
-    );
+        final tilesContainer = Stack(
+          children: tileWidgets,
+        );
 
-    final tilesLayer = options.tilesContainerBuilder == null
-        ? tilesContainer
-        : options.tilesContainerBuilder!(
-            context,
-            tilesContainer,
-            tilesToRender,
-          );
+        final tilesLayer = options.tilesContainerBuilder == null
+            ? tilesContainer
+            : options.tilesContainerBuilder!(
+                context,
+                tilesContainer,
+                tilesToRender,
+              );
 
-    final attributionLayer = widget.options.attributionBuilder?.call(context);
+        final attributionLayer =
+            widget.options.attributionBuilder?.call(context);
 
-    return Opacity(
-      opacity: options.opacity,
-      child: Container(
-        color: options.backgroundColor,
-        child: Stack(
-          alignment: widget.options.attributionAlignment,
-          children: [
-            tilesLayer,
-            if (attributionLayer != null) attributionLayer,
-          ],
-        ),
-      ),
+        return Opacity(
+          opacity: options.opacity,
+          child: Container(
+            color: options.backgroundColor,
+            child: Stack(
+              alignment: widget.options.attributionAlignment,
+              children: [
+                tilesLayer,
+                if (attributionLayer != null) attributionLayer,
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 

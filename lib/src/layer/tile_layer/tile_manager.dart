@@ -210,9 +210,9 @@ class TileManager {
 
   List<Tile> sortedByDistanceToZoomAscending(
       double maxZoom, double currentZoom) {
-    return [..._tiles.values]..sort((a, b) => b
+    return [..._tiles.values]..sort((a, b) => a
         .zIndex(maxZoom, currentZoom)
-        .compareTo(a.zIndex(maxZoom, currentZoom)));
+        .compareTo(b.zIndex(maxZoom, currentZoom)));
   }
 
   void _retainChildren(double x, double y, double z, double maxZoom) {

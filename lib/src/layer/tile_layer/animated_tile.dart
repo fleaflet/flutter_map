@@ -1,4 +1,3 @@
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 
@@ -25,13 +24,13 @@ class _AnimatedTileState extends State<AnimatedTile> {
   Widget build(BuildContext context) {
     final tileWidget = (widget.tile.loadError && widget.errorImage != null)
         ? Image(
-      image: widget.errorImage!,
-      fit: BoxFit.fill,
-    )
+            image: widget.errorImage!,
+            fit: BoxFit.fill,
+          )
         : RawImage(
-        image: widget.tile.imageInfo?.image,
-        fit: BoxFit.fill,
-        opacity: widget.tile.animationController);
+            image: widget.tile.imageInfo?.image,
+            fit: BoxFit.fill,
+            opacity: widget.tile.animationController);
 
     return widget.tileBuilder == null
         ? tileWidget
@@ -73,4 +72,3 @@ class _AnimatedTileState extends State<AnimatedTile> {
     }
   }
 }
-

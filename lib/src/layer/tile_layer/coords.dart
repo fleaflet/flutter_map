@@ -9,14 +9,11 @@ class Coords<T extends num> extends CustomPoint<T> {
 
   Coords(T x, T y) : super(x, y);
 
-  Coords<double> wrap(Tuple2<double, double>? wrapX, Tuple2<double, double>? wrapY) {
+  Coords<double> wrap(
+      Tuple2<double, double>? wrapX, Tuple2<double, double>? wrapY) {
     final newCoords = Coords<double>(
-      wrapX != null
-          ? util.wrapNum(x.toDouble(), wrapX)
-          : x.toDouble(),
-      wrapY != null
-          ? util.wrapNum(y.toDouble(), wrapY)
-          : y.toDouble(),
+      wrapX != null ? util.wrapNum(x.toDouble(), wrapX) : x.toDouble(),
+      wrapY != null ? util.wrapNum(y.toDouble(), wrapY) : y.toDouble(),
     );
     newCoords.z = z.toDouble();
     return newCoords;
