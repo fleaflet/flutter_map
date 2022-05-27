@@ -229,7 +229,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     if (zoom == null) return null;
 
     final toRemove = _transformationCalculator.whereLevel((levelZoom) =>
-        levelZoom != zoom || !_tileManager.anyWithZoomLevel(levelZoom));
+        levelZoom != zoom && !_tileManager.anyWithZoomLevel(levelZoom));
 
     for (final z in toRemove) {
       _tileManager.removeAtZoom(z, options.evictErrorTileStrategy);
