@@ -136,7 +136,7 @@ class TileManager {
 
   bool allWithinZoom(double minZoom, double maxZoom) {
     for (final tile in _tiles.values) {
-      if (tile.level.zoom > (maxZoom) || tile.level.zoom < (minZoom)) {
+      if (tile.coords.z > (maxZoom) || tile.coords.z < (minZoom)) {
         return false;
       }
     }

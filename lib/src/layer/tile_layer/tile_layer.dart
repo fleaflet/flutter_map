@@ -10,7 +10,9 @@ import 'package:flutter_map/src/core/util.dart' as util;
 import 'package:flutter_map/src/layer/tile_layer/coords.dart';
 import 'package:flutter_map/src/layer/tile_layer/level.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_manager.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_transformation.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_widget.dart';
+import 'package:flutter_map/src/layer/tile_layer/transformation_calculator.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:tuple/tuple.dart';
@@ -66,7 +68,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   late CustomPoint _tileSize;
 
   late final TileManager _tileManager;
-  final Map<double, Level> _levels = {};
+  late final TransformationCalculator _transformationCalculator;
 
   Timer? _pruneLater;
 
@@ -74,6 +76,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _tileManager = TileManager();
+    _transformationCalculator = TransformationCalculator();
     _tileSize = CustomPoint(options.tileSize, options.tileSize);
     _resetView();
     _update(null);
@@ -167,11 +170,20 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         ? _tileManager.all()
         : _tileManager.sortedByDistanceToZoomAscending(
             options.maxZoom, _tileZoom!);
+
+    final Map<double, TileTransformation> zoomToTransformation = {};
+
     final tileWidgets = <Widget>[
       for (var tile in tilesToRender)
         TileWidget(
           tile: tile,
           size: _tileSize,
+          tileTransformation: zoomToTransformation[tile.coords.z] ??
+              (zoomToTransformation[tile.coords.z] =
+                  _transformationCalculator.transformationFor(
+                tile.coords.z,
+                map,
+              )),
           errorImage: options.errorImage,
           tileBuilder: options.tileBuilder,
           key: ValueKey(tile.coordsKey),
@@ -216,32 +228,15 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     if (zoom == null) return null;
 
-    final toRemove = <double>[];
-    for (final entry in _levels.entries) {
-      final z = entry.key;
-
-      if (z != zoom || !_tileManager.anyWithZoomLevel(z)) {
-        toRemove.add(z);
-      }
-    }
+    final toRemove = _transformationCalculator.whereLevel((levelZoom) =>
+        levelZoom != zoom || !_tileManager.anyWithZoomLevel(levelZoom));
 
     for (final z in toRemove) {
       _tileManager.removeAtZoom(z, options.evictErrorTileStrategy);
-      _levels.remove(z);
+      _transformationCalculator.removeLevel(z);
     }
 
-    var level = _levels[zoom];
-
-    if (level == null) {
-      level = _levels[zoom] = Level(
-        origin: map.project(map.unproject(map.getPixelOrigin()), zoom),
-        zoom: zoom,
-      );
-
-      _setZoomTransform(level, map.center, map.zoom);
-    }
-
-    return level;
+    return _transformationCalculator.getOrCreateLevel(zoom, map);
   }
 
   ///removes all loaded tiles and resets the view
@@ -284,22 +279,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     }
 
     _tileManager.prune(_tileZoom, options.evictErrorTileStrategy);
-  }
-
-  void _setZoomTransforms() {
-    final center = map.center;
-    final zoom = map.zoom;
-    for (final i in _levels.keys) {
-      _setZoomTransform(_levels[i]!, center, zoom);
-    }
-  }
-
-  void _setZoomTransform(Level level, LatLng center, double zoom) {
-    final scale = map.getZoomScale(zoom, level.zoom);
-    final pixelOrigin = map.getNewPixelOrigin(center, zoom).round();
-    final translate = level.origin.multiplyBy(scale) - pixelOrigin;
-    level.translatePoint = translate;
-    level.scale = scale;
   }
 
   void _resetGrid() {
@@ -347,8 +326,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         _tileZoom = tileZoom;
         setState(() {
           _setView(map.center, tileZoom);
-
-          _setZoomTransforms();
         });
       }
     } else {
@@ -356,15 +333,12 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         if ((tileZoom - _tileZoom!).abs() >= 1) {
           // It was a zoom lvl change
           _setView(map.center, tileZoom);
-
-          _setZoomTransforms();
         } else {
           if (_throttleUpdate == null) {
             _update(null);
           } else {
             _throttleUpdate!.add(null);
           }
-          _setZoomTransforms();
         }
       });
     }
@@ -445,7 +419,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
           coords: coords,
           tilePos: _getTilePos(coords),
           current: true,
-          level: _levels[coords.z]!,
           imageProvider: options.tileProvider
               .getImage(coords.wrap(_wrapX, _wrapY), options),
           tileReady: _tileReady,
@@ -555,7 +528,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   }
 
   CustomPoint _getTilePos(Coords coords) {
-    final level = _levels[coords.z as double]!;
+    final level =
+        _transformationCalculator.getOrCreateLevel(coords.z as double, map);
     return coords.scaleBy(getTileSize()) - level.origin;
   }
 

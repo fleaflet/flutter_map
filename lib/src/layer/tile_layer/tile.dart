@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/tile_layer/coords.dart';
-import 'package:flutter_map/src/layer/tile_layer/level.dart';
 
 typedef TileReady = void Function(
     Coords<double> coords, dynamic error, Tile tile);
@@ -10,7 +9,6 @@ class Tile {
   final Coords<double> coords;
   final CustomPoint<num> tilePos;
   ImageProvider imageProvider;
-  final Level level;
 
   bool current;
   bool retain;
@@ -37,7 +35,6 @@ class Tile {
     required this.tilePos,
     required this.imageProvider,
     this.tileReady,
-    required this.level,
     this.current = false,
     this.active = false,
     this.retain = false,
