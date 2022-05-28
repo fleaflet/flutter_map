@@ -18,7 +18,7 @@ Talk about 'flutter_map', get and give help, and receive notifications about new
 View the beta documentation: <https://fleaflet-docs.netlify.app>!  
 Link liable to break and/or change. Most contents should be correct (but not yet verified), but some documentation may be missing/misleading.
 
-Any feedback is appreciated! Please comment or leave a code review on [pull request #992](/pull/992).
+Any feedback is appreciated! Please comment or leave a code review on [pull request #992](https://github.com/fleaflet/flutter_map/pull/992).
 
 ---
 
