@@ -7,7 +7,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/util.dart' as util;
-import 'package:flutter_map/src/layer/tile_layer/coords.dart';
 import 'package:flutter_map/src/layer/tile_layer/level.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_manager.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_transformation.dart';
