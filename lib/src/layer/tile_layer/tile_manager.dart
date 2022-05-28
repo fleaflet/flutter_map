@@ -11,10 +11,8 @@ class TileManager {
     for (final entry in _tiles.entries) {
       final tile = entry.value;
 
-      if (tile.coords.z != tileZoom) {
-        if (tile.loaded == null) {
-          toRemove.add(entry.key);
-        }
+      if (tile.coords.z != tileZoom && tile.loaded == null) {
+        toRemove.add(entry.key);
       }
     }
 
@@ -64,16 +62,16 @@ class TileManager {
     }
   }
 
+  void add(Coords<double> coords, Tile tile) {
+    _tiles[coords.key] = tile;
+  }
+
   void removeAll(EvictErrorTileStrategy evictStrategy) {
     final toRemove = Map<String, Tile>.from(_tiles);
 
     for (final key in toRemove.keys) {
       remove(key, evictStrategy);
     }
-  }
-
-  void add(Coords<double> coords, Tile tile) {
-    _tiles[coords.key] = tile;
   }
 
   void remove(String key, EvictErrorTileStrategy evictStrategy) {
@@ -84,6 +82,7 @@ class TileManager {
 
     tile.dispose(
         tile.loadError && evictStrategy != EvictErrorTileStrategy.none);
+
     _tiles.remove(key);
   }
 
@@ -116,10 +115,11 @@ class TileManager {
       final tile = entry.value;
       final c = tile.coords;
 
-      if (!tile.current) continue;
-      if (c.z == currentZoom) continue;
-      if (noPruneRange.contains(CustomPoint(c.x, c.y))) continue;
-      tile.current = false;
+      if (tile.current &&
+          (c.z != currentZoom ||
+              !noPruneRange.contains(CustomPoint(c.x, c.y)))) {
+        tile.current = false;
+      }
     }
   }
 
@@ -178,9 +178,7 @@ class TileManager {
       }
 
       for (final key in toRemove) {
-        final tile = _tiles[key]!;
-
-        tile.dispose(true);
+        _tiles[key]!.dispose(true);
         _tiles.remove(key);
       }
     } else if (evictStrategy == EvictErrorTileStrategy.notVisible) {
@@ -196,17 +194,13 @@ class TileManager {
       }
 
       for (final key in toRemove) {
-        final tile = _tiles[key]!;
-
-        tile.dispose(true);
+        _tiles[key]!.dispose(true);
         _tiles.remove(key);
       }
     }
   }
 
-  List<Tile> all() {
-    return _tiles.values.toList();
-  }
+  List<Tile> all() => _tiles.values.toList();
 
   List<Tile> sortedByDistanceToZoomAscending(
       double maxZoom, double currentZoom) {

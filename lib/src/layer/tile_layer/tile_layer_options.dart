@@ -117,7 +117,6 @@ class TileLayerOptions extends LayerOptions {
   ///
   /// Furthermore you create your custom implementation by subclassing
   /// TileProvider
-  ///
   final TileProvider tileProvider;
 
   /// When panning the map, keep this many rows and columns of tiles before
@@ -146,7 +145,6 @@ class TileLayerOptions extends LayerOptions {
   ///     },
   /// ),
   /// ```
-  ///
   final Map<String, String> additionalOptions;
 
   /// Tiles will not update more than once every `updateInterval` (default 200

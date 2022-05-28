@@ -48,9 +48,7 @@ class TileLayer extends StatefulWidget {
   }) : super(key: options.key);
 
   @override
-  State<StatefulWidget> createState() {
-    return _TileLayerState();
-  }
+  State<StatefulWidget> createState() => _TileLayerState();
 }
 
 class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
@@ -224,9 +222,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     );
   }
 
-  CustomPoint getTileSize() {
-    return _tileSize;
-  }
+  CustomPoint getTileSize() => _tileSize;
 
   Level? _updateLevels() {
     final zoom = _tileZoom;
