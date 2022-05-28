@@ -173,7 +173,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
             ? _tileManager.all()
             : _tileManager.sortedByDistanceToZoomAscending(
                 options.maxZoom, _tileZoom!);
-
         final Map<double, TileTransformation> zoomToTransformation = {};
 
         final tileWidgets = <Widget>[
@@ -419,17 +418,20 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         (a.distanceTo(tileCenter) - b.distanceTo(tileCenter)).toInt());
 
     for (final coords in queue) {
-      _tileManager.add(
-        coords,
-        Tile(
-          coords: coords,
-          tilePos: _getTilePos(coords),
-          current: true,
-          imageProvider: options.tileProvider
-              .getImage(coords.wrap(_wrapX, _wrapY), options),
-          tileReady: _tileReady,
-        )..loadTileImage(),
+      final newTile = Tile(
+        coords: coords,
+        tilePos: _getTilePos(coords),
+        current: true,
+        imageProvider:
+            options.tileProvider.getImage(coords.wrap(_wrapX, _wrapY), options),
+        tileReady: _tileReady,
       );
+
+      _tileManager.add(coords, newTile);
+      // If we do this before adding the Tile to the TileManager the _tileReady
+      // callback may be fired very fast and we won't find the Tile in the
+      // TileManager since it's not added yet.
+      newTile.loadTileImage();
     }
   }
 
