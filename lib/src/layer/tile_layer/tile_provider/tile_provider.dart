@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-
-import 'package:flutter_map/src/layer/tile_provider/network_image_with_retry.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network_image_with_retry.dart';
 
 abstract class TileProvider {
   const TileProvider();
@@ -65,6 +64,7 @@ class NetworkTileProvider extends TileProvider {
 
 class NonCachingNetworkTileProvider extends TileProvider {
   const NonCachingNetworkTileProvider();
+
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
     return NetworkImage(getTileUrl(coords, options));
@@ -73,6 +73,7 @@ class NonCachingNetworkTileProvider extends TileProvider {
 
 class AssetTileProvider extends TileProvider {
   const AssetTileProvider();
+
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
     return AssetImage(getTileUrl(coords, options));
