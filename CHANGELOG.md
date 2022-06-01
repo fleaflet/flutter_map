@@ -1,5 +1,87 @@
+# Changelog
+
+## [1.0.0] - 2022
+
+Contains the following additions/removals:
+
+- Removed inappropriate null-aware checking from `moveAndRotate` - [#1003](https://github.com/fleaflet/flutter_map/pull/1003)
+- Removed unused dependencies from pubspec - [#1237](https://github.com/fleaflet/flutter_map/pull/1237)
+- Migrated to 'flutter_lints' from 'pedantic' - [#1183](https://github.com/fleaflet/flutter_map/pull/1183)
+- Made boolean values uppercase strings in WMS requests - [#1132](https://github.com/fleaflet/flutter_map/pull/1132)
+- Made pinch zoom use center of gesture for focus of zoom - [#1081](https://github.com/fleaflet/flutter_map/pull/1081)
+- Made scroll zoom use center of gesture for focus of zoom - [#1191](https://github.com/fleaflet/flutter_map/pull/1191)
+- Added stroke, cap, and join options to `Polyline` - [#1077](https://github.com/fleaflet/flutter_map/pull/1077)
+- Added option to use pixel cache and length check on `Markers` to avoid crash - [#1147](https://github.com/fleaflet/flutter_map/pull/1147)
+- Added `MapEventScrollWheelZoom` event when zooming using scroll wheel - [#1182](https://github.com/fleaflet/flutter_map/pull/1182)
+- Added `isFilled` parameter to `Polygon` - [#501](https://github.com/fleaflet/flutter_map/pull/501)
+- Added example page for `Polygon`s - [#501](https://github.com/fleaflet/flutter_map/pull/501)
+- Added `maxBounds` parameter to `MapOptions` - [#1211](https://github.com/fleaflet/flutter_map/pull/1211)
+- Added `tileBounds` parameter to `TileLayerOptions` - [#1212](https://github.com/fleaflet/flutter_map/pull/1212)
+- Added `saveLayers` parameter to `PolylineLayerOptions` and `PolylinePainter` - [#1219](https://github.com/fleaflet/flutter_map/pull/1219) (part of [#1165](https://github.com/fleaflet/flutter_map/issues/1165)) for [#1217](https://github.com/fleaflet/flutter_map/issues/1217)
+- Added centered labels to `Polygon` - [#1220](https://github.com/fleaflet/flutter_map/pull/1220) based off [#800](https://github.com/fleaflet/flutter_map/pull/800)
+- Added alternative `Polygon` label centering algorithm with an option - [#1225](https://github.com/fleaflet/flutter_map/pull/1225)
+- Added `pointToLatLng` method in `MapController` - [#1115](https://github.com/fleaflet/flutter_map/pull/1115) for [#496](https://github.com/fleaflet/flutter_map/issues/496), [#607](https://github.com/fleaflet/flutter_map/issues/607), [#981](https://github.com/fleaflet/flutter_map/issues/981), [#1010](https://github.com/fleaflet/flutter_map/issues/1010)
+- Added stricter linting rules - [#1238](https://github.com/fleaflet/flutter_map/pull/1238)
+- Switched to semantic versioning (from 0.15.0 to 1.0.0)
+- Multiple plugin list changes
+- Multiple README changes
+
+Contains the following bug fixes:
+
+- Fixed unusual behaviour by cancelling animations on `MapController` move events - [#1043](https://github.com/fleaflet/flutter_map/pull/1043) for [#946](https://github.com/fleaflet/flutter_map/issues/946)
+- Fixed `ZoomButtonsPluginOption` by checking minimum and maximum zoom properly - [#1120](https://github.com/fleaflet/flutter_map/pull/1120)
+- Fixed external bug by updating dependency on 'positioned_tap_detector_2' - [#1047](https://github.com/fleaflet/flutter_map/pull/1047)
+- Fixed equal operator types for `Coords` - [#1113](https://github.com/fleaflet/flutter_map/pull/1113)
+- Fixed `LateInitializationError` when using `polylineCulling` - [#1110](https://github.com/fleaflet/flutter_map/pull/1110) for [#1119](https://github.com/fleaflet/flutter_map/issues/1119), [#1037](https://github.com/fleaflet/flutter_map/issues/1037), [#974](https://github.com/fleaflet/flutter_map/issues/974), [#931](https://github.com/fleaflet/flutter_map/issues/931)
+- Fixed `FileTileProvider` on the web - [#1170](https://github.com/fleaflet/flutter_map/pull/1170)
+- Fixed `Polygon` dotted border drawing - [#501](https://github.com/fleaflet/flutter_map/pull/501)
+- Fixed example application on Android - [#1213](https://github.com/fleaflet/flutter_map/pull/1213)
+- Fixed hairline cracks and flickering - [#1169](https://github.com/fleaflet/flutter_map/pull/1169)
+- Fixed EPSG4326 parameter - [#1135](https://github.com/fleaflet/flutter_map/pull/1135)
+- Fixed initial `bounds` in `MapOptions` - [#1216](https://github.com/fleaflet/flutter_map/pull/1216)
+- Fixed emission of move event when source is custom - [#1232](https://github.com/fleaflet/flutter_map/pull/1232) for [#1231](https://github.com/fleaflet/flutter_map/issues/1231)
+- Fixed tile layer lag during flings/animations - [#1247](https://github.com/fleaflet/flutter_map/pull/1247) (part of [#1165](https://github.com/fleaflet/flutter_map/issues/1165)) for [#1245](https://github.com/fleaflet/flutter_map/issues/1245)
+- Fixed/added Flutter 3 compatibility - [#1236](https://github.com/fleaflet/flutter_map/pull/1236) for [#1234](https://github.com/fleaflet/flutter_map/issues/1234)
+
+In other news:
+
+- Two more maintainers joined the team (@ibrierley & @JaffaKetchup)
+- A public Discord server was created - join via the README link
+- A new documentation website was started - take a peek via the README link
+
+Many thanks to these contributors (in no particular order):
+
+- @JonIsAmazingYa
+- @Robbendebiene
+- @paolorotolo
+- @comatory
+- @chriscant
+- @calmh
+- @FaFre
+- @jithware
+- @stou
+- @Zzerr0r
+- @mo-ah-dawood
+- @a14n
+- @pmjobin
+- @BaptistePires
+- @Zverik
+- @yeleibo
+- @TesteurManiak
+- @sikandersaleem
+- @teuaguiar01
+- @beroso
+- @hschendel
+- @pablojimpas
+- @HugoHeneault
+- @rorystephenson
+- ... and all the maintainers
+
+---
+
 ## [0.14.0] - 6/7/2021
 This version contains the following changes
+
 - Added scroll wheel zoom support for web
 - Added TapPosition to TapCallback
 - Added center to LatLngBounds
