@@ -124,6 +124,10 @@ class TileLayerOptions extends LayerOptions {
   final int keepBuffer;
 
   /// Placeholder to show until tile images are fetched by the provider.
+  ///
+  /// _`placeholderImage` has been deprecated with no current replacement or workaround. Usage no longer has an effect internally._
+  @Deprecated(
+      '`placeholderImage` has been deprecated with no current replacement or workaround. Usage no longer has an effect internally.')
   final ImageProvider? placeholderImage;
 
   /// Tile image to show in place of the tile that failed to load.
@@ -251,7 +255,8 @@ class TileLayerOptions extends LayerOptions {
       this.subdomains = const <String>[],
       this.keepBuffer = 2,
       this.backgroundColor = const Color(0xFFE0E0E0),
-      this.placeholderImage,
+      @Deprecated('`placeholderImage` has been deprecated with no current replacement or workaround. Usage no longer has an effect internally.')
+          this.placeholderImage,
       this.errorImage,
       this.tileProvider = const NonCachingNetworkTileProvider(),
       this.tms = false,
