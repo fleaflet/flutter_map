@@ -3,10 +3,12 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 void main() {
-  runApp(TestApp());
+  runApp(const TestApp());
 }
 
 class TestApp extends StatefulWidget {
+  const TestApp({Key? key}) : super(key: key);
+
   @override
   _TestAppState createState() => _TestAppState();
 }
@@ -22,7 +24,7 @@ class _TestAppState extends State<TestApp> {
     return MaterialApp(
       home: Scaffold(
         body: Center(
-          child: Container(
+          child: SizedBox(
             width: 200,
             height: 200,
             child: FlutterMap(

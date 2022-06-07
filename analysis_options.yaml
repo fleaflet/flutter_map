@@ -1,48 +1,20 @@
-include: package:pedantic/analysis_options.yaml
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  strong-mode:
+    implicit-casts: false
+    implicit-dynamic: false
+  errors:
+    close_sinks: ignore
+    missing_required_param: error
+    missing_return: error
+
 linter:
   rules:
-    - always_declare_return_types
-    - annotate_overrides
-    - avoid_function_literals_in_foreach_calls
-    - avoid_null_checks_in_equality_operators
-    - avoid_returning_null
-    - avoid_unused_constructor_parameters
-    - await_only_futures
-    - camel_case_types
-    - cancel_subscriptions
-    - comment_references
-    - constant_identifier_names
-    - control_flow_in_finally
-    - directives_ordering
-    - empty_statements
-    - hash_and_equals
-    - implementation_imports
-    - invariant_booleans
-    - iterable_contains_unrelated_type
-    - list_remove_unrelated_type
-    - no_adjacent_strings_in_list
-    - non_constant_identifier_names
-    - omit_local_variable_types
-    - only_throw_errors
-    - overridden_fields
-    - package_names
-    - package_prefixed_library_names
-    - prefer_adjacent_string_concatenation
-    - prefer_collection_literals
-    - prefer_conditional_assignment
-    - prefer_final_fields
-    - prefer_initializing_formals
-    - prefer_interpolation_to_compose_strings
-    - prefer_null_aware_operators
-    - prefer_single_quotes
-    - prefer_typing_uninitialized_variables
-    - sort_pub_dependencies
-    - test_types_in_equals
-    - throw_in_finally
-    - unnecessary_brace_in_string_interps
-    - unnecessary_getters_setters
-    - unnecessary_lambdas
-    - unnecessary_new
-    - unnecessary_null_aware_assignments
-    - unnecessary_statements
-    - unnecessary_this
+    prefer_final_locals: true
+    prefer_final_in_for_each: true
+    avoid_dynamic_calls: true
+    always_use_package_imports: true
+    type_annotate_public_apis: true
+    prefer_int_literals: true
+    use_named_constants: true

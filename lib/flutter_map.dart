@@ -4,9 +4,17 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/core/center_zoom.dart';
+import 'package:flutter_map/src/core/point.dart';
+import 'package:flutter_map/src/geo/crs/crs.dart';
+import 'package:flutter_map/src/geo/latlng_bounds.dart';
+import 'package:flutter_map/src/gestures/interactive_flag.dart';
+import 'package:flutter_map/src/gestures/map_events.dart';
+import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
+import 'package:flutter_map/src/layer/layer.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/map.dart';
+import 'package:flutter_map/src/plugins/plugin.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
 
@@ -24,11 +32,13 @@ export 'package:flutter_map/src/layer/marker_layer.dart';
 export 'package:flutter_map/src/layer/overlay_image_layer.dart';
 export 'package:flutter_map/src/layer/polygon_layer.dart';
 export 'package:flutter_map/src/layer/polyline_layer.dart';
-export 'package:flutter_map/src/layer/tile_builder/tile_builder.dart';
-export 'package:flutter_map/src/layer/tile_layer.dart';
-export 'package:flutter_map/src/layer/tile_provider/file_tile_provider_io.dart'
-    if (dart.library.html) 'package:flutter_map/src/layer/tile_provider/file_tile_provider_web.dart';
-export 'package:flutter_map/src/layer/tile_provider/tile_provider.dart';
+export 'package:flutter_map/src/layer/tile_layer/coords.dart';
+export 'package:flutter_map/src/layer/tile_layer/tile.dart';
+export 'package:flutter_map/src/layer/tile_layer/tile_builder.dart';
+export 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
+export 'package:flutter_map/src/layer/tile_layer/tile_provider/file_tile_provider_io.dart'
+    if (dart.library.html) 'package:flutter_map/src/layer/tile_layer/tile_provider/file_tile_provider_web.dart';
+export 'package:flutter_map/src/layer/tile_layer/tile_provider/tile_provider.dart';
 export 'package:flutter_map/src/plugins/plugin.dart';
 
 /// Renders a map composed of a list of layers powered by [LayerOptions].
@@ -65,7 +75,7 @@ class FlutterMap extends StatefulWidget {
   final MapOptions options;
 
   /// A [MapController], used to control the map.
-  final MapControllerImpl? _mapController;
+  final MapController mapController;
 
   FlutterMap({
     Key? key,
@@ -75,11 +85,11 @@ class FlutterMap extends StatefulWidget {
     this.children = const [],
     this.nonRotatedChildren = const [],
     MapController? mapController,
-  })  : _mapController = mapController as MapControllerImpl?,
+  })  : mapController = mapController ?? MapController(),
         super(key: key);
 
   @override
-  FlutterMapState createState() => FlutterMapState(_mapController);
+  FlutterMapState createState() => FlutterMapState();
 }
 
 /// Controller to programmatically interact with [FlutterMap].
@@ -126,7 +136,7 @@ abstract class MapController {
   CenterZoom centerZoomFitBounds(LatLngBounds bounds,
       {FitBoundsOptions? options});
 
-  Future<Null> get onReady;
+  Future<void> get onReady;
 
   LatLng get center;
 
@@ -137,6 +147,14 @@ abstract class MapController {
   double get rotation;
 
   Stream<MapEvent> get mapEventStream;
+
+  StreamSink<MapEvent> get mapEventSink;
+
+  set state(MapState state);
+
+  void dispose();
+
+  LatLng? pointToLatLng(CustomPoint point);
 
   factory MapController() => MapControllerImpl();
 }
@@ -381,7 +399,7 @@ class FitBoundsOptions {
   final bool inside;
 
   const FitBoundsOptions({
-    this.padding = const EdgeInsets.all(0.0),
+    this.padding = EdgeInsets.zero,
     this.maxZoom = 17.0,
     this.zoom,
     this.inside = false,
@@ -418,7 +436,7 @@ class _SafeArea {
         isLatitudeBlocked = southWest.latitude > northEast.latitude,
         isLongitudeBlocked = southWest.longitude > northEast.longitude;
 
-  bool contains(point) =>
+  bool contains(LatLng? point) =>
       isLatitudeBlocked || isLongitudeBlocked ? false : bounds.contains(point);
 
   LatLng containPoint(LatLng point, LatLng fallback) => LatLng(

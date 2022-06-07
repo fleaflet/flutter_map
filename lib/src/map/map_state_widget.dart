@@ -1,11 +1,11 @@
 import 'package:flutter/widgets.dart';
 
-import 'map.dart';
+import 'package:flutter_map/src/map/map.dart';
 
 class MapStateInheritedWidget extends InheritedWidget {
   final MapState mapState;
 
-  MapStateInheritedWidget({
+  const MapStateInheritedWidget({
     Key? key,
     required this.mapState,
     required Widget child,

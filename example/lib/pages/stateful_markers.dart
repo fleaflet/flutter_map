@@ -9,6 +9,8 @@ import '../widgets/drawer.dart';
 class StatefulMarkersPage extends StatefulWidget {
   static const String route = '/stateful_markers';
 
+  const StatefulMarkersPage({Key? key}) : super(key: key);
+
   @override
   _StatefulMarkersPageState createState() => _StatefulMarkersPageState();
 }
@@ -39,20 +41,20 @@ class _StatefulMarkersPageState extends State<StatefulMarkersPage> {
         height: 40.0,
         point: LatLng(
             _random.nextDouble() * 10 + 48, _random.nextDouble() * 10 - 6),
-        builder: (ctx) => _ColorMarker(),
+        builder: (ctx) => const _ColorMarker(),
         key: ValueKey(key)));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Stateful Markers')),
+      appBar: AppBar(title: const Text('Stateful Markers')),
       drawer: buildDrawer(context, StatefulMarkersPage.route),
       body: Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            Padding(
+            const Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
               child: Text('This is a map that is showing (51.5, -0.9).'),
             ),
@@ -70,7 +72,7 @@ class _StatefulMarkersPageState extends State<StatefulMarkersPage> {
                     // For example purposes. It is recommended to use
                     // TileProvider with a caching and retry strategy, like
                     // NetworkTileProvider or CachedNetworkTileProvider
-                    tileProvider: NonCachingNetworkTileProvider(),
+                    tileProvider: const NonCachingNetworkTileProvider(),
                   ),
                   MarkerLayerOptions(markers: _markers)
                 ],
@@ -84,7 +86,7 @@ class _StatefulMarkersPageState extends State<StatefulMarkersPage> {
 }
 
 class _ColorMarker extends StatefulWidget {
-  _ColorMarker({Key? key}) : super(key: key);
+  const _ColorMarker({Key? key}) : super(key: key);
 
   @override
   _ColorMarkerState createState() => _ColorMarkerState();

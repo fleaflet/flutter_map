@@ -7,24 +7,26 @@ import '../widgets/drawer.dart';
 class OverlayImagePage extends StatelessWidget {
   static const String route = 'overlay_image';
 
+  const OverlayImagePage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     var overlayImages = <OverlayImage>[
       OverlayImage(
           bounds: LatLngBounds(LatLng(51.5, -0.09), LatLng(48.8566, 2.3522)),
           opacity: 0.8,
-          imageProvider: NetworkImage(
+          imageProvider: const NetworkImage(
               'https://images.pexels.com/photos/231009/pexels-photo-231009.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=300&w=600')),
     ];
 
     return Scaffold(
-      appBar: AppBar(title: Text('Overlay Image')),
+      appBar: AppBar(title: const Text('Overlay Image')),
       drawer: buildDrawer(context, route),
       body: Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            Padding(
+            const Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
               child: Text('This is a map that is showing (51.5, -0.9).'),
             ),

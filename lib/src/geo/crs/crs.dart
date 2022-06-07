@@ -25,18 +25,18 @@ abstract class Crs {
   /// map point.
   CustomPoint latLngToPoint(LatLng latlng, double zoom) {
     try {
-      var projectedPoint = projection.project(latlng);
-      var scale = this.scale(zoom);
+      final projectedPoint = projection.project(latlng);
+      final scale = this.scale(zoom);
       return transformation.transform(projectedPoint, scale.toDouble());
     } catch (e) {
-      return CustomPoint(0.0, 0.0);
+      return const CustomPoint(0.0, 0.0);
     }
   }
 
   /// Converts a map point to the sphere coordinate (at a certain zoom).
   LatLng? pointToLatLng(CustomPoint point, double zoom) {
-    var scale = this.scale(zoom);
-    var untransformedPoint =
+    final scale = this.scale(zoom);
+    final untransformedPoint =
         transformation.untransform(point, scale.toDouble());
     try {
       return projection.unproject(untransformedPoint);
@@ -59,10 +59,10 @@ abstract class Crs {
   Bounds? getProjectedBounds(double zoom) {
     if (infinite) return null;
 
-    var b = projection.bounds!;
-    var s = scale(zoom);
-    var min = transformation.transform(b.min, s.toDouble());
-    var max = transformation.transform(b.max, s.toDouble());
+    final b = projection.bounds!;
+    final s = scale(zoom);
+    final min = transformation.transform(b.min, s.toDouble());
+    final max = transformation.transform(b.max, s.toDouble());
     return Bounds(min, max);
   }
 
@@ -86,7 +86,7 @@ class CrsSimple extends Crs {
 
   CrsSimple()
       : projection = const _LonLat(),
-        transformation = Transformation(1, 0, -1, 0),
+        transformation = const Transformation(1, 0, -1, 0),
         super();
 
   @override
@@ -104,7 +104,7 @@ abstract class Earth extends Crs {
   bool get infinite => false;
 
   @override
-  final Tuple2<double, double> wrapLng = const Tuple2(-180.0, 180.0);
+  final Tuple2<double, double> wrapLng = const Tuple2(-180, 180);
 
   @override
   final Tuple2<double, double>? wrapLat = null;
@@ -198,7 +198,7 @@ class Proj4Crs extends Crs {
     final projection =
         _Proj4Projection(proj4Projection: proj4Projection, bounds: bounds);
     List<Transformation>? transformations;
-    var infinite = null == bounds;
+    final infinite = null == bounds;
     List<double> finalScales;
 
     if (null != scales && scales.isNotEmpty) {
@@ -211,10 +211,10 @@ class Proj4Crs extends Crs {
     }
 
     if (null == origins || origins.isEmpty) {
-      transformation ??= Transformation(1, 0, -1, 0);
+      transformation ??= const Transformation(1, 0, -1, 0);
     } else {
       if (origins.length == 1) {
-        var origin = origins[0];
+        final origin = origins[0];
         transformation = Transformation(1, -origin.x, -1, origin.y);
       } else {
         transformations =
@@ -238,23 +238,23 @@ class Proj4Crs extends Crs {
   @override
   CustomPoint latLngToPoint(LatLng latlng, double zoom) {
     try {
-      var projectedPoint = projection.project(latlng);
-      var scale = this.scale(zoom);
-      var transformation = _getTransformationByZoom(zoom);
+      final projectedPoint = projection.project(latlng);
+      final scale = this.scale(zoom);
+      final transformation = _getTransformationByZoom(zoom);
 
       return transformation.transform(projectedPoint, scale.toDouble());
     } catch (e) {
-      return CustomPoint(0.0, 0.0);
+      return const CustomPoint(0.0, 0.0);
     }
   }
 
   /// Converts a map point to the sphere coordinate (at a certain zoom).
   @override
   LatLng? pointToLatLng(CustomPoint point, double zoom) {
-    var scale = this.scale(zoom);
-    var transformation = _getTransformationByZoom(zoom);
+    final scale = this.scale(zoom);
+    final transformation = _getTransformationByZoom(zoom);
 
-    var untransformedPoint =
+    final untransformedPoint =
         transformation.untransform(point, scale.toDouble());
     try {
       return projection.unproject(untransformedPoint);
@@ -268,28 +268,28 @@ class Proj4Crs extends Crs {
   Bounds? getProjectedBounds(double zoom) {
     if (infinite) return null;
 
-    var b = projection.bounds!;
-    var s = scale(zoom);
+    final b = projection.bounds!;
+    final s = scale(zoom);
 
-    var transformation = _getTransformationByZoom(zoom);
+    final transformation = _getTransformationByZoom(zoom);
 
-    var min = transformation.transform(b.min, s.toDouble());
-    var max = transformation.transform(b.max, s.toDouble());
+    final min = transformation.transform(b.min, s.toDouble());
+    final max = transformation.transform(b.max, s.toDouble());
     return Bounds(min, max);
   }
 
   /// Zoom to Scale function.
   @override
   num scale(double zoom) {
-    var iZoom = zoom.floor();
+    final iZoom = zoom.floor();
     if (zoom == iZoom) {
       return _scales[iZoom];
     } else {
       // Non-integer zoom, interpolate
-      var baseScale = _scales[iZoom];
-      var nextScale = _scales[iZoom + 1];
-      var scaleDiff = nextScale - baseScale;
-      var zDiff = (zoom - iZoom);
+      final baseScale = _scales[iZoom];
+      final nextScale = _scales[iZoom + 1];
+      final scaleDiff = nextScale - baseScale;
+      final zDiff = (zoom - iZoom);
       return baseScale + scaleDiff * zDiff;
     }
   }
@@ -298,20 +298,20 @@ class Proj4Crs extends Crs {
   @override
   num zoom(double scale) {
     // Find closest number in _scales, down
-    var downScale = _closestElement(_scales, scale);
+    final downScale = _closestElement(_scales, scale);
     if (downScale == null) {
       return double.negativeInfinity;
     }
-    var downZoom = _scales.indexOf(downScale);
+    final downZoom = _scales.indexOf(downScale);
     // Check if scale is downScale => return array index
     if (scale == downScale) {
       return downZoom;
     }
     // Interpolate
-    var nextZoom = downZoom + 1;
-    var nextScale = _scales[nextZoom];
+    final nextZoom = downZoom + 1;
+    final nextScale = _scales[nextZoom];
 
-    var scaleDiff = nextScale - downScale;
+    final scaleDiff = nextScale - downScale;
     return (scale - downScale) / scaleDiff + downZoom;
   }
 
@@ -319,7 +319,7 @@ class Proj4Crs extends Crs {
   double? _closestElement(List<double> array, double element) {
     double? low;
     for (var i = array.length - 1; i >= 0; i--) {
-      var curr = array[i];
+      final curr = array[i];
 
       if (curr <= element && (null == low || low < curr)) {
         low = curr;
@@ -334,8 +334,8 @@ class Proj4Crs extends Crs {
       return transformation;
     }
 
-    var iZoom = zoom.round();
-    var lastIdx = _transformations!.length - 1;
+    final iZoom = zoom.round();
+    final lastIdx = _transformations!.length - 1;
 
     return _transformations![iZoom > lastIdx ? lastIdx : iZoom];
   }
@@ -370,7 +370,8 @@ abstract class Projection {
 
 class _LonLat extends Projection {
   static final Bounds<double> _bounds = Bounds<double>(
-      CustomPoint<double>(-180.0, -90.0), CustomPoint<double>(180.0, 90.0));
+      const CustomPoint<double>(-180.0, -90.0),
+      const CustomPoint<double>(180.0, 90.0));
 
   const _LonLat() : super();
 
@@ -394,8 +395,8 @@ class SphericalMercator extends Projection {
   static const double maxLatitude = 85.0511287798;
   static const double _boundsD = r * math.pi;
   static final Bounds<double> _bounds = Bounds<double>(
-    CustomPoint<double>(-_boundsD, -_boundsD),
-    CustomPoint<double>(_boundsD, _boundsD),
+    const CustomPoint<double>(-_boundsD, -_boundsD),
+    const CustomPoint<double>(_boundsD, _boundsD),
   );
 
   const SphericalMercator() : super();
@@ -405,10 +406,10 @@ class SphericalMercator extends Projection {
 
   @override
   CustomPoint project(LatLng latlng) {
-    var d = math.pi / 180;
-    var max = maxLatitude;
-    var lat = math.max(math.min(max, latlng.latitude), -max);
-    var sin = math.sin(lat * d);
+    const d = math.pi / 180;
+    const max = maxLatitude;
+    final lat = math.max(math.min(max, latlng.latitude), -max);
+    final sin = math.sin(lat * d);
 
     return CustomPoint(
         r * latlng.longitude * d, r * math.log((1 + sin) / (1 - sin)) / 2);
@@ -416,7 +417,7 @@ class SphericalMercator extends Projection {
 
   @override
   LatLng unproject(CustomPoint point) {
-    var d = 180 / math.pi;
+    const d = 180 / math.pi;
     return LatLng(
         inclusiveLat(
             (2 * math.atan(math.exp(point.y / r)) - (math.pi / 2)) * d),
@@ -439,7 +440,7 @@ class _Proj4Projection extends Projection {
 
   @override
   CustomPoint project(LatLng latlng) {
-    var point = epsg4326.transform(
+    final point = epsg4326.transform(
         proj4Projection, proj4.Point(x: latlng.longitude, y: latlng.latitude));
 
     return CustomPoint(point.x, point.y);
@@ -447,7 +448,7 @@ class _Proj4Projection extends Projection {
 
   @override
   LatLng unproject(CustomPoint point) {
-    var point2 = proj4Projection.transform(
+    final point2 = proj4Projection.transform(
         epsg4326, proj4.Point(x: point.x as double, y: point.y as double));
 
     return LatLng(inclusiveLat(point2.y), inclusiveLng(point2.x));
@@ -464,15 +465,15 @@ class Transformation {
 
   CustomPoint transform(CustomPoint<num> point, double? scale) {
     scale ??= 1.0;
-    var x = scale * (a * point.x + b);
-    var y = scale * (c * point.y + d);
+    final x = scale * (a * point.x + b);
+    final y = scale * (c * point.y + d);
     return CustomPoint(x, y);
   }
 
   CustomPoint untransform(CustomPoint point, double? scale) {
     scale ??= 1.0;
-    var x = (point.x / scale - b) / a;
-    var y = (point.y / scale - d) / c;
+    final x = (point.x / scale - b) / a;
+    final y = (point.y / scale - d) / c;
     return CustomPoint(x, y);
   }
 }

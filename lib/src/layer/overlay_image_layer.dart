@@ -10,7 +10,7 @@ class OverlayImageLayerOptions extends LayerOptions {
   OverlayImageLayerOptions({
     Key? key,
     this.overlayImages = const [],
-    Stream<Null>? rebuild,
+    Stream<void>? rebuild,
   }) : super(key: key, rebuild: rebuild);
 }
 
@@ -31,7 +31,8 @@ class OverlayImage {
 class OverlayImageLayerWidget extends StatelessWidget {
   final OverlayImageLayerOptions options;
 
-  OverlayImageLayerWidget({Key? key, required this.options}) : super(key: key);
+  const OverlayImageLayerWidget({Key? key, required this.options})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +44,7 @@ class OverlayImageLayerWidget extends StatelessWidget {
 class OverlayImageLayer extends StatelessWidget {
   final OverlayImageLayerOptions overlayImageOpts;
   final MapState map;
-  final Stream<Null>? stream;
+  final Stream<void>? stream;
 
   OverlayImageLayer(this.overlayImageOpts, this.map, this.stream)
       : super(key: overlayImageOpts.key);

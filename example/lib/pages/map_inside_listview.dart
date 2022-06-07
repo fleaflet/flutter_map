@@ -8,17 +8,19 @@ import '../widgets/drawer.dart';
 class MapInsideListViewPage extends StatelessWidget {
   static const String route = 'map_inside_listview';
 
+  const MapInsideListViewPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Map inside ListView')),
+      appBar: AppBar(title: const Text('Map inside ListView')),
       drawer: buildDrawer(context, MapInsideListViewPage.route),
       body: Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: ListView(
           scrollDirection: Axis.vertical,
           children: [
-            Container(
+            SizedBox(
               height: 300,
               child: FlutterMap(
                 options: MapOptions(
@@ -48,13 +50,13 @@ class MapInsideListViewPage extends StatelessWidget {
                 ],
               ),
             ),
-            Card(
+            const Card(
               child: ListTile(
                   title: Text(
                       'Scrolling inside the map does not scroll the ListView')),
             ),
-            SizedBox(height: 500),
-            Card(child: ListTile(title: Text('look at that scrolling')))
+            const SizedBox(height: 500),
+            const Card(child: ListTile(title: Text('look at that scrolling')))
           ],
         ),
       ),

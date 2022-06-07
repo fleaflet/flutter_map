@@ -9,14 +9,14 @@ class GroupLayerOptions extends LayerOptions {
   GroupLayerOptions({
     Key? key,
     this.group = const [],
-    Stream<Null>? rebuild,
+    Stream<void>? rebuild,
   }) : super(key: key, rebuild: rebuild);
 }
 
 class GroupLayerWidget extends StatelessWidget {
   final GroupLayerOptions options;
 
-  GroupLayerWidget({Key? key, required this.options}) : super(key: key);
+  const GroupLayerWidget({Key? key, required this.options}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class GroupLayerWidget extends StatelessWidget {
 class GroupLayer extends StatelessWidget {
   final GroupLayerOptions groupOpts;
   final MapState map;
-  final Stream<Null> stream;
+  final Stream<void> stream;
 
   GroupLayer(this.groupOpts, this.map, this.stream) : super(key: groupOpts.key);
 
@@ -37,14 +37,12 @@ class GroupLayer extends StatelessWidget {
     return StreamBuilder(
       stream: stream,
       builder: (BuildContext context, _) {
-        var layers = <Widget>[
+        final layers = <Widget>[
           for (var options in groupOpts.group) _createLayer(options)
         ];
 
-        return Container(
-          child: Stack(
-            children: layers,
-          ),
+        return Stack(
+          children: layers,
         );
       },
     );

@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map_example/pages/epsg4326_crs.dart';
+import 'package:flutter_map_example/pages/map_inside_listview.dart';
+import 'package:flutter_map_example/pages/network_tile_provider.dart';
+import 'package:flutter_map_example/pages/point_to_latlng.dart';
 
 import './pages/animated_map_controller.dart';
 import './pages/circle.dart';
@@ -35,9 +39,11 @@ import 'pages/epsg4326_crs.dart';
 import 'pages/map_inside_listview.dart';
 import 'pages/network_tile_provider.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -46,40 +52,43 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: mapBoxBlue,
       ),
-      home: HomePage(),
+      home: const HomePage(),
       routes: <String, WidgetBuilder>{
-        NetworkTileProviderPage.route: (context) => NetworkTileProviderPage(),
-        WidgetsPage.route: (context) => WidgetsPage(),
-        TapToAddPage.route: (context) => TapToAddPage(),
-        EsriPage.route: (context) => EsriPage(),
-        PolylinePage.route: (context) => PolylinePage(),
-        MapControllerPage.route: (context) => MapControllerPage(),
+        NetworkTileProviderPage.route: (context) =>
+            const NetworkTileProviderPage(),
+        WidgetsPage.route: (context) => const WidgetsPage(),
+        TapToAddPage.route: (context) => const TapToAddPage(),
+        EsriPage.route: (context) => const EsriPage(),
+        PolylinePage.route: (context) => const PolylinePage(),
+        MapControllerPage.route: (context) => const MapControllerPage(),
         AnimatedMapControllerPage.route: (context) =>
-            AnimatedMapControllerPage(),
-        MarkerAnchorPage.route: (context) => MarkerAnchorPage(),
-        PluginPage.route: (context) => PluginPage(),
-        PluginScaleBar.route: (context) => PluginScaleBar(),
-        PluginZoomButtons.route: (context) => PluginZoomButtons(),
-        OfflineMapPage.route: (context) => OfflineMapPage(),
-        OnTapPage.route: (context) => OnTapPage(),
-        MarkerRotatePage.route: (context) => MarkerRotatePage(),
-        MovingMarkersPage.route: (context) => MovingMarkersPage(),
-        CirclePage.route: (context) => CirclePage(),
-        OverlayImagePage.route: (context) => OverlayImagePage(),
-        PolygonPage.route: (context) => PolygonPage(),
-        SlidingMapPage.route: (_) => SlidingMapPage(),
-        WMSLayerPage.route: (context) => WMSLayerPage(),
-        CustomCrsPage.route: (context) => CustomCrsPage(),
-        LiveLocationPage.route: (context) => LiveLocationPage(),
-        TileLoadingErrorHandle.route: (context) => TileLoadingErrorHandle(),
-        TileBuilderPage.route: (context) => TileBuilderPage(),
-        InteractiveTestPage.route: (context) => InteractiveTestPage(),
-        ManyMarkersPage.route: (context) => ManyMarkersPage(),
-        StatefulMarkersPage.route: (context) => StatefulMarkersPage(),
-        MapInsideListViewPage.route: (context) => MapInsideListViewPage(),
-        ResetTileLayerPage.route: (context) => ResetTileLayerPage(),
-        EPSG4326Page.route: (context) => EPSG4326Page(),
-        MaxBoundsPage.route: (context) => MaxBoundsPage(),
+            const AnimatedMapControllerPage(),
+        MarkerAnchorPage.route: (context) => const MarkerAnchorPage(),
+        PluginPage.route: (context) => const PluginPage(),
+        PluginScaleBar.route: (context) => const PluginScaleBar(),
+        PluginZoomButtons.route: (context) => const PluginZoomButtons(),
+        OfflineMapPage.route: (context) => const OfflineMapPage(),
+        OnTapPage.route: (context) => const OnTapPage(),
+        MarkerRotatePage.route: (context) => const MarkerRotatePage(),
+        MovingMarkersPage.route: (context) => const MovingMarkersPage(),
+        CirclePage.route: (context) => const CirclePage(),
+        OverlayImagePage.route: (context) => const OverlayImagePage(),
+        PolygonPage.route: (context) => const PolygonPage(),
+        SlidingMapPage.route: (_) => const SlidingMapPage(),
+        WMSLayerPage.route: (context) => const WMSLayerPage(),
+        CustomCrsPage.route: (context) => const CustomCrsPage(),
+        LiveLocationPage.route: (context) => const LiveLocationPage(),
+        TileLoadingErrorHandle.route: (context) =>
+            const TileLoadingErrorHandle(),
+        TileBuilderPage.route: (context) => const TileBuilderPage(),
+        InteractiveTestPage.route: (context) => const InteractiveTestPage(),
+        ManyMarkersPage.route: (context) => const ManyMarkersPage(),
+        StatefulMarkersPage.route: (context) => const StatefulMarkersPage(),
+        MapInsideListViewPage.route: (context) => const MapInsideListViewPage(),
+        ResetTileLayerPage.route: (context) => const ResetTileLayerPage(),
+        EPSG4326Page.route: (context) => const EPSG4326Page(),
+        MaxBoundsPage.route: (context) => const MaxBoundsPage(),
+        PointToLatLngPage.route: (context) => const PointToLatLngPage(),
       },
     );
   }

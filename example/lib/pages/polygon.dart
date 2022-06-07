@@ -7,6 +7,8 @@ import '../widgets/drawer.dart';
 class PolygonPage extends StatelessWidget {
   static const String route = 'polygon';
 
+  const PolygonPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     var notFilledPoints = <LatLng>[
@@ -35,13 +37,13 @@ class PolygonPage extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: Text('Polygons')),
+      appBar: AppBar(title: const Text('Polygons')),
       drawer: buildDrawer(context, PolygonPage.route),
       body: Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            Padding(
+            const Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
               child: Text('Polygons'),
             ),

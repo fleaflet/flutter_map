@@ -8,7 +8,7 @@ class CircleLayerOptions extends LayerOptions {
   CircleLayerOptions({
     Key? key,
     this.circles = const [],
-    Stream<Null>? rebuild,
+    Stream<void>? rebuild,
   }) : super(key: key, rebuild: rebuild);
 }
 
@@ -34,7 +34,7 @@ class CircleMarker {
 class CircleLayerWidget extends StatelessWidget {
   final CircleLayerOptions options;
 
-  CircleLayerWidget({Key? key, required this.options}) : super(key: key);
+  const CircleLayerWidget({Key? key, required this.options}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +46,7 @@ class CircleLayerWidget extends StatelessWidget {
 class CircleLayer extends StatelessWidget {
   final CircleLayerOptions circleOpts;
   final MapState map;
-  final Stream<Null>? stream;
+  final Stream<void>? stream;
   CircleLayer(this.circleOpts, this.map, this.stream)
       : super(key: circleOpts.key);
 
@@ -64,15 +64,15 @@ class CircleLayer extends StatelessWidget {
     return StreamBuilder<void>(
       stream: stream, // a Stream<void> or null
       builder: (BuildContext context, _) {
-        var circleWidgets = <Widget>[];
-        for (var circle in circleOpts.circles) {
+        final circleWidgets = <Widget>[];
+        for (final circle in circleOpts.circles) {
           var pos = map.project(circle.point);
           pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
               map.getPixelOrigin();
           circle.offset = Offset(pos.x.toDouble(), pos.y.toDouble());
 
           if (circle.useRadiusInMeter) {
-            var r = Distance().offset(circle.point, circle.radius, 180);
+            final r = const Distance().offset(circle.point, circle.radius, 180);
             var rpos = map.project(r);
             rpos = rpos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
                 map.getPixelOrigin();
@@ -88,10 +88,8 @@ class CircleLayer extends StatelessWidget {
           );
         }
 
-        return Container(
-          child: Stack(
-            children: circleWidgets,
-          ),
+        return Stack(
+          children: circleWidgets,
         );
       },
     );
@@ -135,5 +133,5 @@ class CirclePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(CirclePainter other) => false;
+  bool shouldRepaint(CirclePainter oldDelegate) => false;
 }
