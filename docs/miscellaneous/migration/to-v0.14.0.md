@@ -1,6 +1,6 @@
 ---
 id: to-v0.14.0
-sidebar_position: 1
+sidebar_position: 2
 ---
 
 # To v0.14.0
