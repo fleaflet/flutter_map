@@ -1,6 +1,28 @@
 # Changelog
 
-## [1.0.0] - 2022
+## [1.1.0] - 2022
+
+Contains the following additions/removals:
+
+- Deprecated the existing `attributionBuilder`
+- Added a new method of attribution through `AttributionWidget`
+
+Contains the following bug fixes:
+
+- None
+
+In other news:
+
+- None
+
+Many thanks to these contributors (in no particular order):
+
+- None
+- ... and all the maintainers
+
+---
+
+## [1.0.0] - 2022/06/07
 
 Contains the following additions/removals:
 
