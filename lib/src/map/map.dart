@@ -518,7 +518,7 @@ class MapState {
     final se = bounds.southEast;
     var size = this.size - padding;
     // Prevent negative size which results in NaN zoom value later on in the calculation
-    size = CustomPoint(math.max(0, size.x), math.max(0, size.y));
+    size = CustomPoint(math.max(0.0, size.x), math.max(0.0, size.y));
     final boundsSize = Bounds(project(se, zoom), project(nw, zoom)).size;
     final scaleX = size.x / boundsSize.x;
     final scaleY = size.y / boundsSize.y;
