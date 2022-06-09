@@ -423,7 +423,7 @@ See also `FileTileProvider()`, which loads tiles from the filesystem.
 - [vector_map_tiles](https://pub.dev/packages/vector_map_tiles): A plugin that enables the use of vector tiles.
 - [flutter_map_dragmarker](https://pub.dev/packages/flutter_map_dragmarker): A plugin that enables a marker to be dragged.
 - [flutter_map_line_editor](https://pub.dev/packages/flutter_map_line_editor): A plugin that enables creation/editing of polylines and polygons.
-
+- [line_animator](https://pub.dev/packages/line_animator): Interpolates along a set of LatLng (or other) points, to allow gradual drawing of lines and animating moving markers.
 ## Roadmap
 
 For the latest roadmap, please see the [Issue Tracker]
