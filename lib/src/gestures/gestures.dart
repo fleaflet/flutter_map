@@ -35,9 +35,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
           .clamp(minZoom, maxZoom);
       // Calculate offset of mouse cursor from viewport center
       final List<dynamic> newCenterZoom = _getNewEventCenterZoomPosition(
-          CustomPoint(
-              pointerSignal.localPosition.dx, pointerSignal.localPosition.dy),
-          newZoom);
+          _offsetToPoint(pointerSignal.localPosition), newZoom);
 
       // Move to new center and zoom level
       mapState.move(newCenterZoom[0] as LatLng, newCenterZoom[1] as double,
@@ -605,7 +603,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
     if (InteractiveFlag.hasFlag(
         options.interactiveFlags, InteractiveFlag.doubleTapZoom)) {
       final centerZoom = _getNewEventCenterZoomPosition(
-          CustomPoint(tapPosition.relative!.dx, tapPosition.relative!.dy),
+          _offsetToPoint(tapPosition.relative!),
           _getZoomForScale(mapState.zoom, 2));
       _startDoubleTapAnimation(
           centerZoom[1] as double, centerZoom[0] as LatLng);
@@ -661,7 +659,6 @@ abstract class MapGestureMixin extends State<FlutterMap>
   }
 
   void _handleDoubleTapZoomAnimation() {
-    print("${_doubleTapCenterAnimation.value}");
     mapState.move(
       _doubleTapCenterAnimation.value,
       _doubleTapZoomAnimation.value,
