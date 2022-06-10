@@ -765,10 +765,6 @@ abstract class MapGestureMixin extends State<FlutterMap>
     return CustomPoint(offset.dx, offset.dy);
   }
 
-  Offset _pointToOffset(CustomPoint point) {
-    return Offset(point.x.toDouble(), point.y.toDouble());
-  }
-
   double _getZoomForScale(double startZoom, double scale) {
     final resultZoom =
         scale == 1.0 ? startZoom : startZoom + math.log(scale) / math.ln2;
