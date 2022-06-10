@@ -7,7 +7,7 @@
 /// [MultiFingerGesture.pinchZoom] B.) remove unnecessary flags from all:
 /// [MultiFingerGesture.all] & ~[MultiFingerGesture.pinchMove]
 class MultiFingerGesture {
-  static const int all = pinchMove | pinchZoom | rotate;
+  static const int all = pinchMove | pinchZoom | rotate | pitch;
   static const int none = 0;
 
   // enable move with two or more fingers
@@ -18,6 +18,9 @@ class MultiFingerGesture {
 
   // enable map rotate
   static const int rotate = 1 << 2;
+
+  // enable map pitch
+  static const int pitch = 1 << 3;
 
   /// Returns `true` if [leftFlags] has at least one member in [rightFlags]
   /// (intersection) for example [leftFlags]= [MultiFingerGesture.pinchMove] |

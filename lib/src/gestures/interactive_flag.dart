@@ -9,8 +9,13 @@
 /// ~[InteractiveFlag.pinchMove] & ~[InteractiveFlag.pinchZoom] &
 /// ~[InteractiveFlag.doubleTapZoom]
 class InteractiveFlag {
-  static const int all =
-      drag | flingAnimation | pinchMove | pinchZoom | doubleTapZoom | rotate;
+  static const int all = drag |
+      flingAnimation |
+      pinchMove |
+      pinchZoom |
+      doubleTapZoom |
+      rotate |
+      pitch;
   static const int none = 0;
 
   // enable move with one finger
@@ -30,6 +35,9 @@ class InteractiveFlag {
 
   // enable map rotate
   static const int rotate = 1 << 5;
+
+  // enable map pitch
+  static const int pitch = 1 << 6;
 
   /// Returns `true` if [leftFlags] has at least one member in [rightFlags]
   /// (intersection) for example [leftFlags]= [InteractiveFlag.drag] |

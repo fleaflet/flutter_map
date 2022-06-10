@@ -110,6 +110,17 @@ abstract class MapController {
   /// same as the old rotate)
   bool rotate(double degree, {String? id});
 
+  /// Sets the map pitch to the given angle in degrees.
+  ///
+  /// Optionally provide [id] attribute and if you listen to [mapEventStream]
+  /// later a [MapEventRotate] event will be emitted (if rotate was success)
+  /// with same [id] attribute. Event's source attribute will be
+  /// [MapEventSource.mapController].
+  ///
+  /// returns `true` if tilt was success (it won't be successful if pitch is
+  /// same as the old pitch)
+  bool tilt(double pitch, {String? id});
+
   /// Calls [move] and [rotate] together however layers will rebuild just once
   /// instead of twice
   MoveAndRotateResult moveAndRotate(LatLng center, double zoom, double degree,
@@ -249,44 +260,48 @@ class MapOptions {
   final LatLng? swPanBoundary;
   final LatLng? nePanBoundary;
 
+  /// The pich in degrees from the plane of the screen. Defaults to 0.
+  final double pitch;
+
   _SafeArea? _safeAreaCache;
   double? _safeAreaZoom;
 
-  MapOptions({
-    this.allowPanningOnScrollingParent = true,
-    this.crs = const Epsg3857(),
-    LatLng? center,
-    this.bounds,
-    this.boundsOptions = const FitBoundsOptions(),
-    this.zoom = 13.0,
-    this.rotation = 0.0,
-    this.debugMultiFingerGestureWinner = false,
-    this.enableMultiFingerGestureRace = false,
-    this.rotationThreshold = 20.0,
-    this.rotationWinGestures = MultiFingerGesture.rotate,
-    this.pinchZoomThreshold = 0.5,
-    this.pinchZoomWinGestures =
-        MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
-    this.pinchMoveThreshold = 40.0,
-    this.pinchMoveWinGestures =
-        MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
-    this.enableScrollWheel = true,
-    this.minZoom,
-    this.maxZoom,
-    this.interactiveFlags = InteractiveFlag.all,
-    this.allowPanning = true,
-    this.onTap,
-    this.onLongPress,
-    this.onPositionChanged,
-    this.onMapCreated,
-    this.plugins = const [],
-    this.slideOnBoundaries = false,
-    this.adaptiveBoundaries = false,
-    this.screenSize,
-    this.controller,
-    this.swPanBoundary,
-    this.nePanBoundary,
-  })  : center = center ?? LatLng(50.5, 30.51),
+  MapOptions(
+      {this.allowPanningOnScrollingParent = true,
+      this.crs = const Epsg3857(),
+      LatLng? center,
+      this.bounds,
+      this.boundsOptions = const FitBoundsOptions(),
+      this.zoom = 13.0,
+      this.rotation = 0.0,
+      this.debugMultiFingerGestureWinner = false,
+      this.enableMultiFingerGestureRace = false,
+      this.rotationThreshold = 20.0,
+      this.rotationWinGestures = MultiFingerGesture.rotate,
+      this.pinchZoomThreshold = 0.5,
+      this.pinchZoomWinGestures =
+          MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
+      this.pinchMoveThreshold = 40.0,
+      this.pinchMoveWinGestures =
+          MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
+      this.enableScrollWheel = true,
+      this.minZoom,
+      this.maxZoom,
+      this.interactiveFlags = InteractiveFlag.all,
+      this.allowPanning = true,
+      this.onTap,
+      this.onLongPress,
+      this.onPositionChanged,
+      this.onMapCreated,
+      this.plugins = const [],
+      this.slideOnBoundaries = false,
+      this.adaptiveBoundaries = false,
+      this.screenSize,
+      this.controller,
+      this.swPanBoundary,
+      this.nePanBoundary,
+      this.pitch = 0.0})
+      : center = center ?? LatLng(50.5, 30.51),
         assert(rotationThreshold >= 0.0),
         assert(pinchZoomThreshold >= 0.0),
         assert(pinchMoveThreshold >= 0.0) {
@@ -297,6 +312,7 @@ class MapOptions {
         'screenSize must be set in order to enable adaptive boundaries.');
     assert(!adaptiveBoundaries || controller != null,
         'controller must be set in order to enable adaptive boundaries.');
+    assert(pitch >= 0 && pitch <= 90, 'pitch must be >= 0 and <= 80');
   }
 
   //if there is a pan boundary, do not cross

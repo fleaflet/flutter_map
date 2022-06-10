@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map_example/pages/map_inside_listview.dart';
 import 'package:flutter_map_example/pages/marker_rotate.dart';
 import 'package:flutter_map_example/pages/network_tile_provider.dart';
+import 'package:flutter_map_example/pages/pitch.dart';
 
 import '../pages/animated_map_controller.dart';
 import '../pages/circle.dart';
@@ -168,6 +169,12 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           context,
           const Text('Overlay Image'),
           OverlayImagePage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Pitch'),
+          PitchPage.route,
           currentRoute,
         ),
         _buildMenuItem(

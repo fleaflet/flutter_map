@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map_example/pages/map_inside_listview.dart';
 import 'package:flutter_map_example/pages/network_tile_provider.dart';
+import 'package:flutter_map_example/pages/pitch.dart';
 
 import './pages/animated_map_controller.dart';
 import './pages/circle.dart';
@@ -60,6 +61,7 @@ class MyApp extends StatelessWidget {
         MarkerRotatePage.route: (context) => MarkerRotatePage(),
         MovingMarkersPage.route: (context) => MovingMarkersPage(),
         CirclePage.route: (context) => CirclePage(),
+        PitchPage.route: (context) => PitchPage(),
         OverlayImagePage.route: (context) => OverlayImagePage(),
         SlidingMapPage.route: (_) => SlidingMapPage(),
         WMSLayerPage.route: (context) => WMSLayerPage(),

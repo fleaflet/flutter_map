@@ -20,7 +20,7 @@ dependencies:
   proj4dart: ^2.0.0
   transparent_image: ^2.0.0
   tuple: ^2.0.0
-  vector_math: ^2.1.0
+  vector_math: ^2.1.2
 
 dev_dependencies:
   flutter_test:
