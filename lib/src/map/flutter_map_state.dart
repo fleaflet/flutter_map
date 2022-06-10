@@ -32,9 +32,13 @@ class FlutterMapState extends MapGestureMixin {
   @override
   void initState() {
     super.initState();
-    mapState = MapState(options, (degree) {
+
+    stateUpdater(double degree) {
       if (mounted) setState(() {});
-    }, mapController.mapEventSink);
+    }
+
+    mapState = MapState(options, mapController.mapEventSink,
+        onPitchChanged: stateUpdater, onRotationChanged: stateUpdater);
     mapController.state = mapState;
 
     // Callback onMapCreated if not null
@@ -168,18 +172,22 @@ class FlutterMapState extends MapGestureMixin {
             maxWidth: size.x,
             minHeight: size.y,
             maxHeight: size.y,
-            child: Transform.rotate(
-              angle: mapState.rotationRad,
-              child: Stack(
-                children: [
-                  if (widget.children.isNotEmpty) ...widget.children,
-                  if (widget.layers.isNotEmpty)
-                    ...widget.layers.map(
-                      (layer) => _createLayer(layer, options.plugins),
-                    )
-                ],
-              ),
-            ),
+            child: Transform(
+                transform: Matrix4.rotationX(mapState.pitchRad),
+                alignment: Alignment.bottomCenter,
+                transformHitTests: true,
+                child: Transform.rotate(
+                  angle: mapState.rotationRad,
+                  child: Stack(
+                    children: [
+                      if (widget.children.isNotEmpty) ...widget.children,
+                      if (widget.layers.isNotEmpty)
+                        ...widget.layers.map(
+                          (layer) => _createLayer(layer, options.plugins),
+                        )
+                    ],
+                  ),
+                )),
           ),
           Stack(
             children: [

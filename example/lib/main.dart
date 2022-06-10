@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map_example/pages/epsg4326_crs.dart';
 import 'package:flutter_map_example/pages/map_inside_listview.dart';
 import 'package:flutter_map_example/pages/network_tile_provider.dart';
+import 'package:flutter_map_example/pages/pitch.dart';
 import 'package:flutter_map_example/pages/point_to_latlng.dart';
 
 import './pages/animated_map_controller.dart';
@@ -67,6 +68,7 @@ class MyApp extends StatelessWidget {
         MarkerRotatePage.route: (context) => const MarkerRotatePage(),
         MovingMarkersPage.route: (context) => const MovingMarkersPage(),
         CirclePage.route: (context) => const CirclePage(),
+        PitchPage.route: (context) => const PitchPage(),
         OverlayImagePage.route: (context) => const OverlayImagePage(),
         PolygonPage.route: (context) => const PolygonPage(),
         SlidingMapPage.route: (_) => const SlidingMapPage(),

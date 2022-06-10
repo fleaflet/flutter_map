@@ -256,3 +256,23 @@ class MapEventRotateEnd extends MapEvent {
       required double zoom})
       : super(source: source, center: center, zoom: zoom);
 }
+
+class MapEventPitch extends MapEvent {
+  /// Custom ID to identify related object(s)
+  final String? id;
+
+  /// Current pitch in degrees
+  final double currentPitch;
+
+  /// Target pitch in degrees
+  final double targetPitch;
+
+  MapEventPitch({
+    required this.id,
+    required this.currentPitch,
+    required this.targetPitch,
+    required MapEventSource source,
+    required LatLng center,
+    required double zoom,
+  }) : super(source: source, center: center, zoom: zoom);
+}

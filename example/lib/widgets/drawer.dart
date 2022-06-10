@@ -20,6 +20,7 @@ import '../pages/moving_markers.dart';
 import '../pages/offline_map.dart';
 import '../pages/on_tap.dart';
 import '../pages/overlay_image.dart';
+import '../pages/pitch.dart';
 import '../pages/plugin_api.dart';
 import '../pages/plugin_scalebar.dart';
 import '../pages/plugin_zoombuttons.dart';
@@ -178,6 +179,12 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           context,
           const Text('Overlay Image'),
           OverlayImagePage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Pitch'),
+          PitchPage.route,
           currentRoute,
         ),
         _buildMenuItem(

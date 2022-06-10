@@ -123,6 +123,17 @@ abstract class MapController {
   /// same as the old rotate)
   bool rotate(double degree, {String? id});
 
+  /// Sets the map pitch to the given angle in degrees.
+  ///
+  /// Optionally provide [id] attribute and if you listen to [mapEventStream]
+  /// later a [MapEventRotate] event will be emitted (if rotate was success)
+  /// with same [id] attribute. Event's source attribute will be
+  /// [MapEventSource.mapController].
+  ///
+  /// returns `true` if tilt was success (it won't be successful if pitch is
+  /// same as the old pitch)
+  bool tilt(double pitch, {String? id});
+
   /// Calls [move] and [rotate] together however layers will rebuild just once
   /// instead of twice
   MoveAndRotateResult moveAndRotate(LatLng center, double zoom, double degree,
@@ -270,6 +281,9 @@ class MapOptions {
   final LatLng? swPanBoundary;
   final LatLng? nePanBoundary;
 
+  /// The pich in degrees from the plane of the screen. Defaults to 0.
+  final double pitch;
+
   /// Restrict outer edges of map to LatLng Bounds, to prevent gray areas when
   /// panning or zooming. LatLngBounds(LatLng(-90, -180.0), LatLng(90.0, 180.0))
   /// would represent the full extent of the map, so no gray area outside of it.
@@ -313,6 +327,7 @@ class MapOptions {
     this.swPanBoundary,
     this.nePanBoundary,
     this.maxBounds,
+    this.pitch = 0.0,
   })  : center = center ?? LatLng(50.5, 30.51),
         assert(rotationThreshold >= 0.0),
         assert(pinchZoomThreshold >= 0.0),
@@ -324,6 +339,7 @@ class MapOptions {
         'screenSize must be set in order to enable adaptive boundaries.');
     assert(!adaptiveBoundaries || controller != null,
         'controller must be set in order to enable adaptive boundaries.');
+    assert(pitch >= 0 && pitch <= 90, 'pitch must be >= 0 and <= 80');
   }
 
   //if there is a pan boundary, do not cross

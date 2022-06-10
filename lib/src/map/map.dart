@@ -81,6 +81,11 @@ class MapControllerImpl implements MapController {
   }
 
   @override
+  bool tilt(double pitch, {String? id}) {
+    return _state.tilt(pitch, id: id, source: MapEventSource.mapController);
+  }
+
+  @override
   LatLng? pointToLatLng(CustomPoint localPoint) {
     if (_state.originalSize == null) {
       return null;
@@ -123,12 +128,15 @@ class MapControllerImpl implements MapController {
 class MapState {
   MapOptions options;
   final ValueChanged<double> onRotationChanged;
+  final ValueChanged<double> onPitchChanged;
   final StreamController<void> _onMoveSink;
   final StreamSink<MapEvent> _mapEventSink;
 
   double _zoom;
   double _rotation;
   double _rotationRad;
+  double _pitch;
+  double _pitchRad;
 
   double get zoom => _zoom;
 
@@ -141,15 +149,26 @@ class MapState {
 
   double get rotationRad => _rotationRad;
 
+  double get pitch => _pitch;
+  set pitch(double pitch) {
+    _pitch = pitch;
+    _pitchRad = degToRadian(pitch);
+  }
+
+  double get pitchRad => _pitchRad;
+
   LatLng? _lastCenter;
   LatLngBounds? _lastBounds;
   Bounds? _lastPixelBounds;
   late CustomPoint _pixelOrigin;
   bool _initialized = false;
 
-  MapState(this.options, this.onRotationChanged, this._mapEventSink)
+  MapState(this.options, this._mapEventSink,
+      {required this.onRotationChanged, required this.onPitchChanged})
       : _rotation = options.rotation,
         _rotationRad = degToRadian(options.rotation),
+        _pitch = options.pitch,
+        _pitchRad = degToRadian(options.pitch),
         _zoom = options.zoom,
         _onMoveSink = StreamController.broadcast();
 
@@ -423,6 +442,39 @@ class MapState {
           center: center, bounds: bounds, zoom: zoom, hasGesture: hasGesture);
 
       options.onPositionChanged!(mapPosition, hasGesture);
+    }
+
+    return true;
+  }
+
+  bool tilt(
+    double pitch, {
+    bool hasGesture = false,
+    bool callOnMoveSink = true,
+    required MapEventSource source,
+    String? id,
+  }) {
+    if (pitch == _pitch) {
+      return false;
+    }
+    final previousPitch = _pitch;
+    this.pitch = pitch;
+
+    onPitchChanged(_pitch);
+
+    emitMapEvent(
+      MapEventPitch(
+        id: id,
+        currentPitch: previousPitch,
+        targetPitch: _pitch,
+        center: _lastCenter!,
+        zoom: _zoom,
+        source: source,
+      ),
+    );
+
+    if (callOnMoveSink) {
+      _onMoveSink.add(null);
     }
 
     return true;
