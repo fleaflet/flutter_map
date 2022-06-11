@@ -84,10 +84,9 @@ class MapControllerImpl implements MapController {
 
   @experimental
   @override
-  void flyTo (LatLng destinationLatLng, { double? zoom, double? duration }) {
-    Movement.flyTo(_state, destinationLatLng, zoom: zoom, duration: duration );
+  void flyTo(LatLng destinationLatLng, {double? zoom, double? duration}) {
+    Movement.flyTo(_state, destinationLatLng, zoom: zoom, duration: duration);
   }
-
 
   @override
   LatLng? pointToLatLng(CustomPoint localPoint) {

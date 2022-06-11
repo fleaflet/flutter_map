@@ -1,4 +1,3 @@
-
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -6,7 +5,6 @@ import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart';
 
 class Movement {
-
   // FlyTo Converted from leaflet.js map.js
   /*
   BSD 2-Clause License
@@ -39,9 +37,8 @@ class Movement {
   static bool alreadyFlying = false;
 
   static void flyTo(MapState mapState, LatLng targetCenter,
-      { double? zoom,  double? duration }) {
-
-    if(alreadyFlying) return;
+      {double? zoom, double? duration}) {
+    if (alreadyFlying) return;
 
     alreadyFlying = true;
     final CustomPoint from = mapState.project(mapState.getCenter());
@@ -80,9 +77,11 @@ class Movement {
     double sinh(double n) {
       return (math.exp(n) - math.exp(-n)) / 2;
     }
+
     double cosh(double n) {
       return (math.exp(n) + math.exp(-n)) / 2;
     }
+
     double tanh(double n) {
       return sinh(n) / cosh(n);
     }
@@ -92,6 +91,7 @@ class Movement {
     double w(double s) {
       return w0 * (cosh(r0) / cosh(r0 + rho * s));
     }
+
     double u(double s) {
       return w0 * (cosh(r0) * tanh(r0 + rho * s) - sinh(r0)) / rho2;
     }
@@ -106,10 +106,7 @@ class Movement {
     duration = duration != null ? 1000 * duration : 1000 * S * 0.8;
 
     void frame() async {
-      final t = DateTime
-          .now()
-          .difference(start)
-          .inMilliseconds / duration!;
+      final t = DateTime.now().difference(start).inMilliseconds / duration!;
       final s = easeOut(t) * S;
 
       if (t <= 1) {
@@ -119,8 +116,8 @@ class Movement {
         final newZoom = mapState.getScaleZoom(w0 / w(s), startZoom);
 
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          mapState.move(
-              newPos, newZoom, source: MapEventSource.flingAnimationController);
+          mapState.move(newPos, newZoom,
+              source: MapEventSource.flingAnimationController);
           frame();
         });
         WidgetsBinding.instance.ensureVisualUpdate();

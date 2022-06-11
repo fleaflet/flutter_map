@@ -121,7 +121,7 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           AnimatedMapControllerPage.route,
           currentRoute,
         ),
-	_buildMenuItem(
+        _buildMenuItem(
           context,
           const Text('MapController FlyTo'),
           MapControllerFlyToPage.route,

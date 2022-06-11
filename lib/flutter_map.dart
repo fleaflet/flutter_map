@@ -141,7 +141,7 @@ abstract class MapController {
   /// Do curved fly animation to destination. Duration can vary depending on the
   /// distance, however speed will influence how fast that moves though.
   @experimental
-  void flyTo(LatLng targetCenter, {double? zoom, double? duration });
+  void flyTo(LatLng targetCenter, {double? zoom, double? duration});
 
   Future<void> get onReady;
 

@@ -89,7 +89,7 @@ class MapControllerFlyToPageState extends State<MapControllerFlyToPage> {
                   ),
                   MaterialButton(
                     onPressed: () {
-                      mapController.flyTo(dublin, zoom: 5, duration: 3 );
+                      mapController.flyTo(dublin, zoom: 5, duration: 3);
                     },
                     child: const Text('Dublin'),
                   ),
