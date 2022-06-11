@@ -27,7 +27,7 @@ class _PitchPage extends State<PitchPage> {
   @override
   Widget build(BuildContext context) {
     final coordinates = LatLng(49.246292, -123.116226);
-    const pitch = 40.0;
+    const pitch = 60.0;
     return Scaffold(
       appBar: AppBar(title: const Text('Pitch')),
       drawer: buildDrawer(context, PitchPage.route),
@@ -50,17 +50,17 @@ class _PitchPage extends State<PitchPage> {
                     urlTemplate:
                         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     subdomains: ['a', 'b', 'c']),
-                MarkerLayerOptions(
-                    key: const Key("pitchMarkers"),
-                    markers: [_marker(coordinates, Colors.blue)]),
+                MarkerLayerOptions(key: const Key("pitchMarkers"), markers: [
+                  _marker(coordinates, Colors.grey.shade600, rotate: false)
+                ]),
                 MarkerLayerOptions(
                     key: const Key("otherMarkers"),
                     applyPitch: false,
                     markers: [
                       _marker(
-                          LatLng(coordinates.latitude,
-                              coordinates.longitude + 0.0005),
-                          Colors.red)
+                          LatLng(coordinates.latitude, coordinates.longitude),
+                          Colors.red,
+                          rotate: true)
                     ]),
               ],
             )),
@@ -70,12 +70,13 @@ class _PitchPage extends State<PitchPage> {
     );
   }
 
-  Marker _marker(LatLng coordinates, Color color) => Marker(
+  Marker _marker(LatLng coordinates, Color color, {required bool rotate}) =>
+      Marker(
         width: 48.0,
         height: 48.0,
         point: coordinates,
         builder: (ctx) => Icon(Icons.location_pin, color: color, size: 48),
-        rotate: true,
+        rotate: rotate,
         anchorPos: AnchorPos.align(AnchorAlign.top),
       );
 }
