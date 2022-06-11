@@ -13,6 +13,7 @@ import './pages/interactive_test_page.dart';
 import './pages/live_location.dart';
 import './pages/many_markers.dart';
 import './pages/map_controller.dart';
+import './pages/map_controller_flyto.dart';
 import './pages/marker_anchor.dart';
 import './pages/marker_rotate.dart';
 import './pages/max_bounds.dart';
@@ -56,6 +57,7 @@ class MyApp extends StatelessWidget {
         EsriPage.route: (context) => const EsriPage(),
         PolylinePage.route: (context) => const PolylinePage(),
         MapControllerPage.route: (context) => const MapControllerPage(),
+	MapControllerFlyToPage.route: (context) => const MapControllerFlyToPage(),
         AnimatedMapControllerPage.route: (context) =>
             const AnimatedMapControllerPage(),
         MarkerAnchorPage.route: (context) => const MarkerAnchorPage(),

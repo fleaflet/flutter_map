@@ -16,6 +16,7 @@ import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/plugins/plugin.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:meta/meta.dart';
 import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
 
 export 'package:flutter_map/src/core/center_zoom.dart';
@@ -136,6 +137,11 @@ abstract class MapController {
   /// through the [options] parameter.
   CenterZoom centerZoomFitBounds(LatLngBounds bounds,
       {FitBoundsOptions? options});
+
+  /// Do curved fly animation to destination. Duration can vary depending on the
+  /// distance, however speed will influence how fast that moves though.
+  @experimental
+  void flyTo(LatLng targetCenter, {double? zoom, double? duration });
 
   Future<void> get onReady;
 

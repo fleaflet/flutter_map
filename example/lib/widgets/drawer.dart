@@ -6,6 +6,7 @@ import 'package:flutter_map_example/pages/network_tile_provider.dart';
 import 'package:flutter_map_example/pages/point_to_latlng.dart';
 
 import '../pages/animated_map_controller.dart';
+import '../pages/map_controller_flyto.dart';
 import '../pages/circle.dart';
 import '../pages/custom_crs/custom_crs.dart';
 import '../pages/esri.dart';
@@ -118,6 +119,12 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           context,
           const Text('Animated MapController'),
           AnimatedMapControllerPage.route,
+          currentRoute,
+        ),
+	_buildMenuItem(
+          context,
+          const Text('MapController FlyTo'),
+          MapControllerFlyToPage.route,
           currentRoute,
         ),
         _buildMenuItem(

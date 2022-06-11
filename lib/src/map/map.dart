@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/map/map_state_widget.dart';
+import 'package:flutter_map/src/map/movement.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:meta/meta.dart';
 
 class MapControllerImpl implements MapController {
   final Completer<void> _readyCompleter = Completer<void>();
@@ -79,6 +81,13 @@ class MapControllerImpl implements MapController {
   bool rotate(double degree, {String? id}) {
     return _state.rotate(degree, id: id, source: MapEventSource.mapController);
   }
+
+  @experimental
+  @override
+  void flyTo (LatLng destinationLatLng, { double? zoom, double? duration }) {
+    Movement.flyTo(_state, destinationLatLng, zoom: zoom, duration: duration );
+  }
+
 
   @override
   LatLng? pointToLatLng(CustomPoint localPoint) {
