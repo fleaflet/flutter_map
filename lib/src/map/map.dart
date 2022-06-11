@@ -10,6 +10,7 @@ import 'package:latlong2/latlong.dart';
 class MapControllerImpl implements MapController {
   final Completer<void> _readyCompleter = Completer<void>();
   final StreamController<MapEvent> _mapEventSink = StreamController.broadcast();
+
   @override
   StreamSink<MapEvent> get mapEventSink => _mapEventSink.sink;
 
@@ -22,6 +23,7 @@ class MapControllerImpl implements MapController {
   }
 
   late final MapState _state;
+
   @override
   set state(MapState state) {
     _state = state;
@@ -47,7 +49,7 @@ class MapControllerImpl implements MapController {
   void fitBounds(
     LatLngBounds bounds, {
     FitBoundsOptions? options =
-        const FitBoundsOptions(padding: EdgeInsets.all(12.0)),
+        const FitBoundsOptions(padding: EdgeInsets.all(12)),
   }) {
     _state.fitBounds(bounds, options!);
   }
@@ -56,7 +58,7 @@ class MapControllerImpl implements MapController {
   CenterZoom centerZoomFitBounds(
     LatLngBounds bounds, {
     FitBoundsOptions? options =
-        const FitBoundsOptions(padding: EdgeInsets.all(12.0)),
+        const FitBoundsOptions(padding: EdgeInsets.all(12)),
   }) {
     return _state.centerZoomFitBounds(bounds, options!);
   }
@@ -79,6 +81,42 @@ class MapControllerImpl implements MapController {
   }
 
   @override
+  LatLng? pointToLatLng(CustomPoint localPoint) {
+    if (_state.originalSize == null) {
+      return null;
+    }
+
+    final width = _state.originalSize!.x;
+    final height = _state.originalSize!.y;
+
+    final localPointCenterDistance =
+        CustomPoint((width / 2) - localPoint.x, (height / 2) - localPoint.y);
+    final mapCenter =
+        _state.options.crs.latLngToPoint(_state.center, _state.zoom);
+
+    var point = mapCenter - localPointCenterDistance;
+
+    if (_state.rotation != 0.0) {
+      point = rotatePoint(mapCenter, point);
+    }
+
+    return _state.options.crs.pointToLatLng(point, _state.zoom);
+  }
+
+  CustomPoint<num> rotatePoint(
+      CustomPoint<num> mapCenter, CustomPoint<num> point) {
+    final m = Matrix4.identity()
+      ..translate(mapCenter.x.toDouble(), mapCenter.y.toDouble())
+      ..rotateZ(-_state.rotationRad)
+      ..translate(-mapCenter.x.toDouble(), -mapCenter.y.toDouble());
+
+    final tp = MatrixUtils.transformPoint(
+        m, Offset(point.x.toDouble(), point.y.toDouble()));
+
+    return CustomPoint(tp.dx, tp.dy);
+  }
+
+  @override
   Stream<MapEvent> get mapEventStream => _mapEventSink.stream;
 }
 
@@ -93,6 +131,7 @@ class MapState {
   double _rotationRad;
 
   double get zoom => _zoom;
+
   double get rotation => _rotation;
 
   set rotation(double rotation) {
@@ -138,9 +177,9 @@ class MapState {
   }
 
   // Extended size of the map where rotation is calculated
-  CustomPoint? _size;
+  CustomPoint<double>? _size;
 
-  CustomPoint get size => _size ?? const CustomPoint(0.0, 0.0);
+  CustomPoint<double> get size => _size ?? const CustomPoint(0.0, 0.0);
 
   void _updateSizeByOriginalSizeAndRotation() {
     final originalWidth = _originalSize!.x;
@@ -183,7 +222,7 @@ class MapState {
 
   // Check if we've just got a new size constraints. Initially a layoutBuilder
   // May not be able to calculate a size, and end up with 0,0
-  bool hasLateSize(constraints) {
+  bool hasLateSize(BoxConstraints constraints) {
     if (options.bounds != null &&
         originalSize != null &&
         originalSize!.x == 0.0 &&
@@ -201,7 +240,7 @@ class MapState {
     }
   }
 
-  void _handleMoveEmit(LatLng targetCenter, double targetZoom, hasGesture,
+  void _handleMoveEmit(LatLng targetCenter, double targetZoom, bool hasGesture,
       MapEventSource source, String? id) {
     if (source == MapEventSource.flingAnimationController) {
       emitMapEvent(
@@ -255,6 +294,23 @@ class MapState {
           source: source,
         ),
       );
+    } else if (source == MapEventSource.custom) {
+      // for custom source, emit move event if zoom or center has changed
+      if (targetZoom != _zoom ||
+          _lastCenter == null ||
+          targetCenter.latitude != _lastCenter!.latitude ||
+          targetCenter.longitude != _lastCenter!.longitude) {
+        emitMapEvent(
+          MapEventMove(
+            id: id,
+            center: _lastCenter!,
+            zoom: _zoom,
+            targetCenter: targetCenter,
+            targetZoom: targetZoom,
+            source: source,
+          ),
+        );
+      }
     }
   }
 
@@ -273,13 +329,13 @@ class MapState {
 
   bool rotate(
     double degree, {
-    hasGesture = false,
-    callOnMoveSink = true,
+    bool hasGesture = false,
+    bool callOnMoveSink = true,
     required MapEventSource source,
     String? id,
   }) {
     if (degree != _rotation) {
-      var oldRotation = _rotation;
+      final oldRotation = _rotation;
       rotation = degree;
       _updateSizeByOriginalSizeAndRotation();
 
@@ -321,8 +377,8 @@ class MapState {
   }
 
   bool move(LatLng center, double zoom,
-      {hasGesture = false,
-      callOnMoveSink = true,
+      {bool hasGesture = false,
+      bool callOnMoveSink = true,
       required MapEventSource source,
       String? id}) {
     zoom = fitZoomToBounds(zoom);
@@ -342,8 +398,8 @@ class MapState {
     // Try and fit the corners of the map inside the visible area.
     // If it's still outside (so response is null), don't perform a move.
     if (options.maxBounds != null) {
-      var adjustedCenter =
-          adjustCenterIfOutsideMaxBounds(center, zoom, options.maxBounds);
+      final adjustedCenter =
+          adjustCenterIfOutsideMaxBounds(center, zoom, options.maxBounds!);
       if (adjustedCenter == null) {
         return false;
       } else {
@@ -363,7 +419,7 @@ class MapState {
     }
 
     if (options.onPositionChanged != null) {
-      var mapPosition = MapPosition(
+      final mapPosition = MapPosition(
           center: center, bounds: bounds, zoom: zoom, hasGesture: hasGesture);
 
       options.onPositionChanged!(mapPosition, hasGesture);
@@ -388,7 +444,7 @@ class MapState {
     if (!bounds.isValid) {
       throw Exception('Bounds are not valid.');
     }
-    var target = getBoundsCenterZoom(bounds, options);
+    final target = getBoundsCenterZoom(bounds, options);
     move(target.center, target.zoom, source: MapEventSource.fitBounds);
   }
 
@@ -424,7 +480,7 @@ class MapState {
   }
 
   LatLngBounds _calculateBounds() {
-    var bounds = getLastPixelBounds();
+    final bounds = getLastPixelBounds();
     return LatLngBounds(
       unproject(bounds.bottomLeft),
       unproject(bounds.topRight),
@@ -433,20 +489,20 @@ class MapState {
 
   CenterZoom getBoundsCenterZoom(
       LatLngBounds bounds, FitBoundsOptions options) {
-    var paddingTL =
+    final paddingTL =
         CustomPoint<double>(options.padding.left, options.padding.top);
-    var paddingBR =
+    final paddingBR =
         CustomPoint<double>(options.padding.right, options.padding.bottom);
 
-    var paddingTotalXY = paddingTL + paddingBR;
+    final paddingTotalXY = paddingTL + paddingBR;
 
     var zoom = getBoundsZoom(bounds, paddingTotalXY, inside: options.inside);
     zoom = math.min(options.maxZoom, zoom);
 
-    var paddingOffset = (paddingBR - paddingTL) / 2;
-    var swPoint = project(bounds.southWest!, zoom);
-    var nePoint = project(bounds.northEast!, zoom);
-    var center = unproject((swPoint + nePoint) / 2 + paddingOffset, zoom);
+    final paddingOffset = (paddingBR - paddingTL) / 2;
+    final swPoint = project(bounds.southWest!, zoom);
+    final nePoint = project(bounds.northEast!, zoom);
+    final center = unproject((swPoint + nePoint) / 2 + paddingOffset, zoom);
     return CenterZoom(
       center: center,
       zoom: zoom,
@@ -456,17 +512,17 @@ class MapState {
   double getBoundsZoom(LatLngBounds bounds, CustomPoint<double> padding,
       {bool inside = false}) {
     var zoom = this.zoom;
-    var min = options.minZoom ?? 0.0;
-    var max = options.maxZoom ?? double.infinity;
-    var nw = bounds.northWest;
-    var se = bounds.southEast;
+    final min = options.minZoom ?? 0.0;
+    final max = options.maxZoom ?? double.infinity;
+    final nw = bounds.northWest;
+    final se = bounds.southEast;
     var size = this.size - padding;
     // Prevent negative size which results in NaN zoom value later on in the calculation
-    size = CustomPoint(math.max(0, size.x), math.max(0, size.y));
-    var boundsSize = Bounds(project(se, zoom), project(nw, zoom)).size;
-    var scaleX = size.x / boundsSize.x;
-    var scaleY = size.y / boundsSize.y;
-    var scale = inside ? math.max(scaleX, scaleY) : math.min(scaleX, scaleY);
+    size = CustomPoint(math.max(0.0, size.x), math.max(0.0, size.y));
+    final boundsSize = Bounds(project(se, zoom), project(nw, zoom)).size;
+    final scaleX = size.x / boundsSize.x;
+    final scaleY = size.y / boundsSize.y;
+    final scale = inside ? math.max(scaleX, scaleY) : math.min(scaleX, scaleY);
 
     zoom = getScaleZoom(scale, zoom);
 
@@ -492,13 +548,13 @@ class MapState {
   }
 
   double getZoomScale(double toZoom, double? fromZoom) {
-    var crs = options.crs;
+    final crs = options.crs;
     fromZoom = fromZoom ?? _zoom;
     return crs.scale(toZoom) / crs.scale(fromZoom);
   }
 
   double getScaleZoom(double scale, double? fromZoom) {
-    var crs = options.crs;
+    final crs = options.crs;
     fromZoom = fromZoom ?? _zoom;
     return crs.zoom(scale * crs.scale(fromZoom)) as double;
   }
@@ -512,38 +568,38 @@ class MapState {
   }
 
   CustomPoint getNewPixelOrigin(LatLng center, [double? zoom]) {
-    var viewHalf = size / 2.0;
+    final viewHalf = size / 2.0;
     return (project(center, zoom) - viewHalf).round();
   }
 
   Bounds getPixelBounds(double zoom) {
-    var mapZoom = zoom;
-    var scale = getZoomScale(mapZoom, zoom);
-    var pixelCenter = project(center, zoom).floor();
-    var halfSize = size / (scale * 2);
+    final mapZoom = zoom;
+    final scale = getZoomScale(mapZoom, zoom);
+    final pixelCenter = project(center, zoom).floor();
+    final halfSize = size / (scale * 2);
     return Bounds(pixelCenter - halfSize, pixelCenter + halfSize);
   }
 
   LatLng? adjustCenterIfOutsideMaxBounds(
-      LatLng testCenter, testZoom, maxBounds) {
+      LatLng testCenter, double testZoom, LatLngBounds maxBounds) {
     LatLng? newCenter;
 
-    var swPixel = project(maxBounds.southWest!, testZoom);
-    var nePixel = project(maxBounds.northEast!, testZoom);
+    final swPixel = project(maxBounds.southWest!, testZoom);
+    final nePixel = project(maxBounds.northEast!, testZoom);
 
-    var centerPix = project(testCenter, testZoom);
+    final centerPix = project(testCenter, testZoom);
 
-    var halfSizeX = size.x / 2;
-    var halfSizeY = size.y / 2;
+    final halfSizeX = size.x / 2;
+    final halfSizeY = size.y / 2;
 
     // Try and find the edge value that the center could use to stay within
     // the maxBounds. This should be ok for panning. If we zoom, it is possible
     // there is no solution to keep all corners within the bounds. If the edges
     // are still outside the bounds, don't return anything.
-    var leftOkCenter = math.min(swPixel.x, nePixel.x) + halfSizeX;
-    var rightOkCenter = math.max(swPixel.x, nePixel.x) - halfSizeX;
-    var topOkCenter = math.min(swPixel.y, nePixel.y) + halfSizeY;
-    var botOkCenter = math.max(swPixel.y, nePixel.y) - halfSizeY;
+    final leftOkCenter = math.min(swPixel.x, nePixel.x) + halfSizeX;
+    final rightOkCenter = math.max(swPixel.x, nePixel.x) - halfSizeX;
+    final topOkCenter = math.min(swPixel.y, nePixel.y) + halfSizeY;
+    final botOkCenter = math.max(swPixel.y, nePixel.y) - halfSizeY;
 
     double? newCenterX;
     double? newCenterY;
@@ -570,8 +626,8 @@ class MapState {
       return testCenter;
     }
 
-    var newCx = newCenterX ?? centerPix.x;
-    var newCy = newCenterY ?? centerPix.y;
+    final newCx = newCenterX ?? centerPix.x;
+    final newCy = newCenterY ?? centerPix.y;
 
     // Have a final check, see if the adjusted center is within maxBounds.
     // If not, give up.

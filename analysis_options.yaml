@@ -1,21 +1,20 @@
 include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  strong-mode:
+    implicit-casts: false
+    implicit-dynamic: false
+  errors:
+    close_sinks: ignore
+    missing_required_param: error
+    missing_return: error
+
 linter:
   rules:
-    - always_declare_return_types
-    - avoid_returning_null
-    - avoid_unused_constructor_parameters
-    - cancel_subscriptions
-    - comment_references
-    - directives_ordering
-    - invariant_booleans
-    - no_adjacent_strings_in_list
-    - omit_local_variable_types
-    - only_throw_errors
-    - prefer_interpolation_to_compose_strings
-    - prefer_single_quotes
-    - sort_pub_dependencies
-    - test_types_in_equals
-    - throw_in_finally
-    - unnecessary_lambdas
-    - unnecessary_null_aware_assignments
-    - unnecessary_statements
+    prefer_final_locals: true
+    prefer_final_in_for_each: true
+    avoid_dynamic_calls: true
+    always_use_package_imports: true
+    type_annotate_public_apis: true
+    prefer_int_literals: true
+    use_named_constants: true

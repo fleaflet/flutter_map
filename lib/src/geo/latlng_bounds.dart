@@ -20,9 +20,9 @@ class LatLngBounds {
       num? minY;
       num? maxY;
 
-      for (var point in points) {
-        num x = point.longitudeInRad;
-        num y = point.latitudeInRad;
+      for (final point in points) {
+        final num x = point.longitudeInRad;
+        final num y = point.latitudeInRad;
 
         if (minX == null || minX > x) {
           minX = x;
@@ -110,18 +110,18 @@ class LatLngBounds {
        lambda: lng
     */
 
-    var phi1 = southWest!.latitudeInRad;
-    var lambda1 = southWest!.longitudeInRad;
-    var phi2 = northEast!.latitudeInRad;
+    final phi1 = southWest!.latitudeInRad;
+    final lambda1 = southWest!.longitudeInRad;
+    final phi2 = northEast!.latitudeInRad;
 
-    var dLambda = degToRadian(northEast!.longitude -
+    final dLambda = degToRadian(northEast!.longitude -
         southWest!.longitude); // delta lambda = lambda2-lambda1
 
-    var bx = math.cos(phi2) * math.cos(dLambda);
-    var by = math.cos(phi2) * math.sin(dLambda);
-    var phi3 = math.atan2(math.sin(phi1) + math.sin(phi2),
+    final bx = math.cos(phi2) * math.cos(dLambda);
+    final by = math.cos(phi2) * math.sin(dLambda);
+    final phi3 = math.atan2(math.sin(phi1) + math.sin(phi2),
         math.sqrt((math.cos(phi1) + bx) * (math.cos(phi1) + bx) + by * by));
-    var lambda3 = lambda1 + math.atan2(by, math.cos(phi1) + bx);
+    final lambda3 = lambda1 + math.atan2(by, math.cos(phi1) + bx);
 
     // phi3 and lambda3 are actually in radians and LatLng wants degrees
     return LatLng(radianToDeg(phi3), radianToDeg(lambda3));
@@ -137,15 +137,15 @@ class LatLngBounds {
     if (!isValid) {
       return false;
     }
-    var sw2 = point;
-    var ne2 = point;
+    final sw2 = point;
+    final ne2 = point;
     return containsBounds(LatLngBounds(sw2, ne2));
   }
 
   /// Checks whether [bounds] is contained inside bounds
   bool containsBounds(LatLngBounds bounds) {
-    var sw2 = bounds._sw!;
-    var ne2 = bounds._ne;
+    final sw2 = bounds._sw!;
+    final ne2 = bounds._ne;
     return (sw2.latitude >= _sw!.latitude) &&
         (ne2!.latitude <= _ne!.latitude) &&
         (sw2.longitude >= _sw!.longitude) &&
@@ -172,8 +172,8 @@ class LatLngBounds {
 
   /// Expands bounds by decimal degrees unlike [extend] or [extendBounds]
   void pad(double bufferRatio) {
-    var heightBuffer = (_sw!.latitude - _ne!.latitude).abs() * bufferRatio;
-    var widthBuffer = (_sw!.longitude - _ne!.longitude).abs() * bufferRatio;
+    final heightBuffer = (_sw!.latitude - _ne!.latitude).abs() * bufferRatio;
+    final widthBuffer = (_sw!.longitude - _ne!.longitude).abs() * bufferRatio;
 
     _sw = LatLng(_sw!.latitude - heightBuffer, _sw!.longitude - widthBuffer);
     _ne = LatLng(_ne!.latitude + heightBuffer, _ne!.longitude + widthBuffer);

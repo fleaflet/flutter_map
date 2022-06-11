@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-
-import 'network_image_with_retry.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network_image_with_retry.dart';
 
 abstract class TileProvider {
   const TileProvider();
@@ -11,14 +10,14 @@ abstract class TileProvider {
   void dispose() {}
 
   String getTileUrl(Coords coords, TileLayerOptions options) {
-    var urlTemplate = (options.wmsOptions != null)
+    final urlTemplate = (options.wmsOptions != null)
         ? options.wmsOptions!
             .getUrl(coords, options.tileSize.toInt(), options.retinaMode)
         : options.urlTemplate;
 
-    var z = _getZoomForUrl(coords, options);
+    final z = _getZoomForUrl(coords, options);
 
-    var data = <String, String>{
+    final data = <String, String>{
       'x': coords.x.round().toString(),
       'y': coords.y.round().toString(),
       'z': z.round().toString(),
@@ -28,7 +27,7 @@ abstract class TileProvider {
     if (options.tms) {
       data['y'] = invertY(coords.y.round(), z.round()).toString();
     }
-    var allOpts = Map<String, String>.from(data)
+    final allOpts = Map<String, String>.from(data)
       ..addAll(options.additionalOptions);
     return options.templateFunction(urlTemplate!, allOpts);
   }
@@ -51,7 +50,7 @@ abstract class TileProvider {
     if (options.subdomains.isEmpty) {
       return '';
     }
-    var index = (coords.x + coords.y).round() % options.subdomains.length;
+    final index = (coords.x + coords.y).round() % options.subdomains.length;
     return options.subdomains[index];
   }
 }
@@ -65,6 +64,7 @@ class NetworkTileProvider extends TileProvider {
 
 class NonCachingNetworkTileProvider extends TileProvider {
   const NonCachingNetworkTileProvider();
+
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
     return NetworkImage(getTileUrl(coords, options));
@@ -73,6 +73,7 @@ class NonCachingNetworkTileProvider extends TileProvider {
 
 class AssetTileProvider extends TileProvider {
   const AssetTileProvider();
+
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
     return AssetImage(getTileUrl(coords, options));

@@ -34,7 +34,7 @@ class EPSG4326Page extends StatelessWidget {
                   TileLayerOptions(
                     wmsOptions: WMSTileLayerOptions(
                       crs: const Epsg4326(),
-                      baseUrl: 'http://ows.mundialis.de/services/service?',
+                      baseUrl: 'https://ows.mundialis.de/services/service?',
                       layers: ['TOPO-OSM-WMS'],
                     ),
                   )

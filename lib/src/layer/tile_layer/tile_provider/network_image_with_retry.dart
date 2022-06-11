@@ -16,7 +16,7 @@ class NetworkImageWithRetry extends ImageProvider<NetworkImageWithRetry> {
   NetworkImageWithRetry(this.url, {this.scale = 1.0});
 
   @override
-  ImageStreamCompleter load(NetworkImageWithRetry key, decode) {
+  ImageStreamCompleter load(NetworkImageWithRetry key, DecoderCallback decode) {
     return OneFrameImageStreamCompleter(_loadWithRetry(key, decode),
         informationCollector: () sync* {
       yield ErrorDescription('Image provider: $this');

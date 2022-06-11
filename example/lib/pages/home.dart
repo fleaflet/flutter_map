@@ -63,12 +63,15 @@ class HomePage extends StatelessWidget {
                     urlTemplate:
                         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     subdomains: ['a', 'b', 'c'],
-                    // For example purposes. It is recommended to use
-                    // TileProvider with a caching and retry strategy, like
-                    // NetworkTileProvider or CachedNetworkTileProvider
                     tileProvider: const NonCachingNetworkTileProvider(),
                   ),
                   MarkerLayerOptions(markers: markers)
+                ],
+                nonRotatedChildren: [
+                  AttributionWidget.defaultWidget(
+                    source: 'OpenStreetMap contributors',
+                    onSourceTapped: () {},
+                  ),
                 ],
               ),
             ),

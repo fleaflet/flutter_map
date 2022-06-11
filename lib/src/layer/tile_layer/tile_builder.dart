@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/src/layer/tile_layer.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile.dart';
 
 typedef TileBuilder = Widget Function(
     BuildContext context, Widget tileWidget, Tile tile);
@@ -109,8 +109,8 @@ Widget loadingTimeDebugTileBuilder(
   Widget tileWidget,
   Tile tile,
 ) {
-  var loadStarted = tile.loadStarted;
-  var loaded = tile.loaded;
+  final loadStarted = tile.loadStarted;
+  final loaded = tile.loaded;
 
   final time = loaded == null
       ? 'Loading'

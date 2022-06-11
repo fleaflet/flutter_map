@@ -33,7 +33,7 @@ class FlutterMapState extends MapGestureMixin {
   void initState() {
     super.initState();
     mapState = MapState(options, (degree) {
-      if (mounted) setState(() => {});
+      if (mounted) setState(() {});
     }, mapController.mapEventSink);
     mapController.state = mapState;
 
@@ -44,7 +44,7 @@ class FlutterMapState extends MapGestureMixin {
   }
 
   void _disposeStreamGroups() {
-    for (var group in groups) {
+    for (final group in groups) {
       group.close();
     }
 
@@ -63,7 +63,7 @@ class FlutterMapState extends MapGestureMixin {
   Stream<void> _merge(LayerOptions options) {
     if (options.rebuild == null) return mapState.onMoved;
 
-    var group = StreamGroup<void>();
+    final group = StreamGroup<void>();
     group.add(mapState.onMoved);
     group.add(options.rebuild!);
     groups.add(group);
@@ -75,7 +75,7 @@ class FlutterMapState extends MapGestureMixin {
     _disposeStreamGroups();
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
-      var hasLateSize = mapState.hasLateSize(constraints);
+      final hasLateSize = mapState.hasLateSize(constraints);
 
       mapState.setOriginalSize(constraints.maxWidth, constraints.maxHeight);
 
@@ -85,9 +85,9 @@ class FlutterMapState extends MapGestureMixin {
       if (hasLateSize) {
         mapState.initIfLateSize();
       }
-      var size = mapState.size;
+      final size = mapState.size;
 
-      var scaleGestureTeam = GestureArenaTeam();
+      final scaleGestureTeam = GestureArenaTeam();
 
       RawGestureDetector scaleGestureDetector({required Widget child}) =>
           RawGestureDetector(
@@ -159,15 +159,15 @@ class FlutterMapState extends MapGestureMixin {
     });
   }
 
-  Widget _buildMap(var size) {
+  Widget _buildMap(CustomPoint<double> size) {
     return ClipRect(
       child: Stack(
         children: [
           OverflowBox(
-            minWidth: size.x as double?,
-            maxWidth: size.x as double?,
-            minHeight: size.y as double?,
-            maxHeight: size.y as double?,
+            minWidth: size.x,
+            maxWidth: size.x,
+            minHeight: size.y,
+            maxHeight: size.y,
             child: Transform.rotate(
               angle: mapState.rotationRad,
               child: Stack(
@@ -197,7 +197,7 @@ class FlutterMapState extends MapGestureMixin {
   }
 
   Widget _createLayer(LayerOptions options, List<MapPlugin> plugins) {
-    for (var plugin in plugins) {
+    for (final plugin in plugins) {
       if (plugin.supportsLayer(options)) {
         return plugin.createLayer(options, mapState, _merge(options));
       }
