@@ -200,7 +200,7 @@ class FlutterMapState extends MapGestureMixin {
 
   Widget _applyPitch(Widget widget) => Transform(
       transform: Matrix4.rotationX(mapState.pitchRad),
-      alignment: Alignment.bottomCenter,
+      alignment: Alignment.center,
       transformHitTests: true,
       child: widget);
 

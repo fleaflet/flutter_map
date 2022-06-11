@@ -186,7 +186,7 @@ class MapState {
         _originalSize!.y != height) {
       _originalSize = CustomPoint<double>(width, height);
 
-      _updateSizeByOriginalSizeAndRotation();
+      _updateSizeByOriginalSizeAndRotationPitch();
 
       // rebuild layers if screen size has been changed
       if (!isCurrSizeNull) {
@@ -200,21 +200,26 @@ class MapState {
 
   CustomPoint<double> get size => _size ?? const CustomPoint(0.0, 0.0);
 
-  void _updateSizeByOriginalSizeAndRotation() {
+  void _updateSizeByOriginalSizeAndRotationPitch() {
     final originalWidth = _originalSize!.x;
     final originalHeight = _originalSize!.y;
 
+    var heightWithPitch = originalHeight;
+    if (_pitch != 0.0) {
+      final cosAngle = math.cos(_pitchRad).abs();
+      heightWithPitch = originalHeight / cosAngle;
+    }
     if (_rotation != 0.0) {
       final cosAngle = math.cos(_rotationRad).abs();
       final sinAngle = math.sin(_rotationRad).abs();
       final num width =
-          (originalWidth * cosAngle) + (originalHeight * sinAngle);
+          (originalWidth * cosAngle) + (heightWithPitch * sinAngle);
       final num height =
-          (originalHeight * cosAngle) + (originalWidth * sinAngle);
+          (heightWithPitch * cosAngle) + (originalWidth * sinAngle);
 
       _size = CustomPoint<double>(width, height);
     } else {
-      _size = CustomPoint<double>(originalWidth, originalHeight);
+      _size = CustomPoint<double>(originalWidth, heightWithPitch);
     }
 
     if (!_initialized) {
@@ -356,7 +361,7 @@ class MapState {
     if (degree != _rotation) {
       final oldRotation = _rotation;
       rotation = degree;
-      _updateSizeByOriginalSizeAndRotation();
+      _updateSizeByOriginalSizeAndRotationPitch();
 
       onRotationChanged(_rotation);
 
@@ -459,6 +464,7 @@ class MapState {
     }
     final previousPitch = _pitch;
     this.pitch = pitch;
+    _updateSizeByOriginalSizeAndRotationPitch();
 
     onPitchChanged(_pitch);
 
