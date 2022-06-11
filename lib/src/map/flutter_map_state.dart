@@ -172,22 +172,11 @@ class FlutterMapState extends MapGestureMixin {
             maxWidth: size.x,
             minHeight: size.y,
             maxHeight: size.y,
-            child: Transform(
-                transform: Matrix4.rotationX(mapState.pitchRad),
-                alignment: Alignment.bottomCenter,
-                transformHitTests: true,
-                child: Transform.rotate(
-                  angle: mapState.rotationRad,
-                  child: Stack(
-                    children: [
-                      if (widget.children.isNotEmpty) ...widget.children,
-                      if (widget.layers.isNotEmpty)
-                        ...widget.layers.map(
-                          (layer) => _createLayer(layer, options.plugins),
-                        )
-                    ],
-                  ),
-                )),
+            child: Stack(children: <Widget>[
+              ...widget.children.map((c) => _transform(c)),
+              ...widget.layers
+                  .map((l) => _createLayerWithTransforms(l, options.plugins))
+            ]),
           ),
           Stack(
             children: [
@@ -202,6 +191,26 @@ class FlutterMapState extends MapGestureMixin {
         ],
       ),
     );
+  }
+
+  Widget _transform(Widget widget) => _applyPitch(_applyRotation(widget));
+
+  Widget _applyRotation(Widget widget) =>
+      Transform.rotate(angle: mapState.rotationRad, child: widget);
+
+  Widget _applyPitch(Widget widget) => Transform(
+      transform: Matrix4.rotationX(mapState.pitchRad),
+      alignment: Alignment.bottomCenter,
+      transformHitTests: true,
+      child: widget);
+
+  Widget _createLayerWithTransforms(
+      LayerOptions options, List<MapPlugin> plugins) {
+    var widget = _createLayer(options, plugins);
+    if (options.applyPitch) {
+      widget = _applyPitch(_applyRotation(widget));
+    }
+    return widget;
   }
 
   Widget _createLayer(LayerOptions options, List<MapPlugin> plugins) {

@@ -4,6 +4,8 @@ import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart';
 
+import 'translations.dart';
+
 /// Configuration for marker layer
 class MarkerLayerOptions extends LayerOptions {
   final List<Marker> markers;
@@ -43,8 +45,15 @@ class MarkerLayerOptions extends LayerOptions {
     this.rotateOrigin,
     this.rotateAlignment = Alignment.center,
     this.usePxCache = true,
+
+    /// When true, markers are rendered flat to the map with pitch applied to
+    /// create perspective. When false, markers are rendered flat to the viewport
+    /// without pitch applied.
+    ///
+    /// see [LayerOptions.applyPitch]
+    bool applyPitch = true,
     Stream<void>? rebuild,
-  }) : super(key: key, rebuild: rebuild);
+  }) : super(key: key, rebuild: rebuild, applyPitch: applyPitch);
 }
 
 class Anchor {
@@ -271,24 +280,41 @@ class _MarkerLayerState extends State<MarkerLayer> {
           }
 
           final pos = pxPoint - map.getPixelOrigin();
-          final markerWidget = (marker.rotate ?? layerOptions.rotate ?? false)
-              // Counter rotated marker to the map rotation
-              ? Transform.rotate(
-                  angle: -map.rotationRad,
-                  origin: marker.rotateOrigin ?? layerOptions.rotateOrigin,
-                  alignment:
-                      marker.rotateAlignment ?? layerOptions.rotateAlignment,
-                  child: marker.builder(context),
-                )
-              : marker.builder(context);
+          var markerWidget = marker.builder(context);
+
+          if (layerOptions.applyPitch &&
+              (marker.rotate ?? layerOptions.rotate ?? false)) {
+            // Counter rotated marker to the map rotation
+            markerWidget = Transform.rotate(
+              angle: -map.rotationRad,
+              origin: marker.rotateOrigin ?? layerOptions.rotateOrigin,
+              alignment: marker.rotateAlignment ?? layerOptions.rotateAlignment,
+              child: marker.builder(context),
+            );
+          }
+          var position = Offset(pos.x.toDouble(), pos.y.toDouble());
+          if (!layerOptions.applyPitch && map.rotation != 0.0) {
+            final fromCenter =
+                position.translate(-map.size.x / 2, -map.size.y / 2);
+            position = applyRotationTranslation(
+                    radians: map.rotationRad, point: fromCenter)
+                .translate(map.size.x / 2, map.size.y / 2);
+          }
+          position = Offset(position.dx - width, position.dy - height);
+          if (!layerOptions.applyPitch && map.pitch != 0.0) {
+            position = applyPitchTranslation(
+                height: map.size.y,
+                radians: map.pitchRad,
+                point: position.translate(0, -height));
+          }
 
           markers.add(
             Positioned(
               key: marker.key,
               width: marker.width,
               height: marker.height,
-              left: pos.x - width,
-              top: pos.y - height,
+              left: position.dx,
+              top: position.dy,
               child: markerWidget,
             ),
           );
