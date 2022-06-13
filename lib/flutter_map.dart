@@ -164,10 +164,13 @@ abstract class MapController {
 typedef TapCallback = void Function(TapPosition tapPosition, LatLng point);
 typedef LongPressCallback = void Function(
     TapPosition tapPosition, LatLng point);
-typedef PointerDownCallback = void Function(PointerDownEvent event, LatLng point);
+typedef PointerDownCallback = void Function(
+    PointerDownEvent event, LatLng point);
 typedef PointerUpCallback = void Function(PointerUpEvent event, LatLng point);
-typedef PointerCancelCallback = void Function(PointerCancelEvent event, LatLng point);
-typedef PointerHoverCallback = void Function(PointerHoverEvent event, LatLng point);
+typedef PointerCancelCallback = void Function(
+    PointerCancelEvent event, LatLng point);
+typedef PointerHoverCallback = void Function(
+    PointerHoverEvent event, LatLng point);
 typedef PositionCallback = void Function(MapPosition position, bool hasGesture);
 typedef MapCreatedCallback = void Function(MapController mapController);
 
