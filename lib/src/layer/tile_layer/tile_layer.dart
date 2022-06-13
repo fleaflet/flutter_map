@@ -202,6 +202,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
               );
 
         final attributionLayer =
+            // ignore: deprecated_member_use_from_same_package
             widget.options.attributionBuilder?.call(context);
 
         return Opacity(
