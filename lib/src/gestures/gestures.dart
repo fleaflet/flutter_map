@@ -19,9 +19,36 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
   var _pointerCounter = 0;
 
-  void savePointer(PointerEvent event) => ++_pointerCounter;
+  void onPointerDown(PointerDownEvent event) {
+    ++_pointerCounter;
+    if (mapState.options.onPointerDown != null) {
+      final latlng = _offsetToCrs(event.localPosition);
+      mapState.options.onPointerDown!(event, latlng);
+    }
+  }
 
-  void removePointer(PointerEvent event) => --_pointerCounter;
+  void onPointerUp(PointerUpEvent event) {
+    --_pointerCounter;
+    if (mapState.options.onPointerUp != null) {
+      final latlng = _offsetToCrs(event.localPosition);
+      mapState.options.onPointerUp!(event, latlng);
+    }
+  }
+
+  void onPointerCancel(PointerCancelEvent event) {
+    --_pointerCounter;
+    if (mapState.options.onPointerCancel != null) {
+      final latlng = _offsetToCrs(event.localPosition);
+      mapState.options.onPointerCancel!(event, latlng);
+    }
+  }
+
+  void onPointerHover(PointerHoverEvent event) {
+    if (mapState.options.onPointerHover != null) {
+      final latlng = _offsetToCrs(event.localPosition);
+      mapState.options.onPointerHover!(event, latlng);
+    }
+  }
 
   void onPointerSignal(PointerSignalEvent pointerSignal) {
     // Handle mouse scroll events if the enableScrollWheel parameter is enabled

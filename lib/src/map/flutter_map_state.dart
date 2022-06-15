@@ -127,9 +127,10 @@ class FlutterMapState extends MapGestureMixin {
       return MapStateInheritedWidget(
         mapState: mapState,
         child: Listener(
-          onPointerDown: savePointer,
-          onPointerCancel: removePointer,
-          onPointerUp: removePointer,
+          onPointerDown: onPointerDown,
+          onPointerUp: onPointerUp,
+          onPointerCancel: onPointerCancel,
+          onPointerHover: onPointerHover,
           onPointerSignal: onPointerSignal,
           child: PositionedTapDetector2(
             controller: _positionedTapController,
