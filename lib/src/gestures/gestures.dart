@@ -61,17 +61,12 @@ abstract class MapGestureMixin extends State<FlutterMap>
       final newZoom = (mapState.zoom + pointerSignal.scrollDelta.dy * -0.005)
           .clamp(minZoom, maxZoom);
       // Calculate offset of mouse cursor from viewport center
-      final cursorPos = CustomPoint(
-          pointerSignal.localPosition.dx, pointerSignal.localPosition.dy);
-      final viewCenter = mapState.originalSize! / 2;
-      final offset = (cursorPos - viewCenter).rotate(mapState.rotationRad);
-      // Match new center coordinate to mouse cursor position
-      final scale = mapState.getZoomScale(newZoom, mapState.zoom);
-      final newOffset = offset * (1.0 - 1.0 / scale);
-      final mapCenter = mapState.project(mapState.center);
-      final newCenter = mapState.unproject(mapCenter + newOffset);
+      final List<dynamic> newCenterZoom = _getNewEventCenterZoomPosition(
+          _offsetToPoint(pointerSignal.localPosition), newZoom);
+
       // Move to new center and zoom level
-      mapState.move(newCenter, newZoom, source: MapEventSource.scrollWheel);
+      mapState.move(newCenterZoom[0] as LatLng, newCenterZoom[1] as double,
+          source: MapEventSource.scrollWheel);
     }
   }
 
@@ -625,7 +620,6 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
   void handleDoubleTap(TapPosition tapPosition) {
     _resetDoubleTapHold();
-
     if (!options.allowPanning) {
       return;
     }
@@ -635,42 +629,38 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
     if (InteractiveFlag.hasFlag(
         options.interactiveFlags, InteractiveFlag.doubleTapZoom)) {
-      final centerPos = _pointToOffset(mapState.originalSize!) / 2.0;
-      final newZoom = _getZoomForScale(mapState.zoom, 2);
-      final focalDelta = _getDoubleTapFocalDelta(
-          centerPos, tapPosition.relative!, newZoom - mapState.zoom);
-      final newCenter = _offsetToCrs(centerPos + focalDelta);
-      _startDoubleTapAnimation(newZoom, newCenter);
+      final centerZoom = _getNewEventCenterZoomPosition(
+          _offsetToPoint(tapPosition.relative!),
+          _getZoomForScale(mapState.zoom, 2));
+      _startDoubleTapAnimation(
+          centerZoom[1] as double, centerZoom[0] as LatLng);
     }
   }
 
-  Offset _getDoubleTapFocalDelta(
-      Offset centerPos, Offset tapPos, double zoomDiff) {
-    final tapDelta = tapPos - centerPos;
-    final zoomScale = 1 / math.pow(2, zoomDiff);
-    // The map center offset within which double-tap won't cause zooming to
-    // previously invisible area
-    final maxDelta = centerPos * (1 - zoomScale);
-    final tappedOutExtent =
-        tapDelta.dx.abs() > maxDelta.dx || tapDelta.dy.abs() > maxDelta.dy;
-    return tappedOutExtent
-        ? _projectDeltaOnBounds(tapDelta, maxDelta)
-        : tapDelta;
-  }
+  // If we double click in the corner of a map, calculate the new
+  // center of the whole map after a zoom, to retain that offset position
+  // so that the same event LatLng is still under the cursor.
 
-  Offset _projectDeltaOnBounds(Offset delta, Offset maxDelta) {
-    final weightX = delta.dx.abs() / maxDelta.dx;
-    final weightY = delta.dy.abs() / maxDelta.dy;
-    return delta / math.max(weightX, weightY);
+  List<dynamic> _getNewEventCenterZoomPosition(
+      CustomPoint cursorPos, double newZoom) {
+    // Calculate offset of mouse cursor from viewport center
+    final viewCenter = mapState.originalSize! / 2;
+    final offset = (cursorPos - viewCenter).rotate(mapState.rotationRad);
+    // Match new center coordinate to mouse cursor position
+    final scale = mapState.getZoomScale(newZoom, mapState.zoom);
+    final newOffset = offset * (1.0 - 1.0 / scale);
+    final mapCenter = mapState.project(mapState.center);
+    final newCenter = mapState.unproject(mapCenter + newOffset);
+    return <dynamic>[newCenter, newZoom];
   }
 
   void _startDoubleTapAnimation(double newZoom, LatLng newCenter) {
     _doubleTapZoomAnimation = Tween<double>(begin: mapState.zoom, end: newZoom)
-        .chain(CurveTween(curve: Curves.fastOutSlowIn))
+        .chain(CurveTween(curve: Curves.linear))
         .animate(_doubleTapController);
     _doubleTapCenterAnimation =
         LatLngTween(begin: mapState.center, end: newCenter)
-            .chain(CurveTween(curve: Curves.fastOutSlowIn))
+            .chain(CurveTween(curve: Curves.linear))
             .animate(_doubleTapController);
     _doubleTapController.forward(from: 0);
   }
@@ -800,10 +790,6 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
   CustomPoint _offsetToPoint(Offset offset) {
     return CustomPoint(offset.dx, offset.dy);
-  }
-
-  Offset _pointToOffset(CustomPoint point) {
-    return Offset(point.x.toDouble(), point.y.toDouble());
   }
 
   double _getZoomForScale(double startZoom, double scale) {
