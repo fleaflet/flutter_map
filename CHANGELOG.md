@@ -4,12 +4,12 @@
 
 Contains the following additions/removals:
 
-- Deprecated the existing `attributionBuilder`
-- Added a new method of attribution through `AttributionWidget`
+- Deprecated the existing `attributionBuilder` & added a new method of attribution through `AttributionWidget` - [#1262](https://github.com/fleaflet/flutter_map/pull/1262) for [#1040](https://github.com/fleaflet/flutter_map/issues/1040)
+- Added more callbacks for pointer gestures - [#1275](https://github.com/fleaflet/flutter_map/pull/1275)
 
 Contains the following bug fixes:
 
-- None
+- Fixed double click zoom gesture zooming to incorrect location - [#1271](https://github.com/fleaflet/flutter_map/pull/1271) for [#1265](https://github.com/fleaflet/flutter_map/issues/1265)
 
 In other news:
 
@@ -17,10 +17,8 @@ In other news:
 
 Many thanks to these contributors (in no particular order):
 
-- None
+- @pmjobin
 - ... and all the maintainers
-
----
 
 ## [1.0.0] - 2022/06/07
 
@@ -102,6 +100,7 @@ Many thanks to these contributors (in no particular order):
 ---
 
 ## [0.14.0] - 6/7/2021
+
 This version contains the following changes
 
 - Added scroll wheel zoom support for web
@@ -115,13 +114,14 @@ This version contains the following changes
 - Added vector_map_tiles to plugin section in README
 - Added option to prevent Scrollable widgets from snatching horizontal scrolling gestures
 
-Thanks to moehme, Tom Prebble, Binabh, ondbyte, Sébastien Dabet, Thomas Lüder, Kevin Thorne, 
-kimlet, TheOneWithTheBraid, David Green and Kenneth Gulbrandsøy. 
+Thanks to moehme, Tom Prebble, Binabh, ondbyte, Sébastien Dabet, Thomas Lüder, Kevin Thorne, kimlet, TheOneWithTheBraid, David Green and Kenneth Gulbrandsøy.
 
 ## [0.13.1] - 6/7/2021
+
 This version contains hotfixes from null safety migration.
 
 ## [0.13.0] - 6/4/2021
+
 This version has support for sound null safety. For this purpose, some inactive
 packages were exchanged with active forks.
 
@@ -140,6 +140,7 @@ Thanks to escamoteur, ThexXTURBOXx, Sata51, tazik561, kengu, passsy,
 Ahmed-gubara, johnpryan, josxha and andreandersson for this release!
 
 ## [0.12.0] - 3/16/2021
+
 TileLayerOptions now takes some additional options, templateFunction,
 tileBuilder, tilesContainerBuilder, and evictErrorTileStrategy
 
@@ -150,6 +151,7 @@ tileBuilder, tilesContainerBuilder, and evictErrorTileStrategy
 Thanks to gr4yscale, maRci002, MooNag, tlserver, 6y
 
 ## [0.11.0] - 01/29/2021
+
 This version removes various tile providers that depend on plugins.
 This helps simplify the flutter_map release process. Tile providers can
 be implemented in your app or in a separate package.
@@ -162,13 +164,16 @@ be implemented in your app or in a separate package.
 thanks to maRci002, escamoteur, and Xennis for this release!
 
 ## [0.10.2] - 10/29/2020
+
 - added property `allowPanning` to `MapOptions` that allows to disable only
   panning while touch events are still triggered
 
 ## [0.10.1+1] - 8/4/2020
+
 - fix possible issue with code published in previous version
 
 ## [0.10.1] - 8/4/2020
+
 - Controller position stream (#505)
 - Fix gray tiles when tile image is already available (#715)
 - Key management (#695)
@@ -177,11 +182,12 @@ thanks to maRci002, escamoteur, and Xennis for this release!
 Thanks to @maRci002, @4F2E4A2E, and @porfirioribeiro
 
 ## [0.10.0] - 7/7/2020
+
 - add package:meta dependency, set cached_network_image to 2.0.0
 - Support retina mode (#585)
 - Handle exception on move without internet connection (#600)
 - Fix TileLayer/Tiles not getting disposed correctly (#595)
-- Polyline culling (#611) 
+- Polyline culling (#611)
 - Remove mapbox from README (#651)
 - docs update (#655)
 - Fix #595 TileLayer not getting disposed correctly (#596)
@@ -205,11 +211,12 @@ Thanks to @maRci002, @4F2E4A2E, and @porfirioribeiro
 
 Thanks to @maRci002, @beerline, @saibotma, @kuhnroyal, @porfirioribeiro, @Lootwig,
 @raacker, @wpietri, @HugoHeneault, @felixjunghans, @hlin079g6, @eugenio165,
-@fusion44, @rorystephenson, @mat8854, @dpatrongomez, @ruizalexandre 
+@fusion44, @rorystephenson, @mat8854, @dpatrongomez, @ruizalexandre
 
 ## [0.9.0] - 4/6/2020
+
 - Improve tile management (#572) - This is a huge improvement aligns
-  tile rendering with Leaflet's behavior. 
+  tile rendering with Leaflet's behavior.
 - Wms Support (#500)
 - Update README for open street maps (#495)
 - Support custom CRS (#529)
@@ -228,16 +235,19 @@ Thanks to @marCi002, @bugDim88, @buggamer, @pumano, @fegyi001, @jpeiffer,
 @syonip, @pento, @tuarrep, and @ibrierley for this release!
 
 ## [0.8.2] - 1/7/2020
+
 - Add polyline with gradient (#452)
 
 Thanks to @SebWojd for this release!
 
 ## [0.8.1] - 1/3/2020
+
 - Add ZoomButtonsPlugin (#487)
 
 Thanks to @moovida for this release!
 
 ## [0.8.0] - 12/16/2019
+
 Added Flutter 1.12 support
 
 - Polygon Culling (#449)
@@ -249,6 +259,7 @@ Thanks to @raacker, @Varuni-Punchihewa, @wmcshane, @domesticmouse, and @kimlet
 for this release!
 
 ## [0.7.3] - 10/3/2019
+
 - Update changelog (#408)
 - Readability improvements (#410)
 - add double-tap-hold zoom (#393)
@@ -261,10 +272,13 @@ Thanks to @yywwuing, @GregorySech, @avimak, @kengu, @lpongetti, and @2ZeroSix
 for this release!
 
 ## [0.7.2] - 8/30/2019
+
 - expose TileProvider.getTileUrl (#401)
 
 Thanks to @kengu for this release!
+
 ## [0.7.1] - 8/28/2019
+
 - upgrade to cached_network_image ^1.1.0 (#358)
 - documentation (#400)
 - remove isUserGesture (#389)
@@ -273,32 +287,38 @@ Thanks to @kengu for this release!
 Thanks to @escamoteur, @wmcschane, and @GregorySech for this release!
 
 ## [0.7.0+2] - 7/31/2019
+
 - Fix OverlayImage with transparency (#382)
 
 Thanks to @4kssoft for this release!
 
 ## [0.7.0+1] - 7/30/2019
+
 - update MapState options when FlutterMap widget options change (#380)
 
 ## [0.7.0] - 7/27/2019
+
 - compatability with flutter's stable and master channels
 - add scalebar (#356)
 - add rotation (#359)
 - fix OverlayLayer bug (#360)
 - fix rotation pan issue (#363, #365)
 
-Thanks to @kimlet, @escamoteur, @4kssoft for this release! 
+Thanks to @kimlet, @escamoteur, @4kssoft for this release!
 
 ## [0.5.6] - 7/9/2019
+
 - fix compatibility with flutter 1.7.8 (stable) (#296)
 
 Thanks to @MichalMisiaszek for the heads up and @slightfoot for help with
 upgrading (#296)!
 
 ## [0.6.x] - 6/7/2019
+
 - temporary releases compatable with early flutter releases
 
 ## [0.5.4] - 6/7/2019
+
 - fix markers on edge of screen disappearing (#313)
 - dart analysis fixes (#300)
 - add border circle (#299)
@@ -313,9 +333,11 @@ version of flutter_map compatible with Flutter's `dev` channel
 Thanks to @lpongetti @FalkF @Victor-emil @lsaudon and @lorenzo for this release!
 
 ## [0.5.3] - 5/21/2019
+
 - update dependencies (#288)
 
 ## [0.5.2] - 5/20/2019
+
 - fix zooming issue (#281)
 
 ## [0.5.1] - 5/17/2019
@@ -344,6 +366,7 @@ Thanks to @SamuelRioTz, @jecoz, @4kssoft, @bugWebDeveloper, @RaimundWege,
 @vinicentus, and @etzuk for this release!
 
 ## [0.4.0] - 12/31/2018
+
 - Zoom to focal point on double tap and scale gestures (#121)
 - Make anchor field public (#172)
 - FitBoundsOptions now uses EdgeInsets padding
@@ -353,11 +376,13 @@ Thanks to @SamuelRioTz, @jecoz, @4kssoft, @bugWebDeveloper, @RaimundWege,
 Thanks to @tomwyr, @csjames, @kengu, @ocularrhythm for this release!
 
 ## [0.3.0] - 11/1/2018
+
 - PositionCallback now has hasGesture #139
 
 Thanks to @gimox for this release!
 
 ## [0.2.0] - 10/25/2018
+
 - Use NetworkImageWithRetry for tile layers (#145)
 - Add rebuild capability to LayerOptions (#144)
 - Added Circle layer (#137)
@@ -366,17 +391,20 @@ Thanks to @gimox for this release!
 Thanks to @kengu, @mortenboye, and @tomwyr for this release!
 
 ## [0.1.4] - 9/24/2018
+
 - Polygon Support (#118)
 
 Thanks to @JulianBerger for this release!
 
 ## [0.1.3] - 9/18/2018
+
 - fix identical map position callbacks (#111)
 - Prune tiles bug fix (#112)
 
 Thanks to @IhorKlimov and @tomwyr for this release!
 
 ## [0.1.2] - 8/21/2018
+
 - Added polyline customisation options (#94)
 - Expose map bounds (#99)
 - Added onTap example (#103)
@@ -388,12 +416,15 @@ Thanks to @LJaraCastillo, @ubilabs, @xqwzts, @vinicentus, and @lsaudon for this
 release!
 
 ## [0.1.0] - 8/21/2018
+
 - Set Dart SDK to 2
 
 ## [0.0.11] - 8/2/2018
+
 - upgrade to latlong from 0.4.0 to 0.5.3
 
 ## [0.0.11] - 7/31/2018
+
 - fix LICENSE spelling error
 - double-tap to zoom (#62)
 - Fix polyline overlap issue (#67)
@@ -403,6 +434,7 @@ Thanks to contributors @alfanhui, @avioli, @solid-software, and @vinicentus for
 this release!
 
 ## [0.0.10] - 6/7/2018
+
 - update .gitignore (#40)
 - Applied constraints to zoom on gesture update if min or max options set (#46)
 - Pan Boundary with 2 new MapOptions variables: swPanBoundary and nePanBoundary
@@ -414,16 +446,20 @@ this release!
 Thanks to contributors @avioli, @bcko, and @alfanhui for this release!
 
 ## [0.0.9] - 5/31/2018
+
 - add LatlngBounds.contains, avoid rendering out-of-view markers in MarkerLayer
 
 ## [0.0.8] - 5/31/2018
+
 - bug: rendering far-away tiles was causing a GPU crash on the simulator. add
   tile pruning to TileLayer
 
 ## [0.0.7] - 5/29/2018
+
 - bug: TileLayer not listening to onMoved events from MapController
 
 ## [0.0.6] - 5/11/2018
+
 - fitBounds, onPositionChanged (#39)
 
 ## [0.0.5] - 3/11/2018
@@ -452,4 +488,3 @@ Thanks to contributors @avioli, @bcko, and @alfanhui for this release!
 ## [0.0.1] - 2/5/2018
 
 - inital release
-
