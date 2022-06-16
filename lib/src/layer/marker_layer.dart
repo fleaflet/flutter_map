@@ -294,18 +294,16 @@ class _MarkerLayerState extends State<MarkerLayer> {
           }
           var position = Offset(pos.x.toDouble(), pos.y.toDouble());
           if (!layerOptions.applyPitch && map.rotation != 0.0) {
-            final fromCenter =
-                position.translate(-map.size.x / 2, -map.size.y / 2);
             position = applyRotationTranslation(
-                    radians: map.rotationRad, point: fromCenter)
-                .translate(map.size.x / 2, map.size.y / 2);
+                size: map.size, radians: map.rotationRad, point: position);
           }
           position = Offset(position.dx - width, position.dy - height);
           if (!layerOptions.applyPitch && map.pitch != 0.0) {
             position = applyPitchTranslation(
-                height: map.size.y,
-                radians: map.pitchRad,
-                point: position.translate(0, -height));
+                    size: map.size,
+                    radians: map.pitchRad,
+                    point: position.translate(marker.width / 2, marker.height))
+                .translate(-marker.width / 2, -marker.height);
           }
 
           markers.add(

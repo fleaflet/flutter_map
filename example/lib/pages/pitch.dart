@@ -56,12 +56,7 @@ class _PitchPage extends State<PitchPage> {
                 MarkerLayerOptions(
                     key: const Key("otherMarkers"),
                     applyPitch: false,
-                    markers: [
-                      _marker(
-                          LatLng(coordinates.latitude, coordinates.longitude),
-                          Colors.red,
-                          rotate: true)
-                    ]),
+                    markers: [_marker(coordinates, Colors.red, rotate: false)]),
               ],
             )),
           ],
