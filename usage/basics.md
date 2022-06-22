@@ -6,7 +6,7 @@ The main widget for the map is easy to remember. It's just:
 FlutterMap(
     controller: ...
     options: MapOptions(),
-    layers: [
+    children: [
 
     ],
 ),

@@ -16,7 +16,45 @@ layout: landing
 
 ## Source Code
 
-All source code is open-source available on GitHub. Take a peek using the link on the navbar.
+{% embed url="https://github.com/fleaflet/flutter_map" %}
+Visit the GitHub repository
+{% endembed %}
+
+{% embed url="https://pub.dev/packages/flutter_map" %}
+Visit the pub.dev package listing
+{% endembed %}
+
+## Feature Highlights
+
+<details>
+
+<summary>Supports Any* Map Style</summary>
+
+Through the `templateUrl` argument, you can add any raster tile server that supports WMTS. So you're not just limited to Google Maps or Mapbox anymore. And through `WMSOptions`, you can also use any WMS raster tile server, with similar setup.
+
+Vector tile support is not built in, but it is supported in beta by a plugin!
+
+</details>
+
+<details>
+
+<summary>Simple Setup</summary>
+
+No need for API keys or excessive platform specific setup. Just depend on it and set it up in less than 5 minutes.
+
+After that, you can add a map controller to programmatically control your map, such as position, zoom, and more!
+
+</details>
+
+<details>
+
+<summary>Wide Ecosystem Of Plugins</summary>
+
+Can't find what you need built in? There's probably a plugin for that!
+
+From tracking the user's location to caching tiles for offline use, this is all supported by 3rd party plugins!
+
+</details>
 
 ## Support & Contact
 

@@ -19,6 +19,7 @@
   * [Polygon Layer](usage/layers/polygon-layer.md)
   * [Polyline Layer](usage/layers/polyline-layer.md)
   * [Circle Layer](usage/layers/circle-layer.md)
+  * [Attribution Layer](usage/layers/attribution-layer.md)
   * [WMS Usage](usage/layers/wms-usage.md)
 * [Controller](usage/controller.md)
 * [Common Issues](usage/common-issues.md)
