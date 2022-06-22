@@ -4,5 +4,5 @@ contact_links:
     url: https://discord.gg/egEGeByf4q
     about: Need more generalised help, or just want to talk? Join the Discord server!
   - name: Community Maintained Plugins
-    url: https://flutter-map.vercel.app/plugins/list
+    url: https://docs.fleaflet.dev/plugins/plugins-list
     about: If you need help with a plugin, please ask on their issue tracker first
