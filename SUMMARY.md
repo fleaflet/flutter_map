@@ -23,11 +23,12 @@
   * [WMS Usage](usage/layers/wms-usage.md)
 * [Controller](usage/controller.md)
 * [Common Issues](usage/common-issues.md)
+* [Full API Reference](https://pub.dev/documentation/flutter\_map/latest/flutter\_map/flutter\_map-library.html)
 
 ## Plugins
 
-* [Plugins List](plugins/plugins-list.md)
-* [How To Make A Plugin](plugins/how-to-make-a-plugin.md)
+* [Plugins List](plugins/list.md)
+* [How To Make A Plugin](plugins/guide.md)
 
 ## Tile Servers
 
@@ -41,8 +42,5 @@
 
 * [To v1.1.0](migration/to-v1.1.0.md)
 * [To v1.0.0](migration/to-v1.0.0.md)
-* [To v0.14.0](migration/to-v0.14.0.md)
-
-***
-
-* [Contributing](contributing.md)
+* [To v0.15.0](migration/to-v0.15.0.md)
+* [Contributing](migration/contributing.md)

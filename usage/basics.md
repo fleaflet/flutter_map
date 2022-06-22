@@ -16,6 +16,4 @@ We recommend placing it on it's own page and not restricting it's size, because 
 
 However, if you wanted to show a widget that didn't need to interact with the map (but was related to the map) on top of the map (such as a compass), it would be recommended to place the `FlutterMap()` inside a `Stack()`, and then display that widget over the map in the stack.
 
-You should place this widget inside the build method of a stateful widget. However, avoid rebuilding this widget unnecessarily, and wherever possible use a `MapController` instead of changing state directly; this won't be possible for changing layer properties however.
-
 It takes three main properties: options, children/layers, and a map controller which you can use to control the map from behind the scenes. These will be described in the following sections.

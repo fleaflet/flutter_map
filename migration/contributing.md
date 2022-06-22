@@ -4,7 +4,7 @@
 
 Therefore, your contribution would be greatly appreciated, so we've written a guide to help you contribute successfully:
 
-## Rough Guide
+## Contribution Guide
 
 **Do you think your contribution is essential to 'flutter\_map'/useful to all users?**
 

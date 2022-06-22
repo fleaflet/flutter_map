@@ -1,5 +1,11 @@
 # How Does It Work?
 
+{% hint style="info" %}
+If you don't know about standard map things, such as the latitude/longitude system and projections, you should probably read about these first!
+
+If you want a truly British insight into this, look no further than: [https://youtu.be/3mHC-Pf8-dU](https://youtu.be/3mHC-Pf8-dU) & [https://youtu.be/jtBV3GgQLg8](https://youtu.be/jtBV3GgQLg8). Otherwise I'd recommend something else.
+{% endhint %}
+
 This library is similar to most other mapping libraries in other languages, so this applies to most other mapping libraries as well.
 
 A mapping library is usually just a wrapper for a particular language that handles requests to servers called 'tile servers'.

@@ -23,6 +23,8 @@ FlutterMap(
 
 None of the properties are programmatically required, but the bare minimum required to display anything is `urlTemplate`.
 
+Below are some of the main parameters you are likely to need, but there are more available from the API Reference.
+
 ## URL Template (`urlTemplate:`)
 
 Takes a string that is a valid URL, which is the template to use when the tile provider constructs the URL to request a tile from a tile server. For example:
@@ -93,6 +95,16 @@ It will only cache tiles in memory, so do not rely on it at all to cache past an
 
 These tile providers use the `templateUrl` to get the appropriate tile from the asset store of the app, or from a file on the users device, respectively. On the web, `FileTileProvider()` will automatically use `NetworkImage()` behind the scenes.
 
+#### Offline Maps
+
+The `AssetTileProvider` is particularly useful to provide a set of map tiles to all your users without having to download it after the application is installed. Note that this is different to the [Caching](tile-layer.md#caching) section below.
+
+The filesystem should be structured like this: 'assets/offlineMap/{z}/{x}/{y}.png', where every png is a tile.&#x20;
+
+If you have a raster-format .mbtiles file, for example from TileMill, you should use [mbtilesToPngs](https://github.com/alfanhui/mbtilesToPngs) to convert it to the correct structure.
+
 ### Caching
 
 Whilst `FileTileProvider()` can be used for caching, better solutions can either be constructed yourself using other packages (such as [`cached_network_image`](https://pub.dev/packages/cached\_network\_image)), or by using an existing [community maintained plugin (`flutter_map_tile_caching`)](https://github.com/JaffaKetchup/flutter\_map\_tile\_caching) which handles caching and statistics for you, as well as offering methods to bulk download areas of maps.
+
+If you prefer to offer a set of map tiles to all your users before runtime, consider using the [Offline Maps](tile-layer.md#undefined) solution instead.

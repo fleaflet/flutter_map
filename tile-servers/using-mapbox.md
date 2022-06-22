@@ -1,7 +1,7 @@
 # Using Mapbox
 
 {% hint style="info" %}
-No Association 'flutter\_map' is in no way associated or related with Mapbox.
+'flutter\_map' is in no way associated or related with Mapbox.
 
 Mapbox's Maps home page: [mapbox.com/maps](https://www.mapbox.com/maps)\
 Mapbox's Maps pricing page: [mapbox.com/pricing#maps](https://www.mapbox.com/pricing#maps)\
@@ -18,9 +18,13 @@ Mapbox offers a variety of ready-made map styles that don't require customizatio
 
 First, create a custom map Style in the Studio. You can personalise to your heart's content, or leave it at default for a more vanilla feeling. You'll also need an [access token](https://docs.mapbox.com/help/getting-started/access-tokens/).
 
-Then make the map style public, and open the share dialog, as seen below: ![Mapbox Map Style Share Dialog](<../.gitbook/assets/flutter\_map wiki mapbox1>)
+Then make the map style public, and open the share dialog, as seen below:&#x20;
 
-Scroll to the bottom of the dialog, and select Third Party. Then from the drop down box, select 'CARTO': ![Mapbox Map Style Share Dialog](<../.gitbook/assets/flutter\_map wiki mapbox2>)
+![Opening the Sharing dialog](<../.gitbook/assets/flutter\_map wiki mapbox1>)
+
+Scroll to the bottom of the dialog, and select Third Party. Then from the drop down box, select 'CARTO':&#x20;
+
+![Retrieving the appropriate URL](<../.gitbook/assets/flutter\_map wiki mapbox2>)
 
 You'll then need to copy the URL and use it in 'flutter\_map', like in the code below.
 
