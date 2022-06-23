@@ -6,7 +6,6 @@ description: >-
 cover: >-
   https://images.unsplash.com/photo-1478860409698-8707f313ee8b?crop=entropy&cs=tinysrgb&fm=jpg&ixid=MnwxOTcwMjR8MHwxfHNlYXJjaHwzfHxtYXB8ZW58MHx8fHwxNjU1MjMxMzY5&ixlib=rb-1.2.1&q=80
 coverY: 0
-layout: landing
 ---
 
 # flutter\_map
