@@ -72,6 +72,8 @@ Can't find what you need built in? There's probably a plugin for that!
 
 From tracking the user's location to caching tiles for offline use, this is all supported by 3rd party plugins!
 
+See the full [Plugins List](plugins/list.md) for more information.
+
 </details>
 
 <details>
