@@ -43,4 +43,8 @@
 * [To v1.1.0](migration/to-v1.1.0.md)
 * [To v1.0.0](migration/to-v1.0.0.md)
 * [To v0.15.0](migration/to-v0.15.0.md)
-* [Contributing](migration/contributing.md)
+
+***
+
+* [Contributing](contributing.md)
+* [Credits](credits.md)

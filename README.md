@@ -86,8 +86,6 @@ Using these is simple and quick, and the power of Flutter's `StreamBuilder` can 
 
 </details>
 
-## Source Code
-
 {% embed url="https://github.com/fleaflet/flutter_map" %}
 Visit the GitHub repository
 {% endembed %}
