@@ -1,6 +1,25 @@
 # Changelog
 
-## [1.1.0] - 2022
+## [1.1.1] - 2022/06/25
+
+Contains the following additions/removals:
+
+- None
+
+Contains the following bug fixes:
+
+- None
+
+In other news:
+
+- The new documentation website is now live at <https://docs.fleaflet.dev>. Visit it today to get much improved setup and usage instructions, and more!
+
+Many thanks to these contributors (in no particular order):
+
+- All the documentation authors: <https://docs.fleaflet.dev/credits>
+- ... and all the maintainers
+
+## [1.1.0] - 2022/06/16
 
 Contains the following additions/removals:
 
