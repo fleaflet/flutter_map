@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.1.1] - 2022/XX/XX
+## [1.1.1] - 2022/06/25
 
 Contains the following additions/removals:
 
@@ -16,6 +16,7 @@ In other news:
 
 Many thanks to these contributors (in no particular order):
 
+- All the documentation authors: <https://docs.fleaflet.dev/credits>
 - ... and all the maintainers
 
 ## [1.1.0] - 2022/06/16
