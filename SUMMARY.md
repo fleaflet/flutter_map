@@ -6,7 +6,7 @@
 
 * [Installation](getting-started/installation.md)
 * [Additional Setup](getting-started/additional-setup.md)
-* [Example](https://github.com/fleaflet/flutter\_map/tree/master/example)
+* [Examples](https://github.com/fleaflet/flutter\_map/tree/master/example/lib/pages)
 * [How Does It Work?](getting-started/explanation.md)
 
 ## Usage
