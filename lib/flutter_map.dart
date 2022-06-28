@@ -253,6 +253,7 @@ class MapOptions {
   /// his mouse. This is supported on web and desktop, but might also work well
   /// on Android. A [Listener] is used to capture the onPointerSignal events.
   final bool enableScrollWheel;
+  final double scrollWheelVelocity;
 
   final double? minZoom;
   final double? maxZoom;
@@ -309,6 +310,7 @@ class MapOptions {
     this.pinchMoveWinGestures =
         MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
     this.enableScrollWheel = true,
+    this.scrollWheelVelocity = 0.005,
     this.minZoom,
     this.maxZoom,
     this.interactiveFlags = InteractiveFlag.all,
