@@ -261,10 +261,18 @@ class _MarkerLayerState extends State<MarkerLayer> {
             _pxCache[i] = pxPoint;
           }
 
-          final width = marker.width - marker.anchor.left;
-          final height = marker.height - marker.anchor.top;
-          final sw = CustomPoint(pxPoint.x + width, pxPoint.y - height);
-          final ne = CustomPoint(pxPoint.x - width, pxPoint.y + height);
+          // See if any portion of the Marker resides in the map bounds
+          // If not, don't spend resources on build function.
+          // This calculation does not assume where the Anchor is or
+          // if it is symmetrical or not
+          final leftPortion = marker.width - marker.anchor.left;
+          final rigthPortion = marker.anchor.left;
+          final topPortion = marker.height - marker.anchor.top;
+          final bottomPortion = marker.anchor.top;
+
+          var sw = CustomPoint(pxPoint.x + leftPortion, pxPoint.y - topPortion);
+          var ne =
+              CustomPoint(pxPoint.x - rigthPortion, pxPoint.y + bottomPortion);
 
           if (!map.pixelBounds.containsPartialBounds(Bounds(sw, ne))) {
             continue;
