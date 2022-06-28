@@ -295,8 +295,8 @@ class _MarkerLayerState extends State<MarkerLayer> {
               key: marker.key,
               width: marker.width,
               height: marker.height,
-              left: pos.x - width,
-              top: pos.y - height,
+              left: pos.x - leftPortion,
+              top: pos.y - topPortion,
               child: markerWidget,
             ),
           );
