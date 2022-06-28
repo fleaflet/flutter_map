@@ -58,7 +58,9 @@ abstract class MapGestureMixin extends State<FlutterMap>
       // Calculate new zoom level
       final minZoom = mapState.options.minZoom ?? 0.0;
       final maxZoom = mapState.options.maxZoom ?? double.infinity;
-      final newZoom = (mapState.zoom - pointerSignal.scrollDelta.dy * mapState.options.scrollWheelVelocity)
+      final newZoom = (mapState.zoom -
+              pointerSignal.scrollDelta.dy *
+                  mapState.options.scrollWheelVelocity)
           .clamp(minZoom, maxZoom);
       // Calculate offset of mouse cursor from viewport center
       final List<dynamic> newCenterZoom = _getNewEventCenterZoomPosition(
