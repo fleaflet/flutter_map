@@ -275,8 +275,8 @@ class _MarkerLayerState extends State<MarkerLayer> {
               CustomPoint(pxPoint.x - rigthPortion, pxPoint.y + bottomPortion);
 
           if (!map.pixelBounds.containsPartialBounds(Bounds(sw, ne))) {
-            print("map.pixelBounds: " + map.pixelBounds);
-            print("Bounds(sw, ne):  " + Bounds(sw, ne));
+            print("map.pixelBounds: " + map.pixelBounds.toString());
+            print("Bounds(sw, ne):  " + Bounds(sw, ne).toString());
             continue;
           }
 
