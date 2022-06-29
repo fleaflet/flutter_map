@@ -261,10 +261,9 @@ class _MarkerLayerState extends State<MarkerLayer> {
             _pxCache[i] = pxPoint;
           }
 
-          // See if any portion of the Marker resides in the map bounds
-          // If not, don't spend resources on build function.
-          // This calculation does not assume where the Anchor is or
-          // if it is symmetrical or not
+          // See if any portion of the Marker rect resides in the map bounds
+          // If not, don't spend any resources on build function.
+          // This calculation any Anchor position whithin the Marker
           final leftPortion = marker.width - marker.anchor.left;
           final rigthPortion = marker.anchor.left;
           final topPortion = marker.height - marker.anchor.top;
@@ -276,13 +275,6 @@ class _MarkerLayerState extends State<MarkerLayer> {
               CustomPoint(pxPoint.x - leftPortion, pxPoint.y + bottomPortion);
 
           if (!map.pixelBounds.containsPartialBounds(Bounds(sw, ne))) {
-            print("pxPoint:         " + pxPoint.toString());
-            print("leftPortion:     " + leftPortion.toString());
-            print("rigthPortion:    " + rigthPortion.toString());
-            print("topPortion:      " + topPortion.toString());
-            print("bottomPortion:   " + bottomPortion.toString());
-            print("map.pixelBounds: " + map.pixelBounds.toString());
-            print("Bounds(sw, ne):  " + Bounds(sw, ne).toString());
             continue;
           }
 
