@@ -264,15 +264,15 @@ class _MarkerLayerState extends State<MarkerLayer> {
           // See if any portion of the Marker rect resides in the map bounds
           // If not, don't spend any resources on build function.
           // This calculation works for any Anchor position whithin the Marker
-          final leftPortion = marker.width - marker.anchor.left;
-          final rightPortion = marker.anchor.left;
-          final topPortion = marker.height - marker.anchor.top;
-          final bottomPortion = marker.anchor.top;
+          final rightPortion = marker.width - marker.anchor.left;
+          final leftPortion = marker.anchor.left;
+          final bottomPortion = marker.height - marker.anchor.top;
+          final topPortion = marker.anchor.top;
 
           final sw =
-              CustomPoint(pxPoint.x + rightPortion, pxPoint.y - topPortion);
+              CustomPoint(pxPoint.x + leftPortion, pxPoint.y - bottomPortion);
           final ne =
-              CustomPoint(pxPoint.x - leftPortion, pxPoint.y + bottomPortion);
+              CustomPoint(pxPoint.x - rightPortion, pxPoint.y + topPortion);
 
           if (!map.pixelBounds.containsPartialBounds(Bounds(sw, ne))) {
             continue;
@@ -295,8 +295,8 @@ class _MarkerLayerState extends State<MarkerLayer> {
               key: marker.key,
               width: marker.width,
               height: marker.height,
-              left: pos.x - leftPortion,
-              top: pos.y - topPortion,
+              left: pos.x - rightPortion,
+              top: pos.y - bottomPortion,
               child: markerWidget,
             ),
           );
