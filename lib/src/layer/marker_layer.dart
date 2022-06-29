@@ -263,14 +263,14 @@ class _MarkerLayerState extends State<MarkerLayer> {
 
           // See if any portion of the Marker rect resides in the map bounds
           // If not, don't spend any resources on build function.
-          // This calculation any Anchor position whithin the Marker
+          // This calculation works for any Anchor position whithin the Marker
           final leftPortion = marker.width - marker.anchor.left;
-          final rigthPortion = marker.anchor.left;
+          final rightPortion = marker.anchor.left;
           final topPortion = marker.height - marker.anchor.top;
           final bottomPortion = marker.anchor.top;
 
           final sw =
-              CustomPoint(pxPoint.x + rigthPortion, pxPoint.y - topPortion);
+              CustomPoint(pxPoint.x + rightPortion, pxPoint.y - topPortion);
           final ne =
               CustomPoint(pxPoint.x - leftPortion, pxPoint.y + bottomPortion);
 
