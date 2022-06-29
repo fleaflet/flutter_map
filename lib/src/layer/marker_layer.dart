@@ -269,9 +269,9 @@ class _MarkerLayerState extends State<MarkerLayer> {
           final topPortion = marker.height - marker.anchor.top;
           final bottomPortion = marker.anchor.top;
 
-          var sw =
+          final sw =
               CustomPoint(pxPoint.x + rigthPortion, pxPoint.y - topPortion);
-          var ne =
+          final ne =
               CustomPoint(pxPoint.x - leftPortion, pxPoint.y + bottomPortion);
 
           if (!map.pixelBounds.containsPartialBounds(Bounds(sw, ne))) {
