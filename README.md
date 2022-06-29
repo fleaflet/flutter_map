@@ -10,6 +10,18 @@ coverY: 0
 
 # flutter\_map
 
+{% hint style="danger" %}
+**There is currently an ongoing temporary issue with OpenStreetMap tiles passing through this project.**
+
+At this time, your application may be receiving an HTTP error 403 from the OSM tile server on all tile requests.&#x20;
+
+We are working as quickly as possible to diagnose and resolve this issue, but maintainer efforts are currently stretched, so any assistance is greatly appreciated.&#x20;
+
+As a temporary workaround, please use another tile server, such as Mapbox.
+
+For further information, please join the Discord server and visit channel #error-403. Keep notifications on for this channel to receive updates.
+{% endhint %}
+
 [![Pub.dev](https://img.shields.io/pub/v/flutter\_map.svg?label=Latest+Version)](https://pub.dev/packages/flutter\_map) [![Checks & Tests](https://badgen.net/github/checks/fleaflet/flutter\_map?label=Checks+%26+Tests\&color=orange)](https://github.com/fleaflet/flutter\_map/actions?query=branch%3Amaster) [![points](https://badges.bar/flutter\_map/pub%20points)](https://pub.dev/packages/flutter\_map/score)\
 [![stars](https://badgen.net/github/stars/fleaflet/flutter\_map?label=stars\&color=green\&icon=github)](https://github.com/fleaflet/flutter\_map/stargazers) [![likes](https://badges.bar/flutter\_map/likes)](https://pub.dev/packages/flutter\_map/score)      [![Open Issues](https://badgen.net/github/open-issues/fleaflet/flutter\_map?label=Open+Issues\&color=green)](https://github.com/fleaflet/flutter\_map/issues) [![Open PRs](https://badgen.net/github/open-prs/fleaflet/flutter\_map?label=Open+PRs\&color=green)](https://github.com/fleaflet/flutter\_map/pulls)
 
