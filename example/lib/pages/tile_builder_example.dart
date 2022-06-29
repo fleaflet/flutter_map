@@ -116,7 +116,7 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
             TileLayerOptions(
               urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
               subdomains: ['a', 'b', 'c'],
-              tileProvider: const NonCachingNetworkTileProvider(),
+              userAgentPackageName: 'dev.fleaflet.flutter_map.example',
               tileBuilder: tileBuilder,
               tilesContainerBuilder:
                   darkMode ? darkModeTilesContainerBuilder : null,

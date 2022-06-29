@@ -3,7 +3,11 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network_image_with_retry.dart';
 
 abstract class TileProvider {
-  const TileProvider();
+  Map<String, String> headers;
+
+  TileProvider({
+    this.headers = const {'User-Agent': 'flutter_map (unknown)'},
+  });
 
   ImageProvider getImage(Coords coords, TileLayerOptions options);
 
@@ -55,24 +59,60 @@ abstract class TileProvider {
   }
 }
 
+/// [TileProvider] that uses [NetworkImageWithRetry] internally
+///
+/// Note that this is not recommended, as there is no way to set headers with this method: see https://github.com/flutter/flutter/issues/19532.
 class NetworkTileProvider extends TileProvider {
+  NetworkTileProvider({
+    Map<String, String> headers = const {'User-Agent': 'flutter_map (unknown)'},
+  }) {
+    this.headers = headers;
+  }
+
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
     return NetworkImageWithRetry(getTileUrl(coords, options));
   }
 }
 
-class NonCachingNetworkTileProvider extends TileProvider {
-  const NonCachingNetworkTileProvider();
+/// [TileProvider] that uses [NetworkImage] internally
+class NetworkNoRetryTileProvider extends TileProvider {
+  NetworkNoRetryTileProvider({
+    Map<String, String> headers = const {'User-Agent': 'flutter_map (unknown)'},
+  }) {
+    this.headers = headers;
+  }
 
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
-    return NetworkImage(getTileUrl(coords, options));
+    return NetworkImage(
+      getTileUrl(coords, options),
+      headers: headers,
+    );
+  }
+}
+
+/// Deprecated due to internal refactoring. The name is misleading, as the internal [ImageProvider] always caches, and this is recommended by most tile servers anyway. For the same functionality, migrate to [NetworkNoRetryTileProvider]. This will continue to work for now.
+@Deprecated(
+    '`NonCachingTileProvider` has been deprecated due to internal refactoring. The name is misleading, as the internal `ImageProvider` always caches, and this is recommended by most tile servers anyway. For the same functionality, migrate to `NetworkNoRetryTileProvider`.')
+class NonCachingNetworkTileProvider extends TileProvider {
+  NonCachingNetworkTileProvider({
+    Map<String, String> headers = const {'User-Agent': 'flutter_map (unknown)'},
+  }) {
+    this.headers = headers;
+  }
+
+  @override
+  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
+    return NetworkImage(
+      getTileUrl(coords, options),
+      headers: headers,
+    );
   }
 }
 
 class AssetTileProvider extends TileProvider {
-  const AssetTileProvider();
+  AssetTileProvider();
 
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
@@ -83,7 +123,7 @@ class AssetTileProvider extends TileProvider {
 class CustomTileProvider extends TileProvider {
   final String Function(Coords coors, TileLayerOptions options) customTileUrl;
 
-  const CustomTileProvider({required this.customTileUrl});
+  CustomTileProvider({required this.customTileUrl});
 
   @override
   String getTileUrl(Coords coords, TileLayerOptions options) {

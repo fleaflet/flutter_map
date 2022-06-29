@@ -63,7 +63,7 @@ class HomePage extends StatelessWidget {
                     urlTemplate:
                         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     subdomains: ['a', 'b', 'c'],
-                    tileProvider: const NonCachingNetworkTileProvider(),
+                    userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   ),
                   MarkerLayerOptions(markers: markers)
                 ],
