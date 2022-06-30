@@ -144,12 +144,10 @@ class PolygonLayer extends StatelessWidget {
     for (var i = 0; i < len; ++i) {
       final point = points[i];
 
-      var pos = map.project(point);
-      pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
-          map.getPixelOrigin();
-      offsets.add(Offset(pos.x.toDouble(), pos.y.toDouble()));
+      final offset = map.getOffset(point);
+      offsets.add(offset);
       if (i > 0) {
-        offsets.add(Offset(pos.x.toDouble(), pos.y.toDouble()));
+        offsets.add(offset);
       }
     }
   }

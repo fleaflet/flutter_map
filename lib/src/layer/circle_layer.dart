@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
@@ -66,18 +68,12 @@ class CircleLayer extends StatelessWidget {
       builder: (BuildContext context, _) {
         final circleWidgets = <Widget>[];
         for (final circle in circleOpts.circles) {
-          var pos = map.project(circle.point);
-          pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
-              map.getPixelOrigin();
-          circle.offset = Offset(pos.x.toDouble(), pos.y.toDouble());
+          circle.offset = map.getOffset(circle.point);
 
           if (circle.useRadiusInMeter) {
             final r = const Distance().offset(circle.point, circle.radius, 180);
-            var rpos = map.project(r);
-            rpos = rpos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
-                map.getPixelOrigin();
-
-            circle.realRadius = rpos.y - pos.y;
+            final delta = circle.offset - map.getOffset(r);
+            circle.realRadius = delta.distance;
           }
 
           circleWidgets.add(

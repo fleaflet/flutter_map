@@ -567,6 +567,11 @@ class MapState {
     return _pixelOrigin;
   }
 
+  Offset getOffset(LatLng pos) {
+    final delta = project(pos) - getPixelOrigin();
+    return Offset(delta.x.toDouble(), delta.y.toDouble());
+  }
+
   CustomPoint getNewPixelOrigin(LatLng center, [double? zoom]) {
     final viewHalf = size / 2.0;
     return (project(center, zoom) - viewHalf).round();
