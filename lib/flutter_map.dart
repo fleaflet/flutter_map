@@ -87,7 +87,7 @@ class FlutterMap extends StatefulWidget {
     this.children = const [],
     this.nonRotatedChildren = const [],
     this.mapController,
-  })  : super(key: key);
+  }) : super(key: key);
 
   @override
   FlutterMapState createState() => FlutterMapState();
