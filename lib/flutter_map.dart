@@ -79,7 +79,7 @@ class FlutterMap extends StatefulWidget {
   /// A [MapController], used to control the map.
   final MapController? mapController;
 
-  FlutterMap({
+  const FlutterMap({
     Key? key,
     required this.options,
     this.layers = const [],
