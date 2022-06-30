@@ -131,7 +131,7 @@ class PolylineLayer extends StatelessWidget {
     for (var i = 0; i < len; ++i) {
       final point = points[i];
 
-      final offset = map.getOffset(point);
+      final offset = map.getOffsetFromOrigin(point);
       offsets.add(offset);
       if (i > 0) {
         offsets.add(offset);

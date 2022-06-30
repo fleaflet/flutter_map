@@ -68,11 +68,11 @@ class CircleLayer extends StatelessWidget {
       builder: (BuildContext context, _) {
         final circleWidgets = <Widget>[];
         for (final circle in circleOpts.circles) {
-          circle.offset = map.getOffset(circle.point);
+          circle.offset = map.getOffsetFromOrigin(circle.point);
 
           if (circle.useRadiusInMeter) {
             final r = const Distance().offset(circle.point, circle.radius, 180);
-            final delta = circle.offset - map.getOffset(r);
+            final delta = circle.offset - map.getOffsetFromOrigin(r);
             circle.realRadius = delta.distance;
           }
 

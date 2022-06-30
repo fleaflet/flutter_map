@@ -567,7 +567,7 @@ class MapState {
     return _pixelOrigin;
   }
 
-  Offset getOffset(LatLng pos) {
+  Offset getOffsetFromOrigin(LatLng pos) {
     final delta = project(pos) - getPixelOrigin();
     return Offset(delta.x.toDouble(), delta.y.toDouble());
   }
