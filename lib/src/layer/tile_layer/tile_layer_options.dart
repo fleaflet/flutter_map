@@ -134,13 +134,6 @@ class TileLayerOptions extends LayerOptions {
   /// unloading them.
   final int keepBuffer;
 
-  /// Placeholder to show until tile images are fetched by the provider.
-  ///
-  /// _`placeholderImage` has been deprecated with no current replacement or workaround. Usage no longer has an effect internally._
-  @Deprecated(
-      '`placeholderImage` has been deprecated with no current replacement or workaround. Usage no longer has an effect internally.')
-  final ImageProvider? placeholderImage;
-
   /// Tile image to show in place of the tile that failed to load.
   final ImageProvider? errorImage;
 
@@ -237,12 +230,6 @@ class TileLayerOptions extends LayerOptions {
   /// When set to `true`, the `tileFadeIn*` options will be ignored.
   final bool fastReplace;
 
-  /// [attributionBuilder] has been deprecated. Usage will continue to work, however not as expected. As an alternative, use [AttributionWidget] inside `nonRotatedChildren`.
-  @Deprecated(
-    '`attributionBuilder` has been deprecated. Usage will continue to work, however not as expected. As an alternative, use `AttributionWidget` inside `nonRotatedChildren`.',
-  )
-  final WidgetBuilder? attributionBuilder;
-
   ///aligment of the attribution text on the map widget
   final Alignment attributionAlignment;
 
@@ -254,10 +241,6 @@ class TileLayerOptions extends LayerOptions {
 
   TileLayerOptions({
     this.attributionAlignment = Alignment.bottomRight,
-    @Deprecated(
-      '`attributionBuilder` has been deprecated. Usage will continue to work, however not as expected. As an alternative, use `AttributionWidget` inside `nonRotatedChildren`.',
-    )
-        this.attributionBuilder,
     Key? key,
     this.urlTemplate,
     double tileSize = 256.0,
@@ -271,8 +254,6 @@ class TileLayerOptions extends LayerOptions {
     this.subdomains = const <String>[],
     this.keepBuffer = 2,
     this.backgroundColor = const Color(0xFFE0E0E0),
-    @Deprecated('`placeholderImage` has been deprecated with no current replacement or workaround. Usage no longer has an effect internally.')
-        this.placeholderImage,
     this.errorImage,
     TileProvider? tileProvider,
     this.tms = false,
