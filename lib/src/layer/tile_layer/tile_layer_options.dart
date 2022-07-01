@@ -101,9 +101,9 @@ class TileLayerOptions extends LayerOptions {
   /// Provider with which to load map tiles
   ///
   /// The default is [NetworkNoRetryTileProvider]. Alternatively, use
-  /// [NetworkTileProvider] for a provider which will retry requests.
+  /// [NetworkTileProvider] for a network provider which will retry requests.
   ///
-  /// Both providers will use some form of caching, although not reliable. For
+  /// Both network providers will use some form of caching, although not reliable. For
   /// better options, see https://docs.fleaflet.dev/usage/layers/tile-layer#caching.
   ///
   /// `userAgentPackageName` is a construction parameter, which should be passed
@@ -259,7 +259,6 @@ class TileLayerOptions extends LayerOptions {
     )
         this.attributionBuilder,
     Key? key,
-    // TODO: make required
     this.urlTemplate,
     double tileSize = 256.0,
     double minZoom = 0.0,
@@ -277,8 +276,7 @@ class TileLayerOptions extends LayerOptions {
     this.errorImage,
     TileProvider? tileProvider,
     this.tms = false,
-    // ignore: avoid_init_to_null
-    this.wmsOptions = null,
+    this.wmsOptions,
     this.opacity = 1.0,
 
     /// Tiles will not update more than once every `updateInterval` milliseconds
@@ -287,9 +285,6 @@ class TileLayerOptions extends LayerOptions {
     /// can save some fps and even bandwidth (ie. when fast panning / animating
     /// between long distances in short time)
     Duration updateInterval = const Duration(milliseconds: 200),
-
-    /// Tiles fade in duration in milliseconds (default 100).  This can be set to
-    /// 0 to avoid fade in
     Duration tileFadeInDuration = const Duration(milliseconds: 100),
     this.tileFadeInStart = 0.0,
     this.tileFadeInStartWhenOverride = 0.0,
@@ -304,10 +299,6 @@ class TileLayerOptions extends LayerOptions {
     this.fastReplace = false,
     this.reset,
     this.tileBounds,
-
-    /// Used in constructing the 'User-Agent' header in [TileProvider]s.
-    ///
-    /// Always specify if possible, otherwise defaults to 'unknown'.
     String userAgentPackageName = 'unknown',
   })  : updateInterval =
             updateInterval <= Duration.zero ? null : updateInterval,
@@ -346,14 +337,13 @@ class WMSTileLayerOptions {
   final service = 'WMS';
   final request = 'GetMap';
 
-  /// url of WMS service.
-  /// Ex.: 'http://ows.mundialis.de/services/service?'
+  /// WMS service's URL, for example 'http://ows.mundialis.de/services/service?'
   final String baseUrl;
 
-  /// list of WMS layers to show
+  /// List of WMS layers to show
   final List<String> layers;
 
-  /// list of WMS styles
+  /// List of WMS styles
   final List<String> styles;
 
   /// WMS image format (use 'image/png' for layers with transparency)
@@ -362,16 +352,16 @@ class WMSTileLayerOptions {
   /// Version of the WMS service to use
   final String version;
 
-  /// tile transparency flag
+  /// Whether to make tiles transparent
   final bool transparent;
 
   /// Encode boolean values as uppercase in request
   final bool uppercaseBoolValue;
 
-  // TODO find a way to implicit pass of current map [Crs]
+  /// Sets map projection standard
   final Crs crs;
 
-  /// other request parameters
+  /// Other request parameters
   final Map<String, String> otherParameters;
 
   late final String _encodedBaseUrl;

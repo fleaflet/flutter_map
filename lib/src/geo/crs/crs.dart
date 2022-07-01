@@ -130,7 +130,7 @@ class Epsg3857 extends Earth {
         transformation = const Transformation(_scale, 0.5, -_scale, 0.5),
         super();
 
-// TODO Epsg3857 seems to have latitude limits. https://epsg.io/3857
+// Epsg3857 seems to have latitude limits. https://epsg.io/3857
 //@override
 //Tuple2<double, double> get wrapLat => const Tuple2(-85.06, 85.06);
 }
