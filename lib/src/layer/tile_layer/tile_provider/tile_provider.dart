@@ -58,7 +58,8 @@ abstract class TileProvider {
 class NetworkTileProvider extends TileProvider {
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
-    return NetworkImageWithRetry(getTileUrl(coords, options));
+    return NetworkImageWithRetry(getTileUrl(coords, options),
+        expectedFormat: options.wmsOptions?.format);
   }
 }
 
