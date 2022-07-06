@@ -11,9 +11,12 @@ class NetworkImageWithRetry extends ImageProvider<NetworkImageWithRetry> {
   final double scale;
 
   /// The http RetryClient that is used for the requests
-  final RetryClient retryClient = RetryClient(Client());
+  late RetryClient retryClient;
 
-  NetworkImageWithRetry(this.url, {this.scale = 1.0});
+  NetworkImageWithRetry(this.url,
+      {this.scale = 1.0, RetryClient? retryClient}) {
+    retryClient = retryClient ?? RetryClient(Client());
+  }
 
   @override
   ImageStreamCompleter load(NetworkImageWithRetry key, DecoderCallback decode) {
