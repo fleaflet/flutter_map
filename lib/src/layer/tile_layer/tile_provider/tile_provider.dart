@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network_image_with_retry.dart';
+import 'package:http/retry.dart';
 
 abstract class TileProvider {
   const TileProvider();
@@ -56,10 +57,13 @@ abstract class TileProvider {
 }
 
 class NetworkTileProvider extends TileProvider {
+  RetryClient? retryClient;
+
+  NetworkTileProvider({this.retryClient});
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
     return NetworkImageWithRetry(getTileUrl(coords, options),
-        expectedFormat: options.wmsOptions?.format);
+        retryClient: retryClient);
   }
 }
 
