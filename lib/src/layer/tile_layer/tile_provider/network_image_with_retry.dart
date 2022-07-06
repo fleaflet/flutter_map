@@ -15,8 +15,7 @@ class NetworkImageWithRetry extends ImageProvider<NetworkImageWithRetry> {
 
   NetworkImageWithRetry(this.url,
       {this.scale = 1.0, RetryClient? retryClient}) {
-    retryClient = retryClient ?? RetryClient(Client());
-
+    this.retryClient = retryClient ?? RetryClient(Client());
   }
 
   @override
