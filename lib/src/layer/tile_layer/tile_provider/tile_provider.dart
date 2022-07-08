@@ -1,3 +1,8 @@
+// ignore_for_file: avoid_print
+// TODO: Remove print statements
+
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:universal_io/io.dart';
 
@@ -90,25 +95,29 @@ class NetworkNoRetryTileProvider extends TileProvider {
     Map<String, String>? headers,
   }) {
     this.headers = headers ?? _defaultHeader;
-    HttpOverrides.global = _FlutterMapHTTPOverrides();
+    //HttpOverrides.global = _FlutterMapHTTPOverrides();
   }
 
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
-    // ignore: avoid_print
     print('Header: ${headers['User-Agent']}');
+    print("Running in ${Zone.current.toString()}");
+    return HttpOverrides.runZoned<NetworkImage>(
+      () {
+        /*print("Running in ${Zone.current}");*/
+        final HttpClient httpClient = HttpClient();
+        print("userAgent = ${httpClient.userAgent}");
 
-    /*return HttpOverrides.runZoned<NetworkImage>(
-      () =>*/
-    return NetworkImage(
-      getTileUrl(coords, options),
-      headers: headers,
-    ); /*,
+        return NetworkImage(
+          getTileUrl(coords, options),
+          headers: headers,
+        );
+      },
       createHttpClient: (c) {
         print('Is creating HTTP client for zone');
         return _FlutterMapHTTPOverrides().createHttpClient(c);
       },
-    );*/
+    );
   }
 }
 
