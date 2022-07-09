@@ -70,6 +70,8 @@ abstract class TileProvider {
 /// This image provider automatically retries some failed requests up to 3 times.
 ///
 /// Note that this provider may be slower than [NetworkNoRetryTileProvider] when fetching tiles due to internal reasons.
+///
+/// Note that the 'User-Agent' header and the [RetryClient] cannot be changed, on the web platform.
 class NetworkTileProvider extends TileProvider {
   NetworkTileProvider({
     Map<String, String>? headers,
@@ -96,6 +98,8 @@ class NetworkTileProvider extends TileProvider {
 /// [TileProvider] that uses [FMNetworkNoRetryImageProvider] internally
 ///
 /// This image provider does not automatically retry any failed requests. This provider is the default and the recommended provider, unless your tile server is especially unreliable.
+///
+/// Note that the 'User-Agent' header and the [HttpClient] cannot be changed, on the web platform.
 class NetworkNoRetryTileProvider extends TileProvider {
   NetworkNoRetryTileProvider({
     Map<String, String>? headers,
