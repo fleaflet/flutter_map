@@ -230,9 +230,6 @@ class TileLayerOptions extends LayerOptions {
   /// When set to `true`, the `tileFadeIn*` options will be ignored.
   final bool fastReplace;
 
-  ///aligment of the attribution text on the map widget
-  final Alignment attributionAlignment;
-
   /// Stream to notify the [TileLayer] that it needs resetting
   Stream<void>? reset;
 
@@ -240,7 +237,6 @@ class TileLayerOptions extends LayerOptions {
   LatLngBounds? tileBounds;
 
   TileLayerOptions({
-    this.attributionAlignment = Alignment.bottomRight,
     Key? key,
     this.urlTemplate,
     double tileSize = 256.0,
