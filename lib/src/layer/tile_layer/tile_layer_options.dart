@@ -307,10 +307,14 @@ class TileLayerOptions extends LayerOptions {
             : Map.from(additionalOptions),
         tileProvider = tileProvider == null
             ? NetworkNoRetryTileProvider(
-                headers: {'User-Agent': 'flutter_map ($userAgentPackageName)'})
+                headers: {'User-Agent': 'flutter_map ($userAgentPackageName)'},
+              )
             : (tileProvider
-              ..headers.putIfAbsent(
-                  'User-Agent', () => 'flutter_map ($userAgentPackageName)')),
+              ..headers = <String, String>{
+                ...tileProvider.headers,
+                if (!tileProvider.headers.containsKey('User-Agent'))
+                  'User-Agent': 'flutter_map ($userAgentPackageName)',
+              }),
         super(key: key, rebuild: rebuild);
 }
 

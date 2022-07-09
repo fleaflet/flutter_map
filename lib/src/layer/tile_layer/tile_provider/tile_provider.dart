@@ -1,23 +1,17 @@
-// ignore_for_file: avoid_print
-// TODO: Remove print statements
-
-import 'dart:async';
-
 import 'package:flutter/widgets.dart';
+import 'package:http/http.dart';
+import 'package:http/retry.dart';
 import 'package:universal_io/io.dart';
 
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network_image_with_retry.dart';
-
-const Map<String, String> _defaultHeader = {
-  'User-Agent': 'flutter_map via Dart (unknown)',
-};
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network_no_retry_image_provider.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network_image_provider.dart';
 
 abstract class TileProvider {
   Map<String, String> headers;
 
   TileProvider({
-    this.headers = _defaultHeader,
+    this.headers = const {},
   });
 
   ImageProvider getImage(Coords coords, TileLayerOptions options);
@@ -70,55 +64,57 @@ abstract class TileProvider {
   }
 }
 
-/// [TileProvider] that uses [NetworkImageWithRetry] internally
+/// [TileProvider] that uses [NetworkImageProvider] internally
 ///
-/// Note that this is not recommended, as there is no way to set headers with this method: see https://github.com/flutter/flutter/issues/19532.
-/// The parameter is only provided for potential forward-compatibility.
+/// This image provider automatically retries some failed requests up to 3 times.
 ///
-/// TODO: Add header capabilities through `HttpOverrides` or (preferably) by changing the image provider's implementation
+/// Note that this provider may be slower than [NetworkNoRetryTileProvider] when fetching tiles due to internal reasons.
 class NetworkTileProvider extends TileProvider {
   NetworkTileProvider({
     Map<String, String>? headers,
+    RetryClient? retryClient,
   }) {
-    this.headers = headers ?? _defaultHeader;
+    this.headers = headers ?? {};
+    this.retryClient = retryClient ?? RetryClient(Client());
   }
+
+  late final RetryClient retryClient;
 
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
-    return NetworkImageWithRetry(getTileUrl(coords, options));
+    return HttpOverrides.runZoned<NetworkImageProvider>(
+      () => NetworkImageProvider(
+        getTileUrl(coords, options),
+        headers: headers,
+        retryClient: retryClient,
+      ),
+      createHttpClient: (c) => _FlutterMapHTTPOverrides().createHttpClient(c),
+    );
   }
 }
 
-/// [TileProvider] that uses [NetworkImage] internally
+/// [TileProvider] that uses [NetworkNoRetryImageProvider] internally
+///
+/// This image provider does not automatically retry any failed requests. This provider is the default and the recommended provider, unless your tile server is especially unreliable.
 class NetworkNoRetryTileProvider extends TileProvider {
   NetworkNoRetryTileProvider({
     Map<String, String>? headers,
+    HttpClient? httpClient,
   }) {
-    this.headers = headers ?? _defaultHeader;
-    //HttpOverrides.global = _FlutterMapHTTPOverrides();
+    this.headers = headers ?? {};
+    this.httpClient = httpClient ?? HttpClient()
+      ..userAgent = null;
   }
+
+  late final HttpClient httpClient;
 
   @override
-  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
-    print('Header: ${headers['User-Agent']}');
-    print("Running in ${Zone.current.toString()}");
-    return HttpOverrides.runZoned<NetworkImage>(
-      () {
-        /*print("Running in ${Zone.current}");*/
-        final HttpClient httpClient = HttpClient();
-        print("userAgent = ${httpClient.userAgent}");
-
-        return NetworkImage(
-          getTileUrl(coords, options),
-          headers: headers,
-        );
-      },
-      createHttpClient: (c) {
-        print('Is creating HTTP client for zone');
-        return _FlutterMapHTTPOverrides().createHttpClient(c);
-      },
-    );
-  }
+  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) =>
+      NetworkNoRetryImageProvider(
+        getTileUrl(coords, options),
+        headers: headers,
+        httpClient: httpClient,
+      );
 }
 
 /// Deprecated due to internal refactoring. The name is misleading, as the internal [ImageProvider] always caches, and this is recommended by most tile servers anyway. For the same functionality, migrate to [NetworkNoRetryTileProvider] before the next minor update.
@@ -127,13 +123,21 @@ class NetworkNoRetryTileProvider extends TileProvider {
 class NonCachingNetworkTileProvider extends TileProvider {
   NonCachingNetworkTileProvider({
     Map<String, String>? headers,
+    HttpClient? httpClient,
   }) {
-    this.headers = headers ?? _defaultHeader;
+    this.headers = headers ?? {};
+    this.httpClient = httpClient ?? HttpClient()
+      ..userAgent = null;
   }
+
+  late final HttpClient httpClient;
 
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) =>
-      NetworkNoRetryTileProvider(headers: headers).getImage(coords, options);
+      NetworkNoRetryTileProvider(
+        headers: headers,
+        httpClient: httpClient,
+      ).getImage(coords, options);
 }
 
 class AssetTileProvider extends TileProvider {
