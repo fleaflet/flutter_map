@@ -81,7 +81,7 @@ class NetworkTileProvider extends TileProvider {
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) =>
       FMNetworkImageProvider(
         getTileUrl(coords, options),
-        headers: headers,
+        headers: headers..remove('User-Agent'),
       );
 }
 
@@ -101,7 +101,7 @@ class NetworkNoRetryTileProvider extends TileProvider {
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) =>
       NetworkImage(
         getTileUrl(coords, options),
-        headers: headers,
+        headers: headers..remove('User-Agent'),
       );
 }
 
