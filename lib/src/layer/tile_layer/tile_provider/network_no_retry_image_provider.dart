@@ -6,8 +6,8 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 
-class NetworkNoRetryImageProvider
-    extends ImageProvider<NetworkNoRetryImageProvider> {
+class FMNetworkNoRetryImageProvider
+    extends ImageProvider<FMNetworkNoRetryImageProvider> {
   /// A valid URL, which is the location of the image to be fetched
   final String url;
 
@@ -17,7 +17,7 @@ class NetworkNoRetryImageProvider
   /// Custom headers to add to the image fetch request
   final Map<String, String> headers;
 
-  NetworkNoRetryImageProvider(
+  FMNetworkNoRetryImageProvider(
     this.url, {
     HttpClient? httpClient,
     this.headers = const {},
@@ -26,7 +26,7 @@ class NetworkNoRetryImageProvider
 
   @override
   ImageStreamCompleter load(
-    NetworkNoRetryImageProvider key,
+    FMNetworkNoRetryImageProvider key,
     DecoderCallback decode,
   ) {
     final StreamController<ImageChunkEvent> chunkEvents =
@@ -39,19 +39,19 @@ class NetworkNoRetryImageProvider
       debugLabel: key.url,
       informationCollector: () => <DiagnosticsNode>[
         DiagnosticsProperty<ImageProvider>('Image provider', this),
-        DiagnosticsProperty<NetworkNoRetryImageProvider>('Image key', key),
+        DiagnosticsProperty<FMNetworkNoRetryImageProvider>('Image key', key),
       ],
     );
   }
 
   @override
-  Future<NetworkNoRetryImageProvider> obtainKey(
+  Future<FMNetworkNoRetryImageProvider> obtainKey(
       ImageConfiguration configuration) {
-    return SynchronousFuture<NetworkNoRetryImageProvider>(this);
+    return SynchronousFuture<FMNetworkNoRetryImageProvider>(this);
   }
 
   Future<Codec> _loadAsync({
-    required NetworkNoRetryImageProvider key,
+    required FMNetworkNoRetryImageProvider key,
     required DecoderCallback decode,
     required StreamController<ImageChunkEvent> chunkEvents,
   }) async {

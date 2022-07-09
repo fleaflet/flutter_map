@@ -1,10 +1,7 @@
 import 'package:flutter/widgets.dart';
-import 'package:http/http.dart';
 import 'package:http/retry.dart';
-import 'package:universal_io/io.dart';
 
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network_no_retry_image_provider.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network_image_provider.dart';
 
 abstract class TileProvider {
@@ -64,56 +61,47 @@ abstract class TileProvider {
   }
 }
 
-/// [TileProvider] that uses [NetworkImageProvider] internally
+/// [TileProvider] that uses [FMNetworkImageProvider] internally
 ///
 /// This image provider automatically retries some failed requests up to 3 times.
 ///
 /// Note that this provider may be slower than [NetworkNoRetryTileProvider] when fetching tiles due to internal reasons.
+///
+/// Note that the 'User-Agent' header cannot be changed on the web.
 class NetworkTileProvider extends TileProvider {
   NetworkTileProvider({
     Map<String, String>? headers,
-    RetryClient? retryClient,
   }) {
     this.headers = headers ?? {};
-    this.retryClient = retryClient ?? RetryClient(Client());
   }
 
   late final RetryClient retryClient;
 
   @override
-  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
-    return HttpOverrides.runZoned<NetworkImageProvider>(
-      () => NetworkImageProvider(
+  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) =>
+      FMNetworkImageProvider(
         getTileUrl(coords, options),
         headers: headers,
-        retryClient: retryClient,
-      ),
-      createHttpClient: (c) => _FlutterMapHTTPOverrides().createHttpClient(c),
-    );
-  }
+      );
 }
 
-/// [TileProvider] that uses [NetworkNoRetryImageProvider] internally
+/// [TileProvider] that uses [NetworkImage] internally
 ///
 /// This image provider does not automatically retry any failed requests. This provider is the default and the recommended provider, unless your tile server is especially unreliable.
+///
+/// Note that the 'User-Agent' header cannot be changed on the web.
 class NetworkNoRetryTileProvider extends TileProvider {
   NetworkNoRetryTileProvider({
     Map<String, String>? headers,
-    HttpClient? httpClient,
   }) {
     this.headers = headers ?? {};
-    this.httpClient = httpClient ?? HttpClient()
-      ..userAgent = null;
   }
-
-  late final HttpClient httpClient;
 
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) =>
-      NetworkNoRetryImageProvider(
+      NetworkImage(
         getTileUrl(coords, options),
         headers: headers,
-        httpClient: httpClient,
       );
 }
 
@@ -123,20 +111,14 @@ class NetworkNoRetryTileProvider extends TileProvider {
 class NonCachingNetworkTileProvider extends TileProvider {
   NonCachingNetworkTileProvider({
     Map<String, String>? headers,
-    HttpClient? httpClient,
   }) {
     this.headers = headers ?? {};
-    this.httpClient = httpClient ?? HttpClient()
-      ..userAgent = null;
   }
-
-  late final HttpClient httpClient;
 
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) =>
       NetworkNoRetryTileProvider(
         headers: headers,
-        httpClient: httpClient,
       ).getImage(coords, options);
 }
 
@@ -162,12 +144,5 @@ class CustomTileProvider extends TileProvider {
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
     return AssetImage(getTileUrl(coords, options));
-  }
-}
-
-class _FlutterMapHTTPOverrides extends HttpOverrides {
-  @override
-  HttpClient createHttpClient(SecurityContext? context) {
-    return super.createHttpClient(context)..userAgent = null;
   }
 }

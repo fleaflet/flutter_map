@@ -3,7 +3,7 @@ import 'package:flutter/painting.dart';
 import 'package:http/http.dart';
 import 'package:http/retry.dart';
 
-class NetworkImageProvider extends ImageProvider<NetworkImageProvider> {
+class FMNetworkImageProvider extends ImageProvider<FMNetworkImageProvider> {
   /// The URL from which the image will be fetched.
   final String url;
 
@@ -13,14 +13,15 @@ class NetworkImageProvider extends ImageProvider<NetworkImageProvider> {
   /// Custom headers to add to the image fetch request
   final Map<String, String> headers;
 
-  NetworkImageProvider(
+  FMNetworkImageProvider(
     this.url, {
     RetryClient? retryClient,
     this.headers = const {},
   }) : retryClient = retryClient ?? RetryClient(Client());
 
   @override
-  ImageStreamCompleter load(NetworkImageProvider key, DecoderCallback decode) {
+  ImageStreamCompleter load(
+      FMNetworkImageProvider key, DecoderCallback decode) {
     return OneFrameImageStreamCompleter(_loadWithRetry(key, decode),
         informationCollector: () sync* {
       yield ErrorDescription('Image provider: $this');
@@ -29,12 +30,12 @@ class NetworkImageProvider extends ImageProvider<NetworkImageProvider> {
   }
 
   @override
-  Future<NetworkImageProvider> obtainKey(ImageConfiguration configuration) {
-    return SynchronousFuture<NetworkImageProvider>(this);
+  Future<FMNetworkImageProvider> obtainKey(ImageConfiguration configuration) {
+    return SynchronousFuture<FMNetworkImageProvider>(this);
   }
 
   Future<ImageInfo> _loadWithRetry(
-    NetworkImageProvider key,
+    FMNetworkImageProvider key,
     DecoderCallback decode,
   ) async {
     assert(key == this);
