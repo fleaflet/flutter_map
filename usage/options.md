@@ -67,7 +67,7 @@ will make the map center on London at first, and ensure that the gray void aroun
 Takes a double specifying the bearing of the map when it is first built. For example:
 
 ```dart
-        center: 180.0,
+        rotation: 180.0,
 ```
 
 will put the South of the map at the top of the device.
