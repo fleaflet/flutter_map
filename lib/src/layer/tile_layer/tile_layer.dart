@@ -201,21 +201,11 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
                 tilesToRender,
               );
 
-        final attributionLayer =
-            // ignore: deprecated_member_use_from_same_package
-            widget.options.attributionBuilder?.call(context);
-
         return Opacity(
           opacity: options.opacity,
           child: Container(
             color: options.backgroundColor,
-            child: Stack(
-              alignment: widget.options.attributionAlignment,
-              children: [
-                tilesLayer,
-                if (attributionLayer != null) attributionLayer,
-              ],
-            ),
+            child: tilesLayer,
           ),
         );
       },

@@ -67,15 +67,11 @@ class OverlayImageLayer extends StatelessWidget {
   }
 
   Positioned _positionedForOverlay(OverlayImage overlayImage) {
-    final zoomScale =
-        map.getZoomScale(map.zoom, map.zoom); // TODO replace with 1?
     final pixelOrigin = map.getPixelOrigin();
     final upperLeftPixel =
-        map.project(overlayImage.bounds.northWest).multiplyBy(zoomScale) -
-            pixelOrigin;
+        map.project(overlayImage.bounds.northWest) - pixelOrigin;
     final bottomRightPixel =
-        map.project(overlayImage.bounds.southEast).multiplyBy(zoomScale) -
-            pixelOrigin;
+        map.project(overlayImage.bounds.southEast) - pixelOrigin;
     return Positioned(
       left: upperLeftPixel.x.toDouble(),
       top: upperLeftPixel.y.toDouble(),

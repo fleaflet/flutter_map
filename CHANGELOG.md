@@ -1,5 +1,32 @@
 # Changelog
 
+## [2.0.0] - 2022/XX/XX
+
+Contains the following additions/removals:
+
+- Added adjustable mouse wheel zoom speed - [#1289](https://github.com/fleaflet/flutter_map/pull/1289)
+- Multiple changes - [#1294](https://github.com/fleaflet/flutter_map/pull/1294)
+  - Added advanced header support, including 'User-Agent'
+  - Refactored `TileProvider`s
+  - Resolved multiple TODOs within codebase
+  - Removed old deprecated code
+
+Contains the following bug fixes:
+
+- Fixed unsymmetrical markers disappearing with unusually positioned anchors - [#1291](https://github.com/fleaflet/flutter_map/pull/1291)
+- Fixed potential for error 403s due to invalid/blocked 'User-Agent' header - [#1294](https://github.com/fleaflet/flutter_map/pull/1294)
+
+In other news:
+
+- None
+
+Many thanks to these contributors (in no particular order):
+
+- @mboe
+- @aytunch
+- @MichalTorma
+- ... and all the maintainers
+
 ## [1.1.1] - 2022/06/25
 
 Contains the following additions/removals:
