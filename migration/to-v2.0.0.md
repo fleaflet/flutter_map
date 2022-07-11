@@ -36,4 +36,6 @@ To fix errors, convert the millisecond time into a `Duration` object.
 
 </details>
 
+Additionally, you should implement [#package-name-useragentpackagename](../usage/layers/tile-layer/recommended-options.md#package-name-useragentpackagename "mention")as soon as possible, to prevent potential future blocking.
+
 There are other changes, which can be seen in the full [CHANGELOG](https://pub.dev/packages/flutter\_map/changelog).
