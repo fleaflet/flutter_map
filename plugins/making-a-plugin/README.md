@@ -1,20 +1,10 @@
-# How To Make A Plugin
-
-{% hint style="info" %}
-We're writing this documentation page now! Please hold tight for now, and refer to older documentation or look in the API Reference.
-{% endhint %}
+# Making A Plugin
 
 There are many independently maintained plugins created by the 'flutter\_map' community that give extra, prebuilt functionality, saving you even more time and potentially money.
 
-However, you may not be able to find an existing plugin, in which case you need to make it yourself. This should be a rough guide on how you can make these plugins.
+Unfortunately, you may need more niche functionality that hasn't been provided by an existing plugin or by 'flutter\_map' itself. Alternatively, you may have found a gap in functionality that not everyone will need, but some people will: in this case, it's likely the maintainers will ask you to submit a plugin instead of a pull request.
 
-## Where a new layer is not created
-
-No content yet.
-
-## Where a new layer is created
-
-No content yet.
+Plugins can add/change a wide variety of functionality, so this guide is not exhaustive. However, it will help with the most common requirements. Each subpage covers a specific part of the plugin API, and the section below sets out requirements for plugins to be accepted into the list.
 
 ## Submitting A New Plugin
 

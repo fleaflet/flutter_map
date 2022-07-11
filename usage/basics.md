@@ -4,10 +4,10 @@ The main widget for the map is easy to remember. It's just:
 
 ```dart
 FlutterMap(
-    controller: ...
+    controller: mapController,
     options: MapOptions(),
     children: [
-
+        ...
     ],
 ),
 ```

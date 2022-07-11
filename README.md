@@ -48,9 +48,13 @@ Of course, this package has much more functionality than shown here, and these a
 
 <summary>Supports Any* Map Style</summary>
 
-Through the `templateUrl` argument, you can add any raster tile server that supports WMTS. So you're not just limited to Google Maps or Mapbox anymore. And through `WMSOptions`, you can also use any WMS raster tile server, with similar setup.
+Through the `templateUrl` argument, you can add any raster tile server that supports WMTS. So you're not just limited to Google Maps or Mapbox anymore!
 
-Vector tile support is not built in, but it is supported in beta by a plugin!
+Through `WMSOptions`, you can use any WMS raster tile server, such as those provided by national governments and agencies.
+
+If you have a local set of raster tiles, we support displaying those as well, with no complicated setup.
+
+Vector tile support is not built in, but it is supported in beta by a plugin! See the full [Plugins List](plugins/list.md) for more information.
 
 </details>
 
@@ -58,7 +62,7 @@ Vector tile support is not built in, but it is supported in beta by a plugin!
 
 <summary>Simple Setup</summary>
 
-No need for API keys or excessive platform specific setup. Just depend on it and set it up in less than 5 minutes. The snippet above really does work!
+No need for 'flutter\_map' API keys or excessive platform-dependent specific setup. Just depend on it and set it up in less than 5 minutes. The snippet above really does work!
 
 After that, you can add a map controller to programmatically control your map, such as position, zoom, and more.
 
@@ -88,8 +92,10 @@ Using these is simple and quick, and the power of Flutter's `StreamBuilder` can 
 
 ## Support & Contact
 
-Having trouble with 'flutter\_map'? We hope we can help get you sorted.
+Having trouble with 'flutter\_map', or have any suggestions? We hope we can help get you sorted as soon as possible.
 
-The preferred way to get help with smaller issues is the official Discord server! Join today using the link: [https://discord.gg/egEGeByf4q](https://discord.gg/egEGeByf4q).
+The preferred way to get help with smaller issues and get recommendations is the official Discord server! Join today using the link: [https://discord.gg/egEGeByf4q](https://discord.gg/egEGeByf4q).
 
-Alternatively, visit [StackOverflow](https://stackoverflow.com/search?q=flutter\_map) or the [GitHub Issue Tracker](https://github.com/fleaflet/flutter\_map/issues), and ask away! The community will try to get back to you as soon as possible.
+Alternatively, for bigger issues, suspected bugs, or feature requests, visit the [GitHub Issue Tracker](https://github.com/fleaflet/flutter\_map/issues) and ask away! We'll try to get back to you relatively quickly, but it may take longer for larger issues. Note that feature requests currently have a long wait time, so we'd love your contributions!
+
+Additionally, please use the ratings system at the bottom of each page, so that we can improve lacking pages, or look to better rated pages for inspiration!

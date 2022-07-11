@@ -2,7 +2,7 @@
 
 'flutter\_map' is only as big and useful as it is because of contributors. You can see a [list of current contributors here](https://github.com/fleaflet/flutter\_map/graphs/contributors), and there are currently [![GitHub PRs](https://img.shields.io/github/issues-pr/fleaflet/flutter\_map.svg?label=Pull%20Requests)](https://github.com/fleaflet/flutter\_map/pulls/), each potentially from a new contributor.
 
-Therefore, your contribution would be greatly appreciated, so we've written a guide to help you contribute successfully:
+Therefore, your contribution would be greatly appreciated, so we've written a guide to help you contribute successfully.
 
 ## Contribution Guide
 

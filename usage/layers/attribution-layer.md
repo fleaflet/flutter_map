@@ -17,7 +17,7 @@ FlutterMap(
 {% hint style="success" %}
 Please credit flutter\_map, it helps us to gain more developers that we can help!
 
-You should also credit your tile server if it says to in the server's terms of service. You must credit OpenStreetMap if using it.
+You should also credit your tile server if it says to in the server's terms of service. You must credit OpenStreetMap if using its tile server.
 {% endhint %}
 
 ## Default Builder

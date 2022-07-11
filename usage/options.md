@@ -12,7 +12,7 @@ FlutterMap(
 
 This is where you'll configure most of your map viewport settings, but not settings that depend on a map layer.
 
-None of the options are required, but the options property on the `FlutterMap()` is required. Note that not all of the options available are shown below.
+None of the options are required, but the options property on the `FlutterMap()` is required. Note that not all of the options available are shown below. See the full API reference for all options.
 
 ## Center (`center:`)
 
@@ -39,7 +39,9 @@ For an explanation of zoom levels, see the How Does It Work? page.
         maxZoom: 19.0,
 ```
 
-:::caution Maximum Zoom Level Note that many tile servers will not support past a zoom level of 18. Open Street Maps supports up to level 19, and a small amount support up to level 22. Always specify the `maxZoom:` below the maximum zoom level of the server, to avoid your users seeing a void of grey tiles. :::
+{% hint style="warning" %}
+Note that many tile servers will not support past a zoom level of 18. Open Street Maps supports up to level 19, and a small amount support up to level 22. Always specify the `maxZoom` below the maximum zoom level of the server, to avoid your users seeing a void of grey tiles.
+{% endhint %}
 
 ## Boundaries (`bounds:`, `maxBounds:`)
 
@@ -60,14 +62,16 @@ Takes `LatLngBounds` to restrict the map view within a rectangular area.
 
 will make the map center on London at first, and ensure that the gray void around the world cannot appear on screen (in the default projection).
 
-:::caution Always specify your center within your boundaries to avoid errors. Boundaries will take preference over center. :::
+{% hint style="warning" %}
+Always specify your center within your boundaries to avoid errors. Boundaries will take preference over center.
+{% endhint %}
 
 ## Rotation (`rotation:`)
 
 Takes a double specifying the bearing of the map when it is first built. For example:
 
 ```dart
-        center: 180.0,
+        rotation: 180.0,
 ```
 
 will put the South of the map at the top of the device.
@@ -100,6 +104,19 @@ The flags below are available:
 Use `&` for 'AND' logic and `~` for 'NOT' logic. Combining these two gates, as shown in the example, can lead to many combinations, each easy to put together.
 
 Defaults to enabling all interactions (`all`).
+
+## Scroll Wheel Settings (`enableScrollWheel:` & `scrollWheelVelocity:`)
+
+Used together to enable scroll wheel scrolling, and set it's sensitivity/speed.
+
+The first parameter takes a `bool`, enabling or disabling scroll wheel zooming. The second takes a `double`, which is used as a multiplier for changing the zoom level internally.
+
+```dart
+        enableScrollWheel: true,
+        scrollWheelVelocity: 0.005,
+```
+
+Defaults to `true` and 0.005.
 
 ## When Position Changed (`onPositionChanged:`)
 
