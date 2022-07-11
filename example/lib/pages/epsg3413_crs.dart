@@ -19,27 +19,9 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
 
   double? maxZoom;
 
-  // Define start center
-  proj4.Point point = proj4.Point(x: 90, y: 0);
-
-  String initText = 'Map centered to';
-
-  late final proj4.Projection epsg4326;
-
-  late final proj4.Projection epsg3413;
-
   @override
   void initState() {
     super.initState();
-
-    epsg4326 = proj4.Projection.get('EPSG:4326')!;
-
-    // EPSG:3413 is a user-defined projection from a valid Proj4 definition string
-    // From: http://epsg.io/3413, proj definition: http://epsg.io/3413.proj4
-    // Find Projection by name or define it if not exists
-    epsg3413 = proj4.Projection.get('EPSG:3413') ??
-        proj4.Projection.add('EPSG:3413',
-            '+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs');
 
     // 9 example zoom level resolutions
     final resolutions = <double>[
@@ -61,6 +43,13 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
 
     maxZoom = (resolutions.length - 1).toDouble();
 
+    // EPSG:3413 is a user-defined projection from a valid Proj4 definition string
+    // From: http://epsg.io/3413, proj definition: http://epsg.io/3413.proj4
+    // Find Projection by name or define it if not exists
+    final proj4.Projection epsg3413 = proj4.Projection.get('EPSG:3413') ??
+        proj4.Projection.add('EPSG:3413',
+            '+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs');
+
     epsg3413CRS = Proj4Crs.fromFactory(
       code: 'EPSG:3413',
       proj4Projection: epsg3413,
@@ -74,8 +63,26 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
 
   @override
   Widget build(BuildContext context) {
+    // These circles should have the same pixel radius on the map
+    final circles = [
+      CircleMarker(
+        point: LatLng(90, 0),
+        radius: 20000,
+        useRadiusInMeter: true,
+        color: Colors.red,
+      )
+    ];
+    for (final lon in [-90.0, 0.0, 90.0, 180.0]) {
+      circles.add(CircleMarker(
+        point: LatLng(80, lon),
+        radius: 20000,
+        useRadiusInMeter: true,
+        color: Colors.red,
+      ));
+    }
+
     return Scaffold(
-      appBar: AppBar(title: const Text('EPSG:4326 CRS')),
+      appBar: AppBar(title: const Text('EPSG:3413 CRS')),
       drawer: buildDrawer(context, EPSG3413Page.route),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -92,23 +99,17 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0, bottom: 2.0),
+            const Padding(
+              padding: EdgeInsets.only(top: 8.0, bottom: 2.0),
               child: Text(
-                '$initText (${point.x.toStringAsFixed(5)}, ${point.y.toStringAsFixed(5)}) in EPSG:4326.',
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 2.0, bottom: 2.0),
-              child: Text(
-                'Which is (${epsg4326.transform(epsg3413, point).x.toStringAsFixed(2)}, ${epsg4326.transform(epsg3413, point).y.toStringAsFixed(2)}) in EPSG:3413.',
+                'This page demonstrates some tricky edge-cases for maps with a polar projection.',
               ),
             ),
             Flexible(
               child: FlutterMap(
                 options: MapOptions(
                   crs: epsg3413CRS,
-                  center: LatLng(point.x, point.y),
+                  center: LatLng(90, 0),
                   zoom: 3.0,
                   maxZoom: maxZoom,
                 ),
@@ -125,6 +126,22 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
                       layers: ['gebco_north_polar_view'],
                     ),
                   ),
+                  CircleLayerOptions(
+                    circles: circles,
+                  ),
+                  OverlayImageLayerOptions(
+                    overlayImages: [
+                      OverlayImage(
+                        bounds: LatLngBounds(
+                          LatLng(72.7911372, 162.6196478),
+                          LatLng(85.2802493, 79.794166),
+                        ),
+                        imageProvider: Image.asset(
+                          'map/epsg3413/amsr2.png',
+                        ).image,
+                      )
+                    ],
+                  )
                 ],
               ),
             ),

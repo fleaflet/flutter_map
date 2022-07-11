@@ -73,7 +73,7 @@ class OverlayImageLayer extends StatelessWidget {
       map.project(overlayImage.bounds.northWest) - map.getPixelOrigin(),
       map.project(overlayImage.bounds.southEast) - map.getPixelOrigin(),
     );
-    
+
     return Positioned(
       left: bounds.topLeft.x.toDouble(),
       top: bounds.topLeft.y.toDouble(),
