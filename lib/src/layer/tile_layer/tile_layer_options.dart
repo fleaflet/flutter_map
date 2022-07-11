@@ -20,6 +20,10 @@ typedef ErrorTileCallBack = void Function(Tile tile, dynamic error);
 
 /// Describes the needed properties to create a tile-based layer. A tile is an
 /// image bound to a specific geographical position.
+///
+/// You should read up about the options by exploring each one, or visiting
+/// https://docs.fleaflet.dev/usage/layers/tile-layer. Some are important to
+/// avoid issues.
 class TileLayerOptions extends LayerOptions {
   /// Defines the structure to create the URLs for the tiles. `{s}` means one of
   /// the available subdomains (can be omitted) `{z}` zoom level `{x}` and `{y}`
@@ -88,47 +92,47 @@ class TileLayerOptions extends LayerOptions {
   /// https://c.tile.openstreetmap.org/{z}/{x}/{y}.png
   final List<String> subdomains;
 
-  /// Color shown behind the tiles.
+  /// Color shown behind the tiles
   final Color backgroundColor;
 
   /// Opacity of the rendered tile
   final double opacity;
 
-  /// Provider to load the tiles. The default is `NonCachingNetworkTileProvider()` which
-  /// doesn't cache tiles and won't retry the HTTP request. Use `NetworkTileProvider()` for
-  /// a provider which will retry requests. For the best caching implementations, see the
-  /// flutter_map readme.
+  /// Provider with which to load map tiles
   ///
-  /// In order to use images from the asset folder set this option to
-  /// AssetTileProvider() Note that it requires the urlTemplate to target
-  /// assets, for example:
+  /// The default is [NetworkNoRetryTileProvider]. Alternatively, use
+  /// [NetworkTileProvider] for a network provider which will retry requests.
   ///
-  /// ```dart
-  /// urlTemplate: "assets/map/anholt_osmbright/{z}/{x}/{y}.png",
-  /// ```
+  /// Both network providers will use some form of caching, although not reliable. For
+  /// better options, see https://docs.fleaflet.dev/usage/layers/tile-layer#caching.
   ///
-  /// In order to use images from the filesystem set this option to
-  /// FileTileProvider() Note that it requires the urlTemplate to target the
-  /// file system, for example:
+  /// `userAgentPackageName` is a construction parameter, which should be passed
+  /// the application's correct package name, such as 'com.example.app'. If no
+  /// value is passed, it defaults to 'unknown'. This parameter is used to form
+  /// part of the 'User-Agent' header, which is important to avoid blocking by
+  /// tile servers. Namely, the header is the following 'flutter_map (<packageName>)'.
   ///
-  /// ```dart
-  /// urlTemplate: "/storage/emulated/0/tiles/some_place/{z}/{x}/{y}.png",
-  /// ```
+  /// Header rules are as follows, after 'User-Agent' is generated as above:
   ///
-  /// Furthermore you create your custom implementation by subclassing
-  /// TileProvider
-  final TileProvider tileProvider;
+  /// * If no provider is specified here, the default will be used with
+  /// 'User-Agent' header injected (recommended)
+  /// * If a provider is specified here with no 'User-Agent' header, that
+  /// provider will be used and the 'User-Agent' header will be injected
+  /// * If a provider is specified here with a 'User-Agent' header, that
+  /// provider will be used and the 'User-Agent' header will not be changed to any created here
+  ///
+  /// [AssetTileProvider] and [FileTileProvider] are alternatives to network
+  /// providers, which use the [urlTemplate] as a path instead.
+  /// For example, 'assets/map/{z}/{x}/{y}.png' or
+  /// '/storage/emulated/0/map_app/tiles/{z}/{x}/{y}.png'.
+  ///
+  /// Custom [TileProvider]s can also be used, but these will not follow the header
+  /// rules above.
+  late final TileProvider tileProvider;
 
   /// When panning the map, keep this many rows and columns of tiles before
   /// unloading them.
   final int keepBuffer;
-
-  /// Placeholder to show until tile images are fetched by the provider.
-  ///
-  /// _`placeholderImage` has been deprecated with no current replacement or workaround. Usage no longer has an effect internally._
-  @Deprecated(
-      '`placeholderImage` has been deprecated with no current replacement or workaround. Usage no longer has an effect internally.')
-  final ImageProvider? placeholderImage;
 
   /// Tile image to show in place of the tile that failed to load.
   final ImageProvider? errorImage;
@@ -226,15 +230,6 @@ class TileLayerOptions extends LayerOptions {
   /// When set to `true`, the `tileFadeIn*` options will be ignored.
   final bool fastReplace;
 
-  /// [attributionBuilder] has been deprecated. Usage will continue to work, however not as expected. As an alternative, use [AttributionWidget] inside `nonRotatedChildren`.
-  @Deprecated(
-    '`attributionBuilder` has been deprecated. Usage will continue to work, however not as expected. As an alternative, use `AttributionWidget` inside `nonRotatedChildren`.',
-  )
-  final WidgetBuilder? attributionBuilder;
-
-  ///aligment of the attribution text on the map widget
-  final Alignment attributionAlignment;
-
   /// Stream to notify the [TileLayer] that it needs resetting
   Stream<void>? reset;
 
@@ -242,13 +237,7 @@ class TileLayerOptions extends LayerOptions {
   LatLngBounds? tileBounds;
 
   TileLayerOptions({
-    this.attributionAlignment = Alignment.bottomRight,
-    @Deprecated(
-      '`attributionBuilder` has been deprecated. Usage will continue to work, however not as expected. As an alternative, use `AttributionWidget` inside `nonRotatedChildren`.',
-    )
-        this.attributionBuilder,
     Key? key,
-    // TODO: make required
     this.urlTemplate,
     double tileSize = 256.0,
     double minZoom = 0.0,
@@ -261,25 +250,19 @@ class TileLayerOptions extends LayerOptions {
     this.subdomains = const <String>[],
     this.keepBuffer = 2,
     this.backgroundColor = const Color(0xFFE0E0E0),
-    @Deprecated('`placeholderImage` has been deprecated with no current replacement or workaround. Usage no longer has an effect internally.')
-        this.placeholderImage,
     this.errorImage,
-    this.tileProvider = const NonCachingNetworkTileProvider(),
+    TileProvider? tileProvider,
     this.tms = false,
-    // ignore: avoid_init_to_null
-    this.wmsOptions = null,
+    this.wmsOptions,
     this.opacity = 1.0,
-    // Tiles will not update more than once every `updateInterval` milliseconds
-    // (default 200) when panning. It can be 0 (but it will calculating for
-    // loading tiles every frame when panning / zooming, flutter is fast) This
-    // can save some fps and even bandwidth (ie. when fast panning / animating
-    // between long distances in short time)
-    // TODO: change to Duration
-    int updateInterval = 200,
-    // Tiles fade in duration in milliseconds (default 100).  This can be set to
-    // 0 to avoid fade in
-    // TODO: change to Duration
-    int tileFadeInDuration = 100,
+
+    /// Tiles will not update more than once every `updateInterval` milliseconds
+    /// (default 200) when panning. It can be 0 (but it will calculating for
+    /// loading tiles every frame when panning / zooming, flutter is fast) This
+    /// can save some fps and even bandwidth (ie. when fast panning / animating
+    /// between long distances in short time)
+    Duration updateInterval = const Duration(milliseconds: 200),
+    Duration tileFadeInDuration = const Duration(milliseconds: 100),
     this.tileFadeInStart = 0.0,
     this.tileFadeInStartWhenOverride = 0.0,
     this.overrideTilesWhenUrlChanges = false,
@@ -293,11 +276,11 @@ class TileLayerOptions extends LayerOptions {
     this.fastReplace = false,
     this.reset,
     this.tileBounds,
+    String userAgentPackageName = 'unknown',
   })  : updateInterval =
-            updateInterval <= 0 ? null : Duration(milliseconds: updateInterval),
-        tileFadeInDuration = tileFadeInDuration <= 0
-            ? null
-            : Duration(milliseconds: tileFadeInDuration),
+            updateInterval <= Duration.zero ? null : updateInterval,
+        tileFadeInDuration =
+            tileFadeInDuration <= Duration.zero ? null : tileFadeInDuration,
         assert(tileFadeInStart >= 0.0 && tileFadeInStart <= 1.0),
         assert(tileFadeInStartWhenOverride >= 0.0 &&
             tileFadeInStartWhenOverride <= 1.0),
@@ -315,11 +298,19 @@ class TileLayerOptions extends LayerOptions {
         tileSize = wmsOptions == null && retinaMode && maxZoom > 0.0
             ? (tileSize / 2.0).floorToDouble()
             : tileSize,
-        // copy additionalOptions Map if not null, so we can safely compare old
-        // and new Map inside didUpdateWidget with MapEquality.
         additionalOptions = additionalOptions == null
             ? const <String, String>{}
             : Map.from(additionalOptions),
+        tileProvider = tileProvider == null
+            ? NetworkNoRetryTileProvider(
+                headers: {'User-Agent': 'flutter_map ($userAgentPackageName)'},
+              )
+            : (tileProvider
+              ..headers = <String, String>{
+                ...tileProvider.headers,
+                if (!tileProvider.headers.containsKey('User-Agent'))
+                  'User-Agent': 'flutter_map ($userAgentPackageName)',
+              }),
         super(key: key, rebuild: rebuild);
 }
 
@@ -327,14 +318,13 @@ class WMSTileLayerOptions {
   final service = 'WMS';
   final request = 'GetMap';
 
-  /// url of WMS service.
-  /// Ex.: 'http://ows.mundialis.de/services/service?'
+  /// WMS service's URL, for example 'http://ows.mundialis.de/services/service?'
   final String baseUrl;
 
-  /// list of WMS layers to show
+  /// List of WMS layers to show
   final List<String> layers;
 
-  /// list of WMS styles
+  /// List of WMS styles
   final List<String> styles;
 
   /// WMS image format (use 'image/png' for layers with transparency)
@@ -343,16 +333,16 @@ class WMSTileLayerOptions {
   /// Version of the WMS service to use
   final String version;
 
-  /// tile transparency flag
+  /// Whether to make tiles transparent
   final bool transparent;
 
   /// Encode boolean values as uppercase in request
   final bool uppercaseBoolValue;
 
-  // TODO find a way to implicit pass of current map [Crs]
+  /// Sets map projection standard
   final Crs crs;
 
-  /// other request parameters
+  /// Other request parameters
   final Map<String, String> otherParameters;
 
   late final String _encodedBaseUrl;

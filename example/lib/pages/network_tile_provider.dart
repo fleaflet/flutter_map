@@ -50,11 +50,14 @@ class NetworkTileProviderPage extends StatelessWidget {
           children: [
             Padding(
               padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: Wrap(children: const [
-                Text('This Provider does not provide caching.'),
-                Text(
-                    'For further options about that, check flutter_map\'s README on GitHub.'),
-              ]),
+              child: Wrap(
+                children: const [
+                  Text(
+                      'This provider will automatically retry failed requests, unlike the other pages.'),
+                  Text(
+                      'For further information, check the documentation website.'),
+                ],
+              ),
             ),
             Flexible(
               child: FlutterMap(
@@ -67,10 +70,8 @@ class NetworkTileProviderPage extends StatelessWidget {
                     urlTemplate:
                         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     subdomains: ['a', 'b', 'c'],
-                    // For example purposes. It is recommended to use
-                    // TileProvider with a caching and retry strategy, like
-                    // NetworkTileProvider or CachedNetworkTileProvider
                     tileProvider: NetworkTileProvider(),
+                    userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   ),
                   MarkerLayerOptions(markers: markers)
                 ],

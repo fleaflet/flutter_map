@@ -47,7 +47,7 @@ class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
                       // For example purposes. It is recommended to use
                       // TileProvider with a caching and retry strategy, like
                       // NetworkTileProvider or CachedNetworkTileProvider
-                      tileProvider: const NonCachingNetworkTileProvider(),
+                      userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                       errorTileCallback: (Tile tile, error) {
                         if (needLoadingError) {
                           WidgetsBinding.instance.addPostFrameCallback((_) {

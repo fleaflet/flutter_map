@@ -3,9 +3,9 @@ import 'dart:io';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 
-/// FileTileProvider
+/// [TileProvider] that uses [FileImage] internally on platforms other than web
 class FileTileProvider extends TileProvider {
-  const FileTileProvider();
+  FileTileProvider();
 
   @override
   ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
