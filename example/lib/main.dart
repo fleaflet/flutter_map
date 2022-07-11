@@ -33,6 +33,7 @@ import './pages/tile_builder_example.dart';
 import './pages/tile_loading_error_handle.dart';
 import './pages/widgets.dart';
 import './pages/wms_tile_layer.dart';
+import './pages/epsg3413_crs.dart';
 
 void main() => runApp(const MyApp());
 
@@ -82,6 +83,7 @@ class MyApp extends StatelessWidget {
         MapInsideListViewPage.route: (context) => const MapInsideListViewPage(),
         ResetTileLayerPage.route: (context) => const ResetTileLayerPage(),
         EPSG4326Page.route: (context) => const EPSG4326Page(),
+        EPSG3413Page.route: (context) => const EPSG3413Page(),
         MaxBoundsPage.route: (context) => const MaxBoundsPage(),
         PointToLatLngPage.route: (context) => const PointToLatLngPage(),
       },
