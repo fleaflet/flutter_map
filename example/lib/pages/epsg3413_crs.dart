@@ -69,7 +69,7 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
         point: LatLng(90, 0),
         radius: 20000,
         useRadiusInMeter: true,
-        color: Colors.red,
+        color: Colors.yellow,
       )
     ];
     for (final lon in [-90.0, 0.0, 90.0, 180.0]) {
@@ -81,6 +81,18 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
       ));
     }
 
+    // Add latitude line at 80 degrees
+    final distancePoleToLat80 =
+        const Distance().distance(LatLng(90, 0), LatLng(80, 0));
+    circles.add(CircleMarker(
+      point: LatLng(90, 0),
+      radius: distancePoleToLat80,
+      useRadiusInMeter: true,
+      color: Colors.transparent,
+      borderColor: Colors.black,
+      borderStrokeWidth: 1.0,
+    ));
+
     return Scaffold(
       appBar: AppBar(title: const Text('EPSG:3413 CRS')),
       drawer: buildDrawer(context, EPSG3413Page.route),
@@ -91,7 +103,7 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
             const Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 2.0),
               child: Text(
-                'This map is in EPSG:3413',
+                'Tricky edge-cases with polar projections',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.blue,
@@ -99,10 +111,19 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
                 ),
               ),
             ),
+            const Text(
+                'Details: https://github.com/fleaflet/flutter_map/pull/1295'),
             const Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 2.0),
-              child: Text(
-                'This page demonstrates some tricky edge-cases for maps with a polar projection.',
+              child: SizedBox(
+                width: 500,
+                child: Text(
+                    '• Northern and eastern directions are relative to where you are on the map:\n'
+                    '  • A red dot moves north toward the yellow dot (North Pole).\n'
+                    '  • A red dot moves east counter-clockwise along the black latitude line (80°).\n'
+                    '• The lower left and right corners of the overlay image are the northern corners.'
+                    //textAlign: TextAlign.center,
+                    ),
               ),
             ),
             Flexible(
@@ -126,9 +147,6 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
                       layers: ['gebco_north_polar_view'],
                     ),
                   ),
-                  CircleLayerOptions(
-                    circles: circles,
-                  ),
                   OverlayImageLayerOptions(
                     overlayImages: [
                       OverlayImage(
@@ -141,7 +159,10 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
                         ).image,
                       )
                     ],
-                  )
+                  ),
+                  CircleLayerOptions(
+                    circles: circles,
+                  ),
                 ],
               ),
             ),
