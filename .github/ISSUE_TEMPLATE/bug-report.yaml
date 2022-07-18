@@ -32,7 +32,7 @@ body:
     attributes:
       label: How can we reproduce this issue?
       description: |
-        Please include a [minimum reproducible example](https://en.wikipedia.org/wiki/Minimal_reproducible_example) (preferable), otherwise detail the exact steps to reproduce this issue.
+        Please include a [minimal reproducible example](https://en.wikipedia.org/wiki/Minimal_reproducible_example) (preferable), otherwise detail the exact steps to reproduce this issue.
         If you do not include any information here, it will take longer for us to verify your issue.
       placeholder: Text automatically formatted as Dart code, on submission
       render: dart
