@@ -1,6 +1,25 @@
 # Changelog
 
-## [2.0.0] - 2022/XX/XX
+## [2.1.0] - 2022/XX/XX
+
+Contains the following additions/removals:
+
+- Added built in keep alive functionality
+
+Contains the following bug fixes:
+
+- Remove a class of `LateInitializationError`s by reworking `MapController` lifecycle - [#1293](https://github.com/fleaflet/flutter_map/pull/1293) for [#1288](https://github.com/fleaflet/flutter_map/issues/1288)
+
+In other news:
+
+- None
+
+Many thanks to these contributors (in no particular order):
+
+- @Zverik
+- ... and all the maintainers
+
+## [2.0.0] - 2022/07/11
 
 Contains the following additions/removals:
 
