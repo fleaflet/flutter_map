@@ -4,7 +4,7 @@
 
 Contains the following additions/removals:
 
-- Added built in keep alive functionality
+- Added built in keep alive functionality - [#1312](https://github.com/fleaflet/flutter_map/pull/1293)
 
 Contains the following bug fixes:
 
