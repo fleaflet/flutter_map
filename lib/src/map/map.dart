@@ -22,7 +22,7 @@ class MapControllerImpl implements MapController {
     _mapEventSink.close();
   }
 
-  late final MapState _state;
+  late MapState _state;
 
   @override
   set state(MapState state) {
