@@ -240,10 +240,11 @@ class PolylinePainter extends CustomPainter {
   }
 
   void _paintLine(Canvas canvas, List<Offset> offsets, Paint paint) {
-    if (offsets.isNotEmpty) {
-      final path = ui.Path()..addPolygon(offsets, false);
-      canvas.drawPath(path, paint);
+    if (offsets.isEmpty) {
+      return;
     }
+    final path = ui.Path()..addPolygon(offsets, false);
+    canvas.drawPath(path, paint);
   }
 
   ui.Gradient _paintGradient() => ui.Gradient.linear(polylineOpt.offsets.first,
