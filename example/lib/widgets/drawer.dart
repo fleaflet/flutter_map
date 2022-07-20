@@ -8,6 +8,7 @@ import 'package:flutter_map_example/pages/point_to_latlng.dart';
 import '../pages/animated_map_controller.dart';
 import '../pages/circle.dart';
 import '../pages/custom_crs/custom_crs.dart';
+import '../pages/epsg3413_crs.dart';
 import '../pages/esri.dart';
 import '../pages/home.dart';
 import '../pages/interactive_test_page.dart';
@@ -237,10 +238,17 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           },
         ),
         ListTile(
-          title: const Text('EPSG4326 Crs'),
+          title: const Text('EPSG4326 CRS'),
           selected: currentRoute == EPSG4326Page.route,
           onTap: () {
             Navigator.pushReplacementNamed(context, EPSG4326Page.route);
+          },
+        ),
+        ListTile(
+          title: const Text('EPSG3413 CRS'),
+          selected: currentRoute == EPSG3413Page.route,
+          onTap: () {
+            Navigator.pushReplacementNamed(context, EPSG3413Page.route);
           },
         ),
         _buildMenuItem(

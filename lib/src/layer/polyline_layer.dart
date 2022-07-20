@@ -130,14 +130,8 @@ class PolylineLayer extends StatelessWidget {
     final len = points.length;
     for (var i = 0; i < len; ++i) {
       final point = points[i];
-
-      var pos = map.project(point);
-      pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) -
-          map.getPixelOrigin();
-      offsets.add(Offset(pos.x.toDouble(), pos.y.toDouble()));
-      if (i > 0) {
-        offsets.add(Offset(pos.x.toDouble(), pos.y.toDouble()));
-      }
+      final offset = map.getOffsetFromOrigin(point);
+      offsets.add(offset);
     }
   }
 }
@@ -246,10 +240,11 @@ class PolylinePainter extends CustomPainter {
   }
 
   void _paintLine(Canvas canvas, List<Offset> offsets, Paint paint) {
-    if (offsets.isNotEmpty) {
-      final path = ui.Path()..addPolygon(offsets, false);
-      canvas.drawPath(path, paint);
+    if (offsets.isEmpty) {
+      return;
     }
+    final path = ui.Path()..addPolygon(offsets, false);
+    canvas.drawPath(path, paint);
   }
 
   ui.Gradient _paintGradient() => ui.Gradient.linear(polylineOpt.offsets.first,

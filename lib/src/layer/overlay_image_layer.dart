@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
+import 'package:flutter_map/src/core/bounds.dart';
 
 class OverlayImageLayerOptions extends LayerOptions {
   final List<OverlayImage> overlayImages;
@@ -67,16 +68,17 @@ class OverlayImageLayer extends StatelessWidget {
   }
 
   Positioned _positionedForOverlay(OverlayImage overlayImage) {
-    final pixelOrigin = map.getPixelOrigin();
-    final upperLeftPixel =
-        map.project(overlayImage.bounds.northWest) - pixelOrigin;
-    final bottomRightPixel =
-        map.project(overlayImage.bounds.southEast) - pixelOrigin;
+    // northWest is not necessarily upperLeft depending on projection
+    final bounds = Bounds<num>(
+      map.project(overlayImage.bounds.northWest) - map.getPixelOrigin(),
+      map.project(overlayImage.bounds.southEast) - map.getPixelOrigin(),
+    );
+
     return Positioned(
-      left: upperLeftPixel.x.toDouble(),
-      top: upperLeftPixel.y.toDouble(),
-      width: (bottomRightPixel.x - upperLeftPixel.x).toDouble(),
-      height: (bottomRightPixel.y - upperLeftPixel.y).toDouble(),
+      left: bounds.topLeft.x.toDouble(),
+      top: bounds.topLeft.y.toDouble(),
+      width: bounds.size.x.toDouble(),
+      height: bounds.size.y.toDouble(),
       child: Image(
         image: overlayImage.imageProvider,
         fit: BoxFit.fill,
