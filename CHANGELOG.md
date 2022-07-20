@@ -4,12 +4,15 @@
 
 Contains the following additions/removals:
 
-- Added built in keep alive functionality - [#1312](https://github.com/fleaflet/flutter_map/pull/1293)
+- Added built in keep alive functionality - [#1312](https://github.com/fleaflet/flutter_map/pull/1312)
 - Added disposal of `AnimationController` before it is reassigned - [#1303](https://github.com/fleaflet/flutter_map/pull/1303)
+- Added better polar projection support and example - [#1295](https://github.com/fleaflet/flutter_map/pull/1295)
+- Added stroke cap and stroke join options to `Polygon`s - [#1295](https://github.com/fleaflet/flutter_map/pull/1295)
 
 Contains the following bug fixes:
 
-- Remove a class of `LateInitializationError`s by reworking `MapController` lifecycle - [#1293](https://github.com/fleaflet/flutter_map/pull/1293) for [#1288](https://github.com/fleaflet/flutter_map/issues/1288)
+- Removed a class of `LateInitializationError`s by reworking `MapController` lifecycle - [#1293](https://github.com/fleaflet/flutter_map/pull/1293) for [#1288](https://github.com/fleaflet/flutter_map/issues/1288)
+- Improved performance during painting `Polygon`s - [#1295](https://github.com/fleaflet/flutter_map/pull/1295)
 
 In other news:
 
@@ -19,6 +22,7 @@ Many thanks to these contributors (in no particular order):
 
 - @Zverik
 - @rbellens
+- @JosefWN
 - ... and all the maintainers
 
 ## [2.0.0] - 2022/07/11
