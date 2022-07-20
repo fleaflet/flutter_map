@@ -83,6 +83,7 @@ class Tile {
   void startFadeInAnimation(Duration duration, TickerProvider vsync,
       {double? from}) {
     animationController?.removeStatusListener(_onAnimateEnd);
+    animationController?.dispose();
 
     animationController = AnimationController(duration: duration, vsync: vsync)
       ..addStatusListener(_onAnimateEnd);
