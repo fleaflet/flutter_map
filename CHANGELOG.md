@@ -5,6 +5,7 @@
 Contains the following additions/removals:
 
 - Added built in keep alive functionality - [#1312](https://github.com/fleaflet/flutter_map/pull/1293)
+- Added disposal of `AnimationController` before it is reassigned - [#1303](https://github.com/fleaflet/flutter_map/pull/1303)
 
 Contains the following bug fixes:
 
@@ -17,6 +18,7 @@ In other news:
 Many thanks to these contributors (in no particular order):
 
 - @Zverik
+- @rbellens
 - ... and all the maintainers
 
 ## [2.0.0] - 2022/07/11
