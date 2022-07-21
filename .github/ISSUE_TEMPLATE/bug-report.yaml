@@ -37,6 +37,11 @@ body:
       placeholder: Text automatically formatted as Dart code, on submission
       render: dart
   - type: textarea
+    id: solution
+    attributes:
+      label: Do you have a potential solution?
+      description: "If so, please detail it: it will make it quicker for us to fix the issue"
+  - type: textarea
     id: additional-info
     attributes:
       label: Can you provide any other information?
@@ -101,7 +106,7 @@ body:
           required: true
         - label: I am using the [latest stable version](https://pub.dev/packages/flutter_map) of this package
           required: true
-        - label: I have checked the [Common Issues](https://docs.fleaflet.dev/usage/common-issues) documentation page
+        - label: I have checked the FAQs section on the documentation website
           required: true
         - label: I have checked for similar issues which may be duplicates
           required: true
