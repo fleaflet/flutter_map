@@ -81,3 +81,15 @@ Takes a callback function, in the format `Widget Function(BuildContext context, 
 There is also `tilesContainerBuilder` available, which works slightly differently, but is recommended when the same builder can be used on every tile, for performance reasons.
 
 There are predefined tile builders available, such as a dark mode emulator and a loading time debugger.
+
+## Reset Stream (`reset:`)
+
+Takes a `Stream<void>?`,  that causes the layer to 'reset' when an event is received. This might be necessary after updating the `templateUrl`. For example:
+
+```dart
+       reset: resetController.stream,
+  
+  // Elsewhere     
+  final StreamController<void> resetController = StreamController.broadcast();
+  void resetMap() => resetController.add(null);
+```

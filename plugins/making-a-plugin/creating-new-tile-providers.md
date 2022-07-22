@@ -30,10 +30,9 @@ The majority of custom `TileProviders` will want to implement their own method t
             coords: coords,
             headers: {
                 ...headers,
-                'User-Agent': headers['User-Agent']?.replaceAll(
-                    'flutter_map',
-                    '<plugin name> for flutter_map',
-                ) ?? '<plugin name> for flutter_map (unknown)',
+                'User-Agent': headers['User-Agent'] == null
+                    ? '<pluginName> for flutter_map (unknown)'
+                    : '<pluginName> for ${headers['User-Agent']}',
             },
         );
 ```

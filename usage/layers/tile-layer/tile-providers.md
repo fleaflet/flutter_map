@@ -4,7 +4,7 @@ description: ... and Offline Mapping
 
 # Tile Providers
 
-The `tileProvider` parameter in `TileLayerOptions` takes a `TileProvider` object specifying a [tile provider](../../../getting-started/explanation.md#tile-providers) to use for that layer.
+The `tileProvider` parameter in `TileLayerOptions` takes a `TileProvider` object specifying a [tile provider](../../../getting-started/explanation/#tile-providers) to use for that layer.
 
 This has a default of `NetworkNoRetryTileProvider`, which is recommended for most setups for better performance, unless your tile server is especially unreliable, or you need a local tile provider.
 

@@ -1,13 +1,13 @@
 # Layers
 
-The `children` property takes a list of widgets, usually provided by this library, called 'layers'. The following pages detail how to use these layers. Multiple layers can be stacked on top of each other, to add other functionality on top of the basic map view.
+As briefly described in [#map-widget](../basics.md#map-widget "mention"), both the `children` and `layers` property take layers, but each works differently.
 
-Each layer is in the format `...LayerWidget`, and takes an `options` argument which must be a `...LayerOptions`.
+The `children` property takes a list of `Widget`s, which will be stacked on top of each other (last on top). These can be any `Widget`, such as a `FutureBuilder` or `StreamBuilder`, but are usually `LayerWidget`s which are provided by this library. `LayerWidget`s have the property `options`, which takes a `LayerOptions`.
 
-This widget format is useful, as other widgets can be wrapped around each layer, such as `FutureBuilder` or `StreamBuilder`, which are especially useful in non-tile layers.
+Alternatively, the `layers` property takes a list of `LayerOptions`, cutting out the `LayerWidget`. This was the older property available, and is no longer recommended for use. This is mainly because each `LayerOptions` cannot hold its own state, meaning a `setState()` call (or similar) will have to rebuild all layers, which is very inefficient.
+
+There are also `nonRotatedChildren` and `nonRotatedLayers` properties, which work similarly as their 'rotatable' counterpart, but - as the name suggests - do not get rotated as the map gets rotated. For example, the [`AttributionWidget`](attribution-layer.md) should be used inside `nonRotatedChildren` instead of `children`.
 
 {% hint style="info" %}
-Many of the subpages omit the `LayerWidget` and just demonstrate the `LayerOptions` inside a `layers` parameter.
-
-This used to be the recommended way of adding layers, and can still be used (will not be deprecated).
+Many subpages will use the `layers` property for simplicity and conciseness. To use the `children` property, just wrap each `LayerOptions` with its respective `LayerWidget`.
 {% endhint %}

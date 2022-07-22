@@ -26,7 +26,7 @@ Avoid creating large polylines, or polylines that cross the edges of the map, as
 {% endhint %}
 
 {% hint style="warning" %}
-Excessive use of polylines or use of complex polylines will create performance issues and lag/'jank' as the user interacts with the map. See [Performance Issues](../common-issues.md#performance-issues) for more information.
+Excessive use of polylines or use of complex polylines will create performance issues and lag/'jank' as the user interacts with the map. See [Performance Issues](../../faqs/late-initialization-errors.md#performance-issues) for more information.
 
 By default, `saveLayers` is set to `false` to improve performance as much as possible. However, this will make the appearance a little less 'satisfying' - overlapping lines will make the intersection appear darker. Only set to `true` is appearance matters more than performance.
 

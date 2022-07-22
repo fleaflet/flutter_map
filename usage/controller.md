@@ -26,12 +26,6 @@ FlutterMap(
 
 There are other ways to call initialise and assign the controller, but this is the recommended way.
 
-Should you run into issues, particularly about `LateInitializationError`, see the [Common Issues](common-issues.md) page.
-
 {% hint style="warning" %}
 Don't be tempted to specify this property inside the `MapOptions()`. Always specify it at the top level of a `FlutterMap()` widget.
-{% endhint %}
-
-{% hint style="warning" %}
-Avoid updating the state of `FlutterMap()`'s `options` through `setState()` (or similar), as it may cause glitches or unwanted functionality. Always use a controller wherever/whenever possible.
 {% endhint %}
