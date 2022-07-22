@@ -9,7 +9,8 @@ import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/map/map_state_widget.dart';
 import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
 
-class FlutterMapState extends MapGestureMixin {
+class FlutterMapState extends MapGestureMixin
+    with AutomaticKeepAliveClientMixin {
   final List<StreamGroup<void>> groups = <StreamGroup<void>>[];
   final _positionedTapController = PositionedTapController();
   MapController? _localController;
@@ -75,6 +76,7 @@ class FlutterMapState extends MapGestureMixin {
   @override
   Widget build(BuildContext context) {
     _disposeStreamGroups();
+    super.build(context);
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
       final hasLateSize = mapState.hasLateSize(constraints);
@@ -232,4 +234,7 @@ Can't find correct layer for $options. Perhaps when you create your FlutterMap y
 
     options: new MapOptions(plugins: [MyFlutterMapPlugin()])"""));
   }
+
+  @override
+  bool get wantKeepAlive => options.keepAlive;
 }

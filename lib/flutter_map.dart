@@ -290,6 +290,14 @@ class MapOptions {
   /// would represent the full extent of the map, so no gray area outside of it.
   final LatLngBounds? maxBounds;
 
+  /// Flag to enable the built in keep alive functionality
+  ///
+  /// If the map is within a complex layout, such as a [ListView] or [PageView],
+  /// the map will reset to it's inital position after it appears back into view.
+  /// To ensure this doesn't happen, enable this flag to prevent the [FlutterMap]
+  /// widget from rebuilding.
+  final bool keepAlive;
+
   _SafeArea? _safeAreaCache;
   double? _safeAreaZoom;
 
@@ -333,6 +341,7 @@ class MapOptions {
     this.swPanBoundary,
     this.nePanBoundary,
     this.maxBounds,
+    this.keepAlive = false,
   })  : center = center ?? LatLng(50.5, 30.51),
         assert(rotationThreshold >= 0.0),
         assert(pinchZoomThreshold >= 0.0),
