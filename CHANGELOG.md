@@ -1,6 +1,25 @@
 # Changelog
 
-## [2.1.0] - 2022/XX/XX
+## [2.1.1] - 2022/07/25
+
+Contains the following additions/removals:
+
+- None
+
+Contains the following bug fixes:
+
+- Removed a particularly illusive null-safety bug - [#1318](https://github.com/fleaflet/flutter_map/pull/1318)
+
+In other news:
+
+- None
+
+Many thanks to these contributors (in no particular order):
+
+- sergioisair (tested changed)
+- ... and all the maintainers
+
+## [2.1.0] - 2022/07/22
 
 Contains the following additions/removals:
 
