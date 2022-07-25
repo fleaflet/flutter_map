@@ -11,15 +11,20 @@ class OverlayImagePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var overlayImages = <OverlayImage>[
+    final topLeftCorner = LatLng(53.377, -2.999);
+    final bottomRightCorner = LatLng(53.475, 0.275);
+    final bottomLeftCorner = LatLng(52.503, -1.868);
+
+    final overlayImages = [
       OverlayImage(
           bounds: LatLngBounds(LatLng(51.5, -0.09), LatLng(48.8566, 2.3522)),
           opacity: 0.8,
           imageProvider: const NetworkImage(
               'https://images.pexels.com/photos/231009/pexels-photo-231009.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=300&w=600')),
-      OverlayImage(
-          bounds: LatLngBounds(LatLng(53.377, -2.999), LatLng(53.475, 0.275)),
-          rotationPoint: LatLng(52.503, -1.868),
+      RotatedOverlayImage(
+          topLeftCorner: topLeftCorner,
+          bottomLeftCorner: bottomLeftCorner,
+          bottomRightCorner: bottomRightCorner,
           opacity: 0.8,
           imageProvider: const NetworkImage(
               'https://images.pexels.com/photos/231009/pexels-photo-231009.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=300&w=600')),
@@ -49,7 +54,21 @@ class OverlayImagePage extends StatelessWidget {
                     subdomains: ['a', 'b', 'c'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   ),
-                  OverlayImageLayerOptions(overlayImages: overlayImages)
+                  OverlayImageLayerOptions(overlayImages: overlayImages),
+                  MarkerLayerOptions(markers: [
+                    Marker(
+                        point: topLeftCorner,
+                        builder: (context) => const _Circle(
+                            color: Colors.redAccent, label: "TL")),
+                    Marker(
+                        point: bottomLeftCorner,
+                        builder: (context) => const _Circle(
+                            color: Colors.redAccent, label: "BL")),
+                    Marker(
+                        point: bottomRightCorner,
+                        builder: (context) => const _Circle(
+                            color: Colors.redAccent, label: "BR")),
+                  ])
                 ],
               ),
             ),
@@ -57,5 +76,26 @@ class OverlayImagePage extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _Circle extends StatelessWidget {
+  final String label;
+  final Color color;
+
+  const _Circle({Key? key, required this.label, required this.color})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        child: Center(
+          child: Text(
+            label,
+            style: const TextStyle(
+                fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+        ));
   }
 }
