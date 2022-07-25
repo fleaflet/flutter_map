@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
-
-import '../widgets/drawer.dart';
 
 class HomePage extends StatelessWidget {
   static const String route = '/';
@@ -11,10 +10,10 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var markers = <Marker>[
+    final markers = <Marker>[
       Marker(
-        width: 80.0,
-        height: 80.0,
+        width: 80,
+        height: 80,
         point: LatLng(51.5, -0.09),
         builder: (ctx) => const FlutterLogo(
           textColor: Colors.blue,
@@ -22,8 +21,8 @@ class HomePage extends StatelessWidget {
         ),
       ),
       Marker(
-        width: 80.0,
-        height: 80.0,
+        width: 80,
+        height: 80,
         point: LatLng(53.3498, -6.2603),
         builder: (ctx) => const FlutterLogo(
           textColor: Colors.green,
@@ -31,8 +30,8 @@ class HomePage extends StatelessWidget {
         ),
       ),
       Marker(
-        width: 80.0,
-        height: 80.0,
+        width: 80,
+        height: 80,
         point: LatLng(48.8566, 2.3522),
         builder: (ctx) => const FlutterLogo(
           textColor: Colors.purple,
@@ -45,18 +44,18 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(title: const Text('Home')),
       drawer: buildDrawer(context, route),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8),
         child: Column(
           children: [
             const Padding(
-              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+              padding: EdgeInsets.only(top: 8, bottom: 8),
               child: Text('This is a map that is showing (51.5, -0.9).'),
             ),
             Flexible(
               child: FlutterMap(
                 options: MapOptions(
                   center: LatLng(51.5, -0.09),
-                  zoom: 5.0,
+                  zoom: 5,
                 ),
                 layers: [
                   TileLayerOptions(

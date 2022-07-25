@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
-
-import '../widgets/drawer.dart';
 
 class OfflineMapPage extends StatelessWidget {
   static const String route = '/offline_map';
@@ -15,11 +14,11 @@ class OfflineMapPage extends StatelessWidget {
       appBar: AppBar(title: const Text('Offline Map')),
       drawer: buildDrawer(context, route),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8),
         child: Column(
           children: [
             const Padding(
-              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+              padding: EdgeInsets.only(top: 8, bottom: 8),
               child: Text(
                   'This is an offline map that is showing Anholt Island, Denmark.'),
             ),
@@ -27,16 +26,16 @@ class OfflineMapPage extends StatelessWidget {
               child: FlutterMap(
                 options: MapOptions(
                   center: LatLng(56.704173, 11.543808),
-                  minZoom: 12.0,
-                  maxZoom: 14.0,
-                  zoom: 13.0,
+                  minZoom: 12,
+                  maxZoom: 14,
+                  zoom: 13,
                   swPanBoundary: LatLng(56.6877, 11.5089),
                   nePanBoundary: LatLng(56.7378, 11.6644),
                 ),
                 layers: [
                   TileLayerOptions(
                     tileProvider: AssetTileProvider(),
-                    maxZoom: 14.0,
+                    maxZoom: 14,
                     urlTemplate: 'assets/map/anholt_osmbright/{z}/{x}/{y}.png',
                   ),
                 ],

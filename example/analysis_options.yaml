@@ -1,4 +1,22 @@
 include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+  errors:
+    close_sinks: ignore
+    missing_required_param: error
+    missing_return: error
+
 linter:
   rules:
     library_private_types_in_public_api: false
+    prefer_final_locals: true
+    prefer_final_in_for_each: true
+    avoid_dynamic_calls: true
+    always_use_package_imports: true
+    type_annotate_public_apis: true
+    prefer_int_literals: true
+    use_named_constants: true

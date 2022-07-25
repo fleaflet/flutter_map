@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map_example/pages/zoombuttons_plugin_option.dart';
+import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
-
-import '../widgets/drawer.dart';
-import 'zoombuttons_plugin_option.dart';
 
 class PluginZoomButtons extends StatelessWidget {
   static const String route = '/plugin_zoombuttons';
@@ -16,14 +15,14 @@ class PluginZoomButtons extends StatelessWidget {
       appBar: AppBar(title: const Text('ZoomButtonsPlugins')),
       drawer: buildDrawer(context, PluginZoomButtons.route),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8),
         child: Column(
           children: [
             Flexible(
               child: FlutterMap(
                 options: MapOptions(
                   center: LatLng(51.5, -0.09),
-                  zoom: 5.0,
+                  zoom: 5,
                   plugins: [
                     ZoomButtonsPlugin(),
                   ],

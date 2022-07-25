@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
-
-import '../widgets/drawer.dart';
 
 class PluginPage extends StatelessWidget {
   static const String route = 'plugins';
@@ -15,14 +14,14 @@ class PluginPage extends StatelessWidget {
       appBar: AppBar(title: const Text('Plugins')),
       drawer: buildDrawer(context, PluginPage.route),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8),
         child: Column(
           children: [
             Flexible(
               child: FlutterMap(
                 options: MapOptions(
                   center: LatLng(51.5, -0.09),
-                  zoom: 5.0,
+                  zoom: 5,
                   plugins: [
                     MyCustomPlugin(),
                   ],
@@ -61,9 +60,9 @@ class MyCustomPlugin implements MapPlugin {
   Widget createLayer(
       LayerOptions options, MapState mapState, Stream<void> stream) {
     if (options is MyCustomPluginOptions) {
-      var style = const TextStyle(
+      const style = TextStyle(
         fontWeight: FontWeight.bold,
-        fontSize: 24.0,
+        fontSize: 24,
         color: Colors.red,
       );
       return Text(

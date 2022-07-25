@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
-
-import '../widgets/drawer.dart';
 
 class EPSG4326Page extends StatelessWidget {
   static const String route = 'EPSG4326 Page';
@@ -15,11 +14,11 @@ class EPSG4326Page extends StatelessWidget {
       appBar: AppBar(title: const Text('EPSG4326')),
       drawer: buildDrawer(context, route),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8),
         child: Column(
           children: [
             const Padding(
-              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+              padding: EdgeInsets.only(top: 8, bottom: 8),
               child: Text('This is a map that is showing (42.58, 12.43).'),
             ),
             Flexible(
@@ -28,7 +27,7 @@ class EPSG4326Page extends StatelessWidget {
                   minZoom: 0,
                   crs: const Epsg4326(),
                   center: LatLng(0, 0),
-                  zoom: 0.0,
+                  zoom: 0,
                 ),
                 layers: [
                   TileLayerOptions(

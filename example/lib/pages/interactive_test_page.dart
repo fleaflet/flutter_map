@@ -2,9 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
-
-import '../widgets/drawer.dart';
 
 class InteractiveTestPage extends StatefulWidget {
   static const String route = 'interactive_test_page';
@@ -63,7 +62,7 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
       appBar: AppBar(title: const Text('Test out Interactive flags!')),
       drawer: buildDrawer(context, InteractiveTestPage.route),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8),
         child: Column(
           children: [
             Row(
@@ -147,7 +146,7 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
               ],
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+              padding: const EdgeInsets.only(top: 8, bottom: 8),
               child: Center(
                 child: StreamBuilder<MapEvent>(
                   stream: mapController.mapEventStream,
@@ -173,7 +172,7 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                 mapController: mapController,
                 options: MapOptions(
                   center: LatLng(51.5, -0.09),
-                  zoom: 11.0,
+                  zoom: 11,
                   interactiveFlags: flags,
                 ),
                 layers: [

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
-
-import '../widgets/drawer.dart';
 
 class LiveLocationPage extends StatefulWidget {
   static const String route = '/live_location';
@@ -24,7 +23,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
 
   String? _serviceError = '';
 
-  var interActiveFlags = InteractiveFlag.all;
+  int interActiveFlags = InteractiveFlag.all;
 
   final Location _locationService = Location();
 
@@ -49,7 +48,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
       serviceEnabled = await _locationService.serviceEnabled();
 
       if (serviceEnabled) {
-        var permission = await _locationService.requestPermission();
+        final permission = await _locationService.requestPermission();
         _permission = permission == PermissionStatus.granted;
 
         if (_permission) {
@@ -103,10 +102,10 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
       currentLatLng = LatLng(0, 0);
     }
 
-    var markers = <Marker>[
+    final markers = <Marker>[
       Marker(
-        width: 80.0,
-        height: 80.0,
+        width: 80,
+        height: 80,
         point: currentLatLng,
         builder: (ctx) => const FlutterLogo(
           textColor: Colors.blue,
@@ -119,11 +118,11 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
       appBar: AppBar(title: const Text('Home')),
       drawer: buildDrawer(context, LiveLocationPage.route),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8),
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+              padding: const EdgeInsets.only(top: 8, bottom: 8),
               child: _serviceError!.isEmpty
                   ? Text('This is a map that is showing '
                       '(${currentLatLng.latitude}, ${currentLatLng.longitude}).')
@@ -137,7 +136,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                 options: MapOptions(
                   center:
                       LatLng(currentLatLng.latitude, currentLatLng.longitude),
-                  zoom: 5.0,
+                  zoom: 5,
                   interactiveFlags: interActiveFlags,
                 ),
                 layers: [

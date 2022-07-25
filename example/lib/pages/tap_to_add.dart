@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
-
-import '../widgets/drawer.dart';
 
 class TapToAddPage extends StatefulWidget {
   static const String route = '/tap';
@@ -21,10 +20,10 @@ class TapToAddPageState extends State<TapToAddPage> {
 
   @override
   Widget build(BuildContext context) {
-    var markers = tappedPoints.map((latlng) {
+    final markers = tappedPoints.map((latlng) {
       return Marker(
-        width: 80.0,
-        height: 80.0,
+        width: 80,
+        height: 80,
         point: latlng,
         builder: (ctx) => const FlutterLogo(),
       );
@@ -34,18 +33,18 @@ class TapToAddPageState extends State<TapToAddPage> {
       appBar: AppBar(title: const Text('Tap to add pins')),
       drawer: buildDrawer(context, TapToAddPage.route),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8),
         child: Column(
           children: [
             const Padding(
-              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+              padding: EdgeInsets.only(top: 8, bottom: 8),
               child: Text('Tap to add pins'),
             ),
             Flexible(
               child: FlutterMap(
                 options: MapOptions(
                     center: LatLng(45.5231, -122.6765),
-                    zoom: 13.0,
+                    zoom: 13,
                     onTap: _handleTap),
                 layers: [
                   TileLayerOptions(
