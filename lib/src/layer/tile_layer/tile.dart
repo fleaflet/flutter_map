@@ -63,9 +63,7 @@ class Tile {
   void dispose([bool evict = false]) {
     if (evict) {
       try {
-        // ignore: return_type_invalid_for_catch_error
-        // ignore: implicit_dynamic_parameter
-        imageProvider.evict().catchError((e) {
+        imageProvider.evict().catchError((Object e) {
           debugPrint(e.toString());
         });
       } catch (e) {

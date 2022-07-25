@@ -29,7 +29,6 @@ class FMNetworkNoRetryImageProvider
     FMNetworkNoRetryImageProvider key,
     DecoderCallback decode,
   ) {
-    //ignore: close_sinks
     final StreamController<ImageChunkEvent> chunkEvents =
         StreamController<ImageChunkEvent>();
 

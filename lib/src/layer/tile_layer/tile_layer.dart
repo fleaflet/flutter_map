@@ -59,8 +59,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   Tuple2<double, double>? _wrapY;
   double? _tileZoom;
 
-  StreamSubscription? _moveSub;
-  StreamSubscription? _resetSub;
+  StreamSubscription<dynamic>? _moveSub;
+  StreamSubscription<dynamic>? _resetSub;
   StreamController<LatLng?>? _throttleUpdate;
   late CustomPoint _tileSize;
 

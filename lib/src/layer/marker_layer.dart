@@ -85,7 +85,7 @@ class Anchor {
     }
   }
 
-  factory Anchor.forPos(AnchorPos? pos, double width, double height) {
+  factory Anchor.forPos(AnchorPos<dynamic>? pos, double width, double height) {
     if (pos == null) return Anchor._(width, height, AnchorAlign.none);
     if (pos.value is AnchorAlign) {
       return Anchor._(width, height, pos.value as AnchorAlign);
@@ -98,8 +98,9 @@ class Anchor {
 class AnchorPos<T> {
   AnchorPos._(this.value);
   T value;
-  static AnchorPos exactly(Anchor anchor) => AnchorPos<Anchor>._(anchor);
-  static AnchorPos align(AnchorAlign alignOpt) =>
+  static AnchorPos<dynamic> exactly(Anchor anchor) =>
+      AnchorPos<Anchor>._(anchor);
+  static AnchorPos<dynamic> align(AnchorAlign alignOpt) =>
       AnchorPos<AnchorAlign>._(alignOpt);
 }
 
@@ -161,7 +162,7 @@ class Marker {
     this.rotate,
     this.rotateOrigin,
     this.rotateAlignment,
-    AnchorPos? anchorPos,
+    AnchorPos<dynamic>? anchorPos,
   }) : anchor = Anchor.forPos(anchorPos, width, height);
 }
 
