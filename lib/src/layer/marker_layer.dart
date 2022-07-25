@@ -98,9 +98,9 @@ class Anchor {
 class AnchorPos<T> {
   AnchorPos._(this.value);
   T value;
-  static AnchorPos<dynamic> exactly(Anchor anchor) =>
+  static AnchorPos<Anchor> exactly(Anchor anchor) =>
       AnchorPos<Anchor>._(anchor);
-  static AnchorPos<dynamic> align(AnchorAlign alignOpt) =>
+  static AnchorPos<AnchorAlign> align(AnchorAlign alignOpt) =>
       AnchorPos<AnchorAlign>._(alignOpt);
 }
 
