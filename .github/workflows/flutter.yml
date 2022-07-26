@@ -13,13 +13,9 @@ jobs:
     name: "Analyze and test"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v1
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
       - run: flutter pub get
-      - run: dart format --output=none --set-exit-if-changed .
-      - run: dart analyze --fatal-infos --fatal-warnings
-      - run: flutter test -r expanded
-#      - uses: actions/setup-java@v1
-#        with:
-#          java-version: '12.x'
-
+      - run: flutter format --output=none --set-exit-if-changed .
+      - run: flutter analyze --fatal-infos --fatal-warnings
+      - run: flutter test --no-pub -r expanded
