@@ -2,7 +2,7 @@
 
 ## URL Template (`urlTemplate:`)
 
-_This parameter is not strictly required, but the map is essential useless without it specified to a valid URL._
+_This parameter is not strictly required, but the map is essentially useless without it specified with a valid URL._
 
 Takes a string that is a valid URL, which is the template to use when the tile provider constructs the URL to request a tile from a tile server. For example:
 
@@ -10,7 +10,7 @@ Takes a string that is a valid URL, which is the template to use when the tile p
         urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
 ```
 
-...will use the default OpenStreetMap tile server. If using this tile server, you must conform to their [Terms of Service](https://operations.osmfoundation.org/policies/tiles/).
+will use the default OpenStreetMap tile server. If using this tile server, you must conform to their [Terms of Service](https://operations.osmfoundation.org/policies/tiles/).
 
 The '{s}', '{z}', '{x}' & '{y}' parts indicate where to place the subdomain, zoom level, x coordinate, and y coordinate respectively. Not providing at least the latter 3 parts won't necessarily throw an error, but the map won't show anything.
 
@@ -47,5 +47,5 @@ If `true`, the providers should request four tiles of half the specified size an
 For example, this is the recommended setup:
 
 ```dart
-        retinaMode: true && MediaQuery.of(context).devicePixelRatio > 1.0,
+        retinaMode: MediaQuery.of(context).devicePixelRatio > 1.0,
 ```

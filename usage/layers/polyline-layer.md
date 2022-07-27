@@ -26,13 +26,13 @@ Avoid creating large polylines, or polylines that cross the edges of the map, as
 {% endhint %}
 
 {% hint style="warning" %}
-Excessive use of polylines or use of complex polylines will create performance issues and lag/'jank' as the user interacts with the map. See [Performance Issues](../../faqs/late-initialization-errors.md#performance-issues) for more information.
+Excessive use of polylines or use of complex polylines will create performance issues and lag/'jank' as the user interacts with the map. See [performance-issues.md](../../faqs/performance-issues.md "mention") for more information.
 
-By default, `saveLayers` is set to `false` to improve performance as much as possible. However, this will make the appearance a little less 'satisfying' - overlapping lines will make the intersection appear darker. Only set to `true` is appearance matters more than performance.
+You can try the below methods to try to reduce the lag:
 
-You may also use `polylineCulling` to help improve performance, although this may make the performance worse in some cases.
-
-Another potential solution is simplifying the polyline, perhaps using an external Flutter library ['simplify'](https://pub.dev/packages/simplify).
+* Keep `saveLayers` set to `false` (which is default). This will reduce rendering times, however it will also reduce the visual quality of the line at intersections.
+* Enable `polylineCulling`. This will prevent the calculation and rendering of lines outside of the current viewport, however this may not work as expected in all situations.
+* Simplify the polyline by reducing the number of points within it. This will reduce calculation times, however it will make the line less precise. This is recommended, for example, when zoomed further out. You may be able to use an external Flutter library for this, called ['simplify'](https://pub.dev/packages/simplify).
 {% endhint %}
 
 ## Polylines (`polylines:`)

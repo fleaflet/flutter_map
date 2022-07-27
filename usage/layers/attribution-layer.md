@@ -26,4 +26,4 @@ The default builder, as shown above, can be used to get a classic attribution bo
 
 ## Custom Builder
 
-Alternatively, create your own box from scratch by omitting the `defaultWidget` constructor from the widget.
+Alternatively, create your own box from scratch by omitting the `defaultWidget` constructor from the widget. Then you can build a custom widget as you would normally.

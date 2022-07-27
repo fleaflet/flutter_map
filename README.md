@@ -54,7 +54,7 @@ Through `WMSOptions`, you can use any WMS raster tile server, such as those prov
 
 If you have a local set of raster tiles, we support displaying those as well, with no complicated setup.
 
-Vector tile support is not built in, but it is supported in beta by a plugin! See the full [Plugins List](plugins/list.md) for more information.
+Vector tile support is not built in, but it is supported in beta by a plugin! See the full [list.md](plugins/list.md "mention") for more information.
 
 </details>
 
@@ -76,7 +76,7 @@ Can't find what you need built in? There's probably a plugin for that!
 
 From tracking the user's location to caching tiles for offline use, this is all supported by 3rd party plugins!
 
-See the full [Plugins List](plugins/list.md) for more information.
+See the full [list.md](plugins/list.md "mention") for more information.
 
 </details>
 
@@ -84,7 +84,7 @@ See the full [Plugins List](plugins/list.md) for more information.
 
 <summary>Supports Markers, Polygons, and Polylines Properly</summary>
 
-... and none of that complicated, confusing setup you need with the Google Maps package either. Just needs a normal widget builder or some coordinates, and nothing else.
+... and has none of that complicated, confusing setup you need with the Google Maps package either. Just needs a normal widget builder or some coordinates, and nothing else.
 
 Using these is simple and quick, and the power of Flutter's `StreamBuilder` can make all of these a truly dynamic solution.
 

@@ -1,6 +1,6 @@
 # Credits
 
-Thanks to everyone who has contributed to flutter\_map, you've helped make it one of the most popular mapping solutions for Flutter! If you want to contribute, see the [Contribution](contributing.md) instructions.
+Thanks to everyone who has contributed to flutter\_map, you've helped make it one of the most popular mapping solutions for Flutter! If you want to contribute, see the [contributing.md](contributing.md "mention") instructions.
 
 In particular, thanks go to:
 
@@ -14,4 +14,4 @@ In particular, thanks go to:
   * 'JaffaKetchup'
   * 'themisir'
   * 'comatory'
-* Anyone who has made plugins for flutter\_map, see the [Plugins List](plugins/list.md)
+* Anyone who has made plugins for flutter\_map, see the [list.md](plugins/list.md "mention")

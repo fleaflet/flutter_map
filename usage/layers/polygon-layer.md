@@ -26,9 +26,9 @@ Avoid creating large polygons, or polygons that cross the edges of the map, as t
 {% endhint %}
 
 {% hint style="warning" %}
-Excessive use of polygons or use of complex polygons will create performance issues and lag/'jank' as the user interacts with the map. See [Performance Issues](../../faqs/late-initialization-errors.md#performance-issues) for more information.
+Excessive use of polygons or use of complex polygons will create performance issues and lag/'jank' as the user interacts with the map. See [performance-issues.md](../../faqs/performance-issues.md "mention") for more information.
 
-To improve performance, try enabling `polygonCulling`. This should remove polygons that are out of sight, but should only be used when necessary as enabling this can further reduce performance when used unnecessarily.
+To improve performance, try enabling `polygonCulling`. This will prevent the calculation and rendering of polygons outside of the current viewport, however this may not work as expected in all situations.
 {% endhint %}
 
 ## Polygons (`polygons:`)

@@ -36,7 +36,7 @@ Takes a `LatLngBounds` to restrict the layer to only loading tiles within that a
         ),
 ```
 
-...will restrict the tiles to only loading Egypt (a square-ish country). Note that the map can still be moved freely outside of this range.
+will restrict the tiles to only loading Egypt (a square-ish country). Note that the map can still be moved freely outside of this range.
 
 An example use-case might therefore be loading a specialised map for a region and just a basic map style elsewhere (different `urlTemplate`s). In this case, the bounded layer should go beneath the unbounded layer. Setting `backgroundColor: Colors.transparent` is also necessary on the bounded layer to ensure the other layer is visible elsewhere.
 
@@ -48,7 +48,7 @@ Takes an `ImageProvider`, such as a `NetworkImage`, to use if the tile cannot be
         errorImage: const NetworkImage('https://tile.openstreetmap.org/18/0/0.png'),
 ```
 
-...will use a sea tile on every tile that cannot be fetched.
+will use a sea tile on every tile that cannot be fetched.
 
 This is an optional parameter that has no default. If this is not specified, and tiles are unable to be fetched, then the background color.
 
@@ -76,7 +76,7 @@ Takes a callback function, in the format `Widget Function(BuildContext context, 
           );
 ```
 
-...will show the tile's coordinate on the tile.
+will show the tile's coordinate on the tile.
 
 There is also `tilesContainerBuilder` available, which works slightly differently, but is recommended when the same builder can be used on every tile, for performance reasons.
 

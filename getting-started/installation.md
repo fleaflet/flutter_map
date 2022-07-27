@@ -6,8 +6,8 @@ This is the recommended method of installing this package as it ensures you only
 
 Just import the package as you would normally, from the command line:
 
-```
-> flutter pub add flutter_map
+```shell
+flutter pub add flutter_map
 ```
 
 {% hint style="success" %}
@@ -19,10 +19,10 @@ This should automatically import the latest version of the package and create an
 If you urgently need the latest version, a specific branch, or a specific fork, you can use this method.
 
 {% hint style="warning" %}
-Any bugs that get to the 'main' branch will get through to you immediately. Therefore, only use this method if you have no alternative
+Commits available from Git (GitHub) may not be stable. Only use this method if you have no other choice.
 {% endhint %}
 
-Add the following lines to your pubspec.yaml file under the 'dependencies\_override' section:
+Add the following lines to your pubspec.yaml file, as a root object:
 
 {% code title="pubspec.yaml" %}
 ```yaml

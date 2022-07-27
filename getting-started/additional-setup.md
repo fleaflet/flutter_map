@@ -8,8 +8,10 @@ It is recommended to also [install 'latlong2'](https://pub.dev/packages/latlong2
 
 On Android, additional setup may be required. To access the Internet to reach tile servers, ensure your app is configured to use the INTERNET permission. Check (if necessary add) the following lines in the manifest file located at/android/app/src/main/AndroidManifest.xml:
 
+{% code title="AndroidManifest.xml" %}
 ```xml
 <uses-permission android:name="android.permission.INTERNET"/>
 ```
+{% endcode %}
 
 You may also need to do this in any other applicable manifests, such as the debug one, if not already in there.

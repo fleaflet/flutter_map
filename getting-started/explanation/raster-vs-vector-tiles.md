@@ -20,10 +20,8 @@ Vector tiles can be considered the 'newer' standard. These images might contain 
 
 However it does add complexity to the rendering process as each element needs to be parsed and painted individually, meaning an impact to performance. Text elements and certain shapes can also be rotated (unlike raster tiles) to match the user's orientation, not the orientation of the map; but calculating this rotation needs to be done every frame, meaning an even larger impact on performance.
 
-## Using Vector Tiles
+### Using Vector Tiles
 
 Due to the complications mentioned above, 'flutter\_map' does not natively support vector tiles. However, you can use an existing [community maintained plugin (`vector_map_tiles`)](https://github.com/greensopinion/flutter-vector-map-tiles) to do this.
 
 The plugin also supports 'mixed' mode to get the best of both worlds: using raster images during animations to improve performance, and vector rendering to provide sharp visuals and custom theming when idle.
-
-The example tile servers given use Raster Tiles.

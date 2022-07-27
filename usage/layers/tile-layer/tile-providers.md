@@ -18,6 +18,8 @@ Whilst not on the web, network tile providers can take a custom `HttpClient`/`Re
 
 ### `NetworkNoRetryTileProvider()`&#x20;
 
+This is the default tile provider.
+
 This tile provider uses the `templateUrl` to get the appropriate tile from the Internet, and it won't retry the request if it fails.
 
 There is no guarantee about the default caching behaviour, but tiles should be cached until an application restart.
@@ -40,13 +42,15 @@ This tile providers uses the `templateUrl` to get the appropriate tile from the 
 
 This tile providers uses the `templateUrl` to get the appropriate tile from the a path/directory/file on the user's device - either internal application storage or external storage.
 
+{% hint style="warning" %}
 On the web, `FileTileProvider()` will automatically use `NetworkImage()` behind the scenes. This is not recommended. If you know you are running on the web platform, avoid using this tile provider.
+{% endhint %}
 
 ## Offline Mapping
 
 ### Bundled Map Tiles
 
-If you have a set of custom raster tiles that you need to provide to all your users, you may want to consider bundling them together, to make a them easier to deploy to your users. Note that this is different to the [Caching](tile-providers.md#caching) section below.
+If you have a set of custom raster tiles that you need to provide to all your users, you may want to consider bundling them together, to make a them easier to deploy to your users. Note that this is different to the [#caching](tile-providers.md#caching "mention") section below.
 
 There is essentially two options for doing this:
 
@@ -61,4 +65,4 @@ If you have a raster-format .mbtiles file, for example from TileMill, you should
 
 Solutions for better, more reliable, dynamic caching can either be built yourself using other packages (such as '[cached\_network\_image](https://pub.dev/packages/cached\_network\_image)'), or by using an existing [community maintained plugin (`flutter_map_tile_caching`)](https://github.com/JaffaKetchup/flutter\_map\_tile\_caching) which handles caching and statistics for you, as well as offering methods to bulk download areas of maps.
 
-If you prefer to offer a set of map tiles to all your users before runtime, consider using the [Offline Maps](tile-providers.md#undefined) solution instead.
+If you prefer to offer a set of map tiles to all your users before runtime, consider using the [#bundled-map-tiles](tile-providers.md#bundled-map-tiles "mention") solution instead.
