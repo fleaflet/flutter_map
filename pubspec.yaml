@@ -1,6 +1,6 @@
 name: flutter_map
 description: A versatile mapping package for Flutter, based off leaflet.js, that's simple and easy to learn, yet completely customizable and configurable.
-version: 2.1.1
+version: 2.2.0
 repository: https://github.com/fleaflet/flutter_map
 documentation: https://docs.fleaflet.dev
 
