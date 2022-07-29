@@ -89,7 +89,8 @@ class FMNetworkNoRetryImageProvider
       return decode(bytes);
     } catch (e) {
       scheduleMicrotask(() {
-        _ambiguate(PaintingBinding.instance)?.imageCache.evict(key);
+        _ambiguate(_ambiguate(PaintingBinding.instance)?.imageCache)
+            ?.evict(key);
       });
       rethrow;
     } finally {
