@@ -14,7 +14,7 @@ class OverlayImagePage extends StatelessWidget {
     final bottomRightCorner = LatLng(53.475, 0.275);
     final bottomLeftCorner = LatLng(52.503, -1.868);
 
-    final overlayImages = <OverlayImage>[
+    final overlayImages = <BaseOverlayImage>[
       OverlayImage(
           bounds: LatLngBounds(LatLng(51.5, -0.09), LatLng(48.8566, 2.3522)),
           opacity: 0.8,
