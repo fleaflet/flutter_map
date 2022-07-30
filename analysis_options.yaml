@@ -6,7 +6,6 @@ analyzer:
     strict-inference: true
     strict-raw-types: true
   errors:
-    close_sinks: ignore
     missing_required_param: error
     missing_return: error
 
