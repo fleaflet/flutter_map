@@ -11,10 +11,18 @@ analyzer:
 
 linter:
   rules:
-    prefer_final_locals: true
-    prefer_final_in_for_each: true
-    avoid_dynamic_calls: true
+    always_declare_return_types: true
     always_use_package_imports: true
-    type_annotate_public_apis: true
+    avoid_dynamic_calls: true
+    cancel_subscriptions: true
+    close_sinks: true
+    package_api_docs: true
+    prefer_constructors_over_static_methods: true
+    prefer_final_in_for_each: true
+    prefer_final_locals: true
     prefer_int_literals: true
+    test_types_in_equals: true
+    throw_in_finally: true
+    type_annotate_public_apis: true
+    unnecessary_statements: true
     use_named_constants: true
