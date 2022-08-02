@@ -81,39 +81,20 @@ class MapControllerImpl implements MapController {
   }
 
   @override
+  CustomPoint latLngToScreenPoint(LatLng latLng) {
+    return _state.latLngToScreenPoint(latLng);
+  }
+
+  @override
   LatLng? pointToLatLng(CustomPoint localPoint) {
-    if (_state.originalSize == null) {
-      return null;
-    }
-
-    final width = _state.originalSize!.x;
-    final height = _state.originalSize!.y;
-
-    final localPointCenterDistance =
-        CustomPoint((width / 2) - localPoint.x, (height / 2) - localPoint.y);
-    final mapCenter =
-        _state.options.crs.latLngToPoint(_state.center, _state.zoom);
-
-    var point = mapCenter - localPointCenterDistance;
-
-    if (_state.rotation != 0.0) {
-      point = rotatePoint(mapCenter, point);
-    }
-
-    return _state.options.crs.pointToLatLng(point, _state.zoom);
+    return _state.pointToLatLng(localPoint);
   }
 
   CustomPoint<num> rotatePoint(
-      CustomPoint<num> mapCenter, CustomPoint<num> point) {
-    final m = Matrix4.identity()
-      ..translate(mapCenter.x.toDouble(), mapCenter.y.toDouble())
-      ..rotateZ(-_state.rotationRad)
-      ..translate(-mapCenter.x.toDouble(), -mapCenter.y.toDouble());
-
-    final tp = MatrixUtils.transformPoint(
-        m, Offset(point.x.toDouble(), point.y.toDouble()));
-
-    return CustomPoint(tp.dx, tp.dy);
+      CustomPoint<num> mapCenter, CustomPoint<num> point,
+      {bool counterRotation = true}) {
+    return _state.rotatePoint(mapCenter, point,
+        counterRotation: counterRotation);
   }
 
   @override
@@ -646,6 +627,64 @@ class MapState {
     }
 
     return newCenter;
+  }
+
+  // This will convert a latLng to a position that we could use with a widget
+  // outside of FlutterMap layer space. Eg using a Positioned Widget.
+  CustomPoint latLngToScreenPoint(LatLng latLng) {
+    final nonRotatedPixelOrigin =
+        (project(getCenter(), zoom) - originalSize! / 2.0).round();
+
+    var point = options.crs.latLngToPoint(latLng, zoom);
+
+    final mapCenter = options.crs.latLngToPoint(center, zoom);
+
+    if (rotation != 0.0) {
+      point = rotatePoint(mapCenter, point, counterRotation: false);
+    }
+
+    return point - nonRotatedPixelOrigin;
+  }
+
+  LatLng? pointToLatLng(CustomPoint localPoint) {
+    if (originalSize == null) {
+      return null;
+    }
+
+    final width = originalSize!.x;
+    final height = originalSize!.y;
+
+    final localPointCenterDistance =
+        CustomPoint((width / 2) - localPoint.x, (height / 2) - localPoint.y);
+    final mapCenter = options.crs.latLngToPoint(center, zoom);
+
+    var point = mapCenter - localPointCenterDistance;
+
+    if (rotation != 0.0) {
+      point = rotatePoint(mapCenter, point);
+    }
+
+    return options.crs.pointToLatLng(point, zoom);
+  }
+
+  // Sometimes we need to make allowances that a rotation already exists, so
+  // it needs to be reversed (pointToLatLng), and sometimes we want to use
+  // the same rotation to create a new position (latLngToScreenpoint).
+  // counterRotation just makes allowances this for this.
+  CustomPoint<num> rotatePoint(
+      CustomPoint<num> mapCenter, CustomPoint<num> point,
+      {bool counterRotation = true}) {
+    final counterRotationFactor = counterRotation ? -1 : 1;
+
+    final m = Matrix4.identity()
+      ..translate(mapCenter.x.toDouble(), mapCenter.y.toDouble())
+      ..rotateZ(rotationRad * counterRotationFactor)
+      ..translate(-mapCenter.x.toDouble(), -mapCenter.y.toDouble());
+
+    final tp = MatrixUtils.transformPoint(
+        m, Offset(point.x.toDouble(), point.y.toDouble()));
+
+    return CustomPoint(tp.dx, tp.dy);
   }
 
   static MapState? maybeOf(BuildContext context, {bool nullOk = false}) {

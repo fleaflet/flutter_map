@@ -8,6 +8,7 @@ import 'package:flutter_map_example/pages/epsg4326_crs.dart';
 import 'package:flutter_map_example/pages/esri.dart';
 import 'package:flutter_map_example/pages/home.dart';
 import 'package:flutter_map_example/pages/interactive_test_page.dart';
+import 'package:flutter_map_example/pages/latlng_to_screen_point.dart';
 import 'package:flutter_map_example/pages/live_location.dart';
 import 'package:flutter_map_example/pages/many_markers.dart';
 import 'package:flutter_map_example/pages/map_controller.dart';
@@ -261,6 +262,8 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
             MapInsideListViewPage.route, currentRoute),
         _buildMenuItem(context, const Text('Point to LatLng'),
             PointToLatLngPage.route, currentRoute),
+        _buildMenuItem(context, const Text('LatLng to ScreenPoint'),
+            LatLngScreenPointTestPage.route, currentRoute),
       ],
     ),
   );
