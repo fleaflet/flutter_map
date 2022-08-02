@@ -1,4 +1,3 @@
-import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:flutter/gestures.dart';
@@ -61,16 +60,6 @@ class FlutterMapState extends MapGestureMixin
     _localController?.dispose();
 
     super.dispose();
-  }
-
-  Stream<void> _merge(LayerOptions options) {
-    if (options.rebuild == null) return mapState.onMoved;
-
-    final group = StreamGroup<void>();
-    group.add(mapState.onMoved);
-    group.add(options.rebuild!);
-    groups.add(group);
-    return group.stream;
   }
 
   @override
@@ -178,10 +167,6 @@ class FlutterMapState extends MapGestureMixin
               child: Stack(
                 children: [
                   if (widget.children.isNotEmpty) ...widget.children,
-                  if (widget.layers.isNotEmpty)
-                    ...widget.layers.map(
-                      (layer) => _createLayer(layer, options.plugins),
-                    )
                 ],
               ),
             ),
@@ -190,49 +175,11 @@ class FlutterMapState extends MapGestureMixin
             children: [
               if (widget.nonRotatedChildren.isNotEmpty)
                 ...widget.nonRotatedChildren,
-              if (widget.nonRotatedLayers.isNotEmpty)
-                ...widget.nonRotatedLayers.map(
-                  (layer) => _createLayer(layer, options.plugins),
-                )
             ],
           ),
         ],
       ),
     );
-  }
-
-  Widget _createLayer(LayerOptions options, List<MapPlugin> plugins) {
-    for (final plugin in plugins) {
-      if (plugin.supportsLayer(options)) {
-        return plugin.createLayer(options, mapState, _merge(options));
-      }
-    }
-    if (options is TileLayerOptions) {
-      return TileLayer(
-          options: options, mapState: mapState, stream: _merge(options));
-    }
-    if (options is MarkerLayerOptions) {
-      return MarkerLayer(options, mapState, _merge(options));
-    }
-    if (options is PolylineLayerOptions) {
-      return PolylineLayer(options, mapState, _merge(options));
-    }
-    if (options is PolygonLayerOptions) {
-      return PolygonLayer(options, mapState, _merge(options));
-    }
-    if (options is CircleLayerOptions) {
-      return CircleLayer(options, mapState, _merge(options));
-    }
-    if (options is GroupLayerOptions) {
-      return GroupLayer(options, mapState, _merge(options));
-    }
-    if (options is OverlayImageLayerOptions) {
-      return OverlayImageLayer(options, mapState, _merge(options));
-    }
-    throw (StateError("""
-Can't find correct layer for $options. Perhaps when you create your FlutterMap you need something like this:
-
-    options: new MapOptions(plugins: [MyFlutterMapPlugin()])"""));
   }
 
   @override

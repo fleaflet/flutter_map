@@ -15,7 +15,6 @@ import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/gestures/interactive_flag.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
-import 'package:flutter_map/src/layer/layer.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/plugins/plugin.dart';
@@ -30,7 +29,6 @@ export 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
 export 'package:flutter_map/src/layer/attribution_layer.dart';
 export 'package:flutter_map/src/layer/circle_layer.dart';
 export 'package:flutter_map/src/layer/group_layer.dart';
-export 'package:flutter_map/src/layer/layer.dart';
 export 'package:flutter_map/src/layer/marker_layer.dart';
 export 'package:flutter_map/src/layer/overlay_image_layer.dart';
 export 'package:flutter_map/src/layer/polygon_layer.dart';
@@ -52,20 +50,6 @@ export 'package:flutter_map/src/plugins/plugin.dart';
 ///
 /// Through [MapOptions] map's callbacks and properties can be defined.
 class FlutterMap extends StatefulWidget {
-  /// A set of layers' options to used to create the layers on the map.
-  ///
-  /// Usually a list of [TileLayerOptions], [MarkerLayerOptions] and
-  /// [PolylineLayerOptions].
-  ///
-  /// These layers will render above [children]
-  final List<LayerOptions> layers;
-
-  /// These layers won't be rotated.
-  /// Usually these are plugins which are floating above [layers]
-  ///
-  /// These layers will render above [nonRotatedChildren]
-  final List<LayerOptions> nonRotatedLayers;
-
   /// A set of layers' widgets to used to create the layers on the map.
   final List<Widget> children;
 
@@ -85,8 +69,6 @@ class FlutterMap extends StatefulWidget {
   const FlutterMap({
     Key? key,
     required this.options,
-    this.layers = const [],
-    this.nonRotatedLayers = const [],
     this.children = const [],
     this.nonRotatedChildren = const [],
     this.mapController,
