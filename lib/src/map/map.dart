@@ -377,15 +377,19 @@ class MapState {
     }
 
     // Try and fit the corners of the map inside the visible area.
-    // If it's still outside (so response is null), don't perform a move.
+    // If it's still outside (so response is null), Adjust zoom to either fit
+    // the options.maxZoom or do a best approx center with grey boundaries to
+    // avoid center never being set.
     if (options.maxBounds != null) {
-      final adjustedCenter =
+      LatLng? adjustedCenter =
           adjustCenterIfOutsideMaxBounds(center, zoom, options.maxBounds!);
       if (adjustedCenter == null) {
-        return false;
-      } else {
-        center = adjustedCenter;
+        final centerZoom = getBoundsCenterZoom(options.maxBounds!,
+            FitBoundsOptions(inside: true, maxZoom: options.maxZoom ?? 17));
+        adjustedCenter = centerZoom.center;
+        zoom = centerZoom.zoom;
       }
+      center = adjustedCenter;
     }
 
     _handleMoveEmit(center, zoom, hasGesture, source, id);
