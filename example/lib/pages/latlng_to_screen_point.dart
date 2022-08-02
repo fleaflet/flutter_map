@@ -6,7 +6,6 @@ import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong2/latlong.dart';
 
-
 class LatLngScreenPointTestPage extends StatefulWidget {
   static const String route = 'latlng_screen_point_test_page';
 
