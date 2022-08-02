@@ -1,5 +1,27 @@
 # Changelog
 
+## [2.2.0] - 2022/XX/XX
+
+Contains the following additions/removals:
+
+- Added `RotatedOverlayImage` which supports image rotation and skewing by specifying a 3rd point - [#1315](https://github.com/fleaflet/flutter_map/pull/1315)
+- Added `latLngToScreenPoint` and refactored `pointToLatLng` - [#1330](https://github.com/fleaflet/flutter_map/pull/1330)
+
+Contains the following bug fixes:
+
+- Removed a particularly illusive null-safety bug - [#1323](https://github.com/fleaflet/flutter_map/pull/1323)
+
+In other news:
+
+- Internal lints have been improved - [#1319](https://github.com/fleaflet/flutter_map/pull/1319)
+- GitHub Actions have been improved - [#1323](https://github.com/fleaflet/flutter_map/pull/1323)
+
+Many thanks to these contributors (in no particular order):
+
+- @Robbendebiene
+- @lsaudon
+- ... and all the maintainers
+
 ## [2.1.1] - 2022/07/25
 
 Contains the following additions/removals:
@@ -16,7 +38,7 @@ In other news:
 
 Many thanks to these contributors (in no particular order):
 
-- sergioisair (tested changed)
+- sergioisair (tested changes over on Discord)
 - ... and all the maintainers
 
 ## [2.1.0] - 2022/07/22
