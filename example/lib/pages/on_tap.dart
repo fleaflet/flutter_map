@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
-
-import '../widgets/drawer.dart';
 
 class OnTapPage extends StatefulWidget {
   static const String route = 'on_tap';
@@ -22,10 +21,10 @@ class OnTapPageState extends State<OnTapPage> {
 
   @override
   Widget build(BuildContext context) {
-    var markers = <Marker>[
+    final markers = <Marker>[
       Marker(
-        width: 80.0,
-        height: 80.0,
+        width: 80,
+        height: 80,
         point: london,
         builder: (ctx) => GestureDetector(
           onTap: () {
@@ -37,8 +36,8 @@ class OnTapPageState extends State<OnTapPage> {
         ),
       ),
       Marker(
-        width: 80.0,
-        height: 80.0,
+        width: 80,
+        height: 80,
         point: dublin,
         builder: (ctx) => GestureDetector(
           onTap: () {
@@ -52,8 +51,8 @@ class OnTapPageState extends State<OnTapPage> {
         ),
       ),
       Marker(
-        width: 80.0,
-        height: 80.0,
+        width: 80,
+        height: 80,
         point: paris,
         builder: (ctx) => GestureDetector(
           onTap: () {
@@ -70,20 +69,20 @@ class OnTapPageState extends State<OnTapPage> {
       appBar: AppBar(title: const Text('OnTap')),
       drawer: buildDrawer(context, OnTapPage.route),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8),
         child: Column(
           children: [
             const Padding(
-              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+              padding: EdgeInsets.only(top: 8, bottom: 8),
               child: Text('Try tapping on the markers'),
             ),
             Flexible(
               child: FlutterMap(
                 options: MapOptions(
                   center: LatLng(51.5, -0.09),
-                  zoom: 5.0,
-                  maxZoom: 5.0,
-                  minZoom: 3.0,
+                  zoom: 5,
+                  maxZoom: 5,
+                  minZoom: 3,
                 ),
                 layers: [
                   TileLayerOptions(

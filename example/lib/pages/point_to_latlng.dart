@@ -2,9 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
-
-import '../widgets/drawer.dart';
 
 class PointToLatLngPage extends StatefulWidget {
   static const String route = 'point_to_latlng';
@@ -19,7 +18,7 @@ class PointToLatLngPage extends StatefulWidget {
 
 class PointToLatlngPage extends State<PointToLatLngPage> {
   late final MapController mapController;
-  late final StreamSubscription mapEventSubscription;
+  late final StreamSubscription<MapEvent> mapEventSubscription;
   final pointSize = 40.0;
   final pointY = 200.0;
 
@@ -47,12 +46,12 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
         children: [
           FloatingActionButton(
             child: const Icon(Icons.rotate_right),
-            onPressed: () => mapController.rotate(60.0),
+            onPressed: () => mapController.rotate(60),
           ),
           const SizedBox(height: 15),
           FloatingActionButton(
             child: const Icon(Icons.cancel),
-            onPressed: () => mapController.rotate(0.0),
+            onPressed: () => mapController.rotate(0),
           ),
         ],
       ),
@@ -63,8 +62,8 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
             mapController: mapController,
             options: MapOptions(
               center: LatLng(51.5, -0.09),
-              zoom: 5.0,
-              minZoom: 3.0,
+              zoom: 5,
+              minZoom: 3,
             ),
             children: [
               TileLayerWidget(
@@ -114,7 +113,7 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
     _updatePointLatLng(context);
   }
 
-  void _updatePointLatLng(context) {
+  void _updatePointLatLng(BuildContext context) {
     final pointX = _getPointX(context);
 
     final latLng = mapController.pointToLatLng(CustomPoint(pointX, pointY));

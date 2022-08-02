@@ -13,47 +13,47 @@ double toRadians(double degrees) {
 
 LatLng calculateEndingGlobalCoordinates(
     LatLng start, double startBearing, double distance) {
-  var mSemiMajorAxis = 6378137.0; //WGS84 major axis
-  var mSemiMinorAxis = (1.0 - 1.0 / 298.257223563) * 6378137.0;
-  var mFlattening = 1.0 / 298.257223563;
+  const mSemiMajorAxis = 6378137.0; //WGS84 major axis
+  const mSemiMinorAxis = (1.0 - 1.0 / 298.257223563) * 6378137.0;
+  const mFlattening = 1.0 / 298.257223563;
   // double mInverseFlattening = 298.257223563;
 
-  var a = mSemiMajorAxis;
-  var b = mSemiMinorAxis;
-  var aSquared = a * a;
-  var bSquared = b * b;
-  var f = mFlattening;
-  var phi1 = toRadians(start.latitude);
-  var alpha1 = toRadians(startBearing);
-  var cosAlpha1 = cos(alpha1);
-  var sinAlpha1 = sin(alpha1);
-  var s = distance;
-  var tanU1 = (1.0 - f) * tan(phi1);
-  var cosU1 = 1.0 / sqrt(1.0 + tanU1 * tanU1);
-  var sinU1 = tanU1 * cosU1;
+  const a = mSemiMajorAxis;
+  const b = mSemiMinorAxis;
+  const aSquared = a * a;
+  const bSquared = b * b;
+  const f = mFlattening;
+  final phi1 = toRadians(start.latitude);
+  final alpha1 = toRadians(startBearing);
+  final cosAlpha1 = cos(alpha1);
+  final sinAlpha1 = sin(alpha1);
+  final s = distance;
+  final tanU1 = (1.0 - f) * tan(phi1);
+  final cosU1 = 1.0 / sqrt(1.0 + tanU1 * tanU1);
+  final sinU1 = tanU1 * cosU1;
 
   // eq. 1
-  var sigma1 = atan2(tanU1, cosAlpha1);
+  final sigma1 = atan2(tanU1, cosAlpha1);
 
   // eq. 2
-  var sinAlpha = cosU1 * sinAlpha1;
+  final sinAlpha = cosU1 * sinAlpha1;
 
-  var sin2Alpha = sinAlpha * sinAlpha;
-  var cos2Alpha = 1 - sin2Alpha;
-  var uSquared = cos2Alpha * (aSquared - bSquared) / bSquared;
+  final sin2Alpha = sinAlpha * sinAlpha;
+  final cos2Alpha = 1 - sin2Alpha;
+  final uSquared = cos2Alpha * (aSquared - bSquared) / bSquared;
 
   // eq. 3
-  var A = 1 +
+  final A = 1 +
       (uSquared / 16384) *
           (4096 + uSquared * (-768 + uSquared * (320 - 175 * uSquared)));
 
   // eq. 4
-  var B = (uSquared / 1024) *
+  final B = (uSquared / 1024) *
       (256 + uSquared * (-128 + uSquared * (74 - 47 * uSquared)));
 
   // iterate until there is a negligible change in sigma
   double deltaSigma;
-  var sOverbA = s / (b * A);
+  final sOverbA = s / (b * A);
   var sigma = sOverbA;
   double sinSigma;
   var prevSigma = sOverbA;
@@ -67,7 +67,7 @@ LatLng calculateEndingGlobalCoordinates(
     cosSigmaM2 = cos(sigmaM2);
     cos2SigmaM2 = cosSigmaM2 * cosSigmaM2;
     sinSigma = sin(sigma);
-    var cosSignma = cos(sigma);
+    final cosSignma = cos(sigma);
 
     // eq. 6
     deltaSigma = B *
@@ -93,11 +93,11 @@ LatLng calculateEndingGlobalCoordinates(
   cosSigmaM2 = cos(sigmaM2);
   cos2SigmaM2 = cosSigmaM2 * cosSigmaM2;
 
-  var cosSigma = cos(sigma);
+  final cosSigma = cos(sigma);
   sinSigma = sin(sigma);
 
   // eq. 8
-  var phi2 = atan2(
+  final phi2 = atan2(
       sinU1 * cosSigma + cosU1 * sinSigma * cosAlpha1,
       (1.0 - f) *
           sqrt(sin2Alpha +
@@ -113,14 +113,14 @@ LatLng calculateEndingGlobalCoordinates(
   // double tanLambda = sinSigma * sinAlpha1 / (cosU1 * cosSigma - sinU1 *
   // sinSigma * cosAlpha1);
   // double lambda = Math.atan(tanLambda);
-  var lambda = atan2(
+  final lambda = atan2(
       sinSigma * sinAlpha1, (cosU1 * cosSigma - sinU1 * sinSigma * cosAlpha1));
 
   // eq. 10
-  var C = (f / 16) * cos2Alpha * (4 + f * (4 - 3 * cos2Alpha));
+  final C = (f / 16) * cos2Alpha * (4 + f * (4 - 3 * cos2Alpha));
 
   // eq. 11
-  var L = lambda -
+  final L = lambda -
       (1 - C) *
           f *
           sinAlpha *

@@ -2,9 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
-
-import '../widgets/drawer.dart';
 
 const maxMarkersCount = 5000;
 
@@ -32,7 +31,7 @@ class _ManyMarkersPageState extends State<ManyMarkersPage> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      var r = Random();
+      final r = Random();
       for (var x = 0; x < maxMarkersCount; x++) {
         allMarkers.add(
           Marker(
@@ -43,7 +42,7 @@ class _ManyMarkersPageState extends State<ManyMarkersPage> {
             builder: (context) => const Icon(
               Icons.circle,
               color: Colors.red,
-              size: 12.0,
+              size: 12,
             ),
           ),
         );
@@ -75,7 +74,7 @@ class _ManyMarkersPageState extends State<ManyMarkersPage> {
             child: FlutterMap(
               options: MapOptions(
                 center: LatLng(50, 20),
-                zoom: 5.0,
+                zoom: 5,
                 interactiveFlags: InteractiveFlag.all - InteractiveFlag.rotate,
               ),
               layers: [

@@ -2,10 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map_example/pages/zoombuttons_plugin_option.dart';
+import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
-
-import '../pages/zoombuttons_plugin_option.dart';
-import '../widgets/drawer.dart';
 
 class WidgetsPage extends StatelessWidget {
   static const String route = 'widgets';
@@ -18,14 +17,14 @@ class WidgetsPage extends StatelessWidget {
       appBar: AppBar(title: const Text('Widgets')),
       drawer: buildDrawer(context, WidgetsPage.route),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8),
         child: Column(
           children: [
             Flexible(
               child: FlutterMap(
                 options: MapOptions(
                   center: LatLng(51.5, -0.09),
-                  zoom: 5.0,
+                  zoom: 5,
                   plugins: [
                     ZoomButtonsPlugin(),
                   ],
@@ -111,20 +110,20 @@ class _MovingWithoutRefreshAllMapMarkersState
 
 List<Marker> _markers = [
   Marker(
-    width: 80.0,
-    height: 80.0,
+    width: 80,
+    height: 80,
     point: LatLng(51.5, -0.09),
     builder: (ctx) => const FlutterLogo(),
   ),
   Marker(
-    width: 80.0,
-    height: 80.0,
+    width: 80,
+    height: 80,
     point: LatLng(53.3498, -6.2603),
     builder: (ctx) => const FlutterLogo(),
   ),
   Marker(
-    width: 80.0,
-    height: 80.0,
+    width: 80,
+    height: 80,
     point: LatLng(48.8566, 2.3522),
     builder: (ctx) => const FlutterLogo(),
   ),

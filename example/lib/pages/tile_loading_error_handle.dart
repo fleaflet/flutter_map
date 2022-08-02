@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
-
-import '../widgets/drawer.dart';
 
 class TileLoadingErrorHandle extends StatefulWidget {
   static const String route = '/tile_loading_error_handle';
@@ -22,11 +21,11 @@ class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
       appBar: AppBar(title: const Text('Tile Loading Error Handle')),
       drawer: buildDrawer(context, TileLoadingErrorHandle.route),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8),
         child: Column(
           children: [
             const Padding(
-              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+              padding: EdgeInsets.only(top: 8, bottom: 8),
               child: Text('Turn on Airplane mode and try to move or zoom map'),
             ),
             Flexible(
@@ -34,7 +33,7 @@ class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
                 return FlutterMap(
                   options: MapOptions(
                     center: LatLng(51.5, -0.09),
-                    zoom: 5.0,
+                    zoom: 5,
                     onPositionChanged: (MapPosition mapPosition, bool _) {
                       needLoadingError = true;
                     },

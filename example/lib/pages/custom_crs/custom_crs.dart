@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:proj4dart/proj4dart.dart' as proj4;
-
-import '../../widgets/drawer.dart';
 
 class CustomCrsPage extends StatefulWidget {
   static const String route = 'custom_crs';
@@ -93,34 +92,34 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
       appBar: AppBar(title: const Text('Custom CRS')),
       drawer: buildDrawer(context, CustomCrsPage.route),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8),
         child: Column(
           children: [
             const Padding(
-              padding: EdgeInsets.only(top: 8.0, bottom: 2.0),
+              padding: EdgeInsets.only(top: 8, bottom: 2),
               child: Text(
                 'This map is in EPSG:3413',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.blue,
-                  fontSize: 16.0,
+                  fontSize: 16,
                 ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 8.0, bottom: 2.0),
+              padding: const EdgeInsets.only(top: 8, bottom: 2),
               child: Text(
                 '$initText (${point.x.toStringAsFixed(5)}, ${point.y.toStringAsFixed(5)}) in EPSG:4326.',
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 2.0, bottom: 2.0),
+              padding: const EdgeInsets.only(top: 2, bottom: 2),
               child: Text(
                 'Which is (${epsg4326.transform(epsg3413, point).x.toStringAsFixed(2)}, ${epsg4326.transform(epsg3413, point).y.toStringAsFixed(2)}) in EPSG:3413.',
               ),
             ),
             const Padding(
-              padding: EdgeInsets.only(top: 2.0, bottom: 8.0),
+              padding: EdgeInsets.only(top: 2, bottom: 8),
               child: Text('Tap on map to get more coordinates!'),
             ),
             Flexible(
@@ -129,7 +128,7 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
                   // Set the default CRS
                   crs: epsg3413CRS,
                   center: LatLng(point.x, point.y),
-                  zoom: 3.0,
+                  zoom: 3,
                   // Set maxZoom usually scales.length - 1 OR resolutions.length - 1
                   // but not greater
                   maxZoom: maxZoom,
@@ -140,7 +139,7 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
                 ),
                 layers: [
                   TileLayerOptions(
-                    opacity: 1.0,
+                    opacity: 1,
                     backgroundColor: Colors.transparent,
                     wmsOptions: WMSTileLayerOptions(
                       // Set the WMS layer's CRS

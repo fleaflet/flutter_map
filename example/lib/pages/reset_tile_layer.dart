@@ -2,9 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
-
-import '../widgets/drawer.dart';
 
 class ResetTileLayerPage extends StatefulWidget {
   static const String route = '/reset_tilelayer';
@@ -38,10 +37,10 @@ class ResetTileLayerPageState extends State<ResetTileLayerPage> {
 
   @override
   Widget build(BuildContext context) {
-    var markers = <Marker>[
+    final markers = <Marker>[
       Marker(
-        width: 80.0,
-        height: 80.0,
+        width: 80,
+        height: 80,
         point: LatLng(51.5, -0.09),
         builder: (ctx) => const FlutterLogo(),
       ),
@@ -51,16 +50,16 @@ class ResetTileLayerPageState extends State<ResetTileLayerPage> {
       appBar: AppBar(title: const Text('TileLayer Reset')),
       drawer: buildDrawer(context, ResetTileLayerPage.route),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8),
         child: Column(
           children: [
             const Padding(
-              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+              padding: EdgeInsets.only(top: 8, bottom: 8),
               child: Text(
                   'TileLayers can be progromatically reset, disposing of cached files'),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+              padding: const EdgeInsets.only(top: 8, bottom: 8),
               child: Wrap(
                 children: <Widget>[
                   MaterialButton(
@@ -74,7 +73,7 @@ class ResetTileLayerPageState extends State<ResetTileLayerPage> {
               child: FlutterMap(
                 options: MapOptions(
                   center: LatLng(51.5, -0.09),
-                  zoom: 5.0,
+                  zoom: 5,
                 ),
                 layers: [
                   TileLayerOptions(

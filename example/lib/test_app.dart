@@ -30,7 +30,7 @@ class _TestAppState extends State<TestApp> {
             child: FlutterMap(
               options: MapOptions(
                 center: LatLng(45.5231, -122.6765),
-                zoom: 13.0,
+                zoom: 13,
               ),
               layers: [
                 TileLayerOptions(

@@ -2,9 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
-
-import '../widgets/drawer.dart';
 
 class StatefulMarkersPage extends StatefulWidget {
   static const String route = '/stateful_markers';
@@ -37,8 +36,8 @@ class _StatefulMarkersPageState extends State<StatefulMarkersPage> {
 
   void _addMarker(String key) {
     _markers.add(Marker(
-        width: 40.0,
-        height: 40.0,
+        width: 40,
+        height: 40,
         point: LatLng(
             _random.nextDouble() * 10 + 48, _random.nextDouble() * 10 - 6),
         builder: (ctx) => const _ColorMarker(),
@@ -51,18 +50,18 @@ class _StatefulMarkersPageState extends State<StatefulMarkersPage> {
       appBar: AppBar(title: const Text('Stateful Markers')),
       drawer: buildDrawer(context, StatefulMarkersPage.route),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8),
         child: Column(
           children: [
             const Padding(
-              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+              padding: EdgeInsets.only(top: 8, bottom: 8),
               child: Text('This is a map that is showing (51.5, -0.9).'),
             ),
             Flexible(
               child: FlutterMap(
                 options: MapOptions(
                   center: LatLng(51.5, -0.09),
-                  zoom: 5.0,
+                  zoom: 5,
                 ),
                 layers: [
                   TileLayerOptions(
@@ -105,7 +104,7 @@ class _ColorMarkerState extends State<_ColorMarker> {
 }
 
 class _ColorGenerator {
-  static List colorOptions = [
+  static List<Color> colorOptions = [
     Colors.blue,
     Colors.red,
     Colors.green,

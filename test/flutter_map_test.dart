@@ -34,7 +34,12 @@ class MockHttpClientResponse extends Mock implements HttpClientResponse {
   static Stream<List<int>> readFile() => File('test/res/map.png').openRead();
 }
 
+class MockHttpHeaders extends Mock implements HttpHeaders {}
+
 class MockHttpClientRequest extends Mock implements HttpClientRequest {
+  @override
+  HttpHeaders get headers => MockHttpHeaders();
+
   @override
   Future<HttpClientResponse> close() => Future.value(MockHttpClientResponse());
 }

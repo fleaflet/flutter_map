@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
-
-import '../widgets/drawer.dart';
 
 class TileBuilderPage extends StatefulWidget {
   static const String route = '/tile_builder_example';
@@ -14,10 +13,10 @@ class TileBuilderPage extends StatefulWidget {
 }
 
 class _TileBuilderPageState extends State<TileBuilderPage> {
-  var darkMode = false;
-  var loadingTime = false;
-  var showCoords = false;
-  var grid = false;
+  bool darkMode = false;
+  bool loadingTime = false;
+  bool showCoords = false;
+  bool grid = false;
 
   // mix of [coordinateDebugTileBuilder] and [loadingTimeDebugTileBuilder] from tile_builder.dart
   Widget tileBuilder(BuildContext context, Widget tileWidget, Tile tile) {
@@ -106,11 +105,11 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8),
         child: FlutterMap(
           options: MapOptions(
             center: LatLng(51.5, -0.09),
-            zoom: 5.0,
+            zoom: 5,
           ),
           layers: [
             TileLayerOptions(
@@ -124,8 +123,8 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
             MarkerLayerOptions(
               markers: <Marker>[
                 Marker(
-                  width: 80.0,
-                  height: 80.0,
+                  width: 80,
+                  height: 80,
                   point: LatLng(51.5, -0.09),
                   builder: (ctx) => const FlutterLogo(
                     key: ObjectKey(Colors.blue),

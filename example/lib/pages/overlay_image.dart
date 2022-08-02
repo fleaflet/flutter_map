@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
-
-import '../widgets/drawer.dart';
 
 class OverlayImagePage extends StatelessWidget {
   static const String route = 'overlay_image';
@@ -15,7 +14,7 @@ class OverlayImagePage extends StatelessWidget {
     final bottomRightCorner = LatLng(53.475, 0.275);
     final bottomLeftCorner = LatLng(52.503, -1.868);
 
-    final overlayImages = [
+    final overlayImages = <BaseOverlayImage>[
       OverlayImage(
           bounds: LatLngBounds(LatLng(51.5, -0.09), LatLng(48.8566, 2.3522)),
           opacity: 0.8,
@@ -34,18 +33,18 @@ class OverlayImagePage extends StatelessWidget {
       appBar: AppBar(title: const Text('Overlay Image')),
       drawer: buildDrawer(context, route),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8),
         child: Column(
           children: [
             const Padding(
-              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+              padding: EdgeInsets.only(top: 8, bottom: 8),
               child: Text('This is a map that is showing (51.5, -0.9).'),
             ),
             Flexible(
               child: FlutterMap(
                 options: MapOptions(
                   center: LatLng(51.5, -0.09),
-                  zoom: 6.0,
+                  zoom: 6,
                 ),
                 layers: [
                   TileLayerOptions(
