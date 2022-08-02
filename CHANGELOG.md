@@ -5,6 +5,7 @@
 Contains the following additions/removals:
 
 - Added `RotatedOverlayImage` which supports image rotation and skewing by specifying a 3rd point - [#1315](https://github.com/fleaflet/flutter_map/pull/1315)
+- Added `latLngToScreenPoint` and refactored `pointToLatLng` - [#1330](https://github.com/fleaflet/flutter_map/pull/1330)
 
 Contains the following bug fixes:
 
