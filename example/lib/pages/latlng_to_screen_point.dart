@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong2/latlong.dart';
 
-import '../widgets/drawer.dart';
 
 class LatLngScreenPointTestPage extends StatefulWidget {
   static const String route = 'latlng_screen_point_test_page';
@@ -52,17 +52,17 @@ class _LatLngScreenPointTestPageState extends State<LatLngScreenPointTestPage> {
         drawer: buildDrawer(context, LatLngScreenPointTestPage.route),
         body: Stack(children: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(8),
             child: FlutterMap(
               mapController: mapController,
               options: MapOptions(
                 onTap: (tapPos, latLng) {
-                  var pt1 = mapController.latLngToScreenPoint(latLng);
+                  final pt1 = mapController.latLngToScreenPoint(latLng);
                   textPos = CustomPoint(pt1!.x, pt1.y);
                   setState(() {});
                 },
                 center: LatLng(51.5, -0.09),
-                zoom: 11.0,
+                zoom: 11,
                 rotation: 0,
               ),
               layers: [
