@@ -261,6 +261,8 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
             MapInsideListViewPage.route, currentRoute),
         _buildMenuItem(context, const Text('Point to LatLng'),
             PointToLatLngPage.route, currentRoute),
+        _buildMenuItem(context, const Text('LatLng to ScreenPoint'),
+            LatLngScreenPointTestPage.route, currentRoute),
       ],
     ),
   );

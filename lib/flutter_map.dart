@@ -160,6 +160,8 @@ abstract class MapController {
 
   LatLng? pointToLatLng(CustomPoint point);
 
+  CustomPoint? latLngToScreenPoint(LatLng latLng);
+
   factory MapController() => MapControllerImpl();
 }
 
