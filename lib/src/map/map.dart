@@ -377,9 +377,11 @@ class MapState {
     }
 
     // Try and fit the corners of the map inside the visible area.
-    // If it's still outside (so response is null), Adjust zoom to either fit
-    // the options.maxZoom or do a best approx center with grey boundaries to
-    // avoid center never being set.
+    // If it's still outside (so response is null) and the map as already been
+    // drawn do nothing, otherwise on first pass adjust zoom to either fit
+    // the options.maxZoom or draw at max zoom with allowing map to draw
+    // ouside boundaries to avoid center never being set.  In this state the map
+    // is not movable except to rotate.
     if (options.maxBounds != null) {
       LatLng? adjustedCenter =
           adjustCenterIfOutsideMaxBounds(center, zoom, options.maxBounds!);
