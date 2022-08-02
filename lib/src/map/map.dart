@@ -383,13 +383,17 @@ class MapState {
     if (options.maxBounds != null) {
       LatLng? adjustedCenter =
           adjustCenterIfOutsideMaxBounds(center, zoom, options.maxBounds!);
-      if (adjustedCenter == null) {
+      if (adjustedCenter == null && _lastCenter == null) {
         final centerZoom = getBoundsCenterZoom(options.maxBounds!,
             FitBoundsOptions(inside: true, maxZoom: options.maxZoom ?? 17));
         adjustedCenter = centerZoom.center;
         zoom = centerZoom.zoom;
       }
-      center = adjustedCenter;
+      if (adjustedCenter == null) {
+        return false;
+      } else {
+        center = adjustedCenter;
+      }
     }
 
     _handleMoveEmit(center, zoom, hasGesture, source, id);
