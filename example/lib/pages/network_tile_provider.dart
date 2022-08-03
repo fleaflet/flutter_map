@@ -72,7 +72,7 @@ class NetworkTileProviderPage extends StatelessWidget {
                     tileProvider: NetworkTileProvider(),
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   )),
-                  MarkerLayerWidget(options: MarkerLayerOptions(markers: markers))
+                  MarkerLayer(markers: markers)
                 ],
               ),
             ),

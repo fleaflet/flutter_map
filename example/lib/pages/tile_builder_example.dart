@@ -120,7 +120,7 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
               tilesContainerBuilder:
                   darkMode ? darkModeTilesContainerBuilder : null,
             )),
-            MarkerLayerWidget(options: MarkerLayerOptions(
+            MarkerLayer(
               markers: <Marker>[
                 Marker(
                   width: 80,
@@ -131,7 +131,7 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
                   ),
                 ),
               ],
-            )),
+            ),
           ],
         ),
       ),

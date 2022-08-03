@@ -84,9 +84,9 @@ class _ManyMarkersPageState extends State<ManyMarkersPage> {
                   subdomains: ['a', 'b', 'c'],
                   userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                 )),
-                MarkerLayerWidget(options: MarkerLayerOptions(
+                MarkerLayer(
                     markers: allMarkers.sublist(
-                        0, min(allMarkers.length, _sliderVal)))),
+                        0, min(allMarkers.length, _sliderVal))),
               ],
             ),
           ),

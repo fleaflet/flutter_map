@@ -89,16 +89,14 @@ class _PolylinePageState extends State<PolylinePage> {
                             userAgentPackageName:
                                 'dev.fleaflet.flutter_map.example',
                           )),
-                          PolylineLayerWidget(
-                            options: PolylineLayerOptions(polylines: [
+                          PolylineLayer(polylines: [
                               Polyline(
                                   points: points,
                                   strokeWidth: 4,
                                   color: Colors.purple),
-                            ]),
+                            ],
                           ),
-                          PolylineLayerWidget(
-                            options: PolylineLayerOptions(polylines: [
+                          PolylineLayer(polylines: [
                               Polyline(
                                 points: pointsGradient,
                                 strokeWidth: 4,
@@ -108,13 +106,12 @@ class _PolylinePageState extends State<PolylinePage> {
                                   const Color(0xff007E2D),
                                 ],
                               ),
-                            ]),
+                            ],
                           ),
-                          PolylineLayerWidget(
-                              options: PolylineLayerOptions(
+                          PolylineLayer(
                             polylines: snapshot.data!,
                             polylineCulling: true,
-                          )),
+                          ),
                         ],
                       ),
                     ),

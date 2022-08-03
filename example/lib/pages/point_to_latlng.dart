@@ -74,8 +74,7 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
                 userAgentPackageName: 'dev.fleaflet.flutter_map.example',
               )),
               if (latLng != null)
-                MarkerLayerWidget(
-                    options: MarkerLayerOptions(
+                MarkerLayer(
                   markers: [
                     Marker(
                       width: pointSize,
@@ -84,7 +83,7 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
                       builder: (ctx) => const FlutterLogo(),
                     )
                   ],
-                ))
+                )
             ],
           ),
           Container(

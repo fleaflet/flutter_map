@@ -4,47 +4,6 @@ import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart';
 
-/// Configuration for marker layer
-class MarkerLayerOptions {
-  final List<Marker> markers;
-
-  /// Toggle marker position caching. Enabling will improve performance, but may introducen
-  /// errors when adding/removing markers. Default is enabled (`true`).
-  final bool usePxCache;
-
-  /// If true markers will be counter rotated to the map rotation
-  final bool? rotate;
-
-  /// The origin of the coordinate system (relative to the upper left corner of
-  /// this render object) in which to apply the matrix.
-  ///
-  /// Setting an origin is equivalent to conjugating the transform matrix by a
-  /// translation. This property is provided just for convenience.
-  final Offset? rotateOrigin;
-
-  /// The alignment of the origin, relative to the size of the box.
-  ///
-  /// This is equivalent to setting an origin based on the size of the box.
-  /// If it is specified at the same time as the [rotateOrigin], both are applied.
-  ///
-  /// An [AlignmentDirectional.centerStart] value is the same as an [Alignment]
-  /// whose [Alignment.x] value is `-1.0` if [Directionality.of] returns
-  /// [TextDirection.ltr], and `1.0` if [Directionality.of] returns
-  /// [TextDirection.rtl].	 Similarly [AlignmentDirectional.centerEnd] is the
-  /// same as an [Alignment] whose [Alignment.x] value is `1.0` if
-  /// [Directionality.of] returns	 [TextDirection.ltr], and `-1.0` if
-  /// [Directionality.of] returns [TextDirection.rtl].
-  final AlignmentGeometry? rotateAlignment;
-
-  MarkerLayerOptions({
-    this.markers = const [],
-    this.rotate = false,
-    this.rotateOrigin,
-    this.rotateAlignment = Alignment.center,
-    this.usePxCache = true,
-  });
-}
-
 class Anchor {
   final double left;
   final double top;
@@ -164,24 +123,44 @@ class Marker {
   }) : anchor = Anchor.forPos(anchorPos, width, height);
 }
 
-class MarkerLayerWidget extends StatelessWidget {
-  final MarkerLayerOptions options;
-
-  const MarkerLayerWidget({super.key, required this.options});
-
-  @override
-  Widget build(BuildContext context) {
-    final mapState = MapState.maybeOf(context)!;
-    return MarkerLayer(key: key, markerLayerOptions: options, map: mapState);
-  }
-}
-
 class MarkerLayer extends StatefulWidget {
-  final MarkerLayerOptions markerLayerOptions;
-  final MapState map;
+  final List<Marker> markers;
+
+  /// Toggle marker position caching. Enabling will improve performance, but may introducen
+  /// errors when adding/removing markers. Default is enabled (`true`).
+  final bool usePxCache;
+
+  /// If true markers will be counter rotated to the map rotation
+  final bool? rotate;
+
+  /// The origin of the coordinate system (relative to the upper left corner of
+  /// this render object) in which to apply the matrix.
+  ///
+  /// Setting an origin is equivalent to conjugating the transform matrix by a
+  /// translation. This property is provided just for convenience.
+  final Offset? rotateOrigin;
+
+  /// The alignment of the origin, relative to the size of the box.
+  ///
+  /// This is equivalent to setting an origin based on the size of the box.
+  /// If it is specified at the same time as the [rotateOrigin], both are applied.
+  ///
+  /// An [AlignmentDirectional.centerStart] value is the same as an [Alignment]
+  /// whose [Alignment.x] value is `-1.0` if [Directionality.of] returns
+  /// [TextDirection.ltr], and `1.0` if [Directionality.of] returns
+  /// [TextDirection.rtl].	 Similarly [AlignmentDirectional.centerEnd] is the
+  /// same as an [Alignment] whose [Alignment.x] value is `1.0` if
+  /// [Directionality.of] returns	 [TextDirection.ltr], and `-1.0` if
+  /// [Directionality.of] returns [TextDirection.rtl].
+  final AlignmentGeometry? rotateAlignment;
 
   const MarkerLayer(
-      {super.key, required this.markerLayerOptions, required this.map});
+      {super.key,
+      this.markers = const [],
+      this.rotate = false,
+      this.rotateOrigin,
+      this.rotateAlignment = Alignment.center,
+      this.usePxCache = true});
 
   @override
   State<MarkerLayer> createState() => _MarkerLayerState();
@@ -197,17 +176,17 @@ class _MarkerLayerState extends State<MarkerLayer> {
   var _pxCache = <CustomPoint>[];
 
   /// Calling this every time markerOpts change should guarantee proper length
-  List<CustomPoint> generatePxCache() {
-    if (widget.markerLayerOptions.usePxCache) {
+  List<CustomPoint> generatePxCache(MapState map) {
+    if (widget.usePxCache) {
       return List.generate(
-        widget.markerLayerOptions.markers.length,
-        (i) => widget.map.project(widget.markerLayerOptions.markers[i].point),
+        widget.markers.length,
+        (i) => map.project(widget.markers[i].point),
       );
     }
     return [];
   }
 
-  bool updatePxCacheIfNeeded() {
+  bool updatePxCacheIfNeeded(MapState map) {
     var didUpdate = false;
 
     /// markers may be modified, so update cache. Note, someone may
@@ -215,38 +194,24 @@ class _MarkerLayerState extends State<MarkerLayer> {
     /// this case. Parent widget setState should be called to call
     /// didUpdateWidget to force a cache reload
 
-    if (widget.markerLayerOptions.markers.length != _pxCache.length) {
-      _pxCache = generatePxCache();
+    if (widget.markers.length != _pxCache.length) {
+      _pxCache = generatePxCache(map);
       didUpdate = true;
     }
     return didUpdate;
   }
 
   @override
-  void initState() {
-    super.initState();
-    _pxCache = generatePxCache();
-  }
-
-  @override
-  void didUpdateWidget(covariant MarkerLayer oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    lastZoom = -1.0;
-    _pxCache = generatePxCache();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final layerOptions = widget.markerLayerOptions;
-    final map = widget.map;
-    final usePxCache = layerOptions.usePxCache;
+    final map = MapState.maybeOf(context)!;
+    final usePxCache = widget.usePxCache;
     final markers = <Widget>[];
     final sameZoom = map.zoom == lastZoom;
 
-    final cacheUpdated = updatePxCacheIfNeeded();
+    final cacheUpdated = updatePxCacheIfNeeded(map);
 
-    for (var i = 0; i < layerOptions.markers.length; i++) {
-      final marker = layerOptions.markers[i];
+    for (var i = 0; i < widget.markers.length; i++) {
+      final marker = widget.markers[i];
 
       // Decide whether to use cached point or calculate it
       final pxPoint = usePxCache && (sameZoom || cacheUpdated)
@@ -275,12 +240,12 @@ class _MarkerLayerState extends State<MarkerLayer> {
       }
 
       final pos = pxPoint - map.getPixelOrigin();
-      final markerWidget = (marker.rotate ?? layerOptions.rotate ?? false)
+      final markerWidget = (marker.rotate ?? widget.rotate ?? false)
           // Counter rotated marker to the map rotation
           ? Transform.rotate(
               angle: -map.rotationRad,
-              origin: marker.rotateOrigin ?? layerOptions.rotateOrigin,
-              alignment: marker.rotateAlignment ?? layerOptions.rotateAlignment,
+              origin: marker.rotateOrigin ?? widget.rotateOrigin,
+              alignment: marker.rotateAlignment ?? widget.rotateAlignment,
               child: marker.builder(context),
             )
           : marker.builder(context);

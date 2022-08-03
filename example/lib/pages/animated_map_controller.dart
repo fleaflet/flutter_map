@@ -186,7 +186,7 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
                     subdomains: ['a', 'b', 'c'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   )),
-                  MarkerLayerWidget(options: MarkerLayerOptions(markers: markers)),
+                  MarkerLayer(markers: markers),
                 ],
               ),
             ),

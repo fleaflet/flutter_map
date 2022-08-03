@@ -92,8 +92,7 @@ class OnTapPageState extends State<OnTapPage> {
                     subdomains: ['a', 'b', 'c'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   )),
-                  MarkerLayerWidget(
-                      options: MarkerLayerOptions(markers: markers)),
+                  MarkerLayer(markers: markers),
                 ],
               ),
             ),

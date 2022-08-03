@@ -4,14 +4,6 @@ import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:latlong2/latlong.dart';
 
-class OverlayImageLayerOptions {
-  final List<BaseOverlayImage> overlayImages;
-
-  OverlayImageLayerOptions({
-    this.overlayImages = const [],
-  });
-}
-
 /// Base class for all overlay images.
 abstract class BaseOverlayImage {
   ImageProvider get imageProvider;
@@ -140,10 +132,10 @@ class RotatedOverlayImage extends BaseOverlayImage {
   }
 }
 
-class OverlayImageLayerWidget extends StatelessWidget {
-  final OverlayImageLayerOptions options;
+class OverlayImageLayer extends StatelessWidget {
+  final List<BaseOverlayImage> overlayImages;
 
-  const OverlayImageLayerWidget({super.key, required this.options});
+  const OverlayImageLayer({super.key, this.overlayImages = const []});
 
   @override
   Widget build(BuildContext context) {
@@ -151,7 +143,7 @@ class OverlayImageLayerWidget extends StatelessWidget {
     return ClipRect(
       child: Stack(
         children: <Widget>[
-          for (var overlayImage in options.overlayImages)
+          for (var overlayImage in overlayImages)
             overlayImage.buildPositionedForOverlay(map),
         ],
       ),

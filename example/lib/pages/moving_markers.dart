@@ -65,7 +65,7 @@ class _MovingMarkersPageState extends State<MovingMarkersPage> {
                     subdomains: ['a', 'b', 'c'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   )),
-                  MarkerLayerWidget(options: MarkerLayerOptions(markers: [_marker!])),
+                  MarkerLayer(markers: [_marker!]),
                 ],
               ),
             ),

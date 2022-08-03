@@ -97,8 +97,7 @@ class _MovingWithoutRefreshAllMapMarkersState
 
   @override
   Widget build(BuildContext context) {
-    return MarkerLayerWidget(
-      options: MarkerLayerOptions(markers: [_marker!]),
+    return MarkerLayer(markers: [_marker!],
     );
   }
 }

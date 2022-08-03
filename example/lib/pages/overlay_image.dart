@@ -54,11 +54,9 @@ class OverlayImagePage extends StatelessWidget {
                     subdomains: ['a', 'b', 'c'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   )),
-                  OverlayImageLayerWidget(
-                      options: OverlayImageLayerOptions(
-                          overlayImages: overlayImages)),
-                  MarkerLayerWidget(
-                      options: MarkerLayerOptions(markers: [
+                  OverlayImageLayer(
+                          overlayImages: overlayImages),
+                  MarkerLayer(markers: [
                     Marker(
                         point: topLeftCorner,
                         builder: (context) => const _Circle(
@@ -71,7 +69,7 @@ class OverlayImagePage extends StatelessWidget {
                         point: bottomRightCorner,
                         builder: (context) => const _Circle(
                             color: Colors.redAccent, label: "BR")),
-                  ]))
+                  ])
                 ],
               ),
             ),

@@ -144,10 +144,10 @@ class MarkerRotatePageState extends State<MarkerRotatePage> {
                     subdomains: ['a', 'b', 'c'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   )),
-                  MarkerLayerWidget(options: MarkerLayerOptions(
+                  MarkerLayer(
                     rotate: rotateMarkerLayerOptions,
                     markers: markers,
-                  ))
+                  )
                 ],
               ),
             ),

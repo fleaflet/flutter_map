@@ -147,8 +147,7 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
                       layers: ['gebco_north_polar_view'],
                     ),
                   )),
-                  OverlayImageLayerWidget(
-                    options: OverlayImageLayerOptions(
+                  OverlayImageLayer(
                     overlayImages: [
                       OverlayImage(
                         bounds: LatLngBounds(
@@ -159,7 +158,7 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
                           'map/epsg3413/amsr2.png',
                         ).image,
                       )
-                    ]),
+                    ],
                   ),
                   CircleLayerWidget(options: CircleLayerOptions(
                     circles: circles,

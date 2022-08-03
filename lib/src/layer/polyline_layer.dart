@@ -6,35 +6,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart';
 
-class PolylineLayerOptions {
-  /// List of polylines to draw.
-  final List<Polyline> polylines;
-
-  final bool polylineCulling;
-
-  /// {@macro newPolylinePainter.saveLayers}
-  ///
-  /// By default, this value is set to `false` to improve performance on
-  /// layers containing a lot of polylines.
-  ///
-  /// You might want to set this to `true` if you get unwanted darker lines
-  /// where they overlap but, keep in mind that this might reduce the
-  /// performance of the layer.
-  final bool saveLayers;
-
-  PolylineLayerOptions({
-    this.polylines = const [],
-    this.polylineCulling = false,
-    this.saveLayers = false,
-  }) {
-    if (polylineCulling) {
-      for (final polyline in polylines) {
-        polyline.boundingBox = LatLngBounds.fromPoints(polyline.points);
-      }
-    }
-  }
-}
-
 class Polyline {
   final List<LatLng> points;
   final List<Offset> offsets = [];
@@ -63,11 +34,34 @@ class Polyline {
   });
 }
 
+class PolylineLayer extends StatelessWidget {
+  /// List of polylines to draw.
+  final List<Polyline> polylines;
 
-class PolylineLayerWidget extends StatelessWidget {
-  final PolylineLayerOptions options;
+  final bool polylineCulling;
 
-  const PolylineLayerWidget({super.key, required this.options});
+  /// {@macro newPolylinePainter.saveLayers}
+  ///
+  /// By default, this value is set to `false` to improve performance on
+  /// layers containing a lot of polylines.
+  ///
+  /// You might want to set this to `true` if you get unwanted darker lines
+  /// where they overlap but, keep in mind that this might reduce the
+  /// performance of the layer.
+  final bool saveLayers;
+
+  PolylineLayer({
+    super.key,
+    this.polylines = const [],
+    this.polylineCulling = false,
+    this.saveLayers = false,
+  }) {
+    if (polylineCulling) {
+      for (final polyline in polylines) {
+        polyline.boundingBox = LatLngBounds.fromPoints(polyline.points);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,12 +69,12 @@ class PolylineLayerWidget extends StatelessWidget {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints bc) {
         final size = Size(bc.maxWidth, bc.maxHeight);
-        final polylines = <Widget>[];
+        final polylineWidgets = <Widget>[];
 
-        for (final polylineOpt in options.polylines) {
+        for (final polylineOpt in polylines) {
           polylineOpt.offsets.clear();
 
-          if (options.polylineCulling &&
+          if (polylineCulling &&
               !polylineOpt.boundingBox.isOverlapping(map.bounds)) {
             // skip this polyline as it's offscreen
             continue;
@@ -88,14 +82,14 @@ class PolylineLayerWidget extends StatelessWidget {
 
           _fillOffsets(polylineOpt.offsets, polylineOpt.points, map);
 
-          polylines.add(CustomPaint(
-            painter: PolylinePainter(polylineOpt, options.saveLayers),
+          polylineWidgets.add(CustomPaint(
+            painter: PolylinePainter(polylineOpt, saveLayers),
             size: size,
           ));
         }
 
         return Stack(
-          children: polylines,
+          children: polylineWidgets,
         );
       },
     );

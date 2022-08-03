@@ -114,7 +114,7 @@ class _TestAppState extends State<TestApp> {
                     urlTemplate:
                         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     subdomains: ['a', 'b', 'c'])),
-                MarkerLayerWidget(options: MarkerLayerOptions(markers: _markers)),
+                MarkerLayer(markers: _markers),
               ],
             ),
           ),

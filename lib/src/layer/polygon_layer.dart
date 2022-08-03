@@ -6,23 +6,6 @@ import 'package:flutter_map/src/layer/label.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart' hide Path; // conflict with Path from UI
 
-class PolygonLayerOptions {
-  final List<Polygon> polygons;
-  final bool polygonCulling;
-
-  /// screen space culling of polygons based on bounding box
-  PolygonLayerOptions({
-    this.polygons = const [],
-    this.polygonCulling = false,
-  }) {
-    if (polygonCulling) {
-      for (final polygon in polygons) {
-        polygon.boundingBox = LatLngBounds.fromPoints(polygon.points);
-      }
-    }
-  }
-}
-
 enum PolygonLabelPlacement {
   centroid,
   polylabel,
@@ -65,10 +48,23 @@ class Polygon {
             : List.generate(holePointsList.length, (_) => []);
 }
 
-class PolygonLayerWidget extends StatelessWidget {
-  final PolygonLayerOptions options;
+class PolygonLayer extends StatelessWidget {
+  final List<Polygon> polygons;
 
-  const PolygonLayerWidget({super.key, required this.options});
+  /// screen space culling of polygons based on bounding box
+  final bool polygonCulling;
+
+  PolygonLayer({
+    super.key,
+    this.polygons = const [],
+    this.polygonCulling = false,
+  }) {
+    if (polygonCulling) {
+      for (final polygon in polygons) {
+        polygon.boundingBox = LatLngBounds.fromPoints(polygon.points);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,9 +72,9 @@ class PolygonLayerWidget extends StatelessWidget {
       builder: (BuildContext context, BoxConstraints bc) {
         final map = MapState.maybeOf(context)!;
         final size = Size(bc.maxWidth, bc.maxHeight);
-        final polygons = <Widget>[];
+        final polygonsWidget = <Widget>[];
 
-        for (final polygon in options.polygons) {
+        for (final polygon in polygons) {
           polygon.offsets.clear();
 
           if (null != polygon.holeOffsetsList) {
@@ -87,7 +83,7 @@ class PolygonLayerWidget extends StatelessWidget {
             }
           }
 
-          if (options.polygonCulling &&
+          if (polygonCulling &&
               !polygon.boundingBox.isOverlapping(map.bounds)) {
             // skip this polygon as it's offscreen
             continue;
@@ -103,7 +99,7 @@ class PolygonLayerWidget extends StatelessWidget {
             }
           }
 
-          polygons.add(
+          polygonsWidget.add(
             CustomPaint(
               painter: PolygonPainter(polygon),
               size: size,
@@ -112,7 +108,7 @@ class PolygonLayerWidget extends StatelessWidget {
         }
 
         return Stack(
-          children: polygons,
+          children: polygonsWidget,
         );
       },
     );

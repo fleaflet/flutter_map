@@ -70,7 +70,7 @@ class _StatefulMarkersPageState extends State<StatefulMarkersPage> {
                     subdomains: ['a', 'b', 'c'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   )),
-                  MarkerLayerWidget(options: MarkerLayerOptions(markers: _markers)),
+                  MarkerLayer(markers: _markers),
                 ],
               ),
             ),

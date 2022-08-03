@@ -60,8 +60,7 @@ class PolygonPage extends StatelessWidget {
                     subdomains: ['a', 'b', 'c'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   )),
-                  PolygonLayerWidget(
-                      options: PolygonLayerOptions(polygons: [
+                  PolygonLayer(polygons: [
                     Polygon(
                       points: notFilledPoints,
                       isFilled: false, // By default it's false
@@ -90,7 +89,7 @@ class PolygonPage extends StatelessWidget {
                       borderColor: Colors.lightBlue,
                       color: Colors.lightBlue,
                     ),
-                  ])),
+                  ]),
                 ],
               ),
             ),

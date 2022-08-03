@@ -147,8 +147,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                     subdomains: ['a', 'b', 'c'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   )),
-                  MarkerLayerWidget(
-                      options: MarkerLayerOptions(markers: markers)),
+                  MarkerLayer(markers: markers),
                 ],
               ),
             ),
