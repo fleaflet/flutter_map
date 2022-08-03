@@ -37,13 +37,7 @@ class CircleLayerWidget extends StatelessWidget {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints bc) {
         final size = Size(bc.maxWidth, bc.maxHeight);
-        return _build(context, size);
-      },
-    );
-  }
-
-  Widget _build(BuildContext context, Size size) {
-    final map = MapState.maybeOf(context)!;
+        final map = MapState.maybeOf(context)!;
     final circleWidgets = <Widget>[];
         for (final circle in options.circles) {
           circle.offset = map.getOffsetFromOrigin(circle.point);
@@ -65,6 +59,8 @@ class CircleLayerWidget extends StatelessWidget {
         return Stack(
           children: circleWidgets,
         );
+      },
+    );
   }
 }
 

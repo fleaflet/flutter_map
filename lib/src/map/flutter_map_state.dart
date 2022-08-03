@@ -1,3 +1,4 @@
+import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:flutter/gestures.dart';
@@ -11,8 +12,9 @@ import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
 class FlutterMapState extends MapGestureMixin
     with AutomaticKeepAliveClientMixin {
   final List<StreamGroup<void>> groups = <StreamGroup<void>>[];
+  late StreamSubscription<MapEvent> _rebuildStream;
   final _positionedTapController = PositionedTapController();
-  MapController? _localController;
+  final MapController _localController = MapControllerImpl();
 
   @override
   MapOptions get options => widget.options;
@@ -21,7 +23,7 @@ class FlutterMapState extends MapGestureMixin
   late final MapState mapState;
 
   @override
-  MapController get mapController => widget.mapController ?? _localController!;
+  MapController get mapController => widget.mapController ?? _localController;
 
   @override
   void didUpdateWidget(FlutterMap oldWidget) {
@@ -33,11 +35,18 @@ class FlutterMapState extends MapGestureMixin
   @override
   void initState() {
     super.initState();
-    if (widget.mapController == null) _localController = MapControllerImpl();
     mapState = MapState(options, (degree) {
       if (mounted) setState(() {});
     }, mapController.mapEventSink);
     mapController.state = mapState;
+
+    // Whenever there is a map event (move, rotate, etc); 
+    // setstate to trigger rebuilding children.
+    // It should be fine to trigger setState multiple times as long
+    // as it is within the same frame. (ex move and rotate events).
+    _rebuildStream = mapController.mapEventStream.listen((event) {
+      if(mounted) setState(() {});
+    });
 
     // Callback onMapCreated if not null
     if (options.onMapCreated != null) {
@@ -57,7 +66,8 @@ class FlutterMapState extends MapGestureMixin
   void dispose() {
     _disposeStreamGroups();
     mapState.dispose();
-    _localController?.dispose();
+    _localController.dispose();
+    _rebuildStream.cancel();
 
     super.dispose();
   }
