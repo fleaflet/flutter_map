@@ -28,7 +28,6 @@ export 'package:flutter_map/src/gestures/map_events.dart';
 export 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
 export 'package:flutter_map/src/layer/attribution_layer.dart';
 export 'package:flutter_map/src/layer/circle_layer.dart';
-export 'package:flutter_map/src/layer/group_layer.dart';
 export 'package:flutter_map/src/layer/marker_layer.dart';
 export 'package:flutter_map/src/layer/overlay_image_layer.dart';
 export 'package:flutter_map/src/layer/polygon_layer.dart';

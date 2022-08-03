@@ -6,17 +6,15 @@ import 'package:flutter_map/src/layer/label.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart' hide Path; // conflict with Path from UI
 
-class PolygonLayerOptions extends LayerOptions {
+class PolygonLayerOptions {
   final List<Polygon> polygons;
   final bool polygonCulling;
 
   /// screen space culling of polygons based on bounding box
   PolygonLayerOptions({
-    Key? key,
     this.polygons = const [],
     this.polygonCulling = false,
-    Stream<void>? rebuild,
-  }) : super(key: key, rebuild: rebuild) {
+  }) {
     if (polygonCulling) {
       for (final polygon in polygons) {
         polygon.boundingBox = LatLngBounds.fromPoints(polygon.points);
@@ -68,38 +66,16 @@ class Polygon {
 }
 
 class PolygonLayerWidget extends StatelessWidget {
-  final PolygonLayerOptions options;
-  const PolygonLayerWidget({Key? key, required this.options}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final mapState = MapState.maybeOf(context)!;
-    return PolygonLayer(options, mapState, mapState.onMoved);
-  }
-}
-
-class PolygonLayer extends StatelessWidget {
   final PolygonLayerOptions polygonOpts;
-  final MapState map;
-  final Stream<void>? stream;
 
-  PolygonLayer(this.polygonOpts, this.map, this.stream)
-      : super(key: polygonOpts.key);
+  const PolygonLayerWidget({super.key, required this.polygonOpts});
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints bc) {
+        final map = MapState.maybeOf(context)!;
         final size = Size(bc.maxWidth, bc.maxHeight);
-        return _build(context, size);
-      },
-    );
-  }
-
-  Widget _build(BuildContext context, Size size) {
-    return StreamBuilder(
-      stream: stream, // a Stream<void> or null
-      builder: (BuildContext context, _) {
         final polygons = <Widget>[];
 
         for (final polygon in polygonOpts.polygons) {
@@ -117,13 +93,13 @@ class PolygonLayer extends StatelessWidget {
             continue;
           }
 
-          _fillOffsets(polygon.offsets, polygon.points);
+          _fillOffsets(polygon.offsets, polygon.points, map);
 
           if (null != polygon.holePointsList) {
             final len = polygon.holePointsList!.length;
             for (var i = 0; i < len; ++i) {
               _fillOffsets(
-                  polygon.holeOffsetsList![i], polygon.holePointsList![i]);
+                  polygon.holeOffsetsList![i], polygon.holePointsList![i], map);
             }
           }
 
@@ -142,7 +118,8 @@ class PolygonLayer extends StatelessWidget {
     );
   }
 
-  void _fillOffsets(final List<Offset> offsets, final List<LatLng> points) {
+  void _fillOffsets(
+      final List<Offset> offsets, final List<LatLng> points, MapState map) {
     final len = points.length;
     for (var i = 0; i < len; ++i) {
       final point = points[i];

@@ -6,7 +6,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart';
 
-class PolylineLayerOptions extends LayerOptions {
+class PolylineLayerOptions {
   /// List of polylines to draw.
   final List<Polyline> polylines;
 
@@ -23,12 +23,10 @@ class PolylineLayerOptions extends LayerOptions {
   final bool saveLayers;
 
   PolylineLayerOptions({
-    Key? key,
     this.polylines = const [],
     this.polylineCulling = false,
-    Stream<void>? rebuild,
     this.saveLayers = false,
-  }) : super(key: key, rebuild: rebuild) {
+  }) {
     if (polylineCulling) {
       for (final polyline in polylines) {
         polyline.boundingBox = LatLngBounds.fromPoints(polyline.points);
@@ -65,41 +63,18 @@ class Polyline {
   });
 }
 
+
 class PolylineLayerWidget extends StatelessWidget {
-  final PolylineLayerOptions options;
-
-  const PolylineLayerWidget({Key? key, required this.options})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final mapState = MapState.maybeOf(context)!;
-    return PolylineLayer(options, mapState, mapState.onMoved);
-  }
-}
-
-class PolylineLayer extends StatelessWidget {
   final PolylineLayerOptions polylineOpts;
-  final MapState map;
-  final Stream<void>? stream;
 
-  PolylineLayer(this.polylineOpts, this.map, this.stream)
-      : super(key: polylineOpts.key);
+  const PolylineLayerWidget({super.key, required this.polylineOpts});
 
   @override
   Widget build(BuildContext context) {
+    final map = MapState.maybeOf(context)!;
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints bc) {
         final size = Size(bc.maxWidth, bc.maxHeight);
-        return _build(context, size);
-      },
-    );
-  }
-
-  Widget _build(BuildContext context, Size size) {
-    return StreamBuilder<void>(
-      stream: stream, // a Stream<void> or null
-      builder: (BuildContext context, _) {
         final polylines = <Widget>[];
 
         for (final polylineOpt in polylineOpts.polylines) {
@@ -111,7 +86,7 @@ class PolylineLayer extends StatelessWidget {
             continue;
           }
 
-          _fillOffsets(polylineOpt.offsets, polylineOpt.points);
+          _fillOffsets(polylineOpt.offsets, polylineOpt.points, map);
 
           polylines.add(CustomPaint(
             painter: PolylinePainter(polylineOpt, polylineOpts.saveLayers),
@@ -126,7 +101,8 @@ class PolylineLayer extends StatelessWidget {
     );
   }
 
-  void _fillOffsets(final List<Offset> offsets, final List<LatLng> points) {
+  void _fillOffsets(
+      final List<Offset> offsets, final List<LatLng> points, MapState map) {
     final len = points.length;
     for (var i = 0; i < len; ++i) {
       final point = points[i];

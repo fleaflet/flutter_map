@@ -1,19 +1,15 @@
-import 'dart:async';
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:latlong2/latlong.dart';
 
-class OverlayImageLayerOptions extends LayerOptions {
+class OverlayImageLayerOptions {
   final List<BaseOverlayImage> overlayImages;
 
   OverlayImageLayerOptions({
-    Key? key,
     this.overlayImages = const [],
-    Stream<void>? rebuild,
-  }) : super(key: key, rebuild: rebuild);
+  });
 }
 
 /// Base class for all overlay images.
@@ -145,40 +141,20 @@ class RotatedOverlayImage extends BaseOverlayImage {
 }
 
 class OverlayImageLayerWidget extends StatelessWidget {
-  final OverlayImageLayerOptions options;
-
-  const OverlayImageLayerWidget({Key? key, required this.options})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final mapState = MapState.maybeOf(context)!;
-    return OverlayImageLayer(options, mapState, mapState.onMoved);
-  }
-}
-
-class OverlayImageLayer extends StatelessWidget {
   final OverlayImageLayerOptions overlayImageOpts;
-  final MapState map;
-  final Stream<void>? stream;
 
-  OverlayImageLayer(this.overlayImageOpts, this.map, this.stream)
-      : super(key: overlayImageOpts.key);
+  const OverlayImageLayerWidget({super.key, required this.overlayImageOpts});
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<void>(
-      stream: stream,
-      builder: (BuildContext context, _) {
-        return ClipRect(
-          child: Stack(
-            children: <Widget>[
-              for (var overlayImage in overlayImageOpts.overlayImages)
-                overlayImage.buildPositionedForOverlay(map),
-            ],
-          ),
-        );
-      },
+    final map = MapState.maybeOf(context)!;
+    return ClipRect(
+      child: Stack(
+        children: <Widget>[
+          for (var overlayImage in overlayImageOpts.overlayImages)
+            overlayImage.buildPositionedForOverlay(map),
+        ],
+      ),
     );
   }
 }

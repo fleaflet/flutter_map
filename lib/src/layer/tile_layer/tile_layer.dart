@@ -26,10 +26,8 @@ class TileLayerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mapState = MapState.maybeOf(context)!;
-
     return TileLayer(
       mapState: mapState,
-      stream: mapState.onMoved,
       options: options,
     );
   }
@@ -38,13 +36,12 @@ class TileLayerWidget extends StatelessWidget {
 class TileLayer extends StatefulWidget {
   final TileLayerOptions options;
   final MapState mapState;
-  final Stream<void> stream;
 
-  TileLayer({
+  const TileLayer({
+    super.key,
     required this.options,
     required this.mapState,
-    required this.stream,
-  }) : super(key: options.key);
+  });
 
   @override
   State<StatefulWidget> createState() => _TileLayerState();
@@ -77,7 +74,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     _tileSize = CustomPoint(options.tileSize, options.tileSize);
     _resetView();
     _update(null);
-    _moveSub = widget.stream.listen((_) => _handleMove());
+    _moveSub = widget.mapState.onMoved.listen((_) => _handleMove());
 
     if (options.reset != null) {
       _resetSub = options.reset?.listen((_) => _resetTiles());
@@ -163,52 +160,47 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: widget.stream,
-      builder: (context, snapshot) {
-        final tilesToRender = _tileZoom == null
-            ? _tileManager.all()
-            : _tileManager.sortedByDistanceToZoomAscending(
-                options.maxZoom, _tileZoom!);
-        final Map<double, TileTransformation> zoomToTransformation = {};
+    final tilesToRender = _tileZoom == null
+        ? _tileManager.all()
+        : _tileManager.sortedByDistanceToZoomAscending(
+            options.maxZoom, _tileZoom!);
+    final Map<double, TileTransformation> zoomToTransformation = {};
 
-        final tileWidgets = <Widget>[
-          for (var tile in tilesToRender)
-            TileWidget(
-              tile: tile,
-              size: _tileSize,
-              tileTransformation: zoomToTransformation[tile.coords.z] ??
-                  (zoomToTransformation[tile.coords.z] =
-                      _transformationCalculator.transformationFor(
-                    tile.coords.z,
-                    map,
-                  )),
-              errorImage: options.errorImage,
-              tileBuilder: options.tileBuilder,
-              key: ValueKey(tile.coordsKey),
-            )
-        ];
+    final tileWidgets = <Widget>[
+      for (var tile in tilesToRender)
+        TileWidget(
+          tile: tile,
+          size: _tileSize,
+          tileTransformation: zoomToTransformation[tile.coords.z] ??
+              (zoomToTransformation[tile.coords.z] =
+                  _transformationCalculator.transformationFor(
+                tile.coords.z,
+                map,
+              )),
+          errorImage: options.errorImage,
+          tileBuilder: options.tileBuilder,
+          key: ValueKey(tile.coordsKey),
+        )
+    ];
 
-        final tilesContainer = Stack(
-          children: tileWidgets,
-        );
+    final tilesContainer = Stack(
+      children: tileWidgets,
+    );
 
-        final tilesLayer = options.tilesContainerBuilder == null
-            ? tilesContainer
-            : options.tilesContainerBuilder!(
-                context,
-                tilesContainer,
-                tilesToRender,
-              );
+    final tilesLayer = options.tilesContainerBuilder == null
+        ? tilesContainer
+        : options.tilesContainerBuilder!(
+            context,
+            tilesContainer,
+            tilesToRender,
+          );
 
-        return Opacity(
-          opacity: options.opacity,
-          child: Container(
-            color: options.backgroundColor,
-            child: tilesLayer,
-          ),
-        );
-      },
+    return Opacity(
+      opacity: options.opacity,
+      child: Container(
+        color: options.backgroundColor,
+        child: tilesLayer,
+      ),
     );
   }
 

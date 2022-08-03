@@ -1,15 +1,12 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 
-class CircleLayerOptions extends LayerOptions {
+class CircleLayerOptions {
   final List<CircleMarker> circles;
   CircleLayerOptions({
-    Key? key,
     this.circles = const [],
-    Stream<void>? rebuild,
-  }) : super(key: key, rebuild: rebuild);
+  });
 }
 
 class CircleMarker {
@@ -33,22 +30,7 @@ class CircleMarker {
 
 class CircleLayerWidget extends StatelessWidget {
   final CircleLayerOptions options;
-
-  const CircleLayerWidget({Key? key, required this.options}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final mapState = MapState.maybeOf(context)!;
-    return CircleLayer(options, mapState, mapState.onMoved);
-  }
-}
-
-class CircleLayer extends StatelessWidget {
-  final CircleLayerOptions circleOpts;
-  final MapState map;
-  final Stream<void>? stream;
-  CircleLayer(this.circleOpts, this.map, this.stream)
-      : super(key: circleOpts.key);
+  const CircleLayerWidget({super.key, required this.options});
 
   @override
   Widget build(BuildContext context) {
@@ -61,11 +43,9 @@ class CircleLayer extends StatelessWidget {
   }
 
   Widget _build(BuildContext context, Size size) {
-    return StreamBuilder<void>(
-      stream: stream, // a Stream<void> or null
-      builder: (BuildContext context, _) {
-        final circleWidgets = <Widget>[];
-        for (final circle in circleOpts.circles) {
+    final map = MapState.maybeOf(context)!;
+    final circleWidgets = <Widget>[];
+        for (final circle in options.circles) {
           circle.offset = map.getOffsetFromOrigin(circle.point);
 
           if (circle.useRadiusInMeter) {
@@ -85,8 +65,6 @@ class CircleLayer extends StatelessWidget {
         return Stack(
           children: circleWidgets,
         );
-      },
-    );
   }
 }
 

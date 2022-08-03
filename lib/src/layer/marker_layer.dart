@@ -5,7 +5,7 @@ import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Configuration for marker layer
-class MarkerLayerOptions extends LayerOptions {
+class MarkerLayerOptions {
   final List<Marker> markers;
 
   /// Toggle marker position caching. Enabling will improve performance, but may introducen
@@ -37,14 +37,12 @@ class MarkerLayerOptions extends LayerOptions {
   final AlignmentGeometry? rotateAlignment;
 
   MarkerLayerOptions({
-    Key? key,
     this.markers = const [],
     this.rotate = false,
     this.rotateOrigin,
     this.rotateAlignment = Alignment.center,
     this.usePxCache = true,
-    Stream<void>? rebuild,
-  }) : super(key: key, rebuild: rebuild);
+  });
 }
 
 class Anchor {
@@ -169,22 +167,21 @@ class Marker {
 class MarkerLayerWidget extends StatelessWidget {
   final MarkerLayerOptions options;
 
-  const MarkerLayerWidget({Key? key, required this.options}) : super(key: key);
+  const MarkerLayerWidget({super.key, required this.options});
 
   @override
   Widget build(BuildContext context) {
     final mapState = MapState.maybeOf(context)!;
-    return MarkerLayer(options, mapState, mapState.onMoved);
+    return MarkerLayer(key: key, markerLayerOptions: options, map: mapState);
   }
 }
 
 class MarkerLayer extends StatefulWidget {
   final MarkerLayerOptions markerLayerOptions;
   final MapState map;
-  final Stream<void>? stream;
 
-  MarkerLayer(this.markerLayerOptions, this.map, this.stream)
-      : super(key: markerLayerOptions.key);
+  const MarkerLayer(
+      {super.key, required this.markerLayerOptions, required this.map});
 
   @override
   State<MarkerLayer> createState() => _MarkerLayerState();
@@ -240,75 +237,68 @@ class _MarkerLayerState extends State<MarkerLayer> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<void>(
-      stream: widget.stream,
-      builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-        final layerOptions = widget.markerLayerOptions;
-        final map = widget.map;
-        final usePxCache = layerOptions.usePxCache;
-        final markers = <Widget>[];
-        final sameZoom = map.zoom == lastZoom;
+    final layerOptions = widget.markerLayerOptions;
+    final map = widget.map;
+    final usePxCache = layerOptions.usePxCache;
+    final markers = <Widget>[];
+    final sameZoom = map.zoom == lastZoom;
 
-        final cacheUpdated = updatePxCacheIfNeeded();
+    final cacheUpdated = updatePxCacheIfNeeded();
 
-        for (var i = 0; i < layerOptions.markers.length; i++) {
-          final marker = layerOptions.markers[i];
+    for (var i = 0; i < layerOptions.markers.length; i++) {
+      final marker = layerOptions.markers[i];
 
-          // Decide whether to use cached point or calculate it
-          final pxPoint = usePxCache && (sameZoom || cacheUpdated)
-              ? _pxCache[i]
-              : map.project(marker.point);
-          if (!sameZoom && usePxCache) {
-            _pxCache[i] = pxPoint;
-          }
+      // Decide whether to use cached point or calculate it
+      final pxPoint = usePxCache && (sameZoom || cacheUpdated)
+          ? _pxCache[i]
+          : map.project(marker.point);
+      if (!sameZoom && usePxCache) {
+        _pxCache[i] = pxPoint;
+      }
 
-          // See if any portion of the Marker rect resides in the map bounds
-          // If not, don't spend any resources on build function.
-          // This calculation works for any Anchor position whithin the Marker
-          // Note that Anchor coordinates of (0,0) are at bottom-right of the Marker
-          // unlike the map coordinates.
-          final rightPortion = marker.width - marker.anchor.left;
-          final leftPortion = marker.anchor.left;
-          final bottomPortion = marker.height - marker.anchor.top;
-          final topPortion = marker.anchor.top;
+      // See if any portion of the Marker rect resides in the map bounds
+      // If not, don't spend any resources on build function.
+      // This calculation works for any Anchor position whithin the Marker
+      // Note that Anchor coordinates of (0,0) are at bottom-right of the Marker
+      // unlike the map coordinates.
+      final rightPortion = marker.width - marker.anchor.left;
+      final leftPortion = marker.anchor.left;
+      final bottomPortion = marker.height - marker.anchor.top;
+      final topPortion = marker.anchor.top;
 
-          final sw =
-              CustomPoint(pxPoint.x + leftPortion, pxPoint.y - bottomPortion);
-          final ne =
-              CustomPoint(pxPoint.x - rightPortion, pxPoint.y + topPortion);
+      final sw =
+          CustomPoint(pxPoint.x + leftPortion, pxPoint.y - bottomPortion);
+      final ne = CustomPoint(pxPoint.x - rightPortion, pxPoint.y + topPortion);
 
-          if (!map.pixelBounds.containsPartialBounds(Bounds(sw, ne))) {
-            continue;
-          }
+      if (!map.pixelBounds.containsPartialBounds(Bounds(sw, ne))) {
+        continue;
+      }
 
-          final pos = pxPoint - map.getPixelOrigin();
-          final markerWidget = (marker.rotate ?? layerOptions.rotate ?? false)
-              // Counter rotated marker to the map rotation
-              ? Transform.rotate(
-                  angle: -map.rotationRad,
-                  origin: marker.rotateOrigin ?? layerOptions.rotateOrigin,
-                  alignment:
-                      marker.rotateAlignment ?? layerOptions.rotateAlignment,
-                  child: marker.builder(context),
-                )
-              : marker.builder(context);
+      final pos = pxPoint - map.getPixelOrigin();
+      final markerWidget = (marker.rotate ?? layerOptions.rotate ?? false)
+          // Counter rotated marker to the map rotation
+          ? Transform.rotate(
+              angle: -map.rotationRad,
+              origin: marker.rotateOrigin ?? layerOptions.rotateOrigin,
+              alignment: marker.rotateAlignment ?? layerOptions.rotateAlignment,
+              child: marker.builder(context),
+            )
+          : marker.builder(context);
 
-          markers.add(
-            Positioned(
-              key: marker.key,
-              width: marker.width,
-              height: marker.height,
-              left: pos.x - rightPortion,
-              top: pos.y - bottomPortion,
-              child: markerWidget,
-            ),
-          );
-        }
-        lastZoom = map.zoom;
-        return Stack(
-          children: markers,
-        );
-      },
+      markers.add(
+        Positioned(
+          key: marker.key,
+          width: marker.width,
+          height: marker.height,
+          left: pos.x - rightPortion,
+          top: pos.y - bottomPortion,
+          child: markerWidget,
+        ),
+      );
+    }
+    lastZoom = map.zoom;
+    return Stack(
+      children: markers,
     );
   }
 }

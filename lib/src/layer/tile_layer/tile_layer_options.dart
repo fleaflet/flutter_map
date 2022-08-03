@@ -24,7 +24,7 @@ typedef ErrorTileCallBack = void Function(Tile tile, dynamic error);
 /// You should read up about the options by exploring each one, or visiting
 /// https://docs.fleaflet.dev/usage/layers/tile-layer. Some are important to
 /// avoid issues.
-class TileLayerOptions extends LayerOptions {
+class TileLayerOptions {
   /// Defines the structure to create the URLs for the tiles. `{s}` means one of
   /// the available subdomains (can be omitted) `{z}` zoom level `{x}` and `{y}`
   /// — tile coordinates `{r}` can be used to add "&commat;2x" to the URL to
@@ -237,7 +237,6 @@ class TileLayerOptions extends LayerOptions {
   LatLngBounds? tileBounds;
 
   TileLayerOptions({
-    Key? key,
     this.urlTemplate,
     double tileSize = 256.0,
     double minZoom = 0.0,
@@ -268,7 +267,6 @@ class TileLayerOptions extends LayerOptions {
     this.overrideTilesWhenUrlChanges = false,
     this.retinaMode = false,
     this.errorTileCallback,
-    Stream<void>? rebuild,
     this.templateFunction = util.template,
     this.tileBuilder,
     this.tilesContainerBuilder,
@@ -310,8 +308,7 @@ class TileLayerOptions extends LayerOptions {
                 ...tileProvider.headers,
                 if (!tileProvider.headers.containsKey('User-Agent'))
                   'User-Agent': 'flutter_map ($userAgentPackageName)',
-              }),
-        super(key: key, rebuild: rebuild);
+              });
 }
 
 class WMSTileLayerOptions {
