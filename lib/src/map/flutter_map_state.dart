@@ -165,17 +165,12 @@ class FlutterMapState extends MapGestureMixin
             child: Transform.rotate(
               angle: mapState.rotationRad,
               child: Stack(
-                children: [
-                  if (widget.children.isNotEmpty) ...widget.children,
-                ],
+                children: widget.children,
               ),
             ),
           ),
           Stack(
-            children: [
-              if (widget.nonRotatedChildren.isNotEmpty)
-                ...widget.nonRotatedChildren,
-            ],
+            children: widget.nonRotatedChildren,
           ),
         ],
       ),
