@@ -126,10 +126,6 @@ class Marker {
 class MarkerLayer extends StatefulWidget {
   final List<Marker> markers;
 
-  /// Toggle marker position caching. Enabling will improve performance, but may introducen
-  /// errors when adding/removing markers. Default is enabled (`true`).
-  final bool usePxCache;
-
   /// If true markers will be counter rotated to the map rotation
   final bool? rotate;
 
@@ -159,67 +155,26 @@ class MarkerLayer extends StatefulWidget {
       this.markers = const [],
       this.rotate = false,
       this.rotateOrigin,
-      this.rotateAlignment = Alignment.center,
-      this.usePxCache = true});
+      this.rotateAlignment = Alignment.center});
 
   @override
   State<MarkerLayer> createState() => _MarkerLayerState();
 }
 
 class _MarkerLayerState extends State<MarkerLayer> {
-  double lastZoom = -1;
-
-  /// List containing cached pixel positions of markers
-  /// Should be discarded when zoom changes
-  // Has a fixed length of markerOpts.markers.length - better performance:
-  // https://stackoverflow.com/questions/15943890/is-there-a-performance-benefit-in-using-fixed-length-lists-in-dart
-  var _pxCache = <CustomPoint>[];
-
-  /// Calling this every time markerOpts change should guarantee proper length
-  List<CustomPoint> generatePxCache(MapState map) {
-    if (widget.usePxCache) {
-      return List.generate(
-        widget.markers.length,
-        (i) => map.project(widget.markers[i].point),
-      );
-    }
-    return [];
-  }
-
-  bool updatePxCacheIfNeeded(MapState map) {
-    var didUpdate = false;
-
-    /// markers may be modified, so update cache. Note, someone may
-    /// have not added to a cache, but modified, so this won't catch
-    /// this case. Parent widget setState should be called to call
-    /// didUpdateWidget to force a cache reload
-
-    if (widget.markers.length != _pxCache.length) {
-      _pxCache = generatePxCache(map);
-      didUpdate = true;
-    }
-    return didUpdate;
-  }
 
   @override
   Widget build(BuildContext context) {
     final map = MapState.maybeOf(context)!;
-    final usePxCache = widget.usePxCache;
     final markers = <Widget>[];
-    final sameZoom = map.zoom == lastZoom;
-
-    final cacheUpdated = updatePxCacheIfNeeded(map);
 
     for (var i = 0; i < widget.markers.length; i++) {
       final marker = widget.markers[i];
 
-      // Decide whether to use cached point or calculate it
-      final pxPoint = usePxCache && (sameZoom || cacheUpdated)
-          ? _pxCache[i]
-          : map.project(marker.point);
-      if (!sameZoom && usePxCache) {
-        _pxCache[i] = pxPoint;
-      }
+      // print(usePxCache && (sameZoom || cacheUpdated));
+
+      // Find the position of the point on the screen
+      final pxPoint = map.project(marker.point);
 
       // See if any portion of the Marker rect resides in the map bounds
       // If not, don't spend any resources on build function.
@@ -261,7 +216,6 @@ class _MarkerLayerState extends State<MarkerLayer> {
         ),
       );
     }
-    lastZoom = map.zoom;
     return Stack(
       children: markers,
     );
