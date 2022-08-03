@@ -6,10 +6,10 @@ class MapStateInheritedWidget extends InheritedWidget {
   final MapState mapState;
 
   const MapStateInheritedWidget({
-    Key? key,
+    super.key,
     required this.mapState,
-    required Widget child,
-  }) : super(key: key, child: child);
+    required super.child,
+  });
 
   @override
   bool updateShouldNotify(MapStateInheritedWidget oldWidget) {
