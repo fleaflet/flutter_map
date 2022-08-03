@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:async/async.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -11,8 +10,9 @@ import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
 
 class FlutterMapState extends MapGestureMixin
     with AutomaticKeepAliveClientMixin {
-  final List<StreamGroup<void>> groups = <StreamGroup<void>>[];
+
   late StreamSubscription<MapEvent> _rebuildStream;
+
   final _positionedTapController = PositionedTapController();
   final MapController _localController = MapControllerImpl();
 
@@ -54,17 +54,8 @@ class FlutterMapState extends MapGestureMixin
     }
   }
 
-  void _disposeStreamGroups() {
-    for (final group in groups) {
-      group.close();
-    }
-
-    groups.clear();
-  }
-
   @override
   void dispose() {
-    _disposeStreamGroups();
     mapState.dispose();
     _localController.dispose();
     _rebuildStream.cancel();
@@ -74,7 +65,6 @@ class FlutterMapState extends MapGestureMixin
 
   @override
   Widget build(BuildContext context) {
-    _disposeStreamGroups();
     super.build(context);
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {

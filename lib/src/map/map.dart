@@ -15,9 +15,6 @@ class MapControllerImpl implements MapController {
   StreamSink<MapEvent> get mapEventSink => _mapEventSink.sink;
 
   @override
-  Future<void> get onReady => _readyCompleter.future;
-
-  @override
   void dispose() {
     _mapEventSink.close();
   }
