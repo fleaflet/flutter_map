@@ -44,7 +44,7 @@ class CirclePage extends StatelessWidget {
                     subdomains: ['a', 'b', 'c'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   )),
-                  CircleLayerWidget(options: CircleLayerOptions(circles: circleMarkers)),
+                  CircleLayer(circles: circleMarkers),
                 ],
               ),
             ),

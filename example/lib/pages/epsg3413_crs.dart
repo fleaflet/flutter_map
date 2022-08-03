@@ -135,7 +135,7 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
                 ),
                 children: [
                   TileLayerWidget(
-                    options: TileLayerOptions(
+                      options: TileLayerOptions(
                     opacity: 1,
                     backgroundColor: Colors.transparent,
                     wmsOptions: WMSTileLayerOptions(
@@ -160,9 +160,7 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
                       )
                     ],
                   ),
-                  CircleLayerWidget(options: CircleLayerOptions(
-                    circles: circles,
-                  )),
+                  CircleLayer(circles: circles),
                 ],
               ),
             ),

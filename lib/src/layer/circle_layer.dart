@@ -2,13 +2,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 
-class CircleLayerOptions {
-  final List<CircleMarker> circles;
-  CircleLayerOptions({
-    this.circles = const [],
-  });
-}
-
 class CircleMarker {
   final LatLng point;
   final double radius;
@@ -28,9 +21,12 @@ class CircleMarker {
   });
 }
 
-class CircleLayerWidget extends StatelessWidget {
-  final CircleLayerOptions options;
-  const CircleLayerWidget({super.key, required this.options});
+class CircleLayer extends StatelessWidget {
+  final List<CircleMarker> circles;
+  const CircleLayer({
+    super.key,
+    this.circles = const [],
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -38,8 +34,8 @@ class CircleLayerWidget extends StatelessWidget {
       builder: (BuildContext context, BoxConstraints bc) {
         final size = Size(bc.maxWidth, bc.maxHeight);
         final map = MapState.maybeOf(context)!;
-    final circleWidgets = <Widget>[];
-        for (final circle in options.circles) {
+        final circleWidgets = <Widget>[];
+        for (final circle in circles) {
           circle.offset = map.getOffsetFromOrigin(circle.point);
 
           if (circle.useRadiusInMeter) {
