@@ -27,14 +27,6 @@ class MapInsideListViewPage extends StatelessWidget {
                   zoom: 5,
                 ),
                 children: [
-                  //TODO test order
-                  ZoomButtons(zoomButtonsOpts: ZoomButtonsPluginOption(
-                    minZoom: 4,
-                    maxZoom: 19,
-                    mini: true,
-                    padding: 10,
-                    alignment: Alignment.bottomLeft,
-                  )),
                   TileLayerWidget(
                     options: TileLayerOptions(
                       urlTemplate:
@@ -42,6 +34,13 @@ class MapInsideListViewPage extends StatelessWidget {
                       subdomains: ['a', 'b', 'c'],
                       userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                     ),
+                  ),
+                  const FlutterMapZoomButtons(
+                    minZoom: 4,
+                    maxZoom: 19,
+                    mini: true,
+                    padding: 10,
+                    alignment: Alignment.bottomLeft,
                   ),
                 ],
               ),

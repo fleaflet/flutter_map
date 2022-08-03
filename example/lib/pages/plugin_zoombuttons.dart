@@ -24,14 +24,14 @@ class PluginZoomButtons extends StatelessWidget {
                   center: LatLng(51.5, -0.09),
                   zoom: 5,
                 ),
-                nonRotatedChildren: [
-                  ZoomButtons(zoomButtonsOpts: ZoomButtonsPluginOption(
+                nonRotatedChildren: const [
+                  FlutterMapZoomButtons(
                     minZoom: 4,
                     maxZoom: 19,
                     mini: true,
                     padding: 10,
                     alignment: Alignment.bottomRight,
-                  )),
+                  ),
                 ],
                 children: [
                   TileLayerWidget(options: TileLayerOptions(
