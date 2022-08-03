@@ -252,7 +252,6 @@ class MapOptions {
   final PointerCancelCallback? onPointerCancel;
   final PointerHoverCallback? onPointerHover;
   final PositionCallback? onPositionChanged;
-  final MapCreatedCallback? onMapCreated;
   final bool slideOnBoundaries;
   final Size? screenSize;
   final bool adaptiveBoundaries;
@@ -310,7 +309,6 @@ class MapOptions {
     this.onPointerCancel,
     this.onPointerHover,
     this.onPositionChanged,
-    this.onMapCreated,
     this.slideOnBoundaries = false,
     this.adaptiveBoundaries = false,
     this.screenSize,

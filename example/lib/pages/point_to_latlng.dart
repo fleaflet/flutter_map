@@ -31,10 +31,6 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
 
     mapEventSubscription = mapController.mapEventStream
         .listen((mapEvent) => onMapEvent(mapEvent, context));
-
-    Future.delayed(Duration.zero, () {
-      mapController.onReady.then((_) => _updatePointLatLng(context));
-    });
   }
 
   @override

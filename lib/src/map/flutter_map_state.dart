@@ -48,10 +48,6 @@ class FlutterMapState extends MapGestureMixin
       if(mounted) setState(() {});
     });
 
-    // Callback onMapCreated if not null
-    if (options.onMapCreated != null) {
-      options.onMapCreated!(mapController);
-    }
   }
 
   @override
