@@ -17,7 +17,6 @@ import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/map.dart';
-import 'package:flutter_map/src/plugins/plugin.dart';
 
 export 'package:flutter_map/src/core/center_zoom.dart';
 export 'package:flutter_map/src/core/point.dart';
@@ -41,7 +40,6 @@ export 'package:flutter_map/src/layer/tile_layer/tile_provider/file_tile_provide
     if (dart.library.html) 'package:flutter_map/src/layer/tile_layer/tile_provider/file_tile_provider_web.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_provider/tile_provider_io.dart'
     if (dart.library.html) 'package:flutter_map/src/layer/tile_layer/tile_provider/tile_provider_web.dart';
-export 'package:flutter_map/src/plugins/plugin.dart';
 
 /// Renders a map composed of a list of layers powered by [LayerOptions].
 ///
@@ -257,7 +255,6 @@ class MapOptions {
   final PointerHoverCallback? onPointerHover;
   final PositionCallback? onPositionChanged;
   final MapCreatedCallback? onMapCreated;
-  final List<MapPlugin> plugins;
   final bool slideOnBoundaries;
   final Size? screenSize;
   final bool adaptiveBoundaries;
@@ -316,7 +313,6 @@ class MapOptions {
     this.onPointerHover,
     this.onPositionChanged,
     this.onMapCreated,
-    this.plugins = const [],
     this.slideOnBoundaries = false,
     this.adaptiveBoundaries = false,
     this.screenSize,
