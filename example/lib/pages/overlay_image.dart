@@ -46,15 +46,19 @@ class OverlayImagePage extends StatelessWidget {
                   center: LatLng(51.5, -0.09),
                   zoom: 6,
                 ),
-                layers: [
-                  TileLayerOptions(
+                children: [
+                  TileLayerWidget(
+                      options: TileLayerOptions(
                     urlTemplate:
                         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     subdomains: ['a', 'b', 'c'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  ),
-                  OverlayImageLayerOptions(overlayImages: overlayImages),
-                  MarkerLayerOptions(markers: [
+                  )),
+                  OverlayImageLayerWidget(
+                      options: OverlayImageLayerOptions(
+                          overlayImages: overlayImages)),
+                  MarkerLayerWidget(
+                      options: MarkerLayerOptions(markers: [
                     Marker(
                         point: topLeftCorner,
                         builder: (context) => const _Circle(
@@ -67,7 +71,7 @@ class OverlayImagePage extends StatelessWidget {
                         point: bottomRightCorner,
                         builder: (context) => const _Circle(
                             color: Colors.redAccent, label: "BR")),
-                  ])
+                  ]))
                 ],
               ),
             ),

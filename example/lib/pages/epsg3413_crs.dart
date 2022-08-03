@@ -133,8 +133,9 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
                   zoom: 3,
                   maxZoom: maxZoom,
                 ),
-                layers: [
-                  TileLayerOptions(
+                children: [
+                  TileLayerWidget(
+                    options: TileLayerOptions(
                     opacity: 1,
                     backgroundColor: Colors.transparent,
                     wmsOptions: WMSTileLayerOptions(
@@ -145,8 +146,9 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
                           'https://www.gebco.net/data_and_products/gebco_web_services/north_polar_view_wms/mapserv?',
                       layers: ['gebco_north_polar_view'],
                     ),
-                  ),
-                  OverlayImageLayerOptions(
+                  )),
+                  OverlayImageLayerWidget(
+                    options: OverlayImageLayerOptions(
                     overlayImages: [
                       OverlayImage(
                         bounds: LatLngBounds(
@@ -157,11 +159,11 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
                           'map/epsg3413/amsr2.png',
                         ).image,
                       )
-                    ],
+                    ]),
                   ),
-                  CircleLayerOptions(
+                  CircleLayerWidget(options: CircleLayerOptions(
                     circles: circles,
-                  ),
+                  )),
                 ],
               ),
             ),

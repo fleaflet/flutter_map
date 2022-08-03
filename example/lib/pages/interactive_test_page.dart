@@ -175,13 +175,13 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                   zoom: 11,
                   interactiveFlags: flags,
                 ),
-                layers: [
-                  TileLayerOptions(
+                children: [
+                  TileLayerWidget(options: TileLayerOptions(
                     urlTemplate:
                         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     subdomains: ['a', 'b', 'c'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  ),
+                  )),
                 ],
               ),
             ),

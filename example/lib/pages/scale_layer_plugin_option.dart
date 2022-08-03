@@ -6,57 +6,22 @@ import 'package:flutter_map/plugin_api.dart';
 
 import 'package:flutter_map_example/pages/scalebar_utils.dart' as util;
 
-class ScaleLayerPluginOption extends LayerOptions {
+class ScaleLayerPluginOption {
   TextStyle? textStyle;
   Color lineColor;
   double lineWidth;
   final EdgeInsets? padding;
 
   ScaleLayerPluginOption({
-    Key? key,
     this.textStyle,
     this.lineColor = Colors.white,
     this.lineWidth = 2,
     this.padding,
-    Stream<void>? rebuild,
-  }) : super(key: key, rebuild: rebuild);
-}
-
-class ScaleLayerPlugin implements MapPlugin {
-  @override
-  Widget createLayer(
-      LayerOptions options, MapState mapState, Stream<void> stream) {
-    if (options is ScaleLayerPluginOption) {
-      return ScaleLayerWidget(options, mapState);
-    }
-    throw Exception('Unknown options type for ScaleLayerPlugin: $options');
-  }
-
-  @override
-  bool supportsLayer(LayerOptions options) {
-    return options is ScaleLayerPluginOption;
-  }
+  }) ;
 }
 
 class ScaleLayerWidget extends StatelessWidget {
-  final ScaleLayerPluginOption scaleLayerOpts;
-  final MapState map;
-  ScaleLayerWidget(this.scaleLayerOpts, this.map)
-      : super(key: scaleLayerOpts.key);
-  @override
-  Widget build(BuildContext context) {
-    final mapState = MapState.maybeOf(context);
-    return StreamBuilder<void>(
-        stream: mapState?.onMoved,
-        builder: (BuildContext context, _) {
-          return ScaleLayer(scaleLayerOpts, map);
-        });
-  }
-}
-
-class ScaleLayer extends StatelessWidget {
-  final ScaleLayerPluginOption scaleLayerOpts;
-  final MapState map;
+  final ScaleLayerPluginOption options;
   final scale = [
     25000000,
     15000000,
@@ -83,10 +48,11 @@ class ScaleLayer extends StatelessWidget {
     5
   ];
 
-  ScaleLayer(this.scaleLayerOpts, this.map) : super(key: scaleLayerOpts.key);
+  ScaleLayerWidget({super.key, required this.options});
 
   @override
   Widget build(BuildContext context) {
+    final map = MapState.maybeOf(context)!;
     final zoom = map.zoom;
     final distance = scale[max(0, min(20, zoom.round() + 2))].toDouble();
     final center = map.center;
@@ -105,10 +71,10 @@ class ScaleLayer extends StatelessWidget {
           painter: ScalePainter(
             width,
             displayDistance,
-            lineColor: scaleLayerOpts.lineColor,
-            lineWidth: scaleLayerOpts.lineWidth,
-            padding: scaleLayerOpts.padding,
-            textStyle: scaleLayerOpts.textStyle,
+            lineColor: options.lineColor,
+            lineWidth: options.lineWidth,
+            padding: options.padding,
+            textStyle: options.textStyle,
           ),
         );
       },

@@ -32,12 +32,12 @@ class OfflineMapPage extends StatelessWidget {
                   swPanBoundary: LatLng(56.6877, 11.5089),
                   nePanBoundary: LatLng(56.7378, 11.6644),
                 ),
-                layers: [
-                  TileLayerOptions(
+                children: [
+                  TileLayerWidget(options: TileLayerOptions(
                     tileProvider: AssetTileProvider(),
                     maxZoom: 14,
                     urlTemplate: 'assets/map/anholt_osmbright/{z}/{x}/{y}.png',
-                  ),
+                  )),
                 ],
               ),
             ),

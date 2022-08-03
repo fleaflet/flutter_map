@@ -137,8 +137,8 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
                     point = proj4.Point(x: p.latitude, y: p.longitude);
                   }),
                 ),
-                layers: [
-                  TileLayerOptions(
+                children: [
+                  TileLayerWidget(options: TileLayerOptions(
                     opacity: 1,
                     backgroundColor: Colors.transparent,
                     wmsOptions: WMSTileLayerOptions(
@@ -150,7 +150,7 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
                           'https://www.gebco.net/data_and_products/gebco_web_services/north_polar_view_wms/mapserv?',
                       layers: ['gebco_north_polar_view'],
                     ),
-                  ),
+                  )),
                 ],
               ),
             ),

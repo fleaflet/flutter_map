@@ -21,7 +21,6 @@ import 'package:flutter_map_example/pages/network_tile_provider.dart';
 import 'package:flutter_map_example/pages/offline_map.dart';
 import 'package:flutter_map_example/pages/on_tap.dart';
 import 'package:flutter_map_example/pages/overlay_image.dart';
-import 'package:flutter_map_example/pages/plugin_api.dart';
 import 'package:flutter_map_example/pages/plugin_scalebar.dart';
 import 'package:flutter_map_example/pages/plugin_zoombuttons.dart';
 import 'package:flutter_map_example/pages/point_to_latlng.dart';
@@ -132,12 +131,6 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           context,
           const Text('Marker Rotate'),
           MarkerRotatePage.route,
-          currentRoute,
-        ),
-        _buildMenuItem(
-          context,
-          const Text('Plugins'),
-          PluginPage.route,
           currentRoute,
         ),
         _buildMenuItem(

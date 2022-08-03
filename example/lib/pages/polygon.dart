@@ -52,14 +52,16 @@ class PolygonPage extends StatelessWidget {
                   center: LatLng(51.5, -0.09),
                   zoom: 5,
                 ),
-                layers: [
-                  TileLayerOptions(
+                children: [
+                  TileLayerWidget(
+                      options: TileLayerOptions(
                     urlTemplate:
                         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     subdomains: ['a', 'b', 'c'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  ),
-                  PolygonLayerOptions(polygons: [
+                  )),
+                  PolygonLayerWidget(
+                      options: PolygonLayerOptions(polygons: [
                     Polygon(
                       points: notFilledPoints,
                       isFilled: false, // By default it's false
@@ -88,7 +90,7 @@ class PolygonPage extends StatelessWidget {
                       borderColor: Colors.lightBlue,
                       color: Colors.lightBlue,
                     ),
-                  ]),
+                  ])),
                 ],
               ),
             ),

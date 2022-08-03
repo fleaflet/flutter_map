@@ -25,21 +25,17 @@ class WidgetsPage extends StatelessWidget {
                 options: MapOptions(
                   center: LatLng(51.5, -0.09),
                   zoom: 5,
-                  plugins: [
-                    ZoomButtonsPlugin(),
-                  ],
                 ),
-                nonRotatedLayers: [
-                  ZoomButtonsPluginOption(
+                nonRotatedChildren: [
+                  //TODO test order
+                  ZoomButtons(zoomButtonsOpts: ZoomButtonsPluginOption(
                     minZoom: 4,
                     maxZoom: 19,
                     mini: true,
                     padding: 10,
                     alignment: Alignment.bottomLeft,
-                  )
-                ],
-                nonRotatedChildren: const <Widget>[
-                  Text(
+                  )),
+                  const Text(
                     'Plugin is just Text widget',
                     style: TextStyle(
                         fontSize: 22,
@@ -48,7 +44,7 @@ class WidgetsPage extends StatelessWidget {
                         backgroundColor: Colors.yellow),
                   )
                 ],
-                children: <Widget>[
+                children: [
                   TileLayerWidget(
                     options: TileLayerOptions(
                       urlTemplate:

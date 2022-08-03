@@ -84,14 +84,16 @@ class OnTapPageState extends State<OnTapPage> {
                   maxZoom: 5,
                   minZoom: 3,
                 ),
-                layers: [
-                  TileLayerOptions(
+                children: [
+                  TileLayerWidget(
+                      options: TileLayerOptions(
                     urlTemplate:
                         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     subdomains: ['a', 'b', 'c'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  ),
-                  MarkerLayerOptions(markers: markers)
+                  )),
+                  MarkerLayerWidget(
+                      options: MarkerLayerOptions(markers: markers)),
                 ],
               ),
             ),

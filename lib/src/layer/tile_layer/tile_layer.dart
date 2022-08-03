@@ -21,7 +21,7 @@ part 'tile_layer_options.dart';
 class TileLayerWidget extends StatelessWidget {
   final TileLayerOptions options;
 
-  const TileLayerWidget({Key? key, required this.options}) : super(key: key);
+  const TileLayerWidget({super.key, required this.options});
 
   @override
   Widget build(BuildContext context) {

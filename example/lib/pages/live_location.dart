@@ -139,14 +139,16 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
                   zoom: 5,
                   interactiveFlags: interActiveFlags,
                 ),
-                layers: [
-                  TileLayerOptions(
+                children: [
+                  TileLayerWidget(
+                      options: TileLayerOptions(
                     urlTemplate:
                         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     subdomains: ['a', 'b', 'c'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  ),
-                  MarkerLayerOptions(markers: markers)
+                  )),
+                  MarkerLayerWidget(
+                      options: MarkerLayerOptions(markers: markers)),
                 ],
               ),
             ),

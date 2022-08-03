@@ -141,9 +141,9 @@ class RotatedOverlayImage extends BaseOverlayImage {
 }
 
 class OverlayImageLayerWidget extends StatelessWidget {
-  final OverlayImageLayerOptions overlayImageOpts;
+  final OverlayImageLayerOptions options;
 
-  const OverlayImageLayerWidget({super.key, required this.overlayImageOpts});
+  const OverlayImageLayerWidget({super.key, required this.options});
 
   @override
   Widget build(BuildContext context) {
@@ -151,7 +151,7 @@ class OverlayImageLayerWidget extends StatelessWidget {
     return ClipRect(
       child: Stack(
         children: <Widget>[
-          for (var overlayImage in overlayImageOpts.overlayImages)
+          for (var overlayImage in options.overlayImages)
             overlayImage.buildPositionedForOverlay(map),
         ],
       ),

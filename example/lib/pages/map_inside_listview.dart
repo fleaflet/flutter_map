@@ -25,20 +25,16 @@ class MapInsideListViewPage extends StatelessWidget {
                 options: MapOptions(
                   center: LatLng(51.5, -0.09),
                   zoom: 5,
-                  plugins: [
-                    ZoomButtonsPlugin(),
-                  ],
                 ),
-                layers: [
-                  ZoomButtonsPluginOption(
+                children: [
+                  //TODO test order
+                  ZoomButtons(zoomButtonsOpts: ZoomButtonsPluginOption(
                     minZoom: 4,
                     maxZoom: 19,
                     mini: true,
                     padding: 10,
                     alignment: Alignment.bottomLeft,
-                  )
-                ],
-                children: <Widget>[
+                  )),
                   TileLayerWidget(
                     options: TileLayerOptions(
                       urlTemplate:

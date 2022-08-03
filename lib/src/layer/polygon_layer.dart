@@ -66,9 +66,9 @@ class Polygon {
 }
 
 class PolygonLayerWidget extends StatelessWidget {
-  final PolygonLayerOptions polygonOpts;
+  final PolygonLayerOptions options;
 
-  const PolygonLayerWidget({super.key, required this.polygonOpts});
+  const PolygonLayerWidget({super.key, required this.options});
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +78,7 @@ class PolygonLayerWidget extends StatelessWidget {
         final size = Size(bc.maxWidth, bc.maxHeight);
         final polygons = <Widget>[];
 
-        for (final polygon in polygonOpts.polygons) {
+        for (final polygon in options.polygons) {
           polygon.offsets.clear();
 
           if (null != polygon.holeOffsetsList) {
@@ -87,7 +87,7 @@ class PolygonLayerWidget extends StatelessWidget {
             }
           }
 
-          if (polygonOpts.polygonCulling &&
+          if (options.polygonCulling &&
               !polygon.boundingBox.isOverlapping(map.bounds)) {
             // skip this polygon as it's offscreen
             continue;

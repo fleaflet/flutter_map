@@ -80,24 +80,25 @@ class _PolylinePageState extends State<PolylinePage> {
                             });
                           },
                         ),
-                        layers: [
-                          TileLayerOptions(
+                        children: [
+                          TileLayerWidget(
+                              options: TileLayerOptions(
                             urlTemplate:
                                 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                             subdomains: ['a', 'b', 'c'],
                             userAgentPackageName:
                                 'dev.fleaflet.flutter_map.example',
-                          ),
-                          PolylineLayerOptions(
-                            polylines: [
+                          )),
+                          PolylineLayerWidget(
+                            options: PolylineLayerOptions(polylines: [
                               Polyline(
                                   points: points,
                                   strokeWidth: 4,
                                   color: Colors.purple),
-                            ],
+                            ]),
                           ),
-                          PolylineLayerOptions(
-                            polylines: [
+                          PolylineLayerWidget(
+                            options: PolylineLayerOptions(polylines: [
                               Polyline(
                                 points: pointsGradient,
                                 strokeWidth: 4,
@@ -107,12 +108,13 @@ class _PolylinePageState extends State<PolylinePage> {
                                   const Color(0xff007E2D),
                                 ],
                               ),
-                            ],
+                            ]),
                           ),
-                          PolylineLayerOptions(
+                          PolylineLayerWidget(
+                              options: PolylineLayerOptions(
                             polylines: snapshot.data!,
                             polylineCulling: true,
-                          ),
+                          )),
                         ],
                       ),
                     ),

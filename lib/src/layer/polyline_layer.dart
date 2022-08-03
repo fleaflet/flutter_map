@@ -65,9 +65,9 @@ class Polyline {
 
 
 class PolylineLayerWidget extends StatelessWidget {
-  final PolylineLayerOptions polylineOpts;
+  final PolylineLayerOptions options;
 
-  const PolylineLayerWidget({super.key, required this.polylineOpts});
+  const PolylineLayerWidget({super.key, required this.options});
 
   @override
   Widget build(BuildContext context) {
@@ -77,10 +77,10 @@ class PolylineLayerWidget extends StatelessWidget {
         final size = Size(bc.maxWidth, bc.maxHeight);
         final polylines = <Widget>[];
 
-        for (final polylineOpt in polylineOpts.polylines) {
+        for (final polylineOpt in options.polylines) {
           polylineOpt.offsets.clear();
 
-          if (polylineOpts.polylineCulling &&
+          if (options.polylineCulling &&
               !polylineOpt.boundingBox.isOverlapping(map.bounds)) {
             // skip this polyline as it's offscreen
             continue;
@@ -89,7 +89,7 @@ class PolylineLayerWidget extends StatelessWidget {
           _fillOffsets(polylineOpt.offsets, polylineOpt.points, map);
 
           polylines.add(CustomPaint(
-            painter: PolylinePainter(polylineOpt, polylineOpts.saveLayers),
+            painter: PolylinePainter(polylineOpt, options.saveLayers),
             size: size,
           ));
         }

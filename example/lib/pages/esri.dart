@@ -27,12 +27,12 @@ class EsriPage extends StatelessWidget {
                   center: LatLng(45.5231, -122.6765),
                   zoom: 13,
                 ),
-                layers: [
-                  TileLayerOptions(
+                children: [
+                  TileLayerWidget(options: TileLayerOptions(
                     urlTemplate:
                         'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  ),
+                  )),
                 ],
               ),
             ),

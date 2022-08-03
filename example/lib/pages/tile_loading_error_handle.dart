@@ -38,8 +38,8 @@ class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
                       needLoadingError = true;
                     },
                   ),
-                  layers: [
-                    TileLayerOptions(
+                  children: [
+                    TileLayerWidget(options: TileLayerOptions(
                       urlTemplate:
                           'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                       subdomains: ['a', 'b', 'c'],
@@ -62,7 +62,7 @@ class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
                           needLoadingError = false;
                         }
                       },
-                    ),
+                    )),
                   ],
                 );
               }),

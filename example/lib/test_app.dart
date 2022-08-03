@@ -32,13 +32,13 @@ class _TestAppState extends State<TestApp> {
                 center: LatLng(45.5231, -122.6765),
                 zoom: 13,
               ),
-              layers: [
-                TileLayerOptions(
+              children: [
+                TileLayerWidget(options: TileLayerOptions(
                   urlTemplate:
                       'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                   subdomains: ['a', 'b', 'c'],
                   userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                ),
+                )),
               ],
             ),
           ),

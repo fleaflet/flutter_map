@@ -137,17 +137,17 @@ class MarkerRotatePageState extends State<MarkerRotatePage> {
                   center: LatLng(51.5, -0.09),
                   zoom: 5,
                 ),
-                layers: [
-                  TileLayerOptions(
+                children: [
+                  TileLayerWidget(options: TileLayerOptions(
                     urlTemplate:
                         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     subdomains: ['a', 'b', 'c'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  ),
-                  MarkerLayerOptions(
+                  )),
+                  MarkerLayerWidget(options: MarkerLayerOptions(
                     rotate: rotateMarkerLayerOptions,
                     markers: markers,
-                  )
+                  ))
                 ],
               ),
             ),

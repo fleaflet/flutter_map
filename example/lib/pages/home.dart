@@ -57,20 +57,20 @@ class HomePage extends StatelessWidget {
                   center: LatLng(51.5, -0.09),
                   zoom: 5,
                 ),
-                layers: [
-                  TileLayerOptions(
-                    urlTemplate:
-                        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    subdomains: ['a', 'b', 'c'],
-                    userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  ),
-                  MarkerLayerOptions(markers: markers)
-                ],
                 nonRotatedChildren: [
                   AttributionWidget.defaultWidget(
                     source: 'OpenStreetMap contributors',
                     onSourceTapped: () {},
                   ),
+                ],
+                children: [
+                  TileLayerWidget(options: TileLayerOptions(
+                    urlTemplate:
+                        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    subdomains: ['a', 'b', 'c'],
+                    userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+                  )),
+                  MarkerLayerWidget(options: MarkerLayerOptions(markers: markers)),
                 ],
               ),
             ),

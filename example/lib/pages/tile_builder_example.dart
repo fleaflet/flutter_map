@@ -111,16 +111,16 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
             center: LatLng(51.5, -0.09),
             zoom: 5,
           ),
-          layers: [
-            TileLayerOptions(
+          children: [
+            TileLayerWidget(options: TileLayerOptions(
               urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
               subdomains: ['a', 'b', 'c'],
               userAgentPackageName: 'dev.fleaflet.flutter_map.example',
               tileBuilder: tileBuilder,
               tilesContainerBuilder:
                   darkMode ? darkModeTilesContainerBuilder : null,
-            ),
-            MarkerLayerOptions(
+            )),
+            MarkerLayerWidget(options: MarkerLayerOptions(
               markers: <Marker>[
                 Marker(
                   width: 80,
@@ -131,7 +131,7 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
                   ),
                 ),
               ],
-            )
+            )),
           ],
         ),
       ),

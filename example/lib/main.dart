@@ -21,7 +21,6 @@ import 'package:flutter_map_example/pages/network_tile_provider.dart';
 import 'package:flutter_map_example/pages/offline_map.dart';
 import 'package:flutter_map_example/pages/on_tap.dart';
 import 'package:flutter_map_example/pages/overlay_image.dart';
-import 'package:flutter_map_example/pages/plugin_api.dart';
 import 'package:flutter_map_example/pages/plugin_scalebar.dart';
 import 'package:flutter_map_example/pages/plugin_zoombuttons.dart';
 import 'package:flutter_map_example/pages/point_to_latlng.dart';
@@ -61,7 +60,6 @@ class MyApp extends StatelessWidget {
         AnimatedMapControllerPage.route: (context) =>
             const AnimatedMapControllerPage(),
         MarkerAnchorPage.route: (context) => const MarkerAnchorPage(),
-        PluginPage.route: (context) => const PluginPage(),
         PluginScaleBar.route: (context) => const PluginScaleBar(),
         PluginZoomButtons.route: (context) => const PluginZoomButtons(),
         OfflineMapPage.route: (context) => const OfflineMapPage(),
