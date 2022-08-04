@@ -151,7 +151,6 @@ typedef PointerCancelCallback = void Function(
 typedef PointerHoverCallback = void Function(
     PointerHoverEvent event, LatLng point);
 typedef PositionCallback = void Function(MapPosition position, bool hasGesture);
-typedef MapCreatedCallback = void Function(MapController mapController);
 
 /// Allows you to provide your map's starting properties for [zoom], [rotation]
 /// and [center]. Alternatively you can provide [bounds] instead of [center].
@@ -250,9 +249,7 @@ class MapOptions {
   final PointerCancelCallback? onPointerCancel;
   final PointerHoverCallback? onPointerHover;
   final PositionCallback? onPositionChanged;
-
-  final Function(MapEvent)? onMapEvent;
-
+  final void Function(MapEvent)? onMapEvent;
   final bool slideOnBoundaries;
   final Size? screenSize;
   final bool adaptiveBoundaries;

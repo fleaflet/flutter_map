@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -36,6 +34,7 @@ class FlutterMapState extends MapGestureMixin
     // Initialize all variables here, if they need to be updated after the map changes
     // like center, or bounds they also need to be updated in build.
     _rotation = options.rotation;
+    _lastCenter = options.center;
     _zoom = options.zoom;
     _rotationRad = degToRadian(options.rotation);
     _pixelBounds = getPixelBounds(zoom);
@@ -60,7 +59,7 @@ class FlutterMapState extends MapGestureMixin
     super.build(context);
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
-      setOriginalSize(constraints.maxWidth, constraints.maxHeight);
+      setSize(constraints.maxWidth, constraints.maxHeight);
 
       _rotationRad = degToRadian(rotation);
       _pixelBounds = getPixelBounds(zoom);
@@ -191,12 +190,12 @@ class FlutterMapState extends MapGestureMixin
 
   double get rotationRad => degToRadian(_rotation);
 
-  LatLng? _lastCenter;
-  
+
   late CustomPoint _pixelOrigin;
   CustomPoint get pixelOrigin => _pixelOrigin;
 
-  LatLng get center => getCenter();
+  late LatLng _lastCenter;
+  LatLng get center => _lastCenter;
 
   late LatLngBounds _bounds;
   LatLngBounds get bounds => _bounds;
@@ -205,16 +204,15 @@ class FlutterMapState extends MapGestureMixin
   Bounds get pixelBounds => _pixelBounds;
 
   // Original size of the map where rotation isn't calculated
-  CustomPoint? _originalSize;
+  CustomPoint? _nonrotatedSize;
+  CustomPoint? get nonrotatedSize => _nonrotatedSize;
 
-  CustomPoint? get originalSize => _originalSize;
-
-  void setOriginalSize(double width, double height) {
-    final isCurrSizeNull = _originalSize == null;
+  void setSize(double width, double height) {
+    final isCurrSizeNull = _nonrotatedSize == null;
     if (isCurrSizeNull ||
-        _originalSize!.x != width ||
-        _originalSize!.y != height) {
-      _originalSize = CustomPoint<double>(width, height);
+        _nonrotatedSize!.x != width ||
+        _nonrotatedSize!.y != height) {
+      _nonrotatedSize = CustomPoint<double>(width, height);
 
       _updateSizeByOriginalSizeAndRotation();
     }
@@ -226,8 +224,8 @@ class FlutterMapState extends MapGestureMixin
   CustomPoint<double> get size => _size ?? const CustomPoint(0.0, 0.0);
 
   void _updateSizeByOriginalSizeAndRotation() {
-    final originalWidth = _originalSize!.x;
-    final originalHeight = _originalSize!.y;
+    final originalWidth = _nonrotatedSize!.x;
+    final originalHeight = _nonrotatedSize!.y;
 
     if (_rotation != 0.0) {
       final cosAngle = math.cos(_rotationRad).abs();
@@ -242,7 +240,7 @@ class FlutterMapState extends MapGestureMixin
       _size = CustomPoint<double>(originalWidth, originalHeight);
     }
 
-    _pixelOrigin = getNewPixelOrigin(_lastCenter!);
+    _pixelOrigin = getNewPixelOrigin(_lastCenter);
   }
 
   void _handleMoveEmit(LatLng targetCenter, double targetZoom, bool hasGesture,
@@ -250,7 +248,7 @@ class FlutterMapState extends MapGestureMixin
     if (source == MapEventSource.flingAnimationController) {
       emitMapEvent(
         MapEventFlingAnimation(
-          center: _lastCenter!,
+          center: _lastCenter,
           zoom: _zoom,
           targetCenter: targetCenter,
           targetZoom: targetZoom,
@@ -260,7 +258,7 @@ class FlutterMapState extends MapGestureMixin
     } else if (source == MapEventSource.doubleTapZoomAnimationController) {
       emitMapEvent(
         MapEventDoubleTapZoom(
-          center: _lastCenter!,
+          center: _lastCenter,
           zoom: _zoom,
           targetCenter: targetCenter,
           targetZoom: targetZoom,
@@ -270,7 +268,7 @@ class FlutterMapState extends MapGestureMixin
     } else if (source == MapEventSource.scrollWheel) {
       emitMapEvent(
         MapEventScrollWheelZoom(
-          center: _lastCenter!,
+          center: _lastCenter,
           zoom: _zoom,
           targetCenter: targetCenter,
           targetZoom: targetZoom,
@@ -281,7 +279,7 @@ class FlutterMapState extends MapGestureMixin
         source == MapEventSource.onMultiFinger) {
       emitMapEvent(
         MapEventMove(
-          center: _lastCenter!,
+          center: _lastCenter,
           zoom: _zoom,
           targetCenter: targetCenter,
           targetZoom: targetZoom,
@@ -292,7 +290,7 @@ class FlutterMapState extends MapGestureMixin
       emitMapEvent(
         MapEventMove(
           id: id,
-          center: _lastCenter!,
+          center: _lastCenter,
           zoom: _zoom,
           targetCenter: targetCenter,
           targetZoom: targetZoom,
@@ -302,13 +300,12 @@ class FlutterMapState extends MapGestureMixin
     } else if (source == MapEventSource.custom) {
       // for custom source, emit move event if zoom or center has changed
       if (targetZoom != _zoom ||
-          _lastCenter == null ||
-          targetCenter.latitude != _lastCenter!.latitude ||
-          targetCenter.longitude != _lastCenter!.longitude) {
+          targetCenter.latitude != _lastCenter.latitude ||
+          targetCenter.longitude != _lastCenter.longitude) {
         emitMapEvent(
           MapEventMove(
             id: id,
-            center: _lastCenter!,
+            center: _lastCenter,
             zoom: _zoom,
             targetCenter: targetCenter,
             targetZoom: targetZoom,
@@ -343,7 +340,7 @@ class FlutterMapState extends MapGestureMixin
           id: id,
           currentRotation: oldRotation,
           targetRotation: _rotation,
-          center: _lastCenter!,
+          center: _lastCenter,
           zoom: _zoom,
           source: source,
         ),
@@ -376,7 +373,7 @@ class FlutterMapState extends MapGestureMixin
     zoom = fitZoomToBounds(zoom);
     final mapMoved = center != _lastCenter || zoom != _zoom;
 
-    if (_lastCenter != null && (!mapMoved || !_bounds.isValid)) {
+    if (!mapMoved || !_bounds.isValid) {
       return false;
     }
 
@@ -384,7 +381,7 @@ class FlutterMapState extends MapGestureMixin
       if (!options.slideOnBoundaries) {
         return false;
       }
-      center = options.containPoint(center, _lastCenter ?? center);
+      center = options.containPoint(center, _lastCenter);
     }
 
     // Try and fit the corners of the map inside the visible area.
@@ -445,13 +442,6 @@ class FlutterMapState extends MapGestureMixin
       throw Exception('Bounds are not valid.');
     }
     return getBoundsCenterZoom(bounds, options);
-  }
-
-  LatLng getCenter() {
-    if (_lastCenter != null) {
-      return _lastCenter!;
-    }
-    return layerPointToLatLng(_centerLayerPoint);
   }
 
   LatLngBounds _calculateBounds() {
@@ -624,7 +614,7 @@ class FlutterMapState extends MapGestureMixin
   // outside of FlutterMap layer space. Eg using a Positioned Widget.
   CustomPoint latLngToScreenPoint(LatLng latLng) {
     final nonRotatedPixelOrigin =
-        (project(getCenter(), zoom) - originalSize! / 2.0).round();
+        (project(_lastCenter, zoom) - nonrotatedSize! / 2.0).round();
 
     var point = options.crs.latLngToPoint(latLng, zoom);
 
@@ -638,12 +628,12 @@ class FlutterMapState extends MapGestureMixin
   }
 
   LatLng? pointToLatLng(CustomPoint localPoint) {
-    if (originalSize == null) {
+    if (nonrotatedSize == null) {
       return null;
     }
 
-    final width = originalSize!.x;
-    final height = originalSize!.y;
+    final width = nonrotatedSize!.x;
+    final height = nonrotatedSize!.y;
 
     final localPointCenterDistance =
         CustomPoint((width / 2) - localPoint.x, (height / 2) - localPoint.y);
