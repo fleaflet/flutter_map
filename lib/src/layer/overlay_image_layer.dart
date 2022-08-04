@@ -46,11 +46,10 @@ class OverlayImage extends BaseOverlayImage {
 
   @override
   Positioned buildPositionedForOverlay(FlutterMapState map) {
-    final pixelOrigin = map.getPixelOrigin();
     // northWest is not necessarily upperLeft depending on projection
     final bounds = Bounds<num>(
-      map.project(this.bounds.northWest) - pixelOrigin,
-      map.project(this.bounds.southEast) - pixelOrigin,
+      map.project(this.bounds.northWest) - map.pixelOrigin,
+      map.project(this.bounds.southEast) - map.pixelOrigin,
     );
     return Positioned(
         left: bounds.topLeft.x.toDouble(),
@@ -94,11 +93,9 @@ class RotatedOverlayImage extends BaseOverlayImage {
 
   @override
   Positioned buildPositionedForOverlay(FlutterMapState map) {
-    final pixelOrigin = map.getPixelOrigin();
-
-    final pxTopLeft = map.project(topLeftCorner) - pixelOrigin;
-    final pxBottomRight = map.project(bottomRightCorner) - pixelOrigin;
-    final pxBottomLeft = (map.project(bottomLeftCorner) - pixelOrigin);
+    final pxTopLeft = map.project(topLeftCorner) - map.pixelOrigin;
+    final pxBottomRight = map.project(bottomRightCorner) - map.pixelOrigin;
+    final pxBottomLeft = (map.project(bottomLeftCorner) - map.pixelOrigin);
     // calculate pixel coordinate of top-right corner by calculating the
     // vector from bottom-left to top-left and adding it to bottom-right
     final pxTopRight = (pxTopLeft - pxBottomLeft + pxBottomRight);

@@ -12,7 +12,7 @@ class TransformationCalculator {
     if (level != null) return level;
 
     return _levels[zoom] = Level(
-      origin: map.project(map.unproject(map.getPixelOrigin()), zoom),
+      origin: map.project(map.unproject(map.pixelOrigin), zoom),
       zoom: zoom,
     );
   }

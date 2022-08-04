@@ -195,7 +195,7 @@ class _MarkerLayerState extends State<MarkerLayer> {
         continue;
       }
 
-      final pos = pxPoint - map.getPixelOrigin();
+      final pos = pxPoint - map.pixelOrigin;
       final markerWidget = (marker.rotate ?? widget.rotate ?? false)
           // Counter rotated marker to the map rotation
           ? Transform.rotate(

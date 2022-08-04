@@ -189,15 +189,12 @@ class FlutterMapState extends MapGestureMixin
 
   double get rotation => _rotation;
 
-  set rotation(double rotation) {
-    _rotation = rotation;
-    _rotationRad = degToRadian(rotation);
-  }
-
-  double get rotationRad => _rotationRad;
+  double get rotationRad => degToRadian(_rotation);
 
   LatLng? _lastCenter;
+  
   late CustomPoint _pixelOrigin;
+  CustomPoint get pixelOrigin => _pixelOrigin;
 
   LatLng get center => getCenter();
 
@@ -336,7 +333,7 @@ class FlutterMapState extends MapGestureMixin
   }) {
     if (degree != _rotation) {
       final oldRotation = _rotation;
-      rotation = degree;
+      _rotation = degree;
       _updateSizeByOriginalSizeAndRotation();
 
       // onRotationChanged(_rotation);
@@ -541,12 +538,8 @@ class FlutterMapState extends MapGestureMixin
     return options.crs.getProjectedBounds(zoom ?? _zoom);
   }
 
-  CustomPoint getPixelOrigin() {
-    return _pixelOrigin;
-  }
-
   Offset getOffsetFromOrigin(LatLng pos) {
-    final delta = project(pos) - getPixelOrigin();
+    final delta = project(pos) - _pixelOrigin;
     return Offset(delta.x.toDouble(), delta.y.toDouble());
   }
 
