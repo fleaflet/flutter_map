@@ -191,7 +191,6 @@ class _MarkerLayerState extends State<MarkerLayer> {
       final ne = CustomPoint(pxPoint.x - rightPortion, pxPoint.y + topPortion);
 
       if (!map.pixelBounds.containsPartialBounds(Bounds(sw, ne))) {
-        print("Skipping due to bounds");
         continue;
       }
 

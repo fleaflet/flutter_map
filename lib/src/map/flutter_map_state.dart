@@ -495,10 +495,6 @@ class FlutterMapState extends MapGestureMixin
     return unproject(point);
   }
 
-  CustomPoint get _centerLayerPoint {
-    return size / 2;
-  }
-
   double getZoomScale(double toZoom, double? fromZoom) {
     final crs = options.crs;
     fromZoom = fromZoom ?? _zoom;
