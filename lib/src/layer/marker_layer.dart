@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/bounds.dart';
-import 'package:flutter_map/src/map/map.dart';
+import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:latlong2/latlong.dart';
 
 class Anchor {
@@ -165,7 +165,7 @@ class _MarkerLayerState extends State<MarkerLayer> {
 
   @override
   Widget build(BuildContext context) {
-    final map = MapState.maybeOf(context)!;
+    final map = FlutterMapState.maybeOf(context)!;
     final markers = <Widget>[];
 
     for (var i = 0; i < widget.markers.length; i++) {
@@ -191,6 +191,7 @@ class _MarkerLayerState extends State<MarkerLayer> {
       final ne = CustomPoint(pxPoint.x - rightPortion, pxPoint.y + topPortion);
 
       if (!map.pixelBounds.containsPartialBounds(Bounds(sw, ne))) {
+        print("Skipping due to bounds");
         continue;
       }
 

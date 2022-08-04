@@ -64,12 +64,12 @@ class FlutterMap extends StatefulWidget {
   final MapController? mapController;
 
   const FlutterMap({
-    Key? key,
+    super.key,
     required this.options,
     this.children = const [],
     this.nonRotatedChildren = const [],
     this.mapController,
-  }) : super(key: key);
+  });
 
   @override
   FlutterMapState createState() => FlutterMapState();
@@ -129,9 +129,7 @@ abstract class MapController {
 
   Stream<MapEvent> get mapEventStream;
 
-  StreamSink<MapEvent> get mapEventSink;
-
-  set state(MapState state);
+  set state(FlutterMapState state);
 
   void dispose();
 
@@ -252,6 +250,9 @@ class MapOptions {
   final PointerCancelCallback? onPointerCancel;
   final PointerHoverCallback? onPointerHover;
   final PositionCallback? onPositionChanged;
+
+  final Function(MapEvent)? onMapEvent;
+
   final bool slideOnBoundaries;
   final Size? screenSize;
   final bool adaptiveBoundaries;
@@ -309,6 +310,7 @@ class MapOptions {
     this.onPointerCancel,
     this.onPointerHover,
     this.onPositionChanged,
+    this.onMapEvent,
     this.slideOnBoundaries = false,
     this.adaptiveBoundaries = false,
     this.screenSize,

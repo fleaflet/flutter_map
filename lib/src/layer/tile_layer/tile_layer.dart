@@ -12,7 +12,7 @@ import 'package:flutter_map/src/layer/tile_layer/tile_manager.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_transformation.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_widget.dart';
 import 'package:flutter_map/src/layer/tile_layer/transformation_calculator.dart';
-import 'package:flutter_map/src/map/map.dart';
+import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:tuple/tuple.dart';
 
@@ -25,7 +25,7 @@ class TileLayerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mapState = MapState.maybeOf(context)!;
+    final mapState = FlutterMapState.maybeOf(context)!;
     return TileLayer(
       mapState: mapState,
       options: options,
@@ -35,7 +35,7 @@ class TileLayerWidget extends StatelessWidget {
 
 class TileLayer extends StatefulWidget {
   final TileLayerOptions options;
-  final MapState mapState;
+  final FlutterMapState mapState;
 
   const TileLayer({
     super.key,
@@ -48,7 +48,7 @@ class TileLayer extends StatefulWidget {
 }
 
 class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
-  MapState get map => widget.mapState;
+  FlutterMapState get map => widget.mapState;
 
   TileLayerOptions get options => widget.options;
   late Bounds _globalTileRange;
@@ -56,7 +56,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   Tuple2<double, double>? _wrapY;
   double? _tileZoom;
 
-  StreamSubscription<void>? _moveSub;
   StreamSubscription<void>? _resetSub;
   StreamController<LatLng?>? _throttleUpdate;
   late CustomPoint _tileSize;
@@ -74,7 +73,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     _tileSize = CustomPoint(options.tileSize, options.tileSize);
     _resetView();
     _update(null);
-    _moveSub = widget.mapState.onMoved.listen((_) => _handleMove());
 
     if (options.reset != null) {
       _resetSub = options.reset?.listen((_) => _resetTiles());
@@ -150,7 +148,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   void dispose() {
     _tileManager.removeAll(options.evictErrorTileStrategy);
     _resetSub?.cancel();
-    _moveSub?.cancel();
     _pruneLater?.cancel();
     options.tileProvider.dispose();
     _throttleUpdate?.close();
@@ -160,6 +157,29 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    //Handle movement
+    final tileZoom = _clampZoom(map.zoom.roundToDouble());
+
+    if (_tileZoom == null) {
+      // if there is no _tileZoom available it means we are out within zoom level
+      // we will restore fully via _setView call if we are back on trail
+      if ((tileZoom <= options.maxZoom) && (tileZoom >= options.minZoom)) {
+        _tileZoom = tileZoom;
+        _setView(map.center, tileZoom);
+      }
+    } else {
+      if ((tileZoom - _tileZoom!).abs() >= 1) {
+        // It was a zoom lvl change
+        _setView(map.center, tileZoom);
+      } else {
+        if (_throttleUpdate == null) {
+          _update(null);
+        } else {
+          _throttleUpdate!.add(null);
+        }
+      }
+    }
+
     final tilesToRender = _tileZoom == null
         ? _tileManager.all()
         : _tileManager.sortedByDistanceToZoomAscending(
@@ -299,33 +319,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     }
   }
 
-  void _handleMove() {
-    final tileZoom = _clampZoom(map.zoom.roundToDouble());
-
-    if (_tileZoom == null) {
-      // if there is no _tileZoom available it means we are out within zoom level
-      // we will restore fully via _setView call if we are back on trail
-      if ((tileZoom <= options.maxZoom) && (tileZoom >= options.minZoom)) {
-        _tileZoom = tileZoom;
-        setState(() {
-          _setView(map.center, tileZoom);
-        });
-      }
-    } else {
-      setState(() {
-        if ((tileZoom - _tileZoom!).abs() >= 1) {
-          // It was a zoom lvl change
-          _setView(map.center, tileZoom);
-        } else {
-          if (_throttleUpdate == null) {
-            _update(null);
-          } else {
-            _throttleUpdate!.add(null);
-          }
-        }
-      });
-    }
-  }
 
   Bounds _getTiledPixelBounds(LatLng center) {
     final scale = map.getZoomScale(map.zoom, _tileZoom);

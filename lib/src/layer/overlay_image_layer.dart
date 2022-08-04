@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/map/map.dart';
+import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -12,7 +12,7 @@ abstract class BaseOverlayImage {
 
   bool get gaplessPlayback;
 
-  Positioned buildPositionedForOverlay(MapState map);
+  Positioned buildPositionedForOverlay(FlutterMapState map);
 
   Image buildImageForOverlay() {
     return Image(
@@ -45,7 +45,7 @@ class OverlayImage extends BaseOverlayImage {
       this.gaplessPlayback = false});
 
   @override
-  Positioned buildPositionedForOverlay(MapState map) {
+  Positioned buildPositionedForOverlay(FlutterMapState map) {
     final pixelOrigin = map.getPixelOrigin();
     // northWest is not necessarily upperLeft depending on projection
     final bounds = Bounds<num>(
@@ -93,7 +93,7 @@ class RotatedOverlayImage extends BaseOverlayImage {
       this.filterQuality = FilterQuality.medium});
 
   @override
-  Positioned buildPositionedForOverlay(MapState map) {
+  Positioned buildPositionedForOverlay(FlutterMapState map) {
     final pixelOrigin = map.getPixelOrigin();
 
     final pxTopLeft = map.project(topLeftCorner) - pixelOrigin;
@@ -139,7 +139,7 @@ class OverlayImageLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final map = MapState.maybeOf(context)!;
+    final map = FlutterMapState.maybeOf(context)!;
     return ClipRect(
       child: Stack(
         children: <Widget>[

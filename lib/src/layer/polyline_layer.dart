@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -65,7 +66,7 @@ class PolylineLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final map = MapState.maybeOf(context)!;
+    final map = FlutterMapState.maybeOf(context)!;
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints bc) {
         final size = Size(bc.maxWidth, bc.maxHeight);
@@ -96,7 +97,7 @@ class PolylineLayer extends StatelessWidget {
   }
 
   void _fillOffsets(
-      final List<Offset> offsets, final List<LatLng> points, MapState map) {
+      final List<Offset> offsets, final List<LatLng> points, FlutterMapState map) {
     final len = points.length;
     for (var i = 0; i < len; ++i) {
       final point = points[i];

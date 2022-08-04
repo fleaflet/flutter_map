@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/label.dart';
+import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart' hide Path; // conflict with Path from UI
 
@@ -70,7 +71,7 @@ class PolygonLayer extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints bc) {
-        final map = MapState.maybeOf(context)!;
+        final map = FlutterMapState.maybeOf(context)!;
         final size = Size(bc.maxWidth, bc.maxHeight);
         final polygonsWidget = <Widget>[];
 
@@ -115,7 +116,7 @@ class PolygonLayer extends StatelessWidget {
   }
 
   void _fillOffsets(
-      final List<Offset> offsets, final List<LatLng> points, MapState map) {
+      final List<Offset> offsets, final List<LatLng> points, FlutterMapState map) {
     final len = points.length;
     for (var i = 0; i < len; ++i) {
       final point = points[i];

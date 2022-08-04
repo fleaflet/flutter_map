@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/gestures/latlng_tween.dart';
-import 'package:flutter_map/src/map/map.dart';
+import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
 
@@ -106,7 +106,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
   @override
   FlutterMap get widget;
 
-  MapState get mapState;
+  FlutterMapState get mapState;
 
   MapController get mapController;
 
@@ -454,7 +454,6 @@ abstract class MapGestureMixin extends State<FlutterMap>
                 newCenter,
                 newZoom,
                 hasGesture: true,
-                callOnMoveSink: false,
                 source: eventSource,
               );
             }
@@ -477,14 +476,16 @@ abstract class MapGestureMixin extends State<FlutterMap>
               mapRotated = mapState.rotate(
                 mapState.rotation + rotationDiff,
                 hasGesture: true,
-                callOnMoveSink: false,
                 source: eventSource,
               );
             }
           }
 
+          //TODO maybe not needed?
           if (mapMoved || mapRotated) {
-            mapState.rebuildLayers();
+            mapState.setState(() {
+              
+            });
           }
         }
       }
