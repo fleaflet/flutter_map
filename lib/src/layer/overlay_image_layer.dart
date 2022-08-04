@@ -95,7 +95,7 @@ class RotatedOverlayImage extends BaseOverlayImage {
   Positioned buildPositionedForOverlay(FlutterMapState map) {
     final pxTopLeft = map.project(topLeftCorner) - map.pixelOrigin;
     final pxBottomRight = map.project(bottomRightCorner) - map.pixelOrigin;
-    final pxBottomLeft = (map.project(bottomLeftCorner) - map.pixelOrigin);
+    final pxBottomLeft = map.project(bottomLeftCorner) - map.pixelOrigin;
     // calculate pixel coordinate of top-right corner by calculating the
     // vector from bottom-left to top-left and adding it to bottom-right
     final pxTopRight = (pxTopLeft - pxBottomLeft + pxBottomRight);
