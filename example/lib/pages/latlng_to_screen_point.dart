@@ -18,23 +18,14 @@ class LatLngScreenPointTestPage extends StatefulWidget {
 }
 
 class _LatLngScreenPointTestPageState extends State<LatLngScreenPointTestPage> {
-  late final MapController mapController;
-  late final StreamSubscription<MapEvent> subscription;
+  late final MapController _mapController;
 
-  CustomPoint textPos = const CustomPoint(10.0, 10.0);
+  CustomPoint _textPos = const CustomPoint(10.0, 10.0);
 
   @override
   void initState() {
     super.initState();
-    mapController = MapController();
-    subscription = mapController.mapEventStream.listen(onMapEvent);
-  }
-
-  @override
-  void dispose() {
-    subscription.cancel();
-
-    super.dispose();
+    _mapController = MapController();
   }
 
   void onMapEvent(MapEvent mapEvent) {
@@ -53,11 +44,12 @@ class _LatLngScreenPointTestPageState extends State<LatLngScreenPointTestPage> {
           Padding(
             padding: const EdgeInsets.all(8),
             child: FlutterMap(
-              mapController: mapController,
+              mapController: _mapController,
               options: MapOptions(
+                onMapEvent: onMapEvent,
                 onTap: (tapPos, latLng) {
-                  final pt1 = mapController.latLngToScreenPoint(latLng);
-                  textPos = CustomPoint(pt1!.x, pt1.y);
+                  final pt1 = _mapController.latLngToScreenPoint(latLng);
+                  _textPos = CustomPoint(pt1!.x, pt1.y);
                   setState(() {});
                 },
                 center: LatLng(51.5, -0.09),
@@ -75,8 +67,8 @@ class _LatLngScreenPointTestPageState extends State<LatLngScreenPointTestPage> {
             ),
           ),
           Positioned(
-              left: textPos.x.toDouble(),
-              top: textPos.y.toDouble(),
+              left: _textPos.x.toDouble(),
+              top: _textPos.y.toDouble(),
               width: 20,
               height: 20,
               child: const FlutterLogo())

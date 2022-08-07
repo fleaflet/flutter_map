@@ -19,6 +19,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
   var _pointerCounter = 0;
 
+  bool _isListeningForInterruptions = false;
+
   void onPointerDown(PointerDownEvent event) {
     ++_pointerCounter;
     if (mapState.options.onPointerDown != null) {
@@ -770,22 +772,20 @@ abstract class MapGestureMixin extends State<FlutterMap>
     );
   }
 
+  //TODO refactor
   void _startListeningForAnimationInterruptions() {
-    if (_mapControllerAnimationInterruption != null) return;
-    // cancel map animation controllers on map controller move events
-    _mapControllerAnimationInterruption = mapController.mapEventStream
-        .where((event) =>
-            event.source == MapEventSource.mapController &&
-            event is MapEventMove)
-        .listen(_handleAnimationInterruptions);
+    _isListeningForInterruptions = true;
   }
 
   void _stopListeningForAnimationInterruptions() {
-    _mapControllerAnimationInterruption?.cancel();
-    _mapControllerAnimationInterruption = null;
+    _isListeningForInterruptions = false;
   }
 
-  void _handleAnimationInterruptions(MapEvent event) {
+  void handleAnimationInterruptions(MapEvent event) {
+    if(_isListeningForInterruptions == false) {
+      //Do not handle animation interruptions if not listening
+      return;
+    }
     closeDoubleTapController(event.source);
     closeFlingAnimationController(event.source);
   }

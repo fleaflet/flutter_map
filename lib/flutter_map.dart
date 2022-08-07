@@ -84,7 +84,7 @@ class FlutterMap extends StatefulWidget {
 abstract class MapController {
   /// Moves the map to a specific location and zoom level
   ///
-  /// Optionally provide [id] attribute and if you listen to [mapEventStream]
+  /// Optionally provide [id] attribute and if you listen to [mapEventCallback]
   /// later a [MapEventMove] event will be emitted (if move was success) with
   /// same [id] attribute. Event's source attribute will be
   /// [MapEventSource.mapController].
@@ -96,7 +96,7 @@ abstract class MapController {
 
   /// Sets the map rotation to a certain degrees angle (in decimal).
   ///
-  /// Optionally provide [id] attribute and if you listen to [mapEventStream]
+  /// Optionally provide [id] attribute and if you listen to [mapEventCallback]
   /// later a [MapEventRotate] event will be emitted (if rotate was success)
   /// with same [id] attribute. Event's source attribute will be
   /// [MapEventSource.mapController].
@@ -127,11 +127,13 @@ abstract class MapController {
 
   double get rotation;
 
-  Stream<MapEvent> get mapEventStream;
-
   set state(FlutterMapState state);
 
+  Stream<MapEvent> get mapEventStream;
+
   void dispose();
+
+  StreamSink<MapEvent> get mapEventSink;
 
   LatLng? pointToLatLng(CustomPoint point);
 
@@ -151,6 +153,7 @@ typedef PointerCancelCallback = void Function(
 typedef PointerHoverCallback = void Function(
     PointerHoverEvent event, LatLng point);
 typedef PositionCallback = void Function(MapPosition position, bool hasGesture);
+typedef MapEventCallback = void Function(MapEvent);
 
 /// Allows you to provide your map's starting properties for [zoom], [rotation]
 /// and [center]. Alternatively you can provide [bounds] instead of [center].
@@ -249,7 +252,7 @@ class MapOptions {
   final PointerCancelCallback? onPointerCancel;
   final PointerHoverCallback? onPointerHover;
   final PositionCallback? onPositionChanged;
-  final void Function(MapEvent)? onMapEvent;
+  final MapEventCallback? onMapEvent;
   final bool slideOnBoundaries;
   final Size? screenSize;
   final bool adaptiveBoundaries;

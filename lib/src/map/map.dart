@@ -6,18 +6,25 @@ import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:latlong2/latlong.dart';
 
 class MapControllerImpl implements MapController {
+
   final StreamController<MapEvent> _mapEventSink = StreamController.broadcast();
 
   @override
-  void dispose() {
-    _mapEventSink.close();
-  }
+  StreamSink<MapEvent> get mapEventSink => _mapEventSink.sink;
+
+  @override
+  Stream<MapEvent> get mapEventStream => _mapEventSink.stream;
 
   late FlutterMapState _state;
 
   @override
   set state(FlutterMapState state) {
     _state = state;
+  }
+
+  @override
+  void dispose() {
+    _mapEventSink.close();
   }
 
   @override
@@ -84,7 +91,5 @@ class MapControllerImpl implements MapController {
     return _state.rotatePoint(mapCenter, point,
         counterRotation: counterRotation);
   }
-
-  @override
-  Stream<MapEvent> get mapEventStream => _mapEventSink.stream;
+  
 }

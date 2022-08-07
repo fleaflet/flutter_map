@@ -17,8 +17,7 @@ class PointToLatLngPage extends StatefulWidget {
 }
 
 class PointToLatlngPage extends State<PointToLatLngPage> {
-  late final MapController mapController;
-  late final StreamSubscription<MapEvent> mapEventSubscription;
+  late final MapController mapController = MapController();
   final pointSize = 40.0;
   final pointY = 200.0;
 
@@ -27,10 +26,10 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
   @override
   void initState() {
     super.initState();
-    mapController = MapController();
 
-    mapEventSubscription = mapController.mapEventStream
-        .listen((mapEvent) => onMapEvent(mapEvent, context));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      updatePoint(null, context);
+    });
   }
 
   @override
@@ -57,6 +56,9 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
           FlutterMap(
             mapController: mapController,
             options: MapOptions(
+              onMapEvent: (event) {
+                updatePoint(null, context);
+              },
               center: LatLng(51.5, -0.09),
               zoom: 5,
               minZoom: 3,
@@ -104,27 +106,14 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
     );
   }
 
-  void onMapEvent(MapEvent mapEvent, BuildContext context) {
-    _updatePointLatLng(context);
-  }
-
-  void _updatePointLatLng(BuildContext context) {
+  void updatePoint(MapEvent? event, BuildContext context) {
     final pointX = _getPointX(context);
-
-    final latLng = mapController.pointToLatLng(CustomPoint(pointX, pointY));
-
     setState(() {
-      this.latLng = latLng;
+      latLng = mapController.pointToLatLng(CustomPoint(pointX, pointY));
     });
   }
 
   double _getPointX(BuildContext context) {
     return MediaQuery.of(context).size.width / 2;
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    mapEventSubscription.cancel();
   }
 }

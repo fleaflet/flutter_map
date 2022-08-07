@@ -17,18 +17,18 @@ class MapControllerPage extends StatefulWidget {
   }
 }
 
-class MapControllerPageState extends State<MapControllerPage> {
-  static LatLng london = LatLng(51.5, -0.09);
-  static LatLng paris = LatLng(48.8566, 2.3522);
-  static LatLng dublin = LatLng(53.3498, -6.2603);
+final LatLng london = LatLng(51.5, -0.09);
+final LatLng paris = LatLng(48.8566, 2.3522);
+final LatLng dublin = LatLng(53.3498, -6.2603);
 
-  late final MapController mapController;
-  double rotation = 0;
+class MapControllerPageState extends State<MapControllerPage> {
+  late final MapController _mapController;
+  double _rotation = 0;
 
   @override
   void initState() {
     super.initState();
-    mapController = MapController();
+    _mapController = MapController();
   }
 
   @override
@@ -76,23 +76,23 @@ class MapControllerPageState extends State<MapControllerPage> {
                 children: <Widget>[
                   MaterialButton(
                     onPressed: () {
-                      mapController.move(london, 18);
+                      _mapController.move(london, 18);
                     },
                     child: const Text('London'),
                   ),
                   MaterialButton(
                     onPressed: () {
-                      mapController.move(paris, 5);
+                      _mapController.move(paris, 5);
                     },
                     child: const Text('Paris'),
                   ),
                   MaterialButton(
                     onPressed: () {
-                      mapController.move(dublin, 5);
+                      _mapController.move(dublin, 5);
                     },
                     child: const Text('Dublin'),
                   ),
-                  CurrentLocation(mapController: mapController),
+                  CurrentLocation(mapController: _mapController),
                 ],
               ),
             ),
@@ -106,7 +106,7 @@ class MapControllerPageState extends State<MapControllerPage> {
                       bounds.extend(dublin);
                       bounds.extend(paris);
                       bounds.extend(london);
-                      mapController.fitBounds(
+                      _mapController.fitBounds(
                         bounds,
                         options: const FitBoundsOptions(
                           padding: EdgeInsets.only(left: 15, right: 15),
@@ -118,7 +118,7 @@ class MapControllerPageState extends State<MapControllerPage> {
                   Builder(builder: (BuildContext context) {
                     return MaterialButton(
                       onPressed: () {
-                        final bounds = mapController.bounds!;
+                        final bounds = _mapController.bounds!;
 
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           content: Text(
@@ -136,14 +136,14 @@ class MapControllerPageState extends State<MapControllerPage> {
                   const Text('Rotation:'),
                   Expanded(
                     child: Slider(
-                      value: rotation,
+                      value: _rotation,
                       min: 0,
                       max: 360,
                       onChanged: (degree) {
                         setState(() {
-                          rotation = degree;
+                          _rotation = degree;
                         });
-                        mapController.rotate(degree);
+                        _mapController.rotate(degree);
                       },
                     ),
                   )
@@ -152,7 +152,7 @@ class MapControllerPageState extends State<MapControllerPage> {
             ),
             Flexible(
               child: FlutterMap(
-                mapController: mapController,
+                mapController: _mapController,
                 options: MapOptions(
                   center: LatLng(51.5, -0.09),
                   zoom: 5,
@@ -160,7 +160,8 @@ class MapControllerPageState extends State<MapControllerPage> {
                   minZoom: 3,
                 ),
                 children: [
-                  TileLayerWidget(options: TileLayerOptions(
+                  TileLayerWidget(
+                      options: TileLayerOptions(
                     urlTemplate:
                         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     subdomains: ['a', 'b', 'c'],
@@ -198,7 +199,6 @@ class _CurrentLocationState extends State<CurrentLocation> {
   @override
   void initState() {
     super.initState();
-
     mapEventSubscription =
         widget.mapController.mapEventStream.listen(onMapEvent);
   }
@@ -218,7 +218,8 @@ class _CurrentLocationState extends State<CurrentLocation> {
   }
 
   void onMapEvent(MapEvent mapEvent) {
-    if (mapEvent is MapEventMove && mapEvent.id == _eventKey.toString()) {
+    if (mapEvent is MapEventMove && mapEvent.id != _eventKey.toString()) {
+    print("map event ${mapEvent.id}");
       setIcon(Icons.gps_not_fixed);
     }
   }
@@ -236,6 +237,7 @@ class _CurrentLocationState extends State<CurrentLocation> {
       );
 
       if (moved) {
+        print("moveed");
         setIcon(Icons.gps_fixed);
       } else {
         setIcon(Icons.gps_not_fixed);

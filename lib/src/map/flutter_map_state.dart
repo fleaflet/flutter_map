@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -27,7 +29,6 @@ class FlutterMapState extends MapGestureMixin
   void initState() {
     super.initState();
 
-    //TODO there has to be a better way to pass state to my controller
     mapController.state = this;
 
     // Initialize all variables here, if they need to be updated after the map changes
@@ -47,10 +48,11 @@ class FlutterMapState extends MapGestureMixin
     }
   }
 
+  //This may not be required.
   @override
-  void dispose() {
-    _localController.dispose();
-    super.dispose();
+  void didUpdateWidget(FlutterMap oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    mapController.state = this;
   }
 
   @override
@@ -239,13 +241,13 @@ class FlutterMapState extends MapGestureMixin
     _pixelOrigin = getNewPixelOrigin(_center);
   }
 
-  void _handleMoveEmit(LatLng targetCenter, double targetZoom, bool hasGesture,
+  void _handleMoveEmit(LatLng targetCenter, double targetZoom, LatLng oldCenter, double oldZoom, bool hasGesture,
       MapEventSource source, String? id) {
     if (source == MapEventSource.flingAnimationController) {
       emitMapEvent(
         MapEventFlingAnimation(
-          center: _center,
-          zoom: _zoom,
+          center: oldCenter,
+          zoom: oldZoom,
           targetCenter: targetCenter,
           targetZoom: targetZoom,
           source: source,
@@ -254,8 +256,8 @@ class FlutterMapState extends MapGestureMixin
     } else if (source == MapEventSource.doubleTapZoomAnimationController) {
       emitMapEvent(
         MapEventDoubleTapZoom(
-          center: _center,
-          zoom: _zoom,
+          center: oldCenter,
+          zoom: oldZoom,
           targetCenter: targetCenter,
           targetZoom: targetZoom,
           source: source,
@@ -264,8 +266,8 @@ class FlutterMapState extends MapGestureMixin
     } else if (source == MapEventSource.scrollWheel) {
       emitMapEvent(
         MapEventScrollWheelZoom(
-          center: _center,
-          zoom: _zoom,
+          center: oldCenter,
+          zoom: oldZoom,
           targetCenter: targetCenter,
           targetZoom: targetZoom,
           source: source,
@@ -275,8 +277,8 @@ class FlutterMapState extends MapGestureMixin
         source == MapEventSource.onMultiFinger) {
       emitMapEvent(
         MapEventMove(
-          center: _center,
-          zoom: _zoom,
+          center: oldCenter,
+          zoom: oldZoom,
           targetCenter: targetCenter,
           targetZoom: targetZoom,
           source: source,
@@ -286,8 +288,8 @@ class FlutterMapState extends MapGestureMixin
       emitMapEvent(
         MapEventMove(
           id: id,
-          center: _center,
-          zoom: _zoom,
+          center: oldCenter,
+          zoom: oldZoom,
           targetCenter: targetCenter,
           targetZoom: targetZoom,
           source: source,
@@ -295,14 +297,14 @@ class FlutterMapState extends MapGestureMixin
       );
     } else if (source == MapEventSource.custom) {
       // for custom source, emit move event if zoom or center has changed
-      if (targetZoom != _zoom ||
-          targetCenter.latitude != _center.latitude ||
-          targetCenter.longitude != _center.longitude) {
+      if (targetZoom != oldZoom ||
+          targetCenter.latitude != oldCenter.latitude ||
+          targetCenter.longitude != oldCenter.longitude) {
         emitMapEvent(
           MapEventMove(
             id: id,
-            center: _center,
-            zoom: _zoom,
+            center: oldCenter,
+            zoom: oldZoom,
             targetCenter: targetCenter,
             targetZoom: targetZoom,
             source: source,
@@ -313,9 +315,15 @@ class FlutterMapState extends MapGestureMixin
   }
 
   void emitMapEvent(MapEvent event) {
+    if (event.source == MapEventSource.mapController &&
+        event is MapEventMove) {
+      handleAnimationInterruptions(event);
+    }
+    
     setState(() {
       widget.options.onMapEvent?.call(event);
     });
+    mapController.mapEventSink.add(event);
   }
 
   bool rotate(
@@ -325,22 +333,23 @@ class FlutterMapState extends MapGestureMixin
     String? id,
   }) {
     if (newRotation != _rotation) {
+      final double oldRotation = _rotation;
+      //Apply state then emit events and callbacks
+      setState(() {
+        _rotation = newRotation;
+      });
+      _updateSizeByOriginalSizeAndRotation();
+
       emitMapEvent(
         MapEventRotate(
           id: id,
-          currentRotation: _rotation,
-          targetRotation: newRotation,
+          currentRotation: oldRotation,
+          targetRotation: _rotation,
           center: _center,
           zoom: _zoom,
           source: source,
         ),
       );
-      setState(() {
-        _rotation = newRotation;
-      });
-
-      _updateSizeByOriginalSizeAndRotation();
-
       return true;
     }
 
@@ -384,8 +393,10 @@ class FlutterMapState extends MapGestureMixin
       }
     }
 
-    _handleMoveEmit(newCenter, newZoom, hasGesture, source, id);
+    final LatLng oldCenter = _center;
+    final double oldZoom = _zoom;
 
+    //Apply state then emit events and callbacks
     setState(() {
       _zoom = newZoom;
       _center = newCenter;
@@ -393,6 +404,8 @@ class FlutterMapState extends MapGestureMixin
 
     _pixelBounds = getPixelBounds(_zoom);
     _pixelOrigin = getNewPixelOrigin(newCenter);
+
+    _handleMoveEmit(newCenter, newZoom, oldCenter, oldZoom, hasGesture, source, id);
 
     options.onPositionChanged?.call(
         MapPosition(
