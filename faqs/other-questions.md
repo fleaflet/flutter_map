@@ -50,6 +50,6 @@ However, tilesets can be styled. This is the most effective way of using custom 
 
 </details>
 
-{% hint style="info" %}
+{% hint style="success" %}
 We're adding questions here as we get them!
 {% endhint %}

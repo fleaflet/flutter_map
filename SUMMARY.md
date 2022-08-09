@@ -27,7 +27,8 @@
   * [Circle Layer](usage/layers/circle-layer.md)
   * [Attribution Layer](usage/layers/attribution-layer.md)
   * [WMS Usage](usage/layers/wms-usage.md)
-* [Controller](usage/controller.md)
+* [Controller](usage/controller/README.md)
+  * [Move](usage/controller/move.md)
 * [Full API Reference](https://pub.dev/documentation/flutter\_map/latest/flutter\_map/flutter\_map-library.html)
 
 ## Plugins

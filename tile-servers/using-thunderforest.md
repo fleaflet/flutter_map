@@ -8,6 +8,12 @@ Thunderstorm's pricing page: [thunderforest.com/pricing](https://www.thunderfore
 Thunderstorm's documentation page: [thunderforest.com/docs/map-tiles-api](https://www.thunderforest.com/docs/map-tiles-api)
 {% endhint %}
 
+{% hint style="info" %}
+We're writing documentation for the Thunderforest website, as you read this!
+
+Once complete, we'll be replacing this page with a link to the appropriate docs page over on their site.
+{% endhint %}
+
 Thunderforest is a popular tiered-payment tile provider solution, especially for generic mapping applications. Setup with 'flutter\_map' is relatively straightforward, but this page provides an example anyway. Note that this method uses up your 'Map Tiles API' requests.
 
 First, find the style you want. We'll be using OpenCycleMap to demonstrate.

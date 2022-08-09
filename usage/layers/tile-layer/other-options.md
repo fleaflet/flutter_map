@@ -17,12 +17,9 @@ These are the available sub-subdomains for Open Street Maps' tile server, and on
 If you are not sure of the correct values for your server, don't specify anything. For example, the `urlTemplate` used in the example above will work without the '{s}' part and any subdomains specified.
 
 {% hint style="info" %}
-This option is not really necessary any more for many tile servers, but can still be used, and is throughout the example application.
+This option is recommended when the map may be used on the web platform. Browsers impose a limit on the number of HTTP connections that can be made simultaneously to one domain, so as not to overload servers. Making tile requests to multiple subdomains works around this limitation.
 
-There were two main reasons this option is provided:
-
-* Leaflet.js relied on this to get around browser limitations on HTTP connections ([source - second paragraph](https://wiki.openstreetmap.org/wiki/Slippy\_map\_tilenames#Tile\_servers)), and because 'flutter\_map' is a close port of 'leaflet.js', it retains this feature.
-* Large servers used to rely on this technique to load-balance, and some small or private servers still do.
+On other platforms, this is redundant, and only needs to be used if your tile server recommends it, for example for load-balancing purposes.
 {% endhint %}
 
 ## Tile Bounds (`tileBounds:`)

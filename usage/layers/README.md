@@ -10,4 +10,6 @@ There are also `nonRotatedChildren` and `nonRotatedLayers` properties, which wor
 
 {% hint style="info" %}
 Many subpages will use the `layers` property for simplicity and conciseness. To use the `children` property, just wrap each `LayerOptions` with its respective `LayerWidget`.
+
+We're working on updating this documentation as you read this!
 {% endhint %}

@@ -1,6 +1,8 @@
 # Credits
 
-Thanks to everyone who has contributed to flutter\_map, you've helped make it one of the most popular mapping solutions for Flutter! If you want to contribute, see the [contributing.md](contributing.md "mention") instructions.
+Thanks to everyone who has contributed to flutter\_map in anyway, you've helped make it the most popular non-commercially owned mapping solution for Flutter. As well as those that have contributed directly to the code, this includes everyone on the Discord server, everyone who's following the progress, and everyone that's participating in discussions and issues.
+
+If you want to contribute to the codebase, please visit the [contributing.md](contributing.md "mention") instructions. We'd love to have your input!
 
 In particular, thanks go to:
 
