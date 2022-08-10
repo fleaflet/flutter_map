@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/gestures/gestures.dart';
@@ -14,6 +15,8 @@ import 'package:flutter_map/src/core/bounds.dart';
 class FlutterMapState extends MapGestureMixin
     with AutomaticKeepAliveClientMixin {
   final _positionedTapController = PositionedTapController();
+  final GestureArenaTeam _team = GestureArenaTeam();
+
   final MapController _localController = MapControllerImpl();
 
   @override
@@ -70,42 +73,104 @@ class FlutterMapState extends MapGestureMixin
         fitBounds(options.bounds!, options.boundsOptions);
       }
 
-      final scaleGestureTeam = GestureArenaTeam();
+      final DeviceGestureSettings? gestureSettings =
+          MediaQuery.maybeOf(context)?.gestureSettings;
+      final Map<Type, GestureRecognizerFactory> gestures =
+          <Type, GestureRecognizerFactory>{};
 
-      RawGestureDetector scaleGestureDetector({required Widget child}) =>
-          RawGestureDetector(
-            gestures: <Type, GestureRecognizerFactory>{
-              ScaleGestureRecognizer:
-                  GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
-                      () => ScaleGestureRecognizer(),
-                      (ScaleGestureRecognizer instance) {
-                scaleGestureTeam.captain = instance;
-                instance.team ??= scaleGestureTeam;
-                instance
-                  ..onStart = handleScaleStart
-                  ..onUpdate = handleScaleUpdate
-                  ..onEnd = handleScaleEnd;
-              }),
-              VerticalDragGestureRecognizer:
-                  GestureRecognizerFactoryWithHandlers<
-                          VerticalDragGestureRecognizer>(
-                      () => VerticalDragGestureRecognizer(),
-                      (VerticalDragGestureRecognizer instance) {
-                instance.team ??= scaleGestureTeam;
-                // these empty lambdas are necessary to activate this gesture recognizer
-                instance.onUpdate = (_) {};
-              }),
-              HorizontalDragGestureRecognizer:
-                  GestureRecognizerFactoryWithHandlers<
-                          HorizontalDragGestureRecognizer>(
-                      () => HorizontalDragGestureRecognizer(),
-                      (HorizontalDragGestureRecognizer instance) {
-                instance.team ??= scaleGestureTeam;
-                instance.onUpdate = (_) {};
-              })
-            },
-            child: child,
-          );
+      gestures[TapGestureRecognizer] =
+          GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
+        () => TapGestureRecognizer(debugOwner: this),
+        (TapGestureRecognizer instance) {
+          instance
+            ..onTapDown = _positionedTapController.onTapDown
+            ..onTapUp = handleOnTapUp
+            ..onTap = _positionedTapController.onTap;
+          // ..onTapCancel = onTapCancel
+          // ..onSecondaryTap = onSecondaryTap
+          // ..onSecondaryTapDown = onSecondaryTapDown
+          // ..onSecondaryTapUp = onSecondaryTapUp
+          // ..onSecondaryTapCancel = onSecondaryTapCancel
+          // ..onTertiaryTapDown = onTertiaryTapDown
+          // ..onTertiaryTapUp = onTertiaryTapUp
+          // ..onTertiaryTapCancel = onTertiaryTapCancel
+          // ..gestureSettings = gestureSettings;
+          // instance.team = _team;
+        },
+      );
+
+      gestures[LongPressGestureRecognizer] =
+          GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
+        () => LongPressGestureRecognizer(debugOwner: this),
+        (LongPressGestureRecognizer instance) {
+          instance
+            // ..onLongPressDown = onLongPressDown
+            // ..onLongPressCancel = onLongPressCancel
+            ..onLongPress = _positionedTapController.onLongPress;
+          // ..onLongPressStart = onLongPressStart
+          // ..onLongPressMoveUpdate = onLongPressMoveUpdate
+          // ..onLongPressUp = onLongPressUp
+          // ..onLongPressEnd = onLongPressEnd
+          // ..onSecondaryLongPressDown = onSecondaryLongPressDown
+          // ..onSecondaryLongPressCancel = onSecondaryLongPressCancel
+          // ..onSecondaryLongPress = onSecondaryLongPress
+          // ..onSecondaryLongPressStart = onSecondaryLongPressStart
+          // ..onSecondaryLongPressMoveUpdate = onSecondaryLongPressMoveUpdate
+          // ..onSecondaryLongPressUp = onSecondaryLongPressUp
+          // ..onSecondaryLongPressEnd = onSecondaryLongPressEnd
+          // ..onTertiaryLongPressDown = onTertiaryLongPressDown
+          // ..onTertiaryLongPressCancel = onTertiaryLongPressCancel
+          // ..onTertiaryLongPress = onTertiaryLongPress
+          // ..onTertiaryLongPressStart = onTertiaryLongPressStart
+          // ..onTertiaryLongPressMoveUpdate = onTertiaryLongPressMoveUpdate
+          // ..onTertiaryLongPressUp = onTertiaryLongPressUp
+          // ..onTertiaryLongPressEnd = onTertiaryLongPressEnd
+          // ..gestureSettings = gestureSettings;
+          // instance.team = _team;
+        },
+      );
+
+      if (options.absorbPanEventsOnScrollables &&
+          InteractiveFlag.hasFlag(options.interactiveFlags, InteractiveFlag.drag)) {
+        gestures[VerticalDragGestureRecognizer] =
+            GestureRecognizerFactoryWithHandlers<VerticalDragGestureRecognizer>(
+          () => VerticalDragGestureRecognizer(debugOwner: this),
+          (VerticalDragGestureRecognizer instance) {
+            instance.onUpdate = (details) {
+              //Absorbing vertical drags
+            };
+            // ..dragStartBehavior = dragStartBehavior
+            instance.gestureSettings = gestureSettings;
+            instance.team ??= _team;
+          },
+        );
+        gestures[HorizontalDragGestureRecognizer] =
+            GestureRecognizerFactoryWithHandlers<
+                HorizontalDragGestureRecognizer>(
+          () => HorizontalDragGestureRecognizer(debugOwner: this),
+          (HorizontalDragGestureRecognizer instance) {
+            instance.onUpdate = (details) {
+              //Absorbing horizontal drags
+            };
+            // ..dragStartBehavior = dragStartBehavior
+            instance.gestureSettings = gestureSettings;
+            instance.team ??= _team;
+          },
+        );
+      }
+
+      gestures[ScaleGestureRecognizer] =
+          GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
+        () => ScaleGestureRecognizer(debugOwner: this),
+        (ScaleGestureRecognizer instance) {
+          instance
+            ..onStart = handleScaleStart
+            ..onUpdate = handleScaleUpdate
+            ..onEnd = handleScaleEnd;
+          instance.team ??= _team;
+          _team.captain = instance;
+        },
+      );
 
       return MapStateInheritedWidget(
         mapState: this,
@@ -120,23 +185,8 @@ class FlutterMapState extends MapGestureMixin
             onTap: handleTap,
             onLongPress: handleLongPress,
             onDoubleTap: handleDoubleTap,
-            child: options.allowPanningOnScrollingParent
-                ? GestureDetector(
-                    onTap: _positionedTapController.onTap,
-                    onLongPress: _positionedTapController.onLongPress,
-                    onTapDown: _positionedTapController.onTapDown,
-                    onTapUp: handleOnTapUp,
-                    child: scaleGestureDetector(child: _buildMap(size)),
-                  )
-                : GestureDetector(
-                    onScaleStart: handleScaleStart,
-                    onScaleUpdate: handleScaleUpdate,
-                    onScaleEnd: handleScaleEnd,
-                    onTap: _positionedTapController.onTap,
-                    onLongPress: _positionedTapController.onLongPress,
-                    onTapDown: _positionedTapController.onTapDown,
-                    onTapUp: handleOnTapUp,
-                    child: _buildMap(size)),
+            child:
+                RawGestureDetector(gestures: gestures, child: _buildMap(size)),
           ),
         ),
       );
@@ -241,8 +291,8 @@ class FlutterMapState extends MapGestureMixin
     _pixelOrigin = getNewPixelOrigin(_center);
   }
 
-  void _handleMoveEmit(LatLng targetCenter, double targetZoom, LatLng oldCenter, double oldZoom, bool hasGesture,
-      MapEventSource source, String? id) {
+  void _handleMoveEmit(LatLng targetCenter, double targetZoom, LatLng oldCenter,
+      double oldZoom, bool hasGesture, MapEventSource source, String? id) {
     if (source == MapEventSource.flingAnimationController) {
       emitMapEvent(
         MapEventFlingAnimation(
@@ -315,11 +365,10 @@ class FlutterMapState extends MapGestureMixin
   }
 
   void emitMapEvent(MapEvent event) {
-    if (event.source == MapEventSource.mapController &&
-        event is MapEventMove) {
+    if (event.source == MapEventSource.mapController && event is MapEventMove) {
       handleAnimationInterruptions(event);
     }
-    
+
     setState(() {
       widget.options.onMapEvent?.call(event);
     });
@@ -405,7 +454,8 @@ class FlutterMapState extends MapGestureMixin
     _pixelBounds = getPixelBounds(_zoom);
     _pixelOrigin = getNewPixelOrigin(newCenter);
 
-    _handleMoveEmit(newCenter, newZoom, oldCenter, oldZoom, hasGesture, source, id);
+    _handleMoveEmit(
+        newCenter, newZoom, oldCenter, oldZoom, hasGesture, source, id);
 
     options.onPositionChanged?.call(
         MapPosition(

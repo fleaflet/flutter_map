@@ -242,8 +242,7 @@ class MapOptions {
   /// see [InteractiveFlag] for custom settings
   final int interactiveFlags;
 
-  final bool allowPanning;
-  final bool allowPanningOnScrollingParent;
+  final bool absorbPanEventsOnScrollables;
 
   final TapCallback? onTap;
   final LongPressCallback? onLongPress;
@@ -280,7 +279,7 @@ class MapOptions {
   double? _safeAreaZoom;
 
   MapOptions({
-    this.allowPanningOnScrollingParent = true,
+    this.absorbPanEventsOnScrollables = true,
     this.crs = const Epsg3857(),
     LatLng? center,
     this.bounds,
@@ -302,7 +301,6 @@ class MapOptions {
     this.minZoom,
     this.maxZoom,
     this.interactiveFlags = InteractiveFlag.all,
-    this.allowPanning = true,
     this.onTap,
     this.onLongPress,
     this.onPointerDown,

@@ -501,10 +501,6 @@ abstract class MapGestureMixin extends State<FlutterMap>
   void handleScaleEnd(ScaleEndDetails details) {
     _resetDoubleTapHold();
 
-    if (!options.allowPanning) {
-      return;
-    }
-
     final eventSource =
         _dragMode ? MapEventSource.dragEnd : MapEventSource.multiFingerEnd;
 
@@ -625,9 +621,6 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
   void handleDoubleTap(TapPosition tapPosition) {
     _resetDoubleTapHold();
-    if (!options.allowPanning) {
-      return;
-    }
 
     closeFlingAnimationController(MapEventSource.doubleTap);
     closeDoubleTapController(MapEventSource.doubleTap);
