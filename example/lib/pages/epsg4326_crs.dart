@@ -30,14 +30,14 @@ class EPSG4326Page extends StatelessWidget {
                   zoom: 0,
                 ),
                 children: [
-                  TileLayerWidget(options: TileLayerOptions(
+                  TileLayer(
                     wmsOptions: WMSTileLayerOptions(
                       crs: const Epsg4326(),
                       baseUrl: 'https://ows.mundialis.de/services/service?',
                       layers: ['TOPO-OSM-WMS'],
                     ),
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  ))
+                  )
                 ],
               ),
             ),

@@ -28,14 +28,14 @@ class WMSLayerPage extends StatelessWidget {
                   zoom: 6,
                 ),
                 children: [
-                  TileLayerWidget(options: TileLayerOptions(
+                  TileLayer(
                     wmsOptions: WMSTileLayerOptions(
                       baseUrl: 'https://{s}.s2maps-tiles.eu/wms/?',
                       layers: ['s2cloudless-2018_3857'],
                     ),
                     subdomains: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  ))
+                  )
                 ],
               ),
             ),

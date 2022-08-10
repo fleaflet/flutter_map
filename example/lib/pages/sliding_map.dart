@@ -35,11 +35,11 @@ class SlidingMapPage extends StatelessWidget {
                   screenSize: MediaQuery.of(context).size,
                 ),
                 children: [
-                  TileLayerWidget(options: TileLayerOptions(
+                  TileLayer(
                     tileProvider: AssetTileProvider(),
                     maxZoom: 14,
                     urlTemplate: 'assets/map/anholt_osmbright/{z}/{x}/{y}.png',
-                  )),
+                  ),
                 ],
               ),
             ),

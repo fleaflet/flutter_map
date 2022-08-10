@@ -17,13 +17,13 @@ abstract class TileProvider {
   });
 
   /// Retrieve a tile as an image, based on it's coordinates and the current [TileLayerOptions]
-  ImageProvider getImage(Coords coords, TileLayerOptions options);
+  ImageProvider getImage(Coords coords, TileLayer options);
 
   /// Called when the [TileLayerWidget] is disposed
   void dispose() {}
 
   /// Generate a valid URL for a tile, based on it's coordinates and the current [TileLayerOptions]
-  String getTileUrl(Coords coords, TileLayerOptions options) {
+  String getTileUrl(Coords coords, TileLayer options) {
     final urlTemplate = (options.wmsOptions != null)
         ? options.wmsOptions!
             .getUrl(coords, options.tileSize.toInt(), options.retinaMode)
@@ -46,7 +46,7 @@ abstract class TileProvider {
     return options.templateFunction(urlTemplate!, allOpts);
   }
 
-  double _getZoomForUrl(Coords coords, TileLayerOptions options) {
+  double _getZoomForUrl(Coords coords, TileLayer options) {
     var zoom = coords.z;
 
     if (options.zoomReverse) {
@@ -61,7 +61,7 @@ abstract class TileProvider {
   }
 
   /// Get a subdomain value for a tile, based on it's coordinates and the current [TileLayerOptions]
-  String getSubdomain(Coords coords, TileLayerOptions options) {
+  String getSubdomain(Coords coords, TileLayer options) {
     if (options.subdomains.isEmpty) {
       return '';
     }

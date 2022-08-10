@@ -81,14 +81,13 @@ class _PolylinePageState extends State<PolylinePage> {
                           },
                         ),
                         children: [
-                          TileLayerWidget(
-                              options: TileLayerOptions(
+                          TileLayer(
                             urlTemplate:
                                 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                             subdomains: ['a', 'b', 'c'],
                             userAgentPackageName:
                                 'dev.fleaflet.flutter_map.example',
-                          )),
+                          ),
                           PolylineLayer(polylines: [
                               Polyline(
                                   points: points,

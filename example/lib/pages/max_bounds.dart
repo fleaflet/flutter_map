@@ -31,13 +31,13 @@ class MaxBoundsPage extends StatelessWidget {
                   screenSize: MediaQuery.of(context).size,
                 ),
                 children: [
-                  TileLayerWidget(options: TileLayerOptions(
+                  TileLayer(
                     maxZoom: 15,
                     urlTemplate:
                         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     subdomains: ['a', 'b', 'c'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  )),
+                  ),
                 ],
               ),
             ),

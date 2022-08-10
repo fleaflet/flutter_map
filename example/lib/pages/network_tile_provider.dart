@@ -65,13 +65,13 @@ class NetworkTileProviderPage extends StatelessWidget {
                   zoom: 5,
                 ),
                 children: [
-                  TileLayerWidget(options: TileLayerOptions(
+                  TileLayer(
                     urlTemplate:
                         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     subdomains: ['a', 'b', 'c'],
                     tileProvider: NetworkTileProvider(),
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  )),
+                  ),
                   MarkerLayer(markers: markers)
                 ],
               ),

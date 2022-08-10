@@ -47,11 +47,11 @@ class TapToAddPageState extends State<TapToAddPage> {
                     zoom: 13,
                     onTap: _handleTap),
                 children: [
-                  TileLayerWidget(options: TileLayerOptions(
+                  TileLayer(
                     urlTemplate:
                         'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  )),
+                  ),
                   MarkerLayer(markers: markers),
                 ],
               ),

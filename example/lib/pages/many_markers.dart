@@ -78,12 +78,12 @@ class _ManyMarkersPageState extends State<ManyMarkersPage> {
                 interactiveFlags: InteractiveFlag.all - InteractiveFlag.rotate,
               ),
               children: [
-                TileLayerWidget(options: TileLayerOptions(
+                TileLayer(
                   urlTemplate:
                       'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                   subdomains: ['a', 'b', 'c'],
                   userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                )),
+                ),
                 MarkerLayer(
                     markers: allMarkers.sublist(
                         0, min(allMarkers.length, _sliderVal))),

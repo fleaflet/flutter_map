@@ -110,10 +110,10 @@ class _TestAppState extends State<TestApp> {
                 zoom: 13,
               ),
               children: [
-                TileLayerWidget(options: TileLayerOptions(
+                TileLayer(
                     urlTemplate:
                         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    subdomains: ['a', 'b', 'c'])),
+                    subdomains: ['a', 'b', 'c']),
                 MarkerLayer(markers: _markers),
               ],
             ),

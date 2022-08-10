@@ -112,14 +112,14 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
             zoom: 5,
           ),
           children: [
-            TileLayerWidget(options: TileLayerOptions(
+            TileLayer(
               urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
               subdomains: ['a', 'b', 'c'],
               userAgentPackageName: 'dev.fleaflet.flutter_map.example',
               tileBuilder: tileBuilder,
               tilesContainerBuilder:
                   darkMode ? darkModeTilesContainerBuilder : null,
-            )),
+            ),
             MarkerLayer(
               markers: <Marker>[
                 Marker(
