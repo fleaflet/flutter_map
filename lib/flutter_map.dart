@@ -262,6 +262,14 @@ class MapOptions {
   final LatLng? swPanBoundary;
   final LatLng? nePanBoundary;
 
+  /// OnMapReady is called after the map runs it's initState.
+  /// At that point the map has assigned its state to the controller
+  /// Only use this if your map isn't built immediately (like inside FutureBuilder)
+  /// and you need to access the controller as soon as the map is built.
+  /// Otherwise you can use WidgetsBinding.instance.addPostFrameCallback
+  /// In initState to controll the map before the next frame
+  final void Function()? onMapReady;
+
   /// Restrict outer edges of map to LatLng Bounds, to prevent gray areas when
   /// panning or zooming. LatLngBounds(LatLng(-90, -180.0), LatLng(90.0, 180.0))
   /// would represent the full extent of the map, so no gray area outside of it.
@@ -309,6 +317,7 @@ class MapOptions {
     this.onPointerHover,
     this.onPositionChanged,
     this.onMapEvent,
+    this.onMapReady,
     this.slideOnBoundaries = false,
     this.adaptiveBoundaries = false,
     this.screenSize,

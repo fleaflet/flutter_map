@@ -49,6 +49,8 @@ class FlutterMapState extends MapGestureMixin
     if (options.bounds != null) {
       fitBounds(options.bounds!, options.boundsOptions);
     }
+    
+    options.onMapReady?.call();
   }
 
   //This may not be required.
