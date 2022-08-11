@@ -40,11 +40,13 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           FloatingActionButton(
+            heroTag: 'rotate',
             child: const Icon(Icons.rotate_right),
             onPressed: () => mapController.rotate(60),
           ),
           const SizedBox(height: 15),
           FloatingActionButton(
+            heroTag: 'cancel',
             child: const Icon(Icons.cancel),
             onPressed: () => mapController.rotate(0),
           ),
