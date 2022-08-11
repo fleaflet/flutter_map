@@ -160,9 +160,6 @@ class FlutterMapState extends MapGestureMixin
       },
     );
 
-    _rotationRad = degToRadian(rotation);
-    _pixelBounds = getPixelBounds(zoom);
-    _bounds = _calculateBounds();
     if (options.bounds != null) {
       fitBounds(options.bounds!, options.boundsOptions);
     }
@@ -170,6 +167,10 @@ class FlutterMapState extends MapGestureMixin
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
       setSize(constraints.maxWidth, constraints.maxHeight);
+
+      _rotationRad = degToRadian(rotation);
+      _pixelBounds = getPixelBounds(zoom);
+      _bounds = _calculateBounds();
 
       return MapStateInheritedWidget(
         mapState: this,
