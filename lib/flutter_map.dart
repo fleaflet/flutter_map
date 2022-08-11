@@ -1,7 +1,6 @@
 library flutter_map;
 
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
@@ -255,7 +254,6 @@ class MapOptions {
   final bool slideOnBoundaries;
   final Size? screenSize;
   final bool adaptiveBoundaries;
-  final MapController? controller;
   final LatLng center;
   final LatLngBounds? bounds;
   final FitBoundsOptions boundsOptions;
@@ -282,9 +280,6 @@ class MapOptions {
   /// To ensure this doesn't happen, enable this flag to prevent the [FlutterMap]
   /// widget from rebuilding.
   final bool keepAlive;
-
-  _SafeArea? _safeAreaCache;
-  double? _safeAreaZoom;
 
   MapOptions({
     this.absorbPanEventsOnScrollables = true,
@@ -321,7 +316,6 @@ class MapOptions {
     this.slideOnBoundaries = false,
     this.adaptiveBoundaries = false,
     this.screenSize,
-    this.controller,
     this.swPanBoundary,
     this.nePanBoundary,
     this.maxBounds,
@@ -330,80 +324,9 @@ class MapOptions {
         assert(rotationThreshold >= 0.0),
         assert(pinchZoomThreshold >= 0.0),
         assert(pinchMoveThreshold >= 0.0) {
-    _safeAreaZoom = zoom;
-    assert(slideOnBoundaries ||
-        !isOutOfBounds(center)); //You cannot start outside pan boundary
-    assert(!adaptiveBoundaries || screenSize != null,
-        'screenSize must be set in order to enable adaptive boundaries.');
-    assert(!adaptiveBoundaries || controller != null,
-        'controller must be set in order to enable adaptive boundaries.');
+  assert(!adaptiveBoundaries || screenSize != null,
+      'screenSize must be set in order to enable adaptive boundaries.');
   }
-
-  //if there is a pan boundary, do not cross
-  bool isOutOfBounds(LatLng? center) {
-    if (adaptiveBoundaries) {
-      return !_safeArea!.contains(center);
-    }
-    if (swPanBoundary != null && nePanBoundary != null) {
-      if (center == null) {
-        return true;
-      } else if (center.latitude < swPanBoundary!.latitude ||
-          center.latitude > nePanBoundary!.latitude) {
-        return true;
-      } else if (center.longitude < swPanBoundary!.longitude ||
-          center.longitude > nePanBoundary!.longitude) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  LatLng containPoint(LatLng point, LatLng fallback) {
-    if (adaptiveBoundaries) {
-      return _safeArea!.containPoint(point, fallback);
-    } else {
-      return LatLng(
-        point.latitude.clamp(swPanBoundary!.latitude, nePanBoundary!.latitude),
-        point.longitude
-            .clamp(swPanBoundary!.longitude, nePanBoundary!.longitude),
-      );
-    }
-  }
-
-  _SafeArea? get _safeArea {
-    final controllerZoom = _getControllerZoom();
-    if (controllerZoom != _safeAreaZoom || _safeAreaCache == null) {
-      _safeAreaZoom = controllerZoom;
-      final halfScreenHeight = _calculateScreenHeightInDegrees() / 2;
-      final halfScreenWidth = _calculateScreenWidthInDegrees() / 2;
-      final southWestLatitude = swPanBoundary!.latitude + halfScreenHeight;
-      final southWestLongitude = swPanBoundary!.longitude + halfScreenWidth;
-      final northEastLatitude = nePanBoundary!.latitude - halfScreenHeight;
-      final northEastLongitude = nePanBoundary!.longitude - halfScreenWidth;
-      _safeAreaCache = _SafeArea(
-        LatLng(
-          southWestLatitude,
-          southWestLongitude,
-        ),
-        LatLng(
-          northEastLatitude,
-          northEastLongitude,
-        ),
-      );
-    }
-    return _safeAreaCache;
-  }
-
-  double _calculateScreenWidthInDegrees() {
-    final zoom = _getControllerZoom();
-    final degreesPerPixel = 360 / pow(2, zoom + 8);
-    return screenSize!.width * degreesPerPixel;
-  }
-
-  double _calculateScreenHeightInDegrees() =>
-      screenSize!.height * 170.102258 / pow(2, _getControllerZoom() + 8);
-
-  double _getControllerZoom() => controller!.zoom;
 }
 
 class FitBoundsOptions {
@@ -438,29 +361,6 @@ class MapPosition {
       other.center == center &&
       other.bounds == bounds &&
       other.zoom == zoom;
-}
-
-class _SafeArea {
-  final LatLngBounds bounds;
-  final bool isLatitudeBlocked;
-  final bool isLongitudeBlocked;
-
-  _SafeArea(LatLng southWest, LatLng northEast)
-      : bounds = LatLngBounds(southWest, northEast),
-        isLatitudeBlocked = southWest.latitude > northEast.latitude,
-        isLongitudeBlocked = southWest.longitude > northEast.longitude;
-
-  bool contains(LatLng? point) =>
-      isLatitudeBlocked || isLongitudeBlocked ? false : bounds.contains(point);
-
-  LatLng containPoint(LatLng point, LatLng fallback) => LatLng(
-        isLatitudeBlocked
-            ? fallback.latitude
-            : point.latitude.clamp(bounds.south, bounds.north),
-        isLongitudeBlocked
-            ? fallback.longitude
-            : point.longitude.clamp(bounds.west, bounds.east),
-      );
 }
 
 class MoveAndRotateResult {

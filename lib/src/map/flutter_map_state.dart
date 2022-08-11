@@ -49,8 +49,9 @@ class FlutterMapState extends MapGestureMixin
     if (options.bounds != null) {
       fitBounds(options.bounds!, options.boundsOptions);
     }
-    
-    options.onMapReady?.call();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      options.onMapReady?.call();
+    });
   }
 
   //This may not be required.
@@ -425,11 +426,11 @@ class FlutterMapState extends MapGestureMixin
       return false;
     }
 
-    if (options.isOutOfBounds(newCenter)) {
+    if (isOutOfBounds(newCenter)) {
       if (!options.slideOnBoundaries) {
         return false;
       }
-      newCenter = options.containPoint(newCenter, _center);
+      newCenter = containPoint(newCenter, _center);
     }
 
     // Try and fit the corners of the map inside the visible area.
@@ -715,6 +716,74 @@ class FlutterMapState extends MapGestureMixin
     return CustomPoint(tp.dx, tp.dy);
   }
 
+
+  _SafeArea? _safeAreaCache;
+  double? _safeAreaZoom;
+
+  //if there is a pan boundary, do not cross
+  bool isOutOfBounds(LatLng? center) {
+    if (options.adaptiveBoundaries) {
+      return !_safeArea!.contains(center);
+    }
+    if (options.swPanBoundary != null && options.nePanBoundary != null) {
+      if (center == null) {
+        return true;
+      } else if (center.latitude < options.swPanBoundary!.latitude ||
+          center.latitude > options.nePanBoundary!.latitude) {
+        return true;
+      } else if (center.longitude < options.swPanBoundary!.longitude ||
+          center.longitude > options.nePanBoundary!.longitude) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  LatLng containPoint(LatLng point, LatLng fallback) {
+    if (options.adaptiveBoundaries) {
+      return _safeArea!.containPoint(point, fallback);
+    } else {
+      return LatLng(
+        point.latitude.clamp(options.swPanBoundary!.latitude, options.nePanBoundary!.latitude),
+        point.longitude
+            .clamp(options.swPanBoundary!.longitude, options.nePanBoundary!.longitude),
+      );
+    }
+  }
+
+  _SafeArea? get _safeArea {
+    final controllerZoom = _zoom;
+    if (controllerZoom != _safeAreaZoom || _safeAreaCache == null) {
+      _safeAreaZoom = controllerZoom;
+      final halfScreenHeight = _calculateScreenHeightInDegrees() / 2;
+      final halfScreenWidth = _calculateScreenWidthInDegrees() / 2;
+      final southWestLatitude = options.swPanBoundary!.latitude + halfScreenHeight;
+      final southWestLongitude = options.swPanBoundary!.longitude + halfScreenWidth;
+      final northEastLatitude = options.nePanBoundary!.latitude - halfScreenHeight;
+      final northEastLongitude = options.nePanBoundary!.longitude - halfScreenWidth;
+      _safeAreaCache = _SafeArea(
+        LatLng(
+          southWestLatitude,
+          southWestLongitude,
+        ),
+        LatLng(
+          northEastLatitude,
+          northEastLongitude,
+        ),
+      );
+    }
+    return _safeAreaCache;
+  }
+
+  double _calculateScreenWidthInDegrees() {
+    final degreesPerPixel = 360 / math.pow(2, zoom + 8);
+    return options.screenSize!.width * degreesPerPixel;
+  }
+
+  double _calculateScreenHeightInDegrees() =>
+      options.screenSize!.height * 170.102258 / math.pow(2, zoom + 8);
+
+
   static FlutterMapState? maybeOf(BuildContext context, {bool nullOk = false}) {
     final widget =
         context.dependOnInheritedWidgetOfExactType<MapStateInheritedWidget>();
@@ -724,4 +793,29 @@ class FlutterMapState extends MapGestureMixin
     throw FlutterError(
         'MapState.of() called with a context that does not contain a FlutterMap.');
   }
+}
+
+
+
+class _SafeArea {
+  final LatLngBounds bounds;
+  final bool isLatitudeBlocked;
+  final bool isLongitudeBlocked;
+
+  _SafeArea(LatLng southWest, LatLng northEast)
+      : bounds = LatLngBounds(southWest, northEast),
+        isLatitudeBlocked = southWest.latitude > northEast.latitude,
+        isLongitudeBlocked = southWest.longitude > northEast.longitude;
+
+  bool contains(LatLng? point) =>
+      isLatitudeBlocked || isLongitudeBlocked ? false : bounds.contains(point);
+
+  LatLng containPoint(LatLng point, LatLng fallback) => LatLng(
+        isLatitudeBlocked
+            ? fallback.latitude
+            : point.latitude.clamp(bounds.south, bounds.north),
+        isLongitudeBlocked
+            ? fallback.longitude
+            : point.longitude.clamp(bounds.west, bounds.east),
+      );
 }
