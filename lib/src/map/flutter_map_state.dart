@@ -61,116 +61,115 @@ class FlutterMapState extends MapGestureMixin
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
+    final DeviceGestureSettings? gestureSettings =
+        MediaQuery.maybeOf(context)?.gestureSettings;
+    final Map<Type, GestureRecognizerFactory> gestures =
+        <Type, GestureRecognizerFactory>{};
+
+    gestures[TapGestureRecognizer] =
+        GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
+      () => TapGestureRecognizer(debugOwner: this),
+      (TapGestureRecognizer instance) {
+        instance
+          ..onTapDown = _positionedTapController.onTapDown
+          ..onTapUp = handleOnTapUp
+          ..onTap = _positionedTapController.onTap;
+        // ..onTapCancel = onTapCancel
+        // ..onSecondaryTap = onSecondaryTap
+        // ..onSecondaryTapDown = onSecondaryTapDown
+        // ..onSecondaryTapUp = onSecondaryTapUp
+        // ..onSecondaryTapCancel = onSecondaryTapCancel
+        // ..onTertiaryTapDown = onTertiaryTapDown
+        // ..onTertiaryTapUp = onTertiaryTapUp
+        // ..onTertiaryTapCancel = onTertiaryTapCancel
+        // ..gestureSettings = gestureSettings;
+        // instance.team = _team;
+      },
+    );
+
+    gestures[LongPressGestureRecognizer] =
+        GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
+      () => LongPressGestureRecognizer(debugOwner: this),
+      (LongPressGestureRecognizer instance) {
+        instance.onLongPress = _positionedTapController.onLongPress;
+        // ..onLongPressDown = onLongPressDown
+        // ..onLongPressCancel = onLongPressCancel
+        // ..onLongPressStart = onLongPressStart
+        // ..onLongPressMoveUpdate = onLongPressMoveUpdate
+        // ..onLongPressUp = onLongPressUp
+        // ..onLongPressEnd = onLongPressEnd
+        // ..onSecondaryLongPressDown = onSecondaryLongPressDown
+        // ..onSecondaryLongPressCancel = onSecondaryLongPressCancel
+        // ..onSecondaryLongPress = onSecondaryLongPress
+        // ..onSecondaryLongPressStart = onSecondaryLongPressStart
+        // ..onSecondaryLongPressMoveUpdate = onSecondaryLongPressMoveUpdate
+        // ..onSecondaryLongPressUp = onSecondaryLongPressUp
+        // ..onSecondaryLongPressEnd = onSecondaryLongPressEnd
+        // ..onTertiaryLongPressDown = onTertiaryLongPressDown
+        // ..onTertiaryLongPressCancel = onTertiaryLongPressCancel
+        // ..onTertiaryLongPress = onTertiaryLongPress
+        // ..onTertiaryLongPressStart = onTertiaryLongPressStart
+        // ..onTertiaryLongPressMoveUpdate = onTertiaryLongPressMoveUpdate
+        // ..onTertiaryLongPressUp = onTertiaryLongPressUp
+        // ..onTertiaryLongPressEnd = onTertiaryLongPressEnd
+        // ..gestureSettings = gestureSettings;
+        // instance.team = _team;
+      },
+    );
+
+    if (options.absorbPanEventsOnScrollables &&
+        InteractiveFlag.hasFlag(
+            options.interactiveFlags, InteractiveFlag.drag)) {
+      gestures[VerticalDragGestureRecognizer] =
+          GestureRecognizerFactoryWithHandlers<VerticalDragGestureRecognizer>(
+        () => VerticalDragGestureRecognizer(debugOwner: this),
+        (VerticalDragGestureRecognizer instance) {
+          instance.onUpdate = (details) {
+            //Absorbing vertical drags
+          };
+          // ..dragStartBehavior = dragStartBehavior
+          instance.gestureSettings = gestureSettings;
+          instance.team ??= _team;
+        },
+      );
+      gestures[HorizontalDragGestureRecognizer] =
+          GestureRecognizerFactoryWithHandlers<HorizontalDragGestureRecognizer>(
+        () => HorizontalDragGestureRecognizer(debugOwner: this),
+        (HorizontalDragGestureRecognizer instance) {
+          instance.onUpdate = (details) {
+            //Absorbing horizontal drags
+          };
+          // ..dragStartBehavior = dragStartBehavior
+          instance.gestureSettings = gestureSettings;
+          instance.team ??= _team;
+        },
+      );
+    }
+
+    gestures[ScaleGestureRecognizer] =
+        GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
+      () => ScaleGestureRecognizer(debugOwner: this),
+      (ScaleGestureRecognizer instance) {
+        instance
+          ..onStart = handleScaleStart
+          ..onUpdate = handleScaleUpdate
+          ..onEnd = handleScaleEnd;
+        instance.team ??= _team;
+        _team.captain = instance;
+      },
+    );
+
+    _rotationRad = degToRadian(rotation);
+    _pixelBounds = getPixelBounds(zoom);
+    _bounds = _calculateBounds();
+    if (options.bounds != null) {
+      fitBounds(options.bounds!, options.boundsOptions);
+    }
+
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
       setSize(constraints.maxWidth, constraints.maxHeight);
-
-      _rotationRad = degToRadian(rotation);
-      _pixelBounds = getPixelBounds(zoom);
-      _bounds = _calculateBounds();
-
-      if (options.bounds != null) {
-        fitBounds(options.bounds!, options.boundsOptions);
-      }
-
-      final DeviceGestureSettings? gestureSettings =
-          MediaQuery.maybeOf(context)?.gestureSettings;
-      final Map<Type, GestureRecognizerFactory> gestures =
-          <Type, GestureRecognizerFactory>{};
-
-      gestures[TapGestureRecognizer] =
-          GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
-        () => TapGestureRecognizer(debugOwner: this),
-        (TapGestureRecognizer instance) {
-          instance
-            ..onTapDown = _positionedTapController.onTapDown
-            ..onTapUp = handleOnTapUp
-            ..onTap = _positionedTapController.onTap;
-          // ..onTapCancel = onTapCancel
-          // ..onSecondaryTap = onSecondaryTap
-          // ..onSecondaryTapDown = onSecondaryTapDown
-          // ..onSecondaryTapUp = onSecondaryTapUp
-          // ..onSecondaryTapCancel = onSecondaryTapCancel
-          // ..onTertiaryTapDown = onTertiaryTapDown
-          // ..onTertiaryTapUp = onTertiaryTapUp
-          // ..onTertiaryTapCancel = onTertiaryTapCancel
-          // ..gestureSettings = gestureSettings;
-          // instance.team = _team;
-        },
-      );
-
-      gestures[LongPressGestureRecognizer] =
-          GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
-        () => LongPressGestureRecognizer(debugOwner: this),
-        (LongPressGestureRecognizer instance) {
-          instance
-            // ..onLongPressDown = onLongPressDown
-            // ..onLongPressCancel = onLongPressCancel
-            ..onLongPress = _positionedTapController.onLongPress;
-          // ..onLongPressStart = onLongPressStart
-          // ..onLongPressMoveUpdate = onLongPressMoveUpdate
-          // ..onLongPressUp = onLongPressUp
-          // ..onLongPressEnd = onLongPressEnd
-          // ..onSecondaryLongPressDown = onSecondaryLongPressDown
-          // ..onSecondaryLongPressCancel = onSecondaryLongPressCancel
-          // ..onSecondaryLongPress = onSecondaryLongPress
-          // ..onSecondaryLongPressStart = onSecondaryLongPressStart
-          // ..onSecondaryLongPressMoveUpdate = onSecondaryLongPressMoveUpdate
-          // ..onSecondaryLongPressUp = onSecondaryLongPressUp
-          // ..onSecondaryLongPressEnd = onSecondaryLongPressEnd
-          // ..onTertiaryLongPressDown = onTertiaryLongPressDown
-          // ..onTertiaryLongPressCancel = onTertiaryLongPressCancel
-          // ..onTertiaryLongPress = onTertiaryLongPress
-          // ..onTertiaryLongPressStart = onTertiaryLongPressStart
-          // ..onTertiaryLongPressMoveUpdate = onTertiaryLongPressMoveUpdate
-          // ..onTertiaryLongPressUp = onTertiaryLongPressUp
-          // ..onTertiaryLongPressEnd = onTertiaryLongPressEnd
-          // ..gestureSettings = gestureSettings;
-          // instance.team = _team;
-        },
-      );
-
-      if (options.absorbPanEventsOnScrollables &&
-          InteractiveFlag.hasFlag(options.interactiveFlags, InteractiveFlag.drag)) {
-        gestures[VerticalDragGestureRecognizer] =
-            GestureRecognizerFactoryWithHandlers<VerticalDragGestureRecognizer>(
-          () => VerticalDragGestureRecognizer(debugOwner: this),
-          (VerticalDragGestureRecognizer instance) {
-            instance.onUpdate = (details) {
-              //Absorbing vertical drags
-            };
-            // ..dragStartBehavior = dragStartBehavior
-            instance.gestureSettings = gestureSettings;
-            instance.team ??= _team;
-          },
-        );
-        gestures[HorizontalDragGestureRecognizer] =
-            GestureRecognizerFactoryWithHandlers<
-                HorizontalDragGestureRecognizer>(
-          () => HorizontalDragGestureRecognizer(debugOwner: this),
-          (HorizontalDragGestureRecognizer instance) {
-            instance.onUpdate = (details) {
-              //Absorbing horizontal drags
-            };
-            // ..dragStartBehavior = dragStartBehavior
-            instance.gestureSettings = gestureSettings;
-            instance.team ??= _team;
-          },
-        );
-      }
-
-      gestures[ScaleGestureRecognizer] =
-          GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
-        () => ScaleGestureRecognizer(debugOwner: this),
-        (ScaleGestureRecognizer instance) {
-          instance
-            ..onStart = handleScaleStart
-            ..onUpdate = handleScaleUpdate
-            ..onEnd = handleScaleEnd;
-          instance.team ??= _team;
-          _team.captain = instance;
-        },
-      );
 
       return MapStateInheritedWidget(
         mapState: this,
