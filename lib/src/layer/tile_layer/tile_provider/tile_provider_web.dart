@@ -48,32 +48,6 @@ class NetworkNoRetryTileProvider extends TileProvider {
       );
 }
 
-/// Deprecated due to internal refactoring. The name is misleading, as the internal [ImageProvider] always caches, and this is recommended by most tile servers anyway. For the same functionality, migrate to [NetworkNoRetryTileProvider] before the next minor update.
-@Deprecated(
-    '`NonCachingNetworkTileProvider` has been deprecated due to internal refactoring. The name is misleading, as the internal `ImageProvider` always caches, and this is recommended by most tile servers anyway. For the same functionality, migrate to `NetworkNoRetryTileProvider` before the next minor update.')
-class NonCachingNetworkTileProvider extends TileProvider {
-  NonCachingNetworkTileProvider({
-    Map<String, String>? headers,
-  }) {
-    this.headers = headers ?? {};
-  }
-
-  @override
-  ImageProvider getImage(Coords<num> coords, TileLayer options) =>
-      NetworkNoRetryTileProvider(
-        headers: headers,
-      ).getImage(coords, options);
-}
-
-class AssetTileProvider extends TileProvider {
-  AssetTileProvider();
-
-  @override
-  ImageProvider getImage(Coords<num> coords, TileLayer options) {
-    return AssetImage(getTileUrl(coords, options));
-  }
-}
-
 /// A very basic [TileProvider] implementation, that can be extended to create your own provider
 ///
 /// Using this method is not recommended any more, except for very simple custom [TileProvider]s. Instead, visit the online documentation at https://docs.fleaflet.dev/plugins/making-a-plugin/creating-new-tile-providers.
