@@ -39,7 +39,6 @@ class FlutterMapState extends MapGestureMixin
     _rotation = options.rotation;
     _center = options.center;
     _zoom = options.zoom;
-    _rotationRad = degToRadian(options.rotation);
     _pixelBounds = getPixelBounds(zoom);
     _bounds = _calculateBounds();
 
@@ -163,15 +162,19 @@ class FlutterMapState extends MapGestureMixin
       },
     );
 
+    //Update on state change
+    _pixelBounds = getPixelBounds(zoom);
+    _bounds = _calculateBounds();
+    _pixelOrigin = getNewPixelOrigin(_center);
+
     if (options.bounds != null) {
       fitBounds(options.bounds!, options.boundsOptions);
     }
 
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
+      //Update on layout change
       setSize(constraints.maxWidth, constraints.maxHeight);
-
-      _rotationRad = degToRadian(rotation);
       _pixelBounds = getPixelBounds(zoom);
       _bounds = _calculateBounds();
 
@@ -234,7 +237,6 @@ class FlutterMapState extends MapGestureMixin
 
   late double _zoom;
   late double _rotation;
-  late double _rotationRad;
 
   double get zoom => _zoom;
 
@@ -279,8 +281,8 @@ class FlutterMapState extends MapGestureMixin
     final originalHeight = _nonrotatedSize!.y;
 
     if (_rotation != 0.0) {
-      final cosAngle = math.cos(_rotationRad).abs();
-      final sinAngle = math.sin(_rotationRad).abs();
+      final cosAngle = math.cos(rotationRad).abs();
+      final sinAngle = math.sin(rotationRad).abs();
       final num width =
           (originalWidth * cosAngle) + (originalHeight * sinAngle);
       final num height =
