@@ -30,8 +30,8 @@ class MaxBoundsPage extends StatelessWidget {
                   maxBounds: LatLngBounds(LatLng(-90, -180), LatLng(90, 180)),
                   screenSize: MediaQuery.of(context).size,
                 ),
-                layers: [
-                  TileLayerOptions(
+                children: [
+                  TileLayer(
                     maxZoom: 15,
                     urlTemplate:
                         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',

@@ -137,8 +137,8 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
                     point = proj4.Point(x: p.latitude, y: p.longitude);
                   }),
                 ),
-                layers: [
-                  TileLayerOptions(
+                children: [
+                  TileLayer(
                     opacity: 1,
                     backgroundColor: Colors.transparent,
                     wmsOptions: WMSTileLayerOptions(

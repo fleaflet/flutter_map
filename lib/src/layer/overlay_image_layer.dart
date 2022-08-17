@@ -1,20 +1,8 @@
-import 'dart:async';
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/map/map.dart';
+import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:latlong2/latlong.dart';
-
-class OverlayImageLayerOptions extends LayerOptions {
-  final List<BaseOverlayImage> overlayImages;
-
-  OverlayImageLayerOptions({
-    Key? key,
-    this.overlayImages = const [],
-    Stream<void>? rebuild,
-  }) : super(key: key, rebuild: rebuild);
-}
 
 /// Base class for all overlay images.
 abstract class BaseOverlayImage {
@@ -24,7 +12,7 @@ abstract class BaseOverlayImage {
 
   bool get gaplessPlayback;
 
-  Positioned buildPositionedForOverlay(MapState map);
+  Positioned buildPositionedForOverlay(FlutterMapState map);
 
   Image buildImageForOverlay() {
     return Image(
@@ -57,12 +45,11 @@ class OverlayImage extends BaseOverlayImage {
       this.gaplessPlayback = false});
 
   @override
-  Positioned buildPositionedForOverlay(MapState map) {
-    final pixelOrigin = map.getPixelOrigin();
+  Positioned buildPositionedForOverlay(FlutterMapState map) {
     // northWest is not necessarily upperLeft depending on projection
     final bounds = Bounds<num>(
-      map.project(this.bounds.northWest) - pixelOrigin,
-      map.project(this.bounds.southEast) - pixelOrigin,
+      map.project(this.bounds.northWest) - map.pixelOrigin,
+      map.project(this.bounds.southEast) - map.pixelOrigin,
     );
     return Positioned(
         left: bounds.topLeft.x.toDouble(),
@@ -105,12 +92,10 @@ class RotatedOverlayImage extends BaseOverlayImage {
       this.filterQuality = FilterQuality.medium});
 
   @override
-  Positioned buildPositionedForOverlay(MapState map) {
-    final pixelOrigin = map.getPixelOrigin();
-
-    final pxTopLeft = map.project(topLeftCorner) - pixelOrigin;
-    final pxBottomRight = map.project(bottomRightCorner) - pixelOrigin;
-    final pxBottomLeft = (map.project(bottomLeftCorner) - pixelOrigin);
+  Positioned buildPositionedForOverlay(FlutterMapState map) {
+    final pxTopLeft = map.project(topLeftCorner) - map.pixelOrigin;
+    final pxBottomRight = map.project(bottomRightCorner) - map.pixelOrigin;
+    final pxBottomLeft = map.project(bottomLeftCorner) - map.pixelOrigin;
     // calculate pixel coordinate of top-right corner by calculating the
     // vector from bottom-left to top-left and adding it to bottom-right
     final pxTopRight = (pxTopLeft - pxBottomLeft + pxBottomRight);
@@ -144,41 +129,21 @@ class RotatedOverlayImage extends BaseOverlayImage {
   }
 }
 
-class OverlayImageLayerWidget extends StatelessWidget {
-  final OverlayImageLayerOptions options;
-
-  const OverlayImageLayerWidget({Key? key, required this.options})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final mapState = MapState.maybeOf(context)!;
-    return OverlayImageLayer(options, mapState, mapState.onMoved);
-  }
-}
-
 class OverlayImageLayer extends StatelessWidget {
-  final OverlayImageLayerOptions overlayImageOpts;
-  final MapState map;
-  final Stream<void>? stream;
+  final List<BaseOverlayImage> overlayImages;
 
-  OverlayImageLayer(this.overlayImageOpts, this.map, this.stream)
-      : super(key: overlayImageOpts.key);
+  const OverlayImageLayer({super.key, this.overlayImages = const []});
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<void>(
-      stream: stream,
-      builder: (BuildContext context, _) {
-        return ClipRect(
-          child: Stack(
-            children: <Widget>[
-              for (var overlayImage in overlayImageOpts.overlayImages)
-                overlayImage.buildPositionedForOverlay(map),
-            ],
-          ),
-        );
-      },
+    final map = FlutterMapState.maybeOf(context)!;
+    return ClipRect(
+      child: Stack(
+        children: <Widget>[
+          for (var overlayImage in overlayImages)
+            overlayImage.buildPositionedForOverlay(map),
+        ],
+      ),
     );
   }
 }

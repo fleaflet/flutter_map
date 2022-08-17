@@ -93,13 +93,13 @@ class TileManager {
   }
 
   void reloadImages(
-    TileLayerOptions options,
+    TileLayer layer,
     Tuple2<double, double>? wrapX,
     Tuple2<double, double>? wrapY,
   ) {
     for (final tile in _tiles.values) {
-      tile.imageProvider = options.tileProvider
-          .getImage(tile.coords.wrap(wrapX, wrapY), options);
+      tile.imageProvider = layer.tileProvider
+          .getImage(tile.coords.wrap(wrapX, wrapY), layer);
       tile.loadTileImage();
     }
   }

@@ -23,29 +23,23 @@ class MapInsideListViewPage extends StatelessWidget {
               height: 300,
               child: FlutterMap(
                 options: MapOptions(
+                  absorbPanEventsOnScrollables: true,
                   center: LatLng(51.5, -0.09),
                   zoom: 5,
-                  plugins: [
-                    ZoomButtonsPlugin(),
-                  ],
                 ),
-                layers: [
-                  ZoomButtonsPluginOption(
-                    minZoom: 4,
-                    maxZoom: 19,
-                    mini: true,
-                    padding: 10,
-                    alignment: Alignment.bottomLeft,
-                  )
-                ],
-                children: <Widget>[
-                  TileLayerWidget(
-                    options: TileLayerOptions(
+                children: [
+                  TileLayer(
                       urlTemplate:
                           'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                       subdomains: ['a', 'b', 'c'],
                       userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                     ),
+                  const FlutterMapZoomButtons(
+                    minZoom: 4,
+                    maxZoom: 19,
+                    mini: true,
+                    padding: 10,
+                    alignment: Alignment.bottomLeft,
                   ),
                 ],
               ),

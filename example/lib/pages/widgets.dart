@@ -25,20 +25,15 @@ class WidgetsPage extends StatelessWidget {
                 options: MapOptions(
                   center: LatLng(51.5, -0.09),
                   zoom: 5,
-                  plugins: [
-                    ZoomButtonsPlugin(),
-                  ],
                 ),
-                nonRotatedLayers: [
-                  ZoomButtonsPluginOption(
+                nonRotatedChildren: const [
+                  FlutterMapZoomButtons(
                     minZoom: 4,
                     maxZoom: 19,
                     mini: true,
                     padding: 10,
                     alignment: Alignment.bottomLeft,
-                  )
-                ],
-                nonRotatedChildren: const <Widget>[
+                  ),
                   Text(
                     'Plugin is just Text widget',
                     style: TextStyle(
@@ -48,14 +43,12 @@ class WidgetsPage extends StatelessWidget {
                         backgroundColor: Colors.yellow),
                   )
                 ],
-                children: <Widget>[
-                  TileLayerWidget(
-                    options: TileLayerOptions(
+                children: [
+                  TileLayer(
                       urlTemplate:
                           'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                       subdomains: ['a', 'b', 'c'],
                       userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                    ),
                   ),
                   const MovingWithoutRefreshAllMapMarkers(),
                 ],
@@ -102,8 +95,7 @@ class _MovingWithoutRefreshAllMapMarkersState
 
   @override
   Widget build(BuildContext context) {
-    return MarkerLayerWidget(
-      options: MarkerLayerOptions(markers: [_marker!]),
+    return MarkerLayer(markers: [_marker!],
     );
   }
 }

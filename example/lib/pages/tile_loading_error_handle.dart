@@ -38,8 +38,8 @@ class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
                       needLoadingError = true;
                     },
                   ),
-                  layers: [
-                    TileLayerOptions(
+                  children: [
+                    TileLayer(
                       urlTemplate:
                           'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                       subdomains: ['a', 'b', 'c'],

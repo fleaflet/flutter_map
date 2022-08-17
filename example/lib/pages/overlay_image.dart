@@ -46,15 +46,16 @@ class OverlayImagePage extends StatelessWidget {
                   center: LatLng(51.5, -0.09),
                   zoom: 6,
                 ),
-                layers: [
-                  TileLayerOptions(
+                children: [
+                  TileLayer(
                     urlTemplate:
                         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     subdomains: ['a', 'b', 'c'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   ),
-                  OverlayImageLayerOptions(overlayImages: overlayImages),
-                  MarkerLayerOptions(markers: [
+                  OverlayImageLayer(
+                          overlayImages: overlayImages),
+                  MarkerLayer(markers: [
                     Marker(
                         point: topLeftCorner,
                         builder: (context) => const _Circle(

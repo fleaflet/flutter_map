@@ -3,27 +3,8 @@ import 'dart:math';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/label.dart';
-import 'package:flutter_map/src/map/map.dart';
+import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:latlong2/latlong.dart' hide Path; // conflict with Path from UI
-
-class PolygonLayerOptions extends LayerOptions {
-  final List<Polygon> polygons;
-  final bool polygonCulling;
-
-  /// screen space culling of polygons based on bounding box
-  PolygonLayerOptions({
-    Key? key,
-    this.polygons = const [],
-    this.polygonCulling = false,
-    Stream<void>? rebuild,
-  }) : super(key: key, rebuild: rebuild) {
-    if (polygonCulling) {
-      for (final polygon in polygons) {
-        polygon.boundingBox = LatLngBounds.fromPoints(polygon.points);
-      }
-    }
-  }
-}
 
 enum PolygonLabelPlacement {
   centroid,
@@ -67,42 +48,33 @@ class Polygon {
             : List.generate(holePointsList.length, (_) => []);
 }
 
-class PolygonLayerWidget extends StatelessWidget {
-  final PolygonLayerOptions options;
-  const PolygonLayerWidget({Key? key, required this.options}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final mapState = MapState.maybeOf(context)!;
-    return PolygonLayer(options, mapState, mapState.onMoved);
-  }
-}
-
 class PolygonLayer extends StatelessWidget {
-  final PolygonLayerOptions polygonOpts;
-  final MapState map;
-  final Stream<void>? stream;
+  final List<Polygon> polygons;
 
-  PolygonLayer(this.polygonOpts, this.map, this.stream)
-      : super(key: polygonOpts.key);
+  /// screen space culling of polygons based on bounding box
+  final bool polygonCulling;
+
+  PolygonLayer({
+    super.key,
+    this.polygons = const [],
+    this.polygonCulling = false,
+  }) {
+    if (polygonCulling) {
+      for (final polygon in polygons) {
+        polygon.boundingBox = LatLngBounds.fromPoints(polygon.points);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints bc) {
+        final map = FlutterMapState.maybeOf(context)!;
         final size = Size(bc.maxWidth, bc.maxHeight);
-        return _build(context, size);
-      },
-    );
-  }
+        final polygonsWidget = <Widget>[];
 
-  Widget _build(BuildContext context, Size size) {
-    return StreamBuilder(
-      stream: stream, // a Stream<void> or null
-      builder: (BuildContext context, _) {
-        final polygons = <Widget>[];
-
-        for (final polygon in polygonOpts.polygons) {
+        for (final polygon in polygons) {
           polygon.offsets.clear();
 
           if (null != polygon.holeOffsetsList) {
@@ -111,23 +83,23 @@ class PolygonLayer extends StatelessWidget {
             }
           }
 
-          if (polygonOpts.polygonCulling &&
+          if (polygonCulling &&
               !polygon.boundingBox.isOverlapping(map.bounds)) {
             // skip this polygon as it's offscreen
             continue;
           }
 
-          _fillOffsets(polygon.offsets, polygon.points);
+          _fillOffsets(polygon.offsets, polygon.points, map);
 
           if (null != polygon.holePointsList) {
             final len = polygon.holePointsList!.length;
             for (var i = 0; i < len; ++i) {
               _fillOffsets(
-                  polygon.holeOffsetsList![i], polygon.holePointsList![i]);
+                  polygon.holeOffsetsList![i], polygon.holePointsList![i], map);
             }
           }
 
-          polygons.add(
+          polygonsWidget.add(
             CustomPaint(
               painter: PolygonPainter(polygon),
               size: size,
@@ -136,13 +108,14 @@ class PolygonLayer extends StatelessWidget {
         }
 
         return Stack(
-          children: polygons,
+          children: polygonsWidget,
         );
       },
     );
   }
 
-  void _fillOffsets(final List<Offset> offsets, final List<LatLng> points) {
+  void _fillOffsets(
+      final List<Offset> offsets, final List<LatLng> points, FlutterMapState map) {
     final len = points.length;
     for (var i = 0; i < len; ++i) {
       final point = points[i];

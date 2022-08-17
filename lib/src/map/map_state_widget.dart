@@ -1,15 +1,15 @@
 import 'package:flutter/widgets.dart';
-
-import 'package:flutter_map/src/map/map.dart';
+import 'package:flutter_map/src/map/flutter_map_state.dart';
 
 class MapStateInheritedWidget extends InheritedWidget {
-  final MapState mapState;
+  
+  final FlutterMapState mapState;
 
   const MapStateInheritedWidget({
-    Key? key,
+    super.key,
     required this.mapState,
-    required Widget child,
-  }) : super(key: key, child: child);
+    required super.child,
+  });
 
   @override
   bool updateShouldNotify(MapStateInheritedWidget oldWidget) {

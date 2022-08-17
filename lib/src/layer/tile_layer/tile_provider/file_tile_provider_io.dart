@@ -8,7 +8,7 @@ class FileTileProvider extends TileProvider {
   FileTileProvider();
 
   @override
-  ImageProvider getImage(Coords<num> coords, TileLayerOptions options) {
+  ImageProvider getImage(Coords<num> coords, TileLayer options) {
     return FileImage(File(getTileUrl(coords, options)));
   }
 }

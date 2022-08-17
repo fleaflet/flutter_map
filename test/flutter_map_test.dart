@@ -109,12 +109,12 @@ class _TestAppState extends State<TestApp> {
                 center: LatLng(45.5231, -122.6765),
                 zoom: 13,
               ),
-              layers: [
-                TileLayerOptions(
+              children: [
+                TileLayer(
                     urlTemplate:
                         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     subdomains: ['a', 'b', 'c']),
-                MarkerLayerOptions(markers: _markers),
+                MarkerLayer(markers: _markers),
               ],
             ),
           ),

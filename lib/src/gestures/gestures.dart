@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/gestures/latlng_tween.dart';
-import 'package:flutter_map/src/map/map.dart';
+import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
 
@@ -18,6 +18,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
   var _gestureWinner = MultiFingerGesture.none;
 
   var _pointerCounter = 0;
+
+  bool _isListeningForInterruptions = false;
 
   void onPointerDown(PointerDownEvent event) {
     ++_pointerCounter;
@@ -106,7 +108,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
   @override
   FlutterMap get widget;
 
-  MapState get mapState;
+  FlutterMapState get mapState;
 
   MapController get mapController;
 
@@ -454,7 +456,6 @@ abstract class MapGestureMixin extends State<FlutterMap>
                 newCenter,
                 newZoom,
                 hasGesture: true,
-                callOnMoveSink: false,
                 source: eventSource,
               );
             }
@@ -477,14 +478,16 @@ abstract class MapGestureMixin extends State<FlutterMap>
               mapRotated = mapState.rotate(
                 mapState.rotation + rotationDiff,
                 hasGesture: true,
-                callOnMoveSink: false,
                 source: eventSource,
               );
             }
           }
 
+          //TODO maybe not needed?
           if (mapMoved || mapRotated) {
-            mapState.rebuildLayers();
+            mapState.setState(() {
+              
+            });
           }
         }
       }
@@ -497,10 +500,6 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
   void handleScaleEnd(ScaleEndDetails details) {
     _resetDoubleTapHold();
-
-    if (!options.allowPanning) {
-      return;
-    }
 
     final eventSource =
         _dragMode ? MapEventSource.dragEnd : MapEventSource.multiFingerEnd;
@@ -547,8 +546,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
     final direction = details.velocity.pixelsPerSecond / magnitude;
     final distance = (Offset.zero &
-            Size(mapState.originalSize!.x as double,
-                mapState.originalSize!.y as double))
+            Size(mapState.nonrotatedSize!.x as double,
+                mapState.nonrotatedSize!.y as double))
         .shortestSide;
 
     final flingOffset = _focalStartLocal - _lastFocalLocal;
@@ -613,7 +612,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
   LatLng _offsetToCrs(Offset offset, [double? zoom]) {
     final focalStartPt =
         mapState.project(mapState.center, zoom ?? mapState.zoom);
-    final point = (_offsetToPoint(offset) - (mapState.originalSize! / 2.0))
+    final point = (_offsetToPoint(offset) - (mapState.nonrotatedSize! / 2.0))
         .rotate(mapState.rotationRad);
 
     final newCenterPt = focalStartPt + point;
@@ -622,9 +621,6 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
   void handleDoubleTap(TapPosition tapPosition) {
     _resetDoubleTapHold();
-    if (!options.allowPanning) {
-      return;
-    }
 
     closeFlingAnimationController(MapEventSource.doubleTap);
     closeDoubleTapController(MapEventSource.doubleTap);
@@ -646,7 +642,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
   List<dynamic> _getNewEventCenterZoomPosition(
       CustomPoint cursorPos, double newZoom) {
     // Calculate offset of mouse cursor from viewport center
-    final viewCenter = mapState.originalSize! / 2;
+    final viewCenter = mapState.nonrotatedSize! / 2;
     final offset = (cursorPos - viewCenter).rotate(mapState.rotationRad);
     // Match new center coordinate to mouse cursor position
     final scale = mapState.getZoomScale(newZoom, mapState.zoom);
@@ -769,22 +765,20 @@ abstract class MapGestureMixin extends State<FlutterMap>
     );
   }
 
+  //TODO refactor
   void _startListeningForAnimationInterruptions() {
-    if (_mapControllerAnimationInterruption != null) return;
-    // cancel map animation controllers on map controller move events
-    _mapControllerAnimationInterruption = mapController.mapEventStream
-        .where((event) =>
-            event.source == MapEventSource.mapController &&
-            event is MapEventMove)
-        .listen(_handleAnimationInterruptions);
+    _isListeningForInterruptions = true;
   }
 
   void _stopListeningForAnimationInterruptions() {
-    _mapControllerAnimationInterruption?.cancel();
-    _mapControllerAnimationInterruption = null;
+    _isListeningForInterruptions = false;
   }
 
-  void _handleAnimationInterruptions(MapEvent event) {
+  void handleAnimationInterruptions(MapEvent event) {
+    if(_isListeningForInterruptions == false) {
+      //Do not handle animation interruptions if not listening
+      return;
+    }
     closeDoubleTapController(event.source);
     closeFlingAnimationController(event.source);
   }

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 
-class ZoomButtonsPluginOption extends LayerOptions {
+class FlutterMapZoomButtons extends StatelessWidget {
+
   final double minZoom;
   final double maxZoom;
   final bool mini;
@@ -14,8 +15,11 @@ class ZoomButtonsPluginOption extends LayerOptions {
   final IconData zoomInIcon;
   final IconData zoomOutIcon;
 
-  ZoomButtonsPluginOption({
-    Key? key,
+  final FitBoundsOptions options =
+      const FitBoundsOptions(padding: EdgeInsets.all(12));
+
+  const FlutterMapZoomButtons({
+    super.key, 
     this.minZoom = 1,
     this.maxZoom = 18,
     this.mini = true,
@@ -27,87 +31,60 @@ class ZoomButtonsPluginOption extends LayerOptions {
     this.zoomOutColor,
     this.zoomOutColorIcon,
     this.zoomOutIcon = Icons.zoom_out,
-    Stream<void>? rebuild,
-  }) : super(key: key, rebuild: rebuild);
-}
-
-class ZoomButtonsPlugin implements MapPlugin {
-  @override
-  Widget createLayer(
-      LayerOptions options, MapState mapState, Stream<void> stream) {
-    if (options is ZoomButtonsPluginOption) {
-      return ZoomButtons(options, mapState, stream);
-    }
-    throw Exception('Unknown options type for ZoomButtonsPlugin: $options');
-  }
-
-  @override
-  bool supportsLayer(LayerOptions options) {
-    return options is ZoomButtonsPluginOption;
-  }
-}
-
-class ZoomButtons extends StatelessWidget {
-  final ZoomButtonsPluginOption zoomButtonsOpts;
-  final MapState map;
-  final Stream<void> stream;
-  final FitBoundsOptions options =
-      const FitBoundsOptions(padding: EdgeInsets.all(12));
-
-  ZoomButtons(this.zoomButtonsOpts, this.map, this.stream)
-      : super(key: zoomButtonsOpts.key);
+  });
 
   @override
   Widget build(BuildContext context) {
+    final map = FlutterMapState.maybeOf(context)!;
     return Align(
-      alignment: zoomButtonsOpts.alignment,
+      alignment: alignment,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Padding(
             padding: EdgeInsets.only(
-                left: zoomButtonsOpts.padding,
-                top: zoomButtonsOpts.padding,
-                right: zoomButtonsOpts.padding),
+                left: padding,
+                top: padding,
+                right: padding),
             child: FloatingActionButton(
               heroTag: 'zoomInButton',
-              mini: zoomButtonsOpts.mini,
+              mini: mini,
               backgroundColor:
-                  zoomButtonsOpts.zoomInColor ?? Theme.of(context).primaryColor,
+                  zoomInColor ?? Theme.of(context).primaryColor,
               onPressed: () {
-                final bounds = map.getBounds();
+                final bounds = map.bounds;
                 final centerZoom = map.getBoundsCenterZoom(bounds, options);
                 var zoom = centerZoom.zoom + 1;
-                if (zoom > zoomButtonsOpts.maxZoom) {
-                  zoom = zoomButtonsOpts.maxZoom;
+                if (zoom > maxZoom) {
+                  zoom = maxZoom;
                 }
                 map.move(centerZoom.center, zoom,
                     source: MapEventSource.custom);
               },
-              child: Icon(zoomButtonsOpts.zoomInIcon,
-                  color: zoomButtonsOpts.zoomInColorIcon ??
+              child: Icon(zoomInIcon,
+                  color: zoomInColorIcon ??
                       IconTheme.of(context).color),
             ),
           ),
           Padding(
-            padding: EdgeInsets.all(zoomButtonsOpts.padding),
+            padding: EdgeInsets.all(padding),
             child: FloatingActionButton(
               heroTag: 'zoomOutButton',
-              mini: zoomButtonsOpts.mini,
-              backgroundColor: zoomButtonsOpts.zoomOutColor ??
+              mini: mini,
+              backgroundColor: zoomOutColor ??
                   Theme.of(context).primaryColor,
               onPressed: () {
-                final bounds = map.getBounds();
+                final bounds = map.bounds;
                 final centerZoom = map.getBoundsCenterZoom(bounds, options);
                 var zoom = centerZoom.zoom - 1;
-                if (zoom < zoomButtonsOpts.minZoom) {
-                  zoom = zoomButtonsOpts.minZoom;
+                if (zoom < minZoom) {
+                  zoom = minZoom;
                 }
                 map.move(centerZoom.center, zoom,
                     source: MapEventSource.custom);
               },
-              child: Icon(zoomButtonsOpts.zoomOutIcon,
-                  color: zoomButtonsOpts.zoomOutColorIcon ??
+              child: Icon(zoomOutIcon,
+                  color: zoomOutColorIcon ??
                       IconTheme.of(context).color),
             ),
           ),

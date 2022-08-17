@@ -27,8 +27,8 @@ class WMSLayerPage extends StatelessWidget {
                   center: LatLng(42.58, 12.43),
                   zoom: 6,
                 ),
-                layers: [
-                  TileLayerOptions(
+                children: [
+                  TileLayer(
                     wmsOptions: WMSTileLayerOptions(
                       baseUrl: 'https://{s}.s2maps-tiles.eu/wms/?',
                       layers: ['s2cloudless-2018_3857'],

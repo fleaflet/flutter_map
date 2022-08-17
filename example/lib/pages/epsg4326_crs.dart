@@ -29,8 +29,8 @@ class EPSG4326Page extends StatelessWidget {
                   center: LatLng(0, 0),
                   zoom: 0,
                 ),
-                layers: [
-                  TileLayerOptions(
+                children: [
+                  TileLayer(
                     wmsOptions: WMSTileLayerOptions(
                       crs: const Epsg4326(),
                       baseUrl: 'https://ows.mundialis.de/services/service?',

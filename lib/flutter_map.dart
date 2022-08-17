@@ -1,7 +1,6 @@
 library flutter_map;
 
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
@@ -15,10 +14,8 @@ import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/gestures/interactive_flag.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
-import 'package:flutter_map/src/layer/layer.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/map.dart';
-import 'package:flutter_map/src/plugins/plugin.dart';
 
 export 'package:flutter_map/src/core/center_zoom.dart';
 export 'package:flutter_map/src/core/point.dart';
@@ -29,8 +26,6 @@ export 'package:flutter_map/src/gestures/map_events.dart';
 export 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
 export 'package:flutter_map/src/layer/attribution_layer.dart';
 export 'package:flutter_map/src/layer/circle_layer.dart';
-export 'package:flutter_map/src/layer/group_layer.dart';
-export 'package:flutter_map/src/layer/layer.dart';
 export 'package:flutter_map/src/layer/marker_layer.dart';
 export 'package:flutter_map/src/layer/overlay_image_layer.dart';
 export 'package:flutter_map/src/layer/polygon_layer.dart';
@@ -44,7 +39,6 @@ export 'package:flutter_map/src/layer/tile_layer/tile_provider/file_tile_provide
     if (dart.library.html) 'package:flutter_map/src/layer/tile_layer/tile_provider/file_tile_provider_web.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_provider/tile_provider_io.dart'
     if (dart.library.html) 'package:flutter_map/src/layer/tile_layer/tile_provider/tile_provider_web.dart';
-export 'package:flutter_map/src/plugins/plugin.dart';
 
 /// Renders a map composed of a list of layers powered by [LayerOptions].
 ///
@@ -52,20 +46,6 @@ export 'package:flutter_map/src/plugins/plugin.dart';
 ///
 /// Through [MapOptions] map's callbacks and properties can be defined.
 class FlutterMap extends StatefulWidget {
-  /// A set of layers' options to used to create the layers on the map.
-  ///
-  /// Usually a list of [TileLayerOptions], [MarkerLayerOptions] and
-  /// [PolylineLayerOptions].
-  ///
-  /// These layers will render above [children]
-  final List<LayerOptions> layers;
-
-  /// These layers won't be rotated.
-  /// Usually these are plugins which are floating above [layers]
-  ///
-  /// These layers will render above [nonRotatedChildren]
-  final List<LayerOptions> nonRotatedLayers;
-
   /// A set of layers' widgets to used to create the layers on the map.
   final List<Widget> children;
 
@@ -83,14 +63,12 @@ class FlutterMap extends StatefulWidget {
   final MapController? mapController;
 
   const FlutterMap({
-    Key? key,
+    super.key,
     required this.options,
-    this.layers = const [],
-    this.nonRotatedLayers = const [],
     this.children = const [],
     this.nonRotatedChildren = const [],
     this.mapController,
-  }) : super(key: key);
+  });
 
   @override
   FlutterMapState createState() => FlutterMapState();
@@ -105,7 +83,7 @@ class FlutterMap extends StatefulWidget {
 abstract class MapController {
   /// Moves the map to a specific location and zoom level
   ///
-  /// Optionally provide [id] attribute and if you listen to [mapEventStream]
+  /// Optionally provide [id] attribute and if you listen to [mapEventCallback]
   /// later a [MapEventMove] event will be emitted (if move was success) with
   /// same [id] attribute. Event's source attribute will be
   /// [MapEventSource.mapController].
@@ -117,7 +95,7 @@ abstract class MapController {
 
   /// Sets the map rotation to a certain degrees angle (in decimal).
   ///
-  /// Optionally provide [id] attribute and if you listen to [mapEventStream]
+  /// Optionally provide [id] attribute and if you listen to [mapEventCallback]
   /// later a [MapEventRotate] event will be emitted (if rotate was success)
   /// with same [id] attribute. Event's source attribute will be
   /// [MapEventSource.mapController].
@@ -140,8 +118,6 @@ abstract class MapController {
   CenterZoom centerZoomFitBounds(LatLngBounds bounds,
       {FitBoundsOptions? options});
 
-  Future<void> get onReady;
-
   LatLng get center;
 
   LatLngBounds? get bounds;
@@ -150,13 +126,13 @@ abstract class MapController {
 
   double get rotation;
 
+  set state(FlutterMapState state);
+
   Stream<MapEvent> get mapEventStream;
 
-  StreamSink<MapEvent> get mapEventSink;
-
-  set state(MapState state);
-
   void dispose();
+
+  StreamSink<MapEvent> get mapEventSink;
 
   LatLng? pointToLatLng(CustomPoint point);
 
@@ -176,7 +152,7 @@ typedef PointerCancelCallback = void Function(
 typedef PointerHoverCallback = void Function(
     PointerHoverEvent event, LatLng point);
 typedef PositionCallback = void Function(MapPosition position, bool hasGesture);
-typedef MapCreatedCallback = void Function(MapController mapController);
+typedef MapEventCallback = void Function(MapEvent);
 
 /// Allows you to provide your map's starting properties for [zoom], [rotation]
 /// and [center]. Alternatively you can provide [bounds] instead of [center].
@@ -265,8 +241,7 @@ class MapOptions {
   /// see [InteractiveFlag] for custom settings
   final int interactiveFlags;
 
-  final bool allowPanning;
-  final bool allowPanningOnScrollingParent;
+  final bool absorbPanEventsOnScrollables;
 
   final TapCallback? onTap;
   final LongPressCallback? onLongPress;
@@ -275,17 +250,23 @@ class MapOptions {
   final PointerCancelCallback? onPointerCancel;
   final PointerHoverCallback? onPointerHover;
   final PositionCallback? onPositionChanged;
-  final MapCreatedCallback? onMapCreated;
-  final List<MapPlugin> plugins;
+  final MapEventCallback? onMapEvent;
   final bool slideOnBoundaries;
   final Size? screenSize;
   final bool adaptiveBoundaries;
-  final MapController? controller;
   final LatLng center;
   final LatLngBounds? bounds;
   final FitBoundsOptions boundsOptions;
   final LatLng? swPanBoundary;
   final LatLng? nePanBoundary;
+
+  /// OnMapReady is called after the map runs it's initState.
+  /// At that point the map has assigned its state to the controller
+  /// Only use this if your map isn't built immediately (like inside FutureBuilder)
+  /// and you need to access the controller as soon as the map is built.
+  /// Otherwise you can use WidgetsBinding.instance.addPostFrameCallback
+  /// In initState to controll the map before the next frame
+  final void Function()? onMapReady;
 
   /// Restrict outer edges of map to LatLng Bounds, to prevent gray areas when
   /// panning or zooming. LatLngBounds(LatLng(-90, -180.0), LatLng(90.0, 180.0))
@@ -300,11 +281,8 @@ class MapOptions {
   /// widget from rebuilding.
   final bool keepAlive;
 
-  _SafeArea? _safeAreaCache;
-  double? _safeAreaZoom;
-
   MapOptions({
-    this.allowPanningOnScrollingParent = true,
+    this.absorbPanEventsOnScrollables = true,
     this.crs = const Epsg3857(),
     LatLng? center,
     this.bounds,
@@ -326,7 +304,6 @@ class MapOptions {
     this.minZoom,
     this.maxZoom,
     this.interactiveFlags = InteractiveFlag.all,
-    this.allowPanning = true,
     this.onTap,
     this.onLongPress,
     this.onPointerDown,
@@ -334,12 +311,11 @@ class MapOptions {
     this.onPointerCancel,
     this.onPointerHover,
     this.onPositionChanged,
-    this.onMapCreated,
-    this.plugins = const [],
+    this.onMapEvent,
+    this.onMapReady,
     this.slideOnBoundaries = false,
     this.adaptiveBoundaries = false,
     this.screenSize,
-    this.controller,
     this.swPanBoundary,
     this.nePanBoundary,
     this.maxBounds,
@@ -348,80 +324,9 @@ class MapOptions {
         assert(rotationThreshold >= 0.0),
         assert(pinchZoomThreshold >= 0.0),
         assert(pinchMoveThreshold >= 0.0) {
-    _safeAreaZoom = zoom;
-    assert(slideOnBoundaries ||
-        !isOutOfBounds(center)); //You cannot start outside pan boundary
-    assert(!adaptiveBoundaries || screenSize != null,
-        'screenSize must be set in order to enable adaptive boundaries.');
-    assert(!adaptiveBoundaries || controller != null,
-        'controller must be set in order to enable adaptive boundaries.');
+  assert(!adaptiveBoundaries || screenSize != null,
+      'screenSize must be set in order to enable adaptive boundaries.');
   }
-
-  //if there is a pan boundary, do not cross
-  bool isOutOfBounds(LatLng? center) {
-    if (adaptiveBoundaries) {
-      return !_safeArea!.contains(center);
-    }
-    if (swPanBoundary != null && nePanBoundary != null) {
-      if (center == null) {
-        return true;
-      } else if (center.latitude < swPanBoundary!.latitude ||
-          center.latitude > nePanBoundary!.latitude) {
-        return true;
-      } else if (center.longitude < swPanBoundary!.longitude ||
-          center.longitude > nePanBoundary!.longitude) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  LatLng containPoint(LatLng point, LatLng fallback) {
-    if (adaptiveBoundaries) {
-      return _safeArea!.containPoint(point, fallback);
-    } else {
-      return LatLng(
-        point.latitude.clamp(swPanBoundary!.latitude, nePanBoundary!.latitude),
-        point.longitude
-            .clamp(swPanBoundary!.longitude, nePanBoundary!.longitude),
-      );
-    }
-  }
-
-  _SafeArea? get _safeArea {
-    final controllerZoom = _getControllerZoom();
-    if (controllerZoom != _safeAreaZoom || _safeAreaCache == null) {
-      _safeAreaZoom = controllerZoom;
-      final halfScreenHeight = _calculateScreenHeightInDegrees() / 2;
-      final halfScreenWidth = _calculateScreenWidthInDegrees() / 2;
-      final southWestLatitude = swPanBoundary!.latitude + halfScreenHeight;
-      final southWestLongitude = swPanBoundary!.longitude + halfScreenWidth;
-      final northEastLatitude = nePanBoundary!.latitude - halfScreenHeight;
-      final northEastLongitude = nePanBoundary!.longitude - halfScreenWidth;
-      _safeAreaCache = _SafeArea(
-        LatLng(
-          southWestLatitude,
-          southWestLongitude,
-        ),
-        LatLng(
-          northEastLatitude,
-          northEastLongitude,
-        ),
-      );
-    }
-    return _safeAreaCache;
-  }
-
-  double _calculateScreenWidthInDegrees() {
-    final zoom = _getControllerZoom();
-    final degreesPerPixel = 360 / pow(2, zoom + 8);
-    return screenSize!.width * degreesPerPixel;
-  }
-
-  double _calculateScreenHeightInDegrees() =>
-      screenSize!.height * 170.102258 / pow(2, _getControllerZoom() + 8);
-
-  double _getControllerZoom() => controller!.zoom;
 }
 
 class FitBoundsOptions {
@@ -456,29 +361,6 @@ class MapPosition {
       other.center == center &&
       other.bounds == bounds &&
       other.zoom == zoom;
-}
-
-class _SafeArea {
-  final LatLngBounds bounds;
-  final bool isLatitudeBlocked;
-  final bool isLongitudeBlocked;
-
-  _SafeArea(LatLng southWest, LatLng northEast)
-      : bounds = LatLngBounds(southWest, northEast),
-        isLatitudeBlocked = southWest.latitude > northEast.latitude,
-        isLongitudeBlocked = southWest.longitude > northEast.longitude;
-
-  bool contains(LatLng? point) =>
-      isLatitudeBlocked || isLongitudeBlocked ? false : bounds.contains(point);
-
-  LatLng containPoint(LatLng point, LatLng fallback) => LatLng(
-        isLatitudeBlocked
-            ? fallback.latitude
-            : point.latitude.clamp(bounds.south, bounds.north),
-        isLongitudeBlocked
-            ? fallback.longitude
-            : point.longitude.clamp(bounds.west, bounds.east),
-      );
 }
 
 class MoveAndRotateResult {

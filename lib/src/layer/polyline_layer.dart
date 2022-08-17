@@ -3,39 +3,8 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/map/map.dart';
+import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:latlong2/latlong.dart';
-
-class PolylineLayerOptions extends LayerOptions {
-  /// List of polylines to draw.
-  final List<Polyline> polylines;
-
-  final bool polylineCulling;
-
-  /// {@macro newPolylinePainter.saveLayers}
-  ///
-  /// By default, this value is set to `false` to improve performance on
-  /// layers containing a lot of polylines.
-  ///
-  /// You might want to set this to `true` if you get unwanted darker lines
-  /// where they overlap but, keep in mind that this might reduce the
-  /// performance of the layer.
-  final bool saveLayers;
-
-  PolylineLayerOptions({
-    Key? key,
-    this.polylines = const [],
-    this.polylineCulling = false,
-    Stream<void>? rebuild,
-    this.saveLayers = false,
-  }) : super(key: key, rebuild: rebuild) {
-    if (polylineCulling) {
-      for (final polyline in polylines) {
-        polyline.boundingBox = LatLngBounds.fromPoints(polyline.points);
-      }
-    }
-  }
-}
 
 class Polyline {
   final List<LatLng> points;
@@ -65,68 +34,69 @@ class Polyline {
   });
 }
 
-class PolylineLayerWidget extends StatelessWidget {
-  final PolylineLayerOptions options;
-
-  const PolylineLayerWidget({Key? key, required this.options})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final mapState = MapState.maybeOf(context)!;
-    return PolylineLayer(options, mapState, mapState.onMoved);
-  }
-}
-
 class PolylineLayer extends StatelessWidget {
-  final PolylineLayerOptions polylineOpts;
-  final MapState map;
-  final Stream<void>? stream;
+  /// List of polylines to draw.
+  final List<Polyline> polylines;
 
-  PolylineLayer(this.polylineOpts, this.map, this.stream)
-      : super(key: polylineOpts.key);
+  final bool polylineCulling;
+
+  /// {@macro newPolylinePainter.saveLayers}
+  ///
+  /// By default, this value is set to `false` to improve performance on
+  /// layers containing a lot of polylines.
+  ///
+  /// You might want to set this to `true` if you get unwanted darker lines
+  /// where they overlap but, keep in mind that this might reduce the
+  /// performance of the layer.
+  final bool saveLayers;
+
+  PolylineLayer({
+    super.key,
+    this.polylines = const [],
+    this.polylineCulling = false,
+    this.saveLayers = false,
+  }) {
+    if (polylineCulling) {
+      for (final polyline in polylines) {
+        polyline.boundingBox = LatLngBounds.fromPoints(polyline.points);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final map = FlutterMapState.maybeOf(context)!;
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints bc) {
         final size = Size(bc.maxWidth, bc.maxHeight);
-        return _build(context, size);
-      },
-    );
-  }
+        final polylineWidgets = <Widget>[];
 
-  Widget _build(BuildContext context, Size size) {
-    return StreamBuilder<void>(
-      stream: stream, // a Stream<void> or null
-      builder: (BuildContext context, _) {
-        final polylines = <Widget>[];
-
-        for (final polylineOpt in polylineOpts.polylines) {
+        for (final polylineOpt in polylines) {
           polylineOpt.offsets.clear();
 
-          if (polylineOpts.polylineCulling &&
+          if (polylineCulling &&
               !polylineOpt.boundingBox.isOverlapping(map.bounds)) {
             // skip this polyline as it's offscreen
             continue;
           }
 
-          _fillOffsets(polylineOpt.offsets, polylineOpt.points);
+          _fillOffsets(polylineOpt.offsets, polylineOpt.points, map);
 
-          polylines.add(CustomPaint(
-            painter: PolylinePainter(polylineOpt, polylineOpts.saveLayers),
+          polylineWidgets.add(CustomPaint(
+            painter: PolylinePainter(polylineOpt, saveLayers),
             size: size,
           ));
         }
 
         return Stack(
-          children: polylines,
+          children: polylineWidgets,
         );
       },
     );
   }
 
-  void _fillOffsets(final List<Offset> offsets, final List<LatLng> points) {
+  void _fillOffsets(
+      final List<Offset> offsets, final List<LatLng> points, FlutterMapState map) {
     final len = points.length;
     for (var i = 0; i < len; ++i) {
       final point = points[i];

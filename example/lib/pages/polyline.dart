@@ -80,24 +80,22 @@ class _PolylinePageState extends State<PolylinePage> {
                             });
                           },
                         ),
-                        layers: [
-                          TileLayerOptions(
+                        children: [
+                          TileLayer(
                             urlTemplate:
                                 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                             subdomains: ['a', 'b', 'c'],
                             userAgentPackageName:
                                 'dev.fleaflet.flutter_map.example',
                           ),
-                          PolylineLayerOptions(
-                            polylines: [
+                          PolylineLayer(polylines: [
                               Polyline(
                                   points: points,
                                   strokeWidth: 4,
                                   color: Colors.purple),
                             ],
                           ),
-                          PolylineLayerOptions(
-                            polylines: [
+                          PolylineLayer(polylines: [
                               Polyline(
                                 points: pointsGradient,
                                 strokeWidth: 4,
@@ -109,7 +107,7 @@ class _PolylinePageState extends State<PolylinePage> {
                               ),
                             ],
                           ),
-                          PolylineLayerOptions(
+                          PolylineLayer(
                             polylines: snapshot.data!,
                             polylineCulling: true,
                           ),

@@ -1,16 +1,6 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/map/map.dart';
+import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:latlong2/latlong.dart' hide Path;
-
-class CircleLayerOptions extends LayerOptions {
-  final List<CircleMarker> circles;
-  CircleLayerOptions({
-    Key? key,
-    this.circles = const [],
-    Stream<void>? rebuild,
-  }) : super(key: key, rebuild: rebuild);
-}
 
 class CircleMarker {
   final LatLng point;
@@ -31,41 +21,21 @@ class CircleMarker {
   });
 }
 
-class CircleLayerWidget extends StatelessWidget {
-  final CircleLayerOptions options;
-
-  const CircleLayerWidget({Key? key, required this.options}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final mapState = MapState.maybeOf(context)!;
-    return CircleLayer(options, mapState, mapState.onMoved);
-  }
-}
-
 class CircleLayer extends StatelessWidget {
-  final CircleLayerOptions circleOpts;
-  final MapState map;
-  final Stream<void>? stream;
-  CircleLayer(this.circleOpts, this.map, this.stream)
-      : super(key: circleOpts.key);
+  final List<CircleMarker> circles;
+  const CircleLayer({
+    super.key,
+    this.circles = const [],
+  });
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints bc) {
         final size = Size(bc.maxWidth, bc.maxHeight);
-        return _build(context, size);
-      },
-    );
-  }
-
-  Widget _build(BuildContext context, Size size) {
-    return StreamBuilder<void>(
-      stream: stream, // a Stream<void> or null
-      builder: (BuildContext context, _) {
+        final map = FlutterMapState.maybeOf(context)!;
         final circleWidgets = <Widget>[];
-        for (final circle in circleOpts.circles) {
+        for (final circle in circles) {
           circle.offset = map.getOffsetFromOrigin(circle.point);
 
           if (circle.useRadiusInMeter) {

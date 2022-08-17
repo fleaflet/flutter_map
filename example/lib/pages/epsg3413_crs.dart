@@ -133,8 +133,8 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
                   zoom: 3,
                   maxZoom: maxZoom,
                 ),
-                layers: [
-                  TileLayerOptions(
+                children: [
+                  TileLayer(
                     opacity: 1,
                     backgroundColor: Colors.transparent,
                     wmsOptions: WMSTileLayerOptions(
@@ -146,7 +146,7 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
                       layers: ['gebco_north_polar_view'],
                     ),
                   ),
-                  OverlayImageLayerOptions(
+                  OverlayImageLayer(
                     overlayImages: [
                       OverlayImage(
                         bounds: LatLngBounds(
@@ -159,9 +159,7 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
                       )
                     ],
                   ),
-                  CircleLayerOptions(
-                    circles: circles,
-                  ),
+                  CircleLayer(circles: circles),
                 ],
               ),
             ),

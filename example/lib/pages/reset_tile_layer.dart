@@ -75,14 +75,14 @@ class ResetTileLayerPageState extends State<ResetTileLayerPage> {
                   center: LatLng(51.5, -0.09),
                   zoom: 5,
                 ),
-                layers: [
-                  TileLayerOptions(
+                children: [
+                  TileLayer(
                     reset: resetController.stream,
                     urlTemplate: layerToggle ? layer1 : layer2,
                     subdomains: ['a', 'b', 'c'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   ),
-                  MarkerLayerOptions(markers: markers)
+                  MarkerLayer(markers: markers)
                 ],
               ),
             ),

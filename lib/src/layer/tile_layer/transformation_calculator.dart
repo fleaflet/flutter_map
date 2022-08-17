@@ -1,18 +1,18 @@
 import 'package:flutter_map/src/layer/tile_layer/level.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_transformation.dart';
-import 'package:flutter_map/src/map/map.dart';
+import 'package:flutter_map/src/map/flutter_map_state.dart';
 
 class TransformationCalculator {
   final Map<double, Level> _levels = {};
 
   Level? levelAt(double zoom) => _levels[zoom];
 
-  Level getOrCreateLevel(double zoom, MapState map) {
+  Level getOrCreateLevel(double zoom, FlutterMapState map) {
     final level = _levels[zoom];
     if (level != null) return level;
 
     return _levels[zoom] = Level(
-      origin: map.project(map.unproject(map.getPixelOrigin()), zoom),
+      origin: map.project(map.unproject(map.pixelOrigin), zoom),
       zoom: zoom,
     );
   }
@@ -30,7 +30,7 @@ class TransformationCalculator {
     _levels.remove(levelZoom);
   }
 
-  TileTransformation transformationFor(double levelZoom, MapState map) {
+  TileTransformation transformationFor(double levelZoom, FlutterMapState map) {
     final level = _levels[levelZoom]!;
     final scale = map.getZoomScale(map.zoom, level.zoom);
     final pixelOrigin = map.getNewPixelOrigin(map.center, map.zoom).round();
