@@ -29,11 +29,11 @@ class MapInsideListViewPage extends StatelessWidget {
                 ),
                 children: [
                   TileLayer(
-                      urlTemplate:
-                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      subdomains: const ['a', 'b', 'c'],
-                      userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                    ),
+                    urlTemplate:
+                        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    subdomains: const ['a', 'b', 'c'],
+                    userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+                  ),
                   const FlutterMapZoomButtons(
                     minZoom: 4,
                     maxZoom: 19,

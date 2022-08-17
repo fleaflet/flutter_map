@@ -45,10 +45,10 @@ class WidgetsPage extends StatelessWidget {
                 ],
                 children: [
                   TileLayer(
-                      urlTemplate:
-                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      subdomains: const ['a', 'b', 'c'],
-                      userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+                    urlTemplate:
+                        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    subdomains: const ['a', 'b', 'c'],
+                    userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   ),
                   const MovingWithoutRefreshAllMapMarkers(),
                 ],
@@ -95,7 +95,8 @@ class _MovingWithoutRefreshAllMapMarkersState
 
   @override
   Widget build(BuildContext context) {
-    return MarkerLayer(markers: [_marker!],
+    return MarkerLayer(
+      markers: [_marker!],
     );
   }
 }

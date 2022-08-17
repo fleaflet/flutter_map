@@ -53,8 +53,7 @@ class OverlayImagePage extends StatelessWidget {
                     subdomains: const ['a', 'b', 'c'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   ),
-                  OverlayImageLayer(
-                          overlayImages: overlayImages),
+                  OverlayImageLayer(overlayImages: overlayImages),
                   MarkerLayer(markers: [
                     Marker(
                         point: topLeftCorner,

@@ -88,14 +88,16 @@ class _PolylinePageState extends State<PolylinePage> {
                             userAgentPackageName:
                                 'dev.fleaflet.flutter_map.example',
                           ),
-                          PolylineLayer(polylines: [
+                          PolylineLayer(
+                            polylines: [
                               Polyline(
                                   points: points,
                                   strokeWidth: 4,
                                   color: Colors.purple),
                             ],
                           ),
-                          PolylineLayer(polylines: [
+                          PolylineLayer(
+                            polylines: [
                               Polyline(
                                 points: pointsGradient,
                                 strokeWidth: 4,

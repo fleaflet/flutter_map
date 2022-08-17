@@ -162,7 +162,6 @@ class MarkerLayer extends StatefulWidget {
 }
 
 class _MarkerLayerState extends State<MarkerLayer> {
-
   @override
   Widget build(BuildContext context) {
     final map = FlutterMapState.maybeOf(context)!;

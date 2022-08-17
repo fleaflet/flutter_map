@@ -41,8 +41,7 @@ class NetworkNoRetryTileProvider extends TileProvider {
   }
 
   @override
-  ImageProvider getImage(Coords<num> coords, TileLayer options) =>
-      NetworkImage(
+  ImageProvider getImage(Coords<num> coords, TileLayer options) => NetworkImage(
         getTileUrl(coords, options),
         headers: headers..remove('User-Agent'),
       );
