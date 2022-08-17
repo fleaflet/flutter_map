@@ -35,21 +35,6 @@ class PolygonPage extends StatelessWidget {
       LatLng(44.399, 1.76),
     ];
 
-    final labelPoints = <LatLng>[
-      LatLng(60.16, -9.38),
-      LatLng(60.16, -4.16),
-      LatLng(61.18, -4.16),
-      LatLng(61.18, -9.38),
-    ];
-
-    final labelRotatedPoints = <LatLng>[
-      LatLng(58.21, -10.28),
-      LatLng(58.21, -7.01),
-      LatLng(59.77, -7.01),
-      LatLng(59.77, -10.28),
-    ];
-
-
     return Scaffold(
       appBar: AppBar(title: const Text('Polygons')),
       drawer: buildDrawer(context, PolygonPage.route),
@@ -71,52 +56,44 @@ class PolygonPage extends StatelessWidget {
                   TileLayer(
                     urlTemplate:
                         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    subdomains: ['a', 'b', 'c'],
+                    subdomains: const ['a', 'b', 'c'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   ),
-                  PolygonLayer(polygons: [
-                    Polygon(
-                      points: notFilledPoints,
-                      isFilled: false, // By default it's false
-                      borderColor: Colors.red,
-                      borderStrokeWidth: 4,
-                    ),
-                    Polygon(
-                      points: filledPoints,
-                      isFilled: true,
-                      color: Colors.purple,
-                      borderColor: Colors.purple,
-                      borderStrokeWidth: 4,
-                    ),
-                    Polygon(
-                      points: notFilledDotedPoints,
-                      isFilled: false,
-                      isDotted: true,
-                      borderColor: Colors.green,
-                      borderStrokeWidth: 4,
-                    ),
-                    Polygon(
-                      points: filledDotedPoints,
-                      isFilled: true,
-                      isDotted: true,
-                      borderStrokeWidth: 4,
-                      borderColor: Colors.lightBlue,
-                      color: Colors.lightBlue,
-                    ),
-                    Polygon(
-                      points: labelPoints,
-                      borderStrokeWidth: 4,
-                      borderColor: Colors.purple,
-                      label: "Label!",
-                    ),
-                    Polygon(
-                      points: labelRotatedPoints,
-                      borderStrokeWidth: 4,
-                      borderColor: Colors.purple,
-                      label: "Rotated!",
-                      rotateLabel: true
-                    ),
-                  ]),
+                  PolygonLayer(
+                    polygons: [
+                      Polygon(
+                        points: notFilledPoints,
+                        isFilled: false, // By default it's false
+                        borderColor: Colors.red,
+                        borderStrokeWidth: 4,
+                      ),
+                      Polygon(
+                        points: filledPoints,
+                        isFilled: true,
+                        color: Colors.purple,
+                        borderColor: Colors.purple,
+                        borderStrokeWidth: 4,
+                        label: 'Non-Rotated Label',
+                      ),
+                      Polygon(
+                        points: notFilledDotedPoints,
+                        isFilled: false,
+                        isDotted: true,
+                        borderColor: Colors.green,
+                        borderStrokeWidth: 4,
+                      ),
+                      Polygon(
+                        points: filledDotedPoints,
+                        isFilled: true,
+                        isDotted: true,
+                        borderStrokeWidth: 4,
+                        borderColor: Colors.lightBlue,
+                        color: Colors.lightBlue,
+                        label: 'Rotated Label',
+                        rotateLabel: true,
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),

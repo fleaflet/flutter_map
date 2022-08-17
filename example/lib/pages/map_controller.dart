@@ -163,7 +163,7 @@ class MapControllerPageState extends State<MapControllerPage> {
                   TileLayer(
                     urlTemplate:
                         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    subdomains: ['a', 'b', 'c'],
+                    subdomains: const ['a', 'b', 'c'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   ),
                   MarkerLayer(markers: markers),
@@ -218,7 +218,6 @@ class _CurrentLocationState extends State<CurrentLocation> {
 
   void onMapEvent(MapEvent mapEvent) {
     if (mapEvent is MapEventMove && mapEvent.id != _eventKey.toString()) {
-    print("map event ${mapEvent.id}");
       setIcon(Icons.gps_not_fixed);
     }
   }
@@ -236,7 +235,6 @@ class _CurrentLocationState extends State<CurrentLocation> {
       );
 
       if (moved) {
-        print("moveed");
         setIcon(Icons.gps_fixed);
       } else {
         setIcon(Icons.gps_not_fixed);

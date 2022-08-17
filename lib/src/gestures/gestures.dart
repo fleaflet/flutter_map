@@ -100,8 +100,6 @@ abstract class MapGestureMixin extends State<FlutterMap>
   late Animation<double> _doubleTapZoomAnimation;
   late Animation<LatLng> _doubleTapCenterAnimation;
 
-  StreamSubscription<MapEvent>? _mapControllerAnimationInterruption;
-
   int _tapUpCounter = 0;
   Timer? _doubleTapHoldMaxDelay;
 
@@ -243,7 +241,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
     if (_flingController.isAnimating) {
       _flingController.stop();
 
-      _stopListeningForAnimationInterruptions();
+      _isListeningForInterruptions = false;
 
       mapState.emitMapEvent(
         MapEventFlingAnimationEnd(
@@ -256,7 +254,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
     if (_doubleTapController.isAnimating) {
       _doubleTapController.stop();
 
-      _stopListeningForAnimationInterruptions();
+      _isListeningForInterruptions = false;
 
       mapState.emitMapEvent(
         MapEventDoubleTapZoomEnd(
@@ -483,11 +481,9 @@ abstract class MapGestureMixin extends State<FlutterMap>
             }
           }
 
-          //TODO maybe not needed?
+          // maybe not needed?
           if (mapMoved || mapRotated) {
-            mapState.setState(() {
-              
-            });
+            mapState.setState(() {});
           }
         }
       }
@@ -671,9 +667,9 @@ abstract class MapGestureMixin extends State<FlutterMap>
             zoom: mapState.zoom,
             source: MapEventSource.doubleTapZoomAnimationController),
       );
-      _startListeningForAnimationInterruptions();
+      _isListeningForInterruptions = true;
     } else if (status == AnimationStatus.completed) {
-      _stopListeningForAnimationInterruptions();
+      _isListeningForInterruptions = false;
       mapState.emitMapEvent(
         MapEventDoubleTapZoomEnd(
             center: mapState.center,
@@ -731,7 +727,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
   void _flingAnimationStatusListener(AnimationStatus status) {
     if (status == AnimationStatus.completed) {
       _flingAnimationStarted = false;
-      _stopListeningForAnimationInterruptions();
+      _isListeningForInterruptions = false;
       mapState.emitMapEvent(
         MapEventFlingAnimationEnd(
             center: mapState.center,
@@ -750,7 +746,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
             zoom: mapState.zoom,
             source: MapEventSource.flingAnimationController),
       );
-      _startListeningForAnimationInterruptions();
+      _isListeningForInterruptions = true;
     }
 
     final newCenterPoint = mapState.project(_mapCenterStart) +
@@ -765,17 +761,8 @@ abstract class MapGestureMixin extends State<FlutterMap>
     );
   }
 
-  //TODO refactor
-  void _startListeningForAnimationInterruptions() {
-    _isListeningForInterruptions = true;
-  }
-
-  void _stopListeningForAnimationInterruptions() {
-    _isListeningForInterruptions = false;
-  }
-
   void handleAnimationInterruptions(MapEvent event) {
-    if(_isListeningForInterruptions == false) {
+    if (_isListeningForInterruptions == false) {
       //Do not handle animation interruptions if not listening
       return;
     }

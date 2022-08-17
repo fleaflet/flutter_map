@@ -25,7 +25,6 @@ part 'tile_layer_options.dart';
 /// https://docs.fleaflet.dev/usage/layers/tile-layer. Some are important to
 /// avoid issues.
 class TileLayer extends StatefulWidget {
-  
   /// Defines the structure to create the URLs for the tiles. `{s}` means one of
   /// the available subdomains (can be omitted) `{z}` zoom level `{x}` and `{y}`
   /// — tile coordinates `{r}` can be used to add "&commat;2x" to the URL to
@@ -277,7 +276,7 @@ class TileLayer extends StatefulWidget {
     this.reset,
     this.tileBounds,
     String userAgentPackageName = 'unknown',
-  }) : updateInterval =
+  })  : updateInterval =
             updateInterval <= Duration.zero ? null : updateInterval,
         tileFadeInDuration =
             tileFadeInDuration <= Duration.zero ? null : tileFadeInDuration,
@@ -317,7 +316,6 @@ class TileLayer extends StatefulWidget {
 }
 
 class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
-
   late Bounds _globalTileRange;
   Tuple2<double, double>? _wrapX;
   Tuple2<double, double>? _wrapY;
@@ -342,9 +340,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     if (widget.reset != null) {
       _resetSub = widget.reset?.listen((_) => _resetTiles());
     }
-
-      //TODO fix
-    // _initThrottleUpdate();
   }
 
   @override
@@ -361,18 +356,15 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       reloadTiles = true;
     }
 
-    reloadTiles |=
-        !_tileManager.allWithinZoom(widget.minZoom, widget.maxZoom);
+    reloadTiles |= !_tileManager.allWithinZoom(widget.minZoom, widget.maxZoom);
 
     if (oldWidget.updateInterval != widget.updateInterval) {
       _throttleUpdate?.close();
-      //TODO fix
-      // _initThrottleUpdate();
     }
 
     if (!reloadTiles) {
-      final oldUrl = oldWidget.wmsOptions?._encodedBaseUrl ??
-          oldWidget.urlTemplate;
+      final oldUrl =
+          oldWidget.wmsOptions?._encodedBaseUrl ?? oldWidget.urlTemplate;
       final newUrl = widget.wmsOptions?._encodedBaseUrl ?? widget.urlTemplate;
 
       final oldOptions = oldWidget.additionalOptions;
@@ -393,22 +385,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       _tileManager.removeAll(widget.evictErrorTileStrategy);
     }
   }
-
-//TODO fix
-  // void _initThrottleUpdate() {
-  //   if (widget.updateInterval == null) {
-  //     _throttleUpdate = null;
-  //   } else {
-  //     _throttleUpdate = StreamController<LatLng?>(sync: true);
-  //     _throttleUpdate!.stream
-  //         .transform(
-  //           util.throttleStreamTransformerWithTrailingCall<LatLng?>(
-  //             widget.updateInterval!,
-  //           ),
-  //         )
-  //         .listen(_update);
-  //   }
-  // }
 
   @override
   void dispose() {
@@ -440,12 +416,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         // It was a zoom lvl change
         _setView(map, map.center, tileZoom);
       } else {
-        if (_throttleUpdate == null) {
-          //TODO what is this for?
-          // _update(null);
-        } else {
-          _throttleUpdate!.add(null);
-        }
+        _throttleUpdate?.add(null);
       }
     }
 
@@ -584,7 +555,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     }
   }
 
-
   Bounds _getTiledPixelBounds(FlutterMapState map, LatLng center) {
     final scale = map.getZoomScale(map.zoom, _tileZoom);
     final pixelCenter = map.project(center, _tileZoom).floor();
@@ -695,7 +665,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     return true;
   }
 
-  Bounds _latLngBoundsToPixelBounds(FlutterMapState map, LatLngBounds bounds, double thisZoom) {
+  Bounds _latLngBoundsToPixelBounds(
+      FlutterMapState map, LatLngBounds bounds, double thisZoom) {
     final swPixel = map.project(bounds.southWest!, thisZoom).floor();
     final nePixel = map.project(bounds.northEast!, thisZoom).ceil();
     final pxBounds = Bounds(swPixel, nePixel);

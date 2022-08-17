@@ -48,6 +48,16 @@ class NetworkNoRetryTileProvider extends TileProvider {
       );
 }
 
+/// [TileProvider] that uses [AssetImage] internally
+class AssetTileProvider extends TileProvider {
+  AssetTileProvider();
+
+  @override
+  ImageProvider getImage(Coords<num> coords, TileLayer options) {
+    return AssetImage(getTileUrl(coords, options));
+  }
+}
+
 /// A very basic [TileProvider] implementation, that can be extended to create your own provider
 ///
 /// Using this method is not recommended any more, except for very simple custom [TileProvider]s. Instead, visit the online documentation at https://docs.fleaflet.dev/plugins/making-a-plugin/creating-new-tile-providers.

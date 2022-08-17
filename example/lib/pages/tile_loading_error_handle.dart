@@ -42,7 +42,7 @@ class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
                     TileLayer(
                       urlTemplate:
                           'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      subdomains: ['a', 'b', 'c'],
+                      subdomains: const ['a', 'b', 'c'],
                       // For example purposes. It is recommended to use
                       // TileProvider with a caching and retry strategy, like
                       // NetworkTileProvider or CachedNetworkTileProvider
