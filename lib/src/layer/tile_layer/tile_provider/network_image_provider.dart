@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
-import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 import 'package:http/retry.dart';
 
 class FMNetworkImageProvider extends ImageProvider<FMNetworkImageProvider> {
@@ -10,8 +10,9 @@ class FMNetworkImageProvider extends ImageProvider<FMNetworkImageProvider> {
   /// The fallback URL from which the image will be fetched.
   final String? fallbackUrl;
 
-  /// The http RetryClient that is used for the requests
-  final RetryClient retryClient;
+  /// The http client that is used for the requests. Defaults to a [RetryClient]
+  /// with a [http.Client].
+  final http.Client httpClient;
 
   /// Custom headers to add to the image fetch request
   final Map<String, String> headers;
@@ -19,13 +20,15 @@ class FMNetworkImageProvider extends ImageProvider<FMNetworkImageProvider> {
   FMNetworkImageProvider(
     this.url, {
     required this.fallbackUrl,
-    RetryClient? retryClient,
+    http.Client? httpClient,
     this.headers = const {},
-  }) : retryClient = retryClient ?? RetryClient(Client());
+  }) : httpClient = httpClient ?? RetryClient(http.Client());
 
   @override
   ImageStreamCompleter load(
-      FMNetworkImageProvider key, DecoderCallback decode) {
+    FMNetworkImageProvider key,
+    DecoderCallback decode,
+  ) {
     return OneFrameImageStreamCompleter(_loadWithRetry(key, decode),
         informationCollector: () sync* {
       yield ErrorDescription('Image provider: $this');
@@ -48,7 +51,7 @@ class FMNetworkImageProvider extends ImageProvider<FMNetworkImageProvider> {
 
     try {
       final uri = Uri.parse(useFallback ? fallbackUrl! : url);
-      final response = await retryClient.get(uri, headers: headers);
+      final response = await httpClient.get(uri, headers: headers);
 
       if (response.statusCode != 200) {
         throw NetworkImageLoadException(

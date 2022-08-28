@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/widgets.dart';
-import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 import 'package:http/retry.dart';
 
 import 'package:flutter_map/flutter_map.dart';
@@ -18,13 +18,12 @@ import 'package:flutter_map/src/layer/tile_layer/tile_provider/network_no_retry_
 class NetworkTileProvider extends TileProvider {
   NetworkTileProvider({
     Map<String, String>? headers,
-    RetryClient? retryClient,
-  }) {
+    http.Client? httpClient,
+  }) : httpClient = httpClient ?? RetryClient(http.Client()) {
     this.headers = headers ?? {};
-    this.retryClient = retryClient ?? RetryClient(Client());
   }
 
-  late final RetryClient retryClient;
+  final http.Client httpClient;
 
   @override
   ImageProvider getImage(Coords<num> coords, TileLayer options) =>
@@ -33,7 +32,7 @@ class NetworkTileProvider extends TileProvider {
           getTileUrl(coords, options),
           fallbackUrl: getTileFallbackUrl(coords, options),
           headers: headers,
-          retryClient: retryClient,
+          httpClient: httpClient,
         ),
         createHttpClient: (c) => _FlutterMapHTTPOverrides().createHttpClient(c),
       );
@@ -41,9 +40,12 @@ class NetworkTileProvider extends TileProvider {
 
 /// [TileProvider] that uses [FMNetworkNoRetryImageProvider] internally
 ///
-/// This image provider does not automatically retry any failed requests. This provider is the default and the recommended provider, unless your tile server is especially unreliable.
+/// This image provider does not automatically retry any failed requests. This
+/// provider is the default and the recommended provider, unless your tile
+/// server is especially unreliable.
 ///
-/// Note that the 'User-Agent' header and the [HttpClient] cannot be changed, on the web platform.
+/// Note that the 'User-Agent' header and the [HttpClient] cannot be changed, on
+/// the web platform.
 class NetworkNoRetryTileProvider extends TileProvider {
   NetworkNoRetryTileProvider({
     Map<String, String>? headers,

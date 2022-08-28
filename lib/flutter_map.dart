@@ -35,6 +35,7 @@ export 'package:flutter_map/src/layer/tile_layer/tile.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_builder.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provider.dart';
+export 'package:flutter_map/src/layer/tile_layer/tile_provider/asset_tile_provider.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_provider/file_tile_provider_io.dart'
     if (dart.library.html) 'package:flutter_map/src/layer/tile_layer/tile_provider/file_tile_provider_web.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_provider/tile_provider_io.dart'

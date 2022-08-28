@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:http/http.dart';
-import 'package:http/retry.dart';
+import 'package:http/http.dart' as http;
 
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network_image_provider.dart';
@@ -18,8 +17,6 @@ class NetworkTileProvider extends TileProvider {
   }) {
     this.headers = headers ?? {};
   }
-
-  late final RetryClient retryClient;
 
   @override
   ImageProvider getImage(Coords<num> coords, TileLayer options) =>
@@ -48,7 +45,7 @@ class NetworkNoRetryTileProvider extends TileProvider {
         getTileUrl(coords, options),
         fallbackUrl: getTileFallbackUrl(coords, options),
         headers: headers..remove('User-Agent'),
-        retryClient: RetryClient(Client(), retries: 0),
+        httpClient: http.Client(),
       );
 }
 
