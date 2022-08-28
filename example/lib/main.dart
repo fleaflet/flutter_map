@@ -6,6 +6,7 @@ import 'package:flutter_map_example/pages/custom_crs/custom_crs.dart';
 import 'package:flutter_map_example/pages/epsg3413_crs.dart';
 import 'package:flutter_map_example/pages/epsg4326_crs.dart';
 import 'package:flutter_map_example/pages/esri.dart';
+import 'package:flutter_map_example/pages/fallback_url_page.dart';
 import 'package:flutter_map_example/pages/home.dart';
 import 'package:flutter_map_example/pages/interactive_test_page.dart';
 import 'package:flutter_map_example/pages/latlng_to_screen_point.dart';
@@ -87,6 +88,7 @@ class MyApp extends StatelessWidget {
         PointToLatLngPage.route: (context) => const PointToLatLngPage(),
         LatLngScreenPointTestPage.route: (context) =>
             const LatLngScreenPointTestPage(),
+        FallbackUrlPage.route: (context) => const FallbackUrlPage(),
       },
     );
   }

@@ -7,6 +7,9 @@ class FMNetworkImageProvider extends ImageProvider<FMNetworkImageProvider> {
   /// The URL from which the image will be fetched.
   final String url;
 
+  /// The fallback URL from which the image will be fetched.
+  final String? fallbackUrl;
+
   /// The http RetryClient that is used for the requests
   final RetryClient retryClient;
 
@@ -15,6 +18,7 @@ class FMNetworkImageProvider extends ImageProvider<FMNetworkImageProvider> {
 
   FMNetworkImageProvider(
     this.url, {
+    required this.fallbackUrl,
     RetryClient? retryClient,
     this.headers = const {},
   }) : retryClient = retryClient ?? RetryClient(Client());
@@ -36,21 +40,30 @@ class FMNetworkImageProvider extends ImageProvider<FMNetworkImageProvider> {
 
   Future<ImageInfo> _loadWithRetry(
     FMNetworkImageProvider key,
-    DecoderCallback decode,
-  ) async {
+    DecoderCallback decode, [
+    bool useFallback = false,
+  ]) async {
     assert(key == this);
+    assert(useFallback == false || fallbackUrl != null);
 
-    final uri = Uri.parse(url);
-    final response = await retryClient.get(uri, headers: headers);
+    try {
+      final uri = Uri.parse(useFallback ? fallbackUrl! : url);
+      final response = await retryClient.get(uri, headers: headers);
 
-    if (response.statusCode != 200) {
-      throw NetworkImageLoadException(
-          statusCode: response.statusCode, uri: uri);
+      if (response.statusCode != 200) {
+        throw NetworkImageLoadException(
+            statusCode: response.statusCode, uri: uri);
+      }
+
+      final codec = await decode(response.bodyBytes);
+      final image = (await codec.getNextFrame()).image;
+
+      return ImageInfo(image: image);
+    } catch (e) {
+      if (!useFallback && fallbackUrl != null) {
+        return _loadWithRetry(key, decode, true);
+      }
+      rethrow;
     }
-
-    final codec = await decode(response.bodyBytes);
-    final image = (await codec.getNextFrame()).image;
-
-    return ImageInfo(image: image);
   }
 }

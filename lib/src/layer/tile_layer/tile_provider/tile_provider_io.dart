@@ -31,6 +31,7 @@ class NetworkTileProvider extends TileProvider {
       HttpOverrides.runZoned<FMNetworkImageProvider>(
         () => FMNetworkImageProvider(
           getTileUrl(coords, options),
+          fallbackUrl: getTileFallbackUrl(coords, options),
           headers: headers,
           retryClient: retryClient,
         ),
