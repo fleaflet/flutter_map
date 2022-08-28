@@ -10,11 +10,14 @@ import 'package:flutter_map/src/layer/tile_layer/tile_provider/network_no_retry_
 
 /// [TileProvider] that uses [FMNetworkImageProvider] internally
 ///
-/// This image provider automatically retries some failed requests up to 3 times.
+/// This image provider automatically retries some failed requests up to 3
+/// times.
 ///
-/// Note that this provider may be slower than [NetworkNoRetryTileProvider] when fetching tiles due to internal reasons.
+/// Note that this provider may be slower than [NetworkNoRetryTileProvider] when
+/// fetching tiles due to internal reasons.
 ///
-/// Note that the 'User-Agent' header and the [RetryClient] cannot be changed, on the web platform.
+/// Note that the 'User-Agent' header and the [RetryClient] cannot be changed,
+/// on the web platform.
 class NetworkTileProvider extends TileProvider {
   NetworkTileProvider({
     Map<String, String>? headers,
@@ -68,9 +71,12 @@ class NetworkNoRetryTileProvider extends TileProvider {
       );
 }
 
-/// A very basic [TileProvider] implementation, that can be extended to create your own provider
+/// A very basic [TileProvider] implementation, that can be extended to create
+/// your own provider
 ///
-/// Using this method is not recommended any more, except for very simple custom [TileProvider]s. Instead, visit the online documentation at https://docs.fleaflet.dev/plugins/making-a-plugin/creating-new-tile-providers.
+/// Using this method is not recommended any more, except for very simple custom
+/// [TileProvider]s. Instead, visit the online documentation at
+/// https://docs.fleaflet.dev/plugins/making-a-plugin/creating-new-tile-providers.
 class CustomTileProvider extends TileProvider {
   final String Function(Coords coors, TileLayer options) customTileUrl;
 
