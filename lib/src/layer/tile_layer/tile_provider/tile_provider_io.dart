@@ -60,6 +60,7 @@ class NetworkNoRetryTileProvider extends TileProvider {
   ImageProvider getImage(Coords<num> coords, TileLayer options) =>
       FMNetworkNoRetryImageProvider(
         getTileUrl(coords, options),
+        fallbackUrl: getTileFallbackUrl(coords, options),
         headers: headers,
         httpClient: httpClient,
       );

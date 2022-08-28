@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:http/http.dart';
 import 'package:http/retry.dart';
 
 import 'package:flutter_map/flutter_map.dart';
@@ -29,7 +30,7 @@ class NetworkTileProvider extends TileProvider {
       );
 }
 
-/// [TileProvider] that uses [NetworkImage] internally
+/// [TileProvider] that uses [FMNetworkImageProvider] internally with no retry.
 ///
 /// This image provider does not automatically retry any failed requests. This provider is the default and the recommended provider, unless your tile server is especially unreliable.
 ///
@@ -42,9 +43,12 @@ class NetworkNoRetryTileProvider extends TileProvider {
   }
 
   @override
-  ImageProvider getImage(Coords<num> coords, TileLayer options) => NetworkImage(
+  ImageProvider getImage(Coords<num> coords, TileLayer options) =>
+      FMNetworkImageProvider(
         getTileUrl(coords, options),
+        fallbackUrl: getTileFallbackUrl(coords, options),
         headers: headers..remove('User-Agent'),
+        retryClient: RetryClient(Client(), retries: 0),
       );
 }
 

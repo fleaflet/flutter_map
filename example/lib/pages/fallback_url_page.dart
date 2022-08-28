@@ -37,7 +37,6 @@ class FallbackUrlPage extends StatelessWidget {
                         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                     subdomains: const ['a', 'b', 'c'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                    tileProvider: NetworkTileProvider(),
                   ),
                 ],
               ),
