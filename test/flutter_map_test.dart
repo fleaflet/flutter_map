@@ -112,7 +112,7 @@ class _TestAppState extends State<TestApp> {
               children: [
                 TileLayer(
                     urlTemplate:
-                        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                     subdomains: ['a', 'b', 'c']),
                 MarkerLayer(markers: _markers),
               ],
