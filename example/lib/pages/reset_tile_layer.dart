@@ -19,7 +19,7 @@ class ResetTileLayerPage extends StatefulWidget {
 class ResetTileLayerPageState extends State<ResetTileLayerPage> {
   StreamController<void> resetController = StreamController.broadcast();
 
-  String layer1 = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+  String layer1 = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
   String layer2 = 'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png';
   bool layerToggle = true;
 
