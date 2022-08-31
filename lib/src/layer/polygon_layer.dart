@@ -28,6 +28,7 @@ class Polygon {
   final String? label;
   final TextStyle labelStyle;
   final PolygonLabelPlacement labelPlacement;
+  final bool rotateLabel;
 
   Polygon({
     required this.points,
@@ -43,6 +44,7 @@ class Polygon {
     this.label,
     this.labelStyle = const TextStyle(),
     this.labelPlacement = PolygonLabelPlacement.centroid,
+    this.rotateLabel = false,
   }) : holeOffsetsList = null == holePointsList || holePointsList.isEmpty
             ? null
             : List.generate(holePointsList.length, (_) => []);
@@ -101,7 +103,7 @@ class PolygonLayer extends StatelessWidget {
 
           polygonsWidget.add(
             CustomPaint(
-              painter: PolygonPainter(polygon),
+              painter: PolygonPainter(polygon, map.rotationRad),
               size: size,
             ),
           );
@@ -127,8 +129,9 @@ class PolygonLayer extends StatelessWidget {
 
 class PolygonPainter extends CustomPainter {
   final Polygon polygonOpt;
+  final double rotationRad;
 
-  PolygonPainter(this.polygonOpt);
+  PolygonPainter(this.polygonOpt, this.rotationRad);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -250,6 +253,8 @@ class PolygonPainter extends CustomPainter {
           polygonOpt.offsets,
           polygonOpt.label,
           polygonOpt.labelStyle,
+          rotationRad,
+          rotate: polygonOpt.rotateLabel,
           labelPlacement: polygonOpt.labelPlacement,
         );
       }

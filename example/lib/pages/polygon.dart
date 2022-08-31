@@ -35,6 +35,21 @@ class PolygonPage extends StatelessWidget {
       LatLng(44.399, 1.76),
     ];
 
+    final labelPoints = <LatLng>[
+      LatLng(60.16, -9.38),
+      LatLng(60.16, -4.16),
+      LatLng(61.18, -4.16),
+      LatLng(61.18, -9.38),
+    ];
+
+    final labelRotatedPoints = <LatLng>[
+      LatLng(58.21, -10.28),
+      LatLng(58.21, -7.01),
+      LatLng(59.77, -7.01),
+      LatLng(59.77, -10.28),
+    ];
+
+
     return Scaffold(
       appBar: AppBar(title: const Text('Polygons')),
       drawer: buildDrawer(context, PolygonPage.route),
@@ -87,6 +102,19 @@ class PolygonPage extends StatelessWidget {
                       borderStrokeWidth: 4,
                       borderColor: Colors.lightBlue,
                       color: Colors.lightBlue,
+                    ),
+                    Polygon(
+                      points: labelPoints,
+                      borderStrokeWidth: 4,
+                      borderColor: Colors.purple,
+                      label: "Label!",
+                    ),
+                    Polygon(
+                      points: labelRotatedPoints,
+                      borderStrokeWidth: 4,
+                      borderColor: Colors.purple,
+                      label: "Rotated!",
+                      rotateLabel: true
                     ),
                   ]),
                 ],
