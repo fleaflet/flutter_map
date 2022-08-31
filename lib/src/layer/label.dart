@@ -10,7 +10,9 @@ class Label {
     Canvas canvas,
     List<Offset> points,
     String? labelText,
-    TextStyle? labelStyle, {
+    TextStyle? labelStyle,
+    double rotationRad, {
+    bool rotate = false,
     PolygonLabelPlacement labelPlacement = PolygonLabelPlacement.polylabel,
   }) {
     late Offset placementPoint;
@@ -46,10 +48,17 @@ class Label {
       }
 
       if (maxDx - minDx > textPainter.width) {
+        canvas.save();
+        if (rotate) {
+          canvas.translate(placementPoint.dx, placementPoint.dy);
+          canvas.rotate(-rotationRad);
+          canvas.translate(-placementPoint.dx, -placementPoint.dy);
+        }
         textPainter.paint(
           canvas,
           Offset(dx, dy),
         );
+        canvas.restore();
       }
     }
   }
