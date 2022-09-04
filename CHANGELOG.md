@@ -20,7 +20,7 @@ Contains the following bug fixes:
 
 In other news:
 
-- @MooNag has joined the maintainer team!
+- @MooNag & @TesteurManiak have joined the maintainer team!
 
 Many thanks to these contributors (in no particular order):
 
