@@ -24,9 +24,9 @@ class FMNetworkNoRetryImageProvider
           ..userAgent = null;
 
   @override
-  ImageStreamCompleter load(
+  ImageStreamCompleter loadBuffer(
     FMNetworkNoRetryImageProvider key,
-    DecoderCallback decode,
+    DecoderBufferCallback decode,
   ) {
     //ignore: close_sinks
     final StreamController<ImageChunkEvent> chunkEvents =
@@ -52,7 +52,7 @@ class FMNetworkNoRetryImageProvider
 
   Future<Codec> _loadAsync({
     required FMNetworkNoRetryImageProvider key,
-    required DecoderCallback decode,
+    required DecoderBufferCallback decode,
     required StreamController<ImageChunkEvent> chunkEvents,
   }) async {
     try {
@@ -86,7 +86,7 @@ class FMNetworkNoRetryImageProvider
         throw Exception('NetworkImage is an empty file: $resolved');
       }
 
-      return decode(bytes);
+      return decode(await ImmutableBuffer.fromUint8List(bytes));
     } catch (e) {
       scheduleMicrotask(() {
         _ambiguate(_ambiguate(PaintingBinding.instance)?.imageCache)
