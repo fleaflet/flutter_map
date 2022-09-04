@@ -95,8 +95,8 @@ class PolylineLayer extends StatelessWidget {
     );
   }
 
-  void _fillOffsets(
-      final List<Offset> offsets, final List<LatLng> points, FlutterMapState map) {
+  void _fillOffsets(final List<Offset> offsets, final List<LatLng> points,
+      FlutterMapState map) {
     final len = points.length;
     for (var i = 0; i < len; ++i) {
       final point = points[i];

@@ -324,8 +324,8 @@ class MapOptions {
         assert(rotationThreshold >= 0.0),
         assert(pinchZoomThreshold >= 0.0),
         assert(pinchMoveThreshold >= 0.0) {
-  assert(!adaptiveBoundaries || screenSize != null,
-      'screenSize must be set in order to enable adaptive boundaries.');
+    assert(!adaptiveBoundaries || screenSize != null,
+        'screenSize must be set in order to enable adaptive boundaries.');
   }
 }
 

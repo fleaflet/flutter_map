@@ -124,7 +124,6 @@ class Marker {
 }
 
 class MarkerLayer extends StatelessWidget {
-
   final List<Marker> markers;
 
   /// If true markers will be counter rotated to the map rotation
