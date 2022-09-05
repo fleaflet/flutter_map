@@ -432,7 +432,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     final tileWidgets = <Widget>[
       for (var tile in tilesToRender)
-        TileWidget(
+        AnimatedTile(
           tile: tile,
           size: _tileSize,
           tileTransformation: zoomToTransformation[tile.coords.z] ??
@@ -633,6 +633,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         imageProvider:
             widget.tileProvider.getImage(coords.wrap(_wrapX, _wrapY), widget),
         tileReady: _tileReady,
+        vsync: this,
+        duration: widget.tileFadeInDuration,
       );
 
       _tileManager.add(coords, newTile);
@@ -712,11 +714,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         (tile.loadError && null == widget.errorImage)) {
       tile.active = true;
     } else {
-      tile.startFadeInAnimation(
-        widget.tileFadeInDuration!,
-        this,
-        from: fadeInStart,
-      );
+      tile.startFadeInAnimation(from: fadeInStart);
     }
 
     if (mounted) {
