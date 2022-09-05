@@ -4,7 +4,7 @@ description: Visit the Full API Reference for the full list of available options
 
 # Other Options
 
-## Subdomains (`subdomains:`)
+## Subdomains (`subdomains`)
 
 Takes a list of strings specifying the available subdomains. For example:
 
@@ -12,17 +12,19 @@ Takes a list of strings specifying the available subdomains. For example:
         subdomains: ['a', 'b', 'c'],
 ```
 
-These are the available sub-subdomains for Open Street Maps' tile server, and one will be chosen differently every request by the tile provider to replace the '{s}' part of the `urlTemplate`.
+One will be chosen differently every request by the tile provider to replace the '{s}' part of the `urlTemplate`.
 
 If you are not sure of the correct values for your server, don't specify anything. For example, the `urlTemplate` used in the example above will work without the '{s}' part and any subdomains specified.
 
-{% hint style="info" %}
-This option is recommended when the map may be used on the web platform. Browsers impose a limit on the number of HTTP connections that can be made simultaneously to one domain, so as not to overload servers. Making tile requests to multiple subdomains works around this limitation.
+{% hint style="warning" %}
+This option is no longer recommended in many cases, and it can be detrimental to performance in some cases.
 
-On other platforms, this is redundant, and only needs to be used if your tile server recommends it, for example for load-balancing purposes.
+Major servers - such as OpenStreetMap's - support HTTP/2 & HTTP/3, which don't require subdomain aliases to increase browser connection concurrency. Using a single URL improves performance and ability to cache. For more information, see [this OpenStreetMap operations post](https://github.com/openstreetmap/operations/issues/737).
+
+Other servers may still use these subdomains to bypass browser connection concurrency and perform load balancing, in which case, this property is recommended.
 {% endhint %}
 
-## Tile Bounds (`tileBounds:`)
+## Tile Bounds (`tileBounds`)
 
 Takes a `LatLngBounds` to restrict the layer to only loading tiles within that area. For example:
 
@@ -37,7 +39,7 @@ will restrict the tiles to only loading Egypt (a square-ish country). Note that 
 
 An example use-case might therefore be loading a specialised map for a region and just a basic map style elsewhere (different `urlTemplate`s). In this case, the bounded layer should go beneath the unbounded layer. Setting `backgroundColor: Colors.transparent` is also necessary on the bounded layer to ensure the other layer is visible elsewhere.
 
-## Error/Fallback Tile (`errorImage:`)
+## Error/Fallback Tile (`errorImage`)
 
 Takes an `ImageProvider`, such as a `NetworkImage`, to use if the tile cannot be fetched using the `templateUrl`. The size of the returned image should be the same as the [tile size](other-options.md#tile-size). For example:
 
@@ -49,13 +51,13 @@ will use a sea tile on every tile that cannot be fetched.
 
 This is an optional parameter that has no default. If this is not specified, and tiles are unable to be fetched, then the background color.
 
-## Tile Size (`tileSize:`)
+## Tile Size (`tileSize`)
 
 Takes a `double` number specifying the width and height (in pixels) of each tile. As tiles are always square, only one number is needed.
 
 This defaults to 256, as most tile servers serve 256x256px tiles.
 
-## Custom Tile Builder (`tileBuilder:`)
+## Custom Tile Builder (`tileBuilder`)
 
 Takes a callback function, in the format `Widget Function(BuildContext context, Widget tileWidget, Tile tile)`. For example:
 
@@ -79,7 +81,11 @@ There is also `tilesContainerBuilder` available, which works slightly differentl
 
 There are predefined tile builders available, such as a dark mode emulator and a loading time debugger.
 
-## Reset Stream (`reset:`)
+## Reset Stream (`reset`)
+
+{% hint style="success" %}
+This option is significantly less important and useful after v3.0.0. Please consider updating to that version or later.
+{% endhint %}
 
 Takes a `Stream<void>?`,  that causes the layer to 'reset' when an event is received. This might be necessary after updating the `templateUrl`. For example:
 

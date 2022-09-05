@@ -10,7 +10,7 @@ FlutterMap(
 );
 ```
 
-This is where you'll configure most of your map viewport settings, but not settings that depend on a map layer.
+This is where you'll configure most of your global map settings, but not settings that depend on, or affect a specific, map layer.
 
 None of the options are required, but the options property on the `FlutterMap()` is required.
 

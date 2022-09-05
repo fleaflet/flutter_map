@@ -27,8 +27,7 @@
   * [Circle Layer](usage/layers/circle-layer.md)
   * [Attribution Layer](usage/layers/attribution-layer.md)
   * [WMS Usage](usage/layers/wms-usage.md)
-* [Controller](usage/controller/README.md)
-  * [Move](usage/controller/move.md)
+* [Controller](usage/controller.md)
 * [Full API Reference](https://pub.dev/documentation/flutter\_map/latest/flutter\_map/flutter\_map-library.html)
 
 ## Plugins
@@ -47,12 +46,13 @@
 
 ## FAQs
 
-* [Late Initialization Errors](faqs/late-initialization-errors.md)
-* [Performance Issues](faqs/performance-issues.md)
 * [Other Questions](faqs/other-questions.md)
+* [Map Controller Issues](faqs/map-controller-issues.md)
+* [Performance Issues](faqs/performance-issues.md)
 
 ## Migration
 
+* [To v3.0.0](migration/to-v3.0.0.md)
 * [To v2.1.0, v2.2.0](migration/to-v2.1.0-v2.2.0.md)
 * [To v2.0.0](migration/to-v2.0.0.md)
 * [Older Versions](migration/older-versions/README.md)

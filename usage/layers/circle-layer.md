@@ -4,13 +4,13 @@
 We're writing this documentation page now! Please hold tight for now, and refer to older documentation or look in the API Reference.
 {% endhint %}
 
-You can add circle polygons to maps to users using `CircleLayerOptions()`.
+You can add circle polygons to maps to users using `CircleLayer()`.
 
 ```dart
 FlutterMap(
     options: MapOptions(),
-    layers: [
-        CircleLayerOptions(
+    children: [
+        CircleLayer(
             circles: [],
         ),
     ],

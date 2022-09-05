@@ -1,12 +1,12 @@
 # Marker Layer
 
-You can add markers to maps to display specific points to users using `MarkerLayerOptions()`.
+You can add markers to maps to display specific points to users using `MarkerLayer()`.
 
 ```dart
 FlutterMap(
     options: MapOptions(),
-    layers: [
-        MarkerLayerOptions(
+    children: [
+        MarkerLayer(
             markers: [
                 Marker(
                   point: LatLng(30, 40),
@@ -26,7 +26,7 @@ Excessive use of markers or use of complex markers will create performance issue
 If you need to use a large number of markers, an existing [community maintained plugin (`flutter_map_marker_cluster`)](https://github.com/lpongetti/flutter\_map\_marker\_cluster) might help.&#x20;
 {% endhint %}
 
-## Markers (`markers:`)
+## Markers (`markers`)
 
 As you can see `MarkerLayerOptions()` accepts list of Markers which determines render widget, position and transformation details like size and rotation.
 

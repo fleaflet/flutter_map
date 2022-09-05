@@ -18,7 +18,7 @@ Thunderforest is a popular tiered-payment tile provider solution, especially for
 
 First, find the style you want. We'll be using OpenCycleMap to demonstrate.
 
-Under 'Use this style' there should be a URL: copy this. You should remove the 'apikey' (found at the end of the URL, usually beginning with 'pk.') from the URL for security; pass it to `additionalOptions` instead.
+Under 'Use this style' there should be a URL: copy this. You should remove the 'apikey' (found at the end of the URL) from the URL for security; pass it to `additionalOptions` instead.
 
 ```dart
 FlutterMap(

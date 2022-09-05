@@ -1,12 +1,12 @@
 # Polyline Layer
 
-You can add lines to maps to display paths/ways made out of points to users using `PolylineLayerOptions()`.
+You can add lines to maps to display paths/ways made out of points to users using `PolylineLayer()`.
 
 ```dart
 FlutterMap(
     options: MapOptions(),
-    layers: [
-        PolylineLayerOptions(
+    children: [
+        PolylineLayer(
             polylineCulling: false,
             polylines: [
                 Polyline(
@@ -35,7 +35,7 @@ You can try the below methods to try to reduce the lag:
 * Simplify the polyline by reducing the number of points within it. This will reduce calculation times, however it will make the line less precise. This is recommended, for example, when zoomed further out. You may be able to use an external Flutter library for this, called ['simplify'](https://pub.dev/packages/simplify).
 {% endhint %}
 
-## Polylines (`polylines:`)
+## Polylines (`polylines`)
 
 As you can see `PolylineLayerOptions()` accepts list of `Polyline`s. Each determines the shape of a polyline by defining the `LatLng` of each point. 'flutter\_map' will then draw a line between each coordinate.
 

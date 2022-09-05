@@ -22,7 +22,7 @@ If you urgently need the latest version, a specific branch, or a specific fork, 
 Commits available from Git (GitHub) may not be stable. Only use this method if you have no other choice.
 {% endhint %}
 
-Add the following lines to your pubspec.yaml file, as a root object:
+First, use [#from-pub.dev](installation.md#from-pub.dev "mention"), then add the following lines to your pubspec.yaml file, as a root object:
 
 {% code title="pubspec.yaml" %}
 ```yaml

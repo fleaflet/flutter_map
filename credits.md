@@ -7,12 +7,14 @@ If you want to contribute to the codebase, please visit the [contributing.md](co
 In particular, thanks go to:
 
 * John P Ryan - the founder of this project
-* All the maintainers, currently
+* All the current maintainers:
   * 'ibrierley'
   * 'JaffaKetchup'
+  * 'MooNag'
+* All the previous maintainers:
   * 'kengu'
   * 'maRci002'
-* The authors of this documentation
+* The original authors of this documentation:
   * 'JaffaKetchup'
   * 'themisir'
   * 'comatory'

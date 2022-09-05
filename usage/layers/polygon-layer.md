@@ -1,12 +1,12 @@
 # Polygon Layer
 
-You can add polygons to maps to display shapes made out of points to users using `PolygonLayerOptions()`.
+You can add polygons to maps to display shapes made out of points to users using `PolygonLayer()`.
 
 ```dart
 FlutterMap(
     options: MapOptions(),
-    layers: [
-        PolygonLayerOptions(
+    children: [
+        PolygonLayer(
             polygonCulling: false,
             polygons: [
                 Polygon(
@@ -31,7 +31,7 @@ Excessive use of polygons or use of complex polygons will create performance iss
 To improve performance, try enabling `polygonCulling`. This will prevent the calculation and rendering of polygons outside of the current viewport, however this may not work as expected in all situations.
 {% endhint %}
 
-## Polygons (`polygons:`)
+## Polygons (`polygons`)
 
 As you can see `PolygonLayerOptions()` accepts list of `Polygon`s. Each determines the shape of a polygon by defining the `LatLng` of each corner. 'flutter\_map' will then draw a line between each coordinate, and fill it.
 

@@ -15,7 +15,7 @@ However, if you're just browsing, a list is provided below (in no particular ord
 ## Full List
 
 * [`flutter_map_tile_caching`](https://github.com/JaffaKetchup/flutter\_map\_tile\_caching) by [JaffaKetchup](https://github.com/JaffaKetchup)\
-  Provides advanced caching functionality, with ability to download map regions for offline use
+  Provides caching and bulk downloading functionality (see the [#caching](../usage/layers/tile-layer/tile-providers.md#caching "mention") section)
 * [`flutter_map_marker_cluster`](https://github.com/lpongetti/flutter\_map\_marker\_cluster) by [lpongetti](https://github.com/lpongetti)\
   Provides beautiful and animated marker clustering functionality
 * [`vector_map_tiles`](https://github.com/greensopinion/flutter-vector-map-tiles) by [greensopinion](https://github.com/greensopinion)\

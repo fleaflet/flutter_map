@@ -38,8 +38,8 @@ FlutterMap(
       center: LatLng(51.5, -0.09),
       zoom: 13.0,
     ),
-    layers: [
-      TileLayerOptions(
+    children: [
+      TileLayer(
         urlTemplate: "https://api.mapbox.com/styles/v1/<user>/<tile-set-id>/tiles/<256/512>/{z}/{x}/{y}@2x?access_token={access_token}",
         additionalOptions: {
             "access_token": "<the-access-token-from-the-end-of-the-url>"

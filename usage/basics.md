@@ -4,13 +4,9 @@
 
 ```dart
 FlutterMap(
-    controller: mapController,
-    options: MapOptions(
-        ...
-    ),
-    children: [
-        ...
-    ],
+    controller: MapController(),
+    options: MapOptions(),
+    children: [],
 ),
 ```
 
@@ -19,13 +15,10 @@ This is the main widget for this library, and it takes three main properties. op
 *   ``[`options`](options/) (required)
 
     Takes a `MapOptions` that is used to configure overall map options and options that don't directly affect appearance.
-*   ``[`children`](layers/) (recommended)
+*   ``[`children`](layers/) (required)
 
-    Takes a list of `Widget`s that will be displayed on the map. These can be any widget, but are usually `LayerWidget`s which contain `LayerOptions`.
-*   ``[`layers`](layers/) (no longer recommended)
-
-    Takes a list of `LayerOptions` that will be displayed on the map. This is a more restrictive alternative to `children`, and does not require the `LayerWidget` wrapper on each `LayerOptions`, but is less performant.
-*   ``[`controller`](controller/) (optional)
+    Takes a list of `Widget`s that will be displayed on the map. These can be any widget, but are usually`Layer`s.
+*   ``[`controller`](controller.md) (optional)
 
     Takes a `MapController` that can be used to programmatically control the map, as well as listen to an events `Stream`.
 

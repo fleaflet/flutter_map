@@ -1,6 +1,6 @@
 # Recommended Options
 
-## Center (`center:`)
+## Center (`center`)
 
 Takes a `LatLng` object, specifying the latitude and longitude of the center of the map when it is first built. For example:
 
@@ -12,13 +12,13 @@ will put the map at '[Null Island](https://en.wikipedia.org/wiki/Null\_Island)' 
 
 Defaults to `LatLng(50.5, 30.51)`.
 
-## Zoom (`zoom:`, `maxZoom:`)
+## Zooms (`zoom`, `minZoom`, `maxZoom`)
 
 Takes `double`s, but should usually be set initially to integers (in double format).
 
 For an explanation of zoom levels, see the [How Does It Work?](../../getting-started/explanation/#zoom) page.
 
-`zoom:` specifies what the zoom level of the map should be when it is first built, defaulting to level 13. `maxZoom:` specifies what the maximum zoom level can be, and should depend on your use case and/or tile server. Minimum zoom is set to 1. For example:
+`zoom` specifies what the zoom level of the map should be when it is first built, defaulting to level 13. `maxZoom` specifies what the maximum zoom level can be, and should depend on your use case and/or tile server. `minZoom` specifies what the minimum zoom level can be, and should usually be set to 0/`null` default.
 
 ```dart
         zoom: 13.0,
@@ -31,11 +31,11 @@ Note that many tile servers will not support past a zoom level of 18. Always spe
 The OpenStreetMap Tile Server supports up to level 19, and a small amount of other servers support up to level 22.
 {% endhint %}
 
-## Boundaries (`bounds:`, `maxBounds:`)
+## Boundaries (`bounds`, `maxBounds`)
 
 Takes `LatLngBounds` to restrict the map view within a rectangular area.
 
-`bounds` is only effective on first build, and is an alternative to using `center` and `zoom` to initialise the map. On the other hand, `maxBounds` is persistent and prevents the view moving outside of the area. For example:
+`bounds` is only effective on first build, and is an alternative to using `center` and `zoom` to initialise the map. `maxBounds` is persistent and prevents the view moving outside of the area. For example:
 
 ```dart
         bounds: LatLngBounds(
@@ -54,7 +54,7 @@ will make the map center on London at first, and ensure that the gray void aroun
 Always specify your center within your boundaries to avoid errors. Boundaries will take preference over center.
 {% endhint %}
 
-## Rotation (`rotation:`)
+## Rotation (`rotation`)
 
 Takes a double specifying the bearing of the map when it is first built. For example:
 
@@ -66,11 +66,11 @@ will put the South of the map at the top of the device.
 
 Defaults to 0(°).
 
-## Keep Alive (`keepAlive:`)
+## Keep Alive (`keepAlive`)
 
 If you are using a more complex layout in your application - such as using the map inside a `ListView`, a `PageView`, or a tabbed layout - you may find that the map resets when it appears/scrolls back into view. This option is designed to prevent that.
 
-Takes a `bool` flag, toggling whether the internal map state should `wantKeepAlive`. For example:
+Takes a `bool` flag, toggling whether the internal map state should `wantKeepAlive`.
 
 ```dart
         keepAlive: true,

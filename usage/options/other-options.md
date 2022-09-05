@@ -4,9 +4,9 @@ description: Visit the Full API Reference for the full list of available options
 
 # Other Options
 
-## Interactivity Settings (`interactiveFlags:`)
+## Interactivity Settings (`interactiveFlags`)
 
-Takes an integer represented by multiple bitwise operations, similar to using enumerables. For example:
+Takes an integer bitfield, which can be treated similar to enumerables. For example:
 
 ```dart
         InteractiveFlag.all & ~InteractiveFlag.rotate
@@ -21,7 +21,7 @@ The flags below are available:
 | `all`            | Enables all interactions                                                     |
 | `none`           | Disables all interactions                                                    |
 | `drag`           | Enables panning with one finger                                              |
-| `pinchMove`      | Enables panning with two+ fingers                                            |
+| `pinchMove`      | Enables panning with two or more fingers                                     |
 | `flingAnimation` | Enables fling animation when `drag`/`pinchMove` have enough 'Fling Velocity' |
 | `pinchZoom`      | Enables zooming with a pinch gesture                                         |
 | `doubleTapZoom`  | Enables zooming with a double tap (prevents `onTap` from firing)             |
@@ -31,7 +31,7 @@ Use `&` for 'AND' logic and `~` for 'NOT' logic. Combining these two gates, as s
 
 Defaults to enabling all interactions (`all`).
 
-## Scroll Wheel Settings (`enableScrollWheel:` & `scrollWheelVelocity:`)
+## Scroll Wheel Settings (`enableScrollWheel` & `scrollWheelVelocity`)
 
 Used together to enable scroll wheel scrolling, and set it's sensitivity/speed.
 
@@ -44,9 +44,9 @@ The first parameter takes a `bool`, enabling or disabling scroll wheel zooming. 
 
 Defaults to `true` and 0.005.
 
-## When Position Changed (`onPositionChanged:`)
+## When Position Changed (`onPositionChanged`)
 
-Takes a function with two arguments. Gets called whenever the map position is changed, even if it is not changed by the user. For example:
+Takes a function with two arguments. Gets called whenever the map position is changed, even if it is not changed by the user.
 
 ```dart
         onPositionChanged: (MapPosition position, bool hasGesture) {
@@ -56,12 +56,20 @@ Takes a function with two arguments. Gets called whenever the map position is ch
         }
 ```
 
-## When Map Tapped (`onTap:`)
+## When Map Tapped (`onTap`)
 
-Takes a function with one argument. Gets called whenever the the user taps/clicks/presses on the map. For example:
+Takes a function with one argument. Gets called whenever the the user taps/clicks/presses on the map.
 
 ```dart
         onTap: (LatLng location) {
             // Your logic here. `location` dictates the coordinate at which the user tapped.
         }
 ```
+
+## When Map Ready (`onMapReady`)
+
+See [#usage-in-initstate](../controller.md#usage-in-initstate "mention") before using this callback.
+
+This callback can be registered if you need to do something with the map controller as soon as the map is available and initialized; generally though it isn't needed and the map is available after first build.
+
+Takes a function with zero arguments. Gets called from the `initState()` method of the `FlutterMap`.
