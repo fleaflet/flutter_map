@@ -68,7 +68,6 @@ class NetworkTileProviderPage extends StatelessWidget {
                   TileLayer(
                     urlTemplate:
                         'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    subdomains: ['a', 'b', 'c'],
                     tileProvider: NetworkTileProvider(),
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   ),

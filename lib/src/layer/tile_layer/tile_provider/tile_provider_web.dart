@@ -41,11 +41,20 @@ class NetworkNoRetryTileProvider extends TileProvider {
   }
 
   @override
-  ImageProvider getImage(Coords<num> coords, TileLayer options) =>
-      NetworkImage(
+  ImageProvider getImage(Coords<num> coords, TileLayer options) => NetworkImage(
         getTileUrl(coords, options),
         headers: headers..remove('User-Agent'),
       );
+}
+
+/// [TileProvider] that uses [AssetImage] internally
+class AssetTileProvider extends TileProvider {
+  AssetTileProvider();
+
+  @override
+  ImageProvider getImage(Coords<num> coords, TileLayer options) {
+    return AssetImage(getTileUrl(coords, options));
+  }
 }
 
 /// A very basic [TileProvider] implementation, that can be extended to create your own provider

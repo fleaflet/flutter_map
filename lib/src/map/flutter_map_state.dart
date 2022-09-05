@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -718,7 +716,6 @@ class FlutterMapState extends MapGestureMixin
     return CustomPoint(tp.dx, tp.dy);
   }
 
-
   _SafeArea? _safeAreaCache;
   double? _safeAreaZoom;
 
@@ -746,9 +743,10 @@ class FlutterMapState extends MapGestureMixin
       return _safeArea!.containPoint(point, fallback);
     } else {
       return LatLng(
-        point.latitude.clamp(options.swPanBoundary!.latitude, options.nePanBoundary!.latitude),
-        point.longitude
-            .clamp(options.swPanBoundary!.longitude, options.nePanBoundary!.longitude),
+        point.latitude.clamp(
+            options.swPanBoundary!.latitude, options.nePanBoundary!.latitude),
+        point.longitude.clamp(
+            options.swPanBoundary!.longitude, options.nePanBoundary!.longitude),
       );
     }
   }
@@ -759,10 +757,14 @@ class FlutterMapState extends MapGestureMixin
       _safeAreaZoom = controllerZoom;
       final halfScreenHeight = _calculateScreenHeightInDegrees() / 2;
       final halfScreenWidth = _calculateScreenWidthInDegrees() / 2;
-      final southWestLatitude = options.swPanBoundary!.latitude + halfScreenHeight;
-      final southWestLongitude = options.swPanBoundary!.longitude + halfScreenWidth;
-      final northEastLatitude = options.nePanBoundary!.latitude - halfScreenHeight;
-      final northEastLongitude = options.nePanBoundary!.longitude - halfScreenWidth;
+      final southWestLatitude =
+          options.swPanBoundary!.latitude + halfScreenHeight;
+      final southWestLongitude =
+          options.swPanBoundary!.longitude + halfScreenWidth;
+      final northEastLatitude =
+          options.nePanBoundary!.latitude - halfScreenHeight;
+      final northEastLongitude =
+          options.nePanBoundary!.longitude - halfScreenWidth;
       _safeAreaCache = _SafeArea(
         LatLng(
           southWestLatitude,
@@ -785,7 +787,6 @@ class FlutterMapState extends MapGestureMixin
   double _calculateScreenHeightInDegrees() =>
       options.screenSize!.height * 170.102258 / math.pow(2, zoom + 8);
 
-
   static FlutterMapState? maybeOf(BuildContext context, {bool nullOk = false}) {
     final widget =
         context.dependOnInheritedWidgetOfExactType<MapStateInheritedWidget>();
@@ -796,8 +797,6 @@ class FlutterMapState extends MapGestureMixin
         'MapState.of() called with a context that does not contain a FlutterMap.');
   }
 }
-
-
 
 class _SafeArea {
   final LatLngBounds bounds;

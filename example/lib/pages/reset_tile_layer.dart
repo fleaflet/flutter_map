@@ -79,7 +79,6 @@ class ResetTileLayerPageState extends State<ResetTileLayerPage> {
                   TileLayer(
                     reset: resetController.stream,
                     urlTemplate: layerToggle ? layer1 : layer2,
-                    subdomains: ['a', 'b', 'c'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   ),
                   MarkerLayer(markers: markers)

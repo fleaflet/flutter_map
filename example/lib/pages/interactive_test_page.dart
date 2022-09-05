@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/widgets/drawer.dart';
@@ -17,7 +15,6 @@ class InteractiveTestPage extends StatefulWidget {
 }
 
 class _InteractiveTestPageState extends State<InteractiveTestPage> {
-
   // Enable pinchZoom and doubleTapZoomBy by default
   int flags = InteractiveFlag.pinchZoom | InteractiveFlag.doubleTapZoom;
 
@@ -142,9 +139,9 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
               padding: const EdgeInsets.only(top: 8, bottom: 8),
               child: Center(
                 child: Text(
-                      'Current event: ${_latestEvent?.runtimeType ?? "none"}\nSource: ${_latestEvent?.source ?? "none"}',
-                      textAlign: TextAlign.center,
-                    ),
+                  'Current event: ${_latestEvent?.runtimeType ?? "none"}\nSource: ${_latestEvent?.source ?? "none"}',
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
             Flexible(
@@ -159,7 +156,6 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                   TileLayer(
                     urlTemplate:
                         'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    subdomains: ['a', 'b', 'c'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   ),
                 ],

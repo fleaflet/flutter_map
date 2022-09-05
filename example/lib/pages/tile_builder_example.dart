@@ -114,7 +114,6 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
           children: [
             TileLayer(
               urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              subdomains: ['a', 'b', 'c'],
               userAgentPackageName: 'dev.fleaflet.flutter_map.example',
               tileBuilder: tileBuilder,
               tilesContainerBuilder:
