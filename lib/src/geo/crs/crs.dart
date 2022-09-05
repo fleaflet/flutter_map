@@ -51,7 +51,7 @@ abstract class Crs {
   }
 
   /// Scale to Zoom function.
-  num zoom(double scale) {
+  double zoom(double scale) {
     return math.log(scale / 256) / math.ln2;
   }
 
@@ -296,7 +296,7 @@ class Proj4Crs extends Crs {
 
   /// Scale to Zoom function.
   @override
-  num zoom(double scale) {
+  double zoom(double scale) {
     // Find closest number in _scales, down
     final downScale = _closestElement(_scales, scale);
     if (downScale == null) {
@@ -305,7 +305,7 @@ class Proj4Crs extends Crs {
     final downZoom = _scales.indexOf(downScale);
     // Check if scale is downScale => return array index
     if (scale == downScale) {
-      return downZoom;
+      return downZoom.toDouble();
     }
     // Interpolate
     final nextZoom = downZoom + 1;

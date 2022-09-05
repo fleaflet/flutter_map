@@ -101,18 +101,16 @@ class ScalePainter extends CustomPainter {
 
     const sizeForStartEnd = 4;
     final paddingLeft =
-        padding == null ? 0 : padding!.left + sizeForStartEnd / 2;
-    var paddingTop = padding == null ? 0 : padding!.top;
+        padding == null ? 0.0 : padding!.left + sizeForStartEnd / 2;
+    var paddingTop = padding == null ? 0.0 : padding!.top;
 
     final textSpan = TextSpan(style: textStyle, text: text);
     final textPainter =
         TextPainter(text: textSpan, textDirection: TextDirection.ltr)..layout();
-    textPainter.paint(
-        canvas,
-        Offset(width / 2 - textPainter.width / 2 + paddingLeft,
-            paddingTop as double));
+    textPainter.paint(canvas,
+        Offset(width / 2 - textPainter.width / 2 + paddingLeft, paddingTop));
     paddingTop += textPainter.height;
-    final p1 = Offset(paddingLeft as double, sizeForStartEnd + paddingTop);
+    final p1 = Offset(paddingLeft, sizeForStartEnd + paddingTop);
     final p2 = Offset(paddingLeft + width, sizeForStartEnd + paddingTop);
     // draw start line
     canvas.drawLine(Offset(paddingLeft, paddingTop),

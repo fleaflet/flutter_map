@@ -15,34 +15,34 @@ class LatLngBounds {
 
   LatLngBounds.fromPoints(List<LatLng> points) {
     if (points.isNotEmpty) {
-      num? minX;
-      num? maxX;
-      num? minY;
-      num? maxY;
+      double minX = 180;
+      double maxX = -180;
+      double minY = 90;
+      double maxY = -90;
 
       for (final point in points) {
-        final num x = point.longitudeInRad;
-        final num y = point.latitudeInRad;
+        final double x = point.longitude;
+        final double y = point.latitude;
 
-        if (minX == null || minX > x) {
+        if (minX > x) {
           minX = x;
         }
 
-        if (minY == null || minY > y) {
+        if (minY > y) {
           minY = y;
         }
 
-        if (maxX == null || maxX < x) {
+        if (maxX < x) {
           maxX = x;
         }
 
-        if (maxY == null || maxY < y) {
+        if (maxY < y) {
           maxY = y;
         }
       }
 
-      _sw = LatLng(radianToDeg(minY as double), radianToDeg(minX as double));
-      _ne = LatLng(radianToDeg(maxY as double), radianToDeg(maxX as double));
+      _sw = LatLng(minY, minX);
+      _ne = LatLng(maxY, maxX);
     }
   }
 

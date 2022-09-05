@@ -570,7 +570,7 @@ class FlutterMapState extends MapGestureMixin
   double getScaleZoom(double scale, double? fromZoom) {
     final crs = options.crs;
     fromZoom = fromZoom ?? _zoom;
-    return crs.zoom(scale * crs.scale(fromZoom)) as double;
+    return crs.zoom(scale * crs.scale(fromZoom));
   }
 
   Bounds? getPixelWorldBounds(double? zoom) {
