@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/util.dart' as util;
 import 'package:tuple/tuple.dart';
@@ -33,5 +31,5 @@ class Coords<T extends num> extends CustomPoint<T> {
   }
 
   @override
-  int get hashCode => hashValues(x.hashCode, y.hashCode, z.hashCode);
+  int get hashCode => Object.hash(x.hashCode, y.hashCode, z.hashCode);
 }

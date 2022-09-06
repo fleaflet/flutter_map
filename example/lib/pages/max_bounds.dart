@@ -34,8 +34,7 @@ class MaxBoundsPage extends StatelessWidget {
                   TileLayer(
                     maxZoom: 15,
                     urlTemplate:
-                        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    subdomains: ['a', 'b', 'c'],
+                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   ),
                 ],

@@ -3,7 +3,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/physics.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/gestures/latlng_tween.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
@@ -99,8 +98,6 @@ abstract class MapGestureMixin extends State<FlutterMap>
   late final AnimationController _doubleTapController;
   late Animation<double> _doubleTapZoomAnimation;
   late Animation<LatLng> _doubleTapCenterAnimation;
-
-  StreamSubscription<MapEvent>? _mapControllerAnimationInterruption;
 
   int _tapUpCounter = 0;
   Timer? _doubleTapHoldMaxDelay;
@@ -483,12 +480,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
             }
           }
 
-          //TODO maybe not needed?
-          if (mapMoved || mapRotated) {
-            mapState.setState(() {
-              
-            });
-          }
+          if (mapMoved || mapRotated) mapState.setState(() {});
         }
       }
     }
@@ -765,7 +757,6 @@ abstract class MapGestureMixin extends State<FlutterMap>
     );
   }
 
-  //TODO refactor
   void _startListeningForAnimationInterruptions() {
     _isListeningForInterruptions = true;
   }
@@ -775,7 +766,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
   }
 
   void handleAnimationInterruptions(MapEvent event) {
-    if(_isListeningForInterruptions == false) {
+    if (_isListeningForInterruptions == false) {
       //Do not handle animation interruptions if not listening
       return;
     }

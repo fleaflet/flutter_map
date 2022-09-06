@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
@@ -29,9 +28,9 @@ class FMNetworkNoRetryImageProvider
           ..userAgent = null;
 
   @override
-  ImageStreamCompleter load(
+  ImageStreamCompleter loadBuffer(
     FMNetworkNoRetryImageProvider key,
-    DecoderCallback decode,
+    DecoderBufferCallback decode,
   ) {
     //ignore: close_sinks
     final StreamController<ImageChunkEvent> chunkEvents =
@@ -57,7 +56,7 @@ class FMNetworkNoRetryImageProvider
 
   Future<Codec> _loadAsync({
     required FMNetworkNoRetryImageProvider key,
-    required DecoderCallback decode,
+    required DecoderBufferCallback decode,
     required StreamController<ImageChunkEvent> chunkEvents,
     bool useFallback = false,
   }) async {
@@ -94,8 +93,7 @@ class FMNetworkNoRetryImageProvider
         throw Exception('NetworkImage is an empty file: $resolved');
       }
 
-      chunkEvents.close();
-      return decode(bytes);
+      return decode(await ImmutableBuffer.fromUint8List(bytes));
     } catch (e) {
       if (!useFallback && fallbackUrl != null) {
         return _loadAsync(

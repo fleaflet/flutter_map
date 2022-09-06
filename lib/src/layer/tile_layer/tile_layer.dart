@@ -368,8 +368,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     if (oldWidget.updateInterval != widget.updateInterval) {
       _throttleUpdate?.close();
-      //TODO fix
-      // _initThrottleUpdate();
     }
 
     if (!reloadTiles) {
@@ -395,22 +393,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       _tileManager.removeAll(widget.evictErrorTileStrategy);
     }
   }
-
-//TODO fix
-  // void _initThrottleUpdate() {
-  //   if (widget.updateInterval == null) {
-  //     _throttleUpdate = null;
-  //   } else {
-  //     _throttleUpdate = StreamController<LatLng?>(sync: true);
-  //     _throttleUpdate!.stream
-  //         .transform(
-  //           util.throttleStreamTransformerWithTrailingCall<LatLng?>(
-  //             widget.updateInterval!,
-  //           ),
-  //         )
-  //         .listen(_update);
-  //   }
-  // }
 
   @override
   void dispose() {
@@ -442,10 +424,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         // It was a zoom lvl change
         _setView(map, map.center, tileZoom);
       } else {
-        if (_throttleUpdate == null) {
-          //TODO what is this for?
-          // _update(null);
-        } else {
+        if (_throttleUpdate != null) {
           _throttleUpdate!.add(null);
         }
       }

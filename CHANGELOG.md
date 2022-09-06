@@ -1,6 +1,35 @@
 # Changelog
 
-## [2.2.0] - 2022/XX/XX
+## [3.0.0] - 2022/09/04
+
+Contains the following additions/removals:
+
+- Multiple changes - [#1333](https://github.com/fleaflet/flutter_map/pull/1333)
+  - Removed deprecated APIs from v2
+  - Removed old layering system
+  - Added new layering system
+  - Removed old plugin registration system
+- Added `Polygon` label rotation (countered to the map rotation) - [#1332](https://github.com/fleaflet/flutter_map/pull/1332)
+
+Contains the following bug fixes:
+
+- Fixed missing widget sizing to fix multiple issues - [#1334](https://github.com/fleaflet/flutter_map/pull/1334)
+- Forced CRS changes to rebuild children - [#1322](https://github.com/fleaflet/flutter_map/issues/1322)
+- Allowed map to absorb gesture events correctly within other scrollables - [#1308](https://github.com/fleaflet/flutter_map/issues/1308)
+- Improved performance by harnessing the full power of Flutter widgets - [#1165](https://github.com/fleaflet/flutter_map/issues/1165), [#958](https://github.com/fleaflet/flutter_map/issues/958)
+
+In other news:
+
+- @MooNag & @TesteurManiak have joined the maintainer team!
+
+Many thanks to these contributors (in no particular order):
+
+- @MooNag
+- @jetpeter
+- @Firefishy
+- ... and all the maintainers
+
+## [2.2.0] - 2022/08/02
 
 Contains the following additions/removals:
 

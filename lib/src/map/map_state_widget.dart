@@ -2,7 +2,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 
 class MapStateInheritedWidget extends InheritedWidget {
-  
   final FlutterMapState mapState;
 
   const MapStateInheritedWidget({

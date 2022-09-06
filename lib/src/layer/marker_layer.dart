@@ -123,11 +123,11 @@ class Marker {
   }) : anchor = Anchor.forPos(anchorPos, width, height);
 }
 
-class MarkerLayer extends StatefulWidget {
+class MarkerLayer extends StatelessWidget {
   final List<Marker> markers;
 
   /// If true markers will be counter rotated to the map rotation
-  final bool? rotate;
+  final bool rotate;
 
   /// The origin of the coordinate system (relative to the upper left corner of
   /// this render object) in which to apply the matrix.
@@ -158,21 +158,11 @@ class MarkerLayer extends StatefulWidget {
       this.rotateAlignment = Alignment.center});
 
   @override
-  State<MarkerLayer> createState() => _MarkerLayerState();
-}
-
-class _MarkerLayerState extends State<MarkerLayer> {
-
-  @override
   Widget build(BuildContext context) {
     final map = FlutterMapState.maybeOf(context)!;
-    final markers = <Widget>[];
+    final markerWidgets = <Widget>[];
 
-    for (var i = 0; i < widget.markers.length; i++) {
-      final marker = widget.markers[i];
-
-      // print(usePxCache && (sameZoom || cacheUpdated));
-
+    for (final marker in markers) {
       // Find the position of the point on the screen
       final pxPoint = map.project(marker.point);
 
@@ -195,17 +185,17 @@ class _MarkerLayerState extends State<MarkerLayer> {
       }
 
       final pos = pxPoint - map.pixelOrigin;
-      final markerWidget = (marker.rotate ?? widget.rotate ?? false)
+      final markerWidget = (marker.rotate ?? rotate)
           // Counter rotated marker to the map rotation
           ? Transform.rotate(
               angle: -map.rotationRad,
-              origin: marker.rotateOrigin ?? widget.rotateOrigin,
-              alignment: marker.rotateAlignment ?? widget.rotateAlignment,
+              origin: marker.rotateOrigin ?? rotateOrigin,
+              alignment: marker.rotateAlignment ?? rotateAlignment,
               child: marker.builder(context),
             )
           : marker.builder(context);
 
-      markers.add(
+      markerWidgets.add(
         Positioned(
           key: marker.key,
           width: marker.width,
@@ -217,7 +207,7 @@ class _MarkerLayerState extends State<MarkerLayer> {
       );
     }
     return Stack(
-      children: markers,
+      children: markerWidgets,
     );
   }
 }

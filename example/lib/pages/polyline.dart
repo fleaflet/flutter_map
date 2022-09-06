@@ -83,19 +83,20 @@ class _PolylinePageState extends State<PolylinePage> {
                         children: [
                           TileLayer(
                             urlTemplate:
-                                'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                            subdomains: ['a', 'b', 'c'],
+                                'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                             userAgentPackageName:
                                 'dev.fleaflet.flutter_map.example',
                           ),
-                          PolylineLayer(polylines: [
+                          PolylineLayer(
+                            polylines: [
                               Polyline(
                                   points: points,
                                   strokeWidth: 4,
                                   color: Colors.purple),
                             ],
                           ),
-                          PolylineLayer(polylines: [
+                          PolylineLayer(
+                            polylines: [
                               Polyline(
                                 points: pointsGradient,
                                 strokeWidth: 4,

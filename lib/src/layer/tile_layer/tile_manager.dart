@@ -98,8 +98,8 @@ class TileManager {
     Tuple2<double, double>? wrapY,
   ) {
     for (final tile in _tiles.values) {
-      tile.imageProvider = layer.tileProvider
-          .getImage(tile.coords.wrap(wrapX, wrapY), layer);
+      tile.imageProvider =
+          layer.tileProvider.getImage(tile.coords.wrap(wrapX, wrapY), layer);
       tile.loadTileImage();
     }
   }

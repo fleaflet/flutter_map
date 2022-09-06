@@ -17,7 +17,7 @@ class ScaleLayerPluginOption {
     this.lineColor = Colors.white,
     this.lineWidth = 2,
     this.padding,
-  }) ;
+  });
 }
 
 class ScaleLayerWidget extends StatelessWidget {

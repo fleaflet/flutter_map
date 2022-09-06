@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:http/http.dart' as http;
@@ -25,10 +27,8 @@ class FMNetworkImageProvider extends ImageProvider<FMNetworkImageProvider> {
   }) : httpClient = httpClient ?? RetryClient(http.Client());
 
   @override
-  ImageStreamCompleter load(
-    FMNetworkImageProvider key,
-    DecoderCallback decode,
-  ) {
+  ImageStreamCompleter loadBuffer(
+      FMNetworkImageProvider key, DecoderBufferCallback decode) {
     return OneFrameImageStreamCompleter(_loadWithRetry(key, decode),
         informationCollector: () sync* {
       yield ErrorDescription('Image provider: $this');
@@ -43,9 +43,9 @@ class FMNetworkImageProvider extends ImageProvider<FMNetworkImageProvider> {
 
   Future<ImageInfo> _loadWithRetry(
     FMNetworkImageProvider key,
-    DecoderCallback decode, [
+    DecoderBufferCallback decode, [
     bool useFallback = false,
-  ]) async {
+    ]) async {
     assert(key == this);
     assert(useFallback == false || fallbackUrl != null);
 
@@ -58,8 +58,9 @@ class FMNetworkImageProvider extends ImageProvider<FMNetworkImageProvider> {
             statusCode: response.statusCode, uri: uri);
       }
 
-      final codec = await decode(response.bodyBytes);
-      final image = (await codec.getNextFrame()).image;
+    final codec =
+        await decode(await ImmutableBuffer.fromUint8List(response.bodyBytes));
+    final image = (await codec.getNextFrame()).image;
 
       return ImageInfo(image: image);
     } catch (e) {

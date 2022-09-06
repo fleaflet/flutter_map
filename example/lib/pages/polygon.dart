@@ -49,7 +49,6 @@ class PolygonPage extends StatelessWidget {
       LatLng(59.77, -10.28),
     ];
 
-
     return Scaffold(
       appBar: AppBar(title: const Text('Polygons')),
       drawer: buildDrawer(context, PolygonPage.route),
@@ -70,8 +69,7 @@ class PolygonPage extends StatelessWidget {
                 children: [
                   TileLayer(
                     urlTemplate:
-                        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    subdomains: ['a', 'b', 'c'],
+                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   ),
                   PolygonLayer(polygons: [
@@ -110,12 +108,11 @@ class PolygonPage extends StatelessWidget {
                       label: "Label!",
                     ),
                     Polygon(
-                      points: labelRotatedPoints,
-                      borderStrokeWidth: 4,
-                      borderColor: Colors.purple,
-                      label: "Rotated!",
-                      rotateLabel: true
-                    ),
+                        points: labelRotatedPoints,
+                        borderStrokeWidth: 4,
+                        borderColor: Colors.purple,
+                        label: "Rotated!",
+                        rotateLabel: true),
                   ]),
                 ],
               ),
