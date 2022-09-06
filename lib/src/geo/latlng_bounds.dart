@@ -14,36 +14,38 @@ class LatLngBounds {
   }
 
   LatLngBounds.fromPoints(List<LatLng> points) {
-    if (points.isNotEmpty) {
-      double minX = 180;
-      double maxX = -180;
-      double minY = 90;
-      double maxY = -90;
+    if (points.isEmpty) {
+      return;
+    }
 
-      for (final point in points) {
-        final double x = point.longitude;
-        final double y = point.latitude;
+    double minX = 180;
+    double maxX = -180;
+    double minY = 90;
+    double maxY = -90;
 
-        if (minX > x) {
-          minX = x;
-        }
+    for (final point in points) {
+      final double x = point.longitude;
+      final double y = point.latitude;
 
-        if (minY > y) {
-          minY = y;
-        }
-
-        if (maxX < x) {
-          maxX = x;
-        }
-
-        if (maxY < y) {
-          maxY = y;
-        }
+      if (minX > x) {
+        minX = x;
       }
 
-      _sw = LatLng(minY, minX);
-      _ne = LatLng(maxY, maxX);
+      if (minY > y) {
+        minY = y;
+      }
+
+      if (maxX < x) {
+        maxX = x;
+      }
+
+      if (maxY < y) {
+        maxY = y;
+      }
     }
+
+    _sw = LatLng(minY, minX);
+    _ne = LatLng(maxY, maxX);
   }
 
   /// Expands bounding box by [latlng] coordinate point. This method mutates
