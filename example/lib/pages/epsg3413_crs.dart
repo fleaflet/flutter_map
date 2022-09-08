@@ -154,7 +154,7 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
                           LatLng(85.2802493, 79.794166),
                         ),
                         imageProvider: Image.asset(
-                          'map/epsg3413/amsr2.png',
+                          'assets/map/epsg3413/amsr2.png',
                         ).image,
                       )
                     ],
