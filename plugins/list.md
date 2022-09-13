@@ -8,6 +8,12 @@ Although these plugins have been checked by 'flutter\_map' maintainers, 'flutter
 Use plugins at your own risk.
 {% endhint %}
 
+{% hint style="warning" %}
+There is no guarantee that any of these plugins will support the latest version of flutter\_map.
+
+Please remain patient with the plugin authors/owners.
+{% endhint %}
+
 Some pages in this documentation provide direct links to these plugins, where appropriate, to make it easier for you to find a suitable plugin: these are listed below as well. Other links in documentation may point to useful libraries, but not necessarily flutter\_map dedicated plugins: these are not listed below.
 
 However, if you're just browsing, a list is provided below (in no particular order), containing many of the open-source plugins, each with a short description by the author saying what the plugin does/what it's useful for:
@@ -16,10 +22,10 @@ However, if you're just browsing, a list is provided below (in no particular ord
 
 * [`flutter_map_tile_caching`](https://github.com/JaffaKetchup/flutter\_map\_tile\_caching) by [JaffaKetchup](https://github.com/JaffaKetchup)\
   Provides caching and bulk downloading functionality (see the [#caching](../usage/layers/tile-layer/tile-providers.md#caching "mention") section)
+* [`vector_map_tiles`](https://github.com/greensopinion/flutter-vector-map-tiles) by [greensopinion](https://github.com/greensopinion)\
+  Enables the use of vector tiles and tile theming (see the [raster-vs-vector-tiles.md](../getting-started/explanation/raster-vs-vector-tiles.md "mention") page)
 * [`flutter_map_marker_cluster`](https://github.com/lpongetti/flutter\_map\_marker\_cluster) by [lpongetti](https://github.com/lpongetti)\
   Provides beautiful and animated marker clustering functionality
-* [`vector_map_tiles`](https://github.com/greensopinion/flutter-vector-map-tiles) by [greensopinion](https://github.com/greensopinion)\
-  Enables the use of vector and 'mixed' tiles (see the [raster-vs-vector-tiles.md](../getting-started/explanation/raster-vs-vector-tiles.md "mention") page)
 * [`flutter_map_line_editor`](https://github.com/ibrierley/flutter\_map\_line\_editor) by [ibrierley](https://github.com/ibrierley)\
   Enables creation/editing of `Polyline`s and `Polygon`s
 * [`flutter_map_location_marker`](https://github.com/tlserver/flutter\_map\_location\_marker) by [tlserver](https://github.com/tlserver)\
