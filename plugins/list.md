@@ -19,7 +19,7 @@ However, if you're just browsing, a list is provided below (in no particular ord
 * [`flutter_map_marker_cluster`](https://github.com/lpongetti/flutter\_map\_marker\_cluster) by [lpongetti](https://github.com/lpongetti)\
   Provides beautiful and animated marker clustering functionality
 * [`vector_map_tiles`](https://github.com/greensopinion/flutter-vector-map-tiles) by [greensopinion](https://github.com/greensopinion)\
-  Enables the use of vector and 'mixed' tiles (see the [raster-vs-vector-tiles.md](../getting-started/explanation/raster-vs-vector-tiles.md "mention") page)
+  Enables the use of vector tiles and tile theming (see the [raster-vs-vector-tiles.md](../getting-started/explanation/raster-vs-vector-tiles.md "mention") page)
 * [`flutter_map_line_editor`](https://github.com/ibrierley/flutter\_map\_line\_editor) by [ibrierley](https://github.com/ibrierley)\
   Enables creation/editing of `Polyline`s and `Polygon`s
 * [`flutter_map_location_marker`](https://github.com/tlserver/flutter\_map\_location\_marker) by [tlserver](https://github.com/tlserver)\
