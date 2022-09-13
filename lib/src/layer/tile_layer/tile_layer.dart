@@ -39,8 +39,8 @@ class TileLayer extends StatefulWidget {
   /// https://a.tile.openstreetmap.org/12/2177/1259.png
   final String? urlTemplate;
 
-  /// Follows the same structure as [urlTemplate]. If precised, this URL is used
-  /// only if an error occurs when loading the [urlTemplate].
+  /// Follows the same structure as [urlTemplate]. If specified, this URL is
+  /// used only if an error occurs when loading the [urlTemplate].
   final String? fallbackUrl;
 
   /// If `true`, inverses Y axis numbering for tiles (turn this on for

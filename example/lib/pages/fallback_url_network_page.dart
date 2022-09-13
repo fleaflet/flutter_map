@@ -14,7 +14,7 @@ class FallbackUrlNetworkPage extends StatelessWidget {
       route: route,
       tileLayer: TileLayer(
         urlTemplate: 'https://fake-tile-provider.org/{z}/{x}/{y}.png',
-        fallbackUrl: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        fallbackUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
         subdomains: const ['a', 'b', 'c'],
         userAgentPackageName: 'dev.fleaflet.flutter_map.example',
       ),
