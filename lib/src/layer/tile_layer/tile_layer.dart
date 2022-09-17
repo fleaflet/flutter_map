@@ -39,6 +39,10 @@ class TileLayer extends StatefulWidget {
   /// https://a.tile.openstreetmap.org/12/2177/1259.png
   final String? urlTemplate;
 
+  /// Follows the same structure as [urlTemplate]. If specified, this URL is
+  /// used only if an error occurs when loading the [urlTemplate].
+  final String? fallbackUrl;
+
   /// If `true`, inverses Y axis numbering for tiles (turn this on for
   /// [TMS](https://en.wikipedia.org/wiki/Tile_Map_Service) services).
   final bool tms;
@@ -239,6 +243,7 @@ class TileLayer extends StatefulWidget {
   TileLayer({
     super.key,
     this.urlTemplate,
+    this.fallbackUrl,
     double tileSize = 256.0,
     double minZoom = 0.0,
     double maxZoom = 18.0,
@@ -340,6 +345,9 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     if (widget.reset != null) {
       _resetSub = widget.reset?.listen((_) => _resetTiles());
     }
+
+    //TODO fix
+    // _initThrottleUpdate();
   }
 
   @override

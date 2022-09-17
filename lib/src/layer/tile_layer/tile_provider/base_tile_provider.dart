@@ -22,13 +22,7 @@ abstract class TileProvider {
   /// Called when the [TileLayerWidget] is disposed
   void dispose() {}
 
-  /// Generate a valid URL for a tile, based on it's coordinates and the current [TileLayerOptions]
-  String getTileUrl(Coords coords, TileLayer options) {
-    final urlTemplate = (options.wmsOptions != null)
-        ? options.wmsOptions!
-            .getUrl(coords, options.tileSize.toInt(), options.retinaMode)
-        : options.urlTemplate;
-
+  String _getTileUrl(String urlTemplate, Coords coords, TileLayer options) {
     final z = _getZoomForUrl(coords, options);
 
     final data = <String, String>{
@@ -43,7 +37,25 @@ abstract class TileProvider {
     }
     final allOpts = Map<String, String>.from(data)
       ..addAll(options.additionalOptions);
-    return options.templateFunction(urlTemplate!, allOpts);
+    return options.templateFunction(urlTemplate, allOpts);
+  }
+
+  /// Generate a valid URL for a tile, based on it's coordinates and the current
+  /// [TileLayerOptions]
+  String getTileUrl(Coords coords, TileLayer options) {
+    final urlTemplate = (options.wmsOptions != null)
+        ? options.wmsOptions!
+            .getUrl(coords, options.tileSize.toInt(), options.retinaMode)
+        : options.urlTemplate;
+
+    return _getTileUrl(urlTemplate!, coords, options);
+  }
+
+  /// Generates a valid URL for the [fallbackUrl].
+  String? getTileFallbackUrl(Coords coords, TileLayer options) {
+    final urlTemplate = options.fallbackUrl;
+    if (urlTemplate == null) return null;
+    return _getTileUrl(urlTemplate, coords, options);
   }
 
   double _getZoomForUrl(Coords coords, TileLayer options) {

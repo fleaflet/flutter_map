@@ -2,24 +2,29 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
-import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 import 'package:http/retry.dart';
 
 class FMNetworkImageProvider extends ImageProvider<FMNetworkImageProvider> {
   /// The URL from which the image will be fetched.
   final String url;
 
-  /// The http RetryClient that is used for the requests
-  final RetryClient retryClient;
+  /// The fallback URL from which the image will be fetched.
+  final String? fallbackUrl;
+
+  /// The http client that is used for the requests. Defaults to a [RetryClient]
+  /// with a [http.Client].
+  final http.Client httpClient;
 
   /// Custom headers to add to the image fetch request
   final Map<String, String> headers;
 
   FMNetworkImageProvider(
     this.url, {
-    RetryClient? retryClient,
+    required this.fallbackUrl,
+    http.Client? httpClient,
     this.headers = const {},
-  }) : retryClient = retryClient ?? RetryClient(Client());
+  }) : httpClient = httpClient ?? RetryClient(http.Client());
 
   @override
   ImageStreamCompleter loadBuffer(
@@ -38,22 +43,31 @@ class FMNetworkImageProvider extends ImageProvider<FMNetworkImageProvider> {
 
   Future<ImageInfo> _loadWithRetry(
     FMNetworkImageProvider key,
-    DecoderBufferCallback decode,
-  ) async {
+    DecoderBufferCallback decode, [
+    bool useFallback = false,
+    ]) async {
     assert(key == this);
+    assert(useFallback == false || fallbackUrl != null);
 
-    final uri = Uri.parse(url);
-    final response = await retryClient.get(uri, headers: headers);
+    try {
+      final uri = Uri.parse(useFallback ? fallbackUrl! : url);
+      final response = await httpClient.get(uri, headers: headers);
 
-    if (response.statusCode != 200) {
-      throw NetworkImageLoadException(
-          statusCode: response.statusCode, uri: uri);
-    }
+      if (response.statusCode != 200) {
+        throw NetworkImageLoadException(
+            statusCode: response.statusCode, uri: uri);
+      }
 
     final codec =
         await decode(await ImmutableBuffer.fromUint8List(response.bodyBytes));
     final image = (await codec.getNextFrame()).image;
 
-    return ImageInfo(image: image);
+      return ImageInfo(image: image);
+    } catch (e) {
+      if (!useFallback && fallbackUrl != null) {
+        return _loadWithRetry(key, decode, true);
+      }
+      rethrow;
+    }
   }
 }
