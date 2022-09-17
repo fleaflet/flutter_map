@@ -10,7 +10,7 @@ class CircleMarker {
   final Color borderColor;
   final bool useRadiusInMeter;
   Offset offset = Offset.zero;
-  num realRadius = 0;
+  double realRadius = 0;
   CircleMarker({
     required this.point,
     required this.radius,
@@ -72,11 +72,8 @@ class CirclePainter extends CustomPainter {
       ..style = PaintingStyle.fill
       ..color = circle.color;
 
-    _paintCircle(
-        canvas,
-        circle.offset,
-        circle.useRadiusInMeter ? circle.realRadius as double : circle.radius,
-        paint);
+    _paintCircle(canvas, circle.offset,
+        circle.useRadiusInMeter ? circle.realRadius : circle.radius, paint);
 
     if (circle.borderStrokeWidth > 0) {
       final paint = Paint()
@@ -84,11 +81,8 @@ class CirclePainter extends CustomPainter {
         ..color = circle.borderColor
         ..strokeWidth = circle.borderStrokeWidth;
 
-      _paintCircle(
-          canvas,
-          circle.offset,
-          circle.useRadiusInMeter ? circle.realRadius as double : circle.radius,
-          paint);
+      _paintCircle(canvas, circle.offset,
+          circle.useRadiusInMeter ? circle.realRadius : circle.radius, paint);
     }
   }
 
