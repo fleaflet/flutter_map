@@ -9,6 +9,7 @@ import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/util.dart' as util;
 import 'package:flutter_map/src/layer/tile_layer/level.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_manager.dart';
+import 'package:flutter_map/src/layer/tile_layer/circle_clipper.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_transformation.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_widget.dart';
 import 'package:flutter_map/src/layer/tile_layer/transformation_calculator.dart';
@@ -101,6 +102,12 @@ class TileLayer extends StatefulWidget {
 
   /// Opacity of the rendered tile
   final double opacity;
+
+  /// When want restrict tiles show with bound radius, this is center of circle
+  final LatLng? centerDraw;
+
+  /// When want restrict tiles show with bound radius, this is radius with meter
+  final int? radiusMeter;
 
   /// Provider with which to load map tiles
   ///
@@ -259,6 +266,8 @@ class TileLayer extends StatefulWidget {
     TileProvider? tileProvider,
     this.tms = false,
     this.wmsOptions,
+    this.centerDraw,
+    this.radiusMeter,
     this.opacity = 1.0,
 
     /// Tiles will not update more than once every `updateInterval` milliseconds
@@ -459,13 +468,30 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       children: tileWidgets,
     );
 
-    final tilesLayer = widget.tilesContainerBuilder == null
-        ? tilesContainer
-        : widget.tilesContainerBuilder!(
-            context,
-            tilesContainer,
-            tilesToRender,
-          );
+    Widget? tilesLayer;
+    if (widget.centerDraw != null) {
+      var pos = map.project(widget.centerDraw!);
+      pos = pos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) - map.pixelOrigin;
+      final offset = Offset(pos.x.toDouble(), pos.y.toDouble());
+      final r = const Distance().offset(widget.centerDraw!, widget.radiusMeter!, 180);
+      var rpos = map.project(r);
+      rpos = rpos.multiplyBy(map.getZoomScale(map.zoom, map.zoom)) - map.pixelOrigin;
+
+      final realRadius = rpos.y - pos.y;
+      final circleClipper = CircleClipper(offset, realRadius.toDouble());
+      tilesLayer = ClipPath(
+        clipper: circleClipper,
+        child: tilesContainer,
+      );
+    } else {
+      tilesLayer = widget.tilesContainerBuilder == null
+          ? tilesContainer
+          : widget.tilesContainerBuilder!(
+        context,
+        tilesContainer,
+        tilesToRender,
+      );
+    }
 
     return Opacity(
       opacity: widget.opacity,
