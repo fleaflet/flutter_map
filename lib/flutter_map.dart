@@ -336,11 +336,17 @@ class FitBoundsOptions {
   final double? zoom;
   final bool inside;
 
+  /// By default the calculation will work with fractional zoom levels.
+  /// If this parameter is set to [true] fractional zoom levels will be avoided.
+  /// Instead they will be round to the next suitable integer.
+  final bool forceIntegerZoomLevel;
+
   const FitBoundsOptions({
     this.padding = EdgeInsets.zero,
     this.maxZoom = 17.0,
     this.zoom,
     this.inside = false,
+    this.forceIntegerZoomLevel = false,
   });
 }
 
