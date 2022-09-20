@@ -42,11 +42,11 @@ class FlutterMapState extends MapGestureMixin
 
     move(options.center, zoom, source: MapEventSource.initialization);
 
-    // Funally, fit the map to restrictions
-    if (options.bounds != null) {
-      fitBounds(options.bounds!, options.boundsOptions);
-    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Finally, fit the map to restrictions
+      if (options.bounds != null) {
+        fitBounds(options.bounds!, options.boundsOptions);
+      }
       options.onMapReady?.call();
     });
   }
@@ -164,10 +164,6 @@ class FlutterMapState extends MapGestureMixin
     _pixelBounds = getPixelBounds(zoom);
     _bounds = _calculateBounds();
     _pixelOrigin = getNewPixelOrigin(_center);
-
-    if (options.bounds != null) {
-      fitBounds(options.bounds!, options.boundsOptions);
-    }
 
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
