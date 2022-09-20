@@ -336,9 +336,9 @@ class FitBoundsOptions {
   final double? zoom;
   final bool inside;
 
-  /// By default the calculation will work with fractional zoom levels.
-  /// If this parameter is set to [true] fractional zoom levels will be avoided.
-  /// Instead they will be round to the next suitable integer.
+  /// By default calculations will return fractional zoom levels.
+  /// If this parameter is set to [true] fractional zoom levels will be round
+  /// to the next suitable integer.
   final bool forceIntegerZoomLevel;
 
   const FitBoundsOptions({
