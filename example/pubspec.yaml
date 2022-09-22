@@ -4,7 +4,8 @@ publish_to: "none"
 version: 1.0.0
 
 environment:
-  sdk: ">=2.17.0 <3.0.0"
+  sdk: ">=2.18.0 <3.0.0"
+  flutter: ">=3.3.0"
 
 dependencies:
   flutter:
@@ -13,7 +14,7 @@ dependencies:
     path: ../
   location: ^4.4.0
   latlong2: ^0.8.1
-  proj4dart: ^2.0.0
+  proj4dart: ^2.1.0
   positioned_tap_detector_2: ^1.0.4
 
 dev_dependencies:
