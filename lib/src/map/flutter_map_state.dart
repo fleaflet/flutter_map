@@ -418,7 +418,7 @@ class FlutterMapState extends MapGestureMixin
     newZoom = fitZoomToBounds(newZoom);
     final mapMoved = newCenter != _center || newZoom != _zoom;
 
-    if (!mapMoved || !_bounds.isValid) {
+    if (!mapMoved || !_calculateBounds().isValid) {
       return false;
     }
 
@@ -451,6 +451,7 @@ class FlutterMapState extends MapGestureMixin
     });
 
     _pixelBounds = getPixelBounds(_zoom);
+    _bounds = _calculateBounds();
     _pixelOrigin = getNewPixelOrigin(newCenter);
 
     _handleMoveEmit(
