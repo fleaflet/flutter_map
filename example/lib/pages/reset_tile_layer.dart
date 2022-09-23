@@ -20,7 +20,7 @@ class ResetTileLayerPageState extends State<ResetTileLayerPage> {
   StreamController<void> resetController = StreamController.broadcast();
 
   String layer1 = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
-  String layer2 = 'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png';
+  String layer2 = 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png';
   bool layerToggle = true;
 
   @override
@@ -79,6 +79,7 @@ class ResetTileLayerPageState extends State<ResetTileLayerPage> {
                   TileLayer(
                     reset: resetController.stream,
                     urlTemplate: layerToggle ? layer1 : layer2,
+                    subdomains: layerToggle ? const [] : const ['a', 'b', 'c'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   ),
                   MarkerLayer(markers: markers)
