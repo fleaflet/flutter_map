@@ -45,7 +45,7 @@ class FMNetworkImageProvider extends ImageProvider<FMNetworkImageProvider> {
     FMNetworkImageProvider key,
     DecoderBufferCallback decode, [
     bool useFallback = false,
-    ]) async {
+  ]) async {
     assert(key == this);
     assert(useFallback == false || fallbackUrl != null);
 
@@ -58,9 +58,9 @@ class FMNetworkImageProvider extends ImageProvider<FMNetworkImageProvider> {
             statusCode: response.statusCode, uri: uri);
       }
 
-    final codec =
-        await decode(await ImmutableBuffer.fromUint8List(response.bodyBytes));
-    final image = (await codec.getNextFrame()).image;
+      final codec =
+          await decode(await ImmutableBuffer.fromUint8List(response.bodyBytes));
+      final image = (await codec.getNextFrame()).image;
 
       return ImageInfo(image: image);
     } catch (e) {
