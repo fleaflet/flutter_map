@@ -17,8 +17,8 @@ This is the main widget for this library, and it takes three main properties. op
     Takes a `MapOptions` that is used to configure overall map options and options that don't directly affect appearance.
 *   ``[`children`](layers/) (required)
 
-    Takes a list of `Widget`s that will be displayed on the map. These can be any widget, but are usually`Layer`s.
-*   ``[`controller`](controller.md) (optional)
+    Takes a list of `Widget`s that will be displayed on the map. These can be any widget, but are usually map layers.
+*   ``[`mapController`](controller.md) (optional)
 
     Takes a `MapController` that can be used to programmatically control the map, as well as listen to an events `Stream`.
 
