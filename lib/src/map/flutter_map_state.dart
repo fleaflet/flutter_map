@@ -510,7 +510,12 @@ class FlutterMapState extends MapGestureMixin
 
     final paddingTotalXY = paddingTL + paddingBR;
 
-    var zoom = getBoundsZoom(bounds, paddingTotalXY, inside: options.inside);
+    var zoom = getBoundsZoom(
+      bounds,
+      paddingTotalXY,
+      inside: options.inside,
+      forceIntegerZoomLevel: options.forceIntegerZoomLevel,
+    );
     zoom = math.min(options.maxZoom, zoom);
 
     final paddingOffset = (paddingBR - paddingTL) / 2;
@@ -524,7 +529,7 @@ class FlutterMapState extends MapGestureMixin
   }
 
   double getBoundsZoom(LatLngBounds bounds, CustomPoint<double> padding,
-      {bool inside = false}) {
+      {bool inside = false, bool forceIntegerZoomLevel = false}) {
     var zoom = this.zoom;
     final min = options.minZoom ?? 0.0;
     final max = options.maxZoom ?? double.infinity;
@@ -539,6 +544,10 @@ class FlutterMapState extends MapGestureMixin
     final scale = inside ? math.max(scaleX, scaleY) : math.min(scaleX, scaleY);
 
     zoom = getScaleZoom(scale, zoom);
+
+    if (forceIntegerZoomLevel) {
+      zoom = inside ? zoom.ceilToDouble() : zoom.floorToDouble();
+    }
 
     return math.max(min, math.min(max, zoom));
   }
