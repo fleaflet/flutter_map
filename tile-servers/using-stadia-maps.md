@@ -39,6 +39,18 @@ FlutterMap(
       center: LatLng(51.5, -0.09),
       zoom: 13.0,
     ),
+    nonRotatedChildren: [
+        AttributionWidget.defaultWidget(
+            source: 'Stadia Maps © OpenMapTiles © OpenStreetMap contributors',
+            onSourceTapped: () async {
+                if (!await launchUrl(Uri.parse("https://stadiamaps.com/attribution"))) {
+                    if (kDebugMode) {
+                        print('Could not launch url');
+                    }
+                }
+            },
+        )
+    ],
     children: [
       TileLayer(
         urlTemplate: "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png?api_key={api_key}",
