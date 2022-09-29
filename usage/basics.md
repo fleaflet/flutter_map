@@ -4,7 +4,7 @@
 
 ```dart
 FlutterMap(
-    controller: MapController(),
+    mapController: MapController(),
     options: MapOptions(),
     children: [],
 ),
@@ -17,10 +17,16 @@ This is the main widget for this library, and it takes three main properties. op
     Takes a `MapOptions` that is used to configure overall map options and options that don't directly affect appearance.
 *   ``[`children`](layers/) (required)
 
-    Takes a list of `Widget`s that will be displayed on the map. These can be any widget, but are usually map layers.
+    Takes a list of `Widget`s that will be displayed on the map. These can be any widget, but are usually map layers. `nonRotatedChildren` is also available, and acts more like a `Stack`.
 *   ``[`mapController`](controller.md) (optional)
 
     Takes a `MapController` that can be used to programmatically control the map, as well as listen to an events `Stream`.
+
+{% hint style="warning" %}
+Do not use `nonRotatedChildren` to enforce a non-rotatable `TileLayer`.
+
+Instead, use [`interactiveFlags` inside `MapOptions`](options/other-options.md#interactivity-settings-interactiveflags).
+{% endhint %}
 
 ## Placement Recommendations
 

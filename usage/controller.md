@@ -43,7 +43,9 @@ void initState(){
 For simplicity and readability, it is not recommended to use this method unless needed in your situation, although there should be little technical difference.
 {% endhint %}
 
-In some cases, the `FlutterMap` widget may not have been built on the first frame. In this case, an alternative method is required to use the `MapController` on build. This method uses the [#when-map-ready-onmapready](options/other-options.md#when-map-ready-onmapready "mention") callback.
+In some cases, the `FlutterMap` widget may not have been built on the first frame - for example when using a `FutureBuilder` around the map.
+
+In this case, an alternative method is required to use the `MapController` on build. This method uses the [#when-map-ready-onmapready](options/other-options.md#when-map-ready-onmapready "mention") callback.
 
 {% code title="Alternative Usage" %}
 ```dart

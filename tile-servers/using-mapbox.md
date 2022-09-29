@@ -30,7 +30,7 @@ You'll then need to copy the URL and use it in 'flutter\_map', like in the code 
 
 ## Usage
 
-You should remove the 'access\_token' (found at the end of the URL, usually beginning with 'pk.') from the URL for security; pass it to `additionalOptions` instead.
+You should remove the 'access\_token' (found at the end of the URL, usually beginning with 'pk.') from the URL for readability. Instead, pass it to `additionalOptions`.
 
 ```dart
 FlutterMap(
@@ -38,12 +38,26 @@ FlutterMap(
       center: LatLng(51.5, -0.09),
       zoom: 13.0,
     ),
+    nonRotatedChildren: [
+        // This does NOT fulfill Mapbox's requirements for attribution
+        // See https://docs.mapbox.com/help/getting-started/attribution/
+        AttributionWidget.defaultWidget(
+            source: '© Mapbox © OpenStreetMap',
+            onSourceTapped: () async {
+                // Requires 'url_launcher'
+                if (!await launchUrl(Uri.parse("https://docs.mapbox.com/help/getting-started/attribution/"))) {
+                    if (kDebugMode) print('Could not launch URL');
+                }
+            },
+        )
+    ],
     children: [
       TileLayer(
         urlTemplate: "https://api.mapbox.com/styles/v1/<user>/<tile-set-id>/tiles/<256/512>/{z}/{x}/{y}@2x?access_token={access_token}",
         additionalOptions: {
-            "access_token": "<the-access-token-from-the-end-of-the-url>"
+            "access_token": "<ACCESS-TOKEN>",
         },
+        userAgentPackageName: 'com.example.app',
       ),
     ],
 );
