@@ -40,6 +40,7 @@
 ## Tile Servers
 
 * [Using Mapbox](tile-servers/using-mapbox.md)
+* [Using Stadia Maps](tile-servers/using-stadia-maps.md)
 * [Using Thunderforest](tile-servers/using-thunderforest.md)
 * [Using Google Maps](tile-servers/using-google-maps.md)
 * [Other Options](tile-servers/other-options.md)
