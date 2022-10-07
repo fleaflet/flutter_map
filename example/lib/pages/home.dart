@@ -58,9 +58,14 @@ class HomePage extends StatelessWidget {
                   zoom: 5,
                 ),
                 nonRotatedChildren: [
-                  AttributionWidget.defaultWidget(
-                    source: 'OpenStreetMap contributors',
-                    onSourceTapped: () {},
+                  //AttributionLayer.defaultWidget(
+                  //  source: '© OpenStreetMap contributors',
+                  //  onSourceTapped: () {},
+                  //),
+                  AttributionLayer(
+                    attributions: {
+                      const Text('© OpenStreetMap contributors'): () {}
+                    },
                   ),
                 ],
                 children: [
