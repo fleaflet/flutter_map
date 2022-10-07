@@ -70,7 +70,7 @@ class MyApp extends StatelessWidget {
         MovingMarkersPage.route: (context) => const MovingMarkersPage(),
         CirclePage.route: (context) => const CirclePage(),
         OverlayImagePage.route: (context) => const OverlayImagePage(),
-        PolygonPage.route: (context) => const PolygonPage(),
+        PolygonPage.route: (context) => PolygonPage(),
         SlidingMapPage.route: (_) => const SlidingMapPage(),
         WMSLayerPage.route: (context) => const WMSLayerPage(),
         CustomCrsPage.route: (context) => const CustomCrsPage(),
