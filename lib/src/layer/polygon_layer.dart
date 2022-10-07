@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -29,9 +28,6 @@ class Polygon {
   final PolygonLabelPlacement labelPlacement;
   final bool rotateLabel;
 
-  /// Calculated value
-  final LatLngBounds boundingBox;
-
   Polygon({
     required this.points,
     this.holePointsList,
@@ -47,7 +43,10 @@ class Polygon {
     this.labelStyle = const TextStyle(),
     this.labelPlacement = PolygonLabelPlacement.centroid,
     this.rotateLabel = false,
-  }) : boundingBox = LatLngBounds.fromPoints(points);
+  });
+
+  /// Bounding box from points.
+  LatLngBounds get boundingBox => LatLngBounds.fromPoints(points);
 
   /// Used to batch draw calls to the canvas.
   int get renderHashCode => Object.hash(color, borderStrokeWidth, borderColor,
