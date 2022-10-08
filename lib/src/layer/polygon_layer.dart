@@ -118,7 +118,7 @@ class PolygonPainter extends CustomPainter {
       }
     }
 
-    print("batch_rate ${1-(batches.length/polygonOpts.length)}");
+    // print("batch_rate ${1-(batches.length/polygonOpts.length)}");
 
     for (final batch in batches) {
       final fillPaint = Paint();
