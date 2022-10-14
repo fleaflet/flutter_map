@@ -17,6 +17,8 @@ class FlutterMapState extends MapGestureMixin
 
   final MapController _localController = MapControllerImpl();
 
+  bool _hasFitInitialBounds = false;
+
   @override
   MapOptions get options => widget.options;
 
@@ -40,13 +42,7 @@ class FlutterMapState extends MapGestureMixin
     _pixelBounds = getPixelBounds(zoom);
     _bounds = _calculateBounds();
 
-    move(options.center, zoom, source: MapEventSource.initialization);
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Finally, fit the map to restrictions
-      if (options.bounds != null) {
-        fitBounds(options.bounds!, options.boundsOptions);
-      }
       options.onMapReady?.call();
     });
   }
@@ -160,17 +156,22 @@ class FlutterMapState extends MapGestureMixin
       },
     );
 
-    //Update on state change
-    _pixelBounds = getPixelBounds(zoom);
-    _bounds = _calculateBounds();
-    _pixelOrigin = getNewPixelOrigin(_center);
 
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
       //Update on layout change
       setSize(constraints.maxWidth, constraints.maxHeight);
+
+      if (options.bounds != null && !_hasFitInitialBounds) {
+        final target = getBoundsCenterZoom(options.bounds!, options.boundsOptions);
+        _zoom = target.zoom;
+        _center = target.center;
+        _hasFitInitialBounds = true;
+      }
+
       _pixelBounds = getPixelBounds(zoom);
       _bounds = _calculateBounds();
+      _pixelOrigin = getNewPixelOrigin(_center);
 
       return MapStateInheritedWidget(
         mapState: this,
