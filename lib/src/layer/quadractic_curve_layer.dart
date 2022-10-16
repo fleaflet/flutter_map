@@ -1,7 +1,5 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/plugin_api.dart';
-
 import 'package:latlong2/latlong.dart' hide Path;
 
 class QuadraticCurveMarker {
@@ -10,49 +8,44 @@ class QuadraticCurveMarker {
   final LatLng handlePoint;
 
   final Color color;
+  final double strokeWidth;
   final double borderStrokeWidth;
   final Color borderColor;
-
-  Offset start = Offset.zero;
-  Offset end = Offset.zero;
-  Offset handle = Offset.zero;
 
   QuadraticCurveMarker({
     required this.startPoint,
     required this.endPoint,
     required this.handlePoint,
     this.color = const Color.fromARGB(255, 255, 0, 0),
+    this.strokeWidth = 2.0,
     this.borderStrokeWidth = 0.0,
     this.borderColor = const Color(0xFFFFFF00),
   });
 
   @override
-  bool operator ==(covariant QuadraticCurveMarker other) {
+  bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other.startPoint == startPoint &&
+    return other is QuadraticCurveMarker &&
+        other.startPoint == startPoint &&
         other.endPoint == endPoint &&
         other.handlePoint == handlePoint &&
         other.color == color &&
+        other.strokeWidth == strokeWidth &&
         other.borderStrokeWidth == borderStrokeWidth &&
-        other.borderColor == borderColor &&
-        other.start == start &&
-        other.end == end &&
-        other.handle == handle;
+        other.borderColor == borderColor;
   }
 
   @override
-  int get hashCode {
-    return startPoint.hashCode ^
-        endPoint.hashCode ^
-        handlePoint.hashCode ^
-        color.hashCode ^
-        borderStrokeWidth.hashCode ^
-        borderColor.hashCode ^
-        start.hashCode ^
-        end.hashCode ^
-        handle.hashCode;
-  }
+  int get hashCode => Object.hash(
+        startPoint,
+        endPoint,
+        handlePoint,
+        color,
+        strokeWidth,
+        borderStrokeWidth,
+        borderColor,
+      );
 }
 
 class QuadraticCurveLayer extends StatelessWidget {
@@ -70,13 +63,9 @@ class QuadraticCurveLayer extends StatelessWidget {
         final map = FlutterMapState.maybeOf(context)!;
         final curveWidgets = <Widget>[];
         for (final curve in curves) {
-          curve.start = map.getOffsetFromOrigin(curve.startPoint);
-          curve.end = map.getOffsetFromOrigin(curve.endPoint);
-          curve.handle = map.getOffsetFromOrigin(curve.handlePoint);
-
           curveWidgets.add(
             CustomPaint(
-              painter: QuadraticCurvePainter(curve),
+              painter: QuadraticCurvePainter(curve: curve, mapSate: map),
               size: size,
             ),
           );
@@ -92,24 +81,34 @@ class QuadraticCurveLayer extends StatelessWidget {
 
 class QuadraticCurvePainter extends CustomPainter {
   final QuadraticCurveMarker curve;
-  QuadraticCurvePainter(this.curve);
+  final FlutterMapState mapSate;
+  QuadraticCurvePainter({
+    required this.curve,
+    required this.mapSate,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
+    // LatLong to offset
+    final start = mapSate.getOffsetFromOrigin(curve.startPoint);
+    final end = mapSate.getOffsetFromOrigin(curve.endPoint);
+    final handle = mapSate.getOffsetFromOrigin(curve.handlePoint);
+
     final rect = Offset.zero & size;
     canvas.clipRect(rect);
     final paint = Paint()
       ..style = PaintingStyle.stroke
-      ..color = curve.color;
+      ..color = curve.color
+      ..strokeWidth = curve.strokeWidth;
 
-    _paintCurve(canvas, paint, curve.start, curve.end, curve.handle);
+    _paintCurve(canvas, paint, start, end, handle);
 
     if (curve.borderStrokeWidth > 0) {
       final paint = Paint()
         ..style = PaintingStyle.stroke
         ..color = curve.borderColor
         ..strokeWidth = curve.borderStrokeWidth;
-      _paintCurve(canvas, paint, curve.start, curve.end, curve.handle);
+      _paintCurve(canvas, paint, start, end, handle);
     }
   }
 
