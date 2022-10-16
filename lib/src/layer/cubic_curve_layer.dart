@@ -9,54 +9,47 @@ class CubicCurveMarker {
   final LatLng handlePointTwo;
 
   final Color color;
+  final double strokeWidth;
   final double borderStrokeWidth;
   final Color borderColor;
 
-  Offset start = Offset.zero;
-  Offset end = Offset.zero;
-  Offset handleOne = Offset.zero;
-  Offset handleTwo = Offset.zero;
   CubicCurveMarker({
     required this.startPoint,
     required this.endPoint,
     required this.handlePointOne,
     required this.handlePointTwo,
     this.color = const Color.fromARGB(255, 255, 0, 0),
+    this.strokeWidth = 2.0,
     this.borderStrokeWidth = 0.0,
     this.borderColor = const Color(0xFFFFFF00),
   });
 
   @override
-  bool operator ==(covariant CubicCurveMarker other) {
+  bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other.startPoint == startPoint &&
+    return other is CubicCurveMarker &&
+        other.startPoint == startPoint &&
         other.endPoint == endPoint &&
         other.handlePointOne == handlePointOne &&
         other.handlePointTwo == handlePointTwo &&
         other.color == color &&
+        other.strokeWidth == strokeWidth &&
         other.borderStrokeWidth == borderStrokeWidth &&
-        other.borderColor == borderColor &&
-        other.start == start &&
-        other.end == end &&
-        other.handleOne == handleOne &&
-        other.handleTwo == handleTwo;
+        other.borderColor == borderColor;
   }
 
   @override
-  int get hashCode {
-    return startPoint.hashCode ^
-        endPoint.hashCode ^
-        handlePointOne.hashCode ^
-        handlePointTwo.hashCode ^
-        color.hashCode ^
-        borderStrokeWidth.hashCode ^
-        borderColor.hashCode ^
-        start.hashCode ^
-        end.hashCode ^
-        handleOne.hashCode ^
-        handleTwo.hashCode;
-  }
+  int get hashCode => Object.hash(
+        startPoint,
+        endPoint,
+        handlePointOne,
+        handlePointTwo,
+        color,
+        strokeWidth,
+        borderStrokeWidth,
+        borderColor,
+      );
 }
 
 class CubicCurveLayer extends StatelessWidget {
@@ -68,20 +61,16 @@ class CubicCurveLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final map = FlutterMapState.maybeOf(context)!;
+    final mapState = FlutterMapState.maybeOf(context)!;
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints bc) {
         final size = Size(bc.maxWidth, bc.maxHeight);
 
         final curveWidgets = <Widget>[];
         for (final curve in curves) {
-          curve.start = map.getOffsetFromOrigin(curve.startPoint);
-          curve.end = map.getOffsetFromOrigin(curve.endPoint);
-          curve.handleOne = map.getOffsetFromOrigin(curve.handlePointOne);
-          curve.handleTwo = map.getOffsetFromOrigin(curve.handlePointTwo);
           curveWidgets.add(
             CustomPaint(
-              painter: CubicCurvePainter(curve),
+              painter: CubicCurvePainter(curve: curve, mapState: mapState),
               size: size,
             ),
           );
@@ -97,26 +86,32 @@ class CubicCurveLayer extends StatelessWidget {
 
 class CubicCurvePainter extends CustomPainter {
   final CubicCurveMarker curve;
-  CubicCurvePainter(this.curve);
+  final FlutterMapState mapState;
+  CubicCurvePainter({required this.curve, required this.mapState});
 
   @override
   void paint(Canvas canvas, Size size) {
+    // convert points from LatLng to offset
+    final start = mapState.getOffsetFromOrigin(curve.startPoint);
+    final end = mapState.getOffsetFromOrigin(curve.endPoint);
+    final handleOne = mapState.getOffsetFromOrigin(curve.handlePointOne);
+    final handleTwo = mapState.getOffsetFromOrigin(curve.handlePointTwo);
+
     final rect = Offset.zero & size;
     canvas.clipRect(rect);
     final paint = Paint()
       ..style = PaintingStyle.stroke
-      ..color = curve.color;
+      ..color = curve.color
+      ..strokeWidth = curve.strokeWidth;
 
-    _paintCurve(canvas, paint, curve.start, curve.end, curve.handleOne,
-        curve.handleTwo);
+    _paintCurve(canvas, paint, start, end, handleOne, handleTwo);
 
     if (curve.borderStrokeWidth > 0) {
       final paint = Paint()
         ..style = PaintingStyle.stroke
         ..color = curve.borderColor
         ..strokeWidth = curve.borderStrokeWidth;
-      _paintCurve(canvas, paint, curve.start, curve.end, curve.handleOne,
-          curve.handleTwo);
+      _paintCurve(canvas, paint, start, end, handleOne, handleTwo);
     }
   }
 
