@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_map_example/pages/animated_map_controller.dart';
+import 'package:flutter_map_example/pages/arc.dart';
 import 'package:flutter_map_example/pages/circle.dart';
+import 'package:flutter_map_example/pages/cubic_curve.dart';
 import 'package:flutter_map_example/pages/custom_crs/custom_crs.dart';
 import 'package:flutter_map_example/pages/epsg3413_crs.dart';
 import 'package:flutter_map_example/pages/epsg4326_crs.dart';
@@ -28,6 +30,7 @@ import 'package:flutter_map_example/pages/plugin_zoombuttons.dart';
 import 'package:flutter_map_example/pages/point_to_latlng.dart';
 import 'package:flutter_map_example/pages/polygon.dart';
 import 'package:flutter_map_example/pages/polyline.dart';
+import 'package:flutter_map_example/pages/quadratic_curve.dart';
 import 'package:flutter_map_example/pages/reset_tile_layer.dart';
 import 'package:flutter_map_example/pages/sliding_map.dart';
 import 'package:flutter_map_example/pages/stateful_markers.dart';
@@ -69,6 +72,9 @@ class MyApp extends StatelessWidget {
         MarkerRotatePage.route: (context) => const MarkerRotatePage(),
         MovingMarkersPage.route: (context) => const MovingMarkersPage(),
         CirclePage.route: (context) => const CirclePage(),
+        ArcPage.route: (context) => const ArcPage(),
+        CubicCurvePage.route: (context) => const CubicCurvePage(),
+        QuadraticCurvePage.route: (context) => const QuadraticCurvePage(),
         OverlayImagePage.route: (context) => const OverlayImagePage(),
         PolygonPage.route: (context) => const PolygonPage(),
         SlidingMapPage.route: (_) => const SlidingMapPage(),

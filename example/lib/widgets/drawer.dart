@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_map_example/pages/animated_map_controller.dart';
 import 'package:flutter_map_example/pages/circle.dart';
+import 'package:flutter_map_example/pages/cubic_curve.dart';
 import 'package:flutter_map_example/pages/custom_crs/custom_crs.dart';
 import 'package:flutter_map_example/pages/epsg3413_crs.dart';
 import 'package:flutter_map_example/pages/epsg4326_crs.dart';
@@ -28,6 +29,7 @@ import 'package:flutter_map_example/pages/plugin_zoombuttons.dart';
 import 'package:flutter_map_example/pages/point_to_latlng.dart';
 import 'package:flutter_map_example/pages/polygon.dart';
 import 'package:flutter_map_example/pages/polyline.dart';
+import 'package:flutter_map_example/pages/quadratic_curve.dart';
 import 'package:flutter_map_example/pages/reset_tile_layer.dart';
 import 'package:flutter_map_example/pages/sliding_map.dart';
 import 'package:flutter_map_example/pages/stateful_markers.dart';
@@ -36,6 +38,7 @@ import 'package:flutter_map_example/pages/tile_builder_example.dart';
 import 'package:flutter_map_example/pages/tile_loading_error_handle.dart';
 import 'package:flutter_map_example/pages/widgets.dart';
 import 'package:flutter_map_example/pages/wms_tile_layer.dart';
+import 'package:flutter_map_example/pages/arc.dart';
 
 Widget _buildMenuItem(
     BuildContext context, Widget title, String routeName, String currentRoute) {
@@ -169,6 +172,24 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           context,
           const Text('Circle'),
           CirclePage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Arc'),
+          ArcPage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Cubic Curve'),
+          CubicCurvePage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Quadratic Curve'),
+          QuadraticCurvePage.route,
           currentRoute,
         ),
         _buildMenuItem(
