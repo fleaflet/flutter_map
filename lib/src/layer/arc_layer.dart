@@ -16,9 +16,6 @@ class ArcMarker {
 
   final bool useRadiusInMeter;
 
-  Offset offset = Offset.zero;
-  num realRadius = 0;
-
   ArcMarker({
     this.startAngle = 0,
     this.sweepAngle = 2 * pi,
@@ -29,6 +26,34 @@ class ArcMarker {
     this.borderStrokeWidth = 0.0,
     this.borderColor = const Color(0xFFFFFF00),
   });
+  //TODO: add another constructor which calculates start and sweep angle form LatLong points
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is ArcMarker &&
+        other.centre == centre &&
+        other.radius == radius &&
+        other.startAngle == startAngle &&
+        other.sweepAngle == sweepAngle &&
+        other.color == color &&
+        other.borderStrokeWidth == borderStrokeWidth &&
+        other.borderColor == borderColor &&
+        other.useRadiusInMeter == useRadiusInMeter;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        centre,
+        radius,
+        startAngle,
+        sweepAngle,
+        color,
+        borderStrokeWidth,
+        borderColor,
+        useRadiusInMeter,
+      );
 }
 
 class ArcLayer extends StatelessWidget {
@@ -43,20 +68,12 @@ class ArcLayer extends StatelessWidget {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints bc) {
         final size = Size(bc.maxWidth, bc.maxHeight);
-        final map = FlutterMapState.maybeOf(context)!;
+        final mapState = FlutterMapState.maybeOf(context)!;
         final arcWidgets = <Widget>[];
         for (final arc in arcs) {
-          arc.offset = map.getOffsetFromOrigin(arc.centre);
-
-          if (arc.useRadiusInMeter) {
-            final r = const Distance().offset(arc.centre, arc.radius, 180);
-            final delta = arc.offset - map.getOffsetFromOrigin(r);
-            arc.realRadius = delta.distance;
-          }
-
           arcWidgets.add(
             CustomPaint(
-              painter: ArcPainter(arc),
+              painter: ArcPainter(arc: arc, mapState: mapState),
               size: size,
             ),
           );
@@ -72,10 +89,24 @@ class ArcLayer extends StatelessWidget {
 
 class ArcPainter extends CustomPainter {
   final ArcMarker arc;
-  ArcPainter(this.arc);
+  final FlutterMapState mapState;
+  ArcPainter({required this.arc, required this.mapState});
 
   @override
-  void paint(Canvas canvas, Size size) {
+  void paint(
+    Canvas canvas,
+    Size size,
+  ) {
+    // centre of the arc
+    final Offset centre = mapState.getOffsetFromOrigin(arc.centre);
+    //calculations for radius
+    double radius = arc.radius;
+    if (arc.useRadiusInMeter) {
+      final r = const Distance().offset(arc.centre, arc.radius, 180);
+      final delta = centre - mapState.getOffsetFromOrigin(r);
+      radius = delta.distance;
+    }
+
     final rect = Offset.zero & size;
     canvas.clipRect(rect);
     final paint = Paint()
@@ -83,8 +114,7 @@ class ArcPainter extends CustomPainter {
       ..color = arc.color
       ..isAntiAlias = true;
 
-    _paintArc(canvas, arc.offset,
-        arc.useRadiusInMeter ? arc.realRadius as double : arc.radius, paint,
+    _paintArc(canvas, centre, radius, paint,
         startAngle: arc.startAngle, sweepAngle: arc.sweepAngle);
 
     if (arc.borderStrokeWidth > 0) {
@@ -94,8 +124,7 @@ class ArcPainter extends CustomPainter {
         ..strokeWidth = arc.borderStrokeWidth
         ..isAntiAlias = true;
 
-      _paintArc(canvas, arc.offset,
-          arc.useRadiusInMeter ? arc.realRadius as double : arc.radius, paint,
+      _paintArc(canvas, centre, radius, paint,
           startAngle: arc.startAngle, sweepAngle: arc.sweepAngle);
     }
   }
@@ -104,7 +133,6 @@ class ArcPainter extends CustomPainter {
       {required double startAngle, required double sweepAngle}) {
     canvas.drawArc(Rect.fromCircle(center: offset, radius: radius), startAngle,
         sweepAngle, false, paint);
-        
   }
 
   @override
