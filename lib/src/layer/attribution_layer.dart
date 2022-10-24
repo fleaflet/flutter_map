@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -70,41 +71,39 @@ class AttributionWidget extends StatelessWidget {
 
 /// Base class for attributions that render themselves as widgets
 abstract class SourceAttribution extends StatelessWidget {
-  final void Function()? onTap;
+  final Future<bool>? Function()? onTap;
 
   const SourceAttribution({super.key, this.onTap});
 
   SourceAttribution.launchUri(Uri launchUri, {super.key})
-      : onTap = (() async {
-          if (!await launchUrl(launchUri)) {
-            debugPrint("Could not launch URL.");
-          }
-        });
+      : onTap = (() => launchUrl(launchUri));
 
-  /// Method returning a widget that must be implemented by subclasses.
-  ///
-  /// NOTE: Subclasses should NOT override build but rather render, as
-  /// the build method is responsible for adding tap detection if necessary.
-  @required
   Widget render(BuildContext context);
 
   @override
+  @nonVirtual
   Widget build(BuildContext context) {
     if (onTap == null) {
       return render(context);
     } else {
       return GestureDetector(
-          onTap: onTap,
-          child: MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: render(context),
-          ));
+        onTap: onTap,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: render(context),
+        ),
+      );
     }
   }
 }
 
 /// A source attribution in the form of text
 class TextSourceAttribution extends SourceAttribution {
+  static const TextStyle _defaultTextStyle = TextStyle(
+    color: Color(0xFF0000EE),
+    decoration: TextDecoration.underline,
+  );
+
   final String text;
   final TextStyle? textStyle;
   final bool prependCopyright;
@@ -117,69 +116,45 @@ class TextSourceAttribution extends SourceAttribution {
   const TextSourceAttribution(
     this.text, {
     super.key,
-    this.prependCopyright = true,
     super.onTap,
-    this.textStyle,
-  });
+    this.prependCopyright = true,
+    TextStyle? textStyle,
+  }) : textStyle = textStyle ?? (onTap == null ? null : _defaultTextStyle);
 
   /// A simplified constructor which launches [launchUri] on tap.
-  TextSourceAttribution.launchUri(this.text,
-      {super.key,
-      required Uri launchUri,
-      this.prependCopyright = true,
-      this.textStyle})
-      : super.launchUri(launchUri);
-
-  @override
-  Widget render(BuildContext context) {
-    final String prefix;
-    if (prependCopyright) {
-      prefix = "© ";
-    } else {
-      prefix = "";
-    }
-
-    final TextStyle? style;
-    if (textStyle == null && onTap != null) {
-      // If no style is specified and there is a tap action, default to a
-      // classic blue hyperlink color.
-      style = const TextStyle(color: Color(0xFF0078a8));
-    } else {
-      style = textStyle;
-    }
-
-    return Text(
-      "$prefix$text",
-      style: style,
-    );
-  }
-}
-
-class LogoSourceAttribution extends SourceAttribution {
-  final ImageProvider imageProvider;
-
-  const LogoSourceAttribution(
-      {super.key, required this.imageProvider, super.onTap});
-
-  LogoSourceAttribution.asset(String assetName,
-      {super.key, AssetBundle? assetBundle, String? package, super.onTap})
-      : imageProvider = AssetImage(
-          assetName,
-          bundle: assetBundle,
-          package: package,
-        );
-
-  LogoSourceAttribution.network(String url, {super.key, super.onTap})
-      : imageProvider = NetworkImage(url);
-
-  LogoSourceAttribution.networkWithLaunchUri(String url,
-      {super.key, required Uri launchUri})
-      : imageProvider = NetworkImage(url),
+  TextSourceAttribution.launchUri(
+    this.text, {
+    super.key,
+    required Uri launchUri,
+    this.prependCopyright = true,
+    TextStyle? textStyle,
+  })  : textStyle = textStyle ?? _defaultTextStyle,
         super.launchUri(launchUri);
 
   @override
-  Widget render(BuildContext context) =>
-      Image(image: imageProvider, height: 24);
+  Widget render(BuildContext context) => Text(
+        '${prependCopyright ? '© ' : ''}$text',
+        style: textStyle,
+      );
+}
+
+class LogoSourceAttribution extends SourceAttribution {
+  final Image image;
+
+  const LogoSourceAttribution({
+    super.key,
+    required this.image,
+    super.onTap,
+  });
+
+  LogoSourceAttribution.launchUri({
+    super.key,
+    required this.image,
+    required Uri launchUri,
+  }) : super.launchUri(launchUri);
+
+  @override
+  Widget render(BuildContext context) => image;
 }
 
 /// A rich attribution layer which makes it straightforward to attribute
@@ -189,88 +164,110 @@ class LogoSourceAttribution extends SourceAttribution {
 /// source attributions on click/tap (hidden by default to save screen real
 /// estate). Logo attributions are always visible.
 class RichAttributionWidget extends StatefulWidget {
-  final Widget attributionColumn;
+  final Widget _attributionColumn;
   final Alignment alignment;
-  final Iterable<LogoSourceAttribution> logoSourceAttributions;
+  final List<LogoSourceAttribution> _logoSourceAttributions;
 
   RichAttributionWidget({
     super.key,
     required List<SourceAttribution> attributions,
     this.alignment = Alignment.bottomRight,
-  })  : attributionColumn = Padding(
+  })  : _attributionColumn = Padding(
           padding: const EdgeInsets.all(3),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: attributions
-                .where((element) => element is! LogoSourceAttribution)
-                .toList(),
+            children: [
+              ...attributions
+                  .where((e) => e is! LogoSourceAttribution)
+                  .toList(),
+              const SizedBox(height: 32),
+            ],
           ),
         ),
-        logoSourceAttributions =
-            attributions.whereType<LogoSourceAttribution>().followedBy([
-          LogoSourceAttribution.networkWithLaunchUri(
-              "https://www.gitbook.com/cdn-cgi/image/width=40,height=40,fit=contain,dpr=2,format=auto/https%3A%2F%2F3512747269-files.gitbook.io%2F~%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252F71h39XIuA0UETMZNP1yW%252Ficon%252Fl1Sl5MTPazDxdLxZLRG2%252FIconV1.png%3Falt%3Dmedia%26token%3Dc946a6a0-e5ff-45a4-a247-79a9059ff8ea",
-              launchUri: Uri.parse("https://github.com/fleaflet/flutter_map"))
-        ]);
+        _logoSourceAttributions = attributions
+            .whereType<LogoSourceAttribution>()
+            .toList()
+          ..add(
+            LogoSourceAttribution.launchUri(
+              image: Image.asset(
+                'lib/assets/flutter_map_logo.png',
+                package: 'flutter_map',
+                height: 24,
+                width: 24,
+                cacheHeight: 24,
+                cacheWidth: 24,
+              ),
+              launchUri: Uri.parse('https://github.com/fleaflet/flutter_map'),
+            ),
+          );
 
   @override
   State<StatefulWidget> createState() => RichAttributionWidgetState();
 }
 
 class RichAttributionWidgetState extends State<RichAttributionWidget> {
-  bool _expand = false;
-
-  void onPressed() {
-    setState(() {
-      _expand = !_expand;
-    });
-  }
+  bool _expanded = false;
+  bool _hovered = false;
 
   @override
-  Widget build(BuildContext context) {
-    final IconButton button =
-        IconButton(onPressed: onPressed, icon: const Icon(Icons.info_outline));
-    const boxColor = Color(0xCCFFFFFF);
-    const insets = EdgeInsets.all(8);
-    final directionality = Directionality.maybeOf(context) ?? TextDirection.ltr;
-
-    final bottomRow = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: widget.logoSourceAttributions
-          .cast<Widget>()
-          .followedBy([button]).toList(),
-    );
-    if (_expand) {
-      return Align(
+  Widget build(BuildContext context) => Align(
+        alignment: widget.alignment,
+        child: Stack(
           alignment: widget.alignment,
-          child: Container(
-              decoration: BoxDecoration(
-                  color: boxColor,
-                  border: Border.all(width: 0, style: BorderStyle.none),
-                  borderRadius: BorderRadius.circular(10)),
-              margin: insets,
-              child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  textDirection: directionality,
-                  // Align the items in the column (ex: the info button) to the
-                  // left if we are using an alignment toward the left edge
-                  // of the screen; otherwise align them to the right.
-                  crossAxisAlignment: widget.alignment.x < 0
-                      ? (directionality == TextDirection.ltr
-                          ? CrossAxisAlignment.start
-                          : CrossAxisAlignment.end)
-                      : (directionality == TextDirection.ltr
-                          ? CrossAxisAlignment.end
-                          : CrossAxisAlignment.start),
-                  children: [widget.attributionColumn, bottomRow])));
-    } else {
-      return Align(
-          alignment: widget.alignment,
-          child: Container(
-            margin: insets,
-            child: bottomRow,
-          ));
-    }
-  }
+          children: [
+            AnimatedOpacity(
+              opacity: _expanded ? 1 : 0,
+              curve: Curves.easeInOut,
+              duration: const Duration(milliseconds: 200),
+              child: Padding(
+                padding: const EdgeInsets.all(6),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(width: 0, style: BorderStyle.none),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: widget._attributionColumn,
+                ),
+              ),
+            ),
+            MouseRegion(
+              onEnter: (_) => setState(() => _hovered = true),
+              onExit: (_) => setState(() => _hovered = false),
+              cursor: SystemMouseCursors.click,
+              child: AnimatedOpacity(
+                opacity: _hovered || _expanded ? 1 : 0.5,
+                curve: Curves.easeInOut,
+                duration: const Duration(milliseconds: 200),
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ...widget._logoSourceAttributions.cast<Widget>(),
+                      AnimatedSwitcher(
+                        switchInCurve: Curves.easeInOut,
+                        switchOutCurve: Curves.easeInOut,
+                        duration: const Duration(milliseconds: 200),
+                        child: _expanded
+                            ? IconButton(
+                                onPressed: () =>
+                                    setState(() => _expanded = false),
+                                icon: const Icon(Icons.cancel_outlined),
+                              )
+                            : IconButton(
+                                onPressed: () =>
+                                    setState(() => _expanded = true),
+                                icon: const Icon(Icons.info_outline),
+                              ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
 }
