@@ -8,14 +8,15 @@ In particular, thanks go to:
 
 * John P Ryan - the founder of this project
 * All the current maintainers:
-  * 'ibrierley'
-  * 'JaffaKetchup'
-  * 'MooNag'
+  * @ibrierley
+  * @JaffaKetchup
+  * @MooNag
+  * @TesteurManiak
 * All the previous maintainers:
-  * 'kengu'
-  * 'maRci002'
+  * @kengu
+  * @maRci002
 * The original authors of this documentation:
-  * 'JaffaKetchup'
-  * 'themisir'
-  * 'comatory'
+  * @JaffaKetchup
+  * @themisir
+  * @comatory
 * Anyone who has made plugins for flutter\_map, see the [list.md](plugins/list.md "mention")
