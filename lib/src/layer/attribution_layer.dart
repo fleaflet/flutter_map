@@ -65,4 +65,39 @@ class AttributionWidget extends StatelessWidget {
           ),
         ),
       );
+
+
+  /// Quick constructor for a more classic styled attibution box
+  ///
+  /// Displayed as a padded translucent white box with the text from [source].
+  ///
+  /// Provide [onSourceTapped] to carry out a function when the box is tapped. If that isn't null, the source text will have [sourceTextStyle] styling - which defaults to a link styling.
+  static Widget customText({
+    required String source,
+    void Function()? onSourceTapped,
+    TextStyle sourceTextStyle = const TextStyle(color: Color(0xFF0078a8)),
+    Alignment alignment = Alignment.bottomRight,
+  }) =>
+      Align(
+        alignment: alignment,
+        child: ColoredBox(
+          color: const Color(0xCCFFFFFF),
+          child: GestureDetector(
+            onTap: onSourceTapped,
+            child: Padding(
+              padding: const EdgeInsets.all(3),
+              child:
+              MouseRegion(
+                cursor: onSourceTapped == null
+                    ? MouseCursor.defer
+                    : SystemMouseCursors.click,
+                child: Text(
+                  source,
+                  style: onSourceTapped == null ? null : sourceTextStyle,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
 }
