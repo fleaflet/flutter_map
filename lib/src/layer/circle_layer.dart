@@ -49,7 +49,7 @@ class CircleLayer extends StatelessWidget {
 
           circleWidgets.add(
             CustomPaint(
-              key: key,
+              key: circle.key,
               painter: CirclePainter(circle),
               size: size,
             ),

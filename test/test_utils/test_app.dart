@@ -9,12 +9,14 @@ class TestApp extends StatelessWidget {
     this.markers = const [],
     this.polygons = const [],
     this.polylines = const [],
+    this.circles = const [],
   });
 
   final MapController? controller;
   final List<Marker> markers;
   final List<Polygon> polygons;
   final List<Polyline> polylines;
+  final List<CircleMarker> circles;
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +39,7 @@ class TestApp extends StatelessWidget {
                 ),
                 if (polylines.isNotEmpty) PolylineLayer(polylines: polylines),
                 if (polygons.isNotEmpty) PolygonLayer(polygons: polygons),
+                if (circles.isNotEmpty) CircleLayer(circles: circles),
                 if (markers.isNotEmpty) MarkerLayer(markers: markers),
               ],
             ),
