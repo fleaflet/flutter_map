@@ -7,6 +7,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mockito/mockito.dart';
 
+import 'test_utils/test_app.dart';
+
 class MockHttpClientResponse extends Mock implements HttpClientResponse {
   final _stream = readFile();
 
@@ -59,7 +61,7 @@ class MockHttpOverrides extends HttpOverrides {
 void main() {
   testWidgets('flutter_map', (tester) async {
     HttpOverrides.global = MockHttpOverrides();
-    await tester.pumpWidget(const TestApp());
+    await tester.pumpWidget(_buildTestApp());
     expect(find.byType(FlutterMap), findsOneWidget);
     expect(find.byType(TileLayer), findsOneWidget);
     expect(find.byType(RawImage), findsWidgets);
@@ -68,15 +70,8 @@ void main() {
   });
 }
 
-class TestApp extends StatefulWidget {
-  const TestApp({Key? key}) : super(key: key);
-
-  @override
-  State<TestApp> createState() => _TestAppState();
-}
-
-class _TestAppState extends State<TestApp> {
-  final List<Marker> _markers = <Marker>[
+Widget _buildTestApp() {
+  final markers = <Marker>[
     Marker(
       width: 80,
       height: 80,
@@ -91,34 +86,5 @@ class _TestAppState extends State<TestApp> {
     ),
   ];
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: SizedBox(
-            width: 200,
-            height: 200,
-            child: FlutterMap(
-              options: MapOptions(
-                center: LatLng(45.5231, -122.6765),
-                zoom: 13,
-              ),
-              children: [
-                TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                ),
-                MarkerLayer(markers: _markers),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  return TestApp(markers: markers);
 }
