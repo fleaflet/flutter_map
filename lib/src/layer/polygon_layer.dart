@@ -12,6 +12,7 @@ enum PolygonLabelPlacement {
 }
 
 class Polygon {
+  final Key? key;
   final List<LatLng> points;
   final List<Offset> offsets = [];
   final List<List<LatLng>>? holePointsList;
@@ -32,6 +33,7 @@ class Polygon {
 
   Polygon({
     required this.points,
+    this.key,
     this.holePointsList,
     this.color = const Color(0xFF00FF00),
     this.borderStrokeWidth = 0.0,
@@ -103,6 +105,7 @@ class PolygonLayer extends StatelessWidget {
 
           polygonsWidget.add(
             CustomPaint(
+              key: polygon.key,
               painter: PolygonPainter(polygon, map.rotationRad),
               size: size,
             ),
