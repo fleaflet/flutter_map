@@ -8,11 +8,13 @@ class TestApp extends StatelessWidget {
     this.controller,
     this.markers = const [],
     this.polygons = const [],
+    this.polylines = const [],
   });
 
   final MapController? controller;
   final List<Marker> markers;
   final List<Polygon> polygons;
+  final List<Polyline> polylines;
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +35,7 @@ class TestApp extends StatelessWidget {
                 TileLayer(
                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 ),
+                if (polylines.isNotEmpty) PolylineLayer(polylines: polylines),
                 if (polygons.isNotEmpty) PolygonLayer(polygons: polygons),
                 if (markers.isNotEmpty) MarkerLayer(markers: markers),
               ],

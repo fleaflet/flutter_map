@@ -7,6 +7,7 @@ import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:latlong2/latlong.dart';
 
 class Polyline {
+  final Key? key;
   final List<LatLng> points;
   final List<Offset> offsets = [];
   final double strokeWidth;
@@ -22,6 +23,7 @@ class Polyline {
 
   Polyline({
     required this.points,
+    this.key,
     this.strokeWidth = 1.0,
     this.color = const Color(0xFF00FF00),
     this.borderStrokeWidth = 0.0,
@@ -82,10 +84,13 @@ class PolylineLayer extends StatelessWidget {
 
           _fillOffsets(polylineOpt.offsets, polylineOpt.points, map);
 
-          polylineWidgets.add(CustomPaint(
-            painter: PolylinePainter(polylineOpt, saveLayers),
-            size: size,
-          ));
+          polylineWidgets.add(
+            CustomPaint(
+              key: polylineOpt.key,
+              painter: PolylinePainter(polylineOpt, saveLayers),
+              size: size,
+            ),
+          );
         }
 
         return Stack(
@@ -95,8 +100,11 @@ class PolylineLayer extends StatelessWidget {
     );
   }
 
-  void _fillOffsets(final List<Offset> offsets, final List<LatLng> points,
-      FlutterMapState map) {
+  void _fillOffsets(
+    final List<Offset> offsets,
+    final List<LatLng> points,
+    FlutterMapState map,
+  ) {
     final len = points.length;
     for (var i = 0; i < len; ++i) {
       final point = points[i];
