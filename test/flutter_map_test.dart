@@ -59,32 +59,28 @@ class MockHttpOverrides extends HttpOverrides {
 }
 
 void main() {
+  final markers = <Marker>[
+    Marker(
+      width: 80,
+      height: 80,
+      point: LatLng(45.5231, -122.6765),
+      builder: (_) => const FlutterLogo(),
+    ),
+    Marker(
+      width: 80,
+      height: 80,
+      point: LatLng(40, -120), // not visible
+      builder: (_) => const FlutterLogo(),
+    ),
+  ];
+
   testWidgets('flutter_map', (tester) async {
     HttpOverrides.global = MockHttpOverrides();
-    await tester.pumpWidget(_buildTestApp());
+    await tester.pumpWidget(TestApp(markers: markers));
     expect(find.byType(FlutterMap), findsOneWidget);
     expect(find.byType(TileLayer), findsOneWidget);
     expect(find.byType(RawImage), findsWidgets);
     expect(find.byType(MarkerLayer), findsWidgets);
     expect(find.byType(FlutterLogo), findsOneWidget);
   });
-}
-
-Widget _buildTestApp() {
-  final markers = <Marker>[
-    Marker(
-      width: 80,
-      height: 80,
-      point: LatLng(45.5231, -122.6765),
-      builder: (ctx) => const FlutterLogo(),
-    ),
-    Marker(
-      width: 80,
-      height: 80,
-      point: LatLng(40, -120), // not visible
-      builder: (ctx) => const FlutterLogo(),
-    ),
-  ];
-
-  return TestApp(markers: markers);
 }
