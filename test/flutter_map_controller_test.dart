@@ -1,9 +1,13 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 
+import 'test_utils/mocks.dart';
+import 'test_utils/test_app.dart';
+
 void main() {
+  setupMocks();
+
   testWidgets('test fit bounds methods', (tester) async {
     final controller = MapController();
     final bounds = LatLngBounds(
@@ -114,32 +118,4 @@ void main() {
       expect(controller.zoom, equals(expectedZoom));
     }
   });
-}
-
-class TestApp extends StatelessWidget {
-  final MapController controller;
-
-  const TestApp({
-    required this.controller,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        body: Center(
-          // ensure that map is always of the same size
-          child: SizedBox(
-            width: 200,
-            height: 200,
-            child: FlutterMap(
-              mapController: controller,
-              options: MapOptions(),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
