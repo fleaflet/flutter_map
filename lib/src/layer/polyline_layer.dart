@@ -10,7 +10,7 @@ class Polyline {
   final Key? key;
   final List<LatLng> points;
   final List<Offset> offsets = [];
-  final double strokeWidth;
+  double strokeWidth;
   final Color color;
   final double borderStrokeWidth;
   final Color? borderColor;
@@ -19,6 +19,7 @@ class Polyline {
   final bool isDotted;
   final StrokeCap strokeCap;
   final StrokeJoin strokeJoin;
+  final bool useStrokeWidthInMeter;
   late LatLngBounds boundingBox;
 
   Polyline({
@@ -33,6 +34,7 @@ class Polyline {
     this.isDotted = false,
     this.strokeCap = StrokeCap.round,
     this.strokeJoin = StrokeJoin.round,
+    this.useStrokeWidthInMeter = false,
   });
 }
 
@@ -83,6 +85,17 @@ class PolylineLayer extends StatelessWidget {
           }
 
           _fillOffsets(polylineOpt.offsets, polylineOpt.points, map);
+
+          if (polylineOpt.useStrokeWidthInMeter) {
+            final r = const Distance().offset(
+              polylineOpt.points.first,
+              polylineOpt.strokeWidth,
+              180,
+            );
+            final delta =
+                polylineOpt.offsets.first - map.getOffsetFromOrigin(r);
+            polylineOpt.strokeWidth = delta.distance;
+          }
 
           polylineWidgets.add(
             CustomPaint(
