@@ -70,6 +70,7 @@ class PolylineLayer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final map = FlutterMapState.maybeOf(context)!;
+
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints bc) {
         final size = Size(bc.maxWidth, bc.maxHeight);
@@ -86,21 +87,10 @@ class PolylineLayer extends StatelessWidget {
 
           _fillOffsets(polylineOpt.offsets, polylineOpt.points, map);
 
-          if (polylineOpt.useStrokeWidthInMeter) {
-            final r = const Distance().offset(
-              polylineOpt.points.first,
-              polylineOpt.strokeWidth,
-              180,
-            );
-            final delta =
-                polylineOpt.offsets.first - map.getOffsetFromOrigin(r);
-            polylineOpt.strokeWidth = delta.distance;
-          }
-
           polylineWidgets.add(
             CustomPaint(
               key: polylineOpt.key,
-              painter: PolylinePainter(polylineOpt, saveLayers),
+              painter: PolylinePainter(polylineOpt, saveLayers, map),
               size: size,
             ),
           );
@@ -136,17 +126,36 @@ class PolylinePainter extends CustomPainter {
   /// {@endtemplate}
   final bool saveLayers;
 
-  PolylinePainter(this.polylineOpt, this.saveLayers);
+  final FlutterMapState map;
+
+  PolylinePainter(this.polylineOpt, this.saveLayers, this.map);
 
   @override
   void paint(Canvas canvas, Size size) {
     if (polylineOpt.offsets.isEmpty) {
       return;
     }
+
     final rect = Offset.zero & size;
     canvas.clipRect(rect);
+
+    late final double strokeWidth;
+    if (polylineOpt.useStrokeWidthInMeter) {
+      final firstPoint = polylineOpt.points.first;
+      final firstOffset = polylineOpt.offsets.first;
+      final r = const Distance().offset(
+        firstPoint,
+        polylineOpt.strokeWidth,
+        180,
+      );
+      final delta = firstOffset - map.getOffsetFromOrigin(r);
+
+      strokeWidth = delta.distance;
+    } else {
+      strokeWidth = polylineOpt.strokeWidth;
+    }
     final paint = Paint()
-      ..strokeWidth = polylineOpt.strokeWidth
+      ..strokeWidth = strokeWidth
       ..strokeCap = polylineOpt.strokeCap
       ..strokeJoin = polylineOpt.strokeJoin
       ..blendMode = BlendMode.srcOver;
@@ -163,7 +172,7 @@ class PolylinePainter extends CustomPainter {
     if (polylineOpt.borderColor != null) {
       filterPaint = Paint()
         ..color = polylineOpt.borderColor!.withAlpha(255)
-        ..strokeWidth = polylineOpt.strokeWidth
+        ..strokeWidth = strokeWidth
         ..strokeCap = polylineOpt.strokeCap
         ..strokeJoin = polylineOpt.strokeJoin
         ..blendMode = BlendMode.dstOut;
@@ -172,8 +181,7 @@ class PolylinePainter extends CustomPainter {
     final borderPaint = polylineOpt.borderStrokeWidth > 0.0
         ? (Paint()
           ..color = polylineOpt.borderColor ?? const Color(0x00000000)
-          ..strokeWidth =
-              polylineOpt.strokeWidth + polylineOpt.borderStrokeWidth
+          ..strokeWidth = strokeWidth + polylineOpt.borderStrokeWidth
           ..strokeCap = polylineOpt.strokeCap
           ..strokeJoin = polylineOpt.strokeJoin
           ..blendMode = BlendMode.srcOver)
@@ -181,7 +189,7 @@ class PolylinePainter extends CustomPainter {
     final radius = paint.strokeWidth / 2;
     final borderRadius = (borderPaint?.strokeWidth ?? 0) / 2;
     if (polylineOpt.isDotted) {
-      final spacing = polylineOpt.strokeWidth * 1.5;
+      final spacing = strokeWidth * 1.5;
       if (saveLayers) canvas.saveLayer(rect, Paint());
       if (borderPaint != null && filterPaint != null) {
         _paintDottedLine(
