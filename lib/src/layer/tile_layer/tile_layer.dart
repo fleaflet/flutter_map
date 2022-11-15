@@ -597,12 +597,14 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     // Increase the tilerange if we have panBuffer set, but make sure we
     // don't use values outside valid tiles, eg (0,-1).
-    tileRange = tileRange.extend(CustomPoint(
-        math.max(_globalTileRange.min.x, tileRange.min.x - panBuffer),
-        math.max(_globalTileRange.min.y, tileRange.min.y - panBuffer)));
-    tileRange = tileRange.extend(CustomPoint(
-        math.min(_globalTileRange.max.x, tileRange.max.x + panBuffer),
-        math.min(_globalTileRange.max.y, tileRange.max.y + panBuffer)));
+    if (panBuffer != 0) {
+      tileRange = tileRange.extend(CustomPoint(
+          math.max(_globalTileRange.min.x, tileRange.min.x - panBuffer),
+          math.max(_globalTileRange.min.y, tileRange.min.y - panBuffer)));
+      tileRange = tileRange.extend(CustomPoint(
+          math.min(_globalTileRange.max.x, tileRange.max.x + panBuffer),
+          math.min(_globalTileRange.max.y, tileRange.max.y + panBuffer)));
+    }
 
     final tileCenter = tileRange.center;
     final queue = <Coords<double>>[];
