@@ -8,34 +8,8 @@ Thunderstorm's pricing page: [thunderforest.com/pricing](https://www.thunderfore
 Thunderstorm's documentation page: [thunderforest.com/docs/map-tiles-api](https://www.thunderforest.com/docs/map-tiles-api)
 {% endhint %}
 
-{% hint style="info" %}
-We're writing documentation for the Thunderforest website, as you read this!
+Thunderforest is a popular tiered-payment (with free tier) tile provider solution, especially for generic mapping applications. Note that using 'flutter\_map' uses up your 'Map Tiles API' requests.
 
-Once complete, we'll be replacing this page with a link to the appropriate docs page over on their site.
-{% endhint %}
-
-Thunderforest is a popular tiered-payment (with free tier) tile provider solution, especially for generic mapping applications. Setup with 'flutter\_map' is relatively straightforward, but this page provides an example anyway. Note that this method uses up your 'Map Tiles API' requests.
-
-Find the style you want. We'll be using OpenCycleMap to demonstrate.
-
-Under 'Use this style' there should be a URL: copy this.
-
-You should remove the 'apikey' (found at the end of the URL) from the URL for readability. Instead, pass it to `additionalOptions`.
-
-```dart
-FlutterMap(
-    options: MapOptions(
-      center: LatLng(51.5, -0.09),
-      zoom: 13.0,
-    ),
-    children: [
-      TileLayer(
-        urlTemplate: "https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey={apikey}",
-        additionalOptions: {
-            "apikey": "<API-KEY>",
-        },
-        userAgentPackageName: 'com.example.app',
-      ),
-    ],
-);
-```
+{% embed url="https://www.thunderforest.com/tutorials/flutter/" %}
+Visit our documentation over on Thunderforest's site
+{% endembed %}

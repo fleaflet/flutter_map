@@ -18,4 +18,4 @@ When submitting a plugin & PR, please ensure the plugin:
 * includes a runnable example and/or screenshots/screen-recordings
 * has a description that accurately and concisely represents your plugin
 
-If you want to provide extra assistance to your users in a shared space, consider the official 'flutter\_map' Discord server! Join using the button at the top of this page, and ping '@Github Maintainer' to be added to the 'Plugin Owner' role. You can then be easily identified and provide help or announcements in a dedicated plugins channel.
+If you want to provide extra assistance to your users in a shared space, consider the official 'flutter\_map' Discord server! Join using the link at the bottom of this page, and ping '@Github Maintainer' to be added to the 'Plugin Owner' role. You can then be easily identified and provide help or announcements in a dedicated plugins channel.

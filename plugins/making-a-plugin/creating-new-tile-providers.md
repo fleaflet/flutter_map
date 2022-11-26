@@ -13,7 +13,7 @@ class CustomTileProvider extends TileProvider {
     // Add your own custom properties, methods, etc.
     CustomTileProvider({
         // Suitably initialise your own custom properties
-        super.headers, // Use the Dart 2.17 `super` syntax to initialse the base's header `Map`
+        super.headers, // Use the Dart 2.17 `super` syntax to initialise the base's header `Map`
     })
 }
 ```

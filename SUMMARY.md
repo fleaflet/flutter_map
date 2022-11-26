@@ -12,11 +12,11 @@
 
 ## Usage
 
-* [The Basics](usage/basics.md)
-* [Options](usage/options/README.md)
+* [1⃣ Base Widget](usage/basics.md)
+* [2⃣ Options](usage/options/README.md)
   * [Recommended Options](usage/options/recommended-options.md)
   * [Other Options](usage/options/other-options.md)
-* [Layers](usage/layers/README.md)
+* [3⃣ Layers](usage/layers/README.md)
   * [Tile Layer](usage/layers/tile-layer/README.md)
     * [Recommended Options](usage/layers/tile-layer/recommended-options.md)
     * [Tile Providers](usage/layers/tile-layer/tile-providers.md)
@@ -27,7 +27,7 @@
   * [Circle Layer](usage/layers/circle-layer.md)
   * [Attribution Layer](usage/layers/attribution-layer.md)
   * [WMS Usage](usage/layers/wms-usage.md)
-* [Controller](usage/controller.md)
+* [4⃣ Controller](usage/controller.md)
 * [Full API Reference](https://pub.dev/documentation/flutter\_map/latest/flutter\_map/flutter\_map-library.html)
 
 ## Plugins

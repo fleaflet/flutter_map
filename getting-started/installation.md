@@ -6,7 +6,7 @@ This is the recommended method of installing this package as it ensures you only
 
 Just import the package as you would normally, from the command line:
 
-```shell
+```bash
 flutter pub add flutter_map
 ```
 

@@ -1,31 +1,16 @@
-# The Basics
+# 1⃣ Base Widget
 
-## Map Widget
-
-```dart
-FlutterMap(
-    mapController: MapController(),
+<pre class="language-dart"><code class="lang-dart"><strong>FlutterMap(
+</strong>    mapController: _mapController,
     options: MapOptions(),
     children: [],
-),
-```
+    nonRotatedChildren: [],
+);</code></pre>
 
-This is the main widget for this library, and it takes three main properties. options, children/layers, and a map controller which you can use to control the map from behind the scenes. These will be described in the following sections.
-
-*   ``[`options`](options/) (required)
-
-    Takes a `MapOptions` that is used to configure overall map options and options that don't directly affect appearance.
-*   ``[`children`](layers/) (required)
-
-    Takes a list of `Widget`s that will be displayed on the map. These can be any widget, but are usually map layers. `nonRotatedChildren` is also available, and acts more like a `Stack`.
-*   ``[`mapController`](controller.md) (optional)
-
-    Takes a `MapController` that can be used to programmatically control the map, as well as listen to an events `Stream`.
+<table data-card-size="large" data-view="cards"><thead><tr><th></th><th data-type="select"></th><th></th><th data-hidden data-card-target data-type="content-ref"></th></tr></thead><tbody><tr><td><code>options</code> (<code>MapOptions</code>)</td><td></td><td>Configure options that don't directly affect the appearance of the map, such as starting location and maximum zoom limit.</td><td><a href="options/">options</a></td></tr><tr><td><code>mapController</code></td><td></td><td>Attach a controller object to control the map programatically, including panning and zooming.</td><td><a href="controller.md">controller.md</a></td></tr><tr><td><code>children</code></td><td></td><td>Takes a <code>List</code> of <code>Widgets</code> (usually a dedicated 'layer') to display on the map, such as tile layers or polygon layers,</td><td><a href="layers/">layers</a></td></tr><tr><td><code>nonRotatedChildren</code></td><td></td><td>Similar to <code>children</code>, but these don't rotate or move with the other layers.</td><td></td></tr></tbody></table>
 
 {% hint style="warning" %}
-Do not use `nonRotatedChildren` to enforce a non-rotatable `TileLayer`.
-
-Instead, use [`interactiveFlags` inside `MapOptions`](options/other-options.md#interactivity-settings-interactiveflags).
+Do not use `nonRotatedChildren` to enforce a non-rotatable map. Instead, use [`interactiveFlags` inside `MapOptions`](options/other-options.md#interactivity-settings-interactiveflags).
 {% endhint %}
 
 ## Placement Recommendations
@@ -38,4 +23,4 @@ As such, we recommend using a depth-based layout (eg. using `Stack`s) instead of
 * [https://pub.dev/packages/sliding\_up\_panel](https://pub.dev/packages/sliding\_up\_panel)
 * [https://pub.dev/packages/material\_floating\_search\_bar](https://pub.dev/packages/material\_floating\_search\_bar)
 
-If you need to restrict the widget's size, you won't find a `height` or `width` property. Instead, use a `SizedBox` or `Column`/`Row` & `Expanded`.
+If you must restrict the widget's size, you won't find a `height` or `width` property. Instead, use a `SizedBox` or `Column`/`Row` & `Expanded`.

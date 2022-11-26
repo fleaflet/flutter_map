@@ -1,3 +1,7 @@
+---
+description: aka. Frequently Asked Questions
+---
+
 # Other Questions
 
 If you have a question you'd like to add to this page, please let us know over on the Discord server!
@@ -6,7 +10,7 @@ You should also read the [explanation](../getting-started/explanation/ "mention"
 
 <details>
 
-<summary>Routing</summary>
+<summary>Routing/Navigation</summary>
 
 Routing is currently out-of-scope for 'flutter\_map'. However, if you can get a list of coordinates from a 3rd party, then you can use the [polyline-layer.md](../usage/layers/polyline-layer.md "mention") to show it!
 
@@ -40,27 +44,11 @@ However, tilesets can be styled. This is the most effective way of using custom 
 
 <details>
 
-<summary>Animate <code>MapController</code></summary>
+<summary>Animated <code>MapController</code></summary>
 
 It's possible to animate the movements made by a `MapController`, although this isn't implemented in this library.
 
 For an example of how to do this, please see the [example app's Animated Map Controller page](https://github.com/fleaflet/flutter\_map/blob/master/example/lib/pages/animated\_map\_controller.dart).
-
-</details>
-
-<details>
-
-<summary>Map Resetting in Complex Layouts</summary>
-
-See [#keep-alive-keepalive](../usage/options/recommended-options.md#keep-alive-keepalive "mention").
-
-</details>
-
-<details>
-
-<summary><code>LateInitializationError</code>s &#x26; <code>BadState</code> Errors</summary>
-
-See [map-controller-issues.md](map-controller-issues.md "mention").
 
 </details>
 

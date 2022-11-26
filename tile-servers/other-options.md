@@ -1,7 +1,19 @@
 # Other Options
 
-There are plenty of other tile servers you can choose from, free or paid. Most provide a static tile service/API, usually called Static Tiles or just Tile Requests (if no Vector tiles are supported). You aren't usually looking for Static Maps: these are different.
+## Other servers
 
-A good catalogue of servers (usually called Providers elsewhere) can be found at [Switch2OSM](https://switch2osm.github.io/providers/).
+There are plenty of other tile servers you can choose from, free or paid. Most provide a static tile service/API, usually called Static Tiles or just Tile Requests (if no vector tiles are supported).
 
-Switch2OSM also provides detailed instructions on [how to host your own tiles](https://switch2osm.github.io/serving-tiles/): this can be surprisingly economical and enjoyable if you don't mind a few hours in a Linux console. However, this will require a very high-spec computer, especially for larger areas.
+A good catalogue of servers (usually called Providers elsewhere) can be found at the websites below:
+
+{% embed url="https://wiki.openstreetmap.org/wiki/Raster_tile_providers" %}
+
+{% embed url="https://switch2osm.github.io/providers/" %}
+
+## Serving your own tiles
+
+Switch2OSM also provides detailed instructions on how to serve your own tiles: this can be surprisingly economical and enjoyable if you don't mind a few hours in a Linux console. However, this will require a very high-spec computer, especially for larger areas, and hosting this might be more complicated than it's worth.
+
+{% embed url="https://switch2osm.github.io/serving-tiles/" %}
+Serving your own tiles
+{% endembed %}
