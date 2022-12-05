@@ -156,14 +156,16 @@ class FlutterMapState extends MapGestureMixin
       },
     );
 
-
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
       //Update on layout change
       setSize(constraints.maxWidth, constraints.maxHeight);
 
-      if (options.bounds != null && !_hasFitInitialBounds && constraints.maxWidth != 0.0) {
-        final target = getBoundsCenterZoom(options.bounds!, options.boundsOptions);
+      if (options.bounds != null &&
+          !_hasFitInitialBounds &&
+          constraints.maxWidth != 0.0) {
+        final target =
+            getBoundsCenterZoom(options.bounds!, options.boundsOptions);
         _zoom = target.zoom;
         _center = target.center;
         _hasFitInitialBounds = true;
