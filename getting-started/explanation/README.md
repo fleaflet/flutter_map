@@ -53,6 +53,12 @@ Unless you choose to implement your own custom tile provider, you should never n
 
 For more information about setting up a tile provider within the API, see [tile-providers.md](../../usage/layers/tile-layer/tile-providers.md "mention").
 
+{% hint style="info" %}
+This can be quite confusing for newcomers!
+
+Within this library, 'tile providers' use 'tile servers' to retrieve tiles from the Internet. On the other hand, 'tile servers' and external sites usually use 'tile providers' to mean 'tile servers'!
+{% endhint %}
+
 ## Map Layers
 
 Once the tile provider has dealt with the tile, it sends it to a map layer to get painted onto the map. This can be done using canvases (such as in HTML5 for the web), or, in the case of 'flutter\_map', Flutter widgets.

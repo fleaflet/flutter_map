@@ -54,7 +54,6 @@
 ## Migration
 
 * [To v3.0.0](migration/to-v3.0.0.md)
-* [To v2.1.0, v2.2.0](migration/to-v2.1.0-v2.2.0.md)
 * [To v2.0.0](migration/to-v2.0.0.md)
 * [Older Versions](migration/older-versions/README.md)
   * [To v1.1.0](migration/older-versions/to-v1.1.0.md)

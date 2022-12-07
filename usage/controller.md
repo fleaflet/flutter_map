@@ -1,4 +1,4 @@
-# Controller
+# 4⃣ Controller
 
 The `mapController` property takes a `MapController`, and whilst it is optional, it is strongly recommended for any map other than the most basic. It allows you to programmatically interact with the map, such as panning, zooming and rotating.
 
@@ -64,4 +64,6 @@ Widget build(BuildContext context) =>
 
 ## Available Methods
 
-For all the available methods and getters, see the [Full API Reference](https://pub.dev/documentation/flutter\_map/latest/flutter\_map/MapController-class.html).
+{% embed url="https://pub.dev/documentation/flutter_map/latest/flutter_map/MapController-class.html" %}
+Full API Reference
+{% endembed %}
