@@ -10,7 +10,7 @@ class Polyline {
   final Key? key;
   final List<LatLng> points;
   final List<Offset> offsets = [];
-  double strokeWidth;
+  final double strokeWidth;
   final Color color;
   final double borderStrokeWidth;
   final Color? borderColor;
