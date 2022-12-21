@@ -138,6 +138,12 @@ class TileLayer extends StatefulWidget {
   /// unloading them.
   final int keepBuffer;
 
+  /// When panning the map, extend the tilerange by this many tiles in each
+  /// direction.
+  /// Will cause extra tile loads, and impact performance.
+  /// Be careful increasing this beyond 0 or 1.
+  final int panBuffer;
+
   /// Tile image to show in place of the tile that failed to load.
   final ImageProvider? errorImage;
 
@@ -254,6 +260,7 @@ class TileLayer extends StatefulWidget {
     Map<String, String>? additionalOptions,
     this.subdomains = const <String>[],
     this.keepBuffer = 2,
+    this.panBuffer = 0,
     this.backgroundColor = const Color(0xFFE0E0E0),
     this.errorImage,
     TileProvider? tileProvider,
@@ -584,7 +591,21 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     center ??= map.center;
 
     final pixelBounds = _getTiledPixelBounds(map, center);
-    final tileRange = _pxBoundsToTileRange(pixelBounds);
+    Bounds tileRange = _pxBoundsToTileRange(pixelBounds);
+
+    final panBuffer = widget.panBuffer;
+
+    // Increase the tilerange if we have panBuffer set, but make sure we
+    // don't use values outside valid tiles, eg (0,-1).
+    if (panBuffer != 0) {
+      tileRange = tileRange.extend(CustomPoint(
+          math.max(_globalTileRange.min.x, tileRange.min.x - panBuffer),
+          math.max(_globalTileRange.min.y, tileRange.min.y - panBuffer)));
+      tileRange = tileRange.extend(CustomPoint(
+          math.min(_globalTileRange.max.x, tileRange.max.x + panBuffer),
+          math.min(_globalTileRange.max.y, tileRange.max.y + panBuffer)));
+    }
+
     final tileCenter = tileRange.center;
     final queue = <Coords<double>>[];
     final margin = widget.keepBuffer;
