@@ -1,5 +1,35 @@
 # Changelog
 
+## [3.1.0] - 2022/12/21
+
+Contains the following additions/removals:
+
+- Added fallback URLs - [#1348](https://github.com/fleaflet/flutter_map/pull/1348) for [#1203](https://github.com/fleaflet/flutter_map/issues/1203)
+- Added parameter to force integer zoom levels to `FitBoundsOptions` - [#1367](https://github.com/fleaflet/flutter_map/pull/1367)
+- Added `Key`s to `Polygon`s, `Polyline`s, and `CircleMarker`s - [#1402](https://github.com/fleaflet/flutter_map/pull/1402) & [#1403](https://github.com/fleaflet/flutter_map/pull/1403)
+- Added `Polyline` parameter to treat width in meters - [#1404](https://github.com/fleaflet/flutter_map/pull/1404)
+- Added buffer feature to `TileLayer` to preload surrounding tiles - [#1405](https://github.com/fleaflet/flutter_map/pull/1405) for [#1337](https://github.com/fleaflet/flutter_map/issues/1337)
+- Deprecated obsolete parameter - [#1368](https://github.com/fleaflet/flutter_map/pull/1368)
+
+Contains the following bug fixes:
+
+- Improved tile handling to simplify internals - [#1356](https://github.com/fleaflet/flutter_map/pull/1356)
+- Improved performance by removing unnecessary casts - [#1357](https://github.com/fleaflet/flutter_map/pull/1357)
+- Fixed ESPG:3413 example - [#1359](https://github.com/fleaflet/flutter_map/pull/1359)
+- Fixed tile layer reset example - [#1372](https://github.com/fleaflet/flutter_map/pull/1372)
+- Fixed issue with `MapController` movement - [#1374](https://github.com/fleaflet/flutter_map/pull/1374)
+- Fixed flickering issue with `fitBounds` - [#1376](https://github.com/fleaflet/flutter_map/pull/1376)
+- Fixed `fitBounds`/`bounds` not working on first display - [#1413](https://github.com/fleaflet/flutter_map/pull/1413)
+- Fixed error when zooming - [#1388](https://github.com/fleaflet/flutter_map/pull/1388)
+
+Many thanks to these contributors (in no particular order):
+
+- @JosefWN
+- @Robbendebiene
+- @urusai88
+- @LeonTenorio
+- ... and all the maintainers
+
 ## [3.0.0] - 2022/09/04
 
 Contains the following additions/removals:
