@@ -23,9 +23,19 @@ class _PolylinePageState extends State<PolylinePage> {
           LatLng(51.3498, -6.2603),
           LatLng(53.8566, 2.3522),
         ],
-        strokeWidth: 4,
+        strokeWidth: 1,
         color: Colors.amber,
       ),
+      for(int i = 0; i < 1000; i++)
+        Polyline(
+          points: [
+            LatLng(60.5 + (i /100), -10.09 - (i /100)),
+            LatLng(61.3498 - (i /100), -16.2603 + (i /100)),
+            LatLng(63.8566 + (i /100), 12.3522 - (i /100)),
+          ],
+          strokeWidth: 1,
+          color: Colors.green,
+        ),
     ];
     await Future<void>.delayed(const Duration(seconds: 3));
     return polyLines;

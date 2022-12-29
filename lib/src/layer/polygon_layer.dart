@@ -257,7 +257,7 @@ class PolygonPainter extends CustomPainter {
     for (var i = 0; i < offsets.length; i++) {
       final o0 = offsets[i % offsets.length];
       final o1 = offsets[(i + 1) % offsets.length];
-      final totalDistance = _dist(o0, o1);
+      final totalDistance = (o0 - o1).distance;
       var distance = startDistance;
       while (distance < totalDistance) {
         final f1 = distance / totalDistance;
@@ -275,10 +275,4 @@ class PolygonPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(PolygonPainter oldDelegate) => false;
-
-  double _dist(Offset v, Offset w) => sqrt(_dist2(v, w));
-
-  double _dist2(Offset v, Offset w) => _sqr(v.dx - w.dx) + _sqr(v.dy - w.dy);
-
-  double _sqr(double x) => x * x;
 }
