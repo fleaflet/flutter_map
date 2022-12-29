@@ -49,6 +49,20 @@ class PolygonPage extends StatelessWidget {
       LatLng(59.77, -10.28),
     ];
 
+    final holeOuterPoints = <LatLng>[
+      LatLng(50.0, -18.0),
+      LatLng(50.0, -14.0),
+      LatLng(54.0, -14.0),
+      LatLng(54.0, -18.0),
+    ];
+
+    final holeInnerPoints = <LatLng>[
+      LatLng(51.0, -17.0),
+      LatLng(51.0, -16.0),
+      LatLng(52.0, -16.0),
+      LatLng(52.0, -17.0),
+    ];
+
     return Scaffold(
       appBar: AppBar(title: const Text('Polygons')),
       drawer: buildDrawer(context, PolygonPage.route),
@@ -92,6 +106,7 @@ class PolygonPage extends StatelessWidget {
                       isDotted: true,
                       borderColor: Colors.green,
                       borderStrokeWidth: 4,
+                      color: Colors.yellow,
                     ),
                     Polygon(
                       points: filledDotedPoints,
@@ -99,7 +114,7 @@ class PolygonPage extends StatelessWidget {
                       isDotted: true,
                       borderStrokeWidth: 4,
                       borderColor: Colors.lightBlue,
-                      color: Colors.lightBlue,
+                      color: Colors.yellow,
                     ),
                     Polygon(
                       points: labelPoints,
@@ -108,11 +123,20 @@ class PolygonPage extends StatelessWidget {
                       label: "Label!",
                     ),
                     Polygon(
-                        points: labelRotatedPoints,
-                        borderStrokeWidth: 4,
-                        borderColor: Colors.purple,
-                        label: "Rotated!",
-                        rotateLabel: true),
+                      points: labelRotatedPoints,
+                      borderStrokeWidth: 4,
+                      borderColor: Colors.purple,
+                      label: "Rotated!",
+                      rotateLabel: true,
+                    ),
+                    Polygon(
+                      points: holeOuterPoints,
+                      //holePointsList: [],
+                      holePointsList: [holeInnerPoints],
+                      borderStrokeWidth: 4,
+                      borderColor: Colors.green,
+                      color: Colors.pink.withOpacity(0.5),
+                    ),
                   ]),
                 ],
               ),

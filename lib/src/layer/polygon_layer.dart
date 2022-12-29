@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -12,11 +13,9 @@ enum PolygonLabelPlacement {
 }
 
 class Polygon {
-  final Key? key;
   final List<LatLng> points;
-  final List<Offset> offsets = [];
   final List<List<LatLng>>? holePointsList;
-  final List<List<Offset>>? holeOffsetsList;
+
   final Color color;
   final double borderStrokeWidth;
   final Color borderColor;
@@ -25,15 +24,19 @@ class Polygon {
   final bool isFilled;
   final StrokeCap strokeCap;
   final StrokeJoin strokeJoin;
-  late final LatLngBounds boundingBox;
   final String? label;
   final TextStyle labelStyle;
   final PolygonLabelPlacement labelPlacement;
   final bool rotateLabel;
 
+  LatLngBounds? _boundingBox;
+  LatLngBounds get boundingBox {
+    _boundingBox ??= LatLngBounds.fromPoints(points);
+    return _boundingBox!;
+  }
+
   Polygon({
     required this.points,
-    this.key,
     this.holePointsList,
     this.color = const Color(0xFF00FF00),
     this.borderStrokeWidth = 0.0,
@@ -47,9 +50,19 @@ class Polygon {
     this.labelStyle = const TextStyle(),
     this.labelPlacement = PolygonLabelPlacement.centroid,
     this.rotateLabel = false,
-  }) : holeOffsetsList = null == holePointsList || holePointsList.isEmpty
-            ? null
-            : List.generate(holePointsList.length, (_) => []);
+  });
+
+  /// Used to batch draw calls to the canvas.
+  int get renderHashCode => Object.hash(
+      holePointsList?.length ?? 0,
+      color,
+      borderStrokeWidth,
+      borderColor,
+      isDotted,
+      isFilled,
+      strokeCap,
+      strokeJoin,
+      labelStyle);
 }
 
 class PolygonLayer extends StatelessWidget {
@@ -58,133 +71,169 @@ class PolygonLayer extends StatelessWidget {
   /// screen space culling of polygons based on bounding box
   final bool polygonCulling;
 
-  PolygonLayer({
+  const PolygonLayer({
     super.key,
     this.polygons = const [],
     this.polygonCulling = false,
-  }) {
-    if (polygonCulling) {
-      for (final polygon in polygons) {
-        polygon.boundingBox = LatLngBounds.fromPoints(polygon.points);
-      }
-    }
-  }
+  });
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints bc) {
-        final map = FlutterMapState.maybeOf(context)!;
         final size = Size(bc.maxWidth, bc.maxHeight);
-        final polygonsWidget = <Widget>[];
+        final map = FlutterMapState.maybeOf(context)!;
 
-        for (final polygon in polygons) {
-          polygon.offsets.clear();
+        final Iterable<Polygon> pgons = polygonCulling
+            ? polygons.where((p) {
+                return p.boundingBox.isOverlapping(map.bounds);
+              })
+            : polygons;
 
-          if (null != polygon.holeOffsetsList) {
-            for (final offsets in polygon.holeOffsetsList!) {
-              offsets.clear();
-            }
-          }
-
-          if (polygonCulling &&
-              !polygon.boundingBox.isOverlapping(map.bounds)) {
-            // skip this polygon as it's offscreen
-            continue;
-          }
-
-          _fillOffsets(polygon.offsets, polygon.points, map);
-
-          if (null != polygon.holePointsList) {
-            final len = polygon.holePointsList!.length;
-            for (var i = 0; i < len; ++i) {
-              _fillOffsets(
-                  polygon.holeOffsetsList![i], polygon.holePointsList![i], map);
-            }
-          }
-
-          polygonsWidget.add(
-            CustomPaint(
-              key: polygon.key,
-              painter: PolygonPainter(polygon, map.rotationRad),
-              size: size,
-            ),
-          );
-        }
-
-        return Stack(
-          children: polygonsWidget,
+        return CustomPaint(
+          key: UniqueKey(),
+          painter: PolygonPainter(pgons, map),
+          size: size,
         );
       },
     );
   }
-
-  void _fillOffsets(final List<Offset> offsets, final List<LatLng> points,
-      FlutterMapState map) {
-    final len = points.length;
-    for (var i = 0; i < len; ++i) {
-      final point = points[i];
-      final offset = map.getOffsetFromOrigin(point);
-      offsets.add(offset);
-    }
-  }
 }
 
 class PolygonPainter extends CustomPainter {
-  final Polygon polygonOpt;
-  final double rotationRad;
+  final Iterable<Polygon> polygons;
+  final FlutterMapState map;
 
-  PolygonPainter(this.polygonOpt, this.rotationRad);
+  const PolygonPainter(this.polygons, this.map);
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (polygonOpt.offsets.isEmpty) {
-      return;
-    }
     final rect = Offset.zero & size;
-    _paintPolygon(canvas, rect);
-  }
 
-  void _paintBorder(Canvas canvas) {
-    if (polygonOpt.borderStrokeWidth > 0.0) {
-      final borderPaint = Paint()
-        ..color = polygonOpt.borderColor
-        ..strokeWidth = polygonOpt.borderStrokeWidth;
+    var path = ui.Path();
+    var paint = Paint();
+    var borderPath = ui.Path();
+    Paint? borderPaint;
+    int? lastHash;
 
-      if (polygonOpt.isDotted) {
-        final borderRadius = (polygonOpt.borderStrokeWidth / 2);
+    void drawPaths() {
+      canvas.drawPath(path, paint);
+      path = ui.Path();
+      paint = Paint();
 
-        final spacing = polygonOpt.borderStrokeWidth * 1.5;
-        _paintDottedLine(
-            canvas, polygonOpt.offsets, borderRadius, spacing, borderPaint);
+      if (borderPaint != null) {
+        canvas.drawPath(borderPath, borderPaint!);
+        borderPath = ui.Path();
+        borderPaint = null;
+      }
+    }
 
-        if (!polygonOpt.disableHolesBorder &&
-            null != polygonOpt.holeOffsetsList) {
-          for (final offsets in polygonOpt.holeOffsetsList!) {
-            _paintDottedLine(
-                canvas, offsets, borderRadius, spacing, borderPaint);
-          }
+    for (final polygon in polygons) {
+      final offsets = _getOffsets(polygon.points, map);
+      if (offsets.isEmpty) {
+        continue;
+      }
+
+      final hash = polygon.renderHashCode;
+      if (lastHash != null && lastHash != hash) {
+        drawPaths();
+      }
+      lastHash = hash;
+
+      final holeOffsetsList = List<List<Offset>>.generate(
+          polygon.holePointsList?.length ?? 0,
+          (i) => _getOffsets(polygon.holePointsList![i], map));
+
+      if (holeOffsetsList.isEmpty) {
+        if (polygon.isFilled) {
+          paint = Paint()
+            ..style = PaintingStyle.fill
+            ..strokeWidth = polygon.borderStrokeWidth
+            ..strokeCap = polygon.strokeCap
+            ..strokeJoin = polygon.strokeJoin
+            ..color = polygon.isFilled ? polygon.color : polygon.borderColor;
+
+          path.addPolygon(offsets, true);
         }
       } else {
-        borderPaint
-          ..style = PaintingStyle.stroke
-          ..strokeCap = polygonOpt.strokeCap
-          ..strokeJoin = polygonOpt.strokeJoin;
+        paint = Paint()
+          ..style = PaintingStyle.fill
+          ..color = polygon.color;
 
-        _paintLine(canvas, polygonOpt.offsets, borderPaint);
+        // Ideally we'd use `Path.combine(PathOperation.difference, ...)`
+        // instead of evenOdd fill-type, however it creates visual artifacts
+        // using the web renderer.
+        path.fillType = PathFillType.evenOdd;
 
-        if (!polygonOpt.disableHolesBorder &&
-            null != polygonOpt.holeOffsetsList) {
-          for (final offsets in polygonOpt.holeOffsetsList!) {
-            _paintLine(canvas, offsets, borderPaint);
-          }
+        path.addPolygon(offsets, true);
+        for (final holeOffsets in holeOffsetsList) {
+          path.addPolygon(holeOffsets, true);
+        }
+      }
+
+      // Only draw the  border explicitly if it isn't alrady a stroke-style
+      // polygon.
+      if (polygon.borderStrokeWidth > 0.0) {
+        borderPaint = _getBorderPaint(polygon);
+        _paintBorder(borderPath, polygon, offsets, holeOffsetsList);
+      }
+
+      if (polygon.label != null) {
+        // Labels are expensive they mess with draw batching.
+        drawPaths();
+
+        Label.paintText(
+          canvas,
+          offsets,
+          polygon.label,
+          polygon.labelStyle,
+          map.rotationRad,
+          rotate: polygon.rotateLabel,
+          labelPlacement: polygon.labelPlacement,
+        );
+      }
+    }
+
+    drawPaths();
+    canvas.clipRect(rect);
+  }
+
+  Paint _getBorderPaint(Polygon polygon) {
+    final isDotted = polygon.isDotted;
+    return Paint()
+      ..color = polygon.borderColor
+      ..strokeWidth = polygon.borderStrokeWidth
+      ..strokeCap = polygon.strokeCap
+      ..strokeJoin = polygon.strokeJoin
+      ..style = isDotted ? PaintingStyle.fill : PaintingStyle.stroke;
+  }
+
+  void _paintBorder(ui.Path path, Polygon polygon, List<Offset> offsets,
+      List<List<Offset>> holeOffsetsList) {
+    if (polygon.isDotted) {
+      final borderRadius = (polygon.borderStrokeWidth / 2);
+      final spacing = polygon.borderStrokeWidth * 1.5;
+
+      _paintDottedLine(path, offsets, borderRadius, spacing);
+
+      if (!polygon.disableHolesBorder) {
+        for (final offsets in holeOffsetsList) {
+          _paintDottedLine(path, offsets, borderRadius, spacing);
+        }
+      }
+    } else {
+      _paintLine(path, offsets);
+
+      if (!polygon.disableHolesBorder) {
+        for (final offsets in holeOffsetsList) {
+          _paintLine(path, offsets);
         }
       }
     }
   }
 
-  void _paintDottedLine(Canvas canvas, List<Offset> offsets, double radius,
-      double stepLength, Paint paint) {
+  void _paintDottedLine(
+      ui.Path path, List<Offset> offsets, double radius, double stepLength) {
     var startDistance = 0.0;
     for (var i = 0; i < offsets.length; i++) {
       final o0 = offsets[i % offsets.length];
@@ -195,87 +244,35 @@ class PolygonPainter extends CustomPainter {
         final f1 = distance / totalDistance;
         final f0 = 1.0 - f1;
         final offset = Offset(o0.dx * f0 + o1.dx * f1, o0.dy * f0 + o1.dy * f1);
-        canvas.drawCircle(offset, radius, paint);
+        path.addOval(Rect.fromCircle(center: offset, radius: radius));
         distance += stepLength;
       }
       startDistance = distance < totalDistance
           ? stepLength - (totalDistance - distance)
           : distance - totalDistance;
     }
-    canvas.drawCircle(offsets.last, radius, paint);
+    path.addOval(Rect.fromCircle(center: offsets.last, radius: radius));
   }
 
-  void _paintLine(Canvas canvas, List<Offset> offsets, Paint paint) {
+  void _paintLine(ui.Path path, List<Offset> offsets) {
     if (offsets.isEmpty) {
       return;
     }
-    final path = Path()..addPolygon(offsets, true);
-    canvas.drawPath(path, paint);
-  }
-
-  void _paintPolygon(Canvas canvas, Rect rect) {
-    final paint = Paint();
-
-    if (null != polygonOpt.holeOffsetsList) {
-      canvas.saveLayer(rect, paint);
-      paint.style = PaintingStyle.fill;
-
-      for (final offsets in polygonOpt.holeOffsetsList!) {
-        final path = Path();
-        path.addPolygon(offsets, true);
-        canvas.drawPath(path, paint);
-      }
-
-      paint
-        ..color = polygonOpt.color
-        ..blendMode = BlendMode.srcOut;
-
-      final path = Path();
-      path.addPolygon(polygonOpt.offsets, true);
-      canvas.drawPath(path, paint);
-
-      _paintBorder(canvas);
-
-      canvas.restore();
-    } else {
-      canvas.clipRect(rect);
-      paint
-        ..style =
-            polygonOpt.isFilled ? PaintingStyle.fill : PaintingStyle.stroke
-        ..color = polygonOpt.color;
-
-      final path = Path();
-      path.addPolygon(polygonOpt.offsets, true);
-      canvas.drawPath(path, paint);
-
-      _paintBorder(canvas);
-
-      if (polygonOpt.label != null) {
-        Label.paintText(
-          canvas,
-          polygonOpt.offsets,
-          polygonOpt.label,
-          polygonOpt.labelStyle,
-          rotationRad,
-          rotate: polygonOpt.rotateLabel,
-          labelPlacement: polygonOpt.labelPlacement,
-        );
-      }
-    }
+    path.addPolygon(offsets, true);
   }
 
   @override
-  bool shouldRepaint(PolygonPainter oldDelegate) => false;
+  bool shouldRepaint(PolygonPainter oldDelegate) => true;
+}
 
-  double _dist(Offset v, Offset w) {
-    return sqrt(_dist2(v, w));
-  }
+List<Offset> _getOffsets(List<LatLng> points, FlutterMapState map) {
+  return points.map((pos) => map.getOffsetFromOrigin(pos)).toList();
+}
 
-  double _dist2(Offset v, Offset w) {
-    return _sqr(v.dx - w.dx) + _sqr(v.dy - w.dy);
-  }
+double _dist(Offset v, Offset w) {
+  return sqrt(_sqr(v.dx - w.dx) + _sqr(v.dy - w.dy));
+}
 
-  double _sqr(double x) {
-    return x * x;
-  }
+double _sqr(double x) {
+  return x * x;
 }
