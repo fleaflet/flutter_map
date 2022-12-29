@@ -7,6 +7,7 @@ import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:latlong2/latlong.dart';
 
 class Polyline {
+  final Key? key;
   final List<LatLng> points;
   final List<Offset> offsets = [];
   final double strokeWidth;
@@ -18,10 +19,12 @@ class Polyline {
   final bool isDotted;
   final StrokeCap strokeCap;
   final StrokeJoin strokeJoin;
+  final bool useStrokeWidthInMeter;
   late LatLngBounds boundingBox;
 
   Polyline({
     required this.points,
+    this.key,
     this.strokeWidth = 1.0,
     this.color = const Color(0xFF00FF00),
     this.borderStrokeWidth = 0.0,
@@ -31,6 +34,7 @@ class Polyline {
     this.isDotted = false,
     this.strokeCap = StrokeCap.round,
     this.strokeJoin = StrokeJoin.round,
+    this.useStrokeWidthInMeter = false,
   });
 }
 
@@ -66,6 +70,7 @@ class PolylineLayer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final map = FlutterMapState.maybeOf(context)!;
+
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints bc) {
         final size = Size(bc.maxWidth, bc.maxHeight);
@@ -82,10 +87,13 @@ class PolylineLayer extends StatelessWidget {
 
           _fillOffsets(polylineOpt.offsets, polylineOpt.points, map);
 
-          polylineWidgets.add(CustomPaint(
-            painter: PolylinePainter(polylineOpt, saveLayers),
-            size: size,
-          ));
+          polylineWidgets.add(
+            CustomPaint(
+              key: polylineOpt.key,
+              painter: PolylinePainter(polylineOpt, saveLayers, map),
+              size: size,
+            ),
+          );
         }
 
         return Stack(
@@ -95,8 +103,11 @@ class PolylineLayer extends StatelessWidget {
     );
   }
 
-  void _fillOffsets(final List<Offset> offsets, final List<LatLng> points,
-      FlutterMapState map) {
+  void _fillOffsets(
+    final List<Offset> offsets,
+    final List<LatLng> points,
+    FlutterMapState map,
+  ) {
     final len = points.length;
     for (var i = 0; i < len; ++i) {
       final point = points[i];
@@ -115,17 +126,36 @@ class PolylinePainter extends CustomPainter {
   /// {@endtemplate}
   final bool saveLayers;
 
-  PolylinePainter(this.polylineOpt, this.saveLayers);
+  final FlutterMapState map;
+
+  PolylinePainter(this.polylineOpt, this.saveLayers, this.map);
 
   @override
   void paint(Canvas canvas, Size size) {
     if (polylineOpt.offsets.isEmpty) {
       return;
     }
+
     final rect = Offset.zero & size;
     canvas.clipRect(rect);
+
+    late final double strokeWidth;
+    if (polylineOpt.useStrokeWidthInMeter) {
+      final firstPoint = polylineOpt.points.first;
+      final firstOffset = polylineOpt.offsets.first;
+      final r = const Distance().offset(
+        firstPoint,
+        polylineOpt.strokeWidth,
+        180,
+      );
+      final delta = firstOffset - map.getOffsetFromOrigin(r);
+
+      strokeWidth = delta.distance;
+    } else {
+      strokeWidth = polylineOpt.strokeWidth;
+    }
     final paint = Paint()
-      ..strokeWidth = polylineOpt.strokeWidth
+      ..strokeWidth = strokeWidth
       ..strokeCap = polylineOpt.strokeCap
       ..strokeJoin = polylineOpt.strokeJoin
       ..blendMode = BlendMode.srcOver;
@@ -142,7 +172,7 @@ class PolylinePainter extends CustomPainter {
     if (polylineOpt.borderColor != null) {
       filterPaint = Paint()
         ..color = polylineOpt.borderColor!.withAlpha(255)
-        ..strokeWidth = polylineOpt.strokeWidth
+        ..strokeWidth = strokeWidth
         ..strokeCap = polylineOpt.strokeCap
         ..strokeJoin = polylineOpt.strokeJoin
         ..blendMode = BlendMode.dstOut;
@@ -151,8 +181,7 @@ class PolylinePainter extends CustomPainter {
     final borderPaint = polylineOpt.borderStrokeWidth > 0.0
         ? (Paint()
           ..color = polylineOpt.borderColor ?? const Color(0x00000000)
-          ..strokeWidth =
-              polylineOpt.strokeWidth + polylineOpt.borderStrokeWidth
+          ..strokeWidth = strokeWidth + polylineOpt.borderStrokeWidth
           ..strokeCap = polylineOpt.strokeCap
           ..strokeJoin = polylineOpt.strokeJoin
           ..blendMode = BlendMode.srcOver)
@@ -160,7 +189,7 @@ class PolylinePainter extends CustomPainter {
     final radius = paint.strokeWidth / 2;
     final borderRadius = (borderPaint?.strokeWidth ?? 0) / 2;
     if (polylineOpt.isDotted) {
-      final spacing = polylineOpt.strokeWidth * 1.5;
+      final spacing = strokeWidth * 1.5;
       if (saveLayers) canvas.saveLayer(rect, Paint());
       if (borderPaint != null && filterPaint != null) {
         _paintDottedLine(

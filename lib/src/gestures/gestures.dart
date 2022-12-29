@@ -387,7 +387,9 @@ abstract class MapGestureMixin extends State<FlutterMap>
           var mapRotated = false;
           if (hasMove || hasZoom) {
             double newZoom;
-            if (hasZoom) {
+            // checking details.scale to prevent situation whew details comes
+            // with zero scale
+            if (hasZoom && details.scale > 0.0) {
               newZoom = _getZoomForScale(
                   _mapZoomStart, details.scale + _scaleCorrector);
 

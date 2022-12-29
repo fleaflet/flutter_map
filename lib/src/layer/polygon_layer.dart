@@ -13,6 +13,7 @@ enum PolygonLabelPlacement {
 }
 
 class Polygon {
+  final Key? key;
   final List<LatLng> points;
   final List<List<LatLng>>? holePointsList;
   final Color color;
@@ -30,6 +31,7 @@ class Polygon {
 
   Polygon({
     required this.points,
+    this.key,
     this.holePointsList,
     this.color = const Color(0xFF00FF00),
     this.borderStrokeWidth = 0.0,
