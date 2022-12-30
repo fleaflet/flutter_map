@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
@@ -78,23 +79,28 @@ class PolylineLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints bc) {
-        final size = Size(bc.maxWidth, bc.maxHeight);
-        final map = FlutterMapState.maybeOf(context)!;
+    final map = FlutterMapState.maybeOf(context)!;
+    final size = Size(map.size.x, map.size.y);
+    final origin = map.pixelOrigin;
+    final offset = Offset(origin.x.toDouble(), origin.y.toDouble());
 
-        final Iterable<Polyline> lines = polylineCulling
-            ? polylines.where((p) {
-                return p.boundingBox.isOverlapping(map.bounds);
-              })
-            : polylines;
+    final Iterable<Polyline> lines = polylineCulling
+        ? polylines.where((p) {
+            return p.boundingBox.isOverlapping(map.bounds);
+          })
+        : polylines;
 
-        return CustomPaint(
-          key: UniqueKey(),
-          painter: PolylinePainter(lines, saveLayers, map),
-          size: size,
-        );
-      },
+    final paint = CustomPaint(
+      painter: PolylinePainter(lines, saveLayers, map),
+      size: size,
+      willChange: false,
+      isComplex: true,
+    );
+
+    return Positioned(
+      left: -offset.dx,
+      top: -offset.dy,
+      child: kIsWeb ? paint : RepaintBoundary(child: paint),
     );
   }
 }
@@ -109,17 +115,32 @@ class PolylinePainter extends CustomPainter {
   final bool saveLayers;
 
   final FlutterMapState map;
+  final double zoom;
+  final double rotation;
 
-  const PolylinePainter(this.polylines, this.saveLayers, this.map);
+  PolylinePainter(this.polylines, this.saveLayers, this.map)
+      : zoom = map.zoom,
+        rotation = map.rotation;
+
+  int get hash {
+    _hash ??= Object.hashAll(polylines);
+    return _hash!;
+  }
+
+  int? _hash;
 
   List<Offset> getOffsets(List<LatLng> points) {
-    return points.map((pos) => map.getOffsetFromOrigin(pos)).toList();
+    return points.map((pos) => getOffset(pos)).toList();
+  }
+
+  Offset getOffset(LatLng point) {
+    final delta = map.project(point);
+    return Offset(delta.x.toDouble(), delta.y.toDouble());
   }
 
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
-    canvas.clipRect(rect);
 
     var path = ui.Path();
     var borderPath = ui.Path();
@@ -168,7 +189,7 @@ class PolylinePainter extends CustomPainter {
           polyline.strokeWidth,
           180,
         );
-        final delta = firstOffset - map.getOffsetFromOrigin(r);
+        final delta = firstOffset - getOffset(r);
 
         strokeWidth = delta.distance;
       } else {
@@ -284,7 +305,12 @@ class PolylinePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(PolylinePainter oldDelegate) => true;
+  bool shouldRepaint(PolylinePainter oldDelegate) {
+    return kIsWeb ||
+        oldDelegate.zoom != zoom ||
+        oldDelegate.rotation != rotation ||
+        oldDelegate.hash != hash;
+  }
 }
 
 double _dist(Offset v, Offset w) {
