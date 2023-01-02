@@ -6,6 +6,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/label.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:latlong2/latlong.dart' hide Path; // conflict with Path from UI
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 enum PolygonLabelPlacement {
   centroid,
@@ -79,23 +80,27 @@ class PolygonLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints bc) {
-        final size = Size(bc.maxWidth, bc.maxHeight);
-        final map = FlutterMapState.maybeOf(context)!;
+    final map = FlutterMapState.maybeOf(context)!;
+    final size = Size(map.size.x, map.size.y);
+    final origin = map.pixelOrigin;
+    final offset = Offset(origin.x.toDouble(), origin.y.toDouble());
 
-        final Iterable<Polygon> pgons = polygonCulling
-            ? polygons.where((p) {
-                return p.boundingBox.isOverlapping(map.bounds);
-              })
-            : polygons;
+    final Iterable<Polygon> pgons = polygonCulling
+        ? polygons.where((p) {
+            return p.boundingBox.isOverlapping(map.bounds);
+          })
+        : polygons;
 
-        return CustomPaint(
-          key: UniqueKey(),
-          painter: PolygonPainter(pgons, map),
-          size: size,
-        );
-      },
+    final paint = CustomPaint(
+      painter: PolygonPainter(pgons, map),
+      size: size,
+      willChange: false,
+      isComplex: true,
+    );
+    return Positioned(
+      left: -offset.dx,
+      top: -offset.dy,
+      child: kIsWeb ? paint : RepaintBoundary(child: paint),
     );
   }
 }
@@ -103,13 +108,31 @@ class PolygonLayer extends StatelessWidget {
 class PolygonPainter extends CustomPainter {
   final Iterable<Polygon> polygons;
   final FlutterMapState map;
+  final double zoom;
+  final double rotation;
 
-  const PolygonPainter(this.polygons, this.map);
+  PolygonPainter(this.polygons, this.map)
+      : zoom = map.zoom,
+        rotation = map.rotation;
+
+  int get hash {
+    _hash ??= Object.hashAll(polygons);
+    return _hash!;
+  }
+
+  int? _hash;
+
+  List<Offset> getOffsets(List<LatLng> points) {
+    return points.map((pos) => getOffset(pos)).toList();
+  }
+
+  Offset getOffset(LatLng point) {
+    final delta = map.project(point);
+    return Offset(delta.x.toDouble(), delta.y.toDouble());
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-
     var path = ui.Path();
     var paint = Paint();
     var borderPath = ui.Path();
@@ -129,7 +152,7 @@ class PolygonPainter extends CustomPainter {
     }
 
     for (final polygon in polygons) {
-      final offsets = _getOffsets(polygon.points, map);
+      final offsets = getOffsets(polygon.points);
       if (offsets.isEmpty) {
         continue;
       }
@@ -142,7 +165,7 @@ class PolygonPainter extends CustomPainter {
 
       final holeOffsetsList = List<List<Offset>>.generate(
           polygon.holePointsList?.length ?? 0,
-          (i) => _getOffsets(polygon.holePointsList![i], map));
+          (i) => getOffsets(polygon.holePointsList![i]));
 
       if (holeOffsetsList.isEmpty) {
         if (polygon.isFilled) {
@@ -195,7 +218,6 @@ class PolygonPainter extends CustomPainter {
     }
 
     drawPaths();
-    canvas.clipRect(rect);
   }
 
   Paint _getBorderPaint(Polygon polygon) {
@@ -262,11 +284,12 @@ class PolygonPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(PolygonPainter oldDelegate) => true;
-}
-
-List<Offset> _getOffsets(List<LatLng> points, FlutterMapState map) {
-  return points.map((pos) => map.getOffsetFromOrigin(pos)).toList();
+  bool shouldRepaint(PolygonPainter oldDelegate) {
+    return kIsWeb ||
+        oldDelegate.zoom != zoom ||
+        oldDelegate.rotation != rotation ||
+        oldDelegate.hash != hash;
+  }
 }
 
 double _dist(Offset v, Offset w) {
