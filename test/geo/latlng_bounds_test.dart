@@ -37,5 +37,15 @@ void main() {
         expect(ne.longitude, 2.3522);
       });
     });
+
+    group('hashCode', () {
+      test('with dublin, paris', () {
+        final bounds1 = LatLngBounds(dublin, paris);
+        final bounds2 = LatLngBounds(dublin, paris);
+
+        expect(bounds1 == bounds2, isTrue);
+        expect(bounds1.hashCode, bounds2.hashCode);
+      });
+    });
   });
 }

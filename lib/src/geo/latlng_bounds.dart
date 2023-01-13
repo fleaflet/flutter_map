@@ -159,12 +159,15 @@ class LatLngBounds {
     final heightBuffer = (_sw.latitude - _ne.latitude).abs() * bufferRatio;
     final widthBuffer = (_sw.longitude - _ne.longitude).abs() * bufferRatio;
 
-    _sw = LatLng(_sw.latitude - heightBuffer, _sw.longitude - widthBuffer);
-    _ne = LatLng(_ne.latitude + heightBuffer, _ne.longitude + widthBuffer);
+    _sw.latitude = _sw.latitude - heightBuffer;
+    _sw.longitude = _sw.longitude - widthBuffer;
+
+    _ne.latitude = _ne.latitude + heightBuffer;
+    _ne.longitude = _ne.longitude + widthBuffer;
   }
 
   @override
-  int get hashCode => _sw.hashCode + _ne.hashCode;
+  int get hashCode => Object.hash(_sw, _ne);
 
   @override
   bool operator ==(Object other) =>
