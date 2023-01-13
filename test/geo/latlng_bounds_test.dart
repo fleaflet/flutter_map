@@ -25,9 +25,12 @@ void main() {
         ]);
 
         final sw = bounds.southWest;
+        final ne = bounds.northEast;
 
         expect(sw.latitude, 48.8566);
         expect(sw.longitude, -6.2603);
+        expect(ne.latitude, 53.3498);
+        expect(ne.longitude, 2.3522);
       });
     });
   });
