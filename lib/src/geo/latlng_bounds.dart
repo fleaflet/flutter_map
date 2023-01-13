@@ -5,19 +5,15 @@ import 'package:latlong2/latlong.dart';
 /// Data structure representing rectangular bounding box constrained by its
 /// northwest and southeast corners
 class LatLngBounds {
-  LatLng? _sw;
-  LatLng? _ne;
+  late final LatLng _sw;
+  late final LatLng _ne;
 
-  LatLngBounds([LatLng? corner1, LatLng? corner2]) {
-    extend(corner1);
-    extend(corner2);
-  }
+  LatLngBounds(
+    LatLng corner1,
+    LatLng corner2,
+  ) : this.fromPoints([corner1, corner2]);
 
-  LatLngBounds.fromPoints(List<LatLng> points) {
-    if (points.isEmpty) {
-      return;
-    }
-
+  LatLngBounds.fromPoints(List<LatLng> points) : assert(points.isNotEmpty) {
     double minX = 180;
     double maxX = -180;
     double minY = 90;
@@ -50,10 +46,7 @@ class LatLngBounds {
 
   /// Expands bounding box by [latlng] coordinate point. This method mutates
   /// the bounds object on which it is called.
-  void extend(LatLng? latlng) {
-    if (latlng == null) {
-      return;
-    }
+  void extend(LatLng latlng) {
     _extend(latlng, latlng);
   }
 
@@ -64,35 +57,30 @@ class LatLngBounds {
     _extend(bounds._sw, bounds._ne);
   }
 
-  void _extend(LatLng? sw2, LatLng? ne2) {
-    if (_sw == null && _ne == null) {
-      _sw = LatLng(sw2!.latitude, sw2.longitude);
-      _ne = LatLng(ne2!.latitude, ne2.longitude);
-    } else {
-      _sw!.latitude = math.min(sw2!.latitude, _sw!.latitude);
-      _sw!.longitude = math.min(sw2.longitude, _sw!.longitude);
-      _ne!.latitude = math.max(ne2!.latitude, _ne!.latitude);
-      _ne!.longitude = math.max(ne2.longitude, _ne!.longitude);
-    }
+  void _extend(LatLng sw2, LatLng ne2) {
+    _sw.latitude = math.min(sw2.latitude, _sw.latitude);
+    _sw.longitude = math.min(sw2.longitude, _sw.longitude);
+    _ne.latitude = math.max(ne2.latitude, _ne.latitude);
+    _ne.longitude = math.max(ne2.longitude, _ne.longitude);
   }
 
   /// Obtain west edge of the bounds
-  double get west => southWest!.longitude;
+  double get west => southWest.longitude;
 
   /// Obtain south edge of the bounds
-  double get south => southWest!.latitude;
+  double get south => southWest.latitude;
 
   /// Obtain east edge of the bounds
-  double get east => northEast!.longitude;
+  double get east => northEast.longitude;
 
   /// Obtain north edge of the bounds
-  double get north => northEast!.latitude;
+  double get north => northEast.latitude;
 
   /// Obtain coordinates of southwest corner of the bounds
-  LatLng? get southWest => _sw;
+  LatLng get southWest => _sw;
 
   /// Obtain coordinates of northeast corner of the bounds
-  LatLng? get northEast => _ne;
+  LatLng get northEast => _ne;
 
   /// Obtain coordinates of northwest corner of the bounds
   LatLng get northWest => LatLng(north, west);
@@ -112,12 +100,12 @@ class LatLngBounds {
        lambda: lng
     */
 
-    final phi1 = southWest!.latitudeInRad;
-    final lambda1 = southWest!.longitudeInRad;
-    final phi2 = northEast!.latitudeInRad;
+    final phi1 = southWest.latitudeInRad;
+    final lambda1 = southWest.longitudeInRad;
+    final phi2 = northEast.latitudeInRad;
 
-    final dLambda = degToRadian(northEast!.longitude -
-        southWest!.longitude); // delta lambda = lambda2-lambda1
+    final dLambda = degToRadian(northEast.longitude -
+        southWest.longitude); // delta lambda = lambda2-lambda1
 
     final bx = math.cos(phi2) * math.cos(dLambda);
     final by = math.cos(phi2) * math.sin(dLambda);
@@ -130,15 +118,12 @@ class LatLngBounds {
   }
 
   /// Checks whether bound object is valid
-  bool get isValid {
-    return _sw != null && _ne != null;
-  }
+  /// TODO: remove this property in the next major release.
+  @Deprecated('This method is unnecessary and will be removed in the future.')
+  bool get isValid => true;
 
   /// Checks whether [point] is inside bounds
-  bool contains(LatLng? point) {
-    if (!isValid) {
-      return false;
-    }
+  bool contains(LatLng point) {
     final sw2 = point;
     final ne2 = point;
     return containsBounds(LatLngBounds(sw2, ne2));
@@ -146,27 +131,24 @@ class LatLngBounds {
 
   /// Checks whether [bounds] is contained inside bounds
   bool containsBounds(LatLngBounds bounds) {
-    final sw2 = bounds._sw!;
+    final sw2 = bounds._sw;
     final ne2 = bounds._ne;
-    return (sw2.latitude >= _sw!.latitude) &&
-        (ne2!.latitude <= _ne!.latitude) &&
-        (sw2.longitude >= _sw!.longitude) &&
-        (ne2.longitude <= _ne!.longitude);
+    return (sw2.latitude >= _sw.latitude) &&
+        (ne2.latitude <= _ne.latitude) &&
+        (sw2.longitude >= _sw.longitude) &&
+        (ne2.longitude <= _ne.longitude);
   }
 
   /// Checks whether at least one edge of [bounds] is overlapping with some
   /// other edge of bounds
-  bool isOverlapping(LatLngBounds? bounds) {
-    if (!isValid) {
-      return false;
-    }
+  bool isOverlapping(LatLngBounds bounds) {
     /* check if bounding box rectangle is outside the other, if it is then it's
        considered not overlapping
     */
-    if (_sw!.latitude > bounds!._ne!.latitude ||
-        _ne!.latitude < bounds._sw!.latitude ||
-        _ne!.longitude < bounds._sw!.longitude ||
-        _sw!.longitude > bounds._ne!.longitude) {
+    if (_sw.latitude > bounds._ne.latitude ||
+        _ne.latitude < bounds._sw.latitude ||
+        _ne.longitude < bounds._sw.longitude ||
+        _sw.longitude > bounds._ne.longitude) {
       return false;
     }
     return true;
@@ -174,11 +156,11 @@ class LatLngBounds {
 
   /// Expands bounds by decimal degrees unlike [extend] or [extendBounds]
   void pad(double bufferRatio) {
-    final heightBuffer = (_sw!.latitude - _ne!.latitude).abs() * bufferRatio;
-    final widthBuffer = (_sw!.longitude - _ne!.longitude).abs() * bufferRatio;
+    final heightBuffer = (_sw.latitude - _ne.latitude).abs() * bufferRatio;
+    final widthBuffer = (_sw.longitude - _ne.longitude).abs() * bufferRatio;
 
-    _sw = LatLng(_sw!.latitude - heightBuffer, _sw!.longitude - widthBuffer);
-    _ne = LatLng(_ne!.latitude + heightBuffer, _ne!.longitude + widthBuffer);
+    _sw = LatLng(_sw.latitude - heightBuffer, _sw.longitude - widthBuffer);
+    _ne = LatLng(_ne.latitude + heightBuffer, _ne.longitude + widthBuffer);
   }
 
   @override

@@ -102,10 +102,12 @@ class MapControllerPageState extends State<MapControllerPage> {
                 children: <Widget>[
                   MaterialButton(
                     onPressed: () {
-                      final bounds = LatLngBounds();
-                      bounds.extend(dublin);
-                      bounds.extend(paris);
-                      bounds.extend(london);
+                      final bounds = LatLngBounds.fromPoints([
+                        dublin,
+                        paris,
+                        london,
+                      ]);
+
                       _mapController.fitBounds(
                         bounds,
                         options: const FitBoundsOptions(
