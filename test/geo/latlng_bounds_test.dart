@@ -17,6 +17,10 @@ void main() {
     });
 
     group('LatLngBounds.fromPoints', () {
+      test('throw AssertionError if points is empty', () {
+        expect(() => LatLngBounds.fromPoints([]), throwsAssertionError);
+      });
+
       test('with dublin, paris, london', () {
         final bounds = LatLngBounds.fromPoints([
           dublin,
