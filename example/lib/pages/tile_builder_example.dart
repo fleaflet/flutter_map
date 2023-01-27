@@ -38,7 +38,7 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
                 if (showCoords)
                   Text(
                     '${coords.x.floor()} : ${coords.y.floor()} : ${coords.z.floor()}',
-                    style: Theme.of(context).textTheme.headline5,
+                    style: Theme.of(context).textTheme.headlineSmall,
                   ),
                 if (loadingTime)
                   Text(
@@ -46,7 +46,7 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
                         ? 'Loading'
                         // sometimes result is negative which shouldn't happen, abs() corrects it
                         : '${(tile.loaded!.millisecond - tile.loadStarted.millisecond).abs()} ms',
-                    style: Theme.of(context).textTheme.headline5,
+                    style: Theme.of(context).textTheme.headlineSmall,
                   ),
               ],
             ),
