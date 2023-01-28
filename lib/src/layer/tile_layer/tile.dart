@@ -71,6 +71,7 @@ class Tile {
       try {
         imageProvider.evict().catchError((Object e) {
           debugPrint(e.toString());
+          return false;
         });
       } catch (e) {
         // this may be never called because catchError will handle errors, however
