@@ -700,8 +700,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   Bounds _latLngBoundsToPixelBounds(
       FlutterMapState map, LatLngBounds bounds, double thisZoom) {
-    final swPixel = map.project(bounds.southWest!, thisZoom).floor();
-    final nePixel = map.project(bounds.northEast!, thisZoom).ceil();
+    final swPixel = map.project(bounds.southWest, thisZoom).floor();
+    final nePixel = map.project(bounds.northEast, thisZoom).ceil();
     final pxBounds = Bounds(swPixel, nePixel);
     return pxBounds;
   }

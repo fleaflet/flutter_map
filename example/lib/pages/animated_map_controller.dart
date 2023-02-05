@@ -26,9 +26,9 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
   // See https://github.com/flutter/flutter/issues/14317#issuecomment-361085869
   // This project didn't require that change, so YMMV.
 
-  static LatLng london = LatLng(51.5, -0.09);
-  static LatLng paris = LatLng(48.8566, 2.3522);
-  static LatLng dublin = LatLng(53.3498, -6.2603);
+  static final london = LatLng(51.5, -0.09);
+  static final paris = LatLng(48.8566, 2.3522);
+  static final dublin = LatLng(53.3498, -6.2603);
 
   late final MapController mapController;
 
@@ -142,10 +142,12 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
                 children: <Widget>[
                   MaterialButton(
                     onPressed: () {
-                      final bounds = LatLngBounds();
-                      bounds.extend(dublin);
-                      bounds.extend(paris);
-                      bounds.extend(london);
+                      final bounds = LatLngBounds.fromPoints([
+                        dublin,
+                        paris,
+                        london,
+                      ]);
+
                       mapController.fitBounds(
                         bounds,
                         options: const FitBoundsOptions(
@@ -157,10 +159,11 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
                   ),
                   MaterialButton(
                     onPressed: () {
-                      final bounds = LatLngBounds();
-                      bounds.extend(dublin);
-                      bounds.extend(paris);
-                      bounds.extend(london);
+                      final bounds = LatLngBounds.fromPoints([
+                        dublin,
+                        paris,
+                        london,
+                      ]);
 
                       final centerZoom =
                           mapController.centerZoomFitBounds(bounds);

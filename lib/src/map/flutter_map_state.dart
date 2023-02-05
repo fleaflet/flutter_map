@@ -421,7 +421,7 @@ class FlutterMapState extends MapGestureMixin
     newZoom = fitZoomToBounds(newZoom);
     final mapMoved = newCenter != _center || newZoom != _zoom;
 
-    if (!mapMoved || !_calculateBounds().isValid) {
+    if (!mapMoved) {
       return false;
     }
 
@@ -483,18 +483,12 @@ class FlutterMapState extends MapGestureMixin
   }
 
   void fitBounds(LatLngBounds bounds, FitBoundsOptions options) {
-    if (!bounds.isValid) {
-      throw Exception('Bounds are not valid.');
-    }
     final target = getBoundsCenterZoom(bounds, options);
     move(target.center, target.zoom, source: MapEventSource.fitBounds);
   }
 
   CenterZoom centerZoomFitBounds(
       LatLngBounds bounds, FitBoundsOptions options) {
-    if (!bounds.isValid) {
-      throw Exception('Bounds are not valid.');
-    }
     return getBoundsCenterZoom(bounds, options);
   }
 
@@ -523,8 +517,8 @@ class FlutterMapState extends MapGestureMixin
     zoom = math.min(options.maxZoom, zoom);
 
     final paddingOffset = (paddingBR - paddingTL) / 2;
-    final swPoint = project(bounds.southWest!, zoom);
-    final nePoint = project(bounds.northEast!, zoom);
+    final swPoint = project(bounds.southWest, zoom);
+    final nePoint = project(bounds.northEast, zoom);
     final center = unproject((swPoint + nePoint) / 2 + paddingOffset, zoom);
     return CenterZoom(
       center: center,
@@ -608,8 +602,8 @@ class FlutterMapState extends MapGestureMixin
       LatLng testCenter, double testZoom, LatLngBounds maxBounds) {
     LatLng? newCenter;
 
-    final swPixel = project(maxBounds.southWest!, testZoom);
-    final nePixel = project(maxBounds.northEast!, testZoom);
+    final swPixel = project(maxBounds.southWest, testZoom);
+    final nePixel = project(maxBounds.northEast, testZoom);
 
     final centerPix = project(testCenter, testZoom);
 
@@ -729,14 +723,12 @@ class FlutterMapState extends MapGestureMixin
   double? _safeAreaZoom;
 
   //if there is a pan boundary, do not cross
-  bool isOutOfBounds(LatLng? center) {
+  bool isOutOfBounds(LatLng center) {
     if (options.adaptiveBoundaries) {
       return !_safeArea!.contains(center);
     }
     if (options.swPanBoundary != null && options.nePanBoundary != null) {
-      if (center == null) {
-        return true;
-      } else if (center.latitude < options.swPanBoundary!.latitude ||
+      if (center.latitude < options.swPanBoundary!.latitude ||
           center.latitude > options.nePanBoundary!.latitude) {
         return true;
       } else if (center.longitude < options.swPanBoundary!.longitude ||
@@ -817,7 +809,7 @@ class _SafeArea {
         isLatitudeBlocked = southWest.latitude > northEast.latitude,
         isLongitudeBlocked = southWest.longitude > northEast.longitude;
 
-  bool contains(LatLng? point) =>
+  bool contains(LatLng point) =>
       isLatitudeBlocked || isLongitudeBlocked ? false : bounds.contains(point);
 
   LatLng containPoint(LatLng point, LatLng fallback) => LatLng(
