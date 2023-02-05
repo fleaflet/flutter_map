@@ -172,15 +172,6 @@ class LatLngBounds {
     return true;
   }
 
-  /// Expands bounds by decimal degrees unlike [extend] or [extendBounds]
-  void pad(double bufferRatio) {
-    final heightBuffer = (_sw!.latitude - _ne!.latitude).abs() * bufferRatio;
-    final widthBuffer = (_sw!.longitude - _ne!.longitude).abs() * bufferRatio;
-
-    _sw = LatLng(_sw!.latitude - heightBuffer, _sw!.longitude - widthBuffer);
-    _ne = LatLng(_ne!.latitude + heightBuffer, _ne!.longitude + widthBuffer);
-  }
-
   @override
   int get hashCode => _sw.hashCode + _ne.hashCode;
 
