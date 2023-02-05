@@ -89,7 +89,7 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
         ),
         _buildMenuItem(
           context,
-          const Text('Add Pins'),
+          const Text('Tap to Add Pins'),
           TapToAddPage.route,
           currentRoute,
         ),
