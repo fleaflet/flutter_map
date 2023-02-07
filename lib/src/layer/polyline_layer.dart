@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -93,7 +92,6 @@ class PolylineLayer extends StatelessWidget {
     final paint = CustomPaint(
       painter: PolylinePainter(lines, saveLayers, map),
       size: size,
-      willChange: false,
       isComplex: true,
     );
 
@@ -130,7 +128,9 @@ class PolylinePainter extends CustomPainter {
   int? _hash;
 
   List<Offset> getOffsets(List<LatLng> points) {
-    return points.map((pos) => getOffset(pos)).toList();
+    return List.generate(points.length, (index) {
+      return getOffset(points[index]);
+    }, growable: false);
   }
 
   Offset getOffset(LatLng point) {
@@ -262,7 +262,7 @@ class PolylinePainter extends CustomPainter {
     for (var i = 0; i < offsets.length - 1; i++) {
       final o0 = offsets[i];
       final o1 = offsets[i + 1];
-      final totalDistance = _dist(o0, o1);
+      final totalDistance = (o0 - o1).distance;
       var distance = startDistance;
       while (distance < totalDistance) {
         final f1 = distance / totalDistance;
@@ -311,12 +311,4 @@ class PolylinePainter extends CustomPainter {
         oldDelegate.rotation != rotation ||
         oldDelegate.hash != hash;
   }
-}
-
-double _dist(Offset v, Offset w) {
-  return sqrt(_sqr(v.dx - w.dx) + _sqr(v.dy - w.dy));
-}
-
-double _sqr(double x) {
-  return x * x;
 }

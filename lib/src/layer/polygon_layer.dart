@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
@@ -55,7 +54,7 @@ class Polygon {
 
   /// Used to batch draw calls to the canvas.
   int get renderHashCode => Object.hash(
-      holePointsList?.length ?? 0,
+      holePointsList,
       color,
       borderStrokeWidth,
       borderColor,
@@ -94,7 +93,6 @@ class PolygonLayer extends StatelessWidget {
     final paint = CustomPaint(
       painter: PolygonPainter(pgons, map),
       size: size,
-      willChange: false,
       isComplex: true,
     );
     return Positioned(
@@ -123,12 +121,10 @@ class PolygonPainter extends CustomPainter {
   int? _hash;
 
   List<Offset> getOffsets(List<LatLng> points) {
-    return points.map((pos) => getOffset(pos)).toList();
-  }
-
-  Offset getOffset(LatLng point) {
-    final delta = map.project(point);
-    return Offset(delta.x.toDouble(), delta.y.toDouble());
+    return List.generate(points.length, (index) {
+      final delta = map.project(points[index]);
+      return Offset(delta.x.toDouble(), delta.y.toDouble());
+    }, growable: false);
   }
 
   @override
@@ -165,7 +161,8 @@ class PolygonPainter extends CustomPainter {
 
       final holeOffsetsList = List<List<Offset>>.generate(
           polygon.holePointsList?.length ?? 0,
-          (i) => getOffsets(polygon.holePointsList![i]));
+          (i) => getOffsets(polygon.holePointsList![i]),
+          growable: false);
 
       if (holeOffsetsList.isEmpty) {
         if (polygon.isFilled) {
@@ -260,7 +257,7 @@ class PolygonPainter extends CustomPainter {
     for (var i = 0; i < offsets.length; i++) {
       final o0 = offsets[i % offsets.length];
       final o1 = offsets[(i + 1) % offsets.length];
-      final totalDistance = _dist(o0, o1);
+      final totalDistance = (o0 - o1).distance;
       var distance = startDistance;
       while (distance < totalDistance) {
         final f1 = distance / totalDistance;
@@ -290,12 +287,4 @@ class PolygonPainter extends CustomPainter {
         oldDelegate.rotation != rotation ||
         oldDelegate.hash != hash;
   }
-}
-
-double _dist(Offset v, Offset w) {
-  return sqrt(_sqr(v.dx - w.dx) + _sqr(v.dy - w.dy));
-}
-
-double _sqr(double x) {
-  return x * x;
 }
