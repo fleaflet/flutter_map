@@ -1,5 +1,24 @@
 # Changelog
 
+## [3.2.0] - 2022/02/XX
+
+Contains the following additions/removals:
+
+- Removed `LatLngBounds.pad` (unused and broken) method - [#1427](https://github.com/fleaflet/flutter_map/pull/1427)
+- Migrated `LatLngBounds` to proper null safety - [#1431](https://github.com/fleaflet/flutter_map/pull/1431)
+- Minor example application improvements - [#1440](https://github.com/fleaflet/flutter_map/pull/1440)
+
+Contains the following bug fixes:
+
+- Fixed deprecations - [#1438](https://github.com/fleaflet/flutter_map/pull/1438)
+
+Many thanks to these contributors (in no particular order):
+
+- @pablojimpas
+- @augustweinbren
+- @ignatz
+- ... and all the maintainers
+
 ## [3.1.0] - 2022/12/21
 
 Contains the following additions/removals:

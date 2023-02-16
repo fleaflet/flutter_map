@@ -9,25 +9,29 @@ import '../test_utils/test_app.dart';
 void main() {
   setupMocks();
 
-  testWidgets('test polyline key', (tester) async {
-    const key = Key('p-1');
-
+  testWidgets('test polyline layer', (tester) async {
     final polylines = <Polyline>[
-      Polyline(
-        key: key,
-        points: [
-          LatLng(50.5, -0.09),
-          LatLng(51.3498, -6.2603),
-          LatLng(53.8566, 2.3522),
-        ],
-        strokeWidth: 4,
-        color: Colors.amber,
-      ),
+      for (int i = 0; i < 10; i++)
+        Polyline(
+          points: [
+            LatLng(50.5 + i, -0.09),
+            LatLng(51.3498 + i, -6.2603),
+            LatLng(53.8566 + i, 2.3522),
+          ],
+          strokeWidth: 4,
+          color: Colors.amber,
+        ),
     ];
 
     await tester.pumpWidget(TestApp(polylines: polylines));
     expect(find.byType(FlutterMap), findsOneWidget);
     expect(find.byType(PolylineLayer), findsWidgets);
-    expect(find.byKey(key), findsOneWidget);
+
+    // Assert that batching works and all Polylines are drawn into the same
+    // CustomPaint/Canvas.
+    expect(
+        find.descendant(
+            of: find.byType(PolylineLayer), matching: find.byType(CustomPaint)),
+        findsOneWidget);
   });
 }
