@@ -29,6 +29,7 @@ import 'package:flutter_map_example/pages/point_to_latlng.dart';
 import 'package:flutter_map_example/pages/polygon.dart';
 import 'package:flutter_map_example/pages/polyline.dart';
 import 'package:flutter_map_example/pages/reset_tile_layer.dart';
+import 'package:flutter_map_example/pages/secondary_tap.dart';
 import 'package:flutter_map_example/pages/sliding_map.dart';
 import 'package:flutter_map_example/pages/stateful_markers.dart';
 import 'package:flutter_map_example/pages/tap_to_add.dart';
@@ -93,6 +94,7 @@ class MyApp extends StatelessWidget {
             const FallbackUrlNetworkPage(),
         FallbackUrlOfflinePage.route: (context) =>
             const FallbackUrlOfflinePage(),
+        SecondaryTapPage.route: (context) => const SecondaryTapPage(),
       },
     );
   }
