@@ -43,24 +43,25 @@ class PolygonPage extends StatelessWidget {
     ];
 
     final labelRotatedPoints = <LatLng>[
+      LatLng(59.77, -10.28),
       LatLng(58.21, -10.28),
       LatLng(58.21, -7.01),
       LatLng(59.77, -7.01),
-      LatLng(59.77, -10.28),
+      LatLng(60.77, -6.01),
     ];
 
     final holeOuterPoints = <LatLng>[
-      LatLng(50.0, -18.0),
-      LatLng(50.0, -14.0),
-      LatLng(54.0, -14.0),
-      LatLng(54.0, -18.0),
+      LatLng(50, -18),
+      LatLng(50, -14),
+      LatLng(54, -14),
+      LatLng(54, -18),
     ];
 
     final holeInnerPoints = <LatLng>[
-      LatLng(51.0, -17.0),
-      LatLng(51.0, -16.0),
-      LatLng(52.0, -16.0),
-      LatLng(52.0, -17.0),
+      LatLng(51, -17),
+      LatLng(51, -16),
+      LatLng(52, -16),
+      LatLng(52, -17),
     ];
 
     return Scaffold(

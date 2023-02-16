@@ -333,10 +333,13 @@ class MapOptions {
 class FitBoundsOptions {
   final EdgeInsets padding;
   final double maxZoom;
-  @Deprecated(
-      'This property is unused and will be removed in the next major release.')
 
-  /// TODO: remove this property in the next major release.
+  /// This property is deprecated and unused internally. It will be removed in a
+  /// future major update
+  // TODO: remove this property
+  @Deprecated(
+    'This property is unused internally and will be removed in a future major update',
+  )
   final double? zoom;
   final bool inside;
 

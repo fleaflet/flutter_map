@@ -352,9 +352,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     if (widget.reset != null) {
       _resetSub = widget.reset?.listen((_) => _resetTiles());
     }
-
-    //TODO fix
-    // _initThrottleUpdate();
   }
 
   @override
