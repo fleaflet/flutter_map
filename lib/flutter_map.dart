@@ -4,8 +4,8 @@ import 'dart:async';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_map/src/core/positioned_tap_detector_2.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
 
 import 'package:flutter_map/src/core/center_zoom.dart';
 import 'package:flutter_map/src/core/point.dart';
@@ -19,6 +19,7 @@ import 'package:flutter_map/src/map/map.dart';
 
 export 'package:flutter_map/src/core/center_zoom.dart';
 export 'package:flutter_map/src/core/point.dart';
+export 'package:flutter_map/src/core/positioned_tap_detector_2.dart';
 export 'package:flutter_map/src/geo/crs/crs.dart';
 export 'package:flutter_map/src/geo/latlng_bounds.dart';
 export 'package:flutter_map/src/gestures/interactive_flag.dart';
@@ -245,6 +246,7 @@ class MapOptions {
   final bool absorbPanEventsOnScrollables;
 
   final TapCallback? onTap;
+  final TapCallback? onSecondaryTap;
   final LongPressCallback? onLongPress;
   final PointerDownCallback? onPointerDown;
   final PointerUpCallback? onPointerUp;
@@ -306,6 +308,7 @@ class MapOptions {
     this.maxZoom,
     this.interactiveFlags = InteractiveFlag.all,
     this.onTap,
+    this.onSecondaryTap,
     this.onLongPress,
     this.onPointerDown,
     this.onPointerUp,

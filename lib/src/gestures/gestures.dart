@@ -7,7 +7,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/gestures/latlng_tween.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
 
 abstract class MapGestureMixin extends State<FlutterMap>
     with TickerProviderStateMixin {
@@ -577,6 +576,27 @@ abstract class MapGestureMixin extends State<FlutterMap>
         center: mapState.center,
         zoom: mapState.zoom,
         source: MapEventSource.tap,
+      ),
+    );
+  }
+
+  void handleSecondaryTap(TapPosition position) {
+    closeFlingAnimationController(MapEventSource.secondaryTap);
+    closeDoubleTapController(MapEventSource.secondaryTap);
+
+    final latlng = _offsetToCrs(position.relative!);
+    final onSecondaryTap = options.onSecondaryTap;
+    if (onSecondaryTap != null) {
+      // emit the event
+      onSecondaryTap.call(position, latlng);
+    }
+
+    mapState.emitMapEvent(
+      MapEventSecondaryTap(
+        tapPosition: latlng,
+        center: mapState.center,
+        zoom: mapState.zoom,
+        source: MapEventSource.secondaryTap,
       ),
     );
   }
