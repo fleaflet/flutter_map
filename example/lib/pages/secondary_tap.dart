@@ -24,11 +24,6 @@ class SecondaryTapPage extends StatelessWidget {
             Flexible(
               child: FlutterMap(
                 options: MapOptions(
-                  onTap: (tapPosition, point) {
-                    ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-                      SnackBar(content: Text('Tap at $point')),
-                    );
-                  },
                   onSecondaryTap: (tapPos, latLng) {
                     ScaffoldMessenger.maybeOf(context)?.showSnackBar(
                       SnackBar(content: Text('Secondary tap at $latLng')),
