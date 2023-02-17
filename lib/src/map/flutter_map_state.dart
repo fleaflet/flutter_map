@@ -69,10 +69,10 @@ class FlutterMapState extends MapGestureMixin
         instance
           ..onTapDown = _positionedTapController.onTapDown
           ..onTapUp = handleOnTapUp
-          ..onTap = _positionedTapController.onTap;
+          ..onTap = _positionedTapController.onTap
+          ..onSecondaryTap = _positionedTapController.onSecondaryTap
+          ..onSecondaryTapDown = _positionedTapController.onTapDown;
         // ..onTapCancel = onTapCancel
-        // ..onSecondaryTap = onSecondaryTap
-        // ..onSecondaryTapDown = onSecondaryTapDown
         // ..onSecondaryTapUp = onSecondaryTapUp
         // ..onSecondaryTapCancel = onSecondaryTapCancel
         // ..onTertiaryTapDown = onTertiaryTapDown

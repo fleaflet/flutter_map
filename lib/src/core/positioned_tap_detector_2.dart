@@ -112,7 +112,6 @@ class _TapPositionDetectorState extends State<PositionedTapDetector2> {
 
   void _onTapEvent() {
     final pending = _pendingTap;
-
     if (pending == null) return;
 
     if (widget.onDoubleTap == null) {
@@ -126,7 +125,6 @@ class _TapPositionDetectorState extends State<PositionedTapDetector2> {
 
   void _onSecondaryTapEvent() {
     final pending = _pendingTap;
-
     if (pending == null) return;
 
     _postCallback(pending, widget.onSecondaryTap);
@@ -192,6 +190,7 @@ class _TapPositionDetectorState extends State<PositionedTapDetector2> {
       onTap: _onTapEvent,
       onLongPress: _onLongPressEvent,
       onTapDown: _onTapDownEvent,
+      onSecondaryTapDown: _onTapDownEvent,
       onSecondaryTap: _onSecondaryTapEvent,
       child: widget.child,
     );
