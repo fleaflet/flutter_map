@@ -145,14 +145,22 @@ abstract class MapController {
 
 typedef TapCallback = void Function(TapPosition tapPosition, LatLng point);
 typedef LongPressCallback = void Function(
-    TapPosition tapPosition, LatLng point);
+  TapPosition tapPosition,
+  LatLng point,
+);
 typedef PointerDownCallback = void Function(
-    PointerDownEvent event, LatLng point);
+  PointerDownEvent event,
+  LatLng point,
+);
 typedef PointerUpCallback = void Function(PointerUpEvent event, LatLng point);
 typedef PointerCancelCallback = void Function(
-    PointerCancelEvent event, LatLng point);
+  PointerCancelEvent event,
+  LatLng point,
+);
 typedef PointerHoverCallback = void Function(
-    PointerHoverEvent event, LatLng point);
+  PointerHoverEvent event,
+  LatLng point,
+);
 typedef PositionCallback = void Function(MapPosition position, bool hasGesture);
 typedef MapEventCallback = void Function(MapEvent);
 
@@ -162,8 +170,8 @@ typedef MapEventCallback = void Function(MapEvent);
 /// over [center].
 /// Zoom, pan boundary and interactivity constraints can be specified here too.
 ///
-/// Callbacks for [onTap], [onLongPress] and [onPositionChanged] can be
-/// registered here.
+/// Callbacks for [onTap], [onSecondaryTap], [onLongPress] and
+/// [onPositionChanged] can be registered here.
 ///
 /// Through [crs] the Coordinate Reference System can be
 /// defined, it defaults to [Epsg3857].
