@@ -113,9 +113,8 @@ class FlutterMapState extends MapGestureMixin
       },
     );
 
-    if (options.absorbPanEventsOnScrollables &&
-        InteractiveFlag.hasFlag(
-            options.interactiveFlags, InteractiveFlag.drag)) {
+    if (InteractiveFlag.hasFlag(
+        options.interactiveFlags, InteractiveFlag.drag)) {
       gestures[VerticalDragGestureRecognizer] =
           GestureRecognizerFactoryWithHandlers<VerticalDragGestureRecognizer>(
         () => VerticalDragGestureRecognizer(debugOwner: this),
