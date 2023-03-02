@@ -153,7 +153,7 @@ class LatLngBounds {
     }
     return true;
   }
-  
+
   @override
   int get hashCode => Object.hash(_sw, _ne);
 
