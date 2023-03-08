@@ -21,7 +21,7 @@ FlutterMap(
 ```
 
 {% hint style="warning" %}
-Excessive use of markers or use of complex markers will create performance issues and lag/'jank' as the user interacts with the map. See [performance-issues.md](../../faqs/performance-issues.md "mention") for more information.
+Excessive use of markers or use of complex markers will create performance issues and lag/'jank' as the user interacts with the map. See [Broken link](broken-reference "mention") for more information.
 
 If you need to use a large number of markers, an existing [community maintained plugin (`flutter_map_marker_cluster`)](https://github.com/lpongetti/flutter\_map\_marker\_cluster) might help.&#x20;
 {% endhint %}

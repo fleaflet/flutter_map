@@ -61,8 +61,14 @@ Either way, the filesystem should be structured like this: 'offlineMap/{z}/{x}/{
 
 If you have a raster-format .mbtiles file, for example from TileMill, you should use [mbtilesToPngs](https://github.com/alfanhui/mbtilesToPngs) to convert it to the correct structure first. Alternatively, you can use an external package such as '[flutter\_mbtiles\_extractor](https://pub.dev/packages/flutter\_mbtiles\_extractor)' to extract during runtime.
 
-### Caching
+### Caching & Bulk Downloading
 
-Solutions for better, more reliable, dynamic caching can either be built yourself using other packages (such as '[cached\_network\_image](https://pub.dev/packages/cached\_network\_image)'), or by using an existing [community maintained plugin (`flutter_map_tile_caching`)](https://github.com/JaffaKetchup/flutter\_map\_tile\_caching) which handles caching and statistics for you, as well as offering methods to bulk download areas of maps.
+The [community maintained plugin `flutter_map_tile_caching`](https://github.com/JaffaKetchup/flutter\_map\_tile\_caching) provides advanced caching and bulk downloading capability, which handles many surrounding and supporting features for you and your app, with minimal implementation effort.
+
+However, using simpler packages in a DIY solution can be a better option in some cases. You'll need to implement a custom `TileProvider` backed by an alternative image provider or cache lookup system: see [creating-new-tile-providers.md](../../../plugins/making-a-plugin/creating-new-tile-providers.md "mention").
+
+To help choose whether FMTC or DIY is more appropriate for your usecase, please see:
+
+{% embed url="https://fmtc.jaffaketchup.dev/is-fmtc-right-for-me" %}
 
 If you prefer to offer a set of map tiles to all your users before runtime, consider using the [#bundled-map-tiles](tile-providers.md#bundled-map-tiles "mention") solution instead.

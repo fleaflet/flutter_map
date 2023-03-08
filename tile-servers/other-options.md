@@ -8,12 +8,18 @@ A good catalogue of servers (usually called Providers elsewhere) can be found at
 
 {% embed url="https://wiki.openstreetmap.org/wiki/Raster_tile_providers" %}
 
-{% embed url="https://switch2osm.github.io/providers/" %}
+{% embed url="https://switch2osm.org/providers/" %}
+
+{% hint style="info" %}
+Google Maps does not document a static raster tile server. Therefore, flutter\_map is unable to show Google Maps.
+
+_There is an undocumented endpoint available, however it violates the Google Maps Platform ToS._
+{% endhint %}
 
 ## Serving your own tiles
 
-Switch2OSM also provides detailed instructions on how to serve your own tiles: this can be surprisingly economical and enjoyable if you don't mind a few hours in a Linux console. However, this will require a very high-spec computer, especially for larger areas, and hosting this might be more complicated than it's worth.
+Switch2OSM also provides detailed instructions on how to serve your own tiles: this can be surprisingly economical and enjoyable if you don't mind a few hours in a Linux console.
 
-{% embed url="https://switch2osm.github.io/serving-tiles/" %}
-Serving your own tiles
-{% endembed %}
+However, this will require a very high-spec computer, especially for larger areas, and hosting this might be more complicated than it's worth. It's very difficult to fully understand the technologies involved.
+
+{% embed url="https://switch2osm.org/serving-tiles/" %}

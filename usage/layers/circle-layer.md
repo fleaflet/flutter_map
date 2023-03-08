@@ -24,5 +24,5 @@ Avoid creating large polygons, or polygons that cross the edges of the map, as t
 {% endhint %}
 
 {% hint style="warning" %}
-Excessive use of circles will create performance issues and lag/'jank' as the user interacts with the map. See [performance-issues.md](../../faqs/performance-issues.md "mention") for more information.
+Excessive use of circles will create performance issues and lag/'jank' as the user interacts with the map. See [Broken link](broken-reference "mention") for more information.
 {% endhint %}

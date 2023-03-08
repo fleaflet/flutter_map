@@ -1,8 +1,4 @@
----
-description: aka. Frequently Asked Questions
----
-
-# Other Questions
+# Frequently Asked Questions
 
 If you have a question you'd like to add to this page, please let us know over on the Discord server!
 
@@ -15,14 +11,6 @@ You should also read the [explanation](../getting-started/explanation/ "mention"
 Routing is currently out-of-scope for 'flutter\_map'. However, if you can get a list of coordinates from a 3rd party, then you can use the [polyline-layer.md](../usage/layers/polyline-layer.md "mention") to show it!
 
 A good open source option is [OSRM](http://project-osrm.org/), but if you want higher reliability and more functionality such as real-time based routing, you may want to try a commercial solution such as Mapbox or Google Maps.
-
-</details>
-
-<details>
-
-<summary>Offline Mapping</summary>
-
-See [#offline-mapping](../usage/layers/tile-layer/tile-providers.md#offline-mapping "mention").
 
 </details>
 

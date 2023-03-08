@@ -10,7 +10,7 @@ In particular, thanks go to:
 * All the current maintainers:
   * @ibrierley
   * @JaffaKetchup
-  * @MooNag
+  * @mootw (previously @MooNag)
   * @TesteurManiak
 * All the previous maintainers:
   * @kengu

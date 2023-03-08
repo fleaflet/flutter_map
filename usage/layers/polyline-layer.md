@@ -26,7 +26,7 @@ Avoid creating large polylines, or polylines that cross the edges of the map, as
 {% endhint %}
 
 {% hint style="warning" %}
-Excessive use of polylines or use of complex polylines will create performance issues and lag/'jank' as the user interacts with the map. See [performance-issues.md](../../faqs/performance-issues.md "mention") for more information.
+Excessive use of polylines or use of complex polylines will create performance issues and lag/'jank' as the user interacts with the map. See [Broken link](broken-reference "mention") for more information.
 
 You can try the below methods to try to reduce the lag:
 

@@ -12,11 +12,11 @@
 
 ## Usage
 
-* [1⃣ Base Widget](usage/basics.md)
-* [2⃣ Options](usage/options/README.md)
+* [Base Widget](usage/basics.md)
+* [Options](usage/options/README.md)
   * [Recommended Options](usage/options/recommended-options.md)
   * [Other Options](usage/options/other-options.md)
-* [3⃣ Layers](usage/layers/README.md)
+* [Layers](usage/layers/README.md)
   * [Tile Layer](usage/layers/tile-layer/README.md)
     * [Recommended Options](usage/layers/tile-layer/recommended-options.md)
     * [Tile Providers](usage/layers/tile-layer/tile-providers.md)
@@ -27,7 +27,7 @@
   * [Circle Layer](usage/layers/circle-layer.md)
   * [Attribution Layer](usage/layers/attribution-layer.md)
   * [WMS Usage](usage/layers/wms-usage.md)
-* [4⃣ Controller](usage/controller.md)
+* [Controller](usage/controller.md)
 * [Full API Reference](https://pub.dev/documentation/flutter\_map/latest/flutter\_map/flutter\_map-library.html)
 
 ## Plugins
@@ -42,14 +42,13 @@
 * [Using Mapbox](tile-servers/using-mapbox.md)
 * [Using Stadia Maps](tile-servers/using-stadia-maps.md)
 * [Using Thunderforest](tile-servers/using-thunderforest.md)
-* [Using Google Maps](tile-servers/using-google-maps.md)
+* [Offline Mapping](https://app.gitbook.com/s/71h39XIuA0UETMZNP1yW/usage/layers/tile-layer/tile-providers#offline-mapping)
 * [Other Options](tile-servers/other-options.md)
 
 ## FAQs
 
-* [Other Questions](faqs/other-questions.md)
+* [Frequently Asked Questions](faqs/frequently-asked-questions.md)
 * [Map Controller Issues](faqs/map-controller-issues.md)
-* [Performance Issues](faqs/performance-issues.md)
 
 ## Migration
 
