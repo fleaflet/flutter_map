@@ -69,11 +69,21 @@ class PolylineLayer extends StatelessWidget {
   /// performance of the layer.
   final bool saveLayers;
 
+  /// The layer allows to rasterize and translate the underlying canvas on
+  /// panning the map (does not apply for rotations and zooming). This can
+  /// greatly improve performance if the set polylines in the map's viewport
+  /// doesn't change. However, rasterization comes at a fixed overhead, which
+  /// amortizes when drawing the canvas itself is costly and the use-case makes
+  /// this pan-only optimization worthwhile. Setting the threshold to a large
+  /// value will basically deactivate the optimization entirely.
+  final int rasterizationThreshold;
+
   const PolylineLayer({
     super.key,
     this.polylines = const [],
     this.polylineCulling = false,
     this.saveLayers = false,
+    this.rasterizationThreshold = 128,
   });
 
   @override
@@ -83,10 +93,10 @@ class PolylineLayer extends StatelessWidget {
     final origin = map.pixelOrigin;
     final offset = Offset(origin.x.toDouble(), origin.y.toDouble());
 
-    final Iterable<Polyline> lines = polylineCulling
+    final List<Polyline> lines = polylineCulling
         ? polylines.where((p) {
             return p.boundingBox.isOverlapping(map.bounds);
-          })
+          }).toList()
         : polylines;
 
     final paint = CustomPaint(
@@ -95,16 +105,17 @@ class PolylineLayer extends StatelessWidget {
       isComplex: true,
     );
 
+    final rasterize = !kIsWeb && lines.length > rasterizationThreshold;
     return Positioned(
       left: -offset.dx,
       top: -offset.dy,
-      child: kIsWeb ? paint : RepaintBoundary(child: paint),
+      child: rasterize ? RepaintBoundary(child: paint) : paint,
     );
   }
 }
 
 class PolylinePainter extends CustomPainter {
-  final Iterable<Polyline> polylines;
+  final List<Polyline> polylines;
 
   /// {@template newPolylinePainter.saveLayers}
   /// If `true`, the canvas will be updated on every frame by calling the
@@ -309,6 +320,7 @@ class PolylinePainter extends CustomPainter {
     return kIsWeb ||
         oldDelegate.zoom != zoom ||
         oldDelegate.rotation != rotation ||
+        oldDelegate.polylines.length != polylines.length ||
         oldDelegate.hash != hash;
   }
 }
