@@ -61,7 +61,7 @@ Takes a function with two arguments. Gets called whenever the map position is ch
 Takes a function with one argument. Gets called whenever the the user taps/clicks/presses on the map.
 
 ```dart
-        onTap: (LatLng location) {
+        onTap: (TapPosition position, LatLng location) {
             // Your logic here. `location` dictates the coordinate at which the user tapped.
         }
 ```
