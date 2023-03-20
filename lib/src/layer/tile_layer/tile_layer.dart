@@ -165,13 +165,6 @@ class TileLayer extends StatefulWidget {
   /// ```
   final Map<String, String> additionalOptions;
 
-  /// Tiles will not update more than once every `updateInterval` (default 200
-  /// milliseconds) when panning. It can be null (but it will calculating for
-  /// loading tiles every frame when panning / zooming, flutter is fast) This
-  /// can save some fps and even bandwidth (ie. when fast panning / animating
-  /// between long distances in short time)
-  final Duration? updateInterval;
-
   /// Tiles fade in duration in milliseconds (default 100). This can be null to
   /// avoid fade in.
   final Duration? tileFadeInDuration;
@@ -267,13 +260,6 @@ class TileLayer extends StatefulWidget {
     this.tms = false,
     this.wmsOptions,
     this.opacity = 1.0,
-
-    /// Tiles will not update more than once every `updateInterval` milliseconds
-    /// (default 200) when panning. It can be 0 (but it will calculating for
-    /// loading tiles every frame when panning / zooming, flutter is fast) This
-    /// can save some fps and even bandwidth (ie. when fast panning / animating
-    /// between long distances in short time)
-    Duration updateInterval = const Duration(milliseconds: 200),
     Duration tileFadeInDuration = const Duration(milliseconds: 100),
     this.tileFadeInStart = 0.0,
     this.tileFadeInStartWhenOverride = 0.0,
@@ -288,9 +274,7 @@ class TileLayer extends StatefulWidget {
     this.reset,
     this.tileBounds,
     String userAgentPackageName = 'unknown',
-  })  : updateInterval =
-            updateInterval <= Duration.zero ? null : updateInterval,
-        tileFadeInDuration =
+  })  : tileFadeInDuration =
             tileFadeInDuration <= Duration.zero ? null : tileFadeInDuration,
         assert(tileFadeInStart >= 0.0 && tileFadeInStart <= 1.0),
         assert(tileFadeInStartWhenOverride >= 0.0 &&
@@ -334,7 +318,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   double? _tileZoom;
 
   StreamSubscription<void>? _resetSub;
-  StreamController<LatLng?>? _throttleUpdate;
   late CustomPoint _tileSize;
 
   late final TileManager _tileManager;
@@ -370,10 +353,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     reloadTiles |= !_tileManager.allWithinZoom(widget.minZoom, widget.maxZoom);
 
-    if (oldWidget.updateInterval != widget.updateInterval) {
-      _throttleUpdate?.close();
-    }
-
     if (!reloadTiles) {
       final oldUrl =
           oldWidget.wmsOptions?._encodedBaseUrl ?? oldWidget.urlTemplate;
@@ -404,7 +383,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     _resetSub?.cancel();
     _pruneLater?.cancel();
     widget.tileProvider.dispose();
-    _throttleUpdate?.close();
 
     super.dispose();
   }
@@ -413,27 +391,14 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final map = FlutterMapState.maybeOf(context)!;
 
-    //Handle movement
     final tileZoom = _clampZoom(map.zoom.roundToDouble());
-
-    if (_tileZoom == null) {
+    if (_tileZoom == null &&
+        tileZoom <= widget.maxZoom &&
+        tileZoom >= widget.minZoom) {
       // if there is no _tileZoom available it means we are out within zoom level
       // we will restore fully via _setView call if we are back on trail
-      if ((tileZoom <= widget.maxZoom) && (tileZoom >= widget.minZoom)) {
-        _tileZoom = tileZoom;
-        _setView(map, map.center, tileZoom);
-      }
-    } else {
-      if ((tileZoom - _tileZoom!).abs() >= 1) {
-        // It was a zoom lvl change
-        _setView(map, map.center, tileZoom);
-      } else {
-        if (_throttleUpdate != null) {
-          _throttleUpdate!.add(null);
-        }
-      }
+      _tileZoom = tileZoom;
     }
-
     _setView(map, map.center, map.zoom);
 
     final tilesToRender = _tileZoom == null
@@ -537,7 +502,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   void _resetGrid(FlutterMapState map) {
     final crs = map.options.crs;
-    final tileSize = getTileSize();
+    final tileSize = _tileSize;
     final tileZoom = _tileZoom;
 
     final bounds = map.getPixelWorldBounds(_tileZoom);
@@ -769,14 +734,13 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   CustomPoint _getTilePos(FlutterMapState map, Coords coords) {
     final level =
         _transformationCalculator.getOrCreateLevel(coords.z as double, map);
-    return coords.scaleBy(getTileSize()) - level.origin;
+    return coords.scaleBy(_tileSize) - level.origin;
   }
 
   Bounds _pxBoundsToTileRange(Bounds bounds) {
-    final tileSize = getTileSize();
     return Bounds(
-      bounds.min.unscaleBy(tileSize).floor(),
-      bounds.max.unscaleBy(tileSize).ceil() - const CustomPoint(1, 1),
+      bounds.min.unscaleBy(_tileSize).floor(),
+      bounds.max.unscaleBy(_tileSize).ceil() - const CustomPoint(1, 1),
     );
   }
 }
