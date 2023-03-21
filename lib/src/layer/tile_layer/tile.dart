@@ -5,8 +5,13 @@ typedef TileReady = void Function(
     Coords<double> coords, dynamic error, Tile tile);
 
 class Tile {
+  /// The z of the coords is the tile's zoom level whilst the x and y indicate
+  /// the coordinate position of the tile at that zoom level.
   final Coords<double> coords;
+
+  /// The pixel position of this tile on the map at its zoom level.
   final CustomPoint<num> tilePos;
+
   ImageProvider imageProvider;
 
   bool current;
