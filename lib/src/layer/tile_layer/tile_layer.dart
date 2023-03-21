@@ -7,7 +7,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/util.dart' as util;
-import 'package:flutter_map/src/layer/tile_layer/level.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_manager.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_transformation.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_widget.dart';
@@ -447,7 +446,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   CustomPoint getTileSize() => _tileSize;
 
-  Level? _updateLevels(FlutterMapState map) {
+  void _updateLevels(FlutterMapState map) {
     final zoom = _tileZoom;
 
     if (zoom == null) return null;
@@ -460,7 +459,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       _transformationCalculator.removeLevel(z);
     }
 
-    return _transformationCalculator.getOrCreateLevel(zoom, map);
+    _transformationCalculator.getOrCalculateOriginAt(zoom, map);
   }
 
   ///removes all loaded tiles and resets the view
@@ -732,9 +731,9 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   }
 
   CustomPoint _getTilePos(FlutterMapState map, Coords coords) {
-    final level =
-        _transformationCalculator.getOrCreateLevel(coords.z as double, map);
-    return coords.scaleBy(_tileSize) - level.origin;
+    final origin = _transformationCalculator.getOrCalculateOriginAt(
+        coords.z as double, map);
+    return coords.scaleBy(_tileSize) - origin;
   }
 
   Bounds _pxBoundsToTileRange(Bounds bounds) {
