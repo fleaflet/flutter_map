@@ -607,17 +607,24 @@ class FlutterMapState extends MapGestureMixin
 
     final centerPix = project(testCenter, testZoom);
 
-    final halfSizeX = size.x / 2;
-    final halfSizeY = size.y / 2;
+    final left = math.min(swPixel.x, nePixel.x);
+    final right = math.max(swPixel.x, nePixel.x);
+    final top = math.min(swPixel.y, nePixel.y);
+    final bottom = math.max(swPixel.y, nePixel.y);
+    
+    // It could be possible than size was greater than width or height available.
+    // In this case, will decrease the halfSize to the smallest.
+    final halfSizeX = math.min(size.x, right - left) / 2;
+    final halfSizeY = math.min(size.y, bottom - top) / 2;
 
     // Try and find the edge value that the center could use to stay within
     // the maxBounds. This should be ok for panning. If we zoom, it is possible
     // there is no solution to keep all corners within the bounds. If the edges
     // are still outside the bounds, don't return anything.
-    final leftOkCenter = math.min(swPixel.x, nePixel.x) + halfSizeX;
-    final rightOkCenter = math.max(swPixel.x, nePixel.x) - halfSizeX;
-    final topOkCenter = math.min(swPixel.y, nePixel.y) + halfSizeY;
-    final botOkCenter = math.max(swPixel.y, nePixel.y) - halfSizeY;
+    final leftOkCenter = left + halfSizeX;
+    final rightOkCenter = right - halfSizeX;
+    final topOkCenter = top + halfSizeY;
+    final botOkCenter = bottom - halfSizeY;
 
     double? newCenterX;
     double? newCenterY;
