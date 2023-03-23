@@ -54,13 +54,16 @@ class Bounds<T extends num> {
     return max - min;
   }
 
-  bool contains(CustomPoint<T> point) {
+  // The area of these bounds
+  num get area => (max.x - min.x) * (max.y - min.y);
+
+  bool contains(CustomPoint<num> point) {
     final min = point;
     final max = point;
     return containsBounds(Bounds(min, max));
   }
 
-  bool containsBounds(Bounds<T> b) {
+  bool containsBounds(Bounds<num> b) {
     return (b.min.x >= min.x) &&
         (b.max.x <= max.x) &&
         (b.min.y >= min.y) &&
@@ -72,6 +75,22 @@ class Bounds<T extends num> {
         (b.max.x >= min.x) &&
         (b.min.y <= max.y) &&
         (b.max.y >= min.y);
+  }
+
+  // Calculates the intersection of two Bounds. The return value will be null
+  // if there is no intersection. The returned bounds may be zero size
+  // (bottomLeft == topRight).
+  Bounds<T>? intersect(Bounds<T> b) {
+    final leftX = math.max(min.x, b.min.x);
+    final rightX = math.min(max.x, b.max.x);
+    final topY = math.max(min.y, b.min.y);
+    final bottomY = math.min(max.y, b.max.y);
+
+    if (leftX <= rightX && topY <= bottomY) {
+      return Bounds(CustomPoint(leftX, topY), CustomPoint(rightX, bottomY));
+    }
+
+    return null;
   }
 
   @override

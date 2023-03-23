@@ -1,19 +1,21 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/core/point.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_coordinate.dart';
 
 typedef TileReady = void Function(
-    Coords<double> coords, dynamic error, Tile tile);
+    TileCoordinate coords, dynamic error, Tile tile);
 
 class Tile {
   /// The z of the coords is the tile's zoom level whilst the x and y indicate
   /// the coordinate position of the tile at that zoom level.
-  final Coords<double> coords;
+  final TileCoordinate coordinate;
 
   /// The pixel position of this tile on the map at its zoom level.
   final CustomPoint<num> tilePos;
 
   ImageProvider imageProvider;
 
+  // If false the tile should be pruned
   bool current;
   bool retain;
   bool active;
@@ -35,7 +37,7 @@ class Tile {
   late ImageStreamListener _listener;
 
   Tile({
-    required this.coords,
+    required this.coordinate,
     required this.tilePos,
     required this.imageProvider,
     required final TickerProvider vsync,
@@ -104,27 +106,27 @@ class Tile {
   void _tileOnLoad(ImageInfo imageInfo, bool synchronousCall) {
     if (tileReady != null) {
       this.imageInfo = imageInfo;
-      tileReady!(coords, null, this);
+      tileReady!(coordinate, null, this);
     }
   }
 
   void _tileOnError(dynamic exception, StackTrace? stackTrace) {
     if (tileReady != null) {
-      tileReady!(
-          coords, exception ?? 'Unknown exception during loadTileImage', this);
+      tileReady!(coordinate,
+          exception ?? 'Unknown exception during loadTileImage', this);
     }
   }
 
-  String get coordsKey => coords.key;
+  String get coordsKey => coordinate.key;
 
-  double zIndex(double maxZoom, double currentZoom) =>
-      maxZoom - (currentZoom - coords.z).abs();
+  double zIndex(double maxZoom, int currentZoom) =>
+      maxZoom - (currentZoom - coordinate.z).abs();
 
   @override
-  int get hashCode => coords.hashCode;
+  int get hashCode => coordinate.hashCode;
 
   @override
   bool operator ==(Object other) {
-    return other is Tile && coords == other.coords;
+    return other is Tile && coordinate == other.coordinate;
   }
 }

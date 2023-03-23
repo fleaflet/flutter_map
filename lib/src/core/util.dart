@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:tuple/tuple.dart';
-
 var _templateRe = RegExp(r'\{ *([\w_-]+) *\}');
 
 /// Replaces the templating placeholders with the provided data map.
@@ -22,13 +20,6 @@ String template(String str, Map<String, String> data) {
       return value;
     }
   });
-}
-
-double wrapNum(double x, Tuple2<double, double> range, [bool? includeMax]) {
-  final max = range.item2;
-  final min = range.item1;
-  final d = max - min;
-  return x == max && includeMax != null ? x : ((x - min) % d + d) % d + min;
 }
 
 StreamTransformer<T, T> throttleStreamTransformerWithTrailingCall<T>(

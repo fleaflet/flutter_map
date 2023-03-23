@@ -15,14 +15,15 @@ class TileTransformation {
 
   factory TileTransformation.calculate({
     required FlutterMapState map,
-    required double tileZoom,
+    required int tileZoom,
     required CustomPoint tileSize,
   }) {
+    final tzDouble = tileZoom.toDouble();
     final translate = map.project(
       map.unproject(map.pixelOrigin),
-      tileZoom,
+      tzDouble,
     );
-    final scale = map.getZoomScale(map.zoom, tileZoom);
+    final scale = map.getZoomScale(map.zoom, tzDouble);
 
     return TileTransformation(
       scaledTileSize: tileSize * scale,

@@ -2,13 +2,13 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_map/src/layer/tile_layer/coords.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_coordinate.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provider.dart';
 
 class AssetTileProvider extends TileProvider {
   @override
-  AssetImage getImage(Coords<num> coords, TileLayer options) {
+  AssetImage getImage(TileCoordinate coords, TileLayer options) {
     return AssetImage(
       getTileUrl(coords, options),
       bundle: _FlutterMapAssetBundle(

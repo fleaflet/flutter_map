@@ -21,7 +21,7 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
 
   // mix of [coordinateDebugTileBuilder] and [loadingTimeDebugTileBuilder] from tile_builder.dart
   Widget tileBuilder(BuildContext context, Widget tileWidget, Tile tile) {
-    final coords = tile.coords;
+    final coords = tile.coordinate;
 
     return Container(
       decoration: BoxDecoration(

@@ -4,11 +4,9 @@ import 'dart:async';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/core/positioned_tap_detector_2.dart';
-import 'package:latlong2/latlong.dart';
-
 import 'package:flutter_map/src/core/center_zoom.dart';
 import 'package:flutter_map/src/core/point.dart';
+import 'package:flutter_map/src/core/positioned_tap_detector_2.dart';
 import 'package:flutter_map/src/geo/crs/crs.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/gestures/interactive_flag.dart';
@@ -16,6 +14,7 @@ import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/map.dart';
+import 'package:latlong2/latlong.dart';
 
 export 'package:flutter_map/src/core/center_zoom.dart';
 export 'package:flutter_map/src/core/point.dart';
@@ -31,12 +30,12 @@ export 'package:flutter_map/src/layer/marker_layer.dart';
 export 'package:flutter_map/src/layer/overlay_image_layer.dart';
 export 'package:flutter_map/src/layer/polygon_layer.dart';
 export 'package:flutter_map/src/layer/polyline_layer.dart';
-export 'package:flutter_map/src/layer/tile_layer/coords.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_builder.dart';
+export 'package:flutter_map/src/layer/tile_layer/tile_coordinate.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
-export 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provider.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_provider/asset_tile_provider.dart';
+export 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provider.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_provider/file_tile_provider_io.dart'
     if (dart.library.html) 'package:flutter_map/src/layer/tile_layer/tile_provider/file_tile_provider_web.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_provider/tile_provider_io.dart'

@@ -80,7 +80,7 @@ Widget coordinateDebugTileBuilder(
   Widget tileWidget,
   Tile tile,
 ) {
-  final coords = tile.coords;
+  final coords = tile.coordinate;
   final readableKey =
       '${coords.x.floor()} : ${coords.y.floor()} : ${coords.z.floor()}';
 
