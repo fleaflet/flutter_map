@@ -56,20 +56,26 @@ abstract class MapGestureMixin extends State<FlutterMap>
     if (pointerSignal is PointerScrollEvent &&
         mapState.options.enableScrollWheel &&
         pointerSignal.scrollDelta.dy != 0) {
-      // Calculate new zoom level
-      final minZoom = mapState.options.minZoom ?? 0.0;
-      final maxZoom = mapState.options.maxZoom ?? double.infinity;
-      final newZoom = (mapState.zoom -
-              pointerSignal.scrollDelta.dy *
-                  mapState.options.scrollWheelVelocity)
-          .clamp(minZoom, maxZoom);
-      // Calculate offset of mouse cursor from viewport center
-      final List<dynamic> newCenterZoom = _getNewEventCenterZoomPosition(
-          _offsetToPoint(pointerSignal.localPosition), newZoom);
+      // Prevent scrolling of parent/child widgets simultaneously. See
+      // [PointerSignalResolver] documentation for more information.
+      GestureBinding.instance.pointerSignalResolver.register(pointerSignal,
+          (pointerSignal) {
+        pointerSignal as PointerScrollEvent;
 
-      // Move to new center and zoom level
-      mapState.move(newCenterZoom[0] as LatLng, newCenterZoom[1] as double,
-          source: MapEventSource.scrollWheel);
+        final minZoom = mapState.options.minZoom ?? 0.0;
+        final maxZoom = mapState.options.maxZoom ?? double.infinity;
+        final newZoom = (mapState.zoom -
+                pointerSignal.scrollDelta.dy *
+                    mapState.options.scrollWheelVelocity)
+            .clamp(minZoom, maxZoom);
+        // Calculate offset of mouse cursor from viewport center
+        final List<dynamic> newCenterZoom = _getNewEventCenterZoomPosition(
+            _offsetToPoint(pointerSignal.localPosition), newZoom);
+
+        // Move to new center and zoom level
+        mapState.move(newCenterZoom[0] as LatLng, newCenterZoom[1] as double,
+            source: MapEventSource.scrollWheel);
+      });
     }
   }
 
