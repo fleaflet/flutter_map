@@ -27,7 +27,7 @@ class Tile {
 
   // callback when tile is ready / error occurred
   // it maybe be null for instance when download aborted
-  TileReady? tileReady;
+  TileReady? onTileReady;
   ImageInfo? imageInfo;
   ImageStream? _imageStream;
   late ImageStreamListener _listener;
@@ -36,7 +36,7 @@ class Tile {
     required this.coordinate,
     required this.imageProvider,
     required final TickerProvider vsync,
-    this.tileReady,
+    this.onTileReady,
     this.current = false,
     this.active = false,
     this.retain = false,
@@ -99,15 +99,15 @@ class Tile {
   }
 
   void _tileOnLoad(ImageInfo imageInfo, bool synchronousCall) {
-    if (tileReady != null) {
+    if (onTileReady != null) {
       this.imageInfo = imageInfo;
-      tileReady!(coordinate, null, this);
+      onTileReady!(coordinate, null, this);
     }
   }
 
   void _tileOnError(dynamic exception, StackTrace? stackTrace) {
-    if (tileReady != null) {
-      tileReady!(coordinate,
+    if (onTileReady != null) {
+      onTileReady!(coordinate,
           exception ?? 'Unknown exception during loadTileImage', this);
     }
   }

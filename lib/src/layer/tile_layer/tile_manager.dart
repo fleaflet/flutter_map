@@ -125,7 +125,7 @@ class TileManager {
     for (final key in toRemove) {
       final tile = _tiles[key]!;
 
-      tile.tileReady = null;
+      tile.onTileReady = null;
       tile.dispose(
           tile.loadError && evictionStrategy != EvictErrorTileStrategy.none);
       _tiles.remove(key);
