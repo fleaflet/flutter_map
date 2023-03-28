@@ -71,10 +71,20 @@ class PolygonLayer extends StatelessWidget {
   /// screen space culling of polygons based on bounding box
   final bool polygonCulling;
 
+  /// The layer allows to rasterize and translate the underlying canvas on
+  /// panning the map (does not apply for rotations and zooming). This can
+  /// greatly improve performance if the set polygons in the map's viewport
+  /// doesn't change. However, rasterization comes at a fixed overhead, which
+  /// amortizes when drawing the canvas itself is costly and the use-case makes
+  /// this pan-only optimization worthwhile. Setting the threshold to a large
+  /// value will basically deactivate the optimization entirely.
+  final int rasterizationThreshold;
+
   const PolygonLayer({
     super.key,
     this.polygons = const [],
     this.polygonCulling = false,
+    this.rasterizationThreshold = 128,
   });
 
   @override
@@ -84,10 +94,10 @@ class PolygonLayer extends StatelessWidget {
     final origin = map.pixelOrigin;
     final offset = Offset(origin.x.toDouble(), origin.y.toDouble());
 
-    final Iterable<Polygon> pgons = polygonCulling
+    final List<Polygon> pgons = polygonCulling
         ? polygons.where((p) {
             return p.boundingBox.isOverlapping(map.bounds);
-          })
+          }).toList()
         : polygons;
 
     final paint = CustomPaint(
@@ -95,16 +105,18 @@ class PolygonLayer extends StatelessWidget {
       size: size,
       isComplex: true,
     );
+
+    final rasterize = !kIsWeb && pgons.length > rasterizationThreshold;
     return Positioned(
       left: -offset.dx,
       top: -offset.dy,
-      child: kIsWeb ? paint : RepaintBoundary(child: paint),
+      child: rasterize ? RepaintBoundary(child: paint) : paint,
     );
   }
 }
 
 class PolygonPainter extends CustomPainter {
-  final Iterable<Polygon> polygons;
+  final List<Polygon> polygons;
   final FlutterMapState map;
   final double zoom;
   final double rotation;
@@ -285,6 +297,7 @@ class PolygonPainter extends CustomPainter {
     return kIsWeb ||
         oldDelegate.zoom != zoom ||
         oldDelegate.rotation != rotation ||
+        oldDelegate.polygons.length != polygons.length ||
         oldDelegate.hash != hash;
   }
 }
