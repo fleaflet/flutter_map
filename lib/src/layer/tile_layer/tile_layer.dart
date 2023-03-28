@@ -11,14 +11,14 @@ import 'package:flutter_map/src/geo/crs/crs.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_bounds.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_builder.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinate.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_manager.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provider.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/tile_provider_web.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_transformation.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_widget.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 
@@ -318,15 +318,15 @@ class TileLayer extends StatefulWidget {
 }
 
 class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
-  bool _boundsInitialized = false;
+  bool _initializedFromMapState = false;
 
   late TileBounds _tileBounds;
+  late TileScaleCalculator _tileScaleCalculator;
 
   int? _tileZoom;
 
   StreamSubscription<MapEvent>? _movementSubscription;
   StreamSubscription<void>? _resetSub;
-  late CustomPoint _tileSize;
 
   late final TileManager _tileManager;
 
@@ -336,7 +336,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _tileManager = TileManager();
-    _tileSize = CustomPoint(widget.tileSize, widget.tileSize);
 
     if (widget.reset != null) {
       _resetSub = widget.reset?.listen(
@@ -350,23 +349,41 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _movementSubscription?.cancel();
+
     final mapState = FlutterMapState.maybeOf(context)!;
 
+    _movementSubscription?.cancel();
     _movementSubscription = mapState.mapController.mapEventStream.listen(
-      (mapEvent) => _onMove(mapState, mapEvent),
+      (mapEvent) => _loadAndPruneTiles(mapState),
     );
 
-    if (!_boundsInitialized ||
+    bool reloadTiles = false;
+    if (!_initializedFromMapState ||
         _tileBounds.shouldReplace(
-            mapState.options.crs, _tileSize, widget.tileBounds)) {
+            mapState.options.crs, widget.tileSize, widget.tileBounds)) {
+      reloadTiles = true;
       _tileBounds = TileBounds(
         crs: mapState.options.crs,
-        tileSize: _tileSize,
+        tileSize: widget.tileSize,
         latLngBounds: widget.tileBounds,
       );
-      _boundsInitialized = true;
     }
+
+    if (!_initializedFromMapState ||
+        _tileScaleCalculator.shouldReplace(
+            mapState.options.crs, widget.tileSize)) {
+      reloadTiles = true;
+      _tileScaleCalculator = TileScaleCalculator(
+        crs: mapState.options.crs,
+        tileSize: widget.tileSize,
+      );
+    }
+
+    if (reloadTiles) {
+      _loadAndPruneTiles(mapState);
+    }
+
+    _initializedFromMapState = true;
   }
 
   @override
@@ -374,17 +391,21 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     super.didUpdateWidget(oldWidget);
     var reloadTiles = false;
 
-    if (oldWidget.tileSize != widget.tileSize) {
-      _tileSize = CustomPoint(widget.tileSize, widget.tileSize);
+    if (_tileBounds.shouldReplace(
+        _tileBounds.crs, widget.tileSize, widget.tileBounds)) {
+      _tileBounds = TileBounds(
+        crs: _tileBounds.crs,
+        tileSize: widget.tileSize,
+        latLngBounds: widget.tileBounds,
+      );
       reloadTiles = true;
     }
 
-    if (_tileBounds.shouldReplace(
-        _tileBounds.crs, _tileSize, widget.tileBounds)) {
-      _tileBounds = TileBounds(
-        crs: _tileBounds.crs,
-        tileSize: _tileSize,
-        latLngBounds: widget.tileBounds,
+    if (_tileScaleCalculator.shouldReplace(
+        _tileScaleCalculator.crs, widget.tileSize)) {
+      _tileScaleCalculator = TileScaleCalculator(
+        crs: _tileScaleCalculator.crs,
+        tileSize: widget.tileSize,
       );
     }
 
@@ -415,6 +436,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     if (reloadTiles) {
       _tileManager.removeAll(widget.evictErrorTileStrategy);
+      _loadAndPruneTiles(FlutterMapState.maybeOf(context)!);
     }
   }
 
@@ -429,15 +451,14 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  void _onMove(FlutterMapState mapState, MapEvent mapEvent) {
+  void _loadAndPruneTiles(FlutterMapState mapState) {
     _tileZoom = _clampToNativeZoom(mapState.zoom.round());
-    if ((_tileZoom! > widget.maxZoom) || (_tileZoom! < widget.minZoom)) {
+
+    if (_outsideZoomLimits(_tileZoom!)) {
       _tileZoom = null;
+    } else {
+      _update(mapState, _tileZoom!);
     }
-
-    _tileManager.abortLoading(_tileZoom, widget.evictErrorTileStrategy);
-
-    if (_tileZoom != null) _update(mapState, _tileZoom!);
 
     _pruneTiles();
   }
@@ -445,33 +466,30 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final map = FlutterMapState.maybeOf(context)!;
-    final mapZoom = map.zoom.roundToDouble();
-    if (mapZoom < widget.minZoom || mapZoom > widget.maxZoom) {
+    final roundedMapZoom = map.zoom.round();
+    if (_outsideZoomLimits(roundedMapZoom)) {
       return const SizedBox.shrink();
     }
 
-    final tileZoom = _clampToNativeZoom(map.zoom.round());
+    final tileZoom = _clampToNativeZoom(roundedMapZoom);
     final tilesToRender = _tileManager.sortedByDistanceToZoomAscending(
       widget.maxZoom,
       tileZoom,
     );
 
-    final Map<int, TileTransformation> zoomToTransformation = {};
-
+    _tileScaleCalculator.clearCacheUnlessZoomMatches(map.zoom);
     final tileWidgets = <Widget>[
       for (var tile in tilesToRender)
         AnimatedTile(
-          // TODO Not animated
           key: ValueKey(tile.coordsKey),
           tile: tile,
-          size: _tileSize,
-          tileTransformation: zoomToTransformation[tile.coordinate.z] ??
-              (zoomToTransformation[tile.coordinate.z] =
-                  TileTransformation.calculate(
-                map: map,
-                tileZoom: tile.coordinate.z,
-                tileSize: _tileSize,
-              )),
+          currentPixelOrigin: map.pixelOrigin,
+          scaledTileSize: _tileScaleCalculator.scaledTileSize(
+            map.zoom,
+            tile.coordinate.z,
+          ),
+          errorImage: widget.errorImage,
+          tileBuilder: widget.tileBuilder,
         )
     ];
 
@@ -486,8 +504,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     );
   }
 
-  CustomPoint getTileSize() => _tileSize;
-
   int _clampToNativeZoom(int zoom) {
     if (widget.minNativeZoom != null) {
       zoom = math.max(zoom, widget.minNativeZoom!);
@@ -501,9 +517,11 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   // Load tiles in the grid's active zoom level according to map bounds
   void _update(FlutterMapState map, int tileZoom) {
+    _tileManager.abortLoading(_tileZoom, widget.evictErrorTileStrategy);
+
     final tileLoadRange = DiscreteTileRange.fromPixelBounds(
       zoom: tileZoom,
-      tileSize: _tileSize,
+      tileSize: widget.tileSize,
       pixelBounds: _visiblePixelBoundsAtZoom(map, tileZoom.toDouble()),
     )..expand(widget.panBuffer);
 
@@ -538,7 +556,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         coords,
         Tile(
           coordinate: coords,
-          tilePos: coords.scaleBy(_tileSize),
           current: true,
           imageProvider: widget.tileProvider.getImage(
             tileBoundsAtZoom.wrap(coords),
@@ -631,4 +648,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       _tileManager.prune(widget.evictErrorTileStrategy);
     }
   }
+
+  bool _outsideZoomLimits(num zoom) =>
+      zoom < widget.minZoom || zoom > widget.maxZoom;
 }

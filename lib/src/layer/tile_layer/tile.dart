@@ -1,5 +1,4 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinate.dart';
 
 typedef TileReady = void Function(
@@ -9,9 +8,6 @@ class Tile {
   /// The z of the coords is the tile's zoom level whilst the x and y indicate
   /// the coordinate position of the tile at that zoom level.
   final TileCoordinate coordinate;
-
-  /// The pixel position of this tile on the map at its zoom level.
-  final CustomPoint<num> tilePos;
 
   ImageProvider imageProvider;
 
@@ -38,7 +34,6 @@ class Tile {
 
   Tile({
     required this.coordinate,
-    required this.tilePos,
     required this.imageProvider,
     required final TickerProvider vsync,
     this.tileReady,

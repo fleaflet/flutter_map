@@ -1,42 +1,48 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_transformation.dart';
-import 'package:vector_math/vector_math_64.dart';
 
 class AnimatedTile extends StatelessWidget {
-  static final Vector3 _tileVectorStorage = Vector3.all(1);
-  static final Vector3 _transformedTileVectorStorage = Vector3.zero();
-
   final Tile tile;
-  final CustomPoint size;
-  final TileTransformation tileTransformation;
+  final CustomPoint currentPixelOrigin;
+  final double scaledTileSize;
+  final ImageProvider? errorImage;
+  final TileBuilder? tileBuilder;
 
   const AnimatedTile({
+    super.key,
     required this.tile,
-    required this.size,
-    required this.tileTransformation,
-    Key? key,
-  }) : super(key: key);
+    required this.currentPixelOrigin,
+    required this.scaledTileSize,
+    required this.errorImage,
+    required this.tileBuilder,
+  });
 
   @override
   Widget build(BuildContext context) {
-    _tileVectorStorage.x = tile.tilePos.x.toDouble();
-    _tileVectorStorage.y = tile.tilePos.y.toDouble();
+    final pos = tile.coordinate.multiplyBy(scaledTileSize) - currentPixelOrigin;
 
-    final transformedTilePos = tileTransformation.transformation.transformed(
-      _tileVectorStorage,
-      _transformedTileVectorStorage,
-    );
+    Widget tileWidget;
+    if (tile.loadError && errorImage != null) {
+      tileWidget = Image(image: errorImage!);
+    } else if (tile.animationController == null) {
+      tileWidget = RawImage(image: tile.imageInfo?.image, fit: BoxFit.fill);
+    } else {
+      tileWidget = AnimatedBuilder(
+        animation: tile.animationController!,
+        builder: (context, child) => RawImage(
+          image: tile.imageInfo?.image,
+          fit: BoxFit.fill,
+          opacity: tile.animationController!,
+        ),
+      );
+    }
 
     return Positioned(
-      left: transformedTilePos.x,
-      top: transformedTilePos.y,
-      width: tileTransformation.scaledTileSize.x.toDouble(),
-      height: tileTransformation.scaledTileSize.y.toDouble(),
-      child: RawImage(
-        image: tile.imageInfo?.image,
-        fit: BoxFit.fill,
-      ),
+      left: pos.x.toDouble(),
+      top: pos.y.toDouble(),
+      width: scaledTileSize,
+      height: scaledTileSize,
+      child: tileBuilder?.call(context, tileWidget, tile) ?? tileWidget,
     );
   }
 }

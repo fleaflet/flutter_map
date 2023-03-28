@@ -1,6 +1,6 @@
 import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_bounds.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinate.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinate.dart';
@@ -5,13 +7,13 @@ import 'package:flutter_map/src/layer/tile_layer/tile_coordinate.dart';
 abstract class TileRange {
   final int zoom;
 
-  const TileRange._(this.zoom);
+  const TileRange(this.zoom);
 
   Iterable<TileCoordinate> get coordinates;
 }
 
 class EmptyTileRange extends TileRange {
-  const EmptyTileRange._(int zoom) : super._(zoom);
+  const EmptyTileRange._(super.zoom);
 
   @override
   Iterable<TileCoordinate> get coordinates =>
@@ -22,25 +24,32 @@ class DiscreteTileRange extends TileRange {
   // Bounds are inclusive
   final Bounds<int> _bounds;
 
-  const DiscreteTileRange._(int zoom, this._bounds) : super._(zoom);
+  const DiscreteTileRange(super.zoom, this._bounds);
 
   factory DiscreteTileRange.fromPixelBounds({
     required int zoom,
-    required CustomPoint<num> tileSize,
+    required double tileSize,
     required Bounds<num> pixelBounds,
   }) {
-    final bounds = Bounds<int>(
-      pixelBounds.min.unscaleBy(tileSize).floor().cast<int>(),
-      pixelBounds.max.unscaleBy(tileSize).floor().cast<int>(),
-    );
+    final Bounds<int> bounds;
+    if (pixelBounds.min == pixelBounds.max) {
+      final minAndMax = (pixelBounds.min / tileSize).floor().cast<int>();
+      bounds = Bounds<int>(minAndMax, minAndMax);
+    } else {
+      bounds = Bounds<int>(
+        (pixelBounds.min / tileSize).floor().cast<int>(),
+        (pixelBounds.max / tileSize).ceil().cast<int>() -
+            const CustomPoint(1, 1),
+      );
+    }
 
-    return DiscreteTileRange._(zoom, bounds);
+    return DiscreteTileRange(zoom, bounds);
   }
 
   DiscreteTileRange expand(int count) {
     if (count == 0) return this;
 
-    return DiscreteTileRange._(
+    return DiscreteTileRange(
       zoom,
       _bounds
           .extend(
@@ -57,7 +66,37 @@ class DiscreteTileRange extends TileRange {
 
     if (boundsIntersection == null) return EmptyTileRange._(zoom);
 
-    return DiscreteTileRange._(zoom, boundsIntersection);
+    return DiscreteTileRange(zoom, boundsIntersection);
+  }
+
+  // Inclusive
+  TileRange intersectX(int minX, int maxX) {
+    if (_bounds.min.x > maxX || _bounds.max.x < minX) {
+      return EmptyTileRange._(zoom);
+    }
+
+    return DiscreteTileRange(
+      zoom,
+      Bounds(
+        CustomPoint(math.max(min.x, minX), min.y),
+        CustomPoint(math.min(max.x, maxX), max.y),
+      ),
+    );
+  }
+
+  // Inclusive
+  TileRange intersectY(int minY, int maxY) {
+    if (_bounds.min.y > maxY || _bounds.max.y < minY) {
+      return EmptyTileRange._(zoom);
+    }
+
+    return DiscreteTileRange(
+      zoom,
+      Bounds(
+        CustomPoint(min.x, math.max(min.y, minY)),
+        CustomPoint(max.x, math.min(max.y, maxY)),
+      ),
+    );
   }
 
   bool contains(CustomPoint<int> point) {
@@ -78,4 +117,7 @@ class DiscreteTileRange extends TileRange {
       }
     }
   }
+
+  @override
+  String toString() => 'DiscreteTileRange($min, $max)';
 }
