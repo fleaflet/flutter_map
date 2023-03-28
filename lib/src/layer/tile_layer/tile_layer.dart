@@ -15,7 +15,7 @@ import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_builder.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinate.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_manager.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_image_manager.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provider.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/tile_provider_web.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
@@ -302,7 +302,7 @@ class TileLayer extends StatefulWidget {
 class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   bool _initializedFromMapState = false;
 
-  final TileManager _tileManager = TileManager();
+  final TileImageManager _tileImageManager = TileImageManager();
   late TileBounds _tileBounds;
   late TileScaleCalculator _tileScaleCalculator;
 
@@ -316,7 +316,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     if (widget.reset != null) {
       _resetSub = widget.reset?.listen(
-        (_) => _tileManager.removeAll(
+        (_) => _tileImageManager.removeAll(
           widget.evictErrorTileStrategy,
         ),
       );
@@ -390,7 +390,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       reloadTiles = true;
     }
 
-    reloadTiles |= !_tileManager.allWithinZoom(widget.minZoom, widget.maxZoom);
+    reloadTiles |=
+        !_tileImageManager.allWithinZoom(widget.minZoom, widget.maxZoom);
 
     if (!reloadTiles) {
       final oldUrl =
@@ -404,7 +405,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
           !(const MapEquality<String, String>())
               .equals(oldOptions, newOptions)) {
         if (widget.overrideTilesWhenUrlChanges) {
-          _tileManager.reloadImages(widget, _tileBounds);
+          _tileImageManager.reloadImages(widget, _tileBounds);
           _loadAndPruneTiles(FlutterMapState.maybeOf(context)!);
         } else {
           reloadTiles = true;
@@ -413,7 +414,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     }
 
     if (reloadTiles) {
-      _tileManager.removeAll(widget.evictErrorTileStrategy);
+      _tileImageManager.removeAll(widget.evictErrorTileStrategy);
       _loadAndPruneTiles(FlutterMapState.maybeOf(context)!);
     }
   }
@@ -421,7 +422,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   @override
   void dispose() {
     _movementSubscription?.cancel();
-    _tileManager.removeAll(widget.evictErrorTileStrategy);
+    _tileImageManager.removeAll(widget.evictErrorTileStrategy);
     _resetSub?.cancel();
     _pruneLater?.cancel();
     widget.tileProvider.dispose();
@@ -434,19 +435,19 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     if (!_outsideZoomLimits(tileZoom)) _update(mapState, tileZoom);
 
-    _tileManager.prune(widget.evictErrorTileStrategy);
+    _tileImageManager.prune(widget.evictErrorTileStrategy);
   }
 
   @override
   Widget build(BuildContext context) {
     final map = FlutterMapState.maybeOf(context)!;
+
     final roundedMapZoom = map.zoom.round();
-    if (_outsideZoomLimits(roundedMapZoom)) {
-      return const SizedBox.shrink();
-    }
+    if (_outsideZoomLimits(roundedMapZoom)) return const SizedBox.shrink();
 
     final tileZoom = _clampToNativeZoom(roundedMapZoom);
-    final tileImagesToRender = _tileManager.sortedByDistanceToZoomAscending(
+    final tileImagesToRender =
+        _tileImageManager.sortedByDistanceToZoomAscending(
       widget.maxZoom,
       tileZoom,
     );
@@ -457,24 +458,23 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     );
 
     _tileScaleCalculator.clearCacheUnlessZoomMatches(map.zoom);
-    final tileWidgets = <Widget>[
-      for (var tileImage in tileImagesToRender)
-        Tile(
-          key: ValueKey(tileImage.coordsKey),
-          tileImage: tileImage,
-          currentPixelOrigin: currentPixelOrigin,
-          scaledTileSize: _tileScaleCalculator.scaledTileSize(
-            map.zoom,
-            tileImage.coordinate.z,
-          ),
-          tileBuilder: widget.tileBuilder,
-        )
-    ];
 
     return Container(
       color: widget.backgroundColor,
       child: Stack(
-        children: tileWidgets,
+        children: [
+          for (var tileImage in tileImagesToRender)
+            Tile(
+              key: ValueKey(tileImage.coordsKey),
+              tileImage: tileImage,
+              currentPixelOrigin: currentPixelOrigin,
+              scaledTileSize: _tileScaleCalculator.scaledTileSize(
+                map.zoom,
+                tileImage.coordinate.z,
+              ),
+              tileBuilder: widget.tileBuilder,
+            )
+        ],
       ),
     );
   }
@@ -492,7 +492,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   // Load tiles in the grid's active zoom level according to map bounds
   void _update(FlutterMapState map, int tileZoom) {
-    _tileManager.abortLoading(tileZoom, widget.evictErrorTileStrategy);
+    _tileImageManager.abortLoading(tileZoom, widget.evictErrorTileStrategy);
 
     final tileLoadRange = DiscreteTileRange.fromPixelBounds(
       zoom: tileZoom,
@@ -501,7 +501,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     )..expand(widget.panBuffer);
 
     // Mark tiles for pruning.
-    _tileManager.markToPrune(
+    _tileImageManager.markToPrune(
       tileZoom,
       tileLoadRange.expand(widget.keepBuffer),
     );
@@ -510,11 +510,11 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     final tileBoundsAtZoom = _tileBounds.atZoom(tileZoom);
     final queue = tileBoundsAtZoom
         .validCoordinatesIn(tileLoadRange)
-        .where((coord) => !_tileManager.markTileWithCoordsAsCurrent(coord))
+        .where((coord) => !_tileImageManager.markTileWithCoordsAsCurrent(coord))
         .toList();
 
     // Evict tiles which have been marked for pruning.
-    _tileManager.evictErrorTilesBasedOnStrategy(
+    _tileImageManager.evictErrorTilesBasedOnStrategy(
       tileLoadRange,
       widget.evictErrorTileStrategy,
     );
@@ -527,7 +527,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     // Create the new Tiles.
     for (final coords in queue) {
-      _tileManager.add(
+      _tileImageManager.add(
         coords,
         TileImage(
           vsync: this,
@@ -560,13 +560,13 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   }
 
   void _onTileLoadComplete(TileCoordinate coordinate) {
-    final tile = _tileManager.tileAt(coordinate);
+    final tile = _tileImageManager.tileAt(coordinate);
     if (tile == null) return;
-    if (!_tileManager.allLoaded) return;
+    if (!_tileImageManager.allLoaded) return;
 
     if (widget.fastReplace) {
       // We're not waiting for anything, prune the tiles immediately.
-      _tileManager.prune(widget.evictErrorTileStrategy);
+      _tileImageManager.prune(widget.evictErrorTileStrategy);
     } else {
       // Wait a bit more than tileFadeInDuration to trigger a pruning so that
       // we don't see tile removal under a fading tile.
@@ -575,7 +575,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         widget.tileFadeIn == null
             ? const Duration(milliseconds: 50)
             : widget.tileFadeIn!.duration + const Duration(milliseconds: 50),
-        () => _tileManager.prune(widget.evictErrorTileStrategy),
+        () => _tileImageManager.prune(widget.evictErrorTileStrategy),
       );
     }
   }

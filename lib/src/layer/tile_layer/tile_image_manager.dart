@@ -5,7 +5,7 @@ import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 
-class TileManager {
+class TileImageManager {
   final Map<String, TileImage> _tiles = {};
 
   List<TileImage> all() => _tiles.values.toList();
