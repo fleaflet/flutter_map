@@ -1,16 +1,17 @@
 import 'package:flutter_map/src/core/point.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinate.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 
 class TileManager {
-  final Map<String, Tile> _tiles = {};
+  final Map<String, TileImage> _tiles = {};
 
-  List<Tile> all() => _tiles.values.toList();
+  List<TileImage> all() => _tiles.values.toList();
 
-  List<Tile> sortedByDistanceToZoomAscending(double maxZoom, int currentZoom) {
+  List<TileImage> sortedByDistanceToZoomAscending(
+      double maxZoom, int currentZoom) {
     return [..._tiles.values]..sort((a, b) => a
         .zIndex(maxZoom, currentZoom)
         .compareTo(b.zIndex(maxZoom, currentZoom)));
@@ -26,11 +27,11 @@ class TileManager {
     return false;
   }
 
-  Tile? tileAt(TileCoordinate coords) => _tiles[coords.key];
+  TileImage? tileAt(TileCoordinate coords) => _tiles[coords.key];
 
   bool get allLoaded {
     for (final entry in _tiles.entries) {
-      if (entry.value.loaded == null) {
+      if (entry.value.loadFinishedAt == null) {
         return false;
       }
     }
@@ -56,7 +57,7 @@ class TileManager {
     }
   }
 
-  void add(TileCoordinate coords, Tile tile) {
+  void add(TileCoordinate coords, TileImage tile) {
     _tiles[coords.key] = tile;
 
     // This must be done after storing the Tile in the TileManager otherwise
@@ -65,37 +66,32 @@ class TileManager {
     tile.loadTileImage();
   }
 
-  void remove(String key, EvictErrorTileStrategy evictStrategy) {
-    final tile = _tiles[key];
-    if (tile == null) {
-      return;
+  /// All removals should be performed by calling this method to ensure that
+  // disposal is performed correctly.
+  void _remove(
+    String key, {
+    required bool Function(TileImage tileImage) evictImageFromCache,
+  }) {
+    final removed = _tiles.remove(key);
+
+    if (removed != null) {
+      removed.dispose(evictImageFromCache: evictImageFromCache(removed));
     }
+  }
 
-    tile.dispose(
-        tile.loadError && evictStrategy != EvictErrorTileStrategy.none);
-
-    _tiles.remove(key);
+  void _removeWithDefaultEviction(String key, EvictErrorTileStrategy strategy) {
+    _remove(
+      key,
+      evictImageFromCache: (tileImage) =>
+          tileImage.loadError && strategy != EvictErrorTileStrategy.none,
+    );
   }
 
   void removeAll(EvictErrorTileStrategy evictStrategy) {
-    final toRemove = Map<String, Tile>.from(_tiles);
+    final toRemove = Map<String, TileImage>.from(_tiles);
 
     for (final key in toRemove.keys) {
-      remove(key, evictStrategy);
-    }
-  }
-
-  void removeAtZoom(double zoom, EvictErrorTileStrategy evictStrategy) {
-    final toRemove = <String>[];
-    for (final entry in _tiles.entries) {
-      if (entry.value.coordinate.z != zoom) {
-        continue;
-      }
-      toRemove.add(entry.key);
-    }
-
-    for (final key in toRemove) {
-      remove(key, evictStrategy);
+      _removeWithDefaultEviction(key, evictStrategy);
     }
   }
 
@@ -117,18 +113,13 @@ class TileManager {
     for (final entry in _tiles.entries) {
       final tile = entry.value;
 
-      if (tile.coordinate.z != tileZoom && tile.loaded == null) {
+      if (tile.coordinate.z != tileZoom && tile.loadFinishedAt == null) {
         toRemove.add(entry.key);
       }
     }
 
     for (final key in toRemove) {
-      final tile = _tiles[key]!;
-
-      tile.onTileReady = null;
-      tile.dispose(
-          tile.loadError && evictionStrategy != EvictErrorTileStrategy.none);
-      _tiles.remove(key);
+      _removeWithDefaultEviction(key, evictionStrategy);
     }
   }
 
@@ -158,8 +149,7 @@ class TileManager {
       }
 
       for (final key in toRemove) {
-        _tiles[key]!.dispose(true);
-        _tiles.remove(key);
+        _remove(key, evictImageFromCache: (_) => true);
       }
     } else if (evictStrategy == EvictErrorTileStrategy.notVisible) {
       final toRemove = <String>[];
@@ -174,8 +164,7 @@ class TileManager {
       }
 
       for (final key in toRemove) {
-        _tiles[key]!.dispose(true);
-        _tiles.remove(key);
+        _remove(key, evictImageFromCache: (_) => true);
       }
     }
   }
@@ -200,7 +189,7 @@ class TileManager {
     }
 
     for (final key in toRemove) {
-      remove(key, evictStrategy);
+      _removeWithDefaultEviction(key, evictStrategy);
     }
   }
 
@@ -217,7 +206,7 @@ class TileManager {
           if (tile.active) {
             tile.retain = true;
             continue;
-          } else if (tile.loaded != null) {
+          } else if (tile.loadFinishedAt != null) {
             tile.retain = true;
           }
         }
@@ -243,7 +232,7 @@ class TileManager {
       if (tile.active) {
         tile.retain = true;
         return true;
-      } else if (tile.loaded != null) {
+      } else if (tile.loadFinishedAt != null) {
         tile.retain = true;
       }
     }

@@ -16,7 +16,11 @@ enum EvictErrorTileStrategy {
   notVisible,
 }
 
-typedef ErrorTileCallBack = void Function(Tile tile, dynamic error);
+typedef ErrorTileCallBack = void Function(
+  TileImage tile,
+  Object error,
+  StackTrace? stackTrace,
+);
 
 class WMSTileLayerOptions {
   final service = 'WMS';
@@ -104,4 +108,26 @@ class WMSTileLayerOptions {
     buffer.write('&bbox=${bbox.join(',')}');
     return buffer.toString();
   }
+}
+
+class TileFadeIn {
+  final Duration duration;
+  final double startOpacity;
+  final double reloadStartOpacity;
+
+  /// Options for fading in tiles when they are loaded.
+  const TileFadeIn({
+    /// Duration of the fade.
+    this.duration = const Duration(milliseconds: 100),
+
+    /// Opacity start value when a tile is faded in. Valid range is (0.0 - 0.1).
+    this.startOpacity = 0.0,
+
+    /// Opacity start value when a tile is reloaded. A tile reload will occur
+    /// when the provider tile url changes and
+    /// [TileLayer.overrideTilesWhenUrlChanges] is true.
+    /// provider url. Valid range is (0.0 - 0.1).
+    this.reloadStartOpacity = 0.0,
+  })  : assert(startOpacity >= 0.0 && startOpacity <= 1.0),
+        assert(reloadStartOpacity >= 0.0 && reloadStartOpacity <= 1.0);
 }

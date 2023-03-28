@@ -20,7 +20,7 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
   int panBuffer = 0;
 
   // mix of [coordinateDebugTileBuilder] and [loadingTimeDebugTileBuilder] from tile_builder.dart
-  Widget tileBuilder(BuildContext context, Widget tileWidget, Tile tile) {
+  Widget tileBuilder(BuildContext context, Widget tileWidget, TileImage tile) {
     final coords = tile.coordinate;
 
     return Container(
@@ -42,10 +42,10 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
                   ),
                 if (loadingTime)
                   Text(
-                    tile.loaded == null
+                    tile.loadFinishedAt == null
                         ? 'Loading'
                         // sometimes result is negative which shouldn't happen, abs() corrects it
-                        : '${(tile.loaded!.millisecond - tile.loadStarted.millisecond).abs()} ms',
+                        : '${(tile.loadFinishedAt!.millisecond - tile.loadStarted!.millisecond).abs()} ms',
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
               ],

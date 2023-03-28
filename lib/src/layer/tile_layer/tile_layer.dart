@@ -14,12 +14,12 @@ import 'package:flutter_map/src/layer/tile_layer/tile.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_builder.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinate.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_manager.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provider.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/tile_provider_web.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_widget.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 
 part 'tile_layer_options.dart';
@@ -105,9 +105,6 @@ class TileLayer extends StatefulWidget {
   /// Color shown behind the tiles
   final Color backgroundColor;
 
-  /// Opacity of the rendered tile
-  final double opacity;
-
   /// Provider with which to load map tiles
   ///
   /// The default is [NetworkNoRetryTileProvider]. Alternatively, use
@@ -171,18 +168,9 @@ class TileLayer extends StatefulWidget {
   /// ```
   final Map<String, String> additionalOptions;
 
-  /// Tiles fade in duration in milliseconds (default 100). This can be null to
-  /// avoid fade in.
-  final Duration? tileFadeInDuration;
-
-  /// Opacity start value when Tile starts fade in (0.0 - 1.0) Takes effect if
-  /// `tileFadeInDuration` is not null
-  final double tileFadeInStart;
-
-  /// Opacity start value when an exists Tile starts fade in with different Url
-  /// (0.0 - 1.0) Takes effect when `tileFadeInDuration` is not null and if
-  /// `overrideTilesWhenUrlChanges` if true
-  final double tileFadeInStartWhenOverride;
+  /// Options for fading in tiles when they are loaded. If this is set to null
+  /// no fade is performed.
+  final TileFadeIn? tileFadeIn;
 
   /// `false`: current Tiles will be first dropped and then reload via new url
   /// (default) `true`: current Tiles will be visible until new ones aren't
@@ -265,10 +253,8 @@ class TileLayer extends StatefulWidget {
     TileProvider? tileProvider,
     this.tms = false,
     this.wmsOptions,
-    this.opacity = 1.0,
     Duration tileFadeInDuration = const Duration(milliseconds: 100),
-    this.tileFadeInStart = 0.0,
-    this.tileFadeInStartWhenOverride = 0.0,
+    this.tileFadeIn = const TileFadeIn(),
     this.overrideTilesWhenUrlChanges = false,
     this.retinaMode = false,
     this.errorTileCallback,
@@ -280,11 +266,7 @@ class TileLayer extends StatefulWidget {
     this.reset,
     this.tileBounds,
     String userAgentPackageName = 'unknown',
-  })  : tileFadeInDuration =
-            tileFadeInDuration <= Duration.zero ? null : tileFadeInDuration,
-        assert(tileFadeInStart >= 0.0 && tileFadeInStart <= 1.0),
-        assert(tileFadeInStartWhenOverride >= 0.0 &&
-            tileFadeInStartWhenOverride <= 1.0),
+  })  : assert(tileFadeIn == null || tileFadeIn.duration > Duration.zero),
         maxZoom =
             wmsOptions == null && retinaMode && maxZoom > 0.0 && !zoomReverse
                 ? maxZoom - 1.0
@@ -423,6 +405,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
               .equals(oldOptions, newOptions)) {
         if (widget.overrideTilesWhenUrlChanges) {
           _tileManager.reloadImages(widget, _tileBounds);
+          _loadAndPruneTiles(FlutterMapState.maybeOf(context)!);
         } else {
           reloadTiles = true;
         }
@@ -463,34 +446,35 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     }
 
     final tileZoom = _clampToNativeZoom(roundedMapZoom);
-    final tilesToRender = _tileManager.sortedByDistanceToZoomAscending(
+    final tileImagesToRender = _tileManager.sortedByDistanceToZoomAscending(
       widget.maxZoom,
       tileZoom,
     );
 
+    final currentPixelOrigin = CustomPoint<double>(
+      map.pixelOrigin.x.toDouble(),
+      map.pixelOrigin.y.toDouble(),
+    );
+
     _tileScaleCalculator.clearCacheUnlessZoomMatches(map.zoom);
     final tileWidgets = <Widget>[
-      for (var tile in tilesToRender)
-        AnimatedTile(
-          key: ValueKey(tile.coordsKey),
-          tile: tile,
-          currentPixelOrigin: map.pixelOrigin,
+      for (var tileImage in tileImagesToRender)
+        Tile(
+          key: ValueKey(tileImage.coordsKey),
+          tileImage: tileImage,
+          currentPixelOrigin: currentPixelOrigin,
           scaledTileSize: _tileScaleCalculator.scaledTileSize(
             map.zoom,
-            tile.coordinate.z,
+            tileImage.coordinate.z,
           ),
-          errorImage: widget.errorImage,
           tileBuilder: widget.tileBuilder,
         )
     ];
 
-    return Opacity(
-      opacity: widget.opacity,
-      child: Container(
-        color: widget.backgroundColor,
-        child: Stack(
-          children: tileWidgets,
-        ),
+    return Container(
+      color: widget.backgroundColor,
+      child: Stack(
+        children: tileWidgets,
       ),
     );
   }
@@ -545,16 +529,17 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     for (final coords in queue) {
       _tileManager.add(
         coords,
-        Tile(
+        TileImage(
+          vsync: this,
           coordinate: coords,
-          current: true,
           imageProvider: widget.tileProvider.getImage(
             tileBoundsAtZoom.wrap(coords),
             widget,
           ),
-          onTileReady: _onTileReady,
-          vsync: this,
-          duration: widget.tileFadeInDuration,
+          onLoadError: _onTileLoadError,
+          onLoadComplete: _onTileLoadComplete,
+          fadeIn: widget.fastReplace ? null : widget.tileFadeIn,
+          errorImage: widget.errorImage,
         ),
       );
     }
@@ -569,58 +554,27 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     return Bounds(pixelCenter - halfSize, pixelCenter + halfSize);
   }
 
-  void _onTileReady(TileCoordinate tileCoords, dynamic error, Tile? tile) {
-    if (null != error) {
-      debugPrint(error.toString());
+  void _onTileLoadError(TileImage tile, Object error, StackTrace? stackTrace) {
+    debugPrint(error.toString());
+    widget.errorTileCallback?.call(tile, error, stackTrace);
+  }
 
-      tile!.loadError = true;
-
-      if (widget.errorTileCallback != null) {
-        widget.errorTileCallback!(tile, error);
-      }
-    } else {
-      tile!.loadError = false;
-    }
-
-    tile = _tileManager.tileAt(tile.coordinate);
+  void _onTileLoadComplete(TileCoordinate coordinate) {
+    final tile = _tileManager.tileAt(coordinate);
     if (tile == null) return;
+    if (!_tileManager.allLoaded) return;
 
-    if (widget.fastReplace && mounted) {
-      setState(() {
-        tile!.active = true;
-
-        if (_tileManager.allLoaded) {
-          // We're not waiting for anything, prune the tiles immediately.
-          _tileManager.prune(widget.evictErrorTileStrategy);
-        }
-      });
-      return;
-    }
-
-    final fadeInStart = tile.loaded == null
-        ? widget.tileFadeInStart
-        : widget.tileFadeInStartWhenOverride;
-    tile.loaded = DateTime.now();
-    if (widget.tileFadeInDuration == null ||
-        fadeInStart == 1.0 ||
-        (tile.loadError && null == widget.errorImage)) {
-      tile.active = true;
+    if (widget.fastReplace) {
+      // We're not waiting for anything, prune the tiles immediately.
+      _tileManager.prune(widget.evictErrorTileStrategy);
     } else {
-      tile.startFadeInAnimation(from: fadeInStart);
-    }
-
-    if (mounted) {
-      setState(() {});
-    }
-
-    if (_tileManager.allLoaded) {
       // Wait a bit more than tileFadeInDuration to trigger a pruning so that
       // we don't see tile removal under a fading tile.
       _pruneLater?.cancel();
       _pruneLater = Timer(
-        widget.tileFadeInDuration != null
-            ? widget.tileFadeInDuration! + const Duration(milliseconds: 50)
-            : const Duration(milliseconds: 50),
+        widget.tileFadeIn == null
+            ? const Duration(milliseconds: 50)
+            : widget.tileFadeIn!.duration + const Duration(milliseconds: 50),
         () => _tileManager.prune(widget.evictErrorTileStrategy),
       );
     }
