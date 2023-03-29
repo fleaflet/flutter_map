@@ -16,6 +16,10 @@ class AnimatedMapControllerPage extends StatefulWidget {
 
 class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
     with TickerProviderStateMixin {
+  static const _startedId = 'AnimatedMapController#MoveStarted';
+  static const _inProgressId = 'AnimatedMapController#MoveInProgress';
+  static const _finishedId = 'AnimatedMapController#MoveFinished';
+
   // Note the addition of the TickerProviderStateMixin here. If you are getting an error like
   // 'The class 'TickerProviderStateMixin' can't be used as a mixin because it extends a class other than Object.'
   // in your IDE, you can probably fix it by adding an analysis_options.yaml file to your project
@@ -55,10 +59,29 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
     final Animation<double> animation =
         CurvedAnimation(parent: controller, curve: Curves.fastOutSlowIn);
 
+    // Note this method of encoding the target destination is a workaround.
+    // When proper animated movement is supported (see #1263) we should be able
+    // to detect an appropriate animated movement event which contains the
+    // target zoom/center.
+    final startIdWithTarget =
+        '$_startedId#${destLocation.latitude},${destLocation.longitude},$destZoom';
+    bool hasTriggeredMove = false;
+
     controller.addListener(() {
-      mapController.move(
-          LatLng(latTween.evaluate(animation), lngTween.evaluate(animation)),
-          zoomTween.evaluate(animation));
+      final String id;
+      if (animation.value == 1.0) {
+        id = _finishedId;
+      } else if (!hasTriggeredMove) {
+        id = startIdWithTarget;
+      } else {
+        id = _inProgressId;
+      }
+
+      hasTriggeredMove |= mapController.move(
+        LatLng(latTween.evaluate(animation), lngTween.evaluate(animation)),
+        zoomTween.evaluate(animation),
+        id: id,
+      );
     });
 
     animation.addStatusListener((status) {
@@ -187,6 +210,7 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
                     urlTemplate:
                         'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+                    tileUpdateTransformer: _animatedMoveTileUpdateTransformer,
                   ),
                   MarkerLayer(markers: markers),
                 ],
@@ -198,3 +222,36 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
     );
   }
 }
+
+/// Causes tiles to be prefetched at the target location and disables pruning
+/// whilst animating movement. When proper animated movement is added (see
+/// #1263) we should just detect the appropriate AnimatedMove events and
+/// use their target zoom/center.
+final _animatedMoveTileUpdateTransformer =
+    TileUpdateTransformer.fromHandlers(handleData: (event, sink) {
+  final id = event is MapEventMove ? event.id : null;
+  if (id?.startsWith(AnimatedMapControllerPageState._startedId) == true) {
+    final parts = id!.split('#')[2].split(',');
+    final lat = double.parse(parts[0]);
+    final lon = double.parse(parts[1]);
+    final zoom = double.parse(parts[2]);
+
+    // When animated movement starts load tiles at the target location and do
+    // not prune. Disabling pruning means existing tiles will remain visible
+    // whilst animating.
+    sink.add(
+      TileUpdateEvent.loadOnly(
+        loadCenterOverride: LatLng(lat, lon),
+        loadZoomOverride: zoom,
+      ),
+    );
+  } else if (id == AnimatedMapControllerPageState._inProgressId) {
+    // Do not prune or load whilst animating so that any existing tiles remain
+    // visible.
+  } else if (id == AnimatedMapControllerPageState._finishedId) {
+    // We already prefetched the tiles when animation started so just prune.
+    sink.add(const TileUpdateEvent.pruneOnly());
+  } else {
+    sink.add(const TileUpdateEvent.loadAndPrune());
+  }
+});
