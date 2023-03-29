@@ -6,7 +6,6 @@ import 'package:flutter_map/src/gestures/gestures.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/map/map_state_widget.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
 import 'dart:math' as math;
 import 'package:flutter_map/src/core/bounds.dart';
 
@@ -70,10 +69,10 @@ class FlutterMapState extends MapGestureMixin
         instance
           ..onTapDown = _positionedTapController.onTapDown
           ..onTapUp = handleOnTapUp
-          ..onTap = _positionedTapController.onTap;
+          ..onTap = _positionedTapController.onTap
+          ..onSecondaryTap = _positionedTapController.onSecondaryTap
+          ..onSecondaryTapDown = _positionedTapController.onTapDown;
         // ..onTapCancel = onTapCancel
-        // ..onSecondaryTap = onSecondaryTap
-        // ..onSecondaryTapDown = onSecondaryTapDown
         // ..onSecondaryTapUp = onSecondaryTapUp
         // ..onSecondaryTapCancel = onSecondaryTapCancel
         // ..onTertiaryTapDown = onTertiaryTapDown
@@ -186,6 +185,7 @@ class FlutterMapState extends MapGestureMixin
           child: PositionedTapDetector2(
             controller: _positionedTapController,
             onTap: handleTap,
+            onSecondaryTap: handleSecondaryTap,
             onLongPress: handleLongPress,
             onDoubleTap: handleDoubleTap,
             child:

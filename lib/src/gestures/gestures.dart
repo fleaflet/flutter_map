@@ -7,7 +7,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/gestures/latlng_tween.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
 
 abstract class MapGestureMixin extends State<FlutterMap>
     with TickerProviderStateMixin {
@@ -571,10 +570,14 @@ abstract class MapGestureMixin extends State<FlutterMap>
     closeFlingAnimationController(MapEventSource.tap);
     closeDoubleTapController(MapEventSource.tap);
 
-    final latlng = _offsetToCrs(position.relative!);
-    if (options.onTap != null) {
+    final relativePosition = position.relative;
+    if (relativePosition == null) return;
+
+    final latlng = _offsetToCrs(relativePosition);
+    final onTap = options.onTap;
+    if (onTap != null) {
       // emit the event
-      options.onTap!(position, latlng);
+      onTap(position, latlng);
     }
 
     mapState.emitMapEvent(
@@ -583,6 +586,30 @@ abstract class MapGestureMixin extends State<FlutterMap>
         center: mapState.center,
         zoom: mapState.zoom,
         source: MapEventSource.tap,
+      ),
+    );
+  }
+
+  void handleSecondaryTap(TapPosition position) {
+    closeFlingAnimationController(MapEventSource.secondaryTap);
+    closeDoubleTapController(MapEventSource.secondaryTap);
+
+    final relativePosition = position.relative;
+    if (relativePosition == null) return;
+
+    final latlng = _offsetToCrs(relativePosition);
+    final onSecondaryTap = options.onSecondaryTap;
+    if (onSecondaryTap != null) {
+      // emit the event
+      onSecondaryTap(position, latlng);
+    }
+
+    mapState.emitMapEvent(
+      MapEventSecondaryTap(
+        tapPosition: latlng,
+        center: mapState.center,
+        zoom: mapState.zoom,
+        source: MapEventSource.secondaryTap,
       ),
     );
   }
