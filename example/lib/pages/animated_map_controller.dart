@@ -20,16 +20,6 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
   static const _inProgressId = 'AnimatedMapController#MoveInProgress';
   static const _finishedId = 'AnimatedMapController#MoveFinished';
 
-  // Note the addition of the TickerProviderStateMixin here. If you are getting an error like
-  // 'The class 'TickerProviderStateMixin' can't be used as a mixin because it extends a class other than Object.'
-  // in your IDE, you can probably fix it by adding an analysis_options.yaml file to your project
-  // with the following content:
-  //  analyzer:
-  //    language:
-  //      enableSuperMixins: true
-  // See https://github.com/flutter/flutter/issues/14317#issuecomment-361085869
-  // This project didn't require that change, so YMMV.
-
   static final london = LatLng(51.5, -0.09);
   static final paris = LatLng(48.8566, 2.3522);
   static final dublin = LatLng(53.3498, -6.2603);
