@@ -122,7 +122,7 @@ class TileImage extends ChangeNotifier {
 
     if (fadeIn == null || (loadError && errorImage != null)) {
       _active = true;
-      notifyListeners();
+      if (!_disposed) notifyListeners();
       return;
     }
 
@@ -131,14 +131,14 @@ class TileImage extends ChangeNotifier {
 
     if (fadeStartOpacity == 1.0) {
       _active = true;
-      notifyListeners();
+      if (!_disposed) notifyListeners();
       return;
     }
 
     animationController!.reset();
     animationController!.forward(from: fadeStartOpacity).then((_) {
       _active = true;
-      notifyListeners();
+      if (!_disposed) notifyListeners();
     });
   }
 
