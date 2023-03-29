@@ -54,16 +54,13 @@ class Bounds<T extends num> {
     return max - min;
   }
 
-  // The area of these bounds
-  num get area => (max.x - min.x) * (max.y - min.y);
-
-  bool contains(CustomPoint<num> point) {
+  bool contains(CustomPoint<T> point) {
     final min = point;
     final max = point;
     return containsBounds(Bounds(min, max));
   }
 
-  bool containsBounds(Bounds<num> b) {
+  bool containsBounds(Bounds<T> b) {
     return (b.min.x >= min.x) &&
         (b.max.x <= max.x) &&
         (b.min.y >= min.y) &&
