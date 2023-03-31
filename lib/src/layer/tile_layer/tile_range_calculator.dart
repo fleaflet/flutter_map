@@ -5,12 +5,8 @@ import 'package:latlong2/latlong.dart';
 
 class TileRangeCalculator {
   final double tileSize;
-  final int panBuffer;
 
-  const TileRangeCalculator({
-    required this.tileSize,
-    required this.panBuffer,
-  });
+  const TileRangeCalculator({required this.tileSize});
 
   /// Calculates the visible pixel bounds at the [tileZoom] zoom level when
   /// viewing the map from the [viewingZoom] centered at the [center]. The
@@ -34,7 +30,7 @@ class TileRangeCalculator {
         viewingZoom ?? mapState.zoom,
         tileZoom,
       ),
-    )..expand(panBuffer);
+    );
   }
 
   Bounds _calculatePixelBounds(

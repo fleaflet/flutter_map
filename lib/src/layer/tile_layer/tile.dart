@@ -5,15 +5,15 @@ import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
 
 class Tile extends StatefulWidget {
   final TileImage tileImage;
-  final CustomPoint<double> currentPixelOrigin;
-  final double scaledTileSize;
   final TileBuilder? tileBuilder;
+  final double scaledTileSize;
+  final CustomPoint<double> currentPixelOrigin;
 
   const Tile({
     super.key,
-    required this.tileImage,
-    required this.currentPixelOrigin,
     required this.scaledTileSize,
+    required this.currentPixelOrigin,
+    required this.tileImage,
     required this.tileBuilder,
   });
 

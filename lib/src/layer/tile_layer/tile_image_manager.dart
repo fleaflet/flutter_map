@@ -1,41 +1,49 @@
+import 'package:collection/collection.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinate.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 
+typedef TileCreator = TileImage Function(TileCoordinate coordinate);
+
 class TileImageManager {
   final Map<String, TileImage> _tiles = {};
 
-  List<TileImage> all() => _tiles.values.toList();
+  bool containsTileAt(TileCoordinate coords) => _tiles.containsKey(coords.key);
 
-  List<TileImage> sortedByDistanceToZoomAscending(
-      double maxZoom, int currentZoom) {
-    return [..._tiles.values]..sort((a, b) => a
-        .zIndex(maxZoom, currentZoom)
-        .compareTo(b.zIndex(maxZoom, currentZoom)));
+  bool get allLoaded =>
+      _tiles.values.none((tile) => tile.loadFinishedAt == null);
+
+  // Returns in the order in which they should be rendered:
+  //   1. Tiles at the current zoom.
+  //   2. Tiles at the current zoom +/- 1.
+  //   3. Tiles at the current zoom +/- 2.
+  //   4. ...etc
+  List<TileImage> inRenderOrder(double maxZoom, int currentZoom) {
+    final result = _tiles.values.toList()
+      ..sort((a, b) => a
+          .zIndex(maxZoom, currentZoom)
+          .compareTo(b.zIndex(maxZoom, currentZoom)));
+
+    return result;
   }
 
-  bool anyWithZoomLevel(double zoomLevel) {
-    for (final tile in _tiles.values) {
-      if (tile.coordinate.z == zoomLevel) {
-        return true;
-      }
+  // Creates missing tiles in the given range. Does not initiate loading of the
+  // tiles.
+  void createMissingTiles(
+    DiscreteTileRange tileRange,
+    TileBoundsAtZoom tileBoundsAtZoom, {
+    required TileCreator createTileImage,
+  }) {
+    for (final coordinate in tileBoundsAtZoom.validCoordinatesIn(tileRange)) {
+      _tiles.putIfAbsent(
+        coordinate.key,
+        () => createTileImage(coordinate),
+      );
     }
-
-    return false;
-  }
-
-  TileImage? tileAt(TileCoordinate coords) => _tiles[coords.key];
-
-  bool get allLoaded {
-    for (final entry in _tiles.entries) {
-      if (entry.value.loadFinishedAt == null) {
-        return false;
-      }
-    }
-    return true;
   }
 
   bool allWithinZoom(double minZoom, double maxZoom) {
@@ -47,23 +55,27 @@ class TileImageManager {
     return true;
   }
 
-  bool markTileWithCoordsAsCurrent(TileCoordinate coords) {
-    final tile = _tiles[coords.key];
-    if (tile != null) {
+  // For each coordinate:
+  //   * A TileImage is created if missing (current = true in new TileImages)
+  //   * If it exists current is set to true
+  //   * Of these tiles, those which have not started loading yet are returned.
+  List<TileImage> setCurrentAndReturnNotLoadedTiles(
+    Iterable<TileCoordinate> coordinates, {
+    required TileCreator createTile,
+  }) {
+    final notLoaded = <TileImage>[];
+
+    for (final coordinate in coordinates) {
+      final tile = _tiles.putIfAbsent(
+        coordinate.key,
+        () => createTile(coordinate),
+      );
+
       tile.current = true;
-      return true;
-    } else {
-      return false;
+      if (tile.loadStarted == null) notLoaded.add(tile);
     }
-  }
 
-  void add(TileCoordinate coords, TileImage tile) {
-    _tiles[coords.key] = tile;
-
-    // This must be done after storing the Tile in the TileManager otherwise
-    // the callbacks for image load success/fail will not find this Tile in
-    // the TileManager.
-    tile.loadTileImage();
+    return notLoaded;
   }
 
   /// All removals should be performed by calling this method to ensure that
@@ -104,26 +116,12 @@ class TileImageManager {
         tileBounds.atZoom(tile.coordinate.z).wrap(tile.coordinate),
         layer,
       );
-      tile.loadTileImage();
+      tile.load();
     }
   }
 
-  void abortLoading(int? tileZoom, EvictErrorTileStrategy evictionStrategy) {
-    final toRemove = <String>[];
-    for (final entry in _tiles.entries) {
-      final tile = entry.value;
-
-      if (tile.coordinate.z != tileZoom && tile.loadFinishedAt == null) {
-        toRemove.add(entry.key);
-      }
-    }
-
-    for (final key in toRemove) {
-      _removeWithDefaultEviction(key, evictionStrategy);
-    }
-  }
-
-  void markToPrune(int currentTileZoom, DiscreteTileRange noPruneRange) {
+  void markAsNoLongerCurrentOutside(
+      int currentTileZoom, DiscreteTileRange noPruneRange) {
     for (final entry in _tiles.entries) {
       final tile = entry.value;
       final c = tile.coordinate;
@@ -136,8 +134,11 @@ class TileImageManager {
     }
   }
 
-  void evictErrorTilesBasedOnStrategy(
-      DiscreteTileRange tileRange, EvictErrorTileStrategy evictStrategy) {
+  // Evicts error tiles depending on the [evictStrategy].
+  void evictErrorTiles(
+    DiscreteTileRange tileRange,
+    EvictErrorTileStrategy evictStrategy,
+  ) {
     if (evictStrategy == EvictErrorTileStrategy.notVisibleRespectMargin) {
       final toRemove = <String>[];
       for (final entry in _tiles.entries) {

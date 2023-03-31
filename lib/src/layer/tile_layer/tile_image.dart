@@ -3,6 +3,8 @@ import 'package:flutter_map/src/layer/tile_layer/tile_coordinate.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 
 class TileImage extends ChangeNotifier {
+  bool _disposed = false;
+
   /// The z of the coordinate is the TileImage's zoom level whilst the x and y
   /// indicate the position of the tile at that zoom level.
   final TileCoordinate coordinate;
@@ -25,13 +27,15 @@ class TileImage extends ChangeNotifier {
   /// An optional image to show when a loading error occurs.
   final ImageProvider? errorImage;
 
-  bool _disposed = false;
-
   ImageProvider imageProvider;
 
-  /// If false this TileImage will be pruned when the next prune is run.
+  /// Current tiles are tiles which are in the current tile zoom AND:
+  ///   * Are visible OR,
+  ///   * Were previously visible and are still within the visible bounds
+  ///     expanded by the [TileLayer.keepBuffer].
   bool current = true;
 
+  /// Used during pruning to determine which tiles should be kept.
   bool retain = false;
 
   /// Whether the tile is displayable with full opacity. This means that either:
@@ -73,10 +77,12 @@ class TileImage extends ChangeNotifier {
 
   bool get active => _active;
 
+  // Used to sort TileImages by their distance from the current zoom.
   double zIndex(double maxZoom, int currentZoom) =>
       maxZoom - (currentZoom - coordinate.z).abs();
 
-  void loadTileImage() {
+  // Initiate loading of the image.
+  void load() {
     loadStarted = DateTime.now();
 
     try {
