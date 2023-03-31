@@ -29,7 +29,10 @@ class TileScaleCalculator {
   /// Returns a scale value to transform a Tile coordainte to a Tile position.
   double scaledTileSize(double currentZoom, int tileZoom) {
     assert(_cachedCurrentZoom == currentZoom);
-    return _scaledTileSizeImpl(currentZoom, tileZoom);
+    return _cache.putIfAbsent(
+      tileZoom,
+      () => _scaledTileSizeImpl(currentZoom, tileZoom),
+    );
   }
 
   double _scaledTileSizeImpl(double currentZoom, int tileZoom) {
