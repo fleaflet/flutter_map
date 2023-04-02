@@ -4,14 +4,10 @@ import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
 typedef TileBuilder = Widget Function(
     BuildContext context, Widget tileWidget, TileImage tile);
 
-typedef TilesContainerBuilder = Widget Function(
-    BuildContext context, Widget tilesContainer, List<TileImage> tiles);
-
 /// Applies inversion color matrix on Tiles container which may simulate Dark mode.
 Widget darkModeTilesContainerBuilder(
   BuildContext context,
   Widget tilesContainer,
-  List<TileImage> tiles,
 ) {
   return ColorFiltered(
     colorFilter: const ColorFilter.matrix(<double>[

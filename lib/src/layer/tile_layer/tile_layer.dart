@@ -201,10 +201,6 @@ class TileLayer extends StatefulWidget {
   /// There are predefined examples in 'tile_builder.dart'
   final TileBuilder? tileBuilder;
 
-  /// Function which may wrap Tiles Container with custom Widget
-  /// There are predefined examples in 'tile_builder.dart'
-  final TilesContainerBuilder? tilesContainerBuilder;
-
   // If a Tile was loaded with error and if strategy isn't `none` then TileProvider
   // will be asked to evict Image based on current strategy
   // (see #576 - even Error Images are cached in flutter)
@@ -262,7 +258,6 @@ class TileLayer extends StatefulWidget {
     this.errorTileCallback,
     this.templateFunction = util.template,
     this.tileBuilder,
-    this.tilesContainerBuilder,
     this.evictErrorTileStrategy = EvictErrorTileStrategy.none,
     this.fastReplace = false,
     this.reset,
