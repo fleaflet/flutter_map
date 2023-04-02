@@ -251,8 +251,6 @@ class MapOptions {
   /// see [InteractiveFlag] for custom settings
   final int interactiveFlags;
 
-  final bool absorbPanEventsOnScrollables;
-
   final TapCallback? onTap;
   final TapCallback? onSecondaryTap;
   final LongPressCallback? onLongPress;
@@ -293,7 +291,6 @@ class MapOptions {
   final bool keepAlive;
 
   MapOptions({
-    this.absorbPanEventsOnScrollables = true,
     this.crs = const Epsg3857(),
     LatLng? center,
     this.bounds,

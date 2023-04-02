@@ -1,13 +1,14 @@
+import 'dart:math' as math;
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/gestures/gestures.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/map/map_state_widget.dart';
 import 'package:latlong2/latlong.dart';
-import 'dart:math' as math;
-import 'package:flutter_map/src/core/bounds.dart';
 
 class FlutterMapState extends MapGestureMixin
     with AutomaticKeepAliveClientMixin {
@@ -72,14 +73,6 @@ class FlutterMapState extends MapGestureMixin
           ..onTap = _positionedTapController.onTap
           ..onSecondaryTap = _positionedTapController.onSecondaryTap
           ..onSecondaryTapDown = _positionedTapController.onTapDown;
-        // ..onTapCancel = onTapCancel
-        // ..onSecondaryTapUp = onSecondaryTapUp
-        // ..onSecondaryTapCancel = onSecondaryTapCancel
-        // ..onTertiaryTapDown = onTertiaryTapDown
-        // ..onTertiaryTapUp = onTertiaryTapUp
-        // ..onTertiaryTapCancel = onTertiaryTapCancel
-        // ..gestureSettings = gestureSettings;
-        // instance.team = _team;
       },
     );
 
@@ -88,42 +81,18 @@ class FlutterMapState extends MapGestureMixin
       () => LongPressGestureRecognizer(debugOwner: this),
       (LongPressGestureRecognizer instance) {
         instance.onLongPress = _positionedTapController.onLongPress;
-        // ..onLongPressDown = onLongPressDown
-        // ..onLongPressCancel = onLongPressCancel
-        // ..onLongPressStart = onLongPressStart
-        // ..onLongPressMoveUpdate = onLongPressMoveUpdate
-        // ..onLongPressUp = onLongPressUp
-        // ..onLongPressEnd = onLongPressEnd
-        // ..onSecondaryLongPressDown = onSecondaryLongPressDown
-        // ..onSecondaryLongPressCancel = onSecondaryLongPressCancel
-        // ..onSecondaryLongPress = onSecondaryLongPress
-        // ..onSecondaryLongPressStart = onSecondaryLongPressStart
-        // ..onSecondaryLongPressMoveUpdate = onSecondaryLongPressMoveUpdate
-        // ..onSecondaryLongPressUp = onSecondaryLongPressUp
-        // ..onSecondaryLongPressEnd = onSecondaryLongPressEnd
-        // ..onTertiaryLongPressDown = onTertiaryLongPressDown
-        // ..onTertiaryLongPressCancel = onTertiaryLongPressCancel
-        // ..onTertiaryLongPress = onTertiaryLongPress
-        // ..onTertiaryLongPressStart = onTertiaryLongPressStart
-        // ..onTertiaryLongPressMoveUpdate = onTertiaryLongPressMoveUpdate
-        // ..onTertiaryLongPressUp = onTertiaryLongPressUp
-        // ..onTertiaryLongPressEnd = onTertiaryLongPressEnd
-        // ..gestureSettings = gestureSettings;
-        // instance.team = _team;
       },
     );
 
-    if (options.absorbPanEventsOnScrollables &&
-        InteractiveFlag.hasFlag(
-            options.interactiveFlags, InteractiveFlag.drag)) {
+    if (InteractiveFlag.hasFlag(
+        options.interactiveFlags, InteractiveFlag.drag)) {
       gestures[VerticalDragGestureRecognizer] =
           GestureRecognizerFactoryWithHandlers<VerticalDragGestureRecognizer>(
         () => VerticalDragGestureRecognizer(debugOwner: this),
         (VerticalDragGestureRecognizer instance) {
           instance.onUpdate = (details) {
-            //Absorbing vertical drags
+            // Absorbing vertical drags
           };
-          // ..dragStartBehavior = dragStartBehavior
           instance.gestureSettings = gestureSettings;
           instance.team ??= _team;
         },
@@ -133,9 +102,8 @@ class FlutterMapState extends MapGestureMixin
         () => HorizontalDragGestureRecognizer(debugOwner: this),
         (HorizontalDragGestureRecognizer instance) {
           instance.onUpdate = (details) {
-            //Absorbing horizontal drags
+            // Absorbing horizontal drags
           };
-          // ..dragStartBehavior = dragStartBehavior
           instance.gestureSettings = gestureSettings;
           instance.team ??= _team;
         },
