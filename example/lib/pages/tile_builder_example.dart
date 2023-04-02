@@ -125,13 +125,13 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
             zoom: 5,
           ),
           children: [
-            TileLayer(
-              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-              tileBuilder: tileBuilder,
-              tilesContainerBuilder:
-                  darkMode ? darkModeTilesContainerBuilder : null,
-              panBuffer: panBuffer,
+            _darkModeContainerIfEnabled(
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+                tileBuilder: tileBuilder,
+                panBuffer: panBuffer,
+              ),
             ),
             MarkerLayer(
               markers: <Marker>[
@@ -149,5 +149,11 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
         ),
       ),
     );
+  }
+
+  Widget _darkModeContainerIfEnabled(Widget child) {
+    if (!darkMode) return child;
+
+    return darkModeTilesContainerBuilder(context, child);
   }
 }
