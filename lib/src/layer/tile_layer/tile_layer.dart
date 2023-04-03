@@ -100,6 +100,11 @@ class TileLayer extends StatefulWidget {
   /// Color shown behind the tiles
   final Color backgroundColor;
 
+  /// Sets the opacity of tile images. Overlapping tiles from separate layers
+  /// will be simultaneously visible when opacity is less than one. To prevent
+  /// this [fastReplace] should be enabled.
+  final double tileOpacity;
+
   /// Provider with which to load map tiles
   ///
   /// The default is [NetworkNoRetryTileProvider]. Alternatively, use
@@ -246,6 +251,7 @@ class TileLayer extends StatefulWidget {
     this.keepBuffer = 2,
     this.panBuffer = 0,
     this.backgroundColor = const Color(0xFFE0E0E0),
+    this.tileOpacity = 1.0,
     this.errorImage,
     TileProvider? tileProvider,
     this.tms = false,
@@ -395,7 +401,9 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   @override
   void didUpdateWidget(TileLayer oldWidget) {
     super.didUpdateWidget(oldWidget);
-    var reloadTiles = false;
+    bool reloadTiles = false;
+
+    if (oldWidget.tileOpacity != widget.tileOpacity) reloadTiles = true;
 
     // There is no caching in TileRangeCalculator so we can just replace it.
     _tileRangeCalculator = TileRangeCalculator(tileSize: widget.tileSize);
@@ -510,7 +518,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
               .inRenderOrder(widget.maxZoom, tileZoom)
               .map((tileImage) {
             return Tile(
-              key: ValueKey(tileImage.coordinatesKey),
+              // Must be an ObjectKey, not a ValueKey using the coordinates, in
+              // case we remove and replace the TileImage e.g. when the tile
+              /// opacity changes.
+              key: ObjectKey(tileImage),
               scaledTileSize: _tileScaleCalculator.scaledTileSize(
                 map.zoom,
                 tileImage.coordinates.z,
@@ -536,6 +547,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         tileBoundsAtZoom.wrap(coordinates),
         widget,
       ),
+      maximumOpacity: widget.tileOpacity,
       onLoadError: _onTileLoadError,
       onLoadComplete: _onTileLoadComplete,
       fadeIn: widget.fastReplace ? null : widget.tileFadeIn,
@@ -651,7 +663,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         !_tileImageManager.allLoaded) {
       return;
     }
-
     if (widget.fastReplace) {
       // We're not waiting for anything, prune the tiles immediately.
       _tileImageManager.prune(widget.evictErrorTileStrategy);

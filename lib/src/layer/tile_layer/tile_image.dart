@@ -9,6 +9,9 @@ class TileImage extends ChangeNotifier {
   /// indicate the position of the tile at that zoom level.
   final TileCoordinates coordinates;
 
+  /// The opacity of the tile image when it is fully loaded.
+  final double maximumOpacity;
+
   final AnimationController? animationController;
 
   /// Callback fired when loading finishes with or withut an error. This
@@ -38,7 +41,7 @@ class TileImage extends ChangeNotifier {
   /// Used during pruning to determine which tiles should be kept.
   bool retain = false;
 
-  /// Whether the tile is displayable with full opacity. This means that either:
+  /// Whether the tile is displayable. This means that either:
   ///   * Loading errored but there is a tile error image.
   ///   * Loading succeeded and the fade animation has finished.
   ///   * Loading succeeded and there is no fade animation.
@@ -61,16 +64,21 @@ class TileImage extends ChangeNotifier {
     required final TickerProvider vsync,
     required this.coordinates,
     required this.imageProvider,
+    required this.maximumOpacity,
     required this.onLoadComplete,
     required this.onLoadError,
     required this.fadeIn,
     required this.errorImage,
   }) : animationController = fadeIn == null
             ? null
-            : AnimationController(duration: fadeIn.duration, vsync: vsync);
+            : AnimationController(
+                duration: fadeIn.duration,
+                vsync: vsync,
+                upperBound: maximumOpacity,
+              );
 
   double get opacity => animationController == null
-      ? (_active ? 1.0 : 0.0)
+      ? (_active ? maximumOpacity : 0.0)
       : animationController!.value;
 
   String get coordinatesKey => coordinates.key;
@@ -150,7 +158,9 @@ class TileImage extends ChangeNotifier {
 
   @override
   void dispose({bool evictImageFromCache = false}) {
+    assert(!_disposed);
     _disposed = true;
+
     if (evictImageFromCache) {
       try {
         imageProvider.evict().catchError((Object e) {
@@ -164,6 +174,12 @@ class TileImage extends ChangeNotifier {
       }
     }
 
+    // Mark the image as inactive.
+    _active = false;
+    animationController?.stop(canceled: false);
+    animationController?.value = 0.0;
+    notifyListeners();
+
     animationController?.dispose();
     _imageStream?.removeListener(_listener);
     super.dispose();
@@ -175,5 +191,10 @@ class TileImage extends ChangeNotifier {
   @override
   bool operator ==(Object other) {
     return other is TileImage && coordinates == other.coordinates;
+  }
+
+  @override
+  String toString() {
+    return 'TileImage($coordinates, active: $_active)';
   }
 }
