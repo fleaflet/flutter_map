@@ -1,24 +1,24 @@
 import 'package:flutter_map/src/core/point.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_coordinate.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:tuple/tuple.dart';
 
 abstract class TileBoundsAtZoom {
   const TileBoundsAtZoom();
 
-  TileCoordinate wrap(TileCoordinate coordinate);
+  TileCoordinates wrap(TileCoordinates coordinates);
 
-  Iterable<TileCoordinate> validCoordinatesIn(DiscreteTileRange tileRange);
+  Iterable<TileCoordinates> validCoordinatesIn(DiscreteTileRange tileRange);
 }
 
 class InfiniteTileBoundsAtZoom extends TileBoundsAtZoom {
   const InfiniteTileBoundsAtZoom();
 
   @override
-  TileCoordinate wrap(TileCoordinate coordinate) => coordinate;
+  TileCoordinates wrap(TileCoordinates coordinates) => coordinates;
 
   @override
-  Iterable<TileCoordinate> validCoordinatesIn(DiscreteTileRange tileRange) =>
+  Iterable<TileCoordinates> validCoordinatesIn(DiscreteTileRange tileRange) =>
       tileRange.coordinates;
 
   @override
@@ -31,10 +31,10 @@ class DiscreteTileBoundsAtZoom extends TileBoundsAtZoom {
   const DiscreteTileBoundsAtZoom(this.tileRange);
 
   @override
-  TileCoordinate wrap(TileCoordinate coordinate) => coordinate;
+  TileCoordinates wrap(TileCoordinates coordinates) => coordinates;
 
   @override
-  Iterable<TileCoordinate> validCoordinatesIn(DiscreteTileRange tileRange) {
+  Iterable<TileCoordinates> validCoordinatesIn(DiscreteTileRange tileRange) {
     assert(this.tileRange.zoom == tileRange.zoom);
     return this.tileRange.intersect(tileRange).coordinates;
   }
@@ -64,14 +64,14 @@ class WrappedTileBoundsAtZoom extends TileBoundsAtZoom {
   }) : assert(!(wrapX == null && wrapY == null));
 
   @override
-  TileCoordinate wrap(TileCoordinate coordinate) => TileCoordinate(
-        wrapX != null ? _wrapInt(coordinate.x, wrapX!) : coordinate.x,
-        wrapY != null ? _wrapInt(coordinate.y, wrapY!) : coordinate.y,
-        coordinate.z,
+  TileCoordinates wrap(TileCoordinates coordinates) => TileCoordinates(
+        wrapX != null ? _wrapInt(coordinates.x, wrapX!) : coordinates.x,
+        wrapY != null ? _wrapInt(coordinates.y, wrapY!) : coordinates.y,
+        coordinates.z,
       );
 
   @override
-  Iterable<TileCoordinate> validCoordinatesIn(DiscreteTileRange tileRange) {
+  Iterable<TileCoordinates> validCoordinatesIn(DiscreteTileRange tileRange) {
     if (wrapX != null && wrapY != null) {
       if (wrappedAxisIsAlwaysInBounds) return tileRange.coordinates;
 
@@ -100,22 +100,22 @@ class WrappedTileBoundsAtZoom extends TileBoundsAtZoom {
     }
   }
 
-  bool _wrappedBothContains(TileCoordinate coordinate) {
+  bool _wrappedBothContains(TileCoordinates coordinates) {
     return tileRange.contains(
       CustomPoint(
-        _wrapInt(coordinate.x, wrapX!),
-        _wrapInt(coordinate.y, wrapY!),
+        _wrapInt(coordinates.x, wrapX!),
+        _wrapInt(coordinates.y, wrapY!),
       ),
     );
   }
 
-  bool _wrappedXInRange(TileCoordinate coordinate) {
-    final wrappedX = _wrapInt(coordinate.x, wrapX!);
+  bool _wrappedXInRange(TileCoordinates coordinates) {
+    final wrappedX = _wrapInt(coordinates.x, wrapX!);
     return wrappedX >= tileRange.min.x && wrappedX <= tileRange.max.y;
   }
 
-  bool _wrappedYInRange(TileCoordinate coordinate) {
-    final wrappedY = _wrapInt(coordinate.y, wrapY!);
+  bool _wrappedYInRange(TileCoordinates coordinates) {
+    final wrappedY = _wrapInt(coordinates.y, wrapY!);
     return wrappedY >= tileRange.min.y && wrappedY <= tileRange.max.y;
   }
 

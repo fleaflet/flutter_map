@@ -2,22 +2,22 @@ import 'dart:math' as math;
 
 import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/core/point.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_coordinate.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 
 abstract class TileRange {
   final int zoom;
 
   const TileRange(this.zoom);
 
-  Iterable<TileCoordinate> get coordinates;
+  Iterable<TileCoordinates> get coordinates;
 }
 
 class EmptyTileRange extends TileRange {
   const EmptyTileRange._(super.zoom);
 
   @override
-  Iterable<TileCoordinate> get coordinates =>
-      const Iterable<TileCoordinate>.empty();
+  Iterable<TileCoordinates> get coordinates =>
+      const Iterable<TileCoordinates>.empty();
 }
 
 class DiscreteTileRange extends TileRange {
@@ -110,10 +110,10 @@ class DiscreteTileRange extends TileRange {
   CustomPoint<double> get center => _bounds.center;
 
   @override
-  Iterable<TileCoordinate> get coordinates sync* {
+  Iterable<TileCoordinates> get coordinates sync* {
     for (var j = _bounds.min.y; j <= _bounds.max.y; j++) {
       for (var i = _bounds.min.x; i <= _bounds.max.x; i++) {
-        yield TileCoordinate(i, j, zoom);
+        yield TileCoordinates(i, j, zoom);
       }
     }
   }

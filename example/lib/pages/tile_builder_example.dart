@@ -15,13 +15,13 @@ class TileBuilderPage extends StatefulWidget {
 class _TileBuilderPageState extends State<TileBuilderPage> {
   bool darkMode = false;
   bool loadingTime = false;
-  bool showCoords = false;
+  bool showCoordinates = false;
   bool grid = false;
   int panBuffer = 0;
 
   // mix of [coordinateDebugTileBuilder] and [loadingTimeDebugTileBuilder] from tile_builder.dart
   Widget tileBuilder(BuildContext context, Widget tileWidget, TileImage tile) {
-    final coords = tile.coordinate;
+    final coords = tile.coordinates;
 
     return Container(
       decoration: BoxDecoration(
@@ -31,11 +31,11 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
         fit: StackFit.passthrough,
         children: [
           tileWidget,
-          if (loadingTime || showCoords)
+          if (loadingTime || showCoordinates)
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (showCoords)
+                if (showCoordinates)
                   Text(
                     '${coords.x.floor()} : ${coords.y.floor()} : ${coords.z.floor()}',
                     style: Theme.of(context).textTheme.headlineSmall,
@@ -77,11 +77,11 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
           FloatingActionButton.extended(
             heroTag: 'coords',
             label: Text(
-              showCoords ? 'Hide coords' : 'Show coords',
+              showCoordinates ? 'Hide coords' : 'Show coords',
               textAlign: TextAlign.center,
             ),
-            icon: Icon(showCoords ? Icons.unarchive : Icons.bug_report),
-            onPressed: () => setState(() => showCoords = !showCoords),
+            icon: Icon(showCoordinates ? Icons.unarchive : Icons.bug_report),
+            onPressed: () => setState(() => showCoordinates = !showCoordinates),
           ),
           const SizedBox(height: 8),
           FloatingActionButton.extended(

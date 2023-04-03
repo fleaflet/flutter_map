@@ -2,17 +2,18 @@ import 'package:collection/collection.dart';
 import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_coordinate.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 
-typedef TileCreator = TileImage Function(TileCoordinate coordinate);
+typedef TileCreator = TileImage Function(TileCoordinates coordinates);
 
 class TileImageManager {
   final Map<String, TileImage> _tiles = {};
 
-  bool containsTileAt(TileCoordinate coords) => _tiles.containsKey(coords.key);
+  bool containsTileAt(TileCoordinates coordinates) =>
+      _tiles.containsKey(coordinates.key);
 
   bool get allLoaded =>
       _tiles.values.none((tile) => tile.loadFinishedAt == null);
@@ -38,37 +39,37 @@ class TileImageManager {
     TileBoundsAtZoom tileBoundsAtZoom, {
     required TileCreator createTileImage,
   }) {
-    for (final coordinate in tileBoundsAtZoom.validCoordinatesIn(tileRange)) {
+    for (final coordinates in tileBoundsAtZoom.validCoordinatesIn(tileRange)) {
       _tiles.putIfAbsent(
-        coordinate.key,
-        () => createTileImage(coordinate),
+        coordinates.key,
+        () => createTileImage(coordinates),
       );
     }
   }
 
   bool allWithinZoom(double minZoom, double maxZoom) {
     for (final tile in _tiles.values) {
-      if (tile.coordinate.z > (maxZoom) || tile.coordinate.z < (minZoom)) {
+      if (tile.coordinates.z > (maxZoom) || tile.coordinates.z < (minZoom)) {
         return false;
       }
     }
     return true;
   }
 
-  // For each coordinate:
+  // For all of the tile coordinates:
   //   * A TileImage is created if missing (current = true in new TileImages)
   //   * If it exists current is set to true
   //   * Of these tiles, those which have not started loading yet are returned.
   List<TileImage> setCurrentAndReturnNotLoadedTiles(
-    Iterable<TileCoordinate> coordinates, {
+    Iterable<TileCoordinates> tileCoordinates, {
     required TileCreator createTile,
   }) {
     final notLoaded = <TileImage>[];
 
-    for (final coordinate in coordinates) {
+    for (final coordinates in tileCoordinates) {
       final tile = _tiles.putIfAbsent(
-        coordinate.key,
-        () => createTile(coordinate),
+        coordinates.key,
+        () => createTile(coordinates),
       );
 
       tile.current = true;
@@ -113,7 +114,7 @@ class TileImageManager {
   ) {
     for (final tile in _tiles.values) {
       tile.imageProvider = layer.tileProvider.getImage(
-        tileBounds.atZoom(tile.coordinate.z).wrap(tile.coordinate),
+        tileBounds.atZoom(tile.coordinates.z).wrap(tile.coordinates),
         layer,
       );
       tile.load();
@@ -124,7 +125,7 @@ class TileImageManager {
       int currentTileZoom, DiscreteTileRange noPruneRange) {
     for (final entry in _tiles.entries) {
       final tile = entry.value;
-      final c = tile.coordinate;
+      final c = tile.coordinates;
 
       if (tile.current &&
           (c.z != currentTileZoom ||
@@ -156,7 +157,7 @@ class TileImageManager {
       final toRemove = <String>[];
       for (final entry in _tiles.entries) {
         final tile = entry.value;
-        final c = tile.coordinate;
+        final c = tile.coordinates;
 
         if (tile.loadError &&
             (!tile.current || !tileRange.contains(CustomPoint(c.x, c.y)))) {
@@ -177,7 +178,7 @@ class TileImageManager {
 
     for (final tile in _tiles.values) {
       if (tile.current && !tile.active) {
-        final coords = tile.coordinate;
+        final coords = tile.coordinates;
         if (!_retainAncestor(coords.x, coords.y, coords.z, coords.z - 5)) {
           _retainChildren(coords.x, coords.y, coords.z, coords.z + 2);
         }
@@ -200,7 +201,7 @@ class TileImageManager {
   void _retainChildren(int x, int y, int z, int maxZoom) {
     for (var i = 2 * x; i < 2 * x + 2; i++) {
       for (var j = 2 * y; j < 2 * y + 2; j++) {
-        final coords = TileCoordinate(i, j, z + 1);
+        final coords = TileCoordinates(i, j, z + 1);
 
         final tile = _tiles[coords.key];
         if (tile != null) {
@@ -226,7 +227,7 @@ class TileImageManager {
     final x2 = (x / 2).floor();
     final y2 = (y / 2).floor();
     final z2 = z - 1;
-    final coords2 = TileCoordinate(x2, y2, z2);
+    final coords2 = TileCoordinates(x2, y2, z2);
 
     final tile = _tiles[coords2.key];
     if (tile != null) {

@@ -1,5 +1,6 @@
-import 'package:flutter_map/plugin_api.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_coordinate.dart';
+import 'package:flutter_map/src/core/bounds.dart';
+import 'package:flutter_map/src/core/point.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:test/test.dart';
 
@@ -40,7 +41,7 @@ void main() {
           );
 
           expect(
-              tileRange.coordinates.toList(), [const TileCoordinate(2, 2, 0)]);
+              tileRange.coordinates.toList(), [const TileCoordinates(2, 2, 0)]);
         });
 
         test('lower tile edge', () {
@@ -54,7 +55,7 @@ void main() {
           );
 
           expect(
-              tileRange.coordinates.toList(), [const TileCoordinate(0, 0, 0)]);
+              tileRange.coordinates.toList(), [const TileCoordinates(0, 0, 0)]);
         });
 
         test('upper tile edge', () {
@@ -68,7 +69,7 @@ void main() {
           );
 
           expect(
-              tileRange.coordinates.toList(), [const TileCoordinate(0, 0, 0)]);
+              tileRange.coordinates.toList(), [const TileCoordinates(0, 0, 0)]);
         });
 
         test('both tile edges', () {
@@ -82,15 +83,15 @@ void main() {
           );
 
           expect(tileRange.coordinates.toList(), [
-            const TileCoordinate(1, 1, 0),
-            const TileCoordinate(2, 1, 0),
-            const TileCoordinate(3, 1, 0),
-            const TileCoordinate(1, 2, 0),
-            const TileCoordinate(2, 2, 0),
-            const TileCoordinate(3, 2, 0),
-            const TileCoordinate(1, 3, 0),
-            const TileCoordinate(2, 3, 0),
-            const TileCoordinate(3, 3, 0),
+            const TileCoordinates(1, 1, 0),
+            const TileCoordinates(2, 1, 0),
+            const TileCoordinates(3, 1, 0),
+            const TileCoordinates(1, 2, 0),
+            const TileCoordinates(2, 2, 0),
+            const TileCoordinates(3, 2, 0),
+            const TileCoordinates(1, 3, 0),
+            const TileCoordinates(2, 3, 0),
+            const TileCoordinates(3, 3, 0),
           ]);
         });
       });
@@ -105,19 +106,20 @@ void main() {
           ),
         );
 
-        expect(tileRange.coordinates.toList(), [const TileCoordinate(2, 2, 0)]);
+        expect(
+            tileRange.coordinates.toList(), [const TileCoordinates(2, 2, 0)]);
         final expandedTileRange = tileRange.expand(1);
 
         expect(expandedTileRange.coordinates.toList(), [
-          const TileCoordinate(1, 1, 0),
-          const TileCoordinate(2, 1, 0),
-          const TileCoordinate(3, 1, 0),
-          const TileCoordinate(1, 2, 0),
-          const TileCoordinate(2, 2, 0),
-          const TileCoordinate(3, 2, 0),
-          const TileCoordinate(1, 3, 0),
-          const TileCoordinate(2, 3, 0),
-          const TileCoordinate(3, 3, 0),
+          const TileCoordinates(1, 1, 0),
+          const TileCoordinates(2, 1, 0),
+          const TileCoordinates(3, 1, 0),
+          const TileCoordinates(1, 2, 0),
+          const TileCoordinates(2, 2, 0),
+          const TileCoordinates(3, 2, 0),
+          const TileCoordinates(1, 3, 0),
+          const TileCoordinates(2, 3, 0),
+          const TileCoordinates(3, 3, 0),
         ]);
       });
 
@@ -171,8 +173,8 @@ void main() {
         final intersectionB =
             tileRange1.intersect(tileRange2).coordinates.toList();
 
-        expect(intersectionA, [const TileCoordinate(3, 3, 0)]);
-        expect(intersectionB, [const TileCoordinate(3, 3, 0)]);
+        expect(intersectionA, [const TileCoordinates(3, 3, 0)]);
+        expect(intersectionB, [const TileCoordinates(3, 3, 0)]);
       });
 
       test('range within other range', () {

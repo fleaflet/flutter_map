@@ -76,9 +76,9 @@ Widget coordinateDebugTileBuilder(
   Widget tileWidget,
   TileImage tile,
 ) {
-  final coords = tile.coordinate;
+  final coordinates = tile.coordinates;
   final readableKey =
-      '${coords.x.floor()} : ${coords.y.floor()} : ${coords.z.floor()}';
+      '${coordinates.x.floor()} : ${coordinates.y.floor()} : ${coordinates.z.floor()}';
 
   return Container(
     decoration: BoxDecoration(

@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_coordinate.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provider.dart';
 
@@ -11,7 +11,7 @@ class FileTileProvider extends TileProvider {
   FileTileProvider();
 
   @override
-  ImageProvider getImage(TileCoordinate coords, TileLayer options) {
-    return NetworkImage(getTileUrl(coords, options));
+  ImageProvider getImage(TileCoordinates coordinates, TileLayer options) {
+    return NetworkImage(getTileUrl(coordinates, options));
   }
 }

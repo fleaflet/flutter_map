@@ -41,9 +41,9 @@ class _TileState extends State<Tile> {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      left: widget.tileImage.coordinate.x * widget.scaledTileSize -
+      left: widget.tileImage.coordinates.x * widget.scaledTileSize -
           widget.currentPixelOrigin.x,
-      top: widget.tileImage.coordinate.y * widget.scaledTileSize -
+      top: widget.tileImage.coordinates.y * widget.scaledTileSize -
           widget.currentPixelOrigin.y,
       width: widget.scaledTileSize,
       height: widget.scaledTileSize,

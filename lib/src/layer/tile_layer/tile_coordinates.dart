@@ -2,10 +2,10 @@ import 'dart:math';
 
 import 'package:flutter_map/flutter_map.dart';
 
-class TileCoordinate extends CustomPoint<int> {
+class TileCoordinates extends CustomPoint<int> {
   final int z;
 
-  const TileCoordinate(int x, int y, this.z) : super(x, y);
+  const TileCoordinates(int x, int y, this.z) : super(x, y);
 
   String get key => '$x:$y:$z';
 
@@ -14,7 +14,7 @@ class TileCoordinate extends CustomPoint<int> {
 
   @override
   bool operator ==(Object other) {
-    if (other is! TileCoordinate) return false;
+    if (other is! TileCoordinates) return false;
 
     return x == other.x && y == other.y && z == other.z;
   }

@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_coordinate.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provider.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network_image_provider.dart';
@@ -20,10 +20,10 @@ class NetworkTileProvider extends TileProvider {
   }
 
   @override
-  ImageProvider getImage(TileCoordinate coords, TileLayer options) =>
+  ImageProvider getImage(TileCoordinates coordinates, TileLayer options) =>
       FMNetworkImageProvider(
-        getTileUrl(coords, options),
-        fallbackUrl: getTileFallbackUrl(coords, options),
+        getTileUrl(coordinates, options),
+        fallbackUrl: getTileFallbackUrl(coordinates, options),
         headers: headers..remove('User-Agent'),
       );
 }
@@ -41,10 +41,10 @@ class NetworkNoRetryTileProvider extends TileProvider {
   }
 
   @override
-  ImageProvider getImage(TileCoordinate coords, TileLayer options) =>
+  ImageProvider getImage(TileCoordinates coordinates, TileLayer options) =>
       FMNetworkImageProvider(
-        getTileUrl(coords, options),
-        fallbackUrl: getTileFallbackUrl(coords, options),
+        getTileUrl(coordinates, options),
+        fallbackUrl: getTileFallbackUrl(coordinates, options),
         headers: headers..remove('User-Agent'),
         httpClient: http.Client(),
       );
@@ -54,17 +54,17 @@ class NetworkNoRetryTileProvider extends TileProvider {
 ///
 /// Using this method is not recommended any more, except for very simple custom [TileProvider]s. Instead, visit the online documentation at https://docs.fleaflet.dev/plugins/making-a-plugin/creating-new-tile-providers.
 class CustomTileProvider extends TileProvider {
-  final String Function(TileCoordinate coors, TileLayer options) customTileUrl;
+  final String Function(TileCoordinates coors, TileLayer options) customTileUrl;
 
   CustomTileProvider({required this.customTileUrl});
 
   @override
-  String getTileUrl(TileCoordinate coords, TileLayer options) {
-    return customTileUrl(coords, options);
+  String getTileUrl(TileCoordinates coordinates, TileLayer options) {
+    return customTileUrl(coordinates, options);
   }
 
   @override
-  ImageProvider getImage(TileCoordinate coords, TileLayer options) {
-    return AssetImage(getTileUrl(coords, options));
+  ImageProvider getImage(TileCoordinates coordinates, TileLayer options) {
+    return AssetImage(getTileUrl(coordinates, options));
   }
 }

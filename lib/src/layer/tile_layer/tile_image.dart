@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_coordinate.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 
 class TileImage extends ChangeNotifier {
@@ -7,13 +7,13 @@ class TileImage extends ChangeNotifier {
 
   /// The z of the coordinate is the TileImage's zoom level whilst the x and y
   /// indicate the position of the tile at that zoom level.
-  final TileCoordinate coordinate;
+  final TileCoordinates coordinates;
 
   final AnimationController? animationController;
 
   /// Callback fired when loading finishes with or withut an error. This
   /// callback is not triggered after this TileImage is disposed.
-  final void Function(TileCoordinate coordinate) onLoadComplete;
+  final void Function(TileCoordinates coordinates) onLoadComplete;
 
   /// Callback fired when an error occurs whilst loading the tile image.
   /// [onLoadComplete] will be called immediately afterwards. This callback is
@@ -59,7 +59,7 @@ class TileImage extends ChangeNotifier {
 
   TileImage({
     required final TickerProvider vsync,
-    required this.coordinate,
+    required this.coordinates,
     required this.imageProvider,
     required this.onLoadComplete,
     required this.onLoadError,
@@ -73,13 +73,13 @@ class TileImage extends ChangeNotifier {
       ? (_active ? 1.0 : 0.0)
       : animationController!.value;
 
-  String get coordsKey => coordinate.key;
+  String get coordinatesKey => coordinates.key;
 
   bool get active => _active;
 
   // Used to sort TileImages by their distance from the current zoom.
   double zIndex(double maxZoom, int currentZoom) =>
-      maxZoom - (currentZoom - coordinate.z).abs();
+      maxZoom - (currentZoom - coordinates.z).abs();
 
   // Initiate loading of the image.
   void load() {
@@ -108,7 +108,7 @@ class TileImage extends ChangeNotifier {
 
     if (!_disposed) {
       _activate();
-      onLoadComplete(coordinate);
+      onLoadComplete(coordinates);
     }
   }
 
@@ -118,7 +118,7 @@ class TileImage extends ChangeNotifier {
     if (!_disposed) {
       _activate();
       onLoadError(this, exception, stackTrace);
-      onLoadComplete(coordinate);
+      onLoadComplete(coordinates);
     }
   }
 
@@ -170,10 +170,10 @@ class TileImage extends ChangeNotifier {
   }
 
   @override
-  int get hashCode => coordinate.hashCode;
+  int get hashCode => coordinates.hashCode;
 
   @override
   bool operator ==(Object other) {
-    return other is TileImage && coordinate == other.coordinate;
+    return other is TileImage && coordinates == other.coordinates;
   }
 }

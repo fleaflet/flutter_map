@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_coordinate.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 
 /// The base tile provider implementation, extended by other classes such as [NetworkTileProvider]
@@ -17,24 +17,24 @@ abstract class TileProvider {
   });
 
   /// Retrieve a tile as an image, based on it's coordinates and the current [TileLayerOptions]
-  ImageProvider getImage(TileCoordinate coords, TileLayer options);
+  ImageProvider getImage(TileCoordinates coordinates, TileLayer options);
 
   /// Called when the [TileLayerWidget] is disposed
   void dispose() {}
 
   String _getTileUrl(
-      String urlTemplate, TileCoordinate coords, TileLayer options) {
-    final z = _getZoomForUrl(coords, options);
+      String urlTemplate, TileCoordinates coordinates, TileLayer options) {
+    final z = _getZoomForUrl(coordinates, options);
 
     final data = <String, String>{
-      'x': coords.x.toString(),
-      'y': coords.y.toString(),
+      'x': coordinates.x.toString(),
+      'y': coordinates.y.toString(),
       'z': z.toString(),
-      's': getSubdomain(coords, options),
+      's': getSubdomain(coordinates, options),
       'r': '@2x',
     };
     if (options.tms) {
-      data['y'] = invertY(coords.y, z).toString();
+      data['y'] = invertY(coordinates.y, z).toString();
     }
     final allOpts = Map<String, String>.from(data)
       ..addAll(options.additionalOptions);
@@ -43,24 +43,24 @@ abstract class TileProvider {
 
   /// Generate a valid URL for a tile, based on it's coordinates and the current
   /// [TileLayerOptions]
-  String getTileUrl(TileCoordinate coords, TileLayer options) {
+  String getTileUrl(TileCoordinates coordinates, TileLayer options) {
     final urlTemplate = (options.wmsOptions != null)
         ? options.wmsOptions!
-            .getUrl(coords, options.tileSize.toInt(), options.retinaMode)
+            .getUrl(coordinates, options.tileSize.toInt(), options.retinaMode)
         : options.urlTemplate;
 
-    return _getTileUrl(urlTemplate!, coords, options);
+    return _getTileUrl(urlTemplate!, coordinates, options);
   }
 
   /// Generates a valid URL for the [fallbackUrl].
-  String? getTileFallbackUrl(TileCoordinate coords, TileLayer options) {
+  String? getTileFallbackUrl(TileCoordinates coordinates, TileLayer options) {
     final urlTemplate = options.fallbackUrl;
     if (urlTemplate == null) return null;
-    return _getTileUrl(urlTemplate, coords, options);
+    return _getTileUrl(urlTemplate, coordinates, options);
   }
 
-  int _getZoomForUrl(TileCoordinate coords, TileLayer options) {
-    var zoom = coords.z.toDouble();
+  int _getZoomForUrl(TileCoordinates coordinates, TileLayer options) {
+    var zoom = coordinates.z.toDouble();
 
     if (options.zoomReverse) {
       zoom = options.maxZoom - zoom;
@@ -74,11 +74,11 @@ abstract class TileProvider {
   }
 
   /// Get a subdomain value for a tile, based on it's coordinates and the current [TileLayerOptions]
-  String getSubdomain(TileCoordinate coords, TileLayer options) {
+  String getSubdomain(TileCoordinates coordinates, TileLayer options) {
     if (options.subdomains.isEmpty) {
       return '';
     }
-    final index = (coords.x + coords.y) % options.subdomains.length;
+    final index = (coordinates.x + coordinates.y) % options.subdomains.length;
     return options.subdomains[index];
   }
 }

@@ -10,7 +10,6 @@ import 'package:flutter_map/src/core/util.dart' as util;
 import 'package:flutter_map/src/layer/tile_layer/tile.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_coordinate.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image_manager.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range_calculator.dart';
@@ -511,10 +510,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
               .inRenderOrder(widget.maxZoom, tileZoom)
               .map((tileImage) {
             return Tile(
-              key: ValueKey(tileImage.coordsKey),
+              key: ValueKey(tileImage.coordinatesKey),
               scaledTileSize: _tileScaleCalculator.scaledTileSize(
                 map.zoom,
-                tileImage.coordinate.z,
+                tileImage.coordinates.z,
               ),
               currentPixelOrigin: currentPixelOrigin,
               tileImage: tileImage,
@@ -527,14 +526,14 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   }
 
   TileImage _createTileImage(
-    TileCoordinate coordinate,
+    TileCoordinates coordinates,
     TileBoundsAtZoom tileBoundsAtZoom,
   ) {
     return TileImage(
       vsync: this,
-      coordinate: coordinate,
+      coordinates: coordinates,
       imageProvider: widget.tileProvider.getImage(
-        tileBoundsAtZoom.wrap(coordinate),
+        tileBoundsAtZoom.wrap(coordinates),
         widget,
       ),
       onLoadError: _onTileLoadError,
@@ -583,7 +582,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     _tileImageManager.prune(widget.evictErrorTileStrategy);
   }
 
-  // For each valid coordinate in the [tileLoadRange], expanded by the
+  // For all valid TileCoordinates in the [tileLoadRange], expanded by the
   // [TileLayer.panBuffer], this method will do the following depending on
   // whether a matching TileImage already exists or not:
   //   * Exists: Mark it as current and initiate image loading if it has not
@@ -609,15 +608,15 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     final tileBoundsAtZoom = _tileBounds.atZoom(tileZoom);
     final tilesToLoad = _tileImageManager.setCurrentAndReturnNotLoadedTiles(
         tileBoundsAtZoom.validCoordinatesIn(tileLoadRange),
-        createTile: (coordinate) =>
-            _createTileImage(coordinate, tileBoundsAtZoom));
+        createTile: (coordinates) =>
+            _createTileImage(coordinates, tileBoundsAtZoom));
 
     // Re-order the tiles by their distance to the center of the range.
     final tileCenter = tileLoadRange.center;
     tilesToLoad.sort(
-      (a, b) => a.coordinate
+      (a, b) => a.coordinates
           .distanceTo(tileCenter)
-          .compareTo(b.coordinate.distanceTo(tileCenter)),
+          .compareTo(b.coordinates.distanceTo(tileCenter)),
     );
 
     // Create the new Tiles.
@@ -647,9 +646,11 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   }
 
   // This is called whether the tile loads successfully or with an error.
-  void _onTileLoadComplete(TileCoordinate coordinate) {
-    if (!_tileImageManager.containsTileAt(coordinate)) return; // Already pruned
-    if (!_tileImageManager.allLoaded) return;
+  void _onTileLoadComplete(TileCoordinates coordinates) {
+    if (!_tileImageManager.containsTileAt(coordinates) ||
+        !_tileImageManager.allLoaded) {
+      return;
+    }
 
     if (widget.fastReplace) {
       // We're not waiting for anything, prune the tiles immediately.
