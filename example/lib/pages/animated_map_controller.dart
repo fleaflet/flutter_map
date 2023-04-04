@@ -218,8 +218,10 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
 /// #1263) we should just detect the appropriate AnimatedMove events and
 /// use their target zoom/center.
 final _animatedMoveTileUpdateTransformer =
-    TileUpdateTransformer.fromHandlers(handleData: (event, sink) {
-  final id = event is MapEventMove ? event.id : null;
+    TileUpdateTransformer.fromHandlers(handleData: (updateEvent, sink) {
+  final mapEvent = updateEvent.mapEvent;
+
+  final id = mapEvent is MapEventMove ? mapEvent.id : null;
   if (id?.startsWith(AnimatedMapControllerPageState._startedId) == true) {
     final parts = id!.split('#')[2].split(',');
     final lat = double.parse(parts[0]);
@@ -230,18 +232,19 @@ final _animatedMoveTileUpdateTransformer =
     // not prune. Disabling pruning means existing tiles will remain visible
     // whilst animating.
     sink.add(
-      TileUpdateEvent.loadOnly(
+      updateEvent.loadOnly(
         loadCenterOverride: LatLng(lat, lon),
         loadZoomOverride: zoom,
       ),
     );
   } else if (id == AnimatedMapControllerPageState._inProgressId) {
     // Do not prune or load whilst animating so that any existing tiles remain
-    // visible.
+    // visible. A smarter implementation may start pruning once we are close to
+    // the target zoom/location.
   } else if (id == AnimatedMapControllerPageState._finishedId) {
     // We already prefetched the tiles when animation started so just prune.
-    sink.add(const TileUpdateEvent.pruneOnly());
+    sink.add(updateEvent.pruneOnly());
   } else {
-    sink.add(const TileUpdateEvent.loadAndPrune());
+    sink.add(updateEvent);
   }
 });

@@ -3,19 +3,27 @@ import 'dart:async';
 import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_update_event.dart';
 
-typedef TileUpdateTransformer = StreamTransformer<MapEvent, TileUpdateEvent>;
+typedef TileUpdateTransformer
+    = StreamTransformer<TileUpdateEvent, TileUpdateEvent>;
 
-/// Avoid loading/updating tiles when a tap occurs on the assumption that it
-/// should not cause new tiles to be loaded.
-final ignoreTapEventsTransformer =
-    TileUpdateTransformer.fromHandlers(handleData: (event, sink) {
-  // Ignore known events that we know should not cause new tiles to load.
-  if (event is MapEventTap ||
-      event is MapEventSecondaryTap ||
-      event is MapEventLongPress) {
-    return;
-  }
+class TileUpdateTransformers {
+  const TileUpdateTransformers._();
 
-  // Let the event trigger load/prune.
-  sink.add(const TileUpdateEvent.loadAndPrune());
-});
+  /// Avoid loading/updating tiles when a tap occurs on the assumption that it
+  /// should not cause new tiles to be loaded.
+  static final ignoreTapEvents =
+      TileUpdateTransformer.fromHandlers(handleData: (event, sink) {
+    if (!_triggeredByTap(event)) sink.add(event);
+  });
+
+  /// Always load and update tiles for every map event.
+  static final alwaysLoadAndPrune =
+      TileUpdateTransformer.fromHandlers(handleData: (event, sink) {
+    sink.add(event);
+  });
+
+  static bool _triggeredByTap(TileUpdateEvent event) =>
+      event.mapEvent is MapEventTap ||
+      event.mapEvent is MapEventSecondaryTap ||
+      event.mapEvent is MapEventLongPress;
+}

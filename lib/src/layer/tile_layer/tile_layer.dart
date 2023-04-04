@@ -221,11 +221,18 @@ class TileLayer extends StatefulWidget {
   /// Only load tiles that are within these bounds
   final LatLngBounds? tileBounds;
 
-  /// If provided this transformer may be used to modify how/when tile updates
-  /// are triggered. It is a StreamTransformer from MapEvent to TilUpdateEvent
-  /// and therefore filtering/modifying/debouncing may be perfored based on the
-  /// MapEvent.
-  final TileUpdateTransformer? tileUpdateTransformer;
+  /// This transformer modifies how/when tile updates and pruning are triggered
+  /// based on [MapEvent]s. It is a StreamTransformer and therefore it is
+  /// possible to filter/modify/debounce the [TileUpdateEvent]s. Defaults to
+  /// [TileUpdateTransformers.ignoreTapEvents] which disables loading/pruning
+  /// for map taps, secondary taps and long presses.
+  ///
+  /// If you want all [MapEvent]s to trigger loading and pruning use
+  /// [TileUpdateTransformers.alwaysLoadAndPrune].
+  ///
+  /// Note: Changing the [tileUpdateTransformer] after TileLayer is created has
+  /// no affect.
+  final TileUpdateTransformer tileUpdateTransformer;
 
   TileLayer({
     super.key,
@@ -256,7 +263,7 @@ class TileLayer extends StatefulWidget {
     this.evictErrorTileStrategy = EvictErrorTileStrategy.none,
     this.reset,
     this.tileBounds,
-    this.tileUpdateTransformer,
+    TileUpdateTransformer? tileUpdateTransformer,
     String userAgentPackageName = 'unknown',
   })  : assert(
           tileDisplay.map(
@@ -289,7 +296,9 @@ class TileLayer extends StatefulWidget {
                 ...tileProvider.headers,
                 if (!tileProvider.headers.containsKey('User-Agent'))
                   'User-Agent': 'flutter_map ($userAgentPackageName)',
-              });
+              }),
+        tileUpdateTransformer =
+            tileUpdateTransformer ?? TileUpdateTransformers.ignoreTapEvents;
 
   @override
   State<StatefulWidget> createState() => _TileLayerState();
@@ -313,7 +322,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   // TileLayer.tileUpdateTransformer is null then we subscribe to map movement
   // otherwise we subscribe to tile update events which are transformed from
   // map movements.
-  StreamSubscription<MapEvent>? _mapMoveSubscription;
   StreamSubscription<TileUpdateEvent>? _tileUpdateSubscription;
 
   StreamSubscription<void>? _resetSub;
@@ -344,19 +352,13 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     final mapController = mapState.mapController;
     if (_mapControllerHashCode != mapController.hashCode) {
-      _mapMoveSubscription?.cancel();
       _tileUpdateSubscription?.cancel();
 
       _mapControllerHashCode = mapController.hashCode;
-      if (widget.tileUpdateTransformer == null) {
-        _mapMoveSubscription = mapController.mapEventStream.listen((event) {
-          _loadAndPruneInVisibleBounds(mapState);
-        });
-      } else {
-        _tileUpdateSubscription = mapController.mapEventStream
-            .transform(widget.tileUpdateTransformer!)
-            .listen((event) => _onTileUpdateEvent(mapState, event));
-      }
+      _tileUpdateSubscription = mapController.mapEventStream
+          .map((mapEvent) => TileUpdateEvent(mapEvent: mapEvent))
+          .transform(widget.tileUpdateTransformer)
+          .listen((event) => _onTileUpdateEvent(mapState, event));
     }
 
     bool reloadTiles = false;
@@ -457,7 +459,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    _mapMoveSubscription?.cancel();
     _tileUpdateSubscription?.cancel();
     _tileImageManager.removeAll(widget.evictErrorTileStrategy);
     _resetSub?.cancel();
