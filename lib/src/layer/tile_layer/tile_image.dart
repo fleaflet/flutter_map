@@ -1,13 +1,13 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_display.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_transition.dart';
 
 class TileImage extends ChangeNotifier {
   bool _disposed = false;
 
   /// Used by animationController. Still required if animation is disabled in
-  /// case the tile transition is changed at a later point.
+  /// case the tile display is changed at a later point.
   final TickerProvider vsync;
 
   /// The z of the coordinate is the TileImage's zoom level whilst the x and y
@@ -26,8 +26,8 @@ class TileImage extends ChangeNotifier {
   final void Function(TileImage tile, Object error, StackTrace? stackTrace)
       onLoadError;
 
-  /// The style of transition.
-  TileTransition _transition;
+  /// Options for how the tile image is displayed.
+  TileDisplay _display;
 
   /// An optional image to show when a loading error occurs.
   final ImageProvider? errorImage;
@@ -68,20 +68,20 @@ class TileImage extends ChangeNotifier {
     required this.imageProvider,
     required this.onLoadComplete,
     required this.onLoadError,
-    required TileTransition transition,
+    required TileDisplay tileDisplay,
     required this.errorImage,
-  })  : _transition = transition,
-        _animationController = transition.map(
+  })  : _display = tileDisplay,
+        _animationController = tileDisplay.map(
           instantaneous: (_) => null,
-          faded: (faded) => AnimationController(
+          fadeIn: (fadeIn) => AnimationController(
             vsync: vsync,
-            duration: faded.tileFadeIn.duration,
+            duration: fadeIn.duration,
           ),
         );
 
-  double get opacity => _transition.map(
+  double get opacity => _display.map(
       instantaneous: (instantaneous) => _active ? instantaneous.opacity : 0.0,
-      faded: (faded) => _animationController!.value);
+      fadeIn: (fadeIn) => _animationController!.value);
 
   AnimationController? get animation => _animationController;
 
@@ -93,33 +93,33 @@ class TileImage extends ChangeNotifier {
   double zIndex(double maxZoom, int currentZoom) =>
       maxZoom - (currentZoom - coordinates.z).abs();
 
-  // Change the tile transition.
-  set transition(TileTransition newTransition) {
-    final oldTransition = _transition;
-    _transition = newTransition;
+  // Change the tile display options.
+  set tileDisplay(TileDisplay newTileDisplay) {
+    final oldTileDisplay = _display;
+    _display = newTileDisplay;
 
     // Handle disabling/enabling of animation controller if necessary
-    oldTransition.when(
+    oldTileDisplay.when(
       instantaneous: (instantaneous) {
-        newTransition.when(
-          faded: (faded) {
+        newTileDisplay.when(
+          fadeIn: (fadeIn) {
             // Became animated.
             _animationController = AnimationController(
-              duration: faded.tileFadeIn.duration,
+              duration: fadeIn.duration,
               vsync: vsync,
               value: _active ? 1.0 : 0.0,
             );
           },
         );
       },
-      faded: (faded) {
-        newTransition.when(instantaneous: (instantaneous) {
+      fadeIn: (fadeIn) {
+        newTileDisplay.when(instantaneous: (instantaneous) {
           // No longer animated.
           _animationController!.dispose();
           _animationController = null;
-        }, faded: (faded) {
+        }, fadeIn: (fadeIn) {
           // Still animated with different fade.
-          _animationController!.duration = faded.tileFadeIn.duration;
+          _animationController!.duration = fadeIn.duration;
         });
       },
     );
@@ -172,21 +172,20 @@ class TileImage extends ChangeNotifier {
     final previouslyLoaded = loadFinishedAt != null;
     loadFinishedAt = DateTime.now();
 
-    _transition.when(
+    _display.when(
       instantaneous: (_) {
         _active = true;
         if (!_disposed) notifyListeners();
       },
-      faded: (faded) {
+      fadeIn: (fadeIn) {
         if (loadError && errorImage != null) {
           _active = true;
           if (!_disposed) notifyListeners();
           return;
         }
 
-        final fadeStartOpacity = previouslyLoaded
-            ? faded.tileFadeIn.reloadStartOpacity
-            : faded.tileFadeIn.startOpacity;
+        final fadeStartOpacity =
+            previouslyLoaded ? fadeIn.reloadStartOpacity : fadeIn.startOpacity;
 
         if (fadeStartOpacity == 1.0) {
           _active = true;

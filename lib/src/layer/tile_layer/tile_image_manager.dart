@@ -3,10 +3,10 @@ import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_display.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_transition.dart';
 
 typedef TileCreator = TileImage Function(TileCoordinates coordinates);
 
@@ -80,9 +80,9 @@ class TileImageManager {
     return notLoaded;
   }
 
-  void updateTileTransition(TileTransition tileTransition) {
+  void updateTileDisplay(TileDisplay tileDisplay) {
     for (final tile in _tiles.values) {
-      tile.transition = tileTransition;
+      tile.tileDisplay = tileDisplay;
     }
   }
 
