@@ -23,7 +23,9 @@ String template(String str, Map<String, String> data) {
 }
 
 StreamTransformer<T, T> throttleStreamTransformerWithTrailingCall<T>(
-    Duration duration) {
+  Duration duration, {
+  bool Function(T)? ignore,
+}) {
   Timer? timer;
   T recentData;
   var trailingCall = false;
@@ -31,6 +33,8 @@ StreamTransformer<T, T> throttleStreamTransformerWithTrailingCall<T>(
   late final void Function(T data, EventSink<T> sink) throttleHandler;
 
   throttleHandler = (T data, EventSink<T> sink) {
+    if (ignore?.call(data) == true) return;
+
     recentData = data;
 
     if (timer == null) {

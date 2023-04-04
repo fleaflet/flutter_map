@@ -223,12 +223,10 @@ class TileLayer extends StatefulWidget {
 
   /// This transformer modifies how/when tile updates and pruning are triggered
   /// based on [MapEvent]s. It is a StreamTransformer and therefore it is
-  /// possible to filter/modify/debounce the [TileUpdateEvent]s. Defaults to
+  /// possible to filter/modify/throttle the [TileUpdateEvent]s. Defaults to
   /// [TileUpdateTransformers.ignoreTapEvents] which disables loading/pruning
-  /// for map taps, secondary taps and long presses.
-  ///
-  /// If you want all [MapEvent]s to trigger loading and pruning use
-  /// [TileUpdateTransformers.alwaysLoadAndPrune].
+  /// for map taps, secondary taps and long presses. See TileUpdateTransformers
+  /// for more transformer presets or implement your own.
   ///
   /// Note: Changing the [tileUpdateTransformer] after TileLayer is created has
   /// no affect.

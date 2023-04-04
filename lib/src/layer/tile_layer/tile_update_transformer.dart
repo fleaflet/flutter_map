@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter_map/src/core/util.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_update_event.dart';
 
@@ -21,6 +22,17 @@ class TileUpdateTransformers {
       TileUpdateTransformer.fromHandlers(handleData: (event, sink) {
     sink.add(event);
   });
+
+  /// Throttle updates such that maximum one per [duration] is emitted.
+  static TileUpdateTransformer throttle(
+    Duration duration, {
+    /// If true tap events will be filtered out.
+    bool ignoreTapEvents = true,
+  }) =>
+      throttleStreamTransformerWithTrailingCall<TileUpdateEvent>(
+        duration,
+        ignore: ignoreTapEvents ? _triggeredByTap : null,
+      );
 
   static bool _triggeredByTap(TileUpdateEvent event) =>
       event.mapEvent is MapEventTap ||
