@@ -42,32 +42,17 @@ abstract class TileDisplay {
     double reloadStartOpacity,
   }) = FadeInTileDisplay._;
 
-  T map<T>({
-    required T Function(InstantaneousTileDisplay instantaneous) instantaneous,
-    required T Function(FadeInTileDisplay fadeIn) fadeIn,
-  }) {
-    switch (runtimeType) {
-      case InstantaneousTileDisplay:
-        return instantaneous(this as InstantaneousTileDisplay);
-      case FadeInTileDisplay:
-        return fadeIn(this as FadeInTileDisplay);
-      default:
-        throw 'Unknown TileDisplay type: $runtimeType';
-    }
-  }
-
-  void when({
-    void Function(InstantaneousTileDisplay instantaneous)? instantaneous,
-    void Function(FadeInTileDisplay fadeIn)? fadeIn,
+  T? map<T>({
+    T? Function(InstantaneousTileDisplay instantaneous)? instantaneous,
+    T? Function(FadeInTileDisplay fadeIn)? fadeIn,
   }) {
     switch (runtimeType) {
       case InstantaneousTileDisplay:
         return instantaneous?.call(this as InstantaneousTileDisplay);
       case FadeInTileDisplay:
         return fadeIn?.call(this as FadeInTileDisplay);
-      default:
-        throw 'Unknown TileDisplay type: $runtimeType';
     }
+    return null;
   }
 }
 

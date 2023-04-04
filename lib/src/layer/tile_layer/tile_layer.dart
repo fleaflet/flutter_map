@@ -258,9 +258,11 @@ class TileLayer extends StatefulWidget {
     this.tileBounds,
     this.tileUpdateTransformer,
     String userAgentPackageName = 'unknown',
-  })  : assert(tileDisplay.map(
-            instantaneous: (_) => true,
-            fadeIn: (fadeIn) => fadeIn.duration > Duration.zero)),
+  })  : assert(
+          tileDisplay.map(
+              instantaneous: (_) => true,
+              fadeIn: (fadeIn) => fadeIn.duration > Duration.zero)!,
+        ),
         maxZoom =
             wmsOptions == null && retinaMode && maxZoom > 0.0 && !zoomReverse
                 ? maxZoom - 1.0
@@ -653,7 +655,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       return;
     }
 
-    widget.tileDisplay.when(instantaneous: (_) {
+    widget.tileDisplay.map(instantaneous: (_) {
       _tileImageManager.prune(widget.evictErrorTileStrategy);
     }, fadeIn: (fadeIn) {
       // Wait a bit more than tileFadeInDuration to trigger a pruning so that
