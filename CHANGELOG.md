@@ -1,23 +1,36 @@
 # Changelog
 
-## [3.2.0] - 2022/02/XX
+## [4.0.0] - 2022/04/XX
 
 Contains the following additions/removals:
 
-- Removed `LatLngBounds.pad` (unused and broken) method - [#1427](https://github.com/fleaflet/flutter_map/pull/1427)
+- Reimplemented `TileLayer` and underlying systems 🎉 - [#1475](https://github.com/fleaflet/flutter_map/pull/1475)
+- Added secondary tap handling to `MapOptions` - [#1448](https://github.com/fleaflet/flutter_map/pull/1448) for [#1444](https://github.com/fleaflet/flutter_map/issues/1444)
 - Migrated `LatLngBounds` to proper null safety - [#1431](https://github.com/fleaflet/flutter_map/pull/1431)
+- Removed `LatLngBounds.pad` (unused and broken) method - [#1427](https://github.com/fleaflet/flutter_map/pull/1427)
+- Removed `absorbPanEventsOnScrollables` option - [#1455](https://github.com/fleaflet/flutter_map/pull/1455) for [#1454](https://github.com/fleaflet/flutter_map/issues/1454)
+- Removed leftover deprecations - [#1475](https://github.com/fleaflet/flutter_map/pull/1475)
 - Minor example application improvements - [#1440](https://github.com/fleaflet/flutter_map/pull/1440)
 
 Contains the following bug fixes:
 
 - Fixed deprecations - [#1438](https://github.com/fleaflet/flutter_map/pull/1438)
+- Prevented scrolling of list and simultaneous panning of map on some platforms - [#1453](https://github.com/fleaflet/flutter_map/pull/1453)
+
+Contains the following performance and stability improvements:
+
+- Batched polygon and polyline rendering to minimize redraws and maximize their efficiency - [#1442](https://github.com/fleaflet/flutter_map/pull/1442)
+- Added a threshold for rasterization to avoid excessive fixed overhead cost for cheap redraws - [#1462](https://github.com/fleaflet/flutter_map/pull/1462)
 
 Many thanks to these contributors (in no particular order):
 
 - @pablojimpas
 - @augustweinbren
 - @ignatz
+- @rorystephenson
 - ... and all the maintainers
+
+And an additional special thanks to @rorystephenson & @ignatz for investing so much of his time into this project recently - we appreciate it!
 
 ## [3.1.0] - 2022/12/21
 

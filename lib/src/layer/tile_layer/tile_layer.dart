@@ -112,7 +112,7 @@ class TileLayer extends StatefulWidget {
   /// Sets the opacity of tile images. Overlapping tiles from separate layers
   /// will be simultaneously visible when opacity is less than one. To prevent
   /// this [fastReplace] should be enabled.
-  final double tileOpacity;
+  final double opacity;
 
   /// Provider with which to load map tiles
   ///
@@ -260,7 +260,7 @@ class TileLayer extends StatefulWidget {
     this.keepBuffer = 2,
     this.panBuffer = 0,
     this.backgroundColor = const Color(0xFFE0E0E0),
-    this.tileOpacity = 1.0,
+    this.opacity = 1.0,
     this.errorImage,
     TileProvider? tileProvider,
     this.tms = false,
@@ -412,7 +412,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     super.didUpdateWidget(oldWidget);
     bool reloadTiles = false;
 
-    if (oldWidget.tileOpacity != widget.tileOpacity) reloadTiles = true;
+    if (oldWidget.opacity != widget.opacity) reloadTiles = true;
 
     // There is no caching in TileRangeCalculator so we can just replace it.
     _tileRangeCalculator = TileRangeCalculator(tileSize: widget.tileSize);
@@ -555,7 +555,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         tileBoundsAtZoom.wrap(coordinates),
         widget,
       ),
-      maximumOpacity: widget.tileOpacity,
+      maximumOpacity: widget.opacity,
       onLoadError: _onTileLoadError,
       onLoadComplete: _onTileLoadComplete,
       fadeIn: widget.fastReplace ? null : widget.tileFadeIn,
