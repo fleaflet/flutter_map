@@ -6,6 +6,7 @@ import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_transition.dart';
 
 typedef TileCreator = TileImage Function(TileCoordinates coordinates);
 
@@ -77,6 +78,12 @@ class TileImageManager {
     }
 
     return notLoaded;
+  }
+
+  void updateTileTransition(TileTransition tileTransition) {
+    for (final tile in _tiles.values) {
+      tile.transition = tileTransition;
+    }
   }
 
   /// All removals should be performed by calling this method to ensure that

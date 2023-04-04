@@ -1,18 +1,20 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_transition.dart';
 
 class TileImage extends ChangeNotifier {
   bool _disposed = false;
+
+  /// Used by animationController. Still required if animation is disabled in
+  /// case the tile transition is changed at a later point.
+  final TickerProvider vsync;
 
   /// The z of the coordinate is the TileImage's zoom level whilst the x and y
   /// indicate the position of the tile at that zoom level.
   final TileCoordinates coordinates;
 
-  /// The opacity of the tile image when it is fully loaded.
-  final double maximumOpacity;
-
-  final AnimationController? animationController;
+  AnimationController? _animationController;
 
   /// Callback fired when loading finishes with or withut an error. This
   /// callback is not triggered after this TileImage is disposed.
@@ -24,8 +26,8 @@ class TileImage extends ChangeNotifier {
   final void Function(TileImage tile, Object error, StackTrace? stackTrace)
       onLoadError;
 
-  /// Options for controlling whether tile fade in.
-  final TileFadeIn? fadeIn;
+  /// The style of transition.
+  TileTransition _transition;
 
   /// An optional image to show when a loading error occurs.
   final ImageProvider? errorImage;
@@ -61,25 +63,27 @@ class TileImage extends ChangeNotifier {
   late ImageStreamListener _listener;
 
   TileImage({
-    required final TickerProvider vsync,
+    required this.vsync,
     required this.coordinates,
     required this.imageProvider,
-    required this.maximumOpacity,
     required this.onLoadComplete,
     required this.onLoadError,
-    required this.fadeIn,
+    required TileTransition transition,
     required this.errorImage,
-  }) : animationController = fadeIn == null
-            ? null
-            : AnimationController(
-                duration: fadeIn.duration,
-                vsync: vsync,
-                upperBound: maximumOpacity,
-              );
+  })  : _transition = transition,
+        _animationController = transition.map(
+          instantaneous: (_) => null,
+          faded: (faded) => AnimationController(
+            vsync: vsync,
+            duration: faded.tileFadeIn.duration,
+          ),
+        );
 
-  double get opacity => animationController == null
-      ? (_active ? maximumOpacity : 0.0)
-      : animationController!.value;
+  double get opacity => _transition.map(
+      instantaneous: (instantaneous) => _active ? instantaneous.opacity : 0.0,
+      faded: (faded) => _animationController!.value);
+
+  AnimationController? get animation => _animationController;
 
   String get coordinatesKey => coordinates.key;
 
@@ -88,6 +92,40 @@ class TileImage extends ChangeNotifier {
   // Used to sort TileImages by their distance from the current zoom.
   double zIndex(double maxZoom, int currentZoom) =>
       maxZoom - (currentZoom - coordinates.z).abs();
+
+  // Change the tile transition.
+  set transition(TileTransition newTransition) {
+    final oldTransition = _transition;
+    _transition = newTransition;
+
+    // Handle disabling/enabling of animation controller if necessary
+    oldTransition.when(
+      instantaneous: (instantaneous) {
+        newTransition.when(
+          faded: (faded) {
+            // Became animated.
+            _animationController = AnimationController(
+              duration: faded.tileFadeIn.duration,
+              vsync: vsync,
+              value: _active ? 1.0 : 0.0,
+            );
+          },
+        );
+      },
+      faded: (faded) {
+        newTransition.when(instantaneous: (instantaneous) {
+          // No longer animated.
+          _animationController!.dispose();
+          _animationController = null;
+        }, faded: (faded) {
+          // Still animated with different fade.
+          _animationController!.duration = faded.tileFadeIn.duration;
+        });
+      },
+    );
+
+    if (!_disposed) notifyListeners();
+  }
 
   // Initiate loading of the image.
   void load() {
@@ -134,26 +172,35 @@ class TileImage extends ChangeNotifier {
     final previouslyLoaded = loadFinishedAt != null;
     loadFinishedAt = DateTime.now();
 
-    if (fadeIn == null || (loadError && errorImage != null)) {
-      _active = true;
-      if (!_disposed) notifyListeners();
-      return;
-    }
+    _transition.when(
+      instantaneous: (_) {
+        _active = true;
+        if (!_disposed) notifyListeners();
+      },
+      faded: (faded) {
+        if (loadError && errorImage != null) {
+          _active = true;
+          if (!_disposed) notifyListeners();
+          return;
+        }
 
-    final fadeStartOpacity =
-        previouslyLoaded ? fadeIn!.reloadStartOpacity : fadeIn!.startOpacity;
+        final fadeStartOpacity = previouslyLoaded
+            ? faded.tileFadeIn.reloadStartOpacity
+            : faded.tileFadeIn.startOpacity;
 
-    if (fadeStartOpacity == 1.0) {
-      _active = true;
-      if (!_disposed) notifyListeners();
-      return;
-    }
+        if (fadeStartOpacity == 1.0) {
+          _active = true;
+          if (!_disposed) notifyListeners();
+          return;
+        }
 
-    animationController!.reset();
-    animationController!.forward(from: fadeStartOpacity).then((_) {
-      _active = true;
-      if (!_disposed) notifyListeners();
-    });
+        _animationController!.reset();
+        _animationController!.forward(from: fadeStartOpacity).then((_) {
+          _active = true;
+          if (!_disposed) notifyListeners();
+        });
+      },
+    );
   }
 
   @override
@@ -176,11 +223,11 @@ class TileImage extends ChangeNotifier {
 
     // Mark the image as inactive.
     _active = false;
-    animationController?.stop(canceled: false);
-    animationController?.value = 0.0;
+    _animationController?.stop(canceled: false);
+    _animationController?.value = 0.0;
     notifyListeners();
 
-    animationController?.dispose();
+    _animationController?.dispose();
     _imageStream?.removeListener(_listener);
     super.dispose();
   }

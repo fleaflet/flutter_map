@@ -22,6 +22,7 @@ import 'package:flutter_map/src/layer/tile_layer/tile_provider/tile_provider_web
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_transition.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_update_event.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_update_transformer.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
@@ -109,11 +110,6 @@ class TileLayer extends StatefulWidget {
   /// Color shown behind the tiles
   final Color backgroundColor;
 
-  /// Sets the opacity of tile images. Overlapping tiles from separate layers
-  /// will be simultaneously visible when opacity is less than one. To prevent
-  /// this [fastReplace] should be enabled.
-  final double opacity;
-
   /// Provider with which to load map tiles
   ///
   /// The default is [NetworkNoRetryTileProvider]. Alternatively, use
@@ -177,10 +173,6 @@ class TileLayer extends StatefulWidget {
   /// ```
   final Map<String, String> additionalOptions;
 
-  /// Options for fading in tiles when they are loaded. If this is set to null
-  /// no fade is performed.
-  final TileFadeIn? tileFadeIn;
-
   /// `false`: current Tiles will be first dropped and then reload via new url
   /// (default) `true`: current Tiles will be visible until new ones aren't
   /// loaded (new Tiles are loaded independently) @see
@@ -219,19 +211,6 @@ class TileLayer extends StatefulWidget {
   // (see #576 - even Error Images are cached in flutter)
   final EvictErrorTileStrategy evictErrorTileStrategy;
 
-  /// This option is useful when you have a transparent layer: rather than
-  /// keeping the old layer visible when zooming (resulting in both layers
-  /// being temporarily visible), the old layer is removed as quickly as
-  /// possible when this is set to `true` (default `false`).
-  ///
-  /// This option is likely to cause some flickering of the transparent layer,
-  /// most noticeable when using pinch-to-zoom. It's best used with maps that
-  /// have `interactive` set to `false`, and zoom using buttons that call
-  /// `MapController.move()`.
-  ///
-  /// When set to `true`, the `tileFadeIn*` options will be ignored.
-  final bool fastReplace;
-
   /// Stream to notify the [TileLayer] that it needs resetting
   final Stream<void>? reset;
 
@@ -243,6 +222,9 @@ class TileLayer extends StatefulWidget {
   /// and therefore filtering/modifying/debouncing may be perfored based on the
   /// MapEvent.
   final TileUpdateTransformer? tileUpdateTransformer;
+
+  /// Used internally to encapsulate the tile transition options.
+  final TileTransition _tileTransition;
 
   TileLayer({
     super.key,
@@ -260,20 +242,44 @@ class TileLayer extends StatefulWidget {
     this.keepBuffer = 2,
     this.panBuffer = 0,
     this.backgroundColor = const Color(0xFFE0E0E0),
-    this.opacity = 1.0,
+
+    /// Sets the opacity of tile images to the given value (0.0 - 1.0), default
+    /// 1.0. When opacity is not 1.0 [fastReplace] is always enabled to prevent
+    /// overlapping tiles from being simultaneously visible. This disables fade
+    /// in and is not suitable for interactive maps, see [fastReplace] for more
+    /// information.
+    ///
+    /// If you need the map to be interactive and transparent you should wrap
+    /// [TileLayer] in an [Opacity] widget. This is less performant but avoids
+    /// flickering when moving the map.
+    double opacity = 1.0,
     this.errorImage,
     TileProvider? tileProvider,
     this.tms = false,
     this.wmsOptions,
-    Duration tileFadeInDuration = const Duration(milliseconds: 100),
-    this.tileFadeIn = const TileFadeIn(),
+
+    /// Options for fading in tiles when they are loaded. If this is set to null
+    /// no fade is performed.
+    TileFadeIn? tileFadeIn,
     this.overrideTilesWhenUrlChanges = false,
     this.retinaMode = false,
     this.errorTileCallback,
     this.templateFunction = util.template,
     this.tileBuilder,
     this.evictErrorTileStrategy = EvictErrorTileStrategy.none,
-    this.fastReplace = false,
+
+    /// This option is useful when you have a transparent layer: rather than
+    /// keeping the old layer visible when zooming (resulting in both layers
+    /// being temporarily visible), the old layer is removed as quickly as
+    /// possible when this is set to `true` (default `false`).
+    ///
+    /// This option is likely to cause some flickering of the transparent layer,
+    /// most noticeable when using pinch-to-zoom. It's best used with maps that
+    /// have `interactive` set to `false`, and zoom using buttons that call
+    /// `MapController.move()`.
+    ///
+    /// When set to `true`, the `tileFadeIn*` options will be ignored.
+    bool? fastReplace,
     this.reset,
     this.tileBounds,
     this.tileUpdateTransformer,
@@ -305,7 +311,12 @@ class TileLayer extends StatefulWidget {
                 ...tileProvider.headers,
                 if (!tileProvider.headers.containsKey('User-Agent'))
                   'User-Agent': 'flutter_map ($userAgentPackageName)',
-              });
+              }),
+        _tileTransition = TileTransition.from(
+          opacity: opacity,
+          fastReplace: fastReplace,
+          tileFadeIn: tileFadeIn,
+        );
 
   @override
   State<StatefulWidget> createState() => _TileLayerState();
@@ -412,8 +423,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     super.didUpdateWidget(oldWidget);
     bool reloadTiles = false;
 
-    if (oldWidget.opacity != widget.opacity) reloadTiles = true;
-
     // There is no caching in TileRangeCalculator so we can just replace it.
     _tileRangeCalculator = TileRangeCalculator(tileSize: widget.tileSize);
 
@@ -468,6 +477,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     if (reloadTiles) {
       _tileImageManager.removeAll(widget.evictErrorTileStrategy);
       _loadAndPruneInVisibleBounds(FlutterMapState.maybeOf(context)!);
+    } else if (oldWidget._tileTransition != widget._tileTransition) {
+      _tileImageManager.updateTileTransition(widget._tileTransition);
     }
   }
 
@@ -555,10 +566,9 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         tileBoundsAtZoom.wrap(coordinates),
         widget,
       ),
-      maximumOpacity: widget.opacity,
       onLoadError: _onTileLoadError,
       onLoadComplete: _onTileLoadComplete,
-      fadeIn: widget.fastReplace ? null : widget.tileFadeIn,
+      transition: widget._tileTransition,
       errorImage: widget.errorImage,
     );
   }
@@ -671,20 +681,18 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         !_tileImageManager.allLoaded) {
       return;
     }
-    if (widget.fastReplace) {
-      // We're not waiting for anything, prune the tiles immediately.
+
+    widget._tileTransition.when(instantaneous: (_) {
       _tileImageManager.prune(widget.evictErrorTileStrategy);
-    } else {
+    }, faded: (faded) {
       // Wait a bit more than tileFadeInDuration to trigger a pruning so that
       // we don't see tile removal under a fading tile.
       _pruneLater?.cancel();
       _pruneLater = Timer(
-        widget.tileFadeIn == null
-            ? const Duration(milliseconds: 50)
-            : widget.tileFadeIn!.duration + const Duration(milliseconds: 50),
+        faded.duration + const Duration(milliseconds: 50),
         () => _tileImageManager.prune(widget.evictErrorTileStrategy),
       );
-    }
+    });
   }
 
   bool _outsideZoomLimits(num zoom) =>

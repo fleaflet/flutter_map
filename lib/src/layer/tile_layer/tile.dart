@@ -60,7 +60,7 @@ class _TileState extends State<Tile> {
             ? null
             : AlwaysStoppedAnimation(widget.tileImage.opacity),
       );
-    } else if (widget.tileImage.animationController == null) {
+    } else if (widget.tileImage.animation == null) {
       return RawImage(
         image: widget.tileImage.imageInfo?.image,
         fit: BoxFit.fill,
@@ -70,11 +70,11 @@ class _TileState extends State<Tile> {
       );
     } else {
       return AnimatedBuilder(
-        animation: widget.tileImage.animationController!,
+        animation: widget.tileImage.animation!,
         builder: (context, child) => RawImage(
           image: widget.tileImage.imageInfo?.image,
           fit: BoxFit.fill,
-          opacity: widget.tileImage.animationController!,
+          opacity: widget.tileImage.animation!,
         ),
       );
     }
