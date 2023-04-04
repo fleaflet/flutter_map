@@ -23,22 +23,20 @@ abstract class TileProvider {
   void dispose() {}
 
   String _getTileUrl(
-      String urlTemplate, TileCoordinates coordinates, TileLayer options) {
+    String urlTemplate,
+    TileCoordinates coordinates,
+    TileLayer options,
+  ) {
     final z = _getZoomForUrl(coordinates, options);
 
-    final data = <String, String>{
+    return options.templateFunction(urlTemplate, {
       'x': coordinates.x.toString(),
-      'y': coordinates.y.toString(),
+      'y': (options.tms ? invertY(coordinates.y, z) : coordinates.y).toString(),
       'z': z.toString(),
       's': getSubdomain(coordinates, options),
       'r': '@2x',
-    };
-    if (options.tms) {
-      data['y'] = invertY(coordinates.y, z).toString();
-    }
-    final allOpts = Map<String, String>.from(data)
-      ..addAll(options.additionalOptions);
-    return options.templateFunction(urlTemplate, allOpts);
+      ...options.additionalOptions,
+    });
   }
 
   /// Generate a valid URL for a tile, based on it's coordinates and the current
