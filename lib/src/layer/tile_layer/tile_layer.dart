@@ -4,18 +4,27 @@ import 'dart:math' as math;
 import 'package:collection/collection.dart' show MapEquality;
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/bounds.dart';
+import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/core/util.dart' as util;
+import 'package:flutter_map/src/geo/crs/crs.dart';
+import 'package:flutter_map/src/geo/latlng_bounds.dart';
+import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_builder.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image_manager.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provider.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/tile_provider_web.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_update_event.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_update_transformer.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
-import 'package:latlong2/latlong.dart';
 
 part 'tile_layer_options.dart';
 
@@ -519,8 +528,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
               .map((tileImage) {
             return Tile(
               // Must be an ObjectKey, not a ValueKey using the coordinates, in
-              // case we remove and replace the TileImage e.g. when the tile
-              /// opacity changes.
+              // case we remove and replace the TileImage with a different one.
               key: ObjectKey(tileImage),
               scaledTileSize: _tileScaleCalculator.scaledTileSize(
                 map.zoom,
