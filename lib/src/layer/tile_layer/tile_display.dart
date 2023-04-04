@@ -17,7 +17,7 @@ abstract class TileDisplay {
     /// If you wish to show a transparent map without these restrictions you
     /// can simply wrap the entire [TileLayer] in an [Opacity] widget.
     double opacity,
-  }) = InstantaneousTileDisplay;
+  }) = InstantaneousTileDisplay._;
 
   /// Fade in the tile when it is loaded. Not that opacity is not supported
   /// when fading is enabled. This is because underlying tiles are kept when
@@ -32,15 +32,15 @@ abstract class TileDisplay {
     Duration duration,
 
     /// Opacity start value when a tile is faded in, default 1.0. The allowed
-    /// range is (0.0 - 0.1).
+    /// range is (0.0 - 1.0).
     double startOpacity,
 
     /// Opacity start value when a tile is reloaded, default 1.0. A tile reload
     /// will occur when the provider tile url changes and
     /// [TileLayer.overrideTilesWhenUrlChanges] is true. Valid range is
-    /// (0.0 - 0.1).
+    /// (0.0 - 1.0).
     double reloadStartOpacity,
-  }) = FadeInTileDisplay;
+  }) = FadeInTileDisplay._;
 
   T map<T>({
     required T Function(InstantaneousTileDisplay instantaneous) instantaneous,
@@ -74,7 +74,7 @@ abstract class TileDisplay {
 class InstantaneousTileDisplay extends TileDisplay {
   final double opacity;
 
-  const InstantaneousTileDisplay({
+  const InstantaneousTileDisplay._({
     this.opacity = 1.0,
   }) : assert(opacity >= 0.0 && opacity <= 1.0);
 
@@ -94,7 +94,7 @@ class FadeInTileDisplay extends TileDisplay {
   final double reloadStartOpacity;
 
   /// Options for fading in tiles when they are loaded.
-  const FadeInTileDisplay({
+  const FadeInTileDisplay._({
     this.duration = const Duration(milliseconds: 100),
     this.startOpacity = 0.0,
     this.reloadStartOpacity = 0.0,
