@@ -177,12 +177,6 @@ class TileLayer extends StatefulWidget {
   /// ```
   final Map<String, String> additionalOptions;
 
-  /// `false`: current Tiles will be first dropped and then reload via new url
-  /// (default) `true`: current Tiles will be visible until new ones aren't
-  /// loaded (new Tiles are loaded independently) @see
-  /// https://github.com/johnpryan/flutter_map/issues/583
-  final bool overrideTilesWhenUrlChanges;
-
   /// If `true`, it will request four tiles of half the specified size and a
   /// bigger zoom level in place of one to utilize the high resolution.
   ///
@@ -253,7 +247,6 @@ class TileLayer extends StatefulWidget {
     this.tms = false,
     this.wmsOptions,
     this.tileDisplay = const TileDisplay.fadeIn(),
-    this.overrideTilesWhenUrlChanges = false,
     this.retinaMode = false,
     this.errorTileCallback,
     this.templateFunction = util.template,
@@ -438,12 +431,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       if (oldUrl != newUrl ||
           !(const MapEquality<String, String>())
               .equals(oldOptions, newOptions)) {
-        if (widget.overrideTilesWhenUrlChanges) {
-          _tileImageManager.reloadImages(widget, _tileBounds);
-          _loadAndPruneInVisibleBounds(FlutterMapState.maybeOf(context)!);
-        } else {
-          reloadTiles = true;
-        }
+        _tileImageManager.reloadImages(widget, _tileBounds);
+        _loadAndPruneInVisibleBounds(FlutterMapState.maybeOf(context)!);
       }
     }
 
