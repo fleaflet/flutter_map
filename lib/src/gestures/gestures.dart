@@ -818,7 +818,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
     closeFlingAnimationController(event.source);
   }
 
-  CustomPoint _offsetToPoint(Offset offset) {
+  CustomPoint<double> _offsetToPoint(Offset offset) {
     return CustomPoint(offset.dx, offset.dy);
   }
 

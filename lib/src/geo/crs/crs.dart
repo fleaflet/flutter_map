@@ -23,7 +23,7 @@ abstract class Crs {
 
   /// Converts a point on the sphere surface (with a certain zoom) in a
   /// map point.
-  CustomPoint latLngToPoint(LatLng latlng, double zoom) {
+  CustomPoint<double> latLngToPoint(LatLng latlng, double zoom) {
     try {
       final projectedPoint = projection.project(latlng);
       final scale = this.scale(zoom);
@@ -236,7 +236,7 @@ class Proj4Crs extends Crs {
   /// Converts a point on the sphere surface (with a certain zoom) in a
   /// map point.
   @override
-  CustomPoint latLngToPoint(LatLng latlng, double zoom) {
+  CustomPoint<double> latLngToPoint(LatLng latlng, double zoom) {
     try {
       final projectedPoint = projection.project(latlng);
       final scale = this.scale(zoom);
@@ -346,7 +346,7 @@ abstract class Projection {
 
   Bounds<double>? get bounds;
 
-  CustomPoint project(LatLng latlng);
+  CustomPoint<double> project(LatLng latlng);
 
   LatLng unproject(CustomPoint point);
 
@@ -379,7 +379,7 @@ class _LonLat extends Projection {
   Bounds<double> get bounds => _bounds;
 
   @override
-  CustomPoint project(LatLng latlng) {
+  CustomPoint<double> project(LatLng latlng) {
     return CustomPoint(latlng.longitude, latlng.latitude);
   }
 
@@ -405,7 +405,7 @@ class SphericalMercator extends Projection {
   Bounds<double> get bounds => _bounds;
 
   @override
-  CustomPoint project(LatLng latlng) {
+  CustomPoint<double> project(LatLng latlng) {
     const d = math.pi / 180;
     const max = maxLatitude;
     final lat = math.max(math.min(max, latlng.latitude), -max);
@@ -439,7 +439,7 @@ class _Proj4Projection extends Projection {
   }) : epsg4326 = proj4.Projection.WGS84;
 
   @override
-  CustomPoint project(LatLng latlng) {
+  CustomPoint<double> project(LatLng latlng) {
     final point = epsg4326.transform(
         proj4Projection, proj4.Point(x: latlng.longitude, y: latlng.latitude));
 
@@ -463,14 +463,14 @@ class Transformation {
 
   const Transformation(this.a, this.b, this.c, this.d);
 
-  CustomPoint transform(CustomPoint<num> point, double? scale) {
+  CustomPoint<double> transform(CustomPoint point, double? scale) {
     scale ??= 1.0;
     final x = scale * (a * point.x + b);
     final y = scale * (c * point.y + d);
     return CustomPoint(x, y);
   }
 
-  CustomPoint untransform(CustomPoint point, double? scale) {
+  CustomPoint<double> untransform(CustomPoint point, double? scale) {
     scale ??= 1.0;
     final x = (point.x / scale - b) / a;
     final y = (point.y / scale - d) / c;
