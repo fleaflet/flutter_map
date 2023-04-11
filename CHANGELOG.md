@@ -11,6 +11,8 @@ Contains the following additions/removals:
 - Removed `absorbPanEventsOnScrollables` option - [#1455](https://github.com/fleaflet/flutter_map/pull/1455) for [#1454](https://github.com/fleaflet/flutter_map/issues/1454)
 - Removed leftover deprecations - [#1475](https://github.com/fleaflet/flutter_map/pull/1475)
 - Minor example application improvements - [#1440](https://github.com/fleaflet/flutter_map/pull/1440)
+- Rotation gestures now cause rotation about the gesture center - [#1437](https://github.com/fleaflet/flutter_map/pull/1437)
+- Improve number (`num`/`int`/`double`) consistency internally - [#1482](https://github.com/fleaflet/flutter_map/pull/1482)
 
 Contains the following bug fixes:
 
@@ -19,7 +21,7 @@ Contains the following bug fixes:
 
 Contains the following performance and stability improvements:
 
-- Batched polygon and polyline rendering to minimize redraws and maximize their efficiency - [#1442](https://github.com/fleaflet/flutter_map/pull/1442)
+- Batched polygon and polyline rendering to minimize redraws and maximize their efficiency - [#1442](https://github.com/fleaflet/flutter_map/pull/1442) & [#1462](https://github.com/fleaflet/flutter_map/pull/1462)
 - Added a threshold for rasterization to avoid excessive fixed overhead cost for cheap redraws - [#1462](https://github.com/fleaflet/flutter_map/pull/1462)
 
 Many thanks to these contributors (in no particular order):
