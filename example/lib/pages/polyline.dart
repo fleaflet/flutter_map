@@ -23,7 +23,7 @@ class _PolylinePageState extends State<PolylinePage> {
           LatLng(51.3498, -6.2603),
           LatLng(53.8566, 2.3522),
         ],
-        strokeWidth: 4,
+        strokeWidth: 50,
         color: Colors.amber,
       ),
     ];

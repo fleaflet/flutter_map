@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 enum MapEventSource {
   mapController,
   tap,
+  secondaryTap,
   longPress,
   doubleTap,
   doubleTapHold,
@@ -63,6 +64,18 @@ class MapEventTap extends MapEvent {
   final LatLng tapPosition;
 
   MapEventTap({
+    required this.tapPosition,
+    required MapEventSource source,
+    required LatLng center,
+    required double zoom,
+  }) : super(source: source, center: center, zoom: zoom);
+}
+
+class MapEventSecondaryTap extends MapEvent {
+  /// Point coordinates where user has tapped
+  final LatLng tapPosition;
+
+  MapEventSecondaryTap({
     required this.tapPosition,
     required MapEventSource source,
     required LatLng center,

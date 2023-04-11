@@ -17,6 +17,7 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
   bool loadingTime = false;
   bool showCoords = false;
   bool grid = false;
+  int panBuffer = 0;
 
   // mix of [coordinateDebugTileBuilder] and [loadingTimeDebugTileBuilder] from tile_builder.dart
   Widget tileBuilder(BuildContext context, Widget tileWidget, Tile tile) {
@@ -37,7 +38,7 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
                 if (showCoords)
                   Text(
                     '${coords.x.floor()} : ${coords.y.floor()} : ${coords.z.floor()}',
-                    style: Theme.of(context).textTheme.headline5,
+                    style: Theme.of(context).textTheme.headlineSmall,
                   ),
                 if (loadingTime)
                   Text(
@@ -45,7 +46,7 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
                         ? 'Loading'
                         // sometimes result is negative which shouldn't happen, abs() corrects it
                         : '${(tile.loaded!.millisecond - tile.loadStarted.millisecond).abs()} ms',
-                    style: Theme.of(context).textTheme.headline5,
+                    style: Theme.of(context).textTheme.headlineSmall,
                   ),
               ],
             ),
@@ -102,6 +103,18 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
             icon: Icon(darkMode ? Icons.brightness_high : Icons.brightness_2),
             onPressed: () => setState(() => darkMode = !darkMode),
           ),
+          const SizedBox(height: 8),
+          FloatingActionButton.extended(
+            heroTag: 'panBuffer',
+            label: Text(
+              panBuffer == 0 ? 'panBuffer off' : 'panBuffer on',
+              textAlign: TextAlign.center,
+            ),
+            icon: Icon(grid ? Icons.grid_off : Icons.grid_on),
+            onPressed: () => setState(() {
+              panBuffer = panBuffer == 0 ? 1 : 0;
+            }),
+          ),
         ],
       ),
       body: Padding(
@@ -118,6 +131,7 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
               tileBuilder: tileBuilder,
               tilesContainerBuilder:
                   darkMode ? darkModeTilesContainerBuilder : null,
+              panBuffer: panBuffer,
             ),
             MarkerLayer(
               markers: <Marker>[

@@ -23,7 +23,6 @@ class MapInsideListViewPage extends StatelessWidget {
               height: 300,
               child: FlutterMap(
                 options: MapOptions(
-                  absorbPanEventsOnScrollables: true,
                   center: LatLng(51.5, -0.09),
                   zoom: 5,
                 ),

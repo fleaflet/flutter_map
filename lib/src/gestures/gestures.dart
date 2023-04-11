@@ -7,7 +7,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/gestures/latlng_tween.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
 
 abstract class MapGestureMixin extends State<FlutterMap>
     with TickerProviderStateMixin {
@@ -56,20 +55,26 @@ abstract class MapGestureMixin extends State<FlutterMap>
     if (pointerSignal is PointerScrollEvent &&
         mapState.options.enableScrollWheel &&
         pointerSignal.scrollDelta.dy != 0) {
-      // Calculate new zoom level
-      final minZoom = mapState.options.minZoom ?? 0.0;
-      final maxZoom = mapState.options.maxZoom ?? double.infinity;
-      final newZoom = (mapState.zoom -
-              pointerSignal.scrollDelta.dy *
-                  mapState.options.scrollWheelVelocity)
-          .clamp(minZoom, maxZoom);
-      // Calculate offset of mouse cursor from viewport center
-      final List<dynamic> newCenterZoom = _getNewEventCenterZoomPosition(
-          _offsetToPoint(pointerSignal.localPosition), newZoom);
+      // Prevent scrolling of parent/child widgets simultaneously. See
+      // [PointerSignalResolver] documentation for more information.
+      GestureBinding.instance.pointerSignalResolver.register(pointerSignal,
+          (pointerSignal) {
+        pointerSignal as PointerScrollEvent;
 
-      // Move to new center and zoom level
-      mapState.move(newCenterZoom[0] as LatLng, newCenterZoom[1] as double,
-          source: MapEventSource.scrollWheel);
+        final minZoom = mapState.options.minZoom ?? 0.0;
+        final maxZoom = mapState.options.maxZoom ?? double.infinity;
+        final newZoom = (mapState.zoom -
+                pointerSignal.scrollDelta.dy *
+                    mapState.options.scrollWheelVelocity)
+            .clamp(minZoom, maxZoom);
+        // Calculate offset of mouse cursor from viewport center
+        final List<dynamic> newCenterZoom = _getNewEventCenterZoomPosition(
+            _offsetToPoint(pointerSignal.localPosition), newZoom);
+
+        // Move to new center and zoom level
+        mapState.move(newCenterZoom[0] as LatLng, newCenterZoom[1] as double,
+            source: MapEventSource.scrollWheel);
+      });
     }
   }
 
@@ -387,7 +392,9 @@ abstract class MapGestureMixin extends State<FlutterMap>
           var mapRotated = false;
           if (hasMove || hasZoom) {
             double newZoom;
-            if (hasZoom) {
+            // checking details.scale to prevent situation whew details comes
+            // with zero scale
+            if (hasZoom && details.scale > 0.0) {
               newZoom = _getZoomForScale(
                   _mapZoomStart, details.scale + _scaleCorrector);
 
@@ -472,6 +479,12 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
             if (_rotationStarted) {
               final rotationDiff = currentRotation - _lastRotation;
+              final oldCenterPt = mapState.project(mapState.center);
+              final rotationCenter  = mapState.project(_offsetToCrs(_lastFocalLocal));
+              final vector = oldCenterPt - rotationCenter;
+              final rotatedVector = vector.rotate(degToRadian(rotationDiff));
+              final newCenter = rotationCenter + rotatedVector;
+              mapMoved = mapState.move(mapState.unproject(newCenter), mapState.zoom, source: eventSource) || mapMoved;
               mapRotated = mapState.rotate(
                 mapState.rotation + rotationDiff,
                 hasGesture: true,
@@ -563,10 +576,14 @@ abstract class MapGestureMixin extends State<FlutterMap>
     closeFlingAnimationController(MapEventSource.tap);
     closeDoubleTapController(MapEventSource.tap);
 
-    final latlng = _offsetToCrs(position.relative!);
-    if (options.onTap != null) {
+    final relativePosition = position.relative;
+    if (relativePosition == null) return;
+
+    final latlng = _offsetToCrs(relativePosition);
+    final onTap = options.onTap;
+    if (onTap != null) {
       // emit the event
-      options.onTap!(position, latlng);
+      onTap(position, latlng);
     }
 
     mapState.emitMapEvent(
@@ -575,6 +592,30 @@ abstract class MapGestureMixin extends State<FlutterMap>
         center: mapState.center,
         zoom: mapState.zoom,
         source: MapEventSource.tap,
+      ),
+    );
+  }
+
+  void handleSecondaryTap(TapPosition position) {
+    closeFlingAnimationController(MapEventSource.secondaryTap);
+    closeDoubleTapController(MapEventSource.secondaryTap);
+
+    final relativePosition = position.relative;
+    if (relativePosition == null) return;
+
+    final latlng = _offsetToCrs(relativePosition);
+    final onSecondaryTap = options.onSecondaryTap;
+    if (onSecondaryTap != null) {
+      // emit the event
+      onSecondaryTap(position, latlng);
+    }
+
+    mapState.emitMapEvent(
+      MapEventSecondaryTap(
+        tapPosition: latlng,
+        center: mapState.center,
+        zoom: mapState.zoom,
+        source: MapEventSource.secondaryTap,
       ),
     );
   }

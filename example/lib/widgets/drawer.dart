@@ -29,6 +29,7 @@ import 'package:flutter_map_example/pages/point_to_latlng.dart';
 import 'package:flutter_map_example/pages/polygon.dart';
 import 'package:flutter_map_example/pages/polyline.dart';
 import 'package:flutter_map_example/pages/reset_tile_layer.dart';
+import 'package:flutter_map_example/pages/secondary_tap.dart';
 import 'package:flutter_map_example/pages/sliding_map.dart';
 import 'package:flutter_map_example/pages/stateful_markers.dart';
 import 'package:flutter_map_example/pages/tap_to_add.dart';
@@ -89,7 +90,7 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
         ),
         _buildMenuItem(
           context,
-          const Text('Add Pins'),
+          const Text('Tap to Add Pins'),
           TapToAddPage.route,
           currentRoute,
         ),
@@ -269,6 +270,12 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           context,
           const Text('Fallback URL AssetTileProvider'),
           FallbackUrlOfflinePage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Secondary Tap'),
+          SecondaryTapPage.route,
           currentRoute,
         ),
       ],

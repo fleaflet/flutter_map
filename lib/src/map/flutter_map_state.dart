@@ -1,14 +1,14 @@
+import 'dart:math' as math;
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/core/bounds.dart';
 import 'package:flutter_map/src/gestures/gestures.dart';
 import 'package:flutter_map/src/map/map.dart';
 import 'package:flutter_map/src/map/map_state_widget.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
-import 'dart:math' as math;
-import 'package:flutter_map/src/core/bounds.dart';
 
 class FlutterMapState extends MapGestureMixin
     with AutomaticKeepAliveClientMixin {
@@ -70,17 +70,9 @@ class FlutterMapState extends MapGestureMixin
         instance
           ..onTapDown = _positionedTapController.onTapDown
           ..onTapUp = handleOnTapUp
-          ..onTap = _positionedTapController.onTap;
-        // ..onTapCancel = onTapCancel
-        // ..onSecondaryTap = onSecondaryTap
-        // ..onSecondaryTapDown = onSecondaryTapDown
-        // ..onSecondaryTapUp = onSecondaryTapUp
-        // ..onSecondaryTapCancel = onSecondaryTapCancel
-        // ..onTertiaryTapDown = onTertiaryTapDown
-        // ..onTertiaryTapUp = onTertiaryTapUp
-        // ..onTertiaryTapCancel = onTertiaryTapCancel
-        // ..gestureSettings = gestureSettings;
-        // instance.team = _team;
+          ..onTap = _positionedTapController.onTap
+          ..onSecondaryTap = _positionedTapController.onSecondaryTap
+          ..onSecondaryTapDown = _positionedTapController.onTapDown;
       },
     );
 
@@ -89,42 +81,18 @@ class FlutterMapState extends MapGestureMixin
       () => LongPressGestureRecognizer(debugOwner: this),
       (LongPressGestureRecognizer instance) {
         instance.onLongPress = _positionedTapController.onLongPress;
-        // ..onLongPressDown = onLongPressDown
-        // ..onLongPressCancel = onLongPressCancel
-        // ..onLongPressStart = onLongPressStart
-        // ..onLongPressMoveUpdate = onLongPressMoveUpdate
-        // ..onLongPressUp = onLongPressUp
-        // ..onLongPressEnd = onLongPressEnd
-        // ..onSecondaryLongPressDown = onSecondaryLongPressDown
-        // ..onSecondaryLongPressCancel = onSecondaryLongPressCancel
-        // ..onSecondaryLongPress = onSecondaryLongPress
-        // ..onSecondaryLongPressStart = onSecondaryLongPressStart
-        // ..onSecondaryLongPressMoveUpdate = onSecondaryLongPressMoveUpdate
-        // ..onSecondaryLongPressUp = onSecondaryLongPressUp
-        // ..onSecondaryLongPressEnd = onSecondaryLongPressEnd
-        // ..onTertiaryLongPressDown = onTertiaryLongPressDown
-        // ..onTertiaryLongPressCancel = onTertiaryLongPressCancel
-        // ..onTertiaryLongPress = onTertiaryLongPress
-        // ..onTertiaryLongPressStart = onTertiaryLongPressStart
-        // ..onTertiaryLongPressMoveUpdate = onTertiaryLongPressMoveUpdate
-        // ..onTertiaryLongPressUp = onTertiaryLongPressUp
-        // ..onTertiaryLongPressEnd = onTertiaryLongPressEnd
-        // ..gestureSettings = gestureSettings;
-        // instance.team = _team;
       },
     );
 
-    if (options.absorbPanEventsOnScrollables &&
-        InteractiveFlag.hasFlag(
-            options.interactiveFlags, InteractiveFlag.drag)) {
+    if (InteractiveFlag.hasFlag(
+        options.interactiveFlags, InteractiveFlag.drag)) {
       gestures[VerticalDragGestureRecognizer] =
           GestureRecognizerFactoryWithHandlers<VerticalDragGestureRecognizer>(
         () => VerticalDragGestureRecognizer(debugOwner: this),
         (VerticalDragGestureRecognizer instance) {
           instance.onUpdate = (details) {
-            //Absorbing vertical drags
+            // Absorbing vertical drags
           };
-          // ..dragStartBehavior = dragStartBehavior
           instance.gestureSettings = gestureSettings;
           instance.team ??= _team;
         },
@@ -134,9 +102,8 @@ class FlutterMapState extends MapGestureMixin
         () => HorizontalDragGestureRecognizer(debugOwner: this),
         (HorizontalDragGestureRecognizer instance) {
           instance.onUpdate = (details) {
-            //Absorbing horizontal drags
+            // Absorbing horizontal drags
           };
-          // ..dragStartBehavior = dragStartBehavior
           instance.gestureSettings = gestureSettings;
           instance.team ??= _team;
         },
@@ -156,14 +123,16 @@ class FlutterMapState extends MapGestureMixin
       },
     );
 
-
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
       //Update on layout change
       setSize(constraints.maxWidth, constraints.maxHeight);
 
-      if (options.bounds != null && !_hasFitInitialBounds) {
-        final target = getBoundsCenterZoom(options.bounds!, options.boundsOptions);
+      if (options.bounds != null &&
+          !_hasFitInitialBounds &&
+          constraints.maxWidth != 0.0) {
+        final target =
+            getBoundsCenterZoom(options.bounds!, options.boundsOptions);
         _zoom = target.zoom;
         _center = target.center;
         _hasFitInitialBounds = true;
@@ -184,6 +153,7 @@ class FlutterMapState extends MapGestureMixin
           child: PositionedTapDetector2(
             controller: _positionedTapController,
             onTap: handleTap,
+            onSecondaryTap: handleSecondaryTap,
             onLongPress: handleLongPress,
             onDoubleTap: handleDoubleTap,
             child:
@@ -419,7 +389,7 @@ class FlutterMapState extends MapGestureMixin
     newZoom = fitZoomToBounds(newZoom);
     final mapMoved = newCenter != _center || newZoom != _zoom;
 
-    if (!mapMoved || !_calculateBounds().isValid) {
+    if (!mapMoved) {
       return false;
     }
 
@@ -481,18 +451,12 @@ class FlutterMapState extends MapGestureMixin
   }
 
   void fitBounds(LatLngBounds bounds, FitBoundsOptions options) {
-    if (!bounds.isValid) {
-      throw Exception('Bounds are not valid.');
-    }
     final target = getBoundsCenterZoom(bounds, options);
     move(target.center, target.zoom, source: MapEventSource.fitBounds);
   }
 
   CenterZoom centerZoomFitBounds(
       LatLngBounds bounds, FitBoundsOptions options) {
-    if (!bounds.isValid) {
-      throw Exception('Bounds are not valid.');
-    }
     return getBoundsCenterZoom(bounds, options);
   }
 
@@ -521,8 +485,8 @@ class FlutterMapState extends MapGestureMixin
     zoom = math.min(options.maxZoom, zoom);
 
     final paddingOffset = (paddingBR - paddingTL) / 2;
-    final swPoint = project(bounds.southWest!, zoom);
-    final nePoint = project(bounds.northEast!, zoom);
+    final swPoint = project(bounds.southWest, zoom);
+    final nePoint = project(bounds.northEast, zoom);
     final center = unproject((swPoint + nePoint) / 2 + paddingOffset, zoom);
     return CenterZoom(
       center: center,
@@ -606,8 +570,8 @@ class FlutterMapState extends MapGestureMixin
       LatLng testCenter, double testZoom, LatLngBounds maxBounds) {
     LatLng? newCenter;
 
-    final swPixel = project(maxBounds.southWest!, testZoom);
-    final nePixel = project(maxBounds.northEast!, testZoom);
+    final swPixel = project(maxBounds.southWest, testZoom);
+    final nePixel = project(maxBounds.northEast, testZoom);
 
     final centerPix = project(testCenter, testZoom);
 
@@ -727,14 +691,12 @@ class FlutterMapState extends MapGestureMixin
   double? _safeAreaZoom;
 
   //if there is a pan boundary, do not cross
-  bool isOutOfBounds(LatLng? center) {
+  bool isOutOfBounds(LatLng center) {
     if (options.adaptiveBoundaries) {
       return !_safeArea!.contains(center);
     }
     if (options.swPanBoundary != null && options.nePanBoundary != null) {
-      if (center == null) {
-        return true;
-      } else if (center.latitude < options.swPanBoundary!.latitude ||
+      if (center.latitude < options.swPanBoundary!.latitude ||
           center.latitude > options.nePanBoundary!.latitude) {
         return true;
       } else if (center.longitude < options.swPanBoundary!.longitude ||
@@ -815,7 +777,7 @@ class _SafeArea {
         isLatitudeBlocked = southWest.latitude > northEast.latitude,
         isLongitudeBlocked = southWest.longitude > northEast.longitude;
 
-  bool contains(LatLng? point) =>
+  bool contains(LatLng point) =>
       isLatitudeBlocked || isLongitudeBlocked ? false : bounds.contains(point);
 
   LatLng containPoint(LatLng point, LatLng fallback) => LatLng(
