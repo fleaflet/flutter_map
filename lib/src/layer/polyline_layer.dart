@@ -1,6 +1,5 @@
 import 'dart:ui' as ui;
 
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
@@ -69,29 +68,17 @@ class PolylineLayer extends StatelessWidget {
   /// performance of the layer.
   final bool saveLayers;
 
-  /// The layer allows to rasterize and translate the underlying canvas on
-  /// panning the map (does not apply for rotations and zooming). This can
-  /// greatly improve performance if the set polylines in the map's viewport
-  /// doesn't change. However, rasterization comes at a fixed overhead, which
-  /// amortizes when drawing the canvas itself is costly and the use-case makes
-  /// this pan-only optimization worthwhile. Setting the threshold to a large
-  /// value will basically deactivate the optimization entirely.
-  final int rasterizationThreshold;
-
   const PolylineLayer({
     super.key,
     this.polylines = const [],
     this.polylineCulling = false,
     this.saveLayers = false,
-    this.rasterizationThreshold = 128,
   });
 
   @override
   Widget build(BuildContext context) {
     final map = FlutterMapState.maybeOf(context)!;
     final size = Size(map.size.x, map.size.y);
-    final origin = map.pixelOrigin;
-    final offset = Offset(origin.x.toDouble(), origin.y.toDouble());
 
     final List<Polyline> lines = polylineCulling
         ? polylines.where((p) {
@@ -99,17 +86,10 @@ class PolylineLayer extends StatelessWidget {
           }).toList()
         : polylines;
 
-    final paint = CustomPaint(
+    return CustomPaint(
       painter: PolylinePainter(lines, saveLayers, map),
       size: size,
       isComplex: true,
-    );
-
-    final rasterize = !kIsWeb && lines.length > rasterizationThreshold;
-    return Positioned(
-      left: -offset.dx,
-      top: -offset.dy,
-      child: rasterize ? RepaintBoundary(child: paint) : paint,
     );
   }
 }
@@ -145,8 +125,7 @@ class PolylinePainter extends CustomPainter {
   }
 
   Offset getOffset(LatLng point) {
-    final delta = map.project(point);
-    return Offset(delta.x.toDouble(), delta.y.toDouble());
+    return map.getOffsetFromOrigin(point);
   }
 
   @override
@@ -317,8 +296,7 @@ class PolylinePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(PolylinePainter oldDelegate) {
-    return kIsWeb ||
-        oldDelegate.zoom != zoom ||
+    return oldDelegate.zoom != zoom ||
         oldDelegate.rotation != rotation ||
         oldDelegate.polylines.length != polylines.length ||
         oldDelegate.hash != hash;

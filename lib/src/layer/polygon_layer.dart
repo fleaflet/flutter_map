@@ -5,7 +5,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/label.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:latlong2/latlong.dart' hide Path; // conflict with Path from UI
-import 'package:flutter/foundation.dart' show kIsWeb;
 
 enum PolygonLabelPlacement {
   centroid,
@@ -71,28 +70,16 @@ class PolygonLayer extends StatelessWidget {
   /// screen space culling of polygons based on bounding box
   final bool polygonCulling;
 
-  /// The layer allows to rasterize and translate the underlying canvas on
-  /// panning the map (does not apply for rotations and zooming). This can
-  /// greatly improve performance if the set polygons in the map's viewport
-  /// doesn't change. However, rasterization comes at a fixed overhead, which
-  /// amortizes when drawing the canvas itself is costly and the use-case makes
-  /// this pan-only optimization worthwhile. Setting the threshold to a large
-  /// value will basically deactivate the optimization entirely.
-  final int rasterizationThreshold;
-
   const PolygonLayer({
     super.key,
     this.polygons = const [],
     this.polygonCulling = false,
-    this.rasterizationThreshold = 128,
   });
 
   @override
   Widget build(BuildContext context) {
     final map = FlutterMapState.maybeOf(context)!;
     final size = Size(map.size.x, map.size.y);
-    final origin = map.pixelOrigin;
-    final offset = Offset(origin.x.toDouble(), origin.y.toDouble());
 
     final List<Polygon> pgons = polygonCulling
         ? polygons.where((p) {
@@ -100,17 +87,10 @@ class PolygonLayer extends StatelessWidget {
           }).toList()
         : polygons;
 
-    final paint = CustomPaint(
+    return CustomPaint(
       painter: PolygonPainter(pgons, map),
       size: size,
       isComplex: true,
-    );
-
-    final rasterize = !kIsWeb && pgons.length > rasterizationThreshold;
-    return Positioned(
-      left: -offset.dx,
-      top: -offset.dy,
-      child: rasterize ? RepaintBoundary(child: paint) : paint,
     );
   }
 }
@@ -134,8 +114,7 @@ class PolygonPainter extends CustomPainter {
 
   List<Offset> getOffsets(List<LatLng> points) {
     return List.generate(points.length, (index) {
-      final delta = map.project(points[index]);
-      return Offset(delta.x.toDouble(), delta.y.toDouble());
+      return map.getOffsetFromOrigin(points[index]);
     }, growable: false);
   }
 
@@ -294,8 +273,7 @@ class PolygonPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(PolygonPainter oldDelegate) {
-    return kIsWeb ||
-        oldDelegate.zoom != zoom ||
+    return oldDelegate.zoom != zoom ||
         oldDelegate.rotation != rotation ||
         oldDelegate.polygons.length != polygons.length ||
         oldDelegate.hash != hash;
