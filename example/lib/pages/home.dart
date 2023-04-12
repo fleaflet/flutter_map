@@ -58,14 +58,16 @@ class HomePage extends StatelessWidget {
                   zoom: 5,
                 ),
                 nonRotatedChildren: [
-                  //AttributionWidget.defaultWidget(
-                  //  source: 'OpenStreetMap contributors',
-                  //  onSourceTapped: () {},
-                  //),
-                  RichAttributionWidget(attributions: [
-                    TextSourceAttribution('sasddddddddd'),
-                    TextSourceAttribution('sasddddddddasasd21341243d')
-                  ]),
+                  RichAttributionWidget(
+                    popupInitialDisplayDuration: const Duration(seconds: 3),
+                    attributions: [
+                      TextSourceAttribution.launchUri(
+                        'OpenStreetMap contributors',
+                        launchUri:
+                            Uri.parse('https://openstreetmap.org/copyright'),
+                      ),
+                    ],
+                  ),
                 ],
                 children: [
                   TileLayer(

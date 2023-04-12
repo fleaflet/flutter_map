@@ -1,51 +1,71 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/plugin_api.dart';
+import 'package:meta/meta.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-/// A simple attribution widget layer, usually placed in `nonRotatedChildren`
+/// Position to anchor [RichAttributionWidget] to relative to the [FlutterMap]
 ///
-/// Can be anchored in a position of the map using [alignment], defaulting to [Alignment.bottomRight]. Then pass [attributionBuilder] to build your custom attribution widget.
-///
-/// Alternatively, use the constructor [defaultWidget] to get a more classic styled attribution box.
-class AttributionWidget extends StatelessWidget {
-  /// Function that returns a widget given a [BuildContext], displayed on the map
-  final WidgetBuilder attributionBuilder;
+/// Reflects standard [Alignment] through [real], but limits to the only
+/// supported options.
+enum AttributionAlignment {
+  /// The bottom left corner
+  bottomLeft(Alignment.bottomLeft),
 
-  /// Anchor the widget in a position of the map, defaulting to [Alignment.bottomRight]
+  /// The bottom right corner
+  bottomRight(Alignment.bottomRight);
+
+  /// Position to anchor [RichAttributionWidget] to relative to the [FlutterMap]
+  ///
+  /// Reflects standard [Alignment] through [real], but limits to the only
+  /// supported options.
+  const AttributionAlignment(this.real);
+
+  /// Reflects the standard [Alignment]
+  @internal
+  final Alignment real;
+}
+
+/// A simple, classic style, attribution widget, to be placed in
+/// [FlutterMap.nonRotatedChildren]
+///
+/// Displayed as a padded translucent [backgroundColor] box with the following
+/// text: 'flutter_map | © [source]', where [source] is wrapped with [onTap].
+class SimpleAttributionWidget extends StatelessWidget {
+  /// Attribution text, such as 'OpenStreetMap contributors'
+  final Text source;
+
+  /// Callback called when [source] is tapped/clicked
+  final void Function()? onTap;
+
+  /// Color of the box containing the [source] text
+  final Color? backgroundColor;
+
+  /// Anchor the widget in a position of the map
   final Alignment alignment;
 
-  /// Attribution widget layer, usually placed in `nonRotatedChildren`
+  /// A simple, classic style, attribution widget, to be placed in
+  /// [FlutterMap.nonRotatedChildren]
   ///
-  /// Can be anchored in a position of the map using [alignment], defaulting to [Alignment.bottomRight]. Then pass [attributionBuilder] to build your custom attribution widget.
-  ///
-  /// Alternatively, use the constructor [defaultWidget] to get a more classic styled attribution box.
-  const AttributionWidget({
+  /// Displayed as a padded translucent white box with the following text:
+  /// 'flutter_map | © [source]'.
+  const SimpleAttributionWidget({
     Key? key,
-    required this.attributionBuilder,
+    required this.source,
+    this.onTap,
+    this.backgroundColor,
     this.alignment = Alignment.bottomRight,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) =>
-      Align(alignment: alignment, child: attributionBuilder(context));
-
-  /// Quick constructor for a classic styled attribution box with a single source.
-  ///
-  /// Displayed as a padded translucent white box with the following text: 'flutter_map | © [source]'.
-  ///
-  /// Provide [onSourceTapped] to carry out a function when the box is tapped. If that isn't null, the source text will have [sourceTextStyle] styling - which defaults to a link styling.
-  static Widget defaultWidget({
-    required String source,
-    void Function()? onSourceTapped,
-    TextStyle sourceTextStyle = const TextStyle(color: Color(0xFF0078a8)),
-    Alignment alignment = Alignment.bottomRight,
-  }) =>
-      AttributionWidget(
+  Widget build(BuildContext context) => Align(
         alignment: alignment,
-        attributionBuilder: (context) => ColoredBox(
-          color: const Color(0xCCFFFFFF),
+        child: ColoredBox(
+          color: backgroundColor ?? Theme.of(context).colorScheme.background,
           child: GestureDetector(
-            onTap: onSourceTapped,
+            onTap: onTap,
             child: Padding(
               padding: const EdgeInsets.all(3),
               child: Row(
@@ -53,13 +73,10 @@ class AttributionWidget extends StatelessWidget {
                 children: [
                   const Text('flutter_map | © '),
                   MouseRegion(
-                    cursor: onSourceTapped == null
+                    cursor: onTap == null
                         ? MouseCursor.defer
                         : SystemMouseCursors.click,
-                    child: Text(
-                      source,
-                      style: onSourceTapped == null ? null : sourceTextStyle,
-                    ),
+                    child: source,
                   ),
                 ],
               ),
@@ -70,204 +87,378 @@ class AttributionWidget extends StatelessWidget {
 }
 
 /// Base class for attributions that render themselves as widgets
+///
+/// Extended/implemented by [TextSourceAttribution] & [LogoSourceAttribution].
+@internal
 abstract class SourceAttribution extends StatelessWidget {
-  final Future<bool>? Function()? onTap;
+  final void Function()? _onTap;
 
-  const SourceAttribution({super.key, this.onTap});
+  const SourceAttribution._({
+    super.key,
+    void Function()? onTap,
+  }) : _onTap = onTap;
 
-  SourceAttribution.launchUri(Uri launchUri, {super.key})
-      : onTap = (() => launchUrl(launchUri));
+  SourceAttribution._launchUri({
+    super.key,
+    required Uri launchUri,
+  }) : _onTap = (() => launchUrl(launchUri));
 
-  Widget render(BuildContext context);
+  Widget _render(BuildContext context);
 
   @override
   @nonVirtual
   Widget build(BuildContext context) {
-    if (onTap == null) {
-      return render(context);
-    } else {
-      return GestureDetector(
-        onTap: onTap,
-        child: MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: render(context),
-        ),
-      );
-    }
+    if (_onTap == null) return _render(context);
+
+    return GestureDetector(
+      onTap: _onTap,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: _render(context),
+      ),
+    );
   }
 }
 
-/// A source attribution in the form of text
+/// A simple text attribution displayed in the popup box of a
+/// [RichAttributionWidget]
 class TextSourceAttribution extends SourceAttribution {
-  static const TextStyle _defaultTextStyle = TextStyle(
-    color: Color(0xFF0000EE),
-    decoration: TextDecoration.underline,
-  );
+  /// Default style used to display the [text], only when
+  /// [SourceAttribution._onTap] is not `null`
+  static const defaultLinkTextStyle =
+      TextStyle(decoration: TextDecoration.underline);
 
+  /// The text to display as attribution, styled with [textStyle]
   final String text;
+
+  /// Style used to display the [text]
   final TextStyle? textStyle;
+
+  /// Whether to add the '©' character to the start of [text] automatically
   final bool prependCopyright;
 
-  /// If [prependCopyright] is set to `true`, a copyright symbol will
-  /// be prepended to the text. [textStyle] is optional and is
-  /// only necessary if you want to change styling from the defaults.
-  /// If no style is specified and an [onTap] function is
-  /// provided, the text will have a classic hyperlink blue color.
+  /// A simple text attribution displayed in the popup box of a
+  /// [RichAttributionWidget]
   const TextSourceAttribution(
     this.text, {
     super.key,
     super.onTap,
     this.prependCopyright = true,
     TextStyle? textStyle,
-  }) : textStyle = textStyle ?? (onTap == null ? null : _defaultTextStyle);
+  })  : textStyle = textStyle ?? (onTap == null ? null : defaultLinkTextStyle),
+        super._();
 
-  /// A simplified constructor which launches [launchUri] on tap.
+  /// A simple text attribution displayed in the popup box of a
+  /// [RichAttributionWidget], that launches a URI/URL on tap by default
   TextSourceAttribution.launchUri(
     this.text, {
     super.key,
-    required Uri launchUri,
+    required super.launchUri,
     this.prependCopyright = true,
-    TextStyle? textStyle,
-  })  : textStyle = textStyle ?? _defaultTextStyle,
-        super.launchUri(launchUri);
+    this.textStyle = defaultLinkTextStyle,
+  }) : super._launchUri();
 
   @override
-  Widget render(BuildContext context) => Text(
+  Widget _render(BuildContext context) => Text(
         '${prependCopyright ? '© ' : ''}$text',
         style: textStyle,
       );
 }
 
+/// An image attribution permenantly displayed adjacent to the open/close icon of
+/// a [RichAttributionWidget]
 class LogoSourceAttribution extends SourceAttribution {
-  final Image image;
+  /// The logo to display as attribution, usually an [Image.asset] or
+  /// [Image.network]
+  final Widget image;
 
-  const LogoSourceAttribution({
+  /// An image attribution permenantly displayed adjacent to the open/close icon
+  /// of a [RichAttributionWidget]
+  const LogoSourceAttribution(
+    this.image, {
     super.key,
-    required this.image,
     super.onTap,
-  });
+  }) : super._();
 
-  LogoSourceAttribution.launchUri({
+  /// An image attribution permenantly displayed adjacent to the open/close icon
+  /// of a [RichAttributionWidget], that launches a URI/URL on tap by default
+  LogoSourceAttribution.launchUri(
+    this.image, {
     super.key,
-    required this.image,
-    required Uri launchUri,
-  }) : super.launchUri(launchUri);
+    required super.launchUri,
+  }) : super._launchUri();
 
   @override
-  Widget render(BuildContext context) => image;
+  Widget _render(BuildContext context) => SizedBox(height: 24, child: image);
 }
 
-/// A rich attribution layer which makes it straightforward to attribute
-/// multiple sources in a way that looks good across devices.
+/// A prebuilt attribution layer that supports both logos and text through
+/// [SourceAttribution]s
 ///
-/// The widget consists of an info button which toggles display of the textual
-/// source attributions on click/tap (hidden by default to save screen real
-/// estate). Logo attributions are always visible.
+/// [TextSourceAttribution]s are shown in a popup box (toggled by a tap/click on
+/// the [openIcon]/[closeIcon]), unlike [LogoSourceAttribution], which are
+/// visible permenantly adjacent to the open/close icon.
+///
+/// The popup box also closes automatically on any interaction with the map.
+///
+/// Shows a 'flutter_map' attribution logo and text, unless
+/// [showFlutterMapAttribution] is `false`.
+///
+/// Can be further customized to a certain extent through the other properties.
 class RichAttributionWidget extends StatefulWidget {
-  final Widget _attributionColumn;
-  final Alignment alignment;
-  final List<LogoSourceAttribution> _logoSourceAttributions;
+  /// List of attributions to display
+  ///
+  /// [TextSourceAttribution]s are shown in a popup box (toggled by a tap/click
+  /// on the [openIcon]/[closeIcon]), unlike [LogoSourceAttribution], which are
+  /// visible permenantly adjacent to the open/close icon.
+  final List<SourceAttribution> attributions;
 
-  RichAttributionWidget({
+  /// The position in which to anchor this widget
+  final AttributionAlignment alignment;
+
+  /// The widget (usually an [Icon]) to display when the popup box is closed,
+  /// that opens the popup box
+  final Widget? openIcon;
+
+  /// The widget (usually an [Icon]) to display when the popup box is open, that
+  /// closes the popup box
+  final Widget? closeIcon;
+
+  /// The color to use as the popup box's background color, defaulting to the
+  /// [Theme]s background color
+  final Color? popupBackgroundColor;
+
+  /// The radius of the edges of the popup box
+  final BorderRadius? popupBorderRadius;
+
+  /// If not [Duration.zero] (default), the popup box will be open by default and
+  /// hidden this long after the map is initialised
+  ///
+  /// This is useful with certain sources/tile servers that make immediate
+  /// attribution mandatory and are not attributed with a permanently visible
+  /// [LogoSourceAttribution].
+  final Duration popupInitialDisplayDuration;
+
+  /// Whether to add an additional attribution logo and text for 'flutter_map'
+  final bool showFlutterMapAttribution;
+
+  /// The curve to use when toggling the visibility of the popup box and the
+  /// state of the open/close icons
+  final Curve animationCurve;
+
+  /// The length of the animation that toggles the visibility of the popup box
+  /// and the state of the open/close icons
+  final Duration animationDuration;
+
+  /// A prebuilt attribution layer that supports both logos and text through
+  /// [SourceAttribution]s
+  ///
+  /// [TextSourceAttribution]s are shown in a popup box (toggled by a tap/click
+  /// on the [openIcon]/[closeIcon]), unlike [LogoSourceAttribution], which are
+  /// visible permenantly adjacent to the open/close icon.
+  ///
+  /// The popup box also closes automatically on any interaction with the map.
+  ///
+  /// Shows a 'flutter_map' attribution logo and text, unless
+  /// [showFlutterMapAttribution] is `false`.
+  ///
+  /// Can be further customized to a certain extent through the other properties.
+  const RichAttributionWidget({
     super.key,
-    required List<SourceAttribution> attributions,
-    this.alignment = Alignment.bottomRight,
-  })  : _attributionColumn = Padding(
-          padding: const EdgeInsets.all(3),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ...attributions
-                  .where((e) => e is! LogoSourceAttribution)
-                  .toList(),
-              const SizedBox(height: 32),
-            ],
-          ),
-        ),
-        _logoSourceAttributions = attributions
-            .whereType<LogoSourceAttribution>()
-            .toList()
-          ..add(
-            LogoSourceAttribution.launchUri(
-              image: Image.asset(
-                'lib/assets/flutter_map_logo.png',
-                package: 'flutter_map',
-                height: 24,
-                width: 24,
-                cacheHeight: 24,
-                cacheWidth: 24,
-              ),
-              launchUri: Uri.parse('https://github.com/fleaflet/flutter_map'),
-            ),
-          );
+    required this.attributions,
+    this.alignment = AttributionAlignment.bottomRight,
+    this.openIcon,
+    this.closeIcon,
+    this.popupBackgroundColor,
+    this.popupBorderRadius,
+    this.popupInitialDisplayDuration = Duration.zero,
+    this.showFlutterMapAttribution = true,
+    this.animationCurve = Curves.easeInOut,
+    this.animationDuration = const Duration(milliseconds: 150),
+  });
 
   @override
   State<StatefulWidget> createState() => RichAttributionWidgetState();
 }
 
 class RichAttributionWidgetState extends State<RichAttributionWidget> {
-  bool _expanded = false;
-  bool _hovered = false;
+  late final StreamSubscription<MapEvent> mapEventSubscription;
+
+  final persistentAttributionKey = GlobalKey();
+  Size? persistentAttributionSize;
+
+  late bool popupExpanded = widget.popupInitialDisplayDuration != Duration.zero;
+  bool persistentHovered = false;
 
   @override
-  Widget build(BuildContext context) => Align(
-        alignment: widget.alignment,
+  void initState() {
+    super.initState();
+
+    if (widget.popupInitialDisplayDuration != Duration.zero) {
+      Future.delayed(
+        const Duration(seconds: 5),
+        () => setState(() => popupExpanded = false),
+      );
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) {
+        mapEventSubscription = FlutterMapState.maybeOf(context)!
+            .mapController
+            .mapEventStream
+            .listen((_) => setState(() => popupExpanded = false));
+
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) => setState(
+            () => persistentAttributionSize =
+                (persistentAttributionKey.currentContext!.findRenderObject()
+                        as RenderBox)
+                    .size,
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    mapEventSubscription.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final persistentAttributionItems = [
+      ...widget.attributions
+          .whereType<LogoSourceAttribution>()
+          .map((e) => [e, const SizedBox(width: 16)])
+          .expand((e) => e)
+          .toList(),
+      if (widget.showFlutterMapAttribution)
+        LogoSourceAttribution.launchUri(
+          Image.asset(
+            'lib/assets/flutter_map_logo.png',
+            package: 'flutter_map',
+            height: 24,
+            width: 24,
+            cacheHeight: 24,
+            cacheWidth: 24,
+          ),
+          launchUri: Uri.parse('https://docs.fleaflet.dev/'),
+        ),
+      AnimatedSwitcher(
+        switchInCurve: widget.animationCurve,
+        switchOutCurve: widget.animationCurve,
+        duration: widget.animationDuration,
+        child: popupExpanded
+            ? IconButton(
+                onPressed: () => setState(() => popupExpanded = false),
+                icon: widget.closeIcon ??
+                    Icon(
+                      Icons.cancel_outlined,
+                      color: Theme.of(context).textTheme.titleSmall?.color ??
+                          Colors.black,
+                    ),
+              )
+            : IconButton(
+                tooltip: 'Open Attributions',
+                onPressed: () => setState(() => popupExpanded = true),
+                icon: widget.openIcon ??
+                    const Icon(
+                      Icons.info_outlined,
+                      color: Colors.black,
+                    ),
+              ),
+      ),
+    ];
+
+    return LayoutBuilder(
+      builder: (context, constraints) => Align(
+        alignment: widget.alignment.real,
         child: Stack(
-          alignment: widget.alignment,
+          alignment: widget.alignment.real,
           children: [
-            AnimatedOpacity(
-              opacity: _expanded ? 1 : 0,
-              curve: Curves.easeInOut,
-              duration: const Duration(milliseconds: 200),
-              child: Padding(
-                padding: const EdgeInsets.all(6),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(width: 0, style: BorderStyle.none),
-                    borderRadius: BorderRadius.circular(10),
+            if (persistentAttributionSize != null)
+              AnimatedOpacity(
+                opacity: popupExpanded ? 1 : 0,
+                curve: widget.animationCurve,
+                duration: widget.animationDuration,
+                child: Padding(
+                  padding: const EdgeInsets.all(6),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: widget.popupBackgroundColor ??
+                          Theme.of(context).colorScheme.background,
+                      border: Border.all(width: 0, style: BorderStyle.none),
+                      borderRadius: widget.popupBorderRadius ??
+                          BorderRadius.only(
+                            topLeft: const Radius.circular(10),
+                            topRight: const Radius.circular(10),
+                            bottomLeft: widget.alignment ==
+                                    AttributionAlignment.bottomLeft
+                                ? Radius.zero
+                                : const Radius.circular(10),
+                            bottomRight: widget.alignment ==
+                                    AttributionAlignment.bottomRight
+                                ? Radius.zero
+                                : const Radius.circular(10),
+                          ),
+                    ),
+                    constraints: BoxConstraints(
+                      minWidth: constraints.maxWidth < 420
+                          ? constraints.maxWidth
+                          : persistentAttributionSize!.width,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ...widget.attributions
+                              .whereType<TextSourceAttribution>()
+                              .toList(),
+                          TextSourceAttribution.launchUri(
+                            "Made with 'flutter_map'",
+                            launchUri: Uri.parse('https://docs.fleaflet.dev/'),
+                            prependCopyright: false,
+                            textStyle: TextSourceAttribution
+                                .defaultLinkTextStyle
+                                .copyWith(fontStyle: FontStyle.italic),
+                          ),
+                          const SizedBox(height: 32),
+                        ],
+                      ),
+                    ),
                   ),
-                  child: widget._attributionColumn,
                 ),
               ),
-            ),
             MouseRegion(
-              onEnter: (_) => setState(() => _hovered = true),
-              onExit: (_) => setState(() => _hovered = false),
+              key: persistentAttributionKey,
+              onEnter: (_) => setState(() => persistentHovered = true),
+              onExit: (_) => setState(() => persistentHovered = false),
               cursor: SystemMouseCursors.click,
               child: AnimatedOpacity(
-                opacity: _hovered || _expanded ? 1 : 0.5,
-                curve: Curves.easeInOut,
-                duration: const Duration(milliseconds: 200),
+                opacity: persistentHovered || popupExpanded ? 1 : 0.5,
+                curve: widget.animationCurve,
+                duration: widget.animationDuration,
                 child: Padding(
                   padding: const EdgeInsets.all(4),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ...widget._logoSourceAttributions.cast<Widget>(),
-                      AnimatedSwitcher(
-                        switchInCurve: Curves.easeInOut,
-                        switchOutCurve: Curves.easeInOut,
-                        duration: const Duration(milliseconds: 200),
-                        child: _expanded
-                            ? IconButton(
-                                onPressed: () =>
-                                    setState(() => _expanded = false),
-                                icon: const Icon(Icons.cancel_outlined),
-                              )
-                            : IconButton(
-                                onPressed: () =>
-                                    setState(() => _expanded = true),
-                                icon: const Icon(Icons.info_outline),
-                              ),
-                      ),
-                    ],
+                  child: FittedBox(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children:
+                          widget.alignment == AttributionAlignment.bottomLeft
+                              ? persistentAttributionItems.reversed.toList()
+                              : persistentAttributionItems,
+                    ),
                   ),
                 ),
               ),
             ),
           ],
         ),
-      );
+      ),
+    );
+  }
 }
