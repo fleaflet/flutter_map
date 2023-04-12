@@ -32,12 +32,6 @@ class SecondaryTapPage extends StatelessWidget {
                   center: LatLng(51.5, -0.09),
                   zoom: 5,
                 ),
-                nonRotatedChildren: [
-                  AttributionWidget.defaultWidget(
-                    source: 'OpenStreetMap contributors',
-                    onSourceTapped: () {},
-                  ),
-                ],
                 children: [
                   TileLayer(
                     urlTemplate:
