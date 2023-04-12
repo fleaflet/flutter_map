@@ -16,7 +16,7 @@ class Tile {
   DateTime? loaded;
   late DateTime loadStarted;
 
-  AnimationController? animationController;
+  final AnimationController? animationController;
 
   double get opacity => animationController == null
       ? (active ? 1.0 : 0.0)
@@ -33,12 +33,18 @@ class Tile {
     required this.coords,
     required this.tilePos,
     required this.imageProvider,
+    required final TickerProvider vsync,
     this.tileReady,
     this.current = false,
     this.active = false,
     this.retain = false,
     this.loadError = false,
-  });
+    final Duration? duration,
+  }) : animationController = duration != null
+            ? AnimationController(duration: duration, vsync: vsync)
+            : null {
+    animationController?.addStatusListener(_onAnimateEnd);
+  }
 
   void loadTileImage() {
     loadStarted = DateTime.now();
@@ -65,6 +71,7 @@ class Tile {
       try {
         imageProvider.evict().catchError((Object e) {
           debugPrint(e.toString());
+          return false;
         });
       } catch (e) {
         // this may be never called because catchError will handle errors, however
@@ -78,15 +85,9 @@ class Tile {
     _imageStream?.removeListener(_listener);
   }
 
-  void startFadeInAnimation(Duration duration, TickerProvider vsync,
-      {double? from}) {
-    animationController?.removeStatusListener(_onAnimateEnd);
-    animationController?.dispose();
-
-    animationController = AnimationController(duration: duration, vsync: vsync)
-      ..addStatusListener(_onAnimateEnd);
-
-    animationController!.forward(from: from);
+  void startFadeInAnimation({double? from}) {
+    animationController?.reset();
+    animationController?.forward(from: from);
   }
 
   void _onAnimateEnd(AnimationStatus status) {
@@ -96,14 +97,14 @@ class Tile {
   }
 
   void _tileOnLoad(ImageInfo imageInfo, bool synchronousCall) {
-    if (null != tileReady) {
+    if (tileReady != null) {
       this.imageInfo = imageInfo;
       tileReady!(coords, null, this);
     }
   }
 
   void _tileOnError(dynamic exception, StackTrace? stackTrace) {
-    if (null != tileReady) {
+    if (tileReady != null) {
       tileReady!(
           coords, exception ?? 'Unknown exception during loadTileImage', this);
     }

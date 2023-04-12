@@ -3,6 +3,7 @@ import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 
 class CircleMarker {
+  final Key? key;
   final LatLng point;
   final double radius;
   final Color color;
@@ -11,9 +12,11 @@ class CircleMarker {
   final bool useRadiusInMeter;
   Offset offset = Offset.zero;
   double realRadius = 0;
+
   CircleMarker({
     required this.point,
     required this.radius,
+    this.key,
     this.useRadiusInMeter = false,
     this.color = const Color(0xFF00FF00),
     this.borderStrokeWidth = 0.0,
@@ -46,6 +49,7 @@ class CircleLayer extends StatelessWidget {
 
           circleWidgets.add(
             CustomPaint(
+              key: circle.key,
               painter: CirclePainter(circle),
               size: size,
             ),

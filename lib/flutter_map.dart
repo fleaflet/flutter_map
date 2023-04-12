@@ -4,8 +4,8 @@ import 'dart:async';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_map/src/core/positioned_tap_detector_2.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
 
 import 'package:flutter_map/src/core/center_zoom.dart';
 import 'package:flutter_map/src/core/point.dart';
@@ -19,6 +19,7 @@ import 'package:flutter_map/src/map/map.dart';
 
 export 'package:flutter_map/src/core/center_zoom.dart';
 export 'package:flutter_map/src/core/point.dart';
+export 'package:flutter_map/src/core/positioned_tap_detector_2.dart';
 export 'package:flutter_map/src/geo/crs/crs.dart';
 export 'package:flutter_map/src/geo/latlng_bounds.dart';
 export 'package:flutter_map/src/gestures/interactive_flag.dart';
@@ -145,14 +146,22 @@ abstract class MapController {
 
 typedef TapCallback = void Function(TapPosition tapPosition, LatLng point);
 typedef LongPressCallback = void Function(
-    TapPosition tapPosition, LatLng point);
+  TapPosition tapPosition,
+  LatLng point,
+);
 typedef PointerDownCallback = void Function(
-    PointerDownEvent event, LatLng point);
+  PointerDownEvent event,
+  LatLng point,
+);
 typedef PointerUpCallback = void Function(PointerUpEvent event, LatLng point);
 typedef PointerCancelCallback = void Function(
-    PointerCancelEvent event, LatLng point);
+  PointerCancelEvent event,
+  LatLng point,
+);
 typedef PointerHoverCallback = void Function(
-    PointerHoverEvent event, LatLng point);
+  PointerHoverEvent event,
+  LatLng point,
+);
 typedef PositionCallback = void Function(MapPosition position, bool hasGesture);
 typedef MapEventCallback = void Function(MapEvent);
 
@@ -162,8 +171,8 @@ typedef MapEventCallback = void Function(MapEvent);
 /// over [center].
 /// Zoom, pan boundary and interactivity constraints can be specified here too.
 ///
-/// Callbacks for [onTap], [onLongPress] and [onPositionChanged] can be
-/// registered here.
+/// Callbacks for [onTap], [onSecondaryTap], [onLongPress] and
+/// [onPositionChanged] can be registered here.
 ///
 /// Through [crs] the Coordinate Reference System can be
 /// defined, it defaults to [Epsg3857].
@@ -243,9 +252,8 @@ class MapOptions {
   /// see [InteractiveFlag] for custom settings
   final int interactiveFlags;
 
-  final bool absorbPanEventsOnScrollables;
-
   final TapCallback? onTap;
+  final TapCallback? onSecondaryTap;
   final LongPressCallback? onLongPress;
   final PointerDownCallback? onPointerDown;
   final PointerUpCallback? onPointerUp;
@@ -284,7 +292,6 @@ class MapOptions {
   final bool keepAlive;
 
   MapOptions({
-    this.absorbPanEventsOnScrollables = true,
     this.crs = const Epsg3857(),
     LatLng? center,
     this.bounds,
@@ -307,6 +314,7 @@ class MapOptions {
     this.maxZoom,
     this.interactiveFlags = InteractiveFlag.all,
     this.onTap,
+    this.onSecondaryTap,
     this.onLongPress,
     this.onPointerDown,
     this.onPointerUp,
@@ -334,10 +342,13 @@ class MapOptions {
 class FitBoundsOptions {
   final EdgeInsets padding;
   final double maxZoom;
-  @Deprecated(
-      'This property is unused and will be removed in the next major release.')
 
-  /// TODO: remove this property in the next major release.
+  /// This property is deprecated and unused internally. It will be removed in a
+  /// future major update
+  // TODO: remove this property
+  @Deprecated(
+    'This property is unused internally and will be removed in a future major update',
+  )
   final double? zoom;
   final bool inside;
 
