@@ -282,7 +282,7 @@ class RichAttributionWidget extends StatefulWidget {
 }
 
 class RichAttributionWidgetState extends State<RichAttributionWidget> {
-  late final StreamSubscription<MapEvent> mapEventSubscription;
+  StreamSubscription<MapEvent>? mapEventSubscription;
 
   final persistentAttributionKey = GlobalKey();
   Size? persistentAttributionSize;
@@ -302,27 +302,20 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
     }
 
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) {
-        mapEventSubscription = FlutterMapState.maybeOf(context)!
-            .mapController
-            .mapEventStream
-            .listen((_) => setState(() => popupExpanded = false));
-
-        WidgetsBinding.instance.addPostFrameCallback(
-          (_) => setState(
-            () => persistentAttributionSize =
-                (persistentAttributionKey.currentContext!.findRenderObject()
-                        as RenderBox)
-                    .size,
-          ),
-        );
-      },
+      (_) => WidgetsBinding.instance.addPostFrameCallback(
+        (_) => setState(
+          () => persistentAttributionSize =
+              (persistentAttributionKey.currentContext!.findRenderObject()
+                      as RenderBox)
+                  .size,
+        ),
+      ),
     );
   }
 
   @override
   void dispose() {
-    mapEventSubscription.cancel();
+    mapEventSubscription?.cancel();
     super.dispose();
   }
 
@@ -362,7 +355,16 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
               )
             : IconButton(
                 tooltip: 'Open Attributions',
-                onPressed: () => setState(() => popupExpanded = true),
+                onPressed: () {
+                  setState(() => popupExpanded = true);
+                  mapEventSubscription = FlutterMapState.maybeOf(context)!
+                      .mapController
+                      .mapEventStream
+                      .listen((_) {
+                    setState(() => popupExpanded = false);
+                    mapEventSubscription?.cancel();
+                  });
+                },
                 icon: widget.openIcon ??
                     const Icon(
                       Icons.info_outlined,
