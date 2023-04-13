@@ -3,6 +3,7 @@ import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:proj4dart/proj4dart.dart' as proj4;
+import 'package:url_launcher/url_launcher.dart';
 
 class EPSG3413Page extends StatefulWidget {
   static const String route = 'EPSG3413 Page';
@@ -133,6 +134,21 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
                   zoom: 3,
                   maxZoom: maxZoom,
                 ),
+                nonRotatedChildren: [
+                  RichAttributionWidget(
+                    popupInitialDisplayDuration: const Duration(seconds: 5),
+                    attributions: [
+                      TextSourceAttribution(
+                        'Imagery reproduced from the GEBCO_2022 Grid, GEBCO Compilation Group (2022) GEBCO 2022 Grid (doi:10.5285/e0f0bb80-ab44-2739-e053-6c86abc0289c)',
+                        onTap: () => launchUrl(
+                          Uri.parse(
+                            'https://www.gebco.net/data_and_products/gebco_web_services/web_map_service/#polar',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
                 children: [
                   TileLayer(
                     opacity: 1,

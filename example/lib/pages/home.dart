@@ -60,13 +60,17 @@ class HomePage extends StatelessWidget {
                 ),
                 nonRotatedChildren: [
                   RichAttributionWidget(
-                    popupInitialDisplayDuration: const Duration(seconds: 3),
+                    popupInitialDisplayDuration: const Duration(seconds: 5),
                     attributions: [
                       TextSourceAttribution(
                         'OpenStreetMap contributors',
                         onTap: () => launchUrl(
                           Uri.parse('https://openstreetmap.org/copyright'),
                         ),
+                      ),
+                      const TextSourceAttribution(
+                        'This attribution is the same throughout this app, except where otherwise specified',
+                        prependCopyright: false,
                       ),
                     ],
                   ),

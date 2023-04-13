@@ -149,7 +149,7 @@ class TextSourceAttribution extends SourceAttribution {
       );
 }
 
-/// An image attribution permenantly displayed adjacent to the open/close icon of
+/// An image attribution permanently displayed adjacent to the open/close icon of
 /// a [RichAttributionWidget]
 class LogoSourceAttribution extends SourceAttribution {
   /// The logo to display as attribution, usually an [Image.asset] or
@@ -162,11 +162,11 @@ class LogoSourceAttribution extends SourceAttribution {
 
   /// Height of the [image] (fitted into a [SizedBox])
   ///
-  /// Should be the same as [RichAttributionWidget.permenantHeight], otherwise
+  /// Should be the same as [RichAttributionWidget.permanentHeight], otherwise
   /// layout issues may occur.
   final double height;
 
-  /// An image attribution permenantly displayed adjacent to the open/close icon
+  /// An image attribution permanently displayed adjacent to the open/close icon
   /// of a [RichAttributionWidget]
   const LogoSourceAttribution(
     this.image, {
@@ -189,7 +189,7 @@ class LogoSourceAttribution extends SourceAttribution {
 ///
 /// [TextSourceAttribution]s are shown in a popup box (toggled by a tap/click on
 /// the [openButton]/[closeButton]), unlike [LogoSourceAttribution], which are
-/// visible permenantly adjacent to the open/close button.
+/// visible permanently adjacent to the open/close button.
 ///
 /// The popup box also closes automatically on any interaction with the map.
 ///
@@ -202,7 +202,7 @@ class RichAttributionWidget extends StatefulWidget {
   ///
   /// [TextSourceAttribution]s are shown in a popup box (toggled by a tap/click
   /// on the [openButton]/[closeButton]), unlike [LogoSourceAttribution], which
-  /// are visible permenantly adjacent to the open/close button.
+  /// are visible permanently adjacent to the open/close button.
   final List<SourceAttribution> attributions;
 
   /// The position in which to anchor this widget
@@ -223,13 +223,13 @@ class RichAttributionWidget extends StatefulWidget {
   /// The radius of the edges of the popup box
   final BorderRadius? popupBorderRadius;
 
-  /// The height of the permenant row in which is found the popup menu toggle
+  /// The height of the permanent row in which is found the popup menu toggle
   /// button
   ///
   /// Also determines spacing between the items within the row.
   ///
   /// Also set [LogoSourceAttribution.height] to the same value, if adjusted.
-  final double permenantHeight;
+  final double permanentHeight;
 
   /// Whether to add an additional attribution logo and text for 'flutter_map'
   final bool showFlutterMapAttribution;
@@ -254,8 +254,8 @@ class RichAttributionWidget extends StatefulWidget {
   /// [SourceAttribution]s
   ///
   /// [TextSourceAttribution]s are shown in a popup box (toggled by a tap/click
-  /// on the [openButton]/[closeButton]), unlike [LogoSourceAttribution], which
-  /// are visible permenantly adjacent to the open/close button.
+  /// on the [openButton]/[closeButton]), unlike [LogoSourceAttribution]s, which
+  /// are visible permanently in a row adjacent to the open/close button.
   ///
   /// The popup box also closes automatically on any interaction with the map.
   ///
@@ -271,7 +271,7 @@ class RichAttributionWidget extends StatefulWidget {
     this.closeButton,
     this.popupBackgroundColor,
     this.popupBorderRadius,
-    this.permenantHeight = 24,
+    this.permanentHeight = 24,
     this.showFlutterMapAttribution = true,
     this.animationCurve = Curves.easeInOut,
     this.animationDuration = const Duration(milliseconds: 150),
@@ -326,7 +326,7 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
       ...widget.attributions
           .whereType<LogoSourceAttribution>()
           .cast<Widget>()
-          .separate(SizedBox(width: widget.permenantHeight / 1.5)),
+          .separate(SizedBox(width: widget.permanentHeight / 1.5)),
       if (widget.showFlutterMapAttribution)
         LogoSourceAttribution(
           Image.asset(
@@ -334,9 +334,9 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
             package: 'flutter_map',
           ),
           tooltip: 'flutter_map',
-          height: widget.permenantHeight,
+          height: widget.permanentHeight,
         ),
-      SizedBox(width: widget.permenantHeight * 0.1),
+      SizedBox(width: widget.permanentHeight * 0.1),
       AnimatedSwitcher(
         switchInCurve: widget.animationCurve,
         switchOutCurve: widget.animationCurve,
@@ -349,7 +349,7 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
                         Icons.cancel_outlined,
                         color: Theme.of(context).textTheme.titleSmall?.color ??
                             Colors.black,
-                        size: widget.permenantHeight,
+                        size: widget.permanentHeight,
                       ),
                     ))(
                 context,
@@ -362,7 +362,7 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
                       icon: Icon(
                         Icons.info_outlined,
                         color: Colors.black,
-                        size: widget.permenantHeight,
+                        size: widget.permanentHeight,
                       ),
                     ))(
                 context,
@@ -371,7 +371,7 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
                   mapEventSubscription = FlutterMapState.maybeOf(context)!
                       .mapController
                       .mapEventStream
-                      .listen((_) {
+                      .listen((e) {
                     setState(() => popupExpanded = false);
                     mapEventSubscription?.cancel();
                   });
@@ -430,7 +430,7 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
                             prependCopyright: false,
                             textStyle: TextStyle(fontStyle: FontStyle.italic),
                           ),
-                          SizedBox(height: (widget.permenantHeight - 24) + 32),
+                          SizedBox(height: (widget.permanentHeight - 24) + 32),
                         ],
                       ),
                     ),

@@ -5,7 +5,6 @@ import 'package:flutter_map_example/pages/circle.dart';
 import 'package:flutter_map_example/pages/custom_crs/custom_crs.dart';
 import 'package:flutter_map_example/pages/epsg3413_crs.dart';
 import 'package:flutter_map_example/pages/epsg4326_crs.dart';
-import 'package:flutter_map_example/pages/esri.dart';
 import 'package:flutter_map_example/pages/fallback_url_network_page.dart';
 import 'package:flutter_map_example/pages/fallback_url_offline_page.dart';
 import 'package:flutter_map_example/pages/home.dart';
@@ -55,7 +54,6 @@ class MyApp extends StatelessWidget {
             const NetworkTileProviderPage(),
         WidgetsPage.route: (context) => const WidgetsPage(),
         TapToAddPage.route: (context) => const TapToAddPage(),
-        EsriPage.route: (context) => const EsriPage(),
         PolylinePage.route: (context) => const PolylinePage(),
         MapControllerPage.route: (context) => const MapControllerPage(),
         AnimatedMapControllerPage.route: (context) =>
