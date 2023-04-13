@@ -270,7 +270,7 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
   void initState() {
     super.initState();
 
-    if (widget.popupInitialDisplayDuration != Duration.zero) {
+    if (popupExpanded) {
       Future.delayed(
         widget.popupInitialDisplayDuration,
         () => setState(() => popupExpanded = false),
