@@ -156,24 +156,40 @@ class LogoSourceAttribution extends SourceAttribution {
   /// [Image.network]
   final Widget image;
 
+  /// Optional text to display inside a [Tooltip] when the logo is hovered over,
+  /// to provide extra clarity
+  final String? tooltip;
+
+  /// Height of the [image] (fitted into a [SizedBox])
+  ///
+  /// Should be the same as [RichAttributionWidget.permenantHeight], otherwise
+  /// layout issues may occur.
+  final double height;
+
   /// An image attribution permenantly displayed adjacent to the open/close icon
   /// of a [RichAttributionWidget]
   const LogoSourceAttribution(
     this.image, {
     super.key,
     super.onTap,
+    this.tooltip,
+    this.height = 24,
   }) : super._();
 
   @override
-  Widget _render(BuildContext context) => SizedBox(height: 24, child: image);
+  Widget _render(BuildContext context) {
+    final sizedImage = SizedBox(height: height, child: image);
+    if (tooltip == null) return sizedImage;
+    return Tooltip(message: tooltip, child: sizedImage);
+  }
 }
 
 /// A prebuilt attribution layer that supports both logos and text through
 /// [SourceAttribution]s
 ///
 /// [TextSourceAttribution]s are shown in a popup box (toggled by a tap/click on
-/// the [openIcon]/[closeIcon]), unlike [LogoSourceAttribution], which are
-/// visible permenantly adjacent to the open/close icon.
+/// the [openButton]/[closeButton]), unlike [LogoSourceAttribution], which are
+/// visible permenantly adjacent to the open/close button.
 ///
 /// The popup box also closes automatically on any interaction with the map.
 ///
@@ -185,20 +201,20 @@ class RichAttributionWidget extends StatefulWidget {
   /// List of attributions to display
   ///
   /// [TextSourceAttribution]s are shown in a popup box (toggled by a tap/click
-  /// on the [openIcon]/[closeIcon]), unlike [LogoSourceAttribution], which are
-  /// visible permenantly adjacent to the open/close icon.
+  /// on the [openButton]/[closeButton]), unlike [LogoSourceAttribution], which
+  /// are visible permenantly adjacent to the open/close button.
   final List<SourceAttribution> attributions;
 
   /// The position in which to anchor this widget
   final AttributionAlignment alignment;
 
-  /// The widget (usually an [Icon]) to display when the popup box is closed,
-  /// that opens the popup box
-  final Widget? openIcon;
+  /// The widget (usually an [IconButton]) to display when the popup box is
+  /// closed, that opens the popup box via the `open` callback
+  final Widget Function(BuildContext context, VoidCallback open)? openButton;
 
-  /// The widget (usually an [Icon]) to display when the popup box is open, that
-  /// closes the popup box
-  final Widget? closeIcon;
+  /// The widget (usually an [IconButton]) to display when the popup box is open,
+  /// that closes the popup box via the `close` callback
+  final Widget Function(BuildContext context, VoidCallback close)? closeButton;
 
   /// The color to use as the popup box's background color, defaulting to the
   /// [Theme]s background color
@@ -207,13 +223,13 @@ class RichAttributionWidget extends StatefulWidget {
   /// The radius of the edges of the popup box
   final BorderRadius? popupBorderRadius;
 
-  /// If not [Duration.zero] (default), the popup box will be open by default and
-  /// hidden this long after the map is initialised
+  /// The height of the permenant row in which is found the popup menu toggle
+  /// button
   ///
-  /// This is useful with certain sources/tile servers that make immediate
-  /// attribution mandatory and are not attributed with a permanently visible
-  /// [LogoSourceAttribution].
-  final Duration popupInitialDisplayDuration;
+  /// Also determines spacing between the items within the row.
+  ///
+  /// Also set [LogoSourceAttribution.height] to the same value, if adjusted.
+  final double permenantHeight;
 
   /// Whether to add an additional attribution logo and text for 'flutter_map'
   final bool showFlutterMapAttribution;
@@ -226,12 +242,20 @@ class RichAttributionWidget extends StatefulWidget {
   /// and the state of the open/close icons
   final Duration animationDuration;
 
+  /// If not [Duration.zero] (default), the popup box will be open by default and
+  /// hidden this long after the map is initialised
+  ///
+  /// This is useful with certain sources/tile servers that make immediate
+  /// attribution mandatory and are not attributed with a permanently visible
+  /// [LogoSourceAttribution].
+  final Duration popupInitialDisplayDuration;
+
   /// A prebuilt attribution layer that supports both logos and text through
   /// [SourceAttribution]s
   ///
   /// [TextSourceAttribution]s are shown in a popup box (toggled by a tap/click
-  /// on the [openIcon]/[closeIcon]), unlike [LogoSourceAttribution], which are
-  /// visible permenantly adjacent to the open/close icon.
+  /// on the [openButton]/[closeButton]), unlike [LogoSourceAttribution], which
+  /// are visible permenantly adjacent to the open/close button.
   ///
   /// The popup box also closes automatically on any interaction with the map.
   ///
@@ -243,14 +267,15 @@ class RichAttributionWidget extends StatefulWidget {
     super.key,
     required this.attributions,
     this.alignment = AttributionAlignment.bottomRight,
-    this.openIcon,
-    this.closeIcon,
+    this.openButton,
+    this.closeButton,
     this.popupBackgroundColor,
     this.popupBorderRadius,
-    this.popupInitialDisplayDuration = Duration.zero,
+    this.permenantHeight = 24,
     this.showFlutterMapAttribution = true,
     this.animationCurve = Curves.easeInOut,
     this.animationDuration = const Duration(milliseconds: 150),
+    this.popupInitialDisplayDuration = Duration.zero,
   });
 
   @override
@@ -301,35 +326,47 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
       ...widget.attributions
           .whereType<LogoSourceAttribution>()
           .cast<Widget>()
-          .separate(const SizedBox(width: 16)),
+          .separate(SizedBox(width: widget.permenantHeight / 1.5)),
       if (widget.showFlutterMapAttribution)
         LogoSourceAttribution(
           Image.asset(
             'lib/assets/flutter_map_logo.png',
             package: 'flutter_map',
-            height: 24,
-            width: 24,
-            cacheHeight: 24,
-            cacheWidth: 24,
           ),
+          tooltip: 'flutter_map',
+          height: widget.permenantHeight,
         ),
+      SizedBox(width: widget.permenantHeight * 0.1),
       AnimatedSwitcher(
         switchInCurve: widget.animationCurve,
         switchOutCurve: widget.animationCurve,
         duration: widget.animationDuration,
         child: popupExpanded
-            ? IconButton(
-                onPressed: () => setState(() => popupExpanded = false),
-                icon: widget.closeIcon ??
-                    Icon(
-                      Icons.cancel_outlined,
-                      color: Theme.of(context).textTheme.titleSmall?.color ??
-                          Colors.black,
-                    ),
+            ? (widget.closeButton ??
+                (context, close) => IconButton(
+                      onPressed: close,
+                      icon: Icon(
+                        Icons.cancel_outlined,
+                        color: Theme.of(context).textTheme.titleSmall?.color ??
+                            Colors.black,
+                        size: widget.permenantHeight,
+                      ),
+                    ))(
+                context,
+                () => setState(() => popupExpanded = false),
               )
-            : IconButton(
-                tooltip: 'Open Attributions',
-                onPressed: () {
+            : (widget.openButton ??
+                (context, open) => IconButton(
+                      onPressed: open,
+                      tooltip: 'Attributions',
+                      icon: Icon(
+                        Icons.info_outlined,
+                        color: Colors.black,
+                        size: widget.permenantHeight,
+                      ),
+                    ))(
+                context,
+                () {
                   setState(() => popupExpanded = true);
                   mapEventSubscription = FlutterMapState.maybeOf(context)!
                       .mapController
@@ -339,11 +376,6 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
                     mapEventSubscription?.cancel();
                   });
                 },
-                icon: widget.openIcon ??
-                    const Icon(
-                      Icons.info_outlined,
-                      color: Colors.black,
-                    ),
               ),
       ),
     ];
@@ -398,7 +430,7 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
                             prependCopyright: false,
                             textStyle: TextStyle(fontStyle: FontStyle.italic),
                           ),
-                          const SizedBox(height: 32),
+                          SizedBox(height: (widget.permenantHeight - 24) + 32),
                         ],
                       ),
                     ),
