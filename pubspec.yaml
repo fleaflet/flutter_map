@@ -21,7 +21,6 @@ dependencies:
   polylabel: ^1.0.1
   proj4dart: ^2.1.0
   tuple: ^2.0.0
-  url_launcher: ^6.1.6
   vector_math: ^2.1.2
 
 dev_dependencies:

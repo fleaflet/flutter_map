@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomePage extends StatelessWidget {
   static const String route = '/';
@@ -61,10 +62,11 @@ class HomePage extends StatelessWidget {
                   RichAttributionWidget(
                     popupInitialDisplayDuration: const Duration(seconds: 3),
                     attributions: [
-                      TextSourceAttribution.launchUri(
+                      TextSourceAttribution(
                         'OpenStreetMap contributors',
-                        launchUri:
-                            Uri.parse('https://openstreetmap.org/copyright'),
+                        onTap: () => launchUrl(
+                          Uri.parse('https://openstreetmap.org/copyright'),
+                        ),
                       ),
                     ],
                   ),

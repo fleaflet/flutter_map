@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:meta/meta.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 /// Position to anchor [RichAttributionWidget] to relative to the [FlutterMap]
 ///
@@ -38,7 +37,7 @@ class SimpleAttributionWidget extends StatelessWidget {
   final Text source;
 
   /// Callback called when [source] is tapped/clicked
-  final void Function()? onTap;
+  final VoidCallback? onTap;
 
   /// Color of the box containing the [source] text
   final Color? backgroundColor;
@@ -91,17 +90,12 @@ class SimpleAttributionWidget extends StatelessWidget {
 /// Extended/implemented by [TextSourceAttribution] & [LogoSourceAttribution].
 @internal
 abstract class SourceAttribution extends StatelessWidget {
-  final void Function()? _onTap;
+  final VoidCallback? _onTap;
 
   const SourceAttribution._({
     super.key,
-    void Function()? onTap,
+    VoidCallback? onTap,
   }) : _onTap = onTap;
-
-  SourceAttribution._launchUri({
-    super.key,
-    required Uri launchUri,
-  }) : _onTap = (() => launchUrl(launchUri));
 
   Widget _render(BuildContext context);
 
@@ -148,16 +142,6 @@ class TextSourceAttribution extends SourceAttribution {
   })  : textStyle = textStyle ?? (onTap == null ? null : defaultLinkTextStyle),
         super._();
 
-  /// A simple text attribution displayed in the popup box of a
-  /// [RichAttributionWidget], that launches a URI/URL on tap by default
-  TextSourceAttribution.launchUri(
-    this.text, {
-    super.key,
-    required super.launchUri,
-    this.prependCopyright = true,
-    this.textStyle = defaultLinkTextStyle,
-  }) : super._launchUri();
-
   @override
   Widget _render(BuildContext context) => Text(
         '${prependCopyright ? '© ' : ''}$text',
@@ -179,14 +163,6 @@ class LogoSourceAttribution extends SourceAttribution {
     super.key,
     super.onTap,
   }) : super._();
-
-  /// An image attribution permenantly displayed adjacent to the open/close icon
-  /// of a [RichAttributionWidget], that launches a URI/URL on tap by default
-  LogoSourceAttribution.launchUri(
-    this.image, {
-    super.key,
-    required super.launchUri,
-  }) : super._launchUri();
 
   @override
   Widget _render(BuildContext context) => SizedBox(height: 24, child: image);
@@ -324,11 +300,10 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
     final persistentAttributionItems = [
       ...widget.attributions
           .whereType<LogoSourceAttribution>()
-          .map((e) => [e, const SizedBox(width: 16)])
-          .expand((e) => e)
-          .toList(),
+          .cast<Widget>()
+          .separate(const SizedBox(width: 16)),
       if (widget.showFlutterMapAttribution)
-        LogoSourceAttribution.launchUri(
+        LogoSourceAttribution(
           Image.asset(
             'lib/assets/flutter_map_logo.png',
             package: 'flutter_map',
@@ -337,7 +312,6 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
             cacheHeight: 24,
             cacheWidth: 24,
           ),
-          launchUri: Uri.parse('https://docs.fleaflet.dev/'),
         ),
       AnimatedSwitcher(
         switchInCurve: widget.animationCurve,
@@ -418,15 +392,11 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           ...widget.attributions
-                              .whereType<TextSourceAttribution>()
-                              .toList(),
-                          TextSourceAttribution.launchUri(
+                              .whereType<TextSourceAttribution>(),
+                          const TextSourceAttribution(
                             "Made with 'flutter_map'",
-                            launchUri: Uri.parse('https://docs.fleaflet.dev/'),
                             prependCopyright: false,
-                            textStyle: TextSourceAttribution
-                                .defaultLinkTextStyle
-                                .copyWith(fontStyle: FontStyle.italic),
+                            textStyle: TextStyle(fontStyle: FontStyle.italic),
                           ),
                           const SizedBox(height: 32),
                         ],
@@ -462,5 +432,14 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
         ),
       ),
     );
+  }
+}
+
+extension _ListExt<E> on Iterable<E> {
+  Iterable<E> separate(E separator) sync* {
+    for (int i = 0; i < length; i++) {
+      yield elementAt(i);
+      if (i < length) yield separator;
+    }
   }
 }

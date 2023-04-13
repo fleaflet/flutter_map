@@ -15,6 +15,7 @@ dependencies:
   location: ^4.4.0
   latlong2: ^0.8.1
   proj4dart: ^2.1.0
+  url_launcher: ^6.1.10
 
 dev_dependencies:
   flutter_lints: ^2.0.1
