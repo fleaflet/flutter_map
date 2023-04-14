@@ -61,6 +61,7 @@ class HomePage extends StatelessWidget {
                 nonRotatedChildren: [
                   RichAttributionWidget(
                     popupInitialDisplayDuration: const Duration(seconds: 5),
+                    animationConfig: const ScaleRAWA(),
                     attributions: [
                       TextSourceAttribution(
                         'OpenStreetMap contributors',
