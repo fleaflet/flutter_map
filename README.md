@@ -10,18 +10,6 @@ coverY: -20.411160058737153
 
 # flutter\_map
 
-{% hint style="warning" %}
-[**Important Temporary Notice**](#user-content-fn-1)[^1]
-
-flutter\_map is currently facing difficulties connecting to the default OpenStreetMap tile server ('tile.openstreetmap.org') when running on the web, due to an issue beyond our control.
-
-This impacts the example project significantly when running on the web, as well as any other project using the default tile server on the web.
-
-We are working to resolve this issue, but it is ultimately blocked until we can co-operate with OpenStreetMap to restore access.
-
-_For more information, see_ [_https://github.com/fleaflet/flutter\_map/issues/1489_](https://github.com/fleaflet/flutter\_map/issues/1489)_._
-{% endhint %}
-
 [![Pub.dev](https://camo.githubusercontent.com/a796d19cced2795c62dee9f3b165665449dbfd0bd46bf39beceef3371f14ebee/68747470733a2f2f696d672e736869656c64732e696f2f7075622f762f666c75747465725f6d61702e7376673f6c6162656c3d4c61746573742b56657273696f6e)](https://pub.dev/packages/flutter\_map) [![points](https://camo.githubusercontent.com/2fe0cefb9f575203da4f29269b9d3a06c0b56b0abca74ba77082849f0f852e93/68747470733a2f2f696d672e736869656c64732e696f2f7075622f706f696e74732f666c75747465725f6d61703f6c6f676f3d666c7574746572)](https://pub.dev/packages/flutter\_map/score) [![likes](https://camo.githubusercontent.com/450afb6eb57ffb0e3cdae61f8a90d51541dbe09eaddcc69900cb09a91762363a/68747470733a2f2f696d672e736869656c64732e696f2f7075622f6c696b65732f666c75747465725f6d61703f6c6f676f3d666c7574746572)](https://pub.dev/packages/flutter\_map/score) \
 [![stars](https://camo.githubusercontent.com/7e6d80df311cbd5e68edf6994e404a97af85c84f7ec66614875dba12f055c246/68747470733a2f2f62616467656e2e6e65742f6769746875622f73746172732f666c6561666c65742f666c75747465725f6d61703f6c6162656c3d737461727326636f6c6f723d677265656e2669636f6e3d676974687562)](https://github.com/fleaflet/flutter\_map/stargazers) [![Open Issues](https://camo.githubusercontent.com/3f89334e961516c8b3eef4879a287818a2b8e6523e5f9f8d3767e1d98c8a4f44/68747470733a2f2f62616467656e2e6e65742f6769746875622f6f70656e2d6973737565732f666c6561666c65742f666c75747465725f6d61703f6c6162656c3d4f70656e2b49737375657326636f6c6f723d677265656e)](https://github.com/fleaflet/flutter\_map/issues) [![Open PRs](https://camo.githubusercontent.com/2d48f34537361cf13f775e8c88c5884a7a7b280469b319453b2ccdabdee1f2db/68747470733a2f2f62616467656e2e6e65742f6769746875622f6f70656e2d7072732f666c6561666c65742f666c75747465725f6d61703f6c6162656c3d4f70656e2b50527326636f6c6f723d677265656e)](https://github.com/fleaflet/flutter\_map/pulls)
 
@@ -81,7 +69,3 @@ Due to time shortages and other internal matters, wait times for feature request
 
 We'd love to have your contributions to add your own or others' pull requests!
 {% endhint %}
-
-[^1]: Posted: 2023/04/15
-
-    Last updated: 2023/04/15
