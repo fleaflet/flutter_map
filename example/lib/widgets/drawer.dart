@@ -5,7 +5,6 @@ import 'package:flutter_map_example/pages/circle.dart';
 import 'package:flutter_map_example/pages/custom_crs/custom_crs.dart';
 import 'package:flutter_map_example/pages/epsg3413_crs.dart';
 import 'package:flutter_map_example/pages/epsg4326_crs.dart';
-import 'package:flutter_map_example/pages/esri.dart';
 import 'package:flutter_map_example/pages/fallback_url_network_page.dart';
 import 'package:flutter_map_example/pages/fallback_url_offline_page.dart';
 import 'package:flutter_map_example/pages/home.dart';
@@ -92,12 +91,6 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           context,
           const Text('Tap to Add Pins'),
           TapToAddPage.route,
-          currentRoute,
-        ),
-        _buildMenuItem(
-          context,
-          const Text('Esri'),
-          EsriPage.route,
           currentRoute,
         ),
         _buildMenuItem(
