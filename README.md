@@ -19,34 +19,43 @@ With over 1500 members, our Discord server is the best place to get quick suppor
 
 ## Demonstration
 
-This code snippet demonstrates everything you need for a simple map - of course, `FlutterMap` is much more customisable than just this!
+Setting up an interactive and compliant map is simpler than making your lunch-time coffee! It can be accomplished in just over 20 lines, as shown below.
+
+This code snippet demonstrates **everything** you need for a simple map, but of course, FM is capable of much more than just this, and you could find yourself lost in the many options available and possibilities opened!
 
 {% code lineNumbers="true" %}
 ```dart
-return FlutterMap(
+@override
+Widget build(BuildContext context) {
+  return FlutterMap(
     options: MapOptions(
-        center: LatLng(51.509364, -0.128928),
-        zoom: 9.2,
+      center: LatLng(51.509364, -0.128928),
+      zoom: 9.2,
     ),
-    nonRotatedChildren: [
-        AttributionWidget.defaultWidget(
-            source: 'OpenStreetMap contributors',
-            onSourceTapped: null,
-        ),
-    ],
     children: [
-        TileLayer(
-            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-            userAgentPackageName: 'com.example.app',
-        ),
+      TileLayer(
+        urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        userAgentPackageName: 'com.example.app',
+      ),
     ],
-);
+    nonRotatedChildren: [
+      RichAttributionWidget(
+        attributions: [
+          TextSourceAttribution(
+            'OpenStreetMap contributors',
+            onTap: () => launchUrl(Uri.parse('https://openstreetmap.org/copyright')),
+          ),
+        ],
+      ),
+    ],
+  );
+}
 ```
 {% endcode %}
 
 ## Feature Highlights
 
-<table data-card-size="large" data-view="cards"><thead><tr><th align="center"></th><th align="center"></th><th data-hidden data-card-cover data-type="files"></th></tr></thead><tbody><tr><td align="center"><strong>Supports any* map style</strong></td><td align="center">We natively support any static raster tile server, including from a web server or even from the local file system or app asset store.</td><td></td></tr><tr><td align="center"><strong>Stress-free setup</strong></td><td align="center">Migrating from a commercial library such as Google Maps has never been easier! No more complex platform-specific setup, no more API keys: just add a widget and you're done.</td><td></td></tr><tr><td align="center"><strong>Wide ecosystem of plugins</strong></td><td align="center">In the unlikely event that flutter_map doesn't natively contain something you need, just check to see if there's a community maintained plugin that does what you need!</td><td></td></tr><tr><td align="center"><strong>Add map features</strong></td><td align="center">Add polygons, polylines, and markers/pins to your map easily and quickly. Markers support displaying any widget you might want.</td><td></td></tr></tbody></table>
+<table data-card-size="large" data-view="cards"><thead><tr><th align="center"></th><th align="center"></th><th data-hidden data-card-cover data-type="files"></th></tr></thead><tbody><tr><td align="center"><strong>Supports any* map style</strong></td><td align="center">We natively support any static raster tile server, including from a web server or even from the local file system or app asset store.</td><td></td></tr><tr><td align="center"><strong>Stress-free setup</strong></td><td align="center">Migrating from a commercial library such as Google Maps has never been easier! No more complex platform-specific setup, no more API keys: just add a widget and you're done.</td><td></td></tr><tr><td align="center"><strong>Wide ecosystem of plugins</strong></td><td align="center">In the unlikely event that flutter_map doesn't natively contain something you need, just check to see if there's a community maintained plugin that does what you need!</td><td></td></tr><tr><td align="center"><strong>Add other map features</strong></td><td align="center">Add polygons, polylines, and markers/pins to your map easily and quickly. Markers support displaying any widget you might want.</td><td></td></tr></tbody></table>
 
 ## Get Help
 

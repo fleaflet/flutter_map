@@ -1,10 +1,18 @@
-# 4⃣ Controller
+# Controller
 
 The `mapController` property takes a `MapController`, and whilst it is optional, it is strongly recommended for any map other than the most basic. It allows you to programmatically interact with the map, such as panning, zooming and rotating.
+
+{% embed url="https://pub.dev/documentation/flutter_map/latest/flutter_map/MapController-class.html" %}
+Full API Reference
+{% endembed %}
 
 ## Initialisation
 
 To use a `MapController`, it must initialised and then passed to the `FlutterMap`. This attaches them until the widget is destroyed/disposed.
+
+{% hint style="info" %}
+If this method does not appear to work, try the methods below sequentially.
+{% endhint %}
 
 ```dart
 final mapController = MapController();
@@ -24,6 +32,10 @@ It is a fairly common requirement to need to use the `MapController` before the 
 ### Recommended Usage
 
 Luckily, Flutter provides methods to wait until the first frame has been built, which usually means the `FlutterMap` widget will have been built (see exception circumstances below). This makes it trivially easy to implement the desired behaviour.
+
+{% hint style="info" %}
+If this method does not appear to work, try the method below.
+{% endhint %}
 
 {% code title="Recommended Usage" %}
 ```dart
@@ -62,8 +74,6 @@ Widget build(BuildContext context) =>
 ```
 {% endcode %}
 
-## Available Methods
+## Animation
 
-{% embed url="https://pub.dev/documentation/flutter_map/latest/flutter_map/MapController-class.html" %}
-Full API Reference
-{% endembed %}
+Whilst animated controllers aren't built-in, the [community maintained plugin `flutter_map_animations`](https://github.com/TesteurManiak/flutter\_map\_animations) provides the functionality.

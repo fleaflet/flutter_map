@@ -1,17 +1,15 @@
-# 1⃣ Base Widget
+# Base Widget
 
-<pre class="language-dart"><code class="lang-dart"><strong>FlutterMap(
-</strong>    mapController: _mapController,
+```dart
+FlutterMap(
+    mapController: _mapController,
     options: MapOptions(),
     children: [],
     nonRotatedChildren: [],
-);</code></pre>
+);
+```
 
-<table data-card-size="large" data-view="cards"><thead><tr><th></th><th data-type="select"></th><th></th><th data-hidden data-card-target data-type="content-ref"></th></tr></thead><tbody><tr><td><code>options</code> (<code>MapOptions</code>)</td><td></td><td>Configure options that don't directly affect the appearance of the map, such as starting location and maximum zoom limit.</td><td><a href="options/">options</a></td></tr><tr><td><code>mapController</code></td><td></td><td>Attach a controller object to control the map programatically, including panning and zooming.</td><td><a href="controller.md">controller.md</a></td></tr><tr><td><code>children</code></td><td></td><td>Takes a <code>List</code> of <code>Widgets</code> (usually a dedicated 'layer') to display on the map, such as tile layers or polygon layers,</td><td><a href="layers/">layers</a></td></tr><tr><td><code>nonRotatedChildren</code></td><td></td><td>Similar to <code>children</code>, but these don't rotate or move with the other layers.</td><td></td></tr></tbody></table>
-
-{% hint style="warning" %}
-Do not use `nonRotatedChildren` to enforce a non-rotatable map. Instead, use [`interactiveFlags` inside `MapOptions`](options/other-options.md#interactivity-settings-interactiveflags).
-{% endhint %}
+<table data-card-size="large" data-view="cards"><thead><tr><th></th><th data-type="select"></th><th></th><th data-hidden data-card-target data-type="content-ref"></th></tr></thead><tbody><tr><td><code>options</code> (<code>MapOptions</code>)</td><td></td><td>Configure options that don't directly affect the appearance of the map, such as starting location and maximum zoom limit.</td><td><a href="options/">options</a></td></tr><tr><td><code>mapController</code></td><td></td><td>Attach a controller object to control the map programatically, including panning and zooming.</td><td><a href="controller.md">controller.md</a></td></tr><tr><td><code>children</code></td><td></td><td>Takes a <code>List</code> of <code>Widgets</code> (usually a dedicated 'layer') to display on the map, such as tile layers or polygon layers,</td><td><a href="layers.md">layers.md</a></td></tr><tr><td><code>nonRotatedChildren</code></td><td></td><td>Similar to <code>children</code>, but these don't rotate or move with the other layers.</td><td></td></tr></tbody></table>
 
 ## Placement Recommendations
 

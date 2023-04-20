@@ -19,4 +19,7 @@ In particular, thanks go to:
   * @JaffaKetchup
   * @themisir
   * @comatory
+* Notable contributors:
+  * @rorystepenson
+  * @ignatz
 * Anyone who has made plugins for flutter\_map, see the [list.md](plugins/list.md "mention")

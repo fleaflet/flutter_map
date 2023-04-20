@@ -8,59 +8,36 @@ Mapbox's Maps pricing page: [mapbox.com/pricing#maps](https://www.mapbox.com/pri
 Mapbox's Maps documentation: [docs.mapbox.com/api/maps/static-tiles](https://docs.mapbox.com/api/maps/static-tiles)
 {% endhint %}
 
-Mapbox is a popular pay-as-you-go tile provider solution, especially for commercial applications. However, setup with 'flutter\_map' can be a bit finicky, so this page is here to help you get going with Mapbox. Note that these methods use up your 'Static Tiles API' quota.
+To integrate with 3rd party mapping libraries, Mapbox provides an alternative to the normal 'Style URL' for each map style (and any custom map styles).
 
-## Pre-made Styles
+The 'CARTO' 'Integration URL' contains all the information and placeholders that flutter\_map requires to display a map. Tiles requested through this endpoint consume the 'Static Tiles API' quota.
+
+Once you have the appropriate URL for your desired map style (see [#styles](using-mapbox.md#styles "mention")), use it in a `TileLayer`'s `urlTemplate` as normal.
+
+Retina tiles (high-DPI) tiles are used by default ('@2x'). The maximum zoom level that Mapbox supports is 22, so it is recommended to set `maxNativeZoom` or `maxZoom` as such.
+
+{% hint style="warning" %}
+Attribution is required, see [docs.mapbox.com/help/getting-started/attribution](https://docs.mapbox.com/help/getting-started/attribution/).
+
+Consider using the [#richattributionwidget](../layers/attribution-layer.md#richattributionwidget "mention"), which meets the requirements by supporting both logo and text attribution.
+{% endhint %}
+
+## Styles
+
+### Custom (Studio)
+
+Mapbox supports creating and using custom styled maps through Studio. These are compatible with flutter\_map.
+
+Once you've found a style that suits your needs, or created your own, make it public, then open the 'Share & develop' modal:
+
+![](<../.gitbook/assets/flutter\_map wiki mapbox1>)
+
+Scroll to the bottom of the modal, and select 'Third party'. Then from the drop down box, select 'CARTO'. Copy the 'Integration URL' to your clipboard, and use as above.&#x20;
+
+![](<../.gitbook/assets/flutter\_map wiki mapbox2>)
+
+### Prebuilt
 
 Mapbox offers a variety of ready-made map styles that don't require customization. An example URL can be found in [the example here](https://docs.mapbox.com/api/maps/static-tiles/#example-request-retrieve-raster-tiles-from-styles).
 
-## Custom Styles
-
-First, create a custom map Style in the Studio. You can personalise to your heart's content, or leave it at default for a more vanilla feeling. You'll also need an [access token](https://docs.mapbox.com/help/getting-started/access-tokens/).
-
-Then make the map style public, and open the share dialog, as seen below:&#x20;
-
-![Opening the Sharing dialog](<../.gitbook/assets/flutter\_map wiki mapbox1>)
-
-Scroll to the bottom of the dialog, and select Third Party. Then from the drop down box, select 'CARTO':&#x20;
-
-![Retrieving the appropriate URL](<../.gitbook/assets/flutter\_map wiki mapbox2>)
-
-You'll then need to copy the URL and use it in 'flutter\_map', like in the code below.
-
-## Usage
-
-You should remove the 'access\_token' (found at the end of the URL, usually beginning with 'pk.') from the URL for readability. Instead, pass it to `additionalOptions`.
-
-```dart
-FlutterMap(
-    options: MapOptions(
-      center: LatLng(51.5, -0.09),
-      zoom: 13.0,
-    ),
-    nonRotatedChildren: [
-        // This does NOT fulfill Mapbox's requirements for attribution
-        // See https://docs.mapbox.com/help/getting-started/attribution/
-        AttributionWidget.defaultWidget(
-            source: '© Mapbox © OpenStreetMap',
-            onSourceTapped: () async {
-                // Requires 'url_launcher'
-                if (!await launchUrl(Uri.parse("https://docs.mapbox.com/help/getting-started/attribution/"))) {
-                    if (kDebugMode) print('Could not launch URL');
-                }
-            },
-        )
-    ],
-    children: [
-      TileLayer(
-        urlTemplate: "https://api.mapbox.com/styles/v1/<user>/<tile-set-id>/tiles/<256/512>/{z}/{x}/{y}@2x?access_token={access_token}",
-        additionalOptions: {
-            "access_token": "<ACCESS-TOKEN>",
-        },
-        userAgentPackageName: 'com.example.app',
-      ),
-    ],
-);
-```
-
-Please note that choosing either 256x256 or 512x512 (default) pixel tiles will impact pricing: see [the documentation](https://docs.mapbox.com/api/maps/static-tiles/#manage-static-tiles-api-costs).
+This URL should be used as above, although you may need to insert the placeholders manually.

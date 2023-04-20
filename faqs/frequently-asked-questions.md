@@ -6,16 +6,6 @@ You should also read the [explanation](../getting-started/explanation/ "mention"
 
 <details>
 
-<summary>Routing/Navigation</summary>
-
-Routing is currently out-of-scope for 'flutter\_map'. However, if you can get a list of coordinates from a 3rd party, then you can use the [polyline-layer.md](../usage/layers/polyline-layer.md "mention") to show it!
-
-A good open source option is [OSRM](http://project-osrm.org/), but if you want higher reliability and more functionality such as real-time based routing, you may want to try a commercial solution such as Mapbox or Google Maps.
-
-</details>
-
-<details>
-
 <summary>Custom Tile Styles</summary>
 
 Unfortunately, this library cannot provide this functionality.
@@ -32,11 +22,17 @@ However, tilesets can be styled. This is the most effective way of using custom 
 
 <details>
 
-<summary>Animated <code>MapController</code></summary>
+<summary>Prevent 'Labels' Rotation With The Map</summary>
 
-It's possible to animate the movements made by a `MapController`, although this isn't implemented in this library.
+See [#custom-tile-styles](frequently-asked-questions.md#custom-tile-styles "mention"). The reasoning is the same: we don't have control over the stuff inside the `TileLayer`.
 
-For an example of how to do this, please see the [example app's Animated Map Controller page](https://github.com/fleaflet/flutter\_map/blob/master/example/lib/pages/animated\_map\_controller.dart).
+</details>
+
+<details>
+
+<summary>Routing/Navigation</summary>
+
+See [#routing-navigation](../layers/polyline-layer.md#routing-navigation "mention").
 
 </details>
 

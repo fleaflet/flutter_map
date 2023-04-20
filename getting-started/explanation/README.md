@@ -51,7 +51,7 @@ However, these do a lot more than just the maths. They do the maths, format the 
 
 Unless you choose to implement your own custom tile provider, you should never need to handle this yourself.
 
-For more information about setting up a tile provider within the API, see [tile-providers.md](../../usage/layers/tile-layer/tile-providers.md "mention").
+For more information about setting up a tile provider within the API, see [tile-providers.md](../../layers/tile-layer/tile-providers.md "mention").
 
 {% hint style="info" %}
 This can be quite confusing for newcomers!
