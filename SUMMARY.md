@@ -1,14 +1,15 @@
 # Table of contents
 
 * [flutter\_map](README.md)
+* [How Does It Work?](explanation/README.md)
+  * [Raster vs Vector Tiles](explanation/raster-vs-vector-tiles.md)
 
 ## Getting Started
 
 * [Installation](getting-started/installation.md)
 * [Additional Setup](getting-started/additional-setup.md)
 * [Examples](https://github.com/fleaflet/flutter\_map/tree/master/example/lib/pages)
-* [How Does It Work?](getting-started/explanation/README.md)
-  * [Raster vs Vector Tiles](getting-started/explanation/raster-vs-vector-tiles.md)
+* [Migrating To v4](getting-started/migrating-to-v4.md)
 
 ## Usage
 
@@ -49,21 +50,8 @@
 * [Offline Mapping](http://localhost:5000/s/71h39XIuA0UETMZNP1yW/layers/tile-layer/tile-providers#offline-mapping)
 * [Other Options](tile-servers/other-options.md)
 
-## FAQs
-
-* [Frequently Asked Questions](faqs/frequently-asked-questions.md)
-* [Map Controller Issues](faqs/map-controller-issues.md)
-
-## Migration
-
-* [To v4.0.0](migration/to-v4.0.0.md)
-* [To v3.0.0](migration/to-v3.0.0.md)
-* [Older Versions](migration/older-versions/README.md)
-  * [To v2.0.0](migration/older-versions/to-v2.0.0.md)
-  * [To v1.1.0](migration/older-versions/to-v1.1.0.md)
-  * [To v1.0.0](migration/older-versions/to-v1.0.0.md)
-
 ***
 
+* [Frequently Asked Questions](frequently-asked-questions.md)
 * [Contributing](contributing.md)
 * [Credits](credits.md)

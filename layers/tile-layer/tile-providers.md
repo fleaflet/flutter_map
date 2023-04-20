@@ -4,7 +4,7 @@ description: ... and Offline Mapping
 
 # Tile Providers
 
-The `tileProvider` parameter in `TileLayer` takes a `TileProvider` object specifying a [tile provider](../../../getting-started/explanation/#tile-providers) to use for that layer.
+The `tileProvider` parameter in `TileLayer` takes a `TileProvider` object specifying a [tile provider](../../explanation/#tile-providers) to use for that layer.
 
 This has a default of `NetworkNoRetryTileProvider`, which is recommended for most setups for better performance, unless your tile server is especially unreliable, or you need a local tile provider.
 
@@ -65,7 +65,7 @@ If you have a raster-format .mbtiles file, for example from TileMill, you should
 
 The [community maintained plugin `flutter_map_tile_caching`](https://github.com/JaffaKetchup/flutter\_map\_tile\_caching) provides advanced caching and bulk downloading capability, which handles many surrounding and supporting features for you and your app, with minimal implementation effort.
 
-However, using simpler packages in a DIY solution can be a better option in some cases. You'll need to implement a custom `TileProvider` backed by an alternative image provider or cache lookup system: see [creating-new-tile-providers.md](../../../plugins/making-a-plugin/creating-new-tile-providers.md "mention").
+However, using simpler packages in a DIY solution can be a better option in some cases. You'll need to implement a custom `TileProvider` backed by an alternative image provider or cache lookup system: see [creating-new-tile-providers.md](../../plugins/making-a-plugin/creating-new-tile-providers.md "mention").
 
 To help choose whether FMTC or DIY is more appropriate for your usecase, please see:
 

@@ -16,7 +16,7 @@ Defaults to `LatLng(50.5, 30.51)`.
 
 Takes `double`s, but should usually be set initially to integers (in double format).
 
-For an explanation of zoom levels, see the [How Does It Work?](../../getting-started/explanation/#zoom) page.
+For an explanation of zoom levels, see the [How Does It Work?](../../explanation/#zoom) page.
 
 `zoom` specifies what the zoom level of the map should be when it is first built, defaulting to level 13. `maxZoom` specifies what the maximum zoom level can be, and should depend on your use case and/or tile server. `minZoom` specifies what the minimum zoom level can be, and should usually be set to 0/`null` default.
 

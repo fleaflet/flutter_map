@@ -1,8 +1,12 @@
+---
+description: aka. FAQs
+---
+
 # Frequently Asked Questions
 
 If you have a question you'd like to add to this page, please let us know over on the Discord server!
 
-You should also read the [explanation](../getting-started/explanation/ "mention") page for a more generalised overview of the most important facts.
+You should also read the [explanation](explanation/ "mention") page for a more generalised overview of the most important facts.
 
 <details>
 
@@ -14,9 +18,9 @@ Raster tiles are pre-rendered by the tile server, and cannot be changed on the f
 
 However, tilesets can be styled. This is the most effective way of using custom styles. These methods may help you with this:&#x20;
 
-* You may wish to use a commercial service like Mapbox Studio, which allows you to style multiple tilesets. See [using-mapbox.md](../tile-servers/using-mapbox.md "mention").
-* Alternatively, you can experiment with vector tiles. These are not pre-rendered, and so allow any style you desire to be applied on the fly. See [#vector-tiles](../getting-started/explanation/raster-vs-vector-tiles.md#vector-tiles "mention").
-* Your last option is to serve tiles yourself. See [other-options.md](../tile-servers/other-options.md "mention").
+* You may wish to use a commercial service like Mapbox Studio, which allows you to style multiple tilesets. See [using-mapbox.md](tile-servers/using-mapbox.md "mention").
+* Alternatively, you can experiment with vector tiles. These are not pre-rendered, and so allow any style you desire to be applied on the fly. See [#vector-tiles](explanation/raster-vs-vector-tiles.md#vector-tiles "mention").
+* Your last option is to serve tiles yourself. See [other-options.md](tile-servers/other-options.md "mention").
 
 </details>
 
@@ -32,7 +36,7 @@ See [#custom-tile-styles](frequently-asked-questions.md#custom-tile-styles "ment
 
 <summary>Routing/Navigation</summary>
 
-See [#routing-navigation](../layers/polyline-layer.md#routing-navigation "mention").
+See [#routing-navigation](layers/polyline-layer.md#routing-navigation "mention").
 
 </details>
 
