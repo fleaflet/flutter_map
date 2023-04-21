@@ -761,9 +761,7 @@ class FlutterMapState extends MapGestureMixin
       ?.mapState;
 
   static FlutterMapState of(BuildContext context) =>
-      context
-          .dependOnInheritedWidgetOfExactType<MapStateInheritedWidget>()
-          ?.mapState ??
+      maybeOf(context) ??
       (throw StateError(
           '`FlutterMapState.of()` should not be called outside a `FlutterMap` and its children'));
 }
