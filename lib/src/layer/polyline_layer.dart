@@ -77,7 +77,7 @@ class PolylineLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final map = FlutterMapState.maybeOf(context)!;
+    final map = FlutterMapState.of(context);
     final size = Size(map.size.x, map.size.y);
 
     final List<Polyline> lines = polylineCulling

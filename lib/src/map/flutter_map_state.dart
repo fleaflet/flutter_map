@@ -756,15 +756,16 @@ class FlutterMapState extends MapGestureMixin
   double _calculateScreenHeightInDegrees() =>
       options.screenSize!.height * 170.102258 / math.pow(2, zoom + 8);
 
-  static FlutterMapState? maybeOf(BuildContext context, {bool nullOk = false}) {
-    final widget =
-        context.dependOnInheritedWidgetOfExactType<MapStateInheritedWidget>();
-    if (nullOk || widget != null) {
-      return widget?.mapState;
-    }
-    throw FlutterError(
-        'MapState.of() called with a context that does not contain a FlutterMap.');
-  }
+  static FlutterMapState? maybeOf(BuildContext context) => context
+      .dependOnInheritedWidgetOfExactType<MapStateInheritedWidget>()
+      ?.mapState;
+
+  static FlutterMapState of(BuildContext context) =>
+      context
+          .dependOnInheritedWidgetOfExactType<MapStateInheritedWidget>()
+          ?.mapState ??
+      (throw StateError(
+          '`FlutterMapState.of()` should not be called outside a `FlutterMap` and its children'));
 }
 
 class _SafeArea {

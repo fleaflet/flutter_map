@@ -411,7 +411,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final map = FlutterMapState.maybeOf(context)!;
+    final map = FlutterMapState.of(context);
 
     //Handle movement
     final tileZoom = _clampZoom(map.zoom.roundToDouble());
