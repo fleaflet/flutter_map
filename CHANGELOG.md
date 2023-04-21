@@ -6,9 +6,10 @@
 
 Contains the following improvements:
 
-- 🎉 Reimplemented `TileLayer` and underlying systems - [#1475](https://github.com/fleaflet/flutter_map/pull/1475)
-- 🎉 Reimplemented attribution layers - [#1487](https://github.com/fleaflet/flutter_map/pull/1487) & [#1390](https://github.com/fleaflet/flutter_map/pull/1390)
+- Reimplemented `TileLayer` and underlying systems - [#1475](https://github.com/fleaflet/flutter_map/pull/1475)
+- Reimplemented attribution layers - [#1487](https://github.com/fleaflet/flutter_map/pull/1487) & [#1390](https://github.com/fleaflet/flutter_map/pull/1390)
 - Added secondary tap handling to `MapOptions` - [#1448](https://github.com/fleaflet/flutter_map/pull/1448) for [#1444](https://github.com/fleaflet/flutter_map/issues/1444)
+- Refactored `FlutterMapState`'s `maybeOf` method into `maybeOf` & `of` - [#1495](https://github.com/fleaflet/flutter_map/pull/1495)
 - Removed `LatLngBounds.pad` (unused and broken) method - [#1427](https://github.com/fleaflet/flutter_map/pull/1427)
 - Removed `absorbPanEventsOnScrollables` option - [#1455](https://github.com/fleaflet/flutter_map/pull/1455) for [#1454](https://github.com/fleaflet/flutter_map/issues/1454)
 - Removed leftover deprecations - [#1475](https://github.com/fleaflet/flutter_map/pull/1475)
@@ -24,7 +25,7 @@ Contains the following bug fixes:
 
 Contains the following performance and stability improvements:
 
-- 🎉 Batched polygon and polyline rendering to minimize redraws and maximize their efficiency - [#1442](https://github.com/fleaflet/flutter_map/pull/1442) & [#1462](https://github.com/fleaflet/flutter_map/pull/1462)
+- Batched polygon and polyline rendering to minimize redraws and maximize their efficiency - [#1442](https://github.com/fleaflet/flutter_map/pull/1442) & [#1462](https://github.com/fleaflet/flutter_map/pull/1462)
 - Added a threshold for rasterization to avoid excessive fixed overhead cost for cheap redraws - [#1462](https://github.com/fleaflet/flutter_map/pull/1462)
 
 Many thanks to these contributors (in no particular order):
@@ -36,7 +37,7 @@ Many thanks to these contributors (in no particular order):
 - @ianthetechie
 - ... and all the maintainers
 
-And an additional special thanks to @rorystephenson & @ignatz for investing so much of his time into this project recently - we appreciate it!
+And an additional special thanks to @rorystephenson & @ignatz for investing so much of their time into this project recently - we appreciate it!
 
 ## [3.1.0] - 2022/12/21
 
