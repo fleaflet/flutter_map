@@ -235,7 +235,7 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
                 context,
                 () {
                   setState(() => popupExpanded = true);
-                  mapEventSubscription = FlutterMapState.maybeOf(context)!
+                  mapEventSubscription = FlutterMapState.of(context)
                       .mapController
                       .mapEventStream
                       .listen((e) {

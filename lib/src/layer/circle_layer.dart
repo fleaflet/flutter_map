@@ -36,7 +36,7 @@ class CircleLayer extends StatelessWidget {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints bc) {
         final size = Size(bc.maxWidth, bc.maxHeight);
-        final map = FlutterMapState.maybeOf(context)!;
+        final map = FlutterMapState.of(context);
         final circleWidgets = <Widget>[];
         for (final circle in circles) {
           circle.offset = map.getOffsetFromOrigin(circle.point);
