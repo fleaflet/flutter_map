@@ -72,7 +72,7 @@ jobs:
       - name: Build Web Application
         run: flutter build web
       - name: Archive Artifact
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v3.1.2
         with:
           name: web-build
           path: example/build/web
@@ -100,7 +100,7 @@ jobs:
       - name: Build Android Application
         run: flutter build apk
       - name: Archive Artifact
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v3.1.2
         with:
           name: apk-build
           path: example/build/app/outputs/apk/release
@@ -128,10 +128,10 @@ jobs:
       - name: Build Windows Application
         run: flutter build windows
       - name: Create Windows Application Installer
-        run: iscc "tool/windowsApplicationInstallerSetup.iss"
+        run: iscc "windowsApplicationInstallerSetup.iss"
         working-directory: .
       - name: Archive Artifact
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v3.1.2
         with:
           name: exe-build
           path: windowsTemp/WindowsApplication.exe
