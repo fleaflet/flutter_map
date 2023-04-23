@@ -75,7 +75,8 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: web-build
-          path: build/web
+          path: example/build/web
+          if-no-files-found: error
   
   build-android:
     name: "Build Android Example App"
@@ -97,12 +98,13 @@ jobs:
         with:
           channel: "stable"
       - name: Build Android Application
-        run: flutter build apk --obfuscate --split-debug-info=/symbols
+        run: flutter build apk
       - name: Archive Artifact
         uses: actions/upload-artifact@master
         with:
           name: apk-build
-          path: build/app/outputs/apk/release
+          path: example/build/app/outputs/apk/release
+          if-no-files-found: error
   
   build-windows:
     name: "Build Windows Example App"
@@ -124,7 +126,7 @@ jobs:
         with:
           channel: "stable"
       - name: Build Windows Application
-        run: flutter build windows --obfuscate --split-debug-info=/symbols
+        run: flutter build windows
       - name: Create Windows Application Installer
         run: iscc "tool/windowsApplicationInstallerSetup.iss"
         working-directory: .
@@ -132,4 +134,5 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: exe-build
-          path: tool/windowsTemp/WindowsApplication.exe
+          path: windowsTemp/WindowsApplication.exe
+          if-no-files-found: error
