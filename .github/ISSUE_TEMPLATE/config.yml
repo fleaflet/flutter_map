@@ -1,11 +1,8 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Discord Server
+  - name: Get Help
     url: https://discord.gg/egEGeByf4q
-    about: Need more generalised help, or just want to talk? Join the Discord server!
-  - name: Common Issues
-    url: https://docs.fleaflet.dev/usage/common-issues
-    about: Check whether your issue is listed as a common issue in the documentation
-  - name: Plugins
-    url: https://docs.fleaflet.dev/plugins/list
-    about: If you need help with a plugin, please ask on their issue tracker first
+    about: Don't quite understand how to implement something, or just want to talk? Join the Discord server!
+  - name: Documentation
+    url: https://docs.fleaflet.dev/
+    about: Before posting an issue, please ensure you read the documentation thoroughly
