@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Map Example',
+      title: 'flutter_map Demo',
       theme: ThemeData.light(useMaterial3: true),
       home: const HomePage(),
       routes: <String, WidgetBuilder>{

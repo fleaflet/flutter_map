@@ -1,11 +1,11 @@
 {
-    "name": "flutter_map Example",
+    "name": "flutter_map Demo",
     "short_name": "flutter_map",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "A versatile mapping package for Flutter, based off leaflet.js, that's simple and easy to learn, yet completely customizable and configurable.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

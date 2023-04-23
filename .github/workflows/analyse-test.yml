@@ -1,9 +1,9 @@
-name: Analyse
+name: Analyse & Test
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
-  package-analysis:
-    name: "Analyse Package"
+  score-package:
+    name: "Score Package"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -24,29 +24,34 @@ jobs:
             exit 1
           fi
 
-  content-analysis:
-    name: "Analyse Contents"
+  analyse-code:
+    name: "Analyse Code"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-      - name: Setup Java 17 Environment
-        uses: actions/setup-java@v3
-        with:
-          distribution: "temurin"
-          java-version: "17"
       - name: Setup Flutter Environment
         uses: subosito/flutter-action@v2
         with:
           channel: "stable"
-      - name: Ensure Correct Flutter Installation
-        run: flutter --version
       - name: Get All Dependencies
         run: flutter pub get
       - name: Check Formatting
         run: dart format --output=none --set-exit-if-changed .
       - name: Check Lints
         run: dart analyze --fatal-infos --fatal-warnings
+
+  run-tests:
+    name: "Run Tests"
+    runs-on: ubuntu-latest
+    needs: analyse-code
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Setup Flutter Environment
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
       - name: Run Tests
         run: flutter test -r expanded
 

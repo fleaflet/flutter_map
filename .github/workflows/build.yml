@@ -1,0 +1,88 @@
+name: Build
+on:
+  workflow_run:
+    workflows: ["Analyse & Test"]
+    branches: [master]
+    types: 
+      - completed
+  workflow_call:
+
+jobs:
+  build-web:
+    name: "Build Web Example App"
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    defaults:
+      run:
+        working-directory: ./example
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Setup Flutter Environment
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+      - name: Build Web Application
+        run: flutter build web
+      - name: Archive Artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: web-build
+          path: build/web
+  
+  build-android:
+    name: "Build Android Example App"
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    defaults:
+      run:
+        working-directory: ./example
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Setup Java 17 Environment
+        uses: actions/setup-java@v3
+        with:
+          distribution: "temurin"
+          java-version: "17"
+      - name: Setup Flutter Environment
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+      - name: Build Android Application
+        run: flutter build apk --obfuscate --split-debug-info=/symbols
+      - name: Archive Artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: apk-build
+          path: build/app/outputs/apk/release
+  
+  build-windows:
+    name: "Build Windows Example App"
+    runs-on: windows-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    defaults:
+      run:
+        working-directory: ./example
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Setup Java 17 Environment
+        uses: actions/setup-java@v3
+        with:
+          distribution: "temurin"
+          java-version: "17"
+      - name: Setup Flutter Environment
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+      - name: Build Windows Application
+        run: flutter build windows --obfuscate --split-debug-info=/symbols
+      - name: Create Windows Application Installer
+        run: iscc "tool/windowsApplicationInstallerSetup.iss"
+        working-directory: .
+      - name: Archive Artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: exe-build
+          path: tool/windowsTemp/WindowsApplication.exe
