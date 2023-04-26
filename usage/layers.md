@@ -8,7 +8,7 @@ Multiple layers can be used - similar to a `Stack` - each one showing different 
 [Broken link](broken-reference)
 {% endcontent-ref %}
 
-<figure><img src="../.gitbook/assets/ExampleMap.png" alt="A map with multiple overlaid widgets"><figcaption><p>Example <code>FlutterMap</code>, containing a <code>Marker</code>, <code>Polyline</code>, <code>Polygon</code>, and <code>RichAttributionLayer</code></p></figcaption></figure>
+<figure><img src="../.gitbook/assets/ExampleMap.png" alt="Example Flutter Map widget, showing an OpenStreetMap map, with multiple shapes overlaid on it"><figcaption><p>Example <code>FlutterMap</code>, containing a <code>Marker</code>, <code>Polyline</code>, <code>Polygon</code>, and <code>RichAttributionLayer</code> on top of a <code>TileLayer</code></p></figcaption></figure>
 
 Each layer has its own configuration and handling, but can also access the map's state/configuration, as well as be controlled by it.
 

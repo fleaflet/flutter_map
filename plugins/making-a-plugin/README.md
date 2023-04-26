@@ -20,4 +20,4 @@ When submitting a plugin & PR, please ensure the plugin:
 
 If you want to provide extra assistance to your users in a shared space, consider the official 'flutter\_map' Discord server! Join using the link at the bottom of this page, and ping '@Github Maintainer' to be added to the 'Plugin Owner' role. You can then be easily identified and provide help or announcements in a dedicated plugins channel.
 
-[^1]: This includes detailed installation/setup information, as well as _at least_ basic functionality information in a README or docs site and a link to the full API docs that Dartdoc generates (preferably with detailed in-code documentation)
+[^1]: This includes detailed installation/setup information, as well as _at least_ basic functionality information in a README or docs site and a link to the full API docs that 'dartdoc' generates (preferably with detailed in-code documentation)

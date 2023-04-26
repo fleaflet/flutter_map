@@ -1,29 +1,21 @@
 # Additional Setup
 
-## All Platforms
+## Web
 
-It is recommended to also [install 'latlong2'](https://pub.dev/packages/latlong2/install) to expose the `LatLng` object used extensively throughout.
+{% hint style="warning" %}
+Always compile to web using the CanvasKit renderer instead of the HTML renderer, even on mobile devices.
 
-This can then be imported like this in any required files:
+Failure to do so leads to severely impacted performance. Additionally, some features may be broken - for example, tile fading doesn't work when rendering in HTML.
 
-```dart
-import 'package:latlong2/latlong.dart';
-```
-
-{% hint style="info" %}
-In the event that the `LatLng` object provided by this library conflicts with another, for example the one provided by Google Maps, you may need to [use the 'as' suffix](https://dart.dev/guides/packages#importing-libraries-from-packages).
+For more information about web renderers, see [https://docs.flutter.dev/platform-integration/web/renderers](https://docs.flutter.dev/platform-integration/web/renderers).
 {% endhint %}
-
-Additionally, other plugins (see [list.md](../plugins/list.md "mention")) might require other setup and/or permissions.
 
 ## Android
 
-On Android, additional setup may be required. To access the Internet to reach tile servers, ensure your app is configured to use the INTERNET permission. Check (and if necessary add) the following lines in the manifest file located at '/android/app/src/main/AndroidManifest.xml':
+flutter\_map needs to access the Internet to load tiles, in most cases. On Android, apps must include the INTERNET permission in their manifest. Add the following line to all manifests.
 
 {% code title="AndroidManifest.xml" %}
 ```xml
 <uses-permission android:name="android.permission.INTERNET"/>
 ```
 {% endcode %}
-
-You may also need to do this in any other applicable manifests, such as the profile one, if not already in there.

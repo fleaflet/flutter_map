@@ -24,9 +24,7 @@
 ## Layers
 
 * [Tile Layer](layers/tile-layer/README.md)
-  * [Recommended Options](layers/tile-layer/recommended-options.md)
   * [Tile Providers](layers/tile-layer/tile-providers.md)
-  * [Other Options](layers/tile-layer/other-options.md)
 * [Marker Layer](layers/marker-layer.md)
 * [Polygon Layer](layers/polygon-layer.md)
 * [Polyline Layer](layers/polyline-layer.md)

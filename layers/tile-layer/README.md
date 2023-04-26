@@ -1,37 +1,37 @@
+---
+description: CARTO/XYZ/Slippy Map Only
+---
+
 # Tile Layer
 
-{% hint style="info" %}
-This page (and subpages) only talks about WMTS-supporting raster layers, which is the most common and default type of mapping.
+The basis of any map is a `TileLayer`, which displays square raster images in a continuous grid, sourced from the Internet or a local file system.
 
-For information about WMS-supporting layers or vector tiles, visit the [wms-usage.md](../wms-usage.md "mention") page.
-{% endhint %}
+flutter\_map supports [wms-usage.md](../wms-usage.md "mention"), but most map tiles are accessed through the CARTO/XYZ/Slippy Map standard, where the mapping library (flutter\_map) fills in XYZ placeholders in a URL.
 
-A tile layer displays raster map tiles in a grid pattern, from a tile source such as a remote server or file system. This might look something like this:
+{% embed url="https://pub.dev/documentation/flutter_map/latest/flutter_map.plugin_api/TileLayer-class.html" %}
+Read the API documentation to find out all the available options
+{% endembed %}
 
-```dart
-FlutterMap(
-    options: MapOptions(),
-    children: [
-        TileLayer(
-          urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-          userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-        ),
-    ],
+<pre class="language-dart"><code class="lang-dart">TileLayer(
+  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+  <a data-footnote-ref href="#user-content-fn-1">userAgentPackageName</a>: 'dev.fleaflet.flutter_map.example',
 ),
-```
+</code></pre>
 
 {% hint style="danger" %}
 You must comply to your tile server's ToS. Failure to do so may result in you being banned from their services.
 
 The OpenStreetMap Tile Server (as used above) can be [found here](https://operations.osmfoundation.org/policies/tiles). Other servers may have different terms.
 
-This package is not responsible for your misuse of another tile server.
+This package is not responsible for your misuse of any tile server.
 {% endhint %}
 
-{% content-ref url="recommended-options.md" %}
-[recommended-options.md](recommended-options.md)
-{% endcontent-ref %}
+{% hint style="info" %}
+It is possible to use more than one tile layer, and can be used with transparency/opacity.
 
-{% content-ref url="other-options.md" %}
-[other-options.md](other-options.md)
-{% endcontent-ref %}
+The `children` list works like the children of a `Stack`: last is on top.
+{% endhint %}
+
+[^1]: This is a **strongly recommended** argument, as it describes your app to the tile server.
+
+    Failure to specify this will result in your app's traffic being grouped with other unspecified/general flutter\_map traffic, meaning that your app is more liable to being blocked.

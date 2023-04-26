@@ -1,26 +1,26 @@
 # Installation
 
-## From [pub.dev](https://pub.dev/packages/flutter\_map)
+{% hint style="success" %}
+All users should also [install 'latlong2'](https://pub.dev/packages/latlong2/install) to work with coordinates in 'flutter\_map'.
 
-This is the recommended method of installing this package as it ensures you only receive stable versions, and you can be sure pub.dev is reliable. It also keeps the size of your pubspec.yaml small.
+In the event that the `LatLng` object provided by that library conflicts with another, for example the one provided by Google Maps, you may need to [use the 'as' suffix](https://dart.dev/guides/packages#importing-libraries-from-packages).
+{% endhint %}
+
+## From [pub.dev](https://pub.dev/packages/flutter\_map)
 
 Just import the package as you would normally, from the command line:
 
-```bash
-flutter pub add flutter_map
-```
-
-{% hint style="success" %}
-This should automatically import the latest version of the package and create an entry for it in your pubspec.yaml. Otherwise follow the old method and add the latest version of the 'flutter\_map' dependency to the pubspec.yaml manually.
-{% endhint %}
+<pre class="language-bash"><code class="lang-bash"><strong>flutter pub add flutter_map
+</strong>flutter pub add latlong2
+</code></pre>
 
 ## From [github.com](https://github.com/fleaflet/flutter\_map)
-
-If you urgently need the latest version, a specific branch, or a specific fork, you can use this method.
 
 {% hint style="warning" %}
 Commits available from Git (GitHub) may not be stable. Only use this method if you have no other choice.
 {% endhint %}
+
+If you urgently need the latest version, a specific branch, or a specific fork, you can use this method.
 
 First, use [#from-pub.dev](installation.md#from-pub.dev "mention"), then add the following lines to your pubspec.yaml file, as a root object:
 
@@ -39,12 +39,11 @@ dependency_overrides:
 After installing the package, import it into the necessary files in your project:
 
 ```dart
-import 'package:flutter_map/flutter_map.dart'; // Suitable for most situations
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:flutter_map/plugin_api.dart'; // Only import if required functionality is not exposed by default
 ```
 
-{% hint style="success" %}
-This package should now be mostly setup! Make sure you follow through with the appropriate [Additional Setup](broken-reference) instructions for your platform.
-
+{% hint style="warning" %}
 Before continuing with usage, make sure you comply with the appropriate rules and ToS for your server. Some have stricter rules than others. This package or the creator(s) are not responsible for any violations you make using this package.
 {% endhint %}

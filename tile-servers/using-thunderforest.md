@@ -11,5 +11,5 @@ Thunderstorm's documentation page: [thunderforest.com/docs/map-tiles-api](https:
 Thunderforest is a popular tiered-payment (with free tier) tile provider solution, especially for generic mapping applications. Note that using 'flutter\_map' uses up your 'Map Tiles API' requests.
 
 {% embed url="https://www.thunderforest.com/tutorials/flutter/" %}
-Visit our documentation over on Thunderforest's site
+Visit our documentation over on Thunderforest's site (may be outdated)
 {% endembed %}

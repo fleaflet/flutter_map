@@ -3,7 +3,7 @@
 You can add single point features - such as pins, labels, or markers - to maps using `MarkerLayer` and `Marker`s.
 
 {% hint style="success" %}
-No more image only markers! Unlike _other_ popular mapping libraries, we allow usage of any widget as the marker.
+No more image only markers! Unlike _other_ 😉[^1] popular mapping libraries, we allow usage of any widget as the marker.
 {% endhint %}
 
 {% embed url="https://pub.dev/documentation/flutter_map/latest/flutter_map.plugin_api/MarkerLayer-class.html" %}
@@ -34,3 +34,5 @@ Consider using a clustering plugin to merge nearby markers together, reducing th
 ## Rotation
 
 Marker rotation support isn't built in (other than counter rotating to the map, to ensure the marker is always displayed right side up), but can easily be implemented through a rotation widget, such as `Transform.rotate`.
+
+[^1]: Google Maps \*wink \*wink
