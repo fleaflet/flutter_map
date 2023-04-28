@@ -433,7 +433,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
           !(const MapEquality<String, String>())
               .equals(oldOptions, newOptions)) {
         _tileImageManager.reloadImages(widget, _tileBounds);
-        _loadAndPruneInVisibleBounds(FlutterMapState.maybeOf(context)!);
       }
     }
 
