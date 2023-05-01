@@ -139,8 +139,10 @@ class TileImage extends ChangeNotifier {
       if (_imageStream!.key != oldImageStream?.key) {
         oldImageStream?.removeListener(_listener);
 
-        _listener = ImageStreamListener(_onImageLoadSuccess,
-            onError: _onImageLoadError);
+        _listener = ImageStreamListener(
+          _onImageLoadSuccess,
+          onError: _onImageLoadError,
+        );
         _imageStream!.addListener(_listener);
       }
     } catch (e, s) {
