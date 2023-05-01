@@ -1,3 +1,4 @@
+import 'package:flutter_map/src/core/point.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Event sources which are used to identify different types of
@@ -21,6 +22,7 @@ enum MapEventSource {
   fitBounds,
   custom,
   scrollWheel,
+  nonRotatedSizeChange,
 }
 
 /// Base event class which is emitted by MapController instance, the event
@@ -59,6 +61,59 @@ abstract class MapEventWithMove extends MapEvent {
     required super.center,
     required super.zoom,
   });
+
+  /// Returns a subclass of [MapEventWithMove] if the [source] belongs to a
+  /// movement event, otherwise returns null.
+  static MapEventWithMove? fromSource({
+    required LatLng targetCenter,
+    required double targetZoom,
+    required LatLng oldCenter,
+    required double oldZoom,
+    required bool hasGesture,
+    required MapEventSource source,
+    String? id,
+  }) {
+    switch (source) {
+      case MapEventSource.flingAnimationController:
+        return MapEventFlingAnimation(
+          center: oldCenter,
+          zoom: oldZoom,
+          targetCenter: targetCenter,
+          targetZoom: targetZoom,
+          source: source,
+        );
+      case MapEventSource.doubleTapZoomAnimationController:
+        return MapEventDoubleTapZoom(
+          center: oldCenter,
+          zoom: oldZoom,
+          targetCenter: targetCenter,
+          targetZoom: targetZoom,
+          source: source,
+        );
+      case MapEventSource.scrollWheel:
+        return MapEventScrollWheelZoom(
+          center: oldCenter,
+          zoom: oldZoom,
+          targetCenter: targetCenter,
+          targetZoom: targetZoom,
+          source: source,
+        );
+      case MapEventSource.onDrag:
+      case MapEventSource.onMultiFinger:
+      case MapEventSource.mapController:
+      case MapEventSource.custom:
+        return MapEventMove(
+          id: id,
+          center: oldCenter,
+          zoom: oldZoom,
+          targetCenter: targetCenter,
+          targetZoom: targetZoom,
+          source: source,
+        );
+      default:
+        return null;
+    }
+  }
 }
 
 /// Event which is fired when map is tapped
@@ -256,6 +311,16 @@ class MapEventRotateStart extends MapEvent {
 class MapEventRotateEnd extends MapEvent {
   const MapEventRotateEnd({
     required super.source,
+    required super.center,
+    required super.zoom,
+  });
+}
+
+class MapEventNonRotatedSizeChange extends MapEvent {
+  const MapEventNonRotatedSizeChange({
+    required super.source,
+    required CustomPoint<double> previousNonRotatedSize,
+    required CustomPoint<double> nonRotatedSize,
     required super.center,
     required super.zoom,
   });

@@ -555,8 +555,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
     final direction = details.velocity.pixelsPerSecond / magnitude;
     final distance = (Offset.zero &
-            Size(mapState.nonrotatedSize!.x as double,
-                mapState.nonrotatedSize!.y as double))
+            Size(mapState.nonrotatedSize!.x, mapState.nonrotatedSize!.y))
         .shortestSide;
 
     final flingOffset = _focalStartLocal - _lastFocalLocal;

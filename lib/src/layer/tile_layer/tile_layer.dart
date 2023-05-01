@@ -375,12 +375,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       );
     }
 
-    if (reloadTiles) {
-      _tryWaitForSizeToBeInitialized(
-        mapState,
-        () => _loadAndPruneInVisibleBounds(mapState),
-      );
-    }
+    if (reloadTiles) _loadAndPruneInVisibleBounds(mapState);
 
     _initializedFromMapState = true;
   }
@@ -658,27 +653,4 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   bool _outsideZoomLimits(num zoom) =>
       zoom < widget.minZoom || zoom > widget.maxZoom;
-
-  // A workaround for the fact that FlutterMapState size initialization has a
-  // race condition where sometimes the size is set to CustomPoint(0,0) before
-  // it is set to the correct value. When this occurs, code that relies on the
-  // visible bounds will not work correctly. Sometimes it requires more than
-  // one postFrameCallback to get a non zero size.
-  void _tryWaitForSizeToBeInitialized(
-    FlutterMapState mapState,
-    VoidCallback callback, {
-    int retries = 3,
-  }) {
-    if (retries >= 0 && mapState.size == const CustomPoint(0, 0)) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _tryWaitForSizeToBeInitialized(
-          mapState,
-          callback,
-          retries: retries - 1,
-        );
-      });
-    } else {
-      callback();
-    }
-  }
 }
