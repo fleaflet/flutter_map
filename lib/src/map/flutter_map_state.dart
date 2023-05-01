@@ -156,15 +156,17 @@ class FlutterMapState extends MapGestureMixin
             onSecondaryTap: handleSecondaryTap,
             onLongPress: handleLongPress,
             onDoubleTap: handleDoubleTap,
-            child:
-                RawGestureDetector(gestures: gestures, child: _buildMap(size)),
+            child: RawGestureDetector(
+              gestures: gestures,
+              child: _buildMap(),
+            ),
           ),
         ),
       );
     });
   }
 
-  Widget _buildMap(CustomPoint<double> size) {
+  Widget _buildMap() {
     return ClipRect(
       child: Stack(
         children: [
