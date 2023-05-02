@@ -16,7 +16,11 @@ enum EvictErrorTileStrategy {
   notVisible,
 }
 
-typedef ErrorTileCallBack = void Function(Tile tile, dynamic error);
+typedef ErrorTileCallBack = void Function(
+  TileImage tile,
+  Object error,
+  StackTrace? stackTrace,
+);
 
 class WMSTileLayerOptions {
   final service = 'WMS';
@@ -85,15 +89,15 @@ class WMSTileLayerOptions {
     return buffer.toString();
   }
 
-  String getUrl(Coords coords, int tileSize, bool retinaMode) {
+  String getUrl(TileCoordinates coords, int tileSize, bool retinaMode) {
     final tileSizePoint = CustomPoint(tileSize, tileSize);
-    final nvPoint = coords.scaleBy(tileSizePoint);
-    final sePoint = nvPoint + tileSizePoint;
-    final nvCoords = crs.pointToLatLng(nvPoint, coords.z as double)!;
-    final seCoords = crs.pointToLatLng(sePoint, coords.z as double)!;
-    final nv = crs.projection.project(nvCoords);
+    final nwPoint = coords.scaleBy(tileSizePoint);
+    final sePoint = nwPoint + tileSizePoint;
+    final nwCoords = crs.pointToLatLng(nwPoint, coords.z.toDouble())!;
+    final seCoords = crs.pointToLatLng(sePoint, coords.z.toDouble())!;
+    final nw = crs.projection.project(nwCoords);
     final se = crs.projection.project(seCoords);
-    final bounds = Bounds(nv, se);
+    final bounds = Bounds(nw, se);
     final bbox = (_versionNumber >= 1.3 && crs is Epsg4326)
         ? [bounds.min.y, bounds.min.x, bounds.max.y, bounds.max.x]
         : [bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y];

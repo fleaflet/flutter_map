@@ -1,7 +1,7 @@
 name: flutter_map_example
 description: Example application for 'flutter_map' package
 publish_to: "none"
-version: 1.0.0
+version: 4.0.0
 
 environment:
   sdk: ">=2.18.0 <3.0.0"
@@ -61,3 +61,4 @@ flutter:
     - assets/map/anholt_osmbright/14/8726/
     - assets/map/anholt_osmbright/14/8727/
     - assets/map/epsg3413/amsr2.png
+    - assets/

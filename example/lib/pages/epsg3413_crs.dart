@@ -150,16 +150,18 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
                   ),
                 ],
                 children: [
-                  TileLayer(
+                  Opacity(
                     opacity: 1,
-                    backgroundColor: Colors.transparent,
-                    wmsOptions: WMSTileLayerOptions(
-                      crs: epsg3413CRS,
-                      transparent: true,
-                      format: 'image/jpeg',
-                      baseUrl:
-                          'https://www.gebco.net/data_and_products/gebco_web_services/north_polar_view_wms/mapserv?',
-                      layers: ['gebco_north_polar_view'],
+                    child: TileLayer(
+                      backgroundColor: Colors.transparent,
+                      wmsOptions: WMSTileLayerOptions(
+                        crs: epsg3413CRS,
+                        transparent: true,
+                        format: 'image/jpeg',
+                        baseUrl:
+                            'https://www.gebco.net/data_and_products/gebco_web_services/north_polar_view_wms/mapserv?',
+                        layers: ['gebco_north_polar_view'],
+                      ),
                     ),
                   ),
                   OverlayImageLayer(

@@ -480,11 +480,15 @@ abstract class MapGestureMixin extends State<FlutterMap>
             if (_rotationStarted) {
               final rotationDiff = currentRotation - _lastRotation;
               final oldCenterPt = mapState.project(mapState.center);
-              final rotationCenter  = mapState.project(_offsetToCrs(_lastFocalLocal));
+              final rotationCenter =
+                  mapState.project(_offsetToCrs(_lastFocalLocal));
               final vector = oldCenterPt - rotationCenter;
               final rotatedVector = vector.rotate(degToRadian(rotationDiff));
               final newCenter = rotationCenter + rotatedVector;
-              mapMoved = mapState.move(mapState.unproject(newCenter), mapState.zoom, source: eventSource) || mapMoved;
+              mapMoved = mapState.move(
+                      mapState.unproject(newCenter), mapState.zoom,
+                      source: eventSource) ||
+                  mapMoved;
               mapRotated = mapState.rotate(
                 mapState.rotation + rotationDiff,
                 hasGesture: true,
@@ -551,8 +555,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
     final direction = details.velocity.pixelsPerSecond / magnitude;
     final distance = (Offset.zero &
-            Size(mapState.nonrotatedSize!.x as double,
-                mapState.nonrotatedSize!.y as double))
+            Size(mapState.nonrotatedSize!.x, mapState.nonrotatedSize!.y))
         .shortestSide;
 
     final flingOffset = _focalStartLocal - _lastFocalLocal;

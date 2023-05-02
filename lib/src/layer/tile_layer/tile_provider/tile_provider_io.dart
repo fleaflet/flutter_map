@@ -1,12 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/widgets.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/retry.dart';
-
-import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provider.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network_image_provider.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network_no_retry_image_provider.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/retry.dart';
 
 /// [TileProvider] that uses [FMNetworkImageProvider] internally
 ///
@@ -29,11 +30,11 @@ class NetworkTileProvider extends TileProvider {
   final http.Client httpClient;
 
   @override
-  ImageProvider getImage(Coords<num> coords, TileLayer options) =>
+  ImageProvider getImage(TileCoordinates coordinates, TileLayer options) =>
       HttpOverrides.runZoned<FMNetworkImageProvider>(
         () => FMNetworkImageProvider(
-          getTileUrl(coords, options),
-          fallbackUrl: getTileFallbackUrl(coords, options),
+          getTileUrl(coordinates, options),
+          fallbackUrl: getTileFallbackUrl(coordinates, options),
           headers: headers,
           httpClient: httpClient,
         ),
@@ -62,10 +63,10 @@ class NetworkNoRetryTileProvider extends TileProvider {
   late final HttpClient httpClient;
 
   @override
-  ImageProvider getImage(Coords<num> coords, TileLayer options) =>
+  ImageProvider getImage(TileCoordinates coordinates, TileLayer options) =>
       FMNetworkNoRetryImageProvider(
-        getTileUrl(coords, options),
-        fallbackUrl: getTileFallbackUrl(coords, options),
+        getTileUrl(coordinates, options),
+        fallbackUrl: getTileFallbackUrl(coordinates, options),
         headers: headers,
         httpClient: httpClient,
       );
@@ -78,18 +79,18 @@ class NetworkNoRetryTileProvider extends TileProvider {
 /// [TileProvider]s. Instead, visit the online documentation at
 /// https://docs.fleaflet.dev/plugins/making-a-plugin/creating-new-tile-providers.
 class CustomTileProvider extends TileProvider {
-  final String Function(Coords coors, TileLayer options) customTileUrl;
+  final String Function(TileCoordinates coors, TileLayer options) customTileUrl;
 
   CustomTileProvider({required this.customTileUrl});
 
   @override
-  String getTileUrl(Coords coords, TileLayer options) {
-    return customTileUrl(coords, options);
+  String getTileUrl(TileCoordinates coordinates, TileLayer options) {
+    return customTileUrl(coordinates, options);
   }
 
   @override
-  ImageProvider getImage(Coords<num> coords, TileLayer options) {
-    return AssetImage(getTileUrl(coords, options));
+  ImageProvider getImage(TileCoordinates coordinates, TileLayer options) {
+    return AssetImage(getTileUrl(coordinates, options));
   }
 }
 
