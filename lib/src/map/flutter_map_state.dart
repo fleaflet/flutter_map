@@ -12,6 +12,8 @@ import 'package:latlong2/latlong.dart';
 
 class FlutterMapState extends MapGestureMixin
     with AutomaticKeepAliveClientMixin {
+  static const invalidSize = CustomPoint<double>(-1, -1);
+
   final _positionedTapController = PositionedTapController();
   final GestureArenaTeam _team = GestureArenaTeam();
 
@@ -240,25 +242,23 @@ class FlutterMapState extends MapGestureMixin
   Bounds<double> get pixelBounds => _pixelBounds;
 
   // Original size of the map where rotation isn't calculated
-  CustomPoint<double>? _nonrotatedSize;
+  CustomPoint<double> _nonrotatedSize = invalidSize;
 
-  CustomPoint<double>? get nonrotatedSize => _nonrotatedSize;
+  CustomPoint<double> get nonrotatedSize => _nonrotatedSize;
 
   void setSize(double width, double height) {
-    if (_nonrotatedSize == null ||
-        _nonrotatedSize!.x != width ||
-        _nonrotatedSize!.y != height) {
+    if (_nonrotatedSize.x != width || _nonrotatedSize.y != height) {
       final previousNonRotatedSize = _nonrotatedSize;
 
       _nonrotatedSize = CustomPoint<double>(width, height);
       _updateSizeByOriginalSizeAndRotation();
 
-      if (previousNonRotatedSize != null) {
+      if (previousNonRotatedSize != invalidSize) {
         emitMapEvent(
           MapEventNonRotatedSizeChange(
             source: MapEventSource.nonRotatedSizeChange,
             previousNonRotatedSize: previousNonRotatedSize,
-            nonRotatedSize: _nonrotatedSize!,
+            nonRotatedSize: _nonrotatedSize,
             center: center,
             zoom: zoom,
           ),
@@ -268,13 +268,13 @@ class FlutterMapState extends MapGestureMixin
   }
 
   // Extended size of the map where rotation is calculated
-  CustomPoint<double>? _size;
+  CustomPoint<double> _size = invalidSize;
 
-  CustomPoint<double> get size => _size ?? const CustomPoint(0, 0);
+  CustomPoint<double> get size => _size;
 
   void _updateSizeByOriginalSizeAndRotation() {
-    final originalWidth = _nonrotatedSize!.x;
-    final originalHeight = _nonrotatedSize!.y;
+    final originalWidth = _nonrotatedSize.x;
+    final originalHeight = _nonrotatedSize.y;
 
     if (_rotation != 0.0) {
       final cosAngle = math.cos(rotationRad).abs();
@@ -599,7 +599,7 @@ class FlutterMapState extends MapGestureMixin
   // outside of FlutterMap layer space. Eg using a Positioned Widget.
   CustomPoint<double> latLngToScreenPoint(LatLng latLng) {
     final nonRotatedPixelOrigin =
-        (project(_center, zoom) - nonrotatedSize! / 2.0).round();
+        (project(_center, zoom) - _nonrotatedSize / 2.0).round();
 
     var point = options.crs.latLngToPoint(latLng, zoom);
 
@@ -613,11 +613,9 @@ class FlutterMapState extends MapGestureMixin
   }
 
   LatLng? pointToLatLng(CustomPoint localPoint) {
-    if (nonrotatedSize == null) return null;
-
     final localPointCenterDistance = CustomPoint(
-      (nonrotatedSize!.x / 2) - localPoint.x,
-      (nonrotatedSize!.y / 2) - localPoint.y,
+      (_nonrotatedSize.x / 2) - localPoint.x,
+      (_nonrotatedSize.y / 2) - localPoint.y,
     );
     final mapCenter = options.crs.latLngToPoint(center, zoom);
 
