@@ -270,7 +270,7 @@ class FlutterMapState extends MapGestureMixin
   // Extended size of the map where rotation is calculated
   CustomPoint<double>? _size;
 
-  CustomPoint<double> get size => _size ?? const CustomPoint(0.0, 0.0);
+  CustomPoint<double> get size => _size ?? const CustomPoint(0, 0);
 
   void _updateSizeByOriginalSizeAndRotation() {
     final originalWidth = _nonrotatedSize!.x;
@@ -469,7 +469,7 @@ class FlutterMapState extends MapGestureMixin
     final se = bounds.southEast;
     var size = this.size - padding;
     // Prevent negative size which results in NaN zoom value later on in the calculation
-    size = CustomPoint(math.max(0.0, size.x), math.max(0.0, size.y));
+    size = CustomPoint(math.max(0, size.x), math.max(0, size.y));
     final boundsSize = Bounds(project(se, zoom), project(nw, zoom)).size;
     final scaleX = size.x / boundsSize.x;
     final scaleY = size.y / boundsSize.y;

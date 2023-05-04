@@ -56,8 +56,8 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
     ];
 
     final epsg3413Bounds = Bounds<double>(
-      const CustomPoint<double>(-4511619.0, -4511336.0),
-      const CustomPoint<double>(4510883.0, 4510996.0),
+      const CustomPoint<double>(-4511619, -4511336),
+      const CustomPoint<double>(4510883, 4510996),
     );
 
     maxZoom = (resolutions.length - 1).toDouble();

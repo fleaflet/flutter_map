@@ -18,7 +18,7 @@ class LatLngScreenPointTestPage extends StatefulWidget {
 class _LatLngScreenPointTestPageState extends State<LatLngScreenPointTestPage> {
   late final MapController _mapController;
 
-  CustomPoint _textPos = const CustomPoint(10.0, 10.0);
+  CustomPoint<double> _textPos = const CustomPoint(10, 10);
 
   @override
   void initState() {

@@ -29,7 +29,7 @@ abstract class Crs {
       final scale = this.scale(zoom);
       return transformation.transform(projectedPoint, scale.toDouble());
     } catch (e) {
-      return const CustomPoint(0.0, 0.0);
+      return const CustomPoint(0, 0);
     }
   }
 
@@ -244,7 +244,7 @@ class Proj4Crs extends Crs {
 
       return transformation.transform(projectedPoint, scale.toDouble());
     } catch (e) {
-      return const CustomPoint(0.0, 0.0);
+      return const CustomPoint(0, 0);
     }
   }
 
@@ -370,8 +370,7 @@ abstract class Projection {
 
 class _LonLat extends Projection {
   static final Bounds<double> _bounds = Bounds<double>(
-      const CustomPoint<double>(-180.0, -90.0),
-      const CustomPoint<double>(180.0, 90.0));
+      const CustomPoint<double>(-180, -90), const CustomPoint<double>(180, 90));
 
   const _LonLat() : super();
 
