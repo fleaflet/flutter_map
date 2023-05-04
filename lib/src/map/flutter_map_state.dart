@@ -542,7 +542,7 @@ class FlutterMapState extends MapGestureMixin
     final right = math.max(swPixel.x, nePixel.x);
     final top = math.min(swPixel.y, nePixel.y);
     final bottom = math.max(swPixel.y, nePixel.y);
-    
+
     // It could be possible than size was greater than width or height available.
     // In this case, will decrease the halfSize to the smallest.
     final halfSizeX = math.min(size.x, right - left) / 2;
