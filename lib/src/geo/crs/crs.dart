@@ -46,8 +46,8 @@ abstract class Crs {
   }
 
   /// Zoom to Scale function.
-  num scale(double zoom) {
-    return 256 * math.pow(2, zoom);
+  double scale(double zoom) {
+    return 256.0 * math.pow(2, zoom);
   }
 
   /// Scale to Zoom function.
@@ -280,7 +280,7 @@ class Proj4Crs extends Crs {
 
   /// Zoom to Scale function.
   @override
-  num scale(double zoom) {
+  double scale(double zoom) {
     final iZoom = zoom.floor();
     if (zoom == iZoom) {
       return _scales[iZoom];
