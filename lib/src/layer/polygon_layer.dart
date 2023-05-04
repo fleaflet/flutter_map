@@ -5,7 +5,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/label.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:latlong2/latlong.dart' hide Path; // conflict with Path from UI
-import 'package:flutter/foundation.dart' show kIsWeb;
 
 enum PolygonLabelPlacement {
   centroid,
@@ -79,32 +78,25 @@ class PolygonLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final map = FlutterMapState.maybeOf(context)!;
+    final map = FlutterMapState.of(context);
     final size = Size(map.size.x, map.size.y);
-    final origin = map.pixelOrigin;
-    final offset = Offset(origin.x.toDouble(), origin.y.toDouble());
 
-    final Iterable<Polygon> pgons = polygonCulling
+    final List<Polygon> pgons = polygonCulling
         ? polygons.where((p) {
             return p.boundingBox.isOverlapping(map.bounds);
-          })
+          }).toList()
         : polygons;
 
-    final paint = CustomPaint(
+    return CustomPaint(
       painter: PolygonPainter(pgons, map),
       size: size,
       isComplex: true,
-    );
-    return Positioned(
-      left: -offset.dx,
-      top: -offset.dy,
-      child: kIsWeb ? paint : RepaintBoundary(child: paint),
     );
   }
 }
 
 class PolygonPainter extends CustomPainter {
-  final Iterable<Polygon> polygons;
+  final List<Polygon> polygons;
   final FlutterMapState map;
   final double zoom;
   final double rotation;
@@ -122,8 +114,7 @@ class PolygonPainter extends CustomPainter {
 
   List<Offset> getOffsets(List<LatLng> points) {
     return List.generate(points.length, (index) {
-      final delta = map.project(points[index]);
-      return Offset(delta.x.toDouble(), delta.y.toDouble());
+      return map.getOffsetFromOrigin(points[index]);
     }, growable: false);
   }
 
@@ -282,9 +273,9 @@ class PolygonPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(PolygonPainter oldDelegate) {
-    return kIsWeb ||
-        oldDelegate.zoom != zoom ||
+    return oldDelegate.zoom != zoom ||
         oldDelegate.rotation != rotation ||
+        oldDelegate.polygons.length != polygons.length ||
         oldDelegate.hash != hash;
   }
 }

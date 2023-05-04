@@ -136,7 +136,7 @@ class OverlayImageLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final map = FlutterMapState.maybeOf(context)!;
+    final map = FlutterMapState.of(context);
     return ClipRect(
       child: Stack(
         children: <Widget>[

@@ -2,17 +2,17 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_map/src/layer/tile_layer/coords.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provider.dart';
 
 class AssetTileProvider extends TileProvider {
   @override
-  AssetImage getImage(Coords<num> coords, TileLayer options) {
+  AssetImage getImage(TileCoordinates coordinates, TileLayer options) {
     return AssetImage(
-      getTileUrl(coords, options),
+      getTileUrl(coordinates, options),
       bundle: _FlutterMapAssetBundle(
-        fallbackKey: getTileFallbackUrl(coords, options),
+        fallbackKey: getTileFallbackUrl(coordinates, options),
       ),
     );
   }

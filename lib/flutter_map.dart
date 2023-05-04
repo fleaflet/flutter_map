@@ -4,11 +4,9 @@ import 'dart:async';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
-import 'package:latlong2/latlong.dart';
-import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
-
 import 'package:flutter_map/src/core/center_zoom.dart';
 import 'package:flutter_map/src/core/point.dart';
+import 'package:flutter_map/src/core/positioned_tap_detector_2.dart';
 import 'package:flutter_map/src/geo/crs/crs.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/gestures/interactive_flag.dart';
@@ -16,30 +14,38 @@ import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/map.dart';
+import 'package:latlong2/latlong.dart';
 
 export 'package:flutter_map/src/core/center_zoom.dart';
 export 'package:flutter_map/src/core/point.dart';
+export 'package:flutter_map/src/core/positioned_tap_detector_2.dart';
 export 'package:flutter_map/src/geo/crs/crs.dart';
 export 'package:flutter_map/src/geo/latlng_bounds.dart';
 export 'package:flutter_map/src/gestures/interactive_flag.dart';
 export 'package:flutter_map/src/gestures/map_events.dart';
 export 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
-export 'package:flutter_map/src/layer/attribution_layer.dart';
+export 'package:flutter_map/src/layer/attribution_layer/animation.dart';
+export 'package:flutter_map/src/layer/attribution_layer/rich.dart';
+export 'package:flutter_map/src/layer/attribution_layer/simple.dart';
+export 'package:flutter_map/src/layer/attribution_layer/source.dart';
 export 'package:flutter_map/src/layer/circle_layer.dart';
 export 'package:flutter_map/src/layer/marker_layer.dart';
 export 'package:flutter_map/src/layer/overlay_image_layer.dart';
 export 'package:flutter_map/src/layer/polygon_layer.dart';
 export 'package:flutter_map/src/layer/polyline_layer.dart';
-export 'package:flutter_map/src/layer/tile_layer/coords.dart';
-export 'package:flutter_map/src/layer/tile_layer/tile.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_builder.dart';
+export 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
+export 'package:flutter_map/src/layer/tile_layer/tile_display.dart';
+export 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
-export 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provider.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_provider/asset_tile_provider.dart';
+export 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provider.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_provider/file_tile_provider_io.dart'
     if (dart.library.html) 'package:flutter_map/src/layer/tile_layer/tile_provider/file_tile_provider_web.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_provider/tile_provider_io.dart'
     if (dart.library.html) 'package:flutter_map/src/layer/tile_layer/tile_provider/tile_provider_web.dart';
+export 'package:flutter_map/src/layer/tile_layer/tile_update_event.dart';
+export 'package:flutter_map/src/layer/tile_layer/tile_update_transformer.dart';
 
 /// Renders a map composed of a list of layers powered by [LayerOptions].
 ///
@@ -144,14 +150,22 @@ abstract class MapController {
 
 typedef TapCallback = void Function(TapPosition tapPosition, LatLng point);
 typedef LongPressCallback = void Function(
-    TapPosition tapPosition, LatLng point);
+  TapPosition tapPosition,
+  LatLng point,
+);
 typedef PointerDownCallback = void Function(
-    PointerDownEvent event, LatLng point);
+  PointerDownEvent event,
+  LatLng point,
+);
 typedef PointerUpCallback = void Function(PointerUpEvent event, LatLng point);
 typedef PointerCancelCallback = void Function(
-    PointerCancelEvent event, LatLng point);
+  PointerCancelEvent event,
+  LatLng point,
+);
 typedef PointerHoverCallback = void Function(
-    PointerHoverEvent event, LatLng point);
+  PointerHoverEvent event,
+  LatLng point,
+);
 typedef PositionCallback = void Function(MapPosition position, bool hasGesture);
 typedef MapEventCallback = void Function(MapEvent);
 
@@ -161,8 +175,8 @@ typedef MapEventCallback = void Function(MapEvent);
 /// over [center].
 /// Zoom, pan boundary and interactivity constraints can be specified here too.
 ///
-/// Callbacks for [onTap], [onLongPress] and [onPositionChanged] can be
-/// registered here.
+/// Callbacks for [onTap], [onSecondaryTap], [onLongPress] and
+/// [onPositionChanged] can be registered here.
 ///
 /// Through [crs] the Coordinate Reference System can be
 /// defined, it defaults to [Epsg3857].
@@ -242,9 +256,8 @@ class MapOptions {
   /// see [InteractiveFlag] for custom settings
   final int interactiveFlags;
 
-  final bool absorbPanEventsOnScrollables;
-
   final TapCallback? onTap;
+  final TapCallback? onSecondaryTap;
   final LongPressCallback? onLongPress;
   final PointerDownCallback? onPointerDown;
   final PointerUpCallback? onPointerUp;
@@ -283,7 +296,6 @@ class MapOptions {
   final bool keepAlive;
 
   MapOptions({
-    this.absorbPanEventsOnScrollables = true,
     this.crs = const Epsg3857(),
     LatLng? center,
     this.bounds,
@@ -306,6 +318,7 @@ class MapOptions {
     this.maxZoom,
     this.interactiveFlags = InteractiveFlag.all,
     this.onTap,
+    this.onSecondaryTap,
     this.onLongPress,
     this.onPointerDown,
     this.onPointerUp,
@@ -333,14 +346,6 @@ class MapOptions {
 class FitBoundsOptions {
   final EdgeInsets padding;
   final double maxZoom;
-
-  /// This property is deprecated and unused internally. It will be removed in a
-  /// future major update
-  // TODO: remove this property
-  @Deprecated(
-    'This property is unused internally and will be removed in a future major update',
-  )
-  final double? zoom;
   final bool inside;
 
   /// By default calculations will return fractional zoom levels.
@@ -351,8 +356,6 @@ class FitBoundsOptions {
   const FitBoundsOptions({
     this.padding = EdgeInsets.zero,
     this.maxZoom = 17.0,
-    @Deprecated('This property is unused and will be removed in the next major release.')
-        this.zoom,
     this.inside = false,
     this.forceIntegerZoomLevel = false,
   });

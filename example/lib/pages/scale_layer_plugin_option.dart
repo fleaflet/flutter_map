@@ -52,7 +52,7 @@ class ScaleLayerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final map = FlutterMapState.maybeOf(context)!;
+    final map = FlutterMapState.of(context);
     final zoom = map.zoom;
     final distance = scale[max(0, min(20, zoom.round() + 2))].toDouble();
     final center = map.center;

@@ -30,11 +30,14 @@
 .pub-cache/
 .pub/
 /build/
+
+# Gets generated when running the app and we don't need anything special in the
+# Podfile so we can ignore it and let flutter generate it.
+ios/Podfile
 # TODO: document why we don't want this file
 pubspec.lock
 
 # Web related
-lib/generated_plugin_registrant.dart
 
 # Symbolication related
 app.*.symbols

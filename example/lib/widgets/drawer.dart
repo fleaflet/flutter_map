@@ -5,7 +5,6 @@ import 'package:flutter_map_example/pages/circle.dart';
 import 'package:flutter_map_example/pages/custom_crs/custom_crs.dart';
 import 'package:flutter_map_example/pages/epsg3413_crs.dart';
 import 'package:flutter_map_example/pages/epsg4326_crs.dart';
-import 'package:flutter_map_example/pages/esri.dart';
 import 'package:flutter_map_example/pages/fallback_url_network_page.dart';
 import 'package:flutter_map_example/pages/fallback_url_offline_page.dart';
 import 'package:flutter_map_example/pages/home.dart';
@@ -29,6 +28,7 @@ import 'package:flutter_map_example/pages/point_to_latlng.dart';
 import 'package:flutter_map_example/pages/polygon.dart';
 import 'package:flutter_map_example/pages/polyline.dart';
 import 'package:flutter_map_example/pages/reset_tile_layer.dart';
+import 'package:flutter_map_example/pages/secondary_tap.dart';
 import 'package:flutter_map_example/pages/sliding_map.dart';
 import 'package:flutter_map_example/pages/stateful_markers.dart';
 import 'package:flutter_map_example/pages/tap_to_add.dart';
@@ -58,9 +58,25 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
   return Drawer(
     child: ListView(
       children: <Widget>[
-        const DrawerHeader(
-          child: Center(
-            child: Text('Flutter Map Examples'),
+        DrawerHeader(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/ProjectIcon.png',
+                height: 48,
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'flutter_map Demo',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const Text(
+                '© flutter_map Authors & Contributors',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14),
+              ),
+            ],
           ),
         ),
         _buildMenuItem(
@@ -91,12 +107,6 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           context,
           const Text('Tap to Add Pins'),
           TapToAddPage.route,
-          currentRoute,
-        ),
-        _buildMenuItem(
-          context,
-          const Text('Esri'),
-          EsriPage.route,
           currentRoute,
         ),
         _buildMenuItem(
@@ -269,6 +279,12 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           context,
           const Text('Fallback URL AssetTileProvider'),
           FallbackUrlOfflinePage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Secondary Tap'),
+          SecondaryTapPage.route,
           currentRoute,
         ),
       ],

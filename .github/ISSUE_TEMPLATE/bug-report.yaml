@@ -8,63 +8,55 @@ body:
       value: "
         # Bug Report
 
-        Thanks for taking the time to fill out this bug report! It helps us to improve the experience for you and other developers that may be facing a similar problem. We aim to respond to bug reports as soon as possible, but it may take longer to resolve this issue depending on its complexity and severity. To help us verify the issue quicker, please include as much information as you can.
+        Thanks for taking the time to fill out this bug report! To help us verify the issue quicker, please include as much information as you can.
+        
+        
+        ---
+        
+        
+        Before reporting a bug, please:
+
+        * Check if there is already an open or closed issue that is similar to yours
+        
+        * Ensure that you have fully read the documentation (both the website and API docs) that pertains to the function you're having problems with
+
+        * Ensure that your Flutter environment is correctly installed & set-up
+
+        * Remember that we're volunteers trying our best to help, so please be polite
+        
+        
+        ---
         "
-  - type: markdown
-    attributes:
-      value: ---
   - type: textarea
-    id: description
+    id: details
     attributes:
       label: What is the bug?
-      description: What were you implementing when you found this issue? What happens when the bug triggers?
-    validations:
-      required: true
-  - type: textarea
-    id: expected-behaviour
-    attributes:
-      label: What is the expected behaviour?
-      description: What do you think should have happened?
+      description: What were you implementing when you found this issue? What happens when the bug triggers? What do you think should have happened instead? Please include as much detail as possible, including screenshots and screen-recordings if you can.
     validations:
       required: true
   - type: textarea
     id: reproduce
     attributes:
-      label: How can we reproduce this issue?
+      label: How can we reproduce it?
       description: |
-        Please include a [minimal reproducible example](https://en.wikipedia.org/wiki/Minimal_reproducible_example) (preferable), otherwise detail the exact steps to reproduce this issue.
-        If you do not include any information here, it will take longer for us to verify your issue.
-      placeholder: Text automatically formatted as Dart code, on submission
-      render: dart
+        Please include a fully formatted [minimal reproducible example](https://en.wikipedia.org/wiki/Minimal_reproducible_example) wrapped in a [Dart code block](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/creating-and-highlighting-code-blocks#syntax-highlighting), otherwise, detail the exact steps to reproduce this issue.
+        If you do not include any information here, it will take longer for us to verify your issue.   
+    validations:
+      required: true
   - type: textarea
     id: solution
     attributes:
       label: Do you have a potential solution?
-      description: "If so, please detail it: it will make it quicker for us to fix the issue"
-  - type: textarea
-    id: additional-info
-    attributes:
-      label: Can you provide any other information?
-      description: |
-        Please attach any other logs, screenshots, or screen recordings.
-        Is there anything else you'd like to say?
+      description: "If so, please detail it: it will make it quicker for us to fix the issue."
   - type: markdown
     attributes:
       value: ---
-  - type: dropdown
+  - type: input
     id: platform
     attributes:
-      label: Platforms Affected
-      description: What platforms does this issue affect?
-      multiple: true
-      options:
-        - Android
-        - iOS
-        - Web
-        - Windows
-        - MacOS
-        - Linux
-        - Other
+      label: Platforms
+      description: Please detail the devices and operating systems you can reproduce this bug on, separated by commas.
+      placeholder: eg. Android 13 (Samsung Galaxy S99), Windows 11 (x64)
     validations:
       required: true
   - type: dropdown
@@ -79,34 +71,3 @@ body:
         - "Fatal: Causes the application to crash"
     validations:
       required: true
-  - type: dropdown
-    id: frequency
-    attributes:
-      label: Frequency
-      description: How often does this issue occur?
-      options:
-        - "Once: Occurred on a single occasion"
-        - "Rarely: Occurs every so often"
-        - "Often: Occurs more often than when it doesn't"
-        - "Consistently: Always occurs at the same time and location"
-    validations:
-      required: true
-  - type: markdown
-    attributes:
-      value: ---
-  - type: checkboxes
-    id: terms
-    attributes:
-      label: Requirements
-      description: These are in place to prevent spam and unnecessary reports.
-      options:
-        - label: I agree to follow this project's [Code of Conduct](https://github.com/fleaflet/flutter_map/blob/master/CODE_OF_CONDUCT.md)
-          required: true
-        - label: My Flutter/Dart installation is unaltered, and `flutter doctor` finds no relevant issues
-          required: true
-        - label: I am using the [latest stable version](https://pub.dev/packages/flutter_map) of this package
-          required: true
-        - label: I have checked the FAQs section on the documentation website
-          required: true
-        - label: I have checked for similar issues which may be duplicates
-          required: true

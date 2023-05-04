@@ -1,6 +1,5 @@
 import 'dart:ui' as ui;
 
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
@@ -78,33 +77,25 @@ class PolylineLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final map = FlutterMapState.maybeOf(context)!;
+    final map = FlutterMapState.of(context);
     final size = Size(map.size.x, map.size.y);
-    final origin = map.pixelOrigin;
-    final offset = Offset(origin.x.toDouble(), origin.y.toDouble());
 
-    final Iterable<Polyline> lines = polylineCulling
+    final List<Polyline> lines = polylineCulling
         ? polylines.where((p) {
             return p.boundingBox.isOverlapping(map.bounds);
-          })
+          }).toList()
         : polylines;
 
-    final paint = CustomPaint(
+    return CustomPaint(
       painter: PolylinePainter(lines, saveLayers, map),
       size: size,
       isComplex: true,
-    );
-
-    return Positioned(
-      left: -offset.dx,
-      top: -offset.dy,
-      child: kIsWeb ? paint : RepaintBoundary(child: paint),
     );
   }
 }
 
 class PolylinePainter extends CustomPainter {
-  final Iterable<Polyline> polylines;
+  final List<Polyline> polylines;
 
   /// {@template newPolylinePainter.saveLayers}
   /// If `true`, the canvas will be updated on every frame by calling the
@@ -134,8 +125,7 @@ class PolylinePainter extends CustomPainter {
   }
 
   Offset getOffset(LatLng point) {
-    final delta = map.project(point);
-    return Offset(delta.x.toDouble(), delta.y.toDouble());
+    return map.getOffsetFromOrigin(point);
   }
 
   @override
@@ -306,9 +296,9 @@ class PolylinePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(PolylinePainter oldDelegate) {
-    return kIsWeb ||
-        oldDelegate.zoom != zoom ||
+    return oldDelegate.zoom != zoom ||
         oldDelegate.rotation != rotation ||
+        oldDelegate.polylines.length != polylines.length ||
         oldDelegate.hash != hash;
   }
 }

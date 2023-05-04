@@ -3,6 +3,7 @@ import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:proj4dart/proj4dart.dart' as proj4;
+import 'package:url_launcher/url_launcher.dart';
 
 class CustomCrsPage extends StatefulWidget {
   static const String route = 'custom_crs';
@@ -137,18 +138,35 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
                     point = proj4.Point(x: p.latitude, y: p.longitude);
                   }),
                 ),
+                nonRotatedChildren: [
+                  RichAttributionWidget(
+                    popupInitialDisplayDuration: const Duration(seconds: 5),
+                    attributions: [
+                      TextSourceAttribution(
+                        'Imagery reproduced from the GEBCO_2022 Grid, GEBCO Compilation Group (2022) GEBCO 2022 Grid (doi:10.5285/e0f0bb80-ab44-2739-e053-6c86abc0289c)',
+                        onTap: () => launchUrl(
+                          Uri.parse(
+                            'https://www.gebco.net/data_and_products/gebco_web_services/web_map_service/#polar',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
                 children: [
-                  TileLayer(
+                  Opacity(
                     opacity: 1,
-                    backgroundColor: Colors.transparent,
-                    wmsOptions: WMSTileLayerOptions(
-                      // Set the WMS layer's CRS
-                      crs: epsg3413CRS,
-                      transparent: true,
-                      format: 'image/jpeg',
-                      baseUrl:
-                          'https://www.gebco.net/data_and_products/gebco_web_services/north_polar_view_wms/mapserv?',
-                      layers: ['gebco_north_polar_view'],
+                    child: TileLayer(
+                      backgroundColor: Colors.transparent,
+                      wmsOptions: WMSTileLayerOptions(
+                        // Set the WMS layer's CRS
+                        crs: epsg3413CRS,
+                        transparent: true,
+                        format: 'image/jpeg',
+                        baseUrl:
+                            'https://www.gebco.net/data_and_products/gebco_web_services/north_polar_view_wms/mapserv?',
+                        layers: ['gebco_north_polar_view'],
+                      ),
                     ),
                   ),
                 ],

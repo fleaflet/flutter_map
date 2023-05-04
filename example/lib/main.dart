@@ -5,7 +5,6 @@ import 'package:flutter_map_example/pages/circle.dart';
 import 'package:flutter_map_example/pages/custom_crs/custom_crs.dart';
 import 'package:flutter_map_example/pages/epsg3413_crs.dart';
 import 'package:flutter_map_example/pages/epsg4326_crs.dart';
-import 'package:flutter_map_example/pages/esri.dart';
 import 'package:flutter_map_example/pages/fallback_url_network_page.dart';
 import 'package:flutter_map_example/pages/fallback_url_offline_page.dart';
 import 'package:flutter_map_example/pages/home.dart';
@@ -29,6 +28,7 @@ import 'package:flutter_map_example/pages/point_to_latlng.dart';
 import 'package:flutter_map_example/pages/polygon.dart';
 import 'package:flutter_map_example/pages/polyline.dart';
 import 'package:flutter_map_example/pages/reset_tile_layer.dart';
+import 'package:flutter_map_example/pages/secondary_tap.dart';
 import 'package:flutter_map_example/pages/sliding_map.dart';
 import 'package:flutter_map_example/pages/stateful_markers.dart';
 import 'package:flutter_map_example/pages/tap_to_add.dart';
@@ -46,17 +46,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Map Example',
-      theme: ThemeData(
-        primarySwatch: mapBoxBlue,
-      ),
+      title: 'flutter_map Demo',
+      theme: ThemeData.light(useMaterial3: true),
       home: const HomePage(),
       routes: <String, WidgetBuilder>{
         NetworkTileProviderPage.route: (context) =>
             const NetworkTileProviderPage(),
         WidgetsPage.route: (context) => const WidgetsPage(),
         TapToAddPage.route: (context) => const TapToAddPage(),
-        EsriPage.route: (context) => const EsriPage(),
         PolylinePage.route: (context) => const PolylinePage(),
         MapControllerPage.route: (context) => const MapControllerPage(),
         AnimatedMapControllerPage.route: (context) =>
@@ -93,27 +90,8 @@ class MyApp extends StatelessWidget {
             const FallbackUrlNetworkPage(),
         FallbackUrlOfflinePage.route: (context) =>
             const FallbackUrlOfflinePage(),
+        SecondaryTapPage.route: (context) => const SecondaryTapPage(),
       },
     );
   }
 }
-
-// Generated using Material Design Palette/Theme Generator
-// http://mcg.mbitson.com/
-// https://github.com/mbitson/mcg
-const int _bluePrimary = 0xFF395afa;
-const MaterialColor mapBoxBlue = MaterialColor(
-  _bluePrimary,
-  <int, Color>{
-    50: Color(0xFFE7EBFE),
-    100: Color(0xFFC4CEFE),
-    200: Color(0xFF9CADFD),
-    300: Color(0xFF748CFC),
-    400: Color(0xFF5773FB),
-    500: Color(_bluePrimary),
-    600: Color(0xFF3352F9),
-    700: Color(0xFF2C48F9),
-    800: Color(0xFF243FF8),
-    900: Color(0xFF172EF6),
-  },
-);

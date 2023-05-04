@@ -79,6 +79,8 @@ class CustomPoint<T extends num> extends math.Point<T> {
     return this;
   }
 
+  CustomPoint<U> cast<U extends num>() => CustomPoint<U>(x as U, y as U);
+
   @override
   String toString() => 'CustomPoint ($x, $y)';
 }

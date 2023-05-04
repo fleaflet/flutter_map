@@ -1,23 +1,43 @@
 # Changelog
 
-## [3.2.0] - 2022/02/XX
+## [4.0.0] - 2022/04/XX
 
-Contains the following additions/removals:
+**"Out With The Old, In With The New"**
 
+Contains the following improvements:
+
+- Reimplemented `TileLayer` and underlying systems - [#1475](https://github.com/fleaflet/flutter_map/pull/1475)
+- Reimplemented attribution layers - [#1487](https://github.com/fleaflet/flutter_map/pull/1487) & [#1390](https://github.com/fleaflet/flutter_map/pull/1390)
+- Added secondary tap handling to `MapOptions` - [#1448](https://github.com/fleaflet/flutter_map/pull/1448) for [#1444](https://github.com/fleaflet/flutter_map/issues/1444)
+- Refactored `FlutterMapState`'s `maybeOf` method into `maybeOf` & `of` - [#1495](https://github.com/fleaflet/flutter_map/pull/1495)
 - Removed `LatLngBounds.pad` (unused and broken) method - [#1427](https://github.com/fleaflet/flutter_map/pull/1427)
-- Migrated `LatLngBounds` to proper null safety - [#1431](https://github.com/fleaflet/flutter_map/pull/1431)
-- Minor example application improvements - [#1440](https://github.com/fleaflet/flutter_map/pull/1440)
+- Removed `absorbPanEventsOnScrollables` option - [#1455](https://github.com/fleaflet/flutter_map/pull/1455) for [#1454](https://github.com/fleaflet/flutter_map/issues/1454)
+- Removed leftover deprecations - [#1475](https://github.com/fleaflet/flutter_map/pull/1475)
+- Improved rotation gestures (cause rotation about the gesture center) - [#1437](https://github.com/fleaflet/flutter_map/pull/1437)
+- Improved number (`num`/`int`/`double`) consistency internally - [#1482](https://github.com/fleaflet/flutter_map/pull/1482)
+- Minor example application improvements - [#1440](https://github.com/fleaflet/flutter_map/pull/1440) & [#1487](https://github.com/fleaflet/flutter_map/pull/1487)
 
 Contains the following bug fixes:
 
-- Fixed deprecations - [#1438](https://github.com/fleaflet/flutter_map/pull/1438)
+- Prevented scrolling of list and simultaneous panning of map on some platforms - [#1453](https://github.com/fleaflet/flutter_map/pull/1453)
+- Improved `LatLngBounds`'s null safety situation to improve stability - [#1431](https://github.com/fleaflet/flutter_map/pull/1431)
+- Migrated from multiple deprecated APIs - [#1438](https://github.com/fleaflet/flutter_map/pull/1438)
+
+Contains the following performance and stability improvements:
+
+- Batched polygon and polyline rendering to minimize redraws and maximize their efficiency - [#1442](https://github.com/fleaflet/flutter_map/pull/1442) & [#1462](https://github.com/fleaflet/flutter_map/pull/1462)
+- Added a threshold for rasterization to avoid excessive fixed overhead cost for cheap redraws - [#1462](https://github.com/fleaflet/flutter_map/pull/1462)
 
 Many thanks to these contributors (in no particular order):
 
 - @pablojimpas
 - @augustweinbren
 - @ignatz
+- @rorystephenson
+- @ianthetechie
 - ... and all the maintainers
+
+And an additional special thanks to @rorystephenson & @ignatz for investing so much of their time into this project recently - we appreciate it!
 
 ## [3.1.0] - 2022/12/21
 
@@ -50,6 +70,8 @@ Many thanks to these contributors (in no particular order):
 - ... and all the maintainers
 
 ## [3.0.0] - 2022/09/04
+
+**"Boiler(plate) Repairs"**
 
 Contains the following additions/removals:
 
@@ -145,6 +167,8 @@ Many thanks to these contributors (in no particular order):
 - ... and all the maintainers
 
 ## [2.0.0] - 2022/07/11
+
+**"~~Blocked By OSM~~"**
 
 Contains the following additions/removals:
 

@@ -4,17 +4,29 @@ import 'dart:math' as math;
 import 'package:collection/collection.dart' show MapEquality;
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/core/bounds.dart';
+import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/core/util.dart' as util;
-import 'package:flutter_map/src/layer/tile_layer/level.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_manager.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_transformation.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_widget.dart';
-import 'package:flutter_map/src/layer/tile_layer/transformation_calculator.dart';
+import 'package:flutter_map/src/geo/crs/crs.dart';
+import 'package:flutter_map/src/geo/latlng_bounds.dart';
+import 'package:flutter_map/src/gestures/map_events.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_builder.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_display.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_image_manager.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provider.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/tile_provider_io.dart'
+    if (dart.library.html) 'package:flutter_map/src/layer/tile_layer/tile_provider/tile_provider_web.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_range_calculator.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_update_event.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_update_transformer.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
-import 'package:latlong2/latlong.dart';
-import 'package:tuple/tuple.dart';
 
 part 'tile_layer_options.dart';
 
@@ -65,12 +77,12 @@ class TileLayer extends StatefulWidget {
   /// Minimum zoom number the tile source has available. If it is specified, the
   /// tiles on all zoom levels lower than minNativeZoom will be loaded from
   /// minNativeZoom level and auto-scaled.
-  final double? minNativeZoom;
+  final int? minNativeZoom;
 
   /// Maximum zoom number the tile source has available. If it is specified, the
   /// tiles on all zoom levels higher than maxNativeZoom will be loaded from
   /// maxNativeZoom level and auto-scaled.
-  final double? maxNativeZoom;
+  final int? maxNativeZoom;
 
   /// If set to true, the zoom number used in tile URLs will be reversed
   /// (`maxZoom - zoom` instead of `zoom`)
@@ -96,11 +108,12 @@ class TileLayer extends StatefulWidget {
   /// https://c.tile.openstreetmap.org/{z}/{x}/{y}.png
   final List<String> subdomains;
 
+  // Control how tiles are displayed and whether they are faded in when loaded.
+  // Defaults to TileDisplay.fadeIn().
+  final TileDisplay tileDisplay;
+
   /// Color shown behind the tiles
   final Color backgroundColor;
-
-  /// Opacity of the rendered tile
-  final double opacity;
 
   /// Provider with which to load map tiles
   ///
@@ -165,32 +178,6 @@ class TileLayer extends StatefulWidget {
   /// ```
   final Map<String, String> additionalOptions;
 
-  /// Tiles will not update more than once every `updateInterval` (default 200
-  /// milliseconds) when panning. It can be null (but it will calculating for
-  /// loading tiles every frame when panning / zooming, flutter is fast) This
-  /// can save some fps and even bandwidth (ie. when fast panning / animating
-  /// between long distances in short time)
-  final Duration? updateInterval;
-
-  /// Tiles fade in duration in milliseconds (default 100). This can be null to
-  /// avoid fade in.
-  final Duration? tileFadeInDuration;
-
-  /// Opacity start value when Tile starts fade in (0.0 - 1.0) Takes effect if
-  /// `tileFadeInDuration` is not null
-  final double tileFadeInStart;
-
-  /// Opacity start value when an exists Tile starts fade in with different Url
-  /// (0.0 - 1.0) Takes effect when `tileFadeInDuration` is not null and if
-  /// `overrideTilesWhenUrlChanges` if true
-  final double tileFadeInStartWhenOverride;
-
-  /// `false`: current Tiles will be first dropped and then reload via new url
-  /// (default) `true`: current Tiles will be visible until new ones aren't
-  /// loaded (new Tiles are loaded independently) @see
-  /// https://github.com/johnpryan/flutter_map/issues/583
-  final bool overrideTilesWhenUrlChanges;
-
   /// If `true`, it will request four tiles of half the specified size and a
   /// bigger zoom level in place of one to utilize the high resolution.
   ///
@@ -209,7 +196,7 @@ class TileLayer extends StatefulWidget {
   /// ```
   final bool retinaMode;
 
-  /// This callback will be execute if some errors occur when fetching tiles.
+  /// This callback will be executed if an error occurs when fetching tiles.
   final ErrorTileCallBack? errorTileCallback;
 
   final TemplateFunction templateFunction;
@@ -218,33 +205,27 @@ class TileLayer extends StatefulWidget {
   /// There are predefined examples in 'tile_builder.dart'
   final TileBuilder? tileBuilder;
 
-  /// Function which may wrap Tiles Container with custom Widget
-  /// There are predefined examples in 'tile_builder.dart'
-  final TilesContainerBuilder? tilesContainerBuilder;
-
   // If a Tile was loaded with error and if strategy isn't `none` then TileProvider
   // will be asked to evict Image based on current strategy
   // (see #576 - even Error Images are cached in flutter)
   final EvictErrorTileStrategy evictErrorTileStrategy;
-
-  /// This option is useful when you have a transparent layer: rather than
-  /// keeping the old layer visible when zooming (resulting in both layers
-  /// being temporarily visible), the old layer is removed as quickly as
-  /// possible when this is set to `true` (default `false`).
-  ///
-  /// This option is likely to cause some flickering of the transparent layer,
-  /// most noticeable when using pinch-to-zoom. It's best used with maps that
-  /// have `interactive` set to `false`, and zoom using buttons that call
-  /// `MapController.move()`.
-  ///
-  /// When set to `true`, the `tileFadeIn*` options will be ignored.
-  final bool fastReplace;
 
   /// Stream to notify the [TileLayer] that it needs resetting
   final Stream<void>? reset;
 
   /// Only load tiles that are within these bounds
   final LatLngBounds? tileBounds;
+
+  /// This transformer modifies how/when tile updates and pruning are triggered
+  /// based on [MapEvent]s. It is a StreamTransformer and therefore it is
+  /// possible to filter/modify/throttle the [TileUpdateEvent]s. Defaults to
+  /// [TileUpdateTransformers.ignoreTapEvents] which disables loading/pruning
+  /// for map taps, secondary taps and long presses. See TileUpdateTransformers
+  /// for more transformer presets or implement your own.
+  ///
+  /// Note: Changing the [tileUpdateTransformer] after TileLayer is created has
+  /// no affect.
+  final TileUpdateTransformer tileUpdateTransformer;
 
   TileLayer({
     super.key,
@@ -266,35 +247,21 @@ class TileLayer extends StatefulWidget {
     TileProvider? tileProvider,
     this.tms = false,
     this.wmsOptions,
-    this.opacity = 1.0,
-
-    /// Tiles will not update more than once every `updateInterval` milliseconds
-    /// (default 200) when panning. It can be 0 (but it will calculating for
-    /// loading tiles every frame when panning / zooming, flutter is fast) This
-    /// can save some fps and even bandwidth (ie. when fast panning / animating
-    /// between long distances in short time)
-    Duration updateInterval = const Duration(milliseconds: 200),
-    Duration tileFadeInDuration = const Duration(milliseconds: 100),
-    this.tileFadeInStart = 0.0,
-    this.tileFadeInStartWhenOverride = 0.0,
-    this.overrideTilesWhenUrlChanges = false,
+    this.tileDisplay = const TileDisplay.fadeIn(),
     this.retinaMode = false,
     this.errorTileCallback,
     this.templateFunction = util.template,
     this.tileBuilder,
-    this.tilesContainerBuilder,
     this.evictErrorTileStrategy = EvictErrorTileStrategy.none,
-    this.fastReplace = false,
     this.reset,
     this.tileBounds,
+    TileUpdateTransformer? tileUpdateTransformer,
     String userAgentPackageName = 'unknown',
-  })  : updateInterval =
-            updateInterval <= Duration.zero ? null : updateInterval,
-        tileFadeInDuration =
-            tileFadeInDuration <= Duration.zero ? null : tileFadeInDuration,
-        assert(tileFadeInStart >= 0.0 && tileFadeInStart <= 1.0),
-        assert(tileFadeInStartWhenOverride >= 0.0 &&
-            tileFadeInStartWhenOverride <= 1.0),
+  })  : assert(
+          tileDisplay.map(
+              instantaneous: (_) => true,
+              fadeIn: (fadeIn) => fadeIn.duration > Duration.zero)!,
+        ),
         maxZoom =
             wmsOptions == null && retinaMode && maxZoom > 0.0 && !zoomReverse
                 ? maxZoom - 1.0
@@ -321,57 +288,132 @@ class TileLayer extends StatefulWidget {
                 ...tileProvider.headers,
                 if (!tileProvider.headers.containsKey('User-Agent'))
                   'User-Agent': 'flutter_map ($userAgentPackageName)',
-              });
+              }),
+        tileUpdateTransformer =
+            tileUpdateTransformer ?? TileUpdateTransformers.ignoreTapEvents;
 
   @override
   State<StatefulWidget> createState() => _TileLayerState();
 }
 
 class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
-  late Bounds _globalTileRange;
-  Tuple2<double, double>? _wrapX;
-  Tuple2<double, double>? _wrapY;
-  double? _tileZoom;
+  bool _initializedFromMapState = false;
+
+  final TileImageManager _tileImageManager = TileImageManager();
+  late TileBounds _tileBounds;
+  late TileRangeCalculator _tileRangeCalculator;
+  late TileScaleCalculator _tileScaleCalculator;
+
+  // We have to hold on to the mapController hashCode to determine whether we
+  // need to reinitialize the listeners. didChangeDependencies is called on
+  // every map movement and if we unsubscribe and resubscribe every time we
+  // miss events.
+  int? _mapControllerHashCode;
+
+  // Only one of these two subscriptions will be initialized. If
+  // TileLayer.tileUpdateTransformer is null then we subscribe to map movement
+  // otherwise we subscribe to tile update events which are transformed from
+  // map movements.
+  StreamSubscription<TileUpdateEvent>? _tileUpdateSubscription;
 
   StreamSubscription<void>? _resetSub;
-  StreamController<LatLng?>? _throttleUpdate;
-  late CustomPoint _tileSize;
-
-  late final TileManager _tileManager;
-  late final TransformationCalculator _transformationCalculator;
-
   Timer? _pruneLater;
 
   @override
   void initState() {
     super.initState();
-    _tileManager = TileManager();
-    _transformationCalculator = TransformationCalculator();
-    _tileSize = CustomPoint(widget.tileSize, widget.tileSize);
 
     if (widget.reset != null) {
-      _resetSub = widget.reset?.listen((_) => _resetTiles());
+      _resetSub = widget.reset?.listen(
+        (_) => _tileImageManager.removeAll(
+          widget.evictErrorTileStrategy,
+        ),
+      );
     }
+
+    _tileRangeCalculator = TileRangeCalculator(tileSize: widget.tileSize);
+  }
+
+  // This is called on every map movement so we should avoid expensive logic
+  // where possible.
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final mapState = FlutterMapState.maybeOf(context)!;
+
+    final mapController = mapState.mapController;
+    if (_mapControllerHashCode != mapController.hashCode) {
+      _tileUpdateSubscription?.cancel();
+
+      _mapControllerHashCode = mapController.hashCode;
+      _tileUpdateSubscription = mapController.mapEventStream
+          .map((mapEvent) => TileUpdateEvent(mapEvent: mapEvent))
+          .transform(widget.tileUpdateTransformer)
+          .listen((event) => _onTileUpdateEvent(mapState, event));
+    }
+
+    bool reloadTiles = false;
+    if (!_initializedFromMapState ||
+        _tileBounds.shouldReplace(
+            mapState.options.crs, widget.tileSize, widget.tileBounds)) {
+      reloadTiles = true;
+      _tileBounds = TileBounds(
+        crs: mapState.options.crs,
+        tileSize: widget.tileSize,
+        latLngBounds: widget.tileBounds,
+      );
+    }
+
+    if (!_initializedFromMapState ||
+        _tileScaleCalculator.shouldReplace(
+            mapState.options.crs, widget.tileSize)) {
+      reloadTiles = true;
+      _tileScaleCalculator = TileScaleCalculator(
+        crs: mapState.options.crs,
+        tileSize: widget.tileSize,
+      );
+    }
+
+    if (reloadTiles) _loadAndPruneInVisibleBounds(mapState);
+
+    _initializedFromMapState = true;
   }
 
   @override
   void didUpdateWidget(TileLayer oldWidget) {
     super.didUpdateWidget(oldWidget);
-    var reloadTiles = false;
+    bool reloadTiles = false;
 
-    if (oldWidget.tileSize != widget.tileSize) {
-      _tileSize = CustomPoint(widget.tileSize, widget.tileSize);
+    // There is no caching in TileRangeCalculator so we can just replace it.
+    _tileRangeCalculator = TileRangeCalculator(tileSize: widget.tileSize);
+
+    if (_tileBounds.shouldReplace(
+        _tileBounds.crs, widget.tileSize, widget.tileBounds)) {
+      _tileBounds = TileBounds(
+        crs: _tileBounds.crs,
+        tileSize: widget.tileSize,
+        latLngBounds: widget.tileBounds,
+      );
       reloadTiles = true;
+    }
+
+    if (_tileScaleCalculator.shouldReplace(
+        _tileScaleCalculator.crs, widget.tileSize)) {
+      _tileScaleCalculator = TileScaleCalculator(
+        crs: _tileScaleCalculator.crs,
+        tileSize: widget.tileSize,
+      );
     }
 
     if (oldWidget.retinaMode != widget.retinaMode) {
       reloadTiles = true;
     }
 
-    reloadTiles |= !_tileManager.allWithinZoom(widget.minZoom, widget.maxZoom);
-
-    if (oldWidget.updateInterval != widget.updateInterval) {
-      _throttleUpdate?.close();
+    if (oldWidget.minZoom != widget.minZoom ||
+        oldWidget.maxZoom != widget.maxZoom) {
+      reloadTiles |=
+          !_tileImageManager.allWithinZoom(widget.minZoom, widget.maxZoom);
     }
 
     if (!reloadTiles) {
@@ -385,398 +427,230 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       if (oldUrl != newUrl ||
           !(const MapEquality<String, String>())
               .equals(oldOptions, newOptions)) {
-        if (widget.overrideTilesWhenUrlChanges) {
-          _tileManager.reloadImages(widget, _wrapX, _wrapY);
-        } else {
-          reloadTiles = true;
-        }
+        _tileImageManager.reloadImages(widget, _tileBounds);
       }
     }
 
     if (reloadTiles) {
-      _tileManager.removeAll(widget.evictErrorTileStrategy);
+      _tileImageManager.removeAll(widget.evictErrorTileStrategy);
+      _loadAndPruneInVisibleBounds(FlutterMapState.maybeOf(context)!);
+    } else if (oldWidget.tileDisplay != widget.tileDisplay) {
+      _tileImageManager.updateTileDisplay(widget.tileDisplay);
     }
   }
 
   @override
   void dispose() {
-    _tileManager.removeAll(widget.evictErrorTileStrategy);
+    _tileUpdateSubscription?.cancel();
+    _tileImageManager.removeAll(widget.evictErrorTileStrategy);
     _resetSub?.cancel();
     _pruneLater?.cancel();
     widget.tileProvider.dispose();
-    _throttleUpdate?.close();
 
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final map = FlutterMapState.maybeOf(context)!;
+    final map = FlutterMapState.of(context);
 
-    //Handle movement
-    final tileZoom = _clampZoom(map.zoom.roundToDouble());
+    if (_outsideZoomLimits(map.zoom.round())) return const SizedBox.shrink();
 
-    if (_tileZoom == null) {
-      // if there is no _tileZoom available it means we are out within zoom level
-      // we will restore fully via _setView call if we are back on trail
-      if ((tileZoom <= widget.maxZoom) && (tileZoom >= widget.minZoom)) {
-        _tileZoom = tileZoom;
-        _setView(map, map.center, tileZoom);
-      }
-    } else {
-      if ((tileZoom - _tileZoom!).abs() >= 1) {
-        // It was a zoom lvl change
-        _setView(map, map.center, tileZoom);
-      } else {
-        if (_throttleUpdate != null) {
-          _throttleUpdate!.add(null);
-        }
-      }
-    }
-
-    _setView(map, map.center, map.zoom);
-
-    final tilesToRender = _tileZoom == null
-        ? _tileManager.all()
-        : _tileManager.sortedByDistanceToZoomAscending(
-            widget.maxZoom, _tileZoom!);
-    final Map<double, TileTransformation> zoomToTransformation = {};
-
-    final tileWidgets = <Widget>[
-      for (var tile in tilesToRender)
-        AnimatedTile(
-          tile: tile,
-          size: _tileSize,
-          tileTransformation: zoomToTransformation[tile.coords.z] ??
-              (zoomToTransformation[tile.coords.z] =
-                  _transformationCalculator.transformationFor(
-                tile.coords.z,
-                map,
-              )),
-          errorImage: widget.errorImage,
-          tileBuilder: widget.tileBuilder,
-          key: ValueKey(tile.coordsKey),
-        )
-    ];
-
-    final tilesContainer = Stack(
-      children: tileWidgets,
+    final tileZoom = _clampToNativeZoom(map.zoom);
+    final tileBoundsAtZoom = _tileBounds.atZoom(tileZoom);
+    final visibleTileRange = _tileRangeCalculator.calculate(
+      mapState: map,
+      tileZoom: tileZoom,
     );
 
-    final tilesLayer = widget.tilesContainerBuilder == null
-        ? tilesContainer
-        : widget.tilesContainerBuilder!(
-            context,
-            tilesContainer,
-            tilesToRender,
-          );
+    // For a given map event both this rebuild method and the tile
+    // loading/pruning logic will be fired. Any TileImages which are not
+    // rendered in a corresponding Tile after this build will not become
+    // visible until the next build. Therefore, in case this build is executed
+    // before the loading/updating, we must pre-create the missing TileImages
+    // and add them to the widget tree so that when they are loaded they notify
+    // the Tile and become visible.
+    _tileImageManager.createMissingTiles(
+      visibleTileRange,
+      tileBoundsAtZoom,
+      createTileImage: (coordinate) => _createTileImage(
+        coordinate,
+        tileBoundsAtZoom,
+      ),
+    );
 
-    return Opacity(
-      opacity: widget.opacity,
-      child: Container(
-        color: widget.backgroundColor,
-        child: tilesLayer,
+    final currentPixelOrigin = CustomPoint<double>(
+      map.pixelOrigin.x.toDouble(),
+      map.pixelOrigin.y.toDouble(),
+    );
+
+    _tileScaleCalculator.clearCacheUnlessZoomMatches(map.zoom);
+
+    return Container(
+      color: widget.backgroundColor,
+      child: Stack(
+        children: [
+          ..._tileImageManager
+              .inRenderOrder(widget.maxZoom, tileZoom)
+              .map((tileImage) {
+            return Tile(
+              // Must be an ObjectKey, not a ValueKey using the coordinates, in
+              // case we remove and replace the TileImage with a different one.
+              key: ObjectKey(tileImage),
+              scaledTileSize: _tileScaleCalculator.scaledTileSize(
+                map.zoom,
+                tileImage.coordinates.z,
+              ),
+              currentPixelOrigin: currentPixelOrigin,
+              tileImage: tileImage,
+              tileBuilder: widget.tileBuilder,
+            );
+          }),
+        ],
       ),
     );
   }
 
-  CustomPoint getTileSize() => _tileSize;
-
-  Level? _updateLevels(FlutterMapState map) {
-    final zoom = _tileZoom;
-
-    if (zoom == null) return null;
-
-    final toRemove = _transformationCalculator.whereLevel((levelZoom) =>
-        levelZoom != zoom && !_tileManager.anyWithZoomLevel(levelZoom));
-
-    for (final z in toRemove) {
-      _tileManager.removeAtZoom(z, widget.evictErrorTileStrategy);
-      _transformationCalculator.removeLevel(z);
-    }
-
-    return _transformationCalculator.getOrCreateLevel(zoom, map);
+  TileImage _createTileImage(
+    TileCoordinates coordinates,
+    TileBoundsAtZoom tileBoundsAtZoom,
+  ) {
+    return TileImage(
+      vsync: this,
+      coordinates: coordinates,
+      imageProvider: widget.tileProvider.getImage(
+        tileBoundsAtZoom.wrap(coordinates),
+        widget,
+      ),
+      onLoadError: _onTileLoadError,
+      onLoadComplete: _onTileLoadComplete,
+      tileDisplay: widget.tileDisplay,
+      errorImage: widget.errorImage,
+    );
   }
 
-  ///removes all loaded tiles and resets the view
-  void _resetTiles() {
-    _tileManager.removeAll(widget.evictErrorTileStrategy);
-  }
-
-  double _clampZoom(double zoom) {
-    if (null != widget.minNativeZoom && zoom < widget.minNativeZoom!) {
-      return widget.minNativeZoom!;
-    }
-
-    if (null != widget.maxNativeZoom && widget.maxNativeZoom! < zoom) {
-      return widget.maxNativeZoom!;
-    }
-
-    return zoom;
-  }
-
-  void _setView(FlutterMapState map, LatLng center, double zoom) {
-    double? tileZoom = _clampZoom(zoom.roundToDouble());
-    if ((tileZoom > widget.maxZoom) || (tileZoom < widget.minZoom)) {
-      tileZoom = null;
-    }
-
-    _tileZoom = tileZoom;
-
-    _tileManager.abortLoading(_tileZoom, widget.evictErrorTileStrategy);
-
-    _updateLevels(map);
-    _resetGrid(map);
-
-    if (_tileZoom != null) {
-      _update(map, center);
-    }
-
-    _tileManager.prune(_tileZoom, widget.evictErrorTileStrategy);
-  }
-
-  void _resetGrid(FlutterMapState map) {
-    final crs = map.options.crs;
-    final tileSize = getTileSize();
-    final tileZoom = _tileZoom;
-
-    final bounds = map.getPixelWorldBounds(_tileZoom);
-    if (bounds != null) {
-      _globalTileRange = _pxBoundsToTileRange(bounds);
-    }
-
-    // wrapping
-    _wrapX = crs.wrapLng;
-    if (_wrapX != null) {
-      final first =
-          (map.project(LatLng(0, crs.wrapLng!.item1), tileZoom).x / tileSize.x)
-              .floorToDouble();
-      final second =
-          (map.project(LatLng(0, crs.wrapLng!.item2), tileZoom).x / tileSize.y)
-              .ceilToDouble();
-      _wrapX = Tuple2(first, second);
-    }
-
-    _wrapY = crs.wrapLat;
-    if (_wrapY != null) {
-      final first =
-          (map.project(LatLng(crs.wrapLat!.item1, 0), tileZoom).y / tileSize.x)
-              .floorToDouble();
-      final second =
-          (map.project(LatLng(crs.wrapLat!.item2, 0), tileZoom).y / tileSize.y)
-              .ceilToDouble();
-      _wrapY = Tuple2(first, second);
-    }
-  }
-
-  Bounds _getTiledPixelBounds(FlutterMapState map, LatLng center) {
-    final scale = map.getZoomScale(map.zoom, _tileZoom);
-    final pixelCenter = map.project(center, _tileZoom).floor();
-    final halfSize = map.size / (scale * 2);
-
-    return Bounds(pixelCenter - halfSize, pixelCenter + halfSize);
-  }
-
-  // Private method to load tiles in the grid's active zoom level according to
-  // map bounds
-  void _update(FlutterMapState map, LatLng? center) {
-    if (_tileZoom == null) {
-      return;
-    }
-
-    final zoom = _clampZoom(map.zoom);
-    center ??= map.center;
-
-    final pixelBounds = _getTiledPixelBounds(map, center);
-    Bounds tileRange = _pxBoundsToTileRange(pixelBounds);
-
-    final panBuffer = widget.panBuffer;
-
-    // Increase the tilerange if we have panBuffer set, but make sure we
-    // don't use values outside valid tiles, eg (0,-1).
-    if (panBuffer != 0) {
-      tileRange = tileRange.extend(CustomPoint(
-          math.max(_globalTileRange.min.x, tileRange.min.x - panBuffer),
-          math.max(_globalTileRange.min.y, tileRange.min.y - panBuffer)));
-      tileRange = tileRange.extend(CustomPoint(
-          math.min(_globalTileRange.max.x, tileRange.max.x + panBuffer),
-          math.min(_globalTileRange.max.y, tileRange.max.y + panBuffer)));
-    }
-
-    final tileCenter = tileRange.center;
-    final queue = <Coords<double>>[];
-    final margin = widget.keepBuffer;
-    final noPruneRange = Bounds(
-      tileRange.bottomLeft - CustomPoint(margin, -margin),
-      tileRange.topRight + CustomPoint(margin, -margin),
+  // Load and/or prune tiles according to the visible bounds of the [event]
+  // center/zoom, or the current center/zoom if not specified.
+  void _onTileUpdateEvent(FlutterMapState mapState, TileUpdateEvent event) {
+    final zoom = event.loadZoomOverride ?? mapState.zoom;
+    final center = event.loadCenterOverride ?? mapState.center;
+    final tileZoom = _clampToNativeZoom(zoom);
+    final visibleTileRange = _tileRangeCalculator.calculate(
+      mapState: mapState,
+      tileZoom: tileZoom,
+      center: center,
+      viewingZoom: zoom,
     );
 
-    _tileManager.markToPrune(_tileZoom, noPruneRange);
+    if (event.load) {
+      if (!_outsideZoomLimits(tileZoom)) _loadTiles(visibleTileRange);
+    }
 
-    // _update just loads more tiles. If the tile zoom level differs too much
-    // from the map's, let _setView reset levels and prune old tiles.
-    if ((zoom - _tileZoom!).abs() > 1) {
-      _setView(map, center, zoom);
+    if (event.prune) {
+      _tileImageManager.evictErrorTiles(
+          visibleTileRange, widget.evictErrorTileStrategy);
+      _tileImageManager.prune(widget.evictErrorTileStrategy);
+    }
+  }
+
+  // Load new tiles in the visible bounds and prune those outside.
+  void _loadAndPruneInVisibleBounds(FlutterMapState mapState) {
+    final tileZoom = _clampToNativeZoom(mapState.zoom);
+    final visibleTileRange = _tileRangeCalculator.calculate(
+      mapState: mapState,
+      tileZoom: tileZoom,
+    );
+
+    if (!_outsideZoomLimits(tileZoom)) _loadTiles(visibleTileRange);
+
+    _tileImageManager.evictErrorTiles(
+        visibleTileRange, widget.evictErrorTileStrategy);
+    _tileImageManager.prune(widget.evictErrorTileStrategy);
+  }
+
+  // For all valid TileCoordinates in the [tileLoadRange], expanded by the
+  // [TileLayer.panBuffer], this method will do the following depending on
+  // whether a matching TileImage already exists or not:
+  //   * Exists: Mark it as current and initiate image loading if it has not
+  //     already been initiated.
+  //   * Does not exist: Creates the TileImage (they are current when created)
+  //     and initiates loading.
+  //
+  // Additionally, any current TileImages outside of the [tileLoadRange],
+  // expanded by the [TileLayer.panBuffer] + [TileLayer.keepBuffer], are marked
+  // as not current.
+  void _loadTiles(DiscreteTileRange tileLoadRange) {
+    final tileZoom = tileLoadRange.zoom;
+    tileLoadRange = tileLoadRange.expand(widget.panBuffer);
+
+    // Mark tiles outside of the tile load range as no longer current.
+    _tileImageManager.markAsNoLongerCurrentOutside(
+      tileZoom,
+      tileLoadRange.expand(widget.keepBuffer),
+    );
+
+    // Build the queue of tiles to load. Marks all tiles with valid coordinates
+    // in the tileLoadRange as current.
+    final tileBoundsAtZoom = _tileBounds.atZoom(tileZoom);
+    final tilesToLoad = _tileImageManager.setCurrentAndReturnNotLoadedTiles(
+        tileBoundsAtZoom.validCoordinatesIn(tileLoadRange),
+        createTile: (coordinates) =>
+            _createTileImage(coordinates, tileBoundsAtZoom));
+
+    // Re-order the tiles by their distance to the center of the range.
+    final tileCenter = tileLoadRange.center;
+    tilesToLoad.sort(
+      (a, b) => a.coordinates
+          .distanceTo(tileCenter)
+          .compareTo(b.coordinates.distanceTo(tileCenter)),
+    );
+
+    // Create the new Tiles.
+    for (final tile in tilesToLoad) {
+      tile.load();
+    }
+  }
+
+  // Rounds the zoom to the nearest int and clamps it to the native zoom limits
+  // if there are any.
+  int _clampToNativeZoom(double zoom) {
+    int result = zoom.round();
+
+    if (widget.minNativeZoom != null) {
+      result = math.max(result, widget.minNativeZoom!);
+    }
+    if (widget.maxNativeZoom != null) {
+      result = math.min(result, widget.maxNativeZoom!);
+    }
+
+    return result;
+  }
+
+  void _onTileLoadError(TileImage tile, Object error, StackTrace? stackTrace) {
+    debugPrint(error.toString());
+    widget.errorTileCallback?.call(tile, error, stackTrace);
+  }
+
+  // This is called whether the tile loads successfully or with an error.
+  void _onTileLoadComplete(TileCoordinates coordinates) {
+    if (!_tileImageManager.containsTileAt(coordinates) ||
+        !_tileImageManager.allLoaded) {
       return;
     }
 
-    // create a queue of coordinates to load tiles from
-    for (var j = tileRange.min.y; j <= tileRange.max.y; j++) {
-      for (var i = tileRange.min.x; i <= tileRange.max.x; i++) {
-        final coords = Coords(i.toDouble(), j.toDouble());
-        coords.z = _tileZoom!;
-
-        if (widget.tileBounds != null) {
-          final tilePxBounds = _pxBoundsToTileRange(
-              _latLngBoundsToPixelBounds(map, widget.tileBounds!, _tileZoom!));
-          if (!_areCoordsInsideTileBounds(coords, tilePxBounds)) {
-            continue;
-          }
-        }
-
-        if (!_isValidTile(map.options.crs, coords)) {
-          continue;
-        }
-
-        if (!_tileManager.markTileWithCoordsAsCurrent(coords)) {
-          queue.add(coords);
-        }
-      }
-    }
-
-    _tileManager.evictErrorTilesBasedOnStrategy(
-        tileRange, widget.evictErrorTileStrategy);
-
-    // sort tile queue to load tiles in order of their distance to center
-    queue.sort((a, b) =>
-        (a.distanceTo(tileCenter) - b.distanceTo(tileCenter)).toInt());
-
-    for (final coords in queue) {
-      final newTile = Tile(
-        coords: coords,
-        tilePos: _getTilePos(map, coords),
-        current: true,
-        imageProvider:
-            widget.tileProvider.getImage(coords.wrap(_wrapX, _wrapY), widget),
-        tileReady: _tileReady,
-        vsync: this,
-        duration: widget.tileFadeInDuration,
-      );
-
-      _tileManager.add(coords, newTile);
-      // If we do this before adding the Tile to the TileManager the _tileReady
-      // callback may be fired very fast and we won't find the Tile in the
-      // TileManager since it's not added yet.
-      newTile.loadTileImage();
-    }
-  }
-
-  bool _isValidTile(Crs crs, Coords coords) {
-    if (!crs.infinite) {
-      // don't load tile if it's out of bounds and not wrapped
-      final bounds = _globalTileRange;
-      if ((crs.wrapLng == null &&
-              (coords.x < bounds.min.x || coords.x > bounds.max.x)) ||
-          (crs.wrapLat == null &&
-              (coords.y < bounds.min.y || coords.y > bounds.max.y))) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  bool _areCoordsInsideTileBounds(Coords coords, Bounds? tileBounds) {
-    final bounds = tileBounds ?? _globalTileRange;
-    if ((coords.x < bounds.min.x || coords.x > bounds.max.x) ||
-        (coords.y < bounds.min.y || coords.y > bounds.max.y)) {
-      return false;
-    }
-    return true;
-  }
-
-  Bounds _latLngBoundsToPixelBounds(
-      FlutterMapState map, LatLngBounds bounds, double thisZoom) {
-    final swPixel = map.project(bounds.southWest, thisZoom).floor();
-    final nePixel = map.project(bounds.northEast, thisZoom).ceil();
-    final pxBounds = Bounds(swPixel, nePixel);
-    return pxBounds;
-  }
-
-  void _tileReady(Coords<double> coords, dynamic error, Tile? tile) {
-    if (null != error) {
-      debugPrint(error.toString());
-
-      tile!.loadError = true;
-
-      if (widget.errorTileCallback != null) {
-        widget.errorTileCallback!(tile, error);
-      }
-    } else {
-      tile!.loadError = false;
-    }
-
-    tile = _tileManager.tileAt(tile.coords);
-    if (tile == null) return;
-
-    if (widget.fastReplace && mounted) {
-      setState(() {
-        tile!.active = true;
-
-        if (_tileManager.allLoaded) {
-          // We're not waiting for anything, prune the tiles immediately.
-          _tileManager.prune(_tileZoom, widget.evictErrorTileStrategy);
-        }
-      });
-      return;
-    }
-
-    final fadeInStart = tile.loaded == null
-        ? widget.tileFadeInStart
-        : widget.tileFadeInStartWhenOverride;
-    tile.loaded = DateTime.now();
-    if (widget.tileFadeInDuration == null ||
-        fadeInStart == 1.0 ||
-        (tile.loadError && null == widget.errorImage)) {
-      tile.active = true;
-    } else {
-      tile.startFadeInAnimation(from: fadeInStart);
-    }
-
-    if (mounted) {
-      setState(() {});
-    }
-
-    if (_tileManager.allLoaded) {
-      // Wait a bit more than tileFadeInDuration (the duration of the tile
-      // fade-in) to trigger a pruning.
+    widget.tileDisplay.map(instantaneous: (_) {
+      _tileImageManager.prune(widget.evictErrorTileStrategy);
+    }, fadeIn: (fadeIn) {
+      // Wait a bit more than tileFadeInDuration to trigger a pruning so that
+      // we don't see tile removal under a fading tile.
       _pruneLater?.cancel();
       _pruneLater = Timer(
-        widget.tileFadeInDuration != null
-            ? widget.tileFadeInDuration! + const Duration(milliseconds: 50)
-            : const Duration(milliseconds: 50),
-        () {
-          if (mounted) {
-            setState(() {
-              _tileManager.prune(_tileZoom, widget.evictErrorTileStrategy);
-            });
-          }
-        },
+        fadeIn.duration + const Duration(milliseconds: 50),
+        () => _tileImageManager.prune(widget.evictErrorTileStrategy),
       );
-    }
+    });
   }
 
-  CustomPoint _getTilePos(FlutterMapState map, Coords coords) {
-    final level =
-        _transformationCalculator.getOrCreateLevel(coords.z as double, map);
-    return coords.scaleBy(getTileSize()) - level.origin;
-  }
-
-  Bounds _pxBoundsToTileRange(Bounds bounds) {
-    final tileSize = getTileSize();
-    return Bounds(
-      bounds.min.unscaleBy(tileSize).floor(),
-      bounds.max.unscaleBy(tileSize).ceil() - const CustomPoint(1, 1),
-    );
-  }
+  bool _outsideZoomLimits(num zoom) =>
+      zoom < widget.minZoom || zoom > widget.maxZoom;
 }

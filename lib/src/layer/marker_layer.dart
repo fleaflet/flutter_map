@@ -159,7 +159,7 @@ class MarkerLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final map = FlutterMapState.maybeOf(context)!;
+    final map = FlutterMapState.of(context);
     final markerWidgets = <Widget>[];
 
     for (final marker in markers) {

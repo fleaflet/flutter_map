@@ -117,11 +117,6 @@ class LatLngBounds {
     return LatLng(radianToDeg(phi3), radianToDeg(lambda3));
   }
 
-  /// Checks whether bound object is valid
-  /// TODO: remove this property in the next major release.
-  @Deprecated('This method is unnecessary and will be removed in the future.')
-  bool get isValid => true;
-
   /// Checks whether [point] is inside bounds
   bool contains(LatLng point) {
     final sw2 = point;
@@ -153,7 +148,7 @@ class LatLngBounds {
     }
     return true;
   }
-  
+
   @override
   int get hashCode => Object.hash(_sw, _ne);
 
