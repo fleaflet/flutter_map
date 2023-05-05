@@ -19,6 +19,6 @@ As such, we recommend using a depth-based layout (eg. using `Stack`s) instead of
 
 * [https://pub.dev/packages/backdrop](https://pub.dev/packages/backdrop)
 * [https://pub.dev/packages/sliding\_up\_panel](https://pub.dev/packages/sliding\_up\_panel)
-* [https://pub.dev/packages/material_floating_search_bar_2](https://pub.dev/packages/material_floating_search_bar_2)
+* [https://pub.dev/packages/material\_floating\_search\_bar\_2](https://pub.dev/packages/material\_floating\_search\_bar\_2)
 
 If you must restrict the widget's size, you won't find a `height` or `width` property. Instead, use a `SizedBox` or `Column`/`Row` & `Expanded`.
