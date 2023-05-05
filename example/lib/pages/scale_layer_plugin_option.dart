@@ -63,7 +63,7 @@ class ScaleLayerWidget extends StatelessWidget {
     final displayDistance = distance > 999
         ? '${(distance / 1000).toStringAsFixed(0)} km'
         : '${distance.toStringAsFixed(0)} m';
-    final width = (end.x - (start.x as double));
+    final width = end.x - start.x;
 
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints bc) {
@@ -85,6 +85,7 @@ class ScaleLayerWidget extends StatelessWidget {
 class ScalePainter extends CustomPainter {
   ScalePainter(this.width, this.text,
       {this.padding, this.textStyle, this.lineWidth, this.lineColor});
+
   final double width;
   final EdgeInsets? padding;
   final String text;

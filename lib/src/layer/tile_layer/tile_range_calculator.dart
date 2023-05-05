@@ -33,7 +33,7 @@ class TileRangeCalculator {
     );
   }
 
-  Bounds _calculatePixelBounds(
+  Bounds<double> _calculatePixelBounds(
     FlutterMapState mapState,
     LatLng center,
     double viewingZoom,
@@ -41,7 +41,8 @@ class TileRangeCalculator {
   ) {
     final tileZoomDouble = tileZoom.toDouble();
     final scale = mapState.getZoomScale(viewingZoom, tileZoomDouble);
-    final pixelCenter = mapState.project(center, tileZoomDouble).floor();
+    final pixelCenter =
+        mapState.project(center, tileZoomDouble).floor().toDoublePoint();
     final halfSize = mapState.size / (scale * 2);
 
     return Bounds(pixelCenter - halfSize, pixelCenter + halfSize);

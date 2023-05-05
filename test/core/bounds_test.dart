@@ -9,8 +9,7 @@ void main() {
     test(
         'should create bounds with minimum point equal to minimum argument '
         'if maximum argument point is positioned higher', () {
-      final bounds =
-          Bounds(const CustomPoint(1.0, 2.0), const CustomPoint(3.0, 4.0));
+      final bounds = Bounds(const CustomPoint(1, 2), const CustomPoint(3, 4));
 
       expect(bounds.min.x, equals(1.0));
       expect(bounds.min.y, equals(2.0));
@@ -19,8 +18,7 @@ void main() {
     test(
         'should create bounds with minimum point equal to maximum argument '
         'if maximum argument point is positioned lower', () {
-      final bounds =
-          Bounds(const CustomPoint(3.0, 4.0), const CustomPoint(1.0, 2.0));
+      final bounds = Bounds(const CustomPoint(3, 4), const CustomPoint(1, 2));
 
       expect(bounds.min.x, equals(1.0));
       expect(bounds.min.y, equals(2.0));
@@ -30,7 +28,7 @@ void main() {
         'should create bounds with maximum point equal to minimum argument '
         'if maximum argument point is positioned lower', () {
       final bounds =
-          Bounds(const CustomPoint(1.0, 2.0), const CustomPoint(0.01, 0.02));
+          Bounds(const CustomPoint(1, 2), const CustomPoint(0.01, 0.02));
 
       expect(bounds.max.x, equals(1.0));
       expect(bounds.max.y, equals(2.0));
@@ -40,7 +38,7 @@ void main() {
         'should create bounds with maximum point equal to maximum argument '
         'if maximum argument point is positioned higher', () {
       final bounds =
-          Bounds(const CustomPoint(0.01, 0.02), const CustomPoint(1.0, 2.0));
+          Bounds(const CustomPoint(0.01, 0.02), const CustomPoint(1, 2));
 
       expect(bounds.max.x, equals(1.0));
       expect(bounds.max.y, equals(2.0));
@@ -104,7 +102,7 @@ void main() {
           'should create bounds with bottom left corner\'s y position '
           'using maximum point y position', () {
         expect(
-            Bounds(CustomPoint(randomDouble(), 1.0),
+            Bounds(CustomPoint(randomDouble(), 1),
                     CustomPoint(randomDouble(), 5.5))
                 .bottomLeft
                 .y,
@@ -115,7 +113,7 @@ void main() {
           'should create bounds with top right corner\'s x position '
           'using maximum point x position', () {
         expect(
-            Bounds(CustomPoint(1.0, randomDouble()),
+            Bounds(CustomPoint(1, randomDouble()),
                     CustomPoint(8.8, randomDouble()))
                 .topRight
                 .x,
@@ -127,7 +125,7 @@ void main() {
           'using minimum point y position', () {
         expect(
             Bounds(CustomPoint(randomDouble(), 9.9),
-                    CustomPoint(randomDouble(), 100.0))
+                    CustomPoint(randomDouble(), 100))
                 .topRight
                 .y,
             equals(9.9));
@@ -244,8 +242,8 @@ void main() {
       });
 
       test('should create new bounds and keep existing maximum y position', () {
-        final bounds = Bounds(CustomPoint(randomDouble(), 0.0),
-            CustomPoint(randomDouble(), 15.5));
+        final bounds = Bounds(
+            CustomPoint(randomDouble(), 0), CustomPoint(randomDouble(), 15.5));
         final extendedBounds = bounds.extend(CustomPoint(randomDouble(), 15.4));
 
         expect(extendedBounds.max.y, equals(bounds.max.y));
@@ -303,15 +301,15 @@ void main() {
 
       test('should contain given point within the bounds', () {
         expect(
-            Bounds(const CustomPoint(0.0, 50.0), const CustomPoint(50.0, 0.0))
-                .contains(const CustomPoint(25.0, 25.0)),
+            Bounds(const CustomPoint(0, 50), const CustomPoint(50, 0))
+                .contains(const CustomPoint(25, 25)),
             isTrue);
       });
 
       test('should NOT contain given point within the bounds', () {
         expect(
-            Bounds(const CustomPoint(0.0, 50.0), const CustomPoint(50.0, 0.0))
-                .contains(const CustomPoint(50.1, 50.1)),
+            Bounds(const CustomPoint(0, 50), const CustomPoint(50, 0))
+                .contains(const CustomPoint(51, 51)),
             isFalse);
       });
     });

@@ -12,6 +12,8 @@ import 'package:latlong2/latlong.dart';
 
 class FlutterMapState extends MapGestureMixin
     with AutomaticKeepAliveClientMixin {
+  static const invalidSize = CustomPoint<double>(-1, -1);
+
   final _positionedTapController = PositionedTapController();
   final GestureArenaTeam _team = GestureArenaTeam();
 
@@ -223,37 +225,40 @@ class FlutterMapState extends MapGestureMixin
 
   double get rotationRad => degToRadian(_rotation);
 
-  late CustomPoint _pixelOrigin;
-  CustomPoint get pixelOrigin => _pixelOrigin;
+  late CustomPoint<int> _pixelOrigin;
+
+  CustomPoint<int> get pixelOrigin => _pixelOrigin;
 
   late LatLng _center;
+
   LatLng get center => _center;
 
   late LatLngBounds _bounds;
+
   LatLngBounds get bounds => _bounds;
 
-  late Bounds _pixelBounds;
-  Bounds get pixelBounds => _pixelBounds;
+  late Bounds<double> _pixelBounds;
+
+  Bounds<double> get pixelBounds => _pixelBounds;
 
   // Original size of the map where rotation isn't calculated
-  CustomPoint<double>? _nonrotatedSize;
-  CustomPoint<double>? get nonrotatedSize => _nonrotatedSize;
+  CustomPoint<double> _nonrotatedSize = invalidSize;
+
+  CustomPoint<double> get nonrotatedSize => _nonrotatedSize;
 
   void setSize(double width, double height) {
-    if (_nonrotatedSize == null ||
-        _nonrotatedSize!.x != width ||
-        _nonrotatedSize!.y != height) {
+    if (_nonrotatedSize.x != width || _nonrotatedSize.y != height) {
       final previousNonRotatedSize = _nonrotatedSize;
 
       _nonrotatedSize = CustomPoint<double>(width, height);
       _updateSizeByOriginalSizeAndRotation();
 
-      if (previousNonRotatedSize != null) {
+      if (previousNonRotatedSize != invalidSize) {
         emitMapEvent(
           MapEventNonRotatedSizeChange(
             source: MapEventSource.nonRotatedSizeChange,
             previousNonRotatedSize: previousNonRotatedSize,
-            nonRotatedSize: _nonrotatedSize!,
+            nonRotatedSize: _nonrotatedSize,
             center: center,
             zoom: zoom,
           ),
@@ -263,21 +268,19 @@ class FlutterMapState extends MapGestureMixin
   }
 
   // Extended size of the map where rotation is calculated
-  CustomPoint<double>? _size;
+  CustomPoint<double> _size = invalidSize;
 
-  CustomPoint<double> get size => _size ?? const CustomPoint(0.0, 0.0);
+  CustomPoint<double> get size => _size;
 
   void _updateSizeByOriginalSizeAndRotation() {
-    final originalWidth = _nonrotatedSize!.x;
-    final originalHeight = _nonrotatedSize!.y;
+    final originalWidth = _nonrotatedSize.x;
+    final originalHeight = _nonrotatedSize.y;
 
     if (_rotation != 0.0) {
       final cosAngle = math.cos(rotationRad).abs();
       final sinAngle = math.sin(rotationRad).abs();
-      final num width =
-          (originalWidth * cosAngle) + (originalHeight * sinAngle);
-      final num height =
-          (originalHeight * cosAngle) + (originalWidth * sinAngle);
+      final width = (originalWidth * cosAngle) + (originalHeight * sinAngle);
+      final height = (originalHeight * cosAngle) + (originalWidth * sinAngle);
 
       _size = CustomPoint<double>(width, height);
     } else {
@@ -466,7 +469,7 @@ class FlutterMapState extends MapGestureMixin
     final se = bounds.southEast;
     var size = this.size - padding;
     // Prevent negative size which results in NaN zoom value later on in the calculation
-    size = CustomPoint(math.max(0.0, size.x), math.max(0.0, size.y));
+    size = CustomPoint(math.max(0, size.x), math.max(0, size.y));
     final boundsSize = Bounds(project(se, zoom), project(nw, zoom)).size;
     final scaleX = size.x / boundsSize.x;
     final scaleY = size.y / boundsSize.y;
@@ -481,7 +484,7 @@ class FlutterMapState extends MapGestureMixin
     return math.max(min, math.min(max, zoom));
   }
 
-  CustomPoint project(LatLng latlng, [double? zoom]) {
+  CustomPoint<double> project(LatLng latlng, [double? zoom]) {
     zoom ??= _zoom;
     return options.crs.latLngToPoint(latlng, zoom);
   }
@@ -516,15 +519,15 @@ class FlutterMapState extends MapGestureMixin
     return Offset(delta.x.toDouble(), delta.y.toDouble());
   }
 
-  CustomPoint getNewPixelOrigin(LatLng center, [double? zoom]) {
+  CustomPoint<int> getNewPixelOrigin(LatLng center, [double? zoom]) {
     final viewHalf = size / 2.0;
     return (project(center, zoom) - viewHalf).round();
   }
 
-  Bounds getPixelBounds(double zoom) {
+  Bounds<double> getPixelBounds(double zoom) {
     final mapZoom = zoom;
     final scale = getZoomScale(mapZoom, zoom);
-    final pixelCenter = project(center, zoom).floor();
+    final pixelCenter = project(center, zoom).floor().toDoublePoint();
     final halfSize = size / (scale * 2);
     return Bounds(pixelCenter - halfSize, pixelCenter + halfSize);
   }
@@ -601,9 +604,9 @@ class FlutterMapState extends MapGestureMixin
 
   // This will convert a latLng to a position that we could use with a widget
   // outside of FlutterMap layer space. Eg using a Positioned Widget.
-  CustomPoint latLngToScreenPoint(LatLng latLng) {
+  CustomPoint<double> latLngToScreenPoint(LatLng latLng) {
     final nonRotatedPixelOrigin =
-        (project(_center, zoom) - nonrotatedSize! / 2.0).round();
+        (project(_center, zoom) - _nonrotatedSize / 2.0).round();
 
     var point = options.crs.latLngToPoint(latLng, zoom);
 
@@ -617,11 +620,9 @@ class FlutterMapState extends MapGestureMixin
   }
 
   LatLng? pointToLatLng(CustomPoint localPoint) {
-    if (nonrotatedSize == null) return null;
-
     final localPointCenterDistance = CustomPoint(
-      (nonrotatedSize!.x / 2) - localPoint.x,
-      (nonrotatedSize!.y / 2) - localPoint.y,
+      (_nonrotatedSize.x / 2) - localPoint.x,
+      (_nonrotatedSize.y / 2) - localPoint.y,
     );
     final mapCenter = options.crs.latLngToPoint(center, zoom);
 
@@ -638,8 +639,7 @@ class FlutterMapState extends MapGestureMixin
   // it needs to be reversed (pointToLatLng), and sometimes we want to use
   // the same rotation to create a new position (latLngToScreenpoint).
   // counterRotation just makes allowances this for this.
-  CustomPoint<num> rotatePoint(
-      CustomPoint<num> mapCenter, CustomPoint<num> point,
+  CustomPoint<double> rotatePoint(CustomPoint mapCenter, CustomPoint point,
       {bool counterRotation = true}) {
     final counterRotationFactor = counterRotation ? -1 : 1;
 

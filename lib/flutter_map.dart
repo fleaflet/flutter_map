@@ -143,7 +143,7 @@ abstract class MapController {
 
   LatLng? pointToLatLng(CustomPoint point);
 
-  CustomPoint? latLngToScreenPoint(LatLng latLng);
+  CustomPoint<double>? latLngToScreenPoint(LatLng latLng);
 
   factory MapController() => MapControllerImpl();
 }
