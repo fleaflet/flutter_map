@@ -24,7 +24,7 @@ class FakeInfiniteCrs extends Crs {
 
   /// Any projection just to get non-zero coordiantes.
   @override
-  CustomPoint<num> latLngToPoint(LatLng latlng, double zoom) {
+  CustomPoint<double> latLngToPoint(LatLng latlng, double zoom) {
     return const Epsg3857().latLngToPoint(latlng, zoom);
   }
 }

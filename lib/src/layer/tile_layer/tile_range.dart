@@ -33,13 +33,12 @@ class DiscreteTileRange extends TileRange {
   }) {
     final Bounds<int> bounds;
     if (pixelBounds.min == pixelBounds.max) {
-      final minAndMax = (pixelBounds.min / tileSize).floor().cast<int>();
+      final minAndMax = (pixelBounds.min / tileSize).floor();
       bounds = Bounds<int>(minAndMax, minAndMax);
     } else {
       bounds = Bounds<int>(
-        (pixelBounds.min / tileSize).floor().cast<int>(),
-        (pixelBounds.max / tileSize).ceil().cast<int>() -
-            const CustomPoint(1, 1),
+        (pixelBounds.min / tileSize).floor(),
+        (pixelBounds.max / tileSize).ceil() - const CustomPoint(1, 1),
       );
     }
 

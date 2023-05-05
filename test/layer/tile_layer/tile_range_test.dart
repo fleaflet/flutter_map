@@ -231,7 +231,7 @@ void main() {
           ),
         );
 
-        expect(tileRange.center, const CustomPoint(3.0, 3.0));
+        expect(tileRange.center, const CustomPoint(3, 3));
       });
 
       test('multiple tiles, even number of tiles', () {
@@ -257,7 +257,7 @@ void main() {
           ),
         );
 
-        expect(tileRange.center, const CustomPoint(4.0, 4.0));
+        expect(tileRange.center, const CustomPoint(4, 4));
       });
     });
 
