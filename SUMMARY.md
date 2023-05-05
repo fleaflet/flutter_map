@@ -8,7 +8,7 @@
 
 * [Installation](getting-started/installation.md)
 * [Additional Setup](getting-started/additional-setup.md)
-* [Examples](https://github.com/fleaflet/flutter\_map/tree/master/example/lib/pages)
+* [Examples](getting-started/examples.md)
 * [Migrating To v4](getting-started/migrating-to-v4.md)
 
 ## Usage
