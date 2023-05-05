@@ -1,4 +1,4 @@
-# To v4.0.0
+# Migrating To v4
 
 This update brings major breaking changes for all users.
 
@@ -104,5 +104,19 @@ Setting this to `false` was equivalent to disabling drag gestures through [#inte
 To migrate map code, use the `interactiveFlags` as above.
 
 To migrate plugin code, use `onVerticalDrag` and `onHorizontalDrag` updates instead of `onPan`. For more information, see [https://github.com/fleaflet/flutter\_map/pull/1455](https://github.com/fleaflet/flutter\_map/pull/1455).
+
+</details>
+
+<details>
+
+<summary>Changed some <code>CustomPoint&#x3C;T></code>s' generic type</summary>
+
+`CustomPoints` previously used `num` as their generic type, which lead to type casting within FM and plugins, as some code only allowed `int`/`double`, not `num`.
+
+Many of these have been updated to reflect their true usage.
+
+To migrate, look for any methods which now take a different generic typed `CustomPoint` than was previously required. These should then be either casted at this location, or the source of the number should more accuratley represent what the number will be.
+
+For more information, see [https://github.com/fleaflet/flutter\_map/pull/1482](https://github.com/fleaflet/flutter\_map/pull/1482).
 
 </details>

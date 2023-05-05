@@ -45,7 +45,6 @@
 * [Using Mapbox](tile-servers/using-mapbox.md)
 * [Using Stadia Maps](tile-servers/using-stadia-maps.md)
 * [Using Thunderforest](tile-servers/using-thunderforest.md)
-* [Offline Mapping](http://localhost:5000/s/71h39XIuA0UETMZNP1yW/layers/tile-layer/tile-providers#offline-mapping)
 * [Other Options](tile-servers/other-options.md)
 
 ***
