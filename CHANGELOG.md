@@ -1,6 +1,6 @@
 # Changelog
 
-## [4.0.0] - 2022/05/XX
+## [4.0.0] - 2022/05/05
 
 **"Out With The Old, In With The New"**
 
@@ -22,7 +22,6 @@ Contains the following bug fixes:
 - Prevented scrolling of list and simultaneous panning of map on some platforms - [#1453](https://github.com/fleaflet/flutter_map/pull/1453)
 - Improved `LatLngBounds`'s null safety situation to improve stability - [#1431](https://github.com/fleaflet/flutter_map/pull/1431)
 - Migrated from multiple deprecated APIs - [#1438](https://github.com/fleaflet/flutter_map/pull/1438)
-- Fixed size calculation bugs - [#1470](https://github.com/fleaflet/flutter_map/pull/1470)
 
 Contains the following performance and stability improvements:
 
@@ -37,7 +36,7 @@ Many thanks to these contributors (in no particular order):
 - @pablojimpas
 - @tlserver
 - @Zzerr0r
-- @dumabg
+- @tobiasht
 - @ignatz
 - ... and all the maintainers
 
