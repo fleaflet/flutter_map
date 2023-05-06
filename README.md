@@ -3,9 +3,8 @@ description: >-
   Mapping package for Flutter, based off of 'leaflet.js'. Simple and easy to
   learn, yet completely customizable and configurable, it's the best choice for
   mapping in your Flutter app.
-cover: >-
-  https://3967342857-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FYFI6k92MXbd87FM5cPCk%2Fuploads%2FIkeWyssNqkcXDOHjw3Rn%2FOpenStreetMap%20Screenshot.jpg?alt=media&token=71bbb4f1-75f2-4938-99ca-c1e5af8f5477
-coverY: -20.411160058737153
+cover: .gitbook/assets/Cover.png
+coverY: -35
 ---
 
 # flutter\_map
@@ -14,7 +13,7 @@ coverY: -20.411160058737153
 [![stars](https://camo.githubusercontent.com/7e6d80df311cbd5e68edf6994e404a97af85c84f7ec66614875dba12f055c246/68747470733a2f2f62616467656e2e6e65742f6769746875622f73746172732f666c6561666c65742f666c75747465725f6d61703f6c6162656c3d737461727326636f6c6f723d677265656e2669636f6e3d676974687562)](https://github.com/fleaflet/flutter\_map/stargazers) [![Open Issues](https://camo.githubusercontent.com/3f89334e961516c8b3eef4879a287818a2b8e6523e5f9f8d3767e1d98c8a4f44/68747470733a2f2f62616467656e2e6e65742f6769746875622f6f70656e2d6973737565732f666c6561666c65742f666c75747465725f6d61703f6c6162656c3d4f70656e2b49737375657326636f6c6f723d677265656e)](https://github.com/fleaflet/flutter\_map/issues) [![Open PRs](https://camo.githubusercontent.com/2d48f34537361cf13f775e8c88c5884a7a7b280469b319453b2ccdabdee1f2db/68747470733a2f2f62616467656e2e6e65742f6769746875622f6f70656e2d7072732f666c6561666c65742f666c75747465725f6d61703f6c6162656c3d4f70656e2b50527326636f6c6f723d677265656e)](https://github.com/fleaflet/flutter\_map/pulls)
 
 {% embed url="https://discord.gg/egEGeByf4q" %}
-With over 1500 members, our Discord server is the best place to get quick support for simpler questions!
+With over 2000 members, our Discord server is the best place to get quick support for simpler questions!
 {% endembed %}
 
 ## Demonstration
