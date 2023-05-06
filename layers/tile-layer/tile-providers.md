@@ -1,7 +1,3 @@
----
-description: ... and Offline Mapping
----
-
 # Tile Providers
 
 The `tileProvider` parameter in `TileLayer` takes a `TileProvider` object specifying a [tile provider](../../explanation/#tile-providers) to use for that layer.
@@ -48,27 +44,6 @@ On the web, `FileTileProvider()` will automatically use `NetworkImage()` behind 
 
 ## Offline Mapping
 
-### Bundled Map Tiles
-
-If you have a set of custom raster tiles that you need to provide to all your users, you may want to consider bundling them together, to make a them easier to deploy to your users. Note that this is different to the [#caching](tile-providers.md#caching "mention") section below.
-
-There is essentially two options for doing this:
-
-* Using `AssetTileProvider`, you can bundle a set of map tiles and register them as an asset within your app's pubspec.yaml. This means that they will be downloaded together with your application, keeping setup simple, but at the expense of a larger application bundle size.
-* Using `FileTileProvider`, you can bundle a set of map tiles and store them on a remote web server, that can be downloaded from later. This means that the setup may be more complicated for users, but the application's bundle size will be much smaller.
-
-Either way, the filesystem should be structured like this: 'offlineMap/{z}/{x}/{y}.png', where every .png image is a tile.
-
-If you have a raster-format .mbtiles file, for example from TileMill, you should use [mbtilesToPngs](https://github.com/alfanhui/mbtilesToPngs) to convert it to the correct structure first. Alternatively, you can use an external package such as '[flutter\_mbtiles\_extractor](https://pub.dev/packages/flutter\_mbtiles\_extractor)' to extract during runtime.
-
-### Caching & Bulk Downloading
-
-The [community maintained plugin `flutter_map_tile_caching`](https://github.com/JaffaKetchup/flutter\_map\_tile\_caching) provides advanced caching and bulk downloading capability, which handles many surrounding and supporting features for you and your app, with minimal implementation effort.
-
-However, using simpler packages in a DIY solution can be a better option in some cases. You'll need to implement a custom `TileProvider` backed by an alternative image provider or cache lookup system: see [creating-new-tile-providers.md](../../plugins/making-a-plugin/creating-new-tile-providers.md "mention").
-
-To help choose whether FMTC or DIY is more appropriate for your usecase, please see:
-
-{% embed url="https://fmtc.jaffaketchup.dev/is-fmtc-right-for-me" %}
-
-If you prefer to offer a set of map tiles to all your users before runtime, consider using the [#bundled-map-tiles](tile-providers.md#bundled-map-tiles "mention") solution instead.
+{% content-ref url="../../tile-servers/offline-mapping.md" %}
+[offline-mapping.md](../../tile-servers/offline-mapping.md)
+{% endcontent-ref %}
