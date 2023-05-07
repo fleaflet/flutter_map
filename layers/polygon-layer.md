@@ -12,7 +12,7 @@ You can add areas/shapes to maps by making them out of individual coordinates us
 PolygonLayer(
   polygons: [
     Polygon(
-      points: [LatLng(30, 40), LatLng(20, 50), LatLng(25, 45),],
+      points: [LatLng(30, 40), LatLng(20, 50), LatLng(25, 45)],
       color: Colors.blue,
     ),
   ],

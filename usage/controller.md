@@ -44,7 +44,7 @@ Widget build(BuildContext context) =>
 ```
 
 {% hint style="info" %}
-It may also be possible to use `SchedulerBinding` or `WidgetsBinding` in `initState` to run a method after the first frame has been built, as detailed here: [https://stackoverflow.com/a/64186549/11846040](https://stackoverflow.com/a/64186549/11846040).
+It may also be possible to use `SchedulerBinding` or `WidgetsBinding` in `initState` to run a method after the first frame has been built, as detailed here: [https://stackoverflow.com/a/64186549/11846040](https://stackoverflow.com/a/64186549/11846040). You'll probably see this approach in many older projects.
 
 That method will, however, not work if the map is not built on the first frame. This may be the case if it is, for example, in a `FutureBuilder`.
 {% endhint %}

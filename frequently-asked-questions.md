@@ -1,8 +1,10 @@
 # Frequently Asked Questions
 
-If you have a question you'd like to add to this page, please let us know over on the Discord server!
+We get quite a lot of similar questions, so please check if your question is here before you ask!
 
-You should also read the [explanation](explanation/ "mention") page for a more generalised overview of the most important facts.
+{% content-ref url="explanation/" %}
+[explanation](explanation/)
+{% endcontent-ref %}
 
 <details>
 
@@ -22,7 +24,7 @@ However, tilesets can be styled. This is the most effective way of using custom 
 
 <details>
 
-<summary>How can I route a user between two locations?</summary>
+<summary>How can I route a user between two locations?<br><em>Why does the <code>Polyline</code> only go in a straight line between two points?</em></summary>
 
 See [#routing-navigation](layers/polyline-layer.md#routing-navigation "mention").
 
@@ -40,7 +42,7 @@ Alternatively, use the 'location' and 'compass' packages to generate a stream of
 
 <details>
 
-<summary>Changing the <code>center</code> or <code>zoom</code> doesn't seem to work</summary>
+<summary>Why doesn't programatically changing the <code>center</code> or <code>zoom</code> work?</summary>
 
 The `center` and `zoom` properties of `MapOptions` only apply on the map's initialisation: changing their state afterwards will have no effect.
 
@@ -50,30 +52,17 @@ To control the map programatically, use a `MapController`: [controller.md](usage
 
 <details>
 
-<summary>How does flutter_map compare to other libraries?</summary>
+<summary>Why does the map disappear/go grey when I zoom in far?</summary>
 
-This usually refers to libraries such as 'mapbox\_gl' and 'google\_maps\_flutter'. In some ways, it is better, in some it is worse.
+This is a limitation of the chosen tile server: it cannot provide tiles at any higher zoom level, so the map just disappears as the requests for tiles get 404 Not Found responses.
 
-flutter\_map wins on:
+To resolve this, there's 3 options:
 
-* Less vendor lock-in\
-  You're not locked into a particular tile server with us - choose from hundreds of options, or build your own!
-* Customizability & extensibility\
-  Add all sorts of layers to display custom widgets and data on top of your map, and choose from flutter\_map's many community maintained plugins to add even more functionality!
-* Ease of use/setup\
-  We don't require any API keys or platform specific setup (other than enabling the Internet permission!), so you can get started quicker, and make changes without fear of breaking your release application.
-* Support quality and frequency\
-  Most questions are answered and resolved within 12-24 hours, thanks to our dedicated maintainers and community.&#x20;
-
-However, alternatives may win on:
-
-* Performance\*\
-  flutter\_map's performance is very adequate for the vast majority of applications, and many big businesses use FM to provide maps in their Flutter app.\
-  However, if you're using high-thousands of `Markers` or `Polygons` and such like, alternatives may win, purely because they use platform views and GL, and so can do calculations outside of Dart.
-* ... and that's pretty much it
+* Find a tile server with a higher maximum zoom level\
+  _22 is the highest that most will provide, including Mapbox_
+* Set the `maxNativeZoom` property of the `TileLayer`\
+  This will scale the last set of tiles instead of requesting new ones, which has the side effect of making them blurry as their pixels are enlarged
+* Set the `maxZoom` property of the `MapOptions`\
+  This will prevent the user from zooming any further in
 
 </details>
-
-{% hint style="success" %}
-We're adding questions here as we get them!
-{% endhint %}

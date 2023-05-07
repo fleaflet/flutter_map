@@ -23,7 +23,7 @@ Latest Build Artifacts (thanks [nightly](https://nightly.link/))
 {% endembed %}
 
 {% hint style="warning" %}
-Note that these artifacts may become unavailable after 90 days (due to GitHub's pruning policy), in which case you'll need to build from source.
+Note that these artifacts may become unavailable a while, in which case you'll need to build from source.
 {% endhint %}
 
 ## Web Demo
