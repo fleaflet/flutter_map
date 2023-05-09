@@ -37,7 +37,7 @@ Widget build(BuildContext context) =>
         options: MapOptions(
             onMapReady: () {
                 mapController.mapEventStream.listen((evt) {});
-                // And any other `MapController` dependent methods
+                // And any other `MapController` dependent non-movement methods
             },
         ),
     );
@@ -49,9 +49,17 @@ It may also be possible to use `SchedulerBinding` or `WidgetsBinding` in `initSt
 That method will, however, not work if the map is not built on the first frame. This may be the case if it is, for example, in a `FutureBuilder`.
 {% endhint %}
 
+{% hint style="warning" %}
+`MapController` methods that change the position of the map should not be used instantly in `onMapReady` - see [issue #1507](https://github.com/fleaflet/flutter\_map/issues/1507).
+
+Using them as a reaction to a map event is still fine.
+{% endhint %}
+
 ## Animation
 
-Whilst animated controllers aren't built-in, the [community maintained plugin `flutter_map_animations`](https://github.com/TesteurManiak/flutter\_map\_animations) provides the functionality.
+Whilst animated movements through `MapController`s aren't built-in, the [community maintained plugin `flutter_map_animations`](https://github.com/TesteurManiak/flutter\_map\_animations) provides this, and much more!
+
+The example application also includes a page demonstrating a custom animated map movement.
 
 [^1]: It may be called more than once in some circumstances.\
     If this is the case, use a flag variable, and only carry out the actions is the flag has not already been set.
