@@ -1,14 +1,16 @@
 # Controller
 
-The `mapController` property takes a `MapController`, and whilst it is optional, it is strongly recommended for any map other than the most basic. It allows you to programmatically interact with the map, such as panning, zooming and rotating.
+To programatically interact with the map (such as panning, zooming and rotating) and receive it's events, you'll need a `MapController`.
 
 {% embed url="https://pub.dev/documentation/flutter_map/latest/flutter_map/MapController-class.html" %}
-Full API Reference
-{% endembed %}
+
+{% hint style="warning" %}
+If building a custom layer ([creating-new-layers.md](../plugins/making-a-plugin/creating-new-layers.md "mention")), consider using `FlutterMapState` directly instead.
+{% endhint %}
 
 ## Initialisation
 
-To use a `MapController`, it must initialised and then passed to the `FlutterMap`. This attaches them until the widget is destroyed/disposed.
+To use a `MapController`, it must initialised like any other object and then passed to the `FlutterMap`. This attaches them until the map is disposed.
 
 ```dart
 final mapController = MapController();
@@ -21,11 +23,20 @@ Widget build(BuildContext context) =>
     );
 ```
 
+{% hint style="warning" %}
+Avoid disconnecting the map from the controller, as it can cause problems. If you need to change the map's contents:
+
+* Change its `children` (layers) individually
+* Re-initialise a new `MapController`, and keep it in an external state system
+
+If you still get issues, and `FlutterMap` is located inside a `PageView`, `ListView` or another complex lazy layout, try setting `keepAlive` `true` in `MapOptions`: [#permanent-rules](options.md#permanent-rules "mention").
+{% endhint %}
+
 ## Usage In `initState()`
 
 It is a fairly common requirement to need to use the `MapController` in `initState()`, before the map has been built. Unfortunately, this is not possible, as the map must be built for the controller to be attached.
 
-This isn't a problem however! The [#when-map-ready-onmapready](options/other-options.md#when-map-ready-onmapready "mention") callback is called once[^1] when the map is initialised, and the initialised map controller can be used freely within it.
+This isn't a problem however! The `MapOptions` contains an `onMapReady` callback (see [#event-handling](options.md#event-handling "mention")) is called once[^1] when the map is initialised, and the initialised map controller can be used freely within it.
 
 ```dart
 final mapController = MapController();

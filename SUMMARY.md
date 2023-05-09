@@ -14,9 +14,7 @@
 ## Usage
 
 * [Base Widget](usage/basics.md)
-* [Options](usage/options/README.md)
-  * [Recommended Options](usage/options/recommended-options.md)
-  * [Other Options](usage/options/other-options.md)
+* [Options](usage/options.md)
 * [Layers](usage/layers.md)
 * [Controller](usage/controller.md)
 * [Full API Reference](https://pub.dev/documentation/flutter\_map/latest/flutter\_map/flutter\_map-library.html)

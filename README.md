@@ -14,9 +14,9 @@ coverY: -35
 
 ## Demonstration
 
-Setting up an interactive and compliant[^1] map is simpler than making your lunch-time coffee! It can be accomplished in just over 20 lines, as shown below.
+Setting up an interactive and compliant[^1] map is simpler than making your lunch-time coffee! It can be accomplished in just over 20 lines and a minute or two to install.
 
-This code snippet demonstrates **everything** you need for a simple map, but of course, FM is capable of much more than just this, and you could find yourself lost in the many options available and possibilities opened!
+This code snippet demonstrates **everything** you need for a simple map (in just over 20 lines!), but of course, FM is capable of much more than just this, and you could find yourself lost in the many options available and possibilities opened!
 
 <pre class="language-dart" data-line-numbers><code class="lang-dart">@override
 Widget build(BuildContext context) {

@@ -42,16 +42,6 @@ Alternatively, use the 'location' and 'compass' packages to generate a stream of
 
 <details>
 
-<summary>Why doesn't programatically changing the <code>center</code> or <code>zoom</code> work?</summary>
-
-The `center` and `zoom` properties of `MapOptions` only apply on the map's initialisation: changing their state afterwards will have no effect.
-
-To control the map programatically, use a `MapController`: [controller.md](usage/controller.md "mention").
-
-</details>
-
-<details>
-
 <summary>Why does the map disappear/go grey when I zoom in far?</summary>
 
 This is a limitation of the chosen tile server: it cannot provide tiles at any higher zoom level, so the map just disappears as the requests for tiles get 404 Not Found responses.

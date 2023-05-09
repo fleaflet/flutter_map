@@ -19,5 +19,5 @@ However, the `nonRotatedChildren` property can be used for layers which shouldn'
 {% hint style="warning" %}
 Do not use `nonRotatedChildren` to enforce a non-rotatable map/`TileLayer`.
 
-Instead, use [#interactivity-settings-interactiveflags](options/other-options.md#interactivity-settings-interactiveflags "mention"). These apply to the entire map and all layers.
+Instead, use `interactiveFlags`: [#permanent-rules](options.md#permanent-rules "mention"). These apply to the entire map and all layers.
 {% endhint %}

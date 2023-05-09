@@ -38,11 +38,10 @@ dependency_overrides:
 
 After installing the package, import it into the necessary files in your project:
 
-```dart
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
+<pre class="language-dart"><code class="lang-dart"><strong>import 'package:flutter_map/flutter_map.dart';
+</strong>import 'package:latlong2/latlong.dart';
 import 'package:flutter_map/plugin_api.dart'; // Only import if required functionality is not exposed by default
-```
+</code></pre>
 
 {% hint style="warning" %}
 Before continuing with usage, make sure you comply with the appropriate rules and ToS for your server. Some have stricter rules than others. This package or the creator(s) are not responsible for any violations you make using this package.

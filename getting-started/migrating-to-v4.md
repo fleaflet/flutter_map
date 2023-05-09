@@ -99,9 +99,9 @@ To migrate, replace with an `Align` widget (and insert directly into the map's `
 
 <summary>Removed <code>absorbPanEventsOnScrollables</code></summary>
 
-Setting this to `false` was equivalent to disabling drag gestures through [#interactivity-settings-interactiveflags](../usage/options/other-options.md#interactivity-settings-interactiveflags "mention").
+Setting this to `false` was equivalent to disabling drag gestures through `interactiveFlags`.
 
-To migrate map code, use the `interactiveFlags` as above.
+To migrate map code, use the `interactiveFlags` as above. See [#permanent-rules](../usage/options.md#permanent-rules "mention").
 
 To migrate plugin code, use `onVerticalDrag` and `onHorizontalDrag` updates instead of `onPan`. For more information, see [https://github.com/fleaflet/flutter\_map/pull/1455](https://github.com/fleaflet/flutter\_map/pull/1455).
 
