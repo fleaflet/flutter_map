@@ -169,7 +169,7 @@ class PolylinePainter extends CustomPainter {
       }
 
       final hash = polyline.renderHashCode;
-      if (saveLayers || (lastHash != null && lastHash != hash)) {
+      if (lastHash != null && (saveLayers || (lastHash != hash))) {
         drawPaths();
       }
       lastHash = hash;
