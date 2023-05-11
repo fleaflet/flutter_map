@@ -1,5 +1,10 @@
 name: Analyse, Test & Build
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   score-package:

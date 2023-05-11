@@ -18,15 +18,17 @@ import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_display.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image_manager.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/asset_tile_provider.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provider.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/tile_provider_io.dart'
-    if (dart.library.html) 'package:flutter_map/src/layer/tile_layer/tile_provider/tile_provider_web.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/file_providers/tile_provider_stub.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network_tile_provider.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_update_event.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_update_transformer.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
+import 'package:http/retry.dart';
 
 part 'tile_layer_options.dart';
 
@@ -117,34 +119,32 @@ class TileLayer extends StatefulWidget {
 
   /// Provider with which to load map tiles
   ///
-  /// The default is [NetworkNoRetryTileProvider]. Alternatively, use
-  /// [NetworkTileProvider] for a network provider which will retry requests.
+  /// The default is [NetworkTileProvider] which supports both IO and web
+  /// platforms. It uses a [RetryClient] to retry failed requests, but that can
+  /// be overriden by specifying [NetworkTileProvider.httpClient].
   ///
-  /// Both network providers will use some form of caching, although not reliable. For
-  /// better options, see https://docs.fleaflet.dev/usage/layers/tile-layer#caching.
+  /// Does not automatically cache (past Flutter's [ImageCache]). For options to
+  /// add offline mapping, see
+  /// https://docs.fleaflet.dev/tile-servers/offline-mapping.
   ///
-  /// `userAgentPackageName` is a construction parameter, which should be passed
-  /// the application's correct package name, such as 'com.example.app'. If no
-  /// value is passed, it defaults to 'unknown'. This parameter is used to form
-  /// part of the 'User-Agent' header, which is important to avoid blocking by
-  /// tile servers. Namely, the header is the following 'flutter_map (<packageName>)'.
-  ///
-  /// Header rules are as follows, after 'User-Agent' is generated as above:
-  ///
-  /// * If no provider is specified here, the default will be used with
-  /// 'User-Agent' header injected (recommended)
-  /// * If a provider is specified here with no 'User-Agent' header, that
-  /// provider will be used and the 'User-Agent' header will be injected
-  /// * If a provider is specified here with a 'User-Agent' header, that
-  /// provider will be used and the 'User-Agent' header will not be changed to any created here
+  /// `userAgentPackageName` is a [TileLayer] parameter, which should be passed
+  /// the application's correct package name, such as 'com.example.app'. This is
+  /// important to avoid blocking by tile servers due to high-levels of
+  /// unidentified traffic. This is passed through to the [NetworkTileProvider]
+  /// in a suitably formatted string, where it forms the 'User-Agent' header,
+  /// overriding any custom user agent specified in the HTTP client. To override
+  /// this behaviour, specify a 'User-Agent' key in the
+  /// [NetworkTileProvider.headers] property. If no value is passed, it defaults
+  /// to 'unknown'. This is all ignored on the web, where the 'User-Agent' header
+  /// cannot be changed due to a limitation of Dart/browsers.
   ///
   /// [AssetTileProvider] and [FileTileProvider] are alternatives to network
   /// providers, which use the [urlTemplate] as a path instead.
   /// For example, 'assets/map/{z}/{x}/{y}.png' or
   /// '/storage/emulated/0/map_app/tiles/{z}/{x}/{y}.png'.
   ///
-  /// Custom [TileProvider]s can also be used, but these will not follow the header
-  /// rules above.
+  /// Custom [TileProvider]s can also be used, but these will not necessarily
+  /// follow the header rules above.
   final TileProvider tileProvider;
 
   /// When panning the map, keep this many rows and columns of tiles before
@@ -280,7 +280,7 @@ class TileLayer extends StatefulWidget {
             ? const <String, String>{}
             : Map.from(additionalOptions),
         tileProvider = tileProvider == null
-            ? NetworkNoRetryTileProvider(
+            ? NetworkTileProvider(
                 headers: {'User-Agent': 'flutter_map ($userAgentPackageName)'},
               )
             : (tileProvider
