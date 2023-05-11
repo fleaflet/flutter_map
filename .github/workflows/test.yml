@@ -1,17 +1,57 @@
-name: Show Me the S3cr3tz
-on: [push]
+name: Analyse & Test
+on:
+  workflow_call:
 
 jobs:
-  debug:
-    name: Debug
+  score-package:
+    name: "Score Package"
     runs-on: ubuntu-latest
-
     steps:
-    - name: Check out code
-      uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Run Dart Package Analyser
+        uses: axel-op/dart-package-analyzer@v3
+        id: analysis
+        with:
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check Package Scores
+        env:
+          TOTAL: ${{ steps.analysis.outputs.total }}
+          TOTAL_MAX: ${{ steps.analysis.outputs.total_max }}
+        run: |
+          if (( $TOTAL < $TOTAL_MAX ))
+          then
+            echo Package score less than available score. Improve the score!
+            exit 1
+          fi
 
-    - name: Set up secret file
-      env:
-        TEST: ${{ secrets.TEST }}
-      run: |
-        echo ${{secrets.TEST}} | sed 's/./& /g'
+  analyse-code:
+    name: "Analyse Code"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Setup Flutter Environment
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+      - name: Get All Dependencies
+        run: flutter pub get
+      - name: Check Formatting
+        run: dart format --output=none --set-exit-if-changed .
+      - name: Check Lints
+        run: dart analyze --fatal-infos --fatal-warnings
+
+  run-tests:
+    name: "Run Tests"
+    runs-on: ubuntu-latest
+    needs: analyse-code
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Setup Flutter Environment
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+      - name: Run Tests
+        run: flutter test -r expanded

@@ -1,0 +1,61 @@
+name: Build IO Example Apps
+on:
+  workflow_call:
+
+jobs:
+    build-android:
+      name: "Build Android Example App"
+      runs-on: ubuntu-latest
+      defaults:
+        run:
+          working-directory: ./example
+      steps:
+        - name: Checkout Repository
+          uses: actions/checkout@v3
+        - name: Setup Java 17 Environment
+          uses: actions/setup-java@v3
+          with:
+            distribution: "temurin"
+            java-version: "17"
+        - name: Setup Flutter Environment
+          uses: subosito/flutter-action@v2
+          with:
+            channel: "stable"
+        - name: Build Android Application
+          run: flutter build apk
+        - name: Archive Artifact
+          uses: actions/upload-artifact@v3.1.2
+          with:
+            name: apk-build
+            path: example/build/app/outputs/apk/release
+            if-no-files-found: error
+    
+    build-windows:
+      name: "Build Windows Example App"
+      runs-on: windows-latest
+      defaults:
+        run:
+          working-directory: ./example
+      steps:
+        - name: Checkout Repository
+          uses: actions/checkout@v3
+        - name: Setup Java 17 Environment
+          uses: actions/setup-java@v3
+          with:
+            distribution: "temurin"
+            java-version: "17"
+        - name: Setup Flutter Environment
+          uses: subosito/flutter-action@v2
+          with:
+            channel: "stable"
+        - name: Build Windows Application
+          run: flutter build windows
+        - name: Create Windows Application Installer
+          run: iscc "windowsApplicationInstallerSetup.iss"
+          working-directory: .
+        - name: Archive Artifact
+          uses: actions/upload-artifact@v3.1.2
+          with:
+            name: exe-build
+            path: windowsTemp/WindowsApplication.exe
+            if-no-files-found: error

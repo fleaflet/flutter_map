@@ -1,0 +1,51 @@
+name: Analyse, Test & Build (Push)
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: "Analyse & Test"
+    uses: ./.github/workflows/test.yml
+
+  build-io:
+    name: "Build Example Apps (IO)"
+    needs: test
+    uses: ./.github/workflows/build_io.yml
+  
+  build-web:
+    name: "Build Web Example App"
+    runs-on: ubuntu-latest
+    needs: test
+    defaults:
+      run:
+        working-directory: ./example
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Setup Flutter Environment
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+      - name: Build Web Application
+        run: flutter build web
+      - name: Archive Artifact
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: web-build
+          path: example/build/web
+          if-no-files-found: error
+  
+  build_and_preview:
+    runs-on: ubuntu-latest
+    needs: build-web
+    steps:
+      - uses: actions/checkout@v2
+      - uses: FirebaseExtended/action-hosting-deploy@main
+        with:
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_FLEAFLET }}"
+          channelId: live
+          projectId: fleaflet-firebase
