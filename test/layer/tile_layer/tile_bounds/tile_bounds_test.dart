@@ -79,8 +79,8 @@ void main() {
             )
             .having((e) => e.wrappedAxisIsAlwaysInBounds,
                 'wrappedAxisIsAlwaysInBounds', isTrue)
-            .having((e) => e.wrapX, 'wrapX', const (0, 31))
-            .having((e) => e.wrapY, 'wrapY', isNull),
+            .having((e) => e.wrapX, 'wrapX', const (0, 31)).having(
+                (e) => e.wrapY, 'wrapY', isNull),
       );
     });
 
@@ -108,8 +108,8 @@ void main() {
             )
             .having((e) => e.wrappedAxisIsAlwaysInBounds,
                 'wrappedAxisIsAlwaysInBounds', isFalse)
-            .having((e) => e.wrapX, 'wrapX', const (0, 31))
-            .having((e) => e.wrapY, 'wrapY', isNull),
+            .having((e) => e.wrapX, 'wrapX', const (0, 31)).having(
+                (e) => e.wrapY, 'wrapY', isNull),
       );
     });
 
