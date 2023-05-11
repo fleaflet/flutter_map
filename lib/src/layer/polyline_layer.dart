@@ -69,10 +69,10 @@ class PolylineLayer extends StatelessWidget {
   final bool saveLayers;
 
   const PolylineLayer({
-  super.key,
-  this.polylines = const [],
-  this.polylineCulling = false,
-  this.saveLayers = false,
+    super.key,
+    this.polylines = const [],
+    this.polylineCulling = false,
+    this.saveLayers = false,
   });
 
   @override
@@ -82,8 +82,8 @@ class PolylineLayer extends StatelessWidget {
 
     final List<Polyline> lines = polylineCulling
         ? polylines.where((p) {
-      return p.boundingBox.isOverlapping(map.bounds);
-    }).toList()
+            return p.boundingBox.isOverlapping(map.bounds);
+          }).toList()
         : polylines;
 
     return CustomPaint(
@@ -283,7 +283,7 @@ class PolylinePainter extends CustomPainter {
 
   List<double>? _getColorsStop(Polyline polyline) =>
       (polyline.colorsStop != null &&
-          polyline.colorsStop!.length == polyline.gradientColors!.length)
+              polyline.colorsStop!.length == polyline.gradientColors!.length)
           ? polyline.colorsStop
           : _calculateColorsStop(polyline);
 
@@ -291,8 +291,8 @@ class PolylinePainter extends CustomPainter {
     final colorsStopInterval = 1.0 / polyline.gradientColors!.length;
     return polyline.gradientColors!
         .map((gradientColor) =>
-    polyline.gradientColors!.indexOf(gradientColor) *
-        colorsStopInterval)
+            polyline.gradientColors!.indexOf(gradientColor) *
+            colorsStopInterval)
         .toList();
   }
 
