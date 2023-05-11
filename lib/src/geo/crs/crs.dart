@@ -5,7 +5,6 @@ import 'package:flutter_map/src/core/point.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 import 'package:proj4dart/proj4dart.dart' as proj4;
-import 'package:tuple/tuple.dart';
 
 /// An abstract representation of a
 /// [Coordinate Reference System](https://bit.ly/3iVKpja).
@@ -68,9 +67,9 @@ abstract class Crs {
 
   bool get infinite;
 
-  Tuple2<double, double>? get wrapLng;
+  (double, double)? get wrapLng;
 
-  Tuple2<double, double>? get wrapLat;
+  (double, double)? get wrapLat;
 }
 
 // Custom CRS for non geographical maps
@@ -93,10 +92,10 @@ class CrsSimple extends Crs {
   bool get infinite => false;
 
   @override
-  Tuple2<double, double>? get wrapLat => null;
+  (double, double)? get wrapLat => null;
 
   @override
-  Tuple2<double, double>? get wrapLng => null;
+  (double, double)? get wrapLng => null;
 }
 
 abstract class Earth extends Crs {
@@ -104,10 +103,10 @@ abstract class Earth extends Crs {
   bool get infinite => false;
 
   @override
-  final Tuple2<double, double> wrapLng = const Tuple2(-180, 180);
+  final (double, double) wrapLng = const (-180, 180);
 
   @override
-  final Tuple2<double, double>? wrapLat = null;
+  final (double, double)? wrapLat = null;
 
   const Earth() : super();
 }
@@ -132,7 +131,7 @@ class Epsg3857 extends Earth {
 
 // Epsg3857 seems to have latitude limits. https://epsg.io/3857
 //@override
-//Tuple2<double, double> get wrapLat => const Tuple2(-85.06, 85.06);
+//(double, double get wrapLat => const Tuple2(-85.06, 85.06);
 }
 
 /// A common CRS among GIS enthusiasts. Uses simple Equirectangular projection.
@@ -167,10 +166,10 @@ class Proj4Crs extends Crs {
   final bool infinite;
 
   @override
-  final Tuple2<double, double>? wrapLat = null;
+  final (double, double)? wrapLat = null;
 
   @override
-  final Tuple2<double, double>? wrapLng = null;
+  final (double, double)? wrapLng = null;
 
   final List<Transformation>? _transformations;
 

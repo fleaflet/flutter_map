@@ -4,7 +4,6 @@ import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:test/test.dart';
-import 'package:tuple/tuple.dart';
 
 import 'crs_fakes.dart';
 
@@ -80,7 +79,7 @@ void main() {
             )
             .having((e) => e.wrappedAxisIsAlwaysInBounds,
                 'wrappedAxisIsAlwaysInBounds', isTrue)
-            .having((e) => e.wrapX, 'wrapX', const Tuple2<int, int>(0, 31))
+            .having((e) => e.wrapX, 'wrapX', const (0, 31))
             .having((e) => e.wrapY, 'wrapY', isNull),
       );
     });
@@ -109,7 +108,7 @@ void main() {
             )
             .having((e) => e.wrappedAxisIsAlwaysInBounds,
                 'wrappedAxisIsAlwaysInBounds', isFalse)
-            .having((e) => e.wrapX, 'wrapX', const Tuple2<int, int>(0, 31))
+            .having((e) => e.wrapX, 'wrapX', const (0, 31))
             .having((e) => e.wrapY, 'wrapY', isNull),
       );
     });
@@ -164,13 +163,13 @@ void main() {
       // Inferred from (ranges are inclusive starting at 0):
       // https://wiki.openstreetmap.org/wiki/Zoom_levels
       final expectedTileRanges = {
-        0: const Tuple4(0, 0, 0, 0),
-        1: const Tuple4(0, 0, 1, 1),
-        2: const Tuple4(0, 0, 3, 3),
-        3: const Tuple4(0, 0, 7, 7),
-        4: const Tuple4(0, 0, 15, 15),
-        5: const Tuple4(0, 0, 31, 31),
-        6: const Tuple4(0, 0, 63, 63),
+        0: const (0, 0, 0, 0),
+        1: const (0, 0, 1, 1),
+        2: const (0, 0, 3, 3),
+        3: const (0, 0, 7, 7),
+        4: const (0, 0, 15, 15),
+        5: const (0, 0, 31, 31),
+        6: const (0, 0, 63, 63),
       };
 
       final tileBounds = TileBounds(
@@ -188,7 +187,7 @@ void main() {
         final lastCoord = coords.last;
 
         expect(
-          Tuple4(firstCoord.x, firstCoord.y, lastCoord.x, lastCoord.y),
+          (firstCoord.x, firstCoord.y, lastCoord.x, lastCoord.y),
           entry.value,
         );
       }
@@ -198,13 +197,13 @@ void main() {
       // Inferred from (ranges are inclusive starting at 0):
       // https://wiki.openstreetmap.org/wiki/Zoom_levels
       final expectedTileRanges = {
-        0: const Tuple2(0, 0),
-        1: const Tuple2(0, 1),
-        2: const Tuple2(0, 3),
-        3: const Tuple2(0, 7),
-        4: const Tuple2(0, 15),
-        5: const Tuple2(0, 31),
-        6: const Tuple2(0, 63),
+        0: const (0, 0),
+        1: const (0, 1),
+        2: const (0, 3),
+        3: const (0, 7),
+        4: const (0, 15),
+        5: const (0, 31),
+        6: const (0, 63),
       };
 
       final tileBounds = TileBounds(

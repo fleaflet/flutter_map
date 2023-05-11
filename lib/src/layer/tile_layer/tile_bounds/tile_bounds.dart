@@ -4,7 +4,6 @@ import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:tuple/tuple.dart';
 
 abstract class TileBounds {
   final Crs crs;
@@ -124,30 +123,30 @@ class WrappedTileBounds extends TileBounds {
 
     final tzDouble = zoom.toDouble();
 
-    Tuple2<int, int>? wrapX;
+    (int, int)? wrapX;
     if (crs.wrapLng != null) {
       final wrapXMin =
-          (crs.latLngToPoint(LatLng(0, crs.wrapLng!.item1), tzDouble).x /
+          (crs.latLngToPoint(LatLng(0, crs.wrapLng!.$1), tzDouble).x /
                   _tileSize)
               .floor();
       final wrapXMax =
-          (crs.latLngToPoint(LatLng(0, crs.wrapLng!.item2), tzDouble).x /
+          (crs.latLngToPoint(LatLng(0, crs.wrapLng!.$2), tzDouble).x /
                   _tileSize)
               .ceil();
-      wrapX = Tuple2(wrapXMin, wrapXMax - 1);
+      wrapX = (wrapXMin, wrapXMax - 1);
     }
 
-    Tuple2<int, int>? wrapY;
+    (int, int)? wrapY;
     if (crs.wrapLat != null) {
       final wrapYMin =
-          (crs.latLngToPoint(LatLng(crs.wrapLat!.item1, 0), tzDouble).y /
+          (crs.latLngToPoint(LatLng(crs.wrapLat!.$1, 0), tzDouble).y /
                   _tileSize)
               .floor();
       final wrapYMax =
-          (crs.latLngToPoint(LatLng(crs.wrapLat!.item2, 0), tzDouble).y /
+          (crs.latLngToPoint(LatLng(crs.wrapLat!.$2, 0), tzDouble).y /
                   _tileSize)
               .ceil();
-      wrapY = Tuple2(wrapYMin, wrapYMax - 1);
+      wrapY = (wrapYMin, wrapYMax - 1);
     }
 
     return WrappedTileBoundsAtZoom(
