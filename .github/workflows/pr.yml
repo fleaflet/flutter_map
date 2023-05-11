@@ -1,15 +1,15 @@
-name: Analyse, Test & Build (PR)
+name: Build (PR)
 on:
   pull_request:
   workflow_dispatch:
 
 jobs:
   test:
-    name: "Analyse & Test"
-    uses: ./.github/workflows/test.yml
-
+      name: "Score, Analyse & Test"
+      uses: ./.github/workflows/test.yml
+  
   build-io:
-    name: "Build Example Apps (IO)"
+    name: "Build IO Example Apps"
     needs: test
     uses: ./.github/workflows/build_io.yml
   
@@ -46,5 +46,5 @@ jobs:
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_FLEAFLET }}"
-          expires: 60d
+          expires: 30d
           projectId: fleaflet-firebase

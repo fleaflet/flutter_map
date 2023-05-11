@@ -1,4 +1,4 @@
-name: Analyse, Test & Build (Push)
+name: Build (Push)
 on:
   push:
     branches:
@@ -7,11 +7,11 @@ on:
 
 jobs:
   test:
-    name: "Analyse & Test"
+    name: "Score, Analyse & Test"
     uses: ./.github/workflows/test.yml
 
   build-io:
-    name: "Build Example Apps (IO)"
+    name: "Build IO Example Apps"
     needs: test
     uses: ./.github/workflows/build_io.yml
   
