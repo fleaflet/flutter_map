@@ -14,6 +14,8 @@ Example Application Source
 
 If you can't build from source for your platform, our GitHub Actions CI system compiles the example app to GitHub Artifacts for Windows, Web, and Android.
 
+Note that these reflect the latest commits to the 'master' branch - not necessarily the latest release on pub.dev.
+
 The Windows and Android artifacts just require unzipping and installing the .exe or .apk found inside.
 
 The Web artifact requires unzipping and serving, as it contains more than one unbundled file. You may be able to use [dhttpd](https://pub.dev/packages/dhttpd) for this purpose.
