@@ -43,9 +43,7 @@ export 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provide
 export 'package:flutter_map/src/layer/tile_layer/tile_provider/file_providers/tile_provider_stub.dart'
     if (dart.library.io) 'package:flutter_map/src/layer/tile_layer/tile_provider/file_providers/tile_provider_io.dart'
     if (dart.library.html) 'package:flutter_map/src/layer/tile_layer/tile_provider/file_providers/tile_provider_html.dart';
-export 'package:flutter_map/src/layer/tile_layer/tile_provider/network_providers/tile_provider_stub.dart'
-    if (dart.library.io) 'package:flutter_map/src/layer/tile_layer/tile_provider/network_providers/tile_provider_io.dart'
-    if (dart.library.html) 'package:flutter_map/src/layer/tile_layer/tile_provider/network_providers/tile_provider_html.dart';
+export 'package:flutter_map/src/layer/tile_layer/tile_provider/network_tile_provider.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_update_event.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_update_transformer.dart';
 
