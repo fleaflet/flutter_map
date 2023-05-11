@@ -9,6 +9,11 @@ import 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provide
 ///
 /// Uses [FileImage] internally.
 class FileTileProvider extends TileProvider {
+  /// [TileProvider] to fetch tiles from the local filesystem (not asset store)
+  ///
+  /// Uses [FileImage] internally.
+  FileTileProvider();
+
   @override
   ImageProvider getImage(TileCoordinates coordinates, TileLayer options) =>
       FileImage(File(getTileUrl(coordinates, options)));

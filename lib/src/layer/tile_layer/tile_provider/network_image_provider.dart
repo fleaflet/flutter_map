@@ -29,26 +29,20 @@ class FlutterMapNetworkImageProvider
     required this.httpClient,
   });
 
-  // TODO: These [load] and [loadBuffer] method ensure support for Flutter 3.3
-  // thru 3.10, hence the multiple deprecation ignorances. Once the methods &
-  // types have been removed, they need to be replaced with [loadImage], and the
-  // min SDK constraint will need to be bumped.
-
   @override
-  ImageStreamCompleter load(
+  ImageStreamCompleter loadImage(
     FlutterMapNetworkImageProvider key,
-    // ignore: deprecated_member_use
-    DecoderCallback decode,
+    ImageDecoderCallback decode,
   ) {
     final StreamController<ImageChunkEvent> chunkEvents =
         StreamController<ImageChunkEvent>();
 
     return MultiFrameImageStreamCompleter(
-      codec: _loadAsync(key, chunkEvents, decodeDepreacted: decode),
+      codec: _loadAsync(key, chunkEvents, decode),
       chunkEvents: chunkEvents.stream,
       scale: 1,
-      debugLabel: key.url,
-      informationCollector: () => <DiagnosticsNode>[
+      debugLabel: url,
+      informationCollector: () => [
         DiagnosticsProperty('URL', url),
         DiagnosticsProperty('Fallback URL', fallbackUrl),
         DiagnosticsProperty('Current provider', key),
@@ -57,34 +51,15 @@ class FlutterMapNetworkImageProvider
   }
 
   @override
-  ImageStreamCompleter loadBuffer(
-    FlutterMapNetworkImageProvider key,
-    // ignore: deprecated_member_use
-    DecoderBufferCallback decode,
-  ) {
-    final StreamController<ImageChunkEvent> chunkEvents =
-        StreamController<ImageChunkEvent>();
-
-    return MultiFrameImageStreamCompleter(
-      codec: _loadAsync(key, chunkEvents, decode: decode),
-      chunkEvents: chunkEvents.stream,
-      scale: 1,
-      debugLabel: key.url,
-      informationCollector: () => <DiagnosticsNode>[
-        DiagnosticsProperty('URL', url),
-        DiagnosticsProperty('Fallback URL', fallbackUrl),
-        DiagnosticsProperty('Current provider', key),
-      ],
-    );
-  }
+  Future<FlutterMapNetworkImageProvider> obtainKey(
+    ImageConfiguration configuration,
+  ) =>
+      SynchronousFuture<FlutterMapNetworkImageProvider>(this);
 
   Future<Codec> _loadAsync(
     FlutterMapNetworkImageProvider key,
-    StreamController<ImageChunkEvent> chunkEvents, {
-    // ignore: deprecated_member_use
-    DecoderBufferCallback? decode,
-    // ignore: deprecated_member_use
-    DecoderCallback? decodeDepreacted,
+    StreamController<ImageChunkEvent> chunkEvents,
+    ImageDecoderCallback decode, {
     bool useFallback = false,
   }) async {
     final Uint8List bytes;
@@ -95,25 +70,9 @@ class FlutterMapNetworkImageProvider
       );
     } catch (_) {
       if (useFallback) rethrow;
-      return _loadAsync(
-        key,
-        chunkEvents,
-        decode: decode,
-        decodeDepreacted: decodeDepreacted,
-        useFallback: true,
-      );
+      return _loadAsync(key, chunkEvents, decode, useFallback: true);
     }
 
-    if (decode != null) {
-      return decode(await ImmutableBuffer.fromUint8List(bytes));
-    } else {
-      return decodeDepreacted!(bytes);
-    }
+    return decode(await ImmutableBuffer.fromUint8List(bytes));
   }
-
-  @override
-  Future<FlutterMapNetworkImageProvider> obtainKey(
-    ImageConfiguration configuration,
-  ) =>
-      SynchronousFuture<FlutterMapNetworkImageProvider>(this);
 }
