@@ -14,33 +14,19 @@ class Anchor {
       : left = _leftOffset(width, alignOpt),
         top = _topOffset(height, alignOpt);
 
-  static double _leftOffset(double width, AnchorAlign alignOpt) {
-    switch (alignOpt) {
-      case AnchorAlign.left:
-        return 0;
-      case AnchorAlign.right:
-        return width;
-      case AnchorAlign.top:
-      case AnchorAlign.bottom:
-      case AnchorAlign.center:
-      default:
-        return width / 2;
-    }
-  }
+  static double _leftOffset(double width, AnchorAlign alignOpt) =>
+      switch (alignOpt) {
+        AnchorAlign.left => 0,
+        AnchorAlign.right => width,
+        _ => width / 2,
+      };
 
-  static double _topOffset(double height, AnchorAlign alignOpt) {
-    switch (alignOpt) {
-      case AnchorAlign.top:
-        return 0;
-      case AnchorAlign.bottom:
-        return height;
-      case AnchorAlign.left:
-      case AnchorAlign.right:
-      case AnchorAlign.center:
-      default:
-        return height / 2;
-    }
-  }
+  static double _topOffset(double height, AnchorAlign alignOpt) =>
+      switch (alignOpt) {
+        AnchorAlign.top => 0,
+        AnchorAlign.bottom => height,
+        _ => height / 2,
+      };
 
   factory Anchor.forPos(AnchorPos<dynamic>? pos, double width, double height) {
     if (pos == null) return Anchor._(width, height, AnchorAlign.none);
@@ -54,9 +40,12 @@ class Anchor {
 
 class AnchorPos<T> {
   AnchorPos._(this.value);
+
   T value;
+
   static AnchorPos<Anchor> exactly(Anchor anchor) =>
       AnchorPos<Anchor>._(anchor);
+
   static AnchorPos<AnchorAlign> align(AnchorAlign alignOpt) =>
       AnchorPos<AnchorAlign>._(alignOpt);
 }

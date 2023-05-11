@@ -72,48 +72,44 @@ abstract class MapEventWithMove extends MapEvent {
     required bool hasGesture,
     required MapEventSource source,
     String? id,
-  }) {
-    switch (source) {
-      case MapEventSource.flingAnimationController:
-        return MapEventFlingAnimation(
-          center: oldCenter,
-          zoom: oldZoom,
-          targetCenter: targetCenter,
-          targetZoom: targetZoom,
-          source: source,
-        );
-      case MapEventSource.doubleTapZoomAnimationController:
-        return MapEventDoubleTapZoom(
-          center: oldCenter,
-          zoom: oldZoom,
-          targetCenter: targetCenter,
-          targetZoom: targetZoom,
-          source: source,
-        );
-      case MapEventSource.scrollWheel:
-        return MapEventScrollWheelZoom(
-          center: oldCenter,
-          zoom: oldZoom,
-          targetCenter: targetCenter,
-          targetZoom: targetZoom,
-          source: source,
-        );
-      case MapEventSource.onDrag:
-      case MapEventSource.onMultiFinger:
-      case MapEventSource.mapController:
-      case MapEventSource.custom:
-        return MapEventMove(
-          id: id,
-          center: oldCenter,
-          zoom: oldZoom,
-          targetCenter: targetCenter,
-          targetZoom: targetZoom,
-          source: source,
-        );
-      default:
-        return null;
-    }
-  }
+  }) =>
+      switch (source) {
+        MapEventSource.flingAnimationController => MapEventFlingAnimation(
+            center: oldCenter,
+            zoom: oldZoom,
+            targetCenter: targetCenter,
+            targetZoom: targetZoom,
+            source: source,
+          ),
+        MapEventSource.doubleTapZoomAnimationController =>
+          MapEventDoubleTapZoom(
+            center: oldCenter,
+            zoom: oldZoom,
+            targetCenter: targetCenter,
+            targetZoom: targetZoom,
+            source: source,
+          ),
+        MapEventSource.scrollWheel => MapEventScrollWheelZoom(
+            center: oldCenter,
+            zoom: oldZoom,
+            targetCenter: targetCenter,
+            targetZoom: targetZoom,
+            source: source,
+          ),
+        MapEventSource.onDrag ||
+        MapEventSource.onMultiFinger ||
+        MapEventSource.mapController ||
+        MapEventSource.custom =>
+          MapEventMove(
+            id: id,
+            center: oldCenter,
+            zoom: oldZoom,
+            targetCenter: targetCenter,
+            targetZoom: targetZoom,
+            source: source,
+          ),
+        _ => null,
+      };
 }
 
 /// Event which is fired when map is tapped

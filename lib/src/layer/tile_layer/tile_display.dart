@@ -45,15 +45,13 @@ abstract class TileDisplay {
   T? map<T>({
     T? Function(InstantaneousTileDisplay instantaneous)? instantaneous,
     T? Function(FadeInTileDisplay fadeIn)? fadeIn,
-  }) {
-    switch (runtimeType) {
-      case InstantaneousTileDisplay:
-        return instantaneous?.call(this as InstantaneousTileDisplay);
-      case FadeInTileDisplay:
-        return fadeIn?.call(this as FadeInTileDisplay);
-    }
-    return null;
-  }
+  }) =>
+      switch (runtimeType) {
+        InstantaneousTileDisplay =>
+          instantaneous?.call(this as InstantaneousTileDisplay),
+        FadeInTileDisplay => fadeIn?.call(this as FadeInTileDisplay),
+        _ => null,
+      };
 }
 
 class InstantaneousTileDisplay extends TileDisplay {
