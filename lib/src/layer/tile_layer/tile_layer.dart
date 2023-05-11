@@ -19,8 +19,9 @@ import 'package:flutter_map/src/layer/tile_layer/tile_display.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image_manager.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provider.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/tile_provider_io.dart'
-    if (dart.library.html) 'package:flutter_map/src/layer/tile_layer/tile_provider/tile_provider_web.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network_providers/tile_provider_stub.dart'
+    if (dart.library.io) 'package:flutter_map/src/layer/tile_layer/tile_provider/network_providers/tile_provider_io.dart'
+    if (dart.library.html) 'package:flutter_map/src/layer/tile_layer/tile_provider/network_providers/tile_provider_html.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
@@ -117,17 +118,19 @@ class TileLayer extends StatefulWidget {
 
   /// Provider with which to load map tiles
   ///
-  /// The default is [NetworkNoRetryTileProvider]. Alternatively, use
-  /// [NetworkTileProvider] for a network provider which will retry requests.
+  /// The default is [NetworkTileProvider] which has implementations for both IO
+  /// and web platforms.
   ///
-  /// Both network providers will use some form of caching, although not reliable. For
-  /// better options, see https://docs.fleaflet.dev/usage/layers/tile-layer#caching.
+  /// Does not automatically cache (past Flutter's [ImageCache]). For options to
+  /// add offline mapping, see
+  /// https://docs.fleaflet.dev/tile-servers/offline-mapping.
   ///
   /// `userAgentPackageName` is a construction parameter, which should be passed
   /// the application's correct package name, such as 'com.example.app'. If no
   /// value is passed, it defaults to 'unknown'. This parameter is used to form
   /// part of the 'User-Agent' header, which is important to avoid blocking by
-  /// tile servers. Namely, the header is the following 'flutter_map (<packageName>)'.
+  /// tile servers. Namely, the header is in the following format:
+  /// 'flutter_map (<packageName>)'.
   ///
   /// Header rules are as follows, after 'User-Agent' is generated as above:
   ///
@@ -280,7 +283,7 @@ class TileLayer extends StatefulWidget {
             ? const <String, String>{}
             : Map.from(additionalOptions),
         tileProvider = tileProvider == null
-            ? NetworkNoRetryTileProvider(
+            ? NetworkTileProvider(
                 headers: {'User-Agent': 'flutter_map ($userAgentPackageName)'},
               )
             : (tileProvider
