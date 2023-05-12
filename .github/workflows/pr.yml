@@ -65,4 +65,5 @@ jobs:
   deploy:
     name: "Deploy Web Example App"
     needs: build-web
+    secrets: inherit
     uses: ./.github/workflows/deploy-pr.yml
