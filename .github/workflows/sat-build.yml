@@ -56,6 +56,29 @@ jobs:
       - name: Run Tests
         run: flutter test -r expanded
 
+  build-web:
+    name: "Build Web Example App"
+    runs-on: ubuntu-latest
+    needs: run-tests
+    defaults:
+      run:
+        working-directory: ./example
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Setup Flutter Environment
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+      - name: Build Web Application
+        run: flutter build web --web-renderer canvaskit
+      - name: Archive Artifact
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: web-build
+          path: example/build/web
+          if-no-files-found: error
+
   build-android:
     name: "Build Android Example App"
     runs-on: ubuntu-latest
@@ -113,27 +136,4 @@ jobs:
         with:
           name: exe-build
           path: windowsTemp/WindowsApplication.exe
-          if-no-files-found: error
-
-  build-web:
-    name: "Build Web Example App"
-    needs: run-tests
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./example
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-      - name: Setup Flutter Environment
-        uses: subosito/flutter-action@v2
-        with:
-          channel: "stable"
-      - name: Build Web Application
-        run: flutter build web --web-renderer canvaskit
-      - name: Archive Artifact
-        uses: actions/upload-artifact@v3.1.2
-        with:
-          name: web-build
-          path: example/build/web
           if-no-files-found: error
