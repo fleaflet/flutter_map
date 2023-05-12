@@ -1,0 +1,35 @@
+name: Analyse & Test
+on:
+  workflow_call:
+
+jobs:
+  analyse-code:
+    name: "Analyse Code"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Setup Flutter Environment
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+      - name: Get All Dependencies
+        run: flutter pub get
+      - name: Check Formatting
+        run: dart format --output=none --set-exit-if-changed .
+      - name: Check Lints
+        run: dart analyze --fatal-infos --fatal-warnings
+
+  run-tests:
+    name: "Run Tests"
+    runs-on: ubuntu-latest
+    needs: analyse-code
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Setup Flutter Environment
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+      - name: Run Tests
+        run: flutter test -r expanded
