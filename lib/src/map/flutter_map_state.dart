@@ -60,8 +60,8 @@ class FlutterMapState extends MapGestureMixin
   Widget build(BuildContext context) {
     super.build(context);
 
-    final DeviceGestureSettings? gestureSettings =
-        MediaQuery.maybeOf(context)?.gestureSettings;
+    final DeviceGestureSettings gestureSettings =
+        MediaQuery.gestureSettingsOf(context);
     final Map<Type, GestureRecognizerFactory> gestures =
         <Type, GestureRecognizerFactory>{};
 
@@ -178,7 +178,7 @@ class FlutterMapState extends MapGestureMixin
   // zero constraints which were actually provided by the parent widget.
   bool _parentConstraintsAreSet(
           BuildContext context, BoxConstraints constraints) =>
-      constraints.maxWidth != 0 || MediaQuery.of(context).size != Size.zero;
+      constraints.maxWidth != 0 || MediaQuery.sizeOf(context) != Size.zero;
 
   Widget _buildMap() {
     return ClipRect(
