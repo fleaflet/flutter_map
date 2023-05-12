@@ -3,8 +3,9 @@ on:
   workflow_call:
 
 jobs:
+    # This is a safe space: scripts must not be run on any user input (eg. files)
     deploy-pr:
-      name: "Deploy Web Example App"
+      name: "Deploy"
       runs-on: ubuntu-latest
       steps:
         - name: Download Web Artifact
@@ -12,6 +13,8 @@ jobs:
           with:
             name: web-build
             path: example/build/web
+        - name: Checkout Repository
+          uses: actions/checkout@v3
         - name: Publish Preview Web App
           uses: FirebaseExtended/action-hosting-deploy@main
           with:
