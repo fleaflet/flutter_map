@@ -6,9 +6,6 @@ jobs:
     deploy-pr:
       name: "Deploy Web Example App"
       runs-on: ubuntu-latest
-      defaults:
-        run:
-          working-directory: ./example
       steps:
         - name: Download Web Artifact
           uses: actions/download-artifact@v3
