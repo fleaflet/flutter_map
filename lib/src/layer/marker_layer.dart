@@ -28,26 +28,20 @@ class Anchor {
         _ => height / 2,
       };
 
-  factory Anchor.forPos(AnchorPos<dynamic>? pos, double width, double height) {
+  factory Anchor.forPos(AnchorPos? pos, double width, double height) {
     if (pos == null) return Anchor._(width, height, AnchorAlign.none);
-    if (pos.value is AnchorAlign) {
-      return Anchor._(width, height, pos.value as AnchorAlign);
-    }
-    if (pos.value is Anchor) return pos.value as Anchor;
-    throw Exception('Unsupported AnchorPos value type: ${pos.runtimeType}.');
+    if (pos.alignment != null) return Anchor._(width, height, pos.alignment!);
+    if (pos.anchor != null) return pos.anchor!;
+    throw Exception();
   }
 }
 
-class AnchorPos<T> {
-  AnchorPos._(this.value);
+class AnchorPos {
+  final Anchor? anchor;
+  final AnchorAlign? alignment;
 
-  T value;
-
-  static AnchorPos<Anchor> exactly(Anchor anchor) =>
-      AnchorPos<Anchor>._(anchor);
-
-  static AnchorPos<AnchorAlign> align(AnchorAlign alignOpt) =>
-      AnchorPos<AnchorAlign>._(alignOpt);
+  AnchorPos.exactly(this.anchor) : alignment = null;
+  AnchorPos.align(this.alignment) : anchor = null;
 }
 
 enum AnchorAlign {
@@ -108,7 +102,7 @@ class Marker {
     this.rotate,
     this.rotateOrigin,
     this.rotateAlignment,
-    AnchorPos<dynamic>? anchorPos,
+    AnchorPos? anchorPos,
   }) : anchor = Anchor.forPos(anchorPos, width, height);
 }
 
