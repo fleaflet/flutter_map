@@ -1,4 +1,4 @@
-name: Build (PR)
+name: PR CI/CD
 on:
   pull_request:
   workflow_dispatch:
@@ -8,19 +8,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
-      name: "Score, Analyse & Test"
-      uses: ./.github/workflows/test.yml
-  
+  score:
+    name: "Score Package"
+    uses: ./.github/workflows/score.yml
+            
+  analyse-test:
+    name: "Analyse & Test"
+    uses: ./.github/workflows/analyse-test.yml
+
   build-io:
     name: "Build IO Example Apps"
-    needs: test
-    uses: ./.github/workflows/build_io.yml
-  
+    needs: analyse-test
+    uses: ./.github/workflows/build-io.yml
+
   build-web:
-    name: "Build & Deploy Web Example App"
+    name: "Build Web Example App"
     runs-on: ubuntu-latest
-    needs: test
+    needs: analyse-test
     defaults:
       run:
         working-directory: ./example
@@ -39,10 +43,3 @@ jobs:
           name: web-build
           path: example/build/web
           if-no-files-found: error
-      - name: Publish Preview Web App
-        uses: FirebaseExtended/action-hosting-deploy@main
-        with:
-          repoToken: "${{ secrets.GITHUB_TOKEN }}"
-          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_FLEAFLET }}"
-          expires: 30d
-          projectId: fleaflet-firebase
