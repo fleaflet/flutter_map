@@ -5,6 +5,10 @@ on:
       - master
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: "Score, Analyse & Test"
@@ -30,13 +34,13 @@ jobs:
         with:
           channel: "stable"
       - name: Build Web Application
-        run: flutter build web
+        run: flutter build web --web-renderer canvaskit
       - name: Archive Artifact
         uses: actions/upload-artifact@v3.1.2
         with:
           name: web-build
           path: example/build/web
-          if-no-files-found: error+
+          if-no-files-found: error
       - name: Publish Live Web App
         uses: FirebaseExtended/action-hosting-deploy@main
         with:

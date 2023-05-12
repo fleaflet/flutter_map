@@ -3,6 +3,10 @@ on:
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   test:
       name: "Score, Analyse & Test"
@@ -28,7 +32,7 @@ jobs:
         with:
           channel: "stable"
       - name: Build Web Application
-        run: flutter build web
+        run: flutter build web --web-renderer canvaskit
       - name: Archive Artifact
         uses: actions/upload-artifact@v3.1.2
         with:

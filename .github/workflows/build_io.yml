@@ -4,7 +4,7 @@ on:
 
 jobs:
     build-android:
-      name: "Build Android Example App"
+      name: "Android"
       runs-on: ubuntu-latest
       defaults:
         run:
@@ -31,7 +31,7 @@ jobs:
             if-no-files-found: error
     
     build-windows:
-      name: "Build Windows Example App"
+      name: "Windows"
       runs-on: windows-latest
       defaults:
         run:
