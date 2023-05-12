@@ -1,4 +1,4 @@
-name: Build IO Example Apps
+name: Build Example Apps
 on:
   workflow_call:
 
@@ -58,4 +58,26 @@ jobs:
           with:
             name: exe-build
             path: windowsTemp/WindowsApplication.exe
+            if-no-files-found: error
+
+    build-web:
+      name: "Web"
+      runs-on: ubuntu-latest
+      defaults:
+        run:
+          working-directory: ./example
+      steps:
+        - name: Checkout Repository
+          uses: actions/checkout@v3
+        - name: Setup Flutter Environment
+          uses: subosito/flutter-action@v2
+          with:
+            channel: "stable"
+        - name: Build Web Application
+          run: flutter build web --web-renderer canvaskit
+        - name: Archive Artifact
+          uses: actions/upload-artifact@v3.1.2
+          with:
+            name: web-build
+            path: example/build/web
             if-no-files-found: error
