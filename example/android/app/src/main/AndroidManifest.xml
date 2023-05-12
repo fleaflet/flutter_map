@@ -10,7 +10,7 @@
         </intent>
     </queries>
    <application
-        android:label="flutter_map_example"
+        android:label="flutter_map Demo"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
