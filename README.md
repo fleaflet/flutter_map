@@ -11,7 +11,7 @@ A versatile mapping package for Flutter, based off of ['leaflet.js'](https://lea
 
 Join the Discord server: <https://discord.gg/egEGeByf4q>!
 
-Talk about 'flutter_map', get and give help, and receive notifications about new 'flutter_map' updates!
+Talk about 'flutter_map', get and give help, and receive notifications about new 'flutter_map' updates! More additions planned in the future.
 
 ## [Documentation](https://docs.fleaflet.dev/)
 
