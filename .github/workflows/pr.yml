@@ -8,11 +8,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
-      name: "Score, Analyse & Test"
-      uses: ./.github/workflows/test.yml
+  sat-build:
+    name: "SAT & Build"
+    uses: ./.github/workflows/sat-build.yml
   
-  build:
-    name: "Build Example Apps"
-    needs: test
-    uses: ./.github/workflows/build.yml
+  deploy:
+    name: "Deploy Web Example App"
+    needs: sat-build
+    uses: ./.github/workflows/deploy-pr.yml
