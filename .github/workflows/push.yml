@@ -1,4 +1,4 @@
-name: Build (Push)
+name: Push CI/CD
 on:
   push:
     branches:
@@ -10,19 +10,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
+  sat:
     name: "Score, Analyse & Test"
-    uses: ./.github/workflows/test.yml
+    uses: ./.github/workflows/sat.yml
 
   build-io:
     name: "Build IO Example Apps"
-    needs: test
+    needs: sat
     uses: ./.github/workflows/build_io.yml
   
   build-web:
     name: "Build & Deploy Web Example App"
     runs-on: ubuntu-latest
-    needs: test
+    needs: sat
     defaults:
       run:
         working-directory: ./example
