@@ -86,7 +86,10 @@ class MapControllerImpl implements MapController {
 
   CustomPoint<double> rotatePoint(CustomPoint mapCenter, CustomPoint point,
       {bool counterRotation = true}) {
-    return _state.rotatePoint(mapCenter, point,
-        counterRotation: counterRotation);
+    return _state.rotatePoint(
+      mapCenter.toDoublePoint(),
+      point.toDoublePoint(),
+      counterRotation: counterRotation,
+    );
   }
 }
