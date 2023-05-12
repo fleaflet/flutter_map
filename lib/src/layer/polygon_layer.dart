@@ -98,12 +98,9 @@ class PolygonLayer extends StatelessWidget {
 class PolygonPainter extends CustomPainter {
   final List<Polygon> polygons;
   final FlutterMapState map;
-  final double zoom;
-  final double rotation;
+  final LatLngBounds bounds;
 
-  PolygonPainter(this.polygons, this.map)
-      : zoom = map.zoom,
-        rotation = map.rotation;
+  PolygonPainter(this.polygons, this.map) : bounds = map.bounds;
 
   int get hash {
     _hash ??= Object.hashAll(polygons);
@@ -273,8 +270,7 @@ class PolygonPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(PolygonPainter oldDelegate) {
-    return oldDelegate.zoom != zoom ||
-        oldDelegate.rotation != rotation ||
+    return oldDelegate.bounds != bounds ||
         oldDelegate.polygons.length != polygons.length ||
         oldDelegate.hash != hash;
   }
