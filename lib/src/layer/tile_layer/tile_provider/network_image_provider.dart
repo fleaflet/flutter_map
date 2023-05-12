@@ -1,73 +1,78 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/retry.dart';
+import 'package:http/http.dart';
 
-class FMNetworkImageProvider extends ImageProvider<FMNetworkImageProvider> {
-  /// The URL from which the image will be fetched.
+/// Dedicated [ImageProvider] to fetch tiles from the network
+class FlutterMapNetworkImageProvider
+    extends ImageProvider<FlutterMapNetworkImageProvider> {
+  /// The URL to fetch the tile from (GET request)
   final String url;
 
-  /// The fallback URL from which the image will be fetched.
+  /// The URL to fetch the tile from (GET request), in the event the original
+  /// [url] request fails
   final String? fallbackUrl;
 
-  /// The http client that is used for the requests. Defaults to a [RetryClient]
-  /// with a [http.Client].
-  final http.Client httpClient;
+  /// The HTTP client to use to make network requests
+  final BaseClient httpClient;
 
-  /// Custom headers to add to the image fetch request
+  /// The headers to include with the tile fetch request
   final Map<String, String> headers;
 
-  FMNetworkImageProvider(
-    this.url, {
+  /// Dedicated [ImageProvider] to fetch tiles from the network
+  FlutterMapNetworkImageProvider({
+    required this.url,
     required this.fallbackUrl,
-    http.Client? httpClient,
-    this.headers = const {},
-  }) : httpClient = httpClient ?? RetryClient(http.Client());
+    required this.headers,
+    required this.httpClient,
+  });
 
   @override
-  ImageStreamCompleter loadBuffer(
-      FMNetworkImageProvider key, DecoderBufferCallback decode) {
-    return OneFrameImageStreamCompleter(_loadWithRetry(key, decode),
-        informationCollector: () sync* {
-      yield ErrorDescription('Image provider: $this');
-      yield ErrorDescription('Image key: $key');
-    });
+  ImageStreamCompleter loadImage(
+    FlutterMapNetworkImageProvider key,
+    ImageDecoderCallback decode,
+  ) {
+    final StreamController<ImageChunkEvent> chunkEvents =
+        StreamController<ImageChunkEvent>();
+
+    return MultiFrameImageStreamCompleter(
+      codec: _loadAsync(key, chunkEvents, decode),
+      chunkEvents: chunkEvents.stream,
+      scale: 1,
+      debugLabel: url,
+      informationCollector: () => [
+        DiagnosticsProperty('URL', url),
+        DiagnosticsProperty('Fallback URL', fallbackUrl),
+        DiagnosticsProperty('Current provider', key),
+      ],
+    );
   }
 
   @override
-  Future<FMNetworkImageProvider> obtainKey(ImageConfiguration configuration) {
-    return SynchronousFuture<FMNetworkImageProvider>(this);
-  }
+  Future<FlutterMapNetworkImageProvider> obtainKey(
+    ImageConfiguration configuration,
+  ) =>
+      SynchronousFuture<FlutterMapNetworkImageProvider>(this);
 
-  Future<ImageInfo> _loadWithRetry(
-    FMNetworkImageProvider key,
-    DecoderBufferCallback decode, [
+  Future<Codec> _loadAsync(
+    FlutterMapNetworkImageProvider key,
+    StreamController<ImageChunkEvent> chunkEvents,
+    ImageDecoderCallback decode, {
     bool useFallback = false,
-  ]) async {
-    assert(key == this);
-    assert(useFallback == false || fallbackUrl != null);
-
+  }) async {
+    final Uint8List bytes;
     try {
-      final uri = Uri.parse(useFallback ? fallbackUrl! : url);
-      final response = await httpClient.get(uri, headers: headers);
-
-      if (response.statusCode != 200) {
-        throw NetworkImageLoadException(
-            statusCode: response.statusCode, uri: uri);
-      }
-
-      final codec =
-          await decode(await ImmutableBuffer.fromUint8List(response.bodyBytes));
-      final image = (await codec.getNextFrame()).image;
-
-      return ImageInfo(image: image);
-    } catch (e) {
-      if (!useFallback && fallbackUrl != null) {
-        return _loadWithRetry(key, decode, true);
-      }
-      rethrow;
+      bytes = await httpClient.readBytes(
+        Uri.parse(useFallback ? fallbackUrl ?? '' : url),
+        headers: headers,
+      );
+    } catch (_) {
+      if (useFallback) rethrow;
+      return _loadAsync(key, chunkEvents, decode, useFallback: true);
     }
+
+    return decode(await ImmutableBuffer.fromUint8List(bytes));
   }
 }

@@ -47,10 +47,10 @@ class NetworkTileProviderPage extends StatelessWidget {
         padding: const EdgeInsets.all(8),
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 8, bottom: 8),
+            const Padding(
+              padding: EdgeInsets.only(top: 8, bottom: 8),
               child: Wrap(
-                children: const [
+                children: [
                   Text(
                       'This provider will automatically retry failed requests, unlike the other pages.'),
                   Text(

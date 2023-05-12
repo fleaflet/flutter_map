@@ -104,12 +104,10 @@ class PolylinePainter extends CustomPainter {
   final bool saveLayers;
 
   final FlutterMapState map;
-  final double zoom;
-  final double rotation;
+  final LatLngBounds bounds;
 
   PolylinePainter(this.polylines, this.saveLayers, this.map)
-      : zoom = map.zoom,
-        rotation = map.rotation;
+      : bounds = map.bounds;
 
   int get hash {
     _hash ??= Object.hashAll(polylines);
@@ -298,8 +296,7 @@ class PolylinePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(PolylinePainter oldDelegate) {
-    return oldDelegate.zoom != zoom ||
-        oldDelegate.rotation != rotation ||
+    return oldDelegate.bounds != bounds ||
         oldDelegate.polylines.length != polylines.length ||
         oldDelegate.hash != hash;
   }
