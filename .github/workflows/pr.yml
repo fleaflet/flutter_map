@@ -1,4 +1,4 @@
-name: Pull Request CI/CD
+name: PR CI/CD
 on:
   pull_request:
   workflow_dispatch:
@@ -8,19 +8,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  sat:
-    name: "Score, Analyse & Test"
-    uses: ./.github/workflows/sat.yml
-  
+  score:
+    name: "Score Package"
+    uses: ./.github/workflows/score.yml
+            
+  analyse-test:
+    name: "Analyse & Test"
+    uses: ./.github/workflows/analyse-test.yml
+
   build-io:
     name: "Build IO Example Apps"
-    needs: sat
-    uses: ./.github/workflows/build_io.yml
-  
+    needs: analyse-test
+    uses: ./.github/workflows/build-io.yml
+
   build-web:
     name: "Build Web Example App"
     runs-on: ubuntu-latest
-    needs: sat
+    needs: analyse-test
     defaults:
       run:
         working-directory: ./example
