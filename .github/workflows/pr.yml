@@ -1,0 +1,48 @@
+name: Build (PR)
+on:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+      name: "Score, Analyse & Test"
+      uses: ./.github/workflows/test.yml
+  
+  build-io:
+    name: "Build IO Example Apps"
+    needs: test
+    uses: ./.github/workflows/build_io.yml
+  
+  build-web:
+    name: "Build & Deploy Web Example App"
+    runs-on: ubuntu-latest
+    needs: test
+    defaults:
+      run:
+        working-directory: ./example
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Setup Flutter Environment
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+      - name: Build Web Application
+        run: flutter build web --web-renderer canvaskit
+      - name: Archive Artifact
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: web-build
+          path: example/build/web
+          if-no-files-found: error
+      - name: Publish Preview Web App
+        uses: FirebaseExtended/action-hosting-deploy@main
+        with:
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_FLEAFLET }}"
+          expires: 30d
+          projectId: fleaflet-firebase
