@@ -42,15 +42,17 @@ sealed class TileDisplay {
     double reloadStartOpacity,
   }) = FadeInTileDisplay._;
 
-  T? map<T>({
+  /// Output a value of type [T] dependent on [this] and its type
+  T? when<T>({
     T? Function(InstantaneousTileDisplay instantaneous)? instantaneous,
     T? Function(FadeInTileDisplay fadeIn)? fadeIn,
-  }) =>
-      switch (this) {
-        InstantaneousTileDisplay() =>
-          instantaneous?.call(this as InstantaneousTileDisplay),
-        FadeInTileDisplay() => fadeIn?.call(this as FadeInTileDisplay),
-      };
+  }) {
+    final display = this;
+    return switch (display) {
+      InstantaneousTileDisplay() => instantaneous?.call(display),
+      FadeInTileDisplay() => fadeIn?.call(display),
+    };
+  }
 }
 
 class InstantaneousTileDisplay extends TileDisplay {
