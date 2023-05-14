@@ -30,8 +30,8 @@ class Anchor {
 
   factory Anchor.forPos(AnchorPos? pos, double width, double height) {
     if (pos == null) return Anchor._(width, height, AnchorAlign.none);
-    if (pos.alignment != null) return Anchor._(width, height, pos.alignment!);
-    if (pos.anchor != null) return pos.anchor!;
+    if (pos.alignment case final align?) return Anchor._(width, height, align);
+    if (pos.anchor case final anchor?) return anchor;
     throw Exception();
   }
 }
