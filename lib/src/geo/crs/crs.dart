@@ -131,7 +131,7 @@ class Epsg3857 extends Earth {
 
 // Epsg3857 seems to have latitude limits. https://epsg.io/3857
 //@override
-//(double, double get wrapLat => const Tuple2(-85.06, 85.06);
+//(double, double) get wrapLat => const (-85.06, 85.06);
 }
 
 /// A common CRS among GIS enthusiasts. Uses simple Equirectangular projection.
