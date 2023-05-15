@@ -1,7 +1,6 @@
 import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/geo/crs/crs.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:tuple/tuple.dart';
 
 class FakeInfiniteCrs extends Crs {
   @override
@@ -17,10 +16,10 @@ class FakeInfiniteCrs extends Crs {
   Transformation get transformation => throw UnimplementedError();
 
   @override
-  Tuple2<double, double>? get wrapLat => null;
+  (double, double)? get wrapLat => null;
 
   @override
-  Tuple2<double, double>? get wrapLng => null;
+  (double, double)? get wrapLng => null;
 
   /// Any projection just to get non-zero coordiantes.
   @override

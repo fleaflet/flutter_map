@@ -80,9 +80,4 @@ class CustomPoint<T extends num> extends math.Point<T> {
 
   @override
   String toString() => 'CustomPoint ($x, $y)';
-
-  /// Create new [CustomPoint] with [x] and [y] multiplied by [n]
-  CustomPoint<T> multiplyBy(num n) {
-    return this * n;
-  }
 }

@@ -11,7 +11,7 @@ import 'package:flutter_map/src/layer/attribution_layer/rich.dart';
 /// [AnimatedSwitcher], but its curve and duration can still be customized
 /// through [buttonDuration] and [buttonCurve].
 ///
-/// Can be extensivley customized by implementing a custom
+/// Can be extensively customized by implementing a custom
 /// [RichAttributionWidgetAnimation], or the prebuilt [FadeRAWA] and
 /// [ScaleRAWA] animations can be used with limited customization.
 abstract class RichAttributionWidgetAnimation {
