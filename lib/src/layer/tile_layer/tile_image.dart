@@ -71,7 +71,7 @@ class TileImage extends ChangeNotifier {
     required TileDisplay tileDisplay,
     required this.errorImage,
   })  : _display = tileDisplay,
-        _animationController = tileDisplay.map(
+        _animationController = tileDisplay.when(
           instantaneous: (_) => null,
           fadeIn: (fadeIn) => AnimationController(
             vsync: vsync,
@@ -79,7 +79,7 @@ class TileImage extends ChangeNotifier {
           ),
         );
 
-  double get opacity => _display.map(
+  double get opacity => _display.when(
         instantaneous: (instantaneous) => _active ? instantaneous.opacity : 0.0,
         fadeIn: (fadeIn) => _animationController!.value,
       )!;
@@ -100,9 +100,9 @@ class TileImage extends ChangeNotifier {
     _display = newTileDisplay;
 
     // Handle disabling/enabling of animation controller if necessary
-    oldTileDisplay.map(
+    oldTileDisplay.when(
       instantaneous: (instantaneous) {
-        newTileDisplay.map(
+        newTileDisplay.when(
           fadeIn: (fadeIn) {
             // Became animated.
             _animationController = AnimationController(
@@ -114,7 +114,7 @@ class TileImage extends ChangeNotifier {
         );
       },
       fadeIn: (fadeIn) {
-        newTileDisplay.map(instantaneous: (instantaneous) {
+        newTileDisplay.when(instantaneous: (instantaneous) {
           // No longer animated.
           _animationController!.dispose();
           _animationController = null;
@@ -175,7 +175,7 @@ class TileImage extends ChangeNotifier {
     final previouslyLoaded = loadFinishedAt != null;
     loadFinishedAt = DateTime.now();
 
-    _display.map(
+    _display.when(
       instantaneous: (_) {
         _active = true;
         if (!_disposed) notifyListeners();

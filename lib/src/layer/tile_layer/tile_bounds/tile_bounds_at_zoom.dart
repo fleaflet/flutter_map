@@ -1,7 +1,6 @@
 import 'package:flutter_map/src/core/point.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
-import 'package:tuple/tuple.dart';
 
 abstract class TileBoundsAtZoom {
   const TileBoundsAtZoom();
@@ -46,8 +45,8 @@ class DiscreteTileBoundsAtZoom extends TileBoundsAtZoom {
 class WrappedTileBoundsAtZoom extends TileBoundsAtZoom {
   final DiscreteTileRange tileRange;
   final bool wrappedAxisIsAlwaysInBounds;
-  final Tuple2<int, int>? wrapX;
-  final Tuple2<int, int>? wrapY;
+  final (int, int)? wrapX;
+  final (int, int)? wrapY;
 
   const WrappedTileBoundsAtZoom({
     required this.tileRange,
@@ -120,9 +119,9 @@ class WrappedTileBoundsAtZoom extends TileBoundsAtZoom {
   }
 
   /// Wrap [x] to be within [range] inclusive.
-  int _wrapInt(int x, Tuple2<int, int> range) {
-    final d = range.item2 + 1 - range.item1;
-    return ((x - range.item1) % d + d) % d + range.item1;
+  int _wrapInt(int x, (int, int) range) {
+    final d = range.$2 + 1 - range.$1;
+    return ((x - range.$1) % d + d) % d + range.$1;
   }
 
   @override
