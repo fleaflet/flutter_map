@@ -1,6 +1,6 @@
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 
-abstract class TileDisplay {
+sealed class TileDisplay {
   const TileDisplay();
 
   // Instantly display tiles once they are loaded without a fade animation.
@@ -42,17 +42,16 @@ abstract class TileDisplay {
     double reloadStartOpacity,
   }) = FadeInTileDisplay._;
 
-  T? map<T>({
+  /// Output a value of type [T] dependent on [this] and its type
+  T? when<T>({
     T? Function(InstantaneousTileDisplay instantaneous)? instantaneous,
     T? Function(FadeInTileDisplay fadeIn)? fadeIn,
   }) {
-    switch (runtimeType) {
-      case InstantaneousTileDisplay:
-        return instantaneous?.call(this as InstantaneousTileDisplay);
-      case FadeInTileDisplay:
-        return fadeIn?.call(this as FadeInTileDisplay);
-    }
-    return null;
+    final display = this;
+    return switch (display) {
+      InstantaneousTileDisplay() => instantaneous?.call(display),
+      FadeInTileDisplay() => fadeIn?.call(display),
+    };
   }
 }
 

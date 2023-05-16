@@ -258,7 +258,7 @@ class TileLayer extends StatefulWidget {
     TileUpdateTransformer? tileUpdateTransformer,
     String userAgentPackageName = 'unknown',
   })  : assert(
-          tileDisplay.map(
+          tileDisplay.when(
               instantaneous: (_) => true,
               fadeIn: (fadeIn) => fadeIn.duration > Duration.zero)!,
         ),
@@ -638,7 +638,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       return;
     }
 
-    widget.tileDisplay.map(instantaneous: (_) {
+    widget.tileDisplay.when(instantaneous: (_) {
       _tileImageManager.prune(widget.evictErrorTileStrategy);
     }, fadeIn: (fadeIn) {
       // Wait a bit more than tileFadeInDuration to trigger a pruning so that
