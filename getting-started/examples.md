@@ -14,7 +14,7 @@ Please don't abuse the web demo! It runs on limited bandwidth and won't hold up 
 If you're going to be straining the application, please see [#prebuilt-artifacts](examples.md#prebuilt-artifacts "mention"), and serve the application yourself.
 {% endhint %}
 
-{% embed url="https://fleaflet-firebase.web.app/#/" %}
+{% embed url="https://demo.fleaflet.dev" %}
 
 ## Prebuilt Artifacts
 
