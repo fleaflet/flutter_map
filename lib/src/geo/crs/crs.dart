@@ -5,7 +5,6 @@ import 'package:flutter_map/src/core/point.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 import 'package:proj4dart/proj4dart.dart' as proj4;
-import 'package:tuple/tuple.dart';
 
 /// An abstract representation of a
 /// [Coordinate Reference System](https://bit.ly/3iVKpja).
@@ -23,13 +22,13 @@ abstract class Crs {
 
   /// Converts a point on the sphere surface (with a certain zoom) in a
   /// map point.
-  CustomPoint latLngToPoint(LatLng latlng, double zoom) {
+  CustomPoint<double> latLngToPoint(LatLng latlng, double zoom) {
     try {
       final projectedPoint = projection.project(latlng);
       final scale = this.scale(zoom);
       return transformation.transform(projectedPoint, scale.toDouble());
     } catch (e) {
-      return const CustomPoint(0.0, 0.0);
+      return const CustomPoint(0, 0);
     }
   }
 
@@ -46,8 +45,8 @@ abstract class Crs {
   }
 
   /// Zoom to Scale function.
-  num scale(double zoom) {
-    return 256 * math.pow(2, zoom);
+  double scale(double zoom) {
+    return 256.0 * math.pow(2, zoom);
   }
 
   /// Scale to Zoom function.
@@ -68,9 +67,9 @@ abstract class Crs {
 
   bool get infinite;
 
-  Tuple2<double, double>? get wrapLng;
+  (double, double)? get wrapLng;
 
-  Tuple2<double, double>? get wrapLat;
+  (double, double)? get wrapLat;
 }
 
 // Custom CRS for non geographical maps
@@ -93,10 +92,10 @@ class CrsSimple extends Crs {
   bool get infinite => false;
 
   @override
-  Tuple2<double, double>? get wrapLat => null;
+  (double, double)? get wrapLat => null;
 
   @override
-  Tuple2<double, double>? get wrapLng => null;
+  (double, double)? get wrapLng => null;
 }
 
 abstract class Earth extends Crs {
@@ -104,10 +103,10 @@ abstract class Earth extends Crs {
   bool get infinite => false;
 
   @override
-  final Tuple2<double, double> wrapLng = const Tuple2(-180, 180);
+  final (double, double) wrapLng = const (-180, 180);
 
   @override
-  final Tuple2<double, double>? wrapLat = null;
+  final (double, double)? wrapLat = null;
 
   const Earth() : super();
 }
@@ -132,7 +131,7 @@ class Epsg3857 extends Earth {
 
 // Epsg3857 seems to have latitude limits. https://epsg.io/3857
 //@override
-//Tuple2<double, double> get wrapLat => const Tuple2(-85.06, 85.06);
+//(double, double) get wrapLat => const (-85.06, 85.06);
 }
 
 /// A common CRS among GIS enthusiasts. Uses simple Equirectangular projection.
@@ -167,10 +166,10 @@ class Proj4Crs extends Crs {
   final bool infinite;
 
   @override
-  final Tuple2<double, double>? wrapLat = null;
+  final (double, double)? wrapLat = null;
 
   @override
-  final Tuple2<double, double>? wrapLng = null;
+  final (double, double)? wrapLng = null;
 
   final List<Transformation>? _transformations;
 
@@ -236,7 +235,7 @@ class Proj4Crs extends Crs {
   /// Converts a point on the sphere surface (with a certain zoom) in a
   /// map point.
   @override
-  CustomPoint latLngToPoint(LatLng latlng, double zoom) {
+  CustomPoint<double> latLngToPoint(LatLng latlng, double zoom) {
     try {
       final projectedPoint = projection.project(latlng);
       final scale = this.scale(zoom);
@@ -244,7 +243,7 @@ class Proj4Crs extends Crs {
 
       return transformation.transform(projectedPoint, scale.toDouble());
     } catch (e) {
-      return const CustomPoint(0.0, 0.0);
+      return const CustomPoint(0, 0);
     }
   }
 
@@ -280,7 +279,7 @@ class Proj4Crs extends Crs {
 
   /// Zoom to Scale function.
   @override
-  num scale(double zoom) {
+  double scale(double zoom) {
     final iZoom = zoom.floor();
     if (zoom == iZoom) {
       return _scales[iZoom];
@@ -346,7 +345,7 @@ abstract class Projection {
 
   Bounds<double>? get bounds;
 
-  CustomPoint project(LatLng latlng);
+  CustomPoint<double> project(LatLng latlng);
 
   LatLng unproject(CustomPoint point);
 
@@ -370,8 +369,7 @@ abstract class Projection {
 
 class _LonLat extends Projection {
   static final Bounds<double> _bounds = Bounds<double>(
-      const CustomPoint<double>(-180.0, -90.0),
-      const CustomPoint<double>(180.0, 90.0));
+      const CustomPoint<double>(-180, -90), const CustomPoint<double>(180, 90));
 
   const _LonLat() : super();
 
@@ -379,7 +377,7 @@ class _LonLat extends Projection {
   Bounds<double> get bounds => _bounds;
 
   @override
-  CustomPoint project(LatLng latlng) {
+  CustomPoint<double> project(LatLng latlng) {
     return CustomPoint(latlng.longitude, latlng.latitude);
   }
 
@@ -405,7 +403,7 @@ class SphericalMercator extends Projection {
   Bounds<double> get bounds => _bounds;
 
   @override
-  CustomPoint project(LatLng latlng) {
+  CustomPoint<double> project(LatLng latlng) {
     const d = math.pi / 180;
     const max = maxLatitude;
     final lat = math.max(math.min(max, latlng.latitude), -max);
@@ -439,7 +437,7 @@ class _Proj4Projection extends Projection {
   }) : epsg4326 = proj4.Projection.WGS84;
 
   @override
-  CustomPoint project(LatLng latlng) {
+  CustomPoint<double> project(LatLng latlng) {
     final point = epsg4326.transform(
         proj4Projection, proj4.Point(x: latlng.longitude, y: latlng.latitude));
 
@@ -463,14 +461,14 @@ class Transformation {
 
   const Transformation(this.a, this.b, this.c, this.d);
 
-  CustomPoint transform(CustomPoint<num> point, double? scale) {
+  CustomPoint<double> transform(CustomPoint point, double? scale) {
     scale ??= 1.0;
     final x = scale * (a * point.x + b);
     final y = scale * (c * point.y + d);
     return CustomPoint(x, y);
   }
 
-  CustomPoint untransform(CustomPoint point, double? scale) {
+  CustomPoint<double> untransform(CustomPoint point, double? scale) {
     scale ??= 1.0;
     final x = (point.x / scale - b) / a;
     final y = (point.y / scale - d) / c;

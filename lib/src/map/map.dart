@@ -75,7 +75,7 @@ class MapControllerImpl implements MapController {
   }
 
   @override
-  CustomPoint latLngToScreenPoint(LatLng latLng) {
+  CustomPoint<double> latLngToScreenPoint(LatLng latLng) {
     return _state.latLngToScreenPoint(latLng);
   }
 
@@ -84,10 +84,12 @@ class MapControllerImpl implements MapController {
     return _state.pointToLatLng(localPoint);
   }
 
-  CustomPoint<num> rotatePoint(
-      CustomPoint<num> mapCenter, CustomPoint<num> point,
+  CustomPoint<double> rotatePoint(CustomPoint mapCenter, CustomPoint point,
       {bool counterRotation = true}) {
-    return _state.rotatePoint(mapCenter, point,
-        counterRotation: counterRotation);
+    return _state.rotatePoint(
+      mapCenter.toDoublePoint(),
+      point.toDoublePoint(),
+      counterRotation: counterRotation,
+    );
   }
 }

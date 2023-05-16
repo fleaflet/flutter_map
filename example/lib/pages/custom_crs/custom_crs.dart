@@ -56,8 +56,8 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
     ];
 
     final epsg3413Bounds = Bounds<double>(
-      const CustomPoint<double>(-4511619.0, -4511336.0),
-      const CustomPoint<double>(4510883.0, 4510996.0),
+      const CustomPoint<double>(-4511619, -4511336),
+      const CustomPoint<double>(4510883, 4510996),
     );
 
     maxZoom = (resolutions.length - 1).toDouble();
@@ -154,17 +154,19 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
                   ),
                 ],
                 children: [
-                  TileLayer(
+                  Opacity(
                     opacity: 1,
-                    backgroundColor: Colors.transparent,
-                    wmsOptions: WMSTileLayerOptions(
-                      // Set the WMS layer's CRS
-                      crs: epsg3413CRS,
-                      transparent: true,
-                      format: 'image/jpeg',
-                      baseUrl:
-                          'https://www.gebco.net/data_and_products/gebco_web_services/north_polar_view_wms/mapserv?',
-                      layers: ['gebco_north_polar_view'],
+                    child: TileLayer(
+                      backgroundColor: Colors.transparent,
+                      wmsOptions: WMSTileLayerOptions(
+                        // Set the WMS layer's CRS
+                        crs: epsg3413CRS,
+                        transparent: true,
+                        format: 'image/jpeg',
+                        baseUrl:
+                            'https://www.gebco.net/data_and_products/gebco_web_services/north_polar_view_wms/mapserv?',
+                        layers: ['gebco_north_polar_view'],
+                      ),
                     ),
                   ),
                 ],

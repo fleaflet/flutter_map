@@ -15,15 +15,10 @@ class Label {
     bool rotate = false,
     PolygonLabelPlacement labelPlacement = PolygonLabelPlacement.polylabel,
   }) {
-    late Offset placementPoint;
-    switch (labelPlacement) {
-      case PolygonLabelPlacement.centroid:
-        placementPoint = _computeCentroid(points);
-        break;
-      case PolygonLabelPlacement.polylabel:
-        placementPoint = _computePolylabel(points);
-        break;
-    }
+    final placementPoint = switch (labelPlacement) {
+      PolygonLabelPlacement.centroid => _computeCentroid(points),
+      PolygonLabelPlacement.polylabel => _computePolylabel(points),
+    };
 
     var dx = placementPoint.dx;
     var dy = placementPoint.dy;

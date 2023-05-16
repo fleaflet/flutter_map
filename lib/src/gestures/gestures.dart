@@ -480,11 +480,15 @@ abstract class MapGestureMixin extends State<FlutterMap>
             if (_rotationStarted) {
               final rotationDiff = currentRotation - _lastRotation;
               final oldCenterPt = mapState.project(mapState.center);
-              final rotationCenter  = mapState.project(_offsetToCrs(_lastFocalLocal));
+              final rotationCenter =
+                  mapState.project(_offsetToCrs(_lastFocalLocal));
               final vector = oldCenterPt - rotationCenter;
               final rotatedVector = vector.rotate(degToRadian(rotationDiff));
               final newCenter = rotationCenter + rotatedVector;
-              mapMoved = mapState.move(mapState.unproject(newCenter), mapState.zoom, source: eventSource) || mapMoved;
+              mapMoved = mapState.move(
+                      mapState.unproject(newCenter), mapState.zoom,
+                      source: eventSource) ||
+                  mapMoved;
               mapRotated = mapState.rotate(
                 mapState.rotation + rotationDiff,
                 hasGesture: true,
@@ -551,8 +555,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
 
     final direction = details.velocity.pixelsPerSecond / magnitude;
     final distance = (Offset.zero &
-            Size(mapState.nonrotatedSize!.x as double,
-                mapState.nonrotatedSize!.y as double))
+            Size(mapState.nonrotatedSize.x, mapState.nonrotatedSize.y))
         .shortestSide;
 
     final flingOffset = _focalStartLocal - _lastFocalLocal;
@@ -645,7 +648,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
   LatLng _offsetToCrs(Offset offset, [double? zoom]) {
     final focalStartPt =
         mapState.project(mapState.center, zoom ?? mapState.zoom);
-    final point = (_offsetToPoint(offset) - (mapState.nonrotatedSize! / 2.0))
+    final point = (_offsetToPoint(offset) - (mapState.nonrotatedSize / 2.0))
         .rotate(mapState.rotationRad);
 
     final newCenterPt = focalStartPt + point;
@@ -675,7 +678,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
   List<dynamic> _getNewEventCenterZoomPosition(
       CustomPoint cursorPos, double newZoom) {
     // Calculate offset of mouse cursor from viewport center
-    final viewCenter = mapState.nonrotatedSize! / 2;
+    final viewCenter = mapState.nonrotatedSize / 2;
     final offset = (cursorPos - viewCenter).rotate(mapState.rotationRad);
     // Match new center coordinate to mouse cursor position
     final scale = mapState.getZoomScale(newZoom, mapState.zoom);
@@ -815,7 +818,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
     closeFlingAnimationController(event.source);
   }
 
-  CustomPoint _offsetToPoint(Offset offset) {
+  CustomPoint<double> _offsetToPoint(Offset offset) {
     return CustomPoint(offset.dx, offset.dy);
   }
 
