@@ -41,7 +41,7 @@ class FlutterMapState extends MapGestureMixin
     _rotation = options.rotation;
     _center = options.center;
     _zoom = options.zoom;
-    _pixelBounds = getPixelBounds(zoom);
+    _pixelBounds = getPixelBounds();
     _bounds = _calculateBounds();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -60,8 +60,8 @@ class FlutterMapState extends MapGestureMixin
   Widget build(BuildContext context) {
     super.build(context);
 
-    final DeviceGestureSettings? gestureSettings =
-        MediaQuery.maybeOf(context)?.gestureSettings;
+    final DeviceGestureSettings gestureSettings =
+        MediaQuery.gestureSettingsOf(context);
     final Map<Type, GestureRecognizerFactory> gestures =
         <Type, GestureRecognizerFactory>{};
 
@@ -142,7 +142,7 @@ class FlutterMapState extends MapGestureMixin
           _hasFitInitialBounds = true;
         }
 
-        _pixelBounds = getPixelBounds(zoom);
+        _pixelBounds = getPixelBounds();
         _bounds = _calculateBounds();
         _pixelOrigin = getNewPixelOrigin(_center);
 
@@ -178,7 +178,7 @@ class FlutterMapState extends MapGestureMixin
   // zero constraints which were actually provided by the parent widget.
   bool _parentConstraintsAreSet(
           BuildContext context, BoxConstraints constraints) =>
-      constraints.maxWidth != 0 || MediaQuery.of(context).size != Size.zero;
+      constraints.maxWidth != 0 || MediaQuery.sizeOf(context) != Size.zero;
 
   Widget _buildMap() {
     return ClipRect(
@@ -378,7 +378,7 @@ class FlutterMapState extends MapGestureMixin
       _center = newCenter;
     });
 
-    _pixelBounds = getPixelBounds(_zoom);
+    _pixelBounds = getPixelBounds();
     _bounds = _calculateBounds();
     _pixelOrigin = getNewPixelOrigin(newCenter);
 
@@ -498,9 +498,8 @@ class FlutterMapState extends MapGestureMixin
     return unproject(point);
   }
 
-  double getZoomScale(double toZoom, double? fromZoom) {
+  double getZoomScale(double toZoom, double fromZoom) {
     final crs = options.crs;
-    fromZoom = fromZoom ?? _zoom;
     return crs.scale(toZoom) / crs.scale(fromZoom);
   }
 
@@ -516,19 +515,21 @@ class FlutterMapState extends MapGestureMixin
 
   Offset getOffsetFromOrigin(LatLng pos) {
     final delta = project(pos) - _pixelOrigin;
-    return Offset(delta.x.toDouble(), delta.y.toDouble());
+    return Offset(delta.x, delta.y);
   }
 
   CustomPoint<int> getNewPixelOrigin(LatLng center, [double? zoom]) {
-    final viewHalf = size / 2.0;
-    return (project(center, zoom) - viewHalf).round();
+    final halfSize = size / 2.0;
+    return (project(center, zoom) - halfSize).round();
   }
 
-  Bounds<double> getPixelBounds(double zoom) {
-    final mapZoom = zoom;
-    final scale = getZoomScale(mapZoom, zoom);
+  Bounds<double> getPixelBounds([double? zoom]) {
+    CustomPoint<double> halfSize = size / 2;
+    if (zoom != null) {
+      final scale = getZoomScale(this.zoom, zoom);
+      halfSize = size / (scale * 2);
+    }
     final pixelCenter = project(center, zoom).floor().toDoublePoint();
-    final halfSize = size / (scale * 2);
     return Bounds(pixelCenter - halfSize, pixelCenter + halfSize);
   }
 
@@ -639,17 +640,19 @@ class FlutterMapState extends MapGestureMixin
   // it needs to be reversed (pointToLatLng), and sometimes we want to use
   // the same rotation to create a new position (latLngToScreenpoint).
   // counterRotation just makes allowances this for this.
-  CustomPoint<double> rotatePoint(CustomPoint mapCenter, CustomPoint point,
-      {bool counterRotation = true}) {
+  CustomPoint<double> rotatePoint(
+    CustomPoint<double> mapCenter,
+    CustomPoint<double> point, {
+    bool counterRotation = true,
+  }) {
     final counterRotationFactor = counterRotation ? -1 : 1;
 
     final m = Matrix4.identity()
-      ..translate(mapCenter.x.toDouble(), mapCenter.y.toDouble())
+      ..translate(mapCenter.x, mapCenter.y)
       ..rotateZ(rotationRad * counterRotationFactor)
-      ..translate(-mapCenter.x.toDouble(), -mapCenter.y.toDouble());
+      ..translate(-mapCenter.x, -mapCenter.y);
 
-    final tp = MatrixUtils.transformPoint(
-        m, Offset(point.x.toDouble(), point.y.toDouble()));
+    final tp = MatrixUtils.transformPoint(m, Offset(point.x, point.y));
 
     return CustomPoint(tp.dx, tp.dy);
   }

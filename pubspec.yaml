@@ -1,14 +1,14 @@
 name: flutter_map
 description: A versatile mapping package for Flutter, based off leaflet.js,
   that's simple and easy to learn, yet completely customizable and configurable.
-version: 4.0.0
+version: 5.0.0
 repository: https://github.com/fleaflet/flutter_map
 issue_tracker: https://github.com/fleaflet/flutter_map/issues
 documentation: https://docs.fleaflet.dev
 
 environment:
-  sdk: ">=2.18.0 <3.0.0"
-  flutter: ">=3.3.0"
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
 
 dependencies:
   async: ^2.9.0
@@ -20,7 +20,6 @@ dependencies:
   meta: ^1.8.0
   polylabel: ^1.0.1
   proj4dart: ^2.1.0
-  tuple: ^2.0.0
   vector_math: ^2.1.2
 
 dev_dependencies:

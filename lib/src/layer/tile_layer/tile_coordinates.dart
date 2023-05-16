@@ -5,7 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 class TileCoordinates extends CustomPoint<int> {
   final int z;
 
-  const TileCoordinates(int x, int y, this.z) : super(x, y);
+  const TileCoordinates(super.x, super.y, this.z);
 
   String get key => '$x:$y:$z';
 

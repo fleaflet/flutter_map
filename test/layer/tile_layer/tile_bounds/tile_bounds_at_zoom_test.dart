@@ -4,7 +4,6 @@ import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:test/test.dart';
-import 'package:tuple/tuple.dart';
 
 void main() {
   group('TileBoundsAtZoom', () {
@@ -67,7 +66,7 @@ void main() {
       final tileBoundsAtZoom = WrappedTileBoundsAtZoom(
         tileRange: tileRange,
         wrappedAxisIsAlwaysInBounds: false,
-        wrapX: const Tuple2(0, 12),
+        wrapX: const (0, 12),
         wrapY: null,
       );
 
@@ -120,7 +119,7 @@ void main() {
       final tileBoundsAtZoom = WrappedTileBoundsAtZoom(
         tileRange: tileRange,
         wrappedAxisIsAlwaysInBounds: true,
-        wrapX: const Tuple2(0, 12),
+        wrapX: const (0, 12),
         wrapY: null,
       );
 

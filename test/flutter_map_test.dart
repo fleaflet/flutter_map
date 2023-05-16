@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -31,5 +31,51 @@ void main() {
     expect(find.byType(RawImage), findsWidgets);
     expect(find.byType(MarkerLayer), findsWidgets);
     expect(find.byType(FlutterLogo), findsOneWidget);
+  });
+
+  testWidgets(
+      'FlutterMap - Bottom ViewInsets (e.g. keyboard) do not trigger rebuilds.',
+      (tester) async {
+    int builds = 0;
+
+    final map = FlutterMap(
+      options: MapOptions(
+        center: LatLng(45.5231, -122.6765),
+        zoom: 13,
+      ),
+      children: [
+        Builder(
+          builder: (BuildContext context) {
+            final _ = FlutterMapState.of(context);
+            builds++;
+            return Container();
+          },
+        ),
+      ],
+    );
+
+    Widget wrapMapInApp({required double bottomInset}) {
+      return Directionality(
+        textDirection: TextDirection.ltr,
+        child: MediaQuery(
+          data: MediaQueryData(
+            viewInsets: EdgeInsets.only(bottom: bottomInset),
+          ),
+          child: Scaffold(
+            resizeToAvoidBottomInset: false,
+            body: map,
+          ),
+        ),
+      );
+    }
+
+    await tester.pumpWidget(wrapMapInApp(bottomInset: 0));
+    expect(find.byType(FlutterMap), findsOneWidget);
+
+    // Emulate a keyboard popping up by putting a non-zero bottom ViewInset.
+    await tester.pumpWidget(wrapMapInApp(bottomInset: 100));
+
+    // The map should not have rebuild after the first build.
+    expect(builds, equals(1));
   });
 }
