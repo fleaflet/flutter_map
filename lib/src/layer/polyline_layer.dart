@@ -1,3 +1,4 @@
+import 'dart:core';
 import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
@@ -58,21 +59,12 @@ class PolylineLayer extends StatelessWidget {
 
   final bool polylineCulling;
 
-  /// {@macro newPolylinePainter.saveLayers}
-  ///
-  /// By default, this value is set to `false` to improve performance on
-  /// layers containing a lot of polylines.
-  ///
-  /// You might want to set this to `true` if you get unwanted darker lines
-  /// where they overlap but, keep in mind that this might reduce the
-  /// performance of the layer.
-  final bool saveLayers;
-
   const PolylineLayer({
     super.key,
     this.polylines = const [],
     this.polylineCulling = false,
-    this.saveLayers = false,
+    @Deprecated('No longer needed and will be removed.')
+        bool saveLayers = false,
   });
 
   @override
@@ -87,7 +79,7 @@ class PolylineLayer extends StatelessWidget {
         : polylines;
 
     return CustomPaint(
-      painter: PolylinePainter(lines, saveLayers, map),
+      painter: PolylinePainter(lines, map),
       size: size,
       isComplex: true,
     );
@@ -97,17 +89,10 @@ class PolylineLayer extends StatelessWidget {
 class PolylinePainter extends CustomPainter {
   final List<Polyline> polylines;
 
-  /// {@template newPolylinePainter.saveLayers}
-  /// If `true`, the canvas will be updated on every frame by calling the
-  /// methods [Canvas.saveLayer] and [Canvas.restore].
-  /// {@endtemplate}
-  final bool saveLayers;
-
   final FlutterMapState map;
   final LatLngBounds bounds;
 
-  PolylinePainter(this.polylines, this.saveLayers, this.map)
-      : bounds = map.bounds;
+  PolylinePainter(this.polylines, this.map) : bounds = map.bounds;
 
   int get hash {
     _hash ??= Object.hashAll(polylines);
@@ -134,26 +119,35 @@ class PolylinePainter extends CustomPainter {
     var borderPath = ui.Path();
     var filterPath = ui.Path();
     var paint = Paint();
+    bool needsLayerSaving = false;
+
     Paint? borderPaint;
     Paint? filterPaint;
     int? lastHash;
 
     void drawPaths() {
-      canvas.drawPath(path, paint);
-      path = ui.Path();
-      paint = Paint();
+      final hasBorder = borderPaint != null && filterPaint != null;
+      if (hasBorder) {
+        if (needsLayerSaving) {
+          canvas.saveLayer(rect, Paint());
+        }
 
-      if (borderPaint != null) {
         canvas.drawPath(borderPath, borderPaint!);
         borderPath = ui.Path();
         borderPaint = null;
+
+        if (needsLayerSaving) {
+          canvas.drawPath(filterPath, filterPaint!);
+          filterPath = ui.Path();
+          filterPaint = null;
+
+          canvas.restore();
+        }
       }
 
-      if (filterPaint != null) {
-        canvas.drawPath(filterPath, filterPaint!);
-        filterPath = ui.Path();
-        filterPaint = null;
-      }
+      canvas.drawPath(path, paint);
+      path = ui.Path();
+      paint = Paint();
     }
 
     for (final polyline in polylines) {
@@ -163,10 +157,12 @@ class PolylinePainter extends CustomPainter {
       }
 
       final hash = polyline.renderHashCode;
-      if (lastHash != null && lastHash != hash) {
+      if (needsLayerSaving || (lastHash != null && lastHash != hash)) {
         drawPaths();
       }
       lastHash = hash;
+      needsLayerSaving = polyline.color.opacity < 1.0 ||
+          (polyline.gradientColors?.any((c) => c.opacity < 1.0) ?? false);
 
       late final double strokeWidth;
       if (polyline.useStrokeWidthInMeter) {
@@ -200,7 +196,18 @@ class PolylinePainter extends CustomPainter {
             : paint.color = polyline.color;
       }
 
-      if (polyline.borderColor != null) {
+      if (polyline.borderColor != null && polyline.borderStrokeWidth > 0.0) {
+        // Outlined lines are drawn by drawing a thicker path underneath, then
+        // stenciling the middle (in case the line fill is transparent), and
+        // finally drawing the line fill.
+        borderPaint = Paint()
+          ..color = polyline.borderColor ?? const Color(0x00000000)
+          ..strokeWidth = strokeWidth + polyline.borderStrokeWidth
+          ..strokeCap = polyline.strokeCap
+          ..strokeJoin = polyline.strokeJoin
+          ..style = isDotted ? PaintingStyle.fill : PaintingStyle.stroke
+          ..blendMode = BlendMode.srcOver;
+
         filterPaint = Paint()
           ..color = polyline.borderColor!.withAlpha(255)
           ..strokeWidth = strokeWidth
@@ -210,20 +217,9 @@ class PolylinePainter extends CustomPainter {
           ..blendMode = BlendMode.dstOut;
       }
 
-      if (polyline.borderStrokeWidth > 0.0) {
-        borderPaint = Paint()
-          ..color = polyline.borderColor ?? const Color(0x00000000)
-          ..strokeWidth = strokeWidth + polyline.borderStrokeWidth
-          ..strokeCap = polyline.strokeCap
-          ..strokeJoin = polyline.strokeJoin
-          ..style = isDotted ? PaintingStyle.fill : PaintingStyle.stroke
-          ..blendMode = BlendMode.srcOver;
-      }
-
       final radius = paint.strokeWidth / 2;
       final borderRadius = (borderPaint?.strokeWidth ?? 0) / 2;
 
-      if (saveLayers) canvas.saveLayer(rect, Paint());
       if (isDotted) {
         final spacing = strokeWidth * 1.5;
         if (borderPaint != null && filterPaint != null) {
@@ -238,7 +234,6 @@ class PolylinePainter extends CustomPainter {
         }
         _paintLine(path, offsets);
       }
-      if (saveLayers) canvas.restore();
     }
 
     drawPaths();
