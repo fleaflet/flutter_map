@@ -87,7 +87,7 @@ Not quite sure about something? No problem. Please get in touch via any of these
 {% endcontent-ref %}
 
 * For bug reports & feature requests: [GitHub Issues](https://github.com/fleaflet/flutter\_map/issues)
-* For general support & everything else: [flutter\_map Discord server](https://discord.gg/egEGeByf4q)
+* For general support & everything else: [flutter\_map Discord server](https://discord.gg/BwpEsjqMAH)
 
 {% hint style="info" %}
 Due to time shortages and other internal matters, wait times for feature request implementations are currently extremely long and may not happen at all.
