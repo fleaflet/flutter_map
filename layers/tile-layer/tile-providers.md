@@ -2,33 +2,25 @@
 
 The `tileProvider` parameter in `TileLayer` takes a `TileProvider` object specifying a [tile provider](../../explanation/#tile-providers) to use for that layer.
 
-This has a default of `NetworkNoRetryTileProvider`, which is recommended for most setups for better performance, unless your tile server is especially unreliable, or you need a local tile provider.
+This has a default of `NetworkTileProvider` which gets tiles from the internet through a dedicated image provider.
 
-Custom `TileProvider`s can be implemented by your application or other libraries. These may not conform to the usual rules above, and may additionally have their own parameters.
+There's two situations in which you'll need to change the tile provider:
 
-## Network Tile Providers
+* Sourcing tiles from the filesystem or asset store: [#local-tile-providers](tile-providers.md#local-tile-providers "mention")
+* Using a [plugin](../../plugins/list.md) that instructs you to do so ([creating-new-tile-providers.md](../../plugins/making-a-plugin/creating-new-tile-providers.md "mention"))
 
-Network tile providers can take a `Map<String, String>` of custom headers. Note that the [user agent](tile-providers.md#package-name-useragentpackagename) that is automatically generated will not override any 'User-Agent' header if specified here. On the web, the 'User-Agent' header is not sent, as the browser controls the user agent.
+## Network Tile Provider
 
-Whilst not on the web, network tile providers can take a custom `HttpClient`/`RetryClient`, if you need to use it for whatever reason.
+`NetworkTileProvider` takes two arguments, but you'll usually never need to specify them:
 
-### `NetworkNoRetryTileProvider()`&#x20;
-
-This is the default tile provider.
-
-This tile provider uses the `templateUrl` to get the appropriate tile from the Internet, and it won't retry the request if it fails.
-
-There is no guarantee about the default caching behaviour, but tiles should be cached until an application restart.
-
-### `NetworkTileProvider()`
-
-This tile provider uses the `templateUrl` to get the appropriate tile from the Internet, but it will retry the request as specified in the `RetryClient` (which can be customised as needed when not on the web).
-
-There is no guarantee about the default caching behaviour, but tiles should be cached until an application restart.&#x20;
+* `httpClient`: custom `BaseClient`\
+  By default, a `RetryClient` backed by a standard `Client` is used
+* `headers`: custom `Map<String, String>`\
+  By default, only the default headers, plus a custom 'User-Agent' header based on the [#useragentpackagename](./#useragentpackagename "mention") property, are included with each request
 
 ## Local Tile Providers
 
-These tile providers use the `templateUrl` to get the appropriate tile from the asset store of the application, or from a file on the users device, respectively
+These tile providers use the `templateUrl` to get the appropriate tile from the asset store of the application, or from a file on the users device, respectively.
 
 ### `AssetTileProvider()`
 
@@ -39,7 +31,9 @@ This tile providers uses the `templateUrl` to get the appropriate tile from the 
 This tile providers uses the `templateUrl` to get the appropriate tile from the a path/directory/file on the user's device - either internal application storage or external storage.
 
 {% hint style="warning" %}
-On the web, `FileTileProvider()` will automatically use `NetworkImage()` behind the scenes. This is not recommended. If you know you are running on the web platform, avoid using this tile provider.
+On the web, `FileTileProvider()` will throw an `UnsupportedError` when a tile request is attempted, due to the lack of the web platform's access to the local filesystem.
+
+If you know you are running on the web platform, use a [`NetworkTileProvider`](tile-providers.md#network-tile-provider) or a custom tile provider.
 {% endhint %}
 
 ## Offline Mapping

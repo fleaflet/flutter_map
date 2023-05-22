@@ -78,6 +78,6 @@ The following callbacks are available:
 * `onPositionChanged`
 * `onPointerDown`/`onPointerUp`/`onPointerHover`/`onPointerCancel`
 * `onMapReady`\
-  Primarily used for a `MapController`'s [#usage-in-initstate](controller.md#usage-in-initstate "mention")
+  Primarily used for advanced `MapController` [#usage-in-initstate](controller.md#usage-in-initstate "mention")
 * `onMapEvent` (does not expose event data)\
   Prefer [#through-mapcontroller](options.md#through-mapcontroller "mention")

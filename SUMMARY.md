@@ -7,7 +7,7 @@
 ## Getting Started
 
 * [Installation](getting-started/installation.md)
-* [Additional Setup](getting-started/additional-setup.md)
+* [Quickstart](http://localhost:5000/s/Eu7Wsb5fFesagMRRFtta/#demonstration)
 * [Examples](getting-started/examples.md)
 * [Migrating To v4](getting-started/migrating-to-v4.md)
 

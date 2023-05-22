@@ -15,6 +15,7 @@ Read the API documentation to find out all the available options
 <pre class="language-dart"><code class="lang-dart">TileLayer(
   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
   <a data-footnote-ref href="#user-content-fn-1">userAgentPackageName</a>: 'dev.fleaflet.flutter_map.example',
+  // tileProvider: NetworkTileProvider(),
 ),
 </code></pre>
 
@@ -32,6 +33,26 @@ It is possible to use more than one tile layer, and can be used with transparenc
 The `children` list works like the children of a `Stack`: last is on top.
 {% endhint %}
 
-[^1]: This is a **strongly recommended** argument, as it describes your app to the tile server.
+## Tile Providers
 
-    Failure to specify this will result in your app's traffic being grouped with other unspecified/general flutter\_map traffic, meaning that your app is more liable to being blocked.
+Need more control over the source of tiles, or how tiles are fetched?
+
+{% content-ref url="tile-providers.md" %}
+[tile-providers.md](tile-providers.md)
+{% endcontent-ref %}
+
+### `userAgentPackageName`
+
+{% hint style="success" %}
+Always specify the `userAgentPackageName` argument to avoid being blocked by your tile server.
+{% endhint %}
+
+It should be passed the application's package name, such as 'com.example.app'. This is important to avoid blocking by tile servers due to high-levels of unidentified traffic. If no value is passed, it defaults to 'unknown'.
+
+This is passed through to the [`NetworkTileProvider`](tile-providers.md#networktileprovider) (if in use) in a suitably formatted string, where it forms the 'User-Agent' header, overriding any custom user agent specified in the HTTP client.
+
+To override this behaviour, specify a 'User-Agent' key in the [`NetworkTileProvider`](tile-providers.md#networktileprovider)`.headers` property.
+
+This is all ignored on the web, where the 'User-Agent' header cannot be changed due to a limitation of Dart/browsers.
+
+[^1]: [#useragentpackagename](./#useragentpackagename "mention")

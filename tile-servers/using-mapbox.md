@@ -34,7 +34,11 @@ Once you've found a style that suits your needs, or created your own, make it pu
 
 Scroll to the bottom of the modal, and select 'Third party'. Then from the drop down box, select 'CARTO'. Copy the 'Integration URL' to your clipboard, and use as above.&#x20;
 
-![](<../.gitbook/assets/flutter\_map wiki mapbox2>)
+<div align="center">
+
+<img src="../.gitbook/assets/flutter_map wiki mapbox2" alt="">
+
+</div>
 
 ### Prebuilt
 

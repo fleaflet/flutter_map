@@ -22,3 +22,9 @@ As such, we recommend using a depth-based layout (eg. using `Stack`s) instead of
 * [https://pub.dev/packages/material\_floating\_search\_bar\_2](https://pub.dev/packages/material\_floating\_search\_bar\_2)
 
 If you must restrict the widget's size, you won't find a `height` or `width` property. Instead, use a `SizedBox` or `Column`/`Row` & `Expanded`.
+
+{% hint style="info" %}
+The map will expand as much as possible.
+
+To avoid errors about infinite/unspecified dimensions, ensure the map is contained within a known size widget.
+{% endhint %}

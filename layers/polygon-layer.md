@@ -39,6 +39,8 @@ However, some useful methods can be found in libraries such as 'latlong2' and ['
 
 ## ~~`onTap` Support~~
 
+{% hint style="warning" %}
 There is no support for handling taps on polygons, due to multiple technical challenges. To stay up to date with this existing feature request, see the linked issue.
+{% endhint %}
 
 {% embed url="https://github.com/fleaflet/flutter_map/issues/385" %}

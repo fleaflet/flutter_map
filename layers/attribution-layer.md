@@ -22,7 +22,7 @@ An animated, interactive attribution layer that supports both logos/images (disp
 
 It is heavily customizable (in both animation and contents), and designed to easily meet the needs of most ToSs out of the box.
 
-<div>
+<div align="center">
 
 <figure><img src="../.gitbook/assets/ClosedRichAttribution.png" alt="An icon and a button displayed over a map, in the bottom right corner"><figcaption><p>Closed <code>RichAttributionWidget</code></p></figcaption></figure>
 

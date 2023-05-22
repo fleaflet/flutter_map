@@ -3,7 +3,7 @@
 {% hint style="info" %}
 If you don't know about standard map things, such as the latitude/longitude system and projections, you should probably read about these first!
 
-If you want a truly British insight into this, look no further than: [https://youtu.be/3mHC-Pf8-dU](https://youtu.be/3mHC-Pf8-dU) & [https://youtu.be/jtBV3GgQLg8](https://youtu.be/jtBV3GgQLg8). Otherwise I'd recommend something else.
+_If you want a truly British insight into this, look no further than:_ [_https://youtu.be/3mHC-Pf8-dU_](https://youtu.be/3mHC-Pf8-dU) _&_ [_https://youtu.be/jtBV3GgQLg8_](https://youtu.be/jtBV3GgQLg8)_._
 {% endhint %}
 
 This library is similar to most other mapping libraries in other languages, so this applies to most other mapping libraries as well.
@@ -47,11 +47,11 @@ These images show the mathematics required to convert between Latitude and Longi
 
 In this 'flutter\_map' package, the classes that conduct this maths to get these tiles are called 'tile providers'.
 
-However, these do a lot more than just the maths. They do the maths, format the appropriate URL, potentially stagger the URL (not to get rate limited by the browser or engine), make the request, get the image, process (and potentially store) the image and finally give it back to the main process to paint onto the map for the user to see.
+However, these do a lot more than just the maths. They do the maths, format the appropriate URL, potentially stagger the URI (not to get rate limited by the browser or engine), make the request, get the image, process (and potentially store) the image and finally give it back to the main process to paint onto the map for the user to see.
 
 Unless you choose to implement your own custom tile provider, you should never need to handle this yourself.
 
-For more information about setting up a tile provider within the API, see [tile-providers.md](../../layers/tile-layer/tile-providers.md "mention").
+For more information about setting up a tile provider within the API, see [tile-providers.md](../layers/tile-layer/tile-providers.md "mention").
 
 {% hint style="info" %}
 This can be quite confusing for newcomers!

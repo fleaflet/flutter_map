@@ -15,14 +15,14 @@ class CustomLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mapState = FlutterMapState.maybeOf(context)!;
+    final mapState = FlutterMapState.of(context);
     // Use `mapState` as necessary, for example `mapState.zoom`
   }
 }
 ```
 
 {% hint style="warning" %}
-Attempting to use the widget above outside of a `FlutterMap` widget will result in an error.
+Attempting to use the widget above outside of a `FlutterMap` widget will result in an error, due to the usage of `FlutterMapState.of(context)`.
 
-The `FlutterMapState.maybeOf` method will return `null`, because it cannot locate a parent/inherited state, and therefore cause a null exception.
+If creating a hybrid widget for usage outside of a layer, use the `maybeOf` method instead.
 {% endhint %}

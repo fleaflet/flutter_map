@@ -14,29 +14,32 @@ coverY: -35
 
 ## Demonstration
 
-Setting up an interactive and compliant[^1] map is simpler than making your lunch-time coffee! It can be accomplished in just over 20 lines and a minute or two to install.
+Setting up an interactive and compliant[^1] map is simpler than making your lunch-time coffee! It can be accomplished in just under 30 lines and a minute or two to install.
 
 This code snippet demonstrates **everything** you need for a simple map (in just over 20 lines!), but of course, FM is capable of much more than just this, and you could find yourself lost in the many options available and possibilities opened!
 
-<pre class="language-dart" data-line-numbers><code class="lang-dart">@override
+<pre class="language-dart" data-line-numbers><code class="lang-dart">import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+
+@override
 Widget build(BuildContext context) {
   return <a data-footnote-ref href="#user-content-fn-2">FlutterMap</a>(
-    options: MapOptions(
+    <a data-footnote-ref href="#user-content-fn-3">options</a>: MapOptions(
       center: LatLng(51.509364, -0.128928),
       zoom: 9.2,
     ),
-    <a data-footnote-ref href="#user-content-fn-3">children</a>: [
+    <a data-footnote-ref href="#user-content-fn-4">children</a>: [
       TileLayer(
-        <a data-footnote-ref href="#user-content-fn-4">urlTemplate:</a> 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        <a data-footnote-ref href="#user-content-fn-5">urlTemplate:</a> 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
         userAgentPackageName: 'com.example.app',
       ),
     ],
     nonRotatedChildren: [
-      <a data-footnote-ref href="#user-content-fn-5">RichAttributionWidget</a>(
+      <a data-footnote-ref href="#user-content-fn-6">RichAttributionWidget</a>(
         attributions: [
           TextSourceAttribution(
             'OpenStreetMap contributors',
-            onTap: () => <a data-footnote-ref href="#user-content-fn-6">launchUrl</a>(Uri.parse('https://openstreetmap.org/copyright')),
+            onTap: () => <a data-footnote-ref href="#user-content-fn-7">launchUrl</a>(Uri.parse('https://openstreetmap.org/copyright')),
           ),
         ],
       ),
@@ -53,11 +56,11 @@ Widget build(BuildContext context) {
 
 <summary>How does flutter_map compare to other mapping libraries?</summary>
 
-This usually refers to libraries such as 'mapbox\_gl' and 'google\_maps\_flutter'. In some ways, it is better, in some it is worse.
+This usually refers to libraries such as 'mapbox\_gl' and 'google\_maps\_flutter'. In most ways, it is better, in some it is worse.
 
 flutter\_map wins on:
 
-* Less vendor lock-in\
+* Less vendor lock-in (and potentially reduced costs)\
   You're not locked into a particular tile server with us - choose from hundreds of options, or build your own!
 * Customizability & extensibility\
   Add all sorts of layers to display custom widgets and data on top of your map, and choose from flutter\_map's many community maintained plugins to add even more functionality!
@@ -96,10 +99,12 @@ We'd love to have your contributions to add your own or others' pull requests!
 
 [^2]: As simple as just another widget...
 
-[^3]: ... but with a whole host of features to display on your map!
+[^3]: Plenty of customisable options available
 
-[^4]: Connect to any\* map server/provider
+[^4]: Choose from a variety of features to display on your map
 
-[^5]: Stylish attribution required? No problem!
+[^5]: Connect to any\* map server/provider
 
-[^6]: _Requires url\_launcher to be installed separately_
+[^6]: Stylish attribution required? No problem!
+
+[^7]: _Requires url\_launcher to be installed separately_
