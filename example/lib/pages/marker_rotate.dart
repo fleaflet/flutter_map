@@ -73,14 +73,14 @@ class MarkerRotatePageState extends State<MarkerRotatePage> {
       Marker(
         width: 80,
         height: 80,
-        point: LatLng(51.5, -0.09),
+        point: const LatLng(51.5, -0.09),
         rotate: rotateMarkerLondon,
         builder: (ctx) => const FlutterLogo(),
       ),
       Marker(
         width: 80,
         height: 80,
-        point: LatLng(53.3498, -6.2603),
+        point: const LatLng(53.3498, -6.2603),
         rotate: rotateMarkerDublin,
         builder: (ctx) => const FlutterLogo(
           textColor: Colors.green,
@@ -89,7 +89,7 @@ class MarkerRotatePageState extends State<MarkerRotatePage> {
       Marker(
         width: 80,
         height: 80,
-        point: LatLng(48.8566, 2.3522),
+        point: const LatLng(48.8566, 2.3522),
         rotate: rotateMarkerParis,
         builder: (ctx) => const FlutterLogo(textColor: Colors.purple),
       ),
@@ -134,7 +134,7 @@ class MarkerRotatePageState extends State<MarkerRotatePage> {
             Flexible(
               child: FlutterMap(
                 options: MapOptions(
-                  center: LatLng(51.5, -0.09),
+                  center: const LatLng(51.5, -0.09),
                   zoom: 5,
                 ),
                 children: [

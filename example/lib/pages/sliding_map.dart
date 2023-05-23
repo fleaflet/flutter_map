@@ -25,12 +25,12 @@ class SlidingMapPage extends StatelessWidget {
             Flexible(
               child: FlutterMap(
                 options: MapOptions(
-                  center: LatLng(56.704173, 11.543808),
+                  center: const LatLng(56.704173, 11.543808),
                   minZoom: 12,
                   maxZoom: 14,
                   zoom: 13,
-                  swPanBoundary: LatLng(56.6877, 11.5089),
-                  nePanBoundary: LatLng(56.7378, 11.6644),
+                  swPanBoundary: const LatLng(56.6877, 11.5089),
+                  nePanBoundary: const LatLng(56.7378, 11.6644),
                   slideOnBoundaries: true,
                   screenSize: MediaQuery.of(context).size,
                 ),

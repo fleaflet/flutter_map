@@ -20,9 +20,9 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
   static const _inProgressId = 'AnimatedMapController#MoveInProgress';
   static const _finishedId = 'AnimatedMapController#MoveFinished';
 
-  static final london = LatLng(51.5, -0.09);
-  static final paris = LatLng(48.8566, 2.3522);
-  static final dublin = LatLng(53.3498, -6.2603);
+  static const london = LatLng(51.5, -0.09);
+  static const paris = LatLng(48.8566, 2.3522);
+  static const dublin = LatLng(53.3498, -6.2603);
 
   late final MapController mapController;
 
@@ -191,7 +191,7 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
               child: FlutterMap(
                 mapController: mapController,
                 options: MapOptions(
-                    center: LatLng(51.5, -0.09),
+                    center: const LatLng(51.5, -0.09),
                     zoom: 5,
                     maxZoom: 10,
                     minZoom: 3),

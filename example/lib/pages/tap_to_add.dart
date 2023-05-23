@@ -42,7 +42,7 @@ class TapToAddPageState extends State<TapToAddPage> {
             Flexible(
               child: FlutterMap(
                 options: MapOptions(
-                    center: LatLng(45.5231, -122.6765),
+                    center: const LatLng(45.5231, -122.6765),
                     zoom: 13,
                     onTap: _handleTap),
                 children: [

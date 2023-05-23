@@ -17,9 +17,9 @@ class MapControllerPage extends StatefulWidget {
   }
 }
 
-final LatLng london = LatLng(51.5, -0.09);
-final LatLng paris = LatLng(48.8566, 2.3522);
-final LatLng dublin = LatLng(53.3498, -6.2603);
+const LatLng london = LatLng(51.5, -0.09);
+const LatLng paris = LatLng(48.8566, 2.3522);
+const LatLng dublin = LatLng(53.3498, -6.2603);
 
 class MapControllerPageState extends State<MapControllerPage> {
   late final MapController _mapController;
@@ -156,7 +156,7 @@ class MapControllerPageState extends State<MapControllerPage> {
               child: FlutterMap(
                 mapController: _mapController,
                 options: MapOptions(
-                  center: LatLng(51.5, -0.09),
+                  center: const LatLng(51.5, -0.09),
                   zoom: 5,
                   maxZoom: 5,
                   minZoom: 3,

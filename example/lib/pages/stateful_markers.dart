@@ -60,7 +60,7 @@ class _StatefulMarkersPageState extends State<StatefulMarkersPage> {
             Flexible(
               child: FlutterMap(
                 options: MapOptions(
-                  center: LatLng(51.5, -0.09),
+                  center: const LatLng(51.5, -0.09),
                   zoom: 5,
                 ),
                 children: [

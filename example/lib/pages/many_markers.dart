@@ -73,7 +73,7 @@ class _ManyMarkersPageState extends State<ManyMarkersPage> {
           Flexible(
             child: FlutterMap(
               options: MapOptions(
-                center: LatLng(50, 20),
+                center: const LatLng(50, 20),
                 zoom: 5,
                 interactiveFlags: InteractiveFlag.all - InteractiveFlag.rotate,
               ),

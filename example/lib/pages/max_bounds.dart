@@ -25,9 +25,12 @@ class MaxBoundsPage extends StatelessWidget {
             Flexible(
               child: FlutterMap(
                 options: MapOptions(
-                  center: LatLng(56.704173, 11.543808),
+                  center: const LatLng(56.704173, 11.543808),
                   zoom: 3,
-                  maxBounds: LatLngBounds(LatLng(-90, -180), LatLng(90, 180)),
+                  maxBounds: LatLngBounds(
+                    const LatLng(-90, -180),
+                    const LatLng(90, 180),
+                  ),
                   screenSize: MediaQuery.of(context).size,
                 ),
                 children: [

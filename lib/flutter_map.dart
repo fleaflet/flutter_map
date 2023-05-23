@@ -333,7 +333,7 @@ class MapOptions {
     this.nePanBoundary,
     this.maxBounds,
     this.keepAlive = false,
-  })  : center = center ?? LatLng(50.5, 30.51),
+  })  : center = center ?? const LatLng(50.5, 30.51),
         assert(rotationThreshold >= 0.0),
         assert(pinchZoomThreshold >= 0.0),
         assert(pinchMoveThreshold >= 0.0) {

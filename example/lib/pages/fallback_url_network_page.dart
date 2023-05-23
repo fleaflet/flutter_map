@@ -22,7 +22,7 @@ class FallbackUrlNetworkPage extends StatelessWidget {
       description:
           'Map with a fake url should use the fallback, showing (51.5, -0.9).',
       zoom: 5,
-      center: LatLng(51.5, -0.09),
+      center: const LatLng(51.5, -0.09),
     );
   }
 }

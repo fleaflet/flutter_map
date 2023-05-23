@@ -66,7 +66,7 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
     // These circles should have the same pixel radius on the map
     final circles = [
       CircleMarker(
-        point: LatLng(90, 0),
+        point: const LatLng(90, 0),
         radius: 20000,
         useRadiusInMeter: true,
         color: Colors.yellow,
@@ -83,9 +83,9 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
 
     // Add latitude line at 80 degrees
     final distancePoleToLat80 =
-        const Distance().distance(LatLng(90, 0), LatLng(80, 0));
+        const Distance().distance(const LatLng(90, 0), const LatLng(80, 0));
     circles.add(CircleMarker(
-      point: LatLng(90, 0),
+      point: const LatLng(90, 0),
       radius: distancePoleToLat80,
       useRadiusInMeter: true,
       color: Colors.transparent,
@@ -130,7 +130,7 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
               child: FlutterMap(
                 options: MapOptions(
                   crs: epsg3413CRS,
-                  center: LatLng(90, 0),
+                  center: const LatLng(90, 0),
                   zoom: 3,
                   maxZoom: maxZoom,
                 ),
@@ -168,8 +168,8 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
                     overlayImages: [
                       OverlayImage(
                         bounds: LatLngBounds(
-                          LatLng(72.7911372, 162.6196478),
-                          LatLng(85.2802493, 79.794166),
+                          const LatLng(72.7911372, 162.6196478),
+                          const LatLng(85.2802493, 79.794166),
                         ),
                         imageProvider: Image.asset(
                           'assets/map/epsg3413/amsr2.png',

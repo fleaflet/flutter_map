@@ -24,7 +24,7 @@ void main() {
         crs: FakeInfiniteCrs(),
         tileSize: 256,
         latLngBounds: LatLngBounds.fromPoints(
-          [LatLng(-44, -55), LatLng(44, 55)],
+          [const LatLng(-44, -55), const LatLng(44, 55)],
         ),
       );
 
@@ -90,7 +90,7 @@ void main() {
         crs: crs,
         tileSize: 256,
         latLngBounds: LatLngBounds(
-          LatLng(0, 0),
+          const LatLng(0, 0),
           crs.pointToLatLng(crs.getProjectedBounds(0)!.max, 0)!,
         ),
       );

@@ -10,13 +10,16 @@ class OverlayImagePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final topLeftCorner = LatLng(53.377, -2.999);
-    final bottomRightCorner = LatLng(53.475, 0.275);
-    final bottomLeftCorner = LatLng(52.503, -1.868);
+    const topLeftCorner = LatLng(53.377, -2.999);
+    const bottomRightCorner = LatLng(53.475, 0.275);
+    const bottomLeftCorner = LatLng(52.503, -1.868);
 
     final overlayImages = <BaseOverlayImage>[
       OverlayImage(
-          bounds: LatLngBounds(LatLng(51.5, -0.09), LatLng(48.8566, 2.3522)),
+          bounds: LatLngBounds(
+            const LatLng(51.5, -0.09),
+            const LatLng(48.8566, 2.3522),
+          ),
           opacity: 0.8,
           imageProvider: const NetworkImage(
               'https://images.pexels.com/photos/231009/pexels-photo-231009.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=300&w=600')),
@@ -43,7 +46,7 @@ class OverlayImagePage extends StatelessWidget {
             Flexible(
               child: FlutterMap(
                 options: MapOptions(
-                  center: LatLng(51.5, -0.09),
+                  center: const LatLng(51.5, -0.09),
                   zoom: 6,
                 ),
                 children: [

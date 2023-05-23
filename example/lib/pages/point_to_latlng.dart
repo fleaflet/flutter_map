@@ -59,7 +59,7 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
               onMapEvent: (event) {
                 updatePoint(null, context);
               },
-              center: LatLng(51.5, -0.09),
+              center: const LatLng(51.5, -0.09),
               zoom: 5,
               minZoom: 3,
             ),
