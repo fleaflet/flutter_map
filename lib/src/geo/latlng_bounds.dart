@@ -46,8 +46,8 @@ class LatLngBounds {
 
   /// Expands bounding box by [latLng] coordinate point. This method mutates
   /// the bounds object on which it is called.
-  void extend(LatLng latlng) {
-    _extend(latlng, latlng);
+  void extend(LatLng latLng) {
+    _extend(latLng, latLng);
   }
 
   /// Expands bounding box by other [bounds] object. If provided [bounds] object
