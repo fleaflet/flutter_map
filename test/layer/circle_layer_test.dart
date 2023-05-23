@@ -15,7 +15,7 @@ void main() {
     final circles = <CircleMarker>[
       CircleMarker(
         key: key,
-        point: LatLng(51.5, -0.09),
+        point: const LatLng(51.5, -0.09),
         color: Colors.blue.withOpacity(0.7),
         borderStrokeWidth: 2,
         useRadiusInMeter: true,

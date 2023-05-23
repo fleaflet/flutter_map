@@ -32,7 +32,7 @@ class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
               child: Builder(builder: (BuildContext context) {
                 return FlutterMap(
                   options: MapOptions(
-                    center: LatLng(51.5, -0.09),
+                    center: const LatLng(51.5, -0.09),
                     zoom: 5,
                     onPositionChanged: (MapPosition mapPosition, bool _) {
                       needLoadingError = true;

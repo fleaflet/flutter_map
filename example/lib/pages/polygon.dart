@@ -11,57 +11,57 @@ class PolygonPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final notFilledPoints = <LatLng>[
-      LatLng(51.5, -0.09),
-      LatLng(53.3498, -6.2603),
-      LatLng(48.8566, 2.3522),
+      const LatLng(51.5, -0.09),
+      const LatLng(53.3498, -6.2603),
+      const LatLng(48.8566, 2.3522),
     ];
 
     final filledPoints = <LatLng>[
-      LatLng(55.5, -0.09),
-      LatLng(54.3498, -6.2603),
-      LatLng(52.8566, 2.3522),
+      const LatLng(55.5, -0.09),
+      const LatLng(54.3498, -6.2603),
+      const LatLng(52.8566, 2.3522),
     ];
 
     final notFilledDotedPoints = <LatLng>[
-      LatLng(49.29, -2.57),
-      LatLng(51.46, -6.43),
-      LatLng(49.86, -8.17),
-      LatLng(48.39, -3.49),
+      const LatLng(49.29, -2.57),
+      const LatLng(51.46, -6.43),
+      const LatLng(49.86, -8.17),
+      const LatLng(48.39, -3.49),
     ];
 
     final filledDotedPoints = <LatLng>[
-      LatLng(46.35, 4.94),
-      LatLng(46.22, -0.11),
-      LatLng(44.399, 1.76),
+      const LatLng(46.35, 4.94),
+      const LatLng(46.22, -0.11),
+      const LatLng(44.399, 1.76),
     ];
 
     final labelPoints = <LatLng>[
-      LatLng(60.16, -9.38),
-      LatLng(60.16, -4.16),
-      LatLng(61.18, -4.16),
-      LatLng(61.18, -9.38),
+      const LatLng(60.16, -9.38),
+      const LatLng(60.16, -4.16),
+      const LatLng(61.18, -4.16),
+      const LatLng(61.18, -9.38),
     ];
 
     final labelRotatedPoints = <LatLng>[
-      LatLng(59.77, -10.28),
-      LatLng(58.21, -10.28),
-      LatLng(58.21, -7.01),
-      LatLng(59.77, -7.01),
-      LatLng(60.77, -6.01),
+      const LatLng(59.77, -10.28),
+      const LatLng(58.21, -10.28),
+      const LatLng(58.21, -7.01),
+      const LatLng(59.77, -7.01),
+      const LatLng(60.77, -6.01),
     ];
 
     final holeOuterPoints = <LatLng>[
-      LatLng(50, -18),
-      LatLng(50, -14),
-      LatLng(54, -14),
-      LatLng(54, -18),
+      const LatLng(50, -18),
+      const LatLng(50, -14),
+      const LatLng(54, -14),
+      const LatLng(54, -18),
     ];
 
     final holeInnerPoints = <LatLng>[
-      LatLng(51, -17),
-      LatLng(51, -16),
-      LatLng(52, -16),
-      LatLng(52, -17),
+      const LatLng(51, -17),
+      const LatLng(51, -16),
+      const LatLng(52, -16),
+      const LatLng(52, -17),
     ];
 
     return Scaffold(
@@ -78,7 +78,7 @@ class PolygonPage extends StatelessWidget {
             Flexible(
               child: FlutterMap(
                 options: MapOptions(
-                  center: LatLng(51.5, -0.09),
+                  center: const LatLng(51.5, -0.09),
                   zoom: 5,
                 ),
                 children: [

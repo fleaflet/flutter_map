@@ -19,9 +19,9 @@ class _PolylinePageState extends State<PolylinePage> {
     final polyLines = <Polyline>[
       Polyline(
         points: [
-          LatLng(50.5, -0.09),
-          LatLng(51.3498, -6.2603),
-          LatLng(53.8566, 2.3522),
+          const LatLng(50.5, -0.09),
+          const LatLng(51.3498, -6.2603),
+          const LatLng(53.8566, 2.3522),
         ],
         strokeWidth: 20,
         color: Colors.blue.withOpacity(0.6),
@@ -30,9 +30,9 @@ class _PolylinePageState extends State<PolylinePage> {
       ),
       Polyline(
         points: [
-          LatLng(50.2, -0.08),
-          LatLng(51.2498, -7.2603),
-          LatLng(54.8566, 1.3522),
+          const LatLng(50.2, -0.08),
+          const LatLng(51.2498, -7.2603),
+          const LatLng(54.8566, 1.3522),
         ],
         strokeWidth: 20,
         color: Colors.black.withOpacity(0.2),
@@ -41,9 +41,9 @@ class _PolylinePageState extends State<PolylinePage> {
       ),
       Polyline(
         points: [
-          LatLng(49.1, -0.06),
-          LatLng(51.15, -7.4),
-          LatLng(55.5, 0.8),
+          const LatLng(49.1, -0.06),
+          const LatLng(51.15, -7.4),
+          const LatLng(55.5, 0.8),
         ],
         strokeWidth: 10,
         color: Colors.yellow,
@@ -51,7 +51,7 @@ class _PolylinePageState extends State<PolylinePage> {
         borderColor: Colors.blue.withOpacity(0.5),
       ),
       Polyline(
-        points: [
+        points: const [
           LatLng(48.1, -0.03),
           LatLng(50.5, -7.8),
           LatLng(56.5, 0.4),
@@ -75,15 +75,15 @@ class _PolylinePageState extends State<PolylinePage> {
   @override
   Widget build(BuildContext context) {
     final points = <LatLng>[
-      LatLng(51.5, -0.09),
-      LatLng(53.3498, -6.2603),
-      LatLng(48.8566, 2.3522),
+      const LatLng(51.5, -0.09),
+      const LatLng(53.3498, -6.2603),
+      const LatLng(48.8566, 2.3522),
     ];
 
     final pointsGradient = <LatLng>[
-      LatLng(55.5, -0.09),
-      LatLng(54.3498, -6.2603),
-      LatLng(52.8566, 2.3522),
+      const LatLng(55.5, -0.09),
+      const LatLng(54.3498, -6.2603),
+      const LatLng(52.8566, 2.3522),
     ];
 
     return Scaffold(
@@ -106,7 +106,7 @@ class _PolylinePageState extends State<PolylinePage> {
                     Flexible(
                       child: FlutterMap(
                         options: MapOptions(
-                          center: LatLng(51.5, -0.09),
+                          center: const LatLng(51.5, -0.09),
                           zoom: 5,
                           onTap: (tapPosition, point) {
                             setState(() {

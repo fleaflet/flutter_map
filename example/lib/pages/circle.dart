@@ -12,7 +12,7 @@ class CirclePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final circleMarkers = <CircleMarker>[
       CircleMarker(
-          point: LatLng(51.5, -0.09),
+          point: const LatLng(51.5, -0.09),
           color: Colors.blue.withOpacity(0.7),
           borderStrokeWidth: 2,
           useRadiusInMeter: true,
@@ -34,7 +34,7 @@ class CirclePage extends StatelessWidget {
             Flexible(
               child: FlutterMap(
                 options: MapOptions(
-                  center: LatLng(51.5, -0.09),
+                  center: const LatLng(51.5, -0.09),
                   zoom: 11,
                 ),
                 children: [

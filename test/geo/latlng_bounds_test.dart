@@ -4,9 +4,9 @@ import 'package:latlong2/latlong.dart';
 
 void main() {
   group('LatLngBounds', () {
-    final london = LatLng(51.5, -0.09);
-    final paris = LatLng(48.8566, 2.3522);
-    final dublin = LatLng(53.3498, -6.2603);
+    const london = LatLng(51.5, -0.09);
+    const paris = LatLng(48.8566, 2.3522);
+    const dublin = LatLng(53.3498, -6.2603);
 
     group('LatLngBounds constructor', () {
       test('with dublin, paris', () {

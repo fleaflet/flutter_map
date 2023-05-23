@@ -14,13 +14,13 @@ void main() {
       Marker(
         width: 80,
         height: 80,
-        point: LatLng(45.5231, -122.6765),
+        point: const LatLng(45.5231, -122.6765),
         builder: (_) => const FlutterLogo(),
       ),
       Marker(
         width: 80,
         height: 80,
-        point: LatLng(40, -120), // not visible
+        point: const LatLng(40, -120), // not visible
         builder: (_) => const FlutterLogo(),
       ),
     ];
@@ -40,7 +40,7 @@ void main() {
 
     final map = FlutterMap(
       options: MapOptions(
-        center: LatLng(45.5231, -122.6765),
+        center: const LatLng(45.5231, -122.6765),
         zoom: 13,
       ),
       children: [

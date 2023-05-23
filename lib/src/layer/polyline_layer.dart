@@ -20,6 +20,7 @@ class Polyline {
   final bool useStrokeWidthInMeter;
 
   LatLngBounds? _boundingBox;
+
   LatLngBounds get boundingBox {
     _boundingBox ??= LatLngBounds.fromPoints(points);
     return _boundingBox!;
@@ -64,7 +65,7 @@ class PolylineLayer extends StatelessWidget {
     this.polylines = const [],
     this.polylineCulling = false,
     @Deprecated('No longer needed and will be removed.')
-        bool saveLayers = false,
+    bool saveLayers = false,
   });
 
   @override

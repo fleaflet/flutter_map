@@ -50,7 +50,7 @@ class _LatLngScreenPointTestPageState extends State<LatLngScreenPointTestPage> {
                   _textPos = CustomPoint(pt1!.x, pt1.y);
                   setState(() {});
                 },
-                center: LatLng(51.5, -0.09),
+                center: const LatLng(51.5, -0.09),
                 zoom: 11,
                 rotation: 0,
               ),

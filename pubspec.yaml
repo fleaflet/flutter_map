@@ -15,8 +15,8 @@ dependencies:
   collection: ^1.16.0
   flutter:
     sdk: flutter
-  http: ^0.13.5
-  latlong2: ^0.8.0
+  http: ^1.0.0
+  latlong2: ^0.9.0
   meta: ^1.8.0
   polylabel: ^1.0.1
   proj4dart: ^2.1.0

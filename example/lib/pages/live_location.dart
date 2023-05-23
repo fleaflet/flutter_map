@@ -99,7 +99,7 @@ class _LiveLocationPageState extends State<LiveLocationPage> {
       currentLatLng =
           LatLng(_currentLocation!.latitude!, _currentLocation!.longitude!);
     } else {
-      currentLatLng = LatLng(0, 0);
+      currentLatLng = const LatLng(0, 0);
     }
 
     final markers = <Marker>[

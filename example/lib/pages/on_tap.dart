@@ -15,9 +15,9 @@ class OnTapPage extends StatefulWidget {
 }
 
 class OnTapPageState extends State<OnTapPage> {
-  static LatLng london = LatLng(51.5, -0.09);
-  static LatLng paris = LatLng(48.8566, 2.3522);
-  static LatLng dublin = LatLng(53.3498, -6.2603);
+  static LatLng london = const LatLng(51.5, -0.09);
+  static LatLng paris = const LatLng(48.8566, 2.3522);
+  static LatLng dublin = const LatLng(53.3498, -6.2603);
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +79,7 @@ class OnTapPageState extends State<OnTapPage> {
             Flexible(
               child: FlutterMap(
                 options: MapOptions(
-                  center: LatLng(51.5, -0.09),
+                  center: const LatLng(51.5, -0.09),
                   zoom: 5,
                   maxZoom: 5,
                   minZoom: 3,

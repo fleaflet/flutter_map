@@ -23,7 +23,7 @@ class FallbackUrlOfflinePage extends StatelessWidget {
           'Map with a fake asset path, should be using the fallback to show Anholt Island, Denmark.',
       maxZoom: 14,
       minZoom: 12,
-      center: LatLng(56.704173, 11.543808),
+      center: const LatLng(56.704173, 11.543808),
     );
   }
 }

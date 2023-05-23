@@ -19,9 +19,9 @@ void main() {
           borderStrokeWidth: 4,
           label: '$i',
           points: <LatLng>[
-            LatLng(55.5, -0.09),
-            LatLng(54.3498, -6.2603),
-            LatLng(52.8566, 2.3522),
+            const LatLng(55.5, -0.09),
+            const LatLng(54.3498, -6.2603),
+            const LatLng(52.8566, 2.3522),
           ],
         ),
     ];

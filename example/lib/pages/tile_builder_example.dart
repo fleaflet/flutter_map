@@ -121,7 +121,7 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
         padding: const EdgeInsets.all(8),
         child: FlutterMap(
           options: MapOptions(
-            center: LatLng(51.5, -0.09),
+            center: const LatLng(51.5, -0.09),
             zoom: 5,
           ),
           children: [
@@ -138,7 +138,7 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
                 Marker(
                   width: 80,
                   height: 80,
-                  point: LatLng(51.5, -0.09),
+                  point: const LatLng(51.5, -0.09),
                   builder: (ctx) => const FlutterLogo(
                     key: ObjectKey(Colors.blue),
                   ),
