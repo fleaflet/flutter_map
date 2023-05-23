@@ -20,6 +20,7 @@ class Polyline {
   final bool useStrokeWidthInMeter;
 
   LatLngBounds? _boundingBox;
+
   LatLngBounds get boundingBox {
     _boundingBox ??= LatLngBounds.fromPoints(points);
     return _boundingBox!;
