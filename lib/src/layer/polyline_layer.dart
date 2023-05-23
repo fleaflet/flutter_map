@@ -64,7 +64,7 @@ class PolylineLayer extends StatelessWidget {
     this.polylines = const [],
     this.polylineCulling = false,
     @Deprecated('No longer needed and will be removed.')
-        bool saveLayers = false,
+    bool saveLayers = false,
   });
 
   @override
