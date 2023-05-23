@@ -5,8 +5,8 @@ import 'package:latlong2/latlong.dart';
 /// Data structure representing rectangular bounding box constrained by its
 /// northwest and southeast corners
 class LatLngBounds {
-  late final LatLng _sw;
-  late final LatLng _ne;
+  late LatLng _sw;
+  late LatLng _ne;
 
   LatLngBounds(
     LatLng corner1,
@@ -44,7 +44,7 @@ class LatLngBounds {
     _ne = LatLng(maxY, maxX);
   }
 
-  /// Expands bounding box by [latlng] coordinate point. This method mutates
+  /// Expands bounding box by [latLng] coordinate point. This method mutates
   /// the bounds object on which it is called.
   void extend(LatLng latlng) {
     _extend(latlng, latlng);
@@ -58,10 +58,14 @@ class LatLngBounds {
   }
 
   void _extend(LatLng sw2, LatLng ne2) {
-    _sw.latitude = math.min(sw2.latitude, _sw.latitude);
-    _sw.longitude = math.min(sw2.longitude, _sw.longitude);
-    _ne.latitude = math.max(ne2.latitude, _ne.latitude);
-    _ne.longitude = math.max(ne2.longitude, _ne.longitude);
+    _sw = LatLng(
+      math.min(sw2.latitude, _sw.latitude),
+      math.min(sw2.longitude, _sw.longitude),
+    );
+    _ne = LatLng(
+      math.max(ne2.latitude, _ne.latitude),
+      math.max(ne2.longitude, _ne.longitude),
+    );
   }
 
   /// Obtain west edge of the bounds
