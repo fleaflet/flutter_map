@@ -1,5 +1,42 @@
 # Changelog
 
+## [5.0.0] - 2023/XX/XX
+
+**Dart The Third**
+
+Contains the following changes (may not be a comprehensive list):
+
+- Migrated to Flutter 3.10 and Dart 3.0 minimums - [#1512](https://github.com/fleaflet/flutter_map/pull/1512) & [#1517](https://github.com/fleaflet/flutter_map/pull/1517)
+- Improved tile providers and tile image providers - [#1512](https://github.com/fleaflet/flutter_map/pull/1512)
+  - Improved performance and removed unnecessary code
+  - Removed `NetworkNoRetryTileProvider` in favour of custom `NetworkTileProvider.httpClient`
+  - Removed `FileTileProvider` fallback to `NetworkTileProvider` on web
+- Improved performance in environments where `MediaQuery` changes frequently - [#1523](https://github.com/fleaflet/flutter_map/pull/1523)
+- Improved/stricter typing of `CustomPoint` - [#1515](https://github.com/fleaflet/flutter_map/pull/1515)
+- Updated dependencies - [#1530](https://github.com/fleaflet/flutter_map/pull/1530)
+  - Updated 'latlong2' to access `const` `LatLng` objects
+  - Updated 'http'
+  - Removed 'tuple' ([#1517](https://github.com/fleaflet/flutter_map/pull/1517))
+- Deprecated `TileUpdateTransformers.alwaysLoadAndPrune` in favour of `ignoreTapEvents` - [#1517](https://github.com/fleaflet/flutter_map/pull/1517)
+
+Contains the following bug fixes:
+
+- Polylines with translucent fills and borders now paint properly - [#1519](https://github.com/fleaflet/flutter_map/pull/1519) for [#1510](https://github.com/fleaflet/flutter_map/issues/1510) & [#1420](https://github.com/fleaflet/flutter_map/issues/1420)
+- Removed potential for jitter/frame delay when painting `Polyline`s & `Polygon`s - [#1514](https://github.com/fleaflet/flutter_map/pull/1514)
+
+In other news:
+
+- You may have noticed some minor rebranding around the repo recently! The maintainers have finally gained full member access from the previous owner (thanks John :)) to the 'fleaflet' organisation and now have total control.
+- We've launched a Live Web Demo so you can experiment with flutter_map without having to build from source yourself! Visit [demo.fleaflet.dev](https://demo.fleaflet.dev).
+
+Many thanks to these contributors (in no particular order):
+
+- @josxha
+- @ignatz
+- ... and all the maintainers
+
+And an additional special thanks to @josxha & @ignatz for investing so much of their time into this project recently - we appreciate it!
+
 ## [4.0.0] - 2023/05/05
 
 **"Out With The Old, In With The New"**

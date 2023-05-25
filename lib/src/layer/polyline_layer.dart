@@ -55,33 +55,35 @@ class Polyline {
 }
 
 class PolylineLayer extends StatelessWidget {
-  /// List of polylines to draw.
   final List<Polyline> polylines;
-
   final bool polylineCulling;
 
   const PolylineLayer({
     super.key,
     this.polylines = const [],
     this.polylineCulling = false,
-    @Deprecated('No longer needed and will be removed.')
+    @Deprecated(
+      'No longer has an effect, and no alternative is available. '
+      'This option overcomplicated the situation, and is now decided automatically internally. '
+      'This feature is removed (and this option deprecated) since v5.',
+    )
     bool saveLayers = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final map = FlutterMapState.of(context);
-    final size = Size(map.size.x, map.size.y);
-
-    final List<Polyline> lines = polylineCulling
-        ? polylines.where((p) {
-            return p.boundingBox.isOverlapping(map.bounds);
-          }).toList()
-        : polylines;
 
     return CustomPaint(
-      painter: PolylinePainter(lines, map),
-      size: size,
+      painter: PolylinePainter(
+        polylineCulling
+            ? polylines
+                .where((p) => p.boundingBox.isOverlapping(map.bounds))
+                .toList()
+            : polylines,
+        map,
+      ),
+      size: Size(map.size.x, map.size.y),
       isComplex: true,
     );
   }

@@ -18,7 +18,6 @@ import 'package:flutter_map_example/pages/marker_anchor.dart';
 import 'package:flutter_map_example/pages/marker_rotate.dart';
 import 'package:flutter_map_example/pages/max_bounds.dart';
 import 'package:flutter_map_example/pages/moving_markers.dart';
-import 'package:flutter_map_example/pages/network_tile_provider.dart';
 import 'package:flutter_map_example/pages/offline_map.dart';
 import 'package:flutter_map_example/pages/on_tap.dart';
 import 'package:flutter_map_example/pages/overlay_image.dart';
@@ -36,13 +35,16 @@ import 'package:flutter_map_example/pages/tile_builder_example.dart';
 import 'package:flutter_map_example/pages/tile_loading_error_handle.dart';
 import 'package:flutter_map_example/pages/widgets.dart';
 import 'package:flutter_map_example/pages/wms_tile_layer.dart';
+import 'package:url_strategy/url_strategy.dart';
 
-void main() => runApp(const MyApp());
+void main() {
+  setPathUrlStrategy();
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -50,8 +52,6 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.light(useMaterial3: true),
       home: const HomePage(),
       routes: <String, WidgetBuilder>{
-        NetworkTileProviderPage.route: (context) =>
-            const NetworkTileProviderPage(),
         WidgetsPage.route: (context) => const WidgetsPage(),
         TapToAddPage.route: (context) => const TapToAddPage(),
         PolylinePage.route: (context) => const PolylinePage(),

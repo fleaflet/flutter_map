@@ -18,7 +18,6 @@ import 'package:flutter_map_example/pages/marker_anchor.dart';
 import 'package:flutter_map_example/pages/marker_rotate.dart';
 import 'package:flutter_map_example/pages/max_bounds.dart';
 import 'package:flutter_map_example/pages/moving_markers.dart';
-import 'package:flutter_map_example/pages/network_tile_provider.dart';
 import 'package:flutter_map_example/pages/offline_map.dart';
 import 'package:flutter_map_example/pages/on_tap.dart';
 import 'package:flutter_map_example/pages/overlay_image.dart';
@@ -38,11 +37,17 @@ import 'package:flutter_map_example/pages/widgets.dart';
 import 'package:flutter_map_example/pages/wms_tile_layer.dart';
 
 Widget _buildMenuItem(
-    BuildContext context, Widget title, String routeName, String currentRoute) {
+  BuildContext context,
+  Widget title,
+  String routeName,
+  String currentRoute, {
+  Widget? icon,
+}) {
   final isSelected = routeName == currentRoute;
 
   return ListTile(
     title: title,
+    leading: icon,
     selected: isSelected,
     onTap: () {
       if (isSelected) {
@@ -81,15 +86,10 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
         ),
         _buildMenuItem(
           context,
-          const Text('OpenStreetMap'),
+          const Text('Home'),
           HomePage.route,
           currentRoute,
-        ),
-        _buildMenuItem(
-          context,
-          const Text('NetworkTileProvider'),
-          NetworkTileProviderPage.route,
-          currentRoute,
+          icon: const Icon(Icons.home),
         ),
         _buildMenuItem(
           context,

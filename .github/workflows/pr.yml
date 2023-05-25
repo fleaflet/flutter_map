@@ -1,5 +1,8 @@
-name: PR CI/CD
+name: Branch Push & PR CI/CD
 on:
+  push:
+    branches:
+      - '!master'
   pull_request:
   workflow_dispatch:
 

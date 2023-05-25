@@ -1,20 +1,25 @@
 # flutter_map
 
-A versatile mapping package for Flutter, based off of ['leaflet.js'](https://leafletjs.com/). Simple and easy to learn, yet completely customizable and configurable, it's the best choice for mapping in your Flutter app.
+A versatile mapping package for Flutter. Simple and easy to learn, yet completely customizable and configurable, it's the best choice for mapping in your Flutter app.
 
 [![Pub.dev](https://img.shields.io/pub/v/flutter_map.svg?label=Latest+Version)](https://pub.dev/packages/flutter_map) [![Checks & Tests](https://badgen.net/github/checks/fleaflet/flutter_map?label=Checks+%26+Tests&color=orange)](https://github.com/fleaflet/flutter_map/actions?query=branch%3Amaster) [![points](https://img.shields.io/pub/points/flutter_map?logo=flutter)](https://pub.dev/packages/flutter_map/score)  
 [![stars](https://badgen.net/github/stars/fleaflet/flutter_map?label=stars&color=green&icon=github)](https://github.com/fleaflet/flutter_map/stargazers) [![likes](https://img.shields.io/pub/likes/flutter_map?logo=flutter)](https://pub.dev/packages/flutter_map/score)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![Open Issues](https://badgen.net/github/open-issues/fleaflet/flutter_map?label=Open+Issues&color=green)](https://GitHub.com/fleaflet/flutter_map/issues) [![Open PRs](https://badgen.net/github/open-prs/fleaflet/flutter_map?label=Open+PRs&color=green)](https://GitHub.com/fleaflet/flutter_map/pulls)
 
 ---
 
-## [Discord Server](https://discord.gg/egEGeByf4q)
-
-Join the Discord server: <https://discord.gg/egEGeByf4q>!
-
-Talk about 'flutter_map', get and give help, and receive notifications about new 'flutter_map' updates! More additions planned in the future.
-
 ## [Documentation](https://docs.fleaflet.dev/)
 
-Visit the [documentation website here](https://docs.fleaflet.dev/), for all information about how to use this library, including setup and usage instructions.
+Visit our [documentation website](https://docs.fleaflet.dev/), for all information about how to use this library.  
+Additional documentation can be found in-code/whilst you type and over at the [pub.dev package](https://pub.dev/documentation/flutter_map/latest/flutter_map/flutter_map-library.html).
 
-Some documentation is also provided within the code and can be view inside your favourite editor. These docs are also over at the [pub.dev package](https://pub.dev/documentation/flutter_map/latest/flutter_map/flutter_map-library.html), and can be viewed from within your favourite editor.
+## [Live Web Demo](https://demo.fleaflet.dev/)
+
+> Please don't abuse the web demo! It runs on limited bandwidth and won't hold up to thousands of loads.
+If you're going to be straining the application, please see the [Examples page in the docs](https://docs.fleaflet.dev/getting-started/examples), for information about building/using the application locally.
+
+Want to see how flutter_map looks and works quickly? Just visit our [demo site](https://demo.fleaflet.dev/) that gets updated automatically with every new commit to 'master'!
+
+## [Get Help](https://docs.fleaflet.dev/#get-help)
+
+Not sure about how to do something, or just want to chat? Pop over to our [Discord server](https://discord.gg/BwpEsjqMAH) to get support quickly, and to get notified about new releases!  
+Think you've found a bug, or would like to see a new feature? We'd love to hear about it! Please see the [Get Help section of our docs](https://docs.fleaflet.dev/#get-help) for information about what to do.
