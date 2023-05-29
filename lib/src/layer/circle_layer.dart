@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/map/flutter_map_state.dart';
+import 'package:flutter_map/src/map/state.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 
 class CircleMarker {

@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:flutter_map/src/core/point.dart';
+import 'package:flutter_map/src/misc/point.dart';
 
 /// Rectangular bound delimited by orthogonal lines passing through two
 /// points.
