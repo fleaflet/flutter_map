@@ -7,6 +7,7 @@
 Contains the following changes (may not be a comprehensive list):
 
 - Migrated to Flutter 3.10 and Dart 3.0 minimums - [#1512](https://github.com/fleaflet/flutter_map/pull/1512) & [#1517](https://github.com/fleaflet/flutter_map/pull/1517)
+- Added offset capability to `move` methods - [#1532](https://github.com/fleaflet/flutter_map/pull/1532) for [#1460](https://github.com/fleaflet/flutter_map/issues/1460)
 - Improved tile providers and tile image providers - [#1512](https://github.com/fleaflet/flutter_map/pull/1512)
   - Improved performance and removed unnecessary code
   - Removed `NetworkNoRetryTileProvider` in favour of custom `NetworkTileProvider.httpClient`
@@ -29,6 +30,7 @@ In other news:
 
 - You may have noticed some minor rebranding around the repo recently! The maintainers have finally gained full member access from the previous owner (thanks John :)) to the 'fleaflet' organisation and now have total control.
 - We've launched a Live Web Demo so you can experiment with flutter_map without having to build from source yourself! Visit [demo.fleaflet.dev](https://demo.fleaflet.dev).
+- [#1532](https://github.com/fleaflet/flutter_map/pull/1532) made some big changes to the structure/organization of flutter_map internals, which we hope should make it easier for new contributors to add code due to the reduction of the scope of responsibility of each source file.
 
 Many thanks to these contributors (in no particular order):
 
