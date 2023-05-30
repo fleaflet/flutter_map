@@ -389,6 +389,7 @@ class FlutterMapState extends MapGestureMixin
       oldZoom: oldZoom,
       hasGesture: hasGesture,
       source: source,
+      id: id,
     );
     if (movementEvent != null) emitMapEvent(movementEvent);
 
