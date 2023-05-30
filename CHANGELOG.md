@@ -7,7 +7,8 @@
 Contains the following changes (may not be a comprehensive list):
 
 - Migrated to Flutter 3.10 and Dart 3.0 minimums - [#1512](https://github.com/fleaflet/flutter_map/pull/1512) & [#1517](https://github.com/fleaflet/flutter_map/pull/1517)
-- Added offset capability to `move` methods - [#1532](https://github.com/fleaflet/flutter_map/pull/1532) for [#1460](https://github.com/fleaflet/flutter_map/issues/1460)
+- Added offset capability to `move` methods - [#1532](https://github.com/fleaflet/flutter_map/pull/1532) for [#952](https://github.com/fleaflet/flutter_map/issues/952)
+- Added `MapController.rotateAroundPoint` method - [#1532](https://github.com/fleaflet/flutter_map/pull/1532) for [#1460](https://github.com/fleaflet/flutter_map/issues/1460)
 - Improved tile providers and tile image providers - [#1512](https://github.com/fleaflet/flutter_map/pull/1512)
   - Improved performance and removed unnecessary code
   - Removed `NetworkNoRetryTileProvider` in favour of custom `NetworkTileProvider.httpClient`
@@ -38,6 +39,7 @@ Many thanks to these contributors (in no particular order):
 - @josxha
 - @ignatz
 - @rorystephenson
+- @tlserver
 - ... and all the maintainers
 
 And an additional special thanks to @josxha & @ignatz for investing so much of their time into this project recently - we appreciate it!
