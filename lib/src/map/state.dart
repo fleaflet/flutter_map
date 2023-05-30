@@ -313,6 +313,63 @@ class FlutterMapState extends MapGestureMixin
     return false;
   }
 
+  MoveAndRotateResult rotateAroundPoint(
+    double degree, {
+    CustomPoint<double>? point,
+    Offset? offset,
+    bool hasGesture = false,
+    required MapEventSource source,
+    String? id,
+  }) {
+    if (point != null && offset != null) {
+      throw ArgumentError('Only one of `point` or `offset` may be non-null');
+    }
+    if (point == null && offset == null) {
+      throw ArgumentError('One of `point` or `offset` must be non-null');
+    }
+
+    if (degree == rotation) return MoveAndRotateResult(false, false);
+
+    if (offset == Offset.zero) {
+      return MoveAndRotateResult(
+        true,
+        rotate(
+          degree,
+          hasGesture: hasGesture,
+          source: source,
+          id: id,
+        ),
+      );
+    }
+
+    final rotationDiff = degree - rotation;
+    final rotationCenter = project(center, zoom) +
+        (point != null
+                ? (point - (nonrotatedSize / 2.0))
+                : CustomPoint(offset!.dx, offset.dy))
+            .rotate(rotationRad);
+
+    return MoveAndRotateResult(
+      move(
+        unproject(
+          rotationCenter +
+              (project(center) - rotationCenter)
+                  .rotate(degToRadian(rotationDiff)),
+        ),
+        zoom,
+        hasGesture: hasGesture,
+        source: source,
+        id: id,
+      ),
+      rotate(
+        rotation + rotationDiff,
+        hasGesture: hasGesture,
+        source: source,
+        id: id,
+      ),
+    );
+  }
+
   MoveAndRotateResult moveAndRotate(
     LatLng newCenter,
     double newZoom,
@@ -336,13 +393,16 @@ class FlutterMapState extends MapGestureMixin
   }) {
     newZoom = fitZoomToBounds(newZoom);
 
+    // Algorithm thanks to https://github.com/tlserver/flutter_map_location_marker
     if (offset != Offset.zero) {
-      final followPoint = options.crs.latLngToPoint(newCenter, newZoom);
-      final mapCenterPoint = rotatePoint(
-        followPoint,
-        followPoint - CustomPoint(offset.dx, offset.dy),
+      final newPoint = options.crs.latLngToPoint(newCenter, newZoom);
+      newCenter = options.crs.pointToLatLng(
+        rotatePoint(
+          newPoint,
+          newPoint - CustomPoint(offset.dx, offset.dy),
+        ),
+        newZoom,
       );
-      newCenter = options.crs.pointToLatLng(mapCenterPoint, newZoom);
     }
 
     if (isOutOfBounds(newCenter)) {

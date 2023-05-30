@@ -47,7 +47,10 @@ abstract class MapController {
     String? id,
   });
 
-  /// Rotates the map to a decimal [degree], where 0° is North
+  /// Rotates the map to a decimal [degree] around the current center, where 0°
+  /// is North
+  ///
+  /// See [rotateAroundPoint] to rotate the map around a custom screen point.
   ///
   /// [id] is an internally meaningless attribute, but it is passed through to
   /// the emitted [MapEventRotate].
@@ -57,14 +60,49 @@ abstract class MapController {
   ///
   /// Returns `true` and emits a [MapEventRotate] event (which can be listed to
   /// through [MapEventCallback]s, such as [MapOptions.onMapEvent]), unless
-  /// the move failed because [degree] (after adjustment when necessary) are
+  /// the move failed because [degree] (after adjustment when necessary) was
   /// equal to the current value.
   bool rotate(double degree, {String? id});
+
+  /// Rotates the map to a decimal [degree] around a custom screen point, where
+  /// 0° is North
+  ///
+  /// See [rotate] to rotate the map around the current map center.
+  ///
+  /// One, and only one, of [point] or [offset] must be defined:
+  ///  * [point]: allows rotation around a screen-based point (in normal logical
+  /// pixels), where `Offset(0,0)` is the top-left of the map widget, and the
+  /// bottom right is `Offset(mapWidth, mapHeight)`.
+  ///  * [offset]: allows rotation around a screen-based offset (in normal logical
+  /// pixels) from the map's [center]. For example, `Offset(100, 100)` will mean
+  /// the point is the 100px down & 100px right from the [center].
+  ///
+  /// May cause glitchy movement if rotated against the map's bounds.
+  ///
+  /// [id] is an internally meaningless attribute, but it is passed through to
+  /// the emitted [MapEventRotate] and [MapEventMove].
+  ///
+  /// The emitted [MapEventRotate.source]/[MapEventMove.source] properties will
+  /// be [MapEventSource.mapController].
+  ///
+  /// The operation was successful if [MoveAndRotateResult.moveSuccess] and
+  /// [MoveAndRotateResult.rotateSuccess] are `true`.
+  MoveAndRotateResult rotateAroundPoint(
+    double degree, {
+    CustomPoint<double>? point,
+    Offset? offset,
+    String? id,
+  });
 
   /// Calls [move] and [rotate] together, but is more efficient for the combined
   /// operation
   ///
+  /// Does not support offsets or rotations around custom points.
+  ///
   /// See documentation on those methods for more details.
+  ///
+  /// The operation was successful if [MoveAndRotateResult.moveSuccess] and
+  /// [MoveAndRotateResult.rotateSuccess] are `true`.
   MoveAndRotateResult moveAndRotate(
     LatLng center,
     double zoom,
@@ -158,11 +196,34 @@ class MapControllerImpl implements MapController {
       _state.rotate(degree, id: id, source: MapEventSource.mapController);
 
   @override
-  MoveAndRotateResult moveAndRotate(LatLng center, double zoom, double degree,
-      {String? id}) {
-    return _state.moveAndRotate(center, zoom, degree,
-        source: MapEventSource.mapController, id: id);
-  }
+  MoveAndRotateResult rotateAroundPoint(
+    double degree, {
+    CustomPoint<double>? point,
+    Offset? offset,
+    String? id,
+  }) =>
+      _state.rotateAroundPoint(
+        degree,
+        point: point,
+        offset: offset,
+        id: id,
+        source: MapEventSource.mapController,
+      );
+
+  @override
+  MoveAndRotateResult moveAndRotate(
+    LatLng center,
+    double zoom,
+    double degree, {
+    String? id,
+  }) =>
+      _state.moveAndRotate(
+        center,
+        zoom,
+        degree,
+        source: MapEventSource.mapController,
+        id: id,
+      );
 
   @override
   bool fitBounds(
