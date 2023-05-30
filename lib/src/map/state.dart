@@ -13,39 +13,35 @@ class FlutterMapState extends MapGestureMixin
   static const invalidSize = CustomPoint<double>(-1, -1);
 
   final _positionedTapController = PositionedTapController();
-  final GestureArenaTeam _team = GestureArenaTeam();
+  final _gestureArenaTeam = GestureArenaTeam();
 
   bool _hasFitInitialBounds = false;
 
   @override
-  MapOptions get options => widget.options;
-
-  @override
   FlutterMapState get mapState => this;
 
+  final _localController = MapController();
   @override
-  MapController get mapController => widget.mapController ?? MapController();
+  MapController get mapController => widget.mapController ?? _localController;
+
+  @override
+  MapOptions get options => widget.options;
 
   @override
   void initState() {
     super.initState();
 
     mapController.state = this;
-
-    // Initialize all variables here, if they need to be updated after the map changes
-    // like center, or bounds they also need to be updated in build.
     _rotation = options.rotation;
     _center = options.center;
     _zoom = options.zoom;
     _pixelBounds = getPixelBounds();
     _bounds = _calculateBounds();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      options.onMapReady?.call();
-    });
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => options.onMapReady?.call());
   }
 
-  //This may not be required.
   @override
   void didUpdateWidget(FlutterMap oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -92,7 +88,7 @@ class FlutterMapState extends MapGestureMixin
             // Absorbing vertical drags
           };
           instance.gestureSettings = gestureSettings;
-          instance.team ??= _team;
+          instance.team ??= _gestureArenaTeam;
         },
       );
       gestures[HorizontalDragGestureRecognizer] =
@@ -103,7 +99,7 @@ class FlutterMapState extends MapGestureMixin
             // Absorbing horizontal drags
           };
           instance.gestureSettings = gestureSettings;
-          instance.team ??= _team;
+          instance.team ??= _gestureArenaTeam;
         },
       );
     }
@@ -116,8 +112,8 @@ class FlutterMapState extends MapGestureMixin
           ..onStart = handleScaleStart
           ..onUpdate = handleScaleUpdate
           ..onEnd = handleScaleEnd;
-        instance.team ??= _team;
-        _team.captain = instance;
+        instance.team ??= _gestureArenaTeam;
+        _gestureArenaTeam.captain = instance;
       },
     );
 
