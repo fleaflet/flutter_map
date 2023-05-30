@@ -2,7 +2,7 @@
 
 ## [5.0.0] - 2023/XX/XX
 
-**Dart The Third**
+**"Dart The Third"**
 
 Contains the following changes (may not be a comprehensive list):
 
@@ -25,6 +25,7 @@ Contains the following bug fixes:
 - Polylines with translucent fills and borders now paint properly - [#1519](https://github.com/fleaflet/flutter_map/pull/1519) for [#1510](https://github.com/fleaflet/flutter_map/issues/1510) & [#1420](https://github.com/fleaflet/flutter_map/issues/1420)
 - Removed potential for jitter/frame delay when painting `Polyline`s & `Polygon`s - [#1514](https://github.com/fleaflet/flutter_map/pull/1514)
 - Removed potential for un-`mounted` `setState` call in `RichAttributionWidget` - [#1532](https://github.com/fleaflet/flutter_map/pull/1532)
+- Ensure `id` of `MapController.move` is passed through to the emitted `MapEventMove` - [#1532](https://github.com/fleaflet/flutter_map/pull/1532) from [#1534](https://github.com/fleaflet/flutter_map/pull/1534)
 
 In other news:
 
@@ -36,6 +37,7 @@ Many thanks to these contributors (in no particular order):
 
 - @josxha
 - @ignatz
+- @rorystephenson
 - ... and all the maintainers
 
 And an additional special thanks to @josxha & @ignatz for investing so much of their time into this project recently - we appreciate it!
