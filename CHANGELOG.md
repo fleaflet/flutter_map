@@ -23,8 +23,8 @@ Contains the following bug fixes:
 
 - Polylines with translucent fills and borders now paint properly - [#1519](https://github.com/fleaflet/flutter_map/pull/1519) for [#1510](https://github.com/fleaflet/flutter_map/issues/1510) & [#1420](https://github.com/fleaflet/flutter_map/issues/1420)
 - Removed potential for jitter/frame delay when painting `Polyline`s & `Polygon`s - [#1514](https://github.com/fleaflet/flutter_map/pull/1514)
-- Removed potential for un-`mounted` `setState` call in `RichAttributionWidget` - [#1532](https://github.com/fleaflet/flutter_map/pull/1532)
-- Ensure `id` of `MapController.move` is passed through to the emitted `MapEventMove` - [#1532](https://github.com/fleaflet/flutter_map/pull/1532) from [#1534](https://github.com/fleaflet/flutter_map/pull/1534)
+- Removed potential for un-`mounted` `setState` call in `RichAttributionWidget` - [#1532](https://github.com/fleaflet/flutter_map/pull/1532) for [#1538](https://github.com/fleaflet/flutter_map/issues/1538)
+- Ensure `id` of `MapController.move` is passed through to the emitted `MapEventMove` - [#1534](https://github.com/fleaflet/flutter_map/pull/1534) in [#1532](https://github.com/fleaflet/flutter_map/pull/1532)
 
 Contains the following performance improvements:
 
