@@ -3,16 +3,18 @@ import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provider.dart';
 
-/// [TileProvider] to fetch tiles from the local filesystem (not asset store)
+/// Fetch tiles from the local filesystem (not asset store), where the tile URL
+/// is a path within the filesystem.
 ///
-/// Stub for IO & web specific implementations.
+/// Stub for IO specific implementations.
 ///
 /// This web platform does not support reading from the local filesystem, and
 /// therefore throws an [UnsupportedError] when [getImage] is invoked.
 class FileTileProvider extends TileProvider {
-  /// [TileProvider] to fetch tiles from the local filesystem (not asset store)
+  /// Fetch tiles from the local filesystem (not asset store), where the tile URL
+  /// is a path within the filesystem.
   ///
-  /// Stub for IO & web specific implementations.
+  /// Stub for IO specific implementations.
   ///
   /// This web platform does not support reading from the local filesystem, and
   /// therefore throws an [UnsupportedError] when [getImage] is invoked.

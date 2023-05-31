@@ -55,6 +55,10 @@ class TileLayer extends StatefulWidget {
 
   /// Follows the same structure as [urlTemplate]. If specified, this URL is
   /// used only if an error occurs when loading the [urlTemplate].
+  ///
+  /// Avoid specifying this when using [AssetTileProvider] or [FileTileProvider],
+  /// as these providers are less performant and efficient when this is
+  /// specified. See their documentation for more information.
   final String? fallbackUrl;
 
   /// If `true`, inverses Y axis numbering for tiles (turn this on for
