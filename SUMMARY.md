@@ -9,7 +9,7 @@
 * [Installation](getting-started/installation.md)
 * [Quickstart](http://localhost:5000/s/Eu7Wsb5fFesagMRRFtta/#demonstration)
 * [Examples](getting-started/examples.md)
-* [Migrating To v4](getting-started/migrating-to-v4.md)
+* [Migrating To v5](getting-started/migrating-to-v5.md)
 
 ## Usage
 

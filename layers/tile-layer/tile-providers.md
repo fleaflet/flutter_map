@@ -28,11 +28,11 @@ Specifying any `fallbackUrl` (even if it is not used) in the `TileLayer` will re
 It will cause [23% slower asset tile requests](https://github.com/fleaflet/flutter\_map/issues/1436#issuecomment-1569663004) with `AssetTileProvider`,  and will cause main thread blocking when requesting tiles from `FileTileProvider`.
 {% endhint %}
 
-### `AssetTileProvider()`
+### `AssetTileProvider`
 
 This tile providers uses the `templateUrl` to get the appropriate tile from the asset store of the application.
 
-### `FileTileProvider()`
+### `FileTileProvider`
 
 This tile providers uses the `templateUrl` to get the appropriate tile from the a path/directory/file on the user's device - either internal application storage or external storage.
 
