@@ -1,6 +1,6 @@
 # Other Options
 
-## Other servers
+## Other Servers
 
 There are plenty of other tile servers you can choose from, free or paid. Most provide a static tile service/API, usually called Static Tiles or just Tile Requests (if no vector tiles are supported).
 
@@ -16,7 +16,9 @@ Google Maps does not document a static raster tile server. Therefore, flutter\_m
 _There is an undocumented endpoint available, however it violates the Google Maps Platform ToS._
 {% endhint %}
 
-## Serving your own tiles
+> If you're responsible for a tile server, and want to have your tile server and setup instructions listed in this documentation, please get in touch!
+
+## Serving Your Own Tiles
 
 Switch2OSM also provides detailed instructions on how to serve your own tiles: this can be surprisingly economical and enjoyable if you don't mind a few hours in a Linux console.
 

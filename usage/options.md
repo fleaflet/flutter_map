@@ -8,7 +8,7 @@ It provides options that can be categorized into three main parts:
   Defines the location of the map when it is first loaded
 * [Permanent rules](options.md#permanent-rules)\
   Defines restrictions that last throughout the map's lifetime
-* [Event handling](options.md#event-handling)\
+* [Event handling](event-handling.md)\
   Defines methods that are called on specific map events
 
 {% embed url="https://pub.dev/documentation/flutter_map/latest/flutter_map/MapOptions-class.html" %}
@@ -51,33 +51,6 @@ Instead of `maxZoom` (or in addition to), consider setting `maxNativeZoom` per `
 
 ## Event Handling
 
-When changes happen to `FlutterMap`'s internal state, such as a change to the current position or zoom, it emits an event, some of which can be handled through callbacks, others of which can be handled through listening to a `Stream`.
-
-{% hint style="warning" %}
-If building a custom layer ([creating-new-layers.md](../plugins/making-a-plugin/creating-new-layers.md "mention")), consider using `FlutterMapState` directly instead.
-{% endhint %}
-
-### Through `MapController`
-
-If you are doing any of the following, setup a `MapController`, and listen to its `mapEventStream` instead:
-
-* Capturing more than a couple of events & using the event's payload/data
-* Needing the events in a single `Stream`
-* Handling events that aren't available in the callbacks below ([#through-mapoptions](options.md#through-mapoptions "mention"))
-
-{% content-ref url="controller.md" %}
-[controller.md](controller.md)
+{% content-ref url="event-handling.md" %}
+[event-handling.md](event-handling.md)
 {% endcontent-ref %}
-
-### Through `MapOptions`
-
-The following callbacks are available:
-
-* `onTap`
-* `onLongPress`
-* `onPositionChanged`
-* `onPointerDown`/`onPointerUp`/`onPointerHover`/`onPointerCancel`
-* `onMapReady`\
-  Primarily used for advanced `MapController` [#usage-in-initstate](controller.md#usage-in-initstate "mention")
-* `onMapEvent` (does not expose event data)\
-  Prefer [#through-mapcontroller](options.md#through-mapcontroller "mention")

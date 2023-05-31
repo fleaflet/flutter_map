@@ -41,7 +41,7 @@ Need more control over the source of tiles, or how tiles are fetched?
 [tile-providers.md](tile-providers.md)
 {% endcontent-ref %}
 
-### `userAgentPackageName`
+## `userAgentPackageName`
 
 {% hint style="success" %}
 Always specify the `userAgentPackageName` argument to avoid being blocked by your tile server.

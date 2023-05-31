@@ -22,6 +22,12 @@ There's two situations in which you'll need to change the tile provider:
 
 These tile providers use the `templateUrl` to get the appropriate tile from the asset store of the application, or from a file on the users device, respectively.
 
+{% hint style="warning" %}
+Specifying any `fallbackUrl` (even if it is not used) in the `TileLayer` will reduce the performance of these providers.
+
+It will cause [23% slower asset tile requests](https://github.com/fleaflet/flutter\_map/issues/1436#issuecomment-1569663004) with `AssetTileProvider`,  and will cause main thread blocking when requesting tiles from `FileTileProvider`.
+{% endhint %}
+
 ### `AssetTileProvider()`
 
 This tile providers uses the `templateUrl` to get the appropriate tile from the asset store of the application.

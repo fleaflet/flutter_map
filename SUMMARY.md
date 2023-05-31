@@ -17,6 +17,7 @@
 * [Options](usage/options.md)
 * [Layers](usage/layers.md)
 * [Controller](usage/controller.md)
+* [Event Handling](usage/event-handling.md)
 * [Full API Reference](https://pub.dev/documentation/flutter\_map/latest/flutter\_map/flutter\_map-library.html)
 
 ## Layers

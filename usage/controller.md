@@ -4,7 +4,7 @@ To programatically interact with the map (such as panning, zooming and rotating)
 
 {% embed url="https://pub.dev/documentation/flutter_map/latest/flutter_map/MapController-class.html" %}
 
-{% hint style="warning" %}
+{% hint style="info" %}
 If building a custom layer ([creating-new-layers.md](../plugins/making-a-plugin/creating-new-layers.md "mention")), consider using `FlutterMapState` directly instead.
 {% endhint %}
 
@@ -66,11 +66,17 @@ That method will, however, not work if the map is not built on the first frame. 
 Using them as a reaction to a map event is still fine.
 {% endhint %}
 
-## Animation
+## Animated Movements
 
 Whilst animated movements through `MapController`s aren't built-in, the [community maintained plugin `flutter_map_animations`](https://github.com/TesteurManiak/flutter\_map\_animations) provides this, and much more!
 
-The example application also includes a page demonstrating a custom animated map movement.
+The example application also includes a page demonstrating a custom animated map movement without the plugin.
+
+## Event Handling
+
+{% content-ref url="event-handling.md" %}
+[event-handling.md](event-handling.md)
+{% endcontent-ref %}
 
 [^1]: It may be called more than once in some circumstances.\
     If this is the case, use a flag variable, and only carry out the actions is the flag has not already been set.
