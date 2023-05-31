@@ -7,19 +7,17 @@
 Contains the following changes (may not be a comprehensive list):
 
 - Migrated to Flutter 3.10 and Dart 3.0 minimums - [#1512](https://github.com/fleaflet/flutter_map/pull/1512) & [#1517](https://github.com/fleaflet/flutter_map/pull/1517)
-- Added offset capability to `move` methods - [#1532](https://github.com/fleaflet/flutter_map/pull/1532) for [#952](https://github.com/fleaflet/flutter_map/issues/952)
+- Added offset capability to `FlutterMapState.move`/`MapController.move` methods - [#1532](https://github.com/fleaflet/flutter_map/pull/1532) for [#952](https://github.com/fleaflet/flutter_map/issues/952)
 - Added `MapController.rotateAroundPoint` method - [#1532](https://github.com/fleaflet/flutter_map/pull/1532) for [#1460](https://github.com/fleaflet/flutter_map/issues/1460)
-- Improved tile providers and tile image providers - [#1512](https://github.com/fleaflet/flutter_map/pull/1512)
-  - Improved performance and removed unnecessary code
-  - Removed `NetworkNoRetryTileProvider` in favour of custom `NetworkTileProvider.httpClient`
-  - Removed `FileTileProvider` fallback to `NetworkTileProvider` on web
-- Improved performance in environments where `MediaQuery` changes frequently - [#1523](https://github.com/fleaflet/flutter_map/pull/1523)
+- Added `TileLayer.fallbackUrl` support to `FileTileProvider` - [#1532](https://github.com/fleaflet/flutter_map/pull/1532)
+- Removed `NetworkNoRetryTileProvider` in favour of custom `NetworkTileProvider.httpClient` - [#1512](https://github.com/fleaflet/flutter_map/pull/1512)
+- Removed `FileTileProvider` fallback to `NetworkTileProvider` on web - [#1512](https://github.com/fleaflet/flutter_map/pull/1512)
+- Deprecated `TileUpdateTransformers.alwaysLoadAndPrune` in favour of `ignoreTapEvents` - [#1517](https://github.com/fleaflet/flutter_map/pull/1517)
 - Improved/stricter typing of `CustomPoint` - [#1515](https://github.com/fleaflet/flutter_map/pull/1515)
 - Updated dependencies - [#1530](https://github.com/fleaflet/flutter_map/pull/1530)
   - Updated 'latlong2' to access `const` `LatLng` objects
   - Updated 'http'
   - Removed 'tuple' ([#1517](https://github.com/fleaflet/flutter_map/pull/1517))
-- Deprecated `TileUpdateTransformers.alwaysLoadAndPrune` in favour of `ignoreTapEvents` - [#1517](https://github.com/fleaflet/flutter_map/pull/1517)
 
 Contains the following bug fixes:
 
@@ -27,6 +25,12 @@ Contains the following bug fixes:
 - Removed potential for jitter/frame delay when painting `Polyline`s & `Polygon`s - [#1514](https://github.com/fleaflet/flutter_map/pull/1514)
 - Removed potential for un-`mounted` `setState` call in `RichAttributionWidget` - [#1532](https://github.com/fleaflet/flutter_map/pull/1532)
 - Ensure `id` of `MapController.move` is passed through to the emitted `MapEventMove` - [#1532](https://github.com/fleaflet/flutter_map/pull/1532) from [#1534](https://github.com/fleaflet/flutter_map/pull/1534)
+
+Contains the following performance improvements:
+
+- Reduced unnecessary rebuilding in environments where `MediaQuery` changes frequently - [#1523](https://github.com/fleaflet/flutter_map/pull/1523)
+- Use Flutter's default `CachingAssetBundle` in `AssetTileProvider` when `TileLayer.fallbackUrl` is not specified - [#1532](https://github.com/fleaflet/flutter_map/pull/1532) for [#1436](https://github.com/fleaflet/flutter_map/issues/1436)
+- Improved performance of `TileProvider`s and `FlutterMapNetworkImageProvider` - [#1512](https://github.com/fleaflet/flutter_map/pull/1512)
 
 In other news:
 
