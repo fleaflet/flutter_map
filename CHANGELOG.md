@@ -4,20 +4,21 @@
 
 **"Dart The Third"**
 
-Contains the following changes (may not be a comprehensive list):
+Contains the following API changes:
 
 - Migrated to Flutter 3.10 and Dart 3.0 minimums - [#1512](https://github.com/fleaflet/flutter_map/pull/1512) & [#1517](https://github.com/fleaflet/flutter_map/pull/1517)
 - Added offset capability to `FlutterMapState.move`/`MapController.move` methods - [#1532](https://github.com/fleaflet/flutter_map/pull/1532) for [#952](https://github.com/fleaflet/flutter_map/issues/952)
 - Added `MapController.rotateAroundPoint` method - [#1532](https://github.com/fleaflet/flutter_map/pull/1532) for [#1460](https://github.com/fleaflet/flutter_map/issues/1460)
 - Added `TileLayer.fallbackUrl` support to `FileTileProvider` - [#1532](https://github.com/fleaflet/flutter_map/pull/1532)
+- Improved/stricter typing of `CustomPoint` - [#1515](https://github.com/fleaflet/flutter_map/pull/1515)
+- Deprecated `TileUpdateTransformers.alwaysLoadAndPrune` in favour of `ignoreTapEvents` - [#1517](https://github.com/fleaflet/flutter_map/pull/1517)
 - Removed `NetworkNoRetryTileProvider` in favour of custom `NetworkTileProvider.httpClient` - [#1512](https://github.com/fleaflet/flutter_map/pull/1512)
 - Removed `FileTileProvider` fallback to `NetworkTileProvider` on web - [#1512](https://github.com/fleaflet/flutter_map/pull/1512)
-- Deprecated `TileUpdateTransformers.alwaysLoadAndPrune` in favour of `ignoreTapEvents` - [#1517](https://github.com/fleaflet/flutter_map/pull/1517)
-- Improved/stricter typing of `CustomPoint` - [#1515](https://github.com/fleaflet/flutter_map/pull/1515)
+- Removed `saveLayers` property from `PolylineLayer` - [#1532](https://github.com/fleaflet/flutter_map/pull/1532) & [#1519](https://github.com/fleaflet/flutter_map/pull/1519)
 - Updated dependencies - [#1530](https://github.com/fleaflet/flutter_map/pull/1530)
   - Updated 'latlong2' to access `const` `LatLng` objects
   - Updated 'http'
-  - Removed 'tuple' ([#1517](https://github.com/fleaflet/flutter_map/pull/1517))
+  - Removed 'tuple' in favour of built-in `Record`s ([#1517](https://github.com/fleaflet/flutter_map/pull/1517))
 
 Contains the following bug fixes:
 
