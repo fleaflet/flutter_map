@@ -50,11 +50,22 @@ For more information about web renderers, see [https://docs.flutter.dev/platform
 
 ### Android
 
-flutter\_map needs to access the Internet to load tiles, in most cases. On Android, apps must include the INTERNET permission in their manifest. Add the following line to all manifests.
+flutter\_map needs to access the Internet to load tiles, in most cases. On Android, apps must include the INTERNET permission in their manifest. Add the following line to all manifests:
 
 {% code title="AndroidManifest.xml" %}
 ```xml
 <uses-permission android:name="android.permission.INTERNET"/>
+```
+{% endcode %}
+
+### MacOS
+
+flutter\_map needs to access the Internet to load tiles, in most cases. On MacOS, apps must include a dedicated entitlement. Add the following lines to 'macos/Runner/DebugProfile.entitlements' and 'macos/Runner/Release.entitlements**':**
+
+{% code title="*.entitlements" %}
+```xml
+<key>com.apple.security.network.client</key>
+<true/>
 ```
 {% endcode %}
 
