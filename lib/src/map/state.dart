@@ -152,6 +152,12 @@ class FlutterMapState extends MapGestureMixin
               onSecondaryTap: handleSecondaryTap,
               onLongPress: handleLongPress,
               onDoubleTap: handleDoubleTap,
+              doubleTapDelay: InteractiveFlag.hasFlag(
+                options.interactiveFlags,
+                InteractiveFlag.doubleTapZoom,
+              )
+                  ? null
+                  : Duration.zero,
               child: RawGestureDetector(
                 gestures: gestures,
                 child: _buildMap(),

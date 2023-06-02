@@ -114,6 +114,10 @@ class _HomePageState extends State<HomePage> {
                 options: MapOptions(
                   center: const LatLng(51.5, -0.09),
                   zoom: 5,
+                  maxBounds: LatLngBounds(
+                    const LatLng(-90, -180),
+                    const LatLng(90, 180),
+                  ),
                 ),
                 nonRotatedChildren: [
                   RichAttributionWidget(

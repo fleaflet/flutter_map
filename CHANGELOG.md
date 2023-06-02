@@ -10,8 +10,12 @@ Contains the following API changes:
 - Added offset capability to `FlutterMapState.move`/`MapController.move` methods - [#1532](https://github.com/fleaflet/flutter_map/pull/1532) for [#952](https://github.com/fleaflet/flutter_map/issues/952)
 - Added `MapController.rotateAroundPoint` method - [#1532](https://github.com/fleaflet/flutter_map/pull/1532) for [#1460](https://github.com/fleaflet/flutter_map/issues/1460)
 - Added `TileLayer.fallbackUrl` support to `FileTileProvider` - [#1532](https://github.com/fleaflet/flutter_map/pull/1532)
-- Improved/stricter typing of `CustomPoint` - [#1515](https://github.com/fleaflet/flutter_map/pull/1515)
+- Added more position options to `AnchorAlign` - [#1532](https://github.com/fleaflet/flutter_map/pull/1532)
+- Improved `MarkerLayer`/`Layer` interoperability - [#1532](https://github.com/fleaflet/flutter_map/pull/1532)
+- Improved response/emission time of `onTap`/`MapEventTap` when `InteractiveFlag.doubleTapZoom` is disabled - [#1532](https://github.com/fleaflet/flutter_map/pull/1532)
+- Improved (stricter) typing of `CustomPoint` - [#1515](https://github.com/fleaflet/flutter_map/pull/1515)
 - Deprecated `TileUpdateTransformers.alwaysLoadAndPrune` in favour of `ignoreTapEvents` - [#1517](https://github.com/fleaflet/flutter_map/pull/1517)
+- Deprecated `AnchorAlign.none` in favour of `AnchorAlign.center` or `null` - [#1532](https://github.com/fleaflet/flutter_map/pull/1532)
 - Removed `NetworkNoRetryTileProvider` in favour of custom `NetworkTileProvider.httpClient` - [#1512](https://github.com/fleaflet/flutter_map/pull/1512)
 - Removed `FileTileProvider` fallback to `NetworkTileProvider` on web - [#1512](https://github.com/fleaflet/flutter_map/pull/1512)
 - Removed `saveLayers` property from `PolylineLayer` - [#1532](https://github.com/fleaflet/flutter_map/pull/1532) & [#1519](https://github.com/fleaflet/flutter_map/pull/1519)
@@ -25,7 +29,7 @@ Contains the following bug fixes:
 - Polylines with translucent fills and borders now paint properly - [#1519](https://github.com/fleaflet/flutter_map/pull/1519) for [#1510](https://github.com/fleaflet/flutter_map/issues/1510) & [#1420](https://github.com/fleaflet/flutter_map/issues/1420)
 - Removed potential for jitter/frame delay when painting `Polyline`s & `Polygon`s - [#1514](https://github.com/fleaflet/flutter_map/pull/1514)
 - Removed potential for un-`mounted` `setState` call in `RichAttributionWidget` - [#1532](https://github.com/fleaflet/flutter_map/pull/1532) for [#1538](https://github.com/fleaflet/flutter_map/issues/1538)
-- Ensure `id` of `MapController.move` is passed through to the emitted `MapEventMove` - [#1534](https://github.com/fleaflet/flutter_map/pull/1534) in [#1532](https://github.com/fleaflet/flutter_map/pull/1532)
+- Ensure `id` of `MapController.move` is passed through to the emitted `MapEventMove` - [#1534](https://github.com/fleaflet/flutter_map/pull/1534) in [#1532](https://github.com/fleaflet/flutter_map/pull/1532) for [#1542](https://github.com/fleaflet/flutter_map/issues/1542)
 
 Contains the following performance improvements:
 

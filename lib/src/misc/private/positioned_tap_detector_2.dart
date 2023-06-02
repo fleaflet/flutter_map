@@ -13,16 +13,16 @@ typedef TapPositionCallback = void Function(TapPosition position);
 
 class PositionedTapDetector2 extends StatefulWidget {
   const PositionedTapDetector2({
-    Key? key,
+    super.key,
     this.child,
     this.onTap,
     this.onDoubleTap,
     this.onSecondaryTap,
     this.onLongPress,
-    this.doubleTapDelay = _defaultDelay,
+    Duration? doubleTapDelay,
     this.behavior,
     this.controller,
-  }) : super(key: key);
+  }) : doubleTapDelay = doubleTapDelay ?? _defaultDelay;
 
   static const _defaultDelay = Duration(milliseconds: 250);
   static const _doubleTapMaxOffset = 48.0;
@@ -43,9 +43,9 @@ class PositionedTapDetector2 extends StatefulWidget {
 class _TapPositionDetectorState extends State<PositionedTapDetector2> {
   final _controller = StreamController<TapDownDetails>();
 
-  Stream<TapDownDetails> get _stream => _controller.stream;
-
+  late final _stream = _controller.stream.asBroadcastStream();
   Sink<TapDownDetails> get _sink => _controller.sink;
+  late StreamSubscription<TapDownDetails> _streamSub;
 
   PositionedTapController? _tapController;
   TapDownDetails? _pendingTap;
@@ -54,10 +54,7 @@ class _TapPositionDetectorState extends State<PositionedTapDetector2> {
   @override
   void initState() {
     _updateController();
-    _stream
-        .timeout(widget.doubleTapDelay)
-        .handleError(_onTimeout, test: (e) => e is TimeoutException)
-        .listen(_onTapConfirmed);
+    _startStream();
     super.initState();
   }
 
@@ -67,6 +64,16 @@ class _TapPositionDetectorState extends State<PositionedTapDetector2> {
     if (widget.controller != oldWidget.controller) {
       _updateController();
     }
+    if (widget.doubleTapDelay != oldWidget.doubleTapDelay) {
+      _streamSub.cancel().then(_startStream);
+    }
+  }
+
+  void _startStream([dynamic d]) {
+    _streamSub = _stream
+        .timeout(widget.doubleTapDelay)
+        .handleError(_onTimeout, test: (e) => e is TimeoutException)
+        .listen(_onTapConfirmed);
   }
 
   void _updateController() {
@@ -175,6 +182,7 @@ class _TapPositionDetectorState extends State<PositionedTapDetector2> {
   @override
   void dispose() {
     _controller.close();
+    _streamSub.cancel();
     _tapController?._state = null;
     super.dispose();
   }
