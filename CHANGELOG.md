@@ -40,8 +40,8 @@ Contains the following performance improvements:
 In other news:
 
 - You may have noticed some minor rebranding around the repo recently! The maintainers have finally gained full member access from the previous owner (thanks John :)) to the 'fleaflet' organisation and now have total control.
-- We've launched a Live Web Demo so you can experiment with flutter_map without having to build from source yourself! Visit [demo.fleaflet.dev](https://demo.fleaflet.dev).
-- [#1532](https://github.com/fleaflet/flutter_map/pull/1532) made some big changes to the structure/organization of flutter_map internals, which we hope should make it easier for new contributors to add code due to the reduction of the scope of responsibility of each source file.
+- We've launched a Live Web Demo so you can experiment with flutter_map on the web without having to install any apps or build from source yourself! Visit [demo.fleaflet.dev](https://demo.fleaflet.dev).
+- We've made some big changes to the structure/organization of flutter_map internals, which we hope should make it easier for new contributors to add code due to the reduction of the scope of responsibility of each source file.
 
 Many thanks to these contributors (in no particular order):
 

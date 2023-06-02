@@ -4,30 +4,11 @@ import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:flutter_map/src/map/state.dart';
 import 'package:latlong2/latlong.dart';
 
-class Anchor {
-  final double left;
-  final double top;
-
-  Anchor(this.left, this.top);
-
-  Anchor._(double width, double height, AnchorAlign? alignOpt)
-      : left = _leftOffset(width, alignOpt),
-        top = _topOffset(height, alignOpt);
-
-  static double _leftOffset(double width, AnchorAlign? alignOpt) =>
-      switch (alignOpt?._x) { -1 => 0, 1 => width, _ => width / 2 };
-
-  static double _topOffset(double height, AnchorAlign? alignOpt) =>
-      switch (alignOpt?._y) { 1 => 0, -1 => height, _ => height / 2 };
-
-  factory Anchor.forPos(AnchorPos? pos, double width, double height) {
-    if (pos == null) return Anchor._(width, height, null);
-    if (pos.alignment case final align?) return Anchor._(width, height, align);
-    if (pos.anchor case final anchor?) return anchor;
-    throw Exception();
-  }
-}
-
+/// Defines the positioning of a [Marker.builder] widget relative to the center
+/// of its bounding box defined by its [Marker.height] & [Marker.width]
+///
+/// Can be defined exactly (using [AnchorPos.exactly] with an [Anchor]) or in
+/// a relative alignment (using [AnchorPos.align] with an [AnchorAlign]).
 class AnchorPos {
   final Anchor? anchor;
   final AnchorAlign? alignment;
@@ -36,7 +17,31 @@ class AnchorPos {
   AnchorPos.align(AnchorAlign this.alignment) : anchor = null;
 }
 
-/// Relative positioning for the marker against it's [Marker.point]
+/// Exact alignment for a [Marker.builder] widget relative to the center
+/// of its bounding box defined by its [Marker.height] & [Marker.width]
+///
+/// May be generated from an [AnchorPos] (usually with [AnchorPos.alignment]
+/// defined) and dimensions through [Anchor.fromPos].
+class Anchor {
+  final double left;
+  final double top;
+
+  Anchor(this.left, this.top);
+
+  factory Anchor.fromPos(AnchorPos pos, double width, double height) {
+    if (pos.anchor case final anchor?) return anchor;
+    if (pos.alignment case final alignment?) {
+      return Anchor(
+        switch (alignment._x) { -1 => 0, 1 => width, _ => width / 2 },
+        switch (alignment._y) { 1 => 0, -1 => height, _ => height / 2 },
+      );
+    }
+    throw Exception();
+  }
+}
+
+/// Relative alignment for a [Marker.builder] widget relative to the center
+/// of its bounding box defined by its [Marker.height] & [Marker.width]
 enum AnchorAlign {
   topLeft(-1, 1),
   topRight(1, 1),
@@ -91,7 +96,7 @@ class Marker {
   /// Bounding box height of the marker
   final double height;
 
-  /// Alignment of the [builder] widget relative to the center of its bounding
+  /// Positioning of the [builder] widget relative to the center of its bounding
   /// box defined by its [height] & [width]
   final AnchorPos? anchorPos;
 
@@ -136,7 +141,7 @@ class Marker {
 class MarkerLayer extends StatelessWidget {
   final List<Marker> markers;
 
-  /// Alignment of the [Marker.builder] widget relative to the center of its
+  /// Positioning of the [Marker.builder] widget relative to the center of its
   /// bounding box defined by its [Marker.height] & [Marker.width]
   ///
   /// Overriden on a per [Marker] basis if [Marker.anchorPos] is specified.
@@ -188,7 +193,6 @@ class MarkerLayer extends StatelessWidget {
     final markerWidgets = <Widget>[];
 
     for (final marker in markers) {
-      // Find the position of the point on the screen
       final pxPoint = map.project(marker.point);
 
       // See if any portion of the Marker rect resides in the map bounds
@@ -196,7 +200,7 @@ class MarkerLayer extends StatelessWidget {
       // This calculation works for any Anchor position whithin the Marker
       // Note that Anchor coordinates of (0,0) are at bottom-right of the Marker
       // unlike the map coordinates.
-      final anchor = Anchor.forPos(
+      final anchor = Anchor.fromPos(
         marker.anchorPos ?? anchorPos ?? AnchorPos.align(AnchorAlign.center),
         marker.width,
         marker.height,
@@ -205,7 +209,6 @@ class MarkerLayer extends StatelessWidget {
       final leftPortion = anchor.left;
       final bottomPortion = marker.height - anchor.top;
       final topPortion = anchor.top;
-
       if (!map.pixelBounds.containsPartialBounds(Bounds(
           CustomPoint(pxPoint.x + leftPortion, pxPoint.y - bottomPortion),
           CustomPoint(pxPoint.x - rightPortion, pxPoint.y + topPortion)))) {
