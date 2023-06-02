@@ -50,6 +50,7 @@ class MarkerPageState extends State<MarkerPage> {
             Padding(
               padding: const EdgeInsets.all(8),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SizedBox.square(
                     dimension: 130,
@@ -66,12 +67,7 @@ class MarkerPageState extends State<MarkerPage> {
                         final align = alignments.values.elementAt(index);
 
                         return IconButton.outlined(
-                          onPressed: () => setState(() {
-                            anchorAlign = align;
-                            if (align == AnchorAlign.center) {
-                              counterRotate = false;
-                            }
-                          }),
+                          onPressed: () => setState(() => anchorAlign = align),
                           icon: Transform.rotate(
                             angle: deg == null ? 0 : deg * pi / 180,
                             child: Icon(
@@ -96,9 +92,7 @@ class MarkerPageState extends State<MarkerPage> {
                           const SizedBox(width: 10),
                           Switch.adaptive(
                             value: counterRotate,
-                            onChanged: anchorAlign == AnchorAlign.center
-                                ? null
-                                : (v) => setState(() => counterRotate = v),
+                            onChanged: (v) => setState(() => counterRotate = v),
                           ),
                         ],
                       ),
