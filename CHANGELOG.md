@@ -50,6 +50,7 @@ Many thanks to these contributors (in no particular order):
 - @ignatz
 - @rorystephenson
 - @tlserver
+- @JosefWN
 - ... and all the maintainers
 
 And an additional special thanks to @josxha & @ignatz for investing so much of their time into this project recently - we appreciate it!
