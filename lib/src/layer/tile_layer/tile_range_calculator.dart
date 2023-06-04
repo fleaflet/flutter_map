@@ -1,6 +1,6 @@
-import 'package:flutter_map/src/core/bounds.dart';
+import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
-import 'package:flutter_map/src/map/flutter_map_state.dart';
+import 'package:flutter_map/src/map/state.dart';
 import 'package:latlong2/latlong.dart';
 
 class TileRangeCalculator {

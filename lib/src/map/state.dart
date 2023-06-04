@@ -4,10 +4,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/core/bounds.dart';
+import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:flutter_map/src/gestures/gestures.dart';
-import 'package:flutter_map/src/map/map.dart';
-import 'package:flutter_map/src/map/map_state_widget.dart';
 import 'package:latlong2/latlong.dart';
 
 class FlutterMapState extends MapGestureMixin
@@ -15,41 +13,35 @@ class FlutterMapState extends MapGestureMixin
   static const invalidSize = CustomPoint<double>(-1, -1);
 
   final _positionedTapController = PositionedTapController();
-  final GestureArenaTeam _team = GestureArenaTeam();
-
-  final MapController _localController = MapControllerImpl();
+  final _gestureArenaTeam = GestureArenaTeam();
 
   bool _hasFitInitialBounds = false;
 
   @override
-  MapOptions get options => widget.options;
-
-  @override
   FlutterMapState get mapState => this;
 
+  final _localController = MapController();
   @override
   MapController get mapController => widget.mapController ?? _localController;
+
+  @override
+  MapOptions get options => widget.options;
 
   @override
   void initState() {
     super.initState();
 
     mapController.state = this;
-
-    // Initialize all variables here, if they need to be updated after the map changes
-    // like center, or bounds they also need to be updated in build.
     _rotation = options.rotation;
     _center = options.center;
     _zoom = options.zoom;
     _pixelBounds = getPixelBounds();
     _bounds = _calculateBounds();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      options.onMapReady?.call();
-    });
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => options.onMapReady?.call());
   }
 
-  //This may not be required.
   @override
   void didUpdateWidget(FlutterMap oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -96,7 +88,7 @@ class FlutterMapState extends MapGestureMixin
             // Absorbing vertical drags
           };
           instance.gestureSettings = gestureSettings;
-          instance.team ??= _team;
+          instance.team ??= _gestureArenaTeam;
         },
       );
       gestures[HorizontalDragGestureRecognizer] =
@@ -107,7 +99,7 @@ class FlutterMapState extends MapGestureMixin
             // Absorbing horizontal drags
           };
           instance.gestureSettings = gestureSettings;
-          instance.team ??= _team;
+          instance.team ??= _gestureArenaTeam;
         },
       );
     }
@@ -120,8 +112,8 @@ class FlutterMapState extends MapGestureMixin
           ..onStart = handleScaleStart
           ..onUpdate = handleScaleUpdate
           ..onEnd = handleScaleEnd;
-        instance.team ??= _team;
-        _team.captain = instance;
+        instance.team ??= _gestureArenaTeam;
+        _gestureArenaTeam.captain = instance;
       },
     );
 
@@ -146,7 +138,7 @@ class FlutterMapState extends MapGestureMixin
         _bounds = _calculateBounds();
         _pixelOrigin = getNewPixelOrigin(_center);
 
-        return MapStateInheritedWidget(
+        return _MapStateInheritedWidget(
           mapState: this,
           child: Listener(
             onPointerDown: onPointerDown,
@@ -160,9 +152,31 @@ class FlutterMapState extends MapGestureMixin
               onSecondaryTap: handleSecondaryTap,
               onLongPress: handleLongPress,
               onDoubleTap: handleDoubleTap,
+              doubleTapDelay: InteractiveFlag.hasFlag(
+                options.interactiveFlags,
+                InteractiveFlag.doubleTapZoom,
+              )
+                  ? null
+                  : Duration.zero,
               child: RawGestureDetector(
                 gestures: gestures,
-                child: _buildMap(),
+                child: ClipRect(
+                  child: Stack(
+                    children: [
+                      OverflowBox(
+                        minWidth: size.x,
+                        maxWidth: size.x,
+                        minHeight: size.y,
+                        maxHeight: size.y,
+                        child: Transform.rotate(
+                          angle: rotationRad,
+                          child: Stack(children: widget.children),
+                        ),
+                      ),
+                      Stack(children: widget.nonRotatedChildren),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
@@ -180,41 +194,8 @@ class FlutterMapState extends MapGestureMixin
           BuildContext context, BoxConstraints constraints) =>
       constraints.maxWidth != 0 || MediaQuery.sizeOf(context) != Size.zero;
 
-  Widget _buildMap() {
-    return ClipRect(
-      child: Stack(
-        children: [
-          OverflowBox(
-            minWidth: size.x,
-            maxWidth: size.x,
-            minHeight: size.y,
-            maxHeight: size.y,
-            child: Transform.rotate(
-              angle: rotationRad,
-              child: Stack(
-                children: widget.children,
-              ),
-            ),
-          ),
-          Stack(
-            children: widget.nonRotatedChildren,
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   bool get wantKeepAlive => options.keepAlive;
-
-  ///MAP STATE
-  ///MAP STATE
-  ///MAP STATE
-  ///MAP STATE
-  ///MAP STATE
-  ///MAP STATE
-  ///MAP STATE
-  ///MAP STATE
 
   late double _zoom;
   late double _rotation;
@@ -330,49 +311,119 @@ class FlutterMapState extends MapGestureMixin
     return false;
   }
 
-  MoveAndRotateResult moveAndRotate(
-      LatLng newCenter, double newZoom, double newRotation,
-      {required MapEventSource source, String? id}) {
-    final moveSucc = move(newCenter, newZoom, id: id, source: source);
-    final rotateSucc = rotate(newRotation, id: id, source: source);
+  MoveAndRotateResult rotateAroundPoint(
+    double degree, {
+    CustomPoint<double>? point,
+    Offset? offset,
+    bool hasGesture = false,
+    required MapEventSource source,
+    String? id,
+  }) {
+    if (point != null && offset != null) {
+      throw ArgumentError('Only one of `point` or `offset` may be non-null');
+    }
+    if (point == null && offset == null) {
+      throw ArgumentError('One of `point` or `offset` must be non-null');
+    }
 
-    return MoveAndRotateResult(moveSucc, rotateSucc);
+    if (degree == rotation) return MoveAndRotateResult(false, false);
+
+    if (offset == Offset.zero) {
+      return MoveAndRotateResult(
+        true,
+        rotate(
+          degree,
+          hasGesture: hasGesture,
+          source: source,
+          id: id,
+        ),
+      );
+    }
+
+    final rotationDiff = degree - rotation;
+    final rotationCenter = project(center, zoom) +
+        (point != null
+                ? (point - (nonrotatedSize / 2.0))
+                : CustomPoint(offset!.dx, offset.dy))
+            .rotate(rotationRad);
+
+    return MoveAndRotateResult(
+      move(
+        unproject(
+          rotationCenter +
+              (project(center) - rotationCenter)
+                  .rotate(degToRadian(rotationDiff)),
+        ),
+        zoom,
+        hasGesture: hasGesture,
+        source: source,
+        id: id,
+      ),
+      rotate(
+        rotation + rotationDiff,
+        hasGesture: hasGesture,
+        source: source,
+        id: id,
+      ),
+    );
   }
+
+  MoveAndRotateResult moveAndRotate(
+    LatLng newCenter,
+    double newZoom,
+    double newRotation, {
+    Offset offset = Offset.zero,
+    required MapEventSource source,
+    String? id,
+  }) =>
+      MoveAndRotateResult(
+        move(newCenter, newZoom, offset: offset, id: id, source: source),
+        rotate(newRotation, id: id, source: source),
+      );
 
   bool move(
     LatLng newCenter,
     double newZoom, {
+    Offset offset = Offset.zero,
     bool hasGesture = false,
     required MapEventSource source,
     String? id,
   }) {
     newZoom = fitZoomToBounds(newZoom);
 
-    if (newCenter == _center && newZoom == _zoom) return false;
+    // Algorithm thanks to https://github.com/tlserver/flutter_map_location_marker
+    if (offset != Offset.zero) {
+      final newPoint = options.crs.latLngToPoint(newCenter, newZoom);
+      newCenter = options.crs.pointToLatLng(
+        rotatePoint(
+          newPoint,
+          newPoint - CustomPoint(offset.dx, offset.dy),
+        ),
+        newZoom,
+      );
+    }
 
     if (isOutOfBounds(newCenter)) {
-      if (!options.slideOnBoundaries) {
-        return false;
-      }
+      if (!options.slideOnBoundaries) return false;
       newCenter = containPoint(newCenter, _center);
     }
 
-    // Try and fit the corners of the map inside the visible area.
-    // If it's still outside (so response is null), don't perform a move.
     if (options.maxBounds != null) {
       final adjustedCenter = adjustCenterIfOutsideMaxBounds(
-          newCenter, newZoom, options.maxBounds!);
-      if (adjustedCenter == null) {
-        return false;
-      } else {
-        newCenter = adjustedCenter;
-      }
+        newCenter,
+        newZoom,
+        options.maxBounds!,
+      );
+
+      if (adjustedCenter == null) return false;
+      newCenter = adjustedCenter;
     }
 
-    final LatLng oldCenter = _center;
-    final double oldZoom = _zoom;
+    if (newCenter == _center && newZoom == _zoom) return false;
 
-    //Apply state then emit events and callbacks
+    final oldCenter = _center;
+    final oldZoom = _zoom;
+
     setState(() {
       _zoom = newZoom;
       _center = newCenter;
@@ -389,6 +440,7 @@ class FlutterMapState extends MapGestureMixin
       oldZoom: oldZoom,
       hasGesture: hasGesture,
       source: source,
+      id: id,
     );
     if (movementEvent != null) emitMapEvent(movementEvent);
 
@@ -416,9 +468,18 @@ class FlutterMapState extends MapGestureMixin
     return zoom;
   }
 
-  void fitBounds(LatLngBounds bounds, FitBoundsOptions options) {
+  bool fitBounds(
+    LatLngBounds bounds,
+    FitBoundsOptions options, {
+    Offset offset = Offset.zero,
+  }) {
     final target = getBoundsCenterZoom(bounds, options);
-    move(target.center, target.zoom, source: MapEventSource.fitBounds);
+    return move(
+      target.center,
+      target.zoom,
+      offset: offset,
+      source: MapEventSource.fitBounds,
+    );
   }
 
   CenterZoom centerZoomFitBounds(
@@ -491,7 +552,7 @@ class FlutterMapState extends MapGestureMixin
 
   LatLng unproject(CustomPoint point, [double? zoom]) {
     zoom ??= _zoom;
-    return options.crs.pointToLatLng(point, zoom)!;
+    return options.crs.pointToLatLng(point, zoom);
   }
 
   LatLng layerPointToLatLng(CustomPoint point) {
@@ -613,7 +674,7 @@ class FlutterMapState extends MapGestureMixin
     return point - nonRotatedPixelOrigin;
   }
 
-  LatLng? pointToLatLng(CustomPoint localPoint) {
+  LatLng pointToLatLng(CustomPoint localPoint) {
     final localPointCenterDistance = CustomPoint(
       (_nonrotatedSize.x / 2) - localPoint.x,
       (_nonrotatedSize.y / 2) - localPoint.y,
@@ -720,7 +781,7 @@ class FlutterMapState extends MapGestureMixin
       options.screenSize!.height * 170.102258 / math.pow(2, zoom + 8);
 
   static FlutterMapState? maybeOf(BuildContext context) => context
-      .dependOnInheritedWidgetOfExactType<MapStateInheritedWidget>()
+      .dependOnInheritedWidgetOfExactType<_MapStateInheritedWidget>()
       ?.mapState;
 
   static FlutterMapState of(BuildContext context) =>
@@ -750,4 +811,17 @@ class _SafeArea {
             ? fallback.longitude
             : point.longitude.clamp(bounds.west, bounds.east),
       );
+}
+
+class _MapStateInheritedWidget extends InheritedWidget {
+  const _MapStateInheritedWidget({
+    required this.mapState,
+    required super.child,
+  });
+
+  final FlutterMapState mapState;
+
+  /// This return value does not appear to affect anything, no matter it's value
+  @override
+  bool updateShouldNotify(_MapStateInheritedWidget oldWidget) => true;
 }

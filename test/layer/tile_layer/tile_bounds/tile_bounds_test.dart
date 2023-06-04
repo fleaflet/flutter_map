@@ -91,7 +91,7 @@ void main() {
         tileSize: 256,
         latLngBounds: LatLngBounds(
           const LatLng(0, 0),
-          crs.pointToLatLng(crs.getProjectedBounds(0)!.max, 0)!,
+          crs.pointToLatLng(crs.getProjectedBounds(0)!.max, 0),
         ),
       );
 

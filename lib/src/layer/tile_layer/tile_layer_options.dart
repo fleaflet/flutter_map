@@ -93,8 +93,8 @@ class WMSTileLayerOptions {
     final tileSizePoint = CustomPoint(tileSize, tileSize);
     final nwPoint = coords.scaleBy(tileSizePoint);
     final sePoint = nwPoint + tileSizePoint;
-    final nwCoords = crs.pointToLatLng(nwPoint, coords.z.toDouble())!;
-    final seCoords = crs.pointToLatLng(sePoint, coords.z.toDouble())!;
+    final nwCoords = crs.pointToLatLng(nwPoint, coords.z.toDouble());
+    final seCoords = crs.pointToLatLng(sePoint, coords.z.toDouble());
     final nw = crs.projection.project(nwCoords);
     final se = crs.projection.project(seCoords);
     final bounds = Bounds(nw, se);

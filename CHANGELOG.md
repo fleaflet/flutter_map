@@ -1,5 +1,60 @@
 # Changelog
 
+## [5.0.0] - 2023/06/XX
+
+**"Dart The Third"**
+
+Contains the following API changes:
+
+- Migrated to Flutter 3.10 and Dart 3.0 minimums - [#1512](https://github.com/fleaflet/flutter_map/pull/1512) & [#1517](https://github.com/fleaflet/flutter_map/pull/1517)
+- Added offset capability to `FlutterMapState.move`/`MapController.move` methods - [#1532](https://github.com/fleaflet/flutter_map/pull/1532) for [#952](https://github.com/fleaflet/flutter_map/issues/952)
+- Added `MapController.rotateAroundPoint` method - [#1532](https://github.com/fleaflet/flutter_map/pull/1532) for [#1460](https://github.com/fleaflet/flutter_map/issues/1460)
+- Added `TileLayer.fallbackUrl` support to `FileTileProvider` - [#1532](https://github.com/fleaflet/flutter_map/pull/1532)
+- Added more position options to `AnchorAlign` - [#1532](https://github.com/fleaflet/flutter_map/pull/1532)
+- Improved `MarkerLayer`/`Layer` interoperability - [#1532](https://github.com/fleaflet/flutter_map/pull/1532)
+- Improved response/emission time of `onTap`/`MapEventTap` when `InteractiveFlag.doubleTapZoom` is disabled - [#1532](https://github.com/fleaflet/flutter_map/pull/1532)
+- Improved (stricter) typing of `CustomPoint` - [#1515](https://github.com/fleaflet/flutter_map/pull/1515)
+- Deprecated `TileUpdateTransformers.alwaysLoadAndPrune` in favour of `ignoreTapEvents` - [#1517](https://github.com/fleaflet/flutter_map/pull/1517)
+- Deprecated `AnchorAlign.none` in favour of `AnchorAlign.center` or `null` - [#1532](https://github.com/fleaflet/flutter_map/pull/1532)
+- Removed `NetworkNoRetryTileProvider` in favour of custom `NetworkTileProvider.httpClient` - [#1512](https://github.com/fleaflet/flutter_map/pull/1512)
+- Removed `FileTileProvider` fallback to `NetworkTileProvider` on web - [#1512](https://github.com/fleaflet/flutter_map/pull/1512)
+- Removed `saveLayers` property from `PolylineLayer` - [#1532](https://github.com/fleaflet/flutter_map/pull/1532) & [#1519](https://github.com/fleaflet/flutter_map/pull/1519)
+- Updated dependencies - [#1530](https://github.com/fleaflet/flutter_map/pull/1530)
+  - Updated 'latlong2' to access `const` `LatLng` objects
+  - Updated 'http'
+  - Removed 'tuple' in favour of built-in `Record`s ([#1517](https://github.com/fleaflet/flutter_map/pull/1517))
+
+Contains the following bug fixes:
+
+- Polylines with translucent fills and borders now paint properly - [#1519](https://github.com/fleaflet/flutter_map/pull/1519) for [#1510](https://github.com/fleaflet/flutter_map/issues/1510) & [#1420](https://github.com/fleaflet/flutter_map/issues/1420)
+- Ensure `id` of `MapController.move` is passed through to the emitted `MapEventMove` - [#1534](https://github.com/fleaflet/flutter_map/pull/1534) in [#1532](https://github.com/fleaflet/flutter_map/pull/1532) for [#1542](https://github.com/fleaflet/flutter_map/issues/1542)
+- Fixed MacOS pinch zoom gesture issue - [#1543](https://github.com/fleaflet/flutter_map/pull/1543) for part of [#1354](https://github.com/fleaflet/flutter_map/issues/1354)
+- Removed potential for jitter/frame delay when painting `Polyline`s & `Polygon`s - [#1514](https://github.com/fleaflet/flutter_map/pull/1514)
+- Removed potential for un-`mounted` `setState` call in `RichAttributionWidget` - [#1532](https://github.com/fleaflet/flutter_map/pull/1532) for [#1538](https://github.com/fleaflet/flutter_map/issues/1538)
+
+Contains the following performance improvements:
+
+- Reduced unnecessary rebuilding in environments where `MediaQuery` changes frequently - [#1523](https://github.com/fleaflet/flutter_map/pull/1523)
+- Use Flutter's default `CachingAssetBundle` in `AssetTileProvider` when `TileLayer.fallbackUrl` is not specified - [#1532](https://github.com/fleaflet/flutter_map/pull/1532) for [#1436](https://github.com/fleaflet/flutter_map/issues/1436)
+- Improved performance of `TileProvider`s and `FlutterMapNetworkImageProvider` - [#1512](https://github.com/fleaflet/flutter_map/pull/1512)
+
+In other news:
+
+- You may have noticed some minor rebranding around the repo recently! The maintainers have finally gained full member access from the previous owner (thanks John :)) to the 'fleaflet' organisation and now have total control.
+- We've launched a Live Web Demo so you can experiment with flutter_map on the web without having to install any apps or build from source yourself! Visit [demo.fleaflet.dev](https://demo.fleaflet.dev).
+- We've made some big changes to the structure/organization of flutter_map internals, which we hope should make it easier for new contributors to add code due to the reduction of the scope of responsibility of each source file.
+
+Many thanks to these contributors (in no particular order):
+
+- @josxha
+- @ignatz
+- @rorystephenson
+- @tlserver
+- @JosefWN
+- ... and all the maintainers
+
+And an additional special thanks to @josxha & @ignatz for investing so much of their time into this project recently - we appreciate it!
+
 ## [4.0.0] - 2023/05/05
 
 **"Out With The Old, In With The New"**

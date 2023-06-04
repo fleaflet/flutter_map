@@ -6,21 +6,15 @@ import 'package:flutter_map_example/pages/custom_crs/custom_crs.dart';
 import 'package:flutter_map_example/pages/epsg3413_crs.dart';
 import 'package:flutter_map_example/pages/epsg4326_crs.dart';
 import 'package:flutter_map_example/pages/fallback_url_network_page.dart';
-import 'package:flutter_map_example/pages/fallback_url_offline_page.dart';
 import 'package:flutter_map_example/pages/home.dart';
 import 'package:flutter_map_example/pages/interactive_test_page.dart';
 import 'package:flutter_map_example/pages/latlng_to_screen_point.dart';
-import 'package:flutter_map_example/pages/live_location.dart';
 import 'package:flutter_map_example/pages/many_markers.dart';
 import 'package:flutter_map_example/pages/map_controller.dart';
 import 'package:flutter_map_example/pages/map_inside_listview.dart';
-import 'package:flutter_map_example/pages/marker_anchor.dart';
-import 'package:flutter_map_example/pages/marker_rotate.dart';
-import 'package:flutter_map_example/pages/max_bounds.dart';
+import 'package:flutter_map_example/pages/markers.dart';
 import 'package:flutter_map_example/pages/moving_markers.dart';
-import 'package:flutter_map_example/pages/network_tile_provider.dart';
 import 'package:flutter_map_example/pages/offline_map.dart';
-import 'package:flutter_map_example/pages/on_tap.dart';
 import 'package:flutter_map_example/pages/overlay_image.dart';
 import 'package:flutter_map_example/pages/plugin_scalebar.dart';
 import 'package:flutter_map_example/pages/plugin_zoombuttons.dart';
@@ -31,18 +25,22 @@ import 'package:flutter_map_example/pages/reset_tile_layer.dart';
 import 'package:flutter_map_example/pages/secondary_tap.dart';
 import 'package:flutter_map_example/pages/sliding_map.dart';
 import 'package:flutter_map_example/pages/stateful_markers.dart';
-import 'package:flutter_map_example/pages/tap_to_add.dart';
 import 'package:flutter_map_example/pages/tile_builder_example.dart';
 import 'package:flutter_map_example/pages/tile_loading_error_handle.dart';
-import 'package:flutter_map_example/pages/widgets.dart';
 import 'package:flutter_map_example/pages/wms_tile_layer.dart';
 
 Widget _buildMenuItem(
-    BuildContext context, Widget title, String routeName, String currentRoute) {
+  BuildContext context,
+  Widget title,
+  String routeName,
+  String currentRoute, {
+  Widget? icon,
+}) {
   final isSelected = routeName == currentRoute;
 
   return ListTile(
     title: title,
+    leading: icon,
     selected: isSelected,
     onTap: () {
       if (isSelected) {
@@ -81,70 +79,100 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
         ),
         _buildMenuItem(
           context,
-          const Text('OpenStreetMap'),
+          const Text('Home'),
           HomePage.route,
           currentRoute,
+          icon: const Icon(Icons.home),
         ),
+        const Divider(),
         _buildMenuItem(
           context,
-          const Text('NetworkTileProvider'),
-          NetworkTileProviderPage.route,
+          const Text('Marker Layer'),
+          MarkerPage.route,
           currentRoute,
         ),
         _buildMenuItem(
           context,
-          const Text('WMS Layer'),
-          WMSLayerPage.route,
-          currentRoute,
-        ),
-        _buildMenuItem(
-          context,
-          const Text('Custom CRS'),
-          CustomCrsPage.route,
-          currentRoute,
-        ),
-        _buildMenuItem(
-          context,
-          const Text('Tap to Add Pins'),
-          TapToAddPage.route,
-          currentRoute,
-        ),
-        _buildMenuItem(
-          context,
-          const Text('Polylines'),
-          PolylinePage.route,
-          currentRoute,
-        ),
-        _buildMenuItem(
-          context,
-          const Text('Polygons'),
+          const Text('Polygon Layer'),
           PolygonPage.route,
           currentRoute,
         ),
         _buildMenuItem(
           context,
-          const Text('MapController'),
+          const Text('Polyline Layer'),
+          PolylinePage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Circle Layer'),
+          CirclePage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Overlay Image Layer'),
+          OverlayImagePage.route,
+          currentRoute,
+        ),
+        const Divider(),
+        _buildMenuItem(
+          context,
+          const Text('Map Controller'),
           MapControllerPage.route,
           currentRoute,
         ),
         _buildMenuItem(
           context,
-          const Text('Animated MapController'),
+          const Text('Animated Map Controller'),
           AnimatedMapControllerPage.route,
           currentRoute,
         ),
         _buildMenuItem(
           context,
-          const Text('Marker Anchors'),
-          MarkerAnchorPage.route,
+          const Text('Interactive Flags'),
+          InteractiveTestPage.route,
+          currentRoute,
+        ),
+        const Divider(),
+        _buildMenuItem(
+          context,
+          const Text('WMS Sourced Map'),
+          WMSLayerPage.route,
           currentRoute,
         ),
         _buildMenuItem(
           context,
-          const Text('Marker Rotate'),
-          MarkerRotatePage.route,
+          const Text('Asset Sourced Map'),
+          OfflineMapPage.route,
           currentRoute,
         ),
+        _buildMenuItem(
+          context,
+          const Text('Fallback URL'),
+          FallbackUrlNetworkPage.route,
+          currentRoute,
+        ),
+        const Divider(),
+        _buildMenuItem(
+          context,
+          const Text('Stateful Markers'),
+          StatefulMarkersPage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Many Markers'),
+          ManyMarkersPage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Moving Marker'),
+          MovingMarkersPage.route,
+          currentRoute,
+        ),
+        const Divider(),
         _buildMenuItem(
           context,
           const Text('ScaleBar Plugins'),
@@ -157,91 +185,12 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           PluginZoomButtons.route,
           currentRoute,
         ),
+        const Divider(),
         _buildMenuItem(
           context,
-          const Text('Offline Map'),
-          OfflineMapPage.route,
+          const Text('Custom CRS'),
+          CustomCrsPage.route,
           currentRoute,
-        ),
-        _buildMenuItem(
-          context,
-          const Text('OnTap'),
-          OnTapPage.route,
-          currentRoute,
-        ),
-        _buildMenuItem(
-          context,
-          const Text('Moving Markers'),
-          MovingMarkersPage.route,
-          currentRoute,
-        ),
-        _buildMenuItem(
-          context,
-          const Text('Circle'),
-          CirclePage.route,
-          currentRoute,
-        ),
-        _buildMenuItem(
-          context,
-          const Text('Overlay Image'),
-          OverlayImagePage.route,
-          currentRoute,
-        ),
-        _buildMenuItem(
-          context,
-          const Text('Sliding Map'),
-          SlidingMapPage.route,
-          currentRoute,
-        ),
-        _buildMenuItem(
-          context,
-          const Text('Widgets'),
-          WidgetsPage.route,
-          currentRoute,
-        ),
-        _buildMenuItem(
-          context,
-          const Text('Live Location Update'),
-          LiveLocationPage.route,
-          currentRoute,
-        ),
-        _buildMenuItem(
-          context,
-          const Text('Tile loading error handle'),
-          TileLoadingErrorHandle.route,
-          currentRoute,
-        ),
-        _buildMenuItem(
-          context,
-          const Text('Tile builder'),
-          TileBuilderPage.route,
-          currentRoute,
-        ),
-        _buildMenuItem(
-          context,
-          const Text('Interactive flags test page'),
-          InteractiveTestPage.route,
-          currentRoute,
-        ),
-        _buildMenuItem(
-          context,
-          const Text('Max Bounds test page'),
-          MaxBoundsPage.route,
-          currentRoute,
-        ),
-        ListTile(
-          title: const Text('A lot of markers'),
-          selected: currentRoute == ManyMarkersPage.route,
-          onTap: () {
-            Navigator.pushReplacementNamed(context, ManyMarkersPage.route);
-          },
-        ),
-        ListTile(
-          title: const Text('Reset Tile Layer'),
-          selected: currentRoute == ResetTileLayerPage.route,
-          onTap: () {
-            Navigator.pushReplacementNamed(context, ResetTileLayerPage.route);
-          },
         ),
         ListTile(
           title: const Text('EPSG4326 CRS'),
@@ -257,34 +206,55 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
             Navigator.pushReplacementNamed(context, EPSG3413Page.route);
           },
         ),
+        const Divider(),
         _buildMenuItem(
           context,
-          const Text('Stateful markers'),
-          StatefulMarkersPage.route,
-          currentRoute,
-        ),
-        _buildMenuItem(context, const Text('Map inside listview'),
-            MapInsideListViewPage.route, currentRoute),
-        _buildMenuItem(context, const Text('Point to LatLng'),
-            PointToLatLngPage.route, currentRoute),
-        _buildMenuItem(context, const Text('LatLng to ScreenPoint'),
-            LatLngScreenPointTestPage.route, currentRoute),
-        _buildMenuItem(
-          context,
-          const Text('Fallback URL NetworkTileProvider'),
-          FallbackUrlNetworkPage.route,
+          const Text('Sliding Map'),
+          SlidingMapPage.route,
           currentRoute,
         ),
         _buildMenuItem(
           context,
-          const Text('Fallback URL AssetTileProvider'),
-          FallbackUrlOfflinePage.route,
+          const Text('Map Inside Scrollable'),
+          MapInsideListViewPage.route,
           currentRoute,
         ),
         _buildMenuItem(
           context,
           const Text('Secondary Tap'),
           SecondaryTapPage.route,
+          currentRoute,
+        ),
+        const Divider(),
+        _buildMenuItem(
+          context,
+          const Text('Custom Tile Error Handling'),
+          TileLoadingErrorHandle.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Custom Tile Builder'),
+          TileBuilderPage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Reset Tile Layer'),
+          ResetTileLayerPage.route,
+          currentRoute,
+        ),
+        const Divider(),
+        _buildMenuItem(
+          context,
+          const Text('Screen Point -> LatLng'),
+          PointToLatLngPage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('LatLng -> Screen Point'),
+          LatLngScreenPointTestPage.route,
           currentRoute,
         ),
       ],

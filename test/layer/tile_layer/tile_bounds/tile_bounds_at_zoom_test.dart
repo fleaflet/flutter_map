@@ -1,5 +1,5 @@
-import 'package:flutter_map/src/core/bounds.dart';
-import 'package:flutter_map/src/core/point.dart';
+import 'package:flutter_map/src/misc/private/bounds.dart';
+import 'package:flutter_map/src/misc/point.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';

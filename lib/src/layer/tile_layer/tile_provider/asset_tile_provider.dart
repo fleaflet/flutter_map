@@ -6,23 +6,33 @@ import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provider.dart';
 
+/// Fetch tiles from the app's shipped assets, where the tile URL is a path
+/// within the asset store
+///
+/// Uses [AssetImage] internally.
+///
+/// All tiles must be listed as assets as normal in the pubspec.yaml config file.
+///
+/// If [TileLayer.fallbackUrl] is specified, a custom [CachingAssetBundle] is
+/// used to retrieve the assets - this bundle is approximatley 23% slower than
+/// the default bundle, and as such, specifying [TileLayer.fallbackUrl] should be
+/// avoided when using this provider.
 class AssetTileProvider extends TileProvider {
   @override
   AssetImage getImage(TileCoordinates coordinates, TileLayer options) {
+    final fallbackUrl = getTileFallbackUrl(coordinates, options);
     return AssetImage(
       getTileUrl(coordinates, options),
-      bundle: _FlutterMapAssetBundle(
-        fallbackKey: getTileFallbackUrl(coordinates, options),
-      ),
+      bundle: fallbackUrl == null
+          ? null
+          : _FlutterMapAssetBundle(fallbackUrl: fallbackUrl),
     );
   }
 }
 
-/// Used to load a fallback asset when the main asset is not found.
 class _FlutterMapAssetBundle extends CachingAssetBundle {
-  final String? fallbackKey;
-
-  _FlutterMapAssetBundle({required this.fallbackKey});
+  _FlutterMapAssetBundle({required this.fallbackUrl});
+  final String fallbackUrl;
 
   Future<ByteData?> _loadAsset(String key) async {
     final Uint8List encoded =
@@ -38,10 +48,8 @@ class _FlutterMapAssetBundle extends CachingAssetBundle {
     final asset = await _loadAsset(key);
     if (asset != null && asset.lengthInBytes > 0) return asset;
 
-    if (fallbackKey != null) {
-      final fallbackAsset = await _loadAsset(fallbackKey!);
-      if (fallbackAsset != null) return fallbackAsset;
-    }
+    final fallbackAsset = await _loadAsset(fallbackUrl);
+    if (fallbackAsset != null) return fallbackAsset;
 
     throw FlutterError('_FlutterMapAssetBundle - Unable to load asset: $key');
   }

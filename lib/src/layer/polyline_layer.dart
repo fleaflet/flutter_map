@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/map/flutter_map_state.dart';
+import 'package:flutter_map/src/map/state.dart';
 import 'package:latlong2/latlong.dart';
 
 class Polyline {
@@ -55,33 +55,29 @@ class Polyline {
 }
 
 class PolylineLayer extends StatelessWidget {
-  /// List of polylines to draw.
   final List<Polyline> polylines;
-
   final bool polylineCulling;
 
   const PolylineLayer({
     super.key,
     this.polylines = const [],
     this.polylineCulling = false,
-    @Deprecated('No longer needed and will be removed.')
-    bool saveLayers = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final map = FlutterMapState.of(context);
-    final size = Size(map.size.x, map.size.y);
-
-    final List<Polyline> lines = polylineCulling
-        ? polylines.where((p) {
-            return p.boundingBox.isOverlapping(map.bounds);
-          }).toList()
-        : polylines;
 
     return CustomPaint(
-      painter: PolylinePainter(lines, map),
-      size: size,
+      painter: PolylinePainter(
+        polylineCulling
+            ? polylines
+                .where((p) => p.boundingBox.isOverlapping(map.bounds))
+                .toList()
+            : polylines,
+        map,
+      ),
+      size: Size(map.size.x, map.size.y),
       isComplex: true,
     );
   }

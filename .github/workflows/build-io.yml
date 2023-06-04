@@ -39,11 +39,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-      - name: Setup Java 17 Environment
-        uses: actions/setup-java@v3
-        with:
-          distribution: "temurin"
-          java-version: "17"
       - name: Setup Flutter Environment
         uses: subosito/flutter-action@v2
         with:

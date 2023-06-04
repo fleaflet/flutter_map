@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
-import 'package:flutter_map/src/core/bounds.dart';
-import 'package:flutter_map/src/core/point.dart';
+import 'package:flutter_map/src/misc/private/bounds.dart';
+import 'package:flutter_map/src/misc/point.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 import 'package:proj4dart/proj4dart.dart' as proj4;
@@ -12,13 +12,13 @@ import 'package:proj4dart/proj4dart.dart' as proj4;
 /// The main objective of a CRS is to handle the conversion between surface
 /// points of objects of different dimensions. In our case 3D and 2D objects.
 abstract class Crs {
+  const Crs();
+
   String get code;
 
   Projection get projection;
 
   Transformation get transformation;
-
-  const Crs();
 
   /// Converts a point on the sphere surface (with a certain zoom) in a
   /// map point.
@@ -33,26 +33,14 @@ abstract class Crs {
   }
 
   /// Converts a map point to the sphere coordinate (at a certain zoom).
-  LatLng? pointToLatLng(CustomPoint point, double zoom) {
-    final scale = this.scale(zoom);
-    final untransformedPoint =
-        transformation.untransform(point, scale.toDouble());
-    try {
-      return projection.unproject(untransformedPoint);
-    } catch (e) {
-      return null;
-    }
-  }
+  LatLng pointToLatLng(CustomPoint point, double zoom) => projection
+      .unproject(transformation.untransform(point, scale(zoom).toDouble()));
 
   /// Zoom to Scale function.
-  double scale(double zoom) {
-    return 256.0 * math.pow(2, zoom);
-  }
+  double scale(double zoom) => 256.0 * math.pow(2, zoom);
 
   /// Scale to Zoom function.
-  double zoom(double scale) {
-    return math.log(scale / 256) / math.ln2;
-  }
+  double zoom(double scale) => math.log(scale / 256) / math.ln2;
 
   /// Rescales the bounds to a given zoom value.
   Bounds? getProjectedBounds(double zoom) {
@@ -249,18 +237,9 @@ class Proj4Crs extends Crs {
 
   /// Converts a map point to the sphere coordinate (at a certain zoom).
   @override
-  LatLng? pointToLatLng(CustomPoint point, double zoom) {
-    final scale = this.scale(zoom);
-    final transformation = _getTransformationByZoom(zoom);
-
-    final untransformedPoint =
-        transformation.untransform(point, scale.toDouble());
-    try {
-      return projection.unproject(untransformedPoint);
-    } catch (e) {
-      return null;
-    }
-  }
+  LatLng pointToLatLng(CustomPoint point, double zoom) =>
+      projection.unproject(_getTransformationByZoom(zoom)
+          .untransform(point, scale(zoom).toDouble()));
 
   /// Rescales the bounds to a given zoom value.
   @override

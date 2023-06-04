@@ -1,4 +1,4 @@
-import 'package:flutter_map/src/core/point.dart';
+import 'package:flutter_map/src/misc/point.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Event sources which are used to identify different types of
