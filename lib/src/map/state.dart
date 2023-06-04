@@ -160,7 +160,23 @@ class FlutterMapState extends MapGestureMixin
                   : Duration.zero,
               child: RawGestureDetector(
                 gestures: gestures,
-                child: _buildMap(),
+                child: ClipRect(
+                  child: Stack(
+                    children: [
+                      OverflowBox(
+                        minWidth: size.x,
+                        maxWidth: size.x,
+                        minHeight: size.y,
+                        maxHeight: size.y,
+                        child: Transform.rotate(
+                          angle: rotationRad,
+                          child: Stack(children: widget.children),
+                        ),
+                      ),
+                      Stack(children: widget.nonRotatedChildren),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
@@ -177,30 +193,6 @@ class FlutterMapState extends MapGestureMixin
   bool _parentConstraintsAreSet(
           BuildContext context, BoxConstraints constraints) =>
       constraints.maxWidth != 0 || MediaQuery.sizeOf(context) != Size.zero;
-
-  Widget _buildMap() {
-    return ClipRect(
-      child: Stack(
-        children: [
-          OverflowBox(
-            minWidth: size.x,
-            maxWidth: size.x,
-            minHeight: size.y,
-            maxHeight: size.y,
-            child: Transform.rotate(
-              angle: rotationRad,
-              child: Stack(
-                children: widget.children,
-              ),
-            ),
-          ),
-          Stack(
-            children: widget.nonRotatedChildren,
-          ),
-        ],
-      ),
-    );
-  }
 
   @override
   bool get wantKeepAlive => options.keepAlive;
