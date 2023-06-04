@@ -25,3 +25,17 @@ If only a couple of events need to be caught, such as just an `onTap` handler, i
 * `onPointerDown`/`onPointerUp`/`onPointerHover`/`onPointerCancel`
 * `onMapReady`\
   Primarily used for advanced `MapController` [#usage-in-initstate](controller.md#usage-in-initstate "mention")
+
+{% hint style="info" %}
+The `MapEventTap` event may be emitted (or the `onTap` callback called) 250ms after the actual tap occurred, as this is the acceptable delay between the two taps in a double tap zoom gesture.
+
+If this causes noticeable jank or a bad experience (for example, on desktop platforms), disable [`InteractiveFlag`](options.md#permanent-rules)`.doubleTapZoom`:
+
+```dart
+options: MapOptions(
+    interactiveFlags: ~InteractiveFlag.doubleTapZoom,
+),
+```
+
+This disables the double tap handler, so the `MapEventTap` is emitted 'instantly' on tap.
+{% endhint %}

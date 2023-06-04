@@ -40,4 +40,4 @@ Latest Build Artifacts (thanks [nightly](https://nightly.link/))
 
 If you need to use the example app on another platform, you can build from source, using the 'example' directory of the repository.
 
-{% embed url="https://github.com/fleaflet/flutter_map/tree/master/example" %}
+{% @github-files/github-code-block url="https://github.com/fleaflet/flutter_map/tree/master/example" %}
