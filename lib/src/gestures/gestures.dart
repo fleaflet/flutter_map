@@ -435,7 +435,7 @@ abstract class MapGestureMixin extends State<FlutterMap>
                 }
               }
 
-              if (_pinchMoveStarted) {
+              if (_pinchZoomStarted || _pinchMoveStarted) {
                 final oldCenterPt = mapState.project(mapState.center, newZoom);
                 final newFocalLatLong = _offsetToCrs(_focalStartLocal, newZoom);
                 final newFocalPt = mapState.project(newFocalLatLong, newZoom);
