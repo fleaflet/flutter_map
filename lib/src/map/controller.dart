@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/state.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:meta/meta.dart';
 
 /// Controller to programmatically interact with [FlutterMap], such as
 /// controlling it and accessing some of its properties.
@@ -20,7 +19,7 @@ abstract class MapController {
   /// instance.
   ///
   /// Factory constructor redirects to underlying implementation's constructor.
-  factory MapController() = MapControllerImpl._;
+  factory MapController() = MapControllerImpl;
 
   /// Moves and zooms the map to a [center] and [zoom] level
   ///
@@ -172,9 +171,8 @@ abstract class MapController {
   void dispose();
 }
 
-@internal
 class MapControllerImpl implements MapController {
-  MapControllerImpl._();
+  MapControllerImpl();
 
   @override
   bool move(
