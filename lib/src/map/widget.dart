@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
-
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/map/state.dart';
+import 'package:flutter_map/src/map/flutter_map_state_container.dart';
 
 /// Renders an interactive geographical map as a widget
 ///
@@ -33,5 +32,5 @@ class FlutterMap extends StatefulWidget {
   final MapController? mapController;
 
   @override
-  State<FlutterMap> createState() => FlutterMapState();
+  State<FlutterMap> createState() => FlutterMapStateContainer();
 }

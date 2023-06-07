@@ -4,30 +4,15 @@ import 'dart:math' as math;
 import 'package:collection/collection.dart' show MapEquality;
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/misc/private/bounds.dart';
-import 'package:flutter_map/src/misc/point.dart';
-import 'package:flutter_map/src/misc/private/util.dart' as util;
-import 'package:flutter_map/src/geo/crs.dart';
-import 'package:flutter_map/src/geo/latlng_bounds.dart';
-import 'package:flutter_map/src/gestures/map_events.dart';
+import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_builder.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_display.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image_manager.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/asset_tile_provider.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provider.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/file_providers/tile_provider_stub.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network_tile_provider.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_update_event.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_update_transformer.dart';
-import 'package:flutter_map/src/map/state.dart';
+import 'package:flutter_map/src/misc/private/util.dart' as util;
 import 'package:http/retry.dart';
 
 part 'tile_layer_options.dart';
@@ -346,7 +331,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     final mapState = FlutterMapState.maybeOf(context)!;
 
-    final mapController = mapState.mapController;
+    final mapController = MapController.of(context);
     if (_mapControllerHashCode != mapController.hashCode) {
       _tileUpdateSubscription?.cancel();
 
@@ -354,7 +339,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       _tileUpdateSubscription = mapController.mapEventStream
           .map((mapEvent) => TileUpdateEvent(mapEvent: mapEvent))
           .transform(widget.tileUpdateTransformer)
-          .listen((event) => _onTileUpdateEvent(mapState, event));
+          .listen((event) => _onTileUpdateEvent(event));
     }
 
     bool reloadTiles = false;
@@ -535,15 +520,14 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   // Load and/or prune tiles according to the visible bounds of the [event]
   // center/zoom, or the current center/zoom if not specified.
-  void _onTileUpdateEvent(FlutterMapState mapState, TileUpdateEvent event) {
-    final zoom = event.loadZoomOverride ?? mapState.zoom;
-    final center = event.loadCenterOverride ?? mapState.center;
-    final tileZoom = _clampToNativeZoom(zoom);
+  void _onTileUpdateEvent(TileUpdateEvent event) {
+    debugPrint('Tile update event');
+    final tileZoom = _clampToNativeZoom(event.zoom);
     final visibleTileRange = _tileRangeCalculator.calculate(
-      mapState: mapState,
+      mapState: event.mapState,
       tileZoom: tileZoom,
-      center: center,
-      viewingZoom: zoom,
+      center: event.center,
+      viewingZoom: event.zoom,
     );
 
     if (event.load) {

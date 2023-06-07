@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/map/state.dart';
+import 'package:flutter_map/src/map/flutter_map_state_container.dart';
+import 'package:flutter_map/src/map/flutter_map_state_inherited_widget.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 
@@ -21,6 +22,15 @@ abstract class MapController {
   ///
   /// Factory constructor redirects to underlying implementation's constructor.
   factory MapController() = MapControllerImpl._;
+
+  static MapController? maybeOf(BuildContext context) => context
+      .dependOnInheritedWidgetOfExactType<MapStateInheritedWidget>()
+      ?.mapController;
+
+  static MapController of(BuildContext context) =>
+      maybeOf(context) ??
+      (throw StateError(
+          '`MapController.of()` should not be called outside a `FlutterMap` and its children'));
 
   /// Moves and zooms the map to a [center] and [zoom] level
   ///
@@ -163,12 +173,12 @@ abstract class MapController {
   /// Immediately change the internal map state
   ///
   /// Not recommended for external usage.
-  set state(FlutterMapState state);
+  set state(FlutterMapStateContainer state);
 
   /// Dispose of this controller by closing the [mapEventStream]'s
   /// [StreamController]
   ///
-  /// Not recommended for external usage.
+  /// Not recommended for external usage. // TODO Why?
   void dispose();
 }
 
@@ -281,11 +291,11 @@ class MapControllerImpl implements MapController {
   @override
   StreamSink<MapEvent> get mapEventSink => _mapEventStreamController.sink;
 
-  late FlutterMapState _state;
+  late FlutterMapStateContainer _state;
 
   @override
-  set state(FlutterMapState state) {
-    _state = state;
+  set state(FlutterMapStateContainer stateContainer) {
+    _state = stateContainer;
   }
 
   @override
