@@ -468,6 +468,25 @@ class FlutterMapState extends MapGestureMixin
     return zoom;
   }
 
+  bool fitCoordinates(
+    List<LatLng> coordinates,
+    FitBoundsOptions options, {
+    Offset offset = Offset.zero,
+  }) {
+    final target = getCoordinatesCenterZoom(coordinates, options);
+    return move(
+      target.center,
+      target.zoom,
+      offset: offset,
+      source: MapEventSource.fitCoordinates,
+    );
+  }
+
+  CenterZoom centerZoomFitCoordinates(
+      List<LatLng> coordinates, FitBoundsOptions options) {
+    return getCoordinatesCenterZoom(coordinates, options);
+  }
+
   bool fitBounds(
     LatLngBounds bounds,
     FitBoundsOptions options, {
@@ -566,6 +585,78 @@ class FlutterMapState extends MapGestureMixin
     }
 
     return math.max(min, math.min(max, zoom));
+  }
+
+  CenterZoom getCoordinatesCenterZoom(
+      List<LatLng> coordinates, FitBoundsOptions options) {
+    final paddingTL =
+        CustomPoint<double>(options.padding.left, options.padding.top);
+    final paddingBR =
+        CustomPoint<double>(options.padding.right, options.padding.bottom);
+
+    final paddingTotalXY = paddingTL + paddingBR;
+
+    var newZoom = getCoordinatesZoom(
+      coordinates,
+      paddingTotalXY,
+      inside: options.inside,
+      forceIntegerZoomLevel: options.forceIntegerZoomLevel,
+    );
+    newZoom = math.min(options.maxZoom, newZoom);
+
+    final projectedPoints = [
+      for (final coord in coordinates) project(coord, newZoom)
+    ];
+
+    final rotatedPoints =
+        projectedPoints.map((point) => point.rotate(-rotationRad));
+
+    final rotatedBounds = Bounds.containing(rotatedPoints);
+
+    // Apply padding
+    final paddingOffset = (paddingBR - paddingTL) / 2;
+    final rotatedNewCenter = rotatedBounds.center + paddingOffset;
+
+    // Undo the rotation
+    final unrotatedNewCenter = rotatedNewCenter.rotate(rotationRad);
+
+    final newCenter = unproject(unrotatedNewCenter, newZoom);
+
+    return CenterZoom(
+      center: newCenter,
+      zoom: newZoom,
+    );
+  }
+
+  double getCoordinatesZoom(
+      List<LatLng> coordinates, CustomPoint<double> padding,
+      {bool inside = false, bool forceIntegerZoomLevel = false}) {
+    final min = options.minZoom ?? 0.0;
+    final max = options.maxZoom ?? double.infinity;
+    var size = nonrotatedSize - padding;
+    // Prevent negative size which results in NaN zoom value later on in the calculation
+    size = CustomPoint(math.max(0, size.x), math.max(0, size.y));
+
+    final projectedPoints = [
+      for (final coord in coordinates) project(coord, zoom)
+    ];
+
+    final rotatedPoints =
+        projectedPoints.map((point) => point.rotate(-rotationRad));
+    final rotatedBounds = Bounds.containing(rotatedPoints);
+
+    final boundsSize = rotatedBounds.size;
+
+    final scaleX = size.x / boundsSize.x;
+    final scaleY = size.y / boundsSize.y;
+    final scale = inside ? math.max(scaleX, scaleY) : math.min(scaleX, scaleY);
+
+    var newZoom = getScaleZoom(scale, zoom);
+    if (forceIntegerZoomLevel) {
+      newZoom = inside ? newZoom.ceilToDouble() : newZoom.floorToDouble();
+    }
+
+    return math.max(min, math.min(max, newZoom));
   }
 
   CustomPoint<double> project(LatLng latlng, [double? zoom]) {

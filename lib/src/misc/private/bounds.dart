@@ -14,6 +14,35 @@ class Bounds<T extends num> {
     return bounds2.extend(b);
   }
 
+  static Bounds<double> containing(Iterable<CustomPoint<double>> points) {
+    var maxX = double.negativeInfinity;
+    var maxY = double.negativeInfinity;
+    var minX = double.infinity;
+    var minY = double.infinity;
+
+    for (final point in points) {
+      if (point.x > maxX) {
+        maxX = point.x;
+      }
+      if (point.x < minX) {
+        minX = point.x;
+      }
+      if (point.y > maxY) {
+        maxY = point.y;
+      }
+      if (point.y < minY) {
+        minY = point.y;
+      }
+    }
+
+    final bounds = Bounds._(
+      CustomPoint(minX, minY),
+      CustomPoint(maxX, maxY),
+    );
+
+    return bounds;
+  }
+
   const Bounds._(this.min, this.max);
 
   /// Creates a new [Bounds] obtained by expanding the current ones with a new

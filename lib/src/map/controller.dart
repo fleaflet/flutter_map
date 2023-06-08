@@ -126,6 +126,22 @@ abstract class MapController {
     FitBoundsOptions? options,
   });
 
+  /// Move and zoom the map to perfectly fit [coordinates], with additional
+  /// configurable [options]
+  ///
+  /// For information about return value meaning and emitted events, see [move]'s
+  /// documentation.
+  bool fitCoordinates(List<LatLng> coordinates, {FitBoundsOptions? options});
+
+  /// Calculates the appropriate center and zoom level for the map to perfectly
+  /// fit [coordinates], with additional configurable [options]
+  ///
+  /// Does not move/zoom the map: see [fitCoordinates].
+  CenterZoom centerZoomFitCoordinates(
+    List<LatLng> coordinates, {
+    FitBoundsOptions? options,
+  });
+
   /// Convert a screen point (x/y) to its corresponding map coordinate (lat/lng),
   /// based on the map's current properties
   LatLng pointToLatLng(CustomPoint screenPoint);
@@ -240,6 +256,22 @@ class MapControllerImpl implements MapController {
         const FitBoundsOptions(padding: EdgeInsets.all(12)),
   }) =>
       _state.centerZoomFitBounds(bounds, options!);
+
+  @override
+  bool fitCoordinates(
+    List<LatLng> coordinates, {
+    FitBoundsOptions? options =
+        const FitBoundsOptions(padding: EdgeInsets.all(12)),
+  }) =>
+      _state.fitCoordinates(coordinates, options!);
+
+  @override
+  CenterZoom centerZoomFitCoordinates(
+    List<LatLng> coordinates, {
+    FitBoundsOptions? options =
+        const FitBoundsOptions(padding: EdgeInsets.all(12)),
+  }) =>
+      _state.getCoordinatesCenterZoom(coordinates, options!);
 
   @override
   LatLng pointToLatLng(CustomPoint localPoint) =>

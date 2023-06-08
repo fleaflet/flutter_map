@@ -20,6 +20,7 @@ enum MapEventSource {
   doubleTapZoomAnimationController,
   interactiveFlagsChanged,
   fitBounds,
+  fitCoordinates,
   custom,
   scrollWheel,
   nonRotatedSizeChange,
