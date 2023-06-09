@@ -14,10 +14,7 @@ class MapStateInheritedWidget extends InheritedWidget {
   final MapController mapController;
 
   @override
-  bool updateShouldNotify(MapStateInheritedWidget oldWidget) {
-    final decision = !identical(mapState, oldWidget.mapState) ||
-        !identical(mapController, oldWidget.mapController);
-    debugPrint('Decided: $decision');
-    return decision;
-  }
+  bool updateShouldNotify(MapStateInheritedWidget oldWidget) =>
+      !identical(mapState, oldWidget.mapState) ||
+      !identical(mapController, oldWidget.mapController);
 }

@@ -30,6 +30,19 @@ class FlutterMapState {
 
   final bool hasFitInitialBounds;
 
+  FlutterMapState._({
+    required this.options,
+    required this.center,
+    required this.zoom,
+    required this.rotation,
+    required this.nonrotatedSize,
+    required this.size,
+    required this.hasFitInitialBounds,
+    required this.pixelOrigin,
+    required this.bounds,
+    required this.pixelBounds,
+  });
+
   FlutterMapState({
     required this.options,
     required this.center,
@@ -41,8 +54,8 @@ class FlutterMapState {
   }) {
     pixelBounds = _getPixelBoundsStatic(options.crs, size, center, zoom);
     bounds = LatLngBounds(
-      unproject(pixelBounds.bottomLeft),
-      unproject(pixelBounds.topRight),
+      options.crs.pointToLatLng(pixelBounds.bottomLeft, zoom),
+      options.crs.pointToLatLng(pixelBounds.topRight, zoom),
     );
     final halfSize = size / 2.0;
     pixelOrigin = (project(center, zoom) - halfSize).round();
@@ -89,6 +102,16 @@ class FlutterMapState {
       hasFitInitialBounds: hasFitInitialBounds,
     );
   }
+
+  FlutterMapState withOptions(MapOptions options) => FlutterMapState(
+        options: options,
+        center: center,
+        zoom: zoom,
+        rotation: rotation,
+        nonrotatedSize: nonrotatedSize,
+        size: _calculateSize(rotation, nonrotatedSize),
+        hasFitInitialBounds: hasFitInitialBounds,
+      );
 
   static CustomPoint<double> _calculateSize(
     double rotation,
@@ -298,8 +321,20 @@ class FlutterMapState {
     return CustomPoint(tp.dx, tp.dy);
   }
 
+  // TODO replicate old caching or stop doing it
   _SafeArea? _safeAreaCache;
   double? _safeAreaZoom;
+
+  double fitZoomToBounds(double zoom) {
+    // Abide to min/max zoom
+    if (options.maxZoom != null) {
+      zoom = (zoom > options.maxZoom!) ? options.maxZoom! : zoom;
+    }
+    if (options.minZoom != null) {
+      zoom = (zoom < options.minZoom!) ? options.minZoom! : zoom;
+    }
+    return zoom;
+  }
 
   //if there is a pan boundary, do not cross
   bool isOutOfBounds(LatLng center) {
@@ -365,6 +400,96 @@ class FlutterMapState {
 
   double calculateScreenHeightInDegrees() =>
       options.screenSize!.height * 170.102258 / math.pow(2, zoom + 8);
+
+  LatLng offsetToCrs(Offset offset, [double? zoom]) {
+    final focalStartPt = project(center, zoom ?? this.zoom);
+    final point =
+        (offsetToPoint(offset) - (nonrotatedSize / 2.0)).rotate(rotationRad);
+
+    final newCenterPt = focalStartPt + point;
+    return unproject(newCenterPt, zoom ?? this.zoom);
+  }
+
+  // TODO This can be an extension on offset or a constructor on CustomPoint.
+  CustomPoint<double> offsetToPoint(Offset offset) {
+    return CustomPoint(offset.dx, offset.dy);
+  }
+
+  List<dynamic> getNewEventCenterZoomPosition(
+      CustomPoint cursorPos, double newZoom) {
+    // Calculate offset of mouse cursor from viewport center
+    final viewCenter = nonrotatedSize / 2;
+    final offset = (cursorPos - viewCenter).rotate(rotationRad);
+    // Match new center coordinate to mouse cursor position
+    final scale = getZoomScale(newZoom, zoom);
+    final newOffset = offset * (1.0 - 1.0 / scale);
+    final mapCenter = project(center);
+    final newCenter = unproject(mapCenter + newOffset);
+    return <dynamic>[newCenter, newZoom];
+  }
+
+  LatLng? adjustCenterIfOutsideMaxBounds(
+      LatLng testCenter, double testZoom, LatLngBounds maxBounds) {
+    LatLng? newCenter;
+
+    final swPixel = project(maxBounds.southWest, testZoom);
+    final nePixel = project(maxBounds.northEast, testZoom);
+
+    final centerPix = project(testCenter, testZoom);
+
+    final halfSizeX = size.x / 2;
+    final halfSizeY = size.y / 2;
+
+    // Try and find the edge value that the center could use to stay within
+    // the maxBounds. This should be ok for panning. If we zoom, it is possible
+    // there is no solution to keep all corners within the bounds. If the edges
+    // are still outside the bounds, don't return anything.
+    final leftOkCenter = math.min(swPixel.x, nePixel.x) + halfSizeX;
+    final rightOkCenter = math.max(swPixel.x, nePixel.x) - halfSizeX;
+    final topOkCenter = math.min(swPixel.y, nePixel.y) + halfSizeY;
+    final botOkCenter = math.max(swPixel.y, nePixel.y) - halfSizeY;
+
+    double? newCenterX;
+    double? newCenterY;
+
+    var wasAdjusted = false;
+
+    if (centerPix.x < leftOkCenter) {
+      wasAdjusted = true;
+      newCenterX = leftOkCenter;
+    } else if (centerPix.x > rightOkCenter) {
+      wasAdjusted = true;
+      newCenterX = rightOkCenter;
+    }
+
+    if (centerPix.y < topOkCenter) {
+      wasAdjusted = true;
+      newCenterY = topOkCenter;
+    } else if (centerPix.y > botOkCenter) {
+      wasAdjusted = true;
+      newCenterY = botOkCenter;
+    }
+
+    if (!wasAdjusted) {
+      return testCenter;
+    }
+
+    final newCx = newCenterX ?? centerPix.x;
+    final newCy = newCenterY ?? centerPix.y;
+
+    // Have a final check, see if the adjusted center is within maxBounds.
+    // If not, give up.
+    if (newCx < leftOkCenter ||
+        newCx > rightOkCenter ||
+        newCy < topOkCenter ||
+        newCy > botOkCenter) {
+      return null;
+    } else {
+      newCenter = unproject(CustomPoint(newCx, newCy), testZoom);
+    }
+
+    return newCenter;
+  }
 
   static FlutterMapState? maybeOf(BuildContext context) => context
       .dependOnInheritedWidgetOfExactType<MapStateInheritedWidget>()

@@ -521,7 +521,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   // Load and/or prune tiles according to the visible bounds of the [event]
   // center/zoom, or the current center/zoom if not specified.
   void _onTileUpdateEvent(TileUpdateEvent event) {
-    debugPrint('Tile update event');
     final tileZoom = _clampToNativeZoom(event.zoom);
     final visibleTileRange = _tileRangeCalculator.calculate(
       mapState: event.mapState,
