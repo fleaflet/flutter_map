@@ -175,10 +175,7 @@ abstract class MapController {
   /// Not recommended for external usage.
   set state(FlutterMapStateContainer state);
 
-  /// Dispose of this controller by closing the [mapEventStream]'s
-  /// [StreamController]
-  ///
-  /// Not recommended for external usage. // TODO Why?
+  /// Dispose of this controller.
   void dispose();
 }
 

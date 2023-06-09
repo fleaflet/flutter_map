@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui';
 
 /// Data represenation of point located on map instance
 /// where [x] is horizontal and [y] is vertical pixel value
@@ -80,4 +81,8 @@ class CustomPoint<T extends num> extends math.Point<T> {
 
   @override
   String toString() => 'CustomPoint ($x, $y)';
+}
+
+extension OffsetToCustomPointExtension on Offset {
+  CustomPoint<double> toCustomPoint() => CustomPoint(dx, dy);
 }

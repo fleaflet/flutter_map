@@ -369,8 +369,8 @@ class FlutterMapState {
   _SafeArea? get _safeArea {
     if (zoom != _safeAreaZoom || _safeAreaCache == null) {
       _safeAreaZoom = zoom;
-      final halfScreenHeight = calculateScreenHeightInDegrees() / 2;
-      final halfScreenWidth = calculateScreenWidthInDegrees() / 2;
+      final halfScreenHeight = _calculateScreenHeightInDegrees() / 2;
+      final halfScreenWidth = _calculateScreenWidthInDegrees() / 2;
       final southWestLatitude =
           options.swPanBoundary!.latitude + halfScreenHeight;
       final southWestLongitude =
@@ -393,29 +393,28 @@ class FlutterMapState {
     return _safeAreaCache;
   }
 
-  double calculateScreenWidthInDegrees() {
+  double _calculateScreenWidthInDegrees() {
     final degreesPerPixel = 360 / math.pow(2, zoom + 8);
     return options.screenSize!.width * degreesPerPixel;
   }
 
-  double calculateScreenHeightInDegrees() =>
+  double _calculateScreenHeightInDegrees() =>
       options.screenSize!.height * 170.102258 / math.pow(2, zoom + 8);
 
   LatLng offsetToCrs(Offset offset, [double? zoom]) {
     final focalStartPt = project(center, zoom ?? this.zoom);
     final point =
-        (offsetToPoint(offset) - (nonrotatedSize / 2.0)).rotate(rotationRad);
+        (offset.toCustomPoint() - (nonrotatedSize / 2.0)).rotate(rotationRad);
 
     final newCenterPt = focalStartPt + point;
     return unproject(newCenterPt, zoom ?? this.zoom);
   }
 
-  // TODO This can be an extension on offset or a constructor on CustomPoint.
-  CustomPoint<double> offsetToPoint(Offset offset) {
-    return CustomPoint(offset.dx, offset.dy);
-  }
-
-  List<dynamic> getNewEventCenterZoomPosition(
+  // TODO better description
+  // If we double click in the corner of a map, calculate the new
+  // center of the whole map after a zoom, to retain that offset position
+  // so that the same event LatLng is still under the cursor.
+  (LatLng, double) getNewEventCenterZoomPosition(
       CustomPoint cursorPos, double newZoom) {
     // Calculate offset of mouse cursor from viewport center
     final viewCenter = nonrotatedSize / 2;
@@ -425,7 +424,7 @@ class FlutterMapState {
     final newOffset = offset * (1.0 - 1.0 / scale);
     final mapCenter = project(center);
     final newCenter = unproject(mapCenter + newOffset);
-    return <dynamic>[newCenter, newZoom];
+    return (newCenter, newZoom);
   }
 
   LatLng? adjustCenterIfOutsideMaxBounds(

@@ -43,7 +43,6 @@ abstract class MapEvent {
 
 /// Base event class which is emitted by MapController instance and
 /// includes information about camera movement
-/// TODO: Change name to reflect that this is a base class for map events
 /// which are not partial (e.g start rotate, rotate, end rotate).
 abstract class MapEventWithMove extends MapEvent {
   final FlutterMapState oldMapState;

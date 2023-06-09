@@ -166,13 +166,15 @@ class FlutterMapStateContainer extends State<FlutterMap> {
             event.scrollDelta.dy * widget.options.scrollWheelVelocity)
         .clamp(minZoom, maxZoom);
     // Calculate offset of mouse cursor from viewport center
-    final List<dynamic> newCenterZoom = _mapState.getNewEventCenterZoomPosition(
-        _mapState.offsetToPoint(event.localPosition), newZoom);
+    final newCenterZoom = _mapState.getNewEventCenterZoomPosition(
+      event.localPosition.toCustomPoint(),
+      newZoom,
+    );
 
     // Move to new center and zoom level
     move(
-      newCenterZoom[0] as LatLng,
-      newCenterZoom[1] as double,
+      newCenterZoom.$1,
+      newCenterZoom.$2,
       source: MapEventSource.scrollWheel,
     );
   }
@@ -228,7 +230,7 @@ class FlutterMapStateContainer extends State<FlutterMap> {
   void _onDragUpdate(MapEventSource source, Offset offset) {
     final oldCenterPt = _mapState.project(_mapState.center);
 
-    final newCenterPt = oldCenterPt + _mapState.offsetToPoint(offset);
+    final newCenterPt = oldCenterPt + offset.toCustomPoint();
     final newCenter = _mapState.unproject(newCenterPt);
 
     move(newCenter, _mapState.zoom, hasGesture: true, source: source);
