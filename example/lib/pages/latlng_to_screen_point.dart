@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
 
 class LatLngScreenPointTestPage extends StatefulWidget {
@@ -36,9 +36,10 @@ class _LatLngScreenPointTestPageState extends State<LatLngScreenPointTestPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text('LatLng To Screen Point')),
-        drawer: buildDrawer(context, LatLngScreenPointTestPage.route),
-        body: Stack(children: [
+      appBar: AppBar(title: const Text('LatLng To Screen Point')),
+      drawer: buildDrawer(context, LatLngScreenPointTestPage.route),
+      body: Stack(
+        children: [
           Padding(
             padding: const EdgeInsets.all(8),
             child: FlutterMap(
@@ -68,6 +69,8 @@ class _LatLngScreenPointTestPageState extends State<LatLngScreenPointTestPage> {
               width: 20,
               height: 20,
               child: const FlutterLogo())
-        ]));
+        ],
+      ),
+    );
   }
 }

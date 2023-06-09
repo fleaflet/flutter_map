@@ -20,26 +20,27 @@ class PluginZoomButtons extends StatelessWidget {
           children: [
             Flexible(
               child: FlutterMap(
-                  options: MapOptions(
-                    center: const LatLng(51.5, -0.09),
-                    zoom: 5,
+                options: MapOptions(
+                  center: const LatLng(51.5, -0.09),
+                  zoom: 5,
+                ),
+                nonRotatedChildren: const [
+                  FlutterMapZoomButtons(
+                    minZoom: 4,
+                    maxZoom: 19,
+                    mini: true,
+                    padding: 10,
+                    alignment: Alignment.bottomRight,
                   ),
-                  nonRotatedChildren: const [
-                    FlutterMapZoomButtons(
-                      minZoom: 4,
-                      maxZoom: 19,
-                      mini: true,
-                      padding: 10,
-                      alignment: Alignment.bottomRight,
-                    ),
-                  ],
-                  children: [
-                    TileLayer(
-                      urlTemplate:
-                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                    ),
-                  ]),
+                ],
+                children: [
+                  TileLayer(
+                    urlTemplate:
+                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+                  )
+                ],
+              ),
             ),
           ],
         ),

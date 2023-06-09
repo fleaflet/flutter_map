@@ -19,9 +19,10 @@ import 'package:latlong2/latlong.dart';
 /// defined boundaries.
 ///
 /// If you download offline tiles dynamically, you can set [adaptiveBoundaries]
-/// to true (make sure to pass [screenSize] and an external [controller]), which
-/// will enforce panning/zooming to ensure there is never a need to display
-/// tiles outside the boundaries set by [swPanBoundary] and [nePanBoundary].
+/// to true (make sure to also set [screenSize], [nePanBoundary],
+/// [swPanBoundary] and an external [controller]), which will enforce
+/// panning/zooming to ensure there is never a need to display tiles outside the
+/// boundaries set by [swPanBoundary] and [nePanBoundary].
 class MapOptions {
   final Crs crs;
   final double zoom;
@@ -172,8 +173,12 @@ class MapOptions {
         assert(rotationThreshold >= 0.0),
         assert(pinchZoomThreshold >= 0.0),
         assert(pinchMoveThreshold >= 0.0) {
-    assert(!adaptiveBoundaries || screenSize != null,
-        'screenSize must be set in order to enable adaptive boundaries.');
+    assert(
+        !adaptiveBoundaries ||
+            (screenSize != null &&
+                swPanBoundary != null &&
+                nePanBoundary != null),
+        'screenSize, swPanBoundary and nePanBoundary must be set in order to enable adaptive boundaries.');
   }
 }
 

@@ -45,10 +45,10 @@ void main() {
       ),
       children: [
         Builder(
-          builder: (BuildContext context) {
+          builder: (context) {
             final _ = FlutterMapState.of(context);
             builds++;
-            return Container();
+            return const SizedBox.shrink();
           },
         ),
       ],

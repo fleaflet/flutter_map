@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/src/map/controller.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
+import 'package:flutter_map/src/map/map_controller.dart';
 
 class MapStateInheritedWidget extends InheritedWidget {
   const MapStateInheritedWidget({

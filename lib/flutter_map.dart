@@ -1,11 +1,5 @@
 library flutter_map;
 
-export 'package:flutter_map/src/misc/center_zoom.dart';
-export 'package:flutter_map/src/misc/fit_bounds_options.dart';
-export 'package:flutter_map/src/misc/move_and_rotate_result.dart';
-export 'package:flutter_map/src/misc/point.dart';
-export 'package:flutter_map/src/misc/position.dart';
-export 'package:flutter_map/src/misc/private/positioned_tap_detector_2.dart';
 export 'package:flutter_map/src/geo/crs.dart';
 export 'package:flutter_map/src/geo/latlng_bounds.dart';
 export 'package:flutter_map/src/gestures/interactive_flag.dart';
@@ -32,6 +26,12 @@ export 'package:flutter_map/src/layer/tile_layer/tile_provider/file_providers/ti
 export 'package:flutter_map/src/layer/tile_layer/tile_provider/network_tile_provider.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_update_event.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_update_transformer.dart';
-export 'package:flutter_map/src/map/controller.dart' hide MapControllerImpl;
-export 'package:flutter_map/src/map/widget.dart';
+export 'package:flutter_map/src/map/map_controller.dart';
 export 'package:flutter_map/src/map/options.dart';
+export 'package:flutter_map/src/map/widget.dart';
+export 'package:flutter_map/src/misc/center_zoom.dart';
+export 'package:flutter_map/src/misc/fit_bounds_options.dart';
+export 'package:flutter_map/src/misc/move_and_rotate_result.dart';
+export 'package:flutter_map/src/misc/point.dart';
+export 'package:flutter_map/src/misc/position.dart';
+export 'package:flutter_map/src/misc/private/positioned_tap_detector_2.dart';

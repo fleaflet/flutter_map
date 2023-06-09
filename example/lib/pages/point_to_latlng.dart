@@ -78,7 +78,7 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
                       builder: (ctx) => const FlutterLogo(),
                     )
                   ],
-                )
+                ),
             ],
           ),
           Container(

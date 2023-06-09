@@ -37,7 +37,7 @@ class EPSG4326Page extends StatelessWidget {
                       layers: ['TOPO-OSM-WMS'],
                     ),
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  )
+                  ),
                 ],
               ),
             ),

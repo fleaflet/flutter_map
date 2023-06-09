@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/src/gestures/flutter_map_state_controller.dart';
 import 'package:flutter_map/src/gestures/interactive_flag.dart';
 import 'package:flutter_map/src/gestures/latlng_tween.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
@@ -13,78 +14,25 @@ import 'package:flutter_map/src/misc/point.dart';
 import 'package:flutter_map/src/misc/private/positioned_tap_detector_2.dart';
 import 'package:latlong2/latlong.dart';
 
-class InteractionDetector extends StatefulWidget {
-  final Widget child;
+class FlutterMapInteractiveViewer extends StatefulWidget {
+  final Widget Function(BuildContext context, FlutterMapState mapState) builder;
   final MapOptions options;
-  // This needs to be passed as a callback rather than just passing the state
-  // otherwise the map lags significantly.
-  final FlutterMapState Function() currentMapState;
-  final void Function(PointerDownEvent event) onPointerDown;
-  final void Function(PointerUpEvent event) onPointerUp;
-  final void Function(PointerCancelEvent event) onPointerCancel;
-  final void Function(PointerHoverEvent event) onPointerHover;
-  final void Function(PointerScrollEvent event) onScroll;
-  final void Function(MapEventSource source, double newZoom)
-      onOneFingerPinchZoom;
-  final void Function(MapEventSource source) onRotateEnd;
-  final void Function(MapEventSource source) onMoveEnd;
-  final void Function(MapEventSource source) onFlingStart;
-  final void Function(MapEventSource source) onFlingEnd;
-  final void Function(MapEventSource source) onDoubleTapZoomEnd;
-  final void Function(MapEventSource source) onMoveStart;
-  final void Function(MapEventSource source) onRotateStart;
-  final void Function(MapEventSource source) onFlingNotStarted;
-  final void Function(MapEventSource source, LatLng position) onTap;
-  final void Function(MapEventSource source, LatLng position) onSecondaryTap;
-  final void Function(MapEventSource source, LatLng position) onLongPress;
-  final void Function(MapEventSource source, Offset offset) onDragUpdate;
-  final void Function(MapEventSource source, LatLng position, double zoom)
-      onPinchZoomUpdate;
-  final void Function(MapEventSource source, LatLng position, double zoom)
-      onDoubleTapZoomUpdate;
-  final void Function(
-          MapEventSource source, LatLng position, double zoom, double rotation)
-      onRotateUpdate;
+  final FlutterMapStateController controller;
 
-  final void Function(MapEventSource source, LatLng position) onFlingUpdate;
-  final void Function(MapEventSource source) onDoubleTapZoomStart;
-
-  const InteractionDetector({
+  const FlutterMapInteractiveViewer({
     super.key,
-    required this.child,
+    required this.builder,
     required this.options,
-    required this.currentMapState,
-    required this.onPointerDown,
-    required this.onPointerUp,
-    required this.onPointerCancel,
-    required this.onPointerHover,
-    required this.onRotateEnd,
-    required this.onMoveEnd,
-    required this.onFlingEnd,
-    required this.onFlingStart,
-    required this.onDoubleTapZoomEnd,
-    required this.onMoveStart,
-    required this.onDragUpdate,
-    required this.onRotateStart,
-    required this.onFlingNotStarted,
-    required this.onPinchZoomUpdate,
-    required this.onTap,
-    required this.onRotateUpdate,
-    required this.onSecondaryTap,
-    required this.onLongPress,
-    required this.onDoubleTapZoomStart,
-    required this.onScroll,
-    required this.onOneFingerPinchZoom,
-    required this.onDoubleTapZoomUpdate,
-    required this.onFlingUpdate,
+    required this.controller,
   });
 
   @override
-  State<InteractionDetector> createState() => InteractionDetectorState();
+  State<FlutterMapInteractiveViewer> createState() =>
+      FlutterMapInteractiveViewerState();
 }
 
-class InteractionDetectorState extends State<InteractionDetector>
-    with TickerProviderStateMixin {
+class FlutterMapInteractiveViewerState
+    extends State<FlutterMapInteractiveViewer> with TickerProviderStateMixin {
   static const int _kMinFlingVelocity = 800;
   static const _kDoubleTapZoomDuration = 200;
 
@@ -127,6 +75,8 @@ class InteractionDetectorState extends State<InteractionDetector>
   @override
   void initState() {
     super.initState();
+    widget.controller.interactiveViewerState = this;
+    widget.controller.addListener(_onMapStateChange);
     _flingController = AnimationController(vsync: this)
       ..addListener(_handleFlingAnimation)
       ..addStatusListener(_flingAnimationStatusListener);
@@ -140,6 +90,10 @@ class InteractionDetectorState extends State<InteractionDetector>
       ..addStatusListener(_doubleTapZoomStatusListener);
   }
 
+  void _onMapStateChange() {
+    setState(() {});
+  }
+
   @override
   void didChangeDependencies() {
     _gestures = _initializeGestures(
@@ -151,7 +105,7 @@ class InteractionDetectorState extends State<InteractionDetector>
   }
 
   @override
-  void didUpdateWidget(InteractionDetector oldWidget) {
+  void didUpdateWidget(FlutterMapInteractiveViewer oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     final oldFlags = oldWidget.options.interactiveFlags;
@@ -189,7 +143,7 @@ class InteractionDetectorState extends State<InteractionDetector>
           _gestureWinner = MultiFingerGesture.none;
         }
 
-        widget.onRotateEnd(MapEventSource.interactiveFlagsChanged);
+        widget.controller.rotateEnded(MapEventSource.interactiveFlagsChanged);
       }
 
       if (_pinchZoomStarted &&
@@ -223,15 +177,17 @@ class InteractionDetectorState extends State<InteractionDetector>
       }
 
       if (emitMapEventMoveEnd) {
-        widget.onMoveEnd(MapEventSource.interactiveFlagsChanged);
+        widget.controller.moveEnded(MapEventSource.interactiveFlagsChanged);
       }
     }
   }
 
   @override
   void dispose() {
+    widget.controller.removeListener(_onMapStateChange);
     _flingController.dispose();
     _doubleTapController.dispose();
+
     super.dispose();
   }
 
@@ -316,7 +272,7 @@ class InteractionDetectorState extends State<InteractionDetector>
         controller: _positionedTapController,
         onTap: _handleTap,
         onSecondaryTap: _handleSecondaryTap,
-        onLongPress: handleLongPress,
+        onLongPress: _handleLongPress,
         onDoubleTap: _handleDoubleTap,
         doubleTapDelay: InteractiveFlag.hasFlag(
           widget.options.interactiveFlags,
@@ -326,7 +282,7 @@ class InteractionDetectorState extends State<InteractionDetector>
             : Duration.zero,
         child: RawGestureDetector(
           gestures: _gestures,
-          child: widget.child,
+          child: widget.builder(context, widget.controller.value),
         ),
       ),
     );
@@ -334,21 +290,36 @@ class InteractionDetectorState extends State<InteractionDetector>
 
   void _onPointerDown(PointerDownEvent event) {
     ++_pointerCounter;
-    widget.onPointerDown(event);
+
+    if (widget.options.onPointerDown != null) {
+      final latlng = widget.controller.value.offsetToCrs(event.localPosition);
+      widget.options.onPointerDown!(event, latlng);
+    }
   }
 
   void _onPointerUp(PointerUpEvent event) {
     --_pointerCounter;
-    widget.onPointerUp(event);
+
+    if (widget.options.onPointerUp != null) {
+      final latlng = widget.controller.value.offsetToCrs(event.localPosition);
+      widget.options.onPointerUp!(event, latlng);
+    }
   }
 
   void _onPointerCancel(PointerCancelEvent event) {
     --_pointerCounter;
-    widget.onPointerCancel(event);
+
+    if (widget.options.onPointerCancel != null) {
+      final latlng = widget.controller.value.offsetToCrs(event.localPosition);
+      widget.options.onPointerCancel!(event, latlng);
+    }
   }
 
   void _onPointerHover(PointerHoverEvent event) {
-    widget.onPointerHover(event);
+    if (widget.options.onPointerHover != null) {
+      final latlng = widget.controller.value.offsetToCrs(event.localPosition);
+      widget.options.onPointerHover!(event, latlng);
+    }
   }
 
   void _onPointerSignal(PointerSignalEvent pointerSignal) {
@@ -360,7 +331,28 @@ class InteractionDetectorState extends State<InteractionDetector>
       // [PointerSignalResolver] documentation for more information.
       GestureBinding.instance.pointerSignalResolver.register(
         pointerSignal,
-        (pointerSignal) => widget.onScroll(pointerSignal as PointerScrollEvent),
+        (pointerSignal) {
+          pointerSignal as PointerScrollEvent;
+          final minZoom = widget.options.minZoom ?? 0.0;
+          final maxZoom = widget.options.maxZoom ?? double.infinity;
+          final newZoom = (widget.controller.value.zoom -
+                  pointerSignal.scrollDelta.dy *
+                      widget.options.scrollWheelVelocity)
+              .clamp(minZoom, maxZoom);
+          // Calculate offset of mouse cursor from viewport center
+          final newCenter = widget.controller.value.focusedZoomCenter(
+            pointerSignal.localPosition.toCustomPoint(),
+            newZoom,
+          );
+          widget.controller.move(
+            newCenter,
+            newZoom,
+            offset: Offset.zero,
+            hasGesture: false,
+            source: MapEventSource.scrollWheel,
+            id: null,
+          );
+        },
       );
     }
   }
@@ -375,8 +367,10 @@ class InteractionDetectorState extends State<InteractionDetector>
     }
   }
 
-  int _getMultiFingerGestureFlags(
-      {int? gestureWinner, MapOptions? mapOptions}) {
+  int _getMultiFingerGestureFlags({
+    int? gestureWinner,
+    MapOptions? mapOptions,
+  }) {
     gestureWinner ??= _gestureWinner;
     mapOptions ??= widget.options;
 
@@ -402,7 +396,7 @@ class InteractionDetectorState extends State<InteractionDetector>
 
       _stopListeningForAnimationInterruptions();
 
-      widget.onFlingEnd(source);
+      widget.controller.flingEnded(source);
     }
   }
 
@@ -412,7 +406,7 @@ class InteractionDetectorState extends State<InteractionDetector>
 
       _stopListeningForAnimationInterruptions();
 
-      widget.onDoubleTapZoomEnd(source);
+      widget.controller.doubleTapZoomEnded(source);
     }
   }
 
@@ -427,10 +421,10 @@ class InteractionDetectorState extends State<InteractionDetector>
 
     _gestureWinner = MultiFingerGesture.none;
 
-    _mapZoomStart = widget.currentMapState().zoom;
-    _mapCenterStart = widget.currentMapState().center;
+    _mapZoomStart = widget.controller.value.zoom;
+    _mapCenterStart = widget.controller.value.center;
     _focalStartLocal = _lastFocalLocal = details.localFocalPoint;
-    _focalStartLatLng = widget.currentMapState().offsetToCrs(_focalStartLocal);
+    _focalStartLatLng = widget.controller.value.offsetToCrs(_focalStartLocal);
 
     _dragStarted = false;
     _pinchZoomStarted = false;
@@ -464,13 +458,13 @@ class InteractionDetectorState extends State<InteractionDetector>
           // [didUpdateWidget] will emit MapEventMoveEnd and if drag is enabled
           // again then this will emit the start event again.
           _dragStarted = true;
-          widget.onMoveStart(eventSource);
+          widget.controller.moveStarted(eventSource);
         }
 
         final localDistanceOffset =
             _rotateOffset(_lastFocalLocal - focalOffset);
 
-        widget.onDragUpdate(eventSource, localDistanceOffset);
+        widget.controller.dragUpdated(eventSource, localDistanceOffset);
       }
     } else {
       final hasIntPinchMove =
@@ -536,12 +530,12 @@ class InteractionDetectorState extends State<InteractionDetector>
 
                   if (!_pinchMoveStarted) {
                     // emit MoveStart event only if pinchMove hasn't started
-                    widget.onMoveStart(eventSource);
+                    widget.controller.moveStarted(eventSource);
                   }
                 }
               }
             } else {
-              newZoom = widget.currentMapState().zoom;
+              newZoom = widget.controller.value.zoom;
             }
 
             LatLng newCenter;
@@ -551,22 +545,19 @@ class InteractionDetectorState extends State<InteractionDetector>
 
                 if (!_pinchZoomStarted) {
                   // emit MoveStart event only if pinchZoom hasn't started
-                  widget.onMoveStart(eventSource);
+                  widget.controller.moveStarted(eventSource);
                 }
               }
 
               if (_pinchZoomStarted || _pinchMoveStarted) {
-                final oldCenterPt = widget
-                    .currentMapState()
-                    .project(widget.currentMapState().center, newZoom);
-                final newFocalLatLong = widget
-                    .currentMapState()
+                final oldCenterPt = widget.controller.value
+                    .project(widget.controller.value.center, newZoom);
+                final newFocalLatLong = widget.controller.value
                     .offsetToCrs(_focalStartLocal, newZoom);
                 final newFocalPt =
-                    widget.currentMapState().project(newFocalLatLong, newZoom);
-                final oldFocalPt = widget
-                    .currentMapState()
-                    .project(_focalStartLatLng, newZoom);
+                    widget.controller.value.project(newFocalLatLong, newZoom);
+                final oldFocalPt =
+                    widget.controller.value.project(_focalStartLatLng, newZoom);
                 final zoomDifference = oldFocalPt - newFocalPt;
                 final moveDifference =
                     _rotateOffset(_focalStartLocal - _lastFocalLocal);
@@ -575,41 +566,50 @@ class InteractionDetectorState extends State<InteractionDetector>
                     zoomDifference +
                     moveDifference.toCustomPoint();
                 newCenter =
-                    widget.currentMapState().unproject(newCenterPt, newZoom);
+                    widget.controller.value.unproject(newCenterPt, newZoom);
               } else {
-                newCenter = widget.currentMapState().center;
+                newCenter = widget.controller.value.center;
               }
             } else {
-              newCenter = widget.currentMapState().center;
+              newCenter = widget.controller.value.center;
             }
 
             if (_pinchZoomStarted || _pinchMoveStarted) {
-              widget.onPinchZoomUpdate(eventSource, newCenter, newZoom);
+              widget.controller.move(
+                newCenter,
+                newZoom,
+                offset: Offset.zero,
+                hasGesture: true,
+                source: eventSource,
+                id: null,
+              );
             }
           }
 
           if (hasRotate) {
             if (!_rotationStarted && currentRotation != 0.0) {
               _rotationStarted = true;
-              widget.onRotateStart(eventSource);
+              widget.controller.rotateStarted(eventSource);
             }
 
             if (_rotationStarted) {
               final rotationDiff = currentRotation - _lastRotation;
-              final oldCenterPt = widget
-                  .currentMapState()
-                  .project(widget.currentMapState().center);
-              final rotationCenter = widget.currentMapState().project(
-                  widget.currentMapState().offsetToCrs(_lastFocalLocal));
+              final oldCenterPt = widget.controller.value
+                  .project(widget.controller.value.center);
+              final rotationCenter = widget.controller.value.project(
+                  widget.controller.value.offsetToCrs(_lastFocalLocal));
               final vector = oldCenterPt - rotationCenter;
               final rotatedVector = vector.rotate(degToRadian(rotationDiff));
               final newCenter = rotationCenter + rotatedVector;
 
-              widget.onRotateUpdate(
-                eventSource,
-                widget.currentMapState().unproject(newCenter),
-                widget.currentMapState().zoom,
-                widget.currentMapState().rotation + rotationDiff,
+              widget.controller.moveAndRotate(
+                widget.controller.value.unproject(newCenter),
+                widget.controller.value.zoom,
+                widget.controller.value.rotation + rotationDiff,
+                offset: Offset.zero,
+                hasGesture: true,
+                source: eventSource,
+                id: null,
               );
             }
           }
@@ -630,12 +630,12 @@ class InteractionDetectorState extends State<InteractionDetector>
 
     if (_rotationStarted) {
       _rotationStarted = false;
-      widget.onRotateEnd(eventSource);
+      widget.controller.rotateEnded(eventSource);
     }
 
     if (_dragStarted || _pinchZoomStarted || _pinchMoveStarted) {
       _dragStarted = _pinchZoomStarted = _pinchMoveStarted = false;
-      widget.onMoveEnd(eventSource);
+      widget.controller.moveEnded(eventSource);
     }
 
     final hasFling = InteractiveFlag.hasFlag(
@@ -643,17 +643,14 @@ class InteractionDetectorState extends State<InteractionDetector>
 
     final magnitude = details.velocity.pixelsPerSecond.distance;
     if (magnitude < _kMinFlingVelocity || !hasFling) {
-      if (hasFling) {
-        widget.onFlingNotStarted(eventSource);
-      }
-
+      if (hasFling) widget.controller.flingNotStarted(eventSource);
       return;
     }
 
     final direction = details.velocity.pixelsPerSecond / magnitude;
     final distance = (Offset.zero &
-            Size(widget.currentMapState().nonrotatedSize.x,
-                widget.currentMapState().nonrotatedSize.y))
+            Size(widget.controller.value.nonRotatedSize.x,
+                widget.controller.value.nonRotatedSize.y))
         .shortestSide;
 
     final flingOffset = _focalStartLocal - _lastFocalLocal;
@@ -680,13 +677,11 @@ class InteractionDetectorState extends State<InteractionDetector>
     final relativePosition = position.relative;
     if (relativePosition == null) return;
 
-    final latlng = widget.currentMapState().offsetToCrs(relativePosition);
-    final onTap = widget.options.onTap;
-    if (onTap != null) {
-      // emit the event
-      onTap(position, latlng);
-    }
-    widget.onTap(MapEventSource.tap, latlng);
+    widget.controller.tapped(
+      MapEventSource.tap,
+      position,
+      widget.controller.value.offsetToCrs(relativePosition),
+    );
   }
 
   void _handleSecondaryTap(TapPosition position) {
@@ -696,29 +691,24 @@ class InteractionDetectorState extends State<InteractionDetector>
     final relativePosition = position.relative;
     if (relativePosition == null) return;
 
-    final latlng = widget.currentMapState().offsetToCrs(relativePosition);
-    final onSecondaryTap = widget.options.onSecondaryTap;
-    if (onSecondaryTap != null) {
-      // emit the event
-      onSecondaryTap(position, latlng);
-    }
-
-    widget.onSecondaryTap(MapEventSource.secondaryTap, latlng);
+    widget.controller.secondaryTapped(
+      MapEventSource.secondaryTap,
+      position,
+      widget.controller.value.offsetToCrs(relativePosition),
+    );
   }
 
-  void handleLongPress(TapPosition position) {
+  void _handleLongPress(TapPosition position) {
     _resetDoubleTapHold();
 
     _closeFlingAnimationController(MapEventSource.longPress);
     _closeDoubleTapController(MapEventSource.longPress);
 
-    final latlng = widget.currentMapState().offsetToCrs(position.relative!);
-    if (widget.options.onLongPress != null) {
-      // emit the event
-      widget.options.onLongPress!(position, latlng);
-    }
-
-    widget.onLongPress(MapEventSource.longPress, latlng);
+    widget.controller.longPressed(
+      MapEventSource.longPress,
+      position,
+      widget.controller.value.offsetToCrs(position.relative!),
+    );
   }
 
   void _handleDoubleTap(TapPosition tapPosition) {
@@ -729,20 +719,22 @@ class InteractionDetectorState extends State<InteractionDetector>
 
     if (InteractiveFlag.hasFlag(
         widget.options.interactiveFlags, InteractiveFlag.doubleTapZoom)) {
-      final centerZoom = widget.currentMapState().getNewEventCenterZoomPosition(
-          tapPosition.relative!.toCustomPoint(),
-          _getZoomForScale(widget.currentMapState().zoom, 2));
-      _startDoubleTapAnimation(centerZoom.$2, centerZoom.$1);
+      final newZoom = _getZoomForScale(widget.controller.zoom, 2);
+      final newCenter = widget.controller.value.focusedZoomCenter(
+        tapPosition.relative!.toCustomPoint(),
+        newZoom,
+      );
+      _startDoubleTapAnimation(newZoom, newCenter);
     }
   }
 
   void _startDoubleTapAnimation(double newZoom, LatLng newCenter) {
     _doubleTapZoomAnimation =
-        Tween<double>(begin: widget.currentMapState().zoom, end: newZoom)
+        Tween<double>(begin: widget.controller.value.zoom, end: newZoom)
             .chain(CurveTween(curve: Curves.linear))
             .animate(_doubleTapController);
     _doubleTapCenterAnimation =
-        LatLngTween(begin: widget.currentMapState().center, end: newCenter)
+        LatLngTween(begin: widget.controller.value.center, end: newCenter)
             .chain(CurveTween(curve: Curves.linear))
             .animate(_doubleTapController);
     _doubleTapController.forward(from: 0);
@@ -750,21 +742,27 @@ class InteractionDetectorState extends State<InteractionDetector>
 
   void _doubleTapZoomStatusListener(AnimationStatus status) {
     if (status == AnimationStatus.forward) {
-      widget.onDoubleTapZoomStart(
-          MapEventSource.doubleTapZoomAnimationController);
+      widget.controller.doubleTapZoomStarted(
+        MapEventSource.doubleTapZoomAnimationController,
+      );
       _startListeningForAnimationInterruptions();
     } else if (status == AnimationStatus.completed) {
       _stopListeningForAnimationInterruptions();
-      widget
-          .onDoubleTapZoomEnd(MapEventSource.doubleTapZoomAnimationController);
+
+      widget.controller.doubleTapZoomEnded(
+        MapEventSource.doubleTapZoomAnimationController,
+      );
     }
   }
 
   void _handleDoubleTapZoomAnimation() {
-    widget.onDoubleTapZoomUpdate(
-      MapEventSource.doubleTapZoomAnimationController,
+    widget.controller.move(
       _doubleTapCenterAnimation.value,
       _doubleTapZoomAnimation.value,
+      offset: Offset.zero,
+      hasGesture: true,
+      source: MapEventSource.doubleTapZoomAnimationController,
+      id: null,
     );
   }
 
@@ -784,10 +782,44 @@ class InteractionDetectorState extends State<InteractionDetector>
     if (InteractiveFlag.hasFlag(flags, InteractiveFlag.pinchZoom)) {
       final verticalOffset = (_focalStartLocal - details.localFocalPoint).dy;
       final newZoom =
-          _mapZoomStart - verticalOffset / 360 * widget.currentMapState().zoom;
+          _mapZoomStart - verticalOffset / 360 * widget.controller.value.zoom;
 
-      widget.onOneFingerPinchZoom(MapEventSource.doubleTapHold, newZoom);
+      final min = widget.options.minZoom ?? 0.0;
+      final max = widget.options.maxZoom ?? double.infinity;
+      final actualZoom = math.max(min, math.min(max, newZoom));
+
+      widget.controller.move(
+        widget.controller.value.center,
+        actualZoom,
+        offset: Offset.zero,
+        hasGesture: true,
+        source: MapEventSource.doubleTapHold,
+        id: null,
+      );
     }
+  }
+
+  void _handleFlingAnimation() {
+    if (!_flingAnimationStarted) {
+      _flingAnimationStarted = true;
+      widget.controller.flingStarted(MapEventSource.flingAnimationController);
+      _startListeningForAnimationInterruptions();
+    }
+
+    final newCenterPoint = widget.controller.value.project(_mapCenterStart) +
+        _flingAnimation.value
+            .toCustomPoint()
+            .rotate(widget.controller.value.rotationRad);
+    final newCenter = widget.controller.value.unproject(newCenterPoint);
+
+    widget.controller.move(
+      newCenter,
+      widget.controller.value.zoom,
+      offset: Offset.zero,
+      hasGesture: true,
+      source: MapEventSource.flingAnimationController,
+      id: null,
+    );
   }
 
   void _resetDoubleTapHold() {
@@ -799,24 +831,8 @@ class InteractionDetectorState extends State<InteractionDetector>
     if (status == AnimationStatus.completed) {
       _flingAnimationStarted = false;
       _stopListeningForAnimationInterruptions();
-      widget.onFlingEnd(MapEventSource.flingAnimationController);
+      widget.controller.flingEnded(MapEventSource.flingAnimationController);
     }
-  }
-
-  void _handleFlingAnimation() {
-    if (!_flingAnimationStarted) {
-      _flingAnimationStarted = true;
-      widget.onFlingStart(MapEventSource.flingAnimationController);
-      _startListeningForAnimationInterruptions();
-    }
-
-    final newCenterPoint = widget.currentMapState().project(_mapCenterStart) +
-        _flingAnimation.value
-            .toCustomPoint()
-            .rotate(widget.currentMapState().rotationRad);
-    final newCenter = widget.currentMapState().unproject(newCenterPoint);
-
-    widget.onFlingUpdate(MapEventSource.flingAnimationController, newCenter);
   }
 
   void _startListeningForAnimationInterruptions() {
@@ -827,24 +843,21 @@ class InteractionDetectorState extends State<InteractionDetector>
     _isListeningForInterruptions = false;
   }
 
-  // TODO Expose via controller.
-  void handleAnimationInterruptions(MapEvent event) {
-    if (_isListeningForInterruptions == false) {
-      //Do not handle animation interruptions if not listening
-      return;
+  void interruptAnimatedMovement(MapEvent event) {
+    if (_isListeningForInterruptions) {
+      _closeDoubleTapController(event.source);
+      _closeFlingAnimationController(event.source);
     }
-    _closeDoubleTapController(event.source);
-    _closeFlingAnimationController(event.source);
   }
 
   double _getZoomForScale(double startZoom, double scale) {
     final resultZoom =
         scale == 1.0 ? startZoom : startZoom + math.log(scale) / math.ln2;
-    return widget.currentMapState().fitZoomToBounds(resultZoom);
+    return widget.controller.value.fitZoomToBounds(resultZoom);
   }
 
   Offset _rotateOffset(Offset offset) {
-    final radians = widget.currentMapState().rotationRad;
+    final radians = widget.controller.value.rotationRad;
     if (radians != 0.0) {
       final cos = math.cos(radians);
       final sin = math.sin(radians);

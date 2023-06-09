@@ -58,7 +58,7 @@ class WMSLayerPage extends StatelessWidget {
                     ),
                     subdomains: const ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  )
+                  ),
                 ],
               ),
             ),
