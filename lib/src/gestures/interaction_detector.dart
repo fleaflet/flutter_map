@@ -8,7 +8,6 @@ import 'package:flutter_map/src/gestures/latlng_tween.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
-import 'package:flutter_map/src/map/flutter_map_state_container.dart';
 import 'package:flutter_map/src/map/options.dart';
 import 'package:flutter_map/src/misc/point.dart';
 import 'package:flutter_map/src/misc/private/positioned_tap_detector_2.dart';
@@ -16,11 +15,10 @@ import 'package:latlong2/latlong.dart';
 
 class InteractionDetector extends StatefulWidget {
   final Widget child;
-  final FlutterMapStateContainer mapStateContainer;
-
-  FlutterMapState get mapState => mapStateContainer.mapState;
-  MapOptions get options => mapState.options;
-
+  final MapOptions options;
+  // This needs to be passed as a callback rather than just passing the state
+  // otherwise the map lags significantly.
+  final FlutterMapState Function() currentMapState;
   final void Function(PointerDownEvent event) onPointerDown;
   final void Function(PointerUpEvent event) onPointerUp;
   final void Function(PointerCancelEvent event) onPointerCancel;
@@ -54,7 +52,8 @@ class InteractionDetector extends StatefulWidget {
   const InteractionDetector({
     super.key,
     required this.child,
-    required this.mapStateContainer,
+    required this.options,
+    required this.currentMapState,
     required this.onPointerDown,
     required this.onPointerUp,
     required this.onPointerCancel,
@@ -90,6 +89,7 @@ class InteractionDetectorState extends State<InteractionDetector>
 
   final _positionedTapController = PositionedTapController();
   final _gestureArenaTeam = GestureArenaTeam();
+  late Map<Type, GestureRecognizerFactory> _gestures;
 
   bool _dragMode = false;
   int _gestureWinner = MultiFingerGesture.none;
@@ -136,6 +136,85 @@ class InteractionDetectorState extends State<InteractionDetector>
   }
 
   @override
+  void didChangeDependencies() {
+    _gestures = _initializeGestures(
+      MediaQuery.gestureSettingsOf(context),
+      dragEnabled: InteractiveFlag.hasFlag(
+          widget.options.interactiveFlags, InteractiveFlag.drag),
+    );
+    super.didChangeDependencies();
+  }
+
+  Map<Type, GestureRecognizerFactory> _initializeGestures(
+    DeviceGestureSettings gestureSettings, {
+    required bool dragEnabled,
+  }) {
+    final Map<Type, GestureRecognizerFactory> gestures =
+        <Type, GestureRecognizerFactory>{};
+
+    gestures[TapGestureRecognizer] =
+        GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
+      () => TapGestureRecognizer(debugOwner: this),
+      (TapGestureRecognizer instance) {
+        instance
+          ..onTapDown = _positionedTapController.onTapDown
+          ..onTapUp = handleOnTapUp
+          ..onTap = _positionedTapController.onTap
+          ..onSecondaryTap = _positionedTapController.onSecondaryTap
+          ..onSecondaryTapDown = _positionedTapController.onTapDown;
+      },
+    );
+
+    gestures[LongPressGestureRecognizer] =
+        GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
+      () => LongPressGestureRecognizer(debugOwner: this),
+      (LongPressGestureRecognizer instance) {
+        instance.onLongPress = _positionedTapController.onLongPress;
+      },
+    );
+
+    if (dragEnabled) {
+      gestures[VerticalDragGestureRecognizer] =
+          GestureRecognizerFactoryWithHandlers<VerticalDragGestureRecognizer>(
+        () => VerticalDragGestureRecognizer(debugOwner: this),
+        (VerticalDragGestureRecognizer instance) {
+          instance.onUpdate = (details) {
+            // Absorbing vertical drags
+          };
+          instance.gestureSettings = gestureSettings;
+          instance.team ??= _gestureArenaTeam;
+        },
+      );
+      gestures[HorizontalDragGestureRecognizer] =
+          GestureRecognizerFactoryWithHandlers<HorizontalDragGestureRecognizer>(
+        () => HorizontalDragGestureRecognizer(debugOwner: this),
+        (HorizontalDragGestureRecognizer instance) {
+          instance.onUpdate = (details) {
+            // Absorbing horizontal drags
+          };
+          instance.gestureSettings = gestureSettings;
+          instance.team ??= _gestureArenaTeam;
+        },
+      );
+    }
+
+    gestures[ScaleGestureRecognizer] =
+        GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
+      () => ScaleGestureRecognizer(debugOwner: this),
+      (ScaleGestureRecognizer instance) {
+        instance
+          ..onStart = _handleScaleStart
+          ..onUpdate = _handleScaleUpdate
+          ..onEnd = _handleScaleEnd;
+        instance.team ??= _gestureArenaTeam;
+        _gestureArenaTeam.captain = instance;
+      },
+    );
+
+    return gestures;
+  }
+
+  @override
   void didUpdateWidget(InteractionDetector oldWidget) {
     super.didUpdateWidget(oldWidget);
 
@@ -145,6 +224,14 @@ class InteractionDetectorState extends State<InteractionDetector>
     final oldGestures =
         _getMultiFingerGestureFlags(mapOptions: oldWidget.options);
     final gestures = _getMultiFingerGestureFlags();
+
+    if (flags != oldFlags) {
+      _gestures = _initializeGestures(
+        MediaQuery.gestureSettingsOf(context),
+        dragEnabled: InteractiveFlag.hasFlag(
+            widget.options.interactiveFlags, InteractiveFlag.drag),
+      );
+    }
 
     if (flags != oldFlags || gestures != oldGestures) {
       var emitMapEventMoveEnd = false;
@@ -214,71 +301,6 @@ class InteractionDetectorState extends State<InteractionDetector>
 
   @override
   Widget build(BuildContext context) {
-    final DeviceGestureSettings gestureSettings =
-        MediaQuery.gestureSettingsOf(context);
-    final Map<Type, GestureRecognizerFactory> gestures =
-        <Type, GestureRecognizerFactory>{};
-
-    gestures[TapGestureRecognizer] =
-        GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
-      () => TapGestureRecognizer(debugOwner: this),
-      (TapGestureRecognizer instance) {
-        instance
-          ..onTapDown = _positionedTapController.onTapDown
-          ..onTapUp = handleOnTapUp
-          ..onTap = _positionedTapController.onTap
-          ..onSecondaryTap = _positionedTapController.onSecondaryTap
-          ..onSecondaryTapDown = _positionedTapController.onTapDown;
-      },
-    );
-
-    gestures[LongPressGestureRecognizer] =
-        GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
-      () => LongPressGestureRecognizer(debugOwner: this),
-      (LongPressGestureRecognizer instance) {
-        instance.onLongPress = _positionedTapController.onLongPress;
-      },
-    );
-
-    if (InteractiveFlag.hasFlag(
-        widget.options.interactiveFlags, InteractiveFlag.drag)) {
-      gestures[VerticalDragGestureRecognizer] =
-          GestureRecognizerFactoryWithHandlers<VerticalDragGestureRecognizer>(
-        () => VerticalDragGestureRecognizer(debugOwner: this),
-        (VerticalDragGestureRecognizer instance) {
-          instance.onUpdate = (details) {
-            // Absorbing vertical drags
-          };
-          instance.gestureSettings = gestureSettings;
-          instance.team ??= _gestureArenaTeam;
-        },
-      );
-      gestures[HorizontalDragGestureRecognizer] =
-          GestureRecognizerFactoryWithHandlers<HorizontalDragGestureRecognizer>(
-        () => HorizontalDragGestureRecognizer(debugOwner: this),
-        (HorizontalDragGestureRecognizer instance) {
-          instance.onUpdate = (details) {
-            // Absorbing horizontal drags
-          };
-          instance.gestureSettings = gestureSettings;
-          instance.team ??= _gestureArenaTeam;
-        },
-      );
-    }
-
-    gestures[ScaleGestureRecognizer] =
-        GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
-      () => ScaleGestureRecognizer(debugOwner: this),
-      (ScaleGestureRecognizer instance) {
-        instance
-          ..onStart = handleScaleStart
-          ..onUpdate = handleScaleUpdate
-          ..onEnd = handleScaleEnd;
-        instance.team ??= _gestureArenaTeam;
-        _gestureArenaTeam.captain = instance;
-      },
-    );
-
     return Listener(
       onPointerDown: onPointerDown,
       onPointerUp: onPointerUp,
@@ -298,7 +320,7 @@ class InteractionDetectorState extends State<InteractionDetector>
             ? null
             : Duration.zero,
         child: RawGestureDetector(
-          gestures: gestures,
+          gestures: _gestures,
           child: widget.child,
         ),
       ),
@@ -389,7 +411,7 @@ class InteractionDetectorState extends State<InteractionDetector>
     }
   }
 
-  void handleScaleStart(ScaleStartDetails details) {
+  void _handleScaleStart(ScaleStartDetails details) {
     _dragMode = _pointerCounter == 1;
 
     final eventSource = _dragMode
@@ -400,8 +422,8 @@ class InteractionDetectorState extends State<InteractionDetector>
 
     _gestureWinner = MultiFingerGesture.none;
 
-    _mapZoomStart = widget.mapState.zoom;
-    _mapCenterStart = widget.mapState.center;
+    _mapZoomStart = widget.currentMapState().zoom;
+    _mapCenterStart = widget.currentMapState().center;
     _focalStartLocal = _lastFocalLocal = details.localFocalPoint;
     _focalStartLatLng = _offsetToCrs(_focalStartLocal);
 
@@ -415,7 +437,7 @@ class InteractionDetectorState extends State<InteractionDetector>
     _lastScale = 1.0;
   }
 
-  void handleScaleUpdate(ScaleUpdateDetails details) {
+  void _handleScaleUpdate(ScaleUpdateDetails details) {
     if (_tapUpCounter == 1) {
       _handleDoubleTapHold(details);
       return;
@@ -514,7 +536,7 @@ class InteractionDetectorState extends State<InteractionDetector>
                 }
               }
             } else {
-              newZoom = widget.mapState.zoom;
+              newZoom = widget.currentMapState().zoom;
             }
 
             LatLng newCenter;
@@ -529,13 +551,15 @@ class InteractionDetectorState extends State<InteractionDetector>
               }
 
               if (_pinchZoomStarted || _pinchMoveStarted) {
-                final oldCenterPt =
-                    widget.mapState.project(widget.mapState.center, newZoom);
+                final oldCenterPt = widget
+                    .currentMapState()
+                    .project(widget.currentMapState().center, newZoom);
                 final newFocalLatLong = _offsetToCrs(_focalStartLocal, newZoom);
                 final newFocalPt =
-                    widget.mapState.project(newFocalLatLong, newZoom);
-                final oldFocalPt =
-                    widget.mapState.project(_focalStartLatLng, newZoom);
+                    widget.currentMapState().project(newFocalLatLong, newZoom);
+                final oldFocalPt = widget
+                    .currentMapState()
+                    .project(_focalStartLatLng, newZoom);
                 final zoomDifference = oldFocalPt - newFocalPt;
                 final moveDifference =
                     _rotateOffset(_focalStartLocal - _lastFocalLocal);
@@ -543,12 +567,13 @@ class InteractionDetectorState extends State<InteractionDetector>
                 final newCenterPt = oldCenterPt +
                     zoomDifference +
                     _offsetToPoint(moveDifference);
-                newCenter = widget.mapState.unproject(newCenterPt, newZoom);
+                newCenter =
+                    widget.currentMapState().unproject(newCenterPt, newZoom);
               } else {
-                newCenter = widget.mapState.center;
+                newCenter = widget.currentMapState().center;
               }
             } else {
-              newCenter = widget.mapState.center;
+              newCenter = widget.currentMapState().center;
             }
 
             if (_pinchZoomStarted || _pinchMoveStarted) {
@@ -564,19 +589,21 @@ class InteractionDetectorState extends State<InteractionDetector>
 
             if (_rotationStarted) {
               final rotationDiff = currentRotation - _lastRotation;
-              final oldCenterPt =
-                  widget.mapState.project(widget.mapState.center);
-              final rotationCenter =
-                  widget.mapState.project(_offsetToCrs(_lastFocalLocal));
+              final oldCenterPt = widget
+                  .currentMapState()
+                  .project(widget.currentMapState().center);
+              final rotationCenter = widget
+                  .currentMapState()
+                  .project(_offsetToCrs(_lastFocalLocal));
               final vector = oldCenterPt - rotationCenter;
               final rotatedVector = vector.rotate(degToRadian(rotationDiff));
               final newCenter = rotationCenter + rotatedVector;
 
               widget.onRotateUpdate(
                 eventSource,
-                widget.mapState.unproject(newCenter),
-                widget.mapState.zoom,
-                widget.mapState.rotation + rotationDiff,
+                widget.currentMapState().unproject(newCenter),
+                widget.currentMapState().zoom,
+                widget.currentMapState().rotation + rotationDiff,
               );
             }
           }
@@ -589,7 +616,7 @@ class InteractionDetectorState extends State<InteractionDetector>
     _lastFocalLocal = focalOffset;
   }
 
-  void handleScaleEnd(ScaleEndDetails details) {
+  void _handleScaleEnd(ScaleEndDetails details) {
     _resetDoubleTapHold();
 
     final eventSource =
@@ -619,8 +646,8 @@ class InteractionDetectorState extends State<InteractionDetector>
 
     final direction = details.velocity.pixelsPerSecond / magnitude;
     final distance = (Offset.zero &
-            Size(widget.mapState.nonrotatedSize.x,
-                widget.mapState.nonrotatedSize.y))
+            Size(widget.currentMapState().nonrotatedSize.x,
+                widget.currentMapState().nonrotatedSize.y))
         .shortestSide;
 
     final flingOffset = _focalStartLocal - _lastFocalLocal;
@@ -689,14 +716,16 @@ class InteractionDetectorState extends State<InteractionDetector>
   }
 
   LatLng _offsetToCrs(Offset offset, [double? zoom]) {
-    final focalStartPt = widget.mapState
-        .project(widget.mapState.center, zoom ?? widget.mapState.zoom);
-    final point =
-        (_offsetToPoint(offset) - (widget.mapState.nonrotatedSize / 2.0))
-            .rotate(widget.mapState.rotationRad);
+    final focalStartPt = widget.currentMapState().project(
+        widget.currentMapState().center, zoom ?? widget.currentMapState().zoom);
+    final point = (_offsetToPoint(offset) -
+            (widget.currentMapState().nonrotatedSize / 2.0))
+        .rotate(widget.currentMapState().rotationRad);
 
     final newCenterPt = focalStartPt + point;
-    return widget.mapState.unproject(newCenterPt, zoom ?? widget.mapState.zoom);
+    return widget
+        .currentMapState()
+        .unproject(newCenterPt, zoom ?? widget.currentMapState().zoom);
   }
 
   void handleDoubleTap(TapPosition tapPosition) {
@@ -709,7 +738,7 @@ class InteractionDetectorState extends State<InteractionDetector>
         widget.options.interactiveFlags, InteractiveFlag.doubleTapZoom)) {
       final centerZoom = _getNewEventCenterZoomPosition(
           _offsetToPoint(tapPosition.relative!),
-          _getZoomForScale(widget.mapState.zoom, 2));
+          _getZoomForScale(widget.currentMapState().zoom, 2));
       _startDoubleTapAnimation(
           centerZoom[1] as double, centerZoom[0] as LatLng);
     }
@@ -722,23 +751,27 @@ class InteractionDetectorState extends State<InteractionDetector>
   List<dynamic> _getNewEventCenterZoomPosition(
       CustomPoint cursorPos, double newZoom) {
     // Calculate offset of mouse cursor from viewport center
-    final viewCenter = widget.mapState.nonrotatedSize / 2;
-    final offset = (cursorPos - viewCenter).rotate(widget.mapState.rotationRad);
+    final viewCenter = widget.currentMapState().nonrotatedSize / 2;
+    final offset =
+        (cursorPos - viewCenter).rotate(widget.currentMapState().rotationRad);
     // Match new center coordinate to mouse cursor position
-    final scale = widget.mapState.getZoomScale(newZoom, widget.mapState.zoom);
+    final scale = widget
+        .currentMapState()
+        .getZoomScale(newZoom, widget.currentMapState().zoom);
     final newOffset = offset * (1.0 - 1.0 / scale);
-    final mapCenter = widget.mapState.project(widget.mapState.center);
-    final newCenter = widget.mapState.unproject(mapCenter + newOffset);
+    final mapCenter =
+        widget.currentMapState().project(widget.currentMapState().center);
+    final newCenter = widget.currentMapState().unproject(mapCenter + newOffset);
     return <dynamic>[newCenter, newZoom];
   }
 
   void _startDoubleTapAnimation(double newZoom, LatLng newCenter) {
     _doubleTapZoomAnimation =
-        Tween<double>(begin: widget.mapState.zoom, end: newZoom)
+        Tween<double>(begin: widget.currentMapState().zoom, end: newZoom)
             .chain(CurveTween(curve: Curves.linear))
             .animate(_doubleTapController);
     _doubleTapCenterAnimation =
-        LatLngTween(begin: widget.mapState.center, end: newCenter)
+        LatLngTween(begin: widget.currentMapState().center, end: newCenter)
             .chain(CurveTween(curve: Curves.linear))
             .animate(_doubleTapController);
     _doubleTapController.forward(from: 0);
@@ -780,7 +813,7 @@ class InteractionDetectorState extends State<InteractionDetector>
     if (InteractiveFlag.hasFlag(flags, InteractiveFlag.pinchZoom)) {
       final verticalOffset = (_focalStartLocal - details.localFocalPoint).dy;
       final newZoom =
-          _mapZoomStart - verticalOffset / 360 * widget.mapState.zoom;
+          _mapZoomStart - verticalOffset / 360 * widget.currentMapState().zoom;
 
       widget.onOneFingerPinchZoom(MapEventSource.doubleTapHold, newZoom);
     }
@@ -806,10 +839,10 @@ class InteractionDetectorState extends State<InteractionDetector>
       _startListeningForAnimationInterruptions();
     }
 
-    final newCenterPoint = widget.mapState.project(_mapCenterStart) +
+    final newCenterPoint = widget.currentMapState().project(_mapCenterStart) +
         _offsetToPoint(_flingAnimation.value)
-            .rotate(widget.mapState.rotationRad);
-    final newCenter = widget.mapState.unproject(newCenterPoint);
+            .rotate(widget.currentMapState().rotationRad);
+    final newCenter = widget.currentMapState().unproject(newCenterPoint);
 
     widget.onFlingUpdate(MapEventSource.flingAnimationController, newCenter);
   }
@@ -838,11 +871,11 @@ class InteractionDetectorState extends State<InteractionDetector>
   double _getZoomForScale(double startZoom, double scale) {
     final resultZoom =
         scale == 1.0 ? startZoom : startZoom + math.log(scale) / math.ln2;
-    return widget.mapState.fitZoomToBounds(resultZoom);
+    return widget.currentMapState().fitZoomToBounds(resultZoom);
   }
 
   Offset _rotateOffset(Offset offset) {
-    final radians = widget.mapState.rotationRad;
+    final radians = widget.currentMapState().rotationRad;
     if (radians != 0.0) {
       final cos = math.cos(radians);
       final sin = math.sin(radians);

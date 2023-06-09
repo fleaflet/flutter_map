@@ -54,7 +54,6 @@ class FlutterMapStateContainer extends State<FlutterMap> {
       _mapState = _mapState.withOptions(widget.options);
     }
     super.didUpdateWidget(oldWidget);
-    // TODO update the map state appropriately.
   }
 
   @override
@@ -68,7 +67,8 @@ class FlutterMapStateContainer extends State<FlutterMap> {
           mapState: _mapState,
           child: InteractionDetector(
             key: _flutterMapGestureDetectorKey,
-            mapStateContainer: this,
+            options: widget.options,
+            currentMapState: () => _mapState,
             onPointerDown: _onPointerDown,
             onPointerUp: _onPointerUp,
             onPointerCancel: _onPointerCancel,
