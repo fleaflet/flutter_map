@@ -514,7 +514,20 @@ class FlutterMapState extends MapGestureMixin
     final paddingOffset = (paddingBR - paddingTL) / 2;
     final swPoint = project(bounds.southWest, zoom);
     final nePoint = project(bounds.northEast, zoom);
-    final center = unproject((swPoint + nePoint) / 2 + paddingOffset, zoom);
+
+    final CustomPoint<double> projectedCenter;
+    if (_rotation != 0.0) {
+      final swPointRotated = swPoint.rotate(-rotationRad);
+      final nePointRotated = nePoint.rotate(-rotationRad);
+      final centerRotated =
+          (swPointRotated + nePointRotated) / 2 + paddingOffset;
+
+      projectedCenter = centerRotated.rotate(rotationRad);
+    } else {
+      projectedCenter = (swPoint + nePoint) / 2 + paddingOffset;
+    }
+
+    final center = unproject(projectedCenter, zoom);
     return CenterZoom(
       center: center,
       zoom: zoom,
@@ -528,10 +541,20 @@ class FlutterMapState extends MapGestureMixin
     final max = options.maxZoom ?? double.infinity;
     final nw = bounds.northWest;
     final se = bounds.southEast;
-    var size = this.size - padding;
+    var size = nonrotatedSize - padding;
     // Prevent negative size which results in NaN zoom value later on in the calculation
     size = CustomPoint(math.max(0, size.x), math.max(0, size.y));
-    final boundsSize = Bounds(project(se, zoom), project(nw, zoom)).size;
+
+    var boundsSize = Bounds(project(se, zoom), project(nw, zoom)).size;
+    if (_rotation != 0.0) {
+      final cosAngle = math.cos(rotationRad).abs();
+      final sinAngle = math.sin(rotationRad).abs();
+      boundsSize = CustomPoint<double>(
+        (boundsSize.x * cosAngle) + (boundsSize.y * sinAngle),
+        (boundsSize.y * cosAngle) + (boundsSize.x * sinAngle),
+      );
+    }
+
     final scaleX = size.x / boundsSize.x;
     final scaleY = size.y / boundsSize.y;
     final scale = inside ? math.max(scaleX, scaleY) : math.min(scaleX, scaleY);
