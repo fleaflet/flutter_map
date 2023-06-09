@@ -15,8 +15,8 @@ class FlutterMapStateContainer extends State<FlutterMap> {
 
   bool _hasFitInitialBounds = false;
 
-  final _localController = MapController();
-  MapController get mapController => widget.mapController ?? _localController;
+  late bool _mapControllerCreatedInternally;
+  late MapController _mapController;
 
   late FlutterMapState _mapState;
 
@@ -30,9 +30,16 @@ class FlutterMapStateContainer extends State<FlutterMap> {
 
   double get rotation => _mapState.rotation;
 
+  void _initializeMapController() {
+    _mapController = widget.mapController ?? MapController();
+    _mapControllerCreatedInternally = widget.mapController == null;
+  }
+
   @override
   void initState() {
     super.initState();
+    _initializeMapController();
+    _mapController.state = this;
 
     WidgetsBinding.instance
         .addPostFrameCallback((_) => widget.options.onMapReady?.call());
@@ -53,7 +60,17 @@ class FlutterMapStateContainer extends State<FlutterMap> {
     if (oldWidget.options != widget.options) {
       _mapState = _mapState.withOptions(widget.options);
     }
+    if (oldWidget.mapController != widget.mapController) {
+      _initializeMapController();
+      _mapController.state = this;
+    }
     super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void dispose() {
+    if (_mapControllerCreatedInternally) _mapController.dispose();
+    super.dispose();
   }
 
   @override
@@ -63,7 +80,7 @@ class FlutterMapStateContainer extends State<FlutterMap> {
         _onConstraintsChange(constraints);
 
         return MapStateInheritedWidget(
-          mapController: mapController,
+          mapController: _mapController,
           mapState: _mapState,
           child: InteractionDetector(
             key: _flutterMapGestureDetectorKey,
@@ -389,7 +406,7 @@ class FlutterMapStateContainer extends State<FlutterMap> {
 
     widget.options.onMapEvent?.call(event);
 
-    mapController.mapEventSink.add(event);
+    _mapController.mapEventSink.add(event);
   }
 
   bool rotate(
