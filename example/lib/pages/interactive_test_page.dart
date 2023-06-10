@@ -59,7 +59,7 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 MaterialButton(
-                  color: InteractiveFlag.hasFlag(flags, InteractiveFlag.drag)
+                  color: InteractiveFlag.hasDrag(flags)
                       ? Colors.greenAccent
                       : Colors.redAccent,
                   onPressed: () {
@@ -70,8 +70,7 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                   child: const Text('Drag'),
                 ),
                 MaterialButton(
-                  color: InteractiveFlag.hasFlag(
-                          flags, InteractiveFlag.flingAnimation)
+                  color: InteractiveFlag.hasFlingAnimation(flags)
                       ? Colors.greenAccent
                       : Colors.redAccent,
                   onPressed: () {
@@ -82,10 +81,9 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                   child: const Text('Fling'),
                 ),
                 MaterialButton(
-                  color:
-                      InteractiveFlag.hasFlag(flags, InteractiveFlag.pinchMove)
-                          ? Colors.greenAccent
-                          : Colors.redAccent,
+                  color: InteractiveFlag.hasPinchMove(flags)
+                      ? Colors.greenAccent
+                      : Colors.redAccent,
                   onPressed: () {
                     setState(() {
                       updateFlags(InteractiveFlag.pinchMove);
@@ -99,8 +97,7 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 MaterialButton(
-                  color: InteractiveFlag.hasFlag(
-                          flags, InteractiveFlag.doubleTapZoom)
+                  color: InteractiveFlag.hasDoubleTapZoom(flags)
                       ? Colors.greenAccent
                       : Colors.redAccent,
                   onPressed: () {
@@ -111,7 +108,7 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                   child: const Text('Double tap zoom'),
                 ),
                 MaterialButton(
-                  color: InteractiveFlag.hasFlag(flags, InteractiveFlag.rotate)
+                  color: InteractiveFlag.hasRotate(flags)
                       ? Colors.greenAccent
                       : Colors.redAccent,
                   onPressed: () {
@@ -122,10 +119,9 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                   child: const Text('Rotate'),
                 ),
                 MaterialButton(
-                  color:
-                      InteractiveFlag.hasFlag(flags, InteractiveFlag.pinchZoom)
-                          ? Colors.greenAccent
-                          : Colors.redAccent,
+                  color: InteractiveFlag.hasPinchZoom(flags)
+                      ? Colors.greenAccent
+                      : Colors.redAccent,
                   onPressed: () {
                     setState(() {
                       updateFlags(InteractiveFlag.pinchZoom);
