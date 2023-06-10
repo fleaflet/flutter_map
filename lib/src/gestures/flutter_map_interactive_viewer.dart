@@ -264,9 +264,10 @@ class FlutterMapInteractiveViewerState
         onSecondaryTap: _handleSecondaryTap,
         onLongPress: _handleLongPress,
         onDoubleTap: _handleDoubleTap,
-        doubleTapDelay: InteractiveFlag.hasDrag(_options.interactiveFlags)
-            ? null
-            : Duration.zero,
+        doubleTapDelay:
+            InteractiveFlag.hasDoubleTapZoom(_options.interactiveFlags)
+                ? null
+                : Duration.zero,
         child: RawGestureDetector(
           gestures: _gestures,
           child: widget.builder(context, _mapState),
@@ -418,7 +419,7 @@ class FlutterMapInteractiveViewerState
     if (_dragMode) {
       _handleScaleDragUpdate(details);
     } else if (InteractiveFlag.hasMultiFinger(_options.interactiveFlags)) {
-      _handleScalePinchUpdate(details, currentRotation);
+      _handleScaleMultiFingerUpdate(details, currentRotation);
     }
 
     _lastRotation = currentRotation;
@@ -447,7 +448,7 @@ class FlutterMapInteractiveViewerState
     }
   }
 
-  void _handleScalePinchUpdate(
+  void _handleScaleMultiFingerUpdate(
     ScaleUpdateDetails details,
     double currentRotation,
   ) {
@@ -477,7 +478,7 @@ class FlutterMapInteractiveViewerState
           InteractiveFlag.hasPinchMove(_options.interactiveFlags) &&
               MultiFingerGesture.hasPinchMove(gestures);
       if (hasPinchZoom || hasPinchMove) {
-        _handleScalePinchZoomAndMove(details, hasPinchMove, hasPinchZoom);
+        _handleScalePinchZoomAndMove(details, hasPinchZoom, hasPinchMove);
       }
 
       if (InteractiveFlag.hasRotate(_options.interactiveFlags) &&
@@ -489,20 +490,21 @@ class FlutterMapInteractiveViewerState
 
   void _handleScalePinchZoomAndMove(
     ScaleUpdateDetails details,
-    bool hasPinchMove,
     bool hasPinchZoom,
+    bool hasPinchMove,
   ) {
-    double? zoomAfterPinchZoom;
+    LatLng newCenter = _mapState.center;
+    double newZoom = _mapState.zoom;
 
-    // Calculate zoom change and handle starting of pinch zoom.
+    // Handle pinch zoom.
     if (hasPinchZoom && details.scale > 0.0) {
-      zoomAfterPinchZoom = _getZoomForScale(
+      newZoom = _getZoomForScale(
         _mapZoomStart,
         details.scale + _scaleCorrector,
       );
 
       // Handle starting of pinch zoom.
-      if (!_pinchZoomStarted && zoomAfterPinchZoom != _mapZoomStart) {
+      if (!_pinchZoomStarted && newZoom != _mapZoomStart) {
         _pinchZoomStarted = true;
 
         if (!_pinchMoveStarted) {
@@ -512,10 +514,11 @@ class FlutterMapInteractiveViewerState
         }
       }
     }
-    zoomAfterPinchZoom ??= _mapState.zoom;
 
-    // Handle starting of pinch move.
+    // Handle pinch move.
     if (hasPinchMove) {
+      newCenter = _calculatePinchZoomAndMove(details, newZoom);
+
       if (!_pinchMoveStarted && _lastFocalLocal != details.localFocalPoint) {
         _pinchMoveStarted = true;
 
@@ -529,8 +532,8 @@ class FlutterMapInteractiveViewerState
 
     if (_pinchZoomStarted || _pinchMoveStarted) {
       widget.controller.move(
-        _calculatePinchZoomAndMove(details, zoomAfterPinchZoom),
-        zoomAfterPinchZoom,
+        newCenter,
+        newZoom,
         offset: Offset.zero,
         hasGesture: true,
         source: MapEventSource.onMultiFinger,
@@ -710,7 +713,9 @@ class FlutterMapInteractiveViewerState
     _closeFlingAnimationController(MapEventSource.doubleTap);
     _closeDoubleTapController(MapEventSource.doubleTap);
 
+    debugPrint('CHECKING');
     if (InteractiveFlag.hasDoubleTapZoom(_options.interactiveFlags)) {
+      debugPrint('YES');
       final newZoom = _getZoomForScale(_mapState.zoom, 2);
       final newCenter = _mapState.focusedZoomCenter(
         tapPosition.relative!.toCustomPoint(),
