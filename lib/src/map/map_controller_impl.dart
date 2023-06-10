@@ -4,9 +4,9 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/gestures/flutter_map_state_controller.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
+import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/flutter_map_state_controller_interface.dart';
 import 'package:flutter_map/src/map/map_controller.dart';
-import 'package:flutter_map/src/misc/center_zoom.dart';
 import 'package:flutter_map/src/misc/fit_bounds_options.dart';
 import 'package:flutter_map/src/misc/move_and_rotate_result.dart';
 import 'package:flutter_map/src/misc/point.dart';
@@ -85,44 +85,7 @@ class MapControllerImpl implements MapController {
       );
 
   @override
-  CenterZoom centerZoomFitBounds(
-    LatLngBounds bounds, {
-    FitBoundsOptions? options =
-        const FitBoundsOptions(padding: EdgeInsets.all(12)),
-  }) =>
-      _stateController.centerZoomFitBounds(bounds, options!);
-
-  @override
-  LatLng pointToLatLng(CustomPoint localPoint) =>
-      _stateController.pointToLatLng(localPoint);
-
-  @override
-  CustomPoint<double> latLngToScreenPoint(LatLng latLng) =>
-      _stateController.latLngToScreenPoint(latLng);
-
-  @override
-  CustomPoint<double> rotatePoint(
-    CustomPoint mapCenter,
-    CustomPoint point, {
-    bool counterRotation = true,
-  }) =>
-      _stateController.rotatePoint(
-        mapCenter.toDoublePoint(),
-        point.toDoublePoint(),
-        counterRotation: counterRotation,
-      );
-
-  @override
-  LatLng get center => _stateController.center;
-
-  @override
-  LatLngBounds? get bounds => _stateController.bounds;
-
-  @override
-  double get zoom => _stateController.zoom;
-
-  @override
-  double get rotation => _stateController.rotation;
+  FlutterMapState get mapState => _stateController.value;
 
   final _mapEventStreamController = StreamController<MapEvent>.broadcast();
 

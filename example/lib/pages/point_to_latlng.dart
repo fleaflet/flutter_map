@@ -106,7 +106,8 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
   void updatePoint(MapEvent? event, BuildContext context) {
     final pointX = _getPointX(context);
     setState(() {
-      latLng = mapController.pointToLatLng(CustomPoint(pointX, pointY));
+      latLng =
+          mapController.mapState.pointToLatLng(CustomPoint(pointX, pointY));
     });
   }
 

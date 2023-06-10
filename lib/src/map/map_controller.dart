@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/flutter_map_state_inherited_widget.dart';
 import 'package:flutter_map/src/map/map_controller_impl.dart';
 import 'package:latlong2/latlong.dart';
@@ -126,40 +127,8 @@ abstract class MapController {
   /// documentation.
   bool fitBounds(LatLngBounds bounds, {FitBoundsOptions? options});
 
-  /// Calculates the appropriate center and zoom level for the map to perfectly
-  /// fit [bounds], with additional configurable [options]
-  ///
-  /// Does not move/zoom the map: see [fitBounds].
-  CenterZoom centerZoomFitBounds(
-    LatLngBounds bounds, {
-    FitBoundsOptions? options,
-  });
-
-  /// Convert a screen point (x/y) to its corresponding map coordinate (lat/lng),
-  /// based on the map's current properties
-  LatLng pointToLatLng(CustomPoint screenPoint);
-
-  /// Convert a map coordinate (lat/lng) to its corresponding screen point (x/y),
-  /// based on the map's current screen positioning
-  CustomPoint<double> latLngToScreenPoint(LatLng mapCoordinate);
-
-  CustomPoint<double> rotatePoint(
-    CustomPoint mapCenter,
-    CustomPoint point, {
-    bool counterRotation = true,
-  });
-
-  /// Current center coordinates
-  LatLng get center;
-
-  /// Current outer points/boundaries coordinates
-  LatLngBounds? get bounds;
-
-  /// Current zoom level
-  double get zoom;
-
-  /// Current rotation in degrees, where 0° is North
-  double get rotation;
+  /// Current FlutterMapState.
+  FlutterMapState get mapState;
 
   /// [Stream] of all emitted [MapEvent]s
   Stream<MapEvent> get mapEventStream;

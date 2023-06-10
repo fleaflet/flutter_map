@@ -1,7 +1,7 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
-import 'package:flutter_map/src/misc/center_zoom.dart';
+import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/misc/fit_bounds_options.dart';
 import 'package:flutter_map/src/misc/move_and_rotate_result.dart';
 import 'package:flutter_map/src/misc/point.dart';
@@ -10,10 +10,7 @@ import 'package:latlong2/latlong.dart';
 /// Defines the methods that the MapController may call on the
 /// FlutterMapStateController. This clarifies the link between the two classes.
 abstract interface class FlutterMapStateControllerInterface {
-  LatLng get center;
-  double get zoom;
-  double get rotation;
-  LatLngBounds? get bounds;
+  FlutterMapState get value;
 
   bool move(
     LatLng newCenter,
@@ -54,20 +51,5 @@ abstract interface class FlutterMapStateControllerInterface {
     LatLngBounds bounds,
     FitBoundsOptions options, {
     required Offset offset,
-  });
-
-  CenterZoom centerZoomFitBounds(
-    LatLngBounds bounds,
-    FitBoundsOptions options,
-  );
-
-  LatLng pointToLatLng(CustomPoint localPoint);
-
-  CustomPoint<double> latLngToScreenPoint(LatLng latLng);
-
-  CustomPoint<double> rotatePoint(
-    CustomPoint mapCenter,
-    CustomPoint point, {
-    required bool counterRotation,
   });
 }

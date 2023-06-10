@@ -13,23 +13,26 @@ class InteractiveFlag {
       drag | flingAnimation | pinchMove | pinchZoom | doubleTapZoom | rotate;
   static const int none = 0;
 
-  // enable move with one finger
+  // Enable move with one finger.
   static const int drag = 1 << 0;
 
-  // enable fling animation when drag or pinchMove have enough Fling Velocity
+  // Enable fling animation when drag or pinchMove have enough Fling Velocity.
   static const int flingAnimation = 1 << 1;
 
-  // enable move with two or more fingers
+  // Enable move with two or more fingers.
   static const int pinchMove = 1 << 2;
 
-  // enable pinch zoom
+  // Enable pinch zoom.
   static const int pinchZoom = 1 << 3;
 
-  // enable double tap zoom animation
+  // Enable double tap zoom animation.
   static const int doubleTapZoom = 1 << 4;
 
-  // enable map rotate
+  /// Enable map rotate.
   static const int rotate = 1 << 5;
+
+  /// Flags pertaining to gestures which require multiple fingers.
+  static const _multiFingerFlags = pinchMove | pinchZoom | rotate;
 
   /// Returns `true` if [leftFlags] has at least one member in [rightFlags]
   /// (intersection) for example [leftFlags]= [InteractiveFlag.drag] |
@@ -39,4 +42,25 @@ class InteractiveFlag {
   static bool hasFlag(int leftFlags, int rightFlags) {
     return leftFlags & rightFlags != 0;
   }
+
+  /// True if any multi-finger gesture flags are enabled.
+  static bool hasMultiFinger(int flags) => hasFlag(flags, _multiFingerFlags);
+
+  /// True if the [drag] interactive flag is enabled.
+  static bool hasDrag(int flags) => hasFlag(flags, drag);
+
+  /// True if the [flingAnimation] interactive flag is enabled.
+  static bool hasFlingAnimation(int flags) => hasFlag(flags, flingAnimation);
+
+  /// True if the [pinchMove] interactive flag is enabled.
+  static bool hasPinchMove(int flags) => hasFlag(flags, pinchMove);
+
+  /// True if the [pinchZoom] interactive flag is enabled.
+  static bool hasPinchZoom(int flags) => hasFlag(flags, pinchZoom);
+
+  /// True if the [doubleTapZoom] interactive flag is enabled.
+  static bool hasDoubleTapZoom(int flags) => hasFlag(flags, doubleTapZoom);
+
+  /// True if the [rotate] interactive flag is enabled.
+  static bool hasRotate(int flags) => hasFlag(flags, rotate);
 }

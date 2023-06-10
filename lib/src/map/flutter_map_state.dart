@@ -154,9 +154,10 @@ class FlutterMapState {
   double get rotationRad => degToRadian(rotation);
 
   CenterZoom centerZoomFitBounds(
-    LatLngBounds bounds,
-    FitBoundsOptions options,
-  ) =>
+    LatLngBounds bounds, {
+    FitBoundsOptions options =
+        const FitBoundsOptions(padding: EdgeInsets.all(12)),
+  }) =>
       getBoundsCenterZoom(bounds, options);
 
   double getBoundsZoom(
@@ -197,7 +198,9 @@ class FlutterMapState {
   }
 
   CenterZoom getBoundsCenterZoom(
-      LatLngBounds bounds, FitBoundsOptions options) {
+    LatLngBounds bounds,
+    FitBoundsOptions options,
+  ) {
     final paddingTL =
         CustomPoint<double>(options.padding.left, options.padding.top);
     final paddingBR =

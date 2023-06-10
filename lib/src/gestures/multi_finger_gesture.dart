@@ -26,4 +26,8 @@ class MultiFingerGesture {
   static bool hasFlag(int leftFlags, int rightFlags) {
     return leftFlags & rightFlags != 0;
   }
+
+  static bool hasPinchMove(int gestures) => hasFlag(gestures, pinchMove);
+  static bool hasPinchZoom(int gestures) => hasFlag(gestures, pinchZoom);
+  static bool hasRotate(int gestures) => hasFlag(gestures, rotate);
 }

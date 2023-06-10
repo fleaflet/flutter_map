@@ -28,18 +28,21 @@ void main() {
       );
       const expectedZoom = 7.451812751543818;
 
-      final fit = controller.centerZoomFitBounds(bounds, options: fitOptions);
+      var mapState = controller.mapState;
+      final fit = mapState.centerZoomFitBounds(bounds, options: fitOptions);
       controller.move(fit.center, fit.zoom);
       await tester.pump();
-      expect(controller.bounds, equals(expectedBounds));
-      expect(controller.center, equals(expectedCenter));
-      expect(controller.zoom, equals(expectedZoom));
+      mapState = controller.mapState;
+      expect(mapState.bounds, equals(expectedBounds));
+      expect(mapState.center, equals(expectedCenter));
+      expect(mapState.zoom, equals(expectedZoom));
 
       controller.fitBounds(bounds, options: fitOptions);
       await tester.pump();
-      expect(controller.bounds, equals(expectedBounds));
-      expect(controller.center, equals(expectedCenter));
-      expect(controller.zoom, equals(expectedZoom));
+      mapState = controller.mapState;
+      expect(mapState.bounds, equals(expectedBounds));
+      expect(mapState.center, equals(expectedCenter));
+      expect(mapState.zoom, equals(expectedZoom));
     }
 
     {
@@ -53,18 +56,21 @@ void main() {
       );
       const expectedZoom = 7;
 
-      final fit = controller.centerZoomFitBounds(bounds, options: fitOptions);
+      var mapState = controller.mapState;
+      final fit = mapState.centerZoomFitBounds(bounds, options: fitOptions);
       controller.move(fit.center, fit.zoom);
       await tester.pump();
-      expect(controller.bounds, equals(expectedBounds));
-      expect(controller.center, equals(expectedCenter));
-      expect(controller.zoom, equals(expectedZoom));
+      mapState = controller.mapState;
+      expect(mapState.bounds, equals(expectedBounds));
+      expect(mapState.center, equals(expectedCenter));
+      expect(mapState.zoom, equals(expectedZoom));
 
       controller.fitBounds(bounds, options: fitOptions);
       await tester.pump();
-      expect(controller.bounds, equals(expectedBounds));
-      expect(controller.center, equals(expectedCenter));
-      expect(controller.zoom, equals(expectedZoom));
+      mapState = controller.mapState;
+      expect(mapState.bounds, equals(expectedBounds));
+      expect(mapState.center, equals(expectedCenter));
+      expect(mapState.zoom, equals(expectedZoom));
     }
 
     {
@@ -78,19 +84,23 @@ void main() {
       );
       const expectedZoom = 8.135709286104404;
 
-      final fit = controller.centerZoomFitBounds(bounds, options: fitOptions);
+      var mapState = controller.mapState;
+      final fit = mapState.centerZoomFitBounds(bounds, options: fitOptions);
       controller.move(fit.center, fit.zoom);
       await tester.pump();
 
-      expect(controller.bounds, equals(expectedBounds));
-      expect(controller.center, equals(expectedCenter));
-      expect(controller.zoom, equals(expectedZoom));
+      mapState = controller.mapState;
+      expect(mapState.bounds, equals(expectedBounds));
+      expect(mapState.center, equals(expectedCenter));
+      expect(mapState.zoom, equals(expectedZoom));
 
       controller.fitBounds(bounds, options: fitOptions);
       await tester.pump();
-      expect(controller.bounds, equals(expectedBounds));
-      expect(controller.center, equals(expectedCenter));
-      expect(controller.zoom, equals(expectedZoom));
+
+      mapState = controller.mapState;
+      expect(mapState.bounds, equals(expectedBounds));
+      expect(mapState.center, equals(expectedCenter));
+      expect(mapState.zoom, equals(expectedZoom));
     }
 
     {
@@ -105,18 +115,22 @@ void main() {
       );
       const expectedZoom = 9;
 
-      final fit = controller.centerZoomFitBounds(bounds, options: fitOptions);
+      var mapState = controller.mapState;
+      final fit = mapState.centerZoomFitBounds(bounds, options: fitOptions);
       controller.move(fit.center, fit.zoom);
       await tester.pump();
-      expect(controller.bounds, equals(expectedBounds));
-      expect(controller.center, equals(expectedCenter));
-      expect(controller.zoom, equals(expectedZoom));
+      mapState = controller.mapState;
+      expect(mapState.bounds, equals(expectedBounds));
+      expect(mapState.center, equals(expectedCenter));
+      expect(mapState.zoom, equals(expectedZoom));
 
       controller.fitBounds(bounds, options: fitOptions);
       await tester.pump();
-      expect(controller.bounds, equals(expectedBounds));
-      expect(controller.center, equals(expectedCenter));
-      expect(controller.zoom, equals(expectedZoom));
+
+      mapState = controller.mapState;
+      expect(mapState.bounds, equals(expectedBounds));
+      expect(mapState.center, equals(expectedCenter));
+      expect(mapState.zoom, equals(expectedZoom));
     }
   });
   testWidgets('test fit bounds methods with rotation', (tester) async {

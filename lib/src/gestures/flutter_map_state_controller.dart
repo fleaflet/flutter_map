@@ -243,45 +243,6 @@ class FlutterMapStateController extends ValueNotifier<FlutterMapState>
     );
   }
 
-  @override
-  LatLng get center => value.center;
-
-  @override
-  double get zoom => value.zoom;
-
-  @override
-  double get rotation => value.rotation;
-
-  @override
-  LatLngBounds? get bounds => value.bounds;
-
-  @override
-  CenterZoom centerZoomFitBounds(
-    LatLngBounds bounds,
-    FitBoundsOptions options,
-  ) =>
-      value.centerZoomFitBounds(bounds, options);
-
-  @override
-  LatLng pointToLatLng(CustomPoint localPoint) =>
-      value.pointToLatLng(localPoint);
-
-  @override
-  CustomPoint<double> latLngToScreenPoint(LatLng latLng) =>
-      value.latLngToScreenPoint(latLng);
-
-  @override
-  CustomPoint<double> rotatePoint(
-    CustomPoint mapCenter,
-    CustomPoint point, {
-    required bool counterRotation,
-  }) =>
-      value.rotatePoint(
-        mapCenter.toDoublePoint(),
-        point.toDoublePoint(),
-        counterRotation: counterRotation,
-      );
-
   bool setNonRotatedSizeWithoutEmittingEvent(
     CustomPoint<double> nonRotatedSize,
   ) {
