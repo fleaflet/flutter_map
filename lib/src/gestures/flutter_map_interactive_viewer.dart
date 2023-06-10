@@ -417,7 +417,7 @@ class FlutterMapInteractiveViewerState
     final currentRotation = radianToDeg(details.rotation);
     if (_dragMode) {
       _handleScaleDragUpdate(details);
-    } else if (_multiFingerEnabled) {
+    } else if (InteractiveFlag.hasMultiFinger(_options.interactiveFlags)) {
       _handleScalePinchUpdate(details, currentRotation);
     }
 
@@ -425,18 +425,6 @@ class FlutterMapInteractiveViewerState
     _lastScale = details.scale;
     _lastFocalLocal = details.localFocalPoint;
   }
-
-  bool get _multiFingerEnabled =>
-      InteractiveFlag.hasMultiFinger(_options.interactiveFlags);
-
-  bool get _pinchZoomEnabled =>
-      InteractiveFlag.hasPinchZoom(_options.interactiveFlags);
-
-  bool get _rotateEnabled =>
-      InteractiveFlag.hasRotate(_options.interactiveFlags);
-
-  bool get _pinchMoveEnabled =>
-      InteractiveFlag.hasPinchMove(_options.interactiveFlags);
 
   void _handleScaleDragUpdate(ScaleUpdateDetails details) {
     const eventSource = MapEventSource.onDrag;
@@ -483,14 +471,17 @@ class FlutterMapInteractiveViewerState
       final gestures = _getMultiFingerGestureFlags();
 
       final hasPinchZoom =
-          _pinchZoomEnabled && MultiFingerGesture.hasPinchZoom(gestures);
+          InteractiveFlag.hasPinchZoom(_options.interactiveFlags) &&
+              MultiFingerGesture.hasPinchZoom(gestures);
       final hasPinchMove =
-          _pinchMoveEnabled && MultiFingerGesture.hasPinchMove(gestures);
+          InteractiveFlag.hasPinchMove(_options.interactiveFlags) &&
+              MultiFingerGesture.hasPinchMove(gestures);
       if (hasPinchZoom || hasPinchMove) {
         _handleScalePinchZoomAndMove(details, hasPinchMove, hasPinchZoom);
       }
 
-      if (_rotateEnabled && MultiFingerGesture.hasRotate(gestures)) {
+      if (InteractiveFlag.hasRotate(_options.interactiveFlags) &&
+          MultiFingerGesture.hasRotate(gestures)) {
         _handleScalePinchRotate(details, currentRotation);
       }
     }
@@ -598,19 +589,20 @@ class FlutterMapInteractiveViewerState
   int? _determineMultiFingerGestureWinner(double rotationThreshold,
       double currentRotation, double scale, Offset focalOffset) {
     final int winner;
-    if (_pinchZoomEnabled &&
+    if (InteractiveFlag.hasPinchZoom(_options.interactiveFlags) &&
         (_getZoomForScale(_mapZoomStart, scale) - _mapZoomStart).abs() >=
             _options.pinchZoomThreshold) {
       if (_options.debugMultiFingerGestureWinner) {
         debugPrint('Multi Finger Gesture winner: Pinch Zoom');
       }
       winner = MultiFingerGesture.pinchZoom;
-    } else if (_rotateEnabled && currentRotation.abs() >= rotationThreshold) {
+    } else if (InteractiveFlag.hasRotate(_options.interactiveFlags) &&
+        currentRotation.abs() >= rotationThreshold) {
       if (_options.debugMultiFingerGestureWinner) {
         debugPrint('Multi Finger Gesture winner: Rotate');
       }
       winner = MultiFingerGesture.rotate;
-    } else if (_pinchMoveEnabled &&
+    } else if (InteractiveFlag.hasPinchMove(_options.interactiveFlags) &&
         (_focalStartLocal - focalOffset).distance >=
             _options.pinchMoveThreshold) {
       if (_options.debugMultiFingerGestureWinner) {
