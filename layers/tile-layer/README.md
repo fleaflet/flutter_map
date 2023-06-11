@@ -1,7 +1,3 @@
----
-description: CARTO/XYZ/Slippy Map Only
----
-
 # Tile Layer
 
 The basis of any map is a `TileLayer`, which displays square raster images in a continuous grid, sourced from the Internet or a local file system.
@@ -15,7 +11,6 @@ Read the API documentation to find out all the available options
 <pre class="language-dart"><code class="lang-dart">TileLayer(
   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
   <a data-footnote-ref href="#user-content-fn-1">userAgentPackageName</a>: 'dev.fleaflet.flutter_map.example',
-  // tileProvider: NetworkTileProvider(),
 ),
 </code></pre>
 
@@ -35,7 +30,7 @@ The `children` list works like the children of a `Stack`: last is on top.
 
 ## Tile Providers
 
-Need more control over the source of tiles, or how tiles are fetched?
+Need more control over the source of tiles, or how tiles are fetched? You'll need to change the `TileProvider`.
 
 {% content-ref url="tile-providers.md" %}
 [tile-providers.md](tile-providers.md)

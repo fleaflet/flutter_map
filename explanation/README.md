@@ -6,52 +6,67 @@ If you don't know about standard map things, such as the latitude/longitude syst
 _If you want a truly British insight into this, look no further than:_ [_https://youtu.be/3mHC-Pf8-dU_](https://youtu.be/3mHC-Pf8-dU) _&_ [_https://youtu.be/jtBV3GgQLg8_](https://youtu.be/jtBV3GgQLg8)_._
 {% endhint %}
 
-This library is similar to most other mapping libraries in other languages, so this applies to most other mapping libraries as well.
+## Layers
 
-A mapping library is usually just a wrapper for a particular language that handles requests to servers called 'tile servers', and displays it in an interactive view for the user.
+Interactive maps are often[^1] formed from multiple layers of data, which can be panned (moved), rotated, ~~and sometimes tilted/pitched~~, based on the user's gesture input, or another programmatic control.
 
-## What is a Tile Server?
+## Tile Basics
 
-A tile server is a server accessible on the Internet by everyone, or by only people holding the correct API key.
+One type of layer included on every map is known as a tile layer, which displays tiles, square segments of a map.
 
-There are four main types of server configuration, two of which are used together by any server: WMS or WMTS (aka. CARTO) & vector or raster. This wiki will focus on WMTS raster servers, such as the main OpenStreetMaps server, as it is the most commonly used option and is easier to setup and explain for beginners, but you can read about the options for WMS later on in this wiki. At the moment, support of vector tiles is limited, but experimental functionality can be added through an existing community maintained plugin.
+When multiple tiles, which are each the same dimensions, are laid out around each other, they give the illusion of one continuous map.
 
-Simplified, the server holds multiple images in a directory structure that makes it easy to find tiles without searching for references in a database beforehand (see below). These images put together make up the whole world, or area that that tile server supports.\
-One tile is usually really small when rendered, under 20KB for most tiles. However, the entire planet data consumes 1.5TB when un-rendered and uncompressed from the 110GB download archive. When all tiles are rendered, they add up to over 54TB! Most servers render tiles on-the-fly to get around this.
+Tiles can be referenced/identified in a few different ways, such as:
 
-The main tile server that's free to use and open-source is the Open Street Maps tile server, as mentioned above, a server which provides access to millions of tiles covering the whole Earth. that get updated and maintained by the general public. You can [find other 'semi-endorsed' public servers here](https://wiki.openstreetmap.org/wiki/Tile\_servers).
+* Slippy Map Convention (the most popular/common)
+* [TMS](https://wiki.openstreetmap.org/wiki/TMS) (very similar to the Slippy Map Convention)
+* [WMS](https://wiki.openstreetmap.org/wiki/WMS)&#x20;
+* [WMTS](https://en.wikipedia.org/wiki/Web\_Map\_Tile\_Service)
 
-## 'Slippy Map' Convention
+Tiles themselves can be of two types:
 
-_The_ [_slippy map convention is documented extensively here_](https://wiki.openstreetmap.org/wiki/Slippy\_map\_tilenames)_, but this page provides some basics, roughly copied from that page._
+* Raster\
+  Each tile is a normal pre-rendered standard image, such as JPG or PNG
+* Vector\
+  Each tile is a special format containing the data for the tile, and is then rendered by the end library
 
-The standard Slippy Map path looks like this: '/zoom/x/y.png' or '/x/y/zoom.png'. To note, the image format does not have to be '.png', tile servers also commonly serve as '.jpg' images.
+This library/documentation focuses on maps accessible via the Slippy Map Convention, although all are supported.
 
-You may also see '/?x={x}\&y={y}\&zoom={z}', which isn't quite the same as the Slippy Map convention, but it works in essentially the same way, so the below text still applies.
+This library only supports raster tiles. See [raster-vs-vector-tiles.md](raster-vs-vector-tiles.md "mention") for more information.
 
-### Zoom
+### Slippy Map Convention
 
-Zoom refers to the zoom level. 1 is the lowest zoom level and contains the whole world in one tile. The higher the number, the more the zoom, and the more the detail, and therefore the less space covered. You can read more about this at [wiki.openstreetmap.org/wiki/Zoom\_levels](https://wiki.openstreetmap.org/wiki/Zoom\_levels). Most servers go up to 18, some up to 19, but no servers (as of writing) have a maximum limit above 22.
+{% hint style="info" %}
+For more information about the Slippy Map Convention, visit [the OpenStreetMap Wiki](https://wiki.openstreetmap.org/wiki/Slippy\_map\_tilenames).
+{% endhint %}
 
-### X & Y
+Slippy map tiles are accessed by 3 coordinates, x/y/z.
 
-X and Y are values corresponding to the longitude and latitude of a location, however they are not actual longitude and latitude. See [wiki.openstreetmap.org/wiki/Slippy\_map\_tilenames](https://wiki.openstreetmap.org/wiki/Slippy\_map\_tilenames#Implementations).
+X & Y coordinates correspond to all the latitudes and longitudes contained within that tile, however they are not actual longitude and latitude. For example, geographic coordinate (61.127, -0.123) [might be](#user-content-fn-2)[^2] in the tile (128983, 430239).
 
-![Lat/Lng to x/y/z](https://wiki.openstreetmap.org/w/images/thumb/a/a5/Latlon\_to\_tile.png/450px-Latlon\_to\_tile.png)
+The Z value represents the current zoom level, where one tile ([0/0/0](https://tile.openstreetmap.org/0/0/0.png)) covers the entire planet with extremely low detail at level 0, to level 20 (although some tile servers will support even higher zoom levels) where over 1 trillion tiles are required to cover the entire surface of the Earth.
 
-![x/y/z to Lat/Lng](https://wiki.openstreetmap.org/w/images/thumb/1/1f/Tile\_to\_latlon.png/450px-Tile\_to\_latlon.png)
+## Sourcing Tiles
 
-These images show the mathematics required to convert between Latitude and Longitude & the x/y/z format and vice-versa respectively. All credit for the above images goes to the Open Street Maps foundation.
+Tiles, especially raster tiles, take a lot of computing power and time to generate, because of the massive scale of all the input and output data. Therefore, most tiles are sourced externally, from an online tile server (either publicly or by users holding an API key), or sometimes from the local filesystem or asset store of the app.
+
+{% content-ref url="../tile-servers/other-options.md" %}
+[other-options.md](../tile-servers/other-options.md)
+{% endcontent-ref %}
 
 ## Tile Providers
 
-In this 'flutter\_map' package, the classes that conduct this maths to get these tiles are called 'tile providers'.
+A tile provider (within flutter\_map) is responsible for:
 
-However, these do a lot more than just the maths. They do the maths, format the appropriate URL, potentially stagger the URI (not to get rate limited by the browser or engine), make the request, get the image, process (and potentially store) the image and finally give it back to the main process to paint onto the map for the user to see.
+* Constructing the path/URL to a tile, when given its coordinates (x/y/z): [#slippy-map-convention](./#slippy-map-convention "mention")
+* Using an `ImageProvider` or other mechanism to fetch that tile: [#sourcing-tiles](./#sourcing-tiles "mention")
+* Performing any other processing steps, such as caching
 
-Unless you choose to implement your own custom tile provider, you should never need to handle this yourself.
+But don't worry! flutter\_map (or a plugin) creates a provider for you, so for most use cases and tile sources, you shouldn't need to handle this yourself!
 
-For more information about setting up a tile provider within the API, see [tile-providers.md](../layers/tile-layer/tile-providers.md "mention").
+{% content-ref url="../layers/tile-layer/tile-providers.md" %}
+[tile-providers.md](../layers/tile-layer/tile-providers.md)
+{% endcontent-ref %}
 
 {% hint style="info" %}
 This can be quite confusing for newcomers!
@@ -59,8 +74,6 @@ This can be quite confusing for newcomers!
 Within this library, 'tile providers' use 'tile servers' to retrieve tiles from the Internet. On the other hand, 'tile servers' and external sites usually use 'tile providers' to mean 'tile servers'!
 {% endhint %}
 
-## Map Layers
+[^1]: Most mapping libraries operate in this way
 
-Once the tile provider has dealt with the tile, it sends it to a map layer to get painted onto the map. This can be done using canvases (such as in HTML5 for the web), or, in the case of 'flutter\_map', Flutter widgets.
-
-The map layers also handle user interaction, such as panning, zooming, rotating and tapping.
+[^2]: This is not a real example of this relationship.
