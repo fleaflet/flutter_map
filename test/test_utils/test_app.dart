@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -36,6 +38,7 @@ class TestApp extends StatelessWidget {
               children: [
                 TileLayer(
                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  tileProvider: TestTileProvider(),
                 ),
                 if (polylines.isNotEmpty) PolylineLayer(polylines: polylines),
                 if (polygons.isNotEmpty) PolygonLayer(polygons: polygons),
@@ -48,4 +51,15 @@ class TestApp extends StatelessWidget {
       ),
     );
   }
+}
+
+class TestTileProvider extends TileProvider {
+  // Base 64 encoded 256x256 white tile.
+  static const _whiteTile =
+      'iVBORw0KGgoAAAANSUhEUgAAAQAAAAEAAQMAAABmvDolAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAANQTFRF////p8QbyAAAAB9JREFUeJztwQENAAAAwqD3T20ON6AAAAAAAAAAAL4NIQAAAfFnIe4AAAAASUVORK5CYII=';
+
+  @override
+  ImageProvider<Object> getImage(
+          TileCoordinates coordinates, TileLayer options) =>
+      MemoryImage(base64Decode(_whiteTile));
 }

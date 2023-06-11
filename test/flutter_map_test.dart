@@ -3,12 +3,9 @@ import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 
-import 'test_utils/mocks.dart';
 import 'test_utils/test_app.dart';
 
 void main() {
-  setupMocks();
-
   testWidgets('flutter_map', (tester) async {
     final markers = <Marker>[
       Marker(
