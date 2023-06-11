@@ -29,10 +29,14 @@ class SlidingMapPage extends StatelessWidget {
                   minZoom: 12,
                   maxZoom: 14,
                   zoom: 13,
-                  swPanBoundary: const LatLng(56.6877, 11.5089),
-                  nePanBoundary: const LatLng(56.7378, 11.6644),
+                  boundary: AdaptiveBoundary(
+                    screenSize: MediaQuery.of(context).size,
+                    latLngBounds: LatLngBounds(
+                      const LatLng(56.7378, 11.6644),
+                      const LatLng(56.6877, 11.5089),
+                    ),
+                  ),
                   slideOnBoundaries: true,
-                  screenSize: MediaQuery.of(context).size,
                 ),
                 children: [
                   TileLayer(

@@ -2,19 +2,24 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map/src/gestures/flutter_map_interactive_viewer.dart';
-import 'package:flutter_map/src/map/flutter_map_state_controller_interface.dart';
+import 'package:flutter_map/src/map/flutter_map_internal_state.dart';
 import 'package:flutter_map/src/map/map_controller_impl.dart';
 import 'package:latlong2/latlong.dart';
 
 // This controller is for internal use. All updates to the state should be done
 // by calling methods of this class to ensure consistency.
-class FlutterMapStateController extends ValueNotifier<FlutterMapState>
-    implements FlutterMapStateControllerInterface {
+class FlutterMapInternalController
+    extends ValueNotifier<FlutterMapInternalState> {
   late final FlutterMapInteractiveViewerState _interactiveViewerState;
   late MapControllerImpl _mapControllerImpl;
 
-  FlutterMapStateController(MapOptions options)
-      : super(FlutterMapState.initialState(options));
+  FlutterMapInternalController(MapOptions options)
+      : super(
+          FlutterMapInternalState(
+            options: options,
+            mapState: FlutterMapState.initialState(options),
+          ),
+        );
 
   // Link the viewer state with the controller. This should be done once when
   // the FlutterMapInteractiveViewerState is initialized.
@@ -22,6 +27,9 @@ class FlutterMapStateController extends ValueNotifier<FlutterMapState>
     FlutterMapInteractiveViewerState interactiveViewerState,
   ) =>
       _interactiveViewerState = interactiveViewerState;
+
+  MapOptions get options => value.options;
+  FlutterMapState get mapState => value.mapState;
 
   void linkMapController(MapControllerImpl mapControllerImpl) {
     _mapControllerImpl = mapControllerImpl;
@@ -32,12 +40,11 @@ class FlutterMapStateController extends ValueNotifier<FlutterMapState>
   /// to the FlutterMapState should be done via methods in this class.
   @visibleForTesting
   @override
-  set value(FlutterMapState value) => super.value = value;
+  set value(FlutterMapInternalState value) => super.value = value;
 
   // Note: All named parameters are required to prevent inconsistent default
   // values since this method can be called by MapController which declares
   // defaults.
-  @override
   bool move(
     LatLng newCenter,
     double newZoom, {
@@ -46,13 +53,13 @@ class FlutterMapStateController extends ValueNotifier<FlutterMapState>
     required MapEventSource source,
     required String? id,
   }) {
-    newZoom = value.fitZoomToBounds(newZoom);
+    newZoom = mapState.fitZoomToBounds(newZoom);
 
     // Algorithm thanks to https://github.com/tlserver/flutter_map_location_marker
     if (offset != Offset.zero) {
-      final newPoint = value.project(newCenter, newZoom);
-      newCenter = value.unproject(
-        value.rotatePoint(
+      final newPoint = mapState.project(newCenter, newZoom);
+      newCenter = mapState.unproject(
+        mapState.rotatePoint(
           newPoint,
           newPoint - CustomPoint(offset.dx, offset.dy),
         ),
@@ -60,42 +67,45 @@ class FlutterMapStateController extends ValueNotifier<FlutterMapState>
       );
     }
 
-    if (value.isOutOfBounds(newCenter)) {
-      if (!value.options.slideOnBoundaries) return false;
-      newCenter = value.containPoint(newCenter, value.center);
+    // TODO: Why do we have two separate methods of adjusting the bounds?
+    if (mapState.isOutOfBounds(newCenter)) {
+      if (!options.slideOnBoundaries) return false;
+      newCenter = mapState.clampWithFallback(newCenter, mapState.center);
     }
 
-    if (value.options.maxBounds != null) {
-      final adjustedCenter = value.adjustCenterIfOutsideMaxBounds(
+    if (options.maxBounds != null) {
+      final adjustedCenter = mapState.adjustCenterIfOutsideMaxBounds(
         newCenter,
         newZoom,
-        value.options.maxBounds!,
+        options.maxBounds!,
       );
 
       if (adjustedCenter == null) return false;
       newCenter = adjustedCenter;
     }
 
-    if (newCenter == value.center && newZoom == value.zoom) {
+    if (newCenter == mapState.center && newZoom == mapState.zoom) {
       return false;
     }
 
-    final oldMapState = value;
-    value = value.copyWith(zoom: newZoom, center: newCenter);
+    final oldMapState = mapState;
+    value = value.withMapState(
+      mapState.withPosition(zoom: newZoom, center: newCenter),
+    );
 
     final movementEvent = MapEventWithMove.fromSource(
       oldMapState: oldMapState,
-      mapState: value,
+      mapState: mapState,
       hasGesture: hasGesture,
       source: source,
       id: id,
     );
     if (movementEvent != null) _emitMapEvent(movementEvent);
 
-    value.options.onPositionChanged?.call(
+    options.onPositionChanged?.call(
       MapPosition(
         center: newCenter,
-        bounds: value.bounds,
+        bounds: mapState.visibleBounds,
         zoom: newZoom,
         hasGesture: hasGesture,
       ),
@@ -108,24 +118,23 @@ class FlutterMapStateController extends ValueNotifier<FlutterMapState>
   // Note: All named parameters are required to prevent inconsistent default
   // values since this method can be called by MapController which declares
   // defaults.
-  @override
   bool rotate(
     double newRotation, {
     required bool hasGesture,
     required MapEventSource source,
     required String? id,
   }) {
-    if (newRotation != value.rotation) {
-      final oldMapState = value;
-      //Apply state then emit events and callbacks
-      value = value.withRotation(newRotation);
+    if (newRotation != mapState.rotation) {
+      final oldMapState = mapState;
+      // Apply state then emit events and callbacks
+      value = value.withMapState(mapState.withRotation(newRotation));
 
       _emitMapEvent(
         MapEventRotate(
           id: id,
           source: source,
           oldMapState: oldMapState,
-          mapState: value,
+          mapState: mapState,
         ),
       );
       return true;
@@ -137,7 +146,6 @@ class FlutterMapStateController extends ValueNotifier<FlutterMapState>
   // Note: All named parameters are required to prevent inconsistent default
   // values since this method can be called by MapController which declares
   // defaults.
-  @override
   MoveAndRotateResult rotateAroundPoint(
     double degree, {
     required CustomPoint<double>? point,
@@ -153,7 +161,7 @@ class FlutterMapStateController extends ValueNotifier<FlutterMapState>
       throw ArgumentError('One of `point` or `offset` must be non-null');
     }
 
-    if (degree == value.rotation) {
+    if (degree == mapState.rotation) {
       return MoveAndRotateResult(false, false);
     }
 
@@ -169,28 +177,28 @@ class FlutterMapStateController extends ValueNotifier<FlutterMapState>
       );
     }
 
-    final rotationDiff = degree - value.rotation;
-    final rotationCenter = value.project(value.center) +
+    final rotationDiff = degree - mapState.rotation;
+    final rotationCenter = mapState.project(mapState.center) +
         (point != null
-                ? (point - (value.nonRotatedSize / 2.0))
+                ? (point - (mapState.nonRotatedSize / 2.0))
                 : CustomPoint(offset!.dx, offset.dy))
-            .rotate(value.rotationRad);
+            .rotate(mapState.rotationRad);
 
     return MoveAndRotateResult(
       move(
-        value.unproject(
+        mapState.unproject(
           rotationCenter +
-              (value.project(value.center) - rotationCenter)
+              (mapState.project(mapState.center) - rotationCenter)
                   .rotate(degToRadian(rotationDiff)),
         ),
-        value.zoom,
+        mapState.zoom,
         offset: Offset.zero,
         hasGesture: hasGesture,
         source: source,
         id: id,
       ),
       rotate(
-        value.rotation + rotationDiff,
+        mapState.rotation + rotationDiff,
         hasGesture: hasGesture,
         source: source,
         id: id,
@@ -201,7 +209,6 @@ class FlutterMapStateController extends ValueNotifier<FlutterMapState>
   // Note: All named parameters are required to prevent inconsistent default
   // values since this method can be called by MapController which declares
   // defaults.
-  @override
   MoveAndRotateResult moveAndRotate(
     LatLng newCenter,
     double newZoom,
@@ -226,13 +233,12 @@ class FlutterMapStateController extends ValueNotifier<FlutterMapState>
   // Note: All named parameters are required to prevent inconsistent default
   // values since this method can be called by MapController which declares
   // defaults.
-  @override
   bool fitBounds(
     LatLngBounds bounds,
     FitBoundsOptions options, {
     required Offset offset,
   }) {
-    final target = value.centerZoomFitBounds(bounds, options: options);
+    final target = mapState.centerZoomFitBounds(bounds, options: options);
     return move(
       target.center,
       target.zoom,
@@ -247,8 +253,8 @@ class FlutterMapStateController extends ValueNotifier<FlutterMapState>
     CustomPoint<double> nonRotatedSize,
   ) {
     if (nonRotatedSize != FlutterMapState.kImpossibleSize &&
-        nonRotatedSize != value.nonRotatedSize) {
-      value = value.withNonRotatedSize(nonRotatedSize);
+        nonRotatedSize != mapState.nonRotatedSize) {
+      value = value.withMapState(mapState.withNonRotatedSize(nonRotatedSize));
       return true;
     }
 
@@ -256,8 +262,8 @@ class FlutterMapStateController extends ValueNotifier<FlutterMapState>
   }
 
   void setOptions(MapOptions options) {
-    if (value.options != options) {
-      value = value.withOptions(options);
+    if (options != this.options) {
+      value = value.withMapState(mapState.withOptions(options));
     }
   }
 
@@ -265,7 +271,7 @@ class FlutterMapStateController extends ValueNotifier<FlutterMapState>
   void moveStarted(MapEventSource source) {
     _emitMapEvent(
       MapEventMoveStart(
-        mapState: value,
+        mapState: mapState,
         source: source,
       ),
     );
@@ -273,14 +279,14 @@ class FlutterMapStateController extends ValueNotifier<FlutterMapState>
 
   // To be called when an ongoing drag movement updates.
   void dragUpdated(MapEventSource source, Offset offset) {
-    final oldCenterPt = value.project(value.center);
+    final oldCenterPt = mapState.project(mapState.center);
 
     final newCenterPt = oldCenterPt + offset.toCustomPoint();
-    final newCenter = value.unproject(newCenterPt);
+    final newCenter = mapState.unproject(newCenterPt);
 
     move(
       newCenter,
-      value.zoom,
+      mapState.zoom,
       offset: Offset.zero,
       hasGesture: true,
       source: source,
@@ -292,7 +298,7 @@ class FlutterMapStateController extends ValueNotifier<FlutterMapState>
   void moveEnded(MapEventSource source) {
     _emitMapEvent(
       MapEventMoveEnd(
-        mapState: value,
+        mapState: mapState,
         source: source,
       ),
     );
@@ -302,7 +308,7 @@ class FlutterMapStateController extends ValueNotifier<FlutterMapState>
   void rotateStarted(MapEventSource source) {
     _emitMapEvent(
       MapEventRotateStart(
-        mapState: value,
+        mapState: mapState,
         source: source,
       ),
     );
@@ -312,7 +318,7 @@ class FlutterMapStateController extends ValueNotifier<FlutterMapState>
   void rotateEnded(MapEventSource source) {
     _emitMapEvent(
       MapEventRotateEnd(
-        mapState: value,
+        mapState: mapState,
         source: source,
       ),
     );
@@ -322,7 +328,7 @@ class FlutterMapStateController extends ValueNotifier<FlutterMapState>
   void flingStarted(MapEventSource source) {
     _emitMapEvent(
       MapEventFlingAnimationStart(
-        mapState: value,
+        mapState: mapState,
         source: MapEventSource.flingAnimationController,
       ),
     );
@@ -332,7 +338,7 @@ class FlutterMapStateController extends ValueNotifier<FlutterMapState>
   void flingEnded(MapEventSource source) {
     _emitMapEvent(
       MapEventFlingAnimationEnd(
-        mapState: value,
+        mapState: mapState,
         source: source,
       ),
     );
@@ -342,7 +348,7 @@ class FlutterMapStateController extends ValueNotifier<FlutterMapState>
   void flingNotStarted(MapEventSource source) {
     _emitMapEvent(
       MapEventFlingAnimationNotStarted(
-        mapState: value,
+        mapState: mapState,
         source: source,
       ),
     );
@@ -352,7 +358,7 @@ class FlutterMapStateController extends ValueNotifier<FlutterMapState>
   void doubleTapZoomStarted(MapEventSource source) {
     _emitMapEvent(
       MapEventDoubleTapZoomStart(
-        mapState: value,
+        mapState: mapState,
         source: source,
       ),
     );
@@ -362,7 +368,7 @@ class FlutterMapStateController extends ValueNotifier<FlutterMapState>
   void doubleTapZoomEnded(MapEventSource source) {
     _emitMapEvent(
       MapEventDoubleTapZoomEnd(
-        mapState: value,
+        mapState: mapState,
         source: source,
       ),
     );
@@ -373,11 +379,11 @@ class FlutterMapStateController extends ValueNotifier<FlutterMapState>
     TapPosition tapPosition,
     LatLng position,
   ) {
-    value.options.onTap?.call(tapPosition, position);
+    options.onTap?.call(tapPosition, position);
     _emitMapEvent(
       MapEventTap(
         tapPosition: position,
-        mapState: value,
+        mapState: mapState,
         source: source,
       ),
     );
@@ -388,11 +394,11 @@ class FlutterMapStateController extends ValueNotifier<FlutterMapState>
     TapPosition tapPosition,
     LatLng position,
   ) {
-    value.options.onSecondaryTap?.call(tapPosition, position);
+    options.onSecondaryTap?.call(tapPosition, position);
     _emitMapEvent(
       MapEventSecondaryTap(
         tapPosition: position,
-        mapState: value,
+        mapState: mapState,
         source: source,
       ),
     );
@@ -403,11 +409,11 @@ class FlutterMapStateController extends ValueNotifier<FlutterMapState>
     TapPosition tapPosition,
     LatLng position,
   ) {
-    value.options.onLongPress?.call(tapPosition, position);
+    options.onLongPress?.call(tapPosition, position);
     _emitMapEvent(
       MapEventLongPress(
         tapPosition: position,
-        mapState: value,
+        mapState: mapState,
         source: MapEventSource.longPress,
       ),
     );
@@ -433,7 +439,7 @@ class FlutterMapStateController extends ValueNotifier<FlutterMapState>
       _interactiveViewerState.interruptAnimatedMovement(event);
     }
 
-    value.options.onMapEvent?.call(event);
+    options.onMapEvent?.call(event);
 
     _mapControllerImpl.mapEventSink.add(event);
   }

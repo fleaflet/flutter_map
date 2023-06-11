@@ -116,7 +116,7 @@ class MapControllerPageState extends State<MapControllerPage> {
                   Builder(builder: (BuildContext context) {
                     return MaterialButton(
                       onPressed: () {
-                        final bounds = _mapController.mapState.bounds;
+                        final bounds = _mapController.mapState.visibleBounds;
 
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           content: Text(
@@ -151,8 +151,8 @@ class MapControllerPageState extends State<MapControllerPage> {
             Flexible(
               child: FlutterMap(
                 mapController: _mapController,
-                options: MapOptions(
-                  center: const LatLng(51.5, -0.09),
+                options: const MapOptions(
+                  center: LatLng(51.5, -0.09),
                   zoom: 5,
                   maxZoom: 5,
                   minZoom: 3,

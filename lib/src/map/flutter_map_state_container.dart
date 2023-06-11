@@ -2,21 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/gestures/flutter_map_interactive_viewer.dart';
-import 'package:flutter_map/src/gestures/flutter_map_state_controller.dart';
+import 'package:flutter_map/src/map/flutter_map_internal_controller.dart';
 import 'package:flutter_map/src/map/flutter_map_state_inherited_widget.dart';
 import 'package:flutter_map/src/map/map_controller_impl.dart';
 
 class FlutterMapStateContainer extends State<FlutterMap> {
   bool _hasFitInitialBounds = false;
 
-  late final FlutterMapStateController _flutterMapStateController;
+  late final FlutterMapInternalController _flutterMapStateController;
   late MapControllerImpl _mapController;
   late bool _mapControllerCreatedInternally;
 
   @override
   void initState() {
     super.initState();
-    _flutterMapStateController = FlutterMapStateController(widget.options);
+    _flutterMapStateController = FlutterMapInternalController(widget.options);
     _initializeAndLinkMapController();
 
     WidgetsBinding.instance
@@ -57,8 +57,9 @@ class FlutterMapStateContainer extends State<FlutterMap> {
           controller: _flutterMapStateController,
           options: widget.options,
           builder: (context, mapState) => MapStateInheritedWidget(
-            mapController: _mapController,
-            mapState: mapState,
+            controller: _mapController,
+            options: widget.options,
+            state: mapState,
             child: ClipRect(
               child: Stack(
                 children: [
@@ -85,13 +86,13 @@ class FlutterMapStateContainer extends State<FlutterMap> {
   void _setInitialFitBounds(BoxConstraints constraints) {
     // If bounds were provided set the initial center/zoom to match those
     // bounds once the parent constraints are available.
-    if (widget.options.bounds != null &&
+    if (widget.options.initialBounds != null &&
         !_hasFitInitialBounds &&
         _parentConstraintsAreSet(context, constraints)) {
       _hasFitInitialBounds = true;
 
       _flutterMapStateController.fitBounds(
-        widget.options.bounds!,
+        widget.options.initialBounds!,
         widget.options.boundsOptions,
         offset: Offset.zero,
       );
@@ -103,10 +104,10 @@ class FlutterMapStateContainer extends State<FlutterMap> {
       constraints.maxWidth,
       constraints.maxHeight,
     );
-    final oldMapState = _flutterMapStateController.value;
+    final oldMapState = _flutterMapStateController.mapState;
     if (_flutterMapStateController
         .setNonRotatedSizeWithoutEmittingEvent(nonRotatedSize)) {
-      final newMapState = _flutterMapStateController.value;
+      final newMapState = _flutterMapStateController.mapState;
 
       // Avoid emitting the event during build otherwise if the user calls
       // setState in the onMapEvent callback it will throw.

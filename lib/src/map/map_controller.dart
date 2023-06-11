@@ -25,7 +25,7 @@ abstract class MapController {
 
   static MapController? maybeOf(BuildContext context) => context
       .dependOnInheritedWidgetOfExactType<MapStateInheritedWidget>()
-      ?.mapController;
+      ?.controller;
 
   static MapController of(BuildContext context) =>
       maybeOf(context) ??

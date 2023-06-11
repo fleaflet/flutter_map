@@ -6,69 +6,49 @@ import 'package:latlong2/latlong.dart';
 
 class MapSafeArea {
   final LatLngBounds bounds;
-  final bool isLatitudeBlocked;
-  final bool isLongitudeBlocked;
+  final double zoom;
+  final bool _isLatitudeBlocked;
+  final bool _isLongitudeBlocked;
 
-  final double _zoom;
-  final Size _screenSize;
-  final LatLng _swPanBoundary;
-  final LatLng _nePanBoundary;
+  MapSafeArea._({
+    required this.bounds,
+    required this.zoom,
+  })  : _isLatitudeBlocked = bounds.south > bounds.north,
+        _isLongitudeBlocked = bounds.west > bounds.east;
 
-  MapSafeArea({
-    required LatLng southWest,
-    required LatLng northEast,
-    required double zoom,
+  factory MapSafeArea({
     required Size screenSize,
-    required LatLng swPanBoundary,
-    required LatLng nePanBoundary,
-  })  : bounds = LatLngBounds(southWest, northEast),
-        isLatitudeBlocked = southWest.latitude > northEast.latitude,
-        isLongitudeBlocked = southWest.longitude > northEast.longitude,
-        _zoom = zoom,
-        _screenSize = screenSize,
-        _swPanBoundary = swPanBoundary,
-        _nePanBoundary = nePanBoundary;
-
-  factory MapSafeArea.createUnlessMatching({
-    MapSafeArea? previous,
+    required LatLngBounds bounds,
     required double zoom,
-    required Size screenSize,
-    required LatLng swPanBoundary,
-    required LatLng nePanBoundary,
   }) {
-    if (previous == null ||
-        previous._zoom != zoom ||
-        previous._screenSize != screenSize ||
-        previous._swPanBoundary != swPanBoundary ||
-        previous._nePanBoundary != nePanBoundary) {
-      final halfScreenHeightDeg = _halfScreenHeightDegrees(screenSize, zoom);
-      final halfScreenWidthDeg = _halfScreenWidthDegrees(screenSize, zoom);
+    final halfScreenHeightDeg = _halfScreenHeightDegrees(screenSize, zoom);
+    final halfScreenWidthDeg = _halfScreenWidthDegrees(screenSize, zoom);
 
-      final southWestLatitude = swPanBoundary.latitude + halfScreenHeightDeg;
-      final southWestLongitude = swPanBoundary.longitude + halfScreenWidthDeg;
-      final northEastLatitude = nePanBoundary.latitude - halfScreenHeightDeg;
-      final northEastLongitude = nePanBoundary.longitude - halfScreenWidthDeg;
+    final safeBounds = LatLngBounds(
+      LatLng(
+        bounds.north - halfScreenHeightDeg,
+        bounds.east - halfScreenWidthDeg,
+      ),
+      LatLng(
+        bounds.south + halfScreenHeightDeg,
+        bounds.west + halfScreenWidthDeg,
+      ),
+    );
 
-      return MapSafeArea(
-        southWest: LatLng(southWestLatitude, southWestLongitude),
-        northEast: LatLng(northEastLatitude, northEastLongitude),
-        zoom: zoom,
-        screenSize: screenSize,
-        swPanBoundary: swPanBoundary,
-        nePanBoundary: nePanBoundary,
-      );
-    }
-    return previous;
+    return MapSafeArea._(
+      bounds: safeBounds,
+      zoom: zoom,
+    );
   }
 
   bool contains(LatLng point) =>
-      isLatitudeBlocked || isLongitudeBlocked ? false : bounds.contains(point);
+      _isLatitudeBlocked || _isLongitudeBlocked ? false : bounds.contains(point);
 
-  LatLng containPoint(LatLng point, LatLng fallback) => LatLng(
-        isLatitudeBlocked
+  LatLng clampWithFallback(LatLng point, LatLng fallback) => LatLng(
+        _isLatitudeBlocked
             ? fallback.latitude
             : point.latitude.clamp(bounds.south, bounds.north),
-        isLongitudeBlocked
+        _isLongitudeBlocked
             ? fallback.longitude
             : point.longitude.clamp(bounds.west, bounds.east),
       );

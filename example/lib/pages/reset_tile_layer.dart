@@ -71,8 +71,8 @@ class ResetTileLayerPageState extends State<ResetTileLayerPage> {
             ),
             Flexible(
               child: FlutterMap(
-                options: MapOptions(
-                  center: const LatLng(51.5, -0.09),
+                options: const MapOptions(
+                  center: LatLng(51.5, -0.09),
                   zoom: 5,
                 ),
                 children: [

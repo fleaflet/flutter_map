@@ -329,7 +329,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    final mapState = FlutterMapState.maybeOf(context)!;
+    final mapOptions = MapOptions.of(context);
 
     final mapController = MapController.of(context);
     if (_mapControllerHashCode != mapController.hashCode) {
@@ -345,26 +345,25 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     bool reloadTiles = false;
     if (!_initializedFromMapState ||
         _tileBounds.shouldReplace(
-            mapState.options.crs, widget.tileSize, widget.tileBounds)) {
+            mapOptions.crs, widget.tileSize, widget.tileBounds)) {
       reloadTiles = true;
       _tileBounds = TileBounds(
-        crs: mapState.options.crs,
+        crs: mapOptions.crs,
         tileSize: widget.tileSize,
         latLngBounds: widget.tileBounds,
       );
     }
 
     if (!_initializedFromMapState ||
-        _tileScaleCalculator.shouldReplace(
-            mapState.options.crs, widget.tileSize)) {
+        _tileScaleCalculator.shouldReplace(mapOptions.crs, widget.tileSize)) {
       reloadTiles = true;
       _tileScaleCalculator = TileScaleCalculator(
-        crs: mapState.options.crs,
+        crs: mapOptions.crs,
         tileSize: widget.tileSize,
       );
     }
 
-    if (reloadTiles) _loadAndPruneInVisibleBounds(mapState);
+    if (reloadTiles) _loadAndPruneInVisibleBounds(FlutterMapState.of(context));
 
     _initializedFromMapState = true;
   }

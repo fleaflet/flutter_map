@@ -1,12 +1,14 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/map/flutter_map_state_inherited_widget.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Allows you to provide your map's starting properties for [zoom], [rotation]
-/// and [center]. Alternatively you can provide [bounds] instead of [center].
-/// If both, [center] and [bounds] are provided, bounds will take preference
-/// over [center].
+/// and [center]. Alternatively you can provide [initialBounds] instead of
+/// [center]. If both [center] and [initialBounds] are provided, initialBounds
+/// will take preference over [center].
+///
 /// Zoom, pan boundary and interactivity constraints can be specified here too.
 ///
 /// Callbacks for [onTap], [onSecondaryTap], [onLongPress] and
@@ -19,8 +21,7 @@ import 'package:latlong2/latlong.dart';
 /// defined boundaries.
 ///
 /// If you download offline tiles dynamically, you can set [adaptiveBoundaries]
-/// to true (make sure to also set [screenSize], [nePanBoundary],
-/// [swPanBoundary] and an external [controller]), which will enforce
+/// (make sure to also set an external [controller]), which will enforce
 /// panning/zooming to ensure there is never a need to display tiles outside the
 /// boundaries set by [swPanBoundary] and [nePanBoundary].
 class MapOptions {
@@ -101,13 +102,10 @@ class MapOptions {
   final PositionCallback? onPositionChanged;
   final MapEventCallback? onMapEvent;
   final bool slideOnBoundaries;
-  final Size? screenSize;
-  final bool adaptiveBoundaries;
+  final MapBoundary? boundary;
   final LatLng center;
-  final LatLngBounds? bounds;
+  final LatLngBounds? initialBounds;
   final FitBoundsOptions boundsOptions;
-  final LatLng? swPanBoundary;
-  final LatLng? nePanBoundary;
 
   /// OnMapReady is called after the map runs it's initState.
   /// At that point the map has assigned its state to the controller
@@ -130,10 +128,10 @@ class MapOptions {
   /// widget from rebuilding.
   final bool keepAlive;
 
-  MapOptions({
+  const MapOptions({
     this.crs = const Epsg3857(),
-    LatLng? center,
-    this.bounds,
+    this.center = const LatLng(50.5, 30.51),
+    this.initialBounds,
     this.boundsOptions = const FitBoundsOptions(),
     this.zoom = 13.0,
     this.rotation = 0.0,
@@ -163,23 +161,21 @@ class MapOptions {
     this.onMapEvent,
     this.onMapReady,
     this.slideOnBoundaries = false,
-    this.adaptiveBoundaries = false,
-    this.screenSize,
-    this.swPanBoundary,
-    this.nePanBoundary,
+    this.boundary,
     this.maxBounds,
     this.keepAlive = false,
-  })  : center = center ?? const LatLng(50.5, 30.51),
-        assert(rotationThreshold >= 0.0),
+  })  : assert(rotationThreshold >= 0.0),
         assert(pinchZoomThreshold >= 0.0),
-        assert(pinchMoveThreshold >= 0.0) {
-    assert(
-        !adaptiveBoundaries ||
-            (screenSize != null &&
-                swPanBoundary != null &&
-                nePanBoundary != null),
-        'screenSize, swPanBoundary and nePanBoundary must be set in order to enable adaptive boundaries.');
-  }
+        assert(pinchMoveThreshold >= 0.0);
+
+  static MapOptions? maybeOf(BuildContext context) => context
+      .dependOnInheritedWidgetOfExactType<MapStateInheritedWidget>()
+      ?.options;
+
+  static MapOptions of(BuildContext context) =>
+      maybeOf(context) ??
+      (throw StateError(
+          '`MapOptions.of()` should not be called outside a `FlutterMap` and its descendants'));
 }
 
 typedef MapEventCallback = void Function(MapEvent);

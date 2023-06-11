@@ -1,12 +1,13 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_map/src/geo/crs.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/map/flutter_map_state_inherited_widget.dart';
-import 'package:flutter_map/src/map/map_safe_area.dart';
 import 'package:flutter_map/src/map/options.dart';
 import 'package:flutter_map/src/misc/center_zoom.dart';
 import 'package:flutter_map/src/misc/fit_bounds_options.dart';
+import 'package:flutter_map/src/misc/map_boundary.dart';
 import 'package:flutter_map/src/misc/point.dart';
 import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:latlong2/latlong.dart';
@@ -19,7 +20,10 @@ class FlutterMapState {
   // provides real constraints.
   static const kImpossibleSize = CustomPoint<double>(-1, -1);
 
-  final MapOptions options;
+  final Crs crs;
+  final double? minZoom;
+  final double? maxZoom;
+  final MapBoundary? boundary;
 
   final LatLng center;
   final double zoom;
@@ -36,11 +40,9 @@ class FlutterMapState {
   LatLngBounds? _bounds;
   CustomPoint<int>? _pixelOrigin;
 
-  MapSafeArea? _mapSafeAreaCache;
-
   static FlutterMapState? maybeOf(BuildContext context) => context
       .dependOnInheritedWidgetOfExactType<MapStateInheritedWidget>()
-      ?.mapState;
+      ?.state;
 
   static FlutterMapState of(BuildContext context) =>
       maybeOf(context) ??
@@ -49,8 +51,12 @@ class FlutterMapState {
 
   /// Initializes FlutterMapState from the given [options] and with the
   /// [nonRotatedSize] and [size] both set to [kImpossibleSize].
-  FlutterMapState.initialState(this.options)
-      : center = options.center,
+  FlutterMapState.initialState(MapOptions options)
+      : crs = options.crs,
+        minZoom = options.minZoom,
+        maxZoom = options.maxZoom,
+        boundary = options.boundary,
+        center = options.center,
         zoom = options.zoom,
         rotation = options.rotation,
         nonRotatedSize = kImpossibleSize,
@@ -60,7 +66,10 @@ class FlutterMapState {
   // [pixelBounds] may be set if they are known already. Otherwise if left
   // null they will be calculated lazily when they are used.
   FlutterMapState({
-    required this.options,
+    required this.crs,
+    required this.minZoom,
+    required this.maxZoom,
+    required this.boundary,
     required this.center,
     required this.zoom,
     required this.rotation,
@@ -77,7 +86,10 @@ class FlutterMapState {
     if (nonRotatedSize == this.nonRotatedSize) return this;
 
     return FlutterMapState(
-      options: options,
+      crs: crs,
+      minZoom: minZoom,
+      maxZoom: maxZoom,
+      boundary: boundary,
       center: center,
       zoom: zoom,
       rotation: rotation,
@@ -90,7 +102,10 @@ class FlutterMapState {
     if (rotation == this.rotation) return this;
 
     return FlutterMapState(
-      options: options,
+      crs: crs,
+      minZoom: minZoom,
+      maxZoom: maxZoom,
+      boundary: boundary,
       center: center,
       zoom: zoom,
       rotation: rotation,
@@ -99,19 +114,50 @@ class FlutterMapState {
     );
   }
 
-  FlutterMapState withOptions(MapOptions options) => FlutterMapState(
-        options: options,
-        center: center,
-        zoom: zoom,
+  FlutterMapState withOptions(MapOptions options) {
+    if (options.crs == crs &&
+        options.minZoom == minZoom &&
+        options.maxZoom == maxZoom &&
+        options.boundary == boundary) {
+      return this;
+    }
+
+    return FlutterMapState(
+      crs: options.crs,
+      minZoom: options.minZoom,
+      maxZoom: options.maxZoom,
+      boundary: options.boundary,
+      center: center,
+      zoom: zoom,
+      rotation: rotation,
+      nonRotatedSize: nonRotatedSize,
+      size: _calculateSize(rotation, nonRotatedSize),
+    );
+  }
+
+  FlutterMapState withPosition({
+    LatLng? center,
+    double? zoom,
+  }) =>
+      FlutterMapState(
+        crs: crs,
+        minZoom: minZoom,
+        maxZoom: maxZoom,
+        boundary: boundary,
+        center: center ?? this.center,
+        zoom: zoom ?? this.zoom,
         rotation: rotation,
         nonRotatedSize: nonRotatedSize,
-        size: _calculateSize(rotation, nonRotatedSize),
+        size: size,
       );
 
   Bounds<double> get pixelBounds =>
       _pixelBounds ?? (_pixelBounds = getPixelBounds());
 
-  LatLngBounds get bounds =>
+  @Deprecated('Use visibleBounds instead.')
+  LatLngBounds get bounds => visibleBounds;
+
+  LatLngBounds get visibleBounds =>
       _bounds ??
       (_bounds = LatLngBounds(
         unproject(pixelBounds.bottomLeft, zoom),
@@ -121,19 +167,6 @@ class FlutterMapState {
   CustomPoint<int> get pixelOrigin =>
       _pixelOrigin ??
       (_pixelOrigin = (project(center, zoom) - size / 2.0).round());
-
-  FlutterMapState copyWith({
-    LatLng? center,
-    double? zoom,
-  }) =>
-      FlutterMapState(
-        options: options,
-        center: center ?? this.center,
-        zoom: zoom ?? this.zoom,
-        rotation: rotation,
-        nonRotatedSize: nonRotatedSize,
-        size: size,
-      );
 
   static CustomPoint<double> _calculateSize(
     double rotation,
@@ -203,8 +236,8 @@ class FlutterMapState {
     bool inside = false,
     bool forceIntegerZoomLevel = false,
   }) {
-    final min = options.minZoom ?? 0.0;
-    final max = options.maxZoom ?? double.infinity;
+    final min = minZoom ?? 0.0;
+    final max = maxZoom ?? double.infinity;
     final nw = bounds.northWest;
     final se = bounds.southEast;
     var size = nonRotatedSize - padding;
@@ -235,25 +268,21 @@ class FlutterMapState {
   }
 
   CustomPoint<double> project(LatLng latlng, [double? zoom]) =>
-      options.crs.latLngToPoint(latlng, zoom ?? this.zoom);
+      crs.latLngToPoint(latlng, zoom ?? this.zoom);
 
   LatLng unproject(CustomPoint point, [double? zoom]) =>
-      options.crs.pointToLatLng(point, zoom ?? this.zoom);
+      crs.pointToLatLng(point, zoom ?? this.zoom);
 
   LatLng layerPointToLatLng(CustomPoint point) => unproject(point);
 
   double getZoomScale(double toZoom, double fromZoom) =>
-      options.crs.scale(toZoom) / options.crs.scale(fromZoom);
+      crs.scale(toZoom) / crs.scale(fromZoom);
 
-  double getScaleZoom(double scale, double? fromZoom) {
-    final crs = options.crs;
-    fromZoom = fromZoom ?? zoom;
-    return crs.zoom(scale * crs.scale(fromZoom));
-  }
+  double getScaleZoom(double scale, double? fromZoom) =>
+      crs.zoom(scale * crs.scale(fromZoom ?? zoom));
 
-  Bounds? getPixelWorldBounds(double? zoom) {
-    return options.crs.getProjectedBounds(zoom ?? this.zoom);
-  }
+  Bounds? getPixelWorldBounds(double? zoom) =>
+      crs.getProjectedBounds(zoom ?? this.zoom);
 
   Offset getOffsetFromOrigin(LatLng pos) {
     final delta = project(pos) - pixelOrigin;
@@ -281,9 +310,9 @@ class FlutterMapState {
     final nonRotatedPixelOrigin =
         (project(center, zoom) - nonRotatedSize / 2.0).round();
 
-    var point = options.crs.latLngToPoint(latLng, zoom);
+    var point = crs.latLngToPoint(latLng, zoom);
 
-    final mapCenter = options.crs.latLngToPoint(center, zoom);
+    final mapCenter = crs.latLngToPoint(center, zoom);
 
     if (rotation != 0.0) {
       point = rotatePoint(mapCenter, point, counterRotation: false);
@@ -297,7 +326,7 @@ class FlutterMapState {
       (nonRotatedSize.x / 2) - localPoint.x,
       (nonRotatedSize.y / 2) - localPoint.y,
     );
-    final mapCenter = options.crs.latLngToPoint(center, zoom);
+    final mapCenter = crs.latLngToPoint(center, zoom);
 
     var point = mapCenter - localPointCenterDistance;
 
@@ -305,7 +334,7 @@ class FlutterMapState {
       point = rotatePoint(mapCenter, point);
     }
 
-    return options.crs.pointToLatLng(point, zoom);
+    return crs.pointToLatLng(point, zoom);
   }
 
   // Sometimes we need to make allowances that a rotation already exists, so
@@ -331,52 +360,38 @@ class FlutterMapState {
 
   double fitZoomToBounds(double zoom) {
     // Abide to min/max zoom
-    if (options.maxZoom != null) {
-      zoom = (zoom > options.maxZoom!) ? options.maxZoom! : zoom;
+    if (maxZoom != null) {
+      zoom = (zoom > maxZoom!) ? maxZoom! : zoom;
     }
-    if (options.minZoom != null) {
-      zoom = (zoom < options.minZoom!) ? options.minZoom! : zoom;
+    if (minZoom != null) {
+      zoom = (zoom < minZoom!) ? minZoom! : zoom;
     }
     return zoom;
   }
 
   // Returns true if given [center] is outside of the allowed bounds.
-  bool isOutOfBounds(LatLng center) {
-    if (options.adaptiveBoundaries) {
-      return !_safeArea!.contains(center);
-    }
-    if (options.swPanBoundary != null && options.nePanBoundary != null) {
-      if (center.latitude < options.swPanBoundary!.latitude ||
-          center.latitude > options.nePanBoundary!.latitude) {
-        return true;
-      } else if (center.longitude < options.swPanBoundary!.longitude ||
-          center.longitude > options.nePanBoundary!.longitude) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  LatLng containPoint(LatLng point, LatLng fallback) {
-    if (options.adaptiveBoundaries) {
-      return _safeArea!.containPoint(point, fallback);
-    } else {
-      return LatLng(
-        point.latitude.clamp(
-            options.swPanBoundary!.latitude, options.nePanBoundary!.latitude),
-        point.longitude.clamp(
-            options.swPanBoundary!.longitude, options.nePanBoundary!.longitude),
-      );
+  bool isOutOfBounds(LatLng latLng) {
+    switch (boundary) {
+      case FixedBoundary():
+        return !(boundary as FixedBoundary).contains(latLng);
+      case AdaptiveBoundary():
+        return !(boundary as AdaptiveBoundary).contains(latLng, zoom);
+      case null:
+        return false;
     }
   }
 
-  MapSafeArea? get _safeArea => MapSafeArea.createUnlessMatching(
-        previous: _mapSafeAreaCache,
-        zoom: zoom,
-        screenSize: options.screenSize!,
-        swPanBoundary: options.swPanBoundary!,
-        nePanBoundary: options.nePanBoundary!,
-      );
+  LatLng clampWithFallback(LatLng point, LatLng fallback) {
+    switch (boundary) {
+      case FixedBoundary():
+        return (boundary as FixedBoundary).clamp(point);
+      case AdaptiveBoundary():
+        return (boundary as AdaptiveBoundary)
+            .clampWithFallback(point, fallback, zoom);
+      case null:
+        return point;
+    }
+  }
 
   LatLng offsetToCrs(Offset offset, [double? zoom]) {
     final focalStartPt = project(center, zoom ?? this.zoom);
@@ -402,7 +417,10 @@ class FlutterMapState {
   }
 
   LatLng? adjustCenterIfOutsideMaxBounds(
-      LatLng testCenter, double testZoom, LatLngBounds maxBounds) {
+    LatLng testCenter,
+    double testZoom,
+    LatLngBounds maxBounds,
+  ) {
     LatLng? newCenter;
 
     final swPixel = project(maxBounds.southWest, testZoom);

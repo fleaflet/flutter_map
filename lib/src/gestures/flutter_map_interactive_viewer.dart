@@ -3,11 +3,11 @@ import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/src/gestures/flutter_map_state_controller.dart';
 import 'package:flutter_map/src/gestures/interactive_flag.dart';
 import 'package:flutter_map/src/gestures/latlng_tween.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
+import 'package:flutter_map/src/map/flutter_map_internal_controller.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/options.dart';
 import 'package:flutter_map/src/misc/point.dart';
@@ -17,7 +17,7 @@ import 'package:latlong2/latlong.dart';
 class FlutterMapInteractiveViewer extends StatefulWidget {
   final Widget Function(BuildContext context, FlutterMapState mapState) builder;
   final MapOptions options;
-  final FlutterMapStateController controller;
+  final FlutterMapInternalController controller;
 
   const FlutterMapInteractiveViewer({
     super.key,
@@ -72,7 +72,7 @@ class FlutterMapInteractiveViewerState
   int _tapUpCounter = 0;
   Timer? _doubleTapHoldMaxDelay;
 
-  FlutterMapState get _mapState => widget.controller.value;
+  FlutterMapState get _mapState => widget.controller.mapState;
 
   MapOptions get _options => widget.options;
 

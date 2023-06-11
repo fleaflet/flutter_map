@@ -24,8 +24,8 @@ class WMSLayerPage extends StatelessWidget {
             ),
             Flexible(
               child: FlutterMap(
-                options: MapOptions(
-                  center: const LatLng(42.58, 12.43),
+                options: const MapOptions(
+                  center: LatLng(42.58, 12.43),
                   zoom: 6,
                 ),
                 nonRotatedChildren: [

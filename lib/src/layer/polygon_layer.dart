@@ -83,7 +83,7 @@ class PolygonLayer extends StatelessWidget {
 
     final List<Polygon> pgons = polygonCulling
         ? polygons.where((p) {
-            return p.boundingBox.isOverlapping(map.bounds);
+            return p.boundingBox.isOverlapping(map.visibleBounds);
           }).toList()
         : polygons;
 
@@ -100,7 +100,7 @@ class PolygonPainter extends CustomPainter {
   final FlutterMapState map;
   final LatLngBounds bounds;
 
-  PolygonPainter(this.polygons, this.map) : bounds = map.bounds;
+  PolygonPainter(this.polygons, this.map) : bounds = map.visibleBounds;
 
   int get hash {
     _hash ??= Object.hashAll(polygons);

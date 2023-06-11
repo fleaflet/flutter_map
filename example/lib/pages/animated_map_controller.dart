@@ -191,8 +191,8 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
             Flexible(
               child: FlutterMap(
                 mapController: mapController,
-                options: MapOptions(
-                    center: const LatLng(51.5, -0.09),
+                options: const MapOptions(
+                    center: LatLng(51.5, -0.09),
                     zoom: 5,
                     maxZoom: 10,
                     minZoom: 3),

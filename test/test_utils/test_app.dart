@@ -31,8 +31,8 @@ class TestApp extends StatelessWidget {
             height: 200,
             child: FlutterMap(
               mapController: controller,
-              options: MapOptions(
-                center: const LatLng(45.5231, -122.6765),
+              options: const MapOptions(
+                center: LatLng(45.5231, -122.6765),
                 zoom: 13,
               ),
               children: [

@@ -30,14 +30,14 @@ void main() {
       controller.move(fit.center, fit.zoom);
       await tester.pump();
       mapState = controller.mapState;
-      expect(mapState.bounds, equals(expectedBounds));
+      expect(mapState.visibleBounds, equals(expectedBounds));
       expect(mapState.center, equals(expectedCenter));
       expect(mapState.zoom, equals(expectedZoom));
 
       controller.fitBounds(bounds, options: fitOptions);
       await tester.pump();
       mapState = controller.mapState;
-      expect(mapState.bounds, equals(expectedBounds));
+      expect(mapState.visibleBounds, equals(expectedBounds));
       expect(mapState.center, equals(expectedCenter));
       expect(mapState.zoom, equals(expectedZoom));
     }
@@ -58,14 +58,14 @@ void main() {
       controller.move(fit.center, fit.zoom);
       await tester.pump();
       mapState = controller.mapState;
-      expect(mapState.bounds, equals(expectedBounds));
+      expect(mapState.visibleBounds, equals(expectedBounds));
       expect(mapState.center, equals(expectedCenter));
       expect(mapState.zoom, equals(expectedZoom));
 
       controller.fitBounds(bounds, options: fitOptions);
       await tester.pump();
       mapState = controller.mapState;
-      expect(mapState.bounds, equals(expectedBounds));
+      expect(mapState.visibleBounds, equals(expectedBounds));
       expect(mapState.center, equals(expectedCenter));
       expect(mapState.zoom, equals(expectedZoom));
     }
@@ -87,7 +87,7 @@ void main() {
       await tester.pump();
 
       mapState = controller.mapState;
-      expect(mapState.bounds, equals(expectedBounds));
+      expect(mapState.visibleBounds, equals(expectedBounds));
       expect(mapState.center, equals(expectedCenter));
       expect(mapState.zoom, equals(expectedZoom));
 
@@ -95,7 +95,7 @@ void main() {
       await tester.pump();
 
       mapState = controller.mapState;
-      expect(mapState.bounds, equals(expectedBounds));
+      expect(mapState.visibleBounds, equals(expectedBounds));
       expect(mapState.center, equals(expectedCenter));
       expect(mapState.zoom, equals(expectedZoom));
     }
@@ -117,7 +117,7 @@ void main() {
       controller.move(fit.center, fit.zoom);
       await tester.pump();
       mapState = controller.mapState;
-      expect(mapState.bounds, equals(expectedBounds));
+      expect(mapState.visibleBounds, equals(expectedBounds));
       expect(mapState.center, equals(expectedCenter));
       expect(mapState.zoom, equals(expectedZoom));
 
@@ -125,7 +125,7 @@ void main() {
       await tester.pump();
 
       mapState = controller.mapState;
-      expect(mapState.bounds, equals(expectedBounds));
+      expect(mapState.visibleBounds, equals(expectedBounds));
       expect(mapState.center, equals(expectedCenter));
       expect(mapState.zoom, equals(expectedZoom));
     }

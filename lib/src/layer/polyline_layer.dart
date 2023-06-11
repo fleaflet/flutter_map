@@ -72,7 +72,7 @@ class PolylineLayer extends StatelessWidget {
       painter: PolylinePainter(
         polylineCulling
             ? polylines
-                .where((p) => p.boundingBox.isOverlapping(map.bounds))
+                .where((p) => p.boundingBox.isOverlapping(map.visibleBounds))
                 .toList()
             : polylines,
         map,
@@ -89,7 +89,7 @@ class PolylinePainter extends CustomPainter {
   final FlutterMapState map;
   final LatLngBounds bounds;
 
-  PolylinePainter(this.polylines, this.map) : bounds = map.bounds;
+  PolylinePainter(this.polylines, this.map) : bounds = map.visibleBounds;
 
   int get hash {
     _hash ??= Object.hashAll(polylines);

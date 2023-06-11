@@ -2,10 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
-import 'package:flutter_map/src/gestures/flutter_map_state_controller.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
+import 'package:flutter_map/src/map/flutter_map_internal_controller.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
-import 'package:flutter_map/src/map/flutter_map_state_controller_interface.dart';
 import 'package:flutter_map/src/map/map_controller.dart';
 import 'package:flutter_map/src/misc/fit_bounds_options.dart';
 import 'package:flutter_map/src/misc/move_and_rotate_result.dart';
@@ -85,7 +84,7 @@ class MapControllerImpl implements MapController {
       );
 
   @override
-  FlutterMapState get mapState => _stateController.value;
+  FlutterMapState get mapState => _stateController.mapState;
 
   final _mapEventStreamController = StreamController<MapEvent>.broadcast();
 
@@ -94,9 +93,9 @@ class MapControllerImpl implements MapController {
 
   StreamSink<MapEvent> get mapEventSink => _mapEventStreamController.sink;
 
-  late FlutterMapStateControllerInterface _stateController;
+  late FlutterMapInternalController _stateController;
 
-  set stateController(FlutterMapStateController stateController) {
+  set stateController(FlutterMapInternalController stateController) {
     _stateController = stateController;
   }
 

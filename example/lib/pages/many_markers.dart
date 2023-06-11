@@ -72,8 +72,8 @@ class _ManyMarkersPageState extends State<ManyMarkersPage> {
           Text('$_sliderVal markers'),
           Flexible(
             child: FlutterMap(
-              options: MapOptions(
-                center: const LatLng(50, 20),
+              options: const MapOptions(
+                center: LatLng(50, 20),
                 zoom: 5,
                 interactiveFlags: InteractiveFlag.all - InteractiveFlag.rotate,
               ),
