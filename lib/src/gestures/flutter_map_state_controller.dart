@@ -232,7 +232,7 @@ class FlutterMapStateController extends ValueNotifier<FlutterMapState>
     FitBoundsOptions options, {
     required Offset offset,
   }) {
-    final target = value.getBoundsCenterZoom(bounds, options);
+    final target = value.centerZoomFitBounds(bounds, options: options);
     return move(
       target.center,
       target.zoom,

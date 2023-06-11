@@ -157,50 +157,7 @@ class FlutterMapState {
     LatLngBounds bounds, {
     FitBoundsOptions options =
         const FitBoundsOptions(padding: EdgeInsets.all(12)),
-  }) =>
-      getBoundsCenterZoom(bounds, options);
-
-  double getBoundsZoom(
-    LatLngBounds bounds,
-    CustomPoint<double> padding, {
-    bool inside = false,
-    bool forceIntegerZoomLevel = false,
   }) {
-    final min = options.minZoom ?? 0.0;
-    final max = options.maxZoom ?? double.infinity;
-    final nw = bounds.northWest;
-    final se = bounds.southEast;
-    var size = nonrotatedSize - padding;
-    // Prevent negative size which results in NaN zoom value later on in the calculation
-    size = CustomPoint(math.max(0, size.x), math.max(0, size.y));
-    var boundsSize = Bounds(project(se, zoom), project(nw, zoom)).size;
-    if (rotation != 0.0) {
-      final cosAngle = math.cos(rotationRad).abs();
-      final sinAngle = math.sin(rotationRad).abs();
-      boundsSize = CustomPoint<double>(
-        (boundsSize.x * cosAngle) + (boundsSize.y * sinAngle),
-        (boundsSize.y * cosAngle) + (boundsSize.x * sinAngle),
-      );
-    }
-
-    final scaleX = size.x / boundsSize.x;
-    final scaleY = size.y / boundsSize.y;
-    final scale = inside ? math.max(scaleX, scaleY) : math.min(scaleX, scaleY);
-
-    var boundsZoom = getScaleZoom(scale, zoom);
-
-    if (forceIntegerZoomLevel) {
-      boundsZoom =
-          inside ? boundsZoom.ceilToDouble() : boundsZoom.floorToDouble();
-    }
-
-    return math.max(min, math.min(max, boundsZoom));
-  }
-
-  CenterZoom getBoundsCenterZoom(
-    LatLngBounds bounds,
-    FitBoundsOptions options,
-  ) {
     final paddingTL =
         CustomPoint<double>(options.padding.left, options.padding.top);
     final paddingBR =
@@ -238,6 +195,43 @@ class FlutterMapState {
       center: center,
       zoom: zoom,
     );
+  }
+
+  double getBoundsZoom(
+    LatLngBounds bounds,
+    CustomPoint<double> padding, {
+    bool inside = false,
+    bool forceIntegerZoomLevel = false,
+  }) {
+    final min = options.minZoom ?? 0.0;
+    final max = options.maxZoom ?? double.infinity;
+    final nw = bounds.northWest;
+    final se = bounds.southEast;
+    var size = nonRotatedSize - padding;
+    // Prevent negative size which results in NaN zoom value later on in the calculation
+    size = CustomPoint(math.max(0, size.x), math.max(0, size.y));
+    var boundsSize = Bounds(project(se, zoom), project(nw, zoom)).size;
+    if (rotation != 0.0) {
+      final cosAngle = math.cos(rotationRad).abs();
+      final sinAngle = math.sin(rotationRad).abs();
+      boundsSize = CustomPoint<double>(
+        (boundsSize.x * cosAngle) + (boundsSize.y * sinAngle),
+        (boundsSize.y * cosAngle) + (boundsSize.x * sinAngle),
+      );
+    }
+
+    final scaleX = size.x / boundsSize.x;
+    final scaleY = size.y / boundsSize.y;
+    final scale = inside ? math.max(scaleX, scaleY) : math.min(scaleX, scaleY);
+
+    var boundsZoom = getScaleZoom(scale, zoom);
+
+    if (forceIntegerZoomLevel) {
+      boundsZoom =
+          inside ? boundsZoom.ceilToDouble() : boundsZoom.floorToDouble();
+    }
+
+    return math.max(min, math.min(max, boundsZoom));
   }
 
   CustomPoint<double> project(LatLng latlng, [double? zoom]) =>
