@@ -69,7 +69,7 @@ class FlutterMapNetworkImageProvider
         headers: headers,
       );
     } catch (_) {
-      if (useFallback) rethrow;
+      if (useFallback || fallbackUrl == null) rethrow;
       return _loadAsync(key, chunkEvents, decode, useFallback: true);
     }
 
