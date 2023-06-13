@@ -34,7 +34,7 @@ void main() {
       expect(mapState.center, equals(expectedCenter));
       expect(mapState.zoom, equals(expectedZoom));
 
-      controller.fitBounds(bounds, options: fitOptions);
+      controller.fitBounds(bounds);
       await tester.pump();
       mapState = controller.mapState;
       expect(mapState.visibleBounds, equals(expectedBounds));
@@ -151,58 +151,58 @@ void main() {
       controller.move(fit.center, fit.zoom);
       await tester.pump();
       expect(
-        controller.bounds?.northWest.latitude,
+        controller.mapState.visibleBounds.northWest.latitude,
         moreOrLessEquals(expectedBounds.northWest.latitude),
       );
       expect(
-        controller.bounds?.northWest.longitude,
+        controller.mapState.visibleBounds.northWest.longitude,
         moreOrLessEquals(expectedBounds.northWest.longitude),
       );
       expect(
-        controller.bounds?.southEast.latitude,
+        controller.mapState.visibleBounds.southEast.latitude,
         moreOrLessEquals(expectedBounds.southEast.latitude),
       );
       expect(
-        controller.bounds?.southEast.longitude,
+        controller.mapState.visibleBounds.southEast.longitude,
         moreOrLessEquals(expectedBounds.southEast.longitude),
       );
       expect(
-        controller.center.latitude,
+        controller.mapState.center.latitude,
         moreOrLessEquals(expectedCenter.latitude),
       );
       expect(
-        controller.center.longitude,
+        controller.mapState.center.longitude,
         moreOrLessEquals(expectedCenter.longitude),
       );
-      expect(controller.zoom, moreOrLessEquals(expectedZoom));
+      expect(controller.mapState.zoom, moreOrLessEquals(expectedZoom));
 
       controller.fitBounds(bounds, options: options);
       await tester.pump();
       expect(
-        controller.bounds?.northWest.latitude,
+        controller.mapState.visibleBounds.northWest.latitude,
         moreOrLessEquals(expectedBounds.northWest.latitude),
       );
       expect(
-        controller.bounds?.northWest.longitude,
+        controller.mapState.visibleBounds.northWest.longitude,
         moreOrLessEquals(expectedBounds.northWest.longitude),
       );
       expect(
-        controller.bounds?.southEast.latitude,
+        controller.mapState.visibleBounds.southEast.latitude,
         moreOrLessEquals(expectedBounds.southEast.latitude),
       );
       expect(
-        controller.bounds?.southEast.longitude,
+        controller.mapState.visibleBounds.southEast.longitude,
         moreOrLessEquals(expectedBounds.southEast.longitude),
       );
       expect(
-        controller.center.latitude,
+        controller.mapState.center.latitude,
         moreOrLessEquals(expectedCenter.latitude),
       );
       expect(
-        controller.center.longitude,
+        controller.mapState.center.longitude,
         moreOrLessEquals(expectedCenter.longitude),
       );
-      expect(controller.zoom, moreOrLessEquals(expectedZoom));
+      expect(controller.mapState.zoom, moreOrLessEquals(expectedZoom));
     }
 
     // Tests with no padding

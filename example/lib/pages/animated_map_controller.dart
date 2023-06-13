@@ -165,7 +165,7 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
                       mapController.fitBounds(
                         bounds,
                         options: const FitBoundsOptions(
-                          padding: EdgeInsets.only(left: 15, right: 15),
+                          padding: EdgeInsets.symmetric(horizontal: 15),
                         ),
                       );
                     },
@@ -179,8 +179,8 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
                         london,
                       ]);
 
-                      final centerZoom =
-                          mapController.mapState.centerZoomFitBounds(bounds);
+                      final centerZoom = const FitBoundsOptions()
+                          .fit(mapController.mapState, bounds);
                       _animatedMapMove(centerZoom.center, centerZoom.zoom);
                     },
                     child: const Text('Fit Bounds animated'),
@@ -192,8 +192,8 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
               child: FlutterMap(
                 mapController: mapController,
                 options: const MapOptions(
-                    center: LatLng(51.5, -0.09),
-                    zoom: 5,
+                    initialCenter: LatLng(51.5, -0.09),
+                    initialZoom: 5,
                     maxZoom: 10,
                     minZoom: 3),
                 children: [

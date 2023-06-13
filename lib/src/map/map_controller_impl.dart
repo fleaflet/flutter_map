@@ -6,6 +6,7 @@ import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/map/flutter_map_internal_controller.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/map_controller.dart';
+import 'package:flutter_map/src/misc/center_zoom.dart';
 import 'package:flutter_map/src/misc/fit_bounds_options.dart';
 import 'package:flutter_map/src/misc/move_and_rotate_result.dart';
 import 'package:flutter_map/src/misc/point.dart';
@@ -21,7 +22,7 @@ class MapControllerImpl implements MapController {
     Offset offset = Offset.zero,
     String? id,
   }) =>
-      _stateController.move(
+      _internalController.move(
         center,
         zoom,
         offset: offset,
@@ -31,7 +32,7 @@ class MapControllerImpl implements MapController {
       );
 
   @override
-  bool rotate(double degree, {String? id}) => _stateController.rotate(
+  bool rotate(double degree, {String? id}) => _internalController.rotate(
         degree,
         hasGesture: false,
         source: MapEventSource.mapController,
@@ -45,7 +46,7 @@ class MapControllerImpl implements MapController {
     Offset? offset,
     String? id,
   }) =>
-      _stateController.rotateAroundPoint(
+      _internalController.rotateAroundPoint(
         degree,
         point: point,
         offset: offset,
@@ -61,7 +62,7 @@ class MapControllerImpl implements MapController {
     double degree, {
     String? id,
   }) =>
-      _stateController.moveAndRotate(
+      _internalController.moveAndRotate(
         center,
         zoom,
         degree,
@@ -74,17 +75,23 @@ class MapControllerImpl implements MapController {
   @override
   bool fitBounds(
     LatLngBounds bounds, {
-    FitBoundsOptions? options =
-        const FitBoundsOptions(padding: EdgeInsets.all(12)),
+    FitBoundsOptions options = const FitBoundsOptions(
+      padding: EdgeInsets.all(12),
+    ),
   }) =>
-      _stateController.fitBounds(
-        bounds,
-        options!,
-        offset: Offset.zero,
-      );
+      _internalController.fitBounds(bounds, options, offset: Offset.zero);
 
   @override
-  FlutterMapState get mapState => _stateController.mapState;
+  CenterZoom centerZoomFitBounds(
+    LatLngBounds bounds, {
+    FitBoundsOptions options = const FitBoundsOptions(
+      padding: EdgeInsets.all(12),
+    ),
+  }) =>
+      options.fit(mapState, bounds);
+
+  @override
+  FlutterMapState get mapState => _internalController.mapState;
 
   final _mapEventStreamController = StreamController<MapEvent>.broadcast();
 
@@ -93,10 +100,10 @@ class MapControllerImpl implements MapController {
 
   StreamSink<MapEvent> get mapEventSink => _mapEventStreamController.sink;
 
-  late FlutterMapInternalController _stateController;
+  late FlutterMapInternalController _internalController;
 
-  set stateController(FlutterMapInternalController stateController) {
-    _stateController = stateController;
+  set internalController(FlutterMapInternalController internalController) {
+    _internalController = internalController;
   }
 
   @override

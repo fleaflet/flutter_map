@@ -26,8 +26,8 @@ class EPSG4326Page extends StatelessWidget {
                 options: const MapOptions(
                   minZoom: 0,
                   crs: Epsg4326(),
-                  center: LatLng(0, 0),
-                  zoom: 0,
+                  initialCenter: LatLng(0, 0),
+                  initialZoom: 0,
                 ),
                 children: [
                   TileLayer(

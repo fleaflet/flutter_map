@@ -144,8 +144,8 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
               child: FlutterMap(
                 options: MapOptions(
                   onMapEvent: onMapEvent,
-                  center: const LatLng(51.5, -0.09),
-                  zoom: 11,
+                  initialCenter: const LatLng(51.5, -0.09),
+                  initialZoom: 11,
                   interactiveFlags: flags,
                 ),
                 children: [

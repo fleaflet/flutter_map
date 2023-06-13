@@ -125,7 +125,19 @@ abstract class MapController {
   ///
   /// For information about return value meaning and emitted events, see [move]'s
   /// documentation.
-  bool fitBounds(LatLngBounds bounds, {FitBoundsOptions? options});
+  bool fitBounds(
+    LatLngBounds bounds, {
+    FitBoundsOptions options,
+  });
+
+  /// Calculates the appropriate center and zoom level for the map to perfectly
+  /// fit [bounds], with additional configurable [options]
+  ///
+  /// Does not move/zoom the map: see [fitBounds].
+  CenterZoom centerZoomFitBounds(
+    LatLngBounds bounds, {
+    FitBoundsOptions options,
+  });
 
   /// Current FlutterMapState.
   FlutterMapState get mapState;

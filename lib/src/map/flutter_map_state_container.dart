@@ -9,14 +9,15 @@ import 'package:flutter_map/src/map/map_controller_impl.dart';
 class FlutterMapStateContainer extends State<FlutterMap> {
   bool _hasFitInitialBounds = false;
 
-  late final FlutterMapInternalController _flutterMapStateController;
+  late final FlutterMapInternalController _flutterMapInternalController;
   late MapControllerImpl _mapController;
   late bool _mapControllerCreatedInternally;
 
   @override
   void initState() {
     super.initState();
-    _flutterMapStateController = FlutterMapInternalController(widget.options);
+    _flutterMapInternalController =
+        FlutterMapInternalController(widget.options);
     _initializeAndLinkMapController();
 
     WidgetsBinding.instance
@@ -25,7 +26,7 @@ class FlutterMapStateContainer extends State<FlutterMap> {
 
   @override
   void didUpdateWidget(FlutterMap oldWidget) {
-    _flutterMapStateController.setOptions(widget.options);
+    _flutterMapInternalController.setOptions(widget.options);
     if (oldWidget.mapController != widget.mapController) {
       _initializeAndLinkMapController();
     }
@@ -35,7 +36,7 @@ class FlutterMapStateContainer extends State<FlutterMap> {
   @override
   void dispose() {
     if (_mapControllerCreatedInternally) _mapController.dispose();
-    _flutterMapStateController.dispose();
+    _flutterMapInternalController.dispose();
     super.dispose();
   }
 
@@ -43,7 +44,7 @@ class FlutterMapStateContainer extends State<FlutterMap> {
     _mapController =
         (widget.mapController ?? MapController()) as MapControllerImpl;
     _mapControllerCreatedInternally = widget.mapController == null;
-    _flutterMapStateController.linkMapController(_mapController);
+    _flutterMapInternalController.linkMapController(_mapController);
   }
 
   @override
@@ -54,7 +55,7 @@ class FlutterMapStateContainer extends State<FlutterMap> {
         _setInitialFitBounds(constraints);
 
         return FlutterMapInteractiveViewer(
-          controller: _flutterMapStateController,
+          controller: _flutterMapInternalController,
           options: widget.options,
           builder: (context, mapState) => MapStateInheritedWidget(
             controller: _mapController,
@@ -91,9 +92,9 @@ class FlutterMapStateContainer extends State<FlutterMap> {
         _parentConstraintsAreSet(context, constraints)) {
       _hasFitInitialBounds = true;
 
-      _flutterMapStateController.fitBounds(
+      _flutterMapInternalController.fitBounds(
         widget.options.initialBounds!,
-        widget.options.boundsOptions,
+        widget.options.initialBoundsOptions,
         offset: Offset.zero,
       );
     }
@@ -104,16 +105,16 @@ class FlutterMapStateContainer extends State<FlutterMap> {
       constraints.maxWidth,
       constraints.maxHeight,
     );
-    final oldMapState = _flutterMapStateController.mapState;
-    if (_flutterMapStateController
+    final oldMapState = _flutterMapInternalController.mapState;
+    if (_flutterMapInternalController
         .setNonRotatedSizeWithoutEmittingEvent(nonRotatedSize)) {
-      final newMapState = _flutterMapStateController.mapState;
+      final newMapState = _flutterMapInternalController.mapState;
 
       // Avoid emitting the event during build otherwise if the user calls
       // setState in the onMapEvent callback it will throw.
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
-          _flutterMapStateController.nonRotatedSizeChange(
+          _flutterMapInternalController.nonRotatedSizeChange(
             MapEventSource.nonRotatedSizeChange,
             oldMapState,
             newMapState,

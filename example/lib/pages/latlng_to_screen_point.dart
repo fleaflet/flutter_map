@@ -52,9 +52,9 @@ class _LatLngScreenPointTestPageState extends State<LatLngScreenPointTestPage> {
                   _textPos = CustomPoint(pt1.x, pt1.y);
                   setState(() {});
                 },
-                center: const LatLng(51.5, -0.09),
-                zoom: 11,
-                rotation: 0,
+                initialCenter: const LatLng(51.5, -0.09),
+                initialZoom: 11,
+                initialRotation: 0,
               ),
               children: [
                 TileLayer(

@@ -32,8 +32,8 @@ class TestApp extends StatelessWidget {
             child: FlutterMap(
               mapController: controller,
               options: const MapOptions(
-                center: LatLng(45.5231, -122.6765),
-                zoom: 13,
+                initialCenter: LatLng(45.5231, -122.6765),
+                initialZoom: 13,
               ),
               children: [
                 TileLayer(

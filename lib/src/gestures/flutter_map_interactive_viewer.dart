@@ -713,9 +713,7 @@ class FlutterMapInteractiveViewerState
     _closeFlingAnimationController(MapEventSource.doubleTap);
     _closeDoubleTapController(MapEventSource.doubleTap);
 
-    debugPrint('CHECKING');
     if (InteractiveFlag.hasDoubleTapZoom(_options.interactiveFlags)) {
-      debugPrint('YES');
       final newZoom = _getZoomForScale(_mapState.zoom, 2);
       final newCenter = _mapState.focusedZoomCenter(
         tapPosition.relative!.toCustomPoint(),
@@ -846,7 +844,7 @@ class FlutterMapInteractiveViewerState
   double _getZoomForScale(double startZoom, double scale) {
     final resultZoom =
         scale == 1.0 ? startZoom : startZoom + math.log(scale) / math.ln2;
-    return _mapState.fitZoomToBounds(resultZoom);
+    return _mapState.clampZoom(resultZoom);
   }
 
   Offset _rotateOffset(Offset offset) {

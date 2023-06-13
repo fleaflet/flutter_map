@@ -121,8 +121,8 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
         padding: const EdgeInsets.all(8),
         child: FlutterMap(
           options: const MapOptions(
-            center: LatLng(51.5, -0.09),
-            zoom: 5,
+            initialCenter: LatLng(51.5, -0.09),
+            initialZoom: 5,
           ),
           children: [
             _darkModeContainerIfEnabled(

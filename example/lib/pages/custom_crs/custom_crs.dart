@@ -128,8 +128,8 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
                 options: MapOptions(
                   // Set the default CRS
                   crs: epsg3413CRS,
-                  center: LatLng(point.x, point.y),
-                  zoom: 3,
+                  initialCenter: LatLng(point.x, point.y),
+                  initialZoom: 3,
                   // Set maxZoom usually scales.length - 1 OR resolutions.length - 1
                   // but not greater
                   maxZoom: maxZoom,

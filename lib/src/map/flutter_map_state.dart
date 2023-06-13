@@ -23,7 +23,7 @@ class FlutterMapState {
   final Crs crs;
   final double? minZoom;
   final double? maxZoom;
-  final MapBoundary? boundary;
+  final MapBoundary boundary;
 
   final LatLng center;
   final double zoom;
@@ -56,9 +56,9 @@ class FlutterMapState {
         minZoom = options.minZoom,
         maxZoom = options.maxZoom,
         boundary = options.boundary,
-        center = options.center,
-        zoom = options.zoom,
-        rotation = options.rotation,
+        center = options.initialCenter,
+        zoom = options.initialZoom,
+        rotation = options.initialRotation,
         nonRotatedSize = kImpossibleSize,
         size = kImpossibleSize;
 
@@ -94,7 +94,7 @@ class FlutterMapState {
       zoom: zoom,
       rotation: rotation,
       nonRotatedSize: nonRotatedSize,
-      size: _calculateSize(rotation, nonRotatedSize),
+      size: calculateRotatedSize(rotation, nonRotatedSize),
     );
   }
 
@@ -110,7 +110,7 @@ class FlutterMapState {
       zoom: zoom,
       rotation: rotation,
       nonRotatedSize: nonRotatedSize,
-      size: _calculateSize(rotation, nonRotatedSize),
+      size: calculateRotatedSize(rotation, nonRotatedSize),
     );
   }
 
@@ -131,7 +131,7 @@ class FlutterMapState {
       zoom: zoom,
       rotation: rotation,
       nonRotatedSize: nonRotatedSize,
-      size: _calculateSize(rotation, nonRotatedSize),
+      size: calculateRotatedSize(rotation, nonRotatedSize),
     );
   }
 
@@ -151,9 +151,6 @@ class FlutterMapState {
         size: size,
       );
 
-  Bounds<double> get pixelBounds =>
-      _pixelBounds ?? (_pixelBounds = getPixelBounds());
-
   @Deprecated('Use visibleBounds instead.')
   LatLngBounds get bounds => visibleBounds;
 
@@ -168,7 +165,7 @@ class FlutterMapState {
       _pixelOrigin ??
       (_pixelOrigin = (project(center, zoom) - size / 2.0).round());
 
-  static CustomPoint<double> _calculateSize(
+  static CustomPoint<double> calculateRotatedSize(
     double rotation,
     CustomPoint<double> nonRotatedSize,
   ) {
@@ -188,84 +185,11 @@ class FlutterMapState {
 
   CenterZoom centerZoomFitBounds(
     LatLngBounds bounds, {
-    FitBoundsOptions options =
-        const FitBoundsOptions(padding: EdgeInsets.all(12)),
-  }) {
-    final paddingTL =
-        CustomPoint<double>(options.padding.left, options.padding.top);
-    final paddingBR =
-        CustomPoint<double>(options.padding.right, options.padding.bottom);
-
-    final paddingTotalXY = paddingTL + paddingBR;
-
-    var zoom = getBoundsZoom(
-      bounds,
-      paddingTotalXY,
-      inside: options.inside,
-      forceIntegerZoomLevel: options.forceIntegerZoomLevel,
-    );
-    zoom = math.min(options.maxZoom, zoom);
-
-    final paddingOffset = (paddingBR - paddingTL) / 2;
-    final swPoint = project(bounds.southWest, zoom);
-    final nePoint = project(bounds.northEast, zoom);
-
-    final CustomPoint<double> projectedCenter;
-    if (rotation != 0.0) {
-      final swPointRotated = swPoint.rotate(-rotationRad);
-      final nePointRotated = nePoint.rotate(-rotationRad);
-      final centerRotated =
-          (swPointRotated + nePointRotated) / 2 + paddingOffset;
-
-      projectedCenter = centerRotated.rotate(rotationRad);
-    } else {
-      projectedCenter = (swPoint + nePoint) / 2 + paddingOffset;
-    }
-
-    final center = unproject(projectedCenter, zoom);
-
-    return CenterZoom(
-      center: center,
-      zoom: zoom,
-    );
-  }
-
-  double getBoundsZoom(
-    LatLngBounds bounds,
-    CustomPoint<double> padding, {
-    bool inside = false,
-    bool forceIntegerZoomLevel = false,
-  }) {
-    final min = minZoom ?? 0.0;
-    final max = maxZoom ?? double.infinity;
-    final nw = bounds.northWest;
-    final se = bounds.southEast;
-    var size = nonRotatedSize - padding;
-    // Prevent negative size which results in NaN zoom value later on in the calculation
-    size = CustomPoint(math.max(0, size.x), math.max(0, size.y));
-    var boundsSize = Bounds(project(se, zoom), project(nw, zoom)).size;
-    if (rotation != 0.0) {
-      final cosAngle = math.cos(rotationRad).abs();
-      final sinAngle = math.sin(rotationRad).abs();
-      boundsSize = CustomPoint<double>(
-        (boundsSize.x * cosAngle) + (boundsSize.y * sinAngle),
-        (boundsSize.y * cosAngle) + (boundsSize.x * sinAngle),
-      );
-    }
-
-    final scaleX = size.x / boundsSize.x;
-    final scaleY = size.y / boundsSize.y;
-    final scale = inside ? math.max(scaleX, scaleY) : math.min(scaleX, scaleY);
-
-    var boundsZoom = getScaleZoom(scale, zoom);
-
-    if (forceIntegerZoomLevel) {
-      boundsZoom =
-          inside ? boundsZoom.ceilToDouble() : boundsZoom.floorToDouble();
-    }
-
-    return math.max(min, math.min(max, boundsZoom));
-  }
+    FitBoundsOptions options = const FitBoundsOptions(
+      padding: EdgeInsets.all(12),
+    ),
+  }) =>
+      options.fit(this, bounds);
 
   CustomPoint<double> project(LatLng latlng, [double? zoom]) =>
       crs.latLngToPoint(latlng, zoom ?? this.zoom);
@@ -294,9 +218,12 @@ class FlutterMapState {
     return (project(center, zoom) - halfSize).round();
   }
 
-  Bounds<double> getPixelBounds([double? zoom]) {
+  Bounds<double> get pixelBounds =>
+      _pixelBounds ?? (_pixelBounds = pixelBoundsAtZoom(zoom));
+
+  Bounds<double> pixelBoundsAtZoom(double zoom) {
     CustomPoint<double> halfSize = size / 2;
-    if (zoom != null) {
+    if (zoom != this.zoom) {
       final scale = getZoomScale(this.zoom, zoom);
       halfSize = size / (scale * 2);
     }
@@ -358,39 +285,20 @@ class FlutterMapState {
     return CustomPoint(tp.dx, tp.dy);
   }
 
-  double fitZoomToBounds(double zoom) {
-    // Abide to min/max zoom
-    if (maxZoom != null) {
-      zoom = (zoom > maxZoom!) ? maxZoom! : zoom;
-    }
-    if (minZoom != null) {
-      zoom = (zoom < minZoom!) ? minZoom! : zoom;
-    }
-    return zoom;
-  }
+  double clampZoom(double zoom) => zoom.clamp(
+        minZoom ?? double.negativeInfinity,
+        maxZoom ?? double.infinity,
+      );
 
-  // Returns true if given [center] is outside of the allowed bounds.
-  bool isOutOfBounds(LatLng latLng) {
-    switch (boundary) {
-      case FixedBoundary():
-        return !(boundary as FixedBoundary).contains(latLng);
-      case AdaptiveBoundary():
-        return !(boundary as AdaptiveBoundary).contains(latLng, zoom);
-      case null:
-        return false;
-    }
-  }
-
-  LatLng clampWithFallback(LatLng point, LatLng fallback) {
-    switch (boundary) {
-      case FixedBoundary():
-        return (boundary as FixedBoundary).clamp(point);
-      case AdaptiveBoundary():
-        return (boundary as AdaptiveBoundary)
-            .clampWithFallback(point, fallback, zoom);
-      case null:
-        return point;
-    }
+  CenterZoom? clampCenterZoom(
+    CenterZoom centerZoom, {
+    MapBoundary? boundary,
+  }) {
+    return (boundary ?? this.boundary).clampCenterZoom(
+      crs: crs,
+      visibleSize: size,
+      centerZoom: centerZoom,
+    );
   }
 
   LatLng offsetToCrs(Offset offset, [double? zoom]) {
@@ -413,72 +321,6 @@ class FlutterMapState {
     final newOffset = offset * (1.0 - 1.0 / scale);
     final mapCenter = project(center);
     final newCenter = unproject(mapCenter + newOffset);
-    return newCenter;
-  }
-
-  LatLng? adjustCenterIfOutsideMaxBounds(
-    LatLng testCenter,
-    double testZoom,
-    LatLngBounds maxBounds,
-  ) {
-    LatLng? newCenter;
-
-    final swPixel = project(maxBounds.southWest, testZoom);
-    final nePixel = project(maxBounds.northEast, testZoom);
-
-    final centerPix = project(testCenter, testZoom);
-
-    final halfSizeX = size.x / 2;
-    final halfSizeY = size.y / 2;
-
-    // Try and find the edge value that the center could use to stay within
-    // the maxBounds. This should be ok for panning. If we zoom, it is possible
-    // there is no solution to keep all corners within the bounds. If the edges
-    // are still outside the bounds, don't return anything.
-    final leftOkCenter = math.min(swPixel.x, nePixel.x) + halfSizeX;
-    final rightOkCenter = math.max(swPixel.x, nePixel.x) - halfSizeX;
-    final topOkCenter = math.min(swPixel.y, nePixel.y) + halfSizeY;
-    final botOkCenter = math.max(swPixel.y, nePixel.y) - halfSizeY;
-
-    double? newCenterX;
-    double? newCenterY;
-
-    var wasAdjusted = false;
-
-    if (centerPix.x < leftOkCenter) {
-      wasAdjusted = true;
-      newCenterX = leftOkCenter;
-    } else if (centerPix.x > rightOkCenter) {
-      wasAdjusted = true;
-      newCenterX = rightOkCenter;
-    }
-
-    if (centerPix.y < topOkCenter) {
-      wasAdjusted = true;
-      newCenterY = topOkCenter;
-    } else if (centerPix.y > botOkCenter) {
-      wasAdjusted = true;
-      newCenterY = botOkCenter;
-    }
-
-    if (!wasAdjusted) {
-      return testCenter;
-    }
-
-    final newCx = newCenterX ?? centerPix.x;
-    final newCy = newCenterY ?? centerPix.y;
-
-    // Have a final check, see if the adjusted center is within maxBounds.
-    // If not, give up.
-    if (newCx < leftOkCenter ||
-        newCx > rightOkCenter ||
-        newCy < topOkCenter ||
-        newCy > botOkCenter) {
-      return null;
-    } else {
-      newCenter = unproject(CustomPoint(newCx, newCy), testZoom);
-    }
-
     return newCenter;
   }
 }

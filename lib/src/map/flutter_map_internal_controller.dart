@@ -33,7 +33,7 @@ class FlutterMapInternalController
 
   void linkMapController(MapControllerImpl mapControllerImpl) {
     _mapControllerImpl = mapControllerImpl;
-    _mapControllerImpl.stateController = this;
+    _mapControllerImpl.internalController = this;
   }
 
   /// This setter should only be called in this class or within tests. Changes
@@ -53,8 +53,6 @@ class FlutterMapInternalController
     required MapEventSource source,
     required String? id,
   }) {
-    newZoom = mapState.fitZoomToBounds(newZoom);
-
     // Algorithm thanks to https://github.com/tlserver/flutter_map_location_marker
     if (offset != Offset.zero) {
       final newPoint = mapState.project(newCenter, newZoom);
@@ -67,22 +65,16 @@ class FlutterMapInternalController
       );
     }
 
-    // TODO: Why do we have two separate methods of adjusting the bounds?
-    if (mapState.isOutOfBounds(newCenter)) {
-      if (!options.slideOnBoundaries) return false;
-      newCenter = mapState.clampWithFallback(newCenter, mapState.center);
-    }
-
-    if (options.maxBounds != null) {
-      final adjustedCenter = mapState.adjustCenterIfOutsideMaxBounds(
-        newCenter,
-        newZoom,
-        options.maxBounds!,
-      );
-
-      if (adjustedCenter == null) return false;
-      newCenter = adjustedCenter;
-    }
+    newZoom = mapState.clampZoom(newZoom);
+    final centerZoom = mapState.clampCenterZoom(
+      CenterZoom(
+        center: newCenter,
+        zoom: newZoom,
+      ),
+    );
+    if (centerZoom == null) return false;
+    newCenter = centerZoom.center;
+    newZoom = centerZoom.zoom;
 
     if (newCenter == mapState.center && newZoom == mapState.zoom) {
       return false;

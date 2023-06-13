@@ -4,30 +4,24 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/flutter_map_state_inherited_widget.dart';
 import 'package:latlong2/latlong.dart';
 
-/// Allows you to provide your map's starting properties for [zoom], [rotation]
-/// and [center]. Alternatively you can provide [initialBounds] instead of
-/// [center]. If both [center] and [initialBounds] are provided, initialBounds
-/// will take preference over [center].
-///
-/// Zoom, pan boundary and interactivity constraints can be specified here too.
-///
-/// Callbacks for [onTap], [onSecondaryTap], [onLongPress] and
-/// [onPositionChanged] can be registered here.
-///
-/// Through [crs] the Coordinate Reference System can be
-/// defined, it defaults to [Epsg3857].
-///
-/// Checks if a coordinate is outside of the map's
-/// defined boundaries.
-///
-/// If you download offline tiles dynamically, you can set [adaptiveBoundaries]
-/// (make sure to also set an external [controller]), which will enforce
-/// panning/zooming to ensure there is never a need to display tiles outside the
-/// boundaries set by [swPanBoundary] and [nePanBoundary].
 class MapOptions {
+  /// The Coordinate Reference System, defaults to [Epsg3857].
   final Crs crs;
-  final double zoom;
-  final double rotation;
+
+  /// The center when the map is first loaded. If [initialBounds] is defined
+  /// this has no effect.
+  final LatLng initialCenter;
+
+  /// The zoom when the map is first loaded. If [initialBounds] is defined this
+  /// has no effect.
+  final double initialZoom;
+
+  /// The rotation when the map is first loaded.
+  final double initialRotation;
+
+  /// The visible bounds when the map is first loaded. Takes precedence over
+  /// [initialCenter]/[initialZoom].
+  final LatLngBounds? initialBounds;
 
   /// Prints multi finger gesture winner Helps to fine adjust
   /// [rotationThreshold] and [pinchZoomThreshold] and [pinchMoveThreshold]
@@ -102,10 +96,11 @@ class MapOptions {
   final PositionCallback? onPositionChanged;
   final MapEventCallback? onMapEvent;
   final bool slideOnBoundaries;
-  final MapBoundary? boundary;
-  final LatLng center;
-  final LatLngBounds? initialBounds;
-  final FitBoundsOptions boundsOptions;
+
+  /// Define limits for viewing the map.
+  final MapBoundary boundary;
+
+  final FitBoundsOptions initialBoundsOptions;
 
   /// OnMapReady is called after the map runs it's initState.
   /// At that point the map has assigned its state to the controller
@@ -114,11 +109,6 @@ class MapOptions {
   /// Otherwise you can use WidgetsBinding.instance.addPostFrameCallback
   /// In initState to controll the map before the next frame
   final void Function()? onMapReady;
-
-  /// Restrict outer edges of map to LatLng Bounds, to prevent gray areas when
-  /// panning or zooming. LatLngBounds(LatLng(-90, -180.0), LatLng(90.0, 180.0))
-  /// would represent the full extent of the map, so no gray area outside of it.
-  final LatLngBounds? maxBounds;
 
   /// Flag to enable the built in keep alive functionality
   ///
@@ -130,11 +120,18 @@ class MapOptions {
 
   const MapOptions({
     this.crs = const Epsg3857(),
-    this.center = const LatLng(50.5, 30.51),
-    this.initialBounds,
-    this.boundsOptions = const FitBoundsOptions(),
-    this.zoom = 13.0,
-    this.rotation = 0.0,
+    @Deprecated('Use initialCenter instead') LatLng? center,
+    LatLng initialCenter = const LatLng(50.5, 30.51),
+    @Deprecated('Use initialZoom instead') double? zoom,
+    double initialZoom = 13.0,
+    @Deprecated('Use initialRotation instead') double? rotation,
+    double initialRotation = 0.0,
+    @Deprecated('Use initialBounds instead') LatLngBounds? bounds,
+    LatLngBounds? initialBounds,
+    @Deprecated('Use initialBoundsOptions instead')
+    FitBoundsOptions? boundsOptions,
+    FitBoundsOptions initialBoundsOptions = const FitBoundsOptions(),
+    this.boundary = const CrsBoundary(),
     this.debugMultiFingerGestureWinner = false,
     this.enableMultiFingerGestureRace = false,
     this.rotationThreshold = 20.0,
@@ -161,10 +158,13 @@ class MapOptions {
     this.onMapEvent,
     this.onMapReady,
     this.slideOnBoundaries = false,
-    this.boundary,
-    this.maxBounds,
     this.keepAlive = false,
-  })  : assert(rotationThreshold >= 0.0),
+  })  : initialCenter = center ?? initialCenter,
+        initialZoom = zoom ?? initialZoom,
+        initialRotation = rotation ?? initialRotation,
+        initialBounds = bounds ?? initialBounds,
+        initialBoundsOptions = boundsOptions ?? initialBoundsOptions,
+        assert(rotationThreshold >= 0.0),
         assert(pinchZoomThreshold >= 0.0),
         assert(pinchMoveThreshold >= 0.0);
 
