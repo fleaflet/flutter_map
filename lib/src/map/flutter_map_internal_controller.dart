@@ -17,7 +17,7 @@ class FlutterMapInternalController
       : super(
           FlutterMapInternalState(
             options: options,
-            mapState: FlutterMapState.initialState(options),
+            mapFrame: FlutterMapFrame.initialFrame(options),
           ),
         );
 
@@ -29,7 +29,7 @@ class FlutterMapInternalController
       _interactiveViewerState = interactiveViewerState;
 
   MapOptions get options => value.options;
-  FlutterMapState get mapState => value.mapState;
+  FlutterMapFrame get mapFrame => value.mapFrame;
 
   void linkMapController(MapControllerImpl mapControllerImpl) {
     _mapControllerImpl = mapControllerImpl;
@@ -37,7 +37,7 @@ class FlutterMapInternalController
   }
 
   /// This setter should only be called in this class or within tests. Changes
-  /// to the FlutterMapState should be done via methods in this class.
+  /// to the [FlutterMapInternalState] should be done via methods in this class.
   @visibleForTesting
   @override
   set value(FlutterMapInternalState value) => super.value = value;
@@ -55,9 +55,9 @@ class FlutterMapInternalController
   }) {
     // Algorithm thanks to https://github.com/tlserver/flutter_map_location_marker
     if (offset != Offset.zero) {
-      final newPoint = mapState.project(newCenter, newZoom);
-      newCenter = mapState.unproject(
-        mapState.rotatePoint(
+      final newPoint = mapFrame.project(newCenter, newZoom);
+      newCenter = mapFrame.unproject(
+        mapFrame.rotatePoint(
           newPoint,
           newPoint - CustomPoint(offset.dx, offset.dy),
         ),
@@ -65,24 +65,24 @@ class FlutterMapInternalController
       );
     }
 
-    FlutterMapState? newMapState = mapState.withPosition(
+    FlutterMapFrame? newMapFrame = mapFrame.withPosition(
       center: newCenter,
-      zoom: mapState.clampZoom(newZoom),
+      zoom: mapFrame.clampZoom(newZoom),
     );
 
-    newMapState = options.frameConstraint.constrain(newMapState);
-    if (newMapState == null ||
-        (newMapState.center == mapState.center &&
-            newMapState.zoom == mapState.zoom)) {
+    newMapFrame = options.frameConstraint.constrain(newMapFrame);
+    if (newMapFrame == null ||
+        (newMapFrame.center == mapFrame.center &&
+            newMapFrame.zoom == mapFrame.zoom)) {
       return false;
     }
 
-    final oldMapState = mapState;
-    value = value.withMapState(newMapState);
+    final oldMapFrame = mapFrame;
+    value = value.withMapFrame(newMapFrame);
 
     final movementEvent = MapEventWithMove.fromSource(
-      oldMapState: oldMapState,
-      mapState: mapState,
+      oldMapFrame: oldMapFrame,
+      mapFrame: mapFrame,
       hasGesture: hasGesture,
       source: source,
       id: id,
@@ -92,7 +92,7 @@ class FlutterMapInternalController
     options.onPositionChanged?.call(
       MapPosition(
         center: newCenter,
-        bounds: mapState.visibleBounds,
+        bounds: mapFrame.visibleBounds,
         zoom: newZoom,
         hasGesture: hasGesture,
       ),
@@ -111,23 +111,23 @@ class FlutterMapInternalController
     required MapEventSource source,
     required String? id,
   }) {
-    if (newRotation != mapState.rotation) {
-      final newMapState = options.frameConstraint.constrain(
-        mapState.withRotation(newRotation),
+    if (newRotation != mapFrame.rotation) {
+      final newMapFrame = options.frameConstraint.constrain(
+        mapFrame.withRotation(newRotation),
       );
-      if (newMapState == null) return false;
+      if (newMapFrame == null) return false;
 
-      final oldMapState = mapState;
+      final oldMapFrame = mapFrame;
 
-      // Apply state then emit events and callbacks
-      value = value.withMapState(newMapState);
+      // Update frame then emit events and callbacks
+      value = value.withMapFrame(newMapFrame);
 
       _emitMapEvent(
         MapEventRotate(
           id: id,
           source: source,
-          oldMapState: oldMapState,
-          mapState: mapState,
+          oldMapFrame: oldMapFrame,
+          mapFrame: mapFrame,
         ),
       );
       return true;
@@ -154,7 +154,7 @@ class FlutterMapInternalController
       throw ArgumentError('One of `point` or `offset` must be non-null');
     }
 
-    if (degree == mapState.rotation) {
+    if (degree == mapFrame.rotation) {
       return MoveAndRotateResult(false, false);
     }
 
@@ -170,28 +170,28 @@ class FlutterMapInternalController
       );
     }
 
-    final rotationDiff = degree - mapState.rotation;
-    final rotationCenter = mapState.project(mapState.center) +
+    final rotationDiff = degree - mapFrame.rotation;
+    final rotationCenter = mapFrame.project(mapFrame.center) +
         (point != null
-                ? (point - (mapState.nonRotatedSize / 2.0))
+                ? (point - (mapFrame.nonRotatedSize / 2.0))
                 : CustomPoint(offset!.dx, offset.dy))
-            .rotate(mapState.rotationRad);
+            .rotate(mapFrame.rotationRad);
 
     return MoveAndRotateResult(
       move(
-        mapState.unproject(
+        mapFrame.unproject(
           rotationCenter +
-              (mapState.project(mapState.center) - rotationCenter)
+              (mapFrame.project(mapFrame.center) - rotationCenter)
                   .rotate(degToRadian(rotationDiff)),
         ),
-        mapState.zoom,
+        mapFrame.zoom,
         offset: Offset.zero,
         hasGesture: hasGesture,
         source: source,
         id: id,
       ),
       rotate(
-        mapState.rotation + rotationDiff,
+        mapFrame.rotation + rotationDiff,
         hasGesture: hasGesture,
         source: source,
         id: id,
@@ -230,7 +230,7 @@ class FlutterMapInternalController
     FrameFit frameFit, {
     required Offset offset,
   }) {
-    final fitted = frameFit.fit(mapState);
+    final fitted = frameFit.fit(mapFrame);
 
     return move(
       fitted.center,
@@ -245,9 +245,9 @@ class FlutterMapInternalController
   bool setNonRotatedSizeWithoutEmittingEvent(
     CustomPoint<double> nonRotatedSize,
   ) {
-    if (nonRotatedSize != FlutterMapState.kImpossibleSize &&
-        nonRotatedSize != mapState.nonRotatedSize) {
-      value = value.withMapState(mapState.withNonRotatedSize(nonRotatedSize));
+    if (nonRotatedSize != FlutterMapFrame.kImpossibleSize &&
+        nonRotatedSize != mapFrame.nonRotatedSize) {
+      value = value.withMapFrame(mapFrame.withNonRotatedSize(nonRotatedSize));
       return true;
     }
 
@@ -258,15 +258,23 @@ class FlutterMapInternalController
     if (options == value.options) return;
 
     if (options != this.options) {
-      final newMapState = mapState.withOptions(options);
+      final newMapFrame = mapFrame.withOptions(options);
 
       assert(
-        options.frameConstraint.constrain(newMapState) == newMapState,
-        'FlutterMapState is no longer within the frameConstraint after an option change.',
+        options.frameConstraint.constrain(newMapFrame) == newMapFrame,
+        'FlutterMapFrame is no longer within the frameConstraint after an option change.',
       );
+
+      if (this.options.interactionOptions != options.interactionOptions) {
+        _interactiveViewerState.updateGestures(
+          this.options.interactionOptions,
+          options.interactionOptions,
+        );
+      }
+
       value = FlutterMapInternalState(
         options: options,
-        mapState: newMapState,
+        mapFrame: newMapFrame,
       );
     }
   }
@@ -275,7 +283,7 @@ class FlutterMapInternalController
   void moveStarted(MapEventSource source) {
     _emitMapEvent(
       MapEventMoveStart(
-        mapState: mapState,
+        mapFrame: mapFrame,
         source: source,
       ),
     );
@@ -283,14 +291,14 @@ class FlutterMapInternalController
 
   // To be called when an ongoing drag movement updates.
   void dragUpdated(MapEventSource source, Offset offset) {
-    final oldCenterPt = mapState.project(mapState.center);
+    final oldCenterPt = mapFrame.project(mapFrame.center);
 
     final newCenterPt = oldCenterPt + offset.toCustomPoint();
-    final newCenter = mapState.unproject(newCenterPt);
+    final newCenter = mapFrame.unproject(newCenterPt);
 
     move(
       newCenter,
-      mapState.zoom,
+      mapFrame.zoom,
       offset: Offset.zero,
       hasGesture: true,
       source: source,
@@ -302,7 +310,7 @@ class FlutterMapInternalController
   void moveEnded(MapEventSource source) {
     _emitMapEvent(
       MapEventMoveEnd(
-        mapState: mapState,
+        mapFrame: mapFrame,
         source: source,
       ),
     );
@@ -312,7 +320,7 @@ class FlutterMapInternalController
   void rotateStarted(MapEventSource source) {
     _emitMapEvent(
       MapEventRotateStart(
-        mapState: mapState,
+        mapFrame: mapFrame,
         source: source,
       ),
     );
@@ -322,7 +330,7 @@ class FlutterMapInternalController
   void rotateEnded(MapEventSource source) {
     _emitMapEvent(
       MapEventRotateEnd(
-        mapState: mapState,
+        mapFrame: mapFrame,
         source: source,
       ),
     );
@@ -332,7 +340,7 @@ class FlutterMapInternalController
   void flingStarted(MapEventSource source) {
     _emitMapEvent(
       MapEventFlingAnimationStart(
-        mapState: mapState,
+        mapFrame: mapFrame,
         source: MapEventSource.flingAnimationController,
       ),
     );
@@ -342,7 +350,7 @@ class FlutterMapInternalController
   void flingEnded(MapEventSource source) {
     _emitMapEvent(
       MapEventFlingAnimationEnd(
-        mapState: mapState,
+        mapFrame: mapFrame,
         source: source,
       ),
     );
@@ -352,7 +360,7 @@ class FlutterMapInternalController
   void flingNotStarted(MapEventSource source) {
     _emitMapEvent(
       MapEventFlingAnimationNotStarted(
-        mapState: mapState,
+        mapFrame: mapFrame,
         source: source,
       ),
     );
@@ -362,7 +370,7 @@ class FlutterMapInternalController
   void doubleTapZoomStarted(MapEventSource source) {
     _emitMapEvent(
       MapEventDoubleTapZoomStart(
-        mapState: mapState,
+        mapFrame: mapFrame,
         source: source,
       ),
     );
@@ -372,7 +380,7 @@ class FlutterMapInternalController
   void doubleTapZoomEnded(MapEventSource source) {
     _emitMapEvent(
       MapEventDoubleTapZoomEnd(
-        mapState: mapState,
+        mapFrame: mapFrame,
         source: source,
       ),
     );
@@ -387,7 +395,7 @@ class FlutterMapInternalController
     _emitMapEvent(
       MapEventTap(
         tapPosition: position,
-        mapState: mapState,
+        mapFrame: mapFrame,
         source: source,
       ),
     );
@@ -402,7 +410,7 @@ class FlutterMapInternalController
     _emitMapEvent(
       MapEventSecondaryTap(
         tapPosition: position,
-        mapState: mapState,
+        mapFrame: mapFrame,
         source: source,
       ),
     );
@@ -417,7 +425,7 @@ class FlutterMapInternalController
     _emitMapEvent(
       MapEventLongPress(
         tapPosition: position,
-        mapState: mapState,
+        mapFrame: mapFrame,
         source: MapEventSource.longPress,
       ),
     );
@@ -426,14 +434,14 @@ class FlutterMapInternalController
   // To be called when the map's size constraints change.
   void nonRotatedSizeChange(
     MapEventSource source,
-    FlutterMapState oldMapState,
-    FlutterMapState newMapState,
+    FlutterMapFrame oldMapFrame,
+    FlutterMapFrame newMapFrame,
   ) {
     _emitMapEvent(
       MapEventNonRotatedSizeChange(
         source: MapEventSource.nonRotatedSizeChange,
-        oldMapState: oldMapState,
-        mapState: newMapState,
+        oldMapFrame: oldMapFrame,
+        mapFrame: newMapFrame,
       ),
     );
   }

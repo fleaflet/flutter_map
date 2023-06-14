@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/src/geo/latlng_bounds.dart';
+import 'package:flutter_map/src/map/flutter_map_frame.dart';
+import 'package:flutter_map/src/misc/point.dart';
 import 'package:latlong2/latlong.dart';
 
 abstract class FrameConstraint {
@@ -16,14 +18,14 @@ abstract class FrameConstraint {
     required LatLngBounds bounds,
   }) = ContainFrame._;
 
-  FlutterMapState? constrain(FlutterMapState mapState);
+  FlutterMapFrame? constrain(FlutterMapFrame mapFrame);
 }
 
 class UnconstrainedFrame extends FrameConstraint {
   const UnconstrainedFrame._();
 
   @override
-  FlutterMapState constrain(FlutterMapState mapState) => mapState;
+  FlutterMapFrame constrain(FlutterMapFrame mapFrame) => mapFrame;
 }
 
 class ContainFrameCenter extends FrameConstraint {
@@ -34,13 +36,13 @@ class ContainFrameCenter extends FrameConstraint {
   });
 
   @override
-  FlutterMapState constrain(FlutterMapState mapState) => mapState.withPosition(
+  FlutterMapFrame constrain(FlutterMapFrame mapFrame) => mapFrame.withPosition(
         center: LatLng(
-          mapState.center.latitude.clamp(
+          mapFrame.center.latitude.clamp(
             bounds.south,
             bounds.north,
           ),
-          mapState.center.longitude.clamp(
+          mapFrame.center.longitude.clamp(
             bounds.west,
             bounds.east,
           ),
@@ -57,14 +59,14 @@ class ContainFrame extends FrameConstraint {
   });
 
   @override
-  FlutterMapState? constrain(FlutterMapState mapState) {
-    final testZoom = mapState.zoom;
-    final testCenter = mapState.center;
+  FlutterMapFrame? constrain(FlutterMapFrame mapFrame) {
+    final testZoom = mapFrame.zoom;
+    final testCenter = mapFrame.center;
 
-    final nePixel = mapState.project(bounds.northEast, testZoom);
-    final swPixel = mapState.project(bounds.southWest, testZoom);
+    final nePixel = mapFrame.project(bounds.northEast, testZoom);
+    final swPixel = mapFrame.project(bounds.southWest, testZoom);
 
-    final halfSize = mapState.size / 2;
+    final halfSize = mapFrame.size / 2;
 
     // Find the limits for the map center which would keep the frame within the
     // [latLngBounds].
@@ -77,16 +79,16 @@ class ContainFrame extends FrameConstraint {
     // stay within [latLngBounds].
     if (leftOkCenter > rightOkCenter || topOkCenter > botOkCenter) return null;
 
-    final centerPix = mapState.project(testCenter, testZoom);
+    final centerPix = mapFrame.project(testCenter, testZoom);
     final newCenterPix = CustomPoint(
       centerPix.x.clamp(leftOkCenter, rightOkCenter),
       centerPix.y.clamp(topOkCenter, botOkCenter),
     );
 
-    if (newCenterPix == centerPix) return mapState;
+    if (newCenterPix == centerPix) return mapFrame;
 
-    return mapState.withPosition(
-      center: mapState.unproject(newCenterPix, testZoom),
+    return mapFrame.withPosition(
+      center: mapFrame.unproject(newCenterPix, testZoom),
     );
   }
 

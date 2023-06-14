@@ -146,7 +146,9 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                   onMapEvent: onMapEvent,
                   initialCenter: const LatLng(51.5, -0.09),
                   initialZoom: 11,
-                  interactiveFlags: flags,
+                  interactionOptions: InteractionOptions(
+                    flags: flags,
+                  ),
                 ),
                 children: [
                   TileLayer(

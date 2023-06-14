@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
+import 'package:flutter_map/src/map/flutter_map_frame.dart';
 import 'package:flutter_map/src/map/flutter_map_internal_controller.dart';
-import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/map_controller.dart';
 import 'package:flutter_map/src/misc/center_zoom.dart';
 import 'package:flutter_map/src/misc/fit_bounds_options.dart';
@@ -102,7 +102,7 @@ class MapControllerImpl implements MapController {
       );
 
   @override
-  FlutterMapState get mapState => _internalController.mapState;
+  FlutterMapFrame get mapFrame => _internalController.mapFrame;
 
   final _mapEventStreamController = StreamController<MapEvent>.broadcast();
 
@@ -123,16 +123,16 @@ class MapControllerImpl implements MapController {
   }
 
   @override
-  @Deprecated('Use controller.mapState.visibleBounds instead.')
-  LatLngBounds? get bounds => mapState.visibleBounds;
+  @Deprecated('Use controller.mapFrame.visibleBounds instead.')
+  LatLngBounds? get bounds => mapFrame.visibleBounds;
 
   @override
-  @Deprecated('Use controller.mapState.center instead.')
-  LatLng get center => mapState.center;
+  @Deprecated('Use controller.mapFrame.center instead.')
+  LatLng get center => mapFrame.center;
 
   @override
   @Deprecated(
-      'Use FrameFit.bounds(bounds: bounds).fit(controller.mapState) instead.')
+      'Use FrameFit.bounds(bounds: bounds).fit(controller.mapFrame) instead.')
   CenterZoom centerZoomFitBounds(
     LatLngBounds bounds, {
     FitBoundsOptions options =
@@ -144,7 +144,7 @@ class MapControllerImpl implements MapController {
       maxZoom: options.maxZoom,
       inside: options.inside,
       forceIntegerZoomLevel: options.forceIntegerZoomLevel,
-    ).fit(mapState);
+    ).fit(mapFrame);
     return CenterZoom(
       center: fittedState.center,
       zoom: fittedState.zoom,
@@ -152,33 +152,33 @@ class MapControllerImpl implements MapController {
   }
 
   @override
-  @Deprecated('Use controller.mapState.latLngToScreenPoint() instead.')
+  @Deprecated('Use controller.mapFrame.latLngToScreenPoint() instead.')
   CustomPoint<double> latLngToScreenPoint(LatLng mapCoordinate) =>
-      mapState.latLngToScreenPoint(mapCoordinate);
+      mapFrame.latLngToScreenPoint(mapCoordinate);
 
   @override
-  @Deprecated('Use controller.mapState.pointToLatLng() instead.')
+  @Deprecated('Use controller.mapFrame.pointToLatLng() instead.')
   LatLng pointToLatLng(CustomPoint<num> screenPoint) =>
-      mapState.pointToLatLng(screenPoint);
+      mapFrame.pointToLatLng(screenPoint);
 
   @override
-  @Deprecated('Use controller.mapState.rotatePoint() instead.')
+  @Deprecated('Use controller.mapFrame.rotatePoint() instead.')
   CustomPoint<double> rotatePoint(
     CustomPoint mapCenter,
     CustomPoint point, {
     bool counterRotation = true,
   }) =>
-      mapState.rotatePoint(
+      mapFrame.rotatePoint(
         mapCenter.toDoublePoint(),
         point.toDoublePoint(),
         counterRotation: counterRotation,
       );
 
   @override
-  @Deprecated('Use controller.mapState.rotation instead.')
-  double get rotation => mapState.rotation;
+  @Deprecated('Use controller.mapFrame.rotation instead.')
+  double get rotation => mapFrame.rotation;
 
   @override
-  @Deprecated('Use controller.mapState.zoom instead.')
-  double get zoom => mapState.zoom;
+  @Deprecated('Use controller.mapFrame.zoom instead.')
+  double get zoom => mapFrame.zoom;
 }

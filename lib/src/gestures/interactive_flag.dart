@@ -9,6 +9,7 @@
 /// ~[InteractiveFlag.pinchMove] & ~[InteractiveFlag.pinchZoom] &
 /// ~[InteractiveFlag.doubleTapZoom]
 class InteractiveFlag {
+  const InteractiveFlag._();
   static const int all =
       drag | flingAnimation | pinchMove | pinchZoom | doubleTapZoom | rotate;
   static const int none = 0;

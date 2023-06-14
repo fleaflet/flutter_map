@@ -56,21 +56,20 @@ class FlutterMapStateContainer extends State<FlutterMap> {
 
         return FlutterMapInteractiveViewer(
           controller: _flutterMapInternalController,
-          options: widget.options,
           builder: (context, mapState) => MapStateInheritedWidget(
             controller: _mapController,
-            options: widget.options,
-            state: mapState,
+            options: mapState.options,
+            frame: mapState.mapFrame,
             child: ClipRect(
               child: Stack(
                 children: [
                   OverflowBox(
-                    minWidth: mapState.size.x,
-                    maxWidth: mapState.size.x,
-                    minHeight: mapState.size.y,
-                    maxHeight: mapState.size.y,
+                    minWidth: mapState.mapFrame.size.x,
+                    maxWidth: mapState.mapFrame.size.x,
+                    minHeight: mapState.mapFrame.size.y,
+                    maxHeight: mapState.mapFrame.size.y,
                     child: Transform.rotate(
-                      angle: mapState.rotationRad,
+                      angle: mapState.mapFrame.rotationRad,
                       child: Stack(children: widget.children),
                     ),
                   ),
@@ -122,10 +121,10 @@ class FlutterMapStateContainer extends State<FlutterMap> {
       constraints.maxWidth,
       constraints.maxHeight,
     );
-    final oldMapState = _flutterMapInternalController.mapState;
+    final oldMapFrame = _flutterMapInternalController.mapFrame;
     if (_flutterMapInternalController
         .setNonRotatedSizeWithoutEmittingEvent(nonRotatedSize)) {
-      final newMapState = _flutterMapInternalController.mapState;
+      final newMapFrame = _flutterMapInternalController.mapFrame;
 
       // Avoid emitting the event during build otherwise if the user calls
       // setState in the onMapEvent callback it will throw.
@@ -133,8 +132,8 @@ class FlutterMapStateContainer extends State<FlutterMap> {
         if (mounted) {
           _flutterMapInternalController.nonRotatedSizeChange(
             MapEventSource.nonRotatedSizeChange,
-            oldMapState,
-            newMapState,
+            oldMapFrame,
+            newMapFrame,
           );
         }
       });

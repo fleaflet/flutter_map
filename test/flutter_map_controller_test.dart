@@ -26,10 +26,10 @@ void main() {
 
       controller.fitFrame(frameConstraint);
       await tester.pump();
-      final mapState = controller.mapState;
-      expect(mapState.visibleBounds, equals(expectedBounds));
-      expect(mapState.center, equals(expectedCenter));
-      expect(mapState.zoom, equals(expectedZoom));
+      final mapFrame = controller.mapFrame;
+      expect(mapFrame.visibleBounds, equals(expectedBounds));
+      expect(mapFrame.center, equals(expectedCenter));
+      expect(mapFrame.zoom, equals(expectedZoom));
     }
 
     {
@@ -46,10 +46,10 @@ void main() {
 
       controller.fitFrame(frameConstraint);
       await tester.pump();
-      final mapState = controller.mapState;
-      expect(mapState.visibleBounds, equals(expectedBounds));
-      expect(mapState.center, equals(expectedCenter));
-      expect(mapState.zoom, equals(expectedZoom));
+      final mapFrame = controller.mapFrame;
+      expect(mapFrame.visibleBounds, equals(expectedBounds));
+      expect(mapFrame.center, equals(expectedCenter));
+      expect(mapFrame.zoom, equals(expectedZoom));
     }
 
     {
@@ -67,10 +67,10 @@ void main() {
       controller.fitFrame(frameConstraint);
       await tester.pump();
 
-      final mapState = controller.mapState;
-      expect(mapState.visibleBounds, equals(expectedBounds));
-      expect(mapState.center, equals(expectedCenter));
-      expect(mapState.zoom, equals(expectedZoom));
+      final mapFrame = controller.mapFrame;
+      expect(mapFrame.visibleBounds, equals(expectedBounds));
+      expect(mapFrame.center, equals(expectedCenter));
+      expect(mapFrame.zoom, equals(expectedZoom));
     }
 
     {
@@ -88,10 +88,10 @@ void main() {
 
       controller.fitFrame(frameConstraint);
       await tester.pump();
-      final mapState = controller.mapState;
-      expect(mapState.visibleBounds, equals(expectedBounds));
-      expect(mapState.center, equals(expectedCenter));
-      expect(mapState.zoom, equals(expectedZoom));
+      final mapFrame = controller.mapFrame;
+      expect(mapFrame.visibleBounds, equals(expectedBounds));
+      expect(mapFrame.center, equals(expectedCenter));
+      expect(mapFrame.zoom, equals(expectedZoom));
     }
   });
 
@@ -116,30 +116,30 @@ void main() {
       controller.fitFrame(frameConstraint);
       await tester.pump();
       expect(
-        controller.mapState.visibleBounds.northWest.latitude,
+        controller.mapFrame.visibleBounds.northWest.latitude,
         moreOrLessEquals(expectedBounds.northWest.latitude),
       );
       expect(
-        controller.mapState.visibleBounds.northWest.longitude,
+        controller.mapFrame.visibleBounds.northWest.longitude,
         moreOrLessEquals(expectedBounds.northWest.longitude),
       );
       expect(
-        controller.mapState.visibleBounds.southEast.latitude,
+        controller.mapFrame.visibleBounds.southEast.latitude,
         moreOrLessEquals(expectedBounds.southEast.latitude),
       );
       expect(
-        controller.mapState.visibleBounds.southEast.longitude,
+        controller.mapFrame.visibleBounds.southEast.longitude,
         moreOrLessEquals(expectedBounds.southEast.longitude),
       );
       expect(
-        controller.mapState.center.latitude,
+        controller.mapFrame.center.latitude,
         moreOrLessEquals(expectedCenter.latitude),
       );
       expect(
-        controller.mapState.center.longitude,
+        controller.mapFrame.center.longitude,
         moreOrLessEquals(expectedCenter.longitude),
       );
-      expect(controller.mapState.zoom, moreOrLessEquals(expectedZoom));
+      expect(controller.mapFrame.zoom, moreOrLessEquals(expectedZoom));
     }
 
     // Tests with no padding
@@ -685,14 +685,14 @@ void main() {
       controller.fitFrame(fitCoordinates);
       await tester.pump();
       expect(
-        controller.mapState.center.latitude,
+        controller.mapFrame.center.latitude,
         moreOrLessEquals(expectedCenter.latitude),
       );
       expect(
-        controller.mapState.center.longitude,
+        controller.mapFrame.center.longitude,
         moreOrLessEquals(expectedCenter.longitude),
       );
-      expect(controller.mapState.zoom, moreOrLessEquals(expectedZoom));
+      expect(controller.mapFrame.zoom, moreOrLessEquals(expectedZoom));
     }
 
     FitCoordinates fitCoordinates({

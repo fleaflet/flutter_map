@@ -35,12 +35,12 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
   void _animatedMapMove(LatLng destLocation, double destZoom) {
     // Create some tweens. These serve to split up the transition from one location to another.
     // In our case, we want to split the transition be<tween> our current map center and the destination.
-    final mapState = mapController.mapState;
+    final mapFrame = mapController.mapFrame;
     final latTween = Tween<double>(
-        begin: mapState.center.latitude, end: destLocation.latitude);
+        begin: mapFrame.center.latitude, end: destLocation.latitude);
     final lngTween = Tween<double>(
-        begin: mapState.center.longitude, end: destLocation.longitude);
-    final zoomTween = Tween<double>(begin: mapState.zoom, end: destZoom);
+        begin: mapFrame.center.longitude, end: destLocation.longitude);
+    final zoomTween = Tween<double>(begin: mapFrame.zoom, end: destZoom);
 
     // Create a animation controller that has a duration and a TickerProvider.
     final controller = AnimationController(
@@ -181,7 +181,7 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
 
                       final constrained = FrameFit.bounds(
                         bounds: bounds,
-                      ).fit(mapController.mapState);
+                      ).fit(mapController.mapFrame);
                       _animatedMapMove(constrained.center, constrained.zoom);
                     },
                     child: const Text('Fit Bounds animated'),

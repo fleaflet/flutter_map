@@ -6,14 +6,14 @@ void main() {
   group('FrameConstraint', () {
     group('contain', () {
       test('rotated', () {
-        final mapBoundary = FrameConstraint.contain(
+        final mapConstraint = FrameConstraint.contain(
           bounds: LatLngBounds(
             const LatLng(-90, -180),
             const LatLng(90, 180),
           ),
         );
 
-        final mapState = FlutterMapState(
+        final mapFrame = FlutterMapFrame(
           crs: const Epsg3857(),
           center: const LatLng(-90, -180),
           zoom: 1,
@@ -21,7 +21,7 @@ void main() {
           nonRotatedSize: const CustomPoint(200, 300),
         );
 
-        final clamped = mapBoundary.constrain(mapState)!;
+        final clamped = mapConstraint.constrain(mapFrame)!;
 
         expect(clamped.zoom, 1);
         expect(clamped.center.latitude, closeTo(-48.562, 0.001));

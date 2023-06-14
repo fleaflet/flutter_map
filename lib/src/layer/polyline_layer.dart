@@ -2,8 +2,8 @@ import 'dart:core';
 import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/map/flutter_map_state.dart';
+import 'package:flutter_map/src/geo/latlng_bounds.dart';
+import 'package:flutter_map/src/map/flutter_map_frame.dart';
 import 'package:latlong2/latlong.dart';
 
 class Polyline {
@@ -66,7 +66,7 @@ class PolylineLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final map = FlutterMapState.of(context);
+    final map = FlutterMapFrame.of(context);
 
     return CustomPaint(
       painter: PolylinePainter(
@@ -86,7 +86,7 @@ class PolylineLayer extends StatelessWidget {
 class PolylinePainter extends CustomPainter {
   final List<Polyline> polylines;
 
-  final FlutterMapState map;
+  final FlutterMapFrame map;
   final LatLngBounds bounds;
 
   PolylinePainter(this.polylines, this.map) : bounds = map.visibleBounds;

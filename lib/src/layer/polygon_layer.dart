@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/label.dart';
-import 'package:flutter_map/src/map/flutter_map_state.dart';
+import 'package:flutter_map/src/map/flutter_map_frame.dart';
 import 'package:latlong2/latlong.dart' hide Path; // conflict with Path from UI
 
 enum PolygonLabelPlacement {
@@ -78,7 +78,7 @@ class PolygonLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final map = FlutterMapState.of(context);
+    final map = FlutterMapFrame.of(context);
     final size = Size(map.size.x, map.size.y);
 
     final List<Polygon> pgons = polygonCulling
@@ -97,7 +97,7 @@ class PolygonLayer extends StatelessWidget {
 
 class PolygonPainter extends CustomPainter {
   final List<Polygon> polygons;
-  final FlutterMapState map;
+  final FlutterMapFrame map;
   final LatLngBounds bounds;
 
   PolygonPainter(this.polygons, this.map) : bounds = map.visibleBounds;

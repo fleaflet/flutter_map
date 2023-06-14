@@ -9,7 +9,7 @@ import 'package:flutter_map/src/misc/point.dart';
 import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:latlong2/latlong.dart';
 
-class FlutterMapState {
+class FlutterMapFrame {
   // During Flutter startup the native platform resolution is not immediately
   // available which can cause constraints to be zero before they are updated
   // in a subsequent build to the actual constraints. We set the size to this
@@ -29,23 +29,23 @@ class FlutterMapState {
   final CustomPoint<double> nonRotatedSize;
 
   // Lazily calculated fields.
-  CustomPoint<double>? _size;
+  CustomPoint<double>? _frameSize;
   Bounds<double>? _pixelBounds;
   LatLngBounds? _bounds;
   CustomPoint<int>? _pixelOrigin;
 
-  static FlutterMapState? maybeOf(BuildContext context) => context
+  static FlutterMapFrame? maybeOf(BuildContext context) => context
       .dependOnInheritedWidgetOfExactType<MapStateInheritedWidget>()
-      ?.state;
+      ?.frame;
 
-  static FlutterMapState of(BuildContext context) =>
+  static FlutterMapFrame of(BuildContext context) =>
       maybeOf(context) ??
       (throw StateError(
-          '`FlutterMapState.of()` should not be called outside a `FlutterMap` and its descendants'));
+          '`FlutterMapFrame.of()` should not be called outside a `FlutterMap` and its descendants'));
 
-  /// Initializes FlutterMapState from the given [options] and with the
-  /// [nonRotatedSize] and [size] both set to [kImpossibleSize].
-  FlutterMapState.initialState(MapOptions options)
+  /// Initializes FlutterMapFrame from the given [options] and with the
+  /// [nonRotatedSize] set to [kImpossibleSize].
+  FlutterMapFrame.initialFrame(MapOptions options)
       : crs = options.crs,
         minZoom = options.minZoom,
         maxZoom = options.maxZoom,
@@ -54,10 +54,10 @@ class FlutterMapState {
         rotation = options.initialRotation,
         nonRotatedSize = kImpossibleSize;
 
-  // Create an instance of FlutterMapState. The [pixelOrigin], [bounds], and
+  // Create an instance of FlutterMapFrame. The [pixelOrigin], [bounds], and
   // [pixelBounds] may be set if they are known already. Otherwise if left
   // null they will be calculated lazily when they are used.
-  FlutterMapState({
+  FlutterMapFrame({
     required this.crs,
     required this.center,
     required this.zoom,
@@ -69,15 +69,15 @@ class FlutterMapState {
     Bounds<double>? pixelBounds,
     LatLngBounds? bounds,
     CustomPoint<int>? pixelOrigin,
-  })  : _size = size ?? calculateRotatedSize(rotation, nonRotatedSize),
+  })  : _frameSize = size ?? calculateRotatedSize(rotation, nonRotatedSize),
         _pixelBounds = pixelBounds,
         _bounds = bounds,
         _pixelOrigin = pixelOrigin;
 
-  FlutterMapState withNonRotatedSize(CustomPoint<double> nonRotatedSize) {
+  FlutterMapFrame withNonRotatedSize(CustomPoint<double> nonRotatedSize) {
     if (nonRotatedSize == this.nonRotatedSize) return this;
 
-    return FlutterMapState(
+    return FlutterMapFrame(
       crs: crs,
       minZoom: minZoom,
       maxZoom: maxZoom,
@@ -88,10 +88,10 @@ class FlutterMapState {
     );
   }
 
-  FlutterMapState withRotation(double rotation) {
+  FlutterMapFrame withRotation(double rotation) {
     if (rotation == this.rotation) return this;
 
-    return FlutterMapState(
+    return FlutterMapFrame(
       crs: crs,
       minZoom: minZoom,
       maxZoom: maxZoom,
@@ -102,14 +102,14 @@ class FlutterMapState {
     );
   }
 
-  FlutterMapState withOptions(MapOptions options) {
+  FlutterMapFrame withOptions(MapOptions options) {
     if (options.crs == crs &&
         options.minZoom == minZoom &&
         options.maxZoom == maxZoom) {
       return this;
     }
 
-    return FlutterMapState(
+    return FlutterMapFrame(
       crs: options.crs,
       minZoom: options.minZoom,
       maxZoom: options.maxZoom,
@@ -117,15 +117,15 @@ class FlutterMapState {
       zoom: zoom,
       rotation: rotation,
       nonRotatedSize: nonRotatedSize,
-      size: _size,
+      size: _frameSize,
     );
   }
 
-  FlutterMapState withPosition({
+  FlutterMapFrame withPosition({
     LatLng? center,
     double? zoom,
   }) =>
-      FlutterMapState(
+      FlutterMapFrame(
         crs: crs,
         minZoom: minZoom,
         maxZoom: maxZoom,
@@ -133,7 +133,7 @@ class FlutterMapState {
         zoom: zoom ?? this.zoom,
         rotation: rotation,
         nonRotatedSize: nonRotatedSize,
-        size: _size,
+        size: _frameSize,
       );
 
   @Deprecated('Use visibleBounds instead.')
@@ -147,7 +147,7 @@ class FlutterMapState {
       ));
 
   CustomPoint<double> get size =>
-      _size ??
+      _frameSize ??
       calculateRotatedSize(
         rotation,
         nonRotatedSize,

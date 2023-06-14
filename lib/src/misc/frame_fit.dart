@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
-import 'package:flutter_map/src/map/flutter_map_state.dart';
+import 'package:flutter_map/src/map/flutter_map_frame.dart';
 import 'package:flutter_map/src/misc/point.dart';
 import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:latlong2/latlong.dart';
@@ -26,7 +26,7 @@ abstract class FrameFit {
     bool forceIntegerZoomLevel,
   }) = FitCoordinates;
 
-  FlutterMapState fit(FlutterMapState mapState);
+  FlutterMapFrame fit(FlutterMapFrame mapFrame);
 }
 
 class FitBounds extends FrameFit {
@@ -49,56 +49,56 @@ class FitBounds extends FrameFit {
   });
 
   @override
-  FlutterMapState fit(FlutterMapState mapState) {
+  FlutterMapFrame fit(FlutterMapFrame mapFrame) {
     final paddingTL = CustomPoint<double>(padding.left, padding.top);
     final paddingBR = CustomPoint<double>(padding.right, padding.bottom);
 
     final paddingTotalXY = paddingTL + paddingBR;
 
-    var newZoom = getBoundsZoom(mapState, paddingTotalXY);
+    var newZoom = getBoundsZoom(mapFrame, paddingTotalXY);
     newZoom = math.min(maxZoom, newZoom);
 
     final paddingOffset = (paddingBR - paddingTL) / 2;
-    final swPoint = mapState.project(bounds.southWest, newZoom);
-    final nePoint = mapState.project(bounds.northEast, newZoom);
+    final swPoint = mapFrame.project(bounds.southWest, newZoom);
+    final nePoint = mapFrame.project(bounds.northEast, newZoom);
 
     final CustomPoint<double> projectedCenter;
-    if (mapState.rotation != 0.0) {
-      final swPointRotated = swPoint.rotate(-mapState.rotationRad);
-      final nePointRotated = nePoint.rotate(-mapState.rotationRad);
+    if (mapFrame.rotation != 0.0) {
+      final swPointRotated = swPoint.rotate(-mapFrame.rotationRad);
+      final nePointRotated = nePoint.rotate(-mapFrame.rotationRad);
       final centerRotated =
           (swPointRotated + nePointRotated) / 2 + paddingOffset;
 
-      projectedCenter = centerRotated.rotate(mapState.rotationRad);
+      projectedCenter = centerRotated.rotate(mapFrame.rotationRad);
     } else {
       projectedCenter = (swPoint + nePoint) / 2 + paddingOffset;
     }
 
-    final center = mapState.unproject(projectedCenter, newZoom);
-    return mapState.withPosition(
+    final center = mapFrame.unproject(projectedCenter, newZoom);
+    return mapFrame.withPosition(
       center: center,
       zoom: newZoom,
     );
   }
 
   double getBoundsZoom(
-    FlutterMapState mapState,
+    FlutterMapFrame mapFrame,
     CustomPoint<double> pixelPadding,
   ) {
-    final min = mapState.minZoom ?? 0.0;
-    final max = mapState.maxZoom ?? double.infinity;
+    final min = mapFrame.minZoom ?? 0.0;
+    final max = mapFrame.maxZoom ?? double.infinity;
     final nw = bounds.northWest;
     final se = bounds.southEast;
-    var size = mapState.nonRotatedSize - pixelPadding;
+    var size = mapFrame.nonRotatedSize - pixelPadding;
     // Prevent negative size which results in NaN zoom value later on in the calculation
     size = CustomPoint(math.max(0, size.x), math.max(0, size.y));
     var boundsSize = Bounds(
-      mapState.project(se, mapState.zoom),
-      mapState.project(nw, mapState.zoom),
+      mapFrame.project(se, mapFrame.zoom),
+      mapFrame.project(nw, mapFrame.zoom),
     ).size;
-    if (mapState.rotation != 0.0) {
-      final cosAngle = math.cos(mapState.rotationRad).abs();
-      final sinAngle = math.sin(mapState.rotationRad).abs();
+    if (mapFrame.rotation != 0.0) {
+      final cosAngle = math.cos(mapFrame.rotationRad).abs();
+      final sinAngle = math.sin(mapFrame.rotationRad).abs();
       boundsSize = CustomPoint<double>(
         (boundsSize.x * cosAngle) + (boundsSize.y * sinAngle),
         (boundsSize.y * cosAngle) + (boundsSize.x * sinAngle),
@@ -109,7 +109,7 @@ class FitBounds extends FrameFit {
     final scaleY = size.y / boundsSize.y;
     final scale = inside ? math.max(scaleX, scaleY) : math.min(scaleX, scaleY);
 
-    var boundsZoom = mapState.getScaleZoom(scale, mapState.zoom);
+    var boundsZoom = mapFrame.getScaleZoom(scale, mapFrame.zoom);
 
     if (forceIntegerZoomLevel) {
       boundsZoom =
@@ -140,21 +140,21 @@ class FitCoordinates extends FrameFit {
   });
 
   @override
-  FlutterMapState fit(FlutterMapState mapState) {
+  FlutterMapFrame fit(FlutterMapFrame mapFrame) {
     final paddingTL = CustomPoint<double>(padding.left, padding.top);
     final paddingBR = CustomPoint<double>(padding.right, padding.bottom);
 
     final paddingTotalXY = paddingTL + paddingBR;
 
-    var newZoom = getCoordinatesZoom(mapState, paddingTotalXY);
+    var newZoom = getCoordinatesZoom(mapFrame, paddingTotalXY);
     newZoom = math.min(maxZoom, newZoom);
 
     final projectedPoints = [
-      for (final coord in coordinates) mapState.project(coord, newZoom)
+      for (final coord in coordinates) mapFrame.project(coord, newZoom)
     ];
 
     final rotatedPoints =
-        projectedPoints.map((point) => point.rotate(-mapState.rotationRad));
+        projectedPoints.map((point) => point.rotate(-mapFrame.rotationRad));
 
     final rotatedBounds = Bounds.containing(rotatedPoints);
 
@@ -163,32 +163,32 @@ class FitCoordinates extends FrameFit {
     final rotatedNewCenter = rotatedBounds.center + paddingOffset;
 
     // Undo the rotation
-    final unrotatedNewCenter = rotatedNewCenter.rotate(mapState.rotationRad);
+    final unrotatedNewCenter = rotatedNewCenter.rotate(mapFrame.rotationRad);
 
-    final newCenter = mapState.unproject(unrotatedNewCenter, newZoom);
+    final newCenter = mapFrame.unproject(unrotatedNewCenter, newZoom);
 
-    return mapState.withPosition(
+    return mapFrame.withPosition(
       center: newCenter,
       zoom: newZoom,
     );
   }
 
   double getCoordinatesZoom(
-    FlutterMapState mapState,
+    FlutterMapFrame mapFrame,
     CustomPoint<double> pixelPadding,
   ) {
-    final min = mapState.minZoom ?? 0.0;
-    final max = mapState.maxZoom ?? double.infinity;
-    var size = mapState.nonRotatedSize - pixelPadding;
+    final min = mapFrame.minZoom ?? 0.0;
+    final max = mapFrame.maxZoom ?? double.infinity;
+    var size = mapFrame.nonRotatedSize - pixelPadding;
     // Prevent negative size which results in NaN zoom value later on in the calculation
     size = CustomPoint(math.max(0, size.x), math.max(0, size.y));
 
     final projectedPoints = [
-      for (final coord in coordinates) mapState.project(coord)
+      for (final coord in coordinates) mapFrame.project(coord)
     ];
 
     final rotatedPoints =
-        projectedPoints.map((point) => point.rotate(-mapState.rotationRad));
+        projectedPoints.map((point) => point.rotate(-mapFrame.rotationRad));
     final rotatedBounds = Bounds.containing(rotatedPoints);
 
     final boundsSize = rotatedBounds.size;
@@ -197,7 +197,7 @@ class FitCoordinates extends FrameFit {
     final scaleY = size.y / boundsSize.y;
     final scale = inside ? math.max(scaleX, scaleY) : math.min(scaleX, scaleY);
 
-    var newZoom = mapState.getScaleZoom(scale, mapState.zoom);
+    var newZoom = mapFrame.getScaleZoom(scale, mapFrame.zoom);
     if (forceIntegerZoomLevel) {
       newZoom = inside ? newZoom.ceilToDouble() : newZoom.floorToDouble();
     }

@@ -43,7 +43,7 @@ void main() {
       children: [
         Builder(
           builder: (context) {
-            final _ = FlutterMapState.of(context);
+            final _ = FlutterMapFrame.of(context);
             builds++;
             return const SizedBox.shrink();
           },

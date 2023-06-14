@@ -33,7 +33,7 @@ class FlutterMapZoomButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final map = FlutterMapState.of(context);
+    final map = FlutterMapFrame.of(context);
     return Align(
       alignment: alignment,
       child: Column(
@@ -47,15 +47,15 @@ class FlutterMapZoomButtons extends StatelessWidget {
               mini: mini,
               backgroundColor: zoomInColor ?? Theme.of(context).primaryColor,
               onPressed: () {
-                final paddedMapState = FrameFit.bounds(
+                final paddedMapFrame = FrameFit.bounds(
                   bounds: map.visibleBounds,
                   padding: _fitBoundsPadding,
                 ).fit(map);
-                var zoom = paddedMapState.zoom + 1;
+                var zoom = paddedMapFrame.zoom + 1;
                 if (zoom > maxZoom) {
                   zoom = maxZoom;
                 }
-                MapController.of(context).move(paddedMapState.center, zoom);
+                MapController.of(context).move(paddedMapFrame.center, zoom);
               },
               child: Icon(zoomInIcon,
                   color: zoomInColorIcon ?? IconTheme.of(context).color),
@@ -68,15 +68,15 @@ class FlutterMapZoomButtons extends StatelessWidget {
               mini: mini,
               backgroundColor: zoomOutColor ?? Theme.of(context).primaryColor,
               onPressed: () {
-                final paddedMapState = FrameFit.bounds(
+                final paddedMapFrame = FrameFit.bounds(
                   bounds: map.visibleBounds,
                   padding: _fitBoundsPadding,
                 ).fit(map);
-                var zoom = paddedMapState.zoom - 1;
+                var zoom = paddedMapFrame.zoom - 1;
                 if (zoom < minZoom) {
                   zoom = minZoom;
                 }
-                MapController.of(context).move(paddedMapState.center, zoom);
+                MapController.of(context).move(paddedMapFrame.center, zoom);
               },
               child: Icon(zoomOutIcon,
                   color: zoomOutColorIcon ?? IconTheme.of(context).color),

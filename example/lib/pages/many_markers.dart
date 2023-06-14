@@ -75,7 +75,9 @@ class _ManyMarkersPageState extends State<ManyMarkersPage> {
               options: const MapOptions(
                 initialCenter: LatLng(50, 20),
                 initialZoom: 5,
-                interactiveFlags: InteractiveFlag.all - InteractiveFlag.rotate,
+                interactionOptions: InteractionOptions(
+                  flags: InteractiveFlag.all - InteractiveFlag.rotate,
+                ),
               ),
               children: [
                 TileLayer(

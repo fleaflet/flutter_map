@@ -7,22 +7,22 @@ import 'package:flutter_map/src/gestures/interactive_flag.dart';
 import 'package:flutter_map/src/gestures/latlng_tween.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
+import 'package:flutter_map/src/map/flutter_map_frame.dart';
 import 'package:flutter_map/src/map/flutter_map_internal_controller.dart';
-import 'package:flutter_map/src/map/flutter_map_state.dart';
+import 'package:flutter_map/src/map/flutter_map_internal_state.dart';
 import 'package:flutter_map/src/map/options.dart';
 import 'package:flutter_map/src/misc/point.dart';
 import 'package:flutter_map/src/misc/private/positioned_tap_detector_2.dart';
 import 'package:latlong2/latlong.dart';
 
 class FlutterMapInteractiveViewer extends StatefulWidget {
-  final Widget Function(BuildContext context, FlutterMapState mapState) builder;
-  final MapOptions options;
+  final Widget Function(BuildContext context, FlutterMapInternalState mapState)
+      builder;
   final FlutterMapInternalController controller;
 
   const FlutterMapInteractiveViewer({
     super.key,
     required this.builder,
-    required this.options,
     required this.controller,
   });
 
@@ -72,9 +72,9 @@ class FlutterMapInteractiveViewerState
   int _tapUpCounter = 0;
   Timer? _doubleTapHoldMaxDelay;
 
-  FlutterMapState get _mapState => widget.controller.mapState;
+  FlutterMapFrame get _mapFrame => widget.controller.mapFrame;
 
-  MapOptions get _options => widget.options;
+  MapOptions get _options => widget.controller.options;
 
   @override
   void initState() {
@@ -100,83 +100,13 @@ class FlutterMapInteractiveViewerState
 
   @override
   void didChangeDependencies() {
+    // _createGestures uses a MediaQuery to determine gesture settings. This
+    // will update those gesture settings if they change.
+
     _gestures = _createGestures(
-      MediaQuery.gestureSettingsOf(context),
       dragEnabled: InteractiveFlag.hasDrag(_options.interactiveFlags),
     );
     super.didChangeDependencies();
-  }
-
-  @override
-  void didUpdateWidget(FlutterMapInteractiveViewer oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    final oldFlags = oldWidget.options.interactiveFlags;
-    final flags = widget.options.interactiveFlags;
-
-    final oldGestures = _getMultiFingerGestureFlags(options: oldWidget.options);
-    final gestures = _getMultiFingerGestureFlags();
-
-    if (flags != oldFlags) {
-      _gestures = _createGestures(
-        MediaQuery.gestureSettingsOf(context),
-        dragEnabled: InteractiveFlag.hasDrag(widget.options.interactiveFlags),
-      );
-    }
-
-    if (flags != oldFlags || gestures != oldGestures) {
-      var emitMapEventMoveEnd = false;
-
-      if (!InteractiveFlag.hasFlingAnimation(flags)) {
-        _closeFlingAnimationController(MapEventSource.interactiveFlagsChanged);
-      }
-      if (!InteractiveFlag.hasDoubleTapZoom(flags)) {
-        _closeDoubleTapController(MapEventSource.interactiveFlagsChanged);
-      }
-
-      if (_rotationStarted &&
-          !(InteractiveFlag.hasRotate(flags) &&
-              MultiFingerGesture.hasRotate(gestures))) {
-        _rotationStarted = false;
-
-        if (_gestureWinner == MultiFingerGesture.rotate) {
-          _gestureWinner = MultiFingerGesture.none;
-        }
-
-        widget.controller.rotateEnded(MapEventSource.interactiveFlagsChanged);
-      }
-
-      if (_pinchZoomStarted &&
-          !(InteractiveFlag.hasPinchZoom(flags) &&
-              MultiFingerGesture.hasPinchZoom(gestures))) {
-        _pinchZoomStarted = false;
-        emitMapEventMoveEnd = true;
-
-        if (_gestureWinner == MultiFingerGesture.pinchZoom) {
-          _gestureWinner = MultiFingerGesture.none;
-        }
-      }
-
-      if (_pinchMoveStarted &&
-          !(InteractiveFlag.hasPinchMove(flags) &&
-              MultiFingerGesture.hasPinchMove(gestures))) {
-        _pinchMoveStarted = false;
-        emitMapEventMoveEnd = true;
-
-        if (_gestureWinner == MultiFingerGesture.pinchMove) {
-          _gestureWinner = MultiFingerGesture.none;
-        }
-      }
-
-      if (_dragStarted && !InteractiveFlag.hasDrag(flags)) {
-        _dragStarted = false;
-        emitMapEventMoveEnd = true;
-      }
-
-      if (emitMapEventMoveEnd) {
-        widget.controller.moveEnded(MapEventSource.interactiveFlagsChanged);
-      }
-    }
   }
 
   @override
@@ -188,67 +118,131 @@ class FlutterMapInteractiveViewerState
     super.dispose();
   }
 
-  Map<Type, GestureRecognizerFactory> _createGestures(
-    DeviceGestureSettings gestureSettings, {
+  void updateGestures(
+    InteractionOptions oldOptions,
+    InteractionOptions newOptions,
+  ) {
+    if (newOptions.dragEnabled != oldOptions.dragEnabled) {
+      _gestures = _createGestures(dragEnabled: newOptions.dragEnabled);
+    }
+
+    if (!newOptions.flingEnabled) {
+      _closeFlingAnimationController(MapEventSource.interactiveFlagsChanged);
+    }
+    if (newOptions.doubleTapZoomEnabled) {
+      _closeDoubleTapController(MapEventSource.interactiveFlagsChanged);
+    }
+
+    final gestures = _getMultiFingerGestureFlags(newOptions);
+
+    if (_rotationStarted &&
+        !newOptions.rotateEnabled &&
+        !MultiFingerGesture.hasRotate(gestures)) {
+      _rotationStarted = false;
+
+      if (_gestureWinner == MultiFingerGesture.rotate) {
+        _gestureWinner = MultiFingerGesture.none;
+      }
+
+      widget.controller.rotateEnded(MapEventSource.interactiveFlagsChanged);
+    }
+
+    var emitMapEventMoveEnd = false;
+
+    if (_pinchZoomStarted &&
+        !newOptions.pinchZoomEnabled &&
+        !MultiFingerGesture.hasPinchZoom(gestures)) {
+      _pinchZoomStarted = false;
+      emitMapEventMoveEnd = true;
+
+      if (_gestureWinner == MultiFingerGesture.pinchZoom) {
+        _gestureWinner = MultiFingerGesture.none;
+      }
+    }
+
+    if (_pinchMoveStarted &&
+        !newOptions.pinchMoveEnabled &&
+        !MultiFingerGesture.hasPinchMove(gestures)) {
+      _pinchMoveStarted = false;
+      emitMapEventMoveEnd = true;
+
+      if (_gestureWinner == MultiFingerGesture.pinchMove) {
+        _gestureWinner = MultiFingerGesture.none;
+      }
+    }
+
+    if (_dragStarted && !newOptions.dragEnabled) {
+      _dragStarted = false;
+      emitMapEventMoveEnd = true;
+    }
+
+    if (emitMapEventMoveEnd) {
+      widget.controller.moveEnded(MapEventSource.interactiveFlagsChanged);
+    }
+  }
+
+  Map<Type, GestureRecognizerFactory> _createGestures({
     required bool dragEnabled,
-  }) =>
-      <Type, GestureRecognizerFactory>{
-        TapGestureRecognizer:
-            GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
-          () => TapGestureRecognizer(debugOwner: this),
-          (TapGestureRecognizer instance) {
-            instance
-              ..onTapDown = _positionedTapController.onTapDown
-              ..onTapUp = _handleOnTapUp
-              ..onTap = _positionedTapController.onTap
-              ..onSecondaryTap = _positionedTapController.onSecondaryTap
-              ..onSecondaryTapDown = _positionedTapController.onTapDown;
-          },
-        ),
-        LongPressGestureRecognizer:
-            GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
-          () => LongPressGestureRecognizer(debugOwner: this),
-          (LongPressGestureRecognizer instance) {
-            instance.onLongPress = _positionedTapController.onLongPress;
-          },
-        ),
-        if (dragEnabled)
-          VerticalDragGestureRecognizer: GestureRecognizerFactoryWithHandlers<
-              VerticalDragGestureRecognizer>(
-            () => VerticalDragGestureRecognizer(debugOwner: this),
-            (VerticalDragGestureRecognizer instance) {
-              instance.onUpdate = (details) {
-                // Absorbing vertical drags
-              };
-              instance.gestureSettings = gestureSettings;
-              instance.team ??= _gestureArenaTeam;
-            },
-          ),
-        if (dragEnabled)
-          HorizontalDragGestureRecognizer: GestureRecognizerFactoryWithHandlers<
-              HorizontalDragGestureRecognizer>(
-            () => HorizontalDragGestureRecognizer(debugOwner: this),
-            (HorizontalDragGestureRecognizer instance) {
-              instance.onUpdate = (details) {
-                // Absorbing horizontal drags
-              };
-              instance.gestureSettings = gestureSettings;
-              instance.team ??= _gestureArenaTeam;
-            },
-          ),
-        ScaleGestureRecognizer:
-            GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
-          () => ScaleGestureRecognizer(debugOwner: this),
-          (ScaleGestureRecognizer instance) {
-            instance
-              ..onStart = _handleScaleStart
-              ..onUpdate = _handleScaleUpdate
-              ..onEnd = _handleScaleEnd;
+  }) {
+    final gestureSettings = MediaQuery.gestureSettingsOf(context);
+    return <Type, GestureRecognizerFactory>{
+      TapGestureRecognizer:
+          GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
+        () => TapGestureRecognizer(debugOwner: this),
+        (TapGestureRecognizer instance) {
+          instance
+            ..onTapDown = _positionedTapController.onTapDown
+            ..onTapUp = _handleOnTapUp
+            ..onTap = _positionedTapController.onTap
+            ..onSecondaryTap = _positionedTapController.onSecondaryTap
+            ..onSecondaryTapDown = _positionedTapController.onTapDown;
+        },
+      ),
+      LongPressGestureRecognizer:
+          GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
+        () => LongPressGestureRecognizer(debugOwner: this),
+        (LongPressGestureRecognizer instance) {
+          instance.onLongPress = _positionedTapController.onLongPress;
+        },
+      ),
+      if (dragEnabled)
+        VerticalDragGestureRecognizer:
+            GestureRecognizerFactoryWithHandlers<VerticalDragGestureRecognizer>(
+          () => VerticalDragGestureRecognizer(debugOwner: this),
+          (VerticalDragGestureRecognizer instance) {
+            instance.onUpdate = (details) {
+              // Absorbing vertical drags
+            };
+            instance.gestureSettings = gestureSettings;
             instance.team ??= _gestureArenaTeam;
-            _gestureArenaTeam.captain = instance;
           },
         ),
-      };
+      if (dragEnabled)
+        HorizontalDragGestureRecognizer: GestureRecognizerFactoryWithHandlers<
+            HorizontalDragGestureRecognizer>(
+          () => HorizontalDragGestureRecognizer(debugOwner: this),
+          (HorizontalDragGestureRecognizer instance) {
+            instance.onUpdate = (details) {
+              // Absorbing horizontal drags
+            };
+            instance.gestureSettings = gestureSettings;
+            instance.team ??= _gestureArenaTeam;
+          },
+        ),
+      ScaleGestureRecognizer:
+          GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
+        () => ScaleGestureRecognizer(debugOwner: this),
+        (ScaleGestureRecognizer instance) {
+          instance
+            ..onStart = _handleScaleStart
+            ..onUpdate = _handleScaleUpdate
+            ..onEnd = _handleScaleEnd;
+          instance.team ??= _gestureArenaTeam;
+          _gestureArenaTeam.captain = instance;
+        },
+      ),
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -270,7 +264,7 @@ class FlutterMapInteractiveViewerState
                 : Duration.zero,
         child: RawGestureDetector(
           gestures: _gestures,
-          child: widget.builder(context, _mapState),
+          child: widget.builder(context, widget.controller.value),
         ),
       ),
     );
@@ -280,7 +274,7 @@ class FlutterMapInteractiveViewerState
     ++_pointerCounter;
 
     if (_options.onPointerDown != null) {
-      final latlng = _mapState.offsetToCrs(event.localPosition);
+      final latlng = _mapFrame.offsetToCrs(event.localPosition);
       _options.onPointerDown!(event, latlng);
     }
   }
@@ -289,7 +283,7 @@ class FlutterMapInteractiveViewerState
     --_pointerCounter;
 
     if (_options.onPointerUp != null) {
-      final latlng = _mapState.offsetToCrs(event.localPosition);
+      final latlng = _mapFrame.offsetToCrs(event.localPosition);
       _options.onPointerUp!(event, latlng);
     }
   }
@@ -298,14 +292,14 @@ class FlutterMapInteractiveViewerState
     --_pointerCounter;
 
     if (_options.onPointerCancel != null) {
-      final latlng = _mapState.offsetToCrs(event.localPosition);
+      final latlng = _mapFrame.offsetToCrs(event.localPosition);
       _options.onPointerCancel!(event, latlng);
     }
   }
 
   void _onPointerHover(PointerHoverEvent event) {
     if (_options.onPointerHover != null) {
-      final latlng = _mapState.offsetToCrs(event.localPosition);
+      final latlng = _mapFrame.offsetToCrs(event.localPosition);
       _options.onPointerHover!(event, latlng);
     }
   }
@@ -323,11 +317,11 @@ class FlutterMapInteractiveViewerState
           pointerSignal as PointerScrollEvent;
           final minZoom = _options.minZoom ?? 0.0;
           final maxZoom = _options.maxZoom ?? double.infinity;
-          final newZoom = (_mapState.zoom -
+          final newZoom = (_mapFrame.zoom -
                   pointerSignal.scrollDelta.dy * _options.scrollWheelVelocity)
               .clamp(minZoom, maxZoom);
           // Calculate offset of mouse cursor from viewport center
-          final newCenter = _mapState.focusedZoomCenter(
+          final newCenter = _mapFrame.focusedZoomCenter(
             pointerSignal.localPosition.toCustomPoint(),
             newZoom,
           );
@@ -344,16 +338,14 @@ class FlutterMapInteractiveViewerState
     }
   }
 
-  int _getMultiFingerGestureFlags({MapOptions? options}) {
-    options ??= _options;
-
-    if (options.enableMultiFingerGestureRace) {
+  int _getMultiFingerGestureFlags(InteractionOptions interactionOptions) {
+    if (interactionOptions.enableMultiFingerGestureRace) {
       if (_gestureWinner == MultiFingerGesture.pinchZoom) {
-        return options.pinchZoomWinGestures;
+        return interactionOptions.pinchZoomWinGestures;
       } else if (_gestureWinner == MultiFingerGesture.rotate) {
-        return options.rotationWinGestures;
+        return interactionOptions.rotationWinGestures;
       } else if (_gestureWinner == MultiFingerGesture.pinchMove) {
-        return options.pinchMoveWinGestures;
+        return interactionOptions.pinchMoveWinGestures;
       }
 
       return MultiFingerGesture.none;
@@ -394,10 +386,10 @@ class FlutterMapInteractiveViewerState
 
     _gestureWinner = MultiFingerGesture.none;
 
-    _mapZoomStart = _mapState.zoom;
-    _mapCenterStart = _mapState.center;
+    _mapZoomStart = _mapFrame.zoom;
+    _mapCenterStart = _mapFrame.center;
     _focalStartLocal = _lastFocalLocal = details.localFocalPoint;
-    _focalStartLatLng = _mapState.offsetToCrs(_focalStartLocal);
+    _focalStartLatLng = _mapFrame.offsetToCrs(_focalStartLocal);
 
     _dragStarted = false;
     _pinchZoomStarted = false;
@@ -469,7 +461,7 @@ class FlutterMapInteractiveViewerState
     }
 
     if (!hasGestureRace || _gestureWinner != MultiFingerGesture.none) {
-      final gestures = _getMultiFingerGestureFlags();
+      final gestures = _getMultiFingerGestureFlags(_options.interactionOptions);
 
       final hasPinchZoom =
           InteractiveFlag.hasPinchZoom(_options.interactiveFlags) &&
@@ -493,8 +485,8 @@ class FlutterMapInteractiveViewerState
     bool hasPinchZoom,
     bool hasPinchMove,
   ) {
-    LatLng newCenter = _mapState.center;
-    double newZoom = _mapState.zoom;
+    LatLng newCenter = _mapFrame.center;
+    double newZoom = _mapFrame.zoom;
 
     // Handle pinch zoom.
     if (hasPinchZoom && details.scale > 0.0) {
@@ -546,17 +538,17 @@ class FlutterMapInteractiveViewerState
     ScaleUpdateDetails details,
     double zoomAfterPinchZoom,
   ) {
-    final oldCenterPt = _mapState.project(_mapState.center, zoomAfterPinchZoom);
+    final oldCenterPt = _mapFrame.project(_mapFrame.center, zoomAfterPinchZoom);
     final newFocalLatLong =
-        _mapState.offsetToCrs(_focalStartLocal, zoomAfterPinchZoom);
-    final newFocalPt = _mapState.project(newFocalLatLong, zoomAfterPinchZoom);
-    final oldFocalPt = _mapState.project(_focalStartLatLng, zoomAfterPinchZoom);
+        _mapFrame.offsetToCrs(_focalStartLocal, zoomAfterPinchZoom);
+    final newFocalPt = _mapFrame.project(newFocalLatLong, zoomAfterPinchZoom);
+    final oldFocalPt = _mapFrame.project(_focalStartLatLng, zoomAfterPinchZoom);
     final zoomDifference = oldFocalPt - newFocalPt;
     final moveDifference = _rotateOffset(_focalStartLocal - _lastFocalLocal);
 
     final newCenterPt =
         oldCenterPt + zoomDifference + moveDifference.toCustomPoint();
-    return _mapState.unproject(newCenterPt, zoomAfterPinchZoom);
+    return _mapFrame.unproject(newCenterPt, zoomAfterPinchZoom);
   }
 
   void _handleScalePinchRotate(
@@ -570,17 +562,17 @@ class FlutterMapInteractiveViewerState
 
     if (_rotationStarted) {
       final rotationDiff = currentRotation - _lastRotation;
-      final oldCenterPt = _mapState.project(_mapState.center);
+      final oldCenterPt = _mapFrame.project(_mapFrame.center);
       final rotationCenter =
-          _mapState.project(_mapState.offsetToCrs(_lastFocalLocal));
+          _mapFrame.project(_mapFrame.offsetToCrs(_lastFocalLocal));
       final vector = oldCenterPt - rotationCenter;
       final rotatedVector = vector.rotate(degToRadian(rotationDiff));
       final newCenter = rotationCenter + rotatedVector;
 
       widget.controller.moveAndRotate(
-        _mapState.unproject(newCenter),
-        _mapState.zoom,
-        _mapState.rotation + rotationDiff,
+        _mapFrame.unproject(newCenter),
+        _mapFrame.zoom,
+        _mapFrame.rotation + rotationDiff,
         offset: Offset.zero,
         hasGesture: true,
         source: MapEventSource.onMultiFinger,
@@ -646,7 +638,7 @@ class FlutterMapInteractiveViewerState
 
     final direction = details.velocity.pixelsPerSecond / magnitude;
     final distance = (Offset.zero &
-            Size(_mapState.nonRotatedSize.x, _mapState.nonRotatedSize.y))
+            Size(_mapFrame.nonRotatedSize.x, _mapFrame.nonRotatedSize.y))
         .shortestSide;
 
     final flingOffset = _focalStartLocal - _lastFocalLocal;
@@ -676,7 +668,7 @@ class FlutterMapInteractiveViewerState
     widget.controller.tapped(
       MapEventSource.tap,
       position,
-      _mapState.offsetToCrs(relativePosition),
+      _mapFrame.offsetToCrs(relativePosition),
     );
   }
 
@@ -690,7 +682,7 @@ class FlutterMapInteractiveViewerState
     widget.controller.secondaryTapped(
       MapEventSource.secondaryTap,
       position,
-      _mapState.offsetToCrs(relativePosition),
+      _mapFrame.offsetToCrs(relativePosition),
     );
   }
 
@@ -703,7 +695,7 @@ class FlutterMapInteractiveViewerState
     widget.controller.longPressed(
       MapEventSource.longPress,
       position,
-      _mapState.offsetToCrs(position.relative!),
+      _mapFrame.offsetToCrs(position.relative!),
     );
   }
 
@@ -714,8 +706,8 @@ class FlutterMapInteractiveViewerState
     _closeDoubleTapController(MapEventSource.doubleTap);
 
     if (InteractiveFlag.hasDoubleTapZoom(_options.interactiveFlags)) {
-      final newZoom = _getZoomForScale(_mapState.zoom, 2);
-      final newCenter = _mapState.focusedZoomCenter(
+      final newZoom = _getZoomForScale(_mapFrame.zoom, 2);
+      final newCenter = _mapFrame.focusedZoomCenter(
         tapPosition.relative!.toCustomPoint(),
         newZoom,
       );
@@ -724,11 +716,11 @@ class FlutterMapInteractiveViewerState
   }
 
   void _startDoubleTapAnimation(double newZoom, LatLng newCenter) {
-    _doubleTapZoomAnimation = Tween<double>(begin: _mapState.zoom, end: newZoom)
+    _doubleTapZoomAnimation = Tween<double>(begin: _mapFrame.zoom, end: newZoom)
         .chain(CurveTween(curve: Curves.linear))
         .animate(_doubleTapController);
     _doubleTapCenterAnimation =
-        LatLngTween(begin: _mapState.center, end: newCenter)
+        LatLngTween(begin: _mapFrame.center, end: newCenter)
             .chain(CurveTween(curve: Curves.linear))
             .animate(_doubleTapController);
     _doubleTapController.forward(from: 0);
@@ -775,14 +767,14 @@ class FlutterMapInteractiveViewerState
     final flags = _options.interactiveFlags;
     if (InteractiveFlag.hasPinchZoom(flags)) {
       final verticalOffset = (_focalStartLocal - details.localFocalPoint).dy;
-      final newZoom = _mapZoomStart - verticalOffset / 360 * _mapState.zoom;
+      final newZoom = _mapZoomStart - verticalOffset / 360 * _mapFrame.zoom;
 
       final min = _options.minZoom ?? 0.0;
       final max = _options.maxZoom ?? double.infinity;
       final actualZoom = math.max(min, math.min(max, newZoom));
 
       widget.controller.move(
-        _mapState.center,
+        _mapFrame.center,
         actualZoom,
         offset: Offset.zero,
         hasGesture: true,
@@ -799,13 +791,13 @@ class FlutterMapInteractiveViewerState
       _startListeningForAnimationInterruptions();
     }
 
-    final newCenterPoint = _mapState.project(_mapCenterStart) +
-        _flingAnimation.value.toCustomPoint().rotate(_mapState.rotationRad);
-    final newCenter = _mapState.unproject(newCenterPoint);
+    final newCenterPoint = _mapFrame.project(_mapCenterStart) +
+        _flingAnimation.value.toCustomPoint().rotate(_mapFrame.rotationRad);
+    final newCenter = _mapFrame.unproject(newCenterPoint);
 
     widget.controller.move(
       newCenter,
-      _mapState.zoom,
+      _mapFrame.zoom,
       offset: Offset.zero,
       hasGesture: true,
       source: MapEventSource.flingAnimationController,
@@ -844,11 +836,11 @@ class FlutterMapInteractiveViewerState
   double _getZoomForScale(double startZoom, double scale) {
     final resultZoom =
         scale == 1.0 ? startZoom : startZoom + math.log(scale) / math.ln2;
-    return _mapState.clampZoom(resultZoom);
+    return _mapFrame.clampZoom(resultZoom);
   }
 
   Offset _rotateOffset(Offset offset) {
-    final radians = _mapState.rotationRad;
+    final radians = _mapFrame.rotationRad;
     if (radians != 0.0) {
       final cos = math.cos(radians);
       final sin = math.sin(radians);

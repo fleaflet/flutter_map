@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/map/flutter_map_state.dart';
+import 'package:flutter_map/src/map/flutter_map_frame.dart';
 import 'package:flutter_map/src/map/flutter_map_state_inherited_widget.dart';
 import 'package:flutter_map/src/map/map_controller_impl.dart';
 import 'package:latlong2/latlong.dart';
@@ -138,8 +138,10 @@ abstract class MapController {
   /// documentation.
   bool fitFrame(FrameFit frameFit);
 
-  /// Current FlutterMapState.
-  FlutterMapState get mapState;
+  /// Current FlutterMapFrame. Accessing the frame from this getter is an
+  /// anti-pattern. It is preferable to use FlutterMapFrame.of(context) in a
+  /// child widget of FlutterMap state.
+  FlutterMapFrame get mapFrame;
 
   /// [Stream] of all emitted [MapEvent]s
   Stream<MapEvent> get mapEventStream;
@@ -149,7 +151,7 @@ abstract class MapController {
   ///
   /// Does not move/zoom the map: see [fitBounds].
   @Deprecated(
-      'Use FrameFit.bounds(bounds: bounds).fit(controller.mapState) instead.')
+      'Use FrameFit.bounds(bounds: bounds).fit(controller.mapFrame) instead.')
   CenterZoom centerZoomFitBounds(
     LatLngBounds bounds, {
     FitBoundsOptions options =
@@ -158,15 +160,15 @@ abstract class MapController {
 
   /// Convert a screen point (x/y) to its corresponding map coordinate (lat/lng),
   /// based on the map's current properties
-  @Deprecated('Use controller.mapState.pointToLatLng() instead.')
+  @Deprecated('Use controller.mapFrame.pointToLatLng() instead.')
   LatLng pointToLatLng(CustomPoint screenPoint);
 
   /// Convert a map coordinate (lat/lng) to its corresponding screen point (x/y),
   /// based on the map's current screen positioning
-  @Deprecated('Use controller.mapState.latLngToScreenPoint() instead.')
+  @Deprecated('Use controller.mapFrame.latLngToScreenPoint() instead.')
   CustomPoint<double> latLngToScreenPoint(LatLng mapCoordinate);
 
-  @Deprecated('Use controller.mapState.rotatePoint() instead.')
+  @Deprecated('Use controller.mapFrame.rotatePoint() instead.')
   CustomPoint<double> rotatePoint(
     CustomPoint mapCenter,
     CustomPoint point, {
@@ -174,19 +176,19 @@ abstract class MapController {
   });
 
   /// Current center coordinates
-  @Deprecated('Use controller.mapState.center instead.')
+  @Deprecated('Use controller.mapFrame.center instead.')
   LatLng get center;
 
   /// Current outer points/boundaries coordinates
-  @Deprecated('Use controller.mapState.visibleBounds instead.')
+  @Deprecated('Use controller.mapFrame.visibleBounds instead.')
   LatLngBounds? get bounds;
 
   /// Current zoom level
-  @Deprecated('Use controller.mapState.zoom instead.')
+  @Deprecated('Use controller.mapFrame.zoom instead.')
   double get zoom;
 
   /// Current rotation in degrees, where 0° is North
-  @Deprecated('Use controller.mapState.rotation instead.')
+  @Deprecated('Use controller.mapFrame.rotation instead.')
   double get rotation;
 
   /// Dispose of this controller.
