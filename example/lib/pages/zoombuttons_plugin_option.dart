@@ -14,8 +14,7 @@ class FlutterMapZoomButtons extends StatelessWidget {
   final IconData zoomInIcon;
   final IconData zoomOutIcon;
 
-  final FitBoundsOptions options =
-      const FitBoundsOptions(padding: EdgeInsets.all(12));
+  static const _fitBoundsPadding = EdgeInsets.all(12);
 
   const FlutterMapZoomButtons({
     super.key,
@@ -48,14 +47,15 @@ class FlutterMapZoomButtons extends StatelessWidget {
               mini: mini,
               backgroundColor: zoomInColor ?? Theme.of(context).primaryColor,
               onPressed: () {
-                final bounds = map.visibleBounds;
-                final centerZoom =
-                    map.centerZoomFitBounds(bounds, options: options);
-                var zoom = centerZoom.zoom + 1;
+                final paddedMapState = FrameFit.bounds(
+                  bounds: map.visibleBounds,
+                  padding: _fitBoundsPadding,
+                ).fit(map);
+                var zoom = paddedMapState.zoom + 1;
                 if (zoom > maxZoom) {
                   zoom = maxZoom;
                 }
-                MapController.of(context).move(centerZoom.center, zoom);
+                MapController.of(context).move(paddedMapState.center, zoom);
               },
               child: Icon(zoomInIcon,
                   color: zoomInColorIcon ?? IconTheme.of(context).color),
@@ -68,16 +68,15 @@ class FlutterMapZoomButtons extends StatelessWidget {
               mini: mini,
               backgroundColor: zoomOutColor ?? Theme.of(context).primaryColor,
               onPressed: () {
-                final bounds = map.visibleBounds;
-                final centerZoom = map.centerZoomFitBounds(
-                  bounds,
-                  options: options,
-                );
-                var zoom = centerZoom.zoom - 1;
+                final paddedMapState = FrameFit.bounds(
+                  bounds: map.visibleBounds,
+                  padding: _fitBoundsPadding,
+                ).fit(map);
+                var zoom = paddedMapState.zoom - 1;
                 if (zoom < minZoom) {
                   zoom = minZoom;
                 }
-                MapController.of(context).move(centerZoom.center, zoom);
+                MapController.of(context).move(paddedMapState.center, zoom);
               },
               child: Icon(zoomOutIcon,
                   color: zoomOutColorIcon ?? IconTheme.of(context).color),

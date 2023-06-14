@@ -162,10 +162,10 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
                         london,
                       ]);
 
-                      mapController.fitBounds(
-                        bounds,
-                        options: const FitBoundsOptions(
-                          padding: EdgeInsets.symmetric(horizontal: 15),
+                      mapController.fitFrame(
+                        FrameFit.bounds(
+                          bounds: bounds,
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
                         ),
                       );
                     },
@@ -179,9 +179,10 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
                         london,
                       ]);
 
-                      final centerZoom = const FitBoundsOptions()
-                          .fit(mapController.mapState, bounds);
-                      _animatedMapMove(centerZoom.center, centerZoom.zoom);
+                      final constrained = FrameFit.bounds(
+                        bounds: bounds,
+                      ).fit(mapController.mapState);
+                      _animatedMapMove(constrained.center, constrained.zoom);
                     },
                     child: const Text('Fit Bounds animated'),
                   ),

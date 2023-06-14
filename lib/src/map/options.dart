@@ -1,27 +1,39 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/geo/crs.dart';
+import 'package:flutter_map/src/geo/latlng_bounds.dart';
+import 'package:flutter_map/src/gestures/interactive_flag.dart';
+import 'package:flutter_map/src/gestures/map_events.dart';
+import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
 import 'package:flutter_map/src/map/flutter_map_state_inherited_widget.dart';
+import 'package:flutter_map/src/misc/fit_bounds_options.dart';
+import 'package:flutter_map/src/misc/frame_constraint.dart';
+import 'package:flutter_map/src/misc/frame_fit.dart';
+import 'package:flutter_map/src/misc/position.dart';
+import 'package:flutter_map/src/misc/private/positioned_tap_detector_2.dart';
 import 'package:latlong2/latlong.dart';
 
 class MapOptions {
   /// The Coordinate Reference System, defaults to [Epsg3857].
   final Crs crs;
 
-  /// The center when the map is first loaded. If [initialBounds] is defined
+  /// The center when the map is first loaded. If [initialFrameFit] is defined
   /// this has no effect.
   final LatLng initialCenter;
 
-  /// The zoom when the map is first loaded. If [initialBounds] is defined this
-  /// has no effect.
+  /// The zoom when the map is first loaded. If [initialFrameFit] is defined
+  /// this has no effect.
   final double initialZoom;
 
   /// The rotation when the map is first loaded.
   final double initialRotation;
 
-  /// The visible bounds when the map is first loaded. Takes precedence over
-  /// [initialCenter]/[initialZoom].
-  final LatLngBounds? initialBounds;
+  /// Defines the visible bounds when the map is first loaded. Takes precedence
+  /// over [initialCenter]/[initialZoom].
+  final FrameFit? initialFrameFit;
+
+  final LatLngBounds? bounds;
+  final FitBoundsOptions boundsOptions;
 
   /// Prints multi finger gesture winner Helps to fine adjust
   /// [rotationThreshold] and [pinchZoomThreshold] and [pinchMoveThreshold]
@@ -95,12 +107,9 @@ class MapOptions {
   final PointerHoverCallback? onPointerHover;
   final PositionCallback? onPositionChanged;
   final MapEventCallback? onMapEvent;
-  final bool slideOnBoundaries;
 
   /// Define limits for viewing the map.
-  final MapBoundary boundary;
-
-  final FitBoundsOptions initialBoundsOptions;
+  final FrameConstraint frameConstraint;
 
   /// OnMapReady is called after the map runs it's initState.
   /// At that point the map has assigned its state to the controller
@@ -126,12 +135,11 @@ class MapOptions {
     double initialZoom = 13.0,
     @Deprecated('Use initialRotation instead') double? rotation,
     double initialRotation = 0.0,
-    @Deprecated('Use initialBounds instead') LatLngBounds? bounds,
-    LatLngBounds? initialBounds,
-    @Deprecated('Use initialBoundsOptions instead')
-    FitBoundsOptions? boundsOptions,
-    FitBoundsOptions initialBoundsOptions = const FitBoundsOptions(),
-    this.boundary = const CrsBoundary(),
+    @Deprecated('Use initialFrameFit instead') this.bounds,
+    @Deprecated('Use initialFrameFit instead')
+    this.boundsOptions = const FitBoundsOptions(),
+    this.initialFrameFit,
+    this.frameConstraint = const FrameConstraint.unconstrained(),
     this.debugMultiFingerGestureWinner = false,
     this.enableMultiFingerGestureRace = false,
     this.rotationThreshold = 20.0,
@@ -157,13 +165,10 @@ class MapOptions {
     this.onPositionChanged,
     this.onMapEvent,
     this.onMapReady,
-    this.slideOnBoundaries = false,
     this.keepAlive = false,
   })  : initialCenter = center ?? initialCenter,
         initialZoom = zoom ?? initialZoom,
         initialRotation = rotation ?? initialRotation,
-        initialBounds = bounds ?? initialBounds,
-        initialBoundsOptions = boundsOptions ?? initialBoundsOptions,
         assert(rotationThreshold >= 0.0),
         assert(pinchZoomThreshold >= 0.0),
         assert(pinchMoveThreshold >= 0.0);

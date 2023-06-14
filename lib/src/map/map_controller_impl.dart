@@ -8,6 +8,7 @@ import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/map/map_controller.dart';
 import 'package:flutter_map/src/misc/center_zoom.dart';
 import 'package:flutter_map/src/misc/fit_bounds_options.dart';
+import 'package:flutter_map/src/misc/frame_fit.dart';
 import 'package:flutter_map/src/misc/move_and_rotate_result.dart';
 import 'package:flutter_map/src/misc/point.dart';
 import 'package:latlong2/latlong.dart';
@@ -72,23 +73,33 @@ class MapControllerImpl implements MapController {
         id: id,
       );
 
+  /// Move and zoom the map to perfectly fit [bounds], with additional
+  /// configurable [options]
+  ///
+  /// For information about return value meaning and emitted events, see [move]'s
+  /// documentation.
   @override
+  @Deprecated('Use fitFrame with a MapFit.bounds() instead')
   bool fitBounds(
     LatLngBounds bounds, {
-    FitBoundsOptions options = const FitBoundsOptions(
-      padding: EdgeInsets.all(12),
-    ),
+    FitBoundsOptions options =
+        const FitBoundsOptions(padding: EdgeInsets.all(12)),
   }) =>
-      _internalController.fitBounds(bounds, options, offset: Offset.zero);
+      fitFrame(
+        FrameFit.bounds(
+          bounds: bounds,
+          padding: options.padding,
+          maxZoom: options.maxZoom,
+          inside: options.inside,
+          forceIntegerZoomLevel: options.forceIntegerZoomLevel,
+        ),
+      );
 
   @override
-  CenterZoom centerZoomFitBounds(
-    LatLngBounds bounds, {
-    FitBoundsOptions options = const FitBoundsOptions(
-      padding: EdgeInsets.all(12),
-    ),
-  }) =>
-      options.fit(mapState, bounds);
+  bool fitFrame(FrameFit frameFit) => _internalController.fitFrame(
+        frameFit,
+        offset: Offset.zero,
+      );
 
   @override
   FlutterMapState get mapState => _internalController.mapState;
@@ -110,4 +121,55 @@ class MapControllerImpl implements MapController {
   void dispose() {
     _mapEventStreamController.close();
   }
+
+  @override
+  LatLngBounds? get bounds => mapState.visibleBounds;
+
+  @override
+  LatLng get center => mapState.center;
+
+  @override
+  CenterZoom centerZoomFitBounds(
+    LatLngBounds bounds, {
+    FitBoundsOptions options =
+        const FitBoundsOptions(padding: EdgeInsets.all(12)),
+  }) {
+    final fittedState = FrameFit.bounds(
+      bounds: bounds,
+      padding: options.padding,
+      maxZoom: options.maxZoom,
+      inside: options.inside,
+      forceIntegerZoomLevel: options.forceIntegerZoomLevel,
+    ).fit(mapState);
+    return CenterZoom(
+      center: fittedState.center,
+      zoom: fittedState.zoom,
+    );
+  }
+
+  @override
+  CustomPoint<double> latLngToScreenPoint(LatLng mapCoordinate) =>
+      mapState.latLngToScreenPoint(mapCoordinate);
+
+  @override
+  LatLng pointToLatLng(CustomPoint<num> screenPoint) =>
+      mapState.pointToLatLng(screenPoint);
+
+  @override
+  CustomPoint<double> rotatePoint(
+    CustomPoint mapCenter,
+    CustomPoint point, {
+    bool counterRotation = true,
+  }) =>
+      mapState.rotatePoint(
+        mapCenter.toDoublePoint(),
+        point.toDoublePoint(),
+        counterRotation: counterRotation,
+      );
+
+  @override
+  double get rotation => mapState.rotation;
+
+  @override
+  double get zoom => mapState.zoom;
 }

@@ -104,10 +104,10 @@ class MapControllerPageState extends State<MapControllerPage> {
                         london,
                       ]);
 
-                      _mapController.fitBounds(
-                        bounds,
-                        options: const FitBoundsOptions(
-                          padding: EdgeInsets.only(left: 15, right: 15),
+                      _mapController.fitFrame(
+                        FitBounds(
+                          bounds: bounds,
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
                         ),
                       );
                     },

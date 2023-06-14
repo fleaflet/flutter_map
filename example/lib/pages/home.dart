@@ -114,8 +114,8 @@ class _HomePageState extends State<HomePage> {
                 options: MapOptions(
                   initialCenter: const LatLng(51.5, -0.09),
                   initialZoom: 5,
-                  boundary: VisibleCenterBoundary(
-                    latLngBounds: LatLngBounds(
+                  frameConstraint: FrameConstraint.contain(
+                    bounds: LatLngBounds(
                       const LatLng(-90, -180),
                       const LatLng(90, 180),
                     ),

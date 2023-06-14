@@ -65,25 +65,20 @@ class FlutterMapInternalController
       );
     }
 
-    newZoom = mapState.clampZoom(newZoom);
-    final centerZoom = mapState.clampCenterZoom(
-      CenterZoom(
-        center: newCenter,
-        zoom: newZoom,
-      ),
+    FlutterMapState? newMapState = mapState.withPosition(
+      center: newCenter,
+      zoom: mapState.clampZoom(newZoom),
     );
-    if (centerZoom == null) return false;
-    newCenter = centerZoom.center;
-    newZoom = centerZoom.zoom;
 
-    if (newCenter == mapState.center && newZoom == mapState.zoom) {
+    newMapState = options.frameConstraint.constrain(newMapState);
+    if (newMapState == null ||
+        (newMapState.center == mapState.center &&
+            newMapState.zoom == mapState.zoom)) {
       return false;
     }
 
     final oldMapState = mapState;
-    value = value.withMapState(
-      mapState.withPosition(zoom: newZoom, center: newCenter),
-    );
+    value = value.withMapState(newMapState);
 
     final movementEvent = MapEventWithMove.fromSource(
       oldMapState: oldMapState,
@@ -117,9 +112,15 @@ class FlutterMapInternalController
     required String? id,
   }) {
     if (newRotation != mapState.rotation) {
+      final newMapState = options.frameConstraint.constrain(
+        mapState.withRotation(newRotation),
+      );
+      if (newMapState == null) return false;
+
       final oldMapState = mapState;
+
       // Apply state then emit events and callbacks
-      value = value.withMapState(mapState.withRotation(newRotation));
+      value = value.withMapState(newMapState);
 
       _emitMapEvent(
         MapEventRotate(
@@ -225,15 +226,15 @@ class FlutterMapInternalController
   // Note: All named parameters are required to prevent inconsistent default
   // values since this method can be called by MapController which declares
   // defaults.
-  bool fitBounds(
-    LatLngBounds bounds,
-    FitBoundsOptions options, {
+  bool fitFrame(
+    FrameFit frameFit, {
     required Offset offset,
   }) {
-    final target = mapState.centerZoomFitBounds(bounds, options: options);
+    final fitted = frameFit.fit(mapState);
+
     return move(
-      target.center,
-      target.zoom,
+      fitted.center,
+      fitted.zoom,
       offset: offset,
       hasGesture: false,
       source: MapEventSource.fitBounds,
@@ -254,8 +255,19 @@ class FlutterMapInternalController
   }
 
   void setOptions(MapOptions options) {
+    if (options == value.options) return;
+
     if (options != this.options) {
-      value = value.withMapState(mapState.withOptions(options));
+      final newMapState = mapState.withOptions(options);
+
+      assert(
+        options.frameConstraint.constrain(newMapState) == newMapState,
+        'FlutterMapState is no longer within the frameConstraint after an option change.',
+      );
+      value = FlutterMapInternalState(
+        options: options,
+        mapState: newMapState,
+      );
     }
   }
 

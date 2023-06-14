@@ -5,9 +5,6 @@ import 'package:flutter_map/src/geo/crs.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/map/flutter_map_state_inherited_widget.dart';
 import 'package:flutter_map/src/map/options.dart';
-import 'package:flutter_map/src/misc/center_zoom.dart';
-import 'package:flutter_map/src/misc/fit_bounds_options.dart';
-import 'package:flutter_map/src/misc/map_boundary.dart';
 import 'package:flutter_map/src/misc/point.dart';
 import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:latlong2/latlong.dart';
@@ -23,7 +20,6 @@ class FlutterMapState {
   final Crs crs;
   final double? minZoom;
   final double? maxZoom;
-  final MapBoundary boundary;
 
   final LatLng center;
   final double zoom;
@@ -32,10 +28,8 @@ class FlutterMapState {
   // Original size of the map where rotation isn't calculated
   final CustomPoint<double> nonRotatedSize;
 
-  // Extended size of the map where rotation is calculated
-  final CustomPoint<double> size;
-
   // Lazily calculated fields.
+  CustomPoint<double>? _size;
   Bounds<double>? _pixelBounds;
   LatLngBounds? _bounds;
   CustomPoint<int>? _pixelOrigin;
@@ -55,30 +49,28 @@ class FlutterMapState {
       : crs = options.crs,
         minZoom = options.minZoom,
         maxZoom = options.maxZoom,
-        boundary = options.boundary,
         center = options.initialCenter,
         zoom = options.initialZoom,
         rotation = options.initialRotation,
-        nonRotatedSize = kImpossibleSize,
-        size = kImpossibleSize;
+        nonRotatedSize = kImpossibleSize;
 
   // Create an instance of FlutterMapState. The [pixelOrigin], [bounds], and
   // [pixelBounds] may be set if they are known already. Otherwise if left
   // null they will be calculated lazily when they are used.
   FlutterMapState({
     required this.crs,
-    required this.minZoom,
-    required this.maxZoom,
-    required this.boundary,
     required this.center,
     required this.zoom,
     required this.rotation,
     required this.nonRotatedSize,
-    required this.size,
+    this.minZoom,
+    this.maxZoom,
+    CustomPoint<double>? size,
     Bounds<double>? pixelBounds,
     LatLngBounds? bounds,
     CustomPoint<int>? pixelOrigin,
-  })  : _pixelBounds = pixelBounds,
+  })  : _size = size ?? calculateRotatedSize(rotation, nonRotatedSize),
+        _pixelBounds = pixelBounds,
         _bounds = bounds,
         _pixelOrigin = pixelOrigin;
 
@@ -89,12 +81,10 @@ class FlutterMapState {
       crs: crs,
       minZoom: minZoom,
       maxZoom: maxZoom,
-      boundary: boundary,
       center: center,
       zoom: zoom,
       rotation: rotation,
       nonRotatedSize: nonRotatedSize,
-      size: calculateRotatedSize(rotation, nonRotatedSize),
     );
   }
 
@@ -105,20 +95,17 @@ class FlutterMapState {
       crs: crs,
       minZoom: minZoom,
       maxZoom: maxZoom,
-      boundary: boundary,
       center: center,
       zoom: zoom,
       rotation: rotation,
       nonRotatedSize: nonRotatedSize,
-      size: calculateRotatedSize(rotation, nonRotatedSize),
     );
   }
 
   FlutterMapState withOptions(MapOptions options) {
     if (options.crs == crs &&
         options.minZoom == minZoom &&
-        options.maxZoom == maxZoom &&
-        options.boundary == boundary) {
+        options.maxZoom == maxZoom) {
       return this;
     }
 
@@ -126,12 +113,11 @@ class FlutterMapState {
       crs: options.crs,
       minZoom: options.minZoom,
       maxZoom: options.maxZoom,
-      boundary: options.boundary,
       center: center,
       zoom: zoom,
       rotation: rotation,
       nonRotatedSize: nonRotatedSize,
-      size: calculateRotatedSize(rotation, nonRotatedSize),
+      size: _size,
     );
   }
 
@@ -143,12 +129,11 @@ class FlutterMapState {
         crs: crs,
         minZoom: minZoom,
         maxZoom: maxZoom,
-        boundary: boundary,
         center: center ?? this.center,
         zoom: zoom ?? this.zoom,
         rotation: rotation,
         nonRotatedSize: nonRotatedSize,
-        size: size,
+        size: _size,
       );
 
   @Deprecated('Use visibleBounds instead.')
@@ -160,6 +145,13 @@ class FlutterMapState {
         unproject(pixelBounds.bottomLeft, zoom),
         unproject(pixelBounds.topRight, zoom),
       ));
+
+  CustomPoint<double> get size =>
+      _size ??
+      calculateRotatedSize(
+        rotation,
+        nonRotatedSize,
+      );
 
   CustomPoint<int> get pixelOrigin =>
       _pixelOrigin ??
@@ -182,14 +174,6 @@ class FlutterMapState {
   }
 
   double get rotationRad => degToRadian(rotation);
-
-  CenterZoom centerZoomFitBounds(
-    LatLngBounds bounds, {
-    FitBoundsOptions options = const FitBoundsOptions(
-      padding: EdgeInsets.all(12),
-    ),
-  }) =>
-      options.fit(this, bounds);
 
   CustomPoint<double> project(LatLng latlng, [double? zoom]) =>
       crs.latLngToPoint(latlng, zoom ?? this.zoom);
@@ -289,17 +273,6 @@ class FlutterMapState {
         minZoom ?? double.negativeInfinity,
         maxZoom ?? double.infinity,
       );
-
-  CenterZoom? clampCenterZoom(
-    CenterZoom centerZoom, {
-    MapBoundary? boundary,
-  }) {
-    return (boundary ?? this.boundary).clampCenterZoom(
-      crs: crs,
-      visibleSize: size,
-      centerZoom: centerZoom,
-    );
-  }
 
   LatLng offsetToCrs(Offset offset, [double? zoom]) {
     final focalStartPt = project(center, zoom ?? this.zoom);

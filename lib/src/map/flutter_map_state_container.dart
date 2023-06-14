@@ -7,7 +7,7 @@ import 'package:flutter_map/src/map/flutter_map_state_inherited_widget.dart';
 import 'package:flutter_map/src/map/map_controller_impl.dart';
 
 class FlutterMapStateContainer extends State<FlutterMap> {
-  bool _hasFitInitialBounds = false;
+  bool _initialFrameFitApplied = false;
 
   late final FlutterMapInternalController _flutterMapInternalController;
   late MapControllerImpl _mapController;
@@ -52,7 +52,7 @@ class FlutterMapStateContainer extends State<FlutterMap> {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         _updateAndEmitSizeIfConstraintsChanged(constraints);
-        _setInitialFitBounds(constraints);
+        _applyInitialFrameFit(constraints);
 
         return FlutterMapInteractiveViewer(
           controller: _flutterMapInternalController,
@@ -84,17 +84,34 @@ class FlutterMapStateContainer extends State<FlutterMap> {
     );
   }
 
-  void _setInitialFitBounds(BoxConstraints constraints) {
-    // If bounds were provided set the initial center/zoom to match those
-    // bounds once the parent constraints are available.
-    if (widget.options.initialBounds != null &&
-        !_hasFitInitialBounds &&
-        _parentConstraintsAreSet(context, constraints)) {
-      _hasFitInitialBounds = true;
+  void _applyInitialFrameFit(BoxConstraints constraints) {
+    // If an initial frame fit was provided apply it to the map state once the
+    // the parent constraints are available.
 
-      _flutterMapInternalController.fitBounds(
-        widget.options.initialBounds!,
-        widget.options.initialBoundsOptions,
+    if (!_initialFrameFitApplied &&
+        (widget.options.bounds != null ||
+            widget.options.initialFrameFit != null) &&
+        _parentConstraintsAreSet(context, constraints)) {
+      _initialFrameFitApplied = true;
+
+      final FrameFit frameFit;
+
+      if (widget.options.bounds != null) {
+        // Create the frame fit from the deprecated option.
+        final fitBoundsOptions = widget.options.boundsOptions;
+        frameFit = FrameFit.bounds(
+          bounds: widget.options.bounds!,
+          padding: fitBoundsOptions.padding,
+          maxZoom: fitBoundsOptions.maxZoom,
+          inside: fitBoundsOptions.inside,
+          forceIntegerZoomLevel: fitBoundsOptions.forceIntegerZoomLevel,
+        );
+      } else {
+        frameFit = widget.options.initialFrameFit!;
+      }
+
+      _flutterMapInternalController.fitFrame(
+        frameFit,
         offset: Offset.zero,
       );
     }

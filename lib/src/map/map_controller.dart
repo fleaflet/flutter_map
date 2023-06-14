@@ -21,7 +21,7 @@ abstract class MapController {
   /// instance.
   ///
   /// Factory constructor redirects to underlying implementation's constructor.
-  factory MapController() = MapControllerImpl;
+  factory MapController() => MapControllerImpl();
 
   static MapController? maybeOf(BuildContext context) => context
       .dependOnInheritedWidgetOfExactType<MapStateInheritedWidget>()
@@ -49,7 +49,7 @@ abstract class MapController {
   /// through [MapEventCallback]s, such as [MapOptions.onMapEvent]), unless
   /// the move failed because (after adjustment when necessary):
   ///  * [center] and [zoom] are equal to the current values
-  ///  * [center] is out of bounds & [MapOptions.slideOnBoundaries] isn't enabled
+  ///  * [center] [MapOptions.frameConstraint] does not allow the movement.
   bool move(
     LatLng center,
     double zoom, {
@@ -84,8 +84,8 @@ abstract class MapController {
   /// pixels), where `Offset(0,0)` is the top-left of the map widget, and the
   /// bottom right is `Offset(mapWidth, mapHeight)`.
   ///  * [offset]: allows rotation around a screen-based offset (in normal logical
-  /// pixels) from the map's [center]. For example, `Offset(100, 100)` will mean
-  /// the point is the 100px down & 100px right from the [center].
+  /// pixels) from the map's center. For example, `Offset(100, 100)` will mean
+  /// the point is the 100px down & 100px right from the center.
   ///
   /// May cause glitchy movement if rotated against the map's bounds.
   ///
@@ -125,25 +125,69 @@ abstract class MapController {
   ///
   /// For information about return value meaning and emitted events, see [move]'s
   /// documentation.
+  @Deprecated('Use fitFrame with a MapFit.bounds() instead')
   bool fitBounds(
     LatLngBounds bounds, {
-    FitBoundsOptions options,
+    FitBoundsOptions options =
+        const FitBoundsOptions(padding: EdgeInsets.all(12)),
   });
 
-  /// Calculates the appropriate center and zoom level for the map to perfectly
-  /// fit [bounds], with additional configurable [options]
+  /// Move and zoom the map to fit [frameFit].
   ///
-  /// Does not move/zoom the map: see [fitBounds].
-  CenterZoom centerZoomFitBounds(
-    LatLngBounds bounds, {
-    FitBoundsOptions options,
-  });
+  /// For information about the return value and emitted events, see [move]'s
+  /// documentation.
+  bool fitFrame(FrameFit frameFit);
 
   /// Current FlutterMapState.
   FlutterMapState get mapState;
 
   /// [Stream] of all emitted [MapEvent]s
   Stream<MapEvent> get mapEventStream;
+
+  /// Calculates the appropriate center and zoom level for the map to perfectly
+  /// fit [bounds], with additional configurable [options]
+  ///
+  /// Does not move/zoom the map: see [fitBounds].
+  @Deprecated(
+      'Use FrameFit.bounds(bounds: bounds).fit(controller.mapState) instead.')
+  CenterZoom centerZoomFitBounds(
+    LatLngBounds bounds, {
+    FitBoundsOptions options =
+        const FitBoundsOptions(padding: EdgeInsets.all(12)),
+  });
+
+  /// Convert a screen point (x/y) to its corresponding map coordinate (lat/lng),
+  /// based on the map's current properties
+  @Deprecated('Use controller.mapState.pointToLatLng() instead.')
+  LatLng pointToLatLng(CustomPoint screenPoint);
+
+  /// Convert a map coordinate (lat/lng) to its corresponding screen point (x/y),
+  /// based on the map's current screen positioning
+  @Deprecated('Use controller.mapState.latLngToScreenPoint() instead.')
+  CustomPoint<double> latLngToScreenPoint(LatLng mapCoordinate);
+
+  @Deprecated('Use controller.mapState.rotatePoint() instead.')
+  CustomPoint<double> rotatePoint(
+    CustomPoint mapCenter,
+    CustomPoint point, {
+    bool counterRotation = true,
+  });
+
+  /// Current center coordinates
+  @Deprecated('Use controller.mapState.center instead.')
+  LatLng get center;
+
+  /// Current outer points/boundaries coordinates
+  @Deprecated('Use controller.mapState.visibleBounds instead.')
+  LatLngBounds? get bounds;
+
+  /// Current zoom level
+  @Deprecated('Use controller.mapState.zoom instead.')
+  double get zoom;
+
+  /// Current rotation in degrees, where 0° is North
+  @Deprecated('Use controller.mapState.rotation instead.')
+  double get rotation;
 
   /// Dispose of this controller.
   void dispose();
