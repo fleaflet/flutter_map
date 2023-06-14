@@ -8,13 +8,42 @@ class Bounds<T extends num> {
   final CustomPoint<T> min;
   final CustomPoint<T> max;
 
+  const Bounds._(this.min, this.max);
+
   factory Bounds(CustomPoint<T> a, CustomPoint<T> b) {
     final bounds1 = Bounds._(a, b);
     final bounds2 = bounds1.extend(a);
     return bounds2.extend(b);
   }
 
-  const Bounds._(this.min, this.max);
+  static Bounds<double> containing(Iterable<CustomPoint<double>> points) {
+    var maxX = double.negativeInfinity;
+    var maxY = double.negativeInfinity;
+    var minX = double.infinity;
+    var minY = double.infinity;
+
+    for (final point in points) {
+      if (point.x > maxX) {
+        maxX = point.x;
+      }
+      if (point.x < minX) {
+        minX = point.x;
+      }
+      if (point.y > maxY) {
+        maxY = point.y;
+      }
+      if (point.y < minY) {
+        minY = point.y;
+      }
+    }
+
+    final bounds = Bounds._(
+      CustomPoint(minX, minY),
+      CustomPoint(maxX, maxY),
+    );
+
+    return bounds;
+  }
 
   /// Creates a new [Bounds] obtained by expanding the current ones with a new
   /// point.

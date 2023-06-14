@@ -5,6 +5,7 @@ import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/map/flutter_map_state.dart';
 import 'package:flutter_map/src/misc/point.dart';
 import 'package:flutter_map/src/misc/private/bounds.dart';
+import 'package:latlong2/latlong.dart';
 
 abstract class FrameFit {
   const FrameFit();
@@ -16,6 +17,14 @@ abstract class FrameFit {
     bool inside,
     bool forceIntegerZoomLevel,
   }) = FitBounds;
+
+  const factory FrameFit.coordinates({
+    required List<LatLng> coordinates,
+    EdgeInsets padding,
+    double maxZoom,
+    bool inside,
+    bool forceIntegerZoomLevel,
+  }) = FitCoordinates;
 
   FlutterMapState fit(FlutterMapState mapState);
 }
@@ -46,7 +55,7 @@ class FitBounds extends FrameFit {
 
     final paddingTotalXY = paddingTL + paddingBR;
 
-    var newZoom = getBoundsZoom(mapState, bounds, paddingTotalXY);
+    var newZoom = getBoundsZoom(mapState, paddingTotalXY);
     newZoom = math.min(maxZoom, newZoom);
 
     final paddingOffset = (paddingBR - paddingTL) / 2;
@@ -74,7 +83,6 @@ class FitBounds extends FrameFit {
 
   double getBoundsZoom(
     FlutterMapState mapState,
-    LatLngBounds bounds,
     CustomPoint<double> pixelPadding,
   ) {
     final min = mapState.minZoom ?? 0.0;
@@ -109,5 +117,91 @@ class FitBounds extends FrameFit {
     }
 
     return math.max(min, math.min(max, boundsZoom));
+  }
+}
+
+class FitCoordinates extends FrameFit {
+  final List<LatLng> coordinates;
+  final EdgeInsets padding;
+  final double maxZoom;
+  final bool inside;
+
+  /// By default calculations will return fractional zoom levels.
+  /// If this parameter is set to [true] fractional zoom levels will be round
+  /// to the next suitable integer.
+  final bool forceIntegerZoomLevel;
+
+  const FitCoordinates({
+    required this.coordinates,
+    this.padding = EdgeInsets.zero,
+    this.maxZoom = 17.0,
+    this.inside = false,
+    this.forceIntegerZoomLevel = false,
+  });
+
+  @override
+  FlutterMapState fit(FlutterMapState mapState) {
+    final paddingTL = CustomPoint<double>(padding.left, padding.top);
+    final paddingBR = CustomPoint<double>(padding.right, padding.bottom);
+
+    final paddingTotalXY = paddingTL + paddingBR;
+
+    var newZoom = getCoordinatesZoom(mapState, paddingTotalXY);
+    newZoom = math.min(maxZoom, newZoom);
+
+    final projectedPoints = [
+      for (final coord in coordinates) mapState.project(coord, newZoom)
+    ];
+
+    final rotatedPoints =
+        projectedPoints.map((point) => point.rotate(-mapState.rotationRad));
+
+    final rotatedBounds = Bounds.containing(rotatedPoints);
+
+    // Apply padding
+    final paddingOffset = (paddingBR - paddingTL) / 2;
+    final rotatedNewCenter = rotatedBounds.center + paddingOffset;
+
+    // Undo the rotation
+    final unrotatedNewCenter = rotatedNewCenter.rotate(mapState.rotationRad);
+
+    final newCenter = mapState.unproject(unrotatedNewCenter, newZoom);
+
+    return mapState.withPosition(
+      center: newCenter,
+      zoom: newZoom,
+    );
+  }
+
+  double getCoordinatesZoom(
+    FlutterMapState mapState,
+    CustomPoint<double> pixelPadding,
+  ) {
+    final min = mapState.minZoom ?? 0.0;
+    final max = mapState.maxZoom ?? double.infinity;
+    var size = mapState.nonRotatedSize - pixelPadding;
+    // Prevent negative size which results in NaN zoom value later on in the calculation
+    size = CustomPoint(math.max(0, size.x), math.max(0, size.y));
+
+    final projectedPoints = [
+      for (final coord in coordinates) mapState.project(coord)
+    ];
+
+    final rotatedPoints =
+        projectedPoints.map((point) => point.rotate(-mapState.rotationRad));
+    final rotatedBounds = Bounds.containing(rotatedPoints);
+
+    final boundsSize = rotatedBounds.size;
+
+    final scaleX = size.x / boundsSize.x;
+    final scaleY = size.y / boundsSize.y;
+    final scale = inside ? math.max(scaleX, scaleY) : math.min(scaleX, scaleY);
+
+    var newZoom = mapState.getScaleZoom(scale, mapState.zoom);
+    if (forceIntegerZoomLevel) {
+      newZoom = inside ? newZoom.ceilToDouble() : newZoom.floorToDouble();
+    }
+
+    return math.max(min, math.min(max, newZoom));
   }
 }

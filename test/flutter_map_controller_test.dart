@@ -662,4 +662,202 @@ void main() {
       expectedZoom: 5.368867444131886,
     );
   });
+
+  testWidgets('test fit coordinates methods', (tester) async {
+    final controller = MapController();
+    const coordinates = [
+      LatLng(4.214943, 33.925781),
+      LatLng(3.480523, 30.844116),
+      LatLng(-1.362176, 29.575195),
+      LatLng(-0.999705, 33.925781),
+    ];
+
+    await tester.pumpWidget(TestApp(controller: controller));
+
+    Future<void> testFitCoordinates({
+      required double rotation,
+      required FitCoordinates fitCoordinates,
+      required LatLng expectedCenter,
+      required double expectedZoom,
+    }) async {
+      controller.rotate(rotation);
+
+      controller.fitFrame(fitCoordinates);
+      await tester.pump();
+      expect(
+        controller.mapState.center.latitude,
+        moreOrLessEquals(expectedCenter.latitude),
+      );
+      expect(
+        controller.mapState.center.longitude,
+        moreOrLessEquals(expectedCenter.longitude),
+      );
+      expect(controller.mapState.zoom, moreOrLessEquals(expectedZoom));
+    }
+
+    FitCoordinates fitCoordinates({
+      EdgeInsets padding = EdgeInsets.zero,
+    }) =>
+        FitCoordinates(
+          coordinates: coordinates,
+          padding: padding,
+        );
+
+    // Tests with no padding
+
+    await testFitCoordinates(
+      rotation: 45,
+      fitCoordinates: fitCoordinates(),
+      expectedCenter: const LatLng(1.0175550985081283, 32.16110216543986),
+      expectedZoom: 5.323677289246632,
+    );
+    await testFitCoordinates(
+      rotation: 90,
+      fitCoordinates: fitCoordinates(),
+      expectedCenter: const LatLng(1.4280748738291353, 31.75048799999998),
+      expectedZoom: 5.655171629288528,
+    );
+    await testFitCoordinates(
+      rotation: 135,
+      fitCoordinates: fitCoordinates(),
+      expectedCenter: const LatLng(1.0175550985081538, 32.16110216543989),
+      expectedZoom: 5.323677289246641,
+    );
+    await testFitCoordinates(
+      rotation: 180,
+      fitCoordinates: fitCoordinates(),
+      expectedCenter: const LatLng(1.4280748738291353, 31.75048799999998),
+      expectedZoom: 5.655171629288529,
+    );
+    await testFitCoordinates(
+      rotation: 225,
+      fitCoordinates: fitCoordinates(),
+      expectedCenter: const LatLng(1.0175550985080901, 32.16110216543997),
+      expectedZoom: 5.323677289246641,
+    );
+    await testFitCoordinates(
+      rotation: 270,
+      fitCoordinates: fitCoordinates(),
+      expectedCenter: const LatLng(1.4280748738291353, 31.75048799999998),
+      expectedZoom: 5.655171629288529,
+    );
+    await testFitCoordinates(
+      rotation: 315,
+      fitCoordinates: fitCoordinates(),
+      expectedCenter: const LatLng(1.0175550985081538, 32.16110216543989),
+      expectedZoom: 5.323677289246641,
+    );
+    await testFitCoordinates(
+      rotation: 360,
+      fitCoordinates: fitCoordinates(),
+      expectedCenter: const LatLng(1.4280748738291353, 31.75048799999998),
+      expectedZoom: 5.655171629288529,
+    );
+
+    // Tests with symmetric padding
+
+    const equalPadding = EdgeInsets.all(12);
+
+    await testFitCoordinates(
+      rotation: 45,
+      fitCoordinates: fitCoordinates(padding: equalPadding),
+      expectedCenter: const LatLng(1.0175550985081538, 32.16110216543986),
+      expectedZoom: 5.139252718109209,
+    );
+    await testFitCoordinates(
+      rotation: 90,
+      fitCoordinates: fitCoordinates(padding: equalPadding),
+      expectedCenter: const LatLng(1.4280748738291353, 31.75048799999998),
+      expectedZoom: 5.470747058151099,
+    );
+    await testFitCoordinates(
+      rotation: 135,
+      fitCoordinates: fitCoordinates(padding: equalPadding),
+      expectedCenter: const LatLng(1.0175550985081538, 32.161102165439935),
+      expectedZoom: 5.139252718109208,
+    );
+    await testFitCoordinates(
+      rotation: 180,
+      fitCoordinates: fitCoordinates(padding: equalPadding),
+      expectedCenter: const LatLng(1.4280748738291353, 31.75048799999998),
+      expectedZoom: 5.470747058151097,
+    );
+    await testFitCoordinates(
+      rotation: 225,
+      fitCoordinates: fitCoordinates(padding: equalPadding),
+      expectedCenter: const LatLng(1.0175550985081157, 32.16110216543997),
+      expectedZoom: 5.13925271810921,
+    );
+    await testFitCoordinates(
+      rotation: 270,
+      fitCoordinates: fitCoordinates(padding: equalPadding),
+      expectedCenter: const LatLng(1.4280748738291353, 31.75048799999998),
+      expectedZoom: 5.470747058151099,
+    );
+    await testFitCoordinates(
+      rotation: 315,
+      fitCoordinates: fitCoordinates(padding: equalPadding),
+      expectedCenter: const LatLng(1.0175550985081538, 32.16110216543986),
+      expectedZoom: 5.13925271810921,
+    );
+    await testFitCoordinates(
+      rotation: 360,
+      fitCoordinates: fitCoordinates(padding: equalPadding),
+      expectedCenter: const LatLng(1.4280748738291353, 31.75048799999998),
+      expectedZoom: 5.470747058151099,
+    );
+
+    // Tests with asymmetric padding
+
+    const asymmetricPadding = EdgeInsets.fromLTRB(12, 12, 24, 24);
+
+    await testFitCoordinates(
+      rotation: 45,
+      fitCoordinates: fitCoordinates(padding: asymmetricPadding),
+      expectedCenter: const LatLng(1.0175550985081665, 32.524454855645835),
+      expectedZoom: 5.037373104089995,
+    );
+    await testFitCoordinates(
+      rotation: 90,
+      fitCoordinates: fitCoordinates(padding: asymmetricPadding),
+      expectedCenter: const LatLng(1.63218686735705, 31.954672909718134),
+      expectedZoom: 5.36886744413189,
+    );
+    await testFitCoordinates(
+      rotation: 135,
+      fitCoordinates: fitCoordinates(padding: asymmetricPadding),
+      expectedCenter: const LatLng(1.3808275978186646, 32.16110216543989),
+      expectedZoom: 5.037373104089992,
+    );
+    await testFitCoordinates(
+      rotation: 180,
+      fitCoordinates: fitCoordinates(padding: asymmetricPadding),
+      expectedCenter: const LatLng(1.63218686735705, 31.546303090281786),
+      expectedZoom: 5.3688674441318875,
+    );
+    await testFitCoordinates(
+      rotation: 225,
+      fitCoordinates: fitCoordinates(padding: asymmetricPadding),
+      expectedCenter: const LatLng(1.0175550985081283, 31.797749475233953),
+      expectedZoom: 5.037373104089987,
+    );
+    await testFitCoordinates(
+      rotation: 270,
+      fitCoordinates: fitCoordinates(padding: asymmetricPadding),
+      expectedCenter: const LatLng(1.2239447514276816, 31.546303090281786),
+      expectedZoom: 5.368867444131882,
+    );
+    await testFitCoordinates(
+      rotation: 315,
+      fitCoordinates: fitCoordinates(padding: asymmetricPadding),
+      expectedCenter: const LatLng(0.6542416853021571, 32.16110216543989),
+      expectedZoom: 5.037373104089994,
+    );
+    await testFitCoordinates(
+      rotation: 360,
+      fitCoordinates: fitCoordinates(padding: asymmetricPadding),
+      expectedCenter: const LatLng(1.223944751427707, 31.954672909718177),
+      expectedZoom: 5.368867444131889,
+    );
+  });
 }

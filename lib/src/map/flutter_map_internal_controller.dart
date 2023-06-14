@@ -237,7 +237,7 @@ class FlutterMapInternalController
       fitted.zoom,
       offset: offset,
       hasGesture: false,
-      source: MapEventSource.fitBounds,
+      source: MapEventSource.fitFrame,
       id: null,
     );
   }

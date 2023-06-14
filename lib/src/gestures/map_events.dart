@@ -19,7 +19,7 @@ enum MapEventSource {
   flingAnimationController,
   doubleTapZoomAnimationController,
   interactiveFlagsChanged,
-  fitBounds,
+  fitFrame,
   custom,
   scrollWheel,
   nonRotatedSizeChange,
