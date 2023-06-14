@@ -123,12 +123,16 @@ class MapControllerImpl implements MapController {
   }
 
   @override
+  @Deprecated('Use controller.mapState.visibleBounds instead.')
   LatLngBounds? get bounds => mapState.visibleBounds;
 
   @override
+  @Deprecated('Use controller.mapState.center instead.')
   LatLng get center => mapState.center;
 
   @override
+  @Deprecated(
+      'Use FrameFit.bounds(bounds: bounds).fit(controller.mapState) instead.')
   CenterZoom centerZoomFitBounds(
     LatLngBounds bounds, {
     FitBoundsOptions options =
@@ -148,14 +152,17 @@ class MapControllerImpl implements MapController {
   }
 
   @override
+  @Deprecated('Use controller.mapState.latLngToScreenPoint() instead.')
   CustomPoint<double> latLngToScreenPoint(LatLng mapCoordinate) =>
       mapState.latLngToScreenPoint(mapCoordinate);
 
   @override
+  @Deprecated('Use controller.mapState.pointToLatLng() instead.')
   LatLng pointToLatLng(CustomPoint<num> screenPoint) =>
       mapState.pointToLatLng(screenPoint);
 
   @override
+  @Deprecated('Use controller.mapState.rotatePoint() instead.')
   CustomPoint<double> rotatePoint(
     CustomPoint mapCenter,
     CustomPoint point, {
@@ -168,8 +175,10 @@ class MapControllerImpl implements MapController {
       );
 
   @override
+  @Deprecated('Use controller.mapState.rotation instead.')
   double get rotation => mapState.rotation;
 
   @override
+  @Deprecated('Use controller.mapState.zoom instead.')
   double get zoom => mapState.zoom;
 }
