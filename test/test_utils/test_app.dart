@@ -25,7 +25,7 @@ class TestApp extends StatelessWidget {
     return MaterialApp(
       home: Scaffold(
         body: Center(
-          // ensure that map is always of the same size
+          // Ensure that map is always of the same size
           child: SizedBox(
             width: 200,
             height: 200,
