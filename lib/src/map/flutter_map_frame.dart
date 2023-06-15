@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/src/geo/crs.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
-import 'package:flutter_map/src/map/flutter_map_state_inherited_widget.dart';
+import 'package:flutter_map/src/map/flutter_map_inherited_model.dart';
 import 'package:flutter_map/src/map/options.dart';
 import 'package:flutter_map/src/misc/point.dart';
 import 'package:flutter_map/src/misc/private/bounds.dart';
@@ -33,10 +33,10 @@ class FlutterMapFrame {
   Bounds<double>? _pixelBounds;
   LatLngBounds? _bounds;
   CustomPoint<int>? _pixelOrigin;
+  double? _rotationRad;
 
-  static FlutterMapFrame? maybeOf(BuildContext context) => context
-      .dependOnInheritedWidgetOfExactType<MapStateInheritedWidget>()
-      ?.frame;
+  static FlutterMapFrame? maybeOf(BuildContext context) =>
+      FlutterMapInheritedModel.maybeFrameOf(context);
 
   static FlutterMapFrame of(BuildContext context) =>
       maybeOf(context) ??
@@ -173,7 +173,7 @@ class FlutterMapFrame {
     return CustomPoint<double>(width, height);
   }
 
-  double get rotationRad => degToRadian(rotation);
+  double get rotationRad => _rotationRad ??= degToRadian(rotation);
 
   CustomPoint<double> project(LatLng latlng, [double? zoom]) =>
       crs.latLngToPoint(latlng, zoom ?? this.zoom);

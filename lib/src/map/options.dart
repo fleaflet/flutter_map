@@ -5,7 +5,7 @@ import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/gestures/interactive_flag.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
-import 'package:flutter_map/src/map/flutter_map_state_inherited_widget.dart';
+import 'package:flutter_map/src/map/flutter_map_inherited_model.dart';
 import 'package:flutter_map/src/misc/fit_bounds_options.dart';
 import 'package:flutter_map/src/misc/frame_constraint.dart';
 import 'package:flutter_map/src/misc/frame_fit.dart';
@@ -209,9 +209,8 @@ class MapOptions {
         assert(pinchZoomThreshold >= 0.0),
         assert(pinchMoveThreshold >= 0.0);
 
-  static MapOptions? maybeOf(BuildContext context) => context
-      .dependOnInheritedWidgetOfExactType<MapStateInheritedWidget>()
-      ?.options;
+  static MapOptions? maybeOf(BuildContext context) =>
+      FlutterMapInheritedModel.maybeOptionsOf(context);
 
   static MapOptions of(BuildContext context) =>
       maybeOf(context) ??

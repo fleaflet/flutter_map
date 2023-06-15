@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/gestures/flutter_map_interactive_viewer.dart';
+import 'package:flutter_map/src/map/flutter_map_inherited_model.dart';
 import 'package:flutter_map/src/map/flutter_map_internal_controller.dart';
-import 'package:flutter_map/src/map/flutter_map_state_inherited_widget.dart';
 import 'package:flutter_map/src/map/map_controller_impl.dart';
 
 class FlutterMapStateContainer extends State<FlutterMap> {
@@ -56,7 +56,7 @@ class FlutterMapStateContainer extends State<FlutterMap> {
 
         return FlutterMapInteractiveViewer(
           controller: _flutterMapInternalController,
-          builder: (context, mapState) => MapStateInheritedWidget(
+          builder: (context, mapState) => FlutterMapInheritedModel(
             controller: _mapController,
             options: mapState.options,
             frame: mapState.mapFrame,
