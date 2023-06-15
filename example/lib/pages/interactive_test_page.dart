@@ -28,7 +28,7 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
   void onMapEvent(MapEvent mapEvent) {
     if (mapEvent is! MapEventMove && mapEvent is! MapEventRotate) {
       // do not flood console with move and rotate events
-      debugPrint(mapEvent.toString());
+      debugPrint(_eventName(mapEvent));
     }
 
     setState(() {
@@ -135,7 +135,7 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
               padding: const EdgeInsets.only(top: 8, bottom: 8),
               child: Center(
                 child: Text(
-                  'Current event: ${_latestEvent?.runtimeType ?? "none"}\nSource: ${_latestEvent?.source ?? "none"}',
+                  'Current event: ${_eventName(_latestEvent)}\nSource: ${_latestEvent?.source.name ?? "none"}',
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -163,5 +163,50 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
         ),
       ),
     );
+  }
+
+  String _eventName(MapEvent? event) {
+    switch (event) {
+      case MapEventTap():
+        return 'MapEventTap';
+      case MapEventSecondaryTap():
+        return 'MapEventSecondaryTap';
+      case MapEventLongPress():
+        return 'MapEventLongPress';
+      case MapEventMove():
+        return 'MapEventMove';
+      case MapEventMoveStart():
+        return 'MapEventMoveStart';
+      case MapEventMoveEnd():
+        return 'MapEventMoveEnd';
+      case MapEventFlingAnimation():
+        return 'MapEventFlingAnimation';
+      case MapEventFlingAnimationNotStarted():
+        return 'MapEventFlingAnimationNotStarted';
+      case MapEventFlingAnimationStart():
+        return 'MapEventFlingAnimationStart';
+      case MapEventFlingAnimationEnd():
+        return 'MapEventFlingAnimationEnd';
+      case MapEventDoubleTapZoom():
+        return 'MapEventDoubleTapZoom';
+      case MapEventScrollWheelZoom():
+        return 'MapEventScrollWheelZoom';
+      case MapEventDoubleTapZoomStart():
+        return 'MapEventDoubleTapZoomStart';
+      case MapEventDoubleTapZoomEnd():
+        return 'MapEventDoubleTapZoomEnd';
+      case MapEventRotate():
+        return 'MapEventRotate';
+      case MapEventRotateStart():
+        return 'MapEventRotateStart';
+      case MapEventRotateEnd():
+        return 'MapEventRotateEnd';
+      case MapEventNonRotatedSizeChange():
+        return 'MapEventNonRotatedSizeChange';
+      case null:
+        return 'null';
+      default:
+        return 'Unknown';
+    }
   }
 }
