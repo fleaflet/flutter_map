@@ -3,11 +3,14 @@
 /// disable all events
 ///
 /// If you want mix interactions for example drag and rotate interactions then
-/// you have two options A.) add you own flags: [InteractiveFlag.drag] |
-/// [InteractiveFlag.rotate] B.) remove unnecessary flags from all:
-/// [InteractiveFlag.all] & ~[InteractiveFlag.flingAnimation] &
-/// ~[InteractiveFlag.pinchMove] & ~[InteractiveFlag.pinchZoom] &
-/// ~[InteractiveFlag.doubleTapZoom]
+/// you have two options:
+///   a. Add you own flags: [InteractiveFlag.drag] | [InteractiveFlag.rotate]
+///   b. Remove unnecessary flags from all:
+///     [InteractiveFlag.all] &
+///       ~[InteractiveFlag.flingAnimation] &
+///       ~[InteractiveFlag.pinchMove] &
+///       ~[InteractiveFlag.pinchZoom] &
+///       ~[InteractiveFlag.doubleTapZoom]
 class InteractiveFlag {
   const InteractiveFlag._();
   static const int all =
