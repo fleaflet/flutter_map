@@ -75,7 +75,7 @@ class FlutterMapStateContainer extends State<FlutterMap> {
                       child: Stack(children: widget.children),
                     ),
                   ),
-                  Stack(children: widget.nonRotatedChildren),
+                  ...widget.nonRotatedChildren,
                 ],
               ),
             ),
