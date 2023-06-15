@@ -26,7 +26,9 @@ class FlutterMapStateContainer extends State<FlutterMap> {
 
   @override
   void didUpdateWidget(FlutterMap oldWidget) {
-    _flutterMapInternalController.setOptions(widget.options);
+    if (oldWidget.options != widget.options) {
+      _flutterMapInternalController.setOptions(widget.options);
+    }
     if (oldWidget.mapController != widget.mapController) {
       _initializeAndLinkMapController();
     }

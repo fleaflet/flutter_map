@@ -254,29 +254,30 @@ class FlutterMapInternalController
     return false;
   }
 
-  void setOptions(MapOptions options) {
-    if (options == value.options) return;
+  void setOptions(MapOptions newOptions) {
+    assert(
+      newOptions != value.options,
+      'Should not update options unless they change',
+    );
 
-    if (options != this.options) {
-      final newMapFrame = mapFrame.withOptions(options);
+    final newMapFrame = mapFrame.withOptions(newOptions);
 
-      assert(
-        options.frameConstraint.constrain(newMapFrame) == newMapFrame,
-        'FlutterMapFrame is no longer within the frameConstraint after an option change.',
-      );
+    assert(
+      newOptions.frameConstraint.constrain(newMapFrame) == newMapFrame,
+      'FlutterMapFrame is no longer within the frameConstraint after an option change.',
+    );
 
-      if (this.options.interactionOptions != options.interactionOptions) {
-        _interactiveViewerState.updateGestures(
-          this.options.interactionOptions,
-          options.interactionOptions,
-        );
-      }
-
-      value = FlutterMapInternalState(
-        options: options,
-        mapFrame: newMapFrame,
+    if (options.interactionOptions != newOptions.interactionOptions) {
+      _interactiveViewerState.updateGestures(
+        options.interactionOptions,
+        newOptions.interactionOptions,
       );
     }
+
+    value = FlutterMapInternalState(
+      options: newOptions,
+      mapFrame: newMapFrame,
+    );
   }
 
   // To be called when a gesture that causes movement starts.
