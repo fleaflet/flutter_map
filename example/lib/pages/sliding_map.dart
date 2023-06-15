@@ -31,7 +31,7 @@ class SlidingMapPage extends StatelessWidget {
                   minZoom: 12,
                   maxZoom: 14,
                   initialZoom: 13,
-                  frameConstraint: FrameConstraint.contain(
+                  frameConstraint: FrameConstraint.containCenter(
                     bounds: LatLngBounds(northEast, southWest),
                   ),
                 ),
@@ -41,49 +41,12 @@ class SlidingMapPage extends StatelessWidget {
                     maxZoom: 14,
                     urlTemplate: 'assets/map/anholt_osmbright/{z}/{x}/{y}.png',
                   ),
-                  MarkerLayer(
-                    anchorPos: AnchorPos.align(AnchorAlign.top),
-                    markers: [
-                      Marker(
-                        point: northEast,
-                        builder: (context) => _cornerMarker(Icons.north_east),
-                        anchorPos: AnchorPos.align(AnchorAlign.bottomLeft),
-                      ),
-                      Marker(
-                        point: LatLng(southWest.latitude, northEast.longitude),
-                        builder: (context) => _cornerMarker(Icons.south_east),
-                        anchorPos: AnchorPos.align(AnchorAlign.topLeft),
-                      ),
-                      Marker(
-                        point: southWest,
-                        builder: (context) => _cornerMarker(Icons.south_west),
-                        anchorPos: AnchorPos.align(AnchorAlign.topRight),
-                      ),
-                      Marker(
-                        point: LatLng(northEast.latitude, southWest.longitude),
-                        builder: (context) => _cornerMarker(Icons.north_west),
-                        anchorPos: AnchorPos.align(AnchorAlign.bottomRight),
-                      ),
-                    ],
-                  )
                 ],
               ),
             ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _cornerMarker(IconData iconData) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.red,
-        border: Border.all(color: Colors.black),
-      ),
-      width: 30,
-      height: 30,
-      child: Icon(iconData),
     );
   }
 }
