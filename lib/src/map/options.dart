@@ -56,68 +56,22 @@ class MapOptions {
   final LatLngBounds? bounds;
   final FitBoundsOptions boundsOptions;
 
-  /// Prints multi finger gesture winner Helps to fine adjust
-  /// [rotationThreshold] and [pinchZoomThreshold] and [pinchMoveThreshold]
-  /// Note: only takes effect if [enableMultiFingerGestureRace] is true
-  final bool debugMultiFingerGestureWinner;
-
-  /// If true then [rotationThreshold] and [pinchZoomThreshold] and
-  /// [pinchMoveThreshold] will race If multiple gestures win at the same time
-  /// then precedence: [pinchZoomWinGestures] > [rotationWinGestures] >
-  /// [pinchMoveWinGestures]
-  final bool enableMultiFingerGestureRace;
-
-  /// Rotation threshold in degree default is 20.0 Map starts to rotate when
-  /// [rotationThreshold] has been achieved or another multi finger gesture wins
-  /// which allows [MultiFingerGesture.rotate] Note: if [interactiveFlags]
-  /// doesn't contain [InteractiveFlag.rotate] or [enableMultiFingerGestureRace]
-  /// is false then rotate cannot win
-  final double rotationThreshold;
-
-  /// When [rotationThreshold] wins over [pinchZoomThreshold] and
-  /// [pinchMoveThreshold] then [rotationWinGestures] gestures will be used. By
-  /// default only [MultiFingerGesture.rotate] gesture will take effect see
-  /// [MultiFingerGesture] for custom settings
-  final int rotationWinGestures;
-
-  /// Pinch Zoom threshold default is 0.5 Map starts to zoom when
-  /// [pinchZoomThreshold] has been achieved or another multi finger gesture
-  /// wins which allows [MultiFingerGesture.pinchZoom] Note: if
-  /// [interactiveFlags] doesn't contain [InteractiveFlag.pinchZoom] or
-  /// [enableMultiFingerGestureRace] is false then zoom cannot win
-  final double pinchZoomThreshold;
-
-  /// When [pinchZoomThreshold] wins over [rotationThreshold] and
-  /// [pinchMoveThreshold] then [pinchZoomWinGestures] gestures will be used. By
-  /// default [MultiFingerGesture.pinchZoom] and [MultiFingerGesture.pinchMove]
-  /// gestures will take effect see [MultiFingerGesture] for custom settings
-  final int pinchZoomWinGestures;
-
-  /// Pinch Move threshold default is 40.0 (note: this doesn't take any effect
-  /// on drag) Map starts to move when [pinchMoveThreshold] has been achieved or
-  /// another multi finger gesture wins which allows
-  /// [MultiFingerGesture.pinchMove] Note: if [interactiveFlags] doesn't contain
-  /// [InteractiveFlag.pinchMove] or [enableMultiFingerGestureRace] is false
-  /// then pinch move cannot win
-  final double pinchMoveThreshold;
-
-  /// When [pinchMoveThreshold] wins over [rotationThreshold] and
-  /// [pinchZoomThreshold] then [pinchMoveWinGestures] gestures will be used. By
-  /// default [MultiFingerGesture.pinchMove] and [MultiFingerGesture.pinchZoom]
-  /// gestures will take effect see [MultiFingerGesture] for custom settings
-  final int pinchMoveWinGestures;
-
-  /// If true then the map will scroll when the user uses the scroll wheel on
-  /// his mouse. This is supported on web and desktop, but might also work well
-  /// on Android. A [Listener] is used to capture the onPointerSignal events.
-  final bool enableScrollWheel;
-  final double scrollWheelVelocity;
+  final bool? _debugMultiFingerGestureWinner;
+  final bool? _enableMultiFingerGestureRace;
+  final double? _rotationThreshold;
+  final int? _rotationWinGestures;
+  final double? _pinchZoomThreshold;
+  final int? _pinchZoomWinGestures;
+  final double? _pinchMoveThreshold;
+  final int? _pinchMoveWinGestures;
+  final bool? _enableScrollWheel;
+  final double? _scrollWheelVelocity;
 
   final double? minZoom;
   final double? maxZoom;
 
   /// see [InteractiveFlag] for custom settings
-  final int interactiveFlags;
+  final int? _interactiveFlags;
 
   final TapCallback? onTap;
   final TapCallback? onSecondaryTap;
@@ -163,33 +117,31 @@ class MapOptions {
     this.boundsOptions = const FitBoundsOptions(),
     this.initialFrameFit,
     this.frameConstraint = const FrameConstraint.unconstrained(),
+    InteractionOptions? interactionOptions,
     @Deprecated('Should be set in interactionOptions instead')
-    this.debugMultiFingerGestureWinner = false,
+    int? interactiveFlags,
     @Deprecated('Should be set in interactionOptions instead')
-    this.enableMultiFingerGestureRace = false,
+    bool? debugMultiFingerGestureWinner,
     @Deprecated('Should be set in interactionOptions instead')
-    this.rotationThreshold = 20.0,
+    bool? enableMultiFingerGestureRace,
     @Deprecated('Should be set in interactionOptions instead')
-    this.rotationWinGestures = MultiFingerGesture.rotate,
+    double? rotationThreshold,
     @Deprecated('Should be set in interactionOptions instead')
-    this.pinchZoomThreshold = 0.5,
+    int? rotationWinGestures,
     @Deprecated('Should be set in interactionOptions instead')
-    this.pinchZoomWinGestures =
-        MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
+    double? pinchZoomThreshold,
     @Deprecated('Should be set in interactionOptions instead')
-    this.pinchMoveThreshold = 40.0,
+    int? pinchZoomWinGestures,
     @Deprecated('Should be set in interactionOptions instead')
-    this.pinchMoveWinGestures =
-        MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
+    double? pinchMoveThreshold,
     @Deprecated('Should be set in interactionOptions instead')
-    this.enableScrollWheel = true,
+    int? pinchMoveWinGestures,
     @Deprecated('Should be set in interactionOptions instead')
-    this.scrollWheelVelocity = 0.005,
+    bool? enableScrollWheel,
+    @Deprecated('Should be set in interactionOptions instead')
+    double? scrollWheelVelocity,
     this.minZoom,
     this.maxZoom,
-    @Deprecated('Should be set in interactionOptions instead')
-    this.interactiveFlags = InteractiveFlag.all,
-    InteractionOptions? interactionOptions,
     this.onTap,
     this.onSecondaryTap,
     this.onLongPress,
@@ -202,12 +154,20 @@ class MapOptions {
     this.onMapReady,
     this.keepAlive = false,
   })  : _interactionOptions = interactionOptions,
+        _interactiveFlags = interactiveFlags,
+        _debugMultiFingerGestureWinner = debugMultiFingerGestureWinner,
+        _enableMultiFingerGestureRace = enableMultiFingerGestureRace,
+        _rotationThreshold = rotationThreshold,
+        _rotationWinGestures = rotationWinGestures,
+        _pinchZoomThreshold = pinchZoomThreshold,
+        _pinchZoomWinGestures = pinchZoomWinGestures,
+        _pinchMoveThreshold = pinchMoveThreshold,
+        _pinchMoveWinGestures = pinchMoveWinGestures,
+        _enableScrollWheel = enableScrollWheel,
+        _scrollWheelVelocity = scrollWheelVelocity,
         initialCenter = center ?? initialCenter,
         initialZoom = zoom ?? initialZoom,
-        initialRotation = rotation ?? initialRotation,
-        assert(rotationThreshold >= 0.0),
-        assert(pinchZoomThreshold >= 0.0),
-        assert(pinchMoveThreshold >= 0.0);
+        initialRotation = rotation ?? initialRotation;
 
   static MapOptions? maybeOf(BuildContext context) =>
       FlutterMapInheritedModel.maybeOptionsOf(context);
@@ -220,18 +180,72 @@ class MapOptions {
   InteractionOptions get interactionOptions =>
       _interactionOptions ??
       InteractionOptions(
-        flags: interactiveFlags,
-        debugMultiFingerGestureWinner: debugMultiFingerGestureWinner,
-        enableMultiFingerGestureRace: enableMultiFingerGestureRace,
-        rotationThreshold: rotationThreshold,
-        rotationWinGestures: rotationWinGestures,
-        pinchZoomThreshold: pinchZoomThreshold,
-        pinchZoomWinGestures: pinchZoomWinGestures,
-        pinchMoveThreshold: pinchMoveThreshold,
-        pinchMoveWinGestures: pinchMoveWinGestures,
-        enableScrollWheel: enableScrollWheel,
-        scrollWheelVelocity: scrollWheelVelocity,
+        flags: _interactiveFlags ?? InteractiveFlag.all,
+        debugMultiFingerGestureWinner: _debugMultiFingerGestureWinner ?? false,
+        enableMultiFingerGestureRace: _enableMultiFingerGestureRace ?? false,
+        rotationThreshold: _rotationThreshold ?? 20.0,
+        rotationWinGestures: _rotationWinGestures ?? MultiFingerGesture.rotate,
+        pinchZoomThreshold: _pinchZoomThreshold ?? 0.5,
+        pinchZoomWinGestures: _pinchZoomWinGestures ??
+            MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
+        pinchMoveThreshold: _pinchMoveThreshold ?? 40.0,
+        pinchMoveWinGestures: _pinchMoveWinGestures ??
+            MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
+        enableScrollWheel: _enableScrollWheel ?? true,
+        scrollWheelVelocity: _scrollWheelVelocity ?? 0.005,
       );
+
+  @override
+  bool operator ==(Object other) =>
+      other is MapOptions &&
+      crs == other.crs &&
+      initialCenter == other.initialCenter &&
+      initialZoom == other.initialZoom &&
+      initialRotation == other.initialRotation &&
+      initialFrameFit == other.initialFrameFit &&
+      bounds == other.bounds &&
+      boundsOptions == other.boundsOptions &&
+      minZoom == other.minZoom &&
+      maxZoom == other.maxZoom &&
+      onTap == other.onTap &&
+      onSecondaryTap == other.onSecondaryTap &&
+      onLongPress == other.onLongPress &&
+      onPointerDown == other.onPointerDown &&
+      onPointerUp == other.onPointerUp &&
+      onPointerCancel == other.onPointerCancel &&
+      onPointerHover == other.onPointerHover &&
+      onPositionChanged == other.onPositionChanged &&
+      onMapEvent == other.onMapEvent &&
+      frameConstraint == other.frameConstraint &&
+      onMapReady == other.onMapReady &&
+      keepAlive == other.keepAlive &&
+      interactionOptions == other.interactionOptions;
+
+  @override
+  int get hashCode => Object.hashAll([
+        crs,
+        initialCenter,
+        initialZoom,
+        initialRotation,
+        initialFrameFit,
+        bounds,
+        boundsOptions,
+        minZoom,
+        maxZoom,
+        onTap,
+        onSecondaryTap,
+        onLongPress,
+        onPointerDown,
+        onPointerUp,
+        onPointerCancel,
+        onPointerHover,
+        onPositionChanged,
+        onMapEvent,
+        frameConstraint,
+        onMapReady,
+        keepAlive,
+        interactionOptions,
+      ]);
 }
 
 final class InteractionOptions {
@@ -296,7 +310,7 @@ final class InteractionOptions {
   final double scrollWheelVelocity;
 
   const InteractionOptions({
-    required this.flags,
+    this.flags = InteractiveFlag.all,
     this.debugMultiFingerGestureWinner = false,
     this.enableMultiFingerGestureRace = false,
     this.rotationThreshold = 20.0,
@@ -309,7 +323,9 @@ final class InteractionOptions {
         MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
     this.enableScrollWheel = true,
     this.scrollWheelVelocity = 0.005,
-  });
+  })  : assert(rotationThreshold >= 0.0),
+        assert(pinchZoomThreshold >= 0.0),
+        assert(pinchMoveThreshold >= 0.0);
 
   bool get dragEnabled => InteractiveFlag.hasDrag(flags);
   bool get flingEnabled => InteractiveFlag.hasFlingAnimation(flags);

@@ -75,6 +75,7 @@ class FlutterMapInteractiveViewerState
   FlutterMapFrame get _mapFrame => widget.controller.mapFrame;
 
   MapOptions get _options => widget.controller.options;
+  InteractionOptions get _interactionOptions => _options.interactionOptions;
 
   @override
   void initState() {
@@ -102,9 +103,8 @@ class FlutterMapInteractiveViewerState
   void didChangeDependencies() {
     // _createGestures uses a MediaQuery to determine gesture settings. This
     // will update those gesture settings if they change.
-
     _gestures = _createGestures(
-      dragEnabled: InteractiveFlag.hasDrag(_options.interactiveFlags),
+      dragEnabled: InteractiveFlag.hasDrag(_interactionOptions.flags),
     );
     super.didChangeDependencies();
   }
@@ -259,7 +259,7 @@ class FlutterMapInteractiveViewerState
         onLongPress: _handleLongPress,
         onDoubleTap: _handleDoubleTap,
         doubleTapDelay:
-            InteractiveFlag.hasDoubleTapZoom(_options.interactiveFlags)
+            InteractiveFlag.hasDoubleTapZoom(_interactionOptions.flags)
                 ? null
                 : Duration.zero,
         child: RawGestureDetector(
@@ -307,7 +307,7 @@ class FlutterMapInteractiveViewerState
   void _onPointerSignal(PointerSignalEvent pointerSignal) {
     // Handle mouse scroll events if the enableScrollWheel parameter is enabled
     if (pointerSignal is PointerScrollEvent &&
-        _options.enableScrollWheel &&
+        _interactionOptions.enableScrollWheel &&
         pointerSignal.scrollDelta.dy != 0) {
       // Prevent scrolling of parent/child widgets simultaneously. See
       // [PointerSignalResolver] documentation for more information.
@@ -318,7 +318,8 @@ class FlutterMapInteractiveViewerState
           final minZoom = _options.minZoom ?? 0.0;
           final maxZoom = _options.maxZoom ?? double.infinity;
           final newZoom = (_mapFrame.zoom -
-                  pointerSignal.scrollDelta.dy * _options.scrollWheelVelocity)
+                  pointerSignal.scrollDelta.dy *
+                      _interactionOptions.scrollWheelVelocity)
               .clamp(minZoom, maxZoom);
           // Calculate offset of mouse cursor from viewport center
           final newCenter = _mapFrame.focusedZoomCenter(
@@ -410,7 +411,7 @@ class FlutterMapInteractiveViewerState
     final currentRotation = radianToDeg(details.rotation);
     if (_dragMode) {
       _handleScaleDragUpdate(details);
-    } else if (InteractiveFlag.hasMultiFinger(_options.interactiveFlags)) {
+    } else if (InteractiveFlag.hasMultiFinger(_interactionOptions.flags)) {
       _handleScaleMultiFingerUpdate(details, currentRotation);
     }
 
@@ -422,7 +423,7 @@ class FlutterMapInteractiveViewerState
   void _handleScaleDragUpdate(ScaleUpdateDetails details) {
     const eventSource = MapEventSource.onDrag;
 
-    if (InteractiveFlag.hasDrag(_options.interactiveFlags)) {
+    if (InteractiveFlag.hasDrag(_interactionOptions.flags)) {
       if (!_dragStarted) {
         // We could emit start event at [handleScaleStart], however it is
         // possible drag will be disabled during ongoing drag then
@@ -444,11 +445,11 @@ class FlutterMapInteractiveViewerState
     ScaleUpdateDetails details,
     double currentRotation,
   ) {
-    final hasGestureRace = _options.enableMultiFingerGestureRace;
+    final hasGestureRace = _interactionOptions.enableMultiFingerGestureRace;
 
     if (hasGestureRace && _gestureWinner == MultiFingerGesture.none) {
       final gestureWinner = _determineMultiFingerGestureWinner(
-        _options.rotationThreshold,
+        _interactionOptions.rotationThreshold,
         currentRotation,
         details.scale,
         details.localFocalPoint,
@@ -464,16 +465,16 @@ class FlutterMapInteractiveViewerState
       final gestures = _getMultiFingerGestureFlags(_options.interactionOptions);
 
       final hasPinchZoom =
-          InteractiveFlag.hasPinchZoom(_options.interactiveFlags) &&
+          InteractiveFlag.hasPinchZoom(_interactionOptions.flags) &&
               MultiFingerGesture.hasPinchZoom(gestures);
       final hasPinchMove =
-          InteractiveFlag.hasPinchMove(_options.interactiveFlags) &&
+          InteractiveFlag.hasPinchMove(_interactionOptions.flags) &&
               MultiFingerGesture.hasPinchMove(gestures);
       if (hasPinchZoom || hasPinchMove) {
         _handleScalePinchZoomAndMove(details, hasPinchZoom, hasPinchMove);
       }
 
-      if (InteractiveFlag.hasRotate(_options.interactiveFlags) &&
+      if (InteractiveFlag.hasRotate(_interactionOptions.flags) &&
           MultiFingerGesture.hasRotate(gestures)) {
         _handleScalePinchRotate(details, currentRotation);
       }
@@ -584,23 +585,23 @@ class FlutterMapInteractiveViewerState
   int? _determineMultiFingerGestureWinner(double rotationThreshold,
       double currentRotation, double scale, Offset focalOffset) {
     final int winner;
-    if (InteractiveFlag.hasPinchZoom(_options.interactiveFlags) &&
+    if (InteractiveFlag.hasPinchZoom(_interactionOptions.flags) &&
         (_getZoomForScale(_mapZoomStart, scale) - _mapZoomStart).abs() >=
-            _options.pinchZoomThreshold) {
-      if (_options.debugMultiFingerGestureWinner) {
+            _interactionOptions.pinchZoomThreshold) {
+      if (_interactionOptions.debugMultiFingerGestureWinner) {
         debugPrint('Multi Finger Gesture winner: Pinch Zoom');
       }
       winner = MultiFingerGesture.pinchZoom;
-    } else if (InteractiveFlag.hasRotate(_options.interactiveFlags) &&
+    } else if (InteractiveFlag.hasRotate(_interactionOptions.flags) &&
         currentRotation.abs() >= rotationThreshold) {
-      if (_options.debugMultiFingerGestureWinner) {
+      if (_interactionOptions.debugMultiFingerGestureWinner) {
         debugPrint('Multi Finger Gesture winner: Rotate');
       }
       winner = MultiFingerGesture.rotate;
-    } else if (InteractiveFlag.hasPinchMove(_options.interactiveFlags) &&
+    } else if (InteractiveFlag.hasPinchMove(_interactionOptions.flags) &&
         (_focalStartLocal - focalOffset).distance >=
-            _options.pinchMoveThreshold) {
-      if (_options.debugMultiFingerGestureWinner) {
+            _interactionOptions.pinchMoveThreshold) {
+      if (_interactionOptions.debugMultiFingerGestureWinner) {
         debugPrint('Multi Finger Gesture winner: Pinch Move');
       }
       winner = MultiFingerGesture.pinchMove;
@@ -628,7 +629,7 @@ class FlutterMapInteractiveViewerState
     }
 
     final hasFling =
-        InteractiveFlag.hasFlingAnimation(_options.interactiveFlags);
+        InteractiveFlag.hasFlingAnimation(_interactionOptions.flags);
 
     final magnitude = details.velocity.pixelsPerSecond.distance;
     if (magnitude < _kMinFlingVelocity || !hasFling) {
@@ -705,7 +706,7 @@ class FlutterMapInteractiveViewerState
     _closeFlingAnimationController(MapEventSource.doubleTap);
     _closeDoubleTapController(MapEventSource.doubleTap);
 
-    if (InteractiveFlag.hasDoubleTapZoom(_options.interactiveFlags)) {
+    if (InteractiveFlag.hasDoubleTapZoom(_interactionOptions.flags)) {
       final newZoom = _getZoomForScale(_mapFrame.zoom, 2);
       final newCenter = _mapFrame.focusedZoomCenter(
         tapPosition.relative!.toCustomPoint(),
@@ -764,7 +765,7 @@ class FlutterMapInteractiveViewerState
   void _handleDoubleTapHold(ScaleUpdateDetails details) {
     _doubleTapHoldMaxDelay?.cancel();
 
-    final flags = _options.interactiveFlags;
+    final flags = _interactionOptions.flags;
     if (InteractiveFlag.hasPinchZoom(flags)) {
       final verticalOffset = (_focalStartLocal - details.localFocalPoint).dy;
       final newZoom = _mapZoomStart - verticalOffset / 360 * _mapFrame.zoom;
