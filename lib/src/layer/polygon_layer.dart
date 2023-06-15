@@ -78,7 +78,7 @@ class PolygonLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final map = FlutterMapFrame.of(context);
+    final map = MapFrame.of(context);
     final size = Size(map.size.x, map.size.y);
 
     final List<Polygon> pgons = polygonCulling
@@ -97,7 +97,7 @@ class PolygonLayer extends StatelessWidget {
 
 class PolygonPainter extends CustomPainter {
   final List<Polygon> polygons;
-  final FlutterMapFrame map;
+  final MapFrame map;
   final LatLngBounds bounds;
 
   PolygonPainter(this.polygons, this.map) : bounds = map.visibleBounds;

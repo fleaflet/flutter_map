@@ -18,14 +18,14 @@ abstract class FrameConstraint {
     required LatLngBounds bounds,
   }) = ContainFrame._;
 
-  FlutterMapFrame? constrain(FlutterMapFrame mapFrame);
+  MapFrame? constrain(MapFrame mapFrame);
 }
 
 class UnconstrainedFrame extends FrameConstraint {
   const UnconstrainedFrame._();
 
   @override
-  FlutterMapFrame constrain(FlutterMapFrame mapFrame) => mapFrame;
+  MapFrame constrain(MapFrame mapFrame) => mapFrame;
 }
 
 class ContainFrameCenter extends FrameConstraint {
@@ -36,7 +36,7 @@ class ContainFrameCenter extends FrameConstraint {
   });
 
   @override
-  FlutterMapFrame constrain(FlutterMapFrame mapFrame) => mapFrame.withPosition(
+  MapFrame constrain(MapFrame mapFrame) => mapFrame.withPosition(
         center: LatLng(
           mapFrame.center.latitude.clamp(
             bounds.south,
@@ -59,7 +59,7 @@ class ContainFrame extends FrameConstraint {
   });
 
   @override
-  FlutterMapFrame? constrain(FlutterMapFrame mapFrame) {
+  MapFrame? constrain(MapFrame mapFrame) {
     final testZoom = mapFrame.zoom;
     final testCenter = mapFrame.center;
 

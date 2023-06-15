@@ -137,10 +137,10 @@ abstract class MapController {
   /// documentation.
   bool fitFrame(FrameFit frameFit);
 
-  /// Current FlutterMapFrame. Accessing the frame from this getter is an
-  /// anti-pattern. It is preferable to use FlutterMapFrame.of(context) in a
-  /// child widget of FlutterMap state.
-  FlutterMapFrame get mapFrame;
+  /// Current [MapFrame]. Accessing the frame from this getter is an
+  /// anti-pattern. It is preferable to use [MapFrame.of(context)] in a child
+  /// widget of FlutterMap.
+  MapFrame get mapFrame;
 
   /// [Stream] of all emitted [MapEvent]s
   Stream<MapEvent> get mapEventStream;

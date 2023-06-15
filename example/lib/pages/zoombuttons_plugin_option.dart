@@ -33,7 +33,7 @@ class FlutterMapZoomButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final map = FlutterMapFrame.of(context);
+    final map = MapFrame.of(context);
     return Align(
       alignment: alignment,
       child: Column(

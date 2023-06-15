@@ -13,7 +13,7 @@ void main() {
           ),
         );
 
-        final mapFrame = FlutterMapFrame(
+        final mapFrame = MapFrame(
           crs: const Epsg3857(),
           center: const LatLng(-90, -180),
           zoom: 1,

@@ -43,7 +43,7 @@ void main() {
       children: [
         Builder(
           builder: (context) {
-            final _ = FlutterMapFrame.of(context);
+            final _ = MapFrame.of(context);
             builds++;
             return const SizedBox.shrink();
           },
@@ -76,11 +76,11 @@ void main() {
     expect(builds, equals(1));
   });
 
-  testWidgets('FlutterMapFrame.of only rebuilds when frame changes',
+  testWidgets('MapFrame.of only notifies dependencies when frame changes',
       (tester) async {
     int buildCount = 0;
     final Widget builder = Builder(builder: (BuildContext context) {
-      FlutterMapFrame.of(context);
+      MapFrame.of(context);
       buildCount++;
       return const SizedBox.shrink();
     });
@@ -101,7 +101,7 @@ void main() {
     expect(buildCount, equals(2));
   });
 
-  testWidgets('MapOptions.of only rebuilds when options change',
+  testWidgets('MapOptions.of only notifies dependencies when options change',
       (tester) async {
     int buildCount = 0;
     final Widget builder = Builder(builder: (BuildContext context) {
@@ -126,7 +126,8 @@ void main() {
     expect(buildCount, equals(3));
   });
 
-  testWidgets('MapController.of only rebuilds when controller changes',
+  testWidgets(
+      'MapController.of only notifies dependencies when controller changes',
       (tester) async {
     int buildCount = 0;
     final Widget builder = Builder(builder: (BuildContext context) {

@@ -8,7 +8,7 @@ class FlutterMapInheritedModel extends InheritedModel<_FlutterMapAspect> {
 
   FlutterMapInheritedModel({
     super.key,
-    required FlutterMapFrame frame,
+    required MapFrame frame,
     required MapController controller,
     required MapOptions options,
     required super.child,
@@ -26,7 +26,7 @@ class FlutterMapInheritedModel extends InheritedModel<_FlutterMapAspect> {
               aspect: aspect)
           ?.data;
 
-  static FlutterMapFrame? maybeFrameOf(BuildContext context) =>
+  static MapFrame? maybeFrameOf(BuildContext context) =>
       _maybeOf(context, _FlutterMapAspect.frame)?.frame;
 
   static MapController? maybeControllerOf(BuildContext context) =>
@@ -60,7 +60,7 @@ class FlutterMapInheritedModel extends InheritedModel<_FlutterMapAspect> {
 }
 
 class FlutterMapData {
-  final FlutterMapFrame frame;
+  final MapFrame frame;
   final MapController controller;
   final MapOptions options;
 

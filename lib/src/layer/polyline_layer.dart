@@ -66,7 +66,7 @@ class PolylineLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final map = FlutterMapFrame.of(context);
+    final map = MapFrame.of(context);
 
     return CustomPaint(
       painter: PolylinePainter(
@@ -86,7 +86,7 @@ class PolylineLayer extends StatelessWidget {
 class PolylinePainter extends CustomPainter {
   final List<Polyline> polylines;
 
-  final FlutterMapFrame map;
+  final MapFrame map;
   final LatLngBounds bounds;
 
   PolylinePainter(this.polylines, this.map) : bounds = map.visibleBounds;

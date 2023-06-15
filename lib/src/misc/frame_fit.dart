@@ -25,7 +25,7 @@ abstract class FrameFit {
     bool forceIntegerZoomLevel,
   }) = FitCoordinates;
 
-  FlutterMapFrame fit(FlutterMapFrame mapFrame);
+  MapFrame fit(MapFrame mapFrame);
 }
 
 class FitBounds extends FrameFit {
@@ -48,7 +48,7 @@ class FitBounds extends FrameFit {
   });
 
   @override
-  FlutterMapFrame fit(FlutterMapFrame mapFrame) {
+  MapFrame fit(MapFrame mapFrame) {
     final paddingTL = CustomPoint<double>(padding.left, padding.top);
     final paddingBR = CustomPoint<double>(padding.right, padding.bottom);
 
@@ -81,7 +81,7 @@ class FitBounds extends FrameFit {
   }
 
   double getBoundsZoom(
-    FlutterMapFrame mapFrame,
+    MapFrame mapFrame,
     CustomPoint<double> pixelPadding,
   ) {
     final min = mapFrame.minZoom ?? 0.0;
@@ -137,7 +137,7 @@ class FitCoordinates extends FrameFit {
   });
 
   @override
-  FlutterMapFrame fit(FlutterMapFrame mapFrame) {
+  MapFrame fit(MapFrame mapFrame) {
     final paddingTL = CustomPoint<double>(padding.left, padding.top);
     final paddingBR = CustomPoint<double>(padding.right, padding.bottom);
 
@@ -171,7 +171,7 @@ class FitCoordinates extends FrameFit {
   }
 
   double getCoordinatesZoom(
-    FlutterMapFrame mapFrame,
+    MapFrame mapFrame,
     CustomPoint<double> pixelPadding,
   ) {
     final min = mapFrame.minZoom ?? 0.0;

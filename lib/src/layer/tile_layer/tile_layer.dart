@@ -329,7 +329,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    final mapFrame = FlutterMapFrame.of(context);
+    final mapFrame = MapFrame.of(context);
 
     final mapController = MapController.of(context);
     if (_mapControllerHashCode != mapController.hashCode) {
@@ -421,7 +421,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     if (reloadTiles) {
       _tileImageManager.removeAll(widget.evictErrorTileStrategy);
-      _loadAndPruneInVisibleBounds(FlutterMapFrame.maybeOf(context)!);
+      _loadAndPruneInVisibleBounds(MapFrame.maybeOf(context)!);
     } else if (oldWidget.tileDisplay != widget.tileDisplay) {
       _tileImageManager.updateTileDisplay(widget.tileDisplay);
     }
@@ -440,7 +440,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final map = FlutterMapFrame.of(context);
+    final map = MapFrame.of(context);
 
     if (_outsideZoomLimits(map.zoom.round())) return const SizedBox.shrink();
 
@@ -540,7 +540,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   }
 
   // Load new tiles in the visible bounds and prune those outside.
-  void _loadAndPruneInVisibleBounds(FlutterMapFrame mapFrame) {
+  void _loadAndPruneInVisibleBounds(MapFrame mapFrame) {
     final tileZoom = _clampToNativeZoom(mapFrame.zoom);
     final visibleTileRange = _tileRangeCalculator.calculate(
       mapFrame: mapFrame,

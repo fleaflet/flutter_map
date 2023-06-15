@@ -33,7 +33,7 @@ abstract class MapEvent {
   final MapEventSource source;
 
   /// The map frame after the event.
-  final FlutterMapFrame mapFrame;
+  final MapFrame mapFrame;
 
   const MapEvent({
     required this.source,
@@ -45,7 +45,7 @@ abstract class MapEvent {
 /// includes information about camera movement
 /// which are not partial (e.g start rotate, rotate, end rotate).
 abstract class MapEventWithMove extends MapEvent {
-  final FlutterMapFrame oldMapFrame;
+  final MapFrame oldMapFrame;
 
   const MapEventWithMove({
     required super.source,
@@ -56,8 +56,8 @@ abstract class MapEventWithMove extends MapEvent {
   /// Returns a subclass of [MapEventWithMove] if the [source] belongs to a
   /// movement event, otherwise returns null.
   static MapEventWithMove? fromSource({
-    required FlutterMapFrame oldMapFrame,
-    required FlutterMapFrame mapFrame,
+    required MapFrame oldMapFrame,
+    required MapFrame mapFrame,
     required bool hasGesture,
     required MapEventSource source,
     String? id,

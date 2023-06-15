@@ -23,7 +23,7 @@ class TileUpdateEvent {
 
   LatLng get center => loadCenterOverride ?? mapEvent.mapFrame.center;
 
-  FlutterMapFrame get mapFrame => mapEvent.mapFrame;
+  MapFrame get mapFrame => mapEvent.mapFrame;
 
   /// Returns a copy of this TileUpdateEvent with only pruning enabled and the
   /// loadCenterOverride/loadZoomOverride removed.

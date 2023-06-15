@@ -72,7 +72,7 @@ class FlutterMapInteractiveViewerState
   int _tapUpCounter = 0;
   Timer? _doubleTapHoldMaxDelay;
 
-  FlutterMapFrame get _mapFrame => widget.controller.mapFrame;
+  MapFrame get _mapFrame => widget.controller.mapFrame;
 
   MapOptions get _options => widget.controller.options;
   InteractionOptions get _interactionOptions => _options.interactionOptions;

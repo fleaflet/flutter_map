@@ -1,7 +1,7 @@
 import 'package:flutter_map/plugin_api.dart';
 
 class FlutterMapInternalState {
-  final FlutterMapFrame mapFrame;
+  final MapFrame mapFrame;
   final MapOptions options;
 
   const FlutterMapInternalState({
@@ -9,7 +9,7 @@ class FlutterMapInternalState {
     required this.mapFrame,
   });
 
-  FlutterMapInternalState withMapFrame(FlutterMapFrame mapFrame) =>
+  FlutterMapInternalState withMapFrame(MapFrame mapFrame) =>
       FlutterMapInternalState(
         options: options,
         mapFrame: mapFrame,

@@ -102,7 +102,7 @@ class MapControllerImpl implements MapController {
       );
 
   @override
-  FlutterMapFrame get mapFrame => _internalController.mapFrame;
+  MapFrame get mapFrame => _internalController.mapFrame;
 
   final _mapEventStreamController = StreamController<MapEvent>.broadcast();
 

@@ -192,7 +192,7 @@ class MarkerLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final map = FlutterMapFrame.of(context);
+    final map = MapFrame.of(context);
     final markerWidgets = <Widget>[];
 
     for (final marker in markers) {

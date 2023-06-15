@@ -17,7 +17,7 @@ class FlutterMapInternalController
       : super(
           FlutterMapInternalState(
             options: options,
-            mapFrame: FlutterMapFrame.initialFrame(options),
+            mapFrame: MapFrame.initialFrame(options),
           ),
         );
 
@@ -29,7 +29,7 @@ class FlutterMapInternalController
       _interactiveViewerState = interactiveViewerState;
 
   MapOptions get options => value.options;
-  FlutterMapFrame get mapFrame => value.mapFrame;
+  MapFrame get mapFrame => value.mapFrame;
 
   void linkMapController(MapControllerImpl mapControllerImpl) {
     _mapControllerImpl = mapControllerImpl;
@@ -65,7 +65,7 @@ class FlutterMapInternalController
       );
     }
 
-    FlutterMapFrame? newMapFrame = mapFrame.withPosition(
+    MapFrame? newMapFrame = mapFrame.withPosition(
       center: newCenter,
       zoom: mapFrame.clampZoom(newZoom),
     );
@@ -245,7 +245,7 @@ class FlutterMapInternalController
   bool setNonRotatedSizeWithoutEmittingEvent(
     CustomPoint<double> nonRotatedSize,
   ) {
-    if (nonRotatedSize != FlutterMapFrame.kImpossibleSize &&
+    if (nonRotatedSize != MapFrame.kImpossibleSize &&
         nonRotatedSize != mapFrame.nonRotatedSize) {
       value = value.withMapFrame(mapFrame.withNonRotatedSize(nonRotatedSize));
       return true;
@@ -264,7 +264,7 @@ class FlutterMapInternalController
 
     assert(
       newOptions.frameConstraint.constrain(newMapFrame) == newMapFrame,
-      'FlutterMapFrame is no longer within the frameConstraint after an option change.',
+      'MapFrame is no longer within the frameConstraint after an option change.',
     );
 
     if (options.interactionOptions != newOptions.interactionOptions) {
@@ -435,8 +435,8 @@ class FlutterMapInternalController
   // To be called when the map's size constraints change.
   void nonRotatedSizeChange(
     MapEventSource source,
-    FlutterMapFrame oldMapFrame,
-    FlutterMapFrame newMapFrame,
+    MapFrame oldMapFrame,
+    MapFrame newMapFrame,
   ) {
     _emitMapEvent(
       MapEventNonRotatedSizeChange(

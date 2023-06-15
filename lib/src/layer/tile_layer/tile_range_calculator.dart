@@ -13,7 +13,7 @@ class TileRangeCalculator {
   /// resulting tile range is expanded by [panBuffer].
   DiscreteTileRange calculate({
     // The map frame used to calculate the bounds.
-    required FlutterMapFrame mapFrame,
+    required MapFrame mapFrame,
     // The zoom level at which the bounds should be calculated.
     required int tileZoom,
     // The center from which the map is viewed, defaults to [mapFrame.center].
@@ -34,7 +34,7 @@ class TileRangeCalculator {
   }
 
   Bounds<double> _calculatePixelBounds(
-    FlutterMapFrame mapFrame,
+    MapFrame mapFrame,
     LatLng center,
     double viewingZoom,
     int tileZoom,

@@ -12,7 +12,7 @@ abstract class BaseOverlayImage {
 
   bool get gaplessPlayback;
 
-  Positioned buildPositionedForOverlay(FlutterMapFrame map);
+  Positioned buildPositionedForOverlay(MapFrame map);
 
   Image buildImageForOverlay() {
     return Image(
@@ -45,7 +45,7 @@ class OverlayImage extends BaseOverlayImage {
       this.gaplessPlayback = false});
 
   @override
-  Positioned buildPositionedForOverlay(FlutterMapFrame map) {
+  Positioned buildPositionedForOverlay(MapFrame map) {
     // northWest is not necessarily upperLeft depending on projection
     final bounds = Bounds<num>(
       map.project(this.bounds.northWest) - map.pixelOrigin,
@@ -92,7 +92,7 @@ class RotatedOverlayImage extends BaseOverlayImage {
       this.filterQuality = FilterQuality.medium});
 
   @override
-  Positioned buildPositionedForOverlay(FlutterMapFrame map) {
+  Positioned buildPositionedForOverlay(MapFrame map) {
     final pxTopLeft = map.project(topLeftCorner) - map.pixelOrigin;
     final pxBottomRight = map.project(bottomRightCorner) - map.pixelOrigin;
     final pxBottomLeft = map.project(bottomLeftCorner) - map.pixelOrigin;
@@ -136,7 +136,7 @@ class OverlayImageLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final map = FlutterMapFrame.of(context);
+    final map = MapFrame.of(context);
     return ClipRect(
       child: Stack(
         children: <Widget>[
