@@ -22,7 +22,6 @@ abstract class FrameFit {
     required List<LatLng> coordinates,
     EdgeInsets padding,
     double maxZoom,
-    bool inside,
     bool forceIntegerZoomLevel,
   }) = FitCoordinates;
 
@@ -124,7 +123,6 @@ class FitCoordinates extends FrameFit {
   final List<LatLng> coordinates;
   final EdgeInsets padding;
   final double maxZoom;
-  final bool inside;
 
   /// By default calculations will return fractional zoom levels.
   /// If this parameter is set to [true] fractional zoom levels will be round
@@ -135,7 +133,6 @@ class FitCoordinates extends FrameFit {
     required this.coordinates,
     this.padding = EdgeInsets.zero,
     this.maxZoom = 17.0,
-    this.inside = false,
     this.forceIntegerZoomLevel = false,
   });
 
@@ -195,11 +192,11 @@ class FitCoordinates extends FrameFit {
 
     final scaleX = size.x / boundsSize.x;
     final scaleY = size.y / boundsSize.y;
-    final scale = inside ? math.max(scaleX, scaleY) : math.min(scaleX, scaleY);
+    final scale = math.min(scaleX, scaleY);
 
     var newZoom = mapFrame.getScaleZoom(scale, mapFrame.zoom);
     if (forceIntegerZoomLevel) {
-      newZoom = inside ? newZoom.ceilToDouble() : newZoom.floorToDouble();
+      newZoom = newZoom.floorToDouble();
     }
 
     return math.max(min, math.min(max, newZoom));
