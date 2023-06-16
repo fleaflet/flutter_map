@@ -28,12 +28,6 @@ Widget build(BuildContext context) {
       center: LatLng(51.509364, -0.128928),
       zoom: 9.2,
     ),
-    <a data-footnote-ref href="#user-content-fn-4">children</a>: [
-      TileLayer(
-        <a data-footnote-ref href="#user-content-fn-5">urlTemplate:</a> 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-        userAgentPackageName: 'com.example.app',
-      ),
-    ],
     nonRotatedChildren: [
       <a data-footnote-ref href="#user-content-fn-6">RichAttributionWidget</a>(
         attributions: [
@@ -42,6 +36,12 @@ Widget build(BuildContext context) {
             onTap: () => <a data-footnote-ref href="#user-content-fn-7">launchUrl</a>(Uri.parse('https://openstreetmap.org/copyright')),
           ),
         ],
+      ),
+    ],
+    <a data-footnote-ref href="#user-content-fn-4">children</a>: [
+      TileLayer(
+        <a data-footnote-ref href="#user-content-fn-5">urlTemplate:</a> 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        userAgentPackageName: 'com.example.app',
       ),
     ],
   );
