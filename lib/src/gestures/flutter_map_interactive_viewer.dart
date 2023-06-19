@@ -62,10 +62,16 @@ class FlutterMapInteractiveViewerState
   late Offset _focalStartLocal;
   late LatLng _focalStartLatLng;
 
-  late final AnimationController _flingController;
+  late final AnimationController _flingController =
+      AnimationController(vsync: this);
   late Animation<Offset> _flingAnimation;
 
-  late final AnimationController _doubleTapController;
+  late final AnimationController _doubleTapController = AnimationController(
+    vsync: this,
+    duration: const Duration(
+      milliseconds: _kDoubleTapZoomDuration,
+    ),
+  );
   late Animation<double> _doubleTapZoomAnimation;
   late Animation<LatLng> _doubleTapCenterAnimation;
 
@@ -82,15 +88,10 @@ class FlutterMapInteractiveViewerState
     super.initState();
     widget.controller.interactiveViewerState = this;
     widget.controller.addListener(_onMapStateChange);
-    _flingController = AnimationController(vsync: this)
+    _flingController
       ..addListener(_handleFlingAnimation)
       ..addStatusListener(_flingAnimationStatusListener);
-    _doubleTapController = AnimationController(
-      vsync: this,
-      duration: const Duration(
-        milliseconds: _kDoubleTapZoomDuration,
-      ),
-    )
+    _doubleTapController
       ..addListener(_handleDoubleTapZoomAnimation)
       ..addStatusListener(_doubleTapZoomStatusListener);
   }
