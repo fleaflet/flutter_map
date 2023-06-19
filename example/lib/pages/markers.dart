@@ -129,7 +129,7 @@ class MarkerPageState extends State<MarkerPage> {
                             47.18664724067855, -1.5436768515939427),
                         width: 64,
                         height: 64,
-                        anchorPos: AnchorPos.align(AnchorAlign.left),
+                        anchorPos: const AnchorPos.align(AnchorAlign.left),
                         builder: (context) => const ColoredBox(
                           color: Colors.lightBlue,
                           child: Align(
@@ -143,7 +143,7 @@ class MarkerPageState extends State<MarkerPage> {
                             47.18664724067855, -1.5436768515939427),
                         width: 64,
                         height: 64,
-                        anchorPos: AnchorPos.align(AnchorAlign.right),
+                        anchorPos: const AnchorPos.align(AnchorAlign.right),
                         builder: (context) => const ColoredBox(
                           color: Colors.pink,
                           child: Align(
@@ -156,7 +156,6 @@ class MarkerPageState extends State<MarkerPage> {
                         point: const LatLng(
                             47.18664724067855, -1.5436768515939427),
                         rotate: false,
-                        anchorPos: AnchorPos.align(AnchorAlign.center),
                         builder: (context) =>
                             const ColoredBox(color: Colors.black),
                       ),

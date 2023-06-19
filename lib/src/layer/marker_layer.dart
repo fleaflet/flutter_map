@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:flutter_map/src/map/state.dart';
+import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Defines the positioning of a [Marker.builder] widget relative to the center
@@ -10,11 +10,13 @@ import 'package:latlong2/latlong.dart';
 /// Can be defined exactly (using [AnchorPos.exactly] with an [Anchor]) or in
 /// a relative alignment (using [AnchorPos.align] with an [AnchorAlign]).
 class AnchorPos {
+  static const defaultAnchorPos = AnchorPos.align(AnchorAlign.center);
+
   final Anchor? anchor;
   final AnchorAlign? alignment;
 
-  AnchorPos.exactly(Anchor this.anchor) : alignment = null;
-  AnchorPos.align(AnchorAlign this.alignment) : anchor = null;
+  const AnchorPos.exactly(Anchor this.anchor) : alignment = null;
+  const AnchorPos.align(AnchorAlign this.alignment) : anchor = null;
 }
 
 /// Exact alignment for a [Marker.builder] widget relative to the center
@@ -26,7 +28,7 @@ class Anchor {
   final double left;
   final double top;
 
-  Anchor(this.left, this.top);
+  const Anchor(this.left, this.top);
 
   factory Anchor.fromPos(AnchorPos pos, double width, double height) {
     if (pos.anchor case final anchor?) return anchor;
@@ -97,8 +99,8 @@ class Marker {
   final double height;
 
   /// Positioning of the [builder] widget relative to the center of its bounding
-  /// box defined by its [height] & [width]
-  final AnchorPos? anchorPos;
+  /// box.
+  final Anchor? anchor;
 
   /// Whether to counter rotate markers to the map's rotation, to keep a fixed
   /// orientation
@@ -131,11 +133,12 @@ class Marker {
     required this.builder,
     this.width = 30.0,
     this.height = 30.0,
-    this.anchorPos,
+    AnchorPos? anchorPos,
     this.rotate,
     this.rotateOrigin,
     this.rotateAlignment,
-  });
+  }) : anchor =
+            anchorPos == null ? null : Anchor.fromPos(anchorPos, width, height);
 }
 
 class MarkerLayer extends StatelessWidget {
@@ -200,11 +203,12 @@ class MarkerLayer extends StatelessWidget {
       // This calculation works for any Anchor position whithin the Marker
       // Note that Anchor coordinates of (0,0) are at bottom-right of the Marker
       // unlike the map coordinates.
-      final anchor = Anchor.fromPos(
-        marker.anchorPos ?? anchorPos ?? AnchorPos.align(AnchorAlign.center),
-        marker.width,
-        marker.height,
-      );
+      final anchor = marker.anchor ??
+          Anchor.fromPos(
+            anchorPos ?? AnchorPos.defaultAnchorPos,
+            marker.width,
+            marker.height,
+          );
       final rightPortion = marker.width - anchor.left;
       final leftPortion = anchor.left;
       final bottomPortion = marker.height - anchor.top;
