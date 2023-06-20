@@ -43,7 +43,7 @@ void main() {
       children: [
         Builder(
           builder: (context) {
-            final _ = MapFrame.of(context);
+            final _ = MapCamera.of(context);
             builds++;
             return const SizedBox.shrink();
           },
@@ -76,11 +76,11 @@ void main() {
     expect(builds, equals(1));
   });
 
-  testWidgets('MapFrame.of only notifies dependencies when frame changes',
+  testWidgets('MapCamera.of only notifies dependencies when camera changes',
       (tester) async {
     int buildCount = 0;
     final Widget builder = Builder(builder: (BuildContext context) {
-      MapFrame.of(context);
+      MapCamera.of(context);
       buildCount++;
       return const SizedBox.shrink();
     });

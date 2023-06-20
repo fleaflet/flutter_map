@@ -7,7 +7,7 @@ import 'package:flutter_map/src/gestures/interactive_flag.dart';
 import 'package:flutter_map/src/gestures/latlng_tween.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
-import 'package:flutter_map/src/map/flutter_map_frame.dart';
+import 'package:flutter_map/src/map/camera.dart';
 import 'package:flutter_map/src/map/flutter_map_internal_controller.dart';
 import 'package:flutter_map/src/map/flutter_map_internal_state.dart';
 import 'package:flutter_map/src/map/options.dart';
@@ -78,7 +78,7 @@ class FlutterMapInteractiveViewerState
   int _tapUpCounter = 0;
   Timer? _doubleTapHoldMaxDelay;
 
-  MapFrame get _mapFrame => widget.controller.mapFrame;
+  MapCamera get _mapCamera => widget.controller.mapCamera;
 
   MapOptions get _options => widget.controller.options;
   InteractionOptions get _interactionOptions => _options.interactionOptions;
@@ -275,7 +275,7 @@ class FlutterMapInteractiveViewerState
     ++_pointerCounter;
 
     if (_options.onPointerDown != null) {
-      final latlng = _mapFrame.offsetToCrs(event.localPosition);
+      final latlng = _mapCamera.offsetToCrs(event.localPosition);
       _options.onPointerDown!(event, latlng);
     }
   }
@@ -284,7 +284,7 @@ class FlutterMapInteractiveViewerState
     --_pointerCounter;
 
     if (_options.onPointerUp != null) {
-      final latlng = _mapFrame.offsetToCrs(event.localPosition);
+      final latlng = _mapCamera.offsetToCrs(event.localPosition);
       _options.onPointerUp!(event, latlng);
     }
   }
@@ -293,14 +293,14 @@ class FlutterMapInteractiveViewerState
     --_pointerCounter;
 
     if (_options.onPointerCancel != null) {
-      final latlng = _mapFrame.offsetToCrs(event.localPosition);
+      final latlng = _mapCamera.offsetToCrs(event.localPosition);
       _options.onPointerCancel!(event, latlng);
     }
   }
 
   void _onPointerHover(PointerHoverEvent event) {
     if (_options.onPointerHover != null) {
-      final latlng = _mapFrame.offsetToCrs(event.localPosition);
+      final latlng = _mapCamera.offsetToCrs(event.localPosition);
       _options.onPointerHover!(event, latlng);
     }
   }
@@ -318,12 +318,12 @@ class FlutterMapInteractiveViewerState
           pointerSignal as PointerScrollEvent;
           final minZoom = _options.minZoom ?? 0.0;
           final maxZoom = _options.maxZoom ?? double.infinity;
-          final newZoom = (_mapFrame.zoom -
+          final newZoom = (_mapCamera.zoom -
                   pointerSignal.scrollDelta.dy *
                       _interactionOptions.scrollWheelVelocity)
               .clamp(minZoom, maxZoom);
           // Calculate offset of mouse cursor from viewport center
-          final newCenter = _mapFrame.focusedZoomCenter(
+          final newCenter = _mapCamera.focusedZoomCenter(
             pointerSignal.localPosition.toCustomPoint(),
             newZoom,
           );
@@ -388,10 +388,10 @@ class FlutterMapInteractiveViewerState
 
     _gestureWinner = MultiFingerGesture.none;
 
-    _mapZoomStart = _mapFrame.zoom;
-    _mapCenterStart = _mapFrame.center;
+    _mapZoomStart = _mapCamera.zoom;
+    _mapCenterStart = _mapCamera.center;
     _focalStartLocal = _lastFocalLocal = details.localFocalPoint;
-    _focalStartLatLng = _mapFrame.offsetToCrs(_focalStartLocal);
+    _focalStartLatLng = _mapCamera.offsetToCrs(_focalStartLocal);
 
     _dragStarted = false;
     _pinchZoomStarted = false;
@@ -487,8 +487,8 @@ class FlutterMapInteractiveViewerState
     bool hasPinchZoom,
     bool hasPinchMove,
   ) {
-    LatLng newCenter = _mapFrame.center;
-    double newZoom = _mapFrame.zoom;
+    LatLng newCenter = _mapCamera.center;
+    double newZoom = _mapCamera.zoom;
 
     // Handle pinch zoom.
     if (hasPinchZoom && details.scale > 0.0) {
@@ -540,17 +540,19 @@ class FlutterMapInteractiveViewerState
     ScaleUpdateDetails details,
     double zoomAfterPinchZoom,
   ) {
-    final oldCenterPt = _mapFrame.project(_mapFrame.center, zoomAfterPinchZoom);
+    final oldCenterPt =
+        _mapCamera.project(_mapCamera.center, zoomAfterPinchZoom);
     final newFocalLatLong =
-        _mapFrame.offsetToCrs(_focalStartLocal, zoomAfterPinchZoom);
-    final newFocalPt = _mapFrame.project(newFocalLatLong, zoomAfterPinchZoom);
-    final oldFocalPt = _mapFrame.project(_focalStartLatLng, zoomAfterPinchZoom);
+        _mapCamera.offsetToCrs(_focalStartLocal, zoomAfterPinchZoom);
+    final newFocalPt = _mapCamera.project(newFocalLatLong, zoomAfterPinchZoom);
+    final oldFocalPt =
+        _mapCamera.project(_focalStartLatLng, zoomAfterPinchZoom);
     final zoomDifference = oldFocalPt - newFocalPt;
     final moveDifference = _rotateOffset(_focalStartLocal - _lastFocalLocal);
 
     final newCenterPt =
         oldCenterPt + zoomDifference + moveDifference.toCustomPoint();
-    return _mapFrame.unproject(newCenterPt, zoomAfterPinchZoom);
+    return _mapCamera.unproject(newCenterPt, zoomAfterPinchZoom);
   }
 
   void _handleScalePinchRotate(
@@ -564,17 +566,17 @@ class FlutterMapInteractiveViewerState
 
     if (_rotationStarted) {
       final rotationDiff = currentRotation - _lastRotation;
-      final oldCenterPt = _mapFrame.project(_mapFrame.center);
+      final oldCenterPt = _mapCamera.project(_mapCamera.center);
       final rotationCenter =
-          _mapFrame.project(_mapFrame.offsetToCrs(_lastFocalLocal));
+          _mapCamera.project(_mapCamera.offsetToCrs(_lastFocalLocal));
       final vector = oldCenterPt - rotationCenter;
       final rotatedVector = vector.rotate(degToRadian(rotationDiff));
       final newCenter = rotationCenter + rotatedVector;
 
       widget.controller.moveAndRotate(
-        _mapFrame.unproject(newCenter),
-        _mapFrame.zoom,
-        _mapFrame.rotation + rotationDiff,
+        _mapCamera.unproject(newCenter),
+        _mapCamera.zoom,
+        _mapCamera.rotation + rotationDiff,
         offset: Offset.zero,
         hasGesture: true,
         source: MapEventSource.onMultiFinger,
@@ -640,7 +642,7 @@ class FlutterMapInteractiveViewerState
 
     final direction = details.velocity.pixelsPerSecond / magnitude;
     final distance = (Offset.zero &
-            Size(_mapFrame.nonRotatedSize.x, _mapFrame.nonRotatedSize.y))
+            Size(_mapCamera.nonRotatedSize.x, _mapCamera.nonRotatedSize.y))
         .shortestSide;
 
     final flingOffset = _focalStartLocal - _lastFocalLocal;
@@ -670,7 +672,7 @@ class FlutterMapInteractiveViewerState
     widget.controller.tapped(
       MapEventSource.tap,
       position,
-      _mapFrame.offsetToCrs(relativePosition),
+      _mapCamera.offsetToCrs(relativePosition),
     );
   }
 
@@ -684,7 +686,7 @@ class FlutterMapInteractiveViewerState
     widget.controller.secondaryTapped(
       MapEventSource.secondaryTap,
       position,
-      _mapFrame.offsetToCrs(relativePosition),
+      _mapCamera.offsetToCrs(relativePosition),
     );
   }
 
@@ -697,7 +699,7 @@ class FlutterMapInteractiveViewerState
     widget.controller.longPressed(
       MapEventSource.longPress,
       position,
-      _mapFrame.offsetToCrs(position.relative!),
+      _mapCamera.offsetToCrs(position.relative!),
     );
   }
 
@@ -708,8 +710,8 @@ class FlutterMapInteractiveViewerState
     _closeDoubleTapController(MapEventSource.doubleTap);
 
     if (InteractiveFlag.hasDoubleTapZoom(_interactionOptions.flags)) {
-      final newZoom = _getZoomForScale(_mapFrame.zoom, 2);
-      final newCenter = _mapFrame.focusedZoomCenter(
+      final newZoom = _getZoomForScale(_mapCamera.zoom, 2);
+      final newCenter = _mapCamera.focusedZoomCenter(
         tapPosition.relative!.toCustomPoint(),
         newZoom,
       );
@@ -718,11 +720,12 @@ class FlutterMapInteractiveViewerState
   }
 
   void _startDoubleTapAnimation(double newZoom, LatLng newCenter) {
-    _doubleTapZoomAnimation = Tween<double>(begin: _mapFrame.zoom, end: newZoom)
-        .chain(CurveTween(curve: Curves.linear))
-        .animate(_doubleTapController);
+    _doubleTapZoomAnimation =
+        Tween<double>(begin: _mapCamera.zoom, end: newZoom)
+            .chain(CurveTween(curve: Curves.linear))
+            .animate(_doubleTapController);
     _doubleTapCenterAnimation =
-        LatLngTween(begin: _mapFrame.center, end: newCenter)
+        LatLngTween(begin: _mapCamera.center, end: newCenter)
             .chain(CurveTween(curve: Curves.linear))
             .animate(_doubleTapController);
     _doubleTapController.forward(from: 0);
@@ -769,14 +772,14 @@ class FlutterMapInteractiveViewerState
     final flags = _interactionOptions.flags;
     if (InteractiveFlag.hasPinchZoom(flags)) {
       final verticalOffset = (_focalStartLocal - details.localFocalPoint).dy;
-      final newZoom = _mapZoomStart - verticalOffset / 360 * _mapFrame.zoom;
+      final newZoom = _mapZoomStart - verticalOffset / 360 * _mapCamera.zoom;
 
       final min = _options.minZoom ?? 0.0;
       final max = _options.maxZoom ?? double.infinity;
       final actualZoom = math.max(min, math.min(max, newZoom));
 
       widget.controller.move(
-        _mapFrame.center,
+        _mapCamera.center,
         actualZoom,
         offset: Offset.zero,
         hasGesture: true,
@@ -793,13 +796,13 @@ class FlutterMapInteractiveViewerState
       _startListeningForAnimationInterruptions();
     }
 
-    final newCenterPoint = _mapFrame.project(_mapCenterStart) +
-        _flingAnimation.value.toCustomPoint().rotate(_mapFrame.rotationRad);
-    final newCenter = _mapFrame.unproject(newCenterPoint);
+    final newCenterPoint = _mapCamera.project(_mapCenterStart) +
+        _flingAnimation.value.toCustomPoint().rotate(_mapCamera.rotationRad);
+    final newCenter = _mapCamera.unproject(newCenterPoint);
 
     widget.controller.move(
       newCenter,
-      _mapFrame.zoom,
+      _mapCamera.zoom,
       offset: Offset.zero,
       hasGesture: true,
       source: MapEventSource.flingAnimationController,
@@ -838,11 +841,11 @@ class FlutterMapInteractiveViewerState
   double _getZoomForScale(double startZoom, double scale) {
     final resultZoom =
         scale == 1.0 ? startZoom : startZoom + math.log(scale) / math.ln2;
-    return _mapFrame.clampZoom(resultZoom);
+    return _mapCamera.clampZoom(resultZoom);
   }
 
   Offset _rotateOffset(Offset offset) {
-    final radians = _mapFrame.rotationRad;
+    final radians = _mapCamera.rotationRad;
     if (radians != 0.0) {
       final cos = math.cos(radians);
       final sin = math.sin(radians);

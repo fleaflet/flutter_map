@@ -9,7 +9,7 @@ import 'package:flutter_map/src/misc/point.dart';
 import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:latlong2/latlong.dart';
 
-class MapFrame {
+class MapCamera {
   // During Flutter startup the native platform resolution is not immediately
   // available which can cause constraints to be zero before they are updated
   // in a subsequent build to the actual constraints. We set the size to this
@@ -29,23 +29,23 @@ class MapFrame {
   final CustomPoint<double> nonRotatedSize;
 
   // Lazily calculated fields.
-  CustomPoint<double>? _frameSize;
+  CustomPoint<double>? _cameraSize;
   Bounds<double>? _pixelBounds;
   LatLngBounds? _bounds;
   CustomPoint<int>? _pixelOrigin;
   double? _rotationRad;
 
-  static MapFrame? maybeOf(BuildContext context) =>
-      FlutterMapInheritedModel.maybeFrameOf(context);
+  static MapCamera? maybeOf(BuildContext context) =>
+      FlutterMapInheritedModel.maybeCameraOf(context);
 
-  static MapFrame of(BuildContext context) =>
+  static MapCamera of(BuildContext context) =>
       maybeOf(context) ??
       (throw StateError(
-          '`MapFrame.of()` should not be called outside a `FlutterMap` and its descendants'));
+          '`MapCamera.of()` should not be called outside a `FlutterMap` and its descendants'));
 
-  /// Initializes [MapFrame] from the given [options] and with the
+  /// Initializes [MapCamera] from the given [options] and with the
   /// [nonRotatedSize] set to [kImpossibleSize].
-  MapFrame.initialFrame(MapOptions options)
+  MapCamera.initialCamera(MapOptions options)
       : crs = options.crs,
         minZoom = options.minZoom,
         maxZoom = options.maxZoom,
@@ -54,10 +54,10 @@ class MapFrame {
         rotation = options.initialRotation,
         nonRotatedSize = kImpossibleSize;
 
-  // Create an instance of [MapFrame]. The [pixelOrigin], [bounds], and
+  // Create an instance of [MapCamera]. The [pixelOrigin], [bounds], and
   // [pixelBounds] may be set if they are known already. Otherwise if left
   // null they will be calculated lazily when they are used.
-  MapFrame({
+  MapCamera({
     required this.crs,
     required this.center,
     required this.zoom,
@@ -69,15 +69,15 @@ class MapFrame {
     Bounds<double>? pixelBounds,
     LatLngBounds? bounds,
     CustomPoint<int>? pixelOrigin,
-  })  : _frameSize = size ?? calculateRotatedSize(rotation, nonRotatedSize),
+  })  : _cameraSize = size ?? calculateRotatedSize(rotation, nonRotatedSize),
         _pixelBounds = pixelBounds,
         _bounds = bounds,
         _pixelOrigin = pixelOrigin;
 
-  MapFrame withNonRotatedSize(CustomPoint<double> nonRotatedSize) {
+  MapCamera withNonRotatedSize(CustomPoint<double> nonRotatedSize) {
     if (nonRotatedSize == this.nonRotatedSize) return this;
 
-    return MapFrame(
+    return MapCamera(
       crs: crs,
       minZoom: minZoom,
       maxZoom: maxZoom,
@@ -88,10 +88,10 @@ class MapFrame {
     );
   }
 
-  MapFrame withRotation(double rotation) {
+  MapCamera withRotation(double rotation) {
     if (rotation == this.rotation) return this;
 
-    return MapFrame(
+    return MapCamera(
       crs: crs,
       minZoom: minZoom,
       maxZoom: maxZoom,
@@ -102,14 +102,14 @@ class MapFrame {
     );
   }
 
-  MapFrame withOptions(MapOptions options) {
+  MapCamera withOptions(MapOptions options) {
     if (options.crs == crs &&
         options.minZoom == minZoom &&
         options.maxZoom == maxZoom) {
       return this;
     }
 
-    return MapFrame(
+    return MapCamera(
       crs: options.crs,
       minZoom: options.minZoom,
       maxZoom: options.maxZoom,
@@ -117,15 +117,15 @@ class MapFrame {
       zoom: zoom,
       rotation: rotation,
       nonRotatedSize: nonRotatedSize,
-      size: _frameSize,
+      size: _cameraSize,
     );
   }
 
-  MapFrame withPosition({
+  MapCamera withPosition({
     LatLng? center,
     double? zoom,
   }) =>
-      MapFrame(
+      MapCamera(
         crs: crs,
         minZoom: minZoom,
         maxZoom: maxZoom,
@@ -133,7 +133,7 @@ class MapFrame {
         zoom: zoom ?? this.zoom,
         rotation: rotation,
         nonRotatedSize: nonRotatedSize,
-        size: _frameSize,
+        size: _cameraSize,
       );
 
   @Deprecated('Use visibleBounds instead.')
@@ -147,7 +147,7 @@ class MapFrame {
       ));
 
   CustomPoint<double> get size =>
-      _frameSize ??
+      _cameraSize ??
       calculateRotatedSize(
         rotation,
         nonRotatedSize,

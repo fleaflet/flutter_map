@@ -1,4 +1,4 @@
-import 'package:flutter_map/src/map/flutter_map_frame.dart';
+import 'package:flutter_map/src/map/camera.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Event sources which are used to identify different types of
@@ -19,7 +19,7 @@ enum MapEventSource {
   flingAnimationController,
   doubleTapZoomAnimationController,
   interactiveFlagsChanged,
-  fitFrame,
+  fitCamera,
   custom,
   scrollWheel,
   nonRotatedSizeChange,
@@ -32,12 +32,12 @@ abstract class MapEvent {
   /// Who / what issued the event.
   final MapEventSource source;
 
-  /// The map frame after the event.
-  final MapFrame mapFrame;
+  /// The map camera after the event.
+  final MapCamera mapCamera;
 
   const MapEvent({
     required this.source,
-    required this.mapFrame,
+    required this.mapCamera,
   });
 }
 
@@ -45,38 +45,38 @@ abstract class MapEvent {
 /// includes information about camera movement
 /// which are not partial (e.g start rotate, rotate, end rotate).
 abstract class MapEventWithMove extends MapEvent {
-  final MapFrame oldMapFrame;
+  final MapCamera oldMapCamera;
 
   const MapEventWithMove({
     required super.source,
-    required this.oldMapFrame,
-    required super.mapFrame,
+    required this.oldMapCamera,
+    required super.mapCamera,
   });
 
   /// Returns a subclass of [MapEventWithMove] if the [source] belongs to a
   /// movement event, otherwise returns null.
   static MapEventWithMove? fromSource({
-    required MapFrame oldMapFrame,
-    required MapFrame mapFrame,
+    required MapCamera oldMapCamera,
+    required MapCamera mapCamera,
     required bool hasGesture,
     required MapEventSource source,
     String? id,
   }) =>
       switch (source) {
         MapEventSource.flingAnimationController => MapEventFlingAnimation(
-            oldMapFrame: oldMapFrame,
-            mapFrame: mapFrame,
+            oldMapCamera: oldMapCamera,
+            mapCamera: mapCamera,
             source: source,
           ),
         MapEventSource.doubleTapZoomAnimationController =>
           MapEventDoubleTapZoom(
-            oldMapFrame: oldMapFrame,
-            mapFrame: mapFrame,
+            oldMapCamera: oldMapCamera,
+            mapCamera: mapCamera,
             source: source,
           ),
         MapEventSource.scrollWheel => MapEventScrollWheelZoom(
-            oldMapFrame: oldMapFrame,
-            mapFrame: mapFrame,
+            oldMapCamera: oldMapCamera,
+            mapCamera: mapCamera,
             source: source,
           ),
         MapEventSource.onDrag ||
@@ -85,8 +85,8 @@ abstract class MapEventWithMove extends MapEvent {
         MapEventSource.custom =>
           MapEventMove(
             id: id,
-            oldMapFrame: oldMapFrame,
-            mapFrame: mapFrame,
+            oldMapCamera: oldMapCamera,
+            mapCamera: mapCamera,
             source: source,
           ),
         _ => null,
@@ -101,7 +101,7 @@ class MapEventTap extends MapEvent {
   const MapEventTap({
     required this.tapPosition,
     required super.source,
-    required super.mapFrame,
+    required super.mapCamera,
   });
 }
 
@@ -112,7 +112,7 @@ class MapEventSecondaryTap extends MapEvent {
   const MapEventSecondaryTap({
     required this.tapPosition,
     required super.source,
-    required super.mapFrame,
+    required super.mapCamera,
   });
 }
 
@@ -124,7 +124,7 @@ class MapEventLongPress extends MapEvent {
   const MapEventLongPress({
     required this.tapPosition,
     required super.source,
-    required super.mapFrame,
+    required super.mapCamera,
   });
 }
 
@@ -136,8 +136,8 @@ class MapEventMove extends MapEventWithMove {
   const MapEventMove({
     this.id,
     required super.source,
-    required super.oldMapFrame,
-    required super.mapFrame,
+    required super.oldMapCamera,
+    required super.mapCamera,
   });
 }
 
@@ -145,7 +145,7 @@ class MapEventMove extends MapEventWithMove {
 class MapEventMoveStart extends MapEvent {
   const MapEventMoveStart({
     required super.source,
-    required super.mapFrame,
+    required super.mapCamera,
   });
 }
 
@@ -153,7 +153,7 @@ class MapEventMoveStart extends MapEvent {
 class MapEventMoveEnd extends MapEvent {
   const MapEventMoveEnd({
     required super.source,
-    required super.mapFrame,
+    required super.mapCamera,
   });
 }
 
@@ -161,8 +161,8 @@ class MapEventMoveEnd extends MapEvent {
 class MapEventFlingAnimation extends MapEventWithMove {
   const MapEventFlingAnimation({
     required super.source,
-    required super.oldMapFrame,
-    required super.mapFrame,
+    required super.oldMapCamera,
+    required super.mapCamera,
   });
 }
 
@@ -171,7 +171,7 @@ class MapEventFlingAnimation extends MapEventWithMove {
 class MapEventFlingAnimationNotStarted extends MapEvent {
   const MapEventFlingAnimationNotStarted({
     required super.source,
-    required super.mapFrame,
+    required super.mapCamera,
   });
 }
 
@@ -179,7 +179,7 @@ class MapEventFlingAnimationNotStarted extends MapEvent {
 class MapEventFlingAnimationStart extends MapEvent {
   const MapEventFlingAnimationStart({
     required super.source,
-    required super.mapFrame,
+    required super.mapCamera,
   });
 }
 
@@ -187,7 +187,7 @@ class MapEventFlingAnimationStart extends MapEvent {
 class MapEventFlingAnimationEnd extends MapEvent {
   const MapEventFlingAnimationEnd({
     required super.source,
-    required super.mapFrame,
+    required super.mapCamera,
   });
 }
 
@@ -195,8 +195,8 @@ class MapEventFlingAnimationEnd extends MapEvent {
 class MapEventDoubleTapZoom extends MapEventWithMove {
   const MapEventDoubleTapZoom({
     required super.source,
-    required super.oldMapFrame,
-    required super.mapFrame,
+    required super.oldMapCamera,
+    required super.mapCamera,
   });
 }
 
@@ -204,8 +204,8 @@ class MapEventDoubleTapZoom extends MapEventWithMove {
 class MapEventScrollWheelZoom extends MapEventWithMove {
   const MapEventScrollWheelZoom({
     required super.source,
-    required super.oldMapFrame,
-    required super.mapFrame,
+    required super.oldMapCamera,
+    required super.mapCamera,
   });
 }
 
@@ -213,7 +213,7 @@ class MapEventScrollWheelZoom extends MapEventWithMove {
 class MapEventDoubleTapZoomStart extends MapEvent {
   const MapEventDoubleTapZoomStart({
     required super.source,
-    required super.mapFrame,
+    required super.mapCamera,
   });
 }
 
@@ -221,7 +221,7 @@ class MapEventDoubleTapZoomStart extends MapEvent {
 class MapEventDoubleTapZoomEnd extends MapEvent {
   const MapEventDoubleTapZoomEnd({
     required super.source,
-    required super.mapFrame,
+    required super.mapCamera,
   });
 }
 
@@ -233,8 +233,8 @@ class MapEventRotate extends MapEventWithMove {
   const MapEventRotate({
     required this.id,
     required super.source,
-    required super.oldMapFrame,
-    required super.mapFrame,
+    required super.oldMapCamera,
+    required super.mapCamera,
   });
 }
 
@@ -242,21 +242,21 @@ class MapEventRotate extends MapEventWithMove {
 class MapEventRotateStart extends MapEvent {
   const MapEventRotateStart({
     required super.source,
-    required super.mapFrame,
+    required super.mapCamera,
   });
 }
 
 class MapEventRotateEnd extends MapEvent {
   const MapEventRotateEnd({
     required super.source,
-    required super.mapFrame,
+    required super.mapCamera,
   });
 }
 
 class MapEventNonRotatedSizeChange extends MapEventWithMove {
   const MapEventNonRotatedSizeChange({
     required super.source,
-    required super.oldMapFrame,
-    required super.mapFrame,
+    required super.oldMapCamera,
+    required super.mapCamera,
   });
 }

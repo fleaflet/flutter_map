@@ -1,17 +1,18 @@
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/src/map/camera.dart';
+import 'package:flutter_map/src/map/options.dart';
 
 class FlutterMapInternalState {
-  final MapFrame mapFrame;
+  final MapCamera mapCamera;
   final MapOptions options;
 
   const FlutterMapInternalState({
     required this.options,
-    required this.mapFrame,
+    required this.mapCamera,
   });
 
-  FlutterMapInternalState withMapFrame(MapFrame mapFrame) =>
+  FlutterMapInternalState withMapCamera(MapCamera mapCamera) =>
       FlutterMapInternalState(
         options: options,
-        mapFrame: mapFrame,
+        mapCamera: mapCamera,
       );
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/map/flutter_map_frame.dart';
+import 'package:flutter_map/src/map/camera.dart';
+import 'package:flutter_map/src/misc/point.dart';
 import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -192,7 +192,7 @@ class MarkerLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final map = MapFrame.of(context);
+    final map = MapCamera.of(context);
     final markerWidgets = <Widget>[];
 
     for (final marker in markers) {

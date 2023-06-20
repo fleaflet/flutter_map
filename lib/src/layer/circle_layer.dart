@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/map/flutter_map_frame.dart';
+import 'package:flutter_map/src/map/camera.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 
 class CircleMarker {
@@ -36,7 +36,7 @@ class CircleLayer extends StatelessWidget {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints bc) {
         final size = Size(bc.maxWidth, bc.maxHeight);
-        final map = MapFrame.of(context);
+        final map = MapCamera.of(context);
         final circleWidgets = <Widget>[];
         for (final circle in circles) {
           circle.offset = map.getOffsetFromOrigin(circle.point);

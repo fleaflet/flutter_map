@@ -10,7 +10,7 @@ class FitBoundsOptions {
   /// to the next suitable integer.
   final bool forceIntegerZoomLevel;
 
-  @Deprecated('Use FitFrame.bounds instead.')
+  @Deprecated('Use FitCamera.bounds instead.')
   const FitBoundsOptions({
     this.padding = EdgeInsets.zero,
     this.maxZoom = 17.0,

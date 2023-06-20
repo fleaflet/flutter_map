@@ -48,7 +48,7 @@ class _LatLngScreenPointTestPageState extends State<LatLngScreenPointTestPage> {
                 onMapEvent: onMapEvent,
                 onTap: (tapPos, latLng) {
                   final pt1 =
-                      _mapController.mapFrame.latLngToScreenPoint(latLng);
+                      _mapController.mapCamera.latLngToScreenPoint(latLng);
                   _textPos = CustomPoint(pt1.x, pt1.y);
                   setState(() {});
                 },

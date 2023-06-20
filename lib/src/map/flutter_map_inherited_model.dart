@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/src/map/flutter_map_frame.dart';
+import 'package:flutter_map/src/map/camera.dart';
 import 'package:flutter_map/src/map/map_controller.dart';
 import 'package:flutter_map/src/map/options.dart';
 
@@ -8,12 +8,12 @@ class FlutterMapInheritedModel extends InheritedModel<_FlutterMapAspect> {
 
   FlutterMapInheritedModel({
     super.key,
-    required MapFrame frame,
+    required MapCamera camera,
     required MapController controller,
     required MapOptions options,
     required super.child,
   }) : data = FlutterMapData(
-          frame: frame,
+          camera: camera,
           controller: controller,
           options: options,
         );
@@ -26,8 +26,8 @@ class FlutterMapInheritedModel extends InheritedModel<_FlutterMapAspect> {
               aspect: aspect)
           ?.data;
 
-  static MapFrame? maybeFrameOf(BuildContext context) =>
-      _maybeOf(context, _FlutterMapAspect.frame)?.frame;
+  static MapCamera? maybeCameraOf(BuildContext context) =>
+      _maybeOf(context, _FlutterMapAspect.camera)?.camera;
 
   static MapController? maybeControllerOf(BuildContext context) =>
       _maybeOf(context, _FlutterMapAspect.controller)?.controller;
@@ -45,8 +45,8 @@ class FlutterMapInheritedModel extends InheritedModel<_FlutterMapAspect> {
     for (final dependency in dependencies) {
       if (dependency is _FlutterMapAspect) {
         switch (dependency) {
-          case _FlutterMapAspect.frame:
-            if (data.frame != oldWidget.data.frame) return true;
+          case _FlutterMapAspect.camera:
+            if (data.camera != oldWidget.data.camera) return true;
           case _FlutterMapAspect.controller:
             if (data.controller != oldWidget.data.controller) return true;
           case _FlutterMapAspect.options:
@@ -60,19 +60,19 @@ class FlutterMapInheritedModel extends InheritedModel<_FlutterMapAspect> {
 }
 
 class FlutterMapData {
-  final MapFrame frame;
+  final MapCamera camera;
   final MapController controller;
   final MapOptions options;
 
   const FlutterMapData({
-    required this.frame,
+    required this.camera,
     required this.controller,
     required this.options,
   });
 }
 
 enum _FlutterMapAspect {
-  frame,
+  camera,
   controller,
   options;
 }

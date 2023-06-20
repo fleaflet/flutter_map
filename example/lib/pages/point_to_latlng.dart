@@ -107,7 +107,7 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
     final pointX = _getPointX(context);
     setState(() {
       latLng =
-          mapController.mapFrame.pointToLatLng(CustomPoint(pointX, pointY));
+          mapController.mapCamera.pointToLatLng(CustomPoint(pointX, pointY));
     });
   }
 

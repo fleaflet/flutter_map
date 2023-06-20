@@ -7,7 +7,7 @@ import 'package:flutter_map/src/map/flutter_map_internal_controller.dart';
 import 'package:flutter_map/src/map/map_controller_impl.dart';
 
 class FlutterMapStateContainer extends State<FlutterMap> {
-  bool _initialFrameFitApplied = false;
+  bool _initialCameraFitApplied = false;
 
   late final FlutterMapInternalController _flutterMapInternalController;
   late MapControllerImpl _mapController;
@@ -54,24 +54,24 @@ class FlutterMapStateContainer extends State<FlutterMap> {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         _updateAndEmitSizeIfConstraintsChanged(constraints);
-        _applyInitialFrameFit(constraints);
+        _applyInitialCameraFit(constraints);
 
         return FlutterMapInteractiveViewer(
           controller: _flutterMapInternalController,
           builder: (context, mapState) => FlutterMapInheritedModel(
             controller: _mapController,
             options: mapState.options,
-            frame: mapState.mapFrame,
+            camera: mapState.mapCamera,
             child: ClipRect(
               child: Stack(
                 children: [
                   OverflowBox(
-                    minWidth: mapState.mapFrame.size.x,
-                    maxWidth: mapState.mapFrame.size.x,
-                    minHeight: mapState.mapFrame.size.y,
-                    maxHeight: mapState.mapFrame.size.y,
+                    minWidth: mapState.mapCamera.size.x,
+                    maxWidth: mapState.mapCamera.size.x,
+                    minHeight: mapState.mapCamera.size.y,
+                    maxHeight: mapState.mapCamera.size.y,
                     child: Transform.rotate(
-                      angle: mapState.mapFrame.rotationRad,
+                      angle: mapState.mapCamera.rotationRad,
                       child: Stack(children: widget.children),
                     ),
                   ),
@@ -85,22 +85,22 @@ class FlutterMapStateContainer extends State<FlutterMap> {
     );
   }
 
-  void _applyInitialFrameFit(BoxConstraints constraints) {
-    // If an initial frame fit was provided apply it to the map state once the
+  void _applyInitialCameraFit(BoxConstraints constraints) {
+    // If an initial camera fit was provided apply it to the map state once the
     // the parent constraints are available.
 
-    if (!_initialFrameFitApplied &&
+    if (!_initialCameraFitApplied &&
         (widget.options.bounds != null ||
-            widget.options.initialFrameFit != null) &&
+            widget.options.initialCameraFit != null) &&
         _parentConstraintsAreSet(context, constraints)) {
-      _initialFrameFitApplied = true;
+      _initialCameraFitApplied = true;
 
-      final FrameFit frameFit;
+      final CameraFit cameraFit;
 
       if (widget.options.bounds != null) {
-        // Create the frame fit from the deprecated option.
+        // Create the camera fit from the deprecated option.
         final fitBoundsOptions = widget.options.boundsOptions;
-        frameFit = FrameFit.bounds(
+        cameraFit = CameraFit.bounds(
           bounds: widget.options.bounds!,
           padding: fitBoundsOptions.padding,
           maxZoom: fitBoundsOptions.maxZoom,
@@ -108,11 +108,11 @@ class FlutterMapStateContainer extends State<FlutterMap> {
           forceIntegerZoomLevel: fitBoundsOptions.forceIntegerZoomLevel,
         );
       } else {
-        frameFit = widget.options.initialFrameFit!;
+        cameraFit = widget.options.initialCameraFit!;
       }
 
-      _flutterMapInternalController.fitFrame(
-        frameFit,
+      _flutterMapInternalController.fitCamera(
+        cameraFit,
         offset: Offset.zero,
       );
     }
@@ -123,10 +123,10 @@ class FlutterMapStateContainer extends State<FlutterMap> {
       constraints.maxWidth,
       constraints.maxHeight,
     );
-    final oldMapFrame = _flutterMapInternalController.mapFrame;
+    final oldMapCamera = _flutterMapInternalController.mapCamera;
     if (_flutterMapInternalController
         .setNonRotatedSizeWithoutEmittingEvent(nonRotatedSize)) {
-      final newMapFrame = _flutterMapInternalController.mapFrame;
+      final newMapCamera = _flutterMapInternalController.mapCamera;
 
       // Avoid emitting the event during build otherwise if the user calls
       // setState in the onMapEvent callback it will throw.
@@ -134,8 +134,8 @@ class FlutterMapStateContainer extends State<FlutterMap> {
         if (mounted) {
           _flutterMapInternalController.nonRotatedSizeChange(
             MapEventSource.nonRotatedSizeChange,
-            oldMapFrame,
-            newMapFrame,
+            oldMapCamera,
+            newMapCamera,
           );
         }
       });

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/map/flutter_map_frame.dart';
+import 'package:flutter_map/src/map/camera.dart';
 import 'package:flutter_map/src/map/flutter_map_inherited_model.dart';
 import 'package:flutter_map/src/map/map_controller_impl.dart';
 import 'package:latlong2/latlong.dart';
@@ -48,7 +48,7 @@ abstract class MapController {
   /// through [MapEventCallback]s, such as [MapOptions.onMapEvent]), unless
   /// the move failed because (after adjustment when necessary):
   ///  * [center] and [zoom] are equal to the current values
-  ///  * [center] [MapOptions.frameConstraint] does not allow the movement.
+  ///  * [center] [MapOptions.cameraConstraint] does not allow the movement.
   bool move(
     LatLng center,
     double zoom, {
@@ -124,23 +124,23 @@ abstract class MapController {
   ///
   /// For information about return value meaning and emitted events, see [move]'s
   /// documentation.
-  @Deprecated('Use fitFrame with a MapFit.bounds() instead')
+  @Deprecated('Use fitCamera with a MapFit.bounds() instead')
   bool fitBounds(
     LatLngBounds bounds, {
     FitBoundsOptions options =
         const FitBoundsOptions(padding: EdgeInsets.all(12)),
   });
 
-  /// Move and zoom the map to fit [frameFit].
+  /// Move and zoom the map to fit [cameraFit].
   ///
   /// For information about the return value and emitted events, see [move]'s
   /// documentation.
-  bool fitFrame(FrameFit frameFit);
+  bool fitCamera(CameraFit cameraFit);
 
-  /// Current [MapFrame]. Accessing the frame from this getter is an
-  /// anti-pattern. It is preferable to use [MapFrame.of(context)] in a child
+  /// Current [MapCamera]. Accessing the camera from this getter is an
+  /// anti-pattern. It is preferable to use [MapCamera.of(context)] in a child
   /// widget of FlutterMap.
-  MapFrame get mapFrame;
+  MapCamera get mapCamera;
 
   /// [Stream] of all emitted [MapEvent]s
   Stream<MapEvent> get mapEventStream;
@@ -150,7 +150,7 @@ abstract class MapController {
   ///
   /// Does not move/zoom the map: see [fitBounds].
   @Deprecated(
-      'Use FrameFit.bounds(bounds: bounds).fit(controller.mapFrame) instead.')
+      'Use CameraFit.bounds(bounds: bounds).fit(controller.mapCamera) instead.')
   CenterZoom centerZoomFitBounds(
     LatLngBounds bounds, {
     FitBoundsOptions options =
@@ -159,15 +159,15 @@ abstract class MapController {
 
   /// Convert a screen point (x/y) to its corresponding map coordinate (lat/lng),
   /// based on the map's current properties
-  @Deprecated('Use controller.mapFrame.pointToLatLng() instead.')
+  @Deprecated('Use controller.mapCamera.pointToLatLng() instead.')
   LatLng pointToLatLng(CustomPoint screenPoint);
 
   /// Convert a map coordinate (lat/lng) to its corresponding screen point (x/y),
   /// based on the map's current screen positioning
-  @Deprecated('Use controller.mapFrame.latLngToScreenPoint() instead.')
+  @Deprecated('Use controller.mapCamera.latLngToScreenPoint() instead.')
   CustomPoint<double> latLngToScreenPoint(LatLng mapCoordinate);
 
-  @Deprecated('Use controller.mapFrame.rotatePoint() instead.')
+  @Deprecated('Use controller.mapCamera.rotatePoint() instead.')
   CustomPoint<double> rotatePoint(
     CustomPoint mapCenter,
     CustomPoint point, {
@@ -175,19 +175,19 @@ abstract class MapController {
   });
 
   /// Current center coordinates
-  @Deprecated('Use controller.mapFrame.center instead.')
+  @Deprecated('Use controller.mapCamera.center instead.')
   LatLng get center;
 
   /// Current outer points/boundaries coordinates
-  @Deprecated('Use controller.mapFrame.visibleBounds instead.')
+  @Deprecated('Use controller.mapCamera.visibleBounds instead.')
   LatLngBounds? get bounds;
 
   /// Current zoom level
-  @Deprecated('Use controller.mapFrame.zoom instead.')
+  @Deprecated('Use controller.mapCamera.zoom instead.')
   double get zoom;
 
   /// Current rotation in degrees, where 0° is North
-  @Deprecated('Use controller.mapFrame.rotation instead.')
+  @Deprecated('Use controller.mapCamera.rotation instead.')
   double get rotation;
 
   /// Dispose of this controller.

@@ -2,15 +2,15 @@ import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
-import 'package:flutter_map/src/map/flutter_map_frame.dart';
+import 'package:flutter_map/src/map/camera.dart';
 import 'package:flutter_map/src/misc/point.dart';
 import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:latlong2/latlong.dart';
 
-abstract class FrameFit {
-  const FrameFit();
+abstract class CameraFit {
+  const CameraFit();
 
-  const factory FrameFit.bounds({
+  const factory CameraFit.bounds({
     required LatLngBounds bounds,
     EdgeInsets padding,
     double maxZoom,
@@ -18,17 +18,17 @@ abstract class FrameFit {
     bool forceIntegerZoomLevel,
   }) = FitBounds;
 
-  const factory FrameFit.coordinates({
+  const factory CameraFit.coordinates({
     required List<LatLng> coordinates,
     EdgeInsets padding,
     double maxZoom,
     bool forceIntegerZoomLevel,
   }) = FitCoordinates;
 
-  MapFrame fit(MapFrame mapFrame);
+  MapCamera fit(MapCamera mapCamera);
 }
 
-class FitBounds extends FrameFit {
+class FitBounds extends CameraFit {
   final LatLngBounds bounds;
   final EdgeInsets padding;
   final double maxZoom;
@@ -48,56 +48,56 @@ class FitBounds extends FrameFit {
   });
 
   @override
-  MapFrame fit(MapFrame mapFrame) {
+  MapCamera fit(MapCamera mapCamera) {
     final paddingTL = CustomPoint<double>(padding.left, padding.top);
     final paddingBR = CustomPoint<double>(padding.right, padding.bottom);
 
     final paddingTotalXY = paddingTL + paddingBR;
 
-    var newZoom = getBoundsZoom(mapFrame, paddingTotalXY);
+    var newZoom = getBoundsZoom(mapCamera, paddingTotalXY);
     newZoom = math.min(maxZoom, newZoom);
 
     final paddingOffset = (paddingBR - paddingTL) / 2;
-    final swPoint = mapFrame.project(bounds.southWest, newZoom);
-    final nePoint = mapFrame.project(bounds.northEast, newZoom);
+    final swPoint = mapCamera.project(bounds.southWest, newZoom);
+    final nePoint = mapCamera.project(bounds.northEast, newZoom);
 
     final CustomPoint<double> projectedCenter;
-    if (mapFrame.rotation != 0.0) {
-      final swPointRotated = swPoint.rotate(-mapFrame.rotationRad);
-      final nePointRotated = nePoint.rotate(-mapFrame.rotationRad);
+    if (mapCamera.rotation != 0.0) {
+      final swPointRotated = swPoint.rotate(-mapCamera.rotationRad);
+      final nePointRotated = nePoint.rotate(-mapCamera.rotationRad);
       final centerRotated =
           (swPointRotated + nePointRotated) / 2 + paddingOffset;
 
-      projectedCenter = centerRotated.rotate(mapFrame.rotationRad);
+      projectedCenter = centerRotated.rotate(mapCamera.rotationRad);
     } else {
       projectedCenter = (swPoint + nePoint) / 2 + paddingOffset;
     }
 
-    final center = mapFrame.unproject(projectedCenter, newZoom);
-    return mapFrame.withPosition(
+    final center = mapCamera.unproject(projectedCenter, newZoom);
+    return mapCamera.withPosition(
       center: center,
       zoom: newZoom,
     );
   }
 
   double getBoundsZoom(
-    MapFrame mapFrame,
+    MapCamera mapCamera,
     CustomPoint<double> pixelPadding,
   ) {
-    final min = mapFrame.minZoom ?? 0.0;
-    final max = mapFrame.maxZoom ?? double.infinity;
+    final min = mapCamera.minZoom ?? 0.0;
+    final max = mapCamera.maxZoom ?? double.infinity;
     final nw = bounds.northWest;
     final se = bounds.southEast;
-    var size = mapFrame.nonRotatedSize - pixelPadding;
+    var size = mapCamera.nonRotatedSize - pixelPadding;
     // Prevent negative size which results in NaN zoom value later on in the calculation
     size = CustomPoint(math.max(0, size.x), math.max(0, size.y));
     var boundsSize = Bounds(
-      mapFrame.project(se, mapFrame.zoom),
-      mapFrame.project(nw, mapFrame.zoom),
+      mapCamera.project(se, mapCamera.zoom),
+      mapCamera.project(nw, mapCamera.zoom),
     ).size;
-    if (mapFrame.rotation != 0.0) {
-      final cosAngle = math.cos(mapFrame.rotationRad).abs();
-      final sinAngle = math.sin(mapFrame.rotationRad).abs();
+    if (mapCamera.rotation != 0.0) {
+      final cosAngle = math.cos(mapCamera.rotationRad).abs();
+      final sinAngle = math.sin(mapCamera.rotationRad).abs();
       boundsSize = CustomPoint<double>(
         (boundsSize.x * cosAngle) + (boundsSize.y * sinAngle),
         (boundsSize.y * cosAngle) + (boundsSize.x * sinAngle),
@@ -108,7 +108,7 @@ class FitBounds extends FrameFit {
     final scaleY = size.y / boundsSize.y;
     final scale = inside ? math.max(scaleX, scaleY) : math.min(scaleX, scaleY);
 
-    var boundsZoom = mapFrame.getScaleZoom(scale, mapFrame.zoom);
+    var boundsZoom = mapCamera.getScaleZoom(scale, mapCamera.zoom);
 
     if (forceIntegerZoomLevel) {
       boundsZoom =
@@ -119,7 +119,7 @@ class FitBounds extends FrameFit {
   }
 }
 
-class FitCoordinates extends FrameFit {
+class FitCoordinates extends CameraFit {
   final List<LatLng> coordinates;
   final EdgeInsets padding;
   final double maxZoom;
@@ -137,21 +137,21 @@ class FitCoordinates extends FrameFit {
   });
 
   @override
-  MapFrame fit(MapFrame mapFrame) {
+  MapCamera fit(MapCamera mapCamera) {
     final paddingTL = CustomPoint<double>(padding.left, padding.top);
     final paddingBR = CustomPoint<double>(padding.right, padding.bottom);
 
     final paddingTotalXY = paddingTL + paddingBR;
 
-    var newZoom = getCoordinatesZoom(mapFrame, paddingTotalXY);
+    var newZoom = getCoordinatesZoom(mapCamera, paddingTotalXY);
     newZoom = math.min(maxZoom, newZoom);
 
     final projectedPoints = [
-      for (final coord in coordinates) mapFrame.project(coord, newZoom)
+      for (final coord in coordinates) mapCamera.project(coord, newZoom)
     ];
 
     final rotatedPoints =
-        projectedPoints.map((point) => point.rotate(-mapFrame.rotationRad));
+        projectedPoints.map((point) => point.rotate(-mapCamera.rotationRad));
 
     final rotatedBounds = Bounds.containing(rotatedPoints);
 
@@ -160,32 +160,32 @@ class FitCoordinates extends FrameFit {
     final rotatedNewCenter = rotatedBounds.center + paddingOffset;
 
     // Undo the rotation
-    final unrotatedNewCenter = rotatedNewCenter.rotate(mapFrame.rotationRad);
+    final unrotatedNewCenter = rotatedNewCenter.rotate(mapCamera.rotationRad);
 
-    final newCenter = mapFrame.unproject(unrotatedNewCenter, newZoom);
+    final newCenter = mapCamera.unproject(unrotatedNewCenter, newZoom);
 
-    return mapFrame.withPosition(
+    return mapCamera.withPosition(
       center: newCenter,
       zoom: newZoom,
     );
   }
 
   double getCoordinatesZoom(
-    MapFrame mapFrame,
+    MapCamera mapCamera,
     CustomPoint<double> pixelPadding,
   ) {
-    final min = mapFrame.minZoom ?? 0.0;
-    final max = mapFrame.maxZoom ?? double.infinity;
-    var size = mapFrame.nonRotatedSize - pixelPadding;
+    final min = mapCamera.minZoom ?? 0.0;
+    final max = mapCamera.maxZoom ?? double.infinity;
+    var size = mapCamera.nonRotatedSize - pixelPadding;
     // Prevent negative size which results in NaN zoom value later on in the calculation
     size = CustomPoint(math.max(0, size.x), math.max(0, size.y));
 
     final projectedPoints = [
-      for (final coord in coordinates) mapFrame.project(coord)
+      for (final coord in coordinates) mapCamera.project(coord)
     ];
 
     final rotatedPoints =
-        projectedPoints.map((point) => point.rotate(-mapFrame.rotationRad));
+        projectedPoints.map((point) => point.rotate(-mapCamera.rotationRad));
     final rotatedBounds = Bounds.containing(rotatedPoints);
 
     final boundsSize = rotatedBounds.size;
@@ -194,7 +194,7 @@ class FitCoordinates extends FrameFit {
     final scaleY = size.y / boundsSize.y;
     final scale = math.min(scaleX, scaleY);
 
-    var newZoom = mapFrame.getScaleZoom(scale, mapFrame.zoom);
+    var newZoom = mapCamera.getScaleZoom(scale, mapCamera.zoom);
     if (forceIntegerZoomLevel) {
       newZoom = newZoom.floorToDouble();
     }

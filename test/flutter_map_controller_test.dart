@@ -17,23 +17,23 @@ void main() {
     await tester.pumpWidget(TestApp(controller: controller));
 
     {
-      final frameConstraint = FrameFit.bounds(bounds: bounds);
+      final cameraConstraint = CameraFit.bounds(bounds: bounds);
       final expectedBounds = LatLngBounds(
         const LatLng(51.00145915187144, -0.3079873797085076),
         const LatLng(52.001427481787005, 1.298485398623206),
       );
       const expectedZoom = 7.451812751543818;
 
-      controller.fitFrame(frameConstraint);
+      controller.fitCamera(cameraConstraint);
       await tester.pump();
-      final mapFrame = controller.mapFrame;
-      expect(mapFrame.visibleBounds, equals(expectedBounds));
-      expect(mapFrame.center, equals(expectedCenter));
-      expect(mapFrame.zoom, equals(expectedZoom));
+      final mapCamera = controller.mapCamera;
+      expect(mapCamera.visibleBounds, equals(expectedBounds));
+      expect(mapCamera.center, equals(expectedCenter));
+      expect(mapCamera.zoom, equals(expectedZoom));
     }
 
     {
-      final frameConstraint = FrameFit.bounds(
+      final cameraConstraint = CameraFit.bounds(
         bounds: bounds,
         forceIntegerZoomLevel: true,
       );
@@ -44,16 +44,16 @@ void main() {
       );
       const expectedZoom = 7;
 
-      controller.fitFrame(frameConstraint);
+      controller.fitCamera(cameraConstraint);
       await tester.pump();
-      final mapFrame = controller.mapFrame;
-      expect(mapFrame.visibleBounds, equals(expectedBounds));
-      expect(mapFrame.center, equals(expectedCenter));
-      expect(mapFrame.zoom, equals(expectedZoom));
+      final mapCamera = controller.mapCamera;
+      expect(mapCamera.visibleBounds, equals(expectedBounds));
+      expect(mapCamera.center, equals(expectedCenter));
+      expect(mapCamera.zoom, equals(expectedZoom));
     }
 
     {
-      final frameConstraint = FrameFit.bounds(
+      final cameraConstraint = CameraFit.bounds(
         bounds: bounds,
         inside: true,
       );
@@ -64,17 +64,17 @@ void main() {
       );
       const expectedZoom = 8.135709286104404;
 
-      controller.fitFrame(frameConstraint);
+      controller.fitCamera(cameraConstraint);
       await tester.pump();
 
-      final mapFrame = controller.mapFrame;
-      expect(mapFrame.visibleBounds, equals(expectedBounds));
-      expect(mapFrame.center, equals(expectedCenter));
-      expect(mapFrame.zoom, equals(expectedZoom));
+      final mapCamera = controller.mapCamera;
+      expect(mapCamera.visibleBounds, equals(expectedBounds));
+      expect(mapCamera.center, equals(expectedCenter));
+      expect(mapCamera.zoom, equals(expectedZoom));
     }
 
     {
-      final frameConstraint = FrameFit.bounds(
+      final cameraConstraint = CameraFit.bounds(
         bounds: bounds,
         inside: true,
         forceIntegerZoomLevel: true,
@@ -86,12 +86,12 @@ void main() {
       );
       const expectedZoom = 9;
 
-      controller.fitFrame(frameConstraint);
+      controller.fitCamera(cameraConstraint);
       await tester.pump();
-      final mapFrame = controller.mapFrame;
-      expect(mapFrame.visibleBounds, equals(expectedBounds));
-      expect(mapFrame.center, equals(expectedCenter));
-      expect(mapFrame.zoom, equals(expectedZoom));
+      final mapCamera = controller.mapCamera;
+      expect(mapCamera.visibleBounds, equals(expectedBounds));
+      expect(mapCamera.center, equals(expectedCenter));
+      expect(mapCamera.zoom, equals(expectedZoom));
     }
   });
 
@@ -106,47 +106,47 @@ void main() {
 
     Future<void> testFitBounds({
       required double rotation,
-      required FrameFit frameConstraint,
+      required CameraFit cameraConstraint,
       required LatLngBounds expectedBounds,
       required LatLng expectedCenter,
       required double expectedZoom,
     }) async {
       controller.rotate(rotation);
 
-      controller.fitFrame(frameConstraint);
+      controller.fitCamera(cameraConstraint);
       await tester.pump();
       expect(
-        controller.mapFrame.visibleBounds.northWest.latitude,
+        controller.mapCamera.visibleBounds.northWest.latitude,
         moreOrLessEquals(expectedBounds.northWest.latitude),
       );
       expect(
-        controller.mapFrame.visibleBounds.northWest.longitude,
+        controller.mapCamera.visibleBounds.northWest.longitude,
         moreOrLessEquals(expectedBounds.northWest.longitude),
       );
       expect(
-        controller.mapFrame.visibleBounds.southEast.latitude,
+        controller.mapCamera.visibleBounds.southEast.latitude,
         moreOrLessEquals(expectedBounds.southEast.latitude),
       );
       expect(
-        controller.mapFrame.visibleBounds.southEast.longitude,
+        controller.mapCamera.visibleBounds.southEast.longitude,
         moreOrLessEquals(expectedBounds.southEast.longitude),
       );
       expect(
-        controller.mapFrame.center.latitude,
+        controller.mapCamera.center.latitude,
         moreOrLessEquals(expectedCenter.latitude),
       );
       expect(
-        controller.mapFrame.center.longitude,
+        controller.mapCamera.center.longitude,
         moreOrLessEquals(expectedCenter.longitude),
       );
-      expect(controller.mapFrame.zoom, moreOrLessEquals(expectedZoom));
+      expect(controller.mapCamera.zoom, moreOrLessEquals(expectedZoom));
     }
 
     // Tests with no padding
 
     await testFitBounds(
       rotation: -360,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: EdgeInsets.zero,
       ),
@@ -159,7 +159,7 @@ void main() {
     );
     await testFitBounds(
       rotation: -300,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: EdgeInsets.zero,
       ),
@@ -172,7 +172,7 @@ void main() {
     );
     await testFitBounds(
       rotation: -240,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: EdgeInsets.zero,
       ),
@@ -185,7 +185,7 @@ void main() {
     );
     await testFitBounds(
       rotation: -180,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: EdgeInsets.zero,
       ),
@@ -198,7 +198,7 @@ void main() {
     );
     await testFitBounds(
       rotation: -120,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: EdgeInsets.zero,
       ),
@@ -211,7 +211,7 @@ void main() {
     );
     await testFitBounds(
       rotation: -60,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: EdgeInsets.zero,
       ),
@@ -224,7 +224,7 @@ void main() {
     );
     await testFitBounds(
       rotation: 0,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: EdgeInsets.zero,
       ),
@@ -237,7 +237,7 @@ void main() {
     );
     await testFitBounds(
       rotation: 60,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: EdgeInsets.zero,
       ),
@@ -250,7 +250,7 @@ void main() {
     );
     await testFitBounds(
       rotation: 120,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: EdgeInsets.zero,
       ),
@@ -263,7 +263,7 @@ void main() {
     );
     await testFitBounds(
       rotation: 180,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: EdgeInsets.zero,
       ),
@@ -276,7 +276,7 @@ void main() {
     );
     await testFitBounds(
       rotation: 240,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: EdgeInsets.zero,
       ),
@@ -289,7 +289,7 @@ void main() {
     );
     await testFitBounds(
       rotation: 300,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: EdgeInsets.zero,
       ),
@@ -302,7 +302,7 @@ void main() {
     );
     await testFitBounds(
       rotation: 360,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: EdgeInsets.zero,
       ),
@@ -320,7 +320,7 @@ void main() {
 
     await testFitBounds(
       rotation: -360,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: symmetricPadding,
       ),
@@ -333,7 +333,7 @@ void main() {
     );
     await testFitBounds(
       rotation: -300,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: symmetricPadding,
       ),
@@ -346,7 +346,7 @@ void main() {
     );
     await testFitBounds(
       rotation: -240,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: symmetricPadding,
       ),
@@ -359,7 +359,7 @@ void main() {
     );
     await testFitBounds(
       rotation: -180,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: symmetricPadding,
       ),
@@ -372,7 +372,7 @@ void main() {
     );
     await testFitBounds(
       rotation: -120,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: symmetricPadding,
       ),
@@ -385,7 +385,7 @@ void main() {
     );
     await testFitBounds(
       rotation: -60,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: symmetricPadding,
       ),
@@ -398,7 +398,7 @@ void main() {
     );
     await testFitBounds(
       rotation: 0,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: symmetricPadding,
       ),
@@ -411,7 +411,7 @@ void main() {
     );
     await testFitBounds(
       rotation: 60,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: symmetricPadding,
       ),
@@ -424,7 +424,7 @@ void main() {
     );
     await testFitBounds(
       rotation: 120,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: symmetricPadding,
       ),
@@ -437,7 +437,7 @@ void main() {
     );
     await testFitBounds(
       rotation: 180,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: symmetricPadding,
       ),
@@ -450,7 +450,7 @@ void main() {
     );
     await testFitBounds(
       rotation: 240,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: symmetricPadding,
       ),
@@ -463,7 +463,7 @@ void main() {
     );
     await testFitBounds(
       rotation: 300,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: symmetricPadding,
       ),
@@ -476,7 +476,7 @@ void main() {
     );
     await testFitBounds(
       rotation: 360,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: symmetricPadding,
       ),
@@ -494,7 +494,7 @@ void main() {
 
     await testFitBounds(
       rotation: -360,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: asymmetricPadding,
       ),
@@ -507,7 +507,7 @@ void main() {
     );
     await testFitBounds(
       rotation: -300,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: asymmetricPadding,
       ),
@@ -520,7 +520,7 @@ void main() {
     );
     await testFitBounds(
       rotation: -240,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: asymmetricPadding,
       ),
@@ -533,7 +533,7 @@ void main() {
     );
     await testFitBounds(
       rotation: -180,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: asymmetricPadding,
       ),
@@ -546,7 +546,7 @@ void main() {
     );
     await testFitBounds(
       rotation: -120,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: asymmetricPadding,
       ),
@@ -559,7 +559,7 @@ void main() {
     );
     await testFitBounds(
       rotation: -60,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: asymmetricPadding,
       ),
@@ -572,7 +572,7 @@ void main() {
     );
     await testFitBounds(
       rotation: 0,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: asymmetricPadding,
       ),
@@ -585,7 +585,7 @@ void main() {
     );
     await testFitBounds(
       rotation: 60,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: asymmetricPadding,
       ),
@@ -598,7 +598,7 @@ void main() {
     );
     await testFitBounds(
       rotation: 120,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: asymmetricPadding,
       ),
@@ -611,7 +611,7 @@ void main() {
     );
     await testFitBounds(
       rotation: 180,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: asymmetricPadding,
       ),
@@ -624,7 +624,7 @@ void main() {
     );
     await testFitBounds(
       rotation: 240,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: asymmetricPadding,
       ),
@@ -637,7 +637,7 @@ void main() {
     );
     await testFitBounds(
       rotation: 300,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: asymmetricPadding,
       ),
@@ -650,7 +650,7 @@ void main() {
     );
     await testFitBounds(
       rotation: 360,
-      frameConstraint: FrameFit.bounds(
+      cameraConstraint: CameraFit.bounds(
         bounds: bounds,
         padding: asymmetricPadding,
       ),
@@ -682,17 +682,17 @@ void main() {
     }) async {
       controller.rotate(rotation);
 
-      controller.fitFrame(fitCoordinates);
+      controller.fitCamera(fitCoordinates);
       await tester.pump();
       expect(
-        controller.mapFrame.center.latitude,
+        controller.mapCamera.center.latitude,
         moreOrLessEquals(expectedCenter.latitude),
       );
       expect(
-        controller.mapFrame.center.longitude,
+        controller.mapCamera.center.longitude,
         moreOrLessEquals(expectedCenter.longitude),
       );
-      expect(controller.mapFrame.zoom, moreOrLessEquals(expectedZoom));
+      expect(controller.mapCamera.zoom, moreOrLessEquals(expectedZoom));
     }
 
     FitCoordinates fitCoordinates({

@@ -35,12 +35,12 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
   void _animatedMapMove(LatLng destLocation, double destZoom) {
     // Create some tweens. These serve to split up the transition from one location to another.
     // In our case, we want to split the transition be<tween> our current map center and the destination.
-    final mapFrame = mapController.mapFrame;
+    final mapCamera = mapController.mapCamera;
     final latTween = Tween<double>(
-        begin: mapFrame.center.latitude, end: destLocation.latitude);
+        begin: mapCamera.center.latitude, end: destLocation.latitude);
     final lngTween = Tween<double>(
-        begin: mapFrame.center.longitude, end: destLocation.longitude);
-    final zoomTween = Tween<double>(begin: mapFrame.zoom, end: destZoom);
+        begin: mapCamera.center.longitude, end: destLocation.longitude);
+    final zoomTween = Tween<double>(begin: mapCamera.zoom, end: destZoom);
 
     // Create a animation controller that has a duration and a TickerProvider.
     final controller = AnimationController(
@@ -162,8 +162,8 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
                         london,
                       ]);
 
-                      mapController.fitFrame(
-                        FrameFit.bounds(
+                      mapController.fitCamera(
+                        CameraFit.bounds(
                           bounds: bounds,
                           padding: const EdgeInsets.symmetric(horizontal: 15),
                         ),
@@ -179,9 +179,9 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
                         london,
                       ]);
 
-                      final constrained = FrameFit.bounds(
+                      final constrained = CameraFit.bounds(
                         bounds: bounds,
-                      ).fit(mapController.mapFrame);
+                      ).fit(mapController.mapCamera);
                       _animatedMapMove(constrained.center, constrained.zoom);
                     },
                     child: const Text('Fit Bounds animated'),

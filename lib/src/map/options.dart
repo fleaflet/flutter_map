@@ -6,9 +6,9 @@ import 'package:flutter_map/src/gestures/interactive_flag.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
 import 'package:flutter_map/src/map/flutter_map_inherited_model.dart';
+import 'package:flutter_map/src/misc/camera_constraint.dart';
+import 'package:flutter_map/src/misc/camera_fit.dart';
 import 'package:flutter_map/src/misc/fit_bounds_options.dart';
-import 'package:flutter_map/src/misc/frame_constraint.dart';
-import 'package:flutter_map/src/misc/frame_fit.dart';
 import 'package:flutter_map/src/misc/position.dart';
 import 'package:flutter_map/src/misc/private/positioned_tap_detector_2.dart';
 import 'package:latlong2/latlong.dart';
@@ -38,11 +38,11 @@ class MapOptions {
   /// The Coordinate Reference System, defaults to [Epsg3857].
   final Crs crs;
 
-  /// The center when the map is first loaded. If [initialFrameFit] is defined
+  /// The center when the map is first loaded. If [initialCameraFit] is defined
   /// this has no effect.
   final LatLng initialCenter;
 
-  /// The zoom when the map is first loaded. If [initialFrameFit] is defined
+  /// The zoom when the map is first loaded. If [initialCameraFit] is defined
   /// this has no effect.
   final double initialZoom;
 
@@ -51,7 +51,7 @@ class MapOptions {
 
   /// Defines the visible bounds when the map is first loaded. Takes precedence
   /// over [initialCenter]/[initialZoom].
-  final FrameFit? initialFrameFit;
+  final CameraFit? initialCameraFit;
 
   final LatLngBounds? bounds;
   final FitBoundsOptions boundsOptions;
@@ -84,14 +84,14 @@ class MapOptions {
   final MapEventCallback? onMapEvent;
 
   /// Define limits for viewing the map.
-  final FrameConstraint frameConstraint;
+  final CameraConstraint cameraConstraint;
 
   /// OnMapReady is called after the map runs it's initState.
   /// At that point the map has assigned its state to the controller
   /// Only use this if your map isn't built immediately (like inside FutureBuilder)
   /// and you need to access the controller as soon as the map is built.
   /// Otherwise you can use WidgetsBinding.instance.addPostFrameCallback
-  /// In initState to controll the map before the next frame
+  /// In initState to controll the map before the next frame.
   final void Function()? onMapReady;
 
   /// Flag to enable the built in keep alive functionality
@@ -112,11 +112,11 @@ class MapOptions {
     double initialZoom = 13.0,
     @Deprecated('Use initialRotation instead') double? rotation,
     double initialRotation = 0.0,
-    @Deprecated('Use initialFrameFit instead') this.bounds,
-    @Deprecated('Use initialFrameFit instead')
+    @Deprecated('Use initialCameraFit instead') this.bounds,
+    @Deprecated('Use initialCameraFit instead')
     this.boundsOptions = const FitBoundsOptions(),
-    this.initialFrameFit,
-    this.frameConstraint = const FrameConstraint.unconstrained(),
+    this.initialCameraFit,
+    this.cameraConstraint = const CameraConstraint.unconstrained(),
     InteractionOptions? interactionOptions,
     @Deprecated('Should be set in interactionOptions instead')
     int? interactiveFlags,
@@ -202,7 +202,7 @@ class MapOptions {
       initialCenter == other.initialCenter &&
       initialZoom == other.initialZoom &&
       initialRotation == other.initialRotation &&
-      initialFrameFit == other.initialFrameFit &&
+      initialCameraFit == other.initialCameraFit &&
       bounds == other.bounds &&
       boundsOptions == other.boundsOptions &&
       minZoom == other.minZoom &&
@@ -216,7 +216,7 @@ class MapOptions {
       onPointerHover == other.onPointerHover &&
       onPositionChanged == other.onPositionChanged &&
       onMapEvent == other.onMapEvent &&
-      frameConstraint == other.frameConstraint &&
+      cameraConstraint == other.cameraConstraint &&
       onMapReady == other.onMapReady &&
       keepAlive == other.keepAlive &&
       interactionOptions == other.interactionOptions;
@@ -227,7 +227,7 @@ class MapOptions {
         initialCenter,
         initialZoom,
         initialRotation,
-        initialFrameFit,
+        initialCameraFit,
         bounds,
         boundsOptions,
         minZoom,
@@ -241,7 +241,7 @@ class MapOptions {
         onPointerHover,
         onPositionChanged,
         onMapEvent,
-        frameConstraint,
+        cameraConstraint,
         onMapReady,
         keepAlive,
         interactionOptions,

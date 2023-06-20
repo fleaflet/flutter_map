@@ -28,7 +28,7 @@ class OfflineMapPage extends StatelessWidget {
                   initialCenter: const LatLng(56.704173, 11.543808),
                   minZoom: 12,
                   maxZoom: 14,
-                  frameConstraint: FrameConstraint.containCenter(
+                  cameraConstraint: CameraConstraint.containCenter(
                     bounds: LatLngBounds(
                       const LatLng(56.7378, 11.6644),
                       const LatLng(56.6877, 11.5089),

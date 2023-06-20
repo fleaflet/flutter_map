@@ -286,7 +286,7 @@ class TileLayer extends StatefulWidget {
 }
 
 class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
-  bool _initializedFromMapFrame = false;
+  bool _initializedFromMapCamera = false;
 
   final TileImageManager _tileImageManager = TileImageManager();
   late TileBounds _tileBounds;
@@ -329,7 +329,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    final mapFrame = MapFrame.of(context);
+    final mapCamera = MapCamera.of(context);
 
     final mapController = MapController.of(context);
     if (_mapControllerHashCode != mapController.hashCode) {
@@ -343,29 +343,29 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     }
 
     bool reloadTiles = false;
-    if (!_initializedFromMapFrame ||
+    if (!_initializedFromMapCamera ||
         _tileBounds.shouldReplace(
-            mapFrame.crs, widget.tileSize, widget.tileBounds)) {
+            mapCamera.crs, widget.tileSize, widget.tileBounds)) {
       reloadTiles = true;
       _tileBounds = TileBounds(
-        crs: mapFrame.crs,
+        crs: mapCamera.crs,
         tileSize: widget.tileSize,
         latLngBounds: widget.tileBounds,
       );
     }
 
-    if (!_initializedFromMapFrame ||
-        _tileScaleCalculator.shouldReplace(mapFrame.crs, widget.tileSize)) {
+    if (!_initializedFromMapCamera ||
+        _tileScaleCalculator.shouldReplace(mapCamera.crs, widget.tileSize)) {
       reloadTiles = true;
       _tileScaleCalculator = TileScaleCalculator(
-        crs: mapFrame.crs,
+        crs: mapCamera.crs,
         tileSize: widget.tileSize,
       );
     }
 
-    if (reloadTiles) _loadAndPruneInVisibleBounds(mapFrame);
+    if (reloadTiles) _loadAndPruneInVisibleBounds(mapCamera);
 
-    _initializedFromMapFrame = true;
+    _initializedFromMapCamera = true;
   }
 
   @override
@@ -421,7 +421,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     if (reloadTiles) {
       _tileImageManager.removeAll(widget.evictErrorTileStrategy);
-      _loadAndPruneInVisibleBounds(MapFrame.maybeOf(context)!);
+      _loadAndPruneInVisibleBounds(MapCamera.maybeOf(context)!);
     } else if (oldWidget.tileDisplay != widget.tileDisplay) {
       _tileImageManager.updateTileDisplay(widget.tileDisplay);
     }
@@ -440,14 +440,14 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final map = MapFrame.of(context);
+    final map = MapCamera.of(context);
 
     if (_outsideZoomLimits(map.zoom.round())) return const SizedBox.shrink();
 
     final tileZoom = _clampToNativeZoom(map.zoom);
     final tileBoundsAtZoom = _tileBounds.atZoom(tileZoom);
     final visibleTileRange = _tileRangeCalculator.calculate(
-      mapFrame: map,
+      mapCamera: map,
       tileZoom: tileZoom,
     );
 
@@ -522,7 +522,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   void _onTileUpdateEvent(TileUpdateEvent event) {
     final tileZoom = _clampToNativeZoom(event.zoom);
     final visibleTileRange = _tileRangeCalculator.calculate(
-      mapFrame: event.mapFrame,
+      mapCamera: event.mapCamera,
       tileZoom: tileZoom,
       center: event.center,
       viewingZoom: event.zoom,
@@ -540,10 +540,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   }
 
   // Load new tiles in the visible bounds and prune those outside.
-  void _loadAndPruneInVisibleBounds(MapFrame mapFrame) {
-    final tileZoom = _clampToNativeZoom(mapFrame.zoom);
+  void _loadAndPruneInVisibleBounds(MapCamera mapCamera) {
+    final tileZoom = _clampToNativeZoom(mapCamera.zoom);
     final visibleTileRange = _tileRangeCalculator.calculate(
-      mapFrame: mapFrame,
+      mapCamera: mapCamera,
       tileZoom: tileZoom,
     );
 

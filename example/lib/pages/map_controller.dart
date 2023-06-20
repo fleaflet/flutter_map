@@ -104,7 +104,7 @@ class MapControllerPageState extends State<MapControllerPage> {
                         london,
                       ]);
 
-                      _mapController.fitFrame(
+                      _mapController.fitCamera(
                         FitBounds(
                           bounds: bounds,
                           padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -116,7 +116,7 @@ class MapControllerPageState extends State<MapControllerPage> {
                   Builder(builder: (BuildContext context) {
                     return MaterialButton(
                       onPressed: () {
-                        final bounds = _mapController.mapFrame.visibleBounds;
+                        final bounds = _mapController.mapCamera.visibleBounds;
 
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           content: Text(
