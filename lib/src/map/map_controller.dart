@@ -23,9 +23,15 @@ abstract class MapController {
   /// Factory constructor redirects to underlying implementation's constructor.
   factory MapController() => MapControllerImpl();
 
+  /// The controller for the closest [FlutterMap] ancestor. If this is called
+  /// from a context with no [FlutterMap] ancestor a [StateError] will be
+  /// thrown.
   static MapController? maybeOf(BuildContext context) =>
       FlutterMapInheritedModel.maybeControllerOf(context);
 
+  /// The controller for the closest [FlutterMap] ancestor. If this is called
+  /// from a context with no [FlutterMap] ancestor a [StateError] will be
+  /// thrown.
   static MapController of(BuildContext context) =>
       maybeOf(context) ??
       (throw StateError(

@@ -3,6 +3,12 @@ import 'package:flutter_map/src/map/camera.dart';
 import 'package:flutter_map/src/map/map_controller.dart';
 import 'package:flutter_map/src/map/options.dart';
 
+/// Allows descendents of [FlutterMap] to access the [MapCamera], [MapOptions]
+/// and [MapController]. Those classes provide of/maybeOf methods for users to
+/// use, those methods call the relevant methods provided by this class.
+///
+/// Using an [InheritedModel] means dependent widgets will only rebuild when
+/// the aspect they reference is updated.
 class FlutterMapInheritedModel extends InheritedModel<_FlutterMapAspect> {
   final FlutterMapData data;
 

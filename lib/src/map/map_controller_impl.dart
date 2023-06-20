@@ -13,6 +13,9 @@ import 'package:flutter_map/src/misc/move_and_rotate_result.dart';
 import 'package:flutter_map/src/misc/point.dart';
 import 'package:latlong2/latlong.dart';
 
+/// Implements [MapController] whilst exposing methods for internal use which
+/// should not be visible to the user (e.g. for setting the current camera or
+/// linking the internal controller).
 class MapControllerImpl implements MapController {
   late FlutterMapInternalController _internalController;
   final _mapEventStreamController = StreamController<MapEvent>.broadcast();

@@ -14,6 +14,8 @@ import 'package:flutter_map/src/misc/point.dart';
 import 'package:flutter_map/src/misc/private/positioned_tap_detector_2.dart';
 import 'package:latlong2/latlong.dart';
 
+/// Applies interactions (gestures/scroll/taps etc) to the current [MapCamera]
+/// via the internal [controller].
 class FlutterMapInteractiveViewer extends StatefulWidget {
   final Widget Function(
     BuildContext context,

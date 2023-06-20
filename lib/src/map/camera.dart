@@ -9,6 +9,10 @@ import 'package:flutter_map/src/misc/point.dart';
 import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:latlong2/latlong.dart';
 
+/// Describes the view of a map. This includes the size/zoom/position/crs as
+/// well as the minimum/maximum zoom. This class is immutable, changes to the
+/// map view may occur via the [MapController] or user interactions which will
+/// result in a new [MapCamera] value.
 class MapCamera {
   // During Flutter startup the native platform resolution is not immediately
   // available which can cause constraints to be zero before they are updated
@@ -21,11 +25,18 @@ class MapCamera {
   final double? minZoom;
   final double? maxZoom;
 
+  /// The [LatLng] which corresponds with the center of this camera.
   final LatLng center;
+
+  /// How far zoomed this camera is.
   final double zoom;
+
+  /// The rotation, in degrees, of the camera. See [rotationRad] for the same
+  /// value in radians.
   final double rotation;
 
-  // Original size of the map where rotation isn't calculated
+  /// The size of the map view ignoring rotation. This will be the size of the
+  /// FlutterMap widget.
   final CustomPoint<double> nonRotatedSize;
 
   // Lazily calculated fields.
@@ -35,9 +46,43 @@ class MapCamera {
   CustomPoint<int>? _pixelOrigin;
   double? _rotationRad;
 
+  @Deprecated('Use visibleBounds instead.')
+  LatLngBounds get bounds => visibleBounds;
+
+  /// This is the [LatLngBounds] corresponding to four corners of this camera.
+  /// This takes rotation in to account.
+  LatLngBounds get visibleBounds =>
+      _bounds ??
+      (_bounds = LatLngBounds(
+        unproject(pixelBounds.bottomLeft, zoom),
+        unproject(pixelBounds.topRight, zoom),
+      ));
+
+  /// The size of bounding box of this camera taking in to account its
+  /// rotation. When the rotation is zero this will equal [nonRotatedSize],
+  /// otherwise it will be the size of the rectangle which contains this
+  /// camera.
+  CustomPoint<double> get size =>
+      _cameraSize ??
+      calculateRotatedSize(
+        rotation,
+        nonRotatedSize,
+      );
+
+  /// The offset of the top-left corner of the bounding rectangle of this
+  /// camera. This will not equal the offset of the top-left visible pixel when
+  /// the map is rotated.
+  CustomPoint<int> get pixelOrigin =>
+      _pixelOrigin ??
+      (_pixelOrigin = (project(center, zoom) - size / 2.0).round());
+
+  /// The camera of the closest [FlutterMap] ancestor. If this is called from a
+  /// context with no [FlutterMap] ancestor null, is returned.
   static MapCamera? maybeOf(BuildContext context) =>
       FlutterMapInheritedModel.maybeCameraOf(context);
 
+  /// The camera of the closest [FlutterMap] ancestor. If this is called from a
+  /// context with no [FlutterMap] ancestor a [StateError] will be thrown.
   static MapCamera of(BuildContext context) =>
       maybeOf(context) ??
       (throw StateError(
@@ -69,39 +114,45 @@ class MapCamera {
     Bounds<double>? pixelBounds,
     LatLngBounds? bounds,
     CustomPoint<int>? pixelOrigin,
+    double? rotationRad,
   })  : _cameraSize = size ?? calculateRotatedSize(rotation, nonRotatedSize),
         _pixelBounds = pixelBounds,
         _bounds = bounds,
-        _pixelOrigin = pixelOrigin;
+        _pixelOrigin = pixelOrigin,
+        _rotationRad = rotationRad;
 
+  /// Returns a new instance of [MapCamera] with the given [nonRotatedSize].
   MapCamera withNonRotatedSize(CustomPoint<double> nonRotatedSize) {
     if (nonRotatedSize == this.nonRotatedSize) return this;
 
     return MapCamera(
       crs: crs,
-      minZoom: minZoom,
-      maxZoom: maxZoom,
       center: center,
       zoom: zoom,
       rotation: rotation,
       nonRotatedSize: nonRotatedSize,
+      minZoom: minZoom,
+      maxZoom: maxZoom,
+      rotationRad: _rotationRad,
     );
   }
 
+  /// Returns a new instance of [MapCamera] with the given [rotation].
   MapCamera withRotation(double rotation) {
     if (rotation == this.rotation) return this;
 
     return MapCamera(
       crs: crs,
-      minZoom: minZoom,
-      maxZoom: maxZoom,
       center: center,
       zoom: zoom,
-      rotation: rotation,
       nonRotatedSize: nonRotatedSize,
+      rotation: rotation,
+      minZoom: minZoom,
+      maxZoom: maxZoom,
     );
   }
 
+  /// Returns a new instance of [MapCamera] with the given [options].
   MapCamera withOptions(MapOptions options) {
     if (options.crs == crs &&
         options.minZoom == minZoom &&
@@ -118,9 +169,11 @@ class MapCamera {
       rotation: rotation,
       nonRotatedSize: nonRotatedSize,
       size: _cameraSize,
+      rotationRad: _rotationRad,
     );
   }
 
+  /// Returns a new instance of [MapCamera] with the given [center]/[zoom].
   MapCamera withPosition({
     LatLng? center,
     double? zoom,
@@ -134,29 +187,11 @@ class MapCamera {
         rotation: rotation,
         nonRotatedSize: nonRotatedSize,
         size: _cameraSize,
+        rotationRad: _rotationRad,
       );
 
-  @Deprecated('Use visibleBounds instead.')
-  LatLngBounds get bounds => visibleBounds;
-
-  LatLngBounds get visibleBounds =>
-      _bounds ??
-      (_bounds = LatLngBounds(
-        unproject(pixelBounds.bottomLeft, zoom),
-        unproject(pixelBounds.topRight, zoom),
-      ));
-
-  CustomPoint<double> get size =>
-      _cameraSize ??
-      calculateRotatedSize(
-        rotation,
-        nonRotatedSize,
-      );
-
-  CustomPoint<int> get pixelOrigin =>
-      _pixelOrigin ??
-      (_pixelOrigin = (project(center, zoom) - size / 2.0).round());
-
+  /// Calculates the size of a bounding box which surrounds a box of size
+  /// [nonRotatedSize] which is rotated by [rotation].
   static CustomPoint<double> calculateRotatedSize(
     double rotation,
     CustomPoint<double> nonRotatedSize,
@@ -173,38 +208,52 @@ class MapCamera {
     return CustomPoint<double>(width, height);
   }
 
+  /// The current rotation value in radians. This is calculated and cached when
+  /// it is first called.
   double get rotationRad => _rotationRad ??= degToRadian(rotation);
 
+  /// Calculates point value for the given [latLng] using this camera's
+  /// [crs] and [zoom] (or the provided [zoom]).
   CustomPoint<double> project(LatLng latlng, [double? zoom]) =>
       crs.latLngToPoint(latlng, zoom ?? this.zoom);
 
+  /// Calculates the [LatLng] for the given [point] using this camera's
+  /// [crs] and [zoom] (or the provided [zoom]).
   LatLng unproject(CustomPoint point, [double? zoom]) =>
       crs.pointToLatLng(point, zoom ?? this.zoom);
 
   LatLng layerPointToLatLng(CustomPoint point) => unproject(point);
 
+  /// Calculates the scale for a zoom from [fromZoom] to [toZoom] using this
+  /// camera\s [crs].
   double getZoomScale(double toZoom, double fromZoom) =>
       crs.scale(toZoom) / crs.scale(fromZoom);
 
-  double getScaleZoom(double scale, double? fromZoom) =>
-      crs.zoom(scale * crs.scale(fromZoom ?? zoom));
+  /// Calculates the scale for this camera's [zoom].
+  double getScaleZoom(double scale) => crs.zoom(scale * crs.scale(zoom));
 
+  /// Calculates the pixel bounds of this camera's [crs].
   Bounds? getPixelWorldBounds(double? zoom) =>
       crs.getProjectedBounds(zoom ?? this.zoom);
 
+  /// Calculates the [Offset] from the [pos] to this camera's [pixelOrigin].
   Offset getOffsetFromOrigin(LatLng pos) {
     final delta = project(pos) - pixelOrigin;
     return Offset(delta.x, delta.y);
   }
 
+  /// Calculates the pixel origin of this [MapCamera] at the given
+  /// [center]/[zoom].
   CustomPoint<int> getNewPixelOrigin(LatLng center, [double? zoom]) {
     final halfSize = size / 2.0;
     return (project(center, zoom) - halfSize).round();
   }
 
+  /// Calculates the pixel bounds of this [MapCamera]. This value is cached.
   Bounds<double> get pixelBounds =>
       _pixelBounds ?? (_pixelBounds = pixelBoundsAtZoom(zoom));
 
+  /// Calculates the pixel bounds of this [MapCamera] at the given [zoom].
   Bounds<double> pixelBoundsAtZoom(double zoom) {
     CustomPoint<double> halfSize = size / 2;
     if (zoom != this.zoom) {
@@ -269,6 +318,8 @@ class MapCamera {
     return CustomPoint(tp.dx, tp.dy);
   }
 
+  /// Clamps the provided [zoom] to the range specified by [minZoom] and
+  /// [maxZoom], if set.
   double clampZoom(double zoom) => zoom.clamp(
         minZoom ?? double.negativeInfinity,
         maxZoom ?? double.infinity,
