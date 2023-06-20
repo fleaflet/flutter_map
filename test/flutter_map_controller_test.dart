@@ -26,10 +26,10 @@ void main() {
 
       controller.fitCamera(cameraConstraint);
       await tester.pump();
-      final mapCamera = controller.mapCamera;
-      expect(mapCamera.visibleBounds, equals(expectedBounds));
-      expect(mapCamera.center, equals(expectedCenter));
-      expect(mapCamera.zoom, equals(expectedZoom));
+      final camera = controller.camera;
+      expect(camera.visibleBounds, equals(expectedBounds));
+      expect(camera.center, equals(expectedCenter));
+      expect(camera.zoom, equals(expectedZoom));
     }
 
     {
@@ -46,10 +46,10 @@ void main() {
 
       controller.fitCamera(cameraConstraint);
       await tester.pump();
-      final mapCamera = controller.mapCamera;
-      expect(mapCamera.visibleBounds, equals(expectedBounds));
-      expect(mapCamera.center, equals(expectedCenter));
-      expect(mapCamera.zoom, equals(expectedZoom));
+      final camera = controller.camera;
+      expect(camera.visibleBounds, equals(expectedBounds));
+      expect(camera.center, equals(expectedCenter));
+      expect(camera.zoom, equals(expectedZoom));
     }
 
     {
@@ -67,10 +67,10 @@ void main() {
       controller.fitCamera(cameraConstraint);
       await tester.pump();
 
-      final mapCamera = controller.mapCamera;
-      expect(mapCamera.visibleBounds, equals(expectedBounds));
-      expect(mapCamera.center, equals(expectedCenter));
-      expect(mapCamera.zoom, equals(expectedZoom));
+      final camera = controller.camera;
+      expect(camera.visibleBounds, equals(expectedBounds));
+      expect(camera.center, equals(expectedCenter));
+      expect(camera.zoom, equals(expectedZoom));
     }
 
     {
@@ -88,10 +88,10 @@ void main() {
 
       controller.fitCamera(cameraConstraint);
       await tester.pump();
-      final mapCamera = controller.mapCamera;
-      expect(mapCamera.visibleBounds, equals(expectedBounds));
-      expect(mapCamera.center, equals(expectedCenter));
-      expect(mapCamera.zoom, equals(expectedZoom));
+      final camera = controller.camera;
+      expect(camera.visibleBounds, equals(expectedBounds));
+      expect(camera.center, equals(expectedCenter));
+      expect(camera.zoom, equals(expectedZoom));
     }
   });
 
@@ -116,30 +116,30 @@ void main() {
       controller.fitCamera(cameraConstraint);
       await tester.pump();
       expect(
-        controller.mapCamera.visibleBounds.northWest.latitude,
+        controller.camera.visibleBounds.northWest.latitude,
         moreOrLessEquals(expectedBounds.northWest.latitude),
       );
       expect(
-        controller.mapCamera.visibleBounds.northWest.longitude,
+        controller.camera.visibleBounds.northWest.longitude,
         moreOrLessEquals(expectedBounds.northWest.longitude),
       );
       expect(
-        controller.mapCamera.visibleBounds.southEast.latitude,
+        controller.camera.visibleBounds.southEast.latitude,
         moreOrLessEquals(expectedBounds.southEast.latitude),
       );
       expect(
-        controller.mapCamera.visibleBounds.southEast.longitude,
+        controller.camera.visibleBounds.southEast.longitude,
         moreOrLessEquals(expectedBounds.southEast.longitude),
       );
       expect(
-        controller.mapCamera.center.latitude,
+        controller.camera.center.latitude,
         moreOrLessEquals(expectedCenter.latitude),
       );
       expect(
-        controller.mapCamera.center.longitude,
+        controller.camera.center.longitude,
         moreOrLessEquals(expectedCenter.longitude),
       );
-      expect(controller.mapCamera.zoom, moreOrLessEquals(expectedZoom));
+      expect(controller.camera.zoom, moreOrLessEquals(expectedZoom));
     }
 
     // Tests with no padding
@@ -685,14 +685,14 @@ void main() {
       controller.fitCamera(fitCoordinates);
       await tester.pump();
       expect(
-        controller.mapCamera.center.latitude,
+        controller.camera.center.latitude,
         moreOrLessEquals(expectedCenter.latitude),
       );
       expect(
-        controller.mapCamera.center.longitude,
+        controller.camera.center.longitude,
         moreOrLessEquals(expectedCenter.longitude),
       );
-      expect(controller.mapCamera.zoom, moreOrLessEquals(expectedZoom));
+      expect(controller.camera.zoom, moreOrLessEquals(expectedZoom));
     }
 
     FitCoordinates fitCoordinates({

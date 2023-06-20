@@ -24,7 +24,7 @@ class MapControllerImpl implements MapController {
   }
 
   @override
-  MapCamera get mapCamera => _internalController.mapCamera;
+  MapCamera get camera => _internalController.camera;
 
   @override
   Stream<MapEvent> get mapEventStream => _mapEventStreamController.stream;
@@ -121,16 +121,16 @@ class MapControllerImpl implements MapController {
   }
 
   @override
-  @Deprecated('Use controller.mapCamera.visibleBounds instead.')
-  LatLngBounds? get bounds => mapCamera.visibleBounds;
+  @Deprecated('Use controller.camera.visibleBounds instead.')
+  LatLngBounds? get bounds => camera.visibleBounds;
 
   @override
-  @Deprecated('Use controller.mapCamera.center instead.')
-  LatLng get center => mapCamera.center;
+  @Deprecated('Use controller.camera.center instead.')
+  LatLng get center => camera.center;
 
   @override
   @Deprecated(
-      'Use CameraFit.bounds(bounds: bounds).fit(controller.mapCamera) instead.')
+      'Use CameraFit.bounds(bounds: bounds).fit(controller.camera) instead.')
   CenterZoom centerZoomFitBounds(
     LatLngBounds bounds, {
     FitBoundsOptions options =
@@ -142,7 +142,7 @@ class MapControllerImpl implements MapController {
       maxZoom: options.maxZoom,
       inside: options.inside,
       forceIntegerZoomLevel: options.forceIntegerZoomLevel,
-    ).fit(mapCamera);
+    ).fit(camera);
     return CenterZoom(
       center: fittedState.center,
       zoom: fittedState.zoom,
@@ -150,33 +150,33 @@ class MapControllerImpl implements MapController {
   }
 
   @override
-  @Deprecated('Use controller.mapCamera.latLngToScreenPoint() instead.')
+  @Deprecated('Use controller.camera.latLngToScreenPoint() instead.')
   CustomPoint<double> latLngToScreenPoint(LatLng mapCoordinate) =>
-      mapCamera.latLngToScreenPoint(mapCoordinate);
+      camera.latLngToScreenPoint(mapCoordinate);
 
   @override
-  @Deprecated('Use controller.mapCamera.pointToLatLng() instead.')
+  @Deprecated('Use controller.camera.pointToLatLng() instead.')
   LatLng pointToLatLng(CustomPoint<num> screenPoint) =>
-      mapCamera.pointToLatLng(screenPoint);
+      camera.pointToLatLng(screenPoint);
 
   @override
-  @Deprecated('Use controller.mapCamera.rotatePoint() instead.')
+  @Deprecated('Use controller.camera.rotatePoint() instead.')
   CustomPoint<double> rotatePoint(
     CustomPoint mapCenter,
     CustomPoint point, {
     bool counterRotation = true,
   }) =>
-      mapCamera.rotatePoint(
+      camera.rotatePoint(
         mapCenter.toDoublePoint(),
         point.toDoublePoint(),
         counterRotation: counterRotation,
       );
 
   @override
-  @Deprecated('Use controller.mapCamera.rotation instead.')
-  double get rotation => mapCamera.rotation;
+  @Deprecated('Use controller.camera.rotation instead.')
+  double get rotation => camera.rotation;
 
   @override
-  @Deprecated('Use controller.mapCamera.zoom instead.')
-  double get zoom => mapCamera.zoom;
+  @Deprecated('Use controller.camera.zoom instead.')
+  double get zoom => camera.zoom;
 }

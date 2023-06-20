@@ -116,7 +116,7 @@ class MapControllerPageState extends State<MapControllerPage> {
                   Builder(builder: (BuildContext context) {
                     return MaterialButton(
                       onPressed: () {
-                        final bounds = _mapController.mapCamera.visibleBounds;
+                        final bounds = _mapController.camera.visibleBounds;
 
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           content: Text(

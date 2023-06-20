@@ -18,14 +18,14 @@ abstract class CameraConstraint {
     required LatLngBounds bounds,
   }) = ContainCamera._;
 
-  MapCamera? constrain(MapCamera mapCamera);
+  MapCamera? constrain(MapCamera camera);
 }
 
 class UnconstrainedCamera extends CameraConstraint {
   const UnconstrainedCamera._();
 
   @override
-  MapCamera constrain(MapCamera mapCamera) => mapCamera;
+  MapCamera constrain(MapCamera camera) => camera;
 }
 
 class ContainCameraCenter extends CameraConstraint {
@@ -36,13 +36,13 @@ class ContainCameraCenter extends CameraConstraint {
   });
 
   @override
-  MapCamera constrain(MapCamera mapCamera) => mapCamera.withPosition(
+  MapCamera constrain(MapCamera camera) => camera.withPosition(
         center: LatLng(
-          mapCamera.center.latitude.clamp(
+          camera.center.latitude.clamp(
             bounds.south,
             bounds.north,
           ),
-          mapCamera.center.longitude.clamp(
+          camera.center.longitude.clamp(
             bounds.west,
             bounds.east,
           ),
@@ -59,14 +59,14 @@ class ContainCamera extends CameraConstraint {
   });
 
   @override
-  MapCamera? constrain(MapCamera mapCamera) {
-    final testZoom = mapCamera.zoom;
-    final testCenter = mapCamera.center;
+  MapCamera? constrain(MapCamera camera) {
+    final testZoom = camera.zoom;
+    final testCenter = camera.center;
 
-    final nePixel = mapCamera.project(bounds.northEast, testZoom);
-    final swPixel = mapCamera.project(bounds.southWest, testZoom);
+    final nePixel = camera.project(bounds.northEast, testZoom);
+    final swPixel = camera.project(bounds.southWest, testZoom);
 
-    final halfSize = mapCamera.size / 2;
+    final halfSize = camera.size / 2;
 
     // Find the limits for the map center which would keep the camera within the
     // [latLngBounds].
@@ -79,16 +79,16 @@ class ContainCamera extends CameraConstraint {
     // stay within [latLngBounds].
     if (leftOkCenter > rightOkCenter || topOkCenter > botOkCenter) return null;
 
-    final centerPix = mapCamera.project(testCenter, testZoom);
+    final centerPix = camera.project(testCenter, testZoom);
     final newCenterPix = CustomPoint(
       centerPix.x.clamp(leftOkCenter, rightOkCenter),
       centerPix.y.clamp(topOkCenter, botOkCenter),
     );
 
-    if (newCenterPix == centerPix) return mapCamera;
+    if (newCenterPix == centerPix) return camera;
 
-    return mapCamera.withPosition(
-      center: mapCamera.unproject(newCenterPix, testZoom),
+    return camera.withPosition(
+      center: camera.unproject(newCenterPix, testZoom),
     );
   }
 

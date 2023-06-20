@@ -13,37 +13,37 @@ class TileRangeCalculator {
   /// resulting tile range is expanded by [panBuffer].
   DiscreteTileRange calculate({
     // The map camera used to calculate the bounds.
-    required MapCamera mapCamera,
+    required MapCamera camera,
     // The zoom level at which the bounds should be calculated.
     required int tileZoom,
-    // The center from which the map is viewed, defaults to [mapCamera.center].
+    // The center from which the map is viewed, defaults to [camera.center].
     LatLng? center,
-    // The zoom from which the map is viewed, defaults to [mapCamera.zoom].
+    // The zoom from which the map is viewed, defaults to [camera.zoom].
     double? viewingZoom,
   }) {
     return DiscreteTileRange.fromPixelBounds(
       zoom: tileZoom,
       tileSize: tileSize,
       pixelBounds: _calculatePixelBounds(
-        mapCamera,
-        center ?? mapCamera.center,
-        viewingZoom ?? mapCamera.zoom,
+        camera,
+        center ?? camera.center,
+        viewingZoom ?? camera.zoom,
         tileZoom,
       ),
     );
   }
 
   Bounds<double> _calculatePixelBounds(
-    MapCamera mapCamera,
+    MapCamera camera,
     LatLng center,
     double viewingZoom,
     int tileZoom,
   ) {
     final tileZoomDouble = tileZoom.toDouble();
-    final scale = mapCamera.getZoomScale(viewingZoom, tileZoomDouble);
+    final scale = camera.getZoomScale(viewingZoom, tileZoomDouble);
     final pixelCenter =
-        mapCamera.project(center, tileZoomDouble).floor().toDoublePoint();
-    final halfSize = mapCamera.size / (scale * 2);
+        camera.project(center, tileZoomDouble).floor().toDoublePoint();
+    final halfSize = camera.size / (scale * 2);
 
     return Bounds(pixelCenter - halfSize, pixelCenter + halfSize);
   }

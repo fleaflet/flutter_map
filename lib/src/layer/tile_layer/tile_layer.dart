@@ -329,7 +329,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    final mapCamera = MapCamera.of(context);
+    final camera = MapCamera.of(context);
 
     final mapController = MapController.of(context);
     if (_mapControllerHashCode != mapController.hashCode) {
@@ -345,25 +345,25 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     bool reloadTiles = false;
     if (!_initializedFromMapCamera ||
         _tileBounds.shouldReplace(
-            mapCamera.crs, widget.tileSize, widget.tileBounds)) {
+            camera.crs, widget.tileSize, widget.tileBounds)) {
       reloadTiles = true;
       _tileBounds = TileBounds(
-        crs: mapCamera.crs,
+        crs: camera.crs,
         tileSize: widget.tileSize,
         latLngBounds: widget.tileBounds,
       );
     }
 
     if (!_initializedFromMapCamera ||
-        _tileScaleCalculator.shouldReplace(mapCamera.crs, widget.tileSize)) {
+        _tileScaleCalculator.shouldReplace(camera.crs, widget.tileSize)) {
       reloadTiles = true;
       _tileScaleCalculator = TileScaleCalculator(
-        crs: mapCamera.crs,
+        crs: camera.crs,
         tileSize: widget.tileSize,
       );
     }
 
-    if (reloadTiles) _loadAndPruneInVisibleBounds(mapCamera);
+    if (reloadTiles) _loadAndPruneInVisibleBounds(camera);
 
     _initializedFromMapCamera = true;
   }
@@ -447,7 +447,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     final tileZoom = _clampToNativeZoom(map.zoom);
     final tileBoundsAtZoom = _tileBounds.atZoom(tileZoom);
     final visibleTileRange = _tileRangeCalculator.calculate(
-      mapCamera: map,
+      camera: map,
       tileZoom: tileZoom,
     );
 
@@ -522,7 +522,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   void _onTileUpdateEvent(TileUpdateEvent event) {
     final tileZoom = _clampToNativeZoom(event.zoom);
     final visibleTileRange = _tileRangeCalculator.calculate(
-      mapCamera: event.mapCamera,
+      camera: event.camera,
       tileZoom: tileZoom,
       center: event.center,
       viewingZoom: event.zoom,
@@ -540,10 +540,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   }
 
   // Load new tiles in the visible bounds and prune those outside.
-  void _loadAndPruneInVisibleBounds(MapCamera mapCamera) {
-    final tileZoom = _clampToNativeZoom(mapCamera.zoom);
+  void _loadAndPruneInVisibleBounds(MapCamera camera) {
+    final tileZoom = _clampToNativeZoom(camera.zoom);
     final visibleTileRange = _tileRangeCalculator.calculate(
-      mapCamera: mapCamera,
+      camera: camera,
       tileZoom: tileZoom,
     );
 

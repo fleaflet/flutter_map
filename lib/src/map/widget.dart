@@ -159,7 +159,7 @@ class FlutterMapStateContainer extends State<FlutterMap> {
       constraints.maxWidth,
       constraints.maxHeight,
     );
-    final oldMapCamera = _flutterMapInternalController.camera;
+    final oldCamera = _flutterMapInternalController.camera;
     if (_flutterMapInternalController
         .setNonRotatedSizeWithoutEmittingEvent(nonRotatedSize)) {
       final newMapCamera = _flutterMapInternalController.camera;
@@ -170,7 +170,7 @@ class FlutterMapStateContainer extends State<FlutterMap> {
         if (mounted) {
           _flutterMapInternalController.nonRotatedSizeChange(
             MapEventSource.nonRotatedSizeChange,
-            oldMapCamera,
+            oldCamera,
             newMapCamera,
           );
         }

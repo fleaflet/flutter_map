@@ -140,7 +140,7 @@ abstract class MapController {
   /// Current [MapCamera]. Accessing the camera from this getter is an
   /// anti-pattern. It is preferable to use [MapCamera.of(context)] in a child
   /// widget of FlutterMap.
-  MapCamera get mapCamera;
+  MapCamera get camera;
 
   /// [Stream] of all emitted [MapEvent]s
   Stream<MapEvent> get mapEventStream;
@@ -150,7 +150,7 @@ abstract class MapController {
   ///
   /// Does not move/zoom the map: see [fitBounds].
   @Deprecated(
-      'Use CameraFit.bounds(bounds: bounds).fit(controller.mapCamera) instead.')
+      'Use CameraFit.bounds(bounds: bounds).fit(controller.camera) instead.')
   CenterZoom centerZoomFitBounds(
     LatLngBounds bounds, {
     FitBoundsOptions options =
@@ -159,15 +159,15 @@ abstract class MapController {
 
   /// Convert a screen point (x/y) to its corresponding map coordinate (lat/lng),
   /// based on the map's current properties
-  @Deprecated('Use controller.mapCamera.pointToLatLng() instead.')
+  @Deprecated('Use controller.camera.pointToLatLng() instead.')
   LatLng pointToLatLng(CustomPoint screenPoint);
 
   /// Convert a map coordinate (lat/lng) to its corresponding screen point (x/y),
   /// based on the map's current screen positioning
-  @Deprecated('Use controller.mapCamera.latLngToScreenPoint() instead.')
+  @Deprecated('Use controller.camera.latLngToScreenPoint() instead.')
   CustomPoint<double> latLngToScreenPoint(LatLng mapCoordinate);
 
-  @Deprecated('Use controller.mapCamera.rotatePoint() instead.')
+  @Deprecated('Use controller.camera.rotatePoint() instead.')
   CustomPoint<double> rotatePoint(
     CustomPoint mapCenter,
     CustomPoint point, {
@@ -175,19 +175,19 @@ abstract class MapController {
   });
 
   /// Current center coordinates
-  @Deprecated('Use controller.mapCamera.center instead.')
+  @Deprecated('Use controller.camera.center instead.')
   LatLng get center;
 
   /// Current outer points/boundaries coordinates
-  @Deprecated('Use controller.mapCamera.visibleBounds instead.')
+  @Deprecated('Use controller.camera.visibleBounds instead.')
   LatLngBounds? get bounds;
 
   /// Current zoom level
-  @Deprecated('Use controller.mapCamera.zoom instead.')
+  @Deprecated('Use controller.camera.zoom instead.')
   double get zoom;
 
   /// Current rotation in degrees, where 0° is North
-  @Deprecated('Use controller.mapCamera.rotation instead.')
+  @Deprecated('Use controller.camera.rotation instead.')
   double get rotation;
 
   /// Dispose of this controller.

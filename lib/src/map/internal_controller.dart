@@ -15,7 +15,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
       : super(
           _InternalState(
             options: options,
-            mapCamera: MapCamera.initialCamera(options),
+            camera: MapCamera.initialCamera(options),
           ),
         );
 
@@ -27,7 +27,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
       _interactiveViewerState = interactiveViewerState;
 
   MapOptions get options => value.options;
-  MapCamera get mapCamera => value.mapCamera;
+  MapCamera get camera => value.camera;
 
   void linkMapController(MapControllerImpl mapControllerImpl) {
     _mapControllerImpl = mapControllerImpl;
@@ -54,9 +54,9 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
   }) {
     // Algorithm thanks to https://github.com/tlserver/flutter_map_location_marker
     if (offset != Offset.zero) {
-      final newPoint = mapCamera.project(newCenter, newZoom);
-      newCenter = mapCamera.unproject(
-        mapCamera.rotatePoint(
+      final newPoint = camera.project(newCenter, newZoom);
+      newCenter = camera.unproject(
+        camera.rotatePoint(
           newPoint,
           newPoint - CustomPoint(offset.dx, offset.dy),
         ),
@@ -64,24 +64,23 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
       );
     }
 
-    MapCamera? newMapCamera = mapCamera.withPosition(
+    MapCamera? newCamera = camera.withPosition(
       center: newCenter,
-      zoom: mapCamera.clampZoom(newZoom),
+      zoom: camera.clampZoom(newZoom),
     );
 
-    newMapCamera = options.cameraConstraint.constrain(newMapCamera);
-    if (newMapCamera == null ||
-        (newMapCamera.center == mapCamera.center &&
-            newMapCamera.zoom == mapCamera.zoom)) {
+    newCamera = options.cameraConstraint.constrain(newCamera);
+    if (newCamera == null ||
+        (newCamera.center == camera.center && newCamera.zoom == camera.zoom)) {
       return false;
     }
 
-    final oldMapCamera = mapCamera;
-    value = value.withMapCamera(newMapCamera);
+    final oldCamera = camera;
+    value = value.withMapCamera(newCamera);
 
     final movementEvent = MapEventWithMove.fromSource(
-      oldMapCamera: oldMapCamera,
-      mapCamera: mapCamera,
+      oldCamera: oldCamera,
+      camera: camera,
       hasGesture: hasGesture,
       source: source,
       id: id,
@@ -91,7 +90,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     options.onPositionChanged?.call(
       MapPosition(
         center: newCenter,
-        bounds: mapCamera.visibleBounds,
+        bounds: camera.visibleBounds,
         zoom: newZoom,
         hasGesture: hasGesture,
       ),
@@ -110,23 +109,23 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     required MapEventSource source,
     required String? id,
   }) {
-    if (newRotation != mapCamera.rotation) {
-      final newMapCamera = options.cameraConstraint.constrain(
-        mapCamera.withRotation(newRotation),
+    if (newRotation != camera.rotation) {
+      final newCamera = options.cameraConstraint.constrain(
+        camera.withRotation(newRotation),
       );
-      if (newMapCamera == null) return false;
+      if (newCamera == null) return false;
 
-      final oldMapCamera = mapCamera;
+      final oldCamera = camera;
 
       // Update camera then emit events and callbacks
-      value = value.withMapCamera(newMapCamera);
+      value = value.withMapCamera(newCamera);
 
       _emitMapEvent(
         MapEventRotate(
           id: id,
           source: source,
-          oldMapCamera: oldMapCamera,
-          mapCamera: mapCamera,
+          oldCamera: oldCamera,
+          camera: camera,
         ),
       );
       return true;
@@ -153,7 +152,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
       throw ArgumentError('One of `point` or `offset` must be non-null');
     }
 
-    if (degree == mapCamera.rotation) {
+    if (degree == camera.rotation) {
       return MoveAndRotateResult(false, false);
     }
 
@@ -169,28 +168,28 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
       );
     }
 
-    final rotationDiff = degree - mapCamera.rotation;
-    final rotationCenter = mapCamera.project(mapCamera.center) +
+    final rotationDiff = degree - camera.rotation;
+    final rotationCenter = camera.project(camera.center) +
         (point != null
-                ? (point - (mapCamera.nonRotatedSize / 2.0))
+                ? (point - (camera.nonRotatedSize / 2.0))
                 : CustomPoint(offset!.dx, offset.dy))
-            .rotate(mapCamera.rotationRad);
+            .rotate(camera.rotationRad);
 
     return MoveAndRotateResult(
       move(
-        mapCamera.unproject(
+        camera.unproject(
           rotationCenter +
-              (mapCamera.project(mapCamera.center) - rotationCenter)
+              (camera.project(camera.center) - rotationCenter)
                   .rotate(degToRadian(rotationDiff)),
         ),
-        mapCamera.zoom,
+        camera.zoom,
         offset: Offset.zero,
         hasGesture: hasGesture,
         source: source,
         id: id,
       ),
       rotate(
-        mapCamera.rotation + rotationDiff,
+        camera.rotation + rotationDiff,
         hasGesture: hasGesture,
         source: source,
         id: id,
@@ -229,7 +228,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     CameraFit cameraFit, {
     required Offset offset,
   }) {
-    final fitted = cameraFit.fit(mapCamera);
+    final fitted = cameraFit.fit(camera);
 
     return move(
       fitted.center,
@@ -245,8 +244,8 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     CustomPoint<double> nonRotatedSize,
   ) {
     if (nonRotatedSize != MapCamera.kImpossibleSize &&
-        nonRotatedSize != mapCamera.nonRotatedSize) {
-      value = value.withMapCamera(mapCamera.withNonRotatedSize(nonRotatedSize));
+        nonRotatedSize != camera.nonRotatedSize) {
+      value = value.withMapCamera(camera.withNonRotatedSize(nonRotatedSize));
       return true;
     }
 
@@ -259,10 +258,10 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
       'Should not update options unless they change',
     );
 
-    final newMapCamera = mapCamera.withOptions(newOptions);
+    final newCamera = camera.withOptions(newOptions);
 
     assert(
-      newOptions.cameraConstraint.constrain(newMapCamera) == newMapCamera,
+      newOptions.cameraConstraint.constrain(newCamera) == newCamera,
       'MapCamera is no longer within the cameraConstraint after an option change.',
     );
 
@@ -275,7 +274,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
 
     value = _InternalState(
       options: newOptions,
-      mapCamera: newMapCamera,
+      camera: newCamera,
     );
   }
 
@@ -283,7 +282,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
   void moveStarted(MapEventSource source) {
     _emitMapEvent(
       MapEventMoveStart(
-        mapCamera: mapCamera,
+        camera: camera,
         source: source,
       ),
     );
@@ -291,14 +290,14 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
 
   // To be called when an ongoing drag movement updates.
   void dragUpdated(MapEventSource source, Offset offset) {
-    final oldCenterPt = mapCamera.project(mapCamera.center);
+    final oldCenterPt = camera.project(camera.center);
 
     final newCenterPt = oldCenterPt + offset.toCustomPoint();
-    final newCenter = mapCamera.unproject(newCenterPt);
+    final newCenter = camera.unproject(newCenterPt);
 
     move(
       newCenter,
-      mapCamera.zoom,
+      camera.zoom,
       offset: Offset.zero,
       hasGesture: true,
       source: source,
@@ -310,7 +309,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
   void moveEnded(MapEventSource source) {
     _emitMapEvent(
       MapEventMoveEnd(
-        mapCamera: mapCamera,
+        camera: camera,
         source: source,
       ),
     );
@@ -320,7 +319,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
   void rotateStarted(MapEventSource source) {
     _emitMapEvent(
       MapEventRotateStart(
-        mapCamera: mapCamera,
+        camera: camera,
         source: source,
       ),
     );
@@ -330,7 +329,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
   void rotateEnded(MapEventSource source) {
     _emitMapEvent(
       MapEventRotateEnd(
-        mapCamera: mapCamera,
+        camera: camera,
         source: source,
       ),
     );
@@ -340,7 +339,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
   void flingStarted(MapEventSource source) {
     _emitMapEvent(
       MapEventFlingAnimationStart(
-        mapCamera: mapCamera,
+        camera: camera,
         source: MapEventSource.flingAnimationController,
       ),
     );
@@ -350,7 +349,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
   void flingEnded(MapEventSource source) {
     _emitMapEvent(
       MapEventFlingAnimationEnd(
-        mapCamera: mapCamera,
+        camera: camera,
         source: source,
       ),
     );
@@ -360,7 +359,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
   void flingNotStarted(MapEventSource source) {
     _emitMapEvent(
       MapEventFlingAnimationNotStarted(
-        mapCamera: mapCamera,
+        camera: camera,
         source: source,
       ),
     );
@@ -370,7 +369,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
   void doubleTapZoomStarted(MapEventSource source) {
     _emitMapEvent(
       MapEventDoubleTapZoomStart(
-        mapCamera: mapCamera,
+        camera: camera,
         source: source,
       ),
     );
@@ -380,7 +379,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
   void doubleTapZoomEnded(MapEventSource source) {
     _emitMapEvent(
       MapEventDoubleTapZoomEnd(
-        mapCamera: mapCamera,
+        camera: camera,
         source: source,
       ),
     );
@@ -395,7 +394,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     _emitMapEvent(
       MapEventTap(
         tapPosition: position,
-        mapCamera: mapCamera,
+        camera: camera,
         source: source,
       ),
     );
@@ -410,7 +409,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     _emitMapEvent(
       MapEventSecondaryTap(
         tapPosition: position,
-        mapCamera: mapCamera,
+        camera: camera,
         source: source,
       ),
     );
@@ -425,7 +424,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     _emitMapEvent(
       MapEventLongPress(
         tapPosition: position,
-        mapCamera: mapCamera,
+        camera: camera,
         source: MapEventSource.longPress,
       ),
     );
@@ -434,14 +433,14 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
   // To be called when the map's size constraints change.
   void nonRotatedSizeChange(
     MapEventSource source,
-    MapCamera oldMapCamera,
-    MapCamera newMapCamera,
+    MapCamera oldCamera,
+    MapCamera newCamera,
   ) {
     _emitMapEvent(
       MapEventNonRotatedSizeChange(
         source: MapEventSource.nonRotatedSizeChange,
-        oldMapCamera: oldMapCamera,
-        mapCamera: newMapCamera,
+        oldCamera: oldCamera,
+        camera: newCamera,
       ),
     );
   }
@@ -458,16 +457,16 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
 }
 
 class _InternalState {
-  final MapCamera mapCamera;
+  final MapCamera camera;
   final MapOptions options;
 
   const _InternalState({
     required this.options,
-    required this.mapCamera,
+    required this.camera,
   });
 
-  _InternalState withMapCamera(MapCamera mapCamera) => _InternalState(
+  _InternalState withMapCamera(MapCamera camera) => _InternalState(
         options: options,
-        mapCamera: mapCamera,
+        camera: camera,
       );
 }

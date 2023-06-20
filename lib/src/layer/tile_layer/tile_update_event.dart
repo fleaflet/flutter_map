@@ -19,11 +19,11 @@ class TileUpdateEvent {
     this.loadZoomOverride,
   });
 
-  double get zoom => loadZoomOverride ?? mapEvent.mapCamera.zoom;
+  double get zoom => loadZoomOverride ?? mapEvent.camera.zoom;
 
-  LatLng get center => loadCenterOverride ?? mapEvent.mapCamera.center;
+  LatLng get center => loadCenterOverride ?? mapEvent.camera.center;
 
-  MapCamera get mapCamera => mapEvent.mapCamera;
+  MapCamera get camera => mapEvent.camera;
 
   /// Returns a copy of this TileUpdateEvent with only pruning enabled and the
   /// loadCenterOverride/loadZoomOverride removed.
