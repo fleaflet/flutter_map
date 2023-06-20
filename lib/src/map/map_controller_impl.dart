@@ -26,13 +26,10 @@ class MapControllerImpl implements MapController {
     _internalController = internalController;
   }
 
-  @override
-  MapCamera get camera => _internalController.camera;
+  StreamSink<MapEvent> get mapEventSink => _mapEventStreamController.sink;
 
   @override
   Stream<MapEvent> get mapEventStream => _mapEventStreamController.stream;
-
-  StreamSink<MapEvent> get mapEventSink => _mapEventStreamController.sink;
 
   @override
   bool move(
@@ -91,13 +88,21 @@ class MapControllerImpl implements MapController {
         id: id,
       );
 
-  /// Move and zoom the map to perfectly fit [bounds], with additional
-  /// configurable [options]
-  ///
-  /// For information about return value meaning and emitted events, see [move]'s
-  /// documentation.
   @override
-  @Deprecated('Use fitCamera with a MapFit.bounds() instead')
+  bool fitCamera(CameraFit cameraFit) => _internalController.fitCamera(
+        cameraFit,
+        offset: Offset.zero,
+      );
+
+  @override
+  MapCamera get camera => _internalController.camera;
+
+  @override
+  @Deprecated(
+    'Prefer `fitCamera` with a CameraFit.bounds() instead. '
+    'This method has been changed to use the new `CameraFit` classes which allows different kinds of fit. '
+    'This method is deprecated since v6.',
+  )
   bool fitBounds(
     LatLngBounds bounds, {
     FitBoundsOptions options =
@@ -114,26 +119,11 @@ class MapControllerImpl implements MapController {
       );
 
   @override
-  bool fitCamera(CameraFit cameraFit) => _internalController.fitCamera(
-        cameraFit,
-        offset: Offset.zero,
-      );
-  @override
-  void dispose() {
-    _mapEventStreamController.close();
-  }
-
-  @override
-  @Deprecated('Use controller.camera.visibleBounds instead.')
-  LatLngBounds? get bounds => camera.visibleBounds;
-
-  @override
-  @Deprecated('Use controller.camera.center instead.')
-  LatLng get center => camera.center;
-
-  @override
   @Deprecated(
-      'Use CameraFit.bounds(bounds: bounds).fit(controller.camera) instead.')
+    'Prefer `CameraFit.bounds(bounds: bounds).fit(controller.camera)`. '
+    'This method is replaced by applying a CameraFit to the MapCamera. '
+    'This method is deprecated since v6.',
+  )
   CenterZoom centerZoomFitBounds(
     LatLngBounds bounds, {
     FitBoundsOptions options =
@@ -153,17 +143,29 @@ class MapControllerImpl implements MapController {
   }
 
   @override
-  @Deprecated('Use controller.camera.latLngToScreenPoint() instead.')
-  CustomPoint<double> latLngToScreenPoint(LatLng mapCoordinate) =>
-      camera.latLngToScreenPoint(mapCoordinate);
-
-  @override
-  @Deprecated('Use controller.camera.pointToLatLng() instead.')
+  @Deprecated(
+    'Prefer `controller.camera.pointToLatLng()`. '
+    'This method is now accessible via the camera. '
+    'This method is deprecated since v6.',
+  )
   LatLng pointToLatLng(CustomPoint<num> screenPoint) =>
       camera.pointToLatLng(screenPoint);
 
   @override
-  @Deprecated('Use controller.camera.rotatePoint() instead.')
+  @Deprecated(
+    'Prefer `controller.camera.latLngToScreenPoint()`. '
+    'This method is now accessible via the camera. '
+    'This method is deprecated since v6.',
+  )
+  CustomPoint<double> latLngToScreenPoint(LatLng mapCoordinate) =>
+      camera.latLngToScreenPoint(mapCoordinate);
+
+  @override
+  @Deprecated(
+    'Prefer `controller.camera.rotatePoint()`. '
+    'This method is now accessible via the camera. '
+    'This method is deprecated since v6.',
+  )
   CustomPoint<double> rotatePoint(
     CustomPoint mapCenter,
     CustomPoint point, {
@@ -176,10 +178,39 @@ class MapControllerImpl implements MapController {
       );
 
   @override
-  @Deprecated('Use controller.camera.rotation instead.')
+  @Deprecated(
+    'Prefer `controller.camera.center`. '
+    'This getter is now accessible via the camera. '
+    'This getter is deprecated since v6.',
+  )
+  LatLng get center => camera.center;
+
+  @override
+  @Deprecated(
+    'Prefer `controller.camera.visibleBounds`. '
+    'This getter is now accessible via the camera. '
+    'This getter is deprecated since v6.',
+  )
+  LatLngBounds? get bounds => camera.visibleBounds;
+
+  @override
+  @Deprecated(
+    'Prefer `controller.camera.zoom`. '
+    'This getter is now accessible via the camera. '
+    'This getter is deprecated since v6.',
+  )
+  double get zoom => camera.zoom;
+
+  @override
+  @Deprecated(
+    'Prefer `controller.camera.rotation`. '
+    'This getter is now accessible via the camera. '
+    'This getter is deprecated since v6.',
+  )
   double get rotation => camera.rotation;
 
   @override
-  @Deprecated('Use controller.camera.zoom instead.')
-  double get zoom => camera.zoom;
+  void dispose() {
+    _mapEventStreamController.close();
+  }
 }

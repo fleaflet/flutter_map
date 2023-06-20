@@ -37,6 +37,9 @@ abstract class MapController {
       (throw StateError(
           '`MapController.of()` should not be called outside a `FlutterMap` and its children'));
 
+  /// [Stream] of all emitted [MapEvent]s
+  Stream<MapEvent> get mapEventStream;
+
   /// Moves and zooms the map to a [center] and [zoom] level
   ///
   /// [offset] allows a screen-based offset (in normal logical pixels) to be
@@ -125,18 +128,6 @@ abstract class MapController {
     String? id,
   });
 
-  /// Move and zoom the map to perfectly fit [bounds], with additional
-  /// configurable [options]
-  ///
-  /// For information about return value meaning and emitted events, see [move]'s
-  /// documentation.
-  @Deprecated('Use fitCamera with a MapFit.bounds() instead')
-  bool fitBounds(
-    LatLngBounds bounds, {
-    FitBoundsOptions options =
-        const FitBoundsOptions(padding: EdgeInsets.all(12)),
-  });
-
   /// Move and zoom the map to fit [cameraFit].
   ///
   /// For information about the return value and emitted events, see [move]'s
@@ -148,15 +139,31 @@ abstract class MapController {
   /// widget of FlutterMap.
   MapCamera get camera;
 
-  /// [Stream] of all emitted [MapEvent]s
-  Stream<MapEvent> get mapEventStream;
+  /// Move and zoom the map to perfectly fit [bounds], with additional
+  /// configurable [options]
+  ///
+  /// For information about return value meaning and emitted events, see [move]'s
+  /// documentation.
+  @Deprecated(
+    'Prefer `fitCamera` with a CameraFit.bounds() instead. '
+    'This method has been changed to use the new `CameraFit` classes which allows different kinds of fit. '
+    'This method is deprecated since v6.',
+  )
+  bool fitBounds(
+    LatLngBounds bounds, {
+    FitBoundsOptions options =
+        const FitBoundsOptions(padding: EdgeInsets.all(12)),
+  });
 
   /// Calculates the appropriate center and zoom level for the map to perfectly
   /// fit [bounds], with additional configurable [options]
   ///
   /// Does not move/zoom the map: see [fitBounds].
   @Deprecated(
-      'Use CameraFit.bounds(bounds: bounds).fit(controller.camera) instead.')
+    'Prefer `CameraFit.bounds(bounds: bounds).fit(controller.camera)`. '
+    'This method is replaced by applying a CameraFit to the MapCamera. '
+    'This method is deprecated since v6.',
+  )
   CenterZoom centerZoomFitBounds(
     LatLngBounds bounds, {
     FitBoundsOptions options =
@@ -165,15 +172,27 @@ abstract class MapController {
 
   /// Convert a screen point (x/y) to its corresponding map coordinate (lat/lng),
   /// based on the map's current properties
-  @Deprecated('Use controller.camera.pointToLatLng() instead.')
+  @Deprecated(
+    'Prefer `controller.camera.pointToLatLng()`. '
+    'This method is now accessible via the camera. '
+    'This method is deprecated since v6.',
+  )
   LatLng pointToLatLng(CustomPoint screenPoint);
 
   /// Convert a map coordinate (lat/lng) to its corresponding screen point (x/y),
   /// based on the map's current screen positioning
-  @Deprecated('Use controller.camera.latLngToScreenPoint() instead.')
+  @Deprecated(
+    'Prefer `controller.camera.latLngToScreenPoint()`. '
+    'This method is now accessible via the camera. '
+    'This method is deprecated since v6.',
+  )
   CustomPoint<double> latLngToScreenPoint(LatLng mapCoordinate);
 
-  @Deprecated('Use controller.camera.rotatePoint() instead.')
+  @Deprecated(
+    'Prefer `controller.camera.rotatePoint()`. '
+    'This method is now accessible via the camera. '
+    'This method is deprecated since v6.',
+  )
   CustomPoint<double> rotatePoint(
     CustomPoint mapCenter,
     CustomPoint point, {
@@ -181,19 +200,35 @@ abstract class MapController {
   });
 
   /// Current center coordinates
-  @Deprecated('Use controller.camera.center instead.')
+  @Deprecated(
+    'Prefer `controller.camera.center`. '
+    'This getter is now accessible via the camera. '
+    'This getter is deprecated since v6.',
+  )
   LatLng get center;
 
   /// Current outer points/boundaries coordinates
-  @Deprecated('Use controller.camera.visibleBounds instead.')
+  @Deprecated(
+    'Prefer `controller.camera.visibleBounds`. '
+    'This getter is now accessible via the camera. '
+    'This getter is deprecated since v6.',
+  )
   LatLngBounds? get bounds;
 
   /// Current zoom level
-  @Deprecated('Use controller.camera.zoom instead.')
+  @Deprecated(
+    'Prefer `controller.camera.zoom`. '
+    'This getter is now accessible via the camera. '
+    'This getter is deprecated since v6.',
+  )
   double get zoom;
 
   /// Current rotation in degrees, where 0° is North
-  @Deprecated('Use controller.camera.rotation instead.')
+  @Deprecated(
+    'Prefer `controller.camera.rotation`. '
+    'This getter is now accessible via the camera. '
+    'This getter is deprecated since v6.',
+  )
   double get rotation;
 
   /// Dispose of this controller.

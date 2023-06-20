@@ -46,7 +46,11 @@ class MapCamera {
   CustomPoint<int>? _pixelOrigin;
   double? _rotationRad;
 
-  @Deprecated('Use visibleBounds instead.')
+  @Deprecated(
+    'Prefer `visibleBounds`. '
+    'This getter has been changed to clarify its meaning. '
+    'This getter is deprecated since v6.',
+  )
   LatLngBounds get bounds => visibleBounds;
 
   /// This is the [LatLngBounds] corresponding to four corners of this camera.

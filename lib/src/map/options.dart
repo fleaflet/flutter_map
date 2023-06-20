@@ -106,39 +106,107 @@ class MapOptions {
 
   const MapOptions({
     this.crs = const Epsg3857(),
-    @Deprecated('Use initialCenter instead') LatLng? center,
+    @Deprecated(
+      'Prefer `initialCenter` instead. '
+      'This option has been renamed to clarify its meaning. '
+      'This option is deprecated since v6.',
+    )
+    LatLng? center,
     LatLng initialCenter = const LatLng(50.5, 30.51),
-    @Deprecated('Use initialZoom instead') double? zoom,
+    @Deprecated(
+      'Prefer `initialZoom` instead. '
+      'This option has been renamed to clarify its meaning. '
+      'This option is deprecated since v6.',
+    )
+    double? zoom,
     double initialZoom = 13.0,
-    @Deprecated('Use initialRotation instead') double? rotation,
+    @Deprecated(
+      'Prefer `initialRotation` instead. '
+      'This option has been renamed to clarify its meaning. '
+      'This option is deprecated since v6.',
+    )
+    double? rotation,
     double initialRotation = 0.0,
-    @Deprecated('Use initialCameraFit instead') this.bounds,
-    @Deprecated('Use initialCameraFit instead')
+    @Deprecated(
+      'Prefer `initialCameraFit` instead. '
+      'This option is now part of `initalCameraFit`. '
+      'This option is deprecated since v6.',
+    )
+    this.bounds,
+    @Deprecated(
+      'Prefer `initialCameraFit` instead. '
+      'This option is now part of `initalCameraFit`. '
+      'This option is deprecated since v6.',
+    )
     this.boundsOptions = const FitBoundsOptions(),
     this.initialCameraFit,
     this.cameraConstraint = const CameraConstraint.unconstrained(),
     InteractionOptions? interactionOptions,
-    @Deprecated('Should be set in interactionOptions instead')
+    @Deprecated(
+      'Prefer setting this in `interactionOptions`. '
+      'This option is now part of `interactionOptions` to group all interaction related options. '
+      'This option is deprecated since v6.',
+    )
     int? interactiveFlags,
-    @Deprecated('Should be set in interactionOptions instead')
+    @Deprecated(
+      'Prefer setting this in `interactionOptions`. '
+      'This option is now part of `interactionOptions` to group all interaction related options. '
+      'This option is deprecated since v6.',
+    )
     bool? debugMultiFingerGestureWinner,
-    @Deprecated('Should be set in interactionOptions instead')
+    @Deprecated(
+      'Prefer setting this in `interactionOptions`. '
+      'This option is now part of `interactionOptions` to group all interaction related options. '
+      'This option is deprecated since v6.',
+    )
     bool? enableMultiFingerGestureRace,
-    @Deprecated('Should be set in interactionOptions instead')
+    @Deprecated(
+      'Prefer setting this in `interactionOptions`. '
+      'This option is now part of `interactionOptions` to group all interaction related options. '
+      'This option is deprecated since v6.',
+    )
     double? rotationThreshold,
-    @Deprecated('Should be set in interactionOptions instead')
+    @Deprecated(
+      'Prefer setting this in `interactionOptions`. '
+      'This option is now part of `interactionOptions` to group all interaction related options. '
+      'This option is deprecated since v6.',
+    )
     int? rotationWinGestures,
-    @Deprecated('Should be set in interactionOptions instead')
+    @Deprecated(
+      'Prefer setting this in `interactionOptions`. '
+      'This option is now part of `interactionOptions` to group all interaction related options. '
+      'This option is deprecated since v6.',
+    )
     double? pinchZoomThreshold,
-    @Deprecated('Should be set in interactionOptions instead')
+    @Deprecated(
+      'Prefer setting this in `interactionOptions`. '
+      'This option is now part of `interactionOptions` to group all interaction related options. '
+      'This option is deprecated since v6.',
+    )
     int? pinchZoomWinGestures,
-    @Deprecated('Should be set in interactionOptions instead')
+    @Deprecated(
+      'Prefer setting this in `interactionOptions`. '
+      'This option is now part of `interactionOptions` to group all interaction related options. '
+      'This option is deprecated since v6.',
+    )
     double? pinchMoveThreshold,
-    @Deprecated('Should be set in interactionOptions instead')
+    @Deprecated(
+      'Prefer setting this in `interactionOptions`. '
+      'This option is now part of `interactionOptions` to group all interaction related options. '
+      'This option is deprecated since v6.',
+    )
     int? pinchMoveWinGestures,
-    @Deprecated('Should be set in interactionOptions instead')
+    @Deprecated(
+      'Prefer setting this in `interactionOptions`. '
+      'This option is now part of `interactionOptions` to group all interaction related options. '
+      'This option is deprecated since v6.',
+    )
     bool? enableScrollWheel,
-    @Deprecated('Should be set in interactionOptions instead')
+    @Deprecated(
+      'Prefer setting this in `interactionOptions`. '
+      'This option is now part of `interactionOptions` to group all interaction related options. '
+      'This option is deprecated since v6.',
+    )
     double? scrollWheelVelocity,
     this.minZoom,
     this.maxZoom,
