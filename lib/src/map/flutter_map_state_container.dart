@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/gestures/flutter_map_interactive_viewer.dart';
-import 'package:flutter_map/src/map/flutter_map_inherited_model.dart';
-import 'package:flutter_map/src/map/flutter_map_internal_controller.dart';
+import 'package:flutter_map/src/map/inherited_model.dart';
+import 'package:flutter_map/src/map/internal_controller.dart';
 import 'package:flutter_map/src/map/map_controller_impl.dart';
 
 class FlutterMapStateContainer extends State<FlutterMap> {
@@ -58,20 +58,20 @@ class FlutterMapStateContainer extends State<FlutterMap> {
 
         return FlutterMapInteractiveViewer(
           controller: _flutterMapInternalController,
-          builder: (context, mapState) => FlutterMapInheritedModel(
+          builder: (context, options, camera) => FlutterMapInheritedModel(
             controller: _mapController,
-            options: mapState.options,
-            camera: mapState.mapCamera,
+            options: options,
+            camera: camera,
             child: ClipRect(
               child: Stack(
                 children: [
                   OverflowBox(
-                    minWidth: mapState.mapCamera.size.x,
-                    maxWidth: mapState.mapCamera.size.x,
-                    minHeight: mapState.mapCamera.size.y,
-                    maxHeight: mapState.mapCamera.size.y,
+                    minWidth: camera.size.x,
+                    maxWidth: camera.size.x,
+                    minHeight: camera.size.y,
+                    maxHeight: camera.size.y,
                     child: Transform.rotate(
-                      angle: mapState.mapCamera.rotationRad,
+                      angle: camera.rotationRad,
                       child: Stack(children: widget.children),
                     ),
                   ),
@@ -123,10 +123,10 @@ class FlutterMapStateContainer extends State<FlutterMap> {
       constraints.maxWidth,
       constraints.maxHeight,
     );
-    final oldMapCamera = _flutterMapInternalController.mapCamera;
+    final oldMapCamera = _flutterMapInternalController.camera;
     if (_flutterMapInternalController
         .setNonRotatedSizeWithoutEmittingEvent(nonRotatedSize)) {
-      final newMapCamera = _flutterMapInternalController.mapCamera;
+      final newMapCamera = _flutterMapInternalController.camera;
 
       // Avoid emitting the event during build otherwise if the user calls
       // setState in the onMapEvent callback it will throw.

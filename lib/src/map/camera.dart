@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/src/geo/crs.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
-import 'package:flutter_map/src/map/flutter_map_inherited_model.dart';
+import 'package:flutter_map/src/map/inherited_model.dart';
 import 'package:flutter_map/src/map/options.dart';
 import 'package:flutter_map/src/misc/point.dart';
 import 'package:flutter_map/src/misc/private/bounds.dart';

@@ -2,20 +2,18 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map/src/gestures/flutter_map_interactive_viewer.dart';
-import 'package:flutter_map/src/map/flutter_map_internal_state.dart';
 import 'package:flutter_map/src/map/map_controller_impl.dart';
 import 'package:latlong2/latlong.dart';
 
 // This controller is for internal use. All updates to the state should be done
 // by calling methods of this class to ensure consistency.
-class FlutterMapInternalController
-    extends ValueNotifier<FlutterMapInternalState> {
+class FlutterMapInternalController extends ValueNotifier<_InternalState> {
   late final FlutterMapInteractiveViewerState _interactiveViewerState;
   late MapControllerImpl _mapControllerImpl;
 
   FlutterMapInternalController(MapOptions options)
       : super(
-          FlutterMapInternalState(
+          _InternalState(
             options: options,
             mapCamera: MapCamera.initialCamera(options),
           ),
@@ -40,7 +38,8 @@ class FlutterMapInternalController
   /// to the [FlutterMapInternalState] should be done via methods in this class.
   @visibleForTesting
   @override
-  set value(FlutterMapInternalState value) => super.value = value;
+  // ignore: library_private_types_in_public_api
+  set value(_InternalState value) => super.value = value;
 
   // Note: All named parameters are required to prevent inconsistent default
   // values since this method can be called by MapController which declares
@@ -274,7 +273,7 @@ class FlutterMapInternalController
       );
     }
 
-    value = FlutterMapInternalState(
+    value = _InternalState(
       options: newOptions,
       mapCamera: newMapCamera,
     );
@@ -456,4 +455,19 @@ class FlutterMapInternalController
 
     _mapControllerImpl.mapEventSink.add(event);
   }
+}
+
+class _InternalState {
+  final MapCamera mapCamera;
+  final MapOptions options;
+
+  const _InternalState({
+    required this.options,
+    required this.mapCamera,
+  });
+
+  _InternalState withMapCamera(MapCamera mapCamera) => _InternalState(
+        options: options,
+        mapCamera: mapCamera,
+      );
 }

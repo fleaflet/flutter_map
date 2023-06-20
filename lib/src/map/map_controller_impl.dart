@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/map/camera.dart';
-import 'package:flutter_map/src/map/flutter_map_internal_controller.dart';
+import 'package:flutter_map/src/map/internal_controller.dart';
 import 'package:flutter_map/src/map/map_controller.dart';
 import 'package:flutter_map/src/misc/camera_fit.dart';
 import 'package:flutter_map/src/misc/center_zoom.dart';
@@ -14,7 +14,22 @@ import 'package:flutter_map/src/misc/point.dart';
 import 'package:latlong2/latlong.dart';
 
 class MapControllerImpl implements MapController {
+  late FlutterMapInternalController _internalController;
+  final _mapEventStreamController = StreamController<MapEvent>.broadcast();
+
   MapControllerImpl();
+
+  set internalController(FlutterMapInternalController internalController) {
+    _internalController = internalController;
+  }
+
+  @override
+  MapCamera get mapCamera => _internalController.mapCamera;
+
+  @override
+  Stream<MapEvent> get mapEventStream => _mapEventStreamController.stream;
+
+  StreamSink<MapEvent> get mapEventSink => _mapEventStreamController.sink;
 
   @override
   bool move(
@@ -100,23 +115,6 @@ class MapControllerImpl implements MapController {
         cameraFit,
         offset: Offset.zero,
       );
-
-  @override
-  MapCamera get mapCamera => _internalController.mapCamera;
-
-  final _mapEventStreamController = StreamController<MapEvent>.broadcast();
-
-  @override
-  Stream<MapEvent> get mapEventStream => _mapEventStreamController.stream;
-
-  StreamSink<MapEvent> get mapEventSink => _mapEventStreamController.sink;
-
-  late FlutterMapInternalController _internalController;
-
-  set internalController(FlutterMapInternalController internalController) {
-    _internalController = internalController;
-  }
-
   @override
   void dispose() {
     _mapEventStreamController.close();

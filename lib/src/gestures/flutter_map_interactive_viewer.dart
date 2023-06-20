@@ -8,16 +8,18 @@ import 'package:flutter_map/src/gestures/latlng_tween.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
 import 'package:flutter_map/src/map/camera.dart';
-import 'package:flutter_map/src/map/flutter_map_internal_controller.dart';
-import 'package:flutter_map/src/map/flutter_map_internal_state.dart';
+import 'package:flutter_map/src/map/internal_controller.dart';
 import 'package:flutter_map/src/map/options.dart';
 import 'package:flutter_map/src/misc/point.dart';
 import 'package:flutter_map/src/misc/private/positioned_tap_detector_2.dart';
 import 'package:latlong2/latlong.dart';
 
 class FlutterMapInteractiveViewer extends StatefulWidget {
-  final Widget Function(BuildContext context, FlutterMapInternalState mapState)
-      builder;
+  final Widget Function(
+    BuildContext context,
+    MapOptions options,
+    MapCamera camera,
+  ) builder;
   final FlutterMapInternalController controller;
 
   const FlutterMapInteractiveViewer({
@@ -78,7 +80,7 @@ class FlutterMapInteractiveViewerState
   int _tapUpCounter = 0;
   Timer? _doubleTapHoldMaxDelay;
 
-  MapCamera get _mapCamera => widget.controller.mapCamera;
+  MapCamera get _mapCamera => widget.controller.camera;
 
   MapOptions get _options => widget.controller.options;
   InteractionOptions get _interactionOptions => _options.interactionOptions;
@@ -265,7 +267,11 @@ class FlutterMapInteractiveViewerState
                 : Duration.zero,
         child: RawGestureDetector(
           gestures: _gestures,
-          child: widget.builder(context, widget.controller.value),
+          child: widget.builder(
+            context,
+            widget.controller.options,
+            widget.controller.camera,
+          ),
         ),
       ),
     );
