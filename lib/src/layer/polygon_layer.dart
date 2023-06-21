@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/label.dart';
-import 'package:flutter_map/src/map/camera.dart';
+import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:latlong2/latlong.dart' hide Path; // conflict with Path from UI
 
 enum PolygonLabelPlacement {

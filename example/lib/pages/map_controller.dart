@@ -105,7 +105,7 @@ class MapControllerPageState extends State<MapControllerPage> {
                       ]);
 
                       _mapController.fitCamera(
-                        FitBounds(
+                        CameraFit.bounds(
                           bounds: bounds,
                           padding: const EdgeInsets.symmetric(horizontal: 15),
                         ),

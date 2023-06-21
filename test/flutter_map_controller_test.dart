@@ -698,10 +698,10 @@ void main() {
     FitCoordinates fitCoordinates({
       EdgeInsets padding = EdgeInsets.zero,
     }) =>
-        FitCoordinates(
+        CameraFit.coordinates(
           coordinates: coordinates,
           padding: padding,
-        );
+        ) as FitCoordinates;
 
     // Tests with no padding
 

@@ -1,4 +1,4 @@
-import 'package:flutter_map/src/map/camera.dart';
+import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Event sources which are used to identify different types of

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/src/map/camera.dart';
+import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:flutter_map/src/map/map_controller.dart';
 import 'package:flutter_map/src/map/options.dart';
 
@@ -47,7 +47,9 @@ class FlutterMapInheritedModel extends InheritedModel<_FlutterMapAspect> {
 
   @override
   bool updateShouldNotifyDependent(
-      covariant FlutterMapInheritedModel oldWidget, Set<Object> dependencies) {
+    covariant FlutterMapInheritedModel oldWidget,
+    Set<Object> dependencies,
+  ) {
     for (final dependency in dependencies) {
       if (dependency is _FlutterMapAspect) {
         switch (dependency) {
@@ -77,8 +79,4 @@ class FlutterMapData {
   });
 }
 
-enum _FlutterMapAspect {
-  camera,
-  controller,
-  options;
-}
+enum _FlutterMapAspect { camera, controller, options }

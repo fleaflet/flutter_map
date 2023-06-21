@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/map/camera.dart';
+import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
 import 'package:flutter_map/src/map/map_controller_impl.dart';
 import 'package:latlong2/latlong.dart';
@@ -21,7 +21,7 @@ abstract class MapController {
   /// instance.
   ///
   /// Factory constructor redirects to underlying implementation's constructor.
-  factory MapController() => MapControllerImpl();
+  factory MapController() = MapControllerImpl;
 
   /// The controller for the closest [FlutterMap] ancestor. If this is called
   /// from a context with no [FlutterMap] ancestor a [StateError] will be

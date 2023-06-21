@@ -1,7 +1,7 @@
 library flutter_map.plugin_api;
 
 export 'package:flutter_map/flutter_map.dart';
-export 'package:flutter_map/src/map/camera.dart';
+export 'package:flutter_map/src/map/camera/camera.dart';
 export 'package:flutter_map/src/map/map_controller.dart';
 export 'package:flutter_map/src/misc/private/bounds.dart';
 export 'package:flutter_map/src/misc/private/positioned_tap_detector_2.dart';
