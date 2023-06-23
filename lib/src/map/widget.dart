@@ -136,13 +136,19 @@ class FlutterMapStateContainer extends State<FlutterMap> {
       if (widget.options.bounds != null) {
         // Create the camera fit from the deprecated option.
         final fitBoundsOptions = widget.options.boundsOptions;
-        cameraFit = CameraFit.bounds(
-          bounds: widget.options.bounds!,
-          padding: fitBoundsOptions.padding,
-          maxZoom: fitBoundsOptions.maxZoom,
-          inside: fitBoundsOptions.inside,
-          forceIntegerZoomLevel: fitBoundsOptions.forceIntegerZoomLevel,
-        );
+        cameraFit = fitBoundsOptions.inside
+            ? CameraFit.insideBounds(
+                bounds: widget.options.bounds!,
+                padding: fitBoundsOptions.padding,
+                maxZoom: fitBoundsOptions.maxZoom,
+                forceIntegerZoomLevel: fitBoundsOptions.forceIntegerZoomLevel,
+              )
+            : CameraFit.bounds(
+                bounds: widget.options.bounds!,
+                padding: fitBoundsOptions.padding,
+                maxZoom: fitBoundsOptions.maxZoom,
+                forceIntegerZoomLevel: fitBoundsOptions.forceIntegerZoomLevel,
+              );
       } else {
         cameraFit = widget.options.initialCameraFit!;
       }

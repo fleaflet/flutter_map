@@ -99,7 +99,7 @@ class MapControllerImpl implements MapController {
 
   @override
   @Deprecated(
-    'Prefer `fitCamera` with a CameraFit.bounds() instead. '
+    'Prefer `fitCamera` with a CameraFit.bounds() or CameraFit.insideBounds() instead. '
     'This method has been changed to use the new `CameraFit` classes which allows different kinds of fit. '
     'This method is deprecated since v6.',
   )
@@ -109,18 +109,24 @@ class MapControllerImpl implements MapController {
         const FitBoundsOptions(padding: EdgeInsets.all(12)),
   }) =>
       fitCamera(
-        CameraFit.bounds(
-          bounds: bounds,
-          padding: options.padding,
-          maxZoom: options.maxZoom,
-          inside: options.inside,
-          forceIntegerZoomLevel: options.forceIntegerZoomLevel,
-        ),
+        options.inside
+            ? CameraFit.insideBounds(
+                bounds: bounds,
+                padding: options.padding,
+                maxZoom: options.maxZoom,
+                forceIntegerZoomLevel: options.forceIntegerZoomLevel,
+              )
+            : CameraFit.bounds(
+                bounds: bounds,
+                padding: options.padding,
+                maxZoom: options.maxZoom,
+                forceIntegerZoomLevel: options.forceIntegerZoomLevel,
+              ),
       );
 
   @override
   @Deprecated(
-    'Prefer `CameraFit.bounds(bounds: bounds).fit(controller.camera)`. '
+    'Prefer `CameraFit.bounds(bounds: bounds).fit(controller.camera)` or `CameraFit.insideBounds(bounds: bounds).fit(controller.camera)`. '
     'This method is replaced by applying a CameraFit to the MapCamera. '
     'This method is deprecated since v6.',
   )
@@ -129,13 +135,21 @@ class MapControllerImpl implements MapController {
     FitBoundsOptions options =
         const FitBoundsOptions(padding: EdgeInsets.all(12)),
   }) {
-    final fittedState = CameraFit.bounds(
-      bounds: bounds,
-      padding: options.padding,
-      maxZoom: options.maxZoom,
-      inside: options.inside,
-      forceIntegerZoomLevel: options.forceIntegerZoomLevel,
-    ).fit(camera);
+    final cameraFit = options.inside
+        ? CameraFit.insideBounds(
+            bounds: bounds,
+            padding: options.padding,
+            maxZoom: options.maxZoom,
+            forceIntegerZoomLevel: options.forceIntegerZoomLevel,
+          )
+        : CameraFit.bounds(
+            bounds: bounds,
+            padding: options.padding,
+            maxZoom: options.maxZoom,
+            forceIntegerZoomLevel: options.forceIntegerZoomLevel,
+          );
+
+    final fittedState = cameraFit.fit(camera);
     return CenterZoom(
       center: fittedState.center,
       zoom: fittedState.zoom,

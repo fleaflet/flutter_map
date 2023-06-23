@@ -53,9 +53,8 @@ void main() {
     }
 
     {
-      final cameraConstraint = CameraFit.bounds(
+      final cameraConstraint = CameraFit.insideBounds(
         bounds: bounds,
-        inside: true,
       );
 
       final expectedBounds = LatLngBounds(
@@ -74,9 +73,8 @@ void main() {
     }
 
     {
-      final cameraConstraint = CameraFit.bounds(
+      final cameraConstraint = CameraFit.insideBounds(
         bounds: bounds,
-        inside: true,
         forceIntegerZoomLevel: true,
       );
 
@@ -858,6 +856,574 @@ void main() {
       fitCoordinates: fitCoordinates(padding: asymmetricPadding),
       expectedCenter: const LatLng(1.223944751427707, 31.954672909718177),
       expectedZoom: 5.368867444131889,
+    );
+  });
+
+  testWidgets('test fit inside bounds with rotation', (tester) async {
+    final controller = MapController();
+    final bounds = LatLngBounds(
+      const LatLng(4.214943, 33.925781),
+      const LatLng(-1.362176, 29.575195),
+    );
+
+    await tester.pumpWidget(TestApp(controller: controller));
+
+    Future<void> testFitInsideBounds({
+      required double rotation,
+      required CameraFit cameraConstraint,
+      required LatLngBounds expectedBounds,
+      required LatLng expectedCenter,
+      required double expectedZoom,
+    }) async {
+      controller.rotate(rotation);
+
+      controller.fitCamera(cameraConstraint);
+      await tester.pump();
+      expect(
+        controller.camera.visibleBounds.northWest.latitude,
+        moreOrLessEquals(expectedBounds.northWest.latitude),
+      );
+      expect(
+        controller.camera.visibleBounds.northWest.longitude,
+        moreOrLessEquals(expectedBounds.northWest.longitude),
+      );
+      expect(
+        controller.camera.visibleBounds.southEast.latitude,
+        moreOrLessEquals(expectedBounds.southEast.latitude),
+      );
+      expect(
+        controller.camera.visibleBounds.southEast.longitude,
+        moreOrLessEquals(expectedBounds.southEast.longitude),
+      );
+      expect(
+        controller.camera.center.latitude,
+        moreOrLessEquals(expectedCenter.latitude),
+      );
+      expect(
+        controller.camera.center.longitude,
+        moreOrLessEquals(expectedCenter.longitude),
+      );
+      expect(controller.camera.zoom, moreOrLessEquals(expectedZoom));
+    }
+
+    // Tests with no padding
+
+    await testFitInsideBounds(
+      rotation: -360,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: EdgeInsets.zero,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.6031134233301474, 29.56772762000039),
+        const LatLng(-0.7450743699315154, 33.9183136200004),
+      ),
+      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedZoom: 6.014499548969527,
+    );
+    await testFitInsideBounds(
+      rotation: -300,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: EdgeInsets.zero,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.614278658020072, 29.56945889748712),
+        const LatLng(-0.7338878844415404, 33.920044897487124),
+      ),
+      expectedCenter: const LatLng(1.4274116990296404, 31.747848447606),
+      expectedZoom: 6.464483862446023,
+    );
+    await testFitInsideBounds(
+      rotation: -240,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: EdgeInsets.zero,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.6142786580207207, 29.56945889748632),
+        const LatLng(-0.7338878844408534, 33.92004489748633),
+      ),
+      expectedCenter: const LatLng(1.427411699029666, 31.747848447605964),
+      expectedZoom: 6.464483862446028,
+    );
+    await testFitInsideBounds(
+      rotation: -180,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: EdgeInsets.zero,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.6031134233301474, 29.56772762000039),
+        const LatLng(-0.7450743699315154, 33.9183136200004),
+      ),
+      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedZoom: 6.014499548969527,
+    );
+    await testFitInsideBounds(
+      rotation: -120,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: EdgeInsets.zero,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.614278658020072, 29.56945889748712),
+        const LatLng(-0.7338878844415404, 33.920044897487124),
+      ),
+      expectedCenter: const LatLng(1.4274116990296914, 31.74784844760592),
+      expectedZoom: 6.464483862446023,
+    );
+    await testFitInsideBounds(
+      rotation: -60,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: EdgeInsets.zero,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.6142786580207207, 29.56945889748632),
+        const LatLng(-0.7338878844408534, 33.92004489748633),
+      ),
+      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedZoom: 6.464483862446028,
+    );
+    await testFitInsideBounds(
+      rotation: 0,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: EdgeInsets.zero,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.6031134233301474, 29.56772762000039),
+        const LatLng(-0.7450743699315154, 33.9183136200004),
+      ),
+      expectedCenter: const LatLng(1.4280748738291353, 31.75048799999998),
+      expectedZoom: 6.014499548969527,
+    );
+    await testFitInsideBounds(
+      rotation: 60,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: EdgeInsets.zero,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.614278658020072, 29.56945889748712),
+        const LatLng(-0.7338878844415404, 33.920044897487124),
+      ),
+      expectedCenter: const LatLng(1.4274116990296404, 31.747848447606),
+      expectedZoom: 6.464483862446023,
+    );
+    await testFitInsideBounds(
+      rotation: 120,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: EdgeInsets.zero,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.6142786580207207, 29.56945889748632),
+        const LatLng(-0.7338878844408534, 33.92004489748633),
+      ),
+      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedZoom: 6.464483862446028,
+    );
+    await testFitInsideBounds(
+      rotation: 180,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: EdgeInsets.zero,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.6031134233301474, 29.56772762000039),
+        const LatLng(-0.7450743699315154, 33.9183136200004),
+      ),
+      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedZoom: 6.014499548969527,
+    );
+    await testFitInsideBounds(
+      rotation: 240,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: EdgeInsets.zero,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.614278658020072, 29.56945889748712),
+        const LatLng(-0.7338878844415404, 33.920044897487124),
+      ),
+      expectedCenter: const LatLng(1.4274116990296404, 31.74784844760592),
+      expectedZoom: 6.464483862446023,
+    );
+    await testFitInsideBounds(
+      rotation: 300,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: EdgeInsets.zero,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.6142786580207207, 29.56945889748632),
+        const LatLng(-0.7338878844408534, 33.92004489748633),
+      ),
+      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedZoom: 6.464483862446028,
+    );
+    await testFitInsideBounds(
+      rotation: 360,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: EdgeInsets.zero,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.6031134233301474, 29.56772762000039),
+        const LatLng(-0.7450743699315154, 33.9183136200004),
+      ),
+      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedZoom: 6.014499548969527,
+    );
+
+    // Tests with symmetric padding
+
+    const equalPadding = EdgeInsets.all(12);
+
+    await testFitInsideBounds(
+      rotation: -360,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: equalPadding,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.8971355052392727, 29.273074295454837),
+        const LatLng(-1.0436460563295582, 34.21692202272759),
+      ),
+      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedZoom: 5.8300749778321,
+    );
+    await testFitInsideBounds(
+      rotation: -300,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: equalPadding,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.900159833096254, 29.26631356795233),
+        const LatLng(-1.0406152150025456, 34.21016129522507),
+      ),
+      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedZoom: 6.280059291308596,
+    );
+    await testFitInsideBounds(
+      rotation: -240,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: equalPadding,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.900159833095936, 29.266313567952732),
+        const LatLng(-1.0406152150029018, 34.210161295225475),
+      ),
+      expectedCenter: const LatLng(1.427411699029666, 31.747848447605964),
+      expectedZoom: 6.280059291308594,
+    );
+    await testFitInsideBounds(
+      rotation: -180,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: equalPadding,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.897135505240036, 29.273074295453956),
+        const LatLng(-1.0436460563287566, 34.21692202272667),
+      ),
+      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedZoom: 5.830074977832107,
+    );
+    await testFitInsideBounds(
+      rotation: -120,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: equalPadding,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.900159833096941, 29.26631356795153),
+        const LatLng(-1.0406152150018586, 34.210161295224275),
+      ),
+      expectedCenter: const LatLng(1.427411699029615, 31.74784844760592),
+      expectedZoom: 6.280059291308602,
+    );
+    await testFitInsideBounds(
+      rotation: -60,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: equalPadding,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.9001598330968137, 29.266313567951688),
+        const LatLng(-1.0406152150019858, 34.21016129522444),
+      ),
+      expectedCenter: const LatLng(1.4274116990296404, 31.747848447606),
+      expectedZoom: 6.280059291308601,
+    );
+    await testFitInsideBounds(
+      rotation: 0,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: equalPadding,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.921797222702341, 29.273074295454474),
+        const LatLng(-1.0189308220167805, 34.21692202272719),
+      ),
+      expectedCenter: const LatLng(1.4280748738291607, 31.750488000000022),
+      expectedZoom: 5.830074977832103,
+    );
+    await testFitInsideBounds(
+      rotation: 60,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: equalPadding,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.9001598330947402, 29.26631356795413),
+        const LatLng(-1.0406152150040977, 34.21016129522692),
+      ),
+      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedZoom: 6.280059291308584,
+    );
+    await testFitInsideBounds(
+      rotation: 120,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: equalPadding,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.900159833097259, 29.26631356795117),
+        const LatLng(-1.0406152150015406, 34.21016129522388),
+      ),
+      expectedCenter: const LatLng(1.427411699029615, 31.74784844760592),
+      expectedZoom: 6.280059291308604,
+    );
+    await testFitInsideBounds(
+      rotation: 180,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: equalPadding,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.897135505238624, 29.273074295455597),
+        const LatLng(-1.0436460563302323, 34.21692202272835),
+      ),
+      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedZoom: 5.830074977832095,
+    );
+    await testFitInsideBounds(
+      rotation: 240,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: equalPadding,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.900159833097577, 29.266313567950775),
+        const LatLng(-1.0406152150011843, 34.21016129522348),
+      ),
+      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedZoom: 6.280059291308607,
+    );
+    await testFitInsideBounds(
+      rotation: 300,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: equalPadding,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.900159833095936, 29.266313567952732),
+        const LatLng(-1.0406152150029018, 34.210161295225475),
+      ),
+      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedZoom: 6.280059291308594,
+    );
+    await testFitInsideBounds(
+      rotation: 360,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: equalPadding,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.897135505240036, 29.273074295453956),
+        const LatLng(-1.0436460563287566, 34.21692202272667),
+      ),
+      expectedCenter: const LatLng(1.4274116990296404, 31.747848447605964),
+      expectedZoom: 5.830074977832107,
+    );
+
+    // Tests with asymmetric padding
+
+    const asymmetricPadding = EdgeInsets.fromLTRB(12, 12, 24, 24);
+
+    await testFitInsideBounds(
+      rotation: -360,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: asymmetricPadding,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.93081962068567, 29.252575414633416),
+        const LatLng(-1.371554855609733, 34.558168097560255),
+      ),
+      expectedCenter: const LatLng(1.2682880092901039, 31.90701622809379),
+      expectedZoom: 5.728195363812894,
+    );
+    await testFitInsideBounds(
+      rotation: -300,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: asymmetricPadding,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(4.12285573833763, 29.236827391148324),
+        const LatLng(-1.179091165662991, 34.5424200740752),
+      ),
+      expectedCenter: const LatLng(1.4700469435297785, 31.90701622809379),
+      expectedZoom: 6.178179677289382,
+    );
+    await testFitInsideBounds(
+      rotation: -240,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: asymmetricPadding,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(4.239064535667103, 29.12030848890263),
+        const LatLng(-1.0625945779487183, 34.42590117182947),
+      ),
+      expectedCenter: const LatLng(1.5865243776059719, 31.790497325848776),
+      expectedZoom: 6.178179677289386,
+    );
+    await testFitInsideBounds(
+      rotation: -180,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: asymmetricPadding,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(4.248344214607476, 28.934239853659207),
+        const LatLng(-1.0532909733871119, 34.239832536586086),
+      ),
+      expectedCenter: const LatLng(1.5865243776059845, 31.58868066711818),
+      expectedZoom: 5.728195363812884,
+    );
+    await testFitInsideBounds(
+      rotation: -120,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: asymmetricPadding,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(4.045373737414225, 28.926110318495112),
+        const LatLng(-1.2567528788718025, 34.23170300142199),
+      ),
+      expectedCenter: const LatLng(1.3847756639611237, 31.58868066711814),
+      expectedZoom: 6.17817967728938,
+    );
+    await testFitInsideBounds(
+      rotation: -60,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: asymmetricPadding,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.9291368844072636, 29.04262922073941),
+        const LatLng(-1.373241074234739, 34.34822190366625),
+      ),
+      expectedCenter: const LatLng(1.2682880092901039, 31.70519956936319),
+      expectedZoom: 6.1781796772893856,
+    );
+    await testFitInsideBounds(
+      rotation: 0,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: asymmetricPadding,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.9308196206843724, 29.252575414634972),
+        const LatLng(-1.3715548556110944, 34.55816809756181),
+      ),
+      expectedCenter: const LatLng(1.2689512274367805, 31.909655780487807),
+      expectedZoom: 5.728195363812883,
+    );
+    await testFitInsideBounds(
+      rotation: 60,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: asymmetricPadding,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(4.122855738337325, 29.236827391148683),
+        const LatLng(-1.179091165663309, 34.542420074075565),
+      ),
+      expectedCenter: const LatLng(1.4700469435298167, 31.90701622809375),
+      expectedZoom: 6.178179677289379,
+    );
+    await testFitInsideBounds(
+      rotation: 120,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: asymmetricPadding,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(4.23906453566681, 29.12030848890299),
+        const LatLng(-1.0625945779490364, 34.42590117182983),
+      ),
+      expectedCenter: const LatLng(1.5865243776060227, 31.790497325848737),
+      expectedZoom: 6.178179677289384,
+    );
+    await testFitInsideBounds(
+      rotation: 180,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: asymmetricPadding,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(4.248344214608647, 28.934239853657804),
+        const LatLng(-1.053290973385865, 34.23983253658464),
+      ),
+      expectedCenter: const LatLng(1.5865243776059845, 31.58868066711818),
+      expectedZoom: 5.728195363812894,
+    );
+    await testFitInsideBounds(
+      rotation: 240,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: asymmetricPadding,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(4.045373737414429, 28.926110318494874),
+        const LatLng(-1.2567528788715607, 34.23170300142176),
+      ),
+      expectedCenter: const LatLng(1.3847756639610982, 31.58868066711814),
+      expectedZoom: 6.178179677289382,
+    );
+    await testFitInsideBounds(
+      rotation: 300,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: asymmetricPadding,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.9291368844075816, 29.04262922073901),
+        const LatLng(-1.3732410742343828, 34.348221903665845),
+      ),
+      expectedCenter: const LatLng(1.2682880092901676, 31.705199569363227),
+      expectedZoom: 6.178179677289388,
+    );
+    await testFitInsideBounds(
+      rotation: 360,
+      cameraConstraint: CameraFit.insideBounds(
+        bounds: bounds,
+        padding: asymmetricPadding,
+      ),
+      expectedBounds: LatLngBounds(
+        const LatLng(3.9308196206847033, 29.252575414634578),
+        const LatLng(-1.3715548556107255, 34.55816809756141),
+      ),
+      expectedCenter: const LatLng(1.2682880092901039, 31.90701622809375),
+      expectedZoom: 5.728195363812886,
     );
   });
 }

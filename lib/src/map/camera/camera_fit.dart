@@ -18,7 +18,6 @@ abstract class CameraFit {
   const CameraFit({
     this.padding = EdgeInsets.zero,
     this.maxZoom = 18,
-    this.inside = false,
     this.forceIntegerZoomLevel = false,
   });
 
@@ -32,21 +31,13 @@ abstract class CameraFit {
   /// Defaults to zoom level 18.
   final double maxZoom;
 
-  /// Whether the camera will be entirely inside the boundaries, or the
-  /// boundaries will be entirely inside the camera
-  ///
-  /// Defaults to forcing boundaries entirely inside the camera.
-  ///
-  /// Has no effect when using [FitCoordinates] due to lack of implemenation.
-  final bool inside;
-
   /// Whether the zoom level of the resulting fit should be rounded to the
   /// nearest integer level
   ///
   /// Defaults to `false`.
   final bool forceIntegerZoomLevel;
 
-  /// Fits the camera to the [bounds], as closely as possible based on [inside]
+  /// Fits the [bounds] inside the camera
   ///
   /// For information about available options, see the documentation on the
   /// appropriate properties.
@@ -54,9 +45,19 @@ abstract class CameraFit {
     required LatLngBounds bounds,
     EdgeInsets padding,
     double maxZoom,
-    bool inside,
     bool forceIntegerZoomLevel,
   }) = FitBounds._;
+
+  /// Fits the camera inside the [bounds]
+  ///
+  /// For information about available options, see the documentation on the
+  /// appropriate properties.
+  const factory CameraFit.insideBounds({
+    required LatLngBounds bounds,
+    EdgeInsets padding,
+    double maxZoom,
+    bool forceIntegerZoomLevel,
+  }) = FitInsideBounds._;
 
   /// Fits the camera to the [coordinates], as closely as possible
   ///
@@ -92,7 +93,6 @@ class FitBounds extends CameraFit {
     required this.bounds,
     super.padding,
     super.maxZoom,
-    super.inside,
     super.forceIntegerZoomLevel,
   });
 
@@ -156,16 +156,190 @@ class FitBounds extends CameraFit {
 
     final scaleX = size.x / boundsSize.x;
     final scaleY = size.y / boundsSize.y;
-    final scale = inside ? math.max(scaleX, scaleY) : math.min(scaleX, scaleY);
+    final scale = math.min(scaleX, scaleY);
 
     var boundsZoom = camera.getScaleZoom(scale);
 
     if (forceIntegerZoomLevel) {
-      boundsZoom =
-          inside ? boundsZoom.ceilToDouble() : boundsZoom.floorToDouble();
+      boundsZoom = boundsZoom.floorToDouble();
     }
 
     return math.max(min, math.min(max, boundsZoom));
+  }
+}
+
+class FitInsideBounds extends CameraFit {
+  final LatLngBounds bounds;
+
+  const FitInsideBounds._({
+    required this.bounds,
+    super.padding,
+    super.maxZoom,
+    super.forceIntegerZoomLevel,
+  });
+
+  @override
+  MapCamera fit(MapCamera camera) {
+    final paddingTL = CustomPoint<double>(padding.left, padding.top);
+    final paddingBR = CustomPoint<double>(padding.right, padding.bottom);
+    final paddingTotalXY = paddingTL + paddingBR;
+    final paddingOffset = (paddingBR - paddingTL) / 2;
+
+    final cameraSize = camera.nonRotatedSize - paddingTotalXY;
+
+    final projectedBoundsSize = Bounds(
+      camera.project(bounds.southEast, camera.zoom),
+      camera.project(bounds.northWest, camera.zoom),
+    ).size;
+
+    final scale = _rectInRotRectScale(
+      angleRad: camera.rotationRad,
+      smallRectHalfWidth: cameraSize.x / 2.0,
+      smallRectHalfHeight: cameraSize.y / 2.0,
+      bigRectHalfWidth: projectedBoundsSize.x / 2.0,
+      bigRectHalfHeight: projectedBoundsSize.y / 2.0,
+    );
+
+    var newZoom = camera.getScaleZoom(1.0 / scale);
+
+    if (forceIntegerZoomLevel) {
+      newZoom = newZoom.ceilToDouble();
+    }
+
+    newZoom = math.max(
+      camera.minZoom ?? 0.0,
+      math.min(
+        math.min(maxZoom, camera.maxZoom ?? double.infinity),
+        newZoom,
+      ),
+    );
+
+    final newCenter = _getCenter(
+      camera,
+      newZoom: newZoom,
+      paddingOffset: paddingOffset,
+    );
+
+    return camera.withPosition(
+      center: newCenter,
+      zoom: newZoom,
+    );
+  }
+
+  LatLng _getCenter(
+    MapCamera camera, {
+    required double newZoom,
+    required CustomPoint<double> paddingOffset,
+  }) {
+    if (camera.rotation == 0.0) {
+      final swPoint = camera.project(bounds.southWest, newZoom);
+      final nePoint = camera.project(bounds.northEast, newZoom);
+      final projectedCenter = (swPoint + nePoint) / 2 + paddingOffset;
+      final newCenter = camera.unproject(projectedCenter, newZoom);
+
+      return newCenter;
+    }
+
+    // Handle rotation
+    final projectedCenter = camera.project(bounds.center, newZoom);
+    final rotatedCenter = projectedCenter.rotate(-camera.rotationRad);
+    final adjustedCenter = rotatedCenter + paddingOffset;
+    final derotatedAdjustedCenter = adjustedCenter.rotate(camera.rotationRad);
+    final newCenter = camera.unproject(derotatedAdjustedCenter, newZoom);
+
+    return newCenter;
+  }
+
+  static double _normalize(double value, double start, double end) {
+    final width = end - start;
+    final offsetValue = value - start;
+
+    return (offsetValue - (offsetValue / width).floorToDouble() * width) +
+        start;
+  }
+
+  /// Given two rectangles with their centers at the origin and an angle by
+  /// which the big rectangle is rotated, calculates the coefficient that would
+  /// be needed to scale the small rectangle such that it fits perfectly in the
+  /// larger rectangle while maintaining its aspect ratio.
+  ///
+  /// This algorithm has been adapted from https://stackoverflow.com/a/75907251
+  static double _rectInRotRectScale({
+    required double angleRad,
+    required double smallRectHalfWidth,
+    required double smallRectHalfHeight,
+    required double bigRectHalfWidth,
+    required double bigRectHalfHeight,
+  }) {
+    angleRad = _normalize(angleRad, 0, 2.0 * math.pi);
+    var kmin = double.infinity;
+    final quadrant = (2.0 * angleRad / math.pi).floor();
+    if (quadrant.isOdd) {
+      final px = bigRectHalfWidth * math.cos(angleRad) +
+          bigRectHalfHeight * math.sin(angleRad);
+      final py = bigRectHalfWidth * math.sin(angleRad) -
+          bigRectHalfHeight * math.cos(angleRad);
+      final dx = -math.cos(angleRad);
+      final dy = -math.sin(angleRad);
+
+      if (smallRectHalfWidth * dy - smallRectHalfHeight * dx != 0) {
+        var k = (px * dy - py * dx) /
+            (smallRectHalfWidth * dy - smallRectHalfHeight * dx);
+        if (quadrant >= 2) {
+          k = -k;
+        }
+
+        if (k > 0) {
+          kmin = math.min(kmin, k);
+        }
+      }
+
+      if (-smallRectHalfWidth * dx + smallRectHalfHeight * dy != 0) {
+        var k = (px * dx + py * dy) /
+            (-smallRectHalfWidth * dx + smallRectHalfHeight * dy);
+        if (quadrant >= 2) {
+          k = -k;
+        }
+
+        if (k > 0) {
+          kmin = math.min(kmin, k);
+        }
+      }
+
+      return kmin;
+    } else {
+      final px = bigRectHalfWidth * math.cos(angleRad) -
+          bigRectHalfHeight * math.sin(angleRad);
+      final py = bigRectHalfWidth * math.sin(angleRad) +
+          bigRectHalfHeight * math.cos(angleRad);
+      final dx = math.sin(angleRad);
+      final dy = -math.cos(angleRad);
+      if (smallRectHalfWidth * dy - smallRectHalfHeight * dx != 0) {
+        var k = (px * dy - py * dx) /
+            (smallRectHalfWidth * dy - smallRectHalfHeight * dx);
+        if (quadrant >= 2) {
+          k = -k;
+        }
+
+        if (k > 0) {
+          kmin = math.min(kmin, k);
+        }
+      }
+
+      if (-smallRectHalfWidth * dx + smallRectHalfHeight * dy != 0) {
+        var k = (px * dx + py * dy) /
+            (-smallRectHalfWidth * dx + smallRectHalfHeight * dy);
+        if (quadrant >= 2) {
+          k = -k;
+        }
+
+        if (k > 0) {
+          kmin = math.min(kmin, k);
+        }
+      }
+
+      return kmin;
+    }
   }
 }
 
@@ -184,7 +358,6 @@ class FitCoordinates extends CameraFit {
     required this.coordinates,
     super.padding,
     super.maxZoom,
-    super.inside,
     super.forceIntegerZoomLevel,
   });
 
