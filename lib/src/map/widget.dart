@@ -1,12 +1,12 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/gestures/flutter_map_interactive_viewer.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
+import 'package:flutter_map/src/map/camera/camera_fit.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
 import 'package:flutter_map/src/map/internal_controller.dart';
 import 'package:flutter_map/src/map/map_controller.dart';
 import 'package:flutter_map/src/map/map_controller_impl.dart';
 import 'package:flutter_map/src/map/options.dart';
-import 'package:flutter_map/src/map/camera/camera_fit.dart';
 import 'package:flutter_map/src/misc/point.dart';
 
 /// Renders an interactive geographical map as a widget

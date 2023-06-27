@@ -1,6 +1,6 @@
-import 'package:flutter_map/src/misc/point.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
+import 'package:flutter_map/src/misc/point.dart';
 
 abstract class TileBoundsAtZoom {
   const TileBoundsAtZoom();

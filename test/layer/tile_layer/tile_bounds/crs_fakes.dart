@@ -1,5 +1,5 @@
-import 'package:flutter_map/src/misc/point.dart';
 import 'package:flutter_map/src/geo/crs.dart';
+import 'package:flutter_map/src/misc/point.dart';
 import 'package:latlong2/latlong.dart';
 
 class FakeInfiniteCrs extends Crs {

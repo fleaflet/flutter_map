@@ -1,5 +1,5 @@
-import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:flutter_map/src/misc/point.dart';
+import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../helpers/core.dart';
