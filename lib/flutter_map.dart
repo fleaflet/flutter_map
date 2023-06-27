@@ -26,6 +26,7 @@ export 'package:flutter_map/src/layer/tile_layer/tile_provider/file_providers/ti
 export 'package:flutter_map/src/layer/tile_layer/tile_provider/network_tile_provider.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_update_event.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_update_transformer.dart';
+export 'package:flutter_map/src/map/camera/camera.dart';
 export 'package:flutter_map/src/map/camera/camera_constraint.dart';
 export 'package:flutter_map/src/map/camera/camera_fit.dart';
 export 'package:flutter_map/src/map/map_controller.dart';
