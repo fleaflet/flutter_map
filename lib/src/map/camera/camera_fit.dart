@@ -1,9 +1,9 @@
 import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/map/camera/camera_constraint.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
+import 'package:flutter_map/src/map/camera/camera_constraint.dart';
 import 'package:flutter_map/src/misc/point.dart';
 import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:latlong2/latlong.dart';
@@ -15,27 +15,7 @@ abstract class CameraFit {
   /// Describes a position for a [MapCamera]
   ///
   /// Constraints are handled by [CameraConstraint].
-  const CameraFit({
-    this.padding = EdgeInsets.zero,
-    this.maxZoom = 18,
-    this.forceIntegerZoomLevel = false,
-  });
-
-  /// Adds a constant/pixel-based padding to the normal fit
-  ///
-  /// Defaults to [EdgeInsets.zero]
-  final EdgeInsets padding;
-
-  /// Limits the maximum zoom level of the resulting fit
-  ///
-  /// Defaults to zoom level 18.
-  final double maxZoom;
-
-  /// Whether the zoom level of the resulting fit should be rounded to the
-  /// nearest integer level
-  ///
-  /// Defaults to `false`.
-  final bool forceIntegerZoomLevel;
+  const CameraFit();
 
   /// Fits the [bounds] inside the camera
   ///
@@ -79,21 +59,31 @@ abstract class CameraFit {
   MapCamera fit(MapCamera camera);
 }
 
-/// A configuration for fitting a [MapCamera] to the given [bounds]. The
-/// [padding] may be used to leave extra space around the [bounds]. To
-/// limit the zoom of the resulting [MapCamera] use [maxZoom] (default 17.0).
-/// If [inside] is true then fit will be within the [bounds], otherwise it
-/// will contain the [bounds] (default to false, contain). Finally
-/// [forceIntegerZoomLevel] forces the resulting zoom to be rounded to the
-/// nearest whole number.
 class FitBounds extends CameraFit {
+  /// The bounds which the camera should contain once it is fitted.
   final LatLngBounds bounds;
+
+  /// Adds a constant/pixel-based padding to the normal fit.
+  ///
+  /// Defaults to [EdgeInsets.zero].
+  final EdgeInsets padding;
+
+  /// Limits the maximum zoom level of the resulting fit.
+  ///
+  /// Defaults to zoom level 18.
+  final double maxZoom;
+
+  /// Whether the zoom level of the resulting fit should be rounded to the
+  /// nearest integer level.
+  ///
+  /// Defaults to `false`.
+  final bool forceIntegerZoomLevel;
 
   const FitBounds._({
     required this.bounds,
-    super.padding,
-    super.maxZoom,
-    super.forceIntegerZoomLevel,
+    this.padding = EdgeInsets.zero,
+    this.maxZoom = 18,
+    this.forceIntegerZoomLevel = false,
   });
 
   /// Returns a new [MapCamera] which fits this classes configuration.
@@ -169,13 +159,30 @@ class FitBounds extends CameraFit {
 }
 
 class FitInsideBounds extends CameraFit {
+  /// The bounds which the camera should fit inside once it is fitted.
   final LatLngBounds bounds;
+
+  /// Adds a constant/pixel-based padding to the normal fit.
+  ///
+  /// Defaults to [EdgeInsets.zero].
+  final EdgeInsets padding;
+
+  /// Limits the maximum zoom level of the resulting fit.
+  ///
+  /// Defaults to zoom level 18.
+  final double maxZoom;
+
+  /// Whether the zoom level of the resulting fit should be rounded to the
+  /// nearest integer level.
+  ///
+  /// Defaults to `false`.
+  final bool forceIntegerZoomLevel;
 
   const FitInsideBounds._({
     required this.bounds,
-    super.padding,
-    super.maxZoom,
-    super.forceIntegerZoomLevel,
+    this.padding = EdgeInsets.zero,
+    this.maxZoom = 18,
+    this.forceIntegerZoomLevel = false,
   });
 
   @override
@@ -343,22 +350,31 @@ class FitInsideBounds extends CameraFit {
   }
 }
 
-/// A configuration for fitting a [MapCamera] to the given [coordinates] such
-/// that all of the [coordinates] are contained in the resulting [MapCamera].
-/// The [padding] may be used to leave extra space around the [bounds]. To
-/// limit the zoom of the resulting [MapCamera] use [maxZoom] (default 17.0).
-/// If [inside] is true then fit will be within the [bounds], otherwise it
-/// will contain the [bounds] (default to false, contain). Finally
-/// [forceIntegerZoomLevel] forces the resulting zoom to be rounded to the
-/// nearest whole number.
 class FitCoordinates extends CameraFit {
+  /// The coordinates which the camera should contain once it is fitted.
   final List<LatLng> coordinates;
+
+  /// Adds a constant/pixel-based padding to the normal fit.
+  ///
+  /// Defaults to [EdgeInsets.zero].
+  final EdgeInsets padding;
+
+  /// Limits the maximum zoom level of the resulting fit.
+  ///
+  /// Defaults to zoom level 18.
+  final double maxZoom;
+
+  /// Whether the zoom level of the resulting fit should be rounded to the
+  /// nearest integer level.
+  ///
+  /// Defaults to `false`.
+  final bool forceIntegerZoomLevel;
 
   const FitCoordinates._({
     required this.coordinates,
-    super.padding,
-    super.maxZoom,
-    super.forceIntegerZoomLevel,
+    this.padding = EdgeInsets.zero,
+    this.maxZoom = 18,
+    this.forceIntegerZoomLevel = false,
   });
 
   /// Returns a new [MapCamera] which fits this classes configuration.
