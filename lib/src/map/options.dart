@@ -84,7 +84,7 @@ class MapOptions {
   final MapEventCallback? onMapEvent;
 
   /// Define limits for viewing the map.
-  final CameraConstraint cameraConstraint;
+  final CameraConstraint? _cameraConstraint;
 
   /// OnMapReady is called after the map runs it's initState.
   /// At that point the map has assigned its state to the controller
@@ -93,6 +93,8 @@ class MapOptions {
   /// Otherwise you can use WidgetsBinding.instance.addPostFrameCallback
   /// In initState to controll the map before the next frame.
   final void Function()? onMapReady;
+
+  final LatLngBounds? maxBounds;
 
   /// Flag to enable the built in keep alive functionality
   ///
@@ -140,7 +142,7 @@ class MapOptions {
     )
     this.boundsOptions = const FitBoundsOptions(),
     this.initialCameraFit,
-    this.cameraConstraint = const CameraConstraint.unconstrained(),
+    CameraConstraint? cameraConstraint,
     InteractionOptions? interactionOptions,
     @Deprecated(
       'Prefer setting this in `interactionOptions`. '
@@ -220,6 +222,12 @@ class MapOptions {
     this.onPositionChanged,
     this.onMapEvent,
     this.onMapReady,
+    @Deprecated(
+      'Prefer `cameraConstraint` instead. '
+      'This option is now replaced by `cameraConstraint` which provides more flexibile limiting of the map position. '
+      'This option is deprecated since v6.',
+    )
+    this.maxBounds,
     this.keepAlive = false,
   })  : _interactionOptions = interactionOptions,
         _interactiveFlags = interactiveFlags,
@@ -235,14 +243,15 @@ class MapOptions {
         _scrollWheelVelocity = scrollWheelVelocity,
         initialCenter = center ?? initialCenter,
         initialZoom = zoom ?? initialZoom,
-        initialRotation = rotation ?? initialRotation;
+        initialRotation = rotation ?? initialRotation,
+        _cameraConstraint = cameraConstraint;
 
   /// The options of the closest [FlutterMap] ancestor. If this is called from a
   /// context with no [FlutterMap] ancestor, null is returned.
   static MapOptions? maybeOf(BuildContext context) =>
       FlutterMapInheritedModel.maybeOptionsOf(context);
 
-  /// The optoins of the closest [FlutterMap] ancestor. If this is called from a
+  /// The options of the closest [FlutterMap] ancestor. If this is called from a
   /// context with no [FlutterMap] ancestor a [StateError] will be thrown.
   static MapOptions of(BuildContext context) =>
       maybeOf(context) ??
@@ -267,6 +276,15 @@ class MapOptions {
         scrollWheelVelocity: _scrollWheelVelocity ?? 0.005,
       );
 
+  // Note that this getter exists to make sure that the deprecated [maxBounds]
+  // option is consistently used. Making this a getter allows the constructor
+  // to remain const.
+  CameraConstraint get cameraConstraint =>
+      _cameraConstraint ??
+      (maxBounds != null
+          ? CameraConstraint.contain(bounds: maxBounds!)
+          : const CameraConstraint.unconstrained());
+
   @override
   bool operator ==(Object other) =>
       other is MapOptions &&
@@ -290,6 +308,7 @@ class MapOptions {
       onMapEvent == other.onMapEvent &&
       cameraConstraint == other.cameraConstraint &&
       onMapReady == other.onMapReady &&
+      maxBounds == other.maxBounds &&
       keepAlive == other.keepAlive &&
       interactionOptions == other.interactionOptions;
 
@@ -316,6 +335,7 @@ class MapOptions {
         cameraConstraint,
         onMapReady,
         keepAlive,
+        maxBounds,
         interactionOptions,
       ]);
 }
