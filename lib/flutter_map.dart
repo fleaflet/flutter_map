@@ -26,11 +26,11 @@ export 'package:flutter_map/src/layer/tile_layer/tile_provider/file_providers/ti
 export 'package:flutter_map/src/layer/tile_layer/tile_provider/network_tile_provider.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_update_event.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_update_transformer.dart';
+export 'package:flutter_map/src/map/camera/camera_constraint.dart';
+export 'package:flutter_map/src/map/camera/camera_fit.dart';
 export 'package:flutter_map/src/map/map_controller.dart';
 export 'package:flutter_map/src/map/options.dart';
 export 'package:flutter_map/src/map/widget.dart';
-export 'package:flutter_map/src/map/camera/camera_constraint.dart';
-export 'package:flutter_map/src/map/camera/camera_fit.dart';
 export 'package:flutter_map/src/misc/center_zoom.dart';
 export 'package:flutter_map/src/misc/fit_bounds_options.dart';
 export 'package:flutter_map/src/misc/move_and_rotate_result.dart';
