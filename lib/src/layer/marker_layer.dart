@@ -62,15 +62,7 @@ enum AnchorAlign {
   left(-1, 0),
 
   /// Right center
-  right(1, 0),
-
-  @Deprecated(
-    'Prefer `center`. '
-    'This value is equivalent to the `center` alignment. '
-    'If you notice a difference in behaviour, please open a bug report on GitHub. '
-    'This feature is deprecated since v5.',
-  )
-  none(0, 0);
+  right(1, 0);
 
   final int _x;
   final int _y;
