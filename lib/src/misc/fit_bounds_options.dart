@@ -11,7 +11,7 @@ class FitBoundsOptions {
   final bool forceIntegerZoomLevel;
 
   @Deprecated(
-    'Prefer `FitCamera.bounds` instead. '
+    'Prefer `CameraFit.bounds` instead. '
     'This class has been renamed to clarify its meaning and is now a sublass of CameraFit to allow other fit types. '
     'This class is deprecated since v6.',
   )
