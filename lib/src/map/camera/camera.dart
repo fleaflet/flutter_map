@@ -35,6 +35,13 @@ class MapCamera {
   /// value in radians.
   final double rotation;
 
+  @Deprecated(
+    'Prefer `nonRotatedSize`. '
+    'This getter has been changed to fix the capitalization. '
+    'This getter is deprecated since v6.',
+  )
+  CustomPoint<double> get nonrotatedSize => nonRotatedSize;
+
   /// The size of the map view ignoring rotation. This will be the size of the
   /// FlutterMap widget.
   final CustomPoint<double> nonRotatedSize;
