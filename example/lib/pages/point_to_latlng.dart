@@ -59,8 +59,8 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
               onMapEvent: (event) {
                 updatePoint(null, context);
               },
-              center: const LatLng(51.5, -0.09),
-              zoom: 5,
+              initialCenter: const LatLng(51.5, -0.09),
+              initialZoom: 5,
               minZoom: 3,
             ),
             children: [
@@ -78,7 +78,7 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
                       builder: (ctx) => const FlutterLogo(),
                     )
                   ],
-                )
+                ),
             ],
           ),
           Container(
@@ -106,7 +106,7 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
   void updatePoint(MapEvent? event, BuildContext context) {
     final pointX = _getPointX(context);
     setState(() {
-      latLng = mapController.pointToLatLng(CustomPoint(pointX, pointY));
+      latLng = mapController.camera.pointToLatLng(CustomPoint(pointX, pointY));
     });
   }
 

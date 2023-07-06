@@ -24,9 +24,9 @@ class WMSLayerPage extends StatelessWidget {
             ),
             Flexible(
               child: FlutterMap(
-                options: MapOptions(
-                  center: const LatLng(42.58, 12.43),
-                  zoom: 6,
+                options: const MapOptions(
+                  initialCenter: LatLng(42.58, 12.43),
+                  initialZoom: 6,
                 ),
                 nonRotatedChildren: [
                   RichAttributionWidget(
@@ -58,7 +58,7 @@ class WMSLayerPage extends StatelessWidget {
                     ),
                     subdomains: const ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  )
+                  ),
                 ],
               ),
             ),

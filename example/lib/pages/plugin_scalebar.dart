@@ -20,19 +20,20 @@ class PluginScaleBar extends StatelessWidget {
           children: [
             Flexible(
               child: FlutterMap(
-                options: MapOptions(
-                  center: const LatLng(51.5, -0.09),
-                  zoom: 5,
+                options: const MapOptions(
+                  initialCenter: LatLng(51.5, -0.09),
+                  initialZoom: 5,
                 ),
                 nonRotatedChildren: [
                   ScaleLayerWidget(
-                      options: ScaleLayerPluginOption(
-                    lineColor: Colors.blue,
-                    lineWidth: 2,
-                    textStyle:
-                        const TextStyle(color: Colors.blue, fontSize: 12),
-                    padding: const EdgeInsets.all(10),
-                  )),
+                    options: ScaleLayerPluginOption(
+                      lineColor: Colors.blue,
+                      lineWidth: 2,
+                      textStyle:
+                          const TextStyle(color: Colors.blue, fontSize: 12),
+                      padding: const EdgeInsets.all(10),
+                    ),
+                  ),
                 ],
                 children: [
                   TileLayer(

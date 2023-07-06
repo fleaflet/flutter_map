@@ -41,8 +41,8 @@ class FallbackUrlPage extends StatelessWidget {
             Flexible(
               child: FlutterMap(
                 options: MapOptions(
-                  center: center,
-                  zoom: zoom,
+                  initialCenter: center,
+                  initialZoom: zoom,
                   maxZoom: maxZoom,
                   minZoom: minZoom,
                 ),

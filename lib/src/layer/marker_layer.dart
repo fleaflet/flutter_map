@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/map/state.dart';
+import 'package:flutter_map/src/map/camera/camera.dart';
+import 'package:flutter_map/src/misc/point.dart';
 import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -62,15 +62,7 @@ enum AnchorAlign {
   left(-1, 0),
 
   /// Right center
-  right(1, 0),
-
-  @Deprecated(
-    'Prefer `center`. '
-    'This value is equivalent to the `center` alignment. '
-    'If you notice a difference in behaviour, please open a bug report on GitHub. '
-    'This feature is deprecated since v5.',
-  )
-  none(0, 0);
+  right(1, 0);
 
   final int _x;
   final int _y;
@@ -192,7 +184,7 @@ class MarkerLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final map = FlutterMapState.of(context);
+    final map = MapCamera.of(context);
     final markerWidgets = <Widget>[];
 
     for (final marker in markers) {

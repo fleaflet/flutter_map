@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/misc/point.dart';
 
 class TileCoordinates extends CustomPoint<int> {
   final int z;

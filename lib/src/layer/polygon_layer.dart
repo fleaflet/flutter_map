@@ -1,9 +1,9 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/layer/label.dart';
-import 'package:flutter_map/src/map/state.dart';
+import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:latlong2/latlong.dart' hide Path; // conflict with Path from UI
 
 enum PolygonLabelPlacement {
@@ -78,12 +78,12 @@ class PolygonLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final map = FlutterMapState.of(context);
+    final map = MapCamera.of(context);
     final size = Size(map.size.x, map.size.y);
 
     final List<Polygon> pgons = polygonCulling
         ? polygons.where((p) {
-            return p.boundingBox.isOverlapping(map.bounds);
+            return p.boundingBox.isOverlapping(map.visibleBounds);
           }).toList()
         : polygons;
 
@@ -97,10 +97,10 @@ class PolygonLayer extends StatelessWidget {
 
 class PolygonPainter extends CustomPainter {
   final List<Polygon> polygons;
-  final FlutterMapState map;
+  final MapCamera map;
   final LatLngBounds bounds;
 
-  PolygonPainter(this.polygons, this.map) : bounds = map.bounds;
+  PolygonPainter(this.polygons, this.map) : bounds = map.visibleBounds;
 
   int get hash {
     _hash ??= Object.hashAll(polygons);

@@ -45,9 +45,9 @@ class OverlayImagePage extends StatelessWidget {
             ),
             Flexible(
               child: FlutterMap(
-                options: MapOptions(
-                  center: const LatLng(51.5, -0.09),
-                  zoom: 6,
+                options: const MapOptions(
+                  initialCenter: LatLng(51.5, -0.09),
+                  initialZoom: 6,
                 ),
                 children: [
                   TileLayer(

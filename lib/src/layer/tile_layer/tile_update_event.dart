@@ -1,4 +1,5 @@
 import 'package:flutter_map/src/gestures/map_events.dart';
+import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Describes whether loading and/or pruning should occur and allows overriding
@@ -17,6 +18,12 @@ class TileUpdateEvent {
     this.loadCenterOverride,
     this.loadZoomOverride,
   });
+
+  double get zoom => loadZoomOverride ?? mapEvent.camera.zoom;
+
+  LatLng get center => loadCenterOverride ?? mapEvent.camera.center;
+
+  MapCamera get camera => mapEvent.camera;
 
   /// Returns a copy of this TileUpdateEvent with only pruning enabled and the
   /// loadCenterOverride/loadZoomOverride removed.

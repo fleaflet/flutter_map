@@ -54,9 +54,9 @@ class _MovingMarkersPageState extends State<MovingMarkersPage> {
             ),
             Flexible(
               child: FlutterMap(
-                options: MapOptions(
-                  center: const LatLng(51.5, -0.09),
-                  zoom: 5,
+                options: const MapOptions(
+                  initialCenter: LatLng(51.5, -0.09),
+                  initialZoom: 5,
                 ),
                 children: [
                   TileLayer(

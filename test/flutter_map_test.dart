@@ -3,12 +3,9 @@ import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 
-import 'test_utils/mocks.dart';
 import 'test_utils/test_app.dart';
 
 void main() {
-  setupMocks();
-
   testWidgets('flutter_map', (tester) async {
     final markers = <Marker>[
       Marker(
@@ -39,16 +36,16 @@ void main() {
     int builds = 0;
 
     final map = FlutterMap(
-      options: MapOptions(
-        center: const LatLng(45.5231, -122.6765),
-        zoom: 13,
+      options: const MapOptions(
+        initialCenter: LatLng(45.5231, -122.6765),
+        initialZoom: 13,
       ),
       children: [
         Builder(
-          builder: (BuildContext context) {
-            final _ = FlutterMapState.of(context);
+          builder: (context) {
+            final _ = MapCamera.of(context);
             builds++;
-            return Container();
+            return const SizedBox.shrink();
           },
         ),
       ],
@@ -78,4 +75,158 @@ void main() {
     // The map should not have rebuild after the first build.
     expect(builds, equals(1));
   });
+
+  testWidgets('MapCamera.of only notifies dependencies when camera changes',
+      (tester) async {
+    int buildCount = 0;
+    final Widget builder = Builder(builder: (BuildContext context) {
+      MapCamera.of(context);
+      buildCount++;
+      return const SizedBox.shrink();
+    });
+
+    await tester.pumpWidget(TestRebuildsApp(child: builder));
+    expect(buildCount, equals(1));
+
+    await tester.tap(find.widgetWithText(TextButton, 'Change flags'));
+    await tester.pumpAndSettle();
+    expect(buildCount, equals(1));
+
+    await tester.tap(find.widgetWithText(TextButton, 'Change MapController'));
+    await tester.pumpAndSettle();
+    expect(buildCount, equals(1));
+
+    await tester.tap(find.widgetWithText(TextButton, 'Change Crs'));
+    await tester.pumpAndSettle();
+    expect(buildCount, equals(2));
+  });
+
+  testWidgets('MapOptions.of only notifies dependencies when options change',
+      (tester) async {
+    int buildCount = 0;
+    final Widget builder = Builder(builder: (BuildContext context) {
+      MapOptions.of(context);
+      buildCount++;
+      return const SizedBox.shrink();
+    });
+
+    await tester.pumpWidget(TestRebuildsApp(child: builder));
+    expect(buildCount, equals(1));
+
+    await tester.tap(find.widgetWithText(TextButton, 'Change flags'));
+    await tester.pumpAndSettle();
+    expect(buildCount, equals(2));
+
+    await tester.tap(find.widgetWithText(TextButton, 'Change MapController'));
+    await tester.pumpAndSettle();
+    expect(buildCount, equals(2));
+
+    await tester.tap(find.widgetWithText(TextButton, 'Change Crs'));
+    await tester.pumpAndSettle();
+    expect(buildCount, equals(3));
+  });
+
+  testWidgets(
+      'MapController.of only notifies dependencies when controller changes',
+      (tester) async {
+    int buildCount = 0;
+    final Widget builder = Builder(builder: (BuildContext context) {
+      MapController.of(context);
+      buildCount++;
+      return const SizedBox.shrink();
+    });
+
+    await tester.pumpWidget(TestRebuildsApp(child: builder));
+    expect(buildCount, equals(1));
+
+    await tester.tap(find.widgetWithText(TextButton, 'Change flags'));
+    await tester.pumpAndSettle();
+    expect(buildCount, equals(1));
+
+    await tester.tap(find.widgetWithText(TextButton, 'Change MapController'));
+    await tester.pumpAndSettle();
+    expect(buildCount, equals(2));
+
+    await tester.tap(find.widgetWithText(TextButton, 'Change Crs'));
+    await tester.pumpAndSettle();
+    expect(buildCount, equals(2));
+  });
+}
+
+class TestRebuildsApp extends StatefulWidget {
+  final Widget child;
+
+  const TestRebuildsApp({
+    super.key,
+    required this.child,
+  });
+
+  @override
+  State<TestRebuildsApp> createState() => _TestRebuildsAppState();
+}
+
+class _TestRebuildsAppState extends State<TestRebuildsApp> {
+  MapController _mapController = MapController();
+  Crs _crs = const Epsg3857();
+  int _interactiveFlags = InteractiveFlag.all;
+
+  @override
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: FlutterMap(
+          mapController: _mapController,
+          options: MapOptions(
+            crs: _crs,
+            interactionOptions: InteractionOptions(
+              flags: _interactiveFlags,
+            ),
+          ),
+          children: [
+            widget.child,
+            Column(
+              children: [
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _interactiveFlags =
+                          InteractiveFlag.hasDrag(_interactiveFlags)
+                              ? _interactiveFlags & ~InteractiveFlag.drag
+                              : InteractiveFlag.all;
+                    });
+                  },
+                  child: const Text('Change flags'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _crs = _crs == const Epsg3857()
+                          ? const Epsg4326()
+                          : const Epsg3857();
+                    });
+                  },
+                  child: const Text('Change Crs'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    _mapController.dispose();
+                    setState(() {
+                      _mapController = MapController();
+                    });
+                  },
+                  child: const Text('Change MapController'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

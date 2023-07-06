@@ -1,10 +1,17 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/map/state.dart';
+import 'package:flutter_map/src/geo/latlng_bounds.dart';
+import 'package:flutter_map/src/gestures/map_events.dart';
+import 'package:flutter_map/src/map/camera/camera.dart';
+import 'package:flutter_map/src/map/camera/camera_fit.dart';
+import 'package:flutter_map/src/map/inherited_model.dart';
+import 'package:flutter_map/src/map/map_controller_impl.dart';
+import 'package:flutter_map/src/misc/center_zoom.dart';
+import 'package:flutter_map/src/misc/fit_bounds_options.dart';
+import 'package:flutter_map/src/misc/move_and_rotate_result.dart';
+import 'package:flutter_map/src/misc/point.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:meta/meta.dart';
 
 /// Controller to programmatically interact with [FlutterMap], such as
 /// controlling it and accessing some of its properties.
@@ -20,7 +27,24 @@ abstract class MapController {
   /// instance.
   ///
   /// Factory constructor redirects to underlying implementation's constructor.
-  factory MapController() = MapControllerImpl._;
+  factory MapController() = MapControllerImpl;
+
+  /// The controller for the closest [FlutterMap] ancestor. If this is called
+  /// from a context with no [FlutterMap] ancestor a [StateError] will be
+  /// thrown.
+  static MapController? maybeOf(BuildContext context) =>
+      FlutterMapInheritedModel.maybeControllerOf(context);
+
+  /// The controller for the closest [FlutterMap] ancestor. If this is called
+  /// from a context with no [FlutterMap] ancestor a [StateError] will be
+  /// thrown.
+  static MapController of(BuildContext context) =>
+      maybeOf(context) ??
+      (throw StateError(
+          '`MapController.of()` should not be called outside a `FlutterMap` and its children'));
+
+  /// [Stream] of all emitted [MapEvent]s
+  Stream<MapEvent> get mapEventStream;
 
   /// Moves and zooms the map to a [center] and [zoom] level
   ///
@@ -39,7 +63,7 @@ abstract class MapController {
   /// through [MapEventCallback]s, such as [MapOptions.onMapEvent]), unless
   /// the move failed because (after adjustment when necessary):
   ///  * [center] and [zoom] are equal to the current values
-  ///  * [center] is out of bounds & [MapOptions.slideOnBoundaries] isn't enabled
+  ///  * [center] [MapOptions.cameraConstraint] does not allow the movement.
   bool move(
     LatLng center,
     double zoom, {
@@ -74,8 +98,8 @@ abstract class MapController {
   /// pixels), where `Offset(0,0)` is the top-left of the map widget, and the
   /// bottom right is `Offset(mapWidth, mapHeight)`.
   ///  * [offset]: allows rotation around a screen-based offset (in normal logical
-  /// pixels) from the map's [center]. For example, `Offset(100, 100)` will mean
-  /// the point is the 100px down & 100px right from the [center].
+  /// pixels) from the map's center. For example, `Offset(100, 100)` will mean
+  /// the point is the 100px down & 100px right from the center.
   ///
   /// May cause glitchy movement if rotated against the map's bounds.
   ///
@@ -110,30 +134,71 @@ abstract class MapController {
     String? id,
   });
 
+  /// Move and zoom the map to fit [cameraFit].
+  ///
+  /// For information about the return value and emitted events, see [move]'s
+  /// documentation.
+  bool fitCamera(CameraFit cameraFit);
+
+  /// Current [MapCamera]. Accessing the camera from this getter is an
+  /// anti-pattern. It is preferable to use [MapCamera.of(context)] in a child
+  /// widget of FlutterMap.
+  MapCamera get camera;
+
   /// Move and zoom the map to perfectly fit [bounds], with additional
   /// configurable [options]
   ///
   /// For information about return value meaning and emitted events, see [move]'s
   /// documentation.
-  bool fitBounds(LatLngBounds bounds, {FitBoundsOptions? options});
+  @Deprecated(
+    'Prefer `fitCamera` with a CameraFit.bounds() instead. '
+    'This method has been changed to use the new `CameraFit` classes which allows different kinds of fit. '
+    'This method is deprecated since v6.',
+  )
+  bool fitBounds(
+    LatLngBounds bounds, {
+    FitBoundsOptions options =
+        const FitBoundsOptions(padding: EdgeInsets.all(12)),
+  });
 
   /// Calculates the appropriate center and zoom level for the map to perfectly
   /// fit [bounds], with additional configurable [options]
   ///
   /// Does not move/zoom the map: see [fitBounds].
+  @Deprecated(
+    'Prefer `CameraFit.bounds(bounds: bounds).fit(controller.camera)`. '
+    'This method is replaced by applying a CameraFit to the MapCamera. '
+    'This method is deprecated since v6.',
+  )
   CenterZoom centerZoomFitBounds(
     LatLngBounds bounds, {
-    FitBoundsOptions? options,
+    FitBoundsOptions options =
+        const FitBoundsOptions(padding: EdgeInsets.all(12)),
   });
 
   /// Convert a screen point (x/y) to its corresponding map coordinate (lat/lng),
   /// based on the map's current properties
+  @Deprecated(
+    'Prefer `controller.camera.pointToLatLng()`. '
+    'This method is now accessible via the camera. '
+    'This method is deprecated since v6.',
+  )
   LatLng pointToLatLng(CustomPoint screenPoint);
 
   /// Convert a map coordinate (lat/lng) to its corresponding screen point (x/y),
   /// based on the map's current screen positioning
+  @Deprecated(
+    'Prefer `controller.camera.latLngToScreenPoint()`. '
+    'This method is now accessible via the camera. '
+    'This method is deprecated since v6.',
+  )
   CustomPoint<double> latLngToScreenPoint(LatLng mapCoordinate);
 
+  @Deprecated(
+    'Prefer `controller.camera.rotatePoint()`. '
+    'This method is now accessible via the camera. '
+    'This method is deprecated since v6.',
+  )
   CustomPoint<double> rotatePoint(
     CustomPoint mapCenter,
     CustomPoint point, {
@@ -141,155 +206,37 @@ abstract class MapController {
   });
 
   /// Current center coordinates
+  @Deprecated(
+    'Prefer `controller.camera.center`. '
+    'This getter is now accessible via the camera. '
+    'This getter is deprecated since v6.',
+  )
   LatLng get center;
 
   /// Current outer points/boundaries coordinates
+  @Deprecated(
+    'Prefer `controller.camera.visibleBounds`. '
+    'This getter is now accessible via the camera. '
+    'This getter is deprecated since v6.',
+  )
   LatLngBounds? get bounds;
 
   /// Current zoom level
+  @Deprecated(
+    'Prefer `controller.camera.zoom`. '
+    'This getter is now accessible via the camera. '
+    'This getter is deprecated since v6.',
+  )
   double get zoom;
 
   /// Current rotation in degrees, where 0° is North
+  @Deprecated(
+    'Prefer `controller.camera.rotation`. '
+    'This getter is now accessible via the camera. '
+    'This getter is deprecated since v6.',
+  )
   double get rotation;
 
-  /// [Stream] of all emitted [MapEvent]s
-  Stream<MapEvent> get mapEventStream;
-
-  /// Underlying [StreamSink] of [mapEventStream]
-  ///
-  /// Usually prefer to use [mapEventStream].
-  StreamSink<MapEvent> get mapEventSink;
-
-  /// Immediately change the internal map state
-  ///
-  /// Not recommended for external usage.
-  set state(FlutterMapState state);
-
-  /// Dispose of this controller by closing the [mapEventStream]'s
-  /// [StreamController]
-  ///
-  /// Not recommended for external usage.
+  /// Dispose of this controller.
   void dispose();
-}
-
-@internal
-class MapControllerImpl implements MapController {
-  MapControllerImpl._();
-
-  @override
-  bool move(
-    LatLng center,
-    double zoom, {
-    Offset offset = Offset.zero,
-    String? id,
-  }) =>
-      _state.move(
-        center,
-        zoom,
-        offset: offset,
-        id: id,
-        source: MapEventSource.mapController,
-      );
-
-  @override
-  bool rotate(double degree, {String? id}) =>
-      _state.rotate(degree, id: id, source: MapEventSource.mapController);
-
-  @override
-  MoveAndRotateResult rotateAroundPoint(
-    double degree, {
-    CustomPoint<double>? point,
-    Offset? offset,
-    String? id,
-  }) =>
-      _state.rotateAroundPoint(
-        degree,
-        point: point,
-        offset: offset,
-        id: id,
-        source: MapEventSource.mapController,
-      );
-
-  @override
-  MoveAndRotateResult moveAndRotate(
-    LatLng center,
-    double zoom,
-    double degree, {
-    String? id,
-  }) =>
-      _state.moveAndRotate(
-        center,
-        zoom,
-        degree,
-        source: MapEventSource.mapController,
-        id: id,
-      );
-
-  @override
-  bool fitBounds(
-    LatLngBounds bounds, {
-    FitBoundsOptions? options =
-        const FitBoundsOptions(padding: EdgeInsets.all(12)),
-  }) =>
-      _state.fitBounds(bounds, options!);
-
-  @override
-  CenterZoom centerZoomFitBounds(
-    LatLngBounds bounds, {
-    FitBoundsOptions? options =
-        const FitBoundsOptions(padding: EdgeInsets.all(12)),
-  }) =>
-      _state.centerZoomFitBounds(bounds, options!);
-
-  @override
-  LatLng pointToLatLng(CustomPoint localPoint) =>
-      _state.pointToLatLng(localPoint);
-
-  @override
-  CustomPoint<double> latLngToScreenPoint(LatLng latLng) =>
-      _state.latLngToScreenPoint(latLng);
-
-  @override
-  CustomPoint<double> rotatePoint(
-    CustomPoint mapCenter,
-    CustomPoint point, {
-    bool counterRotation = true,
-  }) =>
-      _state.rotatePoint(
-        mapCenter.toDoublePoint(),
-        point.toDoublePoint(),
-        counterRotation: counterRotation,
-      );
-
-  @override
-  LatLng get center => _state.center;
-
-  @override
-  LatLngBounds? get bounds => _state.bounds;
-
-  @override
-  double get zoom => _state.zoom;
-
-  @override
-  double get rotation => _state.rotation;
-
-  final _mapEventStreamController = StreamController<MapEvent>.broadcast();
-
-  @override
-  Stream<MapEvent> get mapEventStream => _mapEventStreamController.stream;
-
-  @override
-  StreamSink<MapEvent> get mapEventSink => _mapEventStreamController.sink;
-
-  late FlutterMapState _state;
-
-  @override
-  set state(FlutterMapState state) {
-    _state = state;
-  }
-
-  @override
-  void dispose() {
-    _mapEventStreamController.close();
-  }
 }

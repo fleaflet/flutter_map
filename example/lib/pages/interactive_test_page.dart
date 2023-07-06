@@ -28,7 +28,7 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
   void onMapEvent(MapEvent mapEvent) {
     if (mapEvent is! MapEventMove && mapEvent is! MapEventRotate) {
       // do not flood console with move and rotate events
-      debugPrint(mapEvent.toString());
+      debugPrint(_eventName(mapEvent));
     }
 
     setState(() {
@@ -59,7 +59,7 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 MaterialButton(
-                  color: InteractiveFlag.hasFlag(flags, InteractiveFlag.drag)
+                  color: InteractiveFlag.hasDrag(flags)
                       ? Colors.greenAccent
                       : Colors.redAccent,
                   onPressed: () {
@@ -70,8 +70,7 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                   child: const Text('Drag'),
                 ),
                 MaterialButton(
-                  color: InteractiveFlag.hasFlag(
-                          flags, InteractiveFlag.flingAnimation)
+                  color: InteractiveFlag.hasFlingAnimation(flags)
                       ? Colors.greenAccent
                       : Colors.redAccent,
                   onPressed: () {
@@ -82,10 +81,9 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                   child: const Text('Fling'),
                 ),
                 MaterialButton(
-                  color:
-                      InteractiveFlag.hasFlag(flags, InteractiveFlag.pinchMove)
-                          ? Colors.greenAccent
-                          : Colors.redAccent,
+                  color: InteractiveFlag.hasPinchMove(flags)
+                      ? Colors.greenAccent
+                      : Colors.redAccent,
                   onPressed: () {
                     setState(() {
                       updateFlags(InteractiveFlag.pinchMove);
@@ -99,8 +97,7 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 MaterialButton(
-                  color: InteractiveFlag.hasFlag(
-                          flags, InteractiveFlag.doubleTapZoom)
+                  color: InteractiveFlag.hasDoubleTapZoom(flags)
                       ? Colors.greenAccent
                       : Colors.redAccent,
                   onPressed: () {
@@ -111,7 +108,7 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                   child: const Text('Double tap zoom'),
                 ),
                 MaterialButton(
-                  color: InteractiveFlag.hasFlag(flags, InteractiveFlag.rotate)
+                  color: InteractiveFlag.hasRotate(flags)
                       ? Colors.greenAccent
                       : Colors.redAccent,
                   onPressed: () {
@@ -122,10 +119,9 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                   child: const Text('Rotate'),
                 ),
                 MaterialButton(
-                  color:
-                      InteractiveFlag.hasFlag(flags, InteractiveFlag.pinchZoom)
-                          ? Colors.greenAccent
-                          : Colors.redAccent,
+                  color: InteractiveFlag.hasPinchZoom(flags)
+                      ? Colors.greenAccent
+                      : Colors.redAccent,
                   onPressed: () {
                     setState(() {
                       updateFlags(InteractiveFlag.pinchZoom);
@@ -139,7 +135,7 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
               padding: const EdgeInsets.only(top: 8, bottom: 8),
               child: Center(
                 child: Text(
-                  'Current event: ${_latestEvent?.runtimeType ?? "none"}\nSource: ${_latestEvent?.source ?? "none"}',
+                  'Current event: ${_eventName(_latestEvent)}\nSource: ${_latestEvent?.source.name ?? "none"}',
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -148,9 +144,11 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
               child: FlutterMap(
                 options: MapOptions(
                   onMapEvent: onMapEvent,
-                  center: const LatLng(51.5, -0.09),
-                  zoom: 11,
-                  interactiveFlags: flags,
+                  initialCenter: const LatLng(51.5, -0.09),
+                  initialZoom: 11,
+                  interactionOptions: InteractionOptions(
+                    flags: flags,
+                  ),
                 ),
                 children: [
                   TileLayer(
@@ -165,5 +163,50 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
         ),
       ),
     );
+  }
+
+  String _eventName(MapEvent? event) {
+    switch (event) {
+      case MapEventTap():
+        return 'MapEventTap';
+      case MapEventSecondaryTap():
+        return 'MapEventSecondaryTap';
+      case MapEventLongPress():
+        return 'MapEventLongPress';
+      case MapEventMove():
+        return 'MapEventMove';
+      case MapEventMoveStart():
+        return 'MapEventMoveStart';
+      case MapEventMoveEnd():
+        return 'MapEventMoveEnd';
+      case MapEventFlingAnimation():
+        return 'MapEventFlingAnimation';
+      case MapEventFlingAnimationNotStarted():
+        return 'MapEventFlingAnimationNotStarted';
+      case MapEventFlingAnimationStart():
+        return 'MapEventFlingAnimationStart';
+      case MapEventFlingAnimationEnd():
+        return 'MapEventFlingAnimationEnd';
+      case MapEventDoubleTapZoom():
+        return 'MapEventDoubleTapZoom';
+      case MapEventScrollWheelZoom():
+        return 'MapEventScrollWheelZoom';
+      case MapEventDoubleTapZoomStart():
+        return 'MapEventDoubleTapZoomStart';
+      case MapEventDoubleTapZoomEnd():
+        return 'MapEventDoubleTapZoomEnd';
+      case MapEventRotate():
+        return 'MapEventRotate';
+      case MapEventRotateStart():
+        return 'MapEventRotateStart';
+      case MapEventRotateEnd():
+        return 'MapEventRotateEnd';
+      case MapEventNonRotatedSizeChange():
+        return 'MapEventNonRotatedSizeChange';
+      case null:
+        return 'null';
+      default:
+        return 'Unknown';
+    }
   }
 }

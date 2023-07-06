@@ -130,8 +130,8 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
               child: FlutterMap(
                 options: MapOptions(
                   crs: epsg3413CRS,
-                  center: const LatLng(90, 0),
-                  zoom: 3,
+                  initialCenter: const LatLng(90, 0),
+                  initialZoom: 3,
                   maxZoom: maxZoom,
                 ),
                 nonRotatedChildren: [

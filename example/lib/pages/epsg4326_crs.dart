@@ -23,11 +23,11 @@ class EPSG4326Page extends StatelessWidget {
             ),
             Flexible(
               child: FlutterMap(
-                options: MapOptions(
+                options: const MapOptions(
                   minZoom: 0,
-                  crs: const Epsg4326(),
-                  center: const LatLng(0, 0),
-                  zoom: 0,
+                  crs: Epsg4326(),
+                  initialCenter: LatLng(0, 0),
+                  initialZoom: 0,
                 ),
                 children: [
                   TileLayer(
@@ -37,7 +37,7 @@ class EPSG4326Page extends StatelessWidget {
                       layers: ['TOPO-OSM-WMS'],
                     ),
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  )
+                  ),
                 ],
               ),
             ),

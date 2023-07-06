@@ -1,6 +1,6 @@
-import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
-import 'package:flutter_map/src/map/state.dart';
+import 'package:flutter_map/src/map/camera/camera.dart';
+import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:latlong2/latlong.dart';
 
 class TileRangeCalculator {
@@ -12,38 +12,38 @@ class TileRangeCalculator {
   /// viewing the map from the [viewingZoom] centered at the [center]. The
   /// resulting tile range is expanded by [panBuffer].
   DiscreteTileRange calculate({
-    // The map state used to calculate the bounds.
-    required FlutterMapState mapState,
+    // The map camera used to calculate the bounds.
+    required MapCamera camera,
     // The zoom level at which the bounds should be calculated.
     required int tileZoom,
-    // The center from which the map is viewed, defaults to [mapState.center].
+    // The center from which the map is viewed, defaults to [camera.center].
     LatLng? center,
-    // The zoom from which the map is viewed, defaults to [mapState.zoom].
+    // The zoom from which the map is viewed, defaults to [camera.zoom].
     double? viewingZoom,
   }) {
     return DiscreteTileRange.fromPixelBounds(
       zoom: tileZoom,
       tileSize: tileSize,
       pixelBounds: _calculatePixelBounds(
-        mapState,
-        center ?? mapState.center,
-        viewingZoom ?? mapState.zoom,
+        camera,
+        center ?? camera.center,
+        viewingZoom ?? camera.zoom,
         tileZoom,
       ),
     );
   }
 
   Bounds<double> _calculatePixelBounds(
-    FlutterMapState mapState,
+    MapCamera camera,
     LatLng center,
     double viewingZoom,
     int tileZoom,
   ) {
     final tileZoomDouble = tileZoom.toDouble();
-    final scale = mapState.getZoomScale(viewingZoom, tileZoomDouble);
+    final scale = camera.getZoomScale(viewingZoom, tileZoomDouble);
     final pixelCenter =
-        mapState.project(center, tileZoomDouble).floor().toDoublePoint();
-    final halfSize = mapState.size / (scale * 2);
+        camera.project(center, tileZoomDouble).floor().toDoublePoint();
+    final halfSize = camera.size / (scale * 2);
 
     return Bounds(pixelCenter - halfSize, pixelCenter + halfSize);
   }

@@ -2,8 +2,8 @@ import 'dart:core';
 import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/map/state.dart';
+import 'package:flutter_map/src/geo/latlng_bounds.dart';
+import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:latlong2/latlong.dart';
 
 class Polyline {
@@ -66,13 +66,13 @@ class PolylineLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final map = FlutterMapState.of(context);
+    final map = MapCamera.of(context);
 
     return CustomPaint(
       painter: PolylinePainter(
         polylineCulling
             ? polylines
-                .where((p) => p.boundingBox.isOverlapping(map.bounds))
+                .where((p) => p.boundingBox.isOverlapping(map.visibleBounds))
                 .toList()
             : polylines,
         map,
@@ -86,10 +86,10 @@ class PolylineLayer extends StatelessWidget {
 class PolylinePainter extends CustomPainter {
   final List<Polyline> polylines;
 
-  final FlutterMapState map;
+  final MapCamera map;
   final LatLngBounds bounds;
 
-  PolylinePainter(this.polylines, this.map) : bounds = map.bounds;
+  PolylinePainter(this.polylines, this.map) : bounds = map.visibleBounds;
 
   int get hash {
     _hash ??= Object.hashAll(polylines);
