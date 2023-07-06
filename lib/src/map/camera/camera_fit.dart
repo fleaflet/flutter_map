@@ -24,7 +24,7 @@ abstract class CameraFit {
   const factory CameraFit.bounds({
     required LatLngBounds bounds,
     EdgeInsets padding,
-    double maxZoom,
+    double? maxZoom,
     bool forceIntegerZoomLevel,
   }) = FitBounds._;
 
@@ -35,7 +35,7 @@ abstract class CameraFit {
   const factory CameraFit.insideBounds({
     required LatLngBounds bounds,
     EdgeInsets padding,
-    double maxZoom,
+    double? maxZoom,
     bool forceIntegerZoomLevel,
   }) = FitInsideBounds._;
 
@@ -51,7 +51,7 @@ abstract class CameraFit {
   const factory CameraFit.coordinates({
     required List<LatLng> coordinates,
     EdgeInsets padding,
-    double maxZoom,
+    double? maxZoom,
     bool forceIntegerZoomLevel,
   }) = FitCoordinates._;
 
@@ -68,10 +68,10 @@ class FitBounds extends CameraFit {
   /// Defaults to [EdgeInsets.zero].
   final EdgeInsets padding;
 
-  /// Limits the maximum zoom level of the resulting fit.
+  /// Limits the maximum zoom level of the resulting fit if set.
   ///
-  /// Defaults to zoom level 18.
-  final double maxZoom;
+  /// Defaults to null.
+  final double? maxZoom;
 
   /// Whether the zoom level of the resulting fit should be rounded to the
   /// nearest integer level.
@@ -82,7 +82,7 @@ class FitBounds extends CameraFit {
   const FitBounds._({
     required this.bounds,
     this.padding = EdgeInsets.zero,
-    this.maxZoom = 18,
+    this.maxZoom,
     this.forceIntegerZoomLevel = false,
   });
 
@@ -95,7 +95,7 @@ class FitBounds extends CameraFit {
     final paddingTotalXY = paddingTL + paddingBR;
 
     var newZoom = _getBoundsZoom(camera, paddingTotalXY);
-    newZoom = math.min(maxZoom, newZoom);
+    if (maxZoom != null) newZoom = math.min(maxZoom!, newZoom);
 
     final paddingOffset = (paddingBR - paddingTL) / 2;
     final swPoint = camera.project(bounds.southWest, newZoom);
@@ -125,7 +125,10 @@ class FitBounds extends CameraFit {
     CustomPoint<double> pixelPadding,
   ) {
     final min = camera.minZoom ?? 0.0;
-    final max = camera.maxZoom ?? double.infinity;
+    final max = math.min(
+      camera.maxZoom ?? double.infinity,
+      maxZoom ?? double.infinity,
+    );
     final nw = bounds.northWest;
     final se = bounds.southEast;
     var size = camera.nonRotatedSize - pixelPadding;
@@ -167,10 +170,10 @@ class FitInsideBounds extends CameraFit {
   /// Defaults to [EdgeInsets.zero].
   final EdgeInsets padding;
 
-  /// Limits the maximum zoom level of the resulting fit.
+  /// Limits the maximum zoom level of the resulting fit if set.
   ///
-  /// Defaults to zoom level 18.
-  final double maxZoom;
+  /// Defaults to null.
+  final double? maxZoom;
 
   /// Whether the zoom level of the resulting fit should be rounded to the
   /// nearest integer level.
@@ -181,7 +184,7 @@ class FitInsideBounds extends CameraFit {
   const FitInsideBounds._({
     required this.bounds,
     this.padding = EdgeInsets.zero,
-    this.maxZoom = 18,
+    this.maxZoom,
     this.forceIntegerZoomLevel = false,
   });
 
@@ -214,9 +217,9 @@ class FitInsideBounds extends CameraFit {
     }
 
     newZoom = math.max(
-      camera.minZoom ?? 0.0,
+      camera.minZoom ?? double.negativeInfinity,
       math.min(
-        math.min(maxZoom, camera.maxZoom ?? double.infinity),
+        math.min(maxZoom ?? double.infinity, camera.maxZoom ?? double.infinity),
         newZoom,
       ),
     );
@@ -359,10 +362,10 @@ class FitCoordinates extends CameraFit {
   /// Defaults to [EdgeInsets.zero].
   final EdgeInsets padding;
 
-  /// Limits the maximum zoom level of the resulting fit.
+  /// Limits the maximum zoom level of the resulting fit if set.
   ///
-  /// Defaults to zoom level 18.
-  final double maxZoom;
+  /// Defaults to null.
+  final double? maxZoom;
 
   /// Whether the zoom level of the resulting fit should be rounded to the
   /// nearest integer level.
@@ -373,7 +376,7 @@ class FitCoordinates extends CameraFit {
   const FitCoordinates._({
     required this.coordinates,
     this.padding = EdgeInsets.zero,
-    this.maxZoom = 18,
+    this.maxZoom = double.infinity,
     this.forceIntegerZoomLevel = false,
   });
 
@@ -386,7 +389,7 @@ class FitCoordinates extends CameraFit {
     final paddingTotalXY = paddingTL + paddingBR;
 
     var newZoom = _getCoordinatesZoom(camera, paddingTotalXY);
-    newZoom = math.min(maxZoom, newZoom);
+    if (maxZoom != null) newZoom = math.min(maxZoom!, newZoom);
 
     final projectedPoints = [
       for (final coord in coordinates) camera.project(coord, newZoom)
@@ -417,7 +420,10 @@ class FitCoordinates extends CameraFit {
     CustomPoint<double> pixelPadding,
   ) {
     final min = camera.minZoom ?? 0.0;
-    final max = camera.maxZoom ?? double.infinity;
+    final max = math.min(
+      camera.maxZoom ?? double.infinity,
+      maxZoom ?? double.infinity,
+    );
     var size = camera.nonRotatedSize - pixelPadding;
     // Prevent negative size which results in NaN zoom value later on in the calculation
     size = CustomPoint(math.max(0, size.x), math.max(0, size.y));
