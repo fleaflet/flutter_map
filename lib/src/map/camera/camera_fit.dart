@@ -25,6 +25,7 @@ abstract class CameraFit {
     required LatLngBounds bounds,
     EdgeInsets padding,
     double? maxZoom,
+    double minZoom,
     bool forceIntegerZoomLevel,
   }) = FitBounds._;
 
@@ -36,6 +37,7 @@ abstract class CameraFit {
     required LatLngBounds bounds,
     EdgeInsets padding,
     double? maxZoom,
+    double minZoom,
     bool forceIntegerZoomLevel,
   }) = FitInsideBounds._;
 
@@ -52,6 +54,7 @@ abstract class CameraFit {
     required List<LatLng> coordinates,
     EdgeInsets padding,
     double? maxZoom,
+    double minZoom,
     bool forceIntegerZoomLevel,
   }) = FitCoordinates._;
 
@@ -68,10 +71,19 @@ class FitBounds extends CameraFit {
   /// Defaults to [EdgeInsets.zero].
   final EdgeInsets padding;
 
-  /// Limits the maximum zoom level of the resulting fit if set.
+  /// The inclusive upper zoom limit used for the resulting fit.
+  ///
+  /// If the zoom level calculated for the fit exceeds the [maxZoom] value,
+  /// [maxZoom] will be used instead.
   ///
   /// Defaults to null.
   final double? maxZoom;
+
+  /// The inclusive lower zoom limit used for the resulting fit.
+  ///
+  /// If the zoom level calculated for the fit undercuts the [minZoom] value,
+  /// [minZoom] will be used instead.
+  final double minZoom;
 
   /// Whether the zoom level of the resulting fit should be rounded to the
   /// nearest integer level.
@@ -83,6 +95,7 @@ class FitBounds extends CameraFit {
     required this.bounds,
     this.padding = EdgeInsets.zero,
     this.maxZoom,
+    this.minZoom = 0,
     this.forceIntegerZoomLevel = false,
   });
 
@@ -124,11 +137,6 @@ class FitBounds extends CameraFit {
     MapCamera camera,
     CustomPoint<double> pixelPadding,
   ) {
-    final min = camera.minZoom ?? 0.0;
-    final max = math.min(
-      camera.maxZoom ?? double.infinity,
-      maxZoom ?? double.infinity,
-    );
     final nw = bounds.northWest;
     final se = bounds.southEast;
     var size = camera.nonRotatedSize - pixelPadding;
@@ -157,7 +165,15 @@ class FitBounds extends CameraFit {
       boundsZoom = boundsZoom.floorToDouble();
     }
 
-    return math.max(min, math.min(max, boundsZoom));
+    final min = math.max(
+      camera.minZoom ?? 0,
+      minZoom,
+    );
+    final max = math.min(
+      camera.maxZoom ?? double.infinity,
+      maxZoom ?? double.infinity,
+    );
+    return boundsZoom.clamp(min, max);
   }
 }
 
@@ -170,10 +186,19 @@ class FitInsideBounds extends CameraFit {
   /// Defaults to [EdgeInsets.zero].
   final EdgeInsets padding;
 
-  /// Limits the maximum zoom level of the resulting fit if set.
+  /// The inclusive upper zoom limit used for the resulting fit.
+  ///
+  /// If the zoom level calculated for the fit exceeds the [maxZoom] value,
+  /// [maxZoom] will be used instead.
   ///
   /// Defaults to null.
   final double? maxZoom;
+
+  /// The inclusive lower zoom limit used for the resulting fit.
+  ///
+  /// If the zoom level calculated for the fit undercuts the [minZoom] value,
+  /// [minZoom] will be used instead.
+  final double minZoom;
 
   /// Whether the zoom level of the resulting fit should be rounded to the
   /// nearest integer level.
@@ -185,6 +210,7 @@ class FitInsideBounds extends CameraFit {
     required this.bounds,
     this.padding = EdgeInsets.zero,
     this.maxZoom,
+    this.minZoom = 0,
     this.forceIntegerZoomLevel = false,
   });
 
@@ -216,13 +242,15 @@ class FitInsideBounds extends CameraFit {
       newZoom = newZoom.ceilToDouble();
     }
 
-    newZoom = math.max(
-      camera.minZoom ?? double.negativeInfinity,
-      math.min(
-        math.min(maxZoom ?? double.infinity, camera.maxZoom ?? double.infinity),
-        newZoom,
-      ),
+    final min = math.max(
+      camera.minZoom ?? 0,
+      minZoom,
     );
+    final max = math.min(
+      camera.maxZoom ?? double.infinity,
+      maxZoom ?? double.infinity,
+    );
+    newZoom = newZoom.clamp(min, max);
 
     final newCenter = _getCenter(
       camera,
@@ -362,10 +390,19 @@ class FitCoordinates extends CameraFit {
   /// Defaults to [EdgeInsets.zero].
   final EdgeInsets padding;
 
-  /// Limits the maximum zoom level of the resulting fit if set.
+  /// The inclusive upper zoom limit used for the resulting fit.
+  ///
+  /// If the zoom level calculated for the fit exceeds the [maxZoom] value,
+  /// [maxZoom] will be used instead.
   ///
   /// Defaults to null.
   final double? maxZoom;
+
+  /// The inclusive lower zoom limit used for the resulting fit.
+  ///
+  /// If the zoom level calculated for the fit undercuts the [minZoom] value,
+  /// [minZoom] will be used instead.
+  final double minZoom;
 
   /// Whether the zoom level of the resulting fit should be rounded to the
   /// nearest integer level.
@@ -377,6 +414,7 @@ class FitCoordinates extends CameraFit {
     required this.coordinates,
     this.padding = EdgeInsets.zero,
     this.maxZoom = double.infinity,
+    this.minZoom = 0,
     this.forceIntegerZoomLevel = false,
   });
 
@@ -419,11 +457,6 @@ class FitCoordinates extends CameraFit {
     MapCamera camera,
     CustomPoint<double> pixelPadding,
   ) {
-    final min = camera.minZoom ?? 0.0;
-    final max = math.min(
-      camera.maxZoom ?? double.infinity,
-      maxZoom ?? double.infinity,
-    );
     var size = camera.nonRotatedSize - pixelPadding;
     // Prevent negative size which results in NaN zoom value later on in the calculation
     size = CustomPoint(math.max(0, size.x), math.max(0, size.y));
@@ -447,6 +480,14 @@ class FitCoordinates extends CameraFit {
       newZoom = newZoom.floorToDouble();
     }
 
-    return math.max(min, math.min(max, newZoom));
+    final min = math.max(
+      camera.minZoom ?? 0,
+      minZoom,
+    );
+    final max = math.min(
+      camera.maxZoom ?? double.infinity,
+      maxZoom ?? double.infinity,
+    );
+    return newZoom.clamp(min, max);
   }
 }
