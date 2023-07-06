@@ -3,6 +3,9 @@ contact_links:
   - name: Get Help
     url: https://discord.gg/egEGeByf4q
     about: Don't quite understand how to implement something, or just want to talk? Join the Discord server!
+  - name: Frequently Asked Questions
+    url: https://docs.fleaflet.dev/frequently-asked-questions
+    about: Before posting an issue or asking for help, please check whether your question has already been answered!
   - name: Documentation
     url: https://docs.fleaflet.dev/
-    about: Before posting an issue, please ensure you read the documentation thoroughly
+    about: Before posting an issue or asking for help, please ensure you read the documentation thoroughly

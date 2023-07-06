@@ -1,7 +1,7 @@
 name: Bug Report
 description: Create a bug report to help us improve
-title: "[BUG] "
-labels: ["bug", "needs verification"]
+title: "[BUG] <title>"
+labels: ["bug", "needs triage"]
 body:
   - type: markdown
     attributes:
@@ -40,7 +40,7 @@ body:
       label: How can we reproduce it?
       description: |
         Please include a fully formatted [minimal reproducible example](https://en.wikipedia.org/wiki/Minimal_reproducible_example) wrapped in a [Dart code block](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/creating-and-highlighting-code-blocks#syntax-highlighting), otherwise, detail the exact steps to reproduce this issue.
-        If you do not include any information here, it will take longer for us to verify your issue.   
+        If you do not include any information here, it will take longer for us to verify your issue.
     validations:
       required: true
   - type: textarea
