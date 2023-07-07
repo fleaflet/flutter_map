@@ -1,7 +1,7 @@
 name: Feature Request
 description: Suggest functionality that you'd like to see
-title: "[FEATURE] "
-labels: ["enhancement"]
+title: "[FEATURE] <title>"
+labels: ["feature", "P3 (low)"]
 body:
   - type: markdown
     attributes:
