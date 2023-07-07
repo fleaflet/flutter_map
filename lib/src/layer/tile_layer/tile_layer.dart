@@ -3,7 +3,6 @@ import 'dart:math' as math;
 
 import 'package:collection/collection.dart' show MapEquality;
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
@@ -104,6 +103,11 @@ class TileLayer extends StatefulWidget {
   final TileDisplay tileDisplay;
 
   /// Color shown behind the tiles
+  @Deprecated(
+    'Prefer `MapOptions.backgroundColor`. '
+    'This property has been removed simplify interaction when using multiple `TileLayer`s. '
+    'This property is deprecated since v6.',
+  )
   final Color backgroundColor;
 
   /// Provider with which to load map tiles
@@ -231,7 +235,7 @@ class TileLayer extends StatefulWidget {
     this.subdomains = const <String>[],
     this.keepBuffer = 2,
     this.panBuffer = 0,
-    this.backgroundColor = const Color(0xFFE0E0E0),
+    this.backgroundColor = Colors.transparent,
     this.errorImage,
     TileProvider? tileProvider,
     this.tms = false,
@@ -474,7 +478,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     _tileScaleCalculator.clearCacheUnlessZoomMatches(map.zoom);
 
-    return Container(
+    return ColoredBox(
+      // ignore: deprecated_member_use_from_same_package
       color: widget.backgroundColor,
       child: Stack(
         children: [

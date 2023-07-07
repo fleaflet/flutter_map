@@ -101,6 +101,9 @@ class FlutterMapStateContainer extends State<FlutterMap> {
             child: ClipRect(
               child: Stack(
                 children: [
+                  Positioned.fill(
+                    child: ColoredBox(color: options.backgroundColor),
+                  ),
                   OverflowBox(
                     minWidth: camera.size.x,
                     maxWidth: camera.size.x,

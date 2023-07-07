@@ -70,6 +70,8 @@ class MapOptions {
   final double? minZoom;
   final double? maxZoom;
 
+  final Color backgroundColor;
+
   /// see [InteractiveFlag] for custom settings
   final int? _interactiveFlags;
 
@@ -212,6 +214,7 @@ class MapOptions {
     double? scrollWheelVelocity,
     this.minZoom,
     this.maxZoom,
+    this.backgroundColor = const Color(0xFFE0E0E0),
     this.onTap,
     this.onSecondaryTap,
     this.onLongPress,
