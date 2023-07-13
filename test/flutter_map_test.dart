@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/src/gestures/flutter_map_interactive_viewer.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -74,6 +75,59 @@ void main() {
 
     // The map should not have rebuild after the first build.
     expect(builds, equals(1));
+  });
+
+  testWidgets('gestures work with no tile layer and transparent background.',
+      (tester) async {
+    int taps = 0;
+    late MapCamera camera;
+
+    final map = MaterialApp(
+      home: Scaffold(
+        resizeToAvoidBottomInset: false,
+        body: FlutterMap(
+          options: MapOptions(
+            backgroundColor: Colors.transparent,
+            maxZoom: 9,
+            initialZoom: 10, // Higher than maxZoom.
+            onTap: (_, __) {
+              taps++;
+            },
+          ),
+          children: [
+            Builder(
+              builder: (context) {
+                camera = MapCamera.of(context);
+                return const SizedBox.shrink();
+              },
+            )
+          ],
+        ),
+      ),
+    );
+
+    // Check that taps are still received.
+    await tester.pumpWidget(map);
+    expect(taps, 0);
+    await tester.tap(find.byType(FlutterMap));
+    await tester.pumpAndSettle(FlutterMapInteractiveViewerState.doubleTapDelay);
+    expect(taps, 1);
+
+    // Store the camera before pinch zooming.
+    final cameraBeforePinchZoom = camera;
+
+    // Create two touches.
+    final center = tester.getCenter(find.byType(FlutterMap));
+    final touch1 = await tester.startGesture(center.translate(-10, 0));
+    final touch2 = await tester.startGesture(center.translate(10, 0));
+
+    // Zoom in.
+    await touch1.moveBy(const Offset(-100, 0));
+    await touch2.moveBy(const Offset(100, 0));
+    await tester.pump();
+
+    // Check that the pinch zoom caused the camera to change.
+    expect(camera.zoom, isNot(cameraBeforePinchZoom.center));
   });
 
   testWidgets('MapCamera.of only notifies dependencies when camera changes',
