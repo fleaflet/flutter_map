@@ -39,6 +39,7 @@ class FlutterMapInteractiveViewerState
     extends State<FlutterMapInteractiveViewer> with TickerProviderStateMixin {
   static const int _kMinFlingVelocity = 800;
   static const _kDoubleTapZoomDuration = 200;
+  static const doubleTapDelay = Duration(milliseconds: 350);
 
   final _positionedTapController = PositionedTapController();
   final _gestureArenaTeam = GestureArenaTeam();
@@ -85,6 +86,7 @@ class FlutterMapInteractiveViewerState
   MapCamera get _camera => widget.controller.camera;
 
   MapOptions get _options => widget.controller.options;
+
   InteractionOptions get _interactionOptions => _options.interactionOptions;
 
   @override
@@ -766,8 +768,7 @@ class FlutterMapInteractiveViewerState
     _doubleTapHoldMaxDelay?.cancel();
 
     if (++_tapUpCounter == 1) {
-      _doubleTapHoldMaxDelay =
-          Timer(const Duration(milliseconds: 350), _resetDoubleTapHold);
+      _doubleTapHoldMaxDelay = Timer(doubleTapDelay, _resetDoubleTapHold);
     }
   }
 
