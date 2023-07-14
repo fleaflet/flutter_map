@@ -318,9 +318,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     if (widget.reset != null) {
       _resetSub = widget.reset?.listen(
-        (_) => _tileImageManager.removeAll(
-          widget.evictErrorTileStrategy,
-        ),
+        (_) {
+          _tileImageManager.removeAll(widget.evictErrorTileStrategy);
+          _loadAndPruneInVisibleBounds(MapCamera.of(context));
+        },
       );
     }
 
