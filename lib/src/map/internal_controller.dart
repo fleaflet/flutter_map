@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_map/plugin_api.dart';
@@ -27,6 +29,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
       _interactiveViewerState = interactiveViewerState;
 
   MapOptions get options => value.options;
+
   MapCamera get camera => value.camera;
 
   void linkMapController(MapControllerImpl mapControllerImpl) {
@@ -58,7 +61,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
       newCenter = camera.unproject(
         camera.rotatePoint(
           newPoint,
-          newPoint - CustomPoint(offset.dx, offset.dy),
+          newPoint - Point(offset.dx, offset.dy),
         ),
         newZoom,
       );
@@ -139,7 +142,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
   // defaults.
   MoveAndRotateResult rotateAroundPoint(
     double degree, {
-    required CustomPoint<double>? point,
+    required Point<double>? point,
     required Offset? offset,
     required bool hasGesture,
     required MapEventSource source,
@@ -172,7 +175,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     final rotationCenter = camera.project(camera.center) +
         (point != null
                 ? (point - (camera.nonRotatedSize / 2.0))
-                : CustomPoint(offset!.dx, offset.dy))
+                : Point(offset!.dx, offset.dy))
             .rotate(camera.rotationRad);
 
     return MoveAndRotateResult(
@@ -241,7 +244,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
   }
 
   bool setNonRotatedSizeWithoutEmittingEvent(
-    CustomPoint<double> nonRotatedSize,
+    Point<double> nonRotatedSize,
   ) {
     if (nonRotatedSize != MapCamera.kImpossibleSize &&
         nonRotatedSize != camera.nonRotatedSize) {
@@ -292,7 +295,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
   void dragUpdated(MapEventSource source, Offset offset) {
     final oldCenterPt = camera.project(camera.center);
 
-    final newCenterPt = oldCenterPt + offset.toCustomPoint();
+    final newCenterPt = oldCenterPt + offset.toPoint();
     final newCenter = camera.unproject(newCenterPt);
 
     move(

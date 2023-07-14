@@ -1,5 +1,6 @@
+import 'dart:math';
+
 import 'package:flutter_map/src/geo/crs.dart';
-import 'package:flutter_map/src/misc/point.dart';
 import 'package:latlong2/latlong.dart';
 
 class FakeInfiniteCrs extends Crs {
@@ -23,7 +24,7 @@ class FakeInfiniteCrs extends Crs {
 
   /// Any projection just to get non-zero coordiantes.
   @override
-  CustomPoint<double> latLngToPoint(LatLng latlng, double zoom) {
+  Point<double> latLngToPoint(LatLng latlng, double zoom) {
     return const Epsg3857().latLngToPoint(latlng, zoom);
   }
 }

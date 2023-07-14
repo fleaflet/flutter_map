@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_example/widgets/drawer.dart';
@@ -56,8 +58,8 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
     ];
 
     final epsg3413Bounds = Bounds<double>(
-      const CustomPoint<double>(-4511619, -4511336),
-      const CustomPoint<double>(4510883, 4510996),
+      const Point<double>(-4511619, -4511336),
+      const Point<double>(4510883, 4510996),
     );
 
     maxZoom = (resolutions.length - 1).toDouble();
@@ -76,9 +78,9 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
       bounds: epsg3413Bounds,
       // Tile origin, in projected coordinates, if set, this overrides the transformation option
       // Some goeserver changes origin based on zoom level
-      // and some are not at all (use explicit/implicit null or use [CustomPoint(0, 0)])
+      // and some are not at all (use explicit/implicit null or use [Point(0, 0)])
       // @see https://github.com/kartena/Proj4Leaflet/pull/171
-      origins: [const CustomPoint(0, 0)],
+      origins: [const Point(0, 0)],
       // Scale factors (pixels per projection unit, for example pixels/meter) for zoom levels;
       // specify either scales or resolutions, not both
       scales: null,

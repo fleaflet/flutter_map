@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:test/test.dart';
@@ -9,12 +11,12 @@ void main() {
         final tileRange1 = DiscreteTileRange.fromPixelBounds(
           zoom: 0,
           tileSize: 1,
-          pixelBounds: Bounds(const CustomPoint(1, 1), const CustomPoint(2, 2)),
+          pixelBounds: Bounds(const Point(1, 1), const Point(2, 2)),
         );
         final tileRange2 = DiscreteTileRange.fromPixelBounds(
           zoom: 0,
           tileSize: 1,
-          pixelBounds: Bounds(const CustomPoint(3, 3), const CustomPoint(4, 4)),
+          pixelBounds: Bounds(const Point(3, 3), const Point(4, 4)),
         );
         final emptyTileRange = tileRange1.intersect(tileRange2);
 
@@ -33,8 +35,8 @@ void main() {
             zoom: 0,
             tileSize: 10,
             pixelBounds: Bounds(
-              const CustomPoint(25.0, 25.0),
-              const CustomPoint(25.0, 25.0),
+              const Point(25.0, 25.0),
+              const Point(25.0, 25.0),
             ),
           );
 
@@ -47,8 +49,8 @@ void main() {
             zoom: 0,
             tileSize: 10,
             pixelBounds: Bounds(
-              const CustomPoint(0.0, 0.0),
-              const CustomPoint(0.1, 0.1),
+              const Point(0.0, 0.0),
+              const Point(0.1, 0.1),
             ),
           );
 
@@ -61,8 +63,8 @@ void main() {
             zoom: 0,
             tileSize: 10,
             pixelBounds: Bounds(
-              const CustomPoint(0.0, 0.0),
-              const CustomPoint(9.99, 9.99),
+              const Point(0.0, 0.0),
+              const Point(9.99, 9.99),
             ),
           );
 
@@ -75,8 +77,8 @@ void main() {
             zoom: 0,
             tileSize: 10,
             pixelBounds: Bounds(
-              const CustomPoint(19.99, 19.99),
-              const CustomPoint(30.1, 30.1),
+              const Point(19.99, 19.99),
+              const Point(30.1, 30.1),
             ),
           );
 
@@ -99,8 +101,8 @@ void main() {
           zoom: 0,
           tileSize: 10,
           pixelBounds: Bounds(
-            const CustomPoint(25.0, 25.0),
-            const CustomPoint(25.0, 25.0),
+            const Point(25.0, 25.0),
+            const Point(25.0, 25.0),
           ),
         );
 
@@ -126,8 +128,8 @@ void main() {
           zoom: 0,
           tileSize: 10,
           pixelBounds: Bounds(
-            const CustomPoint(25.0, 25.0),
-            const CustomPoint(25.0, 25.0),
+            const Point(25.0, 25.0),
+            const Point(25.0, 25.0),
           ),
         );
 
@@ -135,8 +137,8 @@ void main() {
           zoom: 0,
           tileSize: 10,
           pixelBounds: Bounds(
-            const CustomPoint(35.0, 35.0),
-            const CustomPoint(35.0, 35.0),
+            const Point(35.0, 35.0),
+            const Point(35.0, 35.0),
           ),
         );
 
@@ -152,8 +154,8 @@ void main() {
           zoom: 0,
           tileSize: 10,
           pixelBounds: Bounds(
-            const CustomPoint(25.0, 25.0),
-            const CustomPoint(35.0, 35.0),
+            const Point(25.0, 25.0),
+            const Point(35.0, 35.0),
           ),
         );
 
@@ -161,8 +163,8 @@ void main() {
           zoom: 0,
           tileSize: 10,
           pixelBounds: Bounds(
-            const CustomPoint(35.0, 35.0),
-            const CustomPoint(45.0, 45.0),
+            const Point(35.0, 35.0),
+            const Point(45.0, 45.0),
           ),
         );
 
@@ -180,8 +182,8 @@ void main() {
           zoom: 0,
           tileSize: 10,
           pixelBounds: Bounds(
-            const CustomPoint(25.0, 25.0),
-            const CustomPoint(35.0, 35.0),
+            const Point(25.0, 25.0),
+            const Point(35.0, 35.0),
           ),
         );
 
@@ -189,8 +191,8 @@ void main() {
           zoom: 0,
           tileSize: 10,
           pixelBounds: Bounds(
-            const CustomPoint(15.0, 15.0),
-            const CustomPoint(45.0, 45.0),
+            const Point(15.0, 15.0),
+            const Point(45.0, 45.0),
           ),
         );
 
@@ -209,13 +211,13 @@ void main() {
         zoom: 0,
         tileSize: 10,
         pixelBounds: Bounds(
-          const CustomPoint(35.0, 35.0),
-          const CustomPoint(45.0, 45.0),
+          const Point(35.0, 35.0),
+          const Point(45.0, 45.0),
         ),
       );
 
-      expect(tileRange.min, (const CustomPoint(3, 3)));
-      expect(tileRange.max, (const CustomPoint(4, 4)));
+      expect(tileRange.min, (const Point(3, 3)));
+      expect(tileRange.max, (const Point(4, 4)));
     });
 
     group('center', () {
@@ -224,12 +226,12 @@ void main() {
           zoom: 0,
           tileSize: 10,
           pixelBounds: Bounds(
-            const CustomPoint(35.0, 35.0),
-            const CustomPoint(35.0, 35.0),
+            const Point(35.0, 35.0),
+            const Point(35.0, 35.0),
           ),
         );
 
-        expect(tileRange.center, const CustomPoint(3, 3));
+        expect(tileRange.center, const Point(3, 3));
       });
 
       test('multiple tiles, even number of tiles', () {
@@ -237,12 +239,12 @@ void main() {
           zoom: 0,
           tileSize: 10,
           pixelBounds: Bounds(
-            const CustomPoint(35.0, 35.0),
-            const CustomPoint(45.0, 45.0),
+            const Point(35.0, 35.0),
+            const Point(45.0, 45.0),
           ),
         );
 
-        expect(tileRange.center, const CustomPoint(3.5, 3.5));
+        expect(tileRange.center, const Point(3.5, 3.5));
       });
 
       test('multiple tiles, odd number of tiles', () {
@@ -250,12 +252,12 @@ void main() {
           zoom: 0,
           tileSize: 10,
           pixelBounds: Bounds(
-            const CustomPoint(35.0, 35.0),
-            const CustomPoint(55.0, 55.0),
+            const Point(35.0, 35.0),
+            const Point(55.0, 55.0),
           ),
         );
 
-        expect(tileRange.center, const CustomPoint(4, 4));
+        expect(tileRange.center, const Point(4, 4));
       });
     });
 
@@ -264,20 +266,20 @@ void main() {
         zoom: 0,
         tileSize: 10,
         pixelBounds: Bounds(
-          const CustomPoint(35.0, 35.0),
-          const CustomPoint(35.0, 35.0),
+          const Point(35.0, 35.0),
+          const Point(35.0, 35.0),
         ),
       );
 
-      expect(tileRange.contains(const CustomPoint(2, 2)), isFalse);
-      expect(tileRange.contains(const CustomPoint(3, 2)), isFalse);
-      expect(tileRange.contains(const CustomPoint(4, 2)), isFalse);
-      expect(tileRange.contains(const CustomPoint(2, 3)), isFalse);
-      expect(tileRange.contains(const CustomPoint(3, 3)), isTrue);
-      expect(tileRange.contains(const CustomPoint(4, 3)), isFalse);
-      expect(tileRange.contains(const CustomPoint(2, 4)), isFalse);
-      expect(tileRange.contains(const CustomPoint(3, 4)), isFalse);
-      expect(tileRange.contains(const CustomPoint(4, 4)), isFalse);
+      expect(tileRange.contains(const Point(2, 2)), isFalse);
+      expect(tileRange.contains(const Point(3, 2)), isFalse);
+      expect(tileRange.contains(const Point(4, 2)), isFalse);
+      expect(tileRange.contains(const Point(2, 3)), isFalse);
+      expect(tileRange.contains(const Point(3, 3)), isTrue);
+      expect(tileRange.contains(const Point(4, 3)), isFalse);
+      expect(tileRange.contains(const Point(2, 4)), isFalse);
+      expect(tileRange.contains(const Point(3, 4)), isFalse);
+      expect(tileRange.contains(const Point(4, 4)), isFalse);
     });
   });
 }
