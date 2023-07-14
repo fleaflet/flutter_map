@@ -55,14 +55,7 @@ class _TileState extends State<Tile> {
   }
 
   Widget get _tileImage {
-    if (widget.tileImage.loadError && widget.tileImage.errorImage != null) {
-      return Image(
-        image: widget.tileImage.errorImage!,
-        opacity: widget.tileImage.opacity == 1
-            ? null
-            : AlwaysStoppedAnimation(widget.tileImage.opacity),
-      );
-    } else if (widget.tileImage.animation == null) {
+    if (widget.tileImage.animation == null) {
       return RawImage(
         image: widget.tileImage.imageInfo?.image,
         fit: BoxFit.fill,

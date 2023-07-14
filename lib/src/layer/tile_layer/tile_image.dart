@@ -19,7 +19,7 @@ class TileImage extends ChangeNotifier {
   /// indicate the position of the tile at that zoom level.
   final TileCoordinates coordinates;
 
-  /// Callback fired when loading finishes with or withut an error. This
+  /// Callback fired when loading finishes with or without an error. This
   /// callback is not triggered after this TileImage is disposed.
   final void Function(TileCoordinates coordinates) onLoadComplete;
 
@@ -32,13 +32,10 @@ class TileImage extends ChangeNotifier {
   /// Options for how the tile image is displayed.
   TileDisplay _tileDisplay;
 
-  /// An optional image to show when a loading error occurs.
-  final ImageProvider? errorImage;
-
   ImageProvider imageProvider;
 
   /// True if an error occurred during loading.
-  bool loadError = false;
+  bool _loadError = false;
 
   /// When loading started.
   DateTime? loadStarted;
@@ -57,7 +54,6 @@ class TileImage extends ChangeNotifier {
     required this.onLoadComplete,
     required this.onLoadError,
     required TileDisplay tileDisplay,
-    required this.errorImage,
   })  : _tileDisplay = tileDisplay,
         _animationController = tileDisplay.when(
           instantaneous: (_) => null,
@@ -66,6 +62,8 @@ class TileImage extends ChangeNotifier {
             duration: fadeIn.duration,
           ),
         );
+
+  bool get loadError => _loadError;
 
   double get opacity => _tileDisplay.when(
         instantaneous: (instantaneous) =>
@@ -99,6 +97,9 @@ class TileImage extends ChangeNotifier {
     oldTileDisplay.when(
       instantaneous: (instantaneous) {
         newTileDisplay.when(
+          instantaneous: (instantaneous) {
+            // There was and is no animation.
+          },
           fadeIn: (fadeIn) {
             // Became animated.
             _animationController = AnimationController(
@@ -148,7 +149,7 @@ class TileImage extends ChangeNotifier {
   }
 
   void _onImageLoadSuccess(ImageInfo imageInfo, bool synchronousCall) {
-    loadError = false;
+    _loadError = false;
     this.imageInfo = imageInfo;
 
     if (!_disposed) {
@@ -158,10 +159,9 @@ class TileImage extends ChangeNotifier {
   }
 
   void _onImageLoadError(Object exception, StackTrace? stackTrace) {
-    loadError = true;
+    _loadError = true;
 
     if (!_disposed) {
-      if (errorImage != null) _display();
       onLoadError(this, exception, stackTrace);
       onLoadComplete(coordinates);
     }
@@ -173,17 +173,6 @@ class TileImage extends ChangeNotifier {
   void _display() {
     final previouslyLoaded = loadFinishedAt != null;
     loadFinishedAt = DateTime.now();
-
-    if (loadError) {
-      assert(
-        errorImage != null,
-        'A TileImage should not be displayed if loading errors and there is no '
-        'errorImage to show.',
-      );
-      _readyToDisplay = true;
-      if (!_disposed) notifyListeners();
-      return;
-    }
 
     _tileDisplay.when(
       instantaneous: (_) {

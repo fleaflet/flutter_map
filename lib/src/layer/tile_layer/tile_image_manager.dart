@@ -114,8 +114,9 @@ class TileImageManager {
 
   void reloadImages(
     TileLayer layer,
-    TileBounds tileBounds,
-  ) {
+    TileBounds tileBounds, {
+    bool Function(TileImage tileImage)? test,
+  }) {
     // If a TileImage's imageInfo is already available when load() is called it
     // will call its onLoadComplete callback synchronously which can trigger
     // pruning. Since pruning may cause removals from _tiles we must not
@@ -125,6 +126,8 @@ class TileImageManager {
     final tilesToReload = List<TileImage>.from(_tiles.values);
 
     for (final tile in tilesToReload) {
+      if (test?.call(tile) == false) continue;
+
       tile.imageProvider = layer.tileProvider.getImage(
         tileBounds.atZoom(tile.coordinates.z).wrap(tile.coordinates),
         layer,

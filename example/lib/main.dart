@@ -25,7 +25,7 @@ import 'package:flutter_map_example/pages/secondary_tap.dart';
 import 'package:flutter_map_example/pages/sliding_map.dart';
 import 'package:flutter_map_example/pages/stateful_markers.dart';
 import 'package:flutter_map_example/pages/tile_builder_example.dart';
-import 'package:flutter_map_example/pages/tile_loading_error_handle.dart';
+import 'package:flutter_map_example/pages/tile_error_handling.dart';
 import 'package:flutter_map_example/pages/wms_tile_layer.dart';
 import 'package:url_strategy/url_strategy.dart';
 
@@ -62,8 +62,7 @@ class MyApp extends StatelessWidget {
         SlidingMapPage.route: (_) => const SlidingMapPage(),
         WMSLayerPage.route: (context) => const WMSLayerPage(),
         CustomCrsPage.route: (context) => const CustomCrsPage(),
-        TileLoadingErrorHandle.route: (context) =>
-            const TileLoadingErrorHandle(),
+        TileErrorHandling.route: (context) => const TileErrorHandling(),
         TileBuilderPage.route: (context) => const TileBuilderPage(),
         InteractiveTestPage.route: (context) => const InteractiveTestPage(),
         ManyMarkersPage.route: (context) => const ManyMarkersPage(),

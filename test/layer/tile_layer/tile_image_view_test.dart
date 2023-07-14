@@ -173,18 +173,20 @@ class MockTileImage extends TileImage {
   @override
   final bool readyToDisplay;
 
+  @override
+  final bool loadError;
+
   MockTileImage(
     int x,
     int y,
     int zoom, {
     this.readyToDisplay = true,
     bool loadFinished = true,
-    bool loadError = false,
+    this.loadError = false,
     void Function(TileCoordinates coordinates)? onLoadComplete,
     void Function(TileImage tile, Object error, StackTrace? stackTrace)?
         onLoadError,
     TileDisplay? tileDisplay,
-    super.errorImage,
   }) : super(
           coordinates: TileCoordinates(x, y, zoom),
           vsync: const MockTickerProvider(),
@@ -194,7 +196,6 @@ class MockTileImage extends TileImage {
           tileDisplay: const TileDisplay.instantaneous(),
         ) {
     loadFinishedAt = loadFinished ? DateTime.now() : null;
-    this.loadError = loadError;
   }
 }
 

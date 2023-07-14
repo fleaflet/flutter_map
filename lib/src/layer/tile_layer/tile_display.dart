@@ -45,14 +45,14 @@ sealed class TileDisplay {
   }) = FadeInTileDisplay._;
 
   /// Output a value of type [T] dependent on [this] and its type
-  T? when<T>({
-    T? Function(InstantaneousTileDisplay instantaneous)? instantaneous,
-    T? Function(FadeInTileDisplay fadeIn)? fadeIn,
+  T when<T>({
+    required T Function(InstantaneousTileDisplay instantaneous) instantaneous,
+    required T Function(FadeInTileDisplay fadeIn) fadeIn,
   }) {
     final display = this;
     return switch (display) {
-      InstantaneousTileDisplay() => instantaneous?.call(display),
-      FadeInTileDisplay() => fadeIn?.call(display),
+      InstantaneousTileDisplay() => instantaneous(display),
+      FadeInTileDisplay() => fadeIn(display),
     };
   }
 }

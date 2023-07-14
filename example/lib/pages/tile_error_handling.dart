@@ -6,25 +6,61 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
 
-class TileLoadingErrorHandle extends StatefulWidget {
-  static const String route = '/tile_loading_error_handle';
+class TileErrorHandling extends StatefulWidget {
+  static const String route = '/tile_error_handling';
 
-  const TileLoadingErrorHandle({Key? key}) : super(key: key);
+  const TileErrorHandling({Key? key}) : super(key: key);
 
   @override
-  _TileLoadingErrorHandleState createState() => _TileLoadingErrorHandleState();
+  _TileErrorHandlingState createState() => _TileErrorHandlingState();
 }
 
-class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
+class _TileErrorHandlingState extends State<TileErrorHandling> {
   static const _showSnackBarDuration = Duration(seconds: 1);
+  static final _placeholderImage = TilePlaceholderImage.generate();
+
+  late final TileLayerController _tileLayerController;
+
   bool _simulateTileLoadErrors = false;
   DateTime? _lastShowedTileLoadError;
 
   @override
+  void initState() {
+    super.initState();
+    _tileLayerController = TileLayerController();
+  }
+
+  @override
+  void dispose() {
+    _tileLayerController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Tile Loading Error Handle')),
-      drawer: buildDrawer(context, TileLoadingErrorHandle.route),
+      appBar: AppBar(
+        title: const Text('Tile Error Handling'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.info),
+            onPressed: () {
+              showDialog<void>(
+                context: context,
+                builder: (context) => const AlertDialog(
+                  title: Text('Tile Error Handling'),
+                  content: Text(
+                    'To trigger tile loading errors enable tile loading error '
+                    'simulation or disable internet access and try to move the '
+                    'map.',
+                  ),
+                ),
+              );
+            },
+          )
+        ],
+      ),
+      drawer: buildDrawer(context, TileErrorHandling.route),
       body: Padding(
         padding: const EdgeInsets.all(8),
         child: Column(
@@ -36,11 +72,11 @@ class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
                 _simulateTileLoadErrors = newValue;
               }),
             ),
-            const Padding(
-              padding: EdgeInsets.only(top: 8, bottom: 8),
-              child: Text(
-                  'Enable tile load error simulation or disable internet and try to move or zoom map.'),
+            ElevatedButton(
+              onPressed: () => _tileLayerController.reloadErrorTiles(),
+              child: const Text('Reload error tiles'),
             ),
+            const SizedBox(height: 12),
             Flexible(
               child: Builder(builder: (BuildContext context) {
                 return FlutterMap(
@@ -50,6 +86,8 @@ class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
                   ),
                   children: [
                     TileLayer(
+                      controller: _tileLayerController,
+                      placeholderImage: _placeholderImage,
                       urlTemplate:
                           'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                       userAgentPackageName: 'dev.fleaflet.flutter_map.example',

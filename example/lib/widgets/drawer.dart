@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_map_example/pages/animated_map_controller.dart';
 import 'package:flutter_map_example/pages/circle.dart';
 import 'package:flutter_map_example/pages/custom_crs/custom_crs.dart';
@@ -26,7 +25,7 @@ import 'package:flutter_map_example/pages/secondary_tap.dart';
 import 'package:flutter_map_example/pages/sliding_map.dart';
 import 'package:flutter_map_example/pages/stateful_markers.dart';
 import 'package:flutter_map_example/pages/tile_builder_example.dart';
-import 'package:flutter_map_example/pages/tile_loading_error_handle.dart';
+import 'package:flutter_map_example/pages/tile_error_handling.dart';
 import 'package:flutter_map_example/pages/wms_tile_layer.dart';
 
 Widget _buildMenuItem(
@@ -228,8 +227,8 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
         const Divider(),
         _buildMenuItem(
           context,
-          const Text('Custom Tile Error Handling'),
-          TileLoadingErrorHandle.route,
+          const Text('Tile Error Handling'),
+          TileErrorHandling.route,
           currentRoute,
         ),
         _buildMenuItem(

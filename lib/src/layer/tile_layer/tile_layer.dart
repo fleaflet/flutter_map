@@ -5,10 +5,12 @@ import 'dart:math' show Point;
 import 'package:collection/collection.dart' show MapEquality;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/src/layer/tile_layer/controller/tile_layer_controller.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image_manager.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_placeholder.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
@@ -25,6 +27,9 @@ part 'tile_layer_options.dart';
 /// avoid issues.
 @immutable
 class TileLayer extends StatefulWidget {
+  /// An optional controller for controlling this layer.
+  final TileLayerController? controller;
+
   /// Defines the structure to create the URLs for the tiles. `{s}` means one of
   /// the available subdomains (can be omitted) `{z}` zoom level `{x}` and `{y}`
   /// — tile coordinates `{r}` can be used to add "&commat;2x" to the URL to
@@ -153,8 +158,9 @@ class TileLayer extends StatefulWidget {
   /// or one.
   final int panBuffer;
 
-  /// Tile image to show in place of the tile that failed to load.
-  final ImageProvider? errorImage;
+  /// Tile image to show in place of a tile that has not yet loaded or fails to
+  /// load.
+  final ImageProvider? placeholderImage;
 
   /// Static information that should replace placeholders in the [urlTemplate].
   /// Applying API keys is a good example on how to use this parameter.
@@ -225,6 +231,7 @@ class TileLayer extends StatefulWidget {
 
   TileLayer({
     super.key,
+    this.controller,
     this.urlTemplate,
     this.fallbackUrl,
     double tileSize = 256.0,
@@ -239,7 +246,15 @@ class TileLayer extends StatefulWidget {
     this.keepBuffer = 2,
     this.panBuffer = 0,
     this.backgroundColor,
-    this.errorImage,
+    @Deprecated(
+      'Prefer `placeholderImage` instead. '
+      'This option is now replaced by `placeholderImage` and the behaviour has '
+      'changed to show the placeholder both when tile loading errors and when '
+      'a tile is yet to load. '
+      'This option is deprecated since v6.',
+    )
+    ImageProvider? errorImage,
+    ImageProvider? placeholderImage,
     final TileProvider? tileProvider,
     this.tms = false,
     this.wmsOptions,
@@ -254,10 +269,13 @@ class TileLayer extends StatefulWidget {
     TileUpdateTransformer? tileUpdateTransformer,
     String userAgentPackageName = 'unknown',
   })  : assert(
-            tileDisplay.when(
-                instantaneous: (_) => true,
-                fadeIn: (fadeIn) => fadeIn.duration > Duration.zero)!,
-            'The tile fade in duration needs to be bigger than zero'),
+          tileDisplay.when(
+            instantaneous: (_) => true,
+            fadeIn: (fadeIn) => fadeIn.duration > Duration.zero,
+          )!,
+          'The tile fade in duration needs to be bigger than zero',
+        ),
+        placeholderImage = errorImage ?? placeholderImage,
         maxZoom =
             wmsOptions == null && retinaMode && maxZoom > 0.0 && !zoomReverse
                 ? maxZoom - 1.0
@@ -306,10 +324,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   // miss events.
   int? _mapControllerHashCode;
 
-  // Only one of these two subscriptions will be initialized. If
-  // TileLayer.tileUpdateTransformer is null then we subscribe to map movement
-  // otherwise we subscribe to tile update events which are transformed from
-  // map movements.
+  StreamSubscription<void>? _tileLayerControllerSubscription;
   StreamSubscription<TileUpdateEvent>? _tileUpdateSubscription;
 
   StreamSubscription<void>? _resetSub;
@@ -318,6 +333,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+
+    _listenToTileLayerController();
 
     if (widget.reset != null) {
       _resetSub = widget.reset?.listen(
@@ -383,6 +400,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     // There is no caching in TileRangeCalculator so we can just replace it.
     _tileRangeCalculator = TileRangeCalculator(tileSize: widget.tileSize);
 
+    if (oldWidget.controller != widget.controller) {
+      _listenToTileLayerController();
+    }
+
     if (_tileBounds.shouldReplace(
         _tileBounds.crs, widget.tileSize, widget.tileBounds)) {
       _tileBounds = TileBounds(
@@ -434,8 +455,21 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     }
   }
 
+  void _listenToTileLayerController() {
+    _tileLayerControllerSubscription?.cancel();
+    _tileLayerControllerSubscription =
+        (widget.controller as TileLayerControllerImpl?)?.stream.listen((_) {
+      _tileImageManager.reloadImages(
+        widget,
+        _tileBounds,
+        test: (tileImage) => tileImage.loadError,
+      );
+    });
+  }
+
   @override
   void dispose() {
+    _tileLayerControllerSubscription?.cancel();
     _tileUpdateSubscription?.cancel();
     _tileImageManager.removeAll(widget.evictErrorTileStrategy);
     _resetSub?.cancel();
@@ -486,22 +520,33 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     return _addBackgroundColor(
       Stack(
         children: [
-          ..._tileImageManager
-              .inRenderOrder(widget.maxZoom, tileZoom)
-              .map((tileImage) {
-            return Tile(
-              // Must be an ObjectKey, not a ValueKey using the coordinates, in
-              // case we remove and replace the TileImage with a different one.
-              key: ObjectKey(tileImage),
-              scaledTileSize: _tileScaleCalculator.scaledTileSize(
-                map.zoom,
-                tileImage.coordinates.z,
+          if (widget.placeholderImage != null)
+            ...visibleTileRange.coordinates.map(
+              (tileCoordinates) => TilePlaceholder(
+                key: ValueKey('placeholder-${tileCoordinates.key}'),
+                tileCoordinates: tileCoordinates,
+                scaledTileSize: _tileScaleCalculator.scaledTileSize(
+                  map.zoom,
+                  tileZoom,
+                ),
+                currentPixelOrigin: currentPixelOrigin,
+                placeholderImage: widget.placeholderImage!,
               ),
-              currentPixelOrigin: currentPixelOrigin,
-              tileImage: tileImage,
-              tileBuilder: widget.tileBuilder,
-            );
-          }),
+            ),
+          ..._tileImageManager.inRenderOrder(widget.maxZoom, tileZoom).map(
+                (tileImage) => Tile(
+                  // Must be an ObjectKey, not a ValueKey using the coordinates, in
+                  // case we remove and replace the TileImage with a different one.
+                  key: ObjectKey(tileImage),
+                  scaledTileSize: _tileScaleCalculator.scaledTileSize(
+                    map.zoom,
+                    tileImage.coordinates.z,
+                  ),
+                  currentPixelOrigin: currentPixelOrigin,
+                  tileImage: tileImage,
+                  tileBuilder: widget.tileBuilder,
+                ),
+              ),
         ],
       ),
     );
@@ -532,7 +577,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         if (pruneAfterLoad) _pruneIfAllTilesLoaded(coordinates);
       },
       tileDisplay: widget.tileDisplay,
-      errorImage: widget.errorImage,
     );
   }
 
