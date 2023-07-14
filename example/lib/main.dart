@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map_example/pages/animated_map_controller.dart';
 import 'package:flutter_map_example/pages/circle.dart';
 import 'package:flutter_map_example/pages/custom_crs/custom_crs.dart';
 import 'package:flutter_map_example/pages/epsg3413_crs.dart';
@@ -49,8 +48,6 @@ class MyApp extends StatelessWidget {
       routes: <String, WidgetBuilder>{
         PolylinePage.route: (context) => const PolylinePage(),
         MapControllerPage.route: (context) => const MapControllerPage(),
-        AnimatedMapControllerPage.route: (context) =>
-            const AnimatedMapControllerPage(),
         MarkerPage.route: (context) => const MarkerPage(),
         PluginScaleBar.route: (context) => const PluginScaleBar(),
         PluginZoomButtons.route: (context) => const PluginZoomButtons(),
