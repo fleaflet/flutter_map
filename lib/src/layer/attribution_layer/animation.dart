@@ -179,6 +179,9 @@ class FadeRAWA implements RichAttributionWidgetAnimation {
         opacity: isExpanded ? 1 : 0,
         curve: isExpanded ? popupCurveOut : popupCurveIn,
         duration: buttonDuration,
-        child: child,
+        child: IgnorePointer(
+          ignoring: !isExpanded,
+          child: child,
+        ),
       );
 }
