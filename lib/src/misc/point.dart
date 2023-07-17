@@ -79,6 +79,8 @@ class CustomPoint<T extends num> extends math.Point<T> {
   CustomPoint<double> toDoublePoint() =>
       CustomPoint<double>(x.toDouble(), y.toDouble());
 
+  Offset toOffset() => Offset(x.toDouble(), y.toDouble());
+
   @override
   String toString() => 'CustomPoint ($x, $y)';
 }
