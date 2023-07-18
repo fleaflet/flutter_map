@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'dart:math' as math;
-import 'dart:math';
+import 'dart:math' as math hide Point;
+import 'dart:math' show Point;
 
 import 'package:collection/collection.dart' show MapEquality;
 import 'package:flutter/material.dart';

@@ -1,5 +1,5 @@
-import 'dart:math' as math;
-import 'dart:math';
+import 'dart:math' as math hide Point;
+import 'dart:math' show Point;
 
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';

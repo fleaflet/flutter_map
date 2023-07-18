@@ -1,5 +1,5 @@
-import 'dart:math' as math;
-import 'dart:math';
+import 'dart:math' as math hide Point;
+import 'dart:math' show Point;
 
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';

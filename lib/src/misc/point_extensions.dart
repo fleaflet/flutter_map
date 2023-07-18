@@ -118,7 +118,7 @@ extension IntegerPointExtension on Point<int> {
 extension OffsetToPointExtension on Offset {
   @Deprecated(
     'Prefer `toPoint()`. '
-    'This method has been renamed as a result of CustomPoint\'s removal. '
+    "This method has been renamed as a result of CustomPoint's removal. "
     'This method is deprecated since v6.',
   )
   Point<double> toCustomPoint() => toPoint();

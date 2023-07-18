@@ -1,5 +1,5 @@
-import 'dart:math' as math;
-import 'dart:math';
+import 'dart:math' as math hide Point;
+import 'dart:math' show Point;
 
 /// Rectangular bound delimited by orthogonal lines passing through two
 /// points.
