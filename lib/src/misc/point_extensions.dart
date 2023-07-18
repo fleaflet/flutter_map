@@ -56,6 +56,8 @@ extension PointExtension<T extends num> on Point<T> {
   Point<int> toIntPoint() => Point<int>(x.toInt(), y.toInt());
 
   Point<double> toDoublePoint() => Point<double>(x.toDouble(), y.toDouble());
+
+  Offset toOffset() => Offset(x.toDouble(), y.toDouble());
 }
 
 /// This extension contains methods which, if defined on Point<T extends num>,
