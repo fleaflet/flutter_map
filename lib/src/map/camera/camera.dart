@@ -249,10 +249,8 @@ class MapCamera {
       crs.getProjectedBounds(zoom ?? this.zoom);
 
   /// Calculates the [Offset] from the [pos] to this camera's [pixelOrigin].
-  Offset getOffsetFromOrigin(LatLng pos) {
-    final delta = project(pos).subtract(pixelOrigin);
-    return Offset(delta.x, delta.y);
-  }
+  Offset getOffsetFromOrigin(LatLng pos) =>
+      project(pos).subtract(pixelOrigin).toOffset();
 
   /// Calculates the pixel origin of this [MapCamera] at the given
   /// [center]/[zoom].
@@ -325,7 +323,7 @@ class MapCamera {
       ..rotateZ(rotationRad * counterRotationFactor)
       ..translate(-mapCenter.x, -mapCenter.y);
 
-    final tp = MatrixUtils.transformPoint(m, Offset(point.x, point.y));
+    final tp = MatrixUtils.transformPoint(m, point.toOffset());
 
     return Point(tp.dx, tp.dy);
   }
