@@ -462,13 +462,15 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     // visible until the next build. Therefore, in case this build is executed
     // before the loading/updating, we must pre-create the missing TileImages
     // and add them to the widget tree so that when they are loaded they notify
-    // the Tile and become visible.
+    // the Tile and become visible. We don't need to prune here as any new tiles
+    // will be pruned when the map event triggers tile loading.
     _tileImageManager.createMissingTiles(
       visibleTileRange,
       tileBoundsAtZoom,
-      createTileImage: (coordinate) => _createTileImage(
-        coordinate,
-        tileBoundsAtZoom,
+      createTileImage: (coordinates) => _createTileImage(
+        coordinates: coordinates,
+        tileBoundsAtZoom: tileBoundsAtZoom,
+        pruneAfterLoad: false,
       ),
     );
 
@@ -511,10 +513,11 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     return color == null ? child : ColoredBox(color: color, child: child);
   }
 
-  TileImage _createTileImage(
-    TileCoordinates coordinates,
-    TileBoundsAtZoom tileBoundsAtZoom,
-  ) {
+  TileImage _createTileImage({
+    required TileCoordinates coordinates,
+    required TileBoundsAtZoom tileBoundsAtZoom,
+    required bool pruneAfterLoad,
+  }) {
     return TileImage(
       vsync: this,
       coordinates: coordinates,
@@ -523,7 +526,9 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         widget,
       ),
       onLoadError: _onTileLoadError,
-      onLoadComplete: _onTileLoadComplete,
+      onLoadComplete: (coordinates) {
+        if (pruneAfterLoad) _pruneIfAllTilesLoaded(coordinates);
+      },
       tileDisplay: widget.tileDisplay,
       errorImage: widget.errorImage,
     );
@@ -540,8 +545,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       viewingZoom: event.zoom,
     );
 
-    if (event.load) {
-      if (!_outsideZoomLimits(tileZoom)) _loadTiles(visibleTileRange);
+    if (event.load && !_outsideZoomLimits(tileZoom)) {
+      _loadTiles(visibleTileRange, pruneAfterLoad: event.prune);
     }
 
     if (event.prune) {
@@ -561,7 +566,12 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       tileZoom: tileZoom,
     );
 
-    if (!_outsideZoomLimits(tileZoom)) _loadTiles(visibleTileRange);
+    if (!_outsideZoomLimits(tileZoom)) {
+      _loadTiles(
+        visibleTileRange,
+        pruneAfterLoad: true,
+      );
+    }
 
     _tileImageManager.evictAndPrune(
       visibleRange: visibleTileRange,
@@ -581,7 +591,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   // Additionally, any current TileImages outside of the [tileLoadRange],
   // expanded by the [TileLayer.panBuffer] + [TileLayer.keepBuffer], are marked
   // as not current.
-  void _loadTiles(DiscreteTileRange tileLoadRange) {
+  void _loadTiles(
+    DiscreteTileRange tileLoadRange, {
+    required bool pruneAfterLoad,
+  }) {
     final tileZoom = tileLoadRange.zoom;
     tileLoadRange = tileLoadRange.expand(widget.panBuffer);
 
@@ -589,9 +602,13 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     // in the tileLoadRange as current.
     final tileBoundsAtZoom = _tileBounds.atZoom(tileZoom);
     final tilesToLoad = _tileImageManager.createMissingTilesIn(
-        tileBoundsAtZoom.validCoordinatesIn(tileLoadRange),
-        createTile: (coordinates) =>
-            _createTileImage(coordinates, tileBoundsAtZoom));
+      tileBoundsAtZoom.validCoordinatesIn(tileLoadRange),
+      createTile: (coordinates) => _createTileImage(
+        coordinates: coordinates,
+        tileBoundsAtZoom: tileBoundsAtZoom,
+        pruneAfterLoad: pruneAfterLoad,
+      ),
+    );
 
     // Re-order the tiles by their distance to the center of the range.
     final tileCenter = tileLoadRange.center;
@@ -627,8 +644,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     widget.errorTileCallback?.call(tile, error, stackTrace);
   }
 
-  // This is called whether the tile loads successfully or with an error.
-  void _onTileLoadComplete(TileCoordinates coordinates) {
+  void _pruneIfAllTilesLoaded(TileCoordinates coordinates) {
     if (!_tileImageManager.containsTileAt(coordinates) ||
         !_tileImageManager.allLoaded) {
       return;
