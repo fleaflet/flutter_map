@@ -545,9 +545,11 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     }
 
     if (event.prune) {
-      _tileImageManager.evictErrorTiles(
-          visibleTileRange, widget.evictErrorTileStrategy);
-      _tileImageManager.prune(widget.evictErrorTileStrategy);
+      _tileImageManager.evictAndPrune(
+        visibleRange: visibleTileRange,
+        pruneBuffer: widget.panBuffer + widget.keepBuffer,
+        evictStrategy: widget.evictErrorTileStrategy,
+      );
     }
   }
 
@@ -561,9 +563,11 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     if (!_outsideZoomLimits(tileZoom)) _loadTiles(visibleTileRange);
 
-    _tileImageManager.evictErrorTiles(
-        visibleTileRange, widget.evictErrorTileStrategy);
-    _tileImageManager.prune(widget.evictErrorTileStrategy);
+    _tileImageManager.evictAndPrune(
+      visibleRange: visibleTileRange,
+      pruneBuffer: widget.panBuffer + widget.keepBuffer,
+      evictStrategy: widget.evictErrorTileStrategy,
+    );
   }
 
   // For all valid TileCoordinates in the [tileLoadRange], expanded by the
@@ -581,16 +585,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     final tileZoom = tileLoadRange.zoom;
     tileLoadRange = tileLoadRange.expand(widget.panBuffer);
 
-    // Mark tiles outside of the tile load range as no longer current.
-    _tileImageManager.markAsNoLongerCurrentOutside(
-      tileZoom,
-      tileLoadRange.expand(widget.keepBuffer),
-    );
-
     // Build the queue of tiles to load. Marks all tiles with valid coordinates
     // in the tileLoadRange as current.
     final tileBoundsAtZoom = _tileBounds.atZoom(tileZoom);
-    final tilesToLoad = _tileImageManager.setCurrentAndReturnNotLoadedTiles(
+    final tilesToLoad = _tileImageManager.createMissingTilesIn(
         tileBoundsAtZoom.validCoordinatesIn(tileLoadRange),
         createTile: (coordinates) =>
             _createTileImage(coordinates, tileBoundsAtZoom));
@@ -637,16 +635,31 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     }
 
     widget.tileDisplay.when(instantaneous: (_) {
-      _tileImageManager.prune(widget.evictErrorTileStrategy);
+      _pruneWithCurrentCamera();
     }, fadeIn: (fadeIn) {
       // Wait a bit more than tileFadeInDuration to trigger a pruning so that
       // we don't see tile removal under a fading tile.
       _pruneLater?.cancel();
       _pruneLater = Timer(
         fadeIn.duration + const Duration(milliseconds: 50),
-        () => _tileImageManager.prune(widget.evictErrorTileStrategy),
+        () => _pruneWithCurrentCamera(),
       );
     });
+  }
+
+  void _pruneWithCurrentCamera() {
+    final camera = MapCamera.of(context);
+    final visibleTileRange = _tileRangeCalculator.calculate(
+      camera: camera,
+      tileZoom: _clampToNativeZoom(camera.zoom),
+      center: camera.center,
+      viewingZoom: camera.zoom,
+    );
+    _tileImageManager.prune(
+      visibleRange: visibleTileRange,
+      pruneBuffer: widget.panBuffer + widget.keepBuffer,
+      evictStrategy: widget.evictErrorTileStrategy,
+    );
   }
 
   bool _outsideZoomLimits(num zoom) =>

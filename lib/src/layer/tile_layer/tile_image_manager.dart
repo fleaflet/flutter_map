@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:collection/collection.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
@@ -8,6 +6,7 @@ import 'package:flutter_map/src/layer/tile_layer/tile_display.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_removal_state.dart';
 
 typedef TileCreator = TileImage Function(TileCoordinates coordinates);
 
@@ -58,11 +57,9 @@ class TileImageManager {
     return true;
   }
 
-  // For all of the tile coordinates:
-  //   * A TileImage is created if missing (current = true in new TileImages)
-  //   * If it exists current is set to true
-  //   * Of these tiles, those which have not started loading yet are returned.
-  List<TileImage> setCurrentAndReturnNotLoadedTiles(
+  /// Creates and returns [TileImage]s which do not already exist with the given
+  /// [tileCoordinates].
+  List<TileImage> createMissingTilesIn(
     Iterable<TileCoordinates> tileCoordinates, {
     required TileCreator createTile,
   }) {
@@ -74,7 +71,6 @@ class TileImageManager {
         () => createTile(coordinates),
       );
 
-      tile.current = true;
       if (tile.loadStarted == null) notLoaded.add(tile);
     }
 
@@ -137,127 +133,49 @@ class TileImageManager {
     }
   }
 
-  void markAsNoLongerCurrentOutside(
-      int currentTileZoom, DiscreteTileRange noPruneRange) {
-    for (final entry in _tiles.entries) {
-      final tile = entry.value;
-      final c = tile.coordinates;
+  void evictAndPrune({
+    required DiscreteTileRange visibleRange,
+    required int pruneBuffer,
+    required EvictErrorTileStrategy evictStrategy,
+  }) {
+    final pruningState = TileRemovalState(
+      tileImages: _tiles.values.toSet(),
+      visibleRange: visibleRange,
+      keepRange: visibleRange.expand(pruneBuffer),
+      evictStrategy: evictStrategy,
+    );
 
-      if (tile.current &&
-          (c.z != currentTileZoom || !noPruneRange.contains(Point(c.x, c.y)))) {
-        tile.current = false;
-      }
+    _evictErrorTiles(pruningState);
+    _prune(pruningState);
+  }
+
+  void _evictErrorTiles(TileRemovalState tileRemovalState) {
+    for (final tileImage in tileRemovalState.errorTilesToEvict()) {
+      _remove(tileImage.coordinatesKey, evictImageFromCache: (_) => true);
     }
   }
 
-  // Evicts error tiles depending on the [evictStrategy].
-  void evictErrorTiles(
-    DiscreteTileRange tileRange,
-    EvictErrorTileStrategy evictStrategy,
-  ) {
-    if (evictStrategy == EvictErrorTileStrategy.notVisibleRespectMargin) {
-      final toRemove = <String>[];
-      for (final entry in _tiles.entries) {
-        final tile = entry.value;
-
-        if (tile.loadError && !tile.current) {
-          toRemove.add(entry.key);
-        }
-      }
-
-      for (final key in toRemove) {
-        _remove(key, evictImageFromCache: (_) => true);
-      }
-    } else if (evictStrategy == EvictErrorTileStrategy.notVisible) {
-      final toRemove = <String>[];
-      for (final entry in _tiles.entries) {
-        final tile = entry.value;
-        final c = tile.coordinates;
-
-        if (tile.loadError &&
-            (!tile.current || !tileRange.contains(Point(c.x, c.y)))) {
-          toRemove.add(entry.key);
-        }
-      }
-
-      for (final key in toRemove) {
-        _remove(key, evictImageFromCache: (_) => true);
-      }
-    }
+  void prune({
+    required DiscreteTileRange visibleRange,
+    required int pruneBuffer,
+    required EvictErrorTileStrategy evictStrategy,
+  }) {
+    _prune(
+      TileRemovalState(
+        tileImages: _tiles.values.toSet(),
+        visibleRange: visibleRange,
+        keepRange: visibleRange.expand(pruneBuffer),
+        evictStrategy: evictStrategy,
+      ),
+    );
   }
 
-  void prune(EvictErrorTileStrategy evictStrategy) {
-    for (final tile in _tiles.values) {
-      tile.retain = tile.current;
+  void _prune(TileRemovalState tileRemovalState) {
+    for (final tileImage in tileRemovalState.tilesToPrune()) {
+      _removeWithDefaultEviction(
+        tileImage.coordinatesKey,
+        tileRemovalState.evictStrategy,
+      );
     }
-
-    for (final tile in _tiles.values) {
-      if (tile.current && !tile.active) {
-        final coords = tile.coordinates;
-        if (!_retainAncestor(coords.x, coords.y, coords.z, coords.z - 5)) {
-          _retainChildren(coords.x, coords.y, coords.z, coords.z + 2);
-        }
-      }
-    }
-
-    final toRemove = <String>[];
-    for (final entry in _tiles.entries) {
-      if (!entry.value.retain) toRemove.add(entry.key);
-    }
-
-    for (final key in toRemove) {
-      _removeWithDefaultEviction(key, evictStrategy);
-    }
-  }
-
-  // Recurses through the descendants of the Tile at the given coordinates
-  // setting their [Tile.retain] to true if they are active or loaded. Returns
-  /// true if any of the descendant tiles were retained.
-  void _retainChildren(int x, int y, int z, int maxZoom) {
-    for (var i = 2 * x; i < 2 * x + 2; i++) {
-      for (var j = 2 * y; j < 2 * y + 2; j++) {
-        final coords = TileCoordinates(i, j, z + 1);
-
-        final tile = _tiles[coords.key];
-        if (tile != null) {
-          if (tile.active) {
-            tile.retain = true;
-            continue;
-          } else if (tile.loadFinishedAt != null) {
-            tile.retain = true;
-          }
-        }
-
-        if (z + 1 < maxZoom) {
-          _retainChildren(i, j, z + 1, maxZoom);
-        }
-      }
-    }
-  }
-
-  // Recurses through the ancestors of the Tile at the given coordinates setting
-  // their [Tile.retain] to true if they are active or loaded. Returns true if
-  // any of the ancestor tiles were active.
-  bool _retainAncestor(int x, int y, int z, int minZoom) {
-    final x2 = (x / 2).floor();
-    final y2 = (y / 2).floor();
-    final z2 = z - 1;
-    final coords2 = TileCoordinates(x2, y2, z2);
-
-    final tile = _tiles[coords2.key];
-    if (tile != null) {
-      if (tile.active) {
-        tile.retain = true;
-        return true;
-      } else if (tile.loadFinishedAt != null) {
-        tile.retain = true;
-      }
-    }
-
-    if (z2 > minZoom) {
-      return _retainAncestor(x2, y2, z2, minZoom);
-    }
-
-    return false;
   }
 }

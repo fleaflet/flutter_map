@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_display.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 
 class TileImage extends ChangeNotifier {
   bool _disposed = false;
@@ -33,15 +32,6 @@ class TileImage extends ChangeNotifier {
   final ImageProvider? errorImage;
 
   ImageProvider imageProvider;
-
-  /// Current tiles are tiles which are in the current tile zoom AND:
-  ///   * Are visible OR,
-  ///   * Were previously visible and are still within the visible bounds
-  ///     expanded by the [TileLayer.keepBuffer].
-  bool current = true;
-
-  /// Used during pruning to determine which tiles should be kept.
-  bool retain = false;
 
   /// Whether the tile is displayable. This means that either:
   ///   * Loading errored but there is a tile error image.
