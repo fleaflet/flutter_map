@@ -15,17 +15,6 @@ import 'package:flutter_map/src/misc/point.dart';
 import 'package:flutter_map/src/misc/private/positioned_tap_detector_2.dart';
 import 'package:latlong2/latlong.dart';
 
-extension on LogicalKeyboardKey {
-  bool get isControlKey {
-    return switch (this) {
-      LogicalKeyboardKey.control => true,
-      LogicalKeyboardKey.controlLeft => true,
-      LogicalKeyboardKey.controlRight => true,
-      _ => false,
-    };
-  }
-}
-
 /// Applies interactions (gestures/scroll/taps etc) to the current [MapCamera]
 /// via the internal [controller].
 class FlutterMapInteractiveViewer extends StatefulWidget {
@@ -92,11 +81,16 @@ class FlutterMapInteractiveViewerState
   late Animation<double> _doubleTapZoomAnimation;
   late Animation<LatLng> _doubleTapCenterAnimation;
 
-  final ctrlPressedNotifier = ValueNotifier<bool>(false);
-  Offset? initialPointerDownPos;
-  double cursorRotation = 0;
-  double clickDegrees = 0;
-  double dragDegrees = 0;
+  // 'CR' = cursor rotation
+  final _defaultCRTriggerKeys = {
+    LogicalKeyboardKey.control,
+    LogicalKeyboardKey.controlLeft,
+    LogicalKeyboardKey.controlRight
+  };
+  final crRotationTriggered = ValueNotifier(false);
+  double crDegrees = 0;
+  double crClickDegrees = 0;
+  double crDragDegrees = 0;
 
   int _tapUpCounter = 0;
   Timer? _doubleTapHoldMaxDelay;
@@ -111,7 +105,7 @@ class FlutterMapInteractiveViewerState
   void initState() {
     super.initState();
     widget.controller.interactiveViewerState = this;
-    widget.controller.addListener(_onMapStateChange);
+    widget.controller.addListener(onMapStateChange);
     _flingController
       ..addListener(_handleFlingAnimation)
       ..addStatusListener(_flingAnimationStatusListener);
@@ -119,11 +113,8 @@ class FlutterMapInteractiveViewerState
       ..addListener(_handleDoubleTapZoomAnimation)
       ..addStatusListener(_doubleTapZoomStatusListener);
 
-    ServicesBinding.instance.keyboard.addHandler(keyHandler);
-  }
-
-  void _onMapStateChange() {
-    setState(() {});
+    ServicesBinding.instance.keyboard
+        .addHandler(keyboardRotationTriggerKeyHandler);
   }
 
   @override
@@ -138,19 +129,22 @@ class FlutterMapInteractiveViewerState
 
   @override
   void dispose() {
-    widget.controller.removeListener(_onMapStateChange);
+    widget.controller.removeListener(onMapStateChange);
     _flingController.dispose();
     _doubleTapController.dispose();
-    ctrlPressedNotifier.dispose();
-    ServicesBinding.instance.keyboard.removeHandler(keyHandler);
+    crRotationTriggered.dispose();
+    ServicesBinding.instance.keyboard
+        .removeHandler(keyboardRotationTriggerKeyHandler);
     super.dispose();
   }
 
-  bool keyHandler(KeyEvent event) {
-    if (event.logicalKey.isControlKey) {
-      ctrlPressedNotifier.value =
-          event is KeyDownEvent || event is KeyRepeatEvent;
-    }
+  void onMapStateChange() => setState(() {});
+
+  bool keyboardRotationTriggerKeyHandler(KeyEvent event) {
+    crRotationTriggered.value =
+        (event is KeyRepeatEvent || event is KeyDownEvent) &&
+            (_interactionOptions.isCursorRotationKeyboardKeyTrigger ??
+                (key) => _defaultCRTriggerKeys.contains(key))(event.logicalKey);
     return false;
   }
 
@@ -214,6 +208,14 @@ class FlutterMapInteractiveViewerState
 
     if (emitMapEventMoveEnd) {
       widget.controller.moveEnded(MapEventSource.interactiveFlagsChanged);
+    }
+
+    if (oldOptions.isCursorRotationKeyboardKeyTrigger !=
+        newOptions.isCursorRotationKeyboardKeyTrigger) {
+      ServicesBinding.instance.keyboard
+          .removeHandler(keyboardRotationTriggerKeyHandler);
+      ServicesBinding.instance.keyboard
+          .addHandler(keyboardRotationTriggerKeyHandler);
     }
   }
 
@@ -282,8 +284,8 @@ class FlutterMapInteractiveViewerState
 
   @override
   Widget build(BuildContext context) {
-    clickDegrees = 0;
-    dragDegrees = 0;
+    crClickDegrees = 0;
+    crDragDegrees = 0;
 
     return Listener(
       onPointerDown: _onPointerDown,
@@ -316,8 +318,7 @@ class FlutterMapInteractiveViewerState
 
   void _onPointerDown(PointerDownEvent event) {
     ++_pointerCounter;
-    clickDegrees =
-        getCursorRotationDegrees(event.localPosition) - cursorRotation;
+    crClickDegrees = getCursorRotationDegrees(event.localPosition) - crDegrees;
 
     if (_options.onPointerDown != null) {
       final latlng = _camera.offsetToCrs(event.localPosition);
@@ -327,7 +328,7 @@ class FlutterMapInteractiveViewerState
 
   void _onPointerUp(PointerUpEvent event) {
     --_pointerCounter;
-    cursorRotation = dragDegrees;
+    crDegrees = crDragDegrees;
 
     if (_options.onPointerUp != null) {
       final latlng = _camera.offsetToCrs(event.localPosition);
@@ -352,11 +353,11 @@ class FlutterMapInteractiveViewerState
   }
 
   void _onPointerMove(PointerMoveEvent event) {
-    if (!ctrlPressedNotifier.value) return;
+    if (!crRotationTriggered.value) return;
 
     widget.controller.rotate(
-      dragDegrees =
-          getCursorRotationDegrees(event.localPosition) - clickDegrees,
+      crDragDegrees =
+          getCursorRotationDegrees(event.localPosition) - crClickDegrees,
       hasGesture: true,
       source: MapEventSource.cursorRotation,
       id: null,
@@ -366,7 +367,10 @@ class FlutterMapInteractiveViewerState
   void _onPointerSignal(PointerSignalEvent pointerSignal) {
     // Handle mouse scroll events if the enableScrollWheel parameter is enabled
     if (pointerSignal is PointerScrollEvent &&
-        _interactionOptions.enableScrollWheel &&
+        (InteractiveFlag.hasFlag(
+                _interactionOptions.flags, InteractiveFlag.scrollWheelZoom) ||
+            // ignore: deprecated_member_use_from_same_package
+            _interactionOptions.enableScrollWheel) &&
         pointerSignal.scrollDelta.dy != 0) {
       // Prevent scrolling of parent/child widgets simultaneously. See
       // [PointerSignalResolver] documentation for more information.
@@ -491,7 +495,7 @@ class FlutterMapInteractiveViewerState
   }
 
   void _handleScaleDragUpdate(ScaleUpdateDetails details) {
-    if (ctrlPressedNotifier.value) return;
+    if (crRotationTriggered.value) return;
 
     const eventSource = MapEventSource.onDrag;
 

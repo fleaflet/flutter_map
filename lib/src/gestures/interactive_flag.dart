@@ -1,3 +1,5 @@
+import 'package:flutter_map/src/map/options.dart';
+
 /// Use [InteractiveFlag] to disable / enable certain events Use
 /// [InteractiveFlag.all] to enable all events, use [InteractiveFlag.none] to
 /// disable all events
@@ -13,27 +15,34 @@
 ///       ~[InteractiveFlag.doubleTapZoom]
 class InteractiveFlag {
   const InteractiveFlag._();
+
   static const int all =
       drag | flingAnimation | pinchMove | pinchZoom | doubleTapZoom | rotate;
   static const int none = 0;
 
-  // Enable move with one finger.
+  /// Enable panning with a single finger or cursor
   static const int drag = 1 << 0;
 
-  // Enable fling animation when drag or pinchMove have enough Fling Velocity.
+  /// Enable fling animation after panning if velocity is great enough.
   static const int flingAnimation = 1 << 1;
 
-  // Enable move with two or more fingers.
+  /// Enable panning with multiple fingers
   static const int pinchMove = 1 << 2;
 
-  // Enable pinch zoom.
+  /// Enable zooming with a multi-finger pinch gesture
   static const int pinchZoom = 1 << 3;
 
-  // Enable double tap zoom animation.
+  /// Enable zooming with a single-finger double tap gesture
   static const int doubleTapZoom = 1 << 4;
 
-  /// Enable map rotate.
-  static const int rotate = 1 << 5;
+  /// Enable zooming with a mouse scroll wheel
+  static const int scrollWheelZoom = 1 << 5;
+
+  /// Enable rotation with two-finger twist gesture
+  ///
+  /// For controlling rotation where a keyboard/cursor combination is used, see
+  /// [InteractionOptions.isCursorRotationKeyboardKeyTrigger].
+  static const int rotate = 1 << 6;
 
   /// Flags pertaining to gestures which require multiple fingers.
   static const _multiFingerFlags = pinchMove | pinchZoom | rotate;
@@ -43,9 +52,8 @@ class InteractiveFlag {
   /// [InteractiveFlag.rotate] and [rightFlags]= [InteractiveFlag.rotate] |
   /// [InteractiveFlag.flingAnimation] returns true because both have
   /// [InteractiveFlag.rotate] flag
-  static bool hasFlag(int leftFlags, int rightFlags) {
-    return leftFlags & rightFlags != 0;
-  }
+  static bool hasFlag(int leftFlags, int rightFlags) =>
+      leftFlags & rightFlags != 0;
 
   /// True if any multi-finger gesture flags are enabled.
   static bool hasMultiFinger(int flags) => hasFlag(flags, _multiFingerFlags);
