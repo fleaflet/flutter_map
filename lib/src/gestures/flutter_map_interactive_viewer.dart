@@ -317,7 +317,7 @@ class FlutterMapInteractiveViewerState
   void _onPointerDown(PointerDownEvent event) {
     ++_pointerCounter;
     clickDegrees =
-        getCursorRotationDegrees(event.localPosition, context) - cursorRotation;
+        getCursorRotationDegrees(event.localPosition) - cursorRotation;
 
     if (_options.onPointerDown != null) {
       final latlng = _camera.offsetToCrs(event.localPosition);
@@ -356,7 +356,7 @@ class FlutterMapInteractiveViewerState
 
     widget.controller.rotate(
       dragDegrees =
-          getCursorRotationDegrees(event.localPosition, context) - clickDegrees,
+          getCursorRotationDegrees(event.localPosition) - clickDegrees,
       hasGesture: true,
       source: MapEventSource.cursorRotation,
       id: null,
@@ -415,12 +415,15 @@ class FlutterMapInteractiveViewerState
   }
 
   // Thanks to https://stackoverflow.com/questions/48916517/javascript-click-and-drag-to-rotate
-  double getCursorRotationDegrees(Offset offset, BuildContext context) =>
-      round((math.atan2(offset.dx - MediaQuery.sizeOf(context).width / 2,
-                  offset.dy - MediaQuery.sizeOf(context).height / 2) *
-              (180 / pi) *
-              -1) +
-          100);
+  double getCursorRotationDegrees(Offset offset) {
+    const correctionTerm = 180; // North = cursor
+
+    final size = MediaQuery.sizeOf(context);
+    return (-math.atan2(
+                offset.dx - size.width / 2, offset.dy - size.height / 2) *
+            (180 / math.pi)) +
+        correctionTerm;
+  }
 
   void _closeFlingAnimationController(MapEventSource source) {
     _flingAnimationStarted = false;
