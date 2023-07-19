@@ -35,6 +35,8 @@ typedef PointerHoverCallback = void Function(
   LatLng point,
 );
 
+typedef IsKeyboardKeyTrigger = bool Function(LogicalKeyboardKey key)?;
+
 class MapOptions {
   /// The Coordinate Reference System, defaults to [Epsg3857].
   final Crs crs;
@@ -415,8 +417,7 @@ final class InteractionOptions {
   ///
   /// Defaults to allowing rotation by cursor if any of the Control keys are
   /// pressed.
-  final bool Function(LogicalKeyboardKey key)?
-      isCursorRotationKeyboardKeyTrigger;
+  final IsKeyboardKeyTrigger isCursorRotationKeyboardKeyTrigger;
 
   const InteractionOptions({
     this.flags = InteractiveFlag.all,

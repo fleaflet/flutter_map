@@ -52,8 +52,9 @@ class InteractiveFlag {
   /// [InteractiveFlag.rotate] and [rightFlags]= [InteractiveFlag.rotate] |
   /// [InteractiveFlag.flingAnimation] returns true because both have
   /// [InteractiveFlag.rotate] flag
-  static bool hasFlag(int leftFlags, int rightFlags) =>
-      leftFlags & rightFlags != 0;
+  static bool hasFlag(int leftFlags, int rightFlags) {
+    return leftFlags & rightFlags != 0;
+  }
 
   /// True if any multi-finger gesture flags are enabled.
   static bool hasMultiFinger(int flags) => hasFlag(flags, _multiFingerFlags);
