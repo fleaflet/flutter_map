@@ -227,56 +227,50 @@ class FlutterMapInteractiveViewerState
       TapGestureRecognizer:
           GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
         () => TapGestureRecognizer(debugOwner: this),
-        (instance) {
-          instance
-            ..onTapDown = _positionedTapController.onTapDown
-            ..onTapUp = _handleOnTapUp
-            ..onTap = _positionedTapController.onTap
-            ..onSecondaryTap = _positionedTapController.onSecondaryTap
-            ..onSecondaryTapDown = _positionedTapController.onTapDown;
-        },
+        (recognizer) => recognizer
+          ..onTapDown = _positionedTapController.onTapDown
+          ..onTapUp = _handleOnTapUp
+          ..onTap = _positionedTapController.onTap
+          ..onSecondaryTap = _positionedTapController.onSecondaryTap
+          ..onSecondaryTapDown = _positionedTapController.onTapDown,
       ),
       LongPressGestureRecognizer:
           GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
         () => LongPressGestureRecognizer(debugOwner: this),
-        (instance) {
-          instance.onLongPress = _positionedTapController.onLongPress;
-        },
+        (recognizer) =>
+            recognizer..onLongPress = _positionedTapController.onLongPress,
       ),
       if (dragEnabled)
         VerticalDragGestureRecognizer:
             GestureRecognizerFactoryWithHandlers<VerticalDragGestureRecognizer>(
           () => VerticalDragGestureRecognizer(debugOwner: this),
-          (instance) {
-            instance.onUpdate = (details) {
+          (recognizer) => recognizer
+            ..gestureSettings = gestureSettings
+            ..team ??= _gestureArenaTeam
+            ..onUpdate = (details) {
               // Absorbing vertical drags
-            };
-            instance.gestureSettings = gestureSettings;
-            instance.team ??= _gestureArenaTeam;
-          },
+            },
         ),
       if (dragEnabled)
         HorizontalDragGestureRecognizer: GestureRecognizerFactoryWithHandlers<
-            HorizontalDragGestureRecognizer>(
-          () => HorizontalDragGestureRecognizer(debugOwner: this),
-          (instance) {
-            instance.onUpdate = (details) {
-              // Absorbing horizontal drags
-            };
-            instance.gestureSettings = gestureSettings;
-            instance.team ??= _gestureArenaTeam;
-          },
-        ),
+                HorizontalDragGestureRecognizer>(
+            () => HorizontalDragGestureRecognizer(debugOwner: this),
+            (recognizer) => recognizer
+              ..gestureSettings = gestureSettings
+              ..team ??= _gestureArenaTeam
+              ..onUpdate = (details) {
+                // Absorbing horizontal drags
+              }),
       ScaleGestureRecognizer:
           GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
         () => ScaleGestureRecognizer(debugOwner: this),
-        (instance) {
-          instance
+        (recognizer) {
+          recognizer
             ..onStart = _handleScaleStart
             ..onUpdate = _handleScaleUpdate
-            ..onEnd = _handleScaleEnd;
-          instance.team ??= _gestureArenaTeam;
-          _gestureArenaTeam.captain = instance;
+            ..onEnd = _handleScaleEnd
+            ..team ??= _gestureArenaTeam;
+          _gestureArenaTeam.captain = recognizer;
         },
       ),
     };

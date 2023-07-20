@@ -27,24 +27,24 @@ class TileImageManager {
   ///   4. ...etc
   List<TileImage> inRenderOrder(double maxZoom, int currentZoom) {
     final result = _tiles.values.toList()
-      ..sort((a, b) =>
-          a
-              .zIndex(maxZoom, currentZoom)
-              .compareTo(b.zIndex(maxZoom, currentZoom)));
+      ..sort((a, b) => a
+          .zIndex(maxZoom, currentZoom)
+          .compareTo(b.zIndex(maxZoom, currentZoom)));
 
     return result;
   }
 
   // Creates missing tiles in the given range. Does not initiate loading of the
   // tiles.
-  void createMissingTiles(DiscreteTileRange tileRange,
-      TileBoundsAtZoom tileBoundsAtZoom, {
-        required TileCreator createTileImage,
-      }) {
+  void createMissingTiles(
+    DiscreteTileRange tileRange,
+    TileBoundsAtZoom tileBoundsAtZoom, {
+    required TileCreator createTileImage,
+  }) {
     for (final coordinates in tileBoundsAtZoom.validCoordinatesIn(tileRange)) {
       _tiles.putIfAbsent(
         coordinates.key,
-            () => createTileImage(coordinates),
+        () => createTileImage(coordinates),
       );
     }
   }
@@ -63,15 +63,15 @@ class TileImageManager {
   //   * If it exists current is set to true
   //   * Of these tiles, those which have not started loading yet are returned.
   List<TileImage> setCurrentAndReturnNotLoadedTiles(
-      Iterable<TileCoordinates> tileCoordinates, {
-        required TileCreator createTile,
-      }) {
+    Iterable<TileCoordinates> tileCoordinates, {
+    required TileCreator createTile,
+  }) {
     final notLoaded = <TileImage>[];
 
     for (final coordinates in tileCoordinates) {
       final tile = _tiles.putIfAbsent(
         coordinates.key,
-            () => createTile(coordinates),
+        () => createTile(coordinates),
       );
 
       tile.current = true;
@@ -89,7 +89,8 @@ class TileImageManager {
 
   /// All removals should be performed by calling this method to ensure that
   // disposal is performed correctly.
-  void _remove(String key, {
+  void _remove(
+    String key, {
     required bool Function(TileImage tileImage) evictImageFromCache,
   }) {
     final removed = _tiles.remove(key);
@@ -103,7 +104,7 @@ class TileImageManager {
     _remove(
       key,
       evictImageFromCache: (tileImage) =>
-      tileImage.loadError && strategy != EvictErrorTileStrategy.none,
+          tileImage.loadError && strategy != EvictErrorTileStrategy.none,
     );
   }
 
@@ -115,8 +116,10 @@ class TileImageManager {
     }
   }
 
-  void reloadImages(TileLayer layer,
-      TileBounds tileBounds,) {
+  void reloadImages(
+    TileLayer layer,
+    TileBounds tileBounds,
+  ) {
     // If a TileImage's imageInfo is already available when load() is called it
     // will call its onLoadComplete callback synchronously which can trigger
     // pruning. Since pruning may cause removals from _tiles we must not
@@ -134,8 +137,8 @@ class TileImageManager {
     }
   }
 
-  void markAsNoLongerCurrentOutside(int currentTileZoom,
-      DiscreteTileRange noPruneRange) {
+  void markAsNoLongerCurrentOutside(
+      int currentTileZoom, DiscreteTileRange noPruneRange) {
     for (final entry in _tiles.entries) {
       final tile = entry.value;
       final c = tile.coordinates;
@@ -148,8 +151,10 @@ class TileImageManager {
   }
 
   // Evicts error tiles depending on the [evictStrategy].
-  void evictErrorTiles(DiscreteTileRange tileRange,
-      EvictErrorTileStrategy evictStrategy,) {
+  void evictErrorTiles(
+    DiscreteTileRange tileRange,
+    EvictErrorTileStrategy evictStrategy,
+  ) {
     if (evictStrategy == EvictErrorTileStrategy.notVisibleRespectMargin) {
       final toRemove = <String>[];
       for (final entry in _tiles.entries) {

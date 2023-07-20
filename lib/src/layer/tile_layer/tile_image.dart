@@ -24,7 +24,7 @@ class TileImage extends ChangeNotifier {
   /// [onLoadComplete] will be called immediately afterwards. This callback is
   /// not triggered after this TileImage is disposed.
   final void Function(TileImage tile, Object error, StackTrace? stackTrace)
-  onLoadError;
+      onLoadError;
 
   /// Options for how the tile image is displayed.
   TileDisplay _display;
@@ -70,19 +70,16 @@ class TileImage extends ChangeNotifier {
     required this.onLoadError,
     required TileDisplay tileDisplay,
     required this.errorImage,
-  })
-      : _display = tileDisplay,
+  })  : _display = tileDisplay,
         _animationController = tileDisplay.when(
           instantaneous: (_) => null,
-          fadeIn: (fadeIn) =>
-              AnimationController(
-                vsync: vsync,
-                duration: fadeIn.duration,
-              ),
+          fadeIn: (fadeIn) => AnimationController(
+            vsync: vsync,
+            duration: fadeIn.duration,
+          ),
         );
 
-  double get opacity =>
-      _display.when(
+  double get opacity => _display.when(
         instantaneous: (instantaneous) => _active ? instantaneous.opacity : 0.0,
         fadeIn: (fadeIn) => _animationController!.value,
       )!;
@@ -191,7 +188,7 @@ class TileImage extends ChangeNotifier {
         }
 
         final fadeStartOpacity =
-        previouslyLoaded ? fadeIn.reloadStartOpacity : fadeIn.startOpacity;
+            previouslyLoaded ? fadeIn.reloadStartOpacity : fadeIn.startOpacity;
 
         if (fadeStartOpacity == 1.0) {
           _active = true;
@@ -211,8 +208,8 @@ class TileImage extends ChangeNotifier {
   @override
   void dispose({bool evictImageFromCache = false}) {
     assert(
-    !_disposed,
-    'The TileImage dispose() method was called multiple times',
+      !_disposed,
+      'The TileImage dispose() method was called multiple times',
     );
     _disposed = true;
 

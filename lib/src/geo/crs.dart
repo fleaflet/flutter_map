@@ -230,7 +230,7 @@ class Proj4Crs extends Crs {
       final transformation = _getTransformationByZoom(zoom);
 
       return transformation.transform(projectedPoint, scale);
-    } catch (e) {
+    } catch (_) {
       return const Point(0, 0);
     }
   }
