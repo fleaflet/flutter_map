@@ -101,11 +101,12 @@ class RotatedOverlayImage extends BaseOverlayImage {
         map.project(bottomRightCorner).subtract(map.pixelOrigin);
     final pxBottomLeft =
         map.project(bottomLeftCorner).subtract(map.pixelOrigin);
-    // calculate pixel coordinate of top-right corner by calculating the
-    // vector from bottom-left to top-left and adding it to bottom-right
+
+    /// calculate pixel coordinate of top-right corner by calculating the
+    /// vector from bottom-left to top-left and adding it to bottom-right
     final pxTopRight = pxTopLeft - pxBottomLeft + pxBottomRight;
 
-    // update/enlarge bounds so the new corner points fit within
+    /// update/enlarge bounds so the new corner points fit within
     final bounds = Bounds<num>(pxTopLeft, pxBottomRight)
         .extend(pxTopRight)
         .extend(pxBottomLeft);

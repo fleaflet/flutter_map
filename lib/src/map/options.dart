@@ -282,9 +282,9 @@ class MapOptions {
         scrollWheelVelocity: _scrollWheelVelocity ?? 0.005,
       );
 
-  // Note that this getter exists to make sure that the deprecated [maxBounds]
-  // option is consistently used. Making this a getter allows the constructor
-  // to remain const.
+  /// Note that this getter exists to make sure that the deprecated [maxBounds]
+  /// option is consistently used. Making this a getter allows the constructor
+  /// to remain const.
   CameraConstraint get cameraConstraint =>
       _cameraConstraint ??
       (maxBounds != null

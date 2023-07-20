@@ -10,13 +10,13 @@ class MultiFingerGesture {
   static const int all = pinchMove | pinchZoom | rotate;
   static const int none = 0;
 
-  // enable move with two or more fingers
+  /// enable move with two or more fingers
   static const int pinchMove = 1 << 0;
 
-  // enable pinch zoom
+  /// enable pinch zoom
   static const int pinchZoom = 1 << 1;
 
-  // enable map rotate
+  /// enable map rotate
   static const int rotate = 1 << 2;
 
   /// Returns `true` if [leftFlags] has at least one member in [rightFlags]
@@ -28,6 +28,8 @@ class MultiFingerGesture {
   }
 
   static bool hasPinchMove(int gestures) => hasFlag(gestures, pinchMove);
+
   static bool hasPinchZoom(int gestures) => hasFlag(gestures, pinchZoom);
+
   static bool hasRotate(int gestures) => hasFlag(gestures, rotate);
 }

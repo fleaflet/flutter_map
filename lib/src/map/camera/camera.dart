@@ -11,15 +11,16 @@ import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Describes the view of a map. This includes the size/zoom/position/crs as
-/// well as the minimum/maximum zoom. This class is immutable, changes to the
-/// map view may occur via the [MapController] or user interactions which will
-/// result in a new [MapCamera] value.
+/// well as the minimum/maximum zoom. This class is mostly immutable but has
+/// some fields that get calculated lazily, changes to the map view may occur
+/// via the [MapController] or user interactions which will result in a
+/// new [MapCamera] value.
 class MapCamera {
-  // During Flutter startup the native platform resolution is not immediately
-  // available which can cause constraints to be zero before they are updated
-  // in a subsequent build to the actual constraints. We set the size to this
-  // impossible (negative) value initially and only change it once Flutter
-  // provides real constraints.
+  /// During Flutter startup the native platform resolution is not immediately
+  /// available which can cause constraints to be zero before they are updated
+  /// in a subsequent build to the actual constraints. We set the size to this
+  /// impossible (negative) value initially and only change it once Flutter
+  /// provides real constraints.
   static const kImpossibleSize = Point<double>(-1, -1);
 
   final Crs crs;
@@ -103,9 +104,9 @@ class MapCamera {
       (throw StateError(
           '`MapCamera.of()` should not be called outside a `FlutterMap` and its descendants'));
 
-  // Create an instance of [MapCamera]. The [pixelOrigin], [bounds], and
-  // [pixelBounds] may be set if they are known already. Otherwise if left
-  // null they will be calculated lazily when they are used.
+  /// Create an instance of [MapCamera]. The [pixelOrigin], [bounds], and
+  /// [pixelBounds] may be set if they are known already. Otherwise if left
+  /// null they will be calculated lazily when they are used.
   MapCamera({
     required this.crs,
     required this.center,
@@ -310,10 +311,10 @@ class MapCamera {
     return crs.pointToLatLng(point, zoom);
   }
 
-  // Sometimes we need to make allowances that a rotation already exists, so
-  // it needs to be reversed (pointToLatLng), and sometimes we want to use
-  // the same rotation to create a new position (latLngToScreenpoint).
-  // counterRotation just makes allowances this for this.
+  /// Sometimes we need to make allowances that a rotation already exists, so
+  /// it needs to be reversed (pointToLatLng), and sometimes we want to use
+  /// the same rotation to create a new position (latLngToScreenpoint).
+  /// counterRotation just makes allowances this for this.
   Point<double> rotatePoint(
     Point<double> mapCenter,
     Point<double> point, {

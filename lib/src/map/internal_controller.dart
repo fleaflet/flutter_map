@@ -21,8 +21,8 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
           ),
         );
 
-  // Link the viewer state with the controller. This should be done once when
-  // the FlutterMapInteractiveViewerState is initialized.
+  /// Link the viewer state with the controller. This should be done once when
+  /// the FlutterMapInteractiveViewerState is initialized.
   set interactiveViewerState(
     FlutterMapInteractiveViewerState interactiveViewerState,
   ) =>
@@ -44,9 +44,9 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
   // ignore: library_private_types_in_public_api
   set value(_InternalState value) => super.value = value;
 
-  // Note: All named parameters are required to prevent inconsistent default
-  // values since this method can be called by MapController which declares
-  // defaults.
+  /// Note: All named parameters are required to prevent inconsistent default
+  /// values since this method can be called by MapController which declares
+  /// defaults.
   bool move(
     LatLng newCenter,
     double newZoom, {
@@ -103,9 +103,9 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     return true;
   }
 
-  // Note: All named parameters are required to prevent inconsistent default
-  // values since this method can be called by MapController which declares
-  // defaults.
+  /// Note: All named parameters are required to prevent inconsistent default
+  /// values since this method can be called by MapController which declares
+  /// defaults.
   bool rotate(
     double newRotation, {
     required bool hasGesture,
@@ -137,9 +137,9 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     return false;
   }
 
-  // Note: All named parameters are required to prevent inconsistent default
-  // values since this method can be called by MapController which declares
-  // defaults.
+  /// Note: All named parameters are required to prevent inconsistent default
+  /// values since this method can be called by MapController which declares
+  /// defaults.
   MoveAndRotateResult rotateAroundPoint(
     double degree, {
     required Point<double>? point,
@@ -200,9 +200,9 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     );
   }
 
-  // Note: All named parameters are required to prevent inconsistent default
-  // values since this method can be called by MapController which declares
-  // defaults.
+  /// Note: All named parameters are required to prevent inconsistent default
+  /// values since this method can be called by MapController which declares
+  /// defaults.
   MoveAndRotateResult moveAndRotate(
     LatLng newCenter,
     double newZoom,
@@ -224,9 +224,9 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
         rotate(newRotation, id: id, source: source, hasGesture: hasGesture),
       );
 
-  // Note: All named parameters are required to prevent inconsistent default
-  // values since this method can be called by MapController which declares
-  // defaults.
+  /// Note: All named parameters are required to prevent inconsistent default
+  /// values since this method can be called by MapController which declares
+  /// defaults.
   bool fitCamera(
     CameraFit cameraFit, {
     required Offset offset,
@@ -433,7 +433,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     );
   }
 
-  // To be called when the map's size constraints change.
+  /// To be called when the map's size constraints change.
   void nonRotatedSizeChange(
     MapEventSource source,
     MapCamera oldCamera,

@@ -57,8 +57,8 @@ class FlutterMapInteractiveViewerState
   var _dragStarted = false;
   var _flingAnimationStarted = false;
 
-  // Helps to reset ScaleUpdateDetails.scale back to 1.0 when a multi finger
-  // gesture wins
+  /// Helps to reset ScaleUpdateDetails.scale back to 1.0 when a multi finger
+  /// gesture wins
   late double _scaleCorrector;
   late double _lastRotation;
   late double _lastScale;
@@ -412,7 +412,7 @@ class FlutterMapInteractiveViewerState
     }
   }
 
-  // Thanks to https://stackoverflow.com/questions/48916517/javascript-click-and-drag-to-rotate
+  /// Thanks to https://stackoverflow.com/questions/48916517/javascript-click-and-drag-to-rotate
   double getCursorRotationDegrees(Offset offset) {
     const correctionTerm = 180; // North = cursor
 

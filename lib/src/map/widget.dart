@@ -188,11 +188,11 @@ class FlutterMapStateContainer extends State<FlutterMap> {
     }
   }
 
-  // During Flutter startup the native platform resolution is not immediately
-  // available which can cause constraints to be zero before they are updated
-  // in a subsequent build to the actual constraints. This check allows us to
-  // differentiate zero constraints caused by missing platform resolution vs
-  // zero constraints which were actually provided by the parent widget.
+  /// During Flutter startup the native platform resolution is not immediately
+  /// available which can cause constraints to be zero before they are updated
+  /// in a subsequent build to the actual constraints. This check allows us to
+  /// differentiate zero constraints caused by missing platform resolution vs
+  /// zero constraints which were actually provided by the parent widget.
   bool _parentConstraintsAreSet(
           BuildContext context, BoxConstraints constraints) =>
       constraints.maxWidth != 0 || MediaQuery.sizeOf(context) != Size.zero;

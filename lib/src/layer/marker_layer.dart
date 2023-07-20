@@ -192,11 +192,11 @@ class MarkerLayer extends StatelessWidget {
     for (final marker in markers) {
       final pxPoint = map.project(marker.point);
 
-      // See if any portion of the Marker rect resides in the map bounds
-      // If not, don't spend any resources on build function.
-      // This calculation works for any Anchor position whithin the Marker
-      // Note that Anchor coordinates of (0,0) are at bottom-right of the Marker
-      // unlike the map coordinates.
+      /// See if any portion of the Marker rect resides in the map bounds
+      /// If not, don't spend any resources on build function.
+      /// This calculation works for any Anchor position whithin the Marker
+      /// Note that Anchor coordinates of (0,0) are at bottom-right of the Marker
+      /// unlike the map coordinates.
       final anchor = marker.anchor ??
           Anchor.fromPos(
             anchorPos ?? AnchorPos.defaultAnchorPos,
