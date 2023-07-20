@@ -25,26 +25,13 @@ class Bounds<T extends num> {
     var minY = double.infinity;
 
     for (final point in points) {
-      if (point.x > maxX) {
-        maxX = point.x;
-      }
-      if (point.x < minX) {
-        minX = point.x;
-      }
-      if (point.y > maxY) {
-        maxY = point.y;
-      }
-      if (point.y < minY) {
-        minY = point.y;
-      }
+      maxX = math.max(point.x, maxX);
+      minX = math.min(point.x, minX);
+      maxY = math.max(point.y, maxY);
+      minY = math.min(point.y, minY);
     }
 
-    final bounds = Bounds._(
-      Point(minX, minY),
-      Point(maxX, maxY),
-    );
-
-    return bounds;
+    return Bounds._(Point(minX, minY), Point(maxX, maxY));
   }
 
   /// Creates a new [Bounds] obtained by expanding the current ones with a new
