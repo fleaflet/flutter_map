@@ -47,11 +47,19 @@ class MapCamera {
   /// FlutterMap widget.
   final Point<double> nonRotatedSize;
 
-  // Lazily calculated fields.
+  /// Lazily calculated field
   Point<double>? _cameraSize;
+
+  /// Lazily calculated field
   Bounds<double>? _pixelBounds;
+
+  /// Lazily calculated field
   LatLngBounds? _bounds;
+
+  /// Lazily calculated field
   Point<int>? _pixelOrigin;
+
+  /// Lazily calculated field
   double? _rotationRad;
 
   @Deprecated(
@@ -63,20 +71,16 @@ class MapCamera {
 
   /// This is the [LatLngBounds] corresponding to four corners of this camera.
   /// This takes rotation in to account.
-  LatLngBounds get visibleBounds =>
-      _bounds ??
-      (_bounds = LatLngBounds(
+  LatLngBounds get visibleBounds => _bounds ??= LatLngBounds(
         unproject(pixelBounds.bottomLeft, zoom),
         unproject(pixelBounds.topRight, zoom),
-      ));
+      );
 
   /// The size of bounding box of this camera taking in to account its
   /// rotation. When the rotation is zero this will equal [nonRotatedSize],
   /// otherwise it will be the size of the rectangle which contains this
   /// camera.
-  Point<double> get size =>
-      _cameraSize ??
-      calculateRotatedSize(
+  Point<double> get size => _cameraSize ??= calculateRotatedSize(
         rotation,
         nonRotatedSize,
       );
@@ -85,8 +89,7 @@ class MapCamera {
   /// camera. This will not equal the offset of the top-left visible pixel when
   /// the map is rotated.
   Point<int> get pixelOrigin =>
-      _pixelOrigin ??
-      (_pixelOrigin = (project(center, zoom) - size / 2.0).round());
+      _pixelOrigin ??= (project(center, zoom) - size / 2.0).round();
 
   /// The camera of the closest [FlutterMap] ancestor. If this is called from a
   /// context with no [FlutterMap] ancestor null, is returned.
@@ -116,7 +119,7 @@ class MapCamera {
     LatLngBounds? bounds,
     Point<int>? pixelOrigin,
     double? rotationRad,
-  })  : _cameraSize = size ?? calculateRotatedSize(rotation, nonRotatedSize),
+  })  : _cameraSize = size,
         _pixelBounds = pixelBounds,
         _bounds = bounds,
         _pixelOrigin = pixelOrigin,
