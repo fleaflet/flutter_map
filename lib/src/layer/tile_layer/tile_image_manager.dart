@@ -51,14 +51,9 @@ class TileImageManager {
     }
   }
 
-  bool allWithinZoom(double minZoom, double maxZoom) {
-    for (final tile in _tiles.values) {
-      if (tile.coordinates.z > maxZoom || tile.coordinates.z < minZoom) {
-        return false;
-      }
-    }
-    return true;
-  }
+  bool allWithinZoom(double minZoom, double maxZoom) => _tiles.values
+      .map((e) => e.coordinates)
+      .every((coord) => coord.z > maxZoom || coord.z < minZoom);
 
   // For all of the tile coordinates:
   //   * A TileImage is created if missing (current = true in new TileImages)
@@ -111,9 +106,9 @@ class TileImageManager {
   }
 
   void removeAll(EvictErrorTileStrategy evictStrategy) {
-    final toRemove = Map<String, TileImage>.from(_tiles);
+    final keysToRemove = List<String>.from(_tiles.keys);
 
-    for (final key in toRemove.keys) {
+    for (final key in keysToRemove) {
       _removeWithDefaultEviction(key, evictStrategy);
     }
   }
@@ -158,32 +153,24 @@ class TileImageManager {
     EvictErrorTileStrategy evictStrategy,
   ) {
     if (evictStrategy == EvictErrorTileStrategy.notVisibleRespectMargin) {
-      final toRemove = <String>[];
       for (final entry in _tiles.entries) {
         final tile = entry.value;
 
         if (tile.loadError && !tile.current) {
-          toRemove.add(entry.key);
+          // remove tiles with error
+          _remove(entry.key, evictImageFromCache: (_) => true);
         }
       }
-
-      for (final key in toRemove) {
-        _remove(key, evictImageFromCache: (_) => true);
-      }
     } else if (evictStrategy == EvictErrorTileStrategy.notVisible) {
-      final toRemove = <String>[];
       for (final entry in _tiles.entries) {
         final tile = entry.value;
         final c = tile.coordinates;
 
         if (tile.loadError &&
             (!tile.current || !tileRange.contains(Point(c.x, c.y)))) {
-          toRemove.add(entry.key);
+          // remove tiles with error
+          _remove(entry.key, evictImageFromCache: (_) => true);
         }
-      }
-
-      for (final key in toRemove) {
-        _remove(key, evictImageFromCache: (_) => true);
       }
     }
   }

@@ -434,9 +434,8 @@ class FitCoordinates extends CameraFit {
     var newZoom = _getCoordinatesZoom(camera, paddingTotalXY);
     if (maxZoom != null) newZoom = math.min(maxZoom!, newZoom);
 
-    final projectedPoints = [
-      for (final coord in coordinates) camera.project(coord, newZoom)
-    ];
+    final projectedPoints =
+        coordinates.map((coord) => camera.project(coord, newZoom));
 
     final rotatedPoints =
         projectedPoints.map((point) => point.rotate(-camera.rotationRad));

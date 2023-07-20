@@ -147,10 +147,10 @@ class PolygonPainter extends CustomPainter {
       }
       lastHash = hash;
 
-      final holeOffsetsList = List<List<Offset>>.generate(
-          polygon.holePointsList?.length ?? 0,
-          (i) => getOffsets(polygon.holePointsList![i]),
-          growable: false);
+      final holeOffsetsList = polygon.holePointsList
+              ?.map((holePoints) => getOffsets(holePoints))
+              .toList(growable: false) ??
+          const [];
 
       if (holeOffsetsList.isEmpty) {
         if (polygon.isFilled) {
