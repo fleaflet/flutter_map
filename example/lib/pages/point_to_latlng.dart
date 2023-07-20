@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/widgets/drawer.dart';
@@ -106,7 +108,7 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
   void updatePoint(MapEvent? event, BuildContext context) {
     final pointX = _getPointX(context);
     setState(() {
-      latLng = mapController.camera.pointToLatLng(CustomPoint(pointX, pointY));
+      latLng = mapController.camera.pointToLatLng(Point(pointX, pointY));
     });
   }
 

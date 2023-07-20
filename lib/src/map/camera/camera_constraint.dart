@@ -1,9 +1,10 @@
-import 'dart:math' as math;
+import 'dart:math' as math hide Point;
+import 'dart:math' show Point;
 
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:flutter_map/src/map/camera/camera_fit.dart';
-import 'package:flutter_map/src/misc/point.dart';
+import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Describes a boundary for a [MapCamera], that cannot be exceeded by movement
@@ -122,7 +123,7 @@ class ContainCamera extends CameraConstraint {
     if (leftOkCenter > rightOkCenter || topOkCenter > botOkCenter) return null;
 
     final centerPix = camera.project(testCenter, testZoom);
-    final newCenterPix = CustomPoint(
+    final newCenterPix = Point(
       centerPix.x.clamp(leftOkCenter, rightOkCenter),
       centerPix.y.clamp(topOkCenter, botOkCenter),
     );

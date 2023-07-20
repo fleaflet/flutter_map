@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
@@ -18,7 +20,7 @@ class LatLngScreenPointTestPage extends StatefulWidget {
 class _LatLngScreenPointTestPageState extends State<LatLngScreenPointTestPage> {
   late final MapController _mapController;
 
-  CustomPoint<double> _textPos = const CustomPoint(10, 10);
+  Point<double> _textPos = const Point(10, 10);
 
   @override
   void initState() {
@@ -48,7 +50,7 @@ class _LatLngScreenPointTestPageState extends State<LatLngScreenPointTestPage> {
                 onMapEvent: onMapEvent,
                 onTap: (tapPos, latLng) {
                   final pt1 = _mapController.camera.latLngToScreenPoint(latLng);
-                  _textPos = CustomPoint(pt1.x, pt1.y);
+                  _textPos = Point(pt1.x, pt1.y);
                   setState(() {});
                 },
                 initialCenter: const LatLng(51.5, -0.09),

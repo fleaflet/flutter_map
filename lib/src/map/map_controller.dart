@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
@@ -10,7 +11,6 @@ import 'package:flutter_map/src/map/map_controller_impl.dart';
 import 'package:flutter_map/src/misc/center_zoom.dart';
 import 'package:flutter_map/src/misc/fit_bounds_options.dart';
 import 'package:flutter_map/src/misc/move_and_rotate_result.dart';
-import 'package:flutter_map/src/misc/point.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Controller to programmatically interact with [FlutterMap], such as
@@ -113,7 +113,7 @@ abstract class MapController {
   /// [MoveAndRotateResult.rotateSuccess] are `true`.
   MoveAndRotateResult rotateAroundPoint(
     double degree, {
-    CustomPoint<double>? point,
+    Point<double>? point,
     Offset? offset,
     String? id,
   });
@@ -183,7 +183,7 @@ abstract class MapController {
     'This method is now accessible via the camera. '
     'This method is deprecated since v6.',
   )
-  LatLng pointToLatLng(CustomPoint screenPoint);
+  LatLng pointToLatLng(Point screenPoint);
 
   /// Convert a map coordinate (lat/lng) to its corresponding screen point (x/y),
   /// based on the map's current screen positioning
@@ -192,16 +192,16 @@ abstract class MapController {
     'This method is now accessible via the camera. '
     'This method is deprecated since v6.',
   )
-  CustomPoint<double> latLngToScreenPoint(LatLng mapCoordinate);
+  Point<double> latLngToScreenPoint(LatLng mapCoordinate);
 
   @Deprecated(
     'Prefer `controller.camera.rotatePoint()`. '
     'This method is now accessible via the camera. '
     'This method is deprecated since v6.',
   )
-  CustomPoint<double> rotatePoint(
-    CustomPoint mapCenter,
-    CustomPoint point, {
+  Point<double> rotatePoint(
+    Point mapCenter,
+    Point point, {
     bool counterRotation = true,
   });
 

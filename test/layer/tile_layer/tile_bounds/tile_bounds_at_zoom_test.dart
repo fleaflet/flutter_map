@@ -1,7 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
-import 'package:flutter_map/src/misc/point.dart';
 import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:test/test.dart';
 
@@ -18,7 +19,7 @@ void main() {
             int zoom, int minX, int minY, int maxX, int maxY) =>
         DiscreteTileRange(
           zoom,
-          Bounds(CustomPoint(minX, minY), CustomPoint(maxX, maxY)),
+          Bounds(Point(minX, minY), Point(maxX, maxY)),
         );
 
     test('InfiniteTileBoundsAtZoom', () {
@@ -159,7 +160,7 @@ void main() {
         discreteTileRange(0, 0, 2, 12, 10).coordinates,
       );
 
-      // Keeps all wrapped coordiantes, only non-wraped coordaintes in range.
+      // Keeps all wrapped coordinates, only non-wrapped coordinates in range.
       expect(
         tileBoundsAtZoom
             .validCoordinatesIn(discreteTileRange(0, 13, 0, 25, 12)),

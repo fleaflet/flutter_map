@@ -11,7 +11,7 @@ import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:flutter_map/src/map/internal_controller.dart';
 import 'package:flutter_map/src/map/options.dart';
-import 'package:flutter_map/src/misc/point.dart';
+import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:flutter_map/src/misc/private/positioned_tap_detector_2.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -386,7 +386,7 @@ class FlutterMapInteractiveViewerState
               .clamp(minZoom, maxZoom);
           // Calculate offset of mouse cursor from viewport center
           final newCenter = _camera.focusedZoomCenter(
-            pointerSignal.localPosition.toCustomPoint(),
+            pointerSignal.localPosition.toPoint(),
             newZoom,
           );
           widget.controller.move(
@@ -623,8 +623,7 @@ class FlutterMapInteractiveViewerState
     final zoomDifference = oldFocalPt - newFocalPt;
     final moveDifference = _rotateOffset(_focalStartLocal - _lastFocalLocal);
 
-    final newCenterPt =
-        oldCenterPt + zoomDifference + moveDifference.toCustomPoint();
+    final newCenterPt = oldCenterPt + zoomDifference + moveDifference.toPoint();
     return _camera.unproject(newCenterPt, zoomAfterPinchZoom);
   }
 
@@ -785,7 +784,7 @@ class FlutterMapInteractiveViewerState
     if (InteractiveFlag.hasDoubleTapZoom(_interactionOptions.flags)) {
       final newZoom = _getZoomForScale(_camera.zoom, 2);
       final newCenter = _camera.focusedZoomCenter(
-        tapPosition.relative!.toCustomPoint(),
+        tapPosition.relative!.toPoint(),
         newZoom,
       );
       _startDoubleTapAnimation(newZoom, newCenter);
@@ -868,7 +867,7 @@ class FlutterMapInteractiveViewerState
     }
 
     final newCenterPoint = _camera.project(_mapCenterStart) +
-        _flingAnimation.value.toCustomPoint().rotate(_camera.rotationRad);
+        _flingAnimation.value.toPoint().rotate(_camera.rotationRad);
     final newCenter = _camera.unproject(newCenterPoint);
 
     widget.controller.move(

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
@@ -10,7 +11,7 @@ import 'package:flutter_map/src/map/map_controller.dart';
 import 'package:flutter_map/src/misc/center_zoom.dart';
 import 'package:flutter_map/src/misc/fit_bounds_options.dart';
 import 'package:flutter_map/src/misc/move_and_rotate_result.dart';
-import 'package:flutter_map/src/misc/point.dart';
+import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Implements [MapController] whilst exposing methods for internal use which
@@ -58,7 +59,7 @@ class MapControllerImpl implements MapController {
   @override
   MoveAndRotateResult rotateAroundPoint(
     double degree, {
-    CustomPoint<double>? point,
+    Point<double>? point,
     Offset? offset,
     String? id,
   }) =>
@@ -162,7 +163,7 @@ class MapControllerImpl implements MapController {
     'This method is now accessible via the camera. '
     'This method is deprecated since v6.',
   )
-  LatLng pointToLatLng(CustomPoint<num> screenPoint) =>
+  LatLng pointToLatLng(Point<num> screenPoint) =>
       camera.pointToLatLng(screenPoint);
 
   @override
@@ -171,7 +172,7 @@ class MapControllerImpl implements MapController {
     'This method is now accessible via the camera. '
     'This method is deprecated since v6.',
   )
-  CustomPoint<double> latLngToScreenPoint(LatLng mapCoordinate) =>
+  Point<double> latLngToScreenPoint(LatLng mapCoordinate) =>
       camera.latLngToScreenPoint(mapCoordinate);
 
   @override
@@ -180,9 +181,9 @@ class MapControllerImpl implements MapController {
     'This method is now accessible via the camera. '
     'This method is deprecated since v6.',
   )
-  CustomPoint<double> rotatePoint(
-    CustomPoint mapCenter,
-    CustomPoint point, {
+  Point<double> rotatePoint(
+    Point mapCenter,
+    Point point, {
     bool counterRotation = true,
   }) =>
       camera.rotatePoint(

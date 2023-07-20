@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:collection/collection.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
@@ -6,7 +8,6 @@ import 'package:flutter_map/src/layer/tile_layer/tile_display.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
-import 'package:flutter_map/src/misc/point.dart';
 
 typedef TileCreator = TileImage Function(TileCoordinates coordinates);
 
@@ -143,8 +144,7 @@ class TileImageManager {
       final c = tile.coordinates;
 
       if (tile.current &&
-          (c.z != currentTileZoom ||
-              !noPruneRange.contains(CustomPoint(c.x, c.y)))) {
+          (c.z != currentTileZoom || !noPruneRange.contains(Point(c.x, c.y)))) {
         tile.current = false;
       }
     }
@@ -175,7 +175,7 @@ class TileImageManager {
         final c = tile.coordinates;
 
         if (tile.loadError &&
-            (!tile.current || !tileRange.contains(CustomPoint(c.x, c.y)))) {
+            (!tile.current || !tileRange.contains(Point(c.x, c.y)))) {
           toRemove.add(entry.key);
         }
       }

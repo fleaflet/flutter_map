@@ -1,22 +1,21 @@
-import 'dart:math' as math;
-
-import 'package:flutter_map/src/misc/point.dart';
+import 'dart:math' as math hide Point;
+import 'dart:math' show Point;
 
 /// Rectangular bound delimited by orthogonal lines passing through two
 /// points.
 class Bounds<T extends num> {
-  final CustomPoint<T> min;
-  final CustomPoint<T> max;
+  final Point<T> min;
+  final Point<T> max;
 
   const Bounds._(this.min, this.max);
 
-  factory Bounds(CustomPoint<T> a, CustomPoint<T> b) {
+  factory Bounds(Point<T> a, Point<T> b) {
     final bounds1 = Bounds._(a, b);
     final bounds2 = bounds1.extend(a);
     return bounds2.extend(b);
   }
 
-  static Bounds<double> containing(Iterable<CustomPoint<double>> points) {
+  static Bounds<double> containing(Iterable<Point<double>> points) {
     var maxX = double.negativeInfinity;
     var maxY = double.negativeInfinity;
     var minX = double.infinity;
@@ -38,8 +37,8 @@ class Bounds<T extends num> {
     }
 
     final bounds = Bounds._(
-      CustomPoint(minX, minY),
-      CustomPoint(maxX, maxY),
+      Point(minX, minY),
+      Point(maxX, maxY),
     );
 
     return bounds;
@@ -47,13 +46,13 @@ class Bounds<T extends num> {
 
   /// Creates a new [Bounds] obtained by expanding the current ones with a new
   /// point.
-  Bounds<T> extend(CustomPoint<T> point) {
+  Bounds<T> extend(Point<T> point) {
     return Bounds._(
-      CustomPoint(
+      Point(
         math.min(point.x, min.x),
         math.min(point.y, min.y),
       ),
-      CustomPoint(
+      Point(
         math.max(point.x, max.x),
         math.max(point.y, max.y),
       ),
@@ -61,29 +60,29 @@ class Bounds<T extends num> {
   }
 
   /// This [Bounds] central point.
-  CustomPoint<double> get center => CustomPoint<double>(
+  Point<double> get center => Point<double>(
         (min.x + max.x) / 2,
         (min.y + max.y) / 2,
       );
 
   /// Bottom-Left corner's point.
-  CustomPoint<T> get bottomLeft => CustomPoint(min.x, max.y);
+  Point<T> get bottomLeft => Point(min.x, max.y);
 
   /// Top-Right corner's point.
-  CustomPoint<T> get topRight => CustomPoint(max.x, min.y);
+  Point<T> get topRight => Point(max.x, min.y);
 
   /// Top-Left corner's point.
-  CustomPoint<T> get topLeft => min;
+  Point<T> get topLeft => min;
 
   /// Bottom-Right corner's point.
-  CustomPoint<T> get bottomRight => max;
+  Point<T> get bottomRight => max;
 
   /// A point that contains the difference between the point's axis projections.
-  CustomPoint<T> get size {
+  Point<T> get size {
     return max - min;
   }
 
-  bool contains(CustomPoint<T> point) {
+  bool contains(Point<T> point) {
     final min = point;
     final max = point;
     return containsBounds(Bounds(min, max));
@@ -113,7 +112,7 @@ class Bounds<T extends num> {
     final bottomY = math.min(max.y, b.max.y);
 
     if (leftX <= rightX && topY <= bottomY) {
-      return Bounds(CustomPoint(leftX, topY), CustomPoint(rightX, bottomY));
+      return Bounds(Point(leftX, topY), Point(rightX, bottomY));
     }
 
     return null;
