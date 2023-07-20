@@ -29,6 +29,7 @@ class Polygon {
   final bool rotateLabel;
 
   LatLngBounds? _boundingBox;
+
   LatLngBounds get boundingBox {
     _boundingBox ??= LatLngBounds.fromPoints(points);
     return _boundingBox!;
@@ -52,16 +53,17 @@ class Polygon {
   });
 
   /// Used to batch draw calls to the canvas.
-  int get renderHashCode => Object.hash(
-      holePointsList,
-      color,
-      borderStrokeWidth,
-      borderColor,
-      isDotted,
-      isFilled,
-      strokeCap,
-      strokeJoin,
-      labelStyle);
+  int get renderHashCode =>
+      Object.hash(
+          holePointsList,
+          color,
+          borderStrokeWidth,
+          borderColor,
+          isDotted,
+          isFilled,
+          strokeCap,
+          strokeJoin,
+          labelStyle);
 }
 
 class PolygonLayer extends StatelessWidget {
@@ -83,8 +85,8 @@ class PolygonLayer extends StatelessWidget {
 
     final pgons = polygonCulling
         ? polygons.where((p) {
-            return p.boundingBox.isOverlapping(map.visibleBounds);
-          }).toList()
+      return p.boundingBox.isOverlapping(map.visibleBounds);
+    }).toList()
         : polygons;
 
     return CustomPaint(
@@ -149,7 +151,7 @@ class PolygonPainter extends CustomPainter {
 
       final holeOffsetsList = List<List<Offset>>.generate(
           polygon.holePointsList?.length ?? 0,
-          (i) => getOffsets(polygon.holePointsList![i]),
+              (i) => getOffsets(polygon.holePointsList![i]),
           growable: false);
 
       if (holeOffsetsList.isEmpty) {
@@ -179,7 +181,7 @@ class PolygonPainter extends CustomPainter {
         }
       }
 
-      // Only draw the  border explicitly if it isn't alrady a stroke-style
+      // Only draw the  border explicitly if it isn't already a stroke-style
       // polygon.
       if (polygon.borderStrokeWidth > 0.0) {
         borderPaint = _getBorderPaint(polygon);
@@ -239,8 +241,8 @@ class PolygonPainter extends CustomPainter {
     }
   }
 
-  void _paintDottedLine(
-      ui.Path path, List<Offset> offsets, double radius, double stepLength) {
+  void _paintDottedLine(ui.Path path, List<Offset> offsets, double radius,
+      double stepLength) {
     var startDistance = 0.0;
     for (var i = 0; i < offsets.length; i++) {
       final o0 = offsets[i % offsets.length];

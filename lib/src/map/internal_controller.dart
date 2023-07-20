@@ -281,7 +281,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     );
   }
 
-  // To be called when a gesture that causes movement starts.
+  /// To be called when a gesture that causes movement starts.
   void moveStarted(MapEventSource source) {
     _emitMapEvent(
       MapEventMoveStart(
@@ -291,7 +291,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     );
   }
 
-  // To be called when an ongoing drag movement updates.
+  /// To be called when an ongoing drag movement updates.
   void dragUpdated(MapEventSource source, Offset offset) {
     final oldCenterPt = camera.project(camera.center);
 
@@ -308,7 +308,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     );
   }
 
-  // To be called when a drag gesture ends.
+  /// To be called when a drag gesture ends.
   void moveEnded(MapEventSource source) {
     _emitMapEvent(
       MapEventMoveEnd(
@@ -318,7 +318,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     );
   }
 
-  // To be called when a rotation gesture starts.
+  /// To be called when a rotation gesture starts.
   void rotateStarted(MapEventSource source) {
     _emitMapEvent(
       MapEventRotateStart(
@@ -328,7 +328,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     );
   }
 
-  // To be called when a rotation gesture ends.
+  /// To be called when a rotation gesture ends.
   void rotateEnded(MapEventSource source) {
     _emitMapEvent(
       MapEventRotateEnd(
@@ -338,7 +338,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     );
   }
 
-  // To be called when a fling gesture starts.
+  /// To be called when a fling gesture starts.
   void flingStarted(MapEventSource source) {
     _emitMapEvent(
       MapEventFlingAnimationStart(
@@ -348,7 +348,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     );
   }
 
-  // To be called when a fling gesture ends.
+  /// To be called when a fling gesture ends.
   void flingEnded(MapEventSource source) {
     _emitMapEvent(
       MapEventFlingAnimationEnd(
@@ -358,7 +358,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     );
   }
 
-  // To be called when a fling gesture does not start.
+  /// To be called when a fling gesture does not start.
   void flingNotStarted(MapEventSource source) {
     _emitMapEvent(
       MapEventFlingAnimationNotStarted(
@@ -368,7 +368,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     );
   }
 
-  // To be called when a double tap zoom starts.
+  /// To be called when a double tap zoom starts.
   void doubleTapZoomStarted(MapEventSource source) {
     _emitMapEvent(
       MapEventDoubleTapZoomStart(
@@ -378,7 +378,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     );
   }
 
-  // To be called when a double tap zoom ends.
+  /// To be called when a double tap zoom ends.
   void doubleTapZoomEnded(MapEventSource source) {
     _emitMapEvent(
       MapEventDoubleTapZoomEnd(

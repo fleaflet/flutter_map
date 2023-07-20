@@ -65,7 +65,7 @@ class DiscreteTileRange extends TileRange {
     return DiscreteTileRange(zoom, boundsIntersection);
   }
 
-  // Inclusive
+  /// Inclusive
   TileRange intersectX(int minX, int maxX) {
     if (_bounds.min.x > maxX || _bounds.max.x < minX) {
       return EmptyTileRange._(zoom);
@@ -80,7 +80,7 @@ class DiscreteTileRange extends TileRange {
     );
   }
 
-  // Inclusive
+  /// Inclusive
   TileRange intersectY(int minY, int maxY) {
     if (_bounds.min.y > maxY || _bounds.max.y < minY) {
       return EmptyTileRange._(zoom);

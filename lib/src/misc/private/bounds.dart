@@ -102,9 +102,9 @@ class Bounds<T extends num> {
         (b.max.y >= min.y);
   }
 
-  // Calculates the intersection of two Bounds. The return value will be null
-  // if there is no intersection. The returned bounds may be zero size
-  // (bottomLeft == topRight).
+  /// Calculates the intersection of two Bounds. The return value will be null
+  /// if there is no intersection. The returned bounds may be zero size
+  /// (bottomLeft == topRight).
   Bounds<T>? intersect(Bounds<T> b) {
     final leftX = math.max(min.x, b.min.x);
     final rightX = math.min(max.x, b.max.x);
