@@ -2,7 +2,8 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/gestures/interactive_flag.dart';
 import 'package:flutter_map/src/gestures/latlng_tween.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
@@ -80,6 +81,17 @@ class FlutterMapInteractiveViewerState
   late Animation<double> _doubleTapZoomAnimation;
   late Animation<LatLng> _doubleTapCenterAnimation;
 
+  // 'CR' = cursor rotation
+  final _defaultCRTriggerKeys = {
+    LogicalKeyboardKey.control,
+    LogicalKeyboardKey.controlLeft,
+    LogicalKeyboardKey.controlRight
+  };
+  final crRotationTriggered = ValueNotifier(false);
+  double crDegrees = 0;
+  double crClickDegrees = 0;
+  double crDragDegrees = 0;
+
   int _tapUpCounter = 0;
   Timer? _doubleTapHoldMaxDelay;
 
@@ -93,17 +105,16 @@ class FlutterMapInteractiveViewerState
   void initState() {
     super.initState();
     widget.controller.interactiveViewerState = this;
-    widget.controller.addListener(_onMapStateChange);
+    widget.controller.addListener(onMapStateChange);
     _flingController
       ..addListener(_handleFlingAnimation)
       ..addStatusListener(_flingAnimationStatusListener);
     _doubleTapController
       ..addListener(_handleDoubleTapZoomAnimation)
       ..addStatusListener(_doubleTapZoomStatusListener);
-  }
 
-  void _onMapStateChange() {
-    setState(() {});
+    ServicesBinding.instance.keyboard
+        .addHandler(keyboardRotationTriggerKeyHandler);
   }
 
   @override
@@ -118,11 +129,23 @@ class FlutterMapInteractiveViewerState
 
   @override
   void dispose() {
-    widget.controller.removeListener(_onMapStateChange);
+    widget.controller.removeListener(onMapStateChange);
     _flingController.dispose();
     _doubleTapController.dispose();
-
+    crRotationTriggered.dispose();
+    ServicesBinding.instance.keyboard
+        .removeHandler(keyboardRotationTriggerKeyHandler);
     super.dispose();
+  }
+
+  void onMapStateChange() => setState(() {});
+
+  bool keyboardRotationTriggerKeyHandler(KeyEvent event) {
+    crRotationTriggered.value =
+        (event is KeyRepeatEvent || event is KeyDownEvent) &&
+            (_interactionOptions.isCursorRotationKeyboardKeyTrigger ??
+                (key) => _defaultCRTriggerKeys.contains(key))(event.logicalKey);
+    return false;
   }
 
   void updateGestures(
@@ -185,6 +208,14 @@ class FlutterMapInteractiveViewerState
 
     if (emitMapEventMoveEnd) {
       widget.controller.moveEnded(MapEventSource.interactiveFlagsChanged);
+    }
+
+    if (oldOptions.isCursorRotationKeyboardKeyTrigger !=
+        newOptions.isCursorRotationKeyboardKeyTrigger) {
+      ServicesBinding.instance.keyboard
+          .removeHandler(keyboardRotationTriggerKeyHandler);
+      ServicesBinding.instance.keyboard
+          .addHandler(keyboardRotationTriggerKeyHandler);
     }
   }
 
@@ -253,11 +284,15 @@ class FlutterMapInteractiveViewerState
 
   @override
   Widget build(BuildContext context) {
+    crClickDegrees = 0;
+    crDragDegrees = 0;
+
     return Listener(
       onPointerDown: _onPointerDown,
       onPointerUp: _onPointerUp,
       onPointerCancel: _onPointerCancel,
       onPointerHover: _onPointerHover,
+      onPointerMove: _onPointerMove,
       onPointerSignal: _onPointerSignal,
       child: PositionedTapDetector2(
         controller: _positionedTapController,
@@ -283,6 +318,7 @@ class FlutterMapInteractiveViewerState
 
   void _onPointerDown(PointerDownEvent event) {
     ++_pointerCounter;
+    crClickDegrees = getCursorRotationDegrees(event.localPosition) - crDegrees;
 
     if (_options.onPointerDown != null) {
       final latlng = _camera.offsetToCrs(event.localPosition);
@@ -292,6 +328,7 @@ class FlutterMapInteractiveViewerState
 
   void _onPointerUp(PointerUpEvent event) {
     --_pointerCounter;
+    crDegrees = crDragDegrees;
 
     if (_options.onPointerUp != null) {
       final latlng = _camera.offsetToCrs(event.localPosition);
@@ -315,10 +352,25 @@ class FlutterMapInteractiveViewerState
     }
   }
 
+  void _onPointerMove(PointerMoveEvent event) {
+    if (!crRotationTriggered.value) return;
+
+    widget.controller.rotate(
+      crDragDegrees =
+          getCursorRotationDegrees(event.localPosition) - crClickDegrees,
+      hasGesture: true,
+      source: MapEventSource.cursorRotation,
+      id: null,
+    );
+  }
+
   void _onPointerSignal(PointerSignalEvent pointerSignal) {
     // Handle mouse scroll events if the enableScrollWheel parameter is enabled
     if (pointerSignal is PointerScrollEvent &&
-        _interactionOptions.enableScrollWheel &&
+        (InteractiveFlag.hasFlag(
+                _interactionOptions.flags, InteractiveFlag.scrollWheelZoom) ||
+            // ignore: deprecated_member_use_from_same_package
+            _interactionOptions.enableScrollWheel) &&
         pointerSignal.scrollDelta.dy != 0) {
       // Prevent scrolling of parent/child widgets simultaneously. See
       // [PointerSignalResolver] documentation for more information.
@@ -364,6 +416,17 @@ class FlutterMapInteractiveViewerState
     } else {
       return MultiFingerGesture.all;
     }
+  }
+
+  // Thanks to https://stackoverflow.com/questions/48916517/javascript-click-and-drag-to-rotate
+  double getCursorRotationDegrees(Offset offset) {
+    const correctionTerm = 180; // North = cursor
+
+    final size = MediaQuery.sizeOf(context);
+    return (-math.atan2(
+                offset.dx - size.width / 2, offset.dy - size.height / 2) *
+            (180 / math.pi)) +
+        correctionTerm;
   }
 
   void _closeFlingAnimationController(MapEventSource source) {
@@ -432,6 +495,8 @@ class FlutterMapInteractiveViewerState
   }
 
   void _handleScaleDragUpdate(ScaleUpdateDetails details) {
+    if (crRotationTriggered.value) return;
+
     const eventSource = MapEventSource.onDrag;
 
     if (InteractiveFlag.hasDrag(_interactionOptions.flags)) {
