@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
+import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -48,8 +49,8 @@ class OverlayImage extends BaseOverlayImage {
   Positioned buildPositionedForOverlay(MapCamera map) {
     // northWest is not necessarily upperLeft depending on projection
     final bounds = Bounds<num>(
-      map.project(this.bounds.northWest) - map.pixelOrigin,
-      map.project(this.bounds.southEast) - map.pixelOrigin,
+      map.project(this.bounds.northWest).subtract(map.pixelOrigin),
+      map.project(this.bounds.southEast).subtract(map.pixelOrigin),
     );
     return Positioned(
         left: bounds.topLeft.x.toDouble(),
@@ -93,9 +94,11 @@ class RotatedOverlayImage extends BaseOverlayImage {
 
   @override
   Positioned buildPositionedForOverlay(MapCamera map) {
-    final pxTopLeft = map.project(topLeftCorner) - map.pixelOrigin;
-    final pxBottomRight = map.project(bottomRightCorner) - map.pixelOrigin;
-    final pxBottomLeft = map.project(bottomLeftCorner) - map.pixelOrigin;
+    final pxTopLeft = map.project(topLeftCorner).subtract(map.pixelOrigin);
+    final pxBottomRight =
+        map.project(bottomRightCorner).subtract(map.pixelOrigin);
+    final pxBottomLeft =
+        map.project(bottomLeftCorner).subtract(map.pixelOrigin);
     // calculate pixel coordinate of top-right corner by calculating the
     // vector from bottom-left to top-left and adding it to bottom-right
     final pxTopRight = (pxTopLeft - pxBottomLeft + pxBottomRight);
@@ -107,7 +110,7 @@ class RotatedOverlayImage extends BaseOverlayImage {
 
     final vectorX = (pxTopRight - pxTopLeft) / bounds.size.x;
     final vectorY = (pxBottomLeft - pxTopLeft) / bounds.size.y;
-    final offset = pxTopLeft - bounds.topLeft;
+    final offset = pxTopLeft.subtract(bounds.topLeft);
 
     final a = vectorX.x.toDouble();
     final b = vectorX.y.toDouble();

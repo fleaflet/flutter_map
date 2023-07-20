@@ -1,6 +1,6 @@
-import 'dart:math' as math;
+import 'dart:math' as math hide Point;
+import 'dart:math' show Point;
 
-import 'package:flutter_map/src/misc/point.dart';
 import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
@@ -22,18 +22,18 @@ abstract class Crs {
 
   /// Converts a point on the sphere surface (with a certain zoom) in a
   /// map point.
-  CustomPoint<double> latLngToPoint(LatLng latlng, double zoom) {
+  Point<double> latLngToPoint(LatLng latlng, double zoom) {
     try {
       final projectedPoint = projection.project(latlng);
       final scale = this.scale(zoom);
       return transformation.transform(projectedPoint, scale.toDouble());
     } catch (e) {
-      return const CustomPoint(0, 0);
+      return const Point(0, 0);
     }
   }
 
   /// Converts a map point to the sphere coordinate (at a certain zoom).
-  LatLng pointToLatLng(CustomPoint point, double zoom) => projection
+  LatLng pointToLatLng(Point point, double zoom) => projection
       .unproject(transformation.untransform(point, scale(zoom).toDouble()));
 
   /// Zoom to Scale function.
@@ -177,7 +177,7 @@ class Proj4Crs extends Crs {
     required String code,
     required proj4.Projection proj4Projection,
     Transformation? transformation,
-    List<CustomPoint>? origins,
+    List<Point>? origins,
     Bounds<double>? bounds,
     List<double>? scales,
     List<double>? resolutions,
@@ -223,7 +223,7 @@ class Proj4Crs extends Crs {
   /// Converts a point on the sphere surface (with a certain zoom) in a
   /// map point.
   @override
-  CustomPoint<double> latLngToPoint(LatLng latlng, double zoom) {
+  Point<double> latLngToPoint(LatLng latlng, double zoom) {
     try {
       final projectedPoint = projection.project(latlng);
       final scale = this.scale(zoom);
@@ -231,13 +231,13 @@ class Proj4Crs extends Crs {
 
       return transformation.transform(projectedPoint, scale.toDouble());
     } catch (e) {
-      return const CustomPoint(0, 0);
+      return const Point(0, 0);
     }
   }
 
   /// Converts a map point to the sphere coordinate (at a certain zoom).
   @override
-  LatLng pointToLatLng(CustomPoint point, double zoom) =>
+  LatLng pointToLatLng(Point point, double zoom) =>
       projection.unproject(_getTransformationByZoom(zoom)
           .untransform(point, scale(zoom).toDouble()));
 
@@ -324,9 +324,9 @@ abstract class Projection {
 
   Bounds<double>? get bounds;
 
-  CustomPoint<double> project(LatLng latlng);
+  Point<double> project(LatLng latlng);
 
-  LatLng unproject(CustomPoint point);
+  LatLng unproject(Point point);
 
   double _inclusive(double start, double end, double value) {
     if (value < start) return start;
@@ -348,7 +348,7 @@ abstract class Projection {
 
 class _LonLat extends Projection {
   static final Bounds<double> _bounds = Bounds<double>(
-      const CustomPoint<double>(-180, -90), const CustomPoint<double>(180, 90));
+      const Point<double>(-180, -90), const Point<double>(180, 90));
 
   const _LonLat() : super();
 
@@ -356,12 +356,12 @@ class _LonLat extends Projection {
   Bounds<double> get bounds => _bounds;
 
   @override
-  CustomPoint<double> project(LatLng latlng) {
-    return CustomPoint(latlng.longitude, latlng.latitude);
+  Point<double> project(LatLng latlng) {
+    return Point(latlng.longitude, latlng.latitude);
   }
 
   @override
-  LatLng unproject(CustomPoint point) {
+  LatLng unproject(Point point) {
     return LatLng(
         inclusiveLat(point.y as double), inclusiveLng(point.x as double));
   }
@@ -372,8 +372,8 @@ class SphericalMercator extends Projection {
   static const double maxLatitude = 85.0511287798;
   static const double _boundsD = r * math.pi;
   static final Bounds<double> _bounds = Bounds<double>(
-    const CustomPoint<double>(-_boundsD, -_boundsD),
-    const CustomPoint<double>(_boundsD, _boundsD),
+    const Point<double>(-_boundsD, -_boundsD),
+    const Point<double>(_boundsD, _boundsD),
   );
 
   const SphericalMercator() : super();
@@ -382,18 +382,18 @@ class SphericalMercator extends Projection {
   Bounds<double> get bounds => _bounds;
 
   @override
-  CustomPoint<double> project(LatLng latlng) {
+  Point<double> project(LatLng latlng) {
     const d = math.pi / 180;
     const max = maxLatitude;
     final lat = math.max(math.min(max, latlng.latitude), -max);
     final sin = math.sin(lat * d);
 
-    return CustomPoint(
+    return Point(
         r * latlng.longitude * d, r * math.log((1 + sin) / (1 - sin)) / 2);
   }
 
   @override
-  LatLng unproject(CustomPoint point) {
+  LatLng unproject(Point point) {
     const d = 180 / math.pi;
     return LatLng(
         inclusiveLat(
@@ -416,15 +416,15 @@ class _Proj4Projection extends Projection {
   }) : epsg4326 = proj4.Projection.WGS84;
 
   @override
-  CustomPoint<double> project(LatLng latlng) {
+  Point<double> project(LatLng latlng) {
     final point = epsg4326.transform(
         proj4Projection, proj4.Point(x: latlng.longitude, y: latlng.latitude));
 
-    return CustomPoint(point.x, point.y);
+    return Point(point.x, point.y);
   }
 
   @override
-  LatLng unproject(CustomPoint point) {
+  LatLng unproject(Point point) {
     final point2 = proj4Projection.transform(
         epsg4326, proj4.Point(x: point.x as double, y: point.y as double));
 
@@ -440,17 +440,17 @@ class Transformation {
 
   const Transformation(this.a, this.b, this.c, this.d);
 
-  CustomPoint<double> transform(CustomPoint point, double? scale) {
+  Point<double> transform(Point point, double? scale) {
     scale ??= 1.0;
     final x = scale * (a * point.x + b);
     final y = scale * (c * point.y + d);
-    return CustomPoint(x, y);
+    return Point(x, y);
   }
 
-  CustomPoint<double> untransform(CustomPoint point, double? scale) {
+  Point<double> untransform(Point point, double? scale) {
     scale ??= 1.0;
     final x = (point.x / scale - b) / a;
     final y = (point.y / scale - d) / c;
-    return CustomPoint(x, y);
+    return Point(x, y);
   }
 }

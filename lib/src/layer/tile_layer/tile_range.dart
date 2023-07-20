@@ -1,7 +1,8 @@
-import 'dart:math' as math;
+import 'dart:math' as math hide Point;
+import 'dart:math' show Point;
 
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
-import 'package:flutter_map/src/misc/point.dart';
+import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:flutter_map/src/misc/private/bounds.dart';
 
 abstract class TileRange {
@@ -38,7 +39,7 @@ class DiscreteTileRange extends TileRange {
     } else {
       bounds = Bounds<int>(
         (pixelBounds.min / tileSize).floor(),
-        (pixelBounds.max / tileSize).ceil() - const CustomPoint(1, 1),
+        (pixelBounds.max / tileSize).ceil() - const Point(1, 1),
       );
     }
 
@@ -51,12 +52,8 @@ class DiscreteTileRange extends TileRange {
     return DiscreteTileRange(
       zoom,
       _bounds
-          .extend(
-            CustomPoint<int>(_bounds.min.x - count, _bounds.min.y - count),
-          )
-          .extend(
-            CustomPoint<int>(_bounds.max.x + count, _bounds.max.y + count),
-          ),
+          .extend(Point<int>(_bounds.min.x - count, _bounds.min.y - count))
+          .extend(Point<int>(_bounds.max.x + count, _bounds.max.y + count)),
     );
   }
 
@@ -77,8 +74,8 @@ class DiscreteTileRange extends TileRange {
     return DiscreteTileRange(
       zoom,
       Bounds(
-        CustomPoint(math.max(min.x, minX), min.y),
-        CustomPoint(math.min(max.x, maxX), max.y),
+        Point(math.max(min.x, minX), min.y),
+        Point(math.min(max.x, maxX), max.y),
       ),
     );
   }
@@ -92,21 +89,21 @@ class DiscreteTileRange extends TileRange {
     return DiscreteTileRange(
       zoom,
       Bounds(
-        CustomPoint(min.x, math.max(min.y, minY)),
-        CustomPoint(max.x, math.min(max.y, maxY)),
+        Point(min.x, math.max(min.y, minY)),
+        Point(max.x, math.min(max.y, maxY)),
       ),
     );
   }
 
-  bool contains(CustomPoint<int> point) {
+  bool contains(Point<int> point) {
     return _bounds.contains(point);
   }
 
-  CustomPoint<int> get min => _bounds.min;
+  Point<int> get min => _bounds.min;
 
-  CustomPoint<int> get max => _bounds.max;
+  Point<int> get max => _bounds.max;
 
-  CustomPoint<double> get center => _bounds.center;
+  Point<double> get center => _bounds.center;
 
   @override
   Iterable<TileCoordinates> get coordinates sync* {

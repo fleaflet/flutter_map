@@ -1,10 +1,11 @@
-import 'dart:math' as math;
+import 'dart:math' as math hide Point;
+import 'dart:math' show Point;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:flutter_map/src/map/camera/camera_constraint.dart';
-import 'package:flutter_map/src/misc/point.dart';
+import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -102,8 +103,8 @@ class FitBounds extends CameraFit {
   /// Returns a new [MapCamera] which fits this classes configuration.
   @override
   MapCamera fit(MapCamera camera) {
-    final paddingTL = CustomPoint<double>(padding.left, padding.top);
-    final paddingBR = CustomPoint<double>(padding.right, padding.bottom);
+    final paddingTL = Point<double>(padding.left, padding.top);
+    final paddingBR = Point<double>(padding.right, padding.bottom);
 
     final paddingTotalXY = paddingTL + paddingBR;
 
@@ -114,7 +115,7 @@ class FitBounds extends CameraFit {
     final swPoint = camera.project(bounds.southWest, newZoom);
     final nePoint = camera.project(bounds.northEast, newZoom);
 
-    final CustomPoint<double> projectedCenter;
+    final Point<double> projectedCenter;
     if (camera.rotation != 0.0) {
       final swPointRotated = swPoint.rotate(-camera.rotationRad);
       final nePointRotated = nePoint.rotate(-camera.rotationRad);
@@ -135,13 +136,13 @@ class FitBounds extends CameraFit {
 
   double _getBoundsZoom(
     MapCamera camera,
-    CustomPoint<double> pixelPadding,
+    Point<double> pixelPadding,
   ) {
     final nw = bounds.northWest;
     final se = bounds.southEast;
     var size = camera.nonRotatedSize - pixelPadding;
     // Prevent negative size which results in NaN zoom value later on in the calculation
-    size = CustomPoint(math.max(0, size.x), math.max(0, size.y));
+    size = Point(math.max(0, size.x), math.max(0, size.y));
     var boundsSize = Bounds(
       camera.project(se, camera.zoom),
       camera.project(nw, camera.zoom),
@@ -149,7 +150,7 @@ class FitBounds extends CameraFit {
     if (camera.rotation != 0.0) {
       final cosAngle = math.cos(camera.rotationRad).abs();
       final sinAngle = math.sin(camera.rotationRad).abs();
-      boundsSize = CustomPoint<double>(
+      boundsSize = Point<double>(
         (boundsSize.x * cosAngle) + (boundsSize.y * sinAngle),
         (boundsSize.y * cosAngle) + (boundsSize.x * sinAngle),
       );
@@ -216,8 +217,8 @@ class FitInsideBounds extends CameraFit {
 
   @override
   MapCamera fit(MapCamera camera) {
-    final paddingTL = CustomPoint<double>(padding.left, padding.top);
-    final paddingBR = CustomPoint<double>(padding.right, padding.bottom);
+    final paddingTL = Point<double>(padding.left, padding.top);
+    final paddingBR = Point<double>(padding.right, padding.bottom);
     final paddingTotalXY = paddingTL + paddingBR;
     final paddingOffset = (paddingBR - paddingTL) / 2;
 
@@ -267,7 +268,7 @@ class FitInsideBounds extends CameraFit {
   LatLng _getCenter(
     MapCamera camera, {
     required double newZoom,
-    required CustomPoint<double> paddingOffset,
+    required Point<double> paddingOffset,
   }) {
     if (camera.rotation == 0.0) {
       final swPoint = camera.project(bounds.southWest, newZoom);
@@ -421,8 +422,8 @@ class FitCoordinates extends CameraFit {
   /// Returns a new [MapCamera] which fits this classes configuration.
   @override
   MapCamera fit(MapCamera camera) {
-    final paddingTL = CustomPoint<double>(padding.left, padding.top);
-    final paddingBR = CustomPoint<double>(padding.right, padding.bottom);
+    final paddingTL = Point<double>(padding.left, padding.top);
+    final paddingBR = Point<double>(padding.right, padding.bottom);
 
     final paddingTotalXY = paddingTL + paddingBR;
 
@@ -455,11 +456,11 @@ class FitCoordinates extends CameraFit {
 
   double _getCoordinatesZoom(
     MapCamera camera,
-    CustomPoint<double> pixelPadding,
+    Point<double> pixelPadding,
   ) {
     var size = camera.nonRotatedSize - pixelPadding;
     // Prevent negative size which results in NaN zoom value later on in the calculation
-    size = CustomPoint(math.max(0, size.x), math.max(0, size.y));
+    size = Point(math.max(0, size.x), math.max(0, size.y));
 
     final projectedPoints = [
       for (final coord in coordinates) camera.project(coord)
