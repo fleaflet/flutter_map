@@ -52,6 +52,7 @@ enum AttributionAlignment {
 ///
 /// Read the documentation on the individual properties for more information and
 /// customizability.
+@immutable
 class RichAttributionWidget extends StatefulWidget {
   /// List of attributions to display
   ///

@@ -8,9 +8,11 @@ import 'package:flutter_map/src/layer/tile_layer/tile_display.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
+import 'package:meta/meta.dart';
 
 typedef TileCreator = TileImage Function(TileCoordinates coordinates);
 
+@immutable
 class TileImageManager {
   final Map<String, TileImage> _tiles = {};
 

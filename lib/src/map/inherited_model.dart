@@ -9,6 +9,7 @@ import 'package:flutter_map/src/map/options.dart';
 ///
 /// Using an [InheritedModel] means dependent widgets will only rebuild when
 /// the aspect they reference is updated.
+@immutable
 class FlutterMapInheritedModel extends InheritedModel<_FlutterMapAspect> {
   final FlutterMapData data;
 
@@ -67,6 +68,7 @@ class FlutterMapInheritedModel extends InheritedModel<_FlutterMapAspect> {
   }
 }
 
+@immutable
 class FlutterMapData {
   final MapCamera camera;
   final MapController controller;

@@ -37,6 +37,7 @@ typedef PointerHoverCallback = void Function(
 
 typedef IsKeyboardKeyTrigger = bool Function(LogicalKeyboardKey key)?;
 
+@immutable
 class MapOptions {
   /// The Coordinate Reference System, defaults to [Epsg3857].
   final Crs crs;
@@ -346,6 +347,7 @@ class MapOptions {
       ]);
 }
 
+@immutable
 final class InteractionOptions {
   /// See [InteractiveFlag] for custom settings
   final int flags;

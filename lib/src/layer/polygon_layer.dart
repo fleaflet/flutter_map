@@ -30,10 +30,8 @@ class Polygon {
 
   LatLngBounds? _boundingBox;
 
-  LatLngBounds get boundingBox {
-    _boundingBox ??= LatLngBounds.fromPoints(points);
-    return _boundingBox!;
-  }
+  LatLngBounds get boundingBox =>
+      _boundingBox ??= LatLngBounds.fromPoints(points);
 
   Polygon({
     required this.points,
@@ -65,6 +63,7 @@ class Polygon {
       labelStyle);
 }
 
+@immutable
 class PolygonLayer extends StatelessWidget {
   final List<Polygon> polygons;
 
@@ -191,15 +190,14 @@ class PolygonPainter extends CustomPainter {
         // Labels are expensive they mess with draw batching.
         drawPaths();
 
-        Label.paintText(
-          canvas,
-          offsets,
-          polygon.label,
-          polygon.labelStyle,
-          map.rotationRad,
+        Label(
+          points: offsets,
+          labelText: polygon.label,
+          labelStyle: polygon.labelStyle,
+          rotationRad: map.rotationRad,
           rotate: polygon.rotateLabel,
           labelPlacement: polygon.labelPlacement,
-        );
+        ).paintText(canvas);
       }
     }
 

@@ -1,6 +1,8 @@
 import 'package:latlong2/latlong.dart';
+import 'package:meta/meta.dart';
 
 /// Geographical point with applied zoom level
+@immutable
 class CenterZoom {
   /// Coordinates for zoomed point
   final LatLng center;
@@ -8,7 +10,7 @@ class CenterZoom {
   /// Zoom value
   final double zoom;
 
-  CenterZoom({required this.center, required this.zoom});
+  const CenterZoom({required this.center, required this.zoom});
 
   CenterZoom withCenter(LatLng center) =>
       CenterZoom(center: center, zoom: zoom);

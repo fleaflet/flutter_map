@@ -5,7 +5,9 @@ import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:meta/meta.dart';
 
+@immutable
 abstract class TileBounds {
   final Crs crs;
   final double _tileSize;
@@ -43,6 +45,7 @@ abstract class TileBounds {
       crs != this.crs || tileSize != _tileSize || latLngBounds != _latLngBounds;
 }
 
+@immutable
 class InfiniteTileBounds extends TileBounds {
   const InfiniteTileBounds._(
     super.crs,
@@ -54,6 +57,7 @@ class InfiniteTileBounds extends TileBounds {
   TileBoundsAtZoom atZoom(int zoom) => const InfiniteTileBoundsAtZoom();
 }
 
+@immutable
 class DiscreteTileBounds extends TileBounds {
   final Map<int, TileBoundsAtZoom> _tileBoundsAtZoomCache = {};
 
@@ -92,6 +96,7 @@ class DiscreteTileBounds extends TileBounds {
   }
 }
 
+@immutable
 class WrappedTileBounds extends TileBounds {
   final Map<int, WrappedTileBoundsAtZoom> _tileBoundsAtZoomCache = {};
 

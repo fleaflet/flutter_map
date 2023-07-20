@@ -1,5 +1,7 @@
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
+import 'package:meta/meta.dart';
 
+@immutable
 sealed class TileDisplay {
   const TileDisplay();
 
@@ -55,6 +57,7 @@ sealed class TileDisplay {
   }
 }
 
+@immutable
 class InstantaneousTileDisplay extends TileDisplay {
   final double opacity;
 
@@ -75,6 +78,7 @@ class InstantaneousTileDisplay extends TileDisplay {
   int get hashCode => opacity.hashCode;
 }
 
+@immutable
 class FadeInTileDisplay extends TileDisplay {
   final Duration duration;
   final double startOpacity;

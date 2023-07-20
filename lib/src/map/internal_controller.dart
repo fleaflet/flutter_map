@@ -7,8 +7,8 @@ import 'package:flutter_map/src/gestures/flutter_map_interactive_viewer.dart';
 import 'package:flutter_map/src/map/map_controller_impl.dart';
 import 'package:latlong2/latlong.dart';
 
-// This controller is for internal use. All updates to the state should be done
-// by calling methods of this class to ensure consistency.
+/// This controller is for internal use. All updates to the state should be done
+/// by calling methods of this class to ensure consistency.
 class FlutterMapInternalController extends ValueNotifier<_InternalState> {
   late final FlutterMapInteractiveViewerState _interactiveViewerState;
   late MapControllerImpl _mapControllerImpl;
@@ -156,7 +156,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     }
 
     if (degree == camera.rotation) {
-      return MoveAndRotateResult(false, false);
+      return const MoveAndRotateResult(false, false);
     }
 
     if (offset == Offset.zero) {
@@ -459,6 +459,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
   }
 }
 
+@immutable
 class _InternalState {
   final MapCamera camera;
   final MapOptions options;

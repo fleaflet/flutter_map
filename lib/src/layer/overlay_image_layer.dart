@@ -6,6 +6,7 @@ import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Base class for all overlay images.
+@immutable
 abstract class BaseOverlayImage {
   ImageProvider get imageProvider;
 
@@ -30,6 +31,7 @@ abstract class BaseOverlayImage {
 ///
 /// The shortest side of the image will be placed along the shortest side of the
 /// bounding box to minimize distortion.
+@immutable
 class OverlayImage extends BaseOverlayImage {
   final LatLngBounds bounds;
   @override
@@ -68,6 +70,7 @@ class OverlayImage extends BaseOverlayImage {
 /// The image is transformed so that its corners touch the [topLeftCorner],
 /// [bottomLeftCorner] and [bottomRightCorner] points while the top-right
 /// corner point is derived from the other points.
+@immutable
 class RotatedOverlayImage extends BaseOverlayImage {
   @override
   final ImageProvider imageProvider;
@@ -135,6 +138,7 @@ class RotatedOverlayImage extends BaseOverlayImage {
   }
 }
 
+@immutable
 class OverlayImageLayer extends StatelessWidget {
   final List<BaseOverlayImage> overlayImages;
 

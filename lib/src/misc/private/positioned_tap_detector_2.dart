@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 
 typedef TapPositionCallback = void Function(TapPosition position);
 
+@immutable
 class PositionedTapDetector2 extends StatefulWidget {
   const PositionedTapDetector2({
     super.key,
@@ -224,11 +225,12 @@ class PositionedTapController {
   void onTapDown(TapDownDetails details) => _state?._onTapDownEvent(details);
 }
 
+@immutable
 class TapPosition {
-  TapPosition(this.global, this.relative);
+  const TapPosition(this.global, this.relative);
 
-  Offset global;
-  Offset? relative;
+  final Offset global;
+  final Offset? relative;
 
   @override
   bool operator ==(dynamic other) {

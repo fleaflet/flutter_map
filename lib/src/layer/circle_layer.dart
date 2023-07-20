@@ -2,6 +2,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 
+/// Immutable marker options for circle markers
+@immutable
 class CircleMarker {
   final Key? key;
   final LatLng point;
@@ -10,10 +12,8 @@ class CircleMarker {
   final double borderStrokeWidth;
   final Color borderColor;
   final bool useRadiusInMeter;
-  Offset offset = Offset.zero;
-  double realRadius = 0;
 
-  CircleMarker({
+  const CircleMarker({
     required this.point,
     required this.radius,
     this.key,
@@ -24,49 +24,54 @@ class CircleMarker {
   });
 }
 
+@immutable
 class CircleLayer extends StatelessWidget {
   final List<CircleMarker> circles;
-  const CircleLayer({
-    super.key,
-    this.circles = const [],
-  });
+
+  const CircleLayer({super.key, this.circles = const []});
 
   @override
   Widget build(BuildContext context) {
+    const distance = Distance();
     return LayoutBuilder(
       builder: (context, bc) {
         final size = Size(bc.maxWidth, bc.maxHeight);
         final map = MapCamera.of(context);
-        final circleWidgets = <Widget>[];
-        for (final circle in circles) {
-          circle.offset = map.getOffsetFromOrigin(circle.point);
-
+        final circleWidgets = circles.map<Widget>((circle) {
+          final offset = map.getOffsetFromOrigin(circle.point);
+          double? realRadius;
           if (circle.useRadiusInMeter) {
-            final r = const Distance().offset(circle.point, circle.radius, 180);
-            final delta = circle.offset - map.getOffsetFromOrigin(r);
-            circle.realRadius = delta.distance;
+            final r = distance.offset(circle.point, circle.radius, 180);
+            final delta = offset - map.getOffsetFromOrigin(r);
+            realRadius = delta.distance;
           }
-
-          circleWidgets.add(
-            CustomPaint(
-              key: circle.key,
-              painter: CirclePainter(circle),
-              size: size,
+          return CustomPaint(
+            key: circle.key,
+            painter: CirclePainter(
+              circle,
+              offset: offset,
+              radius: realRadius ?? 0,
             ),
+            size: size,
           );
-        }
-
-        return Stack(
-          children: circleWidgets,
-        );
+        }).toList(growable: false);
+        return Stack(children: circleWidgets);
       },
     );
   }
 }
 
+@immutable
 class CirclePainter extends CustomPainter {
   final CircleMarker circle;
-  CirclePainter(this.circle);
+  final Offset offset;
+  final double radius;
+
+  const CirclePainter(
+    this.circle, {
+    this.offset = Offset.zero,
+    this.radius = 0,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -76,8 +81,8 @@ class CirclePainter extends CustomPainter {
       ..style = PaintingStyle.fill
       ..color = circle.color;
 
-    _paintCircle(canvas, circle.offset,
-        circle.useRadiusInMeter ? circle.realRadius : circle.radius, paint);
+    _paintCircle(canvas, offset,
+        circle.useRadiusInMeter ? radius : circle.radius, paint);
 
     if (circle.borderStrokeWidth > 0) {
       final paint = Paint()
@@ -85,8 +90,8 @@ class CirclePainter extends CustomPainter {
         ..color = circle.borderColor
         ..strokeWidth = circle.borderStrokeWidth;
 
-      _paintCircle(canvas, circle.offset,
-          circle.useRadiusInMeter ? circle.realRadius : circle.radius, paint);
+      _paintCircle(canvas, offset,
+          circle.useRadiusInMeter ? radius : circle.radius, paint);
     }
   }
 

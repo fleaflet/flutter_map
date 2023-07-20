@@ -6,12 +6,14 @@ import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:flutter_map/src/map/camera/camera_fit.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:meta/meta.dart';
 
 /// Describes a boundary for a [MapCamera], that cannot be exceeded by movement
 ///
 /// This separate from constraints that may be imposed by the chosen CRS.
 ///
 /// Positioning is handled by [CameraFit].
+@immutable
 abstract class CameraConstraint {
   /// Describes a boundary for a [MapCamera], that cannot be exceeded by movement
   ///
@@ -49,6 +51,7 @@ abstract class CameraConstraint {
 /// Does not apply any constraint to a [MapCamera]
 ///
 /// See [CameraConstraint] for more information.
+@immutable
 class UnconstrainedCamera extends CameraConstraint {
   const UnconstrainedCamera._();
 
@@ -62,6 +65,7 @@ class UnconstrainedCamera extends CameraConstraint {
 /// by the edges of the camera, use [ContainCamera].
 ///
 /// See [CameraConstraint] for more information.
+@immutable
 class ContainCameraCenter extends CameraConstraint {
   const ContainCameraCenter._({required this.bounds});
 
@@ -96,6 +100,7 @@ class ContainCameraCenter extends CameraConstraint {
 /// use [ContainCameraCenter].
 ///
 /// See [CameraConstraint] for more information.
+@immutable
 class ContainCamera extends CameraConstraint {
   const ContainCamera._({required this.bounds});
 

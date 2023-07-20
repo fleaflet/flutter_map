@@ -14,6 +14,7 @@ import 'package:flutter_map/src/map/options.dart';
 ///
 /// See the online documentation for more information about set-up,
 /// configuration, and usage.
+@immutable
 class FlutterMap extends StatefulWidget {
   /// Renders an interactive geographical map as a widget
   ///

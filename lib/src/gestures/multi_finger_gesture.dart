@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+
 /// Use [MultiFingerGesture] to disable / enable certain gestures Use
 /// [MultiFingerGesture.all] to enable all gestures, use
 /// [MultiFingerGesture.none] to disable all gestures
@@ -6,6 +8,7 @@
 /// have two options A.) add you own flags: [MultiFingerGesture.rotate] |
 /// [MultiFingerGesture.pinchZoom] B.) remove unnecessary flags from all:
 /// [MultiFingerGesture.all] & ~[MultiFingerGesture.pinchMove]
+@immutable
 class MultiFingerGesture {
   static const int all = pinchMove | pinchZoom | rotate;
   static const int none = 0;

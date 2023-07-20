@@ -1,8 +1,11 @@
 import 'dart:math' as math hide Point;
 import 'dart:math' show Point;
 
+import 'package:meta/meta.dart';
+
 /// Rectangular bound delimited by orthogonal lines passing through two
 /// points.
+@immutable
 class Bounds<T extends num> {
   final Point<T> min;
   final Point<T> max;

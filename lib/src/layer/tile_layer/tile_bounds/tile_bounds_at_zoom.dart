@@ -2,7 +2,9 @@ import 'dart:math';
 
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
+import 'package:meta/meta.dart';
 
+@immutable
 abstract class TileBoundsAtZoom {
   const TileBoundsAtZoom();
 
@@ -11,6 +13,7 @@ abstract class TileBoundsAtZoom {
   Iterable<TileCoordinates> validCoordinatesIn(DiscreteTileRange tileRange);
 }
 
+@immutable
 class InfiniteTileBoundsAtZoom extends TileBoundsAtZoom {
   const InfiniteTileBoundsAtZoom();
 
@@ -25,6 +28,7 @@ class InfiniteTileBoundsAtZoom extends TileBoundsAtZoom {
   String toString() => 'InfiniteTileBoundsAtZoom()';
 }
 
+@immutable
 class DiscreteTileBoundsAtZoom extends TileBoundsAtZoom {
   final DiscreteTileRange tileRange;
 
@@ -46,6 +50,7 @@ class DiscreteTileBoundsAtZoom extends TileBoundsAtZoom {
   String toString() => 'DiscreteTileBoundsAtZoom($tileRange)';
 }
 
+@immutable
 class WrappedTileBoundsAtZoom extends TileBoundsAtZoom {
   final DiscreteTileRange tileRange;
   final bool wrappedAxisIsAlwaysInBounds;

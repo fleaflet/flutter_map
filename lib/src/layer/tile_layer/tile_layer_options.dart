@@ -22,6 +22,7 @@ typedef ErrorTileCallBack = void Function(
   StackTrace? stackTrace,
 );
 
+@immutable
 class WMSTileLayerOptions {
   final service = 'WMS';
   final request = 'GetMap';

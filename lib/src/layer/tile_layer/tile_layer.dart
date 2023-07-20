@@ -23,6 +23,7 @@ part 'tile_layer_options.dart';
 /// You should read up about the options by exploring each one, or visiting
 /// https://docs.fleaflet.dev/usage/layers/tile-layer. Some are important to
 /// avoid issues.
+@immutable
 class TileLayer extends StatefulWidget {
   /// Defines the structure to create the URLs for the tiles. `{s}` means one of
   /// the available subdomains (can be omitted) `{z}` zoom level `{x}` and `{y}`
@@ -238,7 +239,7 @@ class TileLayer extends StatefulWidget {
     this.panBuffer = 0,
     this.backgroundColor,
     this.errorImage,
-    TileProvider? tileProvider,
+    final TileProvider? tileProvider,
     this.tms = false,
     this.wmsOptions,
     this.tileDisplay = const TileDisplay.fadeIn(),

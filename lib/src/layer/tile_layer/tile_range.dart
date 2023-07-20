@@ -4,7 +4,9 @@ import 'dart:math' show Point;
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:flutter_map/src/misc/private/bounds.dart';
+import 'package:meta/meta.dart';
 
+@immutable
 abstract class TileRange {
   final int zoom;
 
@@ -13,6 +15,7 @@ abstract class TileRange {
   Iterable<TileCoordinates> get coordinates;
 }
 
+@immutable
 class EmptyTileRange extends TileRange {
   const EmptyTileRange._(super.zoom);
 
@@ -21,6 +24,7 @@ class EmptyTileRange extends TileRange {
       const Iterable<TileCoordinates>.empty();
 }
 
+@immutable
 class DiscreteTileRange extends TileRange {
   // Bounds are inclusive
   final Bounds<int> _bounds;

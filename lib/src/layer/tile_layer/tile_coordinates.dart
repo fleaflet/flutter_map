@@ -1,5 +1,8 @@
 import 'dart:math';
 
+import 'package:meta/meta.dart';
+
+@immutable
 class TileCoordinates extends Point<int> {
   final int z;
 

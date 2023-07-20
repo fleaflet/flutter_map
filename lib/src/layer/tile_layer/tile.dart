@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_builder.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
 
+@immutable
 class Tile extends StatefulWidget {
   final TileImage tileImage;
   final TileBuilder? tileBuilder;

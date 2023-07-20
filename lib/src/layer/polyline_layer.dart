@@ -21,10 +21,8 @@ class Polyline {
 
   LatLngBounds? _boundingBox;
 
-  LatLngBounds get boundingBox {
-    _boundingBox ??= LatLngBounds.fromPoints(points);
-    return _boundingBox!;
-  }
+  LatLngBounds get boundingBox =>
+      _boundingBox ??= LatLngBounds.fromPoints(points);
 
   Polyline({
     required this.points,
@@ -54,6 +52,7 @@ class Polyline {
       useStrokeWidthInMeter);
 }
 
+@immutable
 class PolylineLayer extends StatelessWidget {
   final List<Polyline> polylines;
   final bool polylineCulling;
@@ -91,10 +90,7 @@ class PolylinePainter extends CustomPainter {
 
   PolylinePainter(this.polylines, this.map) : bounds = map.visibleBounds;
 
-  int get hash {
-    _hash ??= Object.hashAll(polylines);
-    return _hash!;
-  }
+  int get hash => _hash ??= Object.hashAll(polylines);
 
   int? _hash;
 
@@ -104,9 +100,7 @@ class PolylinePainter extends CustomPainter {
     }, growable: false);
   }
 
-  Offset getOffset(LatLng point) {
-    return map.getOffsetFromOrigin(point);
-  }
+  Offset getOffset(LatLng point) => map.getOffsetFromOrigin(point);
 
   @override
   void paint(Canvas canvas, Size size) {

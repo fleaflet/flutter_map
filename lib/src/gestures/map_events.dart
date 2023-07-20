@@ -1,5 +1,6 @@
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:meta/meta.dart';
 
 /// Event sources which are used to identify different types of
 /// [MapEvent] events
@@ -29,6 +30,7 @@ enum MapEventSource {
 /// Base event class which is emitted by MapController instance, the event
 /// is usually related to performed gesture on the map itself or it can
 /// be an event related to map configuration
+@immutable
 abstract class MapEvent {
   /// Who / what issued the event.
   final MapEventSource source;
@@ -45,6 +47,7 @@ abstract class MapEvent {
 /// Base event class which is emitted by MapController instance and
 /// includes information about camera movement
 /// which are not partial (e.g start rotate, rotate, end rotate).
+@immutable
 abstract class MapEventWithMove extends MapEvent {
   final MapCamera oldCamera;
 
@@ -95,6 +98,7 @@ abstract class MapEventWithMove extends MapEvent {
 }
 
 /// Event which is fired when map is tapped
+@immutable
 class MapEventTap extends MapEvent {
   /// Point coordinates where user has tapped
   final LatLng tapPosition;
@@ -106,6 +110,7 @@ class MapEventTap extends MapEvent {
   });
 }
 
+@immutable
 class MapEventSecondaryTap extends MapEvent {
   /// Point coordinates where user has tapped
   final LatLng tapPosition;
@@ -118,6 +123,7 @@ class MapEventSecondaryTap extends MapEvent {
 }
 
 /// Event which is fired when map is long-pressed
+@immutable
 class MapEventLongPress extends MapEvent {
   /// Point coordinates where user has long-pressed
   final LatLng tapPosition;
@@ -130,6 +136,7 @@ class MapEventLongPress extends MapEvent {
 }
 
 /// Event which is fired when map is being moved.
+@immutable
 class MapEventMove extends MapEventWithMove {
   /// Custom ID to identify related object(s)
   final String? id;
@@ -143,6 +150,7 @@ class MapEventMove extends MapEventWithMove {
 }
 
 /// Event which is fired when dragging is started
+@immutable
 class MapEventMoveStart extends MapEvent {
   const MapEventMoveStart({
     required super.source,
@@ -151,6 +159,7 @@ class MapEventMoveStart extends MapEvent {
 }
 
 /// Event which is fired when dragging is finished
+@immutable
 class MapEventMoveEnd extends MapEvent {
   const MapEventMoveEnd({
     required super.source,
@@ -159,6 +168,7 @@ class MapEventMoveEnd extends MapEvent {
 }
 
 /// Event which is fired when animation started by fling gesture is in progress
+@immutable
 class MapEventFlingAnimation extends MapEventWithMove {
   const MapEventFlingAnimation({
     required super.source,
@@ -169,6 +179,7 @@ class MapEventFlingAnimation extends MapEventWithMove {
 
 /// Emits when InteractiveFlags contains fling and there wasn't enough velocity
 /// to start fling animation
+@immutable
 class MapEventFlingAnimationNotStarted extends MapEvent {
   const MapEventFlingAnimationNotStarted({
     required super.source,
@@ -177,6 +188,7 @@ class MapEventFlingAnimationNotStarted extends MapEvent {
 }
 
 /// Event which is fired when fling gesture is detected
+@immutable
 class MapEventFlingAnimationStart extends MapEvent {
   const MapEventFlingAnimationStart({
     required super.source,
@@ -185,6 +197,7 @@ class MapEventFlingAnimationStart extends MapEvent {
 }
 
 /// Event which is fired when animation started by fling gesture finished
+@immutable
 class MapEventFlingAnimationEnd extends MapEvent {
   const MapEventFlingAnimationEnd({
     required super.source,
@@ -193,6 +206,7 @@ class MapEventFlingAnimationEnd extends MapEvent {
 }
 
 /// Event which is fired when map is double tapped
+@immutable
 class MapEventDoubleTapZoom extends MapEventWithMove {
   const MapEventDoubleTapZoom({
     required super.source,
@@ -202,6 +216,7 @@ class MapEventDoubleTapZoom extends MapEventWithMove {
 }
 
 /// Event which is fired when scroll wheel is used to zoom
+@immutable
 class MapEventScrollWheelZoom extends MapEventWithMove {
   const MapEventScrollWheelZoom({
     required super.source,
@@ -211,6 +226,7 @@ class MapEventScrollWheelZoom extends MapEventWithMove {
 }
 
 /// Event which is fired when animation for double tap gesture is started
+@immutable
 class MapEventDoubleTapZoomStart extends MapEvent {
   const MapEventDoubleTapZoomStart({
     required super.source,
@@ -219,6 +235,7 @@ class MapEventDoubleTapZoomStart extends MapEvent {
 }
 
 /// Event which is fired when animation for double tap gesture ends
+@immutable
 class MapEventDoubleTapZoomEnd extends MapEvent {
   const MapEventDoubleTapZoomEnd({
     required super.source,
@@ -227,6 +244,7 @@ class MapEventDoubleTapZoomEnd extends MapEvent {
 }
 
 /// Event which is fired when map is being rotated
+@immutable
 class MapEventRotate extends MapEventWithMove {
   /// Custom ID to identify related object(s)
   final String? id;
@@ -240,6 +258,7 @@ class MapEventRotate extends MapEventWithMove {
 }
 
 /// Event which is fired when rotate gesture was started
+@immutable
 class MapEventRotateStart extends MapEvent {
   const MapEventRotateStart({
     required super.source,
@@ -247,6 +266,8 @@ class MapEventRotateStart extends MapEvent {
   });
 }
 
+/// Event which is fired when rotate gesture has ended
+@immutable
 class MapEventRotateEnd extends MapEvent {
   const MapEventRotateEnd({
     required super.source,
@@ -254,6 +275,7 @@ class MapEventRotateEnd extends MapEvent {
   });
 }
 
+@immutable
 class MapEventNonRotatedSizeChange extends MapEventWithMove {
   const MapEventNonRotatedSizeChange({
     required super.source,

@@ -30,8 +30,10 @@ class AssetTileProvider extends TileProvider {
   }
 }
 
+@immutable
 class _FlutterMapAssetBundle extends CachingAssetBundle {
   _FlutterMapAssetBundle({required this.fallbackUrl});
+
   final String fallbackUrl;
 
   Future<ByteData?> _loadAsset(String key) async {

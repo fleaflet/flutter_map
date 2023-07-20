@@ -5,16 +5,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:polylabel/polylabel.dart';
 
+@immutable
 class Label {
-  static void paintText(
-    Canvas canvas,
-    List<Offset> points,
-    String? labelText,
-    TextStyle? labelStyle,
-    double rotationRad, {
-    bool rotate = false,
-    PolygonLabelPlacement labelPlacement = PolygonLabelPlacement.polylabel,
-  }) {
+  final List<Offset> points;
+  final String? labelText;
+  final TextStyle? labelStyle;
+  final double rotationRad;
+  final bool rotate;
+  final PolygonLabelPlacement labelPlacement;
+
+  const Label({
+    required this.points,
+    this.labelText,
+    this.labelStyle,
+    required this.rotationRad,
+    this.rotate = false,
+    this.labelPlacement = PolygonLabelPlacement.polylabel,
+  });
+
+  void paintText(Canvas canvas) {
     final placementPoint = switch (labelPlacement) {
       PolygonLabelPlacement.centroid => _computeCentroid(points),
       PolygonLabelPlacement.polylabel => _computePolylabel(points),
@@ -58,14 +67,14 @@ class Label {
     }
   }
 
-  static Offset _computeCentroid(List<Offset> points) {
+  Offset _computeCentroid(List<Offset> points) {
     return Offset(
       points.map((e) => e.dx).toList().average,
       points.map((e) => e.dy).toList().average,
     );
   }
 
-  static Offset _computePolylabel(List<Offset> points) {
+  Offset _computePolylabel(List<Offset> points) {
     final labelPosition = polylabel([
       points.map((p) => math.Point(p.dx, p.dy)).toList(),
     ]);
