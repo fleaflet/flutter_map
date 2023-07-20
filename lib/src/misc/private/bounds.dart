@@ -7,13 +7,13 @@ class Bounds<T extends num> {
   final Point<T> min;
   final Point<T> max;
 
-  const Bounds._(this.min, this.max);
-
   factory Bounds(Point<T> a, Point<T> b) {
     final bounds1 = Bounds._(a, b);
     final bounds2 = bounds1.extend(a);
     return bounds2.extend(b);
   }
+
+  const Bounds._(this.min, this.max);
 
   static Bounds<double> containing(Iterable<Point<double>> points) {
     var maxX = double.negativeInfinity;

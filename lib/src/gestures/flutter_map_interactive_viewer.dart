@@ -227,7 +227,7 @@ class FlutterMapInteractiveViewerState
       TapGestureRecognizer:
           GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
         () => TapGestureRecognizer(debugOwner: this),
-        (TapGestureRecognizer instance) {
+        (instance) {
           instance
             ..onTapDown = _positionedTapController.onTapDown
             ..onTapUp = _handleOnTapUp
@@ -239,7 +239,7 @@ class FlutterMapInteractiveViewerState
       LongPressGestureRecognizer:
           GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
         () => LongPressGestureRecognizer(debugOwner: this),
-        (LongPressGestureRecognizer instance) {
+        (instance) {
           instance.onLongPress = _positionedTapController.onLongPress;
         },
       ),
@@ -247,7 +247,7 @@ class FlutterMapInteractiveViewerState
         VerticalDragGestureRecognizer:
             GestureRecognizerFactoryWithHandlers<VerticalDragGestureRecognizer>(
           () => VerticalDragGestureRecognizer(debugOwner: this),
-          (VerticalDragGestureRecognizer instance) {
+          (instance) {
             instance.onUpdate = (details) {
               // Absorbing vertical drags
             };
@@ -259,7 +259,7 @@ class FlutterMapInteractiveViewerState
         HorizontalDragGestureRecognizer: GestureRecognizerFactoryWithHandlers<
             HorizontalDragGestureRecognizer>(
           () => HorizontalDragGestureRecognizer(debugOwner: this),
-          (HorizontalDragGestureRecognizer instance) {
+          (instance) {
             instance.onUpdate = (details) {
               // Absorbing horizontal drags
             };
@@ -270,7 +270,7 @@ class FlutterMapInteractiveViewerState
       ScaleGestureRecognizer:
           GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
         () => ScaleGestureRecognizer(debugOwner: this),
-        (ScaleGestureRecognizer instance) {
+        (instance) {
           instance
             ..onStart = _handleScaleStart
             ..onUpdate = _handleScaleUpdate
@@ -562,8 +562,8 @@ class FlutterMapInteractiveViewerState
     bool hasPinchZoom,
     bool hasPinchMove,
   ) {
-    LatLng newCenter = _camera.center;
-    double newZoom = _camera.zoom;
+    var newCenter = _camera.center;
+    var newZoom = _camera.zoom;
 
     // Handle pinch zoom.
     if (hasPinchZoom && details.scale > 0.0) {

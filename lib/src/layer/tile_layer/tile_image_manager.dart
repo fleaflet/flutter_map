@@ -51,7 +51,7 @@ class TileImageManager {
 
   bool allWithinZoom(double minZoom, double maxZoom) {
     for (final tile in _tiles.values) {
-      if (tile.coordinates.z > (maxZoom) || tile.coordinates.z < (minZoom)) {
+      if (tile.coordinates.z > maxZoom || tile.coordinates.z < minZoom) {
         return false;
       }
     }

@@ -13,31 +13,25 @@ class LatLngBounds {
     LatLng corner2,
   ) : this.fromPoints([corner1, corner2]);
 
-  LatLngBounds.fromPoints(List<LatLng> points) : assert(points.isNotEmpty) {
+  LatLngBounds.fromPoints(List<LatLng> points)
+      : assert(
+          points.isNotEmpty,
+          'LatLngBounds cannot be created with an empty List of LatLng',
+        ) {
+    // ignore: omit_local_variable_types
     double minX = 180;
+    // ignore: omit_local_variable_types
     double maxX = -180;
+    // ignore: omit_local_variable_types
     double minY = 90;
+    // ignore: omit_local_variable_types
     double maxY = -90;
 
     for (final point in points) {
-      final double x = point.longitude;
-      final double y = point.latitude;
-
-      if (minX > x) {
-        minX = x;
-      }
-
-      if (minY > y) {
-        minY = y;
-      }
-
-      if (maxX < x) {
-        maxX = x;
-      }
-
-      if (maxY < y) {
-        maxY = y;
-      }
+      minX = math.min<double>(minX, point.longitude);
+      minY = math.min<double>(minY, point.latitude);
+      maxX = math.max<double>(maxX, point.longitude);
+      maxY = math.max<double>(maxY, point.latitude);
     }
 
     _sw = LatLng(minY, minX);

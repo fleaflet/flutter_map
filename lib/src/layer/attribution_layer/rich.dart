@@ -175,12 +175,15 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
 
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => WidgetsBinding.instance.addPostFrameCallback(
-        (_) => setState(
-          () => persistentAttributionSize =
-              (persistentAttributionKey.currentContext!.findRenderObject()
-                      as RenderBox)
-                  .size,
-        ),
+        (_) {
+          final renderBox = persistentAttributionKey.currentContext
+              ?.findRenderObject() as RenderBox?;
+          assert(
+            renderBox != null,
+            'persistentAttributionKey is not in the widget tree',
+          );
+          setState(() => persistentAttributionSize = renderBox!.size);
+        },
       ),
     );
   }
@@ -338,7 +341,7 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
 
 extension _ListExt<E> on List<E> {
   Iterable<E> interleave(E separator) sync* {
-    for (int i = 0; i < length; i++) {
+    for (var i = 0; i < length; i++) {
       yield this[i];
       if (i < length) yield separator;
     }

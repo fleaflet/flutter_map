@@ -35,7 +35,10 @@ class DiscreteTileBoundsAtZoom extends TileBoundsAtZoom {
 
   @override
   Iterable<TileCoordinates> validCoordinatesIn(DiscreteTileRange tileRange) {
-    assert(this.tileRange.zoom == tileRange.zoom);
+    assert(
+      this.tileRange.zoom == tileRange.zoom,
+      "The zoom of the provided TileRange can't differ from the zoom level of the current tileRange",
+    );
     return this.tileRange.intersect(tileRange).coordinates;
   }
 
@@ -61,7 +64,10 @@ class WrappedTileBoundsAtZoom extends TileBoundsAtZoom {
     required this.wrapX,
     // Inclusive range to which y coordinates will be wrapped.
     required this.wrapY,
-  }) : assert(!(wrapX == null && wrapY == null));
+  }) : assert(
+          wrapX != null || wrapY != null,
+          'Either wrapX or wrapY needs to be not null',
+        );
 
   @override
   TileCoordinates wrap(TileCoordinates coordinates) => TileCoordinates(
@@ -96,7 +102,7 @@ class WrappedTileBoundsAtZoom extends TileBoundsAtZoom {
       if (wrappedAxisIsAlwaysInBounds) return intersectedRange.coordinates;
       return intersectedRange.coordinates.where(_wrappedYInRange);
     } else {
-      throw "Wrapped bounds must wrap on at least one axis";
+      throw Exception('Wrapped bounds must wrap on at least one axis');
     }
   }
 

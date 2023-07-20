@@ -31,7 +31,7 @@ class Label {
       maxLines: 1,
     );
     if (dx > 0) {
-      textPainter.layout(minWidth: 0, maxWidth: double.infinity);
+      textPainter.layout();
       dx -= textPainter.width / 2;
       dy -= textPainter.height / 2;
 

@@ -89,7 +89,7 @@ class FlutterMapStateContainer extends State<FlutterMap> {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
+      builder: (context, constraints) {
         _updateAndEmitSizeIfConstraintsChanged(constraints);
         _applyInitialCameraFit(constraints);
 

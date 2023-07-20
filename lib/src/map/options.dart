@@ -434,15 +434,29 @@ final class InteractionOptions {
     this.enableScrollWheel = true,
     this.scrollWheelVelocity = 0.005,
     this.isCursorRotationKeyboardKeyTrigger,
-  })  : assert(rotationThreshold >= 0.0),
-        assert(pinchZoomThreshold >= 0.0),
-        assert(pinchMoveThreshold >= 0.0);
+  })  : assert(
+          rotationThreshold >= 0.0,
+          'rotationThreshold needs to be a positive value',
+        ),
+        assert(
+          pinchZoomThreshold >= 0.0,
+          'pinchZoomThreshold needs to be a positive value',
+        ),
+        assert(
+          pinchMoveThreshold >= 0.0,
+          'pinchMoveThreshold needs to be a positive value',
+        );
 
   bool get dragEnabled => InteractiveFlag.hasDrag(flags);
+
   bool get flingEnabled => InteractiveFlag.hasFlingAnimation(flags);
+
   bool get doubleTapZoomEnabled => InteractiveFlag.hasDoubleTapZoom(flags);
+
   bool get rotateEnabled => InteractiveFlag.hasRotate(flags);
+
   bool get pinchZoomEnabled => InteractiveFlag.hasPinchZoom(flags);
+
   bool get pinchMoveEnabled => InteractiveFlag.hasPinchMove(flags);
 
   @override

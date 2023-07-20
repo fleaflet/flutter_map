@@ -100,17 +100,6 @@ class MapCamera {
       (throw StateError(
           '`MapCamera.of()` should not be called outside a `FlutterMap` and its descendants'));
 
-  /// Initializes [MapCamera] from the given [options] and with the
-  /// [nonRotatedSize] set to [kImpossibleSize].
-  MapCamera.initialCamera(MapOptions options)
-      : crs = options.crs,
-        minZoom = options.minZoom,
-        maxZoom = options.maxZoom,
-        center = options.initialCenter,
-        zoom = options.initialZoom,
-        rotation = options.initialRotation,
-        nonRotatedSize = kImpossibleSize;
-
   // Create an instance of [MapCamera]. The [pixelOrigin], [bounds], and
   // [pixelBounds] may be set if they are known already. Otherwise if left
   // null they will be calculated lazily when they are used.
@@ -132,6 +121,17 @@ class MapCamera {
         _bounds = bounds,
         _pixelOrigin = pixelOrigin,
         _rotationRad = rotationRad;
+
+  /// Initializes [MapCamera] from the given [options] and with the
+  /// [nonRotatedSize] set to [kImpossibleSize].
+  MapCamera.initialCamera(MapOptions options)
+      : crs = options.crs,
+        minZoom = options.minZoom,
+        maxZoom = options.maxZoom,
+        center = options.initialCenter,
+        zoom = options.initialZoom,
+        rotation = options.initialRotation,
+        nonRotatedSize = kImpossibleSize;
 
   /// Returns a new instance of [MapCamera] with the given [nonRotatedSize].
   MapCamera withNonRotatedSize(Point<double> nonRotatedSize) {
@@ -265,7 +265,7 @@ class MapCamera {
 
   /// Calculates the pixel bounds of this [MapCamera] at the given [zoom].
   Bounds<double> pixelBoundsAtZoom(double zoom) {
-    Point<double> halfSize = size / 2;
+    var halfSize = size / 2;
     if (zoom != this.zoom) {
       final scale = getZoomScale(this.zoom, zoom);
       halfSize = size / (scale * 2);

@@ -116,7 +116,7 @@ class PolylinePainter extends CustomPainter {
     var borderPath = ui.Path();
     var filterPath = ui.Path();
     var paint = Paint();
-    bool needsLayerSaving = false;
+    var needsLayerSaving = false;
 
     Paint? borderPaint;
     Paint? filterPaint;

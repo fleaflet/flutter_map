@@ -81,7 +81,7 @@ class PolygonLayer extends StatelessWidget {
     final map = MapCamera.of(context);
     final size = Size(map.size.x, map.size.y);
 
-    final List<Polygon> pgons = polygonCulling
+    final pgons = polygonCulling
         ? polygons.where((p) {
             return p.boundingBox.isOverlapping(map.visibleBounds);
           }).toList()
@@ -218,7 +218,7 @@ class PolygonPainter extends CustomPainter {
   void _paintBorder(ui.Path path, Polygon polygon, List<Offset> offsets,
       List<List<Offset>> holeOffsetsList) {
     if (polygon.isDotted) {
-      final borderRadius = (polygon.borderStrokeWidth / 2);
+      final borderRadius = polygon.borderStrokeWidth / 2;
       final spacing = polygon.borderStrokeWidth * 1.5;
 
       _paintDottedLine(path, offsets, borderRadius, spacing);

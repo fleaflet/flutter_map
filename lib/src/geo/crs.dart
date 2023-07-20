@@ -26,15 +26,15 @@ abstract class Crs {
     try {
       final projectedPoint = projection.project(latlng);
       final scale = this.scale(zoom);
-      return transformation.transform(projectedPoint, scale.toDouble());
-    } catch (e) {
+      return transformation.transform(projectedPoint, scale);
+    } catch (_) {
       return const Point(0, 0);
     }
   }
 
   /// Converts a map point to the sphere coordinate (at a certain zoom).
-  LatLng pointToLatLng(Point point, double zoom) => projection
-      .unproject(transformation.untransform(point, scale(zoom).toDouble()));
+  LatLng pointToLatLng(Point point, double zoom) =>
+      projection.unproject(transformation.untransform(point, scale(zoom)));
 
   /// Zoom to Scale function.
   double scale(double zoom) => 256.0 * math.pow(2, zoom);
@@ -48,8 +48,8 @@ abstract class Crs {
 
     final b = projection.bounds!;
     final s = scale(zoom);
-    final min = transformation.transform(b.min, s.toDouble());
-    final max = transformation.transform(b.max, s.toDouble());
+    final min = transformation.transform(b.min, s);
+    final max = transformation.transform(b.max, s);
     return Bounds(min, max);
   }
 
@@ -229,7 +229,7 @@ class Proj4Crs extends Crs {
       final scale = this.scale(zoom);
       final transformation = _getTransformationByZoom(zoom);
 
-      return transformation.transform(projectedPoint, scale.toDouble());
+      return transformation.transform(projectedPoint, scale);
     } catch (e) {
       return const Point(0, 0);
     }
@@ -237,9 +237,8 @@ class Proj4Crs extends Crs {
 
   /// Converts a map point to the sphere coordinate (at a certain zoom).
   @override
-  LatLng pointToLatLng(Point point, double zoom) =>
-      projection.unproject(_getTransformationByZoom(zoom)
-          .untransform(point, scale(zoom).toDouble()));
+  LatLng pointToLatLng(Point point, double zoom) => projection.unproject(
+      _getTransformationByZoom(zoom).untransform(point, scale(zoom)));
 
   /// Rescales the bounds to a given zoom value.
   @override
@@ -251,8 +250,8 @@ class Proj4Crs extends Crs {
 
     final transformation = _getTransformationByZoom(zoom);
 
-    final min = transformation.transform(b.min, s.toDouble());
-    final max = transformation.transform(b.max, s.toDouble());
+    final min = transformation.transform(b.min, s);
+    final max = transformation.transform(b.max, s);
     return Bounds(min, max);
   }
 
@@ -267,7 +266,7 @@ class Proj4Crs extends Crs {
       final baseScale = _scales[iZoom];
       final nextScale = _scales[iZoom + 1];
       final scaleDiff = nextScale - baseScale;
-      final zDiff = (zoom - iZoom);
+      final zDiff = zoom - iZoom;
       return baseScale + scaleDiff * zDiff;
     }
   }

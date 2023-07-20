@@ -75,7 +75,7 @@ class _TileState extends State<Tile> {
         builder: (context, child) => RawImage(
           image: widget.tileImage.imageInfo?.image,
           fit: BoxFit.fill,
-          opacity: widget.tileImage.animation!,
+          opacity: widget.tileImage.animation,
         ),
       );
     }

@@ -34,8 +34,7 @@ class FlutterMapNetworkImageProvider
     FlutterMapNetworkImageProvider key,
     ImageDecoderCallback decode,
   ) {
-    final StreamController<ImageChunkEvent> chunkEvents =
-        StreamController<ImageChunkEvent>();
+    final chunkEvents = StreamController<ImageChunkEvent>();
 
     return MultiFrameImageStreamCompleter(
       codec: _loadAsync(key, chunkEvents, decode),

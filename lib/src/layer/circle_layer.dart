@@ -34,7 +34,7 @@ class CircleLayer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints bc) {
+      builder: (context, bc) {
         final size = Size(bc.maxWidth, bc.maxHeight);
         final map = MapCamera.of(context);
         final circleWidgets = <Widget>[];

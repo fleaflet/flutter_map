@@ -72,7 +72,9 @@ class RotatedOverlayImage extends BaseOverlayImage {
   @override
   final ImageProvider imageProvider;
 
-  final LatLng topLeftCorner, bottomLeftCorner, bottomRightCorner;
+  final LatLng topLeftCorner;
+  final LatLng bottomLeftCorner;
+  final LatLng bottomRightCorner;
 
   @override
   final double opacity;
@@ -101,7 +103,7 @@ class RotatedOverlayImage extends BaseOverlayImage {
         map.project(bottomLeftCorner).subtract(map.pixelOrigin);
     // calculate pixel coordinate of top-right corner by calculating the
     // vector from bottom-left to top-left and adding it to bottom-right
-    final pxTopRight = (pxTopLeft - pxBottomLeft + pxBottomRight);
+    final pxTopRight = pxTopLeft - pxBottomLeft + pxBottomRight;
 
     // update/enlarge bounds so the new corner points fit within
     final bounds = Bounds<num>(pxTopLeft, pxBottomRight)
@@ -112,12 +114,12 @@ class RotatedOverlayImage extends BaseOverlayImage {
     final vectorY = (pxBottomLeft - pxTopLeft) / bounds.size.y;
     final offset = pxTopLeft.subtract(bounds.topLeft);
 
-    final a = vectorX.x.toDouble();
-    final b = vectorX.y.toDouble();
-    final c = vectorY.x.toDouble();
-    final d = vectorY.y.toDouble();
-    final tx = offset.x.toDouble();
-    final ty = offset.y.toDouble();
+    final a = vectorX.x;
+    final b = vectorX.y;
+    final c = vectorY.x;
+    final d = vectorY.y;
+    final tx = offset.x;
+    final ty = offset.y;
 
     return Positioned(
         left: bounds.topLeft.x.toDouble(),
