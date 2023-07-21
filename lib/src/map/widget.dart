@@ -37,7 +37,7 @@ class FlutterMap extends StatefulWidget {
   /// Configure this map
   final MapOptions options;
 
-  /// Programatically interact with this map
+  /// Programmatically interact with this map
   final MapController? mapController;
 
   @override
