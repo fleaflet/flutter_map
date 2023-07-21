@@ -18,13 +18,9 @@ class LatLngBounds {
           points.isNotEmpty,
           'LatLngBounds cannot be created with an empty List of LatLng',
         ) {
-    // ignore: omit_local_variable_types
     double minX = 180;
-    // ignore: omit_local_variable_types
     double maxX = -180;
-    // ignore: omit_local_variable_types
     double minY = 90;
-    // ignore: omit_local_variable_types
     double maxY = -90;
 
     for (final point in points) {

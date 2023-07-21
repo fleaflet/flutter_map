@@ -38,7 +38,6 @@ linter:
     avoid_void_async: true
     avoid_redundant_argument_values: true
     avoid_types_on_closure_parameters: true
-    omit_local_variable_types: true
     unnecessary_null_checks: true
     prefer_single_quotes: true
     unnecessary_parenthesis: true
