@@ -53,7 +53,7 @@ class TileRemovalState {
     final retain = Set<TileImage>.from(_keepTiles);
 
     for (final tile in _tileImages.values) {
-      if (_keepTiles.contains(tile) && !tile.active) {
+      if (_keepTiles.contains(tile) && !tile.readyToDisplay) {
         final coords = tile.coordinates;
         if (!_retainAncestor(
             retain, coords.x, coords.y, coords.z, coords.z - 5)) {
@@ -68,8 +68,8 @@ class TileRemovalState {
   }
 
   // Recurses through the ancestors of the Tile at the given coordinates adding
-  // them to [retain] if they are active or loaded. Returns true if any of the
-  // ancestor tiles were active.
+  // them to [retain] if they are ready to display or loaded. Returns true if
+  // any of the ancestor tiles were ready to display.
   bool _retainAncestor(
     Set<TileImage> retain,
     int x,
@@ -84,7 +84,7 @@ class TileRemovalState {
 
     final tile = _tileImages[coords2];
     if (tile != null) {
-      if (tile.active) {
+      if (tile.readyToDisplay) {
         retain.add(tile);
         return true;
       } else if (tile.loadFinishedAt != null) {
@@ -100,7 +100,7 @@ class TileRemovalState {
   }
 
   // Recurses through the descendants of the Tile at the given coordinates
-  // adding them to [retain] if they are active or loaded.
+  // adding them to [retain] if they are ready to display or loaded.
   void _retainChildren(
     Set<TileImage> retain,
     int x,
@@ -114,7 +114,7 @@ class TileRemovalState {
 
         final tile = _tileImages[coords];
         if (tile != null) {
-          if (tile.active || tile.loadFinishedAt != null) {
+          if (tile.readyToDisplay || tile.loadFinishedAt != null) {
             retain.add(tile);
           }
         }
