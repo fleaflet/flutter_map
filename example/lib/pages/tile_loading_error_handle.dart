@@ -1,3 +1,6 @@
+import 'dart:ui' as ui;
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/widgets/drawer.dart';
@@ -13,10 +16,12 @@ class TileLoadingErrorHandle extends StatefulWidget {
 }
 
 class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
+  static const _showSnackbarDuration = Duration(seconds: 1);
+  bool _simulateTileLoadErrors = false;
+  DateTime? _lastShowedTileLoadError;
+
   @override
   Widget build(BuildContext context) {
-    var needLoadingError = true;
-
     return Scaffold(
       appBar: AppBar(title: const Text('Tile Loading Error Handle')),
       drawer: buildDrawer(context, TileLoadingErrorHandle.route),
@@ -24,34 +29,37 @@ class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
         padding: const EdgeInsets.all(8),
         child: Column(
           children: [
+            SwitchListTile(
+              title: const Text('Simulate tile loading errors'),
+              value: _simulateTileLoadErrors,
+              onChanged: (newValue) => setState(() {
+                _simulateTileLoadErrors = newValue;
+              }),
+            ),
             const Padding(
               padding: EdgeInsets.only(top: 8, bottom: 8),
-              child: Text('Turn on Airplane mode and try to move or zoom map'),
+              child: Text(
+                  'Enable tile load error simulation or disable internet and try to move or zoom map.'),
             ),
             Flexible(
               child: Builder(builder: (BuildContext context) {
                 return FlutterMap(
-                  options: MapOptions(
-                    initialCenter: const LatLng(51.5, -0.09),
+                  options: const MapOptions(
+                    initialCenter: LatLng(51.5, -0.09),
                     initialZoom: 5,
-                    onPositionChanged: (MapPosition mapPosition, bool _) {
-                      needLoadingError = true;
-                    },
                   ),
                   children: [
                     TileLayer(
                       urlTemplate:
                           'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-
-                      // For example purposes. It is recommended to use
-                      // TileProvider with a caching and retry strategy, like
-                      // NetworkTileProvider or CachedNetworkTileProvider
                       userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+                      evictErrorTileStrategy: EvictErrorTileStrategy.none,
                       errorTileCallback: (tile, error, stackTrace) {
-                        if (needLoadingError) {
+                        if (_showErrorSnackBar) {
+                          _lastShowedTileLoadError = DateTime.now();
                           WidgetsBinding.instance.addPostFrameCallback((_) {
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              duration: const Duration(seconds: 1),
+                              duration: _showSnackbarDuration,
                               content: Text(
                                 error.toString(),
                                 style: const TextStyle(color: Colors.black),
@@ -59,9 +67,11 @@ class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
                               backgroundColor: Colors.deepOrange,
                             ));
                           });
-                          needLoadingError = false;
                         }
                       },
+                      tileProvider: _simulateTileLoadErrors
+                          ? _SimulateErrorsTileProvider()
+                          : null,
                     ),
                   ],
                 );
@@ -71,5 +81,49 @@ class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
         ),
       ),
     );
+  }
+
+  bool get _showErrorSnackBar =>
+      _lastShowedTileLoadError == null ||
+      DateTime.now().difference(_lastShowedTileLoadError!) -
+              const Duration(milliseconds: 50) >
+          _showSnackbarDuration;
+}
+
+class _SimulateErrorsTileProvider extends TileProvider {
+  _SimulateErrorsTileProvider() : super();
+
+  @override
+  ImageProvider<Object> getImage(
+    TileCoordinates coordinates,
+    TileLayer options,
+  ) =>
+      _SimulateErrorImageProvider();
+}
+
+class _SimulateErrorImageProvider
+    extends ImageProvider<_SimulateErrorImageProvider> {
+  _SimulateErrorImageProvider();
+
+  @override
+  ImageStreamCompleter load(
+    _SimulateErrorImageProvider key,
+    Future<ui.Codec> Function(
+      Uint8List, {
+      bool allowUpscaling,
+      int? cacheHeight,
+      int? cacheWidth,
+    }) decode,
+  ) =>
+      _SimulateErrorImageStreamCompleter();
+
+  @override
+  Future<_SimulateErrorImageProvider> obtainKey(ImageConfiguration _) =>
+      Future.error('Simulated tile loading error');
+}
+
+class _SimulateErrorImageStreamCompleter extends ImageStreamCompleter {
+  _SimulateErrorImageStreamCompleter() {
+    throw 'Simulated tile loading error';
   }
 }
