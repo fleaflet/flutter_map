@@ -4,15 +4,21 @@ typedef TemplateFunction = String Function(
     String str, Map<String, String> data);
 
 enum EvictErrorTileStrategy {
-  // never evict error Tiles
+  /// Never evict images for tiles which failed to load.
   none,
-  // evict error Tiles during _pruneTiles / _abortLoading calls
+
+  /// Evict images for tiles which failed to load when they are pruned.
   dispose,
-  // evict error Tiles which are not visible anymore but respect margin (see keepBuffer option)
-  // (Tile's zoom level not equals current _tileZoom or Tile is out of viewport)
+
+  /// Evict images for tiles which failed to load and:
+  ///   - do not belong to the current zoom level AND/OR
+  ///   - are not visible, respecting the pruning buffer (the maximum of the
+  ///     [keepBuffer] and [panBuffer].
   notVisibleRespectMargin,
-  // evict error Tiles which are not visible anymore
-  // (Tile's zoom level not equals current _tileZoom or Tile is out of viewport)
+
+  /// Evict images for tiles which failed to load and:
+  ///   - do not belong to the current zoom level AND/OR
+  ///   - are not visible
   notVisible,
 }
 
