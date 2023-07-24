@@ -107,7 +107,7 @@ class TileImageManager {
   void removeAll(EvictErrorTileStrategy evictStrategy) {
     final keysToRemove = List<String>.from(_tiles.keys);
 
-    for (final key in toRemove.keys) {
+    for (final key in keysToRemove) {
       _removeWithEvictionStrategy(key, evictStrategy);
     }
   }

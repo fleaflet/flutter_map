@@ -582,7 +582,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     );
   }
 
-
   // For all valid TileCoordinates in the [tileLoadRange], expanded by the
   // [TileLayer.panBuffer], this method will do the following depending on
   // whether a matching TileImage already exists or not:
