@@ -1,18 +1,38 @@
+import 'dart:collection';
 import 'dart:math';
 
 import 'package:flutter/src/scheduler/ticker.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_image_view.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_removal_state.dart';
 import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:test/test.dart';
 
 import '../../test_utils/test_tile_image.dart';
 
 void main() {
-  group('tilesToPrune', () {
+  Map<String, TileImage> tileImagesMappingFrom(List<TileImage> tileImages) =>
+      // Unmodifiable ensures we don't modify the tileImage collection in
+      // TileImageView
+      UnmodifiableMapView({
+        for (final tileImage in tileImages) tileImage.coordinates.key: tileImage
+      });
+
+  Matcher containsTileImage(
+    Map<String, TileImage> tileImages,
+    TileCoordinates coordinates,
+  ) =>
+      contains(tileImages[coordinates.key]!);
+
+  Matcher doesNotContainTileImage(
+    Map<String, TileImage> tileImages,
+    TileCoordinates coordinates,
+  ) =>
+      isNot(containsTileImage(tileImages, coordinates));
+
+  group('staleTiles', () {
     test('prunes tiles outside of the visible range', () {
-      final tileImages = [
+      final tileImages = tileImagesMappingFrom([
         MockTileImage(
           coordinates: const TileCoordinates(1, 1, 1),
           loadFinished: true,
@@ -23,8 +43,9 @@ void main() {
           loadFinished: true,
           readyToDisplay: true,
         ),
-      ];
-      final removalState = TileRemovalState(
+      ]);
+
+      final removalState = TileImageView(
         tileImages: tileImages,
         visibleRange: DiscreteTileRange(
           1,
@@ -34,13 +55,15 @@ void main() {
           1,
           Bounds(const Point(2, 1), const Point(3, 3)),
         ),
-        evictStrategy: EvictErrorTileStrategy.none,
       );
-      expect(removalState.tilesToPrune(), [tileImages.first]);
+      expect(
+        removalState.staleTiles(),
+        containsTileImage(tileImages, const TileCoordinates(1, 1, 1)),
+      );
     });
 
     test('keeps ancestor tile if a tile has not loaded yet', () {
-      final tileImages = [
+      final tileImages = tileImagesMappingFrom([
         MockTileImage(
           coordinates: const TileCoordinates(0, 0, 0),
           loadFinished: true,
@@ -51,8 +74,8 @@ void main() {
           loadFinished: false,
           readyToDisplay: false,
         ),
-      ];
-      final removalState = TileRemovalState(
+      ]);
+      final removalState = TileImageView(
         tileImages: tileImages,
         visibleRange: DiscreteTileRange(
           1,
@@ -62,13 +85,15 @@ void main() {
           1,
           Bounds(const Point(0, 0), const Point(0, 0)),
         ),
-        evictStrategy: EvictErrorTileStrategy.none,
       );
-      expect(removalState.tilesToPrune(), isNot(contains(tileImages.first)));
+      expect(
+        removalState.staleTiles(),
+        doesNotContainTileImage(tileImages, const TileCoordinates(0, 0, 0)),
+      );
     });
 
     test('keeps descendant tile if there is no loaded tile obscuring it', () {
-      final tileImages = [
+      final tileImages = tileImagesMappingFrom([
         MockTileImage(
           coordinates: const TileCoordinates(0, 0, 0),
           loadFinished: false,
@@ -84,8 +109,8 @@ void main() {
           loadFinished: true,
           readyToDisplay: true,
         ),
-      ];
-      final removalState = TileRemovalState(
+      ]);
+      final removalState = TileImageView(
         tileImages: tileImages,
         visibleRange: DiscreteTileRange(
           1,
@@ -95,9 +120,11 @@ void main() {
           1,
           Bounds(const Point(0, 0), const Point(0, 0)),
         ),
-        evictStrategy: EvictErrorTileStrategy.none,
       );
-      expect(removalState.tilesToPrune(), isNot(contains(tileImages.last)));
+      expect(
+        removalState.staleTiles(),
+        doesNotContainTileImage(tileImages, const TileCoordinates(0, 0, 2)),
+      );
     });
   });
 }

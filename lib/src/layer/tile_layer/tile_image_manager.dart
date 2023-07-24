@@ -4,9 +4,9 @@ import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_display.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_image_view.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_removal_state.dart';
 
 typedef TileCreator = TileImage Function(TileCoordinates coordinates);
 
@@ -138,20 +138,33 @@ class TileImageManager {
     required int pruneBuffer,
     required EvictErrorTileStrategy evictStrategy,
   }) {
-    final pruningState = TileRemovalState(
-      tileImages: _tiles.values.toSet(),
+    final pruningState = TileImageView(
+      tileImages: _tiles,
       visibleRange: visibleRange,
       keepRange: visibleRange.expand(pruneBuffer),
-      evictStrategy: evictStrategy,
     );
 
-    _evictErrorTiles(pruningState);
-    _prune(pruningState);
+    _evictErrorTiles(pruningState, evictStrategy);
+    _prune(pruningState, evictStrategy);
   }
 
-  void _evictErrorTiles(TileRemovalState tileRemovalState) {
-    for (final tileImage in tileRemovalState.errorTilesToEvict()) {
-      _remove(tileImage.coordinatesKey, evictImageFromCache: (_) => true);
+  void _evictErrorTiles(
+    TileImageView tileRemovalState,
+    EvictErrorTileStrategy evictStrategy,
+  ) {
+    switch (evictStrategy) {
+      case EvictErrorTileStrategy.notVisibleRespectMargin:
+        for (final tileImage
+            in tileRemovalState.errorTilesOutsideOfKeepMargin()) {
+          _remove(tileImage.coordinatesKey, evictImageFromCache: (_) => true);
+        }
+      case EvictErrorTileStrategy.notVisible:
+        for (final tileImage in tileRemovalState.errorTilesNotVisible()) {
+          _remove(tileImage.coordinatesKey, evictImageFromCache: (_) => true);
+        }
+      case EvictErrorTileStrategy.dispose:
+      case EvictErrorTileStrategy.none:
+        return;
     }
   }
 
@@ -161,21 +174,21 @@ class TileImageManager {
     required EvictErrorTileStrategy evictStrategy,
   }) {
     _prune(
-      TileRemovalState(
-        tileImages: _tiles.values.toSet(),
+      TileImageView(
+        tileImages: _tiles,
         visibleRange: visibleRange,
         keepRange: visibleRange.expand(pruneBuffer),
-        evictStrategy: evictStrategy,
       ),
+      evictStrategy,
     );
   }
 
-  void _prune(TileRemovalState tileRemovalState) {
-    for (final tileImage in tileRemovalState.tilesToPrune()) {
-      _removeWithDefaultEviction(
-        tileImage.coordinatesKey,
-        tileRemovalState.evictStrategy,
-      );
+  void _prune(
+    TileImageView tileRemovalState,
+    EvictErrorTileStrategy evictStrategy,
+  ) {
+    for (final tileImage in tileRemovalState.staleTiles()) {
+      _removeWithDefaultEviction(tileImage.coordinatesKey, evictStrategy);
     }
   }
 }

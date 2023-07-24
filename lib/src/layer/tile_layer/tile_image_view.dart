@@ -1,59 +1,39 @@
+import 'dart:collection';
+
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 
-class TileRemovalState {
-  final EvictErrorTileStrategy evictStrategy;
-  final Map<TileCoordinates, TileImage> _tileImages;
+class TileImageView {
+  final Map<String, TileImage> _tileImages;
   final DiscreteTileRange _visibleRange;
   final DiscreteTileRange _keepRange;
 
-  Set<TileImage>? _visibleTilesMemo;
-  Set<TileImage>? _keepTilesMemo;
-
-  TileRemovalState({
-    required Iterable<TileImage> tileImages,
+  TileImageView({
+    required Map<String, TileImage> tileImages,
     required DiscreteTileRange visibleRange,
     required DiscreteTileRange keepRange,
-    required this.evictStrategy,
-  })  : _tileImages = Map.unmodifiable({
-          for (var tileImage in tileImages) tileImage.coordinates: tileImage
-        }),
+  })  : _tileImages = UnmodifiableMapView(tileImages),
         _visibleRange = visibleRange,
         _keepRange = keepRange;
 
-  Set<TileImage> get _visibleTiles =>
-      _visibleTilesMemo ??= Set.unmodifiable(_tileImages.values
-          .where((tileImage) => _visibleRange.contains(tileImage.coordinates))
-          .toSet());
+  List<TileImage> errorTilesOutsideOfKeepMargin() => _tileImages.values
+      .where((tileImage) =>
+          tileImage.loadError && !_keepRange.contains(tileImage.coordinates))
+      .toList();
 
-  Set<TileImage> get _keepTiles =>
-      _keepTilesMemo ??= Set.unmodifiable(_tileImages.values
-          .where((tileImage) => _keepRange.contains(tileImage.coordinates))
-          .toSet());
+  List<TileImage> errorTilesNotVisible() => _tileImages.values
+      .where((tileImage) =>
+          tileImage.loadError && !_visibleRange.contains(tileImage.coordinates))
+      .toList();
 
-  List<TileImage> errorTilesToEvict() {
-    switch (evictStrategy) {
-      case EvictErrorTileStrategy.notVisibleRespectMargin:
-        return _tileImages.values
-            .where((tileImage) => !_keepTiles.contains(tileImage))
-            .toList();
-      case EvictErrorTileStrategy.notVisible:
-        return _tileImages.values
-            .where((tileImage) => !_visibleTiles.contains(tileImage))
-            .toList();
-      case EvictErrorTileStrategy.dispose:
-      case EvictErrorTileStrategy.none:
-        return const [];
-    }
-  }
+  List<TileImage> staleTiles() {
+    final tilesInKeepRange = _tileImages.values
+        .where((tileImage) => _keepRange.contains(tileImage.coordinates));
+    final retain = Set<TileImage>.from(tilesInKeepRange);
 
-  List<TileImage> tilesToPrune() {
-    final retain = Set<TileImage>.from(_keepTiles);
-
-    for (final tile in _tileImages.values) {
-      if (_keepTiles.contains(tile) && !tile.readyToDisplay) {
+    for (final tile in tilesInKeepRange) {
+      if (!tile.readyToDisplay) {
         final coords = tile.coordinates;
         if (!_retainAncestor(
             retain, coords.x, coords.y, coords.z, coords.z - 5)) {
@@ -82,7 +62,7 @@ class TileRemovalState {
     final z2 = z - 1;
     final coords2 = TileCoordinates(x2, y2, z2);
 
-    final tile = _tileImages[coords2];
+    final tile = _tileImages[coords2.key];
     if (tile != null) {
       if (tile.readyToDisplay) {
         retain.add(tile);
@@ -112,7 +92,7 @@ class TileRemovalState {
       for (var j = 2 * y; j < 2 * y + 2; j++) {
         final coords = TileCoordinates(i, j, z + 1);
 
-        final tile = _tileImages[coords];
+        final tile = _tileImages[coords.key];
         if (tile != null) {
           if (tile.readyToDisplay || tile.loadFinishedAt != null) {
             retain.add(tile);
