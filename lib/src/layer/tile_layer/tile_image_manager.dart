@@ -96,7 +96,10 @@ class TileImageManager {
     }
   }
 
-  void _removeWithDefaultEviction(String key, EvictErrorTileStrategy strategy) {
+  void _removeWithEvictionStrategy(
+    String key,
+    EvictErrorTileStrategy strategy,
+  ) {
     _remove(
       key,
       evictImageFromCache: (tileImage) =>
@@ -108,7 +111,7 @@ class TileImageManager {
     final toRemove = Map<String, TileImage>.from(_tiles);
 
     for (final key in toRemove.keys) {
-      _removeWithDefaultEviction(key, evictStrategy);
+      _removeWithEvictionStrategy(key, evictStrategy);
     }
   }
 
@@ -188,7 +191,7 @@ class TileImageManager {
     EvictErrorTileStrategy evictStrategy,
   ) {
     for (final tileImage in tileRemovalState.staleTiles()) {
-      _removeWithDefaultEviction(tileImage.coordinatesKey, evictStrategy);
+      _removeWithEvictionStrategy(tileImage.coordinatesKey, evictStrategy);
     }
   }
 }

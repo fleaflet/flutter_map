@@ -16,7 +16,7 @@ class TileLoadingErrorHandle extends StatefulWidget {
 }
 
 class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
-  static const _showSnackbarDuration = Duration(seconds: 1);
+  static const _showSnackBarDuration = Duration(seconds: 1);
   bool _simulateTileLoadErrors = false;
   DateTime? _lastShowedTileLoadError;
 
@@ -59,7 +59,7 @@ class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
                           _lastShowedTileLoadError = DateTime.now();
                           WidgetsBinding.instance.addPostFrameCallback((_) {
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              duration: _showSnackbarDuration,
+                              duration: _showSnackBarDuration,
                               content: Text(
                                 error.toString(),
                                 style: const TextStyle(color: Colors.black),
@@ -87,7 +87,7 @@ class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
       _lastShowedTileLoadError == null ||
       DateTime.now().difference(_lastShowedTileLoadError!) -
               const Duration(milliseconds: 50) >
-          _showSnackbarDuration;
+          _showSnackBarDuration;
 }
 
 class _SimulateErrorsTileProvider extends TileProvider {
