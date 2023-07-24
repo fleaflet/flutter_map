@@ -1,10 +1,15 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_display.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 
 class TileImage extends ChangeNotifier {
   bool _disposed = false;
+
+  // Controls fade-in opacity.
+  AnimationController? _animationController;
+
+  // Whether the tile is displayable. See [readyToDisplay].
+  bool _readyToDisplay = false;
 
   /// Used by animationController. Still required if animation is disabled in
   /// case the tile display is changed at a later point.
@@ -13,8 +18,6 @@ class TileImage extends ChangeNotifier {
   /// The z of the coordinate is the TileImage's zoom level whilst the x and y
   /// indicate the position of the tile at that zoom level.
   final TileCoordinates coordinates;
-
-  AnimationController? _animationController;
 
   /// Callback fired when loading finishes with or withut an error. This
   /// callback is not triggered after this TileImage is disposed.
@@ -27,29 +30,14 @@ class TileImage extends ChangeNotifier {
       onLoadError;
 
   /// Options for how the tile image is displayed.
-  TileDisplay _display;
+  TileDisplay _tileDisplay;
 
   /// An optional image to show when a loading error occurs.
   final ImageProvider? errorImage;
 
   ImageProvider imageProvider;
 
-  /// Current tiles are tiles which are in the current tile zoom AND:
-  ///   * Are visible OR,
-  ///   * Were previously visible and are still within the visible bounds
-  ///     expanded by the [TileLayer.keepBuffer].
-  bool current = true;
-
-  /// Used during pruning to determine which tiles should be kept.
-  bool retain = false;
-
-  /// Whether the tile is displayable. This means that either:
-  ///   * Loading errored but there is a tile error image.
-  ///   * Loading succeeded and the fade animation has finished.
-  ///   * Loading succeeded and there is no fade animation.
-  bool _active = false;
-
-  // True if an error occurred during loading.
+  /// True if an error occurred during loading.
   bool loadError = false;
 
   /// When loading started.
@@ -70,7 +58,7 @@ class TileImage extends ChangeNotifier {
     required this.onLoadError,
     required TileDisplay tileDisplay,
     required this.errorImage,
-  })  : _display = tileDisplay,
+  })  : _tileDisplay = tileDisplay,
         _animationController = tileDisplay.when(
           instantaneous: (_) => null,
           fadeIn: (fadeIn) => AnimationController(
@@ -79,8 +67,9 @@ class TileImage extends ChangeNotifier {
           ),
         );
 
-  double get opacity => _display.when(
-        instantaneous: (instantaneous) => _active ? instantaneous.opacity : 0.0,
+  double get opacity => _tileDisplay.when(
+        instantaneous: (instantaneous) =>
+            _readyToDisplay ? instantaneous.opacity : 0.0,
         fadeIn: (fadeIn) => _animationController!.value,
       )!;
 
@@ -88,7 +77,14 @@ class TileImage extends ChangeNotifier {
 
   String get coordinatesKey => coordinates.key;
 
-  bool get active => _active;
+  /// Whether the tile is displayable. This means that either:
+  ///   * Loading errored but an error image is configured.
+  ///   * Loading succeeded and the fade animation has finished.
+  ///   * Loading succeeded and there is no fade animation.
+  ///
+  /// Note that [opacity] can be less than 1 when this is true if instantaneous
+  /// tile display is used with a maximum opacity less than 1.
+  bool get readyToDisplay => _readyToDisplay;
 
   // Used to sort TileImages by their distance from the current zoom.
   double zIndex(double maxZoom, int currentZoom) =>
@@ -96,8 +92,8 @@ class TileImage extends ChangeNotifier {
 
   /// Change the tile display options.
   set tileDisplay(TileDisplay newTileDisplay) {
-    final oldTileDisplay = _display;
-    _display = newTileDisplay;
+    final oldTileDisplay = _tileDisplay;
+    _tileDisplay = newTileDisplay;
 
     // Handle disabling/enabling of animation controller if necessary
     oldTileDisplay.when(
@@ -108,7 +104,7 @@ class TileImage extends ChangeNotifier {
             _animationController = AnimationController(
               duration: fadeIn.duration,
               vsync: vsync,
-              value: _active ? 1.0 : 0.0,
+              value: _readyToDisplay ? 1.0 : 0.0,
             );
           },
         );
@@ -156,7 +152,7 @@ class TileImage extends ChangeNotifier {
     this.imageInfo = imageInfo;
 
     if (!_disposed) {
-      _activate();
+      _display();
       onLoadComplete(coordinates);
     }
   }
@@ -165,42 +161,49 @@ class TileImage extends ChangeNotifier {
     loadError = true;
 
     if (!_disposed) {
-      _activate();
+      if (errorImage != null) _display();
       onLoadError(this, exception, stackTrace);
       onLoadComplete(coordinates);
     }
   }
 
-  void _activate() {
+  // Initiates fading in and marks this TileImage as readyToDisplay when fading
+  // finishes. If fading is disabled or a loading error occurred this TileImage
+  // becomes readyToDisplay immediately.
+  void _display() {
     final previouslyLoaded = loadFinishedAt != null;
     loadFinishedAt = DateTime.now();
 
-    _display.when(
+    if (loadError) {
+      assert(
+        errorImage != null,
+        'A TileImage should not be displayed if loading errors and there is no '
+        'errorImage to show.',
+      );
+      _readyToDisplay = true;
+      if (!_disposed) notifyListeners();
+      return;
+    }
+
+    _tileDisplay.when(
       instantaneous: (_) {
-        _active = true;
+        _readyToDisplay = true;
         if (!_disposed) notifyListeners();
       },
       fadeIn: (fadeIn) {
-        if (loadError && errorImage != null) {
-          _active = true;
-          if (!_disposed) notifyListeners();
-          return;
-        }
-
         final fadeStartOpacity =
             previouslyLoaded ? fadeIn.reloadStartOpacity : fadeIn.startOpacity;
 
         if (fadeStartOpacity == 1.0) {
-          _active = true;
+          _readyToDisplay = true;
           if (!_disposed) notifyListeners();
-          return;
+        } else {
+          _animationController!.reset();
+          _animationController!.forward(from: fadeStartOpacity).then((_) {
+            _readyToDisplay = true;
+            if (!_disposed) notifyListeners();
+          });
         }
-
-        _animationController!.reset();
-        _animationController!.forward(from: fadeStartOpacity).then((_) {
-          _active = true;
-          if (!_disposed) notifyListeners();
-        });
       },
     );
   }
@@ -227,8 +230,7 @@ class TileImage extends ChangeNotifier {
       }
     }
 
-    // Mark the image as inactive.
-    _active = false;
+    _readyToDisplay = false;
     _animationController?.stop(canceled: false);
     _animationController?.value = 0.0;
     notifyListeners();
@@ -248,6 +250,6 @@ class TileImage extends ChangeNotifier {
 
   @override
   String toString() {
-    return 'TileImage($coordinates, active: $_active)';
+    return 'TileImage($coordinates, readyToDisplay: $_readyToDisplay)';
   }
 }

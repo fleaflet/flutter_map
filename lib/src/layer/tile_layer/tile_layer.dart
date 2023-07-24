@@ -146,10 +146,11 @@ class TileLayer extends StatefulWidget {
   /// unloading them.
   final int keepBuffer;
 
-  /// When panning the map, extend the tilerange by this many tiles in each
-  /// direction.
-  /// Will cause extra tile loads, and impact performance.
-  /// Be careful increasing this beyond 0 or 1.
+  /// When loading tiles only visible tiles are loaded by default. This option
+  /// increases the loaded tiles by the given number on both axis which can help
+  /// prevent the user from seeing loading tiles whilst panning. Setting the
+  /// pan buffer too high can impact performance, typically this is set to zero
+  /// or one.
   final int panBuffer;
 
   /// Tile image to show in place of the tile that failed to load.
@@ -463,13 +464,15 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     // visible until the next build. Therefore, in case this build is executed
     // before the loading/updating, we must pre-create the missing TileImages
     // and add them to the widget tree so that when they are loaded they notify
-    // the Tile and become visible.
+    // the Tile and become visible. We don't need to prune here as any new tiles
+    // will be pruned when the map event triggers tile loading.
     _tileImageManager.createMissingTiles(
       visibleTileRange,
       tileBoundsAtZoom,
-      createTileImage: (coordinate) => _createTileImage(
-        coordinate,
-        tileBoundsAtZoom,
+      createTileImage: (coordinates) => _createTileImage(
+        coordinates: coordinates,
+        tileBoundsAtZoom: tileBoundsAtZoom,
+        pruneAfterLoad: false,
       ),
     );
 
@@ -512,10 +515,11 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     return color == null ? child : ColoredBox(color: color, child: child);
   }
 
-  TileImage _createTileImage(
-    TileCoordinates coordinates,
-    TileBoundsAtZoom tileBoundsAtZoom,
-  ) {
+  TileImage _createTileImage({
+    required TileCoordinates coordinates,
+    required TileBoundsAtZoom tileBoundsAtZoom,
+    required bool pruneAfterLoad,
+  }) {
     return TileImage(
       vsync: this,
       coordinates: coordinates,
@@ -524,7 +528,9 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         widget,
       ),
       onLoadError: _onTileLoadError,
-      onLoadComplete: _onTileLoadComplete,
+      onLoadComplete: (coordinates) {
+        if (pruneAfterLoad) _pruneIfAllTilesLoaded(coordinates);
+      },
       tileDisplay: widget.tileDisplay,
       errorImage: widget.errorImage,
     );
@@ -541,14 +547,16 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       viewingZoom: event.zoom,
     );
 
-    if (event.load) {
-      if (!_outsideZoomLimits(tileZoom)) _loadTiles(visibleTileRange);
+    if (event.load && !_outsideZoomLimits(tileZoom)) {
+      _loadTiles(visibleTileRange, pruneAfterLoad: event.prune);
     }
 
     if (event.prune) {
-      _tileImageManager.evictErrorTiles(
-          visibleTileRange, widget.evictErrorTileStrategy);
-      _tileImageManager.prune(widget.evictErrorTileStrategy);
+      _tileImageManager.evictAndPrune(
+        visibleRange: visibleTileRange,
+        pruneBuffer: widget.panBuffer + widget.keepBuffer,
+        evictStrategy: widget.evictErrorTileStrategy,
+      );
     }
   }
 
@@ -560,41 +568,50 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       tileZoom: tileZoom,
     );
 
-    if (!_outsideZoomLimits(tileZoom)) _loadTiles(visibleTileRange);
+    if (!_outsideZoomLimits(tileZoom)) {
+      _loadTiles(
+        visibleTileRange,
+        pruneAfterLoad: true,
+      );
+    }
 
-    _tileImageManager.evictErrorTiles(
-        visibleTileRange, widget.evictErrorTileStrategy);
-    _tileImageManager.prune(widget.evictErrorTileStrategy);
+    _tileImageManager.evictAndPrune(
+      visibleRange: visibleTileRange,
+      pruneBuffer: math.max(widget.panBuffer, widget.keepBuffer),
+      evictStrategy: widget.evictErrorTileStrategy,
+    );
   }
 
-  /// For all valid TileCoordinates in the [tileLoadRange], expanded by the
-  /// [TileLayer.panBuffer], this method will do the following depending on
-  /// whether a matching TileImage already exists or not:
-  ///   * Exists: Mark it as current and initiate image loading if it has not
-  ///     already been initiated.
-  ///   * Does not exist: Creates the TileImage (they are current when created)
-  ///     and initiates loading.
-  ///
-  /// Additionally, any current TileImages outside of the [tileLoadRange],
-  /// expanded by the [TileLayer.panBuffer] + [TileLayer.keepBuffer], are marked
-  /// as not current.
-  void _loadTiles(DiscreteTileRange tileLoadRange) {
+
+  // For all valid TileCoordinates in the [tileLoadRange], expanded by the
+  // [TileLayer.panBuffer], this method will do the following depending on
+  // whether a matching TileImage already exists or not:
+  //   * Exists: Mark it as current and initiate image loading if it has not
+  //     already been initiated.
+  //   * Does not exist: Creates the TileImage (they are current when created)
+  //     and initiates loading.
+  //
+  // Additionally, any current TileImages outside of the [tileLoadRange],
+  // expanded by the [TileLayer.panBuffer] + [TileLayer.keepBuffer], are marked
+  // as not current.
+  void _loadTiles(
+    DiscreteTileRange tileLoadRange, {
+    required bool pruneAfterLoad,
+  }) {
     final tileZoom = tileLoadRange.zoom;
     tileLoadRange = tileLoadRange.expand(widget.panBuffer);
-
-    // Mark tiles outside of the tile load range as no longer current.
-    _tileImageManager.markAsNoLongerCurrentOutside(
-      tileZoom,
-      tileLoadRange.expand(widget.keepBuffer),
-    );
 
     // Build the queue of tiles to load. Marks all tiles with valid coordinates
     // in the tileLoadRange as current.
     final tileBoundsAtZoom = _tileBounds.atZoom(tileZoom);
-    final tilesToLoad = _tileImageManager.setCurrentAndReturnNotLoadedTiles(
-        tileBoundsAtZoom.validCoordinatesIn(tileLoadRange),
-        createTile: (coordinates) =>
-            _createTileImage(coordinates, tileBoundsAtZoom));
+    final tilesToLoad = _tileImageManager.createMissingTilesIn(
+      tileBoundsAtZoom.validCoordinatesIn(tileLoadRange),
+      createTile: (coordinates) => _createTileImage(
+        coordinates: coordinates,
+        tileBoundsAtZoom: tileBoundsAtZoom,
+        pruneAfterLoad: pruneAfterLoad,
+      ),
+    );
 
     // Re-order the tiles by their distance to the center of the range.
     final tileCenter = tileLoadRange.center;
@@ -630,24 +647,38 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     widget.errorTileCallback?.call(tile, error, stackTrace);
   }
 
-  /// This is called whether the tile loads successfully or with an error.
-  void _onTileLoadComplete(TileCoordinates coordinates) {
+  void _pruneIfAllTilesLoaded(TileCoordinates coordinates) {
     if (!_tileImageManager.containsTileAt(coordinates) ||
         !_tileImageManager.allLoaded) {
       return;
     }
 
     widget.tileDisplay.when(instantaneous: (_) {
-      _tileImageManager.prune(widget.evictErrorTileStrategy);
+      _pruneWithCurrentCamera();
     }, fadeIn: (fadeIn) {
       // Wait a bit more than tileFadeInDuration to trigger a pruning so that
       // we don't see tile removal under a fading tile.
       _pruneLater?.cancel();
       _pruneLater = Timer(
         fadeIn.duration + const Duration(milliseconds: 50),
-        () => _tileImageManager.prune(widget.evictErrorTileStrategy),
+        () => _pruneWithCurrentCamera(),
       );
     });
+  }
+
+  void _pruneWithCurrentCamera() {
+    final camera = MapCamera.of(context);
+    final visibleTileRange = _tileRangeCalculator.calculate(
+      camera: camera,
+      tileZoom: _clampToNativeZoom(camera.zoom),
+      center: camera.center,
+      viewingZoom: camera.zoom,
+    );
+    _tileImageManager.prune(
+      visibleRange: visibleTileRange,
+      pruneBuffer: math.max(widget.panBuffer, widget.keepBuffer),
+      evictStrategy: widget.evictErrorTileStrategy,
+    );
   }
 
   bool _outsideZoomLimits(num zoom) =>
