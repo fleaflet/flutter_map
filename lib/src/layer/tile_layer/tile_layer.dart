@@ -145,10 +145,11 @@ class TileLayer extends StatefulWidget {
   /// unloading them.
   final int keepBuffer;
 
-  /// When panning the map, extend the tilerange by this many tiles in each
-  /// direction.
-  /// Will cause extra tile loads, and impact performance.
-  /// Be careful increasing this beyond 0 or 1.
+  /// When loading tiles only visible tiles are loaded by default. This option
+  /// increases the loaded tiles by the given number on both axis which can help
+  /// prevent the user from seeing loading tiles whilst panning. Setting the
+  /// pan buffer too high can impact performance, typically this is set to zero
+  /// or one.
   final int panBuffer;
 
   /// Tile image to show in place of the tile that failed to load.
@@ -575,7 +576,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     _tileImageManager.evictAndPrune(
       visibleRange: visibleTileRange,
-      pruneBuffer: widget.panBuffer + widget.keepBuffer,
+      pruneBuffer: math.max(widget.panBuffer, widget.keepBuffer),
       evictStrategy: widget.evictErrorTileStrategy,
     );
   }
@@ -673,7 +674,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     );
     _tileImageManager.prune(
       visibleRange: visibleTileRange,
-      pruneBuffer: widget.panBuffer + widget.keepBuffer,
+      pruneBuffer: math.max(widget.panBuffer, widget.keepBuffer),
       evictStrategy: widget.evictErrorTileStrategy,
     );
   }
