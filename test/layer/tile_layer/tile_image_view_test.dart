@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'dart:math';
 
 import 'package:flutter/src/scheduler/ticker.dart';
@@ -11,12 +10,9 @@ import 'package:test/test.dart';
 import '../../test_utils/test_tile_image.dart';
 
 void main() {
-  Map<String, TileImage> tileImagesMappingFrom(List<TileImage> tileImages) =>
-      // Unmodifiable ensures we don't modify the tileImage collection in
-      // TileImageView
-      UnmodifiableMapView({
+  Map<String, TileImage> tileImagesMappingFrom(List<TileImage> tileImages) => {
         for (final tileImage in tileImages) tileImage.coordinates.key: tileImage
-      });
+      };
 
   Matcher containsTileImage(
     Map<String, TileImage> tileImages,
@@ -30,31 +26,29 @@ void main() {
   ) =>
       isNot(containsTileImage(tileImages, coordinates));
 
+  DiscreteTileRange discreteTileRange(
+    int x1,
+    int y1,
+    int x2,
+    int y2, {
+    required int zoom,
+  }) =>
+      DiscreteTileRange(
+        zoom,
+        Bounds(Point(x1, y1), Point(x2, y2)),
+      );
+
   group('staleTiles', () {
-    test('prunes tiles outside of the visible range', () {
+    test('tiles outside of the keep range are stale', () {
       final tileImages = tileImagesMappingFrom([
-        MockTileImage(
-          coordinates: const TileCoordinates(1, 1, 1),
-          loadFinished: true,
-          readyToDisplay: true,
-        ),
-        MockTileImage(
-          coordinates: const TileCoordinates(2, 1, 1),
-          loadFinished: true,
-          readyToDisplay: true,
-        ),
+        MockTileImage(1, 1, 1),
+        MockTileImage(2, 1, 1),
       ]);
 
       final removalState = TileImageView(
         tileImages: tileImages,
-        visibleRange: DiscreteTileRange(
-          1,
-          Bounds(const Point(2, 1), const Point(3, 3)),
-        ),
-        keepRange: DiscreteTileRange(
-          1,
-          Bounds(const Point(2, 1), const Point(3, 3)),
-        ),
+        visibleRange: discreteTileRange(2, 1, 3, 3, zoom: 1),
+        keepRange: discreteTileRange(2, 1, 3, 3, zoom: 1),
       );
       expect(
         removalState.staleTiles(),
@@ -62,29 +56,15 @@ void main() {
       );
     });
 
-    test('keeps ancestor tile if a tile has not loaded yet', () {
+    test('ancestor tile is not stale if a tile has not loaded yet', () {
       final tileImages = tileImagesMappingFrom([
-        MockTileImage(
-          coordinates: const TileCoordinates(0, 0, 0),
-          loadFinished: true,
-          readyToDisplay: true,
-        ),
-        MockTileImage(
-          coordinates: const TileCoordinates(0, 0, 1),
-          loadFinished: false,
-          readyToDisplay: false,
-        ),
+        MockTileImage(0, 0, 0),
+        MockTileImage(0, 0, 1, loadFinished: false, readyToDisplay: false),
       ]);
       final removalState = TileImageView(
         tileImages: tileImages,
-        visibleRange: DiscreteTileRange(
-          1,
-          Bounds(const Point(0, 0), const Point(0, 0)),
-        ),
-        keepRange: DiscreteTileRange(
-          1,
-          Bounds(const Point(0, 0), const Point(0, 0)),
-        ),
+        visibleRange: discreteTileRange(0, 0, 0, 0, zoom: 1),
+        keepRange: discreteTileRange(0, 0, 0, 0, zoom: 1),
       );
       expect(
         removalState.staleTiles(),
@@ -92,40 +72,100 @@ void main() {
       );
     });
 
-    test('keeps descendant tile if there is no loaded tile obscuring it', () {
+    test('descendant tile is not stale if there is no loaded tile obscuring it',
+        () {
       final tileImages = tileImagesMappingFrom([
-        MockTileImage(
-          coordinates: const TileCoordinates(0, 0, 0),
-          loadFinished: false,
-          readyToDisplay: false,
-        ),
-        MockTileImage(
-          coordinates: const TileCoordinates(0, 0, 1),
-          loadFinished: false,
-          readyToDisplay: false,
-        ),
-        MockTileImage(
-          coordinates: const TileCoordinates(0, 0, 2),
-          loadFinished: true,
-          readyToDisplay: true,
-        ),
+        MockTileImage(0, 0, 0, loadFinished: false, readyToDisplay: false),
+        MockTileImage(0, 0, 1, loadFinished: false, readyToDisplay: false),
+        MockTileImage(0, 0, 2),
       ]);
       final removalState = TileImageView(
         tileImages: tileImages,
-        visibleRange: DiscreteTileRange(
-          1,
-          Bounds(const Point(0, 0), const Point(0, 0)),
-        ),
-        keepRange: DiscreteTileRange(
-          1,
-          Bounds(const Point(0, 0), const Point(0, 0)),
-        ),
+        visibleRange: discreteTileRange(0, 0, 0, 0, zoom: 1),
+        keepRange: discreteTileRange(0, 0, 0, 0, zoom: 1),
       );
       expect(
         removalState.staleTiles(),
         doesNotContainTileImage(tileImages, const TileCoordinates(0, 0, 2)),
       );
     });
+
+    test(
+        'returned elements can be removed from the source collection in a for loop',
+        () {
+      final tileImages = tileImagesMappingFrom([
+        MockTileImage(1, 1, 1),
+      ]);
+
+      final removalState = TileImageView(
+        tileImages: tileImages,
+        visibleRange: discreteTileRange(2, 1, 3, 3, zoom: 1),
+        keepRange: discreteTileRange(2, 1, 3, 3, zoom: 1),
+      );
+      expect(
+        removalState.staleTiles(),
+        containsTileImage(tileImages, const TileCoordinates(1, 1, 1)),
+      );
+      // If an iterator over the original collection is returned then when
+      // looping over that iterator and removing from the original collection
+      // a concurrent modification exception is thrown. This ensures that the
+      // returned collection is not an iterable over the original collection.
+      for (final staleTile in removalState.staleTiles()) {
+        tileImages.remove(staleTile.coordinatesKey)!;
+      }
+    });
+  });
+
+  test('errorTilesOutsideOfKeepMargin', () {
+    final tileImages = tileImagesMappingFrom([
+      MockTileImage(1, 1, 1, loadError: true),
+      MockTileImage(2, 1, 1),
+      MockTileImage(1, 2, 1),
+      MockTileImage(2, 2, 1, loadError: true),
+    ]);
+    final tileImageView = TileImageView(
+      tileImages: tileImages,
+      visibleRange: discreteTileRange(1, 2, 1, 2, zoom: 1),
+      keepRange: discreteTileRange(1, 2, 2, 2, zoom: 1),
+    );
+    expect(
+      tileImageView.errorTilesOutsideOfKeepMargin().map((e) => e.coordinates),
+      [const TileCoordinates(1, 1, 1)],
+    );
+
+    // If an iterator over the original collection is returned then when
+    // looping over that iterator and removing from the original collection
+    // a concurrent modification exception is thrown. This ensures that the
+    // returned collection is not an iterable over the original collection.
+    for (final tileImage in tileImageView.errorTilesOutsideOfKeepMargin()) {
+      tileImages.remove(tileImage.coordinatesKey)!;
+    }
+  });
+
+  test('errorTilesNotVisible', () {
+    final tileImages = tileImagesMappingFrom([
+      MockTileImage(1, 1, 1, loadError: true),
+      MockTileImage(2, 1, 1),
+      MockTileImage(1, 2, 1),
+      MockTileImage(2, 2, 1, loadError: true),
+    ]);
+    final tileImageView = TileImageView(
+      tileImages: tileImages,
+      visibleRange: discreteTileRange(1, 2, 1, 2, zoom: 1),
+      keepRange: discreteTileRange(1, 2, 2, 2, zoom: 1),
+    );
+    expect(
+      tileImageView.errorTilesNotVisible().map((e) => e.coordinates),
+      [const TileCoordinates(1, 1, 1), const TileCoordinates(2, 2, 1)],
+    );
+
+    // If an iterator over the original collection is returned then when
+    // looping over that iterator and removing from the original collection
+    // a concurrent modification exception is thrown. This ensures that the
+    // returned collection is not an iterable over the original collection.
+    for (final tileImage in tileImageView.errorTilesOutsideOfKeepMargin()) {
+      tileImages.remove(tileImage.coordinatesKey)!;
+    }
   });
 }
 
@@ -133,16 +173,20 @@ class MockTileImage extends TileImage {
   @override
   final bool readyToDisplay;
 
-  MockTileImage({
-    required super.coordinates,
-    required this.readyToDisplay,
-    required bool loadFinished,
+  MockTileImage(
+    int x,
+    int y,
+    int zoom, {
+    this.readyToDisplay = true,
+    bool loadFinished = true,
+    bool loadError = false,
     void Function(TileCoordinates coordinates)? onLoadComplete,
     void Function(TileImage tile, Object error, StackTrace? stackTrace)?
         onLoadError,
     TileDisplay? tileDisplay,
     super.errorImage,
   }) : super(
+          coordinates: TileCoordinates(x, y, zoom),
           vsync: const MockTickerProvider(),
           imageProvider: testWhiteTileImage,
           onLoadComplete: onLoadComplete ?? (_) {},
@@ -150,6 +194,7 @@ class MockTileImage extends TileImage {
           tileDisplay: const TileDisplay.instantaneous(),
         ) {
     loadFinishedAt = loadFinished ? DateTime.now() : null;
+    this.loadError = loadError;
   }
 }
 
