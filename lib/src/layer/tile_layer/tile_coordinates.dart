@@ -21,9 +21,11 @@ class TileCoordinates extends Point<int> {
 
   @override
   bool operator ==(Object other) {
-    if (other is! TileCoordinates) return false;
-
-    return x == other.x && y == other.y && z == other.z;
+    if (identical(this, other)) return true;
+    return other is TileCoordinates &&
+        other.x == x &&
+        other.y == y &&
+        other.z == z;
   }
 
   @override
