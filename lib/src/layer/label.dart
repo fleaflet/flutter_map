@@ -69,9 +69,6 @@ class Label {
     final labelPosition = polylabel([
       points.map((p) => math.Point(p.dx, p.dy)).toList(),
     ]);
-    return Offset(
-      labelPosition.point.x.toDouble(),
-      labelPosition.point.y.toDouble(),
-    );
+    return labelPosition.point.toOffset();
   }
 }

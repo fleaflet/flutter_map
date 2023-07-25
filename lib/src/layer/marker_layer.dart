@@ -1,6 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
-import 'package:flutter_map/src/misc/point.dart';
+import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -16,6 +18,7 @@ class AnchorPos {
   final AnchorAlign? alignment;
 
   const AnchorPos.exactly(Anchor this.anchor) : alignment = null;
+
   const AnchorPos.align(AnchorAlign this.alignment) : anchor = null;
 }
 
@@ -49,7 +52,6 @@ enum AnchorAlign {
   topRight(1, 1),
   bottomLeft(-1, -1),
   bottomRight(1, -1),
-
   center(0, 0),
 
   /// Top center
@@ -206,12 +208,12 @@ class MarkerLayer extends StatelessWidget {
       final bottomPortion = marker.height - anchor.top;
       final topPortion = anchor.top;
       if (!map.pixelBounds.containsPartialBounds(Bounds(
-          CustomPoint(pxPoint.x + leftPortion, pxPoint.y - bottomPortion),
-          CustomPoint(pxPoint.x - rightPortion, pxPoint.y + topPortion)))) {
+          Point(pxPoint.x + leftPortion, pxPoint.y - bottomPortion),
+          Point(pxPoint.x - rightPortion, pxPoint.y + topPortion)))) {
         continue;
       }
 
-      final pos = pxPoint - map.pixelOrigin;
+      final pos = pxPoint.subtract(map.pixelOrigin);
       final markerWidget = (marker.rotate ?? rotate)
           ? Transform.rotate(
               angle: -map.rotationRad,

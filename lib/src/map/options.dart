@@ -1,4 +1,5 @@
 import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/geo/crs.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
@@ -33,6 +34,8 @@ typedef PointerHoverCallback = void Function(
   PointerHoverEvent event,
   LatLng point,
 );
+
+typedef IsKeyboardKeyTrigger = bool Function(LogicalKeyboardKey key)?;
 
 class MapOptions {
   /// The Coordinate Reference System, defaults to [Epsg3857].
@@ -398,11 +401,23 @@ final class InteractionOptions {
   /// gestures will take effect see [MultiFingerGesture] for custom settings
   final int pinchMoveWinGestures;
 
-  /// If true then the map will scroll when the user uses the scroll wheel on
-  /// his mouse. This is supported on web and desktop, but might also work well
-  /// on Android. A [Listener] is used to capture the onPointerSignal events.
+  @Deprecated(
+    'Prefer `flags.scrollWheelZoom`. '
+    'This property was moved as it better suited being an `InteractiveFlag`. '
+    'This property is deprecated since v6.',
+  )
   final bool enableScrollWheel;
+
   final double scrollWheelVelocity;
+
+  /// Whether to allow rotation by moving the cursor dependent on the currently
+  /// pressed keyboard [LogicalKeyboardKey]
+  ///
+  /// Fix to returning `false` to disable cursor/keyboard rotation.
+  ///
+  /// Defaults to allowing rotation by cursor if any of the Control keys are
+  /// pressed.
+  final IsKeyboardKeyTrigger isCursorRotationKeyboardKeyTrigger;
 
   const InteractionOptions({
     this.flags = InteractiveFlag.all,
@@ -418,6 +433,7 @@ final class InteractionOptions {
         MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
     this.enableScrollWheel = true,
     this.scrollWheelVelocity = 0.005,
+    this.isCursorRotationKeyboardKeyTrigger,
   })  : assert(rotationThreshold >= 0.0),
         assert(pinchZoomThreshold >= 0.0),
         assert(pinchMoveThreshold >= 0.0);
@@ -441,6 +457,7 @@ final class InteractionOptions {
       pinchZoomWinGestures == other.pinchZoomWinGestures &&
       pinchMoveThreshold == other.pinchMoveThreshold &&
       pinchMoveWinGestures == other.pinchMoveWinGestures &&
+      // ignore: deprecated_member_use_from_same_package
       enableScrollWheel == other.enableScrollWheel &&
       scrollWheelVelocity == other.scrollWheelVelocity;
 
@@ -455,6 +472,7 @@ final class InteractionOptions {
         pinchZoomWinGestures,
         pinchMoveThreshold,
         pinchMoveWinGestures,
+        // ignore: deprecated_member_use_from_same_package
         enableScrollWheel,
         scrollWheelVelocity,
       );

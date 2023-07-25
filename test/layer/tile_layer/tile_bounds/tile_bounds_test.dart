@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
@@ -35,8 +37,8 @@ void main() {
           (e) => e.tileRange,
           'tileRange',
           isA<DiscreteTileRange>()
-              .having((e) => e.min, 'min', const CustomPoint(11, 11))
-              .having((e) => e.max, 'max', const CustomPoint(20, 20)),
+              .having((e) => e.min, 'min', const Point(11, 11))
+              .having((e) => e.max, 'max', const Point(20, 20)),
         ),
       );
     });
@@ -54,8 +56,8 @@ void main() {
           (e) => e.tileRange,
           'tileRange',
           isA<DiscreteTileRange>()
-              .having((e) => e.min, 'min', const CustomPoint<int>(-180, -90))
-              .having((e) => e.max, 'max', const CustomPoint<int>(179, 89)),
+              .having((e) => e.min, 'min', const Point<int>(-180, -90))
+              .having((e) => e.max, 'max', const Point<int>(179, 89)),
         ),
       );
     });
@@ -74,8 +76,8 @@ void main() {
               (e) => e.tileRange,
               'tileRange',
               isA<DiscreteTileRange>()
-                  .having((e) => e.min, 'min', const CustomPoint<int>(0, 0))
-                  .having((e) => e.max, 'max', const CustomPoint<int>(31, 31)),
+                  .having((e) => e.min, 'min', const Point<int>(0, 0))
+                  .having((e) => e.max, 'max', const Point<int>(31, 31)),
             )
             .having((e) => e.wrappedAxisIsAlwaysInBounds,
                 'wrappedAxisIsAlwaysInBounds', isTrue)
@@ -103,8 +105,8 @@ void main() {
               (e) => e.tileRange,
               'tileRange',
               isA<DiscreteTileRange>()
-                  .having((e) => e.min, 'min', const CustomPoint<int>(16, 16))
-                  .having((e) => e.max, 'max', const CustomPoint<int>(31, 31)),
+                  .having((e) => e.min, 'min', const Point<int>(16, 16))
+                  .having((e) => e.max, 'max', const Point<int>(31, 31)),
             )
             .having((e) => e.wrappedAxisIsAlwaysInBounds,
                 'wrappedAxisIsAlwaysInBounds', isFalse)

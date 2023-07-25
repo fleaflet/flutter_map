@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_example/widgets/drawer.dart';
@@ -37,8 +39,8 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
     ];
 
     final epsg3413Bounds = Bounds<double>(
-      const CustomPoint<double>(-4511619, -4511336),
-      const CustomPoint<double>(4510883, 4510996),
+      const Point<double>(-4511619, -4511336),
+      const Point<double>(4510883, 4510996),
     );
 
     maxZoom = (resolutions.length - 1).toDouble();
@@ -55,7 +57,7 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
       proj4Projection: epsg3413,
       resolutions: resolutions,
       bounds: epsg3413Bounds,
-      origins: [const CustomPoint(0, 0)],
+      origins: [const Point(0, 0)],
       scales: null,
       transformation: null,
     );

@@ -1,8 +1,6 @@
 import 'dart:math';
 
-import 'package:flutter_map/src/misc/point.dart';
-
-class TileCoordinates extends CustomPoint<int> {
+class TileCoordinates extends Point<int> {
   final int z;
 
   const TileCoordinates(super.x, super.y, this.z);
@@ -12,20 +10,22 @@ class TileCoordinates extends CustomPoint<int> {
   @override
   String toString() => 'TileCoordinate($x, $y, $z)';
 
-  @override
-  bool operator ==(Object other) {
-    if (other is! TileCoordinates) return false;
-
-    return x == other.x && y == other.y && z == other.z;
-  }
-
-  // Overriden because Point's distanceTo does not allow comparing with a point
+  // Overridden because Point's distanceTo does not allow comparing with a point
   // of a different type.
   @override
   double distanceTo(Point<num> other) {
     final dx = x - other.x;
     final dy = y - other.y;
     return sqrt(dx * dx + dy * dy);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is TileCoordinates &&
+        other.x == x &&
+        other.y == y &&
+        other.z == z;
   }
 
   @override
