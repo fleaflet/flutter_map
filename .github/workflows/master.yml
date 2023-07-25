@@ -1,11 +1,19 @@
-name: Build IO Example Apps
+name: "'fleaflet/flutter_map' 'master' CI/CD"
 on:
-  workflow_call:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   build-android:
-    name: "Android"
+    name: "Build Android Example App"
     runs-on: ubuntu-latest
+    if: github.repository == 'fleaflet/flutter_map'
     defaults:
       run:
         working-directory: ./example
@@ -29,10 +37,11 @@ jobs:
           name: apk-build
           path: example/build/app/outputs/apk/release
           if-no-files-found: error
-
+    
   build-windows:
-    name: "Windows"
+    name: "Build Windows Example App"
     runs-on: windows-latest
+    if: github.repository == 'fleaflet/flutter_map'
     defaults:
       run:
         working-directory: ./example
@@ -54,3 +63,33 @@ jobs:
           name: exe-build
           path: windowsTemp/WindowsApplication.exe
           if-no-files-found: error
+
+  build-web:
+    name: "Build & Deploy Web Example App"
+    runs-on: ubuntu-latest
+    if: github.repository == 'fleaflet/flutter_map'
+    defaults:
+      run:
+        working-directory: ./example
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Setup Flutter Environment
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+      - name: Build Web Application
+        run: flutter build web --web-renderer canvaskit
+      - name: Archive Artifact
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: web-build
+          path: example/build/web
+          if-no-files-found: error
+      - name: Publish Live Web App
+        uses: FirebaseExtended/action-hosting-deploy@main
+        with:
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_FLEAFLET }}"
+          channelId: live
+          projectId: fleaflet-firebase
