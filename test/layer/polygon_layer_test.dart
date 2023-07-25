@@ -16,10 +16,10 @@ void main() {
           borderColor: Colors.purple,
           borderStrokeWidth: 4,
           label: '$i',
-          points: <LatLng>[
-            const LatLng(55.5, -0.09),
-            const LatLng(54.3498, -6.2603),
-            const LatLng(52.8566, 2.3522),
+          points: const [
+            LatLng(55.5, -0.09),
+            LatLng(54.3498, -6.2603),
+            LatLng(52.8566, 2.3522),
           ],
         ),
     ];
@@ -34,5 +34,16 @@ void main() {
         find.descendant(
             of: find.byType(PolygonLayer), matching: find.byType(CustomPaint)),
         findsOneWidget);
+  });
+
+  test('polygon normal/rotation', () {
+    const clockwise = [
+      LatLng(30, 20),
+      LatLng(30, 30),
+      LatLng(20, 30),
+      LatLng(20, 20),
+    ];
+    expect(isClockwise(clockwise), isTrue);
+    expect(isClockwise(clockwise.reversed.toList()), isFalse);
   });
 }

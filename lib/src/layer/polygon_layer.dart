@@ -11,6 +11,17 @@ enum PolygonLabelPlacement {
   polylabel,
 }
 
+bool isClockwise(List<LatLng> points) {
+  double sum = 0;
+  for (int i = 0; i < points.length; ++i) {
+    final a = points[i];
+    final b = points[(i + 1) % points.length];
+
+    sum += (b.longitude - a.longitude) * (b.latitude + a.latitude);
+  }
+  return sum >= 0;
+}
+
 class Polygon {
   final List<LatLng> points;
   final List<List<LatLng>>? holePointsList;
@@ -27,6 +38,10 @@ class Polygon {
   final TextStyle labelStyle;
   final PolygonLabelPlacement labelPlacement;
   final bool rotateLabel;
+  // Designates whether the given polygon points follow a clock or anti-clockwise direction.
+  // This is respected during draw call batching for filled polygons. Otherwise, batched polygons
+  // of opposing clock-directions cut holes into each other leading to a leaky optimization.
+  final bool _filledAndClockwise;
 
   LatLngBounds? _boundingBox;
   LatLngBounds get boundingBox {
@@ -49,19 +64,21 @@ class Polygon {
     this.labelStyle = const TextStyle(),
     this.labelPlacement = PolygonLabelPlacement.centroid,
     this.rotateLabel = false,
-  });
+  }) : _filledAndClockwise = isFilled && isClockwise(points);
 
   /// Used to batch draw calls to the canvas.
   int get renderHashCode => Object.hash(
-      holePointsList,
-      color,
-      borderStrokeWidth,
-      borderColor,
-      isDotted,
-      isFilled,
-      strokeCap,
-      strokeJoin,
-      labelStyle);
+        holePointsList,
+        color,
+        borderStrokeWidth,
+        borderColor,
+        isDotted,
+        isFilled,
+        strokeCap,
+        strokeJoin,
+        labelStyle,
+        _filledAndClockwise,
+      );
 }
 
 class PolygonLayer extends StatelessWidget {
