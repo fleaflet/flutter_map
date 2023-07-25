@@ -98,7 +98,7 @@ class PolygonPage extends StatelessWidget {
                       points: filledPoints,
                       isFilled: true,
                       color: Colors.purple,
-                      borderColor: Colors.purple,
+                      borderColor: Colors.yellow,
                       borderStrokeWidth: 4,
                     ),
                     Polygon(
@@ -120,6 +120,8 @@ class PolygonPage extends StatelessWidget {
                     Polygon(
                       points: labelPoints,
                       borderStrokeWidth: 4,
+                      isFilled: false,
+                      color: Colors.pink,
                       borderColor: Colors.purple,
                       label: "Label!",
                     ),
@@ -132,11 +134,27 @@ class PolygonPage extends StatelessWidget {
                     ),
                     Polygon(
                       points: holeOuterPoints,
-                      //holePointsList: [],
+                      isFilled: true,
                       holePointsList: [holeInnerPoints],
                       borderStrokeWidth: 4,
                       borderColor: Colors.green,
                       color: Colors.pink.withOpacity(0.5),
+                    ),
+                    Polygon(
+                      points: holeOuterPoints
+                          .map((latlng) =>
+                              LatLng(latlng.latitude, latlng.longitude + 8))
+                          .toList(),
+                      isFilled: false,
+                      isDotted: true,
+                      holePointsList: [
+                        holeInnerPoints
+                            .map((latlng) =>
+                                LatLng(latlng.latitude, latlng.longitude + 8))
+                            .toList()
+                      ],
+                      borderStrokeWidth: 4,
+                      borderColor: Colors.orange,
                     ),
                   ]),
                 ],
