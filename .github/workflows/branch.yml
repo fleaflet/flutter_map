@@ -1,0 +1,141 @@
+name: "Branch & Fork CI/CD"
+on:
+  push:
+    branches:
+      - '!master'
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  score-package:
+    name: "Score Package"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Run Dart Package Analyser
+        uses: axel-op/dart-package-analyzer@master
+        id: analysis
+        with:
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check Package Scores
+        env:
+          TOTAL: ${{ steps.analysis.outputs.total }}
+          TOTAL_MAX: ${{ steps.analysis.outputs.total_max }}
+        run: |
+          if (( $TOTAL < $TOTAL_MAX ))
+          then
+            echo Package score less than available score. Improve the score!
+            exit 1
+          fi
+    
+  analyse-code:
+    name: "Analyse Code"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Setup Flutter Environment
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+      - name: Get All Dependencies
+        run: flutter pub get
+      - name: Check Formatting
+        run: dart format --output=none --set-exit-if-changed .
+      - name: Check Lints
+        run: dart analyze --fatal-infos --fatal-warnings
+
+  run-tests:
+    name: "Run Tests"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Setup Flutter Environment
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+      - name: Run Tests
+        run: flutter test -r expanded
+
+  build-android:
+   name: "Build Android Example App"
+   runs-on: ubuntu-latest
+   needs: [run-tests, analyse-code, score-package]
+   defaults:
+     run:
+       working-directory: ./example
+   steps:
+     - name: Checkout Repository
+       uses: actions/checkout@v3
+     - name: Setup Java 17 Environment
+       uses: actions/setup-java@v3
+       with:
+         distribution: "temurin"
+         java-version: "17"
+     - name: Setup Flutter Environment
+       uses: subosito/flutter-action@v2
+       with:
+         channel: "stable"
+     - name: Build Android Application
+       run: flutter build apk
+     - name: Archive Artifact
+       uses: actions/upload-artifact@v3.1.2
+       with:
+         name: apk-build
+         path: example/build/app/outputs/apk/release
+         if-no-files-found: error
+
+  build-windows:
+   name: "Build Windows Example App"
+   runs-on: windows-latest
+   needs: [run-tests, analyse-code, score-package]
+   defaults:
+     run:
+       working-directory: ./example
+   steps:
+     - name: Checkout Repository
+       uses: actions/checkout@v3
+     - name: Setup Flutter Environment
+       uses: subosito/flutter-action@v2
+       with:
+         channel: "stable"
+     - name: Build Windows Application
+       run: flutter build windows
+     - name: Create Windows Application Installer
+       run: iscc "windowsApplicationInstallerSetup.iss"
+       working-directory: .
+     - name: Archive Artifact
+       uses: actions/upload-artifact@v3.1.2
+       with:
+         name: exe-build
+         path: windowsTemp/WindowsApplication.exe
+         if-no-files-found: error
+
+  build-web:
+    name: "Build Web Example App"
+    runs-on: ubuntu-latest
+    needs: [run-tests, analyse-code, score-package]
+    defaults:
+      run:
+        working-directory: ./example
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Setup Flutter Environment
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+      - name: Build Web Application
+        run: flutter build web --web-renderer canvaskit
+      - name: Archive Artifact
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: web-build
+          path: example/build/web
+          if-no-files-found: error
