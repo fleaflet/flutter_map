@@ -268,7 +268,7 @@ class PolygonPainter extends CustomPainter {
     List<List<Offset>> holeOffsetsList,
   ) {
     if (polygon.isDotted) {
-      final borderRadius = (polygon.borderStrokeWidth / 2);
+      final borderRadius = polygon.borderStrokeWidth / 2;
       final spacing = polygon.borderStrokeWidth * 1.5;
       for (final offsets in holeOffsetsList) {
         _addDottedLineToPath(path, offsets, borderRadius, spacing);
