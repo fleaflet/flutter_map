@@ -11,6 +11,17 @@ enum PolygonLabelPlacement {
   polylabel,
 }
 
+bool isClockwise(List<LatLng> points) {
+  double sum = 0;
+  for (int i = 0; i < points.length; ++i) {
+    final a = points[i];
+    final b = points[(i + 1) % points.length];
+
+    sum += (b.longitude - a.longitude) * (b.latitude + a.latitude);
+  }
+  return sum >= 0;
+}
+
 class Polygon {
   final List<LatLng> points;
   final List<List<LatLng>>? holePointsList;
@@ -27,6 +38,10 @@ class Polygon {
   final TextStyle labelStyle;
   final PolygonLabelPlacement labelPlacement;
   final bool rotateLabel;
+  // Designates whether the given polygon points follow a clock or anti-clockwise direction.
+  // This is respected during draw call batching for filled polygons. Otherwise, batched polygons
+  // of opposing clock-directions cut holes into each other leading to a leaky optimization.
+  final bool _filledAndClockwise;
 
   LatLngBounds? _boundingBox;
 
@@ -48,19 +63,21 @@ class Polygon {
     this.labelStyle = const TextStyle(),
     this.labelPlacement = PolygonLabelPlacement.centroid,
     this.rotateLabel = false,
-  });
+  }) : _filledAndClockwise = isFilled && isClockwise(points);
 
   /// Used to batch draw calls to the canvas.
   int get renderHashCode => Object.hash(
-      holePointsList,
-      color,
-      borderStrokeWidth,
-      borderColor,
-      isDotted,
-      isFilled,
-      strokeCap,
-      strokeJoin,
-      labelStyle);
+        holePointsList,
+        color,
+        borderStrokeWidth,
+        borderColor,
+        isDotted,
+        isFilled,
+        strokeCap,
+        strokeJoin,
+        labelStyle,
+        _filledAndClockwise,
+      );
 }
 
 @immutable
@@ -110,84 +127,101 @@ class PolygonPainter extends CustomPainter {
   int? _hash;
 
   List<Offset> getOffsets(List<LatLng> points) {
-    return List.generate(points.length, (index) {
-      return map.getOffsetFromOrigin(points[index]);
-    }, growable: false);
+    return List.generate(
+      points.length,
+      (index) {
+        return map.getOffsetFromOrigin(points[index]);
+      },
+      growable: false,
+    );
   }
 
   @override
   void paint(Canvas canvas, Size size) {
-    var path = ui.Path();
-    var paint = Paint();
+    var filledPath = ui.Path();
     var borderPath = ui.Path();
-    Paint? borderPaint;
+    Polygon? lastPolygon;
     int? lastHash;
 
+    // This functions flushes the batched fill and border paths constructed below.
     void drawPaths() {
-      canvas.drawPath(path, paint);
-      path = ui.Path();
-      paint = Paint();
-
-      if (borderPaint != null) {
-        canvas.drawPath(borderPath, borderPaint!);
-        borderPath = ui.Path();
-        borderPaint = null;
+      if (lastPolygon == null) {
+        return;
       }
+      final polygon = lastPolygon!;
+
+      // Draw filled polygon .
+      if (polygon.isFilled) {
+        final paint = Paint()
+          ..style = PaintingStyle.fill
+          ..color = polygon.color;
+
+        canvas.drawPath(filledPath, paint);
+      }
+
+      // Draw polygon outline.
+      if (polygon.borderStrokeWidth > 0) {
+        final borderPaint = _getBorderPaint(polygon);
+        canvas.drawPath(borderPath, borderPaint);
+      }
+
+      filledPath = ui.Path();
+      borderPath = ui.Path();
+      lastPolygon = null;
+      lastHash = null;
     }
 
+    // Main loop constructing batched fill and border paths from given polygons.
     for (final polygon in polygons) {
       final offsets = getOffsets(polygon.points);
       if (offsets.isEmpty) {
         continue;
       }
 
+      // The hash is based on the polygons visual properties. If the hash from
+      // the current and the previous polygon no longer match, we need to flush
+      // the batch previous polygons.
       final hash = polygon.renderHashCode;
-      if (lastHash != null && lastHash != hash) {
+      if (lastHash != hash) {
         drawPaths();
       }
+      lastPolygon = polygon;
       lastHash = hash;
 
-      final holeOffsetsList = polygon.holePointsList
-              ?.map((holePoints) => getOffsets(holePoints))
-              .toList(growable: false) ??
-          const [];
+      // First add fills and borders to path.
+      if (polygon.isFilled) {
+        filledPath.addPolygon(offsets, true);
+      }
+      if (polygon.borderStrokeWidth > 0.0) {
+        _addBorderToPath(borderPath, polygon, offsets);
+      }
 
-      if (holeOffsetsList.isEmpty) {
-        if (polygon.isFilled) {
-          paint = Paint()
-            ..style = PaintingStyle.fill
-            ..strokeWidth = polygon.borderStrokeWidth
-            ..strokeCap = polygon.strokeCap
-            ..strokeJoin = polygon.strokeJoin
-            ..color = polygon.isFilled ? polygon.color : polygon.borderColor;
-
-          path.addPolygon(offsets, true);
-        }
-      } else {
-        paint = Paint()
-          ..style = PaintingStyle.fill
-          ..color = polygon.color;
-
+      // Afterwards deal with more complicated holes.
+      final holePointsList = polygon.holePointsList;
+      if (holePointsList != null && holePointsList.isNotEmpty) {
         // Ideally we'd use `Path.combine(PathOperation.difference, ...)`
         // instead of evenOdd fill-type, however it creates visual artifacts
         // using the web renderer.
-        path.fillType = PathFillType.evenOdd;
+        filledPath.fillType = PathFillType.evenOdd;
 
-        path.addPolygon(offsets, true);
+        final holeOffsetsList = List<List<Offset>>.generate(
+          holePointsList.length,
+          (i) => getOffsets(holePointsList[i]),
+          growable: false,
+        );
+
         for (final holeOffsets in holeOffsetsList) {
-          path.addPolygon(holeOffsets, true);
+          filledPath.addPolygon(holeOffsets, true);
+        }
+
+        if (!polygon.disableHolesBorder && polygon.borderStrokeWidth > 0.0) {
+          _addHoleBordersToPath(borderPath, polygon, holeOffsetsList);
         }
       }
 
-      // Only draw the  border explicitly if it isn't already a stroke-style
-      // polygon.
-      if (polygon.borderStrokeWidth > 0.0) {
-        borderPaint = _getBorderPaint(polygon);
-        _paintBorder(borderPath, polygon, offsets, holeOffsetsList);
-      }
-
       if (polygon.label != null) {
-        // Labels are expensive they mess with draw batching.
+        // Labels are expensive. The `paintText` below is a canvas draw
+        // operation and thus requires us to reset the draw batching here.
         drawPaths();
 
         Label(
@@ -214,56 +248,70 @@ class PolygonPainter extends CustomPainter {
       ..style = isDotted ? PaintingStyle.fill : PaintingStyle.stroke;
   }
 
-  void _paintBorder(ui.Path path, Polygon polygon, List<Offset> offsets,
-      List<List<Offset>> holeOffsetsList) {
+  void _addBorderToPath(
+    ui.Path path,
+    Polygon polygon,
+    List<Offset> offsets,
+  ) {
     if (polygon.isDotted) {
       final borderRadius = polygon.borderStrokeWidth / 2;
       final spacing = polygon.borderStrokeWidth * 1.5;
+      _addDottedLineToPath(path, offsets, borderRadius, spacing);
+    } else {
+      _addLineToPath(path, offsets);
+    }
+  }
 
-      _paintDottedLine(path, offsets, borderRadius, spacing);
-
-      if (!polygon.disableHolesBorder) {
-        for (final offsets in holeOffsetsList) {
-          _paintDottedLine(path, offsets, borderRadius, spacing);
-        }
+  void _addHoleBordersToPath(
+    ui.Path path,
+    Polygon polygon,
+    List<List<Offset>> holeOffsetsList,
+  ) {
+    if (polygon.isDotted) {
+      final borderRadius = (polygon.borderStrokeWidth / 2);
+      final spacing = polygon.borderStrokeWidth * 1.5;
+      for (final offsets in holeOffsetsList) {
+        _addDottedLineToPath(path, offsets, borderRadius, spacing);
       }
     } else {
-      _paintLine(path, offsets);
-
-      if (!polygon.disableHolesBorder) {
-        for (final offsets in holeOffsetsList) {
-          _paintLine(path, offsets);
-        }
+      for (final offsets in holeOffsetsList) {
+        _addLineToPath(path, offsets);
       }
     }
   }
 
-  void _paintDottedLine(
+  void _addDottedLineToPath(
       ui.Path path, List<Offset> offsets, double radius, double stepLength) {
-    var startDistance = 0.0;
+    if (offsets.isEmpty) {
+      return;
+    }
+
+    double startDistance = 0;
     for (var i = 0; i < offsets.length; i++) {
       final o0 = offsets[i % offsets.length];
       final o1 = offsets[(i + 1) % offsets.length];
       final totalDistance = (o0 - o1).distance;
-      var distance = startDistance;
-      while (distance < totalDistance) {
-        final f1 = distance / totalDistance;
-        final f0 = 1.0 - f1;
-        final offset = Offset(o0.dx * f0 + o1.dx * f1, o0.dy * f0 + o1.dy * f1);
+
+      double distance = startDistance;
+      for (; distance < totalDistance; distance += stepLength) {
+        final done = distance / totalDistance;
+        final remain = 1.0 - done;
+        final offset = Offset(
+          o0.dx * remain + o1.dx * done,
+          o0.dy * remain + o1.dy * done,
+        );
         path.addOval(Rect.fromCircle(center: offset, radius: radius));
-        distance += stepLength;
       }
+
       startDistance = distance < totalDistance
           ? stepLength - (totalDistance - distance)
           : distance - totalDistance;
     }
+
     path.addOval(Rect.fromCircle(center: offsets.last, radius: radius));
   }
 
-  void _paintLine(ui.Path path, List<Offset> offsets) {
-    if (offsets.isEmpty) {
-      return;
-    }
+  void _addLineToPath(ui.Path path, List<Offset> offsets) {
     path.addPolygon(offsets, true);
   }
 
