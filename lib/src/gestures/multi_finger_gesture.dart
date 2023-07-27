@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:meta/meta.dart';
 
 /// Use [MultiFingerGesture] to disable / enable certain gestures Use
 /// [MultiFingerGesture.all] to enable all gestures, use
