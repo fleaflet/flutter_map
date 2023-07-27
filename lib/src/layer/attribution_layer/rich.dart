@@ -177,13 +177,15 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => WidgetsBinding.instance.addPostFrameCallback(
         (_) {
-          final renderBox = persistentAttributionKey.currentContext
-              ?.findRenderObject() as RenderBox?;
           assert(
-            renderBox != null,
+            persistentAttributionKey.currentContext?.findRenderObject() != null,
             'persistentAttributionKey is not in the widget tree',
           );
-          setState(() => persistentAttributionSize = renderBox!.size);
+          final renderObject =
+              persistentAttributionKey.currentContext?.findRenderObject();
+          if (renderObject is RenderBox) {
+            setState(() => persistentAttributionSize = renderObject.size);
+          }
         },
       ),
     );
