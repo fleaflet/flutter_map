@@ -149,9 +149,10 @@ class OverlayImageLayer extends StatelessWidget {
     final map = MapCamera.of(context);
     return ClipRect(
       child: Stack(
-        children: overlayImages
-            .map((image) => image.buildPositionedForOverlay(map))
-            .toList(growable: false),
+        children: <Widget>[
+          for (var overlayImage in overlayImages)
+            overlayImage.buildPositionedForOverlay(map),
+        ],
       ),
     );
   }
