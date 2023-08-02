@@ -10,13 +10,11 @@ class InteractiveTestPage extends StatefulWidget {
   const InteractiveTestPage({Key? key}) : super(key: key);
 
   @override
-  State createState() {
-    return _InteractiveTestPageState();
-  }
+  State createState() => _InteractiveTestPageState();
 }
 
 class _InteractiveTestPageState extends State<InteractiveTestPage> {
-  final availableFlags = {
+  static const availableFlags = {
     'Movement': {
       InteractiveFlag.drag: 'Drag',
       InteractiveFlag.flingAnimation: 'Fling',
@@ -33,28 +31,10 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
     },
   };
 
-  // Enable pinchZoom and doubleTapZoomBy by default
   int flags = InteractiveFlag.drag | InteractiveFlag.pinchZoom;
-
   bool keyboardCursorRotate = false;
 
   MapEvent? _latestEvent;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  void onMapEvent(MapEvent mapEvent) {
-    if (mapEvent is! MapEventMove && mapEvent is! MapEventRotate) {
-      // do not flood console with move and rotate events
-      debugPrint(_eventName(mapEvent));
-    }
-
-    setState(() {
-      _latestEvent = mapEvent;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,28 +61,25 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                         ),
                         Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ...category.value.entries
-                                .map<Widget>(
-                                  (e) => Column(
-                                    children: [
-                                      Checkbox.adaptive(
-                                        value: InteractiveFlag.hasFlag(
-                                            e.key, flags),
-                                        onChanged: (enabled) {
-                                          if (!enabled!) {
-                                            flags &= ~e.key;
-                                          } else {
-                                            flags |= e.key;
-                                          }
-                                          setState(() {});
-                                        },
-                                      ),
-                                      Text(e.value),
-                                    ],
+                          children: <Widget>[
+                            ...category.value.entries.map(
+                              (e) => Column(
+                                children: [
+                                  Checkbox.adaptive(
+                                    value:
+                                        InteractiveFlag.hasFlag(e.key, flags),
+                                    onChanged: (enabled) {
+                                      if (!enabled!) {
+                                        setState(() => flags &= ~e.key);
+                                        return;
+                                      }
+                                      setState(() => flags |= e.key);
+                                    },
                                   ),
-                                )
-                                .interleave(const SizedBox(width: 12)),
+                                  Text(e.value),
+                                ],
+                              ),
+                            ),
                             if (category.key == 'Rotation') ...[
                               Column(
                                 children: [
@@ -114,9 +91,9 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                                   const Text('Cursor & CTRL'),
                                 ],
                               ),
-                              const SizedBox(width: 12),
                             ]
-                          ]..removeLast(),
+                          ].interleave(const SizedBox(width: 12)).toList()
+                            ..removeLast(),
                         )
                       ],
                     ),
@@ -142,7 +119,7 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
             Expanded(
               child: FlutterMap(
                 options: MapOptions(
-                  onMapEvent: onMapEvent,
+                  onMapEvent: (evt) => setState(() => _latestEvent = evt),
                   initialCenter: const LatLng(51.5, -0.09),
                   initialZoom: 11,
                   interactionOptions: InteractionOptions(
