@@ -40,7 +40,7 @@ class FlutterMapInteractiveViewerState
     extends State<FlutterMapInteractiveViewer> with TickerProviderStateMixin {
   static const int _kMinFlingVelocity = 800;
   static const _kDoubleTapZoomDuration = 200;
-  static const doubleTapDelay = Duration(milliseconds: 350);
+  static const doubleTapDelay = Duration(milliseconds: 250);
 
   final _positionedTapController = PositionedTapController();
   final _gestureArenaTeam = GestureArenaTeam();
@@ -210,13 +210,11 @@ class FlutterMapInteractiveViewerState
       widget.controller.moveEnded(MapEventSource.interactiveFlagsChanged);
     }
 
-    if (oldOptions.isCursorRotationKeyboardKeyTrigger !=
-        newOptions.isCursorRotationKeyboardKeyTrigger) {
-      ServicesBinding.instance.keyboard
-          .removeHandler(keyboardRotationTriggerKeyHandler);
-      ServicesBinding.instance.keyboard
-          .addHandler(keyboardRotationTriggerKeyHandler);
-    }
+    // No way to detect whether two functions are equal, so assume they aren't
+    ServicesBinding.instance.keyboard
+        .removeHandler(keyboardRotationTriggerKeyHandler);
+    ServicesBinding.instance.keyboard
+        .addHandler(keyboardRotationTriggerKeyHandler);
   }
 
   Map<Type, GestureRecognizerFactory> _createGestures({
@@ -840,7 +838,7 @@ class FlutterMapInteractiveViewerState
     _doubleTapHoldMaxDelay?.cancel();
 
     final flags = _interactionOptions.flags;
-    if (InteractiveFlag.hasPinchZoom(flags)) {
+    if (InteractiveFlag.hasDoubleTapDragZoom(flags)) {
       final verticalOffset = (_focalStartLocal - details.localFocalPoint).dy;
       final newZoom = _mapZoomStart - verticalOffset / 360 * _camera.zoom;
 

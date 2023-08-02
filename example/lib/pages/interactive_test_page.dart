@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
@@ -15,8 +16,27 @@ class InteractiveTestPage extends StatefulWidget {
 }
 
 class _InteractiveTestPageState extends State<InteractiveTestPage> {
+  final availableFlags = {
+    'Movement': {
+      InteractiveFlag.drag: 'Drag',
+      InteractiveFlag.flingAnimation: 'Fling',
+      InteractiveFlag.pinchMove: 'Pinch',
+    },
+    'Zooming': {
+      InteractiveFlag.pinchZoom: 'Pinch',
+      InteractiveFlag.scrollWheelZoom: 'Scroll',
+      InteractiveFlag.doubleTapZoom: 'Double tap',
+      InteractiveFlag.doubleTapDragZoom: '+ drag',
+    },
+    'Rotation': {
+      InteractiveFlag.rotate: 'Twist',
+    },
+  };
+
   // Enable pinchZoom and doubleTapZoomBy by default
-  int flags = InteractiveFlag.pinchZoom | InteractiveFlag.doubleTapZoom;
+  int flags = InteractiveFlag.drag | InteractiveFlag.pinchZoom;
+
+  bool keyboardCursorRotate = false;
 
   MapEvent? _latestEvent;
 
@@ -36,101 +56,80 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
     });
   }
 
-  void updateFlags(int flag) {
-    if (InteractiveFlag.hasFlag(flags, flag)) {
-      // remove flag from flags
-      flags &= ~flag;
-    } else {
-      // add flag to flags
-      flags |= flag;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Test out Interactive flags!')),
+      appBar: AppBar(title: const Text('Interactive Flags')),
       drawer: buildDrawer(context, InteractiveTestPage.route),
       body: Padding(
         padding: const EdgeInsets.all(8),
         child: Column(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                MaterialButton(
-                  color: InteractiveFlag.hasDrag(flags)
-                      ? Colors.greenAccent
-                      : Colors.redAccent,
-                  onPressed: () {
-                    setState(() {
-                      updateFlags(InteractiveFlag.drag);
-                    });
-                  },
-                  child: const Text('Drag'),
-                ),
-                MaterialButton(
-                  color: InteractiveFlag.hasFlingAnimation(flags)
-                      ? Colors.greenAccent
-                      : Colors.redAccent,
-                  onPressed: () {
-                    setState(() {
-                      updateFlags(InteractiveFlag.flingAnimation);
-                    });
-                  },
-                  child: const Text('Fling'),
-                ),
-                MaterialButton(
-                  color: InteractiveFlag.hasPinchMove(flags)
-                      ? Colors.greenAccent
-                      : Colors.redAccent,
-                  onPressed: () {
-                    setState(() {
-                      updateFlags(InteractiveFlag.pinchMove);
-                    });
-                  },
-                  child: const Text('Pinch move'),
-                ),
-              ],
+            Flex(
+              direction: MediaQuery.of(context).size.width >= 600
+                  ? Axis.horizontal
+                  : Axis.vertical,
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: availableFlags.entries
+                  .map<Widget?>(
+                    (category) => Column(
+                      children: [
+                        Text(
+                          category.key,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ...category.value.entries
+                                .map<Widget>(
+                                  (e) => Column(
+                                    children: [
+                                      Checkbox.adaptive(
+                                        value: InteractiveFlag.hasFlag(
+                                            e.key, flags),
+                                        onChanged: (enabled) {
+                                          if (!enabled!) {
+                                            flags &= ~e.key;
+                                          } else {
+                                            flags |= e.key;
+                                          }
+                                          setState(() {});
+                                        },
+                                      ),
+                                      Text(e.value),
+                                    ],
+                                  ),
+                                )
+                                .interleave(const SizedBox(width: 12)),
+                            if (category.key == 'Rotation') ...[
+                              Column(
+                                children: [
+                                  Checkbox.adaptive(
+                                    value: keyboardCursorRotate,
+                                    onChanged: (enabled) => setState(
+                                        () => keyboardCursorRotate = enabled!),
+                                  ),
+                                  const Text('Cursor & CTRL'),
+                                ],
+                              ),
+                              const SizedBox(width: 12),
+                            ]
+                          ]..removeLast(),
+                        )
+                      ],
+                    ),
+                  )
+                  .interleave(
+                    MediaQuery.of(context).size.width >= 600
+                        ? null
+                        : const SizedBox(height: 12),
+                  )
+                  .whereType<Widget>()
+                  .toList(),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                MaterialButton(
-                  color: InteractiveFlag.hasDoubleTapZoom(flags)
-                      ? Colors.greenAccent
-                      : Colors.redAccent,
-                  onPressed: () {
-                    setState(() {
-                      updateFlags(InteractiveFlag.doubleTapZoom);
-                    });
-                  },
-                  child: const Text('Double tap zoom'),
-                ),
-                MaterialButton(
-                  color: InteractiveFlag.hasRotate(flags)
-                      ? Colors.greenAccent
-                      : Colors.redAccent,
-                  onPressed: () {
-                    setState(() {
-                      updateFlags(InteractiveFlag.rotate);
-                    });
-                  },
-                  child: const Text('Rotate'),
-                ),
-                MaterialButton(
-                  color: InteractiveFlag.hasPinchZoom(flags)
-                      ? Colors.greenAccent
-                      : Colors.redAccent,
-                  onPressed: () {
-                    setState(() {
-                      updateFlags(InteractiveFlag.pinchZoom);
-                    });
-                  },
-                  child: const Text('Pinch zoom'),
-                ),
-              ],
-            ),
+            const Divider(),
             Padding(
               padding: const EdgeInsets.only(top: 8, bottom: 8),
               child: Center(
@@ -140,7 +139,7 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                 ),
               ),
             ),
-            Flexible(
+            Expanded(
               child: FlutterMap(
                 options: MapOptions(
                   onMapEvent: onMapEvent,
@@ -148,6 +147,13 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                   initialZoom: 11,
                   interactionOptions: InteractionOptions(
                     flags: flags,
+                    isCursorRotationKeyboardKeyTrigger: (key) =>
+                        keyboardCursorRotate &&
+                        {
+                          LogicalKeyboardKey.control,
+                          LogicalKeyboardKey.controlLeft,
+                          LogicalKeyboardKey.controlRight
+                        }.contains(key),
                   ),
                 ),
                 children: [
@@ -207,6 +213,15 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
         return 'null';
       default:
         return 'Unknown';
+    }
+  }
+}
+
+extension _IterableExt<E> on Iterable<E> {
+  Iterable<E> interleave(E separator) sync* {
+    for (int i = 0; i < length; i++) {
+      yield elementAt(i);
+      if (i < length) yield separator;
     }
   }
 }
