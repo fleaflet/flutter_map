@@ -517,11 +517,18 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     _tileScaleCalculator.clearCacheUnlessZoomMatches(map.zoom);
 
+    final tileImagesInRenderOrder =
+        _tileImageManager.inRenderOrder(widget.maxZoom, tileZoom);
+
     return _addBackgroundColor(
       Stack(
         children: [
           if (widget.placeholderImage != null)
-            ...visibleTileRange.coordinates.map(
+            ..._placeholderCoordinates(
+              tileImagesInRenderOrder.takeWhile(
+                  (tileImage) => tileImage.coordinates.z == tileZoom),
+              visibleTileRange,
+            ).map(
               (tileCoordinates) => TilePlaceholder(
                 key: ValueKey('placeholder-${tileCoordinates.key}'),
                 tileCoordinates: tileCoordinates,
@@ -533,26 +540,46 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
                 placeholderImage: widget.placeholderImage!,
               ),
             ),
-          ..._tileImageManager.inRenderOrder(widget.maxZoom, tileZoom).map(
-                (tileImage) => Tile(
-                  // Must be an ObjectKey, not a ValueKey using the coordinates, in
-                  // case we remove and replace the TileImage with a different one.
-                  key: ObjectKey(tileImage),
-                  scaledTileSize: _tileScaleCalculator.scaledTileSize(
-                    map.zoom,
-                    tileImage.coordinates.z,
-                  ),
-                  currentPixelOrigin: currentPixelOrigin,
-                  tileImage: tileImage,
-                  tileBuilder: widget.tileBuilder,
-                ),
+          ...tileImagesInRenderOrder.map(
+            (tileImage) => Tile(
+              // Must be an ObjectKey, not a ValueKey using the coordinates, in
+              // case we remove and replace the TileImage with a different one.
+              key: ObjectKey(tileImage),
+              scaledTileSize: _tileScaleCalculator.scaledTileSize(
+                map.zoom,
+                tileImage.coordinates.z,
               ),
+              currentPixelOrigin: currentPixelOrigin,
+              tileImage: tileImage,
+              tileBuilder: widget.tileBuilder,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  /// This can be removed once the deprecated backgroundColor option is removed.
+  /// Returns the visible coordinates from the current zoom for which there is
+  /// no TileImage which has finished loading and transitioning. It is possible
+  /// a returned placeholder coordinate will be for a placeholder which is
+  /// obscured by a tile from a lower zoom or a collection of tiles from higher
+  /// zooms, this simple algorithm is a tradeoff between minimising the number
+  /// of unnecessary placeholders and keeping the calculation fast.
+  Iterable<TileCoordinates> _placeholderCoordinates(
+    Iterable<TileImage> tileImagesAtCurrentZoom,
+    DiscreteTileRange visibleTileRange,
+  ) {
+    final obscuredCoordinatesAtCurrentZoom = tileImagesAtCurrentZoom
+        .where((tileImage) => tileImage.transitionComplete)
+        .map((tileImage) => tileImage.coordinates)
+        .toSet();
+
+    return visibleTileRange.coordinates
+        .toSet()
+        .difference(obscuredCoordinatesAtCurrentZoom);
+  }
+
+  // This can be removed once the deprecated backgroundColor option is removed.
   Widget _addBackgroundColor(Widget child) {
     // ignore: deprecated_member_use_from_same_package
     final color = widget.backgroundColor;

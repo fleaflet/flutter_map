@@ -26,14 +26,11 @@ class TileImageManager {
   ///   2. Tiles at the current zoom +/- 1.
   ///   3. Tiles at the current zoom +/- 2.
   ///   4. ...etc
-  List<TileImage> inRenderOrder(double maxZoom, int currentZoom) {
-    final result = _tiles.values.toList()
-      ..sort((a, b) => a
-          .zIndex(maxZoom, currentZoom)
-          .compareTo(b.zIndex(maxZoom, currentZoom)));
-
-    return result;
-  }
+  List<TileImage> inRenderOrder(double maxZoom, int currentZoom) =>
+      _tiles.values.toList()
+        ..sort((a, b) => a
+            .zIndex(maxZoom, currentZoom)
+            .compareTo(b.zIndex(maxZoom, currentZoom)));
 
   // Creates missing tiles in the given range. Does not initiate loading of the
   // tiles.

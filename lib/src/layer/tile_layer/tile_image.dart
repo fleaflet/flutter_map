@@ -8,8 +8,9 @@ class TileImage extends ChangeNotifier {
   // Controls fade-in opacity.
   AnimationController? _animationController;
 
-  // Whether the tile is displayable. See [readyToDisplay].
-  bool _readyToDisplay = false;
+  // Whether the tile has both loaded and finished transitioning. See
+  // [transitionComplete].
+  bool _transitionComplete = false;
 
   /// Used by animationController. Still required if animation is disabled in
   /// case the tile display is changed at a later point.
@@ -67,7 +68,7 @@ class TileImage extends ChangeNotifier {
 
   double get opacity => _tileDisplay.when(
         instantaneous: (instantaneous) =>
-            _readyToDisplay ? instantaneous.opacity : 0.0,
+            _transitionComplete ? instantaneous.opacity : 0.0,
         fadeIn: (fadeIn) => _animationController!.value,
       )!;
 
@@ -75,14 +76,14 @@ class TileImage extends ChangeNotifier {
 
   String get coordinatesKey => coordinates.key;
 
-  /// Whether the tile is displayable. This means that either:
-  ///   * Loading errored but an error image is configured.
-  ///   * Loading succeeded and the fade animation has finished.
-  ///   * Loading succeeded and there is no fade animation.
+  /// Whether the tile has loaded and finished fading in. This is true when
+  /// loading succeeded and:
+  ///   * The fade animation has finished.
+  ///   * There is no fade animation.
   ///
   /// Note that [opacity] can be less than 1 when this is true if instantaneous
   /// tile display is used with a maximum opacity less than 1.
-  bool get readyToDisplay => _readyToDisplay;
+  bool get transitionComplete => _transitionComplete;
 
   // Used to sort TileImages by their distance from the current zoom.
   double zIndex(double maxZoom, int currentZoom) =>
@@ -105,7 +106,7 @@ class TileImage extends ChangeNotifier {
             _animationController = AnimationController(
               duration: fadeIn.duration,
               vsync: vsync,
-              value: _readyToDisplay ? 1.0 : 0.0,
+              value: _transitionComplete ? 1.0 : 0.0,
             );
           },
         );
@@ -153,7 +154,7 @@ class TileImage extends ChangeNotifier {
     this.imageInfo = imageInfo;
 
     if (!_disposed) {
-      _display();
+      _initiateTransition();
       onLoadComplete(coordinates);
     }
   }
@@ -167,16 +168,16 @@ class TileImage extends ChangeNotifier {
     }
   }
 
-  // Initiates fading in and marks this TileImage as readyToDisplay when fading
-  // finishes. If fading is disabled or a loading error occurred this TileImage
-  // becomes readyToDisplay immediately.
-  void _display() {
+  // Initiates fading in and sets [transitionComplete] to true when fading
+  // finishes. If fading is disabled [transitionComplete] is set to true
+  // immediately.
+  void _initiateTransition() {
     final previouslyLoaded = loadFinishedAt != null;
     loadFinishedAt = DateTime.now();
 
     _tileDisplay.when(
       instantaneous: (_) {
-        _readyToDisplay = true;
+        _transitionComplete = true;
         if (!_disposed) notifyListeners();
       },
       fadeIn: (fadeIn) {
@@ -184,12 +185,12 @@ class TileImage extends ChangeNotifier {
             previouslyLoaded ? fadeIn.reloadStartOpacity : fadeIn.startOpacity;
 
         if (fadeStartOpacity == 1.0) {
-          _readyToDisplay = true;
+          _transitionComplete = true;
           if (!_disposed) notifyListeners();
         } else {
           _animationController!.reset();
           _animationController!.forward(from: fadeStartOpacity).then((_) {
-            _readyToDisplay = true;
+            _transitionComplete = true;
             if (!_disposed) notifyListeners();
           });
         }
@@ -219,7 +220,7 @@ class TileImage extends ChangeNotifier {
       }
     }
 
-    _readyToDisplay = false;
+    _transitionComplete = false;
     _animationController?.stop(canceled: false);
     _animationController?.value = 0.0;
     notifyListeners();
@@ -239,6 +240,6 @@ class TileImage extends ChangeNotifier {
 
   @override
   String toString() {
-    return 'TileImage($coordinates, readyToDisplay: $_readyToDisplay)';
+    return 'TileImage($coordinates, transitionComplete: $_transitionComplete)';
   }
 }

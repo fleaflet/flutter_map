@@ -33,7 +33,7 @@ class TileImageView {
     final retain = Set<TileImage>.from(tilesInKeepRange);
 
     for (final tile in tilesInKeepRange) {
-      if (!tile.readyToDisplay) {
+      if (!tile.transitionComplete) {
         final coords = tile.coordinates;
         if (!_retainAncestor(
             retain, coords.x, coords.y, coords.z, coords.z - 5)) {
@@ -64,7 +64,7 @@ class TileImageView {
 
     final tile = _tileImages[coords2.key];
     if (tile != null) {
-      if (tile.readyToDisplay) {
+      if (tile.transitionComplete) {
         retain.add(tile);
         return true;
       } else if (tile.loadFinishedAt != null) {
@@ -94,7 +94,7 @@ class TileImageView {
 
         final tile = _tileImages[coords.key];
         if (tile != null) {
-          if (tile.readyToDisplay || tile.loadFinishedAt != null) {
+          if (tile.transitionComplete || tile.loadFinishedAt != null) {
             retain.add(tile);
           }
         }

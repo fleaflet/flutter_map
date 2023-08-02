@@ -59,7 +59,7 @@ void main() {
     test('ancestor tile is not stale if a tile has not loaded yet', () {
       final tileImages = tileImagesMappingFrom([
         MockTileImage(0, 0, 0),
-        MockTileImage(0, 0, 1, loadFinished: false, readyToDisplay: false),
+        MockTileImage(0, 0, 1, loadFinished: false, transitionComplete: false),
       ]);
       final removalState = TileImageView(
         tileImages: tileImages,
@@ -75,8 +75,8 @@ void main() {
     test('descendant tile is not stale if there is no loaded tile obscuring it',
         () {
       final tileImages = tileImagesMappingFrom([
-        MockTileImage(0, 0, 0, loadFinished: false, readyToDisplay: false),
-        MockTileImage(0, 0, 1, loadFinished: false, readyToDisplay: false),
+        MockTileImage(0, 0, 0, loadFinished: false, transitionComplete: false),
+        MockTileImage(0, 0, 1, loadFinished: false, transitionComplete: false),
         MockTileImage(0, 0, 2),
       ]);
       final removalState = TileImageView(
@@ -171,7 +171,7 @@ void main() {
 
 class MockTileImage extends TileImage {
   @override
-  final bool readyToDisplay;
+  final bool transitionComplete;
 
   @override
   final bool loadError;
@@ -180,7 +180,7 @@ class MockTileImage extends TileImage {
     int x,
     int y,
     int zoom, {
-    this.readyToDisplay = true,
+    this.transitionComplete = true,
     bool loadFinished = true,
     this.loadError = false,
     void Function(TileCoordinates coordinates)? onLoadComplete,
