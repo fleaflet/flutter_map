@@ -86,7 +86,6 @@ class _TileErrorHandlingState extends State<TileErrorHandling> {
                   children: [
                     TileLayer(
                       controller: _tileLayerController,
-                      showPlaceholders: true,
                       urlTemplate:
                           'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                       userAgentPackageName: 'dev.fleaflet.flutter_map.example',
