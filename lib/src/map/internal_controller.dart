@@ -7,8 +7,8 @@ import 'package:flutter_map/src/gestures/flutter_map_interactive_viewer.dart';
 import 'package:flutter_map/src/map/map_controller_impl.dart';
 import 'package:latlong2/latlong.dart';
 
-// This controller is for internal use. All updates to the state should be done
-// by calling methods of this class to ensure consistency.
+/// This controller is for internal use. All updates to the state should be done
+/// by calling methods of this class to ensure consistency.
 class FlutterMapInternalController extends ValueNotifier<_InternalState> {
   late final FlutterMapInteractiveViewerState _interactiveViewerState;
   late MapControllerImpl _mapControllerImpl;
@@ -21,8 +21,8 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
           ),
         );
 
-  // Link the viewer state with the controller. This should be done once when
-  // the FlutterMapInteractiveViewerState is initialized.
+  /// Link the viewer state with the controller. This should be done once when
+  /// the FlutterMapInteractiveViewerState is initialized.
   set interactiveViewerState(
     FlutterMapInteractiveViewerState interactiveViewerState,
   ) =>
@@ -44,9 +44,9 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
   // ignore: library_private_types_in_public_api
   set value(_InternalState value) => super.value = value;
 
-  // Note: All named parameters are required to prevent inconsistent default
-  // values since this method can be called by MapController which declares
-  // defaults.
+  /// Note: All named parameters are required to prevent inconsistent default
+  /// values since this method can be called by MapController which declares
+  /// defaults.
   bool move(
     LatLng newCenter,
     double newZoom, {
@@ -103,9 +103,9 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     return true;
   }
 
-  // Note: All named parameters are required to prevent inconsistent default
-  // values since this method can be called by MapController which declares
-  // defaults.
+  /// Note: All named parameters are required to prevent inconsistent default
+  /// values since this method can be called by MapController which declares
+  /// defaults.
   bool rotate(
     double newRotation, {
     required bool hasGesture,
@@ -137,9 +137,9 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     return false;
   }
 
-  // Note: All named parameters are required to prevent inconsistent default
-  // values since this method can be called by MapController which declares
-  // defaults.
+  /// Note: All named parameters are required to prevent inconsistent default
+  /// values since this method can be called by MapController which declares
+  /// defaults.
   MoveAndRotateResult rotateAroundPoint(
     double degree, {
     required Point<double>? point,
@@ -156,7 +156,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     }
 
     if (degree == camera.rotation) {
-      return MoveAndRotateResult(false, false);
+      return const MoveAndRotateResult(false, false);
     }
 
     if (offset == Offset.zero) {
@@ -200,9 +200,9 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     );
   }
 
-  // Note: All named parameters are required to prevent inconsistent default
-  // values since this method can be called by MapController which declares
-  // defaults.
+  /// Note: All named parameters are required to prevent inconsistent default
+  /// values since this method can be called by MapController which declares
+  /// defaults.
   MoveAndRotateResult moveAndRotate(
     LatLng newCenter,
     double newZoom,
@@ -224,9 +224,9 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
         rotate(newRotation, id: id, source: source, hasGesture: hasGesture),
       );
 
-  // Note: All named parameters are required to prevent inconsistent default
-  // values since this method can be called by MapController which declares
-  // defaults.
+  /// Note: All named parameters are required to prevent inconsistent default
+  /// values since this method can be called by MapController which declares
+  /// defaults.
   bool fitCamera(
     CameraFit cameraFit, {
     required Offset offset,
@@ -281,7 +281,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     );
   }
 
-  // To be called when a gesture that causes movement starts.
+  /// To be called when a gesture that causes movement starts.
   void moveStarted(MapEventSource source) {
     _emitMapEvent(
       MapEventMoveStart(
@@ -291,7 +291,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     );
   }
 
-  // To be called when an ongoing drag movement updates.
+  /// To be called when an ongoing drag movement updates.
   void dragUpdated(MapEventSource source, Offset offset) {
     final oldCenterPt = camera.project(camera.center);
 
@@ -308,7 +308,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     );
   }
 
-  // To be called when a drag gesture ends.
+  /// To be called when a drag gesture ends.
   void moveEnded(MapEventSource source) {
     _emitMapEvent(
       MapEventMoveEnd(
@@ -318,7 +318,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     );
   }
 
-  // To be called when a rotation gesture starts.
+  /// To be called when a rotation gesture starts.
   void rotateStarted(MapEventSource source) {
     _emitMapEvent(
       MapEventRotateStart(
@@ -328,7 +328,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     );
   }
 
-  // To be called when a rotation gesture ends.
+  /// To be called when a rotation gesture ends.
   void rotateEnded(MapEventSource source) {
     _emitMapEvent(
       MapEventRotateEnd(
@@ -338,7 +338,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     );
   }
 
-  // To be called when a fling gesture starts.
+  /// To be called when a fling gesture starts.
   void flingStarted(MapEventSource source) {
     _emitMapEvent(
       MapEventFlingAnimationStart(
@@ -348,7 +348,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     );
   }
 
-  // To be called when a fling gesture ends.
+  /// To be called when a fling gesture ends.
   void flingEnded(MapEventSource source) {
     _emitMapEvent(
       MapEventFlingAnimationEnd(
@@ -358,7 +358,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     );
   }
 
-  // To be called when a fling gesture does not start.
+  /// To be called when a fling gesture does not start.
   void flingNotStarted(MapEventSource source) {
     _emitMapEvent(
       MapEventFlingAnimationNotStarted(
@@ -368,7 +368,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     );
   }
 
-  // To be called when a double tap zoom starts.
+  /// To be called when a double tap zoom starts.
   void doubleTapZoomStarted(MapEventSource source) {
     _emitMapEvent(
       MapEventDoubleTapZoomStart(
@@ -378,7 +378,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     );
   }
 
-  // To be called when a double tap zoom ends.
+  /// To be called when a double tap zoom ends.
   void doubleTapZoomEnded(MapEventSource source) {
     _emitMapEvent(
       MapEventDoubleTapZoomEnd(
@@ -433,7 +433,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     );
   }
 
-  // To be called when the map's size constraints change.
+  /// To be called when the map's size constraints change.
   void nonRotatedSizeChange(
     MapEventSource source,
     MapCamera oldCamera,
@@ -459,6 +459,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
   }
 }
 
+@immutable
 class _InternalState {
   final MapCamera camera;
   final MapOptions options;

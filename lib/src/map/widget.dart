@@ -14,6 +14,7 @@ import 'package:flutter_map/src/map/options.dart';
 ///
 /// See the online documentation for more information about set-up,
 /// configuration, and usage.
+@immutable
 class FlutterMap extends StatefulWidget {
   /// Renders an interactive geographical map as a widget
   ///
@@ -36,7 +37,7 @@ class FlutterMap extends StatefulWidget {
   /// Configure this map
   final MapOptions options;
 
-  /// Programatically interact with this map
+  /// Programmatically interact with this map
   final MapController? mapController;
 
   @override
@@ -89,7 +90,7 @@ class FlutterMapStateContainer extends State<FlutterMap> {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
+      builder: (context, constraints) {
         _updateAndEmitSizeIfConstraintsChanged(constraints);
         _applyInitialCameraFit(constraints);
 
@@ -188,11 +189,11 @@ class FlutterMapStateContainer extends State<FlutterMap> {
     }
   }
 
-  // During Flutter startup the native platform resolution is not immediately
-  // available which can cause constraints to be zero before they are updated
-  // in a subsequent build to the actual constraints. This check allows us to
-  // differentiate zero constraints caused by missing platform resolution vs
-  // zero constraints which were actually provided by the parent widget.
+  /// During Flutter startup the native platform resolution is not immediately
+  /// available which can cause constraints to be zero before they are updated
+  /// in a subsequent build to the actual constraints. This check allows us to
+  /// differentiate zero constraints caused by missing platform resolution vs
+  /// zero constraints which were actually provided by the parent widget.
   bool _parentConstraintsAreSet(
           BuildContext context, BoxConstraints constraints) =>
       constraints.maxWidth != 0 || MediaQuery.sizeOf(context) != Size.zero;

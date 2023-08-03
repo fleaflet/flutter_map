@@ -11,6 +11,7 @@ import 'package:proj4dart/proj4dart.dart' as proj4;
 ///
 /// The main objective of a CRS is to handle the conversion between surface
 /// points of objects of different dimensions. In our case 3D and 2D objects.
+@immutable
 abstract class Crs {
   const Crs();
 
@@ -26,15 +27,15 @@ abstract class Crs {
     try {
       final projectedPoint = projection.project(latlng);
       final scale = this.scale(zoom);
-      return transformation.transform(projectedPoint, scale.toDouble());
-    } catch (e) {
+      return transformation.transform(projectedPoint, scale);
+    } catch (_) {
       return const Point(0, 0);
     }
   }
 
   /// Converts a map point to the sphere coordinate (at a certain zoom).
-  LatLng pointToLatLng(Point point, double zoom) => projection
-      .unproject(transformation.untransform(point, scale(zoom).toDouble()));
+  LatLng pointToLatLng(Point point, double zoom) =>
+      projection.unproject(transformation.untransform(point, scale(zoom)));
 
   /// Zoom to Scale function.
   double scale(double zoom) => 256.0 * math.pow(2, zoom);
@@ -48,8 +49,8 @@ abstract class Crs {
 
     final b = projection.bounds!;
     final s = scale(zoom);
-    final min = transformation.transform(b.min, s.toDouble());
-    final max = transformation.transform(b.max, s.toDouble());
+    final min = transformation.transform(b.min, s);
+    final max = transformation.transform(b.max, s);
     return Bounds(min, max);
   }
 
@@ -61,6 +62,7 @@ abstract class Crs {
 }
 
 // Custom CRS for non geographical maps
+@immutable
 class CrsSimple extends Crs {
   @override
   final String code = 'CRS.SIMPLE';
@@ -71,7 +73,7 @@ class CrsSimple extends Crs {
   @override
   final Transformation transformation;
 
-  CrsSimple()
+  const CrsSimple()
       : projection = const _LonLat(),
         transformation = const Transformation(1, 0, -1, 0),
         super();
@@ -86,6 +88,7 @@ class CrsSimple extends Crs {
   (double, double)? get wrapLng => null;
 }
 
+@immutable
 abstract class Earth extends Crs {
   @override
   bool get infinite => false;
@@ -100,6 +103,7 @@ abstract class Earth extends Crs {
 }
 
 /// The most common CRS used for rendering maps.
+@immutable
 class Epsg3857 extends Earth {
   @override
   final String code = 'EPSG:3857';
@@ -123,6 +127,7 @@ class Epsg3857 extends Earth {
 }
 
 /// A common CRS among GIS enthusiasts. Uses simple Equirectangular projection.
+@immutable
 class Epsg4326 extends Earth {
   @override
   final String code = 'EPSG:4326';
@@ -140,6 +145,7 @@ class Epsg4326 extends Earth {
 }
 
 /// Custom CRS
+@immutable
 class Proj4Crs extends Crs {
   @override
   final String code;
@@ -163,7 +169,7 @@ class Proj4Crs extends Crs {
 
   final List<double> _scales;
 
-  Proj4Crs._({
+  const Proj4Crs._({
     required this.code,
     required this.projection,
     required this.transformation,
@@ -229,17 +235,16 @@ class Proj4Crs extends Crs {
       final scale = this.scale(zoom);
       final transformation = _getTransformationByZoom(zoom);
 
-      return transformation.transform(projectedPoint, scale.toDouble());
-    } catch (e) {
+      return transformation.transform(projectedPoint, scale);
+    } catch (_) {
       return const Point(0, 0);
     }
   }
 
   /// Converts a map point to the sphere coordinate (at a certain zoom).
   @override
-  LatLng pointToLatLng(Point point, double zoom) =>
-      projection.unproject(_getTransformationByZoom(zoom)
-          .untransform(point, scale(zoom).toDouble()));
+  LatLng pointToLatLng(Point point, double zoom) => projection.unproject(
+      _getTransformationByZoom(zoom).untransform(point, scale(zoom)));
 
   /// Rescales the bounds to a given zoom value.
   @override
@@ -251,8 +256,8 @@ class Proj4Crs extends Crs {
 
     final transformation = _getTransformationByZoom(zoom);
 
-    final min = transformation.transform(b.min, s.toDouble());
-    final max = transformation.transform(b.max, s.toDouble());
+    final min = transformation.transform(b.min, s);
+    final max = transformation.transform(b.max, s);
     return Bounds(min, max);
   }
 
@@ -267,7 +272,7 @@ class Proj4Crs extends Crs {
       final baseScale = _scales[iZoom];
       final nextScale = _scales[iZoom + 1];
       final scaleDiff = nextScale - baseScale;
-      final zDiff = (zoom - iZoom);
+      final zDiff = zoom - iZoom;
       return baseScale + scaleDiff * zDiff;
     }
   }
@@ -319,6 +324,7 @@ class Proj4Crs extends Crs {
   }
 }
 
+@immutable
 abstract class Projection {
   const Projection();
 
@@ -367,6 +373,7 @@ class _LonLat extends Projection {
   }
 }
 
+@immutable
 class SphericalMercator extends Projection {
   static const int r = 6378137;
   static const double maxLatitude = 85.0511287798;
@@ -402,6 +409,7 @@ class SphericalMercator extends Projection {
   }
 }
 
+@immutable
 class _Proj4Projection extends Projection {
   final proj4.Projection epsg4326;
 
@@ -432,6 +440,7 @@ class _Proj4Projection extends Projection {
   }
 }
 
+@immutable
 class Transformation {
   final num a;
   final num b;

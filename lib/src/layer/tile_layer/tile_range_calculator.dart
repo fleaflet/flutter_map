@@ -3,7 +3,9 @@ import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:meta/meta.dart';
 
+@immutable
 class TileRangeCalculator {
   final double tileSize;
 

@@ -11,6 +11,7 @@ import 'package:latlong2/latlong.dart';
 ///
 /// Can be defined exactly (using [AnchorPos.exactly] with an [Anchor]) or in
 /// a relative alignment (using [AnchorPos.align] with an [AnchorAlign]).
+@immutable
 class AnchorPos {
   static const defaultAnchorPos = AnchorPos.align(AnchorAlign.center);
 
@@ -27,6 +28,7 @@ class AnchorPos {
 ///
 /// May be generated from an [AnchorPos] (usually with [AnchorPos.alignment]
 /// defined) and dimensions through [Anchor.fromPos].
+@immutable
 class Anchor {
   final double left;
   final double top;
@@ -77,6 +79,7 @@ enum AnchorAlign {
 ///
 /// Some properties defaults will absorb the values from the parent [MarkerLayer],
 /// if the reflected properties are defined there.
+@immutable
 class Marker {
   final Key? key;
 
@@ -135,6 +138,7 @@ class Marker {
             anchorPos == null ? null : Anchor.fromPos(anchorPos, width, height);
 }
 
+@immutable
 class MarkerLayer extends StatelessWidget {
   final List<Marker> markers;
 

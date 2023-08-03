@@ -60,8 +60,8 @@ void main() {
     });
 
     test(
-        'should create bounds with size represented as point with position'
-        'x based on distance between top left and bottom right conrners', () {
+        'should create bounds with size represented as point with position '
+        'x based on distance between top left and bottom right corners', () {
       final size = Bounds(
         Point(1.1, randomDouble()),
         Point(3.3, randomDouble()),
@@ -72,8 +72,8 @@ void main() {
     });
 
     test(
-        'should create bounds with size represented as point with position'
-        'y based on distance between top left and bottom right conrners', () {
+        'should create bounds with size represented as point with position '
+        'y based on distance between top left and bottom right corners', () {
       final size = Bounds(
         Point(randomDouble(), 2.2),
         Point(randomDouble(), 5.5),

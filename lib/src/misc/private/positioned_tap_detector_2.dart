@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 
 typedef TapPositionCallback = void Function(TapPosition position);
 
+@immutable
 class PositionedTapDetector2 extends StatefulWidget {
   const PositionedTapDetector2({
     super.key,
@@ -44,6 +45,7 @@ class _TapPositionDetectorState extends State<PositionedTapDetector2> {
   final _controller = StreamController<TapDownDetails>();
 
   late final _stream = _controller.stream.asBroadcastStream();
+
   Sink<TapDownDetails> get _sink => _controller.sink;
   late StreamSubscription<TapDownDetails> _streamSub;
 
@@ -113,8 +115,8 @@ class _TapPositionDetectorState extends State<PositionedTapDetector2> {
   }
 
   bool _isDoubleTap(TapDownDetails d1, TapDownDetails d2) {
-    final dx = (d1.globalPosition.dx - d2.globalPosition.dx);
-    final dy = (d1.globalPosition.dy - d2.globalPosition.dy);
+    final dx = d1.globalPosition.dx - d2.globalPosition.dx;
+    final dy = d1.globalPosition.dy - d2.globalPosition.dy;
     return sqrt(dx * dx + dy * dy) <=
         PositionedTapDetector2._doubleTapMaxOffset;
   }
@@ -156,7 +158,7 @@ class _TapPositionDetectorState extends State<PositionedTapDetector2> {
     }
   }
 
-  void _postCallback(
+  Future<void> _postCallback(
     TapDownDetails details,
     TapPositionCallback? callback,
   ) async {
@@ -197,10 +199,10 @@ class _TapPositionDetectorState extends State<PositionedTapDetector2> {
       }
     }
     return GestureDetector(
-      behavior: (widget.behavior ??
+      behavior: widget.behavior ??
           (widget.child == null
               ? HitTestBehavior.translucent
-              : HitTestBehavior.deferToChild)),
+              : HitTestBehavior.deferToChild),
       onTap: _onTapEvent,
       onLongPress: _onLongPressEvent,
       onTapDown: _onTapDownEvent,
@@ -223,16 +225,17 @@ class PositionedTapController {
   void onTapDown(TapDownDetails details) => _state?._onTapDownEvent(details);
 }
 
+@immutable
 class TapPosition {
-  TapPosition(this.global, this.relative);
+  const TapPosition(this.global, this.relative);
 
-  Offset global;
-  Offset? relative;
+  final Offset global;
+  final Offset? relative;
 
   @override
   bool operator ==(dynamic other) {
     if (other is! TapPosition) return false;
-    final TapPosition typedOther = other;
+    final typedOther = other;
     return global == typedOther.global && relative == other.relative;
   }
 

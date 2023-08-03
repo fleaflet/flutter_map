@@ -2,7 +2,9 @@ import 'dart:math';
 
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
+import 'package:meta/meta.dart';
 
+@immutable
 abstract class TileBoundsAtZoom {
   const TileBoundsAtZoom();
 
@@ -11,6 +13,7 @@ abstract class TileBoundsAtZoom {
   Iterable<TileCoordinates> validCoordinatesIn(DiscreteTileRange tileRange);
 }
 
+@immutable
 class InfiniteTileBoundsAtZoom extends TileBoundsAtZoom {
   const InfiniteTileBoundsAtZoom();
 
@@ -25,6 +28,7 @@ class InfiniteTileBoundsAtZoom extends TileBoundsAtZoom {
   String toString() => 'InfiniteTileBoundsAtZoom()';
 }
 
+@immutable
 class DiscreteTileBoundsAtZoom extends TileBoundsAtZoom {
   final DiscreteTileRange tileRange;
 
@@ -35,7 +39,10 @@ class DiscreteTileBoundsAtZoom extends TileBoundsAtZoom {
 
   @override
   Iterable<TileCoordinates> validCoordinatesIn(DiscreteTileRange tileRange) {
-    assert(this.tileRange.zoom == tileRange.zoom);
+    assert(
+      this.tileRange.zoom == tileRange.zoom,
+      "The zoom of the provided TileRange can't differ from the zoom level of the current tileRange",
+    );
     return this.tileRange.intersect(tileRange).coordinates;
   }
 
@@ -43,6 +50,7 @@ class DiscreteTileBoundsAtZoom extends TileBoundsAtZoom {
   String toString() => 'DiscreteTileBoundsAtZoom($tileRange)';
 }
 
+@immutable
 class WrappedTileBoundsAtZoom extends TileBoundsAtZoom {
   final DiscreteTileRange tileRange;
   final bool wrappedAxisIsAlwaysInBounds;
@@ -61,7 +69,10 @@ class WrappedTileBoundsAtZoom extends TileBoundsAtZoom {
     required this.wrapX,
     // Inclusive range to which y coordinates will be wrapped.
     required this.wrapY,
-  }) : assert(!(wrapX == null && wrapY == null));
+  }) : assert(
+          wrapX != null || wrapY != null,
+          'Either wrapX or wrapY needs to be not null',
+        );
 
   @override
   TileCoordinates wrap(TileCoordinates coordinates) => TileCoordinates(
@@ -96,7 +107,7 @@ class WrappedTileBoundsAtZoom extends TileBoundsAtZoom {
       if (wrappedAxisIsAlwaysInBounds) return intersectedRange.coordinates;
       return intersectedRange.coordinates.where(_wrappedYInRange);
     } else {
-      throw "Wrapped bounds must wrap on at least one axis";
+      throw Exception('Wrapped bounds must wrap on at least one axis');
     }
   }
 

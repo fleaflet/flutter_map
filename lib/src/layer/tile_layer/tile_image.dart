@@ -90,7 +90,7 @@ class TileImage extends ChangeNotifier {
   double zIndex(double maxZoom, int currentZoom) =>
       maxZoom - (currentZoom - coordinates.z).abs();
 
-  // Change the tile display options.
+  /// Change the tile display options.
   set tileDisplay(TileDisplay newTileDisplay) {
     final oldTileDisplay = _tileDisplay;
     _tileDisplay = newTileDisplay;
@@ -124,7 +124,7 @@ class TileImage extends ChangeNotifier {
     if (!_disposed) notifyListeners();
   }
 
-  // Initiate loading of the image.
+  /// Initiate loading of the image.
   void load() {
     loadStarted = DateTime.now();
 
@@ -210,11 +210,15 @@ class TileImage extends ChangeNotifier {
 
   @override
   void dispose({bool evictImageFromCache = false}) {
-    assert(!_disposed);
+    assert(
+      !_disposed,
+      'The TileImage dispose() method was called multiple times',
+    );
     _disposed = true;
 
     if (evictImageFromCache) {
       try {
+        // ignore: avoid_types_on_closure_parameters
         imageProvider.evict().catchError((Object e) {
           debugPrint(e.toString());
           return false;

@@ -44,10 +44,9 @@ class Polygon {
   final bool _filledAndClockwise;
 
   LatLngBounds? _boundingBox;
-  LatLngBounds get boundingBox {
-    _boundingBox ??= LatLngBounds.fromPoints(points);
-    return _boundingBox!;
-  }
+
+  LatLngBounds get boundingBox =>
+      _boundingBox ??= LatLngBounds.fromPoints(points);
 
   Polygon({
     required this.points,
@@ -81,6 +80,7 @@ class Polygon {
       );
 }
 
+@immutable
 class PolygonLayer extends StatelessWidget {
   final List<Polygon> polygons;
 
@@ -98,7 +98,7 @@ class PolygonLayer extends StatelessWidget {
     final map = MapCamera.of(context);
     final size = Size(map.size.x, map.size.y);
 
-    final List<Polygon> pgons = polygonCulling
+    final pgons = polygonCulling
         ? polygons.where((p) {
             return p.boundingBox.isOverlapping(map.visibleBounds);
           }).toList()
@@ -224,15 +224,14 @@ class PolygonPainter extends CustomPainter {
         // operation and thus requires us to reset the draw batching here.
         drawPaths();
 
-        Label.paintText(
-          canvas,
-          offsets,
-          polygon.label,
-          polygon.labelStyle,
-          map.rotationRad,
+        Label(
+          points: offsets,
+          labelText: polygon.label,
+          labelStyle: polygon.labelStyle,
+          rotationRad: map.rotationRad,
           rotate: polygon.rotateLabel,
           labelPlacement: polygon.labelPlacement,
-        );
+        ).paintText(canvas);
       }
     }
 
@@ -255,7 +254,7 @@ class PolygonPainter extends CustomPainter {
     List<Offset> offsets,
   ) {
     if (polygon.isDotted) {
-      final borderRadius = (polygon.borderStrokeWidth / 2);
+      final borderRadius = polygon.borderStrokeWidth / 2;
       final spacing = polygon.borderStrokeWidth * 1.5;
       _addDottedLineToPath(path, offsets, borderRadius, spacing);
     } else {
@@ -269,7 +268,7 @@ class PolygonPainter extends CustomPainter {
     List<List<Offset>> holeOffsetsList,
   ) {
     if (polygon.isDotted) {
-      final borderRadius = (polygon.borderStrokeWidth / 2);
+      final borderRadius = polygon.borderStrokeWidth / 2;
       final spacing = polygon.borderStrokeWidth * 1.5;
       for (final offsets in holeOffsetsList) {
         _addDottedLineToPath(path, offsets, borderRadius, spacing);

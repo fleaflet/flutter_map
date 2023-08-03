@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_builder.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
 
+@immutable
 class Tile extends StatefulWidget {
   final TileImage tileImage;
   final TileBuilder? tileBuilder;
@@ -75,7 +76,7 @@ class _TileState extends State<Tile> {
         builder: (context, child) => RawImage(
           image: widget.tileImage.imageInfo?.image,
           fit: BoxFit.fill,
-          opacity: widget.tileImage.animation!,
+          opacity: widget.tileImage.animation,
         ),
       );
     }

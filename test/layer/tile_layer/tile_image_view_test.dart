@@ -18,7 +18,7 @@ void main() {
     Map<String, TileImage> tileImages,
     TileCoordinates coordinates,
   ) =>
-      contains(tileImages[coordinates.key]!);
+      contains(tileImages[coordinates.key]);
 
   Matcher doesNotContainTileImage(
     Map<String, TileImage> tileImages,

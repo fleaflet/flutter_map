@@ -7,9 +7,11 @@ import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image_view.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
+import 'package:meta/meta.dart';
 
 typedef TileCreator = TileImage Function(TileCoordinates coordinates);
 
+@immutable
 class TileImageManager {
   final Map<String, TileImage> _tiles = {};
 
@@ -19,11 +21,11 @@ class TileImageManager {
   bool get allLoaded =>
       _tiles.values.none((tile) => tile.loadFinishedAt == null);
 
-  // Returns in the order in which they should be rendered:
-  //   1. Tiles at the current zoom.
-  //   2. Tiles at the current zoom +/- 1.
-  //   3. Tiles at the current zoom +/- 2.
-  //   4. ...etc
+  /// Returns in the order in which they should be rendered:
+  ///   1. Tiles at the current zoom.
+  ///   2. Tiles at the current zoom +/- 1.
+  ///   3. Tiles at the current zoom +/- 2.
+  ///   4. ...etc
   List<TileImage> inRenderOrder(double maxZoom, int currentZoom) {
     final result = _tiles.values.toList()
       ..sort((a, b) => a
@@ -48,14 +50,9 @@ class TileImageManager {
     }
   }
 
-  bool allWithinZoom(double minZoom, double maxZoom) {
-    for (final tile in _tiles.values) {
-      if (tile.coordinates.z > (maxZoom) || tile.coordinates.z < (minZoom)) {
-        return false;
-      }
-    }
-    return true;
-  }
+  bool allWithinZoom(double minZoom, double maxZoom) => _tiles.values
+      .map((e) => e.coordinates)
+      .every((coord) => coord.z > maxZoom || coord.z < minZoom);
 
   /// Creates and returns [TileImage]s which do not already exist with the given
   /// [tileCoordinates].
@@ -108,9 +105,9 @@ class TileImageManager {
   }
 
   void removeAll(EvictErrorTileStrategy evictStrategy) {
-    final toRemove = Map<String, TileImage>.from(_tiles);
+    final keysToRemove = List<String>.from(_tiles.keys);
 
-    for (final key in toRemove.keys) {
+    for (final key in keysToRemove) {
       _removeWithEvictionStrategy(key, evictStrategy);
     }
   }

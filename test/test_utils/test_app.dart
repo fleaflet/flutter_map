@@ -40,7 +40,6 @@ class TestApp extends StatelessWidget {
               mapController: controller,
               options: const MapOptions(
                 initialCenter: LatLng(45.5231, -122.6765),
-                initialZoom: 13,
               ),
               children: [
                 TileLayer(

@@ -52,6 +52,7 @@ enum AttributionAlignment {
 ///
 /// Read the documentation on the individual properties for more information and
 /// customizability.
+@immutable
 class RichAttributionWidget extends StatefulWidget {
   /// List of attributions to display
   ///
@@ -175,12 +176,17 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
 
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => WidgetsBinding.instance.addPostFrameCallback(
-        (_) => setState(
-          () => persistentAttributionSize =
-              (persistentAttributionKey.currentContext!.findRenderObject()
-                      as RenderBox)
-                  .size,
-        ),
+        (_) {
+          assert(
+            persistentAttributionKey.currentContext?.findRenderObject() != null,
+            'persistentAttributionKey is not in the widget tree',
+          );
+          final renderObject =
+              persistentAttributionKey.currentContext?.findRenderObject();
+          if (renderObject is RenderBox) {
+            setState(() => persistentAttributionSize = renderObject.size);
+          }
+        },
       ),
     );
   }
@@ -338,7 +344,7 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
 
 extension _ListExt<E> on List<E> {
   Iterable<E> interleave(E separator) sync* {
-    for (int i = 0; i < length; i++) {
+    for (var i = 0; i < length; i++) {
       yield this[i];
       if (i < length) yield separator;
     }

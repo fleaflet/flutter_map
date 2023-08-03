@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+@immutable
 class FitBoundsOptions {
   final EdgeInsets padding;
   final double maxZoom;

@@ -12,6 +12,7 @@ import 'package:latlong2/latlong.dart';
 /// Describes a position for a [MapCamera]
 ///
 /// Constraints are handled by [CameraConstraint].
+@immutable
 abstract class CameraFit {
   /// Describes a position for a [MapCamera]
   ///
@@ -63,6 +64,7 @@ abstract class CameraFit {
   MapCamera fit(MapCamera camera);
 }
 
+@immutable
 class FitBounds extends CameraFit {
   /// The bounds which the camera should contain once it is fitted.
   final LatLngBounds bounds;
@@ -178,6 +180,7 @@ class FitBounds extends CameraFit {
   }
 }
 
+@immutable
 class FitInsideBounds extends CameraFit {
   /// The bounds which the camera should fit inside once it is fitted.
   final LatLngBounds bounds;
@@ -382,6 +385,7 @@ class FitInsideBounds extends CameraFit {
   }
 }
 
+@immutable
 class FitCoordinates extends CameraFit {
   /// The coordinates which the camera should contain once it is fitted.
   final List<LatLng> coordinates;
@@ -430,9 +434,8 @@ class FitCoordinates extends CameraFit {
     var newZoom = _getCoordinatesZoom(camera, paddingTotalXY);
     if (maxZoom != null) newZoom = math.min(maxZoom!, newZoom);
 
-    final projectedPoints = [
-      for (final coord in coordinates) camera.project(coord, newZoom)
-    ];
+    final projectedPoints =
+        coordinates.map((coord) => camera.project(coord, newZoom));
 
     final rotatedPoints =
         projectedPoints.map((point) => point.rotate(-camera.rotationRad));

@@ -80,7 +80,7 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
       // Some goeserver changes origin based on zoom level
       // and some are not at all (use explicit/implicit null or use [Point(0, 0)])
       // @see https://github.com/kartena/Proj4Leaflet/pull/171
-      origins: [const Point(0, 0)],
+      origins: const [Point(0, 0)],
       // Scale factors (pixels per projection unit, for example pixels/meter) for zoom levels;
       // specify either scales or resolutions, not both
       scales: null,
@@ -167,7 +167,7 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
                         format: 'image/jpeg',
                         baseUrl:
                             'https://www.gebco.net/data_and_products/gebco_web_services/north_polar_view_wms/mapserv?',
-                        layers: ['gebco_north_polar_view'],
+                        layers: const ['gebco_north_polar_view'],
                       ),
                     ),
                   ),

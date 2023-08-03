@@ -27,3 +27,19 @@ linter:
     type_annotate_public_apis: true
     unnecessary_statements: true
     use_named_constants: true
+    use_super_parameters: true
+    cast_nullable_to_non_nullable: true
+    only_throw_errors: true
+    sort_unnamed_constructors_first: true
+    prefer_asserts_with_message: true
+    missing_whitespace_between_adjacent_strings: true
+    avoid_multiple_declarations_per_line: true
+    noop_primitive_operations: true
+    avoid_void_async: true
+    avoid_redundant_argument_values: true
+    avoid_types_on_closure_parameters: true
+    unnecessary_null_checks: true
+    prefer_single_quotes: true
+    unnecessary_parenthesis: true
+    use_if_null_to_convert_nulls_to_bools: true
+    matching_super_parameters: true

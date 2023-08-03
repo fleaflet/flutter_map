@@ -4,6 +4,7 @@ import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_update_event.dart';
 import 'package:flutter_map/src/misc/private/util.dart';
+import 'package:meta/meta.dart';
 
 /// Defines which [TileUpdateEvent]s should cause which [TileUpdateEvent]s and
 /// when
@@ -17,6 +18,7 @@ typedef TileUpdateTransformer
     = StreamTransformer<TileUpdateEvent, TileUpdateEvent>;
 
 /// Set of default [TileUpdateTransformer]s
+@immutable
 abstract class TileUpdateTransformers {
   /// Always load/update/prune tiles on events, except where the event is one of:
   ///  - [MapEventTap]

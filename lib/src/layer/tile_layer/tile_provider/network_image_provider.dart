@@ -6,6 +6,7 @@ import 'package:flutter/painting.dart';
 import 'package:http/http.dart';
 
 /// Dedicated [ImageProvider] to fetch tiles from the network
+@immutable
 class FlutterMapNetworkImageProvider
     extends ImageProvider<FlutterMapNetworkImageProvider> {
   /// The URL to fetch the tile from (GET request)
@@ -22,7 +23,7 @@ class FlutterMapNetworkImageProvider
   final Map<String, String> headers;
 
   /// Dedicated [ImageProvider] to fetch tiles from the network
-  FlutterMapNetworkImageProvider({
+  const FlutterMapNetworkImageProvider({
     required this.url,
     required this.fallbackUrl,
     required this.headers,
@@ -34,8 +35,7 @@ class FlutterMapNetworkImageProvider
     FlutterMapNetworkImageProvider key,
     ImageDecoderCallback decode,
   ) {
-    final StreamController<ImageChunkEvent> chunkEvents =
-        StreamController<ImageChunkEvent>();
+    final chunkEvents = StreamController<ImageChunkEvent>();
 
     return MultiFrameImageStreamCompleter(
       codec: _loadAsync(key, chunkEvents, decode),
