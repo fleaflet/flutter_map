@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_map/src/layer/attribution_layer/rich.dart';
 
 /// Animation provider base for a [RichAttributionWidget]
@@ -14,6 +13,7 @@ import 'package:flutter_map/src/layer/attribution_layer/rich.dart';
 /// Can be extensively customized by implementing a custom
 /// [RichAttributionWidgetAnimation], or the prebuilt [FadeRAWA] and
 /// [ScaleRAWA] animations can be used with limited customization.
+@immutable
 abstract class RichAttributionWidgetAnimation {
   /// The duration of the animation used when toggling the state of the
   /// open/close button
@@ -55,6 +55,7 @@ abstract class RichAttributionWidgetAnimation {
 ///
 /// Allows further customisation of the popup box's animation duration and
 /// curves, as well as the open/close button's.
+@immutable
 class ScaleRAWA implements RichAttributionWidgetAnimation {
   /// The duration of the animation used when toggling the state of the
   /// open/close button
@@ -123,6 +124,7 @@ class ScaleRAWA implements RichAttributionWidgetAnimation {
 ///
 /// Allows further customisation of the popup box's animation duration and
 /// curves, as well as the open/close button's.
+@immutable
 class FadeRAWA implements RichAttributionWidgetAnimation {
   /// The duration of the animation used when toggling the state of the
   /// open/close button

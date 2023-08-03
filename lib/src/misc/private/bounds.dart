@@ -1,19 +1,22 @@
 import 'dart:math' as math hide Point;
 import 'dart:math' show Point;
 
+import 'package:meta/meta.dart';
+
 /// Rectangular bound delimited by orthogonal lines passing through two
 /// points.
+@immutable
 class Bounds<T extends num> {
   final Point<T> min;
   final Point<T> max;
-
-  const Bounds._(this.min, this.max);
 
   factory Bounds(Point<T> a, Point<T> b) {
     final bounds1 = Bounds._(a, b);
     final bounds2 = bounds1.extend(a);
     return bounds2.extend(b);
   }
+
+  const Bounds._(this.min, this.max);
 
   static Bounds<double> containing(Iterable<Point<double>> points) {
     var maxX = double.negativeInfinity;
@@ -22,26 +25,13 @@ class Bounds<T extends num> {
     var minY = double.infinity;
 
     for (final point in points) {
-      if (point.x > maxX) {
-        maxX = point.x;
-      }
-      if (point.x < minX) {
-        minX = point.x;
-      }
-      if (point.y > maxY) {
-        maxY = point.y;
-      }
-      if (point.y < minY) {
-        minY = point.y;
-      }
+      maxX = math.max(point.x, maxX);
+      minX = math.min(point.x, minX);
+      maxY = math.max(point.y, maxY);
+      minY = math.min(point.y, minY);
     }
 
-    final bounds = Bounds._(
-      Point(minX, minY),
-      Point(maxX, maxY),
-    );
-
-    return bounds;
+    return Bounds._(Point(minX, minY), Point(maxX, maxY));
   }
 
   /// Creates a new [Bounds] obtained by expanding the current ones with a new
@@ -102,9 +92,9 @@ class Bounds<T extends num> {
         (b.max.y >= min.y);
   }
 
-  // Calculates the intersection of two Bounds. The return value will be null
-  // if there is no intersection. The returned bounds may be zero size
-  // (bottomLeft == topRight).
+  /// Calculates the intersection of two Bounds. The return value will be null
+  /// if there is no intersection. The returned bounds may be zero size
+  /// (bottomLeft == topRight).
   Bounds<T>? intersect(Bounds<T> b) {
     final leftX = math.max(min.x, b.min.x);
     final rightX = math.min(max.x, b.max.x);

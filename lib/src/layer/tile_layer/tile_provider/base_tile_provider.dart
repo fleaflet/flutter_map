@@ -6,17 +6,19 @@ import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 ///
 /// Visit the online documentation at https://docs.fleaflet.dev/usage/layers/tile-layer/tile-providers for more information.
 abstract class TileProvider {
-  /// Custom headers that may be sent with each tile request, if the specific implementation supports it
+  /// Custom headers that may be sent with each tile request, if the specific
+  /// implementation supports it
   Map<String, String> headers;
 
-  /// The base tile provider implementation, extended by other classes such as [NetworkTileProvider]
-  ///
-  /// Visit the online documentation at https://docs.fleaflet.dev/usage/layers/tile-layer/tile-providers for more information.
-  TileProvider({
-    this.headers = const {},
-  });
+  /// The base tile provider implementation, extended by other classes such
+  /// as [NetworkTileProvider].
+  /// Visit the online documentation at
+  /// https://docs.fleaflet.dev/usage/layers/tile-layer/tile-providers for
+  /// more information.
+  TileProvider({this.headers = const {}});
 
-  /// Retrieve a tile as an image, based on it's coordinates and the current [TileLayerOptions]
+  /// Retrieve a tile as an image, based on it's coordinates and the
+  /// current [TileLayerOptions]
   ImageProvider getImage(TileCoordinates coordinates, TileLayer options);
 
   /// Called when the [TileLayerWidget] is disposed

@@ -34,7 +34,7 @@ class EPSG4326Page extends StatelessWidget {
                     wmsOptions: WMSTileLayerOptions(
                       crs: const Epsg4326(),
                       baseUrl: 'https://ows.mundialis.de/services/service?',
-                      layers: ['TOPO-OSM-WMS'],
+                      layers: const ['TOPO-OSM-WMS'],
                     ),
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   ),

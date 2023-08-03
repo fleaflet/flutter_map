@@ -57,7 +57,7 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
       proj4Projection: epsg3413,
       resolutions: resolutions,
       bounds: epsg3413Bounds,
-      origins: [const Point(0, 0)],
+      origins: const [Point(0, 0)],
       scales: null,
       transformation: null,
     );
@@ -67,8 +67,8 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
   Widget build(BuildContext context) {
     // These circles should have the same pixel radius on the map
     final circles = [
-      CircleMarker(
-        point: const LatLng(90, 0),
+      const CircleMarker(
+        point: LatLng(90, 0),
         radius: 20000,
         useRadiusInMeter: true,
         color: Colors.yellow,
@@ -162,7 +162,7 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
                         format: 'image/jpeg',
                         baseUrl:
                             'https://www.gebco.net/data_and_products/gebco_web_services/north_polar_view_wms/mapserv?',
-                        layers: ['gebco_north_polar_view'],
+                        layers: const ['gebco_north_polar_view'],
                       ),
                     ),
                   ),

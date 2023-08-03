@@ -8,7 +8,7 @@ var _templateRe = RegExp(r'\{ *([\w_-]+) *\}');
 ///
 /// Throws an [Exception] if any placeholder remains unresolved.
 String template(String str, Map<String, String> data) {
-  return str.replaceAllMapped(_templateRe, (Match match) {
+  return str.replaceAllMapped(_templateRe, (match) {
     final firstMatch = match.group(1);
     if (firstMatch == null) {
       throw Exception('incorrect URL template: $str');
@@ -32,8 +32,8 @@ StreamTransformer<T, T> throttleStreamTransformerWithTrailingCall<T>(
 
   late final void Function(T data, EventSink<T> sink) throttleHandler;
 
-  throttleHandler = (T data, EventSink<T> sink) {
-    if (ignore?.call(data) == true) return;
+  throttleHandler = (data, sink) {
+    if (ignore?.call(data) ?? false) return;
 
     recentData = data;
 
@@ -54,7 +54,7 @@ StreamTransformer<T, T> throttleStreamTransformerWithTrailingCall<T>(
 
   return StreamTransformer<T, T>.fromHandlers(
       handleData: throttleHandler,
-      handleDone: (EventSink<T> sink) {
+      handleDone: (sink) {
         timer?.cancel();
         sink.close();
       });

@@ -5,17 +5,13 @@ import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:meta/meta.dart';
 
+@immutable
 abstract class TileBounds {
   final Crs crs;
   final double _tileSize;
   final LatLngBounds? _latLngBounds;
-
-  const TileBounds._(
-    this.crs,
-    this._tileSize,
-    this._latLngBounds,
-  );
 
   factory TileBounds({
     required Crs crs,
@@ -31,6 +27,12 @@ abstract class TileBounds {
     }
   }
 
+  const TileBounds._(
+    this.crs,
+    this._tileSize,
+    this._latLngBounds,
+  );
+
   TileBoundsAtZoom atZoom(int zoom);
 
   // Returns true if these bounds may no longer be valid for the given
@@ -40,30 +42,30 @@ abstract class TileBounds {
     double tileSize,
     LatLngBounds? latLngBounds,
   ) =>
-      (crs != this.crs ||
-          tileSize != _tileSize ||
-          latLngBounds != _latLngBounds);
+      crs != this.crs || tileSize != _tileSize || latLngBounds != _latLngBounds;
 }
 
+@immutable
 class InfiniteTileBounds extends TileBounds {
   const InfiniteTileBounds._(
-    Crs crs,
-    double tileSize,
-    LatLngBounds? latLngBounds,
-  ) : super._(crs, tileSize, latLngBounds);
+    super.crs,
+    super._tileSize,
+    super._latLngBounds,
+  ) : super._();
 
   @override
   TileBoundsAtZoom atZoom(int zoom) => const InfiniteTileBoundsAtZoom();
 }
 
+@immutable
 class DiscreteTileBounds extends TileBounds {
   final Map<int, TileBoundsAtZoom> _tileBoundsAtZoomCache = {};
 
   DiscreteTileBounds._(
-    Crs crs,
-    double tileSize,
-    LatLngBounds? latLngBounds,
-  ) : super._(crs, tileSize, latLngBounds);
+    super.crs,
+    super._tileSize,
+    super._latLngBounds,
+  ) : super._();
 
   @override
   TileBoundsAtZoom atZoom(int zoom) {
@@ -94,14 +96,15 @@ class DiscreteTileBounds extends TileBounds {
   }
 }
 
+@immutable
 class WrappedTileBounds extends TileBounds {
   final Map<int, WrappedTileBoundsAtZoom> _tileBoundsAtZoomCache = {};
 
   WrappedTileBounds._(
-    Crs crs,
-    double tileSize,
-    LatLngBounds? latLngBounds,
-  ) : super._(crs, tileSize, latLngBounds);
+    super.crs,
+    super._tileSize,
+    super._latLngBounds,
+  ) : super._();
 
   @override
   WrappedTileBoundsAtZoom atZoom(int zoom) {

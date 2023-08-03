@@ -23,6 +23,7 @@ part 'tile_layer_options.dart';
 /// You should read up about the options by exploring each one, or visiting
 /// https://docs.fleaflet.dev/usage/layers/tile-layer. Some are important to
 /// avoid issues.
+@immutable
 class TileLayer extends StatefulWidget {
   /// Defines the structure to create the URLs for the tiles. `{s}` means one of
   /// the available subdomains (can be omitted) `{z}` zoom level `{x}` and `{y}`
@@ -239,7 +240,7 @@ class TileLayer extends StatefulWidget {
     this.panBuffer = 0,
     this.backgroundColor,
     this.errorImage,
-    TileProvider? tileProvider,
+    final TileProvider? tileProvider,
     this.tms = false,
     this.wmsOptions,
     this.tileDisplay = const TileDisplay.fadeIn(),
@@ -253,10 +254,10 @@ class TileLayer extends StatefulWidget {
     TileUpdateTransformer? tileUpdateTransformer,
     String userAgentPackageName = 'unknown',
   })  : assert(
-          tileDisplay.when(
-              instantaneous: (_) => true,
-              fadeIn: (fadeIn) => fadeIn.duration > Duration.zero)!,
-        ),
+            tileDisplay.when(
+                instantaneous: (_) => true,
+                fadeIn: (fadeIn) => fadeIn.duration > Duration.zero)!,
+            'The tile fade in duration needs to be bigger than zero'),
         maxZoom =
             wmsOptions == null && retinaMode && maxZoom > 0.0 && !zoomReverse
                 ? maxZoom - 1.0
@@ -348,7 +349,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
           .listen((event) => _onTileUpdateEvent(event));
     }
 
-    bool reloadTiles = false;
+    var reloadTiles = false;
     if (!_initializedFromMapCamera ||
         _tileBounds.shouldReplace(
             camera.crs, widget.tileSize, widget.tileBounds)) {
@@ -377,7 +378,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   @override
   void didUpdateWidget(TileLayer oldWidget) {
     super.didUpdateWidget(oldWidget);
-    bool reloadTiles = false;
+    var reloadTiles = false;
 
     // There is no caching in TileRangeCalculator so we can just replace it.
     _tileRangeCalculator = TileRangeCalculator(tileSize: widget.tileSize);
@@ -506,7 +507,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     );
   }
 
-  // This can be removed once the deprecated backgroundColor option is removed.
+  /// This can be removed once the deprecated backgroundColor option is removed.
   Widget _addBackgroundColor(Widget child) {
     // ignore: deprecated_member_use_from_same_package
     final color = widget.backgroundColor;
@@ -535,8 +536,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     );
   }
 
-  // Load and/or prune tiles according to the visible bounds of the [event]
-  // center/zoom, or the current center/zoom if not specified.
+  /// Load and/or prune tiles according to the visible bounds of the [event]
+  /// center/zoom, or the current center/zoom if not specified.
   void _onTileUpdateEvent(TileUpdateEvent event) {
     final tileZoom = _clampToNativeZoom(event.zoom);
     final visibleTileRange = _tileRangeCalculator.calculate(
@@ -559,7 +560,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     }
   }
 
-  // Load new tiles in the visible bounds and prune those outside.
+  /// Load new tiles in the visible bounds and prune those outside.
   void _loadAndPruneInVisibleBounds(MapCamera camera) {
     final tileZoom = _clampToNativeZoom(camera.zoom);
     final visibleTileRange = _tileRangeCalculator.calculate(
@@ -625,10 +626,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     }
   }
 
-  // Rounds the zoom to the nearest int and clamps it to the native zoom limits
-  // if there are any.
+  /// Rounds the zoom to the nearest int and clamps it to the native zoom limits
+  /// if there are any.
   int _clampToNativeZoom(double zoom) {
-    int result = zoom.round();
+    var result = zoom.round();
 
     if (widget.minNativeZoom != null) {
       result = math.max(result, widget.minNativeZoom!);

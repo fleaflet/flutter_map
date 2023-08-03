@@ -216,8 +216,8 @@ void main() {
         ),
       );
 
-      expect(tileRange.min, (const Point(3, 3)));
-      expect(tileRange.max, (const Point(4, 4)));
+      expect(tileRange.min, const Point(3, 3));
+      expect(tileRange.max, const Point(4, 4));
     });
 
     group('center', () {

@@ -45,7 +45,7 @@ void main() {
 
     test('crs is finite non-wrapping', () {
       final tileBounds = TileBounds(
-        crs: CrsSimple(),
+        crs: const CrsSimple(),
         tileSize: 256,
       );
 

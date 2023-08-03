@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 ///
 /// Displayed as a padded translucent [backgroundColor] box with the following
 /// text: 'flutter_map | © [source]', where [source] is wrapped with [onTap].
+@immutable
 class SimpleAttributionWidget extends StatelessWidget {
   /// Attribution text, such as 'OpenStreetMap contributors'
   final Text source;
@@ -24,12 +25,12 @@ class SimpleAttributionWidget extends StatelessWidget {
   /// Displayed as a padded translucent white box with the following text:
   /// 'flutter_map | © [source]'.
   const SimpleAttributionWidget({
-    Key? key,
+    super.key,
     required this.source,
     this.onTap,
     this.backgroundColor,
     this.alignment = Alignment.bottomRight,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) => Align(

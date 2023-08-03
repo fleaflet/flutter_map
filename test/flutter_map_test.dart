@@ -34,12 +34,11 @@ void main() {
   testWidgets(
       'FlutterMap - Bottom ViewInsets (e.g. keyboard) do not trigger rebuilds.',
       (tester) async {
-    int builds = 0;
+    var builds = 0;
 
     final map = FlutterMap(
       options: const MapOptions(
         initialCenter: LatLng(45.5231, -122.6765),
-        initialZoom: 13,
       ),
       children: [
         Builder(
@@ -79,7 +78,7 @@ void main() {
 
   testWidgets('gestures work with no tile layer and transparent background.',
       (tester) async {
-    int taps = 0;
+    var taps = 0;
     late MapCamera camera;
 
     final map = MaterialApp(
@@ -132,8 +131,8 @@ void main() {
 
   testWidgets('MapCamera.of only notifies dependencies when camera changes',
       (tester) async {
-    int buildCount = 0;
-    final Widget builder = Builder(builder: (BuildContext context) {
+    var buildCount = 0;
+    final Widget builder = Builder(builder: (context) {
       MapCamera.of(context);
       buildCount++;
       return const SizedBox.shrink();
@@ -157,8 +156,8 @@ void main() {
 
   testWidgets('MapOptions.of only notifies dependencies when options change',
       (tester) async {
-    int buildCount = 0;
-    final Widget builder = Builder(builder: (BuildContext context) {
+    var buildCount = 0;
+    final Widget builder = Builder(builder: (context) {
       MapOptions.of(context);
       buildCount++;
       return const SizedBox.shrink();
@@ -183,8 +182,8 @@ void main() {
   testWidgets(
       'MapController.of only notifies dependencies when controller changes',
       (tester) async {
-    int buildCount = 0;
-    final Widget builder = Builder(builder: (BuildContext context) {
+    var buildCount = 0;
+    final Widget builder = Builder(builder: (context) {
       MapController.of(context);
       buildCount++;
       return const SizedBox.shrink();

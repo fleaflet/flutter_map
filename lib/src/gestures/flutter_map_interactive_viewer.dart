@@ -57,8 +57,8 @@ class FlutterMapInteractiveViewerState
   var _dragStarted = false;
   var _flingAnimationStarted = false;
 
-  // Helps to reset ScaleUpdateDetails.scale back to 1.0 when a multi finger
-  // gesture wins
+  /// Helps to reset ScaleUpdateDetails.scale back to 1.0 when a multi finger
+  /// gesture wins
   late double _scaleCorrector;
   late double _lastRotation;
   late double _lastScale;
@@ -225,8 +225,8 @@ class FlutterMapInteractiveViewerState
       TapGestureRecognizer:
           GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
         () => TapGestureRecognizer(debugOwner: this),
-        (TapGestureRecognizer instance) {
-          instance
+        (recognizer) {
+          recognizer
             ..onTapDown = _positionedTapController.onTapDown
             ..onTapUp = _handleOnTapUp
             ..onTap = _positionedTapController.onTap
@@ -237,44 +237,45 @@ class FlutterMapInteractiveViewerState
       LongPressGestureRecognizer:
           GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
         () => LongPressGestureRecognizer(debugOwner: this),
-        (LongPressGestureRecognizer instance) {
-          instance.onLongPress = _positionedTapController.onLongPress;
+        (recognizer) {
+          recognizer.onLongPress = _positionedTapController.onLongPress;
         },
       ),
       if (dragEnabled)
         VerticalDragGestureRecognizer:
             GestureRecognizerFactoryWithHandlers<VerticalDragGestureRecognizer>(
           () => VerticalDragGestureRecognizer(debugOwner: this),
-          (VerticalDragGestureRecognizer instance) {
-            instance.onUpdate = (details) {
-              // Absorbing vertical drags
-            };
-            instance.gestureSettings = gestureSettings;
-            instance.team ??= _gestureArenaTeam;
+          (recognizer) {
+            recognizer
+              ..gestureSettings = gestureSettings
+              ..team ??= _gestureArenaTeam
+              ..onUpdate = (details) {
+                // Absorbing vertical drags
+              };
           },
         ),
       if (dragEnabled)
         HorizontalDragGestureRecognizer: GestureRecognizerFactoryWithHandlers<
-            HorizontalDragGestureRecognizer>(
-          () => HorizontalDragGestureRecognizer(debugOwner: this),
-          (HorizontalDragGestureRecognizer instance) {
-            instance.onUpdate = (details) {
+                HorizontalDragGestureRecognizer>(
+            () => HorizontalDragGestureRecognizer(debugOwner: this),
+            (recognizer) {
+          recognizer
+            ..gestureSettings = gestureSettings
+            ..team ??= _gestureArenaTeam
+            ..onUpdate = (details) {
               // Absorbing horizontal drags
             };
-            instance.gestureSettings = gestureSettings;
-            instance.team ??= _gestureArenaTeam;
-          },
-        ),
+        }),
       ScaleGestureRecognizer:
           GestureRecognizerFactoryWithHandlers<ScaleGestureRecognizer>(
         () => ScaleGestureRecognizer(debugOwner: this),
-        (ScaleGestureRecognizer instance) {
-          instance
+        (recognizer) {
+          recognizer
             ..onStart = _handleScaleStart
             ..onUpdate = _handleScaleUpdate
-            ..onEnd = _handleScaleEnd;
-          instance.team ??= _gestureArenaTeam;
-          _gestureArenaTeam.captain = instance;
+            ..onEnd = _handleScaleEnd
+            ..team ??= _gestureArenaTeam;
+          _gestureArenaTeam.captain = recognizer;
         },
       ),
     };
@@ -416,7 +417,7 @@ class FlutterMapInteractiveViewerState
     }
   }
 
-  // Thanks to https://stackoverflow.com/questions/48916517/javascript-click-and-drag-to-rotate
+  /// Thanks to https://stackoverflow.com/questions/48916517/javascript-click-and-drag-to-rotate
   double getCursorRotationDegrees(Offset offset) {
     const correctionTerm = 180; // North = cursor
 
@@ -560,8 +561,8 @@ class FlutterMapInteractiveViewerState
     bool hasPinchZoom,
     bool hasPinchMove,
   ) {
-    LatLng newCenter = _camera.center;
-    double newZoom = _camera.zoom;
+    var newCenter = _camera.center;
+    var newZoom = _camera.zoom;
 
     // Handle pinch zoom.
     if (hasPinchZoom && details.scale > 0.0) {

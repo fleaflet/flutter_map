@@ -77,10 +77,9 @@ Widget coordinateDebugTileBuilder(
   TileImage tile,
 ) {
   final coordinates = tile.coordinates;
-  final readableKey =
-      '${coordinates.x.floor()} : ${coordinates.y.floor()} : ${coordinates.z.floor()}';
+  final readableKey = '${coordinates.x} : ${coordinates.y} : ${coordinates.z}';
 
-  return Container(
+  return DecoratedBox(
     decoration: BoxDecoration(
       border: Border.all(),
     ),
@@ -112,7 +111,7 @@ Widget loadingTimeDebugTileBuilder(
       ? 'Loading'
       : '${(loaded.millisecond - loadStarted!.millisecond).abs()} ms';
 
-  return Container(
+  return DecoratedBox(
     decoration: BoxDecoration(
       border: Border.all(),
     ),

@@ -11,15 +11,16 @@ import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Describes the view of a map. This includes the size/zoom/position/crs as
-/// well as the minimum/maximum zoom. This class is immutable, changes to the
-/// map view may occur via the [MapController] or user interactions which will
-/// result in a new [MapCamera] value.
+/// well as the minimum/maximum zoom. This class is mostly immutable but has
+/// some fields that get calculated lazily, changes to the map view may occur
+/// via the [MapController] or user interactions which will result in a
+/// new [MapCamera] value.
 class MapCamera {
-  // During Flutter startup the native platform resolution is not immediately
-  // available which can cause constraints to be zero before they are updated
-  // in a subsequent build to the actual constraints. We set the size to this
-  // impossible (negative) value initially and only change it once Flutter
-  // provides real constraints.
+  /// During Flutter startup the native platform resolution is not immediately
+  /// available which can cause constraints to be zero before they are updated
+  /// in a subsequent build to the actual constraints. We set the size to this
+  /// impossible (negative) value initially and only change it once Flutter
+  /// provides real constraints.
   static const kImpossibleSize = Point<double>(-1, -1);
 
   final Crs crs;
@@ -47,11 +48,19 @@ class MapCamera {
   /// FlutterMap widget.
   final Point<double> nonRotatedSize;
 
-  // Lazily calculated fields.
+  /// Lazily calculated field
   Point<double>? _cameraSize;
+
+  /// Lazily calculated field
   Bounds<double>? _pixelBounds;
+
+  /// Lazily calculated field
   LatLngBounds? _bounds;
+
+  /// Lazily calculated field
   Point<int>? _pixelOrigin;
+
+  /// Lazily calculated field
   double? _rotationRad;
 
   @Deprecated(
@@ -63,20 +72,16 @@ class MapCamera {
 
   /// This is the [LatLngBounds] corresponding to four corners of this camera.
   /// This takes rotation in to account.
-  LatLngBounds get visibleBounds =>
-      _bounds ??
-      (_bounds = LatLngBounds(
+  LatLngBounds get visibleBounds => _bounds ??= LatLngBounds(
         unproject(pixelBounds.bottomLeft, zoom),
         unproject(pixelBounds.topRight, zoom),
-      ));
+      );
 
   /// The size of bounding box of this camera taking in to account its
   /// rotation. When the rotation is zero this will equal [nonRotatedSize],
   /// otherwise it will be the size of the rectangle which contains this
   /// camera.
-  Point<double> get size =>
-      _cameraSize ??
-      calculateRotatedSize(
+  Point<double> get size => _cameraSize ??= calculateRotatedSize(
         rotation,
         nonRotatedSize,
       );
@@ -85,8 +90,7 @@ class MapCamera {
   /// camera. This will not equal the offset of the top-left visible pixel when
   /// the map is rotated.
   Point<int> get pixelOrigin =>
-      _pixelOrigin ??
-      (_pixelOrigin = (project(center, zoom) - size / 2.0).round());
+      _pixelOrigin ??= (project(center, zoom) - size / 2.0).round();
 
   /// The camera of the closest [FlutterMap] ancestor. If this is called from a
   /// context with no [FlutterMap] ancestor null, is returned.
@@ -100,20 +104,9 @@ class MapCamera {
       (throw StateError(
           '`MapCamera.of()` should not be called outside a `FlutterMap` and its descendants'));
 
-  /// Initializes [MapCamera] from the given [options] and with the
-  /// [nonRotatedSize] set to [kImpossibleSize].
-  MapCamera.initialCamera(MapOptions options)
-      : crs = options.crs,
-        minZoom = options.minZoom,
-        maxZoom = options.maxZoom,
-        center = options.initialCenter,
-        zoom = options.initialZoom,
-        rotation = options.initialRotation,
-        nonRotatedSize = kImpossibleSize;
-
-  // Create an instance of [MapCamera]. The [pixelOrigin], [bounds], and
-  // [pixelBounds] may be set if they are known already. Otherwise if left
-  // null they will be calculated lazily when they are used.
+  /// Create an instance of [MapCamera]. The [pixelOrigin], [bounds], and
+  /// [pixelBounds] may be set if they are known already. Otherwise if left
+  /// null they will be calculated lazily when they are used.
   MapCamera({
     required this.crs,
     required this.center,
@@ -127,11 +120,22 @@ class MapCamera {
     LatLngBounds? bounds,
     Point<int>? pixelOrigin,
     double? rotationRad,
-  })  : _cameraSize = size ?? calculateRotatedSize(rotation, nonRotatedSize),
+  })  : _cameraSize = size,
         _pixelBounds = pixelBounds,
         _bounds = bounds,
         _pixelOrigin = pixelOrigin,
         _rotationRad = rotationRad;
+
+  /// Initializes [MapCamera] from the given [options] and with the
+  /// [nonRotatedSize] set to [kImpossibleSize].
+  MapCamera.initialCamera(MapOptions options)
+      : crs = options.crs,
+        minZoom = options.minZoom,
+        maxZoom = options.maxZoom,
+        center = options.initialCenter,
+        zoom = options.initialZoom,
+        rotation = options.initialRotation,
+        nonRotatedSize = kImpossibleSize;
 
   /// Returns a new instance of [MapCamera] with the given [nonRotatedSize].
   MapCamera withNonRotatedSize(Point<double> nonRotatedSize) {
@@ -265,7 +269,7 @@ class MapCamera {
 
   /// Calculates the pixel bounds of this [MapCamera] at the given [zoom].
   Bounds<double> pixelBoundsAtZoom(double zoom) {
-    Point<double> halfSize = size / 2;
+    var halfSize = size / 2;
     if (zoom != this.zoom) {
       final scale = getZoomScale(this.zoom, zoom);
       halfSize = size / (scale * 2);
@@ -274,8 +278,8 @@ class MapCamera {
     return Bounds(pixelCenter - halfSize, pixelCenter + halfSize);
   }
 
-  // This will convert a latLng to a position that we could use with a widget
-  // outside of FlutterMap layer space. Eg using a Positioned Widget.
+  /// This will convert a latLng to a position that we could use with a widget
+  /// outside of FlutterMap layer space. Eg using a Positioned Widget.
   Point<double> latLngToScreenPoint(LatLng latLng) {
     final nonRotatedPixelOrigin =
         (project(center, zoom) - nonRotatedSize / 2.0).round();
@@ -307,10 +311,10 @@ class MapCamera {
     return crs.pointToLatLng(point, zoom);
   }
 
-  // Sometimes we need to make allowances that a rotation already exists, so
-  // it needs to be reversed (pointToLatLng), and sometimes we want to use
-  // the same rotation to create a new position (latLngToScreenpoint).
-  // counterRotation just makes allowances this for this.
+  /// Sometimes we need to make allowances that a rotation already exists, so
+  /// it needs to be reversed (pointToLatLng), and sometimes we want to use
+  /// the same rotation to create a new position (latLngToScreenpoint).
+  /// counterRotation just makes allowances this for this.
   Point<double> rotatePoint(
     Point<double> mapCenter,
     Point<double> point, {
@@ -344,8 +348,8 @@ class MapCamera {
     return unproject(newCenterPt, zoom ?? this.zoom);
   }
 
-  // Calculate the center point which would keep the same point of the map
-  // visible at the given [cursorPos] with the zoom set to [zoom].
+  /// Calculate the center point which would keep the same point of the map
+  /// visible at the given [cursorPos] with the zoom set to [zoom].
   LatLng focusedZoomCenter(Point cursorPos, double zoom) {
     // Calculate offset of mouse cursor from viewport center
     final viewCenter = nonRotatedSize / 2;

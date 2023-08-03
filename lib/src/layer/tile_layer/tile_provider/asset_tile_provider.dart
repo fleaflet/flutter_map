@@ -30,15 +30,15 @@ class AssetTileProvider extends TileProvider {
   }
 }
 
+@immutable
 class _FlutterMapAssetBundle extends CachingAssetBundle {
   _FlutterMapAssetBundle({required this.fallbackUrl});
+
   final String fallbackUrl;
 
   Future<ByteData?> _loadAsset(String key) async {
-    final Uint8List encoded =
-        utf8.encoder.convert(Uri(path: Uri.encodeFull(key)).path);
-    final ByteData? asset = await ServicesBinding
-        .instance.defaultBinaryMessenger
+    final encoded = utf8.encoder.convert(Uri(path: Uri.encodeFull(key)).path);
+    final asset = await ServicesBinding.instance.defaultBinaryMessenger
         .send('flutter/assets', encoded.buffer.asByteData());
     return asset;
   }

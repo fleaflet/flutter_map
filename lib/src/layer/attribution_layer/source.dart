@@ -9,6 +9,7 @@ import 'package:flutter_map/src/layer/attribution_layer/rich.dart';
 /// Extended/implemented by [TextSourceAttribution] & [LogoSourceAttribution].
 ///
 /// Avoid manual implementation - unknown subtypes will not be displayed.
+@immutable
 abstract class SourceAttribution extends StatelessWidget {
   final VoidCallback? _onTap;
 
@@ -36,6 +37,7 @@ abstract class SourceAttribution extends StatelessWidget {
 
 /// A simple text attribution displayed in the popup box of a
 /// [RichAttributionWidget]
+@immutable
 class TextSourceAttribution extends SourceAttribution {
   /// Default style used to display the [text], only when
   /// [SourceAttribution._onTap] is not `null`
@@ -71,6 +73,7 @@ class TextSourceAttribution extends SourceAttribution {
 
 /// An image attribution permanently displayed adjacent to the open/close icon of
 /// a [RichAttributionWidget]
+@immutable
 class LogoSourceAttribution extends SourceAttribution {
   /// The logo to display as attribution, usually an [Image.asset] or
   /// [Image.network]

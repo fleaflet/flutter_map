@@ -13,7 +13,7 @@ import 'package:flutter_map/flutter_map.dart';
 ///       ~[InteractiveFlag.pinchMove] &
 ///       ~[InteractiveFlag.pinchZoom] &
 ///       ~[InteractiveFlag.doubleTapZoom]
-class InteractiveFlag {
+abstract class InteractiveFlag {
   const InteractiveFlag._();
 
   static const int all =
