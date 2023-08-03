@@ -1,4 +1,4 @@
-import 'package:flutter_map/src/map/options.dart';
+import 'package:flutter_map/flutter_map.dart';
 
 /// Use [InteractiveFlag] to disable / enable certain events Use
 /// [InteractiveFlag.all] to enable all events, use [InteractiveFlag.none] to
@@ -35,14 +35,19 @@ abstract class InteractiveFlag {
   /// Enable zooming with a single-finger double tap gesture
   static const int doubleTapZoom = 1 << 4;
 
+  /// Enable zooming with a single-finger double-tap-drag gesture
+  ///
+  /// The associated [MapEventSource] is [MapEventSource.doubleTapHold].
+  static const int doubleTapDragZoom = 1 << 5;
+
   /// Enable zooming with a mouse scroll wheel
-  static const int scrollWheelZoom = 1 << 5;
+  static const int scrollWheelZoom = 1 << 6;
 
   /// Enable rotation with two-finger twist gesture
   ///
   /// For controlling rotation where a keyboard/cursor combination is used, see
   /// [InteractionOptions.isCursorRotationKeyboardKeyTrigger].
-  static const int rotate = 1 << 6;
+  static const int rotate = 1 << 7;
 
   /// Flags pertaining to gestures which require multiple fingers.
   static const _multiFingerFlags = pinchMove | pinchZoom | rotate;
@@ -70,6 +75,10 @@ abstract class InteractiveFlag {
 
   /// True if the [pinchZoom] interactive flag is enabled.
   static bool hasPinchZoom(int flags) => hasFlag(flags, pinchZoom);
+
+  /// True if the [doubleTapDragZoom] interactive flag is enabled.
+  static bool hasDoubleTapDragZoom(int flags) =>
+      hasFlag(flags, doubleTapDragZoom);
 
   /// True if the [doubleTapZoom] interactive flag is enabled.
   static bool hasDoubleTapZoom(int flags) => hasFlag(flags, doubleTapZoom);
