@@ -16,12 +16,12 @@ export 'package:flutter_map/src/layer/polygon_layer.dart';
 export 'package:flutter_map/src/layer/polyline_layer.dart';
 export 'package:flutter_map/src/layer/tile_layer/controller/tile_layer_controller.dart'
     hide TileLayerControllerImpl;
+export 'package:flutter_map/src/layer/tile_layer/placeholder_grid_tile.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_builder.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_display.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
-export 'package:flutter_map/src/layer/tile_layer/tile_placeholder_image.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_provider/asset_tile_provider.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provider.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_provider/file_providers/tile_provider_stub.dart'

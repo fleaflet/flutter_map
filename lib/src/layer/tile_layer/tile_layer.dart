@@ -161,13 +161,12 @@ class TileLayer extends StatefulWidget {
   /// Whether a placeholder should be shown in place of a tile that has not yet
   /// loaded or fails to load. Note that if tiles from a higher/lower zoom fill
   /// the space the missing tile would fill then they will be visible instead of
-  /// a placeholder. To customised the placeholder use [placeholderBuilder].
+  /// a placeholder. To customised the placeholder use [placeholder].
   final bool showPlaceholders;
 
-  /// Builder used to create the widget which is shown in place of a tile that
-  /// has not yet loaded or fails to load. The default placeholder is a grid
-  /// image.
-  late final WidgetBuilder placeholderBuilder;
+  /// The widget which is shown in place of a tile that has not yet loaded or
+  /// fails to load. The default placeholder is a grid image.
+  final Widget placeholder;
 
   /// Static information that should replace placeholders in the [urlTemplate].
   /// Applying API keys is a good example on how to use this parameter.
@@ -254,12 +253,12 @@ class TileLayer extends StatefulWidget {
     this.panBuffer = 0,
     this.backgroundColor,
     this.showPlaceholders = true,
-    WidgetBuilder? placeholderBuilder,
+    Widget placeholder = const PlaceholderGridTile(),
     @Deprecated(
-      'Prefer `placeholderBuilder` instead. '
-      'This option is now replaced by `placeholderBuilder` and the behaviour '
-      'has changed to show a placeholder when no tiles from any zoom fill the '
-      'area which the missing tile would cover. '
+      'Prefer `placeholder` instead. '
+      'This option is now replaced by `placeholder` and the behaviour has '
+      'changed to show a placeholder when no tiles from any zoom fill the area '
+      'which the missing tile would cover. '
       'This option is deprecated since v6.',
     )
     ImageProvider? errorImage,
@@ -311,21 +310,13 @@ class TileLayer extends StatefulWidget {
                   'User-Agent': 'flutter_map ($userAgentPackageName)',
               }),
         tileUpdateTransformer =
-            tileUpdateTransformer ?? TileUpdateTransformers.ignoreTapEvents {
-    if (errorImage != null) {
-      this.placeholderBuilder =
-          (context) => Image(image: errorImage, fit: BoxFit.fill);
-    } else if (placeholderBuilder != null) {
-      this.placeholderBuilder = placeholderBuilder;
-    } else {
-      final placeholderImage =
-          TilePlaceholderImage.generate(size: tileSize.toInt());
-      this.placeholderBuilder = (context) => Image(
-            image: placeholderImage,
-            fit: BoxFit.fill,
-          );
-    }
-  }
+            tileUpdateTransformer ?? TileUpdateTransformers.ignoreTapEvents,
+        placeholder = errorImage != null
+            ? Image(
+                image: errorImage,
+                fit: BoxFit.fill,
+              )
+            : placeholder;
 
   @override
   State<StatefulWidget> createState() => _TileLayerState();
@@ -558,7 +549,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
                   tileZoom,
                 ),
                 currentPixelOrigin: currentPixelOrigin,
-                child: widget.placeholderBuilder(context),
+                child: widget.placeholder,
               ),
             ),
           ...tileImagesInRenderOrder.map(
