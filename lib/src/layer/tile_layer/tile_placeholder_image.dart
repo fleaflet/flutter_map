@@ -4,14 +4,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class TilePlaceholderImage {
-  const TilePlaceholderImage._();
-
   /// Creates an [ImageProvider] which resolves to an image which is a grid of
   /// [cellCount] transparent cells on both axis. The cells are transparent,
-  /// divided lines with the color [lineColor].
+  /// divided by lines with the color [lineColor].
   ///
   /// The [size] determines the width and height of the generated image and it
   /// should match the tile size of the [TileLayer] in which this is used.
+  ///
+  /// The returned ImageProvider is intended to be stored in a static final
+  /// variable and passed in to placeholderBuilder to reduce the memory
+  /// footprint.
   static ImageProvider generate({
     int size = 256,
     Color lineColor = Colors.white,

@@ -6,11 +6,11 @@ import 'package:collection/collection.dart' show MapEquality;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map/src/layer/tile_layer/controller/tile_layer_controller.dart';
+import 'package:flutter_map/src/layer/tile_layer/positioned_tile.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image_manager.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_placeholder.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
@@ -158,9 +158,16 @@ class TileLayer extends StatefulWidget {
   /// or one.
   final int panBuffer;
 
-  /// Tile image to show in place of a tile that has not yet loaded or fails to
-  /// load.
-  final ImageProvider? placeholderImage;
+  /// Whether a placeholder should be shown in place of a tile that has not yet
+  /// loaded or fails to load. Note that if tiles from a higher/lower zoom fill
+  /// the space the missing tile would fill then they will be visible instead of
+  /// a placeholder. To customised the placeholder use [placeholderBuilder].
+  final bool showPlaceholders;
+
+  /// Builder used to create the widget which is shown in place of a tile that
+  /// has not yet loaded or fails to load. The default placeholder is a grid
+  /// image.
+  late final WidgetBuilder placeholderBuilder;
 
   /// Static information that should replace placeholders in the [urlTemplate].
   /// Applying API keys is a good example on how to use this parameter.
@@ -246,16 +253,17 @@ class TileLayer extends StatefulWidget {
     this.keepBuffer = 2,
     this.panBuffer = 0,
     this.backgroundColor,
+    this.showPlaceholders = true,
+    WidgetBuilder? placeholderBuilder,
     @Deprecated(
-      'Prefer `placeholderImage` instead. '
-      'This option is now replaced by `placeholderImage` and the behaviour has '
-      'changed to show the placeholder both when tile loading errors and when '
-      'a tile is yet to load. '
+      'Prefer `placeholderBuilder` instead. '
+      'This option is now replaced by `placeholderBuilder` and the behaviour '
+      'has changed to show a placeholder when no tiles from any zoom fill the '
+      'area which the missing tile would cover. '
       'This option is deprecated since v6.',
     )
     ImageProvider? errorImage,
-    ImageProvider? placeholderImage,
-    final TileProvider? tileProvider,
+    TileProvider? tileProvider,
     this.tms = false,
     this.wmsOptions,
     this.tileDisplay = const TileDisplay.fadeIn(),
@@ -275,7 +283,6 @@ class TileLayer extends StatefulWidget {
           )!,
           'The tile fade in duration needs to be bigger than zero',
         ),
-        placeholderImage = errorImage ?? placeholderImage,
         maxZoom =
             wmsOptions == null && retinaMode && maxZoom > 0.0 && !zoomReverse
                 ? maxZoom - 1.0
@@ -304,7 +311,21 @@ class TileLayer extends StatefulWidget {
                   'User-Agent': 'flutter_map ($userAgentPackageName)',
               }),
         tileUpdateTransformer =
-            tileUpdateTransformer ?? TileUpdateTransformers.ignoreTapEvents;
+            tileUpdateTransformer ?? TileUpdateTransformers.ignoreTapEvents {
+    if (errorImage != null) {
+      this.placeholderBuilder =
+          (context) => Image(image: errorImage, fit: BoxFit.fill);
+    } else if (placeholderBuilder != null) {
+      this.placeholderBuilder = placeholderBuilder;
+    } else {
+      final placeholderImage =
+          TilePlaceholderImage.generate(size: tileSize.toInt());
+      this.placeholderBuilder = (context) => Image(
+            image: placeholderImage,
+            fit: BoxFit.fill,
+          );
+    }
+  }
 
   @override
   State<StatefulWidget> createState() => _TileLayerState();
@@ -523,13 +544,13 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     return _addBackgroundColor(
       Stack(
         children: [
-          if (widget.placeholderImage != null)
+          if (widget.showPlaceholders)
             ..._placeholderCoordinates(
               tileImagesInRenderOrder.takeWhile(
                   (tileImage) => tileImage.coordinates.z == tileZoom),
               visibleTileRange,
             ).map(
-              (tileCoordinates) => TilePlaceholder(
+              (tileCoordinates) => PositionedTile(
                 key: ValueKey('placeholder-${tileCoordinates.key}'),
                 tileCoordinates: tileCoordinates,
                 scaledTileSize: _tileScaleCalculator.scaledTileSize(
@@ -537,21 +558,24 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
                   tileZoom,
                 ),
                 currentPixelOrigin: currentPixelOrigin,
-                placeholderImage: widget.placeholderImage!,
+                child: widget.placeholderBuilder(context),
               ),
             ),
           ...tileImagesInRenderOrder.map(
-            (tileImage) => Tile(
+            (tileImage) => PositionedTile(
               // Must be an ObjectKey, not a ValueKey using the coordinates, in
               // case we remove and replace the TileImage with a different one.
               key: ObjectKey(tileImage),
+              tileCoordinates: tileImage.coordinates,
               scaledTileSize: _tileScaleCalculator.scaledTileSize(
                 map.zoom,
                 tileImage.coordinates.z,
               ),
               currentPixelOrigin: currentPixelOrigin,
-              tileImage: tileImage,
-              tileBuilder: widget.tileBuilder,
+              child: Tile(
+                tileImage: tileImage,
+                tileBuilder: widget.tileBuilder,
+              ),
             ),
           ),
         ],
@@ -561,10 +585,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   /// Returns the visible coordinates from the current zoom for which there is
   /// no TileImage which has finished loading and transitioning. It is possible
-  /// a returned placeholder coordinate will be for a placeholder which is
-  /// obscured by a tile from a lower zoom or a collection of tiles from higher
-  /// zooms, this simple algorithm is a tradeoff between minimising the number
-  /// of unnecessary placeholders and keeping the calculation fast.
+  /// a returned placeholder coordinate will be for a tile which is obscured by
+  /// a tile from a lower zoom or a collection of tiles from higher zooms, this
+  /// simple algorithm is a tradeoff between minimising the number of
+  /// unnecessary placeholders and keeping the calculation fast.
   Iterable<TileCoordinates> _placeholderCoordinates(
     Iterable<TileImage> tileImagesAtCurrentZoom,
     DiscreteTileRange visibleTileRange,

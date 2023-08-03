@@ -17,7 +17,6 @@ class TileErrorHandling extends StatefulWidget {
 
 class _TileErrorHandlingState extends State<TileErrorHandling> {
   static const _showSnackBarDuration = Duration(seconds: 1);
-  static final _placeholderImage = TilePlaceholderImage.generate();
 
   late final TileLayerController _tileLayerController;
 
@@ -87,7 +86,7 @@ class _TileErrorHandlingState extends State<TileErrorHandling> {
                   children: [
                     TileLayer(
                       controller: _tileLayerController,
-                      placeholderImage: _placeholderImage,
+                      showPlaceholders: true,
                       urlTemplate:
                           'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                       userAgentPackageName: 'dev.fleaflet.flutter_map.example',
