@@ -237,18 +237,24 @@ class PolygonPainter extends CustomPainter {
         //    ensure polygons and labels are stacked correctly, i.e.:
         //    p1, p1_label, p2, p2_label, ... .
 
-        // Flush the batch before painting to preserve stacking.
-        drawPaths();
-
-        paintLabelText(
-          canvas,
+        // The painter will be null if the layouting algorithm determined that
+        // there isn't enough space.
+        final painter = buildLabelTextPainter(
           points: offsets,
           labelText: polygon.label!,
           labelStyle: polygon.labelStyle,
           rotationRad: map.rotationRad,
           rotate: polygon.rotateLabel,
           labelPlacement: polygon.labelPlacement,
+          padding: 10,
         );
+
+        if (painter != null) {
+          // Flush the batch before painting to preserve stacking.
+          drawPaths();
+
+          painter(canvas);
+        }
       }
     }
 

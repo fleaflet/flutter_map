@@ -5,14 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:polylabel/polylabel.dart';
 
-void paintLabelText(
-  Canvas canvas, {
+void Function(Canvas canvas)? buildLabelTextPainter({
   required String labelText,
   required List<Offset> points,
   required double rotationRad,
   bool rotate = false,
   TextStyle? labelStyle,
   PolygonLabelPlacement labelPlacement = PolygonLabelPlacement.polylabel,
+  double padding = 0,
 }) {
   final placementPoint = switch (labelPlacement) {
     PolygonLabelPlacement.centroid => _computeCentroid(points),
@@ -42,22 +42,25 @@ void paintLabelText(
       minDx = math.min(minDx, point.dx);
     }
 
-    if (maxDx - minDx > textPainter.width) {
-      if (rotate) {
-        canvas.save();
-        canvas.translate(placementPoint.dx, placementPoint.dy);
-        canvas.rotate(-rotationRad);
-        canvas.translate(-placementPoint.dx, -placementPoint.dy);
-      }
-      textPainter.paint(
-        canvas,
-        Offset(dx, dy),
-      );
-      if (rotate) {
-        canvas.restore();
-      }
+    if (maxDx - minDx - padding > textPainter.width) {
+      return (canvas) {
+        if (rotate) {
+          canvas.save();
+          canvas.translate(placementPoint.dx, placementPoint.dy);
+          canvas.rotate(-rotationRad);
+          canvas.translate(-placementPoint.dx, -placementPoint.dy);
+        }
+        textPainter.paint(
+          canvas,
+          Offset(dx, dy),
+        );
+        if (rotate) {
+          canvas.restore();
+        }
+      };
     }
   }
+  return null;
 }
 
 Offset _computeCentroid(List<Offset> points) {
