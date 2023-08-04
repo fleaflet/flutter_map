@@ -66,18 +66,22 @@ class Polygon {
   }) : _filledAndClockwise = isFilled && isClockwise(points);
 
   /// Used to batch draw calls to the canvas.
-  int get renderHashCode => Object.hash(
-        holePointsList,
-        color,
-        borderStrokeWidth,
-        borderColor,
-        isDotted,
-        isFilled,
-        strokeCap,
-        strokeJoin,
-        labelStyle,
-        _filledAndClockwise,
-      );
+  int get renderHashCode {
+    _hash ??= Object.hash(
+      holePointsList,
+      color,
+      borderStrokeWidth,
+      borderColor,
+      isDotted,
+      isFilled,
+      strokeCap,
+      strokeJoin,
+      _filledAndClockwise,
+    );
+    return _hash!;
+  }
+
+  int? _hash;
 }
 
 @immutable
@@ -87,10 +91,14 @@ class PolygonLayer extends StatelessWidget {
   /// screen space culling of polygons based on bounding box
   final bool polygonCulling;
 
+  // Turn on/off per-polygon label drawing on the layer-level.
+  final bool polygonLabels;
+
   const PolygonLayer({
     super.key,
     this.polygons = const [],
     this.polygonCulling = false,
+    this.polygonLabels = true,
   });
 
   @override
@@ -105,7 +113,7 @@ class PolygonLayer extends StatelessWidget {
         : polygons;
 
     return CustomPaint(
-      painter: PolygonPainter(pgons, map),
+      painter: PolygonPainter(pgons, map, polygonLabels),
       size: size,
       isComplex: true,
     );
@@ -116,8 +124,10 @@ class PolygonPainter extends CustomPainter {
   final List<Polygon> polygons;
   final MapCamera map;
   final LatLngBounds bounds;
+  final bool polygonLabels;
 
-  PolygonPainter(this.polygons, this.map) : bounds = map.visibleBounds;
+  PolygonPainter(this.polygons, this.map, this.polygonLabels)
+      : bounds = map.visibleBounds;
 
   int get hash {
     _hash ??= Object.hashAll(polygons);
@@ -219,19 +229,32 @@ class PolygonPainter extends CustomPainter {
         }
       }
 
-      if (polygon.label != null) {
-        // Labels are expensive. The `paintText` below is a canvas draw
-        // operation and thus requires us to reset the draw batching here.
-        drawPaths();
+      if (polygonLabels && polygon.label != null) {
+        // Labels are expensive because:
+        //  * they themselves cannot easily be pulled into our batched path
+        //    painting with the given text APIs
+        //  * therefore, they require us to flush the batch of polygon draws to
+        //    ensure polygons and labels are stacked correctly, i.e.:
+        //    p1, p1_label, p2, p2_label, ... .
 
-        Label(
+        // The painter will be null if the layouting algorithm determined that
+        // there isn't enough space.
+        final painter = buildLabelTextPainter(
           points: offsets,
-          labelText: polygon.label,
+          labelText: polygon.label!,
           labelStyle: polygon.labelStyle,
           rotationRad: map.rotationRad,
           rotate: polygon.rotateLabel,
           labelPlacement: polygon.labelPlacement,
-        ).paintText(canvas);
+          padding: 10,
+        );
+
+        if (painter != null) {
+          // Flush the batch before painting to preserve stacking.
+          drawPaths();
+
+          painter(canvas);
+        }
       }
     }
 

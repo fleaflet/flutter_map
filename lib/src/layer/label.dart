@@ -5,33 +5,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:polylabel/polylabel.dart';
 
-@immutable
-class Label {
-  final List<Offset> points;
-  final String? labelText;
-  final TextStyle? labelStyle;
-  final double rotationRad;
-  final bool rotate;
-  final PolygonLabelPlacement labelPlacement;
+void Function(Canvas canvas)? buildLabelTextPainter({
+  required String labelText,
+  required List<Offset> points,
+  required double rotationRad,
+  bool rotate = false,
+  TextStyle? labelStyle,
+  PolygonLabelPlacement labelPlacement = PolygonLabelPlacement.polylabel,
+  double padding = 0,
+}) {
+  final placementPoint = switch (labelPlacement) {
+    PolygonLabelPlacement.centroid => _computeCentroid(points),
+    PolygonLabelPlacement.polylabel => _computePolylabel(points),
+  };
 
-  const Label({
-    required this.points,
-    this.labelText,
-    this.labelStyle,
-    required this.rotationRad,
-    this.rotate = false,
-    this.labelPlacement = PolygonLabelPlacement.polylabel,
-  });
+  var dx = placementPoint.dx;
+  var dy = placementPoint.dy;
 
-  void paintText(Canvas canvas) {
-    final placementPoint = switch (labelPlacement) {
-      PolygonLabelPlacement.centroid => _computeCentroid(points),
-      PolygonLabelPlacement.polylabel => _computePolylabel(points),
-    };
-
-    var dx = placementPoint.dx;
-    var dy = placementPoint.dy;
-
+  if (dx > 0) {
     final textSpan = TextSpan(text: labelText, style: labelStyle);
     final textPainter = TextPainter(
       text: textSpan,
@@ -39,21 +30,22 @@ class Label {
       textDirection: TextDirection.ltr,
       maxLines: 1,
     );
-    if (dx > 0) {
-      textPainter.layout();
-      dx -= textPainter.width / 2;
-      dy -= textPainter.height / 2;
 
-      var maxDx = 0.0;
-      var minDx = double.infinity;
-      for (final point in points) {
-        maxDx = math.max(maxDx, point.dx);
-        minDx = math.min(minDx, point.dx);
-      }
+    textPainter.layout();
+    dx -= textPainter.width / 2;
+    dy -= textPainter.height / 2;
 
-      if (maxDx - minDx > textPainter.width) {
-        canvas.save();
+    var maxDx = 0.0;
+    var minDx = double.infinity;
+    for (final point in points) {
+      maxDx = math.max(maxDx, point.dx);
+      minDx = math.min(minDx, point.dx);
+    }
+
+    if (maxDx - minDx - padding > textPainter.width) {
+      return (canvas) {
         if (rotate) {
+          canvas.save();
           canvas.translate(placementPoint.dx, placementPoint.dy);
           canvas.rotate(-rotationRad);
           canvas.translate(-placementPoint.dx, -placementPoint.dy);
@@ -62,22 +54,26 @@ class Label {
           canvas,
           Offset(dx, dy),
         );
-        canvas.restore();
-      }
+        if (rotate) {
+          canvas.restore();
+        }
+      };
     }
   }
+  return null;
+}
 
-  Offset _computeCentroid(List<Offset> points) {
-    return Offset(
-      points.map((e) => e.dx).toList().average,
-      points.map((e) => e.dy).toList().average,
-    );
-  }
+Offset _computeCentroid(List<Offset> points) {
+  return Offset(
+    points.map((e) => e.dx).average,
+    points.map((e) => e.dy).average,
+  );
+}
 
-  Offset _computePolylabel(List<Offset> points) {
-    final labelPosition = polylabel([
-      points.map((p) => math.Point(p.dx, p.dy)).toList(),
-    ]);
-    return labelPosition.point.toOffset();
-  }
+Offset _computePolylabel(List<Offset> points) {
+  final labelPosition = polylabel([
+    List<math.Point>.generate(
+        points.length, (i) => math.Point(points[i].dx, points[i].dy)),
+  ]);
+  return labelPosition.point.toOffset();
 }
