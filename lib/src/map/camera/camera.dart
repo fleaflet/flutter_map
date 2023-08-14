@@ -361,4 +361,20 @@ class MapCamera {
     final newCenter = unproject(mapCenter + newOffset);
     return newCenter;
   }
+
+  @override
+  int get hashCode => Object.hash(
+      crs, minZoom, maxZoom, center, zoom, rotation, nonRotatedSize);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(other, this) ||
+      (other is MapCamera &&
+          other.crs == crs &&
+          other.minZoom == minZoom &&
+          other.maxZoom == maxZoom &&
+          other.center == center &&
+          other.zoom == zoom &&
+          other.rotation == rotation &&
+          other.nonRotatedSize == nonRotatedSize);
 }
