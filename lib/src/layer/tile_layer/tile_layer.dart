@@ -238,6 +238,11 @@ class TileLayer extends StatefulWidget {
     this.subdomains = const <String>[],
     this.keepBuffer = 2,
     this.panBuffer = 0,
+    @Deprecated(
+      'Prefer `MapOptions.backgroundColor`. '
+      'This property has been removed simplify interaction when using multiple `TileLayer`s. '
+      'This property is deprecated since v6.',
+    )
     this.backgroundColor,
     this.errorImage,
     final TileProvider? tileProvider,

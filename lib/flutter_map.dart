@@ -10,6 +10,7 @@ export 'package:flutter_map/src/layer/attribution_layer/rich.dart';
 export 'package:flutter_map/src/layer/attribution_layer/simple.dart';
 export 'package:flutter_map/src/layer/attribution_layer/source.dart';
 export 'package:flutter_map/src/layer/circle_layer.dart';
+export 'package:flutter_map/src/layer/general/translucent_pointer.dart';
 export 'package:flutter_map/src/layer/marker_layer.dart';
 export 'package:flutter_map/src/layer/overlay_image_layer.dart';
 export 'package:flutter_map/src/layer/polygon_layer.dart';

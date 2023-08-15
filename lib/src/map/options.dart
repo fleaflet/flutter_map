@@ -110,6 +110,18 @@ class MapOptions {
   /// widget from rebuilding.
   final bool keepAlive;
 
+  /// Whether to apply pointer translucency to all layers automatically
+  ///
+  /// This means that layers are invisible to its parent when hit testing, but
+  /// still allows its subtree to receive pointer events.
+  ///
+  /// Note that layers that are visually obscured behind another layer will
+  /// recieve events, if this is enabled.
+  ///
+  /// If this is `false` (defaults to `true`), then `TranslucentPointer` may be
+  /// used on individual layers.
+  final bool applyPointerTranslucencyToLayers;
+
   final InteractionOptions? _interactionOptions;
 
   const MapOptions({
@@ -236,6 +248,7 @@ class MapOptions {
     )
     this.maxBounds,
     this.keepAlive = false,
+    this.applyPointerTranslucencyToLayers = true,
   })  : _interactionOptions = interactionOptions,
         _interactiveFlags = interactiveFlags,
         _debugMultiFingerGestureWinner = debugMultiFingerGestureWinner,

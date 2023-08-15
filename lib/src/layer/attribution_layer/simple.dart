@@ -1,12 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/src/layer/attribution_layer/rich.dart';
+import 'package:flutter_map/src/map/widget.dart';
 
-/// A simple, classic style, attribution widget, to be placed in
-/// [FlutterMap.nonRotatedChildren]
+/// Layer widget intended to attribute a source
+///
+/// Applied to [RichAttributionWidget] & [SimpleAttributionWidget].
+///
+/// Has no effect, other than as a label to group the provided layers together.
+mixin AttributionWidget on Widget {}
+
+/// A simple, classic style, attribution layer
 ///
 /// Displayed as a padded translucent [backgroundColor] box with the following
 /// text: 'flutter_map | © [source]', where [source] is wrapped with [onTap].
+///
+/// This layer is an overlay layer, so [OverlayLayer] should not be used.
+///
+/// See also:
+///
+///  * [RichAttributionWidget], which is dynamic, supports more customization,
+///    and has a more complex appearance.
 @immutable
-class SimpleAttributionWidget extends StatelessWidget {
+class SimpleAttributionWidget extends StatelessWidget
+    with AttributionWidget, OverlayLayerStatelessMixin {
   /// Attribution text, such as 'OpenStreetMap contributors'
   final Text source;
 
@@ -19,11 +35,12 @@ class SimpleAttributionWidget extends StatelessWidget {
   /// Anchor the widget in a position of the map
   final Alignment alignment;
 
-  /// A simple, classic style, attribution widget, to be placed in
-  /// [FlutterMap.nonRotatedChildren]
+  /// A simple, classic style, attribution widget
   ///
   /// Displayed as a padded translucent white box with the following text:
   /// 'flutter_map | © [source]'.
+  ///
+  /// This layer is an overlay layer, so [OverlayLayer] should not be used.
   const SimpleAttributionWidget({
     super.key,
     required this.source,
@@ -33,28 +50,32 @@ class SimpleAttributionWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => Align(
-        alignment: alignment,
-        child: ColoredBox(
-          color: backgroundColor ?? Theme.of(context).colorScheme.background,
-          child: GestureDetector(
-            onTap: onTap,
-            child: Padding(
-              padding: const EdgeInsets.all(3),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text('flutter_map | © '),
-                  MouseRegion(
-                    cursor: onTap == null
-                        ? MouseCursor.defer
-                        : SystemMouseCursors.click,
-                    child: source,
-                  ),
-                ],
-              ),
+  Widget build(BuildContext context) {
+    super.build(context);
+
+    return Align(
+      alignment: alignment,
+      child: ColoredBox(
+        color: backgroundColor ?? Theme.of(context).colorScheme.background,
+        child: GestureDetector(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(3),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('flutter_map | © '),
+                MouseRegion(
+                  cursor: onTap == null
+                      ? MouseCursor.defer
+                      : SystemMouseCursors.click,
+                  child: source,
+                ),
+              ],
             ),
           ),
         ),
-      );
+      ),
+    );
+  }
 }

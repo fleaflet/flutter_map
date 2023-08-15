@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 
-class FlutterMapZoomButtons extends StatelessWidget {
+class FlutterMapZoomButtons extends StatelessWidget
+    with OverlayLayerStatelessMixin {
   final double minZoom;
   final double maxZoom;
   final bool mini;
@@ -33,6 +34,8 @@ class FlutterMapZoomButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     final map = MapCamera.of(context);
     return Align(
       alignment: alignment,

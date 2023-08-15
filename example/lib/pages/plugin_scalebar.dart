@@ -24,22 +24,22 @@ class PluginScaleBar extends StatelessWidget {
                   initialCenter: LatLng(51.5, -0.09),
                   initialZoom: 5,
                 ),
-                nonRotatedChildren: [
-                  ScaleLayerWidget(
-                    options: ScaleLayerPluginOption(
-                      lineColor: Colors.blue,
-                      lineWidth: 2,
-                      textStyle:
-                          const TextStyle(color: Colors.blue, fontSize: 12),
-                      padding: const EdgeInsets.all(10),
-                    ),
-                  ),
-                ],
                 children: [
                   TileLayer(
                     urlTemplate:
                         'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+                  ),
+                  OverlayLayer(
+                    child: ScaleLayerWidget(
+                      options: ScaleLayerPluginOption(
+                        lineColor: Colors.blue,
+                        lineWidth: 2,
+                        textStyle:
+                            const TextStyle(color: Colors.blue, fontSize: 12),
+                        padding: const EdgeInsets.all(10),
+                      ),
+                    ),
                   ),
                 ],
               ),

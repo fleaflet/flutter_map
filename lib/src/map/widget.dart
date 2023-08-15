@@ -1,14 +1,23 @@
+// ignore_for_file: deprecated_member_use_from_same_package
+
 import 'dart:math';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/gestures/flutter_map_interactive_viewer.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
+import 'package:flutter_map/src/layer/attribution_layer/rich.dart';
+import 'package:flutter_map/src/layer/attribution_layer/simple.dart';
+import 'package:flutter_map/src/layer/general/translucent_pointer.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
+import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:flutter_map/src/map/camera/camera_fit.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
 import 'package:flutter_map/src/map/internal_controller.dart';
 import 'package:flutter_map/src/map/map_controller.dart';
 import 'package:flutter_map/src/map/map_controller_impl.dart';
 import 'package:flutter_map/src/map/options.dart';
+
+part '../layer/general/overlay_layer.dart';
 
 /// Renders an interactive geographical map as a widget
 ///
@@ -24,14 +33,52 @@ class FlutterMap extends StatefulWidget {
     super.key,
     required this.options,
     this.children = const [],
+    @Deprecated(
+      'Prefer `children`. '
+      'This property has been removed to simplify the way layers are used. '
+      'This property is deprecated since v6.',
+    )
     this.nonRotatedChildren = const [],
     this.mapController,
   });
 
+  /// Renders a simple geographical map as a widget
+  ///
+  /// Has limited customization options, and lacks the ability to add feature
+  /// layers. Prefer [FlutterMap]'s standard constructor if these are required.
+  ///
+  /// Provide a [RichAttributionWidget] or [SimpleAttributionWidget] to the
+  /// [attribution] argument.
+  ///
+  /// See the online documentation for more information about set-up,
+  /// configuration, and usage.
+  FlutterMap.simple({
+    super.key,
+    required this.options,
+    required String urlTemplate,
+    required String userAgentPackageName,
+    required AttributionWidget attribution,
+  })  : children = [
+          TileLayer(
+            urlTemplate: urlTemplate,
+            userAgentPackageName: userAgentPackageName,
+          ),
+          attribution,
+        ],
+        mapController = null,
+        nonRotatedChildren = [];
+
   /// Layers/widgets to be painted onto the map, in a [Stack]-like fashion
   final List<Widget> children;
 
-  /// Same as [children], except these are unnaffected by map rotation
+  /// Same as [children], except these are overlaid onto the map
+  ///
+  /// See [OverlayLayer] for information.
+  @Deprecated(
+    'Prefer `children`. '
+    'This property has been removed to simplify the way layers are used. '
+    'This property is deprecated since v6.',
+  )
   final List<Widget> nonRotatedChildren;
 
   /// Configure this map
@@ -101,23 +148,13 @@ class FlutterMapStateContainer extends State<FlutterMap> {
             options: options,
             camera: camera,
             child: ClipRect(
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: ColoredBox(color: options.backgroundColor),
-                  ),
-                  OverflowBox(
-                    minWidth: camera.size.x,
-                    maxWidth: camera.size.x,
-                    minHeight: camera.size.y,
-                    maxHeight: camera.size.y,
-                    child: Transform.rotate(
-                      angle: camera.rotationRad,
-                      child: Stack(children: widget.children),
-                    ),
-                  ),
-                  ...widget.nonRotatedChildren,
-                ],
+              child: ColoredBox(
+                color: options.backgroundColor,
+                child: _LayersStack(
+                  camera: camera,
+                  options: options,
+                  children: widget.children..addAll(widget.nonRotatedChildren),
+                ),
               ),
             ),
           ),
@@ -197,4 +234,80 @@ class FlutterMapStateContainer extends State<FlutterMap> {
   bool _parentConstraintsAreSet(
           BuildContext context, BoxConstraints constraints) =>
       constraints.maxWidth != 0 || MediaQuery.sizeOf(context) != Size.zero;
+}
+
+class _LayersStack extends StatefulWidget {
+  const _LayersStack({
+    required this.camera,
+    required this.options,
+    required this.children,
+  });
+
+  final MapCamera camera;
+  final MapOptions options;
+  final List<Widget> children;
+
+  @override
+  State<_LayersStack> createState() => _LayersStackState();
+}
+
+class _LayersStackState extends State<_LayersStack> {
+  List<Widget> children = [];
+
+  Iterable<Widget> _prepareChildren() sync* {
+    final stackChildren = <Widget>[];
+
+    Widget prepareRotateStack() {
+      final box = OverflowBox(
+        minWidth: widget.camera.size.x,
+        maxWidth: widget.camera.size.x,
+        minHeight: widget.camera.size.y,
+        maxHeight: widget.camera.size.y,
+        child: Transform.rotate(
+          angle: widget.camera.rotationRad,
+          child: Stack(children: List.from(stackChildren)),
+        ),
+      );
+      stackChildren.clear();
+      return box;
+    }
+
+    for (final Widget child in widget.children) {
+      if (child is OverlayLayerStatefulMixin ||
+          child is OverlayLayerStatelessMixin) {
+        if (stackChildren.isNotEmpty) yield prepareRotateStack();
+        final overlayChild = _OverlayLayerDetectorAncestor(child: child);
+        yield widget.options.applyPointerTranslucencyToLayers
+            ? TranslucentPointer(child: overlayChild)
+            : overlayChild;
+      } else {
+        stackChildren.add(
+          widget.options.applyPointerTranslucencyToLayers
+              ? TranslucentPointer(child: child)
+              : child,
+        );
+      }
+    }
+    if (stackChildren.isNotEmpty) yield prepareRotateStack();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    children = _prepareChildren().toList();
+  }
+
+  @override
+  void didUpdateWidget(covariant _LayersStack oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.children != oldWidget.children ||
+        widget.camera != oldWidget.camera ||
+        widget.options.applyPointerTranslucencyToLayers !=
+            oldWidget.options.applyPointerTranslucencyToLayers) {
+      children = _prepareChildren().toList();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => Stack(children: children);
 }

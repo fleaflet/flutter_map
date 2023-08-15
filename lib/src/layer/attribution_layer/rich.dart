@@ -26,6 +26,7 @@ enum AttributionAlignment {
   final Alignment real;
 }
 
+/// {@template rich_attribution_widget}
 /// A prebuilt dynamic attribution layer that supports both logos and text
 /// through [SourceAttribution]s
 ///
@@ -50,10 +51,22 @@ enum AttributionAlignment {
 /// property for more information. By default, a simple fade/opacity animation
 /// is provided by [FadeRAWA]. [ScaleRAWA] is also available.
 ///
+/// This layer is an overlay layer, so [OverlayLayer] should not be used.
+///
 /// Read the documentation on the individual properties for more information and
 /// customizability.
+///
+/// See also:
+///
+///  * [SimpleAttributionWidget], which is a simple, classicly styled, text-only
+///    attribution layer
+/// {@endtemplate}
 @immutable
-class RichAttributionWidget extends StatefulWidget {
+class RichAttributionWidget extends StatefulWidget
+    with
+        AttributionWidget,
+        OverlayLayerStatefulMixin<
+            OverlayLayerStateMixin<RichAttributionWidget>> {
   /// List of attributions to display
   ///
   /// [TextSourceAttribution]s are shown in a popup box (toggled by a tap/click
@@ -106,32 +119,7 @@ class RichAttributionWidget extends StatefulWidget {
   /// [LogoSourceAttribution].
   final Duration popupInitialDisplayDuration;
 
-  /// A prebuilt dynamic attribution layer that supports both logos and text
-  /// through [SourceAttribution]s
-  ///
-  /// [TextSourceAttribution]s are shown in a popup box that can be visible or
-  /// invisible. Its state is toggled by a tri-state [openButton]/[closeButton] :
-  ///   1. Not hovered, not opened: faded button, invisible box
-  ///   2. Hovered, not opened: full opacity button, invisible box
-  ///   3. Opened: full opacity button, visible box
-  ///
-  /// The hover state on mobile devices is unspecified, but the behaviour is
-  /// usually inconsequential on mobile devices anyway, due to the fingertip
-  /// covering the entire button.
-  ///
-  /// [LogoSourceAttribution]s are shown adjacent to the open/close button, to
-  /// comply with some stricter tile server requirements (such as Mapbox). These
-  /// are usually supplemented with a [TextSourceAttribution].
-  ///
-  /// The popup box also closes automatically on any interaction with the map.
-  ///
-  /// Animations are built in by default, and configured/handled through
-  /// [RichAttributionWidgetAnimation] - see that class and the [animationConfig]
-  /// property for more information. By default, a simple fade/opacity animation
-  /// is provided by [FadeRAWA]. [ScaleRAWA] is also available.
-  ///
-  /// Read the documentation on the individual properties for more information
-  /// and customizability.
+  /// {@macro rich_attribution_widget}
   const RichAttributionWidget({
     super.key,
     required this.attributions,
@@ -147,10 +135,11 @@ class RichAttributionWidget extends StatefulWidget {
   });
 
   @override
-  State<StatefulWidget> createState() => RichAttributionWidgetState();
+  OverlayLayerStateMixin createState() => _RichAttributionWidgetState();
 }
 
-class RichAttributionWidgetState extends State<RichAttributionWidget> {
+class _RichAttributionWidgetState extends State<RichAttributionWidget>
+    with OverlayLayerStateMixin {
   StreamSubscription<MapEvent>? mapEventSubscription;
 
   final persistentAttributionKey = GlobalKey();
@@ -167,9 +156,7 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
       Future.delayed(
         widget.popupInitialDisplayDuration,
         () {
-          if (mounted) {
-            setState(() => popupExpanded = false);
-          }
+          if (mounted) setState(() => popupExpanded = false);
         },
       );
     }
@@ -199,6 +186,8 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     final persistentAttributionItems = [
       ...List<Widget>.from(
         widget.attributions.whereType<LogoSourceAttribution>(),
