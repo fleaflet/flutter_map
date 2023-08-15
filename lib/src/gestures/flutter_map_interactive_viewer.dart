@@ -9,7 +9,7 @@ import 'package:flutter_map/src/gestures/latlng_tween.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
-import 'package:flutter_map/src/map/internal_controller.dart';
+import 'package:flutter_map/src/map/controller/internal.dart';
 import 'package:flutter_map/src/map/options.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:flutter_map/src/misc/private/positioned_tap_detector_2.dart';

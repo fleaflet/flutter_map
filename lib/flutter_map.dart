@@ -30,7 +30,7 @@ export 'package:flutter_map/src/layer/tile_layer/tile_update_transformer.dart';
 export 'package:flutter_map/src/map/camera/camera.dart';
 export 'package:flutter_map/src/map/camera/camera_constraint.dart';
 export 'package:flutter_map/src/map/camera/camera_fit.dart';
-export 'package:flutter_map/src/map/map_controller.dart';
+export 'package:flutter_map/src/map/controller/map_controller.dart';
 export 'package:flutter_map/src/map/options.dart';
 export 'package:flutter_map/src/map/widget.dart';
 export 'package:flutter_map/src/misc/center_zoom.dart';

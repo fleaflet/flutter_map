@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map/src/gestures/flutter_map_interactive_viewer.dart';
-import 'package:flutter_map/src/map/map_controller_impl.dart';
+import 'package:flutter_map/src/map/controller/impl.dart';
 import 'package:latlong2/latlong.dart';
 
 /// This controller is for internal use. All updates to the state should be done

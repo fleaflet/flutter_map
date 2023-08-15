@@ -11,87 +11,118 @@ import 'package:flutter_map/src/layer/general/translucent_pointer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:flutter_map/src/map/camera/camera_fit.dart';
+import 'package:flutter_map/src/map/controller/impl.dart';
+import 'package:flutter_map/src/map/controller/internal.dart';
+import 'package:flutter_map/src/map/controller/map_controller.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
-import 'package:flutter_map/src/map/internal_controller.dart';
-import 'package:flutter_map/src/map/map_controller.dart';
-import 'package:flutter_map/src/map/map_controller_impl.dart';
 import 'package:flutter_map/src/map/options.dart';
 
 part '../layer/general/overlay_layer.dart';
+part 'layers_stack.dart';
 
-/// Renders an interactive geographical map as a widget
+/// An interactive geographical map
 ///
 /// See the online documentation for more information about set-up,
 /// configuration, and usage.
 @immutable
 class FlutterMap extends StatefulWidget {
-  /// Renders an interactive geographical map as a widget
+  /// Creates an interactive geographical map
   ///
   /// See the online documentation for more information about set-up,
   /// configuration, and usage.
   const FlutterMap({
     super.key,
+    this.mapController,
     required this.options,
-    this.children = const [],
+    required this.children,
     @Deprecated(
       'Prefer `children`. '
       'This property has been removed to simplify the way layers are used. '
       'This property is deprecated since v6.',
     )
     this.nonRotatedChildren = const [],
-    this.mapController,
   });
 
-  /// Renders a simple geographical map as a widget
+  /// Creates an interactive geographical map
   ///
-  /// Has limited customization options, and lacks the ability to add feature
-  /// layers. Prefer [FlutterMap]'s standard constructor if these are required.
-  ///
-  /// Provide a [RichAttributionWidget] or [SimpleAttributionWidget] to the
-  /// [attribution] argument.
+  /// This constructor is a shortcut intended for only the most simple of maps.
+  /// It does not support customization of the underlying [TileLayer], and lacks
+  /// the ability to add feature layers (except for an attribution layer) or
+  /// attach a [MapController]. Use the standard constructor if these are
+  /// required.
   ///
   /// See the online documentation for more information about set-up,
   /// configuration, and usage.
+  ///
+  /// ---
+  ///
+  /// Provide a standard slippy map URL template to the [urlTemplate] argument,
+  /// with `{x}`, `{y}`, and `{z}` placeholders. Subdomain support is not
+  /// supported through this simple constructor.
+  ///
+  /// Provide the application's correct package name, such as 'com.example.app',
+  /// to the [userAgentPackageName] argument, to allow the tile server to
+  /// identify your application. For more information, see
+  /// [TileLayer.tileProvider]'s documentation.
+  ///
+  /// It is recommended to provide a [RichAttributionWidget] or
+  /// [SimpleAttributionWidget] to the [attribution] argument. For more
+  /// information, see their documentation.
   FlutterMap.simple({
     super.key,
     required this.options,
     required String urlTemplate,
     required String userAgentPackageName,
-    required AttributionWidget attribution,
+    AttributionWidget? attribution,
   })  : children = [
           TileLayer(
             urlTemplate: urlTemplate,
             userAgentPackageName: userAgentPackageName,
           ),
-          attribution,
+          if (attribution != null) attribution,
         ],
         mapController = null,
         nonRotatedChildren = [];
 
-  /// Layers/widgets to be painted onto the map, in a [Stack]-like fashion
+  /// Layer widgets to be placed onto the map in a [Stack]-like fashion
+  ///
+  /// See the online documentation for more information.
   final List<Widget> children;
 
-  /// Same as [children], except these are overlaid onto the map
+  /// This member has been deprecated as of v6. Use [children] instead, using
+  /// [OverlayLayer]s where necessary. This will simplify the way layers are
+  /// inserted into the map, and allow for greater flexibility of layer
+  /// positioning.
+  ///
+  /// ---
+  ///
+  /// Same as [children], except these are overlaid onto the map in an anchored
+  /// position
   ///
   /// See [OverlayLayer] for information.
   @Deprecated(
     'Prefer `children`. '
-    'This property has been removed to simplify the way layers are used. '
+    'This property has been removed to simplify the way layers are inserted '
+    'into the map, and allow for greater flexibility of layer positioning. '
     'This property is deprecated since v6.',
   )
   final List<Widget> nonRotatedChildren;
 
-  /// Configure this map
+  /// Configure this map's permanent rules and initial state
+  ///
+  /// See the online documentation for more information.
   final MapOptions options;
 
   /// Programmatically interact with this map
+  ///
+  /// See the online documentation for more information.
   final MapController? mapController;
 
   @override
-  State<FlutterMap> createState() => FlutterMapStateContainer();
+  State<FlutterMap> createState() => _FlutterMapStateContainer();
 }
 
-class FlutterMapStateContainer extends State<FlutterMap> {
+class _FlutterMapStateContainer extends State<FlutterMap> {
   bool _initialCameraFitApplied = false;
 
   late final FlutterMapInternalController _flutterMapInternalController;
@@ -234,80 +265,4 @@ class FlutterMapStateContainer extends State<FlutterMap> {
   bool _parentConstraintsAreSet(
           BuildContext context, BoxConstraints constraints) =>
       constraints.maxWidth != 0 || MediaQuery.sizeOf(context) != Size.zero;
-}
-
-class _LayersStack extends StatefulWidget {
-  const _LayersStack({
-    required this.camera,
-    required this.options,
-    required this.children,
-  });
-
-  final MapCamera camera;
-  final MapOptions options;
-  final List<Widget> children;
-
-  @override
-  State<_LayersStack> createState() => _LayersStackState();
-}
-
-class _LayersStackState extends State<_LayersStack> {
-  List<Widget> children = [];
-
-  Iterable<Widget> _prepareChildren() sync* {
-    final stackChildren = <Widget>[];
-
-    Widget prepareRotateStack() {
-      final box = OverflowBox(
-        minWidth: widget.camera.size.x,
-        maxWidth: widget.camera.size.x,
-        minHeight: widget.camera.size.y,
-        maxHeight: widget.camera.size.y,
-        child: Transform.rotate(
-          angle: widget.camera.rotationRad,
-          child: Stack(children: List.from(stackChildren)),
-        ),
-      );
-      stackChildren.clear();
-      return box;
-    }
-
-    for (final Widget child in widget.children) {
-      if (child is OverlayLayerStatefulMixin ||
-          child is OverlayLayerStatelessMixin) {
-        if (stackChildren.isNotEmpty) yield prepareRotateStack();
-        final overlayChild = _OverlayLayerDetectorAncestor(child: child);
-        yield widget.options.applyPointerTranslucencyToLayers
-            ? TranslucentPointer(child: overlayChild)
-            : overlayChild;
-      } else {
-        stackChildren.add(
-          widget.options.applyPointerTranslucencyToLayers
-              ? TranslucentPointer(child: child)
-              : child,
-        );
-      }
-    }
-    if (stackChildren.isNotEmpty) yield prepareRotateStack();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    children = _prepareChildren().toList();
-  }
-
-  @override
-  void didUpdateWidget(covariant _LayersStack oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.children != oldWidget.children ||
-        widget.camera != oldWidget.camera ||
-        widget.options.applyPointerTranslucencyToLayers !=
-            oldWidget.options.applyPointerTranslucencyToLayers) {
-      children = _prepareChildren().toList();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) => Stack(children: children);
 }
