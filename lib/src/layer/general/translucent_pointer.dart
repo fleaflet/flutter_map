@@ -82,8 +82,10 @@ class RenderTranslucentPointer extends RenderProxyBox {
   }
 
   @override
-  bool hitTest(BoxHitTestResult result, {required Offset position}) =>
-      !translucent && super.hitTest(result, position: position);
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    final hit = super.hitTest(result, position: position);
+    return !translucent && hit;
+  }
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
