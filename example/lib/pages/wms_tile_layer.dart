@@ -28,6 +28,25 @@ class WMSLayerPage extends StatelessWidget {
                   initialCenter: LatLng(42.58, 12.43),
                   initialZoom: 6,
                 ),
+                overlaidAnchoredChildren: [
+                  RichAttributionWidget(
+                    popupInitialDisplayDuration: const Duration(seconds: 5),
+                    attributions: [
+                      TextSourceAttribution(
+                        'Sentinel-2 cloudless - https://s2maps.eu by EOX IT Services GmbH',
+                        onTap: () => launchUrl(Uri.parse('https://s2maps.eu')),
+                      ),
+                      const TextSourceAttribution(
+                        'Modified Copernicus Sentinel data 2021',
+                      ),
+                      TextSourceAttribution(
+                        'Rendering: EOX::Maps',
+                        onTap: () =>
+                            launchUrl(Uri.parse('https://maps.eox.at/')),
+                      ),
+                    ],
+                  ),
+                ],
                 children: [
                   TileLayer(
                     wmsOptions: WMSTileLayerOptions(
@@ -36,26 +55,6 @@ class WMSLayerPage extends StatelessWidget {
                     ),
                     subdomains: const ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  ),
-                  RichAttributionWidget(
-                    popupInitialDisplayDuration: const Duration(seconds: 5),
-                    attributions: [
-                      TextSourceAttribution(
-                        'Sentinel-2 cloudless - https://s2maps.eu by EOX IT Services GmbH',
-                        onTap: () => launchUrl(
-                          Uri.parse('https://s2maps.eu '),
-                        ),
-                      ),
-                      const TextSourceAttribution(
-                        'Modified Copernicus Sentinel data 2021',
-                      ),
-                      TextSourceAttribution(
-                        'Rendering: EOX::Maps',
-                        onTap: () => launchUrl(
-                          Uri.parse('https://maps.eox.at/'),
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),

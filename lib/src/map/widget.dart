@@ -83,9 +83,13 @@ class FlutterMap extends StatefulWidget {
   /// These may be any widgets, be that prebuilt layers, [AnchoredLayer]s, or
   /// custom widgets.
   ///
-  /// See the online documentation for more information.
-  ///
   /// ---
+  ///
+  /// Note that using [AnchoredLayer]s at the end of this list is equivalent to
+  /// using them in [overlaidAnchoredChildren] instead.
+  ///
+  /// When inserting [AnchoredLayer]s inbetween children (ie. not at the end),
+  /// there is likely to be a very small performance penalty.
   ///
   /// {@macro anchored_layer_warning}
   final List<Widget> children;
@@ -100,7 +104,7 @@ class FlutterMap extends StatefulWidget {
   /// specification. To use an [AnchoredLayer] in a non-overlaid position
   /// instead, insert it directly into [children].
   ///
-  /// See [AnchoredLayer] and online documentation for more information.
+  /// See [AnchoredLayer] for more information.
   ///
   /// Not to be confused with [OverlayImageLayer].
   ///

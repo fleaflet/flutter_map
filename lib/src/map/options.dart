@@ -6,9 +6,11 @@ import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/gestures/interactive_flag.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
+import 'package:flutter_map/src/layer/general/translucent_pointer.dart';
 import 'package:flutter_map/src/map/camera/camera_constraint.dart';
 import 'package:flutter_map/src/map/camera/camera_fit.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
+import 'package:flutter_map/src/map/widget.dart';
 import 'package:flutter_map/src/misc/fit_bounds_options.dart';
 import 'package:flutter_map/src/misc/position.dart';
 import 'package:flutter_map/src/misc/private/positioned_tap_detector_2.dart';
@@ -118,8 +120,10 @@ class MapOptions {
   /// Note that layers that are visually obscured behind another layer will
   /// recieve events, if this is enabled.
   ///
-  /// If this is `false` (defaults to `true`), then `TranslucentPointer` may be
-  /// used on individual layers.
+  /// Also note that this applies to (overlaid) [AnchoredLayer]s as well.
+  ///
+  /// If this is `false` (defaults to `true`), then [TranslucentPointer] may be
+  /// applied to individual layers.
   final bool applyPointerTranslucencyToLayers;
 
   final InteractionOptions? _interactionOptions;

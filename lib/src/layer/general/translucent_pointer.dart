@@ -1,44 +1,11 @@
 // Migrated from https://github.com/spkersten/flutter_transparent_pointer, with
-// some changes
+// some API & documentation changes
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
-/// This widget is invisible for its parent during hit testing, but still
-/// allows its subtree to receive pointer events.
-///
-///
-/// In this example, a drag can be started anywhere in the widget, including on
-/// top of the text button, even though the button is visually in front of the
-/// background gesture detector. At the same time, the button is tappable.
-///
-/// ```dart
-/// class MyWidget extends StatelessWidget {
-///   @override
-///   Widget build(BuildContext context) {
-///     return Stack(
-///       children: [
-///         GestureDetector(
-///           behavior: HitTestBehavior.opaque,
-///           onVerticalDragStart: (_) => print("Background drag started"),
-///         ),
-///         Positioned(
-///           top: 60,
-///           left: 60,
-///           height: 60,
-///           width: 60,
-///           child: TransparentPointer(
-///             child: TextButton(
-///               child: Text("Tap me"),
-///               onPressed: () => print("You tapped me"),
-///             ),
-///           ),
-///         ),
-///       ],
-///     );
-///   }
-/// }
-/// ```
+/// A widget that is invisible for its parent during hit testing, but still
+/// allows its subtree to receive pointer events
 ///
 /// See also:
 ///
@@ -48,7 +15,7 @@ import 'package:flutter/widgets.dart';
 ///    subtree from receiving pointer event. The opposite of this widget.
 class TranslucentPointer extends SingleChildRenderObjectWidget {
   /// Creates a widget that is invisible for its parent during hit testing, but
-  /// still allows its subtree to receive pointer events.
+  /// still allows its subtree to receive pointer events
   const TranslucentPointer({
     super.key,
     this.translucent = true,
@@ -95,9 +62,7 @@ class TranslucentPointer extends SingleChildRenderObjectWidget {
 ///  * [RenderAbsorbPointer], which takes the pointer events but prevents any
 ///    nodes in the subtree from seeing them.
 class RenderTranslucentPointer extends RenderProxyBox {
-  /// Creates a render object that is invisible to its parent during hit testing.
-  ///
-  /// The [translucent] argument must not be null.
+  /// Creates a render object that is invisible to its parent during hit testing
   RenderTranslucentPointer({
     RenderBox? child,
     bool translucent = true,
@@ -117,10 +82,8 @@ class RenderTranslucentPointer extends RenderProxyBox {
   }
 
   @override
-  bool hitTest(BoxHitTestResult result, {required Offset position}) {
-    final hit = super.hitTest(result, position: position);
-    return !translucent && hit;
-  }
+  bool hitTest(BoxHitTestResult result, {required Offset position}) =>
+      !translucent && super.hitTest(result, position: position);
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
