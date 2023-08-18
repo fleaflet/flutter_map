@@ -31,7 +31,7 @@ class PluginScaleBar extends StatelessWidget {
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   ),
                   // This usage is only for demonstration, prefer a mixin
-                  AnchoredLayerTransformer(
+                  AnchoredLayer(
                     child: ScaleLayerWidget(
                       options: ScaleLayerPluginOption(
                         lineColor: Colors.blue,

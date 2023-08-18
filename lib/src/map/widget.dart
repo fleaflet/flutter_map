@@ -97,8 +97,8 @@ class FlutterMap extends StatefulWidget {
   /// Same as [children], except these are [AnchoredLayer]s only
   ///
   /// These may be any widgets, be that prebuilt layers or custom widgets, but
-  /// they must also be [AnchoredLayer]s by way of mixin or being wrapped in
-  /// [AnchoredLayerTransformer].
+  /// they must also be [AnchoredLayer]s by way of mixin or being wrapped in an
+  /// [AnchoredLayer].
   ///
   /// These are overlaid above all normal [children] layers in the order of
   /// specification. To use an [AnchoredLayer] in a non-overlaid position
