@@ -68,7 +68,7 @@ sealed class AnchoredLayer extends Widget {
 class _AnchoredLayerDetectorAncestor extends StatelessWidget {
   const _AnchoredLayerDetectorAncestor({required this.child});
 
-  final Widget child;
+  final AnchoredLayer child;
 
   @override
   Widget build(BuildContext context) => child;
