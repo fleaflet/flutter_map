@@ -1,5 +1,7 @@
 part of 'widget.dart';
 
+/// Batches all 'normal' layers into as few Stacks as possible whilst not moving
+/// any 'anchored' layers, and applies necessary transformations to the Stacks
 class _LayersStack extends StatefulWidget {
   const _LayersStack({
     required this.camera,
@@ -16,8 +18,6 @@ class _LayersStack extends StatefulWidget {
 }
 
 class _LayersStackState extends State<_LayersStack> {
-  List<Widget> children = [];
-
   Iterable<Widget> _prepareChildren() sync* {
     final stackChildren = <Widget>[];
 
@@ -37,28 +37,30 @@ class _LayersStackState extends State<_LayersStack> {
     }
 
     for (final Widget child in widget.children) {
-      if (child is AnchoredLayerStatefulMixin ||
-          child is AnchoredLayerStatelessMixin) {
-        if (stackChildren.isNotEmpty) yield prepareRotateStack();
-        final overlayChild = _AnchoredLayerDetectorAncestor(child: child);
-        yield widget.options.applyPointerTranslucencyToLayers
-            ? TranslucentPointer(child: overlayChild)
-            : overlayChild;
-      } else {
+      if (child is! AnchoredLayer) {
         stackChildren.add(
           widget.options.applyPointerTranslucencyToLayers
               ? TranslucentPointer(child: child)
               : child,
         );
+        continue;
       }
+
+      if (stackChildren.isNotEmpty) yield prepareRotateStack();
+      final overlayChild = _AnchoredLayerDetectorAncestor(child: child);
+      yield widget.options.applyPointerTranslucencyToLayers
+          ? TranslucentPointer(child: overlayChild)
+          : overlayChild;
     }
     if (stackChildren.isNotEmpty) yield prepareRotateStack();
   }
 
+  List<Widget> _outputChildren = [];
+
   @override
   void initState() {
     super.initState();
-    children = _prepareChildren().toList();
+    _outputChildren = _prepareChildren().toList();
   }
 
   @override
@@ -68,10 +70,10 @@ class _LayersStackState extends State<_LayersStack> {
         widget.camera != oldWidget.camera ||
         widget.options.applyPointerTranslucencyToLayers !=
             oldWidget.options.applyPointerTranslucencyToLayers) {
-      children = _prepareChildren().toList();
+      _outputChildren = _prepareChildren().toList();
     }
   }
 
   @override
-  Widget build(BuildContext context) => Stack(children: children);
+  Widget build(BuildContext context) => Stack(children: _outputChildren);
 }
