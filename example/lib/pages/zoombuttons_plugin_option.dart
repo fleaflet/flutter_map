@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 
 class FlutterMapZoomButtons extends StatelessWidget
-    with OverlayLayerStatelessMixin {
+    with AnchoredLayerStatelessMixin {
   final double minZoom;
   final double maxZoom;
   final bool mini;

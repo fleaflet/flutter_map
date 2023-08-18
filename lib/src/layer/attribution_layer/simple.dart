@@ -14,7 +14,8 @@ mixin AttributionWidget on Widget {}
 /// Displayed as a padded translucent [backgroundColor] box with the following
 /// text: 'flutter_map | © [source]', where [source] is wrapped with [onTap].
 ///
-/// This layer is an overlay layer, so [OverlayLayer] should not be used.
+/// This layer is an anchored layer, so an additional [AnchoredLayer] should not
+/// be used.
 ///
 /// See also:
 ///
@@ -22,7 +23,7 @@ mixin AttributionWidget on Widget {}
 ///    and has a more complex appearance.
 @immutable
 class SimpleAttributionWidget extends StatelessWidget
-    with AttributionWidget, OverlayLayerStatelessMixin {
+    with AttributionWidget, AnchoredLayerStatelessMixin {
   /// Attribution text, such as 'OpenStreetMap contributors'
   final Text source;
 
@@ -40,7 +41,8 @@ class SimpleAttributionWidget extends StatelessWidget
   /// Displayed as a padded translucent white box with the following text:
   /// 'flutter_map | © [source]'.
   ///
-  /// This layer is an overlay layer, so [OverlayLayer] should not be used.
+  /// This layer is an anchored layer, so an additional [AnchoredLayer] should
+  /// not be used.
   const SimpleAttributionWidget({
     super.key,
     required this.source,

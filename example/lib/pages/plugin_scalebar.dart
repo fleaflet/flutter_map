@@ -30,7 +30,8 @@ class PluginScaleBar extends StatelessWidget {
                         'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   ),
-                  OverlayLayer(
+                  // This usage is only for demonstration, prefer a mixin
+                  AnchoredLayerTransformer(
                     child: ScaleLayerWidget(
                       options: ScaleLayerPluginOption(
                         lineColor: Colors.blue,

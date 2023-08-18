@@ -37,10 +37,10 @@ class _LayersStackState extends State<_LayersStack> {
     }
 
     for (final Widget child in widget.children) {
-      if (child is OverlayLayerStatefulMixin ||
-          child is OverlayLayerStatelessMixin) {
+      if (child is AnchoredLayerStatefulMixin ||
+          child is AnchoredLayerStatelessMixin) {
         if (stackChildren.isNotEmpty) yield prepareRotateStack();
-        final overlayChild = _OverlayLayerDetectorAncestor(child: child);
+        final overlayChild = _AnchoredLayerDetectorAncestor(child: child);
         yield widget.options.applyPointerTranslucencyToLayers
             ? TranslucentPointer(child: overlayChild)
             : overlayChild;

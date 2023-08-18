@@ -51,7 +51,8 @@ enum AttributionAlignment {
 /// property for more information. By default, a simple fade/opacity animation
 /// is provided by [FadeRAWA]. [ScaleRAWA] is also available.
 ///
-/// This layer is an overlay layer, so [OverlayLayer] should not be used.
+/// This layer is an anchored layer, so an additional [AnchoredLayer] should not
+/// be used.
 ///
 /// Read the documentation on the individual properties for more information and
 /// customizability.
@@ -65,8 +66,8 @@ enum AttributionAlignment {
 class RichAttributionWidget extends StatefulWidget
     with
         AttributionWidget,
-        OverlayLayerStatefulMixin<
-            OverlayLayerStateMixin<RichAttributionWidget>> {
+        AnchoredLayerStatefulMixin<
+            AnchoredLayerStateMixin<RichAttributionWidget>> {
   /// List of attributions to display
   ///
   /// [TextSourceAttribution]s are shown in a popup box (toggled by a tap/click
@@ -135,11 +136,11 @@ class RichAttributionWidget extends StatefulWidget
   });
 
   @override
-  OverlayLayerStateMixin createState() => _RichAttributionWidgetState();
+  AnchoredLayerStateMixin createState() => _RichAttributionWidgetState();
 }
 
 class _RichAttributionWidgetState extends State<RichAttributionWidget>
-    with OverlayLayerStateMixin {
+    with AnchoredLayerStateMixin {
   StreamSubscription<MapEvent>? mapEventSubscription;
 
   final persistentAttributionKey = GlobalKey();

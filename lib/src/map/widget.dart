@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use_from_same_package
-
 import 'dart:math';
 
 import 'package:flutter/widgets.dart';
@@ -8,6 +6,7 @@ import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/layer/attribution_layer/rich.dart';
 import 'package:flutter_map/src/layer/attribution_layer/simple.dart';
 import 'package:flutter_map/src/layer/general/translucent_pointer.dart';
+import 'package:flutter_map/src/layer/overlay_image_layer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:flutter_map/src/map/camera/camera_fit.dart';
@@ -17,7 +16,7 @@ import 'package:flutter_map/src/map/controller/map_controller.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
 import 'package:flutter_map/src/map/options.dart';
 
-part '../layer/general/overlay_layer.dart';
+part '../layer/general/anchored_layer.dart';
 part 'layers_stack.dart';
 
 /// An interactive geographical map
@@ -28,19 +27,14 @@ part 'layers_stack.dart';
 class FlutterMap extends StatefulWidget {
   /// Creates an interactive geographical map
   ///
-  /// See the online documentation for more information about set-up,
-  /// configuration, and usage.
+  /// See the properties and online documentation for more information about
+  /// set-up, configuration, and usage.
   const FlutterMap({
     super.key,
     this.mapController,
     required this.options,
     required this.children,
-    @Deprecated(
-      'Prefer `children`. '
-      'This property has been removed to simplify the way layers are used. '
-      'This property is deprecated since v6.',
-    )
-    this.nonRotatedChildren = const [],
+    this.overlaidAnchoredChildren = const [],
   });
 
   /// Creates an interactive geographical map
@@ -51,8 +45,8 @@ class FlutterMap extends StatefulWidget {
   /// attach a [MapController]. Use the standard constructor if these are
   /// required.
   ///
-  /// See the online documentation for more information about set-up,
-  /// configuration, and usage.
+  /// See the properties and online documentation for more information about
+  /// set-up, configuration, and usage.
   ///
   /// ---
   ///
@@ -82,31 +76,38 @@ class FlutterMap extends StatefulWidget {
           if (attribution != null) attribution,
         ],
         mapController = null,
-        nonRotatedChildren = [];
+        overlaidAnchoredChildren = [];
 
   /// Layer widgets to be placed onto the map in a [Stack]-like fashion
   ///
+  /// These may be any widgets, be that prebuilt layers, [AnchoredLayer]s, or
+  /// custom widgets.
+  ///
   /// See the online documentation for more information.
-  final List<Widget> children;
-
-  /// This member has been deprecated as of v6. Use [children] instead, using
-  /// [OverlayLayer]s where necessary. This will simplify the way layers are
-  /// inserted into the map, and allow for greater flexibility of layer
-  /// positioning.
   ///
   /// ---
   ///
-  /// Same as [children], except these are overlaid onto the map in an anchored
-  /// position
+  /// {@macro anchored_layer_warning}
+  final List<Widget> children;
+
+  /// Same as [children], except these are [AnchoredLayer]s only
   ///
-  /// See [OverlayLayer] for information.
-  @Deprecated(
-    'Prefer `children`. '
-    'This property has been removed to simplify the way layers are inserted '
-    'into the map, and allow for greater flexibility of layer positioning. '
-    'This property is deprecated since v6.',
-  )
-  final List<Widget> nonRotatedChildren;
+  /// These may be any widgets, be that prebuilt layers or custom widgets, but
+  /// they must also be [AnchoredLayer]s by way of mixin or being wrapped in
+  /// [AnchoredLayerTransformer].
+  ///
+  /// These are overlaid above all normal [children] layers in the order of
+  /// specification. To use an [AnchoredLayer] in a non-overlaid position
+  /// instead, insert it directly into [children].
+  ///
+  /// See [AnchoredLayer] and online documentation for more information.
+  ///
+  /// Not to be confused with [OverlayImageLayer].
+  ///
+  /// ---
+  ///
+  /// {@macro anchored_layer_warning}
+  final List<AnchoredLayer> overlaidAnchoredChildren;
 
   /// Configure this map's permanent rules and initial state
   ///
@@ -184,7 +185,8 @@ class _FlutterMapStateContainer extends State<FlutterMap> {
                 child: _LayersStack(
                   camera: camera,
                   options: options,
-                  children: widget.children..addAll(widget.nonRotatedChildren),
+                  children: widget.children
+                    ..addAll(widget.overlaidAnchoredChildren),
                 ),
               ),
             ),
