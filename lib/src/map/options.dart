@@ -334,7 +334,10 @@ class MapOptions {
       onMapReady == other.onMapReady &&
       maxBounds == other.maxBounds &&
       keepAlive == other.keepAlive &&
-      interactionOptions == other.interactionOptions;
+      interactionOptions == other.interactionOptions &&
+      backgroundColor == other.backgroundColor &&
+      applyPointerTranslucencyToLayers ==
+          other.applyPointerTranslucencyToLayers;
 
   @override
   int get hashCode => Object.hashAll([
@@ -361,6 +364,8 @@ class MapOptions {
         keepAlive,
         maxBounds,
         interactionOptions,
+        backgroundColor,
+        applyPointerTranslucencyToLayers,
       ]);
 }
 

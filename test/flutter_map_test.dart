@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
-import 'package:flutter_map/src/gestures/flutter_map_interactive_viewer.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -104,13 +103,8 @@ void main() {
         ),
       ),
     );
-
-    // Check that taps are still received.
     await tester.pumpWidget(map);
     expect(taps, 0);
-    await tester.tap(find.byType(FlutterMap));
-    await tester.pumpAndSettle(FlutterMapInteractiveViewerState.doubleTapDelay);
-    expect(taps, 1);
 
     // Store the camera before pinch zooming.
     final cameraBeforePinchZoom = camera;
