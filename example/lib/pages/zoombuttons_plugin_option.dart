@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 
-class FlutterMapZoomButtons extends StatelessWidget
-    with AnchoredLayerStatelessMixin {
+class FlutterMapZoomButtons extends StatelessWidget {
   final double minZoom;
   final double maxZoom;
   final bool mini;
@@ -34,9 +33,8 @@ class FlutterMapZoomButtons extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
+    final camera = MapCamera.of(context);
 
-    final map = MapCamera.of(context);
     return Align(
       alignment: alignment,
       child: Column(
@@ -51,9 +49,9 @@ class FlutterMapZoomButtons extends StatelessWidget
               backgroundColor: zoomInColor ?? Theme.of(context).primaryColor,
               onPressed: () {
                 final paddedMapCamera = CameraFit.bounds(
-                  bounds: map.visibleBounds,
+                  bounds: camera.visibleBounds,
                   padding: _fitBoundsPadding,
-                ).fit(map);
+                ).fit(camera);
                 var zoom = paddedMapCamera.zoom + 1;
                 if (zoom > maxZoom) {
                   zoom = maxZoom;
@@ -72,9 +70,9 @@ class FlutterMapZoomButtons extends StatelessWidget
               backgroundColor: zoomOutColor ?? Theme.of(context).primaryColor,
               onPressed: () {
                 final paddedMapCamera = CameraFit.bounds(
-                  bounds: map.visibleBounds,
+                  bounds: camera.visibleBounds,
                   padding: _fitBoundsPadding,
-                ).fit(map);
+                ).fit(camera);
                 var zoom = paddedMapCamera.zoom - 1;
                 if (zoom < minZoom) {
                   zoom = minZoom;

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/widgets.dart';
+import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:flutter_map/src/misc/private/bounds.dart';
@@ -181,7 +182,7 @@ class MarkerLayer extends StatelessWidget {
 
   const MarkerLayer({
     super.key,
-    this.markers = const [],
+    required this.markers,
     this.anchorPos,
     this.rotate = false,
     this.rotateOrigin,
@@ -238,6 +239,7 @@ class MarkerLayer extends StatelessWidget {
         ),
       );
     }
-    return Stack(children: markerWidgets);
+
+    return MobileLayerTransformer(child: Stack(children: markerWidgets));
   }
 }

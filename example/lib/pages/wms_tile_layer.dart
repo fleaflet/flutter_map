@@ -28,7 +28,15 @@ class WMSLayerPage extends StatelessWidget {
                   initialCenter: LatLng(42.58, 12.43),
                   initialZoom: 6,
                 ),
-                overlaidAnchoredChildren: [
+                children: [
+                  TileLayer(
+                    wmsOptions: WMSTileLayerOptions(
+                      baseUrl: 'https://{s}.s2maps-tiles.eu/wms/?',
+                      layers: const ['s2cloudless-2021_3857'],
+                    ),
+                    subdomains: const ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'],
+                    userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+                  ),
                   RichAttributionWidget(
                     popupInitialDisplayDuration: const Duration(seconds: 5),
                     attributions: [
@@ -45,16 +53,6 @@ class WMSLayerPage extends StatelessWidget {
                             launchUrl(Uri.parse('https://maps.eox.at/')),
                       ),
                     ],
-                  ),
-                ],
-                children: [
-                  TileLayer(
-                    wmsOptions: WMSTileLayerOptions(
-                      baseUrl: 'https://{s}.s2maps-tiles.eu/wms/?',
-                      layers: const ['s2cloudless-2021_3857'],
-                    ),
-                    subdomains: const ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'],
-                    userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   ),
                 ],
               ),

@@ -14,7 +14,6 @@ part of 'shared.dart';
 ///    and has a more complex appearance.
 @immutable
 class SimpleAttributionWidget extends StatelessWidget
-    with AnchoredLayerStatelessMixin
     implements AttributionWidget {
   /// Attribution text, such as 'OpenStreetMap contributors'
   final Text source;
@@ -44,32 +43,28 @@ class SimpleAttributionWidget extends StatelessWidget
   });
 
   @override
-  Widget build(BuildContext context) {
-    super.build(context);
-
-    return Align(
-      alignment: alignment,
-      child: ColoredBox(
-        color: backgroundColor ?? Theme.of(context).colorScheme.background,
-        child: GestureDetector(
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(3),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text('flutter_map | © '),
-                MouseRegion(
-                  cursor: onTap == null
-                      ? MouseCursor.defer
-                      : SystemMouseCursors.click,
-                  child: source,
-                ),
-              ],
+  Widget build(BuildContext context) => Align(
+        alignment: alignment,
+        child: ColoredBox(
+          color: backgroundColor ?? Theme.of(context).colorScheme.background,
+          child: GestureDetector(
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.all(3),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('flutter_map | © '),
+                  MouseRegion(
+                    cursor: onTap == null
+                        ? MouseCursor.defer
+                        : SystemMouseCursors.click,
+                    child: source,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-    );
-  }
+      );
 }

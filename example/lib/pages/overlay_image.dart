@@ -8,30 +8,28 @@ class OverlayImagePage extends StatelessWidget {
 
   const OverlayImagePage({Key? key}) : super(key: key);
 
+  static final _overlayImages = [
+    OverlayImage(
+      bounds: LatLngBounds(
+        const LatLng(51.5, -0.09),
+        const LatLng(48.8566, 2.3522),
+      ),
+      opacity: 0.8,
+      imageProvider: const NetworkImage(
+          'https://images.pexels.com/photos/231009/pexels-photo-231009.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=300&w=600'),
+    ),
+    const RotatedOverlayImage(
+      topLeftCorner: LatLng(53.377, -2.999),
+      bottomLeftCorner: LatLng(52.503, -1.868),
+      bottomRightCorner: LatLng(53.475, 0.275),
+      opacity: 0.8,
+      imageProvider: NetworkImage(
+          'https://images.pexels.com/photos/231009/pexels-photo-231009.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=300&w=600'),
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
-    const topLeftCorner = LatLng(53.377, -2.999);
-    const bottomRightCorner = LatLng(53.475, 0.275);
-    const bottomLeftCorner = LatLng(52.503, -1.868);
-
-    final overlayImages = <BaseOverlayImage>[
-      OverlayImage(
-          bounds: LatLngBounds(
-            const LatLng(51.5, -0.09),
-            const LatLng(48.8566, 2.3522),
-          ),
-          opacity: 0.8,
-          imageProvider: const NetworkImage(
-              'https://images.pexels.com/photos/231009/pexels-photo-231009.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=300&w=600')),
-      RotatedOverlayImage(
-          topLeftCorner: topLeftCorner,
-          bottomLeftCorner: bottomLeftCorner,
-          bottomRightCorner: bottomRightCorner,
-          opacity: 0.8,
-          imageProvider: const NetworkImage(
-              'https://images.pexels.com/photos/231009/pexels-photo-231009.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=300&w=600')),
-    ];
-
     return Scaffold(
       appBar: AppBar(title: const Text('Overlay Image')),
       drawer: buildDrawer(context, route),
@@ -55,21 +53,26 @@ class OverlayImagePage extends StatelessWidget {
                         'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   ),
-                  OverlayImageLayer(overlayImages: overlayImages),
-                  MarkerLayer(markers: [
-                    Marker(
-                        point: topLeftCorner,
-                        builder: (context) => const _Circle(
-                            color: Colors.redAccent, label: "TL")),
-                    Marker(
-                        point: bottomLeftCorner,
-                        builder: (context) => const _Circle(
-                            color: Colors.redAccent, label: "BL")),
-                    Marker(
-                        point: bottomRightCorner,
-                        builder: (context) => const _Circle(
-                            color: Colors.redAccent, label: "BR")),
-                  ])
+                  OverlayImageLayer(overlayImages: _overlayImages),
+                  MarkerLayer(
+                    markers: [
+                      Marker(
+                        point: const LatLng(53.377, -2.999),
+                        builder: (context) =>
+                            const _Circle(color: Colors.redAccent, label: "TL"),
+                      ),
+                      Marker(
+                        point: const LatLng(52.503, -1.868),
+                        builder: (context) =>
+                            const _Circle(color: Colors.redAccent, label: "BL"),
+                      ),
+                      Marker(
+                        point: const LatLng(53.475, 0.275),
+                        builder: (context) =>
+                            const _Circle(color: Colors.redAccent, label: "BR"),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),

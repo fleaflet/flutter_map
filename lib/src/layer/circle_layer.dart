@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 
@@ -26,37 +27,40 @@ class CircleMarker {
 
 @immutable
 class CircleLayer extends StatelessWidget {
+  static const _distance = Distance();
+
   final List<CircleMarker> circles;
 
-  const CircleLayer({super.key, this.circles = const []});
+  const CircleLayer({super.key, required this.circles});
 
   @override
   Widget build(BuildContext context) {
-    const distance = Distance();
-    return LayoutBuilder(
-      builder: (context, bc) {
-        final size = Size(bc.maxWidth, bc.maxHeight);
-        final map = MapCamera.of(context);
-        final circleWidgets = circles.map<Widget>((circle) {
-          final offset = map.getOffsetFromOrigin(circle.point);
-          double? realRadius;
-          if (circle.useRadiusInMeter) {
-            final r = distance.offset(circle.point, circle.radius, 180);
-            final delta = offset - map.getOffsetFromOrigin(r);
-            realRadius = delta.distance;
-          }
-          return CustomPaint(
-            key: circle.key,
-            painter: CirclePainter(
-              circle,
-              offset: offset,
-              radius: realRadius ?? 0,
-            ),
-            size: size,
-          );
-        }).toList(growable: false);
-        return Stack(children: circleWidgets);
-      },
+    return MobileLayerTransformer(
+      child: LayoutBuilder(
+        builder: (context, bc) {
+          final size = Size(bc.maxWidth, bc.maxHeight);
+          final map = MapCamera.of(context);
+          final circleWidgets = circles.map<Widget>((circle) {
+            final offset = map.getOffsetFromOrigin(circle.point);
+            double? realRadius;
+            if (circle.useRadiusInMeter) {
+              final r = _distance.offset(circle.point, circle.radius, 180);
+              final delta = offset - map.getOffsetFromOrigin(r);
+              realRadius = delta.distance;
+            }
+            return CustomPaint(
+              key: circle.key,
+              painter: CirclePainter(
+                circle,
+                offset: offset,
+                radius: realRadius ?? 0,
+              ),
+              size: size,
+            );
+          }).toList(growable: false);
+          return Stack(children: circleWidgets);
+        },
+      ),
     );
   }
 }

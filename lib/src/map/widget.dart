@@ -1,22 +1,20 @@
+// ignore_for_file: deprecated_member_use_from_same_package
+
 import 'dart:math';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/gestures/flutter_map_interactive_viewer.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/layer/attribution_layer/shared.dart';
+import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
 import 'package:flutter_map/src/layer/general/translucent_pointer.dart';
-import 'package:flutter_map/src/layer/overlay_image_layer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
-import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:flutter_map/src/map/camera/camera_fit.dart';
 import 'package:flutter_map/src/map/controller/impl.dart';
 import 'package:flutter_map/src/map/controller/internal.dart';
 import 'package:flutter_map/src/map/controller/map_controller.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
 import 'package:flutter_map/src/map/options.dart';
-
-part '../layer/general/anchored_layer.dart';
-part 'layers_stack.dart';
 
 /// An interactive geographical map
 ///
@@ -33,7 +31,13 @@ class FlutterMap extends StatefulWidget {
     this.mapController,
     required this.options,
     required this.children,
-    this.overlaidAnchoredChildren = const [],
+    @Deprecated(
+      'Append all of these children to `children`. '
+      'This property has been removed to simplify the way layers are inserted '
+      'into the map, and allow for greater flexibility of layer positioning. '
+      'This property is deprecated since v6.',
+    )
+    this.nonRotatedChildren = const [],
   });
 
   /// Creates an interactive geographical map
@@ -75,42 +79,33 @@ class FlutterMap extends StatefulWidget {
           if (attribution != null) attribution,
         ],
         mapController = null,
-        overlaidAnchoredChildren = [];
+        nonRotatedChildren = [];
 
-  /// Layer widgets to be placed onto the map in a [Stack]-like fashion
+  /// Widgets to be placed onto the map in a [Stack]-like fashion
   ///
-  /// These may be any widgets, be that prebuilt layers, [AnchoredLayer]s, or
-  /// custom widgets.
+  /// Widgets that use [MobileLayerTransformer] will be mobile, will move and
+  /// rotate with the map. Other widgets will be static (and should usually use
+  /// [Align] or another method to position themselves).
   ///
-  /// ---
-  ///
-  /// Note that using [AnchoredLayer]s at the end of this list is equivalent to
-  /// using them in [overlaidAnchoredChildren] instead.
-  ///
-  /// When inserting [AnchoredLayer]s inbetween children (ie. not at the end),
-  /// there is likely to be a very small performance penalty.
-  ///
-  /// {@macro anchored_layer_warning}
+  /// [TranslucentPointer] will be wrapped around each child by default, unless
+  /// [MapOptions.applyPointerTranslucencyToLayers] is `false`.
   final List<Widget> children;
 
-  /// Same as [children], except these are [AnchoredLayer]s only
+  /// This member has been deprecated as of v6, and will be removed in the next
+  /// version.
   ///
-  /// These may be any widgets, be that prebuilt layers or custom widgets, but
-  /// they must also be [AnchoredLayer]s by way of mixin or being wrapped in an
-  /// [AnchoredLayer].
+  /// To migrate, append all of these children to [children]. In most cases, no
+  /// other migration will be necessary.
   ///
-  /// These are overlaid above all normal [children] layers in the order of
-  /// specification. To use an [AnchoredLayer] in a non-overlaid position
-  /// instead, insert it directly into [children].
-  ///
-  /// See [AnchoredLayer] for more information.
-  ///
-  /// Not to be confused with [OverlayImageLayer].
-  ///
-  /// ---
-  ///
-  /// {@macro anchored_layer_warning}
-  final List<AnchoredLayer> overlaidAnchoredChildren;
+  /// This will simplify the way layers are inserted into the map, and allow for
+  /// greater flexibility of layer positioning.
+  @Deprecated(
+    'Append all of these children to `children`. '
+    'This property has been removed to simplify the way layers are inserted '
+    'into the map, and allow for greater flexibility of layer positioning. '
+    'This property is deprecated since v6.',
+  )
+  final List<Widget> nonRotatedChildren;
 
   /// Configure this map's permanent rules and initial state
   ///
@@ -183,14 +178,24 @@ class _FlutterMapStateContainer extends State<FlutterMap> {
             options: options,
             camera: camera,
             child: ClipRect(
-              child: ColoredBox(
-                color: options.backgroundColor,
-                child: _LayersStack(
-                  camera: camera,
-                  options: options,
-                  children: widget.children
-                    ..addAll(widget.overlaidAnchoredChildren),
-                ),
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: ColoredBox(color: options.backgroundColor),
+                  ),
+                  ...widget.children.map(
+                    (child) => TranslucentPointer(
+                      translucent: options.applyPointerTranslucencyToLayers,
+                      child: child,
+                    ),
+                  ),
+                  ...widget.nonRotatedChildren.map(
+                    (child) => TranslucentPointer(
+                      translucent: options.applyPointerTranslucencyToLayers,
+                      child: child,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

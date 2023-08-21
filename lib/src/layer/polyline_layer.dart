@@ -2,8 +2,7 @@ import 'dart:core';
 import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/geo/latlng_bounds.dart';
-import 'package:flutter_map/src/map/camera/camera.dart';
+import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong2/latlong.dart';
 
 class Polyline {
@@ -59,7 +58,7 @@ class PolylineLayer extends StatelessWidget {
 
   const PolylineLayer({
     super.key,
-    this.polylines = const [],
+    required this.polylines,
     this.polylineCulling = false,
   });
 
@@ -67,17 +66,19 @@ class PolylineLayer extends StatelessWidget {
   Widget build(BuildContext context) {
     final map = MapCamera.of(context);
 
-    return CustomPaint(
-      painter: PolylinePainter(
-        polylineCulling
-            ? polylines
-                .where((p) => p.boundingBox.isOverlapping(map.visibleBounds))
-                .toList()
-            : polylines,
-        map,
+    return MobileLayerTransformer(
+      child: CustomPaint(
+        painter: PolylinePainter(
+          polylineCulling
+              ? polylines
+                  .where((p) => p.boundingBox.isOverlapping(map.visibleBounds))
+                  .toList()
+              : polylines,
+          map,
+        ),
+        size: Size(map.size.x, map.size.y),
+        isComplex: true,
       ),
-      size: Size(map.size.x, map.size.y),
-      isComplex: true,
     );
   }
 }

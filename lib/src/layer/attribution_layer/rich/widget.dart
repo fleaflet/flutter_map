@@ -59,11 +59,7 @@ enum AttributionAlignment {
 /// {@endtemplate}
 @immutable
 class RichAttributionWidget extends StatefulWidget
-    with
-        AnchoredLayerStatefulMixin<
-            AnchoredLayerStateMixin<RichAttributionWidget>>
-    implements
-        AttributionWidget {
+    implements AttributionWidget {
   /// List of attributions to display
   ///
   /// [TextSourceAttribution]s are shown in a popup box (toggled by a tap/click
@@ -132,11 +128,10 @@ class RichAttributionWidget extends StatefulWidget
   });
 
   @override
-  AnchoredLayerStateMixin createState() => _RichAttributionWidgetState();
+  State<RichAttributionWidget> createState() => _RichAttributionWidgetState();
 }
 
-class _RichAttributionWidgetState extends State<RichAttributionWidget>
-    with AnchoredLayerStateMixin {
+class _RichAttributionWidgetState extends State<RichAttributionWidget> {
   StreamSubscription<MapEvent>? mapEventSubscription;
 
   final persistentAttributionKey = GlobalKey();
@@ -183,8 +178,6 @@ class _RichAttributionWidgetState extends State<RichAttributionWidget>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-
     final persistentAttributionItems = [
       ...List<Widget>.from(
         widget.attributions.whereType<LogoSourceAttribution>(),
