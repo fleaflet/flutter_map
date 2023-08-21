@@ -114,16 +114,18 @@ class MapOptions {
 
   /// Whether to apply pointer translucency to all layers automatically
   ///
-  /// This means that layers are invisible to its parent when hit testing, but
-  /// still allows its subtree to receive pointer events.
+  /// This will mean that each layer can handle all the gestures that enter the
+  /// map themselves. Without this, only the top layer may handle gestures.
   ///
   /// Note that layers that are visually obscured behind another layer will
   /// recieve events, if this is enabled.
   ///
-  /// Also note that this applies to (overlaid) [AnchoredLayer]s as well.
+  /// Technically, layers become invisible to the parent `Stack` when hit
+  /// testing (and thus `Stack` will keep bubbling gestures down all layers), but
+  /// will still allow their subtree to receive pointer events.
   ///
   /// If this is `false` (defaults to `true`), then [TranslucentPointer] may be
-  /// applied to individual layers.
+  /// manually applied to individual layers.
   final bool applyPointerTranslucencyToLayers;
 
   final InteractionOptions? _interactionOptions;

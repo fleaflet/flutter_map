@@ -5,9 +5,6 @@ part of 'shared.dart';
 /// Displayed as a padded translucent [backgroundColor] box with the following
 /// text: 'flutter_map | © [source]', where [source] is wrapped with [onTap].
 ///
-/// This layer is an anchored layer, so an additional [AnchoredLayer] should not
-/// be used.
-///
 /// See also:
 ///
 ///  * [RichAttributionWidget], which is dynamic, supports more customization,
@@ -31,9 +28,6 @@ class SimpleAttributionWidget extends StatelessWidget
   ///
   /// Displayed as a padded translucent white box with the following text:
   /// 'flutter_map | © [source]'.
-  ///
-  /// This layer is an anchored layer, so an additional [AnchoredLayer] should
-  /// not be used.
   const SimpleAttributionWidget({
     super.key,
     required this.source,

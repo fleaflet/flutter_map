@@ -46,9 +46,6 @@ enum AttributionAlignment {
 /// property for more information. By default, a simple fade/opacity animation
 /// is provided by [FadeRAWA]. [ScaleRAWA] is also available.
 ///
-/// This layer is an anchored layer, so an additional [AnchoredLayer] should not
-/// be used.
-///
 /// Read the documentation on the individual properties for more information and
 /// customizability.
 ///

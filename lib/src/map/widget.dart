@@ -83,9 +83,11 @@ class FlutterMap extends StatefulWidget {
 
   /// Widgets to be placed onto the map in a [Stack]-like fashion
   ///
-  /// Widgets that use [MobileLayerTransformer] will be mobile, will move and
-  /// rotate with the map. Other widgets will be static (and should usually use
-  /// [Align] or another method to position themselves).
+  /// Widgets that use [MobileLayerTransformer] will be 'mobile', will move and
+  /// rotate with the map. Other widgets will be 'static' (and should usually use
+  /// [Align] or another method to position themselves). Widgets/layers may or
+  /// may not identify which type they are in their documentation, but it should
+  /// be relatively self-explanatory from their purpose.
   ///
   /// [TranslucentPointer] will be wrapped around each child by default, unless
   /// [MapOptions.applyPointerTranslucencyToLayers] is `false`.
