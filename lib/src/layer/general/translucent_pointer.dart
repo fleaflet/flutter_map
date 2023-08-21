@@ -1,5 +1,8 @@
-// Migrated from https://github.com/spkersten/flutter_transparent_pointer, with
-// some API & documentation changes
+////////////////////////////////////////////////////////////////
+///           Based on the work by Sander Kersten            ///
+///    Migrated, and now maintained here for flexibility     ///
+/// https://github.com/spkersten/flutter_transparent_pointer ///
+////////////////////////////////////////////////////////////////
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';

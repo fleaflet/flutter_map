@@ -1,13 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_map/src/layer/attribution_layer/rich.dart';
-import 'package:flutter_map/src/map/widget.dart';
-
-/// Layer widget intended to attribute a source
-///
-/// Applied to [RichAttributionWidget] & [SimpleAttributionWidget].
-///
-/// Has no effect, other than as a label to group the provided layers together.
-mixin AttributionWidget on Widget {}
+part of 'shared.dart';
 
 /// A simple, classic style, attribution layer
 ///
@@ -23,7 +14,8 @@ mixin AttributionWidget on Widget {}
 ///    and has a more complex appearance.
 @immutable
 class SimpleAttributionWidget extends StatelessWidget
-    with AttributionWidget, AnchoredLayerStatelessMixin {
+    with AnchoredLayerStatelessMixin
+    implements AttributionWidget {
   /// Attribution text, such as 'OpenStreetMap contributors'
   final Text source;
 

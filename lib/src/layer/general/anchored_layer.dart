@@ -30,7 +30,6 @@ part of '../../map/widget.dart';
 /// and need no additional setup. These widgets should contain a notice in the
 /// documentation.
 /// {@endtemplate}
-@immutable
 sealed class AnchoredLayer extends Widget {
   /// Transforms the [child] widget into an [AnchoredLayer]
   ///
