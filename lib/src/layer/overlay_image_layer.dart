@@ -150,7 +150,7 @@ class OverlayImageLayer extends StatelessWidget {
     return ClipRect(
       child: Stack(
         children: <Widget>[
-          for (var overlayImage in overlayImages)
+          for (final overlayImage in overlayImages)
             overlayImage.buildPositionedForOverlay(map),
         ],
       ),

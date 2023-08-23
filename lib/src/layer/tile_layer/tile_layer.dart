@@ -320,11 +320,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     super.initState();
 
     if (widget.reset != null) {
-      _resetSub = widget.reset?.listen(
-        (_) => _tileImageManager.removeAll(
-          widget.evictErrorTileStrategy,
-        ),
-      );
+      _resetSub = widget.reset?.listen((_) {
+        _tileImageManager.removeAll(widget.evictErrorTileStrategy);
+        _loadAndPruneInVisibleBounds(MapCamera.of(context));
+      });
     }
 
     _tileRangeCalculator = TileRangeCalculator(tileSize: widget.tileSize);
