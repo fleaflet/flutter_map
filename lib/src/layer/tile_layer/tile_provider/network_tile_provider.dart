@@ -22,7 +22,7 @@ class NetworkTileProvider extends TileProvider {
   /// On the web, the 'User-Agent' header cannot be changed as specified in
   /// [TileLayer.tileProvider]'s documentation, due to a Dart/browser limitation.
   NetworkTileProvider({
-    super.headers = const {},
+    super.headers,
     BaseClient? httpClient,
   }) : httpClient = httpClient ?? RetryClient(Client());
 
