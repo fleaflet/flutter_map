@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math' as math hide Point;
 import 'dart:math';
 
 import 'package:collection/collection.dart' show MapEquality;
@@ -276,7 +275,7 @@ class TileLayer extends StatefulWidget {
                 : maxZoom,
         minZoom =
             wmsOptions == null && retinaMode && maxZoom > 0.0 && zoomReverse
-                ? math.max(minZoom + 1.0, 0)
+                ? max(minZoom + 1.0, 0)
                 : minZoom,
         zoomOffset = wmsOptions == null && retinaMode && maxZoom > 0.0
             ? (zoomReverse ? zoomOffset - 1.0 : zoomOffset + 1.0)
@@ -589,7 +588,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     _tileImageManager.evictAndPrune(
       visibleRange: visibleTileRange,
-      pruneBuffer: math.max(widget.panBuffer, widget.keepBuffer),
+      pruneBuffer: max(widget.panBuffer, widget.keepBuffer),
       evictStrategy: widget.evictErrorTileStrategy,
     );
   }
@@ -644,10 +643,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     var result = zoom.round();
 
     if (widget.minNativeZoom != null) {
-      result = math.max(result, widget.minNativeZoom!);
+      result = max(result, widget.minNativeZoom!);
     }
     if (widget.maxNativeZoom != null) {
-      result = math.min(result, widget.maxNativeZoom!);
+      result = min(result, widget.maxNativeZoom!);
     }
 
     return result;
@@ -687,7 +686,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     );
     _tileImageManager.prune(
       visibleRange: visibleTileRange,
-      pruneBuffer: math.max(widget.panBuffer, widget.keepBuffer),
+      pruneBuffer: max(widget.panBuffer, widget.keepBuffer),
       evictStrategy: widget.evictErrorTileStrategy,
     );
   }
