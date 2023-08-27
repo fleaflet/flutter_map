@@ -17,6 +17,8 @@ dependencies:
   url_launcher: ^6.1.10
   shared_preferences: ^2.1.1
   url_strategy: ^0.2.0
+  http: ^1.1.0
+  dio: ^5.3.2
 
 dev_dependencies:
   flutter_lints: ^2.0.1
