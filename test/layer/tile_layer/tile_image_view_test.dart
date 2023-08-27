@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/src/scheduler/ticker.dart';
@@ -192,6 +193,7 @@ class MockTileImage extends TileImage {
           onLoadComplete: onLoadComplete ?? (_) {},
           onLoadError: onLoadError ?? (_, __, ___) {},
           tileDisplay: const TileDisplay.instantaneous(),
+          cancelLoading: Completer(),
         ) {
     loadFinishedAt = loadFinished ? DateTime.now() : null;
     this.loadError = loadError;

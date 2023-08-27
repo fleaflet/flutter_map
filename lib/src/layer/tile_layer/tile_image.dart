@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_display.dart';
@@ -35,6 +37,11 @@ class TileImage extends ChangeNotifier {
   /// An optional image to show when a loading error occurs.
   final ImageProvider? errorImage;
 
+  /// Completer that is completed when this object is disposed
+  ///
+  /// Intended to allow [TileProvider]s to cancel unneccessary HTTP requests.
+  final Completer<void> cancelLoading;
+
   ImageProvider imageProvider;
 
   /// True if an error occurred during loading.
@@ -58,6 +65,7 @@ class TileImage extends ChangeNotifier {
     required this.onLoadError,
     required TileDisplay tileDisplay,
     required this.errorImage,
+    required this.cancelLoading,
   })  : _tileDisplay = tileDisplay,
         _animationController = tileDisplay.when(
           instantaneous: (_) => null,
@@ -126,6 +134,8 @@ class TileImage extends ChangeNotifier {
 
   /// Initiate loading of the image.
   void load() {
+    if (cancelLoading.isCompleted) return;
+
     loadStarted = DateTime.now();
 
     try {
@@ -229,6 +239,8 @@ class TileImage extends ChangeNotifier {
         debugPrint(e.toString());
       }
     }
+
+    cancelLoading.complete();
 
     _readyToDisplay = false;
     _animationController?.stop(canceled: false);
