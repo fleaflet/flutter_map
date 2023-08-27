@@ -1,6 +1,5 @@
 import 'dart:async';
-import 'dart:math' as math hide Point;
-import 'dart:math' show Point;
+import 'dart:math';
 
 import 'package:collection/collection.dart' show MapEquality;
 import 'package:flutter/material.dart';
@@ -12,10 +11,10 @@ import 'package:flutter_map/src/layer/tile_layer/tile_image_manager.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
-import 'package:flutter_map/src/misc/private/util.dart' as util;
 import 'package:http/retry.dart';
 
-part 'tile_layer_options.dart';
+part 'tile_error_evict_callback.dart';
+part 'wms_tile_layer_options.dart';
 
 /// Describes the needed properties to create a tile-based layer. A tile is an
 /// image bound to a specific geographical position.
@@ -195,7 +194,12 @@ class TileLayer extends StatefulWidget {
   /// This callback will be executed if an error occurs when fetching tiles.
   final ErrorTileCallBack? errorTileCallback;
 
-  final TemplateFunction templateFunction;
+  @Deprecated(
+    'Prefer creating a custom `TileProvider` instead. '
+    'This option has been deprecated as it is out of scope for the `TileLayer`. '
+    'This option is deprecated since v6.',
+  )
+  final TemplateFunction? templateFunction;
 
   /// Function which may Wrap Tile with custom Widget
   /// There are predefined examples in 'tile_builder.dart'
@@ -234,7 +238,7 @@ class TileLayer extends StatefulWidget {
     this.maxNativeZoom,
     this.zoomReverse = false,
     double zoomOffset = 0.0,
-    Map<String, String>? additionalOptions,
+    this.additionalOptions = const {},
     this.subdomains = const <String>[],
     this.keepBuffer = 2,
     this.panBuffer = 0,
@@ -246,7 +250,12 @@ class TileLayer extends StatefulWidget {
     this.tileDisplay = const TileDisplay.fadeIn(),
     this.retinaMode = false,
     this.errorTileCallback,
-    this.templateFunction = util.template,
+    @Deprecated(
+      'Prefer creating a custom `TileProvider` instead. '
+      'This option has been deprecated as it is out of scope for the `TileLayer`. '
+      'This option is deprecated since v6.',
+    )
+    this.templateFunction,
     this.tileBuilder,
     this.evictErrorTileStrategy = EvictErrorTileStrategy.none,
     this.reset,
@@ -254,17 +263,19 @@ class TileLayer extends StatefulWidget {
     TileUpdateTransformer? tileUpdateTransformer,
     String userAgentPackageName = 'unknown',
   })  : assert(
-            tileDisplay.when(
-                instantaneous: (_) => true,
-                fadeIn: (fadeIn) => fadeIn.duration > Duration.zero)!,
-            'The tile fade in duration needs to be bigger than zero'),
+          tileDisplay.when(
+            instantaneous: (_) => true,
+            fadeIn: (fadeIn) => fadeIn.duration > Duration.zero,
+          )!,
+          'The tile fade in duration needs to be bigger than zero',
+        ),
         maxZoom =
             wmsOptions == null && retinaMode && maxZoom > 0.0 && !zoomReverse
                 ? maxZoom - 1.0
                 : maxZoom,
         minZoom =
             wmsOptions == null && retinaMode && maxZoom > 0.0 && zoomReverse
-                ? math.max(minZoom + 1.0, 0)
+                ? max(minZoom + 1.0, 0)
                 : minZoom,
         zoomOffset = wmsOptions == null && retinaMode && maxZoom > 0.0
             ? (zoomReverse ? zoomOffset - 1.0 : zoomOffset + 1.0)
@@ -272,19 +283,9 @@ class TileLayer extends StatefulWidget {
         tileSize = wmsOptions == null && retinaMode && maxZoom > 0.0
             ? (tileSize / 2.0).floorToDouble()
             : tileSize,
-        additionalOptions = additionalOptions == null
-            ? const <String, String>{}
-            : Map.from(additionalOptions),
-        tileProvider = tileProvider == null
-            ? NetworkTileProvider(
-                headers: {'User-Agent': 'flutter_map ($userAgentPackageName)'},
-              )
-            : (tileProvider
-              ..headers = <String, String>{
-                ...tileProvider.headers,
-                if (!tileProvider.headers.containsKey('User-Agent'))
-                  'User-Agent': 'flutter_map ($userAgentPackageName)',
-              }),
+        tileProvider = (tileProvider ?? NetworkTileProvider())
+          ..headers.putIfAbsent(
+              'User-Agent', () => 'flutter_map ($userAgentPackageName)'),
         tileUpdateTransformer =
             tileUpdateTransformer ?? TileUpdateTransformers.ignoreTapEvents;
 
@@ -519,19 +520,30 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     required TileBoundsAtZoom tileBoundsAtZoom,
     required bool pruneAfterLoad,
   }) {
+    final cancelLoading = Completer<void>();
+
+    final imageProvider = widget.tileProvider.supportsCancelLoading
+        ? widget.tileProvider.getImageWithCancelLoadingSupport(
+            tileBoundsAtZoom.wrap(coordinates),
+            widget,
+            cancelLoading.future,
+          )
+        : widget.tileProvider.getImage(
+            tileBoundsAtZoom.wrap(coordinates),
+            widget,
+          );
+
     return TileImage(
       vsync: this,
       coordinates: coordinates,
-      imageProvider: widget.tileProvider.getImage(
-        tileBoundsAtZoom.wrap(coordinates),
-        widget,
-      ),
+      imageProvider: imageProvider,
       onLoadError: _onTileLoadError,
       onLoadComplete: (coordinates) {
         if (pruneAfterLoad) _pruneIfAllTilesLoaded(coordinates);
       },
       tileDisplay: widget.tileDisplay,
       errorImage: widget.errorImage,
+      cancelLoading: cancelLoading,
     );
   }
 
@@ -576,7 +588,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     _tileImageManager.evictAndPrune(
       visibleRange: visibleTileRange,
-      pruneBuffer: math.max(widget.panBuffer, widget.keepBuffer),
+      pruneBuffer: max(widget.panBuffer, widget.keepBuffer),
       evictStrategy: widget.evictErrorTileStrategy,
     );
   }
@@ -631,10 +643,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     var result = zoom.round();
 
     if (widget.minNativeZoom != null) {
-      result = math.max(result, widget.minNativeZoom!);
+      result = max(result, widget.minNativeZoom!);
     }
     if (widget.maxNativeZoom != null) {
-      result = math.min(result, widget.maxNativeZoom!);
+      result = min(result, widget.maxNativeZoom!);
     }
 
     return result;
@@ -674,7 +686,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     );
     _tileImageManager.prune(
       visibleRange: visibleTileRange,
-      pruneBuffer: math.max(widget.panBuffer, widget.keepBuffer),
+      pruneBuffer: max(widget.panBuffer, widget.keepBuffer),
       evictStrategy: widget.evictErrorTileStrategy,
     );
   }
