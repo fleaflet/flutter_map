@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
@@ -6,17 +7,24 @@ import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network_tile_provider.dart';
 import 'package:meta/meta.dart';
 
-/// The base tile provider, extended by other classes such as
-/// [NetworkTileProvider] with more specialised purposes and/or requirements
+/// The base tile provider, extended by other classes with more specialised
+/// purposes and/or requirements
+///
+/// Prefer extending over implementing.
 ///
 /// For more information, see
 /// <https://docs.fleaflet.dev/explanation#tile-providers>, and
-/// <https://docs.fleaflet.dev/layers/tile-layer/tile-providers>.
+/// <https://docs.fleaflet.dev/layers/tile-layer/tile-providers>. For an example
+/// extension (with custom [ImageProvider]), see [NetworkTileProvider].
 abstract class TileProvider {
   /// Custom HTTP headers that may be sent with each tile request
   ///
-  /// Some non-networking implementations may ignore this property. [TileLayer]
-  /// will always set the 'User-Agent' based on what is specified by the user.
+  /// Non-networking implementations may ignore this property.
+  ///
+  /// [TileLayer] will usually automatically set the 'User-Agent' header, based
+  /// on the `userAgentPackageName`, but this can be overridden. On the web, this
+  /// header cannot be changed, as specified in [TileLayer.tileProvider]'s
+  /// documentation, due to a Dart/browser limitation.
   final Map<String, String> headers;
 
   /// Indicates to flutter_map internals whether to call [getImage] (when
@@ -26,12 +34,17 @@ abstract class TileProvider {
   /// will be thrown.
   ///
   /// [getImageWithCancelLoadingSupport] is designed to allow for implementations
-  /// that can cancel HTTP requests in-flight, when the underlying tile is
-  /// disposed before it is loaded. This may increase performance, and may
-  /// decrease unnecessary tile requests. See documentation on that method for
-  /// more information.
+  /// that can cancel HTTP requests or other processing in-flight, when the
+  /// underlying tile is disposed before it is loaded. This may increase
+  /// performance, and may decrease unnecessary tile requests. Note that this
+  /// only applies to the web platform. For more information, and detailed
+  /// implementation expectations, see documentation on
+  /// [getImageWithCancelLoadingSupport].
   ///
-  /// Defaults to `false`.
+  /// [getImage] does not support cancellation.
+  ///
+  /// Defaults to `false`. Only needs to be overridden where
+  /// [getImageWithCancelLoadingSupport] is in use.
   bool get supportsCancelLoading => false;
 
   /// Construct the base tile provider and initialise the [headers] property
@@ -42,22 +55,24 @@ abstract class TileProvider {
   /// 'User-Agent' (based on what is specified by the user), the [headers] [Map]
   /// must not be constant.
   ///
-  /// Implementers/extenders should call add `super.headers` to their
-  /// constructors if they support custom HTTP headers.
+  /// Extenders should add `super.headers` to their constructors if they support
+  /// custom HTTP headers. However, they should not provide a constant default
+  /// value.
   TileProvider({Map<String, String>? headers}) : headers = headers ?? {};
 
   /// Retrieve a tile as an image, based on its coordinates and the [TileLayer]
-  ///
-  /// Does not support cancelling loading tiles, unlike
-  /// [getImageWithCancelLoadingSupport]. For this method to be called instead of
-  /// that, the implementation of [TileProvider] must not override
-  /// [supportsCancelLoading] to `true`.
   ///
   /// Usually redirects to a custom [ImageProvider], with one input depending on
   /// [getTileUrl].
   ///
   /// For many implementations, this is the only method that will need
   /// implementing.
+  ///
+  /// ---
+  ///
+  /// Does not support cancelling loading tiles, unlike
+  /// [getImageWithCancelLoadingSupport]. For this method to be called instead of
+  /// that, [supportsCancelLoading] must be `false` (default).
   ImageProvider getImage(TileCoordinates coordinates, TileLayer options) {
     throw UnimplementedError(
       'A `TileProvider` that does not override `supportsCancelLoading` to `true` '
@@ -67,24 +82,36 @@ abstract class TileProvider {
 
   /// Retrieve a tile as an image, based on its coordinates and the [TileLayer]
   ///
-  /// Supports cancelling loading tiles, which is designed to allow for
-  /// implementations that can cancel HTTP requests in-flight, when the
-  /// underlying tile is disposed before it is loaded. This may increase
-  /// performance, and may decrease unnecessary tile requests.
-  ///
-  /// The [cancelLoading] future will complete when the underlying tile is
-  /// disposed/pruned. The implementation should therefore listen for its
-  /// completion, then cancel the loading and return ([ImageDecoderCallback])
-  /// [transparentImage].
-  ///
-  /// For this method to be called instead of [getImage], the implementation of
-  /// [TileProvider] must override [supportsCancelLoading] to `true`.
+  /// For this method to be called instead of [getImage], [supportsCancelLoading]
+  /// must be overriden to `true`.
   ///
   /// Usually redirects to a custom [ImageProvider], with one parameter using
   /// [getTileUrl], and one using [cancelLoading].
   ///
   /// For many implementations, this is the only method that will need
   /// implementing.
+  ///
+  /// ---
+  ///
+  /// Supports cancelling loading tiles, which is designed to allow for
+  /// implementations that can cancel HTTP requests or other processing
+  /// in-flight, when the underlying tile is disposed before it is loaded. This
+  /// may increase performance, and may decrease unnecessary tile requests. Note
+  /// that this only applies to the web platform.
+  ///
+  /// The [cancelLoading] future will complete when the underlying tile is
+  /// disposed/pruned. The implementation should therefore listen for its
+  /// completion, then cancel the loading. If an image [Codec] is required,
+  /// decode [transparentImage] - it will never be visible anyway. Note that
+  /// [cancelLoading] will always be completed on disposal, even if the tile has
+  /// been fully loaded, but this side effect is not usually an issue.
+  ///
+  /// See this example with 'package:dio's `CancelToken`:
+  ///
+  /// ```dart
+  /// final cancelToken = CancelToken();
+  /// cancelLoading.then((_) => cancelToken.cancel());
+  /// ```
   ImageProvider getImageWithCancelLoadingSupport(
     TileCoordinates coordinates,
     TileLayer options,

@@ -13,14 +13,24 @@ import 'package:http/retry.dart';
 ///
 /// On the web, the 'User-Agent' header cannot be changed as specified in
 /// [TileLayer.tileProvider]'s documentation, due to a Dart/browser limitation.
+///
+/// Does not support cancellation of tile loading via
+/// [TileProvider.getImageWithCancelLoadingSupport], as abortion of in-flight
+/// HTTP requests on the web is
+/// [not yet supported in Dart](https://github.com/dart-lang/http/issues/424).
 class NetworkTileProvider extends TileProvider {
   /// [TileProvider] to fetch tiles from the network
   ///
   /// By default, a [RetryClient] is used to retry failed requests. 'dart:http'
   /// or 'dart:io' might be needed to override this.
   ///
-  /// On the web, the 'User-Agent' header cannot be changed as specified in
+  /// On the web, the 'User-Agent' header cannot be changed, as specified in
   /// [TileLayer.tileProvider]'s documentation, due to a Dart/browser limitation.
+  ///
+  /// Does not support cancellation of tile loading via
+  /// [TileProvider.getImageWithCancelLoadingSupport], as abortion of in-flight
+  /// HTTP requests on the web is
+  /// [not yet supported in Dart](https://github.com/dart-lang/http/issues/424).
   NetworkTileProvider({
     super.headers,
     BaseClient? httpClient,
@@ -37,4 +47,10 @@ class NetworkTileProvider extends TileProvider {
         headers: headers,
         httpClient: httpClient,
       );
+
+  @override
+  void dispose() {
+    httpClient.close();
+    super.dispose();
+  }
 }
