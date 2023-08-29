@@ -6,6 +6,8 @@ import 'package:flutter/painting.dart';
 import 'package:http/http.dart';
 
 /// Dedicated [ImageProvider] to fetch tiles from the network
+///
+/// Supports falling back to a secondary URL, if the primary URL fetch fails.
 @immutable
 class FlutterMapNetworkImageProvider
     extends ImageProvider<FlutterMapNetworkImageProvider> {
@@ -17,12 +19,18 @@ class FlutterMapNetworkImageProvider
   final String? fallbackUrl;
 
   /// The HTTP client to use to make network requests
+  ///
+  /// Not included in [operator==] calculations.
   final BaseClient httpClient;
 
   /// The headers to include with the tile fetch request
+  ///
+  /// Not included in [operator==] calculations.
   final Map<String, String> headers;
 
-  /// Dedicated [ImageProvider] to fetch tiles from the network
+  /// Create a dedicated [ImageProvider] to fetch tiles from the network
+  ///
+  /// Supports falling back to a secondary URL, if the primary URL fetch fails.
   const FlutterMapNetworkImageProvider({
     required this.url,
     required this.fallbackUrl,
@@ -75,4 +83,14 @@ class FlutterMapNetworkImageProvider
 
     return decode(await ImmutableBuffer.fromUint8List(bytes));
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FlutterMapNetworkImageProvider &&
+          url == other.url &&
+          fallbackUrl == other.fallbackUrl;
+
+  @override
+  int get hashCode => Object.hash(url, fallbackUrl);
 }
