@@ -315,6 +315,15 @@ class TileLayer extends StatefulWidget {
         'https://github.com/openstreetmap/operations/issues/737 for more info.',
       );
     }
+    if (kDebugMode && tileProvider is NetworkTileProvider?) {
+      Logger(printer: PrettyPrinter(methodCount: 0)).i(
+        '\x1B[1m\x1B[3mflutter_map\x1B[0m\nConsider installing the official '
+        "'flutter_map_cancellable_tile_provider' plugin for improved\n"
+        'performance on the web.\nSee '
+        'https://pub.dev/packages/flutter_map_cancellable_tile_provider for '
+        'more info.',
+      );
+    }
   }
 
   @override

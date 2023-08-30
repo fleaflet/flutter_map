@@ -19,7 +19,7 @@ import 'package:flutter_map_example/pages/offline_map.dart';
 import 'package:flutter_map_example/pages/overlay_image.dart';
 import 'package:flutter_map_example/pages/plugin_scalebar.dart';
 import 'package:flutter_map_example/pages/plugin_zoombuttons.dart';
-import 'package:flutter_map_example/pages/point_to_latlng.dart';
+import 'package:flutter_map_example/pages/screen_point_to_latlng.dart';
 import 'package:flutter_map_example/pages/polygon.dart';
 import 'package:flutter_map_example/pages/polyline.dart';
 import 'package:flutter_map_example/pages/reset_tile_layer.dart';
@@ -254,14 +254,14 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
         const Divider(),
         _buildMenuItem(
           context,
-          const Text('Screen Point -> LatLng'),
-          PointToLatLngPage.route,
+          const Text('Screen Point 🡒 LatLng'),
+          ScreenPointToLatLngPage.route,
           currentRoute,
         ),
         _buildMenuItem(
           context,
-          const Text('LatLng -> Screen Point'),
-          LatLngScreenPointTestPage.route,
+          const Text('LatLng 🡒 Screen Point'),
+          LatLngToScreenPointPage.route,
           currentRoute,
         ),
       ],
