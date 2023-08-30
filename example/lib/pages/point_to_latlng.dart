@@ -6,7 +6,7 @@ import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
 
 class PointToLatLngPage extends StatefulWidget {
-  static const String route = 'point_to_latlng';
+  static const String route = '/point_to_latlng';
 
   const PointToLatLngPage({Key? key}) : super(key: key);
 

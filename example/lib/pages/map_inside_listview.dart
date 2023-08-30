@@ -5,7 +5,7 @@ import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
 
 class MapInsideListViewPage extends StatelessWidget {
-  static const String route = 'map_inside_listview';
+  static const String route = '/map_inside_listview';
 
   const MapInsideListViewPage({Key? key}) : super(key: key);
 

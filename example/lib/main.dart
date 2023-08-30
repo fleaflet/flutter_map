@@ -68,7 +68,7 @@ class MyApp extends StatelessWidget {
         TileLoadingErrorHandle.route: (context) =>
             const TileLoadingErrorHandle(),
         TileBuilderPage.route: (context) => const TileBuilderPage(),
-        InteractiveTestPage.route: (context) => const InteractiveTestPage(),
+        InteractiveFlagsPage.route: (context) => const InteractiveFlagsPage(),
         ManyMarkersPage.route: (context) => const ManyMarkersPage(),
         StatefulMarkersPage.route: (context) => const StatefulMarkersPage(),
         MapInsideListViewPage.route: (context) => const MapInsideListViewPage(),

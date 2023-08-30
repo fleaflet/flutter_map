@@ -8,7 +8,7 @@ import 'package:proj4dart/proj4dart.dart' as proj4;
 import 'package:url_launcher/url_launcher.dart';
 
 class CustomCrsPage extends StatefulWidget {
-  static const String route = 'custom_crs';
+  static const String route = '/crs_custom';
 
   const CustomCrsPage({Key? key}) : super(key: key);
 

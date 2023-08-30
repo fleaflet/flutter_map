@@ -4,7 +4,7 @@ import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
 
 class CirclePage extends StatelessWidget {
-  static const String route = 'circle';
+  static const String route = '/circle';
 
   const CirclePage({Key? key}) : super(key: key);
 

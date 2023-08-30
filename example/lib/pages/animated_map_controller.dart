@@ -4,7 +4,7 @@ import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
 
 class AnimatedMapControllerPage extends StatefulWidget {
-  static const String route = 'map_controller_animated';
+  static const String route = '/map_controller_animated';
 
   const AnimatedMapControllerPage({Key? key}) : super(key: key);
 

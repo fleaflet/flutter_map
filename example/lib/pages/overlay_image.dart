@@ -4,7 +4,7 @@ import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
 
 class OverlayImagePage extends StatelessWidget {
-  static const String route = 'overlay_image';
+  static const String route = '/overlay_image';
 
   const OverlayImagePage({Key? key}) : super(key: key);
 

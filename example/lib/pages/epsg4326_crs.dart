@@ -4,7 +4,7 @@ import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
 
 class EPSG4326Page extends StatelessWidget {
-  static const String route = 'EPSG4326 Page';
+  static const String route = '/crs_epsg4326';
 
   const EPSG4326Page({Key? key}) : super(key: key);
 

@@ -4,7 +4,7 @@ import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
 
 class PolylinePage extends StatefulWidget {
-  static const String route = 'polyline';
+  static const String route = '/polyline';
 
   const PolylinePage({Key? key}) : super(key: key);
 

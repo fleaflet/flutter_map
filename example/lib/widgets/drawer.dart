@@ -132,7 +132,7 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
         _buildMenuItem(
           context,
           const Text('Interactive Flags'),
-          InteractiveTestPage.route,
+          InteractiveFlagsPage.route,
           currentRoute,
         ),
         const Divider(),
