@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:collection/collection.dart' show MapEquality;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile.dart';
@@ -12,6 +13,7 @@ import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
 import 'package:http/retry.dart';
+import 'package:logger/logger.dart';
 
 part 'tile_error_evict_callback.dart';
 part 'wms_tile_layer_options.dart';
@@ -211,6 +213,9 @@ class TileLayer extends StatefulWidget {
   final EvictErrorTileStrategy evictErrorTileStrategy;
 
   /// Stream to notify the [TileLayer] that it needs resetting
+  ///
+  /// The tile layer will not listen to this stream if it is not specified on
+  /// initial building, then later specified.
   final Stream<void>? reset;
 
   /// Only load tiles that are within these bounds
@@ -239,7 +244,7 @@ class TileLayer extends StatefulWidget {
     this.zoomReverse = false,
     double zoomOffset = 0.0,
     this.additionalOptions = const {},
-    this.subdomains = const <String>[],
+    this.subdomains = const ['a', 'b', 'c'],
     this.keepBuffer = 2,
     this.panBuffer = 0,
     this.backgroundColor,
@@ -287,7 +292,17 @@ class TileLayer extends StatefulWidget {
           ..headers.putIfAbsent(
               'User-Agent', () => 'flutter_map ($userAgentPackageName)'),
         tileUpdateTransformer =
-            tileUpdateTransformer ?? TileUpdateTransformers.ignoreTapEvents;
+            tileUpdateTransformer ?? TileUpdateTransformers.ignoreTapEvents {
+    if (kDebugMode &&
+        urlTemplate != null &&
+        urlTemplate!.contains('{s}.tile.openstreetmap.org')) {
+      Logger(printer: PrettyPrinter(methodCount: 0)).w(
+        '\x1B[1m\x1B[3mflutter_map\x1B[0m\nAvoid using subdomains with OSM\'s tile '
+        'server. Support may be become slow or be removed in future.\nSee '
+        'https://github.com/openstreetmap/operations/issues/737 for more info.',
+      );
+    }
+  }
 
   @override
   State<StatefulWidget> createState() => _TileLayerState();
@@ -296,9 +311,10 @@ class TileLayer extends StatefulWidget {
 class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   bool _initializedFromMapCamera = false;
 
-  final TileImageManager _tileImageManager = TileImageManager();
+  final _tileImageManager = TileImageManager();
   late TileBounds _tileBounds;
-  late TileRangeCalculator _tileRangeCalculator;
+  late var _tileRangeCalculator =
+      TileRangeCalculator(tileSize: widget.tileSize);
   late TileScaleCalculator _tileScaleCalculator;
 
   // We have to hold on to the mapController hashCode to determine whether we
@@ -307,28 +323,13 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   // miss events.
   int? _mapControllerHashCode;
 
-  // Only one of these two subscriptions will be initialized. If
-  // TileLayer.tileUpdateTransformer is null then we subscribe to map movement
-  // otherwise we subscribe to tile update events which are transformed from
-  // map movements.
   StreamSubscription<TileUpdateEvent>? _tileUpdateSubscription;
-
-  StreamSubscription<void>? _resetSub;
   Timer? _pruneLater;
 
-  @override
-  void initState() {
-    super.initState();
-
-    if (widget.reset != null) {
-      _resetSub = widget.reset?.listen((_) {
-        _tileImageManager.removeAll(widget.evictErrorTileStrategy);
-        _loadAndPruneInVisibleBounds(MapCamera.of(context));
-      });
-    }
-
-    _tileRangeCalculator = TileRangeCalculator(tileSize: widget.tileSize);
-  }
+  late final _resetSub = widget.reset?.listen((_) {
+    _tileImageManager.removeAll(widget.evictErrorTileStrategy);
+    _loadAndPruneInVisibleBounds(MapCamera.of(context));
+  });
 
   // This is called on every map movement so we should avoid expensive logic
   // where possible.
@@ -337,8 +338,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     super.didChangeDependencies();
 
     final camera = MapCamera.of(context);
-
     final mapController = MapController.of(context);
+
     if (_mapControllerHashCode != mapController.hashCode) {
       _tileUpdateSubscription?.cancel();
 

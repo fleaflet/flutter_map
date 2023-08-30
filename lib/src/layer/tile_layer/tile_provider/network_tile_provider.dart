@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
@@ -5,6 +6,7 @@ import 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provide
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network_image_provider.dart';
 import 'package:http/http.dart';
 import 'package:http/retry.dart';
+import 'package:logger/logger.dart';
 
 /// [TileProvider] to fetch tiles from the network
 ///
@@ -34,7 +36,17 @@ class NetworkTileProvider extends TileProvider {
   NetworkTileProvider({
     super.headers,
     BaseClient? httpClient,
-  }) : httpClient = httpClient ?? RetryClient(Client());
+  }) : httpClient = httpClient ?? RetryClient(Client()) {
+    if (kDebugMode) {
+      Logger(printer: PrettyPrinter(methodCount: 0)).i(
+        '\x1B[1m\x1B[3mflutter_map\x1B[0m\nConsider installing the official '
+        "'flutter_map_cancellable_tile_provider' plugin for improved\n"
+        'performance on the web.\nSee '
+        'https://pub.dev/packages/flutter_map_cancellable_tile_provider for '
+        'more info.',
+      );
+    }
+  }
 
   /// The HTTP client used to make network requests for tiles
   final BaseClient httpClient;

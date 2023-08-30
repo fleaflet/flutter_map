@@ -29,6 +29,7 @@ dependencies:
     sdk: flutter
   http: ^1.0.0
   latlong2: ^0.9.0
+  logger: ^2.0.1
   meta: ^1.8.0
   polylabel: ^1.0.1
   proj4dart: ^2.1.0

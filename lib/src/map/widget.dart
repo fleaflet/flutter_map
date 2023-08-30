@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/gestures/flutter_map_interactive_viewer.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
@@ -9,6 +10,7 @@ import 'package:flutter_map/src/map/internal_controller.dart';
 import 'package:flutter_map/src/map/map_controller.dart';
 import 'package:flutter_map/src/map/map_controller_impl.dart';
 import 'package:flutter_map/src/map/options.dart';
+import 'package:logger/logger.dart';
 
 /// Renders an interactive geographical map as a widget
 ///
@@ -60,6 +62,15 @@ class FlutterMapStateContainer extends State<FlutterMap> {
 
     WidgetsBinding.instance
         .addPostFrameCallback((_) => widget.options.onMapReady?.call());
+
+    if (kDebugMode && kIsWeb && !isCanvasKit) {
+      Logger(printer: PrettyPrinter(methodCount: 0)).w(
+        '\x1B[1m\x1B[3mflutter_map\x1B[0m\nAvoid using HTML rendering on the web '
+        'platform. Prefer CanvasKit.\nSee '
+        'https://docs.fleaflet.dev/getting-started/installation#web for more '
+        'info.',
+      );
+    }
   }
 
   @override
