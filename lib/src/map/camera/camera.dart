@@ -6,8 +6,8 @@ import 'package:flutter_map/src/geo/crs.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
 import 'package:flutter_map/src/map/options.dart';
+import 'package:flutter_map/src/misc/bounds.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';
-import 'package:flutter_map/src/misc/private/bounds.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Describes the view of a map. This includes the size/zoom/position/crs as

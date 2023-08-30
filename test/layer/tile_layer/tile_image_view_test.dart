@@ -2,10 +2,12 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/src/scheduler/ticker.dart';
-import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_display.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image_view.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
-import 'package:flutter_map/src/misc/private/bounds.dart';
+import 'package:flutter_map/src/misc/bounds.dart';
 import 'package:test/test.dart';
 
 import '../../test_utils/test_tile_image.dart';

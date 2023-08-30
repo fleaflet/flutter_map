@@ -1,5 +1,3 @@
-import 'package:flutter_map/flutter_map.dart';
-
 /// Use [InteractiveFlag] to disable / enable certain events Use
 /// [InteractiveFlag.all] to enable all events, use [InteractiveFlag.none] to
 /// disable all events
