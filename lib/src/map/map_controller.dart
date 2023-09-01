@@ -10,7 +10,6 @@ import 'package:flutter_map/src/map/inherited_model.dart';
 import 'package:flutter_map/src/map/map_controller_impl.dart';
 import 'package:flutter_map/src/misc/center_zoom.dart';
 import 'package:flutter_map/src/misc/fit_bounds_options.dart';
-import 'package:flutter_map/src/misc/move_and_rotate_result.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Controller to programmatically interact with [FlutterMap], such as
@@ -109,9 +108,9 @@ abstract class MapController {
   /// The emitted [MapEventRotate.source]/[MapEventMove.source] properties will
   /// be [MapEventSource.mapController].
   ///
-  /// The operation was successful if [MoveAndRotateResult.moveSuccess] and
-  /// [MoveAndRotateResult.rotateSuccess] are `true`.
-  MoveAndRotateResult rotateAroundPoint(
+  /// The operation was successful if both fields of the resulting record are
+  /// `true`.
+  ({bool moveSuccess, bool rotateSuccess}) rotateAroundPoint(
     double degree, {
     Point<double>? point,
     Offset? offset,
@@ -125,9 +124,9 @@ abstract class MapController {
   ///
   /// See documentation on those methods for more details.
   ///
-  /// The operation was successful if [MoveAndRotateResult.moveSuccess] and
-  /// [MoveAndRotateResult.rotateSuccess] are `true`.
-  MoveAndRotateResult moveAndRotate(
+  /// The operation was successful if both fields of the resulting record are
+  /// `true`.
+  ({bool moveSuccess, bool rotateSuccess}) moveAndRotate(
     LatLng center,
     double zoom,
     double degree, {

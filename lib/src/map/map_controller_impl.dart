@@ -10,7 +10,6 @@ import 'package:flutter_map/src/map/internal_controller.dart';
 import 'package:flutter_map/src/map/map_controller.dart';
 import 'package:flutter_map/src/misc/center_zoom.dart';
 import 'package:flutter_map/src/misc/fit_bounds_options.dart';
-import 'package:flutter_map/src/misc/move_and_rotate_result.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -57,7 +56,7 @@ class MapControllerImpl implements MapController {
       );
 
   @override
-  MoveAndRotateResult rotateAroundPoint(
+  ({bool moveSuccess, bool rotateSuccess}) rotateAroundPoint(
     double degree, {
     Point<double>? point,
     Offset? offset,
@@ -73,7 +72,7 @@ class MapControllerImpl implements MapController {
       );
 
   @override
-  MoveAndRotateResult moveAndRotate(
+  ({bool moveSuccess, bool rotateSuccess}) moveAndRotate(
     LatLng center,
     double zoom,
     double degree, {
