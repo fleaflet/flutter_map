@@ -13,6 +13,7 @@ Contains the following changes:
 - Added support for allowing gestures to bubble down to all layers - [#1615](https://github.com/fleaflet/flutter_map/pull/1615)
 - Added `minZoom` property to `CameraFit`s - [#1562](https://github.com/fleaflet/flutter_map/pull/1562)
 - Added `InteractiveFlag.doubleTapDragZoom` - [#1603](https://github.com/fleaflet/flutter_map/pull/1603)
+- Added in-memory caching support for tiles loaded by `NetworkTileProvider`, to reduce tile loading times and reduce unnecessary tile server requests - [#1629](https://github.com/fleaflet/flutter_map/pull/1629)
 - Added new options for rotation support to bounds fitting - [#1550](https://github.com/fleaflet/flutter_map/pull/1550) for [#1342](https://github.com/fleaflet/flutter_map/issues/1342)
 - Moved interaction configurations from `MapOptions` into `InteractiveOptions` (accessed from `MapOptions`) - [#1551](https://github.com/fleaflet/flutter_map/pull/1551)
 - Replaced `MapOptions.` `center`, `bounds`, `zoom`, and `rotation` with `initialCenter`, `initialCameraFit`, `initialZoom`, and `initialRotation` - [#1551](https://github.com/fleaflet/flutter_map/pull/1551)
@@ -32,7 +33,6 @@ Contains the following bug fixes:
 - Fixed incorrect `Marker` anchoring when counter-rotating - [#1623](https://github.com/fleaflet/flutter_map/pull/1623)
 - Fixed `fitBounds` failing to load new tiles - [#1626](https://github.com/fleaflet/flutter_map/pull/1626)
 - Fixed `maxNativeZoom` apparently failing to have any effect - [#1627](https://github.com/fleaflet/flutter_map/pull/1627)
-- Fixed in-memory caching support for tiles loaded by `NetworkTileProvider` - [#1629](https://github.com/fleaflet/flutter_map/pull/1629)
 - Fixed `hasGesture` being `false` after double tap zoom in `onPositionChanged` callback - [#1465](https://github.com/fleaflet/flutter_map/issues/1465)
 
 Contains the following performance improvements:
