@@ -22,6 +22,7 @@ Contains the following changes:
 - Replaced `FlutterMap.nonRotatedChildren` with an inverse purpose (usually internal) `MobileLayerTransformer` - [#1615](https://github.com/fleaflet/flutter_map/pull/1615)
 - Refactored internal tile pruning logic - [#1596](https://github.com/fleaflet/flutter_map/pull/1596)
 - Removed `CustomPoint` in favour of extension methods on `Point<T>` - [#1585](https://github.com/fleaflet/flutter_map/pull/1585) for [#1522](https://github.com/fleaflet/flutter_map/issues/1522)
+- Removed `MoveAndRotateResult` in favour of a `Record` in format of `({bool moveSuccess, bool rotateSuccess})` - [#1636](https://github.com/fleaflet/flutter_map/pull/1636)
 - Removed dedicated plugins API import due to redundancy - [#1632](https://github.com/fleaflet/flutter_map/pull/1632)
 
 Contains the following bug fixes:
