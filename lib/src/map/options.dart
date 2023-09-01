@@ -6,12 +6,12 @@ import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/gestures/interactive_flag.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
+import 'package:flutter_map/src/gestures/positioned_tap_detector_2.dart';
 import 'package:flutter_map/src/map/camera/camera_constraint.dart';
 import 'package:flutter_map/src/map/camera/camera_fit.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
 import 'package:flutter_map/src/misc/fit_bounds_options.dart';
 import 'package:flutter_map/src/misc/position.dart';
-import 'package:flutter_map/src/misc/private/positioned_tap_detector_2.dart';
 import 'package:latlong2/latlong.dart';
 
 typedef MapEventCallback = void Function(MapEvent);
