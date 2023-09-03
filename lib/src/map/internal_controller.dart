@@ -140,7 +140,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
   /// Note: All named parameters are required to prevent inconsistent default
   /// values since this method can be called by MapController which declares
   /// defaults.
-  ({bool moveSuccess, bool rotateSuccess}) rotateAroundPoint(
+  MoveAndRotateResult rotateAroundPoint(
     double degree, {
     required Point<double>? point,
     required Offset? offset,
@@ -203,7 +203,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
   /// Note: All named parameters are required to prevent inconsistent default
   /// values since this method can be called by MapController which declares
   /// defaults.
-  ({bool moveSuccess, bool rotateSuccess}) moveAndRotate(
+  MoveAndRotateResult moveAndRotate(
     LatLng newCenter,
     double newZoom,
     double newRotation, {
