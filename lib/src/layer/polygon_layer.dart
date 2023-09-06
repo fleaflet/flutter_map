@@ -43,8 +43,12 @@ class Polygon {
   // of opposing clock-directions cut holes into each other leading to a leaky optimization.
   final bool _filledAndClockwise;
 
-  LatLngBounds? _boundingBox;
+  // Location where to place the label if `label` is set.
+  LatLng? _labelPosition;
+  LatLng get labelPosition =>
+      _labelPosition ??= computeLabelPosition(labelPlacement, points);
 
+  LatLngBounds? _boundingBox;
   LatLngBounds get boundingBox =>
       _boundingBox ??= LatLngBounds.fromPoints(points);
 
@@ -240,12 +244,14 @@ class PolygonPainter extends CustomPainter {
         // The painter will be null if the layouting algorithm determined that
         // there isn't enough space.
         final painter = buildLabelTextPainter(
+          polygon.points,
+          polygon.labelPosition,
+          placementPoint: map.getOffsetFromOrigin(polygon.labelPosition),
           points: offsets,
           labelText: polygon.label!,
           labelStyle: polygon.labelStyle,
           rotationRad: map.rotationRad,
           rotate: polygon.rotateLabel,
-          labelPlacement: polygon.labelPlacement,
           padding: 10,
         );
 
