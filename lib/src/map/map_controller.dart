@@ -109,8 +109,8 @@ abstract class MapController {
   /// The emitted [MapEventRotate.source]/[MapEventMove.source] properties will
   /// be [MapEventSource.mapController].
   ///
-  /// The operation was successful if [MoveAndRotateResult.moveSuccess] and
-  /// [MoveAndRotateResult.rotateSuccess] are `true`.
+  /// The operation was successful if both fields of the resulting record are
+  /// `true`.
   MoveAndRotateResult rotateAroundPoint(
     double degree, {
     Point<double>? point,
@@ -125,8 +125,8 @@ abstract class MapController {
   ///
   /// See documentation on those methods for more details.
   ///
-  /// The operation was successful if [MoveAndRotateResult.moveSuccess] and
-  /// [MoveAndRotateResult.rotateSuccess] are `true`.
+  /// The operation was successful if both fields of the resulting record are
+  /// `true`.
   MoveAndRotateResult moveAndRotate(
     LatLng center,
     double zoom,
