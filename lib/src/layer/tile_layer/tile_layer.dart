@@ -37,22 +37,18 @@ part 'wms_tile_layer_options.dart';
 /// avoid issues.
 @immutable
 class TileLayer extends StatefulWidget {
-  /// Defines the structure to create the URLs for the tiles. `{s}` means one of
-  /// the available subdomains (can be omitted) `{z}` zoom level `{x}` and `{y}`
-  /// — tile coordinates `{r}` can be used to add "&commat;2x" to the URL to
-  /// load retina tiles (can be omitted)
+  /// The URL template is a string that contains placeholders, which, when filled
+  /// in, create a URL/URI to a specific tile.
   ///
-  /// Example:
-  ///
-  /// https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png
-  ///
-  /// Is translated to this:
-  ///
-  /// https://a.tile.openstreetmap.org/12/2177/1259.png
+  /// For more information, see <https://docs.fleaflet.dev/layers/tile-layer>.
   final String? urlTemplate;
 
-  /// Follows the same structure as [urlTemplate]. If specified, this URL is
-  /// used only if an error occurs when loading the [urlTemplate].
+  /// Fallback URL template, used if an error occurs when fetching tiles from
+  /// the [urlTemplate].
+  ///
+  /// Note that specifying this (non-null) will result in tiles not being cached
+  /// in memory. This is to avoid issues where the [urlTemplate] is flaky, to
+  /// prevent different tilesets being displayed at the same time.
   ///
   /// Avoid specifying this when using [AssetTileProvider] or [FileTileProvider],
   /// as these providers are less performant and efficient when this is

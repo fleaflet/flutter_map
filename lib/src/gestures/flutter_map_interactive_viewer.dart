@@ -392,7 +392,7 @@ class FlutterMapInteractiveViewerState
             newCenter,
             newZoom,
             offset: Offset.zero,
-            hasGesture: false,
+            hasGesture: true,
             source: MapEventSource.scrollWheel,
             id: null,
           );
