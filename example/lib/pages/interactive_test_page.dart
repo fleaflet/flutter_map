@@ -124,7 +124,7 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
                   initialZoom: 11,
                   interactionOptions: InteractionOptions(
                     flags: flags,
-                    isCursorRotationKeyboardKeyTrigger: (key) =>
+                    isKeyCursorRotationTrigger: (key) =>
                         keyboardCursorRotate &&
                         {
                           LogicalKeyboardKey.control,
