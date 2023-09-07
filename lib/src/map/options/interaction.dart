@@ -1,27 +1,7 @@
-import 'package:flutter/services.dart';
 import 'package:flutter_map/src/gestures/interactive_flag.dart';
 import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
+import 'package:flutter_map/src/map/options/cursor_keyboard_rotation.dart';
 import 'package:meta/meta.dart';
-
-typedef IsKeyCursorRotationTrigger = bool Function(LogicalKeyboardKey key)?;
-
-/// The behaviour of the cursor/keyboard rotation function in terms of the angle
-/// that the map is rotated to
-///
-/// Does not disable cursor/keyboard rotation, or adjust its triggers: see
-/// [InteractionOptions.isKeyCursorRotationTrigger].
-enum CursorRotationBehaviour {
-  /// Set the North of the map to the angle at which the user drags their cursor
-  setNorth,
-
-  /// Offset the current rotation of the map to the angle at which the user drags
-  /// their cursor
-  ///
-  /// If the users clicks their mouse without dragging (a `onPointerDown` event
-  /// followed by `onPointerUp` without a change in rotation), then the North of
-  /// the map is set to the clicked angle, as with [setNorth].
-  offset,
-}
 
 @immutable
 final class InteractionOptions {
@@ -88,22 +68,19 @@ final class InteractionOptions {
 
   final double scrollWheelVelocity;
 
-  /// Whether to trigger cursor/keyboard rotation dependent on the currently
-  /// pressed [LogicalKeyboardKey]
+  /// Options to configure cursor/keyboard rotation
   ///
-  /// Fix to returning `false` to disable cursor/keyboard rotation.
+  /// Cursor/keyboard rotation is designed for desktop platforms, and allows the
+  /// cursor to be used to set the rotation of the map whilst a keyboard key is
+  /// held down (as triggered by [CursorKeyboardRotationOptions.isKeyTrigger]).
   ///
-  /// Defaults to allowing rotation if any of the Control keys are pressed.
-  final IsKeyCursorRotationTrigger isKeyCursorRotationTrigger;
-
-  /// The behaviour of the cursor/keyboard rotation function in terms of the
-  /// angle that the map is rotated to
+  /// By default, rotation is triggered if any key in
+  /// [CursorKeyboardRotationOptions.defaultTriggerKeys] is held (any of the
+  /// "Control" keys).
   ///
-  /// Does not disable cursor/keyboard rotation, or adjust its triggers: see
-  /// [isKeyCursorRotationTrigger].
-  ///
-  /// Defaults to [CursorRotationBehaviour.offset].
-  final CursorRotationBehaviour cursorRotationBehaviour;
+  /// To disable cursor/keyboard rotation, use the
+  /// [CursorKeyboardRotationOptions.disabled] constructor.
+  final CursorKeyboardRotationOptions cursorKeyboardRotationOptions;
 
   const InteractionOptions({
     this.flags = InteractiveFlag.all,
@@ -119,8 +96,7 @@ final class InteractionOptions {
         MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
     this.enableScrollWheel = true,
     this.scrollWheelVelocity = 0.005,
-    this.isKeyCursorRotationTrigger,
-    this.cursorRotationBehaviour = CursorRotationBehaviour.offset,
+    this.cursorKeyboardRotationOptions = const CursorKeyboardRotationOptions(),
   })  : assert(
           rotationThreshold >= 0.0,
           'rotationThreshold needs to be a positive value',
@@ -148,8 +124,7 @@ final class InteractionOptions {
       pinchMoveWinGestures == other.pinchMoveWinGestures &&
       // ignore: deprecated_member_use_from_same_package
       enableScrollWheel == other.enableScrollWheel &&
-      scrollWheelVelocity == other.scrollWheelVelocity &&
-      cursorRotationBehaviour == other.cursorRotationBehaviour;
+      scrollWheelVelocity == other.scrollWheelVelocity;
 
   @override
   int get hashCode => Object.hash(
@@ -165,6 +140,5 @@ final class InteractionOptions {
         // ignore: deprecated_member_use_from_same_package
         enableScrollWheel,
         scrollWheelVelocity,
-        cursorRotationBehaviour,
       );
 }

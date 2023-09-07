@@ -30,6 +30,7 @@ export 'package:flutter_map/src/map/camera/camera.dart';
 export 'package:flutter_map/src/map/camera/camera_constraint.dart';
 export 'package:flutter_map/src/map/camera/camera_fit.dart';
 export 'package:flutter_map/src/map/map_controller.dart';
+export 'package:flutter_map/src/map/options/cursor_keyboard_rotation.dart';
 export 'package:flutter_map/src/map/options/interaction.dart';
 export 'package:flutter_map/src/map/options/options.dart';
 export 'package:flutter_map/src/map/widget.dart';
