@@ -7,7 +7,7 @@
 Contains the following changes:
 
 - Added new `MapCamera` object to reduce scope of `MapController` & re-implemented internal state management - [#1551](https://github.com/fleaflet/flutter_map/pull/1551) with [#1614](https://github.com/fleaflet/flutter_map/pull/1614)
-- Added support for rotation on desktop with cursor and keyboard trigger - [#1592](https://github.com/fleaflet/flutter_map/pull/1592) for [#1568](https://github.com/fleaflet/flutter_map/issues/1568)
+- Added support for rotation on desktop with cursor/pointer and keyboard trigger - [#1592](https://github.com/fleaflet/flutter_map/pull/1592) & [#1642](https://github.com/fleaflet/flutter_map/pull/1642) for [#1568](https://github.com/fleaflet/flutter_map/issues/1568)
 - Added support for cancelling in-loading tiles to `TileProvider`s & refactored methods - [#1622](https://github.com/fleaflet/flutter_map/pull/1622)
 - Added new `FlutterMap.simple` constructor for super-fast set up - [#1615](https://github.com/fleaflet/flutter_map/pull/1615)
 - Added support for allowing gestures to bubble down to all layers - [#1615](https://github.com/fleaflet/flutter_map/pull/1615)
@@ -15,7 +15,7 @@ Contains the following changes:
 - Added `InteractiveFlag.doubleTapDragZoom` - [#1603](https://github.com/fleaflet/flutter_map/pull/1603)
 - Added in-memory caching support for tiles loaded by `NetworkTileProvider`, to reduce tile loading times and reduce unnecessary tile server requests - [#1629](https://github.com/fleaflet/flutter_map/pull/1629)
 - Added new options for rotation support to bounds fitting - [#1550](https://github.com/fleaflet/flutter_map/pull/1550) for [#1342](https://github.com/fleaflet/flutter_map/issues/1342)
-- Moved interaction configurations from `MapOptions` into `InteractiveOptions` (accessed from `MapOptions`) - [#1551](https://github.com/fleaflet/flutter_map/pull/1551)
+- Moved interaction configurations from `MapOptions` into `InteractionOptions` (accessed from `MapOptions`) - [#1551](https://github.com/fleaflet/flutter_map/pull/1551)
 - Replaced `MapOptions.` `center`, `bounds`, `zoom`, and `rotation` with `initialCenter`, `initialCameraFit`, `initialZoom`, and `initialRotation` - [#1551](https://github.com/fleaflet/flutter_map/pull/1551)
 - Replaced `MapOptions.maxBounds` with `MapOptions.cameraConstraint` - [#1551](https://github.com/fleaflet/flutter_map/pull/1551)
 - Replaced `TileLayer.backgroundColor` property with `MapOptions.backgroundColor` to simplify interaction when using multiple tile layers - [#1578](https://github.com/fleaflet/flutter_map/pull/1578) for [#1577](https://github.com/fleaflet/flutter_map/issues/1577) & [#1566](https://github.com/fleaflet/flutter_map/issues/1566)
@@ -40,7 +40,7 @@ Contains the following performance improvements:
 
 - Created official plugin to reduce tile loading times when running on web, using [#1622](https://github.com/fleaflet/flutter_map/pull/1622)'s infrastructure - [flutter_map_cancellable_tile_provider](https://pub.dev/packages/flutter_map_cancellable_tile_provider)
 - Improved `Marker` performance when using anchors - [#1558](https://github.com/fleaflet/flutter_map/pull/1558) for [#1552](https://github.com/fleaflet/flutter_map/issues/1552)
-- Improved `Polygon` performance when using labels - [#1607](https://github.com/fleaflet/flutter_map/pull/1607)
+- Improved `Polygon` performance when using labels, by increasing batching ability and label location calculations - [#1607](https://github.com/fleaflet/flutter_map/pull/1607) & [#1641](https://github.com/fleaflet/flutter_map/pull/1641)
 - Improved internal code style and strictness - [#1594](https://github.com/fleaflet/flutter_map/pull/1594)
 - Added logging to warn of potential performance issues and recommend workarounds (such as 'flutter_map_cancellable_tile_provider') - [#1632](https://github.com/fleaflet/flutter_map/pull/1632)
 
