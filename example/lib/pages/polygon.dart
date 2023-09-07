@@ -131,6 +131,7 @@ class PolygonPage extends StatelessWidget {
                       borderColor: Colors.purple,
                       label: "Rotated!",
                       rotateLabel: true,
+                      labelPlacement: PolygonLabelPlacement.polylabel,
                     ),
                     Polygon(
                       points: holeOuterPoints,
