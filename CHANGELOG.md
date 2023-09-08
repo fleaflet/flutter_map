@@ -46,7 +46,8 @@ Contains the following performance improvements:
 
 In other news:
 
-- A massive performance improvement on the web can now be gained easily by using the new official [flutter_map_cancellable_tile_provider](https://pub.dev/packages/flutter_map_cancellable_tile_provider) plugin! Check it out for more information about what it can do for you, when to use it, and how it works.
+- There's many new performance and cost-reducing improvments available: please see the [Highlights section](https://docs.fleaflet.dev/v/v6-preview/getting-started/migrating-to-v6#changelog-and-highlights) on the Migrating To v6 docs page!
+- We're on the hunt for maintainers to join the team! For more information, please see [the application form](https://forms.gle/jEeygGJZtBWUdLFf6).
 - OpenStreetMap Operations has warned us that users should move away from using subdomains with their tile servers, so please do! Appropriate warnings will now be logged in console should you fail to do this.
 
 Many thanks to these contributors (in no particular order):
