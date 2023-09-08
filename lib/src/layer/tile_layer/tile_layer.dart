@@ -24,22 +24,18 @@ part 'wms_tile_layer_options.dart';
 /// avoid issues.
 @immutable
 class TileLayer extends StatefulWidget {
-  /// Defines the structure to create the URLs for the tiles. `{s}` means one of
-  /// the available subdomains (can be omitted) `{z}` zoom level `{x}` and `{y}`
-  /// — tile coordinates `{r}` can be used to add "&commat;2x" to the URL to
-  /// load retina tiles (can be omitted)
+  /// The URL template is a string that contains placeholders, which, when filled
+  /// in, create a URL/URI to a specific tile.
   ///
-  /// Example:
-  ///
-  /// https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png
-  ///
-  /// Is translated to this:
-  ///
-  /// https://a.tile.openstreetmap.org/12/2177/1259.png
+  /// For more information, see <https://docs.fleaflet.dev/layers/tile-layer>.
   final String? urlTemplate;
 
-  /// Follows the same structure as [urlTemplate]. If specified, this URL is
-  /// used only if an error occurs when loading the [urlTemplate].
+  /// Fallback URL template, used if an error occurs when fetching tiles from
+  /// the [urlTemplate].
+  ///
+  /// Note that specifying this (non-null) will result in tiles not being cached
+  /// in memory. This is to avoid issues where the [urlTemplate] is flaky, to
+  /// prevent different tilesets being displayed at the same time.
   ///
   /// Avoid specifying this when using [AssetTileProvider] or [FileTileProvider],
   /// as these providers are less performant and efficient when this is
@@ -57,23 +53,40 @@ class TileLayer extends StatefulWidget {
   /// Default is 256
   final double tileSize;
 
-  // The minimum zoom level down to which this layer will be
-  // displayed (inclusive).
+  /// The minimum zoom level down to which this layer will be displayed
+  /// (inclusive)
+  ///
+  /// This should usually be 0 (as default).
   final double minZoom;
 
   /// The maximum zoom level up to which this layer will be displayed
-  /// (inclusive). In most tile providers goes from 0 to 19.
+  /// (inclusive).
+  ///
+  /// Prefer [maxNativeZoom] for setting the maximum zoom level supported by the
+  /// tile source. The main usage for this is to display a different [TileLayer]
+  /// when zoomed far in.
+  ///
+  /// Otherwise, this should usually be infinite (as default), so that there are
+  /// tiles always displayed.
   final double maxZoom;
 
-  /// Minimum zoom number the tile source has available. If it is specified, the
-  /// tiles on all zoom levels lower than minNativeZoom will be loaded from
-  /// minNativeZoom level and auto-scaled.
-  final int? minNativeZoom;
+  /// Minimum zoom level supported by the tile source
+  ///
+  /// Tiles from below this zoom level will not be displayed, instead tiles at
+  /// this zoom level will be displayed and scaled.
+  ///
+  /// This should usually be 0 (as default), as most tile sources will support
+  /// zoom levels onwards from this.
+  final int minNativeZoom;
 
-  /// Maximum zoom number the tile source has available. If it is specified, the
-  /// tiles on all zoom levels higher than maxNativeZoom will be loaded from
-  /// maxNativeZoom level and auto-scaled.
-  final int? maxNativeZoom;
+  /// Maximum zoom number supported by the tile source has available.
+  ///
+  /// Tiles from above this zoom level will not be displayed, instead tiles at
+  /// this zoom level will be displayed and scaled.
+  ///
+  /// Most tile servers support up to zoom level 19, which is the default.
+  /// Otherwise, this should be specified.
+  final int maxNativeZoom;
 
   /// If set to true, the zoom number used in tile URLs will be reversed
   /// (`maxZoom - zoom` instead of `zoom`)
@@ -231,11 +244,11 @@ class TileLayer extends StatefulWidget {
     super.key,
     this.urlTemplate,
     this.fallbackUrl,
-    double tileSize = 256.0,
-    double minZoom = 0.0,
-    double maxZoom = 18.0,
-    this.minNativeZoom,
-    this.maxNativeZoom,
+    double tileSize = 256,
+    double minZoom = 0,
+    double maxZoom = double.infinity,
+    this.minNativeZoom = 0,
+    this.maxNativeZoom = 19,
     this.zoomReverse = false,
     double zoomOffset = 0.0,
     this.additionalOptions = const {},
@@ -639,18 +652,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   /// Rounds the zoom to the nearest int and clamps it to the native zoom limits
   /// if there are any.
-  int _clampToNativeZoom(double zoom) {
-    var result = zoom.round();
-
-    if (widget.minNativeZoom != null) {
-      result = max(result, widget.minNativeZoom!);
-    }
-    if (widget.maxNativeZoom != null) {
-      result = min(result, widget.maxNativeZoom!);
-    }
-
-    return result;
-  }
+  int _clampToNativeZoom(double zoom) =>
+      zoom.round().clamp(widget.minNativeZoom, widget.maxNativeZoom);
 
   void _onTileLoadError(TileImage tile, Object error, StackTrace? stackTrace) {
     debugPrint(error.toString());

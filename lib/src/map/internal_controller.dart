@@ -156,13 +156,13 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     }
 
     if (degree == camera.rotation) {
-      return const MoveAndRotateResult(false, false);
+      return const (moveSuccess: false, rotateSuccess: false);
     }
 
     if (offset == Offset.zero) {
-      return MoveAndRotateResult(
-        true,
-        rotate(
+      return (
+        moveSuccess: true,
+        rotateSuccess: rotate(
           degree,
           hasGesture: hasGesture,
           source: source,
@@ -178,8 +178,8 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
                 : Point(offset!.dx, offset.dy))
             .rotate(camera.rotationRad);
 
-    return MoveAndRotateResult(
-      move(
+    return (
+      moveSuccess: move(
         camera.unproject(
           rotationCenter +
               (camera.project(camera.center) - rotationCenter)
@@ -191,7 +191,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
         source: source,
         id: id,
       ),
-      rotate(
+      rotateSuccess: rotate(
         camera.rotation + rotationDiff,
         hasGesture: hasGesture,
         source: source,
@@ -212,8 +212,8 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     required MapEventSource source,
     required String? id,
   }) =>
-      MoveAndRotateResult(
-        move(
+      (
+        moveSuccess: move(
           newCenter,
           newZoom,
           offset: offset,
@@ -221,7 +221,8 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
           source: source,
           id: id,
         ),
-        rotate(newRotation, id: id, source: source, hasGesture: hasGesture),
+        rotateSuccess:
+            rotate(newRotation, id: id, source: source, hasGesture: hasGesture),
       );
 
   /// Note: All named parameters are required to prevent inconsistent default
@@ -238,7 +239,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
       fitted.zoom,
       offset: offset,
       hasGesture: false,
-      source: MapEventSource.fitCamera,
+      source: MapEventSource.mapController,
       id: null,
     );
   }
