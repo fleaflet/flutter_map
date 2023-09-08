@@ -246,7 +246,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
       fitted.zoom,
       offset: offset,
       hasGesture: false,
-      source: MapEventSource.fitCamera,
+      source: MapEventSource.mapController,
       id: null,
     );
   }
