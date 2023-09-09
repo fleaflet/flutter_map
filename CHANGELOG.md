@@ -18,7 +18,7 @@ Contains the following changes:
 - Moved interaction configurations from `MapOptions` into `InteractionOptions` (accessed from `MapOptions`) - [#1551](https://github.com/fleaflet/flutter_map/pull/1551)
 - Replaced `MapOptions.` `center`, `bounds`, `zoom`, and `rotation` with `initialCenter`, `initialCameraFit`, `initialZoom`, and `initialRotation` - [#1551](https://github.com/fleaflet/flutter_map/pull/1551)
 - Replaced `MapOptions.maxBounds` with `MapOptions.cameraConstraint` - [#1551](https://github.com/fleaflet/flutter_map/pull/1551)
-- Replaced `TileLayer.backgroundColor` property with `MapOptions.backgroundColor` to simplify interaction when using multiple tile layers - [#1578](https://github.com/fleaflet/flutter_map/pull/1578) for [#1577](https://github.com/fleaflet/flutter_map/issues/1577) & [#1566](https://github.com/fleaflet/flutter_map/issues/1566)
+- Replaced `TileLayer.backgroundColor` property with `MapOptions.backgroundColor` to simplify interaction when using multiple tile layers - [#1578](https://github.com/fleaflet/flutter_map/pull/1578) & [#1647](https://github.com/fleaflet/flutter_map/pull/1647) for [#1577](https://github.com/fleaflet/flutter_map/issues/1577) & [#1566](https://github.com/fleaflet/flutter_map/issues/1566)
 - Replaced `FlutterMap.nonRotatedChildren` with an inverse purpose (usually internal) `MobileLayerTransformer` - [#1615](https://github.com/fleaflet/flutter_map/pull/1615)
 - Refactored internal tile pruning logic - [#1596](https://github.com/fleaflet/flutter_map/pull/1596)
 - Removed `CustomPoint` in favour of extension methods on `Point<T>` - [#1585](https://github.com/fleaflet/flutter_map/pull/1585) for [#1522](https://github.com/fleaflet/flutter_map/issues/1522)
@@ -58,6 +58,7 @@ Many thanks to these contributors (in no particular order):
 - @Robbendebiene
 - @ignatz
 - @josxha
+- @lonelyteapot
 - ... and all the maintainers
 
 And an additional special thanks to @rorystephenson for investing so much of their time into this project recently - we appreciate it!
