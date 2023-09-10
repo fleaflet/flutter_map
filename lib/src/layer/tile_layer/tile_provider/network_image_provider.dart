@@ -78,14 +78,15 @@ class FlutterMapNetworkImageProvider
     ImageDecoderCallback decode, {
     bool useFallback = false,
   }) async {
-    final Uint8List bytes;
     try {
-      bytes = await httpClient.readBytes(
-        Uri.parse(useFallback ? fallbackUrl ?? '' : url),
-        headers: headers,
+      return decode(
+        await ImmutableBuffer.fromUint8List(
+          await httpClient.readBytes(
+            Uri.parse(useFallback ? fallbackUrl ?? '' : url),
+            headers: headers,
+          ),
+        ),
       );
-
-      return decode(await ImmutableBuffer.fromUint8List(bytes));
     } catch (_) {
       if (useFallback || fallbackUrl == null) rethrow;
       return _loadAsync(key, chunkEvents, decode, useFallback: true);
