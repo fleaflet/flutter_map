@@ -303,6 +303,7 @@ class MapOptions {
       boundsOptions == other.boundsOptions &&
       minZoom == other.minZoom &&
       maxZoom == other.maxZoom &&
+      backgroundColor == other.backgroundColor &&
       onTap == other.onTap &&
       onSecondaryTap == other.onSecondaryTap &&
       onLongPress == other.onLongPress &&
@@ -329,6 +330,7 @@ class MapOptions {
         boundsOptions,
         minZoom,
         maxZoom,
+        backgroundColor,
         onTap,
         onSecondaryTap,
         onLongPress,
