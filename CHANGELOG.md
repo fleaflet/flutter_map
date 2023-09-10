@@ -1,6 +1,6 @@
 # Changelog
 
-## [6.0.0] - 2023/08/XX
+## [6.0.0] - 2023/09/XX
 
 **"Photography"**
 
@@ -30,11 +30,12 @@ Contains the following bug fixes:
 - Handled exceptions correctly in default image provider if no `fallbackUrl` is defined - [#1555](https://github.com/fleaflet/flutter_map/pull/1555) for [#1554](https://github.com/fleaflet/flutter_map/issues/1554)
 - Ignored gestures on closed `RichAnimationWidget` when using `FadeRAWA` - [#1591](https://github.com/fleaflet/flutter_map/pull/1591) for [#1589](https://github.com/fleaflet/flutter_map/issues/1589)
 - Fixed some `Polygon` edge-cases - [#1598](https://github.com/fleaflet/flutter_map/pull/1598) & [#1599](https://github.com/fleaflet/flutter_map/pull/1599)
-- Fixed `TileLayer.reset` failing to load new tiles - [#1620](https://github.com/fleaflet/flutter_map/pull/1620)
-- Fixed incorrect `Marker` anchoring when counter-rotating - [#1623](https://github.com/fleaflet/flutter_map/pull/1623)
-- Fixed `fitBounds` failing to load new tiles - [#1626](https://github.com/fleaflet/flutter_map/pull/1626)
-- Fixed `maxNativeZoom` apparently failing to have any effect - [#1627](https://github.com/fleaflet/flutter_map/pull/1627)
-- Fixed `hasGesture` being `false` after double tap zoom in `onPositionChanged` callback - [#1465](https://github.com/fleaflet/flutter_map/issues/1465)
+- Fixed `TileLayer.reset` failing to load new tiles - [#1620](https://github.com/fleaflet/flutter_map/pull/1620) for [#1619](https://github.com/fleaflet/flutter_map/issues/1619)
+- Fixed incorrect `Marker` anchoring when counter-rotating - [#1623](https://github.com/fleaflet/flutter_map/pull/1623) for [#1500](https://github.com/fleaflet/flutter_map/issues/1500)
+- Fixed `fitBounds` failing to load new tiles - [#1626](https://github.com/fleaflet/flutter_map/pull/1626) for [#1563](https://github.com/fleaflet/flutter_map/issues/1563)
+- Fixed `maxNativeZoom` apparently failing to have any effect - [#1627](https://github.com/fleaflet/flutter_map/pull/1627) for [#1625](https://github.com/fleaflet/flutter_map/issues/1625)
+- Fixed `hasGesture` being `false` after double tap zoom in `onPositionChanged` callback - [#1465](https://github.com/fleaflet/flutter_map/issues/1465) for [#1630](https://github.com/fleaflet/flutter_map/pull/1630)
+- Fixed failure to attempt tile requests with `fallbackUrl` when an exception is thrown whilst `decode`ing instead of during the network request - [#1648](https://github.com/fleaflet/flutter_map/pull/1648) for [#1649](https://github.com/fleaflet/flutter_map/issues/1649)
 
 Contains the following performance improvements:
 
@@ -59,6 +60,7 @@ Many thanks to these contributors (in no particular order):
 - @ignatz
 - @josxha
 - @lonelyteapot
+- @s6o
 - ... and all the maintainers
 
 And an additional special thanks to @rorystephenson for investing so much of their time into this project recently - we appreciate it!
