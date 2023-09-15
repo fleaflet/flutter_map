@@ -4,6 +4,10 @@ A versatile mapping package for Flutter. Simple and easy to learn, yet completel
 
 [![pub.dev](https://img.shields.io/pub/v/flutter_map.svg?label=Latest+Version)](https://pub.dev/packages/flutter_map) [![stars](https://badgen.net/github/stars/fleaflet/flutter_map?label=stars&color=green&icon=github)](https://github.com/fleaflet/flutter_map/stargazers) [![likes](https://img.shields.io/pub/likes/flutter_map?logo=flutter)](https://pub.dev/packages/flutter_map/score)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![Open Issues](https://badgen.net/github/open-issues/fleaflet/flutter_map?label=Open+Issues&color=green)](https://GitHub.com/fleaflet/flutter_map/issues) [![Open PRs](https://badgen.net/github/open-prs/fleaflet/flutter_map?label=Open+PRs&color=green)](https://GitHub.com/fleaflet/flutter_map/pulls)
 
+## [Donate](https://docs.fleaflet.dev/v/v6-1/supporters)
+
+We now accept one-time donations via Stripe! We're extremely grateful for anything you can spare. We'll donate 15% of what we receive to the OpenStreetMap Foundation, as a thanks for their excellent work.
+For more information, details about benefits, and the link to donate, please see [Donate](https://docs.fleaflet.dev/v/v6-1/supporters).
 
 ## [Documentation](https://docs.fleaflet.dev/)
 

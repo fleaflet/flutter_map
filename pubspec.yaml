@@ -6,6 +6,9 @@ repository: https://github.com/fleaflet/flutter_map
 issue_tracker: https://github.com/fleaflet/flutter_map/issues
 documentation: https://docs.fleaflet.dev
 
+funding:
+  - https://docs.fleaflet.dev/v/v6-1/supporters
+
 topics:
   - flutter-map
   - map
