@@ -120,14 +120,14 @@ class MarkerPageState extends State<MarkerPage> {
                 ),
                 MarkerLayer(
                   rotate: counterRotate,
-                  anchorPos: AnchorPos.defaultAnchorPos,
+                  position: AnchorPos.defaultAnchorPos,
                   markers: [
-                    Marker(
+                    Marker.positioned(
                       point:
                           const LatLng(47.18664724067855, -1.5436768515939427),
                       width: 64,
                       height: 64,
-                      anchorPos: const AnchorPos.align(Alignment.centerLeft),
+                      position: const AnchorPos(Alignment.centerLeft),
                       builder: (context) => const ColoredBox(
                         color: Colors.lightBlue,
                         child: Align(
@@ -136,12 +136,12 @@ class MarkerPageState extends State<MarkerPage> {
                         ),
                       ),
                     ),
-                    Marker(
+                    Marker.positioned(
                       point:
                           const LatLng(47.18664724067855, -1.5436768515939427),
                       width: 64,
                       height: 64,
-                      anchorPos: const AnchorPos.align(Alignment.centerRight),
+                      position: const AnchorPos(Alignment.centerRight),
                       builder: (context) => const ColoredBox(
                         color: Colors.pink,
                         child: Align(
@@ -162,7 +162,7 @@ class MarkerPageState extends State<MarkerPage> {
                 MarkerLayer(
                   markers: customMarkers,
                   rotate: counterRotate,
-                  anchorPos: AnchorPos.align(anchorAlign),
+                  position: AnchorPos(anchorAlign),
                 ),
               ],
             ),

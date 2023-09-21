@@ -9,41 +9,22 @@ import 'package:latlong2/latlong.dart';
 /// Defines the positioning of a [Marker.builder] widget relative to the center
 /// of its bounding box
 ///
-/// Can be defined exactly (using [AnchorPos.exactly] with an [Anchor]) or in
-/// a relative/dynamic alignment (using [AnchorPos.align] with an [Alignment]).
-///
-/// If using [AnchorPos.align], the provided [AlignmentGeometry]'s factors must
-/// be either -1, 1, or 0 only (ie. the pre-provided [Alignment]s).
-/// [textDirection] will default to [TextDirection.ltr], and is used to resolve
-/// the [AlignmentGeometry].
+/// The provided [AlignmentGeometry]'s factors must be either -1, 1, or 0 only
+/// (i.e. the pre-provided [Alignment]s). [textDirection] will default to
+/// [TextDirection.ltr], and is used to resolve the [AlignmentGeometry].
 @immutable
 class AnchorPos {
   /// The default, central alignment
-  static const defaultAnchorPos = AnchorPos.align(Alignment.center);
+  static const defaultAnchorPos = AnchorPos(Alignment.center);
 
-  /// Exact left/top anchor
-  ///
-  /// Set only if constructed with [AnchorPos.exactly].
-  final Anchor? anchor;
-
-  /// Relative/dynamic alignment
+  /// Relative/dynamic alignment geometry.
   ///
   /// Transformed into [anchor] at runtime by [Anchor.fromPos]. Resolved by
   /// [textDirection].
-  ///
-  /// Set only if constructed with [AnchorPos.align].
-  final AlignmentGeometry? alignment;
+  final AlignmentGeometry geometry;
 
   /// Used to resolve [alignment].
-  ///
-  /// Set only if constructed with [AnchorPos.align].
-  final TextDirection? textDirection;
-
-  /// Defines the positioning of a [Marker.builder] widget relative to the center
-  /// of its bounding box, with an exact left/top anchor
-  const AnchorPos.exactly(Anchor this.anchor)
-      : alignment = null,
-        textDirection = null;
+  final TextDirection textDirection;
 
   /// Defines the positioning of a [Marker.builder] widget relative to the center
   /// of its bounding box, with a relative/dynamic alignment
@@ -51,16 +32,16 @@ class AnchorPos {
   /// [alignment]'s factors must be either -1, 1, or 0 only (ie. the pre-provided
   /// [Alignment]s). [textDirection] will default to [TextDirection.ltr], and is
   /// used to resolve the [AlignmentGeometry].
-  const AnchorPos.align(
-    AlignmentGeometry this.alignment, {
+  const AnchorPos(
+    this.geometry, {
     this.textDirection = TextDirection.ltr,
-  }) : anchor = null;
+  });
 }
 
 /// Exact alignment for a [Marker.builder] widget relative to the center
 /// of its bounding box defined by its [Marker.height] & [Marker.width]
 ///
-/// May be generated from an [AnchorPos] (usually with [AnchorPos.alignment]
+/// May be generated from an [AnchorPos] (usually with [AnchorPos.geometry]
 /// defined) and dimensions through [Anchor.fromPos].
 @immutable
 class Anchor {
@@ -70,32 +51,29 @@ class Anchor {
   const Anchor(this.left, this.top);
 
   factory Anchor.fromPos(AnchorPos pos, double width, double height) {
-    if (pos.anchor case final anchor?) return anchor;
-    if (pos.alignment case final alignment?) {
-      return Anchor(
-        switch (alignment.resolve(pos.textDirection).x) {
-          -1 => 0,
-          1 => width,
-          0 => width / 2,
-          _ => throw ArgumentError.value(
-              alignment,
-              'alignment',
-              'The `x` factor must be -1, 1, or 0 only (ie. the pre-provided alignments)',
-            ),
-        },
-        switch (alignment.resolve(pos.textDirection).y) {
-          -1 => 0,
-          1 => height,
-          0 => height / 2,
-          _ => throw ArgumentError.value(
-              alignment,
-              'alignment',
-              'The `y` factor must be -1, 1, or 0 only (ie. the pre-provided alignments)',
-            ),
-        },
-      );
-    }
-    throw Exception();
+    final geometry = pos.geometry;
+    return Anchor(
+      switch (geometry.resolve(pos.textDirection).x) {
+        -1 => 0,
+        1 => width,
+        0 => width / 2,
+        _ => throw ArgumentError.value(
+            geometry,
+            'alignment',
+            'The `x` factor must be -1, 1, or 0 only (ie. the pre-provided alignments)',
+          ),
+      },
+      switch (geometry.resolve(pos.textDirection).y) {
+        -1 => 0,
+        1 => height,
+        0 => height / 2,
+        _ => throw ArgumentError.value(
+            geometry,
+            'alignment',
+            'The `y` factor must be -1, 1, or 0 only (ie. the pre-provided alignments)',
+          ),
+      },
+    );
   }
 }
 
@@ -137,8 +115,8 @@ class Marker {
 
   /// The alignment of the origin, relative to the size of the box.
   ///
-  /// Automatically set to the opposite of `anchorPos`, if it was constructed by
-  /// [AnchorPos.align], but can be overridden.
+  /// Automatically set to the opposite of `alignment`, if it was constructed by
+  /// [Marker.align], but can be overridden.
   ///
   /// This is equivalent to setting an origin based on the size of the box.
   /// If it is specified at the same time as the [rotateOrigin], both are applied.
@@ -152,20 +130,32 @@ class Marker {
   /// [Directionality.of] returns [TextDirection.rtl].
   final AlignmentGeometry? rotateAlignment;
 
-  Marker({
+  const Marker({
     this.key,
     required this.point,
     required this.builder,
     this.width = 30.0,
     this.height = 30.0,
-    AnchorPos? anchorPos,
+    this.anchor,
+    this.rotate,
+    this.rotateOrigin,
+    this.rotateAlignment,
+  });
+
+  Marker.positioned({
+    this.key,
+    required this.point,
+    required this.builder,
+    this.width = 30.0,
+    this.height = 30.0,
+    AnchorPos? position,
     this.rotate,
     this.rotateOrigin,
     AlignmentGeometry? rotateAlignment,
   })  : anchor =
-            anchorPos == null ? null : Anchor.fromPos(anchorPos, width, height),
+            position == null ? null : Anchor.fromPos(position, width, height),
         rotateAlignment = rotateAlignment ??
-            (anchorPos?.alignment != null ? anchorPos!.alignment! * -1 : null);
+            (position != null ? position.geometry * -1 : null);
 }
 
 @immutable
@@ -175,8 +165,8 @@ class MarkerLayer extends StatelessWidget {
   /// Positioning of the [Marker.builder] widget relative to the center of its
   /// bounding box defined by its [Marker.height] & [Marker.width]
   ///
-  /// Overriden on a per [Marker] basis if [Marker.anchorPos] is specified.
-  final AnchorPos? anchorPos;
+  /// Overriden on a per [Marker] basis if [Marker.alignment] is specified.
+  final AnchorPos? position;
 
   /// Whether to counter rotate markers to the map's rotation, to keep a fixed
   /// orientation
@@ -195,8 +185,8 @@ class MarkerLayer extends StatelessWidget {
 
   /// The alignment of the origin, relative to the size of the box.
   ///
-  /// Automatically set to the opposite of `anchorPos`, if it was constructed by
-  /// [AnchorPos.align], but can be overridden.
+  /// Automatically set to the opposite of `alignment`, if it was constructed by
+  /// [AnchorPos], but can be overridden.
   ///
   /// This is equivalent to setting an origin based on the size of the box.
   /// If it is specified at the same time as the [rotateOrigin], both are applied.
@@ -215,7 +205,7 @@ class MarkerLayer extends StatelessWidget {
   const MarkerLayer({
     super.key,
     this.markers = const [],
-    this.anchorPos,
+    this.position,
     this.rotate = false,
     this.rotateOrigin,
     this.rotateAlignment,
@@ -236,7 +226,7 @@ class MarkerLayer extends StatelessWidget {
       // unlike the map coordinates.
       final anchor = marker.anchor ??
           Anchor.fromPos(
-            anchorPos ?? AnchorPos.defaultAnchorPos,
+            position ?? AnchorPos.defaultAnchorPos,
             marker.width,
             marker.height,
           );
@@ -250,17 +240,17 @@ class MarkerLayer extends StatelessWidget {
         continue;
       }
 
-      final defaultAlignment = anchorPos?.alignment != null
-          ? anchorPos!.alignment! * -1
-          : Alignment.center;
+      final defaultRotateAlignment =
+          position != null ? position!.geometry * -1 : Alignment.center;
 
       final pos = pxPoint.subtract(map.pixelOrigin);
       final markerWidget = (marker.rotate ?? rotate)
           ? Transform.rotate(
               angle: -map.rotationRad,
               origin: marker.rotateOrigin ?? rotateOrigin ?? Offset.zero,
-              alignment:
-                  marker.rotateAlignment ?? rotateAlignment ?? defaultAlignment,
+              alignment: marker.rotateAlignment ??
+                  rotateAlignment ??
+                  defaultRotateAlignment,
               child: marker.builder(context),
             )
           : marker.builder(context);
