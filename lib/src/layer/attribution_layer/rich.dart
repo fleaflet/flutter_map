@@ -153,7 +153,6 @@ class RichAttributionWidget extends StatefulWidget {
 class RichAttributionWidgetState extends State<RichAttributionWidget> {
   StreamSubscription<MapEvent>? mapEventSubscription;
 
-  final persistentAttributionKey = GlobalKey();
   Size? persistentAttributionSize;
 
   late bool popupExpanded = widget.popupInitialDisplayDuration != Duration.zero;
@@ -177,12 +176,9 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => WidgetsBinding.instance.addPostFrameCallback(
         (_) {
-          assert(
-            persistentAttributionKey.currentContext?.findRenderObject() != null,
-            'persistentAttributionKey is not in the widget tree',
-          );
-          final renderObject =
-              persistentAttributionKey.currentContext?.findRenderObject();
+          if (!mounted) return;
+
+          final renderObject = context.findRenderObject();
           if (renderObject is RenderBox) {
             setState(() => persistentAttributionSize = renderObject.size);
           }
@@ -313,7 +309,6 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
                 ),
               ),
             MouseRegion(
-              key: persistentAttributionKey,
               onEnter: (_) => setState(() => persistentHovered = true),
               onExit: (_) => setState(() => persistentHovered = false),
               cursor: SystemMouseCursors.click,
