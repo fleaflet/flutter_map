@@ -123,7 +123,8 @@ class FlutterMap extends StatefulWidget {
   State<FlutterMap> createState() => _FlutterMapStateContainer();
 }
 
-class _FlutterMapStateContainer extends State<FlutterMap> {
+class _FlutterMapStateContainer extends State<FlutterMap>
+    with AutomaticKeepAliveClientMixin {
   bool _initialCameraFitApplied = false;
 
   late final FlutterMapInternalController _flutterMapInternalController;
@@ -168,6 +169,8 @@ class _FlutterMapStateContainer extends State<FlutterMap> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return LayoutBuilder(
       builder: (context, constraints) {
         _updateAndEmitSizeIfConstraintsChanged(constraints);
@@ -277,4 +280,7 @@ class _FlutterMapStateContainer extends State<FlutterMap> {
   bool _parentConstraintsAreSet(
           BuildContext context, BoxConstraints constraints) =>
       constraints.maxWidth != 0 || MediaQuery.sizeOf(context) != Size.zero;
+
+  @override
+  bool get wantKeepAlive => widget.options.keepAlive;
 }
