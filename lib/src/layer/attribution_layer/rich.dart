@@ -248,7 +248,6 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
               isExpanded: popupExpanded,
               config: widget,
               child: Container(
-                width: double.infinity,
                 decoration: BoxDecoration(
                   color: widget.popupBackgroundColor ??
                       Theme.of(context).colorScheme.background,
