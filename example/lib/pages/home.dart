@@ -137,24 +137,27 @@ class _HomePageState extends State<HomePage> {
           PositionedDirectional(
             start: 16,
             top: 16,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.background,
-                borderRadius: BorderRadius.circular(999),
-              ),
-              padding: const EdgeInsets.all(8),
-              child: Row(
-                children: [
-                  Builder(
-                    builder: (context) => IconButton(
-                      onPressed: () => Scaffold.of(context).openDrawer(),
-                      icon: const Icon(Icons.menu),
+            child: SafeArea(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.background,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                padding: const EdgeInsets.all(8),
+                child: Row(
+                  children: [
+                    Builder(
+                      builder: (context) => IconButton(
+                        onPressed: () => Scaffold.of(context).openDrawer(),
+                        icon: const Icon(Icons.menu),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Image.asset('assets/ProjectIcon.png', height: 32, width: 32),
-                  const SizedBox(width: 8),
-                ],
+                    const SizedBox(width: 8),
+                    Image.asset('assets/ProjectIcon.png',
+                        height: 32, width: 32),
+                    const SizedBox(width: 8),
+                  ],
+                ),
               ),
             ),
           )
