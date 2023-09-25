@@ -36,6 +36,7 @@ Contains the following bug fixes:
 - Fixed `maxNativeZoom` apparently failing to have any effect - [#1627](https://github.com/fleaflet/flutter_map/pull/1627) for [#1625](https://github.com/fleaflet/flutter_map/issues/1625)
 - Fixed `hasGesture` being `false` after double tap zoom in `onPositionChanged` callback - [#1465](https://github.com/fleaflet/flutter_map/issues/1465) for [#1630](https://github.com/fleaflet/flutter_map/pull/1630)
 - Fixed failure to attempt tile requests with `fallbackUrl` when an exception is thrown whilst `decode`ing instead of during the network request - [#1648](https://github.com/fleaflet/flutter_map/pull/1648) for [#1649](https://github.com/fleaflet/flutter_map/issues/1649)
+- Fixed potential issues with building `RichAttributionWidget` - [#1661](https://github.com/fleaflet/flutter_map/pull/1661)
 
 Contains the following performance improvements:
 
@@ -61,6 +62,7 @@ Many thanks to these contributors (in no particular order):
 - @josxha
 - @lonelyteapot
 - @s6o
+- @bramp
 - ... and all the maintainers
 
 And an additional special thanks to @rorystephenson for investing so much of their time into this project recently - we appreciate it!
