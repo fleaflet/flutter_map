@@ -153,8 +153,6 @@ class RichAttributionWidget extends StatefulWidget {
 class RichAttributionWidgetState extends State<RichAttributionWidget> {
   StreamSubscription<MapEvent>? mapEventSubscription;
 
-  Size? persistentAttributionSize;
-
   late bool popupExpanded = widget.popupInitialDisplayDuration != Duration.zero;
   bool persistentHovered = false;
 
@@ -172,19 +170,6 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
         },
       );
     }
-
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => WidgetsBinding.instance.addPostFrameCallback(
-        (_) {
-          if (!mounted) return;
-
-          final renderObject = context.findRenderObject();
-          if (renderObject is RenderBox) {
-            setState(() => persistentAttributionSize = renderObject.size);
-          }
-        },
-      ),
-    );
   }
 
   @override
@@ -251,87 +236,79 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
       ),
     ];
 
-    return LayoutBuilder(
-      builder: (context, constraints) => Align(
+    return Align(
+      alignment: widget.alignment.real,
+      child: Stack(
         alignment: widget.alignment.real,
-        child: Stack(
-          alignment: widget.alignment.real,
-          children: [
-            if (persistentAttributionSize != null)
-              Padding(
-                padding: const EdgeInsets.all(6),
-                child: widget.animationConfig.popupAnimationBuilder(
-                  context: context,
-                  isExpanded: popupExpanded,
-                  config: widget,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: widget.popupBackgroundColor ??
-                          Theme.of(context).colorScheme.background,
-                      border: Border.all(width: 0, style: BorderStyle.none),
-                      borderRadius: widget.popupBorderRadius ??
-                          BorderRadius.only(
-                            topLeft: const Radius.circular(10),
-                            topRight: const Radius.circular(10),
-                            bottomLeft: widget.alignment ==
-                                    AttributionAlignment.bottomLeft
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(6),
+            child: widget.animationConfig.popupAnimationBuilder(
+              context: context,
+              isExpanded: popupExpanded,
+              config: widget,
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: widget.popupBackgroundColor ??
+                      Theme.of(context).colorScheme.background,
+                  border: Border.all(width: 0, style: BorderStyle.none),
+                  borderRadius: widget.popupBorderRadius ??
+                      BorderRadius.only(
+                        topLeft: const Radius.circular(10),
+                        topRight: const Radius.circular(10),
+                        bottomLeft:
+                            widget.alignment == AttributionAlignment.bottomLeft
                                 ? Radius.zero
                                 : const Radius.circular(10),
-                            bottomRight: widget.alignment ==
-                                    AttributionAlignment.bottomRight
+                        bottomRight:
+                            widget.alignment == AttributionAlignment.bottomRight
                                 ? Radius.zero
                                 : const Radius.circular(10),
-                          ),
-                    ),
-                    constraints: BoxConstraints(
-                      minWidth: constraints.maxWidth < 420
-                          ? constraints.maxWidth
-                          : persistentAttributionSize!.width,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ...widget.attributions
-                              .whereType<TextSourceAttribution>(),
-                          const TextSourceAttribution(
-                            "Made with 'flutter_map'",
-                            prependCopyright: false,
-                            textStyle: TextStyle(fontStyle: FontStyle.italic),
-                          ),
-                          SizedBox(height: (widget.permanentHeight - 24) + 32),
-                        ],
                       ),
-                    ),
-                  ),
                 ),
-              ),
-            MouseRegion(
-              onEnter: (_) => setState(() => persistentHovered = true),
-              onExit: (_) => setState(() => persistentHovered = false),
-              cursor: SystemMouseCursors.click,
-              child: AnimatedOpacity(
-                opacity: persistentHovered || popupExpanded ? 1 : 0.5,
-                curve: widget.animationConfig.buttonCurve,
-                duration: widget.animationConfig.buttonDuration,
                 child: Padding(
-                  padding: const EdgeInsets.all(4),
-                  child: FittedBox(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children:
-                          widget.alignment == AttributionAlignment.bottomLeft
-                              ? persistentAttributionItems.reversed.toList()
-                              : persistentAttributionItems,
-                    ),
+                  padding: const EdgeInsets.all(8),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ...widget.attributions.whereType<TextSourceAttribution>(),
+                      const TextSourceAttribution(
+                        "Made with 'flutter_map'",
+                        prependCopyright: false,
+                        textStyle: TextStyle(fontStyle: FontStyle.italic),
+                      ),
+                      SizedBox(height: (widget.permanentHeight - 24) + 32),
+                    ],
                   ),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+          MouseRegion(
+            onEnter: (_) => setState(() => persistentHovered = true),
+            onExit: (_) => setState(() => persistentHovered = false),
+            cursor: SystemMouseCursors.click,
+            child: AnimatedOpacity(
+              opacity: persistentHovered || popupExpanded ? 1 : 0.5,
+              curve: widget.animationConfig.buttonCurve,
+              duration: widget.animationConfig.buttonDuration,
+              child: Padding(
+                padding: const EdgeInsets.all(4),
+                child: FittedBox(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children:
+                        widget.alignment == AttributionAlignment.bottomLeft
+                            ? persistentAttributionItems.reversed.toList()
+                            : persistentAttributionItems,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
