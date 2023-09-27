@@ -147,11 +147,11 @@ class _RetinaPageState extends State<RetinaPage> {
               children: [
                 TileLayer(
                   urlTemplate:
-                      'https://api.mapbox.com/styles/v1/mapbox/streets-v9/tiles/{urlTileSize}/{z}/{x}/{y}{urlRetinaMode}?access_token={accessToken}',
+                      'https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{urlTileSize}/{z}/{x}/{y}{urlRetinaMode}?access_token={accessToken}',
                   userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   additionalOptions: {
                     'urlTileSize': urlTileSize.toStringAsFixed(0),
-                    'urlRetinaMode': urlRetina ? '{r}' : '',
+                    'urlRetinaMode': urlRetina ? '@2x' : '',
                     'accessToken':
                         'pk.eyJ1IjoiYnJhbXAiLCJhIjoiY2o4b3NnamZnMDhoMjMzcno4M3JrNm4wMSJ9.R8ove2k7wvRVVdEnlTUu4A',
                   },
