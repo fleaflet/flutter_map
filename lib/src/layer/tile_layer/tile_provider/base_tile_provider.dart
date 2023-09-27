@@ -198,6 +198,7 @@ abstract class TileProvider {
           : options.subdomains[
               (coordinates.x + coordinates.y) % options.subdomains.length],
       'r': '@2x',
+      'd': options.tileSize.toString(),
       ...options.additionalOptions,
     };
   }
