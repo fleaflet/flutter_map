@@ -147,7 +147,7 @@ class _RetinaPageState extends State<RetinaPage> {
               children: [
                 TileLayer(
                   urlTemplate:
-                      'https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{urlTileSize}/{z}/{x}/{y}{urlRetinaMode}?access_token={accessToken}',
+                      'https://api.mapbox.com/styles/v1/mapbox/streets-v9/tiles/{urlTileSize}/{z}/{x}/{y}{urlRetinaMode}?access_token={accessToken}',
                   userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   additionalOptions: {
                     'urlTileSize': urlTileSize.toStringAsFixed(0),
