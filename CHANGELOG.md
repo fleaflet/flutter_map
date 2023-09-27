@@ -15,6 +15,7 @@ Contains the following changes:
 - Added `InteractiveFlag.doubleTapDragZoom` - [#1603](https://github.com/fleaflet/flutter_map/pull/1603)
 - Added in-memory caching support for tiles loaded by `NetworkTileProvider`, to reduce tile loading times and reduce unnecessary tile server requests - [#1629](https://github.com/fleaflet/flutter_map/pull/1629)
 - Added new options for rotation support to bounds fitting - [#1550](https://github.com/fleaflet/flutter_map/pull/1550) for [#1342](https://github.com/fleaflet/flutter_map/issues/1342)
+- Added new '{d}' 'dimension' placeholder to `TileLayer.urlTemplate` (via `TileProvider.generateReplacementMap`) to be filled with `TileLayer.tileSize` - [#1665](https://github.com/fleaflet/flutter_map/pull/1665) for [#1664](https://github.com/fleaflet/flutter_map/issues/1664)
 - Moved interaction configurations from `MapOptions` into `InteractionOptions` (accessed from `MapOptions`) - [#1551](https://github.com/fleaflet/flutter_map/pull/1551)
 - Replaced `MapOptions.` `center`, `bounds`, `zoom`, and `rotation` with `initialCenter`, `initialCameraFit`, `initialZoom`, and `initialRotation` - [#1551](https://github.com/fleaflet/flutter_map/pull/1551)
 - Replaced `MapOptions.maxBounds` with `MapOptions.cameraConstraint` - [#1551](https://github.com/fleaflet/flutter_map/pull/1551)
