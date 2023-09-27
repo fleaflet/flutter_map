@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class RetinaPage extends StatefulWidget {
   static const String route = '/retina';
@@ -72,7 +73,50 @@ class _RetinaPageState extends State<RetinaPage> {
                 initialCenter: LatLng(51.5, -0.09),
                 initialZoom: 5,
               ),
-              nonRotatedChildren: const [],
+              nonRotatedChildren: [
+                Align(
+                  alignment: Alignment.bottomLeft,
+                  child: LogoSourceAttribution(
+                    Image.asset("assets/mapbox-logo-white.png"),
+                    height: 16,
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: DefaultTextStyle(
+                    style: const TextStyle(color: Colors.white),
+                    child: Padding(
+                      padding: const EdgeInsets.all(6),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextSourceAttribution(
+                            'Mapbox',
+                            onTap: () => launchUrl(Uri.parse(
+                                'https://www.mapbox.com/about/maps/')),
+                          ),
+                          const SizedBox(width: 10),
+                          TextSourceAttribution(
+                            'OpenStreetMap',
+                            onTap: () => launchUrl(Uri.parse(
+                                'https://www.openstreetmap.org/copyright')),
+                          ),
+                          const SizedBox(width: 10),
+                          TextSourceAttribution(
+                            'Improve this map',
+                            prependCopyright: false,
+                            onTap: () => launchUrl(
+                                // TODO This URL can end in #/-74.5/40/10 to specify
+                                // the location. Make this change automagically.
+                                Uri.parse(
+                                    'https://www.mapbox.com/map-feedback/')),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
               children: [
                 TileLayer(
                   tileSize: tileSize,
