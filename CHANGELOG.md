@@ -4,7 +4,7 @@
 
 **"Photography"**
 
-Contains the following changes:
+Contains the following user-affecting changes:
 
 - Added new `MapCamera` object to reduce scope of `MapController` & re-implemented internal state management - [#1551](https://github.com/fleaflet/flutter_map/pull/1551) with [#1614](https://github.com/fleaflet/flutter_map/pull/1614)
 - Added support for rotation on desktop with cursor/pointer and keyboard trigger - [#1592](https://github.com/fleaflet/flutter_map/pull/1592) & [#1642](https://github.com/fleaflet/flutter_map/pull/1642) for [#1568](https://github.com/fleaflet/flutter_map/issues/1568)
@@ -26,7 +26,7 @@ Contains the following changes:
 - Removed `MoveAndRotateResult` in favour of a `Record` in format of `({bool moveSuccess, bool rotateSuccess})` - [#1636](https://github.com/fleaflet/flutter_map/pull/1636)
 - Removed dedicated plugins API import due to redundancy - [#1632](https://github.com/fleaflet/flutter_map/pull/1632)
 
-Contains the following bug fixes:
+Contains the following user-affecting bug fixes:
 
 - Handled exceptions correctly in default image provider if no `fallbackUrl` is defined - [#1555](https://github.com/fleaflet/flutter_map/pull/1555) for [#1554](https://github.com/fleaflet/flutter_map/issues/1554)
 - Ignored gestures on closed `RichAnimationWidget` when using `FadeRAWA` - [#1591](https://github.com/fleaflet/flutter_map/pull/1591) for [#1589](https://github.com/fleaflet/flutter_map/issues/1589)
@@ -38,8 +38,9 @@ Contains the following bug fixes:
 - Fixed `hasGesture` being `false` after double tap zoom in `onPositionChanged` callback - [#1465](https://github.com/fleaflet/flutter_map/issues/1465) for [#1630](https://github.com/fleaflet/flutter_map/pull/1630)
 - Fixed failure to attempt tile requests with `fallbackUrl` when an exception is thrown whilst `decode`ing instead of during the network request - [#1648](https://github.com/fleaflet/flutter_map/pull/1648) for [#1649](https://github.com/fleaflet/flutter_map/issues/1649)
 - Fixed potential issues with building `RichAttributionWidget` - [#1661](https://github.com/fleaflet/flutter_map/pull/1661)
+- Fixed bugs where `TileLayer.fallbackUrl` was not attempted when `FlutterMapNetworkImageProvider` fails to decode a non-image - part of [#1662](https://github.com/fleaflet/flutter_map/pull/1662) for [#1667](https://github.com/fleaflet/flutter_map/issues/1667)
 
-Contains the following performance improvements:
+Contains the following user-affecting performance improvements:
 
 - Created official plugin to reduce tile loading times when running on web, using [#1622](https://github.com/fleaflet/flutter_map/pull/1622)'s infrastructure - [flutter_map_cancellable_tile_provider](https://pub.dev/packages/flutter_map_cancellable_tile_provider)
 - Improved `Marker` performance when using anchors - [#1558](https://github.com/fleaflet/flutter_map/pull/1558) for [#1552](https://github.com/fleaflet/flutter_map/issues/1552)
@@ -49,8 +50,10 @@ Contains the following performance improvements:
 
 In other news:
 
-- There's many new performance and cost-reducing improvments available: please see the [Highlights section](https://docs.fleaflet.dev/v/v6-preview/getting-started/migrating-to-v6#changelog-and-highlights) on the Migrating To v6 docs page!
-- We're on the hunt for maintainers to join the team! For more information, please see [the application form](https://forms.gle/jEeygGJZtBWUdLFf6).
+- There's many new performance and cost-reducing improvments available (some may need some manual work to enable): please see the [Highlights section](https://docs.fleaflet.dev/v/v6-1/getting-started/migrating-to-v6#changelog-and-highlights) on the Migrating To v6 docs page!
+- We now accept one-time donations! We're extremely grateful for anything you can spare. We'll donate 15% of what we receive to the OpenStreetMap Foundation, as a thanks for their excellent work. For more info, please see [Support Us](https://docs.fleaflet.dev/v/v6-1/supporters#support-us).
+- We're looking for sponsors and OSS projects that use FM significantly, and want to be advertised! For more info, please see [Showcase](https://docs.fleaflet.dev/v/v6-1/showcase).
+- We're on the hunt for maintainers to join the team! For more information, please see [the application form](https://docs.fleaflet.dev/v/v6-1/credits#apply-to-be-a-maintainer).
 - OpenStreetMap Operations has warned us that users should move away from using subdomains with their tile servers, so please do! Appropriate warnings will now be logged in console should you fail to do this.
 
 Many thanks to these contributors (in no particular order):
