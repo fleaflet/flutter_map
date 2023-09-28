@@ -16,6 +16,30 @@ import 'package:http/retry.dart';
 part 'tile_error_evict_callback.dart';
 part 'wms_tile_layer_options.dart';
 
+/// Enum to describe the method to acquire higher resolution tiles for high
+/// density displays (such as retina displays).
+enum RetinaMethod {
+  /// Detect if the tile server supports higher resolution images and uses that,
+  /// otherwise falls back to simulated.
+  auto,
+
+  /// Higher resolution images are requested from the the tile server. This is
+  /// the most efficient method for the client, but requires server's to support
+  /// the {r} placeholder in the [TileLayer.urlTemplate].
+  server,
+
+  /// Will simulate higher resolution images by requesting four tiles at a
+  /// bigger zoom level and combine them together in place of one to utilize
+  /// the high resolution.
+  ///
+  /// Then MapOptions's `maxZoom` will be `maxZoom - 1` since this is simulated
+  /// with the [`zoomOffset].
+  ///
+  /// If the tile server supports higher resolution images then it it advised to
+  /// use them instead of simulating it (use [RetinaMethod.server]).
+  simulate,
+}
+
 /// Describes the needed properties to create a tile-based layer. A tile is an
 /// image bound to a specific geographical position.
 ///
@@ -51,13 +75,13 @@ class TileLayer extends StatefulWidget {
 
   /// Size for the tile.
   /// Default is 256
-  final double tileSize;
+  late final double tileSize;
 
   /// The minimum zoom level down to which this layer will be displayed
   /// (inclusive)
   ///
   /// This should usually be 0 (as default).
-  final double minZoom;
+  late final double minZoom;
 
   /// The maximum zoom level up to which this layer will be displayed
   /// (inclusive).
@@ -68,7 +92,7 @@ class TileLayer extends StatefulWidget {
   ///
   /// Otherwise, this should usually be infinite (as default), so that there are
   /// tiles always displayed.
-  final double maxZoom;
+  late final double maxZoom;
 
   /// Minimum zoom level supported by the tile source
   ///
@@ -93,7 +117,7 @@ class TileLayer extends StatefulWidget {
   final bool zoomReverse;
 
   /// The zoom number used in tile URLs will be offset with this value.
-  final double zoomOffset;
+  late final double zoomOffset;
 
   /// List of subdomains for the URL.
   ///
@@ -186,23 +210,24 @@ class TileLayer extends StatefulWidget {
   /// ```
   final Map<String, String> additionalOptions;
 
-  /// If `true`, it will request four tiles of half the specified size and a
-  /// bigger zoom level in place of one to utilize the high resolution.
+  /// If `true`, the map will attempt to display tiles at twice the resolution.
+  /// This improves display quality on high density displays, such as retina displays.
   ///
-  /// If `true` then MapOptions's `maxZoom` should be `maxZoom - 1` since
-  /// retinaMode just simulates retina display by playing with `zoomOffset`. If
-  /// geoserver supports retina `@2` tiles then it it advised to use them
-  /// instead of simulating it (use {r} in the [urlTemplate])
+  /// The exact method to achieve this depends on the [retinaMethod] parameter.
   ///
-  /// It is advised to use retinaMode if display supports it, write code like
-  /// this:
+  /// It is advised to use retinaMode if display supports it, by writing code
+  /// like this:
   ///
   /// ```dart
-  /// TileLayerOptions(
-  ///     retinaMode: true && MediaQuery.of(context).devicePixelRatio > 1.0,
+  /// TileLayer(
+  ///     retinaMode: MediaQuery.of(context).devicePixelRatio > 1.0,
   /// ),
   /// ```
   final bool retinaMode;
+
+  /// The method to acquire higher resolution tiles for high density displays
+  /// (such as retina displays). This is only used if [retinaMode] is true.
+  final RetinaMethod retinaMethod;
 
   /// This callback will be executed if an error occurs when fetching tiles.
   final ErrorTileCallBack? errorTileCallback;
@@ -262,6 +287,7 @@ class TileLayer extends StatefulWidget {
     this.wmsOptions,
     this.tileDisplay = const TileDisplay.fadeIn(),
     this.retinaMode = false,
+    RetinaMethod retinaMethod = RetinaMethod.auto,
     this.errorTileCallback,
     @Deprecated(
       'Prefer creating a custom `TileProvider` instead. '
@@ -282,28 +308,51 @@ class TileLayer extends StatefulWidget {
           )!,
           'The tile fade in duration needs to be bigger than zero',
         ),
-        maxZoom =
-            wmsOptions == null && retinaMode && maxZoom > 0.0 && !zoomReverse
-                ? maxZoom - 1.0
-                : maxZoom,
-        minZoom =
-            wmsOptions == null && retinaMode && maxZoom > 0.0 && zoomReverse
-                ? max(minZoom + 1.0, 0)
-                : minZoom,
-        zoomOffset = wmsOptions == null && retinaMode && maxZoom > 0.0
-            ? (zoomReverse ? zoomOffset - 1.0 : zoomOffset + 1.0)
-            : zoomOffset,
-        tileSize = wmsOptions == null && retinaMode && maxZoom > 0.0
-            ? (tileSize / 2.0).floorToDouble()
-            : tileSize,
+        assert(urlTemplate == null || wmsOptions == null,
+            'Cannot specify both urlTemplate and wmsOptions'),
+        assert(!retinaMode || (wmsOptions == null),
+            'Retina Mode is not supported with WMS'),
+        retinaMethod = determineRetinaMethod(retinaMethod, urlTemplate),
         tileProvider = (tileProvider ?? NetworkTileProvider())
           ..headers.putIfAbsent(
               'User-Agent', () => 'flutter_map ($userAgentPackageName)'),
         tileUpdateTransformer =
-            tileUpdateTransformer ?? TileUpdateTransformers.ignoreTapEvents;
+            tileUpdateTransformer ?? TileUpdateTransformers.ignoreTapEvents {
+    final bool simulatedRetinaMode = wmsOptions == null &&
+        retinaMode &&
+        this.retinaMethod == RetinaMethod.simulate &&
+        maxZoom > 0.0;
+    this.maxZoom =
+        simulatedRetinaMode && !zoomReverse ? maxZoom - 1.0 : maxZoom;
+    this.minZoom =
+        simulatedRetinaMode && zoomReverse ? max(minZoom + 1.0, 0) : minZoom;
+    this.zoomOffset = simulatedRetinaMode
+        ? (zoomReverse ? zoomOffset - 1.0 : zoomOffset + 1.0)
+        : zoomOffset;
+    this.tileSize =
+        simulatedRetinaMode ? (tileSize / 2.0).floorToDouble() : tileSize;
+  }
 
   @override
   State<StatefulWidget> createState() => _TileLayerState();
+
+  /// Determines which retina method to use by either resolving RetinaMethod.auto
+  /// to the appropriate method, or by respecting all other values.
+  @visibleForTesting
+  static RetinaMethod determineRetinaMethod(
+      RetinaMethod desired, String? urlTemplate) {
+    assert(
+        desired != RetinaMethod.server ||
+            (urlTemplate?.contains('{r}') ?? false),
+        'urlTemplate must contain `{r}` if desired RetinaMethod is server');
+
+    if (desired == RetinaMethod.auto) {
+      desired = (urlTemplate != null && urlTemplate.contains('{r}'))
+          ? RetinaMethod.server
+          : RetinaMethod.simulate;
+    }
+    return desired;
+  }
 }
 
 class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {

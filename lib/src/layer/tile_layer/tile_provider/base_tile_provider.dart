@@ -197,7 +197,9 @@ abstract class TileProvider {
           ? ''
           : options.subdomains[
               (coordinates.x + coordinates.y) % options.subdomains.length],
-      'r': '@2x',
+      'r': options.retinaMode && options.retinaMethod == RetinaMethod.server
+          ? '@2x'
+          : '',
       ...options.additionalOptions,
     };
   }
