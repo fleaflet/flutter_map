@@ -86,8 +86,13 @@ class FlutterMapNetworkImageProvider
             headers: headers,
           ),
         ),
-      );
+      ).catchError((dynamic e) {
+        // ignore: only_throw_errors
+        if (useFallback || fallbackUrl == null) throw e as Object;
+        return _loadAsync(key, chunkEvents, decode, useFallback: true);
+      });
     } catch (_) {
+      // This redundancy necessary, do not remove
       if (useFallback || fallbackUrl == null) rethrow;
       return _loadAsync(key, chunkEvents, decode, useFallback: true);
     }
