@@ -72,35 +72,30 @@ class _RetinaPageState extends State<RetinaPage> {
                     ),
                     const SizedBox.square(dimension: 4),
                     Builder(
-                        key: UniqueKey(),
-                        builder: (context) {
-                          final dpr = MediaQuery.of(context).devicePixelRatio;
-                          return RichText(
-                            textAlign: TextAlign.center,
-                            text: TextSpan(
-                              style: DefaultTextStyle.of(context).style,
-                              children: [
-                                const TextSpan(
-                                  text: 'Screen Density: ',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                TextSpan(text: '@${dpr.toStringAsFixed(2)}x\n'),
-                                const TextSpan(
-                                  text: 'Resulting Method: ',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                TextSpan(
-                                  text: !tileLayer.useServerRetina &&
-                                          !tileLayer.useSimulatedRetina
-                                      ? 'Disabled'
-                                      : tileLayer.useServerRetina
-                                          ? 'Server'
-                                          : 'Simulated',
-                                ),
-                              ],
-                            ),
-                          );
-                        }),
+                      builder: (context) {
+                        final dpr = MediaQuery.of(context).devicePixelRatio;
+                        return RichText(
+                          textAlign: TextAlign.center,
+                          text: TextSpan(
+                            style: DefaultTextStyle.of(context).style,
+                            children: [
+                              const TextSpan(
+                                text: 'Screen Density: ',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              TextSpan(text: '@${dpr.toStringAsFixed(2)}x\n'),
+                              const TextSpan(
+                                text: 'Resulting Method: ',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              TextSpan(
+                                text: tileLayer.resolvedRetinaMode.friendlyName,
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
                   ],
                 ),
                 const SizedBox.square(dimension: 12),

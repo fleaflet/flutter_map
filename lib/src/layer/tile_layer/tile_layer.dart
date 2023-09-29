@@ -190,17 +190,11 @@ class TileLayer extends StatefulWidget {
   /// ```
   final Map<String, String> additionalOptions;
 
-  /// Whether to fill the '{r}' placeholder inside [urlTemplate] with "@2x"
+  /// Resolved retina mode, based on the `retinaMode` passed in the constructor
+  /// and the [urlTemplate]
   ///
-  /// Decided and used internally based on logic behind the inputted
-  /// `retinaMethod` based on `retinaContext`.
-  late final bool useServerRetina;
-
-  /// Whether to simulate retina mode
-  ///
-  /// Decided and used internally based on logic behind the inputted
-  /// `retinaMethod` based on `retinaContext`.
-  late final bool useSimulatedRetina;
+  /// See [RetinaMode] for more information.
+  late final RetinaMode resolvedRetinaMode;
 
   /// This callback will be executed if an error occurs when fetching tiles.
   final ErrorTileCallBack? errorTileCallback;
@@ -291,12 +285,13 @@ class TileLayer extends StatefulWidget {
               'User-Agent', () => 'flutter_map ($userAgentPackageName)'),
         tileUpdateTransformer =
             tileUpdateTransformer ?? TileUpdateTransformers.ignoreTapEvents {
-    if (retinaMode) {
-      useServerRetina = wmsOptions == null && urlTemplate!.contains('{r}');
-      useSimulatedRetina = !useServerRetina;
-    } else {
-      useSimulatedRetina = useServerRetina = false;
-    }
+    resolvedRetinaMode = retinaMode
+        ? wmsOptions == null && urlTemplate!.contains('{r}')
+            ? RetinaMode.server
+            : RetinaMode.simulation
+        : RetinaMode.disabled;
+
+    final useSimulatedRetina = resolvedRetinaMode == RetinaMode.simulation;
 
     this.maxZoom = useSimulatedRetina && !zoomReverse ? maxZoom - 1 : maxZoom;
     this.maxNativeZoom =
@@ -427,8 +422,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       );
     }
 
-    if (oldWidget.useServerRetina != widget.useServerRetina ||
-        oldWidget.useSimulatedRetina != widget.useSimulatedRetina) {
+    if (oldWidget.resolvedRetinaMode != widget.resolvedRetinaMode) {
       reloadTiles = true;
     }
 

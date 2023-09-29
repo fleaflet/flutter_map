@@ -35,11 +35,29 @@ part of 'tile_layer.dart';
 ///
 /// It is expected that [TileLayer.fallbackUrl] follows the same retina support
 /// behaviour as [TileLayer.urlTemplate].
-///
-/// _Note that this class includes no functionality, and is only a wrapper for
-/// [isHighDensity] and a location for retina mode related documentation._
-abstract final class RetinaMode {
-  const RetinaMode._();
+enum RetinaMode {
+  /// Resolved to disable retina mode
+  ///
+  /// This should not be referred to by users, but is open for internal and
+  /// plugin use by [TileLayer.resolvedRetinaMode].
+  disabled('Disabled'),
+
+  /// Resolved to use the '{r}' placeholder to request native retina tiles from
+  /// the server
+  ///
+  /// This should not be referred to by users, but is open for internal and
+  /// plugin use by [TileLayer.resolvedRetinaMode].
+  server('Server'),
+
+  /// Resolved to simulate retina mode
+  ///
+  /// This should not be referred to by users, but is open for internal and
+  /// plugin use by [TileLayer.resolvedRetinaMode].
+  simulation('Simulation');
+
+  final String friendlyName;
+
+  const RetinaMode(this.friendlyName);
 
   /// Recommended switching method to assign to [TileLayer]`.retinaMode`
   ///
