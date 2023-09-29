@@ -13,6 +13,7 @@ import 'package:flutter_map/src/layer/tile_layer/tile_range_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
 import 'package:http/retry.dart';
 
+part 'retina_mode.dart';
 part 'tile_error_evict_callback.dart';
 part 'wms_tile_layer_options.dart';
 
@@ -36,6 +37,9 @@ class TileLayer extends StatefulWidget {
   /// Note that specifying this (non-null) will result in tiles not being cached
   /// in memory. This is to avoid issues where the [urlTemplate] is flaky, to
   /// prevent different tilesets being displayed at the same time.
+  ///
+  /// It is expected that this follows the same retina support behaviour as
+  /// [urlTemplate].
   ///
   /// Avoid specifying this when using [AssetTileProvider] or [FileTileProvider],
   /// as these providers are less performant and efficient when this is
@@ -77,7 +81,7 @@ class TileLayer extends StatefulWidget {
   ///
   /// This should usually be 0 (as default), as most tile sources will support
   /// zoom levels onwards from this.
-  final int minNativeZoom;
+  late final int minNativeZoom;
 
   /// Maximum zoom number supported by the tile source has available.
   ///
@@ -86,7 +90,7 @@ class TileLayer extends StatefulWidget {
   ///
   /// Most tile servers support up to zoom level 19, which is the default.
   /// Otherwise, this should be specified.
-  final int maxNativeZoom;
+  late final int maxNativeZoom;
 
   /// If set to true, the zoom number used in tile URLs will be reversed
   /// (`maxZoom - zoom` instead of `zoom`)
@@ -241,8 +245,8 @@ class TileLayer extends StatefulWidget {
     double tileSize = 256,
     double minZoom = 0,
     double maxZoom = double.infinity,
-    this.minNativeZoom = 0,
-    this.maxNativeZoom = 19,
+    int minNativeZoom = 0,
+    int maxNativeZoom = 19,
     this.zoomReverse = false,
     double zoomOffset = 0.0,
     this.additionalOptions = const {},
@@ -256,34 +260,8 @@ class TileLayer extends StatefulWidget {
     this.wmsOptions,
     this.tileDisplay = const TileDisplay.fadeIn(),
 
-    /// Whether to force the usage of retina mode, despite `retinaContext` being
-    /// `null` or not representing a high desnity display
-    ///
-    /// If retina mode is in use, the '{r}' placeholder inside `urlTemplate` will
-    /// be filled with "@2x" to request high resolution tiles from the server.
-    /// If the placeholder is not present, then flutter_map will attempt to
-    /// simulate retina mode by requesting four tiles at a larger zoom level and
-    /// combining them together in place of one.
-    ///
-    /// {@template retina_explanation}
-    /// Map tiles can look pixelated on high density displays, so some servers
-    /// support "@2x" tiles, which are tiles at twice the resolution of normal.
-    /// However, not all tile servers support this, so flutter_map can attempt to
-    /// simulate retina behaviour.
-    /// {@endtemplate}
-    final bool forceRetinaMode = false,
-
-    /// [BuildContext] used to retrieve the current device pixel ratio of the
-    /// display
-    ///
-    /// This can be queried to check whether the screen is eligible for retina
-    /// tiles (if it is a high density display).
-    ///
-    /// By default, retina mode is disabled if this is `null` or does not
-    /// represent a high density display when queried.
-    ///
-    /// {@macro retina_explanation}
-    final BuildContext? retinaContext,
+    /// See [RetinaMode] for more information
+    final bool retinaMode = false,
     this.errorTileCallback,
     @Deprecated(
       'Prefer creating a custom `TileProvider` instead. '
@@ -306,25 +284,30 @@ class TileLayer extends StatefulWidget {
         ),
         assert(
           urlTemplate == null || wmsOptions == null,
-          'Cannot specify both urlTemplate and wmsOptions',
+          'Cannot specify both `urlTemplate` and `wmsOptions`',
         ),
         tileProvider = (tileProvider ?? NetworkTileProvider())
           ..headers.putIfAbsent(
               'User-Agent', () => 'flutter_map ($userAgentPackageName)'),
         tileUpdateTransformer =
             tileUpdateTransformer ?? TileUpdateTransformers.ignoreTapEvents {
-    if (forceRetinaMode ||
-        (retinaContext != null &&
-            MediaQuery.of(retinaContext).devicePixelRatio > 1.0)) {
+    if (retinaMode) {
       useServerRetina = wmsOptions == null && urlTemplate!.contains('{r}');
       useSimulatedRetina = !useServerRetina;
     } else {
       useSimulatedRetina = useServerRetina = false;
     }
 
-    this.maxZoom = useSimulatedRetina && !zoomReverse ? maxZoom - 1.0 : maxZoom;
+    this.maxZoom = useSimulatedRetina && !zoomReverse ? maxZoom - 1 : maxZoom;
+    this.maxNativeZoom =
+        useSimulatedRetina && !zoomReverse ? maxNativeZoom - 1 : maxNativeZoom;
+
     this.minZoom =
         useSimulatedRetina && zoomReverse ? max(minZoom + 1.0, 0) : minZoom;
+    this.minNativeZoom = useSimulatedRetina && zoomReverse
+        ? max(minNativeZoom + 1, 0)
+        : minNativeZoom;
+
     this.zoomOffset = useSimulatedRetina
         ? (zoomReverse ? zoomOffset - 1.0 : zoomOffset + 1.0)
         : zoomOffset;

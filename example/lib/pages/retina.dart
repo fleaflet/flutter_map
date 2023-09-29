@@ -28,8 +28,10 @@ class _RetinaPageState extends State<RetinaPage> {
       urlTemplate: urlTemplate,
       userAgentPackageName: 'dev.fleaflet.flutter_map.example',
       additionalOptions: {'accessToken': accessToken ?? ''},
-      retinaContext: retinaMode == false ? null : context,
-      forceRetinaMode: retinaMode == true,
+      retinaMode: switch (retinaMode) {
+        null => RetinaMode.isHighDensity(context),
+        _ => retinaMode!,
+      },
       tileBuilder: (context, tileWidget, _) => DecoratedBox(
         decoration: BoxDecoration(
           border: Border.all(width: 2, color: Colors.white),
