@@ -17,7 +17,8 @@ class RetinaPage extends StatefulWidget {
 }
 
 class _RetinaPageState extends State<RetinaPage> {
-  RetinaMethod? retinaMethod = RetinaMethod.auto;
+  bool? retinaMode;
+
   String urlTemplate = RetinaPage._defaultUrlTemplate;
   String? accessToken;
 
@@ -27,8 +28,8 @@ class _RetinaPageState extends State<RetinaPage> {
       urlTemplate: urlTemplate,
       userAgentPackageName: 'dev.fleaflet.flutter_map.example',
       additionalOptions: {'accessToken': accessToken ?? ''},
-      retinaContext: retinaMethod == null ? null : context,
-      retinaMethod: retinaMethod ?? RetinaMethod.auto,
+      retinaContext: retinaMode == false ? null : context,
+      forceRetinaMode: retinaMode == true,
       tileBuilder: (context, tileWidget, _) => DecoratedBox(
         decoration: BoxDecoration(
           border: Border.all(width: 2, color: Colors.white),
@@ -49,31 +50,25 @@ class _RetinaPageState extends State<RetinaPage> {
               children: [
                 Column(
                   children: [
-                    DropdownMenu(
-                      label: const Text('Retina Method'),
-                      initialSelection: RetinaMethod.auto,
-                      enableSearch: false,
-                      dropdownMenuEntries: const [
-                        DropdownMenuEntry(
-                          label: 'Disabled',
-                          value: null,
-                        ),
-                        DropdownMenuEntry(
-                          label: 'Automatic',
-                          value: RetinaMethod.auto,
-                        ),
-                        DropdownMenuEntry(
-                          label: 'Prefer Real',
-                          value: RetinaMethod.preferServer,
-                        ),
-                        DropdownMenuEntry(
-                          label: 'Force Simulation',
-                          // ignore: invalid_use_of_visible_for_testing_member
-                          value: RetinaMethod.forceSimulation,
-                        ),
-                      ],
-                      onSelected: (v) => setState(() => retinaMethod = v),
+                    const Text(
+                      'Retina Mode',
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
+                    Row(
+                      children: [
+                        Checkbox.adaptive(
+                          tristate: true,
+                          value: retinaMode,
+                          onChanged: (v) => setState(() => retinaMode = v),
+                        ),
+                        Text(switch (retinaMode) {
+                          null => '(auto)',
+                          true => '(force)',
+                          false => '(disabled)',
+                        }),
+                      ],
+                    ),
+                    const SizedBox.square(dimension: 4),
                     Builder(
                         key: UniqueKey(),
                         builder: (context) {
@@ -84,15 +79,10 @@ class _RetinaPageState extends State<RetinaPage> {
                               style: DefaultTextStyle.of(context).style,
                               children: [
                                 const TextSpan(
-                                  text: '\nScreen Density: ',
+                                  text: 'Screen Density: ',
                                   style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
                                 TextSpan(text: '@${dpr.toStringAsFixed(2)}x\n'),
-                                const TextSpan(
-                                  text: 'Is Retina Eligible: ',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                TextSpan(text: '${dpr > 1 ? 'Yes' : 'No'}\n'),
                                 const TextSpan(
                                   text: 'Resulting Method: ',
                                   style: TextStyle(fontWeight: FontWeight.bold),

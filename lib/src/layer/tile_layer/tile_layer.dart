@@ -13,7 +13,6 @@ import 'package:flutter_map/src/layer/tile_layer/tile_range_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
 import 'package:http/retry.dart';
 
-part 'retina_method.dart';
 part 'tile_error_evict_callback.dart';
 part 'wms_tile_layer_options.dart';
 
@@ -187,41 +186,16 @@ class TileLayer extends StatefulWidget {
   /// ```
   final Map<String, String> additionalOptions;
 
-  /// [BuildContext] used to retrieve the current device pixel ratio of the
-  /// display
-  ///
-  /// This can be queried to check whether the screen is eligible for retina
-  /// tiles (if it is a high density display).
-  ///
-  /// By default, if this is not present, or (when queried) it does not represent
-  /// a high density display, retina mode is disabled. Otherwise,
-  /// [RetinaMethod.preferServer] is inferred.
-  ///
-  /// For more information, and to choose other behaviours, see [retinaMethod].
-  final BuildContext? retinaContext;
-
-  /// The method to be used to acquire/simulate higher resolution tiles for high
-  /// density/retina displays
-  ///
-  /// {@macro retina_explanation}
-  ///
-  /// To disable retina mode, keep [retinaContext] `null`. Always disable retina
-  /// mode inside flutter_map when manually using "@2x" inside the [urlTemplate],
-  /// to avoid potential conflicting behaviours.
-  ///
-  /// See the documentation on [RetinaMethod]'s options for more info.
-  final RetinaMethod retinaMethod;
-
   /// Whether to fill the '{r}' placeholder inside [urlTemplate] with "@2x"
   ///
-  /// Decided and used internally based on logic behind [retinaMethod] based on
-  /// [retinaContext].
+  /// Decided and used internally based on logic behind the inputted
+  /// `retinaMethod` based on `retinaContext`.
   late final bool useServerRetina;
 
   /// Whether to simulate retina mode
   ///
-  /// Decided and used internally based on logic behind [retinaMethod] based on
-  /// [retinaContext].
+  /// Decided and used internally based on logic behind the inputted
+  /// `retinaMethod` based on `retinaContext`.
   late final bool useSimulatedRetina;
 
   /// This callback will be executed if an error occurs when fetching tiles.
@@ -281,8 +255,35 @@ class TileLayer extends StatefulWidget {
     this.tms = false,
     this.wmsOptions,
     this.tileDisplay = const TileDisplay.fadeIn(),
-    this.retinaContext,
-    this.retinaMethod = RetinaMethod.auto,
+
+    /// Whether to force the usage of retina mode, despite `retinaContext` being
+    /// `null` or not representing a high desnity display
+    ///
+    /// If retina mode is in use, the '{r}' placeholder inside `urlTemplate` will
+    /// be filled with "@2x" to request high resolution tiles from the server.
+    /// If the placeholder is not present, then flutter_map will attempt to
+    /// simulate retina mode by requesting four tiles at a larger zoom level and
+    /// combining them together in place of one.
+    ///
+    /// {@template retina_explanation}
+    /// Map tiles can look pixelated on high density displays, so some servers
+    /// support "@2x" tiles, which are tiles at twice the resolution of normal.
+    /// However, not all tile servers support this, so flutter_map can attempt to
+    /// simulate retina behaviour.
+    /// {@endtemplate}
+    final bool forceRetinaMode = false,
+
+    /// [BuildContext] used to retrieve the current device pixel ratio of the
+    /// display
+    ///
+    /// This can be queried to check whether the screen is eligible for retina
+    /// tiles (if it is a high density display).
+    ///
+    /// By default, retina mode is disabled if this is `null` or does not
+    /// represent a high density display when queried.
+    ///
+    /// {@macro retina_explanation}
+    final BuildContext? retinaContext,
     this.errorTileCallback,
     @Deprecated(
       'Prefer creating a custom `TileProvider` instead. '
@@ -312,21 +313,13 @@ class TileLayer extends StatefulWidget {
               'User-Agent', () => 'flutter_map ($userAgentPackageName)'),
         tileUpdateTransformer =
             tileUpdateTransformer ?? TileUpdateTransformers.ignoreTapEvents {
-    final resolvedRetinaMethod = switch (retinaMethod) {
-      RetinaMethod.auto => retinaContext == null ||
-              MediaQuery.of(retinaContext!).devicePixelRatio <= 1.0
-          ? null
-          : RetinaMethod.preferServer,
-      _ => retinaMethod,
-    };
-
-    if (resolvedRetinaMethod == null) {
-      useSimulatedRetina = useServerRetina = false;
-    } else {
-      useServerRetina = wmsOptions == null &&
-          resolvedRetinaMethod == RetinaMethod.preferServer &&
-          urlTemplate!.contains('{r}');
+    if (forceRetinaMode ||
+        (retinaContext != null &&
+            MediaQuery.of(retinaContext).devicePixelRatio > 1.0)) {
+      useServerRetina = wmsOptions == null && urlTemplate!.contains('{r}');
       useSimulatedRetina = !useServerRetina;
+    } else {
+      useSimulatedRetina = useServerRetina = false;
     }
 
     this.maxZoom = useSimulatedRetina && !zoomReverse ? maxZoom - 1.0 : maxZoom;
