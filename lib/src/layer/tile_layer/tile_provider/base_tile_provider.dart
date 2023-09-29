@@ -197,9 +197,7 @@ abstract class TileProvider {
           ? ''
           : options.subdomains[
               (coordinates.x + coordinates.y) % options.subdomains.length],
-      'r': options.retinaMode && options.retinaMethod == RetinaMethod.server
-          ? '@2x'
-          : '',
+      'r': options.useServerRetina ? '@2x' : '',
       ...options.additionalOptions,
     };
   }
@@ -219,8 +217,8 @@ abstract class TileProvider {
   /// {@endtemplate}
   String getTileUrl(TileCoordinates coordinates, TileLayer options) {
     final urlTemplate = (options.wmsOptions != null)
-        ? options.wmsOptions!
-            .getUrl(coordinates, options.tileSize.toInt(), options.retinaMode)
+        ? options.wmsOptions!.getUrl(
+            coordinates, options.tileSize.toInt(), options.useSimulatedRetina)
         : options.urlTemplate;
 
     return populateTemplatePlaceholders(urlTemplate!, coordinates, options);
