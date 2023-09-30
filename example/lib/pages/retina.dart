@@ -17,10 +17,17 @@ class RetinaPage extends StatefulWidget {
 }
 
 class _RetinaPageState extends State<RetinaPage> {
-  bool? retinaMode;
-
   String urlTemplate = RetinaPage._defaultUrlTemplate;
+  final urlTemplateInputController = InputFieldColorizer(
+    {
+      '{r}': const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
+      '{accessToken}': const TextStyle(fontStyle: FontStyle.italic),
+    },
+    initialValue: RetinaPage._defaultUrlTemplate,
+  );
   String? accessToken;
+
+  bool? retinaMode;
 
   @override
   Widget build(BuildContext context) {
@@ -103,19 +110,25 @@ class _RetinaPageState extends State<RetinaPage> {
                   child: Column(
                     children: [
                       TextFormField(
-                        initialValue: RetinaPage._defaultUrlTemplate,
                         onChanged: (v) => setState(() => urlTemplate = v),
-                        decoration: const InputDecoration(
-                          prefixIcon: Icon(Icons.link),
-                          border: UnderlineInputBorder(),
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.link),
+                          border: const UnderlineInputBorder(),
+                          isDense: true,
                           labelText: 'URL Template',
+                          helperText: urlTemplate.contains('{r}')
+                              ? "Remove the '{r}' placeholder to simulate retina mode when enabled"
+                              : "Add an '{r}' placeholder to request retina tiles when enabled",
                         ),
+                        controller: urlTemplateInputController,
                       ),
                       TextFormField(
                         onChanged: (v) => setState(() => accessToken = v),
+                        autofocus: true,
                         decoration: InputDecoration(
-                          prefixIcon: const Icon(Icons.lock),
+                          prefixIcon: const Icon(Icons.password),
                           border: const UnderlineInputBorder(),
+                          isDense: true,
                           labelText: 'Access Token',
                           errorText: accessToken?.isEmpty ?? true
                               ? 'Insert your own access token'
@@ -170,5 +183,41 @@ class _RetinaPageState extends State<RetinaPage> {
         ],
       ),
     );
+  }
+}
+
+// Inspired by https://stackoverflow.com/a/59773962/11846040
+class InputFieldColorizer extends TextEditingController {
+  final Map<String, TextStyle> mapping;
+  final Pattern pattern;
+
+  InputFieldColorizer(this.mapping, {String? initialValue})
+      : pattern =
+            RegExp(mapping.keys.map((key) => RegExp.escape(key)).join('|')),
+        super(text: initialValue);
+
+  @override
+  TextSpan buildTextSpan({
+    required BuildContext context,
+    TextStyle? style,
+    required bool withComposing,
+  }) {
+    final List<InlineSpan> children = [];
+
+    text.splitMapJoin(
+      pattern,
+      onMatch: (Match match) {
+        children.add(
+          TextSpan(text: match[0], style: style!.merge(mapping[match[0]])),
+        );
+        return '';
+      },
+      onNonMatch: (String text) {
+        children.add(TextSpan(text: text, style: style));
+        return '';
+      },
+    );
+
+    return TextSpan(style: style, children: children);
   }
 }
