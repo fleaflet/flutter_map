@@ -164,21 +164,8 @@ class _TapPositionDetectorState extends State<PositionedTapDetector2> {
   ) async {
     _firstTap = null;
     if (callback != null) {
-      callback(_getTapPositions(details));
+      callback(TapPosition(details.globalPosition, details.localPosition));
     }
-  }
-
-  TapPosition _getTapPositions(TapDownDetails details) {
-    final global = details.globalPosition;
-
-    // Transform the global coordinate to the local coordinates.
-    final renderBox = context.findRenderObject() as RenderBox?;
-    final relative = renderBox?.globalToLocal(global);
-
-    // or TODO Remove this
-    // final relative = details.localPosition;
-
-    return TapPosition(global, relative);
   }
 
   @override

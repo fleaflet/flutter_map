@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/misc/private/positioned_tap_detector_2.dart';
 import 'package:flutter_test/flutter_test.dart';
 
