@@ -24,7 +24,7 @@ enum MapEventSource {
   custom,
   scrollWheel,
   nonRotatedSizeChange,
-  cursorRotation,
+  cursorKeyboardRotation,
 }
 
 /// Base event class which is emitted by MapController instance, the event

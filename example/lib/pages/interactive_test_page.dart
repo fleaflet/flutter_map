@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
@@ -124,13 +123,13 @@ class _InteractiveFlagsPageState extends State<InteractiveFlagsPage> {
                   initialZoom: 11,
                   interactionOptions: InteractionOptions(
                     flags: flags,
-                    isCursorRotationKeyboardKeyTrigger: (key) =>
-                        keyboardCursorRotate &&
-                        {
-                          LogicalKeyboardKey.control,
-                          LogicalKeyboardKey.controlLeft,
-                          LogicalKeyboardKey.controlRight
-                        }.contains(key),
+                    cursorKeyboardRotationOptions:
+                        CursorKeyboardRotationOptions(
+                      isKeyTrigger: (key) =>
+                          keyboardCursorRotate &&
+                          CursorKeyboardRotationOptions.defaultTriggerKeys
+                              .contains(key),
+                    ),
                   ),
                 ),
                 children: [

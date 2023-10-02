@@ -197,7 +197,8 @@ abstract class TileProvider {
           ? ''
           : options.subdomains[
               (coordinates.x + coordinates.y) % options.subdomains.length],
-      'r': '@2x',
+      'r': options.resolvedRetinaMode == RetinaMode.server ? '@2x' : '',
+      'd': options.tileSize.toString(),
       ...options.additionalOptions,
     };
   }
@@ -215,14 +216,18 @@ abstract class TileProvider {
   /// 2. [generateReplacementMap]
   /// 3. [getTileUrl] and/or [getTileFallbackUrl]
   /// {@endtemplate}
-  String getTileUrl(TileCoordinates coordinates, TileLayer options) {
-    final urlTemplate = (options.wmsOptions != null)
-        ? options.wmsOptions!
-            .getUrl(coordinates, options.tileSize.toInt(), options.retinaMode)
-        : options.urlTemplate;
-
-    return populateTemplatePlaceholders(urlTemplate!, coordinates, options);
-  }
+  String getTileUrl(TileCoordinates coordinates, TileLayer options) =>
+      populateTemplatePlaceholders(
+        options.wmsOptions != null
+            ? options.wmsOptions!.getUrl(
+                coordinates,
+                options.tileSize.toInt(),
+                options.resolvedRetinaMode == RetinaMode.simulation,
+              )
+            : options.urlTemplate!,
+        coordinates,
+        options,
+      );
 
   /// Generate a fallback URL for a tile, based on its coordinates and the
   /// [TileLayer]

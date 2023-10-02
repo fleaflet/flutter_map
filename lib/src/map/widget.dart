@@ -9,7 +9,7 @@ import 'package:flutter_map/src/map/inherited_model.dart';
 import 'package:flutter_map/src/map/internal_controller.dart';
 import 'package:flutter_map/src/map/map_controller.dart';
 import 'package:flutter_map/src/map/map_controller_impl.dart';
-import 'package:flutter_map/src/map/options.dart';
+import 'package:flutter_map/src/map/options/options.dart';
 import 'package:logger/logger.dart';
 
 /// Renders an interactive geographical map as a widget
@@ -46,7 +46,8 @@ class FlutterMap extends StatefulWidget {
   State<FlutterMap> createState() => FlutterMapStateContainer();
 }
 
-class FlutterMapStateContainer extends State<FlutterMap> {
+class FlutterMapStateContainer extends State<FlutterMap>
+    with AutomaticKeepAliveClientMixin {
   bool _initialCameraFitApplied = false;
 
   late final FlutterMapInternalController _flutterMapInternalController;
@@ -100,6 +101,8 @@ class FlutterMapStateContainer extends State<FlutterMap> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return LayoutBuilder(
       builder: (context, constraints) {
         _updateAndEmitSizeIfConstraintsChanged(constraints);
@@ -208,4 +211,7 @@ class FlutterMapStateContainer extends State<FlutterMap> {
   bool _parentConstraintsAreSet(
           BuildContext context, BoxConstraints constraints) =>
       constraints.maxWidth != 0 || MediaQuery.sizeOf(context) != Size.zero;
+
+  @override
+  bool get wantKeepAlive => widget.options.keepAlive;
 }

@@ -48,6 +48,7 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+    namespace 'me.jpryan.flutter_map_example'
 }
 
 flutter {

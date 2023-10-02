@@ -5,7 +5,7 @@ import 'package:flutter_map/src/map/map_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 
-import 'test_utils/test_app.dart';
+import '../test_utils/test_app.dart';
 
 void main() {
   testWidgets('test fit bounds methods', (tester) async {
