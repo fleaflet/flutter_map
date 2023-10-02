@@ -5,7 +5,7 @@ import 'package:flutter_map/src/layer/polygon_layer.dart';
 import 'package:flutter_map/src/layer/polyline_layer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 import 'package:flutter_map/src/map/map_controller.dart';
-import 'package:flutter_map/src/map/options.dart';
+import 'package:flutter_map/src/map/options/options.dart';
 import 'package:flutter_map/src/map/widget.dart';
 import 'package:latlong2/latlong.dart';
 
