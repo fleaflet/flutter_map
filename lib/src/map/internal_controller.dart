@@ -8,7 +8,7 @@ import 'package:flutter_map/src/gestures/positioned_tap_detector_2.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:flutter_map/src/map/camera/camera_fit.dart';
 import 'package:flutter_map/src/map/map_controller_impl.dart';
-import 'package:flutter_map/src/map/options.dart';
+import 'package:flutter_map/src/map/options/options.dart';
 import 'package:flutter_map/src/misc/move_and_rotate_result.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:flutter_map/src/misc/position.dart';
