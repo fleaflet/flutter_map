@@ -8,7 +8,7 @@ import 'package:flutter_map/src/map/inherited_model.dart';
 import 'package:flutter_map/src/map/internal_controller.dart';
 import 'package:flutter_map/src/map/map_controller.dart';
 import 'package:flutter_map/src/map/map_controller_impl.dart';
-import 'package:flutter_map/src/map/options.dart';
+import 'package:flutter_map/src/map/options/options.dart';
 
 /// Renders an interactive geographical map as a widget
 ///

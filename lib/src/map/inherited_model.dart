@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:flutter_map/src/map/map_controller.dart';
-import 'package:flutter_map/src/map/options.dart';
+import 'package:flutter_map/src/map/options/options.dart';
 
 /// Allows descendents of [FlutterMap] to access the [MapCamera], [MapOptions]
 /// and [MapController]. Those classes provide of/maybeOf methods for users to
