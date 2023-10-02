@@ -45,8 +45,8 @@ abstract class InteractiveFlag {
 
   /// Enable rotation with two-finger twist gesture
   ///
-  /// For controlling rotation where a keyboard/cursor combination is used, see
-  /// [InteractionOptions.isCursorRotationKeyboardKeyTrigger].
+  /// For controlling cursor/keyboard rotation, see
+  /// [InteractionOptions.cursorKeyboardRotationOptions].
   static const int rotate = 1 << 7;
 
   /// Flags pertaining to gestures which require multiple fingers.
