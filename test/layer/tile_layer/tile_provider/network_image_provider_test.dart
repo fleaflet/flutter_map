@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_print
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
@@ -23,11 +21,9 @@ Future<ImageInfo> getImageInfo(ImageProvider provider) {
   stream.addListener(
     ImageStreamListener(
       (imageInfo, _) {
-        print('completer.complete($imageInfo)');
         return completer.complete(imageInfo);
       },
       onError: (exception, stackTrace) {
-        print('completer.completeError($exception)');
         return completer.completeError(exception, stackTrace);
       },
     ),
@@ -67,7 +63,6 @@ void main() {
     final url = randomUrl();
     when(() => mockClient.readBytes(any(), headers: any(named: 'headers')))
         .thenAnswer((_) async {
-      print('1');
       return testWhiteTileBytes;
     });
 
@@ -93,7 +88,6 @@ void main() {
     final url = randomUrl();
     when(() => mockClient.readBytes(any(), headers: any(named: 'headers')))
         .thenAnswer((_) async {
-      print('2');
       throw ClientException(
         'Server error',
       );
