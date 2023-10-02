@@ -169,16 +169,16 @@ class _TapPositionDetectorState extends State<PositionedTapDetector2> {
   }
 
   TapPosition _getTapPositions(TapDownDetails details) {
-    final topLeft = _getWidgetTopLeft();
     final global = details.globalPosition;
-    final relative = topLeft != null ? global - topLeft : null;
-    return TapPosition(global, relative);
-  }
 
-  Offset? _getWidgetTopLeft() {
-    final translation =
-        context.findRenderObject()?.getTransformTo(null).getTranslation();
-    return translation != null ? Offset(translation.x, translation.y) : null;
+    // Transform the global coordinate to the local coordinates.
+    final renderBox = context.findRenderObject() as RenderBox?;
+    final relative = renderBox?.globalToLocal(global);
+
+    // or TODO Remove this
+    // final relative = details.localPosition;
+
+    return TapPosition(global, relative);
   }
 
   @override
