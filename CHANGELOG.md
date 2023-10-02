@@ -20,6 +20,7 @@ Contains the following user-affecting changes:
 - Replaced `MapOptions.` `center`, `bounds`, `zoom`, and `rotation` with `initialCenter`, `initialCameraFit`, `initialZoom`, and `initialRotation` - [#1551](https://github.com/fleaflet/flutter_map/pull/1551)
 - Replaced `MapOptions.maxBounds` with `MapOptions.cameraConstraint` - [#1551](https://github.com/fleaflet/flutter_map/pull/1551)
 - Replaced `TileLayer.backgroundColor` property with `MapOptions.backgroundColor` to simplify interaction when using multiple tile layers - [#1578](https://github.com/fleaflet/flutter_map/pull/1578) & [#1647](https://github.com/fleaflet/flutter_map/pull/1647) for [#1577](https://github.com/fleaflet/flutter_map/issues/1577) & [#1566](https://github.com/fleaflet/flutter_map/issues/1566)
+- Reworked `TileLayer.retinaMode` behaviour - [#1673](https://github.com/fleaflet/flutter_map/pull/1673) for [#1670](https://github.com/fleaflet/flutter_map/issues/1670)
 - Replaced `FlutterMap.nonRotatedChildren` with an inverse purpose (usually internal) `MobileLayerTransformer` - [#1615](https://github.com/fleaflet/flutter_map/pull/1615)
 - Refactored internal tile pruning logic - [#1596](https://github.com/fleaflet/flutter_map/pull/1596)
 - Removed `CustomPoint` in favour of extension methods on `Point<T>` - [#1585](https://github.com/fleaflet/flutter_map/pull/1585) for [#1522](https://github.com/fleaflet/flutter_map/issues/1522)
@@ -38,7 +39,8 @@ Contains the following user-affecting bug fixes:
 - Fixed `hasGesture` being `false` after double tap zoom in `onPositionChanged` callback - [#1465](https://github.com/fleaflet/flutter_map/issues/1465) for [#1630](https://github.com/fleaflet/flutter_map/pull/1630)
 - Fixed failure to attempt tile requests with `fallbackUrl` when an exception is thrown whilst `decode`ing instead of during the network request - [#1648](https://github.com/fleaflet/flutter_map/pull/1648) for [#1649](https://github.com/fleaflet/flutter_map/issues/1649)
 - Fixed potential issues with building `RichAttributionWidget` - [#1661](https://github.com/fleaflet/flutter_map/pull/1661)
-- Fixed bugs where `TileLayer.fallbackUrl` was not attempted when `FlutterMapNetworkImageProvider` fails to decode a non-image - part of [#1662](https://github.com/fleaflet/flutter_map/pull/1662) for [#1667](https://github.com/fleaflet/flutter_map/issues/1667)
+- Fixed bug where `TileLayer.fallbackUrl` was not attempted when `FlutterMapNetworkImageProvider` fails to decode a non-image - part of [#1662](https://github.com/fleaflet/flutter_map/pull/1662) for [#1667](https://github.com/fleaflet/flutter_map/issues/1667)
+- Fixed bug where "PositionedTapDetector2" did not correctly transform global coords to local coords when the `FlutterMap` widget was `Transform`ed - [#1676](https://github.com/fleaflet/flutter_map/pull/1676) for [#1675](https://github.com/fleaflet/flutter_map/issues/1675)
 
 Contains the following user-affecting performance improvements:
 
