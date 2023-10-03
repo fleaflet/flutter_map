@@ -26,6 +26,7 @@ import 'package:flutter_map/src/map/controller/map_controller.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:flutter_map/src/misc/private/bounds.dart';
 
+part 'retina_mode.dart';
 part 'tile_error_evict_callback.dart';
 part 'wms_tile_layer_options.dart';
 
@@ -50,6 +51,9 @@ class TileLayer extends StatefulWidget {
   /// in memory. This is to avoid issues where the [urlTemplate] is flaky, to
   /// prevent different tilesets being displayed at the same time.
   ///
+  /// It is expected that this follows the same retina support behaviour as
+  /// [urlTemplate].
+  ///
   /// Avoid specifying this when using [AssetTileProvider] or [FileTileProvider],
   /// as these providers are less performant and efficient when this is
   /// specified. See their documentation for more information.
@@ -64,13 +68,13 @@ class TileLayer extends StatefulWidget {
 
   /// Size for the tile.
   /// Default is 256
-  final double tileSize;
+  late final double tileSize;
 
   /// The minimum zoom level down to which this layer will be displayed
   /// (inclusive)
   ///
   /// This should usually be 0 (as default).
-  final double minZoom;
+  late final double minZoom;
 
   /// The maximum zoom level up to which this layer will be displayed
   /// (inclusive).
@@ -81,7 +85,7 @@ class TileLayer extends StatefulWidget {
   ///
   /// Otherwise, this should usually be infinite (as default), so that there are
   /// tiles always displayed.
-  final double maxZoom;
+  late final double maxZoom;
 
   /// Minimum zoom level supported by the tile source
   ///
@@ -90,7 +94,7 @@ class TileLayer extends StatefulWidget {
   ///
   /// This should usually be 0 (as default), as most tile sources will support
   /// zoom levels onwards from this.
-  final int minNativeZoom;
+  late final int minNativeZoom;
 
   /// Maximum zoom number supported by the tile source has available.
   ///
@@ -99,14 +103,14 @@ class TileLayer extends StatefulWidget {
   ///
   /// Most tile servers support up to zoom level 19, which is the default.
   /// Otherwise, this should be specified.
-  final int maxNativeZoom;
+  late final int maxNativeZoom;
 
   /// If set to true, the zoom number used in tile URLs will be reversed
   /// (`maxZoom - zoom` instead of `zoom`)
   final bool zoomReverse;
 
   /// The zoom number used in tile URLs will be offset with this value.
-  final double zoomOffset;
+  late final double zoomOffset;
 
   /// List of subdomains for the URL.
   ///
@@ -199,23 +203,11 @@ class TileLayer extends StatefulWidget {
   /// ```
   final Map<String, String> additionalOptions;
 
-  /// If `true`, it will request four tiles of half the specified size and a
-  /// bigger zoom level in place of one to utilize the high resolution.
+  /// Resolved retina mode, based on the `retinaMode` passed in the constructor
+  /// and the [urlTemplate]
   ///
-  /// If `true` then MapOptions's `maxZoom` should be `maxZoom - 1` since
-  /// retinaMode just simulates retina display by playing with `zoomOffset`. If
-  /// geoserver supports retina `@2` tiles then it it advised to use them
-  /// instead of simulating it (use {r} in the [urlTemplate])
-  ///
-  /// It is advised to use retinaMode if display supports it, write code like
-  /// this:
-  ///
-  /// ```dart
-  /// TileLayerOptions(
-  ///     retinaMode: true && MediaQuery.of(context).devicePixelRatio > 1.0,
-  /// ),
-  /// ```
-  final bool retinaMode;
+  /// See [RetinaMode] for more information.
+  late final RetinaMode resolvedRetinaMode;
 
   /// This callback will be executed if an error occurs when fetching tiles.
   final ErrorTileCallBack? errorTileCallback;
@@ -260,8 +252,8 @@ class TileLayer extends StatefulWidget {
     double tileSize = 256,
     double minZoom = 0,
     double maxZoom = double.infinity,
-    this.minNativeZoom = 0,
-    this.maxNativeZoom = 19,
+    int minNativeZoom = 0,
+    int maxNativeZoom = 19,
     this.zoomReverse = false,
     double zoomOffset = 0.0,
     this.additionalOptions = const {},
@@ -279,7 +271,9 @@ class TileLayer extends StatefulWidget {
     this.tms = false,
     this.wmsOptions,
     this.tileDisplay = const TileDisplay.fadeIn(),
-    this.retinaMode = false,
+
+    /// See [RetinaMode] for more information
+    final bool retinaMode = false,
     this.errorTileCallback,
     @Deprecated(
       'Prefer creating a custom `TileProvider` instead. '
@@ -300,25 +294,39 @@ class TileLayer extends StatefulWidget {
           )!,
           'The tile fade in duration needs to be bigger than zero',
         ),
-        maxZoom =
-            wmsOptions == null && retinaMode && maxZoom > 0.0 && !zoomReverse
-                ? maxZoom - 1.0
-                : maxZoom,
-        minZoom =
-            wmsOptions == null && retinaMode && maxZoom > 0.0 && zoomReverse
-                ? max(minZoom + 1.0, 0)
-                : minZoom,
-        zoomOffset = wmsOptions == null && retinaMode && maxZoom > 0.0
-            ? (zoomReverse ? zoomOffset - 1.0 : zoomOffset + 1.0)
-            : zoomOffset,
-        tileSize = wmsOptions == null && retinaMode && maxZoom > 0.0
-            ? (tileSize / 2.0).floorToDouble()
-            : tileSize,
+        assert(
+          urlTemplate == null || wmsOptions == null,
+          'Cannot specify both `urlTemplate` and `wmsOptions`',
+        ),
         tileProvider = (tileProvider ?? NetworkTileProvider())
           ..headers.putIfAbsent(
               'User-Agent', () => 'flutter_map ($userAgentPackageName)'),
         tileUpdateTransformer =
-            tileUpdateTransformer ?? TileUpdateTransformers.ignoreTapEvents;
+            tileUpdateTransformer ?? TileUpdateTransformers.ignoreTapEvents {
+    resolvedRetinaMode = retinaMode
+        ? wmsOptions == null && urlTemplate!.contains('{r}')
+            ? RetinaMode.server
+            : RetinaMode.simulation
+        : RetinaMode.disabled;
+
+    final useSimulatedRetina = resolvedRetinaMode == RetinaMode.simulation;
+
+    this.maxZoom = useSimulatedRetina && !zoomReverse ? maxZoom - 1 : maxZoom;
+    this.maxNativeZoom =
+        useSimulatedRetina && !zoomReverse ? maxNativeZoom - 1 : maxNativeZoom;
+
+    this.minZoom =
+        useSimulatedRetina && zoomReverse ? max(minZoom + 1.0, 0) : minZoom;
+    this.minNativeZoom = useSimulatedRetina && zoomReverse
+        ? max(minNativeZoom + 1, 0)
+        : minNativeZoom;
+
+    this.zoomOffset = useSimulatedRetina
+        ? (zoomReverse ? zoomOffset - 1.0 : zoomOffset + 1.0)
+        : zoomOffset;
+    this.tileSize =
+        useSimulatedRetina ? (tileSize / 2.0).floorToDouble() : tileSize;
+  }
 
   @override
   State<StatefulWidget> createState() => _TileLayerState();
@@ -432,7 +440,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       );
     }
 
-    if (oldWidget.retinaMode != widget.retinaMode) {
+    if (oldWidget.resolvedRetinaMode != widget.resolvedRetinaMode) {
       reloadTiles = true;
     }
 

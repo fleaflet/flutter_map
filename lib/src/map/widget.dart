@@ -14,7 +14,7 @@ import 'package:flutter_map/src/map/controller/impl.dart';
 import 'package:flutter_map/src/map/controller/internal.dart';
 import 'package:flutter_map/src/map/controller/map_controller.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
-import 'package:flutter_map/src/map/options.dart';
+import 'package:flutter_map/src/map/options/options.dart';
 
 /// An interactive geographical map
 ///
