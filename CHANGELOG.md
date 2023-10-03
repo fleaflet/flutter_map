@@ -31,6 +31,7 @@ Contains the following user-affecting bug fixes:
 
 - Handled exceptions correctly in default image provider if no `fallbackUrl` is defined - [#1555](https://github.com/fleaflet/flutter_map/pull/1555) for [#1554](https://github.com/fleaflet/flutter_map/issues/1554)
 - Ignored gestures on closed `RichAnimationWidget` when using `FadeRAWA` - [#1591](https://github.com/fleaflet/flutter_map/pull/1591) for [#1589](https://github.com/fleaflet/flutter_map/issues/1589)
+- Avoided setting 'User-Agent' header in `TileProvider` when running on the web, to avoid polluting the debug console with ignorable error messages - [#1677](https://github.com/fleaflet/flutter_map/pull/1677) for [#1654](https://github.com/fleaflet/flutter_map/issues/1654)
 - Fixed some `Polygon` edge-cases - [#1598](https://github.com/fleaflet/flutter_map/pull/1598) & [#1599](https://github.com/fleaflet/flutter_map/pull/1599)
 - Fixed `TileLayer.reset` failing to load new tiles - [#1620](https://github.com/fleaflet/flutter_map/pull/1620) for [#1619](https://github.com/fleaflet/flutter_map/issues/1619)
 - Fixed incorrect `Marker` anchoring when counter-rotating - [#1623](https://github.com/fleaflet/flutter_map/pull/1623) for [#1500](https://github.com/fleaflet/flutter_map/issues/1500)
@@ -39,8 +40,8 @@ Contains the following user-affecting bug fixes:
 - Fixed `hasGesture` being `false` after double tap zoom in `onPositionChanged` callback - [#1465](https://github.com/fleaflet/flutter_map/issues/1465) for [#1630](https://github.com/fleaflet/flutter_map/pull/1630)
 - Fixed failure to attempt tile requests with `fallbackUrl` when an exception is thrown whilst `decode`ing instead of during the network request - [#1648](https://github.com/fleaflet/flutter_map/pull/1648) for [#1649](https://github.com/fleaflet/flutter_map/issues/1649)
 - Fixed potential issues with building `RichAttributionWidget` - [#1661](https://github.com/fleaflet/flutter_map/pull/1661)
-- Fixed bug where `TileLayer.fallbackUrl` was not attempted when `FlutterMapNetworkImageProvider` fails to decode a non-image - part of [#1662](https://github.com/fleaflet/flutter_map/pull/1662) for [#1667](https://github.com/fleaflet/flutter_map/issues/1667)
-- Fixed bug where "PositionedTapDetector2" did not correctly transform global coords to local coords when the `FlutterMap` widget was `Transform`ed - [#1676](https://github.com/fleaflet/flutter_map/pull/1676) for [#1675](https://github.com/fleaflet/flutter_map/issues/1675)
+- Fixed `TileLayer.fallbackUrl` not being attempted when `FlutterMapNetworkImageProvider` failed to decode a non-image - part of [#1662](https://github.com/fleaflet/flutter_map/pull/1662) for [#1667](https://github.com/fleaflet/flutter_map/issues/1667)
+- Fixed "PositionedTapDetector2" not correctly transforming global coords to local coords when the `FlutterMap` widget was `Transform`ed - [#1676](https://github.com/fleaflet/flutter_map/pull/1676) for [#1675](https://github.com/fleaflet/flutter_map/issues/1675)
 
 Contains the following user-affecting performance improvements:
 
