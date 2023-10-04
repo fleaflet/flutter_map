@@ -497,11 +497,6 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       ),
     );
 
-    final currentPixelOrigin = Point<double>(
-      map.pixelOrigin.x.toDouble(),
-      map.pixelOrigin.y.toDouble(),
-    );
-
     _tileScaleCalculator.clearCacheUnlessZoomMatches(map.zoom);
 
     return _addBackgroundColor(
@@ -518,7 +513,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
                 map.zoom,
                 tileImage.coordinates.z,
               ),
-              currentPixelOrigin: currentPixelOrigin,
+              currentPixelOrigin: map.pixelOrigin,
               tileImage: tileImage,
               tileBuilder: widget.tileBuilder,
             );

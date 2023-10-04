@@ -50,15 +50,15 @@ class OverlayImage extends BaseOverlayImage {
   @override
   Positioned buildPositionedForOverlay(MapCamera map) {
     // northWest is not necessarily upperLeft depending on projection
-    final bounds = Bounds<num>(
+    final bounds = Bounds<double>(
       map.project(this.bounds.northWest).subtract(map.pixelOrigin),
       map.project(this.bounds.southEast).subtract(map.pixelOrigin),
     );
     return Positioned(
-        left: bounds.topLeft.x.toDouble(),
-        top: bounds.topLeft.y.toDouble(),
-        width: bounds.size.x.toDouble(),
-        height: bounds.size.y.toDouble(),
+        left: bounds.topLeft.x,
+        top: bounds.topLeft.y,
+        width: bounds.size.x,
+        height: bounds.size.y,
         child: buildImageForOverlay());
   }
 }
