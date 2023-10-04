@@ -53,10 +53,10 @@ Contains the following user-affecting performance improvements:
 
 In other news:
 
-- There's many new performance and cost-reducing improvments available (some may need some manual work to enable): please see the [Highlights section](https://docs.fleaflet.dev/v/v6-1/getting-started/migrating-to-v6#changelog-and-highlights) on the Migrating To v6 docs page!
-- We now accept one-time donations! We're extremely grateful for anything you can spare. We'll donate 15% of what we receive to the OpenStreetMap Foundation, as a thanks for their excellent work. For more info, please see [Support Us](https://docs.fleaflet.dev/v/v6-1/supporters#support-us).
-- We're looking for sponsors and OSS projects that use FM significantly, and want to be advertised! For more info, please see [Showcase](https://docs.fleaflet.dev/v/v6-1/showcase).
-- We're on the hunt for maintainers to join the team! For more information, please see [the application form](https://docs.fleaflet.dev/v/v6-1/credits#apply-to-be-a-maintainer).
+- There's many new performance and cost-reducing improvments available (some may need some manual work to enable): please see the [Highlights section](https://docs.fleaflet.dev/getting-started/migrating-to-v6#changelog-and-highlights) on the Migrating To v6 docs page!
+- We now accept one-time donations! We're extremely grateful for anything you can spare. We'll donate 15% of what we receive to the OpenStreetMap Foundation, as a thanks for their excellent work. For more info, please see [Support Us](https://docs.fleaflet.dev/supporters#support-us).
+- We're looking for sponsors and OSS projects that use FM significantly, and want to be advertised! For more info, please see [Showcase](https://docs.fleaflet.dev/showcase).
+- We're on the hunt for maintainers to join the team! For more information, please see [the application form](https://docs.fleaflet.dev/credits#apply-to-be-a-maintainer).
 - OpenStreetMap Operations has warned us that users should move away from using subdomains with their tile servers, so please do! Appropriate warnings will now be logged in console should you fail to do this.
 
 Many thanks to these contributors (in no particular order):

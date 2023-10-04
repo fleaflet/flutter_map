@@ -273,7 +273,9 @@ class TileLayer extends StatefulWidget {
     this.tileDisplay = const TileDisplay.fadeIn(),
 
     /// See [RetinaMode] for more information
-    final bool retinaMode = false,
+    ///
+    /// Defaults to `false` when `null`.
+    final bool? retinaMode,
     this.errorTileCallback,
     @Deprecated(
       'Prefer creating a custom `TileProvider` instead. '
@@ -303,6 +305,7 @@ class TileLayer extends StatefulWidget {
               'User-Agent', () => 'flutter_map ($userAgentPackageName)'),
         tileUpdateTransformer =
             tileUpdateTransformer ?? TileUpdateTransformers.ignoreTapEvents {
+    // Debug Logging
     if (kDebugMode &&
         urlTemplate != null &&
         urlTemplate!.contains('{s}.tile.openstreetmap.org')) {
@@ -310,6 +313,22 @@ class TileLayer extends StatefulWidget {
         '\x1B[1m\x1B[3mflutter_map\x1B[0m\nAvoid using subdomains with OSM\'s tile '
         'server. Support may be become slow or be removed in future.\nSee '
         'https://github.com/openstreetmap/operations/issues/737 for more info.',
+      );
+    }
+    if (kDebugMode &&
+        retinaMode == null &&
+        wmsOptions == null &&
+        urlTemplate!.contains('{r}')) {
+      Logger(printer: PrettyPrinter(methodCount: 0)).w(
+        '\x1B[1m\x1B[3mflutter_map\x1B[0m\nThe URL template includes a retina '
+        "mode placeholder ('{r}') to retrieve native high-resolution\ntiles, "
+        'which improve appearance especially on high-density displays.\n'
+        'However, `TileLayer.retinaMode` was left unset, meaning flutter_map '
+        'will never retrieve these tiles.\nConsider using '
+        '`RetinaMode.isHighDensity` to toggle this property automatically, '
+        'otherwise ensure\nit is set appropriately.\n'
+        'See https://docs.fleaflet.dev/layers/tile-layer#retina-mode for '
+        'more info.',
       );
     }
     if (kDebugMode && kIsWeb && tileProvider is NetworkTileProvider?) {
@@ -322,7 +341,7 @@ class TileLayer extends StatefulWidget {
       );
     }
 
-    resolvedRetinaMode = retinaMode
+    resolvedRetinaMode = (retinaMode ?? false)
         ? wmsOptions == null && urlTemplate!.contains('{r}')
             ? RetinaMode.server
             : RetinaMode.simulation
