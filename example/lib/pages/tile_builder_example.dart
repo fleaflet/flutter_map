@@ -133,15 +133,13 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
                 panBuffer: panBuffer,
               ),
             ),
-            MarkerLayer(
+            const MarkerLayer(
               markers: <Marker>[
                 Marker(
                   width: 80,
                   height: 80,
-                  point: const LatLng(51.5, -0.09),
-                  builder: (ctx) => const FlutterLogo(
-                    key: ObjectKey(Colors.blue),
-                  ),
+                  point: LatLng(51.5, -0.09),
+                  child: FlutterLogo(key: ObjectKey(Colors.blue)),
                 ),
               ],
             ),

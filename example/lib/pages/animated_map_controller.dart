@@ -20,9 +20,30 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
   static const _inProgressId = 'AnimatedMapController#MoveInProgress';
   static const _finishedId = 'AnimatedMapController#MoveFinished';
 
-  static const london = LatLng(51.5, -0.09);
-  static const paris = LatLng(48.8566, 2.3522);
-  static const dublin = LatLng(53.3498, -6.2603);
+  static const _london = LatLng(51.5, -0.09);
+  static const _paris = LatLng(48.8566, 2.3522);
+  static const _dublin = LatLng(53.3498, -6.2603);
+
+  static const _markers = [
+    Marker(
+      width: 80,
+      height: 80,
+      point: _london,
+      child: FlutterLogo(key: ValueKey('blue')),
+    ),
+    Marker(
+      width: 80,
+      height: 80,
+      point: _dublin,
+      child: FlutterLogo(key: ValueKey('green')),
+    ),
+    Marker(
+      width: 80,
+      height: 80,
+      point: _paris,
+      child: FlutterLogo(key: ValueKey('purple')),
+    ),
+  ];
 
   late final MapController mapController;
 
@@ -88,36 +109,6 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
 
   @override
   Widget build(BuildContext context) {
-    final markers = <Marker>[
-      Marker(
-        width: 80,
-        height: 80,
-        point: london,
-        builder: (ctx) => Container(
-          key: const Key('blue'),
-          child: const FlutterLogo(),
-        ),
-      ),
-      Marker(
-        width: 80,
-        height: 80,
-        point: dublin,
-        builder: (ctx) => const FlutterLogo(
-          key: Key('green'),
-          textColor: Colors.green,
-        ),
-      ),
-      Marker(
-        width: 80,
-        height: 80,
-        point: paris,
-        builder: (ctx) => Container(
-          key: const Key('purple'),
-          child: const FlutterLogo(textColor: Colors.purple),
-        ),
-      ),
-    ];
-
     return Scaffold(
       appBar: AppBar(title: const Text('Animated MapController')),
       drawer: buildDrawer(context, AnimatedMapControllerPage.route),
@@ -130,21 +121,15 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
               child: Row(
                 children: <Widget>[
                   MaterialButton(
-                    onPressed: () {
-                      _animatedMapMove(london, 10);
-                    },
+                    onPressed: () => _animatedMapMove(_london, 10),
                     child: const Text('London'),
                   ),
                   MaterialButton(
-                    onPressed: () {
-                      _animatedMapMove(paris, 5);
-                    },
+                    onPressed: () => _animatedMapMove(_paris, 5),
                     child: const Text('Paris'),
                   ),
                   MaterialButton(
-                    onPressed: () {
-                      _animatedMapMove(dublin, 5);
-                    },
+                    onPressed: () => _animatedMapMove(_dublin, 5),
                     child: const Text('Dublin'),
                   ),
                 ],
@@ -157,9 +142,9 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
                   MaterialButton(
                     onPressed: () {
                       final bounds = LatLngBounds.fromPoints([
-                        dublin,
-                        paris,
-                        london,
+                        _dublin,
+                        _paris,
+                        _london,
                       ]);
 
                       mapController.fitCamera(
@@ -174,9 +159,9 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
                   MaterialButton(
                     onPressed: () {
                       final bounds = LatLngBounds.fromPoints([
-                        dublin,
-                        paris,
-                        london,
+                        _dublin,
+                        _paris,
+                        _london,
                       ]);
 
                       final constrained = CameraFit.bounds(
@@ -204,7 +189,7 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                     tileUpdateTransformer: _animatedMoveTileUpdateTransformer,
                   ),
-                  MarkerLayer(markers: markers),
+                  const MarkerLayer(markers: _markers),
                 ],
               ),
             ),
