@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:collection/collection.dart' show MapEquality;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile.dart';
@@ -131,32 +132,17 @@ class TileLayer extends StatefulWidget {
   /// Provider with which to load map tiles
   ///
   /// The default is [NetworkTileProvider] which supports both IO and web
-  /// platforms. It uses a [RetryClient] to retry failed requests, but that can
-  /// be overriden by specifying [NetworkTileProvider.httpClient].
-  ///
-  /// Does not automatically cache (past Flutter's [ImageCache]). For options to
-  /// add offline mapping, see
-  /// https://docs.fleaflet.dev/tile-servers/offline-mapping.
+  /// platforms, with basic session-only caching. It uses a [RetryClient] backed
+  /// by a standard [Client] to retry failed requests.
   ///
   /// `userAgentPackageName` is a [TileLayer] parameter, which should be passed
-  /// the application's correct package name, such as 'com.example.app'. This is
-  /// important to avoid blocking by tile servers due to high-levels of
-  /// unidentified traffic. This is passed through to the [NetworkTileProvider]
-  /// in a suitably formatted string, where it forms the 'User-Agent' header,
-  /// overriding any custom user agent specified in the HTTP client. To override
-  /// this behaviour, specify a 'User-Agent' key in the
-  /// [NetworkTileProvider.headers] property. If no value is passed, it defaults
-  /// to 'unknown'. This is all ignored on the web, where the 'User-Agent' header
-  /// cannot be changed due to a limitation of Dart/browsers.
+  /// the application's correct package name, such as 'com.example.app'. See
+  /// https://docs.fleaflet.dev/v/v6-1/layers/tile-layer#useragentpackagename for
+  /// more information.
   ///
-  /// [AssetTileProvider] and [FileTileProvider] are alternatives to network
-  /// providers, which use the [urlTemplate] as a path instead.
-  /// For example, 'assets/map/{z}/{x}/{y}.png' or
-  /// '/storage/emulated/0/map_app/tiles/{z}/{x}/{y}.png'.
-  ///
-  /// Custom [TileProvider]s can also be used, but these will not necessarily
-  /// follow the header rules above.
-  final TileProvider tileProvider;
+  /// For information about other prebuilt tile providers, see
+  /// https://docs.fleaflet.dev/v/v6-1/layers/tile-layer/tile-providers.W
+  late final TileProvider tileProvider;
 
   /// When panning the map, keep this many rows and columns of tiles before
   /// unloading them.
@@ -280,29 +266,31 @@ class TileLayer extends StatefulWidget {
           urlTemplate == null || wmsOptions == null,
           'Cannot specify both `urlTemplate` and `wmsOptions`',
         ),
-        tileProvider = (tileProvider ?? NetworkTileProvider())
-          ..headers.putIfAbsent(
-              'User-Agent', () => 'flutter_map ($userAgentPackageName)'),
+        tileProvider = tileProvider ?? NetworkTileProvider(),
         tileUpdateTransformer =
             tileUpdateTransformer ?? TileUpdateTransformers.ignoreTapEvents {
+    // Tile Provider Setup
+    if (!kIsWeb) {
+      this.tileProvider.headers.putIfAbsent(
+          'User-Agent', () => 'flutter_map ($userAgentPackageName)');
+    }
+
+    // Retina Mode Setup
     resolvedRetinaMode = retinaMode
         ? wmsOptions == null && urlTemplate!.contains('{r}')
             ? RetinaMode.server
             : RetinaMode.simulation
         : RetinaMode.disabled;
-
     final useSimulatedRetina = resolvedRetinaMode == RetinaMode.simulation;
 
     this.maxZoom = useSimulatedRetina && !zoomReverse ? maxZoom - 1 : maxZoom;
     this.maxNativeZoom =
         useSimulatedRetina && !zoomReverse ? maxNativeZoom - 1 : maxNativeZoom;
-
     this.minZoom =
         useSimulatedRetina && zoomReverse ? max(minZoom + 1.0, 0) : minZoom;
     this.minNativeZoom = useSimulatedRetina && zoomReverse
         ? max(minNativeZoom + 1, 0)
         : minNativeZoom;
-
     this.zoomOffset = useSimulatedRetina
         ? (zoomReverse ? zoomOffset - 1.0 : zoomOffset + 1.0)
         : zoomOffset;
