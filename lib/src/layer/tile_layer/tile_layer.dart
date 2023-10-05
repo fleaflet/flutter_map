@@ -323,7 +323,7 @@ class TileLayer extends StatefulWidget {
         'more info.',
       );
     }
-    
+
     // Tile Provider Setup
     if (!kIsWeb) {
       this.tileProvider.headers.putIfAbsent(
