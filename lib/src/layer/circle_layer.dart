@@ -32,10 +32,10 @@ class CircleLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final map = MapCamera.of(context);
     return LayoutBuilder(
       builder: (context, bc) {
         final size = Size(bc.maxWidth, bc.maxHeight);
-        final map = MapCamera.of(context);
         return CustomPaint(
           painter: CirclePainter(circles, map),
           size: size,
@@ -55,6 +55,9 @@ class CirclePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     const distance = Distance();
+    final rect = Offset.zero & size;
+    canvas.clipRect(rect);
+
     circles.forEach((circle) {
       final offset = map.getOffsetFromOrigin(circle.point);
       double? realRadius;
@@ -64,8 +67,6 @@ class CirclePainter extends CustomPainter {
         realRadius = delta.distance;
       }
 
-      final rect = Offset.zero & size;
-      canvas.clipRect(rect);
       final paint = Paint()
         ..style = PaintingStyle.fill
         ..color = circle.color;
