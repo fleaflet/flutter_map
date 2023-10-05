@@ -58,7 +58,7 @@ class CirclePainter extends CustomPainter {
     final rect = Offset.zero & size;
     canvas.clipRect(rect);
 
-    circles.forEach((circle) {
+    for (final circle in circles) {
       final offset = map.getOffsetFromOrigin(circle.point);
       double radius = circle.radius;
       if (circle.useRadiusInMeter) {
@@ -81,7 +81,7 @@ class CirclePainter extends CustomPainter {
 
         _paintCircle(canvas, offset, radius, paint);
       }
-    });
+    }
   }
 
   void _paintCircle(Canvas canvas, Offset offset, double radius, Paint paint) {
