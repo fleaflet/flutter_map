@@ -32,30 +32,14 @@ class CircleLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const distance = Distance();
     return LayoutBuilder(
       builder: (context, bc) {
         final size = Size(bc.maxWidth, bc.maxHeight);
         final map = MapCamera.of(context);
-        final circleWidgets = circles.map<Widget>((circle) {
-          final offset = map.getOffsetFromOrigin(circle.point);
-          double? realRadius;
-          if (circle.useRadiusInMeter) {
-            final r = distance.offset(circle.point, circle.radius, 180);
-            final delta = offset - map.getOffsetFromOrigin(r);
-            realRadius = delta.distance;
-          }
-          return CustomPaint(
-            key: circle.key,
-            painter: CirclePainter(
-              circle,
-              offset: offset,
-              radius: realRadius ?? 0,
-            ),
-            size: size,
-          );
-        }).toList(growable: false);
-        return Stack(children: circleWidgets);
+        return CustomPaint(
+          painter: CirclePainter(circles, map),
+          size: size,
+        );
       },
     );
   }
@@ -63,36 +47,40 @@ class CircleLayer extends StatelessWidget {
 
 @immutable
 class CirclePainter extends CustomPainter {
-  final CircleMarker circle;
-  final Offset offset;
-  final double radius;
+  final List<CircleMarker> circles;
+  final MapCamera map;
 
-  const CirclePainter(
-    this.circle, {
-    this.offset = Offset.zero,
-    this.radius = 0,
-  });
+  const CirclePainter(this.circles, this.map);
 
   @override
   void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-    canvas.clipRect(rect);
-    final paint = Paint()
-      ..style = PaintingStyle.fill
-      ..color = circle.color;
+    const distance = Distance();
+    circles.forEach((circle) {
+      final offset = map.getOffsetFromOrigin(circle.point);
+      double? realRadius;
+      if (circle.useRadiusInMeter) {
+        final r = distance.offset(circle.point, circle.radius, 180);
+        final delta = offset - map.getOffsetFromOrigin(r);
+        realRadius = delta.distance;
+      }
 
-    _paintCircle(canvas, offset,
-        circle.useRadiusInMeter ? radius : circle.radius, paint);
-
-    if (circle.borderStrokeWidth > 0) {
+      final rect = Offset.zero & size;
+      canvas.clipRect(rect);
       final paint = Paint()
-        ..style = PaintingStyle.stroke
-        ..color = circle.borderColor
-        ..strokeWidth = circle.borderStrokeWidth;
+        ..style = PaintingStyle.fill
+        ..color = circle.color;
 
-      _paintCircle(canvas, offset,
-          circle.useRadiusInMeter ? radius : circle.radius, paint);
-    }
+      _paintCircle(canvas, offset, circle.useRadiusInMeter ? realRadius! : circle.radius, paint);
+
+      if (circle.borderStrokeWidth > 0) {
+        final paint = Paint()
+          ..style = PaintingStyle.stroke
+          ..color = circle.borderColor
+          ..strokeWidth = circle.borderStrokeWidth;
+
+        _paintCircle(canvas, offset, circle.useRadiusInMeter ? realRadius! : circle.radius, paint);
+      }
+    });
   }
 
   void _paintCircle(Canvas canvas, Offset offset, double radius, Paint paint) {
