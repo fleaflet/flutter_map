@@ -60,18 +60,18 @@ class CirclePainter extends CustomPainter {
 
     circles.forEach((circle) {
       final offset = map.getOffsetFromOrigin(circle.point);
-      double? realRadius;
+      double radius = circle.radius;
       if (circle.useRadiusInMeter) {
         final r = distance.offset(circle.point, circle.radius, 180);
         final delta = offset - map.getOffsetFromOrigin(r);
-        realRadius = delta.distance;
+        radius = delta.distance;
       }
 
       final paint = Paint()
         ..style = PaintingStyle.fill
         ..color = circle.color;
 
-      _paintCircle(canvas, offset, circle.useRadiusInMeter ? realRadius! : circle.radius, paint);
+      _paintCircle(canvas, offset, radius, paint);
 
       if (circle.borderStrokeWidth > 0) {
         final paint = Paint()
@@ -79,7 +79,7 @@ class CirclePainter extends CustomPainter {
           ..color = circle.borderColor
           ..strokeWidth = circle.borderStrokeWidth;
 
-        _paintCircle(canvas, offset, circle.useRadiusInMeter ? realRadius! : circle.radius, paint);
+        _paintCircle(canvas, offset, radius, paint);
       }
     });
   }
