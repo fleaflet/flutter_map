@@ -67,7 +67,7 @@ class _LatLngToScreenPointPageState extends State<LatLngToScreenPointPage> {
                       width: pointSize,
                       height: pointSize,
                       point: tappedCoords!,
-                      builder: (ctx) => const Icon(
+                      child: const Icon(
                         Icons.circle,
                         size: 10,
                         color: Colors.black,

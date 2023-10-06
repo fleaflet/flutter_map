@@ -9,6 +9,7 @@ import 'package:flutter_map_example/pages/fallback_url_network_page.dart';
 import 'package:flutter_map_example/pages/home.dart';
 import 'package:flutter_map_example/pages/interactive_test_page.dart';
 import 'package:flutter_map_example/pages/latlng_to_screen_point.dart';
+import 'package:flutter_map_example/pages/many_circles.dart';
 import 'package:flutter_map_example/pages/many_markers.dart';
 import 'package:flutter_map_example/pages/map_controller.dart';
 import 'package:flutter_map_example/pages/map_inside_listview.dart';
@@ -60,6 +61,7 @@ class MyApp extends StatelessWidget {
         PluginZoomButtons.route: (context) => const PluginZoomButtons(),
         OfflineMapPage.route: (context) => const OfflineMapPage(),
         MovingMarkersPage.route: (context) => const MovingMarkersPage(),
+        ManyCirclesPage.route: (context) => const ManyCirclesPage(),
         CirclePage.route: (context) => const CirclePage(),
         OverlayImagePage.route: (context) => const OverlayImagePage(),
         PolygonPage.route: (context) => const PolygonPage(),

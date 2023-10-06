@@ -10,6 +10,7 @@ import 'package:flutter_map_example/pages/fallback_url_network_page.dart';
 import 'package:flutter_map_example/pages/home.dart';
 import 'package:flutter_map_example/pages/interactive_test_page.dart';
 import 'package:flutter_map_example/pages/latlng_to_screen_point.dart';
+import 'package:flutter_map_example/pages/many_circles.dart';
 import 'package:flutter_map_example/pages/many_markers.dart';
 import 'package:flutter_map_example/pages/map_controller.dart';
 import 'package:flutter_map_example/pages/map_inside_listview.dart';
@@ -172,6 +173,12 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
           context,
           const Text('Many Markers'),
           ManyMarkersPage.route,
+          currentRoute,
+        ),
+        _buildMenuItem(
+          context,
+          const Text('Many Circles'),
+          ManyCirclesPage.route,
           currentRoute,
         ),
         _buildMenuItem(

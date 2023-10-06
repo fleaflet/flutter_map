@@ -57,7 +57,7 @@ class PointToLatlngPage extends State<ScreenPointToLatLngPage> {
                       width: pointSize,
                       height: pointSize,
                       point: latLng!,
-                      builder: (ctx) => const Icon(
+                      child: const Icon(
                         Icons.circle,
                         size: 10,
                         color: Colors.black,

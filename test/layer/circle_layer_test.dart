@@ -23,7 +23,13 @@ void main() {
 
     await tester.pumpWidget(TestApp(circles: circles));
     expect(find.byType(FlutterMap), findsOneWidget);
-    expect(find.byType(CircleLayer), findsWidgets);
-    expect(find.byKey(key), findsOneWidget);
+    expect(find.byType(CircleLayer), findsOneWidget);
+
+    // Assert that batching works and all circles are drawn into the same
+    // CustomPaint/Canvas.
+    expect(
+        find.descendant(
+            of: find.byType(CircleLayer), matching: find.byType(CustomPaint)),
+        findsOneWidget);
   });
 }

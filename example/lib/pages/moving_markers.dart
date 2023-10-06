@@ -21,6 +21,27 @@ class _MovingMarkersPageState extends State<MovingMarkersPage> {
   late final Timer _timer;
   int _markerIndex = 0;
 
+  static const _markers = [
+    Marker(
+      width: 80,
+      height: 80,
+      point: LatLng(51.5, -0.09),
+      child: FlutterLogo(),
+    ),
+    Marker(
+      width: 80,
+      height: 80,
+      point: LatLng(53.3498, -6.2603),
+      child: FlutterLogo(),
+    ),
+    Marker(
+      width: 80,
+      height: 80,
+      point: LatLng(48.8566, 2.3522),
+      child: FlutterLogo(),
+    ),
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -74,24 +95,3 @@ class _MovingMarkersPageState extends State<MovingMarkersPage> {
     );
   }
 }
-
-List<Marker> _markers = [
-  Marker(
-    width: 80,
-    height: 80,
-    point: const LatLng(51.5, -0.09),
-    builder: (ctx) => const FlutterLogo(),
-  ),
-  Marker(
-    width: 80,
-    height: 80,
-    point: const LatLng(53.3498, -6.2603),
-    builder: (ctx) => const FlutterLogo(),
-  ),
-  Marker(
-    width: 80,
-    height: 80,
-    point: const LatLng(48.8566, 2.3522),
-    builder: (ctx) => const FlutterLogo(),
-  ),
-];
