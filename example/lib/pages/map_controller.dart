@@ -14,13 +14,34 @@ class MapControllerPage extends StatefulWidget {
   }
 }
 
-const LatLng london = LatLng(51.5, -0.09);
-const LatLng paris = LatLng(48.8566, 2.3522);
-const LatLng dublin = LatLng(53.3498, -6.2603);
-
 class MapControllerPageState extends State<MapControllerPage> {
   late final MapController _mapController;
   double _rotation = 0;
+
+  static const _london = LatLng(51.5, -0.09);
+  static const _paris = LatLng(48.8566, 2.3522);
+  static const _dublin = LatLng(53.3498, -6.2603);
+
+  static const _markers = [
+    Marker(
+      width: 80,
+      height: 80,
+      point: _london,
+      child: FlutterLogo(key: ValueKey('blue')),
+    ),
+    Marker(
+      width: 80,
+      height: 80,
+      point: _dublin,
+      child: FlutterLogo(key: ValueKey('green')),
+    ),
+    Marker(
+      width: 80,
+      height: 80,
+      point: _paris,
+      child: FlutterLogo(key: ValueKey('purple')),
+    ),
+  ];
 
   @override
   void initState() {
@@ -30,36 +51,6 @@ class MapControllerPageState extends State<MapControllerPage> {
 
   @override
   Widget build(BuildContext context) {
-    final markers = <Marker>[
-      Marker(
-        width: 80,
-        height: 80,
-        point: london,
-        builder: (ctx) => Container(
-          key: const Key('blue'),
-          child: const FlutterLogo(),
-        ),
-      ),
-      Marker(
-        width: 80,
-        height: 80,
-        point: dublin,
-        builder: (ctx) => const FlutterLogo(
-          key: Key('green'),
-          textColor: Colors.green,
-        ),
-      ),
-      Marker(
-        width: 80,
-        height: 80,
-        point: paris,
-        builder: (ctx) => Container(
-          key: const Key('purple'),
-          child: const FlutterLogo(textColor: Colors.purple),
-        ),
-      ),
-    ];
-
     return Scaffold(
       appBar: AppBar(title: const Text('MapController')),
       drawer: buildDrawer(context, MapControllerPage.route),
@@ -72,21 +63,15 @@ class MapControllerPageState extends State<MapControllerPage> {
               child: Row(
                 children: <Widget>[
                   MaterialButton(
-                    onPressed: () {
-                      _mapController.move(london, 18);
-                    },
+                    onPressed: () => _mapController.move(_london, 18),
                     child: const Text('London'),
                   ),
                   MaterialButton(
-                    onPressed: () {
-                      _mapController.move(paris, 5);
-                    },
+                    onPressed: () => _mapController.move(_paris, 5),
                     child: const Text('Paris'),
                   ),
                   MaterialButton(
-                    onPressed: () {
-                      _mapController.move(dublin, 5);
-                    },
+                    onPressed: () => _mapController.move(_dublin, 5),
                     child: const Text('Dublin'),
                   ),
                 ],
@@ -99,9 +84,9 @@ class MapControllerPageState extends State<MapControllerPage> {
                   MaterialButton(
                     onPressed: () {
                       final bounds = LatLngBounds.fromPoints([
-                        dublin,
-                        paris,
-                        london,
+                        _dublin,
+                        _paris,
+                        _london,
                       ]);
 
                       _mapController.fitCamera(
@@ -163,7 +148,7 @@ class MapControllerPageState extends State<MapControllerPage> {
                         'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   ),
-                  MarkerLayer(markers: markers),
+                  const MarkerLayer(markers: _markers),
                 ],
               ),
             ),

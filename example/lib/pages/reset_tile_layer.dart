@@ -37,15 +37,6 @@ class ResetTileLayerPageState extends State<ResetTileLayerPage> {
 
   @override
   Widget build(BuildContext context) {
-    final markers = <Marker>[
-      Marker(
-        width: 80,
-        height: 80,
-        point: const LatLng(51.5, -0.09),
-        builder: (ctx) => const FlutterLogo(),
-      ),
-    ];
-
     return Scaffold(
       appBar: AppBar(title: const Text('TileLayer Reset')),
       drawer: buildDrawer(context, ResetTileLayerPage.route),
@@ -82,7 +73,16 @@ class ResetTileLayerPageState extends State<ResetTileLayerPage> {
                     subdomains: layerToggle ? const [] : const ['a', 'b', 'c'],
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   ),
-                  MarkerLayer(markers: markers)
+                  const MarkerLayer(
+                    markers: [
+                      Marker(
+                        width: 80,
+                        height: 80,
+                        point: LatLng(51.5, -0.09),
+                        child: FlutterLogo(),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
