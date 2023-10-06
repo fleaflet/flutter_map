@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:latlong2/latlong.dart' hide Path;
