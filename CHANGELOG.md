@@ -46,8 +46,8 @@ Contains the following user-affecting bug fixes:
 Contains the following user-affecting performance improvements:
 
 - Created official plugin to reduce tile loading times when running on web, using [#1622](https://github.com/fleaflet/flutter_map/pull/1622)'s infrastructure - [flutter_map_cancellable_tile_provider](https://pub.dev/packages/flutter_map_cancellable_tile_provider)
-- Improved `Marker` performance when using anchors - [#1558](https://github.com/fleaflet/flutter_map/pull/1558) for [#1552](https://github.com/fleaflet/flutter_map/issues/1552)
 - Improved `Polygon` performance when using labels, by increasing batching ability and label location calculations - [#1607](https://github.com/fleaflet/flutter_map/pull/1607) & [#1641](https://github.com/fleaflet/flutter_map/pull/1641)
+- Improved `CircleMarker` performance, by using a single `CustomPainter` instance and more efficient draw calls - [#1679](https://github.com/fleaflet/flutter_map/pull/1679)
 - Improved internal code style and strictness - [#1594](https://github.com/fleaflet/flutter_map/pull/1594)
 - Added logging to warn of potential performance issues and recommend workarounds (such as 'flutter_map_cancellable_tile_provider') - [#1632](https://github.com/fleaflet/flutter_map/pull/1632)
 
