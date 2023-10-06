@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';
@@ -104,45 +103,48 @@ class MarkerLayer extends StatelessWidget {
     final map = MapCamera.of(context);
 
     return Stack(
-      children: markers
-          .map((m) {
-            // Resolve real alignment
-            final left = 0.5 * m.width * ((m.alignment ?? alignment).x + 1);
-            final top = 0.5 * m.height * ((m.alignment ?? alignment).y + 1);
-            final right = m.width - left;
-            final bottom = m.height - top;
+      children: (List<Widget?>.generate(
+        markers.length,
+        (i) {
+          final m = markers[i];
 
-            // Perform projection
-            final pxPoint = map.project(m.point);
+          // Resolve real alignment
+          final left = 0.5 * m.width * ((m.alignment ?? alignment).x + 1);
+          final top = 0.5 * m.height * ((m.alignment ?? alignment).y + 1);
+          final right = m.width - left;
+          final bottom = m.height - top;
 
-            // Cull if out of bounds
-            if (!map.pixelBounds.containsPartialBounds(
-              Bounds(
-                Point(pxPoint.x + left, pxPoint.y - bottom),
-                Point(pxPoint.x - right, pxPoint.y + top),
-              ),
-            )) return null;
+          // Perform projection
+          final pxPoint = map.project(m.point);
 
-            // Apply map camera to marker position
-            final pos = pxPoint.subtract(map.pixelOrigin);
+          // Cull if out of bounds
+          if (!map.pixelBounds.containsPartialBounds(
+            Bounds(
+              Point(pxPoint.x + left, pxPoint.y - bottom),
+              Point(pxPoint.x - right, pxPoint.y + top),
+            ),
+          )) return null;
 
-            return Positioned(
-              key: m.key,
-              width: m.width,
-              height: m.height,
-              left: pos.x - right,
-              top: pos.y - bottom,
-              child: (m.rotate ?? rotate)
-                  ? Transform.rotate(
-                      angle: -map.rotationRad,
-                      alignment: (m.alignment ?? alignment) * -1,
-                      child: m.child,
-                    )
-                  : m.child,
-            );
-          })
-          .whereNotNull()
-          .toList(),
+          // Apply map camera to marker position
+          final pos = pxPoint.subtract(map.pixelOrigin);
+
+          return Positioned(
+            key: m.key,
+            width: m.width,
+            height: m.height,
+            left: pos.x - right,
+            top: pos.y - bottom,
+            child: (m.rotate ?? rotate)
+                ? Transform.rotate(
+                    angle: -map.rotationRad,
+                    alignment: (m.alignment ?? alignment) * -1,
+                    child: m.child,
+                  )
+                : m.child,
+          );
+        },
+      )..retainWhere((w) => w != null))
+          .cast(),
     );
   }
 }
