@@ -5,42 +5,42 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
 
-const maxMarkersCount = 10000;
+const maxCirclesCount = 20000;
 
-/// On this page, [maxMarkersCount] markers are randomly generated
+/// On this page, [maxCirclesCount] circles are randomly generated
 /// across europe, and then you can limit them with a slider
 ///
-/// This way, you can test how map performs under a lot of markers
-class ManyMarkersPage extends StatefulWidget {
-  static const String route = '/many_markers';
+/// This way, you can test how map performs under a lot of circles
+class ManyCirclesPage extends StatefulWidget {
+  static const String route = '/many_circles';
 
-  const ManyMarkersPage({Key? key}) : super(key: key);
+  const ManyCirclesPage({Key? key}) : super(key: key);
 
   @override
-  _ManyMarkersPageState createState() => _ManyMarkersPageState();
+  _ManyCirclesPageState createState() => _ManyCirclesPageState();
 }
 
-class _ManyMarkersPageState extends State<ManyMarkersPage> {
+class _ManyCirclesPageState extends State<ManyCirclesPage> {
   double doubleInRange(Random source, num start, num end) =>
       source.nextDouble() * (end - start) + start;
-  List<Marker> allMarkers = [];
+  List<CircleMarker> allCircles = [];
 
-  int _sliderVal = maxMarkersCount ~/ 10;
+  int _sliderVal = maxCirclesCount ~/ 10;
 
   @override
   void initState() {
     super.initState();
     Future.microtask(() {
       final r = Random();
-      for (var x = 0; x < maxMarkersCount; x++) {
-        allMarkers.add(
-          Marker(
-            point: LatLng(doubleInRange(r, 37, 55), doubleInRange(r, -9, 30)),
-            child: const Icon(
-              Icons.circle,
-              color: Colors.red,
-              size: 12,
+      for (var x = 0; x < maxCirclesCount; x++) {
+        allCircles.add(
+          CircleMarker(
+            point: LatLng(
+              doubleInRange(r, 37, 55),
+              doubleInRange(r, -9, 30),
             ),
+            color: Colors.red,
+            radius: 5,
           ),
         );
       }
@@ -51,22 +51,22 @@ class _ManyMarkersPageState extends State<ManyMarkersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('A lot of markers')),
-      drawer: buildDrawer(context, ManyMarkersPage.route),
+      appBar: AppBar(title: const Text('A lot of circles')),
+      drawer: buildDrawer(context, ManyCirclesPage.route),
       body: Column(
         children: [
           Slider(
             min: 0,
-            max: maxMarkersCount.toDouble(),
-            divisions: maxMarkersCount ~/ 500,
-            label: 'Markers',
+            max: maxCirclesCount.toDouble(),
+            divisions: maxCirclesCount ~/ 500,
+            label: 'Circles',
             value: _sliderVal.toDouble(),
             onChanged: (newVal) {
               _sliderVal = newVal.toInt();
               setState(() {});
             },
           ),
-          Text('$_sliderVal markers'),
+          Text('$_sliderVal circles'),
           Flexible(
             child: FlutterMap(
               options: const MapOptions(
@@ -81,12 +81,9 @@ class _ManyMarkersPageState extends State<ManyMarkersPage> {
                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                 ),
-                MarkerLayer(
-                  markers: allMarkers.sublist(
-                    0,
-                    min(allMarkers.length, _sliderVal),
-                  ),
-                ),
+                CircleLayer(
+                    circles: allCircles.sublist(
+                        0, min(allCircles.length, _sliderVal))),
               ],
             ),
           ),

@@ -7,18 +7,18 @@ import 'test_utils/test_app.dart';
 
 void main() {
   testWidgets('flutter_map', (tester) async {
-    final markers = <Marker>[
-      Marker(
+    final markers = [
+      const Marker(
         width: 80,
         height: 80,
-        point: const LatLng(45.5231, -122.6765),
-        builder: (_) => const FlutterLogo(),
+        point: LatLng(45.5231, -122.6765),
+        child: FlutterLogo(),
       ),
-      Marker(
+      const Marker(
         width: 80,
         height: 80,
-        point: const LatLng(40, -120), // not visible
-        builder: (_) => const FlutterLogo(),
+        point: LatLng(40, -120), // not visible
+        child: FlutterLogo(),
       ),
     ];
 

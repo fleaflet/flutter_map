@@ -54,22 +54,19 @@ class OverlayImagePage extends StatelessWidget {
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   ),
                   OverlayImageLayer(overlayImages: _overlayImages),
-                  MarkerLayer(
+                  const MarkerLayer(
                     markers: [
                       Marker(
-                        point: const LatLng(53.377, -2.999),
-                        builder: (context) =>
-                            const _Circle(color: Colors.redAccent, label: "TL"),
+                        point: LatLng(53.377, -2.999),
+                        child: _Circle(color: Colors.redAccent, label: "TL"),
                       ),
                       Marker(
-                        point: const LatLng(52.503, -1.868),
-                        builder: (context) =>
-                            const _Circle(color: Colors.redAccent, label: "BL"),
+                        point: LatLng(52.503, -1.868),
+                        child: _Circle(color: Colors.redAccent, label: "BL"),
                       ),
                       Marker(
-                        point: const LatLng(53.475, 0.275),
-                        builder: (context) =>
-                            const _Circle(color: Colors.redAccent, label: "BR"),
+                        point: LatLng(53.475, 0.275),
+                        child: _Circle(color: Colors.redAccent, label: "BR"),
                       ),
                     ],
                   ),
@@ -87,19 +84,19 @@ class _Circle extends StatelessWidget {
   final String label;
   final Color color;
 
-  const _Circle({Key? key, required this.label, required this.color})
-      : super(key: key);
+  const _Circle({required this.label, required this.color});
 
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
-        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        child: Center(
-          child: Text(
-            label,
-            style: const TextStyle(
-                fontWeight: FontWeight.bold, color: Colors.white),
-          ),
-        ));
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+      child: Center(
+        child: Text(
+          label,
+          style:
+              const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+      ),
+    );
   }
 }

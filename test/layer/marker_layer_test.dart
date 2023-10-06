@@ -11,12 +11,12 @@ void main() {
     const key = Key('m-1');
 
     final markers = <Marker>[
-      Marker(
+      const Marker(
         key: key,
         width: 80,
         height: 80,
-        point: const LatLng(45.5231, -122.6765),
-        builder: (_) => const FlutterLogo(),
+        point: LatLng(45.5231, -122.6765),
+        child: FlutterLogo(),
       ),
     ];
 
