@@ -105,11 +105,9 @@ class MarkerLayer extends StatelessWidget {
 
     return MobileLayerTransformer(
       child: Stack(
-        children: (List.generate(
-          markers.length,
-          (i) {
-            final m = markers[i];
-
+        // ignore: avoid_types_on_closure_parameters
+        children: (List<Marker> markers) sync* {
+          for (final m in markers) {
             // Resolve real alignment
             final left = 0.5 * m.width * ((m.alignment ?? alignment).x + 1);
             final top = 0.5 * m.height * ((m.alignment ?? alignment).y + 1);
@@ -125,12 +123,12 @@ class MarkerLayer extends StatelessWidget {
                 Point(pxPoint.x + left, pxPoint.y - bottom),
                 Point(pxPoint.x - right, pxPoint.y + top),
               ),
-            )) return null;
+            )) continue;
 
             // Apply map camera to marker position
             final pos = pxPoint.subtract(map.pixelOrigin);
 
-            return Positioned(
+            yield Positioned(
               key: m.key,
               width: m.width,
               height: m.height,
@@ -144,9 +142,9 @@ class MarkerLayer extends StatelessWidget {
                     )
                   : m.child,
             );
-          },
-        )..retainWhere((w) => w != null))
-            .cast(),
+          }
+        }(markers)
+            .toList(),
       ),
     );
   }

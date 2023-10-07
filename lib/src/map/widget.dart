@@ -5,10 +5,8 @@ import 'dart:math';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/gestures/flutter_map_interactive_viewer.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
-import 'package:flutter_map/src/layer/attribution_layer/shared.dart';
 import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
 import 'package:flutter_map/src/layer/general/translucent_pointer.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 import 'package:flutter_map/src/map/camera/camera_fit.dart';
 import 'package:flutter_map/src/map/controller/impl.dart';
 import 'package:flutter_map/src/map/controller/internal.dart';
@@ -39,47 +37,6 @@ class FlutterMap extends StatefulWidget {
     )
     this.nonRotatedChildren = const [],
   });
-
-  /// Creates an interactive geographical map
-  ///
-  /// This constructor is a shortcut intended for only the most simple of maps.
-  /// It does not support customization of the underlying [TileLayer], and lacks
-  /// the ability to add feature layers (except for an attribution layer) or
-  /// attach a [MapController]. Use the standard constructor if these are
-  /// required.
-  ///
-  /// See the properties and online documentation for more information about
-  /// set-up, configuration, and usage.
-  ///
-  /// ---
-  ///
-  /// Provide a standard slippy map URL template to the [urlTemplate] argument,
-  /// with `{x}`, `{y}`, and `{z}` placeholders. Subdomain support is not
-  /// supported through this simple constructor.
-  ///
-  /// Provide the application's correct package name, such as 'com.example.app',
-  /// to the [userAgentPackageName] argument, to allow the tile server to
-  /// identify your application. For more information, see
-  /// [TileLayer.tileProvider]'s documentation.
-  ///
-  /// It is recommended to provide a [RichAttributionWidget] or
-  /// [SimpleAttributionWidget] to the [attribution] argument. For more
-  /// information, see their documentation.
-  FlutterMap.simple({
-    super.key,
-    required this.options,
-    required String urlTemplate,
-    required String userAgentPackageName,
-    AttributionWidget? attribution,
-  })  : children = [
-          TileLayer(
-            urlTemplate: urlTemplate,
-            userAgentPackageName: userAgentPackageName,
-          ),
-          if (attribution != null) attribution,
-        ],
-        mapController = null,
-        nonRotatedChildren = [];
 
   /// Widgets to be placed onto the map in a [Stack]-like fashion
   ///

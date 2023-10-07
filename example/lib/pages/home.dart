@@ -103,7 +103,7 @@ class _HomePageState extends State<HomePage> {
       drawer: buildDrawer(context, HomePage.route),
       body: Stack(
         children: [
-          FlutterMap.simple(
+          FlutterMap(
             options: MapOptions(
               initialCenter: const LatLng(51.5, -0.09),
               initialZoom: 5,
@@ -114,25 +114,29 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-            userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-            attribution: RichAttributionWidget(
-              popupInitialDisplayDuration: const Duration(seconds: 5),
-              animationConfig: const ScaleRAWA(),
-              showFlutterMapAttribution: false,
-              attributions: [
-                TextSourceAttribution(
-                  'OpenStreetMap contributors',
-                  onTap: () => launchUrl(
-                    Uri.parse('https://openstreetmap.org/copyright'),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+              ),
+              RichAttributionWidget(
+                popupInitialDisplayDuration: const Duration(seconds: 5),
+                animationConfig: const ScaleRAWA(),
+                showFlutterMapAttribution: false,
+                attributions: [
+                  TextSourceAttribution(
+                    'OpenStreetMap contributors',
+                    onTap: () => launchUrl(
+                      Uri.parse('https://openstreetmap.org/copyright'),
+                    ),
                   ),
-                ),
-                const TextSourceAttribution(
-                  'This attribution is the same throughout this app, except where otherwise specified',
-                  prependCopyright: false,
-                ),
-              ],
-            ),
+                  const TextSourceAttribution(
+                    'This attribution is the same throughout this app, except where otherwise specified',
+                    prependCopyright: false,
+                  ),
+                ],
+              ),
+            ],
           ),
           PositionedDirectional(
             start: 16,

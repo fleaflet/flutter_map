@@ -1,4 +1,10 @@
-part of '../shared.dart';
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_map/src/gestures/map_events.dart';
+import 'package:flutter_map/src/layer/attribution_layer/rich/animation.dart';
+import 'package:flutter_map/src/layer/attribution_layer/rich/source.dart';
+import 'package:flutter_map/src/map/controller/map_controller.dart';
 
 /// Position to anchor [RichAttributionWidget] to relative to the [FlutterMap]
 ///
@@ -55,8 +61,7 @@ enum AttributionAlignment {
 ///    attribution layer
 /// {@endtemplate}
 @immutable
-class RichAttributionWidget extends StatefulWidget
-    implements AttributionWidget {
+class RichAttributionWidget extends StatefulWidget {
   /// List of attributions to display
   ///
   /// [TextSourceAttribution]s are shown in a popup box (toggled by a tap/click

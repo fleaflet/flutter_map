@@ -1,4 +1,4 @@
-part of 'shared.dart';
+import 'package:flutter/material.dart';
 
 /// A simple, classic style, attribution layer
 ///
@@ -10,8 +10,7 @@ part of 'shared.dart';
 ///  * [RichAttributionWidget], which is dynamic, supports more customization,
 ///    and has a more complex appearance.
 @immutable
-class SimpleAttributionWidget extends StatelessWidget
-    implements AttributionWidget {
+class SimpleAttributionWidget extends StatelessWidget {
   /// Attribution text, such as 'OpenStreetMap contributors'
   final Text source;
 

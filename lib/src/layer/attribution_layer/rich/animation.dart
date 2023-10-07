@@ -1,4 +1,5 @@
-part of '../shared.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_map/src/layer/attribution_layer/rich/widget.dart';
 
 /// Animation provider interface for a [RichAttributionWidget]
 ///

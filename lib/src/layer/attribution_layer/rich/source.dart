@@ -1,4 +1,5 @@
-part of '../shared.dart';
+import 'package:flutter/material.dart';
+import 'package:meta/meta.dart';
 
 /// Base class for attributions that render themselves as widgets in a
 /// [RichAttributionWidget]
