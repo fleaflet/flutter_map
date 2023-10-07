@@ -24,6 +24,7 @@ Contains the following user-affecting changes:
 - 🟡 Replaced `Marker.anchor` with `Marker.alignment` that uses built-in `Alignment` object - [#1659](https://github.com/fleaflet/flutter_map/pull/1659)
 - 🟡 Replaced `Marker.builder` with non-builder `Marker.child` - [#1659](https://github.com/fleaflet/flutter_map/pull/1659)
 - 🟡 Changed `TileLayer.retinaMode` behaviour - [#1673](https://github.com/fleaflet/flutter_map/pull/1673) for [#1670](https://github.com/fleaflet/flutter_map/issues/1670)
+- 🟡 Changed some default arguments, including `TileLayer.panBuffer` and `MapOptions.cameraConstraint` - multiple PRs
 - 🔴 Removed `CustomPoint` in favour of extension methods on `Point<T>` - [#1585](https://github.com/fleaflet/flutter_map/pull/1585) for [#1522](https://github.com/fleaflet/flutter_map/issues/1522)
 - 🔴 Removed `MoveAndRotateResult` in favour of a `Record` in format of `({bool moveSuccess, bool rotateSuccess})` - [#1636](https://github.com/fleaflet/flutter_map/pull/1636)
 - 🔴 Removed `Anchor`, `AnchorPos`, and all anchor related terminology - [#1659](https://github.com/fleaflet/flutter_map/pull/1659)
