@@ -1,6 +1,6 @@
 # Changelog
 
-## [6.0.0] - 2023/09/XX
+## [6.0.0] - 2023/10/09
 
 **"Photography"**
 
@@ -9,7 +9,6 @@ Contains the following user-affecting changes:
 - 🟢 Added new `MapCamera` object to reduce scope of `MapController` & re-implemented internal state management - [#1551](https://github.com/fleaflet/flutter_map/pull/1551) with [#1614](https://github.com/fleaflet/flutter_map/pull/1614)
 - 🟢 Added support for rotation on desktop with cursor/pointer and keyboard trigger - [#1592](https://github.com/fleaflet/flutter_map/pull/1592) & [#1642](https://github.com/fleaflet/flutter_map/pull/1642) for [#1568](https://github.com/fleaflet/flutter_map/issues/1568)
 - 🟢 Added support for cancelling in-loading tiles to `TileProvider`s & refactored methods - [#1622](https://github.com/fleaflet/flutter_map/pull/1622)
-- 🟢 Added new `FlutterMap.simple` constructor for super-fast set up - [#1615](https://github.com/fleaflet/flutter_map/pull/1615)
 - 🟢 Added support for allowing gestures to bubble down to all layers - [#1615](https://github.com/fleaflet/flutter_map/pull/1615)
 - 🟢 Added `minZoom` property to `CameraFit`s - [#1562](https://github.com/fleaflet/flutter_map/pull/1562)
 - 🟢 Added `InteractiveFlag.doubleTapDragZoom` - [#1603](https://github.com/fleaflet/flutter_map/pull/1603)
@@ -34,7 +33,7 @@ Contains the following user-affecting bug fixes:
 
 - Handled exceptions correctly in default image provider if no `fallbackUrl` is defined - [#1555](https://github.com/fleaflet/flutter_map/pull/1555) for [#1554](https://github.com/fleaflet/flutter_map/issues/1554)
 - Ignored gestures on closed `RichAnimationWidget` when using `FadeRAWA` - [#1591](https://github.com/fleaflet/flutter_map/pull/1591) for [#1589](https://github.com/fleaflet/flutter_map/issues/1589)
-- Avoided setting 'User-Agent' header in `TileProvider` when running on the web, to avoid polluting the debug console with ignorable error messages - [#1677](https://github.com/fleaflet/flutter_map/pull/1677) for [#1654](https://github.com/fleaflet/flutter_map/issues/1654)
+- Avoided setting 'User-Agent' header in `TileProvider` when running on the web, to avoid polluting the debug console with error messages - [#1677](https://github.com/fleaflet/flutter_map/pull/1677) for [#1654](https://github.com/fleaflet/flutter_map/issues/1654)
 - Fixed some `Polygon` edge-cases - [#1598](https://github.com/fleaflet/flutter_map/pull/1598) & [#1599](https://github.com/fleaflet/flutter_map/pull/1599)
 - Fixed `TileLayer.reset` failing to load new tiles - [#1620](https://github.com/fleaflet/flutter_map/pull/1620) for [#1619](https://github.com/fleaflet/flutter_map/issues/1619)
 - Fixed incorrect `Marker` anchoring when counter-rotating - [#1623](https://github.com/fleaflet/flutter_map/pull/1623) for [#1500](https://github.com/fleaflet/flutter_map/issues/1500)
