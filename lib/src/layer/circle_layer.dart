@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
+import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 
@@ -30,19 +31,21 @@ class CircleMarker {
 class CircleLayer extends StatelessWidget {
   final List<CircleMarker> circles;
 
-  const CircleLayer({super.key, this.circles = const []});
+  const CircleLayer({super.key, required this.circles});
 
   @override
   Widget build(BuildContext context) {
     final map = MapCamera.of(context);
-    return LayoutBuilder(
-      builder: (context, bc) {
-        final size = Size(bc.maxWidth, bc.maxHeight);
-        return CustomPaint(
-          painter: CirclePainter(circles, map),
-          size: size,
-        );
-      },
+    return MobileLayerTransformer(
+      child: LayoutBuilder(
+        builder: (context, bc) {
+          final size = Size(bc.maxWidth, bc.maxHeight);
+          return CustomPaint(
+            painter: CirclePainter(circles, map),
+            size: size,
+          );
+        },
+      ),
     );
   }
 }

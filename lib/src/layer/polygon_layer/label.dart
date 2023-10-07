@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/src/layer/polygon_layer.dart';
+import 'package:flutter_map/src/layer/polygon_layer/polygon_layer.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:polylabel/polylabel.dart';
 

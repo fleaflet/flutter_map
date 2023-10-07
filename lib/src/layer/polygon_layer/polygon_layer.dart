@@ -2,7 +2,8 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
-import 'package:flutter_map/src/layer/label.dart';
+import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
+import 'package:flutter_map/src/layer/polygon_layer/label.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:latlong2/latlong.dart' hide Path; // conflict with Path from UI
 
@@ -99,7 +100,7 @@ class PolygonLayer extends StatelessWidget {
 
   const PolygonLayer({
     super.key,
-    this.polygons = const [],
+    required this.polygons,
     this.polygonCulling = false,
     this.polygonLabels = true,
   });
@@ -115,10 +116,12 @@ class PolygonLayer extends StatelessWidget {
           }).toList()
         : polygons;
 
-    return CustomPaint(
-      painter: PolygonPainter(pgons, map, polygonLabels),
-      size: size,
-      isComplex: true,
+    return MobileLayerTransformer(
+      child: CustomPaint(
+        painter: PolygonPainter(pgons, map, polygonLabels),
+        size: size,
+        isComplex: true,
+      ),
     );
   }
 }

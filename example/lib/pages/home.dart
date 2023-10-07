@@ -99,88 +99,72 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Home')),
       drawer: buildDrawer(context, HomePage.route),
-      body: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(top: 8, bottom: 8),
-              child: Text('This is a map that is showing (51.5, -0.9).'),
+      body: Stack(
+        children: [
+          FlutterMap(
+            options: MapOptions(
+              initialCenter: const LatLng(51.5, -0.09),
+              initialZoom: 5,
+              cameraConstraint: CameraConstraint.contain(
+                bounds: LatLngBounds(
+                  const LatLng(-90, -180),
+                  const LatLng(90, 180),
+                ),
+              ),
             ),
-            Flexible(
-              child: FlutterMap(
-                options: MapOptions(
-                  initialCenter: const LatLng(51.5, -0.09),
-                  initialZoom: 5,
-                  cameraConstraint: CameraConstraint.contain(
-                    bounds: LatLngBounds(
-                      const LatLng(-90, -180),
-                      const LatLng(90, 180),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+              ),
+              RichAttributionWidget(
+                popupInitialDisplayDuration: const Duration(seconds: 5),
+                animationConfig: const ScaleRAWA(),
+                showFlutterMapAttribution: false,
+                attributions: [
+                  TextSourceAttribution(
+                    'OpenStreetMap contributors',
+                    onTap: () => launchUrl(
+                      Uri.parse('https://openstreetmap.org/copyright'),
                     ),
                   ),
-                ),
-                nonRotatedChildren: [
-                  RichAttributionWidget(
-                    popupInitialDisplayDuration: const Duration(seconds: 5),
-                    animationConfig: const ScaleRAWA(),
-                    attributions: [
-                      TextSourceAttribution(
-                        'OpenStreetMap contributors',
-                        onTap: () => launchUrl(
-                          Uri.parse('https://openstreetmap.org/copyright'),
-                        ),
-                      ),
-                      const TextSourceAttribution(
-                        'This attribution is the same throughout this app, except where otherwise specified',
-                        prependCopyright: false,
-                      ),
-                    ],
-                  ),
-                ],
-                children: [
-                  TileLayer(
-                    urlTemplate:
-                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  ),
-                  const MarkerLayer(
-                    markers: [
-                      Marker(
-                        width: 80,
-                        height: 80,
-                        point: LatLng(51.5, -0.09),
-                        child: FlutterLogo(
-                          textColor: Colors.blue,
-                          key: ObjectKey(Colors.blue),
-                        ),
-                      ),
-                      Marker(
-                        width: 80,
-                        height: 80,
-                        point: LatLng(53.3498, -6.2603),
-                        child: FlutterLogo(
-                          textColor: Colors.green,
-                          key: ObjectKey(Colors.green),
-                        ),
-                      ),
-                      Marker(
-                        width: 80,
-                        height: 80,
-                        point: LatLng(48.8566, 2.3522),
-                        child: FlutterLogo(
-                          textColor: Colors.purple,
-                          key: ObjectKey(Colors.purple),
-                        ),
-                      ),
-                    ],
+                  const TextSourceAttribution(
+                    'This attribution is the same throughout this app, except where otherwise specified',
+                    prependCopyright: false,
                   ),
                 ],
               ),
+            ],
+          ),
+          PositionedDirectional(
+            start: 16,
+            top: 16,
+            child: SafeArea(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.background,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                padding: const EdgeInsets.all(8),
+                child: Row(
+                  children: [
+                    Builder(
+                      builder: (context) => IconButton(
+                        onPressed: () => Scaffold.of(context).openDrawer(),
+                        icon: const Icon(Icons.menu),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Image.asset('assets/ProjectIcon.png',
+                        height: 32, width: 32),
+                    const SizedBox(width: 8),
+                  ],
+                ),
+              ),
             ),
-          ],
-        ),
+          )
+        ],
       ),
     );
   }

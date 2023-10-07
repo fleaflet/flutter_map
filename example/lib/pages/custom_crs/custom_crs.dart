@@ -140,7 +140,17 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
                     point = proj4.Point(x: p.latitude, y: p.longitude);
                   }),
                 ),
-                nonRotatedChildren: [
+                children: [
+                  TileLayer(
+                    wmsOptions: WMSTileLayerOptions(
+                      crs: epsg3413CRS,
+                      transparent: true,
+                      format: 'image/jpeg',
+                      baseUrl:
+                          'https://www.gebco.net/data_and_products/gebco_web_services/north_polar_view_wms/mapserv?',
+                      layers: const ['gebco_north_polar_view'],
+                    ),
+                  ),
                   RichAttributionWidget(
                     popupInitialDisplayDuration: const Duration(seconds: 5),
                     attributions: [
@@ -153,23 +163,6 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
                         ),
                       ),
                     ],
-                  ),
-                ],
-                children: [
-                  Opacity(
-                    opacity: 1,
-                    child: TileLayer(
-                      backgroundColor: Colors.transparent,
-                      wmsOptions: WMSTileLayerOptions(
-                        // Set the WMS layer's CRS
-                        crs: epsg3413CRS,
-                        transparent: true,
-                        format: 'image/jpeg',
-                        baseUrl:
-                            'https://www.gebco.net/data_and_products/gebco_web_services/north_polar_view_wms/mapserv?',
-                        layers: const ['gebco_north_polar_view'],
-                      ),
-                    ),
                   ),
                 ],
               ),

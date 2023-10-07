@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 
-/// A simple, classic style, attribution widget, to be placed in
-/// [FlutterMap.nonRotatedChildren]
+/// A simple, classic style, attribution layer
 ///
 /// Displayed as a padded translucent [backgroundColor] box with the following
 /// text: 'flutter_map | © [source]', where [source] is wrapped with [onTap].
+///
+/// See also:
+///
+///  * [RichAttributionWidget], which is dynamic, supports more customization,
+///    and has a more complex appearance.
 @immutable
 class SimpleAttributionWidget extends StatelessWidget {
   /// Attribution text, such as 'OpenStreetMap contributors'
@@ -19,8 +23,7 @@ class SimpleAttributionWidget extends StatelessWidget {
   /// Anchor the widget in a position of the map
   final Alignment alignment;
 
-  /// A simple, classic style, attribution widget, to be placed in
-  /// [FlutterMap.nonRotatedChildren]
+  /// A simple, classic style, attribution widget
   ///
   /// Displayed as a padded translucent white box with the following text:
   /// 'flutter_map | © [source]'.

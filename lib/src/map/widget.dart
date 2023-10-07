@@ -1,52 +1,88 @@
+// ignore_for_file: deprecated_member_use_from_same_package
+
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/gestures/flutter_map_interactive_viewer.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
+import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
+import 'package:flutter_map/src/layer/general/translucent_pointer.dart';
 import 'package:flutter_map/src/map/camera/camera_fit.dart';
+import 'package:flutter_map/src/map/controller/impl.dart';
+import 'package:flutter_map/src/map/controller/internal.dart';
+import 'package:flutter_map/src/map/controller/map_controller.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
-import 'package:flutter_map/src/map/internal_controller.dart';
-import 'package:flutter_map/src/map/map_controller.dart';
-import 'package:flutter_map/src/map/map_controller_impl.dart';
 import 'package:flutter_map/src/map/options/options.dart';
 import 'package:logger/logger.dart';
 
-/// Renders an interactive geographical map as a widget
+/// An interactive geographical map
 ///
 /// See the online documentation for more information about set-up,
 /// configuration, and usage.
 @immutable
 class FlutterMap extends StatefulWidget {
-  /// Renders an interactive geographical map as a widget
+  /// Creates an interactive geographical map
   ///
-  /// See the online documentation for more information about set-up,
-  /// configuration, and usage.
+  /// See the properties and online documentation for more information about
+  /// set-up, configuration, and usage.
   const FlutterMap({
     super.key,
-    required this.options,
-    this.children = const [],
-    this.nonRotatedChildren = const [],
     this.mapController,
+    required this.options,
+    required this.children,
+    @Deprecated(
+      'Append all of these children to `children`. '
+      'This property has been removed to simplify the way layers are inserted '
+      'into the map, and allow for greater flexibility of layer positioning. '
+      'This property is deprecated since v6.',
+    )
+    this.nonRotatedChildren = const [],
   });
 
-  /// Layers/widgets to be painted onto the map, in a [Stack]-like fashion
+  /// Widgets to be placed onto the map in a [Stack]-like fashion
+  ///
+  /// Widgets that use [MobileLayerTransformer] will be 'mobile', will move and
+  /// rotate with the map. Other widgets will be 'static' (and should usually use
+  /// [Align] or another method to position themselves). Widgets/layers may or
+  /// may not identify which type they are in their documentation, but it should
+  /// be relatively self-explanatory from their purpose.
+  ///
+  /// [TranslucentPointer] will be wrapped around each child by default, unless
+  /// [MapOptions.applyPointerTranslucencyToLayers] is `false`.
   final List<Widget> children;
 
-  /// Same as [children], except these are unnaffected by map rotation
+  /// This member has been deprecated as of v6, and will be removed in the next
+  /// version.
+  ///
+  /// To migrate, append all of these children to [children]. In most cases, no
+  /// other migration will be necessary.
+  ///
+  /// This will simplify the way layers are inserted into the map, and allow for
+  /// greater flexibility of layer positioning.
+  @Deprecated(
+    'Append all of these children to `children`. '
+    'This property has been removed to simplify the way layers are inserted '
+    'into the map, and allow for greater flexibility of layer positioning. '
+    'This property is deprecated since v6.',
+  )
   final List<Widget> nonRotatedChildren;
 
-  /// Configure this map
+  /// Configure this map's permanent rules and initial state
+  ///
+  /// See the online documentation for more information.
   final MapOptions options;
 
   /// Programmatically interact with this map
+  ///
+  /// See the online documentation for more information.
   final MapController? mapController;
 
   @override
-  State<FlutterMap> createState() => FlutterMapStateContainer();
+  State<FlutterMap> createState() => _FlutterMapStateContainer();
 }
 
-class FlutterMapStateContainer extends State<FlutterMap>
+class _FlutterMapStateContainer extends State<FlutterMap>
     with AutomaticKeepAliveClientMixin {
   bool _initialCameraFitApplied = false;
 
@@ -120,17 +156,18 @@ class FlutterMapStateContainer extends State<FlutterMap>
                   Positioned.fill(
                     child: ColoredBox(color: options.backgroundColor),
                   ),
-                  OverflowBox(
-                    minWidth: camera.size.x,
-                    maxWidth: camera.size.x,
-                    minHeight: camera.size.y,
-                    maxHeight: camera.size.y,
-                    child: Transform.rotate(
-                      angle: camera.rotationRad,
-                      child: Stack(children: widget.children),
+                  ...widget.children.map(
+                    (child) => TranslucentPointer(
+                      translucent: options.applyPointerTranslucencyToLayers,
+                      child: child,
                     ),
                   ),
-                  ...widget.nonRotatedChildren,
+                  ...widget.nonRotatedChildren.map(
+                    (child) => TranslucentPointer(
+                      translucent: options.applyPointerTranslucencyToLayers,
+                      child: child,
+                    ),
+                  ),
                 ],
               ),
             ),

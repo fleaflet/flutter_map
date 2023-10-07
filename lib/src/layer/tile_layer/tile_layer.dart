@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/src/geo/crs.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
+import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
@@ -22,7 +23,7 @@ import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_update_event.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_update_transformer.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
-import 'package:flutter_map/src/map/map_controller.dart';
+import 'package:flutter_map/src/map/controller/map_controller.dart';
 import 'package:flutter_map/src/misc/bounds.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:http/retry.dart';
@@ -250,6 +251,11 @@ class TileLayer extends StatefulWidget {
     this.subdomains = const ['a', 'b', 'c'],
     this.keepBuffer = 2,
     this.panBuffer = 1,
+    @Deprecated(
+      'Prefer `MapOptions.backgroundColor`. '
+      'This property has been removed simplify interaction when using multiple `TileLayer`s. '
+      'This property is deprecated since v6.',
+    )
     this.backgroundColor,
     this.errorImage,
     final TileProvider? tileProvider,
@@ -533,35 +539,36 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     _tileScaleCalculator.clearCacheUnlessZoomMatches(map.zoom);
 
-    return _addBackgroundColor(
-      Stack(
-        children: [
-          ..._tileImageManager
-              .inRenderOrder(widget.maxZoom, tileZoom)
-              .map((tileImage) {
-            return Tile(
-              // Must be an ObjectKey, not a ValueKey using the coordinates, in
-              // case we remove and replace the TileImage with a different one.
-              key: ObjectKey(tileImage),
-              scaledTileSize: _tileScaleCalculator.scaledTileSize(
-                map.zoom,
-                tileImage.coordinates.z,
-              ),
-              currentPixelOrigin: currentPixelOrigin,
-              tileImage: tileImage,
-              tileBuilder: widget.tileBuilder,
-            );
-          }),
-        ],
+    return MobileLayerTransformer(
+      // ignore: deprecated_member_use_from_same_package
+      child: _addBackgroundColor(
+        Stack(
+          children: [
+            ..._tileImageManager
+                .inRenderOrder(widget.maxZoom, tileZoom)
+                .map((tileImage) {
+              return Tile(
+                // Must be an ObjectKey, not a ValueKey using the coordinates, in
+                // case we remove and replace the TileImage with a different one.
+                key: ObjectKey(tileImage),
+                scaledTileSize: _tileScaleCalculator.scaledTileSize(
+                  map.zoom,
+                  tileImage.coordinates.z,
+                ),
+                currentPixelOrigin: currentPixelOrigin,
+                tileImage: tileImage,
+                tileBuilder: widget.tileBuilder,
+              );
+            }),
+          ],
+        ),
       ),
     );
   }
 
-  /// This can be removed once the deprecated backgroundColor option is removed.
+  @Deprecated('Remove once `backgroundColor` is removed')
   Widget _addBackgroundColor(Widget child) {
-    // ignore: deprecated_member_use_from_same_package
     final color = widget.backgroundColor;
-
     return color == null ? child : ColoredBox(color: color, child: child);
   }
 
