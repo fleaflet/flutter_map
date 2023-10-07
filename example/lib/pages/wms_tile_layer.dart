@@ -5,7 +5,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class WMSLayerPage extends StatelessWidget {
-  static const String route = 'WMS layer';
+  static const String route = '/wms_layer';
 
   const WMSLayerPage({Key? key}) : super(key: key);
 

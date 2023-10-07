@@ -5,7 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
 
-const maxMarkersCount = 10000;
+const maxMarkersCount = 20000;
 
 /// On this page, [maxMarkersCount] markers are randomly generated
 /// across europe, and then you can limit them with a slider
@@ -36,11 +36,9 @@ class _ManyMarkersPageState extends State<ManyMarkersPage> {
         allMarkers.add(
           Marker(
             point: LatLng(doubleInRange(r, 37, 55), doubleInRange(r, -9, 30)),
-            child: const Icon(
-              Icons.circle,
-              color: Colors.red,
-              size: 12,
-            ),
+            height: 12,
+            width: 12,
+            child: ColoredBox(color: Colors.blue[900]!),
           ),
         );
       }

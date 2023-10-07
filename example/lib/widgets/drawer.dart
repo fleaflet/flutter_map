@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_map_example/pages/animated_map_controller.dart';
-import 'package:flutter_map_example/pages/cancellable_tile_provider/cancellable_tile_provider.dart';
+import 'package:flutter_map_example/pages/cancellable_tile_provider.dart';
 import 'package:flutter_map_example/pages/circle.dart';
 import 'package:flutter_map_example/pages/custom_crs/custom_crs.dart';
 import 'package:flutter_map_example/pages/epsg3413_crs.dart';
@@ -20,7 +20,7 @@ import 'package:flutter_map_example/pages/offline_map.dart';
 import 'package:flutter_map_example/pages/overlay_image.dart';
 import 'package:flutter_map_example/pages/plugin_scalebar.dart';
 import 'package:flutter_map_example/pages/plugin_zoombuttons.dart';
-import 'package:flutter_map_example/pages/point_to_latlng.dart';
+import 'package:flutter_map_example/pages/screen_point_to_latlng.dart';
 import 'package:flutter_map_example/pages/polygon.dart';
 import 'package:flutter_map_example/pages/polyline.dart';
 import 'package:flutter_map_example/pages/reset_tile_layer.dart';
@@ -28,7 +28,7 @@ import 'package:flutter_map_example/pages/retina.dart';
 import 'package:flutter_map_example/pages/secondary_tap.dart';
 import 'package:flutter_map_example/pages/sliding_map.dart';
 import 'package:flutter_map_example/pages/stateful_markers.dart';
-import 'package:flutter_map_example/pages/tile_builder_example.dart';
+import 'package:flutter_map_example/pages/tile_builder.dart';
 import 'package:flutter_map_example/pages/tile_loading_error_handle.dart';
 import 'package:flutter_map_example/pages/wms_tile_layer.dart';
 
@@ -134,7 +134,7 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
         _buildMenuItem(
           context,
           const Text('Interactive Flags'),
-          InteractiveTestPage.route,
+          InteractiveFlagsPage.route,
           currentRoute,
         ),
         const Divider(),
@@ -177,14 +177,14 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
         ),
         _buildMenuItem(
           context,
-          const Text('Moving Marker'),
-          MovingMarkersPage.route,
+          const Text('Many Circles'),
+          ManyCirclesPage.route,
           currentRoute,
         ),
         _buildMenuItem(
           context,
-          const Text('Many Circles'),
-          ManyCirclesPage.route,
+          const Text('Moving Marker'),
+          MovingMarkersPage.route,
           currentRoute,
         ),
         const Divider(),
@@ -268,14 +268,14 @@ Drawer buildDrawer(BuildContext context, String currentRoute) {
         const Divider(),
         _buildMenuItem(
           context,
-          const Text('Screen Point -> LatLng'),
-          PointToLatLngPage.route,
+          const Text('Screen Point 🡒 LatLng'),
+          ScreenPointToLatLngPage.route,
           currentRoute,
         ),
         _buildMenuItem(
           context,
-          const Text('LatLng -> Screen Point'),
-          LatLngScreenPointTestPage.route,
+          const Text('LatLng 🡒 Screen Point'),
+          LatLngToScreenPointPage.route,
           currentRoute,
         ),
       ],

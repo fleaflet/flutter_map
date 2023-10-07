@@ -1,7 +1,7 @@
 import 'dart:math' as math hide Point;
 import 'dart:math' show Point;
 
-import 'package:flutter_map/src/misc/private/bounds.dart';
+import 'package:flutter_map/src/misc/bounds.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 import 'package:proj4dart/proj4dart.dart' as proj4;

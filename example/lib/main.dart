@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map_example/pages/animated_map_controller.dart';
-import 'package:flutter_map_example/pages/cancellable_tile_provider/cancellable_tile_provider.dart';
+import 'package:flutter_map_example/pages/cancellable_tile_provider.dart';
 import 'package:flutter_map_example/pages/circle.dart';
 import 'package:flutter_map_example/pages/custom_crs/custom_crs.dart';
 import 'package:flutter_map_example/pages/epsg3413_crs.dart';
@@ -19,7 +19,7 @@ import 'package:flutter_map_example/pages/offline_map.dart';
 import 'package:flutter_map_example/pages/overlay_image.dart';
 import 'package:flutter_map_example/pages/plugin_scalebar.dart';
 import 'package:flutter_map_example/pages/plugin_zoombuttons.dart';
-import 'package:flutter_map_example/pages/point_to_latlng.dart';
+import 'package:flutter_map_example/pages/screen_point_to_latlng.dart';
 import 'package:flutter_map_example/pages/polygon.dart';
 import 'package:flutter_map_example/pages/polyline.dart';
 import 'package:flutter_map_example/pages/reset_tile_layer.dart';
@@ -27,7 +27,7 @@ import 'package:flutter_map_example/pages/retina.dart';
 import 'package:flutter_map_example/pages/secondary_tap.dart';
 import 'package:flutter_map_example/pages/sliding_map.dart';
 import 'package:flutter_map_example/pages/stateful_markers.dart';
-import 'package:flutter_map_example/pages/tile_builder_example.dart';
+import 'package:flutter_map_example/pages/tile_builder.dart';
 import 'package:flutter_map_example/pages/tile_loading_error_handle.dart';
 import 'package:flutter_map_example/pages/wms_tile_layer.dart';
 import 'package:url_strategy/url_strategy.dart';
@@ -71,16 +71,17 @@ class MyApp extends StatelessWidget {
         TileLoadingErrorHandle.route: (context) =>
             const TileLoadingErrorHandle(),
         TileBuilderPage.route: (context) => const TileBuilderPage(),
-        InteractiveTestPage.route: (context) => const InteractiveTestPage(),
+        InteractiveFlagsPage.route: (context) => const InteractiveFlagsPage(),
         ManyMarkersPage.route: (context) => const ManyMarkersPage(),
         StatefulMarkersPage.route: (context) => const StatefulMarkersPage(),
         MapInsideListViewPage.route: (context) => const MapInsideListViewPage(),
         ResetTileLayerPage.route: (context) => const ResetTileLayerPage(),
         EPSG4326Page.route: (context) => const EPSG4326Page(),
         EPSG3413Page.route: (context) => const EPSG3413Page(),
-        PointToLatLngPage.route: (context) => const PointToLatLngPage(),
-        LatLngScreenPointTestPage.route: (context) =>
-            const LatLngScreenPointTestPage(),
+        ScreenPointToLatLngPage.route: (context) =>
+            const ScreenPointToLatLngPage(),
+        LatLngToScreenPointPage.route: (context) =>
+            const LatLngToScreenPointPage(),
         FallbackUrlNetworkPage.route: (context) =>
             const FallbackUrlNetworkPage(),
         SecondaryTapPage.route: (context) => const SecondaryTapPage(),

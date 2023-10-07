@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:flutter_map/plugin_api.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';

@@ -3,16 +3,16 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
 
-class InteractiveTestPage extends StatefulWidget {
-  static const String route = 'interactive_test_page';
+class InteractiveFlagsPage extends StatefulWidget {
+  static const String route = '/interactive_flags_page';
 
-  const InteractiveTestPage({Key? key}) : super(key: key);
+  const InteractiveFlagsPage({Key? key}) : super(key: key);
 
   @override
-  State createState() => _InteractiveTestPageState();
+  State createState() => _InteractiveFlagsPageState();
 }
 
-class _InteractiveTestPageState extends State<InteractiveTestPage> {
+class _InteractiveFlagsPageState extends State<InteractiveFlagsPage> {
   static const availableFlags = {
     'Movement': {
       InteractiveFlag.drag: 'Drag',
@@ -39,7 +39,7 @@ class _InteractiveTestPageState extends State<InteractiveTestPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Interactive Flags')),
-      drawer: buildDrawer(context, InteractiveTestPage.route),
+      drawer: buildDrawer(context, InteractiveFlagsPage.route),
       body: Padding(
         padding: const EdgeInsets.all(8),
         child: Column(

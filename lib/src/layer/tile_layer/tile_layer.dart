@@ -24,8 +24,10 @@ import 'package:flutter_map/src/layer/tile_layer/tile_update_event.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_update_transformer.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:flutter_map/src/map/controller/map_controller.dart';
+import 'package:flutter_map/src/misc/bounds.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';
-import 'package:flutter_map/src/misc/private/bounds.dart';
+import 'package:http/retry.dart';
+import 'package:logger/logger.dart';
 
 part 'retina_mode.dart';
 part 'tile_error_evict_callback.dart';
@@ -215,6 +217,9 @@ class TileLayer extends StatefulWidget {
   final EvictErrorTileStrategy evictErrorTileStrategy;
 
   /// Stream to notify the [TileLayer] that it needs resetting
+  ///
+  /// The tile layer will not listen to this stream if it is not specified on
+  /// initial building, then later specified.
   final Stream<void>? reset;
 
   /// Only load tiles that are within these bounds
@@ -243,9 +248,9 @@ class TileLayer extends StatefulWidget {
     this.zoomReverse = false,
     double zoomOffset = 0.0,
     this.additionalOptions = const {},
-    this.subdomains = const <String>[],
+    this.subdomains = const ['a', 'b', 'c'],
     this.keepBuffer = 2,
-    this.panBuffer = 0,
+    this.panBuffer = 1,
     @Deprecated(
       'Prefer `MapOptions.backgroundColor`. '
       'This property has been removed simplify interaction when using multiple `TileLayer`s. '
@@ -259,7 +264,9 @@ class TileLayer extends StatefulWidget {
     this.tileDisplay = const TileDisplay.fadeIn(),
 
     /// See [RetinaMode] for more information
-    final bool retinaMode = false,
+    ///
+    /// Defaults to `false` when `null`.
+    final bool? retinaMode,
     this.errorTileCallback,
     @Deprecated(
       'Prefer creating a custom `TileProvider` instead. '
@@ -287,6 +294,42 @@ class TileLayer extends StatefulWidget {
         tileProvider = tileProvider ?? NetworkTileProvider(),
         tileUpdateTransformer =
             tileUpdateTransformer ?? TileUpdateTransformers.ignoreTapEvents {
+    // Debug Logging
+    if (kDebugMode &&
+        urlTemplate != null &&
+        urlTemplate!.contains('{s}.tile.openstreetmap.org')) {
+      Logger(printer: PrettyPrinter(methodCount: 0)).w(
+        '\x1B[1m\x1B[3mflutter_map\x1B[0m\nAvoid using subdomains with OSM\'s tile '
+        'server. Support may be become slow or be removed in future.\nSee '
+        'https://github.com/openstreetmap/operations/issues/737 for more info.',
+      );
+    }
+    if (kDebugMode &&
+        retinaMode == null &&
+        wmsOptions == null &&
+        urlTemplate!.contains('{r}')) {
+      Logger(printer: PrettyPrinter(methodCount: 0)).w(
+        '\x1B[1m\x1B[3mflutter_map\x1B[0m\nThe URL template includes a retina '
+        "mode placeholder ('{r}') to retrieve native high-resolution\ntiles, "
+        'which improve appearance especially on high-density displays.\n'
+        'However, `TileLayer.retinaMode` was left unset, meaning flutter_map '
+        'will never retrieve these tiles.\nConsider using '
+        '`RetinaMode.isHighDensity` to toggle this property automatically, '
+        'otherwise ensure\nit is set appropriately.\n'
+        'See https://docs.fleaflet.dev/layers/tile-layer#retina-mode for '
+        'more info.',
+      );
+    }
+    if (kDebugMode && kIsWeb && tileProvider is NetworkTileProvider?) {
+      Logger(printer: PrettyPrinter(methodCount: 0)).i(
+        '\x1B[1m\x1B[3mflutter_map\x1B[0m\nConsider installing the official '
+        "'flutter_map_cancellable_tile_provider' plugin for improved\n"
+        'performance on the web.\nSee '
+        'https://pub.dev/packages/flutter_map_cancellable_tile_provider for '
+        'more info.',
+      );
+    }
+
     // Tile Provider Setup
     if (!kIsWeb) {
       this.tileProvider.headers.putIfAbsent(
@@ -294,7 +337,7 @@ class TileLayer extends StatefulWidget {
     }
 
     // Retina Mode Setup
-    resolvedRetinaMode = retinaMode
+    resolvedRetinaMode = (retinaMode ?? false)
         ? wmsOptions == null && urlTemplate!.contains('{r}')
             ? RetinaMode.server
             : RetinaMode.simulation
@@ -323,9 +366,10 @@ class TileLayer extends StatefulWidget {
 class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   bool _initializedFromMapCamera = false;
 
-  final TileImageManager _tileImageManager = TileImageManager();
+  final _tileImageManager = TileImageManager();
   late TileBounds _tileBounds;
-  late TileRangeCalculator _tileRangeCalculator;
+  late var _tileRangeCalculator =
+      TileRangeCalculator(tileSize: widget.tileSize);
   late TileScaleCalculator _tileScaleCalculator;
 
   // We have to hold on to the mapController hashCode to determine whether we
@@ -334,28 +378,13 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   // miss events.
   int? _mapControllerHashCode;
 
-  // Only one of these two subscriptions will be initialized. If
-  // TileLayer.tileUpdateTransformer is null then we subscribe to map movement
-  // otherwise we subscribe to tile update events which are transformed from
-  // map movements.
   StreamSubscription<TileUpdateEvent>? _tileUpdateSubscription;
-
-  StreamSubscription<void>? _resetSub;
   Timer? _pruneLater;
 
-  @override
-  void initState() {
-    super.initState();
-
-    if (widget.reset != null) {
-      _resetSub = widget.reset?.listen((_) {
-        _tileImageManager.removeAll(widget.evictErrorTileStrategy);
-        _loadAndPruneInVisibleBounds(MapCamera.of(context));
-      });
-    }
-
-    _tileRangeCalculator = TileRangeCalculator(tileSize: widget.tileSize);
-  }
+  late final _resetSub = widget.reset?.listen((_) {
+    _tileImageManager.removeAll(widget.evictErrorTileStrategy);
+    _loadAndPruneInVisibleBounds(MapCamera.of(context));
+  });
 
   // This is called on every map movement so we should avoid expensive logic
   // where possible.
@@ -364,8 +393,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     super.didChangeDependencies();
 
     final camera = MapCamera.of(context);
-
     final mapController = MapController.of(context);
+
     if (_mapControllerHashCode != mapController.hashCode) {
       _tileUpdateSubscription?.cancel();
 

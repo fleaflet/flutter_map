@@ -8,13 +8,13 @@ import 'package:flutter_map/src/gestures/interactive_flag.dart';
 import 'package:flutter_map/src/gestures/latlng_tween.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
+import 'package:flutter_map/src/gestures/positioned_tap_detector_2.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:flutter_map/src/map/controller/internal.dart';
 import 'package:flutter_map/src/map/options/cursor_keyboard_rotation.dart';
 import 'package:flutter_map/src/map/options/interaction.dart';
 import 'package:flutter_map/src/map/options/options.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';
-import 'package:flutter_map/src/misc/private/positioned_tap_detector_2.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Applies interactions (gestures/scroll/taps etc) to the current [MapCamera]

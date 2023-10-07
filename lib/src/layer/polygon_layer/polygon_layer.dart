@@ -72,7 +72,7 @@ class Polygon {
 
   /// Used to batch draw calls to the canvas.
   int get renderHashCode {
-    _hash ??= Object.hash(
+    return _hash ??= Object.hash(
       holePointsList,
       color,
       borderStrokeWidth,
@@ -83,7 +83,6 @@ class Polygon {
       strokeJoin,
       _filledAndClockwise,
     );
-    return _hash!;
   }
 
   int? _hash;

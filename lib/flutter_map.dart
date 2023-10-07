@@ -1,3 +1,19 @@
+/// # flutter_map
+///
+/// A versatile mapping package for Flutter. Simple and easy to learn, yet
+/// completely customizable and configurable, it's the best choice for mapping in
+/// your Flutter app.
+///
+/// ---
+///
+/// * Documentation: <https://docs.fleaflet.dev/>
+/// * API Reference: <https://pub.dev/documentation/flutter_map/latest/>
+///
+/// ---
+///
+/// * github.com: <https://github.com/fleaflet/flutter_map>
+/// * pub.dev: <https://pub.dev/packages/flutter_map>
+/// * discord.gg: <https://discord.gg/BwpEsjqMAH>
 library flutter_map;
 
 export 'package:flutter_map/src/geo/crs.dart';
@@ -37,9 +53,9 @@ export 'package:flutter_map/src/map/options/cursor_keyboard_rotation.dart';
 export 'package:flutter_map/src/map/options/interaction.dart';
 export 'package:flutter_map/src/map/options/options.dart';
 export 'package:flutter_map/src/map/widget.dart';
+export 'package:flutter_map/src/misc/bounds.dart';
 export 'package:flutter_map/src/misc/center_zoom.dart';
 export 'package:flutter_map/src/misc/fit_bounds_options.dart';
 export 'package:flutter_map/src/misc/move_and_rotate_result.dart';
 export 'package:flutter_map/src/misc/point_extensions.dart';
 export 'package:flutter_map/src/misc/position.dart';
-export 'package:flutter_map/src/misc/private/positioned_tap_detector_2.dart';

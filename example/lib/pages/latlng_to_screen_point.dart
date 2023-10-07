@@ -1,76 +1,94 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_example/widgets/drawer.dart';
 import 'package:latlong2/latlong.dart';
 
-class LatLngScreenPointTestPage extends StatefulWidget {
-  static const String route = 'latlng_screen_point_test_page';
+class LatLngToScreenPointPage extends StatefulWidget {
+  static const String route = '/latlng_to_screen_point';
 
-  const LatLngScreenPointTestPage({Key? key}) : super(key: key);
+  const LatLngToScreenPointPage({Key? key}) : super(key: key);
 
   @override
-  State createState() {
-    return _LatLngScreenPointTestPageState();
-  }
+  State<LatLngToScreenPointPage> createState() =>
+      _LatLngToScreenPointPageState();
 }
 
-class _LatLngScreenPointTestPageState extends State<LatLngScreenPointTestPage> {
-  late final MapController _mapController;
+class _LatLngToScreenPointPageState extends State<LatLngToScreenPointPage> {
+  static const double pointSize = 65;
 
-  Point<double> _textPos = const Point(10, 10);
+  final mapController = MapController();
+
+  LatLng? tappedCoords;
+  Point<double>? tappedPoint;
 
   @override
   void initState() {
     super.initState();
-    _mapController = MapController();
-  }
 
-  void onMapEvent(MapEvent mapEvent) {
-    if (mapEvent is! MapEventMove && mapEvent is! MapEventRotate) {
-      // do not flood console with move and rotate events
-      debugPrint(mapEvent.toString());
-    }
+    SchedulerBinding.instance
+        .addPostFrameCallback((_) => ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Tap/click to set coordinate')),
+            ));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('LatLng To Screen Point')),
-      drawer: buildDrawer(context, LatLngScreenPointTestPage.route),
+      appBar: AppBar(title: const Text('Lat/Lng 🡒 Screen Point')),
+      drawer: buildDrawer(context, LatLngToScreenPointPage.route),
       body: Stack(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: FlutterMap(
-              mapController: _mapController,
-              options: MapOptions(
-                onMapEvent: onMapEvent,
-                onTap: (tapPos, latLng) {
-                  final pt1 = _mapController.camera.latLngToScreenPoint(latLng);
-                  _textPos = Point(pt1.x, pt1.y);
-                  setState(() {});
-                },
-                initialCenter: const LatLng(51.5, -0.09),
-                initialZoom: 11,
-                initialRotation: 0,
+          FlutterMap(
+            mapController: mapController,
+            options: MapOptions(
+              initialCenter: const LatLng(51.5, -0.09),
+              initialZoom: 11,
+              interactionOptions: const InteractionOptions(
+                flags: ~InteractiveFlag.doubleTapZoom,
               ),
-              children: [
-                TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                ),
-              ],
+              onTap: (_, latLng) {
+                final point = mapController.camera
+                    .latLngToScreenPoint(tappedCoords = latLng);
+                setState(() => tappedPoint = Point(point.x, point.y));
+              },
             ),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+              ),
+              if (tappedCoords != null)
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      width: pointSize,
+                      height: pointSize,
+                      point: tappedCoords!,
+                      child: const Icon(
+                        Icons.circle,
+                        size: 10,
+                        color: Colors.black,
+                      ),
+                    )
+                  ],
+                ),
+            ],
           ),
-          Positioned(
-              left: _textPos.x.toDouble(),
-              top: _textPos.y.toDouble(),
-              width: 20,
-              height: 20,
-              child: const FlutterLogo())
+          if (tappedPoint != null)
+            Positioned(
+              left: tappedPoint!.x - 60 / 2,
+              top: tappedPoint!.y - 60 / 2,
+              child: const IgnorePointer(
+                child: Icon(
+                  Icons.center_focus_strong_outlined,
+                  color: Colors.black,
+                  size: 60,
+                ),
+              ),
+            )
         ],
       ),
     );
