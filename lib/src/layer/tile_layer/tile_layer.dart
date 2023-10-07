@@ -306,7 +306,7 @@ class TileLayer extends StatefulWidget {
     }
     if (kDebugMode &&
         retinaMode == null &&
-        wmsOptions == null &&
+        urlTemplate != null &&
         urlTemplate!.contains('{r}')) {
       Logger(printer: PrettyPrinter(methodCount: 0)).w(
         '\x1B[1m\x1B[3mflutter_map\x1B[0m\nThe URL template includes a retina '
