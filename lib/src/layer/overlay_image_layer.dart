@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
+import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:flutter_map/src/misc/private/bounds.dart';
@@ -7,24 +9,37 @@ import 'package:latlong2/latlong.dart';
 
 /// Base class for all overlay images.
 @immutable
-abstract class BaseOverlayImage {
-  ImageProvider get imageProvider;
+sealed class BaseOverlayImage extends StatelessWidget {
+  final ImageProvider imageProvider;
+  final double opacity;
+  final bool gaplessPlayback;
 
-  double get opacity;
+  const BaseOverlayImage({
+    super.key,
+    required this.imageProvider,
+    this.opacity = 1,
+    this.gaplessPlayback = false,
+  });
 
-  bool get gaplessPlayback;
+  Widget _render(
+    BuildContext context, {
+    required Image child,
+    required MapCamera camera,
+  });
 
-  Positioned buildPositionedForOverlay(MapCamera map);
-
-  Image buildImageForOverlay() {
-    return Image(
-      image: imageProvider,
-      fit: BoxFit.fill,
-      color: Color.fromRGBO(255, 255, 255, opacity),
-      colorBlendMode: BlendMode.modulate,
-      gaplessPlayback: gaplessPlayback,
-    );
-  }
+  @override
+  @nonVirtual
+  Widget build(BuildContext context) => _render(
+        context,
+        child: Image(
+          image: imageProvider,
+          fit: BoxFit.fill,
+          color: Color.fromRGBO(255, 255, 255, opacity),
+          colorBlendMode: BlendMode.modulate,
+          gaplessPlayback: gaplessPlayback,
+        ),
+        camera: MapCamera.of(context),
+      );
 }
 
 /// Unrotated overlay image that spans between a given bounding box.
@@ -34,32 +49,34 @@ abstract class BaseOverlayImage {
 @immutable
 class OverlayImage extends BaseOverlayImage {
   final LatLngBounds bounds;
-  @override
-  final ImageProvider imageProvider;
-  @override
-  final double opacity;
-  @override
-  final bool gaplessPlayback;
 
-  OverlayImage(
-      {required this.bounds,
-      required this.imageProvider,
-      this.opacity = 1.0,
-      this.gaplessPlayback = false});
+  const OverlayImage({
+    super.key,
+    required super.imageProvider,
+    required this.bounds,
+    super.opacity,
+    super.gaplessPlayback,
+  });
 
   @override
-  Positioned buildPositionedForOverlay(MapCamera map) {
+  Widget _render(
+    BuildContext context, {
+    required Image child,
+    required MapCamera camera,
+  }) {
     // northWest is not necessarily upperLeft depending on projection
-    final bounds = Bounds<num>(
-      map.project(this.bounds.northWest).subtract(map.pixelOrigin),
-      map.project(this.bounds.southEast).subtract(map.pixelOrigin),
+    final bounds = Bounds<double>(
+      camera.project(this.bounds.northWest).subtract(camera.pixelOrigin),
+      camera.project(this.bounds.southEast).subtract(camera.pixelOrigin),
     );
+
     return Positioned(
-        left: bounds.topLeft.x.toDouble(),
-        top: bounds.topLeft.y.toDouble(),
-        width: bounds.size.x.toDouble(),
-        height: bounds.size.y.toDouble(),
-        child: buildImageForOverlay());
+      left: bounds.topLeft.x,
+      top: bounds.topLeft.y,
+      width: bounds.size.x,
+      height: bounds.size.y,
+      child: child,
+    );
   }
 }
 
@@ -72,45 +89,41 @@ class OverlayImage extends BaseOverlayImage {
 /// corner point is derived from the other points.
 @immutable
 class RotatedOverlayImage extends BaseOverlayImage {
-  @override
-  final ImageProvider imageProvider;
-
   final LatLng topLeftCorner;
   final LatLng bottomLeftCorner;
   final LatLng bottomRightCorner;
-
-  @override
-  final double opacity;
-
-  @override
-  final bool gaplessPlayback;
-
-  /// The filter quality when rotating the image.
   final FilterQuality? filterQuality;
 
-  RotatedOverlayImage(
-      {required this.imageProvider,
-      required this.topLeftCorner,
-      required this.bottomLeftCorner,
-      required this.bottomRightCorner,
-      this.opacity = 1.0,
-      this.gaplessPlayback = false,
-      this.filterQuality = FilterQuality.medium});
+  const RotatedOverlayImage({
+    super.key,
+    required super.imageProvider,
+    required this.topLeftCorner,
+    required this.bottomLeftCorner,
+    required this.bottomRightCorner,
+    this.filterQuality = FilterQuality.medium,
+    super.opacity,
+    super.gaplessPlayback,
+  });
 
   @override
-  Positioned buildPositionedForOverlay(MapCamera map) {
-    final pxTopLeft = map.project(topLeftCorner).subtract(map.pixelOrigin);
+  Widget _render(
+    BuildContext context, {
+    required Image child,
+    required MapCamera camera,
+  }) {
+    final pxTopLeft =
+        camera.project(topLeftCorner).subtract(camera.pixelOrigin);
     final pxBottomRight =
-        map.project(bottomRightCorner).subtract(map.pixelOrigin);
+        camera.project(bottomRightCorner).subtract(camera.pixelOrigin);
     final pxBottomLeft =
-        map.project(bottomLeftCorner).subtract(map.pixelOrigin);
+        camera.project(bottomLeftCorner).subtract(camera.pixelOrigin);
 
     /// calculate pixel coordinate of top-right corner by calculating the
     /// vector from bottom-left to top-left and adding it to bottom-right
     final pxTopRight = pxTopLeft - pxBottomLeft + pxBottomRight;
 
     /// update/enlarge bounds so the new corner points fit within
-    final bounds = Bounds<num>(pxTopLeft, pxBottomRight)
+    final bounds = Bounds<double>(pxTopLeft, pxBottomRight)
         .extend(pxTopRight)
         .extend(pxBottomLeft);
 
@@ -126,15 +139,16 @@ class RotatedOverlayImage extends BaseOverlayImage {
     final ty = offset.y;
 
     return Positioned(
-        left: bounds.topLeft.x.toDouble(),
-        top: bounds.topLeft.y.toDouble(),
-        width: bounds.size.x.toDouble(),
-        height: bounds.size.y.toDouble(),
-        child: Transform(
-            transform:
-                Matrix4(a, b, 0, 0, c, d, 0, 0, 0, 0, 1, 0, tx, ty, 0, 1),
-            filterQuality: filterQuality,
-            child: buildImageForOverlay()));
+      left: bounds.topLeft.x,
+      top: bounds.topLeft.y,
+      width: bounds.size.x,
+      height: bounds.size.y,
+      child: Transform(
+        transform: Matrix4(a, b, 0, 0, c, d, 0, 0, 0, 0, 1, 0, tx, ty, 0, 1),
+        filterQuality: filterQuality,
+        child: child,
+      ),
+    );
   }
 }
 
@@ -142,18 +156,10 @@ class RotatedOverlayImage extends BaseOverlayImage {
 class OverlayImageLayer extends StatelessWidget {
   final List<BaseOverlayImage> overlayImages;
 
-  const OverlayImageLayer({super.key, this.overlayImages = const []});
+  const OverlayImageLayer({super.key, required this.overlayImages});
 
   @override
-  Widget build(BuildContext context) {
-    final map = MapCamera.of(context);
-    return ClipRect(
-      child: Stack(
-        children: <Widget>[
-          for (final overlayImage in overlayImages)
-            overlayImage.buildPositionedForOverlay(map),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => MobileLayerTransformer(
+        child: ClipRect(child: Stack(children: overlayImages)),
+      );
 }

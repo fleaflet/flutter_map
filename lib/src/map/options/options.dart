@@ -6,10 +6,12 @@ import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/gestures/interactive_flag.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
+import 'package:flutter_map/src/layer/general/translucent_pointer.dart';
 import 'package:flutter_map/src/map/camera/camera_constraint.dart';
 import 'package:flutter_map/src/map/camera/camera_fit.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
 import 'package:flutter_map/src/map/options/interaction.dart';
+import 'package:flutter_map/src/map/widget.dart';
 import 'package:flutter_map/src/misc/fit_bounds_options.dart';
 import 'package:flutter_map/src/misc/position.dart';
 import 'package:flutter_map/src/misc/private/positioned_tap_detector_2.dart';
@@ -108,6 +110,22 @@ class MapOptions {
   /// To ensure this doesn't happen, enable this flag to prevent the [FlutterMap]
   /// widget from rebuilding.
   final bool keepAlive;
+
+  /// Whether to apply pointer translucency to all layers automatically
+  ///
+  /// This will mean that each layer can handle all the gestures that enter the
+  /// map themselves. Without this, only the top layer may handle gestures.
+  ///
+  /// Note that layers that are visually obscured behind another layer will
+  /// recieve events, if this is enabled.
+  ///
+  /// Technically, layers become invisible to the parent `Stack` when hit
+  /// testing (and thus `Stack` will keep bubbling gestures down all layers), but
+  /// will still allow their subtree to receive pointer events.
+  ///
+  /// If this is `false` (defaults to `true`), then [TranslucentPointer] may be
+  /// manually applied to individual layers.
+  final bool applyPointerTranslucencyToLayers;
 
   final InteractionOptions? _interactionOptions;
 
@@ -235,6 +253,7 @@ class MapOptions {
     )
     this.maxBounds,
     this.keepAlive = false,
+    this.applyPointerTranslucencyToLayers = true,
   })  : _interactionOptions = interactionOptions,
         _interactiveFlags = interactiveFlags,
         _debugMultiFingerGestureWinner = debugMultiFingerGestureWinner,
@@ -317,7 +336,10 @@ class MapOptions {
       onMapReady == other.onMapReady &&
       maxBounds == other.maxBounds &&
       keepAlive == other.keepAlive &&
-      interactionOptions == other.interactionOptions;
+      interactionOptions == other.interactionOptions &&
+      backgroundColor == other.backgroundColor &&
+      applyPointerTranslucencyToLayers ==
+          other.applyPointerTranslucencyToLayers;
 
   @override
   int get hashCode => Object.hashAll([
@@ -345,5 +367,7 @@ class MapOptions {
         keepAlive,
         maxBounds,
         interactionOptions,
+        backgroundColor,
+        applyPointerTranslucencyToLayers,
       ]);
 }

@@ -148,7 +148,8 @@ class _RetinaPageState extends State<RetinaPage> {
                 initialZoom: 5,
                 maxZoom: 19,
               ),
-              nonRotatedChildren: [
+              children: [
+                if (accessToken?.isNotEmpty ?? false) tileLayer,
                 RichAttributionWidget(
                   attributions: [
                     LogoSourceAttribution(
@@ -177,7 +178,6 @@ class _RetinaPageState extends State<RetinaPage> {
                   ],
                 ),
               ],
-              children: [if (accessToken?.isNotEmpty ?? false) tileLayer],
             ),
           ),
         ],

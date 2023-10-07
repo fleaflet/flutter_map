@@ -1,22 +1,15 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/src/layer/attribution_layer/rich.dart';
+import 'package:meta/meta.dart';
 
-/// Base class for attributions that render themselves as widgets
+/// Base class for attributions that render themselves as widgets in a
+/// [RichAttributionWidget]
 ///
-/// Only used by [RichAttributionWidget].
-///
-/// Extended/implemented by [TextSourceAttribution] & [LogoSourceAttribution].
-///
-/// Avoid manual implementation - unknown subtypes will not be displayed.
+/// Extended by [TextSourceAttribution] & [LogoSourceAttribution].
 @immutable
-abstract class SourceAttribution extends StatelessWidget {
-  final VoidCallback? _onTap;
+sealed class SourceAttribution extends StatelessWidget {
+  const SourceAttribution._({super.key, VoidCallback? onTap}) : _onTap = onTap;
 
-  const SourceAttribution._({
-    super.key,
-    VoidCallback? onTap,
-  }) : _onTap = onTap;
+  final VoidCallback? _onTap;
 
   Widget _render(BuildContext context);
 

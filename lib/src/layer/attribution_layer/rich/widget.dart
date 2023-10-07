@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_map/plugin_api.dart';
-import 'package:meta/meta.dart';
+import 'package:flutter_map/src/gestures/map_events.dart';
+import 'package:flutter_map/src/layer/attribution_layer/rich/animation.dart';
+import 'package:flutter_map/src/layer/attribution_layer/rich/source.dart';
+import 'package:flutter_map/src/map/controller/map_controller.dart';
 
 /// Position to anchor [RichAttributionWidget] to relative to the [FlutterMap]
 ///
@@ -22,10 +24,10 @@ enum AttributionAlignment {
   const AttributionAlignment(this.real);
 
   /// Reflects the standard [Alignment]
-  @internal
   final Alignment real;
 }
 
+/// {@template rich_attribution_widget}
 /// A prebuilt dynamic attribution layer that supports both logos and text
 /// through [SourceAttribution]s
 ///
@@ -52,6 +54,12 @@ enum AttributionAlignment {
 ///
 /// Read the documentation on the individual properties for more information and
 /// customizability.
+///
+/// See also:
+///
+///  * [SimpleAttributionWidget], which is a simple, classicly styled, text-only
+///    attribution layer
+/// {@endtemplate}
 @immutable
 class RichAttributionWidget extends StatefulWidget {
   /// List of attributions to display
@@ -106,32 +114,7 @@ class RichAttributionWidget extends StatefulWidget {
   /// [LogoSourceAttribution].
   final Duration popupInitialDisplayDuration;
 
-  /// A prebuilt dynamic attribution layer that supports both logos and text
-  /// through [SourceAttribution]s
-  ///
-  /// [TextSourceAttribution]s are shown in a popup box that can be visible or
-  /// invisible. Its state is toggled by a tri-state [openButton]/[closeButton] :
-  ///   1. Not hovered, not opened: faded button, invisible box
-  ///   2. Hovered, not opened: full opacity button, invisible box
-  ///   3. Opened: full opacity button, visible box
-  ///
-  /// The hover state on mobile devices is unspecified, but the behaviour is
-  /// usually inconsequential on mobile devices anyway, due to the fingertip
-  /// covering the entire button.
-  ///
-  /// [LogoSourceAttribution]s are shown adjacent to the open/close button, to
-  /// comply with some stricter tile server requirements (such as Mapbox). These
-  /// are usually supplemented with a [TextSourceAttribution].
-  ///
-  /// The popup box also closes automatically on any interaction with the map.
-  ///
-  /// Animations are built in by default, and configured/handled through
-  /// [RichAttributionWidgetAnimation] - see that class and the [animationConfig]
-  /// property for more information. By default, a simple fade/opacity animation
-  /// is provided by [FadeRAWA]. [ScaleRAWA] is also available.
-  ///
-  /// Read the documentation on the individual properties for more information
-  /// and customizability.
+  /// {@macro rich_attribution_widget}
   const RichAttributionWidget({
     super.key,
     required this.attributions,
@@ -147,10 +130,10 @@ class RichAttributionWidget extends StatefulWidget {
   });
 
   @override
-  State<StatefulWidget> createState() => RichAttributionWidgetState();
+  State<RichAttributionWidget> createState() => _RichAttributionWidgetState();
 }
 
-class RichAttributionWidgetState extends State<RichAttributionWidget> {
+class _RichAttributionWidgetState extends State<RichAttributionWidget> {
   StreamSubscription<MapEvent>? mapEventSubscription;
 
   late bool popupExpanded = widget.popupInitialDisplayDuration != Duration.zero;
@@ -164,9 +147,7 @@ class RichAttributionWidgetState extends State<RichAttributionWidget> {
       Future.delayed(
         widget.popupInitialDisplayDuration,
         () {
-          if (mounted) {
-            setState(() => popupExpanded = false);
-          }
+          if (mounted) setState(() => popupExpanded = false);
         },
       );
     }

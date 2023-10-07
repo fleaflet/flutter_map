@@ -6,8 +6,9 @@ import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:flutter_map/src/map/camera/camera_fit.dart';
+import 'package:flutter_map/src/map/controller/impl.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
-import 'package:flutter_map/src/map/map_controller_impl.dart';
+import 'package:flutter_map/src/map/widget.dart';
 import 'package:flutter_map/src/misc/center_zoom.dart';
 import 'package:flutter_map/src/misc/fit_bounds_options.dart';
 import 'package:flutter_map/src/misc/move_and_rotate_result.dart';
@@ -140,9 +141,9 @@ abstract class MapController {
   /// documentation.
   bool fitCamera(CameraFit cameraFit);
 
-  /// Current [MapCamera]. Accessing the camera from this getter is an
-  /// anti-pattern. It is preferable to use [MapCamera.of(context)] in a child
-  /// widget of FlutterMap.
+  /// Access the current [MapCamera]
+  ///
+  /// From inside a [FlutterMap]'s [BuildContext], prefer using [MapCamera.of].
   MapCamera get camera;
 
   /// Move and zoom the map to perfectly fit [bounds], with additional

@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_map/src/layer/attribution_layer/rich.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_map/src/layer/attribution_layer/rich/widget.dart';
 
-/// Animation provider base for a [RichAttributionWidget]
+/// Animation provider interface for a [RichAttributionWidget]
 ///
 /// The popup box's animation is handled/built by [popupAnimationBuilder] for
 /// full flexibility.
@@ -14,7 +14,7 @@ import 'package:flutter_map/src/layer/attribution_layer/rich.dart';
 /// [RichAttributionWidgetAnimation], or the prebuilt [FadeRAWA] and
 /// [ScaleRAWA] animations can be used with limited customization.
 @immutable
-abstract class RichAttributionWidgetAnimation {
+abstract interface class RichAttributionWidgetAnimation {
   /// The duration of the animation used when toggling the state of the
   /// open/close button
   ///
