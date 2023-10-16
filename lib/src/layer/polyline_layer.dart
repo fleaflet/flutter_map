@@ -19,6 +19,7 @@ class Polyline {
   final StrokeCap strokeCap;
   final StrokeJoin strokeJoin;
   final bool useStrokeWidthInMeter;
+  final String? tag;
 
   LatLngBounds? _boundingBox;
 
@@ -37,6 +38,7 @@ class Polyline {
     this.strokeCap = StrokeCap.round,
     this.strokeJoin = StrokeJoin.round,
     this.useStrokeWidthInMeter = false,
+    this.tag,
   });
 
   /// Used to batch draw calls to the canvas.
@@ -50,60 +52,78 @@ class Polyline {
       isDotted,
       strokeCap,
       strokeJoin,
-      useStrokeWidthInMeter);
+      useStrokeWidthInMeter,
+      tag);
 }
 
 @immutable
 class PolylineLayer extends StatelessWidget {
   final List<Polyline> polylines;
   final bool polylineCulling;
+  final void Function(Polyline polyline)? onTap;
 
   const PolylineLayer({
     super.key,
     required this.polylines,
     this.polylineCulling = false,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final map = MapCamera.of(context);
+    final visiblePolylines = polylineCulling
+        ? polylines
+            .where((p) => p.boundingBox.isOverlapping(map.visibleBounds))
+            .toList()
+        : polylines;
+
+    final maybeTap = onTap;
 
     return MobileLayerTransformer(
-      child: CustomPaint(
-        painter: PolylinePainter(
-          polylineCulling
-              ? polylines
-                  .where((p) => p.boundingBox.isOverlapping(map.visibleBounds))
-                  .toList()
-              : polylines,
-          map,
-        ),
-        size: Size(map.size.x, map.size.y),
-        isComplex: true,
-      ),
+      child: Stack(
+          children: visiblePolylines
+              .map(
+                (polyline) => GestureDetector(
+                  onTap: maybeTap != null ? () => maybeTap(polyline) : null,
+                  child: CustomPaint(
+                    painter: PolylinePainter(
+                      polyline,
+                      map,
+                    ),
+                    size: Size(map.size.x, map.size.y),
+                    isComplex: true,
+                  ),
+                ),
+              )
+              .toList()),
     );
   }
 }
 
 class PolylinePainter extends CustomPainter {
-  final List<Polyline> polylines;
+  final Polyline polyline;
 
   final MapCamera map;
   final LatLngBounds bounds;
 
-  PolylinePainter(this.polylines, this.map) : bounds = map.visibleBounds;
+  PolylinePainter(this.polyline, this.map) : bounds = map.visibleBounds;
 
-  int get hash => _hash ??= Object.hashAll(polylines);
+  int get hash => _hash ??= Object.hashAll(polyline.points);
 
   int? _hash;
 
-  List<Offset> getOffsets(List<LatLng> points) {
-    return List.generate(points.length, (index) {
-      return getOffset(points[index]);
-    }, growable: false);
-  }
-
   Offset getOffset(LatLng point) => map.getOffsetFromOrigin(point);
+
+  List<Offset> getOffsets(List<LatLng> points) {
+    return List.generate(
+      points.length,
+      (index) {
+        return getOffset(points[index]);
+      },
+      growable: false,
+    );
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -114,6 +134,7 @@ class PolylinePainter extends CustomPainter {
     var filterPath = ui.Path();
     var paint = Paint();
     var needsLayerSaving = false;
+    final offsets = getOffsets(polyline.points);
 
     Paint? borderPaint;
     Paint? filterPaint;
@@ -144,19 +165,13 @@ class PolylinePainter extends CustomPainter {
       paint = Paint();
     }
 
-    for (final polyline in polylines) {
-      final offsets = getOffsets(polyline.points);
-      if (offsets.isEmpty) {
-        continue;
-      }
-
-      final hash = polyline.renderHashCode;
-      if (needsLayerSaving || (lastHash != null && lastHash != hash)) {
-        drawPaths();
-      }
-      lastHash = hash;
-      needsLayerSaving = polyline.color.opacity < 1.0 ||
-          (polyline.gradientColors?.any((c) => c.opacity < 1.0) ?? false);
+    final hash = polyline.renderHashCode;
+    if (needsLayerSaving || lastHash != hash) {
+      drawPaths();
+    }
+    lastHash = hash;
+    needsLayerSaving = polyline.color.opacity < 1.0 ||
+        (polyline.gradientColors?.any((c) => c.opacity < 1.0) ?? false);
 
       late final double strokeWidth;
       if (polyline.useStrokeWidthInMeter) {
@@ -283,8 +298,6 @@ class PolylinePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(PolylinePainter oldDelegate) {
-    return oldDelegate.bounds != bounds ||
-        oldDelegate.polylines.length != polylines.length ||
-        oldDelegate.hash != hash;
+    return oldDelegate.bounds != bounds || oldDelegate.hash != hash;
   }
 }
