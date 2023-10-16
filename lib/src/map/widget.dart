@@ -209,10 +209,13 @@ class _FlutterMapStateContainer extends State<FlutterMap>
         cameraFit = widget.options.initialCameraFit!;
       }
 
-      _flutterMapInternalController.fitCamera(
-        cameraFit,
-        offset: Offset.zero,
-      );
+      // Needed to avoid a late initialization error on _interactiveViewerState
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _flutterMapInternalController.fitCamera(
+          cameraFit,
+          offset: Offset.zero,
+        );
+      });
     }
   }
 
