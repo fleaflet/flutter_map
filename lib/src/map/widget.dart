@@ -211,10 +211,19 @@ class _FlutterMapStateContainer extends State<FlutterMap>
 
       // Needed to avoid a late initialization error on _interactiveViewerState
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _flutterMapInternalController.fitCamera(
-          cameraFit,
-          offset: Offset.zero,
-        );
+        if (mounted) {
+          _flutterMapInternalController.fitCamera(
+            cameraFit,
+            offset: Offset.zero,
+          );
+
+          // Needed to load the tiles
+          _flutterMapInternalController.nonRotatedSizeChange(
+            MapEventSource.nonRotatedSizeChange,
+            _flutterMapInternalController.camera,
+            _flutterMapInternalController.camera,
+          );
+        }
       });
     }
   }
