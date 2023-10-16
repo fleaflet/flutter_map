@@ -1,6 +1,8 @@
 import 'dart:core';
 import 'dart:ui' as ui;
 
+import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
@@ -106,6 +108,7 @@ class PolylinePainter extends CustomPainter {
 
   final MapCamera map;
   final LatLngBounds bounds;
+  final _touchablePath = ui.Path();
 
   PolylinePainter(this.polyline, this.map) : bounds = map.visibleBounds;
 
@@ -173,79 +176,107 @@ class PolylinePainter extends CustomPainter {
     needsLayerSaving = polyline.color.opacity < 1.0 ||
         (polyline.gradientColors?.any((c) => c.opacity < 1.0) ?? false);
 
-      late final double strokeWidth;
-      if (polyline.useStrokeWidthInMeter) {
-        final firstPoint = polyline.points.first;
-        final firstOffset = offsets.first;
-        final r = const Distance().offset(
-          firstPoint,
-          polyline.strokeWidth,
-          180,
-        );
-        final delta = firstOffset - getOffset(r);
+    late final double strokeWidth;
+    if (polyline.useStrokeWidthInMeter) {
+      final firstPoint = polyline.points.first;
+      final firstOffset = offsets.first;
+      final r = const Distance().offset(
+        firstPoint,
+        polyline.strokeWidth,
+        180,
+      );
+      final delta = firstOffset - getOffset(r);
 
-        strokeWidth = delta.distance;
-      } else {
-        strokeWidth = polyline.strokeWidth;
-      }
+      strokeWidth = delta.distance;
+    } else {
+      strokeWidth = polyline.strokeWidth;
+    }
 
-      final isDotted = polyline.isDotted;
-      paint = Paint()
-        ..strokeWidth = strokeWidth
+    final isDotted = polyline.isDotted;
+    paint = Paint()
+      ..strokeWidth = strokeWidth
+      ..strokeCap = polyline.strokeCap
+      ..strokeJoin = polyline.strokeJoin
+      ..style = isDotted ? PaintingStyle.fill : PaintingStyle.stroke
+      ..blendMode = BlendMode.srcOver;
+
+    if (polyline.gradientColors == null) {
+      paint.color = polyline.color;
+    } else {
+      polyline.gradientColors!.isNotEmpty
+          ? paint.shader = _paintGradient(polyline, offsets)
+          : paint.color = polyline.color;
+    }
+
+    if (polyline.borderColor != null && polyline.borderStrokeWidth > 0.0) {
+      // Outlined lines are drawn by drawing a thicker path underneath, then
+      // stenciling the middle (in case the line fill is transparent), and
+      // finally drawing the line fill.
+      borderPaint = Paint()
+        ..color = polyline.borderColor ?? const Color(0x00000000)
+        ..strokeWidth = strokeWidth + polyline.borderStrokeWidth
         ..strokeCap = polyline.strokeCap
         ..strokeJoin = polyline.strokeJoin
         ..style = isDotted ? PaintingStyle.fill : PaintingStyle.stroke
         ..blendMode = BlendMode.srcOver;
 
-      if (polyline.gradientColors == null) {
-        paint.color = polyline.color;
-      } else {
-        polyline.gradientColors!.isNotEmpty
-            ? paint.shader = _paintGradient(polyline, offsets)
-            : paint.color = polyline.color;
-      }
-
-      if (polyline.borderColor != null && polyline.borderStrokeWidth > 0.0) {
-        // Outlined lines are drawn by drawing a thicker path underneath, then
-        // stenciling the middle (in case the line fill is transparent), and
-        // finally drawing the line fill.
-        borderPaint = Paint()
-          ..color = polyline.borderColor ?? const Color(0x00000000)
-          ..strokeWidth = strokeWidth + polyline.borderStrokeWidth
-          ..strokeCap = polyline.strokeCap
-          ..strokeJoin = polyline.strokeJoin
-          ..style = isDotted ? PaintingStyle.fill : PaintingStyle.stroke
-          ..blendMode = BlendMode.srcOver;
-
-        filterPaint = Paint()
-          ..color = polyline.borderColor!.withAlpha(255)
-          ..strokeWidth = strokeWidth
-          ..strokeCap = polyline.strokeCap
-          ..strokeJoin = polyline.strokeJoin
-          ..style = isDotted ? PaintingStyle.fill : PaintingStyle.stroke
-          ..blendMode = BlendMode.dstOut;
-      }
-
-      final radius = paint.strokeWidth / 2;
-      final borderRadius = (borderPaint?.strokeWidth ?? 0) / 2;
-
-      if (isDotted) {
-        final spacing = strokeWidth * 1.5;
-        if (borderPaint != null && filterPaint != null) {
-          _paintDottedLine(borderPath, offsets, borderRadius, spacing);
-          _paintDottedLine(filterPath, offsets, radius, spacing);
-        }
-        _paintDottedLine(path, offsets, radius, spacing);
-      } else {
-        if (borderPaint != null && filterPaint != null) {
-          _paintLine(borderPath, offsets);
-          _paintLine(filterPath, offsets);
-        }
-        _paintLine(path, offsets);
-      }
+      filterPaint = Paint()
+        ..color = polyline.borderColor!.withAlpha(255)
+        ..strokeWidth = strokeWidth
+        ..strokeCap = polyline.strokeCap
+        ..strokeJoin = polyline.strokeJoin
+        ..style = isDotted ? PaintingStyle.fill : PaintingStyle.stroke
+        ..blendMode = BlendMode.dstOut;
     }
 
+    final radius = paint.strokeWidth / 2;
+    final borderRadius = (borderPaint?.strokeWidth ?? 0) / 2;
+
+    if (isDotted) {
+      final spacing = strokeWidth * 1.5;
+      if (borderPaint != null && filterPaint != null) {
+        _paintDottedLine(borderPath, offsets, borderRadius, spacing);
+        _paintDottedLine(filterPath, offsets, radius, spacing);
+      }
+      _paintDottedLine(path, offsets, radius, spacing);
+      _paintDottedLine(_touchablePath, offsets,
+          (strokeWidth + polyline.borderStrokeWidth) / 2, spacing);
+    } else {
+      if (borderPaint != null && filterPaint != null) {
+        _paintLine(borderPath, offsets);
+        _paintLine(filterPath, offsets);
+      }
+      _paintLine(path, offsets);
+      _paintTouchablePath(_touchablePath, offsets, strokeWidth);
+    }
     drawPaths();
+  }
+
+  void _paintTouchablePath(
+      ui.Path dottedPath, List<Offset> offsets, double radius) {
+    // We used a widthFactor with a threshold to prevent radius too small for accessible tap
+    final widthFactor = radius < 5.0 ? 5.0 : radius;
+    for (final offset in offsets) {
+      dottedPath.addOval(Rect.fromCircle(center: offset, radius: widthFactor));
+    }
+    offsets.forEachIndexed((index, offset) {
+      if ((index + 1) < offsets.length) {
+        final currentUnitPerpendicularVector = Offset(
+          offsets[index + 1].dy - offset.dy,
+          -offsets[index + 1].dx + offset.dx,
+        );
+
+        final test = (currentUnitPerpendicularVector /
+                currentUnitPerpendicularVector.distance) *
+            widthFactor;
+        dottedPath.addPolygon([
+          (offset + test),
+          (offsets[index + 1] + test),
+          (offsets[index + 1] - test),
+          (offset - test),
+        ], true);
+      }
+    });
   }
 
   void _paintDottedLine(
@@ -295,6 +326,9 @@ class PolylinePainter extends CustomPainter {
             colorsStopInterval)
         .toList();
   }
+
+  @override
+  bool hitTest(Offset position) => _touchablePath.contains(position);
 
   @override
   bool shouldRepaint(PolylinePainter oldDelegate) {
