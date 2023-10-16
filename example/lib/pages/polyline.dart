@@ -13,6 +13,8 @@ class PolylinePage extends StatefulWidget {
 }
 
 class _PolylinePageState extends State<PolylinePage> {
+  bool isDotted = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,14 +41,21 @@ class _PolylinePageState extends State<PolylinePage> {
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   ),
                   PolylineLayer(
+                    onTap: (polyline) {
+                      setState(() {
+                        isDotted = !isDotted;
+                      });
+                    },
                     polylines: [
                       Polyline(
                         points: [
                           const LatLng(51.5, -0.09),
                           const LatLng(53.3498, -6.2603),
                           const LatLng(48.8566, 2.3522),
+                          const LatLng(52.8566, 2.3522),
                         ],
-                        strokeWidth: 4,
+                        strokeWidth: 10,
+                        useStrokeWidthInMeter: true,
                         color: Colors.purple,
                       ),
                       Polyline(
@@ -57,17 +66,21 @@ class _PolylinePageState extends State<PolylinePage> {
                         ],
                         strokeWidth: 4,
                         gradientColors: [
+                          const Color(0xff007E2D),
                           const Color(0xffE40203),
                           const Color(0xffFEED00),
-                          const Color(0xff007E2D),
                         ],
+                        isDotted: isDotted,
                       ),
                       Polyline(
+                        tag: '1',
                         points: [
                           const LatLng(50.5, -0.09),
                           const LatLng(51.3498, 6.2603),
                           const LatLng(53.8566, 2.3522),
+                          const LatLng(54.3498, -6.2603),
                         ],
+                        isDotted: isDotted,
                         strokeWidth: 20,
                         color: Colors.blue.withOpacity(0.6),
                         borderStrokeWidth: 20,
@@ -83,28 +96,32 @@ class _PolylinePageState extends State<PolylinePage> {
                         color: Colors.black.withOpacity(0.2),
                         borderStrokeWidth: 20,
                         borderColor: Colors.white30,
+                        isDotted: isDotted,
                       ),
                       Polyline(
-                        points: [
-                          const LatLng(49.1, -0.06),
-                          const LatLng(52.15, -1.4),
-                          const LatLng(55.5, 0.8),
-                        ],
-                        strokeWidth: 10,
-                        color: Colors.yellow,
-                        borderStrokeWidth: 10,
-                        borderColor: Colors.blue.withOpacity(0.5),
-                      ),
+                          points: [
+                            const LatLng(49.1, -0.06),
+                            const LatLng(52.15, -1.4),
+                            const LatLng(55.5, 0.8),
+                          ],
+                          strokeWidth: 10,
+                          color: Colors.yellow,
+                          borderStrokeWidth: 10,
+                          borderColor: Colors.blue.withOpacity(0.5),
+                          isDotted: isDotted),
                       Polyline(
                         points: [
                           const LatLng(48.1, -0.03),
                           const LatLng(50.5, -7.8),
                           const LatLng(56.5, 0.4),
+                          const LatLng(55.5, 0.8),
+                          const LatLng(52.15, -1.4),
                         ],
                         strokeWidth: 10,
                         color: Colors.amber,
                         borderStrokeWidth: 10,
                         borderColor: Colors.blue.withOpacity(0.5),
+                        isDotted: isDotted,
                       ),
                     ],
                   ),
