@@ -9,7 +9,7 @@ import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:latlong2/latlong.dart';
 
-class Polyline {
+class Polyline<T extends Object> {
   final List<LatLng> points;
   final double strokeWidth;
   final Color color;
@@ -21,7 +21,20 @@ class Polyline {
   final StrokeCap strokeCap;
   final StrokeJoin strokeJoin;
   final bool useStrokeWidthInMeter;
-  final String? tag;
+
+  /// The tag of the polyline
+  ///
+  /// Tag is used to identify a [Polyline] or group of [Polyline]
+  /// Tag does not have to be unique
+  /// ```dart
+  /// PolylineLayer<T>{
+  ///   onTap: (polyline) {
+  ///     if(polyline.tag == 'polylineTag')
+  ///     myTap();
+  ///   }
+  /// }
+  /// ```
+  final T? tag;
 
   LatLngBounds? _boundingBox;
 
@@ -59,10 +72,10 @@ class Polyline {
 }
 
 @immutable
-class PolylineLayer extends StatelessWidget {
-  final List<Polyline> polylines;
+class PolylineLayer<T extends Object> extends StatelessWidget {
+  final List<Polyline<T>> polylines;
   final bool polylineCulling;
-  final void Function(Polyline polyline)? onTap;
+  final void Function(Polyline<T> polyline)? onTap;
 
   const PolylineLayer({
     super.key,
@@ -89,7 +102,7 @@ class PolylineLayer extends StatelessWidget {
                 (polyline) => GestureDetector(
                   onTap: maybeTap != null ? () => maybeTap(polyline) : null,
                   child: CustomPaint(
-                    painter: PolylinePainter(
+                    painter: PolylinePainter<T>(
                       polyline,
                       map,
                     ),
@@ -103,8 +116,8 @@ class PolylineLayer extends StatelessWidget {
   }
 }
 
-class PolylinePainter extends CustomPainter {
-  final Polyline polyline;
+class PolylinePainter<T extends Object> extends CustomPainter {
+  final Polyline<T> polyline;
 
   final MapCamera map;
   final LatLngBounds bounds;
@@ -308,17 +321,17 @@ class PolylinePainter extends CustomPainter {
     path.addPolygon(offsets, false);
   }
 
-  ui.Gradient _paintGradient(Polyline polyline, List<Offset> offsets) =>
+  ui.Gradient _paintGradient(Polyline<T> polyline, List<Offset> offsets) =>
       ui.Gradient.linear(offsets.first, offsets.last, polyline.gradientColors!,
           _getColorsStop(polyline));
 
-  List<double>? _getColorsStop(Polyline polyline) =>
+  List<double>? _getColorsStop(Polyline<T> polyline) =>
       (polyline.colorsStop != null &&
               polyline.colorsStop!.length == polyline.gradientColors!.length)
           ? polyline.colorsStop
           : _calculateColorsStop(polyline);
 
-  List<double> _calculateColorsStop(Polyline polyline) {
+  List<double> _calculateColorsStop(Polyline<T> polyline) {
     final colorsStopInterval = 1.0 / polyline.gradientColors!.length;
     return polyline.gradientColors!
         .map((gradientColor) =>
@@ -331,7 +344,7 @@ class PolylinePainter extends CustomPainter {
   bool hitTest(Offset position) => _touchablePath.contains(position);
 
   @override
-  bool shouldRepaint(PolylinePainter oldDelegate) {
+  bool shouldRepaint(PolylinePainter<T> oldDelegate) {
     return oldDelegate.bounds != bounds || oldDelegate.hash != hash;
   }
 }
