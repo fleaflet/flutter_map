@@ -142,7 +142,6 @@ class _FlutterMapStateContainer extends State<FlutterMap>
     return LayoutBuilder(
       builder: (context, constraints) {
         _updateAndEmitSizeIfConstraintsChanged(constraints);
-        _applyInitialCameraFit(constraints);
 
         return FlutterMapInteractiveViewer(
           controller: _flutterMapInternalController,
@@ -209,22 +208,10 @@ class _FlutterMapStateContainer extends State<FlutterMap>
         cameraFit = widget.options.initialCameraFit!;
       }
 
-      // Needed to avoid a late initialization error on _interactiveViewerState
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          _flutterMapInternalController.fitCamera(
-            cameraFit,
-            offset: Offset.zero,
-          );
-
-          // Needed to load the tiles
-          _flutterMapInternalController.nonRotatedSizeChange(
-            MapEventSource.nonRotatedSizeChange,
-            _flutterMapInternalController.camera,
-            _flutterMapInternalController.camera,
-          );
-        }
-      });
+      _flutterMapInternalController.fitCamera(
+        cameraFit,
+        offset: Offset.zero,
+      );
     }
   }
 
@@ -248,6 +235,8 @@ class _FlutterMapStateContainer extends State<FlutterMap>
             newMapCamera,
           );
         }
+
+        _applyInitialCameraFit(constraints);
       });
     }
   }
