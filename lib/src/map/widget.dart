@@ -234,9 +234,9 @@ class _FlutterMapStateContainer extends State<FlutterMap>
             oldCamera,
             newMapCamera,
           );
-        }
 
-        _applyInitialCameraFit(constraints);
+          _applyInitialCameraFit(constraints);
+        }
       });
     }
   }
