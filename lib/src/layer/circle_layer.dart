@@ -97,8 +97,11 @@ class CirclePainter extends CustomPainter {
           }
           pointsBorder[circle.borderColor] ??= {};
           pointsBorder[circle.borderColor]![circle.borderStrokeWidth] ??= {};
-          pointsBorder[circle.borderColor]![circle.borderStrokeWidth]![realRadius] ??= [];
-          pointsBorder[circle.borderColor]![circle.borderStrokeWidth]![realRadius]!.add(offset);
+          pointsBorder[circle.borderColor]![circle.borderStrokeWidth]![
+              realRadius] ??= [];
+          pointsBorder[circle.borderColor]![circle.borderStrokeWidth]![
+                  realRadius]!
+              .add(offset);
         }
       }
     }
