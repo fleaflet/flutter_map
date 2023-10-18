@@ -104,10 +104,9 @@ class CirclePainter extends CustomPainter {
     }
 
     // Now that all the points are grouped, let's draw them
+    final paintBorder = Paint()..style = PaintingStyle.stroke;
     for (final color in pointsBorder.keys) {
-      final paint = Paint()
-        ..style = PaintingStyle.stroke
-        ..color = color;
+      final paint = paintBorder..color = color;
       for (final borderWidth in pointsBorder[color]!.keys) {
         final pointsByRadius = pointsBorder[color]![borderWidth]!;
         final radiusPaint = paint..strokeWidth = borderWidth;
@@ -121,11 +120,9 @@ class CirclePainter extends CustomPainter {
     }
 
     // Then the filled border in order to be under the circle
+    final paintPoint = Paint()..isAntiAlias = false;
     for (final color in pointsFilledBorder.keys) {
-      final paint = Paint()
-        ..strokeCap = StrokeCap.round
-        ..isAntiAlias = false
-        ..color = color;
+      final paint = paintPoint..color = color;
       final pointsByRadius = pointsFilledBorder[color]!;
       for (final radius in pointsByRadius.keys) {
         final pointsByRadiusColor = pointsByRadius[radius]!;
@@ -136,10 +133,7 @@ class CirclePainter extends CustomPainter {
 
     // And then the circle
     for (final color in points.keys) {
-      final paint = Paint()
-        ..isAntiAlias = false
-        ..strokeCap = StrokeCap.round
-        ..color = color;
+      final paint = paintPoint..color = color;
       final pointsByRadius = points[color]!;
       for (final radius in pointsByRadius.keys) {
         final pointsByRadiusColor = pointsByRadius[radius]!;
