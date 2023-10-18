@@ -120,7 +120,9 @@ class CirclePainter extends CustomPainter {
     }
 
     // Then the filled border in order to be under the circle
-    final paintPoint = Paint()..isAntiAlias = false;
+    final paintPoint = Paint()
+      ..isAntiAlias = false
+      ..strokeCap = StrokeCap.round;
     for (final color in pointsFilledBorder.keys) {
       final paint = paintPoint..color = color;
       final pointsByRadius = pointsFilledBorder[color]!;
