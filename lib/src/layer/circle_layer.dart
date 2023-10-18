@@ -65,7 +65,8 @@ class CirclePainter extends CustomPainter {
 
     // Let's calculate all the points grouped by color and radius
     final points = <Color, Map<double, List<Offset>>>{};
-    final pointsBorder = <Color, Map<double, List<Offset>>>{};
+    final pointsFilledBorder = <Color, Map<double, List<Offset>>>{};
+    final pointsBorder = <Color, Map<double, Map<double, List<Offset>>>>{};
     for (final circle in circles) {
       final offset = map.getOffsetFromOrigin(circle.point);
       double radius = circle.radius;
@@ -79,30 +80,64 @@ class CirclePainter extends CustomPainter {
       points[circle.color]![radius]!.add(offset);
 
       if (circle.borderStrokeWidth > 0) {
-        double radiusBorder = circle.radius + circle.borderStrokeWidth;
-        if (circle.useRadiusInMeter) {
-          final rBorder = distance.offset(circle.point, radiusBorder, 180);
-          final deltaBorder = offset - map.getOffsetFromOrigin(rBorder);
-          radiusBorder = deltaBorder.distance;
+        // Check if color have some transparency or not
+        // As drawPoints is more efficient than drawCircle
+        if (circle.color.alpha == 0xFF) {
+          double radiusBorder = circle.radius + circle.borderStrokeWidth;
+          if (circle.useRadiusInMeter) {
+            final rBorder = distance.offset(circle.point, radiusBorder, 180);
+            final deltaBorder = offset - map.getOffsetFromOrigin(rBorder);
+            radiusBorder = deltaBorder.distance;
+          }
+          pointsFilledBorder[circle.borderColor] ??= {};
+          pointsFilledBorder[circle.borderColor]![radiusBorder] ??= [];
+          pointsFilledBorder[circle.borderColor]![radiusBorder]!.add(offset);
+        } else {
+          double realRadius = circle.radius;
+          if (circle.useRadiusInMeter) {
+            final rBorder = distance.offset(circle.point, realRadius, 180);
+            final deltaBorder = offset - map.getOffsetFromOrigin(rBorder);
+            realRadius = deltaBorder.distance;
+          }
+          pointsBorder[circle.borderColor] ??= {};
+          pointsBorder[circle.borderColor]![circle.borderStrokeWidth] ??= {};
+          pointsBorder[circle.borderColor]![circle.borderStrokeWidth]![
+              realRadius] ??= [];
+          pointsBorder[circle.borderColor]![circle.borderStrokeWidth]![
+                  realRadius]!
+              .add(offset);
         }
-        pointsBorder[circle.borderColor] ??= {};
-        pointsBorder[circle.borderColor]![radiusBorder] ??= [];
-        pointsBorder[circle.borderColor]![radiusBorder]!.add(offset);
       }
     }
 
     // Now that all the points are grouped, let's draw them
-    // First by border in order to be under the circle
     for (final color in pointsBorder.keys) {
+      final paint = Paint()
+        ..style = PaintingStyle.stroke
+        ..color = color;
+      for (final borderWidth in pointsBorder[color]!.keys) {
+        final pointsByRadius = pointsBorder[color]![borderWidth]!;
+        final radiusPaint = paint..strokeWidth = borderWidth;
+        for (final radius in pointsByRadius.keys) {
+          final pointsByRadiusColor = pointsByRadius[radius]!;
+          for (final offset in pointsByRadiusColor) {
+            _paintCircle(canvas, offset, radius, radiusPaint);
+          }
+        }
+      }
+    }
+
+    // Then the filled border in order to be under the circle
+    for (final color in pointsFilledBorder.keys) {
       final paint = Paint()
         ..strokeCap = StrokeCap.round
         ..isAntiAlias = false
         ..color = color;
-      final pointsByRadius = pointsBorder[color]!;
+      final pointsByRadius = pointsFilledBorder[color]!;
       for (final radius in pointsByRadius.keys) {
         final pointsByRadiusColor = pointsByRadius[radius]!;
-        final radiusPaint = paint..strokeWidth = radius;
-        _paintCircle(canvas, pointsByRadiusColor, radiusPaint);
+        final radiusPaint = paint..strokeWidth = radius * 2;
+        _paintPoints(canvas, pointsByRadiusColor, radiusPaint);
       }
     }
 
@@ -115,14 +150,18 @@ class CirclePainter extends CustomPainter {
       final pointsByRadius = points[color]!;
       for (final radius in pointsByRadius.keys) {
         final pointsByRadiusColor = pointsByRadius[radius]!;
-        final radiusPaint = paint..strokeWidth = radius;
-        _paintCircle(canvas, pointsByRadiusColor, radiusPaint);
+        final radiusPaint = paint..strokeWidth = radius * 2;
+        _paintPoints(canvas, pointsByRadiusColor, radiusPaint);
       }
     }
   }
 
-  void _paintCircle(Canvas canvas, List<Offset> offsets, Paint paint) {
+  void _paintPoints(Canvas canvas, List<Offset> offsets, Paint paint) {
     canvas.drawPoints(PointMode.points, offsets, paint);
+  }
+
+  void _paintCircle(Canvas canvas, Offset offset, double radius, Paint paint) {
+    canvas.drawCircle(offset, radius, paint);
   }
 
   @override
