@@ -37,14 +37,10 @@ class CircleLayer extends StatelessWidget {
   Widget build(BuildContext context) {
     final map = MapCamera.of(context);
     return MobileLayerTransformer(
-      child: LayoutBuilder(
-        builder: (context, bc) {
-          final size = Size(bc.maxWidth, bc.maxHeight);
-          return CustomPaint(
-            painter: CirclePainter(circles, map),
-            size: size,
-          );
-        },
+      child: CustomPaint(
+        painter: CirclePainter(circles, map),
+        size: Size(map.size.x, map.size.y),
+        isComplex: true,
       ),
     );
   }
@@ -101,11 +97,8 @@ class CirclePainter extends CustomPainter {
           }
           pointsBorder[circle.borderColor] ??= {};
           pointsBorder[circle.borderColor]![circle.borderStrokeWidth] ??= {};
-          pointsBorder[circle.borderColor]![circle.borderStrokeWidth]![
-              realRadius] ??= [];
-          pointsBorder[circle.borderColor]![circle.borderStrokeWidth]![
-                  realRadius]!
-              .add(offset);
+          pointsBorder[circle.borderColor]![circle.borderStrokeWidth]![realRadius] ??= [];
+          pointsBorder[circle.borderColor]![circle.borderStrokeWidth]![realRadius]!.add(offset);
         }
       }
     }
