@@ -67,43 +67,54 @@ class PolylineLayer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final map = MapCamera.of(context);
+    final visiblePolylines = polylineCulling
+        ? polylines
+            .where((p) => p.boundingBox.isOverlapping(map.visibleBounds))
+            .toList()
+        : polylines;
 
     return MobileLayerTransformer(
-      child: CustomPaint(
-        painter: PolylinePainter(
-          polylineCulling
-              ? polylines
-                  .where((p) => p.boundingBox.isOverlapping(map.visibleBounds))
-                  .toList()
-              : polylines,
-          map,
-        ),
-        size: Size(map.size.x, map.size.y),
-        isComplex: true,
-      ),
+      child: Stack(
+          children: visiblePolylines
+              .map(
+                (polyline) => GestureDetector(
+                  child: CustomPaint(
+                    painter: PolylinePainter(
+                      polyline,
+                      map,
+                    ),
+                    size: Size(map.size.x, map.size.y),
+                    isComplex: true,
+                  ),
+                ),
+              )
+              .toList()),
     );
   }
 }
 
 class PolylinePainter extends CustomPainter {
-  final List<Polyline> polylines;
-
+  final Polyline polyline;
   final MapCamera map;
   final LatLngBounds bounds;
 
-  PolylinePainter(this.polylines, this.map) : bounds = map.visibleBounds;
+  PolylinePainter(this.polyline, this.map) : bounds = map.visibleBounds;
 
-  int get hash => _hash ??= Object.hashAll(polylines);
+  int get hash => _hash ??= Object.hashAll(polyline.points);
 
   int? _hash;
 
-  List<Offset> getOffsets(List<LatLng> points) {
-    return List.generate(points.length, (index) {
-      return getOffset(points[index]);
-    }, growable: false);
-  }
-
   Offset getOffset(LatLng point) => map.getOffsetFromOrigin(point);
+
+  List<Offset> getOffsets(List<LatLng> points) {
+    return List.generate(
+      points.length,
+      (index) {
+        return getOffset(points[index]);
+      },
+      growable: false,
+    );
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -114,6 +125,7 @@ class PolylinePainter extends CustomPainter {
     var filterPath = ui.Path();
     var paint = Paint();
     var needsLayerSaving = false;
+    final offsets = getOffsets(polyline.points);
 
     Paint? borderPaint;
     Paint? filterPaint;
@@ -144,90 +156,83 @@ class PolylinePainter extends CustomPainter {
       paint = Paint();
     }
 
-    for (final polyline in polylines) {
-      final offsets = getOffsets(polyline.points);
-      if (offsets.isEmpty) {
-        continue;
-      }
+    final hash = polyline.renderHashCode;
+    if (needsLayerSaving || lastHash != hash) {
+      drawPaths();
+    }
+    lastHash = hash;
+    needsLayerSaving = polyline.color.opacity < 1.0 ||
+        (polyline.gradientColors?.any((c) => c.opacity < 1.0) ?? false);
 
-      final hash = polyline.renderHashCode;
-      if (needsLayerSaving || (lastHash != null && lastHash != hash)) {
-        drawPaths();
-      }
-      lastHash = hash;
-      needsLayerSaving = polyline.color.opacity < 1.0 ||
-          (polyline.gradientColors?.any((c) => c.opacity < 1.0) ?? false);
+    late final double strokeWidth;
+    if (polyline.useStrokeWidthInMeter) {
+      final firstPoint = polyline.points.first;
+      final firstOffset = offsets.first;
+      final r = const Distance().offset(
+        firstPoint,
+        polyline.strokeWidth,
+        180,
+      );
+      final delta = firstOffset - getOffset(r);
 
-      late final double strokeWidth;
-      if (polyline.useStrokeWidthInMeter) {
-        final firstPoint = polyline.points.first;
-        final firstOffset = offsets.first;
-        final r = const Distance().offset(
-          firstPoint,
-          polyline.strokeWidth,
-          180,
-        );
-        final delta = firstOffset - getOffset(r);
+      strokeWidth = delta.distance;
+    } else {
+      strokeWidth = polyline.strokeWidth;
+    }
 
-        strokeWidth = delta.distance;
-      } else {
-        strokeWidth = polyline.strokeWidth;
-      }
+    final isDotted = polyline.isDotted;
+    paint = Paint()
+      ..strokeWidth = strokeWidth
+      ..strokeCap = polyline.strokeCap
+      ..strokeJoin = polyline.strokeJoin
+      ..style = isDotted ? PaintingStyle.fill : PaintingStyle.stroke
+      ..blendMode = BlendMode.srcOver;
 
-      final isDotted = polyline.isDotted;
-      paint = Paint()
-        ..strokeWidth = strokeWidth
+    if (polyline.gradientColors == null) {
+      paint.color = polyline.color;
+    } else {
+      polyline.gradientColors!.isNotEmpty
+          ? paint.shader = _paintGradient(polyline, offsets)
+          : paint.color = polyline.color;
+    }
+
+    if (polyline.borderColor != null && polyline.borderStrokeWidth > 0.0) {
+      // Outlined lines are drawn by drawing a thicker path underneath, then
+      // stenciling the middle (in case the line fill is transparent), and
+      // finally drawing the line fill.
+      borderPaint = Paint()
+        ..color = polyline.borderColor ?? const Color(0x00000000)
+        ..strokeWidth = strokeWidth + polyline.borderStrokeWidth
         ..strokeCap = polyline.strokeCap
         ..strokeJoin = polyline.strokeJoin
         ..style = isDotted ? PaintingStyle.fill : PaintingStyle.stroke
         ..blendMode = BlendMode.srcOver;
 
-      if (polyline.gradientColors == null) {
-        paint.color = polyline.color;
-      } else {
-        polyline.gradientColors!.isNotEmpty
-            ? paint.shader = _paintGradient(polyline, offsets)
-            : paint.color = polyline.color;
+      filterPaint = Paint()
+        ..color = polyline.borderColor!.withAlpha(255)
+        ..strokeWidth = strokeWidth
+        ..strokeCap = polyline.strokeCap
+        ..strokeJoin = polyline.strokeJoin
+        ..style = isDotted ? PaintingStyle.fill : PaintingStyle.stroke
+        ..blendMode = BlendMode.dstOut;
+    }
+
+    final radius = paint.strokeWidth / 2;
+    final borderRadius = (borderPaint?.strokeWidth ?? 0) / 2;
+
+    if (isDotted) {
+      final spacing = strokeWidth * 1.5;
+      if (borderPaint != null && filterPaint != null) {
+        _paintDottedLine(borderPath, offsets, borderRadius, spacing);
+        _paintDottedLine(filterPath, offsets, radius, spacing);
       }
-
-      if (polyline.borderColor != null && polyline.borderStrokeWidth > 0.0) {
-        // Outlined lines are drawn by drawing a thicker path underneath, then
-        // stenciling the middle (in case the line fill is transparent), and
-        // finally drawing the line fill.
-        borderPaint = Paint()
-          ..color = polyline.borderColor ?? const Color(0x00000000)
-          ..strokeWidth = strokeWidth + polyline.borderStrokeWidth
-          ..strokeCap = polyline.strokeCap
-          ..strokeJoin = polyline.strokeJoin
-          ..style = isDotted ? PaintingStyle.fill : PaintingStyle.stroke
-          ..blendMode = BlendMode.srcOver;
-
-        filterPaint = Paint()
-          ..color = polyline.borderColor!.withAlpha(255)
-          ..strokeWidth = strokeWidth
-          ..strokeCap = polyline.strokeCap
-          ..strokeJoin = polyline.strokeJoin
-          ..style = isDotted ? PaintingStyle.fill : PaintingStyle.stroke
-          ..blendMode = BlendMode.dstOut;
+      _paintDottedLine(path, offsets, radius, spacing);
+    } else {
+      if (borderPaint != null && filterPaint != null) {
+        _paintLine(borderPath, offsets);
+        _paintLine(filterPath, offsets);
       }
-
-      final radius = paint.strokeWidth / 2;
-      final borderRadius = (borderPaint?.strokeWidth ?? 0) / 2;
-
-      if (isDotted) {
-        final spacing = strokeWidth * 1.5;
-        if (borderPaint != null && filterPaint != null) {
-          _paintDottedLine(borderPath, offsets, borderRadius, spacing);
-          _paintDottedLine(filterPath, offsets, radius, spacing);
-        }
-        _paintDottedLine(path, offsets, radius, spacing);
-      } else {
-        if (borderPaint != null && filterPaint != null) {
-          _paintLine(borderPath, offsets);
-          _paintLine(filterPath, offsets);
-        }
-        _paintLine(path, offsets);
-      }
+      _paintLine(path, offsets);
     }
 
     drawPaths();
@@ -283,8 +288,6 @@ class PolylinePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(PolylinePainter oldDelegate) {
-    return oldDelegate.bounds != bounds ||
-        oldDelegate.polylines.length != polylines.length ||
-        oldDelegate.hash != hash;
+    return oldDelegate.bounds != bounds || oldDelegate.hash != hash;
   }
 }

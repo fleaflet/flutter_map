@@ -25,11 +25,6 @@ void main() {
     expect(find.byType(FlutterMap), findsOneWidget);
     expect(find.byType(PolylineLayer), findsWidgets);
 
-    // Assert that batching works and all Polylines are drawn into the same
-    // CustomPaint/Canvas.
-    expect(
-        find.descendant(
-            of: find.byType(PolylineLayer), matching: find.byType(CustomPaint)),
-        findsOneWidget);
+    expect(find.byType(PolylineLayer), findsOneWidget);
   });
 }
