@@ -308,10 +308,7 @@ class MapOptions {
       _cameraConstraint ??
       (maxBounds != null
           ? CameraConstraint.contain(bounds: maxBounds!)
-          : CameraConstraint.contain(
-              bounds:
-                  LatLngBounds(const LatLng(-90, -180), const LatLng(90, 180)),
-            ));
+          : const CameraConstraint.unconstrained());
 
   @override
   bool operator ==(Object other) =>
