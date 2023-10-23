@@ -152,11 +152,11 @@ class TileLayer extends StatefulWidget {
   ///
   /// `userAgentPackageName` is a [TileLayer] parameter, which should be passed
   /// the application's correct package name, such as 'com.example.app'. See
-  /// https://docs.fleaflet.dev/v/v6-1/layers/tile-layer#useragentpackagename for
+  /// https://docs.fleaflet.dev/layers/tile-layer#useragentpackagename for
   /// more information.
   ///
   /// For information about other prebuilt tile providers, see
-  /// https://docs.fleaflet.dev/v/v6-1/layers/tile-layer/tile-providers.W
+  /// https://docs.fleaflet.dev/layers/tile-layer/tile-providers.
   late final TileProvider tileProvider;
 
   /// When panning the map, keep this many rows and columns of tiles before
