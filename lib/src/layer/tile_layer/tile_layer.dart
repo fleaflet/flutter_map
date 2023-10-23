@@ -338,7 +338,7 @@ class TileLayer extends StatefulWidget {
 
     // Retina Mode Setup
     resolvedRetinaMode = (retinaMode ?? false)
-        ? wmsOptions == null && urlTemplate!.contains('{r}')
+        ? wmsOptions == null && (urlTemplate?.contains('{r}') ?? false)
             ? RetinaMode.server
             : RetinaMode.simulation
         : RetinaMode.disabled;
