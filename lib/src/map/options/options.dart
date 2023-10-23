@@ -99,7 +99,7 @@ class MapOptions {
   /// and you need to access the controller as soon as the map is built.
   /// Otherwise you can use WidgetsBinding.instance.addPostFrameCallback
   /// In initState to controll the map before the next frame.
-  final void Function()? onMapReady;
+  final VoidCallback? onMapReady;
 
   final LatLngBounds? maxBounds;
 
