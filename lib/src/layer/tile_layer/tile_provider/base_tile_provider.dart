@@ -215,16 +215,20 @@ abstract class TileProvider {
   /// 1. [populateTemplatePlaceholders]
   /// 2. [generateReplacementMap]
   /// 3. [getTileUrl] and/or [getTileFallbackUrl]
+  ///
+  /// Note to implementors: it is not safe to assume that at least one of
+  /// `wmsOptions` or `urlTemplate` will be non-null.
   /// {@endtemplate}
   String getTileUrl(TileCoordinates coordinates, TileLayer options) =>
       populateTemplatePlaceholders(
-        options.wmsOptions != null
-            ? options.wmsOptions!.getUrl(
-                coordinates,
-                options.tileSize.toInt(),
-                options.resolvedRetinaMode == RetinaMode.simulation,
-              )
-            : options.urlTemplate!,
+        options.wmsOptions?.getUrl(
+              coordinates,
+              options.tileSize.toInt(),
+              options.resolvedRetinaMode == RetinaMode.simulation,
+            ) ??
+            options.urlTemplate ??
+            (throw ArgumentError(
+                '`wmsOptions` or `urlTemplate` must be provided to generate a tile URL')),
         coordinates,
         options,
       );
