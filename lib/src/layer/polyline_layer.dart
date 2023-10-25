@@ -1,10 +1,12 @@
 import 'dart:core';
+import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
+import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart';
 
 class Polyline {
@@ -58,10 +60,18 @@ class PolylineLayer extends StatelessWidget {
   final List<Polyline> polylines;
   final bool polylineCulling;
 
+  /// how much to simplify the polygons, in decimal degrees scaled to floored zoom
+  final double? simplificationTolerance;
+
+  /// use high quality simplification
+  final bool simplificationHighQuality;
+
   const PolylineLayer({
     super.key,
     required this.polylines,
     this.polylineCulling = false,
+    this.simplificationTolerance = 1,
+    this.simplificationHighQuality = false,
   });
 
   @override
@@ -71,13 +81,15 @@ class PolylineLayer extends StatelessWidget {
     return MobileLayerTransformer(
       child: CustomPaint(
         painter: PolylinePainter(
-          polylineCulling
-              ? polylines
-                  .where((p) => p.boundingBox.isOverlapping(map.visibleBounds))
-                  .toList()
-              : polylines,
-          map,
-        ),
+            polylineCulling
+                ? polylines
+                    .where(
+                        (p) => p.boundingBox.isOverlapping(map.visibleBounds))
+                    .toList()
+                : polylines,
+            map,
+            simplificationTolerance,
+            simplificationHighQuality),
         size: Size(map.size.x, map.size.y),
         isComplex: true,
       ),
@@ -88,22 +100,35 @@ class PolylineLayer extends StatelessWidget {
 class PolylinePainter extends CustomPainter {
   final List<Polyline> polylines;
 
-  final MapCamera map;
+  final MapCamera camera;
   final LatLngBounds bounds;
 
-  PolylinePainter(this.polylines, this.map) : bounds = map.visibleBounds;
+  final double? simplificationTolerance;
+  final bool simplificationHighQuality;
+
+  PolylinePainter(this.polylines, this.camera, this.simplificationTolerance,
+      this.simplificationHighQuality)
+      : bounds = camera.visibleBounds;
 
   int get hash => _hash ??= Object.hashAll(polylines);
 
   int? _hash;
 
   List<Offset> getOffsets(List<LatLng> points) {
-    return List.generate(points.length, (index) {
-      return getOffset(points[index]);
+    final List<LatLng> simplifiedPoints;
+    if (simplificationTolerance != null) {
+      simplifiedPoints = simplify(points,
+          simplificationTolerance! / pow(2, camera.zoom.floorToDouble()),
+          highestQuality: simplificationHighQuality);
+    } else {
+      simplifiedPoints = points;
+    }
+    return List.generate(simplifiedPoints.length, (index) {
+      return getOffset(simplifiedPoints[index]);
     }, growable: false);
   }
 
-  Offset getOffset(LatLng point) => map.getOffsetFromOrigin(point);
+  Offset getOffset(LatLng point) => camera.getOffsetFromOrigin(point);
 
   @override
   void paint(Canvas canvas, Size size) {

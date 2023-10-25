@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
@@ -5,6 +6,7 @@ import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
 import 'package:flutter_map/src/layer/polygon_layer/label.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
+import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart' hide Path; // conflict with Path from UI
 
 enum PolygonLabelPlacement {
@@ -95,6 +97,12 @@ class PolygonLayer extends StatelessWidget {
   /// screen space culling of polygons based on bounding box
   final bool polygonCulling;
 
+  /// how much to simplify the polygons, in decimal degrees scaled to floored zoom
+  final double? simplificationTolerance;
+
+  /// use high quality simplification
+  final bool simplificationHighQuality;
+
   // Turn on/off per-polygon label drawing on the layer-level.
   final bool polygonLabels;
 
@@ -102,6 +110,8 @@ class PolygonLayer extends StatelessWidget {
     super.key,
     required this.polygons,
     this.polygonCulling = false,
+    this.simplificationTolerance = 1,
+    this.simplificationHighQuality = false,
     this.polygonLabels = true,
   });
 
@@ -110,7 +120,7 @@ class PolygonLayer extends StatelessWidget {
     final map = MapCamera.of(context);
     final size = Size(map.size.x, map.size.y);
 
-    final pgons = polygonCulling
+    final polygonsToRender = polygonCulling
         ? polygons.where((p) {
             return p.boundingBox.isOverlapping(map.visibleBounds);
           }).toList()
@@ -118,7 +128,8 @@ class PolygonLayer extends StatelessWidget {
 
     return MobileLayerTransformer(
       child: CustomPaint(
-        painter: PolygonPainter(pgons, map, polygonLabels),
+        painter: PolygonPainter(polygonsToRender, map, polygonLabels,
+            simplificationTolerance, simplificationHighQuality),
         size: size,
         isComplex: true,
       ),
@@ -128,12 +139,16 @@ class PolygonLayer extends StatelessWidget {
 
 class PolygonPainter extends CustomPainter {
   final List<Polygon> polygons;
-  final MapCamera map;
+  final MapCamera camera;
   final LatLngBounds bounds;
   final bool polygonLabels;
 
-  PolygonPainter(this.polygons, this.map, this.polygonLabels)
-      : bounds = map.visibleBounds;
+  final double? simplificationTolerance;
+  final bool simplificationHighQuality;
+
+  PolygonPainter(this.polygons, this.camera, this.polygonLabels,
+      this.simplificationTolerance, this.simplificationHighQuality)
+      : bounds = camera.visibleBounds;
 
   int get hash {
     _hash ??= Object.hashAll(polygons);
@@ -143,10 +158,18 @@ class PolygonPainter extends CustomPainter {
   int? _hash;
 
   List<Offset> getOffsets(List<LatLng> points) {
+    final List<LatLng> simplifiedPoints;
+    if (simplificationTolerance != null) {
+      simplifiedPoints = simplify(points,
+          simplificationTolerance! / pow(2, camera.zoom.floorToDouble()),
+          highestQuality: simplificationHighQuality);
+    } else {
+      simplifiedPoints = points;
+    }
     return List.generate(
-      points.length,
+      simplifiedPoints.length,
       (index) {
-        return map.getOffsetFromOrigin(points[index]);
+        return camera.getOffsetFromOrigin(simplifiedPoints[index]);
       },
       growable: false,
     );
@@ -248,11 +271,11 @@ class PolygonPainter extends CustomPainter {
         final painter = buildLabelTextPainter(
           polygon.points,
           polygon.labelPosition,
-          placementPoint: map.getOffsetFromOrigin(polygon.labelPosition),
+          placementPoint: camera.getOffsetFromOrigin(polygon.labelPosition),
           points: offsets,
           labelText: polygon.label!,
           labelStyle: polygon.labelStyle,
-          rotationRad: map.rotationRad,
+          rotationRad: camera.rotationRad,
           rotate: polygon.rotateLabel,
           padding: 10,
         );
