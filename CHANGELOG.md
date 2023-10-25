@@ -1,5 +1,20 @@
 # Changelog
 
+## [6.0.1] - 2023/10/XX
+
+Contains the following user-affecting bug fixes:
+
+- Fixed `CircleMarker`'s incorrect appearance and size  - [#1692](https://github.com/fleaflet/flutter_map/pull/1692) for [#1688](https://github.com/fleaflet/flutter_map/issues/1688)
+- Fixed `LateInitializationError` when specifying `initialCameraFit` - [#1691](https://github.com/fleaflet/flutter_map/pull/1691) for [#1684](https://github.com/fleaflet/flutter_map/issues/1684)
+- Fixed incorrect behaviour issues caused by the adjusted default `MapOptions.cameraConstraint` - [#1700](https://github.com/fleaflet/flutter_map/pull/1700) for [#1682](https://github.com/fleaflet/flutter_map/issues/1682) & [#1699](https://github.com/fleaflet/flutter_map/issues/1699)
+- Fixed bug where not providing either `wmsOptions` nor `urlTemplate` caused a null exception in `getTileUrl` and when `retinaMode` is `true` - [#1701](https://github.com/fleaflet/flutter_map/pull/1701)
+- Re-exported 'positioned_tap_detector_2' library (with `TapPosition`) - [#1694](https://github.com/fleaflet/flutter_map/pull/1694) for [#1693](https://github.com/fleaflet/flutter_map/issues/1693)
+
+Many thanks to these contributors (in no particular order):
+
+- @Alexays
+- ... and all the maintainers
+
 ## [6.0.0] - 2023/10/09
 
 **"Photography"**

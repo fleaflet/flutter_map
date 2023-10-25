@@ -17,14 +17,16 @@ import 'package:flutter_map/src/map/options/options.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:latlong2/latlong.dart';
 
+typedef InteractiveViewerBuilder = Widget Function(
+  BuildContext context,
+  MapOptions options,
+  MapCamera camera,
+);
+
 /// Applies interactions (gestures/scroll/taps etc) to the current [MapCamera]
 /// via the internal [controller].
 class FlutterMapInteractiveViewer extends StatefulWidget {
-  final Widget Function(
-    BuildContext context,
-    MapOptions options,
-    MapCamera camera,
-  ) builder;
+  final InteractiveViewerBuilder builder;
   final FlutterMapInternalController controller;
 
   const FlutterMapInteractiveViewer({

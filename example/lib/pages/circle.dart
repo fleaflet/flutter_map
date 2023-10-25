@@ -12,12 +12,21 @@ class CirclePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final circleMarkers = <CircleMarker>[
       CircleMarker(
-          point: const LatLng(51.5, -0.09),
-          color: Colors.blue.withOpacity(0.7),
-          borderStrokeWidth: 2,
-          useRadiusInMeter: true,
-          radius: 2000 // 2000 meters | 2 km
-          ),
+        point: const LatLng(51.5, -0.09),
+        color: Colors.blue.withOpacity(0.7),
+        borderColor: Colors.black,
+        borderStrokeWidth: 2,
+        useRadiusInMeter: true,
+        radius: 2000, // 2000 meters
+      ),
+      CircleMarker(
+        point: const LatLng(51.4937, -0.6638), // Dorney Lake is ~2km long
+        color: Colors.green.withOpacity(0.9),
+        borderColor: Colors.black,
+        borderStrokeWidth: 2,
+        useRadiusInMeter: true,
+        radius: 1000, // 1000 meters
+      ),
     ];
 
     return Scaffold(
