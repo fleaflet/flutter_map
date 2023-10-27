@@ -5,12 +5,12 @@ import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 
 class TileImageView {
-  final Map<String, TileImage> _tileImages;
+  final Map<TileCoordinates, TileImage> _tileImages;
   final DiscreteTileRange _visibleRange;
   final DiscreteTileRange _keepRange;
 
   TileImageView({
-    required Map<String, TileImage> tileImages,
+    required Map<TileCoordinates, TileImage> tileImages,
     required DiscreteTileRange visibleRange,
     required DiscreteTileRange keepRange,
   })  : _tileImages = UnmodifiableMapView(tileImages),
@@ -62,7 +62,7 @@ class TileImageView {
     final z2 = z - 1;
     final coords2 = TileCoordinates(x2, y2, z2);
 
-    final tile = _tileImages[coords2.key];
+    final tile = _tileImages[coords2];
     if (tile != null) {
       if (tile.readyToDisplay) {
         retain.add(tile);
@@ -92,7 +92,7 @@ class TileImageView {
       for (var j = 2 * y; j < 2 * y + 2; j++) {
         final coords = TileCoordinates(i, j, z + 1);
 
-        final tile = _tileImages[coords.key];
+        final tile = _tileImages[coords];
         if (tile != null) {
           if (tile.readyToDisplay || tile.loadFinishedAt != null) {
             retain.add(tile);

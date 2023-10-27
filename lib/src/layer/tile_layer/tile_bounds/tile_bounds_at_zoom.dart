@@ -112,12 +112,11 @@ class WrappedTileBoundsAtZoom extends TileBoundsAtZoom {
   }
 
   bool _wrappedBothContains(TileCoordinates coordinates) {
-    return tileRange.contains(
-      Point(
-        _wrapInt(coordinates.x, wrapX!),
-        _wrapInt(coordinates.y, wrapY!),
-      ),
-    );
+    return tileRange.contains(TileCoordinates(
+      _wrapInt(coordinates.x, wrapX!),
+      _wrapInt(coordinates.y, wrapY!),
+      coordinates.z,
+    ));
   }
 
   bool _wrappedXInRange(TileCoordinates coordinates) {

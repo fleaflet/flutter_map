@@ -13,10 +13,10 @@ typedef TileCreator = TileImage Function(TileCoordinates coordinates);
 
 @immutable
 class TileImageManager {
-  final Map<String, TileImage> _tiles = {};
+  final Map<TileCoordinates, TileImage> _tiles = {};
 
   bool containsTileAt(TileCoordinates coordinates) =>
-      _tiles.containsKey(coordinates.key);
+      _tiles.containsKey(coordinates);
 
   bool get allLoaded =>
       _tiles.values.none((tile) => tile.loadFinishedAt == null);
@@ -44,7 +44,7 @@ class TileImageManager {
   }) {
     for (final coordinates in tileBoundsAtZoom.validCoordinatesIn(tileRange)) {
       _tiles.putIfAbsent(
-        coordinates.key,
+        coordinates,
         () => createTileImage(coordinates),
       );
     }
@@ -64,7 +64,7 @@ class TileImageManager {
 
     for (final coordinates in tileCoordinates) {
       final tile = _tiles.putIfAbsent(
-        coordinates.key,
+        coordinates,
         () => createTile(coordinates),
       );
 
@@ -83,7 +83,7 @@ class TileImageManager {
   /// All removals should be performed by calling this method to ensure that
   // disposal is performed correctly.
   void _remove(
-    String key, {
+    TileCoordinates key, {
     required bool Function(TileImage tileImage) evictImageFromCache,
   }) {
     final removed = _tiles.remove(key);
@@ -94,7 +94,7 @@ class TileImageManager {
   }
 
   void _removeWithEvictionStrategy(
-    String key,
+    TileCoordinates key,
     EvictErrorTileStrategy strategy,
   ) {
     _remove(
@@ -105,7 +105,7 @@ class TileImageManager {
   }
 
   void removeAll(EvictErrorTileStrategy evictStrategy) {
-    final keysToRemove = List<String>.from(_tiles.keys);
+    final keysToRemove = List<TileCoordinates>.from(_tiles.keys);
 
     for (final key in keysToRemove) {
       _removeWithEvictionStrategy(key, evictStrategy);
