@@ -139,38 +139,42 @@ class _FlutterMapStateContainer extends State<FlutterMap>
   Widget build(BuildContext context) {
     super.build(context);
 
+    final widgets = ClipRect(
+      child: Stack(
+        children: <Widget>[
+          Positioned.fill(
+            child: ColoredBox(color: widget.options.backgroundColor),
+          ),
+          ...widget.children.map(
+            (child) => TranslucentPointer(
+              translucent: widget.options.applyPointerTranslucencyToLayers,
+              child: child,
+            ),
+          ),
+          ...widget.nonRotatedChildren.map(
+            (child) => TranslucentPointer(
+              translucent: widget.options.applyPointerTranslucencyToLayers,
+              child: child,
+            ),
+          ),
+        ],
+      ),
+    );
+
     return LayoutBuilder(
       builder: (context, constraints) {
         _updateAndEmitSizeIfConstraintsChanged(constraints);
 
         return FlutterMapInteractiveViewer(
           controller: _flutterMapInternalController,
-          builder: (context, options, camera) => FlutterMapInheritedModel(
-            controller: _mapController,
-            options: options,
-            camera: camera,
-            child: ClipRect(
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: ColoredBox(color: options.backgroundColor),
-                  ),
-                  ...widget.children.map(
-                    (child) => TranslucentPointer(
-                      translucent: options.applyPointerTranslucencyToLayers,
-                      child: child,
-                    ),
-                  ),
-                  ...widget.nonRotatedChildren.map(
-                    (child) => TranslucentPointer(
-                      translucent: options.applyPointerTranslucencyToLayers,
-                      child: child,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          builder: (context, options, camera) {
+            return FlutterMapInheritedModel(
+              controller: _mapController,
+              options: options,
+              camera: camera,
+              child: widgets,
+            );
+          },
         );
       },
     );
