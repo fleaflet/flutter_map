@@ -6,57 +6,46 @@ import 'package:flutter_map/src/layer/polygon_layer/polygon_layer.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:polylabel/polylabel.dart';
 
-void Function(Canvas canvas)? buildLabelTextPainter(
-  List<LatLng> locs,
-  LatLng labelLoc, {
+void Function(Canvas canvas)? buildLabelTextPainter({
   required Offset placementPoint,
   required List<Offset> points,
   required String labelText,
   required double rotationRad,
-  bool rotate = false,
-  TextStyle? labelStyle,
-  double padding = 0,
+  required bool rotate,
+  required TextStyle labelStyle,
+  required double padding,
 }) {
-  double dx = placementPoint.dx;
-  double dy = placementPoint.dy;
+  final textSpan = TextSpan(text: labelText, style: labelStyle);
+  final textPainter = TextPainter(
+    text: textSpan,
+    textAlign: TextAlign.center,
+    textDirection: TextDirection.ltr,
+  )..layout();
 
-  if (dx > 0) {
-    final textSpan = TextSpan(text: labelText, style: labelStyle);
-    final textPainter = TextPainter(
-      text: textSpan,
-      textAlign: TextAlign.center,
-      textDirection: TextDirection.ltr,
-      maxLines: 1,
-    );
+  final dx = placementPoint.dx - textPainter.width / 2;
+  final dy = placementPoint.dy - textPainter.height / 2;
 
-    textPainter.layout();
-    dx -= textPainter.width / 2;
-    dy -= textPainter.height / 2;
+  double maxDx = 0;
+  var minDx = double.infinity;
+  for (final point in points) {
+    maxDx = math.max(maxDx, point.dx);
+    minDx = math.min(minDx, point.dx);
+  }
 
-    var maxDx = 0.0;
-    var minDx = double.infinity;
-    for (final point in points) {
-      maxDx = math.max(maxDx, point.dx);
-      minDx = math.min(minDx, point.dx);
-    }
+  if (maxDx - minDx - padding > textPainter.width) {
+    return (canvas) {
+      if (rotate) {
+        canvas.save();
+        canvas.translate(placementPoint.dx, placementPoint.dy);
+        canvas.rotate(-rotationRad);
+        canvas.translate(-placementPoint.dx, -placementPoint.dy);
+      }
 
-    if (maxDx - minDx - padding > textPainter.width) {
-      return (canvas) {
-        if (rotate) {
-          canvas.save();
-          canvas.translate(placementPoint.dx, placementPoint.dy);
-          canvas.rotate(-rotationRad);
-          canvas.translate(-placementPoint.dx, -placementPoint.dy);
-        }
-        textPainter.paint(
-          canvas,
-          Offset(dx, dy),
-        );
-        if (rotate) {
-          canvas.restore();
-        }
-      };
-    }
+      textPainter.paint(canvas, Offset(dx, dy));
+      if (rotate) {
+        canvas.restore();
+      }
+    };
   }
   return null;
 }
@@ -89,9 +78,8 @@ LatLng _computePolylabel(List<LatLng> points) {
     // i.e. cheaper at the expense off less optimal label placement.
     precision: 0.000001,
   );
-  final latlng = LatLng(
+  return LatLng(
     labelPosition.point.y.toDouble(),
     labelPosition.point.x.toDouble(),
   );
-  return latlng;
 }
