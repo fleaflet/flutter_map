@@ -13,18 +13,18 @@ import 'package:test/test.dart';
 import '../../test_utils/test_tile_image.dart';
 
 void main() {
-  Map<String, TileImage> tileImagesMappingFrom(List<TileImage> tileImages) => {
-        for (final tileImage in tileImages) tileImage.coordinates.key: tileImage
-      };
+  Map<TileCoordinates, TileImage> tileImagesMappingFrom(
+          List<TileImage> tileImages) =>
+      {for (final tileImage in tileImages) tileImage.coordinates: tileImage};
 
   Matcher containsTileImage(
-    Map<String, TileImage> tileImages,
+    Map<TileCoordinates, TileImage> tileImages,
     TileCoordinates coordinates,
   ) =>
-      contains(tileImages[coordinates.key]);
+      contains(tileImages[coordinates]);
 
   Matcher doesNotContainTileImage(
-    Map<String, TileImage> tileImages,
+    Map<TileCoordinates, TileImage> tileImages,
     TileCoordinates coordinates,
   ) =>
       isNot(containsTileImage(tileImages, coordinates));

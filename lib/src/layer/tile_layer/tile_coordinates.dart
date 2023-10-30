@@ -8,8 +8,6 @@ class TileCoordinates extends Point<int> {
 
   const TileCoordinates(super.x, super.y, this.z);
 
-  String get key => '$x:$y:$z';
-
   @override
   String toString() => 'TileCoordinate($x, $y, $z)';
 
@@ -32,5 +30,8 @@ class TileCoordinates extends Point<int> {
   }
 
   @override
-  int get hashCode => Object.hash(x.hashCode, y.hashCode, z.hashCode);
+  int get hashCode {
+    // NOTE: the odd numbers are due to JavaScript's integer precision of 53 bits.
+    return x | y << 24 | z << 48;
+  }
 }

@@ -83,7 +83,7 @@ class TileImage extends ChangeNotifier {
 
   AnimationController? get animation => _animationController;
 
-  String get coordinatesKey => coordinates.key;
+  TileCoordinates get coordinatesKey => coordinates;
 
   /// Whether the tile is displayable. This means that either:
   ///   * Loading errored but an error image is configured.
