@@ -49,7 +49,7 @@ We do not provide any detailed information on how to do this, although the gener
 
 Routing is out of scope for 'flutter\_map'. However, if you can get a list of coordinates from a 3rd party, then you can use polylines to show them!
 
-A good open source option is [OSRM](http://project-osrm.org/), but if you want higher reliability and more functionality such as real-time based routing, you may want to try a commercial solution such as Mapbox or Google Maps.
+Good open source options that can be self-hosted include [OSRM](http://project-osrm.org/) (which includes a public demo server) and [Valhalla](https://github.com/valhalla/valhalla). You can also use a commercial solution such as Mapbox or Google Maps - these can often give more accurate/preferable results because they can use their traffic data when routing.
 
 ## Converting Formats
 
@@ -57,6 +57,7 @@ You may have a polyline with 'Google Polyline Encoding' (which is a lossy compre
 
 One way to accomplish this is to use another Flutter library called ['google\_polyline\_algorithm'](https://pub.dev/packages/google\_polyline\_algorithm), together with a custom method. You can use the code snippet below, which can just be pasted into a file and imported whenever needed:
 
+{% code title="unpack_polyline.dart" %}
 ```dart
 import 'package:latlong2/latlong.dart';
 export 'package:google_polyline_algorithm/google_polyline_algorithm.dart'
@@ -67,11 +68,12 @@ extension PolylineExt on List<List<num>> {
       map((p) => LatLng(p[0].toDouble(), p[1].toDouble())).toList();
 }
 ```
+{% endcode %}
 
 You can then use the package and the above snippet by doing:
 
 ```dart
-import '<code_snippet_path>'
+import 'unpack_polyline.dart';
 
 decodePolyline('<encoded-polyline>').unpackPolyline(); // Returns `List<LatLng>` for a map polyline
 ```
