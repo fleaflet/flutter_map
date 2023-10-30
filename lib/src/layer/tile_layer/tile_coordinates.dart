@@ -13,6 +13,7 @@ class TileCoordinates extends Point<int> {
 
   // Overridden because Point's distanceTo does not allow comparing with a point
   // of a different type.
+  @override
   double distanceTo(Point<num> other) {
     final dx = x - other.x;
     final dy = y - other.y;
@@ -21,9 +22,7 @@ class TileCoordinates extends Point<int> {
 
   @override
   bool operator ==(Object other) {
-    if (identical(this, other)) {
-      return true;
-    }
+    if (identical(this, other)) return true;
     return other is TileCoordinates &&
         other.x == x &&
         other.y == y &&
