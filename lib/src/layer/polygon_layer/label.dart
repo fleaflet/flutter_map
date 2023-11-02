@@ -6,13 +6,6 @@ import 'package:flutter_map/src/layer/polygon_layer/polygon_layer.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:polylabel/polylabel.dart';
 
-class PolygonBounds {
-  final Offset min;
-  final Offset max;
-
-  const PolygonBounds(this.min, this.max);
-}
-
 void Function(Canvas canvas)? buildLabelTextPainter({
   required math.Point<double> mapSize,
   required Offset placementPoint,

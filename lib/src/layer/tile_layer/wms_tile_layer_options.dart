@@ -69,9 +69,8 @@ class WMSTileLayerOptions {
   }
 
   String getUrl(TileCoordinates coords, int tileSize, bool retinaMode) {
-    final tileSizePoint = Point(tileSize, tileSize);
-    final nwPoint = coords.scaleBy(tileSizePoint);
-    final sePoint = nwPoint + tileSizePoint;
+    final nwPoint = coords * tileSize;
+    final sePoint = nwPoint + Point<int>(tileSize, tileSize);
     final nwCoords = crs.pointToLatLng(nwPoint, coords.z.toDouble());
     final seCoords = crs.pointToLatLng(sePoint, coords.z.toDouble());
     final nw = crs.projection.project(nwCoords);

@@ -281,8 +281,7 @@ class MapCamera {
   /// This will convert a latLng to a position that we could use with a widget
   /// outside of FlutterMap layer space. Eg using a Positioned Widget.
   Point<double> latLngToScreenPoint(LatLng latLng) {
-    final nonRotatedPixelOrigin =
-        (project(center, zoom) - nonRotatedSize / 2.0).round();
+    final nonRotatedPixelOrigin = project(center, zoom) - nonRotatedSize / 2.0;
 
     var point = crs.latLngToPoint(latLng, zoom);
 
@@ -292,7 +291,7 @@ class MapCamera {
       point = rotatePoint(mapCenter, point, counterRotation: false);
     }
 
-    return point.subtract(nonRotatedPixelOrigin);
+    return point - nonRotatedPixelOrigin;
   }
 
   LatLng pointToLatLng(Point localPoint) {

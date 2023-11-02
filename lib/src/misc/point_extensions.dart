@@ -67,53 +67,11 @@ extension PointExtension<T extends num> on Point<T> {
 /// Point<int>(1, 2).subtract(1.5) would cause a runtime error because the
 /// resulting x/y values are doubles and the return value is a Point<int> since
 /// the method returns Point<T>.
-///
-/// Note that division methods (unscaleBy and the / operator) are defined on
-/// Point<T extends num> with a Point<double> return argument because division
-/// always returns a double.
 extension DoublePointExtension on Point<double> {
   /// Subtract [other] from this Point.
+  @Deprecated('camera.pixelOrigin is now a Point<double>. Prefer operator-.')
   Point<double> subtract(Point<num> other) {
     return Point(x - other.x, y - other.y);
-  }
-
-  /// Add [other] to this Point.
-  Point<double> add(Point<num> other) {
-    return Point(x + other.x, y + other.y);
-  }
-
-  /// Create a new [Point] where [x] and [y] values are scaled by the respective
-  /// values in [other].
-  Point<double> scaleBy(Point<num> other) {
-    return Point<double>(x * other.x, y * other.y);
-  }
-}
-
-/// This extension contains methods which, if defined on Point<T extends num>,
-/// could cause a runtime error when called on a Point<int> with a non-int
-/// argument. An example:
-///
-/// Point<int>(1, 2).subtract(1.5) would cause a runtime error because the
-/// resulting x/y values are doubles and the return value is a Point<int> since
-/// the method returns Point<T>.
-///
-/// The methods in this extension only take Point<int> arguments to prevent
-/// this.
-extension IntegerPointExtension on Point<int> {
-  /// Subtract [other] from this Point.
-  Point<int> subtract(Point<int> other) {
-    return Point(x - other.x, y - other.y);
-  }
-
-  /// Add [other] to this Point.
-  Point<int> add(Point<int> other) {
-    return Point(x + other.x, y + other.y);
-  }
-
-  /// Create a new [Point] where [x] and [y] values are scaled by the respective
-  /// values in [other].
-  Point<int> scaleBy(Point<int> other) {
-    return Point<int>(x * other.x, y * other.y);
   }
 }
 
