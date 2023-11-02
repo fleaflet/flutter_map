@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
+import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:latlong2/latlong.dart';
 
 class Polyline {
@@ -97,13 +98,19 @@ class PolylinePainter extends CustomPainter {
 
   int? _hash;
 
-  List<Offset> getOffsets(List<LatLng> points) {
-    return List.generate(points.length, (index) {
-      return getOffset(points[index]);
-    }, growable: false);
+  Offset getOffset(Offset origin, LatLng point) {
+    // Critically create as little garbage as possible. This is called on every frame.
+    final projected = map.project(point);
+    return Offset(projected.x - origin.dx, projected.y - origin.dy);
   }
 
-  Offset getOffset(LatLng point) => map.getOffsetFromOrigin(point);
+  List<Offset> getOffsets(Offset origin, List<LatLng> points) {
+    return List.generate(
+      points.length,
+      (index) => getOffset(origin, points[index]),
+      growable: false,
+    );
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -144,8 +151,10 @@ class PolylinePainter extends CustomPainter {
       paint = Paint();
     }
 
+    final origin = map.project(map.center).toOffset() - map.size.toOffset() / 2;
+
     for (final polyline in polylines) {
-      final offsets = getOffsets(polyline.points);
+      final offsets = getOffsets(origin, polyline.points);
       if (offsets.isEmpty) {
         continue;
       }
@@ -167,7 +176,7 @@ class PolylinePainter extends CustomPainter {
           polyline.strokeWidth,
           180,
         );
-        final delta = firstOffset - getOffset(r);
+        final delta = firstOffset - getOffset(origin, r);
 
         strokeWidth = delta.distance;
       } else {
