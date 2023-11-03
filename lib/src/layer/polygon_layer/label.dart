@@ -7,41 +7,50 @@ import 'package:latlong2/latlong.dart';
 import 'package:polylabel/polylabel.dart';
 
 void Function(Canvas canvas)? buildLabelTextPainter({
+  required math.Point<double> mapSize,
   required Offset placementPoint,
-  required List<Offset> points,
-  required String labelText,
+  required ({Offset min, Offset max}) bounds,
+  required TextPainter textPainter,
   required double rotationRad,
   required bool rotate,
-  required TextStyle labelStyle,
   required double padding,
 }) {
-  final textSpan = TextSpan(text: labelText, style: labelStyle);
-  final textPainter = TextPainter(
-    text: textSpan,
-    textAlign: TextAlign.center,
-    textDirection: TextDirection.ltr,
-  )..layout();
+  final dx = placementPoint.dx;
+  final dy = placementPoint.dy;
+  final width = textPainter.width;
+  final height = textPainter.height;
 
-  final dx = placementPoint.dx - textPainter.width / 2;
-  final dy = placementPoint.dy - textPainter.height / 2;
-
-  double maxDx = 0;
-  var minDx = double.infinity;
-  for (final point in points) {
-    maxDx = math.max(maxDx, point.dx);
-    minDx = math.min(minDx, point.dx);
+  // Cull labels where the polygon is still on the map but the label would not be.
+  // Currently this is only enabled when the map isn't rotated, since the placementOffset
+  // is relative to the MobileLayerTransformer rather than in actual screen coordinates.
+  if (rotationRad == 0) {
+    if (dx + width / 2 < 0 || dx - width / 2 > mapSize.x) {
+      return null;
+    }
+    if (dy + height / 2 < 0 || dy - height / 2 > mapSize.y) {
+      return null;
+    }
   }
 
-  if (maxDx - minDx - padding > textPainter.width) {
+  // Note: I'm pretty sure this doesn't work for concave shapes. It would be more
+  // correct to evaluate the width of the polygon at the height of the label.
+  if (bounds.max.dx - bounds.min.dx - padding > width) {
     return (canvas) {
       if (rotate) {
         canvas.save();
-        canvas.translate(placementPoint.dx, placementPoint.dy);
+        canvas.translate(dx, dy);
         canvas.rotate(-rotationRad);
-        canvas.translate(-placementPoint.dx, -placementPoint.dy);
+        canvas.translate(-dx, -dy);
       }
 
-      textPainter.paint(canvas, Offset(dx, dy));
+      textPainter.paint(
+        canvas,
+        Offset(
+          dx - width / 2,
+          dy - height / 2,
+        ),
+      );
+
       if (rotate) {
         canvas.restore();
       }

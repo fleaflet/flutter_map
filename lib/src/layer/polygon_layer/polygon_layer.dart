@@ -53,6 +53,18 @@ class Polygon {
   LatLngBounds get boundingBox =>
       _boundingBox ??= LatLngBounds.fromPoints(points);
 
+  TextPainter? _textPainter;
+  TextPainter? get textPainter {
+    if (label != null) {
+      return _textPainter ??= TextPainter(
+        text: TextSpan(text: label, style: labelStyle),
+        textAlign: TextAlign.center,
+        textDirection: TextDirection.ltr,
+      )..layout();
+    }
+    return null;
+  }
+
   Polygon({
     required this.points,
     this.holePointsList,
@@ -148,6 +160,14 @@ class PolygonPainter extends CustomPainter {
 
   int? _hash;
 
+  ({Offset min, Offset max}) getBounds(Polygon polygon) {
+    final bbox = polygon.boundingBox;
+    return (
+      min: map.getOffsetFromOrigin(bbox.southWest),
+      max: map.getOffsetFromOrigin(bbox.northEast),
+    );
+  }
+
   List<Offset> getOffsets(List<LatLng> points) {
     return List.generate(
       points.length,
@@ -241,7 +261,7 @@ class PolygonPainter extends CustomPainter {
         }
       }
 
-      if (polygonLabels && !drawLabelsLast && polygon.label != null) {
+      if (!drawLabelsLast && polygonLabels && polygon.textPainter != null) {
         // Labels are expensive because:
         //  * they themselves cannot easily be pulled into our batched path
         //    painting with the given text APIs
@@ -252,10 +272,10 @@ class PolygonPainter extends CustomPainter {
         // The painter will be null if the layouting algorithm determined that
         // there isn't enough space.
         final painter = buildLabelTextPainter(
+          mapSize: map.size,
           placementPoint: map.getOffsetFromOrigin(polygon.labelPosition),
-          points: offsets,
-          labelText: polygon.label!,
-          labelStyle: polygon.labelStyle,
+          bounds: getBounds(polygon),
+          textPainter: polygon.textPainter!,
           rotationRad: map.rotationRad,
           rotate: polygon.rotateLabel,
           padding: 20,
@@ -277,14 +297,13 @@ class PolygonPainter extends CustomPainter {
         if (polygon.points.isEmpty) {
           continue;
         }
-        final offsets = getOffsets(polygon.points);
-
-        if (polygon.label != null) {
+        final textPainter = polygon.textPainter;
+        if (textPainter != null) {
           final painter = buildLabelTextPainter(
+            mapSize: map.size,
             placementPoint: map.getOffsetFromOrigin(polygon.labelPosition),
-            points: offsets,
-            labelText: polygon.label!,
-            labelStyle: polygon.labelStyle,
+            bounds: getBounds(polygon),
+            textPainter: textPainter,
             rotationRad: map.rotationRad,
             rotate: polygon.rotateLabel,
             padding: 20,
