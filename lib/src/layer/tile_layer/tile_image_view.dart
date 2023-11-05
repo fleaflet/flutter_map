@@ -9,11 +9,11 @@ class TileImageView {
   final DiscreteTileRange _visibleRange;
   final DiscreteTileRange _keepRange;
 
-  TileImageView({
+  const TileImageView({
     required Map<TileCoordinates, TileImage> tileImages,
     required DiscreteTileRange visibleRange,
     required DiscreteTileRange keepRange,
-  })  : _tileImages = UnmodifiableMapView(tileImages),
+  })  : _tileImages = tileImages,
         _visibleRange = visibleRange,
         _keepRange = keepRange;
 
@@ -28,8 +28,8 @@ class TileImageView {
       .toList();
 
   Iterable<TileImage> staleTiles() {
-    final stale = <TileImage>{};
-    final retain = <TileImage>{};
+    final stale = HashSet<TileImage>();
+    final retain = HashSet<TileImage>();
 
     for (final tile in _tileImages.values) {
       final c = tile.coordinates;

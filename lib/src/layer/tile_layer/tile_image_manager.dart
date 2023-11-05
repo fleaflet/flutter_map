@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:collection/collection.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
@@ -13,7 +15,8 @@ typedef TileCreator = TileImage Function(TileCoordinates coordinates);
 
 @immutable
 class TileImageManager {
-  final Map<TileCoordinates, TileImage> _tiles = {};
+  final Map<TileCoordinates, TileImage> _tiles =
+      HashMap<TileCoordinates, TileImage>();
 
   bool containsTileAt(TileCoordinates coordinates) =>
       _tiles.containsKey(coordinates);
@@ -21,19 +24,7 @@ class TileImageManager {
   bool get allLoaded =>
       _tiles.values.none((tile) => tile.loadFinishedAt == null);
 
-  /// Returns in the order in which they should be rendered:
-  ///   1. Tiles at the current zoom.
-  ///   2. Tiles at the current zoom +/- 1.
-  ///   3. Tiles at the current zoom +/- 2.
-  ///   4. ...etc
-  List<TileImage> inRenderOrder(double maxZoom, int currentZoom) {
-    final result = _tiles.values.toList()
-      ..sort((a, b) => a
-          .zIndex(maxZoom, currentZoom)
-          .compareTo(b.zIndex(maxZoom, currentZoom)));
-
-    return result;
-  }
+  Iterable<TileImage> get tiles => _tiles.values;
 
   // Creates missing tiles in the given range. Does not initiate loading of the
   // tiles.

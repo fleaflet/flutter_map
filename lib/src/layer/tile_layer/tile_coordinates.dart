@@ -11,10 +11,13 @@ class TileCoordinates extends Point<int> {
   @override
   String toString() => 'TileCoordinate($x, $y, $z)';
 
-  double distanceToSq(Point<double> other) {
+  // Overridden because Point's distanceTo does not allow comparing with a point
+  // of a different type.
+  @override
+  double distanceTo(Point<num> other) {
     final dx = x - other.x;
     final dy = y - other.y;
-    return dx * dx + dy * dy;
+    return sqrt(dx * dx + dy * dy);
   }
 
   @override

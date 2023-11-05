@@ -538,29 +538,44 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     _tileScaleCalculator.clearCacheUnlessZoomMatches(map.zoom);
 
+    // Note: We're filtering out tiles off screen. However, we could be smarter,
+    // e.g. filter out images at non-primary `tileZoom` level that will be covered
+    // completely by tiles at primary zoom level.
+    final tiles = _tileImageManager.tiles
+        .where((tile) =>
+            visibleTileRange.contains(tile.coordinates) ||
+            // Let tiles with different zoom levels be collected by the pruning
+            // which also looks at whether the tiles with the target zoom level
+            // are ready already.
+            tile.coordinates.z != tileZoom)
+        .map((tileImage) => Tile(
+              // Must be an ObjectKey, not a ValueKey using the coordinates, in
+              // case we remove and replace the TileImage with a different one.
+              key: ObjectKey(tileImage),
+              scaledTileSize: _tileScaleCalculator.scaledTileSize(
+                map.zoom,
+                tileImage.coordinates.z,
+              ),
+              currentPixelOrigin: currentPixelOrigin,
+              tileImage: tileImage,
+              tileBuilder: widget.tileBuilder,
+            ))
+        .toList();
+
+    // Sort in render order;
+    //   1. Tiles at the current zoom.
+    //   2. Tiles at the current zoom +/- 1.
+    //   3. Tiles at the current zoom +/- 2.
+    //   4. ...etc
+    final maxZoom = widget.maxZoom;
+    int renderOrder(Tile a, Tile b) => a.tileImage
+        .zIndex(maxZoom, tileZoom)
+        .compareTo(b.tileImage.zIndex(maxZoom, tileZoom));
+
     return MobileLayerTransformer(
       // ignore: deprecated_member_use_from_same_package
       child: _addBackgroundColor(
-        Stack(
-          children: [
-            ..._tileImageManager
-                .inRenderOrder(widget.maxZoom, tileZoom)
-                .map((tileImage) {
-              return Tile(
-                // Must be an ObjectKey, not a ValueKey using the coordinates, in
-                // case we remove and replace the TileImage with a different one.
-                key: ObjectKey(tileImage),
-                scaledTileSize: _tileScaleCalculator.scaledTileSize(
-                  map.zoom,
-                  tileImage.coordinates.z,
-                ),
-                currentPixelOrigin: currentPixelOrigin,
-                tileImage: tileImage,
-                tileBuilder: widget.tileBuilder,
-              );
-            }),
-          ],
-        ),
+        Stack(children: tiles..sort(renderOrder)),
       ),
     );
   }
@@ -682,9 +697,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     // Re-order the tiles by their distance to the center of the range.
     final tileCenter = tileLoadRange.center;
     tilesToLoad.sort(
-      (a, b) => a.coordinates
-          .distanceToSq(tileCenter)
-          .compareTo(b.coordinates.distanceToSq(tileCenter)),
+      (a, b) => _distanceSq(a.coordinates, tileCenter)
+          .compareTo(_distanceSq(b.coordinates, tileCenter)),
     );
 
     // Create the new Tiles.
@@ -739,4 +753,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   bool _outsideZoomLimits(num zoom) =>
       zoom < widget.minZoom || zoom > widget.maxZoom;
+}
+
+double _distanceSq(TileCoordinates coord, Point<double> center) {
+  final dx = center.x - coord.x;
+  final dy = center.y - coord.y;
+  return dx * dx + dy * dy;
 }
