@@ -25,7 +25,6 @@ import 'package:flutter_map/src/layer/tile_layer/tile_update_transformer.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:flutter_map/src/map/controller/map_controller.dart';
 import 'package:flutter_map/src/misc/bounds.dart';
-import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:http/retry.dart';
 import 'package:logger/logger.dart';
 
@@ -533,8 +532,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     );
 
     final currentPixelOrigin = Point<double>(
-      map.pixelOrigin.x.toDouble(),
-      map.pixelOrigin.y.toDouble(),
+      map.pixelOrigin.x,
+      map.pixelOrigin.y,
     );
 
     _tileScaleCalculator.clearCacheUnlessZoomMatches(map.zoom);

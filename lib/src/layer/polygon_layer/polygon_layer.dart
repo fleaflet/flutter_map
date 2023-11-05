@@ -5,6 +5,7 @@ import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
 import 'package:flutter_map/src/layer/polygon_layer/label.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
+import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:latlong2/latlong.dart' hide Path; // conflict with Path from UI
 
 enum PolygonLabelPlacement {
@@ -160,20 +161,24 @@ class PolygonPainter extends CustomPainter {
 
   int? _hash;
 
-  ({Offset min, Offset max}) getBounds(Polygon polygon) {
+  ({Offset min, Offset max}) getBounds(Offset origin, Polygon polygon) {
     final bbox = polygon.boundingBox;
     return (
-      min: map.getOffsetFromOrigin(bbox.southWest),
-      max: map.getOffsetFromOrigin(bbox.northEast),
+      min: getOffset(origin, bbox.southWest),
+      max: getOffset(origin, bbox.northEast),
     );
   }
 
-  List<Offset> getOffsets(List<LatLng> points) {
+  Offset getOffset(Offset origin, LatLng point) {
+    // Critically create as little garbage as possible. This is called on every frame.
+    final projected = map.project(point);
+    return Offset(projected.x - origin.dx, projected.y - origin.dy);
+  }
+
+  List<Offset> getOffsets(Offset origin, List<LatLng> points) {
     return List.generate(
       points.length,
-      (index) {
-        return map.getOffsetFromOrigin(points[index]);
-      },
+      (index) => getOffset(origin, points[index]),
       growable: false,
     );
   }
@@ -213,12 +218,14 @@ class PolygonPainter extends CustomPainter {
       lastHash = null;
     }
 
+    final origin = (map.project(map.center) - map.size / 2).toOffset();
+
     // Main loop constructing batched fill and border paths from given polygons.
     for (final polygon in polygons) {
       if (polygon.points.isEmpty) {
         continue;
       }
-      final offsets = getOffsets(polygon.points);
+      final offsets = getOffsets(origin, polygon.points);
 
       // The hash is based on the polygons visual properties. If the hash from
       // the current and the previous polygon no longer match, we need to flush
@@ -248,7 +255,7 @@ class PolygonPainter extends CustomPainter {
 
         final holeOffsetsList = List<List<Offset>>.generate(
           holePointsList.length,
-          (i) => getOffsets(holePointsList[i]),
+          (i) => getOffsets(origin, holePointsList[i]),
           growable: false,
         );
 
@@ -274,7 +281,7 @@ class PolygonPainter extends CustomPainter {
         final painter = buildLabelTextPainter(
           mapSize: map.size,
           placementPoint: map.getOffsetFromOrigin(polygon.labelPosition),
-          bounds: getBounds(polygon),
+          bounds: getBounds(origin, polygon),
           textPainter: polygon.textPainter!,
           rotationRad: map.rotationRad,
           rotate: polygon.rotateLabel,
@@ -301,8 +308,9 @@ class PolygonPainter extends CustomPainter {
         if (textPainter != null) {
           final painter = buildLabelTextPainter(
             mapSize: map.size,
-            placementPoint: map.getOffsetFromOrigin(polygon.labelPosition),
-            bounds: getBounds(polygon),
+            placementPoint:
+                map.project(polygon.labelPosition).toOffset() - origin,
+            bounds: getBounds(origin, polygon),
             textPainter: textPainter,
             rotationRad: map.rotationRad,
             rotate: polygon.rotateLabel,

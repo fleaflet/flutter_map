@@ -24,13 +24,8 @@ abstract class Crs {
   /// Converts a point on the sphere surface (with a certain zoom) in a
   /// map point.
   Point<double> latLngToPoint(LatLng latlng, double zoom) {
-    try {
-      final projectedPoint = projection.project(latlng);
-      final scale = this.scale(zoom);
-      return transformation.transform(projectedPoint, scale);
-    } catch (_) {
-      return const Point(0, 0);
-    }
+    final projectedPoint = projection.project(latlng);
+    return transformation.transform(projectedPoint, scale(zoom));
   }
 
   /// Converts a map point to the sphere coordinate (at a certain zoom).
@@ -114,7 +109,7 @@ class Epsg3857 extends Earth {
   @override
   final Transformation transformation;
 
-  static const num _scale = 0.5 / (math.pi * SphericalMercator.r);
+  static const double _scale = 0.5 / (math.pi * SphericalMercator.r);
 
   const Epsg3857()
       : projection = const SphericalMercator(),
@@ -183,7 +178,7 @@ class Proj4Crs extends Crs {
     required String code,
     required proj4.Projection proj4Projection,
     Transformation? transformation,
-    List<Point>? origins,
+    List<Point<double>>? origins,
     Bounds<double>? bounds,
     List<double>? scales,
     List<double>? resolutions,
@@ -230,15 +225,11 @@ class Proj4Crs extends Crs {
   /// map point.
   @override
   Point<double> latLngToPoint(LatLng latlng, double zoom) {
-    try {
-      final projectedPoint = projection.project(latlng);
-      final scale = this.scale(zoom);
-      final transformation = _getTransformationByZoom(zoom);
+    final projectedPoint = projection.project(latlng);
+    final scale = this.scale(zoom);
+    final transformation = _getTransformationByZoom(zoom);
 
-      return transformation.transform(projectedPoint, scale);
-    } catch (_) {
-      return const Point(0, 0);
-    }
+    return transformation.transform(projectedPoint, scale);
   }
 
   /// Converts a map point to the sphere coordinate (at a certain zoom).
@@ -313,14 +304,15 @@ class Proj4Crs extends Crs {
 
   /// returns Transformation object based on zoom
   Transformation _getTransformationByZoom(double zoom) {
-    if (null == _transformations) {
+    final transformations = _transformations;
+    if (transformations == null || transformations.isEmpty) {
       return transformation;
     }
 
     final iZoom = zoom.round();
-    final lastIdx = _transformations!.length - 1;
+    final lastIdx = transformations.length - 1;
 
-    return _transformations![iZoom > lastIdx ? lastIdx : iZoom];
+    return transformations[iZoom > lastIdx ? lastIdx : iZoom];
   }
 }
 
@@ -369,7 +361,7 @@ class _LonLat extends Projection {
   @override
   LatLng unproject(Point point) {
     return LatLng(
-        inclusiveLat(point.y as double), inclusiveLng(point.x as double));
+        inclusiveLat(point.y.toDouble()), inclusiveLng(point.x.toDouble()));
   }
 }
 
@@ -391,12 +383,13 @@ class SphericalMercator extends Projection {
   @override
   Point<double> project(LatLng latlng) {
     const d = math.pi / 180;
-    const max = maxLatitude;
-    final lat = math.max(math.min(max, latlng.latitude), -max);
+    final lat = latlng.latitude.clamp(-maxLatitude, maxLatitude);
     final sin = math.sin(lat * d);
 
     return Point(
-        r * latlng.longitude * d, r * math.log((1 + sin) / (1 - sin)) / 2);
+      r * d * latlng.longitude,
+      r / 2 * math.log((1 + sin) / (1 - sin)),
+    );
   }
 
   @override
@@ -434,7 +427,7 @@ class _Proj4Projection extends Projection {
   @override
   LatLng unproject(Point point) {
     final point2 = proj4Projection.transform(
-        epsg4326, proj4.Point(x: point.x as double, y: point.y as double));
+        epsg4326, proj4.Point(x: point.x.toDouble(), y: point.y.toDouble()));
 
     return LatLng(inclusiveLat(point2.y), inclusiveLng(point2.x));
   }
@@ -442,10 +435,10 @@ class _Proj4Projection extends Projection {
 
 @immutable
 class Transformation {
-  final num a;
-  final num b;
-  final num c;
-  final num d;
+  final double a;
+  final double b;
+  final double c;
+  final double d;
 
   const Transformation(this.a, this.b, this.c, this.d);
 
