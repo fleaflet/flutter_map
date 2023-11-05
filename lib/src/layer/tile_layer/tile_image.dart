@@ -83,8 +83,6 @@ class TileImage extends ChangeNotifier {
 
   AnimationController? get animation => _animationController;
 
-  TileCoordinates get coordinatesKey => coordinates;
-
   /// Whether the tile is displayable. This means that either:
   ///   * Loading errored but an error image is configured.
   ///   * Loading succeeded and the fade animation has finished.

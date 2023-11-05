@@ -683,8 +683,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     final tileCenter = tileLoadRange.center;
     tilesToLoad.sort(
       (a, b) => a.coordinates
-          .distanceTo(tileCenter)
-          .compareTo(b.coordinates.distanceTo(tileCenter)),
+          .distanceToSq(tileCenter)
+          .compareTo(b.coordinates.distanceToSq(tileCenter)),
     );
 
     // Create the new Tiles.

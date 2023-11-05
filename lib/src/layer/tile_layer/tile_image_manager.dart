@@ -43,10 +43,7 @@ class TileImageManager {
     required TileCreator createTileImage,
   }) {
     for (final coordinates in tileBoundsAtZoom.validCoordinatesIn(tileRange)) {
-      _tiles.putIfAbsent(
-        coordinates,
-        () => createTileImage(coordinates),
-      );
+      _tiles[coordinates] ??= createTileImage(coordinates);
     }
   }
 
@@ -63,12 +60,10 @@ class TileImageManager {
     final notLoaded = <TileImage>[];
 
     for (final coordinates in tileCoordinates) {
-      final tile = _tiles.putIfAbsent(
-        coordinates,
-        () => createTile(coordinates),
-      );
-
-      if (tile.loadStarted == null) notLoaded.add(tile);
+      final tile = _tiles[coordinates] ??= createTile(coordinates);
+      if (tile.loadStarted == null) {
+        notLoaded.add(tile);
+      }
     }
 
     return notLoaded;
@@ -162,11 +157,11 @@ class TileImageManager {
       case EvictErrorTileStrategy.notVisibleRespectMargin:
         for (final tileImage
             in tileRemovalState.errorTilesOutsideOfKeepMargin()) {
-          _remove(tileImage.coordinatesKey, evictImageFromCache: (_) => true);
+          _remove(tileImage.coordinates, evictImageFromCache: (_) => true);
         }
       case EvictErrorTileStrategy.notVisible:
         for (final tileImage in tileRemovalState.errorTilesNotVisible()) {
-          _remove(tileImage.coordinatesKey, evictImageFromCache: (_) => true);
+          _remove(tileImage.coordinates, evictImageFromCache: (_) => true);
         }
       case EvictErrorTileStrategy.dispose:
       case EvictErrorTileStrategy.none:
@@ -194,7 +189,7 @@ class TileImageManager {
     EvictErrorTileStrategy evictStrategy,
   ) {
     for (final tileImage in tileRemovalState.staleTiles()) {
-      _removeWithEvictionStrategy(tileImage.coordinatesKey, evictStrategy);
+      _removeWithEvictionStrategy(tileImage.coordinates, evictStrategy);
     }
   }
 }

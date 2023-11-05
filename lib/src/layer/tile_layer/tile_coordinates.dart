@@ -11,13 +11,10 @@ class TileCoordinates extends Point<int> {
   @override
   String toString() => 'TileCoordinate($x, $y, $z)';
 
-  // Overridden because Point's distanceTo does not allow comparing with a point
-  // of a different type.
-  @override
-  double distanceTo(Point<num> other) {
+  double distanceToSq(Point<double> other) {
     final dx = x - other.x;
     final dy = y - other.y;
-    return sqrt(dx * dx + dy * dy);
+    return dx * dx + dy * dy;
   }
 
   @override
@@ -32,6 +29,6 @@ class TileCoordinates extends Point<int> {
   @override
   int get hashCode {
     // NOTE: the odd numbers are due to JavaScript's integer precision of 53 bits.
-    return x | y << 24 | z << 48;
+    return x ^ y << 24 ^ z << 48;
   }
 }

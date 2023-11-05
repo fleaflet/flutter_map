@@ -114,7 +114,7 @@ void main() {
       // a concurrent modification exception is thrown. This ensures that the
       // returned collection is not an iterable over the original collection.
       for (final staleTile in removalState.staleTiles()) {
-        tileImages.remove(staleTile.coordinatesKey)!;
+        tileImages.remove(staleTile.coordinates)!;
       }
     });
   });
@@ -141,7 +141,7 @@ void main() {
     // a concurrent modification exception is thrown. This ensures that the
     // returned collection is not an iterable over the original collection.
     for (final tileImage in tileImageView.errorTilesOutsideOfKeepMargin()) {
-      tileImages.remove(tileImage.coordinatesKey)!;
+      tileImages.remove(tileImage.coordinates)!;
     }
   });
 
@@ -167,7 +167,7 @@ void main() {
     // a concurrent modification exception is thrown. This ensures that the
     // returned collection is not an iterable over the original collection.
     for (final tileImage in tileImageView.errorTilesOutsideOfKeepMargin()) {
-      tileImages.remove(tileImage.coordinatesKey)!;
+      tileImages.remove(tileImage.coordinates)!;
     }
   });
 }

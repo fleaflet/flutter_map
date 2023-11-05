@@ -27,24 +27,26 @@ class TileImageView {
           tileImage.loadError && !_visibleRange.contains(tileImage.coordinates))
       .toList();
 
-  List<TileImage> staleTiles() {
-    final tilesInKeepRange = _tileImages.values
-        .where((tileImage) => _keepRange.contains(tileImage.coordinates));
-    final retain = Set<TileImage>.from(tilesInKeepRange);
+  Iterable<TileImage> staleTiles() {
+    final stale = <TileImage>{};
+    final retain = <TileImage>{};
 
-    for (final tile in tilesInKeepRange) {
-      if (!tile.readyToDisplay) {
-        final coords = tile.coordinates;
-        if (!_retainAncestor(
-            retain, coords.x, coords.y, coords.z, coords.z - 5)) {
-          _retainChildren(retain, coords.x, coords.y, coords.z, coords.z + 2);
+    for (final tile in _tileImages.values) {
+      final c = tile.coordinates;
+      if (_keepRange.contains(c)) {
+        if (!tile.readyToDisplay) {
+          final retainedAncestor =
+              _retainAncestor(retain, c.x, c.y, c.z, c.z - 5);
+          if (!retainedAncestor) {
+            _retainChildren(retain, c.x, c.y, c.z, c.z + 2);
+          }
         }
+      } else {
+        stale.add(tile);
       }
     }
 
-    return _tileImages.values
-        .where((tileImage) => !retain.contains(tileImage))
-        .toList();
+    return stale.where((tile) => !retain.contains(tile));
   }
 
   // Recurses through the ancestors of the Tile at the given coordinates adding
@@ -88,20 +90,21 @@ class TileImageView {
     int z,
     int maxZoom,
   ) {
-    for (var i = 2 * x; i < 2 * x + 2; i++) {
-      for (var j = 2 * y; j < 2 * y + 2; j++) {
-        final coords = TileCoordinates(i, j, z + 1);
+    for (final (i, j) in const [(0, 0), (0, 1), (1, 0), (1, 1)]) {
+      final coords = TileCoordinates(2 * x + i, 2 * y + j, z + 1);
 
-        final tile = _tileImages[coords];
-        if (tile != null) {
-          if (tile.readyToDisplay || tile.loadFinishedAt != null) {
-            retain.add(tile);
-          }
-        }
+      final tile = _tileImages[coords];
+      if (tile != null) {
+        if (tile.readyToDisplay || tile.loadFinishedAt != null) {
+          retain.add(tile);
 
-        if (z + 1 < maxZoom) {
-          _retainChildren(retain, i, j, z + 1, maxZoom);
+          // If have the child, we do not recurse. We don't need the child's children.
+          continue;
         }
+      }
+
+      if (z + 1 < maxZoom) {
+        _retainChildren(retain, i, j, z + 1, maxZoom);
       }
     }
   }
