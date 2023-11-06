@@ -9,10 +9,12 @@ import 'package:test/test.dart';
 void main() {
   group('TileBoundsAtZoom', () {
     const hugeCoordinate = TileCoordinates(999999999, 999999999, 0);
+    final hugePoint =
+        Point<double>(hugeCoordinate.x.toDouble(), hugeCoordinate.y.toDouble());
     final tileRangeWithHugeCoordinate = DiscreteTileRange.fromPixelBounds(
       zoom: 0,
       tileSize: 1,
-      pixelBounds: Bounds(hugeCoordinate, hugeCoordinate),
+      pixelBounds: Bounds(hugePoint, hugePoint),
     );
 
     DiscreteTileRange discreteTileRange(

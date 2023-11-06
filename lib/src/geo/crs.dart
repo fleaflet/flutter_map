@@ -39,14 +39,14 @@ abstract class Crs {
   double zoom(double scale) => math.log(scale / 256) / math.ln2;
 
   /// Rescales the bounds to a given zoom value.
-  Bounds? getProjectedBounds(double zoom) {
+  Bounds<double>? getProjectedBounds(double zoom) {
     if (infinite) return null;
 
     final b = projection.bounds!;
     final s = scale(zoom);
     final min = transformation.transform(b.min, s);
     final max = transformation.transform(b.max, s);
-    return Bounds(min, max);
+    return Bounds<double>(min, max);
   }
 
   bool get infinite;
@@ -239,7 +239,7 @@ class Proj4Crs extends Crs {
 
   /// Rescales the bounds to a given zoom value.
   @override
-  Bounds? getProjectedBounds(double zoom) {
+  Bounds<double>? getProjectedBounds(double zoom) {
     if (infinite) return null;
 
     final b = projection.bounds!;
@@ -249,7 +249,7 @@ class Proj4Crs extends Crs {
 
     final min = transformation.transform(b.min, s);
     final max = transformation.transform(b.max, s);
-    return Bounds(min, max);
+    return Bounds<double>(min, max);
   }
 
   /// Zoom to Scale function.

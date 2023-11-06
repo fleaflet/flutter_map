@@ -24,10 +24,23 @@ class TileImageManager {
   bool get allLoaded =>
       _tiles.values.none((tile) => tile.loadFinishedAt == null);
 
-  Iterable<TileImage> get tiles => _tiles.values;
+  /// Filter tiles to only tiles that would visible on screen. Specifically:
+  ///   1. Tiles in the visible range at the target zoom level.
+  ///   2. Tiles at non-target zoom level that would cover up holes that would
+  ///      be left by tiles in #1, which are not ready yet.
+  Iterable<TileImage> renderTiles({
+    required DiscreteTileRange visibleRange,
+  }) =>
+      TileImageView(
+        tileImages: _tiles,
+        visibleRange: visibleRange,
+        // `keepRange` is irrelevant here since we're not using the output for
+        // pruning storage but rather to decide on what to put on screen.
+        keepRange: visibleRange,
+      ).renderTiles();
 
-  // Creates missing tiles in the given range. Does not initiate loading of the
-  // tiles.
+  /// Creates missing tiles in the given range. Does not initiate loading of the
+  /// tiles.
   void createMissingTiles(
     DiscreteTileRange tileRange,
     TileBoundsAtZoom tileBoundsAtZoom, {

@@ -49,6 +49,26 @@ class TileImageView {
     return stale.where((tile) => !retain.contains(tile));
   }
 
+  Iterable<TileImage> renderTiles() {
+    final retain = HashSet<TileImage>();
+
+    for (final tile in _tileImages.values) {
+      final c = tile.coordinates;
+      if (_visibleRange.contains(c)) {
+        retain.add(tile);
+
+        if (!tile.readyToDisplay) {
+          final retainedAncestor =
+              _retainAncestor(retain, c.x, c.y, c.z, c.z - 5);
+          if (!retainedAncestor) {
+            _retainChildren(retain, c.x, c.y, c.z, c.z + 2);
+          }
+        }
+      }
+    }
+    return retain;
+  }
+
   // Recurses through the ancestors of the Tile at the given coordinates adding
   // them to [retain] if they are ready to display or loaded. Returns true if
   // any of the ancestor tiles were ready to display.

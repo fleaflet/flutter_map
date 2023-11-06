@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:collection';
 import 'dart:math';
 
 import 'package:collection/collection.dart' show MapEquality;
@@ -534,36 +533,13 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     _tileScaleCalculator.clearCacheUnlessZoomMatches(map.zoom);
 
-    // Note: We're filtering out tiles that are off screen and all tiles at a
-    // different zoom level but only if all tiles at the target level are ready
-    // to display. This saves us render time later.
-    bool allTilesAtTargetZoomLevelReady = true;
-    for (final tile in _tileImageManager.tiles) {
-      if (tile.coordinates.z == tileZoom) {
-        allTilesAtTargetZoomLevelReady &= tile.readyToDisplay;
-      }
-    }
-
-    final otherVisibleTileRanges = HashMap<int, DiscreteTileRange>();
-    final tiles = _tileImageManager.tiles
-        .where((tile) {
-          final c = tile.coordinates;
-          final zoom = c.z;
-
-          if (zoom != tileZoom && allTilesAtTargetZoomLevelReady) {
-            return false;
-          }
-
-          final visibleRange = (zoom == tileZoom)
-              ? visibleTileRange
-              : (otherVisibleTileRanges[zoom] ??=
-                  _tileRangeCalculator.calculate(
-                  camera: map,
-                  tileZoom: zoom,
-                ));
-
-          return visibleRange.contains(c);
-        })
+    // Note: `renderTiles` filters out all tiles that are either off-screen or
+    // tiles at non-target zoom levels that are would be completely covered by
+    // tiles that are *ready* and at the target zoom level.
+    // We're happy to do a bit of diligent work here, since tiles not rendered are
+    // cycles saved later on in the render pipeline.
+    final tiles = _tileImageManager
+        .renderTiles(visibleRange: visibleTileRange)
         .map((tileImage) => Tile(
               // Must be an ObjectKey, not a ValueKey using the coordinates, in
               // case we remove and replace the TileImage with a different one.
