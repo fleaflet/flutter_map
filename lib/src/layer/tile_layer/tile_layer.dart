@@ -524,7 +524,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     _tileImageManager.createMissingTiles(
       visibleTileRange,
       tileBoundsAtZoom,
-      createTileImage: (coordinates) => _createTileImage(
+      createTile: (coordinates) => _createTileImage(
         coordinates: coordinates,
         tileBoundsAtZoom: tileBoundsAtZoom,
         pruneAfterLoad: false,
@@ -539,7 +539,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     // We're happy to do a bit of diligent work here, since tiles not rendered are
     // cycles saved later on in the render pipeline.
     final tiles = _tileImageManager
-        .renderTiles(visibleRange: visibleTileRange)
+        .getTilesToRender(visibleRange: visibleTileRange)
         .map((tileImage) => Tile(
               // Must be an ObjectKey, not a ValueKey using the coordinates, in
               // case we remove and replace the TileImage with a different one.
@@ -554,15 +554,20 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
             ))
         .toList();
 
-    // Sort in render order;
+    // Sort in render order. In reverse:
     //   1. Tiles at the current zoom.
     //   2. Tiles at the current zoom +/- 1.
     //   3. Tiles at the current zoom +/- 2.
     //   4. ...etc
-    final maxZoom = widget.maxZoom;
-    int renderOrder(Tile a, Tile b) => a.tileImage
-        .zIndex(maxZoom, tileZoom)
-        .compareTo(b.tileImage.zIndex(maxZoom, tileZoom));
+    int renderOrder(Tile a, Tile b) {
+      final (za, zb) = (a.tileImage.coordinates.z, b.tileImage.coordinates.z);
+      final cmp = (zb - tileZoom).abs().compareTo((za - tileZoom).abs());
+      if (cmp == 0) {
+        // When compare parent/child tiles of equal distance, prefer higher res images.
+        return za.compareTo(zb);
+      }
+      return cmp;
+    }
 
     return MobileLayerTransformer(
       // ignore: deprecated_member_use_from_same_package
@@ -677,8 +682,9 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     // Build the queue of tiles to load. Marks all tiles with valid coordinates
     // in the tileLoadRange as current.
     final tileBoundsAtZoom = _tileBounds.atZoom(tileZoom);
-    final tilesToLoad = _tileImageManager.createMissingTilesIn(
-      tileBoundsAtZoom.validCoordinatesIn(tileLoadRange),
+    final tilesToLoad = _tileImageManager.createMissingTiles(
+      tileLoadRange,
+      tileBoundsAtZoom,
       createTile: (coordinates) => _createTileImage(
         coordinates: coordinates,
         tileBoundsAtZoom: tileBoundsAtZoom,

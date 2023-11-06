@@ -24,11 +24,11 @@ class TileImageManager {
   bool get allLoaded =>
       _tiles.values.none((tile) => tile.loadFinishedAt == null);
 
-  /// Filter tiles to only tiles that would visible on screen. Specifically:
+  /// Filter tiles to only tiles that would be visible on screen. Specifically:
   ///   1. Tiles in the visible range at the target zoom level.
   ///   2. Tiles at non-target zoom level that would cover up holes that would
   ///      be left by tiles in #1, which are not ready yet.
-  Iterable<TileImage> renderTiles({
+  Iterable<TileImage> getTilesToRender({
     required DiscreteTileRange visibleRange,
   }) =>
       TileImageView(
@@ -37,33 +37,22 @@ class TileImageManager {
         // `keepRange` is irrelevant here since we're not using the output for
         // pruning storage but rather to decide on what to put on screen.
         keepRange: visibleRange,
-      ).renderTiles();
-
-  /// Creates missing tiles in the given range. Does not initiate loading of the
-  /// tiles.
-  void createMissingTiles(
-    DiscreteTileRange tileRange,
-    TileBoundsAtZoom tileBoundsAtZoom, {
-    required TileCreator createTileImage,
-  }) {
-    for (final coordinates in tileBoundsAtZoom.validCoordinatesIn(tileRange)) {
-      _tiles[coordinates] ??= createTileImage(coordinates);
-    }
-  }
+      ).renderTiles;
 
   bool allWithinZoom(double minZoom, double maxZoom) => _tiles.values
       .map((e) => e.coordinates)
       .every((coord) => coord.z > maxZoom || coord.z < minZoom);
 
-  /// Creates and returns [TileImage]s which do not already exist with the given
-  /// [tileCoordinates].
-  List<TileImage> createMissingTilesIn(
-    Iterable<TileCoordinates> tileCoordinates, {
+  /// Creates missing [TileImage]s within the provided tile range. Returns a
+  /// list of [TileImage]s which haven't started loading yet.
+  List<TileImage> createMissingTiles(
+    DiscreteTileRange tileRange,
+    TileBoundsAtZoom tileBoundsAtZoom, {
     required TileCreator createTile,
   }) {
     final notLoaded = <TileImage>[];
 
-    for (final coordinates in tileCoordinates) {
+    for (final coordinates in tileBoundsAtZoom.validCoordinatesIn(tileRange)) {
       final tile = _tiles[coordinates] ??= createTile(coordinates);
       if (tile.loadStarted == null) {
         notLoaded.add(tile);
@@ -192,7 +181,7 @@ class TileImageManager {
     TileImageView tileRemovalState,
     EvictErrorTileStrategy evictStrategy,
   ) {
-    for (final tileImage in tileRemovalState.staleTiles()) {
+    for (final tileImage in tileRemovalState.staleTiles) {
       _removeWithEvictionStrategy(tileImage.coordinates, evictStrategy);
     }
   }

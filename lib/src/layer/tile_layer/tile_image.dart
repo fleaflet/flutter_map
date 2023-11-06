@@ -92,10 +92,6 @@ class TileImage extends ChangeNotifier {
   /// tile display is used with a maximum opacity less than 1.
   bool get readyToDisplay => _readyToDisplay;
 
-  // Used to sort TileImages by their distance from the current zoom.
-  double zIndex(double maxZoom, int currentZoom) =>
-      maxZoom - (currentZoom - coordinates.z).abs();
-
   /// Change the tile display options.
   set tileDisplay(TileDisplay newTileDisplay) {
     final oldTileDisplay = _tileDisplay;

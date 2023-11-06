@@ -4,7 +4,7 @@ import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 
-class TileImageView {
+final class TileImageView {
   final Map<TileCoordinates, TileImage> _tileImages;
   final DiscreteTileRange _visibleRange;
   final DiscreteTileRange _keepRange;
@@ -27,42 +27,42 @@ class TileImageView {
           tileImage.loadError && !_visibleRange.contains(tileImage.coordinates))
       .toList();
 
-  Iterable<TileImage> staleTiles() {
+  Iterable<TileImage> get staleTiles {
     final stale = HashSet<TileImage>();
     final retain = HashSet<TileImage>();
 
     for (final tile in _tileImages.values) {
       final c = tile.coordinates;
-      if (_keepRange.contains(c)) {
-        if (!tile.readyToDisplay) {
-          final retainedAncestor =
-              _retainAncestor(retain, c.x, c.y, c.z, c.z - 5);
-          if (!retainedAncestor) {
-            _retainChildren(retain, c.x, c.y, c.z, c.z + 2);
-          }
-        }
-      } else {
+      if (!_keepRange.contains(c)) {
         stale.add(tile);
+        continue;
+      }
+
+      final retainedAncestor = _retainAncestor(retain, c.x, c.y, c.z, c.z - 5);
+      if (!retainedAncestor) {
+        _retainChildren(retain, c.x, c.y, c.z, c.z + 2);
       }
     }
 
     return stale.where((tile) => !retain.contains(tile));
   }
 
-  Iterable<TileImage> renderTiles() {
+  Iterable<TileImage> get renderTiles {
     final retain = HashSet<TileImage>();
 
     for (final tile in _tileImages.values) {
       final c = tile.coordinates;
-      if (_visibleRange.contains(c)) {
-        retain.add(tile);
+      if (!_visibleRange.contains(c)) {
+        continue;
+      }
 
-        if (!tile.readyToDisplay) {
-          final retainedAncestor =
-              _retainAncestor(retain, c.x, c.y, c.z, c.z - 5);
-          if (!retainedAncestor) {
-            _retainChildren(retain, c.x, c.y, c.z, c.z + 2);
-          }
+      retain.add(tile);
+
+      if (!tile.readyToDisplay) {
+        final retainedAncestor =
+            _retainAncestor(retain, c.x, c.y, c.z, c.z - 5);
+        if (!retainedAncestor) {
+          _retainChildren(retain, c.x, c.y, c.z, c.z + 2);
         }
       }
     }

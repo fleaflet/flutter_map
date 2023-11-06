@@ -54,7 +54,7 @@ void main() {
         keepRange: discreteTileRange(2, 1, 3, 3, zoom: 1),
       );
       expect(
-        removalState.staleTiles(),
+        removalState.staleTiles,
         containsTileImage(tileImages, const TileCoordinates(1, 1, 1)),
       );
     });
@@ -70,7 +70,7 @@ void main() {
         keepRange: discreteTileRange(0, 0, 0, 0, zoom: 1),
       );
       expect(
-        removalState.staleTiles(),
+        removalState.staleTiles,
         doesNotContainTileImage(tileImages, const TileCoordinates(0, 0, 0)),
       );
     });
@@ -88,7 +88,7 @@ void main() {
         keepRange: discreteTileRange(0, 0, 0, 0, zoom: 1),
       );
       expect(
-        removalState.staleTiles(),
+        removalState.staleTiles,
         doesNotContainTileImage(tileImages, const TileCoordinates(0, 0, 2)),
       );
     });
@@ -106,14 +106,14 @@ void main() {
         keepRange: discreteTileRange(2, 1, 3, 3, zoom: 1),
       );
       expect(
-        removalState.staleTiles(),
+        removalState.staleTiles,
         containsTileImage(tileImages, const TileCoordinates(1, 1, 1)),
       );
       // If an iterator over the original collection is returned then when
       // looping over that iterator and removing from the original collection
       // a concurrent modification exception is thrown. This ensures that the
       // returned collection is not an iterable over the original collection.
-      for (final staleTile in removalState.staleTiles()) {
+      for (final staleTile in removalState.staleTiles) {
         tileImages.remove(staleTile.coordinates)!;
       }
     });
