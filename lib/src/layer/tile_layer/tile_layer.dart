@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:math';
 
 import 'package:collection/collection.dart' show MapEquality;
@@ -531,23 +532,38 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       ),
     );
 
-    final currentPixelOrigin = Point<double>(
-      map.pixelOrigin.x,
-      map.pixelOrigin.y,
-    );
-
     _tileScaleCalculator.clearCacheUnlessZoomMatches(map.zoom);
 
-    // Note: We're filtering out tiles off screen. However, we could be smarter,
-    // e.g. filter out images at non-primary `tileZoom` level that will be covered
-    // completely by tiles at primary zoom level.
+    // Note: We're filtering out tiles that are off screen and all tiles at a
+    // different zoom level but only if all tiles at the target level are ready
+    // to display. This saves us render time later.
+    bool allTilesAtTargetZoomLevelReady = true;
+    for (final tile in _tileImageManager.tiles) {
+      if (tile.coordinates.z == tileZoom) {
+        allTilesAtTargetZoomLevelReady &= tile.readyToDisplay;
+      }
+    }
+
+    final otherVisibleTileRanges = HashMap<int, DiscreteTileRange>();
     final tiles = _tileImageManager.tiles
-        .where((tile) =>
-            visibleTileRange.contains(tile.coordinates) ||
-            // Let tiles with different zoom levels be collected by the pruning
-            // which also looks at whether the tiles with the target zoom level
-            // are ready already.
-            tile.coordinates.z != tileZoom)
+        .where((tile) {
+          final c = tile.coordinates;
+          final zoom = c.z;
+
+          if (zoom != tileZoom && allTilesAtTargetZoomLevelReady) {
+            return false;
+          }
+
+          final visibleRange = (zoom == tileZoom)
+              ? visibleTileRange
+              : (otherVisibleTileRanges[zoom] ??=
+                  _tileRangeCalculator.calculate(
+                  camera: map,
+                  tileZoom: zoom,
+                ));
+
+          return visibleRange.contains(c);
+        })
         .map((tileImage) => Tile(
               // Must be an ObjectKey, not a ValueKey using the coordinates, in
               // case we remove and replace the TileImage with a different one.
@@ -556,7 +572,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
                 map.zoom,
                 tileImage.coordinates.z,
               ),
-              currentPixelOrigin: currentPixelOrigin,
+              currentPixelOrigin: map.pixelOrigin,
               tileImage: tileImage,
               tileBuilder: widget.tileBuilder,
             ))
