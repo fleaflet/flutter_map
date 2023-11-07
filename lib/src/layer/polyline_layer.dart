@@ -22,11 +22,6 @@ class Polyline {
   final StrokeJoin strokeJoin;
   final bool useStrokeWidthInMeter;
 
-  LatLngBounds? _boundingBox;
-
-  LatLngBounds get boundingBox =>
-      _boundingBox ??= LatLngBounds.fromPoints(points);
-
   Polyline({
     required this.points,
     this.strokeWidth = 1.0,
@@ -58,7 +53,12 @@ class Polyline {
 @immutable
 class PolylineLayer extends StatelessWidget {
   final List<Polyline> polylines;
+  @Deprecated('has no effect anymore, polyline culling is enabled by default and controlled by margin')
   final bool polylineCulling;
+
+  /// extent outside of the viewport before culling polylines, set to null to
+  /// disable polyline culling
+  final double? polylineCullingMargin;
 
   /// how much to simplify the polygons, in decimal degrees scaled to floored zoom
   final double? simplificationTolerance;
@@ -69,28 +69,146 @@ class PolylineLayer extends StatelessWidget {
   const PolylineLayer({
     super.key,
     required this.polylines,
-    this.polylineCulling = false,
+    this.polylineCulling = true,
+    this.polylineCullingMargin = 0,
     this.simplificationTolerance = 1,
     this.simplificationHighQuality = false,
   });
 
+  bool aabbContainsLine(
+      num x1, num y1, num x2, num y2, num minX, num minY, num maxX, num maxY) {
+    // Completely outside.
+    if ((x1 <= minX && x2 <= minX) ||
+        (y1 <= minY && y2 <= minY) ||
+        (x1 >= maxX && x2 >= maxX) ||
+        (y1 >= maxY && y2 >= maxY)) {
+      return false;
+    }
+
+    final m = (y2 - y1) / (x2 - x1);
+
+    num y = m * (minX - x1) + y1;
+    if (y > minY && y < maxY) return true;
+
+    y = m * (maxX - x1) + y1;
+    if (y > minY && y < maxY) return true;
+
+    num x = (minY - y1) / m + x1;
+    if (x > minX && x < maxX) return true;
+
+    x = (maxY - y1) / m + x1;
+    if (x > minX && x < maxX) return true;
+
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final map = MapCamera.of(context);
+    final mapCamera = MapCamera.of(context);
+
+    final renderedLines = <Polyline>[];
+
+    if (polylineCullingMargin == null) {
+      renderedLines.addAll(polylines);
+    } else {
+      final bounds = mapCamera.visibleBounds;
+      final margin =
+          polylineCullingMargin! / pow(2, mapCamera.zoom.floorToDouble());
+      // The min(-90), max(180), etc.. are used to get around the limits of LatLng
+      // the value cannot be greater or smaller than that
+      final boundsAdjusted = LatLngBounds(
+          LatLng(max(-90, bounds.southWest.latitude - margin),
+              max(-180, bounds.southWest.longitude - margin)),
+          LatLng(min(90, bounds.northEast.latitude + margin),
+              min(180, bounds.northEast.longitude + margin)));
+
+      for (final polyline in polylines) {
+        // Gradiant poylines do not render identically and cannot be easily segmented
+        if (polyline.gradientColors != null) {
+          renderedLines.add(polyline);
+          continue;
+        }
+        // pointer that indicates the start of the visible polyline segment
+        int start = -1;
+        bool fullyVisible = true;
+        for (int i = 0; i < polyline.points.length - 1; i++) {
+          //current pair
+          final p1 = polyline.points[i];
+          final p2 = polyline.points[i + 1];
+
+          // segment is visible
+          if (aabbContainsLine(
+              p1.longitude,
+              p1.latitude,
+              p2.longitude,
+              p2.latitude,
+              boundsAdjusted.southWest.longitude,
+              boundsAdjusted.southWest.latitude,
+              boundsAdjusted.northEast.longitude,
+              boundsAdjusted.northEast.latitude)) {
+            // segment is visible
+            if (start == -1) {
+              start = i;
+            }
+            if (!fullyVisible && i == polyline.points.length - 2) {
+              // print("last segment visible");
+              //last segment is visible
+              final segment = polyline.points.sublist(start, i + 2);
+              renderedLines.add(Polyline(
+                points: segment,
+                borderColor: polyline.borderColor,
+                borderStrokeWidth: polyline.borderStrokeWidth,
+                color: polyline.color,
+                colorsStop: polyline.colorsStop,
+                gradientColors: polyline.gradientColors,
+                isDotted: polyline.isDotted,
+                strokeCap: polyline.strokeCap,
+                strokeJoin: polyline.strokeJoin,
+                strokeWidth: polyline.strokeWidth,
+                useStrokeWidthInMeter: polyline.useStrokeWidthInMeter,
+              ));
+            }
+            // print("$i visible");
+          } else {
+            // print("$i not visible");
+            fullyVisible = false;
+            // if we cannot see the segment, then reset start
+            if (start != -1) {
+              // print("partial $start $i");
+              final segment = polyline.points.sublist(start, i + 1);
+              renderedLines.add(Polyline(
+                points: segment,
+                borderColor: polyline.borderColor,
+                borderStrokeWidth: polyline.borderStrokeWidth,
+                color: polyline.color,
+                colorsStop: polyline.colorsStop,
+                gradientColors: polyline.gradientColors,
+                isDotted: polyline.isDotted,
+                strokeCap: polyline.strokeCap,
+                strokeJoin: polyline.strokeJoin,
+                strokeWidth: polyline.strokeWidth,
+                useStrokeWidthInMeter: polyline.useStrokeWidthInMeter,
+              ));
+              start = -1;
+            }
+            if (start != -1) {
+              start = i;
+            }
+          }
+        }
+        if (fullyVisible) {
+          //The whole polyline is visible
+          // print("rendered whole polyhon");
+          renderedLines.add(polyline);
+        }
+      }
+    }
 
     return MobileLayerTransformer(
       child: CustomPaint(
-        painter: PolylinePainter(
-            polylineCulling
-                ? polylines
-                    .where(
-                        (p) => p.boundingBox.isOverlapping(map.visibleBounds))
-                    .toList()
-                : polylines,
-            map,
-            simplificationTolerance,
-            simplificationHighQuality),
-        size: Size(map.size.x, map.size.y),
+        painter: PolylinePainter(renderedLines, mapCamera,
+            simplificationTolerance, simplificationHighQuality),
+        size: Size(mapCamera.size.x, mapCamera.size.y),
         isComplex: true,
       ),
     );

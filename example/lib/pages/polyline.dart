@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/widgets/drawer.dart';
@@ -13,6 +15,21 @@ class PolylinePage extends StatefulWidget {
 }
 
 class _PolylinePageState extends State<PolylinePage> {
+  List<LatLng> randomWalk = <LatLng>[const LatLng(45, -93.4)];
+
+  @override
+  void initState() {
+    super.initState();
+
+    final random = Random(1234);
+    for (int i = 1; i < 100000; i++) {
+      final lat = (random.nextDouble() - 0.5) * 0.001;
+      final lon = (random.nextDouble() - 0.6) * 0.001;
+      randomWalk.add(LatLng(
+          randomWalk[i - 1].latitude + lat, randomWalk[i - 1].longitude + lon));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,7 +56,24 @@ class _PolylinePageState extends State<PolylinePage> {
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   ),
                   PolylineLayer(
+                    polylineCullingMargin: 25,
                     polylines: [
+                      Polyline(
+                        points: randomWalk,
+                        strokeWidth: 3,
+                        color: Colors.deepOrange,
+                      ),
+                      Polyline(
+                        points: [
+                          const LatLng(50, 0),
+                          const LatLng(50, -10),
+                          const LatLng(47, -12),
+                          const LatLng(45, -10),
+                          const LatLng(45, 0),
+                        ],
+                        strokeWidth: 8,
+                        color: Colors.purple,
+                      ),
                       Polyline(
                         points: [
                           const LatLng(51.5, -0.09),
