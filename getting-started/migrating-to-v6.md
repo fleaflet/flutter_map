@@ -46,21 +46,6 @@ We've added some warning & recommendation logs in-code, that will trigger under 
 
 <details>
 
-<summary><code>MapController</code> should not be used directly to read information about the map's position</summary>
-
-`MapController` now only controls the map's position/viewport/camera. The map's position is now described by `MapCamera`.
-
-There are multiple possibilities for migration:
-
-1. If inside the `FlutterMap` context, prefer using `MapCamera.of(context)`
-2. Otherwise, use `MapController` in the same way, but use the `.camera` getter to retrieve the `MapCamera`.
-
-See [programmatic-control](../usage/programmatic-control/ "mention") for more information.
-
-</details>
-
-<details>
-
 <summary><code>CustomPoint</code> has been replaced by extension methods on <code>Point</code></summary>
 
 [Extension methods](https://dart.dev/language/extension-methods) are now used to add the required functionality to the standard 'dart:math' `Point` object.
@@ -71,21 +56,46 @@ To migrate, most cases should just need to replace all occurrences of `CustomPoi
 
 <details>
 
-<summary><code>AnchorAlign</code> has been replaced by native <code>Alignment</code></summary>
-
-`AnchorAlign` has been removed without deprecation, because `Alignment`/`AlignmentGeometry` can provide the same alignment positions/values.
-
-To migrate, replace occurences of `AnchorAlign` with the respective `Aligment`. Note that only the pre-provided `Alignment`s should be used.
-
-</details>
-
-<details>
-
 <summary>"Plugin API" import has been removed</summary>
 
 This import path was getting increasingly useless and exposing increasingly less features compared to the standard import. It also covered the standard import in the auto-generated DartDoc documentation, as it exported it as well.
 
 All features that need to be exposed are now exposed through the primary import, and the dedicated plugin import has been removed.
+
+</details>
+
+### State Management
+
+<details>
+
+<summary><code>FlutterMapState</code> has been removed</summary>
+
+`FlutterMapState` previously represented all of the map's state. However, to improve the maintainability of this library's internals, and to improve performance, it has been removed and replaced with several 'aspects':
+
+* `MapCamera.of`: for more information, see  [#some-of-mapcontrollers-responsibilities-have-been-moved-to-mapcamera](migrating-to-v6.md#some-of-mapcontrollers-responsibilities-have-been-moved-to-mapcamera "mention")
+* `MapOptions.of`: use to access the ambient configured `MapOptions`
+* (`MapController.of`): use to access the ambient `MapController`, even if one was not explicitly defined by the user
+
+In most cases, migrating will entail replacing `FlutterMapState` with `MapCamera`, but another aspect may be required.
+
+See [#2.-hooking-into-inherited-state](../plugins/making-a-plugin/creating-new-layers.md#2.-hooking-into-inherited-state "mention") and [programmatic-control](../usage/programmatic-control/ "mention") for more information.
+
+</details>
+
+<details>
+
+<summary>Some of <code>MapController</code>'s responsibilities have been moved to <code>MapCamera</code></summary>
+
+`MapController` now only controls the map's position/viewport/camera. The map's position is now described by `MapCamera`.
+
+You should not read camera data directly from a `MapController`: these methods have been deprecated.
+
+There are multiple possibilities for migration:
+
+1. If inside the `FlutterMap` context, prefer using `MapCamera.of(context)`
+2. Otherwise, use `MapController` in the same way, but use the `.camera` getter to retrieve the `MapCamera`.
+
+See [programmatic-control](../usage/programmatic-control/ "mention") for more information.
 
 </details>
 
