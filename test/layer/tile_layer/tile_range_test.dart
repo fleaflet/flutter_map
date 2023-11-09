@@ -35,8 +35,8 @@ void main() {
             zoom: 0,
             tileSize: 10,
             pixelBounds: Bounds(
-              const Point(25.0, 25.0),
-              const Point(25.0, 25.0),
+              const Point(25, 25),
+              const Point(25, 25),
             ),
           );
 
@@ -49,7 +49,7 @@ void main() {
             zoom: 0,
             tileSize: 10,
             pixelBounds: Bounds(
-              const Point(0.0, 0.0),
+              const Point(0, 0),
               const Point(0.1, 0.1),
             ),
           );
@@ -63,7 +63,7 @@ void main() {
             zoom: 0,
             tileSize: 10,
             pixelBounds: Bounds(
-              const Point(0.0, 0.0),
+              const Point(0, 0),
               const Point(9.99, 9.99),
             ),
           );
@@ -101,8 +101,8 @@ void main() {
           zoom: 0,
           tileSize: 10,
           pixelBounds: Bounds(
-            const Point(25.0, 25.0),
-            const Point(25.0, 25.0),
+            const Point(25, 25),
+            const Point(25, 25),
           ),
         );
 
@@ -128,8 +128,8 @@ void main() {
           zoom: 0,
           tileSize: 10,
           pixelBounds: Bounds(
-            const Point(25.0, 25.0),
-            const Point(25.0, 25.0),
+            const Point(25, 25),
+            const Point(25, 25),
           ),
         );
 
@@ -137,8 +137,8 @@ void main() {
           zoom: 0,
           tileSize: 10,
           pixelBounds: Bounds(
-            const Point(35.0, 35.0),
-            const Point(35.0, 35.0),
+            const Point(35, 35),
+            const Point(35, 35),
           ),
         );
 
@@ -154,8 +154,8 @@ void main() {
           zoom: 0,
           tileSize: 10,
           pixelBounds: Bounds(
-            const Point(25.0, 25.0),
-            const Point(35.0, 35.0),
+            const Point(25, 25),
+            const Point(35, 35),
           ),
         );
 
@@ -163,8 +163,8 @@ void main() {
           zoom: 0,
           tileSize: 10,
           pixelBounds: Bounds(
-            const Point(35.0, 35.0),
-            const Point(45.0, 45.0),
+            const Point(35, 35),
+            const Point(45, 45),
           ),
         );
 
@@ -182,8 +182,8 @@ void main() {
           zoom: 0,
           tileSize: 10,
           pixelBounds: Bounds(
-            const Point(25.0, 25.0),
-            const Point(35.0, 35.0),
+            const Point(25, 25),
+            const Point(35, 35),
           ),
         );
 
@@ -191,8 +191,8 @@ void main() {
           zoom: 0,
           tileSize: 10,
           pixelBounds: Bounds(
-            const Point(15.0, 15.0),
-            const Point(45.0, 45.0),
+            const Point(15, 15),
+            const Point(45, 45),
           ),
         );
 
@@ -211,8 +211,8 @@ void main() {
         zoom: 0,
         tileSize: 10,
         pixelBounds: Bounds(
-          const Point(35.0, 35.0),
-          const Point(45.0, 45.0),
+          const Point(35, 35),
+          const Point(45, 45),
         ),
       );
 
@@ -226,8 +226,8 @@ void main() {
           zoom: 0,
           tileSize: 10,
           pixelBounds: Bounds(
-            const Point(35.0, 35.0),
-            const Point(35.0, 35.0),
+            const Point(35, 35),
+            const Point(35, 35),
           ),
         );
 
@@ -239,8 +239,8 @@ void main() {
           zoom: 0,
           tileSize: 10,
           pixelBounds: Bounds(
-            const Point(35.0, 35.0),
-            const Point(45.0, 45.0),
+            const Point(35, 35),
+            const Point(45, 45),
           ),
         );
 
@@ -252,8 +252,8 @@ void main() {
           zoom: 0,
           tileSize: 10,
           pixelBounds: Bounds(
-            const Point(35.0, 35.0),
-            const Point(55.0, 55.0),
+            const Point(35, 35),
+            const Point(55, 55),
           ),
         );
 
@@ -266,8 +266,8 @@ void main() {
         zoom: 0,
         tileSize: 10,
         pixelBounds: Bounds(
-          const Point(35.0, 35.0),
-          const Point(35.0, 35.0),
+          const Point(35, 35),
+          const Point(35, 35),
         ),
       );
 
