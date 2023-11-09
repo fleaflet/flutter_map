@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:collection/collection.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
@@ -13,7 +15,8 @@ typedef TileCreator = TileImage Function(TileCoordinates coordinates);
 
 @immutable
 class TileImageManager {
-  final Map<TileCoordinates, TileImage> _tiles = {};
+  final Map<TileCoordinates, TileImage> _tiles =
+      HashMap<TileCoordinates, TileImage>();
 
   bool containsTileAt(TileCoordinates coordinates) =>
       _tiles.containsKey(coordinates);
@@ -21,54 +24,39 @@ class TileImageManager {
   bool get allLoaded =>
       _tiles.values.none((tile) => tile.loadFinishedAt == null);
 
-  /// Returns in the order in which they should be rendered:
-  ///   1. Tiles at the current zoom.
-  ///   2. Tiles at the current zoom +/- 1.
-  ///   3. Tiles at the current zoom +/- 2.
-  ///   4. ...etc
-  List<TileImage> inRenderOrder(double maxZoom, int currentZoom) {
-    final result = _tiles.values.toList()
-      ..sort((a, b) => a
-          .zIndex(maxZoom, currentZoom)
-          .compareTo(b.zIndex(maxZoom, currentZoom)));
-
-    return result;
-  }
-
-  // Creates missing tiles in the given range. Does not initiate loading of the
-  // tiles.
-  void createMissingTiles(
-    DiscreteTileRange tileRange,
-    TileBoundsAtZoom tileBoundsAtZoom, {
-    required TileCreator createTileImage,
-  }) {
-    for (final coordinates in tileBoundsAtZoom.validCoordinatesIn(tileRange)) {
-      _tiles.putIfAbsent(
-        coordinates,
-        () => createTileImage(coordinates),
-      );
-    }
-  }
+  /// Filter tiles to only tiles that would be visible on screen. Specifically:
+  ///   1. Tiles in the visible range at the target zoom level.
+  ///   2. Tiles at non-target zoom level that would cover up holes that would
+  ///      be left by tiles in #1, which are not ready yet.
+  Iterable<TileImage> getTilesToRender({
+    required DiscreteTileRange visibleRange,
+  }) =>
+      TileImageView(
+        tileImages: _tiles,
+        visibleRange: visibleRange,
+        // `keepRange` is irrelevant here since we're not using the output for
+        // pruning storage but rather to decide on what to put on screen.
+        keepRange: visibleRange,
+      ).renderTiles;
 
   bool allWithinZoom(double minZoom, double maxZoom) => _tiles.values
       .map((e) => e.coordinates)
       .every((coord) => coord.z > maxZoom || coord.z < minZoom);
 
-  /// Creates and returns [TileImage]s which do not already exist with the given
-  /// [tileCoordinates].
-  List<TileImage> createMissingTilesIn(
-    Iterable<TileCoordinates> tileCoordinates, {
+  /// Creates missing [TileImage]s within the provided tile range. Returns a
+  /// list of [TileImage]s which haven't started loading yet.
+  List<TileImage> createMissingTiles(
+    DiscreteTileRange tileRange,
+    TileBoundsAtZoom tileBoundsAtZoom, {
     required TileCreator createTile,
   }) {
     final notLoaded = <TileImage>[];
 
-    for (final coordinates in tileCoordinates) {
-      final tile = _tiles.putIfAbsent(
-        coordinates,
-        () => createTile(coordinates),
-      );
-
-      if (tile.loadStarted == null) notLoaded.add(tile);
+    for (final coordinates in tileBoundsAtZoom.validCoordinatesIn(tileRange)) {
+      final tile = _tiles[coordinates] ??= createTile(coordinates);
+      if (tile.loadStarted == null) {
+        notLoaded.add(tile);
+      }
     }
 
     return notLoaded;
@@ -162,11 +150,11 @@ class TileImageManager {
       case EvictErrorTileStrategy.notVisibleRespectMargin:
         for (final tileImage
             in tileRemovalState.errorTilesOutsideOfKeepMargin()) {
-          _remove(tileImage.coordinatesKey, evictImageFromCache: (_) => true);
+          _remove(tileImage.coordinates, evictImageFromCache: (_) => true);
         }
       case EvictErrorTileStrategy.notVisible:
         for (final tileImage in tileRemovalState.errorTilesNotVisible()) {
-          _remove(tileImage.coordinatesKey, evictImageFromCache: (_) => true);
+          _remove(tileImage.coordinates, evictImageFromCache: (_) => true);
         }
       case EvictErrorTileStrategy.dispose:
       case EvictErrorTileStrategy.none:
@@ -193,8 +181,8 @@ class TileImageManager {
     TileImageView tileRemovalState,
     EvictErrorTileStrategy evictStrategy,
   ) {
-    for (final tileImage in tileRemovalState.staleTiles()) {
-      _removeWithEvictionStrategy(tileImage.coordinatesKey, evictStrategy);
+    for (final tileImage in tileRemovalState.staleTiles) {
+      _removeWithEvictionStrategy(tileImage.coordinates, evictStrategy);
     }
   }
 }

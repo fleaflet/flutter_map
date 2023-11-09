@@ -32,6 +32,6 @@ class TileCoordinates extends Point<int> {
   @override
   int get hashCode {
     // NOTE: the odd numbers are due to JavaScript's integer precision of 53 bits.
-    return x | y << 24 | z << 48;
+    return x ^ y << 24 ^ z << 48;
   }
 }

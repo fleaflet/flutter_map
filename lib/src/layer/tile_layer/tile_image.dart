@@ -83,8 +83,6 @@ class TileImage extends ChangeNotifier {
 
   AnimationController? get animation => _animationController;
 
-  TileCoordinates get coordinatesKey => coordinates;
-
   /// Whether the tile is displayable. This means that either:
   ///   * Loading errored but an error image is configured.
   ///   * Loading succeeded and the fade animation has finished.
@@ -93,10 +91,6 @@ class TileImage extends ChangeNotifier {
   /// Note that [opacity] can be less than 1 when this is true if instantaneous
   /// tile display is used with a maximum opacity less than 1.
   bool get readyToDisplay => _readyToDisplay;
-
-  // Used to sort TileImages by their distance from the current zoom.
-  double zIndex(double maxZoom, int currentZoom) =>
-      maxZoom - (currentZoom - coordinates.z).abs();
 
   /// Change the tile display options.
   set tileDisplay(TileDisplay newTileDisplay) {

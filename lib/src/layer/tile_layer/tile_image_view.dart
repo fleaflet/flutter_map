@@ -4,16 +4,16 @@ import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 
-class TileImageView {
+final class TileImageView {
   final Map<TileCoordinates, TileImage> _tileImages;
   final DiscreteTileRange _visibleRange;
   final DiscreteTileRange _keepRange;
 
-  TileImageView({
+  const TileImageView({
     required Map<TileCoordinates, TileImage> tileImages,
     required DiscreteTileRange visibleRange,
     required DiscreteTileRange keepRange,
-  })  : _tileImages = UnmodifiableMapView(tileImages),
+  })  : _tileImages = tileImages,
         _visibleRange = visibleRange,
         _keepRange = keepRange;
 
@@ -27,24 +27,46 @@ class TileImageView {
           tileImage.loadError && !_visibleRange.contains(tileImage.coordinates))
       .toList();
 
-  List<TileImage> staleTiles() {
-    final tilesInKeepRange = _tileImages.values
-        .where((tileImage) => _keepRange.contains(tileImage.coordinates));
-    final retain = Set<TileImage>.from(tilesInKeepRange);
+  Iterable<TileImage> get staleTiles {
+    final stale = HashSet<TileImage>();
+    final retain = HashSet<TileImage>();
 
-    for (final tile in tilesInKeepRange) {
-      if (!tile.readyToDisplay) {
-        final coords = tile.coordinates;
-        if (!_retainAncestor(
-            retain, coords.x, coords.y, coords.z, coords.z - 5)) {
-          _retainChildren(retain, coords.x, coords.y, coords.z, coords.z + 2);
-        }
+    for (final tile in _tileImages.values) {
+      final c = tile.coordinates;
+      if (!_keepRange.contains(c)) {
+        stale.add(tile);
+        continue;
+      }
+
+      final retainedAncestor = _retainAncestor(retain, c.x, c.y, c.z, c.z - 5);
+      if (!retainedAncestor) {
+        _retainChildren(retain, c.x, c.y, c.z, c.z + 2);
       }
     }
 
-    return _tileImages.values
-        .where((tileImage) => !retain.contains(tileImage))
-        .toList();
+    return stale.where((tile) => !retain.contains(tile));
+  }
+
+  Iterable<TileImage> get renderTiles {
+    final retain = HashSet<TileImage>();
+
+    for (final tile in _tileImages.values) {
+      final c = tile.coordinates;
+      if (!_visibleRange.contains(c)) {
+        continue;
+      }
+
+      retain.add(tile);
+
+      if (!tile.readyToDisplay) {
+        final retainedAncestor =
+            _retainAncestor(retain, c.x, c.y, c.z, c.z - 5);
+        if (!retainedAncestor) {
+          _retainChildren(retain, c.x, c.y, c.z, c.z + 2);
+        }
+      }
+    }
+    return retain;
   }
 
   // Recurses through the ancestors of the Tile at the given coordinates adding
@@ -88,20 +110,21 @@ class TileImageView {
     int z,
     int maxZoom,
   ) {
-    for (var i = 2 * x; i < 2 * x + 2; i++) {
-      for (var j = 2 * y; j < 2 * y + 2; j++) {
-        final coords = TileCoordinates(i, j, z + 1);
+    for (final (i, j) in const [(0, 0), (0, 1), (1, 0), (1, 1)]) {
+      final coords = TileCoordinates(2 * x + i, 2 * y + j, z + 1);
 
-        final tile = _tileImages[coords];
-        if (tile != null) {
-          if (tile.readyToDisplay || tile.loadFinishedAt != null) {
-            retain.add(tile);
-          }
-        }
+      final tile = _tileImages[coords];
+      if (tile != null) {
+        if (tile.readyToDisplay || tile.loadFinishedAt != null) {
+          retain.add(tile);
 
-        if (z + 1 < maxZoom) {
-          _retainChildren(retain, i, j, z + 1, maxZoom);
+          // If have the child, we do not recurse. We don't need the child's children.
+          continue;
         }
+      }
+
+      if (z + 1 < maxZoom) {
+        _retainChildren(retain, i, j, z + 1, maxZoom);
       }
     }
   }
