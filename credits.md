@@ -1,9 +1,5 @@
 # ✏ Credits & Contributing
 
-{% hint style="success" %}
-We're on the hunt for maintainers to join the team! For more information, please see [#apply-to-be-a-maintainer](credits.md#apply-to-be-a-maintainer "mention").
-{% endhint %}
-
 ## Credits
 
 Thanks to everyone who has contributed to flutter\_map in any way, you've helped make the most popular non-commercially aimed mapping solution for Flutter! As well as those that have contributed directly to the code, this includes everyone on the Discord server, everyone who's following the progress, and everyone that's participating in discussions and issues.
