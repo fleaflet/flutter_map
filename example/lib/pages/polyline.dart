@@ -26,6 +26,7 @@ class _PolylinePageState extends State<PolylinePage> {
         children: [
           openStreetMapTileLayer,
           PolylineLayer(
+            interactive: true,
             polylines: [
               Polyline(
                 points: [
@@ -33,8 +34,20 @@ class _PolylinePageState extends State<PolylinePage> {
                   const LatLng(53.3498, -6.2603),
                   const LatLng(48.8566, 2.3522),
                 ],
-                strokeWidth: 4,
+                strokeWidth: 8,
                 color: Colors.purple,
+                onTap: (point) => openDialog('Purple line: $point'),
+              ),
+              Polyline(
+                points: [
+                  const LatLng(48.5, -3.09),
+                  const LatLng(47.3498, -9.2603),
+                  const LatLng(43.8566, -1.3522),
+                ],
+                strokeWidth: 16000,
+                color: Colors.pink,
+                useStrokeWidthInMeter: true,
+                onTap: (point) => openDialog('StrokeWidthInMetersLine: $point'),
               ),
               Polyline(
                 points: [
@@ -59,6 +72,7 @@ class _PolylinePageState extends State<PolylinePage> {
                 color: Colors.blue.withOpacity(0.6),
                 borderStrokeWidth: 20,
                 borderColor: Colors.red.withOpacity(0.4),
+                onTap: (point) => openDialog('blue line: $point'),
               ),
               Polyline(
                 points: [
@@ -70,6 +84,7 @@ class _PolylinePageState extends State<PolylinePage> {
                 color: Colors.black.withOpacity(0.2),
                 borderStrokeWidth: 20,
                 borderColor: Colors.white30,
+                onTap: (point) => openDialog('black/white line: $point'),
               ),
               Polyline(
                 points: [
@@ -99,4 +114,15 @@ class _PolylinePageState extends State<PolylinePage> {
       ),
     );
   }
+
+  Future<void> openDialog(String message) => showDialog<void>(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Text(message),
+          ),
+        );
+      });
 }

@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
@@ -20,6 +21,7 @@ class Polyline {
   final StrokeCap strokeCap;
   final StrokeJoin strokeJoin;
   final bool useStrokeWidthInMeter;
+  final void Function(LatLng point)? onTap;
 
   LatLngBounds? _boundingBox;
 
@@ -38,6 +40,7 @@ class Polyline {
     this.strokeCap = StrokeCap.round,
     this.strokeJoin = StrokeJoin.round,
     this.useStrokeWidthInMeter = false,
+    this.onTap,
   });
 
   /// Used to batch draw calls to the canvas.
@@ -54,45 +57,78 @@ class Polyline {
       useStrokeWidthInMeter);
 }
 
+class _Hit {
+  final Polyline polyline;
+  final LatLng point;
+
+  const _Hit(this.polyline, this.point);
+}
+
+class _LastHit {
+  _Hit? hit;
+}
+
 @immutable
 class PolylineLayer extends StatelessWidget {
   final List<Polyline> polylines;
-  final bool polylineCulling;
+  final bool interactive;
 
   const PolylineLayer({
     super.key,
     required this.polylines,
-    this.polylineCulling = false,
+    //@Deprecated('Let's always cull')
+    bool polylineCulling = true,
+    this.interactive = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final map = MapCamera.of(context);
 
+    final lastHit = _LastHit();
+    final paint = CustomPaint(
+      painter: _PolylinePainter(
+        polylines
+            .where((p) => p.boundingBox.isOverlapping(map.visibleBounds))
+            .toList(),
+        map,
+        interactive ? lastHit : null,
+      ),
+      size: Size(map.size.x, map.size.y),
+      isComplex: true,
+    );
+
+    if (!interactive) {
+      return MobileLayerTransformer(child: paint);
+    }
+
     return MobileLayerTransformer(
-      child: CustomPaint(
-        painter: PolylinePainter(
-          polylineCulling
-              ? polylines
-                  .where((p) => p.boundingBox.isOverlapping(map.visibleBounds))
-                  .toList()
-              : polylines,
-          map,
-        ),
-        size: Size(map.size.x, map.size.y),
-        isComplex: true,
+      child: GestureDetector(
+        behavior: HitTestBehavior.deferToChild,
+        onTap: () {
+          final hit = lastHit.hit;
+          if (hit == null) return;
+
+          final onTap = hit.polyline.onTap;
+          if (onTap != null) {
+            onTap(hit.point);
+          }
+        },
+        child: paint,
       ),
     );
   }
 }
 
-class PolylinePainter extends CustomPainter {
+class _PolylinePainter extends CustomPainter {
   final List<Polyline> polylines;
 
   final MapCamera map;
   final LatLngBounds bounds;
+  final _LastHit? lastHit;
 
-  PolylinePainter(this.polylines, this.map) : bounds = map.visibleBounds;
+  _PolylinePainter(this.polylines, this.map, this.lastHit)
+      : bounds = map.visibleBounds;
 
   int get hash => _hash ??= Object.hashAll(polylines);
 
@@ -110,6 +146,72 @@ class PolylinePainter extends CustomPainter {
       (index) => getOffset(origin, points[index]),
       growable: false,
     );
+  }
+
+  @override
+  bool? hitTest(Offset position) {
+    if (lastHit == null) {
+      return null;
+    }
+
+    final touch = map.pointToLatLng(math.Point(position.dx, position.dy));
+    final origin = map.project(map.center).toOffset() - map.size.toOffset() / 2;
+
+    Polyline? hit;
+
+    outer:
+    for (final p in polylines.reversed) {
+      // TODO: For efficiency we'd ideally filter by bounding box here. However
+      // we'd need to compute an extended bounding box that accounts account for
+      // the stroke width.
+      // if (!p.boundingBox.contains(touch)) {
+      //   continue;
+      // }
+
+      final offsets = getOffsets(origin, p.points);
+      final strokeWidth = p.useStrokeWidthInMeter
+          ? _metersToStrokeWidth(
+              origin,
+              p.points.first,
+              offsets.first,
+              p.strokeWidth,
+            )
+          : p.strokeWidth;
+      final maxDistance = strokeWidth / 2 + p.borderStrokeWidth / 2;
+
+      for (int i = 0; i < offsets.length - 1; i++) {
+        final o1 = offsets[i];
+        final o2 = offsets[i + 1];
+
+        final distance = math.sqrt(_distToSegmentSquared(
+          position.dx,
+          position.dy,
+          o1.dx,
+          o1.dy,
+          o2.dx,
+          o2.dy,
+        ));
+
+        if (distance < maxDistance) {
+          // We break out of the loop after we find the top-most candidate
+          // polyline. However, we only register a hit if this polyline is
+          // tappable. This let's (by design) non-interactive polylines
+          // occlude polylines beneath.
+          if (p.onTap != null) {
+            hit = p;
+          }
+          break outer;
+        }
+      }
+    }
+
+    if (hit != null) {
+      lastHit!.hit = _Hit(hit, touch);
+      return true;
+    }
+
+    lastHit!.hit = null;
+    return false;
   }
 
   @override
@@ -169,16 +271,12 @@ class PolylinePainter extends CustomPainter {
 
       late final double strokeWidth;
       if (polyline.useStrokeWidthInMeter) {
-        final firstPoint = polyline.points.first;
-        final firstOffset = offsets.first;
-        final r = const Distance().offset(
-          firstPoint,
+        strokeWidth = _metersToStrokeWidth(
+          origin,
+          polyline.points.first,
+          offsets.first,
           polyline.strokeWidth,
-          180,
         );
-        final delta = firstOffset - getOffset(origin, r);
-
-        strokeWidth = delta.distance;
       } else {
         strokeWidth = polyline.strokeWidth;
       }
@@ -290,10 +388,52 @@ class PolylinePainter extends CustomPainter {
         .toList();
   }
 
+  double _metersToStrokeWidth(
+    Offset origin,
+    LatLng p0,
+    Offset o0,
+    double strokeWidthInMeters,
+  ) {
+    final r = _distance.offset(
+      p0,
+      strokeWidthInMeters,
+      180,
+    );
+    final delta = o0 - getOffset(origin, r);
+    return delta.distance;
+  }
+
   @override
-  bool shouldRepaint(PolylinePainter oldDelegate) {
+  bool shouldRepaint(_PolylinePainter oldDelegate) {
     return oldDelegate.bounds != bounds ||
         oldDelegate.polylines.length != polylines.length ||
         oldDelegate.hash != hash;
   }
 }
+
+double _distanceSq(double x0, double y0, double x1, double y1) {
+  final dx = x0 - x1;
+  final dy = y0 - y1;
+  return dx * dx + dy * dy;
+}
+
+double _distToSegmentSquared(
+  double px,
+  double py,
+  double x0,
+  double y0,
+  double x1,
+  double y1,
+) {
+  final dx = x1 - x0;
+  final dy = y1 - y0;
+  final distanceSq = dx * dx + dy * dy;
+  if (distanceSq == 0) {
+    return _distanceSq(px, py, x0, y0);
+  }
+
+  final t = (((px - x0) * dx + (py - y0) * dy) / distanceSq).clamp(0, 1);
+  return _distanceSq(px, py, x0 + t * dx, y0 + t * dy);
+}
+
+const _distance = Distance();
