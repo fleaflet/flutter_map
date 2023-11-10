@@ -43,6 +43,7 @@
 * [Using Mapbox](tile-servers/using-mapbox.md)
 * [Using Thunderforest](tile-servers/using-thunderforest.md)
 * [Using Stadia Maps](tile-servers/using-stadia-maps.md)
+* [Using Bing Maps](tile-servers/using-bing-maps.md)
 * [Offline Mapping](tile-servers/offline-mapping.md)
 * [Other Options](tile-servers/other-options.md)
 
