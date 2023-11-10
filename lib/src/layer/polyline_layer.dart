@@ -100,14 +100,23 @@ class PolylinePainter extends CustomPainter {
 
   Offset getOffset(Offset origin, LatLng point) {
     // Critically create as little garbage as possible. This is called on every frame.
-    final projected = map.project(point);
+    final projected = map.project(point, map.zoom);
     return Offset(projected.x - origin.dx, projected.y - origin.dy);
   }
 
   List<Offset> getOffsets(Offset origin, List<LatLng> points) {
-    return List.generate(
+    final crs = map.crs;
+    final zoomScale = crs.scale(map.zoom);
+
+    final ox = -origin.dx;
+    final oy = -origin.dy;
+
+    return List<Offset>.generate(
       points.length,
-      (index) => getOffset(origin, points[index]),
+      (index) {
+        final (x, y) = crs.latLngToXY(points[index], zoomScale);
+        return Offset(x + ox, y + oy);
+      },
       growable: false,
     );
   }

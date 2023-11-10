@@ -83,8 +83,6 @@ class CustomCrsPageState extends State<CustomCrsPage> {
       // Scale factors (pixels per projection unit, for example pixels/meter) for zoom levels;
       // specify either scales or resolutions, not both
       scales: null,
-      // The transformation to use when transforming projected coordinates into pixel coordinates
-      transformation: null,
     );
   }
 
