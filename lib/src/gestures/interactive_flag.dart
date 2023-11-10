@@ -14,10 +14,15 @@
 abstract class InteractiveFlag {
   const InteractiveFlag._();
 
-  static const int all =
-      drag | flingAnimation | pinchMove | pinchZoom 
-      | doubleTapZoom | doubleTapDragZoom | scrollWheelZoom | rotate;
-  
+  static const int all = drag |
+      flingAnimation |
+      pinchMove |
+      pinchZoom |
+      doubleTapZoom |
+      doubleTapDragZoom |
+      scrollWheelZoom |
+      rotate;
+
   static const int none = 0;
 
   /// Enable panning with a single finger or cursor
