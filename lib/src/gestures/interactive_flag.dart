@@ -90,4 +90,7 @@ abstract class InteractiveFlag {
 
   /// True if the [rotate] interactive flag is enabled.
   static bool hasRotate(int flags) => hasFlag(flags, rotate);
+
+  /// True if the [scrollWheelZoom] interactive flag is enabled.
+  static bool hasScrollWheelZoom(int flags) => hasFlag(flags, scrollWheelZoom);
 }
