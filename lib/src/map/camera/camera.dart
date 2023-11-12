@@ -37,13 +37,6 @@ class MapCamera {
   /// value in radians.
   final double rotation;
 
-  @Deprecated(
-    'Prefer `nonRotatedSize`. '
-    'This getter has been changed to fix the capitalization. '
-    'This getter is deprecated since v6.',
-  )
-  Point<double> get nonrotatedSize => nonRotatedSize;
-
   /// The size of the map view ignoring rotation. This will be the size of the
   /// FlutterMap widget.
   final Point<double> nonRotatedSize;
@@ -62,13 +55,6 @@ class MapCamera {
 
   /// Lazily calculated field
   double? _rotationRad;
-
-  @Deprecated(
-    'Prefer `visibleBounds`. '
-    'This getter has been changed to clarify its meaning. '
-    'This getter is deprecated since v6.',
-  )
-  LatLngBounds get bounds => visibleBounds;
 
   /// This is the [LatLngBounds] corresponding to four corners of this camera.
   /// This takes rotation in to account.

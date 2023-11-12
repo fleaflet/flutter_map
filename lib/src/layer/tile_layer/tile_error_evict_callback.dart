@@ -1,15 +1,5 @@
 part of 'tile_layer.dart';
 
-@Deprecated(
-  'Prefer creating a custom `TileProvider` instead. '
-  'This option has been deprecated as it is out of scope for the `TileLayer`. '
-  'This option is deprecated since v6.',
-)
-typedef TemplateFunction = String Function(
-  String str,
-  Map<String, String> data,
-);
-
 enum EvictErrorTileStrategy {
   /// Never evict images for tiles which failed to load.
   none,

@@ -135,14 +135,6 @@ class TileLayer extends StatefulWidget {
   // Defaults to TileDisplay.fadeIn().
   final TileDisplay tileDisplay;
 
-  /// Color shown behind the tiles
-  @Deprecated(
-    'Prefer `MapOptions.backgroundColor`. '
-    'This property has been removed simplify interaction when using multiple `TileLayer`s. '
-    'This property is deprecated since v6.',
-  )
-  final Color? backgroundColor;
-
   /// Provider with which to load map tiles
   ///
   /// The default is [NetworkTileProvider] which supports both IO and web
@@ -199,13 +191,6 @@ class TileLayer extends StatefulWidget {
   /// This callback will be executed if an error occurs when fetching tiles.
   final ErrorTileCallBack? errorTileCallback;
 
-  @Deprecated(
-    'Prefer creating a custom `TileProvider` instead. '
-    'This option has been deprecated as it is out of scope for the `TileLayer`. '
-    'This option is deprecated since v6.',
-  )
-  final TemplateFunction? templateFunction;
-
   /// Function which may Wrap Tile with custom Widget
   /// There are predefined examples in 'tile_builder.dart'
   final TileBuilder? tileBuilder;
@@ -250,12 +235,6 @@ class TileLayer extends StatefulWidget {
     this.subdomains = const ['a', 'b', 'c'],
     this.keepBuffer = 2,
     this.panBuffer = 1,
-    @Deprecated(
-      'Prefer `MapOptions.backgroundColor`. '
-      'This property has been removed simplify interaction when using multiple `TileLayer`s. '
-      'This property is deprecated since v6.',
-    )
-    this.backgroundColor,
     this.errorImage,
     final TileProvider? tileProvider,
     this.tms = false,
@@ -267,12 +246,6 @@ class TileLayer extends StatefulWidget {
     /// Defaults to `false` when `null`.
     final bool? retinaMode,
     this.errorTileCallback,
-    @Deprecated(
-      'Prefer creating a custom `TileProvider` instead. '
-      'This option has been deprecated as it is out of scope for the `TileLayer`. '
-      'This option is deprecated since v6.',
-    )
-    this.templateFunction,
     this.tileBuilder,
     this.evictErrorTileStrategy = EvictErrorTileStrategy.none,
     this.reset,
@@ -570,17 +543,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     }
 
     return MobileLayerTransformer(
-      // ignore: deprecated_member_use_from_same_package
-      child: _addBackgroundColor(
-        Stack(children: tiles..sort(renderOrder)),
-      ),
+      child: Stack(children: tiles..sort(renderOrder)),
     );
-  }
-
-  @Deprecated('Remove once `backgroundColor` is removed')
-  Widget _addBackgroundColor(Widget child) {
-    final color = widget.backgroundColor;
-    return color == null ? child : ColoredBox(color: color, child: child);
   }
 
   TileImage _createTileImage({
