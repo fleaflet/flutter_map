@@ -322,6 +322,7 @@ abstract class Projection {
 
   const Projection(this.bounds);
 
+  @nonVirtual
   Point<double> project(LatLng latlng) {
     final (x, y) = projectXY(latlng);
     return Point<double>(x, y);
@@ -329,6 +330,7 @@ abstract class Projection {
 
   (double, double) projectXY(LatLng latlng);
 
+  @nonVirtual
   LatLng unproject(Point point) =>
       unprojectXY(point.x.toDouble(), point.y.toDouble());
   LatLng unprojectXY(double x, double y);
@@ -365,7 +367,7 @@ class SphericalMercator extends Projection {
   const SphericalMercator() : super(_bounds);
 
   static double projectLat(double latitude) {
-    final lat = latitude.clamp(-maxLatitude, maxLatitude);
+    final lat = _clampSym(latitude, maxLatitude);
     final sin = math.sin(lat * math.pi / 180);
 
     return r / 2 * math.log((1 + sin) / (1 - sin));
@@ -445,5 +447,8 @@ class _Transformation {
       );
 }
 
-double _inclusiveLat(double value) => value.clamp(-90, 90);
-double _inclusiveLng(double value) => value.clamp(-180, 180);
+// Num.clamp is slow due to virtual function overhead.
+double _clampSym(double value, double limit) =>
+    value < -limit ? -limit : (value > limit ? limit : value);
+double _inclusiveLat(double value) => _clampSym(value, 90);
+double _inclusiveLng(double value) => _clampSym(value, 180);

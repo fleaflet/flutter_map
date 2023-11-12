@@ -5,6 +5,7 @@ import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
 import 'package:flutter_map/src/layer/polygon_layer/label.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
+import 'package:flutter_map/src/misc/offsets.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:latlong2/latlong.dart' hide Path; // conflict with Path from UI
 
@@ -164,31 +165,8 @@ class PolygonPainter extends CustomPainter {
   ({Offset min, Offset max}) getBounds(Offset origin, Polygon polygon) {
     final bbox = polygon.boundingBox;
     return (
-      min: getOffset(origin, bbox.southWest),
-      max: getOffset(origin, bbox.northEast),
-    );
-  }
-
-  Offset getOffset(Offset origin, LatLng point) {
-    // Critically create as little garbage as possible. This is called on every frame.
-    final projected = map.project(point, map.zoom);
-    return Offset(projected.x - origin.dx, projected.y - origin.dy);
-  }
-
-  List<Offset> getOffsets(Offset origin, List<LatLng> points) {
-    final crs = map.crs;
-    final zoomScale = crs.scale(map.zoom);
-
-    final ox = -origin.dx;
-    final oy = -origin.dy;
-
-    return List<Offset>.generate(
-      points.length,
-      (index) {
-        final (x, y) = crs.latLngToXY(points[index], zoomScale);
-        return Offset(x + ox, y + oy);
-      },
-      growable: false,
+      min: getOffset(map, origin, bbox.southWest),
+      max: getOffset(map, origin, bbox.northEast),
     );
   }
 
@@ -234,7 +212,7 @@ class PolygonPainter extends CustomPainter {
       if (polygon.points.isEmpty) {
         continue;
       }
-      final offsets = getOffsets(origin, polygon.points);
+      final offsets = getOffsets(map, origin, polygon.points);
 
       // The hash is based on the polygons visual properties. If the hash from
       // the current and the previous polygon no longer match, we need to flush
@@ -264,7 +242,7 @@ class PolygonPainter extends CustomPainter {
 
         final holeOffsetsList = List<List<Offset>>.generate(
           holePointsList.length,
-          (i) => getOffsets(origin, holePointsList[i]),
+          (i) => getOffsets(map, origin, holePointsList[i]),
           growable: false,
         );
 
