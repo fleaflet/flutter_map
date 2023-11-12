@@ -4,7 +4,7 @@
 ///
 /// If you want mix interactions for example drag and rotate interactions then
 /// you have two options:
-///   a. Add you own flags: [InteractiveFlag.drag] | [InteractiveFlag.rotate]
+///   a. Add your own flags: [InteractiveFlag.drag] | [InteractiveFlag.rotate]
 ///   b. Remove unnecessary flags from all:
 ///     [InteractiveFlag.all] &
 ///       ~[InteractiveFlag.flingAnimation] &
@@ -14,8 +14,15 @@
 abstract class InteractiveFlag {
   const InteractiveFlag._();
 
-  static const int all =
-      drag | flingAnimation | pinchMove | pinchZoom | doubleTapZoom | rotate;
+  static const int all = drag |
+      flingAnimation |
+      pinchMove |
+      pinchZoom |
+      doubleTapZoom |
+      doubleTapDragZoom |
+      scrollWheelZoom |
+      rotate;
+
   static const int none = 0;
 
   /// Enable panning with a single finger or cursor
@@ -83,4 +90,7 @@ abstract class InteractiveFlag {
 
   /// True if the [rotate] interactive flag is enabled.
   static bool hasRotate(int flags) => hasFlag(flags, rotate);
+
+  /// True if the [scrollWheelZoom] interactive flag is enabled.
+  static bool hasScrollWheelZoom(int flags) => hasFlag(flags, scrollWheelZoom);
 }
