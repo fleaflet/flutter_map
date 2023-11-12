@@ -87,6 +87,32 @@ class Bounds<T extends num> {
         (b.max.y >= min.y);
   }
 
+  bool aabbContainsLine(num x1, num y1, num x2, num y2) {
+    // Completely outside.
+    if ((x1 <= min.x && x2 <= min.x) ||
+        (y1 <= min.y && y2 <= min.y) ||
+        (x1 >= max.x && x2 >= max.x) ||
+        (y1 >= max.y && y2 >= max.y)) {
+      return false;
+    }
+
+    final m = (y2 - y1) / (x2 - x1);
+
+    num y = m * (min.x - x1) + y1;
+    if (y > min.y && y < max.y) return true;
+
+    y = m * (max.x - x1) + y1;
+    if (y > min.y && y < max.y) return true;
+
+    num x = (min.y - y1) / m + x1;
+    if (x > min.x && x < max.x) return true;
+
+    x = (max.y - y1) / m + x1;
+    if (x > min.x && x < max.x) return true;
+
+    return false;
+  }
+
   /// Calculates the intersection of two Bounds. The return value will be null
   /// if there is no intersection. The returned bounds may be zero size
   /// (bottomLeft == topRight).

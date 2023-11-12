@@ -4,10 +4,6 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/geo/latlng_bounds.dart';
-import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
-import 'package:flutter_map/src/map/camera/camera.dart';
-import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -146,6 +142,7 @@ class PolylineLayer extends StatelessWidget {
             if (start != -1) {
               // partial start
               final segment = polyline.points.sublist(start, i + 1);
+              // TODO copyWith method for polyline
               renderedLines.add(Polyline(
                 points: segment,
                 borderColor: polyline.borderColor,
