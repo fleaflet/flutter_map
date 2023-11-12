@@ -4,7 +4,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/misc/simplify.dart';
+import 'package:flutter_map/simplify.dart';
 import 'package:latlong2/latlong.dart';
 
 class Polyline {
@@ -51,9 +51,6 @@ class Polyline {
 @immutable
 class PolylineLayer extends StatelessWidget {
   final List<Polyline> polylines;
-  @Deprecated(
-      'has no effect anymore, polyline culling is enabled by default and controlled by margin')
-  final bool polylineCulling;
 
   /// extent outside of the viewport before culling polylines, set to null to
   /// disable polyline culling
@@ -68,7 +65,6 @@ class PolylineLayer extends StatelessWidget {
   const PolylineLayer({
     super.key,
     required this.polylines,
-    this.polylineCulling = true,
     this.polylineCullingMargin = 0,
     this.simplificationTolerance = 1,
     this.simplificationHighQuality = false,

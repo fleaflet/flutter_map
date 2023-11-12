@@ -1,6 +1,7 @@
 // implementation based on
 // https://github.com/mourner/simplify-js/blob/master/simplify.js
 
+library simplify;
 
 import 'package:latlong2/latlong.dart';
 
@@ -25,8 +26,7 @@ double _getSqSegDist(
   double dy = p2.latitude - y;
   if (dx != 0 || dy != 0) {
     final double t =
-        ((p.longitude - x) * dx + (p.latitude - y) * dy) /
-            (dx * dx + dy * dy);
+        ((p.longitude - x) * dx + (p.latitude - y) * dy) / (dx * dx + dy * dy);
     if (t > 1) {
       x = p2.longitude;
       y = p2.latitude;
@@ -42,7 +42,7 @@ double _getSqSegDist(
   return dx * dx + dy * dy;
 }
 
-List<LatLng> _simplifyRadialDist(
+List<LatLng> simplifyRadialDist(
   List<LatLng> points,
   double sqTolerance,
 ) {
@@ -91,7 +91,7 @@ void _simplifyDPStep(
 }
 
 // simplification using Ramer-Douglas-Peucker algorithm
-List<LatLng> _simplifyDouglasPeucker(
+List<LatLng> simplifyDouglasPeucker(
   List<LatLng> points,
   double sqTolerance,
 ) {
@@ -102,7 +102,8 @@ List<LatLng> _simplifyDouglasPeucker(
   return simplified;
 }
 
-// both algorithms combined for awesome performance
+/// high quality simplification uses the Ramer-Douglas-Peucker algorithm
+/// otherwise it just merges close points
 List<LatLng> simplify(
   List<LatLng> points,
   double tolerance, {
@@ -114,7 +115,7 @@ List<LatLng> simplify(
   List<LatLng> nextPoints = points;
   final double sqTolerance = tolerance * tolerance;
   nextPoints =
-      highestQuality ? points : _simplifyRadialDist(nextPoints, sqTolerance);
-  nextPoints = _simplifyDouglasPeucker(nextPoints, sqTolerance);
+      highestQuality ? points : simplifyRadialDist(nextPoints, sqTolerance);
+  nextPoints = simplifyDouglasPeucker(nextPoints, sqTolerance);
   return nextPoints;
 }
