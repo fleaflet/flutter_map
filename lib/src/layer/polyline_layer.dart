@@ -198,7 +198,6 @@ class PolylineLayer extends StatelessWidget {
         }
         if (fullyVisible) {
           //The whole polyline is visible
-          // print("rendered whole polyhon");
           renderedLines.add(polyline);
         }
       }
