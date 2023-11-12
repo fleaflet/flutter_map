@@ -3,7 +3,6 @@ import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:flutter_map/src/misc/bounds.dart';
-import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 
@@ -76,13 +75,13 @@ class DiscreteTileBounds extends TileBounds {
   TileBoundsAtZoom _tileBoundsAtZoomImpl(int zoom) {
     final zoomDouble = zoom.toDouble();
 
-    final Bounds<num> pixelBounds;
+    final Bounds<double> pixelBounds;
     if (_latLngBounds == null) {
       pixelBounds = crs.getProjectedBounds(zoomDouble)!;
     } else {
-      pixelBounds = Bounds(
-        crs.latLngToPoint(_latLngBounds!.southWest, zoomDouble).floor(),
-        crs.latLngToPoint(_latLngBounds!.northEast, zoomDouble).ceil(),
+      pixelBounds = Bounds<double>(
+        crs.latLngToPoint(_latLngBounds!.southWest, zoomDouble),
+        crs.latLngToPoint(_latLngBounds!.northEast, zoomDouble),
       );
     }
 
@@ -107,7 +106,7 @@ class WrappedTileBounds extends TileBounds {
   ) : super._();
 
   @override
-  WrappedTileBoundsAtZoom atZoom(int zoom) {
+  TileBoundsAtZoom atZoom(int zoom) {
     return _tileBoundsAtZoomCache.putIfAbsent(
         zoom, () => _tileBoundsAtZoomImpl(zoom));
   }
@@ -115,25 +114,23 @@ class WrappedTileBounds extends TileBounds {
   WrappedTileBoundsAtZoom _tileBoundsAtZoomImpl(int zoom) {
     final zoomDouble = zoom.toDouble();
 
-    final Bounds<num> pixelBounds;
+    final Bounds<double> pixelBounds;
     if (_latLngBounds == null) {
       pixelBounds = crs.getProjectedBounds(zoomDouble)!;
     } else {
-      pixelBounds = Bounds(
-        crs.latLngToPoint(_latLngBounds!.southWest, zoomDouble).floor(),
-        crs.latLngToPoint(_latLngBounds!.northEast, zoomDouble).ceil(),
+      pixelBounds = Bounds<double>(
+        crs.latLngToPoint(_latLngBounds!.southWest, zoomDouble),
+        crs.latLngToPoint(_latLngBounds!.northEast, zoomDouble),
       );
     }
-
-    final tzDouble = zoom.toDouble();
 
     (int, int)? wrapX;
     if (crs.wrapLng case final wrapLng?) {
       final wrapXMin =
-          (crs.latLngToPoint(LatLng(0, wrapLng.$1), tzDouble).x / _tileSize)
+          (crs.latLngToPoint(LatLng(0, wrapLng.$1), zoomDouble).x / _tileSize)
               .floor();
       final wrapXMax =
-          (crs.latLngToPoint(LatLng(0, wrapLng.$2), tzDouble).x / _tileSize)
+          (crs.latLngToPoint(LatLng(0, wrapLng.$2), zoomDouble).x / _tileSize)
               .ceil();
       wrapX = (wrapXMin, wrapXMax - 1);
     }
@@ -141,10 +138,10 @@ class WrappedTileBounds extends TileBounds {
     (int, int)? wrapY;
     if (crs.wrapLat case final wrapLat?) {
       final wrapYMin =
-          (crs.latLngToPoint(LatLng(wrapLat.$1, 0), tzDouble).y / _tileSize)
+          (crs.latLngToPoint(LatLng(wrapLat.$1, 0), zoomDouble).y / _tileSize)
               .floor();
       final wrapYMax =
-          (crs.latLngToPoint(LatLng(wrapLat.$2, 0), tzDouble).y / _tileSize)
+          (crs.latLngToPoint(LatLng(wrapLat.$2, 0), zoomDouble).y / _tileSize)
               .ceil();
       wrapY = (wrapYMin, wrapYMax - 1);
     }

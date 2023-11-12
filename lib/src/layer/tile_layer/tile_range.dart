@@ -34,7 +34,7 @@ class DiscreteTileRange extends TileRange {
   factory DiscreteTileRange.fromPixelBounds({
     required int zoom,
     required double tileSize,
-    required Bounds<num> pixelBounds,
+    required Bounds<double> pixelBounds,
   }) {
     final Bounds<int> bounds;
     if (pixelBounds.min == pixelBounds.max) {
@@ -77,9 +77,9 @@ class DiscreteTileRange extends TileRange {
 
     return DiscreteTileRange(
       zoom,
-      Bounds(
-        Point(math.max(min.x, minX), min.y),
-        Point(math.min(max.x, maxX), max.y),
+      Bounds<int>(
+        Point<int>(math.max(min.x, minX), min.y),
+        Point<int>(math.min(max.x, maxX), max.y),
       ),
     );
   }
@@ -92,9 +92,9 @@ class DiscreteTileRange extends TileRange {
 
     return DiscreteTileRange(
       zoom,
-      Bounds(
-        Point(min.x, math.max(min.y, minY)),
-        Point(max.x, math.min(max.y, maxY)),
+      Bounds<int>(
+        Point<int>(min.x, math.max(min.y, minY)),
+        Point<int>(max.x, math.min(max.y, maxY)),
       ),
     );
   }

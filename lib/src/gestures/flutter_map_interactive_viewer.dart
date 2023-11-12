@@ -388,8 +388,7 @@ class FlutterMapInteractiveViewerState
   void _onPointerSignal(PointerSignalEvent pointerSignal) {
     // Handle mouse scroll events if the enableScrollWheel parameter is enabled
     if (pointerSignal is PointerScrollEvent &&
-        (InteractiveFlag.hasFlag(
-                _interactionOptions.flags, InteractiveFlag.scrollWheelZoom) ||
+        (InteractiveFlag.hasScrollWheelZoom(_interactionOptions.flags) ||
             // ignore: deprecated_member_use_from_same_package
             _interactionOptions.enableScrollWheel) &&
         pointerSignal.scrollDelta.dy != 0) {

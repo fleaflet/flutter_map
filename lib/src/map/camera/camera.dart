@@ -58,7 +58,7 @@ class MapCamera {
   LatLngBounds? _bounds;
 
   /// Lazily calculated field
-  Point<int>? _pixelOrigin;
+  Point<double>? _pixelOrigin;
 
   /// Lazily calculated field
   double? _rotationRad;
@@ -89,8 +89,8 @@ class MapCamera {
   /// The offset of the top-left corner of the bounding rectangle of this
   /// camera. This will not equal the offset of the top-left visible pixel when
   /// the map is rotated.
-  Point<int> get pixelOrigin =>
-      _pixelOrigin ??= (project(center, zoom) - size / 2.0).round();
+  Point<double> get pixelOrigin =>
+      _pixelOrigin ??= project(center, zoom) - size / 2.0;
 
   /// The camera of the closest [FlutterMap] ancestor. If this is called from a
   /// context with no [FlutterMap] ancestor null, is returned.
@@ -118,7 +118,7 @@ class MapCamera {
     Point<double>? size,
     Bounds<double>? pixelBounds,
     LatLngBounds? bounds,
-    Point<int>? pixelOrigin,
+    Point<double>? pixelOrigin,
     double? rotationRad,
   })  : _cameraSize = size,
         _pixelBounds = pixelBounds,
@@ -254,7 +254,7 @@ class MapCamera {
 
   /// Calculates the [Offset] from the [pos] to this camera's [pixelOrigin].
   Offset getOffsetFromOrigin(LatLng pos) =>
-      project(pos).subtract(pixelOrigin).toOffset();
+      (project(pos) - pixelOrigin).toOffset();
 
   /// Calculates the pixel origin of this [MapCamera] at the given
   /// [center]/[zoom].
@@ -281,8 +281,7 @@ class MapCamera {
   /// This will convert a latLng to a position that we could use with a widget
   /// outside of FlutterMap layer space. Eg using a Positioned Widget.
   Point<double> latLngToScreenPoint(LatLng latLng) {
-    final nonRotatedPixelOrigin =
-        (project(center, zoom) - nonRotatedSize / 2.0).round();
+    final nonRotatedPixelOrigin = project(center, zoom) - nonRotatedSize / 2.0;
 
     var point = crs.latLngToPoint(latLng, zoom);
 
@@ -292,7 +291,7 @@ class MapCamera {
       point = rotatePoint(mapCenter, point, counterRotation: false);
     }
 
-    return point.subtract(nonRotatedPixelOrigin);
+    return point - nonRotatedPixelOrigin;
   }
 
   LatLng pointToLatLng(Point localPoint) {

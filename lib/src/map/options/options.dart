@@ -117,7 +117,7 @@ class MapOptions {
   /// map themselves. Without this, only the top layer may handle gestures.
   ///
   /// Note that layers that are visually obscured behind another layer will
-  /// recieve events, if this is enabled.
+  /// receive events, if this is enabled.
   ///
   /// Technically, layers become invisible to the parent `Stack` when hit
   /// testing (and thus `Stack` will keep bubbling gestures down all layers), but

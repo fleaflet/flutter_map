@@ -11,9 +11,9 @@ class Bounds<T extends num> {
   final Point<T> max;
 
   factory Bounds(Point<T> a, Point<T> b) {
-    final bounds1 = Bounds._(a, b);
-    final bounds2 = bounds1.extend(a);
-    return bounds2.extend(b);
+    final (minx, maxx) = a.x > b.x ? (b.x, a.x) : (a.x, b.x);
+    final (miny, maxy) = a.y > b.y ? (b.y, a.y) : (a.y, b.y);
+    return Bounds._(Point<T>(minx, miny), Point<T>(maxx, maxy));
   }
 
   const Bounds._(this.min, this.max);
@@ -38,14 +38,8 @@ class Bounds<T extends num> {
   /// point.
   Bounds<T> extend(Point<T> point) {
     return Bounds._(
-      Point(
-        math.min(point.x, min.x),
-        math.min(point.y, min.y),
-      ),
-      Point(
-        math.max(point.x, max.x),
-        math.max(point.y, max.y),
-      ),
+      Point(math.min(point.x, min.x), math.min(point.y, min.y)),
+      Point(math.max(point.x, max.x), math.max(point.y, max.y)),
     );
   }
 
@@ -73,9 +67,10 @@ class Bounds<T extends num> {
   }
 
   bool contains(Point<T> point) {
-    final min = point;
-    final max = point;
-    return containsBounds(Bounds(min, max));
+    return (point.x >= min.x) &&
+        (point.x <= max.x) &&
+        (point.y >= min.y) &&
+        (point.y <= max.y);
   }
 
   bool containsBounds(Bounds<T> b) {
@@ -102,7 +97,7 @@ class Bounds<T extends num> {
     final bottomY = math.min(max.y, b.max.y);
 
     if (leftX <= rightX && topY <= bottomY) {
-      return Bounds(Point(leftX, topY), Point(rightX, bottomY));
+      return Bounds._(Point(leftX, topY), Point(rightX, bottomY));
     }
 
     return null;

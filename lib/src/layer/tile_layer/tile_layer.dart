@@ -25,7 +25,6 @@ import 'package:flutter_map/src/layer/tile_layer/tile_update_transformer.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:flutter_map/src/map/controller/map_controller.dart';
 import 'package:flutter_map/src/misc/bounds.dart';
-import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:http/retry.dart';
 import 'package:logger/logger.dart';
 
@@ -525,43 +524,55 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     _tileImageManager.createMissingTiles(
       visibleTileRange,
       tileBoundsAtZoom,
-      createTileImage: (coordinates) => _createTileImage(
+      createTile: (coordinates) => _createTileImage(
         coordinates: coordinates,
         tileBoundsAtZoom: tileBoundsAtZoom,
         pruneAfterLoad: false,
       ),
     );
 
-    final currentPixelOrigin = Point<double>(
-      map.pixelOrigin.x.toDouble(),
-      map.pixelOrigin.y.toDouble(),
-    );
-
     _tileScaleCalculator.clearCacheUnlessZoomMatches(map.zoom);
+
+    // Note: `renderTiles` filters out all tiles that are either off-screen or
+    // tiles at non-target zoom levels that are would be completely covered by
+    // tiles that are *ready* and at the target zoom level.
+    // We're happy to do a bit of diligent work here, since tiles not rendered are
+    // cycles saved later on in the render pipeline.
+    final tiles = _tileImageManager
+        .getTilesToRender(visibleRange: visibleTileRange)
+        .map((tileImage) => Tile(
+              // Must be an ObjectKey, not a ValueKey using the coordinates, in
+              // case we remove and replace the TileImage with a different one.
+              key: ObjectKey(tileImage),
+              scaledTileSize: _tileScaleCalculator.scaledTileSize(
+                map.zoom,
+                tileImage.coordinates.z,
+              ),
+              currentPixelOrigin: map.pixelOrigin,
+              tileImage: tileImage,
+              tileBuilder: widget.tileBuilder,
+            ))
+        .toList();
+
+    // Sort in render order. In reverse:
+    //   1. Tiles at the current zoom.
+    //   2. Tiles at the current zoom +/- 1.
+    //   3. Tiles at the current zoom +/- 2.
+    //   4. ...etc
+    int renderOrder(Tile a, Tile b) {
+      final (za, zb) = (a.tileImage.coordinates.z, b.tileImage.coordinates.z);
+      final cmp = (zb - tileZoom).abs().compareTo((za - tileZoom).abs());
+      if (cmp == 0) {
+        // When compare parent/child tiles of equal distance, prefer higher res images.
+        return za.compareTo(zb);
+      }
+      return cmp;
+    }
 
     return MobileLayerTransformer(
       // ignore: deprecated_member_use_from_same_package
       child: _addBackgroundColor(
-        Stack(
-          children: [
-            ..._tileImageManager
-                .inRenderOrder(widget.maxZoom, tileZoom)
-                .map((tileImage) {
-              return Tile(
-                // Must be an ObjectKey, not a ValueKey using the coordinates, in
-                // case we remove and replace the TileImage with a different one.
-                key: ObjectKey(tileImage),
-                scaledTileSize: _tileScaleCalculator.scaledTileSize(
-                  map.zoom,
-                  tileImage.coordinates.z,
-                ),
-                currentPixelOrigin: currentPixelOrigin,
-                tileImage: tileImage,
-                tileBuilder: widget.tileBuilder,
-              );
-            }),
-          ],
-        ),
+        Stack(children: tiles..sort(renderOrder)),
       ),
     );
   }
@@ -671,8 +682,9 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     // Build the queue of tiles to load. Marks all tiles with valid coordinates
     // in the tileLoadRange as current.
     final tileBoundsAtZoom = _tileBounds.atZoom(tileZoom);
-    final tilesToLoad = _tileImageManager.createMissingTilesIn(
-      tileBoundsAtZoom.validCoordinatesIn(tileLoadRange),
+    final tilesToLoad = _tileImageManager.createMissingTiles(
+      tileLoadRange,
+      tileBoundsAtZoom,
       createTile: (coordinates) => _createTileImage(
         coordinates: coordinates,
         tileBoundsAtZoom: tileBoundsAtZoom,
@@ -683,9 +695,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     // Re-order the tiles by their distance to the center of the range.
     final tileCenter = tileLoadRange.center;
     tilesToLoad.sort(
-      (a, b) => a.coordinates
-          .distanceTo(tileCenter)
-          .compareTo(b.coordinates.distanceTo(tileCenter)),
+      (a, b) => _distanceSq(a.coordinates, tileCenter)
+          .compareTo(_distanceSq(b.coordinates, tileCenter)),
     );
 
     // Create the new Tiles.
@@ -740,4 +751,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   bool _outsideZoomLimits(num zoom) =>
       zoom < widget.minZoom || zoom > widget.maxZoom;
+}
+
+double _distanceSq(TileCoordinates coord, Point<double> center) {
+  final dx = center.x - coord.x;
+  final dy = center.y - coord.y;
+  return dx * dx + dy * dy;
 }

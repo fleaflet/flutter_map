@@ -6,57 +6,55 @@ import 'package:flutter_map/src/layer/polygon_layer/polygon_layer.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:polylabel/polylabel.dart';
 
-void Function(Canvas canvas)? buildLabelTextPainter(
-  List<LatLng> locs,
-  LatLng labelLoc, {
+void Function(Canvas canvas)? buildLabelTextPainter({
+  required math.Point<double> mapSize,
   required Offset placementPoint,
-  required List<Offset> points,
-  required String labelText,
+  required ({Offset min, Offset max}) bounds,
+  required TextPainter textPainter,
   required double rotationRad,
-  bool rotate = false,
-  TextStyle? labelStyle,
-  double padding = 0,
+  required bool rotate,
+  required double padding,
 }) {
-  double dx = placementPoint.dx;
-  double dy = placementPoint.dy;
+  final dx = placementPoint.dx;
+  final dy = placementPoint.dy;
+  final width = textPainter.width;
+  final height = textPainter.height;
 
-  if (dx > 0) {
-    final textSpan = TextSpan(text: labelText, style: labelStyle);
-    final textPainter = TextPainter(
-      text: textSpan,
-      textAlign: TextAlign.center,
-      textDirection: TextDirection.ltr,
-      maxLines: 1,
-    );
-
-    textPainter.layout();
-    dx -= textPainter.width / 2;
-    dy -= textPainter.height / 2;
-
-    var maxDx = 0.0;
-    var minDx = double.infinity;
-    for (final point in points) {
-      maxDx = math.max(maxDx, point.dx);
-      minDx = math.min(minDx, point.dx);
+  // Cull labels where the polygon is still on the map but the label would not be.
+  // Currently this is only enabled when the map isn't rotated, since the placementOffset
+  // is relative to the MobileLayerTransformer rather than in actual screen coordinates.
+  if (rotationRad == 0) {
+    if (dx + width / 2 < 0 || dx - width / 2 > mapSize.x) {
+      return null;
     }
-
-    if (maxDx - minDx - padding > textPainter.width) {
-      return (canvas) {
-        if (rotate) {
-          canvas.save();
-          canvas.translate(placementPoint.dx, placementPoint.dy);
-          canvas.rotate(-rotationRad);
-          canvas.translate(-placementPoint.dx, -placementPoint.dy);
-        }
-        textPainter.paint(
-          canvas,
-          Offset(dx, dy),
-        );
-        if (rotate) {
-          canvas.restore();
-        }
-      };
+    if (dy + height / 2 < 0 || dy - height / 2 > mapSize.y) {
+      return null;
     }
+  }
+
+  // Note: I'm pretty sure this doesn't work for concave shapes. It would be more
+  // correct to evaluate the width of the polygon at the height of the label.
+  if (bounds.max.dx - bounds.min.dx - padding > width) {
+    return (canvas) {
+      if (rotate) {
+        canvas.save();
+        canvas.translate(dx, dy);
+        canvas.rotate(-rotationRad);
+        canvas.translate(-dx, -dy);
+      }
+
+      textPainter.paint(
+        canvas,
+        Offset(
+          dx - width / 2,
+          dy - height / 2,
+        ),
+      );
+
+      if (rotate) {
+        canvas.restore();
+      }
+    };
   }
   return null;
 }
@@ -89,9 +87,8 @@ LatLng _computePolylabel(List<LatLng> points) {
     // i.e. cheaper at the expense off less optimal label placement.
     precision: 0.000001,
   );
-  final latlng = LatLng(
+  return LatLng(
     labelPosition.point.y.toDouble(),
     labelPosition.point.x.toDouble(),
   );
-  return latlng;
 }

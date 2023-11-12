@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:meta/meta.dart';
@@ -112,17 +110,16 @@ class WrappedTileBoundsAtZoom extends TileBoundsAtZoom {
   }
 
   bool _wrappedBothContains(TileCoordinates coordinates) {
-    return tileRange.contains(
-      Point(
-        _wrapInt(coordinates.x, wrapX!),
-        _wrapInt(coordinates.y, wrapY!),
-      ),
-    );
+    return tileRange.contains(TileCoordinates(
+      _wrapInt(coordinates.x, wrapX!),
+      _wrapInt(coordinates.y, wrapY!),
+      coordinates.z,
+    ));
   }
 
   bool _wrappedXInRange(TileCoordinates coordinates) {
     final wrappedX = _wrapInt(coordinates.x, wrapX!);
-    return wrappedX >= tileRange.min.x && wrappedX <= tileRange.max.y;
+    return wrappedX >= tileRange.min.x && wrappedX <= tileRange.max.x;
   }
 
   bool _wrappedYInRange(TileCoordinates coordinates) {

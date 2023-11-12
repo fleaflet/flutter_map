@@ -3,9 +3,11 @@ import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
+import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -53,7 +55,8 @@ class Polyline {
 @immutable
 class PolylineLayer extends StatelessWidget {
   final List<Polyline> polylines;
-  @Deprecated('has no effect anymore, polyline culling is enabled by default and controlled by margin')
+  @Deprecated(
+      'has no effect anymore, polyline culling is enabled by default and controlled by margin')
   final bool polylineCulling;
 
   /// extent outside of the viewport before culling polylines, set to null to
@@ -74,33 +77,6 @@ class PolylineLayer extends StatelessWidget {
     this.simplificationTolerance = 1,
     this.simplificationHighQuality = false,
   });
-
-  bool aabbContainsLine(
-      num x1, num y1, num x2, num y2, num minX, num minY, num maxX, num maxY) {
-    // Completely outside.
-    if ((x1 <= minX && x2 <= minX) ||
-        (y1 <= minY && y2 <= minY) ||
-        (x1 >= maxX && x2 >= maxX) ||
-        (y1 >= maxY && y2 >= maxY)) {
-      return false;
-    }
-
-    final m = (y2 - y1) / (x2 - x1);
-
-    num y = m * (minX - x1) + y1;
-    if (y > minY && y < maxY) return true;
-
-    y = m * (maxX - x1) + y1;
-    if (y > minY && y < maxY) return true;
-
-    num x = (minY - y1) / m + x1;
-    if (x > minX && x < maxX) return true;
-
-    x = (maxY - y1) / m + x1;
-    if (x > minX && x < maxX) return true;
-
-    return false;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -137,22 +113,18 @@ class PolylineLayer extends StatelessWidget {
           final p2 = polyline.points[i + 1];
 
           // segment is visible
-          if (aabbContainsLine(
-              p1.longitude,
-              p1.latitude,
-              p2.longitude,
-              p2.latitude,
-              boundsAdjusted.southWest.longitude,
-              boundsAdjusted.southWest.latitude,
-              boundsAdjusted.northEast.longitude,
-              boundsAdjusted.northEast.latitude)) {
+          if (Bounds(
+                  Point(boundsAdjusted.southWest.longitude,
+                      boundsAdjusted.southWest.latitude),
+                  Point(boundsAdjusted.northEast.longitude,
+                      boundsAdjusted.northEast.latitude))
+              .aabbContainsLine(
+                  p1.longitude, p1.latitude, p2.longitude, p2.latitude)) {
             // segment is visible
             if (start == -1) {
               start = i;
             }
             if (!fullyVisible && i == polyline.points.length - 2) {
-              // print("last segment visible");
-              //last segment is visible
               final segment = polyline.points.sublist(start, i + 2);
               renderedLines.add(Polyline(
                 points: segment,
@@ -168,13 +140,11 @@ class PolylineLayer extends StatelessWidget {
                 useStrokeWidthInMeter: polyline.useStrokeWidthInMeter,
               ));
             }
-            // print("$i visible");
           } else {
-            // print("$i not visible");
             fullyVisible = false;
             // if we cannot see the segment, then reset start
             if (start != -1) {
-              // print("partial $start $i");
+              // partial start
               final segment = polyline.points.sublist(start, i + 1);
               renderedLines.add(Polyline(
                 points: segment,
@@ -231,7 +201,7 @@ class PolylinePainter extends CustomPainter {
 
   int? _hash;
 
-  List<Offset> getOffsets(List<LatLng> points) {
+  List<Offset> getOffsets(Offset origin, List<LatLng> points) {
     final List<LatLng> simplifiedPoints;
     if (simplificationTolerance != null) {
       simplifiedPoints = simplify(points,
@@ -241,11 +211,15 @@ class PolylinePainter extends CustomPainter {
       simplifiedPoints = points;
     }
     return List.generate(simplifiedPoints.length, (index) {
-      return getOffset(simplifiedPoints[index]);
+      return getOffset(origin, simplifiedPoints[index]);
     }, growable: false);
   }
 
-  Offset getOffset(LatLng point) => camera.getOffsetFromOrigin(point);
+  Offset getOffset(Offset origin, LatLng point) {
+    // Critically create as little garbage as possible. This is called on every frame.
+    final projected = camera.project(point);
+    return Offset(projected.x - origin.dx, projected.y - origin.dy);
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -286,8 +260,11 @@ class PolylinePainter extends CustomPainter {
       paint = Paint();
     }
 
+    final origin =
+        camera.project(camera.center).toOffset() - camera.size.toOffset() / 2;
+
     for (final polyline in polylines) {
-      final offsets = getOffsets(polyline.points);
+      final offsets = getOffsets(origin, polyline.points);
       if (offsets.isEmpty) {
         continue;
       }
@@ -309,7 +286,7 @@ class PolylinePainter extends CustomPainter {
           polyline.strokeWidth,
           180,
         );
-        final delta = firstOffset - getOffset(r);
+        final delta = firstOffset - getOffset(origin, r);
 
         strokeWidth = delta.distance;
       } else {

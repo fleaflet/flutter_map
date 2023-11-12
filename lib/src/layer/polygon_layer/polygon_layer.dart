@@ -6,6 +6,7 @@ import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
 import 'package:flutter_map/src/layer/polygon_layer/label.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
+import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart' hide Path; // conflict with Path from UI
 
@@ -54,6 +55,18 @@ class Polygon {
   LatLngBounds? _boundingBox;
   LatLngBounds get boundingBox =>
       _boundingBox ??= LatLngBounds.fromPoints(points);
+
+  TextPainter? _textPainter;
+  TextPainter? get textPainter {
+    if (label != null) {
+      return _textPainter ??= TextPainter(
+        text: TextSpan(text: label, style: labelStyle),
+        textAlign: TextAlign.center,
+        textDirection: TextDirection.ltr,
+      )..layout();
+    }
+    return null;
+  }
 
   Polygon({
     required this.points,
@@ -106,6 +119,9 @@ class PolygonLayer extends StatelessWidget {
   // Turn on/off per-polygon label drawing on the layer-level.
   final bool polygonLabels;
 
+  // Whether to draw labels last and thus over all the polygons.
+  final bool drawLabelsLast;
+
   const PolygonLayer({
     super.key,
     required this.polygons,
@@ -113,6 +129,7 @@ class PolygonLayer extends StatelessWidget {
     this.simplificationTolerance = 1,
     this.simplificationHighQuality = false,
     this.polygonLabels = true,
+    this.drawLabelsLast = false,
   });
 
   @override
@@ -129,7 +146,7 @@ class PolygonLayer extends StatelessWidget {
     return MobileLayerTransformer(
       child: CustomPaint(
         painter: PolygonPainter(polygonsToRender, map, polygonLabels,
-            simplificationTolerance, simplificationHighQuality),
+            simplificationTolerance, simplificationHighQuality, drawLabelsLast),
         size: size,
         isComplex: true,
       ),
@@ -142,12 +159,13 @@ class PolygonPainter extends CustomPainter {
   final MapCamera camera;
   final LatLngBounds bounds;
   final bool polygonLabels;
+  final bool drawLabelsLast;
 
   final double? simplificationTolerance;
   final bool simplificationHighQuality;
 
   PolygonPainter(this.polygons, this.camera, this.polygonLabels,
-      this.simplificationTolerance, this.simplificationHighQuality)
+      this.simplificationTolerance, this.simplificationHighQuality, this.drawLabelsLast)
       : bounds = camera.visibleBounds;
 
   int get hash {
@@ -157,19 +175,33 @@ class PolygonPainter extends CustomPainter {
 
   int? _hash;
 
-  List<Offset> getOffsets(List<LatLng> points) {
-    final List<LatLng> simplifiedPoints;
+  ({Offset min, Offset max}) getBounds(Offset origin, Polygon polygon) {
+    final bbox = polygon.boundingBox;
+    return (
+      min: getOffset(origin, bbox.southWest),
+      max: getOffset(origin, bbox.northEast),
+    );
+  }
+
+  Offset getOffset(Offset origin, LatLng point) {
+    // Critically create as little garbage as possible. This is called on every frame.
+    final projected = camera.project(point);
+    return Offset(projected.x - origin.dx, projected.y - origin.dy);
+  }
+
+  List<Offset> getOffsets(Offset origin, List<LatLng> points) {
+    final List<LatLng> renderedPoints;
     if (simplificationTolerance != null) {
-      simplifiedPoints = simplify(points,
+      renderedPoints = simplify(points,
           simplificationTolerance! / pow(2, camera.zoom.floorToDouble()),
           highestQuality: simplificationHighQuality);
     } else {
-      simplifiedPoints = points;
+      renderedPoints = points;
     }
     return List.generate(
-      simplifiedPoints.length,
+      renderedPoints.length,
       (index) {
-        return camera.getOffsetFromOrigin(simplifiedPoints[index]);
+        return getOffset(origin, renderedPoints[index]);
       },
       growable: false,
     );
@@ -210,12 +242,14 @@ class PolygonPainter extends CustomPainter {
       lastHash = null;
     }
 
+    final origin = (camera.project(camera.center) - camera.size / 2).toOffset();
+
     // Main loop constructing batched fill and border paths from given polygons.
     for (final polygon in polygons) {
-      final offsets = getOffsets(polygon.points);
-      if (offsets.isEmpty) {
+      if (polygon.points.isEmpty) {
         continue;
       }
+      final offsets = getOffsets(origin, polygon.points);
 
       // The hash is based on the polygons visual properties. If the hash from
       // the current and the previous polygon no longer match, we need to flush
@@ -245,7 +279,7 @@ class PolygonPainter extends CustomPainter {
 
         final holeOffsetsList = List<List<Offset>>.generate(
           holePointsList.length,
-          (i) => getOffsets(holePointsList[i]),
+          (i) => getOffsets(origin, holePointsList[i]),
           growable: false,
         );
 
@@ -258,7 +292,7 @@ class PolygonPainter extends CustomPainter {
         }
       }
 
-      if (polygonLabels && polygon.label != null) {
+      if (!drawLabelsLast && polygonLabels && polygon.textPainter != null) {
         // Labels are expensive because:
         //  * they themselves cannot easily be pulled into our batched path
         //    painting with the given text APIs
@@ -269,15 +303,13 @@ class PolygonPainter extends CustomPainter {
         // The painter will be null if the layouting algorithm determined that
         // there isn't enough space.
         final painter = buildLabelTextPainter(
-          polygon.points,
-          polygon.labelPosition,
+          mapSize: camera.size,
           placementPoint: camera.getOffsetFromOrigin(polygon.labelPosition),
-          points: offsets,
-          labelText: polygon.label!,
-          labelStyle: polygon.labelStyle,
+          bounds: getBounds(origin, polygon),
+          textPainter: polygon.textPainter!,
           rotationRad: camera.rotationRad,
           rotate: polygon.rotateLabel,
-          padding: 10,
+          padding: 20,
         );
 
         if (painter != null) {
@@ -290,6 +322,29 @@ class PolygonPainter extends CustomPainter {
     }
 
     drawPaths();
+
+    if (polygonLabels && drawLabelsLast) {
+      for (final polygon in polygons) {
+        if (polygon.points.isEmpty) {
+          continue;
+        }
+        final textPainter = polygon.textPainter;
+        if (textPainter != null) {
+          final painter = buildLabelTextPainter(
+            mapSize: camera.size,
+            placementPoint:
+                camera.project(polygon.labelPosition).toOffset() - origin,
+            bounds: getBounds(origin, polygon),
+            textPainter: textPainter,
+            rotationRad: camera.rotationRad,
+            rotate: polygon.rotateLabel,
+            padding: 20,
+          );
+
+          painter?.call(canvas);
+        }
+      }
+    }
   }
 
   Paint _getBorderPaint(Polygon polygon) {
