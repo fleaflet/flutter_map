@@ -10,7 +10,7 @@ You can overlay images on the map (for example, town or floor plans) using `Over
 
 ```dart
 OverlayImageLayer(
-  circles: [
+  overlayImages: [
     OverlayImage(
       bounds: LatLngBounds(
         LatLng(45.3367881884556, 14.159452282322459),

@@ -23,6 +23,10 @@ PolylineLayer(
 
 Excessive use of polylines may create performance issues. There are two options to attempt to improve performance.
 
+{% hint style="success" %}
+We're working on improvements right now to make your app even more buttery smooth! Stay up to date with the latest performance improvements by joining our Discord server.
+{% endhint %}
+
 ### Sticking With `PolylineLayer`
 
 It is easiest to try to squeeze as much performance out of `Polyline`s as possible. However, this may not always be the best option.
@@ -30,7 +34,7 @@ It is easiest to try to squeeze as much performance out of `Polyline`s as possib
 Consider using both of the methods below:
 
 * Split long lines into individual `Polyline`s at regular intervals, then enable `polylineCulling`, in order to prevent the calculation and rendering of `Polyline`s outside of the current viewport.
-* Simplify the polyline by reducing the number of points within it, in order to reduce raster and calculation times. It is recommended to do this to varying degrees and resolutions based on the current zoom level. It may be possible to use an external Flutter library called ['simplify'](https://pub.dev/packages/simplify).
+* Simplify the polyline by reducing the number of points within it, in order to reduce raster and calculation times. It is recommended to do this to varying degrees and resolutions based on the current zoom level. It may be possible to use an external Flutter library called [simplify](https://pub.dev/packages/simplify).
 
 The first method will improve performance when zoomed in, as more `Polyline`s will be able to be culled, whilst the second method will improve performance when zoomed out, without impacting visuals (when done well).
 
@@ -38,12 +42,21 @@ The first method will improve performance when zoomed in, as more `Polyline`s wi
 
 If using `PolylineLayer` as above still does not reach satisfactory performance, then the best option may be to render a custom tile set. For example, this may be necessary when attempting to draw a number of long-distance routes, or other widespread dataset.
 
-We do not provide any detailed information on how to do this, although the general flow will likely look like the following:
+{% hint style="info" %}
+We're unable to provide support with this method, and this may become outdated.
+{% endhint %}
 
-1. Render all lines onto a square canvas, with the lines positioned correctly according to the CRS in use
-2. Slice the canvas into a [slippy map](https://wiki.openstreetmap.org/wiki/Slippy\_map\_tilenames) tree
-3. Repeat the above steps for every desired zoom level, increasing the resolution of the lines at higher zoom levels
-4. Host the directory tree on a server, provide a way to download it to the user's filesystem, or add it to the assets of the app, then use the appropriate `TileProvider`: [tile-providers.md](tile-layer/tile-providers.md "mention")
+The first step is to render the desired lines into a tileset with a transparent background - [tippecanoe](https://github.com/mapbox/tippecanoe) is commonly used to do this, and generates vector-format MBTiles.
+
+If you have raster tiles, you're all set to serve as normal/as you choose. More commonly though, you'll have vector tiles at this step, as with 'tippecanoe', so you'll need to do one of the following things:
+
+* Try to convert it to raster tiles all in one shot, and if necessary, use a tool like [mbtilesToPngs](https://github.com/alfanhui/mbtilesToPngs) to extract the raster .mbtiles into a slippy map tree
+* Give the MBTiles/vector tiles to the vector map plugin
+* Serve the tiles via something like [tileserver-gl](https://github.com/maptiler/tileserver-gl), which provides an on-the-fly rasterizer
+
+If you have raster tiles, you're all set to serve as normal.
+
+To provide the tiles to the users within flutter\_map, see [tile-providers.md](tile-layer/tile-providers.md "mention").
 
 ## Routing/Navigation
 
