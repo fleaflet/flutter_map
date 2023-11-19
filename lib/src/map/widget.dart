@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/gestures/flutter_map_interactive_viewer.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
+import 'package:flutter_map/src/gestures/map_interactive_viewer.dart';
 import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
 import 'package:flutter_map/src/layer/general/translucent_pointer.dart';
 import 'package:flutter_map/src/map/controller/impl.dart';
@@ -133,7 +133,7 @@ class _FlutterMapStateContainer extends State<FlutterMap>
       builder: (context, constraints) {
         _updateAndEmitSizeIfConstraintsChanged(constraints);
 
-        return FlutterMapInteractiveViewer(
+        return MapInteractiveViewer(
           controller: _flutterMapInternalController,
           builder: (context, options, camera) {
             return FlutterMapInheritedModel(
