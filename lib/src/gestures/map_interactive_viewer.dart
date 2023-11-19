@@ -166,7 +166,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     widget.controller.move(
       newCenter,
       newZoom,
-      offset: details.localPosition,
+      offset: Offset.zero,
       hasGesture: true,
       source: MapEventSource.doubleTap,
       id: null,

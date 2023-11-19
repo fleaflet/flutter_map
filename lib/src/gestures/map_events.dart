@@ -14,7 +14,7 @@ enum MapEventSource {
   dragStart,
   onDrag,
   dragEnd,
-  multiFingerGestureStart,
+  multiFingerStart,
   onMultiFinger,
   multiFingerEnd,
   flingAnimationController,
