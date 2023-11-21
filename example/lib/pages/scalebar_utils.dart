@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:latlong2/latlong.dart';
+import 'package:flutter_map/flutter_map.dart';
 
 const double piOver180 = pi / 180.0;
 double toDegrees(double radians) {

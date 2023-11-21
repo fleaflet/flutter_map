@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/widgets/drawer.dart';
-import 'package:latlong2/latlong.dart';
 
 class ResetTileLayerPage extends StatefulWidget {
   static const String route = '/reset_tilelayer';
