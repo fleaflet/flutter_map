@@ -87,7 +87,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
       source: source,
       id: id,
     );
-    if (movementEvent != null) _emitMapEvent(movementEvent);
+    if (movementEvent != null) emitMapEvent(movementEvent);
 
     options.onPositionChanged?.call(
       MapPosition(
@@ -122,7 +122,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
       // Update camera then emit events and callbacks
       value = value.withMapCamera(newCamera);
 
-      _emitMapEvent(
+      emitMapEvent(
         MapEventRotate(
           id: id,
           source: source,
@@ -283,7 +283,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
 
   /// To be called when a gesture that causes movement starts.
   void moveStarted(MapEventSource source) {
-    _emitMapEvent(
+    emitMapEvent(
       MapEventMoveStart(
         camera: camera,
         source: source,
@@ -310,7 +310,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
 
   /// To be called when a drag gesture ends.
   void moveEnded(MapEventSource source) {
-    _emitMapEvent(
+    emitMapEvent(
       MapEventMoveEnd(
         camera: camera,
         source: source,
@@ -320,7 +320,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
 
   /// To be called when a rotation gesture starts.
   void rotateStarted(MapEventSource source) {
-    _emitMapEvent(
+    emitMapEvent(
       MapEventRotateStart(
         camera: camera,
         source: source,
@@ -330,7 +330,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
 
   /// To be called when a rotation gesture ends.
   void rotateEnded(MapEventSource source) {
-    _emitMapEvent(
+    emitMapEvent(
       MapEventRotateEnd(
         camera: camera,
         source: source,
@@ -340,7 +340,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
 
   /// To be called when a fling gesture starts.
   void flingStarted(MapEventSource source) {
-    _emitMapEvent(
+    emitMapEvent(
       MapEventFlingAnimationStart(
         camera: camera,
         source: MapEventSource.flingAnimationController,
@@ -350,7 +350,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
 
   /// To be called when a fling gesture ends.
   void flingEnded(MapEventSource source) {
-    _emitMapEvent(
+    emitMapEvent(
       MapEventFlingAnimationEnd(
         camera: camera,
         source: source,
@@ -360,7 +360,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
 
   /// To be called when a fling gesture does not start.
   void flingNotStarted(MapEventSource source) {
-    _emitMapEvent(
+    emitMapEvent(
       MapEventFlingAnimationNotStarted(
         camera: camera,
         source: source,
@@ -370,7 +370,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
 
   /// To be called when a double tap zoom starts.
   void doubleTapZoomStarted(MapEventSource source) {
-    _emitMapEvent(
+    emitMapEvent(
       MapEventDoubleTapZoomStart(
         camera: camera,
         source: source,
@@ -380,23 +380,8 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
 
   /// To be called when a double tap zoom ends.
   void doubleTapZoomEnded(MapEventSource source) {
-    _emitMapEvent(
+    emitMapEvent(
       MapEventDoubleTapZoomEnd(
-        camera: camera,
-        source: source,
-      ),
-    );
-  }
-
-  void tapped(
-    MapEventSource source,
-    TapPosition tapPosition,
-    LatLng position,
-  ) {
-    options.onTap?.call(tapPosition, position);
-    _emitMapEvent(
-      MapEventTap(
-        tapPosition: position,
         camera: camera,
         source: source,
       ),
@@ -409,7 +394,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     LatLng position,
   ) {
     options.onSecondaryTap?.call(tapPosition, position);
-    _emitMapEvent(
+    emitMapEvent(
       MapEventSecondaryTap(
         tapPosition: position,
         camera: camera,
@@ -424,7 +409,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     LatLng position,
   ) {
     options.onLongPress?.call(tapPosition, position);
-    _emitMapEvent(
+    emitMapEvent(
       MapEventLongPress(
         tapPosition: position,
         camera: camera,
@@ -439,7 +424,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     MapCamera oldCamera,
     MapCamera newCamera,
   ) {
-    _emitMapEvent(
+    emitMapEvent(
       MapEventNonRotatedSizeChange(
         source: MapEventSource.nonRotatedSizeChange,
         oldCamera: oldCamera,
@@ -448,13 +433,11 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     );
   }
 
-  void _emitMapEvent(MapEvent event) {
+  void emitMapEvent(MapEvent event) {
     if (event.source == MapEventSource.mapController && event is MapEventMove) {
       _interactiveViewerState.interruptAnimatedMovement(event);
     }
-
     options.onMapEvent?.call(event);
-
     _mapControllerImpl.mapEventSink.add(event);
   }
 }

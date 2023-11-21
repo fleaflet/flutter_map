@@ -1,8 +1,7 @@
-import 'dart:math' as math;
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/gestures/gestures.dart';
 import 'package:flutter_map/src/map/controller/internal.dart';
 
 typedef ChildBuilder = Widget Function(
@@ -27,12 +26,15 @@ class MapInteractiveViewer extends StatefulWidget {
 
 class MapInteractiveViewerState extends State<MapInteractiveViewer>
     with TickerProviderStateMixin {
-  TapDownDetails? _tapDetails;
-  TapDownDetails? _secondaryTapDetails;
-  TapDownDetails? _doubleTapDetails;
-  TapDownDetails? _tertiaryTapDetails;
-
-  Offset? _lastFocalLocal;
+  TapGesture? _tap;
+  SecondaryTapGesture? _secondaryTap;
+  LongPressGesture? _longPress;
+  DoubleTapGesture? _doubleTap;
+  TertiaryTapGesture? _tertiaryTap;
+  TertiaryLongPressGesture? _tertiaryLongPress;
+  ScrollWheelZoomGesture? _scrollWheelZoom;
+  MultiInputGesture? _multiInput;
+  DragGesture? _drag;
 
   MapCamera get _camera => widget.controller.camera;
 
@@ -46,16 +48,25 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
         _interactionOptions.enableScrollWheel) {
       return true;
     }
-    return InteractiveFlag.hasFlag(
-      _options.interactionOptions.flags,
-      flag,
-    );
+    return InteractiveFlag.hasFlag(_interactionOptions.flags, flag);
   }
 
   @override
   void initState() {
     super.initState();
     widget.controller.addListener(reload);
+
+    // TODO check if gestures are enabled
+    _tap = TapGesture(controller: widget.controller);
+    _secondaryTap = SecondaryTapGesture(controller: widget.controller);
+    _longPress = LongPressGesture(controller: widget.controller);
+    _doubleTap = DoubleTapGesture(controller: widget.controller);
+    _tertiaryTap = TertiaryTapGesture(controller: widget.controller);
+    _tertiaryLongPress =
+        TertiaryLongPressGesture(controller: widget.controller);
+    _scrollWheelZoom = ScrollWheelZoomGesture(controller: widget.controller);
+    _multiInput = MultiInputGesture(controller: widget.controller);
+    _drag = DragGesture(controller: widget.controller);
   }
 
   @override
@@ -71,190 +82,42 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   @override
   Widget build(BuildContext context) {
     return Listener(
-      onPointerSignal: _onPointerSignal,
+      onPointerSignal: (event) {
+        // mouse scroll wheel
+        if (event is PointerScrollEvent &&
+            _gestureEnabled(InteractiveFlag.scrollWheelZoom)) {
+          _scrollWheelZoom?.submit(event);
+        }
+      },
       child: GestureDetector(
-        onTapDown: (details) => _tapDetails = details,
-        onTapCancel: () => _tapDetails = null,
-        onTap: _onTap,
+        onTapDown: _tap?.setDetails,
+        onTapCancel: _tap?.reset,
+        onTap: _tap?.submit,
 
-        onLongPressStart: _onLongPressStart,
+        onLongPressStart: _longPress?.submit,
 
-        onSecondaryTapDown: (details) => _secondaryTapDetails = details,
-        onSecondaryTapCancel: () => _secondaryTapDetails = null,
-        onSecondaryTap: _onSecondaryTap,
+        onSecondaryTapDown: (details) => _secondaryTap?.setDetails,
+        onSecondaryTapCancel: () => _secondaryTap?.reset(),
+        onSecondaryTap: _secondaryTap?.submit,
 
-        onDoubleTapDown: (details) => _doubleTapDetails = details,
-        onDoubleTapCancel: () => _doubleTapDetails = null,
-        onDoubleTap: _onDoubleTap,
+        onDoubleTapDown: (details) => _doubleTap?.setDetails,
+        onDoubleTapCancel: () => _doubleTap?.reset,
+        onDoubleTap: _doubleTap?.submit,
 
-        onTertiaryTapDown: (details) => _tertiaryTapDetails = details,
-        onTertiaryTapCancel: () => _tertiaryTapDetails = null,
-        onTertiaryTapUp: _onTertiaryTapUp,
+        onTertiaryTapDown: (details) => _tertiaryTap?.setDetails,
+        onTertiaryTapCancel: () => _tertiaryTap?.reset,
+        onTertiaryTapUp: _tertiaryTap?.submit,
 
-        onTertiaryLongPressStart: _onTertiaryLongPressStart,
+        onTertiaryLongPressStart: _tertiaryLongPress?.submit,
 
         // pan and scale, scale is a superset of the pan gesture
-        onScaleStart: _onScalePanStart,
-        onScaleUpdate: _onScalePanUpdate,
-        onScaleEnd: _onScalePanEnd,
+        onScaleStart: _multiInput?.start,
+        onScaleUpdate: _multiInput?.update,
+        onScaleEnd: _multiInput?.end,
 
-        child: widget.builder(
-          context,
-          widget.controller.options,
-          _camera,
-        ),
+        child: widget.builder(context, _options, _camera),
       ),
     );
-  }
-
-  /// A tap with a primary button has occurred.
-  /// This triggers when the tap gesture wins.
-  void _onTap() {
-    print('[MapInteractiveViewer] tap');
-    if (_tapDetails == null) return;
-    final details = _tapDetails!;
-    _tapDetails = null;
-    widget.controller.tapped(
-      MapEventSource.tap,
-      TapPosition(details.globalPosition, details.localPosition),
-      _camera.offsetToCrs(details.localPosition),
-    );
-  }
-
-  /// Called when a long press gesture with a primary button has been
-  /// recognized. A pointer has remained in contact with the screen at the
-  /// same location for a long period of time.
-  void _onLongPressStart(LongPressStartDetails details) {
-    print('[MapInteractiveViewer] long press');
-    widget.controller.longPressed(
-      MapEventSource.longPress,
-      TapPosition(details.globalPosition, details.localPosition),
-      _camera.offsetToCrs(details.localPosition),
-    );
-  }
-
-  /// A tap with a secondary button has occurred.
-  /// This triggers when the tap gesture wins.
-  void _onSecondaryTap() {
-    print('[MapInteractiveViewer] secondary tap');
-    if (_secondaryTapDetails == null) return;
-    final details = _secondaryTapDetails!;
-    _secondaryTapDetails = null;
-    widget.controller.secondaryTapped(
-      MapEventSource.secondaryTap,
-      TapPosition(details.globalPosition, details.localPosition),
-      _camera.offsetToCrs(details.localPosition),
-    );
-  }
-
-  /// A double tap gesture tap has been registered
-  void _onDoubleTap() {
-    print('[MapInteractiveViewer] double tap');
-    if (_doubleTapDetails == null) return;
-    final details = _doubleTapDetails!;
-    _doubleTapDetails = null;
-    if (!_gestureEnabled(InteractiveFlag.doubleTapZoom)) return;
-
-    // start double tap animation
-    //widget.controller.doubleTapZoomStarted(MapEventSource.doubleTap);
-    // TODO
-    final newZoom = _getZoomForScale(_camera.zoom, 2);
-    final newCenter = _camera.focusedZoomCenter(
-      details.localPosition.toPoint(),
-      newZoom,
-    );
-    widget.controller.move(
-      newCenter,
-      newZoom,
-      offset: Offset.zero,
-      hasGesture: true,
-      source: MapEventSource.doubleTap,
-      id: null,
-    );
-  }
-
-  void _onTertiaryTapUp(TapUpDetails _) {
-    print('[MapInteractiveViewer] tertiary tap');
-    if (_tertiaryTapDetails == null) return;
-    final details = _tertiaryTapDetails!;
-    _tertiaryTapDetails = null;
-    // TODO
-  }
-
-  void _onTertiaryLongPressStart(LongPressStartDetails details) {
-    print('[MapInteractiveViewer] tertiary long press');
-    // TODO
-  }
-
-  void _onScalePanStart(ScaleStartDetails details) {
-    print('[MapInteractiveViewer] scale pan start');
-    if (!_gestureEnabled(InteractiveFlag.drag)) return;
-    // TODO
-    _lastFocalLocal = details.localFocalPoint;
-    widget.controller.moveStarted(MapEventSource.dragStart);
-  }
-
-  void _onScalePanUpdate(ScaleUpdateDetails details) {
-    print(
-      '[MapInteractiveViewer] scale pan update, ${details.localFocalPoint}',
-    );
-    if (!_gestureEnabled(InteractiveFlag.drag)) return;
-    // TODO
-
-    widget.controller.dragUpdated(
-      MapEventSource.onDrag,
-      _rotateOffset(
-        _lastFocalLocal! - details.localFocalPoint,
-      ),
-    );
-    _lastFocalLocal = details.localFocalPoint;
-  }
-
-  void _onScalePanEnd(ScaleEndDetails details) {
-    print('[MapInteractiveViewer] scale pan end');
-    if (!_gestureEnabled(InteractiveFlag.drag)) return;
-    // TODO
-  }
-
-  /// Handles mouse scroll events if the enableScrollWheel parameter is enabled
-  void _onPointerSignal(PointerSignalEvent event) {
-    print('[MapInteractiveViewer] on pointer signal');
-    if (event is! PointerScrollEvent ||
-        !_gestureEnabled(InteractiveFlag.scrollWheelZoom) ||
-        event.scrollDelta.dy == 0) return;
-
-    // Prevent scrolling of parent/child widgets simultaneously.
-    // See [PointerSignalResolver] documentation for more information.
-    GestureBinding.instance.pointerSignalResolver.register(event, (event) {
-      event as PointerScrollEvent;
-      final minZoom = _options.minZoom ?? 0.0;
-      final maxZoom = _options.maxZoom ?? double.infinity;
-      final newZoom = (_camera.zoom -
-              event.scrollDelta.dy * _interactionOptions.scrollWheelVelocity)
-          .clamp(minZoom, maxZoom);
-      // Calculate offset of mouse cursor from viewport center
-      final newCenter = _camera.focusedZoomCenter(
-        event.localPosition.toPoint(),
-        newZoom,
-      );
-      widget.controller.move(
-        newCenter,
-        newZoom,
-        offset: Offset.zero,
-        hasGesture: true,
-        source: MapEventSource.scrollWheel,
-        id: null,
-      );
-    });
-  }
-
-  /// get the calculated zoom level for a given scaling, relative for the
-  /// startZoomLevel
-  double _getZoomForScale(double startZoom, double scale) {
-    if (scale == 1) {
-      return _camera.clampZoom(startZoom);
-    }
-    return _camera.clampZoom(startZoom + math.log(scale) / math.ln2);
   }
 
   /// Used by the internal map controller to update interaction gestures
@@ -262,26 +125,11 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     InteractionOptions oldOptions,
     InteractionOptions newOptions,
   ) {
-    print('[MapInteractiveViewer] updateGestures');
-    // TODO
+    // TODO implement
   }
 
   /// Used by the internal map controller
   void interruptAnimatedMovement(MapEventMove event) {
-    print('[MapInteractiveViewer] interruptAnimatedMovement');
-    // TODO
-  }
-
-  /// Return a rotated Offset
-  Offset _rotateOffset(Offset offset) {
-    final radians = _camera.rotationRad;
-    if (radians == 0) return offset;
-
-    final cos = math.cos(radians);
-    final sin = math.sin(radians);
-    final nx = (cos * offset.dx) + (sin * offset.dy);
-    final ny = (cos * offset.dy) - (sin * offset.dx);
-
-    return Offset(nx, ny);
+    // TODO implement
   }
 }
