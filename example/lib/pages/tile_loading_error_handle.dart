@@ -104,7 +104,6 @@ class _SimulateErrorImageProvider
     extends ImageProvider<_SimulateErrorImageProvider> {
   _SimulateErrorImageProvider();
 
-  @override
   ImageStreamCompleter load(
     _SimulateErrorImageProvider key,
     Future<ui.Codec> Function(
