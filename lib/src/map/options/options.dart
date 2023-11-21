@@ -7,11 +7,7 @@ import 'package:latlong2/latlong.dart';
 
 typedef MapEventCallback = void Function(MapEvent);
 
-typedef TapCallback = void Function(TapPosition tapPosition, LatLng point);
-typedef LongPressCallback = void Function(
-  TapPosition tapPosition,
-  LatLng point,
-);
+typedef GestureCallback = void Function(TapPosition tapPosition, LatLng point);
 typedef PointerDownCallback = void Function(
   PointerDownEvent event,
   LatLng point,
@@ -51,13 +47,16 @@ class MapOptions {
 
   final Color backgroundColor;
 
-  final TapCallback? onTap;
-  final TapCallback? onSecondaryTap;
-  final LongPressCallback? onLongPress;
-  final PointerDownCallback? onPointerDown;
-  final PointerUpCallback? onPointerUp;
-  final PointerCancelCallback? onPointerCancel;
-  final PointerHoverCallback? onPointerHover;
+  final GestureCallback? onTap;
+  final GestureCallback? onSecondaryTap;
+  final GestureCallback? onLongPress;
+  final GestureCallback? onSecondaryLongPress;
+  final GestureCallback? onTertiaryTap;
+  final GestureCallback? onTertiaryLongPress;
+  final PointerDownCallback? onPointerDown; // TODO add support for callback
+  final PointerUpCallback? onPointerUp; // TODO add support for callback
+  final PointerCancelCallback? onPointerCancel; // TODO add support for callback
+  final PointerHoverCallback? onPointerHover; // TODO add support for callback
   final PositionCallback? onPositionChanged;
   final MapEventCallback? onMapEvent;
 
@@ -98,6 +97,8 @@ class MapOptions {
 
   final InteractionOptions interactionOptions;
 
+  /// The options of the closest [FlutterMap] ancestor. If this is called from a
+
   const MapOptions({
     this.crs = const Epsg3857(),
     this.initialCenter = const LatLng(50.5, 30.51),
@@ -110,8 +111,11 @@ class MapOptions {
     this.maxZoom,
     this.backgroundColor = const Color(0xFFE0E0E0),
     this.onTap,
-    this.onSecondaryTap,
     this.onLongPress,
+    this.onSecondaryTap,
+    this.onSecondaryLongPress,
+    this.onTertiaryTap,
+    this.onTertiaryLongPress,
     this.onPointerDown,
     this.onPointerUp,
     this.onPointerCancel,
@@ -123,7 +127,6 @@ class MapOptions {
     this.applyPointerTranslucencyToLayers = true,
   });
 
-  /// The options of the closest [FlutterMap] ancestor. If this is called from a
   /// context with no [FlutterMap] ancestor, null is returned.
   static MapOptions? maybeOf(BuildContext context) =>
       FlutterMapInheritedModel.maybeOptionsOf(context);

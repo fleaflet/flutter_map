@@ -239,4 +239,16 @@ class MultiInputGesture extends Gesture {
 
 class DragGesture extends Gesture {
   DragGesture({required super.controller});
+
+  void start() {
+    // TODO make use of the drag gesture
+  }
+
+  void update() {
+    // TODO make use of the drag gesture
+  }
+
+  void end() {
+    // TODO make use of the drag gesture
+  }
 }

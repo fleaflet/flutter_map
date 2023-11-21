@@ -42,31 +42,30 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   InteractionOptions get _interactionOptions => _options.interactionOptions;
 
-  bool _gestureEnabled(int flag) {
-    if (flag == InteractiveFlag.scrollWheelZoom &&
-        // ignore: deprecated_member_use_from_same_package
-        _interactionOptions.enableScrollWheel) {
-      return true;
-    }
-    return InteractiveFlag.hasFlag(_interactionOptions.flags, flag);
-  }
-
   @override
   void initState() {
     super.initState();
     widget.controller.addListener(reload);
 
-    // TODO check if gestures are enabled
-    _tap = TapGesture(controller: widget.controller);
-    _secondaryTap = SecondaryTapGesture(controller: widget.controller);
-    _longPress = LongPressGesture(controller: widget.controller);
-    _doubleTap = DoubleTapGesture(controller: widget.controller);
-    _tertiaryTap = TertiaryTapGesture(controller: widget.controller);
-    _tertiaryLongPress =
-        TertiaryLongPressGesture(controller: widget.controller);
-    _scrollWheelZoom = ScrollWheelZoomGesture(controller: widget.controller);
-    _multiInput = MultiInputGesture(controller: widget.controller);
-    _drag = DragGesture(controller: widget.controller);
+    // callback gestures for the application
+    if (_options.onTap != null) {
+      _tap = TapGesture(controller: widget.controller);
+    }
+    if (_options.onSecondaryTap != null) {
+      _secondaryTap = SecondaryTapGesture(controller: widget.controller);
+    }
+    if (_options.onLongPress != null) {
+      _longPress = LongPressGesture(controller: widget.controller);
+    }
+    if (_options.onTertiaryTap != null) {
+      _tertiaryTap = TertiaryTapGesture(controller: widget.controller);
+    }
+    if (_options.onTertiaryLongPress != null) {
+      _tertiaryLongPress =
+          TertiaryLongPressGesture(controller: widget.controller);
+    }
+    // gestures that change the map camera
+    updateGestures(_interactionOptions.flags);
   }
 
   @override
@@ -84,8 +83,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     return Listener(
       onPointerSignal: (event) {
         // mouse scroll wheel
-        if (event is PointerScrollEvent &&
-            _gestureEnabled(InteractiveFlag.scrollWheelZoom)) {
+        if (event is PointerScrollEvent) {
           _scrollWheelZoom?.submit(event);
         }
       },
@@ -121,11 +119,27 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   }
 
   /// Used by the internal map controller to update interaction gestures
-  void updateGestures(
-    InteractionOptions oldOptions,
-    InteractionOptions newOptions,
-  ) {
-    // TODO implement
+  void updateGestures(int flags) {
+    _multiInput = MultiInputGesture(controller: widget.controller);
+
+    if (InteractiveFlag.hasDrag(flags)) {
+      _drag = DragGesture(controller: widget.controller);
+    } else {
+      _drag?.end();
+      _drag = null;
+    }
+
+    if (InteractiveFlag.hasDoubleTapZoom(flags)) {
+      _doubleTap = DoubleTapGesture(controller: widget.controller);
+    } else {
+      _doubleTap = null;
+    }
+
+    if (MultiFingerGesture.hasRotate(flags)) {
+      _scrollWheelZoom = ScrollWheelZoomGesture(controller: widget.controller);
+    } else {
+      _scrollWheelZoom = null;
+    }
   }
 
   /// Used by the internal map controller
