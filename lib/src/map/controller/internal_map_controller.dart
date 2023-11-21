@@ -424,21 +424,6 @@ class InternalMapController extends ValueNotifier<_InternalState> {
     );
   }
 
-  void longPressed(
-    MapEventSource source,
-    TapPosition tapPosition,
-    LatLng position,
-  ) {
-    options.onLongPress?.call(tapPosition, position);
-    emitMapEvent(
-      MapEventLongPress(
-        tapPosition: position,
-        camera: camera,
-        source: MapEventSource.longPress,
-      ),
-    );
-  }
-
   /// To be called when the map's size constraints change.
   void nonRotatedSizeChange(
     MapEventSource source,

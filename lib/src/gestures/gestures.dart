@@ -57,10 +57,41 @@ class LongPressGesture extends Gesture {
   /// recognized. A pointer has remained in contact with the screen at the
   /// same location for a long period of time.
   void submit(LongPressStartDetails details) {
-    controller.longPressed(
-      MapEventSource.longPress,
-      TapPosition(details.globalPosition, details.localPosition),
-      _camera.offsetToCrs(details.localPosition),
+    final tapPosition = TapPosition(
+      details.globalPosition,
+      details.localPosition,
+    );
+    final position = _camera.offsetToCrs(details.localPosition);
+    _options.onLongPress?.call(tapPosition, position);
+    controller.emitMapEvent(
+      MapEventLongPress(
+        tapPosition: position,
+        camera: _camera,
+        source: MapEventSource.longPress,
+      ),
+    );
+  }
+}
+
+class SecondaryLongPressGesture extends Gesture {
+  SecondaryLongPressGesture({required super.controller});
+
+  /// Called when a long press gesture with a primary button has been
+  /// recognized. A pointer has remained in contact with the screen at the
+  /// same location for a long period of time.
+  void submit(LongPressStartDetails details) {
+    final tapPosition = TapPosition(
+      details.globalPosition,
+      details.localPosition,
+    );
+    final position = _camera.offsetToCrs(details.localPosition);
+    _options.onSecondaryLongPress?.call(tapPosition, position);
+    controller.emitMapEvent(
+      MapEventLongPress(
+        tapPosition: position,
+        camera: _camera,
+        source: MapEventSource.secondaryLongPressed,
+      ),
     );
   }
 }
@@ -73,10 +104,18 @@ class SecondaryTapGesture extends DelayedGesture {
   void submit() {
     if (details == null) return;
 
-    controller.secondaryTapped(
-      MapEventSource.secondaryTap,
-      TapPosition(details!.globalPosition, details!.localPosition),
-      _camera.offsetToCrs(details!.localPosition),
+    final tapPosition = TapPosition(
+      details!.globalPosition,
+      details!.localPosition,
+    );
+    final position = _camera.offsetToCrs(details!.localPosition);
+    _options.onSecondaryTap?.call(tapPosition, position);
+    controller.emitMapEvent(
+      MapEventLongPress(
+        tapPosition: position,
+        camera: _camera,
+        source: MapEventSource.secondaryTap,
+      ),
     );
 
     reset();
@@ -127,7 +166,19 @@ class TertiaryTapGesture extends DelayedGesture {
   void submit(TapUpDetails _) {
     if (details == null) return;
 
-    // TODO implement
+    final point = _camera.offsetToCrs(details!.localPosition);
+    final tapPosition = TapPosition(
+      details!.globalPosition,
+      details!.localPosition,
+    );
+    _options.onTertiaryTap?.call(tapPosition, point);
+    controller.emitMapEvent(
+      MapEventTap(
+        tapPosition: point,
+        camera: _camera,
+        source: MapEventSource.tertiaryTap,
+      ),
+    );
 
     reset();
   }
@@ -139,7 +190,19 @@ class TertiaryLongPressGesture extends DelayedGesture {
   /// A long press on the tertiary button has happen (e.g. click and hold on
   /// the mouse scroll wheel)
   void submit(LongPressStartDetails details) {
-    // TODO implement
+    final point = _camera.offsetToCrs(details.localPosition);
+    final tapPosition = TapPosition(
+      details.globalPosition,
+      details.localPosition,
+    );
+    _options.onTertiaryLongPress?.call(tapPosition, point);
+    controller.emitMapEvent(
+      MapEventLongPress(
+        tapPosition: point,
+        camera: _camera,
+        source: MapEventSource.tertiaryLongPress,
+      ),
+    );
 
     reset();
   }

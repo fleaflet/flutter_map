@@ -25,6 +25,9 @@ enum MapEventSource {
   scrollWheel,
   nonRotatedSizeChange,
   cursorKeyboardRotation,
+  tertiaryTap,
+  tertiaryLongPress,
+  secondaryLongPressed,
 }
 
 /// Base event class which is emitted by MapController instance, the event

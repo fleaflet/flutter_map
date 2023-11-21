@@ -27,11 +27,12 @@ class MapInteractiveViewer extends StatefulWidget {
 class MapInteractiveViewerState extends State<MapInteractiveViewer>
     with TickerProviderStateMixin {
   TapGesture? _tap;
-  SecondaryTapGesture? _secondaryTap;
   LongPressGesture? _longPress;
-  DoubleTapGesture? _doubleTap;
+  SecondaryTapGesture? _secondaryTap;
+  SecondaryLongPressGesture? _secondaryLongPress;
   TertiaryTapGesture? _tertiaryTap;
   TertiaryLongPressGesture? _tertiaryLongPress;
+  DoubleTapGesture? _doubleTap;
   ScrollWheelZoomGesture? _scrollWheelZoom;
   MultiInputGesture? _multiInput;
   DragGesture? _drag;
@@ -51,11 +52,15 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     if (_options.onTap != null) {
       _tap = TapGesture(controller: widget.controller);
     }
+    if (_options.onLongPress != null) {
+      _longPress = LongPressGesture(controller: widget.controller);
+    }
     if (_options.onSecondaryTap != null) {
       _secondaryTap = SecondaryTapGesture(controller: widget.controller);
     }
-    if (_options.onLongPress != null) {
-      _longPress = LongPressGesture(controller: widget.controller);
+    if (_options.onSecondaryLongPress != null) {
+      _secondaryLongPress =
+          SecondaryLongPressGesture(controller: widget.controller);
     }
     if (_options.onTertiaryTap != null) {
       _tertiaryTap = TertiaryTapGesture(controller: widget.controller);
@@ -95,15 +100,17 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
         onLongPressStart: _longPress?.submit,
 
         onSecondaryTapDown: _secondaryTap?.setDetails,
-        onSecondaryTapCancel: () => _secondaryTap?.reset(),
+        onSecondaryTapCancel: _secondaryTap?.reset,
         onSecondaryTap: _secondaryTap?.submit,
 
+        onSecondaryLongPressStart: _secondaryLongPress?.submit,
+
         onDoubleTapDown: _doubleTap?.setDetails,
-        onDoubleTapCancel: () => _doubleTap?.reset,
+        onDoubleTapCancel: _doubleTap?.reset,
         onDoubleTap: _doubleTap?.submit,
 
         onTertiaryTapDown: _tertiaryTap?.setDetails,
-        onTertiaryTapCancel: () => _tertiaryTap?.reset,
+        onTertiaryTapCancel: _tertiaryTap?.reset,
         onTertiaryTapUp: _tertiaryTap?.submit,
 
         onTertiaryLongPressStart: _tertiaryLongPress?.submit,
