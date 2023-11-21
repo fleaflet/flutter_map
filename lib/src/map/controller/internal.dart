@@ -2,16 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_map/src/gestures/map_events.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/gestures/map_interactive_viewer.dart';
-import 'package:flutter_map/src/gestures/positioned_tap_detector_2.dart';
-import 'package:flutter_map/src/map/camera/camera.dart';
-import 'package:flutter_map/src/map/camera/camera_fit.dart';
-import 'package:flutter_map/src/map/controller/impl.dart';
-import 'package:flutter_map/src/map/options/options.dart';
-import 'package:flutter_map/src/misc/move_and_rotate_result.dart';
-import 'package:flutter_map/src/misc/point_extensions.dart';
-import 'package:flutter_map/src/misc/position.dart';
 import 'package:latlong2/latlong.dart';
 
 /// This controller is for internal use. All updates to the state should be done

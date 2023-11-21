@@ -1,16 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/geo/crs.dart';
-import 'package:flutter_map/src/gestures/map_events.dart';
-import 'package:flutter_map/src/gestures/positioned_tap_detector_2.dart';
-import 'package:flutter_map/src/layer/general/translucent_pointer.dart';
-import 'package:flutter_map/src/map/camera/camera_constraint.dart';
-import 'package:flutter_map/src/map/camera/camera_fit.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
-import 'package:flutter_map/src/map/options/interaction.dart';
-import 'package:flutter_map/src/map/widget.dart';
-import 'package:flutter_map/src/misc/position.dart';
 import 'package:latlong2/latlong.dart';
 
 typedef MapEventCallback = void Function(MapEvent);
