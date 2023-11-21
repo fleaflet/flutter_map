@@ -142,7 +142,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       _doubleTap = null;
     }
 
-    if (MultiFingerGesture.hasRotate(flags)) {
+    if (InteractiveFlag.hasScrollWheelZoom(flags)) {
       _scrollWheelZoom = ScrollWheelZoomGesture(controller: widget.controller);
     } else {
       _scrollWheelZoom = null;
