@@ -4,7 +4,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/simplify.dart';
+import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart';
 
 class Polyline {
@@ -59,7 +59,9 @@ class PolylineLayer extends StatelessWidget {
   /// how much to simplify the polygons, in decimal degrees scaled to floored zoom
   final double? simplificationTolerance;
 
-  /// use high quality simplification
+  /// high quality simplification uses the https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm
+  /// otherwise, points within the radial distance of the threshold value are merged. (Also called radial distance simplification)
+  /// radial distance is faster, but does not preserve the shape of the original line as well as Douglas Peucker
   final bool simplificationHighQuality;
 
   const PolylineLayer({

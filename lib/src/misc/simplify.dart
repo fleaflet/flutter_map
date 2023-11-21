@@ -1,8 +1,6 @@
 // implementation based on
 // https://github.com/mourner/simplify-js/blob/master/simplify.js
 
-library simplify;
-
 import 'package:latlong2/latlong.dart';
 
 double _getSqDist(
@@ -41,6 +39,7 @@ double _getSqSegDist(
 
   return dx * dx + dy * dy;
 }
+
 
 List<LatLng> simplifyRadialDist(
   List<LatLng> points,
