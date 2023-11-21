@@ -5,7 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:flutter_map/src/map/camera/camera_fit.dart';
-import 'package:flutter_map/src/map/controller/internal.dart';
+import 'package:flutter_map/src/map/controller/internal_map_controller.dart';
 import 'package:flutter_map/src/map/controller/map_controller.dart';
 import 'package:flutter_map/src/misc/move_and_rotate_result.dart';
 import 'package:latlong2/latlong.dart';
@@ -14,12 +14,12 @@ import 'package:latlong2/latlong.dart';
 /// should not be visible to the user (e.g. for setting the current camera or
 /// linking the internal controller).
 class MapControllerImpl implements MapController {
-  late FlutterMapInternalController _internalController;
+  late InternalMapController _internalController;
   final _mapEventStreamController = StreamController<MapEvent>.broadcast();
 
   MapControllerImpl();
 
-  set internalController(FlutterMapInternalController internalController) {
+  set internalController(InternalMapController internalController) {
     _internalController = internalController;
   }
 

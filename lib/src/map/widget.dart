@@ -6,9 +6,10 @@ import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/gestures/map_interactive_viewer.dart';
 import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
 import 'package:flutter_map/src/layer/general/translucent_pointer.dart';
-import 'package:flutter_map/src/map/controller/impl.dart';
-import 'package:flutter_map/src/map/controller/internal.dart';
+import 'package:flutter_map/src/map/camera/camera_fit.dart';
+import 'package:flutter_map/src/map/controller/internal_map_controller.dart';
 import 'package:flutter_map/src/map/controller/map_controller.dart';
+import 'package:flutter_map/src/map/controller/map_controller_impl.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
 import 'package:flutter_map/src/map/options/options.dart';
 import 'package:logger/logger.dart';
@@ -60,15 +61,14 @@ class _FlutterMapStateContainer extends State<FlutterMap>
     with AutomaticKeepAliveClientMixin {
   bool _initialCameraFitApplied = false;
 
-  late final FlutterMapInternalController _flutterMapInternalController;
+  late final InternalMapController _flutterMapInternalController;
   late MapControllerImpl _mapController;
   late bool _mapControllerCreatedInternally;
 
   @override
   void initState() {
     super.initState();
-    _flutterMapInternalController =
-        FlutterMapInternalController(widget.options);
+    _flutterMapInternalController = InternalMapController(widget.options);
     _initializeAndLinkMapController();
 
     WidgetsBinding.instance

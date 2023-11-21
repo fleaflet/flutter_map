@@ -8,11 +8,11 @@ import 'package:latlong2/latlong.dart';
 
 /// This controller is for internal use. All updates to the state should be done
 /// by calling methods of this class to ensure consistency.
-class FlutterMapInternalController extends ValueNotifier<_InternalState> {
+class InternalMapController extends ValueNotifier<_InternalState> {
   late final MapInteractiveViewerState _interactiveViewerState;
   late MapControllerImpl _mapControllerImpl;
 
-  FlutterMapInternalController(MapOptions options)
+  InternalMapController(MapOptions options)
       : super(
           _InternalState(
             options: options,
@@ -300,6 +300,28 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     move(
       newCenter,
       camera.zoom,
+      offset: Offset.zero,
+      hasGesture: true,
+      source: source,
+      id: null,
+    );
+  }
+
+  void moveRotateZoom({
+    required Offset offset,
+    required double rotationRad,
+    required double zoom,
+    required MapEventSource source,
+  }) {
+    final oldCenterPt = camera.project(camera.center);
+
+    final newCenterPt = oldCenterPt + offset.toPoint();
+    final newCenter = camera.unproject(newCenterPt);
+
+    moveAndRotate(
+      newCenter,
+      camera.zoom,
+      rotationRad,
       offset: Offset.zero,
       hasGesture: true,
       source: source,

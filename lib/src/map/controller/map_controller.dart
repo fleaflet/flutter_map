@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:flutter_map/src/map/camera/camera_fit.dart';
-import 'package:flutter_map/src/map/controller/impl.dart';
+import 'package:flutter_map/src/map/controller/map_controller_impl.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
 import 'package:flutter_map/src/map/widget.dart';
 import 'package:flutter_map/src/misc/move_and_rotate_result.dart';

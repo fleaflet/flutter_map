@@ -2,10 +2,10 @@ import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/map/controller/internal.dart';
+import 'package:flutter_map/src/map/controller/internal_map_controller.dart';
 
 abstract class Gesture {
-  final FlutterMapInternalController controller;
+  final InternalMapController controller;
 
   Gesture({required this.controller});
 
