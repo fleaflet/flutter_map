@@ -266,12 +266,14 @@ class MultiInputGesture extends Gesture {
   /// Initialize gesture, called when gesture has started
   void start(ScaleStartDetails details) {
     _lastLocalFocal = details.localFocalPoint;
+    _lastScale = 1;
     controller.moveStarted(MapEventSource.multiFingerStart);
   }
 
   /// Called multiple times to handle updates to the gesture
   void update(ScaleUpdateDetails details) {
     // TODO implement
+    if (_lastLocalFocal == null || _lastScale == null) return;
     final offset = _rotateOffset(_lastLocalFocal! - details.localFocalPoint);
     final oldCenterPt = _camera.project(_camera.center);
     final newCenterPt = oldCenterPt + offset.toPoint();
@@ -336,6 +338,54 @@ class DragGesture extends Gesture {
       MapEventMoveEnd(
         camera: _camera,
         source: MapEventSource.dragEnd,
+      ),
+    );
+  }
+}
+
+class DoubleTapDragZoomGesture extends Gesture {
+  Offset? _focalLocalStart;
+  double? _mapZoomStart;
+
+  DoubleTapDragZoomGesture({required super.controller});
+
+  void start(ScaleStartDetails details) {
+    _focalLocalStart = details.localFocalPoint;
+    _mapZoomStart = _camera.zoom;
+    controller.emitMapEvent(
+      MapEventDoubleTapZoomStart(
+        camera: _camera,
+        source: MapEventSource.doubleTapHold,
+      ),
+    );
+  }
+
+  void update(ScaleUpdateDetails details) {
+    // TODO make use of the double tap drag zoom gesture
+    if (_focalLocalStart == null || _mapZoomStart == null) return;
+
+    final verticalOffset = (_focalLocalStart! - details.localFocalPoint).dy;
+    final newZoom = _mapZoomStart! - verticalOffset / 360 * _camera.zoom;
+    final min = _options.minZoom ?? 0.0;
+    final max = _options.maxZoom ?? double.infinity;
+    final actualZoom = math.max(min, math.min(max, newZoom));
+    controller.move(
+      _camera.center,
+      actualZoom,
+      offset: Offset.zero,
+      hasGesture: true,
+      source: MapEventSource.doubleTapHold,
+      id: null,
+    );
+  }
+
+  void end(ScaleEndDetails details) {
+    _mapZoomStart = null;
+    _focalLocalStart = null;
+    controller.emitMapEvent(
+      MapEventDoubleTapZoomEnd(
+        camera: _camera,
+        source: MapEventSource.doubleTapHold,
       ),
     );
   }

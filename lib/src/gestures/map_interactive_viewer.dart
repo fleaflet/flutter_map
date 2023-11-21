@@ -36,6 +36,9 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   ScrollWheelZoomGesture? _scrollWheelZoom;
   MultiInputGesture? _multiInput;
   DragGesture? _drag;
+  DoubleTapDragZoomGesture? _doubleTapDragZoom;
+
+  bool _doubleTapHold = false;
 
   MapCamera get _camera => widget.controller.camera;
 
@@ -105,9 +108,18 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
         onSecondaryLongPressStart: _secondaryLongPress?.submit,
 
-        onDoubleTapDown: _doubleTap?.setDetails,
-        onDoubleTapCancel: _doubleTap?.reset,
-        onDoubleTap: _doubleTap?.submit,
+        onDoubleTapDown: (details) {
+          _doubleTapHold = true;
+          _doubleTap?.setDetails(details);
+        },
+        onDoubleTapCancel: () {
+          _doubleTapHold = true;
+          _doubleTap?.reset();
+        },
+        onDoubleTap: () {
+          _doubleTapHold = false;
+          _doubleTap?.submit();
+        },
 
         onTertiaryTapDown: _tertiaryTap?.setDetails,
         onTertiaryTapCancel: _tertiaryTap?.reset,
@@ -116,9 +128,28 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
         onTertiaryLongPressStart: _tertiaryLongPress?.submit,
 
         // pan and scale, scale is a superset of the pan gesture
-        onScaleStart: _multiInput?.start,
-        onScaleUpdate: _multiInput?.update,
-        onScaleEnd: _multiInput?.end,
+        onScaleStart: (details) {
+          if (_doubleTapHold) {
+            _doubleTapDragZoom?.start(details);
+          } else {
+            _multiInput?.start(details);
+          }
+        },
+        onScaleUpdate: (details) {
+          if (_doubleTapHold) {
+            _doubleTapDragZoom?.update(details);
+          } else {
+            _multiInput?.update(details);
+          }
+        },
+        onScaleEnd: (details) {
+          if (_doubleTapHold) {
+            _doubleTapHold = false;
+            _doubleTapDragZoom?.end(details);
+          } else {
+            _multiInput?.end(details);
+          }
+        },
 
         child: widget.builder(context, _options, _camera),
       ),
@@ -146,6 +177,13 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       _scrollWheelZoom = ScrollWheelZoomGesture(controller: widget.controller);
     } else {
       _scrollWheelZoom = null;
+    }
+
+    if (InteractiveFlag.hasDoubleTapDragZoom(flags)) {
+      _doubleTapDragZoom =
+          DoubleTapDragZoomGesture(controller: widget.controller);
+    } else {
+      _doubleTapDragZoom = null;
     }
   }
 

@@ -88,6 +88,7 @@ abstract class MapEventWithMove extends MapEvent {
           ),
         MapEventSource.onDrag ||
         MapEventSource.onMultiFinger ||
+        MapEventSource.doubleTapHold ||
         MapEventSource.mapController ||
         MapEventSource.custom =>
           MapEventMove(
