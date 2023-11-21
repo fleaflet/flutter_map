@@ -14,7 +14,9 @@ class PolylinePage extends StatefulWidget {
 }
 
 class _PolylinePageState extends State<PolylinePage> {
-  List<LatLng> randomWalk = <LatLng>[const LatLng(45, -93.4)];
+  final randomWalk = <LatLng>[const LatLng(44.861294, 13.845086)];
+  double simplificationTolerance = 1;
+  bool useHighQualitySimplification = false;
 
   @override
   void initState() {
@@ -34,118 +36,173 @@ class _PolylinePageState extends State<PolylinePage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Polylines')),
       drawer: buildDrawer(context, PolylinePage.route),
-      body: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(top: 8, bottom: 8),
-              child: Text('Polylines'),
+      body: Stack(
+        children: [
+          FlutterMap(
+            options: const MapOptions(
+              initialCenter: LatLng(51.5, -0.09),
+              initialZoom: 5,
             ),
-            Flexible(
-              child: FlutterMap(
-                options: const MapOptions(
-                  initialCenter: LatLng(51.5, -0.09),
-                  initialZoom: 5,
-                ),
-                children: [
-                  TileLayer(
-                    urlTemplate:
-                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  ),
-                  PolylineLayer(
-                    polylineCullingMargin: 25,
-                    polylines: [
-                      Polyline(
-                        points: randomWalk,
-                        strokeWidth: 3,
-                        color: Colors.deepOrange,
-                      ),
-                      Polyline(
-                        points: [
-                          const LatLng(50, 0),
-                          const LatLng(50, -10),
-                          const LatLng(47, -12),
-                          const LatLng(45, -10),
-                          const LatLng(45, 0),
-                        ],
-                        strokeWidth: 8,
-                        color: Colors.purple,
-                      ),
-                      Polyline(
-                        points: [
-                          const LatLng(51.5, -0.09),
-                          const LatLng(53.3498, -6.2603),
-                          const LatLng(48.8566, 2.3522),
-                        ],
-                        strokeWidth: 4,
-                        color: Colors.purple,
-                      ),
-                      Polyline(
-                        points: [
-                          const LatLng(55.5, -0.09),
-                          const LatLng(54.3498, -6.2603),
-                          const LatLng(52.8566, 2.3522),
-                        ],
-                        strokeWidth: 4,
-                        gradientColors: [
-                          const Color(0xffE40203),
-                          const Color(0xffFEED00),
-                          const Color(0xff007E2D),
-                        ],
-                      ),
-                      Polyline(
-                        points: [
-                          const LatLng(50.5, -0.09),
-                          const LatLng(51.3498, 6.2603),
-                          const LatLng(53.8566, 2.3522),
-                        ],
-                        strokeWidth: 20,
-                        color: Colors.blue.withOpacity(0.6),
-                        borderStrokeWidth: 20,
-                        borderColor: Colors.red.withOpacity(0.4),
-                      ),
-                      Polyline(
-                        points: [
-                          const LatLng(50.2, -0.08),
-                          const LatLng(51.2498, -10.2603),
-                          const LatLng(54.8566, -9.3522),
-                        ],
-                        strokeWidth: 20,
-                        color: Colors.black.withOpacity(0.2),
-                        borderStrokeWidth: 20,
-                        borderColor: Colors.white30,
-                      ),
-                      Polyline(
-                        points: [
-                          const LatLng(49.1, -0.06),
-                          const LatLng(52.15, -1.4),
-                          const LatLng(55.5, 0.8),
-                        ],
-                        strokeWidth: 10,
-                        color: Colors.yellow,
-                        borderStrokeWidth: 10,
-                        borderColor: Colors.blue.withOpacity(0.5),
-                      ),
-                      Polyline(
-                        points: [
-                          const LatLng(48.1, -0.03),
-                          const LatLng(50.5, -7.8),
-                          const LatLng(56.5, 0.4),
-                        ],
-                        strokeWidth: 10,
-                        color: Colors.amber,
-                        borderStrokeWidth: 10,
-                        borderColor: Colors.blue.withOpacity(0.5),
-                      ),
-                    ],
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+              ),
+              PolylineLayer(
+                simplificationTolerance: simplificationTolerance == 0
+                    ? null
+                    : simplificationTolerance,
+                simplificationHighQuality: useHighQualitySimplification,
+                polylines: [
+                  Polyline(
+                    points: randomWalk,
+                    strokeWidth: 3,
+                    color: Colors.deepOrange,
                   ),
                 ],
               ),
+              PolylineLayer(
+                simplificationTolerance: null,
+                polylines: [
+                  Polyline(
+                    points: [
+                      const LatLng(50, 0),
+                      const LatLng(50, -10),
+                      const LatLng(47, -12),
+                      const LatLng(45, -10),
+                      const LatLng(45, 0),
+                    ],
+                    strokeWidth: 8,
+                    color: Colors.purple,
+                  ),
+                  Polyline(
+                    points: [
+                      const LatLng(51.5, -0.09),
+                      const LatLng(53.3498, -6.2603),
+                      const LatLng(48.8566, 2.3522),
+                    ],
+                    strokeWidth: 4,
+                    color: Colors.purple,
+                  ),
+                  Polyline(
+                    points: [
+                      const LatLng(55.5, -0.09),
+                      const LatLng(54.3498, -6.2603),
+                      const LatLng(52.8566, 2.3522),
+                    ],
+                    strokeWidth: 4,
+                    gradientColors: [
+                      const Color(0xffE40203),
+                      const Color(0xffFEED00),
+                      const Color(0xff007E2D),
+                    ],
+                  ),
+                  Polyline(
+                    points: [
+                      const LatLng(50.5, -0.09),
+                      const LatLng(51.3498, 6.2603),
+                      const LatLng(53.8566, 2.3522),
+                    ],
+                    strokeWidth: 20,
+                    color: Colors.blue.withOpacity(0.6),
+                    borderStrokeWidth: 20,
+                    borderColor: Colors.red.withOpacity(0.4),
+                  ),
+                  Polyline(
+                    points: [
+                      const LatLng(50.2, -0.08),
+                      const LatLng(51.2498, -10.2603),
+                      const LatLng(54.8566, -9.3522),
+                    ],
+                    strokeWidth: 20,
+                    color: Colors.black.withOpacity(0.2),
+                    borderStrokeWidth: 20,
+                    borderColor: Colors.white30,
+                  ),
+                  Polyline(
+                    points: [
+                      const LatLng(49.1, -0.06),
+                      const LatLng(52.15, -1.4),
+                      const LatLng(55.5, 0.8),
+                    ],
+                    strokeWidth: 10,
+                    color: Colors.yellow,
+                    borderStrokeWidth: 10,
+                    borderColor: Colors.blue.withOpacity(0.5),
+                  ),
+                  Polyline(
+                    points: [
+                      const LatLng(48.1, -0.03),
+                      const LatLng(50.5, -7.8),
+                      const LatLng(56.5, 0.4),
+                    ],
+                    strokeWidth: 10,
+                    color: Colors.amber,
+                    borderStrokeWidth: 10,
+                    borderColor: Colors.blue.withOpacity(0.5),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          Positioned(
+            left: 32,
+            top: 16,
+            right: 32,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.background,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Padding(
+                padding: MediaQuery.sizeOf(context).width >= 500
+                    ? const EdgeInsets.symmetric(horizontal: 16, vertical: 0)
+                    : const EdgeInsets.only(left: 12, right: 12, top: 8),
+                child: Column(
+                  children: [
+                    if (MediaQuery.sizeOf(context).width < 500)
+                      const Text(
+                        'Simplification Tolerance',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    Row(
+                      children: [
+                        if (MediaQuery.sizeOf(context).width >= 500)
+                          const Text(
+                            'Simplification Tolerance',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        Expanded(
+                          child: Slider(
+                            value: simplificationTolerance,
+                            onChanged: (v) =>
+                                setState(() => simplificationTolerance = v),
+                            min: 0,
+                            max: 3,
+                            divisions: 6,
+                            label: simplificationTolerance == 0
+                                ? 'Disabled'
+                                : simplificationTolerance.toString(),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => setState(
+                            () => useHighQualitySimplification =
+                                !useHighQualitySimplification,
+                          ),
+                          icon: const Icon(Icons.high_quality_outlined),
+                          selectedIcon: const Icon(Icons.high_quality),
+                          isSelected: useHighQualitySimplification,
+                          tooltip: 'Use High Quality Simplification',
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
