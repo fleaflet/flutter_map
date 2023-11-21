@@ -40,7 +40,6 @@ double _getSqSegDist(
   return dx * dx + dy * dy;
 }
 
-
 List<LatLng> simplifyRadialDist(
   List<LatLng> points,
   double sqTolerance,
