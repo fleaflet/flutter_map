@@ -96,15 +96,15 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
         onLongPressStart: _longPress?.submit,
 
-        onSecondaryTapDown: (details) => _secondaryTap?.setDetails,
+        onSecondaryTapDown: _secondaryTap?.setDetails,
         onSecondaryTapCancel: () => _secondaryTap?.reset(),
         onSecondaryTap: _secondaryTap?.submit,
 
-        onDoubleTapDown: (details) => _doubleTap?.setDetails,
+        onDoubleTapDown: _doubleTap?.setDetails,
         onDoubleTapCancel: () => _doubleTap?.reset,
         onDoubleTap: _doubleTap?.submit,
 
-        onTertiaryTapDown: (details) => _tertiaryTap?.setDetails,
+        onTertiaryTapDown: _tertiaryTap?.setDetails,
         onTertiaryTapCancel: () => _tertiaryTap?.reset,
         onTertiaryTapUp: _tertiaryTap?.submit,
 
