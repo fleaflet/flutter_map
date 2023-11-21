@@ -178,14 +178,14 @@ class _PolylinePageState extends State<PolylinePage> {
                             onChanged: (v) =>
                                 setState(() => simplificationTolerance = v),
                             min: 0,
-                            max: 3,
-                            divisions: 6,
+                            max: 1.25,
+                            divisions: 125,
                             label: simplificationTolerance == 0
                                 ? 'Disabled'
-                                : simplificationTolerance.toString(),
+                                : simplificationTolerance.toStringAsFixed(2),
                           ),
                         ),
-                        IconButton(
+                        IconButton.filledTonal(
                           onPressed: () => setState(
                             () => useHighQualitySimplification =
                                 !useHighQualitySimplification,
