@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
-import 'package:latlong2/latlong.dart';
 
 typedef MapEventCallback = void Function(MapEvent);
 
@@ -68,13 +67,13 @@ class MapOptions {
   /// Only use this if your map isn't built immediately (like inside FutureBuilder)
   /// and you need to access the controller as soon as the map is built.
   /// Otherwise you can use WidgetsBinding.instance.addPostFrameCallback
-  /// In initState to controll the map before the next frame.
+  /// In initState to control the map before the next frame.
   final VoidCallback? onMapReady;
 
   /// Flag to enable the built in keep alive functionality
   ///
   /// If the map is within a complex layout, such as a [ListView] or [PageView],
-  /// the map will reset to it's inital position after it appears back into view.
+  /// the map will reset to it's initial position after it appears back into view.
   /// To ensure this doesn't happen, enable this flag to prevent the [FlutterMap]
   /// widget from rebuilding.
   final bool keepAlive;

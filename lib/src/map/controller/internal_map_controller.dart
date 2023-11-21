@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/gestures/map_interactive_viewer.dart';
-import 'package:latlong2/latlong.dart';
 
 /// This controller is for internal use. All updates to the state should be done
 /// by calling methods of this class to ensure consistency.
@@ -329,16 +328,6 @@ class InternalMapController extends ValueNotifier<_InternalState> {
     );
   }
 
-  /// To be called when a drag gesture ends.
-  void moveEnded(MapEventSource source) {
-    emitMapEvent(
-      MapEventMoveEnd(
-        camera: camera,
-        source: source,
-      ),
-    );
-  }
-
   /// To be called when a rotation gesture starts.
   void rotateStarted(MapEventSource source) {
     emitMapEvent(
@@ -383,41 +372,6 @@ class InternalMapController extends ValueNotifier<_InternalState> {
   void flingNotStarted(MapEventSource source) {
     emitMapEvent(
       MapEventFlingAnimationNotStarted(
-        camera: camera,
-        source: source,
-      ),
-    );
-  }
-
-  /// To be called when a double tap zoom starts.
-  void doubleTapZoomStarted(MapEventSource source) {
-    emitMapEvent(
-      MapEventDoubleTapZoomStart(
-        camera: camera,
-        source: source,
-      ),
-    );
-  }
-
-  /// To be called when a double tap zoom ends.
-  void doubleTapZoomEnded(MapEventSource source) {
-    emitMapEvent(
-      MapEventDoubleTapZoomEnd(
-        camera: camera,
-        source: source,
-      ),
-    );
-  }
-
-  void secondaryTapped(
-    MapEventSource source,
-    TapPosition tapPosition,
-    LatLng position,
-  ) {
-    options.onSecondaryTap?.call(tapPosition, position);
-    emitMapEvent(
-      MapEventSecondaryTap(
-        tapPosition: position,
         camera: camera,
         source: source,
       ),

@@ -177,6 +177,12 @@ class _InteractiveFlagsPageState extends State<InteractiveFlagsPage> {
         return 'MapEventRotateEnd';
       case MapEventNonRotatedSizeChange():
         return 'MapEventNonRotatedSizeChange';
+      case MapEventSecondaryLongPress():
+        return 'MapEventSecondaryLongPress';
+      case MapEventTertiaryTap():
+        return 'MapEventTertiaryTap';
+      case MapEventTertiaryLongPress():
+        return 'MapEventTertiaryLongPress';
       case null:
         return 'null';
       default:

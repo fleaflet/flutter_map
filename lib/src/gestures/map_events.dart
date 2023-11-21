@@ -125,6 +125,18 @@ class MapEventSecondaryTap extends MapEvent {
   });
 }
 
+@immutable
+class MapEventTertiaryTap extends MapEvent {
+  /// Point coordinates where user has tapped
+  final LatLng tapPosition;
+
+  const MapEventTertiaryTap({
+    required this.tapPosition,
+    required super.source,
+    required super.camera,
+  });
+}
+
 /// Event which is fired when map is long-pressed
 @immutable
 class MapEventLongPress extends MapEvent {
@@ -132,6 +144,33 @@ class MapEventLongPress extends MapEvent {
   final LatLng tapPosition;
 
   const MapEventLongPress({
+    required this.tapPosition,
+    required super.source,
+    required super.camera,
+  });
+}
+
+/// Event which is fired when map is long-pressed with the secondary button.
+@immutable
+class MapEventSecondaryLongPress extends MapEvent {
+  /// Point coordinates where user has long-pressed
+  final LatLng tapPosition;
+
+  const MapEventSecondaryLongPress({
+    required this.tapPosition,
+    required super.source,
+    required super.camera,
+  });
+}
+
+/// Event which is fired when map is long-pressed with the tertiary button
+/// (e.g. the mouse wheel is clicked).
+@immutable
+class MapEventTertiaryLongPress extends MapEvent {
+  /// Point coordinates where user has long-pressed
+  final LatLng tapPosition;
+
+  const MapEventTertiaryLongPress({
     required this.tapPosition,
     required super.source,
     required super.camera,

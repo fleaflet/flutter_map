@@ -87,7 +87,7 @@ class SecondaryLongPressGesture extends Gesture {
     final position = _camera.offsetToCrs(details.localPosition);
     _options.onSecondaryLongPress?.call(tapPosition, position);
     controller.emitMapEvent(
-      MapEventLongPress(
+      MapEventSecondaryLongPress(
         tapPosition: position,
         camera: _camera,
         source: MapEventSource.secondaryLongPressed,
@@ -111,7 +111,7 @@ class SecondaryTapGesture extends DelayedGesture {
     final position = _camera.offsetToCrs(details!.localPosition);
     _options.onSecondaryTap?.call(tapPosition, position);
     controller.emitMapEvent(
-      MapEventLongPress(
+      MapEventSecondaryTap(
         tapPosition: position,
         camera: _camera,
         source: MapEventSource.secondaryTap,
@@ -137,6 +137,14 @@ class DoubleTapGesture extends DelayedGesture {
       details!.localPosition.toPoint(),
       newZoom,
     );
+
+    controller.emitMapEvent(
+      MapEventDoubleTapZoomStart(
+        camera: _camera,
+        source: MapEventSource.doubleTap,
+      ),
+    );
+
     controller.move(
       newCenter,
       newZoom,
@@ -144,6 +152,13 @@ class DoubleTapGesture extends DelayedGesture {
       hasGesture: true,
       source: MapEventSource.doubleTap,
       id: null,
+    );
+
+    controller.emitMapEvent(
+      MapEventDoubleTapZoomEnd(
+        camera: _camera,
+        source: MapEventSource.doubleTap,
+      ),
     );
 
     reset();
@@ -173,7 +188,7 @@ class TertiaryTapGesture extends DelayedGesture {
     );
     _options.onTertiaryTap?.call(tapPosition, point);
     controller.emitMapEvent(
-      MapEventTap(
+      MapEventTertiaryTap(
         tapPosition: point,
         camera: _camera,
         source: MapEventSource.tertiaryTap,
@@ -197,7 +212,7 @@ class TertiaryLongPressGesture extends DelayedGesture {
     );
     _options.onTertiaryLongPress?.call(tapPosition, point);
     controller.emitMapEvent(
-      MapEventLongPress(
+      MapEventTertiaryLongPress(
         tapPosition: point,
         camera: _camera,
         source: MapEventSource.tertiaryLongPress,
@@ -304,7 +319,12 @@ class DragGesture extends Gesture {
   DragGesture({required super.controller});
 
   void start() {
-    // TODO make use of the drag gesture
+    controller.emitMapEvent(
+      MapEventMoveStart(
+        camera: _camera,
+        source: MapEventSource.dragStart,
+      ),
+    );
   }
 
   void update() {
@@ -312,6 +332,11 @@ class DragGesture extends Gesture {
   }
 
   void end() {
-    // TODO make use of the drag gesture
+    controller.emitMapEvent(
+      MapEventMoveEnd(
+        camera: _camera,
+        source: MapEventSource.dragEnd,
+      ),
+    );
   }
 }
