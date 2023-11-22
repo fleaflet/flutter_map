@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 class MapControllerPage extends StatefulWidget {
   static const String route = 'map_controller';
@@ -52,7 +52,7 @@ class MapControllerPageState extends State<MapControllerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('MapController')),
-      drawer: buildDrawer(context, MapControllerPage.route),
+      drawer: const MenuDrawer(MapControllerPage.route),
       body: Padding(
         padding: const EdgeInsets.all(8),
         child: Column(

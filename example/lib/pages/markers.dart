@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 class MarkerPage extends StatefulWidget {
   static const String route = '/markers';
@@ -43,7 +43,7 @@ class _MarkerPageState extends State<MarkerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Markers')),
-      drawer: buildDrawer(context, MarkerPage.route),
+      drawer: const MenuDrawer(MarkerPage.route),
       body: Column(
         children: [
           Padding(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class RetinaPage extends StatefulWidget {
@@ -49,7 +49,7 @@ class _RetinaPageState extends State<RetinaPage> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Retina Tiles')),
-      drawer: buildDrawer(context, RetinaPage.route),
+      drawer: const MenuDrawer(RetinaPage.route),
       body: Column(
         children: [
           Padding(

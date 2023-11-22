@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 class TileLoadingErrorHandle extends StatefulWidget {
   static const String route = '/tile_loading_error_handle';
@@ -20,7 +20,7 @@ class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Tile Loading Error Handle')),
-      drawer: buildDrawer(context, TileLoadingErrorHandle.route),
+      drawer: const MenuDrawer(TileLoadingErrorHandle.route),
       body: Padding(
         padding: const EdgeInsets.all(8),
         child: Column(

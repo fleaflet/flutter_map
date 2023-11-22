@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 const maxCirclesCount = 20000;
 
@@ -51,7 +51,7 @@ class _ManyCirclesPageState extends State<ManyCirclesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('A lot of circles')),
-      drawer: buildDrawer(context, ManyCirclesPage.route),
+      drawer: const MenuDrawer(ManyCirclesPage.route),
       body: Column(
         children: [
           Slider(

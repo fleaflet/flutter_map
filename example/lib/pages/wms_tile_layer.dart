@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class WMSLayerPage extends StatelessWidget {
@@ -12,7 +12,7 @@ class WMSLayerPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('WMS Layer')),
-      drawer: buildDrawer(context, route),
+      drawer: const MenuDrawer(route),
       body: Padding(
         padding: const EdgeInsets.all(8),
         child: Column(

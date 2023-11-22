@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 class LatLngToScreenPointPage extends StatefulWidget {
   static const String route = '/latlng_to_screen_point';
@@ -37,7 +37,7 @@ class _LatLngToScreenPointPageState extends State<LatLngToScreenPointPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Lat/Lng 🡒 Screen Point')),
-      drawer: buildDrawer(context, LatLngToScreenPointPage.route),
+      drawer: const MenuDrawer(LatLngToScreenPointPage.route),
       body: Stack(
         children: [
           FlutterMap(

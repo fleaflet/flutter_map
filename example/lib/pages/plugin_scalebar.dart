@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/pages/scale_layer_plugin_option.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 class PluginScaleBar extends StatelessWidget {
   static const String route = '/plugin_scalebar';
@@ -12,7 +12,7 @@ class PluginScaleBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('ScaleBarPlugins')),
-      drawer: buildDrawer(context, PluginScaleBar.route),
+      drawer: const MenuDrawer(PluginScaleBar.route),
       body: Padding(
         padding: const EdgeInsets.all(8),
         child: Column(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 class PolylinePage extends StatefulWidget {
   static const String route = '/polyline';
@@ -16,7 +16,7 @@ class _PolylinePageState extends State<PolylinePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Polylines')),
-      drawer: buildDrawer(context, PolylinePage.route),
+      drawer: const MenuDrawer(PolylinePage.route),
       body: Padding(
         padding: const EdgeInsets.all(8),
         child: Column(

@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 class StatefulMarkersPage extends StatefulWidget {
   static const String route = '/stateful_markers';
@@ -50,7 +50,7 @@ class _StatefulMarkersPageState extends State<StatefulMarkersPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Stateful Markers')),
-      drawer: buildDrawer(context, StatefulMarkersPage.route),
+      drawer: const MenuDrawer(StatefulMarkersPage.route),
       body: Padding(
         padding: const EdgeInsets.all(8),
         child: Column(

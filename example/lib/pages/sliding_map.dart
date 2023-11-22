@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 class SlidingMapPage extends StatelessWidget {
   static const String route = '/sliding_map';
@@ -13,7 +13,7 @@ class SlidingMapPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Sliding Map')),
-      drawer: buildDrawer(context, route),
+      drawer: const MenuDrawer(route),
       body: Padding(
         padding: const EdgeInsets.all(8),
         child: Column(

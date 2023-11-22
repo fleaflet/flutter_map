@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 const maxMarkersCount = 20000;
 
@@ -49,7 +49,7 @@ class _ManyMarkersPageState extends State<ManyMarkersPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('A lot of markers')),
-      drawer: buildDrawer(context, ManyMarkersPage.route),
+      drawer: const MenuDrawer(ManyMarkersPage.route),
       body: Column(
         children: [
           Slider(

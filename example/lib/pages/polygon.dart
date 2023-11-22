@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 class PolygonPage extends StatelessWidget {
   static const String route = '/polygon';
@@ -65,7 +65,7 @@ class PolygonPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Polygons')),
-      drawer: buildDrawer(context, PolygonPage.route),
+      drawer: const MenuDrawer(PolygonPage.route),
       body: Padding(
         padding: const EdgeInsets.all(8),
         child: Column(

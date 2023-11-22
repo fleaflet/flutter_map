@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 class TileBuilderPage extends StatefulWidget {
   static const String route = '/tile_builder';
@@ -58,7 +58,7 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Tile Builder')),
-      drawer: buildDrawer(context, TileBuilderPage.route),
+      drawer: const MenuDrawer(TileBuilderPage.route),
       body: Column(
         children: [
           Padding(

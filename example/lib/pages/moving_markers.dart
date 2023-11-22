@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 class MovingMarkersPage extends StatefulWidget {
   static const String route = '/moving_markers';
@@ -63,7 +63,7 @@ class _MovingMarkersPageState extends State<MovingMarkersPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Home')),
-      drawer: buildDrawer(context, MovingMarkersPage.route),
+      drawer: const MenuDrawer(MovingMarkersPage.route),
       body: Padding(
         padding: const EdgeInsets.all(8),
         child: Column(

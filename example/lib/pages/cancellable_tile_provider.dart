@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 class CancellableTileProviderPage extends StatelessWidget {
   static const String route = '/cancellable_tile_provider_page';
@@ -12,7 +12,7 @@ class CancellableTileProviderPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Cancellable Tile Provider')),
-      drawer: buildDrawer(context, CancellableTileProviderPage.route),
+      drawer: const MenuDrawer(CancellableTileProviderPage.route),
       body: Column(
         children: [
           const Padding(

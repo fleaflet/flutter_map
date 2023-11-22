@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 class InteractiveFlagsPage extends StatefulWidget {
   static const String route = '/interactive_flags_page';
@@ -38,7 +38,7 @@ class _InteractiveFlagsPageState extends State<InteractiveFlagsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Interactive Flags')),
-      drawer: buildDrawer(context, InteractiveFlagsPage.route),
+      drawer: const MenuDrawer(InteractiveFlagsPage.route),
       body: Padding(
         padding: const EdgeInsets.all(8),
         child: Column(

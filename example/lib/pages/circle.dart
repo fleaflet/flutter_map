@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 class CirclePage extends StatelessWidget {
   static const String route = '/circle';
@@ -19,7 +19,8 @@ class CirclePage extends StatelessWidget {
         radius: 2000, // 2000 meters
       ),
       CircleMarker(
-        point: const LatLng(51.4937, -0.6638), // Dorney Lake is ~2km long
+        point: const LatLng(51.4937, -0.6638),
+        // Dorney Lake is ~2km long
         color: Colors.green.withOpacity(0.9),
         borderColor: Colors.black,
         borderStrokeWidth: 2,
@@ -30,7 +31,7 @@ class CirclePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Circle')),
-      drawer: buildDrawer(context, route),
+      drawer: const MenuDrawer(route),
       body: Padding(
         padding: const EdgeInsets.all(8),
         child: Column(
