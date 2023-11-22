@@ -1,8 +1,10 @@
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:flutter_map/flutter_map.dart';
 
 const double piOver180 = pi / 180.0;
+
 double toDegrees(double radians) {
   return radians / piOver180;
 }
@@ -61,7 +63,7 @@ LatLng calculateEndingGlobalCoordinates(
   double cosSigmaM2;
   double cos2SigmaM2;
 
-  for (;;) {
+  while (true) {
     // eq. 5
     sigmaM2 = 2.0 * sigma1 + sigma;
     cosSigmaM2 = cos(sigmaM2);
@@ -107,9 +109,8 @@ LatLng calculateEndingGlobalCoordinates(
   // This fixes the pole crossing defect spotted by Matt Feemster. When a
   // path passes a pole and essentially crosses a line of latitude twice -
   // once in each direction - the longitude calculation got messed up.
-  // Using
-  // atan2 instead of atan fixes the defect. The change is in the next 3
-  // lines.
+  // Using atan2 instead of atan fixes the defect. The change is in the
+  // next 3 lines.
   // double tanLambda = sinSigma * sinAlpha1 / (cosU1 * cosSigma - sinU1 *
   // sinSigma * cosAlpha1);
   // double lambda = Math.atan(tanLambda);
@@ -134,16 +135,8 @@ LatLng calculateEndingGlobalCoordinates(
   // cosSigma * cosAlpha1);
 
   // build result
-  var latitude = toDegrees(phi2);
-  var longitude = start.longitude + toDegrees(L);
-
-  // if ((endBearing != null) && (endBearing.length > 0)) {
-  // endBearing[0] = toDegrees(alpha2);
-  // }
-
-  latitude = latitude < -90 ? -90 : latitude;
-  latitude = latitude > 90 ? 90 : latitude;
-  longitude = longitude < -180 ? -180 : longitude;
-  longitude = longitude > 180 ? 180 : longitude;
-  return LatLng(latitude, longitude);
+  return LatLng(
+    clampDouble(toDegrees(phi2), -90, 90),
+    clampDouble(start.longitude + toDegrees(L), -180, 180),
+  );
 }
