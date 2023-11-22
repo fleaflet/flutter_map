@@ -19,92 +19,13 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _displayWebDemoIntroDialog();
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: buildDrawer(context, HomePage.route),
-      body: Stack(
-        children: [
-          FlutterMap(
-            options: MapOptions(
-              initialCenter: const LatLng(51.5, -0.09),
-              initialZoom: 5,
-              cameraConstraint: CameraConstraint.contain(
-                bounds: LatLngBounds(
-                  const LatLng(-90, -180),
-                  const LatLng(90, 180),
-                ),
-              ),
-            ),
-            children: [
-              TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-              ),
-              RichAttributionWidget(
-                popupInitialDisplayDuration: const Duration(seconds: 5),
-                animationConfig: const ScaleRAWA(),
-                attributions: [
-                  TextSourceAttribution(
-                    'OpenStreetMap contributors',
-                    onTap: () => launchUrl(
-                      Uri.parse('https://openstreetmap.org/copyright'),
-                    ),
-                  ),
-                  const TextSourceAttribution(
-                    'This attribution is the same throughout this app, except where otherwise specified',
-                    prependCopyright: false,
-                  ),
-                ],
-              ),
-            ],
-          ),
-          PositionedDirectional(
-            start: 16,
-            top: 16,
-            child: SafeArea(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.background,
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                padding: const EdgeInsets.all(8),
-                child: Row(
-                  children: [
-                    Builder(
-                      builder: (context) => IconButton(
-                        onPressed: () => Scaffold.of(context).openDrawer(),
-                        icon: const Icon(Icons.menu),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Image.asset('assets/ProjectIcon.png',
-                        height: 32, width: 32),
-                    const SizedBox(width: 8),
-                  ],
-                ),
-              ),
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
-  // Displays an introduction dialog when the Live Web Demo is first loaded for
-  // a user
-  void _displayWebDemoIntroDialog() {
-    // Changing this will cause the dialog to show again for all users
-    const seenIntroDialogKey = 'seenIntroDialog';
-
+    const seenIntroBoxKey = 'seenIntroBox(a)';
     if (kIsWeb && Uri.base.host.trim() == 'demo.fleaflet.dev') {
       SchedulerBinding.instance.addPostFrameCallback(
         (_) async {
           final prefs = await SharedPreferences.getInstance();
-          if (prefs.getBool(seenIntroDialogKey) ?? false) return;
+          if (prefs.getBool(seenIntroBoxKey) ?? false) return;
 
           if (!mounted) return;
 
@@ -168,9 +89,82 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           );
-          await prefs.setBool(seenIntroDialogKey, true);
+          await prefs.setBool(seenIntroBoxKey, true);
         },
       );
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      drawer: buildDrawer(context, HomePage.route),
+      body: Stack(
+        children: [
+          FlutterMap(
+            options: MapOptions(
+              initialCenter: const LatLng(51.5, -0.09),
+              initialZoom: 5,
+              cameraConstraint: CameraConstraint.contain(
+                bounds: LatLngBounds(
+                  const LatLng(-90, -180),
+                  const LatLng(90, 180),
+                ),
+              ),
+            ),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+              ),
+              RichAttributionWidget(
+                popupInitialDisplayDuration: const Duration(seconds: 5),
+                animationConfig: const ScaleRAWA(),
+                showFlutterMapAttribution: false,
+                attributions: [
+                  TextSourceAttribution(
+                    'OpenStreetMap contributors',
+                    onTap: () => launchUrl(
+                      Uri.parse('https://openstreetmap.org/copyright'),
+                    ),
+                  ),
+                  const TextSourceAttribution(
+                    'This attribution is the same throughout this app, except where otherwise specified',
+                    prependCopyright: false,
+                  ),
+                ],
+              ),
+            ],
+          ),
+          PositionedDirectional(
+            start: 16,
+            top: 16,
+            child: SafeArea(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.background,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                padding: const EdgeInsets.all(8),
+                child: Row(
+                  children: [
+                    Builder(
+                      builder: (context) => IconButton(
+                        onPressed: () => Scaffold.of(context).openDrawer(),
+                        icon: const Icon(Icons.menu),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Image.asset('assets/ProjectIcon.png',
+                        height: 32, width: 32),
+                    const SizedBox(width: 8),
+                  ],
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
   }
 }
