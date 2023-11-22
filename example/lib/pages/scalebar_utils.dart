@@ -115,7 +115,9 @@ LatLng calculateEndingGlobalCoordinates(
   // sinSigma * cosAlpha1);
   // double lambda = Math.atan(tanLambda);
   final lambda = atan2(
-      sinSigma * sinAlpha1, (cosU1 * cosSigma - sinU1 * sinSigma * cosAlpha1));
+    sinSigma * sinAlpha1,
+    cosU1 * cosSigma - sinU1 * sinSigma * cosAlpha1,
+  );
 
   // eq. 10
   final C = (f / 16) * cos2Alpha * (4 + f * (4 - 3 * cos2Alpha));

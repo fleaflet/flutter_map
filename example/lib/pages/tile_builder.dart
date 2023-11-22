@@ -37,7 +37,7 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
               children: [
                 if (showCoordinates)
                   Text(
-                    '${coords.x.floor()} : ${coords.y.floor()} : ${coords.z.floor()}',
+                    '${coords.x} : ${coords.y} : ${coords.z}',
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                 if (showLoadingTime)

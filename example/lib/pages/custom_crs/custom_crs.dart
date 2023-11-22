@@ -12,10 +12,10 @@ class CustomCrsPage extends StatefulWidget {
   const CustomCrsPage({super.key});
 
   @override
-  _CustomCrsPageState createState() => _CustomCrsPageState();
+  CustomCrsPageState createState() => CustomCrsPageState();
 }
 
-class _CustomCrsPageState extends State<CustomCrsPage> {
+class CustomCrsPageState extends State<CustomCrsPage> {
   late final Proj4Crs epsg3413CRS;
 
   double? maxZoom;

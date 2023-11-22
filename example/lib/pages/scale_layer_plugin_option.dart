@@ -64,7 +64,7 @@ class ScaleLayerWidget extends StatelessWidget {
     final width = end.x - start.x;
 
     return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints bc) {
+      builder: (context, constraints) {
         return CustomPaint(
           painter: ScalePainter(
             width,

@@ -205,7 +205,7 @@ final _animatedMoveTileUpdateTransformer =
   final mapEvent = updateEvent.mapEvent;
 
   final id = mapEvent is MapEventMove ? mapEvent.id : null;
-  if (id?.startsWith(AnimatedMapControllerPageState._startedId) == true) {
+  if (id?.startsWith(AnimatedMapControllerPageState._startedId) ?? false) {
     final parts = id!.split('#')[2].split(',');
     final lat = double.parse(parts[0]);
     final lon = double.parse(parts[1]);

@@ -39,7 +39,7 @@ class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
                   'Enable tile load error simulation or disable internet and try to move or zoom map.'),
             ),
             Flexible(
-              child: Builder(builder: (BuildContext context) {
+              child: Builder(builder: (context) {
                 return FlutterMap(
                   options: const MapOptions(
                     initialCenter: LatLng(51.5, -0.09),
@@ -118,6 +118,6 @@ class _SimulateErrorImageProvider
 
 class _SimulateErrorImageStreamCompleter extends ImageStreamCompleter {
   _SimulateErrorImageStreamCompleter() {
-    throw 'Simulated tile loading error';
+    throw Exception('Simulated tile loading error');
   }
 }

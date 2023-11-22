@@ -98,7 +98,7 @@ class MapControllerPageState extends State<MapControllerPage> {
                     },
                     child: const Text('Fit Bounds'),
                   ),
-                  Builder(builder: (BuildContext context) {
+                  Builder(builder: (context) {
                     return MaterialButton(
                       onPressed: () {
                         final bounds = _mapController.camera.visibleBounds;

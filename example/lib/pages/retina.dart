@@ -205,13 +205,13 @@ class InputFieldColorizer extends TextEditingController {
 
     text.splitMapJoin(
       pattern,
-      onMatch: (Match match) {
+      onMatch: (match) {
         children.add(
           TextSpan(text: match[0], style: style!.merge(mapping[match[0]])),
         );
         return '';
       },
-      onNonMatch: (String text) {
+      onNonMatch: (text) {
         children.add(TextSpan(text: text, style: style));
         return '';
       },
