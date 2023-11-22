@@ -16,8 +16,6 @@ import 'package:flutter_map_example/pages/markers.dart';
 import 'package:flutter_map_example/pages/moving_markers.dart';
 import 'package:flutter_map_example/pages/offline_map.dart';
 import 'package:flutter_map_example/pages/overlay_image.dart';
-import 'package:flutter_map_example/pages/plugin_scalebar.dart';
-import 'package:flutter_map_example/pages/plugin_zoombuttons.dart';
 import 'package:flutter_map_example/pages/polygon.dart';
 import 'package:flutter_map_example/pages/polyline.dart';
 import 'package:flutter_map_example/pages/reset_tile_layer.dart';
@@ -29,6 +27,8 @@ import 'package:flutter_map_example/pages/stateful_markers.dart';
 import 'package:flutter_map_example/pages/tile_builder.dart';
 import 'package:flutter_map_example/pages/tile_loading_error_handle.dart';
 import 'package:flutter_map_example/pages/wms_tile_layer.dart';
+import 'package:flutter_map_example/plugins/plugin_scalebar.dart';
+import 'package:flutter_map_example/plugins/plugin_zoombuttons.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_item.dart';
 
 class MenuDrawer extends StatelessWidget {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/misc/tile_providers.dart';
-import 'package:flutter_map_example/pages/zoombuttons_plugin_option.dart';
+import 'package:flutter_map_example/plugins/zoombuttons_plugin_option.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 class MapInsideListViewPage extends StatelessWidget {
