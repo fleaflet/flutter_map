@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use_from_same_package
-
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -8,7 +6,6 @@ import 'package:flutter_map/src/gestures/flutter_map_interactive_viewer.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
 import 'package:flutter_map/src/layer/general/translucent_pointer.dart';
-import 'package:flutter_map/src/map/camera/camera_fit.dart';
 import 'package:flutter_map/src/map/controller/impl.dart';
 import 'package:flutter_map/src/map/controller/internal.dart';
 import 'package:flutter_map/src/map/controller/map_controller.dart';
@@ -31,13 +28,6 @@ class FlutterMap extends StatefulWidget {
     this.mapController,
     required this.options,
     required this.children,
-    @Deprecated(
-      'Append all of these children to `children`. '
-      'This property has been removed to simplify the way layers are inserted '
-      'into the map, and allow for greater flexibility of layer positioning. '
-      'This property is deprecated since v6.',
-    )
-    this.nonRotatedChildren = const [],
   });
 
   /// Widgets to be placed onto the map in a [Stack]-like fashion
@@ -51,22 +41,6 @@ class FlutterMap extends StatefulWidget {
   /// [TranslucentPointer] will be wrapped around each child by default, unless
   /// [MapOptions.applyPointerTranslucencyToLayers] is `false`.
   final List<Widget> children;
-
-  /// This member has been deprecated as of v6, and will be removed in the next
-  /// version.
-  ///
-  /// To migrate, append all of these children to [children]. In most cases, no
-  /// other migration will be necessary.
-  ///
-  /// This will simplify the way layers are inserted into the map, and allow for
-  /// greater flexibility of layer positioning.
-  @Deprecated(
-    'Append all of these children to `children`. '
-    'This property has been removed to simplify the way layers are inserted '
-    'into the map, and allow for greater flexibility of layer positioning. '
-    'This property is deprecated since v6.',
-  )
-  final List<Widget> nonRotatedChildren;
 
   /// Configure this map's permanent rules and initial state
   ///
@@ -151,12 +125,6 @@ class _FlutterMapStateContainer extends State<FlutterMap>
               child: child,
             ),
           ),
-          ...widget.nonRotatedChildren.map(
-            (child) => TranslucentPointer(
-              translucent: widget.options.applyPointerTranslucencyToLayers,
-              child: child,
-            ),
-          ),
         ],
       ),
     );
@@ -185,35 +153,12 @@ class _FlutterMapStateContainer extends State<FlutterMap>
     // the parent constraints are available.
 
     if (!_initialCameraFitApplied &&
-        (widget.options.bounds != null ||
-            widget.options.initialCameraFit != null) &&
+        widget.options.initialCameraFit != null &&
         _parentConstraintsAreSet(context, constraints)) {
       _initialCameraFitApplied = true;
 
-      final CameraFit cameraFit;
-
-      if (widget.options.bounds != null) {
-        // Create the camera fit from the deprecated option.
-        final fitBoundsOptions = widget.options.boundsOptions;
-        cameraFit = fitBoundsOptions.inside
-            ? CameraFit.insideBounds(
-                bounds: widget.options.bounds!,
-                padding: fitBoundsOptions.padding,
-                maxZoom: fitBoundsOptions.maxZoom,
-                forceIntegerZoomLevel: fitBoundsOptions.forceIntegerZoomLevel,
-              )
-            : CameraFit.bounds(
-                bounds: widget.options.bounds!,
-                padding: fitBoundsOptions.padding,
-                maxZoom: fitBoundsOptions.maxZoom,
-                forceIntegerZoomLevel: fitBoundsOptions.forceIntegerZoomLevel,
-              );
-      } else {
-        cameraFit = widget.options.initialCameraFit!;
-      }
-
       _flutterMapInternalController.fitCamera(
-        cameraFit,
+        widget.options.initialCameraFit!,
         offset: Offset.zero,
       );
     }
