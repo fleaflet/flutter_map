@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_example/misc/tile_providers.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 class CirclePage extends StatelessWidget {
   static const String route = '/circle';
 
-  const CirclePage({Key? key}) : super(key: key);
+  const CirclePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -37,8 +38,8 @@ class CirclePage extends StatelessWidget {
         child: Column(
           children: [
             const Padding(
-              padding: EdgeInsets.only(top: 8, bottom: 8),
-              child: Text('This is a map that is showing (51.5, -0.9).'),
+              padding: EdgeInsets.symmetric(vertical: 8),
+              child: Text('This is a map that is showing (51.5, -0.09).'),
             ),
             Flexible(
               child: FlutterMap(
@@ -47,11 +48,7 @@ class CirclePage extends StatelessWidget {
                   initialZoom: 11,
                 ),
                 children: [
-                  TileLayer(
-                    urlTemplate:
-                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  ),
+                  openStreetMapTileLayer,
                   CircleLayer(circles: circleMarkers),
                 ],
               ),

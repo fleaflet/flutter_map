@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_example/misc/tile_providers.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 class PolygonPage extends StatelessWidget {
   static const String route = '/polygon';
 
-  const PolygonPage({Key? key}) : super(key: key);
+  const PolygonPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +72,7 @@ class PolygonPage extends StatelessWidget {
         child: Column(
           children: [
             const Padding(
-              padding: EdgeInsets.only(top: 8, bottom: 8),
+              padding: EdgeInsets.symmetric(vertical: 8),
               child: Text('Polygons'),
             ),
             Flexible(
@@ -81,11 +82,7 @@ class PolygonPage extends StatelessWidget {
                   initialZoom: 5,
                 ),
                 children: [
-                  TileLayer(
-                    urlTemplate:
-                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  ),
+                  openStreetMapTileLayer,
                   PolygonLayer(polygons: [
                     Polygon(
                       points: notFilledPoints,

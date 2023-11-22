@@ -7,7 +7,7 @@ class SlidingMapPage extends StatelessWidget {
   static const northEast = LatLng(56.7378, 11.6644);
   static const southWest = LatLng(56.6877, 11.5089);
 
-  const SlidingMapPage({Key? key}) : super(key: key);
+  const SlidingMapPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,7 @@ class SlidingMapPage extends StatelessWidget {
         child: Column(
           children: [
             const Padding(
-              padding: EdgeInsets.only(top: 8, bottom: 8),
+              padding: EdgeInsets.symmetric(vertical: 8),
               child: Text(
                   'This is a map that can be panned smoothly when the boundaries are reached.'),
             ),

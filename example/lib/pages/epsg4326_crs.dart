@@ -5,7 +5,7 @@ import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 class EPSG4326Page extends StatelessWidget {
   static const String route = '/crs_epsg4326';
 
-  const EPSG4326Page({Key? key}) : super(key: key);
+  const EPSG4326Page({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +17,7 @@ class EPSG4326Page extends StatelessWidget {
         child: Column(
           children: [
             const Padding(
-              padding: EdgeInsets.only(top: 8, bottom: 8),
+              padding: EdgeInsets.symmetric(vertical: 8),
               child: Text('This is a map that is showing (42.58, 12.43).'),
             ),
             Flexible(

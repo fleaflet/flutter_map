@@ -9,7 +9,7 @@ class RetinaPage extends StatefulWidget {
   static const String _defaultUrlTemplate =
       'https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/256/{z}/{x}/{y}{r}?access_token={accessToken}';
 
-  const RetinaPage({Key? key}) : super(key: key);
+  const RetinaPage({super.key});
 
   @override
   State<RetinaPage> createState() => _RetinaPageState();

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 class AnimatedMapControllerPage extends StatefulWidget {
   static const String route = '/map_controller_animated';
 
-  const AnimatedMapControllerPage({Key? key}) : super(key: key);
+  const AnimatedMapControllerPage({super.key});
 
   @override
   AnimatedMapControllerPageState createState() {
@@ -44,13 +45,7 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
     ),
   ];
 
-  late final MapController mapController;
-
-  @override
-  void initState() {
-    super.initState();
-    mapController = MapController();
-  }
+  final mapController = MapController();
 
   void _animatedMapMove(LatLng destLocation, double destZoom) {
     // Create some tweens. These serve to split up the transition from one location to another.
@@ -116,7 +111,7 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.only(top: 8, bottom: 8),
+              padding: const EdgeInsets.symmetric(vertical: 8),
               child: Row(
                 children: <Widget>[
                   MaterialButton(
@@ -135,7 +130,7 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 8, bottom: 8),
+              padding: const EdgeInsets.symmetric(vertical: 8),
               child: Row(
                 children: <Widget>[
                   MaterialButton(
@@ -177,15 +172,17 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
               child: FlutterMap(
                 mapController: mapController,
                 options: const MapOptions(
-                    initialCenter: LatLng(51.5, -0.09),
-                    initialZoom: 5,
-                    maxZoom: 10,
-                    minZoom: 3),
+                  initialCenter: LatLng(51.5, -0.09),
+                  initialZoom: 5,
+                  maxZoom: 10,
+                  minZoom: 3,
+                ),
                 children: [
                   TileLayer(
                     urlTemplate:
                         'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+                    tileProvider: CancellableNetworkTileProvider(),
                     tileUpdateTransformer: _animatedMoveTileUpdateTransformer,
                   ),
                   const MarkerLayer(markers: _markers),

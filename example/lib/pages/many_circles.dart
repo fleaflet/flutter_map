@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_example/misc/tile_providers.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 const maxCirclesCount = 20000;
@@ -13,7 +14,7 @@ const maxCirclesCount = 20000;
 class ManyCirclesPage extends StatefulWidget {
   static const String route = '/many_circles';
 
-  const ManyCirclesPage({Key? key}) : super(key: key);
+  const ManyCirclesPage({super.key});
 
   @override
   _ManyCirclesPageState createState() => _ManyCirclesPageState();
@@ -76,10 +77,7 @@ class _ManyCirclesPageState extends State<ManyCirclesPage> {
                 ),
               ),
               children: [
-                TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                ),
+                openStreetMapTileLayer,
                 CircleLayer(
                     circles: allCircles.sublist(
                         0, min(allCircles.length, _sliderVal))),

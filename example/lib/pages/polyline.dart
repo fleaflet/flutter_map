@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_example/misc/tile_providers.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 class PolylinePage extends StatefulWidget {
   static const String route = '/polyline';
 
-  const PolylinePage({Key? key}) : super(key: key);
+  const PolylinePage({super.key});
 
   @override
   State<PolylinePage> createState() => _PolylinePageState();
@@ -22,7 +23,7 @@ class _PolylinePageState extends State<PolylinePage> {
         child: Column(
           children: [
             const Padding(
-              padding: EdgeInsets.only(top: 8, bottom: 8),
+              padding: EdgeInsets.symmetric(vertical: 8),
               child: Text('Polylines'),
             ),
             Flexible(
@@ -32,11 +33,7 @@ class _PolylinePageState extends State<PolylinePage> {
                   initialZoom: 5,
                 ),
                 children: [
-                  TileLayer(
-                    urlTemplate:
-                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  ),
+                  openStreetMapTileLayer,
                   PolylineLayer(
                     polylines: [
                       Polyline(

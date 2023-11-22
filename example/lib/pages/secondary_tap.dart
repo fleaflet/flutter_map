@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_example/misc/tile_providers.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 class SecondaryTapPage extends StatelessWidget {
@@ -17,7 +18,7 @@ class SecondaryTapPage extends StatelessWidget {
         child: Column(
           children: [
             const Padding(
-              padding: EdgeInsets.only(top: 8, bottom: 8),
+              padding: EdgeInsets.symmetric(vertical: 8),
               child: Text('This is a map that supports secondary tap events.'),
             ),
             Flexible(
@@ -31,13 +32,7 @@ class SecondaryTapPage extends StatelessWidget {
                   initialCenter: const LatLng(51.5, -0.09),
                   initialZoom: 5,
                 ),
-                children: [
-                  TileLayer(
-                    urlTemplate:
-                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  ),
-                ],
+                children: [openStreetMapTileLayer],
               ),
             ),
           ],

@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_example/misc/tile_providers.dart';
+import 'package:flutter_map_example/widgets/drawer/floating_menu_button.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:flutter_map_example/widgets/first_start_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,7 +12,7 @@ import 'package:url_launcher/url_launcher.dart';
 class HomePage extends StatefulWidget {
   static const String route = '/';
 
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -41,10 +43,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             children: [
-              TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-              ),
+              openStreetMapTileLayer,
               RichAttributionWidget(
                 popupInitialDisplayDuration: const Duration(seconds: 5),
                 animationConfig: const ScaleRAWA(),
@@ -57,40 +56,15 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   const TextSourceAttribution(
-                    'This attribution is the same throughout this app, except where otherwise specified',
+                    'This attribution is the same throughout this app, except '
+                    'where otherwise specified',
                     prependCopyright: false,
                   ),
                 ],
               ),
             ],
           ),
-          PositionedDirectional(
-            start: 16,
-            top: 16,
-            child: SafeArea(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.background,
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                padding: const EdgeInsets.all(8),
-                child: Row(
-                  children: [
-                    Builder(
-                      builder: (context) => IconButton(
-                        onPressed: () => Scaffold.of(context).openDrawer(),
-                        icon: const Icon(Icons.menu),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Image.asset('assets/ProjectIcon.png',
-                        height: 32, width: 32),
-                    const SizedBox(width: 8),
-                  ],
-                ),
-              ),
-            ),
-          )
+          const FloatingMenuButton()
         ],
       ),
     );

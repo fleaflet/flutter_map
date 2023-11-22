@@ -6,7 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 class WMSLayerPage extends StatelessWidget {
   static const String route = '/wms_layer';
 
-  const WMSLayerPage({Key? key}) : super(key: key);
+  const WMSLayerPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +18,7 @@ class WMSLayerPage extends StatelessWidget {
         child: Column(
           children: [
             const Padding(
-              padding: EdgeInsets.only(top: 8, bottom: 8),
+              padding: EdgeInsets.symmetric(vertical: 8),
               child: Text('This is a map that is showing (42.58, 12.43).'),
             ),
             Flexible(

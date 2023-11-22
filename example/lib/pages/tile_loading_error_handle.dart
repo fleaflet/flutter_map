@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 class TileLoadingErrorHandle extends StatefulWidget {
   static const String route = '/tile_loading_error_handle';
 
-  const TileLoadingErrorHandle({Key? key}) : super(key: key);
+  const TileLoadingErrorHandle({super.key});
 
   @override
   _TileLoadingErrorHandleState createState() => _TileLoadingErrorHandleState();
@@ -33,7 +34,7 @@ class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
               }),
             ),
             const Padding(
-              padding: EdgeInsets.only(top: 8, bottom: 8),
+              padding: EdgeInsets.symmetric(vertical: 8),
               child: Text(
                   'Enable tile load error simulation or disable internet and try to move or zoom map.'),
             ),
@@ -65,9 +66,11 @@ class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
                           });
                         }
                       },
+                      // use a mocked tile provider to simulate tile load errors
+                      // or use the recommended tile provider
                       tileProvider: _simulateTileLoadErrors
                           ? _SimulateErrorsTileProvider()
-                          : null,
+                          : CancellableNetworkTileProvider(),
                     ),
                   ],
                 );

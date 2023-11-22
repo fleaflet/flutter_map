@@ -9,7 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 class CustomCrsPage extends StatefulWidget {
   static const String route = '/crs_custom';
 
-  const CustomCrsPage({Key? key}) : super(key: key);
+  const CustomCrsPage({super.key});
 
   @override
   _CustomCrsPageState createState() => _CustomCrsPageState();

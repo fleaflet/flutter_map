@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_example/misc/tile_providers.dart';
 import 'package:flutter_map_example/pages/scale_layer_plugin_option.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 class PluginScaleBar extends StatelessWidget {
   static const String route = '/plugin_scalebar';
 
-  const PluginScaleBar({Key? key}) : super(key: key);
+  const PluginScaleBar({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -24,11 +25,7 @@ class PluginScaleBar extends StatelessWidget {
                   initialZoom: 5,
                 ),
                 children: [
-                  TileLayer(
-                    urlTemplate:
-                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  ),
+                  openStreetMapTileLayer,
                   ScaleLayerWidget(
                     options: ScaleLayerPluginOption(
                       lineColor: Colors.blue,

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_example/misc/tile_providers.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 class OverlayImagePage extends StatelessWidget {
   static const String route = '/overlay_image';
 
-  const OverlayImagePage({Key? key}) : super(key: key);
+  const OverlayImagePage({super.key});
 
   static final _overlayImages = [
     OverlayImage(
@@ -37,7 +38,7 @@ class OverlayImagePage extends StatelessWidget {
         child: Column(
           children: [
             const Padding(
-              padding: EdgeInsets.only(top: 8, bottom: 8),
+              padding: EdgeInsets.symmetric(vertical: 8),
               child: Text('This is a map that is showing (51.5, -0.9).'),
             ),
             Flexible(
@@ -47,11 +48,7 @@ class OverlayImagePage extends StatelessWidget {
                   initialZoom: 6,
                 ),
                 children: [
-                  TileLayer(
-                    urlTemplate:
-                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  ),
+                  openStreetMapTileLayer,
                   OverlayImageLayer(overlayImages: _overlayImages),
                   const MarkerLayer(
                     markers: [

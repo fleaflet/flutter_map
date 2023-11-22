@@ -5,7 +5,7 @@ import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 class OfflineMapPage extends StatelessWidget {
   static const String route = '/offline_map';
 
-  const OfflineMapPage({Key? key}) : super(key: key);
+  const OfflineMapPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +17,7 @@ class OfflineMapPage extends StatelessWidget {
         child: Column(
           children: [
             const Padding(
-              padding: EdgeInsets.only(top: 8, bottom: 8),
+              padding: EdgeInsets.symmetric(vertical: 8),
               child: Text(
                   'This is an offline map that is showing Anholt Island, Denmark.'),
             ),

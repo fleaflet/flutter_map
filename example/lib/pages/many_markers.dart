@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_example/misc/tile_providers.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 const maxMarkersCount = 20000;
@@ -13,7 +14,7 @@ const maxMarkersCount = 20000;
 class ManyMarkersPage extends StatefulWidget {
   static const String route = '/many_markers';
 
-  const ManyMarkersPage({Key? key}) : super(key: key);
+  const ManyMarkersPage({super.key});
 
   @override
   _ManyMarkersPageState createState() => _ManyMarkersPageState();
@@ -74,10 +75,7 @@ class _ManyMarkersPageState extends State<ManyMarkersPage> {
                 ),
               ),
               children: [
-                TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                ),
+                openStreetMapTileLayer,
                 MarkerLayer(
                   markers: allMarkers.sublist(
                     0,

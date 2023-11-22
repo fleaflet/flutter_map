@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_example/misc/tile_providers.dart';
 import 'package:flutter_map_example/pages/zoombuttons_plugin_option.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 class MapInsideListViewPage extends StatelessWidget {
   static const String route = '/map_inside_listview';
 
-  const MapInsideListViewPage({Key? key}) : super(key: key);
+  const MapInsideListViewPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -26,11 +27,7 @@ class MapInsideListViewPage extends StatelessWidget {
                   initialZoom: 5,
                 ),
                 children: [
-                  TileLayer(
-                    urlTemplate:
-                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  ),
+                  openStreetMapTileLayer,
                   const FlutterMapZoomButtons(
                     minZoom: 4,
                     maxZoom: 19,
