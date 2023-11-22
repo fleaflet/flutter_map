@@ -2,10 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/geo/crs.dart';
-import 'package:flutter_map/src/geo/latlng_bounds.dart';
-import 'package:flutter_map/src/gestures/interactive_flag.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
-import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
 import 'package:flutter_map/src/gestures/positioned_tap_detector_2.dart';
 import 'package:flutter_map/src/layer/general/translucent_pointer.dart';
 import 'package:flutter_map/src/map/camera/camera_constraint.dart';
@@ -13,7 +10,6 @@ import 'package:flutter_map/src/map/camera/camera_fit.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
 import 'package:flutter_map/src/map/options/interaction.dart';
 import 'package:flutter_map/src/map/widget.dart';
-import 'package:flutter_map/src/misc/fit_bounds_options.dart';
 import 'package:flutter_map/src/misc/position.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -58,27 +54,10 @@ class MapOptions {
   /// over [initialCenter]/[initialZoom].
   final CameraFit? initialCameraFit;
 
-  final LatLngBounds? bounds;
-  final FitBoundsOptions boundsOptions;
-
-  final bool? _debugMultiFingerGestureWinner;
-  final bool? _enableMultiFingerGestureRace;
-  final double? _rotationThreshold;
-  final int? _rotationWinGestures;
-  final double? _pinchZoomThreshold;
-  final int? _pinchZoomWinGestures;
-  final double? _pinchMoveThreshold;
-  final int? _pinchMoveWinGestures;
-  final bool? _enableScrollWheel;
-  final double? _scrollWheelVelocity;
-
   final double? minZoom;
   final double? maxZoom;
 
   final Color backgroundColor;
-
-  /// see [InteractiveFlag] for custom settings
-  final int? _interactiveFlags;
 
   final TapCallback? onTap;
   final TapCallback? onSecondaryTap;
@@ -91,7 +70,7 @@ class MapOptions {
   final MapEventCallback? onMapEvent;
 
   /// Define limits for viewing the map.
-  final CameraConstraint? _cameraConstraint;
+  final CameraConstraint cameraConstraint;
 
   /// OnMapReady is called after the map runs it's initState.
   /// At that point the map has assigned its state to the controller
@@ -100,8 +79,6 @@ class MapOptions {
   /// Otherwise you can use WidgetsBinding.instance.addPostFrameCallback
   /// In initState to controll the map before the next frame.
   final VoidCallback? onMapReady;
-
-  final LatLngBounds? maxBounds;
 
   /// Flag to enable the built in keep alive functionality
   ///
@@ -127,112 +104,16 @@ class MapOptions {
   /// manually applied to individual layers.
   final bool applyPointerTranslucencyToLayers;
 
-  final InteractionOptions? _interactionOptions;
+  final InteractionOptions interactionOptions;
 
   const MapOptions({
     this.crs = const Epsg3857(),
-    @Deprecated(
-      'Prefer `initialCenter` instead. '
-      'This option has been renamed to clarify its meaning. '
-      'This option is deprecated since v6.',
-    )
-    LatLng? center,
-    LatLng initialCenter = const LatLng(50.5, 30.51),
-    @Deprecated(
-      'Prefer `initialZoom` instead. '
-      'This option has been renamed to clarify its meaning. '
-      'This option is deprecated since v6.',
-    )
-    double? zoom,
-    double initialZoom = 13.0,
-    @Deprecated(
-      'Prefer `initialRotation` instead. '
-      'This option has been renamed to clarify its meaning. '
-      'This option is deprecated since v6.',
-    )
-    double? rotation,
-    double initialRotation = 0.0,
-    @Deprecated(
-      'Prefer `initialCameraFit` instead. '
-      'This option is now part of `initalCameraFit`. '
-      'This option is deprecated since v6.',
-    )
-    this.bounds,
-    @Deprecated(
-      'Prefer `initialCameraFit` instead. '
-      'This option is now part of `initalCameraFit`. '
-      'This option is deprecated since v6.',
-    )
-    this.boundsOptions = const FitBoundsOptions(),
+    this.initialCenter = const LatLng(50.5, 30.51),
+    this.initialZoom = 13.0,
+    this.initialRotation = 0.0,
     this.initialCameraFit,
-    CameraConstraint? cameraConstraint,
-    InteractionOptions? interactionOptions,
-    @Deprecated(
-      'Prefer setting this in `interactionOptions`. '
-      'This option is now part of `interactionOptions` to group all interaction related options. '
-      'This option is deprecated since v6.',
-    )
-    int? interactiveFlags,
-    @Deprecated(
-      'Prefer setting this in `interactionOptions`. '
-      'This option is now part of `interactionOptions` to group all interaction related options. '
-      'This option is deprecated since v6.',
-    )
-    bool? debugMultiFingerGestureWinner,
-    @Deprecated(
-      'Prefer setting this in `interactionOptions`. '
-      'This option is now part of `interactionOptions` to group all interaction related options. '
-      'This option is deprecated since v6.',
-    )
-    bool? enableMultiFingerGestureRace,
-    @Deprecated(
-      'Prefer setting this in `interactionOptions`. '
-      'This option is now part of `interactionOptions` to group all interaction related options. '
-      'This option is deprecated since v6.',
-    )
-    double? rotationThreshold,
-    @Deprecated(
-      'Prefer setting this in `interactionOptions`. '
-      'This option is now part of `interactionOptions` to group all interaction related options. '
-      'This option is deprecated since v6.',
-    )
-    int? rotationWinGestures,
-    @Deprecated(
-      'Prefer setting this in `interactionOptions`. '
-      'This option is now part of `interactionOptions` to group all interaction related options. '
-      'This option is deprecated since v6.',
-    )
-    double? pinchZoomThreshold,
-    @Deprecated(
-      'Prefer setting this in `interactionOptions`. '
-      'This option is now part of `interactionOptions` to group all interaction related options. '
-      'This option is deprecated since v6.',
-    )
-    int? pinchZoomWinGestures,
-    @Deprecated(
-      'Prefer setting this in `interactionOptions`. '
-      'This option is now part of `interactionOptions` to group all interaction related options. '
-      'This option is deprecated since v6.',
-    )
-    double? pinchMoveThreshold,
-    @Deprecated(
-      'Prefer setting this in `interactionOptions`. '
-      'This option is now part of `interactionOptions` to group all interaction related options. '
-      'This option is deprecated since v6.',
-    )
-    int? pinchMoveWinGestures,
-    @Deprecated(
-      'Prefer setting this in `interactionOptions`. '
-      'This option is now part of `interactionOptions` to group all interaction related options. '
-      'This option is deprecated since v6.',
-    )
-    bool? enableScrollWheel,
-    @Deprecated(
-      'Prefer setting this in `interactionOptions`. '
-      'This option is now part of `interactionOptions` to group all interaction related options. '
-      'This option is deprecated since v6.',
-    )
-    double? scrollWheelVelocity,
+    this.cameraConstraint = const CameraConstraint.unconstrained(),
+    this.interactionOptions = const InteractionOptions(),
     this.minZoom,
     this.maxZoom,
     this.backgroundColor = const Color(0xFFE0E0E0),
@@ -246,30 +127,9 @@ class MapOptions {
     this.onPositionChanged,
     this.onMapEvent,
     this.onMapReady,
-    @Deprecated(
-      'Prefer `cameraConstraint` instead. '
-      'This option is now replaced by `cameraConstraint` which provides more flexibile limiting of the map position. '
-      'This option is deprecated since v6.',
-    )
-    this.maxBounds,
     this.keepAlive = false,
     this.applyPointerTranslucencyToLayers = true,
-  })  : _interactionOptions = interactionOptions,
-        _interactiveFlags = interactiveFlags,
-        _debugMultiFingerGestureWinner = debugMultiFingerGestureWinner,
-        _enableMultiFingerGestureRace = enableMultiFingerGestureRace,
-        _rotationThreshold = rotationThreshold,
-        _rotationWinGestures = rotationWinGestures,
-        _pinchZoomThreshold = pinchZoomThreshold,
-        _pinchZoomWinGestures = pinchZoomWinGestures,
-        _pinchMoveThreshold = pinchMoveThreshold,
-        _pinchMoveWinGestures = pinchMoveWinGestures,
-        _enableScrollWheel = enableScrollWheel,
-        _scrollWheelVelocity = scrollWheelVelocity,
-        initialCenter = center ?? initialCenter,
-        initialZoom = zoom ?? initialZoom,
-        initialRotation = rotation ?? initialRotation,
-        _cameraConstraint = cameraConstraint;
+  });
 
   /// The options of the closest [FlutterMap] ancestor. If this is called from a
   /// context with no [FlutterMap] ancestor, null is returned.
@@ -283,33 +143,6 @@ class MapOptions {
       (throw StateError(
           '`MapOptions.of()` should not be called outside a `FlutterMap` and its descendants'));
 
-  InteractionOptions get interactionOptions =>
-      _interactionOptions ??
-      InteractionOptions(
-        flags: _interactiveFlags ?? InteractiveFlag.all,
-        debugMultiFingerGestureWinner: _debugMultiFingerGestureWinner ?? false,
-        enableMultiFingerGestureRace: _enableMultiFingerGestureRace ?? false,
-        rotationThreshold: _rotationThreshold ?? 20.0,
-        rotationWinGestures: _rotationWinGestures ?? MultiFingerGesture.rotate,
-        pinchZoomThreshold: _pinchZoomThreshold ?? 0.5,
-        pinchZoomWinGestures: _pinchZoomWinGestures ??
-            MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
-        pinchMoveThreshold: _pinchMoveThreshold ?? 40.0,
-        pinchMoveWinGestures: _pinchMoveWinGestures ??
-            MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
-        enableScrollWheel: _enableScrollWheel ?? true,
-        scrollWheelVelocity: _scrollWheelVelocity ?? 0.005,
-      );
-
-  /// Note that this getter exists to make sure that the deprecated [maxBounds]
-  /// option is consistently used. Making this a getter allows the constructor
-  /// to remain const.
-  CameraConstraint get cameraConstraint =>
-      _cameraConstraint ??
-      (maxBounds != null
-          ? CameraConstraint.contain(bounds: maxBounds!)
-          : const CameraConstraint.unconstrained());
-
   @override
   bool operator ==(Object other) =>
       other is MapOptions &&
@@ -318,8 +151,6 @@ class MapOptions {
       initialZoom == other.initialZoom &&
       initialRotation == other.initialRotation &&
       initialCameraFit == other.initialCameraFit &&
-      bounds == other.bounds &&
-      boundsOptions == other.boundsOptions &&
       minZoom == other.minZoom &&
       maxZoom == other.maxZoom &&
       backgroundColor == other.backgroundColor &&
@@ -334,7 +165,6 @@ class MapOptions {
       onMapEvent == other.onMapEvent &&
       cameraConstraint == other.cameraConstraint &&
       onMapReady == other.onMapReady &&
-      maxBounds == other.maxBounds &&
       keepAlive == other.keepAlive &&
       interactionOptions == other.interactionOptions &&
       backgroundColor == other.backgroundColor &&
@@ -348,8 +178,6 @@ class MapOptions {
         initialZoom,
         initialRotation,
         initialCameraFit,
-        bounds,
-        boundsOptions,
         minZoom,
         maxZoom,
         backgroundColor,
@@ -365,7 +193,6 @@ class MapOptions {
         cameraConstraint,
         onMapReady,
         keepAlive,
-        maxBounds,
         interactionOptions,
         backgroundColor,
         applyPointerTranslucencyToLayers,

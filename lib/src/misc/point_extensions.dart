@@ -1,13 +1,6 @@
 import 'dart:math';
 import 'dart:ui';
 
-@Deprecated(
-  'Prefer `Point`. '
-  'This class has been deprecated in favor of adding extension methods to Point. '
-  'This class is deprecated since v6.',
-)
-typedef CustomPoint<T extends num> = Point<T>;
-
 extension PointExtension<T extends num> on Point<T> {
   /// Create new [Point] whose [x] and [y] values are divided by the respective
   /// values in [point].
@@ -60,29 +53,7 @@ extension PointExtension<T extends num> on Point<T> {
   Offset toOffset() => Offset(x.toDouble(), y.toDouble());
 }
 
-/// This extension contains methods which, if defined on Point<T extends num>,
-/// could cause a runtime error when called on a Point<int> with a non-int
-/// argument. An example:
-///
-/// Point<int>(1, 2).subtract(1.5) would cause a runtime error because the
-/// resulting x/y values are doubles and the return value is a Point<int> since
-/// the method returns Point<T>.
-extension DoublePointExtension on Point<double> {
-  /// Subtract [other] from this Point.
-  @Deprecated('camera.pixelOrigin is now a Point<double>. Prefer operator-.')
-  Point<double> subtract(Point<num> other) {
-    return Point(x - other.x, y - other.y);
-  }
-}
-
 extension OffsetToPointExtension on Offset {
-  @Deprecated(
-    'Prefer `toPoint()`. '
-    "This method has been renamed as a result of CustomPoint's removal. "
-    'This method is deprecated since v6.',
-  )
-  Point<double> toCustomPoint() => toPoint();
-
   /// Creates a [Point] representation of this offset.
   Point<double> toPoint() => Point(dx, dy);
 }

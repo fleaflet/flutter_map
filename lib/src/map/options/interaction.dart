@@ -59,13 +59,6 @@ final class InteractionOptions {
   /// gestures will take effect see [MultiFingerGesture] for custom settings
   final int pinchMoveWinGestures;
 
-  @Deprecated(
-    'Prefer `flags.scrollWheelZoom`. '
-    'This property was moved as it better suited being an `InteractiveFlag`. '
-    'This property is deprecated since v6.',
-  )
-  final bool enableScrollWheel;
-
   final double scrollWheelVelocity;
 
   /// Options to configure cursor/keyboard rotation
@@ -94,7 +87,6 @@ final class InteractionOptions {
     this.pinchMoveThreshold = 40.0,
     this.pinchMoveWinGestures =
         MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
-    this.enableScrollWheel = true,
     this.scrollWheelVelocity = 0.005,
     this.cursorKeyboardRotationOptions = const CursorKeyboardRotationOptions(),
   })  : assert(
@@ -122,8 +114,6 @@ final class InteractionOptions {
       pinchZoomWinGestures == other.pinchZoomWinGestures &&
       pinchMoveThreshold == other.pinchMoveThreshold &&
       pinchMoveWinGestures == other.pinchMoveWinGestures &&
-      // ignore: deprecated_member_use_from_same_package
-      enableScrollWheel == other.enableScrollWheel &&
       scrollWheelVelocity == other.scrollWheelVelocity;
 
   @override
@@ -137,8 +127,6 @@ final class InteractionOptions {
         pinchZoomWinGestures,
         pinchMoveThreshold,
         pinchMoveWinGestures,
-        // ignore: deprecated_member_use_from_same_package
-        enableScrollWheel,
         scrollWheelVelocity,
       );
 }
