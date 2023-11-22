@@ -21,7 +21,8 @@ abstract class InteractiveFlag {
       doubleTapZoom |
       doubleTapDragZoom |
       scrollWheelZoom |
-      rotate;
+      rotate |
+      ctrlDragRotate;
 
   static const int none = 0;
 
@@ -53,6 +54,10 @@ abstract class InteractiveFlag {
   /// For controlling cursor/keyboard rotation, see
   /// [InteractionOptions.cursorKeyboardRotationOptions].
   static const int rotate = 1 << 7;
+
+  /// Enable rotation by pressing the CTRL Key and drag the map with the cursor.
+  /// To change the key see [InteractionOptions.cursorKeyboardRotationOptions].
+  static const int ctrlDragRotate = 1 << 8;
 
   /// Flags pertaining to gestures which require multiple fingers.
   static const _multiFingerFlags = pinchMove | pinchZoom | rotate;
@@ -93,4 +98,7 @@ abstract class InteractiveFlag {
 
   /// True if the [scrollWheelZoom] interactive flag is enabled.
   static bool hasScrollWheelZoom(int flags) => hasFlag(flags, scrollWheelZoom);
+
+  /// True if the [ctrlDragRotate] interactive flag is enabled.
+  static bool hasCtrlDragRotate(int flags) => hasFlag(flags, ctrlDragRotate);
 }

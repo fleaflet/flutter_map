@@ -1,5 +1,4 @@
 import 'package:flutter_map/src/gestures/interactive_flag.dart';
-import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
 import 'package:flutter_map/src/map/options/cursor_keyboard_rotation.dart';
 import 'package:meta/meta.dart';
 
@@ -80,10 +79,10 @@ final class InteractionOptions {
     this.debugMultiFingerGestureWinner = false,
     this.enableMultiFingerGestureRace = false,
     this.rotationThreshold = 20.0,
-    this.rotationWinGestures = MultiFingerGesture.rotate,
+    this.rotationWinGestures = InteractiveFlag.rotate,
     this.pinchZoomThreshold = 0.5,
     this.pinchZoomWinGestures =
-        MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
+        InteractiveFlag.pinchZoom | InteractiveFlag.pinchMove,
     this.pinchMoveThreshold = 40.0,
     this.pinchMoveWinGestures =
         MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
