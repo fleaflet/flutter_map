@@ -23,11 +23,10 @@ class FallbackUrlPage extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
           ),
-          const NoticeBanner(
+          const NoticeBanner.warning(
             text: 'Relying on a fallback URL may have a negative performance '
                 'impact',
             url: 'https://docs.fleaflet.dev/layers/tile-layer/tile-providers',
-            type: NoticeBannerType.warning,
             sizeTransition: 650,
           ),
           Flexible(

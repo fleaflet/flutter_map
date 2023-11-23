@@ -1,42 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-enum NoticeBannerType {
-  warning(
-    icon: Icons.warning_rounded,
-    foregroundColor: Color(0xFF410002),
-    backgroundColor: Color(0xFFFFDAD6),
-  ),
-  recommendation(
-    icon: Icons.task_alt,
-    foregroundColor: Color(0xFF072100),
-    backgroundColor: Color(0xFFB8F397),
-  );
+class NoticeBanner extends StatelessWidget {
+  const NoticeBanner.warning({
+    super.key,
+    required this.text,
+    required this.url,
+    required this.sizeTransition,
+  })  : icon = Icons.warning_rounded,
+        foregroundColor = const Color(0xFF410002),
+        backgroundColor = const Color(0xFFFFDAD6);
 
-  const NoticeBannerType({
-    required this.icon,
-    required this.foregroundColor,
-    required this.backgroundColor,
-  });
+  const NoticeBanner.recommendation({
+    super.key,
+    required this.text,
+    required this.url,
+    required this.sizeTransition,
+  })  : icon = Icons.task_alt,
+        foregroundColor = const Color(0xFF072100),
+        backgroundColor = const Color(0xFFB8F397);
+
+  final String text;
+  final String? url;
+  final double sizeTransition;
 
   final IconData icon;
   final Color foregroundColor;
   final Color backgroundColor;
-}
-
-class NoticeBanner extends StatelessWidget {
-  const NoticeBanner({
-    super.key,
-    required this.text,
-    required this.url,
-    required this.type,
-    required this.sizeTransition,
-  });
-
-  final String text;
-  final String? url;
-  final NoticeBannerType type;
-  final double sizeTransition;
 
   @override
   Widget build(BuildContext context) {
@@ -48,22 +38,18 @@ class NoticeBanner extends StatelessWidget {
             vertical: constraints.maxWidth <= sizeTransition ? 8 : 0,
           ),
           width: double.infinity,
-          color: type.backgroundColor,
+          color: backgroundColor,
           child: Flex(
             direction: constraints.maxWidth <= sizeTransition
                 ? Axis.vertical
                 : Axis.horizontal,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                type.icon,
-                color: type.foregroundColor,
-                size: 32,
-              ),
+              Icon(icon, color: foregroundColor, size: 32),
               const SizedBox(height: 12, width: 16),
               Text(
                 text,
-                style: TextStyle(color: type.foregroundColor),
+                style: TextStyle(color: foregroundColor),
                 textAlign: TextAlign.center,
               ),
               if (url != null) ...[

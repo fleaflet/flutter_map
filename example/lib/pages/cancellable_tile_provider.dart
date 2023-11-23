@@ -36,12 +36,11 @@ class _CancellableTileProviderPageState
               ),
             ),
           ),
-          const NoticeBanner(
+          const NoticeBanner.recommendation(
             text:
                 'This tile provider cancels unnecessary HTTP requests, which can help performance (especially on the web)',
             url:
                 'https://docs.fleaflet.dev/layers/tile-layer/tile-providers#cancellablenetworktileprovider',
-            type: NoticeBannerType.recommendation,
             sizeTransition: 905,
           ),
           Expanded(
