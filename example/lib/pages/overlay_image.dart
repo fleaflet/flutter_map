@@ -54,15 +54,15 @@ class OverlayImagePage extends StatelessWidget {
                     markers: [
                       Marker(
                         point: LatLng(53.377, -2.999),
-                        child: _Circle(color: Colors.redAccent, label: "TL"),
+                        child: _Circle(color: Colors.redAccent, label: 'TL'),
                       ),
                       Marker(
                         point: LatLng(52.503, -1.868),
-                        child: _Circle(color: Colors.redAccent, label: "BL"),
+                        child: _Circle(color: Colors.redAccent, label: 'BL'),
                       ),
                       Marker(
                         point: LatLng(53.475, 0.275),
-                        child: _Circle(color: Colors.redAccent, label: "BR"),
+                        child: _Circle(color: Colors.redAccent, label: 'BR'),
                       ),
                     ],
                   ),

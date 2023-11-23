@@ -24,12 +24,12 @@ class FirstStartDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
-              "This is built automatically off of the latest commits to "
+              'This is built automatically off of the latest commits to '
               "'master', so may not reflect the latest release available "
-              "on pub.dev.\n"
+              'on pub.dev.\n'
               "This is hosted on Firebase Hosting, meaning there's limited "
-              "bandwidth to share between all users, so please keep loads to a "
-              "minimum.",
+              'bandwidth to share between all users, so please keep loads to a '
+              'minimum.',
               textAlign: TextAlign.center,
             ),
             Padding(

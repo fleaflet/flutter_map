@@ -153,7 +153,7 @@ class _RetinaPageState extends State<RetinaPage> {
                   attributions: [
                     LogoSourceAttribution(
                       Image.asset(
-                        "assets/mapbox-logo-white.png",
+                        'assets/mapbox-logo-white.png',
                         color: Colors.black,
                       ),
                       height: 16,
