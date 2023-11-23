@@ -6,7 +6,6 @@ import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/gestures/map_interactive_viewer.dart';
 import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
 import 'package:flutter_map/src/layer/general/translucent_pointer.dart';
-import 'package:flutter_map/src/map/camera/camera_fit.dart';
 import 'package:flutter_map/src/map/controller/internal_map_controller.dart';
 import 'package:flutter_map/src/map/controller/map_controller.dart';
 import 'package:flutter_map/src/map/controller/map_controller_impl.dart';
