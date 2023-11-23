@@ -157,5 +157,6 @@ class CirclePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(CirclePainter oldDelegate) => false;
+  bool shouldRepaint(CirclePainter oldDelegate) =>
+      circles != oldDelegate.circles || map != oldDelegate.map;
 }
