@@ -17,11 +17,9 @@ class FloatingMenuButton extends StatelessWidget {
           padding: const EdgeInsets.all(8),
           child: Row(
             children: [
-              Builder(
-                builder: (context) => IconButton(
-                  onPressed: () => Scaffold.of(context).openDrawer(),
-                  icon: const Icon(Icons.menu),
-                ),
+              IconButton(
+                onPressed: () => Scaffold.of(context).openDrawer(),
+                icon: const Icon(Icons.menu),
               ),
               const SizedBox(width: 8),
               Image.asset('assets/ProjectIcon.png', height: 32, width: 32),
