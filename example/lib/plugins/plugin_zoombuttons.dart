@@ -12,32 +12,23 @@ class PluginZoomButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('ZoomButtonsPlugins')),
+      appBar: AppBar(title: const Text('Zoom Buttons Plugin')),
       drawer: const MenuDrawer(PluginZoomButtons.route),
-      body: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          children: [
-            Flexible(
-              child: FlutterMap(
-                options: const MapOptions(
-                  initialCenter: LatLng(51.5, -0.09),
-                  initialZoom: 5,
-                ),
-                children: [
-                  openStreetMapTileLayer,
-                  const FlutterMapZoomButtons(
-                    minZoom: 4,
-                    maxZoom: 19,
-                    mini: true,
-                    padding: 10,
-                    alignment: Alignment.bottomRight,
-                  ),
-                ],
-              ),
-            ),
-          ],
+      body: FlutterMap(
+        options: const MapOptions(
+          initialCenter: LatLng(51.5, -0.09),
+          initialZoom: 5,
         ),
+        children: [
+          openStreetMapTileLayer,
+          const FlutterMapZoomButtons(
+            minZoom: 4,
+            maxZoom: 19,
+            mini: true,
+            padding: 10,
+            alignment: Alignment.bottomRight,
+          ),
+        ],
       ),
     );
   }

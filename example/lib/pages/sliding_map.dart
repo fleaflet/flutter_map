@@ -14,37 +14,36 @@ class SlidingMapPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Sliding Map')),
       drawer: const MenuDrawer(route),
-      body: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Text(
-                  'This is a map that can be panned smoothly when the boundaries are reached.'),
+      body: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.all(8),
+            child: Text(
+              'This is a map that can be panned smoothly when the '
+              'boundaries are reached.',
             ),
-            Flexible(
-              child: FlutterMap(
-                options: MapOptions(
-                  initialCenter: const LatLng(56.704173, 11.543808),
-                  minZoom: 12,
-                  maxZoom: 14,
-                  initialZoom: 13,
-                  cameraConstraint: CameraConstraint.containCenter(
-                    bounds: LatLngBounds(northEast, southWest),
-                  ),
+          ),
+          Flexible(
+            child: FlutterMap(
+              options: MapOptions(
+                initialCenter: const LatLng(56.704173, 11.543808),
+                minZoom: 12,
+                maxZoom: 14,
+                initialZoom: 13,
+                cameraConstraint: CameraConstraint.containCenter(
+                  bounds: LatLngBounds(northEast, southWest),
                 ),
-                children: [
-                  TileLayer(
-                    tileProvider: AssetTileProvider(),
-                    maxZoom: 14,
-                    urlTemplate: 'assets/map/anholt_osmbright/{z}/{x}/{y}.png',
-                  ),
-                ],
               ),
+              children: [
+                TileLayer(
+                  tileProvider: AssetTileProvider(),
+                  maxZoom: 14,
+                  urlTemplate: 'assets/map/anholt_osmbright/{z}/{x}/{y}.png',
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

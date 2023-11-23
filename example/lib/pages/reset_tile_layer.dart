@@ -33,55 +33,51 @@ class ResetTileLayerPageState extends State<ResetTileLayerPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('TileLayer Reset')),
       drawer: const MenuDrawer(ResetTileLayerPage.route),
-      body: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Text(
-                  'TileLayers can be progromatically reset, disposing of cached files'),
+      body: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(left: 8, right: 8, top: 12),
+            child: Text(
+              'TileLayers can be progromatically reset, disposing of cached '
+              'tiles',
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Wrap(
-                children: <Widget>[
-                  MaterialButton(
-                    onPressed: _resetTiles,
-                    child: const Text('Reset'),
-                  ),
-                ],
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
+            child: TextButton.icon(
+              onPressed: _resetTiles,
+              label: const Text('Reset'),
+              icon: const Icon(Icons.restart_alt),
+            ),
+          ),
+          Flexible(
+            child: FlutterMap(
+              options: const MapOptions(
+                initialCenter: LatLng(51.5, -0.09),
+                initialZoom: 5,
               ),
-            ),
-            Flexible(
-              child: FlutterMap(
-                options: const MapOptions(
-                  initialCenter: LatLng(51.5, -0.09),
-                  initialZoom: 5,
+              children: [
+                TileLayer(
+                  reset: resetController.stream,
+                  urlTemplate: layerToggle ? layer1 : layer2,
+                  subdomains: layerToggle ? const [] : const ['a', 'b', 'c'],
+                  userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+                  tileProvider: CancellableNetworkTileProvider(),
                 ),
-                children: [
-                  TileLayer(
-                    reset: resetController.stream,
-                    urlTemplate: layerToggle ? layer1 : layer2,
-                    subdomains: layerToggle ? const [] : const ['a', 'b', 'c'],
-                    userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                    tileProvider: CancellableNetworkTileProvider(),
-                  ),
-                  const MarkerLayer(
-                    markers: [
-                      Marker(
-                        width: 80,
-                        height: 80,
-                        point: LatLng(51.5, -0.09),
-                        child: FlutterLogo(),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                const MarkerLayer(
+                  markers: [
+                    Marker(
+                      width: 80,
+                      height: 80,
+                      point: LatLng(51.5, -0.09),
+                      child: FlutterLogo(),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

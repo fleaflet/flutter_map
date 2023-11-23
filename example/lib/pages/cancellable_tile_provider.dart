@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
+import 'package:flutter_map_example/widgets/notice_banner.dart';
 
 class CancellableTileProviderPage extends StatefulWidget {
   static const String route = '/cancellable_tile_provider_page';
@@ -24,27 +25,24 @@ class _CancellableTileProviderPageState
       drawer: const MenuDrawer(CancellableTileProviderPage.route),
       body: Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.all(12),
-            child: Text(
-              'This map uses a custom `TileProvider` that cancels HTTP '
-              'requests for unnecessary tiles. This should help speed up tile '
-              'loading and reduce unnecessary costly tile requests.',
-            ),
-          ),
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 400),
-              child: CheckboxListTile(
+              constraints: const BoxConstraints(maxWidth: 420),
+              child: SwitchListTile.adaptive(
                 title: const Text('Use CancellableNetworkTileProvider'),
                 value: _providerEnabled,
-                onChanged: (value) {
-                  if (value == null) return;
-                  setState(() => _providerEnabled = value);
-                },
+                onChanged: (value) => setState(() => _providerEnabled = value),
               ),
             ),
+          ),
+          const NoticeBanner(
+            text:
+                'This tile provider cancels unnecessary HTTP requests, which can help performance (especially on the web)',
+            url:
+                'https://docs.fleaflet.dev/layers/tile-layer/tile-providers#cancellablenetworktileprovider',
+            type: NoticeBannerType.recommendation,
+            sizeTransition: 905,
           ),
           Expanded(
             child: FlutterMap(

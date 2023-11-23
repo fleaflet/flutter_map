@@ -52,28 +52,15 @@ class StatefulMarkersPageState extends State<StatefulMarkersPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Stateful Markers')),
       drawer: const MenuDrawer(StatefulMarkersPage.route),
-      body: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Text('This is a map that is showing (51.5, -0.9).'),
-            ),
-            Flexible(
-              child: FlutterMap(
-                options: const MapOptions(
-                  initialCenter: LatLng(51.5, -0.09),
-                  initialZoom: 5,
-                ),
-                children: [
-                  openStreetMapTileLayer,
-                  MarkerLayer(markers: _markers),
-                ],
-              ),
-            ),
-          ],
+      body: FlutterMap(
+        options: const MapOptions(
+          initialCenter: LatLng(51.5, -0.09),
+          initialZoom: 5,
         ),
+        children: [
+          openStreetMapTileLayer,
+          MarkerLayer(markers: _markers),
+        ],
       ),
     );
   }

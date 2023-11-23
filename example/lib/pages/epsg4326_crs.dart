@@ -12,36 +12,23 @@ class EPSG4326Page extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('EPSG4326')),
       drawer: const MenuDrawer(route),
-      body: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Text('This is a map that is showing (42.58, 12.43).'),
-            ),
-            Flexible(
-              child: FlutterMap(
-                options: const MapOptions(
-                  minZoom: 0,
-                  crs: Epsg4326(),
-                  initialCenter: LatLng(0, 0),
-                  initialZoom: 0,
-                ),
-                children: [
-                  TileLayer(
-                    wmsOptions: WMSTileLayerOptions(
-                      crs: const Epsg4326(),
-                      baseUrl: 'https://ows.mundialis.de/services/service?',
-                      layers: const ['TOPO-OSM-WMS'],
-                    ),
-                    userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  ),
-                ],
-              ),
-            ),
-          ],
+      body: FlutterMap(
+        options: const MapOptions(
+          minZoom: 0,
+          crs: Epsg4326(),
+          initialCenter: LatLng(0, 0),
+          initialZoom: 0,
         ),
+        children: [
+          TileLayer(
+            wmsOptions: WMSTileLayerOptions(
+              crs: const Epsg4326(),
+              baseUrl: 'https://ows.mundialis.de/services/service?',
+              layers: const ['TOPO-OSM-WMS'],
+            ),
+            userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+          ),
+        ],
       ),
     );
   }

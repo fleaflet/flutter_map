@@ -67,98 +67,85 @@ class PolygonPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Polygons')),
       drawer: const MenuDrawer(PolygonPage.route),
-      body: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Text('Polygons'),
-            ),
-            Flexible(
-              child: FlutterMap(
-                options: const MapOptions(
-                  initialCenter: LatLng(51.5, -0.09),
-                  initialZoom: 5,
-                ),
-                children: [
-                  openStreetMapTileLayer,
-                  PolygonLayer(polygons: [
-                    Polygon(
-                      points: notFilledPoints,
-                      isFilled: false, // By default it's false
-                      borderColor: Colors.red,
-                      borderStrokeWidth: 4,
-                    ),
-                    Polygon(
-                      points: filledPoints,
-                      isFilled: true,
-                      color: Colors.purple,
-                      borderColor: Colors.yellow,
-                      borderStrokeWidth: 4,
-                    ),
-                    Polygon(
-                      points: notFilledDotedPoints,
-                      isFilled: false,
-                      isDotted: true,
-                      borderColor: Colors.green,
-                      borderStrokeWidth: 4,
-                      color: Colors.yellow,
-                    ),
-                    Polygon(
-                      points: filledDotedPoints,
-                      isFilled: true,
-                      isDotted: true,
-                      borderStrokeWidth: 4,
-                      borderColor: Colors.lightBlue,
-                      color: Colors.yellow,
-                    ),
-                    Polygon(
-                      points: labelPoints,
-                      borderStrokeWidth: 4,
-                      isFilled: false,
-                      color: Colors.pink,
-                      borderColor: Colors.purple,
-                      label: 'Label!',
-                    ),
-                    Polygon(
-                      points: labelRotatedPoints,
-                      borderStrokeWidth: 4,
-                      borderColor: Colors.purple,
-                      label: 'Rotated!',
-                      rotateLabel: true,
-                      labelPlacement: PolygonLabelPlacement.polylabel,
-                    ),
-                    Polygon(
-                      points: holeOuterPoints,
-                      isFilled: true,
-                      holePointsList: [holeInnerPoints],
-                      borderStrokeWidth: 4,
-                      borderColor: Colors.green,
-                      color: Colors.pink.withOpacity(0.5),
-                    ),
-                    Polygon(
-                      points: holeOuterPoints
-                          .map((latlng) =>
-                              LatLng(latlng.latitude, latlng.longitude + 8))
-                          .toList(),
-                      isFilled: false,
-                      isDotted: true,
-                      holePointsList: [
-                        holeInnerPoints
-                            .map((latlng) =>
-                                LatLng(latlng.latitude, latlng.longitude + 8))
-                            .toList()
-                      ],
-                      borderStrokeWidth: 4,
-                      borderColor: Colors.orange,
-                    ),
-                  ]),
-                ],
-              ),
-            ),
-          ],
+      body: FlutterMap(
+        options: const MapOptions(
+          initialCenter: LatLng(51.5, -0.09),
+          initialZoom: 5,
         ),
+        children: [
+          openStreetMapTileLayer,
+          PolygonLayer(polygons: [
+            Polygon(
+              points: notFilledPoints,
+              isFilled: false, // By default it's false
+              borderColor: Colors.red,
+              borderStrokeWidth: 4,
+            ),
+            Polygon(
+              points: filledPoints,
+              isFilled: true,
+              color: Colors.purple,
+              borderColor: Colors.yellow,
+              borderStrokeWidth: 4,
+            ),
+            Polygon(
+              points: notFilledDotedPoints,
+              isFilled: false,
+              isDotted: true,
+              borderColor: Colors.green,
+              borderStrokeWidth: 4,
+              color: Colors.yellow,
+            ),
+            Polygon(
+              points: filledDotedPoints,
+              isFilled: true,
+              isDotted: true,
+              borderStrokeWidth: 4,
+              borderColor: Colors.lightBlue,
+              color: Colors.yellow,
+            ),
+            Polygon(
+              points: labelPoints,
+              borderStrokeWidth: 4,
+              isFilled: false,
+              color: Colors.pink,
+              borderColor: Colors.purple,
+              label: 'Label!',
+            ),
+            Polygon(
+              points: labelRotatedPoints,
+              borderStrokeWidth: 4,
+              borderColor: Colors.purple,
+              label: 'Rotated!',
+              rotateLabel: true,
+              labelPlacement: PolygonLabelPlacement.polylabel,
+            ),
+            Polygon(
+              points: holeOuterPoints,
+              isFilled: true,
+              holePointsList: [holeInnerPoints],
+              borderStrokeWidth: 4,
+              borderColor: Colors.green,
+              color: Colors.pink.withOpacity(0.5),
+            ),
+            Polygon(
+              points: holeOuterPoints
+                  .map(
+                      (latlng) => LatLng(latlng.latitude, latlng.longitude + 8))
+                  .toList(),
+              isFilled: false,
+              isDotted: true,
+              holePointsList: [
+                holeInnerPoints
+                    .map((latlng) =>
+                        LatLng(latlng.latitude, latlng.longitude + 8))
+                    .toList()
+              ],
+              borderStrokeWidth: 4,
+              borderColor: Colors.orange,
+            ),
+          ]),
+        ],
       ),
     );
   }

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map_example/pages/animated_map_controller.dart';
+import 'package:flutter_map_example/pages/bundled_offline_map.dart';
 import 'package:flutter_map_example/pages/cancellable_tile_provider.dart';
 import 'package:flutter_map_example/pages/circle.dart';
 import 'package:flutter_map_example/pages/custom_crs/custom_crs.dart';
 import 'package:flutter_map_example/pages/epsg3413_crs.dart';
 import 'package:flutter_map_example/pages/epsg4326_crs.dart';
-import 'package:flutter_map_example/pages/fallback_url_network_page.dart';
+import 'package:flutter_map_example/pages/fallback_url_page.dart';
 import 'package:flutter_map_example/pages/home.dart';
 import 'package:flutter_map_example/pages/interactive_test_page.dart';
 import 'package:flutter_map_example/pages/latlng_to_screen_point.dart';
@@ -15,7 +16,6 @@ import 'package:flutter_map_example/pages/map_controller.dart';
 import 'package:flutter_map_example/pages/map_inside_listview.dart';
 import 'package:flutter_map_example/pages/markers.dart';
 import 'package:flutter_map_example/pages/moving_markers.dart';
-import 'package:flutter_map_example/pages/offline_map.dart';
 import 'package:flutter_map_example/pages/overlay_image.dart';
 import 'package:flutter_map_example/pages/polygon.dart';
 import 'package:flutter_map_example/pages/polyline.dart';
@@ -118,13 +118,13 @@ class MenuDrawer extends StatelessWidget {
             currentRoute: currentRoute,
           ),
           MenuItemWidget(
-            caption: 'Asset Sourced Map',
-            routeName: OfflineMapPage.route,
+            caption: 'Bundled Offline Map',
+            routeName: BundledOfflineMapPage.route,
             currentRoute: currentRoute,
           ),
           MenuItemWidget(
             caption: 'Fallback URL',
-            routeName: FallbackUrlNetworkPage.route,
+            routeName: FallbackUrlPage.route,
             currentRoute: currentRoute,
           ),
           MenuItemWidget(
@@ -155,12 +155,12 @@ class MenuDrawer extends StatelessWidget {
           ),
           const Divider(),
           MenuItemWidget(
-            caption: 'ScaleBar Plugins',
+            caption: 'Scale Bar Plugin',
             routeName: PluginScaleBar.route,
             currentRoute: currentRoute,
           ),
           MenuItemWidget(
-            caption: 'ZoomButtons Plugins',
+            caption: 'Zoom Buttons Plugin',
             routeName: PluginZoomButtons.route,
             currentRoute: currentRoute,
           ),

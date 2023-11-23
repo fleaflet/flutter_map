@@ -22,62 +22,57 @@ class TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
     return Scaffold(
       appBar: AppBar(title: const Text('Tile Loading Error Handle')),
       drawer: const MenuDrawer(TileLoadingErrorHandle.route),
-      body: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          children: [
-            SwitchListTile(
+      body: Column(
+        children: [
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 350),
+            child: SwitchListTile(
               title: const Text('Simulate tile loading errors'),
               value: _simulateTileLoadErrors,
               onChanged: (newValue) => setState(() {
                 _simulateTileLoadErrors = newValue;
               }),
             ),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Text(
-                  'Enable tile load error simulation or disable internet and try to move or zoom map.'),
-            ),
-            Flexible(
-              child: Builder(builder: (context) {
-                return FlutterMap(
-                  options: const MapOptions(
-                    initialCenter: LatLng(51.5, -0.09),
-                    initialZoom: 5,
+          ),
+          Flexible(
+            child: Builder(builder: (context) {
+              return FlutterMap(
+                options: const MapOptions(
+                  initialCenter: LatLng(51.5, -0.09),
+                  initialZoom: 5,
+                ),
+                children: [
+                  TileLayer(
+                    urlTemplate:
+                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+                    evictErrorTileStrategy: EvictErrorTileStrategy.none,
+                    errorTileCallback: (tile, error, stackTrace) {
+                      if (_showErrorSnackBar) {
+                        _lastShowedTileLoadError = DateTime.now();
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            duration: _showSnackBarDuration,
+                            content: Text(
+                              error.toString(),
+                              style: const TextStyle(color: Colors.black),
+                            ),
+                            backgroundColor: Colors.deepOrange,
+                          ));
+                        });
+                      }
+                    },
+                    // use a mocked tile provider to simulate tile load errors
+                    // or use the recommended tile provider
+                    tileProvider: _simulateTileLoadErrors
+                        ? _SimulateErrorsTileProvider()
+                        : CancellableNetworkTileProvider(),
                   ),
-                  children: [
-                    TileLayer(
-                      urlTemplate:
-                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                      evictErrorTileStrategy: EvictErrorTileStrategy.none,
-                      errorTileCallback: (tile, error, stackTrace) {
-                        if (_showErrorSnackBar) {
-                          _lastShowedTileLoadError = DateTime.now();
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              duration: _showSnackBarDuration,
-                              content: Text(
-                                error.toString(),
-                                style: const TextStyle(color: Colors.black),
-                              ),
-                              backgroundColor: Colors.deepOrange,
-                            ));
-                          });
-                        }
-                      },
-                      // use a mocked tile provider to simulate tile load errors
-                      // or use the recommended tile provider
-                      tileProvider: _simulateTileLoadErrors
-                          ? _SimulateErrorsTileProvider()
-                          : CancellableNetworkTileProvider(),
-                    ),
-                  ],
-                );
-              }),
-            ),
-          ],
-        ),
+                ],
+              );
+            }),
+          ),
+        ],
       ),
     );
   }

@@ -12,30 +12,22 @@ class PluginScaleBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('ScaleBarPlugins')),
+      appBar: AppBar(title: const Text('Scale Bar Plugin')),
       drawer: const MenuDrawer(PluginScaleBar.route),
-      body: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
+      body: Flexible(
+        child: FlutterMap(
+          options: const MapOptions(
+            initialCenter: LatLng(51.5, -0.09),
+            initialZoom: 5,
+          ),
           children: [
-            Flexible(
-              child: FlutterMap(
-                options: const MapOptions(
-                  initialCenter: LatLng(51.5, -0.09),
-                  initialZoom: 5,
-                ),
-                children: [
-                  openStreetMapTileLayer,
-                  ScaleLayerWidget(
-                    options: ScaleLayerPluginOption(
-                      lineColor: Colors.blue,
-                      lineWidth: 2,
-                      textStyle:
-                          const TextStyle(color: Colors.blue, fontSize: 12),
-                      padding: const EdgeInsets.all(10),
-                    ),
-                  ),
-                ],
+            openStreetMapTileLayer,
+            ScaleLayerWidget(
+              options: ScaleLayerPluginOption(
+                lineColor: Colors.black,
+                lineWidth: 3,
+                textStyle: const TextStyle(color: Colors.black, fontSize: 14),
+                padding: const EdgeInsets.all(10),
               ),
             ),
           ],

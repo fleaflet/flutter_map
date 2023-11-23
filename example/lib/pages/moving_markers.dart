@@ -61,30 +61,17 @@ class MovingMarkersPageState extends State<MovingMarkersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Home')),
+      appBar: AppBar(title: const Text('Moving Markers')),
       drawer: const MenuDrawer(MovingMarkersPage.route),
-      body: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Text('This is a map that is showing (51.5, -0.9).'),
-            ),
-            Flexible(
-              child: FlutterMap(
-                options: const MapOptions(
-                  initialCenter: LatLng(51.5, -0.09),
-                  initialZoom: 5,
-                ),
-                children: [
-                  openStreetMapTileLayer,
-                  MarkerLayer(markers: [_marker!]),
-                ],
-              ),
-            ),
-          ],
+      body: FlutterMap(
+        options: const MapOptions(
+          initialCenter: LatLng(51.5, -0.09),
+          initialZoom: 5,
         ),
+        children: [
+          openStreetMapTileLayer,
+          MarkerLayer(markers: [_marker!]),
+        ],
       ),
     );
   }
