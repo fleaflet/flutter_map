@@ -17,10 +17,10 @@ class ManyMarkersPage extends StatefulWidget {
   const ManyMarkersPage({super.key});
 
   @override
-  _ManyMarkersPageState createState() => _ManyMarkersPageState();
+  ManyMarkersPageState createState() => ManyMarkersPageState();
 }
 
-class _ManyMarkersPageState extends State<ManyMarkersPage> {
+class ManyMarkersPageState extends State<ManyMarkersPage> {
   double doubleInRange(Random source, num start, num end) =>
       source.nextDouble() * (end - start) + start;
   List<Marker> allMarkers = [];

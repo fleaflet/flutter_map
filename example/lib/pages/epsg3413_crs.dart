@@ -12,10 +12,10 @@ class EPSG3413Page extends StatefulWidget {
   const EPSG3413Page({super.key});
 
   @override
-  _EPSG3413PageState createState() => _EPSG3413PageState();
+  EPSG3413PageState createState() => EPSG3413PageState();
 }
 
-class _EPSG3413PageState extends State<EPSG3413Page> {
+class EPSG3413PageState extends State<EPSG3413Page> {
   late final Proj4Crs epsg3413CRS;
 
   final distancePoleToLat80 =

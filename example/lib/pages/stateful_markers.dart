@@ -11,10 +11,10 @@ class StatefulMarkersPage extends StatefulWidget {
   const StatefulMarkersPage({super.key});
 
   @override
-  _StatefulMarkersPageState createState() => _StatefulMarkersPageState();
+  StatefulMarkersPageState createState() => StatefulMarkersPageState();
 }
 
-class _StatefulMarkersPageState extends State<StatefulMarkersPage> {
+class StatefulMarkersPageState extends State<StatefulMarkersPage> {
   late List<Marker> _markers;
   final Random _random = Random();
 

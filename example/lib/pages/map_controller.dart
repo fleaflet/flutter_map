@@ -9,9 +9,7 @@ class MapControllerPage extends StatefulWidget {
   const MapControllerPage({super.key});
 
   @override
-  MapControllerPageState createState() {
-    return MapControllerPageState();
-  }
+  MapControllerPageState createState() => MapControllerPageState();
 }
 
 class MapControllerPageState extends State<MapControllerPage> {

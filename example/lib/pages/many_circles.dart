@@ -17,10 +17,10 @@ class ManyCirclesPage extends StatefulWidget {
   const ManyCirclesPage({super.key});
 
   @override
-  _ManyCirclesPageState createState() => _ManyCirclesPageState();
+  ManyCirclesPageState createState() => ManyCirclesPageState();
 }
 
-class _ManyCirclesPageState extends State<ManyCirclesPage> {
+class ManyCirclesPageState extends State<ManyCirclesPage> {
   double doubleInRange(Random source, num start, num end) =>
       source.nextDouble() * (end - start) + start;
   List<CircleMarker> allCircles = [];

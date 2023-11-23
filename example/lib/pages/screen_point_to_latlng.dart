@@ -11,9 +11,7 @@ class ScreenPointToLatLngPage extends StatefulWidget {
   const ScreenPointToLatLngPage({super.key});
 
   @override
-  PointToLatlngPage createState() {
-    return PointToLatlngPage();
-  }
+  PointToLatlngPage createState() => PointToLatlngPage();
 }
 
 class PointToLatlngPage extends State<ScreenPointToLatLngPage> {

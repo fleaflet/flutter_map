@@ -11,9 +11,7 @@ class ResetTileLayerPage extends StatefulWidget {
   const ResetTileLayerPage({super.key});
 
   @override
-  ResetTileLayerPageState createState() {
-    return ResetTileLayerPageState();
-  }
+  ResetTileLayerPageState createState() => ResetTileLayerPageState();
 }
 
 class ResetTileLayerPageState extends State<ResetTileLayerPage> {

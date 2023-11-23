@@ -11,12 +11,10 @@ class MovingMarkersPage extends StatefulWidget {
   const MovingMarkersPage({super.key});
 
   @override
-  _MovingMarkersPageState createState() {
-    return _MovingMarkersPageState();
-  }
+  MovingMarkersPageState createState() => MovingMarkersPageState();
 }
 
-class _MovingMarkersPageState extends State<MovingMarkersPage> {
+class MovingMarkersPageState extends State<MovingMarkersPage> {
   Marker? _marker;
   late final Timer _timer;
   int _markerIndex = 0;

@@ -9,10 +9,10 @@ class TileLoadingErrorHandle extends StatefulWidget {
   const TileLoadingErrorHandle({super.key});
 
   @override
-  _TileLoadingErrorHandleState createState() => _TileLoadingErrorHandleState();
+  TileLoadingErrorHandleState createState() => TileLoadingErrorHandleState();
 }
 
-class _TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
+class TileLoadingErrorHandleState extends State<TileLoadingErrorHandle> {
   static const _showSnackBarDuration = Duration(seconds: 1);
   bool _simulateTileLoadErrors = false;
   DateTime? _lastShowedTileLoadError;

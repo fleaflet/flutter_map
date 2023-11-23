@@ -9,10 +9,10 @@ class TileBuilderPage extends StatefulWidget {
   const TileBuilderPage({super.key});
 
   @override
-  _TileBuilderPageState createState() => _TileBuilderPageState();
+  TileBuilderPageState createState() => TileBuilderPageState();
 }
 
-class _TileBuilderPageState extends State<TileBuilderPage> {
+class TileBuilderPageState extends State<TileBuilderPage> {
   bool enableGrid = true;
   bool showCoordinates = true;
   bool showLoadingTime = true;

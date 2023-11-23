@@ -9,9 +9,8 @@ class AnimatedMapControllerPage extends StatefulWidget {
   const AnimatedMapControllerPage({super.key});
 
   @override
-  AnimatedMapControllerPageState createState() {
-    return AnimatedMapControllerPageState();
-  }
+  AnimatedMapControllerPageState createState() =>
+      AnimatedMapControllerPageState();
 }
 
 class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
