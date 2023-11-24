@@ -3,12 +3,13 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_example/misc/tile_providers.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 class LatLngToScreenPointPage extends StatefulWidget {
   static const String route = '/latlng_to_screen_point';
 
-  const LatLngToScreenPointPage({Key? key}) : super(key: key);
+  const LatLngToScreenPointPage({super.key});
 
   @override
   State<LatLngToScreenPointPage> createState() =>
@@ -37,7 +38,7 @@ class _LatLngToScreenPointPageState extends State<LatLngToScreenPointPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Lat/Lng 🡒 Screen Point')),
-      drawer: buildDrawer(context, LatLngToScreenPointPage.route),
+      drawer: const MenuDrawer(LatLngToScreenPointPage.route),
       body: Stack(
         children: [
           FlutterMap(
@@ -55,10 +56,7 @@ class _LatLngToScreenPointPageState extends State<LatLngToScreenPointPage> {
               },
             ),
             children: [
-              TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-              ),
+              openStreetMapTileLayer,
               if (tappedCoords != null)
                 MarkerLayer(
                   markers: [

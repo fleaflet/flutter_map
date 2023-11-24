@@ -27,7 +27,6 @@ linter:
     type_annotate_public_apis: true
     unnecessary_statements: true
     use_named_constants: true
-    use_super_parameters: true
     cast_nullable_to_non_nullable: true
     only_throw_errors: true
     sort_unnamed_constructors_first: true

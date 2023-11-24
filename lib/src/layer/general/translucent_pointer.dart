@@ -1,8 +1,8 @@
-////////////////////////////////////////////////////////////////
-///           Based on the work by Sander Kersten            ///
-///    Migrated, and now maintained here for flexibility     ///
-/// https://github.com/spkersten/flutter_transparent_pointer ///
-////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////////
+// ///           Based on the work by Sander Kersten            ///
+// ///    Migrated, and now maintained here for flexibility     ///
+// /// https://github.com/spkersten/flutter_transparent_pointer ///
+// ////////////////////////////////////////////////////////////////
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -79,6 +79,7 @@ class RenderTranslucentPointer extends RenderProxyBox {
   /// during painting.
   bool get translucent => _translucent;
   bool _translucent;
+
   set translucent(bool value) {
     if (value == _translucent) return;
     _translucent = value;

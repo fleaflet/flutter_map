@@ -2,20 +2,20 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:proj4dart/proj4dart.dart' as proj4;
 import 'package:url_launcher/url_launcher.dart';
 
 class CustomCrsPage extends StatefulWidget {
   static const String route = '/crs_custom';
 
-  const CustomCrsPage({Key? key}) : super(key: key);
+  const CustomCrsPage({super.key});
 
   @override
-  _CustomCrsPageState createState() => _CustomCrsPageState();
+  CustomCrsPageState createState() => CustomCrsPageState();
 }
 
-class _CustomCrsPageState extends State<CustomCrsPage> {
+class CustomCrsPageState extends State<CustomCrsPage> {
   late final Proj4Crs epsg3413CRS;
 
   double? maxZoom;
@@ -92,7 +92,7 @@ class _CustomCrsPageState extends State<CustomCrsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Custom CRS')),
-      drawer: buildDrawer(context, CustomCrsPage.route),
+      drawer: const MenuDrawer(CustomCrsPage.route),
       body: Padding(
         padding: const EdgeInsets.all(8),
         child: Column(
