@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_example/misc/tile_providers.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 class InteractiveFlagsPage extends StatefulWidget {
   static const String route = '/interactive_flags_page';
 
-  const InteractiveFlagsPage({Key? key}) : super(key: key);
+  const InteractiveFlagsPage({super.key});
 
   @override
   State createState() => _InteractiveFlagsPageState();
@@ -36,17 +37,16 @@ class _InteractiveFlagsPageState extends State<InteractiveFlagsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
     return Scaffold(
       appBar: AppBar(title: const Text('Interactive Flags')),
-      drawer: buildDrawer(context, InteractiveFlagsPage.route),
+      drawer: const MenuDrawer(InteractiveFlagsPage.route),
       body: Padding(
         padding: const EdgeInsets.all(8),
         child: Column(
           children: [
             Flex(
-              direction: MediaQuery.of(context).size.width >= 600
-                  ? Axis.horizontal
-                  : Axis.vertical,
+              direction: screenWidth >= 600 ? Axis.horizontal : Axis.vertical,
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: availableFlags.entries
@@ -97,19 +97,18 @@ class _InteractiveFlagsPageState extends State<InteractiveFlagsPage> {
                     ),
                   )
                   .interleave(
-                    MediaQuery.of(context).size.width >= 600
-                        ? null
-                        : const SizedBox(height: 12),
+                    screenWidth >= 600 ? null : const SizedBox(height: 12),
                   )
                   .whereType<Widget>()
                   .toList(),
             ),
             const Divider(),
             Padding(
-              padding: const EdgeInsets.only(top: 8, bottom: 8),
+              padding: const EdgeInsets.symmetric(vertical: 8),
               child: Center(
                 child: Text(
-                  'Current event: ${_eventName(_latestEvent)}\nSource: ${_latestEvent?.source.name ?? "none"}',
+                  'Current event: ${_eventName(_latestEvent)}\n'
+                  'Source: ${_latestEvent?.source.name ?? "none"}',
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -131,13 +130,7 @@ class _InteractiveFlagsPageState extends State<InteractiveFlagsPage> {
                     ),
                   ),
                 ),
-                children: [
-                  TileLayer(
-                    urlTemplate:
-                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  ),
-                ],
+                children: [openStreetMapTileLayer],
               ),
             ),
           ],

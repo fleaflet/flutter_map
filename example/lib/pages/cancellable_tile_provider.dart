@@ -1,25 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
+import 'package:flutter_map_example/widgets/notice_banner.dart';
 
-class CancellableTileProviderPage extends StatelessWidget {
+class CancellableTileProviderPage extends StatefulWidget {
   static const String route = '/cancellable_tile_provider_page';
 
-  const CancellableTileProviderPage({Key? key}) : super(key: key);
+  const CancellableTileProviderPage({super.key});
+
+  @override
+  State<CancellableTileProviderPage> createState() =>
+      _CancellableTileProviderPageState();
+}
+
+class _CancellableTileProviderPageState
+    extends State<CancellableTileProviderPage> {
+  bool _providerEnabled = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Cancellable Tile Provider')),
-      drawer: buildDrawer(context, CancellableTileProviderPage.route),
+      drawer: const MenuDrawer(CancellableTileProviderPage.route),
       body: Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.all(12),
-            child: Text(
-              'This map uses a custom `TileProvider` that cancels HTTP requests for unnecessary tiles. This should help speed up tile loading and reduce unneccessary costly tile requests, mainly on the web!',
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 420),
+              child: SwitchListTile.adaptive(
+                title: const Text('Use CancellableNetworkTileProvider'),
+                value: _providerEnabled,
+                onChanged: (value) => setState(() => _providerEnabled = value),
+              ),
             ),
+          ),
+          const NoticeBanner.recommendation(
+            text:
+                'This tile provider cancels unnecessary HTTP requests, which can help performance (especially on the web)',
+            url:
+                'https://docs.fleaflet.dev/layers/tile-layer/tile-providers#cancellablenetworktileprovider',
+            sizeTransition: 905,
           ),
           Expanded(
             child: FlutterMap(
@@ -37,7 +59,9 @@ class CancellableTileProviderPage extends StatelessWidget {
                 TileLayer(
                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  tileProvider: CancellableNetworkTileProvider(),
+                  tileProvider: _providerEnabled
+                      ? CancellableNetworkTileProvider()
+                      : null,
                 ),
               ],
             ),

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map_example/pages/animated_map_controller.dart';
+import 'package:flutter_map_example/pages/bundled_offline_map.dart';
 import 'package:flutter_map_example/pages/cancellable_tile_provider.dart';
 import 'package:flutter_map_example/pages/circle.dart';
 import 'package:flutter_map_example/pages/custom_crs/custom_crs.dart';
 import 'package:flutter_map_example/pages/epsg3413_crs.dart';
 import 'package:flutter_map_example/pages/epsg4326_crs.dart';
-import 'package:flutter_map_example/pages/fallback_url_network_page.dart';
+import 'package:flutter_map_example/pages/fallback_url_page.dart';
 import 'package:flutter_map_example/pages/home.dart';
 import 'package:flutter_map_example/pages/interactive_test_page.dart';
 import 'package:flutter_map_example/pages/latlng_to_screen_point.dart';
@@ -15,21 +16,20 @@ import 'package:flutter_map_example/pages/map_controller.dart';
 import 'package:flutter_map_example/pages/map_inside_listview.dart';
 import 'package:flutter_map_example/pages/markers.dart';
 import 'package:flutter_map_example/pages/moving_markers.dart';
-import 'package:flutter_map_example/pages/offline_map.dart';
 import 'package:flutter_map_example/pages/overlay_image.dart';
-import 'package:flutter_map_example/pages/plugin_scalebar.dart';
-import 'package:flutter_map_example/pages/plugin_zoombuttons.dart';
-import 'package:flutter_map_example/pages/screen_point_to_latlng.dart';
 import 'package:flutter_map_example/pages/polygon.dart';
 import 'package:flutter_map_example/pages/polyline.dart';
 import 'package:flutter_map_example/pages/reset_tile_layer.dart';
 import 'package:flutter_map_example/pages/retina.dart';
+import 'package:flutter_map_example/pages/screen_point_to_latlng.dart';
 import 'package:flutter_map_example/pages/secondary_tap.dart';
 import 'package:flutter_map_example/pages/sliding_map.dart';
 import 'package:flutter_map_example/pages/stateful_markers.dart';
 import 'package:flutter_map_example/pages/tile_builder.dart';
 import 'package:flutter_map_example/pages/tile_loading_error_handle.dart';
 import 'package:flutter_map_example/pages/wms_tile_layer.dart';
+import 'package:flutter_map_example/plugins/plugin_scalebar.dart';
+import 'package:flutter_map_example/plugins/plugin_zoombuttons.dart';
 import 'package:url_strategy/url_strategy.dart';
 
 void main() {
@@ -38,7 +38,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +59,7 @@ class MyApp extends StatelessWidget {
         MarkerPage.route: (context) => const MarkerPage(),
         PluginScaleBar.route: (context) => const PluginScaleBar(),
         PluginZoomButtons.route: (context) => const PluginZoomButtons(),
-        OfflineMapPage.route: (context) => const OfflineMapPage(),
+        BundledOfflineMapPage.route: (context) => const BundledOfflineMapPage(),
         MovingMarkersPage.route: (context) => const MovingMarkersPage(),
         ManyCirclesPage.route: (context) => const ManyCirclesPage(),
         CirclePage.route: (context) => const CirclePage(),
@@ -82,8 +82,7 @@ class MyApp extends StatelessWidget {
             const ScreenPointToLatLngPage(),
         LatLngToScreenPointPage.route: (context) =>
             const LatLngToScreenPointPage(),
-        FallbackUrlNetworkPage.route: (context) =>
-            const FallbackUrlNetworkPage(),
+        FallbackUrlPage.route: (context) => const FallbackUrlPage(),
         SecondaryTapPage.route: (context) => const SecondaryTapPage(),
         RetinaPage.route: (context) => const RetinaPage(),
       },

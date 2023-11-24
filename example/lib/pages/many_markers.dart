@@ -2,7 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_example/misc/tile_providers.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 const maxMarkersCount = 20000;
 
@@ -13,13 +14,13 @@ const maxMarkersCount = 20000;
 class ManyMarkersPage extends StatefulWidget {
   static const String route = '/many_markers';
 
-  const ManyMarkersPage({Key? key}) : super(key: key);
+  const ManyMarkersPage({super.key});
 
   @override
-  _ManyMarkersPageState createState() => _ManyMarkersPageState();
+  ManyMarkersPageState createState() => ManyMarkersPageState();
 }
 
-class _ManyMarkersPageState extends State<ManyMarkersPage> {
+class ManyMarkersPageState extends State<ManyMarkersPage> {
   double doubleInRange(Random source, num start, num end) =>
       source.nextDouble() * (end - start) + start;
   List<Marker> allMarkers = [];
@@ -49,7 +50,7 @@ class _ManyMarkersPageState extends State<ManyMarkersPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('A lot of markers')),
-      drawer: buildDrawer(context, ManyMarkersPage.route),
+      drawer: const MenuDrawer(ManyMarkersPage.route),
       body: Column(
         children: [
           Slider(
@@ -74,10 +75,7 @@ class _ManyMarkersPageState extends State<ManyMarkersPage> {
                 ),
               ),
               children: [
-                TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                ),
+                openStreetMapTileLayer,
                 MarkerLayer(
                   markers: allMarkers.sublist(
                     0,

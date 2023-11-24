@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_example/misc/tile_providers.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 class MapControllerPage extends StatefulWidget {
   static const String route = 'map_controller';
 
-  const MapControllerPage({Key? key}) : super(key: key);
+  const MapControllerPage({super.key});
 
   @override
-  MapControllerPageState createState() {
-    return MapControllerPageState();
-  }
+  MapControllerPageState createState() => MapControllerPageState();
 }
 
 class MapControllerPageState extends State<MapControllerPage> {
@@ -52,13 +51,13 @@ class MapControllerPageState extends State<MapControllerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('MapController')),
-      drawer: buildDrawer(context, MapControllerPage.route),
+      drawer: const MenuDrawer(MapControllerPage.route),
       body: Padding(
         padding: const EdgeInsets.all(8),
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.only(top: 8, bottom: 8),
+              padding: const EdgeInsets.symmetric(vertical: 8),
               child: Row(
                 children: <Widget>[
                   MaterialButton(
@@ -77,7 +76,7 @@ class MapControllerPageState extends State<MapControllerPage> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 8, bottom: 8),
+              padding: const EdgeInsets.symmetric(vertical: 8),
               child: Row(
                 children: <Widget>[
                   MaterialButton(
@@ -97,7 +96,7 @@ class MapControllerPageState extends State<MapControllerPage> {
                     },
                     child: const Text('Fit Bounds'),
                   ),
-                  Builder(builder: (BuildContext context) {
+                  Builder(builder: (context) {
                     return MaterialButton(
                       onPressed: () {
                         final bounds = _mapController.camera.visibleBounds;
@@ -142,11 +141,7 @@ class MapControllerPageState extends State<MapControllerPage> {
                   minZoom: 3,
                 ),
                 children: [
-                  TileLayer(
-                    urlTemplate:
-                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  ),
+                  openStreetMapTileLayer,
                   const MarkerLayer(markers: _markers),
                 ],
               ),

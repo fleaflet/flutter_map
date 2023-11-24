@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/pages/scalebar_utils.dart' as util;
+import 'package:flutter_map_example/pages/scalebar_utils.dart';
 
 class ScaleLayerPluginOption {
   TextStyle? textStyle;
@@ -21,7 +21,7 @@ class ScaleLayerPluginOption {
 
 class ScaleLayerWidget extends StatelessWidget {
   final ScaleLayerPluginOption options;
-  final scale = [
+  static const scale = <int>[
     25000000,
     15000000,
     8000000,
@@ -47,7 +47,7 @@ class ScaleLayerWidget extends StatelessWidget {
     5
   ];
 
-  ScaleLayerWidget({super.key, required this.options});
+  const ScaleLayerWidget({super.key, required this.options});
 
   @override
   Widget build(BuildContext context) {
@@ -56,8 +56,7 @@ class ScaleLayerWidget extends StatelessWidget {
     final distance = scale[max(0, min(20, zoom.round() + 2))].toDouble();
     final center = map.center;
     final start = map.project(center);
-    final targetPoint =
-        util.calculateEndingGlobalCoordinates(center, 90, distance);
+    final targetPoint = calculateEndingGlobalCoordinates(center, 90, distance);
     final end = map.project(targetPoint);
     final displayDistance = distance > 999
         ? '${(distance / 1000).toStringAsFixed(0)} km'
@@ -65,7 +64,7 @@ class ScaleLayerWidget extends StatelessWidget {
     final width = end.x - start.x;
 
     return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints bc) {
+      builder: (context, constraints) {
         return CustomPaint(
           painter: ScalePainter(
             width,
@@ -82,22 +81,28 @@ class ScaleLayerWidget extends StatelessWidget {
 }
 
 class ScalePainter extends CustomPainter {
-  ScalePainter(this.width, this.text,
-      {this.padding, this.textStyle, this.lineWidth, this.lineColor});
+  ScalePainter(
+    this.width,
+    this.text, {
+    this.padding,
+    this.textStyle,
+    required this.lineWidth,
+    required this.lineColor,
+  });
 
   final double width;
   final EdgeInsets? padding;
   final String text;
+  final double lineWidth;
+  final Color lineColor;
   TextStyle? textStyle;
-  double? lineWidth;
-  Color? lineColor;
 
   @override
   void paint(ui.Canvas canvas, ui.Size size) {
     final paint = Paint()
-      ..color = lineColor!
+      ..color = lineColor
       ..strokeCap = StrokeCap.square
-      ..strokeWidth = lineWidth!;
+      ..strokeWidth = lineWidth;
 
     const sizeForStartEnd = 4;
     final paddingLeft =
@@ -116,7 +121,7 @@ class ScalePainter extends CustomPainter {
     canvas.drawLine(Offset(paddingLeft, paddingTop),
         Offset(paddingLeft, sizeForStartEnd + paddingTop), paint);
     // draw middle line
-    final middleX = width / 2 + paddingLeft - lineWidth! / 2;
+    final middleX = width / 2 + paddingLeft - lineWidth / 2;
     canvas.drawLine(Offset(middleX, paddingTop + sizeForStartEnd / 2),
         Offset(middleX, sizeForStartEnd + paddingTop), paint);
     // draw end line
@@ -127,7 +132,5 @@ class ScalePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return true;
-  }
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
 }
