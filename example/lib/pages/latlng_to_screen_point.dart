@@ -49,7 +49,7 @@ class _LatLngToScreenPointPageState extends State<LatLngToScreenPointPage> {
               interactionOptions: const InteractionOptions(
                 flags: ~InteractiveFlag.doubleTapZoom,
               ),
-              onTap: (_, latLng) {
+              onTap: (_, __, latLng) {
                 final point = mapController.camera
                     .latLngToScreenPoint(tappedCoords = latLng);
                 setState(() => tappedPoint = Point(point.x, point.y));

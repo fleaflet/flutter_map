@@ -6,7 +6,11 @@ import 'package:flutter_map/src/map/inherited_model.dart';
 
 typedef MapEventCallback = void Function(MapEvent);
 
-typedef GestureCallback = void Function(TapPosition tapPosition, LatLng point);
+typedef GestureCallback = void Function(
+  Offset globalPosition,
+  Offset localPosition,
+  LatLng point,
+);
 typedef PointerDownCallback = void Function(
   PointerDownEvent event,
   LatLng point,
