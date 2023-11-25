@@ -37,8 +37,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   MultiInputGesture? _multiInput;
   DragGesture? _drag;
   DoubleTapDragZoomGesture? _doubleTapDragZoom;
-
-  bool _doubleTapHold = false;
+  CtrlDragRotateGesture? _ctrlDragRotate;
 
   MapCamera get _camera => widget.controller.camera;
 
@@ -109,15 +108,15 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
         onSecondaryLongPressStart: _secondaryLongPress?.submit,
 
         onDoubleTapDown: (details) {
-          _doubleTapHold = true;
+          _doubleTapDragZoom?.isActive = true;
           _doubleTap?.setDetails(details);
         },
         onDoubleTapCancel: () {
-          _doubleTapHold = true;
+          _doubleTapDragZoom?.isActive = true;
           _doubleTap?.reset();
         },
         onDoubleTap: () {
-          _doubleTapHold = false;
+          _doubleTapDragZoom?.isActive = false;
           _doubleTap?.submit();
         },
 
@@ -129,23 +128,29 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
         // pan and scale, scale is a superset of the pan gesture
         onScaleStart: (details) {
-          if (_doubleTapHold) {
-            _doubleTapDragZoom?.start(details);
+          if (_ctrlDragRotate?.ctrlPressed ?? false) {
+            _ctrlDragRotate!.start();
+          } else if (_doubleTapDragZoom?.isActive ?? false) {
+            _doubleTapDragZoom!.start(details);
           } else {
             _multiInput?.start(details);
           }
         },
         onScaleUpdate: (details) {
-          if (_doubleTapHold) {
-            _doubleTapDragZoom?.update(details);
+          if (_ctrlDragRotate?.ctrlPressed ?? false) {
+            _ctrlDragRotate!.update(details);
+          } else if (_doubleTapDragZoom?.isActive ?? false) {
+            _doubleTapDragZoom!.update(details);
           } else {
             _multiInput?.update(details);
           }
         },
         onScaleEnd: (details) {
-          if (_doubleTapHold) {
-            _doubleTapHold = false;
-            _doubleTapDragZoom?.end(details);
+          if (_ctrlDragRotate?.ctrlPressed ?? false) {
+            _ctrlDragRotate!.end();
+          } else if (_doubleTapDragZoom?.isActive ?? false) {
+            _doubleTapDragZoom!.isActive = false;
+            _doubleTapDragZoom!.end(details);
           } else {
             _multiInput?.end(details);
           }
@@ -177,6 +182,12 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       _scrollWheelZoom = ScrollWheelZoomGesture(controller: widget.controller);
     } else {
       _scrollWheelZoom = null;
+    }
+
+    if (InteractiveFlag.hasCtrlDragRotate(flags)) {
+      _ctrlDragRotate = CtrlDragRotateGesture(controller: widget.controller);
+    } else {
+      _ctrlDragRotate = null;
     }
 
     if (InteractiveFlag.hasDoubleTapDragZoom(flags)) {

@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/controller/internal_map_controller.dart';
 
@@ -343,7 +344,51 @@ class DragGesture extends Gesture {
   }
 }
 
+class CtrlDragRotateGesture extends Gesture {
+  bool isActive = false;
+
+  CtrlDragRotateGesture({required super.controller});
+
+  void start() {
+    controller.emitMapEvent(
+      MapEventRotateStart(
+        camera: _camera,
+        source: MapEventSource.ctrlDragRotateStart,
+      ),
+    );
+  }
+
+  void update(ScaleUpdateDetails details) {
+    controller.rotate(
+      _camera.rotation - (details.focalPointDelta.dy * 0.5),
+      hasGesture: true,
+      source: MapEventSource.ctrlDragRotate,
+      id: null,
+    );
+  }
+
+  void end() {
+    controller.emitMapEvent(
+      MapEventRotateEnd(
+        camera: _camera,
+        source: MapEventSource.ctrlDragRotateEnd,
+      ),
+    );
+  }
+
+  bool get ctrlPressed {
+    const keys = [
+      LogicalKeyboardKey.controlLeft,
+      LogicalKeyboardKey.controlRight,
+    ];
+    return RawKeyboard.instance.keysPressed
+        .where((key) => keys.contains(key))
+        .isNotEmpty;
+  }
+}
+
 class DoubleTapDragZoomGesture extends Gesture {
+  bool isActive = false;
   Offset? _focalLocalStart;
   double? _mapZoomStart;
 

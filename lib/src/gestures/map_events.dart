@@ -28,6 +28,9 @@ enum MapEventSource {
   tertiaryTap,
   tertiaryLongPress,
   secondaryLongPressed,
+  ctrlDragRotateStart,
+  ctrlDragRotateEnd,
+  ctrlDragRotate,
 }
 
 /// Base event class which is emitted by MapController instance, the event
