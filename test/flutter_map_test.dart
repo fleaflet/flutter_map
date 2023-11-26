@@ -96,7 +96,7 @@ void main() {
             backgroundColor: Colors.transparent,
             maxZoom: 9,
             initialZoom: 10, // Higher than maxZoom.
-            onTap: (_, __, ___) {
+            onTap: (_, ___) {
               taps++;
             },
           ),

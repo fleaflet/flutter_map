@@ -34,7 +34,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   TertiaryLongPressGesture? _tertiaryLongPress;
   DoubleTapGesture? _doubleTap;
   ScrollWheelZoomGesture? _scrollWheelZoom;
-  MultiInputGesture? _multiInput;
+  TwoFingerGesture? _multiInput;
   DragGesture? _drag;
   DoubleTapDragZoomGesture? _doubleTapDragZoom;
   CtrlDragRotateGesture? _ctrlDragRotate;
@@ -163,7 +163,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   /// Used by the internal map controller to update interaction gestures
   void updateGestures(int flags) {
-    _multiInput = MultiInputGesture(controller: widget.controller);
+    _multiInput = TwoFingerGesture(controller: widget.controller);
 
     if (InteractiveFlag.hasDrag(flags)) {
       _drag = DragGesture(controller: widget.controller);

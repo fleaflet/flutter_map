@@ -134,7 +134,7 @@ class CustomCrsPageState extends State<CustomCrsPage> {
                   // Set maxZoom usually scales.length - 1 OR resolutions.length - 1
                   // but not greater
                   maxZoom: maxZoom,
-                  onTap: (_, __, p) => setState(() {
+                  onTap: (_, p) => setState(() {
                     initText = 'You clicked at';
                     point = proj4.Point(x: p.latitude, y: p.longitude);
                   }),

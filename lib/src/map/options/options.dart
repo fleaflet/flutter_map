@@ -6,9 +6,9 @@ import 'package:flutter_map/src/map/inherited_model.dart';
 
 typedef MapEventCallback = void Function(MapEvent);
 
-typedef GestureCallback = void Function(
-  Offset globalPosition,
-  Offset localPosition,
+typedef GestureCallback = void Function(TapDownDetails details, LatLng point);
+typedef LongPressCallback = void Function(
+  LongPressStartDetails details,
   LatLng point,
 );
 typedef PointerDownCallback = void Function(
@@ -51,11 +51,11 @@ class MapOptions {
   final Color backgroundColor;
 
   final GestureCallback? onTap;
+  final LongPressCallback? onLongPress;
   final GestureCallback? onSecondaryTap;
-  final GestureCallback? onLongPress;
-  final GestureCallback? onSecondaryLongPress;
+  final LongPressCallback? onSecondaryLongPress;
   final GestureCallback? onTertiaryTap;
-  final GestureCallback? onTertiaryLongPress;
+  final LongPressCallback? onTertiaryLongPress;
   final PointerDownCallback? onPointerDown; // TODO add support for callback
   final PointerUpCallback? onPointerUp; // TODO add support for callback
   final PointerCancelCallback? onPointerCancel; // TODO add support for callback
