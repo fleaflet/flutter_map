@@ -335,9 +335,10 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
       'MapCamera is no longer within the cameraConstraint after an option change.',
     );
 
-    if (options.interactionOptions != newOptions.interactionOptions) {
+    if (value.options != null &&
+        value.options!.interactionOptions != newOptions.interactionOptions) {
       _interactiveViewerState.updateGestures(
-        options.interactionOptions,
+        value.options!.interactionOptions,
         newOptions.interactionOptions,
       );
     }
