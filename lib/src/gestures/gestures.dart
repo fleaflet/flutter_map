@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -214,8 +215,11 @@ class ScrollWheelZoomGesture extends Gesture {
       final minZoom = _options.minZoom ?? 0.0;
       final maxZoom = _options.maxZoom ?? double.infinity;
       final velocity = _options.interactionOptions.scrollWheelVelocity;
-      final newZoom = (_camera.zoom - details.scrollDelta.dy * velocity)
-          .clamp(minZoom, maxZoom);
+      final newZoom = clampDouble(
+        _camera.zoom - details.scrollDelta.dy * velocity * 2,
+        minZoom,
+        maxZoom,
+      );
       // Calculate offset of mouse cursor from viewport center
       final newCenter = _camera.focusedZoomCenter(
         details.localPosition.toPoint(),
