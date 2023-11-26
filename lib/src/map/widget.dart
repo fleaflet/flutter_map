@@ -2,14 +2,9 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/gestures/map_events.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/gestures/map_interactive_viewer.dart';
-import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
-import 'package:flutter_map/src/layer/general/translucent_pointer.dart';
-import 'package:flutter_map/src/map/controller/map_controller.dart';
-import 'package:flutter_map/src/map/controller/map_controller_impl.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
-import 'package:flutter_map/src/map/options/options.dart';
 import 'package:logger/logger.dart';
 
 /// An interactive geographical map
@@ -66,7 +61,7 @@ class _FlutterMapStateContainer extends State<FlutterMap>
   @override
   void initState() {
     super.initState();
-    _setOrUpdateMapController();
+    _setMapController();
 
     WidgetsBinding.instance
         .addPostFrameCallback((_) => widget.options.onMapReady?.call());
@@ -84,7 +79,7 @@ class _FlutterMapStateContainer extends State<FlutterMap>
   @override
   void didUpdateWidget(FlutterMap oldWidget) {
     if (oldWidget.mapController != widget.mapController) {
-      _setOrUpdateMapController();
+      _setMapController();
     }
     if (oldWidget.options != widget.options) {
       _mapController.options = widget.options;
@@ -187,7 +182,7 @@ class _FlutterMapStateContainer extends State<FlutterMap>
   @override
   bool get wantKeepAlive => widget.options.keepAlive;
 
-  void _setOrUpdateMapController() {
+  void _setMapController() {
     if (_controllerCreatedInternally) {
       _mapController = MapControllerImpl(widget.options);
     } else {
