@@ -14,12 +14,12 @@ import 'package:latlong2/latlong.dart';
 /// should not be visible to the user (e.g. for setting the current camera or
 /// linking the internal controller).
 class MapControllerImpl implements MapController {
-  late FlutterMapInternalController _internalController;
+  late MapInternalController _internalController;
   final _mapEventStreamController = StreamController<MapEvent>.broadcast();
 
   MapControllerImpl();
 
-  set internalController(FlutterMapInternalController internalController) {
+  set internalController(MapInternalController internalController) {
     _internalController = internalController;
   }
 

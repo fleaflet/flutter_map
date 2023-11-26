@@ -41,7 +41,7 @@ class NetworkTileProvider extends TileProvider {
 
   @override
   ImageProvider getImage(TileCoordinates coordinates, TileLayer options) =>
-      FlutterMapNetworkImageProvider(
+      MapNetworkImageProvider(
         url: getTileUrl(coordinates, options),
         fallbackUrl: getTileFallbackUrl(coordinates, options),
         headers: headers,

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:flutter_map/src/map/camera/camera_fit.dart';
-import 'package:flutter_map/src/map/controller/impl.dart';
+import 'package:flutter_map/src/map/controller/map_controller_impl.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
 import 'package:flutter_map/src/map/widget.dart';
 import 'package:flutter_map/src/misc/move_and_rotate_result.dart';
@@ -31,7 +31,7 @@ abstract class MapController {
   /// from a context with no [FlutterMap] ancestor a [StateError] will be
   /// thrown.
   static MapController? maybeOf(BuildContext context) =>
-      FlutterMapInheritedModel.maybeControllerOf(context);
+      MapInheritedModel.maybeControllerOf(context);
 
   /// The controller for the closest [FlutterMap] ancestor. If this is called
   /// from a context with no [FlutterMap] ancestor a [StateError] will be

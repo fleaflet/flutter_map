@@ -35,6 +35,7 @@ Future<ImageInfo> getImageInfo(ImageProvider provider) {
 /// Returns a random URL to use for testing. Due to Flutter caching images
 /// we need to use a different URL each time.
 int _urlId = 0;
+
 Uri randomUrl({bool fallback = false}) {
   _urlId++;
   if (fallback) {
@@ -66,7 +67,7 @@ void main() {
       return testWhiteTileBytes;
     });
 
-    final provider = FlutterMapNetworkImageProvider(
+    final provider = MapNetworkImageProvider(
       url: url.toString(),
       fallbackUrl: null,
       headers: headers,
@@ -93,7 +94,7 @@ void main() {
       );
     });
 
-    final provider = FlutterMapNetworkImageProvider(
+    final provider = MapNetworkImageProvider(
       url: url.toString(),
       fallbackUrl: null,
       headers: headers,
@@ -125,7 +126,7 @@ void main() {
       return testWhiteTileBytes;
     });
 
-    final provider = FlutterMapNetworkImageProvider(
+    final provider = MapNetworkImageProvider(
       url: url.toString(),
       fallbackUrl: fallbackUrl.toString(),
       headers: headers,
@@ -153,7 +154,7 @@ void main() {
       );
     });
 
-    final provider = FlutterMapNetworkImageProvider(
+    final provider = MapNetworkImageProvider(
       url: url.toString(),
       fallbackUrl: fallbackUrl.toString(),
       headers: headers,
@@ -177,7 +178,7 @@ void main() {
       return Uint8List.fromList(utf8.encode('<html>Server Error</html>'));
     });
 
-    final provider = FlutterMapNetworkImageProvider(
+    final provider = MapNetworkImageProvider(
       url: url.toString(),
       fallbackUrl: null,
       headers: headers,
@@ -207,7 +208,7 @@ void main() {
       return testWhiteTileBytes;
     });
 
-    final provider = FlutterMapNetworkImageProvider(
+    final provider = MapNetworkImageProvider(
       url: url.toString(),
       fallbackUrl: fallbackUrl.toString(),
       headers: headers,

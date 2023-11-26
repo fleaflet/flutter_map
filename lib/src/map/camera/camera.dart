@@ -81,7 +81,7 @@ class MapCamera {
   /// The camera of the closest [FlutterMap] ancestor. If this is called from a
   /// context with no [FlutterMap] ancestor null, is returned.
   static MapCamera? maybeOf(BuildContext context) =>
-      FlutterMapInheritedModel.maybeCameraOf(context);
+      MapInheritedModel.maybeCameraOf(context);
 
   /// The camera of the closest [FlutterMap] ancestor. If this is called from a
   /// context with no [FlutterMap] ancestor a [StateError] will be thrown.

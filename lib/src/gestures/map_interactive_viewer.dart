@@ -25,23 +25,22 @@ typedef InteractiveViewerBuilder = Widget Function(
 
 /// Applies interactions (gestures/scroll/taps etc) to the current [MapCamera]
 /// via the internal [controller].
-class FlutterMapInteractiveViewer extends StatefulWidget {
+class MapInteractiveViewer extends StatefulWidget {
   final InteractiveViewerBuilder builder;
-  final FlutterMapInternalController controller;
+  final MapInternalController controller;
 
-  const FlutterMapInteractiveViewer({
+  const MapInteractiveViewer({
     super.key,
     required this.builder,
     required this.controller,
   });
 
   @override
-  State<FlutterMapInteractiveViewer> createState() =>
-      FlutterMapInteractiveViewerState();
+  State<MapInteractiveViewer> createState() => MapInteractiveViewerState();
 }
 
-class FlutterMapInteractiveViewerState
-    extends State<FlutterMapInteractiveViewer> with TickerProviderStateMixin {
+class MapInteractiveViewerState extends State<MapInteractiveViewer>
+    with TickerProviderStateMixin {
   static const int _kMinFlingVelocity = 800;
   static const _kDoubleTapZoomDuration = 200;
   static const doubleTapDelay = Duration(milliseconds: 250);
