@@ -88,6 +88,30 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   @override
   Widget build(BuildContext context) {
     return Listener(
+      onPointerDown: _options.onPointerDown == null
+          ? null
+          : (event) => _options.onPointerDown?.call(
+                event,
+                _camera.offsetToCrs(event.localPosition),
+              ),
+      onPointerHover: _options.onPointerHover == null
+          ? null
+          : (event) => _options.onPointerHover?.call(
+                event,
+                _camera.offsetToCrs(event.localPosition),
+              ),
+      onPointerCancel: _options.onPointerCancel == null
+          ? null
+          : (event) => _options.onPointerCancel?.call(
+                event,
+                _camera.offsetToCrs(event.localPosition),
+              ),
+      onPointerUp: _options.onPointerUp == null
+          ? null
+          : (event) => _options.onPointerUp?.call(
+                event,
+                _camera.offsetToCrs(event.localPosition),
+              ),
       onPointerSignal: (event) {
         // mouse scroll wheel
         if (event is PointerScrollEvent) {

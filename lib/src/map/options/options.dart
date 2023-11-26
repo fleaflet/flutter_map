@@ -56,10 +56,10 @@ class MapOptions {
   final LongPressCallback? onSecondaryLongPress;
   final GestureCallback? onTertiaryTap;
   final LongPressCallback? onTertiaryLongPress;
-  final PointerDownCallback? onPointerDown; // TODO add support for callback
-  final PointerUpCallback? onPointerUp; // TODO add support for callback
-  final PointerCancelCallback? onPointerCancel; // TODO add support for callback
-  final PointerHoverCallback? onPointerHover; // TODO add support for callback
+  final PointerDownCallback? onPointerDown;
+  final PointerUpCallback? onPointerUp;
+  final PointerCancelCallback? onPointerCancel;
+  final PointerHoverCallback? onPointerHover;
   final PositionCallback? onPositionChanged;
   final MapEventCallback? onMapEvent;
 
