@@ -156,6 +156,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
             _ctrlDragRotate!.start();
           } else if (_doubleTapDragZoom?.isActive ?? false) {
             _doubleTapDragZoom!.start(details);
+          } else if (details.pointerCount == 1) {
+            _drag?.start(details);
           } else {
             _twoFingerInput?.start(details);
           }
@@ -165,6 +167,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
             _ctrlDragRotate!.update(details);
           } else if (_doubleTapDragZoom?.isActive ?? false) {
             _doubleTapDragZoom!.update(details);
+          } else if (details.pointerCount == 1) {
+            _drag?.update(details);
           } else {
             _twoFingerInput?.update(details);
           }
@@ -175,6 +179,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
           } else if (_doubleTapDragZoom?.isActive ?? false) {
             _doubleTapDragZoom!.isActive = false;
             _doubleTapDragZoom!.end(details);
+          } else if (details.pointerCount == 1) {
+            _drag?.end(details);
           } else {
             _twoFingerInput?.end(details);
           }
@@ -201,7 +207,6 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     if (InteractiveFlag.hasDrag(flags)) {
       _drag = DragGesture(controller: widget.controller);
     } else {
-      _drag?.end();
       _drag = null;
     }
 

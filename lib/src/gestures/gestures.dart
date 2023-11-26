@@ -238,8 +238,6 @@ class TwoFingerGestures extends Gesture {
   final bool moveEnabled;
   final bool rotateEnabled;
   final bool zoomEnabled;
-  bool _isZooming = false;
-  bool _isRotating = false;
   Offset? _lastLocalFocal;
   double? _lastScale;
   double? _lastRotation;
@@ -253,11 +251,10 @@ class TwoFingerGestures extends Gesture {
 
   /// Initialize gesture, called when gesture has started
   void start(ScaleStartDetails details) {
+    if (details.pointerCount < 2) return;
     _lastLocalFocal = details.localFocalPoint;
     _lastScale = 1;
     _lastRotation = 0;
-    _isRotating = false;
-    _isZooming = false;
     controller.emitMapEvent(
       MapEventMoveStart(
         camera: _camera,
@@ -268,6 +265,7 @@ class TwoFingerGestures extends Gesture {
 
   /// Called multiple times to handle updates to the gesture
   void update(ScaleUpdateDetails details) {
+    if (details.pointerCount < 2) return;
     if (_lastLocalFocal == null ||
         _lastScale == null ||
         _lastRotation == null) {
@@ -275,20 +273,19 @@ class TwoFingerGestures extends Gesture {
     }
 
     double newRotation = _camera.rotation;
-    final rotationDelta = _lastRotation! - details.rotation;
-    if (!_isRotating) _isRotating = rotationDelta.abs() > 0.01;
-    if (rotateEnabled && _isRotating) {
-      newRotation -= rotationDelta * 80;
+    if (rotateEnabled) {
+      newRotation -= (_lastRotation! - details.rotation) * 80;
     }
 
     double newZoom = _camera.zoom;
-    final scaleDelta = _lastScale! - details.scale;
-    if (!_isZooming) _isZooming = scaleDelta.abs() > 0.01;
-    if (zoomEnabled && _isZooming) {
-      newZoom -= scaleDelta * 2.2;
+    if (zoomEnabled) {
+      newZoom -= (_lastScale! - details.scale) * 2.2;
     }
 
-    final offset = _rotateOffset(_lastLocalFocal! - details.localFocalPoint);
+    final offset = _rotateOffset(
+      _camera,
+      _lastLocalFocal! - details.localFocalPoint,
+    );
     final oldCenterPt = _camera.project(_camera.center);
     final newCenterPt = oldCenterPt + offset.toPoint();
     final newCenter = _camera.unproject(newCenterPt);
@@ -310,10 +307,9 @@ class TwoFingerGestures extends Gesture {
 
   /// gesture has ended, clean up
   void end(ScaleEndDetails details) {
+    if (details.pointerCount < 2) return;
     _lastScale = null;
     _lastLocalFocal = null;
-    _isZooming = false;
-    _isRotating = false;
     controller.emitMapEvent(
       MapEventMoveEnd(
         camera: _camera,
@@ -321,25 +317,15 @@ class TwoFingerGestures extends Gesture {
       ),
     );
   }
-
-  /// Return a rotated Offset
-  Offset _rotateOffset(Offset offset) {
-    final radians = _camera.rotationRad;
-    if (radians == 0) return offset;
-
-    final cos = math.cos(radians);
-    final sin = math.sin(radians);
-    final nx = (cos * offset.dx) + (sin * offset.dy);
-    final ny = (cos * offset.dy) - (sin * offset.dx);
-
-    return Offset(nx, ny);
-  }
 }
 
 class DragGesture extends Gesture {
+  Offset? _lastLocalFocal;
+
   DragGesture({required super.controller});
 
-  void start() {
+  void start(ScaleStartDetails details) {
+    _lastLocalFocal = details.localFocalPoint;
     controller.emitMapEvent(
       MapEventMoveStart(
         camera: _camera,
@@ -348,11 +334,30 @@ class DragGesture extends Gesture {
     );
   }
 
-  void update() {
-    // TODO make use of the drag gesture
+  void update(ScaleUpdateDetails details) {
+    if (_lastLocalFocal == null) return;
+
+    final offset = _rotateOffset(
+      _camera,
+      _lastLocalFocal! - details.localFocalPoint,
+    );
+    final oldCenterPt = _camera.project(_camera.center);
+    final newCenterPt = oldCenterPt + offset.toPoint();
+    final newCenter = _camera.unproject(newCenterPt);
+
+    controller.move(
+      newCenter,
+      _camera.zoom,
+      offset: Offset.zero,
+      hasGesture: true,
+      source: MapEventSource.onDrag,
+      id: null,
+    );
+
+    _lastLocalFocal = details.localFocalPoint;
   }
 
-  void end() {
+  void end(ScaleEndDetails details) {
     controller.emitMapEvent(
       MapEventMoveEnd(
         camera: _camera,
@@ -424,7 +429,6 @@ class DoubleTapDragZoomGesture extends Gesture {
   }
 
   void update(ScaleUpdateDetails details) {
-    // TODO make use of the double tap drag zoom gesture
     if (_focalLocalStart == null || _mapZoomStart == null) return;
 
     final verticalOffset = (_focalLocalStart! - details.localFocalPoint).dy;
@@ -452,4 +456,17 @@ class DoubleTapDragZoomGesture extends Gesture {
       ),
     );
   }
+}
+
+/// Return a rotated Offset
+Offset _rotateOffset(MapCamera camera, Offset offset) {
+  final radians = camera.rotationRad;
+  if (radians == 0) return offset;
+
+  final cos = math.cos(radians);
+  final sin = math.sin(radians);
+  final nx = (cos * offset.dx) + (sin * offset.dy);
+  final ny = (cos * offset.dy) - (sin * offset.dx);
+
+  return Offset(nx, ny);
 }
