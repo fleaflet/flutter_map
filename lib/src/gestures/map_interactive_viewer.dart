@@ -4,18 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/gestures/interactive_flag.dart';
-import 'package:flutter_map/src/gestures/latlng_tween.dart';
-import 'package:flutter_map/src/gestures/map_events.dart';
-import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
-import 'package:flutter_map/src/gestures/positioned_tap_detector_2.dart';
-import 'package:flutter_map/src/map/camera/camera.dart';
-import 'package:flutter_map/src/map/controller/internal.dart';
-import 'package:flutter_map/src/map/options/cursor_keyboard_rotation.dart';
-import 'package:flutter_map/src/map/options/interaction.dart';
-import 'package:flutter_map/src/map/options/options.dart';
-import 'package:flutter_map/src/misc/point_extensions.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:flutter_map/flutter_map.dart';
 
 typedef InteractiveViewerBuilder = Widget Function(
   BuildContext context,
@@ -27,7 +16,7 @@ typedef InteractiveViewerBuilder = Widget Function(
 /// via the internal [controller].
 class MapInteractiveViewer extends StatefulWidget {
   final InteractiveViewerBuilder builder;
-  final MapInternalController controller;
+  final MapControllerImpl controller;
 
   const MapInteractiveViewer({
     super.key,
@@ -334,11 +323,10 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     if (_interactionOptions.cursorKeyboardRotationOptions.setNorthOnClick &&
         _ckrTriggered.value &&
         _ckrInitialDegrees == _camera.rotation) {
-      widget.controller.rotate(
+      widget.controller.rotateRaw(
         getCursorRotationDegrees(event.localPosition),
         hasGesture: true,
         source: MapEventSource.cursorKeyboardRotation,
-        id: null,
       );
     }
 
@@ -370,14 +358,13 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     final baseSetNorth =
         getCursorRotationDegrees(event.localPosition) - _ckrClickDegrees;
 
-    widget.controller.rotate(
+    widget.controller.rotateRaw(
       _interactionOptions.cursorKeyboardRotationOptions.behaviour ==
               CursorRotationBehaviour.setNorth
           ? baseSetNorth
           : (_ckrInitialDegrees + baseSetNorth) % 360,
       hasGesture: true,
       source: MapEventSource.cursorKeyboardRotation,
-      id: null,
     );
 
     if (_interactionOptions.cursorKeyboardRotationOptions.behaviour ==
@@ -406,13 +393,11 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
             pointerSignal.localPosition.toPoint(),
             newZoom,
           );
-          widget.controller.move(
+          widget.controller.moveRaw(
             newCenter,
             newZoom,
-            offset: Offset.zero,
             hasGesture: true,
             source: MapEventSource.scrollWheel,
-            id: null,
           );
         },
       );
@@ -617,13 +602,11 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     }
 
     if (_pinchZoomStarted || _pinchMoveStarted) {
-      widget.controller.move(
+      widget.controller.moveRaw(
         newCenter,
         newZoom,
-        offset: Offset.zero,
         hasGesture: true,
         source: MapEventSource.onMultiFinger,
-        id: null,
       );
     }
   }
@@ -662,14 +645,13 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       final rotatedVector = vector.rotate(degToRadian(rotationDiff));
       final newCenter = rotationCenter + rotatedVector;
 
-      widget.controller.moveAndRotate(
+      widget.controller.moveAndRotateRaw(
         _camera.unproject(newCenter),
         _camera.zoom,
         _camera.rotation + rotationDiff,
         offset: Offset.zero,
         hasGesture: true,
         source: MapEventSource.onMultiFinger,
-        id: null,
       );
     }
   }
@@ -842,13 +824,11 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   }
 
   void _handleDoubleTapZoomAnimation() {
-    widget.controller.move(
+    widget.controller.moveRaw(
       _doubleTapCenterAnimation.value,
       _doubleTapZoomAnimation.value,
-      offset: Offset.zero,
       hasGesture: true,
       source: MapEventSource.doubleTapZoomAnimationController,
-      id: null,
     );
   }
 
@@ -872,13 +852,11 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       final max = _options.maxZoom ?? double.infinity;
       final actualZoom = math.max(min, math.min(max, newZoom));
 
-      widget.controller.move(
+      widget.controller.moveRaw(
         _camera.center,
         actualZoom,
-        offset: Offset.zero,
         hasGesture: true,
         source: MapEventSource.doubleTapHold,
-        id: null,
       );
     }
   }
@@ -894,13 +872,11 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
         _flingAnimation.value.toPoint().rotate(_camera.rotationRad);
     final newCenter = _camera.unproject(newCenterPoint);
 
-    widget.controller.move(
+    widget.controller.moveRaw(
       newCenter,
       _camera.zoom,
-      offset: Offset.zero,
       hasGesture: true,
       source: MapEventSource.flingAnimationController,
-      id: null,
     );
   }
 

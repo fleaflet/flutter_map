@@ -6,7 +6,6 @@ import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/gestures/map_interactive_viewer.dart';
 import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
 import 'package:flutter_map/src/layer/general/translucent_pointer.dart';
-import 'package:flutter_map/src/map/controller/internal.dart';
 import 'package:flutter_map/src/map/controller/map_controller.dart';
 import 'package:flutter_map/src/map/controller/map_controller_impl.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
@@ -60,15 +59,14 @@ class _FlutterMapStateContainer extends State<FlutterMap>
     with AutomaticKeepAliveClientMixin {
   bool _initialCameraFitApplied = false;
 
-  late final MapInternalController _flutterMapInternalController;
   late MapControllerImpl _mapController;
-  late bool _mapControllerCreatedInternally;
+
+  bool get _controllerCreatedInternally => widget.mapController == null;
 
   @override
   void initState() {
     super.initState();
-    _flutterMapInternalController = MapInternalController(widget.options);
-    _initializeAndLinkMapController();
+    _setOrUpdateMapController();
 
     WidgetsBinding.instance
         .addPostFrameCallback((_) => widget.options.onMapReady?.call());
@@ -85,27 +83,19 @@ class _FlutterMapStateContainer extends State<FlutterMap>
 
   @override
   void didUpdateWidget(FlutterMap oldWidget) {
-    if (oldWidget.options != widget.options) {
-      _flutterMapInternalController.setOptions(widget.options);
-    }
     if (oldWidget.mapController != widget.mapController) {
-      _initializeAndLinkMapController();
+      _setOrUpdateMapController();
+    }
+    if (oldWidget.options != widget.options) {
+      _mapController.options = widget.options;
     }
     super.didUpdateWidget(oldWidget);
   }
 
   @override
   void dispose() {
-    if (_mapControllerCreatedInternally) _mapController.dispose();
-    _flutterMapInternalController.dispose();
+    if (_controllerCreatedInternally) _mapController.dispose();
     super.dispose();
-  }
-
-  void _initializeAndLinkMapController() {
-    _mapController =
-        (widget.mapController ?? MapController()) as MapControllerImpl;
-    _mapControllerCreatedInternally = widget.mapController == null;
-    _flutterMapInternalController.linkMapController(_mapController);
   }
 
   @override
@@ -133,7 +123,7 @@ class _FlutterMapStateContainer extends State<FlutterMap>
         _updateAndEmitSizeIfConstraintsChanged(constraints);
 
         return MapInteractiveViewer(
-          controller: _flutterMapInternalController,
+          controller: _mapController,
           builder: (context, options, camera) {
             return MapInheritedModel(
               controller: _mapController,
@@ -156,10 +146,7 @@ class _FlutterMapStateContainer extends State<FlutterMap>
         _parentConstraintsAreSet(context, constraints)) {
       _initialCameraFitApplied = true;
 
-      _flutterMapInternalController.fitCamera(
-        widget.options.initialCameraFit!,
-        offset: Offset.zero,
-      );
+      _mapController.fitCamera(widget.options.initialCameraFit!);
     }
   }
 
@@ -168,16 +155,15 @@ class _FlutterMapStateContainer extends State<FlutterMap>
       constraints.maxWidth,
       constraints.maxHeight,
     );
-    final oldCamera = _flutterMapInternalController.camera;
-    if (_flutterMapInternalController
-        .setNonRotatedSizeWithoutEmittingEvent(nonRotatedSize)) {
-      final newMapCamera = _flutterMapInternalController.camera;
+    final oldCamera = _mapController.camera;
+    if (_mapController.setNonRotatedSizeWithoutEmittingEvent(nonRotatedSize)) {
+      final newMapCamera = _mapController.camera;
 
       // Avoid emitting the event during build otherwise if the user calls
       // setState in the onMapEvent callback it will throw.
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
-          _flutterMapInternalController.nonRotatedSizeChange(
+          _mapController.nonRotatedSizeChange(
             MapEventSource.nonRotatedSizeChange,
             oldCamera,
             newMapCamera,
@@ -200,4 +186,13 @@ class _FlutterMapStateContainer extends State<FlutterMap>
 
   @override
   bool get wantKeepAlive => widget.options.keepAlive;
+
+  void _setOrUpdateMapController() {
+    if (_controllerCreatedInternally) {
+      _mapController = MapControllerImpl(widget.options);
+    } else {
+      _mapController = widget.mapController! as MapControllerImpl;
+      _mapController.options = widget.options;
+    }
+  }
 }
