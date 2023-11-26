@@ -238,6 +238,8 @@ class TwoFingerGestures extends Gesture {
   final bool moveEnabled;
   final bool rotateEnabled;
   final bool zoomEnabled;
+  bool _isZooming = false;
+  bool _isRotating = false;
   Offset? _lastLocalFocal;
   double? _lastScale;
   double? _lastRotation;
@@ -254,6 +256,8 @@ class TwoFingerGestures extends Gesture {
     _lastLocalFocal = details.localFocalPoint;
     _lastScale = 1;
     _lastRotation = 0;
+    _isRotating = false;
+    _isZooming = false;
     controller.emitMapEvent(
       MapEventMoveStart(
         camera: _camera,
@@ -270,15 +274,18 @@ class TwoFingerGestures extends Gesture {
       return;
     }
 
-    // TODO implement
     double newRotation = _camera.rotation;
-    if (rotateEnabled) {
-      newRotation -= (_lastRotation! - details.rotation) * 80;
+    final rotationDelta = _lastRotation! - details.rotation;
+    if (!_isRotating) _isRotating = rotationDelta.abs() > 0.01;
+    if (rotateEnabled && _isRotating) {
+      newRotation -= rotationDelta * 80;
     }
 
     double newZoom = _camera.zoom;
-    if (zoomEnabled) {
-      newZoom -= (_lastScale! - details.scale) * 2.2;
+    final scaleDelta = _lastScale! - details.scale;
+    if (!_isZooming) _isZooming = scaleDelta.abs() > 0.01;
+    if (zoomEnabled && _isZooming) {
+      newZoom -= scaleDelta * 2.2;
     }
 
     final offset = _rotateOffset(_lastLocalFocal! - details.localFocalPoint);
@@ -305,6 +312,8 @@ class TwoFingerGestures extends Gesture {
   void end(ScaleEndDetails details) {
     _lastScale = null;
     _lastLocalFocal = null;
+    _isZooming = false;
+    _isRotating = false;
     controller.emitMapEvent(
       MapEventMoveEnd(
         camera: _camera,
