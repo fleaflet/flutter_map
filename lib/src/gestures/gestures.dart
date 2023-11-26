@@ -234,42 +234,69 @@ class ScrollWheelZoomGesture extends Gesture {
 }
 
 /// A gesture with multiple inputs like zooming with two fingers
-class TwoFingerGesture extends Gesture {
+class TwoFingerGestures extends Gesture {
+  final bool moveEnabled;
+  final bool rotateEnabled;
+  final bool zoomEnabled;
   Offset? _lastLocalFocal;
   double? _lastScale;
+  double? _lastRotation;
 
-  TwoFingerGesture({required super.controller});
+  TwoFingerGestures({
+    required this.moveEnabled,
+    required this.rotateEnabled,
+    required this.zoomEnabled,
+    required super.controller,
+  });
 
   /// Initialize gesture, called when gesture has started
   void start(ScaleStartDetails details) {
     _lastLocalFocal = details.localFocalPoint;
     _lastScale = 1;
-    controller.moveStarted(MapEventSource.multiFingerStart);
+    _lastRotation = 0;
+    controller.emitMapEvent(
+      MapEventMoveStart(
+        camera: _camera,
+        source: MapEventSource.multiFingerStart,
+      ),
+    );
   }
 
   /// Called multiple times to handle updates to the gesture
   void update(ScaleUpdateDetails details) {
+    if (_lastLocalFocal == null ||
+        _lastScale == null ||
+        _lastRotation == null) {
+      return;
+    }
+
     // TODO implement
-    if (_lastLocalFocal == null || _lastScale == null) return;
+    double newRotation = _camera.rotation;
+    if (rotateEnabled) {
+      newRotation -= (_lastRotation! - details.rotation) * 80;
+    }
+
+    double newZoom = _camera.zoom;
+    if (zoomEnabled) {
+      newZoom -= (_lastScale! - details.scale) * 2.2;
+    }
+
     final offset = _rotateOffset(_lastLocalFocal! - details.localFocalPoint);
     final oldCenterPt = _camera.project(_camera.center);
     final newCenterPt = oldCenterPt + offset.toPoint();
     final newCenter = _camera.unproject(newCenterPt);
 
-    double newZoom = _camera.zoom;
-    if (_lastScale == null || (_lastScale! - details.scale).abs() > 0.05) {
-      newZoom *= details.scale;
-    }
-
-    controller.move(
+    controller.moveAndRotate(
       newCenter,
       newZoom,
+      newRotation,
       offset: Offset.zero,
       hasGesture: true,
       source: MapEventSource.onMultiFinger,
       id: null,
     );
 
+    _lastRotation = details.rotation;
     _lastScale = details.scale;
     _lastLocalFocal = details.localFocalPoint;
   }
@@ -278,6 +305,12 @@ class TwoFingerGesture extends Gesture {
   void end(ScaleEndDetails details) {
     _lastScale = null;
     _lastLocalFocal = null;
+    controller.emitMapEvent(
+      MapEventMoveEnd(
+        camera: _camera,
+        source: MapEventSource.multiFingerEnd,
+      ),
+    );
   }
 
   /// Return a rotated Offset

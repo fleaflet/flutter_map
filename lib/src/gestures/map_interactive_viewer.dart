@@ -34,7 +34,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   TertiaryLongPressGesture? _tertiaryLongPress;
   DoubleTapGesture? _doubleTap;
   ScrollWheelZoomGesture? _scrollWheelZoom;
-  TwoFingerGesture? _multiInput;
+  TwoFingerGestures? _twoFingerInput;
   DragGesture? _drag;
   DoubleTapDragZoomGesture? _doubleTapDragZoom;
   CtrlDragRotateGesture? _ctrlDragRotate;
@@ -133,7 +133,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
           } else if (_doubleTapDragZoom?.isActive ?? false) {
             _doubleTapDragZoom!.start(details);
           } else {
-            _multiInput?.start(details);
+            _twoFingerInput?.start(details);
           }
         },
         onScaleUpdate: (details) {
@@ -142,7 +142,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
           } else if (_doubleTapDragZoom?.isActive ?? false) {
             _doubleTapDragZoom!.update(details);
           } else {
-            _multiInput?.update(details);
+            _twoFingerInput?.update(details);
           }
         },
         onScaleEnd: (details) {
@@ -152,7 +152,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
             _doubleTapDragZoom!.isActive = false;
             _doubleTapDragZoom!.end(details);
           } else {
-            _multiInput?.end(details);
+            _twoFingerInput?.end(details);
           }
         },
 
@@ -163,7 +163,16 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   /// Used by the internal map controller to update interaction gestures
   void updateGestures(int flags) {
-    _multiInput = TwoFingerGesture(controller: widget.controller);
+    if (InteractiveFlag.hasMultiFinger(flags)) {
+      _twoFingerInput = TwoFingerGestures(
+        controller: widget.controller,
+        moveEnabled: InteractiveFlag.hasPinchMove(flags),
+        rotateEnabled: InteractiveFlag.hasRotate(flags),
+        zoomEnabled: InteractiveFlag.hasPinchZoom(flags),
+      );
+    } else {
+      _twoFingerInput = null;
+    }
 
     if (InteractiveFlag.hasDrag(flags)) {
       _drag = DragGesture(controller: widget.controller);

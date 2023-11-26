@@ -279,16 +279,6 @@ class InternalMapController extends ValueNotifier<_InternalState> {
     );
   }
 
-  /// To be called when a gesture that causes movement starts.
-  void moveStarted(MapEventSource source) {
-    emitMapEvent(
-      MapEventMoveStart(
-        camera: camera,
-        source: source,
-      ),
-    );
-  }
-
   /// To be called when an ongoing drag movement updates.
   void dragUpdated(MapEventSource source, Offset offset) {
     final oldCenterPt = camera.project(camera.center);
@@ -299,28 +289,6 @@ class InternalMapController extends ValueNotifier<_InternalState> {
     move(
       newCenter,
       camera.zoom,
-      offset: Offset.zero,
-      hasGesture: true,
-      source: source,
-      id: null,
-    );
-  }
-
-  void moveRotateZoom({
-    required Offset offset,
-    required double rotationRad,
-    required double zoom,
-    required MapEventSource source,
-  }) {
-    final oldCenterPt = camera.project(camera.center);
-
-    final newCenterPt = oldCenterPt + offset.toPoint();
-    final newCenter = camera.unproject(newCenterPt);
-
-    moveAndRotate(
-      newCenter,
-      camera.zoom,
-      rotationRad,
       offset: Offset.zero,
       hasGesture: true,
       source: source,
