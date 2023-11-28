@@ -36,24 +36,16 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   Stream<MapEvent> get mapEventStream => _mapEventStreamController.stream;
 
   MapOptions get options {
-    assert(
-      value.options != null,
-      'You need to have the FlutterMap widget rendered at least once before using the MapController.',
-    );
     return value.options ??
-        (throw Exception(
-            'You need to have the FlutterMap widget rendered at least once before using the MapController.'));
+        (throw Exception('You need to have the FlutterMap widget rendered at '
+            'least once before using the MapController.'));
   }
 
   @override
   MapCamera get camera {
-    assert(
-      value.camera != null,
-      'You need to have the FlutterMap widget rendered at least once before using the MapController.',
-    );
     return value.camera ??
-        (throw Exception(
-            'You need to have the FlutterMap widget rendered at least once before using the MapController.'));
+        (throw Exception('You need to have the FlutterMap widget rendered at '
+            'least once before using the MapController.'));
   }
 
   /// This setter should only be called in this class or within tests. Changes
