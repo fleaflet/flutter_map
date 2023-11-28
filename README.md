@@ -81,14 +81,6 @@ Widget build(BuildContext context) {
 }
 </code></pre>
 
-## Showcase
-
-Loads of open-source projects and proprietary projects use flutter\_map in production! Check some of them out:
-
-{% content-ref url="showcase.md" %}
-[showcase.md](showcase.md)
-{% endcontent-ref %}
-
 ## Get Help
 
 Not quite sure about something? No problem. Please get in touch via any of these methods, and we'll be with you as soon as possible. Please remember that we are volunteers, so we cannot guarantee (fast) support.
