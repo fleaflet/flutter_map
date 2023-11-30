@@ -77,26 +77,19 @@ class FlutterMapNetworkImageProvider
     StreamController<ImageChunkEvent> chunkEvents,
     ImageDecoderCallback decode, {
     bool useFallback = false,
-  }) async {
-    try {
-      return decode(
-        await ImmutableBuffer.fromUint8List(
-          await httpClient.readBytes(
+  }) async =>
+      httpClient
+          .readBytes(
             Uri.parse(useFallback ? fallbackUrl ?? '' : url),
             headers: headers,
-          ),
-        ),
-      ).catchError((dynamic e) {
+          )
+          .then((bytes) => ImmutableBuffer.fromUint8List(bytes))
+          .then((buffer) => decode(buffer))
+          .catchError((dynamic err) {
         // ignore: only_throw_errors
-        if (useFallback || fallbackUrl == null) throw e as Object;
+        if (useFallback || fallbackUrl == null) throw err as Object;
         return _loadAsync(key, chunkEvents, decode, useFallback: true);
       });
-    } catch (_) {
-      // This redundancy necessary, do not remove
-      if (useFallback || fallbackUrl == null) rethrow;
-      return _loadAsync(key, chunkEvents, decode, useFallback: true);
-    }
-  }
 
   @override
   bool operator ==(Object other) =>
