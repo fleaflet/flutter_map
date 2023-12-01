@@ -43,13 +43,13 @@ class FlutterMapNetworkImageProvider
   ///
   /// Used with [finishedLoadingBytes] to safely dispose of the [httpClient] only
   /// after all tiles have loaded.
-  final void Function()? startedLoading;
+  final void Function() startedLoading;
 
   /// Function invoked when the image completes loading bytes from the network
   ///
   /// Used with [finishedLoadingBytes] to safely dispose of the [httpClient] only
   /// after all tiles have loaded.
-  final void Function()? finishedLoadingBytes;
+  final void Function() finishedLoadingBytes;
 
   /// Create a dedicated [ImageProvider] to fetch tiles from the network
   ///
@@ -61,9 +61,9 @@ class FlutterMapNetworkImageProvider
     required this.fallbackUrl,
     required this.headers,
     required this.httpClient,
-    this.silenceExceptions = false,
-    this.startedLoading,
-    this.finishedLoadingBytes,
+    required this.silenceExceptions,
+    required this.startedLoading,
+    required this.finishedLoadingBytes,
   });
 
   @override
@@ -87,14 +87,14 @@ class FlutterMapNetworkImageProvider
     ImageDecoderCallback decode, {
     bool useFallback = false,
   }) {
-    startedLoading?.call();
+    startedLoading();
 
     return httpClient
         .readBytes(
           Uri.parse(useFallback ? fallbackUrl ?? '' : url),
           headers: headers,
         )
-        .whenComplete(finishedLoadingBytes ?? () {})
+        .whenComplete(finishedLoadingBytes)
         .then(ImmutableBuffer.fromUint8List)
         .then(decode)
         .onError<Exception>((err, stack) {
