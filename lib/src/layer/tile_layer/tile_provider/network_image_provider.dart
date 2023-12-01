@@ -70,42 +70,43 @@ class FlutterMapNetworkImageProvider
   ImageStreamCompleter loadImage(
     FlutterMapNetworkImageProvider key,
     ImageDecoderCallback decode,
-  ) {
-    startedLoading?.call();
+  ) =>
+      MultiFrameImageStreamCompleter(
+        codec: _load(key, decode),
+        scale: 1,
+        debugLabel: url,
+        informationCollector: () => [
+          DiagnosticsProperty('URL', url),
+          DiagnosticsProperty('Fallback URL', fallbackUrl),
+          DiagnosticsProperty('Current provider', key),
+        ],
+      );
 
-    return MultiFrameImageStreamCompleter(
-      codec: _loadBytes(key, decode)
-          .whenComplete(finishedLoadingBytes ?? () {})
-          .then(ImmutableBuffer.fromUint8List)
-          .then(decode),
-      scale: 1,
-      debugLabel: url,
-      informationCollector: () => [
-        DiagnosticsProperty('URL', url),
-        DiagnosticsProperty('Fallback URL', fallbackUrl),
-        DiagnosticsProperty('Current provider', key),
-      ],
-    );
-  }
-
-  Future<Uint8List> _loadBytes(
+  Future<Codec> _load(
     FlutterMapNetworkImageProvider key,
     ImageDecoderCallback decode, {
     bool useFallback = false,
-  }) =>
-      httpClient
-          .readBytes(
-        Uri.parse(useFallback ? fallbackUrl ?? '' : url),
-        headers: headers,
-      )
-          .catchError((Object err, StackTrace stack) {
-        scheduleMicrotask(() => PaintingBinding.instance.imageCache.evict(key));
-        if (useFallback || fallbackUrl == null) {
-          if (silenceExceptions) return TileProvider.transparentImage;
-          return Future<Uint8List>.error(err, stack);
-        }
-        return _loadBytes(key, decode, useFallback: true);
-      });
+  }) {
+    startedLoading?.call();
+
+    return httpClient
+        .readBytes(
+          Uri.parse(useFallback ? fallbackUrl ?? '' : url),
+          headers: headers,
+        )
+        .whenComplete(finishedLoadingBytes ?? () {})
+        .then(ImmutableBuffer.fromUint8List)
+        .then(decode)
+        .onError<Exception>((err, stack) {
+      scheduleMicrotask(() => PaintingBinding.instance.imageCache.evict(key));
+      if (useFallback || fallbackUrl == null) {
+        if (!silenceExceptions) throw err;
+        return ImmutableBuffer.fromUint8List(TileProvider.transparentImage)
+            .then(decode);
+      }
+      return _load(key, decode, useFallback: true);
+    });
+  }
 
   @override
   SynchronousFuture<FlutterMapNetworkImageProvider> obtainKey(
