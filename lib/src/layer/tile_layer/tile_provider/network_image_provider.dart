@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart';
 
 /// Dedicated [ImageProvider] to fetch tiles from the network
@@ -24,15 +25,31 @@ class FlutterMapNetworkImageProvider
   /// image provider will not be cached in memory.
   final String? fallbackUrl;
 
+  /// The headers to include with the tile fetch request
+  ///
+  /// Not included in [operator==].
+  final Map<String, String> headers;
+
   /// The HTTP client to use to make network requests
   ///
   /// Not included in [operator==].
   final BaseClient httpClient;
 
-  /// The headers to include with the tile fetch request
+  /// Whether to ignore exceptions and errors that occur whilst fetching tiles
+  /// over the network, and just return a transparent tile
+  final bool silenceExceptions;
+
+  /// Function invoked when the image starts loading (not from cache)
   ///
-  /// Not included in [operator==].
-  final Map<String, String> headers;
+  /// Used with [finishedLoadingBytes] to safely dispose of the [httpClient] only
+  /// after all tiles have loaded.
+  final void Function()? startedLoading;
+
+  /// Function invoked when the image completes loading bytes from the network
+  ///
+  /// Used with [finishedLoadingBytes] to safely dispose of the [httpClient] only
+  /// after all tiles have loaded.
+  final void Function()? finishedLoadingBytes;
 
   /// Create a dedicated [ImageProvider] to fetch tiles from the network
   ///
@@ -44,6 +61,9 @@ class FlutterMapNetworkImageProvider
     required this.fallbackUrl,
     required this.headers,
     required this.httpClient,
+    this.silenceExceptions = false,
+    this.startedLoading,
+    this.finishedLoadingBytes,
   });
 
   @override
@@ -51,11 +71,13 @@ class FlutterMapNetworkImageProvider
     FlutterMapNetworkImageProvider key,
     ImageDecoderCallback decode,
   ) {
-    final chunkEvents = StreamController<ImageChunkEvent>();
+    startedLoading?.call();
 
     return MultiFrameImageStreamCompleter(
-      codec: _loadAsync(key, chunkEvents, decode),
-      chunkEvents: chunkEvents.stream,
+      codec: _loadBytes(key, decode)
+          .whenComplete(finishedLoadingBytes ?? () {})
+          .then(ImmutableBuffer.fromUint8List)
+          .then(decode),
       scale: 1,
       debugLabel: url,
       informationCollector: () => [
@@ -66,30 +88,30 @@ class FlutterMapNetworkImageProvider
     );
   }
 
-  @override
-  Future<FlutterMapNetworkImageProvider> obtainKey(
-    ImageConfiguration configuration,
-  ) =>
-      SynchronousFuture<FlutterMapNetworkImageProvider>(this);
-
-  Future<Codec> _loadAsync(
+  Future<Uint8List> _loadBytes(
     FlutterMapNetworkImageProvider key,
-    StreamController<ImageChunkEvent> chunkEvents,
     ImageDecoderCallback decode, {
     bool useFallback = false,
-  }) async =>
+  }) =>
       httpClient
           .readBytes(
-            Uri.parse(useFallback ? fallbackUrl ?? '' : url),
-            headers: headers,
-          )
-          .then((bytes) => ImmutableBuffer.fromUint8List(bytes))
-          .then((buffer) => decode(buffer))
-          .catchError((dynamic err) {
-        // ignore: only_throw_errors
-        if (useFallback || fallbackUrl == null) throw err as Object;
-        return _loadAsync(key, chunkEvents, decode, useFallback: true);
+        Uri.parse(useFallback ? fallbackUrl ?? '' : url),
+        headers: headers,
+      )
+          .catchError((Object err, StackTrace stack) {
+        scheduleMicrotask(() => PaintingBinding.instance.imageCache.evict(key));
+        if (useFallback || fallbackUrl == null) {
+          if (silenceExceptions) return TileProvider.transparentImage;
+          return Future<Uint8List>.error(err, stack);
+        }
+        return _loadBytes(key, decode, useFallback: true);
       });
+
+  @override
+  SynchronousFuture<FlutterMapNetworkImageProvider> obtainKey(
+    ImageConfiguration configuration,
+  ) =>
+      SynchronousFuture(this);
 
   @override
   bool operator ==(Object other) =>
