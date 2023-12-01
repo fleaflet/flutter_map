@@ -64,7 +64,6 @@ class EPSG3413PageState extends State<EPSG3413Page> {
       bounds: epsg3413Bounds,
       origins: const [Point(0, 0)],
       scales: null,
-      transformation: null,
     );
   }
 
