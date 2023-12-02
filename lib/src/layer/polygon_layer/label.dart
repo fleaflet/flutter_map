@@ -78,8 +78,8 @@ LatLng _computePolylabel(List<LatLng> points) {
   final labelPosition = polylabel(
     [
       //TODO does this really need to be changed to a math.Point type?
-      List<math.Point>.generate(points.length,
-          (i) => math.Point(points[i].lon, points[i].lat)),
+      List<math.Point>.generate(
+          points.length, (i) => math.Point(points[i].lon, points[i].lat)),
     ],
     // "precision" is a bit of a misnomer. It's a threshold for when to stop
     // dividing-and-conquering the polygon in the hopes of finding a better

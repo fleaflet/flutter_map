@@ -164,7 +164,8 @@ class PolylinePainter extends CustomPainter {
           polyline.strokeWidth,
           180,
         );
-        final delta = firstOffset - getOffset(map, origin, (lat: r.latitude, lon: r.longitude));
+        final delta = firstOffset -
+            getOffset(map, origin, (lat: r.latitude, lon: r.longitude));
 
         strokeWidth = delta.distance;
       } else {

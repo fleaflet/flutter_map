@@ -345,8 +345,7 @@ class _LonLat extends Projection {
   const _LonLat() : super(_bounds);
 
   @override
-  (double, double) projectXY(LatLng latlng) =>
-      (latlng.lon, latlng.lat);
+  (double, double) projectXY(LatLng latlng) => (latlng.lon, latlng.lat);
 
   @override
   LatLng unprojectXY(double x, double y) =>

@@ -35,7 +35,10 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
       for (var x = 0; x < maxMarkersCount; x++) {
         allMarkers.add(
           Marker(
-            point: (lat: doubleInRange(r, 37, 55), lon: doubleInRange(r, -9, 30)),
+            point: (
+              lat: doubleInRange(r, 37, 55),
+              lon: doubleInRange(r, -9, 30)
+            ),
             height: 12,
             width: 12,
             child: ColoredBox(color: Colors.blue[900]!),
