@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:latlong2/latlong.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:vector_math/vector_math_64.dart';
 
 LatLng calculateEndingGlobalCoordinates(
@@ -16,7 +16,7 @@ LatLng calculateEndingGlobalCoordinates(
   const aSquared = a * a;
   const bSquared = b * b;
   const f = mFlattening;
-  final phi1 = degrees2Radians * start.latitude;
+  final phi1 = degrees2Radians * start.lat;
   final alpha1 = degrees2Radians * startBearing;
   final cosAlpha1 = cos(alpha1);
   final sinAlpha1 = sin(alpha1);
@@ -128,8 +128,8 @@ LatLng calculateEndingGlobalCoordinates(
   // cosSigma * cosAlpha1);
 
   // build result
-  return LatLng(
-    clampDouble(radians2Degrees * phi2, -90, 90),
-    clampDouble(start.longitude + (L * radians2Degrees), -180, 180),
+  return (
+    lat: clampDouble(radians2Degrees * phi2, -90, 90),
+    lon: clampDouble(start.lon + (L * radians2Degrees), -180, 180),
   );
 }

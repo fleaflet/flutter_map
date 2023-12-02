@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter_map/src/geo/crs.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:logger/logger.dart';
 
 class NoFilter extends LogFilter {
@@ -41,7 +40,7 @@ Future<void> main() async {
     double x = 0;
     double y = 0;
     for (int i = 0; i < N; ++i) {
-      final latlng = LatLng((i % 90).toDouble(), (i % 180).toDouble());
+      final latlng = (lat: (i % 90).toDouble(), lon: (i % 180).toDouble());
       final (cx, cy) = crs.latLngToXY(latlng, 1);
       x += cx;
       y += cy;
@@ -53,7 +52,7 @@ Future<void> main() async {
     double x = 0;
     double y = 0;
     for (int i = 0; i < N; ++i) {
-      final latlng = LatLng((i % 90).toDouble(), (i % 180).toDouble());
+      final latlng = (lat: (i % 90).toDouble(), lon: (i % 180).toDouble());
       final p = crs.latLngToPoint(latlng, 1);
       x += p.x;
       y += p.y;
@@ -71,7 +70,7 @@ Future<void> main() async {
       double x = 0;
       double y = 0;
       for (int i = 0; i < N; ++i) {
-        final latlng = LatLng((i % 90).toDouble(), (i % 180).toDouble());
+        final latlng = (lat: (i % 90).toDouble(), lon: (i % 180).toDouble());
         final (cx, cy) = crs.latLngToXY(latlng, 1);
         x += cx;
         y += cy;
@@ -83,7 +82,7 @@ Future<void> main() async {
       double x = 0;
       double y = 0;
       for (int i = 0; i < N; ++i) {
-        final latlng = LatLng((i % 90).toDouble(), (i % 180).toDouble());
+        final latlng = (lat: (i % 90).toDouble(), lon: (i % 180).toDouble());
         final point = crs.latLngToPoint(latlng, 1);
         x += point.x;
         y += point.y;
@@ -96,8 +95,8 @@ Future<void> main() async {
       double y = 0;
       for (int i = 0; i < N; ++i) {
         final latlng = crs.pointToLatLng(math.Point<double>(x, y), 1);
-        x += latlng.longitude;
-        y += latlng.latitude;
+        x += latlng.lon;
+        y += latlng.lat;
       }
       return x + y;
     }));
