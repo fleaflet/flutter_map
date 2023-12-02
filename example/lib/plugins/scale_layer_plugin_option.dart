@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/plugins/scalebar_utils.dart';
 
-class ScaleLayer extends StatelessWidget {
+class FlutterMapScaleLayer extends StatelessWidget {
   static const scale = <int>[
     25000000,
     15000000,
@@ -36,7 +36,7 @@ class ScaleLayer extends StatelessWidget {
   final double lineWidth;
   final EdgeInsets? padding;
 
-  const ScaleLayer({
+  const FlutterMapScaleLayer({
     super.key,
     this.textStyle,
     this.lineColor = Colors.white,

@@ -23,7 +23,7 @@ class PluginScaleBar extends StatelessWidget {
           ),
           children: [
             openStreetMapTileLayer,
-            const ScaleLayer(
+            const FlutterMapScaleLayer(
               lineColor: Colors.black,
               lineWidth: 3,
               textStyle: TextStyle(color: Colors.black, fontSize: 14),
