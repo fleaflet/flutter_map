@@ -13,24 +13,34 @@ import 'package:proj4dart/proj4dart.dart' as proj4;
 /// points of objects of different dimensions. In our case 3D and 2D objects.
 @immutable
 abstract class Crs {
-  const Crs();
+  @nonVirtual
+  final String code;
+  @nonVirtual
+  final bool infinite;
+  @nonVirtual
+  final (double, double)? wrapLng;
+  @nonVirtual
+  final (double, double)? wrapLat;
 
-  String get code;
+  const Crs({
+    required this.code,
+    required this.infinite,
+    this.wrapLng,
+    this.wrapLat,
+  });
 
   Projection get projection;
 
-  Transformation get transformation;
-
   /// Converts a point on the sphere surface (with a certain zoom) in a
   /// map point.
+  (double, double) latLngToXY(LatLng latlng, double scale);
   Point<double> latLngToPoint(LatLng latlng, double zoom) {
-    final projectedPoint = projection.project(latlng);
-    return transformation.transform(projectedPoint, scale(zoom));
+    final (x, y) = latLngToXY(latlng, scale(zoom));
+    return Point<double>(x, y);
   }
 
   /// Converts a map point to the sphere coordinate (at a certain zoom).
-  LatLng pointToLatLng(Point point, double zoom) =>
-      projection.unproject(transformation.untransform(point, scale(zoom)));
+  LatLng pointToLatLng(Point point, double zoom);
 
   /// Zoom to Scale function.
   double scale(double zoom) => 256.0 * math.pow(2, zoom);
@@ -39,156 +49,147 @@ abstract class Crs {
   double zoom(double scale) => math.log(scale / 256) / math.ln2;
 
   /// Rescales the bounds to a given zoom value.
+  Bounds<double>? getProjectedBounds(double zoom);
+}
+
+@immutable
+abstract class _CrsWithStaticTransformation extends Crs {
+  @nonVirtual
+  @protected
+  final _Transformation transformation;
+
+  @override
+  final Projection projection;
+
+  const _CrsWithStaticTransformation({
+    required this.transformation,
+    required this.projection,
+    required super.code,
+    required super.infinite,
+    super.wrapLng,
+    super.wrapLat,
+  });
+
+  @override
+  (double, double) latLngToXY(LatLng latlng, double scale) {
+    final (x, y) = projection.projectXY(latlng);
+    return transformation.transform(x, y, scale);
+  }
+
+  @override
+  LatLng pointToLatLng(Point point, double zoom) {
+    final (x, y) = transformation.untransform(
+      point.x.toDouble(),
+      point.y.toDouble(),
+      scale(zoom),
+    );
+    return projection.unprojectXY(x, y);
+  }
+
+  @override
   Bounds<double>? getProjectedBounds(double zoom) {
     if (infinite) return null;
 
     final b = projection.bounds!;
     final s = scale(zoom);
-    final min = transformation.transform(b.min, s);
-    final max = transformation.transform(b.max, s);
-    return Bounds<double>(min, max);
+    final (minx, miny) = transformation.transform(b.min.x, b.min.y, s);
+    final (maxx, maxy) = transformation.transform(b.max.x, b.max.y, s);
+    return Bounds<double>(
+      Point<double>(minx, miny),
+      Point<double>(maxx, maxy),
+    );
   }
-
-  bool get infinite;
-
-  (double, double)? get wrapLng;
-
-  (double, double)? get wrapLat;
 }
 
 // Custom CRS for non geographical maps
 @immutable
-class CrsSimple extends Crs {
-  @override
-  final String code = 'CRS.SIMPLE';
-
-  @override
-  final Projection projection;
-
-  @override
-  final Transformation transformation;
-
+class CrsSimple extends _CrsWithStaticTransformation {
   const CrsSimple()
-      : projection = const _LonLat(),
-        transformation = const Transformation(1, 0, -1, 0),
-        super();
-
-  @override
-  bool get infinite => false;
-
-  @override
-  (double, double)? get wrapLat => null;
-
-  @override
-  (double, double)? get wrapLng => null;
-}
-
-@immutable
-abstract class Earth extends Crs {
-  @override
-  bool get infinite => false;
-
-  @override
-  final (double, double) wrapLng = const (-180, 180);
-
-  @override
-  final (double, double)? wrapLat = null;
-
-  const Earth() : super();
+      : super(
+          code: 'CRS.SIMPLE',
+          transformation: const _Transformation(1, 0, -1, 0),
+          projection: const _LonLat(),
+          infinite: false,
+          wrapLat: null,
+          wrapLng: null,
+        );
 }
 
 /// The most common CRS used for rendering maps.
 @immutable
-class Epsg3857 extends Earth {
-  @override
-  final String code = 'EPSG:3857';
-
-  @override
-  final Projection projection;
-
-  @override
-  final Transformation transformation;
-
+class Epsg3857 extends _CrsWithStaticTransformation {
   static const double _scale = 0.5 / (math.pi * SphericalMercator.r);
 
   const Epsg3857()
-      : projection = const SphericalMercator(),
-        transformation = const Transformation(_scale, 0.5, -_scale, 0.5),
-        super();
+      : super(
+          code: 'EPSG:3857',
+          transformation: const _Transformation(_scale, 0.5, -_scale, 0.5),
+          projection: const SphericalMercator(),
+          infinite: false,
+          wrapLng: const (-180, 180),
+        );
 
-// Epsg3857 seems to have lat limits. https://epsg.io/3857
-//@override
-//(double, double) get wrapLat => const (-85.06, 85.06);
+  @override
+  (double, double) latLngToXY(LatLng latlng, double scale) =>
+      transformation.transform(SphericalMercator.projectLng(latlng.lon),
+          SphericalMercator.projectLat(latlng.lat), scale);
+
+  @override
+  Point<double> latLngToPoint(LatLng latlng, double zoom) {
+    final (x, y) = transformation.transform(
+      SphericalMercator.projectLng(latlng.lon),
+      SphericalMercator.projectLat(latlng.lat),
+      scale(zoom),
+    );
+    return Point<double>(x, y);
+  }
 }
 
 /// A common CRS among GIS enthusiasts. Uses simple Equirectangular projection.
 @immutable
-class Epsg4326 extends Earth {
-  @override
-  final String code = 'EPSG:4326';
-
-  @override
-  final Projection projection;
-
-  @override
-  final Transformation transformation;
-
+class Epsg4326 extends _CrsWithStaticTransformation {
   const Epsg4326()
-      : projection = const _LonLat(),
-        transformation = const Transformation(1 / 180, 1, -1 / 180, 0.5),
-        super();
+      : super(
+          projection: const _LonLat(),
+          transformation: const _Transformation(1 / 180, 1, -1 / 180, 0.5),
+          code: 'EPSG:4326',
+          infinite: false,
+          wrapLng: const (-180, 180),
+        );
 }
 
 /// Custom CRS
 @immutable
 class Proj4Crs extends Crs {
   @override
-  final String code;
-
-  @override
   final Projection projection;
-
-  @override
-  final Transformation transformation;
-
-  @override
-  final bool infinite;
-
-  @override
-  final (double, double)? wrapLat = null;
-
-  @override
-  final (double, double)? wrapLng = null;
-
-  final List<Transformation>? _transformations;
-
+  final List<_Transformation> _transformations;
   final List<double> _scales;
 
   const Proj4Crs._({
-    required this.code,
+    required super.code,
     required this.projection,
-    required this.transformation,
-    required this.infinite,
-    List<Transformation>? transformations,
+    required super.infinite,
+    required List<_Transformation> transformations,
     required List<double> scales,
   })  : _transformations = transformations,
-        _scales = scales;
+        _scales = scales,
+        super(wrapLat: null, wrapLng: null);
 
   factory Proj4Crs.fromFactory({
     required String code,
     required proj4.Projection proj4Projection,
-    Transformation? transformation,
     List<Point<double>>? origins,
     Bounds<double>? bounds,
     List<double>? scales,
     List<double>? resolutions,
   }) {
-    final projection =
-        _Proj4Projection(proj4Projection: proj4Projection, bounds: bounds);
-    List<Transformation>? transformations;
-    final infinite = null == bounds;
-    List<double> finalScales;
+    final projection = _Proj4Projection(
+      proj4Projection: proj4Projection,
+      bounds: bounds,
+    );
 
+    List<double> finalScales;
     if (null != scales && scales.isNotEmpty) {
       finalScales = scales;
     } else if (null != resolutions && resolutions.isNotEmpty) {
@@ -198,24 +199,23 @@ class Proj4Crs extends Crs {
           'Please provide scales or resolutions to determine scales');
     }
 
+    List<_Transformation> transformations;
     if (null == origins || origins.isEmpty) {
-      transformation ??= const Transformation(1, 0, -1, 0);
+      transformations = [const _Transformation(1, 0, -1, 0)];
     } else {
       if (origins.length == 1) {
         final origin = origins[0];
-        transformation = Transformation(1, -origin.x, -1, origin.y);
+        transformations = [_Transformation(1, -origin.x, -1, origin.y)];
       } else {
         transformations =
-            origins.map((p) => Transformation(1, -p.x, -1, p.y)).toList();
-        transformation = null;
+            origins.map((p) => _Transformation(1, -p.x, -1, p.y)).toList();
       }
     }
 
     return Proj4Crs._(
       code: code,
       projection: projection,
-      transformation: transformation!,
-      infinite: infinite,
+      infinite: null == bounds,
       transformations: transformations,
       scales: finalScales,
     );
@@ -224,18 +224,22 @@ class Proj4Crs extends Crs {
   /// Converts a point on the sphere surface (with a certain zoom) in a
   /// map point.
   @override
-  Point<double> latLngToPoint(LatLng latlng, double zoom) {
-    final projectedPoint = projection.project(latlng);
-    final scale = this.scale(zoom);
-    final transformation = _getTransformationByZoom(zoom);
-
-    return transformation.transform(projectedPoint, scale);
+  (double, double) latLngToXY(LatLng latlng, double scale) {
+    final (x, y) = projection.projectXY(latlng);
+    final transformation = _getTransformationByZoom(zoom(scale));
+    return transformation.transform(x, y, scale);
   }
 
   /// Converts a map point to the sphere coordinate (at a certain zoom).
   @override
-  LatLng pointToLatLng(Point point, double zoom) => projection.unproject(
-      _getTransformationByZoom(zoom).untransform(point, scale(zoom)));
+  LatLng pointToLatLng(Point point, double zoom) {
+    final (x, y) = _getTransformationByZoom(zoom).untransform(
+      point.x.toDouble(),
+      point.y.toDouble(),
+      scale(zoom),
+    );
+    return projection.unprojectXY(x, y);
+  }
 
   /// Rescales the bounds to a given zoom value.
   @override
@@ -243,13 +247,15 @@ class Proj4Crs extends Crs {
     if (infinite) return null;
 
     final b = projection.bounds!;
-    final s = scale(zoom);
+    final zoomScale = scale(zoom);
 
     final transformation = _getTransformationByZoom(zoom);
-
-    final min = transformation.transform(b.min, s);
-    final max = transformation.transform(b.max, s);
-    return Bounds<double>(min, max);
+    final (minx, miny) = transformation.transform(b.min.x, b.min.y, zoomScale);
+    final (maxx, maxy) = transformation.transform(b.max.x, b.max.y, zoomScale);
+    return Bounds<double>(
+      Point<double>(minx, miny),
+      Point<double>(maxx, maxy),
+    );
   }
 
   /// Zoom to Scale function.
@@ -303,68 +309,48 @@ class Proj4Crs extends Crs {
   }
 
   /// returns Transformation object based on zoom
-  Transformation _getTransformationByZoom(double zoom) {
-    final transformations = _transformations;
-    if (transformations == null || transformations.isEmpty) {
-      return transformation;
-    }
-
+  _Transformation _getTransformationByZoom(double zoom) {
     final iZoom = zoom.round();
-    final lastIdx = transformations.length - 1;
-
-    return transformations[iZoom > lastIdx ? lastIdx : iZoom];
+    final lastIdx = _transformations.length - 1;
+    return _transformations[iZoom > lastIdx ? lastIdx : iZoom];
   }
 }
 
 @immutable
 abstract class Projection {
-  const Projection();
+  final Bounds<double>? bounds;
 
-  Bounds<double>? get bounds;
+  const Projection(this.bounds);
 
-  Point<double> project(LatLng latlng);
-
-  LatLng unproject(Point point);
-
-  double _inclusive(double start, double end, double value) {
-    if (value < start) return start;
-    if (value > end) return end;
-
-    return value;
+  @nonVirtual
+  Point<double> project(LatLng latlng) {
+    final (x, y) = projectXY(latlng);
+    return Point<double>(x, y);
   }
 
-  @protected
-  double inclusiveLat(double value) {
-    return _inclusive(-90, 90, value);
-  }
+  (double, double) projectXY(LatLng latlng);
 
-  @protected
-  double inclusiveLng(double value) {
-    return _inclusive(-180, 180, value);
-  }
+  @nonVirtual
+  LatLng unproject(Point point) =>
+      unprojectXY(point.x.toDouble(), point.y.toDouble());
+  LatLng unprojectXY(double x, double y);
 }
 
 class _LonLat extends Projection {
-  static final Bounds<double> _bounds = Bounds<double>(
-      const Point<double>(-180, -90), const Point<double>(180, 90));
+  static const _bounds = Bounds<double>.unsafe(
+    Point<double>(-180, -90),
+    Point<double>(180, 90),
+  );
 
-  const _LonLat() : super();
-
-  @override
-  Bounds<double> get bounds => _bounds;
-
-  @override
-  Point<double> project(LatLng latlng) {
-    return Point(latlng.lon, latlng.lat);
-  }
+  const _LonLat() : super(_bounds);
 
   @override
-  LatLng unproject(Point point) {
-    return (
-      lat: inclusiveLat(point.y.toDouble()),
-      lon: inclusiveLng(point.x.toDouble())
-    );
-  }
+  (double, double) projectXY(LatLng latlng) =>
+      (latlng.lon, latlng.lat);
+
+  @override
+  LatLng unprojectXY(double x, double y) =>
+      (lat: _inclusiveLat(y), lon: _inclusiveLng(x));
 }
 
 @immutable
@@ -372,35 +358,39 @@ class SphericalMercator extends Projection {
   static const int r = 6378137;
   static const double maxLatitude = 85.0511287798;
   static const double _boundsD = r * math.pi;
-  static final Bounds<double> _bounds = Bounds<double>(
-    const Point<double>(-_boundsD, -_boundsD),
-    const Point<double>(_boundsD, _boundsD),
+
+  static const Bounds<double> _bounds = Bounds<double>.unsafe(
+    Point<double>(-_boundsD, -_boundsD),
+    Point<double>(_boundsD, _boundsD),
   );
 
-  const SphericalMercator() : super();
+  const SphericalMercator() : super(_bounds);
+
+  static double projectLat(double latitude) {
+    final lat = _clampSym(latitude, maxLatitude);
+    final sin = math.sin(lat * math.pi / 180);
+
+    return r / 2 * math.log((1 + sin) / (1 - sin));
+  }
+
+  static double projectLng(double longitude) {
+    return r * math.pi / 180 * longitude;
+  }
 
   @override
-  Bounds<double> get bounds => _bounds;
-
-  @override
-  Point<double> project(LatLng latlng) {
-    const d = math.pi / 180;
-    final lat = latlng.lat.clamp(-maxLatitude, maxLatitude);
-    final sin = math.sin(lat * d);
-
-    return Point(
-      r * d * latlng.lon,
-      r / 2 * math.log((1 + sin) / (1 - sin)),
+  (double, double) projectXY(LatLng latlng) {
+    return (
+      projectLng(latlng.lon),
+      projectLat(latlng.lat),
     );
   }
 
   @override
-  LatLng unproject(Point point) {
+  LatLng unprojectXY(double x, double y) {
     const d = 180 / math.pi;
     return (
-      lat: inclusiveLat(
-          (2 * math.atan(math.exp(point.y / r)) - (math.pi / 2)) * d),
-      lon: inclusiveLng(point.x * d / r)
+      lat: _inclusiveLat((2 * math.atan(math.exp(y / r)) - (math.pi / 2)) * d),
+      lon: _inclusiveLng(x * d / r),
     );
   }
 }
@@ -408,54 +398,57 @@ class SphericalMercator extends Projection {
 @immutable
 class _Proj4Projection extends Projection {
   final proj4.Projection epsg4326;
-
   final proj4.Projection proj4Projection;
-
-  @override
-  final Bounds<double>? bounds;
 
   _Proj4Projection({
     required this.proj4Projection,
-    this.bounds,
-  }) : epsg4326 = proj4.Projection.WGS84;
+    required Bounds<double>? bounds,
+  })  : epsg4326 = proj4.Projection.WGS84,
+        super(bounds);
 
   @override
-  Point<double> project(LatLng latlng) {
+  (double, double) projectXY(LatLng latlng) {
     final point = epsg4326.transform(
         proj4Projection, proj4.Point(x: latlng.lon, y: latlng.lat));
 
-    return Point(point.x, point.y);
+    return (point.x, point.y);
   }
 
   @override
-  LatLng unproject(Point point) {
-    final point2 = proj4Projection.transform(
-        epsg4326, proj4.Point(x: point.x.toDouble(), y: point.y.toDouble()));
+  LatLng unprojectXY(double x, double y) {
+    final point = proj4Projection.transform(epsg4326, proj4.Point(x: x, y: y));
 
-    return (lat: inclusiveLat(point2.y), lon: inclusiveLng(point2.x));
+    return (
+      lat: _inclusiveLat(point.y),
+      lon: _inclusiveLng(point.x),
+    );
   }
 }
 
 @immutable
-class Transformation {
+class _Transformation {
   final double a;
   final double b;
   final double c;
   final double d;
 
-  const Transformation(this.a, this.b, this.c, this.d);
+  const _Transformation(this.a, this.b, this.c, this.d);
 
-  Point<double> transform(Point point, double? scale) {
-    scale ??= 1.0;
-    final x = scale * (a * point.x + b);
-    final y = scale * (c * point.y + d);
-    return Point(x, y);
-  }
+  @nonVirtual
+  (double, double) transform(double x, double y, double scale) => (
+        scale * (a * x + b),
+        scale * (c * y + d),
+      );
 
-  Point<double> untransform(Point point, double? scale) {
-    scale ??= 1.0;
-    final x = (point.x / scale - b) / a;
-    final y = (point.y / scale - d) / c;
-    return Point(x, y);
-  }
+  @nonVirtual
+  (double, double) untransform(double x, double y, double scale) => (
+        (x / scale - b) / a,
+        (y / scale - d) / c,
+      );
 }
+
+// Num.clamp is slow due to virtual function overhead.
+double _clampSym(double value, double limit) =>
+    value < -limit ? -limit : (value > limit ? limit : value);
+double _inclusiveLat(double value) => _clampSym(value, 90);
+double _inclusiveLng(double value) => _clampSym(value, 180);

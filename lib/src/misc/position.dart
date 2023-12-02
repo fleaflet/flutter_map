@@ -17,7 +17,7 @@ class MapPosition {
   });
 
   @override
-  int get hashCode => center.hashCode + bounds.hashCode + zoom.hashCode;
+  int get hashCode => Object.hash(center, bounds, zoom);
 
   @override
   bool operator ==(Object other) =>

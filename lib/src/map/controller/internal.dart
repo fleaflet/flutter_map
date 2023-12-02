@@ -191,7 +191,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
         camera.unproject(
           rotationCenter +
               (camera.project(camera.center) - rotationCenter)
-                  .rotate( rotationDiff * degrees2Radians),
+                  .rotate(degrees2Radians * rotationDiff),
         ),
         camera.zoom,
         offset: Offset.zero,

@@ -13,7 +13,7 @@ void main() {
   group('TileBounds', () {
     test('crs is infinite, latLngBounds null', () {
       final tileBounds = TileBounds(
-        crs: FakeInfiniteCrs(),
+        crs: const FakeInfiniteCrs(),
         tileSize: 256,
       );
 
@@ -23,7 +23,7 @@ void main() {
 
     test('crs is infinite, latLngBounds provided', () {
       final tileBounds = TileBounds(
-        crs: FakeInfiniteCrs(),
+        crs: const FakeInfiniteCrs(),
         tileSize: 256,
         latLngBounds: LatLngBounds.fromPoints(
           [const (lat: -44, lon: 55), const (lat: 44, lon: 55)],

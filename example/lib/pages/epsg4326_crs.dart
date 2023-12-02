@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
+import 'package:latlong2/latlong.dart';
 
 class EPSG4326Page extends StatelessWidget {
   static const String route = '/crs_epsg4326';
