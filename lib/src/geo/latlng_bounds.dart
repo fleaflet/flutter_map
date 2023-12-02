@@ -99,8 +99,9 @@ class LatLngBounds {
     final lambda1 = southWest.longitudeInRad;
     final phi2 = northEast.latitudeInRad;
 
-    final dLambda = degrees2Radians * (northEast.longitude -
-        southWest.longitude); // delta lambda = lambda2-lambda1
+    final dLambda = degrees2Radians *
+        (northEast.longitude -
+            southWest.longitude); // delta lambda = lambda2-lambda1
 
     final bx = math.cos(phi2) * math.cos(dLambda);
     final by = math.cos(phi2) * math.sin(dLambda);

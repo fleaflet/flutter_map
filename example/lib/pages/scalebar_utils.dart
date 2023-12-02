@@ -4,7 +4,6 @@ import 'dart:ui';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:vector_math/vector_math.dart';
 
-
 LatLng calculateEndingGlobalCoordinates(
     LatLng start, double startBearing, double distance) {
   const mSemiMajorAxis = 6378137.0; //WGS84 major axis
