@@ -2,12 +2,13 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
+import 'package:latlong2/latlong.dart';
 
 class PolylinePage extends StatefulWidget {
   static const String route = '/polyline';
 
-  const PolylinePage({Key? key}) : super(key: key);
+  const PolylinePage({super.key});
 
   @override
   State<PolylinePage> createState() => _PolylinePageState();
@@ -35,7 +36,7 @@ class _PolylinePageState extends State<PolylinePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Polylines')),
-      drawer: buildDrawer(context, PolylinePage.route),
+      drawer: const MenuDrawer(PolylinePage.route),
       body: Stack(
         children: [
           FlutterMap(

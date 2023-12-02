@@ -2,18 +2,20 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_example/misc/tile_providers.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
+import 'package:latlong2/latlong.dart';
 
 class StatefulMarkersPage extends StatefulWidget {
   static const String route = '/stateful_markers';
 
-  const StatefulMarkersPage({Key? key}) : super(key: key);
+  const StatefulMarkersPage({super.key});
 
   @override
-  _StatefulMarkersPageState createState() => _StatefulMarkersPageState();
+  StatefulMarkersPageState createState() => StatefulMarkersPageState();
 }
 
-class _StatefulMarkersPageState extends State<StatefulMarkersPage> {
+class StatefulMarkersPageState extends State<StatefulMarkersPage> {
   late List<Marker> _markers;
   final Random _random = Random();
 
@@ -40,7 +42,7 @@ class _StatefulMarkersPageState extends State<StatefulMarkersPage> {
         height: 40,
         point: LatLng(
             _random.nextDouble() * 10 + 48, _random.nextDouble() * 10 - 6),
-        child: const _ColorMarker(),
+        child: _ColorMarker(),
         key: ValueKey(key),
       ),
     );
@@ -50,41 +52,22 @@ class _StatefulMarkersPageState extends State<StatefulMarkersPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Stateful Markers')),
-      drawer: buildDrawer(context, StatefulMarkersPage.route),
-      body: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(top: 8, bottom: 8),
-              child: Text('This is a map that is showing (51.5, -0.9).'),
-            ),
-            Flexible(
-              child: FlutterMap(
-                options: const MapOptions(
-                  initialCenter: LatLng(51.5, -0.09),
-                  initialZoom: 5,
-                ),
-                children: [
-                  TileLayer(
-                    urlTemplate:
-                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  ),
-                  MarkerLayer(markers: _markers),
-                ],
-              ),
-            ),
-          ],
+      drawer: const MenuDrawer(StatefulMarkersPage.route),
+      body: FlutterMap(
+        options: const MapOptions(
+          initialCenter: LatLng(51.5, -0.09),
+          initialZoom: 5,
         ),
+        children: [
+          openStreetMapTileLayer,
+          MarkerLayer(markers: _markers),
+        ],
       ),
     );
   }
 }
 
 class _ColorMarker extends StatefulWidget {
-  const _ColorMarker({Key? key}) : super(key: key);
-
   @override
   _ColorMarkerState createState() => _ColorMarkerState();
 }

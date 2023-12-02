@@ -1,15 +1,8 @@
 import 'dart:math';
+import 'dart:ui';
 
-import 'package:flutter_map/flutter_map.dart';
-
-const double piOver180 = pi / 180.0;
-double toDegrees(double radians) {
-  return radians / piOver180;
-}
-
-double toRadians(double degrees) {
-  return degrees * piOver180;
-}
+import 'package:latlong2/latlong.dart';
+import 'package:vector_math/vector_math_64.dart';
 
 LatLng calculateEndingGlobalCoordinates(
     LatLng start, double startBearing, double distance) {
@@ -23,8 +16,8 @@ LatLng calculateEndingGlobalCoordinates(
   const aSquared = a * a;
   const bSquared = b * b;
   const f = mFlattening;
-  final phi1 = toRadians(start.latitude);
-  final alpha1 = toRadians(startBearing);
+  final phi1 = degrees2Radians * start.latitude;
+  final alpha1 = degrees2Radians * startBearing;
   final cosAlpha1 = cos(alpha1);
   final sinAlpha1 = sin(alpha1);
   final s = distance;
@@ -61,7 +54,7 @@ LatLng calculateEndingGlobalCoordinates(
   double cosSigmaM2;
   double cos2SigmaM2;
 
-  for (;;) {
+  while (true) {
     // eq. 5
     sigmaM2 = 2.0 * sigma1 + sigma;
     cosSigmaM2 = cos(sigmaM2);
@@ -107,14 +100,15 @@ LatLng calculateEndingGlobalCoordinates(
   // This fixes the pole crossing defect spotted by Matt Feemster. When a
   // path passes a pole and essentially crosses a line of latitude twice -
   // once in each direction - the longitude calculation got messed up.
-  // Using
-  // atan2 instead of atan fixes the defect. The change is in the next 3
-  // lines.
+  // Using atan2 instead of atan fixes the defect. The change is in the
+  // next 3 lines.
   // double tanLambda = sinSigma * sinAlpha1 / (cosU1 * cosSigma - sinU1 *
   // sinSigma * cosAlpha1);
   // double lambda = Math.atan(tanLambda);
   final lambda = atan2(
-      sinSigma * sinAlpha1, (cosU1 * cosSigma - sinU1 * sinSigma * cosAlpha1));
+    sinSigma * sinAlpha1,
+    cosU1 * cosSigma - sinU1 * sinSigma * cosAlpha1,
+  );
 
   // eq. 10
   final C = (f / 16) * cos2Alpha * (4 + f * (4 - 3 * cos2Alpha));
@@ -134,16 +128,8 @@ LatLng calculateEndingGlobalCoordinates(
   // cosSigma * cosAlpha1);
 
   // build result
-  var latitude = toDegrees(phi2);
-  var longitude = start.longitude + toDegrees(L);
-
-  // if ((endBearing != null) && (endBearing.length > 0)) {
-  // endBearing[0] = toDegrees(alpha2);
-  // }
-
-  latitude = latitude < -90 ? -90 : latitude;
-  latitude = latitude > 90 ? 90 : latitude;
-  longitude = longitude < -180 ? -180 : longitude;
-  longitude = longitude > 180 ? 180 : longitude;
-  return LatLng(latitude, longitude);
+  return LatLng(
+    clampDouble(radians2Degrees * phi2, -90, 90),
+    clampDouble(start.longitude + (L * radians2Degrees), -180, 180),
+  );
 }

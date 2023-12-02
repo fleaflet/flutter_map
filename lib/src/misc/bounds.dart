@@ -16,6 +16,7 @@ class Bounds<T extends num> {
     return Bounds._(Point<T>(minx, miny), Point<T>(maxx, maxy));
   }
 
+  const Bounds.unsafe(this.min, this.max);
   const Bounds._(this.min, this.max);
 
   static Bounds<double> containing(Iterable<Point<double>> points) {
