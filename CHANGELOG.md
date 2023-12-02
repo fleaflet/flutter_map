@@ -2,7 +2,7 @@
 
 Please consider [donating](https://docs.fleaflet.dev/supporters#support-us) or [contributing](https://docs.fleaflet.dev/credits#contributing) if you're a fan of what we're doing and you'd like to support future releases!
 
-## [6.1.0] - 2023/12/XX
+## [6.1.0] - 2023/12/02
 
 Contains the following user-affecting changes:
 
