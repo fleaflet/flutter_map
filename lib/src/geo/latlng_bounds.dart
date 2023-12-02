@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:latlong2/latlong.dart';
+import 'package:vector_math/vector_math.dart';
 
 /// Data structure representing rectangular bounding box constrained by its
 /// northwest and southeast corners
@@ -98,7 +99,7 @@ class LatLngBounds {
     final lambda1 = southWest.longitudeInRad;
     final phi2 = northEast.latitudeInRad;
 
-    final dLambda = degToRadian(northEast.longitude -
+    final dLambda = degrees2Radians * (northEast.longitude -
         southWest.longitude); // delta lambda = lambda2-lambda1
 
     final bx = math.cos(phi2) * math.cos(dLambda);

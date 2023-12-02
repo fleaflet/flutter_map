@@ -13,6 +13,7 @@ import 'package:flutter_map/src/misc/move_and_rotate_result.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:flutter_map/src/misc/position.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:vector_math/vector_math_64.dart';
 
 /// This controller is for internal use. All updates to the state should be done
 /// by calling methods of this class to ensure consistency.
@@ -190,7 +191,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
         camera.unproject(
           rotationCenter +
               (camera.project(camera.center) - rotationCenter)
-                  .rotate(degToRadian(rotationDiff)),
+                  .rotate(degrees2Radians * rotationDiff),
         ),
         camera.zoom,
         offset: Offset.zero,
