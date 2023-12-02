@@ -30,7 +30,7 @@ dependencies:
   collection: ^1.17.1
   flutter:
     sdk: flutter
-  http: ^1.1.2
+  http: ^1.0.0
   latlong2: ^0.9.0
   logger: ^2.0.1
   meta: ^1.9.1
