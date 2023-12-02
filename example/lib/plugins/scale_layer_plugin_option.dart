@@ -3,24 +3,9 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/pages/scalebar_utils.dart';
+import 'package:flutter_map_example/plugins/scalebar_utils.dart';
 
-class ScaleLayerPluginOption {
-  TextStyle? textStyle;
-  Color lineColor;
-  double lineWidth;
-  final EdgeInsets? padding;
-
-  ScaleLayerPluginOption({
-    this.textStyle,
-    this.lineColor = Colors.white,
-    this.lineWidth = 2,
-    this.padding,
-  });
-}
-
-class ScaleLayerWidget extends StatelessWidget {
-  final ScaleLayerPluginOption options;
+class ScaleLayer extends StatelessWidget {
   static const scale = <int>[
     25000000,
     15000000,
@@ -46,18 +31,27 @@ class ScaleLayerWidget extends StatelessWidget {
     10,
     5
   ];
+  final TextStyle? textStyle;
+  final Color lineColor;
+  final double lineWidth;
+  final EdgeInsets? padding;
 
-  const ScaleLayerWidget({super.key, required this.options});
+  const ScaleLayer({
+    super.key,
+    this.textStyle,
+    this.lineColor = Colors.white,
+    this.lineWidth = 2,
+    this.padding,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final map = MapCamera.of(context);
-    final zoom = map.zoom;
-    final distance = scale[max(0, min(20, zoom.round() + 2))].toDouble();
-    final center = map.center;
-    final start = map.project(center);
+    final camera = MapCamera.of(context);
+    final distance = scale[max(0, min(20, camera.zoom.round() + 2))].toDouble();
+    final center = camera.center;
+    final start = camera.project(center);
     final targetPoint = calculateEndingGlobalCoordinates(center, 90, distance);
-    final end = map.project(targetPoint);
+    final end = camera.project(targetPoint);
     final displayDistance = distance > 999
         ? '${(distance / 1000).toStringAsFixed(0)} km'
         : '${distance.toStringAsFixed(0)} m';
@@ -69,10 +63,10 @@ class ScaleLayerWidget extends StatelessWidget {
           painter: ScalePainter(
             width,
             displayDistance,
-            lineColor: options.lineColor,
-            lineWidth: options.lineWidth,
-            padding: options.padding,
-            textStyle: options.textStyle,
+            lineColor: lineColor,
+            lineWidth: lineWidth,
+            padding: padding,
+            textStyle: textStyle,
           ),
         );
       },
