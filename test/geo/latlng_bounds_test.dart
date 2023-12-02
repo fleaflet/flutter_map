@@ -1,12 +1,11 @@
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:latlong2/latlong.dart';
 
 void main() {
   group('LatLngBounds', () {
-    const london = LatLng(51.5, -0.09);
-    const paris = LatLng(48.8566, 2.3522);
-    const dublin = LatLng(53.3498, -6.2603);
+    const london = (lat: 51.5, lon: 0.09);
+    const paris = (lat: 48.8566, lon: 2.3522);
+    const dublin = (lat: 53.3498, lon: 6.2603);
 
     group('LatLngBounds constructor', () {
       test('with dublin, paris', () {
@@ -31,10 +30,10 @@ void main() {
         final sw = bounds.southWest;
         final ne = bounds.northEast;
 
-        expect(sw.latitude, 48.8566);
-        expect(sw.longitude, -6.2603);
-        expect(ne.latitude, 53.3498);
-        expect(ne.longitude, 2.3522);
+        expect(sw.lat, 48.8566);
+        expect(sw.lon, -6.2603);
+        expect(ne.lat, 53.3498);
+        expect(ne.lon, 2.3522);
       });
     });
 

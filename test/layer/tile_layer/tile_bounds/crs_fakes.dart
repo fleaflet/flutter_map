@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter_map/src/geo/crs.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:flutter_map/src/geo/latlng.dart';
 
 class FakeInfiniteCrs extends Crs {
   @override

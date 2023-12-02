@@ -46,12 +46,12 @@ class _CancellableTileProviderPageState
           Expanded(
             child: FlutterMap(
               options: MapOptions(
-                initialCenter: const LatLng(51.5, -0.09),
+                initialCenter: const (lat: 51.5, lon: 0.09),
                 initialZoom: 5,
                 cameraConstraint: CameraConstraint.contain(
                   bounds: LatLngBounds(
-                    const LatLng(-90, -180),
-                    const LatLng(90, 180),
+                    const (lat: -90, lon: 180),
+                    const (lat: 90, lon: 180),
                   ),
                 ),
               ),

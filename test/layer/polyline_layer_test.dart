@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/src/geo/latlng.dart';
 import 'package:flutter_map/src/layer/polyline_layer.dart';
 import 'package:flutter_map/src/map/widget.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:latlong2/latlong.dart';
 
 import '../test_utils/test_app.dart';
 
@@ -11,10 +11,10 @@ void main() {
     final polylines = <Polyline>[
       for (int i = 0; i < 10; i++)
         Polyline(
-          points: [
-            LatLng(50.5 + i, -0.09),
-            LatLng(51.3498 + i, -6.2603),
-            LatLng(53.8566 + i, 2.3522),
+          points: <LatLng>[
+            (lat: 50.5 + i, lon: -0.09),
+            (lat: 51.3498 + i, lon: -6.2603),
+            (lat: 53.8566 + i, lon: 2.3522),
           ],
           strokeWidth: 4,
           color: Colors.amber,

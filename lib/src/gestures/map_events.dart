@@ -1,5 +1,5 @@
+import 'package:flutter_map/src/geo/latlng.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 
 /// Event sources which are used to identify different types of

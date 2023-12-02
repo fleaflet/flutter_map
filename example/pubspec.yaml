@@ -17,6 +17,7 @@ dependencies:
   shared_preferences: ^2.2.1
   url_strategy: ^0.2.0
   http: ^1.1.0
+  latlong2: ^0.9.0
 
 dependency_overrides:
   flutter_map_cancellable_tile_provider:

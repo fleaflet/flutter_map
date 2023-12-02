@@ -19,9 +19,9 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
   static const _inProgressId = 'AnimatedMapController#MoveInProgress';
   static const _finishedId = 'AnimatedMapController#MoveFinished';
 
-  static const _london = LatLng(51.5, -0.09);
-  static const _paris = LatLng(48.8566, 2.3522);
-  static const _dublin = LatLng(53.3498, -6.2603);
+  static const _london = (lat: 51.5, lon: -0.09);
+  static const _paris = (lat: 48.8566, lon: 2.3522);
+  static const _dublin = (lat: 53.3498, lon: -6.2603);
 
   static const _markers = [
     Marker(
@@ -50,10 +50,10 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
     // Create some tweens. These serve to split up the transition from one location to another.
     // In our case, we want to split the transition be<tween> our current map center and the destination.
     final camera = mapController.camera;
-    final latTween = Tween<double>(
-        begin: camera.center.latitude, end: destLocation.latitude);
-    final lngTween = Tween<double>(
-        begin: camera.center.longitude, end: destLocation.longitude);
+    final latTween =
+        Tween<double>(begin: camera.center.lat, end: destLocation.lat);
+    final lngTween =
+        Tween<double>(begin: camera.center.lon, end: destLocation.lon);
     final zoomTween = Tween<double>(begin: camera.zoom, end: destZoom);
 
     // Create a animation controller that has a duration and a TickerProvider.
@@ -69,7 +69,7 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
     // to detect an appropriate animated movement event which contains the
     // target zoom/center.
     final startIdWithTarget =
-        '$_startedId#${destLocation.latitude},${destLocation.longitude},$destZoom';
+        '$_startedId#${destLocation.lat},${destLocation.lon},$destZoom';
     bool hasTriggeredMove = false;
 
     controller.addListener(() {
@@ -83,7 +83,7 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
       }
 
       hasTriggeredMove |= mapController.move(
-        LatLng(latTween.evaluate(animation), lngTween.evaluate(animation)),
+        (lat: latTween.evaluate(animation), lon: lngTween.evaluate(animation)),
         zoomTween.evaluate(animation),
         id: id,
       );
@@ -171,7 +171,7 @@ class AnimatedMapControllerPageState extends State<AnimatedMapControllerPage>
               child: FlutterMap(
                 mapController: mapController,
                 options: const MapOptions(
-                  initialCenter: LatLng(51.5, -0.09),
+                  initialCenter: (lat: 51.5, lon: 0.09),
                   initialZoom: 5,
                   maxZoom: 10,
                   minZoom: 3,
@@ -215,7 +215,7 @@ final _animatedMoveTileUpdateTransformer =
     // whilst animating.
     sink.add(
       updateEvent.loadOnly(
-        loadCenterOverride: LatLng(lat, lon),
+        loadCenterOverride: (lat: lat, lon: lon),
         loadZoomOverride: zoom,
       ),
     );

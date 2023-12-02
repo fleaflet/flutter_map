@@ -16,7 +16,7 @@ class EPSG4326Page extends StatelessWidget {
         options: const MapOptions(
           minZoom: 0,
           crs: Epsg4326(),
-          initialCenter: LatLng(0, 0),
+          initialCenter: (lat: 0, lon: 0),
           initialZoom: 0,
         ),
         children: [

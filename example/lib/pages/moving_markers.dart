@@ -23,19 +23,19 @@ class MovingMarkersPageState extends State<MovingMarkersPage> {
     Marker(
       width: 80,
       height: 80,
-      point: LatLng(51.5, -0.09),
+      point: (lat: 51.5, lon: 0.09),
       child: FlutterLogo(),
     ),
     Marker(
       width: 80,
       height: 80,
-      point: LatLng(53.3498, -6.2603),
+      point: (lat: 53.3498, lon: 6.2603),
       child: FlutterLogo(),
     ),
     Marker(
       width: 80,
       height: 80,
-      point: LatLng(48.8566, 2.3522),
+      point: (lat: 48.8566, lon: 2.3522),
       child: FlutterLogo(),
     ),
   ];
@@ -65,7 +65,7 @@ class MovingMarkersPageState extends State<MovingMarkersPage> {
       drawer: const MenuDrawer(MovingMarkersPage.route),
       body: FlutterMap(
         options: const MapOptions(
-          initialCenter: LatLng(51.5, -0.09),
+          initialCenter: (lat: 51.5, lon: 0.09),
           initialZoom: 5,
         ),
         children: [

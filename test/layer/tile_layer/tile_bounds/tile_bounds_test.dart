@@ -5,7 +5,6 @@ import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:test/test.dart';
 
 import 'crs_fakes.dart';
@@ -27,7 +26,7 @@ void main() {
         crs: FakeInfiniteCrs(),
         tileSize: 256,
         latLngBounds: LatLngBounds.fromPoints(
-          [const LatLng(-44, -55), const LatLng(44, 55)],
+          [const (lat: -44, lon: 55), const (lat: 44, lon: 55)],
         ),
       );
 
@@ -93,7 +92,7 @@ void main() {
         crs: crs,
         tileSize: 256,
         latLngBounds: LatLngBounds(
-          const LatLng(0, 0),
+          const (lat: 0, lon: 0),
           crs.pointToLatLng(crs.getProjectedBounds(0)!.max, 0),
         ),
       );

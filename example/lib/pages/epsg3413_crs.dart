@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
+import 'package:latlong2/latlong.dart' as latlong2;
 import 'package:proj4dart/proj4dart.dart' as proj4;
 import 'package:url_launcher/url_launcher.dart';
 
@@ -18,8 +19,8 @@ class EPSG3413Page extends StatefulWidget {
 class EPSG3413PageState extends State<EPSG3413Page> {
   late final Proj4Crs epsg3413CRS;
 
-  final distancePoleToLat80 =
-      const Distance().distance(const LatLng(90, 0), const LatLng(80, 0));
+  final distancePoleToLat80 = const latlong2.Distance()
+      .distance(const latlong2.LatLng(90, 0), const latlong2.LatLng(80, 0));
 
   double? maxZoom;
 
@@ -73,7 +74,7 @@ class EPSG3413PageState extends State<EPSG3413Page> {
     // These circles should have the same pixel radius on the map
     final circles = [
       const CircleMarker(
-        point: LatLng(90, 0),
+        point: (lat: 90, lon: 0),
         radius: 20000,
         useRadiusInMeter: true,
         color: Colors.yellow,
@@ -81,7 +82,7 @@ class EPSG3413PageState extends State<EPSG3413Page> {
     ];
     for (final lon in [-90.0, 0.0, 90.0, 180.0]) {
       circles.add(CircleMarker(
-        point: LatLng(80, lon),
+        point: (lat: 80, lon: lon),
         radius: 20000,
         useRadiusInMeter: true,
         color: Colors.red,
@@ -90,7 +91,7 @@ class EPSG3413PageState extends State<EPSG3413Page> {
 
     // Add latitude line at 80 degrees
     circles.add(CircleMarker(
-      point: const LatLng(90, 0),
+      point: const (lat: 90, lon: 0),
       radius: distancePoleToLat80,
       useRadiusInMeter: true,
       color: Colors.transparent,
@@ -135,7 +136,7 @@ class EPSG3413PageState extends State<EPSG3413Page> {
               child: FlutterMap(
                 options: MapOptions(
                   crs: epsg3413CRS,
-                  initialCenter: const LatLng(90, 0),
+                  initialCenter: const (lat: 90, lon: 0),
                   initialZoom: 3,
                   maxZoom: maxZoom,
                 ),
@@ -154,8 +155,8 @@ class EPSG3413PageState extends State<EPSG3413Page> {
                     overlayImages: [
                       OverlayImage(
                         bounds: LatLngBounds(
-                          const LatLng(72.7911372, 162.6196478),
-                          const LatLng(85.2802493, 79.794166),
+                          const (lat: 72.7911372, lon: 162.6196478),
+                          const (lat: 85.2802493, lon: 79.794166),
                         ),
                         imageProvider: Image.asset(
                           'assets/map/epsg3413/amsr2.png',

@@ -16,7 +16,7 @@ class PluginZoomButtons extends StatelessWidget {
       drawer: const MenuDrawer(PluginZoomButtons.route),
       body: FlutterMap(
         options: const MapOptions(
-          initialCenter: LatLng(51.5, -0.09),
+          initialCenter: (lat: 51.5, lon: -0.09),
           initialZoom: 5,
         ),
         children: [

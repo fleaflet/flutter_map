@@ -25,7 +25,7 @@ LatLng calculateEndingGlobalCoordinates(
   const aSquared = a * a;
   const bSquared = b * b;
   const f = mFlattening;
-  final phi1 = toRadians(start.latitude);
+  final phi1 = toRadians(start.lat);
   final alpha1 = toRadians(startBearing);
   final cosAlpha1 = cos(alpha1);
   final sinAlpha1 = sin(alpha1);
@@ -137,8 +137,8 @@ LatLng calculateEndingGlobalCoordinates(
   // cosSigma * cosAlpha1);
 
   // build result
-  return LatLng(
-    clampDouble(toDegrees(phi2), -90, 90),
-    clampDouble(start.longitude + toDegrees(L), -180, 180),
+  return (
+    lat: clampDouble(toDegrees(phi2), -90, 90),
+    lon: clampDouble(start.lon + toDegrees(L), -180, 180),
   );
 }

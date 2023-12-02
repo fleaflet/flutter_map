@@ -1,6 +1,6 @@
+import 'package:flutter_map/src/geo/latlng.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 
 /// Describes whether loading and/or pruning should occur and allows overriding

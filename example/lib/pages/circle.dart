@@ -15,7 +15,7 @@ class CirclePage extends StatelessWidget {
       drawer: const MenuDrawer(route),
       body: FlutterMap(
         options: const MapOptions(
-          initialCenter: LatLng(51.5, -0.09),
+          initialCenter: (lat: 51.5, lon: 0.09),
           initialZoom: 11,
         ),
         children: [
@@ -23,7 +23,7 @@ class CirclePage extends StatelessWidget {
           CircleLayer(
             circles: [
               CircleMarker(
-                point: const LatLng(51.5, -0.09),
+                point: const (lat: 51.5, lon: 0.09),
                 color: Colors.blue.withOpacity(0.7),
                 borderColor: Colors.black,
                 borderStrokeWidth: 2,
@@ -31,7 +31,7 @@ class CirclePage extends StatelessWidget {
                 radius: 2000, // 2000 meters
               ),
               CircleMarker(
-                point: const LatLng(51.4937, -0.6638),
+                point: const (lat: 51.4937, lon: 0.6638),
                 // Dorney Lake is ~2km long
                 color: Colors.green.withOpacity(0.9),
                 borderColor: Colors.black,

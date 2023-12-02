@@ -9,7 +9,6 @@ import 'package:flutter_map/src/map/options/interaction.dart';
 import 'package:flutter_map/src/map/options/options.dart';
 import 'package:flutter_map/src/map/widget.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:latlong2/latlong.dart';
 
 import 'test_utils/test_app.dart';
 
@@ -19,13 +18,13 @@ void main() {
       const Marker(
         width: 80,
         height: 80,
-        point: LatLng(45.5231, -122.6765),
+        point: (lat: 45.5231, lon: -122.6765),
         child: FlutterLogo(),
       ),
       const Marker(
         width: 80,
         height: 80,
-        point: LatLng(40, -120), // not visible
+        point: (lat: 40, lon: -120), // not visible
         child: FlutterLogo(),
       ),
     ];
@@ -45,7 +44,7 @@ void main() {
 
     final map = FlutterMap(
       options: const MapOptions(
-        initialCenter: LatLng(45.5231, -122.6765),
+        initialCenter: (lat: 45.5231, lon: -122.6765),
       ),
       children: [
         Builder(

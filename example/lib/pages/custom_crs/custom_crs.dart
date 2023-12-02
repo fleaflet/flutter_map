@@ -129,14 +129,14 @@ class CustomCrsPageState extends State<CustomCrsPage> {
                 options: MapOptions(
                   // Set the default CRS
                   crs: epsg3413CRS,
-                  initialCenter: LatLng(point.x, point.y),
+                  initialCenter: (lat: point.x, lon: point.y),
                   initialZoom: 3,
                   // Set maxZoom usually scales.length - 1 OR resolutions.length - 1
                   // but not greater
                   maxZoom: maxZoom,
                   onTap: (tapPosition, p) => setState(() {
                     initText = 'You clicked at';
-                    point = proj4.Point(x: p.latitude, y: p.longitude);
+                    point = proj4.Point(x: p.lat, y: p.lon);
                   }),
                 ),
                 children: [

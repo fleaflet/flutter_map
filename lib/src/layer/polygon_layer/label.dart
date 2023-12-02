@@ -2,8 +2,8 @@ import 'dart:math' as math;
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/src/geo/latlng.dart';
 import 'package:flutter_map/src/layer/polygon_layer/polygon_layer.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:polylabel/polylabel.dart';
 
 void Function(Canvas canvas)? buildLabelTextPainter({
@@ -68,17 +68,18 @@ LatLng computeLabelPosition(
 }
 
 LatLng _computeCentroid(List<LatLng> points) {
-  return LatLng(
-    points.map((e) => e.latitude).average,
-    points.map((e) => e.longitude).average,
+  return (
+    lat: points.map((e) => e.lat).average,
+    lon: points.map((e) => e.lon).average,
   );
 }
 
 LatLng _computePolylabel(List<LatLng> points) {
   final labelPosition = polylabel(
     [
+      //TODO does this really need to be changed to a math.Point type?
       List<math.Point>.generate(points.length,
-          (i) => math.Point(points[i].longitude, points[i].latitude)),
+          (i) => math.Point(points[i].lon, points[i].lat)),
     ],
     // "precision" is a bit of a misnomer. It's a threshold for when to stop
     // dividing-and-conquering the polygon in the hopes of finding a better
@@ -87,8 +88,8 @@ LatLng _computePolylabel(List<LatLng> points) {
     // i.e. cheaper at the expense off less optimal label placement.
     precision: 0.000001,
   );
-  return LatLng(
-    labelPosition.point.y.toDouble(),
-    labelPosition.point.x.toDouble(),
+  return (
+    lat: labelPosition.point.y.toDouble(),
+    lon: labelPosition.point.x.toDouble(),
   );
 }

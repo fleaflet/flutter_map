@@ -35,7 +35,7 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
       for (var x = 0; x < maxMarkersCount; x++) {
         allMarkers.add(
           Marker(
-            point: LatLng(doubleInRange(r, 37, 55), doubleInRange(r, -9, 30)),
+            point: (lat: doubleInRange(r, 37, 55), lon: doubleInRange(r, -9, 30)),
             height: 12,
             width: 12,
             child: ColoredBox(color: Colors.blue[900]!),
@@ -68,7 +68,7 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
           Flexible(
             child: FlutterMap(
               options: const MapOptions(
-                initialCenter: LatLng(50, 20),
+                initialCenter: (lat: 50, lon: 20),
                 initialZoom: 5,
                 interactionOptions: InteractionOptions(
                   flags: InteractiveFlag.all - InteractiveFlag.rotate,

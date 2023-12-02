@@ -15,7 +15,7 @@ class OverlayImagePage extends StatelessWidget {
       drawer: const MenuDrawer(route),
       body: FlutterMap(
         options: const MapOptions(
-          initialCenter: LatLng(51.5, -0.09),
+          initialCenter: (lat: 51.5, lon: 0.09),
           initialZoom: 6,
         ),
         children: [
@@ -24,17 +24,17 @@ class OverlayImagePage extends StatelessWidget {
             overlayImages: [
               OverlayImage(
                 bounds: LatLngBounds(
-                  const LatLng(51.5, -0.09),
-                  const LatLng(48.8566, 2.3522),
+                  const (lat: 51.5, lon: 0.09),
+                  const (lat: 48.8566, lon: 2.3522),
                 ),
                 opacity: 0.8,
                 imageProvider: const NetworkImage(
                     'https://images.pexels.com/photos/231009/pexels-photo-231009.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=300&w=600'),
               ),
               const RotatedOverlayImage(
-                topLeftCorner: LatLng(53.377, -2.999),
-                bottomLeftCorner: LatLng(52.503, -1.868),
-                bottomRightCorner: LatLng(53.475, 0.275),
+                topLeftCorner: (lat: 53.377, lon: 2.999),
+                bottomLeftCorner: (lat: 52.503, lon: 1.868),
+                bottomRightCorner: (lat: 53.475, lon: 0.275),
                 opacity: 0.8,
                 imageProvider: NetworkImage(
                     'https://images.pexels.com/photos/231009/pexels-photo-231009.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=300&w=600'),
@@ -44,15 +44,15 @@ class OverlayImagePage extends StatelessWidget {
           const MarkerLayer(
             markers: [
               Marker(
-                point: LatLng(53.377, -2.999),
+                point: (lat: 53.377, lon: 2.999),
                 child: _Circle(color: Colors.redAccent, label: 'TL'),
               ),
               Marker(
-                point: LatLng(52.503, -1.868),
+                point: (lat: 52.503, lon: 1.868),
                 child: _Circle(color: Colors.redAccent, label: 'BL'),
               ),
               Marker(
-                point: LatLng(53.475, 0.275),
+                point: (lat: 53.475, lon: 0.275),
                 child: _Circle(color: Colors.redAccent, label: 'BR'),
               ),
             ],

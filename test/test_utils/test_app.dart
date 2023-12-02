@@ -7,7 +7,6 @@ import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
 import 'package:flutter_map/src/map/controller/map_controller.dart';
 import 'package:flutter_map/src/map/options/options.dart';
 import 'package:flutter_map/src/map/widget.dart';
-import 'package:latlong2/latlong.dart';
 
 import 'test_tile_provider.dart';
 
@@ -39,7 +38,7 @@ class TestApp extends StatelessWidget {
             child: FlutterMap(
               mapController: controller,
               options: const MapOptions(
-                initialCenter: LatLng(45.5231, -122.6765),
+                initialCenter: (lat: 45.5231, lon: -122.6765),
               ),
               children: [
                 TileLayer(

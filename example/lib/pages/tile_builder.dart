@@ -110,7 +110,7 @@ class TileBuilderPageState extends State<TileBuilderPage> {
           Expanded(
             child: FlutterMap(
               options: const MapOptions(
-                initialCenter: LatLng(51.5, -0.09),
+                initialCenter: (lat: 51.5, lon: 0.09),
                 initialZoom: 5,
               ),
               children: [
@@ -128,7 +128,7 @@ class TileBuilderPageState extends State<TileBuilderPage> {
                     Marker(
                       width: 80,
                       height: 80,
-                      point: LatLng(51.5, -0.09),
+                      point: (lat: 51.5, lon: 0.09),
                       child: FlutterLogo(
                         key: ObjectKey(Colors.blue),
                       ),

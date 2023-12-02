@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
-import 'package:latlong2/latlong.dart';
+import 'package:flutter_map/src/geo/latlng.dart';
+import 'package:vector_math/vector_math_64.dart';
 
 /// Data structure representing rectangular bounding box constrained by its
 /// northwest and southeast corners
@@ -24,14 +25,14 @@ class LatLngBounds {
     double maxY = -90;
 
     for (final point in points) {
-      minX = math.min<double>(minX, point.longitude);
-      minY = math.min<double>(minY, point.latitude);
-      maxX = math.max<double>(maxX, point.longitude);
-      maxY = math.max<double>(maxY, point.latitude);
+      minX = math.min<double>(minX, point.lon);
+      minY = math.min<double>(minY, point.lat);
+      maxX = math.max<double>(maxX, point.lon);
+      maxY = math.max<double>(maxY, point.lat);
     }
 
-    _sw = LatLng(minY, minX);
-    _ne = LatLng(maxY, maxX);
+    _sw = (lat: minY, lon: minX);
+    _ne = (lat: maxY, lon: maxX);
   }
 
   /// Expands bounding box by [latLng] coordinate point. This method mutates
@@ -48,27 +49,27 @@ class LatLngBounds {
   }
 
   void _extend(LatLng sw2, LatLng ne2) {
-    _sw = LatLng(
-      math.min(sw2.latitude, _sw.latitude),
-      math.min(sw2.longitude, _sw.longitude),
+    _sw = (
+      lat: math.min(sw2.lat, _sw.lat),
+      lon: math.min(sw2.lon, _sw.lon),
     );
-    _ne = LatLng(
-      math.max(ne2.latitude, _ne.latitude),
-      math.max(ne2.longitude, _ne.longitude),
+    _ne = (
+      lat: math.max(ne2.lat, _ne.lat),
+      lon: math.max(ne2.lon, _ne.lon),
     );
   }
 
   /// Obtain west edge of the bounds
-  double get west => southWest.longitude;
+  double get west => southWest.lon;
 
   /// Obtain south edge of the bounds
-  double get south => southWest.latitude;
+  double get south => southWest.lat;
 
   /// Obtain east edge of the bounds
-  double get east => northEast.longitude;
+  double get east => northEast.lon;
 
   /// Obtain north edge of the bounds
-  double get north => northEast.latitude;
+  double get north => northEast.lat;
 
   /// Obtain coordinates of southwest corner of the bounds
   LatLng get southWest => _sw;
@@ -77,10 +78,10 @@ class LatLngBounds {
   LatLng get northEast => _ne;
 
   /// Obtain coordinates of northwest corner of the bounds
-  LatLng get northWest => LatLng(north, west);
+  LatLng get northWest => (lat: north, lon: west);
 
   /// Obtain coordinates of southeast corner of the bounds
-  LatLng get southEast => LatLng(south, east);
+  LatLng get southEast => (lat: south, lon: east);
 
   /// Obtain coordinates of the bounds center
   LatLng get center {
@@ -94,12 +95,12 @@ class LatLngBounds {
        lambda: lng
     */
 
-    final phi1 = southWest.latitudeInRad;
-    final lambda1 = southWest.longitudeInRad;
-    final phi2 = northEast.latitudeInRad;
+    final phi1 = southWest.lat * degrees2Radians;
+    final lambda1 = southWest.lon  * degrees2Radians;
+    final phi2 = northEast.lat * degrees2Radians;
 
-    final dLambda = degToRadian(northEast.longitude -
-        southWest.longitude); // delta lambda = lambda2-lambda1
+    final dLambda = degrees2Radians * (
+        northEast.lon - southWest.lon); // delta lambda = lambda2-lambda1
 
     final bx = math.cos(phi2) * math.cos(dLambda);
     final by = math.cos(phi2) * math.sin(dLambda);
@@ -108,7 +109,7 @@ class LatLngBounds {
     final lambda3 = lambda1 + math.atan2(by, math.cos(phi1) + bx);
 
     // phi3 and lambda3 are actually in radians and LatLng wants degrees
-    return LatLng(radianToDeg(phi3), radianToDeg(lambda3));
+    return (lat: radians2Degrees * phi3, lon: radians2Degrees * lambda3);
   }
 
   /// Checks whether [point] is inside bounds
@@ -122,10 +123,10 @@ class LatLngBounds {
   bool containsBounds(LatLngBounds bounds) {
     final sw2 = bounds._sw;
     final ne2 = bounds._ne;
-    return (sw2.latitude >= _sw.latitude) &&
-        (ne2.latitude <= _ne.latitude) &&
-        (sw2.longitude >= _sw.longitude) &&
-        (ne2.longitude <= _ne.longitude);
+    return (sw2.lat >= _sw.lat) &&
+        (ne2.lat <= _ne.lat) &&
+        (sw2.lon >= _sw.lon) &&
+        (ne2.lon <= _ne.lon);
   }
 
   /// Checks whether at least one edge of [bounds] is overlapping with some
@@ -134,10 +135,10 @@ class LatLngBounds {
     /* check if bounding box rectangle is outside the other, if it is then it's
        considered not overlapping
     */
-    if (_sw.latitude > bounds._ne.latitude ||
-        _ne.latitude < bounds._sw.latitude ||
-        _ne.longitude < bounds._sw.longitude ||
-        _sw.longitude > bounds._ne.longitude) {
+    if (_sw.lat > bounds._ne.lat ||
+        _ne.lat < bounds._sw.lat ||
+        _ne.lon < bounds._sw.lon ||
+        _sw.lon > bounds._ne.lon) {
       return false;
     }
     return true;

@@ -27,7 +27,7 @@ class SecondaryTapPage extends StatelessWidget {
                     SnackBar(content: Text('Secondary tap at $latLng')),
                   );
                 },
-                initialCenter: const LatLng(51.5, -0.09),
+                initialCenter: const (lat: 51.5, lon: 0.09),
                 initialZoom: 5,
               ),
               children: [openStreetMapTileLayer],

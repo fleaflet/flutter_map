@@ -2,13 +2,13 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/widgets.dart';
+import 'package:flutter_map/src/geo/latlng.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:flutter_map/src/map/camera/camera_fit.dart';
 import 'package:flutter_map/src/map/controller/internal.dart';
 import 'package:flutter_map/src/map/controller/map_controller.dart';
 import 'package:flutter_map/src/misc/move_and_rotate_result.dart';
-import 'package:latlong2/latlong.dart';
 
 /// Implements [MapController] whilst exposing methods for internal use which
 /// should not be visible to the user (e.g. for setting the current camera or

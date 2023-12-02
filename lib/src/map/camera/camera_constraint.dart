@@ -5,7 +5,6 @@ import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:flutter_map/src/map/camera/camera_fit.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 
 /// Describes a boundary for a [MapCamera], that cannot be exceeded by movement
@@ -73,12 +72,12 @@ class ContainCameraCenter extends CameraConstraint {
 
   @override
   MapCamera constrain(MapCamera camera) => camera.withPosition(
-        center: LatLng(
-          camera.center.latitude.clamp(
+        center: (
+          lat: camera.center.lat.clamp(
             bounds.south,
             bounds.north,
           ),
-          camera.center.longitude.clamp(
+          lon: camera.center.lon.clamp(
             bounds.west,
             bounds.east,
           ),

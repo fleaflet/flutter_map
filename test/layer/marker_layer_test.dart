@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/src/layer/marker_layer.dart';
 import 'package:flutter_map/src/map/widget.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:latlong2/latlong.dart';
 
 import '../test_utils/test_app.dart';
 
@@ -15,7 +14,7 @@ void main() {
         key: key,
         width: 80,
         height: 80,
-        point: LatLng(45.5231, -122.6765),
+        point: (lat: 45.5231, lon: 122.6765),
         child: FlutterLogo(),
       ),
     ];

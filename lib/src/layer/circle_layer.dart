@@ -1,9 +1,10 @@
 import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
+import 'package:flutter_map/src/geo/latlng.dart';
 import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
-import 'package:latlong2/latlong.dart' hide Path;
+import 'package:latlong2/latlong.dart' as latlong2;
 
 /// Immutable marker options for circle markers
 @immutable
@@ -55,7 +56,7 @@ class CirclePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    const distance = Distance();
+    const distance = latlong2.Distance();
     final rect = Offset.zero & size;
     canvas.clipRect(rect);
 
@@ -67,8 +68,12 @@ class CirclePainter extends CustomPainter {
       final offset = map.getOffsetFromOrigin(circle.point);
       double radius = circle.radius;
       if (circle.useRadiusInMeter) {
-        final r = distance.offset(circle.point, circle.radius, 180);
-        final delta = offset - map.getOffsetFromOrigin(r);
+        final r = distance.offset(
+            latlong2.LatLng(circle.point.lat, circle.point.lon),
+            circle.radius,
+            180);
+        final delta = offset -
+            map.getOffsetFromOrigin((lat: r.latitude, lon: r.longitude));
         radius = delta.distance;
       }
       points[circle.color] ??= {};
@@ -81,8 +86,13 @@ class CirclePainter extends CustomPainter {
         if (circle.color.alpha == 0xFF) {
           double radiusBorder = circle.radius + circle.borderStrokeWidth;
           if (circle.useRadiusInMeter) {
-            final rBorder = distance.offset(circle.point, radiusBorder, 180);
-            final deltaBorder = offset - map.getOffsetFromOrigin(rBorder);
+            final rBorder = distance.offset(
+                latlong2.LatLng(circle.point.lat, circle.point.lon),
+                radiusBorder,
+                180);
+            final deltaBorder = offset -
+                map.getOffsetFromOrigin(
+                    (lat: rBorder.latitude, lon: rBorder.longitude));
             radiusBorder = deltaBorder.distance;
           }
           pointsFilledBorder[circle.borderColor] ??= {};
@@ -91,8 +101,13 @@ class CirclePainter extends CustomPainter {
         } else {
           double realRadius = circle.radius;
           if (circle.useRadiusInMeter) {
-            final rBorder = distance.offset(circle.point, realRadius, 180);
-            final deltaBorder = offset - map.getOffsetFromOrigin(rBorder);
+            final rBorder = distance.offset(
+                latlong2.LatLng(circle.point.lat, circle.point.lon),
+                realRadius,
+                180);
+            final deltaBorder = offset -
+                map.getOffsetFromOrigin(
+                    (lat: rBorder.latitude, lon: rBorder.longitude));
             realRadius = deltaBorder.distance;
           }
           pointsBorder[circle.borderColor] ??= {};

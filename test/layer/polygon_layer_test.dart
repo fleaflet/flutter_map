@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/src/geo/latlng.dart';
 import 'package:flutter_map/src/layer/polygon_layer/polygon_layer.dart';
 import 'package:flutter_map/src/map/widget.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:latlong2/latlong.dart';
 
 import '../test_utils/test_app.dart';
 
@@ -17,9 +17,9 @@ void main() {
           borderStrokeWidth: 4,
           label: '$i',
           points: const [
-            LatLng(55.5, -0.09),
-            LatLng(54.3498, -6.2603),
-            LatLng(52.8566, 2.3522),
+            (lat: 55.5, lon: 0.09),
+            (lat: 54.3498, lon: 6.2603),
+            (lat: 52.8566, lon: 2.3522),
           ],
         ),
     ];
@@ -37,11 +37,11 @@ void main() {
   });
 
   test('polygon normal/rotation', () {
-    const clockwise = [
-      LatLng(30, 20),
-      LatLng(30, 30),
-      LatLng(20, 30),
-      LatLng(20, 20),
+    const clockwise = <LatLng>[
+      (lat: 30, lon: 20),
+      (lat: 30, lon: 30),
+      (lat: 20, lon: 30),
+      (lat: 20, lon: 20),
     ];
     expect(isClockwise(clockwise), isTrue);
     expect(isClockwise(clockwise.reversed.toList()), isFalse);

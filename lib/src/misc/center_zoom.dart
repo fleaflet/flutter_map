@@ -1,4 +1,4 @@
-import 'package:latlong2/latlong.dart';
+import 'package:flutter_map/src/geo/latlng.dart';
 import 'package:meta/meta.dart';
 
 /// Geographical point with applied zoom level

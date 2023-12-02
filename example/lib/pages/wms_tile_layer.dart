@@ -15,7 +15,7 @@ class WMSLayerPage extends StatelessWidget {
       drawer: const MenuDrawer(route),
       body: FlutterMap(
         options: const MapOptions(
-          initialCenter: LatLng(42.58, 12.43),
+          initialCenter: (lat: 42.58, lon: 12.43),
           initialZoom: 6,
         ),
         children: [

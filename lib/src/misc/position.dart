@@ -1,5 +1,5 @@
+import 'package:flutter_map/src/geo/latlng.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 
 @immutable

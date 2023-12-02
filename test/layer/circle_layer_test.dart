@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/src/layer/circle_layer.dart';
 import 'package:flutter_map/src/map/widget.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:latlong2/latlong.dart';
 
 import '../test_utils/test_app.dart';
 
@@ -13,7 +12,7 @@ void main() {
     final circles = <CircleMarker>[
       CircleMarker(
         key: key,
-        point: const LatLng(51.5, -0.09),
+        point: const (lat: 51.5, lon: 0.09),
         color: Colors.blue.withOpacity(0.7),
         borderStrokeWidth: 2,
         useRadiusInMeter: true,

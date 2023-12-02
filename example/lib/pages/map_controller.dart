@@ -16,9 +16,9 @@ class MapControllerPageState extends State<MapControllerPage> {
   late final MapController _mapController;
   double _rotation = 0;
 
-  static const _london = LatLng(51.5, -0.09);
-  static const _paris = LatLng(48.8566, 2.3522);
-  static const _dublin = LatLng(53.3498, -6.2603);
+  static const _london = (lat: 51.5, lon: 0.09);
+  static const _paris = (lat: 48.8566, lon: 2.3522);
+  static const _dublin = (lat: 53.3498, lon: 6.2603);
 
   static const _markers = [
     Marker(
@@ -135,7 +135,7 @@ class MapControllerPageState extends State<MapControllerPage> {
               child: FlutterMap(
                 mapController: _mapController,
                 options: const MapOptions(
-                  initialCenter: LatLng(51.5, -0.09),
+                  initialCenter: (lat: 51.5, lon: 0.09),
                   initialZoom: 5,
                   maxZoom: 5,
                   minZoom: 3,

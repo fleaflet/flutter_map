@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/geo/crs.dart';
+import 'package:flutter_map/src/geo/latlng.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/gestures/positioned_tap_detector_2.dart';
 import 'package:flutter_map/src/layer/general/translucent_pointer.dart';
@@ -11,7 +12,6 @@ import 'package:flutter_map/src/map/inherited_model.dart';
 import 'package:flutter_map/src/map/options/interaction.dart';
 import 'package:flutter_map/src/map/widget.dart';
 import 'package:flutter_map/src/misc/position.dart';
-import 'package:latlong2/latlong.dart';
 
 typedef MapEventCallback = void Function(MapEvent);
 
@@ -108,7 +108,7 @@ class MapOptions {
 
   const MapOptions({
     this.crs = const Epsg3857(),
-    this.initialCenter = const LatLng(50.5, 30.51),
+    this.initialCenter = (lat: 50.5, lon: 30.51),
     this.initialZoom = 13.0,
     this.initialRotation = 0.0,
     this.initialCameraFit,

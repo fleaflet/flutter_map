@@ -2,11 +2,12 @@ import 'dart:core';
 import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
+import 'package:flutter_map/src/geo/latlng.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:latlong2/latlong.dart' as latlong2;
 
 class Polyline {
   final List<LatLng> points;
@@ -171,12 +172,13 @@ class PolylinePainter extends CustomPainter {
       if (polyline.useStrokeWidthInMeter) {
         final firstPoint = polyline.points.first;
         final firstOffset = offsets.first;
-        final r = const Distance().offset(
-          firstPoint,
+        final r = const latlong2.Distance().offset(
+          latlong2.LatLng(firstPoint.lat, firstPoint.lon),
           polyline.strokeWidth,
           180,
         );
-        final delta = firstOffset - getOffset(origin, r);
+        final delta = firstOffset -
+            getOffset(origin, (lat: r.latitude, lon: r.longitude));
 
         strokeWidth = delta.distance;
       } else {

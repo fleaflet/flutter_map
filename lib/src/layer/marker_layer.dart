@@ -1,10 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/widgets.dart';
+import 'package:flutter_map/src/geo/latlng.dart';
 import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:flutter_map/src/misc/bounds.dart';
-import 'package:latlong2/latlong.dart';
 
 /// A container for a [child] widget located at a geographic coordinate [point]
 ///

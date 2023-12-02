@@ -20,7 +20,7 @@ class _PolylinePageState extends State<PolylinePage> {
       drawer: const MenuDrawer(PolylinePage.route),
       body: FlutterMap(
         options: const MapOptions(
-          initialCenter: LatLng(51.5, -0.09),
+          initialCenter: (lat: 51.5, lon: 0.09),
           initialZoom: 5,
         ),
         children: [
@@ -29,18 +29,18 @@ class _PolylinePageState extends State<PolylinePage> {
             polylines: [
               Polyline(
                 points: [
-                  const LatLng(51.5, -0.09),
-                  const LatLng(53.3498, -6.2603),
-                  const LatLng(48.8566, 2.3522),
+                  const (lat: 51.5, lon: 0.09),
+                  const (lat: 53.3498, lon: 6.2603),
+                  const (lat: 48.8566, lon: 2.3522),
                 ],
                 strokeWidth: 4,
                 color: Colors.purple,
               ),
               Polyline(
                 points: [
-                  const LatLng(55.5, -0.09),
-                  const LatLng(54.3498, -6.2603),
-                  const LatLng(52.8566, 2.3522),
+                  const (lat: 55.5, lon: 0.09),
+                  const (lat: 54.3498, lon: 6.2603),
+                  const (lat: 52.8566, lon: 2.3522),
                 ],
                 strokeWidth: 4,
                 gradientColors: [
@@ -51,9 +51,9 @@ class _PolylinePageState extends State<PolylinePage> {
               ),
               Polyline(
                 points: [
-                  const LatLng(50.5, -0.09),
-                  const LatLng(51.3498, 6.2603),
-                  const LatLng(53.8566, 2.3522),
+                  const (lat: 50.5, lon: 0.09),
+                  const (lat: 51.3498, lon: 6.2603),
+                  const (lat: 53.8566, lon: 2.3522),
                 ],
                 strokeWidth: 20,
                 color: Colors.blue.withOpacity(0.6),
@@ -62,9 +62,9 @@ class _PolylinePageState extends State<PolylinePage> {
               ),
               Polyline(
                 points: [
-                  const LatLng(50.2, -0.08),
-                  const LatLng(51.2498, -10.2603),
-                  const LatLng(54.8566, -9.3522),
+                  const (lat: 50.2, lon: 0.08),
+                  const (lat: 51.2498, lon: 10.2603),
+                  const (lat: 54.8566, lon: 9.3522),
                 ],
                 strokeWidth: 20,
                 color: Colors.black.withOpacity(0.2),
@@ -73,9 +73,9 @@ class _PolylinePageState extends State<PolylinePage> {
               ),
               Polyline(
                 points: [
-                  const LatLng(49.1, -0.06),
-                  const LatLng(52.15, -1.4),
-                  const LatLng(55.5, 0.8),
+                  const (lat: 49.1, lon: 0.06),
+                  const (lat: 52.15, lon: 1.4),
+                  const (lat: 55.5, lon: 0.8),
                 ],
                 strokeWidth: 10,
                 color: Colors.yellow,
@@ -84,9 +84,9 @@ class _PolylinePageState extends State<PolylinePage> {
               ),
               Polyline(
                 points: [
-                  const LatLng(48.1, -0.03),
-                  const LatLng(50.5, -7.8),
-                  const LatLng(56.5, 0.4),
+                  const (lat: 48.1, lon: 0.03),
+                  const (lat: 50.5, lon: 7.8),
+                  const (lat: 56.5, lon: 0.4),
                 ],
                 strokeWidth: 10,
                 color: Colors.amber,

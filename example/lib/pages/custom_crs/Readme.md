@@ -107,7 +107,7 @@ Proj4Crs has multiple uses:
       options: MapOptions(
         // Set the default CRS
         crs: epsg3413CRS,
-        center: LatLng(65.05166470332148, -19.171744826394896),
+        center: (lat: 65.05166470332148, lon: 19.171744826394896),
         zoom: 3.0,
         maxZoom: maxZoom,
       ),

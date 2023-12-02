@@ -39,8 +39,10 @@ class StatefulMarkersPageState extends State<StatefulMarkersPage> {
       Marker(
         width: 40,
         height: 40,
-        point: LatLng(
-            _random.nextDouble() * 10 + 48, _random.nextDouble() * 10 - 6),
+        point: (
+          lat: _random.nextDouble() * 10 + 48,
+          lon: _random.nextDouble() * 10 - 6
+        ),
         child: _ColorMarker(),
         key: ValueKey(key),
       ),
@@ -54,7 +56,7 @@ class StatefulMarkersPageState extends State<StatefulMarkersPage> {
       drawer: const MenuDrawer(StatefulMarkersPage.route),
       body: FlutterMap(
         options: const MapOptions(
-          initialCenter: LatLng(51.5, -0.09),
+          initialCenter: (lat: 51.5, lon: 0.09),
           initialZoom: 5,
         ),
         children: [

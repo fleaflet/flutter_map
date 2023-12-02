@@ -39,7 +39,7 @@ class PointToLatlngPage extends State<ScreenPointToLatLngPage> {
             mapController: mapController,
             options: MapOptions(
               onPositionChanged: (_, __) => updatePoint(context),
-              initialCenter: const LatLng(51.5, -0.09),
+              initialCenter: const (lat: 51.5, lon: 0.09),
               initialZoom: 5,
               minZoom: 3,
             ),
@@ -79,7 +79,7 @@ class PointToLatlngPage extends State<ScreenPointToLatLngPage> {
             right: 0,
             child: IgnorePointer(
               child: Text(
-                '(${latLng?.latitude.toStringAsFixed(3)},${latLng?.longitude.toStringAsFixed(3)})',
+                '(${latLng?.lat.toStringAsFixed(3)},${latLng?.lon.toStringAsFixed(3)})',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: Colors.black,

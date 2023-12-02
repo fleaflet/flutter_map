@@ -1,8 +1,8 @@
 import 'dart:math' as math hide Point;
 import 'dart:math' show Point;
 
+import 'package:flutter_map/src/geo/latlng.dart';
 import 'package:flutter_map/src/misc/bounds.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 import 'package:proj4dart/proj4dart.dart' as proj4;
 
@@ -116,7 +116,7 @@ class Epsg3857 extends Earth {
         transformation = const Transformation(_scale, 0.5, -_scale, 0.5),
         super();
 
-// Epsg3857 seems to have latitude limits. https://epsg.io/3857
+// Epsg3857 seems to have lat limits. https://epsg.io/3857
 //@override
 //(double, double) get wrapLat => const (-85.06, 85.06);
 }
@@ -355,13 +355,15 @@ class _LonLat extends Projection {
 
   @override
   Point<double> project(LatLng latlng) {
-    return Point(latlng.longitude, latlng.latitude);
+    return Point(latlng.lon, latlng.lat);
   }
 
   @override
   LatLng unproject(Point point) {
-    return LatLng(
-        inclusiveLat(point.y.toDouble()), inclusiveLng(point.x.toDouble()));
+    return (
+      lat: inclusiveLat(point.y.toDouble()),
+      lon: inclusiveLng(point.x.toDouble())
+    );
   }
 }
 
@@ -383,11 +385,11 @@ class SphericalMercator extends Projection {
   @override
   Point<double> project(LatLng latlng) {
     const d = math.pi / 180;
-    final lat = latlng.latitude.clamp(-maxLatitude, maxLatitude);
+    final lat = latlng.lat.clamp(-maxLatitude, maxLatitude);
     final sin = math.sin(lat * d);
 
     return Point(
-      r * d * latlng.longitude,
+      r * d * latlng.lon,
       r / 2 * math.log((1 + sin) / (1 - sin)),
     );
   }
@@ -395,10 +397,11 @@ class SphericalMercator extends Projection {
   @override
   LatLng unproject(Point point) {
     const d = 180 / math.pi;
-    return LatLng(
-        inclusiveLat(
-            (2 * math.atan(math.exp(point.y / r)) - (math.pi / 2)) * d),
-        inclusiveLng(point.x * d / r));
+    return (
+      lat: inclusiveLat(
+          (2 * math.atan(math.exp(point.y / r)) - (math.pi / 2)) * d),
+      lon: inclusiveLng(point.x * d / r)
+    );
   }
 }
 
@@ -419,7 +422,7 @@ class _Proj4Projection extends Projection {
   @override
   Point<double> project(LatLng latlng) {
     final point = epsg4326.transform(
-        proj4Projection, proj4.Point(x: latlng.longitude, y: latlng.latitude));
+        proj4Projection, proj4.Point(x: latlng.lon, y: latlng.lat));
 
     return Point(point.x, point.y);
   }
@@ -429,7 +432,7 @@ class _Proj4Projection extends Projection {
     final point2 = proj4Projection.transform(
         epsg4326, proj4.Point(x: point.x.toDouble(), y: point.y.toDouble()));
 
-    return LatLng(inclusiveLat(point2.y), inclusiveLng(point2.x));
+    return (lat: inclusiveLat(point2.y), lon: inclusiveLng(point2.x));
   }
 }
 
