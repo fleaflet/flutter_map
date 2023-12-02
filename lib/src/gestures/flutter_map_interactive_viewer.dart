@@ -16,6 +16,7 @@ import 'package:flutter_map/src/map/options/interaction.dart';
 import 'package:flutter_map/src/map/options/options.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:vector_math/vector_math_64.dart';
 
 typedef InteractiveViewerBuilder = Widget Function(
   BuildContext context,
@@ -662,7 +663,7 @@ class FlutterMapInteractiveViewerState
       final rotationCenter =
           _camera.project(_camera.offsetToCrs(_lastFocalLocal));
       final vector = oldCenterPt - rotationCenter;
-      final rotatedVector = vector.rotate(degToRadian(rotationDiff));
+      final rotatedVector = vector.rotate(degrees2Radians * rotationDiff);
       final newCenter = rotationCenter + rotatedVector;
 
       widget.controller.moveAndRotate(
