@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/misc/tile_providers.dart';
-import 'package:flutter_map_example/pages/scale_layer_plugin_option.dart';
+import 'package:flutter_map_example/plugins/scale_layer_plugin_option.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -23,13 +23,11 @@ class PluginScaleBar extends StatelessWidget {
           ),
           children: [
             openStreetMapTileLayer,
-            ScaleLayerWidget(
-              options: ScaleLayerPluginOption(
-                lineColor: Colors.black,
-                lineWidth: 3,
-                textStyle: const TextStyle(color: Colors.black, fontSize: 14),
-                padding: const EdgeInsets.all(10),
-              ),
+            const FlutterMapScaleLayer(
+              lineColor: Colors.black,
+              lineWidth: 3,
+              textStyle: TextStyle(color: Colors.black, fontSize: 14),
+              padding: EdgeInsets.all(10),
             ),
           ],
         ),
