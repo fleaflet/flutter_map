@@ -2,9 +2,7 @@
 
 ## Credits
 
-Thanks to everyone who has contributed to flutter\_map in any way, you've helped make the most popular non-commercially aimed mapping solution for Flutter! As well as those that have contributed directly to the code, this includes everyone on the Discord server, everyone who's following the progress, and everyone that's participating in discussions and issues.
-
-If you want to contribute to the codebase, please visit the [#contributing](credits.md#contributing "mention") instructions. We'd love to have your input!
+Huge thanks to everyone who uses, supports, and/or contributes to flutter\_map in any way, you've helped make the most popular non-commercially aimed mapping solution for Flutter!
 
 In particular, thanks go to:
 
@@ -13,26 +11,18 @@ In particular, thanks go to:
   * @JaffaKetchup
   * @mootw (previously @MooNag)
   * @TesteurManiak
+  * @josxha
 * All the previous maintainers:
   * John P Ryan - the original founder of this project, over at AppTree Software
   * @kengu
   * @maRci002
 * The authors of this documentation:
   * @JaffaKetchup
-* Notable contributors:
-  * @rorystepenson
-  * @ignatz
-  * @josxha
-* Anyone who has made plugins for flutter\_map, see the [list.md](plugins/list.md "mention")
-* Anyone who has donated to flutter\_map, see [#past-supporters](supporters.md#past-supporters "mention")
+* Anyone who has contributed to making flutter\_map: [Contributor List](https://github.com/fleaflet/flutter\_map/graphs/contributors)
+* Anyone who has made plugins for flutter\_map: [list.md](plugins/list.md "mention")
+* Anyone who has donated to flutter\_map: [#past-supporters](supporters.md#past-supporters "mention")
 
 ## Contributing
-
-'flutter\_map' is only as great as it is because of generous open-source contributors!
-
-{% embed url="https://github.com/fleaflet/flutter_map/graphs/contributors" %}
-(Most) flutter\_map Contributors
-{% endembed %}
 
 We're always happy to receive improvements and fixes, so please submit them whenever you can! A few key points are listed below.
 
@@ -42,11 +32,14 @@ Many feature additions are more suitable for plugins, instead of being added to 
 If we deny your PR for this reason, please do consider publishing a plugin, and we'll be happy to add it to the [list.md](plugins/list.md "mention")! See [making-a-plugin](plugins/making-a-plugin/ "mention") for more information.
 {% endhint %}
 
-* If your PR will add a major or breaking change, please discuss it with us first, via the Issue Tracker
-* Always [link](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue) your PR to at least one issue, and as many as are resolved
-* Create a draft PR as soon as work starts, and take it out of draft status when ready for review
-* Avoid changing the package version or GitHub workflows
-* Fix issues reported by the GitHub workflows (such as formatting) yourself
+* **If your PR will add a major or breaking change, please discuss it with us first, via the Issue Tracker**\
+  We don't want to waste your time if we think it's more appropriate for a plugin, and it helps to make a clear plan before starting work
+* **Create a draft PR as soon as work starts, and take it out of draft status when ready for review**\
+  Keep everyone in the loop, so no-one tries working on the same thing as you
+* **Don't change the package version, GitHub workflows, lints, or any other meta files without clarification**\
+  We rely on a standardized process and procedure to ensure top-quality releases
+* **Use a clear (preferably** [**Conventional**](https://www.conventionalcommits.org/)**) PR title**\
+  This makes it easier for us to group commits for release and write correct CHANGELOGs
 
 ### Apply To Be A Maintainer
 
