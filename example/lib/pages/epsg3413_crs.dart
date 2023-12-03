@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:proj4dart/proj4dart.dart' as proj4;
 import 'package:url_launcher/url_launcher.dart';
@@ -10,14 +10,17 @@ import 'package:url_launcher/url_launcher.dart';
 class EPSG3413Page extends StatefulWidget {
   static const String route = '/crs_epsg3413';
 
-  const EPSG3413Page({Key? key}) : super(key: key);
+  const EPSG3413Page({super.key});
 
   @override
-  _EPSG3413PageState createState() => _EPSG3413PageState();
+  EPSG3413PageState createState() => EPSG3413PageState();
 }
 
-class _EPSG3413PageState extends State<EPSG3413Page> {
+class EPSG3413PageState extends State<EPSG3413Page> {
   late final Proj4Crs epsg3413CRS;
+
+  final distancePoleToLat80 =
+      const Distance().distance(const LatLng(90, 0), const LatLng(80, 0));
 
   double? maxZoom;
 
@@ -43,14 +46,17 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
       const Point<double>(4510883, 4510996),
     );
 
-    maxZoom = (resolutions.length - 1).toDouble();
+    maxZoom = resolutions.length - 1;
 
     // EPSG:3413 is a user-defined projection from a valid Proj4 definition string
     // From: http://epsg.io/3413, proj definition: http://epsg.io/3413.proj4
     // Find Projection by name or define it if not exists
     final proj4.Projection epsg3413 = proj4.Projection.get('EPSG:3413') ??
-        proj4.Projection.add('EPSG:3413',
-            '+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs');
+        proj4.Projection.add(
+          'EPSG:3413',
+          '+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45 +k=1 +x_0=0 +y_0=0 '
+              '+datum=WGS84 +units=m +no_defs',
+        );
 
     epsg3413CRS = Proj4Crs.fromFactory(
       code: 'EPSG:3413',
@@ -84,8 +90,6 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
     }
 
     // Add latitude line at 80 degrees
-    final distancePoleToLat80 =
-        const Distance().distance(const LatLng(90, 0), const LatLng(80, 0));
     circles.add(CircleMarker(
       point: const LatLng(90, 0),
       radius: distancePoleToLat80,
@@ -97,7 +101,7 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('EPSG:3413 CRS')),
-      drawer: buildDrawer(context, EPSG3413Page.route),
+      drawer: const MenuDrawer(EPSG3413Page.route),
       body: Padding(
         padding: const EdgeInsets.all(8),
         child: Column(
@@ -165,7 +169,9 @@ class _EPSG3413PageState extends State<EPSG3413Page> {
                     popupInitialDisplayDuration: const Duration(seconds: 5),
                     attributions: [
                       TextSourceAttribution(
-                        'Imagery reproduced from the GEBCO_2022 Grid, GEBCO Compilation Group (2022) GEBCO 2022 Grid (doi:10.5285/e0f0bb80-ab44-2739-e053-6c86abc0289c)',
+                        'Imagery reproduced from the GEBCO_2022 Grid, GEBCO '
+                        'Compilation Group (2022) GEBCO 2022 Grid '
+                        '(doi:10.5285/e0f0bb80-ab44-2739-e053-6c86abc0289c)',
                         onTap: () => launchUrl(
                           Uri.parse(
                             'https://www.gebco.net/data_and_products/gebco_web_services/web_map_service/#polar',

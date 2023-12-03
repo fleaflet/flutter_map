@@ -9,6 +9,7 @@ import 'package:flutter_map/src/map/options/options.dart';
 import 'package:flutter_map/src/misc/bounds.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:vector_math/vector_math_64.dart';
 
 /// Describes the view of a map. This includes the size/zoom/position/crs as
 /// well as the minimum/maximum zoom. This class is mostly immutable but has
@@ -60,16 +61,6 @@ class MapCamera {
   /// Lazily calculated field
   Point<int>? _pixelOrigin;
 
-  /// Lazily calculated field
-  double? _rotationRad;
-
-  @Deprecated(
-    'Prefer `visibleBounds`. '
-    'This getter has been changed to clarify its meaning. '
-    'This getter is deprecated since v6.',
-  )
-  LatLngBounds get bounds => visibleBounds;
-
   /// This is the [LatLngBounds] corresponding to four corners of this camera.
   /// This takes rotation in to account.
   LatLngBounds get visibleBounds => _bounds ??= LatLngBounds(
@@ -119,12 +110,10 @@ class MapCamera {
     Bounds<double>? pixelBounds,
     LatLngBounds? bounds,
     Point<int>? pixelOrigin,
-    double? rotationRad,
   })  : _cameraSize = size,
         _pixelBounds = pixelBounds,
         _bounds = bounds,
-        _pixelOrigin = pixelOrigin,
-        _rotationRad = rotationRad;
+        _pixelOrigin = pixelOrigin;
 
   /// Initializes [MapCamera] from the given [options] and with the
   /// [nonRotatedSize] set to [kImpossibleSize].
@@ -149,7 +138,6 @@ class MapCamera {
       nonRotatedSize: nonRotatedSize,
       minZoom: minZoom,
       maxZoom: maxZoom,
-      rotationRad: _rotationRad,
     );
   }
 
@@ -185,7 +173,6 @@ class MapCamera {
       rotation: rotation,
       nonRotatedSize: nonRotatedSize,
       size: _cameraSize,
-      rotationRad: _rotationRad,
     );
   }
 
@@ -203,7 +190,6 @@ class MapCamera {
         rotation: rotation,
         nonRotatedSize: nonRotatedSize,
         size: _cameraSize,
-        rotationRad: _rotationRad,
       );
 
   /// Calculates the size of a bounding box which surrounds a box of size
@@ -214,7 +200,7 @@ class MapCamera {
   ) {
     if (rotation == 0.0) return nonRotatedSize;
 
-    final rotationRad = degToRadian(rotation);
+    final rotationRad = degrees2Radians * rotation;
     final cosAngle = math.cos(rotationRad).abs();
     final sinAngle = math.sin(rotationRad).abs();
     final width = (nonRotatedSize.x * cosAngle) + (nonRotatedSize.y * sinAngle);
@@ -224,9 +210,8 @@ class MapCamera {
     return Point<double>(width, height);
   }
 
-  /// The current rotation value in radians. This is calculated and cached when
-  /// it is first called.
-  double get rotationRad => _rotationRad ??= degToRadian(rotation);
+  /// The current rotation value in radians
+  double get rotationRad => rotation * degrees2Radians;
 
   /// Calculates point value for the given [latLng] using this camera's
   /// [crs] and [zoom] (or the provided [zoom]).

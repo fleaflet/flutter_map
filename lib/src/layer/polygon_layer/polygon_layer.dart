@@ -53,6 +53,18 @@ class Polygon {
   LatLngBounds get boundingBox =>
       _boundingBox ??= LatLngBounds.fromPoints(points);
 
+  TextPainter? _textPainter;
+  TextPainter? get textPainter {
+    if (label != null) {
+      return _textPainter ??= TextPainter(
+        text: TextSpan(text: label, style: labelStyle),
+        textAlign: TextAlign.center,
+        textDirection: TextDirection.ltr,
+      )..layout();
+    }
+    return null;
+  }
+
   Polygon({
     required this.points,
     this.holePointsList,
@@ -98,11 +110,15 @@ class PolygonLayer extends StatelessWidget {
   // Turn on/off per-polygon label drawing on the layer-level.
   final bool polygonLabels;
 
+  // Whether to draw labels last and thus over all the polygons.
+  final bool drawLabelsLast;
+
   const PolygonLayer({
     super.key,
     required this.polygons,
     this.polygonCulling = false,
     this.polygonLabels = true,
+    this.drawLabelsLast = false,
   });
 
   @override
@@ -118,7 +134,7 @@ class PolygonLayer extends StatelessWidget {
 
     return MobileLayerTransformer(
       child: CustomPaint(
-        painter: PolygonPainter(pgons, map, polygonLabels),
+        painter: PolygonPainter(pgons, map, polygonLabels, drawLabelsLast),
         size: size,
         isComplex: true,
       ),
@@ -131,8 +147,10 @@ class PolygonPainter extends CustomPainter {
   final MapCamera map;
   final LatLngBounds bounds;
   final bool polygonLabels;
+  final bool drawLabelsLast;
 
-  PolygonPainter(this.polygons, this.map, this.polygonLabels)
+  PolygonPainter(
+      this.polygons, this.map, this.polygonLabels, this.drawLabelsLast)
       : bounds = map.visibleBounds;
 
   int get hash {
@@ -141,6 +159,14 @@ class PolygonPainter extends CustomPainter {
   }
 
   int? _hash;
+
+  ({Offset min, Offset max}) getBounds(Polygon polygon) {
+    final bbox = polygon.boundingBox;
+    return (
+      min: map.getOffsetFromOrigin(bbox.southWest),
+      max: map.getOffsetFromOrigin(bbox.northEast),
+    );
+  }
 
   List<Offset> getOffsets(List<LatLng> points) {
     return List.generate(
@@ -189,10 +215,10 @@ class PolygonPainter extends CustomPainter {
 
     // Main loop constructing batched fill and border paths from given polygons.
     for (final polygon in polygons) {
-      final offsets = getOffsets(polygon.points);
-      if (offsets.isEmpty) {
+      if (polygon.points.isEmpty) {
         continue;
       }
+      final offsets = getOffsets(polygon.points);
 
       // The hash is based on the polygons visual properties. If the hash from
       // the current and the previous polygon no longer match, we need to flush
@@ -235,7 +261,7 @@ class PolygonPainter extends CustomPainter {
         }
       }
 
-      if (polygonLabels && polygon.label != null) {
+      if (!drawLabelsLast && polygonLabels && polygon.textPainter != null) {
         // Labels are expensive because:
         //  * they themselves cannot easily be pulled into our batched path
         //    painting with the given text APIs
@@ -246,15 +272,13 @@ class PolygonPainter extends CustomPainter {
         // The painter will be null if the layouting algorithm determined that
         // there isn't enough space.
         final painter = buildLabelTextPainter(
-          polygon.points,
-          polygon.labelPosition,
+          mapSize: map.size,
           placementPoint: map.getOffsetFromOrigin(polygon.labelPosition),
-          points: offsets,
-          labelText: polygon.label!,
-          labelStyle: polygon.labelStyle,
+          bounds: getBounds(polygon),
+          textPainter: polygon.textPainter!,
           rotationRad: map.rotationRad,
           rotate: polygon.rotateLabel,
-          padding: 10,
+          padding: 20,
         );
 
         if (painter != null) {
@@ -267,6 +291,28 @@ class PolygonPainter extends CustomPainter {
     }
 
     drawPaths();
+
+    if (polygonLabels && drawLabelsLast) {
+      for (final polygon in polygons) {
+        if (polygon.points.isEmpty) {
+          continue;
+        }
+        final textPainter = polygon.textPainter;
+        if (textPainter != null) {
+          final painter = buildLabelTextPainter(
+            mapSize: map.size,
+            placementPoint: map.getOffsetFromOrigin(polygon.labelPosition),
+            bounds: getBounds(polygon),
+            textPainter: textPainter,
+            rotationRad: map.rotationRad,
+            rotate: polygon.rotateLabel,
+            padding: 20,
+          );
+
+          painter?.call(canvas);
+        }
+      }
+    }
   }
 
   Paint _getBorderPaint(Polygon polygon) {

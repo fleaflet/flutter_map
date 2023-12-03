@@ -107,7 +107,7 @@ class WrappedTileBounds extends TileBounds {
   ) : super._();
 
   @override
-  WrappedTileBoundsAtZoom atZoom(int zoom) {
+  TileBoundsAtZoom atZoom(int zoom) {
     return _tileBoundsAtZoomCache.putIfAbsent(
         zoom, () => _tileBoundsAtZoomImpl(zoom));
   }
@@ -125,15 +125,13 @@ class WrappedTileBounds extends TileBounds {
       );
     }
 
-    final tzDouble = zoom.toDouble();
-
     (int, int)? wrapX;
     if (crs.wrapLng case final wrapLng?) {
       final wrapXMin =
-          (crs.latLngToPoint(LatLng(0, wrapLng.$1), tzDouble).x / _tileSize)
+          (crs.latLngToPoint(LatLng(0, wrapLng.$1), zoomDouble).x / _tileSize)
               .floor();
       final wrapXMax =
-          (crs.latLngToPoint(LatLng(0, wrapLng.$2), tzDouble).x / _tileSize)
+          (crs.latLngToPoint(LatLng(0, wrapLng.$2), zoomDouble).x / _tileSize)
               .ceil();
       wrapX = (wrapXMin, wrapXMax - 1);
     }
@@ -141,10 +139,10 @@ class WrappedTileBounds extends TileBounds {
     (int, int)? wrapY;
     if (crs.wrapLat case final wrapLat?) {
       final wrapYMin =
-          (crs.latLngToPoint(LatLng(wrapLat.$1, 0), tzDouble).y / _tileSize)
+          (crs.latLngToPoint(LatLng(wrapLat.$1, 0), zoomDouble).y / _tileSize)
               .floor();
       final wrapYMax =
-          (crs.latLngToPoint(LatLng(wrapLat.$2, 0), tzDouble).y / _tileSize)
+          (crs.latLngToPoint(LatLng(wrapLat.$2, 0), zoomDouble).y / _tileSize)
               .ceil();
       wrapY = (wrapYMin, wrapYMax - 1);
     }

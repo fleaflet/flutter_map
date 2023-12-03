@@ -94,7 +94,7 @@ final class InteractionOptions {
     this.pinchMoveThreshold = 40.0,
     this.pinchMoveWinGestures =
         MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
-    this.enableScrollWheel = true,
+    this.enableScrollWheel = false,
     this.scrollWheelVelocity = 0.005,
     this.cursorKeyboardRotationOptions = const CursorKeyboardRotationOptions(),
   })  : assert(

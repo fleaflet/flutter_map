@@ -254,11 +254,12 @@ class _RichAttributionWidgetState extends State<RichAttributionWidget> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       ...widget.attributions.whereType<TextSourceAttribution>(),
-                      const TextSourceAttribution(
-                        "Made with 'flutter_map'",
-                        prependCopyright: false,
-                        textStyle: TextStyle(fontStyle: FontStyle.italic),
-                      ),
+                      if (widget.showFlutterMapAttribution)
+                        const TextSourceAttribution(
+                          "Made with 'flutter_map'",
+                          prependCopyright: false,
+                          textStyle: TextStyle(fontStyle: FontStyle.italic),
+                        ),
                       SizedBox(height: (widget.permanentHeight - 24) + 32),
                     ],
                   ),

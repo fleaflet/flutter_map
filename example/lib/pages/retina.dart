@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -10,7 +10,7 @@ class RetinaPage extends StatefulWidget {
   static const String _defaultUrlTemplate =
       'https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/256/{z}/{x}/{y}{r}?access_token={accessToken}';
 
-  const RetinaPage({Key? key}) : super(key: key);
+  const RetinaPage({super.key});
 
   @override
   State<RetinaPage> createState() => _RetinaPageState();
@@ -50,7 +50,7 @@ class _RetinaPageState extends State<RetinaPage> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Retina Tiles')),
-      drawer: buildDrawer(context, RetinaPage.route),
+      drawer: const MenuDrawer(RetinaPage.route),
       body: Column(
         children: [
           Padding(
@@ -154,7 +154,7 @@ class _RetinaPageState extends State<RetinaPage> {
                   attributions: [
                     LogoSourceAttribution(
                       Image.asset(
-                        "assets/mapbox-logo-white.png",
+                        'assets/mapbox-logo-white.png',
                         color: Colors.black,
                       ),
                       height: 16,
@@ -206,13 +206,13 @@ class InputFieldColorizer extends TextEditingController {
 
     text.splitMapJoin(
       pattern,
-      onMatch: (Match match) {
+      onMatch: (match) {
         children.add(
           TextSpan(text: match[0], style: style!.merge(mapping[match[0]])),
         );
         return '';
       },
-      onNonMatch: (String text) {
+      onNonMatch: (text) {
         children.add(TextSpan(text: text, style: style));
         return '';
       },

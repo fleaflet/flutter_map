@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:latlong2/latlong.dart';
 
 class TileBuilderPage extends StatefulWidget {
   static const String route = '/tile_builder';
 
-  const TileBuilderPage({Key? key}) : super(key: key);
+  const TileBuilderPage({super.key});
 
   @override
-  _TileBuilderPageState createState() => _TileBuilderPageState();
+  TileBuilderPageState createState() => TileBuilderPageState();
 }
 
-class _TileBuilderPageState extends State<TileBuilderPage> {
+class TileBuilderPageState extends State<TileBuilderPage> {
   bool enableGrid = true;
   bool showCoordinates = true;
   bool showLoadingTime = true;
@@ -37,7 +38,7 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
               children: [
                 if (showCoordinates)
                   Text(
-                    '${coords.x.floor()} : ${coords.y.floor()} : ${coords.z.floor()}',
+                    '${coords.x} : ${coords.y} : ${coords.z}',
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                 if (showLoadingTime)
@@ -59,7 +60,7 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Tile Builder')),
-      drawer: buildDrawer(context, TileBuilderPage.route),
+      drawer: const MenuDrawer(TileBuilderPage.route),
       body: Column(
         children: [
           Padding(
@@ -119,6 +120,7 @@ class _TileBuilderPageState extends State<TileBuilderPage> {
                     urlTemplate:
                         'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+                    tileProvider: CancellableNetworkTileProvider(),
                     tileBuilder: tileBuilder,
                   ),
                 ),

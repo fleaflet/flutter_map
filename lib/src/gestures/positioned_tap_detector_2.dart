@@ -1,8 +1,8 @@
-//////////////////////////////////////////////////////////////////
-///              Based on the work by Ali Raghebi              ///
-///           Now maintained here due to abandonment           ///
-/// https://github.com/arsamme/flutter-positioned-tap-detector ///
-//////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////
+// ///              Based on the work by Ali Raghebi              ///
+// ///           Now maintained here due to abandonment           ///
+// /// https://github.com/arsamme/flutter-positioned-tap-detector ///
+// //////////////////////////////////////////////////////////////////
 
 import 'dart:async';
 import 'dart:math';

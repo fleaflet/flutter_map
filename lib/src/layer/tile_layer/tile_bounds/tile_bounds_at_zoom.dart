@@ -122,7 +122,7 @@ class WrappedTileBoundsAtZoom extends TileBoundsAtZoom {
 
   bool _wrappedXInRange(TileCoordinates coordinates) {
     final wrappedX = _wrapInt(coordinates.x, wrapX!);
-    return wrappedX >= tileRange.min.x && wrappedX <= tileRange.max.y;
+    return wrappedX >= tileRange.min.x && wrappedX <= tileRange.max.x;
   }
 
   bool _wrappedYInRange(TileCoordinates coordinates) {

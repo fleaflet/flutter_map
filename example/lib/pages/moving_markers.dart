@@ -2,21 +2,20 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/widgets/drawer.dart';
+import 'package:flutter_map_example/misc/tile_providers.dart';
+import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:latlong2/latlong.dart';
 
 class MovingMarkersPage extends StatefulWidget {
   static const String route = '/moving_markers';
 
-  const MovingMarkersPage({Key? key}) : super(key: key);
+  const MovingMarkersPage({super.key});
 
   @override
-  _MovingMarkersPageState createState() {
-    return _MovingMarkersPageState();
-  }
+  MovingMarkersPageState createState() => MovingMarkersPageState();
 }
 
-class _MovingMarkersPageState extends State<MovingMarkersPage> {
+class MovingMarkersPageState extends State<MovingMarkersPage> {
   Marker? _marker;
   late final Timer _timer;
   int _markerIndex = 0;
@@ -63,34 +62,17 @@ class _MovingMarkersPageState extends State<MovingMarkersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Home')),
-      drawer: buildDrawer(context, MovingMarkersPage.route),
-      body: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(top: 8, bottom: 8),
-              child: Text('This is a map that is showing (51.5, -0.9).'),
-            ),
-            Flexible(
-              child: FlutterMap(
-                options: const MapOptions(
-                  initialCenter: LatLng(51.5, -0.09),
-                  initialZoom: 5,
-                ),
-                children: [
-                  TileLayer(
-                    urlTemplate:
-                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                  ),
-                  MarkerLayer(markers: [_marker!]),
-                ],
-              ),
-            ),
-          ],
+      appBar: AppBar(title: const Text('Moving Markers')),
+      drawer: const MenuDrawer(MovingMarkersPage.route),
+      body: FlutterMap(
+        options: const MapOptions(
+          initialCenter: LatLng(51.5, -0.09),
+          initialZoom: 5,
         ),
+        children: [
+          openStreetMapTileLayer,
+          MarkerLayer(markers: [_marker!]),
+        ],
       ),
     );
   }
