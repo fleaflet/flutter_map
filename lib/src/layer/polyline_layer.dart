@@ -10,6 +10,10 @@ import 'package:flutter_map/src/misc/offsets.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:latlong2/latlong.dart';
 
+class _LastHit {
+  ({Polyline polyline, LatLng tapPoint})? hit;
+}
+
 class Polyline {
   final List<LatLng> points;
   final double strokeWidth;
@@ -59,17 +63,20 @@ class Polyline {
       );
 }
 
-class _LastHit {
-  ({Polyline polyline, LatLng tapPoint})? hit;
-}
-
 @immutable
 class PolylineLayer extends StatelessWidget {
   final List<Polyline> polylines;
 
+  /// The number of pixels away from the visual line (including any width and
+  /// outline) in which a tap should still register as a tap on the line
+  ///
+  /// Defaults to 5.
+  final double onTapTolerance;
+
   const PolylineLayer({
     super.key,
     required this.polylines,
+    this.onTapTolerance = 5,
     // TODO: Remove once PR #1704 is merged
     bool polylineCulling = true,
   });
@@ -88,8 +95,12 @@ class PolylineLayer extends StatelessWidget {
 
     final lastHit = _LastHit();
     final paint = CustomPaint(
-      painter:
-          _PolylinePainter(culledPolylines, map, interactive ? lastHit : null),
+      painter: _PolylinePainter(
+        culledPolylines,
+        map,
+        interactive ? lastHit : null,
+        onTapTolerance,
+      ),
       size: Size(map.size.x, map.size.y),
       isComplex: true,
     );
@@ -114,8 +125,14 @@ class _PolylinePainter extends CustomPainter {
   final LatLngBounds bounds;
   final _LastHit? lastHit;
 
-  _PolylinePainter(this.polylines, this.map, this.lastHit)
-      : bounds = map.visibleBounds;
+  final double onTapTolerance;
+
+  _PolylinePainter(
+    this.polylines,
+    this.map,
+    this.lastHit,
+    this.onTapTolerance,
+  ) : bounds = map.visibleBounds;
 
   int get hash => _hash ??= Object.hashAll(polylines);
 
@@ -148,7 +165,8 @@ class _PolylinePainter extends CustomPainter {
               p.strokeWidth,
             )
           : p.strokeWidth;
-      final maxDistance = strokeWidth / 2 + p.borderStrokeWidth / 2;
+      final maxDistance =
+          (strokeWidth / 2 + p.borderStrokeWidth / 2) + onTapTolerance;
 
       for (int i = 0; i < offsets.length - 1; i++) {
         final o1 = offsets[i];
@@ -166,7 +184,7 @@ class _PolylinePainter extends CustomPainter {
         if (distance < maxDistance) {
           // We break out of the loop after we find the top-most candidate
           // polyline. However, we only register a hit if this polyline is
-          // tappable. This let's (by design) non-interactive polylines
+          // tappable. This lets (by design) non-interactive polylines
           // occlude polylines beneath.
           if (p.onTap != null) hit = p;
           break outer;
