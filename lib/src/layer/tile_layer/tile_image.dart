@@ -222,7 +222,6 @@ class TileImage extends ChangeNotifier {
 
     if (evictImageFromCache) {
       try {
-        // ignore: avoid_types_on_closure_parameters
         imageProvider.evict().catchError((Object e) {
           debugPrint(e.toString());
           return false;
