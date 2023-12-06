@@ -46,77 +46,63 @@ class Polyline {
 
   /// Used to batch draw calls to the canvas.
   int get renderHashCode => Object.hash(
-      strokeWidth,
-      color,
-      borderStrokeWidth,
-      borderColor,
-      gradientColors,
-      colorsStop,
-      isDotted,
-      strokeCap,
-      strokeJoin,
-      useStrokeWidthInMeter);
-}
-
-class _Hit {
-  final Polyline polyline;
-  final LatLng point;
-
-  const _Hit(this.polyline, this.point);
+        strokeWidth,
+        color,
+        borderStrokeWidth,
+        borderColor,
+        gradientColors,
+        colorsStop,
+        isDotted,
+        strokeCap,
+        strokeJoin,
+        useStrokeWidthInMeter,
+      );
 }
 
 class _LastHit {
-  _Hit? hit;
+  ({Polyline polyline, LatLng tapPoint})? hit;
 }
 
 @immutable
 class PolylineLayer extends StatelessWidget {
   final List<Polyline> polylines;
-  final bool interactive;
 
   const PolylineLayer({
     super.key,
     required this.polylines,
-    //@Deprecated('Let's always cull')
+    // TODO: Remove once PR #1704 is merged
     bool polylineCulling = true,
-    this.interactive = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final map = MapCamera.of(context);
 
+    final culledPolylines = <Polyline>[];
+    bool interactive = false;
+    for (final line in polylines) {
+      if (!line.boundingBox.isOverlapping(map.visibleBounds)) continue;
+      if (!interactive && line.onTap != null) interactive = true;
+      culledPolylines.add(line);
+    }
+
     final lastHit = _LastHit();
     final paint = CustomPaint(
-      painter: _PolylinePainter(
-        polylines
-            .where((p) => p.boundingBox.isOverlapping(map.visibleBounds))
-            .toList(),
-        map,
-        interactive ? lastHit : null,
-      ),
+      painter:
+          _PolylinePainter(culledPolylines, map, interactive ? lastHit : null),
       size: Size(map.size.x, map.size.y),
       isComplex: true,
     );
 
-    if (!interactive) {
-      return MobileLayerTransformer(child: paint);
-    }
-
     return MobileLayerTransformer(
-      child: GestureDetector(
-        behavior: HitTestBehavior.deferToChild,
-        onTap: () {
-          final hit = lastHit.hit;
-          if (hit == null) return;
-
-          final onTap = hit.polyline.onTap;
-          if (onTap != null) {
-            onTap(hit.point);
-          }
-        },
-        child: paint,
-      ),
+      child: interactive
+          ? GestureDetector(
+              behavior: HitTestBehavior.deferToChild,
+              onTap: () =>
+                  lastHit.hit?.polyline.onTap?.call(lastHit.hit!.tapPoint),
+              child: paint,
+            )
+          : paint,
     );
   }
 }
@@ -137,9 +123,7 @@ class _PolylinePainter extends CustomPainter {
 
   @override
   bool? hitTest(Offset position) {
-    if (lastHit == null) {
-      return null;
-    }
+    if (lastHit == null) return null;
 
     final touch = map.pointToLatLng(math.Point(position.dx, position.dy));
     final origin = map.project(map.center).toOffset() - map.size.toOffset() / 2;
@@ -155,7 +139,7 @@ class _PolylinePainter extends CustomPainter {
       //   continue;
       // }
 
-      final offsets = getOffsets(origin, p.points);
+      final offsets = getOffsets(map, origin, p.points);
       final strokeWidth = p.useStrokeWidthInMeter
           ? _metersToStrokeWidth(
               origin,
@@ -184,21 +168,14 @@ class _PolylinePainter extends CustomPainter {
           // polyline. However, we only register a hit if this polyline is
           // tappable. This let's (by design) non-interactive polylines
           // occlude polylines beneath.
-          if (p.onTap != null) {
-            hit = p;
-          }
+          if (p.onTap != null) hit = p;
           break outer;
         }
       }
     }
 
-    if (hit != null) {
-      lastHit!.hit = _Hit(hit, touch);
-      return true;
-    }
-
-    lastHit!.hit = null;
-    return false;
+    lastHit!.hit = hit != null ? (polyline: hit, tapPoint: touch) : null;
+    return hit != null;
   }
 
   @override
@@ -381,12 +358,8 @@ class _PolylinePainter extends CustomPainter {
     Offset o0,
     double strokeWidthInMeters,
   ) {
-    final r = _distance.offset(
-      p0,
-      strokeWidthInMeters,
-      180,
-    );
-    final delta = o0 - getOffset(origin, r);
+    final r = _distance.offset(p0, strokeWidthInMeters, 180);
+    final delta = o0 - getOffset(map, origin, r);
     return delta.distance;
   }
 

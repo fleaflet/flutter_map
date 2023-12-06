@@ -27,7 +27,6 @@ class _PolylinePageState extends State<PolylinePage> {
         children: [
           openStreetMapTileLayer,
           PolylineLayer(
-            interactive: true,
             polylines: [
               Polyline(
                 points: [
