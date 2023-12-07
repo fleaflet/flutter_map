@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
+import 'package:latlong2/latlong.dart';
 
 /// Controller to programmatically interact with [FlutterMap], such as
 /// controlling it and accessing some of its properties.
