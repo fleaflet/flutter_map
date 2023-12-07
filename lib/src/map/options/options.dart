@@ -134,7 +134,7 @@ class MapOptions {
   /// The options of the closest [FlutterMap] ancestor. If this is called from a
   /// context with no [FlutterMap] ancestor, null is returned.
   static MapOptions? maybeOf(BuildContext context) =>
-      FlutterMapInheritedModel.maybeOptionsOf(context);
+      MapInheritedModel.maybeOptionsOf(context);
 
   /// The options of the closest [FlutterMap] ancestor. If this is called from a
   /// context with no [FlutterMap] ancestor a [StateError] will be thrown.

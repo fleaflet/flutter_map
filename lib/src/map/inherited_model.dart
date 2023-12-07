@@ -10,10 +10,10 @@ import 'package:flutter_map/src/map/options/options.dart';
 /// Using an [InheritedModel] means dependent widgets will only rebuild when
 /// the aspect they reference is updated.
 @immutable
-class FlutterMapInheritedModel extends InheritedModel<_FlutterMapAspect> {
+class MapInheritedModel extends InheritedModel<_FlutterMapAspect> {
   final FlutterMapData data;
 
-  FlutterMapInheritedModel({
+  MapInheritedModel({
     super.key,
     required MapCamera camera,
     required MapController controller,
@@ -29,8 +29,7 @@ class FlutterMapInheritedModel extends InheritedModel<_FlutterMapAspect> {
     BuildContext context, [
     _FlutterMapAspect? aspect,
   ]) =>
-      InheritedModel.inheritFrom<FlutterMapInheritedModel>(context,
-              aspect: aspect)
+      InheritedModel.inheritFrom<MapInheritedModel>(context, aspect: aspect)
           ?.data;
 
   static MapCamera? maybeCameraOf(BuildContext context) =>
@@ -43,12 +42,12 @@ class FlutterMapInheritedModel extends InheritedModel<_FlutterMapAspect> {
       _maybeOf(context, _FlutterMapAspect.options)?.options;
 
   @override
-  bool updateShouldNotify(FlutterMapInheritedModel oldWidget) =>
+  bool updateShouldNotify(MapInheritedModel oldWidget) =>
       data != oldWidget.data;
 
   @override
   bool updateShouldNotifyDependent(
-    covariant FlutterMapInheritedModel oldWidget,
+    covariant MapInheritedModel oldWidget,
     Set<Object> dependencies,
   ) {
     for (final dependency in dependencies) {
