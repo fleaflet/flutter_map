@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:core';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
@@ -16,6 +17,8 @@ class _LastHit<TapKeyType extends Object> {
 }
 
 typedef PolylineOnTap = void Function(LatLng point);
+typedef PolylineLayerOnTap<TapKeyType extends Object> = void Function(
+    List<TapKeyType> tappedKeys, LatLng point)?;
 
 @optionalTypeArgs
 class Polyline<TapKeyType extends Object> {
@@ -30,7 +33,33 @@ class Polyline<TapKeyType extends Object> {
   final StrokeCap strokeCap;
   final StrokeJoin strokeJoin;
   final bool useStrokeWidthInMeter;
+
+  /// Called when a tap is detected on this [Polyline]
+  ///
+  /// See [PolylineLayer.onTap], [PolylineLayer.onTapTolerance],
+  /// [PolylineLayer.nonTappablesObscure], and [PolylineLayer.tappablesObscure]
+  /// for more information.
   final PolylineOnTap? onTap;
+
+  /// Called when a long press is detected on this [Polyline]
+  ///
+  /// See [PolylineLayer.onLongPress], [PolylineLayer.onTapTolerance],
+  /// [PolylineLayer.nonTappablesObscure], and [PolylineLayer.tappablesObscure]
+  /// for more information.
+  final PolylineOnTap? onLongPress;
+
+  /// Called when a secondary tap/alternative click is detected on this
+  /// [Polyline]
+  ///
+  /// See [PolylineLayer.onSecondaryTap], [PolylineLayer.onTapTolerance],
+  /// [PolylineLayer.nonTappablesObscure], and [PolylineLayer.tappablesObscure]
+  /// for more information.
+  final PolylineOnTap? onSecondaryTap;
+
+  /// Custom value that identifies this particular [Polyline] when used with
+  /// [PolylineLayer.onTap]/[PolylineLayer.onLongPress]/
+  /// [PolylineLayer.onSecondaryTap] (either instead of or in addition to
+  /// [onTap]/[onLongPress]/[onSecondaryTap])
   final TapKeyType? tapKey;
 
   LatLngBounds? _boundingBox;
@@ -51,6 +80,8 @@ class Polyline<TapKeyType extends Object> {
     this.strokeJoin = StrokeJoin.round,
     this.useStrokeWidthInMeter = false,
     this.onTap,
+    this.onLongPress,
+    this.onSecondaryTap,
     this.tapKey,
   });
 
@@ -82,7 +113,27 @@ class PolylineLayer<TapKeyType extends Object> extends StatelessWidget {
   ///
   /// See [nonTappablesObscure] and [tappablesObscure] to set behaviour when a
   /// tap is over multiple overlapping [Polyline]s.
-  final void Function(List<TapKeyType> tappedKeys, LatLng point)? onTap;
+  final PolylineLayerOnTap<TapKeyType>? onTap;
+
+  /// Called when a long press is detected on any [Polyline] with a defined
+  /// [Polyline.tapKey]
+  ///
+  /// Individual [Polyline]s may have their own [Polyline.onLongPress] callback
+  /// defined, regardless of whether this is defined.
+  ///
+  /// See [nonTappablesObscure] and [tappablesObscure] to set behaviour when a
+  /// tap is over multiple overlapping [Polyline]s.
+  final PolylineLayerOnTap<TapKeyType>? onLongPress;
+
+  /// Called when a secondary tap/alternative click is detected on any [Polyline]
+  /// with a defined [Polyline.tapKey]
+  ///
+  /// Individual [Polyline]s may have their own [Polyline.onSecondaryTap]
+  /// callback defined, regardless of whether this is defined.
+  ///
+  /// See [nonTappablesObscure] and [tappablesObscure] to set behaviour when a
+  /// tap is over multiple overlapping [Polyline]s.
+  final PolylineLayerOnTap<TapKeyType>? onSecondaryTap;
 
   /// The number of pixels away from the visual line (including any width and
   /// outline) in which a tap should still register as a tap on the line
@@ -118,6 +169,8 @@ class PolylineLayer<TapKeyType extends Object> extends StatelessWidget {
     super.key,
     required this.polylines,
     this.onTap,
+    this.onLongPress,
+    this.onSecondaryTap,
     this.onTapTolerance = 3,
     this.tappablesObscure = false,
     this.nonTappablesObscure = true,
@@ -171,6 +224,48 @@ class PolylineLayer<TapKeyType extends Object> extends StatelessWidget {
                     lastHit.hit!.tapped
                         .map((e) {
                           e.onTap?.call(lastHit.hit!.point);
+                          return e.tapKey;
+                        })
+                        .whereNotNull()
+                        .toList(),
+                    lastHit.hit!.point,
+                  );
+                },
+                onLongPress: () {
+                  if (lastHit.hit == null) return;
+
+                  if (onLongPress == null) {
+                    for (final polyline in lastHit.hit!.tapped) {
+                      polyline.onLongPress?.call(lastHit.hit!.point);
+                    }
+                    return;
+                  }
+
+                  onLongPress!.call(
+                    lastHit.hit!.tapped
+                        .map((e) {
+                          e.onLongPress?.call(lastHit.hit!.point);
+                          return e.tapKey;
+                        })
+                        .whereNotNull()
+                        .toList(),
+                    lastHit.hit!.point,
+                  );
+                },
+                onSecondaryTap: () {
+                  if (lastHit.hit == null) return;
+
+                  if (onSecondaryTap == null) {
+                    for (final polyline in lastHit.hit!.tapped) {
+                      polyline.onSecondaryTap?.call(lastHit.hit!.point);
+                    }
+                    return;
+                  }
+
+                  onSecondaryTap!.call(
+                    lastHit.hit!.tapped
+                        .map((e) {
+                          e.onSecondaryTap?.call(lastHit.hit!.point);
                           return e.tapKey;
                         })
                         .whereNotNull()
@@ -263,7 +358,8 @@ class _PolylinePainter<TapKeyType extends Object> extends CustomPainter {
     if (hits.isEmpty) return false;
 
     lastHit!.hit = (
-      tapped: hits,
+      // Remove duplicates caused when the hit is close to two segements
+      tapped: LinkedHashSet<Polyline<TapKeyType>>.from(hits).toList(),
       point: camera.pointToLatLng(math.Point(position.dx, position.dy)),
     );
     return true;

@@ -30,6 +30,17 @@ class _PolylinePageState extends State<PolylinePage> {
           openStreetMapTileLayer,
           PolylineLayer<_TapKeyType>(
             onTap: (tappedLineKeys, coords) => _openTappedLinesModal(
+              0,
+              tappedLineKeys,
+              '(${coords.latitude.toStringAsFixed(6)}, ${coords.longitude.toStringAsFixed(6)})',
+            ),
+            onLongPress: (tappedLineKeys, coords) => _openTappedLinesModal(
+              1,
+              tappedLineKeys,
+              '(${coords.latitude.toStringAsFixed(6)}, ${coords.longitude.toStringAsFixed(6)})',
+            ),
+            onSecondaryTap: (tappedLineKeys, coords) => _openTappedLinesModal(
+              2,
               tappedLineKeys,
               '(${coords.latitude.toStringAsFixed(6)}, ${coords.longitude.toStringAsFixed(6)})',
             ),
@@ -41,9 +52,9 @@ class _PolylinePageState extends State<PolylinePage> {
                   const LatLng(48.8566, 2.3522),
                 ],
                 strokeWidth: 8,
-                color: Colors.purple,
+                color: const Color(0xFF60399E),
                 tapKey: (
-                  title: 'Purple Line',
+                  title: 'Elizabeth Line',
                   subtitle: 'Nothing really special here...',
                 ),
               ),
@@ -134,6 +145,7 @@ class _PolylinePageState extends State<PolylinePage> {
   }
 
   void _openTappedLinesModal(
+    int mode,
     List<_TapKeyType> tappedLineKeys,
     String coords,
   ) {
@@ -148,7 +160,13 @@ class _PolylinePageState extends State<PolylinePage> {
               'Tapped Polyline(s)',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            Text('Tapped at point: $coords'),
+            Text(
+              '${[
+                'Tapped',
+                'Long-pressed/held',
+                'Secondary-tapped/alternative-clicked'
+              ][mode]} at point: $coords',
+            ),
             const SizedBox(height: 8),
             Expanded(
               child: ListView.builder(
