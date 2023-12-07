@@ -17,12 +17,17 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
 
   late final MapInteractiveViewerState _interactiveViewerState;
 
+  late Animation<LatLng> _moveAnimation;
+  late Animation<double> _zoomAnimation;
+  late Animation<double> _rotationAnimation;
+
   MapControllerImpl({MapOptions? options, TickerProvider? vsync})
       : super(
           _MapControllerState(
             options: options,
             camera: options == null ? null : MapCamera.initialCamera(options),
-            vsync: vsync,
+            animationController:
+                vsync == null ? null : AnimationController(vsync: vsync),
           ),
         );
 
@@ -47,6 +52,12 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   @override
   MapCamera get camera {
     return value.camera ??
+        (throw Exception('You need to have the FlutterMap widget rendered at '
+            'least once before using the MapController.'));
+  }
+
+  AnimationController get animationController {
+    return value.animationController ??
         (throw Exception('You need to have the FlutterMap widget rendered at '
             'least once before using the MapController.'));
   }
@@ -180,29 +191,27 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     required MapEventSource source,
     String? id,
   }) {
-    if (newRotation != camera.rotation) {
-      final newCamera = options.cameraConstraint.constrain(
-        camera.withRotation(newRotation),
-      );
-      if (newCamera == null) return false;
+    if (newRotation == camera.rotation) return false;
 
-      final oldCamera = camera;
+    final newCamera = options.cameraConstraint.constrain(
+      camera.withRotation(newRotation),
+    );
+    if (newCamera == null) return false;
 
-      // Update camera then emit events and callbacks
-      value = value.withMapCamera(newCamera);
+    final oldCamera = camera;
 
-      _emitMapEvent(
-        MapEventRotate(
-          id: id,
-          source: source,
-          oldCamera: oldCamera,
-          camera: camera,
-        ),
-      );
-      return true;
-    }
+    // Update camera then emit events and callbacks
+    value = value.withMapCamera(newCamera);
 
-    return false;
+    _emitMapEvent(
+      MapEventRotate(
+        id: id,
+        source: source,
+        oldCamera: oldCamera,
+        camera: camera,
+      ),
+    );
+    return true;
   }
 
   MoveAndRotateResult rotateAroundPointRaw(
@@ -341,12 +350,20 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     value = _MapControllerState(
       options: newOptions,
       camera: newCamera,
-      vsync: value.vsync,
+      animationController: value.animationController,
     );
   }
 
   set vsync(TickerProvider tickerProvider) {
-    value = value.withVsync(tickerProvider);
+    if (value.animationController == null) {
+      value = _MapControllerState(
+        options: value.options,
+        camera: value.camera,
+        animationController: AnimationController(vsync: tickerProvider),
+      );
+    } else {
+      animationController.resync(tickerProvider);
+    }
   }
 
   /// To be called when a gesture that causes movement starts.
@@ -514,7 +531,54 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     );
   }
 
-  void moveAnimated(LatLng center, double zoom) {}
+  void moveAndRotateAnimatedRaw(
+    LatLng newCenter,
+    double newZoom,
+    double newRotation, {
+    required Offset offset,
+    required bool hasGesture,
+    required MapEventSource source,
+  }) {
+    if (newRotation == camera.rotation &&
+        newCenter == camera.center &&
+        newZoom == camera.zoom) return;
+    // TODO
+  }
+
+  void moveAnimatedRaw(
+    LatLng newCenter,
+    double newZoom, {
+    Offset offset = Offset.zero,
+    Duration duration = const Duration(milliseconds: 500),
+    required Curve curve,
+    required bool hasGesture,
+    required MapEventSource source,
+  }) {
+    // cancel all ongoing animation
+    if (animationController.isAnimating) animationController.stop();
+
+    // create the new animation
+    _moveAnimation = LatLngTween(begin: camera.center, end: newCenter)
+        .chain(CurveTween(curve: curve))
+        .animate(animationController);
+    _zoomAnimation = Tween<double>(begin: camera.zoom, end: newZoom)
+        .chain(CurveTween(curve: curve))
+        .animate(animationController);
+
+    animationController.duration = duration;
+    animationController.addListener(() {
+      moveRaw(
+        _moveAnimation!.value,
+        _zoomAnimation!.value,
+        hasGesture: hasGesture,
+        source: MapEventSource.mapController,
+        offset: offset,
+      );
+    });
+
+    // start the animation from its start
+    animationController.forward(from: 0);
+  }
 
   void _emitMapEvent(MapEvent event) {
     if (event.source == MapEventSource.mapController && event is MapEventMove) {
@@ -529,6 +593,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   @override
   void dispose() {
     _mapEventStreamController.close();
+    value.animationController?.dispose();
     super.dispose();
   }
 }
@@ -537,24 +602,17 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
 class _MapControllerState {
   final MapCamera? camera;
   final MapOptions? options;
-  final TickerProvider? vsync;
+  final AnimationController? animationController;
 
   const _MapControllerState({
     required this.options,
     required this.camera,
-    required this.vsync,
+    required this.animationController,
   });
 
   _MapControllerState withMapCamera(MapCamera camera) => _MapControllerState(
         options: options,
         camera: camera,
-        vsync: vsync,
-      );
-
-  _MapControllerState withVsync(TickerProvider tickerProvider) =>
-      _MapControllerState(
-        options: options,
-        camera: camera,
-        vsync: tickerProvider,
+        animationController: animationController,
       );
 }

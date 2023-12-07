@@ -187,8 +187,8 @@ class _FlutterMapStateContainer extends State<FlutterMap>
       _mapController = MapControllerImpl(options: widget.options, vsync: this);
     } else {
       _mapController = widget.mapController! as MapControllerImpl;
-      _mapController.options = widget.options;
       _mapController.vsync = this;
+      _mapController.options = widget.options;
     }
   }
 }
