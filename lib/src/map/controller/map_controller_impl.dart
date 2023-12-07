@@ -4,6 +4,8 @@ import 'dart:math';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/gestures/map_interactive_viewer.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:vector_math/vector_math_64.dart';
 
 /// Implements [MapController] whilst exposing methods for internal use which
 /// should not be visible to the user (e.g. for setting the current camera).
@@ -245,7 +247,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
         camera.unproject(
           rotationCenter +
               (camera.project(camera.center) - rotationCenter)
-                  .rotate(degToRadian(rotationDiff)),
+                  .rotate(degrees2Radians * rotationDiff),
         ),
         camera.zoom,
         hasGesture: hasGesture,

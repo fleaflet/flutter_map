@@ -5,6 +5,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:vector_math/vector_math_64.dart';
 
 typedef InteractiveViewerBuilder = Widget Function(
   BuildContext context,
@@ -642,7 +644,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       final rotationCenter =
           _camera.project(_camera.offsetToCrs(_lastFocalLocal));
       final vector = oldCenterPt - rotationCenter;
-      final rotatedVector = vector.rotate(degToRadian(rotationDiff));
+      final rotatedVector = vector.rotate(degrees2Radians * rotationDiff);
       final newCenter = rotationCenter + rotatedVector;
 
       widget.controller.moveAndRotateRaw(

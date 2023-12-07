@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart';
 
 /// Dedicated [ImageProvider] to fetch tiles from the network
@@ -23,15 +24,31 @@ class MapNetworkImageProvider extends ImageProvider<MapNetworkImageProvider> {
   /// image provider will not be cached in memory.
   final String? fallbackUrl;
 
+  /// The headers to include with the tile fetch request
+  ///
+  /// Not included in [operator==].
+  final Map<String, String> headers;
+
   /// The HTTP client to use to make network requests
   ///
   /// Not included in [operator==].
   final BaseClient httpClient;
 
-  /// The headers to include with the tile fetch request
+  /// Whether to ignore exceptions and errors that occur whilst fetching tiles
+  /// over the network, and just return a transparent tile
+  final bool silenceExceptions;
+
+  /// Function invoked when the image starts loading (not from cache)
   ///
-  /// Not included in [operator==].
-  final Map<String, String> headers;
+  /// Used with [finishedLoadingBytes] to safely dispose of the [httpClient] only
+  /// after all tiles have loaded.
+  final void Function() startedLoading;
+
+  /// Function invoked when the image completes loading bytes from the network
+  ///
+  /// Used with [finishedLoadingBytes] to safely dispose of the [httpClient] only
+  /// after all tiles have loaded.
+  final void Function() finishedLoadingBytes;
 
   /// Create a dedicated [ImageProvider] to fetch tiles from the network
   ///
@@ -43,59 +60,58 @@ class MapNetworkImageProvider extends ImageProvider<MapNetworkImageProvider> {
     required this.fallbackUrl,
     required this.headers,
     required this.httpClient,
+    required this.silenceExceptions,
+    required this.startedLoading,
+    required this.finishedLoadingBytes,
   });
 
   @override
   ImageStreamCompleter loadImage(
     MapNetworkImageProvider key,
     ImageDecoderCallback decode,
-  ) {
-    final chunkEvents = StreamController<ImageChunkEvent>();
+  ) =>
+      MultiFrameImageStreamCompleter(
+        codec: _load(key, decode),
+        scale: 1,
+        debugLabel: url,
+        informationCollector: () => [
+          DiagnosticsProperty('URL', url),
+          DiagnosticsProperty('Fallback URL', fallbackUrl),
+          DiagnosticsProperty('Current provider', key),
+        ],
+      );
 
-    return MultiFrameImageStreamCompleter(
-      codec: _loadAsync(key, chunkEvents, decode),
-      chunkEvents: chunkEvents.stream,
-      scale: 1,
-      debugLabel: url,
-      informationCollector: () => [
-        DiagnosticsProperty('URL', url),
-        DiagnosticsProperty('Fallback URL', fallbackUrl),
-        DiagnosticsProperty('Current provider', key),
-      ],
-    );
+  Future<Codec> _load(
+    MapNetworkImageProvider key,
+    ImageDecoderCallback decode, {
+    bool useFallback = false,
+  }) {
+    startedLoading();
+
+    return httpClient
+        .readBytes(
+          Uri.parse(useFallback ? fallbackUrl ?? '' : url),
+          headers: headers,
+        )
+        .whenComplete(finishedLoadingBytes)
+        .then(ImmutableBuffer.fromUint8List)
+        .then(decode)
+        .onError<Exception>((err, stack) {
+      scheduleMicrotask(() => PaintingBinding.instance.imageCache.evict(key));
+      if (useFallback || fallbackUrl == null) {
+        if (!silenceExceptions) throw err;
+        return ImmutableBuffer.fromUint8List(TileProvider.transparentImage)
+            .then(decode);
+      }
+      return _load(key, decode, useFallback: true);
+    });
   }
 
   @override
-  Future<MapNetworkImageProvider> obtainKey(
+  SynchronousFuture<MapNetworkImageProvider> obtainKey(
     ImageConfiguration configuration,
   ) =>
-      SynchronousFuture<MapNetworkImageProvider>(this);
-
-  Future<Codec> _loadAsync(
-    MapNetworkImageProvider key,
-    StreamController<ImageChunkEvent> chunkEvents,
-    ImageDecoderCallback decode, {
-    bool useFallback = false,
-  }) async {
-    try {
-      return decode(
-        await ImmutableBuffer.fromUint8List(
-          await httpClient.readBytes(
-            Uri.parse(useFallback ? fallbackUrl ?? '' : url),
-            headers: headers,
-          ),
-        ),
-      ).catchError((dynamic e) {
-        // ignore: only_throw_errors
-        if (useFallback || fallbackUrl == null) throw e as Object;
-        return _loadAsync(key, chunkEvents, decode, useFallback: true);
-      });
-    } catch (_) {
-      // This redundancy necessary, do not remove
-      if (useFallback || fallbackUrl == null) rethrow;
-      return _loadAsync(key, chunkEvents, decode, useFallback: true);
-    }
-  }
+      SynchronousFuture(this);
 
   @override
   bool operator ==(Object other) =>
