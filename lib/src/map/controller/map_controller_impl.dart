@@ -17,11 +17,12 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
 
   late final MapInteractiveViewerState _interactiveViewerState;
 
-  MapControllerImpl([MapOptions? options])
+  MapControllerImpl({MapOptions? options, TickerProvider? vsync})
       : super(
           _MapControllerState(
             options: options,
             camera: options == null ? null : MapCamera.initialCamera(options),
+            vsync: vsync,
           ),
         );
 
@@ -340,7 +341,12 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     value = _MapControllerState(
       options: newOptions,
       camera: newCamera,
+      vsync: value.vsync,
     );
+  }
+
+  set vsync(TickerProvider tickerProvider) {
+    value = value.withVsync(tickerProvider);
   }
 
   /// To be called when a gesture that causes movement starts.
@@ -508,6 +514,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     );
   }
 
+  void moveAnimated(LatLng center, double zoom) {}
+
   void _emitMapEvent(MapEvent event) {
     if (event.source == MapEventSource.mapController && event is MapEventMove) {
       _interactiveViewerState.interruptAnimatedMovement(event);
@@ -529,14 +537,24 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
 class _MapControllerState {
   final MapCamera? camera;
   final MapOptions? options;
+  final TickerProvider? vsync;
 
   const _MapControllerState({
     required this.options,
     required this.camera,
+    required this.vsync,
   });
 
   _MapControllerState withMapCamera(MapCamera camera) => _MapControllerState(
         options: options,
         camera: camera,
+        vsync: vsync,
+      );
+
+  _MapControllerState withVsync(TickerProvider tickerProvider) =>
+      _MapControllerState(
+        options: options,
+        camera: camera,
+        vsync: tickerProvider,
       );
 }
