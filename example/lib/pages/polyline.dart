@@ -13,6 +13,8 @@ class PolylinePage extends StatefulWidget {
   State<PolylinePage> createState() => _PolylinePageState();
 }
 
+typedef _TapKeyType = ({String title, String subtitle});
+
 class _PolylinePageState extends State<PolylinePage> {
   @override
   Widget build(BuildContext context) {
@@ -26,7 +28,11 @@ class _PolylinePageState extends State<PolylinePage> {
         ),
         children: [
           openStreetMapTileLayer,
-          PolylineLayer(
+          PolylineLayer<_TapKeyType>(
+            onTap: (tappedLineKeys, coords) => _openTappedLinesModal(
+              tappedLineKeys,
+              '(${coords.latitude.toStringAsFixed(6)}, ${coords.longitude.toStringAsFixed(6)})',
+            ),
             polylines: [
               Polyline(
                 points: [
@@ -36,7 +42,10 @@ class _PolylinePageState extends State<PolylinePage> {
                 ],
                 strokeWidth: 8,
                 color: Colors.purple,
-                onTap: (point) => openDialog('Purple line: $point'),
+                tapKey: (
+                  title: 'Purple Line',
+                  subtitle: 'Nothing really special here...',
+                ),
               ),
               Polyline(
                 points: [
@@ -47,7 +56,10 @@ class _PolylinePageState extends State<PolylinePage> {
                 strokeWidth: 16000,
                 color: Colors.pink,
                 useStrokeWidthInMeter: true,
-                onTap: (point) => openDialog('StrokeWidthInMetersLine: $point'),
+                tapKey: (
+                  title: 'Pink Line',
+                  subtitle: 'Fixed radius in meters instead of pixels',
+                ),
               ),
               Polyline(
                 points: [
@@ -61,6 +73,10 @@ class _PolylinePageState extends State<PolylinePage> {
                   const Color(0xffFEED00),
                   const Color(0xff007E2D),
                 ],
+                tapKey: (
+                  title: 'Traffic Light Line',
+                  subtitle: 'Fancy gradient instead of a solid color',
+                ),
               ),
               Polyline(
                 points: [
@@ -72,7 +88,11 @@ class _PolylinePageState extends State<PolylinePage> {
                 color: Colors.blue.withOpacity(0.6),
                 borderStrokeWidth: 20,
                 borderColor: Colors.red.withOpacity(0.4),
-                onTap: (point) => openDialog('blue line: $point'),
+                tapKey: (
+                  title: 'BlueRed Line',
+                  subtitle:
+                      'Solid translucent color fill, with different color outline',
+                ),
               ),
               Polyline(
                 points: [
@@ -84,7 +104,11 @@ class _PolylinePageState extends State<PolylinePage> {
                 color: Colors.black.withOpacity(0.2),
                 borderStrokeWidth: 20,
                 borderColor: Colors.white30,
-                onTap: (point) => openDialog('black/white line: $point'),
+                tapKey: (
+                  title: 'BlackWhite Line',
+                  subtitle:
+                      'Solid translucent color fill, with different color outline',
+                ),
               ),
               Polyline(
                 points: [
@@ -96,17 +120,11 @@ class _PolylinePageState extends State<PolylinePage> {
                 color: Colors.yellow,
                 borderStrokeWidth: 10,
                 borderColor: Colors.blue.withOpacity(0.5),
-              ),
-              Polyline(
-                points: [
-                  const LatLng(48.1, -0.03),
-                  const LatLng(50.5, -7.8),
-                  const LatLng(56.5, 0.4),
-                ],
-                strokeWidth: 10,
-                color: Colors.amber,
-                borderStrokeWidth: 10,
-                borderColor: Colors.blue.withOpacity(0.5),
+                tapKey: (
+                  title: 'YellowBlue Line',
+                  subtitle:
+                      'Solid translucent color fill, with different color outline',
+                ),
               ),
             ],
           ),
@@ -115,14 +133,55 @@ class _PolylinePageState extends State<PolylinePage> {
     );
   }
 
-  Future<void> openDialog(String message) => showDialog<void>(
+  void _openTappedLinesModal(
+    List<_TapKeyType> tappedLineKeys,
+    String coords,
+  ) {
+    showModalBottomSheet<void>(
       context: context,
-      builder: (context) {
-        return Dialog(
-          child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: Text(message),
-          ),
-        );
-      });
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Tapped Polyline(s)',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            Text('Tapped at point: $coords'),
+            const SizedBox(height: 8),
+            Expanded(
+              child: ListView.builder(
+                itemBuilder: (context, index) {
+                  final tappedLineKey = tappedLineKeys.elementAt(index);
+                  return ListTile(
+                    leading: index == 0
+                        ? const Icon(Icons.vertical_align_top)
+                        : index == tappedLineKeys.length - 1
+                            ? const Icon(Icons.vertical_align_bottom)
+                            : const SizedBox.shrink(),
+                    title: Text(tappedLineKey.title),
+                    subtitle: Text(tappedLineKey.subtitle),
+                    dense: true,
+                  );
+                },
+                itemCount: tappedLineKeys.length,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Close'),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
