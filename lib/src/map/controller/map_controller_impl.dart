@@ -1,67 +1,129 @@
+import 'dart:async';
 import 'dart:math';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter_map/src/gestures/flutter_map_interactive_viewer.dart';
-import 'package:flutter_map/src/gestures/map_events.dart';
-import 'package:flutter_map/src/gestures/positioned_tap_detector_2.dart';
-import 'package:flutter_map/src/map/camera/camera.dart';
-import 'package:flutter_map/src/map/camera/camera_fit.dart';
-import 'package:flutter_map/src/map/controller/impl.dart';
-import 'package:flutter_map/src/map/options/options.dart';
-import 'package:flutter_map/src/misc/move_and_rotate_result.dart';
-import 'package:flutter_map/src/misc/point_extensions.dart';
-import 'package:flutter_map/src/misc/position.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/gestures/map_interactive_viewer.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:vector_math/vector_math_64.dart';
 
+/// Implements [MapController] whilst exposing methods for internal use which
+/// should not be visible to the user (e.g. for setting the current camera).
 /// This controller is for internal use. All updates to the state should be done
 /// by calling methods of this class to ensure consistency.
-class FlutterMapInternalController extends ValueNotifier<_InternalState> {
-  late final FlutterMapInteractiveViewerState _interactiveViewerState;
-  late MapControllerImpl _mapControllerImpl;
+class MapControllerImpl extends ValueNotifier<_MapControllerState>
+    implements MapController {
+  final _mapEventStreamController = StreamController<MapEvent>.broadcast();
 
-  FlutterMapInternalController(MapOptions options)
+  late final MapInteractiveViewerState _interactiveViewerState;
+
+  MapControllerImpl([MapOptions? options])
       : super(
-          _InternalState(
+          _MapControllerState(
             options: options,
-            camera: MapCamera.initialCamera(options),
+            camera: options == null ? null : MapCamera.initialCamera(options),
           ),
         );
 
   /// Link the viewer state with the controller. This should be done once when
   /// the FlutterMapInteractiveViewerState is initialized.
   set interactiveViewerState(
-    FlutterMapInteractiveViewerState interactiveViewerState,
+    MapInteractiveViewerState interactiveViewerState,
   ) =>
       _interactiveViewerState = interactiveViewerState;
 
-  MapOptions get options => value.options;
+  StreamSink<MapEvent> get _mapEventSink => _mapEventStreamController.sink;
 
-  MapCamera get camera => value.camera;
+  @override
+  Stream<MapEvent> get mapEventStream => _mapEventStreamController.stream;
 
-  void linkMapController(MapControllerImpl mapControllerImpl) {
-    _mapControllerImpl = mapControllerImpl;
-    _mapControllerImpl.internalController = this;
+  MapOptions get options {
+    return value.options ??
+        (throw Exception('You need to have the FlutterMap widget rendered at '
+            'least once before using the MapController.'));
+  }
+
+  @override
+  MapCamera get camera {
+    return value.camera ??
+        (throw Exception('You need to have the FlutterMap widget rendered at '
+            'least once before using the MapController.'));
   }
 
   /// This setter should only be called in this class or within tests. Changes
-  /// to the [FlutterMapInternalState] should be done via methods in this class.
+  /// to the [_MapControllerState] should be done via methods in this class.
   @visibleForTesting
   @override
   // ignore: library_private_types_in_public_api
-  set value(_InternalState value) => super.value = value;
+  set value(_MapControllerState value) => super.value = value;
 
-  /// Note: All named parameters are required to prevent inconsistent default
-  /// values since this method can be called by MapController which declares
-  /// defaults.
+  @override
   bool move(
+    LatLng center,
+    double zoom, {
+    Offset offset = Offset.zero,
+    String? id,
+  }) =>
+      moveRaw(
+        center,
+        zoom,
+        offset: offset,
+        hasGesture: false,
+        source: MapEventSource.mapController,
+        id: id,
+      );
+
+  @override
+  bool rotate(double degree, {String? id}) => rotateRaw(
+        degree,
+        hasGesture: false,
+        source: MapEventSource.mapController,
+        id: id,
+      );
+
+  @override
+  MoveAndRotateResult rotateAroundPoint(
+    double degree, {
+    Point<double>? point,
+    Offset? offset,
+    String? id,
+  }) =>
+      rotateAroundPointRaw(
+        degree,
+        point: point,
+        offset: offset,
+        hasGesture: false,
+        source: MapEventSource.mapController,
+        id: id,
+      );
+
+  @override
+  MoveAndRotateResult moveAndRotate(
+    LatLng center,
+    double zoom,
+    double degree, {
+    String? id,
+  }) =>
+      moveAndRotateRaw(
+        center,
+        zoom,
+        degree,
+        offset: Offset.zero,
+        hasGesture: false,
+        source: MapEventSource.mapController,
+        id: id,
+      );
+
+  @override
+  bool fitCamera(CameraFit cameraFit) => fitCameraRaw(cameraFit);
+
+  bool moveRaw(
     LatLng newCenter,
     double newZoom, {
-    required Offset offset,
+    Offset offset = Offset.zero,
     required bool hasGesture,
     required MapEventSource source,
-    required String? id,
+    String? id,
   }) {
     // Algorithm thanks to https://github.com/tlserver/flutter_map_location_marker
     if (offset != Offset.zero) {
@@ -111,14 +173,11 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     return true;
   }
 
-  /// Note: All named parameters are required to prevent inconsistent default
-  /// values since this method can be called by MapController which declares
-  /// defaults.
-  bool rotate(
+  bool rotateRaw(
     double newRotation, {
     required bool hasGesture,
     required MapEventSource source,
-    required String? id,
+    String? id,
   }) {
     if (newRotation != camera.rotation) {
       final newCamera = options.cameraConstraint.constrain(
@@ -145,16 +204,13 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     return false;
   }
 
-  /// Note: All named parameters are required to prevent inconsistent default
-  /// values since this method can be called by MapController which declares
-  /// defaults.
-  MoveAndRotateResult rotateAroundPoint(
+  MoveAndRotateResult rotateAroundPointRaw(
     double degree, {
     required Point<double>? point,
     required Offset? offset,
     required bool hasGesture,
     required MapEventSource source,
-    required String? id,
+    String? id,
   }) {
     if (point != null && offset != null) {
       throw ArgumentError('Only one of `point` or `offset` may be non-null');
@@ -170,7 +226,7 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     if (offset == Offset.zero) {
       return (
         moveSuccess: true,
-        rotateSuccess: rotate(
+        rotateSuccess: rotateRaw(
           degree,
           hasGesture: hasGesture,
           source: source,
@@ -187,19 +243,18 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
             .rotate(camera.rotationRad);
 
     return (
-      moveSuccess: move(
+      moveSuccess: moveRaw(
         camera.unproject(
           rotationCenter +
               (camera.project(camera.center) - rotationCenter)
                   .rotate(degrees2Radians * rotationDiff),
         ),
         camera.zoom,
-        offset: Offset.zero,
         hasGesture: hasGesture,
         source: source,
         id: id,
       ),
-      rotateSuccess: rotate(
+      rotateSuccess: rotateRaw(
         camera.rotation + rotationDiff,
         hasGesture: hasGesture,
         source: source,
@@ -208,20 +263,17 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     );
   }
 
-  /// Note: All named parameters are required to prevent inconsistent default
-  /// values since this method can be called by MapController which declares
-  /// defaults.
-  MoveAndRotateResult moveAndRotate(
+  MoveAndRotateResult moveAndRotateRaw(
     LatLng newCenter,
     double newZoom,
     double newRotation, {
     required Offset offset,
     required bool hasGesture,
     required MapEventSource source,
-    required String? id,
+    String? id,
   }) =>
       (
-        moveSuccess: move(
+        moveSuccess: moveRaw(
           newCenter,
           newZoom,
           offset: offset,
@@ -229,26 +281,25 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
           source: source,
           id: id,
         ),
-        rotateSuccess:
-            rotate(newRotation, id: id, source: source, hasGesture: hasGesture),
+        rotateSuccess: rotateRaw(
+          newRotation,
+          id: id,
+          source: source,
+          hasGesture: hasGesture,
+        ),
       );
 
-  /// Note: All named parameters are required to prevent inconsistent default
-  /// values since this method can be called by MapController which declares
-  /// defaults.
-  bool fitCamera(
+  bool fitCameraRaw(
     CameraFit cameraFit, {
-    required Offset offset,
+    Offset offset = Offset.zero,
   }) {
     final fitted = cameraFit.fit(camera);
-
-    return move(
+    return moveRaw(
       fitted.center,
       fitted.zoom,
       offset: offset,
       hasGesture: false,
       source: MapEventSource.mapController,
-      id: null,
     );
   }
 
@@ -264,27 +315,29 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     return false;
   }
 
-  void setOptions(MapOptions newOptions) {
+  set options(MapOptions newOptions) {
     assert(
       newOptions != value.options,
       'Should not update options unless they change',
     );
 
-    final newCamera = camera.withOptions(newOptions);
+    final newCamera = value.camera?.withOptions(newOptions) ??
+        MapCamera.initialCamera(newOptions);
 
     assert(
       newOptions.cameraConstraint.constrain(newCamera) == newCamera,
       'MapCamera is no longer within the cameraConstraint after an option change.',
     );
 
-    if (options.interactionOptions != newOptions.interactionOptions) {
+    if (value.options != null &&
+        value.options!.interactionOptions != newOptions.interactionOptions) {
       _interactiveViewerState.updateGestures(
-        options.interactionOptions,
+        value.options!.interactionOptions,
         newOptions.interactionOptions,
       );
     }
 
-    value = _InternalState(
+    value = _MapControllerState(
       options: newOptions,
       camera: newCamera,
     );
@@ -307,13 +360,11 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
     final newCenterPt = oldCenterPt + offset.toPoint();
     final newCenter = camera.unproject(newCenterPt);
 
-    move(
+    moveRaw(
       newCenter,
       camera.zoom,
-      offset: Offset.zero,
       hasGesture: true,
       source: source,
-      id: null,
     );
   }
 
@@ -464,21 +515,27 @@ class FlutterMapInternalController extends ValueNotifier<_InternalState> {
 
     options.onMapEvent?.call(event);
 
-    _mapControllerImpl.mapEventSink.add(event);
+    _mapEventSink.add(event);
+  }
+
+  @override
+  void dispose() {
+    _mapEventStreamController.close();
+    super.dispose();
   }
 }
 
 @immutable
-class _InternalState {
-  final MapCamera camera;
-  final MapOptions options;
+class _MapControllerState {
+  final MapCamera? camera;
+  final MapOptions? options;
 
-  const _InternalState({
+  const _MapControllerState({
     required this.options,
     required this.camera,
   });
 
-  _InternalState withMapCamera(MapCamera camera) => _InternalState(
+  _MapControllerState withMapCamera(MapCamera camera) => _MapControllerState(
         options: options,
         camera: camera,
       );

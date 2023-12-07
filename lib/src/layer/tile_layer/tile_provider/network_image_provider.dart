@@ -12,8 +12,7 @@ import 'package:http/http.dart';
 /// Note that specifying a [fallbackUrl] will prevent this image provider from
 /// being cached.
 @immutable
-class FlutterMapNetworkImageProvider
-    extends ImageProvider<FlutterMapNetworkImageProvider> {
+class MapNetworkImageProvider extends ImageProvider<MapNetworkImageProvider> {
   /// The URL to fetch the tile from (GET request)
   final String url;
 
@@ -56,7 +55,7 @@ class FlutterMapNetworkImageProvider
   /// Supports falling back to a secondary URL, if the primary URL fetch fails.
   /// Note that specifying a [fallbackUrl] will prevent this image provider from
   /// being cached.
-  const FlutterMapNetworkImageProvider({
+  const MapNetworkImageProvider({
     required this.url,
     required this.fallbackUrl,
     required this.headers,
@@ -68,7 +67,7 @@ class FlutterMapNetworkImageProvider
 
   @override
   ImageStreamCompleter loadImage(
-    FlutterMapNetworkImageProvider key,
+    MapNetworkImageProvider key,
     ImageDecoderCallback decode,
   ) =>
       MultiFrameImageStreamCompleter(
@@ -83,7 +82,7 @@ class FlutterMapNetworkImageProvider
       );
 
   Future<Codec> _load(
-    FlutterMapNetworkImageProvider key,
+    MapNetworkImageProvider key,
     ImageDecoderCallback decode, {
     bool useFallback = false,
   }) {
@@ -109,7 +108,7 @@ class FlutterMapNetworkImageProvider
   }
 
   @override
-  SynchronousFuture<FlutterMapNetworkImageProvider> obtainKey(
+  SynchronousFuture<MapNetworkImageProvider> obtainKey(
     ImageConfiguration configuration,
   ) =>
       SynchronousFuture(this);
@@ -117,7 +116,7 @@ class FlutterMapNetworkImageProvider
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is FlutterMapNetworkImageProvider &&
+      (other is MapNetworkImageProvider &&
           fallbackUrl == null &&
           url == other.url);
 
