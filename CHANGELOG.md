@@ -1,10 +1,50 @@
 # Changelog
 
-## [6.0.1] - 2023/10/XX
+Please consider [donating](https://docs.fleaflet.dev/supporters#support-us) or [contributing](https://docs.fleaflet.dev/credits#contributing) if you're a fan of what we're doing and you'd like to support future releases!
+
+## [6.1.0] - 2023/12/02
+
+Contains the following user-affecting changes:
+
+- 🟢 Added option to draw labels on top of all `Polygon`s in a layer - [#1707](https://github.com/fleaflet/flutter_map/pull/1707)
+- (Released 'flutter_map_cancellable_tile_provider' [v2.0.0](https://pub.dev/packages/flutter_map_cancellable_tile_provider/changelog))
 
 Contains the following user-affecting bug fixes:
 
-- Fixed `CircleMarker`'s incorrect appearance and size  - [#1692](https://github.com/fleaflet/flutter_map/pull/1692) for [#1688](https://github.com/fleaflet/flutter_map/issues/1688)
+- Removed flutter_map text attribution when `RichAttributionWidget.showFlutterMapAttribution` is `false` - [#1712](https://github.com/fleaflet/flutter_map/pull/1712)
+- Repaired `TileLayer.tileBounds` - [#1713](https://github.com/fleaflet/flutter_map/pull/1713) for [#1710](https://github.com/fleaflet/flutter_map/issues/1710)
+- Added `doubleTapDragZoom` and `scrollWheelZoom` to `InteractiveFlag.all` - [#1726](https://github.com/fleaflet/flutter_map/pull/1726) for [#1725](https://github.com/fleaflet/flutter_map/issues/1725)
+- Repaired correct movement for `CircleLayer` when panning - [#1735](https://github.com/fleaflet/flutter_map/pull/1735)
+- Improved value distribution for `MapPosition.hashCode` - [#1747](https://github.com/fleaflet/flutter_map/pull/1747)
+
+Contains the following user-affecting performance improvements:
+
+- Optimized `Bounds` - [#1706](https://github.com/fleaflet/flutter_map/pull/1706)
+- Avoided creating a new list on every frame unnecessarily - [#1708](https://github.com/fleaflet/flutter_map/pull/1708)
+- Cull `Polygon` labels seperately (more strongly), and cache the `TextPainter` - [#1716](https://github.com/fleaflet/flutter_map/pull/1716)
+- Avoided caching a single commonly-used multiplication - [#1743](https://github.com/fleaflet/flutter_map/pull/1743)
+
+Many thanks to these contributors (in no particular order):
+
+- @ignatz
+- @amal-stack
+- @Robbendebiene
+- ... and all the maintainers
+
+And an additional special thanks to @ignatz for investing so much of their time into this project recently - we appreciate it!
+
+In other news:
+
+- A warm welcome to @josxha, who's recently joined the maintainer team
+- We've also made some widespread minor improvmenents to the example application
+- Check out the new [Showcase](https://docs.fleaflet.dev/showcase) page on our docs for some awesome projects
+- We're working on some very exciting reworked features and performance improvements for v7 - keep an ear out by joining our [Discord server](https://discord.gg/BwpEsjqMAH)
+
+## [6.0.1] - 2023/10/24
+
+Contains the following user-affecting bug fixes:
+
+- Fixed `CircleMarker`'s incorrect appearance and size - [#1692](https://github.com/fleaflet/flutter_map/pull/1692) for [#1688](https://github.com/fleaflet/flutter_map/issues/1688)
 - Fixed `LateInitializationError` when specifying `initialCameraFit` - [#1691](https://github.com/fleaflet/flutter_map/pull/1691) for [#1684](https://github.com/fleaflet/flutter_map/issues/1684)
 - Fixed incorrect behaviour issues caused by the adjusted default `MapOptions.cameraConstraint` - [#1700](https://github.com/fleaflet/flutter_map/pull/1700) for [#1682](https://github.com/fleaflet/flutter_map/issues/1682) & [#1699](https://github.com/fleaflet/flutter_map/issues/1699)
 - Fixed bug where not providing either `wmsOptions` nor `urlTemplate` caused a null exception in `getTileUrl` and when `retinaMode` is `true` - [#1701](https://github.com/fleaflet/flutter_map/pull/1701)

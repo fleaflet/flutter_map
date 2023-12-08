@@ -124,6 +124,9 @@ abstract class TileProvider {
   }
 
   /// Called when the [TileLayer] is disposed
+  ///
+  /// When disposing resources, ensure that they are not currently being used
+  /// by tiles in progress.
   void dispose() {}
 
   /// Regex that describes the format of placeholders in a `urlTemplate`

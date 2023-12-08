@@ -17,17 +17,12 @@ class MockHttpClient extends Mock implements BaseClient {}
 Future<ImageInfo> getImageInfo(ImageProvider provider) {
   final completer = Completer<ImageInfo>();
 
-  final ImageStream stream = provider.resolve(ImageConfiguration.empty);
-  stream.addListener(
-    ImageStreamListener(
-      (imageInfo, _) {
-        return completer.complete(imageInfo);
-      },
-      onError: (exception, stackTrace) {
-        return completer.completeError(exception, stackTrace);
-      },
-    ),
-  );
+  provider.resolve(ImageConfiguration.empty).addListener(
+        ImageStreamListener(
+          (imageInfo, _) => completer.complete(imageInfo),
+          onError: completer.completeError,
+        ),
+      );
 
   return completer.future;
 }
@@ -35,6 +30,7 @@ Future<ImageInfo> getImageInfo(ImageProvider provider) {
 /// Returns a random URL to use for testing. Due to Flutter caching images
 /// we need to use a different URL each time.
 int _urlId = 0;
+
 Uri randomUrl({bool fallback = false}) {
   _urlId++;
   if (fallback) {
@@ -52,174 +48,553 @@ void main() {
 
   const defaultTimeout = Timeout(Duration(seconds: 1));
 
+  final mockClient = MockHttpClient();
+
   setUpAll(() {
     // Ensure the Mock library has example values for Uri.
     registerFallbackValue(Uri());
   });
 
   // We expect a request to be made to the correct URL with the appropriate headers.
-  testWidgets('test load with correct url/headers', (tester) async {
-    final mockClient = MockHttpClient();
-    final url = randomUrl();
-    when(() => mockClient.readBytes(any(), headers: any(named: 'headers')))
-        .thenAnswer((_) async {
-      return testWhiteTileBytes;
-    });
+  testWidgets(
+    'Valid/expected response',
+    (tester) async {
+      final url = randomUrl();
+      when(() => mockClient.readBytes(any(), headers: any(named: 'headers')))
+          .thenAnswer((_) async => testWhiteTileBytes);
 
-    final provider = FlutterMapNetworkImageProvider(
-      url: url.toString(),
-      fallbackUrl: null,
-      headers: headers,
-      httpClient: mockClient,
-    );
+      bool startedLoadingTriggered = false;
+      bool finishedLoadingTriggered = false;
 
-    final img = await tester.runAsync(() => getImageInfo(provider));
-    expect(img, isNotNull);
-    expect(img!.image.width, equals(256));
-    expect(img.image.height, equals(256));
+      final provider = MapNetworkImageProvider(
+        url: url.toString(),
+        fallbackUrl: null,
+        headers: headers,
+        httpClient: mockClient,
+        silenceExceptions: false,
+        startedLoading: () => startedLoadingTriggered = true,
+        finishedLoadingBytes: () => finishedLoadingTriggered = true,
+      );
 
-    verify(() => mockClient.readBytes(url, headers: headers)).called(1);
-  }, timeout: defaultTimeout);
+      expect(startedLoadingTriggered, false);
+
+      final img = await tester.runAsync(() => getImageInfo(provider));
+
+      expect(startedLoadingTriggered, true);
+      expect(finishedLoadingTriggered, true);
+
+      expect(img, isNotNull);
+      expect(img!.image.width, equals(256));
+      expect(img.image.height, equals(256));
+      expect(tester.takeException(), isInstanceOf<Null>());
+
+      verify(() => mockClient.readBytes(url, headers: headers)).called(1);
+    },
+    timeout: defaultTimeout,
+  );
 
   // We expect the request to be made, and a HTTP ClientException to be bubbled
   // up to the caller.
-  testWidgets('test load with server failure (no fallback)', (tester) async {
-    final mockClient = MockHttpClient();
-    final url = randomUrl();
-    when(() => mockClient.readBytes(any(), headers: any(named: 'headers')))
-        .thenAnswer((_) async {
-      throw ClientException(
-        'Server error',
+  testWidgets(
+    'Server failure - no fallback, exceptions enabled',
+    (tester) async {
+      final url = randomUrl();
+      when(() => mockClient.readBytes(any(), headers: any(named: 'headers')))
+          .thenAnswer((_) async => throw ClientException('Server error'));
+
+      bool startedLoadingTriggered = false;
+      bool finishedLoadingTriggered = false;
+
+      final provider = MapNetworkImageProvider(
+        url: url.toString(),
+        fallbackUrl: null,
+        headers: headers,
+        httpClient: mockClient,
+        silenceExceptions: false,
+        startedLoading: () => startedLoadingTriggered = true,
+        finishedLoadingBytes: () => finishedLoadingTriggered = true,
       );
-    });
 
-    final provider = FlutterMapNetworkImageProvider(
-      url: url.toString(),
-      fallbackUrl: null,
-      headers: headers,
-      httpClient: mockClient,
-    );
+      expect(startedLoadingTriggered, false);
 
-    final img = await tester.runAsync(() => getImageInfo(provider));
-    expect(img, isNull);
-    expect(tester.takeException(), isInstanceOf<ClientException>());
+      final img = await tester.runAsync(() => getImageInfo(provider));
 
-    verify(() => mockClient.readBytes(url, headers: headers)).called(1);
-  }, timeout: defaultTimeout);
+      expect(startedLoadingTriggered, true);
+      expect(finishedLoadingTriggered, true);
+
+      expect(img, isNull);
+      expect(tester.takeException(), isInstanceOf<ClientException>());
+
+      verify(() => mockClient.readBytes(url, headers: headers)).called(1);
+    },
+    timeout: defaultTimeout,
+  );
+
+  testWidgets(
+    'Server failure - no fallback, exceptions silenced',
+    (tester) async {
+      final url = randomUrl();
+      when(() => mockClient.readBytes(any(), headers: any(named: 'headers')))
+          .thenAnswer((_) async => throw ClientException('Server error'));
+
+      bool startedLoadingTriggered = false;
+      bool finishedLoadingTriggered = false;
+
+      final provider = MapNetworkImageProvider(
+        url: url.toString(),
+        fallbackUrl: null,
+        headers: headers,
+        httpClient: mockClient,
+        silenceExceptions: true,
+        startedLoading: () => startedLoadingTriggered = true,
+        finishedLoadingBytes: () => finishedLoadingTriggered = true,
+      );
+
+      expect(startedLoadingTriggered, false);
+
+      final img = await tester.runAsync(() => getImageInfo(provider));
+
+      expect(startedLoadingTriggered, true);
+      expect(finishedLoadingTriggered, true);
+
+      expect(img, isNotNull);
+      expect(tester.takeException(), isInstanceOf<Null>());
+
+      verify(() => mockClient.readBytes(url, headers: headers)).called(1);
+    },
+    timeout: defaultTimeout,
+  );
 
   // We expect the regular URL to be called once, then the fallback URL.
-  testWidgets('test load with server error (with successful fallback)',
-      (tester) async {
-    final mockClient = MockHttpClient();
-    final url = randomUrl();
-    when(() => mockClient.readBytes(url, headers: any(named: 'headers')))
-        .thenAnswer((_) async {
-      throw ClientException(
-        'Server error',
+  testWidgets(
+    'Server failure - successful fallback, exceptions enabled',
+    (tester) async {
+      final url = randomUrl();
+      when(() => mockClient.readBytes(url, headers: any(named: 'headers')))
+          .thenAnswer((_) async => throw ClientException('Server error'));
+
+      final fallbackUrl = randomUrl(fallback: true);
+      when(() =>
+              mockClient.readBytes(fallbackUrl, headers: any(named: 'headers')))
+          .thenAnswer((_) async {
+        return testWhiteTileBytes;
+      });
+
+      bool startedLoadingTriggered = false;
+      bool finishedLoadingTriggered = false;
+
+      final provider = MapNetworkImageProvider(
+        url: url.toString(),
+        fallbackUrl: fallbackUrl.toString(),
+        headers: headers,
+        httpClient: mockClient,
+        silenceExceptions: false,
+        startedLoading: () => startedLoadingTriggered = true,
+        finishedLoadingBytes: () => finishedLoadingTriggered = true,
       );
-    });
-    final fallbackUrl = randomUrl(fallback: true);
-    when(() =>
-            mockClient.readBytes(fallbackUrl, headers: any(named: 'headers')))
-        .thenAnswer((_) async {
-      return testWhiteTileBytes;
-    });
 
-    final provider = FlutterMapNetworkImageProvider(
-      url: url.toString(),
-      fallbackUrl: fallbackUrl.toString(),
-      headers: headers,
-      httpClient: mockClient,
-    );
+      expect(startedLoadingTriggered, false);
 
-    final img = await tester.runAsync(() => getImageInfo(provider));
-    expect(img, isNotNull);
-    expect(img!.image.width, equals(256));
-    expect(img.image.height, equals(256));
+      final img = await tester.runAsync(() => getImageInfo(provider));
 
-    verify(() => mockClient.readBytes(url, headers: headers)).called(1);
-    verify(() => mockClient.readBytes(fallbackUrl, headers: headers)).called(1);
-  }, timeout: defaultTimeout);
+      expect(startedLoadingTriggered, true);
+      expect(finishedLoadingTriggered, true);
 
-  testWidgets('test load with server error (with failed fallback)',
-      (tester) async {
-    final mockClient = MockHttpClient();
-    final url = randomUrl();
-    final fallbackUrl = randomUrl(fallback: true);
-    when(() => mockClient.readBytes(any(), headers: any(named: 'headers')))
-        .thenAnswer((_) async {
-      throw ClientException(
-        'Server error',
+      expect(img, isNotNull);
+      expect(img!.image.width, equals(256));
+      expect(img.image.height, equals(256));
+      expect(tester.takeException(), isInstanceOf<Null>());
+
+      verify(() => mockClient.readBytes(url, headers: headers)).called(1);
+      verify(() => mockClient.readBytes(fallbackUrl, headers: headers))
+          .called(1);
+    },
+    timeout: defaultTimeout,
+  );
+
+  testWidgets(
+    'Server failure - successful fallback, exceptions silenced',
+    (tester) async {
+      final url = randomUrl();
+      when(() => mockClient.readBytes(url, headers: any(named: 'headers')))
+          .thenAnswer((_) async => throw ClientException('Server error'));
+
+      final fallbackUrl = randomUrl(fallback: true);
+      when(() =>
+              mockClient.readBytes(fallbackUrl, headers: any(named: 'headers')))
+          .thenAnswer((_) async {
+        return testWhiteTileBytes;
+      });
+
+      bool startedLoadingTriggered = false;
+      bool finishedLoadingTriggered = false;
+
+      final provider = MapNetworkImageProvider(
+        url: url.toString(),
+        fallbackUrl: fallbackUrl.toString(),
+        headers: headers,
+        httpClient: mockClient,
+        silenceExceptions: true,
+        startedLoading: () => startedLoadingTriggered = true,
+        finishedLoadingBytes: () => finishedLoadingTriggered = true,
       );
-    });
 
-    final provider = FlutterMapNetworkImageProvider(
-      url: url.toString(),
-      fallbackUrl: fallbackUrl.toString(),
-      headers: headers,
-      httpClient: mockClient,
-    );
+      expect(startedLoadingTriggered, false);
 
-    final img = await tester.runAsync(() => getImageInfo(provider));
-    expect(img, isNull);
-    expect(tester.takeException(), isInstanceOf<ClientException>());
+      final img = await tester.runAsync(() => getImageInfo(provider));
 
-    verify(() => mockClient.readBytes(url, headers: headers)).called(1);
-    verify(() => mockClient.readBytes(fallbackUrl, headers: headers)).called(1);
-  }, timeout: defaultTimeout);
+      expect(startedLoadingTriggered, true);
+      expect(finishedLoadingTriggered, true);
 
-  testWidgets('test load with invalid response (no fallback)', (tester) async {
-    final mockClient = MockHttpClient();
-    final url = randomUrl();
-    when(() => mockClient.readBytes(any(), headers: any(named: 'headers')))
-        .thenAnswer((_) async {
-      // 200 OK with html
-      return Uint8List.fromList(utf8.encode('<html>Server Error</html>'));
-    });
+      expect(img, isNotNull);
+      expect(tester.takeException(), isInstanceOf<Null>());
 
-    final provider = FlutterMapNetworkImageProvider(
-      url: url.toString(),
-      fallbackUrl: null,
-      headers: headers,
-      httpClient: mockClient,
-    );
+      verify(() => mockClient.readBytes(url, headers: headers)).called(1);
+      verify(() => mockClient.readBytes(fallbackUrl, headers: headers))
+          .called(1);
+    },
+    timeout: defaultTimeout,
+  );
 
-    final img = await tester.runAsync(() => getImageInfo(provider));
-    expect(img, isNull);
-    expect(tester.takeException(), isInstanceOf<Exception>());
+  testWidgets(
+    'Server failure - failed fallback, exceptions enabled',
+    (tester) async {
+      final url = randomUrl();
+      final fallbackUrl = randomUrl(fallback: true);
+      when(() => mockClient.readBytes(any(), headers: any(named: 'headers')))
+          .thenAnswer((_) async => throw ClientException('Server error'));
 
-    verify(() => mockClient.readBytes(url, headers: headers)).called(1);
-  }, timeout: defaultTimeout);
+      bool startedLoadingTriggered = false;
+      bool finishedLoadingTriggered = false;
 
-  testWidgets('test load with invalid response (with successful fallback)',
-      (tester) async {
-    final mockClient = MockHttpClient();
-    final url = randomUrl();
-    when(() => mockClient.readBytes(url, headers: any(named: 'headers')))
-        .thenAnswer((_) async {
-      // 200 OK with html
-      return Uint8List.fromList(utf8.encode('<html>Server Error</html>'));
-    });
-    final fallbackUrl = randomUrl(fallback: true);
-    when(() =>
-            mockClient.readBytes(fallbackUrl, headers: any(named: 'headers')))
-        .thenAnswer((_) async {
-      return testWhiteTileBytes;
-    });
+      final provider = MapNetworkImageProvider(
+        url: url.toString(),
+        fallbackUrl: fallbackUrl.toString(),
+        headers: headers,
+        httpClient: mockClient,
+        silenceExceptions: false,
+        startedLoading: () => startedLoadingTriggered = true,
+        finishedLoadingBytes: () => finishedLoadingTriggered = true,
+      );
 
-    final provider = FlutterMapNetworkImageProvider(
-      url: url.toString(),
-      fallbackUrl: fallbackUrl.toString(),
-      headers: headers,
-      httpClient: mockClient,
-    );
+      expect(startedLoadingTriggered, false);
 
-    final img = await tester.runAsync(() => getImageInfo(provider));
-    expect(img, isNotNull);
-    expect(img!.image.width, equals(256));
-    expect(img.image.height, equals(256));
+      final img = await tester.runAsync(() => getImageInfo(provider));
 
-    verify(() => mockClient.readBytes(url, headers: headers)).called(1);
-    verify(() => mockClient.readBytes(fallbackUrl, headers: headers)).called(1);
-  }, timeout: defaultTimeout);
+      expect(startedLoadingTriggered, true);
+      expect(finishedLoadingTriggered, true);
+
+      expect(img, isNull);
+      expect(tester.takeException(), isInstanceOf<ClientException>());
+
+      verify(() => mockClient.readBytes(url, headers: headers)).called(1);
+      verify(() => mockClient.readBytes(fallbackUrl, headers: headers))
+          .called(1);
+    },
+    timeout: defaultTimeout,
+  );
+
+  testWidgets(
+    'Server failure - failed fallback, exceptions silenced',
+    (tester) async {
+      final url = randomUrl();
+      final fallbackUrl = randomUrl(fallback: true);
+      when(() => mockClient.readBytes(any(), headers: any(named: 'headers')))
+          .thenAnswer((_) async => throw ClientException('Server error'));
+
+      bool startedLoadingTriggered = false;
+      bool finishedLoadingTriggered = false;
+
+      final provider = MapNetworkImageProvider(
+        url: url.toString(),
+        fallbackUrl: fallbackUrl.toString(),
+        headers: headers,
+        httpClient: mockClient,
+        silenceExceptions: true,
+        startedLoading: () => startedLoadingTriggered = true,
+        finishedLoadingBytes: () => finishedLoadingTriggered = true,
+      );
+
+      expect(startedLoadingTriggered, false);
+
+      final img = await tester.runAsync(() => getImageInfo(provider));
+
+      expect(startedLoadingTriggered, true);
+      expect(finishedLoadingTriggered, true);
+
+      expect(img, isNotNull);
+      expect(tester.takeException(), isInstanceOf<Null>());
+
+      verify(() => mockClient.readBytes(url, headers: headers)).called(1);
+      verify(() => mockClient.readBytes(fallbackUrl, headers: headers))
+          .called(1);
+    },
+    timeout: defaultTimeout,
+  );
+
+  testWidgets(
+    'Non-image response - no fallback, exceptions enabled',
+    (tester) async {
+      final url = randomUrl();
+      when(() => mockClient.readBytes(any(), headers: any(named: 'headers')))
+          .thenAnswer((_) async {
+        // 200 OK with html
+        return Uint8List.fromList(utf8.encode('<html>Server Error</html>'));
+      });
+
+      bool startedLoadingTriggered = false;
+      bool finishedLoadingTriggered = false;
+
+      final provider = MapNetworkImageProvider(
+        url: url.toString(),
+        fallbackUrl: null,
+        headers: headers,
+        httpClient: mockClient,
+        silenceExceptions: false,
+        startedLoading: () => startedLoadingTriggered = true,
+        finishedLoadingBytes: () => finishedLoadingTriggered = true,
+      );
+
+      expect(startedLoadingTriggered, false);
+
+      final img = await tester.runAsync(() => getImageInfo(provider));
+
+      expect(startedLoadingTriggered, true);
+      expect(finishedLoadingTriggered, true);
+
+      expect(img, isNull);
+      final exception = tester.takeException();
+      expect(exception, isInstanceOf<Exception>());
+      expect(
+        (exception as Exception).toString(),
+        equals('Exception: Invalid image data'),
+      );
+
+      verify(() => mockClient.readBytes(url, headers: headers)).called(1);
+    },
+    timeout: defaultTimeout,
+  );
+
+  testWidgets(
+    'Non-image response - no fallback, exceptions silenced',
+    (tester) async {
+      final url = randomUrl();
+      when(() => mockClient.readBytes(any(), headers: any(named: 'headers')))
+          .thenAnswer((_) async {
+        // 200 OK with html
+        return Uint8List.fromList(utf8.encode('<html>Server Error</html>'));
+      });
+
+      bool startedLoadingTriggered = false;
+      bool finishedLoadingTriggered = false;
+
+      final provider = MapNetworkImageProvider(
+        url: url.toString(),
+        fallbackUrl: null,
+        headers: headers,
+        httpClient: mockClient,
+        silenceExceptions: true,
+        startedLoading: () => startedLoadingTriggered = true,
+        finishedLoadingBytes: () => finishedLoadingTriggered = true,
+      );
+
+      expect(startedLoadingTriggered, false);
+
+      final img = await tester.runAsync(() => getImageInfo(provider));
+
+      expect(startedLoadingTriggered, true);
+      expect(finishedLoadingTriggered, true);
+
+      expect(img, isNotNull);
+      expect(tester.takeException(), isInstanceOf<Null>());
+
+      verify(() => mockClient.readBytes(url, headers: headers)).called(1);
+    },
+    timeout: defaultTimeout,
+  );
+
+  testWidgets(
+    'Non-image response - successful fallback, exceptions enabled',
+    (tester) async {
+      final url = randomUrl();
+      when(() => mockClient.readBytes(url, headers: any(named: 'headers')))
+          .thenAnswer((_) async {
+        // 200 OK with html
+        return Uint8List.fromList(utf8.encode('<html>Server Error</html>'));
+      });
+
+      final fallbackUrl = randomUrl(fallback: true);
+      when(() =>
+              mockClient.readBytes(fallbackUrl, headers: any(named: 'headers')))
+          .thenAnswer((_) async {
+        return testWhiteTileBytes;
+      });
+
+      bool startedLoadingTriggered = false;
+      bool finishedLoadingTriggered = false;
+
+      final provider = MapNetworkImageProvider(
+        url: url.toString(),
+        fallbackUrl: fallbackUrl.toString(),
+        headers: headers,
+        httpClient: mockClient,
+        silenceExceptions: false,
+        startedLoading: () => startedLoadingTriggered = true,
+        finishedLoadingBytes: () => finishedLoadingTriggered = true,
+      );
+
+      expect(startedLoadingTriggered, false);
+
+      final img = await tester.runAsync(() => getImageInfo(provider));
+
+      expect(startedLoadingTriggered, true);
+      expect(finishedLoadingTriggered, true);
+
+      expect(img, isNotNull);
+      expect(img!.image.width, equals(256));
+      expect(img.image.height, equals(256));
+      expect(tester.takeException(), isInstanceOf<Null>());
+
+      verify(() => mockClient.readBytes(url, headers: headers)).called(1);
+      verify(() => mockClient.readBytes(fallbackUrl, headers: headers))
+          .called(1);
+    },
+    timeout: defaultTimeout,
+  );
+
+  testWidgets(
+    'Non-image response - successful fallback, exceptions silenced',
+    (tester) async {
+      final url = randomUrl();
+      when(() => mockClient.readBytes(url, headers: any(named: 'headers')))
+          .thenAnswer((_) async {
+        // 200 OK with html
+        return Uint8List.fromList(utf8.encode('<html>Server Error</html>'));
+      });
+
+      final fallbackUrl = randomUrl(fallback: true);
+      when(() =>
+              mockClient.readBytes(fallbackUrl, headers: any(named: 'headers')))
+          .thenAnswer((_) async {
+        return testWhiteTileBytes;
+      });
+
+      bool startedLoadingTriggered = false;
+      bool finishedLoadingTriggered = false;
+
+      final provider = MapNetworkImageProvider(
+        url: url.toString(),
+        fallbackUrl: fallbackUrl.toString(),
+        headers: headers,
+        httpClient: mockClient,
+        silenceExceptions: false,
+        startedLoading: () => startedLoadingTriggered = true,
+        finishedLoadingBytes: () => finishedLoadingTriggered = true,
+      );
+
+      expect(startedLoadingTriggered, false);
+
+      final img = await tester.runAsync(() => getImageInfo(provider));
+
+      expect(startedLoadingTriggered, true);
+      expect(finishedLoadingTriggered, true);
+
+      expect(img, isNotNull);
+      expect(tester.takeException(), isInstanceOf<Null>());
+
+      verify(() => mockClient.readBytes(url, headers: headers)).called(1);
+      verify(() => mockClient.readBytes(fallbackUrl, headers: headers))
+          .called(1);
+    },
+    timeout: defaultTimeout,
+  );
+
+  testWidgets(
+    'Non-image response - failed fallback, exceptions enabled',
+    (tester) async {
+      final url = randomUrl();
+      final fallbackUrl = randomUrl(fallback: true);
+      when(() => mockClient.readBytes(any(), headers: any(named: 'headers')))
+          .thenAnswer((_) async {
+        // 200 OK with html
+        return Uint8List.fromList(utf8.encode('<html>Server Error</html>'));
+      });
+
+      bool startedLoadingTriggered = false;
+      bool finishedLoadingTriggered = false;
+
+      final provider = MapNetworkImageProvider(
+        url: url.toString(),
+        fallbackUrl: fallbackUrl.toString(),
+        headers: headers,
+        httpClient: mockClient,
+        silenceExceptions: false,
+        startedLoading: () => startedLoadingTriggered = true,
+        finishedLoadingBytes: () => finishedLoadingTriggered = true,
+      );
+
+      expect(startedLoadingTriggered, false);
+
+      final img = await tester.runAsync(() => getImageInfo(provider));
+
+      expect(startedLoadingTriggered, true);
+      expect(finishedLoadingTriggered, true);
+
+      expect(img, isNull);
+      final exception = tester.takeException();
+      expect(exception, isInstanceOf<Exception>());
+      expect(
+        (exception as Exception).toString(),
+        equals('Exception: Invalid image data'),
+      );
+
+      verify(() => mockClient.readBytes(url, headers: headers)).called(1);
+      verify(() => mockClient.readBytes(fallbackUrl, headers: headers))
+          .called(1);
+    },
+    timeout: defaultTimeout,
+  );
+
+  testWidgets(
+    'Non-image response - failed fallback, exceptions silenced',
+    (tester) async {
+      final url = randomUrl();
+      final fallbackUrl = randomUrl(fallback: true);
+      when(() => mockClient.readBytes(any(), headers: any(named: 'headers')))
+          .thenAnswer((_) async {
+        // 200 OK with html
+        return Uint8List.fromList(utf8.encode('<html>Server Error</html>'));
+      });
+
+      bool startedLoadingTriggered = false;
+      bool finishedLoadingTriggered = false;
+
+      final provider = MapNetworkImageProvider(
+        url: url.toString(),
+        fallbackUrl: fallbackUrl.toString(),
+        headers: headers,
+        httpClient: mockClient,
+        silenceExceptions: true,
+        startedLoading: () => startedLoadingTriggered = true,
+        finishedLoadingBytes: () => finishedLoadingTriggered = true,
+      );
+
+      expect(startedLoadingTriggered, false);
+
+      final img = await tester.runAsync(() => getImageInfo(provider));
+
+      expect(startedLoadingTriggered, true);
+      expect(finishedLoadingTriggered, true);
+
+      expect(img, isNotNull);
+      expect(tester.takeException(), isInstanceOf<Null>());
+
+      verify(() => mockClient.readBytes(url, headers: headers)).called(1);
+      verify(() => mockClient.readBytes(fallbackUrl, headers: headers))
+          .called(1);
+    },
+    timeout: defaultTimeout,
+  );
+
+  tearDownAll(() => mockClient.close());
 }

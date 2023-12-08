@@ -4,17 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/gestures/interactive_flag.dart';
-import 'package:flutter_map/src/gestures/latlng_tween.dart';
-import 'package:flutter_map/src/gestures/map_events.dart';
-import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
-import 'package:flutter_map/src/gestures/positioned_tap_detector_2.dart';
-import 'package:flutter_map/src/map/camera/camera.dart';
-import 'package:flutter_map/src/map/controller/internal.dart';
-import 'package:flutter_map/src/map/options/cursor_keyboard_rotation.dart';
-import 'package:flutter_map/src/map/options/interaction.dart';
-import 'package:flutter_map/src/map/options/options.dart';
-import 'package:flutter_map/src/misc/point_extensions.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:vector_math/vector_math_64.dart';
 
@@ -26,23 +16,22 @@ typedef InteractiveViewerBuilder = Widget Function(
 
 /// Applies interactions (gestures/scroll/taps etc) to the current [MapCamera]
 /// via the internal [controller].
-class FlutterMapInteractiveViewer extends StatefulWidget {
+class MapInteractiveViewer extends StatefulWidget {
   final InteractiveViewerBuilder builder;
-  final FlutterMapInternalController controller;
+  final MapControllerImpl controller;
 
-  const FlutterMapInteractiveViewer({
+  const MapInteractiveViewer({
     super.key,
     required this.builder,
     required this.controller,
   });
 
   @override
-  State<FlutterMapInteractiveViewer> createState() =>
-      FlutterMapInteractiveViewerState();
+  State<MapInteractiveViewer> createState() => MapInteractiveViewerState();
 }
 
-class FlutterMapInteractiveViewerState
-    extends State<FlutterMapInteractiveViewer> with TickerProviderStateMixin {
+class MapInteractiveViewerState extends State<MapInteractiveViewer>
+    with TickerProviderStateMixin {
   static const int _kMinFlingVelocity = 800;
   static const _kDoubleTapZoomDuration = 200;
   static const doubleTapDelay = Duration(milliseconds: 250);
@@ -336,11 +325,10 @@ class FlutterMapInteractiveViewerState
     if (_interactionOptions.cursorKeyboardRotationOptions.setNorthOnClick &&
         _ckrTriggered.value &&
         _ckrInitialDegrees == _camera.rotation) {
-      widget.controller.rotate(
+      widget.controller.rotateRaw(
         getCursorRotationDegrees(event.localPosition),
         hasGesture: true,
         source: MapEventSource.cursorKeyboardRotation,
-        id: null,
       );
     }
 
@@ -372,14 +360,13 @@ class FlutterMapInteractiveViewerState
     final baseSetNorth =
         getCursorRotationDegrees(event.localPosition) - _ckrClickDegrees;
 
-    widget.controller.rotate(
+    widget.controller.rotateRaw(
       _interactionOptions.cursorKeyboardRotationOptions.behaviour ==
               CursorRotationBehaviour.setNorth
           ? baseSetNorth
           : (_ckrInitialDegrees + baseSetNorth) % 360,
       hasGesture: true,
       source: MapEventSource.cursorKeyboardRotation,
-      id: null,
     );
 
     if (_interactionOptions.cursorKeyboardRotationOptions.behaviour ==
@@ -408,13 +395,11 @@ class FlutterMapInteractiveViewerState
             pointerSignal.localPosition.toPoint(),
             newZoom,
           );
-          widget.controller.move(
+          widget.controller.moveRaw(
             newCenter,
             newZoom,
-            offset: Offset.zero,
             hasGesture: true,
             source: MapEventSource.scrollWheel,
-            id: null,
           );
         },
       );
@@ -501,7 +486,7 @@ class FlutterMapInteractiveViewerState
       return;
     }
 
-    final currentRotation = radianToDeg(details.rotation);
+    final currentRotation = details.rotation * radians2Degrees;
     if (_dragMode) {
       _handleScaleDragUpdate(details);
     } else if (InteractiveFlag.hasMultiFinger(_interactionOptions.flags)) {
@@ -619,13 +604,11 @@ class FlutterMapInteractiveViewerState
     }
 
     if (_pinchZoomStarted || _pinchMoveStarted) {
-      widget.controller.move(
+      widget.controller.moveRaw(
         newCenter,
         newZoom,
-        offset: Offset.zero,
         hasGesture: true,
         source: MapEventSource.onMultiFinger,
-        id: null,
       );
     }
   }
@@ -664,14 +647,13 @@ class FlutterMapInteractiveViewerState
       final rotatedVector = vector.rotate(degrees2Radians * rotationDiff);
       final newCenter = rotationCenter + rotatedVector;
 
-      widget.controller.moveAndRotate(
+      widget.controller.moveAndRotateRaw(
         _camera.unproject(newCenter),
         _camera.zoom,
         _camera.rotation + rotationDiff,
         offset: Offset.zero,
         hasGesture: true,
         source: MapEventSource.onMultiFinger,
-        id: null,
       );
     }
   }
@@ -844,13 +826,11 @@ class FlutterMapInteractiveViewerState
   }
 
   void _handleDoubleTapZoomAnimation() {
-    widget.controller.move(
+    widget.controller.moveRaw(
       _doubleTapCenterAnimation.value,
       _doubleTapZoomAnimation.value,
-      offset: Offset.zero,
       hasGesture: true,
       source: MapEventSource.doubleTapZoomAnimationController,
-      id: null,
     );
   }
 
@@ -874,13 +854,11 @@ class FlutterMapInteractiveViewerState
       final max = _options.maxZoom ?? double.infinity;
       final actualZoom = math.max(min, math.min(max, newZoom));
 
-      widget.controller.move(
+      widget.controller.moveRaw(
         _camera.center,
         actualZoom,
-        offset: Offset.zero,
         hasGesture: true,
         source: MapEventSource.doubleTapHold,
-        id: null,
       );
     }
   }
@@ -896,13 +874,11 @@ class FlutterMapInteractiveViewerState
         _flingAnimation.value.toPoint().rotate(_camera.rotationRad);
     final newCenter = _camera.unproject(newCenterPoint);
 
-    widget.controller.move(
+    widget.controller.moveRaw(
       newCenter,
       _camera.zoom,
-      offset: Offset.zero,
       hasGesture: true,
       source: MapEventSource.flingAnimationController,
-      id: null,
     );
   }
 

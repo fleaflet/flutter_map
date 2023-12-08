@@ -15,22 +15,20 @@ class PluginScaleBar extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Scale Bar Plugin')),
       drawer: const MenuDrawer(PluginScaleBar.route),
-      body: Flexible(
-        child: FlutterMap(
-          options: const MapOptions(
-            initialCenter: LatLng(51.5, -0.09),
-            initialZoom: 5,
-          ),
-          children: [
-            openStreetMapTileLayer,
-            const FlutterMapScaleLayer(
-              lineColor: Colors.black,
-              lineWidth: 3,
-              textStyle: TextStyle(color: Colors.black, fontSize: 14),
-              padding: EdgeInsets.all(10),
-            ),
-          ],
+      body: FlutterMap(
+        options: const MapOptions(
+          initialCenter: LatLng(51.5, -0.09),
+          initialZoom: 5,
         ),
+        children: [
+          openStreetMapTileLayer,
+          const FlutterMapScaleLayer(
+            lineColor: Colors.black,
+            lineWidth: 3,
+            textStyle: TextStyle(color: Colors.black, fontSize: 14),
+            padding: EdgeInsets.all(10),
+          ),
+        ],
       ),
     );
   }
