@@ -486,7 +486,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       return;
     }
 
-    final currentRotation = radianToDeg(details.rotation);
+    final currentRotation = details.rotation * radians2Degrees;
     if (_dragMode) {
       _handleScaleDragUpdate(details);
     } else if (InteractiveFlag.hasMultiFinger(_interactionOptions.flags)) {
