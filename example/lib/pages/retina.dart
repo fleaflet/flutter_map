@@ -18,10 +18,11 @@ class RetinaPage extends StatefulWidget {
 
 class _RetinaPageState extends State<RetinaPage> {
   String urlTemplate = RetinaPage._defaultUrlTemplate;
-  final urlTemplateInputController = InputFieldColorizer(
+  final urlTemplateInputController = InputFieldStylizer(
     {
       '{r}': const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
       '{accessToken}': const TextStyle(fontStyle: FontStyle.italic),
+      '{access_token}': const TextStyle(fontStyle: FontStyle.italic),
     },
     initialValue: RetinaPage._defaultUrlTemplate,
   );
@@ -34,7 +35,10 @@ class _RetinaPageState extends State<RetinaPage> {
     final tileLayer = TileLayer(
       urlTemplate: urlTemplate,
       userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-      additionalOptions: {'accessToken': accessToken ?? ''},
+      additionalOptions: {
+        'accessToken': accessToken ?? '',
+        'access_token': accessToken ?? '',
+      },
       retinaMode: switch (retinaMode) {
         null => RetinaMode.isHighDensity(context),
         _ => retinaMode!,
@@ -55,90 +59,101 @@ class _RetinaPageState extends State<RetinaPage> {
         children: [
           Padding(
             padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                Column(
-                  children: [
-                    const Text(
-                      'Retina Mode',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Row(
-                      children: [
-                        Checkbox.adaptive(
-                          tristate: true,
-                          value: retinaMode,
-                          onChanged: (v) => setState(() => retinaMode = v),
-                        ),
-                        Text(switch (retinaMode) {
-                          null => '(auto)',
-                          true => '(force)',
-                          false => '(disabled)',
-                        }),
-                      ],
-                    ),
-                    const SizedBox.square(dimension: 4),
-                    Builder(
-                      builder: (context) {
-                        final dpr = MediaQuery.of(context).devicePixelRatio;
-                        return RichText(
-                          textAlign: TextAlign.center,
-                          text: TextSpan(
-                            style: DefaultTextStyle.of(context).style,
-                            children: [
-                              const TextSpan(
-                                text: 'Screen Density: ',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              TextSpan(text: '@${dpr.toStringAsFixed(2)}x\n'),
-                              const TextSpan(
-                                text: 'Resulting Method: ',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              TextSpan(
-                                text: tileLayer.resolvedRetinaMode.friendlyName,
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox.square(dimension: 12),
-                Expanded(
-                  child: Column(
+            child: IntrinsicHeight(
+              child: Row(
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      TextFormField(
-                        onChanged: (v) => setState(() => urlTemplate = v),
-                        decoration: InputDecoration(
-                          prefixIcon: const Icon(Icons.link),
-                          border: const UnderlineInputBorder(),
-                          isDense: true,
-                          labelText: 'URL Template',
-                          helperText: urlTemplate.contains('{r}')
-                              ? "Remove the '{r}' placeholder to simulate retina mode when enabled"
-                              : "Add an '{r}' placeholder to request retina tiles when enabled",
-                        ),
-                        controller: urlTemplateInputController,
+                      const Text(
+                        'Retina Mode',
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      TextFormField(
-                        onChanged: (v) => setState(() => accessToken = v),
-                        autofocus: true,
-                        decoration: InputDecoration(
-                          prefixIcon: const Icon(Icons.password),
-                          border: const UnderlineInputBorder(),
-                          isDense: true,
-                          labelText: 'Access Token',
-                          errorText: accessToken?.isEmpty ?? true
-                              ? 'Insert your own access token'
-                              : null,
-                        ),
+                      Row(
+                        children: [
+                          Checkbox.adaptive(
+                            tristate: true,
+                            value: retinaMode,
+                            onChanged: (v) => setState(() => retinaMode = v),
+                          ),
+                          Text(switch (retinaMode) {
+                            null => '(auto)',
+                            true => '(force)',
+                            false => '(disabled)',
+                          }),
+                        ],
+                      ),
+                      const SizedBox.square(dimension: 4),
+                      Builder(
+                        builder: (context) {
+                          final dpr = MediaQuery.of(context).devicePixelRatio;
+                          return RichText(
+                            textAlign: TextAlign.center,
+                            text: TextSpan(
+                              style: DefaultTextStyle.of(context).style,
+                              children: [
+                                const TextSpan(
+                                  text: 'Screen Density: ',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                TextSpan(text: '@${dpr.toStringAsFixed(2)}x\n'),
+                                const TextSpan(
+                                  text: 'Resulting Method: ',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                TextSpan(
+                                  text:
+                                      tileLayer.resolvedRetinaMode.friendlyName,
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
-                ),
-              ],
+                  const VerticalDivider(width: 24),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          onFieldSubmitted: (v) =>
+                              setState(() => urlTemplate = v),
+                          decoration: InputDecoration(
+                            prefixIcon: const Icon(Icons.link),
+                            border: const UnderlineInputBorder(),
+                            isDense: true,
+                            labelText: 'URL Template',
+                            helperText: urlTemplate.contains('{r}')
+                                ? "Remove the '{r}' placeholder to simulate retina mode when enabled"
+                                : "Add an '{r}' placeholder to request retina tiles when enabled",
+                          ),
+                          controller: urlTemplateInputController,
+                        ),
+                        TextFormField(
+                          onFieldSubmitted: (v) =>
+                              setState(() => accessToken = v),
+                          enabled: urlTemplate.contains('{accessToken}') ||
+                              urlTemplate.contains('{access_token}'),
+                          autofocus: true,
+                          decoration: InputDecoration(
+                            prefixIcon: const Icon(Icons.password),
+                            border: const UnderlineInputBorder(),
+                            isDense: true,
+                            labelText: 'Access Token',
+                            errorText: (urlTemplate.contains('{accessToken}') ||
+                                        urlTemplate
+                                            .contains('{access_token}')) &&
+                                    (accessToken?.isEmpty ?? true)
+                                ? 'Insert your own access token (or remove the placeholder)'
+                                : null,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           Expanded(
@@ -187,11 +202,11 @@ class _RetinaPageState extends State<RetinaPage> {
 }
 
 // Inspired by https://stackoverflow.com/a/59773962/11846040
-class InputFieldColorizer extends TextEditingController {
+class InputFieldStylizer extends TextEditingController {
   final Map<String, TextStyle> mapping;
   final Pattern pattern;
 
-  InputFieldColorizer(this.mapping, {String? initialValue})
+  InputFieldStylizer(this.mapping, {String? initialValue})
       : pattern =
             RegExp(mapping.keys.map((key) => RegExp.escape(key)).join('|')),
         super(text: initialValue);
