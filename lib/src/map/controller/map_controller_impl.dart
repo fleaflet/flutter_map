@@ -536,24 +536,56 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     double newZoom,
     double newRotation, {
     required Offset offset,
+    required Duration duration,
+    required Curve curve,
     required bool hasGesture,
     required MapEventSource source,
   }) {
     if (newRotation == camera.rotation &&
         newCenter == camera.center &&
         newZoom == camera.zoom) return;
-    // TODO
+
+    // cancel all ongoing animation
+    if (animationController.isAnimating) animationController.stop();
+
+    // create the new animation
+    _moveAnimation = LatLngTween(begin: camera.center, end: newCenter)
+        .chain(CurveTween(curve: curve))
+        .animate(animationController);
+    _zoomAnimation = Tween<double>(begin: camera.zoom, end: newZoom)
+        .chain(CurveTween(curve: curve))
+        .animate(animationController);
+    _rotationAnimation = Tween<double>(begin: camera.rotation, end: newRotation)
+        .chain(CurveTween(curve: curve))
+        .animate(animationController);
+
+    animationController.duration = duration;
+    animationController.addListener(() {
+      moveAndRotateRaw(
+        _moveAnimation.value,
+        _zoomAnimation.value,
+        _rotationAnimation.value,
+        hasGesture: hasGesture,
+        source: MapEventSource.mapController,
+        offset: offset,
+      );
+    });
+
+    // start the animation from its start
+    animationController.forward(from: 0);
   }
 
   void moveAnimatedRaw(
     LatLng newCenter,
     double newZoom, {
     Offset offset = Offset.zero,
-    Duration duration = const Duration(milliseconds: 500),
+    required Duration duration,
     required Curve curve,
     required bool hasGesture,
     required MapEventSource source,
   }) {
+    if (newCenter == camera.center && newZoom == camera.zoom) return;
+
     // cancel all ongoing animation
     if (animationController.isAnimating) animationController.stop();
 
@@ -568,8 +600,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     animationController.duration = duration;
     animationController.addListener(() {
       moveRaw(
-        _moveAnimation!.value,
-        _zoomAnimation!.value,
+        _moveAnimation.value,
+        _zoomAnimation.value,
         hasGesture: hasGesture,
         source: MapEventSource.mapController,
         offset: offset,
