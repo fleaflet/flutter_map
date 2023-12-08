@@ -2,7 +2,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/gestures/gestures.dart';
-import 'package:flutter_map/src/map/controller/internal_map_controller.dart';
 
 typedef ChildBuilder = Widget Function(
   BuildContext context,
@@ -12,7 +11,7 @@ typedef ChildBuilder = Widget Function(
 
 class MapInteractiveViewer extends StatefulWidget {
   final ChildBuilder builder;
-  final InternalMapController controller;
+  final MapControllerImpl controller;
 
   const MapInteractiveViewer({
     super.key,

@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:collection';
+
 import 'package:flutter/rendering.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
@@ -34,23 +37,48 @@ class NetworkTileProvider extends TileProvider {
   NetworkTileProvider({
     super.headers,
     BaseClient? httpClient,
-  }) : httpClient = httpClient ?? RetryClient(Client());
+    this.silenceExceptions = false,
+  }) : _httpClient = httpClient ?? RetryClient(Client());
 
-  /// The HTTP client used to make network requests for tiles
-  final BaseClient httpClient;
+  /// Whether to ignore exceptions and errors that occur whilst fetching tiles
+  /// over the network, and just return a transparent tile
+  final bool silenceExceptions;
+
+  /// Long living client used to make all tile requests by
+  /// [FlutterMapNetworkImageProvider] for the duration that this provider is
+  /// alive
+  final BaseClient _httpClient;
+
+  /// Each [Completer] is completed once the corresponding tile has finished
+  /// loading
+  ///
+  /// Used to avoid disposing of [_httpClient] whilst HTTP requests are still
+  /// underway.
+  ///
+  /// Does not include tiles loaded from session cache.
+  final _tilesInProgress = HashMap<TileCoordinates, Completer<void>>();
 
   @override
   ImageProvider getImage(TileCoordinates coordinates, TileLayer options) =>
-      FlutterMapNetworkImageProvider(
+      MapNetworkImageProvider(
         url: getTileUrl(coordinates, options),
         fallbackUrl: getTileFallbackUrl(coordinates, options),
         headers: headers,
-        httpClient: httpClient,
+        httpClient: _httpClient,
+        silenceExceptions: silenceExceptions,
+        startedLoading: () => _tilesInProgress[coordinates] = Completer(),
+        finishedLoadingBytes: () {
+          _tilesInProgress[coordinates]?.complete();
+          _tilesInProgress.remove(coordinates);
+        },
       );
 
   @override
-  void dispose() {
-    httpClient.close();
+  Future<void> dispose() async {
+    if (_tilesInProgress.isNotEmpty) {
+      await Future.wait(_tilesInProgress.values.map((c) => c.future));
+    }
+    _httpClient.close();
     super.dispose();
   }
 }

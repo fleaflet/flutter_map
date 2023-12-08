@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:latlong2/latlong.dart';
+import 'package:vector_math/vector_math_64.dart';
 
 /// Data structure representing rectangular bounding box constrained by its
 /// northwest and southeast corners
@@ -98,8 +99,9 @@ class LatLngBounds {
     final lambda1 = southWest.longitudeInRad;
     final phi2 = northEast.latitudeInRad;
 
-    final dLambda = degToRadian(northEast.longitude -
-        southWest.longitude); // delta lambda = lambda2-lambda1
+    final dLambda = degrees2Radians *
+        (northEast.longitude -
+            southWest.longitude); // delta lambda = lambda2-lambda1
 
     final bx = math.cos(phi2) * math.cos(dLambda);
     final by = math.cos(phi2) * math.sin(dLambda);
@@ -108,7 +110,7 @@ class LatLngBounds {
     final lambda3 = lambda1 + math.atan2(by, math.cos(phi1) + bx);
 
     // phi3 and lambda3 are actually in radians and LatLng wants degrees
-    return LatLng(radianToDeg(phi3), radianToDeg(lambda3));
+    return LatLng(phi3 * radians2Degrees, lambda3 * radians2Degrees);
   }
 
   /// Checks whether [point] is inside bounds

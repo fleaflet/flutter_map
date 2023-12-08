@@ -104,7 +104,6 @@ class MarkerLayer extends StatelessWidget {
 
     return MobileLayerTransformer(
       child: Stack(
-        // ignore: avoid_types_on_closure_parameters
         children: (List<Marker> markers) sync* {
           for (final m in markers) {
             // Resolve real alignment

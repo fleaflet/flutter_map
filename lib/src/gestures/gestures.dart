@@ -4,10 +4,9 @@ import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/map/controller/internal_map_controller.dart';
 
 abstract class Gesture {
-  final InternalMapController controller;
+  final MapControllerImpl controller;
 
   Gesture({required this.controller});
 
@@ -116,7 +115,7 @@ class DoubleTapGesture extends DelayedGesture {
     if (details == null) return;
 
     // start double tap animation
-    // TODO animate movement
+    // TODO animate moveRawment
     //controller.doubleTapZoomStarted(MapEventSource.doubleTap);
     final newZoom = _getZoomForScale(_camera.zoom, 2);
     final newCenter = _camera.focusedZoomCenter(
@@ -131,13 +130,11 @@ class DoubleTapGesture extends DelayedGesture {
       ),
     );
 
-    controller.move(
+    controller.moveRaw(
       newCenter,
       newZoom,
-      offset: Offset.zero,
       hasGesture: true,
       source: MapEventSource.doubleTap,
-      id: null,
     );
 
     controller.emitMapEvent(
@@ -225,13 +222,11 @@ class ScrollWheelZoomGesture extends Gesture {
         details.localPosition.toPoint(),
         newZoom,
       );
-      controller.move(
+      controller.moveRaw(
         newCenter,
         newZoom,
-        offset: Offset.zero,
         hasGesture: true,
         source: MapEventSource.scrollWheel,
-        id: null,
       );
     });
   }
@@ -294,14 +289,13 @@ class TwoFingerGestures extends Gesture {
     final newCenterPt = oldCenterPt + offset.toPoint();
     final newCenter = _camera.unproject(newCenterPt);
 
-    controller.moveAndRotate(
+    controller.moveAndRotateRaw(
       newCenter,
       newZoom,
       newRotation,
       offset: Offset.zero,
       hasGesture: true,
       source: MapEventSource.onMultiFinger,
-      id: null,
     );
 
     _lastRotation = details.rotation;
@@ -349,13 +343,11 @@ class DragGesture extends Gesture {
     final newCenterPt = oldCenterPt + offset.toPoint();
     final newCenter = _camera.unproject(newCenterPt);
 
-    controller.move(
+    controller.moveRaw(
       newCenter,
       _camera.zoom,
-      offset: Offset.zero,
       hasGesture: true,
       source: MapEventSource.onDrag,
-      id: null,
     );
 
     _lastLocalFocal = details.localFocalPoint;
@@ -386,11 +378,10 @@ class CtrlDragRotateGesture extends Gesture {
   }
 
   void update(ScaleUpdateDetails details) {
-    controller.rotate(
+    controller.rotateRaw(
       _camera.rotation - (details.focalPointDelta.dy * 0.5),
       hasGesture: true,
       source: MapEventSource.ctrlDragRotate,
-      id: null,
     );
   }
 
@@ -440,13 +431,11 @@ class DoubleTapDragZoomGesture extends Gesture {
     final min = _options.minZoom ?? 0.0;
     final max = _options.maxZoom ?? double.infinity;
     final actualZoom = math.max(min, math.min(max, newZoom));
-    controller.move(
+    controller.moveRaw(
       _camera.center,
       actualZoom,
-      offset: Offset.zero,
       hasGesture: true,
       source: MapEventSource.doubleTapHold,
-      id: null,
     );
   }
 

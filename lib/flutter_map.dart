@@ -58,4 +58,3 @@ export 'package:flutter_map/src/misc/center_zoom.dart';
 export 'package:flutter_map/src/misc/move_and_rotate_result.dart';
 export 'package:flutter_map/src/misc/point_extensions.dart';
 export 'package:flutter_map/src/misc/position.dart';
-export 'package:latlong2/latlong.dart';
