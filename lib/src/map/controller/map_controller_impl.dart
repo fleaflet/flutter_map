@@ -17,10 +17,13 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
 
   late final MapInteractiveViewerState _interactiveViewerState;
 
-  late Animation<LatLng> _moveAnimation;
-  late Animation<double> _zoomAnimation;
-  late Animation<double> _rotationAnimation;
-  late Animation<Offset> _flingAnimation;
+  Animation<LatLng>? _moveAnimation;
+  Animation<double>? _zoomAnimation;
+  Animation<double>? _rotationAnimation;
+  Animation<Offset>? _flingAnimation;
+  late bool _animationHasGesture;
+  late Offset _animationOffset;
+  late Point _flingMapCenterStartPoint;
 
   MapControllerImpl({MapOptions? options, TickerProvider? vsync})
       : super(
@@ -30,7 +33,10 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
             animationController:
                 vsync == null ? null : AnimationController(vsync: vsync),
           ),
-        );
+        ) {
+    value.animationController?.addListener(_handleAnimation);
+    value.animationController?.addStatusListener(_handleAnimationStatus);
+  }
 
   /// Link the viewer state with the controller. This should be done once when
   /// the FlutterMapInteractiveViewerState is initialized.
@@ -360,7 +366,9 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
       value = _MapControllerState(
         options: value.options,
         camera: value.camera,
-        animationController: AnimationController(vsync: tickerProvider),
+        animationController: AnimationController(vsync: tickerProvider)
+          ..addListener(_handleAnimation)
+          ..addStatusListener(_handleAnimationStatus),
       );
     } else {
       _animationController.resync(tickerProvider);
@@ -561,16 +569,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
         .animate(_animationController);
 
     _animationController.duration = duration;
-    _animationController.addListener(() {
-      moveAndRotateRaw(
-        _moveAnimation.value,
-        _zoomAnimation.value,
-        _rotationAnimation.value,
-        hasGesture: hasGesture,
-        source: MapEventSource.mapController,
-        offset: offset,
-      );
-    });
+    _animationHasGesture = hasGesture;
+    _animationOffset = offset;
 
     // start the animation from its start
     _animationController.forward(from: 0);
@@ -590,6 +590,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
       return;
     }
     if (_animationController.isAnimating) _animationController.stop();
+    _animationHasGesture = true;
+    _flingMapCenterStartPoint = camera.project(camera.center);
 
     final distance =
         (Offset.zero & Size(camera.nonRotatedSize.x, camera.nonRotatedSize.y))
@@ -634,15 +636,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
         .animate(_animationController);
 
     _animationController.duration = duration;
-    _animationController.addListener(() {
-      moveRaw(
-        _moveAnimation.value,
-        _zoomAnimation.value,
-        hasGesture: hasGesture,
-        source: MapEventSource.mapController,
-        offset: offset,
-      );
-    });
+    _animationHasGesture = hasGesture;
+    _animationOffset = offset;
 
     // start the animation from its start
     _animationController.forward(from: 0);
@@ -656,6 +651,33 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     options.onMapEvent?.call(event);
 
     _mapEventSink.add(event);
+  }
+
+  void _handleAnimation() {
+    if (_flingAnimation != null) {
+      final newCenterPoint = _flingMapCenterStartPoint +
+          _flingAnimation!.value.toPoint().rotate(camera.rotationRad);
+      moveRaw(
+        camera.unproject(newCenterPoint),
+        camera.zoom,
+        hasGesture: true,
+        source: MapEventSource.flingAnimationController,
+      );
+    }
+
+    moveAndRotateRaw(
+      _moveAnimation?.value ?? camera.center,
+      _zoomAnimation?.value ?? camera.zoom,
+      _rotationAnimation?.value ?? camera.rotation,
+      hasGesture: _animationHasGesture,
+      source: MapEventSource.mapController,
+      offset: _animationOffset,
+    );
+  }
+
+  void _handleAnimationStatus(AnimationStatus status) {
+    const endStates = [AnimationStatus.completed, AnimationStatus.dismissed];
+    if (!endStates.contains(status)) return;
   }
 
   @override
