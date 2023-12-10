@@ -2,7 +2,13 @@
 
 A versatile mapping package for Flutter. Simple and easy to learn, yet completely customizable and configurable, it's the best choice for mapping in your Flutter app.
 
-[![pub.dev](https://img.shields.io/pub/v/flutter_map.svg?label=Latest+Version)](https://pub.dev/packages/flutter_map) [![stars](https://badgen.net/github/stars/fleaflet/flutter_map?label=stars&color=green&icon=github)](https://github.com/fleaflet/flutter_map/stargazers) [![likes](https://img.shields.io/pub/likes/flutter_map?logo=flutter)](https://pub.dev/packages/flutter_map/score)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![Open Issues](https://badgen.net/github/open-issues/fleaflet/flutter_map?label=Open+Issues&color=green)](https://GitHub.com/fleaflet/flutter_map/issues) [![Open PRs](https://badgen.net/github/open-prs/fleaflet/flutter_map?label=Open+PRs&color=green)](https://GitHub.com/fleaflet/flutter_map/pulls)
+[![pub.dev](https://img.shields.io/pub/v/flutter_map.svg?label=Latest+Version)](https://pub.dev/packages/flutter_map)
+[![stars](https://badgen.net/github/stars/fleaflet/flutter_map?label=stars&color=green&icon=github)](https://github.com/fleaflet/flutter_map/stargazers)
+[![likes](https://img.shields.io/pub/likes/flutter_map?logo=flutter)](https://pub.dev/packages/flutter_map/score)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[![codecov](https://codecov.io/gh/fleaflet/flutter_map/graph/badge.svg?token=LgYgZQ0Yjj)](https://codecov.io/gh/fleaflet/flutter_map)
+[![Open Issues](https://badgen.net/github/open-issues/fleaflet/flutter_map?label=Open+Issues&color=green)](https://GitHub.com/fleaflet/flutter_map/issues)
+[![Open PRs](https://badgen.net/github/open-prs/fleaflet/flutter_map?label=Open+PRs&color=green)](https://GitHub.com/fleaflet/flutter_map/pulls)
 
 ## [Donate](https://docs.fleaflet.dev/supporters#support-us)
 
