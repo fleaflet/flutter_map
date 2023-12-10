@@ -6,6 +6,4 @@ ignore:
   - "example"
   - "benchmark"
 
-comment:
-  # this posts no PR comment if there are no coverage changes
-  require_changes: true
+comment: false
