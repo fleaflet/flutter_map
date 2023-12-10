@@ -49,10 +49,6 @@ jobs:
         run: dart format --output=none --set-exit-if-changed .
       - name: Check Lints
         run: dart analyze --fatal-infos --fatal-warnings
-      - name: Run Codecov
-        uses: codecov/codecov-action@v3
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   run-tests:
     name: "Run Tests"
@@ -64,8 +60,12 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: "stable"
-      - name: Run Tests
-        run: flutter test -r expanded
+      - name: Run Tests with Coverage
+        run: flutter test -r expanded --coverage
+      - name: Run Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   build-android:
    name: "Build Android Example App"
