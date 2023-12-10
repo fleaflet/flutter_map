@@ -20,6 +20,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   late Animation<LatLng> _moveAnimation;
   late Animation<double> _zoomAnimation;
   late Animation<double> _rotationAnimation;
+  late Animation<Offset> _flingAnimation;
 
   MapControllerImpl({MapOptions? options, TickerProvider? vsync})
       : super(
@@ -56,7 +57,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
             'least once before using the MapController.'));
   }
 
-  AnimationController get animationController {
+  AnimationController get _animationController {
     return value.animationController ??
         (throw Exception('You need to have the FlutterMap widget rendered at '
             'least once before using the MapController.'));
@@ -362,7 +363,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
         animationController: AnimationController(vsync: tickerProvider),
       );
     } else {
-      animationController.resync(tickerProvider);
+      _animationController.resync(tickerProvider);
     }
   }
 
@@ -546,21 +547,21 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
         newZoom == camera.zoom) return;
 
     // cancel all ongoing animation
-    if (animationController.isAnimating) animationController.stop();
+    if (_animationController.isAnimating) _animationController.stop();
 
     // create the new animation
     _moveAnimation = LatLngTween(begin: camera.center, end: newCenter)
         .chain(CurveTween(curve: curve))
-        .animate(animationController);
+        .animate(_animationController);
     _zoomAnimation = Tween<double>(begin: camera.zoom, end: newZoom)
         .chain(CurveTween(curve: curve))
-        .animate(animationController);
+        .animate(_animationController);
     _rotationAnimation = Tween<double>(begin: camera.rotation, end: newRotation)
         .chain(CurveTween(curve: curve))
-        .animate(animationController);
+        .animate(_animationController);
 
-    animationController.duration = duration;
-    animationController.addListener(() {
+    _animationController.duration = duration;
+    _animationController.addListener(() {
       moveAndRotateRaw(
         _moveAnimation.value,
         _zoomAnimation.value,
@@ -572,7 +573,42 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     });
 
     // start the animation from its start
-    animationController.forward(from: 0);
+    _animationController.forward(from: 0);
+  }
+
+  void stopAnimationRaw() => _animationController.stop();
+
+  void flingAnimatedRaw({
+    required double velocity,
+    required Offset direction,
+    required Offset offset,
+    double mass = 1,
+    double stiffness = 1000,
+    double ratio = 5,
+  }) {
+    if (!InteractiveFlag.hasFlingAnimation(options.interactionOptions.flags)) {
+      return;
+    }
+    if (_animationController.isAnimating) _animationController.stop();
+
+    final distance =
+        (Offset.zero & Size(camera.nonRotatedSize.x, camera.nonRotatedSize.y))
+            .shortestSide;
+
+    _flingAnimation = Tween<Offset>(
+      begin: offset,
+      end: offset - direction * distance,
+    ).animate(_animationController);
+
+    _animationController.value = 0;
+    _animationController.fling(
+      velocity: velocity,
+      springDescription: SpringDescription.withDampingRatio(
+        mass: mass,
+        stiffness: stiffness,
+        ratio: ratio,
+      ),
+    );
   }
 
   void moveAnimatedRaw(
@@ -587,18 +623,18 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     if (newCenter == camera.center && newZoom == camera.zoom) return;
 
     // cancel all ongoing animation
-    if (animationController.isAnimating) animationController.stop();
+    if (_animationController.isAnimating) _animationController.stop();
 
     // create the new animation
     _moveAnimation = LatLngTween(begin: camera.center, end: newCenter)
         .chain(CurveTween(curve: curve))
-        .animate(animationController);
+        .animate(_animationController);
     _zoomAnimation = Tween<double>(begin: camera.zoom, end: newZoom)
         .chain(CurveTween(curve: curve))
-        .animate(animationController);
+        .animate(_animationController);
 
-    animationController.duration = duration;
-    animationController.addListener(() {
+    _animationController.duration = duration;
+    _animationController.addListener(() {
       moveRaw(
         _moveAnimation.value,
         _zoomAnimation.value,
@@ -609,7 +645,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     });
 
     // start the animation from its start
-    animationController.forward(from: 0);
+    _animationController.forward(from: 0);
   }
 
   void _emitMapEvent(MapEvent event) {
