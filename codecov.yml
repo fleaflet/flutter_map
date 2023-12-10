@@ -1,0 +1,11 @@
+codecov:
+  require_ci_to_pass: true
+
+ignore:
+  - "**/*.g.dart"
+  - "example"
+  - "benchmark"
+
+comment:
+  # this posts no PR comment if there are no coverage changes
+  require_changes: true
