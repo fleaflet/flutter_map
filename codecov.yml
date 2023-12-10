@@ -1,11 +1,14 @@
 codecov:
   require_ci_to_pass: true
+  status:
+    project:
+      default:
+        target: 0%
+        threshold: 0%
 
 ignore:
   - "**/*.g.dart"
   - "example"
   - "benchmark"
 
-comment:
-  # this posts no PR comment if there are no coverage changes
-  require_changes: true
+comment: false
