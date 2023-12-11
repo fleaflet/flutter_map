@@ -550,9 +550,18 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     required bool hasGesture,
     required MapEventSource source,
   }) {
-    if (newRotation == camera.rotation &&
-        newCenter == camera.center &&
-        newZoom == camera.zoom) return;
+    if (newRotation == camera.rotation) {
+      moveAnimatedRaw(
+        newCenter,
+        newZoom,
+        duration: duration,
+        curve: curve,
+        hasGesture: hasGesture,
+        source: source,
+      );
+      return;
+    }
+    if (newCenter == camera.center && newZoom == camera.zoom) return;
 
     // cancel all ongoing animation
     if (_animationController.isAnimating) _animationController.stop();
