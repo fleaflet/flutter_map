@@ -595,12 +595,10 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     double mass = 1,
     double stiffness = 1000,
     double ratio = 5,
+    required bool hasGesture,
   }) {
-    if (!InteractiveFlag.hasFlingAnimation(options.interactionOptions.flags)) {
-      return;
-    }
     if (_animationController.isAnimating) _animationController.stop();
-    _animationHasGesture = true;
+    _animationHasGesture = hasGesture;
     _animationOffset = offset;
     _flingMapCenterStartPoint = camera.project(camera.center);
 
