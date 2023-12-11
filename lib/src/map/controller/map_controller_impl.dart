@@ -581,7 +581,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   void flingAnimatedRaw({
     required double velocity,
     required Offset direction,
-    required Offset offset,
+    required Offset begin,
+    Offset offset = Offset.zero,
     double mass = 1,
     double stiffness = 1000,
     double ratio = 5,
@@ -591,6 +592,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     }
     if (_animationController.isAnimating) _animationController.stop();
     _animationHasGesture = true;
+    _animationOffset = offset;
     _flingMapCenterStartPoint = camera.project(camera.center);
 
     final distance =
@@ -598,8 +600,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
             .shortestSide;
 
     _flingAnimation = Tween<Offset>(
-      begin: offset,
-      end: offset - direction * distance,
+      begin: begin,
+      end: begin - direction * distance,
     ).animate(_animationController);
 
     _animationController.value = 0;
@@ -654,25 +656,39 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   }
 
   void _handleAnimation() {
+    // fling animation
     if (_flingAnimation != null) {
       final newCenterPoint = _flingMapCenterStartPoint +
           _flingAnimation!.value.toPoint().rotate(camera.rotationRad);
       moveRaw(
         camera.unproject(newCenterPoint),
         camera.zoom,
-        hasGesture: true,
+        hasGesture: _animationHasGesture,
         source: MapEventSource.flingAnimationController,
+        offset: _animationOffset,
       );
+      return;
     }
 
-    moveAndRotateRaw(
-      _moveAnimation?.value ?? camera.center,
-      _zoomAnimation?.value ?? camera.zoom,
-      _rotationAnimation?.value ?? camera.rotation,
-      hasGesture: _animationHasGesture,
-      source: MapEventSource.mapController,
-      offset: _animationOffset,
-    );
+    // animated movement
+    if (_rotationAnimation != null) {
+      moveAndRotateRaw(
+        _moveAnimation?.value ?? camera.center,
+        _zoomAnimation?.value ?? camera.zoom,
+        _rotationAnimation?.value ?? camera.rotation,
+        hasGesture: _animationHasGesture,
+        source: MapEventSource.mapController,
+        offset: _animationOffset,
+      );
+    } else {
+      moveRaw(
+        _moveAnimation?.value ?? camera.center,
+        _zoomAnimation?.value ?? camera.zoom,
+        hasGesture: _animationHasGesture,
+        source: MapEventSource.mapController,
+        offset: _animationOffset,
+      );
+    }
   }
 
   void _handleAnimationStatus(AnimationStatus status) {
