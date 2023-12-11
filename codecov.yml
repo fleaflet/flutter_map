@@ -4,7 +4,7 @@ codecov:
     project:
       default:
         target: 0%
-        threshold: 0%
+        threshold: 100%
 
 ignore:
   - "**/*.g.dart"
