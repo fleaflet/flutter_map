@@ -6,8 +6,6 @@ import 'package:flutter_map/src/gestures/interactive_flag.dart';
 import 'package:flutter_map/src/gestures/latlng_tween.dart';
 import 'package:flutter_map/src/gestures/map_events.dart';
 import 'package:flutter_map/src/gestures/map_interactive_viewer.dart';
-import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
-import 'package:flutter_map/src/gestures/positioned_tap_detector_2.dart';
 import 'package:flutter_map/src/layer/attribution_layer/rich/animation.dart';
 import 'package:flutter_map/src/layer/attribution_layer/rich/source.dart';
 import 'package:flutter_map/src/layer/attribution_layer/rich/widget.dart';
