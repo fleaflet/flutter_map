@@ -160,7 +160,7 @@ class PolylineLayer<TapKeyType extends Object> extends StatelessWidget {
   /// "Tappable" means that either or both of [Polyline.onTap] and
   /// [Polyline.tapKey] has been defined.
   ///
-  /// If `false`, then [onTap] becomes redundant to [Polyline.onTap].
+  /// If `true`, then [onTap] becomes redundant to [Polyline.onTap].
   ///
   /// Defaults to `false`.
   final bool tappablesObscure;
