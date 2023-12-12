@@ -584,11 +584,38 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     _animationController.forward(from: 0);
   }
 
-  void stopAnimationRaw({bool canceled = true}) {
-    if (_animationController.isAnimating) {
-      _animationController.stop(canceled: canceled);
-    }
+  void rotateAnimatedRaw(
+    double newRotation, {
+    required Offset offset,
+    required Duration duration,
+    required Curve curve,
+    required bool hasGesture,
+    required MapEventSource source,
+  }) {
+    // cancel all ongoing animation
+    _animationController.stop();
+    _resetAnimations();
+
+    if (newRotation == camera.rotation) return;
+
+    // create the new animation
+    _rotationAnimation = Tween<double>(begin: camera.rotation, end: newRotation)
+        .chain(CurveTween(curve: curve))
+        .animate(_animationController);
+
+    _animationController.duration = duration;
+    _animationHasGesture = hasGesture;
+    _animationOffset = offset;
+
+    // start the animation from its start
+    _animationController.forward(from: 0);
   }
+
+  void stopAnimationRaw({bool canceled = true}) {
+    if (isAnimating) _animationController.stop(canceled: canceled);
+  }
+
+  bool get isAnimating => _animationController.isAnimating;
 
   void _resetAnimations() {
     _moveAnimation = null;
@@ -692,22 +719,34 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     }
 
     // animated movement
+    if (_moveAnimation != null) {
+      if (_rotationAnimation != null) {
+        moveAndRotateRaw(
+          _moveAnimation?.value ?? camera.center,
+          _zoomAnimation?.value ?? camera.zoom,
+          _rotationAnimation!.value,
+          hasGesture: _animationHasGesture,
+          source: MapEventSource.mapController,
+          offset: _animationOffset,
+        );
+      } else {
+        moveRaw(
+          _moveAnimation!.value,
+          _zoomAnimation?.value ?? camera.zoom,
+          hasGesture: _animationHasGesture,
+          source: MapEventSource.mapController,
+          offset: _animationOffset,
+        );
+      }
+      return;
+    }
+
+    // animated rotation
     if (_rotationAnimation != null) {
-      moveAndRotateRaw(
-        _moveAnimation?.value ?? camera.center,
-        _zoomAnimation?.value ?? camera.zoom,
+      rotateRaw(
         _rotationAnimation!.value,
         hasGesture: _animationHasGesture,
         source: MapEventSource.mapController,
-        offset: _animationOffset,
-      );
-    } else {
-      moveRaw(
-        _moveAnimation?.value ?? camera.center,
-        _zoomAnimation?.value ?? camera.zoom,
-        hasGesture: _animationHasGesture,
-        source: MapEventSource.mapController,
-        offset: _animationOffset,
       );
     }
   }
