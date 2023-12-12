@@ -141,3 +141,13 @@ abstract class MapController {
   /// Dispose of this controller.
   void dispose();
 }
+
+class MoveAndRotateResult {
+  final bool moveSuccess;
+  final bool rotateSuccess;
+
+  const MoveAndRotateResult({
+    required this.moveSuccess,
+    required this.rotateSuccess,
+  });
+}
