@@ -29,21 +29,12 @@ class _PolylinePageState extends State<PolylinePage> {
         children: [
           openStreetMapTileLayer,
           PolylineLayer<_TapKeyType>(
-            onTap: (tappedLineKeys, coords) => _openTouchedLinesModal(
-              'Tapped',
-              tappedLineKeys,
-              '(${coords.latitude.toStringAsFixed(6)}, ${coords.longitude.toStringAsFixed(6)})',
-            ),
-            onLongPress: (tappedLineKeys, coords) => _openTouchedLinesModal(
-              'Long pressed',
-              tappedLineKeys,
-              '(${coords.latitude.toStringAsFixed(6)}, ${coords.longitude.toStringAsFixed(6)})',
-            ),
-            onSecondaryTap: (tappedLineKeys, coords) => _openTouchedLinesModal(
-              'Secondary tapped',
-              tappedLineKeys,
-              '(${coords.latitude.toStringAsFixed(6)}, ${coords.longitude.toStringAsFixed(6)})',
-            ),
+            onTap: (lines, coords) =>
+                _openTouchedLinesModal('Tapped', lines, coords),
+            onLongPress: (lines, coords) =>
+                _openTouchedLinesModal('Long pressed', lines, coords),
+            onSecondaryTap: (lines, coords) =>
+                _openTouchedLinesModal('Secondary tapped', lines, coords),
             polylines: [
               Polyline(
                 points: [
@@ -146,8 +137,8 @@ class _PolylinePageState extends State<PolylinePage> {
 
   void _openTouchedLinesModal(
     String eventType,
-    List<_TapKeyType> tappedLineKeys,
-    String coords,
+    List<Polyline<_TapKeyType>> tappedLines,
+    LatLng coords,
   ) {
     showModalBottomSheet<void>(
       context: context,
@@ -161,25 +152,25 @@ class _PolylinePageState extends State<PolylinePage> {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             Text(
-              '$eventType at point: $coords',
+              '$eventType at point: (${coords.latitude.toStringAsFixed(6)}, ${coords.longitude.toStringAsFixed(6)})',
             ),
             const SizedBox(height: 8),
             Expanded(
               child: ListView.builder(
                 itemBuilder: (context, index) {
-                  final tappedLineKey = tappedLineKeys.elementAt(index);
+                  final tappedLine = tappedLines[index];
                   return ListTile(
                     leading: index == 0
                         ? const Icon(Icons.vertical_align_top)
-                        : index == tappedLineKeys.length - 1
+                        : index == tappedLines.length - 1
                             ? const Icon(Icons.vertical_align_bottom)
                             : const SizedBox.shrink(),
-                    title: Text(tappedLineKey.title),
-                    subtitle: Text(tappedLineKey.subtitle),
+                    title: Text(tappedLine.tapKey!.title),
+                    subtitle: Text(tappedLine.tapKey!.subtitle),
                     dense: true,
                   );
                 },
-                itemCount: tappedLineKeys.length,
+                itemCount: tappedLines.length,
               ),
             ),
             const SizedBox(height: 8),

@@ -1,9 +1,7 @@
-import 'dart:collection';
 import 'dart:core';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
-import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
@@ -13,12 +11,17 @@ import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:latlong2/latlong.dart';
 
 class _LastHit<TapKeyType extends Object> {
-  ({List<Polyline<TapKeyType>> tapped, LatLng point})? hit;
+  List<Polyline<TapKeyType>>? lines;
+  LatLng? point;
+
+  bool get toIgnore => lines == null || point == null;
 }
 
 typedef PolylineOnTap = void Function(LatLng point);
 typedef PolylineLayerOnTap<TapKeyType extends Object> = void Function(
-    List<TapKeyType> tappedKeys, LatLng point)?;
+  List<Polyline<TapKeyType>> lines,
+  LatLng point,
+)?;
 
 @optionalTypeArgs
 class Polyline<TapKeyType extends Object> {
@@ -57,9 +60,12 @@ class Polyline<TapKeyType extends Object> {
   final PolylineOnTap? onSecondaryTap;
 
   /// Custom value that identifies this particular [Polyline] when used with
-  /// [PolylineLayer.onTap]/[PolylineLayer.onLongPress]/
-  /// [PolylineLayer.onSecondaryTap] (either instead of or in addition to
-  /// [onTap]/[onLongPress]/[onSecondaryTap])
+  /// [PolylineLayer.onTap] (and variants) (either instead of or in addition to
+  /// [onTap] (and variants))
+  ///
+  /// When non-null, also indicates this [Polyline] is "interactive" if [onTap]
+  /// (and variants) is `null`. ("Tappable" means that either or both of [onTap]
+  /// (and variants) and [tapKey] has been defined.)
   final TapKeyType? tapKey;
 
   LatLngBounds? _boundingBox;
@@ -138,7 +144,7 @@ class PolylineLayer<TapKeyType extends Object> extends StatelessWidget {
   /// The number of pixels away from the visual line (including any width and
   /// outline) in which a tap should still register as a tap on the line
   ///
-  /// Applies to both [onTap] and every [Polyline.onTap].
+  /// Applies to both [onTap] and every [Polyline.onTap] (and variants).
   ///
   /// Defaults to 3.
   final double onTapTolerance;
@@ -146,10 +152,10 @@ class PolylineLayer<TapKeyType extends Object> extends StatelessWidget {
   /// Whether a non-tappable [Polyline] should prevent taps from being handled
   /// on all [Polyline]s beneath it, at overlaps
   ///
-  /// "Tappable" means that either or both of [Polyline.onTap] and
+  /// "Tappable" means that either or both of [Polyline.onTap] (and variants) and
   /// [Polyline.tapKey] has been defined.
   ///
-  /// Applies to both [onTap] and every [Polyline.onTap].
+  /// Applies to both [onTap] and every [Polyline.onTap] (and variants).
   ///
   /// Defaults to `true`.
   final bool nonTappablesOcclude;
@@ -157,10 +163,11 @@ class PolylineLayer<TapKeyType extends Object> extends StatelessWidget {
   /// Whether a tappable [Polyline] should prevent taps from being handled
   /// on all [Polyline]s beneath it, at overlaps
   ///
-  /// "Tappable" means that either or both of [Polyline.onTap] and
+  /// "Tappable" means that either or both of [Polyline.onTap] (and variants) and
   /// [Polyline.tapKey] has been defined.
   ///
-  /// If `true`, then [onTap] becomes redundant to [Polyline.onTap].
+  /// If `true`, then [onTap] becomes redundant to [Polyline.onTap]
+  /// (and variants).
   ///
   /// Defaults to `false`.
   final bool tappablesOcclude;
@@ -182,15 +189,17 @@ class PolylineLayer<TapKeyType extends Object> extends StatelessWidget {
   Widget build(BuildContext context) {
     final camera = MapCamera.of(context);
 
+    bool interactive =
+        onTap != null || onLongPress != null || onSecondaryTap != null;
+    final lastHit = _LastHit<TapKeyType>();
+
     final culledPolylines = <Polyline<TapKeyType>>[];
-    bool interactive = onTap != null;
     for (final line in polylines) {
       if (!line.boundingBox.isOverlapping(camera.visibleBounds)) continue;
       if (!interactive && line.onTap != null) interactive = true;
       culledPolylines.add(line);
     }
 
-    final lastHit = _LastHit<TapKeyType>();
     final paint = CustomPaint(
       painter: _PolylinePainter<TapKeyType>(
         polylines: culledPolylines,
@@ -211,67 +220,28 @@ class PolylineLayer<TapKeyType extends Object> extends StatelessWidget {
               cursor: SystemMouseCursors.click,
               child: GestureDetector(
                 onTap: () {
-                  if (lastHit.hit == null) return;
+                  if (lastHit.toIgnore) return;
 
-                  if (onTap == null) {
-                    for (final polyline in lastHit.hit!.tapped) {
-                      polyline.onTap?.call(lastHit.hit!.point);
-                    }
-                    return;
+                  for (final polyline in lastHit.lines!) {
+                    polyline.onTap?.call(lastHit.point!);
                   }
-
-                  onTap!.call(
-                    lastHit.hit!.tapped
-                        .map((e) {
-                          e.onTap?.call(lastHit.hit!.point);
-                          return e.tapKey;
-                        })
-                        .whereNotNull()
-                        .toList(),
-                    lastHit.hit!.point,
-                  );
+                  onTap?.call(lastHit.lines!, lastHit.point!);
                 },
                 onLongPress: () {
-                  if (lastHit.hit == null) return;
+                  if (lastHit.toIgnore) return;
 
-                  if (onLongPress == null) {
-                    for (final polyline in lastHit.hit!.tapped) {
-                      polyline.onLongPress?.call(lastHit.hit!.point);
-                    }
-                    return;
+                  for (final polyline in lastHit.lines!) {
+                    polyline.onLongPress?.call(lastHit.point!);
                   }
-
-                  onLongPress!.call(
-                    lastHit.hit!.tapped
-                        .map((e) {
-                          e.onLongPress?.call(lastHit.hit!.point);
-                          return e.tapKey;
-                        })
-                        .whereNotNull()
-                        .toList(),
-                    lastHit.hit!.point,
-                  );
+                  onLongPress?.call(lastHit.lines!, lastHit.point!);
                 },
                 onSecondaryTap: () {
-                  if (lastHit.hit == null) return;
+                  if (lastHit.toIgnore) return;
 
-                  if (onSecondaryTap == null) {
-                    for (final polyline in lastHit.hit!.tapped) {
-                      polyline.onSecondaryTap?.call(lastHit.hit!.point);
-                    }
-                    return;
+                  for (final polyline in lastHit.lines!) {
+                    polyline.onSecondaryTap?.call(lastHit.point!);
                   }
-
-                  onSecondaryTap!.call(
-                    lastHit.hit!.tapped
-                        .map((e) {
-                          e.onSecondaryTap?.call(lastHit.hit!.point);
-                          return e.tapKey;
-                        })
-                        .whereNotNull()
-                        .toList(),
-                    lastHit.hit!.point,
-                  );
+                  onSecondaryTap?.call(lastHit.lines!, lastHit.point!);
                 },
                 child: paint,
               ),
@@ -346,22 +316,26 @@ class _PolylinePainter<TapKeyType extends Object> extends CustomPainter {
         ));
 
         if (distance < maxDistance) {
-          if (nonTappablesOcclude && p.onTap == null && p.tapKey == null) {
+          if (nonTappablesOcclude &&
+              p.onTap == null &&
+              p.onLongPress == null &&
+              p.onSecondaryTap == null &&
+              p.tapKey == null) {
             break outer;
           }
           hits.add(p);
           if (tappablesOcclude) break outer;
+          break;
         }
       }
     }
 
     if (hits.isEmpty) return false;
 
-    lastHit!.hit = (
-      // Remove duplicates caused when the hit is close to two segements
-      tapped: LinkedHashSet<Polyline<TapKeyType>>.from(hits).toList(),
-      point: camera.pointToLatLng(math.Point(position.dx, position.dy)),
-    );
+    lastHit!
+      ..lines = hits
+      ..point = camera.pointToLatLng(math.Point(position.dx, position.dy));
+
     return true;
   }
 
