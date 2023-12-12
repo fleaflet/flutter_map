@@ -29,18 +29,18 @@ class _PolylinePageState extends State<PolylinePage> {
         children: [
           openStreetMapTileLayer,
           PolylineLayer<_TapKeyType>(
-            onTap: (tappedLineKeys, coords) => _openTappedLinesModal(
-              0,
+            onTap: (tappedLineKeys, coords) => _openTouchedLinesModal(
+              'Tapped',
               tappedLineKeys,
               '(${coords.latitude.toStringAsFixed(6)}, ${coords.longitude.toStringAsFixed(6)})',
             ),
-            onLongPress: (tappedLineKeys, coords) => _openTappedLinesModal(
-              1,
+            onLongPress: (tappedLineKeys, coords) => _openTouchedLinesModal(
+              'Long pressed',
               tappedLineKeys,
               '(${coords.latitude.toStringAsFixed(6)}, ${coords.longitude.toStringAsFixed(6)})',
             ),
-            onSecondaryTap: (tappedLineKeys, coords) => _openTappedLinesModal(
-              2,
+            onSecondaryTap: (tappedLineKeys, coords) => _openTouchedLinesModal(
+              'Secondary tapped',
               tappedLineKeys,
               '(${coords.latitude.toStringAsFixed(6)}, ${coords.longitude.toStringAsFixed(6)})',
             ),
@@ -144,8 +144,8 @@ class _PolylinePageState extends State<PolylinePage> {
     );
   }
 
-  void _openTappedLinesModal(
-    int mode,
+  void _openTouchedLinesModal(
+    String eventType,
     List<_TapKeyType> tappedLineKeys,
     String coords,
   ) {
@@ -161,11 +161,7 @@ class _PolylinePageState extends State<PolylinePage> {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             Text(
-              '${[
-                'Tapped',
-                'Long-pressed/held',
-                'Secondary-tapped/alternative-clicked'
-              ][mode]} at point: $coords',
+              '$eventType at point: $coords',
             ),
             const SizedBox(height: 8),
             Expanded(
