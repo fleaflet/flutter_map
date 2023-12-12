@@ -696,7 +696,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
       moveAndRotateRaw(
         _moveAnimation?.value ?? camera.center,
         _zoomAnimation?.value ?? camera.zoom,
-        _rotationAnimation?.value ?? camera.rotation,
+        _rotationAnimation!.value,
         hasGesture: _animationHasGesture,
         source: MapEventSource.mapController,
         offset: _animationOffset,
