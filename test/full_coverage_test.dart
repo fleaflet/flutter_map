@@ -52,7 +52,6 @@ import 'package:flutter_map/src/map/options/interaction.dart';
 import 'package:flutter_map/src/map/options/options.dart';
 import 'package:flutter_map/src/map/widget.dart';
 import 'package:flutter_map/src/misc/bounds.dart';
-import 'package:flutter_map/src/misc/center_zoom.dart';
 import 'package:flutter_map/src/misc/move_and_rotate_result.dart';
 import 'package:flutter_map/src/misc/offsets.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';
