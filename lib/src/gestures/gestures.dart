@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'dart:ui';
 
+import 'package:flutter/animation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -115,8 +116,6 @@ class DoubleTapGesture extends DelayedGesture {
     if (details == null) return;
 
     // start double tap animation
-    // TODO animate moveRawment
-    //controller.doubleTapZoomStarted(MapEventSource.doubleTap);
     final newZoom = _getZoomForScale(_camera.zoom, 2);
     final newCenter = _camera.focusedZoomCenter(
       details!.localPosition.toPoint(),
@@ -130,11 +129,13 @@ class DoubleTapGesture extends DelayedGesture {
       ),
     );
 
-    controller.moveRaw(
+    controller.moveAnimatedRaw(
       newCenter,
       newZoom,
       hasGesture: true,
       source: MapEventSource.doubleTap,
+      curve: Curves.fastOutSlowIn,
+      duration: const Duration(milliseconds: 200),
     );
 
     controller.emitMapEvent(
