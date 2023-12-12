@@ -179,7 +179,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
           } else if (_doubleTapDragZoom?.isActive ?? false) {
             _doubleTapDragZoom!.isActive = false;
             _doubleTapDragZoom!.end(details);
-          } else if (details.pointerCount == 1) {
+          } else if (_drag?.isActive ?? false) {
             _drag?.end(details);
           } else {
             _twoFingerInput?.end(details);
