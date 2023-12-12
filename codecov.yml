@@ -9,6 +9,7 @@ coverage:
         target: 0%
         # the leniency in hitting the target
         threshold: 100%
+    # completely disable coverage warnings and the status check for changes
     patch: off
 
 ignore:
