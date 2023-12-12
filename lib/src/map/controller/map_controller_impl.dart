@@ -35,7 +35,6 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
           ),
         ) {
     value.animationController?.addListener(_handleAnimation);
-    value.animationController?.addStatusListener(_handleAnimationStatus);
   }
 
   /// Link the viewer state with the controller. This should be done once when
@@ -367,8 +366,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
         options: value.options,
         camera: value.camera,
         animationController: AnimationController(vsync: tickerProvider)
-          ..addListener(_handleAnimation)
-          ..addStatusListener(_handleAnimationStatus),
+          ..addListener(_handleAnimation),
       );
     } else {
       _animationController.resync(tickerProvider);
@@ -561,10 +559,11 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
       );
       return;
     }
-    if (newCenter == camera.center && newZoom == camera.zoom) return;
-
     // cancel all ongoing animation
-    if (_animationController.isAnimating) _animationController.stop();
+    _animationController.stop();
+    _resetAnimations();
+
+    if (newCenter == camera.center && newZoom == camera.zoom) return;
 
     // create the new animation
     _moveAnimation = LatLngTween(begin: camera.center, end: newCenter)
@@ -585,7 +584,18 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     _animationController.forward(from: 0);
   }
 
-  void stopAnimationRaw() => _animationController.stop();
+  void stopAnimationRaw({bool canceled = true}) {
+    if (_animationController.isAnimating) {
+      _animationController.stop(canceled: canceled);
+    }
+  }
+
+  void _resetAnimations() {
+    _moveAnimation = null;
+    _rotationAnimation = null;
+    _zoomAnimation = null;
+    _flingAnimation = null;
+  }
 
   void flingAnimatedRaw({
     required double velocity,
@@ -597,7 +607,10 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     double ratio = 5,
     required bool hasGesture,
   }) {
-    if (_animationController.isAnimating) _animationController.stop();
+    // cancel all ongoing animation
+    _animationController.stop();
+    _resetAnimations();
+
     _animationHasGesture = hasGesture;
     _animationOffset = offset;
     _flingMapCenterStartPoint = camera.project(camera.center);
@@ -631,10 +644,11 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     required bool hasGesture,
     required MapEventSource source,
   }) {
-    if (newCenter == camera.center && newZoom == camera.zoom) return;
-
     // cancel all ongoing animation
-    if (_animationController.isAnimating) _animationController.stop();
+    _animationController.stop();
+    _resetAnimations();
+
+    if (newCenter == camera.center && newZoom == camera.zoom) return;
 
     // create the new animation
     _moveAnimation = LatLngTween(begin: camera.center, end: newCenter)
@@ -696,11 +710,6 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
         offset: _animationOffset,
       );
     }
-  }
-
-  void _handleAnimationStatus(AnimationStatus status) {
-    const endStates = [AnimationStatus.completed, AnimationStatus.dismissed];
-    if (!endStates.contains(status)) return;
   }
 
   @override
