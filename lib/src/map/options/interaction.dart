@@ -1,6 +1,7 @@
 import 'package:flutter_map/flutter_map.dart';
 import 'package:meta/meta.dart';
 
+/// All interactive options for [FlutterMap]
 @immutable
 final class InteractionOptions {
   /// See [InteractiveFlag] for custom settings

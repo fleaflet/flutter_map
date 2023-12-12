@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 
+/// Extension methods for the math.[Point] class
 extension PointExtension<T extends num> on Point<T> {
   /// Create new [Point] whose [x] and [y] values are divided by the respective
   /// values in [point].
@@ -46,13 +47,17 @@ extension PointExtension<T extends num> on Point<T> {
     return toDoublePoint();
   }
 
+  /// Cast the object to a [Point] object with integer values
   Point<int> toIntPoint() => Point<int>(x.toInt(), y.toInt());
 
+  /// Case the object to a [Point] object with double values
   Point<double> toDoublePoint() => Point<double>(x.toDouble(), y.toDouble());
 
+  /// Maps the [Point] to an [Offset].
   Offset toOffset() => Offset(x.toDouble(), y.toDouble());
 }
 
+/// Extension methods for [Offset]
 extension OffsetToPointExtension on Offset {
   /// Creates a [Point] representation of this offset.
   Point<double> toPoint() => Point(dx, dy);

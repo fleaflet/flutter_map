@@ -6,12 +6,20 @@ import 'package:meta/meta.dart';
 /// the load center/zoom.
 @immutable
 class TileUpdateEvent {
+  /// The [MapEvent] that caused the [TileUpdateEvent].
   final MapEvent mapEvent;
+
+  /// Set to true if the tiles should get loaded.
   final bool load;
+
+  /// Set to true if the tiles should get pruned.
   final bool prune;
+
   final LatLng? loadCenterOverride;
+
   final double? loadZoomOverride;
 
+  /// Create a new [TileUpdateEvent].
   const TileUpdateEvent({
     required this.mapEvent,
     this.load = true,
@@ -20,10 +28,15 @@ class TileUpdateEvent {
     this.loadZoomOverride,
   });
 
+  /// Getter for the map zoom, respects a potential overridden zoom
+  /// when loading tiles.
   double get zoom => loadZoomOverride ?? mapEvent.camera.zoom;
 
+  /// Getter for the map center, respects a potential overridden map center
+  /// when loading tiles.
   LatLng get center => loadCenterOverride ?? mapEvent.camera.center;
 
+  /// Shortcut for the [MapCamera] of the event.
   MapCamera get camera => mapEvent.camera;
 
   /// Returns a copy of this TileUpdateEvent with only pruning enabled and the

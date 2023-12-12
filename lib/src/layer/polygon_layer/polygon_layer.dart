@@ -13,6 +13,7 @@ part 'label.dart';
 part 'painter.dart';
 part 'polygon.dart';
 
+/// A polygon layer for [FlutterMap].
 @immutable
 class PolygonLayer extends StatefulWidget {
   /// [Polygon]s to draw
@@ -47,6 +48,7 @@ class PolygonLayer extends StatefulWidget {
   /// Defaults to `false`.
   final bool drawLabelsLast;
 
+  /// Create a new [PolygonLayer] for the [FlutterMap] widget.
   const PolygonLayer({
     super.key,
     required this.polygons,

@@ -118,8 +118,8 @@ class TileLayer extends StatefulWidget {
   /// https://c.tile.openstreetmap.org/{z}/{x}/{y}.png
   final List<String> subdomains;
 
-  // Control how tiles are displayed and whether they are faded in when loaded.
-  // Defaults to TileDisplay.fadeIn().
+  /// Control how tiles are displayed and whether they are faded in when loaded.
+  /// Defaults to TileDisplay.fadeIn().
   final TileDisplay tileDisplay;
 
   /// Provider with which to load map tiles
@@ -182,9 +182,9 @@ class TileLayer extends StatefulWidget {
   /// There are predefined examples in 'tile_builder.dart'
   final TileBuilder? tileBuilder;
 
-  // If a Tile was loaded with error and if strategy isn't `none` then TileProvider
-  // will be asked to evict Image based on current strategy
-  // (see #576 - even Error Images are cached in flutter)
+  /// If a Tile was loaded with error and if strategy isn't `none` then TileProvider
+  /// will be asked to evict Image based on current strategy
+  /// (see #576 - even Error Images are cached in flutter)
   final EvictErrorTileStrategy evictErrorTileStrategy;
 
   /// Stream to notify the [TileLayer] that it needs resetting
@@ -207,6 +207,7 @@ class TileLayer extends StatefulWidget {
   /// no affect.
   final TileUpdateTransformer tileUpdateTransformer;
 
+  /// Create a new [TileLayer] for the [FlutterMap] widget.
   TileLayer({
     super.key,
     this.urlTemplate,

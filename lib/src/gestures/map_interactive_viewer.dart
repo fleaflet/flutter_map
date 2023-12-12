@@ -895,6 +895,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     }
   }
 
+  ///
   void _startListeningForAnimationInterruptions() {
     _isListeningForInterruptions = true;
   }
@@ -903,6 +904,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     _isListeningForInterruptions = false;
   }
 
+  /// Cancel every ongoing animated map movements.
   void interruptAnimatedMovement(MapEvent event) {
     if (_isListeningForInterruptions) {
       _closeDoubleTapController(event.source);

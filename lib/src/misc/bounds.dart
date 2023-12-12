@@ -84,6 +84,7 @@ class Bounds<T extends num> {
     return max - min;
   }
 
+  /// Check if a [Point] is inside of the bounds.
   bool contains(Point<T> point) {
     return (point.x >= min.x) &&
         (point.x <= max.x) &&
@@ -91,6 +92,7 @@ class Bounds<T extends num> {
         (point.y <= max.y);
   }
 
+  /// Check if an other [Bounds] object is inside of the bounds.
   bool containsBounds(Bounds<T> b) {
     return (b.min.x >= min.x) &&
         (b.max.x <= max.x) &&

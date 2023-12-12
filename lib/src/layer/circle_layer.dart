@@ -4,17 +4,30 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 
-/// Immutable marker options for circle markers
+/// Immutable marker options for [CircleMarker]. Circle markers are a more
+/// simple and performant way to draw markers as the regular [Marker]
 @immutable
 class CircleMarker {
   final Key? key;
+
+  /// The center coordinates of the circle
   final LatLng point;
+
+  /// The radius of the circle
   final double radius;
+
+  /// The color of the circle area.
   final Color color;
+
+  /// The stroke width for the circle border. Defaults to 0 (no border)
   final double borderStrokeWidth;
+
+  /// The color of the circle border line. Needs [borderStrokeWidth] to be > 0
+  /// to be visible.
   final Color borderColor;
   final bool useRadiusInMeter;
 
+  /// Constructor to create a new [CircleMarker] object
   const CircleMarker({
     required this.point,
     required this.radius,
@@ -26,10 +39,13 @@ class CircleMarker {
   });
 }
 
+/// A layer that displays a list of [CircleMarker] on the map
 @immutable
 class CircleLayer extends StatelessWidget {
+  /// The list of [CircleMarker]s.
   final List<CircleMarker> circles;
 
+  /// Create a new [CircleLayer] as a child for flutter map
   const CircleLayer({super.key, required this.circles});
 
   @override

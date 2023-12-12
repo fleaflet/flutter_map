@@ -30,12 +30,16 @@ class MapInheritedModel extends InheritedModel<_FlutterMapAspect> {
       InheritedModel.inheritFrom<MapInheritedModel>(context, aspect: aspect)
           ?.data;
 
+  /// Try to get the [MapCamera] instance for the given [FlutterMap] context.
   static MapCamera? maybeCameraOf(BuildContext context) =>
       _maybeOf(context, _FlutterMapAspect.camera)?.camera;
 
+  /// Try to get the [MapController] instance for the given
+  /// [FlutterMap] context.
   static MapController? maybeControllerOf(BuildContext context) =>
       _maybeOf(context, _FlutterMapAspect.controller)?.controller;
 
+  /// Try to get the [MapOptions] for the given [FlutterMap] context.
   static MapOptions? maybeOptionsOf(BuildContext context) =>
       _maybeOf(context, _FlutterMapAspect.options)?.options;
 

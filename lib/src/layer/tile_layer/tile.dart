@@ -3,13 +3,22 @@ import 'dart:math';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 
+/// The widget for a single tile used for the [TileLayer].
 @immutable
 class Tile extends StatefulWidget {
+  /// [TileImage] is the model class that contains meta data for the Tile image.
   final TileImage tileImage;
+
+  /// The [TileBuilder] is a reference to the [TileLayer]'s
+  /// [TileLayer.tileBuilder].
   final TileBuilder? tileBuilder;
+
+  /// The tile size for the given scale of the map.
   final double scaledTileSize;
+
   final Point<double> currentPixelOrigin;
 
+  /// Creates a new instance of [Tile].
   const Tile({
     super.key,
     required this.scaledTileSize,

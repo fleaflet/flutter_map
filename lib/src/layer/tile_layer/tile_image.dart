@@ -52,10 +52,12 @@ class TileImage extends ChangeNotifier {
   /// When loading finished.
   DateTime? loadFinishedAt;
 
+  /// Some meta data of the image.
   ImageInfo? imageInfo;
   ImageStream? _imageStream;
   late ImageStreamListener _listener;
 
+  /// Create a new object for a tile image.
   TileImage({
     required this.vsync,
     required this.coordinates,
@@ -74,12 +76,14 @@ class TileImage extends ChangeNotifier {
           ),
         );
 
+  /// Get the current opacity value for the tile image.
   double get opacity => _tileDisplay.when(
         instantaneous: (instantaneous) =>
             _readyToDisplay ? instantaneous.opacity : 0.0,
         fadeIn: (fadeIn) => _animationController!.value,
       )!;
 
+  /// Getter for the tile [AnimationController]
   AnimationController? get animation => _animationController;
 
   /// Whether the tile is displayable. This means that either:
