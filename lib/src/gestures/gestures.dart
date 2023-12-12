@@ -32,6 +32,7 @@ class TapGesture extends DelayedGesture {
   /// A tap with a primary button has occurred.
   /// This triggers when the tap gesture wins.
   void submit() {
+    controller.stopAnimationRaw();
     if (details == null) return;
 
     final point = _camera.offsetToCrs(details!.localPosition);
@@ -55,6 +56,7 @@ class LongPressGesture extends Gesture {
   /// recognized. A pointer has remained in contact with the screen at the
   /// same location for a long period of time.
   void submit(LongPressStartDetails details) {
+    controller.stopAnimationRaw();
     final position = _camera.offsetToCrs(details.localPosition);
     _options.onLongPress?.call(details, position);
     controller.emitMapEvent(
@@ -74,6 +76,7 @@ class SecondaryLongPressGesture extends Gesture {
   /// recognized. A pointer has remained in contact with the screen at the
   /// same location for a long period of time.
   void submit(LongPressStartDetails details) {
+    controller.stopAnimationRaw();
     final position = _camera.offsetToCrs(details.localPosition);
     _options.onSecondaryLongPress?.call(details, position);
     controller.emitMapEvent(
@@ -92,6 +95,7 @@ class SecondaryTapGesture extends DelayedGesture {
   /// A tap with a secondary button has occurred.
   /// This triggers when the tap gesture wins.
   void submit() {
+    controller.stopAnimationRaw();
     if (details == null) return;
 
     final position = _camera.offsetToCrs(details!.localPosition);
@@ -113,6 +117,7 @@ class DoubleTapGesture extends DelayedGesture {
 
   /// A double tap gesture tap has been registered
   void submit() {
+    controller.stopAnimationRaw();
     if (details == null) return;
 
     // start double tap animation
@@ -163,6 +168,7 @@ class TertiaryTapGesture extends DelayedGesture {
 
   /// A tertiary tap gesture has happen (e.g. click on the mouse scroll wheel)
   void submit(TapUpDetails _) {
+    controller.stopAnimationRaw();
     if (details == null) return;
 
     final point = _camera.offsetToCrs(details!.localPosition);
@@ -185,6 +191,7 @@ class TertiaryLongPressGesture extends DelayedGesture {
   /// A long press on the tertiary button has happen (e.g. click and hold on
   /// the mouse scroll wheel)
   void submit(LongPressStartDetails details) {
+    controller.stopAnimationRaw();
     final point = _camera.offsetToCrs(details.localPosition);
     _options.onTertiaryLongPress?.call(details, point);
     controller.emitMapEvent(
@@ -204,6 +211,7 @@ class ScrollWheelZoomGesture extends Gesture {
 
   /// Handles mouse scroll events
   void submit(PointerScrollEvent details) {
+    controller.stopAnimationRaw();
     if (details.scrollDelta.dy == 0) return;
 
     // Prevent scrolling of parent/child widgets simultaneously.
@@ -251,6 +259,7 @@ class TwoFingerGestures extends Gesture {
 
   /// Initialize gesture, called when gesture has started
   void start(ScaleStartDetails details) {
+    controller.stopAnimationRaw();
     if (details.pointerCount < 2) return;
     _lastLocalFocal = details.localFocalPoint;
     _lastScale = 1;
@@ -323,7 +332,10 @@ class DragGesture extends Gesture {
 
   DragGesture({required super.controller});
 
+  bool get isActive => _lastLocalFocal != null;
+
   void start(ScaleStartDetails details) {
+    controller.stopAnimationRaw();
     _lastLocalFocal = details.localFocalPoint;
     controller.emitMapEvent(
       MapEventMoveStart(
@@ -370,6 +382,7 @@ class CtrlDragRotateGesture extends Gesture {
   CtrlDragRotateGesture({required super.controller});
 
   void start() {
+    controller.stopAnimationRaw();
     controller.emitMapEvent(
       MapEventRotateStart(
         camera: _camera,
@@ -414,6 +427,7 @@ class DoubleTapDragZoomGesture extends Gesture {
   DoubleTapDragZoomGesture({required super.controller});
 
   void start(ScaleStartDetails details) {
+    controller.stopAnimationRaw();
     _focalLocalStart = details.localFocalPoint;
     _mapZoomStart = _camera.zoom;
     controller.emitMapEvent(
