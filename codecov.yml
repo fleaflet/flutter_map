@@ -9,12 +9,7 @@ coverage:
         target: 0%
         # the leniency in hitting the target
         threshold: 100%
-    patch:
-      default:
-        # the required coverage value
-        target: 0%
-        # the leniency in hitting the target
-        threshold: 100%
+    patch: off
 
 ignore:
   - "**/*.g.dart"
