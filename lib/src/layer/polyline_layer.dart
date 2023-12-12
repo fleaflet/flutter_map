@@ -37,14 +37,14 @@ class Polyline<TapKeyType extends Object> {
   /// Called when a tap is detected on this [Polyline]
   ///
   /// See [PolylineLayer.onTap], [PolylineLayer.onTapTolerance],
-  /// [PolylineLayer.nonTappablesObscure], and [PolylineLayer.tappablesObscure]
+  /// [PolylineLayer.nonTappablesOcclude], and [PolylineLayer.tappablesOcclude]
   /// for more information.
   final PolylineOnTap? onTap;
 
   /// Called when a long press is detected on this [Polyline]
   ///
   /// See [PolylineLayer.onLongPress], [PolylineLayer.onTapTolerance],
-  /// [PolylineLayer.nonTappablesObscure], and [PolylineLayer.tappablesObscure]
+  /// [PolylineLayer.nonTappablesOcclude], and [PolylineLayer.tappablesOcclude]
   /// for more information.
   final PolylineOnTap? onLongPress;
 
@@ -52,7 +52,7 @@ class Polyline<TapKeyType extends Object> {
   /// [Polyline]
   ///
   /// See [PolylineLayer.onSecondaryTap], [PolylineLayer.onTapTolerance],
-  /// [PolylineLayer.nonTappablesObscure], and [PolylineLayer.tappablesObscure]
+  /// [PolylineLayer.nonTappablesOcclude], and [PolylineLayer.tappablesOcclude]
   /// for more information.
   final PolylineOnTap? onSecondaryTap;
 
@@ -111,7 +111,7 @@ class PolylineLayer<TapKeyType extends Object> extends StatelessWidget {
   /// Individual [Polyline]s may have their own [Polyline.onTap] callback
   /// defined, regardless of whether this is defined.
   ///
-  /// See [nonTappablesObscure] and [tappablesObscure] to set behaviour when a
+  /// See [nonTappablesOcclude] and [tappablesOcclude] to set behaviour when a
   /// tap is over multiple overlapping [Polyline]s.
   final PolylineLayerOnTap<TapKeyType>? onTap;
 
@@ -121,7 +121,7 @@ class PolylineLayer<TapKeyType extends Object> extends StatelessWidget {
   /// Individual [Polyline]s may have their own [Polyline.onLongPress] callback
   /// defined, regardless of whether this is defined.
   ///
-  /// See [nonTappablesObscure] and [tappablesObscure] to set behaviour when a
+  /// See [nonTappablesOcclude] and [tappablesOcclude] to set behaviour when a
   /// tap is over multiple overlapping [Polyline]s.
   final PolylineLayerOnTap<TapKeyType>? onLongPress;
 
@@ -131,7 +131,7 @@ class PolylineLayer<TapKeyType extends Object> extends StatelessWidget {
   /// Individual [Polyline]s may have their own [Polyline.onSecondaryTap]
   /// callback defined, regardless of whether this is defined.
   ///
-  /// See [nonTappablesObscure] and [tappablesObscure] to set behaviour when a
+  /// See [nonTappablesOcclude] and [tappablesOcclude] to set behaviour when a
   /// tap is over multiple overlapping [Polyline]s.
   final PolylineLayerOnTap<TapKeyType>? onSecondaryTap;
 
@@ -152,7 +152,7 @@ class PolylineLayer<TapKeyType extends Object> extends StatelessWidget {
   /// Applies to both [onTap] and every [Polyline.onTap].
   ///
   /// Defaults to `true`.
-  final bool nonTappablesObscure;
+  final bool nonTappablesOcclude;
 
   /// Whether a tappable [Polyline] should prevent taps from being handled
   /// on all [Polyline]s beneath it, at overlaps
@@ -163,7 +163,7 @@ class PolylineLayer<TapKeyType extends Object> extends StatelessWidget {
   /// If `true`, then [onTap] becomes redundant to [Polyline.onTap].
   ///
   /// Defaults to `false`.
-  final bool tappablesObscure;
+  final bool tappablesOcclude;
 
   const PolylineLayer({
     super.key,
@@ -172,8 +172,8 @@ class PolylineLayer<TapKeyType extends Object> extends StatelessWidget {
     this.onLongPress,
     this.onSecondaryTap,
     this.onTapTolerance = 3,
-    this.tappablesObscure = false,
-    this.nonTappablesObscure = true,
+    this.tappablesOcclude = false,
+    this.nonTappablesOcclude = true,
     // TODO: Remove once PR #1704 is merged
     bool polylineCulling = true,
   });
@@ -197,8 +197,8 @@ class PolylineLayer<TapKeyType extends Object> extends StatelessWidget {
         camera: camera,
         lastHit: interactive ? lastHit : null,
         onTapTolerance: onTapTolerance,
-        tappablesObscure: tappablesObscure,
-        nonTappablesObscure: nonTappablesObscure,
+        tappablesOcclude: tappablesOcclude,
+        nonTappablesOcclude: nonTappablesOcclude,
       ),
       size: Size(camera.size.x, camera.size.y),
       isComplex: true,
@@ -287,16 +287,16 @@ class _PolylinePainter<TapKeyType extends Object> extends CustomPainter {
   final LatLngBounds bounds;
   final _LastHit? lastHit;
   final double onTapTolerance;
-  final bool tappablesObscure;
-  final bool nonTappablesObscure;
+  final bool tappablesOcclude;
+  final bool nonTappablesOcclude;
 
   _PolylinePainter({
     required this.polylines,
     required this.camera,
     required this.lastHit,
     required this.onTapTolerance,
-    required this.tappablesObscure,
-    required this.nonTappablesObscure,
+    required this.tappablesOcclude,
+    required this.nonTappablesOcclude,
   }) : bounds = camera.visibleBounds;
 
   int get hash => _hash ??= Object.hashAll(polylines);
@@ -346,11 +346,11 @@ class _PolylinePainter<TapKeyType extends Object> extends CustomPainter {
         ));
 
         if (distance < maxDistance) {
-          if (nonTappablesObscure && p.onTap == null && p.tapKey == null) {
+          if (nonTappablesOcclude && p.onTap == null && p.tapKey == null) {
             break outer;
           }
           hits.add(p);
-          if (tappablesObscure) break outer;
+          if (tappablesOcclude) break outer;
         }
       }
     }
