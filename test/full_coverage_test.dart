@@ -52,8 +52,8 @@ import 'package:flutter_map/src/map/options/interaction.dart';
 import 'package:flutter_map/src/map/options/options.dart';
 import 'package:flutter_map/src/map/widget.dart';
 import 'package:flutter_map/src/misc/bounds.dart';
+import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:flutter_map/src/misc/offsets.dart';
-import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
 
 void main() {}

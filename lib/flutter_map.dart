@@ -57,4 +57,4 @@ export 'package:flutter_map/src/map/options/interaction.dart';
 export 'package:flutter_map/src/map/options/options.dart';
 export 'package:flutter_map/src/map/widget.dart';
 export 'package:flutter_map/src/misc/bounds.dart';
-export 'package:flutter_map/src/misc/point_extensions.dart';
+export 'package:flutter_map/src/misc/extensions.dart';
