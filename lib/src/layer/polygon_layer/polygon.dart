@@ -27,6 +27,7 @@ class Polygon {
   final TextStyle labelStyle;
   final PolygonLabelPlacement labelPlacement;
   final bool rotateLabel;
+
   // Designates whether the given polygon points follow a clock or anti-clockwise direction.
   // This is respected during draw call batching for filled polygons. Otherwise, batched polygons
   // of opposing clock-directions cut holes into each other leading to a leaky optimization.
@@ -34,14 +35,17 @@ class Polygon {
 
   // Location where to place the label if `label` is set.
   LatLng? _labelPosition;
+
   LatLng get labelPosition =>
-      _labelPosition ??= _computeLabelPosition(labelPlacement, points);
+      _labelPosition ??= computeLabelPosition(labelPlacement, points);
 
   LatLngBounds? _boundingBox;
+
   LatLngBounds get boundingBox =>
       _boundingBox ??= LatLngBounds.fromPoints(points);
 
   TextPainter? _textPainter;
+
   TextPainter? get textPainter {
     if (label != null) {
       return _textPainter ??= TextPainter(
@@ -129,6 +133,7 @@ class Polygon {
 
   // Used to batch draw calls to the canvas
   int? _renderHashCode;
+
   int get renderHashCode => _renderHashCode ??= Object.hash(
         holePointsList,
         color,
@@ -144,6 +149,7 @@ class Polygon {
       );
 
   int? _hashCode;
+
   @override
   int get hashCode => _hashCode ??= Object.hashAll([
         ...points,
