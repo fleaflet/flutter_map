@@ -47,6 +47,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   @override
   void initState() {
     super.initState();
+    widget.controller.interactiveViewerState = this;
     widget.controller.addListener(reload);
 
     // callback gestures for the application
