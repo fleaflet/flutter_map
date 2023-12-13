@@ -18,6 +18,8 @@ typedef _TapKeyType = ({String title, String subtitle});
 class _PolylinePageState extends State<PolylinePage> {
   final PolylineHitNotifier<_TapKeyType> hitNotifier = ValueNotifier(null);
 
+  List<Polyline<_TapKeyType>>? hoverLines;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,6 +35,27 @@ class _PolylinePageState extends State<PolylinePage> {
           MouseRegion(
             hitTestBehavior: HitTestBehavior.deferToChild,
             cursor: SystemMouseCursors.click,
+            onHover: (_) {
+              if (hitNotifier.value == null) return;
+
+              final lines = hitNotifier.value!.lines
+                  .where((e) => e.hitKey != null)
+                  .map(
+                    (e) => Polyline<_TapKeyType>(
+                      points: e.points,
+                      strokeWidth: e.strokeWidth + e.borderStrokeWidth,
+                      color: Colors.transparent,
+                      borderStrokeWidth: 15,
+                      borderColor: Colors.green,
+                      useStrokeWidthInMeter: e.useStrokeWidthInMeter,
+                    ),
+                  )
+                  .toList();
+              setState(() => hoverLines = lines);
+            },
+
+            /// Clear hovered lines when touched lines modal appears
+            onExit: (_) => setState(() => hoverLines = null),
             child: GestureDetector(
               onTap: () => _openTouchedLinesModal(
                 'Tapped',
@@ -49,7 +72,7 @@ class _PolylinePageState extends State<PolylinePage> {
                 hitNotifier.value!.lines,
                 hitNotifier.value!.point,
               ),
-              child: PolylineLayer(
+              child: PolylineLayer<_TapKeyType>(
                 hitNotifier: hitNotifier,
                 polylines: [
                   Polyline(
@@ -144,6 +167,7 @@ class _PolylinePageState extends State<PolylinePage> {
                           'Solid translucent color fill, with different color outline',
                     ),
                   ),
+                  if (hoverLines != null) ...hoverLines!,
                 ],
               ),
             ),
@@ -158,6 +182,8 @@ class _PolylinePageState extends State<PolylinePage> {
     List<Polyline<_TapKeyType>> tappedLines,
     LatLng coords,
   ) {
+    tappedLines.removeWhere((e) => e.hitKey == null);
+
     showModalBottomSheet<void>(
       context: context,
       builder: (context) => Padding(

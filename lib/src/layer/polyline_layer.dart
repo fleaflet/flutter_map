@@ -2,6 +2,7 @@ import 'dart:core';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
@@ -14,7 +15,6 @@ import 'package:latlong2/latlong.dart';
 ///
 /// Emmitted by [PolylineLayer.hitNotifier]'s [ValueNotifier]
 /// ([PolylineHitNotifier]).
-@optionalTypeArgs
 class PolylineHit<TapKeyType extends Object> {
   /// All hit [Polyline]s within the corresponding layer
   ///
@@ -30,11 +30,9 @@ class PolylineHit<TapKeyType extends Object> {
 }
 
 /// Typedef used on [PolylineLayer.hitNotifier]
-@optionalTypeArgs
 typedef PolylineHitNotifier<TapKeyType extends Object>
     = ValueNotifier<PolylineHit<TapKeyType>?>;
 
-@optionalTypeArgs
 class Polyline<TapKeyType extends Object> {
   final List<LatLng> points;
   final double strokeWidth;
@@ -74,8 +72,24 @@ class Polyline<TapKeyType extends Object> {
     this.hitKey,
   });
 
-  /// Used to batch draw calls to the canvas.
-  int get renderHashCode => Object.hash(
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Polyline<TapKeyType> &&
+          listEquals(points, other.points) &&
+          strokeWidth == other.strokeWidth &&
+          color == other.color &&
+          borderStrokeWidth == other.borderStrokeWidth &&
+          borderColor == other.borderColor &&
+          listEquals(gradientColors, other.gradientColors) &&
+          listEquals(colorsStop, other.colorsStop) &&
+          isDotted == other.isDotted &&
+          strokeCap == other.strokeCap &&
+          strokeJoin == other.strokeJoin &&
+          useStrokeWidthInMeter == other.useStrokeWidthInMeter &&
+          hitKey == other.hitKey);
+
+  List<Object?> get _baseHashableValues => [
         strokeWidth,
         color,
         borderStrokeWidth,
@@ -87,30 +101,40 @@ class Polyline<TapKeyType extends Object> {
         strokeJoin,
         useStrokeWidthInMeter,
         hitKey,
-      );
+      ];
+
+  /// Used to batch draw calls to the canvas
+  int get renderHashCode => Object.hashAll(_baseHashableValues);
+
+  @override
+  int get hashCode => Object.hashAll([points, ..._baseHashableValues]);
 }
 
 @immutable
-@optionalTypeArgs
 class PolylineLayer<TapKeyType extends Object> extends StatelessWidget {
   final List<Polyline<TapKeyType>> polylines;
 
   /// A notifier to notify when a hit is detected over a/multiple [Polyline]s
   ///
-  /// Note that a hover event is included as a hit event.
-  ///
   /// To listen for hits, wrap the layer in a standard hit detector widget, such
   /// as [GestureDetector] and/or [MouseRegion] (and set
   /// [HitTestBehavior.deferToChild] if necessary). Then use the latest value
-  /// (via [ValueNotifier.value]) in the detector's callbacks to get the latest
-  /// [PolylineHit] result. It is also possible to listen to the notifier
-  /// directly.
+  /// (via [ValueNotifier.value]) in the detector's callbacks. It is also
+  /// possible to listen to the notifier directly.
   ///
   /// A [Polyline.hitKey] may be used to attach additional retrievable
   /// information, or to signify whether a [Polyline] is "tappable", for example.
   ///
+  /// Note that a hover event is included as a hit event. Therefore for
+  /// performance reasons, it may be advantageous to check the new value's
+  /// equality against the previous value (excluding the [PolylineHit.point],
+  /// which will always change), and avoid doing heavy work if they are the same.
+  ///
   /// See online documentation for more detailed usage instructions. See the
   /// example project for an example implementation.
+  ///
+  /// Will notify [PolylineHit]s if any [Polyline]s were hit, otherwise will
+  /// notify `null`.
   final PolylineHitNotifier<TapKeyType>? hitNotifier;
 
   /// The number of pixels away from a visual line (including any width and
@@ -218,13 +242,15 @@ class _PolylinePainter<TapKeyType extends Object> extends CustomPainter {
       }
     }
 
-    if (hits.isEmpty) return false;
+    if (hits.isEmpty) {
+      hitNotifier!.value = null;
+      return false;
+    }
 
     hitNotifier!.value = PolylineHit<TapKeyType>._(
       lines: hits,
       point: camera.pointToLatLng(math.Point(position.dx, position.dy)),
     );
-
     return true;
   }
 
