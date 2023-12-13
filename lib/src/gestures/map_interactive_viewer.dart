@@ -131,7 +131,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
         onSecondaryLongPressStart: _secondaryLongPress?.submit,
 
-        onDoubleTapDown: (details) {
+        /* onDoubleTapDown: (details) {
           _doubleTapDragZoom?.isActive = true;
           _doubleTap?.setDetails(details);
         },
@@ -142,7 +142,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
         onDoubleTap: () {
           _doubleTapDragZoom?.isActive = false;
           _doubleTap?.submit();
-        },
+        },*/
 
         onTertiaryTapDown: _tertiaryTap?.setDetails,
         onTertiaryTapCancel: _tertiaryTap?.reset,
