@@ -328,15 +328,19 @@ class TwoFingerGestures extends Gesture {
 }
 
 class DragGesture extends Gesture {
-  Offset? _lastLocalFocal;
+  final bool flingEnabled;
 
-  DragGesture({required super.controller});
+  Offset? _lastLocalFocal;
+  Offset? _focalStartLocal;
+
+  DragGesture({required super.controller, required this.flingEnabled});
 
   bool get isActive => _lastLocalFocal != null;
 
   void start(ScaleStartDetails details) {
     controller.stopAnimationRaw();
     _lastLocalFocal = details.localFocalPoint;
+    _focalStartLocal = details.localFocalPoint;
     controller.emitMapEvent(
       MapEventMoveStart(
         camera: _camera,
@@ -371,6 +375,40 @@ class DragGesture extends Gesture {
       MapEventMoveEnd(
         camera: _camera,
         source: MapEventSource.dragEnd,
+      ),
+    );
+    final lastLocalFocal = _lastLocalFocal!;
+    final focalStartLocal = _focalStartLocal!;
+    _lastLocalFocal = null;
+    _focalStartLocal = null;
+
+    if (!flingEnabled) return;
+
+    final magnitude = details.velocity.pixelsPerSecond.distance;
+
+    // don't start fling if the magnitude is not high enough
+    if (magnitude < 800) {
+      controller.emitMapEvent(
+        MapEventFlingAnimationNotStarted(
+          source: MapEventSource.flingAnimationController,
+          camera: _camera,
+        ),
+      );
+      return;
+    }
+
+    final direction = details.velocity.pixelsPerSecond / magnitude;
+
+    controller.flingAnimatedRaw(
+      velocity: magnitude / 1000.0,
+      direction: direction,
+      begin: focalStartLocal - lastLocalFocal,
+      hasGesture: true,
+    );
+    controller.emitMapEvent(
+      MapEventFlingAnimationStart(
+        source: MapEventSource.flingAnimationController,
+        camera: _camera,
       ),
     );
   }

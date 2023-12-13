@@ -205,7 +205,10 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     }
 
     if (InteractiveFlag.hasDrag(flags)) {
-      _drag = DragGesture(controller: widget.controller);
+      _drag = DragGesture(
+        controller: widget.controller,
+        flingEnabled: InteractiveFlag.hasFlingAnimation(flags),
+      );
     } else {
       _drag = null;
     }
