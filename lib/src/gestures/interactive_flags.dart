@@ -116,4 +116,32 @@ class InteractiveFlags {
         rotate: rotate ?? this.rotate,
         ctrlDragRotate: rotate ?? this.ctrlDragRotate,
       );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is InteractiveFlags &&
+          runtimeType == other.runtimeType &&
+          drag == other.drag &&
+          flingAnimation == other.flingAnimation &&
+          pinchMove == other.pinchMove &&
+          pinchZoom == other.pinchZoom &&
+          doubleTapZoom == other.doubleTapZoom &&
+          doubleTapDragZoom == other.doubleTapDragZoom &&
+          scrollWheelZoom == other.scrollWheelZoom &&
+          rotate == other.rotate &&
+          ctrlDragRotate == other.ctrlDragRotate;
+
+  @override
+  int get hashCode => Object.hash(
+        drag,
+        flingAnimation,
+        pinchMove,
+        pinchZoom,
+        doubleTapZoom,
+        doubleTapDragZoom,
+        scrollWheelZoom,
+        rotate,
+        ctrlDragRotate,
+      );
 }

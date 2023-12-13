@@ -72,7 +72,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
           TertiaryLongPressGesture(controller: widget.controller);
     }
     // gestures that change the map camera
-    updateGestures(_interactionOptions.flags);
+    updateGestures(null, _interactionOptions.flags);
   }
 
   @override
@@ -192,44 +192,45 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   }
 
   /// Used by the internal map controller to update interaction gestures
-  void updateGestures(InteractiveFlags flags) {
-    if (flags.hasMultiFinger()) {
+  void updateGestures(InteractiveFlags? oldFlags, InteractiveFlags newFlags) {
+    if (oldFlags == newFlags) return;
+    if (newFlags.hasMultiFinger()) {
       _twoFingerInput = TwoFingerGestures(
         controller: widget.controller,
-        interactiveFlags: flags,
+        interactiveFlags: newFlags,
       );
     } else {
       _twoFingerInput = null;
     }
 
-    if (flags.drag) {
+    if (newFlags.drag) {
       _drag = DragGesture(
         controller: widget.controller,
-        interactiveFlags: flags,
+        interactiveFlags: newFlags,
       );
     } else {
       _drag = null;
     }
 
-    if (flags.doubleTapZoom) {
+    if (newFlags.doubleTapZoom) {
       _doubleTap = DoubleTapGesture(controller: widget.controller);
     } else {
       _doubleTap = null;
     }
 
-    if (flags.scrollWheelZoom) {
+    if (newFlags.scrollWheelZoom) {
       _scrollWheelZoom = ScrollWheelZoomGesture(controller: widget.controller);
     } else {
       _scrollWheelZoom = null;
     }
 
-    if (flags.ctrlDragRotate) {
+    if (newFlags.ctrlDragRotate) {
       _ctrlDragRotate = CtrlDragRotateGesture(controller: widget.controller);
     } else {
       _ctrlDragRotate = null;
     }
 
-    if (flags.doubleTapDragZoom) {
+    if (newFlags.doubleTapDragZoom) {
       _doubleTapDragZoom =
           DoubleTapDragZoomGesture(controller: widget.controller);
     } else {
