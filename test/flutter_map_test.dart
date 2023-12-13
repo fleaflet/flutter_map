@@ -1,13 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/src/geo/crs.dart';
-import 'package:flutter_map/src/gestures/interactive_flag.dart';
-import 'package:flutter_map/src/layer/marker_layer.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
-import 'package:flutter_map/src/map/camera/camera.dart';
-import 'package:flutter_map/src/map/controller/map_controller.dart';
-import 'package:flutter_map/src/map/options/interaction.dart';
-import 'package:flutter_map/src/map/options/options.dart';
-import 'package:flutter_map/src/map/widget.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -223,7 +215,7 @@ class TestRebuildsApp extends StatefulWidget {
 class _TestRebuildsAppState extends State<TestRebuildsApp> {
   MapController _mapController = MapController();
   Crs _crs = const Epsg3857();
-  int _interactiveFlags = InteractiveFlag.all;
+  InteractiveFlags _interactiveFlags = const InteractiveFlags.all();
 
   @override
   void dispose() {
@@ -250,10 +242,9 @@ class _TestRebuildsAppState extends State<TestRebuildsApp> {
                 TextButton(
                   onPressed: () {
                     setState(() {
-                      _interactiveFlags =
-                          InteractiveFlag.hasDrag(_interactiveFlags)
-                              ? _interactiveFlags & ~InteractiveFlag.drag
-                              : InteractiveFlag.all;
+                      _interactiveFlags = _interactiveFlags.withFlag(
+                        drag: !_interactiveFlags.drag,
+                      );
                     });
                   },
                   child: const Text('Change flags'),

@@ -543,12 +543,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   }
 
   void emitMapEvent(MapEvent event) {
-    if (event.source == MapEventSource.mapController && event is MapEventMove) {
-      _interactiveViewerState.interruptAnimatedMovement(event);
-    }
-
     options.onMapEvent?.call(event);
-
     _mapEventSink.add(event);
   }
 

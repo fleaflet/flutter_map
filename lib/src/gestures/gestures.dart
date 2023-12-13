@@ -251,11 +251,11 @@ class TwoFingerGestures extends Gesture {
   double? _lastRotation;
 
   TwoFingerGestures({
-    required this.moveEnabled,
-    required this.rotateEnabled,
-    required this.zoomEnabled,
+    required InteractiveFlags interactiveFlags,
     required super.controller,
-  });
+  })  : moveEnabled = interactiveFlags.pinchMove,
+        zoomEnabled = interactiveFlags.pinchZoom,
+        rotateEnabled = interactiveFlags.rotate;
 
   /// Initialize gesture, called when gesture has started
   void start(ScaleStartDetails details) {
@@ -333,7 +333,10 @@ class DragGesture extends Gesture {
   Offset? _lastLocalFocal;
   Offset? _focalStartLocal;
 
-  DragGesture({required super.controller, required this.flingEnabled});
+  DragGesture({
+    required super.controller,
+    required InteractiveFlags interactiveFlags,
+  }) : flingEnabled = interactiveFlags.flingAnimation;
 
   bool get isActive => _lastLocalFocal != null;
 

@@ -59,9 +59,6 @@ abstract class InteractiveFlag {
   /// To change the key see [InteractionOptions.cursorKeyboardRotationOptions].
   static const int ctrlDragRotate = 1 << 8;
 
-  /// Flags pertaining to gestures which require multiple fingers.
-  static const _multiFingerFlags = pinchMove | pinchZoom | rotate;
-
   /// Returns `true` if [leftFlags] has at least one member in [rightFlags]
   /// (intersection) for example [leftFlags]= [InteractiveFlag.drag] |
   /// [InteractiveFlag.rotate] and [rightFlags]= [InteractiveFlag.rotate] |
@@ -70,35 +67,4 @@ abstract class InteractiveFlag {
   static bool hasFlag(int leftFlags, int rightFlags) {
     return leftFlags & rightFlags != 0;
   }
-
-  /// True if any multi-finger gesture flags are enabled.
-  static bool hasMultiFinger(int flags) => hasFlag(flags, _multiFingerFlags);
-
-  /// True if the [drag] interactive flag is enabled.
-  static bool hasDrag(int flags) => hasFlag(flags, drag);
-
-  /// True if the [flingAnimation] interactive flag is enabled.
-  static bool hasFlingAnimation(int flags) => hasFlag(flags, flingAnimation);
-
-  /// True if the [pinchMove] interactive flag is enabled.
-  static bool hasPinchMove(int flags) => hasFlag(flags, pinchMove);
-
-  /// True if the [pinchZoom] interactive flag is enabled.
-  static bool hasPinchZoom(int flags) => hasFlag(flags, pinchZoom);
-
-  /// True if the [doubleTapDragZoom] interactive flag is enabled.
-  static bool hasDoubleTapDragZoom(int flags) =>
-      hasFlag(flags, doubleTapDragZoom);
-
-  /// True if the [doubleTapZoom] interactive flag is enabled.
-  static bool hasDoubleTapZoom(int flags) => hasFlag(flags, doubleTapZoom);
-
-  /// True if the [rotate] interactive flag is enabled.
-  static bool hasRotate(int flags) => hasFlag(flags, rotate);
-
-  /// True if the [scrollWheelZoom] interactive flag is enabled.
-  static bool hasScrollWheelZoom(int flags) => hasFlag(flags, scrollWheelZoom);
-
-  /// True if the [ctrlDragRotate] interactive flag is enabled.
-  static bool hasCtrlDragRotate(int flags) => hasFlag(flags, ctrlDragRotate);
 }

@@ -113,8 +113,9 @@ class _MarkerPageState extends State<MarkerPage> {
                 onTap: (_, p) {
                   setState(() => customMarkers.add(buildPin(p)));
                 },
-                interactionOptions: const InteractionOptions(
-                  flags: ~InteractiveFlag.doubleTapZoom,
+                interactionOptions: InteractionOptions(
+                  flags:
+                      InteractiveFlags.bitfield(~InteractiveFlag.doubleTapZoom),
                 ),
               ),
               children: [

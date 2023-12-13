@@ -74,7 +74,7 @@ class ManyCirclesPageState extends State<ManyCirclesPage> {
                 initialCenter: LatLng(50, 20),
                 initialZoom: 5,
                 interactionOptions: InteractionOptions(
-                  flags: InteractiveFlag.all - InteractiveFlag.rotate,
+                  flags: InteractiveFlags.all(rotate: false),
                 ),
               ),
               children: [

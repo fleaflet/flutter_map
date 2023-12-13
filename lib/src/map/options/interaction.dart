@@ -1,11 +1,12 @@
 import 'package:flutter_map/src/gestures/interactive_flag.dart';
+import 'package:flutter_map/src/gestures/interactive_flags.dart';
 import 'package:flutter_map/src/map/options/cursor_keyboard_rotation.dart';
 import 'package:meta/meta.dart';
 
 @immutable
 final class InteractionOptions {
-  /// See [InteractiveFlag] for custom settings
-  final int flags;
+  /// See [InteractiveFlags] for custom settings
+  final InteractiveFlags flags;
 
   /// Prints multi finger gesture winner Helps to fine adjust
   /// [rotationThreshold] and [pinchZoomThreshold] and [pinchMoveThreshold]
@@ -75,7 +76,7 @@ final class InteractionOptions {
   final CursorKeyboardRotationOptions cursorKeyboardRotationOptions;
 
   const InteractionOptions({
-    this.flags = InteractiveFlag.all,
+    this.flags = const InteractiveFlags.all(),
     this.debugMultiFingerGestureWinner = false,
     this.enableMultiFingerGestureRace = false,
     this.rotationThreshold = 20.0,

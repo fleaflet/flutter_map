@@ -192,55 +192,48 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   }
 
   /// Used by the internal map controller to update interaction gestures
-  void updateGestures(int flags) {
-    if (InteractiveFlag.hasMultiFinger(flags)) {
+  void updateGestures(InteractiveFlags flags) {
+    if (flags.hasMultiFinger()) {
       _twoFingerInput = TwoFingerGestures(
         controller: widget.controller,
-        moveEnabled: InteractiveFlag.hasPinchMove(flags),
-        rotateEnabled: InteractiveFlag.hasRotate(flags),
-        zoomEnabled: InteractiveFlag.hasPinchZoom(flags),
+        interactiveFlags: flags,
       );
     } else {
       _twoFingerInput = null;
     }
 
-    if (InteractiveFlag.hasDrag(flags)) {
+    if (flags.drag) {
       _drag = DragGesture(
         controller: widget.controller,
-        flingEnabled: InteractiveFlag.hasFlingAnimation(flags),
+        interactiveFlags: flags,
       );
     } else {
       _drag = null;
     }
 
-    if (InteractiveFlag.hasDoubleTapZoom(flags)) {
+    if (flags.doubleTapZoom) {
       _doubleTap = DoubleTapGesture(controller: widget.controller);
     } else {
       _doubleTap = null;
     }
 
-    if (InteractiveFlag.hasScrollWheelZoom(flags)) {
+    if (flags.scrollWheelZoom) {
       _scrollWheelZoom = ScrollWheelZoomGesture(controller: widget.controller);
     } else {
       _scrollWheelZoom = null;
     }
 
-    if (InteractiveFlag.hasCtrlDragRotate(flags)) {
+    if (flags.ctrlDragRotate) {
       _ctrlDragRotate = CtrlDragRotateGesture(controller: widget.controller);
     } else {
       _ctrlDragRotate = null;
     }
 
-    if (InteractiveFlag.hasDoubleTapDragZoom(flags)) {
+    if (flags.doubleTapDragZoom) {
       _doubleTapDragZoom =
           DoubleTapDragZoomGesture(controller: widget.controller);
     } else {
       _doubleTapDragZoom = null;
     }
-  }
-
-  /// Used by the internal map controller
-  void interruptAnimatedMovement(MapEventMove event) {
-    // TODO implement
   }
 }

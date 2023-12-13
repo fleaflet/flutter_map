@@ -121,7 +121,7 @@ class _InteractiveFlagsPageState extends State<InteractiveFlagsPage> {
                   initialCenter: const LatLng(51.5, -0.09),
                   initialZoom: 11,
                   interactionOptions: InteractionOptions(
-                    flags: flags,
+                    flags: InteractiveFlags.bitfield(flags),
                     cursorKeyboardRotationOptions:
                         CursorKeyboardRotationOptions(
                       isKeyTrigger: (key) =>
