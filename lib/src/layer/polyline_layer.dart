@@ -89,7 +89,8 @@ class Polyline<TapKeyType extends Object> {
           useStrokeWidthInMeter == other.useStrokeWidthInMeter &&
           hitKey == other.hitKey);
 
-  List<Object?> get _baseHashableValues => [
+  /// Used to batch draw calls to the canvas
+  int get renderHashCode => Object.hash(
         strokeWidth,
         color,
         borderStrokeWidth,
@@ -101,13 +102,10 @@ class Polyline<TapKeyType extends Object> {
         strokeJoin,
         useStrokeWidthInMeter,
         hitKey,
-      ];
-
-  /// Used to batch draw calls to the canvas
-  int get renderHashCode => Object.hashAll(_baseHashableValues);
+      );
 
   @override
-  int get hashCode => Object.hashAll([points, ..._baseHashableValues]);
+  int get hashCode => Object.hash(points, renderHashCode);
 }
 
 @immutable
@@ -188,6 +186,7 @@ class _PolylinePainter<TapKeyType extends Object> extends CustomPainter {
     required this.onTapTolerance,
   }) : bounds = camera.visibleBounds;
 
+  // Avoids reallocation on every `hitTest`, is cleared every time
   final hits = List<Polyline<TapKeyType>>.empty(growable: true);
 
   int get hash => _hash ??= Object.hashAll(polylines);
