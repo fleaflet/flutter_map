@@ -16,6 +16,8 @@ class PolylinePage extends StatefulWidget {
 typedef _TapKeyType = ({String title, String subtitle});
 
 class _PolylinePageState extends State<PolylinePage> {
+  final PolylineHitNotifier<_TapKeyType> hitNotifier = ValueNotifier(null);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,107 +30,123 @@ class _PolylinePageState extends State<PolylinePage> {
         ),
         children: [
           openStreetMapTileLayer,
-          PolylineLayer<_TapKeyType>(
-            onTap: (lines, coords) =>
-                _openTouchedLinesModal('Tapped', lines, coords),
-            onLongPress: (lines, coords) =>
-                _openTouchedLinesModal('Long pressed', lines, coords),
-            onSecondaryTap: (lines, coords) =>
-                _openTouchedLinesModal('Secondary tapped', lines, coords),
-            polylines: [
-              Polyline(
-                points: [
-                  const LatLng(51.5, -0.09),
-                  const LatLng(53.3498, -6.2603),
-                  const LatLng(48.8566, 2.3522),
-                ],
-                strokeWidth: 8,
-                color: const Color(0xFF60399E),
-                tapKey: (
-                  title: 'Elizabeth Line',
-                  subtitle: 'Nothing really special here...',
-                ),
+          MouseRegion(
+            hitTestBehavior: HitTestBehavior.deferToChild,
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: () => _openTouchedLinesModal(
+                'Tapped',
+                hitNotifier.value!.lines,
+                hitNotifier.value!.point,
               ),
-              Polyline(
-                points: [
-                  const LatLng(48.5, -3.09),
-                  const LatLng(47.3498, -9.2603),
-                  const LatLng(43.8566, -1.3522),
-                ],
-                strokeWidth: 16000,
-                color: Colors.pink,
-                useStrokeWidthInMeter: true,
-                tapKey: (
-                  title: 'Pink Line',
-                  subtitle: 'Fixed radius in meters instead of pixels',
-                ),
+              onLongPress: () => _openTouchedLinesModal(
+                'Long pressed',
+                hitNotifier.value!.lines,
+                hitNotifier.value!.point,
               ),
-              Polyline(
-                points: [
-                  const LatLng(55.5, -0.09),
-                  const LatLng(54.3498, -6.2603),
-                  const LatLng(52.8566, 2.3522),
-                ],
-                strokeWidth: 4,
-                gradientColors: [
-                  const Color(0xffE40203),
-                  const Color(0xffFEED00),
-                  const Color(0xff007E2D),
-                ],
-                tapKey: (
-                  title: 'Traffic Light Line',
-                  subtitle: 'Fancy gradient instead of a solid color',
-                ),
+              onSecondaryTap: () => _openTouchedLinesModal(
+                'Secondary tapped',
+                hitNotifier.value!.lines,
+                hitNotifier.value!.point,
               ),
-              Polyline(
-                points: [
-                  const LatLng(50.5, -0.09),
-                  const LatLng(51.3498, 6.2603),
-                  const LatLng(53.8566, 2.3522),
+              child: PolylineLayer(
+                hitNotifier: hitNotifier,
+                polylines: [
+                  Polyline(
+                    points: [
+                      const LatLng(51.5, -0.09),
+                      const LatLng(53.3498, -6.2603),
+                      const LatLng(48.8566, 2.3522),
+                    ],
+                    strokeWidth: 8,
+                    color: const Color(0xFF60399E),
+                    hitKey: (
+                      title: 'Elizabeth Line',
+                      subtitle: 'Nothing really special here...',
+                    ),
+                  ),
+                  Polyline(
+                    points: [
+                      const LatLng(48.5, -3.09),
+                      const LatLng(47.3498, -9.2603),
+                      const LatLng(43.8566, -1.3522),
+                    ],
+                    strokeWidth: 16000,
+                    color: Colors.pink,
+                    useStrokeWidthInMeter: true,
+                    hitKey: (
+                      title: 'Pink Line',
+                      subtitle: 'Fixed radius in meters instead of pixels',
+                    ),
+                  ),
+                  Polyline(
+                    points: [
+                      const LatLng(55.5, -0.09),
+                      const LatLng(54.3498, -6.2603),
+                      const LatLng(52.8566, 2.3522),
+                    ],
+                    strokeWidth: 4,
+                    gradientColors: [
+                      const Color(0xffE40203),
+                      const Color(0xffFEED00),
+                      const Color(0xff007E2D),
+                    ],
+                    hitKey: (
+                      title: 'Traffic Light Line',
+                      subtitle: 'Fancy gradient instead of a solid color',
+                    ),
+                  ),
+                  Polyline(
+                    points: [
+                      const LatLng(50.5, -0.09),
+                      const LatLng(51.3498, 6.2603),
+                      const LatLng(53.8566, 2.3522),
+                    ],
+                    strokeWidth: 20,
+                    color: Colors.blue.withOpacity(0.6),
+                    borderStrokeWidth: 20,
+                    borderColor: Colors.red.withOpacity(0.4),
+                    hitKey: (
+                      title: 'BlueRed Line',
+                      subtitle:
+                          'Solid translucent color fill, with different color outline',
+                    ),
+                  ),
+                  Polyline(
+                    points: [
+                      const LatLng(50.2, -0.08),
+                      const LatLng(51.2498, -10.2603),
+                      const LatLng(54.8566, -9.3522),
+                    ],
+                    strokeWidth: 20,
+                    color: Colors.black.withOpacity(0.2),
+                    borderStrokeWidth: 20,
+                    borderColor: Colors.white30,
+                    hitKey: (
+                      title: 'BlackWhite Line',
+                      subtitle:
+                          'Solid translucent color fill, with different color outline',
+                    ),
+                  ),
+                  Polyline(
+                    points: [
+                      const LatLng(49.1, -0.06),
+                      const LatLng(52.15, -1.4),
+                      const LatLng(55.5, 0.8),
+                    ],
+                    strokeWidth: 10,
+                    color: Colors.yellow,
+                    borderStrokeWidth: 10,
+                    borderColor: Colors.blue.withOpacity(0.5),
+                    hitKey: (
+                      title: 'YellowBlue Line',
+                      subtitle:
+                          'Solid translucent color fill, with different color outline',
+                    ),
+                  ),
                 ],
-                strokeWidth: 20,
-                color: Colors.blue.withOpacity(0.6),
-                borderStrokeWidth: 20,
-                borderColor: Colors.red.withOpacity(0.4),
-                tapKey: (
-                  title: 'BlueRed Line',
-                  subtitle:
-                      'Solid translucent color fill, with different color outline',
-                ),
               ),
-              Polyline(
-                points: [
-                  const LatLng(50.2, -0.08),
-                  const LatLng(51.2498, -10.2603),
-                  const LatLng(54.8566, -9.3522),
-                ],
-                strokeWidth: 20,
-                color: Colors.black.withOpacity(0.2),
-                borderStrokeWidth: 20,
-                borderColor: Colors.white30,
-                tapKey: (
-                  title: 'BlackWhite Line',
-                  subtitle:
-                      'Solid translucent color fill, with different color outline',
-                ),
-              ),
-              Polyline(
-                points: [
-                  const LatLng(49.1, -0.06),
-                  const LatLng(52.15, -1.4),
-                  const LatLng(55.5, 0.8),
-                ],
-                strokeWidth: 10,
-                color: Colors.yellow,
-                borderStrokeWidth: 10,
-                borderColor: Colors.blue.withOpacity(0.5),
-                tapKey: (
-                  title: 'YellowBlue Line',
-                  subtitle:
-                      'Solid translucent color fill, with different color outline',
-                ),
-              ),
-            ],
+            ),
           ),
         ],
       ),
@@ -165,8 +183,8 @@ class _PolylinePageState extends State<PolylinePage> {
                         : index == tappedLines.length - 1
                             ? const Icon(Icons.vertical_align_bottom)
                             : const SizedBox.shrink(),
-                    title: Text(tappedLine.tapKey!.title),
-                    subtitle: Text(tappedLine.tapKey!.subtitle),
+                    title: Text(tappedLine.hitKey!.title),
+                    subtitle: Text(tappedLine.hitKey!.subtitle),
                     dense: true,
                   );
                 },

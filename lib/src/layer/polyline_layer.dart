@@ -10,18 +10,29 @@ import 'package:flutter_map/src/misc/offsets.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:latlong2/latlong.dart';
 
-class _LastHit<TapKeyType extends Object> {
-  List<Polyline<TapKeyType>>? lines;
-  LatLng? point;
+/// Result from polyline hit detection
+///
+/// Emmitted by [PolylineLayer.hitNotifier]'s [ValueNotifier]
+/// ([PolylineHitNotifier]).
+@optionalTypeArgs
+class PolylineHit<TapKeyType extends Object> {
+  /// All hit [Polyline]s within the corresponding layer
+  ///
+  /// Ordered from first-last, visually top-bottom.
+  final List<Polyline<TapKeyType>> lines;
 
-  bool get toIgnore => lines == null || point == null;
+  /// Coordinates of the detected hit
+  ///
+  /// Note that this may not lie on a [Polyline].
+  final LatLng point;
+
+  const PolylineHit._({required this.lines, required this.point});
 }
 
-typedef PolylineOnTap = void Function(LatLng point);
-typedef PolylineLayerOnTap<TapKeyType extends Object> = void Function(
-  List<Polyline<TapKeyType>> lines,
-  LatLng point,
-)?;
+/// Typedef used on [PolylineLayer.hitNotifier]
+@optionalTypeArgs
+typedef PolylineHitNotifier<TapKeyType extends Object>
+    = ValueNotifier<PolylineHit<TapKeyType>?>;
 
 @optionalTypeArgs
 class Polyline<TapKeyType extends Object> {
@@ -37,36 +48,11 @@ class Polyline<TapKeyType extends Object> {
   final StrokeJoin strokeJoin;
   final bool useStrokeWidthInMeter;
 
-  /// Called when a tap is detected on this [Polyline]
+  /// Custom value that can identify this particular [Polyline] after hit
+  /// detection
   ///
-  /// See [PolylineLayer.onTap], [PolylineLayer.onTapTolerance],
-  /// [PolylineLayer.nonTappablesOcclude], and [PolylineLayer.tappablesOcclude]
-  /// for more information.
-  final PolylineOnTap? onTap;
-
-  /// Called when a long press is detected on this [Polyline]
-  ///
-  /// See [PolylineLayer.onLongPress], [PolylineLayer.onTapTolerance],
-  /// [PolylineLayer.nonTappablesOcclude], and [PolylineLayer.tappablesOcclude]
-  /// for more information.
-  final PolylineOnTap? onLongPress;
-
-  /// Called when a secondary tap/alternative click is detected on this
-  /// [Polyline]
-  ///
-  /// See [PolylineLayer.onSecondaryTap], [PolylineLayer.onTapTolerance],
-  /// [PolylineLayer.nonTappablesOcclude], and [PolylineLayer.tappablesOcclude]
-  /// for more information.
-  final PolylineOnTap? onSecondaryTap;
-
-  /// Custom value that identifies this particular [Polyline] when used with
-  /// [PolylineLayer.onTap] (and variants) (either instead of or in addition to
-  /// [onTap] (and variants))
-  ///
-  /// When non-null, also indicates this [Polyline] is "interactive" if [onTap]
-  /// (and variants) is `null`. ("Tappable" means that either or both of [onTap]
-  /// (and variants) and [tapKey] has been defined.)
-  final TapKeyType? tapKey;
+  /// See [PolylineLayer.hitNotifier] for more info.
+  final TapKeyType? hitKey;
 
   LatLngBounds? _boundingBox;
 
@@ -85,10 +71,7 @@ class Polyline<TapKeyType extends Object> {
     this.strokeCap = StrokeCap.round,
     this.strokeJoin = StrokeJoin.round,
     this.useStrokeWidthInMeter = false,
-    this.onTap,
-    this.onLongPress,
-    this.onSecondaryTap,
-    this.tapKey,
+    this.hitKey,
   });
 
   /// Used to batch draw calls to the canvas.
@@ -103,6 +86,7 @@ class Polyline<TapKeyType extends Object> {
         strokeCap,
         strokeJoin,
         useStrokeWidthInMeter,
+        hitKey,
       );
 }
 
@@ -111,76 +95,36 @@ class Polyline<TapKeyType extends Object> {
 class PolylineLayer<TapKeyType extends Object> extends StatelessWidget {
   final List<Polyline<TapKeyType>> polylines;
 
-  /// Called when a tap is detected on any [Polyline] with a defined
-  /// [Polyline.tapKey]
+  /// A notifier to notify when a hit is detected over a/multiple [Polyline]s
   ///
-  /// Individual [Polyline]s may have their own [Polyline.onTap] callback
-  /// defined, regardless of whether this is defined.
+  /// Note that a hover event is included as a hit event.
   ///
-  /// See [nonTappablesOcclude] and [tappablesOcclude] to set behaviour when a
-  /// tap is over multiple overlapping [Polyline]s.
-  final PolylineLayerOnTap<TapKeyType>? onTap;
+  /// To listen for hits, wrap the layer in a standard hit detector widget, such
+  /// as [GestureDetector] and/or [MouseRegion] (and set
+  /// [HitTestBehavior.deferToChild] if necessary). Then use the latest value
+  /// (via [ValueNotifier.value]) in the detector's callbacks to get the latest
+  /// [PolylineHit] result. It is also possible to listen to the notifier
+  /// directly.
+  ///
+  /// A [Polyline.hitKey] may be used to attach additional retrievable
+  /// information, or to signify whether a [Polyline] is "tappable", for example.
+  ///
+  /// See online documentation for more detailed usage instructions. See the
+  /// example project for an example implementation.
+  final PolylineHitNotifier<TapKeyType>? hitNotifier;
 
-  /// Called when a long press is detected on any [Polyline] with a defined
-  /// [Polyline.tapKey]
-  ///
-  /// Individual [Polyline]s may have their own [Polyline.onLongPress] callback
-  /// defined, regardless of whether this is defined.
-  ///
-  /// See [nonTappablesOcclude] and [tappablesOcclude] to set behaviour when a
-  /// tap is over multiple overlapping [Polyline]s.
-  final PolylineLayerOnTap<TapKeyType>? onLongPress;
-
-  /// Called when a secondary tap/alternative click is detected on any [Polyline]
-  /// with a defined [Polyline.tapKey]
-  ///
-  /// Individual [Polyline]s may have their own [Polyline.onSecondaryTap]
-  /// callback defined, regardless of whether this is defined.
-  ///
-  /// See [nonTappablesOcclude] and [tappablesOcclude] to set behaviour when a
-  /// tap is over multiple overlapping [Polyline]s.
-  final PolylineLayerOnTap<TapKeyType>? onSecondaryTap;
-
-  /// The number of pixels away from the visual line (including any width and
-  /// outline) in which a tap should still register as a tap on the line
-  ///
-  /// Applies to both [onTap] and every [Polyline.onTap] (and variants).
+  /// The number of pixels away from a visual line (including any width and
+  /// outline) in which a hit should still register as a hit on the line, and
+  /// trigger a notification to [hitNotifier]
   ///
   /// Defaults to 3.
-  final double onTapTolerance;
-
-  /// Whether a non-tappable [Polyline] should prevent taps from being handled
-  /// on all [Polyline]s beneath it, at overlaps
-  ///
-  /// "Tappable" means that either or both of [Polyline.onTap] (and variants) and
-  /// [Polyline.tapKey] has been defined.
-  ///
-  /// Applies to both [onTap] and every [Polyline.onTap] (and variants).
-  ///
-  /// Defaults to `true`.
-  final bool nonTappablesOcclude;
-
-  /// Whether a tappable [Polyline] should prevent taps from being handled
-  /// on all [Polyline]s beneath it, at overlaps
-  ///
-  /// "Tappable" means that either or both of [Polyline.onTap] (and variants) and
-  /// [Polyline.tapKey] has been defined.
-  ///
-  /// If `true`, then [onTap] becomes redundant to [Polyline.onTap]
-  /// (and variants).
-  ///
-  /// Defaults to `false`.
-  final bool tappablesOcclude;
+  final double hitTolerance;
 
   const PolylineLayer({
     super.key,
     required this.polylines,
-    this.onTap,
-    this.onLongPress,
-    this.onSecondaryTap,
-    this.onTapTolerance = 3,
-    this.tappablesOcclude = false,
-    this.nonTappablesOcclude = true,
+    this.hitNotifier,
+    this.hitTolerance = 3,
     // TODO: Remove once PR #1704 is merged
     bool polylineCulling = true,
   });
@@ -189,64 +133,19 @@ class PolylineLayer<TapKeyType extends Object> extends StatelessWidget {
   Widget build(BuildContext context) {
     final camera = MapCamera.of(context);
 
-    bool interactive =
-        onTap != null || onLongPress != null || onSecondaryTap != null;
-    final lastHit = _LastHit<TapKeyType>();
-
-    final culledPolylines = <Polyline<TapKeyType>>[];
-    for (final line in polylines) {
-      if (!line.boundingBox.isOverlapping(camera.visibleBounds)) continue;
-      if (!interactive && line.onTap != null) interactive = true;
-      culledPolylines.add(line);
-    }
-
-    final paint = CustomPaint(
-      painter: _PolylinePainter<TapKeyType>(
-        polylines: culledPolylines,
-        camera: camera,
-        lastHit: interactive ? lastHit : null,
-        onTapTolerance: onTapTolerance,
-        tappablesOcclude: tappablesOcclude,
-        nonTappablesOcclude: nonTappablesOcclude,
-      ),
-      size: Size(camera.size.x, camera.size.y),
-      isComplex: true,
-    );
-
     return MobileLayerTransformer(
-      child: interactive
-          ? MouseRegion(
-              hitTestBehavior: HitTestBehavior.deferToChild,
-              cursor: SystemMouseCursors.click,
-              child: GestureDetector(
-                onTap: () {
-                  if (lastHit.toIgnore) return;
-
-                  for (final polyline in lastHit.lines!) {
-                    polyline.onTap?.call(lastHit.point!);
-                  }
-                  onTap?.call(lastHit.lines!, lastHit.point!);
-                },
-                onLongPress: () {
-                  if (lastHit.toIgnore) return;
-
-                  for (final polyline in lastHit.lines!) {
-                    polyline.onLongPress?.call(lastHit.point!);
-                  }
-                  onLongPress?.call(lastHit.lines!, lastHit.point!);
-                },
-                onSecondaryTap: () {
-                  if (lastHit.toIgnore) return;
-
-                  for (final polyline in lastHit.lines!) {
-                    polyline.onSecondaryTap?.call(lastHit.point!);
-                  }
-                  onSecondaryTap?.call(lastHit.lines!, lastHit.point!);
-                },
-                child: paint,
-              ),
-            )
-          : paint,
+      child: CustomPaint(
+        painter: _PolylinePainter<TapKeyType>(
+          polylines: polylines
+              .where((p) => p.boundingBox.isOverlapping(camera.visibleBounds))
+              .toList(),
+          camera: camera,
+          hitNotifier: hitNotifier,
+          onTapTolerance: hitTolerance,
+        ),
+        size: Size(camera.size.x, camera.size.y),
+        isComplex: true,
+      ),
     );
   }
 }
@@ -255,33 +154,30 @@ class _PolylinePainter<TapKeyType extends Object> extends CustomPainter {
   final List<Polyline<TapKeyType>> polylines;
   final MapCamera camera;
   final LatLngBounds bounds;
-  final _LastHit? lastHit;
+  final PolylineHitNotifier? hitNotifier;
   final double onTapTolerance;
-  final bool tappablesOcclude;
-  final bool nonTappablesOcclude;
 
   _PolylinePainter({
     required this.polylines,
     required this.camera,
-    required this.lastHit,
+    required this.hitNotifier,
     required this.onTapTolerance,
-    required this.tappablesOcclude,
-    required this.nonTappablesOcclude,
   }) : bounds = camera.visibleBounds;
 
-  int get hash => _hash ??= Object.hashAll(polylines);
+  final hits = List<Polyline<TapKeyType>>.empty(growable: true);
 
+  int get hash => _hash ??= Object.hashAll(polylines);
   int? _hash;
 
   @override
   bool? hitTest(Offset position) {
-    if (lastHit == null) return null;
+    if (hitNotifier == null) return null;
 
-    final hits = <Polyline<TapKeyType>>[];
+    hits.clear();
+
     final origin =
         camera.project(camera.center).toOffset() - camera.size.toOffset() / 2;
 
-    outer:
     for (final p in polylines.reversed) {
       // TODO: For efficiency we'd ideally filter by bounding box here. However
       // we'd need to compute an extended bounding box that accounts account for
@@ -316,15 +212,7 @@ class _PolylinePainter<TapKeyType extends Object> extends CustomPainter {
         ));
 
         if (distance < maxDistance) {
-          if (nonTappablesOcclude &&
-              p.onTap == null &&
-              p.onLongPress == null &&
-              p.onSecondaryTap == null &&
-              p.tapKey == null) {
-            break outer;
-          }
           hits.add(p);
-          if (tappablesOcclude) break outer;
           break;
         }
       }
@@ -332,9 +220,10 @@ class _PolylinePainter<TapKeyType extends Object> extends CustomPainter {
 
     if (hits.isEmpty) return false;
 
-    lastHit!
-      ..lines = hits
-      ..point = camera.pointToLatLng(math.Point(position.dx, position.dy));
+    hitNotifier!.value = PolylineHit<TapKeyType>._(
+      lines: hits,
+      point: camera.pointToLatLng(math.Point(position.dx, position.dy)),
+    );
 
     return true;
   }
