@@ -87,6 +87,13 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   @override
   Widget build(BuildContext context) {
+    final useDoubleTapCallback =
+        _doubleTap != null || _doubleTapDragZoom != null;
+    final useScaleCallback = _ctrlDragRotate != null ||
+        _drag != null ||
+        _doubleTapDragZoom != null ||
+        _twoFingerInput != null;
+
     return Listener(
       onPointerDown: _options.onPointerDown == null
           ? null
@@ -131,18 +138,24 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
         onSecondaryLongPressStart: _secondaryLongPress?.submit,
 
-        /* onDoubleTapDown: (details) {
-          _doubleTapDragZoom?.isActive = true;
-          _doubleTap?.setDetails(details);
-        },
-        onDoubleTapCancel: () {
-          _doubleTapDragZoom?.isActive = true;
-          _doubleTap?.reset();
-        },
-        onDoubleTap: () {
-          _doubleTapDragZoom?.isActive = false;
-          _doubleTap?.submit();
-        },*/
+        onDoubleTapDown: useDoubleTapCallback
+            ? (details) {
+                _doubleTapDragZoom?.isActive = true;
+                _doubleTap?.setDetails(details);
+              }
+            : null,
+        onDoubleTapCancel: useDoubleTapCallback
+            ? () {
+                _doubleTapDragZoom?.isActive = true;
+                _doubleTap?.reset();
+              }
+            : null,
+        onDoubleTap: useDoubleTapCallback
+            ? () {
+                _doubleTapDragZoom?.isActive = false;
+                _doubleTap?.submit();
+              }
+            : null,
 
         onTertiaryTapDown: _tertiaryTap?.setDetails,
         onTertiaryTapCancel: _tertiaryTap?.reset,
@@ -151,40 +164,46 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
         onTertiaryLongPressStart: _tertiaryLongPress?.submit,
 
         // pan and scale, scale is a superset of the pan gesture
-        onScaleStart: (details) {
-          if (_ctrlDragRotate?.ctrlPressed ?? false) {
-            _ctrlDragRotate!.start();
-          } else if (_doubleTapDragZoom?.isActive ?? false) {
-            _doubleTapDragZoom!.start(details);
-          } else if (details.pointerCount == 1) {
-            _drag?.start(details);
-          } else {
-            _twoFingerInput?.start(details);
-          }
-        },
-        onScaleUpdate: (details) {
-          if (_ctrlDragRotate?.ctrlPressed ?? false) {
-            _ctrlDragRotate!.update(details);
-          } else if (_doubleTapDragZoom?.isActive ?? false) {
-            _doubleTapDragZoom!.update(details);
-          } else if (details.pointerCount == 1) {
-            _drag?.update(details);
-          } else {
-            _twoFingerInput?.update(details);
-          }
-        },
-        onScaleEnd: (details) {
-          if (_ctrlDragRotate?.ctrlPressed ?? false) {
-            _ctrlDragRotate!.end();
-          } else if (_doubleTapDragZoom?.isActive ?? false) {
-            _doubleTapDragZoom!.isActive = false;
-            _doubleTapDragZoom!.end(details);
-          } else if (_drag?.isActive ?? false) {
-            _drag?.end(details);
-          } else {
-            _twoFingerInput?.end(details);
-          }
-        },
+        onScaleStart: useScaleCallback
+            ? (details) {
+                if (_ctrlDragRotate?.ctrlPressed ?? false) {
+                  _ctrlDragRotate!.start();
+                } else if (_doubleTapDragZoom?.isActive ?? false) {
+                  _doubleTapDragZoom!.start(details);
+                } else if (details.pointerCount == 1) {
+                  _drag?.start(details);
+                } else {
+                  _twoFingerInput?.start(details);
+                }
+              }
+            : null,
+        onScaleUpdate: useScaleCallback
+            ? (details) {
+                if (_ctrlDragRotate?.ctrlPressed ?? false) {
+                  _ctrlDragRotate!.update(details);
+                } else if (_doubleTapDragZoom?.isActive ?? false) {
+                  _doubleTapDragZoom!.update(details);
+                } else if (details.pointerCount == 1) {
+                  _drag?.update(details);
+                } else {
+                  _twoFingerInput?.update(details);
+                }
+              }
+            : null,
+        onScaleEnd: useScaleCallback
+            ? (details) {
+                if (_ctrlDragRotate?.ctrlPressed ?? false) {
+                  _ctrlDragRotate!.end();
+                } else if (_doubleTapDragZoom?.isActive ?? false) {
+                  _doubleTapDragZoom!.isActive = false;
+                  _doubleTapDragZoom!.end(details);
+                } else if (_drag?.isActive ?? false) {
+                  _drag?.end(details);
+                } else {
+                  _twoFingerInput?.end(details);
+                }
+              }
+            : null,
 
         child: widget.builder(context, _options, _camera),
       ),

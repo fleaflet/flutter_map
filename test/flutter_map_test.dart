@@ -215,7 +215,12 @@ class TestRebuildsApp extends StatefulWidget {
 class _TestRebuildsAppState extends State<TestRebuildsApp> {
   MapController _mapController = MapController();
   Crs _crs = const Epsg3857();
-  InteractiveFlags _interactiveFlags = const InteractiveFlags.all();
+
+  /// double tap gestures delay the tap gestures, disable them here
+  InteractiveFlags _interactiveFlags = const InteractiveFlags.all(
+    doubleTapZoom: false,
+    doubleTapDragZoom: false,
+  );
 
   @override
   void dispose() {
