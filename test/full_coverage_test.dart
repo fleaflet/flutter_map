@@ -2,7 +2,6 @@
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/geo/crs.dart';
 import 'package:flutter_map/src/geo/latlng_bounds.dart';
-import 'package:flutter_map/src/gestures/events/map_events.dart';
 import 'package:flutter_map/src/gestures/gestures.dart';
 import 'package:flutter_map/src/gestures/latlng_tween.dart';
 import 'package:flutter_map/src/gestures/map_interactive_viewer.dart';
@@ -42,6 +41,7 @@ import 'package:flutter_map/src/layer/tile_layer/tile_update_transformer.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
 import 'package:flutter_map/src/map/camera/camera_constraint.dart';
 import 'package:flutter_map/src/map/camera/camera_fit.dart';
+import 'package:flutter_map/src/map/controller/events/map_events.dart';
 import 'package:flutter_map/src/map/controller/map_controller.dart';
 import 'package:flutter_map/src/map/controller/map_controller_impl.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';

@@ -18,8 +18,6 @@ library flutter_map;
 
 export 'package:flutter_map/src/geo/crs.dart';
 export 'package:flutter_map/src/geo/latlng_bounds.dart';
-export 'package:flutter_map/src/gestures/events/map_event_source.dart';
-export 'package:flutter_map/src/gestures/events/map_events.dart';
 export 'package:flutter_map/src/gestures/latlng_tween.dart';
 export 'package:flutter_map/src/layer/attribution_layer/rich/animation.dart';
 export 'package:flutter_map/src/layer/attribution_layer/rich/source.dart';
@@ -47,6 +45,8 @@ export 'package:flutter_map/src/layer/tile_layer/tile_update_transformer.dart';
 export 'package:flutter_map/src/map/camera/camera.dart';
 export 'package:flutter_map/src/map/camera/camera_constraint.dart';
 export 'package:flutter_map/src/map/camera/camera_fit.dart';
+export 'package:flutter_map/src/map/controller/events/map_event_source.dart';
+export 'package:flutter_map/src/map/controller/events/map_events.dart';
 export 'package:flutter_map/src/map/controller/map_controller.dart';
 export 'package:flutter_map/src/map/controller/map_controller_impl.dart';
 export 'package:flutter_map/src/map/options/cursor_keyboard_rotation.dart';
