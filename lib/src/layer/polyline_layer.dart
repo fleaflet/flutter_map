@@ -15,11 +15,11 @@ import 'package:latlong2/latlong.dart';
 ///
 /// Emmitted by [PolylineLayer.hitNotifier]'s [ValueNotifier]
 /// ([PolylineHitNotifier]).
-class PolylineHit<TapKeyType extends Object> {
+class PolylineHit {
   /// All hit [Polyline]s within the corresponding layer
   ///
   /// Ordered from first-last, visually top-bottom.
-  final List<Polyline<TapKeyType>> lines;
+  final List<Polyline> lines;
 
   /// Coordinates of the detected hit
   ///
@@ -30,10 +30,9 @@ class PolylineHit<TapKeyType extends Object> {
 }
 
 /// Typedef used on [PolylineLayer.hitNotifier]
-typedef PolylineHitNotifier<TapKeyType extends Object>
-    = ValueNotifier<PolylineHit<TapKeyType>?>;
+typedef PolylineHitNotifier = ValueNotifier<PolylineHit?>;
 
-class Polyline<TapKeyType extends Object> {
+class Polyline {
   final List<LatLng> points;
   final double strokeWidth;
   final Color color;
@@ -45,12 +44,6 @@ class Polyline<TapKeyType extends Object> {
   final StrokeCap strokeCap;
   final StrokeJoin strokeJoin;
   final bool useStrokeWidthInMeter;
-
-  /// Custom value that can identify this particular [Polyline] after hit
-  /// detection
-  ///
-  /// See [PolylineLayer.hitNotifier] for more info.
-  final TapKeyType? hitKey;
 
   LatLngBounds? _boundingBox;
 
@@ -69,13 +62,12 @@ class Polyline<TapKeyType extends Object> {
     this.strokeCap = StrokeCap.round,
     this.strokeJoin = StrokeJoin.round,
     this.useStrokeWidthInMeter = false,
-    this.hitKey,
   });
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Polyline<TapKeyType> &&
+      (other is Polyline &&
           listEquals(points, other.points) &&
           strokeWidth == other.strokeWidth &&
           color == other.color &&
@@ -86,8 +78,7 @@ class Polyline<TapKeyType extends Object> {
           isDotted == other.isDotted &&
           strokeCap == other.strokeCap &&
           strokeJoin == other.strokeJoin &&
-          useStrokeWidthInMeter == other.useStrokeWidthInMeter &&
-          hitKey == other.hitKey);
+          useStrokeWidthInMeter == other.useStrokeWidthInMeter);
 
   /// Used to batch draw calls to the canvas
   int get renderHashCode => Object.hash(
@@ -101,7 +92,6 @@ class Polyline<TapKeyType extends Object> {
         strokeCap,
         strokeJoin,
         useStrokeWidthInMeter,
-        hitKey,
       );
 
   @override
@@ -109,8 +99,8 @@ class Polyline<TapKeyType extends Object> {
 }
 
 @immutable
-class PolylineLayer<TapKeyType extends Object> extends StatelessWidget {
-  final List<Polyline<TapKeyType>> polylines;
+class PolylineLayer extends StatelessWidget {
+  final Iterable<Polyline> polylines;
 
   /// A notifier to notify when a hit is detected over a/multiple [Polyline]s
   ///
@@ -133,7 +123,7 @@ class PolylineLayer<TapKeyType extends Object> extends StatelessWidget {
   ///
   /// Will notify [PolylineHit]s if any [Polyline]s were hit, otherwise will
   /// notify `null`.
-  final PolylineHitNotifier<TapKeyType>? hitNotifier;
+  final PolylineHitNotifier? hitNotifier;
 
   /// The number of pixels away from a visual line (including any width and
   /// outline) in which a hit should still register as a hit on the line, and
@@ -157,7 +147,7 @@ class PolylineLayer<TapKeyType extends Object> extends StatelessWidget {
 
     return MobileLayerTransformer(
       child: CustomPaint(
-        painter: _PolylinePainter<TapKeyType>(
+        painter: _PolylinePainter(
           polylines: polylines
               .where((p) => p.boundingBox.isOverlapping(camera.visibleBounds))
               .toList(),
@@ -172,8 +162,8 @@ class PolylineLayer<TapKeyType extends Object> extends StatelessWidget {
   }
 }
 
-class _PolylinePainter<TapKeyType extends Object> extends CustomPainter {
-  final List<Polyline<TapKeyType>> polylines;
+class _PolylinePainter extends CustomPainter {
+  final List<Polyline> polylines;
   final MapCamera camera;
   final LatLngBounds bounds;
   final PolylineHitNotifier? hitNotifier;
@@ -187,7 +177,7 @@ class _PolylinePainter<TapKeyType extends Object> extends CustomPainter {
   }) : bounds = camera.visibleBounds;
 
   // Avoids reallocation on every `hitTest`, is cleared every time
-  final hits = List<Polyline<TapKeyType>>.empty(growable: true);
+  final hits = List<Polyline>.empty(growable: true);
 
   int get hash => _hash ??= Object.hashAll(polylines);
   int? _hash;
@@ -246,7 +236,7 @@ class _PolylinePainter<TapKeyType extends Object> extends CustomPainter {
       return false;
     }
 
-    hitNotifier!.value = PolylineHit<TapKeyType>._(
+    hitNotifier!.value = PolylineHit._(
       lines: hits,
       point: camera.pointToLatLng(math.Point(position.dx, position.dy)),
     );
