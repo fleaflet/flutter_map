@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/gestures/gestures.dart';
+import 'package:flutter_map/src/map/gestures/gestures.dart';
 
 class MapInteractiveViewer extends StatefulWidget {
   final ChildBuilder builder;
