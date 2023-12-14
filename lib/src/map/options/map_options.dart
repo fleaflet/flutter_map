@@ -36,12 +36,15 @@ class MapOptions {
   final LongPressCallback? onSecondaryLongPress;
   final GestureCallback? onTertiaryTap;
   final LongPressCallback? onTertiaryLongPress;
-  final PointerDownCallback? onPointerDown;
-  final PointerUpCallback? onPointerUp;
-  final PointerCancelCallback? onPointerCancel;
-  final PointerHoverCallback? onPointerHover;
+
+  final void Function(PointerDownEvent event, LatLng point)? onPointerDown;
+  final void Function(PointerUpEvent event, LatLng point)? onPointerUp;
+  final void Function(PointerCancelEvent event, LatLng point)? onPointerCancel;
+  final void Function(PointerHoverEvent event, LatLng point)? onPointerHover;
+
   final PositionCallback? onPositionChanged;
-  final MapEventCallback? onMapEvent;
+
+  final void Function(MapEvent event)? onMapEvent;
 
   /// Define limits for viewing the map.
   final CameraConstraint cameraConstraint;
@@ -177,23 +180,8 @@ class MapOptions {
       ]);
 }
 
-typedef MapEventCallback = void Function(MapEvent);
-
 typedef GestureCallback = void Function(TapDownDetails details, LatLng point);
 typedef LongPressCallback = void Function(
   LongPressStartDetails details,
-  LatLng point,
-);
-typedef PointerDownCallback = void Function(
-  PointerDownEvent event,
-  LatLng point,
-);
-typedef PointerUpCallback = void Function(PointerUpEvent event, LatLng point);
-typedef PointerCancelCallback = void Function(
-  PointerCancelEvent event,
-  LatLng point,
-);
-typedef PointerHoverCallback = void Function(
-  PointerHoverEvent event,
   LatLng point,
 );
