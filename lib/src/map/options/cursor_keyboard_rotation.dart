@@ -1,25 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 
-/// See [CursorKeyboardRotationOptions.isKeyTrigger]
-typedef IsKeyCursorRotationTrigger = bool Function(LogicalKeyboardKey key);
-
-/// The behaviour of the cursor/keyboard rotation function in terms of the angle
-/// that the map is rotated to
-///
-/// Does not disable cursor/keyboard rotation, or adjust its triggers: see
-/// [CursorKeyboardRotationOptions.isKeyTrigger].
-///
-/// Also see [CursorKeyboardRotationOptions.setNorthOnClick].
-enum CursorRotationBehaviour {
-  /// Set the North of the map to the angle at which the user drags their cursor
-  setNorth,
-
-  /// Offset the current rotation of the map to the angle at which the user drags
-  /// their cursor
-  offset,
-}
-
 /// Options to configure cursor/keyboard rotation
 ///
 /// {@template cursorkeyboard_explanation}
@@ -80,4 +61,23 @@ class CursorKeyboardRotationOptions {
   ///
   /// {@macro cursorkeyboard_explanation}
   CursorKeyboardRotationOptions.disabled() : this(isKeyTrigger: (_) => false);
+}
+
+/// See [CursorKeyboardRotationOptions.isKeyTrigger]
+typedef IsKeyCursorRotationTrigger = bool Function(LogicalKeyboardKey key);
+
+/// The behaviour of the cursor/keyboard rotation function in terms of the angle
+/// that the map is rotated to
+///
+/// Does not disable cursor/keyboard rotation, or adjust its triggers: see
+/// [CursorKeyboardRotationOptions.isKeyTrigger].
+///
+/// Also see [CursorKeyboardRotationOptions.setNorthOnClick].
+enum CursorRotationBehaviour {
+  /// Set the North of the map to the angle at which the user drags their cursor
+  setNorth,
+
+  /// Offset the current rotation of the map to the angle at which the user
+  /// drags their cursor
+  offset,
 }

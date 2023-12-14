@@ -5,27 +5,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
 import 'package:latlong2/latlong.dart';
 
-typedef MapEventCallback = void Function(MapEvent);
-
-typedef GestureCallback = void Function(TapDownDetails details, LatLng point);
-typedef LongPressCallback = void Function(
-  LongPressStartDetails details,
-  LatLng point,
-);
-typedef PointerDownCallback = void Function(
-  PointerDownEvent event,
-  LatLng point,
-);
-typedef PointerUpCallback = void Function(PointerUpEvent event, LatLng point);
-typedef PointerCancelCallback = void Function(
-  PointerCancelEvent event,
-  LatLng point,
-);
-typedef PointerHoverCallback = void Function(
-  PointerHoverEvent event,
-  LatLng point,
-);
-
 @immutable
 class MapOptions {
   /// The Coordinate Reference System, defaults to [Epsg3857].
@@ -197,3 +176,24 @@ class MapOptions {
         applyPointerTranslucencyToLayers,
       ]);
 }
+
+typedef MapEventCallback = void Function(MapEvent);
+
+typedef GestureCallback = void Function(TapDownDetails details, LatLng point);
+typedef LongPressCallback = void Function(
+  LongPressStartDetails details,
+  LatLng point,
+);
+typedef PointerDownCallback = void Function(
+  PointerDownEvent event,
+  LatLng point,
+);
+typedef PointerUpCallback = void Function(PointerUpEvent event, LatLng point);
+typedef PointerCancelCallback = void Function(
+  PointerCancelEvent event,
+  LatLng point,
+);
+typedef PointerHoverCallback = void Function(
+  PointerHoverEvent event,
+  LatLng point,
+);

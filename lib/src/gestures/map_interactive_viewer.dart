@@ -3,12 +3,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/gestures/gestures.dart';
 
-typedef ChildBuilder = Widget Function(
-  BuildContext context,
-  MapOptions options,
-  MapCamera camera,
-);
-
 class MapInteractiveViewer extends StatefulWidget {
   final ChildBuilder builder;
   final MapControllerImpl controller;
@@ -256,4 +250,21 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       _doubleTapDragZoom = null;
     }
   }
+}
+
+typedef ChildBuilder = Widget Function(
+  BuildContext context,
+  MapOptions options,
+  MapCamera camera,
+);
+
+@immutable
+class MoveAndRotateResult {
+  final bool moveSuccess;
+  final bool rotateSuccess;
+
+  const MoveAndRotateResult({
+    required this.moveSuccess,
+    required this.rotateSuccess,
+  });
 }

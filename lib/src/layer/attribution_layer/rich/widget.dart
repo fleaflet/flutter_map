@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_map/src/gestures/map_events.dart';
+import 'package:flutter_map/src/gestures/events/map_events.dart';
 import 'package:flutter_map/src/layer/attribution_layer/rich/animation.dart';
 import 'package:flutter_map/src/layer/attribution_layer/rich/source.dart';
 import 'package:flutter_map/src/map/controller/map_controller.dart';

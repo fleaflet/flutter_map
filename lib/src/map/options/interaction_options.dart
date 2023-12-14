@@ -1,5 +1,5 @@
-import 'package:flutter_map/src/gestures/interactive_flags.dart';
 import 'package:flutter_map/src/map/options/cursor_keyboard_rotation.dart';
+import 'package:flutter_map/src/map/options/interactive_flags.dart';
 import 'package:meta/meta.dart';
 
 @immutable

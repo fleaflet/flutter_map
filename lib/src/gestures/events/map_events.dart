@@ -1,37 +1,6 @@
-import 'package:flutter_map/src/map/camera/camera.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
-
-/// Event sources which are used to identify different types of
-/// [MapEvent] events
-enum MapEventSource {
-  mapController,
-  tap,
-  secondaryTap,
-  longPress,
-  doubleTap,
-  doubleTapHold,
-  dragStart,
-  onDrag,
-  dragEnd,
-  multiFingerStart,
-  onMultiFinger,
-  multiFingerEnd,
-  flingAnimationController,
-  doubleTapZoomAnimationController,
-  interactiveFlagsChanged,
-  fitCamera,
-  custom,
-  scrollWheel,
-  nonRotatedSizeChange,
-  cursorKeyboardRotation,
-  tertiaryTap,
-  tertiaryLongPress,
-  secondaryLongPressed,
-  ctrlDragRotateStart,
-  ctrlDragRotateEnd,
-  ctrlDragRotate,
-}
 
 /// Base event class which is emitted by MapController instance, the event
 /// is usually related to performed gesture on the map itself or it can

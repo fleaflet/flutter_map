@@ -236,11 +236,14 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     }
 
     if (degree == camera.rotation) {
-      return const (moveSuccess: false, rotateSuccess: false);
+      return const MoveAndRotateResult(
+        moveSuccess: false,
+        rotateSuccess: false,
+      );
     }
 
     if (offset == Offset.zero) {
-      return (
+      return MoveAndRotateResult(
         moveSuccess: true,
         rotateSuccess: rotateRaw(
           degree,
@@ -258,7 +261,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
                 : Point(offset!.dx, offset.dy))
             .rotate(camera.rotationRad);
 
-    return (
+    return MoveAndRotateResult(
       moveSuccess: moveRaw(
         camera.unproject(
           rotationCenter +
@@ -288,7 +291,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     required MapEventSource source,
     String? id,
   }) =>
-      (
+      MoveAndRotateResult(
         moveSuccess: moveRaw(
           newCenter,
           newZoom,
