@@ -110,19 +110,17 @@ class PolylineLayer extends StatelessWidget {
   /// (via [ValueNotifier.value]) in the detector's callbacks. It is also
   /// possible to listen to the notifier directly.
   ///
-  /// A [Polyline.hitKey] may be used to attach additional retrievable
-  /// information, or to signify whether a [Polyline] is "tappable", for example.
-  ///
   /// Note that a hover event is included as a hit event. Therefore for
   /// performance reasons, it may be advantageous to check the new value's
   /// equality against the previous value (excluding the [PolylineHit.point],
-  /// which will always change), and avoid doing heavy work if they are the same.
+  /// which will always change), and avoid doing any heavy work if they are the
+  /// same.
   ///
   /// See online documentation for more detailed usage instructions. See the
   /// example project for an example implementation.
   ///
-  /// Will notify [PolylineHit]s if any [Polyline]s were hit, otherwise will
-  /// notify `null`.
+  /// Will notify with [PolylineHit]s when any [Polyline]s are hit, otherwise
+  /// will notify with `null`.
   final PolylineHitNotifier? hitNotifier;
 
   /// The minimum radius of the hittable area around each [Polyline] in logical
