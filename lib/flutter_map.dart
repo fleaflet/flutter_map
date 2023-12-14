@@ -21,7 +21,6 @@ export 'package:flutter_map/src/geo/latlng_bounds.dart';
 export 'package:flutter_map/src/gestures/events/map_event_source.dart';
 export 'package:flutter_map/src/gestures/events/map_events.dart';
 export 'package:flutter_map/src/gestures/latlng_tween.dart';
-export 'package:flutter_map/src/gestures/move_and_rotate_result.dart';
 export 'package:flutter_map/src/layer/attribution_layer/rich/animation.dart';
 export 'package:flutter_map/src/layer/attribution_layer/rich/source.dart';
 export 'package:flutter_map/src/layer/attribution_layer/rich/widget.dart';

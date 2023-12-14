@@ -6,7 +6,6 @@ import 'package:flutter_map/src/gestures/events/map_events.dart';
 import 'package:flutter_map/src/gestures/gestures.dart';
 import 'package:flutter_map/src/gestures/latlng_tween.dart';
 import 'package:flutter_map/src/gestures/map_interactive_viewer.dart';
-import 'package:flutter_map/src/gestures/move_and_rotate_result.dart';
 import 'package:flutter_map/src/layer/attribution_layer/rich/animation.dart';
 import 'package:flutter_map/src/layer/attribution_layer/rich/source.dart';
 import 'package:flutter_map/src/layer/attribution_layer/rich/widget.dart';
