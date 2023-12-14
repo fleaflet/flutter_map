@@ -125,18 +125,20 @@ class PolylineLayer extends StatelessWidget {
   /// notify `null`.
   final PolylineHitNotifier? hitNotifier;
 
-  /// The number of pixels away from a visual line (including any width and
-  /// outline) in which a hit should still register as a hit on the line, and
-  /// trigger a notification to [hitNotifier]
+  /// The minimum radius of the hittable area around each [Polyline] in logical
+  /// pixels
   ///
-  /// Defaults to 3.
-  final double hitTolerance;
+  /// The entire visible area is always hittable, but if the visible area is
+  /// smaller than this, then this will be the hittable area.
+  ///
+  /// Defaults to 10.
+  final double minimumHitbox;
 
   const PolylineLayer({
     super.key,
     required this.polylines,
     this.hitNotifier,
-    this.hitTolerance = 3,
+    this.minimumHitbox = 10,
     // TODO: Remove once PR #1704 is merged
     bool polylineCulling = true,
   });
@@ -153,7 +155,7 @@ class PolylineLayer extends StatelessWidget {
               .toList(),
           camera: camera,
           hitNotifier: hitNotifier,
-          onTapTolerance: hitTolerance,
+          minimumHitbox: minimumHitbox,
         ),
         size: Size(camera.size.x, camera.size.y),
         isComplex: true,
@@ -167,13 +169,13 @@ class _PolylinePainter extends CustomPainter {
   final MapCamera camera;
   final LatLngBounds bounds;
   final PolylineHitNotifier? hitNotifier;
-  final double onTapTolerance;
+  final double minimumHitbox;
 
   _PolylinePainter({
     required this.polylines,
     required this.camera,
     required this.hitNotifier,
-    required this.onTapTolerance,
+    required this.minimumHitbox,
   }) : bounds = camera.visibleBounds;
 
   // Avoids reallocation on every `hitTest`, is cleared every time
@@ -208,8 +210,8 @@ class _PolylinePainter extends CustomPainter {
               p.strokeWidth,
             )
           : p.strokeWidth;
-      final maxDistance =
-          (strokeWidth / 2 + p.borderStrokeWidth / 2) + onTapTolerance;
+      final hittableDistance =
+          math.max(strokeWidth / 2 + p.borderStrokeWidth / 2, minimumHitbox);
 
       for (int i = 0; i < offsets.length - 1; i++) {
         final o1 = offsets[i];
@@ -224,7 +226,7 @@ class _PolylinePainter extends CustomPainter {
           o2.dy,
         ));
 
-        if (distance < maxDistance) {
+        if (distance < hittableDistance) {
           hits.add(p);
           break;
         }
