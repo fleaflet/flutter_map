@@ -48,7 +48,7 @@ class _LatLngToScreenPointPageState extends State<LatLngToScreenPointPage> {
               initialCenter: const LatLng(51.5, -0.09),
               initialZoom: 11,
               interactionOptions: InteractionOptions(
-                flags: InteractiveFlags.bitfield(
+                enabledGestures: EnabledGestures.bitfield(
                   ~InteractiveFlag.doubleTapZoom,
                 ),
               ),

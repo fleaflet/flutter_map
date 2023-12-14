@@ -5,7 +5,7 @@ import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:latlong2/latlong.dart';
 
 class InteractiveFlagsPage extends StatefulWidget {
-  static const String route = '/interactive_flags_page';
+  static const String route = '/enabled_gestures_page';
 
   const InteractiveFlagsPage({super.key});
 
@@ -121,7 +121,7 @@ class _InteractiveFlagsPageState extends State<InteractiveFlagsPage> {
                   initialCenter: const LatLng(51.5, -0.09),
                   initialZoom: 11,
                   interactionOptions: InteractionOptions(
-                    flags: InteractiveFlags.bitfield(flags),
+                    enabledGestures: EnabledGestures.bitfield(flags),
                     cursorKeyboardRotationOptions:
                         CursorKeyboardRotationOptions(
                       isKeyTrigger: (key) =>

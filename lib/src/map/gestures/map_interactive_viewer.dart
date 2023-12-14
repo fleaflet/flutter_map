@@ -66,7 +66,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
           TertiaryLongPressGesture(controller: widget.controller);
     }
     // gestures that change the map camera
-    updateGestures(null, _interactionOptions.flags);
+    updateGestures(null, _interactionOptions.enabledGestures);
   }
 
   @override
@@ -205,7 +205,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   }
 
   /// Used by the internal map controller to update interaction gestures
-  void updateGestures(InteractiveFlags? oldFlags, InteractiveFlags newFlags) {
+  void updateGestures(EnabledGestures? oldFlags, EnabledGestures newFlags) {
     if (oldFlags == newFlags) return;
     if (newFlags.hasMultiFinger()) {
       _twoFingerInput = TwoFingerGestures(

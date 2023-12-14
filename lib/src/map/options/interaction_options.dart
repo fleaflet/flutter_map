@@ -1,22 +1,11 @@
 import 'package:flutter_map/src/map/options/cursor_keyboard_rotation.dart';
-import 'package:flutter_map/src/map/options/interactive_flags.dart';
+import 'package:flutter_map/src/map/options/enabled_gestures.dart';
 import 'package:meta/meta.dart';
 
 @immutable
 final class InteractionOptions {
-  /// See [InteractiveFlags] for custom settings
-  final InteractiveFlags flags;
-
-  /// Prints multi finger gesture winner Helps to fine adjust
-  /// [rotationThreshold] and [pinchZoomThreshold] and [pinchMoveThreshold]
-  /// Note: only takes effect if [enableMultiFingerGestureRace] is true
-  final bool debugMultiFingerGestureWinner;
-
-  /// If true then [rotationThreshold] and [pinchZoomThreshold] and
-  /// [pinchMoveThreshold] will race If multiple gestures win at the same time
-  /// then precedence: [pinchZoomWinGestures] > [rotationWinGestures] >
-  /// [pinchMoveWinGestures]
-  final bool enableMultiFingerGestureRace;
+  /// See [EnabledGestures] for custom settings
+  final EnabledGestures enabledGestures;
 
   /// Rotation threshold in degree default is 20.0 Map starts to rotate when
   /// [rotationThreshold] has been achieved or another multi finger gesture wins
@@ -24,12 +13,6 @@ final class InteractionOptions {
   /// doesn't contain [InteractiveFlag.rotate] or [enableMultiFingerGestureRace]
   /// is false then rotate cannot win
   final double rotationThreshold;
-
-  /// When [rotationThreshold] wins over [pinchZoomThreshold] and
-  /// [pinchMoveThreshold] then [rotationWinGestures] gestures will be used. By
-  /// default only [MultiFingerGesture.rotate] gesture will take effect see
-  /// [MultiFingerGesture] for custom settings
-  final int rotationWinGestures;
 
   /// Pinch Zoom threshold default is 0.5 Map starts to zoom when
   /// [pinchZoomThreshold] has been achieved or another multi finger gesture
@@ -52,12 +35,6 @@ final class InteractionOptions {
   /// then pinch move cannot win
   final double pinchMoveThreshold;
 
-  /// When [pinchMoveThreshold] wins over [rotationThreshold] and
-  /// [pinchZoomThreshold] then [pinchMoveWinGestures] gestures will be used. By
-  /// default [MultiFingerGesture.pinchMove] and [MultiFingerGesture.pinchZoom]
-  /// gestures will take effect see [MultiFingerGesture] for custom settings
-  final int pinchMoveWinGestures;
-
   final double scrollWheelVelocity;
 
   /// Options to configure cursor/keyboard rotation
@@ -75,17 +52,12 @@ final class InteractionOptions {
   final CursorKeyboardRotationOptions cursorKeyboardRotationOptions;
 
   const InteractionOptions({
-    this.flags = const InteractiveFlags.all(),
-    this.debugMultiFingerGestureWinner = false,
-    this.enableMultiFingerGestureRace = false,
+    this.enabledGestures = const EnabledGestures.all(),
     this.rotationThreshold = 20.0,
-    this.rotationWinGestures = InteractiveFlag.rotate,
     this.pinchZoomThreshold = 0.5,
     this.pinchZoomWinGestures =
         InteractiveFlag.pinchZoom | InteractiveFlag.pinchMove,
     this.pinchMoveThreshold = 40.0,
-    this.pinchMoveWinGestures =
-        InteractiveFlag.pinchZoom | InteractiveFlag.pinchMove,
     this.scrollWheelVelocity = 0.005,
     this.cursorKeyboardRotationOptions = const CursorKeyboardRotationOptions(),
   })  : assert(
@@ -103,29 +75,22 @@ final class InteractionOptions {
 
   @override
   bool operator ==(Object other) =>
-      other is InteractionOptions &&
-      flags == other.flags &&
-      debugMultiFingerGestureWinner == other.debugMultiFingerGestureWinner &&
-      enableMultiFingerGestureRace == other.enableMultiFingerGestureRace &&
-      rotationThreshold == other.rotationThreshold &&
-      rotationWinGestures == other.rotationWinGestures &&
-      pinchZoomThreshold == other.pinchZoomThreshold &&
-      pinchZoomWinGestures == other.pinchZoomWinGestures &&
-      pinchMoveThreshold == other.pinchMoveThreshold &&
-      pinchMoveWinGestures == other.pinchMoveWinGestures &&
-      scrollWheelVelocity == other.scrollWheelVelocity;
+      identical(this, other) ||
+      (other is InteractionOptions &&
+          enabledGestures == other.enabledGestures &&
+          rotationThreshold == other.rotationThreshold &&
+          pinchZoomThreshold == other.pinchZoomThreshold &&
+          pinchZoomWinGestures == other.pinchZoomWinGestures &&
+          pinchMoveThreshold == other.pinchMoveThreshold &&
+          scrollWheelVelocity == other.scrollWheelVelocity);
 
   @override
   int get hashCode => Object.hash(
-        flags,
-        debugMultiFingerGestureWinner,
-        enableMultiFingerGestureRace,
+        enabledGestures,
         rotationThreshold,
-        rotationWinGestures,
         pinchZoomThreshold,
         pinchZoomWinGestures,
         pinchMoveThreshold,
-        pinchMoveWinGestures,
         scrollWheelVelocity,
       );
 }

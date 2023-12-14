@@ -2,12 +2,12 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:meta/meta.dart';
 
 @immutable
-class InteractiveFlags {
+class EnabledGestures {
   /// Private constructor, use the constructors [InteractiveFlags.all] or
   /// [InteractiveFlags.none] instead to enable or disable all gestures by default.
   /// If you want to define your enabled gestures using bitfield operations,
   /// use [InteractiveFlags.bitfield] instead.
-  const InteractiveFlags._({
+  const EnabledGestures._({
     required this.drag,
     required this.flingAnimation,
     required this.pinchMove,
@@ -20,7 +20,7 @@ class InteractiveFlags {
   });
 
   /// Shortcut constructor to allow all gestures that don't rotate the map.
-  const InteractiveFlags.noRotation()
+  const EnabledGestures.noRotation()
       : this.all(
           rotate: false,
           ctrlDragRotate: false,
@@ -31,7 +31,7 @@ class InteractiveFlags {
   ///
   /// In case you want have no or only few gestures enabled use the
   /// [InteractiveFlags.none] constructor instead.
-  const InteractiveFlags.all({
+  const EnabledGestures.all({
     this.drag = true,
     this.flingAnimation = true,
     this.pinchMove = true,
@@ -48,7 +48,7 @@ class InteractiveFlags {
   ///
   /// In case you want have most or all of the gestures enabled use the
   /// [InteractiveFlags.all] constructor instead.
-  const InteractiveFlags.none({
+  const EnabledGestures.none({
     this.drag = false,
     this.flingAnimation = false,
     this.pinchMove = false,
@@ -62,8 +62,8 @@ class InteractiveFlags {
 
   /// This constructor supports bitfield operations on the static fields
   /// from [InteractiveFlag].
-  factory InteractiveFlags.bitfield(int flags) {
-    return InteractiveFlags._(
+  factory EnabledGestures.bitfield(int flags) {
+    return EnabledGestures._(
       drag: InteractiveFlag.hasFlag(flags, InteractiveFlag.drag),
       flingAnimation:
           InteractiveFlag.hasFlag(flags, InteractiveFlag.flingAnimation),
@@ -118,8 +118,8 @@ class InteractiveFlags {
   bool hasMultiFinger() => pinchMove || pinchZoom || rotate;
 
   /// Wither to change the value of some gestures. Returns a new
-  /// [InteractiveFlags] object.
-  InteractiveFlags withFlag({
+  /// [EnabledGestures] object.
+  EnabledGestures withFlag({
     bool? pinchZoom,
     bool? drag,
     bool? flingAnimation,
@@ -130,7 +130,7 @@ class InteractiveFlags {
     bool? rotate,
     bool? ctrlDragRotate,
   }) =>
-      InteractiveFlags._(
+      EnabledGestures._(
         pinchZoom: pinchZoom ?? this.pinchZoom,
         drag: drag ?? this.drag,
         flingAnimation: flingAnimation ?? this.flingAnimation,
@@ -145,7 +145,7 @@ class InteractiveFlags {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is InteractiveFlags &&
+      other is EnabledGestures &&
           runtimeType == other.runtimeType &&
           drag == other.drag &&
           flingAnimation == other.flingAnimation &&

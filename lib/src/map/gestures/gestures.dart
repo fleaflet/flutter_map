@@ -251,7 +251,7 @@ class TwoFingerGestures extends Gesture {
   double? _lastRotation;
 
   TwoFingerGestures({
-    required InteractiveFlags interactiveFlags,
+    required EnabledGestures interactiveFlags,
     required super.controller,
   })  : moveEnabled = interactiveFlags.pinchMove,
         zoomEnabled = interactiveFlags.pinchZoom,
@@ -335,7 +335,7 @@ class DragGesture extends Gesture {
 
   DragGesture({
     required super.controller,
-    required InteractiveFlags interactiveFlags,
+    required EnabledGestures interactiveFlags,
   }) : flingEnabled = interactiveFlags.flingAnimation;
 
   bool get isActive => _lastLocalFocal != null;

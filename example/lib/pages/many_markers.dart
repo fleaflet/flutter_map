@@ -72,7 +72,7 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
                 initialCenter: LatLng(50, 20),
                 initialZoom: 5,
                 interactionOptions: InteractionOptions(
-                  flags: InteractiveFlags.all(rotate: false),
+                  enabledGestures: EnabledGestures.all(rotate: false),
                 ),
               ),
               children: [
