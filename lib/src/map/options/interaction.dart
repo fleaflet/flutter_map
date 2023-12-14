@@ -1,4 +1,3 @@
-import 'package:flutter_map/src/gestures/interactive_flag.dart';
 import 'package:flutter_map/src/gestures/interactive_flags.dart';
 import 'package:flutter_map/src/map/options/cursor_keyboard_rotation.dart';
 import 'package:meta/meta.dart';
