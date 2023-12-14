@@ -7,8 +7,8 @@ import 'package:flutter_map_example/pages/custom_crs/custom_crs.dart';
 import 'package:flutter_map_example/pages/epsg3413_crs.dart';
 import 'package:flutter_map_example/pages/epsg4326_crs.dart';
 import 'package:flutter_map_example/pages/fallback_url_page.dart';
+import 'package:flutter_map_example/pages/gestures_page.dart';
 import 'package:flutter_map_example/pages/home.dart';
-import 'package:flutter_map_example/pages/interactive_test_page.dart';
 import 'package:flutter_map_example/pages/latlng_to_screen_point.dart';
 import 'package:flutter_map_example/pages/many_circles.dart';
 import 'package:flutter_map_example/pages/many_markers.dart';
@@ -108,7 +108,7 @@ class MenuDrawer extends StatelessWidget {
           ),
           MenuItemWidget(
             caption: 'Interactive Flags',
-            routeName: InteractiveFlagsPage.route,
+            routeName: GesturesPage.route,
             currentRoute: currentRoute,
           ),
           const Divider(),

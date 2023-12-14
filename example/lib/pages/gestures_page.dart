@@ -4,16 +4,16 @@ import 'package:flutter_map_example/misc/tile_providers.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:latlong2/latlong.dart';
 
-class InteractiveFlagsPage extends StatefulWidget {
+class GesturesPage extends StatefulWidget {
   static const String route = '/enabled_gestures_page';
 
-  const InteractiveFlagsPage({super.key});
+  const GesturesPage({super.key});
 
   @override
-  State createState() => _InteractiveFlagsPageState();
+  State createState() => _GesturesPageState();
 }
 
-class _InteractiveFlagsPageState extends State<InteractiveFlagsPage> {
+class _GesturesPageState extends State<GesturesPage> {
   static const availableFlags = {
     'Movement': {
       InteractiveFlag.drag: 'Drag',
@@ -24,10 +24,11 @@ class _InteractiveFlagsPageState extends State<InteractiveFlagsPage> {
       InteractiveFlag.pinchZoom: 'Pinch',
       InteractiveFlag.scrollWheelZoom: 'Scroll',
       InteractiveFlag.doubleTapZoom: 'Double tap',
-      InteractiveFlag.doubleTapDragZoom: '+ drag',
+      InteractiveFlag.doubleTapDragZoom: 'Double tap + drag',
     },
     'Rotation': {
       InteractiveFlag.rotate: 'Twist',
+      InteractiveFlag.ctrlDragRotate: 'CTRL + Drag',
     },
   };
 
@@ -40,8 +41,8 @@ class _InteractiveFlagsPageState extends State<InteractiveFlagsPage> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
     return Scaffold(
-      appBar: AppBar(title: const Text('Interactive Flags')),
-      drawer: const MenuDrawer(InteractiveFlagsPage.route),
+      appBar: AppBar(title: const Text('Input gestures')),
+      drawer: const MenuDrawer(GesturesPage.route),
       body: Padding(
         padding: const EdgeInsets.all(8),
         child: Column(

@@ -47,10 +47,8 @@ class _LatLngToScreenPointPageState extends State<LatLngToScreenPointPage> {
             options: MapOptions(
               initialCenter: const LatLng(51.5, -0.09),
               initialZoom: 11,
-              interactionOptions: InteractionOptions(
-                enabledGestures: EnabledGestures.bitfield(
-                  ~InteractiveFlag.doubleTapZoom,
-                ),
+              interactionOptions: const InteractionOptions(
+                enabledGestures: EnabledGestures.all(doubleTapZoom: false),
               ),
               onTap: (_, latLng) {
                 final point = mapController.camera
