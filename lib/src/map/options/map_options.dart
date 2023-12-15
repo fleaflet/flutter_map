@@ -30,11 +30,11 @@ class MapOptions {
 
   final Color backgroundColor;
 
-  final GestureCallback? onTap;
+  final TapCallback? onTap;
   final LongPressCallback? onLongPress;
-  final GestureCallback? onSecondaryTap;
+  final TapCallback? onSecondaryTap;
   final LongPressCallback? onSecondaryLongPress;
-  final GestureCallback? onTertiaryTap;
+  final TapCallback? onTertiaryTap;
   final LongPressCallback? onTertiaryLongPress;
 
   final void Function(PointerDownEvent event, LatLng point)? onPointerDown;
@@ -121,39 +121,40 @@ class MapOptions {
   /// context with no [FlutterMap] ancestor a [StateError] will be thrown.
   static MapOptions of(BuildContext context) =>
       maybeOf(context) ??
-      (throw StateError(
-          '`MapOptions.of()` should not be called outside a `FlutterMap` and its descendants'));
+          (throw StateError(
+              '`MapOptions.of()` should not be called outside a `FlutterMap` and its descendants'));
 
   @override
   bool operator ==(Object other) =>
       other is MapOptions &&
-      crs == other.crs &&
-      initialCenter == other.initialCenter &&
-      initialZoom == other.initialZoom &&
-      initialRotation == other.initialRotation &&
-      initialCameraFit == other.initialCameraFit &&
-      minZoom == other.minZoom &&
-      maxZoom == other.maxZoom &&
-      backgroundColor == other.backgroundColor &&
-      onTap == other.onTap &&
-      onSecondaryTap == other.onSecondaryTap &&
-      onLongPress == other.onLongPress &&
-      onPointerDown == other.onPointerDown &&
-      onPointerUp == other.onPointerUp &&
-      onPointerCancel == other.onPointerCancel &&
-      onPointerHover == other.onPointerHover &&
-      onPositionChanged == other.onPositionChanged &&
-      onMapEvent == other.onMapEvent &&
-      cameraConstraint == other.cameraConstraint &&
-      onMapReady == other.onMapReady &&
-      keepAlive == other.keepAlive &&
-      interactionOptions == other.interactionOptions &&
-      backgroundColor == other.backgroundColor &&
-      applyPointerTranslucencyToLayers ==
-          other.applyPointerTranslucencyToLayers;
+          crs == other.crs &&
+          initialCenter == other.initialCenter &&
+          initialZoom == other.initialZoom &&
+          initialRotation == other.initialRotation &&
+          initialCameraFit == other.initialCameraFit &&
+          minZoom == other.minZoom &&
+          maxZoom == other.maxZoom &&
+          backgroundColor == other.backgroundColor &&
+          onTap == other.onTap &&
+          onSecondaryTap == other.onSecondaryTap &&
+          onLongPress == other.onLongPress &&
+          onPointerDown == other.onPointerDown &&
+          onPointerUp == other.onPointerUp &&
+          onPointerCancel == other.onPointerCancel &&
+          onPointerHover == other.onPointerHover &&
+          onPositionChanged == other.onPositionChanged &&
+          onMapEvent == other.onMapEvent &&
+          cameraConstraint == other.cameraConstraint &&
+          onMapReady == other.onMapReady &&
+          keepAlive == other.keepAlive &&
+          interactionOptions == other.interactionOptions &&
+          backgroundColor == other.backgroundColor &&
+          applyPointerTranslucencyToLayers ==
+              other.applyPointerTranslucencyToLayers;
 
   @override
-  int get hashCode => Object.hashAll([
+  int get hashCode =>
+      Object.hashAll([
         crs,
         initialCenter,
         initialZoom,
@@ -180,8 +181,8 @@ class MapOptions {
       ]);
 }
 
-typedef GestureCallback = void Function(TapDownDetails details, LatLng point);
+typedef TapCallback = void Function(TapDownDetails details, LatLng point);
 typedef LongPressCallback = void Function(
-  LongPressStartDetails details,
-  LatLng point,
-);
+    LongPressStartDetails details,
+    LatLng point,
+    );
