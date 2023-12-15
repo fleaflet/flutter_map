@@ -47,9 +47,9 @@ final class InteractionOptions {
 
   const InteractionOptions({
     this.enabledGestures = const EnabledGestures.all(),
-    this.twoFingerRotateThreshold = 20.0,
-    this.twoFingerZoomThreshold = 0.5,
-    this.twoFingerMoveThreshold = 40.0,
+    this.twoFingerRotateThreshold = 0.2,
+    this.twoFingerZoomThreshold = 0.8,
+    this.twoFingerMoveThreshold = 5.0,
     this.scrollWheelVelocity = 0.005,
     this.ctrlRotateKeys = const <LogicalKeyboardKey>[
       LogicalKeyboardKey.control,

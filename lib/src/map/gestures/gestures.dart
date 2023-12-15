@@ -249,6 +249,9 @@ class TwoFingerGestures extends Gesture {
   Offset? _lastLocalFocal;
   double? _lastScale;
   double? _lastRotation;
+  bool _zooming = false;
+  bool _moving = false;
+  bool _rotating = false;
 
   bool get _moveEnabled =>
       _options.interactionOptions.enabledGestures.twoFingerMove;
@@ -259,15 +262,29 @@ class TwoFingerGestures extends Gesture {
   bool get _zoomEnabled =>
       _options.interactionOptions.enabledGestures.twoFingerZoom;
 
+  double get _rotateThreshold =>
+      _options.interactionOptions.twoFingerRotateThreshold;
+
+  double get _moveThreshold =>
+      _options.interactionOptions.twoFingerMoveThreshold;
+
+  double get _zoomThreshold =>
+      _options.interactionOptions.twoFingerZoomThreshold;
+
   TwoFingerGestures({required super.controller});
 
   /// Initialize gesture, called when gesture has started
   void start(ScaleStartDetails details) {
     controller.stopAnimationRaw();
     if (details.pointerCount < 2) return;
+
     _lastLocalFocal = details.localFocalPoint;
     _lastScale = 1;
     _lastRotation = 0;
+    _rotating = false;
+    _moving = false;
+    _zooming = false;
+
     controller.emitMapEvent(
       MapEventMoveStart(
         camera: _camera,
@@ -287,12 +304,24 @@ class TwoFingerGestures extends Gesture {
 
     double newRotation = _camera.rotation;
     if (_rotateEnabled) {
-      newRotation -= (_lastRotation! - details.rotation) * 80;
+      // enable rotation if threshold is reached
+      if (!_rotating && details.rotation.abs() > _rotateThreshold) {
+        _rotating = true;
+      }
+      if (_rotating) {
+        newRotation -= (_lastRotation! - details.rotation) * 80;
+      }
     }
 
     double newZoom = _camera.zoom;
     if (_zoomEnabled) {
-      newZoom -= (_lastScale! - details.scale) * 2.2;
+      // enable zooming if threshold is reached
+      if (!_zooming && details.scale.abs() > _zoomThreshold) {
+        _zooming = true;
+      }
+      if (_zooming) {
+        newZoom -= (_lastScale! - details.scale) * 2.2;
+      }
     }
 
     LatLng newCenter = _camera.center;
@@ -301,9 +330,15 @@ class TwoFingerGestures extends Gesture {
         _camera,
         _lastLocalFocal! - details.localFocalPoint,
       );
-      final oldCenterPt = _camera.project(_camera.center);
-      final newCenterPt = oldCenterPt + offset.toPoint();
-      newCenter = _camera.unproject(newCenterPt);
+      // enable moving if threshold is reached
+      if (!_moving && offset.distanceSquared > _moveThreshold) {
+        _moving = true;
+      }
+      if (_moving) {
+        final oldCenterPt = _camera.project(_camera.center);
+        final newCenterPt = oldCenterPt + offset.toPoint();
+        newCenter = _camera.unproject(newCenterPt);
+      }
     }
 
     controller.moveAndRotateRaw(
@@ -325,6 +360,9 @@ class TwoFingerGestures extends Gesture {
     if (details.pointerCount < 2) return;
     _lastScale = null;
     _lastLocalFocal = null;
+    _rotating = false;
+    _zooming = false;
+    _moving = false;
     controller.emitMapEvent(
       MapEventMoveEnd(
         camera: _camera,
