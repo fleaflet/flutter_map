@@ -10,19 +10,19 @@ class EnabledGestures {
   const EnabledGestures._({
     required this.drag,
     required this.flingAnimation,
-    required this.pinchMove,
-    required this.pinchZoom,
-    required this.doubleTapZoom,
+    required this.twoFingerMove,
+    required this.twoFingerZoom,
+    required this.doubleTapZoomIn,
     required this.doubleTapDragZoom,
     required this.scrollWheelZoom,
-    required this.rotate,
+    required this.twoFingerRotate,
     required this.ctrlDragRotate,
   });
 
   /// Shortcut constructor to allow all gestures that don't rotate the map.
   const EnabledGestures.noRotation()
       : this.all(
-          rotate: false,
+          twoFingerRotate: false,
           ctrlDragRotate: false,
         );
 
@@ -34,12 +34,12 @@ class EnabledGestures {
   const EnabledGestures.all({
     this.drag = true,
     this.flingAnimation = true,
-    this.pinchMove = true,
-    this.pinchZoom = true,
-    this.doubleTapZoom = true,
+    this.twoFingerMove = true,
+    this.twoFingerZoom = true,
+    this.doubleTapZoomIn = true,
     this.doubleTapDragZoom = true,
     this.scrollWheelZoom = true,
-    this.rotate = true,
+    this.twoFingerRotate = true,
     this.ctrlDragRotate = true,
   });
 
@@ -51,12 +51,12 @@ class EnabledGestures {
   const EnabledGestures.none({
     this.drag = false,
     this.flingAnimation = false,
-    this.pinchMove = false,
-    this.pinchZoom = false,
-    this.doubleTapZoom = false,
+    this.twoFingerMove = false,
+    this.twoFingerZoom = false,
+    this.doubleTapZoomIn = false,
     this.doubleTapDragZoom = false,
     this.scrollWheelZoom = false,
-    this.rotate = false,
+    this.twoFingerRotate = false,
     this.ctrlDragRotate = false,
   });
 
@@ -67,15 +67,18 @@ class EnabledGestures {
       drag: InteractiveFlag.hasFlag(flags, InteractiveFlag.drag),
       flingAnimation:
           InteractiveFlag.hasFlag(flags, InteractiveFlag.flingAnimation),
-      pinchMove: InteractiveFlag.hasFlag(flags, InteractiveFlag.twoFingerMove),
-      pinchZoom: InteractiveFlag.hasFlag(flags, InteractiveFlag.twoFingerZoom),
-      doubleTapZoom:
+      twoFingerMove:
+          InteractiveFlag.hasFlag(flags, InteractiveFlag.twoFingerMove),
+      twoFingerZoom:
+          InteractiveFlag.hasFlag(flags, InteractiveFlag.twoFingerZoom),
+      doubleTapZoomIn:
           InteractiveFlag.hasFlag(flags, InteractiveFlag.doubleTapZoomIn),
       doubleTapDragZoom:
           InteractiveFlag.hasFlag(flags, InteractiveFlag.doubleTapDragZoom),
       scrollWheelZoom:
           InteractiveFlag.hasFlag(flags, InteractiveFlag.scrollWheelZoom),
-      rotate: InteractiveFlag.hasFlag(flags, InteractiveFlag.twoFingerRotate),
+      twoFingerRotate:
+          InteractiveFlag.hasFlag(flags, InteractiveFlag.twoFingerRotate),
       ctrlDragRotate:
           InteractiveFlag.hasFlag(flags, InteractiveFlag.ctrlDragRotate),
     );
@@ -88,13 +91,16 @@ class EnabledGestures {
   final bool flingAnimation;
 
   /// Enable panning with multiple fingers
-  final bool pinchMove;
+  final bool twoFingerMove;
 
   /// Enable zooming with a multi-finger pinch gesture
-  final bool pinchZoom;
+  final bool twoFingerZoom;
+
+  /// Enable rotation with two-finger twist gesture
+  final bool twoFingerRotate;
 
   /// Enable zooming with a single-finger double tap gesture
-  final bool doubleTapZoom;
+  final bool doubleTapZoomIn;
 
   /// Enable zooming with a single-finger double-tap-drag gesture
   ///
@@ -104,42 +110,36 @@ class EnabledGestures {
   /// Enable zooming with a mouse scroll wheel
   final bool scrollWheelZoom;
 
-  /// Enable rotation with two-finger twist gesture
-  ///
-  /// For controlling cursor/keyboard rotation, see
-  /// [InteractionOptions.cursorKeyboardRotationOptions].
-  final bool rotate;
-
   /// Enable rotation by pressing the CTRL key and dragging with the cursor
   /// or finger.
   final bool ctrlDragRotate;
 
   /// Returns true of any gesture with more than one finger is enabled.
-  bool hasMultiFinger() => pinchMove || pinchZoom || rotate;
+  bool hasMultiFinger() => twoFingerMove || twoFingerZoom || twoFingerRotate;
 
   /// Wither to change the value of some gestures. Returns a new
   /// [EnabledGestures] object.
   EnabledGestures withFlag({
-    bool? pinchZoom,
     bool? drag,
     bool? flingAnimation,
-    bool? pinchMove,
-    bool? doubleTapZoom,
+    bool? twoFingerZoom,
+    bool? twoFingerMove,
+    bool? doubleTapZoomIn,
     bool? doubleTapDragZoom,
     bool? scrollWheelZoom,
-    bool? rotate,
+    bool? twoFingerRotate,
     bool? ctrlDragRotate,
   }) =>
       EnabledGestures._(
-        pinchZoom: pinchZoom ?? this.pinchZoom,
         drag: drag ?? this.drag,
         flingAnimation: flingAnimation ?? this.flingAnimation,
-        pinchMove: pinchMove ?? this.pinchMove,
-        doubleTapZoom: doubleTapZoom ?? this.doubleTapZoom,
+        twoFingerZoom: twoFingerZoom ?? this.twoFingerZoom,
+        twoFingerMove: twoFingerMove ?? this.twoFingerMove,
+        doubleTapZoomIn: doubleTapZoomIn ?? this.doubleTapZoomIn,
         doubleTapDragZoom: doubleTapDragZoom ?? this.doubleTapDragZoom,
         scrollWheelZoom: scrollWheelZoom ?? this.scrollWheelZoom,
-        rotate: rotate ?? this.rotate,
-        ctrlDragRotate: rotate ?? this.ctrlDragRotate,
+        twoFingerRotate: twoFingerRotate ?? this.twoFingerRotate,
+        ctrlDragRotate: ctrlDragRotate ?? this.ctrlDragRotate,
       );
 
   @override
@@ -149,24 +149,24 @@ class EnabledGestures {
           runtimeType == other.runtimeType &&
           drag == other.drag &&
           flingAnimation == other.flingAnimation &&
-          pinchMove == other.pinchMove &&
-          pinchZoom == other.pinchZoom &&
-          doubleTapZoom == other.doubleTapZoom &&
+          twoFingerMove == other.twoFingerMove &&
+          twoFingerZoom == other.twoFingerZoom &&
+          doubleTapZoomIn == other.doubleTapZoomIn &&
           doubleTapDragZoom == other.doubleTapDragZoom &&
           scrollWheelZoom == other.scrollWheelZoom &&
-          rotate == other.rotate &&
+          twoFingerRotate == other.twoFingerRotate &&
           ctrlDragRotate == other.ctrlDragRotate;
 
   @override
   int get hashCode => Object.hash(
         drag,
         flingAnimation,
-        pinchMove,
-        pinchZoom,
-        doubleTapZoom,
+        twoFingerMove,
+        twoFingerZoom,
+        doubleTapZoomIn,
         doubleTapDragZoom,
         scrollWheelZoom,
-        rotate,
+        twoFingerRotate,
         ctrlDragRotate,
       );
 }

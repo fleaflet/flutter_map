@@ -218,7 +218,7 @@ class _TestRebuildsAppState extends State<TestRebuildsApp> {
 
   /// double tap gestures delay the tap gestures, disable them here
   EnabledGestures _interactiveFlags = const EnabledGestures.all(
-    doubleTapZoom: false,
+    doubleTapZoomIn: false,
     doubleTapDragZoom: false,
   );
 

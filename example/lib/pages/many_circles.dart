@@ -74,7 +74,7 @@ class ManyCirclesPageState extends State<ManyCirclesPage> {
                 initialCenter: LatLng(50, 20),
                 initialZoom: 5,
                 interactionOptions: InteractionOptions(
-                  enabledGestures: EnabledGestures.all(rotate: false),
+                  enabledGestures: EnabledGestures.all(twoFingerRotate: false),
                 ),
               ),
               children: [

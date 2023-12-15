@@ -208,24 +208,18 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   void updateGestures(EnabledGestures? oldFlags, EnabledGestures newFlags) {
     if (oldFlags == newFlags) return;
     if (newFlags.hasMultiFinger()) {
-      _twoFingerInput = TwoFingerGestures(
-        controller: widget.controller,
-        interactiveFlags: newFlags,
-      );
+      _twoFingerInput = TwoFingerGestures(controller: widget.controller);
     } else {
       _twoFingerInput = null;
     }
 
     if (newFlags.drag) {
-      _drag = DragGesture(
-        controller: widget.controller,
-        interactiveFlags: newFlags,
-      );
+      _drag = DragGesture(controller: widget.controller);
     } else {
       _drag = null;
     }
 
-    if (newFlags.doubleTapZoom) {
+    if (newFlags.doubleTapZoomIn) {
       _doubleTap = DoubleTapGesture(controller: widget.controller);
     } else {
       _doubleTap = null;

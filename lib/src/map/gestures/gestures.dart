@@ -5,6 +5,7 @@ import 'package:flutter/animation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 abstract class Gesture {
   final MapControllerImpl controller;
@@ -245,19 +246,20 @@ class ScrollWheelZoomGesture extends Gesture {
 
 /// A gesture with multiple inputs like zooming with two fingers
 class TwoFingerGestures extends Gesture {
-  final bool moveEnabled;
-  final bool rotateEnabled;
-  final bool zoomEnabled;
   Offset? _lastLocalFocal;
   double? _lastScale;
   double? _lastRotation;
 
-  TwoFingerGestures({
-    required EnabledGestures interactiveFlags,
-    required super.controller,
-  })  : moveEnabled = interactiveFlags.pinchMove,
-        zoomEnabled = interactiveFlags.pinchZoom,
-        rotateEnabled = interactiveFlags.rotate;
+  bool get _moveEnabled =>
+      _options.interactionOptions.enabledGestures.twoFingerMove;
+
+  bool get _rotateEnabled =>
+      _options.interactionOptions.enabledGestures.twoFingerRotate;
+
+  bool get _zoomEnabled =>
+      _options.interactionOptions.enabledGestures.twoFingerZoom;
+
+  TwoFingerGestures({required super.controller});
 
   /// Initialize gesture, called when gesture has started
   void start(ScaleStartDetails details) {
@@ -284,22 +286,25 @@ class TwoFingerGestures extends Gesture {
     }
 
     double newRotation = _camera.rotation;
-    if (rotateEnabled) {
+    if (_rotateEnabled) {
       newRotation -= (_lastRotation! - details.rotation) * 80;
     }
 
     double newZoom = _camera.zoom;
-    if (zoomEnabled) {
+    if (_zoomEnabled) {
       newZoom -= (_lastScale! - details.scale) * 2.2;
     }
 
-    final offset = _rotateOffset(
-      _camera,
-      _lastLocalFocal! - details.localFocalPoint,
-    );
-    final oldCenterPt = _camera.project(_camera.center);
-    final newCenterPt = oldCenterPt + offset.toPoint();
-    final newCenter = _camera.unproject(newCenterPt);
+    LatLng newCenter = _camera.center;
+    if (_moveEnabled) {
+      final offset = _rotateOffset(
+        _camera,
+        _lastLocalFocal! - details.localFocalPoint,
+      );
+      final oldCenterPt = _camera.project(_camera.center);
+      final newCenterPt = oldCenterPt + offset.toPoint();
+      newCenter = _camera.unproject(newCenterPt);
+    }
 
     controller.moveAndRotateRaw(
       newCenter,
@@ -330,15 +335,13 @@ class TwoFingerGestures extends Gesture {
 }
 
 class DragGesture extends Gesture {
-  final bool flingEnabled;
+  bool get _flingEnabled =>
+      _options.interactionOptions.enabledGestures.flingAnimation;
 
   Offset? _lastLocalFocal;
   Offset? _focalStartLocal;
 
-  DragGesture({
-    required super.controller,
-    required EnabledGestures interactiveFlags,
-  }) : flingEnabled = interactiveFlags.flingAnimation;
+  DragGesture({required super.controller});
 
   bool get isActive => _lastLocalFocal != null;
 
@@ -387,7 +390,7 @@ class DragGesture extends Gesture {
     _lastLocalFocal = null;
     _focalStartLocal = null;
 
-    if (!flingEnabled) return;
+    if (!_flingEnabled) return;
 
     final magnitude = details.velocity.pixelsPerSecond.distance;
 
