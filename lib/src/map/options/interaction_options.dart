@@ -21,12 +21,6 @@ final class InteractionOptions {
   /// [enableMultiFingerGestureRace] is false then zoom cannot win
   final double pinchZoomThreshold;
 
-  /// When [pinchZoomThreshold] wins over [rotationThreshold] and
-  /// [pinchMoveThreshold] then [pinchZoomWinGestures] gestures will be used. By
-  /// default [MultiFingerGesture.pinchZoom] and [MultiFingerGesture.pinchMove]
-  /// gestures will take effect see [MultiFingerGesture] for custom settings
-  final int pinchZoomWinGestures;
-
   /// Pinch Move threshold default is 40.0 (note: this doesn't take any effect
   /// on drag) Map starts to move when [pinchMoveThreshold] has been achieved or
   /// another multi finger gesture wins which allows
@@ -55,8 +49,6 @@ final class InteractionOptions {
     this.enabledGestures = const EnabledGestures.all(),
     this.rotationThreshold = 20.0,
     this.pinchZoomThreshold = 0.5,
-    this.pinchZoomWinGestures =
-        InteractiveFlag.pinchZoom | InteractiveFlag.pinchMove,
     this.pinchMoveThreshold = 40.0,
     this.scrollWheelVelocity = 0.005,
     this.cursorKeyboardRotationOptions = const CursorKeyboardRotationOptions(),
@@ -80,7 +72,6 @@ final class InteractionOptions {
           enabledGestures == other.enabledGestures &&
           rotationThreshold == other.rotationThreshold &&
           pinchZoomThreshold == other.pinchZoomThreshold &&
-          pinchZoomWinGestures == other.pinchZoomWinGestures &&
           pinchMoveThreshold == other.pinchMoveThreshold &&
           scrollWheelVelocity == other.scrollWheelVelocity);
 
@@ -89,7 +80,6 @@ final class InteractionOptions {
         enabledGestures,
         rotationThreshold,
         pinchZoomThreshold,
-        pinchZoomWinGestures,
         pinchMoveThreshold,
         scrollWheelVelocity,
       );
