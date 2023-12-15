@@ -100,7 +100,7 @@ class Polyline {
 
 @immutable
 class PolylineLayer extends StatelessWidget {
-  final Iterable<Polyline> polylines;
+  final List<Polyline> polylines;
 
   /// A notifier to notify when a hit is detected over a/multiple [Polyline]s
   ///

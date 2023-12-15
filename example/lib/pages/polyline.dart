@@ -158,7 +158,8 @@ class _PolylinePageState extends State<PolylinePage> {
               ),
               child: PolylineLayer(
                 hitNotifier: hitNotifier,
-                polylines: (hoverLines ?? []).followedBy(polylines.keys),
+                polylines:
+                    (hoverLines ?? []).followedBy(polylines.keys).toList(),
               ),
             ),
           ),
