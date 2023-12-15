@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:flutter/animation.dart';
 import 'package:flutter/gestures.dart';
@@ -210,6 +209,9 @@ class TertiaryLongPressGesture extends DelayedGesture {
 class ScrollWheelZoomGesture extends Gesture {
   ScrollWheelZoomGesture({required super.controller});
 
+  double get _scrollWheelVelocity =>
+      _options.interactionOptions.scrollWheelVelocity;
+
   /// Handles mouse scroll events
   void submit(PointerScrollEvent details) {
     controller.stopAnimationRaw();
@@ -219,13 +221,8 @@ class ScrollWheelZoomGesture extends Gesture {
     // See [PointerSignalResolver] documentation for more information.
     GestureBinding.instance.pointerSignalResolver.register(details, (details) {
       details as PointerScrollEvent;
-      final minZoom = _options.minZoom ?? 0.0;
-      final maxZoom = _options.maxZoom ?? double.infinity;
-      final newZoom = clampDouble(
-        _camera.zoom - details.scrollDelta.dy * _scrollWheelVelocity * 2,
-        minZoom,
-        maxZoom,
-      );
+      final newZoom =
+          _camera.zoom - details.scrollDelta.dy * _scrollWheelVelocity;
       // Calculate offset of mouse cursor from viewport center
       final newCenter = _camera.focusedZoomCenter(
         details.localPosition.toPoint(),
@@ -239,9 +236,6 @@ class ScrollWheelZoomGesture extends Gesture {
       );
     });
   }
-
-  double get _scrollWheelVelocity =>
-      _options.interactionOptions.scrollWheelVelocity;
 }
 
 /// A gesture with multiple inputs like zooming with two fingers
@@ -319,7 +313,6 @@ class TwoFingerGestures extends Gesture {
       final scaleDiff = (_lastScale! - details.scale) * 1.5;
       if (!_zooming && scaleDiff.abs() > _zoomThreshold) {
         _zooming = true;
-        _moving = true;
       }
       if (_zooming) {
         newZoom -= scaleDiff * 1.5;

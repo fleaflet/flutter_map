@@ -37,7 +37,7 @@ final class InteractionOptions {
 
   /// The velocity how fast the map should zoom when using the scroll wheel
   /// of the mouse.
-  /// Defaults to 0.005.
+  /// Defaults to 0.01.
   final double scrollWheelVelocity;
 
   /// Override this option if you want to use custom keys for the CTRL+drag
@@ -50,7 +50,7 @@ final class InteractionOptions {
     this.twoFingerRotateThreshold = 0.2,
     this.twoFingerZoomThreshold = 0.01,
     this.twoFingerMoveThreshold = 3.0,
-    this.scrollWheelVelocity = 0.005,
+    this.scrollWheelVelocity = 0.01,
     this.ctrlRotateKeys = const <LogicalKeyboardKey>[
       LogicalKeyboardKey.control,
       LogicalKeyboardKey.controlLeft,
