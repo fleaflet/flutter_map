@@ -18,21 +18,21 @@ class _GesturesPageState extends State<GesturesPage> {
     'Movement': {
       InteractiveFlag.drag: 'Drag',
       InteractiveFlag.flingAnimation: 'Fling',
-      InteractiveFlag.pinchMove: 'Pinch',
+      InteractiveFlag.twoFingerMove: 'Pinch',
     },
     'Zooming': {
-      InteractiveFlag.pinchZoom: 'Pinch',
+      InteractiveFlag.twoFingerZoom: 'Pinch',
       InteractiveFlag.scrollWheelZoom: 'Scroll',
-      InteractiveFlag.doubleTapZoom: 'Double tap',
+      InteractiveFlag.doubleTapZoomIn: 'Double tap',
       InteractiveFlag.doubleTapDragZoom: 'Double tap+drag',
     },
     'Rotation': {
-      InteractiveFlag.rotate: 'Twist',
+      InteractiveFlag.twoFingerRotate: 'Twist',
       InteractiveFlag.ctrlDragRotate: 'CTRL+Drag',
     },
   };
 
-  int flags = InteractiveFlag.drag | InteractiveFlag.pinchZoom;
+  int flags = InteractiveFlag.drag | InteractiveFlag.twoFingerZoom;
 
   MapEvent? _latestEvent;
 

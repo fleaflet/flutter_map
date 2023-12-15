@@ -67,15 +67,15 @@ class EnabledGestures {
       drag: InteractiveFlag.hasFlag(flags, InteractiveFlag.drag),
       flingAnimation:
           InteractiveFlag.hasFlag(flags, InteractiveFlag.flingAnimation),
-      pinchMove: InteractiveFlag.hasFlag(flags, InteractiveFlag.pinchMove),
-      pinchZoom: InteractiveFlag.hasFlag(flags, InteractiveFlag.pinchZoom),
+      pinchMove: InteractiveFlag.hasFlag(flags, InteractiveFlag.twoFingerMove),
+      pinchZoom: InteractiveFlag.hasFlag(flags, InteractiveFlag.twoFingerZoom),
       doubleTapZoom:
-          InteractiveFlag.hasFlag(flags, InteractiveFlag.doubleTapZoom),
+          InteractiveFlag.hasFlag(flags, InteractiveFlag.doubleTapZoomIn),
       doubleTapDragZoom:
           InteractiveFlag.hasFlag(flags, InteractiveFlag.doubleTapDragZoom),
       scrollWheelZoom:
           InteractiveFlag.hasFlag(flags, InteractiveFlag.scrollWheelZoom),
-      rotate: InteractiveFlag.hasFlag(flags, InteractiveFlag.rotate),
+      rotate: InteractiveFlag.hasFlag(flags, InteractiveFlag.twoFingerRotate),
       ctrlDragRotate:
           InteractiveFlag.hasFlag(flags, InteractiveFlag.ctrlDragRotate),
     );
@@ -177,24 +177,25 @@ class EnabledGestures {
 ///
 /// If you want mix interactions for example drag and rotate interactions then
 /// you have two options:
-///   a. Add your own flags: [InteractiveFlag.drag] | [InteractiveFlag.rotate]
+///   a. Add your own flags:
+///      [InteractiveFlag.drag] | [InteractiveFlag.twoFingerRotate]
 ///   b. Remove unnecessary flags from all:
 ///     [InteractiveFlag.all] &
 ///       ~[InteractiveFlag.flingAnimation] &
-///       ~[InteractiveFlag.pinchMove] &
-///       ~[InteractiveFlag.pinchZoom] &
-///       ~[InteractiveFlag.doubleTapZoom]
+///       ~[InteractiveFlag.twoFingerMove] &
+///       ~[InteractiveFlag.twoFingerZoom] &
+///       ~[InteractiveFlag.doubleTapZoomIn]
 abstract class InteractiveFlag {
   const InteractiveFlag._();
 
   static const int all = drag |
       flingAnimation |
-      pinchMove |
-      pinchZoom |
-      doubleTapZoom |
+      twoFingerMove |
+      twoFingerZoom |
+      doubleTapZoomIn |
       doubleTapDragZoom |
       scrollWheelZoom |
-      rotate |
+      twoFingerRotate |
       ctrlDragRotate;
 
   static const int none = 0;
@@ -206,13 +207,19 @@ abstract class InteractiveFlag {
   static const int flingAnimation = 1 << 1;
 
   /// Enable panning with multiple fingers
-  static const int pinchMove = 1 << 2;
+  static const int twoFingerMove = 1 << 2;
+  @Deprecated('Renamed to twoFingerMove')
+  static const int pinchMove = twoFingerMove;
 
   /// Enable zooming with a multi-finger pinch gesture
-  static const int pinchZoom = 1 << 3;
+  static const int twoFingerZoom = 1 << 3;
+  @Deprecated('Renamed to twoFingerZoom')
+  static const int pinchZoom = twoFingerZoom;
 
   /// Enable zooming with a single-finger double tap gesture
-  static const int doubleTapZoom = 1 << 4;
+  static const int doubleTapZoomIn = 1 << 4;
+  @Deprecated('Renamed to doubleTapZoomIn')
+  static const int doubleTapZoom = doubleTapZoomIn;
 
   /// Enable zooming with a single-finger double-tap-drag gesture
   ///
@@ -226,17 +233,21 @@ abstract class InteractiveFlag {
   ///
   /// For controlling cursor/keyboard rotation, see
   /// [InteractionOptions.cursorKeyboardRotationOptions].
-  static const int rotate = 1 << 7;
+  static const int twoFingerRotate = 1 << 7;
+  @Deprecated('Renamed to twoFingerRotate')
+  static const int rotate = twoFingerRotate;
 
   /// Enable rotation by pressing the CTRL Key and drag the map with the cursor.
   /// To change the key see [InteractionOptions.cursorKeyboardRotationOptions].
   static const int ctrlDragRotate = 1 << 8;
 
   /// Returns `true` if [leftFlags] has at least one member in [rightFlags]
-  /// (intersection) for example [leftFlags]= [InteractiveFlag.drag] |
-  /// [InteractiveFlag.rotate] and [rightFlags]= [InteractiveFlag.rotate] |
-  /// [InteractiveFlag.flingAnimation] returns true because both have
-  /// [InteractiveFlag.rotate] flag
+  /// (intersection) for example
+  /// [leftFlags] = [InteractiveFlag.drag] | [InteractiveFlag.twoFingerRotate]
+  /// and
+  /// [rightFlags] = [InteractiveFlag.twoFingerRotate]
+  ///                | [InteractiveFlag.flingAnimation]
+  /// returns true because both have the [InteractiveFlag.twoFingerRotate] flag.
   static bool hasFlag(int leftFlags, int rightFlags) {
     return leftFlags & rightFlags != 0;
   }
