@@ -19,10 +19,10 @@ final class InteractionOptions {
   /// For more information see the documentation on [InteractiveFlag].
   final EnabledGestures enabledGestures;
 
-  /// Map starts to rotate when [twoFingerRotationThreshold] has been achieved
+  /// Map starts to rotate when [twoFingerRotateThreshold] has been achieved
   /// or another multi finger gesture wins.
   /// Default is 20.0
-  final double twoFingerRotationThreshold; // TODO
+  final double twoFingerRotateThreshold; // TODO
 
   /// Map starts to zoom when [twoFingerZoomThreshold] has been achieved or
   /// another multi finger gesture wins.
@@ -47,7 +47,7 @@ final class InteractionOptions {
 
   const InteractionOptions({
     this.enabledGestures = const EnabledGestures.all(),
-    this.twoFingerRotationThreshold = 20.0,
+    this.twoFingerRotateThreshold = 20.0,
     this.twoFingerZoomThreshold = 0.5,
     this.twoFingerMoveThreshold = 40.0,
     this.scrollWheelVelocity = 0.005,
@@ -57,7 +57,7 @@ final class InteractionOptions {
       LogicalKeyboardKey.controlRight,
     ],
   })  : assert(
-          twoFingerRotationThreshold >= 0.0,
+          twoFingerRotateThreshold >= 0.0,
           'rotationThreshold needs to be a positive value',
         ),
         assert(
@@ -74,7 +74,7 @@ final class InteractionOptions {
       identical(this, other) ||
       (other is InteractionOptions &&
           enabledGestures == other.enabledGestures &&
-          twoFingerRotationThreshold == other.twoFingerRotationThreshold &&
+          twoFingerRotateThreshold == other.twoFingerRotateThreshold &&
           twoFingerZoomThreshold == other.twoFingerZoomThreshold &&
           twoFingerMoveThreshold == other.twoFingerMoveThreshold &&
           ctrlRotateKeys == other.ctrlRotateKeys &&
@@ -83,7 +83,7 @@ final class InteractionOptions {
   @override
   int get hashCode => Object.hash(
         enabledGestures,
-        twoFingerRotationThreshold,
+        twoFingerRotateThreshold,
         twoFingerZoomThreshold,
         twoFingerMoveThreshold,
         ctrlRotateKeys,
