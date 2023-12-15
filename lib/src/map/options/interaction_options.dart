@@ -1,4 +1,4 @@
-import 'package:flutter_map/src/map/options/cursor_keyboard_rotation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_map/src/map/options/enabled_gestures.dart';
 import 'package:meta/meta.dart';
 
@@ -31,19 +31,7 @@ final class InteractionOptions {
 
   final double scrollWheelVelocity;
 
-  /// Options to configure cursor/keyboard rotation
-  ///
-  /// Cursor/keyboard rotation is designed for desktop platforms, and allows the
-  /// cursor to be used to set the rotation of the map whilst a keyboard key is
-  /// held down (as triggered by [CursorKeyboardRotationOptions.isKeyTrigger]).
-  ///
-  /// By default, rotation is triggered if any key in
-  /// [CursorKeyboardRotationOptions.defaultTriggerKeys] is held (any of the
-  /// "Control" keys).
-  ///
-  /// To disable cursor/keyboard rotation, use the
-  /// [CursorKeyboardRotationOptions.disabled] constructor.
-  final CursorKeyboardRotationOptions cursorKeyboardRotationOptions;
+  final List<LogicalKeyboardKey> ctrlRotateKeys;
 
   const InteractionOptions({
     this.enabledGestures = const EnabledGestures.all(),
@@ -51,7 +39,11 @@ final class InteractionOptions {
     this.pinchZoomThreshold = 0.5,
     this.pinchMoveThreshold = 40.0,
     this.scrollWheelVelocity = 0.005,
-    this.cursorKeyboardRotationOptions = const CursorKeyboardRotationOptions(),
+    this.ctrlRotateKeys = const <LogicalKeyboardKey>[
+      LogicalKeyboardKey.control,
+      LogicalKeyboardKey.controlLeft,
+      LogicalKeyboardKey.controlRight,
+    ],
   })  : assert(
           rotationThreshold >= 0.0,
           'rotationThreshold needs to be a positive value',

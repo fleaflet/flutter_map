@@ -24,16 +24,15 @@ class _GesturesPageState extends State<GesturesPage> {
       InteractiveFlag.pinchZoom: 'Pinch',
       InteractiveFlag.scrollWheelZoom: 'Scroll',
       InteractiveFlag.doubleTapZoom: 'Double tap',
-      InteractiveFlag.doubleTapDragZoom: 'Double tap + drag',
+      InteractiveFlag.doubleTapDragZoom: 'Double tap+drag',
     },
     'Rotation': {
       InteractiveFlag.rotate: 'Twist',
-      InteractiveFlag.ctrlDragRotate: 'CTRL + Drag',
+      InteractiveFlag.ctrlDragRotate: 'CTRL+Drag',
     },
   };
 
   int flags = InteractiveFlag.drag | InteractiveFlag.pinchZoom;
-  bool keyboardCursorRotate = false;
 
   MapEvent? _latestEvent;
 
@@ -48,7 +47,7 @@ class _GesturesPageState extends State<GesturesPage> {
         child: Column(
           children: [
             Flex(
-              direction: screenWidth >= 600 ? Axis.horizontal : Axis.vertical,
+              direction: screenWidth >= 650 ? Axis.horizontal : Axis.vertical,
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: availableFlags.entries
@@ -76,22 +75,10 @@ class _GesturesPageState extends State<GesturesPage> {
                                       setState(() => flags |= e.key);
                                     },
                                   ),
-                                  Text(e.value),
+                                  Text(e.value, textAlign: TextAlign.center),
                                 ],
                               ),
                             ),
-                            if (category.key == 'Rotation') ...[
-                              Column(
-                                children: [
-                                  Checkbox.adaptive(
-                                    value: keyboardCursorRotate,
-                                    onChanged: (enabled) => setState(
-                                        () => keyboardCursorRotate = enabled!),
-                                  ),
-                                  const Text('Cursor & CTRL'),
-                                ],
-                              ),
-                            ]
                           ].interleave(const SizedBox(width: 12)).toList()
                             ..removeLast(),
                         )
@@ -123,13 +110,6 @@ class _GesturesPageState extends State<GesturesPage> {
                   initialZoom: 11,
                   interactionOptions: InteractionOptions(
                     enabledGestures: EnabledGestures.bitfield(flags),
-                    cursorKeyboardRotationOptions:
-                        CursorKeyboardRotationOptions(
-                      isKeyTrigger: (key) =>
-                          keyboardCursorRotate &&
-                          CursorKeyboardRotationOptions.defaultTriggerKeys
-                              .contains(key),
-                    ),
                   ),
                 ),
                 children: [openStreetMapTileLayer],

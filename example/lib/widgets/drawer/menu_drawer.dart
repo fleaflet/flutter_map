@@ -107,7 +107,7 @@ class MenuDrawer extends StatelessWidget {
             currentRoute: currentRoute,
           ),
           MenuItemWidget(
-            caption: 'Interactive Flags',
+            caption: 'Map Gestures',
             routeName: GesturesPage.route,
             currentRoute: currentRoute,
           ),

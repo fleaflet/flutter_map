@@ -160,7 +160,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
         // pan and scale, scale is a superset of the pan gesture
         onScaleStart: useScaleCallback
             ? (details) {
-                if (_ctrlDragRotate?.ctrlPressed ?? false) {
+                if (_ctrlDragRotate?.keyPressed ?? false) {
                   _ctrlDragRotate!.start();
                 } else if (_doubleTapDragZoom?.isActive ?? false) {
                   _doubleTapDragZoom!.start(details);
@@ -173,7 +173,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
             : null,
         onScaleUpdate: useScaleCallback
             ? (details) {
-                if (_ctrlDragRotate?.ctrlPressed ?? false) {
+                if (_ctrlDragRotate?.keyPressed ?? false) {
                   _ctrlDragRotate!.update(details);
                 } else if (_doubleTapDragZoom?.isActive ?? false) {
                   _doubleTapDragZoom!.update(details);
@@ -186,7 +186,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
             : null,
         onScaleEnd: useScaleCallback
             ? (details) {
-                if (_ctrlDragRotate?.ctrlPressed ?? false) {
+                if (_ctrlDragRotate?.keyPressed ?? false) {
                   _ctrlDragRotate!.end();
                 } else if (_doubleTapDragZoom?.isActive ?? false) {
                   _doubleTapDragZoom!.isActive = false;
@@ -238,7 +238,10 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     }
 
     if (newFlags.ctrlDragRotate) {
-      _ctrlDragRotate = CtrlDragRotateGesture(controller: widget.controller);
+      _ctrlDragRotate = CtrlDragRotateGesture(
+        controller: widget.controller,
+        keys: _options.interactionOptions.ctrlRotateKeys,
+      );
     } else {
       _ctrlDragRotate = null;
     }

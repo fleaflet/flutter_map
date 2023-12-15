@@ -49,7 +49,6 @@ export 'package:flutter_map/src/map/controller/events/map_events.dart';
 export 'package:flutter_map/src/map/controller/map_controller.dart';
 export 'package:flutter_map/src/map/controller/map_controller_impl.dart';
 export 'package:flutter_map/src/map/gestures/latlng_tween.dart';
-export 'package:flutter_map/src/map/options/cursor_keyboard_rotation.dart';
 export 'package:flutter_map/src/map/options/enabled_gestures.dart';
 export 'package:flutter_map/src/map/options/interaction_options.dart';
 export 'package:flutter_map/src/map/options/map_options.dart';

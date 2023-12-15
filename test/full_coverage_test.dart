@@ -46,7 +46,6 @@ import 'package:flutter_map/src/map/gestures/gestures.dart';
 import 'package:flutter_map/src/map/gestures/latlng_tween.dart';
 import 'package:flutter_map/src/map/gestures/map_interactive_viewer.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
-import 'package:flutter_map/src/map/options/cursor_keyboard_rotation.dart';
 import 'package:flutter_map/src/map/options/enabled_gestures.dart';
 import 'package:flutter_map/src/map/options/interaction_options.dart';
 import 'package:flutter_map/src/map/options/map_options.dart';

@@ -419,8 +419,12 @@ class DragGesture extends Gesture {
 
 class CtrlDragRotateGesture extends Gesture {
   bool isActive = false;
+  final List<LogicalKeyboardKey> keys;
 
-  CtrlDragRotateGesture({required super.controller});
+  CtrlDragRotateGesture({
+    required super.controller,
+    required this.keys,
+  });
 
   void start() {
     controller.stopAnimationRaw();
@@ -449,15 +453,9 @@ class CtrlDragRotateGesture extends Gesture {
     );
   }
 
-  bool get ctrlPressed {
-    const keys = [
-      LogicalKeyboardKey.controlLeft,
-      LogicalKeyboardKey.controlRight,
-    ];
-    return RawKeyboard.instance.keysPressed
-        .where((key) => keys.contains(key))
-        .isNotEmpty;
-  }
+  bool get keyPressed => RawKeyboard.instance.keysPressed
+      .where((key) => keys.contains(key))
+      .isNotEmpty;
 }
 
 class DoubleTapDragZoomGesture extends Gesture {
