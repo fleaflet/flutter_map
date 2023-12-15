@@ -19,7 +19,7 @@ class CursorKeyboardRotationOptions {
   /// Fix to returning `false`, or use the
   /// [CursorKeyboardRotationOptions.disabled] constructor to disable
   /// cursor/keyboard rotation.
-  final IsKeyCursorRotationTrigger? isKeyTrigger;
+  final bool Function(LogicalKeyboardKey key)? isKeyTrigger;
 
   /// The behaviour of the cursor/keyboard rotation function in terms of the
   /// angle that the map is rotated to
@@ -62,9 +62,6 @@ class CursorKeyboardRotationOptions {
   /// {@macro cursorkeyboard_explanation}
   CursorKeyboardRotationOptions.disabled() : this(isKeyTrigger: (_) => false);
 }
-
-/// See [CursorKeyboardRotationOptions.isKeyTrigger]
-typedef IsKeyCursorRotationTrigger = bool Function(LogicalKeyboardKey key);
 
 /// The behaviour of the cursor/keyboard rotation function in terms of the angle
 /// that the map is rotated to
