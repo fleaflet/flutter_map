@@ -10,7 +10,7 @@ import 'package:latlong2/latlong.dart';
 abstract class Gesture {
   final MapControllerImpl controller;
 
-  Gesture({required this.controller});
+  const Gesture({required this.controller});
 
   MapCamera get _camera => controller.camera;
 
@@ -335,11 +335,11 @@ class TwoFingerGestures extends Gesture {
 }
 
 class DragGesture extends Gesture {
-  bool get _flingEnabled =>
-      _options.interactionOptions.enabledGestures.flingAnimation;
-
   Offset? _lastLocalFocal;
   Offset? _focalStartLocal;
+
+  bool get _flingEnabled =>
+      _options.interactionOptions.enabledGestures.flingAnimation;
 
   DragGesture({required super.controller});
 
