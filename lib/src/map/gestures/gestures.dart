@@ -316,11 +316,13 @@ class TwoFingerGestures extends Gesture {
     double newZoom = _camera.zoom;
     if (_zoomEnabled) {
       // enable zooming if threshold is reached
-      if (!_zooming && details.scale.abs() > _zoomThreshold) {
+      final scaleDiff = (_lastScale! - details.scale) * 1.5;
+      if (!_zooming && scaleDiff.abs() > _zoomThreshold) {
         _zooming = true;
+        _moving = true;
       }
       if (_zooming) {
-        newZoom -= (_lastScale! - details.scale) * 2.2;
+        newZoom -= scaleDiff * 1.5;
       }
     }
 
