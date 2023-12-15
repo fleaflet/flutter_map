@@ -4,7 +4,7 @@ To display anything on the map, you'll need to include at least one layer. This 
 
 <div align="center" data-full-width="false">
 
-<figure><img src="../.gitbook/assets/ExampleMap.png" alt="Example FlutterMap widget, containing multiple feature layers, atop a TileLayer" width="563"><figcaption><p>Example <code>FlutterMap</code> widget, containing multiple feature layers, atop a <code>TileLayer</code></p></figcaption></figure>
+<figure><img src="../.gitbook/assets/ExampleMap.jpg" alt="Example FlutterMap widget, containing multiple feature layers, atop a TileLayer" width="563"><figcaption><p>Example <code>FlutterMap</code> widget, containing multiple feature layers, atop a <code>TileLayer</code></p></figcaption></figure>
 
 </div>
 
