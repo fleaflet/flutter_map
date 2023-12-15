@@ -2,6 +2,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_map/src/map/options/enabled_gestures.dart';
 import 'package:meta/meta.dart';
 
+/// Set interation options for input gestures.
+/// Most commonly used is [InteractionOptions.enabledGestures].
 @immutable
 final class InteractionOptions {
   /// Enable or disable specific gestures. By default all gestures are enabled.
@@ -17,29 +19,28 @@ final class InteractionOptions {
   /// For more information see the documentation on [InteractiveFlag].
   final EnabledGestures enabledGestures;
 
-  /// Rotation threshold in degree default is 20.0 Map starts to rotate when
-  /// [rotationThreshold] has been achieved or another multi finger gesture wins
-  /// which allows [MultiFingerGesture.rotate] Note: if [interactiveFlags]
-  /// doesn't contain [InteractiveFlag.rotate] or [enableMultiFingerGestureRace]
-  /// is false then rotate cannot win
+  /// Rotation threshold in degree. Map starts to rotate when
+  /// [rotationThreshold] has been achieved or another multi finger
+  /// gesture wins.
+  /// Default is 20.0
   final double rotationThreshold; // TODO
 
-  /// Pinch Zoom threshold default is 0.5 Map starts to zoom when
+  /// Pinch Zoom threshold. Map starts to zoom when
   /// [pinchZoomThreshold] has been achieved or another multi finger gesture
-  /// wins which allows [MultiFingerGesture.pinchZoom] Note: if
-  /// [interactiveFlags] doesn't contain [InteractiveFlag.pinchZoom] or
-  /// [enableMultiFingerGestureRace] is false then zoom cannot win
+  /// wins.
+  /// Default is 0.5
   final double pinchZoomThreshold; // TODO
 
-  /// Pinch Move threshold default is 40.0 (note: this doesn't take any effect
+  /// Pinch Move threshold (note: this doesn't take any effect
   /// on drag) Map starts to move when [pinchMoveThreshold] has been achieved or
-  /// another multi finger gesture wins which allows
-  /// [MultiFingerGesture.pinchMove] Note: if [interactiveFlags] doesn't contain
-  /// [InteractiveFlag.pinchMove] or [enableMultiFingerGestureRace] is false
-  /// then pinch move cannot win
+  /// another multi finger gesture wins.
+  /// Default is 40.0
   final double pinchMoveThreshold; // TODO
 
-  final double scrollWheelVelocity; // TODO
+  /// The velocity how fast the map should zoom when using the scroll wheel
+  /// of the mouse.
+  /// Defaults to 0.005.
+  final double scrollWheelVelocity;
 
   /// Override this option if you want to use custom keys for the CTRL+drag
   /// rotate gesture. By default the left and right control key are used.

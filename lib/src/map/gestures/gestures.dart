@@ -220,9 +220,8 @@ class ScrollWheelZoomGesture extends Gesture {
       details as PointerScrollEvent;
       final minZoom = _options.minZoom ?? 0.0;
       final maxZoom = _options.maxZoom ?? double.infinity;
-      final velocity = _options.interactionOptions.scrollWheelVelocity;
       final newZoom = clampDouble(
-        _camera.zoom - details.scrollDelta.dy * velocity * 2,
+        _camera.zoom - details.scrollDelta.dy * _scrollWheelVelocity * 2,
         minZoom,
         maxZoom,
       );
@@ -239,6 +238,9 @@ class ScrollWheelZoomGesture extends Gesture {
       );
     });
   }
+
+  double get _scrollWheelVelocity =>
+      _options.interactionOptions.scrollWheelVelocity;
 }
 
 /// A gesture with multiple inputs like zooming with two fingers
