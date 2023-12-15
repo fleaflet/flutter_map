@@ -3,7 +3,7 @@ description: >-
   A versatile mapping package for Flutter. Simple and easy to learn, yet
   completely customizable and configurable, it's the best choice for mapping in
   your Flutter app.
-cover: .gitbook/assets/Cover.png
+cover: .gitbook/assets/Cover.jpg
 coverY: -35
 ---
 

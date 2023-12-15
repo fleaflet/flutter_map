@@ -48,15 +48,88 @@ We're unable to provide support with this method, and this may become outdated.
 
 The first step is to render the desired lines into a tileset with a transparent background - [tippecanoe](https://github.com/mapbox/tippecanoe) is commonly used to do this, and generates vector-format MBTiles.
 
-If you have raster tiles, you're all set to serve as normal/as you choose. More commonly though, you'll have vector tiles at this step, as with 'tippecanoe', so you'll need to do one of the following things:
+If you have raster tiles, you're all set to serve as normal. However, and much more likely, if you have raster tiles, you're all set to serve as normal/as you choose. More commonly though, you'll have vector tiles at this step, as with 'tippecanoe', so you'll need to do one of the following things:
 
-* Try to convert it to raster tiles all in one shot, and if necessary, use a tool like [mbtilesToPngs](https://github.com/alfanhui/mbtilesToPngs) to extract the raster .mbtiles into a slippy map tree
+* Try to convert it to raster tiles all in one shot, then use a tool like [mbtilesToPngs](https://github.com/alfanhui/mbtilesToPngs) to extract the raster .mbtiles into a slippy map tree
 * Give the MBTiles/vector tiles to the vector map plugin
 * Serve the tiles via something like [tileserver-gl](https://github.com/maptiler/tileserver-gl), which provides an on-the-fly rasterizer
 
-If you have raster tiles, you're all set to serve as normal.
-
 To provide the tiles to the users within flutter\_map, see [tile-providers.md](tile-layer/tile-providers.md "mention").
+
+## Interactivity
+
+It is possible to detect hits (for example, hovers, taps, and long-presses) that occur over polylines.
+
+### Hit Notifier
+
+Hit detection is achieved by passing a `ValueNotifier` to the `hitNotifier` parameter. The layer internals will then notify the notifier with a `PolylineHit` result when a new hit is detected (and notify `null` when a hit is not detected).
+
+{% code title="hit_notifier.dart" %}
+```dart
+final PolylineHitNotifier hitNotifier = ValueNotifier(null);
+
+// Inside the map build...
+PolylineLayer(
+  hitNotifier: hitNotifier,
+  polylines: [],
+);
+```
+{% endcode %}
+
+If all that is required is to get notified when a new hit event occurs (including hovers), it is then possible to listen to the notifier directly with `addListener` - don't forget to remove the listener once you no longer need it!
+
+### Gesture Detection
+
+However, usually events will need to be 'filtered' to only detect taps or long presses, for example. In this case, wrap the layer with other hit detection widgets as you would do normally to detect taps.
+
+{% hint style="info" %}
+We don't provide direct callbacks for gesture handling, in order to maximize flexibility.
+{% endhint %}
+
+{% code title="tappable_polyline.dart" %}
+```dart
+// Inside the map build...
+MouseRegion(
+  hitTestBehavior: HitTestBehavior.deferToChild,
+  cursor: SystemMouseCursors.click, // Use a special cursor to indicate interactivity
+  child: GestureDetector(
+    // Detect gesture events as normal, including long press, etc.
+    onTap: () {
+      if (hitHandler.value == null) return;
+      for (final line in hitHandler.value!.lines) {}
+    }, 
+    child: PolylineLayer(
+      hitNotifier: hitNotifier,
+    ),
+  ),
+),
+```
+{% endcode %}
+
+To get the lines that were hit within the handlers of other hit detection widgets, use `hitHandler.value?.lines`. This contains all the hit lines in order from visually on top - bottom.
+
+You may also get the hit coordinate (which may not lie on any polyline), with `.point`.
+
+### Attaching Metadata
+
+There is no direct facility to attach free-form data to a `Polyline` in order to later identify them or use the data when hit handling.
+
+However, we recommend creating a `Map<Polyline, Metadata>` where `Metadata` is any type. It is best to do this outside the `build` method unless either the key or value is dynamic/variable, to improve performance.
+
+{% code title="metadata.dart" %}
+```dart
+final polylines = <Polyline, Metadata>{};
+
+// Inside the map build...
+PolylineLayer<String>(
+  hitNotifier: hitNotifier,
+  polylines: polylines.keys,
+);
+
+// When handling gestures...
+polylines[hitNotifier.value?.lines[x]] is Metadata;
+```
+{% endcode %}
 
 ## Routing/Navigation
 
