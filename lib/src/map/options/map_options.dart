@@ -121,40 +121,39 @@ class MapOptions {
   /// context with no [FlutterMap] ancestor a [StateError] will be thrown.
   static MapOptions of(BuildContext context) =>
       maybeOf(context) ??
-          (throw StateError(
-              '`MapOptions.of()` should not be called outside a `FlutterMap` and its descendants'));
+      (throw StateError(
+          '`MapOptions.of()` should not be called outside a `FlutterMap` and its descendants'));
 
   @override
   bool operator ==(Object other) =>
       other is MapOptions &&
-          crs == other.crs &&
-          initialCenter == other.initialCenter &&
-          initialZoom == other.initialZoom &&
-          initialRotation == other.initialRotation &&
-          initialCameraFit == other.initialCameraFit &&
-          minZoom == other.minZoom &&
-          maxZoom == other.maxZoom &&
-          backgroundColor == other.backgroundColor &&
-          onTap == other.onTap &&
-          onSecondaryTap == other.onSecondaryTap &&
-          onLongPress == other.onLongPress &&
-          onPointerDown == other.onPointerDown &&
-          onPointerUp == other.onPointerUp &&
-          onPointerCancel == other.onPointerCancel &&
-          onPointerHover == other.onPointerHover &&
-          onPositionChanged == other.onPositionChanged &&
-          onMapEvent == other.onMapEvent &&
-          cameraConstraint == other.cameraConstraint &&
-          onMapReady == other.onMapReady &&
-          keepAlive == other.keepAlive &&
-          interactionOptions == other.interactionOptions &&
-          backgroundColor == other.backgroundColor &&
-          applyPointerTranslucencyToLayers ==
-              other.applyPointerTranslucencyToLayers;
+      crs == other.crs &&
+      initialCenter == other.initialCenter &&
+      initialZoom == other.initialZoom &&
+      initialRotation == other.initialRotation &&
+      initialCameraFit == other.initialCameraFit &&
+      minZoom == other.minZoom &&
+      maxZoom == other.maxZoom &&
+      backgroundColor == other.backgroundColor &&
+      onTap == other.onTap &&
+      onSecondaryTap == other.onSecondaryTap &&
+      onLongPress == other.onLongPress &&
+      onPointerDown == other.onPointerDown &&
+      onPointerUp == other.onPointerUp &&
+      onPointerCancel == other.onPointerCancel &&
+      onPointerHover == other.onPointerHover &&
+      onPositionChanged == other.onPositionChanged &&
+      onMapEvent == other.onMapEvent &&
+      cameraConstraint == other.cameraConstraint &&
+      onMapReady == other.onMapReady &&
+      keepAlive == other.keepAlive &&
+      interactionOptions == other.interactionOptions &&
+      backgroundColor == other.backgroundColor &&
+      applyPointerTranslucencyToLayers ==
+          other.applyPointerTranslucencyToLayers;
 
   @override
-  int get hashCode =>
-      Object.hashAll([
+  int get hashCode => Object.hashAll([
         crs,
         initialCenter,
         initialZoom,
@@ -183,6 +182,6 @@ class MapOptions {
 
 typedef TapCallback = void Function(TapDownDetails details, LatLng point);
 typedef LongPressCallback = void Function(
-    LongPressStartDetails details,
-    LatLng point,
-    );
+  LongPressStartDetails details,
+  LatLng point,
+);
