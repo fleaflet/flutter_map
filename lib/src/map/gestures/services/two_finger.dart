@@ -2,12 +2,15 @@ part of 'base_services.dart';
 
 /// A gesture with multiple inputs like zooming with two fingers
 class TwoFingerGesturesService extends BaseGestureService {
+  MapCamera? _startCamera;
+  LatLng? _startFocalLatLng;
   Offset? _startLocalFocal;
-  double? _startScale;
-  double? _startRotation;
+
+  MapCamera? _lastCamera;
   Offset? _lastLocalFocal;
   double? _lastScale;
   double? _lastRotation;
+
   bool _zooming = false;
   bool _moving = false;
   bool _rotating = false;
@@ -37,12 +40,15 @@ class TwoFingerGesturesService extends BaseGestureService {
     controller.stopAnimationRaw();
     if (details.pointerCount < 2) return;
 
-    _lastLocalFocal = details.localFocalPoint;
+    _startCamera = _camera;
+    _startLocalFocal = _lastLocalFocal = details.localFocalPoint;
+    _startFocalLatLng = _camera.offsetToCrs(_startLocalFocal!);
+
     _lastScale = 1;
     _lastRotation = 0;
-    _startLocalFocal = _lastLocalFocal;
-    _startScale = _lastScale;
-    _startRotation = _lastRotation;
+    _lastLocalFocal = _startLocalFocal;
+    _lastCamera = _startCamera;
+
     _rotating = false;
     _moving = false;
     _zooming = false;
@@ -61,9 +67,10 @@ class TwoFingerGesturesService extends BaseGestureService {
     if (_lastLocalFocal == null ||
         _lastScale == null ||
         _lastRotation == null ||
-        _startScale == null ||
-        _startRotation == null ||
-        _startLocalFocal == null) {
+        _startCamera == null ||
+        _startLocalFocal == null ||
+        _startFocalLatLng == null ||
+        _lastCamera == null) {
       return;
     }
 
@@ -72,7 +79,8 @@ class TwoFingerGesturesService extends BaseGestureService {
     if (_rotateEnabled) {
       // enable rotation if threshold is reached
       if (!_rotating &&
-          (details.rotation - _startRotation!).abs() > _rotateThreshold) {
+          (details.rotation - _startCamera!.rotation).abs() >
+              _rotateThreshold) {
         _rotating = true;
       }
       if (_rotating) {
@@ -80,35 +88,53 @@ class TwoFingerGesturesService extends BaseGestureService {
       }
     }
 
+    double newZoom = _camera.zoom;
+    if (_zoomEnabled) {
+      // enable zooming if threshold is reached
+      final scaleDiff = (_lastScale! - details.scale) * 1.5;
+      const startScale = 1;
+      if (!_zooming && (scaleDiff - startScale).abs() > _zoomThreshold) {
+        _zooming = true;
+      }
+      if (_zooming) {
+        final tmpZoom = details.scale == 1
+            ? _startCamera!.zoom
+            : _startCamera!.zoom + math.log(details.scale) / math.ln2;
+        newZoom = _camera.clampZoom(tmpZoom);
+      }
+    }
+
     LatLng newCenter = _camera.center;
     if (_moveEnabled) {
-      final offset = _rotateOffset(
+      final currentOffset = _rotateOffset(
         _camera,
         _lastLocalFocal! - details.localFocalPoint,
       );
       // enable moving if threshold is reached
       if (!_moving &&
-          ((offset - _startLocalFocal!).distanceSquared) > _moveThreshold) {
+          ((currentOffset - _startLocalFocal!).distanceSquared) >
+              _moveThreshold) {
         _moving = true;
       }
       if (_moving) {
-        final oldCenterPt = _camera.project(_camera.center);
-        final newCenterPt = oldCenterPt + offset.toPoint();
-        newCenter = _camera.unproject(newCenterPt);
-      }
-    }
+        math.Point<double> newCenterPt;
+        if (_zooming) {
+          final oldCenterPt = _camera.project(_camera.center, newZoom);
+          final newFocalLatLong =
+              _camera.offsetToCrs(_startLocalFocal!, newZoom);
+          final newFocalPt = _camera.project(newFocalLatLong, newZoom);
+          final oldFocalPt = _camera.project(_startFocalLatLng!, newZoom);
+          final zoomDifference = oldFocalPt - newFocalPt;
+          final moveDifference =
+              _rotateOffset(_camera, _startLocalFocal! - _lastLocalFocal!);
 
-    double newZoom = _camera.zoom;
-    if (_zoomEnabled) {
-      // enable zooming if threshold is reached
-      // TODO: fix bug where zooming is faster if you zoom in at the start of the gesture
-      final scaleDiff = (_lastScale! - details.scale) * 1.5;
-      if (!_zooming && (scaleDiff - _startScale!).abs() > _zoomThreshold) {
-        _zooming = true;
-      }
-      if (_zooming) {
-        // TODO: add support to zoom to the gesture, not the map center
-        newZoom -= scaleDiff;
+          newCenterPt = oldCenterPt + zoomDifference + moveDifference.toPoint();
+        } else {
+          // simplification for no zooming
+          newCenterPt = _camera.project(_camera.center, newZoom) +
+              currentOffset.toPoint();
+        }
+        newCenter = _camera.unproject(newCenterPt, newZoom);
       }
     }
 
@@ -122,6 +148,7 @@ class TwoFingerGesturesService extends BaseGestureService {
     );
 
     _lastRotation = details.rotation;
+    _lastCamera = _camera;
     _lastScale = details.scale;
     _lastLocalFocal = details.localFocalPoint;
   }
@@ -129,12 +156,15 @@ class TwoFingerGesturesService extends BaseGestureService {
   /// gesture has ended, clean up
   void end(ScaleEndDetails details) {
     if (details.pointerCount < 2) return;
+    _startCamera = null;
+    _startLocalFocal = null;
+    _startFocalLatLng = null;
+
+    _lastCamera = null;
     _lastScale = null;
     _lastLocalFocal = null;
     _lastRotation = null;
-    _startRotation = null;
-    _startLocalFocal = null;
-    _startScale = null;
+
     _rotating = false;
     _zooming = false;
     _moving = false;
