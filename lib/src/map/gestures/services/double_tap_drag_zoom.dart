@@ -12,7 +12,7 @@ class DoubleTapDragZoomGestureService extends BaseGestureService {
     _focalLocalStart = details.localFocalPoint;
     _mapZoomStart = _camera.zoom;
     controller.emitMapEvent(
-      MapEventDoubleTapZoomStart(
+      MapEventDoubleTapDragZoomStart(
         camera: _camera,
         source: MapEventSource.doubleTapHold,
       ),
@@ -39,7 +39,7 @@ class DoubleTapDragZoomGestureService extends BaseGestureService {
     _mapZoomStart = null;
     _focalLocalStart = null;
     controller.emitMapEvent(
-      MapEventDoubleTapZoomEnd(
+      MapEventDoubleTapDragZoomEnd(
         camera: _camera,
         source: MapEventSource.doubleTapHold,
       ),

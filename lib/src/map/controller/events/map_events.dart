@@ -258,6 +258,24 @@ class MapEventDoubleTapZoomEnd extends MapEvent {
   });
 }
 
+/// Event which is fired when animation for double tap gesture is started
+@immutable
+class MapEventDoubleTapDragZoomStart extends MapEvent {
+  const MapEventDoubleTapDragZoomStart({
+    required super.source,
+    required super.camera,
+  });
+}
+
+/// Event which is fired when animation for double tap gesture ends
+@immutable
+class MapEventDoubleTapDragZoomEnd extends MapEvent {
+  const MapEventDoubleTapDragZoomEnd({
+    required super.source,
+    required super.camera,
+  });
+}
+
 /// Event which is fired when map is being rotated
 @immutable
 class MapEventRotate extends MapEventWithMove {

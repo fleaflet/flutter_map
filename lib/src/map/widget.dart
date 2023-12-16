@@ -141,7 +141,10 @@ class _FlutterMapStateContainer extends State<FlutterMap>
         _parentConstraintsAreSet(context, constraints)) {
       _initialCameraFitApplied = true;
 
-      _mapController.fitCamera(widget.options.initialCameraFit!);
+      _mapController.fitCameraRaw(
+        widget.options.initialCameraFit!,
+        source: MapEventSource.fitCamera,
+      );
     }
   }
 

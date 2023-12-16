@@ -133,7 +133,10 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
       );
 
   @override
-  bool fitCamera(CameraFit cameraFit) => fitCameraRaw(cameraFit);
+  bool fitCamera(CameraFit cameraFit) => fitCameraRaw(
+        cameraFit,
+        source: MapEventSource.mapController,
+      );
 
   bool moveRaw(
     LatLng newCenter,
@@ -311,14 +314,16 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   bool fitCameraRaw(
     CameraFit cameraFit, {
     Offset offset = Offset.zero,
+    bool hasGesture = false,
+    required MapEventSource source,
   }) {
     final fitted = cameraFit.fit(camera);
     return moveRaw(
       fitted.center,
       fitted.zoom,
       offset: offset,
-      hasGesture: false,
-      source: MapEventSource.mapController,
+      hasGesture: hasGesture,
+      source: source,
     );
   }
 

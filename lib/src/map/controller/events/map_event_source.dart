@@ -20,7 +20,6 @@ enum MapEventSource {
   custom,
   scrollWheel,
   nonRotatedSizeChange,
-  cursorKeyboardRotation,
   tertiaryTap,
   tertiaryLongPress,
   secondaryLongPressed,
