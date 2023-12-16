@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/map/gestures/gestures.dart';
+import 'package:flutter_map/src/map/gestures/services/base_services.dart';
 
 class MapInteractiveViewer extends StatefulWidget {
   final ChildBuilder builder;
@@ -19,18 +19,18 @@ class MapInteractiveViewer extends StatefulWidget {
 
 class MapInteractiveViewerState extends State<MapInteractiveViewer>
     with TickerProviderStateMixin {
-  TapGesture? _tap;
-  LongPressGesture? _longPress;
-  SecondaryTapGesture? _secondaryTap;
-  SecondaryLongPressGesture? _secondaryLongPress;
-  TertiaryTapGesture? _tertiaryTap;
-  TertiaryLongPressGesture? _tertiaryLongPress;
-  DoubleTapGesture? _doubleTap;
-  ScrollWheelZoomGesture? _scrollWheelZoom;
-  TwoFingerGestures? _twoFingerInput;
-  DragGesture? _drag;
-  DoubleTapDragZoomGesture? _doubleTapDragZoom;
-  CtrlDragRotateGesture? _ctrlDragRotate;
+  TapGestureService? _tap;
+  LongPressGestureService? _longPress;
+  SecondaryTapGestureService? _secondaryTap;
+  SecondaryLongPressGestureService? _secondaryLongPress;
+  TertiaryTapGestureService? _tertiaryTap;
+  TertiaryLongPressGestureService? _tertiaryLongPress;
+  DoubleTapGestureService? _doubleTap;
+  ScrollWheelZoomGestureService? _scrollWheelZoom;
+  TwoFingerGesturesService? _twoFingerInput;
+  DragGestureService? _drag;
+  DoubleTapDragZoomGestureService? _doubleTapDragZoom;
+  CtrlDragRotateGestureService? _ctrlDragRotate;
 
   MapCamera get _camera => widget.controller.camera;
 
@@ -46,24 +46,24 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
     // callback gestures for the application
     if (_options.onTap != null) {
-      _tap = TapGesture(controller: widget.controller);
+      _tap = TapGestureService(controller: widget.controller);
     }
     if (_options.onLongPress != null) {
-      _longPress = LongPressGesture(controller: widget.controller);
+      _longPress = LongPressGestureService(controller: widget.controller);
     }
     if (_options.onSecondaryTap != null) {
-      _secondaryTap = SecondaryTapGesture(controller: widget.controller);
+      _secondaryTap = SecondaryTapGestureService(controller: widget.controller);
     }
     if (_options.onSecondaryLongPress != null) {
       _secondaryLongPress =
-          SecondaryLongPressGesture(controller: widget.controller);
+          SecondaryLongPressGestureService(controller: widget.controller);
     }
     if (_options.onTertiaryTap != null) {
-      _tertiaryTap = TertiaryTapGesture(controller: widget.controller);
+      _tertiaryTap = TertiaryTapGestureService(controller: widget.controller);
     }
     if (_options.onTertiaryLongPress != null) {
       _tertiaryLongPress =
-          TertiaryLongPressGesture(controller: widget.controller);
+          TertiaryLongPressGestureService(controller: widget.controller);
     }
     // gestures that change the map camera
     updateGestures(null, _interactionOptions.enabledGestures);
@@ -208,31 +208,32 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   void updateGestures(EnabledGestures? oldFlags, EnabledGestures newFlags) {
     if (oldFlags == newFlags) return;
     if (newFlags.hasMultiFinger()) {
-      _twoFingerInput = TwoFingerGestures(controller: widget.controller);
+      _twoFingerInput = TwoFingerGesturesService(controller: widget.controller);
     } else {
       _twoFingerInput = null;
     }
 
     if (newFlags.drag) {
-      _drag = DragGesture(controller: widget.controller);
+      _drag = DragGestureService(controller: widget.controller);
     } else {
       _drag = null;
     }
 
     if (newFlags.doubleTapZoomIn) {
-      _doubleTap = DoubleTapGesture(controller: widget.controller);
+      _doubleTap = DoubleTapGestureService(controller: widget.controller);
     } else {
       _doubleTap = null;
     }
 
     if (newFlags.scrollWheelZoom) {
-      _scrollWheelZoom = ScrollWheelZoomGesture(controller: widget.controller);
+      _scrollWheelZoom =
+          ScrollWheelZoomGestureService(controller: widget.controller);
     } else {
       _scrollWheelZoom = null;
     }
 
     if (newFlags.ctrlDragRotate) {
-      _ctrlDragRotate = CtrlDragRotateGesture(
+      _ctrlDragRotate = CtrlDragRotateGestureService(
         controller: widget.controller,
         keys: _options.interactionOptions.ctrlRotateKeys,
       );
@@ -242,7 +243,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
     if (newFlags.doubleTapDragZoom) {
       _doubleTapDragZoom =
-          DoubleTapDragZoomGesture(controller: widget.controller);
+          DoubleTapDragZoomGestureService(controller: widget.controller);
     } else {
       _doubleTapDragZoom = null;
     }
