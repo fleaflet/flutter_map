@@ -2,6 +2,9 @@ part of 'base_services.dart';
 
 /// A gesture with multiple inputs like zooming with two fingers
 class TwoFingerGesturesService extends BaseGestureService {
+  Offset? _startLocalFocal;
+  double? _startScale;
+  double? _startRotation;
   Offset? _lastLocalFocal;
   double? _lastScale;
   double? _lastRotation;
@@ -37,6 +40,9 @@ class TwoFingerGesturesService extends BaseGestureService {
     _lastLocalFocal = details.localFocalPoint;
     _lastScale = 1;
     _lastRotation = 0;
+    _startLocalFocal = _lastLocalFocal;
+    _startScale = _lastScale;
+    _startRotation = _lastRotation;
     _rotating = false;
     _moving = false;
     _zooming = false;
@@ -54,14 +60,19 @@ class TwoFingerGesturesService extends BaseGestureService {
     if (details.pointerCount < 2) return;
     if (_lastLocalFocal == null ||
         _lastScale == null ||
-        _lastRotation == null) {
+        _lastRotation == null ||
+        _startScale == null ||
+        _startRotation == null ||
+        _startLocalFocal == null) {
       return;
     }
 
+    // TODO: adjust every threshold value
     double newRotation = _camera.rotation;
     if (_rotateEnabled) {
       // enable rotation if threshold is reached
-      if (!_rotating && details.rotation.abs() > _rotateThreshold) {
+      if (!_rotating &&
+          (details.rotation - _startRotation!).abs() > _rotateThreshold) {
         _rotating = true;
       }
       if (_rotating) {
@@ -76,7 +87,8 @@ class TwoFingerGesturesService extends BaseGestureService {
         _lastLocalFocal! - details.localFocalPoint,
       );
       // enable moving if threshold is reached
-      if (!_moving && offset.distanceSquared > _moveThreshold) {
+      if (!_moving &&
+          ((offset - _startLocalFocal!).distanceSquared) > _moveThreshold) {
         _moving = true;
       }
       if (_moving) {
@@ -91,11 +103,11 @@ class TwoFingerGesturesService extends BaseGestureService {
       // enable zooming if threshold is reached
       // TODO: fix bug where zooming is faster if you zoom in at the start of the gesture
       final scaleDiff = (_lastScale! - details.scale) * 1.5;
-      if (!_zooming && scaleDiff.abs() > _zoomThreshold) {
-        // TODO add support to zoom to the gesture, not the map center
+      if (!_zooming && (scaleDiff - _startScale!).abs() > _zoomThreshold) {
         _zooming = true;
       }
       if (_zooming) {
+        // TODO: add support to zoom to the gesture, not the map center
         newZoom -= scaleDiff;
       }
     }
@@ -119,6 +131,10 @@ class TwoFingerGesturesService extends BaseGestureService {
     if (details.pointerCount < 2) return;
     _lastScale = null;
     _lastLocalFocal = null;
+    _lastRotation = null;
+    _startRotation = null;
+    _startLocalFocal = null;
+    _startScale = null;
     _rotating = false;
     _zooming = false;
     _moving = false;
