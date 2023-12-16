@@ -21,18 +21,23 @@ final class InteractionOptions {
 
   /// Map starts to rotate when [twoFingerRotateThreshold] has been achieved
   /// or another multi finger gesture wins.
-  /// Default is 0.2
+  /// Default is 0.1
   final double twoFingerRotateThreshold;
 
   /// Map starts to zoom when [twoFingerZoomThreshold] has been achieved or
   /// another multi finger gesture wins.
-  /// Default is 0.01
+  /// Default is 0.1
   final double twoFingerZoomThreshold;
 
   /// Map starts to move when [twoFingerMoveThreshold] has been achieved or
-  /// another multi finger gesture wins.
-  /// Note: this doesn't take any effect on drag.
-  /// Default is 3.0
+  /// another multi finger gesture wins. This doesn't take any effect on drag
+  /// gestures by a single pointer like a single finger.
+  ///
+  /// This option gets superseded by [twoFingerZoomThreshold] if
+  /// [EnabledGestures.twoFingerMove] and [EnabledGestures.twoFingerZoom] are
+  /// both active and the [twoFingerZoomThreshold] is reached.
+  ///
+  /// Default is 3.0 (disabled)
   final double twoFingerMoveThreshold;
 
   /// The velocity how fast the map should zoom when using the scroll wheel
@@ -47,7 +52,7 @@ final class InteractionOptions {
 
   const InteractionOptions({
     this.enabledGestures = const EnabledGestures.all(),
-    this.twoFingerRotateThreshold = 0.2,
+    this.twoFingerRotateThreshold = 0.1,
     this.twoFingerZoomThreshold = 0.01,
     this.twoFingerMoveThreshold = 3.0,
     this.scrollWheelVelocity = 0.01,

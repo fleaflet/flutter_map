@@ -74,13 +74,10 @@ class TwoFingerGesturesService extends BaseGestureService {
       return;
     }
 
-    // TODO: adjust every threshold value
     double newRotation = _camera.rotation;
     if (_rotateEnabled) {
       // enable rotation if threshold is reached
-      if (!_rotating &&
-          (details.rotation - _startCamera!.rotation).abs() >
-              _rotateThreshold) {
+      if (!_rotating && details.rotation.abs() > _rotateThreshold) {
         _rotating = true;
       }
       if (_rotating) {
@@ -106,14 +103,11 @@ class TwoFingerGesturesService extends BaseGestureService {
 
     LatLng newCenter = _camera.center;
     if (_moveEnabled) {
-      final currentOffset = _rotateOffset(
-        _camera,
-        _lastLocalFocal! - details.localFocalPoint,
-      );
-      // enable moving if threshold is reached
-      if (!_moving &&
-          ((currentOffset - _startLocalFocal!).distanceSquared) >
-              _moveThreshold) {
+      final distanceSqToStart =
+          (details.localFocalPoint - _startLocalFocal!).distanceSquared;
+      // Ignore twoFingerMoveThreshold if twoFingerZoomThreshold is reached.
+      if (!_moving && distanceSqToStart > _moveThreshold || _zooming) {
+        // Move threshold reached or zooming activated.
         _moving = true;
       }
       if (_moving) {
@@ -131,6 +125,10 @@ class TwoFingerGesturesService extends BaseGestureService {
           newCenterPt = oldCenterPt + zoomDifference + moveDifference.toPoint();
         } else {
           // simplification for no zooming
+          final currentOffset = _rotateOffset(
+            _camera,
+            _lastLocalFocal! - details.localFocalPoint,
+          );
           newCenterPt = _camera.project(_camera.center, newZoom) +
               currentOffset.toPoint();
         }
