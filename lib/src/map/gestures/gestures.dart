@@ -307,18 +307,6 @@ class TwoFingerGestures extends Gesture {
       }
     }
 
-    double newZoom = _camera.zoom;
-    if (_zoomEnabled) {
-      // enable zooming if threshold is reached
-      final scaleDiff = (_lastScale! - details.scale) * 1.5;
-      if (!_zooming && scaleDiff.abs() > _zoomThreshold) {
-        _zooming = true;
-      }
-      if (_zooming) {
-        newZoom -= scaleDiff * 1.5;
-      }
-    }
-
     LatLng newCenter = _camera.center;
     if (_moveEnabled) {
       final offset = _rotateOffset(
@@ -333,6 +321,20 @@ class TwoFingerGestures extends Gesture {
         final oldCenterPt = _camera.project(_camera.center);
         final newCenterPt = oldCenterPt + offset.toPoint();
         newCenter = _camera.unproject(newCenterPt);
+      }
+    }
+
+    double newZoom = _camera.zoom;
+    if (_zoomEnabled) {
+      // enable zooming if threshold is reached
+      // TODO: fix bug where zooming is faster if you zoom in at the start of the gesture
+      final scaleDiff = (_lastScale! - details.scale) * 1.5;
+      if (!_zooming && scaleDiff.abs() > _zoomThreshold) {
+        // TODO add support to zoom to the gesture, not the map center
+        _zooming = true;
+      }
+      if (_zooming) {
+        newZoom -= scaleDiff;
       }
     }
 
