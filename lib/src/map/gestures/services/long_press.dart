@@ -40,7 +40,7 @@ class SecondaryLongPressGestureService extends BaseGestureService {
   }
 }
 
-class TertiaryLongPressGestureService extends DelayedGestureService {
+class TertiaryLongPressGestureService extends BaseGestureService {
   TertiaryLongPressGestureService({required super.controller});
 
   /// A long press on the tertiary button has happen (e.g. click and hold on
@@ -56,7 +56,5 @@ class TertiaryLongPressGestureService extends DelayedGestureService {
         source: MapEventSource.tertiaryLongPress,
       ),
     );
-
-    reset();
   }
 }
