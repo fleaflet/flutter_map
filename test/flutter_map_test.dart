@@ -247,7 +247,7 @@ class _TestRebuildsAppState extends State<TestRebuildsApp> {
                 TextButton(
                   onPressed: () {
                     setState(() {
-                      _interactiveFlags = _interactiveFlags.withFlag(
+                      _interactiveFlags = _interactiveFlags.copyWith(
                         drag: !_interactiveFlags.drag,
                       );
                     });

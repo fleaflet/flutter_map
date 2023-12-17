@@ -119,7 +119,7 @@ class EnabledGestures {
 
   /// Wither to change the value of some gestures. Returns a new
   /// [EnabledGestures] object.
-  EnabledGestures withFlag({
+  EnabledGestures copyWith({
     bool? drag,
     bool? flingAnimation,
     bool? twoFingerZoom,
