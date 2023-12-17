@@ -83,8 +83,6 @@ class MapOptions {
 
   final InteractionOptions interactionOptions;
 
-  /// The options of the closest [FlutterMap] ancestor. If this is called from a
-
   const MapOptions({
     this.crs = const Epsg3857(),
     this.initialCenter = const LatLng(50.5, 30.51),
@@ -113,6 +111,7 @@ class MapOptions {
     this.applyPointerTranslucencyToLayers = true,
   });
 
+  /// The options of the closest [FlutterMap] ancestor. If this is called from a
   /// context with no [FlutterMap] ancestor, null is returned.
   static MapOptions? maybeOf(BuildContext context) =>
       MapInheritedModel.maybeOptionsOf(context);
