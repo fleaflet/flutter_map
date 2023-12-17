@@ -37,7 +37,7 @@ final class InteractionOptions {
   /// [EnabledGestures.twoFingerMove] and [EnabledGestures.twoFingerZoom] are
   /// both active and the [twoFingerZoomThreshold] is reached.
   ///
-  /// Default is 3.0 (disabled)
+  /// Default is 3.0.
   final double twoFingerMoveThreshold;
 
   /// The velocity how fast the map should zoom when using the scroll wheel
@@ -60,6 +60,9 @@ final class InteractionOptions {
       LogicalKeyboardKey.control,
       LogicalKeyboardKey.controlLeft,
       LogicalKeyboardKey.controlRight,
+      LogicalKeyboardKey.shift,
+      LogicalKeyboardKey.shiftLeft,
+      LogicalKeyboardKey.shiftRight,
     ],
   })  : assert(
           twoFingerRotateThreshold >= 0.0,
