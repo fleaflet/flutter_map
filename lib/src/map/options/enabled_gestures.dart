@@ -142,6 +142,22 @@ class EnabledGestures {
         ctrlDragRotate: ctrlDragRotate ?? this.ctrlDragRotate,
       );
 
+  const EnabledGestures.byGroup({
+    required bool move,
+    required bool zoom,
+    required bool rotate,
+  }) : this._(
+          drag: move,
+          twoFingerMove: move,
+          flingAnimation: move,
+          doubleTapDragZoom: zoom,
+          doubleTapZoomIn: zoom,
+          scrollWheelZoom: zoom,
+          twoFingerZoom: zoom,
+          twoFingerRotate: rotate,
+          ctrlDragRotate: rotate,
+        );
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
