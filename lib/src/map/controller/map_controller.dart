@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/map/gestures/map_interactive_viewer.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -105,7 +104,7 @@ abstract class MapController {
   ///
   /// The operation was successful if both fields of the resulting record are
   /// `true`.
-  MoveAndRotateResult rotateAroundPoint(
+  bool rotateAroundPoint(
     double degree, {
     Point<double>? point,
     Offset? offset,
@@ -121,7 +120,7 @@ abstract class MapController {
   ///
   /// The operation was successful if both fields of the resulting record are
   /// `true`.
-  MoveAndRotateResult moveAndRotate(
+  bool moveAndRotate(
     LatLng center,
     double zoom,
     double degree, {

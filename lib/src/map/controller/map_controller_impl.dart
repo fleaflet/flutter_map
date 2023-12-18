@@ -100,7 +100,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
       );
 
   @override
-  MoveAndRotateResult rotateAroundPoint(
+  bool rotateAroundPoint(
     double degree, {
     Point<double>? point,
     Offset? offset,
@@ -116,7 +116,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
       );
 
   @override
-  MoveAndRotateResult moveAndRotate(
+  bool moveAndRotate(
     LatLng center,
     double zoom,
     double degree, {
@@ -223,7 +223,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     return true;
   }
 
-  MoveAndRotateResult rotateAroundPointRaw(
+  bool rotateAroundPointRaw(
     double degree, {
     required Point<double>? point,
     required Offset? offset,
@@ -238,22 +238,14 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
       throw ArgumentError('One of `point` or `offset` must be non-null');
     }
 
-    if (degree == camera.rotation) {
-      return const MoveAndRotateResult(
-        moveSuccess: false,
-        rotateSuccess: false,
-      );
-    }
+    if (degree == camera.rotation) return false;
 
     if (offset == Offset.zero) {
-      return MoveAndRotateResult(
-        moveSuccess: true,
-        rotateSuccess: rotateRaw(
-          degree,
-          hasGesture: hasGesture,
-          source: source,
-          id: id,
-        ),
+      return rotateRaw(
+        degree,
+        hasGesture: hasGesture,
+        source: source,
+        id: id,
       );
     }
 
@@ -264,28 +256,27 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
                 : Point(offset!.dx, offset.dy))
             .rotate(camera.rotationRad);
 
-    return MoveAndRotateResult(
-      moveSuccess: moveRaw(
-        camera.unproject(
-          rotationCenter +
-              (camera.project(camera.center) - rotationCenter)
-                  .rotate(degrees2Radians * rotationDiff),
-        ),
-        camera.zoom,
-        hasGesture: hasGesture,
-        source: source,
-        id: id,
+    final moved = moveRaw(
+      camera.unproject(
+        rotationCenter +
+            (camera.project(camera.center) - rotationCenter)
+                .rotate(degrees2Radians * rotationDiff),
       ),
-      rotateSuccess: rotateRaw(
-        camera.rotation + rotationDiff,
-        hasGesture: hasGesture,
-        source: source,
-        id: id,
-      ),
+      camera.zoom,
+      hasGesture: hasGesture,
+      source: source,
+      id: id,
     );
+    final rotated = rotateRaw(
+      camera.rotation + rotationDiff,
+      hasGesture: hasGesture,
+      source: source,
+      id: id,
+    );
+    return moved || rotated;
   }
 
-  MoveAndRotateResult moveAndRotateRaw(
+  bool moveAndRotateRaw(
     LatLng newCenter,
     double newZoom,
     double newRotation, {
@@ -293,23 +284,23 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     required bool hasGesture,
     required MapEventSource source,
     String? id,
-  }) =>
-      MoveAndRotateResult(
-        moveSuccess: moveRaw(
-          newCenter,
-          newZoom,
-          offset: offset,
-          hasGesture: hasGesture,
-          source: source,
-          id: id,
-        ),
-        rotateSuccess: rotateRaw(
-          newRotation,
-          id: id,
-          source: source,
-          hasGesture: hasGesture,
-        ),
-      );
+  }) {
+    final moved = moveRaw(
+      newCenter,
+      newZoom,
+      offset: offset,
+      hasGesture: hasGesture,
+      source: source,
+      id: id,
+    );
+    final rotated = rotateRaw(
+      newRotation,
+      id: id,
+      source: source,
+      hasGesture: hasGesture,
+    );
+    return moved || rotated;
+  }
 
   bool fitCameraRaw(
     CameraFit cameraFit, {
