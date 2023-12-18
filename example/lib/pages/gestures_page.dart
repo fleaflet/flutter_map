@@ -18,7 +18,7 @@ class _GesturesPageState extends State<GesturesPage> {
     'Movement': {
       InteractiveFlag.drag: 'Drag',
       InteractiveFlag.flingAnimation: 'Fling',
-      InteractiveFlag.twoFingerMove: 'Pinch',
+      InteractiveFlag.twoFingerMove: 'Two finger drag',
     },
     'Zooming': {
       InteractiveFlag.twoFingerZoom: 'Pinch',
