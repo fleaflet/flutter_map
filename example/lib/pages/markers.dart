@@ -114,8 +114,10 @@ class _MarkerPageState extends State<MarkerPage> {
                   setState(() => customMarkers.add(buildPin(p)));
                 },
                 interactionOptions: const InteractionOptions(
-                  enabledGestures: EnabledGestures.noRotation(),
-                ),
+                    enabledGestures: EnabledGestures.all(
+                  doubleTapDragZoom: false,
+                  doubleTapZoomIn: false,
+                )),
               ),
               children: [
                 openStreetMapTileLayer,
