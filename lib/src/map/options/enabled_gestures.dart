@@ -3,11 +3,14 @@ import 'package:meta/meta.dart';
 
 @immutable
 class EnabledGestures {
-  /// Private constructor, use the constructors [InteractiveFlags.all] or
-  /// [InteractiveFlags.none] instead to enable or disable all gestures by default.
+  /// Use this constructor if you want to set all gestures manually.
+  ///
+  /// Prefer to use the constructors [InteractiveFlags.all] or
+  /// [InteractiveFlags.none] to enable or disable all gestures by default.
+  ///
   /// If you want to define your enabled gestures using bitfield operations,
   /// use [InteractiveFlags.bitfield] instead.
-  const EnabledGestures._({
+  const EnabledGestures({
     required this.drag,
     required this.flingAnimation,
     required this.twoFingerMove,
@@ -63,7 +66,7 @@ class EnabledGestures {
   /// This constructor supports bitfield operations on the static fields
   /// from [InteractiveFlag].
   factory EnabledGestures.bitfield(int flags) {
-    return EnabledGestures._(
+    return EnabledGestures(
       drag: InteractiveFlag.hasFlag(flags, InteractiveFlag.drag),
       flingAnimation:
           InteractiveFlag.hasFlag(flags, InteractiveFlag.flingAnimation),
@@ -130,7 +133,7 @@ class EnabledGestures {
     bool? twoFingerRotate,
     bool? ctrlDragRotate,
   }) =>
-      EnabledGestures._(
+      EnabledGestures(
         drag: drag ?? this.drag,
         flingAnimation: flingAnimation ?? this.flingAnimation,
         twoFingerZoom: twoFingerZoom ?? this.twoFingerZoom,
@@ -146,7 +149,7 @@ class EnabledGestures {
     required bool move,
     required bool zoom,
     required bool rotate,
-  }) : this._(
+  }) : this(
           drag: move,
           twoFingerMove: move,
           flingAnimation: move,
