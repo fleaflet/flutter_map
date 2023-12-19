@@ -24,10 +24,7 @@ class EnabledGestures {
 
   /// Shortcut constructor to allow all gestures that don't rotate the map.
   const EnabledGestures.noRotation()
-      : this.all(
-          twoFingerRotate: false,
-          ctrlDragRotate: false,
-        );
+      : this.byGroup(move: true, zoom: true, rotate: false);
 
   /// This constructor enables all gestures by default. Use this constructor if
   /// you want have all gestures enabled or disable some gestures only.
