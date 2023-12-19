@@ -50,20 +50,23 @@ final class InteractionOptions {
   /// By default the left and right control key are both used.
   final List<LogicalKeyboardKey> ctrlRotateKeys;
 
+  /// Default keys for the key press and drag to rotate gesture.
+  static const defaultCtrlRotateKey = <LogicalKeyboardKey>[
+    LogicalKeyboardKey.control,
+    LogicalKeyboardKey.controlLeft,
+    LogicalKeyboardKey.controlRight,
+    LogicalKeyboardKey.shift,
+    LogicalKeyboardKey.shiftLeft,
+    LogicalKeyboardKey.shiftRight,
+  ];
+
   const InteractionOptions({
     this.enabledGestures = const EnabledGestures.all(),
     this.twoFingerRotateThreshold = 0.1,
     this.twoFingerZoomThreshold = 0.01,
     this.twoFingerMoveThreshold = 3.0,
     this.scrollWheelVelocity = 0.01,
-    this.ctrlRotateKeys = const <LogicalKeyboardKey>[
-      LogicalKeyboardKey.control,
-      LogicalKeyboardKey.controlLeft,
-      LogicalKeyboardKey.controlRight,
-      LogicalKeyboardKey.shift,
-      LogicalKeyboardKey.shiftLeft,
-      LogicalKeyboardKey.shiftRight,
-    ],
+    this.ctrlRotateKeys = defaultCtrlRotateKey,
   })  : assert(
           twoFingerRotateThreshold >= 0.0,
           'rotationThreshold needs to be a positive value',
