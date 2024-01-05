@@ -152,32 +152,31 @@ class PolylineLayer extends StatelessWidget {
 
     final renderedLines = <Polyline>[];
 
-
     final possiblySimplifiedPolylines = <Polyline>[];
-    if (simplificationTolerance != null) { 
-        possiblySimplifiedPolylines.addAll(polylines.map((polyline) => Polyline(
-              points: simplify(
-                  polyline.points,
-                  simplificationTolerance! /
-                      math.pow(2, mapCamera.zoom.floorToDouble()),
-                  highestQuality: simplificationHighQuality),
-              borderColor: polyline.borderColor,
-              borderStrokeWidth: polyline.borderStrokeWidth,
-              color: polyline.color,
-              colorsStop: polyline.colorsStop,
-              gradientColors: polyline.gradientColors,
-              isDotted: polyline.isDotted,
-              strokeCap: polyline.strokeCap,
-              strokeJoin: polyline.strokeJoin,
-              strokeWidth: polyline.strokeWidth,
-              useStrokeWidthInMeter: polyline.useStrokeWidthInMeter,
-            )));
+    if (simplificationTolerance != null) {
+      possiblySimplifiedPolylines.addAll(polylines.map((polyline) => Polyline(
+            points: simplify(
+                polyline.points,
+                simplificationTolerance! /
+                    math.pow(2, mapCamera.zoom.floorToDouble()),
+                highestQuality: simplificationHighQuality),
+            borderColor: polyline.borderColor,
+            borderStrokeWidth: polyline.borderStrokeWidth,
+            color: polyline.color,
+            colorsStop: polyline.colorsStop,
+            gradientColors: polyline.gradientColors,
+            isDotted: polyline.isDotted,
+            strokeCap: polyline.strokeCap,
+            strokeJoin: polyline.strokeJoin,
+            strokeWidth: polyline.strokeWidth,
+            useStrokeWidthInMeter: polyline.useStrokeWidthInMeter,
+          )));
     } else {
       possiblySimplifiedPolylines.addAll(polylines);
     }
 
     if (polylineCullingMargin == null) {
-        renderedLines.addAll(possiblySimplifiedPolylines);
+      renderedLines.addAll(possiblySimplifiedPolylines);
     } else {
       final bounds = mapCamera.visibleBounds;
       final margin =
