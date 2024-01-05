@@ -105,6 +105,7 @@ class PolylineLayer extends StatelessWidget {
   /// otherwise, points within the radial distance of the threshold value are merged. (Also called radial distance simplification)
   /// radial distance is faster, but does not preserve the shape of the original line as well as Douglas Peucker
   final bool simplificationHighQuality;
+
   /// A notifier to notify when a hit is detected over a/multiple [Polyline]s
   ///
   /// To listen for hits, wrap the layer in a standard hit detector widget, such
@@ -151,8 +152,32 @@ class PolylineLayer extends StatelessWidget {
 
     final renderedLines = <Polyline>[];
 
+
+    final possiblySimplifiedPolylines = <Polyline>[];
+    if (simplificationTolerance != null) { 
+        possiblySimplifiedPolylines.addAll(polylines.map((polyline) => Polyline(
+              points: simplify(
+                  polyline.points,
+                  simplificationTolerance! /
+                      math.pow(2, mapCamera.zoom.floorToDouble()),
+                  highestQuality: simplificationHighQuality),
+              borderColor: polyline.borderColor,
+              borderStrokeWidth: polyline.borderStrokeWidth,
+              color: polyline.color,
+              colorsStop: polyline.colorsStop,
+              gradientColors: polyline.gradientColors,
+              isDotted: polyline.isDotted,
+              strokeCap: polyline.strokeCap,
+              strokeJoin: polyline.strokeJoin,
+              strokeWidth: polyline.strokeWidth,
+              useStrokeWidthInMeter: polyline.useStrokeWidthInMeter,
+            )));
+    } else {
+      possiblySimplifiedPolylines.addAll(polylines);
+    }
+
     if (polylineCullingMargin == null) {
-      renderedLines.addAll(polylines);
+        renderedLines.addAll(possiblySimplifiedPolylines);
     } else {
       final bounds = mapCamera.visibleBounds;
       final margin =
@@ -165,7 +190,7 @@ class PolylineLayer extends StatelessWidget {
           LatLng(math.min(90, bounds.northEast.latitude + margin),
               math.min(180, bounds.northEast.longitude + margin)));
 
-      for (final polyline in polylines) {
+      for (final polyline in possiblySimplifiedPolylines) {
         // Gradiant poylines do not render identically and cannot be easily segmented
         if (polyline.gradientColors != null) {
           renderedLines.add(polyline);
@@ -242,18 +267,18 @@ class PolylineLayer extends StatelessWidget {
     }
 
     return MobileLayerTransformer(
-      child: CustomPaint(
-        painter: _PolylinePainter(
-          polylines: renderedLines,
-          simplificationHighQuality: simplificationHighQuality,
-          simplificationTolerance: simplificationTolerance,
-          camera: mapCamera,
-          hitNotifier: hitNotifier,
-          minimumHitbox: minimumHitbox,
-        ),
-        size: Size(mapCamera.size.x, mapCamera.size.y),
-        isComplex: true,
-      ));
+        child: CustomPaint(
+      painter: _PolylinePainter(
+        polylines: renderedLines,
+        simplificationHighQuality: simplificationHighQuality,
+        simplificationTolerance: simplificationTolerance,
+        camera: mapCamera,
+        hitNotifier: hitNotifier,
+        minimumHitbox: minimumHitbox,
+      ),
+      size: Size(mapCamera.size.x, mapCamera.size.y),
+      isComplex: true,
+    ));
   }
 }
 
@@ -273,23 +298,18 @@ class _PolylinePainter extends CustomPainter {
   int get hash => _hash ??= Object.hashAll(polylines);
   int? _hash;
 
-  _PolylinePainter({required this.polylines,
-    required this.camera, this.simplificationTolerance,
-      required this.simplificationHighQuality, required this.hitNotifier,
-    required this.minimumHitbox})
+  _PolylinePainter(
+      {required this.polylines,
+      required this.camera,
+      this.simplificationTolerance,
+      required this.simplificationHighQuality,
+      required this.hitNotifier,
+      required this.minimumHitbox})
       : bounds = camera.visibleBounds;
 
   List<Offset> getOffsets(Offset origin, List<LatLng> points) {
-    final List<LatLng> simplifiedPoints;
-    if (simplificationTolerance != null) {
-      simplifiedPoints = simplify(points,
-          simplificationTolerance! / math.pow(2, camera.zoom.floorToDouble()),
-          highestQuality: simplificationHighQuality);
-    } else {
-      simplifiedPoints = points;
-    }
-    return List.generate(simplifiedPoints.length, (index) {
-      return getOffset(origin, simplifiedPoints[index]);
+    return List.generate(points.length, (index) {
+      return getOffset(origin, points[index]);
     }, growable: false);
   }
 

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/misc/tile_providers.dart';
@@ -102,6 +104,20 @@ class _PolylinePageState extends State<PolylinePage> {
     ),
   };
 
+  final randomWalk = <LatLng>[const LatLng(44.861294, 13.845086)];
+
+  @override
+  void initState() {
+    super.initState();
+    final random = Random(1234);
+    for (int i = 1; i < 100000; i++) {
+      final lat = (random.nextDouble() - 0.5) * 0.001;
+      final lon = (random.nextDouble() - 0.6) * 0.001;
+      randomWalk.add(LatLng(
+          randomWalk[i - 1].latitude + lat, randomWalk[i - 1].longitude + lon));
+    }
+  }
+
   List<Polyline>? hoverLines;
 
   @override
@@ -158,7 +174,14 @@ class _PolylinePageState extends State<PolylinePage> {
               ),
               child: PolylineLayer(
                 hitNotifier: hitNotifier,
-                polylines: polylines.keys.followedBy(hoverLines ?? []).toList(),
+                polylines: [
+                  Polyline(
+                    points: randomWalk,
+                    strokeWidth: 3,
+                    color: Colors.deepOrange,
+                  ),
+                  ...polylines.keys.followedBy(hoverLines ?? []).toList()
+                ],
               ),
             ),
           ),
