@@ -56,6 +56,20 @@ class Polyline {
     this.useStrokeWidthInMeter = false,
   });
 
+  Polyline copyWithNewPoints(List<LatLng> points) => Polyline(
+        points: points,
+        strokeWidth: strokeWidth,
+        color: color,
+        borderStrokeWidth: borderStrokeWidth,
+        borderColor: borderColor,
+        gradientColors: gradientColors,
+        colorsStop: colorsStop,
+        isDotted: isDotted,
+        strokeCap: strokeCap,
+        strokeJoin: strokeJoin,
+        useStrokeWidthInMeter: useStrokeWidthInMeter,
+      );
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -91,40 +105,45 @@ class Polyline {
 }
 
 @immutable
-class PolylineLayer extends StatelessWidget {
+class PolylineLayer extends StatefulWidget {
+  /// [Polyline]s to draw
   final List<Polyline> polylines;
 
-  /// extent outside of the viewport before culling polylines, set to null to
-  /// disable polyline culling
-  final double? polylineCullingMargin;
+  /// Acceptable extent outside of viewport before culling polyline segments
+  ///
+  /// May need to be increased if the [Polyline.borderStrokeWidth] is large.
+  ///
+  /// Defaults to 0: cull aggressively. Set to `null` to disable culling.
+  final double? cullingMargin;
 
-  /// how much to simplify the polygons, in decimal degrees scaled to floored zoom
+  /// Distance between two mergeable polyline points, in decimal degrees scaled
+  /// to floored zoom
+  ///
+  /// Increasing results in a more jagged, less accurate simplification, with
+  /// improved performance; and vice versa.
+  ///
+  /// Note that this value is internally scaled using the current map zoom, to
+  /// optimize visual performance in conjunction with improved performance with
+  /// culling.
+  ///
+  /// Defaults to 1. Set to `null` to disable simplification.
   final double? simplificationTolerance;
 
-  /// high quality simplification uses the https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm
-  /// otherwise, points within the radial distance of the threshold value are merged. (Also called radial distance simplification)
-  /// radial distance is faster, but does not preserve the shape of the original line as well as Douglas Peucker
-  final bool simplificationHighQuality;
-
-  /// A notifier to notify when a hit is detected over a/multiple [Polyline]s
+  /// A notifier to be notified when a hit test occurs on the layer
   ///
-  /// To listen for hits, wrap the layer in a standard hit detector widget, such
-  /// as [GestureDetector] and/or [MouseRegion] (and set
-  /// [HitTestBehavior.deferToChild] if necessary). Then use the latest value
-  /// (via [ValueNotifier.value]) in the detector's callbacks. It is also
-  /// possible to listen to the notifier directly.
+  /// Notified with a [PolylineHit] if any [Polyline]s are hit, otherwise
+  /// notified with `null`.
   ///
-  /// Note that a hover event is included as a hit event. Therefore for
-  /// performance reasons, it may be advantageous to check the new value's
-  /// equality against the previous value (excluding the [PolylineHit.point],
-  /// which will always change), and avoid doing any heavy work if they are the
-  /// same.
+  /// Note that a hover event is included as a hit event. If an expensive
+  /// operation is required on hover, check for equality between the new and old
+  /// [PolylineHit.lines], and avoid doing heavy work if they are the same.
+  ///
+  /// Note that testing is performed on the visual, simplified polyline.
+  ///
+  /// If a notifier is not provided, hit testing is not performed.
   ///
   /// See online documentation for more detailed usage instructions. See the
   /// example project for an example implementation.
-  ///
-  /// Will notify with [PolylineHit]s when any [Polyline]s are hit, otherwise
-  /// will notify with `null`.
   final PolylineHitNotifier? hitNotifier;
 
   /// The minimum radius of the hittable area around each [Polyline] in logical
@@ -139,146 +158,200 @@ class PolylineLayer extends StatelessWidget {
   const PolylineLayer({
     super.key,
     required this.polylines,
-    this.polylineCullingMargin = 0,
+    this.cullingMargin = 0,
     this.simplificationTolerance = 1,
-    this.simplificationHighQuality = false,
     this.hitNotifier,
     this.minimumHitbox = 10,
   });
 
   @override
-  Widget build(BuildContext context) {
-    final mapCamera = MapCamera.of(context);
+  State<PolylineLayer> createState() => _PolylineLayerState();
+}
 
-    final renderedLines = <Polyline>[];
+// TODO: This does not work correctly when multiple `PolylineLayer`s are in use,
+// as they all share one state. For some reason, I couldn't even get them to
+// use seperate states with different `ValueKey`s
+class _PolylineLayerState extends State<PolylineLayer> {
+  final _cachedSimplifiedPolylines = <int, List<Polyline>>{};
 
-    final possiblySimplifiedPolylines = <Polyline>[];
-    if (simplificationTolerance != null) {
-      possiblySimplifiedPolylines.addAll(polylines.map((polyline) => Polyline(
-            points: simplify(
-                polyline.points,
-                simplificationTolerance! /
-                    math.pow(2, mapCamera.zoom.floorToDouble()),
-                highestQuality: simplificationHighQuality),
-            borderColor: polyline.borderColor,
-            borderStrokeWidth: polyline.borderStrokeWidth,
-            color: polyline.color,
-            colorsStop: polyline.colorsStop,
-            gradientColors: polyline.gradientColors,
-            isDotted: polyline.isDotted,
-            strokeCap: polyline.strokeCap,
-            strokeJoin: polyline.strokeJoin,
-            strokeWidth: polyline.strokeWidth,
-            useStrokeWidthInMeter: polyline.useStrokeWidthInMeter,
-          )));
-    } else {
-      possiblySimplifiedPolylines.addAll(polylines);
+  @override
+  void didUpdateWidget(PolylineLayer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!listEquals(oldWidget.polylines, widget.polylines) ||
+        oldWidget.simplificationTolerance != widget.simplificationTolerance) {
+      print('clear cache');
+      _cachedSimplifiedPolylines.clear();
+      _precomputeSimplification();
     }
+  }
 
-    if (polylineCullingMargin == null) {
-      renderedLines.addAll(possiblySimplifiedPolylines);
-    } else {
-      final bounds = mapCamera.visibleBounds;
-      final margin =
-          polylineCullingMargin! / math.pow(2, mapCamera.zoom.floorToDouble());
-      // The min(-90), max(180), etc.. are used to get around the limits of LatLng
-      // the value cannot be greater or smaller than that
-      final boundsAdjusted = LatLngBounds(
-          LatLng(math.max(-90, bounds.southWest.latitude - margin),
-              math.max(-180, bounds.southWest.longitude - margin)),
-          LatLng(math.min(90, bounds.northEast.latitude + margin),
-              math.min(180, bounds.northEast.longitude + margin)));
+  @override
+  void initState() {
+    super.initState();
+    _precomputeSimplification();
+  }
 
-      for (final polyline in possiblySimplifiedPolylines) {
-        // Gradiant poylines do not render identically and cannot be easily segmented
-        if (polyline.gradientColors != null) {
-          renderedLines.add(polyline);
-          continue;
+  // Pre-compute simplified polylines for each zoom level 0-21 in an isolate
+  // on non-web platforms only
+  void _precomputeSimplification() {
+    if (widget.simplificationTolerance == null || kIsWeb) return;
+
+    print('started simplification precomputation');
+    final stopwatch = Stopwatch()..start();
+
+    compute(
+      (msg) => List.generate(
+        22,
+        (zoom) => msg.polylines
+            .map(
+              (polyline) => polyline.copyWithNewPoints(
+                simplify(
+                  polyline.points,
+                  msg.simplificationTolerance! / math.pow(2, zoom),
+                  highestQuality: true,
+                ),
+              ),
+            )
+            .toList(),
+        growable: false,
+      ).asMap(),
+      (
+        polylines: widget.polylines,
+        simplificationTolerance: widget.simplificationTolerance,
+      ),
+      debugLabel: '[FM] Polyline Simplification Precomputer',
+    ).then(_cachedSimplifiedPolylines.addAll).then((_) {
+      stopwatch.stop();
+      print('simplification precomp took ${stopwatch.elapsedMicroseconds}us');
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final camera = MapCamera.of(context);
+
+    final stopwatch = Stopwatch()..start();
+
+    final child = MobileLayerTransformer(
+      child: CustomPaint(
+        painter: _PolylinePainter(
+          polylines: _cullPolylines(
+            polylines: widget.simplificationTolerance == null
+                ? widget.polylines
+                : _cachedSimplifiedPolylines[camera.zoom.floor()] ??=
+                    widget.polylines
+                        .map(
+                          (polyline) => polyline.copyWithNewPoints(
+                            simplify(
+                              polyline.points,
+                              widget.simplificationTolerance! /
+                                  math.pow(2, camera.zoom.floor()),
+                              highestQuality: true,
+                            ),
+                          ),
+                        )
+                        .toList(),
+            camera: camera,
+            cullingMargin: widget.cullingMargin,
+          ),
+          camera: camera,
+          hitNotifier: widget.hitNotifier,
+          minimumHitbox: widget.minimumHitbox,
+        ),
+        size: Size(camera.size.x, camera.size.y),
+        isComplex: true,
+      ),
+    );
+
+    stopwatch.stop();
+    print('`build` took ${stopwatch.elapsedMicroseconds}us');
+
+    return child;
+  }
+}
+
+List<Polyline> _cullPolylines({
+  required List<Polyline> polylines,
+  required MapCamera camera,
+  required double? cullingMargin,
+}) {
+  if (cullingMargin == null) return polylines;
+
+  final stopwatch = Stopwatch()..start();
+
+  final culledPolylines = <Polyline>[];
+
+  final bounds = camera.visibleBounds;
+  final margin = cullingMargin / math.pow(2, camera.zoom.floorToDouble());
+  // The min(-90), max(180), ... are used to get around the limits of LatLng
+  // the value cannot be greater or smaller than that
+  final boundsAdjusted = LatLngBounds(
+    LatLng(
+      math.max(-90, bounds.southWest.latitude - margin),
+      math.max(-180, bounds.southWest.longitude - margin),
+    ),
+    LatLng(
+      math.min(90, bounds.northEast.latitude + margin),
+      math.min(180, bounds.northEast.longitude + margin),
+    ),
+  );
+
+  for (final polyline in polylines) {
+    // Gradient poylines cannot be easily segmented
+    if (polyline.gradientColors != null) {
+      culledPolylines.add(polyline);
+      continue;
+    }
+    // pointer that indicates the start of the visible polyline segment
+    int start = -1;
+    bool fullyVisible = true;
+    for (int i = 0; i < polyline.points.length - 1; i++) {
+      //current pair
+      final p1 = polyline.points[i];
+      final p2 = polyline.points[i + 1];
+
+      // segment is visible
+      if (Bounds(
+        math.Point(
+          boundsAdjusted.southWest.longitude,
+          boundsAdjusted.southWest.latitude,
+        ),
+        math.Point(
+          boundsAdjusted.northEast.longitude,
+          boundsAdjusted.northEast.latitude,
+        ),
+      ).aabbContainsLine(
+          p1.longitude, p1.latitude, p2.longitude, p2.latitude)) {
+        // segment is visible
+        if (start == -1) {
+          start = i;
         }
-        // pointer that indicates the start of the visible polyline segment
-        int start = -1;
-        bool fullyVisible = true;
-        for (int i = 0; i < polyline.points.length - 1; i++) {
-          //current pair
-          final p1 = polyline.points[i];
-          final p2 = polyline.points[i + 1];
-
-          // segment is visible
-          if (Bounds(
-                  math.Point(boundsAdjusted.southWest.longitude,
-                      boundsAdjusted.southWest.latitude),
-                  math.Point(boundsAdjusted.northEast.longitude,
-                      boundsAdjusted.northEast.latitude))
-              .aabbContainsLine(
-                  p1.longitude, p1.latitude, p2.longitude, p2.latitude)) {
-            // segment is visible
-            if (start == -1) {
-              start = i;
-            }
-            if (!fullyVisible && i == polyline.points.length - 2) {
-              final segment = polyline.points.sublist(start, i + 2);
-              renderedLines.add(Polyline(
-                points: segment,
-                borderColor: polyline.borderColor,
-                borderStrokeWidth: polyline.borderStrokeWidth,
-                color: polyline.color,
-                colorsStop: polyline.colorsStop,
-                gradientColors: polyline.gradientColors,
-                isDotted: polyline.isDotted,
-                strokeCap: polyline.strokeCap,
-                strokeJoin: polyline.strokeJoin,
-                strokeWidth: polyline.strokeWidth,
-                useStrokeWidthInMeter: polyline.useStrokeWidthInMeter,
-              ));
-            }
-          } else {
-            fullyVisible = false;
-            // if we cannot see the segment, then reset start
-            if (start != -1) {
-              // partial start
-              final segment = polyline.points.sublist(start, i + 1);
-              // TODO copyWith method for polyline
-              renderedLines.add(Polyline(
-                points: segment,
-                borderColor: polyline.borderColor,
-                borderStrokeWidth: polyline.borderStrokeWidth,
-                color: polyline.color,
-                colorsStop: polyline.colorsStop,
-                gradientColors: polyline.gradientColors,
-                isDotted: polyline.isDotted,
-                strokeCap: polyline.strokeCap,
-                strokeJoin: polyline.strokeJoin,
-                strokeWidth: polyline.strokeWidth,
-                useStrokeWidthInMeter: polyline.useStrokeWidthInMeter,
-              ));
-              start = -1;
-            }
-            if (start != -1) {
-              start = i;
-            }
-          }
+        if (!fullyVisible && i == polyline.points.length - 2) {
+          final segment = polyline.points.sublist(start, i + 2);
+          culledPolylines.add(polyline.copyWithNewPoints(segment));
         }
-        if (fullyVisible) {
-          //The whole polyline is visible
-          renderedLines.add(polyline);
+      } else {
+        fullyVisible = false;
+        // if we cannot see the segment, then reset start
+        if (start != -1) {
+          // partial start
+          final segment = polyline.points.sublist(start, i + 1);
+          culledPolylines.add(polyline.copyWithNewPoints(segment));
+          start = -1;
+        }
+        if (start != -1) {
+          start = i;
         }
       }
     }
 
-    return MobileLayerTransformer(
-        child: CustomPaint(
-      painter: _PolylinePainter(
-        polylines: renderedLines,
-        simplificationHighQuality: simplificationHighQuality,
-        simplificationTolerance: simplificationTolerance,
-        camera: mapCamera,
-        hitNotifier: hitNotifier,
-        minimumHitbox: minimumHitbox,
-      ),
-      size: Size(mapCamera.size.x, mapCamera.size.y),
-      isComplex: true,
-    ));
+    if (fullyVisible) culledPolylines.add(polyline);
   }
+
+  stopwatch.stop();
+  print('`cull` took ${stopwatch.elapsedMicroseconds}us');
+
+  return culledPolylines;
 }
 
 class _PolylinePainter extends CustomPainter {
@@ -288,29 +361,24 @@ class _PolylinePainter extends CustomPainter {
   final PolylineHitNotifier? hitNotifier;
   final double minimumHitbox;
 
-  final double? simplificationTolerance;
-  final bool simplificationHighQuality;
-
   // Avoids reallocation on every `hitTest`, is cleared every time
   final hits = List<Polyline>.empty(growable: true);
 
   int get hash => _hash ??= Object.hashAll(polylines);
   int? _hash;
 
-  _PolylinePainter(
-      {required this.polylines,
-      required this.camera,
-      this.simplificationTolerance,
-      required this.simplificationHighQuality,
-      required this.hitNotifier,
-      required this.minimumHitbox})
-      : bounds = camera.visibleBounds;
+  _PolylinePainter({
+    required this.polylines,
+    required this.camera,
+    required this.hitNotifier,
+    required this.minimumHitbox,
+  }) : bounds = camera.visibleBounds;
 
-  List<Offset> getOffsets(Offset origin, List<LatLng> points) {
-    return List.generate(points.length, (index) {
-      return getOffset(origin, points[index]);
-    }, growable: false);
-  }
+  List<Offset> getOffsets(Offset origin, List<LatLng> points) => List.generate(
+        points.length,
+        (index) => getOffset(origin, points[index]),
+        growable: false,
+      );
 
   Offset getOffset(Offset origin, LatLng point) {
     // Critically create as little garbage as possible. This is called on every frame.

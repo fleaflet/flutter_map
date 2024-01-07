@@ -16,9 +16,9 @@ class PolylinePage extends StatefulWidget {
 }
 
 class _PolylinePageState extends State<PolylinePage> {
-  final PolylineHitNotifier hitNotifier = ValueNotifier(null);
-
-  final polylines = <Polyline, ({String title, String subtitle})>{
+  final PolylineHitNotifier _hitNotifier = ValueNotifier(null);
+  List<Polyline>? _hoverLines;
+  final _polylines = <Polyline, ({String title, String subtitle})>{
     Polyline(
       points: [
         const LatLng(51.5, -0.09),
@@ -104,85 +104,111 @@ class _PolylinePageState extends State<PolylinePage> {
     ),
   };
 
-  final randomWalk = <LatLng>[const LatLng(44.861294, 13.845086)];
+  final _randomWalk = [const LatLng(44.861294, 13.845086)];
+
+  static const double _initialSimplificationTolerance = 1;
+  double simplificationTolerance = _initialSimplificationTolerance;
 
   @override
   void initState() {
     super.initState();
     final random = Random(1234);
-    for (int i = 1; i < 100000; i++) {
+    for (int i = 1; i < 300000; i++) {
       final lat = (random.nextDouble() - 0.5) * 0.001;
       final lon = (random.nextDouble() - 0.6) * 0.001;
-      randomWalk.add(LatLng(
-          randomWalk[i - 1].latitude + lat, randomWalk[i - 1].longitude + lon));
+      _randomWalk.add(
+        LatLng(
+          _randomWalk[i - 1].latitude + lat,
+          _randomWalk[i - 1].longitude + lon,
+        ),
+      );
     }
   }
-
-  List<Polyline>? hoverLines;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Polylines')),
       drawer: const MenuDrawer(PolylinePage.route),
-      body: FlutterMap(
-        options: const MapOptions(
-          initialCenter: LatLng(51.5, -0.09),
-          initialZoom: 5,
-        ),
+      body: Stack(
         children: [
-          openStreetMapTileLayer,
-          MouseRegion(
-            hitTestBehavior: HitTestBehavior.deferToChild,
-            cursor: SystemMouseCursors.click,
-            onHover: (_) {
-              if (hitNotifier.value == null) return;
+          FlutterMap(
+            options: const MapOptions(
+              initialCenter: LatLng(51.5, -0.09),
+              initialZoom: 5,
+            ),
+            children: [
+              openStreetMapTileLayer,
+              MouseRegion(
+                hitTestBehavior: HitTestBehavior.deferToChild,
+                cursor: SystemMouseCursors.click,
+                onHover: (_) {
+                  if (_hitNotifier.value == null) return;
 
-              final lines = hitNotifier.value!.lines
-                  .where((e) => polylines.containsKey(e))
-                  .map(
-                    (e) => Polyline(
-                      points: e.points,
-                      strokeWidth: e.strokeWidth + e.borderStrokeWidth,
-                      color: Colors.transparent,
-                      borderStrokeWidth: 15,
-                      borderColor: Colors.green,
-                      useStrokeWidthInMeter: e.useStrokeWidthInMeter,
-                    ),
-                  )
-                  .toList();
-              setState(() => hoverLines = lines);
-            },
+                  final lines = _hitNotifier.value!.lines
+                      .where((e) => _polylines.containsKey(e))
+                      .map(
+                        (e) => Polyline(
+                          points: e.points,
+                          strokeWidth: e.strokeWidth + e.borderStrokeWidth,
+                          color: Colors.transparent,
+                          borderStrokeWidth: 15,
+                          borderColor: Colors.green,
+                          useStrokeWidthInMeter: e.useStrokeWidthInMeter,
+                        ),
+                      )
+                      .toList();
+                  setState(() => _hoverLines = lines);
+                },
 
-            /// Clear hovered lines when touched lines modal appears
-            onExit: (_) => setState(() => hoverLines = null),
-            child: GestureDetector(
-              onTap: () => _openTouchedLinesModal(
-                'Tapped',
-                hitNotifier.value!.lines,
-                hitNotifier.value!.point,
+                /// Clear hovered lines when touched lines modal appears
+                onExit: (_) => setState(() => _hoverLines = null),
+                child: GestureDetector(
+                  onTap: () => _openTouchedLinesModal(
+                    'Tapped',
+                    _hitNotifier.value!.lines,
+                    _hitNotifier.value!.point,
+                  ),
+                  onLongPress: () => _openTouchedLinesModal(
+                    'Long pressed',
+                    _hitNotifier.value!.lines,
+                    _hitNotifier.value!.point,
+                  ),
+                  onSecondaryTap: () => _openTouchedLinesModal(
+                    'Secondary tapped',
+                    _hitNotifier.value!.lines,
+                    _hitNotifier.value!.point,
+                  ),
+                  child: PolylineLayer(
+                    hitNotifier: _hitNotifier,
+                    simplificationTolerance: null,
+                    polylines:
+                        _polylines.keys.followedBy(_hoverLines ?? []).toList(),
+                  ),
+                ),
               ),
-              onLongPress: () => _openTouchedLinesModal(
-                'Long pressed',
-                hitNotifier.value!.lines,
-                hitNotifier.value!.point,
-              ),
-              onSecondaryTap: () => _openTouchedLinesModal(
-                'Secondary tapped',
-                hitNotifier.value!.lines,
-                hitNotifier.value!.point,
-              ),
-              child: PolylineLayer(
-                hitNotifier: hitNotifier,
+              PolylineLayer(
+                simplificationTolerance: simplificationTolerance == 0
+                    ? null
+                    : simplificationTolerance,
                 polylines: [
                   Polyline(
-                    points: randomWalk,
+                    points: _randomWalk,
                     strokeWidth: 3,
                     color: Colors.deepOrange,
                   ),
-                  ...polylines.keys.followedBy(hoverLines ?? []).toList()
                 ],
               ),
+            ],
+          ),
+          Positioned(
+            left: 16,
+            top: 16,
+            right: 16,
+            child: SimplificationToleranceSlider(
+              initialTolerance: _initialSimplificationTolerance,
+              onChangedTolerance: (v) =>
+                  setState(() => simplificationTolerance = v),
             ),
           ),
         ],
@@ -195,7 +221,7 @@ class _PolylinePageState extends State<PolylinePage> {
     List<Polyline> tappedLines,
     LatLng coords,
   ) {
-    tappedLines.removeWhere((e) => !polylines.containsKey(e));
+    tappedLines.removeWhere((e) => !_polylines.containsKey(e));
 
     showModalBottomSheet<void>(
       context: context,
@@ -215,7 +241,7 @@ class _PolylinePageState extends State<PolylinePage> {
             Expanded(
               child: ListView.builder(
                 itemBuilder: (context, index) {
-                  final tappedLineData = polylines[tappedLines[index]]!;
+                  final tappedLineData = _polylines[tappedLines[index]]!;
                   return ListTile(
                     leading: index == 0
                         ? const Icon(Icons.vertical_align_top)
@@ -239,6 +265,66 @@ class _PolylinePageState extends State<PolylinePage> {
                   onPressed: () => Navigator.pop(context),
                   child: const Text('Close'),
                 ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class SimplificationToleranceSlider extends StatefulWidget {
+  const SimplificationToleranceSlider({
+    super.key,
+    required this.initialTolerance,
+    required this.onChangedTolerance,
+  });
+
+  final double initialTolerance;
+  final void Function(double) onChangedTolerance;
+
+  @override
+  State<SimplificationToleranceSlider> createState() =>
+      _SimplificationToleranceSliderState();
+}
+
+class _SimplificationToleranceSliderState
+    extends State<SimplificationToleranceSlider> {
+  late double _simplificationTolerance = widget.initialTolerance;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.background,
+        borderRadius: BorderRadius.circular(32),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(left: 16, right: 8, top: 4, bottom: 4),
+        child: Row(
+          children: [
+            const Tooltip(
+              message: 'Adjust Simplification Tolerance',
+              child: Row(
+                children: [
+                  Icon(Icons.insights),
+                  SizedBox(width: 8),
+                  Icon(Icons.hdr_strong),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Slider(
+                value: _simplificationTolerance,
+                onChanged: (v) => setState(() => _simplificationTolerance = v),
+                onChangeEnd: widget.onChangedTolerance,
+                min: 0,
+                max: 2.5,
+                divisions: 125,
+                label: _simplificationTolerance == 0
+                    ? 'Disabled'
+                    : _simplificationTolerance.toStringAsFixed(2),
               ),
             ),
           ],

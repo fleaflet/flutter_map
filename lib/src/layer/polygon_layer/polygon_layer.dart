@@ -105,51 +105,67 @@ class Polygon {
 
 @immutable
 class PolygonLayer extends StatelessWidget {
+  /// [Polygon]s to draw
   final List<Polygon> polygons;
 
-  /// screen space culling of polygons based on bounding box
+  /// Whether to cull polygons and polygon sections that are outside of the
+  /// viewport
+  ///
+  /// Defaults to `true`.
   final bool polygonCulling;
 
-  /// how much to simplify the polygons, in decimal degrees scaled to floored zoom
+  /// Distance between two mergeable polygon points, in decimal degrees scaled
+  /// to floored zoom
+  ///
+  /// Increasing results in a more jagged, less accurate simplification, with
+  /// improved performance; and vice versa.
+  ///
+  /// Note that this value is internally scaled using the current map zoom, to
+  /// optimize visual performance in conjunction with improved performance with
+  /// culling.
+  ///
+  /// Defaults to 1.
   final double? simplificationTolerance;
 
-  /// high quality simplification uses the https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm
-  /// otherwise, points within the radial distance of the threshold value are merged. (Also called radial distance simplification)
-  /// radial distance is faster, but does not preserve the shape of the original line as well as Douglas Peucker
-  final bool simplificationHighQuality;
-
-  // Turn on/off per-polygon label drawing on the layer-level.
+  /// Whether to draw per-polygon labels
+  ///
+  /// Defaults to `true`.
   final bool polygonLabels;
 
-  // Whether to draw labels last and thus over all the polygons.
+  /// Whether to draw labels last and thus over all the polygons
+  ///
+  /// Defaults to `false`.
   final bool drawLabelsLast;
 
   const PolygonLayer({
     super.key,
     required this.polygons,
-    this.polygonCulling = false,
+    this.polygonCulling = true,
     this.simplificationTolerance = 1,
-    this.simplificationHighQuality = false,
     this.polygonLabels = true,
     this.drawLabelsLast = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final map = MapCamera.of(context);
-    final size = Size(map.size.x, map.size.y);
+    final camera = MapCamera.of(context);
 
-    final polygonsToRender = polygonCulling
-        ? polygons.where((p) {
-            return p.boundingBox.isOverlapping(map.visibleBounds);
-          }).toList()
+    final culledPolygons = polygonCulling
+        ? polygons
+            .where((p) => p.boundingBox.isOverlapping(camera.visibleBounds))
+            .toList()
         : polygons;
 
     return MobileLayerTransformer(
       child: CustomPaint(
-        painter: PolygonPainter(polygonsToRender, map, polygonLabels,
-            simplificationTolerance, simplificationHighQuality, drawLabelsLast),
-        size: size,
+        painter: PolygonPainter(
+          polygons: culledPolygons,
+          camera: camera,
+          polygonLabels: polygonLabels,
+          drawLabelsLast: drawLabelsLast,
+          simplificationTolerance: simplificationTolerance,
+        ),
+        size: Size(camera.size.x, camera.size.y),
         isComplex: true,
       ),
     );
@@ -162,18 +178,15 @@ class PolygonPainter extends CustomPainter {
   final LatLngBounds bounds;
   final bool polygonLabels;
   final bool drawLabelsLast;
-
   final double? simplificationTolerance;
-  final bool simplificationHighQuality;
 
-  PolygonPainter(
-      this.polygons,
-      this.camera,
-      this.polygonLabels,
-      this.simplificationTolerance,
-      this.simplificationHighQuality,
-      this.drawLabelsLast)
-      : bounds = camera.visibleBounds;
+  PolygonPainter({
+    required this.polygons,
+    required this.camera,
+    required this.polygonLabels,
+    required this.simplificationTolerance,
+    required this.drawLabelsLast,
+  }) : bounds = camera.visibleBounds;
 
   int get hash {
     _hash ??= Object.hashAll(polygons);
@@ -197,19 +210,17 @@ class PolygonPainter extends CustomPainter {
   }
 
   List<Offset> getOffsets(Offset origin, List<LatLng> points) {
-    final List<LatLng> renderedPoints;
-    if (simplificationTolerance != null) {
-      renderedPoints = simplify(points,
-          simplificationTolerance! / pow(2, camera.zoom.floorToDouble()),
-          highestQuality: simplificationHighQuality);
-    } else {
-      renderedPoints = points;
-    }
+    final renderedPoints = simplificationTolerance != null
+        ? simplify(
+            points,
+            simplificationTolerance! / pow(2, camera.zoom.floor()),
+            highestQuality: true,
+          )
+        : points;
+
     return List.generate(
       renderedPoints.length,
-      (index) {
-        return getOffset(origin, renderedPoints[index]);
-      },
+      (index) => getOffset(origin, renderedPoints[index]),
       growable: false,
     );
   }

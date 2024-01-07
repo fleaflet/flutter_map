@@ -107,6 +107,8 @@ List<LatLng> simplify(
   double tolerance, {
   bool highestQuality = false,
 }) {
+  final stopwatch = Stopwatch()..start();
+
   if (points.length <= 2) {
     return points;
   }
@@ -115,5 +117,11 @@ List<LatLng> simplify(
   nextPoints =
       highestQuality ? points : simplifyRadialDist(nextPoints, sqTolerance);
   nextPoints = simplifyDouglasPeucker(nextPoints, sqTolerance);
+
+  stopwatch.stop();
+  print(
+    '`simplify` took ${stopwatch.elapsedMicroseconds}us, and outputted ${nextPoints.length} points (~${((1 - (nextPoints.length / points.length)) * 100).toStringAsFixed(2)}% reduction)',
+  );
+
   return nextPoints;
 }
