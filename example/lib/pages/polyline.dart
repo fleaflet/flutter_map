@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/misc/tile_providers.dart';
@@ -17,7 +18,9 @@ class PolylinePage extends StatefulWidget {
 
 class _PolylinePageState extends State<PolylinePage> {
   final PolylineHitNotifier _hitNotifier = ValueNotifier(null);
+  List<Polyline>? _prevHitLines;
   List<Polyline>? _hoverLines;
+
   final _polylines = <Polyline, ({String title, String subtitle})>{
     Polyline(
       points: [
@@ -143,10 +146,18 @@ class _PolylinePageState extends State<PolylinePage> {
                 hitTestBehavior: HitTestBehavior.deferToChild,
                 cursor: SystemMouseCursors.click,
                 onHover: (_) {
-                  if (_hitNotifier.value == null) return;
-
-                  final lines = _hitNotifier.value!.lines
+                  // Filter out hover outlines, and ignore if no lines were hit
+                  final hitLines = _hitNotifier.value?.lines
                       .where((e) => _polylines.containsKey(e))
+                      .toList();
+                  if (hitLines == null) return;
+
+                  // Avoid unnecessary rebuilds if no new lines were hit
+                  if (listEquals(hitLines, _prevHitLines)) return;
+                  _prevHitLines = hitLines;
+
+                  // Create hover outlines and add them to the map
+                  final hoverLines = hitLines
                       .map(
                         (e) => Polyline(
                           points: e.points,
@@ -158,10 +169,9 @@ class _PolylinePageState extends State<PolylinePage> {
                         ),
                       )
                       .toList();
-                  setState(() => _hoverLines = lines);
+                  setState(() => _hoverLines = hoverLines);
                 },
-
-                /// Clear hovered lines when touched lines modal appears
+                // Clear hovered lines when touched lines modal appears
                 onExit: (_) => setState(() => _hoverLines = null),
                 child: GestureDetector(
                   onTap: () => _openTouchedLinesModal(
@@ -181,7 +191,7 @@ class _PolylinePageState extends State<PolylinePage> {
                   ),
                   child: PolylineLayer(
                     hitNotifier: _hitNotifier,
-                    simplificationTolerance: null,
+                    //simplificationTolerance: null,
                     polylines:
                         _polylines.keys.followedBy(_hoverLines ?? []).toList(),
                   ),
@@ -317,7 +327,12 @@ class _SimplificationToleranceSliderState
             Expanded(
               child: Slider(
                 value: _simplificationTolerance,
-                onChanged: (v) => setState(() => _simplificationTolerance = v),
+                onChanged: (v) {
+                  if (_simplificationTolerance == 0 && v != 0) {
+                    widget.onChangedTolerance(v);
+                  }
+                  setState(() => _simplificationTolerance = v);
+                },
                 onChangeEnd: widget.onChangedTolerance,
                 min: 0,
                 max: 2.5,
