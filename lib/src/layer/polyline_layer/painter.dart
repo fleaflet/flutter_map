@@ -3,7 +3,7 @@ part of 'polyline_layer.dart';
 class PolylinePainter<R extends Object> extends CustomPainter {
   final List<Polyline<R>> polylines;
   final MapCamera camera;
-  final PolylineHitNotifier? hitNotifier;
+  final LayerHitNotifier<R>? hitNotifier;
   final double minimumHitbox;
 
   final _hits = <R>[]; // Avoids repetitive memory reallocation
@@ -88,7 +88,7 @@ class PolylinePainter<R extends Object> extends CustomPainter {
       return false;
     }
 
-    hitNotifier!.value = PolylineHit<R>._(
+    hitNotifier!.value = LayerHit(
       hitValues: _hits,
       point: camera.pointToLatLng(math.Point(position.dx, position.dy)),
     );

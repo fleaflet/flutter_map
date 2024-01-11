@@ -8,7 +8,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart';
 
-part 'hit.dart';
 part 'painter.dart';
 part 'polyline.dart';
 
@@ -41,16 +40,12 @@ class PolylineLayer<R extends Object> extends StatefulWidget {
   ///
   /// If a notifier is not provided, hit testing is not performed.
   ///
-  /// Notified with a [PolylineHit] if any [Polyline]s are hit, otherwise
-  /// notified with `null`.
-  ///
-  /// Note that a hover event is included as a hit event. If an expensive
-  /// operation is required on hover, check for equality between the new and old
-  /// [PolylineHit.hitValues], and avoid doing heavy work if they are the same.
+  /// Notified with a [LayerHit] if any polylines are hit, otherwise notified
+  /// with `null`.
   ///
   /// See online documentation for more detailed usage instructions. See the
   /// example project for an example implementation.
-  final PolylineHitNotifier<R>? hitNotifier;
+  final LayerHitNotifier<R>? hitNotifier;
 
   /// The minimum radius of the hittable area around each [Polyline] in logical
   /// pixels

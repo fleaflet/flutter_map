@@ -28,6 +28,7 @@ export 'package:flutter_map/src/layer/attribution_layer/rich/source.dart';
 export 'package:flutter_map/src/layer/attribution_layer/rich/widget.dart';
 export 'package:flutter_map/src/layer/attribution_layer/simple.dart';
 export 'package:flutter_map/src/layer/circle_layer.dart';
+export 'package:flutter_map/src/layer/general/hit_detection.dart';
 export 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
 export 'package:flutter_map/src/layer/general/translucent_pointer.dart';
 export 'package:flutter_map/src/layer/marker_layer.dart';

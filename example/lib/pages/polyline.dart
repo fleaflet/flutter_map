@@ -19,8 +19,7 @@ class PolylinePage extends StatefulWidget {
 }
 
 class _PolylinePageState extends State<PolylinePage> {
-  final PolylineHitNotifier<PolylineHitValue> _hitNotifier =
-      ValueNotifier(null);
+  final LayerHitNotifier<PolylineHitValue> _hitNotifier = ValueNotifier(null);
   List<PolylineHitValue>? _prevHitValues;
   List<Polyline<PolylineHitValue>>? _hoverLines;
 
