@@ -8,9 +8,12 @@ import 'package:meta/meta.dart';
 /// Not emitted if the hit was not over a feature.
 @immutable
 class LayerHit<R extends Object> {
-  /// `hitValues` from all features hit
+  /// `hitValue`s from all features hit (which have `hitValue`s defined)
   ///
-  /// Ordered in order of the features first-to-last, visually top-to-bottom.
+  /// If a feature is hit but has no `hitValue` defined, it will not be included.
+  ///
+  /// Ordered by their corresponding feature, first-to-last, visually
+  /// top-to-bottom.
   final List<R> hitValues;
 
   /// Coordinates of the detected hit
