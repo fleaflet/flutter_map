@@ -18,7 +18,9 @@ class PolylineLayer<R extends Object> extends StatefulWidget {
 
   /// Acceptable extent outside of viewport before culling polyline segments
   ///
-  /// May need to be increased if the [Polyline.borderStrokeWidth] is large.
+  /// May need to be increased if the [Polyline.strokeWidth] +
+  /// [Polyline.borderStrokeWidth] is large. See online documentation for more
+  /// information.
   ///
   /// Defaults to 0: cull aggressively. Set to `null` to disable culling.
   final double? cullingMargin;
