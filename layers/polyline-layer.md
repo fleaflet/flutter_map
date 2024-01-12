@@ -19,48 +19,33 @@ PolylineLayer(
 ),
 ```
 
-## Culling
+## Performance Optimizations
 
+### Culling
 
-
-{% hint style="success" %}
-Culling has been
-{% endhint %}
-
-Excessive use of polylines may create performance issues. There are two options to attempt to improve performance.
-
-{% hint style="success" %}
-We're working on improvements right now to make your app even more buttery smooth! Stay up to date with the latest performance improvements by joining our Discord server.
-{% endhint %}
-
-### Sticking With `PolylineLayer`
-
-It is easiest to try to squeeze as much performance out of `Polyline`s as possible. However, this may not always be the best option.
-
-Consider using both of the methods below:
-
-* Split long lines into individual `Polyline`s at regular intervals, then enable `polylineCulling`, in order to prevent the calculation and rendering of `Polyline`s outside of the current viewport.
-* Simplify the polyline by reducing the number of points within it, in order to reduce raster and calculation times. It is recommended to do this to varying degrees and resolutions based on the current zoom level. It may be possible to use an external Flutter library called [simplify](https://pub.dev/packages/simplify).
-
-The first method will improve performance when zoomed in, as more `Polyline`s will be able to be culled, whilst the second method will improve performance when zoomed out, without impacting visuals (when done well).
-
-### Using A Separate `TileLayer`
-
-If using `PolylineLayer` as above still does not reach satisfactory performance, then the best option may be to render a custom tile set. For example, this may be necessary when attempting to draw a number of long-distance routes, or other widespread dataset.
+To improve performance, line segments that are entirely offscreen are effectively removed - they are not processed or painted/rendered. This is enabled by default and disabling it is not recommended.
 
 {% hint style="info" %}
-We're unable to provide support with this method, and this may become outdated.
+Polylines that are particularly 'wide' (due to their `strokeWidth`/`borderStrokeWidth` may be improperly culled if using the default configuration. This is because culling decisions are made on the 'infinitely thin line' joining the `points`, not the visible line, for performance reasons.
+
+Therefore, the `cullingMargin` parameter is provided, which effectively increases the distance a segement needs to be from the viewport edges before it can be culled. Increase this value from its default if line segements are visibly disappearing unexpectedly.
 {% endhint %}
 
-The first step is to render the desired lines into a tileset with a transparent background - [tippecanoe](https://github.com/mapbox/tippecanoe) is commonly used to do this, and generates vector-format MBTiles.
+### Simplification
 
-If you have raster tiles, you're all set to serve as normal. However, and much more likely, if you have raster tiles, you're all set to serve as normal/as you choose. More commonly though, you'll have vector tiles at this step, as with 'tippecanoe', so you'll need to do one of the following things:
+To improve performance, polylines are 'simplified' before being culled and painted/rendered. flutter\_map uses the well-known [Ramer–Douglas–Peucker algorithm](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker\_algorithm), and enables simplification by default.
 
-* Try to convert it to raster tiles all in one shot, then use a tool like [mbtilesToPngs](https://github.com/alfanhui/mbtilesToPngs) to extract the raster .mbtiles into a slippy map tree
-* Give the MBTiles/vector tiles to the vector map plugin
-* Serve the tiles via something like [tileserver-gl](https://github.com/maptiler/tileserver-gl), which provides an on-the-fly rasterizer
+> This involves reducing the number of points in each line by removing unnecessary points that are 'too close' to other points which create tiny line segements invisible to the eye. This reduces the number of draw calls and strain on the raster/render thread. This should have minimal negative visual impact (high quality), but should drastically improve performance.
+>
+> For this reason, polylines can be more simplified at lower zoom levels (more zoomed out) and less simplified at higher zoom levels (more zoomed in), where the effect of culling on performance improves. This is done by scaling the `simplificationTolerance` parameter (see below) automatically internally based on the zoom level.
 
-To provide the tiles to the users within flutter\_map, see [tile-providers.md](tile-layer/tile-providers.md "mention").
+{% hint style="success" %}
+In combination with culling, layers with hundreds of thousands of points can be rendered at over 60fps.
+{% endhint %}
+
+To adjust the quality and performance of the simplification, the maximum distance between removable points can be adjusted through the `simplificationTolerance` parameter. Increasing this value (from its default of 1) results in a more jagged, less accurate (lower quality) simplification, with improved performance; and vice versa.
+
+To disable simplification, set `simplificationTolerance` to 0.
 
 ## Interactivity
 
