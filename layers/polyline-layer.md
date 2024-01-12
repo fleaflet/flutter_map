@@ -19,7 +19,13 @@ PolylineLayer(
 ),
 ```
 
-## Performance Recommendations
+## Culling
+
+
+
+{% hint style="success" %}
+Culling has been
+{% endhint %}
 
 Excessive use of polylines may create performance issues. There are two options to attempt to improve performance.
 
