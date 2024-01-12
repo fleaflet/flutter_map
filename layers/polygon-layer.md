@@ -34,7 +34,7 @@ To improve performance, polygon outlines (`points`) are 'simplified' before the 
 >
 > For this reason, polygons can be more simplified at lower zoom levels (more zoomed out) and less simplified at higher zoom levels (more zoomed in), where the effect of culling on performance improves and trades-off. This is done by scaling the `simplificationTolerance` parameter (see below) automatically internally based on the zoom level.
 
-To adjust the quality and performance of the simplification, the maximum distance between removable points can be adjusted through the `simplificationTolerance` parameter. Increasing this value (from its default of 1) results in a more jagged, less accurate (lower quality) simplification, with improved performance; and vice versa.
+To adjust the quality and performance of the simplification, the maximum distance between removable points can be adjusted through the `simplificationTolerance` parameter. Increasing this value (from its default of 0.5) results in a more jagged, less accurate (lower quality) simplification, with improved performance; and vice versa. Many applications use a value in the range 1 - 1.5.
 
 To disable simplification, set `simplificationTolerance` to 0.&#x20;
 

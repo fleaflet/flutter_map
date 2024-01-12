@@ -57,7 +57,7 @@ To improve performance, polylines are 'simplified' before being culled and paint
 In combination with culling, `PolylineLayer`s with hundreds of thousands of points can be rendered at over 60fps.
 {% endhint %}
 
-To adjust the quality and performance of the simplification, the maximum distance between removable points can be adjusted through the `simplificationTolerance` parameter. Increasing this value (from its default of 1) results in a more jagged, less accurate (lower quality) simplification, with improved performance; and vice versa.
+To adjust the quality and performance of the simplification, the maximum distance between removable points can be adjusted through the `simplificationTolerance` parameter. Increasing this value (from its default of 0.5) results in a more jagged, less accurate (lower quality) simplification, with improved performance; and vice versa. Many applications use a value in the range 1 - 1.5.
 
 To disable simplification, set `simplificationTolerance` to 0.&#x20;
 
