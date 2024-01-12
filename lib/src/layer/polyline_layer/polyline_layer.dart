@@ -35,8 +35,8 @@ class PolylineLayer<R extends Object> extends StatefulWidget {
   /// optimize visual performance in conjunction with improved performance with
   /// culling.
   ///
-  /// Defaults to 1. Set to `null` to disable simplification.
-  final double? simplificationTolerance;
+  /// Defaults to 0.5. Set to 0 to disable simplification.
+  final double simplificationTolerance;
 
   /// A notifier to be notified when a hit test occurs on the layer
   ///
@@ -62,7 +62,7 @@ class PolylineLayer<R extends Object> extends StatefulWidget {
     super.key,
     required this.polylines,
     this.cullingMargin = 10,
-    this.simplificationTolerance = 1,
+    this.simplificationTolerance = 0.5,
     this.hitNotifier,
     this.minimumHitbox = 10,
   });
@@ -86,18 +86,18 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
     // IF old no & new no, nothing
     // IF old yes & new yes & (different tolerance | different lines), both
     //    otherwise, nothing
-    if (oldWidget.simplificationTolerance != null &&
-        widget.simplificationTolerance != null &&
+    if (oldWidget.simplificationTolerance != 0 &&
+        widget.simplificationTolerance != 0 &&
         (!listEquals(oldWidget.polylines, widget.polylines) ||
             oldWidget.simplificationTolerance !=
                 widget.simplificationTolerance)) {
       _cachedSimplifiedPolylines.clear();
       _computeZoomLevelSimplification(MapCamera.of(context).zoom.floor());
-    } else if (oldWidget.simplificationTolerance != null &&
-        widget.simplificationTolerance == null) {
+    } else if (oldWidget.simplificationTolerance != 0 &&
+        widget.simplificationTolerance == 0) {
       _cachedSimplifiedPolylines.clear();
-    } else if (oldWidget.simplificationTolerance == null &&
-        widget.simplificationTolerance != null) {
+    } else if (oldWidget.simplificationTolerance == 0 &&
+        widget.simplificationTolerance != 0) {
       _computeZoomLevelSimplification(MapCamera.of(context).zoom.floor());
     }
   }
@@ -110,7 +110,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
       child: CustomPaint(
         painter: PolylinePainter(
           polylines: _aggressivelyCullPolylines(
-            polylines: widget.simplificationTolerance == null
+            polylines: widget.simplificationTolerance == 0
                 ? widget.polylines
                 : _computeZoomLevelSimplification(camera.zoom.floor()),
             camera: camera,
@@ -131,7 +131,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
             (polyline) => polyline.copyWithNewPoints(
               simplify(
                 polyline.points,
-                widget.simplificationTolerance! / math.pow(2, zoom),
+                widget.simplificationTolerance / math.pow(2, zoom),
                 highestQuality: true,
               ),
             ),

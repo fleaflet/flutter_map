@@ -124,8 +124,8 @@ class PolygonLayer extends StatelessWidget {
   /// optimize visual performance in conjunction with improved performance with
   /// culling.
   ///
-  /// Defaults to 1.
-  final double? simplificationTolerance;
+  /// Defaults to 0.5. Set to 0 to disable simplification.
+  final double simplificationTolerance;
 
   /// Whether to draw per-polygon labels
   ///
@@ -141,7 +141,7 @@ class PolygonLayer extends StatelessWidget {
     super.key,
     required this.polygons,
     this.polygonCulling = true,
-    this.simplificationTolerance = 1,
+    this.simplificationTolerance = 0.5,
     this.polygonLabels = true,
     this.drawLabelsLast = false,
   });
@@ -178,7 +178,7 @@ class PolygonPainter extends CustomPainter {
   final LatLngBounds bounds;
   final bool polygonLabels;
   final bool drawLabelsLast;
-  final double? simplificationTolerance;
+  final double simplificationTolerance;
 
   PolygonPainter({
     required this.polygons,
@@ -210,10 +210,10 @@ class PolygonPainter extends CustomPainter {
   }
 
   List<Offset> getOffsets(Offset origin, List<LatLng> points) {
-    final renderedPoints = simplificationTolerance != null
+    final renderedPoints = simplificationTolerance != 0
         ? simplify(
             points,
-            simplificationTolerance! / pow(2, camera.zoom.floor()),
+            simplificationTolerance / pow(2, camera.zoom.floor()),
             highestQuality: true,
           )
         : points;

@@ -119,14 +119,14 @@ class _PolylinePageState extends State<PolylinePage> {
 
   final _randomWalk = [const LatLng(44.861294, 13.845086)];
 
-  static const double _initialSimplificationTolerance = 1;
+  static const double _initialSimplificationTolerance = 0.5;
   double simplificationTolerance = _initialSimplificationTolerance;
 
   @override
   void initState() {
     super.initState();
     final random = Random(1234);
-    for (int i = 1; i < 300000; i++) {
+    for (int i = 1; i < 200000; i++) {
       final lat = (random.nextDouble() - 0.5) * 0.001;
       final lon = (random.nextDouble() - 0.6) * 0.001;
       _randomWalk.add(
@@ -199,15 +199,13 @@ class _PolylinePageState extends State<PolylinePage> {
                   ),
                   child: PolylineLayer(
                     hitNotifier: _hitNotifier,
-                    simplificationTolerance: null,
+                    simplificationTolerance: 0,
                     polylines: [..._polylinesRaw, ...?_hoverLines],
                   ),
                 ),
               ),
               PolylineLayer(
-                simplificationTolerance: simplificationTolerance == 0
-                    ? null
-                    : simplificationTolerance,
+                simplificationTolerance: simplificationTolerance,
                 polylines: [
                   Polyline(
                     points: _randomWalk,
@@ -340,7 +338,7 @@ class _SimplificationToleranceSliderState
                 },
                 onChangeEnd: widget.onChangedTolerance,
                 min: 0,
-                max: 2.5,
+                max: 2,
                 divisions: 125,
                 label: _simplificationTolerance == 0
                     ? 'Disabled'
