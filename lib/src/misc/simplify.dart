@@ -12,7 +12,7 @@ double _getSqDist(
   return dx * dx + dy * dy;
 }
 
-// square distance from a point to a segment
+/// square distance from a point to a segment
 double _getSqSegDist(
   LatLng p,
   LatLng p1,
