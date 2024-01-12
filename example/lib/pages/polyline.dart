@@ -53,7 +53,7 @@ class _PolylinePageState extends State<PolylinePage> {
     ),
     const Polyline(
       points: [
-        LatLng(55.5, -0.09),
+        LatLng(51.74904, -10.32324),
         LatLng(54.3498, -6.2603),
         LatLng(52.8566, 2.3522),
       ],

@@ -22,7 +22,7 @@ class PolylineLayer<R extends Object> extends StatefulWidget {
   /// [Polyline.borderStrokeWidth] is large. See online documentation for more
   /// information.
   ///
-  /// Defaults to 0: cull aggressively. Set to `null` to disable culling.
+  /// Defaults to 10. Set to `null` to disable culling.
   final double? cullingMargin;
 
   /// Distance between two mergeable polyline points, in decimal degrees scaled
@@ -61,7 +61,7 @@ class PolylineLayer<R extends Object> extends StatefulWidget {
   const PolylineLayer({
     super.key,
     required this.polylines,
-    this.cullingMargin = 0,
+    this.cullingMargin = 10,
     this.simplificationTolerance = 1,
     this.hitNotifier,
     this.minimumHitbox = 10,
