@@ -37,6 +37,7 @@
 * [Circle Layer](layers/circle-layer.md)
 * [Overlay Image Layer](layers/overlay-image-layer.md)
 * [Attribution Layer](layers/attribution-layer.md)
+* [Layer Interactivity](layers/layer-interactivity.md)
 
 ## Tile Servers
 

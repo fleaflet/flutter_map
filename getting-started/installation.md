@@ -40,11 +40,17 @@ dependency_overrides:
 
 ### Web
 
+#### Renderer
+
 Always force usage of the CanvasKit renderer instead of the HTML renderer, even on mobile devices.
 
 The HTML renderer causes performance issues, and may also cause other bugs. Although the CanvasKit renderer does require slightly more Javascript (and therefore a longer download time), it works much better with flutter\_map.
 
 For more information about web renderers, see [https://docs.flutter.dev/platform-integration/web/renderers](https://docs.flutter.dev/platform-integration/web/renderers).
+
+#### CORS
+
+On the web platform, [CORS ](https://en.wikipedia.org/wiki/Cross-origin\_resource\_sharing)restrictions designed to protect resources on websites and control where they can be loaded from. Some tile servers may not be intended for external consumption, or may be incorrectly configured, which could prevent tiles from loading. If tiles load correctly on platforms other than the web, then this is likely the cause.
 
 ### Android
 

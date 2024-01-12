@@ -73,7 +73,7 @@ If the `{r}` placeholder is present in the the `urlTemplate`, and `retinaMode` i
 If it is not present, but `retinaMode` is enabled, then flutter\_map will simulate retina behaviour by requesting four tiles at a larger zoom level and combining them together in place of one.&#x20;
 
 {% hint style="warning" %}
-Note that simulating retina mode will increase tile requests, decrease the effective maximum zoom by 1, and may result in map labels/text/POIs appearing smaller than normal.
+Note that simulating retina mode will increase tile requests, decrease the effective maximum zoom by 1, and may cause unusual scaling of tiles and their relative contents.
 
 Always prefer the server's native retina tiles where available.
 {% endhint %}
@@ -83,9 +83,13 @@ Always prefer the server's native retina tiles where available.
 It's also possible to specify a `fallbackUrl` template, used if fetching a tile from the primary `urlTemplate` fails (which has the same format as this).
 
 {% hint style="warning" %}
-Specifying a `fallbackUrl` does have negative effects on performance and efficiency. Avoid specifying `fallbackUrl` unless absolutely necessary for your use case.
+Specifying a `fallbackUrl` does have negative effects on performance and efficiency. Avoid specifying `fallbackUrl` unless necessary.
 
 See in-code documentation and [tile-providers.md](tile-providers.md "mention") for more information.
+{% endhint %}
+
+{% hint style="warning" %}
+Certain `TileProvider`s may not support/provide any functionality for `fallbackUrl` template.
 {% endhint %}
 
 ## `userAgentPackageName`
