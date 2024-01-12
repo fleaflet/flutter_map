@@ -7,7 +7,7 @@ import 'package:meta/meta.dart';
 ///
 /// Not emitted if the hit was not over a feature.
 @immutable
-class LayerHit<R extends Object> {
+class LayerHitResult<R extends Object> {
   /// `hitValue`s from all features hit (which have `hitValue`s defined)
   ///
   /// If a feature is hit but has no `hitValue` defined, it will not be included.
@@ -22,11 +22,11 @@ class LayerHit<R extends Object> {
   final LatLng point;
 
   @internal
-  const LayerHit({required this.hitValues, required this.point});
+  const LayerHitResult({required this.hitValues, required this.point});
 }
 
 /// A [ValueNotifier] that notifies:
 ///
-///  * a [LayerHit] when a hit is detected on a feature in a layer
+///  * a [LayerHitResult] when a hit is detected on a feature in a layer
 ///  * `null` when a hit is detected on the layer but not on a feature
-typedef LayerHitNotifier<R extends Object> = ValueNotifier<LayerHit<R>?>;
+typedef LayerHitNotifier<R extends Object> = ValueNotifier<LayerHitResult<R>?>;

@@ -88,7 +88,7 @@ class PolylinePainter<R extends Object> extends CustomPainter {
       return false;
     }
 
-    hitNotifier!.value = LayerHit(
+    hitNotifier!.value = LayerHitResult(
       hitValues: _hits,
       point: camera.pointToLatLng(math.Point(position.dx, position.dy)),
     );

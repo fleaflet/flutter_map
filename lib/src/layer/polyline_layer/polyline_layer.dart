@@ -40,8 +40,8 @@ class PolylineLayer<R extends Object> extends StatefulWidget {
   ///
   /// If a notifier is not provided, hit testing is not performed.
   ///
-  /// Notified with a [LayerHit] if any polylines are hit, otherwise notified
-  /// with `null`.
+  /// Notified with a [LayerHitResult] if any polylines are hit, otherwise
+  /// notified with `null`.
   ///
   /// See online documentation for more detailed usage instructions. See the
   /// example project for an example implementation.
