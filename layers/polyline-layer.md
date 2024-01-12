@@ -19,34 +19,6 @@ PolylineLayer(
 ),
 ```
 
-## Performance Optimizations
-
-### Culling
-
-To improve performance, line segments that are entirely offscreen are effectively removed - they are not processed or painted/rendered. This is enabled by default and disabling it is not recommended.
-
-{% hint style="info" %}
-Polylines that are particularly 'wide' (due to their `strokeWidth`/`borderStrokeWidth` may be improperly culled if using the default configuration. This is because culling decisions are made on the 'infinitely thin line' joining the `points`, not the visible line, for performance reasons.
-
-Therefore, the `cullingMargin` parameter is provided, which effectively increases the distance a segement needs to be from the viewport edges before it can be culled. Increase this value from its default if line segements are visibly disappearing unexpectedly.
-{% endhint %}
-
-### Simplification
-
-To improve performance, polylines are 'simplified' before being culled and painted/rendered. flutter\_map uses the well-known [Ramer–Douglas–Peucker algorithm](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker\_algorithm), and enables simplification by default.
-
-> This involves reducing the number of points in each line by removing unnecessary points that are 'too close' to other points which create tiny line segements invisible to the eye. This reduces the number of draw calls and strain on the raster/render thread. This should have minimal negative visual impact (high quality), but should drastically improve performance.
->
-> For this reason, polylines can be more simplified at lower zoom levels (more zoomed out) and less simplified at higher zoom levels (more zoomed in), where the effect of culling on performance improves. This is done by scaling the `simplificationTolerance` parameter (see below) automatically internally based on the zoom level.
-
-{% hint style="success" %}
-In combination with culling, layers with hundreds of thousands of points can be rendered at over 60fps.
-{% endhint %}
-
-To adjust the quality and performance of the simplification, the maximum distance between removable points can be adjusted through the `simplificationTolerance` parameter. Increasing this value (from its default of 1) results in a more jagged, less accurate (lower quality) simplification, with improved performance; and vice versa.
-
-To disable simplification, set `simplificationTolerance` to 0.
-
 ## Interactivity
 
 `PolylineLayer`s and `Polyline`s support hit detection and interactivity.
@@ -55,13 +27,51 @@ To disable simplification, set `simplificationTolerance` to 0.
 [layer-interactivity.md](layer-interactivity.md)
 {% endcontent-ref %}
 
+## Performance Optimizations
+
+### Culling
+
+To improve performance, line segments that are entirely offscreen are effectively removed - they are not processed or painted/rendered. This is enabled by default and disabling it is not recommended.
+
+{% hint style="warning" %}
+Polylines that are particularly 'wide' (due to their `strokeWidth`/`borderStrokeWidth` may be improperly culled if using the default configuration. This is because culling decisions are made on the 'infinitely thin line' joining the `points`, not the visible line, for performance reasons.
+
+Therefore, the `cullingMargin` parameter is provided, which effectively increases the distance a segement needs to be from the viewport edges before it can be culled. Increase this value from its default if line segements are visibly disappearing unexpectedly.
+{% endhint %}
+
+{% hint style="warning" %}
+Culling cannot be applied to polylines with a gradient fill, as this would cause inconsistent gradients.
+
+Avoid using these if performance is of great importance.
+{% endhint %}
+
+### Simplification
+
+To improve performance, polylines are 'simplified' before being culled and painted/rendered. The well-known [Ramer–Douglas–Peucker algorithm](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker\_algorithm) is used to perform this, and is enabled by default.
+
+> Simplification algorithms reduce the number of points in each line by removing unnecessary points that are 'too close' to other points which create tiny line segements invisible to the eye. This reduces the number of draw calls and strain on the raster/render thread. This should have minimal negative visual impact (high quality), but should drastically improve performance.
+>
+> For this reason, polylines can be more simplified at lower zoom levels (more zoomed out) and less simplified at higher zoom levels (more zoomed in), where the effect of culling on performance improves and trades-off. This is done by scaling the `simplificationTolerance` parameter (see below) automatically internally based on the zoom level.
+
+{% hint style="success" %}
+In combination with culling, `PolylineLayer`s with hundreds of thousands of points can be rendered at over 60fps.
+{% endhint %}
+
+To adjust the quality and performance of the simplification, the maximum distance between removable points can be adjusted through the `simplificationTolerance` parameter. Increasing this value (from its default of 1) results in a more jagged, less accurate (lower quality) simplification, with improved performance; and vice versa.
+
+To disable simplification, set `simplificationTolerance` to 0.&#x20;
+
+{% hint style="warning" %}
+On short polylines, disabling simplification may yield better performance.
+{% endhint %}
+
 ## Routing/Navigation
 
 Routing is out of scope for 'flutter\_map'. However, if you can get a list of coordinates from a 3rd party, then you can use polylines to show them!
 
 Good open source options that can be self-hosted include [OSRM](http://project-osrm.org/) (which includes a public demo server) and [Valhalla](https://github.com/valhalla/valhalla). You can also use a commercial solution such as Mapbox or Google Maps - these can often give more accurate/preferable results because they can use their traffic data when routing.
 
-## Converting Formats
+### Converting Formats
 
 You may have a polyline with 'Google Polyline Encoding' (which is a lossy compression algorithm to convert coordinates into a string and back). These are often returned from routing engines, for example. In this case, you'll need to decode the polyline to the correct format first, before you can use it in a `Polyline`'s `points` argument.
 

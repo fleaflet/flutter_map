@@ -20,10 +20,30 @@ PolygonLayer(
 ),
 ```
 
-{% hint style="warning" %}
-Excessive use of polygons may create performance issues.
+## Performance Optimizations
 
-Consider enabling `polygonCulling`. This will prevent the calculation and rendering of polygons outside of the current viewport, however this may not work as expected in all situations.
+### Culling
+
+To improve performance, polygons that are entirely offscreen are effectively removed - they are not processed or painted/rendered. This is enabled by default, and may be disabled using the `polygonCulling` parameter.
+
+### Simplification
+
+To improve performance, polygon outlines (`points`) are 'simplified' before the polygons are culled and painted/rendered. The well-known [Ramer–Douglas–Peucker algorithm](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker\_algorithm) is used to perform this, and is enabled by default.
+
+> Simplification algorithms reduce the number of points in each line by removing unnecessary points that are 'too close' to other points which create tiny line segements invisible to the eye. This reduces the number of draw calls and strain on the raster/render thread. This should have minimal negative visual impact (high quality), but should drastically improve performance.
+>
+> For this reason, polygons can be more simplified at lower zoom levels (more zoomed out) and less simplified at higher zoom levels (more zoomed in), where the effect of culling on performance improves and trades-off. This is done by scaling the `simplificationTolerance` parameter (see below) automatically internally based on the zoom level.
+
+To adjust the quality and performance of the simplification, the maximum distance between removable points can be adjusted through the `simplificationTolerance` parameter. Increasing this value (from its default of 1) results in a more jagged, less accurate (lower quality) simplification, with improved performance; and vice versa.
+
+To disable simplification, set `simplificationTolerance` to 0.&#x20;
+
+{% hint style="warning" %}
+On small polygons, disabling simplification may yield better performance.
+{% endhint %}
+
+{% hint style="warning" %}
+The outline points of holes are not simplified.
 {% endhint %}
 
 ## Polygon Manipulation
