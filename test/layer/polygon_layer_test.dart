@@ -43,7 +43,7 @@ void main() {
       LatLng(20, 30),
       LatLng(20, 20),
     ];
-    expect(isClockwise(clockwise), isTrue);
-    expect(isClockwise(clockwise.reversed.toList()), isFalse);
+    expect(Polygon.isClockwise(clockwise), isTrue);
+    expect(Polygon.isClockwise(clockwise.reversed.toList()), isFalse);
   });
 }
