@@ -13,7 +13,7 @@ import 'package:flutter_map/src/layer/marker_layer.dart';
 import 'package:flutter_map/src/layer/overlay_image_layer.dart';
 import 'package:flutter_map/src/layer/polygon_layer/label.dart';
 import 'package:flutter_map/src/layer/polygon_layer/polygon_layer.dart';
-import 'package:flutter_map/src/layer/polyline_layer.dart';
+import 'package:flutter_map/src/layer/polyline_layer/polyline_layer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';

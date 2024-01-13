@@ -1,197 +1,47 @@
-import 'dart:core';
-import 'dart:math' as math;
-import 'dart:ui' as ui;
+part of 'polyline_layer.dart';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/geo/latlng_bounds.dart';
-import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
-import 'package:flutter_map/src/map/camera/camera.dart';
-import 'package:flutter_map/src/misc/offsets.dart';
-import 'package:flutter_map/src/misc/point_extensions.dart';
-import 'package:latlong2/latlong.dart';
-
-/// Result from polyline hit detection
-///
-/// Emmitted by [PolylineLayer.hitNotifier]'s [ValueNotifier]
-/// ([PolylineHitNotifier]).
-class PolylineHit {
-  /// All hit [Polyline]s within the corresponding layer
-  ///
-  /// Ordered from first-last, visually top-bottom.
-  final List<Polyline> lines;
-
-  /// Coordinates of the detected hit
-  ///
-  /// Note that this may not lie on a [Polyline].
-  final LatLng point;
-
-  const PolylineHit._({required this.lines, required this.point});
-}
-
-/// Typedef used on [PolylineLayer.hitNotifier]
-typedef PolylineHitNotifier = ValueNotifier<PolylineHit?>;
-
-class Polyline {
-  final List<LatLng> points;
-  final double strokeWidth;
-  final Color color;
-  final double borderStrokeWidth;
-  final Color? borderColor;
-  final List<Color>? gradientColors;
-  final List<double>? colorsStop;
-  final bool isDotted;
-  final StrokeCap strokeCap;
-  final StrokeJoin strokeJoin;
-  final bool useStrokeWidthInMeter;
-
-  LatLngBounds? _boundingBox;
-
-  LatLngBounds get boundingBox =>
-      _boundingBox ??= LatLngBounds.fromPoints(points);
-
-  Polyline({
-    required this.points,
-    this.strokeWidth = 1.0,
-    this.color = const Color(0xFF00FF00),
-    this.borderStrokeWidth = 0.0,
-    this.borderColor = const Color(0xFFFFFF00),
-    this.gradientColors,
-    this.colorsStop,
-    this.isDotted = false,
-    this.strokeCap = StrokeCap.round,
-    this.strokeJoin = StrokeJoin.round,
-    this.useStrokeWidthInMeter = false,
-  });
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is Polyline &&
-          listEquals(points, other.points) &&
-          strokeWidth == other.strokeWidth &&
-          color == other.color &&
-          borderStrokeWidth == other.borderStrokeWidth &&
-          borderColor == other.borderColor &&
-          listEquals(gradientColors, other.gradientColors) &&
-          listEquals(colorsStop, other.colorsStop) &&
-          isDotted == other.isDotted &&
-          strokeCap == other.strokeCap &&
-          strokeJoin == other.strokeJoin &&
-          useStrokeWidthInMeter == other.useStrokeWidthInMeter);
-
-  /// Used to batch draw calls to the canvas
-  int get renderHashCode => Object.hash(
-        strokeWidth,
-        color,
-        borderStrokeWidth,
-        borderColor,
-        gradientColors,
-        colorsStop,
-        isDotted,
-        strokeCap,
-        strokeJoin,
-        useStrokeWidthInMeter,
-      );
-
-  @override
-  int get hashCode => Object.hash(points, renderHashCode);
-}
-
-@immutable
-class PolylineLayer extends StatelessWidget {
-  final List<Polyline> polylines;
-
-  /// A notifier to notify when a hit is detected over a/multiple [Polyline]s
-  ///
-  /// To listen for hits, wrap the layer in a standard hit detector widget, such
-  /// as [GestureDetector] and/or [MouseRegion] (and set
-  /// [HitTestBehavior.deferToChild] if necessary). Then use the latest value
-  /// (via [ValueNotifier.value]) in the detector's callbacks. It is also
-  /// possible to listen to the notifier directly.
-  ///
-  /// Note that a hover event is included as a hit event. Therefore for
-  /// performance reasons, it may be advantageous to check the new value's
-  /// equality against the previous value (excluding the [PolylineHit.point],
-  /// which will always change), and avoid doing any heavy work if they are the
-  /// same.
-  ///
-  /// See online documentation for more detailed usage instructions. See the
-  /// example project for an example implementation.
-  ///
-  /// Will notify with [PolylineHit]s when any [Polyline]s are hit, otherwise
-  /// will notify with `null`.
-  final PolylineHitNotifier? hitNotifier;
-
-  /// The minimum radius of the hittable area around each [Polyline] in logical
-  /// pixels
-  ///
-  /// The entire visible area is always hittable, but if the visible area is
-  /// smaller than this, then this will be the hittable area.
-  ///
-  /// Defaults to 10.
-  final double minimumHitbox;
-
-  const PolylineLayer({
-    super.key,
-    required this.polylines,
-    this.hitNotifier,
-    this.minimumHitbox = 10,
-    // TODO: Remove once PR #1704 is merged
-    bool polylineCulling = true,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final camera = MapCamera.of(context);
-
-    return MobileLayerTransformer(
-      child: CustomPaint(
-        painter: _PolylinePainter(
-          polylines: polylines
-              .where((p) => p.boundingBox.isOverlapping(camera.visibleBounds))
-              .toList(),
-          camera: camera,
-          hitNotifier: hitNotifier,
-          minimumHitbox: minimumHitbox,
-        ),
-        size: Size(camera.size.x, camera.size.y),
-        isComplex: true,
-      ),
-    );
-  }
-}
-
-class _PolylinePainter extends CustomPainter {
-  final List<Polyline> polylines;
+class PolylinePainter<R extends Object> extends CustomPainter {
+  final List<Polyline<R>> polylines;
   final MapCamera camera;
-  final LatLngBounds bounds;
-  final PolylineHitNotifier? hitNotifier;
+  final LayerHitNotifier<R>? hitNotifier;
   final double minimumHitbox;
 
-  _PolylinePainter({
+  final _hits = <R>[]; // Avoids repetitive memory reallocation
+
+  int get hash => _hash ??= Object.hashAll(polylines);
+  int? _hash;
+
+  PolylinePainter({
     required this.polylines,
     required this.camera,
     required this.hitNotifier,
     required this.minimumHitbox,
-  }) : bounds = camera.visibleBounds;
+  });
 
-  // Avoids reallocation on every `hitTest`, is cleared every time
-  final hits = List<Polyline>.empty(growable: true);
+  List<Offset> getOffsets(Offset origin, List<LatLng> points) => List.generate(
+        points.length,
+        (index) => getOffset(origin, points[index]),
+        growable: false,
+      );
 
-  int get hash => _hash ??= Object.hashAll(polylines);
-  int? _hash;
+  Offset getOffset(Offset origin, LatLng point) {
+    // Critically create as little garbage as possible. This is called on every frame.
+    final projected = camera.project(point);
+    return Offset(projected.x - origin.dx, projected.y - origin.dy);
+  }
 
   @override
   bool? hitTest(Offset position) {
     if (hitNotifier == null) return null;
 
-    hits.clear();
+    _hits.clear();
 
     final origin =
         camera.project(camera.center).toOffset() - camera.size.toOffset() / 2;
 
-    for (final p in polylines.reversed) {
+    for (final polyline in polylines.reversed) {
+      if (polyline.hitValue == null) continue;
+
       // TODO: For efficiency we'd ideally filter by bounding box here. However
       // we'd need to compute an extended bounding box that accounts account for
       // the stroke width.
@@ -199,17 +49,19 @@ class _PolylinePainter extends CustomPainter {
       //   continue;
       // }
 
-      final offsets = getOffsets(camera, origin, p.points);
-      final strokeWidth = p.useStrokeWidthInMeter
+      final offsets = getOffsets(origin, polyline.points);
+      final strokeWidth = polyline.useStrokeWidthInMeter
           ? _metersToStrokeWidth(
               origin,
-              p.points.first,
+              polyline.points.first,
               offsets.first,
-              p.strokeWidth,
+              polyline.strokeWidth,
             )
-          : p.strokeWidth;
-      final hittableDistance =
-          math.max(strokeWidth / 2 + p.borderStrokeWidth / 2, minimumHitbox);
+          : polyline.strokeWidth;
+      final hittableDistance = math.max(
+        strokeWidth / 2 + polyline.borderStrokeWidth / 2,
+        minimumHitbox,
+      );
 
       for (int i = 0; i < offsets.length - 1; i++) {
         final o1 = offsets[i];
@@ -225,19 +77,19 @@ class _PolylinePainter extends CustomPainter {
         ));
 
         if (distance < hittableDistance) {
-          hits.add(p);
+          _hits.add(polyline.hitValue!);
           break;
         }
       }
     }
 
-    if (hits.isEmpty) {
+    if (_hits.isEmpty) {
       hitNotifier!.value = null;
       return false;
     }
 
-    hitNotifier!.value = PolylineHit._(
-      lines: hits,
+    hitNotifier!.value = LayerHitResult(
+      hitValues: _hits,
       point: camera.pointToLatLng(math.Point(position.dx, position.dy)),
     );
     return true;
@@ -286,7 +138,7 @@ class _PolylinePainter extends CustomPainter {
         camera.project(camera.center).toOffset() - camera.size.toOffset() / 2;
 
     for (final polyline in polylines) {
-      final offsets = getOffsets(camera, origin, polyline.points);
+      final offsets = getOffsets(origin, polyline.points);
       if (offsets.isEmpty) {
         continue;
       }
@@ -425,16 +277,12 @@ class _PolylinePainter extends CustomPainter {
     double strokeWidthInMeters,
   ) {
     final r = _distance.offset(p0, strokeWidthInMeters, 180);
-    final delta = o0 - getOffset(camera, origin, r);
+    final delta = o0 - getOffset(origin, r);
     return delta.distance;
   }
 
   @override
-  bool shouldRepaint(_PolylinePainter oldDelegate) {
-    return oldDelegate.bounds != bounds ||
-        oldDelegate.polylines.length != polylines.length ||
-        oldDelegate.hash != hash;
-  }
+  bool shouldRepaint(PolylinePainter<R> oldDelegate) => false;
 }
 
 double _distanceSq(double x0, double y0, double x1, double y1) {
