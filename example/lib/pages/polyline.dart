@@ -339,7 +339,7 @@ class _SimplificationToleranceSliderState
                 onChangeEnd: widget.onChangedTolerance,
                 min: 0,
                 max: 2,
-                divisions: 125,
+                divisions: 100,
                 label: _simplificationTolerance == 0
                     ? 'Disabled'
                     : _simplificationTolerance.toStringAsFixed(2),
