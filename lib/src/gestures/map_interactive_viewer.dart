@@ -747,6 +747,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     final relativePosition = position.relative;
     if (relativePosition == null) return;
 
+    if (_dragMode) return;
+
     widget.controller.tapped(
       MapEventSource.tap,
       position,
