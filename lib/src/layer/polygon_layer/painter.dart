@@ -41,23 +41,24 @@ class PolygonPainter extends CustomPainter {
     Polygon? lastPolygon;
     int? lastHash;
 
-    // This functions flushes the batched fill and border paths constructed below.
+    // This functions flushes the batched fill and border paths constructed below
     void drawPaths() {
-      if (lastPolygon == null) {
-        return;
-      }
+      if (lastPolygon == null) return;
       final polygon = lastPolygon!;
 
-      // Draw filled polygon .
-      if (polygon.isFilled) {
-        final paint = Paint()
-          ..style = PaintingStyle.fill
-          ..color = polygon.color;
+      // Draw filled polygon
+      // ignore: deprecated_member_use_from_same_package
+      if (polygon.isFilled ?? true) {
+        if (polygon.color case final color?) {
+          final paint = Paint()
+            ..style = PaintingStyle.fill
+            ..color = color;
 
-        canvas.drawPath(filledPath, paint);
+          canvas.drawPath(filledPath, paint);
+        }
       }
 
-      // Draw polygon outline.
+      // Draw polygon outline
       if (polygon.borderStrokeWidth > 0) {
         final borderPaint = _getBorderPaint(polygon);
         canvas.drawPath(borderPath, borderPaint);
@@ -89,8 +90,11 @@ class PolygonPainter extends CustomPainter {
       lastHash = hash;
 
       // First add fills and borders to path.
-      if (polygon.isFilled) {
-        filledPath.addPolygon(offsets, true);
+      // ignore: deprecated_member_use_from_same_package
+      if (polygon.isFilled ?? true) {
+        if (polygon.color != null) {
+          filledPath.addPolygon(offsets, true);
+        }
       }
       if (polygon.borderStrokeWidth > 0.0) {
         _addBorderToPath(borderPath, polygon, offsets);

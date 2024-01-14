@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/misc/tile_providers.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
+import 'package:flutter_map_example/widgets/number_of_items_slider.dart';
 import 'package:latlong2/latlong.dart';
 
 const maxMarkersCount = 20000;
@@ -26,7 +27,8 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
       source.nextDouble() * (end - start) + start;
   List<Marker> allMarkers = [];
 
-  int _sliderVal = maxMarkersCount ~/ 10;
+  static const int _initialNumOfMarkers = maxMarkersCount ~/ 10;
+  int numOfMarkers = _initialNumOfMarkers;
 
   @override
   void initState() {
@@ -50,41 +52,35 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('A lot of markers')),
+      appBar: AppBar(title: const Text('Many Markers')),
       drawer: const MenuDrawer(ManyMarkersPage.route),
-      body: Column(
+      body: Stack(
         children: [
-          Slider(
-            min: 0,
-            max: maxMarkersCount.toDouble(),
-            divisions: maxMarkersCount ~/ 500,
-            label: 'Markers',
-            value: _sliderVal.toDouble(),
-            onChanged: (newVal) {
-              _sliderVal = newVal.toInt();
-              setState(() {});
-            },
-          ),
-          Text('$_sliderVal markers'),
-          Flexible(
-            child: FlutterMap(
-              options: const MapOptions(
-                initialCenter: LatLng(50, 20),
-                initialZoom: 5,
-                interactionOptions: InteractionOptions(
-                  flags: InteractiveFlag.all - InteractiveFlag.rotate,
-                ),
-              ),
-              children: [
-                openStreetMapTileLayer,
-                MarkerLayer(
-                  markers: allMarkers.sublist(
-                    0,
-                    min(allMarkers.length, _sliderVal),
-                  ),
-                ),
-              ],
+          FlutterMap(
+            options: const MapOptions(
+              initialCenter: LatLng(45.359124, 10.419922),
+              initialZoom: 5,
             ),
+            children: [
+              openStreetMapTileLayer,
+              MarkerLayer(markers: allMarkers.take(numOfMarkers).toList()),
+            ],
+          ),
+          Positioned(
+            left: 16,
+            top: 16,
+            right: 16,
+            child: NumberOfItemsSlider(
+              itemDescription: 'Marker',
+              initialNumber: _initialNumOfMarkers,
+              onChangedNumber: (v) => setState(() => numOfMarkers = v),
+            ),
+          ),
+          Positioned(
+            bottom: 16,
+            left: 0,
+            right: 0,
+            child: PerformanceOverlay.allEnabled(),
           ),
         ],
       ),

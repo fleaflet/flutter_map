@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/misc/tile_providers.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
+import 'package:flutter_map_example/widgets/number_of_items_slider.dart';
 import 'package:latlong2/latlong.dart';
 
 const maxCirclesCount = 20000;
@@ -26,7 +27,8 @@ class ManyCirclesPageState extends State<ManyCirclesPage> {
       source.nextDouble() * (end - start) + start;
   List<CircleMarker> allCircles = [];
 
-  int _sliderVal = maxCirclesCount ~/ 10;
+  static const int _initialNumOfCircles = maxCirclesCount ~/ 10;
+  int numOfCircles = _initialNumOfCircles;
 
   @override
   void initState() {
@@ -52,38 +54,35 @@ class ManyCirclesPageState extends State<ManyCirclesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('A lot of circles')),
+      appBar: AppBar(title: const Text('Many Circles')),
       drawer: const MenuDrawer(ManyCirclesPage.route),
-      body: Column(
+      body: Stack(
         children: [
-          Slider(
-            min: 0,
-            max: maxCirclesCount.toDouble(),
-            divisions: maxCirclesCount ~/ 500,
-            label: 'Circles',
-            value: _sliderVal.toDouble(),
-            onChanged: (newVal) {
-              _sliderVal = newVal.toInt();
-              setState(() {});
-            },
-          ),
-          Text('$_sliderVal circles'),
-          Flexible(
-            child: FlutterMap(
-              options: const MapOptions(
-                initialCenter: LatLng(50, 20),
-                initialZoom: 5,
-                interactionOptions: InteractionOptions(
-                  flags: InteractiveFlag.all - InteractiveFlag.rotate,
-                ),
-              ),
-              children: [
-                openStreetMapTileLayer,
-                CircleLayer(
-                    circles: allCircles.sublist(
-                        0, min(allCircles.length, _sliderVal))),
-              ],
+          FlutterMap(
+            options: const MapOptions(
+              initialCenter: LatLng(45.389995, 11.694336),
+              initialZoom: 5,
             ),
+            children: [
+              openStreetMapTileLayer,
+              CircleLayer(circles: allCircles.take(numOfCircles).toList()),
+            ],
+          ),
+          Positioned(
+            left: 16,
+            top: 16,
+            right: 16,
+            child: NumberOfItemsSlider(
+              itemDescription: 'Circle',
+              initialNumber: _initialNumOfCircles,
+              onChangedNumber: (v) => setState(() => numOfCircles = v),
+            ),
+          ),
+          Positioned(
+            bottom: 16,
+            left: 0,
+            right: 0,
+            child: PerformanceOverlay.allEnabled(),
           ),
         ],
       ),

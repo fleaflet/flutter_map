@@ -1,11 +1,8 @@
-import 'dart:math';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/misc/tile_providers.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
-import 'package:flutter_map_example/widgets/simplification_tolerance_slider.dart';
 import 'package:latlong2/latlong.dart';
 
 typedef PolylineHitValue = ({String title, String subtitle});
@@ -118,27 +115,6 @@ class _PolylinePageState extends State<PolylinePage> {
   late final _polylines =
       Map.fromEntries(_polylinesRaw.map((e) => MapEntry(e.hitValue, e)));
 
-  final _randomWalk = [const LatLng(44.861294, 13.845086)];
-
-  static const double _initialSimplificationTolerance = 0.5;
-  double simplificationTolerance = _initialSimplificationTolerance;
-
-  @override
-  void initState() {
-    super.initState();
-    final random = Random(1234);
-    for (int i = 1; i < 200000; i++) {
-      final lat = (random.nextDouble() - 0.5) * 0.001;
-      final lon = (random.nextDouble() - 0.6) * 0.001;
-      _randomWalk.add(
-        LatLng(
-          _randomWalk[i - 1].latitude + lat,
-          _randomWalk[i - 1].longitude + lon,
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -205,27 +181,7 @@ class _PolylinePageState extends State<PolylinePage> {
                   ),
                 ),
               ),
-              PolylineLayer(
-                simplificationTolerance: simplificationTolerance,
-                polylines: [
-                  Polyline(
-                    points: _randomWalk,
-                    strokeWidth: 3,
-                    color: Colors.deepOrange,
-                  ),
-                ],
-              ),
             ],
-          ),
-          Positioned(
-            left: 16,
-            top: 16,
-            right: 16,
-            child: SimplificationToleranceSlider(
-              initialTolerance: _initialSimplificationTolerance,
-              onChangedTolerance: (v) =>
-                  setState(() => simplificationTolerance = v),
-            ),
           ),
         ],
       ),

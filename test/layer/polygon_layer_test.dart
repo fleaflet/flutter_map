@@ -11,7 +11,6 @@ void main() {
     final polygons = <Polygon>[
       for (int i = 0; i < 1; ++i)
         Polygon(
-          isFilled: true,
           color: Colors.purple,
           borderColor: Colors.purple,
           borderStrokeWidth: 4,

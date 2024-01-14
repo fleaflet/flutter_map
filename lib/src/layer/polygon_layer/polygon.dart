@@ -9,12 +9,18 @@ class Polygon {
   final List<LatLng> points;
   final List<List<LatLng>>? holePointsList;
 
-  final Color color;
+  final Color? color;
   final double borderStrokeWidth;
   final Color borderColor;
   final bool disableHolesBorder;
   final bool isDotted;
-  final bool isFilled;
+  @Deprecated(
+    'Prefer setting `color` to null to disable filling, or a `Color` to enable filling of that color. '
+    'This parameter will be removed to simplify the API, as this was a remnant of pre-null-safety. '
+    'The default of this parameter is now `null` and will use the rules above - the option is retained so as not to break APIs. '
+    'This feature was deprecated after v7.',
+  )
+  final bool? isFilled;
   final StrokeCap strokeCap;
   final StrokeJoin strokeJoin;
   final String? label;
@@ -50,19 +56,26 @@ class Polygon {
   Polygon({
     required this.points,
     this.holePointsList,
-    this.color = const Color(0xFF00FF00),
-    this.borderStrokeWidth = 0.0,
+    this.color,
+    this.borderStrokeWidth = 0,
     this.borderColor = const Color(0xFFFFFF00),
     this.disableHolesBorder = false,
     this.isDotted = false,
-    this.isFilled = false,
+    @Deprecated(
+      'Prefer setting `color` to null to disable filling, or a `Color` to enable filling of that color. '
+      'This parameter will be removed to simplify the API, as this was a remnant of pre-null-safety. '
+      'The default of this parameter is now `null` and will use the rules above - the option is retained so as not to break APIs. '
+      'This feature was deprecated after v7.',
+    )
+    this.isFilled,
     this.strokeCap = StrokeCap.round,
     this.strokeJoin = StrokeJoin.round,
     this.label,
     this.labelStyle = const TextStyle(),
     this.labelPlacement = PolygonLabelPlacement.centroid,
     this.rotateLabel = false,
-  }) : _filledAndClockwise = isFilled && isClockwise(points);
+  }) : _filledAndClockwise =
+            (isFilled ?? (color != null)) && isClockwise(points);
 
   Polygon copyWithNewPoints(List<LatLng> points) => Polygon(
         points: points,
@@ -72,6 +85,8 @@ class Polygon {
         borderColor: borderColor,
         disableHolesBorder: disableHolesBorder,
         isDotted: isDotted,
+        // ignore: deprecated_member_use_from_same_package
+        isFilled: isFilled,
         strokeCap: strokeCap,
         strokeJoin: strokeJoin,
         label: label,
@@ -100,6 +115,8 @@ class Polygon {
           borderColor == other.borderColor &&
           disableHolesBorder == other.disableHolesBorder &&
           isDotted == other.isDotted &&
+          // ignore: deprecated_member_use_from_same_package
+          isFilled == other.isFilled &&
           strokeCap == other.strokeCap &&
           strokeJoin == other.strokeJoin &&
           label == other.label &&
@@ -119,6 +136,7 @@ class Polygon {
         borderColor,
         disableHolesBorder,
         isDotted,
+        // ignore: deprecated_member_use_from_same_package
         isFilled,
         strokeCap,
         strokeJoin,

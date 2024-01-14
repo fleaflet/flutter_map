@@ -113,22 +113,24 @@ class _FlutterMapStateContainer extends State<FlutterMap>
       ),
     );
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        _updateAndEmitSizeIfConstraintsChanged(constraints);
+    return RepaintBoundary(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          _updateAndEmitSizeIfConstraintsChanged(constraints);
 
-        return MapInteractiveViewer(
-          controller: _mapController,
-          builder: (context, options, camera) {
-            return MapInheritedModel(
-              controller: _mapController,
-              options: options,
-              camera: camera,
-              child: widgets,
-            );
-          },
-        );
-      },
+          return MapInteractiveViewer(
+            controller: _mapController,
+            builder: (context, options, camera) {
+              return MapInheritedModel(
+                controller: _mapController,
+                options: options,
+                camera: camera,
+                child: widgets,
+              );
+            },
+          );
+        },
+      ),
     );
   }
 
