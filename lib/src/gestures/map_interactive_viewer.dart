@@ -747,6 +747,9 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     final relativePosition = position.relative;
     if (relativePosition == null) return;
 
+    // Prevent the onTap event from being registered if any drag is already
+    // happening. For example, when a double-tap-drag-zoom gesture starts, this
+    // prevents registering an onTap event as well.
     if (_dragMode) return;
 
     widget.controller.tapped(
