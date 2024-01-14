@@ -43,9 +43,19 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
       body: Stack(
         children: [
           FlutterMap(
-            options: const MapOptions(
-              initialCenter: LatLng(58.860759, 47.818809),
-              initialZoom: 11,
+            options: MapOptions(
+              initialCameraFit: CameraFit.bounds(
+                bounds: LatLngBounds(
+                  const LatLng(58.93864, 47.757597),
+                  const LatLng(58.806666, 47.848959),
+                ),
+                padding: const EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  top: 88,
+                  bottom: 192,
+                ),
+              ),
             ),
             children: [
               openStreetMapTileLayer,

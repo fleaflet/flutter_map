@@ -57,9 +57,19 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
       body: Stack(
         children: [
           FlutterMap(
-            options: const MapOptions(
-              initialCenter: LatLng(45.359124, 10.419922),
-              initialZoom: 5,
+            options: MapOptions(
+              initialCameraFit: CameraFit.bounds(
+                bounds: LatLngBounds(
+                  const LatLng(55, -9),
+                  const LatLng(37, 30),
+                ),
+                padding: const EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  top: 88,
+                  bottom: 192,
+                ),
+              ),
             ),
             children: [
               openStreetMapTileLayer,

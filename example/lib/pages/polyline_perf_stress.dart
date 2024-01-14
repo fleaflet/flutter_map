@@ -46,9 +46,16 @@ class _PolylinePerfStressPageState extends State<PolylinePerfStressPage> {
       body: Stack(
         children: [
           FlutterMap(
-            options: const MapOptions(
-              initialCenter: LatLng(45.172136, -0.046055),
-              initialZoom: 6,
+            options: MapOptions(
+              initialCameraFit: CameraFit.bounds(
+                bounds: LatLngBounds.fromPoints(_randomWalk),
+                padding: const EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  top: 88,
+                  bottom: 192,
+                ),
+              ),
             ),
             children: [
               openStreetMapTileLayer,
