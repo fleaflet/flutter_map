@@ -27,6 +27,12 @@ PolylineLayer(
 [layer-interactivity.md](layer-interactivity.md)
 {% endcontent-ref %}
 
+{% hint style="info" %}
+If any polylines are very thin, it is recommended for accessibility reasons to increase the size of the 'hitbox' (the area where a hit is detected on a polyline) to larger than the line itself in order to make it easier to tap/interact with the polyline.
+
+The `minimumHitbox` argument adjusts the minimum size of the hitbox - the size of the hitbox will usually be the entire visual area/thickness of the polyline (and border), but will be no less than this value. It defaults to 10.
+{% endhint %}
+
 ## Performance Optimizations
 
 ### Culling
@@ -34,7 +40,7 @@ PolylineLayer(
 To improve performance, line segments that are entirely offscreen are effectively removed - they are not processed or painted/rendered. This is enabled by default and disabling it is not recommended.
 
 {% hint style="warning" %}
-Polylines that are particularly 'wide' (due to their `strokeWidth`/`borderStrokeWidth` may be improperly culled if using the default configuration. This is because culling decisions are made on the 'infinitely thin line' joining the `points`, not the visible line, for performance reasons.
+Polylines that are particularly wide (due to their `strokeWidth`/`borderStrokeWidth` may be improperly culled if using the default configuration. This is because culling decisions are made on the 'infinitely thin line' joining the `points`, not the visible line, for performance reasons.
 
 Therefore, the `cullingMargin` parameter is provided, which effectively increases the distance a segement needs to be from the viewport edges before it can be culled. Increase this value from its default if line segements are visibly disappearing unexpectedly.
 {% endhint %}
@@ -42,7 +48,9 @@ Therefore, the `cullingMargin` parameter is provided, which effectively increase
 {% hint style="warning" %}
 Culling cannot be applied to polylines with a gradient fill, as this would cause inconsistent gradients.
 
-Avoid using these if performance is of great importance.
+These will be automatically internally excluded from culling: it is not necessary to disable it layer-wide - unless all polylines have gradient fills, in which case that may yield better performance.
+
+Avoid using these if performance is of importance. Instead, try using multiple polylines with coarser color differences.
 {% endhint %}
 
 ### Simplification
@@ -62,7 +70,7 @@ To adjust the quality and performance of the simplification, the maximum distanc
 To disable simplification, set `simplificationTolerance` to 0.&#x20;
 
 {% hint style="warning" %}
-On short polylines, disabling simplification may yield better performance.
+On layers with (many) only 'short' polylines (those with few points), disabling simplification may yield better performance.
 {% endhint %}
 
 ## Routing/Navigation

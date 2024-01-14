@@ -39,11 +39,15 @@ To adjust the quality and performance of the simplification, the maximum distanc
 To disable simplification, set `simplificationTolerance` to 0.&#x20;
 
 {% hint style="warning" %}
-On small polygons, disabling simplification may yield better performance.
+On layers with (many) only small polygons (those with few points), disabling simplification may yield better performance.
 {% endhint %}
 
 {% hint style="warning" %}
 The outline points of holes are not simplified.
+{% endhint %}
+
+{% hint style="warning" %}
+Seperate polygons that are usually very close/adjacent/connected to each other on their borders may overlap after simplification, when they did not prior to that.
 {% endhint %}
 
 ## Polygon Manipulation

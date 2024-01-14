@@ -1,6 +1,6 @@
 # Layer Interactivity
 
-Some layers, namely the [polyline-layer.md](polyline-layer.md "mention"), support hit detection and interactivity. These all follow roughly the same pattern, and there's three or four easy steps to setting it up.
+Some layers, (currently only the [polyline-layer.md](polyline-layer.md "mention")), support hit detection and interactivity. These all follow roughly the same pattern, and there's three or four easy steps to setting it up.
 
 {% hint style="info" %}
 To detect hits/interactions on `Markers` in a `MarkerLayer`, simply use a `GestureDetector` or similar widget in the `Marker.child`.
