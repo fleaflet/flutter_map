@@ -1,103 +1,99 @@
-import 'dart:core';
-import 'dart:ui' as ui;
+part of 'polyline_layer.dart';
 
-import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/geo/latlng_bounds.dart';
-import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
-import 'package:flutter_map/src/map/camera/camera.dart';
-import 'package:flutter_map/src/misc/offsets.dart';
-import 'package:flutter_map/src/misc/point_extensions.dart';
-import 'package:latlong2/latlong.dart';
+class PolylinePainter<R extends Object> extends CustomPainter {
+  final List<Polyline<R>> polylines;
+  final MapCamera camera;
+  final LayerHitNotifier<R>? hitNotifier;
+  final double minimumHitbox;
 
-class Polyline {
-  final List<LatLng> points;
-  final double strokeWidth;
-  final Color color;
-  final double borderStrokeWidth;
-  final Color? borderColor;
-  final List<Color>? gradientColors;
-  final List<double>? colorsStop;
-  final bool isDotted;
-  final StrokeCap strokeCap;
-  final StrokeJoin strokeJoin;
-  final bool useStrokeWidthInMeter;
-
-  LatLngBounds? _boundingBox;
-
-  LatLngBounds get boundingBox =>
-      _boundingBox ??= LatLngBounds.fromPoints(points);
-
-  Polyline({
-    required this.points,
-    this.strokeWidth = 1.0,
-    this.color = const Color(0xFF00FF00),
-    this.borderStrokeWidth = 0.0,
-    this.borderColor = const Color(0xFFFFFF00),
-    this.gradientColors,
-    this.colorsStop,
-    this.isDotted = false,
-    this.strokeCap = StrokeCap.round,
-    this.strokeJoin = StrokeJoin.round,
-    this.useStrokeWidthInMeter = false,
-  });
-
-  /// Used to batch draw calls to the canvas.
-  int get renderHashCode => Object.hash(
-      strokeWidth,
-      color,
-      borderStrokeWidth,
-      borderColor,
-      gradientColors,
-      colorsStop,
-      isDotted,
-      strokeCap,
-      strokeJoin,
-      useStrokeWidthInMeter);
-}
-
-@immutable
-class PolylineLayer extends StatelessWidget {
-  final List<Polyline> polylines;
-  final bool polylineCulling;
-
-  const PolylineLayer({
-    super.key,
-    required this.polylines,
-    this.polylineCulling = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final map = MapCamera.of(context);
-
-    return MobileLayerTransformer(
-      child: CustomPaint(
-        painter: PolylinePainter(
-          polylineCulling
-              ? polylines
-                  .where((p) => p.boundingBox.isOverlapping(map.visibleBounds))
-                  .toList()
-              : polylines,
-          map,
-        ),
-        size: Size(map.size.x, map.size.y),
-        isComplex: true,
-      ),
-    );
-  }
-}
-
-class PolylinePainter extends CustomPainter {
-  final List<Polyline> polylines;
-
-  final MapCamera map;
-  final LatLngBounds bounds;
-
-  PolylinePainter(this.polylines, this.map) : bounds = map.visibleBounds;
+  final _hits = <R>[]; // Avoids repetitive memory reallocation
 
   int get hash => _hash ??= Object.hashAll(polylines);
-
   int? _hash;
+
+  PolylinePainter({
+    required this.polylines,
+    required this.camera,
+    required this.hitNotifier,
+    required this.minimumHitbox,
+  });
+
+  List<Offset> getOffsets(Offset origin, List<LatLng> points) => List.generate(
+        points.length,
+        (index) => getOffset(origin, points[index]),
+        growable: false,
+      );
+
+  Offset getOffset(Offset origin, LatLng point) {
+    // Critically create as little garbage as possible. This is called on every frame.
+    final projected = camera.project(point);
+    return Offset(projected.x - origin.dx, projected.y - origin.dy);
+  }
+
+  @override
+  bool? hitTest(Offset position) {
+    if (hitNotifier == null) return null;
+
+    _hits.clear();
+
+    final origin =
+        camera.project(camera.center).toOffset() - camera.size.toOffset() / 2;
+
+    for (final polyline in polylines.reversed) {
+      if (polyline.hitValue == null) continue;
+
+      // TODO: For efficiency we'd ideally filter by bounding box here. However
+      // we'd need to compute an extended bounding box that accounts account for
+      // the stroke width.
+      // if (!p.boundingBox.contains(touch)) {
+      //   continue;
+      // }
+
+      final offsets = getOffsets(origin, polyline.points);
+      final strokeWidth = polyline.useStrokeWidthInMeter
+          ? _metersToStrokeWidth(
+              origin,
+              polyline.points.first,
+              offsets.first,
+              polyline.strokeWidth,
+            )
+          : polyline.strokeWidth;
+      final hittableDistance = math.max(
+        strokeWidth / 2 + polyline.borderStrokeWidth / 2,
+        minimumHitbox,
+      );
+
+      for (int i = 0; i < offsets.length - 1; i++) {
+        final o1 = offsets[i];
+        final o2 = offsets[i + 1];
+
+        final distance = math.sqrt(_distToSegmentSquared(
+          position.dx,
+          position.dy,
+          o1.dx,
+          o1.dy,
+          o2.dx,
+          o2.dy,
+        ));
+
+        if (distance < hittableDistance) {
+          _hits.add(polyline.hitValue!);
+          break;
+        }
+      }
+    }
+
+    if (_hits.isEmpty) {
+      hitNotifier!.value = null;
+      return false;
+    }
+
+    hitNotifier!.value = LayerHitResult(
+      hitValues: _hits,
+      point: camera.pointToLatLng(math.Point(position.dx, position.dy)),
+    );
+    return true;
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -138,10 +134,11 @@ class PolylinePainter extends CustomPainter {
       paint = Paint();
     }
 
-    final origin = map.project(map.center).toOffset() - map.size.toOffset() / 2;
+    final origin =
+        camera.project(camera.center).toOffset() - camera.size.toOffset() / 2;
 
     for (final polyline in polylines) {
-      final offsets = getOffsets(map, origin, polyline.points);
+      final offsets = getOffsets(origin, polyline.points);
       if (offsets.isEmpty) {
         continue;
       }
@@ -156,16 +153,12 @@ class PolylinePainter extends CustomPainter {
 
       late final double strokeWidth;
       if (polyline.useStrokeWidthInMeter) {
-        final firstPoint = polyline.points.first;
-        final firstOffset = offsets.first;
-        final r = const Distance().offset(
-          firstPoint,
+        strokeWidth = _metersToStrokeWidth(
+          origin,
+          polyline.points.first,
+          offsets.first,
           polyline.strokeWidth,
-          180,
         );
-        final delta = firstOffset - getOffset(map, origin, r);
-
-        strokeWidth = delta.distance;
       } else {
         strokeWidth = polyline.strokeWidth;
       }
@@ -277,10 +270,44 @@ class PolylinePainter extends CustomPainter {
         .toList();
   }
 
-  @override
-  bool shouldRepaint(PolylinePainter oldDelegate) {
-    return oldDelegate.bounds != bounds ||
-        oldDelegate.polylines.length != polylines.length ||
-        oldDelegate.hash != hash;
+  double _metersToStrokeWidth(
+    Offset origin,
+    LatLng p0,
+    Offset o0,
+    double strokeWidthInMeters,
+  ) {
+    final r = _distance.offset(p0, strokeWidthInMeters, 180);
+    final delta = o0 - getOffset(origin, r);
+    return delta.distance;
   }
+
+  @override
+  bool shouldRepaint(PolylinePainter<R> oldDelegate) => false;
 }
+
+double _distanceSq(double x0, double y0, double x1, double y1) {
+  final dx = x0 - x1;
+  final dy = y0 - y1;
+  return dx * dx + dy * dy;
+}
+
+double _distToSegmentSquared(
+  double px,
+  double py,
+  double x0,
+  double y0,
+  double x1,
+  double y1,
+) {
+  final dx = x1 - x0;
+  final dy = y1 - y0;
+  final distanceSq = dx * dx + dy * dy;
+  if (distanceSq == 0) {
+    return _distanceSq(px, py, x0, y0);
+  }
+
+  final t = (((px - x0) * dx + (py - y0) * dy) / distanceSq).clamp(0, 1);
+  return _distanceSq(px, py, x0 + t * dx, y0 + t * dy);
+}
+
+const _distance = Distance();

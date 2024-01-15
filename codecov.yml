@@ -1,0 +1,18 @@
+codecov:
+  require_ci_to_pass: true
+
+coverage:
+  status:
+    project:
+      default:
+        # the required coverage value
+        target: 0%
+        # the leniency in hitting the target
+        threshold: 100%
+    # completely disable coverage warnings and the status check for changes
+    patch: off
+
+ignore:
+  - "**/*.g.dart"
+  - "example"
+  - "benchmark"

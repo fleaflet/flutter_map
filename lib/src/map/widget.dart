@@ -51,7 +51,7 @@ class FlutterMap extends StatefulWidget {
 }
 
 class _FlutterMapStateContainer extends State<FlutterMap>
-    with AutomaticKeepAliveClientMixin {
+    with AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
   bool _initialCameraFitApplied = false;
 
   late MapControllerImpl _mapController;
@@ -184,9 +184,10 @@ class _FlutterMapStateContainer extends State<FlutterMap>
 
   void _setMapController() {
     if (_controllerCreatedInternally) {
-      _mapController = MapControllerImpl(widget.options);
+      _mapController = MapControllerImpl(options: widget.options, vsync: this);
     } else {
       _mapController = widget.mapController! as MapControllerImpl;
+      _mapController.vsync = this;
       _mapController.options = widget.options;
     }
   }

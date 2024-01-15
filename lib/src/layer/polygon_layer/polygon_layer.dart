@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
@@ -5,8 +6,8 @@ import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
 import 'package:flutter_map/src/layer/polygon_layer/label.dart';
 import 'package:flutter_map/src/map/camera/camera.dart';
-import 'package:flutter_map/src/misc/offsets.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';
+import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart' hide Path; // conflict with Path from UI
 
 enum PolygonLabelPlacement {
@@ -104,40 +105,67 @@ class Polygon {
 
 @immutable
 class PolygonLayer extends StatelessWidget {
+  /// [Polygon]s to draw
   final List<Polygon> polygons;
 
-  /// screen space culling of polygons based on bounding box
+  /// Whether to cull polygons and polygon sections that are outside of the
+  /// viewport
+  ///
+  /// Defaults to `true`.
   final bool polygonCulling;
 
-  // Turn on/off per-polygon label drawing on the layer-level.
+  /// Distance between two mergeable polygon points, in decimal degrees scaled
+  /// to floored zoom
+  ///
+  /// Increasing results in a more jagged, less accurate simplification, with
+  /// improved performance; and vice versa.
+  ///
+  /// Note that this value is internally scaled using the current map zoom, to
+  /// optimize visual performance in conjunction with improved performance with
+  /// culling.
+  ///
+  /// Defaults to 0.5. Set to 0 to disable simplification.
+  final double simplificationTolerance;
+
+  /// Whether to draw per-polygon labels
+  ///
+  /// Defaults to `true`.
   final bool polygonLabels;
 
-  // Whether to draw labels last and thus over all the polygons.
+  /// Whether to draw labels last and thus over all the polygons
+  ///
+  /// Defaults to `false`.
   final bool drawLabelsLast;
 
   const PolygonLayer({
     super.key,
     required this.polygons,
-    this.polygonCulling = false,
+    this.polygonCulling = true,
+    this.simplificationTolerance = 0.5,
     this.polygonLabels = true,
     this.drawLabelsLast = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final map = MapCamera.of(context);
-    final size = Size(map.size.x, map.size.y);
+    final camera = MapCamera.of(context);
 
-    final pgons = polygonCulling
-        ? polygons.where((p) {
-            return p.boundingBox.isOverlapping(map.visibleBounds);
-          }).toList()
+    final culledPolygons = polygonCulling
+        ? polygons
+            .where((p) => p.boundingBox.isOverlapping(camera.visibleBounds))
+            .toList()
         : polygons;
 
     return MobileLayerTransformer(
       child: CustomPaint(
-        painter: PolygonPainter(pgons, map, polygonLabels, drawLabelsLast),
-        size: size,
+        painter: PolygonPainter(
+          polygons: culledPolygons,
+          camera: camera,
+          polygonLabels: polygonLabels,
+          drawLabelsLast: drawLabelsLast,
+          simplificationTolerance: simplificationTolerance,
+        ),
+        size: Size(camera.size.x, camera.size.y),
         isComplex: true,
       ),
     );
@@ -146,14 +174,19 @@ class PolygonLayer extends StatelessWidget {
 
 class PolygonPainter extends CustomPainter {
   final List<Polygon> polygons;
-  final MapCamera map;
+  final MapCamera camera;
   final LatLngBounds bounds;
   final bool polygonLabels;
   final bool drawLabelsLast;
+  final double simplificationTolerance;
 
-  PolygonPainter(
-      this.polygons, this.map, this.polygonLabels, this.drawLabelsLast)
-      : bounds = map.visibleBounds;
+  PolygonPainter({
+    required this.polygons,
+    required this.camera,
+    required this.polygonLabels,
+    required this.simplificationTolerance,
+    required this.drawLabelsLast,
+  }) : bounds = camera.visibleBounds;
 
   int get hash {
     _hash ??= Object.hashAll(polygons);
@@ -165,8 +198,30 @@ class PolygonPainter extends CustomPainter {
   ({Offset min, Offset max}) getBounds(Offset origin, Polygon polygon) {
     final bbox = polygon.boundingBox;
     return (
-      min: getOffset(map, origin, bbox.southWest),
-      max: getOffset(map, origin, bbox.northEast),
+      min: getOffset(origin, bbox.southWest),
+      max: getOffset(origin, bbox.northEast),
+    );
+  }
+
+  Offset getOffset(Offset origin, LatLng point) {
+    // Critically create as little garbage as possible. This is called on every frame.
+    final projected = camera.project(point);
+    return Offset(projected.x - origin.dx, projected.y - origin.dy);
+  }
+
+  List<Offset> getOffsets(Offset origin, List<LatLng> points) {
+    final renderedPoints = simplificationTolerance != 0
+        ? simplify(
+            points,
+            simplificationTolerance / pow(2, camera.zoom.floor()),
+            highestQuality: true,
+          )
+        : points;
+
+    return List.generate(
+      renderedPoints.length,
+      (index) => getOffset(origin, renderedPoints[index]),
+      growable: false,
     );
   }
 
@@ -205,14 +260,14 @@ class PolygonPainter extends CustomPainter {
       lastHash = null;
     }
 
-    final origin = (map.project(map.center) - map.size / 2).toOffset();
+    final origin = (camera.project(camera.center) - camera.size / 2).toOffset();
 
     // Main loop constructing batched fill and border paths from given polygons.
     for (final polygon in polygons) {
       if (polygon.points.isEmpty) {
         continue;
       }
-      final offsets = getOffsets(map, origin, polygon.points);
+      final offsets = getOffsets(origin, polygon.points);
 
       // The hash is based on the polygons visual properties. If the hash from
       // the current and the previous polygon no longer match, we need to flush
@@ -242,7 +297,7 @@ class PolygonPainter extends CustomPainter {
 
         final holeOffsetsList = List<List<Offset>>.generate(
           holePointsList.length,
-          (i) => getOffsets(map, origin, holePointsList[i]),
+          (i) => getOffsets(origin, holePointsList[i]),
           growable: false,
         );
 
@@ -266,11 +321,11 @@ class PolygonPainter extends CustomPainter {
         // The painter will be null if the layouting algorithm determined that
         // there isn't enough space.
         final painter = buildLabelTextPainter(
-          mapSize: map.size,
-          placementPoint: map.getOffsetFromOrigin(polygon.labelPosition),
+          mapSize: camera.size,
+          placementPoint: camera.getOffsetFromOrigin(polygon.labelPosition),
           bounds: getBounds(origin, polygon),
           textPainter: polygon.textPainter!,
-          rotationRad: map.rotationRad,
+          rotationRad: camera.rotationRad,
           rotate: polygon.rotateLabel,
           padding: 20,
         );
@@ -294,12 +349,12 @@ class PolygonPainter extends CustomPainter {
         final textPainter = polygon.textPainter;
         if (textPainter != null) {
           final painter = buildLabelTextPainter(
-            mapSize: map.size,
+            mapSize: camera.size,
             placementPoint:
-                map.project(polygon.labelPosition).toOffset() - origin,
+                camera.project(polygon.labelPosition).toOffset() - origin,
             bounds: getBounds(origin, polygon),
             textPainter: textPainter,
-            rotationRad: map.rotationRad,
+            rotationRad: camera.rotationRad,
             rotate: polygon.rotateLabel,
             padding: 20,
           );
