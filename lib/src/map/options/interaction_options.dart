@@ -45,13 +45,13 @@ final class InteractionOptions {
   /// Defaults to 0.01.
   final double scrollWheelVelocity;
 
-  /// Override this option if you want to use custom keys for the CTRL+drag
-  /// rotate gesture.
+  /// Override this option if you want to use custom keys for the key trigger
+  /// drag rotate gesture (aka CTRL+drag rotate gesture).
   /// By default the left and right control key are both used.
-  final List<LogicalKeyboardKey> ctrlRotateKeys;
+  final List<LogicalKeyboardKey> keyTriggerDragRotateKeys;
 
   /// Default keys for the key press and drag to rotate gesture.
-  static const defaultCtrlRotateKey = <LogicalKeyboardKey>[
+  static const defaultKeyTriggerDragRotateKeys = <LogicalKeyboardKey>[
     LogicalKeyboardKey.control,
     LogicalKeyboardKey.controlLeft,
     LogicalKeyboardKey.controlRight,
@@ -66,7 +66,7 @@ final class InteractionOptions {
     this.twoFingerZoomThreshold = 0.01,
     this.twoFingerMoveThreshold = 3.0,
     this.scrollWheelVelocity = 0.01,
-    this.ctrlRotateKeys = defaultCtrlRotateKey,
+    this.keyTriggerDragRotateKeys = defaultKeyTriggerDragRotateKeys,
   })  : assert(
           twoFingerRotateThreshold >= 0.0,
           'rotationThreshold needs to be a positive value',
@@ -88,7 +88,7 @@ final class InteractionOptions {
           twoFingerRotateThreshold == other.twoFingerRotateThreshold &&
           twoFingerZoomThreshold == other.twoFingerZoomThreshold &&
           twoFingerMoveThreshold == other.twoFingerMoveThreshold &&
-          ctrlRotateKeys == other.ctrlRotateKeys &&
+          keyTriggerDragRotateKeys == other.keyTriggerDragRotateKeys &&
           scrollWheelVelocity == other.scrollWheelVelocity);
 
   @override
@@ -97,7 +97,7 @@ final class InteractionOptions {
         twoFingerRotateThreshold,
         twoFingerZoomThreshold,
         twoFingerMoveThreshold,
-        ctrlRotateKeys,
+        keyTriggerDragRotateKeys,
         scrollWheelVelocity,
       );
 }

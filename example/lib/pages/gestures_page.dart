@@ -28,7 +28,7 @@ class _GesturesPageState extends State<GesturesPage> {
     },
     'Rotation': {
       InteractiveFlag.twoFingerRotate: 'Twist',
-      InteractiveFlag.ctrlDragRotate: 'CTRL+Drag',
+      InteractiveFlag.keyTriggerDragRotate: 'CTRL+Drag',
     },
   };
 

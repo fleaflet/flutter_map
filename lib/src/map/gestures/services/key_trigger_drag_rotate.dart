@@ -1,10 +1,10 @@
 part of 'base_services.dart';
 
-class CtrlDragRotateGestureService extends BaseGestureService {
+class KeyTriggerDragRotateGestureService extends BaseGestureService {
   bool isActive = false;
   final List<LogicalKeyboardKey> keys;
 
-  CtrlDragRotateGestureService({
+  KeyTriggerDragRotateGestureService({
     required super.controller,
     required this.keys,
   });
@@ -14,7 +14,7 @@ class CtrlDragRotateGestureService extends BaseGestureService {
     controller.emitMapEvent(
       MapEventRotateStart(
         camera: _camera,
-        source: MapEventSource.ctrlDragRotateStart,
+        source: MapEventSource.keyTriggerDragRotateStart,
       ),
     );
   }
@@ -23,7 +23,7 @@ class CtrlDragRotateGestureService extends BaseGestureService {
     controller.rotateRaw(
       _camera.rotation - (details.focalPointDelta.dy * 0.5),
       hasGesture: true,
-      source: MapEventSource.ctrlDragRotate,
+      source: MapEventSource.keyTriggerDragRotate,
     );
   }
 
@@ -31,7 +31,7 @@ class CtrlDragRotateGestureService extends BaseGestureService {
     controller.emitMapEvent(
       MapEventRotateEnd(
         camera: _camera,
-        source: MapEventSource.ctrlDragRotateEnd,
+        source: MapEventSource.keyTriggerDragRotateEnd,
       ),
     );
   }

@@ -19,7 +19,7 @@ class EnabledGestures {
     required this.doubleTapDragZoom,
     required this.scrollWheelZoom,
     required this.twoFingerRotate,
-    required this.ctrlDragRotate,
+    required this.keyTriggerDragRotate,
   });
 
   /// Shortcut constructor to allow all gestures that don't rotate the map.
@@ -40,7 +40,7 @@ class EnabledGestures {
     this.doubleTapDragZoom = true,
     this.scrollWheelZoom = true,
     this.twoFingerRotate = true,
-    this.ctrlDragRotate = true,
+    this.keyTriggerDragRotate = true,
   });
 
   /// This constructor has no enabled gestures by default. Use this constructor
@@ -57,7 +57,7 @@ class EnabledGestures {
     this.doubleTapDragZoom = false,
     this.scrollWheelZoom = false,
     this.twoFingerRotate = false,
-    this.ctrlDragRotate = false,
+    this.keyTriggerDragRotate = false,
   });
 
   /// This constructor supports bitfield operations on the static fields
@@ -79,8 +79,8 @@ class EnabledGestures {
           InteractiveFlag.hasFlag(flags, InteractiveFlag.scrollWheelZoom),
       twoFingerRotate:
           InteractiveFlag.hasFlag(flags, InteractiveFlag.twoFingerRotate),
-      ctrlDragRotate:
-          InteractiveFlag.hasFlag(flags, InteractiveFlag.ctrlDragRotate),
+      keyTriggerDragRotate:
+          InteractiveFlag.hasFlag(flags, InteractiveFlag.keyTriggerDragRotate),
     );
   }
 
@@ -110,9 +110,10 @@ class EnabledGestures {
   /// Enable zooming with a mouse scroll wheel
   final bool scrollWheelZoom;
 
-  /// Enable rotation by pressing the CTRL key and dragging with the cursor
+  /// Enable rotation by pressing the defined keyboard key (by default CTRL key)
+  /// and dragging with the cursor
   /// or finger.
-  final bool ctrlDragRotate;
+  final bool keyTriggerDragRotate;
 
   /// Returns true of any gesture with more than one finger is enabled.
   bool hasMultiFinger() => twoFingerMove || twoFingerZoom || twoFingerRotate;
@@ -128,7 +129,7 @@ class EnabledGestures {
     bool? doubleTapDragZoom,
     bool? scrollWheelZoom,
     bool? twoFingerRotate,
-    bool? ctrlDragRotate,
+    bool? keyTriggerDragRotate,
   }) =>
       EnabledGestures(
         drag: drag ?? this.drag,
@@ -139,7 +140,7 @@ class EnabledGestures {
         doubleTapDragZoom: doubleTapDragZoom ?? this.doubleTapDragZoom,
         scrollWheelZoom: scrollWheelZoom ?? this.scrollWheelZoom,
         twoFingerRotate: twoFingerRotate ?? this.twoFingerRotate,
-        ctrlDragRotate: ctrlDragRotate ?? this.ctrlDragRotate,
+        keyTriggerDragRotate: keyTriggerDragRotate ?? this.keyTriggerDragRotate,
       );
 
   const EnabledGestures.byGroup({
@@ -155,7 +156,7 @@ class EnabledGestures {
           scrollWheelZoom: zoom,
           twoFingerZoom: zoom,
           twoFingerRotate: rotate,
-          ctrlDragRotate: rotate,
+          keyTriggerDragRotate: rotate,
         );
 
   @override
@@ -171,7 +172,7 @@ class EnabledGestures {
           doubleTapDragZoom == other.doubleTapDragZoom &&
           scrollWheelZoom == other.scrollWheelZoom &&
           twoFingerRotate == other.twoFingerRotate &&
-          ctrlDragRotate == other.ctrlDragRotate;
+          keyTriggerDragRotate == other.keyTriggerDragRotate;
 
   @override
   int get hashCode => Object.hash(
@@ -183,7 +184,7 @@ class EnabledGestures {
         doubleTapDragZoom,
         scrollWheelZoom,
         twoFingerRotate,
-        ctrlDragRotate,
+        keyTriggerDragRotate,
       );
 }
 
@@ -212,7 +213,7 @@ abstract class InteractiveFlag {
       doubleTapDragZoom |
       scrollWheelZoom |
       twoFingerRotate |
-      ctrlDragRotate;
+      keyTriggerDragRotate;
 
   static const int none = 0;
 
@@ -253,9 +254,10 @@ abstract class InteractiveFlag {
   @Deprecated('Renamed to twoFingerRotate')
   static const int rotate = twoFingerRotate;
 
-  /// Enable rotation by pressing the CTRL Key and drag the map with the cursor.
+  /// Enable rotation by pressing the defined keyboard keys
+  /// (by default CTRL Key) and drag the map with the cursor.
   /// To change the key see [InteractionOptions.cursorKeyboardRotationOptions].
-  static const int ctrlDragRotate = 1 << 8;
+  static const int keyTriggerDragRotate = 1 << 8;
 
   /// Returns `true` if [leftFlags] has at least one member in [rightFlags]
   /// (intersection) for example

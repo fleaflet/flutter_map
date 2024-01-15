@@ -23,7 +23,7 @@ enum MapEventSource {
   tertiaryTap,
   tertiaryLongPress,
   secondaryLongPressed,
-  ctrlDragRotateStart,
-  ctrlDragRotateEnd,
-  ctrlDragRotate,
+  keyTriggerDragRotateStart,
+  keyTriggerDragRotateEnd,
+  keyTriggerDragRotate,
 }

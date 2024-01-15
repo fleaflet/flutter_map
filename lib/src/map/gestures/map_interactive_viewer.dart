@@ -30,7 +30,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   TwoFingerGesturesService? _twoFingerInput;
   DragGestureService? _drag;
   DoubleTapDragZoomGestureService? _doubleTapDragZoom;
-  CtrlDragRotateGestureService? _ctrlDragRotate;
+  KeyTriggerDragRotateGestureService? _keyTriggerDragRotate;
 
   MapCamera get _camera => widget.controller.camera;
 
@@ -83,7 +83,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   Widget build(BuildContext context) {
     final useDoubleTapCallback =
         _doubleTap != null || _doubleTapDragZoom != null;
-    final useScaleCallback = _ctrlDragRotate != null ||
+    final useScaleCallback = _keyTriggerDragRotate != null ||
         _drag != null ||
         _doubleTapDragZoom != null ||
         _twoFingerInput != null;
@@ -160,8 +160,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
         // pan and scale, scale is a superset of the pan gesture
         onScaleStart: useScaleCallback
             ? (details) {
-                if (_ctrlDragRotate?.keyPressed ?? false) {
-                  _ctrlDragRotate!.start();
+                if (_keyTriggerDragRotate?.keyPressed ?? false) {
+                  _keyTriggerDragRotate!.start();
                 } else if (_doubleTapDragZoom?.isActive ?? false) {
                   _doubleTapDragZoom!.start(details);
                 } else if (details.pointerCount == 1) {
@@ -173,8 +173,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
             : null,
         onScaleUpdate: useScaleCallback
             ? (details) {
-                if (_ctrlDragRotate?.keyPressed ?? false) {
-                  _ctrlDragRotate!.update(details);
+                if (_keyTriggerDragRotate?.keyPressed ?? false) {
+                  _keyTriggerDragRotate!.update(details);
                 } else if (_doubleTapDragZoom?.isActive ?? false) {
                   _doubleTapDragZoom!.update(details);
                 } else if (details.pointerCount == 1) {
@@ -186,8 +186,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
             : null,
         onScaleEnd: useScaleCallback
             ? (details) {
-                if (_ctrlDragRotate?.keyPressed ?? false) {
-                  _ctrlDragRotate!.end();
+                if (_keyTriggerDragRotate?.keyPressed ?? false) {
+                  _keyTriggerDragRotate!.end();
                 } else if (_doubleTapDragZoom?.isActive ?? false) {
                   _doubleTapDragZoom!.isActive = false;
                   _doubleTapDragZoom!.end(details);
@@ -232,13 +232,13 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       _scrollWheelZoom = null;
     }
 
-    if (newFlags.ctrlDragRotate) {
-      _ctrlDragRotate = CtrlDragRotateGestureService(
+    if (newFlags.keyTriggerDragRotate) {
+      _keyTriggerDragRotate = KeyTriggerDragRotateGestureService(
         controller: widget.controller,
-        keys: _options.interactionOptions.ctrlRotateKeys,
+        keys: _options.interactionOptions.keyTriggerDragRotateKeys,
       );
     } else {
-      _ctrlDragRotate = null;
+      _keyTriggerDragRotate = null;
     }
 
     if (newFlags.doubleTapDragZoom) {
