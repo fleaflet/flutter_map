@@ -116,9 +116,8 @@ class _RetinaPageState extends State<RetinaPage> {
                   Expanded(
                     child: Column(
                       children: [
-                        TextFormField(
-                          onFieldSubmitted: (v) =>
-                              setState(() => urlTemplate = v),
+                        TextField(
+                          onChanged: (v) => setState(() => urlTemplate = v),
                           decoration: InputDecoration(
                             prefixIcon: const Icon(Icons.link),
                             border: const UnderlineInputBorder(),
@@ -130,9 +129,13 @@ class _RetinaPageState extends State<RetinaPage> {
                           ),
                           controller: urlTemplateInputController,
                         ),
-                        TextFormField(
-                          onFieldSubmitted: (v) =>
-                              setState(() => accessToken = v),
+                        TextField(
+                          onChanged: (v) {
+                            if (v == '' || (v != '' && accessToken == '')) {
+                              setState(() => accessToken = v);
+                            }
+                          },
+                          onSubmitted: (v) => setState(() => accessToken = v),
                           enabled: urlTemplate.contains('{accessToken}') ||
                               urlTemplate.contains('{access_token}'),
                           autofocus: true,
