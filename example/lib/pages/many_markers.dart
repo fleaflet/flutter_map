@@ -7,9 +7,9 @@ import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:flutter_map_example/widgets/number_of_items_slider.dart';
 import 'package:latlong2/latlong.dart';
 
-const maxMarkersCount = 20000;
+const _maxMarkersCount = 20000;
 
-/// On this page, [maxMarkersCount] markers are randomly generated
+/// On this page, [_maxMarkersCount] markers are randomly generated
 /// across europe, and then you can limit them with a slider
 ///
 /// This way, you can test how map performs under a lot of markers
@@ -27,7 +27,7 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
       source.nextDouble() * (end - start) + start;
   List<Marker> allMarkers = [];
 
-  static const int _initialNumOfMarkers = maxMarkersCount ~/ 10;
+  static const int _initialNumOfMarkers = _maxMarkersCount ~/ 10;
   int numOfMarkers = _initialNumOfMarkers;
 
   @override
@@ -35,7 +35,7 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
     super.initState();
     Future.microtask(() {
       final r = Random();
-      for (var x = 0; x < maxMarkersCount; x++) {
+      for (var x = 0; x < _maxMarkersCount; x++) {
         allMarkers.add(
           Marker(
             point: LatLng(doubleInRange(r, 37, 55), doubleInRange(r, -9, 30)),
@@ -82,6 +82,7 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
             right: 16,
             child: NumberOfItemsSlider(
               itemDescription: 'Marker',
+              maxNumber: _maxMarkersCount,
               initialNumber: _initialNumOfMarkers,
               onChangedNumber: (v) => setState(() => numOfMarkers = v),
             ),

@@ -7,9 +7,9 @@ import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:flutter_map_example/widgets/number_of_items_slider.dart';
 import 'package:latlong2/latlong.dart';
 
-const maxCirclesCount = 20000;
+const _maxCirclesCount = 20000;
 
-/// On this page, [maxCirclesCount] circles are randomly generated
+/// On this page, [_maxCirclesCount] circles are randomly generated
 /// across europe, and then you can limit them with a slider
 ///
 /// This way, you can test how map performs under a lot of circles
@@ -27,7 +27,7 @@ class ManyCirclesPageState extends State<ManyCirclesPage> {
       source.nextDouble() * (end - start) + start;
   List<CircleMarker> allCircles = [];
 
-  static const int _initialNumOfCircles = maxCirclesCount ~/ 10;
+  static const int _initialNumOfCircles = _maxCirclesCount ~/ 10;
   int numOfCircles = _initialNumOfCircles;
 
   @override
@@ -35,7 +35,7 @@ class ManyCirclesPageState extends State<ManyCirclesPage> {
     super.initState();
     Future.microtask(() {
       final r = Random();
-      for (var x = 0; x < maxCirclesCount; x++) {
+      for (var x = 0; x < _maxCirclesCount; x++) {
         allCircles.add(
           CircleMarker(
             point: LatLng(doubleInRange(r, 37, 55), doubleInRange(r, -9, 30)),
@@ -81,6 +81,7 @@ class ManyCirclesPageState extends State<ManyCirclesPage> {
             right: 16,
             child: NumberOfItemsSlider(
               itemDescription: 'Circle',
+              maxNumber: _maxCirclesCount,
               initialNumber: _initialNumOfCircles,
               onChangedNumber: (v) => setState(() => numOfCircles = v),
             ),

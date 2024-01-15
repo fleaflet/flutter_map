@@ -5,12 +5,20 @@ class NumberOfItemsSlider extends StatefulWidget {
     super.key,
     required this.initialNumber,
     required this.onChangedNumber,
+    required this.maxNumber,
     this.itemDescription = 'Item',
-  });
+    int itemsPerDivision = 1000,
+  })  : assert(
+          (maxNumber / itemsPerDivision) % 1 == 0,
+          '`maxNumber` / `itemsPerDivision` must yield integer',
+        ),
+        divisions = maxNumber ~/ itemsPerDivision;
 
   final int initialNumber;
   final void Function(int) onChangedNumber;
   final String itemDescription;
+  final int maxNumber;
+  final int divisions;
 
   @override
   State<NumberOfItemsSlider> createState() => _NumberOfItemsSliderState();
@@ -45,8 +53,8 @@ class _NumberOfItemsSliderState extends State<NumberOfItemsSlider> {
                 },
                 onChangeEnd: (v) => widget.onChangedNumber(v.toInt()),
                 min: 0,
-                max: 20000,
-                divisions: 20,
+                max: widget.maxNumber.toDouble(),
+                divisions: widget.divisions,
                 label: _number.toString(),
               ),
             ),
