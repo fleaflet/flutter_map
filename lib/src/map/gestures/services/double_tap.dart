@@ -1,6 +1,6 @@
 part of 'base_services.dart';
 
-class DoubleTapGestureService extends DelayedGestureService {
+class DoubleTapGestureService extends BaseDetailsGestureService {
   DoubleTapGestureService({required super.controller});
 
   /// A double tap gesture tap has been registered

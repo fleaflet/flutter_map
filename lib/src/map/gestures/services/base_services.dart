@@ -25,10 +25,10 @@ abstract class BaseGestureService {
   MapOptions get _options => controller.options;
 }
 
-abstract class DelayedGestureService extends BaseGestureService {
+abstract class BaseDetailsGestureService extends BaseGestureService {
   TapDownDetails? details;
 
-  DelayedGestureService({required super.controller});
+  BaseDetailsGestureService({required super.controller});
 
   void setDetails(TapDownDetails newDetails) => details = newDetails;
 

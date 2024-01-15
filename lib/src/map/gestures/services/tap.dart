@@ -1,6 +1,6 @@
 part of 'base_services.dart';
 
-class TapGestureService extends DelayedGestureService {
+class TapGestureService extends BaseDetailsGestureService {
   TapGestureService({required super.controller});
 
   /// A tap with a primary button has occurred.
@@ -23,7 +23,7 @@ class TapGestureService extends DelayedGestureService {
   }
 }
 
-class SecondaryTapGestureService extends DelayedGestureService {
+class SecondaryTapGestureService extends BaseDetailsGestureService {
   SecondaryTapGestureService({required super.controller});
 
   /// A tap with a secondary button has occurred.
@@ -46,7 +46,7 @@ class SecondaryTapGestureService extends DelayedGestureService {
   }
 }
 
-class TertiaryTapGestureService extends DelayedGestureService {
+class TertiaryTapGestureService extends BaseDetailsGestureService {
   TertiaryTapGestureService({required super.controller});
 
   /// A tertiary tap gesture has happen (e.g. click on the mouse scroll wheel)
