@@ -5,6 +5,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/misc/offsets.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 import 'package:polylabel/polylabel.dart'; // conflict with Path from UI
@@ -116,15 +117,20 @@ class _PolygonLayerState extends State<PolygonLayer> {
   }
 
   List<Polygon> _computeZoomLevelSimplification(int zoom) =>
-      _cachedSimplifiedPolygons[zoom] ??= widget.polygons
-          .map(
-            (polygon) => polygon.copyWithNewPoints(
-              simplify(
-                polygon.points,
-                widget.simplificationTolerance / math.pow(2, zoom),
-                highestQuality: true,
-              ),
+      _cachedSimplifiedPolygons[zoom] ??= List<Polygon>.generate(
+        widget.polygons.length,
+        (i) {
+          final polygon = widget.polygons[i];
+          return polygon.copyWithNewPoints(
+            // TODO: Ideally we'd simplify in projected space to minimize issues with map distortion.
+            // TODO: Simplify polygon holes as well.
+            simplify(
+              polygon.points,
+              widget.simplificationTolerance / math.pow(2, zoom),
+              highestQuality: true,
             ),
-          )
-          .toList();
+          );
+        },
+        growable: false,
+      );
 }

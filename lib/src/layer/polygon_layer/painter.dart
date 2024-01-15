@@ -17,22 +17,10 @@ class PolygonPainter extends CustomPainter {
   ({Offset min, Offset max}) getBounds(Offset origin, Polygon polygon) {
     final bbox = polygon.boundingBox;
     return (
-      min: getOffset(origin, bbox.southWest),
-      max: getOffset(origin, bbox.northEast),
+      min: getOffset(camera, origin, bbox.southWest),
+      max: getOffset(camera, origin, bbox.northEast),
     );
   }
-
-  Offset getOffset(Offset origin, LatLng point) {
-    // Critically create as little garbage as possible. This is called on every frame.
-    final projected = camera.project(point);
-    return Offset(projected.x - origin.dx, projected.y - origin.dy);
-  }
-
-  List<Offset> getOffsets(Offset origin, List<LatLng> points) => List.generate(
-        points.length,
-        (index) => getOffset(origin, points[index]),
-        growable: false,
-      );
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -77,7 +65,8 @@ class PolygonPainter extends CustomPainter {
       if (polygon.points.isEmpty) {
         continue;
       }
-      final offsets = getOffsets(origin, polygon.points);
+      final offsets = getOffsetsXY(
+          camera, origin, polygon.getProjectedPoints(camera.crs.projection));
 
       // The hash is based on the polygons visual properties. If the hash from
       // the current and the previous polygon no longer match, we need to flush
@@ -110,7 +99,7 @@ class PolygonPainter extends CustomPainter {
 
         final holeOffsetsList = List<List<Offset>>.generate(
           holePointsList.length,
-          (i) => getOffsets(origin, holePointsList[i]),
+          (i) => getOffsets(camera, origin, holePointsList[i]),
           growable: false,
         );
 

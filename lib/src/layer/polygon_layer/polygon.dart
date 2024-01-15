@@ -41,6 +41,12 @@ class Polygon {
   LatLngBounds get boundingBox =>
       _boundingBox ??= LatLngBounds.fromPoints(points);
 
+  List<(double, double)>? _projectedPoints;
+  List<(double, double)> getProjectedPoints(Projection projection) =>
+      _projectedPoints ??= List<(double, double)>.generate(
+          points.length, (i) => projection.projectXY(points[i]),
+          growable: false);
+
   TextPainter? _textPainter;
   TextPainter? get textPainter {
     if (label != null) {
