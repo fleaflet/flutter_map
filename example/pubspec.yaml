@@ -19,6 +19,7 @@ dependencies:
   url_strategy: ^0.2.0
   http: ^1.1.0
   vector_math: ^2.1.2
+  flutter_map_geojson: ^1.0.6
 
 dependency_overrides:
   flutter_map_cancellable_tile_provider:

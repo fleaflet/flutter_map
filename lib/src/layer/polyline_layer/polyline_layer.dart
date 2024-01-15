@@ -106,16 +106,22 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
   Widget build(BuildContext context) {
     final camera = MapCamera.of(context);
 
+    final simplified = widget.simplificationTolerance == 0
+        ? widget.polylines
+        : _computeZoomLevelSimplification(camera.zoom.floor());
+
+    final culled = widget.cullingMargin == null
+        ? simplified
+        : _aggressivelyCullPolylines(
+            polylines: simplified,
+            camera: camera,
+            cullingMargin: widget.cullingMargin!,
+          );
+
     return MobileLayerTransformer(
       child: CustomPaint(
         painter: PolylinePainter(
-          polylines: _aggressivelyCullPolylines(
-            polylines: widget.simplificationTolerance == 0
-                ? widget.polylines
-                : _computeZoomLevelSimplification(camera.zoom.floor()),
-            camera: camera,
-            cullingMargin: widget.cullingMargin,
-          ),
+          polylines: culled,
           camera: camera,
           hitNotifier: widget.hitNotifier,
           minimumHitbox: widget.minimumHitbox,
@@ -141,10 +147,8 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
   List<Polyline<R>> _aggressivelyCullPolylines({
     required List<Polyline<R>> polylines,
     required MapCamera camera,
-    required double? cullingMargin,
+    required double cullingMargin,
   }) {
-    if (cullingMargin == null) return polylines;
-
     _culledPolylines.clear();
 
     final bounds = camera.visibleBounds;

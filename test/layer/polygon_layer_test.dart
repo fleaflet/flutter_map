@@ -11,7 +11,6 @@ void main() {
     final polygons = <Polygon>[
       for (int i = 0; i < 1; ++i)
         Polygon(
-          isFilled: true,
           color: Colors.purple,
           borderColor: Colors.purple,
           borderStrokeWidth: 4,
@@ -43,7 +42,7 @@ void main() {
       LatLng(20, 30),
       LatLng(20, 20),
     ];
-    expect(isClockwise(clockwise), isTrue);
-    expect(isClockwise(clockwise.reversed.toList()), isFalse);
+    expect(Polygon.isClockwise(clockwise), isTrue);
+    expect(Polygon.isClockwise(clockwise.reversed.toList()), isFalse);
   });
 }

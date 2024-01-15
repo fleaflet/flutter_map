@@ -20,7 +20,9 @@ import 'package:flutter_map_example/pages/overlay_image.dart';
 import 'package:flutter_map_example/pages/plugin_scalebar.dart';
 import 'package:flutter_map_example/pages/plugin_zoombuttons.dart';
 import 'package:flutter_map_example/pages/polygon.dart';
+import 'package:flutter_map_example/pages/polygon_perf_stress.dart';
 import 'package:flutter_map_example/pages/polyline.dart';
+import 'package:flutter_map_example/pages/polyline_perf_stress.dart';
 import 'package:flutter_map_example/pages/reset_tile_layer.dart';
 import 'package:flutter_map_example/pages/retina.dart';
 import 'package:flutter_map_example/pages/screen_point_to_latlng.dart';
@@ -53,6 +55,8 @@ class MyApp extends StatelessWidget {
         CancellableTileProviderPage.route: (context) =>
             const CancellableTileProviderPage(),
         PolylinePage.route: (context) => const PolylinePage(),
+        PolylinePerfStressPage.route: (context) =>
+            const PolylinePerfStressPage(),
         MapControllerPage.route: (context) => const MapControllerPage(),
         AnimatedMapControllerPage.route: (context) =>
             const AnimatedMapControllerPage(),
@@ -65,6 +69,7 @@ class MyApp extends StatelessWidget {
         CirclePage.route: (context) => const CirclePage(),
         OverlayImagePage.route: (context) => const OverlayImagePage(),
         PolygonPage.route: (context) => const PolygonPage(),
+        PolygonPerfStressPage.route: (context) => const PolygonPerfStressPage(),
         SlidingMapPage.route: (_) => const SlidingMapPage(),
         WMSLayerPage.route: (context) => const WMSLayerPage(),
         CustomCrsPage.route: (context) => const CustomCrsPage(),
