@@ -13,6 +13,7 @@ import 'package:flutter_map/src/layer/attribution_layer/rich/source.dart';
 import 'package:flutter_map/src/layer/attribution_layer/rich/widget.dart';
 import 'package:flutter_map/src/layer/attribution_layer/simple.dart';
 import 'package:flutter_map/src/layer/circle_layer.dart';
+import 'package:flutter_map/src/layer/general/hit_detection.dart';
 import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
 import 'package:flutter_map/src/layer/general/translucent_pointer.dart';
 import 'package:flutter_map/src/layer/marker_layer.dart';
@@ -56,5 +57,6 @@ import 'package:flutter_map/src/misc/move_and_rotate_result.dart';
 import 'package:flutter_map/src/misc/offsets.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:flutter_map/src/misc/position.dart';
+import 'package:flutter_map/src/misc/simplify.dart';
 
 void main() {}
