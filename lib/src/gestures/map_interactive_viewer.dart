@@ -49,6 +49,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   var _pinchZoomStarted = false;
   var _pinchMoveStarted = false;
   var _dragStarted = false;
+  var _doubleTapDragZoomStarted = false;
   var _flingAnimationStarted = false;
 
   /// Helps to reset ScaleUpdateDetails.scale back to 1.0 when a multi finger
@@ -690,6 +691,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   void _handleScaleEnd(ScaleEndDetails details) {
     _resetDoubleTapHold();
+    _doubleTapDragZoomStarted = false;
 
     final eventSource =
         _dragMode ? MapEventSource.dragEnd : MapEventSource.multiFingerEnd;
@@ -746,6 +748,11 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
     final relativePosition = position.relative;
     if (relativePosition == null) return;
+
+    // Prevent the onTap event from being registered if any drag is already
+    // happening. For example, when a double-tap-drag-zoom gesture starts, this
+    // prevents registering an onTap event as well.
+    if (_doubleTapDragZoomStarted) return;
 
     widget.controller.tapped(
       MapEventSource.tap,
@@ -847,6 +854,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
     final flags = _interactionOptions.flags;
     if (InteractiveFlag.hasDoubleTapDragZoom(flags)) {
+      _doubleTapDragZoomStarted = true;
       final verticalOffset = (_focalStartLocal - details.localFocalPoint).dy;
       final newZoom = _mapZoomStart - verticalOffset / 360 * _camera.zoom;
 
