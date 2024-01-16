@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -24,24 +22,24 @@ class _PolylinePageState extends State<PolylinePage> {
   List<Polyline<PolylineHitValue>>? _hoverLines;
 
   final _polylinesRaw = <Polyline<PolylineHitValue>>[
-    const Polyline(
+    Polyline(
       points: [
-        LatLng(51.5, -0.09),
-        LatLng(53.3498, -6.2603),
-        LatLng(48.8566, 2.3522),
+        const LatLng(51.5, -0.09),
+        const LatLng(53.3498, -6.2603),
+        const LatLng(48.8566, 2.3522),
       ],
       strokeWidth: 8,
-      color: Color(0xFF60399E),
+      color: const Color(0xFF60399E),
       hitValue: (
         title: 'Elizabeth Line',
         subtitle: 'Nothing really special here...',
       ),
     ),
-    const Polyline(
+    Polyline(
       points: [
-        LatLng(48.5, -3.09),
-        LatLng(47.3498, -9.2603),
-        LatLng(43.8566, -1.3522),
+        const LatLng(48.5, -3.09),
+        const LatLng(47.3498, -9.2603),
+        const LatLng(43.8566, -1.3522),
       ],
       strokeWidth: 16000,
       color: Colors.pink,
@@ -51,17 +49,17 @@ class _PolylinePageState extends State<PolylinePage> {
         subtitle: 'Fixed radius in meters instead of pixels',
       ),
     ),
-    const Polyline(
+    Polyline(
       points: [
-        LatLng(51.74904, -10.32324),
-        LatLng(54.3498, -6.2603),
-        LatLng(52.8566, 2.3522),
+        const LatLng(51.74904, -10.32324),
+        const LatLng(54.3498, -6.2603),
+        const LatLng(52.8566, 2.3522),
       ],
       strokeWidth: 4,
       gradientColors: [
-        Color(0xffE40203),
-        Color(0xffFEED00),
-        Color(0xff007E2D),
+        const Color(0xffE40203),
+        const Color(0xffFEED00),
+        const Color(0xff007E2D),
       ],
       hitValue: (
         title: 'Traffic Light Line',
@@ -116,27 +114,6 @@ class _PolylinePageState extends State<PolylinePage> {
   ];
   late final _polylines =
       Map.fromEntries(_polylinesRaw.map((e) => MapEntry(e.hitValue, e)));
-
-  final _randomWalk = [const LatLng(44.861294, 13.845086)];
-
-  static const double _initialSimplificationTolerance = 0.5;
-  double simplificationTolerance = _initialSimplificationTolerance;
-
-  @override
-  void initState() {
-    super.initState();
-    final random = Random(1234);
-    for (int i = 1; i < 200000; i++) {
-      final lat = (random.nextDouble() - 0.5) * 0.001;
-      final lon = (random.nextDouble() - 0.6) * 0.001;
-      _randomWalk.add(
-        LatLng(
-          _randomWalk[i - 1].latitude + lat,
-          _randomWalk[i - 1].longitude + lon,
-        ),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -204,27 +181,7 @@ class _PolylinePageState extends State<PolylinePage> {
                   ),
                 ),
               ),
-              PolylineLayer(
-                simplificationTolerance: simplificationTolerance,
-                polylines: [
-                  Polyline(
-                    points: _randomWalk,
-                    strokeWidth: 3,
-                    color: Colors.deepOrange,
-                  ),
-                ],
-              ),
             ],
-          ),
-          Positioned(
-            left: 16,
-            top: 16,
-            right: 16,
-            child: SimplificationToleranceSlider(
-              initialTolerance: _initialSimplificationTolerance,
-              onChangedTolerance: (v) =>
-                  setState(() => simplificationTolerance = v),
-            ),
           ),
         ],
       ),
@@ -278,71 +235,6 @@ class _PolylinePageState extends State<PolylinePage> {
                   onPressed: () => Navigator.pop(context),
                   child: const Text('Close'),
                 ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class SimplificationToleranceSlider extends StatefulWidget {
-  const SimplificationToleranceSlider({
-    super.key,
-    required this.initialTolerance,
-    required this.onChangedTolerance,
-  });
-
-  final double initialTolerance;
-  final void Function(double) onChangedTolerance;
-
-  @override
-  State<SimplificationToleranceSlider> createState() =>
-      _SimplificationToleranceSliderState();
-}
-
-class _SimplificationToleranceSliderState
-    extends State<SimplificationToleranceSlider> {
-  late double _simplificationTolerance = widget.initialTolerance;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.background,
-        borderRadius: BorderRadius.circular(32),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.only(left: 16, right: 8, top: 4, bottom: 4),
-        child: Row(
-          children: [
-            const Tooltip(
-              message: 'Adjust Simplification Tolerance',
-              child: Row(
-                children: [
-                  Icon(Icons.insights),
-                  SizedBox(width: 8),
-                  Icon(Icons.hdr_strong),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Slider(
-                value: _simplificationTolerance,
-                onChanged: (v) {
-                  if (_simplificationTolerance == 0 && v != 0) {
-                    widget.onChangedTolerance(v);
-                  }
-                  setState(() => _simplificationTolerance = v);
-                },
-                onChangeEnd: widget.onChangedTolerance,
-                min: 0,
-                max: 2,
-                divisions: 100,
-                label: _simplificationTolerance == 0
-                    ? 'Disabled'
-                    : _simplificationTolerance.toStringAsFixed(2),
               ),
             ),
           ],

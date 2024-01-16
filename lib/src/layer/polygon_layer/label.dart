@@ -1,12 +1,6 @@
-import 'dart:math' as math;
+part of 'polygon_layer.dart';
 
-import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_map/src/layer/polygon_layer/polygon_layer.dart';
-import 'package:latlong2/latlong.dart';
-import 'package:polylabel/polylabel.dart';
-
-void Function(Canvas canvas)? buildLabelTextPainter({
+void Function(Canvas canvas)? _buildLabelTextPainter({
   required math.Point<double> mapSize,
   required Offset placementPoint,
   required ({Offset min, Offset max}) bounds,
@@ -59,7 +53,7 @@ void Function(Canvas canvas)? buildLabelTextPainter({
   return null;
 }
 
-LatLng computeLabelPosition(
+LatLng _computeLabelPosition(
     PolygonLabelPlacement labelPlacement, List<LatLng> points) {
   return switch (labelPlacement) {
     PolygonLabelPlacement.centroid => _computeCentroid(points),

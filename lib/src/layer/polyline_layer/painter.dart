@@ -8,9 +8,6 @@ class PolylinePainter<R extends Object> extends CustomPainter {
 
   final _hits = <R>[]; // Avoids repetitive memory reallocation
 
-  int get hash => _hash ??= Object.hashAll(polylines);
-  int? _hash;
-
   PolylinePainter({
     required this.polylines,
     required this.camera,

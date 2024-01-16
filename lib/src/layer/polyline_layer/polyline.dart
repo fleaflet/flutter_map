@@ -1,6 +1,5 @@
 part of 'polyline_layer.dart';
 
-@immutable
 class Polyline<R extends Object> {
   final List<LatLng> points;
   final double strokeWidth;
@@ -22,7 +21,7 @@ class Polyline<R extends Object> {
   /// Should implement an equality operator to avoid breaking [Polyline.==].
   final R? hitValue;
 
-  const Polyline({
+  Polyline({
     required this.points,
     this.strokeWidth = 1.0,
     this.color = const Color(0xFF00FF00),
@@ -56,21 +55,23 @@ class Polyline<R extends Object> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Polyline &&
-          listEquals(points, other.points) &&
           strokeWidth == other.strokeWidth &&
           color == other.color &&
           borderStrokeWidth == other.borderStrokeWidth &&
           borderColor == other.borderColor &&
-          listEquals(gradientColors, other.gradientColors) &&
-          listEquals(colorsStop, other.colorsStop) &&
           isDotted == other.isDotted &&
           strokeCap == other.strokeCap &&
           strokeJoin == other.strokeJoin &&
           useStrokeWidthInMeter == other.useStrokeWidthInMeter &&
-          hitValue == other.hitValue);
+          hitValue == other.hitValue &&
+          // Expensive computations last to take advantage of lazy logic gates
+          listEquals(colorsStop, other.colorsStop) &&
+          listEquals(gradientColors, other.gradientColors) &&
+          listEquals(points, other.points));
 
-  /// Used to batch draw calls to the canvas
-  int get renderHashCode => Object.hash(
+  // Used to batch draw calls to the canvas
+  int? _renderHashCode;
+  int get renderHashCode => _renderHashCode ??= Object.hash(
         strokeWidth,
         color,
         borderStrokeWidth,
@@ -84,6 +85,7 @@ class Polyline<R extends Object> {
         hitValue,
       );
 
+  int? _hashCode;
   @override
-  int get hashCode => Object.hashAll([...points, renderHashCode]);
+  int get hashCode => _hashCode ??= Object.hashAll([...points, renderHashCode]);
 }
