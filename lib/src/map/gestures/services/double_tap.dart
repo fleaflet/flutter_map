@@ -1,5 +1,7 @@
 part of 'base_services.dart';
 
+/// Service to handle double tap gestures to perform the
+/// double-tap-zoom-in gesture.
 class DoubleTapGestureService extends BaseDetailsGestureService {
   DoubleTapGestureService({required super.controller});
 

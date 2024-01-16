@@ -1,6 +1,9 @@
 part of 'base_services.dart';
 
-/// A gesture with multiple inputs like zooming with two fingers
+/// A gesture with multiple inputs. This service handles the following gestures:
+/// - [EnabledGestures.twoFingerMove]
+/// - [EnabledGestures.twoFingerZoom]
+/// - [EnabledGestures.twoFingerRotate]
 class TwoFingerGesturesService extends BaseGestureService {
   MapCamera? _startCamera;
   LatLng? _startFocalLatLng;
@@ -15,12 +18,18 @@ class TwoFingerGesturesService extends BaseGestureService {
   bool _moving = false;
   bool _rotating = false;
 
+  /// Getter as shortcut to check if [EnabledGestures.twoFingerMove]
+  /// is enabled.
   bool get _moveEnabled =>
       _options.interactionOptions.enabledGestures.twoFingerMove;
 
+  /// Getter as shortcut to check if [EnabledGestures.twoFingerRotate]
+  /// is enabled.
   bool get _rotateEnabled =>
       _options.interactionOptions.enabledGestures.twoFingerRotate;
 
+  /// Getter as shortcut to check if [EnabledGestures.twoFingerZoom]
+  /// is enabled.
   bool get _zoomEnabled =>
       _options.interactionOptions.enabledGestures.twoFingerZoom;
 
@@ -35,7 +44,8 @@ class TwoFingerGesturesService extends BaseGestureService {
 
   TwoFingerGesturesService({required super.controller});
 
-  /// Initialize gesture, called when gesture has started
+  /// Initialize gesture, called when gesture has started.
+  /// Stores all values, that are required later on.
   void start(ScaleStartDetails details) {
     controller.stopAnimationRaw();
     if (details.pointerCount < 2) return;
@@ -61,7 +71,8 @@ class TwoFingerGesturesService extends BaseGestureService {
     );
   }
 
-  /// Called multiple times to handle updates to the gesture
+  /// Called multiple times to handle updates to the gesture.
+  /// Updates the [MapCamera].
   void update(ScaleUpdateDetails details) {
     if (details.pointerCount < 2) return;
     if (_lastLocalFocal == null ||
@@ -151,7 +162,7 @@ class TwoFingerGesturesService extends BaseGestureService {
     _lastLocalFocal = details.localFocalPoint;
   }
 
-  /// gesture has ended, clean up
+  /// gesture has ended, clean up the previously stored values.
   void end(ScaleEndDetails details) {
     if (details.pointerCount < 2) return;
     _startCamera = null;

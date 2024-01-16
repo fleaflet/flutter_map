@@ -3,6 +3,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/gestures/services/base_services.dart';
 
+/// The [MapInteractiveViewer] widget contains the [GestureDetector] and
+/// [Listener] to handle gesture inputs.
 class MapInteractiveViewer extends StatefulWidget {
   final ChildBuilder builder;
   final MapControllerImpl controller;
@@ -17,6 +19,7 @@ class MapInteractiveViewer extends StatefulWidget {
   State<MapInteractiveViewer> createState() => MapInteractiveViewerState();
 }
 
+/// The state for the [MapInteractiveViewer]
 class MapInteractiveViewerState extends State<MapInteractiveViewer>
     with TickerProviderStateMixin {
   TapGestureService? _tap;
@@ -38,6 +41,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   InteractionOptions get _interactionOptions => _options.interactionOptions;
 
+  /// Initialize all services for the enabled gestures and input callbacks.
   @override
   void initState() {
     super.initState();
@@ -69,16 +73,20 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     updateGestures(null, _interactionOptions.enabledGestures);
   }
 
+  /// Called when the widgets gets disposed, used to clean up Stream listeners
   @override
   void dispose() {
     widget.controller.removeListener(reload);
     super.dispose();
   }
 
+  /// Calls [setState] on the [MapInteractiveViewer] widget to refresh the
+  /// widget.
   void reload() {
     if (mounted) setState(() {});
   }
 
+  /// Widget build method
   @override
   Widget build(BuildContext context) {
     final useDoubleTapCallback =
@@ -250,6 +258,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   }
 }
 
+/// Build method for the child widget. Provides [MapOptions] and [MapCamera]
+/// as parameters.
 typedef ChildBuilder = Widget Function(
   BuildContext context,
   MapOptions options,

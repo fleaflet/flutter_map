@@ -1,5 +1,7 @@
 part of 'base_services.dart';
 
+/// Service to handle long press gestures for the
+/// [MapOptions.onLongPress] callback.
 class LongPressGestureService extends BaseGestureService {
   LongPressGestureService({required super.controller});
 
@@ -20,6 +22,8 @@ class LongPressGestureService extends BaseGestureService {
   }
 }
 
+/// Service to handle secondary long press gestures for the
+/// [MapOptions.onSecondaryLongPress] callback.
 class SecondaryLongPressGestureService extends BaseGestureService {
   SecondaryLongPressGestureService({required super.controller});
 
@@ -40,6 +44,8 @@ class SecondaryLongPressGestureService extends BaseGestureService {
   }
 }
 
+/// Service to handle tertiary long press gestures for the
+/// [MapOptions.onTertiaryLongPress] callback.
 class TertiaryLongPressGestureService extends BaseGestureService {
   TertiaryLongPressGestureService({required super.controller});
 

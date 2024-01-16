@@ -1,5 +1,7 @@
 part of 'base_services.dart';
 
+/// Service that handles drag gestures performed with one pointer
+/// (like a finger or cursor).
 class DragGestureService extends BaseGestureService {
   Offset? _lastLocalFocal;
   Offset? _focalStartLocal;
@@ -11,6 +13,7 @@ class DragGestureService extends BaseGestureService {
 
   bool get isActive => _lastLocalFocal != null;
 
+  /// Called when the gesture is started, stores important values.
   void start(ScaleStartDetails details) {
     controller.stopAnimationRaw();
     _lastLocalFocal = details.localFocalPoint;
@@ -23,6 +26,7 @@ class DragGestureService extends BaseGestureService {
     );
   }
 
+  /// Called when the gesture receives an update, updates the [MapCamera].
   void update(ScaleUpdateDetails details) {
     if (_lastLocalFocal == null) return;
 
@@ -44,6 +48,7 @@ class DragGestureService extends BaseGestureService {
     _lastLocalFocal = details.localFocalPoint;
   }
 
+  /// Called when the gesture ends, cleans up the previously stored values.
   void end(ScaleEndDetails details) {
     controller.emitMapEvent(
       MapEventMoveEnd(

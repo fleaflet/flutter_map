@@ -25,6 +25,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   late Offset _animationOffset;
   late Point _flingMapCenterStartPoint;
 
+  /// Create a new [MapController] instance. This constructor is only used
+  /// internally.
   MapControllerImpl({MapOptions? options, TickerProvider? vsync})
       : super(
           _MapControllerState(
@@ -49,12 +51,14 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   @override
   Stream<MapEvent> get mapEventStream => _mapEventStreamController.stream;
 
+  /// Get the [MapOptions] from the controller state
   MapOptions get options {
     return value.options ??
         (throw Exception('You need to have the FlutterMap widget rendered at '
             'least once before using the MapController.'));
   }
 
+  /// Get the [MapCamera] from the controller state
   @override
   MapCamera get camera {
     return value.camera ??
@@ -62,6 +66,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
             'least once before using the MapController.'));
   }
 
+  /// Get the [AnimationController] from the controller state
   AnimationController get _animationController {
     return value.animationController ??
         (throw Exception('You need to have the FlutterMap widget rendered at '
@@ -75,6 +80,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   // ignore: library_private_types_in_public_api
   set value(_MapControllerState value) => super.value = value;
 
+  /// Implemented method from the public [MapController.move] API.
+  /// Calls [moveRaw] with [MapEventSource.mapController] as event source.
   @override
   bool move(
     LatLng center,
@@ -91,6 +98,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
         id: id,
       );
 
+  /// Implemented method from the public [MapController.rotate] API.
+  /// Calls [rotateRaw] with [MapEventSource.mapController] as event source.
   @override
   bool rotate(double degree, {String? id}) => rotateRaw(
         degree,
@@ -99,6 +108,9 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
         id: id,
       );
 
+  /// Implemented method from the public [MapController.rotateAroundPoint] API.
+  /// Calls [rotateAroundPointRaw] with [MapEventSource.mapController] as
+  /// event source.
   @override
   bool rotateAroundPoint(
     double degree, {
@@ -115,6 +127,9 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
         id: id,
       );
 
+  /// Implemented method from the public [MapController.moveAndRotate] API.
+  /// Calls [moveAndRotateRaw] with [MapEventSource.mapController] as
+  /// event source.
   @override
   bool moveAndRotate(
     LatLng center,
@@ -132,12 +147,15 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
         id: id,
       );
 
+  /// Implemented method from the public [MapController.fitCamera] API.
+  /// Calls [fitCameraRaw] with [MapEventSource.mapController] as event source.
   @override
   bool fitCamera(CameraFit cameraFit) => fitCameraRaw(
         cameraFit,
         source: MapEventSource.mapController,
       );
 
+  /// Internal method, allows access to every parameter.
   bool moveRaw(
     LatLng newCenter,
     double newZoom, {
@@ -194,6 +212,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     return true;
   }
 
+  /// Internal method, allows access to every parameter.
   bool rotateRaw(
     double newRotation, {
     required bool hasGesture,
@@ -223,6 +242,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     return true;
   }
 
+  /// Internal method, allows access to every parameter.
   bool rotateAroundPointRaw(
     double degree, {
     required Point<double>? point,
@@ -276,6 +296,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     return moved || rotated;
   }
 
+  /// Internal method, allows access to every parameter.
+  /// Calls [moveRaw] and [rotateRaw].
   bool moveAndRotateRaw(
     LatLng newCenter,
     double newZoom,
@@ -302,6 +324,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     return moved || rotated;
   }
 
+  /// Internal method, allows access to every parameter.
   bool fitCameraRaw(
     CameraFit cameraFit, {
     Offset offset = Offset.zero,
@@ -330,6 +353,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     return false;
   }
 
+  /// Update the [MapOptions] in the controller state.
   set options(MapOptions newOptions) {
     assert(
       newOptions != value.options,
@@ -359,6 +383,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     );
   }
 
+  /// Update the [TickerProvider] for the animations in the controller state.
   set vsync(TickerProvider tickerProvider) {
     if (value.animationController == null) {
       value = _MapControllerState(
@@ -387,6 +412,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     );
   }
 
+  /// Internal method, allows access to every parameter.
   void moveAndRotateAnimatedRaw(
     LatLng newCenter,
     double newZoom,
@@ -433,6 +459,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     _animationController.forward(from: 0);
   }
 
+  /// Internal method, allows access to every parameter.
   void rotateAnimatedRaw(
     double newRotation, {
     required Offset offset,
@@ -460,6 +487,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     _animationController.forward(from: 0);
   }
 
+  /// Internal method, stops all ongoing animations of the [MapControllerImpl].
   void stopAnimationRaw({bool canceled = true}) {
     if (isAnimating) _animationController.stop(canceled: canceled);
   }
@@ -473,6 +501,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     _flingAnimation = null;
   }
 
+  /// Internal method, allows access to every parameter.
   void flingAnimatedRaw({
     required double velocity,
     required Offset direction,
@@ -511,6 +540,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     );
   }
 
+  /// Internal method, allows access to every parameter.
   void moveAnimatedRaw(
     LatLng newCenter,
     double newZoom, {
@@ -542,11 +572,14 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     _animationController.forward(from: 0);
   }
 
+  /// Emit an [MapEvent] to the event system.
   void emitMapEvent(MapEvent event) {
     options.onMapEvent?.call(event);
     _mapEventSink.add(event);
   }
 
+  /// Callback that gets called by the [AnimationController] and updates
+  /// the [MapCamera].
   void _handleAnimation() {
     // fling animation
     if (_flingAnimation != null) {
@@ -603,6 +636,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   }
 }
 
+/// The state for the [MapControllerImpl] [ValueNotifier].
 @immutable
 class _MapControllerState {
   final MapCamera? camera;
@@ -615,6 +649,7 @@ class _MapControllerState {
     required this.animationController,
   });
 
+  /// Copy the [_MapControllerState] and set [MapCamera] to some new value.
   _MapControllerState withMapCamera(MapCamera camera) => _MapControllerState(
         options: options,
         camera: camera,

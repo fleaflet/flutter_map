@@ -1,12 +1,15 @@
 part of 'base_services.dart';
 
+/// Service to the handle scroll wheel gesture to zoom the map in or out.
 class ScrollWheelZoomGestureService extends BaseGestureService {
   ScrollWheelZoomGestureService({required super.controller});
 
+  /// Shortcut for the zoom velocity of the scroll wheel
   double get _scrollWheelVelocity =>
       _options.interactionOptions.scrollWheelVelocity;
 
-  /// Handles mouse scroll events
+  /// Handles mouse scroll events, called by the [Listener] of
+  /// the [MapInteractiveViewer].
   void submit(PointerScrollEvent details) {
     controller.stopAnimationRaw();
     if (details.scrollDelta.dy == 0) return;

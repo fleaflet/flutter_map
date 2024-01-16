@@ -1,5 +1,6 @@
 part of 'base_services.dart';
 
+/// Service to handle tap gestures for the [MapOptions.onTap] callback.
 class TapGestureService extends BaseDetailsGestureService {
   TapGestureService({required super.controller});
 
@@ -23,6 +24,8 @@ class TapGestureService extends BaseDetailsGestureService {
   }
 }
 
+/// Service to handle secondary tap gestures for the
+/// [MapOptions.onSecondaryTap] callback.
 class SecondaryTapGestureService extends BaseDetailsGestureService {
   SecondaryTapGestureService({required super.controller});
 
@@ -46,6 +49,8 @@ class SecondaryTapGestureService extends BaseDetailsGestureService {
   }
 }
 
+/// Service to handle tertiary tap gestures for the
+/// [MapOptions.onTertiaryTap] callback.
 class TertiaryTapGestureService extends BaseDetailsGestureService {
   TertiaryTapGestureService({required super.controller});
 

@@ -15,16 +15,21 @@ part 'scroll_wheel_zoom.dart';
 part 'tap.dart';
 part 'two_finger.dart';
 
+/// Abstract base service class for every gesture service.
 abstract class BaseGestureService {
   final MapControllerImpl controller;
 
   const BaseGestureService({required this.controller});
 
+  /// Getter to provide a short way to access the [MapCamera].
   MapCamera get _camera => controller.camera;
 
+  /// Getter to provide a short way to access the [MapOptions].
   MapOptions get _options => controller.options;
 }
 
+/// Abstract base service that additionally stores [TapDownDetails] as it is
+/// commonly used by the different kind of tap gestures.
 abstract class BaseDetailsGestureService extends BaseGestureService {
   TapDownDetails? details;
 
