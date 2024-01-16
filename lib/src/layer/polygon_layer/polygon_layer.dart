@@ -62,7 +62,7 @@ class PolygonLayer extends StatefulWidget {
 }
 
 class _PolygonLayerState extends State<PolygonLayer> {
-  List<_ProjectedPolygon>? _polygons;
+  List<_ProjectedPolygon>? _cachedProjectedPolygons;
   final _cachedSimplifiedPolygons = <int, List<_ProjectedPolygon>>{};
 
   @override
@@ -77,30 +77,37 @@ class _PolygonLayerState extends State<PolygonLayer> {
     }
 
     _cachedSimplifiedPolygons.clear();
-    _polygons = null;
+    _cachedProjectedPolygons = null;
   }
 
   @override
   Widget build(BuildContext context) {
     final camera = MapCamera.of(context);
+
+    final projected = _cachedProjectedPolygons ??= List.generate(
+      widget.polygons.length,
+      (i) => _ProjectedPolygon.fromPolygon(
+        camera.crs.projection,
+        widget.polygons[i],
+      ),
+      growable: false,
+    );
+
     final zoom = camera.zoom.floor();
-
-    final projectedPolygons = _polygons ??=
-        List<_ProjectedPolygon>.generate(widget.polygons.length, (i) {
-      final polygon = widget.polygons[i];
-      return _ProjectedPolygon.fromPolygon(camera.crs.projection, polygon);
-    }, growable: false);
-
     final simplified = widget.simplificationTolerance == 0
-        ? projectedPolygons
+        ? projected
         : _cachedSimplifiedPolygons[zoom] ??= _computeZoomLevelSimplification(
-            projectedPolygons, widget.simplificationTolerance, zoom);
+            projected,
+            widget.simplificationTolerance,
+            zoom,
+          );
 
     final culled = !widget.polygonCulling
         ? simplified
         : simplified
-            .where((p) =>
-                p.polygon.boundingBox.isOverlapping(camera.visibleBounds))
+            .where(
+              (p) => p.polygon.boundingBox.isOverlapping(camera.visibleBounds),
+            )
             .toList();
 
     return MobileLayerTransformer(
@@ -136,14 +143,15 @@ class _PolygonLayerState extends State<PolygonLayer> {
             ),
             holePoints: holes == null
                 ? null
-                : List<List<DoublePoint>>.generate(holes.length, (j) {
-                    final hole = holes[j];
-                    return simplifyPoints(
-                      hole,
+                : List<List<DoublePoint>>.generate(
+                    holes.length,
+                    (j) => simplifyPoints(
+                      holes[j],
                       tolerance / math.pow(2, zoom),
                       highestQuality: true,
-                    );
-                  }),
+                    ),
+                    growable: false,
+                  ),
           );
         },
         growable: false,

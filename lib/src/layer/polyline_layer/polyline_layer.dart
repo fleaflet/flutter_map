@@ -120,7 +120,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
 
     return MobileLayerTransformer(
       child: CustomPaint(
-        painter: PolylinePainter(
+        painter: _PolylinePainter(
           polylines: culled,
           camera: camera,
           hitNotifier: widget.hitNotifier,

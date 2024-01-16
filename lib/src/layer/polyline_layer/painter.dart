@@ -1,6 +1,6 @@
 part of 'polyline_layer.dart';
 
-class PolylinePainter<R extends Object> extends CustomPainter {
+class _PolylinePainter<R extends Object> extends CustomPainter {
   final List<Polyline<R>> polylines;
   final MapCamera camera;
   final LayerHitNotifier<R>? hitNotifier;
@@ -8,7 +8,7 @@ class PolylinePainter<R extends Object> extends CustomPainter {
 
   final _hits = <R>[]; // Avoids repetitive memory reallocation
 
-  PolylinePainter({
+  _PolylinePainter({
     required this.polylines,
     required this.camera,
     required this.hitNotifier,
@@ -64,14 +64,16 @@ class PolylinePainter<R extends Object> extends CustomPainter {
         final o1 = offsets[i];
         final o2 = offsets[i + 1];
 
-        final distance = math.sqrt(getSqSegDist(
-          position.dx,
-          position.dy,
-          o1.dx,
-          o1.dy,
-          o2.dx,
-          o2.dy,
-        ));
+        final distance = math.sqrt(
+          getSqSegDist(
+            position.dx,
+            position.dy,
+            o1.dx,
+            o1.dy,
+            o2.dx,
+            o2.dy,
+          ),
+        );
 
         if (distance < hittableDistance) {
           _hits.add(polyline.hitValue!);
@@ -279,7 +281,7 @@ class PolylinePainter<R extends Object> extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(PolylinePainter<R> oldDelegate) => false;
+  bool shouldRepaint(_PolylinePainter<R> oldDelegate) => false;
 }
 
 const _distance = Distance();

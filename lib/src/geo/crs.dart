@@ -67,13 +67,6 @@ abstract class CrsWithStaticTransformation extends Crs {
   @override
   final Projection projection;
 
-  @override
-  (double, double) transform(double x, double y, double scale) =>
-      _transformation.transform(x, y, scale);
-  @override
-  (double, double) untransform(double x, double y, double scale) =>
-      _transformation.untransform(x, y, scale);
-
   const CrsWithStaticTransformation._({
     required _Transformation transformation,
     required this.projection,
@@ -82,6 +75,13 @@ abstract class CrsWithStaticTransformation extends Crs {
     super.wrapLng,
     super.wrapLat,
   }) : _transformation = transformation;
+
+  @override
+  (double, double) transform(double x, double y, double scale) =>
+      _transformation.transform(x, y, scale);
+  @override
+  (double, double) untransform(double x, double y, double scale) =>
+      _transformation.untransform(x, y, scale);
 
   @override
   (double, double) latLngToXY(LatLng latlng, double scale) {

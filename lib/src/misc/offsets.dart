@@ -40,7 +40,10 @@ List<Offset> getOffsets(MapCamera camera, Offset origin, List<LatLng> points) {
 }
 
 List<Offset> getOffsetsXY(
-    MapCamera camera, Offset origin, List<DoublePoint> points) {
+  MapCamera camera,
+  Offset origin,
+  List<DoublePoint> points,
+) {
   // Critically create as little garbage as possible. This is called on every frame.
   final crs = camera.crs;
   final zoomScale = crs.scale(camera.zoom);

@@ -117,8 +117,6 @@ List<DoublePoint> simplifyDouglasPeucker(
   return simplified;
 }
 
-/// high quality simplification uses the Ramer-Douglas-Peucker algorithm
-/// otherwise it just merges close points
 List<LatLng> simplify(
   List<LatLng> points,
   double tolerance, {
@@ -127,19 +125,23 @@ List<LatLng> simplify(
   // Don't simplify anything less than a square
   if (points.length <= 4) return points;
 
-  List<DoublePoint> nextPoints = List<DoublePoint>.generate(points.length,
-      (i) => DoublePoint(points[i].longitude, points[i].latitude));
+  List<DoublePoint> nextPoints = List<DoublePoint>.generate(
+    points.length,
+    (i) => DoublePoint(points[i].longitude, points[i].latitude),
+  );
   final double sqTolerance = tolerance * tolerance;
   nextPoints =
       highestQuality ? nextPoints : simplifyRadialDist(nextPoints, sqTolerance);
   nextPoints = simplifyDouglasPeucker(nextPoints, sqTolerance);
 
   return List<LatLng>.generate(
-      nextPoints.length, (i) => LatLng(nextPoints[i].y, nextPoints[i].x));
+    nextPoints.length,
+    (i) => LatLng(nextPoints[i].y, nextPoints[i].x),
+  );
 }
 
 List<DoublePoint> simplifyPoints(
-  List<DoublePoint> points,
+  final List<DoublePoint> points,
   double tolerance, {
   bool highestQuality = false,
 }) {
