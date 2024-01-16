@@ -41,12 +41,6 @@ class Polygon {
   LatLngBounds get boundingBox =>
       _boundingBox ??= LatLngBounds.fromPoints(points);
 
-  List<(double, double)>? _projectedPoints;
-  List<(double, double)> getProjectedPoints(Projection projection) =>
-      _projectedPoints ??= List<(double, double)>.generate(
-          points.length, (i) => projection.projectXY(points[i]),
-          growable: false);
-
   TextPainter? _textPainter;
   TextPainter? get textPainter {
     if (label != null) {
@@ -82,24 +76,6 @@ class Polygon {
     this.rotateLabel = false,
   }) : _filledAndClockwise =
             (isFilled ?? (color != null)) && isClockwise(points);
-
-  Polygon copyWithNewPoints(List<LatLng> points) => Polygon(
-        points: points,
-        holePointsList: holePointsList,
-        color: color,
-        borderStrokeWidth: borderStrokeWidth,
-        borderColor: borderColor,
-        disableHolesBorder: disableHolesBorder,
-        isDotted: isDotted,
-        // ignore: deprecated_member_use_from_same_package
-        isFilled: isFilled,
-        strokeCap: strokeCap,
-        strokeJoin: strokeJoin,
-        label: label,
-        labelStyle: labelStyle,
-        labelPlacement: labelPlacement,
-        rotateLabel: rotateLabel,
-      );
 
   static bool isClockwise(List<LatLng> points) {
     double sum = 0;

@@ -1,13 +1,45 @@
 part of 'polygon_layer.dart';
 
-class PolygonPainter extends CustomPainter {
-  final List<Polygon> polygons;
+class _ProjectedPolygon {
+  final Polygon polygon;
+  final List<DoublePoint> points;
+  final List<List<DoublePoint>>? holePoints;
+
+  const _ProjectedPolygon._({
+    required this.polygon,
+    required this.points,
+    this.holePoints,
+  });
+
+  factory _ProjectedPolygon.fromPolygon(
+          Projection projection, Polygon polygon) =>
+      _ProjectedPolygon._(
+        polygon: polygon,
+        points: List<DoublePoint>.generate(polygon.points.length, (j) {
+          final (x, y) = projection.projectXY(polygon.points[j]);
+          return DoublePoint(x, y);
+        }, growable: false),
+        holePoints: polygon.holePointsList == null
+            ? null
+            : List<List<DoublePoint>>.generate(polygon.holePointsList!.length,
+                (j) {
+                final list = polygon.holePointsList![j];
+                return List<DoublePoint>.generate(list.length, (k) {
+                  final (x, y) = projection.projectXY(list[k]);
+                  return DoublePoint(x, y);
+                }, growable: false);
+              }, growable: false),
+      );
+}
+
+class _PolygonPainter extends CustomPainter {
+  final List<_ProjectedPolygon> polygons;
   final MapCamera camera;
   final LatLngBounds bounds;
   final bool polygonLabels;
   final bool drawLabelsLast;
 
-  PolygonPainter({
+  _PolygonPainter({
     required this.polygons,
     required this.camera,
     required this.polygonLabels,
@@ -61,12 +93,12 @@ class PolygonPainter extends CustomPainter {
     final origin = (camera.project(camera.center) - camera.size / 2).toOffset();
 
     // Main loop constructing batched fill and border paths from given polygons.
-    for (final polygon in polygons) {
-      if (polygon.points.isEmpty) {
+    for (final projectedPolygon in polygons) {
+      if (projectedPolygon.points.isEmpty) {
         continue;
       }
-      final offsets = getOffsetsXY(
-          camera, origin, polygon.getProjectedPoints(camera.crs.projection));
+      final polygon = projectedPolygon.polygon;
+      final offsets = getOffsetsXY(camera, origin, projectedPolygon.points);
 
       // The hash is based on the polygons visual properties. If the hash from
       // the current and the previous polygon no longer match, we need to flush
@@ -144,10 +176,11 @@ class PolygonPainter extends CustomPainter {
     drawPaths();
 
     if (polygonLabels && drawLabelsLast) {
-      for (final polygon in polygons) {
-        if (polygon.points.isEmpty) {
+      for (final projectedPolygon in polygons) {
+        if (projectedPolygon.points.isEmpty) {
           continue;
         }
+        final polygon = projectedPolygon.polygon;
         final textPainter = polygon.textPainter;
         if (textPainter != null) {
           final painter = _buildLabelTextPainter(
@@ -245,5 +278,5 @@ class PolygonPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(PolygonPainter oldDelegate) => false;
+  bool shouldRepaint(_PolygonPainter oldDelegate) => false;
 }

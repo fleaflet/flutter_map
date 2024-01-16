@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart';
 
 Offset getOffset(MapCamera camera, Offset origin, LatLng point) {
@@ -39,7 +40,7 @@ List<Offset> getOffsets(MapCamera camera, Offset origin, List<LatLng> points) {
 }
 
 List<Offset> getOffsetsXY(
-    MapCamera camera, Offset origin, List<(double, double)> points) {
+    MapCamera camera, Offset origin, List<DoublePoint> points) {
   // Critically create as little garbage as possible. This is called on every frame.
   final crs = camera.crs;
   final zoomScale = crs.scale(camera.zoom);
@@ -54,8 +55,8 @@ List<Offset> getOffsetsXY(
     final CrsWithStaticTransformation mcrs = crs;
     final v = List<Offset>.filled(len, Offset.zero);
     for (int i = 0; i < len; ++i) {
-      final (px, py) = points[i];
-      final (x, y) = mcrs.transform(px, py, zoomScale);
+      final p = points[i];
+      final (x, y) = mcrs.transform(p.x, p.y, zoomScale);
       v[i] = Offset(x + ox, y + oy);
     }
     return v;
@@ -63,8 +64,8 @@ List<Offset> getOffsetsXY(
 
   final v = List<Offset>.filled(len, Offset.zero);
   for (int i = 0; i < len; ++i) {
-    final (px, py) = points[i];
-    final (x, y) = crs.transform(px, py, zoomScale);
+    final p = points[i];
+    final (x, y) = crs.transform(p.x, p.y, zoomScale);
     v[i] = Offset(x + ox, y + oy);
   }
   return v;

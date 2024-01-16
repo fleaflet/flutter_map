@@ -3,53 +3,63 @@
 
 import 'package:latlong2/latlong.dart';
 
-double _getSqDist(
-  LatLng p1,
-  LatLng p2,
-) {
-  final double dx = p1.longitude - p2.longitude;
-  final double dy = p1.latitude - p2.latitude;
-  return dx * dx + dy * dy;
+// Custom point due to math.Point<double> being slow. Math operations tend to
+// have 20+x penalty for virtual function overhead given the reified nature of
+// Dart generics.
+class DoublePoint {
+  // Note: Allow mutability for reuse/pooling to reduce GC pressure and increase performance.
+  // Geometry operations should be safe-by-default to avoid accidental bugs.
+  double x;
+  double y;
+
+  DoublePoint(this.x, this.y);
+
+  DoublePoint operator -(DoublePoint rhs) => DoublePoint(x - rhs.x, y - rhs.y);
+
+  double distanceSq(DoublePoint rhs) {
+    final double dx = x - rhs.x;
+    final double dy = y - rhs.y;
+    return dx * dx + dy * dy;
+  }
 }
 
 /// square distance from a point to a segment
 double _getSqSegDist(
-  LatLng p,
-  LatLng p1,
-  LatLng p2,
+  DoublePoint p,
+  DoublePoint p1,
+  DoublePoint p2,
 ) {
-  double x = p1.longitude;
-  double y = p1.latitude;
-  double dx = p2.longitude - x;
-  double dy = p2.latitude - y;
+  double x = p1.x;
+  double y = p1.y;
+  double dx = p2.x - x;
+  double dy = p2.y - y;
   if (dx != 0 || dy != 0) {
-    final double t =
-        ((p.longitude - x) * dx + (p.latitude - y) * dy) / (dx * dx + dy * dy);
+    final double t = ((p.x - x) * dx + (p.y - y) * dy) / (dx * dx + dy * dy);
     if (t > 1) {
-      x = p2.longitude;
-      y = p2.latitude;
+      x = p2.x;
+      y = p2.y;
     } else if (t > 0) {
       x += dx * t;
       y += dy * t;
     }
   }
 
-  dx = p.longitude - x;
-  dy = p.latitude - y;
+  dx = p.x - x;
+  dy = p.y - y;
 
   return dx * dx + dy * dy;
 }
 
-List<LatLng> simplifyRadialDist(
-  List<LatLng> points,
+List<DoublePoint> simplifyRadialDist(
+  List<DoublePoint> points,
   double sqTolerance,
 ) {
-  LatLng prevPoint = points[0];
-  final List<LatLng> newPoints = [prevPoint];
-  late LatLng point;
+  DoublePoint prevPoint = points[0];
+  final List<DoublePoint> newPoints = [prevPoint];
+  late DoublePoint point;
   for (int i = 1, len = points.length; i < len; i++) {
     point = points[i];
-    if (_getSqDist(point, prevPoint) > sqTolerance) {
+    if (point.distanceSq(prevPoint) > sqTolerance) {
       newPoints.add(point);
       prevPoint = point;
     }
@@ -61,11 +71,11 @@ List<LatLng> simplifyRadialDist(
 }
 
 void _simplifyDPStep(
-  List<LatLng> points,
+  List<DoublePoint> points,
   int first,
   int last,
   double sqTolerance,
-  List<LatLng> simplified,
+  List<DoublePoint> simplified,
 ) {
   double maxSqDist = sqTolerance;
   late int index;
@@ -89,12 +99,12 @@ void _simplifyDPStep(
 }
 
 // simplification using Ramer-Douglas-Peucker algorithm
-List<LatLng> simplifyDouglasPeucker(
-  List<LatLng> points,
+List<DoublePoint> simplifyDouglasPeucker(
+  List<DoublePoint> points,
   double sqTolerance,
 ) {
   final int last = points.length - 1;
-  final List<LatLng> simplified = [points[0]];
+  final List<DoublePoint> simplified = [points[0]];
   _simplifyDPStep(points, 0, last, sqTolerance, simplified);
   simplified.add(points[last]);
   return simplified;
@@ -107,12 +117,32 @@ List<LatLng> simplify(
   double tolerance, {
   bool highestQuality = false,
 }) {
-  if (points.length <= 2) return points;
+  // Don't simplify anything less than a square
+  if (points.length <= 4) return points;
 
-  List<LatLng> nextPoints = points;
+  List<DoublePoint> nextPoints = List<DoublePoint>.generate(points.length,
+      (i) => DoublePoint(points[i].longitude, points[i].latitude));
   final double sqTolerance = tolerance * tolerance;
   nextPoints =
-      highestQuality ? points : simplifyRadialDist(nextPoints, sqTolerance);
+      highestQuality ? nextPoints : simplifyRadialDist(nextPoints, sqTolerance);
+  nextPoints = simplifyDouglasPeucker(nextPoints, sqTolerance);
+
+  return List<LatLng>.generate(
+      nextPoints.length, (i) => LatLng(nextPoints[i].y, nextPoints[i].x));
+}
+
+List<DoublePoint> simplifyPoints(
+  List<DoublePoint> points,
+  double tolerance, {
+  bool highestQuality = false,
+}) {
+  // Don't simplify anything less than a square
+  if (points.length <= 4) return points;
+
+  List<DoublePoint> nextPoints = points;
+  final double sqTolerance = tolerance * tolerance;
+  nextPoints =
+      highestQuality ? nextPoints : simplifyRadialDist(nextPoints, sqTolerance);
   nextPoints = simplifyDouglasPeucker(nextPoints, sqTolerance);
 
   return nextPoints;

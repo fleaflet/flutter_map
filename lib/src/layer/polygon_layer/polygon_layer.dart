@@ -62,50 +62,50 @@ class PolygonLayer extends StatefulWidget {
 }
 
 class _PolygonLayerState extends State<PolygonLayer> {
-  final _cachedSimplifiedPolygons = <int, List<Polygon>>{};
+  List<_ProjectedPolygon>? _polygons;
+  final _cachedSimplifiedPolygons = <int, List<_ProjectedPolygon>>{};
 
   @override
   void didUpdateWidget(PolygonLayer oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // IF old yes & new no, clear
-    // IF old no & new yes, compute
-    // IF old no & new no, nothing
-    // IF old yes & new yes & (different tolerance | different lines), both
-    //    otherwise, nothing
-    if (oldWidget.simplificationTolerance != 0 &&
-        widget.simplificationTolerance != 0 &&
-        (!listEquals(oldWidget.polygons, widget.polygons) ||
-            oldWidget.simplificationTolerance !=
-                widget.simplificationTolerance)) {
-      _cachedSimplifiedPolygons.clear();
-      _computeZoomLevelSimplification(MapCamera.of(context).zoom.floor());
-    } else if (oldWidget.simplificationTolerance != 0 &&
-        widget.simplificationTolerance == 0) {
-      _cachedSimplifiedPolygons.clear();
-    } else if (oldWidget.simplificationTolerance == 0 &&
-        widget.simplificationTolerance != 0) {
-      _computeZoomLevelSimplification(MapCamera.of(context).zoom.floor());
+    if (widget.simplificationTolerance != 0 &&
+        oldWidget.simplificationTolerance == widget.simplificationTolerance &&
+        listEquals(oldWidget.polygons, widget.polygons)) {
+      // Reuse cache.
+      return;
     }
+
+    _cachedSimplifiedPolygons.clear();
+    _polygons = null;
   }
 
   @override
   Widget build(BuildContext context) {
     final camera = MapCamera.of(context);
+    final zoom = camera.zoom.floor();
+
+    final projectedPolygons = _polygons ??=
+        List<_ProjectedPolygon>.generate(widget.polygons.length, (i) {
+      final polygon = widget.polygons[i];
+      return _ProjectedPolygon.fromPolygon(camera.crs.projection, polygon);
+    }, growable: false);
 
     final simplified = widget.simplificationTolerance == 0
-        ? widget.polygons
-        : _computeZoomLevelSimplification(camera.zoom.floor());
+        ? projectedPolygons
+        : _cachedSimplifiedPolygons[zoom] ??= _computeZoomLevelSimplification(
+            projectedPolygons, widget.simplificationTolerance, zoom);
 
     final culled = !widget.polygonCulling
         ? simplified
         : simplified
-            .where((p) => p.boundingBox.isOverlapping(camera.visibleBounds))
+            .where((p) =>
+                p.polygon.boundingBox.isOverlapping(camera.visibleBounds))
             .toList();
 
     return MobileLayerTransformer(
       child: CustomPaint(
-        painter: PolygonPainter(
+        painter: _PolygonPainter(
           polygons: culled,
           camera: camera,
           polygonLabels: widget.polygonLabels,
@@ -116,20 +116,23 @@ class _PolygonLayerState extends State<PolygonLayer> {
     );
   }
 
-  List<Polygon> _computeZoomLevelSimplification(int zoom) =>
-      _cachedSimplifiedPolygons[zoom] ??= List<Polygon>.generate(
-        widget.polygons.length,
+  static List<_ProjectedPolygon> _computeZoomLevelSimplification(
+    List<_ProjectedPolygon> polygons,
+    double tolerance,
+    int zoom,
+  ) =>
+      List<_ProjectedPolygon>.generate(
+        polygons.length,
         (i) {
-          final polygon = widget.polygons[i];
-          return polygon.copyWithNewPoints(
-            // TODO: Ideally we'd simplify in projected space to minimize issues with map distortion.
-            // TODO: Simplify polygon holes as well.
-            simplify(
-              polygon.points,
-              widget.simplificationTolerance / math.pow(2, zoom),
-              highestQuality: true,
-            ),
-          );
+          final polygon = polygons[i];
+          return _ProjectedPolygon._(
+              polygon: polygon.polygon,
+              points: simplifyPoints(
+                polygon.points,
+                tolerance / math.pow(2, zoom),
+                highestQuality: true,
+              ),
+              holePoints: polygon.holePoints);
         },
         growable: false,
       );
