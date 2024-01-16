@@ -29,10 +29,10 @@ abstract class Crs {
     this.wrapLat,
   });
 
-  // Project a spherical LatLng coordinate into planar space (unscaled).
+  /// Project a spherical LatLng coordinate into planar space (unscaled).
   Projection get projection;
 
-  // Scale planar coordinate to scaled map point.
+  /// Scale planar coordinate to scaled map point.
   (double, double) transform(double x, double y, double scale);
   (double, double) untransform(double x, double y, double scale);
 
