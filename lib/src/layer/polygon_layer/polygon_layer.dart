@@ -125,14 +125,26 @@ class _PolygonLayerState extends State<PolygonLayer> {
         polygons.length,
         (i) {
           final polygon = polygons[i];
+          final holes = polygon.holePoints;
+
           return _ProjectedPolygon._(
-              polygon: polygon.polygon,
-              points: simplifyPoints(
-                polygon.points,
-                tolerance / math.pow(2, zoom),
-                highestQuality: true,
-              ),
-              holePoints: polygon.holePoints);
+            polygon: polygon.polygon,
+            points: simplifyPoints(
+              polygon.points,
+              tolerance / math.pow(2, zoom),
+              highestQuality: true,
+            ),
+            holePoints: holes == null
+                ? null
+                : List<List<DoublePoint>>.generate(holes.length, (j) {
+                    final hole = holes[j];
+                    return simplifyPoints(
+                      hole,
+                      tolerance / math.pow(2, zoom),
+                      highestQuality: true,
+                    );
+                  }),
+          );
         },
         growable: false,
       );
