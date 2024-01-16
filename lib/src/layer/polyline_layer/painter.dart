@@ -64,7 +64,7 @@ class PolylinePainter<R extends Object> extends CustomPainter {
         final o1 = offsets[i];
         final o2 = offsets[i + 1];
 
-        final distance = math.sqrt(_distToSegmentSquared(
+        final distance = math.sqrt(getSqSegDist(
           position.dx,
           position.dy,
           o1.dx,
@@ -280,31 +280,6 @@ class PolylinePainter<R extends Object> extends CustomPainter {
 
   @override
   bool shouldRepaint(PolylinePainter<R> oldDelegate) => false;
-}
-
-double _distanceSq(double x0, double y0, double x1, double y1) {
-  final dx = x0 - x1;
-  final dy = y0 - y1;
-  return dx * dx + dy * dy;
-}
-
-double _distToSegmentSquared(
-  double px,
-  double py,
-  double x0,
-  double y0,
-  double x1,
-  double y1,
-) {
-  final dx = x1 - x0;
-  final dy = y1 - y0;
-  final distanceSq = dx * dx + dy * dy;
-  if (distanceSq == 0) {
-    return _distanceSq(px, py, x0, y0);
-  }
-
-  final t = (((px - x0) * dx + (py - y0) * dy) / distanceSq).clamp(0, 1);
-  return _distanceSq(px, py, x0 + t * dx, y0 + t * dy);
 }
 
 const _distance = Distance();

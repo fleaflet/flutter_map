@@ -243,19 +243,23 @@ class _PolygonPainter extends CustomPainter {
   }
 
   void _addDottedLineToPath(
-      ui.Path path, List<Offset> offsets, double radius, double stepLength) {
+    ui.Path path,
+    List<Offset> offsets,
+    double radius,
+    double stepLength,
+  ) {
     if (offsets.isEmpty) {
       return;
     }
 
     double startDistance = 0;
-    for (var i = 0; i < offsets.length; i++) {
+    for (int i = 0; i < offsets.length; i++) {
       final o0 = offsets[i % offsets.length];
       final o1 = offsets[(i + 1) % offsets.length];
       final totalDistance = (o0 - o1).distance;
 
       double distance = startDistance;
-      for (; distance < totalDistance; distance += stepLength) {
+      while (distance < totalDistance) {
         final done = distance / totalDistance;
         final remain = 1.0 - done;
         final offset = Offset(
@@ -263,6 +267,8 @@ class _PolygonPainter extends CustomPainter {
           o0.dy * remain + o1.dy * done,
         );
         path.addOval(Rect.fromCircle(center: offset, radius: radius));
+
+        distance += stepLength;
       }
 
       startDistance = distance < totalDistance
