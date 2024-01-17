@@ -17,10 +17,10 @@ part 'tap.dart';
 part 'two_finger.dart';
 
 /// Abstract base service class for every gesture service.
-abstract class BaseGestureService {
+abstract class _BaseGestureService {
   final MapControllerImpl controller;
 
-  const BaseGestureService({required this.controller});
+  const _BaseGestureService({required this.controller});
 
   /// Getter to provide a short way to access the [MapCamera].
   MapCamera get _camera => controller.camera;
@@ -29,27 +29,54 @@ abstract class BaseGestureService {
   MapOptions get _options => controller.options;
 }
 
-/// Abstract base service that additionally stores [TapDownDetails] as it is
-/// commonly used by the different kind of tap gestures.
-abstract class SingleShotGestureService extends BaseGestureService {
-  SingleShotGestureService({required super.controller});
+/// Abstract base service for a gesture that fires only one time.
+/// Commonly used by the different kind of tap gestures.
+abstract class _SingleShotGestureService extends _BaseGestureService {
+  _SingleShotGestureService({required super.controller});
 
+  TapDownDetails? details;
+
+  void setDetails(TapDownDetails newDetails) => details = newDetails;
+
+  /// Called when the gesture fires and is confirmed.
   @mustCallSuper
   @mustBeOverridden
   void submit() {
     controller.stopAnimationRaw();
   }
-}
-
-/// mixin that adds the [setDetails] method to a GestureService. Is used if the
-/// [TapDownDetails] are set at a different time of when the gesture gets
-/// confirmed and submitted.
-mixin SetTapDownDetailsMixin on BaseGestureService {
-  TapDownDetails? details;
-
-  void setDetails(TapDownDetails newDetails) => details = newDetails;
 
   void reset() => details = null;
+}
+
+/// Abstract base service for a long-press gesture that receives a
+/// [LongPressStartDetails] when called.
+abstract class _BaseLongPressGestureService extends _BaseGestureService {
+  _BaseLongPressGestureService({required super.controller});
+
+  /// Called when the gesture fires and is confirmed.
+  @mustCallSuper
+  @mustBeOverridden
+  void submit(LongPressStartDetails details) {
+    controller.stopAnimationRaw();
+  }
+}
+
+/// Abstract base service for a gesture that fires multiple times time.
+abstract class _ProgressableGestureService extends _BaseGestureService {
+  _ProgressableGestureService({required super.controller});
+
+  /// Called when the gesture is started, stores important values.
+  @mustCallSuper
+  @mustBeOverridden
+  void start(ScaleStartDetails details) {
+    controller.stopAnimationRaw();
+  }
+
+  /// Called when the gesture receives an update, updates the [MapCamera].
+  void update(ScaleUpdateDetails details);
+
+  /// Called when the gesture ends, cleans up the previously stored values.
+  void end(ScaleEndDetails details);
 }
 
 /// Return a rotated Offset

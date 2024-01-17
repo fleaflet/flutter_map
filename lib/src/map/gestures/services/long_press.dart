@@ -2,14 +2,15 @@ part of 'base_services.dart';
 
 /// Service to handle long press gestures for the
 /// [MapOptions.onLongPress] callback.
-class LongPressGestureService extends BaseGestureService {
+class LongPressGestureService extends _BaseLongPressGestureService {
   LongPressGestureService({required super.controller});
 
   /// Called when a long press gesture with a primary button has been
   /// recognized. A pointer has remained in contact with the screen at the
   /// same location for a long period of time.
+  @override
   void submit(LongPressStartDetails details) {
-    controller.stopAnimationRaw();
+    super.submit(details);
     final position = _camera.offsetToCrs(details.localPosition);
     _options.onLongPress?.call(details, position);
     controller.emitMapEvent(
@@ -24,14 +25,15 @@ class LongPressGestureService extends BaseGestureService {
 
 /// Service to handle secondary long press gestures for the
 /// [MapOptions.onSecondaryLongPress] callback.
-class SecondaryLongPressGestureService extends BaseGestureService {
+class SecondaryLongPressGestureService extends _BaseLongPressGestureService {
   SecondaryLongPressGestureService({required super.controller});
 
   /// Called when a long press gesture with a primary button has been
   /// recognized. A pointer has remained in contact with the screen at the
   /// same location for a long period of time.
+  @override
   void submit(LongPressStartDetails details) {
-    controller.stopAnimationRaw();
+    super.submit(details);
     final position = _camera.offsetToCrs(details.localPosition);
     _options.onSecondaryLongPress?.call(details, position);
     controller.emitMapEvent(
@@ -46,12 +48,14 @@ class SecondaryLongPressGestureService extends BaseGestureService {
 
 /// Service to handle tertiary long press gestures for the
 /// [MapOptions.onTertiaryLongPress] callback.
-class TertiaryLongPressGestureService extends BaseGestureService {
+class TertiaryLongPressGestureService extends _BaseLongPressGestureService {
   TertiaryLongPressGestureService({required super.controller});
 
   /// A long press on the tertiary button has happen (e.g. click and hold on
   /// the mouse scroll wheel)
+  @override
   void submit(LongPressStartDetails details) {
+    super.submit(details);
     controller.stopAnimationRaw();
     final point = _camera.offsetToCrs(details.localPosition);
     _options.onTertiaryLongPress?.call(details, point);
