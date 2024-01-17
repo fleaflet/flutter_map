@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:flutter/animation.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -30,10 +30,10 @@ abstract class BaseGestureService {
 
 /// Abstract base service that additionally stores [TapDownDetails] as it is
 /// commonly used by the different kind of tap gestures.
-abstract class BaseDetailsGestureService extends BaseGestureService {
+abstract class SingleShotGestureService extends BaseGestureService {
   TapDownDetails? details;
 
-  BaseDetailsGestureService({required super.controller});
+  SingleShotGestureService({required super.controller});
 
   void setDetails(TapDownDetails newDetails) => details = newDetails;
 

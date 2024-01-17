@@ -1,7 +1,7 @@
 part of 'base_services.dart';
 
 /// Service to handle tap gestures for the [MapOptions.onTap] callback.
-class TapGestureService extends BaseDetailsGestureService {
+class TapGestureService extends SingleShotGestureService {
   TapGestureService({required super.controller});
 
   /// A tap with a primary button has occurred.
@@ -26,7 +26,7 @@ class TapGestureService extends BaseDetailsGestureService {
 
 /// Service to handle secondary tap gestures for the
 /// [MapOptions.onSecondaryTap] callback.
-class SecondaryTapGestureService extends BaseDetailsGestureService {
+class SecondaryTapGestureService extends SingleShotGestureService {
   SecondaryTapGestureService({required super.controller});
 
   /// A tap with a secondary button has occurred.
@@ -51,7 +51,7 @@ class SecondaryTapGestureService extends BaseDetailsGestureService {
 
 /// Service to handle tertiary tap gestures for the
 /// [MapOptions.onTertiaryTap] callback.
-class TertiaryTapGestureService extends BaseDetailsGestureService {
+class TertiaryTapGestureService extends SingleShotGestureService {
   TertiaryTapGestureService({required super.controller});
 
   /// A tertiary tap gesture has happen (e.g. click on the mouse scroll wheel)
