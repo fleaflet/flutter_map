@@ -1,5 +1,7 @@
 // implementation based on
 // https://github.com/mourner/simplify-js/blob/master/simplify.js
+import 'dart:math' as math;
+
 import 'package:flutter_map/src/geo/crs.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -158,15 +160,20 @@ List<DoublePoint> simplifyPoints(
 }
 
 double getEffectiveSimplificationTolerance(
-  Projection projection,
-  double tolerance, {
-  LatLng point = const LatLng(45, 90),
-}) {
-  if (tolerance <= 0) return 0;
+  Crs crs,
+  int zoom,
+  double pixelTolerance,
+) {
+  if (pixelTolerance <= 0) return 0;
 
-  final p0 = projection.project(point);
-  final p1 = projection
-      .project(LatLng(point.latitude + tolerance, point.longitude + tolerance));
+  final (x0, y0) = crs.untransform(0, 0, crs.scale(zoom.toDouble()));
+  final (x1, y1) = crs.untransform(
+    pixelTolerance,
+    pixelTolerance,
+    crs.scale(zoom.toDouble()),
+  );
 
-  return p0.distanceTo(p1);
+  final dx = x1 - x0;
+  final dy = y1 - y0;
+  return math.sqrt(dx * dx + dy * dy);
 }

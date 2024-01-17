@@ -25,15 +25,12 @@ class PolygonLayer extends StatefulWidget {
   /// Defaults to `true`.
   final bool polygonCulling;
 
-  /// Distance between two mergeable polygon points, in decimal degrees scaled
-  /// to floored zoom
+  /// Distance between two neighboring polygon points, in logical pixels scaled
+  /// to floored zoom.
   ///
-  /// Increasing results in a more jagged, less accurate simplification, with
-  /// improved performance; and vice versa.
-  ///
-  /// Note that this value is internally scaled using the current map zoom, to
-  /// optimize visual performance in conjunction with improved performance with
-  /// culling.
+  /// Increasing this value results in points further apart being collapsed and
+  /// thus more simplified polygons. Higher values improve performance at the
+  /// cost of visual fidelity and vice versa.
   ///
   /// Defaults to 0.5. Set to 0 to disable simplification.
   final double simplificationTolerance;
@@ -63,7 +60,6 @@ class PolygonLayer extends StatefulWidget {
 
 class _PolygonLayerState extends State<PolygonLayer> {
   List<_ProjectedPolygon>? _cachedProjectedPolygons;
-  double? _effectiveTolerance;
   final _cachedSimplifiedPolygons = <int, List<_ProjectedPolygon>>{};
 
   @override
@@ -79,7 +75,6 @@ class _PolygonLayerState extends State<PolygonLayer> {
 
     _cachedSimplifiedPolygons.clear();
     _cachedProjectedPolygons = null;
-    _effectiveTolerance = null;
   }
 
   @override
@@ -94,17 +89,15 @@ class _PolygonLayerState extends State<PolygonLayer> {
       ),
       growable: false,
     );
-    final simplificationTolerance = _effectiveTolerance ??=
-        getEffectiveSimplificationTolerance(
-            camera.crs.projection, widget.simplificationTolerance);
 
     final zoom = camera.zoom.floor();
 
-    final simplified = widget.simplificationTolerance == 0
+    final simplified = widget.simplificationTolerance <= 0
         ? projected
         : _cachedSimplifiedPolygons[zoom] ??= _computeZoomLevelSimplification(
+            camera.crs,
             projected,
-            simplificationTolerance,
+            widget.simplificationTolerance,
             zoom,
           );
 
@@ -130,36 +123,44 @@ class _PolygonLayerState extends State<PolygonLayer> {
   }
 
   static List<_ProjectedPolygon> _computeZoomLevelSimplification(
+    Crs crs,
     List<_ProjectedPolygon> polygons,
-    double tolerance,
+    double pixelTolerance,
     int zoom,
-  ) =>
-      List<_ProjectedPolygon>.generate(
-        polygons.length,
-        (i) {
-          final polygon = polygons[i];
-          final holes = polygon.holePoints;
+  ) {
+    final tolerance = getEffectiveSimplificationTolerance(
+      crs,
+      zoom,
+      pixelTolerance,
+    );
 
-          return _ProjectedPolygon._(
-            polygon: polygon.polygon,
-            points: simplifyPoints(
-              polygon.points,
-              tolerance / math.pow(2, zoom),
-              highestQuality: true,
-            ),
-            holePoints: holes == null
-                ? null
-                : List<List<DoublePoint>>.generate(
-                    holes.length,
-                    (j) => simplifyPoints(
-                      holes[j],
-                      tolerance / math.pow(2, zoom),
-                      highestQuality: true,
-                    ),
-                    growable: false,
+    return List<_ProjectedPolygon>.generate(
+      polygons.length,
+      (i) {
+        final polygon = polygons[i];
+        final holes = polygon.holePoints;
+
+        return _ProjectedPolygon._(
+          polygon: polygon.polygon,
+          points: simplifyPoints(
+            polygon.points,
+            tolerance,
+            highestQuality: true,
+          ),
+          holePoints: holes == null
+              ? null
+              : List<List<DoublePoint>>.generate(
+                  holes.length,
+                  (j) => simplifyPoints(
+                    holes[j],
+                    tolerance,
+                    highestQuality: true,
                   ),
-          );
-        },
-        growable: false,
-      );
+                  growable: false,
+                ),
+        );
+      },
+      growable: false,
+    );
+  }
 }
