@@ -63,6 +63,7 @@ class PolygonLayer extends StatefulWidget {
 
 class _PolygonLayerState extends State<PolygonLayer> {
   List<_ProjectedPolygon>? _cachedProjectedPolygons;
+  double? _effectiveTolerance;
   final _cachedSimplifiedPolygons = <int, List<_ProjectedPolygon>>{};
 
   @override
@@ -78,6 +79,7 @@ class _PolygonLayerState extends State<PolygonLayer> {
 
     _cachedSimplifiedPolygons.clear();
     _cachedProjectedPolygons = null;
+    _effectiveTolerance = null;
   }
 
   @override
@@ -92,13 +94,17 @@ class _PolygonLayerState extends State<PolygonLayer> {
       ),
       growable: false,
     );
+    final simplificationTolerance = _effectiveTolerance ??=
+        getEffectiveSimplificationTolerance(
+            camera.crs.projection, widget.simplificationTolerance);
 
     final zoom = camera.zoom.floor();
+
     final simplified = widget.simplificationTolerance == 0
         ? projected
         : _cachedSimplifiedPolygons[zoom] ??= _computeZoomLevelSimplification(
             projected,
-            widget.simplificationTolerance,
+            simplificationTolerance,
             zoom,
           );
 

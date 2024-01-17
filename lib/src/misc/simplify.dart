@@ -1,6 +1,6 @@
 // implementation based on
 // https://github.com/mourner/simplify-js/blob/master/simplify.js
-
+import 'package:flutter_map/src/geo/crs.dart';
 import 'package:latlong2/latlong.dart';
 
 // Custom point due to math.Point<double> being slow. Math operations tend to
@@ -155,4 +155,18 @@ List<DoublePoint> simplifyPoints(
   nextPoints = simplifyDouglasPeucker(nextPoints, sqTolerance);
 
   return nextPoints;
+}
+
+double getEffectiveSimplificationTolerance(
+  Projection projection,
+  double tolerance, {
+  LatLng point = const LatLng(45, 90),
+}) {
+  if (tolerance <= 0) return 0;
+
+  final p0 = projection.project(point);
+  final p1 = projection
+      .project(LatLng(point.latitude + tolerance, point.longitude + tolerance));
+
+  return p0.distanceTo(p1);
 }
