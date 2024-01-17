@@ -97,12 +97,13 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
         _twoFingerInput != null;
 
     return Listener(
-      onPointerDown: _options.onPointerDown == null
-          ? null
-          : (event) => _options.onPointerDown!.call(
-                event,
-                _camera.offsetToCrs(event.localPosition),
-              ),
+      onPointerDown: (event) {
+        widget.controller.stopAnimationRaw();
+        _options.onPointerDown?.call(
+          event,
+          _camera.offsetToCrs(event.localPosition),
+        );
+      },
       onPointerHover: _options.onPointerHover == null
           ? null
           : (event) => _options.onPointerHover!.call(
