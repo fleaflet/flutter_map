@@ -13,6 +13,7 @@ import 'package:polylabel/polylabel.dart'; // conflict with Path from UI
 part 'label.dart';
 part 'painter.dart';
 part 'polygon.dart';
+part 'projected_polygon.dart';
 
 @immutable
 class PolygonLayer extends StatefulWidget {
@@ -66,12 +67,10 @@ class _PolygonLayerState extends State<PolygonLayer> {
   void didUpdateWidget(PolygonLayer oldWidget) {
     super.didUpdateWidget(oldWidget);
 
+    // Reuse cache
     if (widget.simplificationTolerance != 0 &&
         oldWidget.simplificationTolerance == widget.simplificationTolerance &&
-        listEquals(oldWidget.polygons, widget.polygons)) {
-      // Reuse cache.
-      return;
-    }
+        listEquals(oldWidget.polygons, widget.polygons)) return;
 
     _cachedSimplifiedPolygons.clear();
     _cachedProjectedPolygons = null;
@@ -90,15 +89,13 @@ class _PolygonLayerState extends State<PolygonLayer> {
       growable: false,
     );
 
-    final zoom = camera.zoom.floor();
-
     final simplified = widget.simplificationTolerance <= 0
         ? projected
-        : _cachedSimplifiedPolygons[zoom] ??= _computeZoomLevelSimplification(
-            camera.crs,
-            projected,
-            widget.simplificationTolerance,
-            zoom,
+        : _cachedSimplifiedPolygons[camera.zoom.floor()] ??=
+            _computeZoomLevelSimplification(
+            polygons: projected,
+            pixelTolerance: widget.simplificationTolerance,
+            camera: camera,
           );
 
     final culled = !widget.polygonCulling
@@ -122,16 +119,15 @@ class _PolygonLayerState extends State<PolygonLayer> {
     );
   }
 
-  static List<_ProjectedPolygon> _computeZoomLevelSimplification(
-    Crs crs,
-    List<_ProjectedPolygon> polygons,
-    double pixelTolerance,
-    int zoom,
-  ) {
+  static List<_ProjectedPolygon> _computeZoomLevelSimplification({
+    required List<_ProjectedPolygon> polygons,
+    required double pixelTolerance,
+    required MapCamera camera,
+  }) {
     final tolerance = getEffectiveSimplificationTolerance(
-      crs,
-      zoom,
-      pixelTolerance,
+      crs: camera.crs,
+      zoom: camera.zoom.floor(),
+      pixelTolerance: pixelTolerance,
     );
 
     return List<_ProjectedPolygon>.generate(
@@ -143,18 +139,18 @@ class _PolygonLayerState extends State<PolygonLayer> {
         return _ProjectedPolygon._(
           polygon: polygon.polygon,
           points: simplifyPoints(
-            polygon.points,
-            tolerance,
-            highestQuality: true,
+            points: polygon.points,
+            tolerance: tolerance,
+            highQuality: true,
           ),
           holePoints: holes == null
               ? null
               : List<List<DoublePoint>>.generate(
                   holes.length,
                   (j) => simplifyPoints(
-                    holes[j],
-                    tolerance,
-                    highestQuality: true,
+                    points: holes[j],
+                    tolerance: tolerance,
+                    highQuality: true,
                   ),
                   growable: false,
                 ),

@@ -1,13 +1,16 @@
 // implementation based on
 // https://github.com/mourner/simplify-js/blob/master/simplify.js
+
 import 'dart:math' as math;
 
 import 'package:flutter_map/src/geo/crs.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:meta/meta.dart';
 
 // Custom point due to math.Point<double> being slow. Math operations tend to
 // have 20+x penalty for virtual function overhead given the reified nature of
 // Dart generics.
+@internal
 class DoublePoint {
   // Note: Allow mutability for reuse/pooling to reduce GC pressure and increase performance.
   // Geometry operations should be safe-by-default to avoid accidental bugs.
@@ -55,6 +58,7 @@ double getSqSegDist(
   return dx * dx + dy * dy;
 }
 
+//! Might actually be more expensive than DP, which is also better
 List<DoublePoint> simplifyRadialDist(
   List<DoublePoint> points,
   double sqTolerance,
@@ -107,7 +111,6 @@ void _simplifyDPStep(
   }
 }
 
-// simplification using Ramer-Douglas-Peucker algorithm
 List<DoublePoint> simplifyDouglasPeucker(
   List<DoublePoint> points,
   double sqTolerance,
@@ -119,10 +122,10 @@ List<DoublePoint> simplifyDouglasPeucker(
   return simplified;
 }
 
-List<LatLng> simplify(
-  List<LatLng> points,
-  double tolerance, {
-  bool highestQuality = false,
+List<LatLng> simplify({
+  required List<LatLng> points,
+  required double tolerance,
+  required bool highQuality,
 }) {
   // Don't simplify anything less than a square
   if (points.length <= 4) return points;
@@ -132,9 +135,9 @@ List<LatLng> simplify(
     (i) => DoublePoint(points[i].longitude, points[i].latitude),
   );
   final double sqTolerance = tolerance * tolerance;
-  nextPoints =
-      highestQuality ? nextPoints : simplifyRadialDist(nextPoints, sqTolerance);
-  nextPoints = simplifyDouglasPeucker(nextPoints, sqTolerance);
+  nextPoints = highQuality
+      ? simplifyDouglasPeucker(nextPoints, sqTolerance)
+      : simplifyRadialDist(nextPoints, sqTolerance);
 
   return List<LatLng>.generate(
     nextPoints.length,
@@ -142,28 +145,25 @@ List<LatLng> simplify(
   );
 }
 
-List<DoublePoint> simplifyPoints(
-  final List<DoublePoint> points,
-  double tolerance, {
-  bool highestQuality = false,
+List<DoublePoint> simplifyPoints({
+  required final List<DoublePoint> points,
+  required double tolerance,
+  required bool highQuality,
 }) {
   // Don't simplify anything less than a square
   if (points.length <= 4) return points;
 
-  List<DoublePoint> nextPoints = points;
   final double sqTolerance = tolerance * tolerance;
-  nextPoints =
-      highestQuality ? nextPoints : simplifyRadialDist(nextPoints, sqTolerance);
-  nextPoints = simplifyDouglasPeucker(nextPoints, sqTolerance);
-
-  return nextPoints;
+  return highQuality
+      ? simplifyDouglasPeucker(points, sqTolerance)
+      : simplifyRadialDist(points, sqTolerance);
 }
 
-double getEffectiveSimplificationTolerance(
-  Crs crs,
-  int zoom,
-  double pixelTolerance,
-) {
+double getEffectiveSimplificationTolerance({
+  required Crs crs,
+  required int zoom,
+  required double pixelTolerance,
+}) {
   if (pixelTolerance <= 0) return 0;
 
   final (x0, y0) = crs.untransform(0, 0, crs.scale(zoom.toDouble()));
