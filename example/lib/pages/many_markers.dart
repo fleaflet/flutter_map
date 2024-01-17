@@ -1,10 +1,12 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/misc/tile_providers.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:flutter_map_example/widgets/number_of_items_slider.dart';
+import 'package:flutter_map_example/widgets/show_no_perf_overlay_web.dart';
 import 'package:latlong2/latlong.dart';
 
 const _maxMarkersCount = 20000;
@@ -33,6 +35,9 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
   @override
   void initState() {
     super.initState();
+
+    showNoPerfOverlayWeb(context);
+
     Future.microtask(() {
       final r = Random();
       for (var x = 0; x < _maxMarkersCount; x++) {
@@ -87,12 +92,13 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
               onChangedNumber: (v) => setState(() => numOfMarkers = v),
             ),
           ),
-          Positioned(
-            bottom: 16,
-            left: 0,
-            right: 0,
-            child: PerformanceOverlay.allEnabled(),
-          ),
+          if (!kIsWeb)
+            Positioned(
+              bottom: 16,
+              left: 0,
+              right: 0,
+              child: PerformanceOverlay.allEnabled(),
+            ),
         ],
       ),
     );

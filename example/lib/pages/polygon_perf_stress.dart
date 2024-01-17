@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/misc/tile_providers.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
+import 'package:flutter_map_example/widgets/show_no_perf_overlay_web.dart';
 import 'package:flutter_map_example/widgets/simplification_tolerance_slider.dart';
 import 'package:flutter_map_geojson/flutter_map_geojson.dart';
 import 'package:latlong2/latlong.dart';
@@ -28,6 +29,12 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
               geoJson,
             ),
           );
+
+  @override
+  void initState() {
+    super.initState();
+    showNoPerfOverlayWeb(context);
+  }
 
   @override
   void dispose() {
@@ -82,12 +89,13 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
                   setState(() => simplificationTolerance = v),
             ),
           ),
-          Positioned(
-            bottom: 16,
-            left: 0,
-            right: 0,
-            child: PerformanceOverlay.allEnabled(),
-          ),
+          if (!kIsWeb)
+            Positioned(
+              bottom: 16,
+              left: 0,
+              right: 0,
+              child: PerformanceOverlay.allEnabled(),
+            ),
         ],
       ),
     );
