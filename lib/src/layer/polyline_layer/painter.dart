@@ -176,12 +176,12 @@ class PolylinePainter<R extends Object> extends CustomPainter {
             : paint.color = polyline.color;
       }
 
-      if (polyline.borderColor != null && polyline.borderStrokeWidth > 0.0) {
+      if (polyline.borderStrokeWidth > 0.0) {
         // Outlined lines are drawn by drawing a thicker path underneath, then
         // stenciling the middle (in case the line fill is transparent), and
         // finally drawing the line fill.
         borderPaint = Paint()
-          ..color = polyline.borderColor ?? const Color(0x00000000)
+          ..color = polyline.borderColor
           ..strokeWidth = strokeWidth + polyline.borderStrokeWidth
           ..strokeCap = polyline.strokeCap
           ..strokeJoin = polyline.strokeJoin
@@ -189,7 +189,7 @@ class PolylinePainter<R extends Object> extends CustomPainter {
           ..blendMode = BlendMode.srcOver;
 
         filterPaint = Paint()
-          ..color = polyline.borderColor!.withAlpha(255)
+          ..color = polyline.borderColor.withAlpha(255)
           ..strokeWidth = strokeWidth
           ..strokeCap = polyline.strokeCap
           ..strokeJoin = polyline.strokeJoin

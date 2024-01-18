@@ -5,7 +5,7 @@ class Polyline<R extends Object> {
   final double strokeWidth;
   final Color color;
   final double borderStrokeWidth;
-  final Color? borderColor;
+  final Color borderColor;
   final List<Color>? gradientColors;
   final List<double>? colorsStop;
   final bool isDotted;
@@ -71,6 +71,7 @@ class Polyline<R extends Object> {
 
   // Used to batch draw calls to the canvas
   int? _renderHashCode;
+
   int get renderHashCode => _renderHashCode ??= Object.hash(
         strokeWidth,
         color,
@@ -86,6 +87,7 @@ class Polyline<R extends Object> {
       );
 
   int? _hashCode;
+
   @override
   int get hashCode => _hashCode ??= Object.hashAll([...points, renderHashCode]);
 }
