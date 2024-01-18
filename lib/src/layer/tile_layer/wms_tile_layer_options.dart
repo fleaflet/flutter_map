@@ -2,8 +2,8 @@ part of 'tile_layer.dart';
 
 @immutable
 class WMSTileLayerOptions {
-  final service = 'WMS';
-  final request = 'GetMap';
+  static const service = 'WMS';
+  static const request = 'GetMap';
 
   /// WMS service's URL, for example 'http://ows.mundialis.de/services/service?'
   final String baseUrl;
