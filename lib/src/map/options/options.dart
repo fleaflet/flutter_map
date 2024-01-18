@@ -5,22 +5,34 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
 import 'package:latlong2/latlong.dart';
 
+/// Callback to notify when the map emits a [MapEvent].
 typedef MapEventCallback = void Function(MapEvent);
 
+/// Callback to notify when the map registers a confirmed short tap gesture.
 typedef TapCallback = void Function(TapPosition tapPosition, LatLng point);
+
+/// Callback to notify when the map emits long-press gesture
 typedef LongPressCallback = void Function(
   TapPosition tapPosition,
   LatLng point,
 );
+
+/// Callback to notify when the map registers a pointer down event.
 typedef PointerDownCallback = void Function(
   PointerDownEvent event,
   LatLng point,
 );
+
+/// Callback to notify when the map registers a pointer up event.
 typedef PointerUpCallback = void Function(PointerUpEvent event, LatLng point);
+
+/// Callback to notify when the map registers a pointer cancel event.
 typedef PointerCancelCallback = void Function(
   PointerCancelEvent event,
   LatLng point,
 );
+
+/// Callback to notify when the map registers a pointer hover event.
 typedef PointerHoverCallback = void Function(
   PointerHoverEvent event,
   LatLng point,

@@ -58,6 +58,8 @@ final class InteractionOptions {
   /// gestures will take effect see [MultiFingerGesture] for custom settings
   final int pinchMoveWinGestures;
 
+  /// The used velocity how fast the map should zoom in or out by scrolling
+  /// with the scroll wheel of a mouse.
   final double scrollWheelVelocity;
 
   /// Options to configure cursor/keyboard rotation
