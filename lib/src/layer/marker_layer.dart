@@ -89,6 +89,7 @@ class MarkerLayer extends StatelessWidget {
   /// markers. Use a widget inside [Marker.builder] to perform this.
   final bool rotate;
 
+  /// Create a new [MarkerLayer] to use inside as layer for FlutterMap.
   const MarkerLayer({
     super.key,
     required this.markers,

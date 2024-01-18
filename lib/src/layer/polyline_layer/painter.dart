@@ -1,13 +1,18 @@
 part of 'polyline_layer.dart';
 
+/// [CustomPainter] for [Polygon]s.
 class PolylinePainter<R extends Object> extends CustomPainter {
+  /// Reference to the list of [Polyline]s.
   final List<Polyline<R>> polylines;
+
+  /// Reference to the [MapCamera].
   final MapCamera camera;
   final LayerHitNotifier<R>? hitNotifier;
   final double minimumHitbox;
 
   final _hits = <R>[]; // Avoids repetitive memory reallocation
 
+  /// Create a new [PolylinePainter] instance
   PolylinePainter({
     required this.polylines,
     required this.camera,

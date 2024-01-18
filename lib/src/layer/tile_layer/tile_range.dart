@@ -8,6 +8,7 @@ import 'package:meta/meta.dart';
 abstract class TileRange {
   final int zoom;
 
+  /// The base constructor the the abstract [TileRange] class.
   const TileRange(this.zoom);
 
   Iterable<TileCoordinates> get coordinates;

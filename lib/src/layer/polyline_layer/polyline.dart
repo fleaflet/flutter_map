@@ -1,16 +1,28 @@
 part of 'polyline_layer.dart';
 
 class Polyline<R extends Object> {
+  /// The list of coordinates for the [Polyline].
   final List<LatLng> points;
+
+  /// The width of the stroke
   final double strokeWidth;
   final Color color;
+
+  /// The width of the stroke with of the line border.
+  /// Defaults to 0.0 (disabled).
   final double borderStrokeWidth;
+
+  /// The [Color] of the [Polyline] border.
   final Color borderColor;
   final List<Color>? gradientColors;
   final List<double>? colorsStop;
+
+  /// Set to true if the line stroke should be rendered as a dotted line.
   final bool isDotted;
   final StrokeCap strokeCap;
   final StrokeJoin strokeJoin;
+
+  /// Set to true if the width of the stroke should have meters as unit.
   final bool useStrokeWidthInMeter;
 
   /// Value notified in [PolylineLayer.hitNotifier]
@@ -21,6 +33,7 @@ class Polyline<R extends Object> {
   /// Should implement an equality operator to avoid breaking [Polyline.==].
   final R? hitValue;
 
+  /// Create a new [Polyline] used for the [PolylineLayer].
   Polyline({
     required this.points,
     this.strokeWidth = 1.0,

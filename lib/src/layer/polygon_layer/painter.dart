@@ -1,12 +1,21 @@
 part of 'polygon_layer.dart';
 
+/// The [PolygonPainter] class is used to render [Polygon]s for
+/// the [PolygonLayer].
 class PolygonPainter extends CustomPainter {
+  /// Reference to the [Polygon]s list.
   final List<Polygon> polygons;
+
+  /// Reference to the [MapCamera].
   final MapCamera camera;
+
+  /// Reference to the bounding box of the [Polygon].
   final LatLngBounds bounds;
+
   final bool polygonLabels;
   final bool drawLabelsLast;
 
+  /// Create a new [PolygonPainter] instance.
   PolygonPainter({
     required this.polygons,
     required this.camera,

@@ -85,11 +85,21 @@ class OverlayImage extends BaseOverlayImage {
 /// corner point is derived from the other points.
 @immutable
 class RotatedOverlayImage extends BaseOverlayImage {
+  /// The coordinates of the top left corner of the image.
   final LatLng topLeftCorner;
+
+  /// The coordinates of the bottom left corner of the image.
   final LatLng bottomLeftCorner;
+
+  /// The coordinates of the bottom right corner of the image.
   final LatLng bottomRightCorner;
+
+  /// The [FilterQuality] of the image, used to define how high quality the
+  /// overlay image should have on the map.
   final FilterQuality? filterQuality;
 
+  /// Create a new [RotatedOverlayImage] instance that can be provided to the
+  /// [OverlayImageLayer].
   const RotatedOverlayImage({
     super.key,
     required super.imageProvider,

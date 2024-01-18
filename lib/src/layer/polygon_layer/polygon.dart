@@ -1,19 +1,38 @@
 part of 'polygon_layer.dart';
 
+/// Defines the algorithm used to calculate the position of the [Polygon] label.
 enum PolygonLabelPlacement {
+  /// Use the centroid of the [Polygon] outline as position for the label.
   centroid,
+
+  /// Use the Mapbox Polylabel algorithm as position for the label.
   polylabel,
 }
 
+/// [Polygon] class, to be used for the [PolygonLayer].
 class Polygon {
+  /// The points for the outline of the [Polygon].
   final List<LatLng> points;
+
+  /// The point lists that define holes in the [Polygon].
   final List<List<LatLng>>? holePointsList;
 
+  /// The fill color of the [Polygon].
   final Color? color;
+
+  /// The stroke with of the [Polygon] outline.
   final double borderStrokeWidth;
+
+  /// The color of the [Polygon] outline.
   final Color borderColor;
+
   final bool disableHolesBorder;
+
+  /// Set to true if the border of the [Polygon] should be rendered
+  /// as dotted line.
   final bool isDotted;
+
+  /// Set to true if the [Polygon] should be filled with a color.
   @Deprecated(
     'Prefer setting `color` to null to disable filling, or a `Color` to enable filling of that color. '
     'This parameter will be removed to simplify the API, as this was a remnant of pre-null-safety. '
@@ -23,29 +42,43 @@ class Polygon {
   final bool? isFilled;
   final StrokeCap strokeCap;
   final StrokeJoin strokeJoin;
+
+  /// The optional label of the [Polygon].
   final String? label;
+
+  /// The [TextStyle] of the [Polygon.label].
   final TextStyle labelStyle;
+
+  /// The placement logic of the [Polygon.label].
   final PolygonLabelPlacement labelPlacement;
+
   final bool rotateLabel;
 
-  // Designates whether the given polygon points follow a clock or anti-clockwise direction.
-  // This is respected during draw call batching for filled polygons. Otherwise, batched polygons
-  // of opposing clock-directions cut holes into each other leading to a leaky optimization.
+  /// Designates whether the given polygon points follow a clock or
+  /// anti-clockwise direction.
+  /// This is respected during draw call batching for filled polygons.
+  /// Otherwise, batched polygons of opposing clock-directions cut holes into
+  /// each other leading to a leaky optimization.
   final bool _filledAndClockwise;
 
-  // Location where to place the label if `label` is set.
+  /// Location where to place the label if `label` is set.
   LatLng? _labelPosition;
 
+  /// Get the coordinates of the label position (cached).
   LatLng get labelPosition =>
       _labelPosition ??= computeLabelPosition(labelPlacement, points);
 
   LatLngBounds? _boundingBox;
 
+  /// Get the bounding box of the [Polygon.points] (cached).
   LatLngBounds get boundingBox =>
       _boundingBox ??= LatLngBounds.fromPoints(points);
 
   TextPainter? _textPainter;
 
+  /// Get the [TextPainter] for the polygon label (cached).
+  ///
+  /// Returns null if [Polygon.label] is not set.
   TextPainter? get textPainter {
     if (label != null) {
       return _textPainter ??= TextPainter(
@@ -57,6 +90,7 @@ class Polygon {
     return null;
   }
 
+  /// Create a new [Polygon] instance by setting it's parameters.
   Polygon({
     required this.points,
     this.holePointsList,
@@ -81,6 +115,7 @@ class Polygon {
   }) : _filledAndClockwise =
             (isFilled ?? (color != null)) && isClockwise(points);
 
+  /// Wither to return a new Polygon with new points.
   Polygon copyWithNewPoints(List<LatLng> points) => Polygon(
         points: points,
         holePointsList: holePointsList,
@@ -99,6 +134,7 @@ class Polygon {
         rotateLabel: rotateLabel,
       );
 
+  /// Check if a list of points is defined clockwise.
   static bool isClockwise(List<LatLng> points) {
     double sum = 0;
     for (int i = 0; i < points.length; ++i) {
@@ -134,6 +170,7 @@ class Polygon {
   // Used to batch draw calls to the canvas
   int? _renderHashCode;
 
+  /// An optimized hash code dedicated to be used inside the [PolygonPainter].
   int get renderHashCode => _renderHashCode ??= Object.hash(
         holePointsList,
         color,

@@ -88,7 +88,7 @@ void _simplifyDPStep(
   }
 }
 
-// simplification using Ramer-Douglas-Peucker algorithm
+/// simplification using Ramer-Douglas-Peucker algorithm
 List<LatLng> simplifyDouglasPeucker(
   List<LatLng> points,
   double sqTolerance,
