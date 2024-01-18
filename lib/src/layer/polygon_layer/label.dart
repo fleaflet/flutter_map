@@ -55,7 +55,7 @@ void Function(Canvas canvas)? _buildLabelTextPainter({
 
 /// Calculate the [LatLng] position for the given [PolygonLabelPlacement].
 LatLng _computeLabelPosition(
-  PolygonLabelPlacement labelPlacement, 
+  PolygonLabelPlacement labelPlacement,
   List<LatLng> points,
 ) {
   return switch (labelPlacement) {

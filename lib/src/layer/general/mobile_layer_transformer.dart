@@ -1,5 +1,4 @@
 import 'package:flutter/widgets.dart';
-
 import 'package:flutter_map/src/map/camera/camera.dart';
 
 /// Transforms a [child] widget tree into a layer that can move and rotate based
