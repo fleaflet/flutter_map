@@ -49,9 +49,9 @@ class CircleLayer extends StatelessWidget {
 @immutable
 class CirclePainter extends CustomPainter {
   final List<CircleMarker> circles;
-  final MapCamera map;
+  final MapCamera camera;
 
-  const CirclePainter(this.circles, this.map);
+  const CirclePainter(this.circles, this.camera);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -64,11 +64,11 @@ class CirclePainter extends CustomPainter {
     final pointsFilledBorder = <Color, Map<double, List<Offset>>>{};
     final pointsBorder = <Color, Map<double, Map<double, List<Offset>>>>{};
     for (final circle in circles) {
-      final offset = map.getOffsetFromOrigin(circle.point);
+      final offset = camera.getOffsetFromOrigin(circle.point);
       double radius = circle.radius;
       if (circle.useRadiusInMeter) {
         final r = distance.offset(circle.point, circle.radius, 180);
-        final delta = offset - map.getOffsetFromOrigin(r);
+        final delta = offset - camera.getOffsetFromOrigin(r);
         radius = delta.distance;
       }
       points[circle.color] ??= {};
@@ -82,7 +82,7 @@ class CirclePainter extends CustomPainter {
           double radiusBorder = circle.radius + circle.borderStrokeWidth;
           if (circle.useRadiusInMeter) {
             final rBorder = distance.offset(circle.point, radiusBorder, 180);
-            final deltaBorder = offset - map.getOffsetFromOrigin(rBorder);
+            final deltaBorder = offset - camera.getOffsetFromOrigin(rBorder);
             radiusBorder = deltaBorder.distance;
           }
           pointsFilledBorder[circle.borderColor] ??= {};
@@ -92,7 +92,7 @@ class CirclePainter extends CustomPainter {
           double realRadius = circle.radius;
           if (circle.useRadiusInMeter) {
             final rBorder = distance.offset(circle.point, realRadius, 180);
-            final deltaBorder = offset - map.getOffsetFromOrigin(rBorder);
+            final deltaBorder = offset - camera.getOffsetFromOrigin(rBorder);
             realRadius = deltaBorder.distance;
           }
           pointsBorder[circle.borderColor] ??= {};
@@ -158,5 +158,5 @@ class CirclePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(CirclePainter oldDelegate) =>
-      circles != oldDelegate.circles || map != oldDelegate.map;
+      circles != oldDelegate.circles || camera != oldDelegate.camera;
 }
