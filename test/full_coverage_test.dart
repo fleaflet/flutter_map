@@ -13,13 +13,13 @@ import 'package:flutter_map/src/layer/attribution_layer/rich/source.dart';
 import 'package:flutter_map/src/layer/attribution_layer/rich/widget.dart';
 import 'package:flutter_map/src/layer/attribution_layer/simple.dart';
 import 'package:flutter_map/src/layer/circle_layer.dart';
+import 'package:flutter_map/src/layer/general/hit_detection.dart';
 import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
 import 'package:flutter_map/src/layer/general/translucent_pointer.dart';
 import 'package:flutter_map/src/layer/marker_layer.dart';
 import 'package:flutter_map/src/layer/overlay_image_layer.dart';
-import 'package:flutter_map/src/layer/polygon_layer/label.dart';
 import 'package:flutter_map/src/layer/polygon_layer/polygon_layer.dart';
-import 'package:flutter_map/src/layer/polyline_layer.dart';
+import 'package:flutter_map/src/layer/polyline_layer/polyline_layer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
@@ -57,5 +57,6 @@ import 'package:flutter_map/src/misc/move_and_rotate_result.dart';
 import 'package:flutter_map/src/misc/offsets.dart';
 import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:flutter_map/src/misc/position.dart';
+import 'package:flutter_map/src/misc/simplify.dart';
 
 void main() {}

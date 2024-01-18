@@ -20,7 +20,9 @@ import 'package:flutter_map_example/pages/overlay_image.dart';
 import 'package:flutter_map_example/pages/plugin_scalebar.dart';
 import 'package:flutter_map_example/pages/plugin_zoombuttons.dart';
 import 'package:flutter_map_example/pages/polygon.dart';
+import 'package:flutter_map_example/pages/polygon_perf_stress.dart';
 import 'package:flutter_map_example/pages/polyline.dart';
+import 'package:flutter_map_example/pages/polyline_perf_stress.dart';
 import 'package:flutter_map_example/pages/reset_tile_layer.dart';
 import 'package:flutter_map_example/pages/retina.dart';
 import 'package:flutter_map_example/pages/screen_point_to_latlng.dart';
@@ -134,8 +136,13 @@ class MenuDrawer extends StatelessWidget {
           ),
           const Divider(),
           MenuItemWidget(
-            caption: 'Stateful Markers',
-            routeName: StatefulMarkersPage.route,
+            caption: 'Polygon Stress Test',
+            routeName: PolygonPerfStressPage.route,
+            currentRoute: currentRoute,
+          ),
+          MenuItemWidget(
+            caption: 'Polyline Stress Test',
+            routeName: PolylinePerfStressPage.route,
             currentRoute: currentRoute,
           ),
           MenuItemWidget(
@@ -146,6 +153,12 @@ class MenuDrawer extends StatelessWidget {
           MenuItemWidget(
             caption: 'Many Circles',
             routeName: ManyCirclesPage.route,
+            currentRoute: currentRoute,
+          ),
+          const Divider(),
+          MenuItemWidget(
+            caption: 'Stateful Markers',
+            routeName: StatefulMarkersPage.route,
             currentRoute: currentRoute,
           ),
           MenuItemWidget(
