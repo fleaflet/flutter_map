@@ -32,8 +32,8 @@ abstract class TileBounds {
 
   TileBoundsAtZoom atZoom(int zoom);
 
-  // Returns true if these bounds may no longer be valid for the given
-  // parameters.
+  /// Returns true if these bounds may no longer be valid for the given
+  /// parameters.
   bool shouldReplace(
     Crs crs,
     double tileSize,

@@ -77,13 +77,17 @@ class InstantaneousTileDisplay extends TileDisplay {
   int get hashCode => opacity.hashCode;
 }
 
+/// A [TileDisplay] that should get faded in.
 @immutable
 class FadeInTileDisplay extends TileDisplay {
-  /// The duration of the fade in animation
+  /// The duration of the fade in animation.
   final Duration duration;
 
-  /// The start opacity
+  /// The opacity of what the tile should start loading in.
   final double startOpacity;
+
+  /// The opacity of what the tile should start loading in when a
+  /// reload occurred.
   final double reloadStartOpacity;
 
   /// Options for fading in tiles when they are loaded.

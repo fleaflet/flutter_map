@@ -11,6 +11,7 @@ import 'package:meta/meta.dart';
 /// Callback definition to crete a [TileImage] for [TileCoordinates].
 typedef TileCreator = TileImage Function(TileCoordinates coordinates);
 
+/// The [TileImageManager] orchestrates the loading and pruning of tiles.
 @immutable
 class TileImageManager {
   final Map<TileCoordinates, TileImage> _tiles =

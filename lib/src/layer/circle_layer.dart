@@ -25,6 +25,8 @@ class CircleMarker {
   /// The color of the circle border line. Needs [borderStrokeWidth] to be > 0
   /// to be visible.
   final Color borderColor;
+
+  /// Set to true if the radius should use the unit meters.
   final bool useRadiusInMeter;
 
   /// Constructor to create a new [CircleMarker] object
@@ -63,10 +65,15 @@ class CircleLayer extends StatelessWidget {
 
 @immutable
 class CirclePainter extends CustomPainter {
+  /// Reference to the [CircleMarker] list of the [CircleLayer].
   final List<CircleMarker> circles;
-  final MapCamera camera;
 
-  const CirclePainter(this.circles, this.camera);
+  /// Reference to the [MapCamera].
+  final MapCamera map;
+
+  /// Create a [CirclePainter] instance by providing the required
+  /// reference objects.
+  const CirclePainter(this.circles, this.map);
 
   @override
   void paint(Canvas canvas, Size size) {

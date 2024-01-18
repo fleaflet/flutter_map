@@ -75,6 +75,7 @@ class TileUpdateEvent {
         loadZoomOverride: loadZoomOverride,
       );
 
+  /// Checks if the [MapEvent] has been caused by a tap.
   bool wasTriggeredByTap() =>
       mapEvent is MapEventTap ||
       mapEvent is MapEventSecondaryTap ||

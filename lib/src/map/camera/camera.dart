@@ -20,8 +20,13 @@ class MapCamera {
   /// provides real constraints.
   static const kImpossibleSize = Point<double>(-1, -1);
 
+  /// The used coordinate reference system
   final Crs crs;
+
+  /// The minimum allowed zoom level.
   final double? minZoom;
+
+  /// The maximum allowed zoom level.
   final double? maxZoom;
 
   /// The [LatLng] which corresponds with the center of this camera.

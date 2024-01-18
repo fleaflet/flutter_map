@@ -8,6 +8,7 @@ final class TileImageView {
   final DiscreteTileRange _visibleRange;
   final DiscreteTileRange _keepRange;
 
+  /// Create a new [TileImageView] instance.
   const TileImageView({
     required Map<TileCoordinates, TileImage> tileImages,
     required DiscreteTileRange visibleRange,
