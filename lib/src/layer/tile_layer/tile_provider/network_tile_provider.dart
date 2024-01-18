@@ -2,9 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:flutter/rendering.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provider.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network_image_provider.dart';
 import 'package:http/http.dart';
 import 'package:http/retry.dart';

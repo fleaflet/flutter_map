@@ -1,6 +1,4 @@
-import 'package:flutter_map/src/gestures/interactive_flag.dart';
-import 'package:flutter_map/src/gestures/multi_finger_gesture.dart';
-import 'package:flutter_map/src/map/options/cursor_keyboard_rotation.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:meta/meta.dart';
 
 @immutable
