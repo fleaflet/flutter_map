@@ -32,7 +32,7 @@ abstract class TileUpdateTransformers {
   /// Default transformer for [TileLayer].
   static final ignoreTapEvents =
       TileUpdateTransformer.fromHandlers(handleData: (event, sink) {
-    if (!wasTriggeredByTap(event)) sink.add(event);
+    if (!event.wasTriggeredByTap()) sink.add(event);
   });
 
   /// Throttle loading/updating/pruning tiles such that it only occurs once per
@@ -48,7 +48,7 @@ abstract class TileUpdateTransformers {
       TileUpdateEvent event,
       EventSink<TileUpdateEvent> sink,
     ) {
-      if (wasTriggeredByTap(event)) return;
+      if (event.wasTriggeredByTap()) return;
 
       recentEvent = event;
 
@@ -75,10 +75,4 @@ abstract class TileUpdateTransformers {
       },
     );
   }
-
-  @internal
-  static bool wasTriggeredByTap(TileUpdateEvent event) =>
-      event.mapEvent is MapEventTap ||
-      event.mapEvent is MapEventSecondaryTap ||
-      event.mapEvent is MapEventLongPress;
 }

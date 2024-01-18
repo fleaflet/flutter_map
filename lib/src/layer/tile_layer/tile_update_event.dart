@@ -62,6 +62,11 @@ class TileUpdateEvent {
         loadZoomOverride: loadZoomOverride,
       );
 
+  bool wasTriggeredByTap() =>
+      mapEvent is MapEventTap ||
+      mapEvent is MapEventSecondaryTap ||
+      mapEvent is MapEventLongPress;
+
   @override
   String toString() =>
       'TileUpdateEvent(mapEvent: $mapEvent, load: $load, prune: $prune, loadCenterOverride: $loadCenterOverride, loadZoomOverride: $loadZoomOverride)';
