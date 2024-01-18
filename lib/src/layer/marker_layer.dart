@@ -67,6 +67,7 @@ class Marker {
 
 @immutable
 class MarkerLayer extends StatelessWidget {
+  /// The list of [Marker]s.
   final List<Marker> markers;
 
   /// Alignment of each marker relative to its normal center at [Marker.point]

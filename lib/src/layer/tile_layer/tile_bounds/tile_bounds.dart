@@ -6,10 +6,12 @@ import 'package:meta/meta.dart';
 
 @immutable
 abstract class TileBounds {
+  /// Reference to the coordinate reference system.
   final Crs crs;
   final double _tileSize;
   final LatLngBounds? _latLngBounds;
 
+  /// Base constructor to create a new [TileBounds] instance.
   factory TileBounds({
     required Crs crs,
     required double tileSize,

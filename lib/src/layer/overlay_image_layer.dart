@@ -6,7 +6,10 @@ import 'package:latlong2/latlong.dart';
 /// Base class for all overlay images.
 @immutable
 sealed class BaseOverlayImage extends StatelessWidget {
+  /// The [ImageProvider] for the image.
   final ImageProvider imageProvider;
+
+  /// The opacity in which the image should get rendered on the map.
   final double opacity;
   final bool gaplessPlayback;
 
@@ -46,6 +49,7 @@ sealed class BaseOverlayImage extends StatelessWidget {
 class OverlayImage extends BaseOverlayImage {
   final LatLngBounds bounds;
 
+  /// Create a new [OverlayImage] used for the [OverlayImageLayer].
   const OverlayImage({
     super.key,
     required super.imageProvider,
