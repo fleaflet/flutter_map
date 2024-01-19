@@ -45,17 +45,13 @@ abstract class _SingleShotGestureService extends _BaseGestureService {
 
 /// Abstract base service for a long-press gesture that receives a
 /// [LongPressStartDetails] when called.
-abstract class _BaseLongPressGestureService extends _BaseGestureService {
-  _BaseLongPressGestureService({required super.controller});
-
+abstract interface class _BaseLongPressGestureService {
   /// Called when the gesture fires and is confirmed.
   void submit(LongPressStartDetails details);
 }
 
 /// Abstract base service for a gesture that fires multiple times time.
-abstract class _ProgressableGestureService extends _BaseGestureService {
-  _ProgressableGestureService({required super.controller});
-
+abstract interface class _ProgressableGestureService {
   /// Called when the gesture is started, stores important values.
   void start(ScaleStartDetails details);
 

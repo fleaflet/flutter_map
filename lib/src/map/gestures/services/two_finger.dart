@@ -4,7 +4,8 @@ part of 'base_services.dart';
 /// - [EnabledGestures.twoFingerMove]
 /// - [EnabledGestures.twoFingerZoom]
 /// - [EnabledGestures.twoFingerRotate]
-class TwoFingerGesturesService extends _ProgressableGestureService {
+class TwoFingerGesturesService extends _BaseGestureService
+    implements _ProgressableGestureService {
   MapCamera? _startCamera;
   LatLng? _startFocalLatLng;
   Offset? _startLocalFocal;

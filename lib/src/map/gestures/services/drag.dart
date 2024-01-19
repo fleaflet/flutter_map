@@ -2,7 +2,8 @@ part of 'base_services.dart';
 
 /// Service that handles drag gestures performed with one pointer
 /// (like a finger or cursor).
-class DragGestureService extends _ProgressableGestureService {
+class DragGestureService extends _BaseGestureService
+    implements _ProgressableGestureService {
   Offset? _lastLocalFocal;
   Offset? _focalStartLocal;
 
