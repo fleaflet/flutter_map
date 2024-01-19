@@ -9,8 +9,11 @@ import 'package:flutter_map/flutter_map.dart';
 /// the aspect they reference is updated.
 @immutable
 class MapInheritedModel extends InheritedModel<_FlutterMapAspect> {
+  /// The current [FlutterMapData].
+  /// Access the state by calling e.g. `MapController.of(context)`.
   final FlutterMapData data;
 
+  /// Create a new [MapInheritedModel] instance.
   MapInheritedModel({
     super.key,
     required MapCamera camera,
@@ -69,12 +72,19 @@ class MapInheritedModel extends InheritedModel<_FlutterMapAspect> {
   }
 }
 
+/// The state data for the [MapInheritedModel]
 @immutable
 class FlutterMapData {
+  /// The [MapCamera] that gets returned when calling `MapCamera.of(context)`.
   final MapCamera camera;
+
+  /// The [MapController] that gets returned when calling `MapController.of(context)`.
   final MapController controller;
+
+  /// The [MapOptions] that gets returned when calling `MapOptions.of(context)`.
   final MapOptions options;
 
+  /// Create a new [FlutterMapData] instance by supplying all parameters.
   const FlutterMapData({
     required this.camera,
     required this.controller,

@@ -6,10 +6,10 @@ import 'package:flutter_map/flutter_map.dart';
 class TileImage extends ChangeNotifier {
   bool _disposed = false;
 
-  // Controls fade-in opacity.
+  /// Controls fade-in opacity.
   AnimationController? _animationController;
 
-  // Whether the tile is displayable. See [readyToDisplay].
+  /// Whether the tile is displayable. See [readyToDisplay].
   bool _readyToDisplay = false;
 
   /// Used by animationController. Still required if animation is disabled in
@@ -41,6 +41,7 @@ class TileImage extends ChangeNotifier {
   /// Intended to allow [TileProvider]s to cancel unneccessary HTTP requests.
   final Completer<void> cancelLoading;
 
+  /// [ImageProvider] that loads the image.
   ImageProvider imageProvider;
 
   /// True if an error occurred during loading.

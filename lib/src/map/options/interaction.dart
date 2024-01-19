@@ -76,6 +76,8 @@ final class InteractionOptions {
   /// [CursorKeyboardRotationOptions.disabled] constructor.
   final CursorKeyboardRotationOptions cursorKeyboardRotationOptions;
 
+  /// Create a new [InteractionOptions] instance to be used
+  /// in [MapOptions.interactionOptions].
   const InteractionOptions({
     this.flags = InteractiveFlag.all,
     this.debugMultiFingerGestureWinner = false,

@@ -1,11 +1,14 @@
 part of 'polyline_layer.dart';
 
+/// [Polyline] (aka. LineString) class, to be used for the [PolylineLayer].
 class Polyline<R extends Object> {
   /// The list of coordinates for the [Polyline].
   final List<LatLng> points;
 
   /// The width of the stroke
   final double strokeWidth;
+
+  /// The color of the line stroke.
   final Color color;
 
   /// The width of the stroke with of the line border.

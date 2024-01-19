@@ -10,6 +10,8 @@ import 'package:latlong2/latlong.dart';
 /// [MarkerLayer], if the reflected properties are defined there.
 @immutable
 class Marker {
+  /// Provide an optional [Key] for the [Marker].
+  /// This key will get passed through to the created marker widget.
   final Key? key;
 
   /// Coordinates of the marker
@@ -65,6 +67,7 @@ class Marker {
   });
 }
 
+/// A [Marker] layer for [FlutterMap].
 @immutable
 class MarkerLayer extends StatelessWidget {
   /// The list of [Marker]s.
@@ -90,7 +93,7 @@ class MarkerLayer extends StatelessWidget {
   /// markers. Use a widget inside [Marker.builder] to perform this.
   final bool rotate;
 
-  /// Create a new [MarkerLayer] to use inside as layer for FlutterMap.
+  /// Create a new [MarkerLayer] to use inside of [FlutterMap.children].
   const MarkerLayer({
     super.key,
     required this.markers,

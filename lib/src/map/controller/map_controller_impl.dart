@@ -308,6 +308,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
         ),
       );
 
+  ///
   bool fitCameraRaw(
     CameraFit cameraFit, {
     Offset offset = Offset.zero,
@@ -541,6 +542,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     );
   }
 
+  /// Move and rotate the the map with an animation.
+  /// The raw method allows to set all parameters.
   void moveAndRotateAnimatedRaw(
     LatLng newCenter,
     double newZoom,
@@ -587,6 +590,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     _animationController.forward(from: 0);
   }
 
+  /// Animated rotation of the map.
+  /// The raw method allows to set all parameters.
   void rotateAnimatedRaw(
     double newRotation, {
     required Offset offset,
@@ -614,10 +619,15 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     _animationController.forward(from: 0);
   }
 
+  /// Stops all ongoing animations of the [MapControllerImpl].
+  /// This is commonly used by other gestures that should stop all
+  /// ongoing movement.
   void stopAnimationRaw({bool canceled = true}) {
     if (isAnimating) _animationController.stop(canceled: canceled);
   }
 
+  /// Getter that returns true if the [MapControllerImpl] performs a zoom,
+  /// drag or rotate animation.
   bool get isAnimating => _animationController.isAnimating;
 
   void _resetAnimations() {
@@ -627,6 +637,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     _flingAnimation = null;
   }
 
+  /// Fling animation for the map.
+  /// The raw method allows to set all parameters.
   void flingAnimatedRaw({
     required double velocity,
     required Offset direction,
@@ -665,6 +677,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     );
   }
 
+  /// Animated movement of the map.
+  /// The raw method allows to set all parameters.
   void moveAnimatedRaw(
     LatLng newCenter,
     double newZoom, {
