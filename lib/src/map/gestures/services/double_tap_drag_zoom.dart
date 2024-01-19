@@ -11,7 +11,6 @@ class DoubleTapDragZoomGestureService extends BaseGestureService {
 
   /// Called when the gesture is started, stores important values.
   void start(ScaleStartDetails details) {
-    controller.stopAnimationRaw();
     _focalLocalStart = details.localFocalPoint;
     _mapZoomStart = _camera.zoom;
     controller.emitMapEvent(

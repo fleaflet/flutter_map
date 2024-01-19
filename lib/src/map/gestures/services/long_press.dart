@@ -9,7 +9,6 @@ class LongPressGestureService extends BaseGestureService {
   /// recognized. A pointer has remained in contact with the screen at the
   /// same location for a long period of time.
   void submit(LongPressStartDetails details) {
-    controller.stopAnimationRaw();
     final position = _camera.offsetToCrs(details.localPosition);
     _options.onLongPress?.call(details, position);
     controller.emitMapEvent(
@@ -31,7 +30,6 @@ class SecondaryLongPressGestureService extends BaseGestureService {
   /// recognized. A pointer has remained in contact with the screen at the
   /// same location for a long period of time.
   void submit(LongPressStartDetails details) {
-    controller.stopAnimationRaw();
     final position = _camera.offsetToCrs(details.localPosition);
     _options.onSecondaryLongPress?.call(details, position);
     controller.emitMapEvent(
@@ -52,7 +50,6 @@ class TertiaryLongPressGestureService extends BaseGestureService {
   /// A long press on the tertiary button has happen (e.g. click and hold on
   /// the mouse scroll wheel)
   void submit(LongPressStartDetails details) {
-    controller.stopAnimationRaw();
     final point = _camera.offsetToCrs(details.localPosition);
     _options.onTertiaryLongPress?.call(details, point);
     controller.emitMapEvent(

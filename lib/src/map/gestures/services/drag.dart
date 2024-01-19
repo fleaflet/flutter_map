@@ -15,7 +15,6 @@ class DragGestureService extends BaseGestureService {
 
   /// Called when the gesture is started, stores important values.
   void start(ScaleStartDetails details) {
-    controller.stopAnimationRaw();
     _lastLocalFocal = details.localFocalPoint;
     _focalStartLocal = details.localFocalPoint;
     controller.emitMapEvent(

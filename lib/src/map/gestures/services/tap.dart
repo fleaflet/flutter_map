@@ -7,7 +7,6 @@ class TapGestureService extends SingleShotGestureService {
   /// A tap with a primary button has occurred.
   /// This triggers when the tap gesture wins.
   void submit() {
-    controller.stopAnimationRaw();
     if (details == null) return;
 
     final point = _camera.offsetToCrs(details!.localPosition);
@@ -32,7 +31,6 @@ class SecondaryTapGestureService extends SingleShotGestureService {
   /// A tap with a secondary button has occurred.
   /// This triggers when the tap gesture wins.
   void submit() {
-    controller.stopAnimationRaw();
     if (details == null) return;
 
     final position = _camera.offsetToCrs(details!.localPosition);
@@ -56,7 +54,6 @@ class TertiaryTapGestureService extends SingleShotGestureService {
 
   /// A tertiary tap gesture has happen (e.g. click on the mouse scroll wheel)
   void submit(TapUpDetails _) {
-    controller.stopAnimationRaw();
     if (details == null) return;
 
     final point = _camera.offsetToCrs(details!.localPosition);

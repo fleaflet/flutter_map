@@ -47,7 +47,6 @@ class TwoFingerGesturesService extends BaseGestureService {
   /// Initialize gesture, called when gesture has started.
   /// Stores all values, that are required later on.
   void start(ScaleStartDetails details) {
-    controller.stopAnimationRaw();
     if (details.pointerCount < 2) return;
 
     _startCamera = _camera;

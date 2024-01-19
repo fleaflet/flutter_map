@@ -7,7 +7,6 @@ class DoubleTapGestureService extends SingleShotGestureService {
 
   /// A double tap gesture tap has been registered
   void submit() {
-    controller.stopAnimationRaw();
     if (details == null) return;
 
     // start double tap animation

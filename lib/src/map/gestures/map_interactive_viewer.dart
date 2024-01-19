@@ -127,6 +127,10 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       onPointerSignal: (event) {
         // mouse scroll wheel
         if (event is PointerScrollEvent) {
+          // `stopAnimationRaw()` will probably get moved to the service
+          // to handle animated zooming with the scroll wheel but
+          // we keep it here for now.
+          _controller.stopAnimationRaw();
           _scrollWheelZoom?.submit(event);
         }
       },
