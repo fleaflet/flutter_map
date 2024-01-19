@@ -1,10 +1,7 @@
 import 'dart:math' as math hide Point;
 import 'dart:math' show Point;
 
-import 'package:flutter_map/src/geo/latlng_bounds.dart';
-import 'package:flutter_map/src/map/camera/camera.dart';
-import 'package:flutter_map/src/map/camera/camera_fit.dart';
-import 'package:flutter_map/src/misc/point_extensions.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 

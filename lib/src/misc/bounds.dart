@@ -11,12 +11,29 @@ class Bounds<T extends num> {
   final Point<T> max;
 
   factory Bounds(Point<T> a, Point<T> b) {
-    final (minx, maxx) = a.x > b.x ? (b.x, a.x) : (a.x, b.x);
-    final (miny, maxy) = a.y > b.y ? (b.y, a.y) : (a.y, b.y);
-    return Bounds._(Point<T>(minx, miny), Point<T>(maxx, maxy));
+    final T minX;
+    final T maxX;
+    if (a.x > b.x) {
+      minX = b.x;
+      maxX = a.x;
+    } else {
+      minX = a.x;
+      maxX = b.x;
+    }
+    final T minY;
+    final T maxY;
+    if (a.y > b.y) {
+      minY = b.y;
+      maxY = a.y;
+    } else {
+      minY = a.y;
+      maxY = b.y;
+    }
+    return Bounds._(Point<T>(minX, minY), Point<T>(maxX, maxY));
   }
 
   const Bounds.unsafe(this.min, this.max);
+
   const Bounds._(this.min, this.max);
 
   static Bounds<double> containing(Iterable<Point<double>> points) {

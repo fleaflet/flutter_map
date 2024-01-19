@@ -2,12 +2,8 @@ import 'dart:math' as math hide Point;
 import 'dart:math' show Point;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_map/src/geo/crs.dart';
-import 'package:flutter_map/src/geo/latlng_bounds.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
-import 'package:flutter_map/src/map/options/map_options.dart';
-import 'package:flutter_map/src/misc/bounds.dart';
-import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:vector_math/vector_math_64.dart';
 

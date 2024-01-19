@@ -199,15 +199,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     );
     if (movementEvent != null) emitMapEvent(movementEvent);
 
-    options.onPositionChanged?.call(
-      MapPosition(
-        center: newCenter,
-        bounds: camera.visibleBounds,
-        zoom: newZoom,
-        hasGesture: hasGesture,
-      ),
-      hasGesture,
-    );
+    options.onPositionChanged?.call(newCamera, hasGesture);
 
     return true;
   }

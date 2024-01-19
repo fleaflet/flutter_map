@@ -1,8 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_display.dart';
+import 'package:flutter_map/flutter_map.dart';
 
 class TileImage extends ChangeNotifier {
   bool _disposed = false;

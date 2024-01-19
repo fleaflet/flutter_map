@@ -1,5 +1,4 @@
-import 'package:flutter_map/src/map/camera/camera.dart';
-import 'package:flutter_map/src/map/controller/events/map_events.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 
@@ -62,6 +61,11 @@ class TileUpdateEvent {
         loadCenterOverride: loadCenterOverride,
         loadZoomOverride: loadZoomOverride,
       );
+
+  bool wasTriggeredByTap() =>
+      mapEvent is MapEventTap ||
+      mapEvent is MapEventSecondaryTap ||
+      mapEvent is MapEventLongPress;
 
   @override
   String toString() =>

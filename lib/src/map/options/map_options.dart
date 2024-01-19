@@ -80,7 +80,7 @@ class MapOptions {
   final void Function(PointerHoverEvent event, LatLng point)? onPointerHover;
 
   /// Callback that gets called when the [MapCamera] changes position.
-  final PositionCallback? onPositionChanged;
+  final void Function(MapCamera camera, bool hasGesture)? onPositionChanged;
 
   /// Callback to listen for events emitted by the FlutterMap event system.
   /// Every event is a subclass of [MapEvent]. Check its type to filter

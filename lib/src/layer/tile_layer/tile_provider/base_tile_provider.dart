@@ -2,9 +2,7 @@ import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network_tile_provider.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:meta/meta.dart';
 
 /// The base tile provider, extended by other classes with more specialised
