@@ -13,8 +13,11 @@ import 'package:proj4dart/proj4dart.dart' as proj4;
 /// points of objects of different dimensions. In our case 3D and 2D objects.
 @immutable
 abstract class Crs {
+  /// The code
   @nonVirtual
   final String code;
+
+  /// Set to true if the CRS has no bounds.
   @nonVirtual
   final bool infinite;
   @nonVirtual

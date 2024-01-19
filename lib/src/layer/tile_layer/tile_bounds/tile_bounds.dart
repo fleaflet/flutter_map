@@ -11,7 +11,10 @@ abstract class TileBounds {
   final double _tileSize;
   final LatLngBounds? _latLngBounds;
 
-  /// Base constructor to create a new [TileBounds] instance.
+  /// Constructor that creates an instance of a subclass of [TileBounds]:
+  /// [InfiniteTileBounds] if the CRS is [infinite].
+  /// [DiscreteTileBounds] if the CRS has hard borders.
+  /// [WrappedTileBounds] if the CRS is wrapped.
   factory TileBounds({
     required Crs crs,
     required double tileSize,
@@ -44,6 +47,7 @@ abstract class TileBounds {
       crs != this.crs || tileSize != _tileSize || latLngBounds != _latLngBounds;
 }
 
+/// [TileBounds] that have no limits.
 @immutable
 class InfiniteTileBounds extends TileBounds {
   const InfiniteTileBounds._(
@@ -66,12 +70,14 @@ class DiscreteTileBounds extends TileBounds {
     super._latLngBounds,
   ) : super._();
 
+  /// Return the [TileBoundsAtZoom] for the given zoom level (cached).
   @override
   TileBoundsAtZoom atZoom(int zoom) {
     return _tileBoundsAtZoomCache.putIfAbsent(
         zoom, () => _tileBoundsAtZoomImpl(zoom));
   }
 
+  /// Calculate the [TileBoundsAtZoom] for the given zoom level.
   TileBoundsAtZoom _tileBoundsAtZoomImpl(int zoom) {
     final zoomDouble = zoom.toDouble();
 
