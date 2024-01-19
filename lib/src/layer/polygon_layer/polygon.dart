@@ -66,7 +66,7 @@ class Polygon {
 
   /// Get the coordinates of the label position (cached).
   LatLng get labelPosition =>
-      _labelPosition ??= computeLabelPosition(labelPlacement, points);
+      _labelPosition ??= _computeLabelPosition(labelPlacement, points);
 
   LatLngBounds? _boundingBox;
 

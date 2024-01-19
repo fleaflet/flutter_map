@@ -54,11 +54,11 @@ class CircleLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final map = MapCamera.of(context);
+    final camera = MapCamera.of(context);
     return MobileLayerTransformer(
       child: CustomPaint(
-        painter: CirclePainter(circles, map),
-        size: Size(map.size.x, map.size.y),
+        painter: CirclePainter(circles, camera),
+        size: Size(camera.size.x, camera.size.y),
         isComplex: true,
       ),
     );
@@ -72,11 +72,11 @@ class CirclePainter extends CustomPainter {
   final List<CircleMarker> circles;
 
   /// Reference to the [MapCamera].
-  final MapCamera map;
+  final MapCamera camera;
 
   /// Create a [CirclePainter] instance by providing the required
   /// reference objects.
-  const CirclePainter(this.circles, this.map);
+  const CirclePainter(this.circles, this.camera);
 
   @override
   void paint(Canvas canvas, Size size) {
