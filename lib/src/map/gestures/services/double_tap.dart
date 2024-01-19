@@ -8,7 +8,6 @@ class DoubleTapGestureService extends _SingleShotGestureService {
   /// A double tap gesture tap has been registered
   @override
   void submit() {
-    super.submit();
     if (details == null) return;
 
     // start double tap animation

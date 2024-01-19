@@ -10,7 +10,6 @@ class LongPressGestureService extends _BaseLongPressGestureService {
   /// same location for a long period of time.
   @override
   void submit(LongPressStartDetails details) {
-    super.submit(details);
     final position = _camera.offsetToCrs(details.localPosition);
     _options.onLongPress?.call(details, position);
     controller.emitMapEvent(
@@ -33,7 +32,6 @@ class SecondaryLongPressGestureService extends _BaseLongPressGestureService {
   /// same location for a long period of time.
   @override
   void submit(LongPressStartDetails details) {
-    super.submit(details);
     final position = _camera.offsetToCrs(details.localPosition);
     _options.onSecondaryLongPress?.call(details, position);
     controller.emitMapEvent(
@@ -55,8 +53,6 @@ class TertiaryLongPressGestureService extends _BaseLongPressGestureService {
   /// the mouse scroll wheel)
   @override
   void submit(LongPressStartDetails details) {
-    super.submit(details);
-    controller.stopAnimationRaw();
     final point = _camera.offsetToCrs(details.localPosition);
     _options.onTertiaryLongPress?.call(details, point);
     controller.emitMapEvent(

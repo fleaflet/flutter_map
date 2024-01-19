@@ -8,7 +8,6 @@ class TapGestureService extends _SingleShotGestureService {
   /// This triggers when the tap gesture wins.
   @override
   void submit() {
-    super.submit();
     if (details == null) return;
 
     final point = _camera.offsetToCrs(details!.localPosition);
@@ -34,7 +33,6 @@ class SecondaryTapGestureService extends _SingleShotGestureService {
   /// This triggers when the tap gesture wins.
   @override
   void submit() {
-    super.submit();
     if (details == null) return;
 
     final position = _camera.offsetToCrs(details!.localPosition);
@@ -59,7 +57,6 @@ class TertiaryTapGestureService extends _SingleShotGestureService {
   /// A tertiary tap gesture has happen (e.g. click on the mouse scroll wheel)
   @override
   void submit() {
-    super.submit();
     if (details == null) return;
 
     final point = _camera.offsetToCrs(details!.localPosition);

@@ -16,7 +16,6 @@ class DragGestureService extends _ProgressableGestureService {
   /// Called when the gesture is started, stores important values.
   @override
   void start(ScaleStartDetails details) {
-    super.start(details);
     _lastLocalFocal = details.localFocalPoint;
     _focalStartLocal = details.localFocalPoint;
     controller.emitMapEvent(

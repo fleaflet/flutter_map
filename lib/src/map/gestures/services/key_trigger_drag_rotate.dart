@@ -16,7 +16,6 @@ class KeyTriggerDragRotateGestureService extends _BaseGestureService {
 
   /// Called when the gesture is started, stores important values.
   void start() {
-    controller.stopAnimationRaw();
     controller.emitMapEvent(
       MapEventRotateStart(
         camera: _camera,

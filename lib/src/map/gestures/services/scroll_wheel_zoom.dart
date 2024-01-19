@@ -11,7 +11,6 @@ class ScrollWheelZoomGestureService extends _BaseGestureService {
   /// Handles mouse scroll events, called by the [Listener] of
   /// the [MapInteractiveViewer].
   void submit(PointerScrollEvent details) {
-    controller.stopAnimationRaw();
     if (details.scrollDelta.dy == 0) return;
 
     // Prevent scrolling of parent/child widgets simultaneously.

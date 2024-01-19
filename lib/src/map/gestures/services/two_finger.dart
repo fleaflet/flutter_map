@@ -48,7 +48,6 @@ class TwoFingerGesturesService extends _ProgressableGestureService {
   /// Stores all values, that are required later on.
   @override
   void start(ScaleStartDetails details) {
-    super.start(details);
     if (details.pointerCount < 2) return;
 
     _startCamera = _camera;

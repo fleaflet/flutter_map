@@ -12,7 +12,6 @@ class DoubleTapDragZoomGestureService extends _ProgressableGestureService {
   /// Called when the gesture is started, stores important values.
   @override
   void start(ScaleStartDetails details) {
-    super.start(details);
     _focalLocalStart = details.localFocalPoint;
     _mapZoomStart = _camera.zoom;
     controller.emitMapEvent(
