@@ -1,7 +1,7 @@
 import 'dart:math' as math hide Point;
 import 'dart:math' show Point;
 
-import 'package:flutter_map/src/misc/bounds.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 import 'package:proj4dart/proj4dart.dart' as proj4;
@@ -34,6 +34,7 @@ abstract class Crs {
   /// Converts a point on the sphere surface (with a certain zoom) in a
   /// map point.
   (double, double) latLngToXY(LatLng latlng, double scale);
+
   Point<double> latLngToPoint(LatLng latlng, double zoom) {
     final (x, y) = latLngToXY(latlng, scale(zoom));
     return Point<double>(x, y);
@@ -333,6 +334,7 @@ abstract class Projection {
   @nonVirtual
   LatLng unproject(Point point) =>
       unprojectXY(point.x.toDouble(), point.y.toDouble());
+
   LatLng unprojectXY(double x, double y);
 }
 
@@ -450,5 +452,7 @@ class _Transformation {
 // Num.clamp is slow due to virtual function overhead.
 double _clampSym(double value, double limit) =>
     value < -limit ? -limit : (value > limit ? limit : value);
+
 double _inclusiveLat(double value) => _clampSym(value, 90);
+
 double _inclusiveLng(double value) => _clampSym(value, 180);

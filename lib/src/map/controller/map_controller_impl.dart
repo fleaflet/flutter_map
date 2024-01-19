@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/gestures/map_interactive_viewer.dart';
+import 'package:flutter_map/src/misc/move_and_rotate_result.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:vector_math/vector_math_64.dart';
 
@@ -178,15 +179,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     );
     if (movementEvent != null) _emitMapEvent(movementEvent);
 
-    options.onPositionChanged?.call(
-      MapPosition(
-        center: newCenter,
-        bounds: camera.visibleBounds,
-        zoom: newZoom,
-        hasGesture: hasGesture,
-      ),
-      hasGesture,
-    );
+    options.onPositionChanged?.call(newCamera, hasGesture);
 
     return true;
   }

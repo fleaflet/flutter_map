@@ -1,4 +1,4 @@
-import 'package:flutter_map/src/geo/crs.dart';
+import 'package:flutter_map/flutter_map.dart';
 
 /// Calculate a scale value to transform the Tile's coordinate to its position.
 class TileScaleCalculator {

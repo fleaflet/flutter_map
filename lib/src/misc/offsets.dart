@@ -1,7 +1,6 @@
 import 'dart:ui';
 
-import 'package:flutter_map/src/geo/crs.dart';
-import 'package:flutter_map/src/map/camera/camera.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 Offset getOffset(MapCamera camera, Offset origin, LatLng point) {
