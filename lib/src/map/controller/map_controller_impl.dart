@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/gestures/map_interactive_viewer.dart';
+import 'package:flutter_map/src/misc/move_and_rotate_result.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:vector_math/vector_math_64.dart';
 
@@ -228,14 +229,11 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     }
 
     if (degree == camera.rotation) {
-      return const MoveAndRotateResult(
-        moveSuccess: false,
-        rotateSuccess: false,
-      );
+      return const (moveSuccess: false, rotateSuccess: false);
     }
 
     if (offset == Offset.zero) {
-      return MoveAndRotateResult(
+      return (
         moveSuccess: true,
         rotateSuccess: rotateRaw(
           degree,
@@ -253,7 +251,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
                 : Point(offset!.dx, offset.dy))
             .rotate(camera.rotationRad);
 
-    return MoveAndRotateResult(
+    return (
       moveSuccess: moveRaw(
         camera.unproject(
           rotationCenter +
@@ -283,7 +281,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     required MapEventSource source,
     String? id,
   }) =>
-      MoveAndRotateResult(
+      (
         moveSuccess: moveRaw(
           newCenter,
           newZoom,

@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
+import 'package:flutter_map/src/misc/move_and_rotate_result.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Controller to programmatically interact with [FlutterMap], such as
@@ -140,14 +141,4 @@ abstract class MapController {
 
   /// Dispose of this controller.
   void dispose();
-}
-
-class MoveAndRotateResult {
-  final bool moveSuccess;
-  final bool rotateSuccess;
-
-  const MoveAndRotateResult({
-    required this.moveSuccess,
-    required this.rotateSuccess,
-  });
 }
