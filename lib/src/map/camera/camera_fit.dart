@@ -176,6 +176,7 @@ class FitBounds extends CameraFit {
   }
 }
 
+/// A [CameraFit] that should get be within given [LatLngBounds].
 @immutable
 class FitInsideBounds extends CameraFit {
   /// The bounds which the camera should fit inside once it is fitted.

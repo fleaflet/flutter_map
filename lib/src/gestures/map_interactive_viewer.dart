@@ -146,6 +146,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     return false;
   }
 
+  /// Perform all required actions when the [InteractionOptions] have changed.
   void updateGestures(
     InteractionOptions oldOptions,
     InteractionOptions newOptions,

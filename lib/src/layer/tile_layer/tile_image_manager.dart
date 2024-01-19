@@ -40,6 +40,7 @@ class TileImageManager {
         keepRange: visibleRange,
       ).renderTiles;
 
+  /// Check if all loaded tiles are within the [minZoom] and [maxZoom] level.
   bool allWithinZoom(double minZoom, double maxZoom) => _tiles.values
       .map((e) => e.coordinates)
       .every((coord) => coord.z > maxZoom || coord.z < minZoom);

@@ -482,6 +482,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     );
   }
 
+  /// Called when a long-press gesture has happened, calls the
+  /// [MapOptions.onTap] callback and emits a [MapEventTap] event.
   void tapped(
     MapEventSource source,
     TapPosition tapPosition,
@@ -497,6 +499,9 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     );
   }
 
+  /// Called when a long-press gesture has happened, calls the
+  /// [MapOptions.onSecondaryTap] callback and emits a
+  /// [MapEventSecondaryTap] event.
   void secondaryTapped(
     MapEventSource source,
     TapPosition tapPosition,
@@ -512,6 +517,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     );
   }
 
+  /// Called when a long-press gesture has happened, calls the
+  /// [MapOptions.onLongPress] callback and emits a [MapEventLongPress] event.
   void longPressed(
     MapEventSource source,
     TapPosition tapPosition,

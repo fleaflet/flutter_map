@@ -8,6 +8,8 @@ import 'package:latlong2/latlong.dart' hide Path;
 /// simple and performant way to draw markers as the regular [Marker]
 @immutable
 class CircleMarker {
+  /// An optional [Key] for the [CircleMarker].
+  /// This key is not used internally.
   final Key? key;
 
   /// The center coordinates of the circle
@@ -63,9 +65,10 @@ class CircleLayer extends StatelessWidget {
   }
 }
 
+/// The [CustomPainter] used to draw [CircleMarker] for the [CircleLayer].
 @immutable
 class CirclePainter extends CustomPainter {
-  /// Reference to the [CircleMarker] list of the [CircleLayer].
+  /// Reference to the list of [CircleMarker]s of the [CircleLayer].
   final List<CircleMarker> circles;
 
   /// Reference to the [MapCamera].

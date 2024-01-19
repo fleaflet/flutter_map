@@ -217,6 +217,7 @@ class MapCamera {
   LatLng unproject(Point point, [double? zoom]) =>
       crs.pointToLatLng(point, zoom ?? this.zoom);
 
+  /// Same as the [unproject] function.
   LatLng layerPointToLatLng(Point point) => unproject(point);
 
   /// Calculates the scale for a zoom from [fromZoom] to [toZoom] using this
