@@ -1,11 +1,12 @@
 part of 'base_services.dart';
 
 /// Service to handle tap gestures for the [MapOptions.onTap] callback.
-class TapGestureService extends SingleShotGestureService {
+class TapGestureService extends _SingleShotGestureService {
   TapGestureService({required super.controller});
 
   /// A tap with a primary button has occurred.
   /// This triggers when the tap gesture wins.
+  @override
   void submit() {
     if (details == null) return;
 
@@ -25,11 +26,12 @@ class TapGestureService extends SingleShotGestureService {
 
 /// Service to handle secondary tap gestures for the
 /// [MapOptions.onSecondaryTap] callback.
-class SecondaryTapGestureService extends SingleShotGestureService {
+class SecondaryTapGestureService extends _SingleShotGestureService {
   SecondaryTapGestureService({required super.controller});
 
   /// A tap with a secondary button has occurred.
   /// This triggers when the tap gesture wins.
+  @override
   void submit() {
     if (details == null) return;
 
@@ -49,11 +51,12 @@ class SecondaryTapGestureService extends SingleShotGestureService {
 
 /// Service to handle tertiary tap gestures for the
 /// [MapOptions.onTertiaryTap] callback.
-class TertiaryTapGestureService extends SingleShotGestureService {
+class TertiaryTapGestureService extends _SingleShotGestureService {
   TertiaryTapGestureService({required super.controller});
 
   /// A tertiary tap gesture has happen (e.g. click on the mouse scroll wheel)
-  void submit(TapUpDetails _) {
+  @override
+  void submit() {
     if (details == null) return;
 
     final point = _camera.offsetToCrs(details!.localPosition);

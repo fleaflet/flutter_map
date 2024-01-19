@@ -2,7 +2,8 @@ part of 'base_services.dart';
 
 /// Service to handle the double-tap and drag gesture to let the user zoom in
 /// and out with a single finger / one hand.
-class DoubleTapDragZoomGestureService extends BaseGestureService {
+class DoubleTapDragZoomGestureService extends _BaseGestureService
+    implements _ProgressableGestureService {
   bool isActive = false;
   Offset? _focalLocalStart;
   double? _mapZoomStart;
@@ -10,6 +11,7 @@ class DoubleTapDragZoomGestureService extends BaseGestureService {
   DoubleTapDragZoomGestureService({required super.controller});
 
   /// Called when the gesture is started, stores important values.
+  @override
   void start(ScaleStartDetails details) {
     _focalLocalStart = details.localFocalPoint;
     _mapZoomStart = _camera.zoom;
@@ -22,6 +24,7 @@ class DoubleTapDragZoomGestureService extends BaseGestureService {
   }
 
   /// Called when the gesture receives an update, updates the [MapCamera].
+  @override
   void update(ScaleUpdateDetails details) {
     if (_focalLocalStart == null || _mapZoomStart == null) return;
 
@@ -39,6 +42,7 @@ class DoubleTapDragZoomGestureService extends BaseGestureService {
   }
 
   /// Called when the gesture ends, cleans up the previously stored values.
+  @override
   void end(ScaleEndDetails details) {
     _mapZoomStart = null;
     _focalLocalStart = null;

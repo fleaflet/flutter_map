@@ -16,10 +16,10 @@ part 'tap.dart';
 part 'two_finger.dart';
 
 /// Abstract base service class for every gesture service.
-abstract class BaseGestureService {
+abstract class _BaseGestureService {
   final MapControllerImpl controller;
 
-  const BaseGestureService({required this.controller});
+  const _BaseGestureService({required this.controller});
 
   /// Getter to provide a short way to access the [MapCamera].
   MapCamera get _camera => controller.camera;
@@ -28,16 +28,38 @@ abstract class BaseGestureService {
   MapOptions get _options => controller.options;
 }
 
-/// Abstract base service that additionally stores [TapDownDetails] as it is
-/// commonly used by the different kind of tap gestures.
-abstract class SingleShotGestureService extends BaseGestureService {
-  TapDownDetails? details;
+/// Abstract base service for a gesture that fires only one time.
+/// Commonly used by the different kind of tap gestures.
+abstract class _SingleShotGestureService extends _BaseGestureService {
+  _SingleShotGestureService({required super.controller});
 
-  SingleShotGestureService({required super.controller});
+  TapDownDetails? details;
 
   void setDetails(TapDownDetails newDetails) => details = newDetails;
 
+  /// Called when the gesture fires and is confirmed.
+  void submit();
+
   void reset() => details = null;
+}
+
+/// Abstract base service for a long-press gesture that receives a
+/// [LongPressStartDetails] when called.
+abstract interface class _BaseLongPressGestureService {
+  /// Called when the gesture fires and is confirmed.
+  void submit(LongPressStartDetails details);
+}
+
+/// Abstract base service for a gesture that fires multiple times time.
+abstract interface class _ProgressableGestureService {
+  /// Called when the gesture is started, stores important values.
+  void start(ScaleStartDetails details);
+
+  /// Called when the gesture receives an update, updates the [MapCamera].
+  void update(ScaleUpdateDetails details);
+
+  /// Called when the gesture ends, cleans up the previously stored values.
+  void end(ScaleEndDetails details);
 }
 
 /// Return a rotated Offset

@@ -2,10 +2,11 @@ part of 'base_services.dart';
 
 /// Service to handle double tap gestures to perform the
 /// double-tap-zoom-in gesture.
-class DoubleTapGestureService extends SingleShotGestureService {
+class DoubleTapGestureService extends _SingleShotGestureService {
   DoubleTapGestureService({required super.controller});
 
   /// A double tap gesture tap has been registered
+  @override
   void submit() {
     if (details == null) return;
 

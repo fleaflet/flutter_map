@@ -4,7 +4,8 @@ part of 'base_services.dart';
 /// - [EnabledGestures.twoFingerMove]
 /// - [EnabledGestures.twoFingerZoom]
 /// - [EnabledGestures.twoFingerRotate]
-class TwoFingerGesturesService extends BaseGestureService {
+class TwoFingerGesturesService extends _BaseGestureService
+    implements _ProgressableGestureService {
   MapCamera? _startCamera;
   LatLng? _startFocalLatLng;
   Offset? _startLocalFocal;
@@ -46,6 +47,7 @@ class TwoFingerGesturesService extends BaseGestureService {
 
   /// Initialize gesture, called when gesture has started.
   /// Stores all values, that are required later on.
+  @override
   void start(ScaleStartDetails details) {
     if (details.pointerCount < 2) return;
 
@@ -72,6 +74,7 @@ class TwoFingerGesturesService extends BaseGestureService {
 
   /// Called multiple times to handle updates to the gesture.
   /// Updates the [MapCamera].
+  @override
   void update(ScaleUpdateDetails details) {
     if (details.pointerCount < 2) return;
     if (_lastLocalFocal == null ||
@@ -162,6 +165,7 @@ class TwoFingerGesturesService extends BaseGestureService {
   }
 
   /// gesture has ended, clean up the previously stored values.
+  @override
   void end(ScaleEndDetails details) {
     if (details.pointerCount < 2) return;
     _startCamera = null;

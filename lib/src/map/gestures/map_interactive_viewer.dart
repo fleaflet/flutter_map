@@ -168,7 +168,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
         onTertiaryTapDown: _tertiaryTap?.setDetails,
         onTertiaryTapCancel: _tertiaryTap?.reset,
-        onTertiaryTapUp: _tertiaryTap?.submit,
+        onTertiaryTapUp:
+            _tertiaryTap == null ? null : (_) => _tertiaryTap?.submit(),
 
         onTertiaryLongPressStart: _tertiaryLongPress?.submit,
 

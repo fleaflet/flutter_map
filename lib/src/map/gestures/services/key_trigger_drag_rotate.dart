@@ -1,8 +1,11 @@
 part of 'base_services.dart';
 
 /// Service to handle the key-trigger and drag gesture to rotate the map. This
-/// is by default a CTRL +
-class KeyTriggerDragRotateGestureService extends BaseGestureService {
+/// is by default a CTRL +.
+///
+/// Can't extend from [_ProgressableGestureService] because of different
+/// method signatures.
+class KeyTriggerDragRotateGestureService extends _BaseGestureService {
   bool isActive = false;
   final List<LogicalKeyboardKey> keys;
 
