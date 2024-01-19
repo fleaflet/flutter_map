@@ -5,7 +5,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:meta/meta.dart';
 
 part 'double_tap.dart';
 part 'double_tap_drag_zoom.dart';
@@ -39,11 +38,7 @@ abstract class _SingleShotGestureService extends _BaseGestureService {
   void setDetails(TapDownDetails newDetails) => details = newDetails;
 
   /// Called when the gesture fires and is confirmed.
-  @mustCallSuper
-  @mustBeOverridden
-  void submit() {
-    controller.stopAnimationRaw();
-  }
+  void submit();
 
   void reset() => details = null;
 }
@@ -54,11 +49,7 @@ abstract class _BaseLongPressGestureService extends _BaseGestureService {
   _BaseLongPressGestureService({required super.controller});
 
   /// Called when the gesture fires and is confirmed.
-  @mustCallSuper
-  @mustBeOverridden
-  void submit(LongPressStartDetails details) {
-    controller.stopAnimationRaw();
-  }
+  void submit(LongPressStartDetails details);
 }
 
 /// Abstract base service for a gesture that fires multiple times time.
@@ -66,11 +57,7 @@ abstract class _ProgressableGestureService extends _BaseGestureService {
   _ProgressableGestureService({required super.controller});
 
   /// Called when the gesture is started, stores important values.
-  @mustCallSuper
-  @mustBeOverridden
-  void start(ScaleStartDetails details) {
-    controller.stopAnimationRaw();
-  }
+  void start(ScaleStartDetails details);
 
   /// Called when the gesture receives an update, updates the [MapCamera].
   void update(ScaleUpdateDetails details);
