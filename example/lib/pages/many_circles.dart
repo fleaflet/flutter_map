@@ -6,7 +6,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/misc/tile_providers.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:flutter_map_example/widgets/number_of_items_slider.dart';
-import 'package:flutter_map_example/widgets/show_no_perf_overlay_web.dart';
+import 'package:flutter_map_example/widgets/show_no_web_perf_overlay_snackbar.dart';
 import 'package:latlong2/latlong.dart';
 
 const _maxCirclesCount = 20000;
@@ -36,7 +36,7 @@ class ManyCirclesPageState extends State<ManyCirclesPage> {
   void initState() {
     super.initState();
 
-    showNoPerfOverlayWeb(context);
+    showNoWebPerfOverlaySnackbar(context);
 
     Future.microtask(() {
       final r = Random();

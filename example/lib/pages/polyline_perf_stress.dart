@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/misc/tile_providers.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
-import 'package:flutter_map_example/widgets/show_no_perf_overlay_web.dart';
+import 'package:flutter_map_example/widgets/show_no_web_perf_overlay_snackbar.dart';
 import 'package:flutter_map_example/widgets/simplification_tolerance_slider.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -28,7 +28,7 @@ class _PolylinePerfStressPageState extends State<PolylinePerfStressPage> {
   void initState() {
     super.initState();
 
-    showNoPerfOverlayWeb(context);
+    showNoWebPerfOverlaySnackbar(context);
 
     final random = Random(1234);
     for (int i = 1; i < 300000; i++) {
