@@ -20,6 +20,7 @@ class EnabledGestures {
     required this.scrollWheelZoom,
     required this.twoFingerRotate,
     required this.keyTriggerDragRotate,
+    required this.trackpadZoom,
   });
 
   /// Shortcut constructor to allow all gestures that don't rotate the map.
@@ -41,6 +42,7 @@ class EnabledGestures {
     this.scrollWheelZoom = true,
     this.twoFingerRotate = true,
     this.keyTriggerDragRotate = true,
+    this.trackpadZoom = true,
   });
 
   /// This constructor has no enabled gestures by default. Use this constructor
@@ -58,6 +60,7 @@ class EnabledGestures {
     this.scrollWheelZoom = false,
     this.twoFingerRotate = false,
     this.keyTriggerDragRotate = false,
+    this.trackpadZoom = false,
   });
 
   /// This constructor supports bitfield operations on the static fields
@@ -81,6 +84,8 @@ class EnabledGestures {
           InteractiveFlag.hasFlag(flags, InteractiveFlag.twoFingerRotate),
       keyTriggerDragRotate:
           InteractiveFlag.hasFlag(flags, InteractiveFlag.keyTriggerDragRotate),
+      trackpadZoom:
+          InteractiveFlag.hasFlag(flags, InteractiveFlag.trackpadZoom),
     );
   }
 
@@ -110,6 +115,9 @@ class EnabledGestures {
   /// Enable zooming with a mouse scroll wheel
   final bool scrollWheelZoom;
 
+  /// Enable zooming with the device trackpad / touchpad
+  final bool trackpadZoom;
+
   /// Enable rotation by pressing the defined keyboard key (by default CTRL key)
   /// and dragging with the cursor
   /// or finger.
@@ -130,6 +138,7 @@ class EnabledGestures {
     bool? scrollWheelZoom,
     bool? twoFingerRotate,
     bool? keyTriggerDragRotate,
+    bool? trackpadZoom,
   }) =>
       EnabledGestures(
         drag: drag ?? this.drag,
@@ -141,6 +150,7 @@ class EnabledGestures {
         scrollWheelZoom: scrollWheelZoom ?? this.scrollWheelZoom,
         twoFingerRotate: twoFingerRotate ?? this.twoFingerRotate,
         keyTriggerDragRotate: keyTriggerDragRotate ?? this.keyTriggerDragRotate,
+        trackpadZoom: trackpadZoom ?? this.trackpadZoom,
       );
 
   const EnabledGestures.byGroup({
@@ -157,6 +167,7 @@ class EnabledGestures {
           twoFingerZoom: zoom,
           twoFingerRotate: rotate,
           keyTriggerDragRotate: rotate,
+          trackpadZoom: zoom,
         );
 
   @override
@@ -213,6 +224,7 @@ abstract class InteractiveFlag {
       doubleTapDragZoom |
       scrollWheelZoom |
       twoFingerRotate |
+      trackpadZoom |
       keyTriggerDragRotate;
 
   static const int none = 0;
@@ -258,6 +270,9 @@ abstract class InteractiveFlag {
   /// (by default CTRL Key) and drag the map with the cursor.
   /// To change the key see [InteractionOptions.cursorKeyboardRotationOptions].
   static const int keyTriggerDragRotate = 1 << 8;
+
+  /// Enable zooming by using the trackpad / touchpad of a device.
+  static const int trackpadZoom = 1 << 9;
 
   /// Returns `true` if [leftFlags] has at least one member in [rightFlags]
   /// (intersection) for example

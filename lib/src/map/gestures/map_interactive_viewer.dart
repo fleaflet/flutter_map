@@ -31,6 +31,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   DoubleTapGestureService? _doubleTap;
   ScrollWheelZoomGestureService? _scrollWheelZoom;
   TwoFingerGesturesService? _twoFingerInput;
+  TrackpadZoomGestureService? _trackpadZoom;
+  TrackpadLegacyZoomGestureService? _trackpadLegacyZoom;
   DragGestureService? _drag;
   DoubleTapDragZoomGestureService? _doubleTapDragZoom;
   KeyTriggerDragRotateGestureService? _keyTriggerDragRotate;
@@ -125,15 +127,38 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
                 _camera.offsetToCrs(event.localPosition),
               ),
       onPointerSignal: (event) {
-        // mouse scroll wheel
-        if (event is PointerScrollEvent) {
-          // `stopAnimationRaw()` will probably get moved to the service
-          // to handle animated zooming with the scroll wheel but
-          // we keep it here for now.
-          _controller.stopAnimationRaw();
-          _scrollWheelZoom?.submit(event);
+        switch (event) {
+          case final PointerScrollEvent event:
+            // mouse scroll wheel
+            // `stopAnimationRaw()` will probably get moved to the service
+            // to handle animated zooming with the scroll wheel but
+            // we keep it here for now.
+            _controller.stopAnimationRaw();
+            _scrollWheelZoom?.submit(event);
+            break;
+          case final PointerScaleEvent event:
+            // Trackpad pinch gesture, in case the pointerPanZoom event
+            // callbacks can't be used and trackpad scrolling must still use
+            // this old PointerScrollSignal system.
+            //
+            // This is the case if not enough data is
+            // provided to the Flutter engine by platform APIs:
+            // - On **Windows**, where trackpad gesture support is dependent on
+            // the trackpad’s driver,
+            // - On **Web**, where not enough data is provided by browser APIs.
+            //
+            // https://docs.flutter.dev/release/breaking-changes/trackpad-gestures#description-of-change
+            _trackpadLegacyZoom?.submit(event);
+            break;
         }
       },
+      // Trackpad gestures on most platforms since flutter 3.3 use
+      // these onPointerPanZoom* callbacks.
+      // See https://docs.flutter.dev/release/breaking-changes/trackpad-gestures
+      onPointerPanZoomStart: _trackpadZoom?.start,
+      onPointerPanZoomUpdate: _trackpadZoom?.update,
+      onPointerPanZoomEnd: _trackpadZoom?.end,
+
       child: GestureDetector(
         onTapDown: _tap?.setDetails,
         onTapCancel: _tap?.reset,
@@ -193,7 +218,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
                   _keyTriggerDragRotate!.update(details);
                 } else if (_doubleTapDragZoom?.isActive ?? false) {
                   _doubleTapDragZoom!.update(details);
-                } else if (details.pointerCount == 1) {
+                } else if (details.pointerCount == 1 && details.scale == 1) {
                   _drag?.update(details);
                 } else {
                   _twoFingerInput?.update(details);
@@ -245,6 +270,15 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       _scrollWheelZoom = ScrollWheelZoomGestureService(controller: _controller);
     } else {
       _scrollWheelZoom = null;
+    }
+
+    if (newFlags.trackpadZoom) {
+      _trackpadZoom = TrackpadZoomGestureService(controller: _controller);
+      _trackpadLegacyZoom =
+          TrackpadLegacyZoomGestureService(controller: _controller);
+    } else {
+      _trackpadZoom = null;
+      _trackpadLegacyZoom = null;
     }
 
     if (newFlags.keyTriggerDragRotate) {

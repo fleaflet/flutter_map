@@ -26,4 +26,5 @@ enum MapEventSource {
   keyTriggerDragRotateStart,
   keyTriggerDragRotateEnd,
   keyTriggerDragRotate,
+  trackpad,
 }

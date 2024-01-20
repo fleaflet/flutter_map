@@ -45,6 +45,11 @@ final class InteractionOptions {
   /// Defaults to 0.01.
   final double scrollWheelVelocity;
 
+  /// The velocity how fast the map should zoom when using the
+  /// trackpad / touchpad.
+  /// Defaults to 0.5.
+  final double trackpadZoomVelocity;
+
   /// Override this option if you want to use custom keys for the key trigger
   /// drag rotate gesture (aka CTRL+drag rotate gesture).
   /// By default the left and right control key are both used.
@@ -66,6 +71,7 @@ final class InteractionOptions {
     this.twoFingerZoomThreshold = 0.01,
     this.twoFingerMoveThreshold = 3.0,
     this.scrollWheelVelocity = 0.01,
+    this.trackpadZoomVelocity = 0.5,
     this.keyTriggerDragRotateKeys = defaultKeyTriggerDragRotateKeys,
   })  : assert(
           twoFingerRotateThreshold >= 0.0,

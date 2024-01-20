@@ -58,6 +58,11 @@ abstract class MapEventWithMove extends MapEvent {
             camera: camera,
             source: source,
           ),
+        MapEventSource.trackpad => MapEventTrackpadZoom(
+            oldCamera: oldCamera,
+            camera: camera,
+            source: source,
+          ),
         MapEventSource.onDrag ||
         MapEventSource.onMultiFinger ||
         MapEventSource.doubleTapHold ||
@@ -234,6 +239,16 @@ class MapEventDoubleTapZoom extends MapEventWithMove {
 @immutable
 class MapEventScrollWheelZoom extends MapEventWithMove {
   const MapEventScrollWheelZoom({
+    required super.source,
+    required super.oldCamera,
+    required super.camera,
+  });
+}
+
+/// Event which is fired when the trackpad of a device is used to zoom
+@immutable
+class MapEventTrackpadZoom extends MapEventWithMove {
+  const MapEventTrackpadZoom({
     required super.source,
     required super.oldCamera,
     required super.camera,

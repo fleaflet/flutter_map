@@ -13,6 +13,8 @@ part 'key_trigger_drag_rotate.dart';
 part 'long_press.dart';
 part 'scroll_wheel_zoom.dart';
 part 'tap.dart';
+part 'trackpad_legacy_zoom.dart';
+part 'trackpad_zoom.dart';
 part 'two_finger.dart';
 
 /// Abstract base service class for every gesture service.
