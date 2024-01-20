@@ -15,6 +15,8 @@ part of 'base_services.dart';
 ///
 /// https://docs.flutter.dev/release/breaking-changes/trackpad-gestures#description-of-change
 class TrackpadLegacyZoomGestureService extends _BaseGestureService {
+  static const _velocityAdjustment = 4.5;
+
   TrackpadLegacyZoomGestureService({required super.controller});
 
   double get _velocity => _options.interactionOptions.trackpadZoomVelocity;
@@ -22,8 +24,8 @@ class TrackpadLegacyZoomGestureService extends _BaseGestureService {
   void submit(PointerScaleEvent details) {
     if (details.scale == 1) return;
 
-    final tmpZoom =
-        _camera.zoom + (math.log(details.scale) / math.ln2) * _velocity;
+    final tmpZoom = _camera.zoom +
+        (math.log(details.scale) / math.ln2) * _velocity * _velocityAdjustment;
     final newZoom = _camera.clampZoom(tmpZoom);
 
     // TODO: calculate new center
