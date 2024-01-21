@@ -17,7 +17,8 @@ class SimpleAttributionWidget extends StatelessWidget {
   /// Callback called when [source] is tapped/clicked
   final VoidCallback? onTap;
 
-  /// Color of the box containing the [source] text
+  /// Color of the box containing the [source] text.
+  /// Defaults to the background color of the app [Theme].
   final Color? backgroundColor;
 
   /// Anchor the widget in a position of the map

@@ -6,7 +6,10 @@ import 'package:latlong2/latlong.dart';
 /// Base class for all overlay images.
 @immutable
 sealed class BaseOverlayImage extends StatelessWidget {
+  /// The [ImageProvider] for the image.
   final ImageProvider imageProvider;
+
+  /// The opacity in which the image should get rendered on the map.
   final double opacity;
   final bool gaplessPlayback;
 
@@ -46,6 +49,7 @@ sealed class BaseOverlayImage extends StatelessWidget {
 class OverlayImage extends BaseOverlayImage {
   final LatLngBounds bounds;
 
+  /// Create a new [OverlayImage] used for the [OverlayImageLayer].
   const OverlayImage({
     super.key,
     required super.imageProvider,
@@ -85,11 +89,21 @@ class OverlayImage extends BaseOverlayImage {
 /// corner point is derived from the other points.
 @immutable
 class RotatedOverlayImage extends BaseOverlayImage {
+  /// The coordinates of the top left corner of the image.
   final LatLng topLeftCorner;
+
+  /// The coordinates of the bottom left corner of the image.
   final LatLng bottomLeftCorner;
+
+  /// The coordinates of the bottom right corner of the image.
   final LatLng bottomRightCorner;
+
+  /// The [FilterQuality] of the image, used to define how high quality the
+  /// overlay image should have on the map.
   final FilterQuality? filterQuality;
 
+  /// Create a new [RotatedOverlayImage] instance that can be provided to the
+  /// [OverlayImageLayer].
   const RotatedOverlayImage({
     super.key,
     required super.imageProvider,
@@ -146,10 +160,16 @@ class RotatedOverlayImage extends BaseOverlayImage {
   }
 }
 
+/// [OverlayImageLayer] is used to display one or multiple images on the map.
+///
+/// Note that the [OverlayImageLayer] needs to be placed after every non
+/// translucent layer in the [FlutterMap.children] list to be actually visible!
 @immutable
 class OverlayImageLayer extends StatelessWidget {
+  /// The images that the map should get overlayed with.
   final List<BaseOverlayImage> overlayImages;
 
+  /// Create a new [OverlayImageLayer].
   const OverlayImageLayer({super.key, required this.overlayImages});
 
   @override

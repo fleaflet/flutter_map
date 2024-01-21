@@ -8,16 +8,20 @@ import 'package:flutter_map/src/layer/tile_layer/tile_image_view.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:meta/meta.dart';
 
+/// Callback definition to crete a [TileImage] for [TileCoordinates].
 typedef TileCreator = TileImage Function(TileCoordinates coordinates);
 
+/// The [TileImageManager] orchestrates the loading and pruning of tiles.
 @immutable
 class TileImageManager {
   final Map<TileCoordinates, TileImage> _tiles =
       HashMap<TileCoordinates, TileImage>();
 
+  /// Check if the [TileImageManager] has the tile for a given tile cooridantes.
   bool containsTileAt(TileCoordinates coordinates) =>
       _tiles.containsKey(coordinates);
 
+  /// Check if all tile images are loaded
   bool get allLoaded =>
       _tiles.values.none((tile) => tile.loadFinishedAt == null);
 
@@ -36,6 +40,7 @@ class TileImageManager {
         keepRange: visibleRange,
       ).renderTiles;
 
+  /// Check if all loaded tiles are within the [minZoom] and [maxZoom] level.
   bool allWithinZoom(double minZoom, double maxZoom) => _tiles.values
       .map((e) => e.coordinates)
       .every((coord) => coord.z > maxZoom || coord.z < minZoom);
@@ -66,7 +71,7 @@ class TileImageManager {
   }
 
   /// All removals should be performed by calling this method to ensure that
-  // disposal is performed correctly.
+  /// disposal is performed correctly.
   void _remove(
     TileCoordinates key, {
     required bool Function(TileImage tileImage) evictImageFromCache,
@@ -89,6 +94,7 @@ class TileImageManager {
     );
   }
 
+  /// Remove all tiles with a given [EvictErrorTileStrategy].
   void removeAll(EvictErrorTileStrategy evictStrategy) {
     final keysToRemove = List<TileCoordinates>.from(_tiles.keys);
 
@@ -97,6 +103,7 @@ class TileImageManager {
     }
   }
 
+  /// Reload all tile images of a [TileLayer] for a given tile bounds.
   void reloadImages(
     TileLayer layer,
     TileBounds tileBounds,

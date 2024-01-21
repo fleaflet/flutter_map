@@ -8,6 +8,7 @@ final class TileImageView {
   final DiscreteTileRange _visibleRange;
   final DiscreteTileRange _keepRange;
 
+  /// Create a new [TileImageView] instance.
   const TileImageView({
     required Map<TileCoordinates, TileImage> tileImages,
     required DiscreteTileRange visibleRange,
@@ -26,6 +27,7 @@ final class TileImageView {
           tileImage.loadError && !_visibleRange.contains(tileImage.coordinates))
       .toList();
 
+  /// Get a list of [TileImage] that are stale and can get for pruned.
   Iterable<TileImage> get staleTiles {
     final stale = HashSet<TileImage>();
     final retain = HashSet<TileImage>();
@@ -46,6 +48,7 @@ final class TileImageView {
     return stale.where((tile) => !retain.contains(tile));
   }
 
+  /// Get a list of [TileImage] that need to get rendered on screen.
   Iterable<TileImage> get renderTiles {
     final retain = HashSet<TileImage>();
 
@@ -68,9 +71,9 @@ final class TileImageView {
     return retain;
   }
 
-  // Recurses through the ancestors of the Tile at the given coordinates adding
-  // them to [retain] if they are ready to display or loaded. Returns true if
-  // any of the ancestor tiles were ready to display.
+  /// Recurse through the ancestors of the Tile at the given coordinates adding
+  /// them to [retain] if they are ready to display or loaded. Returns true if
+  /// any of the ancestor tiles were ready to display.
   bool _retainAncestor(
     Set<TileImage> retain,
     int x,
@@ -100,8 +103,8 @@ final class TileImageView {
     return false;
   }
 
-  // Recurses through the descendants of the Tile at the given coordinates
-  // adding them to [retain] if they are ready to display or loaded.
+  /// Recurse through the descendants of the Tile at the given coordinates
+  /// adding them to [retain] if they are ready to display or loaded.
   void _retainChildren(
     Set<TileImage> retain,
     int x,

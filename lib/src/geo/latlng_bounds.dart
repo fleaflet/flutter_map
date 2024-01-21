@@ -9,11 +9,16 @@ class LatLngBounds {
   late LatLng _sw;
   late LatLng _ne;
 
+  /// Create new [LatLngBounds] by providing two corners. Both corners have to
+  /// be on opposite sites but it doesn't matter which opposite corners or in
+  /// what order the corners are provided.
   LatLngBounds(
     LatLng corner1,
     LatLng corner2,
   ) : this.fromPoints([corner1, corner2]);
 
+  /// Create a new [LatLngBounds] from a list of [LatLng] points. This
+  /// calculates the bounding box of the provided points.
   LatLngBounds.fromPoints(List<LatLng> points)
       : assert(
           points.isNotEmpty,

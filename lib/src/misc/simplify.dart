@@ -113,6 +113,7 @@ void _simplifyDPStep(
   }
 }
 
+/// simplification using the Ramer-Douglas-Peucker algorithm
 List<DoublePoint> simplifyDouglasPeucker(
   List<DoublePoint> points,
   double sqTolerance,

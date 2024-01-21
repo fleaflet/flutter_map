@@ -2,12 +2,14 @@ import 'package:flutter_map/flutter_map.dart';
 
 /// Calculate a scale value to transform the Tile's coordinate to its position.
 class TileScaleCalculator {
+  /// Reference to the used coordinate reference system.
   final Crs crs;
   final double tileSize;
 
   double? _cachedCurrentZoom;
   final Map<int, double> _cache = {};
 
+  /// Create a new [TileScaleCalculator] instance.
   TileScaleCalculator({
     required this.crs,
     required this.tileSize,

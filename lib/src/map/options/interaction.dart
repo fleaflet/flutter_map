@@ -1,6 +1,7 @@
 import 'package:flutter_map/flutter_map.dart';
 import 'package:meta/meta.dart';
 
+/// All interactive options for [FlutterMap]
 @immutable
 final class InteractionOptions {
   /// See [InteractiveFlag] for custom settings
@@ -57,6 +58,8 @@ final class InteractionOptions {
   /// gestures will take effect see [MultiFingerGesture] for custom settings
   final int pinchMoveWinGestures;
 
+  /// The used velocity how fast the map should zoom in or out by scrolling
+  /// with the scroll wheel of a mouse.
   final double scrollWheelVelocity;
 
   /// Options to configure cursor/keyboard rotation
@@ -73,6 +76,8 @@ final class InteractionOptions {
   /// [CursorKeyboardRotationOptions.disabled] constructor.
   final CursorKeyboardRotationOptions cursorKeyboardRotationOptions;
 
+  /// Create a new [InteractionOptions] instance to be used
+  /// in [MapOptions.interactionOptions].
   const InteractionOptions({
     this.flags = InteractiveFlag.all,
     this.debugMultiFingerGestureWinner = false,

@@ -10,6 +10,7 @@ class Bounds<T extends num> {
   final Point<T> min;
   final Point<T> max;
 
+  /// Create a [Bounds] instance in a safe way.
   factory Bounds(Point<T> a, Point<T> b) {
     final T minX;
     final T maxX;
@@ -32,10 +33,13 @@ class Bounds<T extends num> {
     return Bounds._(Point<T>(minX, minY), Point<T>(maxX, maxY));
   }
 
+  /// Create a [Bounds] instance **without** checking if [min] is actually the
+  /// minimum and [max] is actually the maximum.
   const Bounds.unsafe(this.min, this.max);
 
   const Bounds._(this.min, this.max);
 
+  /// Create a [Bounds] as bounding box of a list of points.
   static Bounds<double> containing(Iterable<Point<double>> points) {
     var maxX = double.negativeInfinity;
     var maxY = double.negativeInfinity;
@@ -84,6 +88,7 @@ class Bounds<T extends num> {
     return max - min;
   }
 
+  /// Check if a [Point] is inside of the bounds.
   bool contains(Point<T> point) {
     return (point.x >= min.x) &&
         (point.x <= max.x) &&
@@ -91,6 +96,7 @@ class Bounds<T extends num> {
         (point.y <= max.y);
   }
 
+  /// Check if an other [Bounds] object is inside of the bounds.
   bool containsBounds(Bounds<T> b) {
     return (b.min.x >= min.x) &&
         (b.max.x <= max.x) &&
