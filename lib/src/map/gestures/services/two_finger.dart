@@ -65,7 +65,7 @@ class TwoFingerGesturesService extends _BaseGestureService
     controller.emitMapEvent(
       MapEventMoveStart(
         camera: _camera,
-        source: MapEventSource.multiFingerStart,
+        source: MapEventSource.twoFingerStart,
       ),
     );
   }
@@ -153,7 +153,7 @@ class TwoFingerGesturesService extends _BaseGestureService
       newRotation,
       offset: Offset.zero,
       hasGesture: true,
-      source: MapEventSource.onMultiFinger,
+      source: MapEventSource.onTwoFinger,
     );
 
     _lastRotation = details.rotation;
@@ -181,7 +181,7 @@ class TwoFingerGesturesService extends _BaseGestureService
     controller.emitMapEvent(
       MapEventMoveEnd(
         camera: _camera,
-        source: MapEventSource.multiFingerEnd,
+        source: MapEventSource.twoFingerEnd,
       ),
     );
   }
