@@ -8,6 +8,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:vector_math/vector_math_64.dart';
 
+/// The method signature of the builder.
 typedef InteractiveViewerBuilder = Widget Function(
   BuildContext context,
   MapOptions options,
@@ -17,9 +18,13 @@ typedef InteractiveViewerBuilder = Widget Function(
 /// Applies interactions (gestures/scroll/taps etc) to the current [MapCamera]
 /// via the internal [controller].
 class MapInteractiveViewer extends StatefulWidget {
+  /// The [InteractiveViewerBuilder]
   final InteractiveViewerBuilder builder;
+
+  /// Reference to the [MapControllerImpl].
   final MapControllerImpl controller;
 
+  /// Create a new [MapInteractiveViewer] instance.
   const MapInteractiveViewer({
     super.key,
     required this.builder,
@@ -30,10 +35,13 @@ class MapInteractiveViewer extends StatefulWidget {
   State<MapInteractiveViewer> createState() => MapInteractiveViewerState();
 }
 
+/// The widget state for the [MapInteractiveViewer].
 class MapInteractiveViewerState extends State<MapInteractiveViewer>
     with TickerProviderStateMixin {
   static const int _kMinFlingVelocity = 800;
   static const _kDoubleTapZoomDuration = 200;
+
+  /// The maximum delay between to taps to be counted as a double tap.
   static const doubleTapDelay = Duration(milliseconds: 250);
 
   final _positionedTapController = PositionedTapController();
@@ -138,6 +146,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     return false;
   }
 
+  /// Perform all required actions when the [InteractionOptions] have changed.
   void updateGestures(
     InteractionOptions oldOptions,
     InteractionOptions newOptions,
@@ -895,6 +904,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     }
   }
 
+  ///
   void _startListeningForAnimationInterruptions() {
     _isListeningForInterruptions = true;
   }
@@ -903,6 +913,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     _isListeningForInterruptions = false;
   }
 
+  /// Cancel every ongoing animated map movements.
   void interruptAnimatedMovement(MapEvent event) {
     if (_isListeningForInterruptions) {
       _closeDoubleTapController(event.source);

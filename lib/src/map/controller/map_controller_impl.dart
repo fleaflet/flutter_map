@@ -26,6 +26,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   late Offset _animationOffset;
   late Point _flingMapCenterStartPoint;
 
+  /// Constructor of the [MapController] implementation for internal usage.
   MapControllerImpl({MapOptions? options, TickerProvider? vsync})
       : super(
           _MapControllerState(
@@ -50,12 +51,15 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   @override
   Stream<MapEvent> get mapEventStream => _mapEventStreamController.stream;
 
+  /// Used to change [MapOptions] and update the required widgets.
   MapOptions get options {
     return value.options ??
         (throw Exception('You need to have the FlutterMap widget rendered at '
             'least once before using the MapController.'));
   }
 
+  /// Get the current [MapCamera] instance. Prefer using
+  /// `MapCamera.of(context)` if possible.
   @override
   MapCamera get camera {
     return value.camera ??
@@ -136,6 +140,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   @override
   bool fitCamera(CameraFit cameraFit) => fitCameraRaw(cameraFit);
 
+  /// Internal endpoint to move the [MapCamera] and change zoom level.
   bool moveRaw(
     LatLng newCenter,
     double newZoom, {
@@ -184,6 +189,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     return true;
   }
 
+  /// Internal endpoint to rotate the [MapCamera].
   bool rotateRaw(
     double newRotation, {
     required bool hasGesture,
@@ -213,6 +219,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     return true;
   }
 
+  /// Internal endpoint to rotate around a point that is not in the center of
+  /// the map.
   MoveAndRotateResult rotateAroundPointRaw(
     double degree, {
     required Point<double>? point,
@@ -272,6 +280,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     );
   }
 
+  /// Internal endpoint to move, rotate and change zoom level
+  /// of the [MapCamera].
   MoveAndRotateResult moveAndRotateRaw(
     LatLng newCenter,
     double newZoom,
@@ -298,6 +308,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
         ),
       );
 
+  ///
   bool fitCameraRaw(
     CameraFit cameraFit, {
     Offset offset = Offset.zero,
@@ -471,6 +482,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     );
   }
 
+  /// Called when a long-press gesture has happened, calls the
+  /// [MapOptions.onTap] callback and emits a [MapEventTap] event.
   void tapped(
     MapEventSource source,
     TapPosition tapPosition,
@@ -486,6 +499,9 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     );
   }
 
+  /// Called when a long-press gesture has happened, calls the
+  /// [MapOptions.onSecondaryTap] callback and emits a
+  /// [MapEventSecondaryTap] event.
   void secondaryTapped(
     MapEventSource source,
     TapPosition tapPosition,
@@ -501,6 +517,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     );
   }
 
+  /// Called when a long-press gesture has happened, calls the
+  /// [MapOptions.onLongPress] callback and emits a [MapEventLongPress] event.
   void longPressed(
     MapEventSource source,
     TapPosition tapPosition,
@@ -531,6 +549,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     );
   }
 
+  /// Move and rotate the the map with an animation.
+  /// The raw method allows to set all parameters.
   void moveAndRotateAnimatedRaw(
     LatLng newCenter,
     double newZoom,
@@ -577,6 +597,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     _animationController.forward(from: 0);
   }
 
+  /// Animated rotation of the map.
+  /// The raw method allows to set all parameters.
   void rotateAnimatedRaw(
     double newRotation, {
     required Offset offset,
@@ -604,10 +626,15 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     _animationController.forward(from: 0);
   }
 
+  /// Stops all ongoing animations of the [MapControllerImpl].
+  /// This is commonly used by other gestures that should stop all
+  /// ongoing movement.
   void stopAnimationRaw({bool canceled = true}) {
     if (isAnimating) _animationController.stop(canceled: canceled);
   }
 
+  /// Getter that returns true if the [MapControllerImpl] performs a zoom,
+  /// drag or rotate animation.
   bool get isAnimating => _animationController.isAnimating;
 
   void _resetAnimations() {
@@ -617,6 +644,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     _flingAnimation = null;
   }
 
+  /// Fling animation for the map.
+  /// The raw method allows to set all parameters.
   void flingAnimatedRaw({
     required double velocity,
     required Offset direction,
@@ -655,6 +684,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     );
   }
 
+  /// Animated movement of the map.
+  /// The raw method allows to set all parameters.
   void moveAnimatedRaw(
     LatLng newCenter,
     double newZoom, {

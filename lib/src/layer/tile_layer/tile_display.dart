@@ -5,19 +5,19 @@ import 'package:meta/meta.dart';
 sealed class TileDisplay {
   const TileDisplay();
 
-  // Instantly display tiles once they are loaded without a fade animation.
+  /// Instantly display tiles once they are loaded without a fade animation.
+  /// Sets the opacity of tile images to the given value (0.0 - 1.0), default
+  /// 1.0. Note that this opacity setting is applied at the tile level which
+  /// means that overlapping tiles will be simultaneously visible. This can
+  /// happen when changing zoom as tiles from the previous zoom level will
+  /// not be cleared until all of the tiles at the new zoom level have
+  /// finished loading. For this reason this opacity setting is only
+  /// recommended when the displayed map will remain at the same zoom level
+  /// or will not move gradually between zoom levels at the same position.
+  ///
+  /// If you wish to show a transparent map without these restrictions you
+  /// can simply wrap the entire [TileLayer] in an [Opacity] widget.
   const factory TileDisplay.instantaneous({
-    /// Sets the opacity of tile images to the given value (0.0 - 1.0), default
-    /// 1.0. Note that this opacity setting is applied at the tile level which
-    /// means that overlapping tiles will be simultaneously visible. This can
-    /// happen when changing zoom as tiles from the previous zoom level will
-    /// not be cleared until all of the tiles at the new zoom level have
-    /// finished loading. For this reason this opacity setting is only
-    /// recommended when the displayed map will remain at the same zoom level
-    /// or will not move gradually between zoom levels at the same position.
-    ///
-    /// If you wish to show a transparent map without these restrictions you
-    /// can simply wrap the entire [TileLayer] in an [Opacity] widget.
     double opacity,
   }) = InstantaneousTileDisplay._;
 
@@ -61,14 +61,13 @@ sealed class TileDisplay {
 class InstantaneousTileDisplay extends TileDisplay {
   final double opacity;
 
-  const InstantaneousTileDisplay._({
-    this.opacity = 1.0,
-  }) : assert(
+  const InstantaneousTileDisplay._({this.opacity = 1.0})
+      : assert(
           opacity >= 0.0 && opacity <= 1.0,
           'The opacity value needs to be between 0 and 1',
         );
 
-  // Note this is used to check if the option has changed.
+  /// Note this is used to check if the option has changed.
   @override
   bool operator ==(Object other) {
     return other is InstantaneousTileDisplay && opacity == other.opacity;
@@ -78,10 +77,17 @@ class InstantaneousTileDisplay extends TileDisplay {
   int get hashCode => opacity.hashCode;
 }
 
+/// A [TileDisplay] that should get faded in.
 @immutable
 class FadeInTileDisplay extends TileDisplay {
+  /// The duration of the fade in animation.
   final Duration duration;
+
+  /// The opacity of what the tile should start loading in.
   final double startOpacity;
+
+  /// The opacity of what the tile should start loading in when a
+  /// reload occurred.
   final double reloadStartOpacity;
 
   /// Options for fading in tiles when they are loaded.

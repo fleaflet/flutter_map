@@ -20,8 +20,13 @@ class MapCamera {
   /// provides real constraints.
   static const kImpossibleSize = Point<double>(-1, -1);
 
+  /// The used coordinate reference system
   final Crs crs;
+
+  /// The minimum allowed zoom level.
   final double? minZoom;
+
+  /// The maximum allowed zoom level.
   final double? maxZoom;
 
   /// The [LatLng] which corresponds with the center of this camera.
@@ -212,6 +217,7 @@ class MapCamera {
   LatLng unproject(Point point, [double? zoom]) =>
       crs.pointToLatLng(point, zoom ?? this.zoom);
 
+  /// Same as the [unproject] function.
   LatLng layerPointToLatLng(Point point) => unproject(point);
 
   /// Calculates the scale for a zoom from [fromZoom] to [toZoom] using this
