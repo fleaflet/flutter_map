@@ -48,7 +48,7 @@ class _GesturesPageState extends State<GesturesPage> {
         child: Column(
           children: [
             Flex(
-              direction: screenWidth >= 650 ? Axis.horizontal : Axis.vertical,
+              direction: screenWidth >= 750 ? Axis.horizontal : Axis.vertical,
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: availableFlags.entries
