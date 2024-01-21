@@ -16,7 +16,7 @@
 /// * discord.gg: <https://discord.gg/BwpEsjqMAH>
 library flutter_map;
 
-export 'package:flutter_map/src/geo/crs.dart';
+export 'package:flutter_map/src/geo/crs.dart' hide CrsWithStaticTransformation;
 export 'package:flutter_map/src/geo/latlng_bounds.dart';
 export 'package:flutter_map/src/layer/attribution_layer/rich/animation.dart';
 export 'package:flutter_map/src/layer/attribution_layer/rich/source.dart';
