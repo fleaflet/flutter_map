@@ -13,6 +13,8 @@ abstract class MapEvent {
   /// The map camera after the event.
   final MapCamera camera;
 
+  /// Base constructor for [MapEvent] that gets overridden by its extended
+  /// classes.
   const MapEvent({
     required this.source,
     required this.camera,
@@ -24,8 +26,10 @@ abstract class MapEvent {
 /// which are not partial (e.g start rotate, rotate, end rotate).
 @immutable
 abstract class MapEventWithMove extends MapEvent {
+  /// The [MapCamera] before the map move event occurred.
   final MapCamera oldCamera;
 
+  /// Create a new map event that represents a movement event
   const MapEventWithMove({
     required super.source,
     required this.oldCamera,
@@ -84,6 +88,7 @@ class MapEventTap extends MapEvent {
   /// Point coordinates where user has tapped
   final LatLng tapPosition;
 
+  /// Create a new map event that represents a tap on the map
   const MapEventTap({
     required this.tapPosition,
     required super.source,
@@ -91,11 +96,13 @@ class MapEventTap extends MapEvent {
   });
 }
 
+/// Event which is fired when map is secondary tapped
 @immutable
 class MapEventSecondaryTap extends MapEvent {
   /// Point coordinates where user has tapped
   final LatLng tapPosition;
 
+  /// Create a new map event that represents a secondary tap on the map
   const MapEventSecondaryTap({
     required this.tapPosition,
     required super.source,
@@ -121,6 +128,7 @@ class MapEventLongPress extends MapEvent {
   /// Point coordinates where user has long-pressed
   final LatLng tapPosition;
 
+  /// Create a new map event that represents a long press on the map
   const MapEventLongPress({
     required this.tapPosition,
     required super.source,
@@ -161,6 +169,7 @@ class MapEventMove extends MapEventWithMove {
   /// Custom ID to identify related object(s)
   final String? id;
 
+  /// Create a new map event that represents a map movement
   const MapEventMove({
     this.id,
     required super.source,
@@ -172,6 +181,7 @@ class MapEventMove extends MapEventWithMove {
 /// Event which is fired when dragging is started
 @immutable
 class MapEventMoveStart extends MapEvent {
+  /// Create a new map event that represents the start of a drag event
   const MapEventMoveStart({
     required super.source,
     required super.camera,
@@ -181,6 +191,7 @@ class MapEventMoveStart extends MapEvent {
 /// Event which is fired when dragging is finished
 @immutable
 class MapEventMoveEnd extends MapEvent {
+  /// Create a new map event that represents the end of a drag event
   const MapEventMoveEnd({
     required super.source,
     required super.camera,
@@ -190,6 +201,7 @@ class MapEventMoveEnd extends MapEvent {
 /// Event which is fired when animation started by fling gesture is in progress
 @immutable
 class MapEventFlingAnimation extends MapEventWithMove {
+  /// Create a new map event that represents an ongoing fling animation
   const MapEventFlingAnimation({
     required super.source,
     required super.oldCamera,
@@ -201,6 +213,8 @@ class MapEventFlingAnimation extends MapEventWithMove {
 /// to start fling animation
 @immutable
 class MapEventFlingAnimationNotStarted extends MapEvent {
+  /// Create a new map event that for when the performed fling gesture had
+  /// not enough velocity to cause a fling animation.
   const MapEventFlingAnimationNotStarted({
     required super.source,
     required super.camera,
@@ -210,6 +224,7 @@ class MapEventFlingAnimationNotStarted extends MapEvent {
 /// Event which is fired when fling gesture is detected
 @immutable
 class MapEventFlingAnimationStart extends MapEvent {
+  /// Create a new map event that represents the start of a fling animation
   const MapEventFlingAnimationStart({
     required super.source,
     required super.camera,
@@ -219,6 +234,7 @@ class MapEventFlingAnimationStart extends MapEvent {
 /// Event which is fired when animation started by fling gesture finished
 @immutable
 class MapEventFlingAnimationEnd extends MapEvent {
+  /// Create a new map event that represents the end of a fling animation
   const MapEventFlingAnimationEnd({
     required super.source,
     required super.camera,
@@ -228,6 +244,7 @@ class MapEventFlingAnimationEnd extends MapEvent {
 /// Event which is fired when map is double tapped
 @immutable
 class MapEventDoubleTapZoom extends MapEventWithMove {
+  /// Create a new map event that represents an ongoing double tap zoom gesture.
   const MapEventDoubleTapZoom({
     required super.source,
     required super.oldCamera,
@@ -238,6 +255,8 @@ class MapEventDoubleTapZoom extends MapEventWithMove {
 /// Event which is fired when scroll wheel is used to zoom
 @immutable
 class MapEventScrollWheelZoom extends MapEventWithMove {
+  /// Create a new map event that represents an ongoing scroll wheel
+  /// zoom gesture.
   const MapEventScrollWheelZoom({
     required super.source,
     required super.oldCamera,
@@ -258,6 +277,8 @@ class MapEventTrackpadZoom extends MapEventWithMove {
 /// Event which is fired when animation for double tap gesture is started
 @immutable
 class MapEventDoubleTapZoomStart extends MapEvent {
+  /// Create a new map event that represents the start of a double tap
+  /// zoom gesture.
   const MapEventDoubleTapZoomStart({
     required super.source,
     required super.camera,
@@ -267,6 +288,8 @@ class MapEventDoubleTapZoomStart extends MapEvent {
 /// Event which is fired when animation for double tap gesture ends
 @immutable
 class MapEventDoubleTapZoomEnd extends MapEvent {
+  /// Create a new map event that represents the end of a double tap
+  /// zoom gesture.
   const MapEventDoubleTapZoomEnd({
     required super.source,
     required super.camera,
@@ -297,6 +320,7 @@ class MapEventRotate extends MapEventWithMove {
   /// Custom ID to identify related object(s)
   final String? id;
 
+  /// Create a new map event that represents an ongoing map rotation.
   const MapEventRotate({
     required this.id,
     required super.source,
@@ -308,6 +332,7 @@ class MapEventRotate extends MapEventWithMove {
 /// Event which is fired when rotate gesture was started
 @immutable
 class MapEventRotateStart extends MapEvent {
+  /// Create a new map event that represents the start of a map rotation.
   const MapEventRotateStart({
     required super.source,
     required super.camera,
@@ -317,14 +342,18 @@ class MapEventRotateStart extends MapEvent {
 /// Event which is fired when rotate gesture has ended
 @immutable
 class MapEventRotateEnd extends MapEvent {
+  /// Create a new map event that represents the end of a map rotation.
   const MapEventRotateEnd({
     required super.source,
     required super.camera,
   });
 }
 
+/// Event that fires when the map widget changes size, e.g. when the app window
+/// gets changed in size.
 @immutable
 class MapEventNonRotatedSizeChange extends MapEventWithMove {
+  /// Create a new map event that represents that the widget size has changed.
   const MapEventNonRotatedSizeChange({
     required super.source,
     required super.oldCamera,

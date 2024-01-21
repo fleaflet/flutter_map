@@ -13,8 +13,11 @@ import 'package:proj4dart/proj4dart.dart' as proj4;
 /// points of objects of different dimensions. In our case 3D and 2D objects.
 @immutable
 abstract class Crs {
+  /// The code
   @nonVirtual
   final String code;
+
+  /// Set to true if the CRS has no bounds.
   @nonVirtual
   final bool infinite;
   @nonVirtual
@@ -22,6 +25,7 @@ abstract class Crs {
   @nonVirtual
   final (double, double)? wrapLat;
 
+  /// Constant base constructor that sets all values for the abstract [Crs].
   const Crs({
     required this.code,
     required this.infinite,
@@ -40,6 +44,7 @@ abstract class Crs {
   /// scaled map point.
   (double, double) latLngToXY(LatLng latlng, double scale);
 
+  /// Similar to [latLngToXY] but converts the XY coordinates to a [Point].
   Point<double> latLngToPoint(LatLng latlng, double zoom) {
     final (x, y) = latLngToXY(latlng, scale(zoom));
     return Point<double>(x, y);
@@ -116,7 +121,7 @@ abstract class CrsWithStaticTransformation extends Crs {
   }
 }
 
-// Custom CRS for non geographical maps
+/// Custom CRS for non geographical maps
 @immutable
 class CrsSimple extends CrsWithStaticTransformation {
   const CrsSimple()
@@ -130,11 +135,12 @@ class CrsSimple extends CrsWithStaticTransformation {
         );
 }
 
-/// The most common CRS used for rendering maps.
+/// EPSG:3857, The most common CRS used for rendering maps.
 @immutable
 class Epsg3857 extends CrsWithStaticTransformation {
   static const double _scale = 0.5 / (math.pi * SphericalMercator.r);
 
+  /// Create a new [Epsg3857] object.
   const Epsg3857()
       : super._(
           code: 'EPSG:3857',
@@ -163,9 +169,11 @@ class Epsg3857 extends CrsWithStaticTransformation {
   }
 }
 
-/// A common CRS among GIS enthusiasts. Uses simple Equirectangular projection.
+/// EPSG:4326, A common CRS among GIS enthusiasts.
+/// Uses simple Equirectangular projection.
 @immutable
 class Epsg4326 extends CrsWithStaticTransformation {
+  /// Create a new [Epsg4326] CRS instance.
   const Epsg4326()
       : super._(
           projection: const _LonLat(),
@@ -341,18 +349,26 @@ class Proj4Crs extends Crs {
   }
 }
 
+/// The abstract base [Projection] class, used for coordinate reference
+/// systems like [Epsg3857].
+/// Inherit from this class if you want to create or implement your own CRS.
 @immutable
 abstract class Projection {
+  /// The [Bounds] for the coordinates of this [Projection].
   final Bounds<double>? bounds;
 
+  /// Base constructor for the abstract [Projection] class that sets the
+  /// required fields.
   const Projection(this.bounds);
 
+  /// Converts a [LatLng] to a coordinates and returns them as [Point] object.
   @nonVirtual
   Point<double> project(LatLng latlng) {
     final (x, y) = projectXY(latlng);
     return Point<double>(x, y);
   }
 
+  /// Converts a [LatLng] to geometry coordinates.
   (double, double) projectXY(LatLng latlng);
 
   @nonVirtual
@@ -381,15 +397,21 @@ class _LonLat extends Projection {
 
 @immutable
 class SphericalMercator extends Projection {
+  /// The radius
   static const int r = 6378137;
+
+  /// The maximum latitude
   static const double maxLatitude = 85.0511287798;
+
   static const double _boundsD = r * math.pi;
 
+  /// The constant Bounds of the [SphericalMercator] projection.
   static const Bounds<double> _bounds = Bounds<double>.unsafe(
     Point<double>(-_boundsD, -_boundsD),
     Point<double>(_boundsD, _boundsD),
   );
 
+  /// Constant constructor for the [SphericalMercator] projection.
   const SphericalMercator() : super(_bounds);
 
   static double projectLat(double latitude) {

@@ -25,9 +25,16 @@ class MapOptions {
   /// over [initialCenter]/[initialZoom].
   final CameraFit? initialCameraFit;
 
+  /// The minimum (smallest) zoom level of every layer. Each layer can specify
+  /// additional zoom level restrictions.
   final double? minZoom;
+
+  /// The maximum (highest) zoom level of every layer. Each layer can specify
+  /// additional zoom level restrictions.
   final double? maxZoom;
 
+  /// The background color of the [FlutterMap] widget, defaults to a
+  /// yellow grey-ish color.
   final Color backgroundColor;
 
   /// Callback that gets called when the user has performed a confirmed single
@@ -124,9 +131,10 @@ class MapOptions {
   /// manually applied to individual layers.
   final bool applyPointerTranslucencyToLayers;
 
+  /// Gesture and input options for the map widget.
   final InteractionOptions interactionOptions;
 
-  /// Constructor for the [MapOptions]. Set custom options or override
+  /// Create the map options for [FlutterMap]. Set custom options or override
   /// default values.
   const MapOptions({
     this.crs = const Epsg3857(),

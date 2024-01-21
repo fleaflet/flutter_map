@@ -11,6 +11,7 @@ import 'package:latlong2/latlong.dart';
 part 'painter.dart';
 part 'polyline.dart';
 
+/// A [Polyline] (aka. LineString) layer for [FlutterMap].
 @immutable
 class PolylineLayer<R extends Object> extends StatefulWidget {
   /// [Polyline]s to draw
@@ -58,6 +59,7 @@ class PolylineLayer<R extends Object> extends StatefulWidget {
   /// Defaults to 10.
   final double minimumHitbox;
 
+  /// Create a new [PolylineLayer] to use as child inside [FlutterMap.children].
   const PolylineLayer({
     super.key,
     required this.polylines,

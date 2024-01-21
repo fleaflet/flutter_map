@@ -7,6 +7,7 @@ import 'package:meta/meta.dart';
 class TileRangeCalculator {
   final double tileSize;
 
+  /// Create a new [TileRangeCalculator] instance.
   const TileRangeCalculator({required this.tileSize});
 
   /// Calculates the visible pixel bounds at the [tileZoom] zoom level when

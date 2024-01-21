@@ -58,7 +58,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
             'least once before using the MapController.'));
   }
 
-  /// Get the [MapCamera] from the controller state
+  /// Get the [MapCamera] from the controller state.
+  /// Prefer using `MapCamera.of(context)` if possible.
   @override
   MapCamera get camera {
     return value.camera ??
@@ -155,7 +156,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
         source: MapEventSource.mapController,
       );
 
-  /// Internal method, allows access to every parameter.
+  /// Internal endpoint to move the [MapCamera] and change zoom level.
   bool moveRaw(
     LatLng newCenter,
     double newZoom, {
@@ -204,7 +205,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     return true;
   }
 
-  /// Internal method, allows access to every parameter.
+  /// Internal endpoint to rotate the [MapCamera].
   bool rotateRaw(
     double newRotation, {
     required bool hasGesture,
@@ -234,7 +235,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     return true;
   }
 
-  /// Internal method, allows access to every parameter.
+  /// Internal endpoint to rotate around a point that is not in the center of
+  /// the map.
   bool rotateAroundPointRaw(
     double degree, {
     required Point<double>? point,
@@ -288,7 +290,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     return moved || rotated;
   }
 
-  /// Internal method, allows access to every parameter.
+  /// Internal endpoint to move, rotate and change zoom level
+  /// of the [MapCamera].
   /// Calls [moveRaw] and [rotateRaw].
   bool moveAndRotateRaw(
     LatLng newCenter,
@@ -316,7 +319,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     return moved || rotated;
   }
 
-  /// Internal method, allows access to every parameter.
+  /// Internal endpoint to fit the camera to a [CameraFit].
   bool fitCameraRaw(
     CameraFit cameraFit, {
     Offset offset = Offset.zero,
@@ -404,7 +407,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     );
   }
 
-  /// Internal method, allows access to every parameter.
+  /// Move and rotate the the map with an animation.
+  /// The raw method allows to set all parameters.
   void moveAndRotateAnimatedRaw(
     LatLng newCenter,
     double newZoom,
@@ -451,7 +455,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     _animationController.forward(from: 0);
   }
 
-  /// Internal method, allows access to every parameter.
+  /// Animated rotation of the map.
+  /// The raw method allows to set all parameters.
   void rotateAnimatedRaw(
     double newRotation, {
     required Offset offset,
@@ -479,11 +484,15 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     _animationController.forward(from: 0);
   }
 
-  /// Internal method, stops all ongoing animations of the [MapControllerImpl].
+  /// Stops all ongoing animations of the [MapControllerImpl].
+  /// This is commonly used by other gestures that should stop all
+  /// ongoing movement.
   void stopAnimationRaw({bool canceled = true}) {
     if (isAnimating) _animationController.stop(canceled: canceled);
   }
 
+  /// Getter that returns true if the [MapControllerImpl] performs a zoom,
+  /// drag or rotate animation.
   bool get isAnimating => _animationController.isAnimating;
 
   void _resetAnimations() {
@@ -493,7 +502,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     _flingAnimation = null;
   }
 
-  /// Internal method, allows access to every parameter.
+  /// Fling animation for the map.
+  /// The raw method allows to set all parameters.
   void flingAnimatedRaw({
     required double velocity,
     required Offset direction,
@@ -532,7 +542,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     );
   }
 
-  /// Internal method, allows access to every parameter.
+  /// Animated movement of the map.
+  /// The raw method allows to set all parameters.
   void moveAnimatedRaw(
     LatLng newCenter,
     double newZoom, {

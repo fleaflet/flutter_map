@@ -1,5 +1,6 @@
 part of 'tile_layer.dart';
 
+/// Strategies on how to handle tile errors
 enum EvictErrorTileStrategy {
   /// Never evict images for tiles which failed to load.
   none,
@@ -19,6 +20,7 @@ enum EvictErrorTileStrategy {
   notVisible,
 }
 
+/// Callback definition for the [TileLayer.errorTileCallback] option.
 typedef ErrorTileCallBack = void Function(
   TileImage tile,
   Object error,

@@ -6,3 +6,5 @@ linter:
   rules:
     # using the default parameter values are used as explanation and for showcase
     avoid_redundant_argument_values: false
+    # don't enforce documentation for the example app
+    public_member_api_docs: false
