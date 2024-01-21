@@ -4,6 +4,7 @@ part of 'base_services.dart';
 /// [MapOptions.onLongPress] callback.
 class LongPressGestureService extends _BaseGestureService
     implements _BaseLongPressGestureService {
+  /// Create a new service that handles long press gestures.
   LongPressGestureService({required super.controller});
 
   /// Called when a long press gesture with a primary button has been
@@ -27,6 +28,8 @@ class LongPressGestureService extends _BaseGestureService
 /// [MapOptions.onSecondaryLongPress] callback.
 class SecondaryLongPressGestureService extends _BaseGestureService
     implements _BaseLongPressGestureService {
+  /// Create a new service that handles long press gestures with the
+  /// secondary button.
   SecondaryLongPressGestureService({required super.controller});
 
   /// Called when a long press gesture with a primary button has been
@@ -50,6 +53,7 @@ class SecondaryLongPressGestureService extends _BaseGestureService
 /// [MapOptions.onTertiaryLongPress] callback.
 class TertiaryLongPressGestureService extends _BaseGestureService
     implements _BaseLongPressGestureService {
+  /// Creates a service that handles long press gestures by the tertiary button.
   TertiaryLongPressGestureService({required super.controller});
 
   /// A long press on the tertiary button has happen (e.g. click and hold on

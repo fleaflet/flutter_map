@@ -17,10 +17,12 @@ part of 'base_services.dart';
 class TrackpadLegacyZoomGestureService extends _BaseGestureService {
   static const _velocityAdjustment = 4.5;
 
+  /// Creates a service that handles the legacy trackpad zoom.
   TrackpadLegacyZoomGestureService({required super.controller});
 
   double get _velocity => _options.interactionOptions.trackpadZoomVelocity;
 
+  /// Called if a [PointerScaleEvent] gets submitted by the [Listener] widget.
   void submit(PointerScaleEvent details) {
     if (details.scale == 1) return;
 

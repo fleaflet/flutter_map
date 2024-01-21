@@ -5,6 +5,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
 import 'package:latlong2/latlong.dart';
 
+/// The map options are used to configure the map settings.
+/// It gets provided to the map widget as the [FlutterMap.options] parameter.
 @immutable
 class MapOptions {
   /// The Coordinate Reference System, defaults to [Epsg3857].

@@ -4,10 +4,13 @@ part of 'base_services.dart';
 /// and out with a single finger / one hand.
 class DoubleTapDragZoomGestureService extends _BaseGestureService
     implements _ProgressableGestureService {
+  /// Set to true if the [DoubleTapDragZoomGestureService] consumes the gesture
+  /// and prevents the normal double-tap logic from being executed.
   bool isActive = false;
   Offset? _focalLocalStart;
   double? _mapZoomStart;
 
+  /// Create a new service for the double-tap-drag-zoom gesture.
   DoubleTapDragZoomGestureService({required super.controller});
 
   /// Called when the gesture is started, stores important values.

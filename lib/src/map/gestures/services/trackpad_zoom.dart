@@ -12,12 +12,14 @@ class TrackpadZoomGestureService extends _BaseGestureService {
   LatLng? _startFocalLatLng;
   Offset? _lastLocalFocal;
 
+  /// Create a new service that handles trackpad zoom gestures.
   TrackpadZoomGestureService({required super.controller});
 
   double get _velocity => _options.interactionOptions.trackpadZoomVelocity;
 
   bool get _moveEnabled => _options.interactionOptions.gestures.drag;
 
+  /// Callback method for [Listener.onPointerPanZoomStart].
   void start(PointerPanZoomStartEvent details) {
     _lastScale = 1;
     _startLocalFocal = details.localPosition;
@@ -25,6 +27,7 @@ class TrackpadZoomGestureService extends _BaseGestureService {
     _lastLocalFocal = _startLocalFocal;
   }
 
+  /// Callback method for [Listener.onPointerPanZoomUpdate].
   void update(PointerPanZoomUpdateEvent details) {
     if (_startFocalLatLng == null ||
         _startLocalFocal == null ||
@@ -61,6 +64,7 @@ class TrackpadZoomGestureService extends _BaseGestureService {
     );
   }
 
+  /// Callback method for [Listener.onPointerPanZoomEnd].
   void end(PointerPanZoomEndEvent details) {
     _startLocalFocal = null;
     _startFocalLatLng = null;

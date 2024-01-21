@@ -9,8 +9,10 @@ class DragGestureService extends _BaseGestureService
 
   bool get _flingEnabled => _options.interactionOptions.gestures.flingAnimation;
 
+  /// Create a new service to handle drag gestures.
   DragGestureService({required super.controller});
 
+  /// Returns true if the screen currently gets dragged.
   bool get isActive => _lastLocalFocal != null;
 
   /// Called when the gesture is started, stores important values.

@@ -41,6 +41,8 @@ class TwoFingerGesturesService extends _BaseGestureService
   double get _zoomThreshold =>
       _options.interactionOptions.twoFingerZoomThreshold;
 
+  /// Create a new two-finger gesture service that handels all multi-point
+  /// touchscreen gestures.
   TwoFingerGesturesService({required super.controller});
 
   /// Initialize gesture, called when gesture has started.

@@ -2,6 +2,7 @@ part of 'base_services.dart';
 
 /// Service to handle the scroll wheel gesture to zoom the map in or out.
 class ScrollWheelZoomGestureService extends _BaseGestureService {
+  /// Creates a service that handles scroll wheel zooming.
   ScrollWheelZoomGestureService({required super.controller});
 
   /// Shortcut for the zoom velocity of the scroll wheel

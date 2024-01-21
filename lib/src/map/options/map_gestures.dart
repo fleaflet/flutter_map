@@ -1,6 +1,7 @@
 import 'package:flutter_map/flutter_map.dart';
 import 'package:meta/meta.dart';
 
+/// The available map gestures to move, zoom or rotate the map.
 @immutable
 class MapGestures {
   /// Use this constructor if you want to set all gestures manually.
@@ -257,6 +258,8 @@ abstract class InteractiveFlag {
       trackpadZoom |
       keyTriggerDragRotate;
 
+  /// No enabled interactive flags, use as `flags: InteractiveFlag.none` to
+  /// have a non interactive map.
   static const int none = 0;
 
   /// Enable panning with a single finger or cursor
@@ -267,16 +270,22 @@ abstract class InteractiveFlag {
 
   /// Enable panning with multiple fingers
   static const int twoFingerMove = 1 << 2;
+
+  /// Enable panning with multiple fingers
   @Deprecated('Renamed to twoFingerMove')
   static const int pinchMove = twoFingerMove;
 
   /// Enable zooming with a multi-finger pinch gesture
   static const int twoFingerZoom = 1 << 3;
+
+  /// Enable zooming with a multi-finger pinch gesture
   @Deprecated('Renamed to twoFingerZoom')
   static const int pinchZoom = twoFingerZoom;
 
   /// Enable zooming with a single-finger double tap gesture
   static const int doubleTapZoomIn = 1 << 4;
+
+  /// Enable zooming with a single-finger double tap gesture
   @Deprecated('Renamed to doubleTapZoomIn')
   static const int doubleTapZoom = doubleTapZoomIn;
 
@@ -293,6 +302,8 @@ abstract class InteractiveFlag {
   /// For controlling cursor/keyboard rotation, see
   /// [InteractionOptions.cursorKeyboardRotationOptions].
   static const int twoFingerRotate = 1 << 7;
+
+  /// Enable rotation with two-finger twist gesture.
   @Deprecated('Renamed to twoFingerRotate')
   static const int rotate = twoFingerRotate;
 
