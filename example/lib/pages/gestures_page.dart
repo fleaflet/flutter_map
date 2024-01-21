@@ -25,6 +25,7 @@ class _GesturesPageState extends State<GesturesPage> {
       InteractiveFlag.scrollWheelZoom: 'Scroll',
       InteractiveFlag.doubleTapZoomIn: 'Double tap',
       InteractiveFlag.doubleTapDragZoom: 'Double tap+drag',
+      InteractiveFlag.trackpadZoom: 'Touchpad zoom',
     },
     'Rotation': {
       InteractiveFlag.twoFingerRotate: 'Twist',
