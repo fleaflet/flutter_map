@@ -64,8 +64,8 @@ class MapGestures {
   /// - [zoom] includes all gestures that alter [MapCamera.zoom].
   /// - [rotate] includes all gestures that alter [MapCamera.rotation].
   ///
-  /// - Use [MapGestures.allGroups] to follow an blacklist approach.
-  /// - Use [MapGestures.noGroups] to follow an whitelist approach.
+  /// - Use [MapGestures.allByGroup] to follow an blacklist approach.
+  /// - Use [MapGestures.noneByGroup] to follow an whitelist approach.
   const MapGestures.byGroup({
     required bool move,
     required bool zoom,
@@ -90,8 +90,8 @@ class MapGestures {
   ///
   /// Every group is enabled by defaults when using this
   /// constructor (blacklist approach). If you want to allow only certain
-  /// groups, use [MapGestures.noGroups] instead.
-  const MapGestures.allGroups({
+  /// groups, use [MapGestures.noneByGroup] instead.
+  const MapGestures.allByGroup({
     bool move = true,
     bool zoom = true,
     bool rotate = true,
@@ -104,8 +104,8 @@ class MapGestures {
   ///
   /// Every group is disabled by default when using this
   /// constructor (whitelist approach). If you want to allow only certain
-  /// groups, use [MapGestures.allGroups] instead.
-  const MapGestures.noneGroups({
+  /// groups, use [MapGestures.allByGroup] instead.
+  const MapGestures.noneByGroup({
     bool move = false,
     bool zoom = false,
     bool rotate = false,
