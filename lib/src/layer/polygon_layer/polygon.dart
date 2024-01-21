@@ -77,24 +77,6 @@ class Polygon {
   }) : _filledAndClockwise =
             (isFilled ?? (color != null)) && isClockwise(points);
 
-  Polygon copyWithNewPoints(List<LatLng> points) => Polygon(
-        points: points,
-        holePointsList: holePointsList,
-        color: color,
-        borderStrokeWidth: borderStrokeWidth,
-        borderColor: borderColor,
-        disableHolesBorder: disableHolesBorder,
-        isDotted: isDotted,
-        // ignore: deprecated_member_use_from_same_package
-        isFilled: isFilled,
-        strokeCap: strokeCap,
-        strokeJoin: strokeJoin,
-        label: label,
-        labelStyle: labelStyle,
-        labelPlacement: labelPlacement,
-        rotateLabel: rotateLabel,
-      );
-
   static bool isClockwise(List<LatLng> points) {
     double sum = 0;
     for (int i = 0; i < points.length; ++i) {

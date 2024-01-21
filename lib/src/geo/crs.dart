@@ -29,10 +29,15 @@ abstract class Crs {
     this.wrapLat,
   });
 
+  /// Project a spherical LatLng coordinate into planar space (unscaled).
   Projection get projection;
 
-  /// Converts a point on the sphere surface (with a certain zoom) in a
-  /// map point.
+  /// Scale planar coordinate to scaled map point.
+  (double, double) transform(double x, double y, double scale);
+  (double, double) untransform(double x, double y, double scale);
+
+  /// Converts a point on the sphere surface (with a certain zoom) to a
+  /// scaled map point.
   (double, double) latLngToXY(LatLng latlng, double scale);
 
   Point<double> latLngToPoint(LatLng latlng, double zoom) {
@@ -53,33 +58,42 @@ abstract class Crs {
   Bounds<double>? getProjectedBounds(double zoom);
 }
 
+/// Internal base class for CRS with a single zoom-level independent transformation.
 @immutable
-abstract class _CrsWithStaticTransformation extends Crs {
+@internal
+abstract class CrsWithStaticTransformation extends Crs {
   @nonVirtual
   @protected
-  final _Transformation transformation;
+  final _Transformation _transformation;
 
   @override
   final Projection projection;
 
-  const _CrsWithStaticTransformation({
-    required this.transformation,
+  const CrsWithStaticTransformation._({
+    required _Transformation transformation,
     required this.projection,
     required super.code,
     required super.infinite,
     super.wrapLng,
     super.wrapLat,
-  });
+  }) : _transformation = transformation;
+
+  @override
+  (double, double) transform(double x, double y, double scale) =>
+      _transformation.transform(x, y, scale);
+  @override
+  (double, double) untransform(double x, double y, double scale) =>
+      _transformation.untransform(x, y, scale);
 
   @override
   (double, double) latLngToXY(LatLng latlng, double scale) {
     final (x, y) = projection.projectXY(latlng);
-    return transformation.transform(x, y, scale);
+    return _transformation.transform(x, y, scale);
   }
 
   @override
   LatLng pointToLatLng(Point point, double zoom) {
-    final (x, y) = transformation.untransform(
+    final (x, y) = _transformation.untransform(
       point.x.toDouble(),
       point.y.toDouble(),
       scale(zoom),
@@ -93,8 +107,8 @@ abstract class _CrsWithStaticTransformation extends Crs {
 
     final b = projection.bounds!;
     final s = scale(zoom);
-    final (minx, miny) = transformation.transform(b.min.x, b.min.y, s);
-    final (maxx, maxy) = transformation.transform(b.max.x, b.max.y, s);
+    final (minx, miny) = _transformation.transform(b.min.x, b.min.y, s);
+    final (maxx, maxy) = _transformation.transform(b.max.x, b.max.y, s);
     return Bounds<double>(
       Point<double>(minx, miny),
       Point<double>(maxx, maxy),
@@ -104,9 +118,9 @@ abstract class _CrsWithStaticTransformation extends Crs {
 
 // Custom CRS for non geographical maps
 @immutable
-class CrsSimple extends _CrsWithStaticTransformation {
+class CrsSimple extends CrsWithStaticTransformation {
   const CrsSimple()
-      : super(
+      : super._(
           code: 'CRS.SIMPLE',
           transformation: const _Transformation(1, 0, -1, 0),
           projection: const _LonLat(),
@@ -118,11 +132,11 @@ class CrsSimple extends _CrsWithStaticTransformation {
 
 /// The most common CRS used for rendering maps.
 @immutable
-class Epsg3857 extends _CrsWithStaticTransformation {
+class Epsg3857 extends CrsWithStaticTransformation {
   static const double _scale = 0.5 / (math.pi * SphericalMercator.r);
 
   const Epsg3857()
-      : super(
+      : super._(
           code: 'EPSG:3857',
           transformation: const _Transformation(_scale, 0.5, -_scale, 0.5),
           projection: const SphericalMercator(),
@@ -132,12 +146,15 @@ class Epsg3857 extends _CrsWithStaticTransformation {
 
   @override
   (double, double) latLngToXY(LatLng latlng, double scale) =>
-      transformation.transform(SphericalMercator.projectLng(latlng.longitude),
-          SphericalMercator.projectLat(latlng.latitude), scale);
+      _transformation.transform(
+        SphericalMercator.projectLng(latlng.longitude),
+        SphericalMercator.projectLat(latlng.latitude),
+        scale,
+      );
 
   @override
   Point<double> latLngToPoint(LatLng latlng, double zoom) {
-    final (x, y) = transformation.transform(
+    final (x, y) = _transformation.transform(
       SphericalMercator.projectLng(latlng.longitude),
       SphericalMercator.projectLat(latlng.latitude),
       scale(zoom),
@@ -148,9 +165,9 @@ class Epsg3857 extends _CrsWithStaticTransformation {
 
 /// A common CRS among GIS enthusiasts. Uses simple Equirectangular projection.
 @immutable
-class Epsg4326 extends _CrsWithStaticTransformation {
+class Epsg4326 extends CrsWithStaticTransformation {
   const Epsg4326()
-      : super(
+      : super._(
           projection: const _LonLat(),
           transformation: const _Transformation(1 / 180, 1, -1 / 180, 0.5),
           code: 'EPSG:4326',
@@ -221,6 +238,13 @@ class Proj4Crs extends Crs {
       scales: finalScales,
     );
   }
+
+  @override
+  (double, double) transform(double x, double y, double scale) =>
+      _getTransformationByZoom(zoom(scale)).transform(x, y, scale);
+  @override
+  (double, double) untransform(double x, double y, double scale) =>
+      _getTransformationByZoom(zoom(scale)).untransform(x, y, scale);
 
   /// Converts a point on the sphere surface (with a certain zoom) in a
   /// map point.

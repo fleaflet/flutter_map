@@ -14,14 +14,16 @@ class FakeInfiniteCrs extends Crs {
 
   /// Any projection just to get non-zero coordiantes.
   @override
-  Point<double> latLngToPoint(LatLng latlng, double zoom) {
-    return const Epsg3857().latLngToPoint(latlng, zoom);
-  }
+  (double, double) latLngToXY(LatLng latlng, double scale) =>
+      const Epsg3857().latLngToXY(latlng, scale);
 
   @override
-  (double, double) latLngToXY(LatLng latlng, double scale) {
-    return const Epsg3857().latLngToXY(latlng, scale);
-  }
+  (double, double) transform(double x, double y, double scale) =>
+      const Epsg3857().transform(x, y, scale);
+
+  @override
+  (double, double) untransform(double x, double y, double scale) =>
+      const Epsg3857().untransform(x, y, scale);
 
   @override
   LatLng pointToLatLng(Point point, double zoom) => throw UnimplementedError();
