@@ -16,7 +16,7 @@ class TrackpadZoomGestureService extends _BaseGestureService {
 
   double get _velocity => _options.interactionOptions.trackpadZoomVelocity;
 
-  bool get _moveEnabled => _options.interactionOptions.enabledGestures.drag;
+  bool get _moveEnabled => _options.interactionOptions.gestures.drag;
 
   void start(PointerPanZoomStartEvent details) {
     _lastScale = 1;

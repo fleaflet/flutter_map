@@ -48,7 +48,7 @@ class _LatLngToScreenPointPageState extends State<LatLngToScreenPointPage> {
               initialCenter: const LatLng(51.5, -0.09),
               initialZoom: 11,
               interactionOptions: const InteractionOptions(
-                enabledGestures: EnabledGestures.all(
+                gestures: MapGestures.all(
                   doubleTapZoomIn: false,
                   doubleTapDragZoom: false,
                 ),

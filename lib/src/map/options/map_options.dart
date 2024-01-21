@@ -32,7 +32,7 @@ class MapOptions {
 
   /// Callback that gets called when the user has performed a confirmed single
   /// tap or click on the map. If double tap gestures are enabled in
-  /// [InteractionOptions.enabledGestures], the callback waits until the
+  /// [InteractionOptions.gestures], the callback waits until the
   /// double-tap delay has passed by and the tap gesture is confirmed.
   final TapCallback? onTap;
 

@@ -2,7 +2,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:meta/meta.dart';
 
 @immutable
-class EnabledGestures {
+class MapGestures {
   /// Use this constructor if you want to set all gestures manually.
   ///
   /// Prefer to use the constructors [InteractiveFlags.all] or
@@ -10,7 +10,7 @@ class EnabledGestures {
   ///
   /// If you want to define your enabled gestures using bitfield operations,
   /// use [InteractiveFlags.bitfield] instead.
-  const EnabledGestures({
+  const MapGestures({
     required this.drag,
     required this.flingAnimation,
     required this.twoFingerMove,
@@ -24,7 +24,7 @@ class EnabledGestures {
   });
 
   /// Shortcut constructor to allow all gestures that don't rotate the map.
-  const EnabledGestures.noRotation()
+  const MapGestures.noRotation()
       : this.byGroup(move: true, zoom: true, rotate: false);
 
   /// This constructor enables all gestures by default. Use this constructor if
@@ -32,7 +32,7 @@ class EnabledGestures {
   ///
   /// In case you want have no or only few gestures enabled use the
   /// [InteractiveFlags.none] constructor instead.
-  const EnabledGestures.all({
+  const MapGestures.all({
     this.drag = true,
     this.flingAnimation = true,
     this.twoFingerMove = true,
@@ -50,7 +50,7 @@ class EnabledGestures {
   ///
   /// In case you want have most or all of the gestures enabled use the
   /// [InteractiveFlags.all] constructor instead.
-  const EnabledGestures.none({
+  const MapGestures.none({
     this.drag = false,
     this.flingAnimation = false,
     this.twoFingerMove = false,
@@ -65,8 +65,8 @@ class EnabledGestures {
 
   /// This constructor supports bitfield operations on the static fields
   /// from [InteractiveFlag].
-  factory EnabledGestures.bitfield(int flags) {
-    return EnabledGestures(
+  factory MapGestures.bitfield(int flags) {
+    return MapGestures(
       drag: InteractiveFlag.hasFlag(flags, InteractiveFlag.drag),
       flingAnimation:
           InteractiveFlag.hasFlag(flags, InteractiveFlag.flingAnimation),
@@ -127,8 +127,8 @@ class EnabledGestures {
   bool hasMultiFinger() => twoFingerMove || twoFingerZoom || twoFingerRotate;
 
   /// Wither to change the value of some gestures. Returns a new
-  /// [EnabledGestures] object.
-  EnabledGestures copyWith({
+  /// [MapGestures] object.
+  MapGestures copyWith({
     bool? drag,
     bool? flingAnimation,
     bool? twoFingerZoom,
@@ -140,7 +140,7 @@ class EnabledGestures {
     bool? keyTriggerDragRotate,
     bool? trackpadZoom,
   }) =>
-      EnabledGestures(
+      MapGestures(
         drag: drag ?? this.drag,
         flingAnimation: flingAnimation ?? this.flingAnimation,
         twoFingerZoom: twoFingerZoom ?? this.twoFingerZoom,
@@ -153,7 +153,7 @@ class EnabledGestures {
         trackpadZoom: trackpadZoom ?? this.trackpadZoom,
       );
 
-  const EnabledGestures.byGroup({
+  const MapGestures.byGroup({
     required bool move,
     required bool zoom,
     required bool rotate,
@@ -173,7 +173,7 @@ class EnabledGestures {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is EnabledGestures &&
+      other is MapGestures &&
           runtimeType == other.runtimeType &&
           drag == other.drag &&
           flingAnimation == other.flingAnimation &&

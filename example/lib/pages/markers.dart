@@ -114,7 +114,7 @@ class _MarkerPageState extends State<MarkerPage> {
                   setState(() => customMarkers.add(buildPin(p)));
                 },
                 interactionOptions: const InteractionOptions(
-                    enabledGestures: EnabledGestures.all(
+                    gestures: MapGestures.all(
                   doubleTapDragZoom: false,
                   doubleTapZoomIn: false,
                 )),

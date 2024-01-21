@@ -217,7 +217,7 @@ class _TestRebuildsAppState extends State<TestRebuildsApp> {
   Crs _crs = const Epsg3857();
 
   /// double tap gestures delay the tap gestures, disable them here
-  EnabledGestures _interactiveFlags = const EnabledGestures.all(
+  MapGestures _interactiveFlags = const MapGestures.all(
     doubleTapZoomIn: false,
     doubleTapDragZoom: false,
   );
@@ -237,7 +237,7 @@ class _TestRebuildsAppState extends State<TestRebuildsApp> {
           options: MapOptions(
             crs: _crs,
             interactionOptions: InteractionOptions(
-              enabledGestures: _interactiveFlags,
+              gestures: _interactiveFlags,
             ),
           ),
           children: [

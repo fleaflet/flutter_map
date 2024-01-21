@@ -109,7 +109,7 @@ class _GesturesPageState extends State<GesturesPage> {
                   initialCenter: const LatLng(51.5, -0.09),
                   initialZoom: 11,
                   interactionOptions: InteractionOptions(
-                    enabledGestures: EnabledGestures.bitfield(flags),
+                    gestures: MapGestures.bitfield(flags),
                   ),
                 ),
                 children: [openStreetMapTileLayer],

@@ -363,8 +363,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     if (value.options != null &&
         value.options!.interactionOptions != newOptions.interactionOptions) {
       _interactiveViewerState.updateGestures(
-        value.options!.interactionOptions.enabledGestures,
-        newOptions.interactionOptions.enabledGestures,
+        value.options!.interactionOptions.gestures,
+        newOptions.interactionOptions.gestures,
       );
     }
 

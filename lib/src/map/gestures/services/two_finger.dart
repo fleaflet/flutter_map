@@ -1,9 +1,9 @@
 part of 'base_services.dart';
 
 /// A gesture with multiple inputs. This service handles the following gestures:
-/// - [EnabledGestures.twoFingerMove]
-/// - [EnabledGestures.twoFingerZoom]
-/// - [EnabledGestures.twoFingerRotate]
+/// - [MapGestures.twoFingerMove]
+/// - [MapGestures.twoFingerZoom]
+/// - [MapGestures.twoFingerRotate]
 class TwoFingerGesturesService extends _BaseGestureService
     implements _ProgressableGestureService {
   MapCamera? _startCamera;
@@ -19,20 +19,18 @@ class TwoFingerGesturesService extends _BaseGestureService
   bool _moving = false;
   bool _rotating = false;
 
-  /// Getter as shortcut to check if [EnabledGestures.twoFingerMove]
+  /// Getter as shortcut to check if [MapGestures.twoFingerMove]
   /// is enabled.
-  bool get _moveEnabled =>
-      _options.interactionOptions.enabledGestures.twoFingerMove;
+  bool get _moveEnabled => _options.interactionOptions.gestures.twoFingerMove;
 
-  /// Getter as shortcut to check if [EnabledGestures.twoFingerRotate]
+  /// Getter as shortcut to check if [MapGestures.twoFingerRotate]
   /// is enabled.
   bool get _rotateEnabled =>
-      _options.interactionOptions.enabledGestures.twoFingerRotate;
+      _options.interactionOptions.gestures.twoFingerRotate;
 
-  /// Getter as shortcut to check if [EnabledGestures.twoFingerZoom]
+  /// Getter as shortcut to check if [MapGestures.twoFingerZoom]
   /// is enabled.
-  bool get _zoomEnabled =>
-      _options.interactionOptions.enabledGestures.twoFingerZoom;
+  bool get _zoomEnabled => _options.interactionOptions.gestures.twoFingerZoom;
 
   double get _rotateThreshold =>
       _options.interactionOptions.twoFingerRotateThreshold;

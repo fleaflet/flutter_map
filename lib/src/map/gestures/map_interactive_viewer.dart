@@ -74,7 +74,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
           TertiaryLongPressGestureService(controller: _controller);
     }
     // gestures that change the map camera
-    updateGestures(null, _interactionOptions.enabledGestures);
+    updateGestures(null, _interactionOptions.gestures);
   }
 
   /// Called when the widgets gets disposed, used to clean up Stream listeners
@@ -246,33 +246,33 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   }
 
   /// Used by the internal map controller to update interaction gestures
-  void updateGestures(EnabledGestures? oldFlags, EnabledGestures newFlags) {
-    if (oldFlags == newFlags) return;
-    if (newFlags.hasMultiFinger()) {
+  void updateGestures(MapGestures? oldGestures, MapGestures newGestures) {
+    if (oldGestures == newGestures) return;
+    if (newGestures.hasMultiFinger()) {
       _twoFingerInput = TwoFingerGesturesService(controller: _controller);
     } else {
       _twoFingerInput = null;
     }
 
-    if (newFlags.drag) {
+    if (newGestures.drag) {
       _drag = DragGestureService(controller: _controller);
     } else {
       _drag = null;
     }
 
-    if (newFlags.doubleTapZoomIn) {
+    if (newGestures.doubleTapZoomIn) {
       _doubleTap = DoubleTapGestureService(controller: _controller);
     } else {
       _doubleTap = null;
     }
 
-    if (newFlags.scrollWheelZoom) {
+    if (newGestures.scrollWheelZoom) {
       _scrollWheelZoom = ScrollWheelZoomGestureService(controller: _controller);
     } else {
       _scrollWheelZoom = null;
     }
 
-    if (newFlags.trackpadZoom) {
+    if (newGestures.trackpadZoom) {
       _trackpadZoom = TrackpadZoomGestureService(controller: _controller);
       _trackpadLegacyZoom =
           TrackpadLegacyZoomGestureService(controller: _controller);
@@ -281,7 +281,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       _trackpadLegacyZoom = null;
     }
 
-    if (newFlags.keyTriggerDragRotate) {
+    if (newGestures.keyTriggerDragRotate) {
       _keyTriggerDragRotate = KeyTriggerDragRotateGestureService(
         controller: _controller,
         keys: _options.interactionOptions.keyTriggerDragRotateKeys,
@@ -290,7 +290,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       _keyTriggerDragRotate = null;
     }
 
-    if (newFlags.doubleTapDragZoom) {
+    if (newGestures.doubleTapDragZoom) {
       _doubleTapDragZoom =
           DoubleTapDragZoomGestureService(controller: _controller);
     } else {

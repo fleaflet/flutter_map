@@ -1,23 +1,23 @@
 import 'package:flutter/services.dart';
-import 'package:flutter_map/src/map/options/enabled_gestures.dart';
+import 'package:flutter_map/src/map/options/map_gestures.dart';
 import 'package:meta/meta.dart';
 
 /// Set interation options for input gestures.
-/// Most commonly used is [InteractionOptions.enabledGestures].
+/// Most commonly used is [InteractionOptions.gestures].
 @immutable
 final class InteractionOptions {
   /// Enable or disable specific gestures. By default all gestures are enabled.
   /// If you want to disable all gestures or almost all gestures, use the
-  /// [EnabledGestures.none] constructor.
-  /// In case you want to disable only few gestures, use [EnabledGestures.all]
-  /// and you can use the [EnabledGestures.noRotation] for an easy way to
+  /// [MapGestures.none] constructor.
+  /// In case you want to disable only few gestures, use [MapGestures.all]
+  /// and you can use the [MapGestures.noRotation] for an easy way to
   /// disable all rotation gestures.
   ///
   /// In addition you can specify your gestures via bitfield operations using
-  /// the [EnabledGestures.bitfield] constructor together with the static
+  /// the [MapGestures.bitfield] constructor together with the static
   /// fields in [InteractiveFlag].
   /// For more information see the documentation on [InteractiveFlag].
-  final EnabledGestures enabledGestures;
+  final MapGestures gestures;
 
   /// Map starts to rotate when [twoFingerRotateThreshold] has been achieved
   /// or another multi finger gesture wins.
@@ -34,7 +34,7 @@ final class InteractionOptions {
   /// gestures by a single pointer like a single finger.
   ///
   /// This option gets superseded by [twoFingerZoomThreshold] if
-  /// [EnabledGestures.twoFingerMove] and [EnabledGestures.twoFingerZoom] are
+  /// [MapGestures.twoFingerMove] and [MapGestures.twoFingerZoom] are
   /// both active and the [twoFingerZoomThreshold] is reached.
   ///
   /// Default is 3.0.
@@ -66,7 +66,7 @@ final class InteractionOptions {
   ];
 
   const InteractionOptions({
-    this.enabledGestures = const EnabledGestures.all(),
+    this.gestures = const MapGestures.all(),
     this.twoFingerRotateThreshold = 0.1,
     this.twoFingerZoomThreshold = 0.01,
     this.twoFingerMoveThreshold = 3.0,
@@ -90,7 +90,7 @@ final class InteractionOptions {
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is InteractionOptions &&
-          enabledGestures == other.enabledGestures &&
+          gestures == other.gestures &&
           twoFingerRotateThreshold == other.twoFingerRotateThreshold &&
           twoFingerZoomThreshold == other.twoFingerZoomThreshold &&
           twoFingerMoveThreshold == other.twoFingerMoveThreshold &&
@@ -99,7 +99,7 @@ final class InteractionOptions {
 
   @override
   int get hashCode => Object.hash(
-        enabledGestures,
+        gestures,
         twoFingerRotateThreshold,
         twoFingerZoomThreshold,
         twoFingerMoveThreshold,
