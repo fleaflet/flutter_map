@@ -248,7 +248,9 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   /// Used by the internal map controller to update interaction gestures
   void updateGestures(MapGestures? oldGestures, MapGestures newGestures) {
     if (oldGestures == newGestures) return;
-    if (newGestures.hasMultiFinger()) {
+    if (newGestures.twoFingerMove ||
+        newGestures.twoFingerZoom ||
+        newGestures.twoFingerRotate) {
       _twoFingerInput = TwoFingerGesturesService(controller: _controller);
     } else {
       _twoFingerInput = null;

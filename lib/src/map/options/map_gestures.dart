@@ -123,9 +123,6 @@ class MapGestures {
   /// or finger.
   final bool keyTriggerDragRotate;
 
-  /// Returns true of any gesture with more than one finger is enabled.
-  bool hasMultiFinger() => twoFingerMove || twoFingerZoom || twoFingerRotate;
-
   /// Wither to change the value of some gestures. Returns a new
   /// [MapGestures] object.
   MapGestures copyWith({
