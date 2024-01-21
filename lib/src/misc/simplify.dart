@@ -125,29 +125,6 @@ List<DoublePoint> simplifyDouglasPeucker(
   return simplified;
 }
 
-List<LatLng> simplify({
-  required List<LatLng> points,
-  required double tolerance,
-  required bool highQuality,
-}) {
-  // Don't simplify anything less than a square
-  if (points.length <= 4) return points;
-
-  List<DoublePoint> nextPoints = List<DoublePoint>.generate(
-    points.length,
-    (i) => DoublePoint(points[i].longitude, points[i].latitude),
-  );
-  final double sqTolerance = tolerance * tolerance;
-  nextPoints = highQuality
-      ? simplifyDouglasPeucker(nextPoints, sqTolerance)
-      : simplifyRadialDist(nextPoints, sqTolerance);
-
-  return List<LatLng>.generate(
-    nextPoints.length,
-    (i) => LatLng(nextPoints[i].y, nextPoints[i].x),
-  );
-}
-
 List<DoublePoint> simplifyPoints({
   required final List<DoublePoint> points,
   required double tolerance,

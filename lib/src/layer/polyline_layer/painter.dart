@@ -3,7 +3,7 @@ part of 'polyline_layer.dart';
 /// [CustomPainter] for [Polygon]s.
 class _PolylinePainter<R extends Object> extends CustomPainter {
   /// Reference to the list of [Polyline]s.
-  final List<Polyline<R>> polylines;
+  final List<_ProjectedPolyline> polylines;
 
   /// Reference to the [MapCamera].
   final MapCamera camera;
@@ -20,18 +20,6 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
     required this.minimumHitbox,
   });
 
-  List<Offset> getOffsets(Offset origin, List<LatLng> points) => List.generate(
-        points.length,
-        (index) => getOffset(origin, points[index]),
-        growable: false,
-      );
-
-  Offset getOffset(Offset origin, LatLng point) {
-    // Critically create as little garbage as possible. This is called on every frame.
-    final projected = camera.project(point);
-    return Offset(projected.x - origin.dx, projected.y - origin.dy);
-  }
-
   @override
   bool? hitTest(Offset position) {
     if (hitNotifier == null) return null;
@@ -41,8 +29,11 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
     final origin =
         camera.project(camera.center).toOffset() - camera.size.toOffset() / 2;
 
-    for (final polyline in polylines.reversed) {
-      if (polyline.hitValue == null) continue;
+    for (final projectedPolyline in polylines.reversed) {
+      final polyline = projectedPolyline.polyline as Polyline<R>;
+      if (polyline.hitValue == null) {
+        continue;
+      }
 
       // TODO: For efficiency we'd ideally filter by bounding box here. However
       // we'd need to compute an extended bounding box that accounts account for
@@ -51,7 +42,7 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
       //   continue;
       // }
 
-      final offsets = getOffsets(origin, polyline.points);
+      final offsets = getOffsetsXY(camera, origin, projectedPolyline.points);
       final strokeWidth = polyline.useStrokeWidthInMeter
           ? _metersToStrokeWidth(
               origin,
@@ -141,8 +132,9 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
     final origin =
         camera.project(camera.center).toOffset() - camera.size.toOffset() / 2;
 
-    for (final polyline in polylines) {
-      final offsets = getOffsets(origin, polyline.points);
+    for (final projectedPolyline in polylines) {
+      final polyline = projectedPolyline.polyline;
+      final offsets = getOffsetsXY(camera, origin, projectedPolyline.points);
       if (offsets.isEmpty) {
         continue;
       }
@@ -281,7 +273,7 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
     double strokeWidthInMeters,
   ) {
     final r = _distance.offset(p0, strokeWidthInMeters, 180);
-    final delta = o0 - getOffset(origin, r);
+    final delta = o0 - getOffset(camera, origin, r);
     return delta.distance;
   }
 
