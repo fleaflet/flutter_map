@@ -102,8 +102,8 @@ abstract class MapController {
   /// The emitted [MapEventRotate.source]/[MapEventMove.source] properties will
   /// be [MapEventSource.mapController].
   ///
-  /// The operation was successful if both fields of the resulting record are
-  /// `true`.
+  /// Returns `true` unless the [degree] parameter patches the
+  /// current [MapCamera.rotation] value.
   bool rotateAroundPoint(
     double degree, {
     Point<double>? point,
@@ -116,10 +116,11 @@ abstract class MapController {
   ///
   /// Does not support offsets or rotations around custom points.
   ///
-  /// See documentation on those methods for more details.
+  /// This method calls the internal [MapControllerImpl.moveAndRotateRaw]. The
+  /// emitted events will have [MapEventSource.mapController] as event source.
   ///
-  /// The operation was successful if both fields of the resulting record are
-  /// `true`.
+  /// Returns `true` unless [center], [zoom] and [degree] matched the current
+  /// value in [MapCamera].
   bool moveAndRotate(
     LatLng center,
     double zoom,
@@ -128,6 +129,9 @@ abstract class MapController {
   });
 
   /// Move and zoom the map to fit [cameraFit].
+  ///
+  /// This method calls the internal [MapControllerImpl.fitCameraRaw]. The
+  /// emitted events will have [MapEventSource.mapController] as event source.
   ///
   /// For information about the return value and emitted events, see [move]'s
   /// documentation.
