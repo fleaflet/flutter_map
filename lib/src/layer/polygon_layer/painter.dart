@@ -1,11 +1,10 @@
 part of 'polygon_layer.dart';
 
-/// The [PolygonPainter] class is used to render [Polygon]s for
+/// The [_PolygonPainter] class is used to render [Polygon]s for
 /// the [PolygonLayer].
-class PolygonPainter extends CustomPainter {
-  /// Reference to the [Polygon]s list.
-  final List<Polygon> polygons;
-
+class _PolygonPainter extends CustomPainter {
+  /// Reference to the list of [_ProjectedPolygon]s
+  final List<_ProjectedPolygon> polygons;
   /// Reference to the [MapCamera].
   final MapCamera camera;
 
@@ -15,8 +14,8 @@ class PolygonPainter extends CustomPainter {
   final bool polygonLabels;
   final bool drawLabelsLast;
 
-  /// Create a new [PolygonPainter] instance.
-  PolygonPainter({
+  /// Create a new [_PolygonPainter] instance.
+  _PolygonPainter({
     required this.polygons,
     required this.camera,
     required this.polygonLabels,
@@ -26,22 +25,10 @@ class PolygonPainter extends CustomPainter {
   ({Offset min, Offset max}) getBounds(Offset origin, Polygon polygon) {
     final bbox = polygon.boundingBox;
     return (
-      min: getOffset(origin, bbox.southWest),
-      max: getOffset(origin, bbox.northEast),
+      min: getOffset(camera, origin, bbox.southWest),
+      max: getOffset(camera, origin, bbox.northEast),
     );
   }
-
-  Offset getOffset(Offset origin, LatLng point) {
-    // Critically create as little garbage as possible. This is called on every frame.
-    final projected = camera.project(point);
-    return Offset(projected.x - origin.dx, projected.y - origin.dy);
-  }
-
-  List<Offset> getOffsets(Offset origin, List<LatLng> points) => List.generate(
-        points.length,
-        (index) => getOffset(origin, points[index]),
-        growable: false,
-      );
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -82,11 +69,12 @@ class PolygonPainter extends CustomPainter {
     final origin = (camera.project(camera.center) - camera.size / 2).toOffset();
 
     // Main loop constructing batched fill and border paths from given polygons.
-    for (final polygon in polygons) {
-      if (polygon.points.isEmpty) {
+    for (final projectedPolygon in polygons) {
+      if (projectedPolygon.points.isEmpty) {
         continue;
       }
-      final offsets = getOffsets(origin, polygon.points);
+      final polygon = projectedPolygon.polygon;
+      final offsets = getOffsetsXY(camera, origin, projectedPolygon.points);
 
       // The hash is based on the polygons visual properties. If the hash from
       // the current and the previous polygon no longer match, we need to flush
@@ -119,7 +107,7 @@ class PolygonPainter extends CustomPainter {
 
         final holeOffsetsList = List<List<Offset>>.generate(
           holePointsList.length,
-          (i) => getOffsets(origin, holePointsList[i]),
+          (i) => getOffsets(camera, origin, holePointsList[i]),
           growable: false,
         );
 
@@ -164,10 +152,11 @@ class PolygonPainter extends CustomPainter {
     drawPaths();
 
     if (polygonLabels && drawLabelsLast) {
-      for (final polygon in polygons) {
-        if (polygon.points.isEmpty) {
+      for (final projectedPolygon in polygons) {
+        if (projectedPolygon.points.isEmpty) {
           continue;
         }
+        final polygon = projectedPolygon.polygon;
         final textPainter = polygon.textPainter;
         if (textPainter != null) {
           final painter = _buildLabelTextPainter(
@@ -230,19 +219,23 @@ class PolygonPainter extends CustomPainter {
   }
 
   void _addDottedLineToPath(
-      ui.Path path, List<Offset> offsets, double radius, double stepLength) {
+    ui.Path path,
+    List<Offset> offsets,
+    double radius,
+    double stepLength,
+  ) {
     if (offsets.isEmpty) {
       return;
     }
 
     double startDistance = 0;
-    for (var i = 0; i < offsets.length; i++) {
+    for (int i = 0; i < offsets.length; i++) {
       final o0 = offsets[i % offsets.length];
       final o1 = offsets[(i + 1) % offsets.length];
       final totalDistance = (o0 - o1).distance;
 
       double distance = startDistance;
-      for (; distance < totalDistance; distance += stepLength) {
+      while (distance < totalDistance) {
         final done = distance / totalDistance;
         final remain = 1.0 - done;
         final offset = Offset(
@@ -250,6 +243,8 @@ class PolygonPainter extends CustomPainter {
           o0.dy * remain + o1.dy * done,
         );
         path.addOval(Rect.fromCircle(center: offset, radius: radius));
+
+        distance += stepLength;
       }
 
       startDistance = distance < totalDistance
@@ -265,5 +260,5 @@ class PolygonPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(PolygonPainter oldDelegate) => false;
+  bool shouldRepaint(_PolygonPainter oldDelegate) => false;
 }
