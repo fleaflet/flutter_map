@@ -23,10 +23,6 @@ class MapGestures {
     required this.trackpadZoom,
   });
 
-  /// Shortcut constructor to allow all gestures that don't rotate the map.
-  const MapGestures.noRotation()
-      : this.byGroup(move: true, zoom: true, rotate: false);
-
   /// This constructor enables all gestures by default. Use this constructor if
   /// you want have all gestures enabled or disable some gestures only.
   ///
@@ -62,6 +58,58 @@ class MapGestures {
     this.keyTriggerDragRotate = false,
     this.trackpadZoom = false,
   });
+
+  /// Enable or disable gestures by groups.
+  /// - [move] includes all gestures that alter [MapCamera.center].
+  /// - [zoom] includes all gestures that alter [MapCamera.zoom].
+  /// - [rotate] includes all gestures that alter [MapCamera.rotation].
+  ///
+  /// - Use [MapGestures.allGroups] to follow an blacklist approach.
+  /// - Use [MapGestures.noGroups] to follow an whitelist approach.
+  const MapGestures.byGroup({
+    required bool move,
+    required bool zoom,
+    required bool rotate,
+  }) : this(
+          drag: move,
+          twoFingerMove: move,
+          flingAnimation: move,
+          doubleTapDragZoom: zoom,
+          doubleTapZoomIn: zoom,
+          scrollWheelZoom: zoom,
+          twoFingerZoom: zoom,
+          twoFingerRotate: rotate,
+          keyTriggerDragRotate: rotate,
+          trackpadZoom: zoom,
+        );
+
+  /// Enable gestures by groups.
+  /// - [move] includes all gestures that alter [MapCamera.center].
+  /// - [zoom] includes all gestures that alter [MapCamera.zoom].
+  /// - [rotate] includes all gestures that alter [MapCamera.rotation].
+  ///
+  /// Every group is enabled by defaults when using this
+  /// constructor (blacklist approach). If you want to allow only certain
+  /// groups, use [MapGestures.noGroups] instead.
+  const MapGestures.allGroups({
+    bool move = true,
+    bool zoom = true,
+    bool rotate = true,
+  }) : this.byGroup(move: move, zoom: zoom, rotate: rotate);
+
+  /// Disable gestures by groups.
+  /// - [move] includes all gestures that alter [MapCamera.center].
+  /// - [zoom] includes all gestures that alter [MapCamera.zoom].
+  /// - [rotate] includes all gestures that alter [MapCamera.rotation].
+  ///
+  /// Every group is disabled by default when using this
+  /// constructor (whitelist approach). If you want to allow only certain
+  /// groups, use [MapGestures.allGroups] instead.
+  const MapGestures.noneGroups({
+    bool move = false,
+    bool zoom = false,
+    bool rotate = false,
+  }) : this.byGroup(move: move, zoom: zoom, rotate: rotate);
 
   /// This constructor supports bitfield operations on the static fields
   /// from [InteractiveFlag].
@@ -149,23 +197,6 @@ class MapGestures {
         keyTriggerDragRotate: keyTriggerDragRotate ?? this.keyTriggerDragRotate,
         trackpadZoom: trackpadZoom ?? this.trackpadZoom,
       );
-
-  const MapGestures.byGroup({
-    required bool move,
-    required bool zoom,
-    required bool rotate,
-  }) : this(
-          drag: move,
-          twoFingerMove: move,
-          flingAnimation: move,
-          doubleTapDragZoom: zoom,
-          doubleTapZoomIn: zoom,
-          scrollWheelZoom: zoom,
-          twoFingerZoom: zoom,
-          twoFingerRotate: rotate,
-          keyTriggerDragRotate: rotate,
-          trackpadZoom: zoom,
-        );
 
   @override
   bool operator ==(Object other) =>
