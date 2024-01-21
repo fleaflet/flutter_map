@@ -1,0 +1,25 @@
+name: Close issues with no user response
+on:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  close-issues:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/stale@v5
+        with:
+          days-before-issue-stale: 21
+          days-before-issue-close: 7
+          stale-issue-label: "stale"
+          stale-issue-message: "This issue is stale because it has been marked with `waiting for user response` but hasn't received any activity since 3 weeks."
+          close-issue-message: "This issue was closed because it has been inactive another week since being marked as stale."
+          days-before-pr-stale: -1
+          days-before-pr-close: -1
+          remove-stale-when-updated: true
+          any-of-labels: "waiting for user response"
+          labels-to-remove-when-unstale: "waiting for user response, stale"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
