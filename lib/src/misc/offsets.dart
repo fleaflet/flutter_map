@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/geo/crs.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart';
 

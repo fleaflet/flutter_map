@@ -7,13 +7,15 @@ import 'package:flutter_map/src/geo/crs.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 
-// Custom point due to math.Point<double> being slow. Math operations tend to
-// have 20+x penalty for virtual function overhead given the reified nature of
-// Dart generics.
+/// Internal double-precision point/vector implementation not to be used in publicly.
+///
+/// This is an optimization. Vector operations on math.Point tend to incur a 20+x
+/// penalty due to virtual function overhead caused by reified generics.
+///
+/// Further note that unlike math.Point, members are mutable to allow object reuse/pooling
+/// and therefore reduce GC pressure.
 @internal
-class DoublePoint {
-  // Note: Allow mutability for reuse/pooling to reduce GC pressure and increase performance.
-  // Geometry operations should be safe-by-default to avoid accidental bugs.
+final class DoublePoint {
   double x;
   double y;
 

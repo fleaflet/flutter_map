@@ -58,7 +58,9 @@ abstract class Crs {
   Bounds<double>? getProjectedBounds(double zoom);
 }
 
+/// Internal base class for CRS with a single zoom-level independent transformation.
 @immutable
+@internal
 abstract class CrsWithStaticTransformation extends Crs {
   @nonVirtual
   @protected
