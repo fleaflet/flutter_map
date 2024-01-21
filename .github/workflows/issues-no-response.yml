@@ -21,5 +21,5 @@ jobs:
           days-before-pr-close: -1
           remove-stale-when-updated: true
           any-of-labels: "waiting for user response"
-          labels-to-remove-when-unstale: "waiting for user response, stale"
+          labels-to-remove-when-unstale: "waiting for user response,stale"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
