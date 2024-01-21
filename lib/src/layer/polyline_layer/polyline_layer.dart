@@ -160,7 +160,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
     );
 
     // segment is visible
-    final projectedBounds = Bounds(
+    final projBounds = Bounds(
       projection.project(boundsAdjusted.southWest),
       projection.project(boundsAdjusted.northEast),
     );
@@ -176,39 +176,44 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
 
       // pointer that indicates the start of the visible polyline segment
       int start = -1;
-      bool fullyVisible = true;
+      bool containsSegment = false;
       for (int i = 0; i < projectedPolyline.points.length - 1; i++) {
-        //current pair
+        // Current segment (p1, p2).
         final p1 = projectedPolyline.points[i];
         final p2 = projectedPolyline.points[i + 1];
 
-        if (projectedBounds.aabbContainsLine(p1.x, p1.y, p2.x, p2.y)) {
-          // segment is visible
+        containsSegment = projBounds.aabbContainsLine(p1.x, p1.y, p2.x, p2.y);
+        if (containsSegment) {
           if (start == -1) {
             start = i;
           }
-          if (!fullyVisible && i == projectedPolyline.points.length - 2) {
-            final segment = projectedPolyline.points.sublist(start, i + 2);
-            _culledPolylines
-                .add(_ProjectedPolyline._(polyline: polyline, points: segment));
-          }
         } else {
-          fullyVisible = false;
-          // if we cannot see the segment, then reset start
+          // If we cannot see this segment but have seen previous ones, flush the last polyline fragment.
           if (start != -1) {
-            // partial start
-            final segment = projectedPolyline.points.sublist(start, i + 1);
-            _culledPolylines
-                .add(_ProjectedPolyline._(polyline: polyline, points: segment));
+            _culledPolylines.add(_ProjectedPolyline._(
+              polyline: polyline,
+              points: projectedPolyline.points.sublist(start, i + 1),
+            ));
+
+            // Reset start.
             start = -1;
-          }
-          if (start != -1) {
-            start = i;
           }
         }
       }
 
-      if (fullyVisible) _culledPolylines.add(projectedPolyline);
+      // If the last segment was visible push that last visible polyline
+      // fragment, which may also be the entire polyline if `start == 0`.
+      if (containsSegment) {
+        _culledPolylines.add(
+          start == 0
+              ? projectedPolyline
+              : _ProjectedPolyline._(
+                  polyline: polyline,
+                  // Special case: the entire polyline is visible
+                  points: projectedPolyline.points.sublist(start),
+                ),
+        );
+      }
     }
 
     return _culledPolylines;

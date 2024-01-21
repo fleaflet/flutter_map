@@ -4,7 +4,6 @@
 import 'dart:math' as math;
 
 import 'package:flutter_map/src/geo/crs.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 
 /// Internal double-precision point/vector implementation not to be used in publicly.
