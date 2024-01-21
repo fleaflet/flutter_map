@@ -1,6 +1,6 @@
 part of 'tile_layer.dart';
 
-/// Options for the []
+/// Options for the WMS [TileLayer].
 @immutable
 class WMSTileLayerOptions {
   static const service = 'WMS';

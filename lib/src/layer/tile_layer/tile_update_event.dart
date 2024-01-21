@@ -78,8 +78,11 @@ class TileUpdateEvent {
   /// Checks if the [MapEvent] has been caused by a tap.
   bool wasTriggeredByTap() =>
       mapEvent is MapEventTap ||
+      mapEvent is MapEventLongPress ||
       mapEvent is MapEventSecondaryTap ||
-      mapEvent is MapEventLongPress;
+      mapEvent is MapEventSecondaryLongPress ||
+      mapEvent is MapEventTertiaryTap ||
+      mapEvent is MapEventTertiaryLongPress;
 
   @override
   String toString() =>

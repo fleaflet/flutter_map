@@ -2,7 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_map/src/map/options/map_gestures.dart';
 import 'package:meta/meta.dart';
 
-/// Set interation options for input gestures.
+/// Set interaction options for input gestures.
 /// Most commonly used is [InteractionOptions.gestures].
 @immutable
 final class InteractionOptions {
@@ -65,6 +65,8 @@ final class InteractionOptions {
     LogicalKeyboardKey.shiftRight,
   ];
 
+  /// Create a new [InteractionOptions] instance to be used
+  /// in [MapOptions.interactionOptions].
   const InteractionOptions({
     this.gestures = const MapGestures.all(),
     this.twoFingerRotateThreshold = 0.1,

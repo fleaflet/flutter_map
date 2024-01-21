@@ -5,10 +5,16 @@ import 'package:flutter_map/src/map/gestures/services/base_services.dart';
 
 /// The [MapInteractiveViewer] widget contains the [GestureDetector] and
 /// [Listener] to handle gesture inputs.
+/// It applies interactions (gestures/scroll/taps etc) to the
+/// current [MapCamera] via the internal [controller].
 class MapInteractiveViewer extends StatefulWidget {
+  /// The builder callback for the child widget.
   final ChildBuilder builder;
+
+  /// Reference to the [MapControllerImpl].
   final MapControllerImpl controller;
 
+  /// Create a new [MapInteractiveViewer] instance.
   const MapInteractiveViewer({
     super.key,
     required this.builder,
@@ -245,7 +251,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     );
   }
 
-  /// Used by the internal map controller to update interaction gestures
+  /// Perform all required actions when the [InteractionOptions] have changed.
+  /// Used by the internal map controller to update interaction gestures.
   void updateGestures(MapGestures? oldGestures, MapGestures newGestures) {
     if (oldGestures == newGestures) return;
     if (newGestures.twoFingerMove ||

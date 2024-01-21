@@ -244,6 +244,8 @@ class MapGestures {
 abstract class InteractiveFlag {
   const InteractiveFlag._();
 
+  /// All available interactive flags, use as `flags: InteractiveFlag.all` to
+  /// enable all gestures.
   static const int all = drag |
       flingAnimation |
       twoFingerMove |
