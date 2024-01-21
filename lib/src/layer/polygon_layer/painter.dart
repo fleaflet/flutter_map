@@ -5,6 +5,7 @@ part of 'polygon_layer.dart';
 class _PolygonPainter extends CustomPainter {
   /// Reference to the list of [_ProjectedPolygon]s
   final List<_ProjectedPolygon> polygons;
+
   /// Reference to the [MapCamera].
   final MapCamera camera;
 
