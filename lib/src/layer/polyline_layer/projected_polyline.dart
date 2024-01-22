@@ -1,8 +1,8 @@
 part of 'polyline_layer.dart';
 
 @immutable
-class _ProjectedPolyline {
-  final Polyline polyline;
+class _ProjectedPolyline<R extends Object> {
+  final Polyline<R> polyline;
   final List<DoublePoint> points;
 
   const _ProjectedPolyline._({
@@ -10,7 +10,7 @@ class _ProjectedPolyline {
     required this.points,
   });
 
-  _ProjectedPolyline.fromPolyline(Projection projection, Polyline polyline)
+  _ProjectedPolyline.fromPolyline(Projection projection, Polyline<R> polyline)
       : this._(
           polyline: polyline,
           points: List<DoublePoint>.generate(
