@@ -46,7 +46,7 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
       final strokeWidth = polyline.useStrokeWidthInMeter
           ? _metersToStrokeWidth(
               origin,
-              polyline.points.first,
+              _unproject(projectedPolyline.points.first),
               offsets.first,
               polyline.strokeWidth,
             )
@@ -151,7 +151,7 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
       if (polyline.useStrokeWidthInMeter) {
         strokeWidth = _metersToStrokeWidth(
           origin,
-          polyline.points.first,
+          _unproject(projectedPolyline.points.first),
           offsets.first,
           polyline.strokeWidth,
         );
@@ -276,6 +276,9 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
     final delta = o0 - getOffset(camera, origin, r);
     return delta.distance;
   }
+
+  LatLng _unproject(DoublePoint p0) =>
+      camera.crs.projection.unprojectXY(p0.x, p0.y);
 
   @override
   bool shouldRepaint(_PolylinePainter<R> oldDelegate) => false;

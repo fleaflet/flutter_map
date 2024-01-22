@@ -145,7 +145,8 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
     _culledPolylines.clear();
 
     final bounds = camera.visibleBounds;
-    final margin = cullingMargin / math.pow(2, camera.zoom.floorToDouble());
+    final margin = cullingMargin / math.pow(2, camera.zoom);
+
     // The min(-90), max(180), ... are used to get around the limits of LatLng
     // the value cannot be greater or smaller than that
     final boundsAdjusted = LatLngBounds(
