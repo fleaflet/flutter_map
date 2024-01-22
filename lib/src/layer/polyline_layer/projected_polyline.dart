@@ -10,7 +10,7 @@ class _ProjectedPolyline<R extends Object> {
     required this.points,
   });
 
-  _ProjectedPolyline.fromPolyline(Projection projection, Polyline<R> polyline)
+  _ProjectedPolyline._fromPolyline(Projection projection, Polyline<R> polyline)
       : this._(
           polyline: polyline,
           points: List<DoublePoint>.generate(

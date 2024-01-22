@@ -98,7 +98,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
 
     final projected = _cachedProjectedPolylines ??= List.generate(
       widget.polylines.length,
-      (i) => _ProjectedPolyline.fromPolyline(
+      (i) => _ProjectedPolyline._fromPolyline(
         camera.crs.projection,
         widget.polylines[i],
       ),
