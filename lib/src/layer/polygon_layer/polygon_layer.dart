@@ -4,10 +4,8 @@ import 'dart:ui' as ui;
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/geo/latlng_bounds.dart';
-import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
-import 'package:flutter_map/src/map/camera/camera.dart';
-import 'package:flutter_map/src/misc/point_extensions.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/misc/offsets.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 import 'package:polylabel/polylabel.dart'; // conflict with Path from UI
@@ -15,7 +13,9 @@ import 'package:polylabel/polylabel.dart'; // conflict with Path from UI
 part 'label.dart';
 part 'painter.dart';
 part 'polygon.dart';
+part 'projected_polygon.dart';
 
+/// A polygon layer for [FlutterMap].
 @immutable
 class PolygonLayer extends StatefulWidget {
   /// [Polygon]s to draw
@@ -27,15 +27,12 @@ class PolygonLayer extends StatefulWidget {
   /// Defaults to `true`.
   final bool polygonCulling;
 
-  /// Distance between two mergeable polygon points, in decimal degrees scaled
-  /// to floored zoom
+  /// Distance between two neighboring polygon points, in logical pixels scaled
+  /// to floored zoom.
   ///
-  /// Increasing results in a more jagged, less accurate simplification, with
-  /// improved performance; and vice versa.
-  ///
-  /// Note that this value is internally scaled using the current map zoom, to
-  /// optimize visual performance in conjunction with improved performance with
-  /// culling.
+  /// Increasing this value results in points further apart being collapsed and
+  /// thus more simplified polygons. Higher values improve performance at the
+  /// cost of visual fidelity and vice versa.
   ///
   /// Defaults to 0.5. Set to 0 to disable simplification.
   final double simplificationTolerance;
@@ -50,6 +47,7 @@ class PolygonLayer extends StatefulWidget {
   /// Defaults to `false`.
   final bool drawLabelsLast;
 
+  /// Create a new [PolygonLayer] for the [FlutterMap] widget.
   const PolygonLayer({
     super.key,
     required this.polygons,
@@ -64,50 +62,55 @@ class PolygonLayer extends StatefulWidget {
 }
 
 class _PolygonLayerState extends State<PolygonLayer> {
-  final _cachedSimplifiedPolygons = <int, List<Polygon>>{};
+  List<_ProjectedPolygon>? _cachedProjectedPolygons;
+  final _cachedSimplifiedPolygons = <int, List<_ProjectedPolygon>>{};
 
   @override
   void didUpdateWidget(PolygonLayer oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // IF old yes & new no, clear
-    // IF old no & new yes, compute
-    // IF old no & new no, nothing
-    // IF old yes & new yes & (different tolerance | different lines), both
-    //    otherwise, nothing
-    if (oldWidget.simplificationTolerance != 0 &&
-        widget.simplificationTolerance != 0 &&
-        (!listEquals(oldWidget.polygons, widget.polygons) ||
-            oldWidget.simplificationTolerance !=
-                widget.simplificationTolerance)) {
-      _cachedSimplifiedPolygons.clear();
-      _computeZoomLevelSimplification(MapCamera.of(context).zoom.floor());
-    } else if (oldWidget.simplificationTolerance != 0 &&
-        widget.simplificationTolerance == 0) {
-      _cachedSimplifiedPolygons.clear();
-    } else if (oldWidget.simplificationTolerance == 0 &&
-        widget.simplificationTolerance != 0) {
-      _computeZoomLevelSimplification(MapCamera.of(context).zoom.floor());
-    }
+    // Reuse cache
+    if (widget.simplificationTolerance != 0 &&
+        oldWidget.simplificationTolerance == widget.simplificationTolerance &&
+        listEquals(oldWidget.polygons, widget.polygons)) return;
+
+    _cachedSimplifiedPolygons.clear();
+    _cachedProjectedPolygons = null;
   }
 
   @override
   Widget build(BuildContext context) {
     final camera = MapCamera.of(context);
 
-    final simplified = widget.simplificationTolerance == 0
-        ? widget.polygons
-        : _computeZoomLevelSimplification(camera.zoom.floor());
+    final projected = _cachedProjectedPolygons ??= List.generate(
+      widget.polygons.length,
+      (i) => _ProjectedPolygon.fromPolygon(
+        camera.crs.projection,
+        widget.polygons[i],
+      ),
+      growable: false,
+    );
+
+    final simplified = widget.simplificationTolerance <= 0
+        ? projected
+        : _cachedSimplifiedPolygons[camera.zoom.floor()] ??=
+            _computeZoomLevelSimplification(
+            polygons: projected,
+            pixelTolerance: widget.simplificationTolerance,
+            camera: camera,
+          );
 
     final culled = !widget.polygonCulling
         ? simplified
         : simplified
-            .where((p) => p.boundingBox.isOverlapping(camera.visibleBounds))
+            .where(
+              (p) => p.polygon.boundingBox.isOverlapping(camera.visibleBounds),
+            )
             .toList();
 
     return MobileLayerTransformer(
       child: CustomPaint(
-        painter: PolygonPainter(
+        painter: _PolygonPainter(
           polygons: culled,
           camera: camera,
           polygonLabels: widget.polygonLabels,
@@ -118,16 +121,44 @@ class _PolygonLayerState extends State<PolygonLayer> {
     );
   }
 
-  List<Polygon> _computeZoomLevelSimplification(int zoom) =>
-      _cachedSimplifiedPolygons[zoom] ??= widget.polygons
-          .map(
-            (polygon) => polygon.copyWithNewPoints(
-              simplify(
-                polygon.points,
-                widget.simplificationTolerance / math.pow(2, zoom),
-                highestQuality: true,
-              ),
-            ),
-          )
-          .toList();
+  static List<_ProjectedPolygon> _computeZoomLevelSimplification({
+    required List<_ProjectedPolygon> polygons,
+    required double pixelTolerance,
+    required MapCamera camera,
+  }) {
+    final tolerance = getEffectiveSimplificationTolerance(
+      crs: camera.crs,
+      zoom: camera.zoom.floor(),
+      pixelTolerance: pixelTolerance,
+    );
+
+    return List<_ProjectedPolygon>.generate(
+      polygons.length,
+      (i) {
+        final polygon = polygons[i];
+        final holes = polygon.holePoints;
+
+        return _ProjectedPolygon._(
+          polygon: polygon.polygon,
+          points: simplifyPoints(
+            points: polygon.points,
+            tolerance: tolerance,
+            highQuality: true,
+          ),
+          holePoints: holes == null
+              ? null
+              : List<List<DoublePoint>>.generate(
+                  holes.length,
+                  (j) => simplifyPoints(
+                    points: holes[j],
+                    tolerance: tolerance,
+                    highQuality: true,
+                  ),
+                  growable: false,
+                ),
+        );
+      },
+      growable: false,
+    );
+  }
 }

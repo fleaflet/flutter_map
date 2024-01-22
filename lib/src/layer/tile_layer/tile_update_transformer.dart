@@ -1,8 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter_map/src/gestures/map_events.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_update_event.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:meta/meta.dart';
 
 /// Defines which [TileUpdateEvent]s should cause which [TileUpdateEvent]s and
@@ -34,7 +32,7 @@ abstract class TileUpdateTransformers {
   /// Default transformer for [TileLayer].
   static final ignoreTapEvents =
       TileUpdateTransformer.fromHandlers(handleData: (event, sink) {
-    if (!wasTriggeredByTap(event)) sink.add(event);
+    if (!event.wasTriggeredByTap()) sink.add(event);
   });
 
   /// Throttle loading/updating/pruning tiles such that it only occurs once per
@@ -50,7 +48,7 @@ abstract class TileUpdateTransformers {
       TileUpdateEvent event,
       EventSink<TileUpdateEvent> sink,
     ) {
-      if (wasTriggeredByTap(event)) return;
+      if (event.wasTriggeredByTap()) return;
 
       recentEvent = event;
 
@@ -77,10 +75,4 @@ abstract class TileUpdateTransformers {
       },
     );
   }
-
-  @internal
-  static bool wasTriggeredByTap(TileUpdateEvent event) =>
-      event.mapEvent is MapEventTap ||
-      event.mapEvent is MapEventSecondaryTap ||
-      event.mapEvent is MapEventLongPress;
 }

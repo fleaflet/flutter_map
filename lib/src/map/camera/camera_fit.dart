@@ -2,11 +2,7 @@ import 'dart:math' as math hide Point;
 import 'dart:math' show Point;
 
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/geo/latlng_bounds.dart';
-import 'package:flutter_map/src/map/camera/camera.dart';
-import 'package:flutter_map/src/map/camera/camera_constraint.dart';
-import 'package:flutter_map/src/misc/bounds.dart';
-import 'package:flutter_map/src/misc/point_extensions.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Describes a position for a [MapCamera]
@@ -180,6 +176,7 @@ class FitBounds extends CameraFit {
   }
 }
 
+/// A [CameraFit] that should get be within given [LatLngBounds].
 @immutable
 class FitInsideBounds extends CameraFit {
   /// The bounds which the camera should fit inside once it is fitted.

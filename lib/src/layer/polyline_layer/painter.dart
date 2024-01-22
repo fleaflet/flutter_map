@@ -1,14 +1,19 @@
 part of 'polyline_layer.dart';
 
-class PolylinePainter<R extends Object> extends CustomPainter {
+/// [CustomPainter] for [Polygon]s.
+class _PolylinePainter<R extends Object> extends CustomPainter {
+  /// Reference to the list of [Polyline]s.
   final List<Polyline<R>> polylines;
+
+  /// Reference to the [MapCamera].
   final MapCamera camera;
   final LayerHitNotifier<R>? hitNotifier;
   final double minimumHitbox;
 
   final _hits = <R>[]; // Avoids repetitive memory reallocation
 
-  PolylinePainter({
+  /// Create a new [_PolylinePainter] instance
+  _PolylinePainter({
     required this.polylines,
     required this.camera,
     required this.hitNotifier,
@@ -64,14 +69,16 @@ class PolylinePainter<R extends Object> extends CustomPainter {
         final o1 = offsets[i];
         final o2 = offsets[i + 1];
 
-        final distance = math.sqrt(_distToSegmentSquared(
-          position.dx,
-          position.dy,
-          o1.dx,
-          o1.dy,
-          o2.dx,
-          o2.dy,
-        ));
+        final distance = math.sqrt(
+          getSqSegDist(
+            position.dx,
+            position.dy,
+            o1.dx,
+            o1.dy,
+            o2.dx,
+            o2.dy,
+          ),
+        );
 
         if (distance < hittableDistance) {
           _hits.add(polyline.hitValue!);
@@ -176,12 +183,12 @@ class PolylinePainter<R extends Object> extends CustomPainter {
             : paint.color = polyline.color;
       }
 
-      if (polyline.borderColor != null && polyline.borderStrokeWidth > 0.0) {
+      if (polyline.borderStrokeWidth > 0.0) {
         // Outlined lines are drawn by drawing a thicker path underneath, then
         // stenciling the middle (in case the line fill is transparent), and
         // finally drawing the line fill.
         borderPaint = Paint()
-          ..color = polyline.borderColor ?? const Color(0x00000000)
+          ..color = polyline.borderColor
           ..strokeWidth = strokeWidth + polyline.borderStrokeWidth
           ..strokeCap = polyline.strokeCap
           ..strokeJoin = polyline.strokeJoin
@@ -189,7 +196,7 @@ class PolylinePainter<R extends Object> extends CustomPainter {
           ..blendMode = BlendMode.srcOver;
 
         filterPaint = Paint()
-          ..color = polyline.borderColor!.withAlpha(255)
+          ..color = polyline.borderColor.withAlpha(255)
           ..strokeWidth = strokeWidth
           ..strokeCap = polyline.strokeCap
           ..strokeJoin = polyline.strokeJoin
@@ -279,32 +286,7 @@ class PolylinePainter<R extends Object> extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(PolylinePainter<R> oldDelegate) => false;
-}
-
-double _distanceSq(double x0, double y0, double x1, double y1) {
-  final dx = x0 - x1;
-  final dy = y0 - y1;
-  return dx * dx + dy * dy;
-}
-
-double _distToSegmentSquared(
-  double px,
-  double py,
-  double x0,
-  double y0,
-  double x1,
-  double y1,
-) {
-  final dx = x1 - x0;
-  final dy = y1 - y0;
-  final distanceSq = dx * dx + dy * dy;
-  if (distanceSq == 0) {
-    return _distanceSq(px, py, x0, y0);
-  }
-
-  final t = (((px - x0) * dx + (py - y0) * dy) / distanceSq).clamp(0, 1);
-  return _distanceSq(px, py, x0 + t * dx, y0 + t * dy);
+  bool shouldRepaint(_PolylinePainter<R> oldDelegate) => false;
 }
 
 const _distance = Distance();

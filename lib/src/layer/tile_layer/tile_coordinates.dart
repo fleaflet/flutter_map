@@ -4,8 +4,10 @@ import 'package:meta/meta.dart';
 
 @immutable
 class TileCoordinates extends Point<int> {
+  /// The zoom level of the tile coordinates.
   final int z;
 
+  /// Create a new [TileCoordinates] instance.
   const TileCoordinates(super.x, super.y, this.z);
 
   @override

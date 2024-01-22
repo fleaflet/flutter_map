@@ -53,14 +53,18 @@ void Function(Canvas canvas)? _buildLabelTextPainter({
   return null;
 }
 
+/// Calculate the [LatLng] position for the given [PolygonLabelPlacement].
 LatLng _computeLabelPosition(
-    PolygonLabelPlacement labelPlacement, List<LatLng> points) {
+  PolygonLabelPlacement labelPlacement,
+  List<LatLng> points,
+) {
   return switch (labelPlacement) {
     PolygonLabelPlacement.centroid => _computeCentroid(points),
     PolygonLabelPlacement.polylabel => _computePolylabel(points),
   };
 }
 
+/// Calculate the centroid of a given list of [LatLng] points.
 LatLng _computeCentroid(List<LatLng> points) {
   return LatLng(
     points.map((e) => e.latitude).average,
@@ -68,6 +72,8 @@ LatLng _computeCentroid(List<LatLng> points) {
   );
 }
 
+/// Use the Maxbox Polylabel algorithm to calculate the [LatLng] position for
+/// a given list of points.
 LatLng _computePolylabel(List<LatLng> points) {
   final labelPosition = polylabel(
     [

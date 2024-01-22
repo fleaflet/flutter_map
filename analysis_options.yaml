@@ -41,3 +41,6 @@ linter:
     unnecessary_parenthesis: true
     use_if_null_to_convert_nulls_to_bools: true
     matching_super_parameters: true
+    prefer_const_constructors: true
+    # TODO: enable the following lint when all public APIs are documented
+    # public_member_api_docs: true

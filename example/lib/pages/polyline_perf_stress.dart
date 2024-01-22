@@ -1,9 +1,11 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/misc/tile_providers.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
+import 'package:flutter_map_example/widgets/show_no_web_perf_overlay_snackbar.dart';
 import 'package:flutter_map_example/widgets/simplification_tolerance_slider.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -25,6 +27,9 @@ class _PolylinePerfStressPageState extends State<PolylinePerfStressPage> {
   @override
   void initState() {
     super.initState();
+
+    showNoWebPerfOverlaySnackbar(context);
+
     final random = Random(1234);
     for (int i = 1; i < 300000; i++) {
       final lat = (random.nextDouble() - 0.5) * 0.001;
@@ -81,12 +86,13 @@ class _PolylinePerfStressPageState extends State<PolylinePerfStressPage> {
                   setState(() => simplificationTolerance = v),
             ),
           ),
-          Positioned(
-            bottom: 16,
-            left: 0,
-            right: 0,
-            child: PerformanceOverlay.allEnabled(),
-          ),
+          if (!kIsWeb)
+            Positioned(
+              bottom: 16,
+              left: 0,
+              right: 0,
+              child: PerformanceOverlay.allEnabled(),
+            ),
         ],
       ),
     );

@@ -1,9 +1,10 @@
 part of 'tile_layer.dart';
 
+/// Options for the []
 @immutable
 class WMSTileLayerOptions {
-  final service = 'WMS';
-  final request = 'GetMap';
+  static const service = 'WMS';
+  static const request = 'GetMap';
 
   /// WMS service's URL, for example 'http://ows.mundialis.de/services/service?'
   final String baseUrl;
@@ -36,6 +37,7 @@ class WMSTileLayerOptions {
 
   late final double _versionNumber;
 
+  /// Create a new [WMSTileLayerOptions] instance.
   WMSTileLayerOptions({
     required this.baseUrl,
     this.layers = const [],
@@ -68,6 +70,7 @@ class WMSTileLayerOptions {
     return buffer.toString();
   }
 
+  /// Build the URL for a tile
   String getUrl(TileCoordinates coords, int tileSize, bool retinaMode) {
     final nwPoint = coords * tileSize;
     final sePoint = nwPoint + Point<int>(tileSize, tileSize);

@@ -10,11 +10,14 @@ class CenterZoom {
   /// Zoom value
   final double zoom;
 
+  /// Create a new [CenterZoom] object by setting all its values.
   const CenterZoom({required this.center, required this.zoom});
 
+  /// Wither that returns a new [CenterZoom] object with an updated map center.
   CenterZoom withCenter(LatLng center) =>
       CenterZoom(center: center, zoom: zoom);
 
+  /// Wither that returns a new [CenterZoom] object with an updated zoom value.
   CenterZoom withZoom(double zoom) => CenterZoom(center: center, zoom: zoom);
 
   @override

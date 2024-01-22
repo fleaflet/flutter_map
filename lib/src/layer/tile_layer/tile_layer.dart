@@ -4,27 +4,14 @@ import 'dart:math';
 import 'package:collection/collection.dart' show MapEquality;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/src/geo/crs.dart';
-import 'package:flutter_map/src/geo/latlng_bounds.dart';
-import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_builder.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_display.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image_manager.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provider.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network_tile_provider.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_update_event.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_update_transformer.dart';
-import 'package:flutter_map/src/map/camera/camera.dart';
-import 'package:flutter_map/src/map/controller/map_controller.dart';
-import 'package:flutter_map/src/misc/bounds.dart';
 import 'package:http/retry.dart';
 import 'package:logger/logger.dart';
 
@@ -131,8 +118,8 @@ class TileLayer extends StatefulWidget {
   /// https://c.tile.openstreetmap.org/{z}/{x}/{y}.png
   final List<String> subdomains;
 
-  // Control how tiles are displayed and whether they are faded in when loaded.
-  // Defaults to TileDisplay.fadeIn().
+  /// Control how tiles are displayed and whether they are faded in when loaded.
+  /// Defaults to TileDisplay.fadeIn().
   final TileDisplay tileDisplay;
 
   /// Provider with which to load map tiles
@@ -195,9 +182,9 @@ class TileLayer extends StatefulWidget {
   /// There are predefined examples in 'tile_builder.dart'
   final TileBuilder? tileBuilder;
 
-  // If a Tile was loaded with error and if strategy isn't `none` then TileProvider
-  // will be asked to evict Image based on current strategy
-  // (see #576 - even Error Images are cached in flutter)
+  /// If a Tile was loaded with error and if strategy isn't `none` then TileProvider
+  /// will be asked to evict Image based on current strategy
+  /// (see #576 - even Error Images are cached in flutter)
   final EvictErrorTileStrategy evictErrorTileStrategy;
 
   /// Stream to notify the [TileLayer] that it needs resetting
@@ -220,6 +207,7 @@ class TileLayer extends StatefulWidget {
   /// no affect.
   final TileUpdateTransformer tileUpdateTransformer;
 
+  /// Create a new [TileLayer] for the [FlutterMap] widget.
   TileLayer({
     super.key,
     this.urlTemplate,

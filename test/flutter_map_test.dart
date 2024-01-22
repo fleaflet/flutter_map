@@ -1,13 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/src/geo/crs.dart';
-import 'package:flutter_map/src/gestures/interactive_flag.dart';
-import 'package:flutter_map/src/layer/marker_layer.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
-import 'package:flutter_map/src/map/camera/camera.dart';
-import 'package:flutter_map/src/map/controller/map_controller.dart';
-import 'package:flutter_map/src/map/options/interaction.dart';
-import 'package:flutter_map/src/map/options/options.dart';
-import 'package:flutter_map/src/map/widget.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
 

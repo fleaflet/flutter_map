@@ -2,12 +2,8 @@ import 'dart:math' as math hide Point;
 import 'dart:math' show Point;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_map/src/geo/crs.dart';
-import 'package:flutter_map/src/geo/latlng_bounds.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
-import 'package:flutter_map/src/map/options/options.dart';
-import 'package:flutter_map/src/misc/bounds.dart';
-import 'package:flutter_map/src/misc/point_extensions.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:vector_math/vector_math_64.dart';
 
@@ -24,8 +20,13 @@ class MapCamera {
   /// provides real constraints.
   static const kImpossibleSize = Point<double>(-1, -1);
 
+  /// The used coordinate reference system
   final Crs crs;
+
+  /// The minimum allowed zoom level.
   final double? minZoom;
+
+  /// The maximum allowed zoom level.
   final double? maxZoom;
 
   /// The [LatLng] which corresponds with the center of this camera.
@@ -216,6 +217,7 @@ class MapCamera {
   LatLng unproject(Point point, [double? zoom]) =>
       crs.pointToLatLng(point, zoom ?? this.zoom);
 
+  /// Same as the [unproject] function.
   LatLng layerPointToLatLng(Point point) => unproject(point);
 
   /// Calculates the scale for a zoom from [fromZoom] to [toZoom] using this

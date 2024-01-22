@@ -1,16 +1,12 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/geo/latlng_bounds.dart';
-import 'package:flutter_map/src/layer/general/mobile_layer_transformer.dart';
-import 'package:flutter_map/src/map/camera/camera.dart';
-import 'package:flutter_map/src/misc/bounds.dart';
-import 'package:flutter_map/src/misc/point_extensions.dart';
-import 'package:latlong2/latlong.dart';
+part of 'overlay_image_layer.dart';
 
 /// Base class for all overlay images.
 @immutable
 sealed class BaseOverlayImage extends StatelessWidget {
+  /// The [ImageProvider] for the image.
   final ImageProvider imageProvider;
+
+  /// The opacity in which the image should get rendered on the map.
   final double opacity;
   final bool gaplessPlayback;
 
@@ -50,6 +46,7 @@ sealed class BaseOverlayImage extends StatelessWidget {
 class OverlayImage extends BaseOverlayImage {
   final LatLngBounds bounds;
 
+  /// Create a new [OverlayImage] used for the [OverlayImageLayer].
   const OverlayImage({
     super.key,
     required super.imageProvider,
@@ -89,11 +86,21 @@ class OverlayImage extends BaseOverlayImage {
 /// corner point is derived from the other points.
 @immutable
 class RotatedOverlayImage extends BaseOverlayImage {
+  /// The coordinates of the top left corner of the image.
   final LatLng topLeftCorner;
+
+  /// The coordinates of the bottom left corner of the image.
   final LatLng bottomLeftCorner;
+
+  /// The coordinates of the bottom right corner of the image.
   final LatLng bottomRightCorner;
+
+  /// The [FilterQuality] of the image, used to define how high quality the
+  /// overlay image should have on the map.
   final FilterQuality? filterQuality;
 
+  /// Create a new [RotatedOverlayImage] instance that can be provided to the
+  /// [OverlayImageLayer].
   const RotatedOverlayImage({
     super.key,
     required super.imageProvider,
@@ -148,16 +155,4 @@ class RotatedOverlayImage extends BaseOverlayImage {
       ),
     );
   }
-}
-
-@immutable
-class OverlayImageLayer extends StatelessWidget {
-  final List<BaseOverlayImage> overlayImages;
-
-  const OverlayImageLayer({super.key, required this.overlayImages});
-
-  @override
-  Widget build(BuildContext context) => MobileLayerTransformer(
-        child: ClipRect(child: Stack(children: overlayImages)),
-      );
 }

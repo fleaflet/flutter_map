@@ -1,9 +1,10 @@
-import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:meta/meta.dart';
 
 @immutable
 abstract class TileBoundsAtZoom {
+  /// Create a new [TileBoundsAtZoom] object.
   const TileBoundsAtZoom();
 
   TileCoordinates wrap(TileCoordinates coordinates);
@@ -13,6 +14,7 @@ abstract class TileBoundsAtZoom {
 
 @immutable
 class InfiniteTileBoundsAtZoom extends TileBoundsAtZoom {
+  /// Create a new [InfiniteTileBoundsAtZoom] object.
   const InfiniteTileBoundsAtZoom();
 
   @override
@@ -30,6 +32,7 @@ class InfiniteTileBoundsAtZoom extends TileBoundsAtZoom {
 class DiscreteTileBoundsAtZoom extends TileBoundsAtZoom {
   final DiscreteTileRange tileRange;
 
+  /// Create a new [DiscreteTileBoundsAtZoom] object.
   const DiscreteTileBoundsAtZoom(this.tileRange);
 
   @override
@@ -51,21 +54,25 @@ class DiscreteTileBoundsAtZoom extends TileBoundsAtZoom {
 @immutable
 class WrappedTileBoundsAtZoom extends TileBoundsAtZoom {
   final DiscreteTileRange tileRange;
+
+  /// If true the wrapped axis will not be checked when calling
+  /// validCoordinatesIn. This makes sense if the [tileRange] is from the crs
+  /// since with wrapping enabled all tiles on that axis should be valid. For
+  /// a user defined [tileRange] this should be false as some tiles may fall
+  /// outside of the range.
   final bool wrappedAxisIsAlwaysInBounds;
+
+  /// Inclusive range to which x coordinates will be wrapped.
   final (int, int)? wrapX;
+
+  /// Inclusive range to which y coordinates will be wrapped.
   final (int, int)? wrapY;
 
+  /// Create a new [WrappedTileBoundsAtZoom] object.
   const WrappedTileBoundsAtZoom({
     required this.tileRange,
-    // If true the wrapped axis will not be checked when calling
-    // validCoordinatesIn. This makes sense if the [tileRange] is from the crs
-    // since with wrapping enabled all tiles on that axis should be valid. For
-    // a user defined [tileRange] this should be false as some tiles may fall
-    // outside of the range.
     required this.wrappedAxisIsAlwaysInBounds,
-    // Inclusive range to which x coordinates will be wrapped.
     required this.wrapX,
-    // Inclusive range to which y coordinates will be wrapped.
     required this.wrapY,
   }) : assert(
           wrapX != null || wrapY != null,

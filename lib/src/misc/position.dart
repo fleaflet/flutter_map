@@ -2,6 +2,8 @@ import 'package:flutter_map/src/geo/latlng_bounds.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 
+// ignore_for_file: public_member_api_docs
+
 @immutable
 class MapPosition {
   final LatLng? center;

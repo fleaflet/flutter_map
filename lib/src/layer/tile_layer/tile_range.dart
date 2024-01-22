@@ -1,15 +1,14 @@
 import 'dart:math' as math hide Point;
 import 'dart:math' show Point;
 
-import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
-import 'package:flutter_map/src/misc/bounds.dart';
-import 'package:flutter_map/src/misc/point_extensions.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:meta/meta.dart';
 
 @immutable
 abstract class TileRange {
   final int zoom;
 
+  /// The base constructor the the abstract [TileRange] class.
   const TileRange(this.zoom);
 
   Iterable<TileCoordinates> get coordinates;
@@ -26,11 +25,13 @@ class EmptyTileRange extends TileRange {
 
 @immutable
 class DiscreteTileRange extends TileRange {
-  // Bounds are inclusive
+  /// Bounds are inclusive
   final Bounds<int> _bounds;
 
+  /// Create a new [DiscreteTileRange] by setting it's values.
   const DiscreteTileRange(super.zoom, this._bounds);
 
+  /// Calculate a [DiscreteTileRange] by using the pixel bounds.
   factory DiscreteTileRange.fromPixelBounds({
     required int zoom,
     required double tileSize,
@@ -50,6 +51,7 @@ class DiscreteTileRange extends TileRange {
     return DiscreteTileRange(zoom, bounds);
   }
 
+  /// Expand the [DiscreteTileRange] by a given amount in every direction.
   DiscreteTileRange expand(int count) {
     if (count == 0) return this;
 
@@ -99,16 +101,21 @@ class DiscreteTileRange extends TileRange {
     );
   }
 
+  /// Check if a [Point] is inside of the bounds of the [DiscreteTileRange].
   bool contains(Point<int> point) {
     return _bounds.contains(point);
   }
 
+  /// The minimum [Point] of the [DiscreteTileRange]
   Point<int> get min => _bounds.min;
 
+  /// The maximum [Point] of the [DiscreteTileRange]
   Point<int> get max => _bounds.max;
 
+  /// The center [Point] of the [DiscreteTileRange]
   Point<double> get center => _bounds.center;
 
+  /// Get a list of [TileCoordinates] for the [DiscreteTileRange].
   @override
   Iterable<TileCoordinates> get coordinates sync* {
     for (var j = _bounds.min.y; j <= _bounds.max.y; j++) {

@@ -11,6 +11,7 @@ import 'package:latlong2/latlong.dart';
 part 'painter.dart';
 part 'polyline.dart';
 
+/// A [Polyline] (aka. LineString) layer for [FlutterMap].
 @immutable
 class PolylineLayer<R extends Object> extends StatefulWidget {
   /// [Polyline]s to draw
@@ -58,6 +59,7 @@ class PolylineLayer<R extends Object> extends StatefulWidget {
   /// Defaults to 10.
   final double minimumHitbox;
 
+  /// Create a new [PolylineLayer] to use as child inside [FlutterMap.children].
   const PolylineLayer({
     super.key,
     required this.polylines,
@@ -120,7 +122,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
 
     return MobileLayerTransformer(
       child: CustomPaint(
-        painter: PolylinePainter(
+        painter: _PolylinePainter(
           polylines: culled,
           camera: camera,
           hitNotifier: widget.hitNotifier,
@@ -131,14 +133,15 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
     );
   }
 
+  // TODO BEFORE v7: Use same algorithm as polygons
   List<Polyline<R>> _computeZoomLevelSimplification(int zoom) =>
       _cachedSimplifiedPolylines[zoom] ??= widget.polylines
           .map(
             (polyline) => polyline.copyWithNewPoints(
               simplify(
-                polyline.points,
-                widget.simplificationTolerance / math.pow(2, zoom),
-                highestQuality: true,
+                points: polyline.points,
+                tolerance: widget.simplificationTolerance / math.pow(2, zoom),
+                highQuality: true,
               ),
             ),
           )
