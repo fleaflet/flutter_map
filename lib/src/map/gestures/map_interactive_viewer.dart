@@ -106,6 +106,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
         _drag != null ||
         _doubleTapDragZoom != null ||
         _twoFingerInput != null;
+    final useTapCallback = _tap != null || _keyTriggerClickRotate != null;
 
     return Listener(
       onPointerDown: (event) {
@@ -167,9 +168,40 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       onPointerPanZoomEnd: _trackpadZoom?.end,
 
       child: GestureDetector(
-        onTapDown: _tap?.setDetails,
-        onTapCancel: _tap?.reset,
-        onTap: _tap?.submit,
+        onTapDown: useTapCallback
+            ? (details) {
+                if (_keyTriggerClickRotate?.keyPressed ?? false) {
+                  _keyTriggerClickRotate!.setDetails(details);
+                  // Normally we would wait until the tap gesture is confirmed.
+                  // For this gesture however we call it directly for faster
+                  // response time. (Note that `onTap` still has a small delay)
+                  // This however has the trade-off that the gesture could turn
+                  // out to be a double click and both gesture would fire.
+                  final screenSize = MediaQuery.sizeOf(context);
+                  _keyTriggerClickRotate!.submit(screenSize);
+                  return;
+                }
+                _tap?.setDetails(details);
+              }
+            : null,
+        onTapCancel: useTapCallback
+            ? () {
+                if (_keyTriggerClickRotate?.isActive ?? false) {
+                  _keyTriggerClickRotate!.reset();
+                  return;
+                }
+                _tap?.reset();
+              }
+            : null,
+        onTap: useTapCallback
+            ? () {
+                if (_keyTriggerClickRotate?.isActive ?? false) {
+                  // gesture already submitted in `onTapDown`.
+                  return;
+                }
+                _tap?.submit();
+              }
+            : null,
 
         onLongPressStart: _longPress?.submit,
 
