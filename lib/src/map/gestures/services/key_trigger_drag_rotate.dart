@@ -1,7 +1,7 @@
 part of 'base_services.dart';
 
 /// Service to handle the key-trigger and drag gesture to rotate the map. This
-/// is by default a CTRL +.
+/// is by default a CTRL + drag.
 ///
 /// Can't extend from [_ProgressableGestureService] because of different
 /// method signatures.
