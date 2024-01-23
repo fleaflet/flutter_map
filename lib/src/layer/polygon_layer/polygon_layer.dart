@@ -84,7 +84,7 @@ class _PolygonLayerState extends State<PolygonLayer> {
 
     final projected = _cachedProjectedPolygons ??= List.generate(
       widget.polygons.length,
-      (i) => _ProjectedPolygon.fromPolygon(
+      (i) => _ProjectedPolygon._fromPolygon(
         camera.crs.projection,
         widget.polygons[i],
       ),
