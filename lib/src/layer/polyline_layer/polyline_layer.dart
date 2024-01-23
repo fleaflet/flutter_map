@@ -191,10 +191,10 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
         } else {
           // If we cannot see this segment but have seen previous ones, flush the last polyline fragment.
           if (start != -1) {
-            _culledPolylines.add(
-              projectedPolyline
-                ..points = projectedPolyline.points.sublist(start, i + 1),
-            );
+            _culledPolylines.add(_ProjectedPolyline._(
+              polyline: polyline,
+              points: projectedPolyline.points.sublist(start, i + 1),
+            ));
 
             // Reset start.
             start = -1;
@@ -208,9 +208,11 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
         _culledPolylines.add(
           start == 0
               ? projectedPolyline
-              // Special case: the entire polyline is visible
-              : (projectedPolyline
-                ..points = projectedPolyline.points.sublist(start)),
+              : _ProjectedPolyline._(
+                  polyline: polyline,
+                  // Special case: the entire polyline is visible
+                  points: projectedPolyline.points.sublist(start),
+                ),
         );
       }
     }
@@ -231,12 +233,18 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
 
     return List<_ProjectedPolyline>.generate(
       polylines.length,
-      (i) => polylines[i]
-        ..points = simplifyPoints(
-          points: polylines[i].points,
-          tolerance: tolerance,
-          highQuality: true,
-        ),
+      (i) {
+        final polyline = polylines[i];
+
+        return _ProjectedPolyline._(
+          polyline: polyline.polyline,
+          points: simplifyPoints(
+            points: polyline.points,
+            tolerance: tolerance,
+            highQuality: true,
+          ),
+        );
+      },
       growable: false,
     );
   }
