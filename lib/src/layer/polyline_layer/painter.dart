@@ -31,9 +31,8 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
 
     for (final projectedPolyline in polylines.reversed) {
       final polyline = projectedPolyline.polyline as Polyline<R>;
-      if (polyline.hitValue == null) {
-        continue;
-      }
+
+      if (polyline.hitValue == null) continue;
 
       // TODO: For efficiency we'd ideally filter by bounding box here. However
       // we'd need to compute an extended bounding box that accounts account for
@@ -134,10 +133,9 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
 
     for (final projectedPolyline in polylines) {
       final polyline = projectedPolyline.polyline;
+
       final offsets = getOffsetsXY(camera, origin, projectedPolyline.points);
-      if (offsets.isEmpty) {
-        continue;
-      }
+      if (offsets.isEmpty) continue;
 
       final hash = polyline.renderHashCode;
       if (needsLayerSaving || (lastHash != null && lastHash != hash)) {
