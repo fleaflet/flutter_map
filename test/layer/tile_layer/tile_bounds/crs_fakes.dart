@@ -1,7 +1,6 @@
 import 'dart:math';
 
-import 'package:flutter_map/src/geo/crs.dart';
-import 'package:flutter_map/src/misc/bounds.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 
