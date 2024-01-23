@@ -12,7 +12,7 @@ class _ProjectedPolygon {
     required this.holePoints,
   });
 
-  _ProjectedPolygon.fromPolygon(Projection projection, Polygon polygon)
+  _ProjectedPolygon._fromPolygon(Projection projection, Polygon polygon)
       : this._(
           polygon: polygon,
           points: List<DoublePoint>.generate(
