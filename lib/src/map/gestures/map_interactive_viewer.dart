@@ -42,6 +42,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   DragGestureService? _drag;
   DoubleTapDragZoomGestureService? _doubleTapDragZoom;
   KeyTriggerDragRotateGestureService? _keyTriggerDragRotate;
+  KeyTriggerClickRotateGestureService? _keyTriggerClickRotate;
 
   MapControllerImpl get _controller => widget.controller;
 
@@ -295,6 +296,13 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
           KeyTriggerDragRotateGestureService(controller: _controller);
     } else {
       _keyTriggerDragRotate = null;
+    }
+
+    if (newGestures.keyTriggerClickRotate) {
+      _keyTriggerClickRotate =
+          KeyTriggerClickRotateGestureService(controller: _controller);
+    } else {
+      _keyTriggerClickRotate = null;
     }
 
     if (newGestures.doubleTapDragZoom) {

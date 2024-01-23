@@ -30,11 +30,8 @@ class KeyTriggerClickRotateGestureService extends _BaseGestureService {
 
   /// Get the Rotation in degrees in relation to the cursor position.
   ///
-  /// - Cursor on the left side of the screen and downwards movement:
-  ///   rotate counter clockwise
-  /// - Cursor on the right side of the screen and downwards movement:
-  ///   rotate clockwise
-  /// and vice versa.
+  /// By clicking at the top of the map the map gets set to 0°-ish, by clicking
+  /// on the left side of the map the rotation is set to 270°-ish.
   ///
   /// Calculation thanks to https://stackoverflow.com/questions/48916517/javascript-click-and-drag-to-rotate
   double getCursorRotationDegrees(Size screenSize, Offset cursorOffset) {

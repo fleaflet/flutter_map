@@ -21,6 +21,7 @@ class MapGestures {
     required this.scrollWheelZoom,
     required this.twoFingerRotate,
     required this.keyTriggerDragRotate,
+    required this.keyTriggerClickRotate,
     required this.trackpadZoom,
   });
 
@@ -39,6 +40,7 @@ class MapGestures {
     this.scrollWheelZoom = true,
     this.twoFingerRotate = true,
     this.keyTriggerDragRotate = true,
+    this.keyTriggerClickRotate = true,
     this.trackpadZoom = true,
   });
 
@@ -57,6 +59,7 @@ class MapGestures {
     this.scrollWheelZoom = false,
     this.twoFingerRotate = false,
     this.keyTriggerDragRotate = false,
+    this.keyTriggerClickRotate = false,
     this.trackpadZoom = false,
   });
 
@@ -81,6 +84,7 @@ class MapGestures {
           twoFingerZoom: zoom,
           twoFingerRotate: rotate,
           keyTriggerDragRotate: rotate,
+          keyTriggerClickRotate: rotate,
           trackpadZoom: zoom,
         );
 
@@ -133,6 +137,8 @@ class MapGestures {
           InteractiveFlag.hasFlag(flags, InteractiveFlag.twoFingerRotate),
       keyTriggerDragRotate:
           InteractiveFlag.hasFlag(flags, InteractiveFlag.keyTriggerDragRotate),
+      keyTriggerClickRotate:
+          InteractiveFlag.hasFlag(flags, InteractiveFlag.keyTriggerClickRotate),
       trackpadZoom:
           InteractiveFlag.hasFlag(flags, InteractiveFlag.trackpadZoom),
     );
@@ -172,6 +178,13 @@ class MapGestures {
   /// or finger.
   final bool keyTriggerDragRotate;
 
+  /// Enable rotation by pressing the defined keyboard key (by default CTRL key)
+  /// and clicking on the map.
+  ///
+  /// By clicking at the top of the map the map gets set to 0°-ish, by clicking
+  /// on the left side of the map the rotation is set to 270°-ish.
+  final bool keyTriggerClickRotate;
+
   /// Wither to change the value of some gestures. Returns a new
   /// [MapGestures] object.
   MapGestures copyWith({
@@ -184,6 +197,7 @@ class MapGestures {
     bool? scrollWheelZoom,
     bool? twoFingerRotate,
     bool? keyTriggerDragRotate,
+    bool? keyTriggerClickRotate,
     bool? trackpadZoom,
   }) =>
       MapGestures(
@@ -196,6 +210,8 @@ class MapGestures {
         scrollWheelZoom: scrollWheelZoom ?? this.scrollWheelZoom,
         twoFingerRotate: twoFingerRotate ?? this.twoFingerRotate,
         keyTriggerDragRotate: keyTriggerDragRotate ?? this.keyTriggerDragRotate,
+        keyTriggerClickRotate:
+            keyTriggerClickRotate ?? this.keyTriggerClickRotate,
         trackpadZoom: trackpadZoom ?? this.trackpadZoom,
       );
 
@@ -256,7 +272,8 @@ abstract class InteractiveFlag {
       scrollWheelZoom |
       twoFingerRotate |
       trackpadZoom |
-      keyTriggerDragRotate;
+      keyTriggerDragRotate |
+      keyTriggerClickRotate;
 
   /// No enabled interactive flags, use as `flags: InteractiveFlag.none` to
   /// have a non interactive map.
@@ -298,9 +315,6 @@ abstract class InteractiveFlag {
   static const int scrollWheelZoom = 1 << 6;
 
   /// Enable rotation with two-finger twist gesture
-  ///
-  /// For controlling cursor/keyboard rotation, see
-  /// [InteractionOptions.cursorKeyboardRotationOptions].
   static const int twoFingerRotate = 1 << 7;
 
   /// Enable rotation with two-finger twist gesture.
@@ -309,11 +323,16 @@ abstract class InteractiveFlag {
 
   /// Enable rotation by pressing the defined keyboard keys
   /// (by default CTRL Key) and drag the map with the cursor.
-  /// To change the key see [InteractionOptions.cursorKeyboardRotationOptions].
+  /// To change the key see [InteractionOptions.keyTriggerDragRotateKeys].
   static const int keyTriggerDragRotate = 1 << 8;
 
   /// Enable zooming by using the trackpad / touchpad of a device.
   static const int trackpadZoom = 1 << 9;
+
+  /// Enable rotation by pressing the defined keyboard keys
+  /// (by default CTRL Key) and click on the map.
+  /// To change the key see [InteractionOptions.keyTriggerDragRotateKeys].
+  static const int keyTriggerClickRotate = 1 << 10;
 
   /// Returns `true` if [leftFlags] has at least one member in [rightFlags]
   /// (intersection) for example
