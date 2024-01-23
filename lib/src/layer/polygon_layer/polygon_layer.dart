@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:collection/collection.dart';
+import 'package:dart_earcut/dart_earcut.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -108,10 +109,27 @@ class _PolygonLayerState extends State<PolygonLayer> {
             )
             .toList();
 
+    // TODO: Handle holes
+    // TODO: Make optional
+    // TODO: What to do with more complex polys (such as self intersecting)
+    // TODO: Check deviation if possible (https://github.com/mapbox/earcut/blob/afb5797dbf9272661ca4d49ee2e08bd0cd96e1ed/src/earcut.js#L629C4-L629C18)
+    final triangles = List.generate(
+      culled.length,
+      (i) => Earcut.triangulateRaw(
+        culled[i]
+            .points
+            .map((e) => [e.x, e.y])
+            .expand((e) => e)
+            .toList(growable: false),
+      ),
+      growable: false,
+    );
+
     return MobileLayerTransformer(
       child: CustomPaint(
         painter: _PolygonPainter(
           polygons: culled,
+          triangles: triangles,
           camera: camera,
           polygonLabels: widget.polygonLabels,
           drawLabelsLast: widget.drawLabelsLast,
@@ -145,9 +163,9 @@ class _PolygonLayerState extends State<PolygonLayer> {
             tolerance: tolerance,
             highQuality: true,
           ),
-          holePoints: holes == null
-              ? null
-              : List<List<DoublePoint>>.generate(
+          holePoints: holes.isEmpty
+              ? []
+              : List.generate(
                   holes.length,
                   (j) => simplifyPoints(
                     points: holes[j],

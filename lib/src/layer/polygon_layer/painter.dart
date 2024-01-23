@@ -1,10 +1,18 @@
 part of 'polygon_layer.dart';
 
+const bool _renderVertexes = true; // TODO: Remove, true is best performance
+const bool _renderPoints = false; // TODO: Remove, false is best performance
+
 /// The [_PolygonPainter] class is used to render [Polygon]s for
 /// the [PolygonLayer].
 class _PolygonPainter extends CustomPainter {
   /// Reference to the list of [_ProjectedPolygon]s
   final List<_ProjectedPolygon> polygons;
+
+  /// Triangulated [polygons]
+  ///
+  /// Expected to be in same/corresponding order as [polygons]
+  final List<List<int>> triangles;
 
   /// Reference to the [MapCamera].
   final MapCamera camera;
@@ -18,6 +26,7 @@ class _PolygonPainter extends CustomPainter {
   /// Create a new [_PolygonPainter] instance.
   _PolygonPainter({
     required this.polygons,
+    required this.triangles,
     required this.camera,
     required this.polygonLabels,
     required this.drawLabelsLast,
@@ -33,6 +42,9 @@ class _PolygonPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    final trianglePoints = <Offset>[];
+    final outlinePoints = <List<Offset>>[];
+
     var filledPath = ui.Path();
     var borderPath = ui.Path();
     Polygon? lastPolygon;
@@ -51,18 +63,75 @@ class _PolygonPainter extends CustomPainter {
             ..style = PaintingStyle.fill
             ..color = color;
 
-          canvas.drawPath(filledPath, paint);
+          if (_renderVertexes) {
+            final points = Float32List(trianglePoints.length * 2);
+            for (int i = 0; i < trianglePoints.length; ++i) {
+              points[i * 2] = trianglePoints[i].dx;
+              points[i * 2 + 1] = trianglePoints[i].dy;
+            }
+            final vertices = ui.Vertices.raw(ui.VertexMode.triangles, points);
+            canvas.drawVertices(vertices, ui.BlendMode.src, paint);
+          } else {
+            canvas.drawPath(filledPath, paint);
+          }
         }
       }
 
       // Draw polygon outline
       if (polygon.borderStrokeWidth > 0) {
         final borderPaint = _getBorderPaint(polygon);
-        canvas.drawPath(borderPath, borderPaint);
+
+        if (_renderPoints) {
+          int len = 0;
+          for (final outline in outlinePoints) {
+            len += outline.length;
+          }
+
+          final segments = Float32List(len * 4);
+
+          int index = 0;
+          for (final outline in outlinePoints) {
+            for (int i = 0; i < outline.length; ++i) {
+              final p1 = outline[i];
+              segments[index] = p1.dx;
+              segments[index + 1] = p1.dy;
+
+              final p2 = outline[(i + 1) % outline.length];
+              segments[index + 2] = p2.dx;
+              segments[index + 3] = p2.dy;
+
+              index += 4;
+            }
+          }
+          canvas.drawRawPoints(ui.PointMode.lines, segments, borderPaint);
+
+          // for (final outline in outlinePoints) {
+          //   final segments = Float32List(outline.length * 2);
+          //
+          //   for (int i = 0; i < outline.length * 2; i += 2) {
+          //     final p1 = outline[i~/2];
+          //     segments[i] = p1.dx;
+          //     segments[i + 1] = p1.dy;
+          //   }
+          //   canvas.drawRawPoints(ui.PointMode.polygon, segments, borderPaint);
+          // }
+        } else {
+          canvas.drawPath(borderPath, borderPaint);
+        }
       }
 
-      filledPath = ui.Path();
-      borderPath = ui.Path();
+      if (_renderVertexes) {
+        trianglePoints.clear();
+      } else {
+        filledPath = ui.Path();
+      }
+
+      if (_renderPoints) {
+        outlinePoints.clear();
+      } else {
+        borderPath = ui.Path();
+      }
+
       lastPolygon = null;
       lastHash = null;
     }
@@ -70,10 +139,14 @@ class _PolygonPainter extends CustomPainter {
     final origin = (camera.project(camera.center) - camera.size / 2).toOffset();
 
     // Main loop constructing batched fill and border paths from given polygons.
-    for (final projectedPolygon in polygons) {
+    for (int i = 0; i <= polygons.length - 1; i++) {
+      final projectedPolygon = polygons[i];
+      final polygonTriangles = triangles[i];
+
       if (projectedPolygon.points.isEmpty) {
         continue;
       }
+
       final polygon = projectedPolygon.polygon;
       final offsets = getOffsetsXY(camera, origin, projectedPolygon.points);
 
@@ -91,15 +164,28 @@ class _PolygonPainter extends CustomPainter {
       // ignore: deprecated_member_use_from_same_package
       if (polygon.isFilled ?? true) {
         if (polygon.color != null) {
-          filledPath.addPolygon(offsets, true);
+          if (_renderVertexes) {
+            final len = polygonTriangles.length;
+            for (int i = 0; i < len; ++i) {
+              trianglePoints.add(offsets[polygonTriangles[i]]);
+            }
+          } else {
+            filledPath.addPolygon(offsets, true);
+          }
         }
       }
+
       if (polygon.borderStrokeWidth > 0.0) {
-        _addBorderToPath(borderPath, polygon, offsets);
+        if (_renderPoints) {
+          outlinePoints.add(offsets);
+        } else {
+          _addBorderToPath(borderPath, polygon, offsets);
+        }
       }
 
       // Afterwards deal with more complicated holes.
-      final holePointsList = polygon.holePointsList;
+      // TODO: Handle holes
+      /*final holePointsList = polygon.holePointsList;
       if (holePointsList != null && holePointsList.isNotEmpty) {
         // Ideally we'd use `Path.combine(PathOperation.difference, ...)`
         // instead of evenOdd fill-type, however it creates visual artifacts
@@ -119,7 +205,7 @@ class _PolygonPainter extends CustomPainter {
         if (!polygon.disableHolesBorder && polygon.borderStrokeWidth > 0.0) {
           _addHoleBordersToPath(borderPath, polygon, holeOffsetsList);
         }
-      }
+      }*/
 
       if (!drawLabelsLast && polygonLabels && polygon.textPainter != null) {
         // Labels are expensive because:
@@ -133,7 +219,7 @@ class _PolygonPainter extends CustomPainter {
         // there isn't enough space.
         final painter = _buildLabelTextPainter(
           mapSize: camera.size,
-          placementPoint: camera.getOffsetFromOrigin(polygon.labelPosition),
+          placementPoint: getOffset(camera, origin, polygon.labelPosition),
           bounds: getBounds(origin, polygon),
           textPainter: polygon.textPainter!,
           rotationRad: camera.rotationRad,
@@ -162,8 +248,7 @@ class _PolygonPainter extends CustomPainter {
         if (textPainter != null) {
           final painter = _buildLabelTextPainter(
             mapSize: camera.size,
-            placementPoint:
-                camera.project(polygon.labelPosition).toOffset() - origin,
+            placementPoint: getOffset(camera, origin, polygon.labelPosition),
             bounds: getBounds(origin, polygon),
             textPainter: textPainter,
             rotationRad: camera.rotationRad,
