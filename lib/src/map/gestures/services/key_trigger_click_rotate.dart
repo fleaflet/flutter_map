@@ -29,7 +29,7 @@ class KeyTriggerClickRotateGestureService extends _BaseGestureService {
     if (details == null) return;
 
     controller.rotateRaw(
-      getCursorRotationDegrees(screenSize, details!.localPosition),
+      _getCursorRotationDegrees(screenSize, details!.localPosition),
       hasGesture: true,
       source: MapEventSource.keyTriggerDragRotate,
     );
@@ -46,7 +46,8 @@ class KeyTriggerClickRotateGestureService extends _BaseGestureService {
   /// on the left side of the map the rotation is set to 270°-ish.
   ///
   /// Calculation thanks to https://stackoverflow.com/questions/48916517/javascript-click-and-drag-to-rotate
-  static double getCursorRotationDegrees(Size screenSize, Offset cursorOffset) {
+  static double _getCursorRotationDegrees(
+      Size screenSize, Offset cursorOffset) {
     const correctionTerm = 180; // North = cursor
 
     return (-math.atan2(cursorOffset.dx - screenSize.width / 2,
