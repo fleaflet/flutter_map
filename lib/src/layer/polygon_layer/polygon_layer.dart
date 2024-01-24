@@ -22,14 +22,34 @@ class PolygonLayer extends StatefulWidget {
   /// [Polygon]s to draw
   final List<Polygon> polygons;
 
+  /// Whether to use more performant methods to draw polygons
+  ///
+  /// When enabled, this internally:
+  /// * triangulates each polygon using the
+  /// ['dart_earcut' package](https://github.com/JaffaKetchup/dart_earcut)
+  /// * uses [`drawVertices`](https://www.youtube.com/watch?v=pD38Yyz7N2E) to
+  /// draw the triangles to the underlying canvas
+  ///
+  /// In some cases, such as when input polygons are self intersecting,
+  /// the triangulation step can yield poor results, which will appear as
+  /// malformed polygons on the canvas. Disable this argument to use standard
+  /// canvas drawing methods which don't suffer this issue.
+  ///
+  /// Defaults to `true`.
+  // TODO: Toggle triangulation per polygon
+  // TODO: Detect self intersections?
+  // TODO: Detect holes (if support not added)
+  // TODO: Add argument per polygon
+  final bool performantRendering;
+
   /// Whether to cull polygons and polygon sections that are outside of the
   /// viewport
   ///
-  /// Defaults to `true`.
+  /// Defaults to `true`. Disabling is not recommended.
   final bool polygonCulling;
 
   /// Distance between two neighboring polygon points, in logical pixels scaled
-  /// to floored zoom.
+  /// to floored zoom
   ///
   /// Increasing this value results in points further apart being collapsed and
   /// thus more simplified polygons. Higher values improve performance at the
@@ -52,6 +72,7 @@ class PolygonLayer extends StatefulWidget {
   const PolygonLayer({
     super.key,
     required this.polygons,
+    this.performantRendering = true,
     this.polygonCulling = true,
     this.simplificationTolerance = 0.5,
     this.polygonLabels = true,
@@ -110,20 +131,20 @@ class _PolygonLayerState extends State<PolygonLayer> {
             .toList();
 
     // TODO: Handle holes
-    // TODO: Make optional
-    // TODO: What to do with more complex polys (such as self intersecting)
     // TODO: Check deviation if possible (https://github.com/mapbox/earcut/blob/afb5797dbf9272661ca4d49ee2e08bd0cd96e1ed/src/earcut.js#L629C4-L629C18)
-    final triangles = List.generate(
-      culled.length,
-      (i) => Earcut.triangulateRaw(
-        culled[i]
-            .points
-            .map((e) => [e.x, e.y])
-            .expand((e) => e)
-            .toList(growable: false),
-      ),
-      growable: false,
-    );
+    final triangles = !widget.performantRendering
+        ? null
+        : List.generate(
+            culled.length,
+            (i) => Earcut.triangulateRaw(
+              culled[i]
+                  .points
+                  .map((e) => [e.x, e.y])
+                  .expand((e) => e)
+                  .toList(growable: false),
+            ),
+            growable: false,
+          );
 
     return MobileLayerTransformer(
       child: CustomPaint(

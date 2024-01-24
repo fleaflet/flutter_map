@@ -21,6 +21,8 @@ class PolygonPerfStressPage extends StatefulWidget {
 class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
   static const double _initialSimplificationTolerance = 0.5;
   double simplificationTolerance = _initialSimplificationTolerance;
+  static const bool _initialUsePerformantDrawing = true;
+  bool usePerformantDrawing = _initialUsePerformantDrawing;
   static const bool _initialUseThickOutlines = false;
   bool useThickOutlines = _initialUseThickOutlines;
 
@@ -69,8 +71,9 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
                             geoJsonParser.data == null
                         ? const SizedBox.shrink()
                         : PolygonLayer(
-                            simplificationTolerance: simplificationTolerance,
                             polygons: geoJsonParser.data!.polygons,
+                            performantRendering: usePerformantDrawing,
+                            simplificationTolerance: simplificationTolerance,
                           ),
               ),
             ],
@@ -87,38 +90,49 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
                       setState(() => simplificationTolerance = v),
                 ),
                 const SizedBox(height: 12),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: _ThickOutlinesSwitch(
-                    useThickOutlines: useThickOutlines,
-                    onChangedUseThickOutlines: (v) async {
-                      setState(() => useThickOutlines = v);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Row(
-                            children: [
-                              SizedBox.square(
-                                dimension: 16,
-                                child: Center(
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 3,
-                                    valueColor:
-                                        AlwaysStoppedAnimation(Colors.white),
+                Row(
+                  children: [
+                    _LabelledSwitch(
+                      tooltipMessage: 'Performant Drawing',
+                      icon: const Icon(Icons.speed_rounded),
+                      value: usePerformantDrawing,
+                      onChanged: (v) =>
+                          setState(() => usePerformantDrawing = v),
+                    ),
+                    const SizedBox(width: 12),
+                    _LabelledSwitch(
+                      tooltipMessage: 'Thick Outlines',
+                      icon: const Icon(Icons.line_weight_rounded),
+                      value: useThickOutlines,
+                      onChanged: (v) async {
+                        setState(() => useThickOutlines = v);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Row(
+                              children: [
+                                SizedBox.square(
+                                  dimension: 16,
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 3,
+                                      valueColor:
+                                          AlwaysStoppedAnimation(Colors.white),
+                                    ),
                                   ),
                                 ),
-                              ),
-                              SizedBox(width: 12),
-                              Text('Loading GeoJson polygons...'),
-                            ],
+                                SizedBox(width: 12),
+                                Text('Loading GeoJson polygons...'),
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                      await (geoJsonParser = loadPolygonsFromGeoJson());
-                      if (!context.mounted) return;
-                      ScaffoldMessenger.of(context).clearSnackBars();
-                      setState(() {});
-                    },
-                  ),
+                        );
+                        await (geoJsonParser = loadPolygonsFromGeoJson());
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).clearSnackBars();
+                        setState(() {});
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -151,14 +165,18 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
   }
 }
 
-class _ThickOutlinesSwitch extends StatelessWidget {
-  const _ThickOutlinesSwitch({
-    required this.useThickOutlines,
-    required this.onChangedUseThickOutlines,
+class _LabelledSwitch extends StatelessWidget {
+  const _LabelledSwitch({
+    required this.tooltipMessage,
+    required this.icon,
+    required this.value,
+    required this.onChanged,
   });
 
-  final bool useThickOutlines;
-  final void Function(bool) onChangedUseThickOutlines;
+  final String tooltipMessage;
+  final Icon icon;
+  final bool value;
+  final void Function(bool) onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -173,15 +191,9 @@ class _ThickOutlinesSwitch extends StatelessWidget {
               const EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 4),
           child: Row(
             children: [
-              const Tooltip(
-                message: 'Thick Outlines',
-                child: Icon(Icons.line_weight_rounded),
-              ),
+              Tooltip(message: tooltipMessage, child: icon),
               const SizedBox(width: 8),
-              Switch.adaptive(
-                value: useThickOutlines,
-                onChanged: onChangedUseThickOutlines,
-              ),
+              Switch.adaptive(value: value, onChanged: onChanged),
             ],
           ),
         ),

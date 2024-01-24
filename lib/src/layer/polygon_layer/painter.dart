@@ -1,7 +1,5 @@
 part of 'polygon_layer.dart';
 
-const bool _renderVertexes = true; // TODO: Remove, true is best performance
-
 /// The [_PolygonPainter] class is used to render [Polygon]s for
 /// the [PolygonLayer].
 class _PolygonPainter extends CustomPainter {
@@ -11,7 +9,8 @@ class _PolygonPainter extends CustomPainter {
   /// Triangulated [polygons]
   ///
   /// Expected to be in same/corresponding order as [polygons]
-  final List<List<int>> triangles;
+  final List<List<int>>? triangles;
+  final bool useDrawVertices;
 
   /// Reference to the [MapCamera].
   final MapCamera camera;
@@ -19,7 +18,10 @@ class _PolygonPainter extends CustomPainter {
   /// Reference to the bounding box of the [Polygon].
   final LatLngBounds bounds;
 
+  /// Whether to draw per-polygon labels
   final bool polygonLabels;
+
+  /// Whether to draw labels last and thus over all the polygons
   final bool drawLabelsLast;
 
   /// Create a new [_PolygonPainter] instance.
@@ -29,7 +31,8 @@ class _PolygonPainter extends CustomPainter {
     required this.camera,
     required this.polygonLabels,
     required this.drawLabelsLast,
-  }) : bounds = camera.visibleBounds;
+  })  : bounds = camera.visibleBounds,
+        useDrawVertices = triangles != null;
 
   ({Offset min, Offset max}) getBounds(Offset origin, Polygon polygon) {
     final bbox = polygon.boundingBox;
@@ -61,7 +64,7 @@ class _PolygonPainter extends CustomPainter {
             ..style = PaintingStyle.fill
             ..color = color;
 
-          if (_renderVertexes) {
+          if (useDrawVertices) {
             final points = Float32List(trianglePoints.length * 2);
             for (int i = 0; i < trianglePoints.length; ++i) {
               points[i * 2] = trianglePoints[i].dx;
@@ -80,7 +83,7 @@ class _PolygonPainter extends CustomPainter {
         canvas.drawPath(borderPath, _getBorderPaint(polygon));
       }
 
-      if (_renderVertexes) {
+      if (useDrawVertices) {
         trianglePoints.clear();
       } else {
         filledPath = Path();
@@ -97,13 +100,12 @@ class _PolygonPainter extends CustomPainter {
     // Main loop constructing batched fill and border paths from given polygons.
     for (int i = 0; i <= polygons.length - 1; i++) {
       final projectedPolygon = polygons[i];
-      final polygonTriangles = triangles[i];
-
-      if (projectedPolygon.points.isEmpty) {
-        continue;
-      }
-
+      if (projectedPolygon.points.isEmpty) continue;
       final polygon = projectedPolygon.polygon;
+
+      final polygonTriangles = triangles?[i];
+      final useEfficientMethods = polygonTriangles != null;
+
       final offsets = getOffsetsXY(camera, origin, projectedPolygon.points);
 
       // The hash is based on the polygons visual properties. If the hash from
@@ -120,7 +122,7 @@ class _PolygonPainter extends CustomPainter {
       // ignore: deprecated_member_use_from_same_package
       if (polygon.isFilled ?? true) {
         if (polygon.color != null) {
-          if (_renderVertexes) {
+          if (useEfficientMethods) {
             final len = polygonTriangles.length;
             for (int i = 0; i < len; ++i) {
               trianglePoints.add(offsets[polygonTriangles[i]]);
