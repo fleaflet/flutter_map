@@ -1,7 +1,6 @@
 part of 'polygon_layer.dart';
 
 const bool _renderVertexes = true; // TODO: Remove, true is best performance
-const bool _renderPoints = false; // TODO: Remove, false is best performance
 
 /// The [_PolygonPainter] class is used to render [Polygon]s for
 /// the [PolygonLayer].
@@ -43,7 +42,6 @@ class _PolygonPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final trianglePoints = <Offset>[];
-    final outlinePoints = <List<Offset>>[];
 
     var filledPath = Path();
     var borderPath = Path();
@@ -79,45 +77,7 @@ class _PolygonPainter extends CustomPainter {
 
       // Draw polygon outline
       if (polygon.borderStrokeWidth > 0) {
-        final borderPaint = _getBorderPaint(polygon);
-
-        if (_renderPoints) {
-          int len = 0;
-          for (final outline in outlinePoints) {
-            len += outline.length;
-          }
-
-          final segments = Float32List(len * 4);
-
-          int index = 0;
-          for (final outline in outlinePoints) {
-            for (int i = 0; i < outline.length; ++i) {
-              final p1 = outline[i];
-              segments[index] = p1.dx;
-              segments[index + 1] = p1.dy;
-
-              final p2 = outline[(i + 1) % outline.length];
-              segments[index + 2] = p2.dx;
-              segments[index + 3] = p2.dy;
-
-              index += 4;
-            }
-          }
-          canvas.drawRawPoints(PointMode.lines, segments, borderPaint);
-
-          // for (final outline in outlinePoints) {
-          //   final segments = Float32List(outline.length * 2);
-          //
-          //   for (int i = 0; i < outline.length * 2; i += 2) {
-          //     final p1 = outline[i~/2];
-          //     segments[i] = p1.dx;
-          //     segments[i + 1] = p1.dy;
-          //   }
-          //   canvas.drawRawPoints(ui.PointMode.polygon, segments, borderPaint);
-          // }
-        } else {
-          canvas.drawPath(borderPath, borderPaint);
-        }
+        canvas.drawPath(borderPath, _getBorderPaint(polygon));
       }
 
       if (_renderVertexes) {
@@ -126,11 +86,7 @@ class _PolygonPainter extends CustomPainter {
         filledPath = Path();
       }
 
-      if (_renderPoints) {
-        outlinePoints.clear();
-      } else {
-        borderPath = Path();
-      }
+      borderPath = Path();
 
       lastPolygon = null;
       lastHash = null;
@@ -176,11 +132,7 @@ class _PolygonPainter extends CustomPainter {
       }
 
       if (polygon.borderStrokeWidth > 0.0) {
-        if (_renderPoints) {
-          outlinePoints.add(offsets);
-        } else {
-          _addBorderToPath(borderPath, polygon, offsets);
-        }
+        _addBorderToPath(borderPath, polygon, offsets);
       }
 
       // Afterwards deal with more complicated holes.
