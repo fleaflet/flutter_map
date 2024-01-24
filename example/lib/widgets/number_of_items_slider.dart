@@ -43,7 +43,7 @@ class _NumberOfItemsSliderState extends State<NumberOfItemsSlider> {
               child: const Icon(Icons.numbers),
             ),
             Expanded(
-              child: Slider(
+              child: Slider.adaptive(
                 value: _number.toDouble(),
                 onChanged: (v) {
                   if (_number == 0 && v != 0) {

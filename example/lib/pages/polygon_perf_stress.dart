@@ -21,14 +21,10 @@ class PolygonPerfStressPage extends StatefulWidget {
 class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
   static const double _initialSimplificationTolerance = 0.5;
   double simplificationTolerance = _initialSimplificationTolerance;
+  static const bool _initialUseThickOutlines = false;
+  bool useThickOutlines = _initialUseThickOutlines;
 
-  late final geoJsonLoader =
-      rootBundle.loadString('assets/138k-polygon-points.geojson.noformat').then(
-            (geoJson) => compute(
-              (geoJson) => GeoJsonParser()..parseGeoJsonAsString(geoJson),
-              geoJson,
-            ),
-          );
+  late Future<GeoJsonParser> geoJsonParser = loadPolygonsFromGeoJson();
 
   @override
   void initState() {
@@ -38,7 +34,7 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
 
   @override
   void dispose() {
-    geoJsonLoader.ignore();
+    geoJsonParser.ignore();
     super.dispose();
   }
 
@@ -67,7 +63,7 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
             children: [
               openStreetMapTileLayer,
               FutureBuilder(
-                future: geoJsonLoader,
+                future: geoJsonParser,
                 builder: (context, geoJsonParser) =>
                     geoJsonParser.connectionState != ConnectionState.done ||
                             geoJsonParser.data == null
@@ -83,10 +79,48 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
             left: 16,
             top: 16,
             right: 16,
-            child: SimplificationToleranceSlider(
-              initialTolerance: _initialSimplificationTolerance,
-              onChangedTolerance: (v) =>
-                  setState(() => simplificationTolerance = v),
+            child: Column(
+              children: [
+                SimplificationToleranceSlider(
+                  initialTolerance: _initialSimplificationTolerance,
+                  onChangedTolerance: (v) =>
+                      setState(() => simplificationTolerance = v),
+                ),
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: _ThickOutlinesSwitch(
+                    useThickOutlines: useThickOutlines,
+                    onChangedUseThickOutlines: (v) async {
+                      setState(() => useThickOutlines = v);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Row(
+                            children: [
+                              SizedBox.square(
+                                dimension: 16,
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 3,
+                                    valueColor:
+                                        AlwaysStoppedAnimation(Colors.white),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 12),
+                              Text('Loading GeoJson polygons...'),
+                            ],
+                          ),
+                        ),
+                      );
+                      await (geoJsonParser = loadPolygonsFromGeoJson());
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).clearSnackBars();
+                      setState(() {});
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
           if (!kIsWeb)
@@ -97,6 +131,60 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
               child: PerformanceOverlay.allEnabled(),
             ),
         ],
+      ),
+    );
+  }
+
+  Future<GeoJsonParser> loadPolygonsFromGeoJson() async {
+    const filePath = 'assets/138k-polygon-points.geojson.noformat';
+
+    return rootBundle.loadString(filePath).then(
+          (geoJson) => compute(
+            (msg) => GeoJsonParser(
+              defaultPolygonBorderStroke: msg.useThickOutlines ? 15 : 1,
+              defaultPolygonBorderColor: Colors.black.withOpacity(0.5),
+              defaultPolygonFillColor: Colors.amber.withOpacity(0.5),
+            )..parseGeoJsonAsString(msg.geoJson),
+            (geoJson: geoJson, useThickOutlines: useThickOutlines),
+          ),
+        );
+  }
+}
+
+class _ThickOutlinesSwitch extends StatelessWidget {
+  const _ThickOutlinesSwitch({
+    required this.useThickOutlines,
+    required this.onChangedUseThickOutlines,
+  });
+
+  final bool useThickOutlines;
+  final void Function(bool) onChangedUseThickOutlines;
+
+  @override
+  Widget build(BuildContext context) {
+    return UnconstrainedBox(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.background,
+          borderRadius: BorderRadius.circular(32),
+        ),
+        child: Padding(
+          padding:
+              const EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 4),
+          child: Row(
+            children: [
+              const Tooltip(
+                message: 'Thick Outlines',
+                child: Icon(Icons.line_weight_rounded),
+              ),
+              const SizedBox(width: 8),
+              Switch.adaptive(
+                value: useThickOutlines,
+                onChanged: onChangedUseThickOutlines,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

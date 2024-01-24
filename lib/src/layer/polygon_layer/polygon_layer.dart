@@ -1,5 +1,5 @@
 import 'dart:math' as math;
-import 'dart:ui' as ui;
+import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:dart_earcut/dart_earcut.dart';

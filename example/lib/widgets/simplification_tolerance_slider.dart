@@ -41,7 +41,7 @@ class _SimplificationToleranceSliderState
               ),
             ),
             Expanded(
-              child: Slider(
+              child: Slider.adaptive(
                 value: _simplificationTolerance,
                 onChanged: (v) {
                   if (_simplificationTolerance == 0 && v != 0) {

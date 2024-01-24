@@ -45,8 +45,8 @@ class _PolygonPainter extends CustomPainter {
     final trianglePoints = <Offset>[];
     final outlinePoints = <List<Offset>>[];
 
-    var filledPath = ui.Path();
-    var borderPath = ui.Path();
+    var filledPath = Path();
+    var borderPath = Path();
     Polygon? lastPolygon;
     int? lastHash;
 
@@ -69,8 +69,8 @@ class _PolygonPainter extends CustomPainter {
               points[i * 2] = trianglePoints[i].dx;
               points[i * 2 + 1] = trianglePoints[i].dy;
             }
-            final vertices = ui.Vertices.raw(ui.VertexMode.triangles, points);
-            canvas.drawVertices(vertices, ui.BlendMode.src, paint);
+            final vertices = Vertices.raw(VertexMode.triangles, points);
+            canvas.drawVertices(vertices, BlendMode.src, paint);
           } else {
             canvas.drawPath(filledPath, paint);
           }
@@ -103,7 +103,7 @@ class _PolygonPainter extends CustomPainter {
               index += 4;
             }
           }
-          canvas.drawRawPoints(ui.PointMode.lines, segments, borderPaint);
+          canvas.drawRawPoints(PointMode.lines, segments, borderPaint);
 
           // for (final outline in outlinePoints) {
           //   final segments = Float32List(outline.length * 2);
@@ -123,13 +123,13 @@ class _PolygonPainter extends CustomPainter {
       if (_renderVertexes) {
         trianglePoints.clear();
       } else {
-        filledPath = ui.Path();
+        filledPath = Path();
       }
 
       if (_renderPoints) {
         outlinePoints.clear();
       } else {
-        borderPath = ui.Path();
+        borderPath = Path();
       }
 
       lastPolygon = null;
@@ -273,7 +273,7 @@ class _PolygonPainter extends CustomPainter {
   }
 
   void _addBorderToPath(
-    ui.Path path,
+    Path path,
     Polygon polygon,
     List<Offset> offsets,
   ) {
@@ -287,7 +287,7 @@ class _PolygonPainter extends CustomPainter {
   }
 
   void _addHoleBordersToPath(
-    ui.Path path,
+    Path path,
     Polygon polygon,
     List<List<Offset>> holeOffsetsList,
   ) {
@@ -305,7 +305,7 @@ class _PolygonPainter extends CustomPainter {
   }
 
   void _addDottedLineToPath(
-    ui.Path path,
+    Path path,
     List<Offset> offsets,
     double radius,
     double stepLength,
@@ -341,7 +341,7 @@ class _PolygonPainter extends CustomPainter {
     path.addOval(Rect.fromCircle(center: offsets.last, radius: radius));
   }
 
-  void _addLineToPath(ui.Path path, List<Offset> offsets) {
+  void _addLineToPath(Path path, List<Offset> offsets) {
     path.addPolygon(offsets, true);
   }
 
