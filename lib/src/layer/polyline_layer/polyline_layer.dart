@@ -109,9 +109,10 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
         ? projected
         : _cachedSimplifiedPolylines[camera.zoom.floor()] ??=
             _computeZoomLevelSimplification(
+            camera: camera,
             polylines: projected,
             pixelTolerance: widget.simplificationTolerance,
-            camera: camera,
+            devicePixelRatio: MediaQuery.of(context).devicePixelRatio,
           );
 
     final culled = widget.cullingMargin == null
@@ -221,14 +222,16 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
   }
 
   static List<_ProjectedPolyline> _computeZoomLevelSimplification({
+    required MapCamera camera,
     required List<_ProjectedPolyline> polylines,
     required double pixelTolerance,
-    required MapCamera camera,
+    required double devicePixelRatio,
   }) {
     final tolerance = getEffectiveSimplificationTolerance(
       crs: camera.crs,
       zoom: camera.zoom.floor(),
       pixelTolerance: pixelTolerance,
+      devicePixelRatio: devicePixelRatio,
     );
 
     return List<_ProjectedPolyline>.generate(

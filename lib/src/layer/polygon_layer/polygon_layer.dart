@@ -95,9 +95,10 @@ class _PolygonLayerState extends State<PolygonLayer> {
         ? projected
         : _cachedSimplifiedPolygons[camera.zoom.floor()] ??=
             _computeZoomLevelSimplification(
+            camera: camera,
             polygons: projected,
             pixelTolerance: widget.simplificationTolerance,
-            camera: camera,
+            devicePixelRatio: MediaQuery.of(context).devicePixelRatio,
           );
 
     final culled = !widget.polygonCulling
@@ -122,14 +123,16 @@ class _PolygonLayerState extends State<PolygonLayer> {
   }
 
   static List<_ProjectedPolygon> _computeZoomLevelSimplification({
+    required MapCamera camera,
     required List<_ProjectedPolygon> polygons,
     required double pixelTolerance,
-    required MapCamera camera,
+    required double devicePixelRatio,
   }) {
     final tolerance = getEffectiveSimplificationTolerance(
       crs: camera.crs,
       zoom: camera.zoom.floor(),
       pixelTolerance: pixelTolerance,
+      devicePixelRatio: devicePixelRatio,
     );
 
     return List<_ProjectedPolygon>.generate(
