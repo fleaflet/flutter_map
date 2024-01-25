@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/layer/general/ps_caching_layer_state.dart';
 import 'package:flutter_map/src/misc/offsets.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart';
@@ -72,31 +73,13 @@ class PolylineLayer<R extends Object> extends StatefulWidget {
   State<PolylineLayer<R>> createState() => _PolylineLayerState<R>();
 }
 
-class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
-  List<_ProjectedPolyline>? _cachedProjectedPolylines;
-  final _cachedSimplifiedPolylines = <int, List<_ProjectedPolyline>>{};
-
-  final _culledPolylines =
-      <_ProjectedPolyline>[]; // Avoids repetitive memory reallocation
-
-  @override
-  void didUpdateWidget(PolylineLayer<R> oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    // Reuse cache
-    if (widget.simplificationTolerance != 0 &&
-        oldWidget.simplificationTolerance == widget.simplificationTolerance &&
-        listEquals(oldWidget.polylines, widget.polylines)) return;
-
-    _cachedSimplifiedPolylines.clear();
-    _cachedProjectedPolylines = null;
-  }
-
+class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
+    with PSCachingLayerState<_ProjectedPolyline, PolylineLayer<R>> {
   @override
   Widget build(BuildContext context) {
     final camera = MapCamera.of(context);
 
-    final projected = _cachedProjectedPolylines ??= List.generate(
+    final projected = cachedProjected ??= List.generate(
       widget.polylines.length,
       (i) => _ProjectedPolyline._fromPolyline(
         camera.crs.projection,
@@ -107,12 +90,12 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
 
     final simplified = widget.simplificationTolerance == 0
         ? projected
-        : _cachedSimplifiedPolylines[camera.zoom.floor()] ??=
+        : cachedSimplified[camera.zoom.floor()] ??=
             _computeZoomLevelSimplification(
             camera: camera,
             polylines: projected,
             pixelTolerance: widget.simplificationTolerance,
-            devicePixelRatio: MediaQuery.of(context).devicePixelRatio,
+            devicePixelRatio: MediaQuery.devicePixelRatioOf(context),
           );
 
     final culled = widget.cullingMargin == null
@@ -137,13 +120,19 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
     );
   }
 
-  List<_ProjectedPolyline> _aggressivelyCullPolylines({
+  @override
+  bool canReuseCache(PolylineLayer<R> oldWidget) =>
+      widget.simplificationTolerance != 0 &&
+      oldWidget.simplificationTolerance == widget.simplificationTolerance &&
+      listEquals(oldWidget.polylines, widget.polylines);
+
+  static List<_ProjectedPolyline> _aggressivelyCullPolylines({
     required Projection projection,
     required List<_ProjectedPolyline> polylines,
     required MapCamera camera,
     required double cullingMargin,
   }) {
-    _culledPolylines.clear();
+    final culledPolylines = <_ProjectedPolyline>[];
 
     final bounds = camera.visibleBounds;
     final margin = cullingMargin / math.pow(2, camera.zoom);
@@ -172,7 +161,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
 
       // Gradient poylines cannot be easily segmented
       if (polyline.gradientColors != null) {
-        _culledPolylines.add(projectedPolyline);
+        culledPolylines.add(projectedPolyline);
         continue;
       }
 
@@ -192,10 +181,12 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
         } else {
           // If we cannot see this segment but have seen previous ones, flush the last polyline fragment.
           if (start != -1) {
-            _culledPolylines.add(_ProjectedPolyline._(
-              polyline: polyline,
-              points: projectedPolyline.points.sublist(start, i + 1),
-            ));
+            culledPolylines.add(
+              _ProjectedPolyline._(
+                polyline: polyline,
+                points: projectedPolyline.points.sublist(start, i + 1),
+              ),
+            );
 
             // Reset start.
             start = -1;
@@ -206,7 +197,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
       // If the last segment was visible push that last visible polyline
       // fragment, which may also be the entire polyline if `start == 0`.
       if (containsSegment) {
-        _culledPolylines.add(
+        culledPolylines.add(
           start == 0
               ? projectedPolyline
               : _ProjectedPolyline._(
@@ -218,7 +209,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
       }
     }
 
-    return _culledPolylines;
+    return culledPolylines;
   }
 
   static List<_ProjectedPolyline> _computeZoomLevelSimplification({
