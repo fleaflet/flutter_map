@@ -5,7 +5,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/general/ps_caching_layer_state.dart';
 import 'package:flutter_map/src/misc/offsets.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart' hide Path;
@@ -62,13 +61,30 @@ class PolygonLayer extends StatefulWidget {
   State<PolygonLayer> createState() => _PolygonLayerState();
 }
 
-class _PolygonLayerState extends State<PolygonLayer>
-    with PSCachingLayerState<_ProjectedPolygon, PolygonLayer> {
+class _PolygonLayerState extends State<PolygonLayer> {
+  List<_ProjectedPolygon>? _cachedProjectedPolygons;
+  final _cachedSimplifiedPolygons = <int, List<_ProjectedPolygon>>{};
+
+  double? _devicePixelRatio;
+
+  @override
+  void didUpdateWidget(PolygonLayer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (!listEquals(oldWidget.polygons, widget.polygons)) {
+      _cachedProjectedPolygons = null;
+      _cachedSimplifiedPolygons.clear();
+    } else if (!(widget.simplificationTolerance != 0 &&
+        oldWidget.simplificationTolerance == widget.simplificationTolerance)) {
+      _cachedSimplifiedPolygons.clear();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final camera = MapCamera.of(context);
 
-    final projected = cachedProjected ??= List.generate(
+    final projected = _cachedProjectedPolygons ??= List.generate(
       widget.polygons.length,
       (i) => _ProjectedPolygon._fromPolygon(
         camera.crs.projection,
@@ -77,15 +93,24 @@ class _PolygonLayerState extends State<PolygonLayer>
       growable: false,
     );
 
-    final simplified = widget.simplificationTolerance <= 0
-        ? projected
-        : cachedSimplified[camera.zoom.floor()] ??=
-            _computeZoomLevelSimplification(
-            camera: camera,
-            polygons: projected,
-            pixelTolerance: widget.simplificationTolerance,
-            devicePixelRatio: MediaQuery.devicePixelRatioOf(context),
-          );
+    late final List<_ProjectedPolygon> simplified;
+    if (widget.simplificationTolerance == 0) {
+      simplified = projected;
+    } else {
+      final newDPR = MediaQuery.devicePixelRatioOf(context);
+      if (newDPR != _devicePixelRatio) {
+        _devicePixelRatio = newDPR;
+        _cachedSimplifiedPolygons.clear();
+      }
+
+      simplified = _cachedSimplifiedPolygons[camera.zoom.floor()] ??=
+          _computeZoomLevelSimplification(
+        camera: camera,
+        polygons: projected,
+        pixelTolerance: widget.simplificationTolerance,
+        devicePixelRatio: newDPR,
+      );
+    }
 
     final culled = !widget.polygonCulling
         ? simplified
@@ -107,15 +132,6 @@ class _PolygonLayerState extends State<PolygonLayer>
       ),
     );
   }
-
-  @override
-  bool canReuseSimplificationCache(PolygonLayer oldWidget) =>
-      widget.simplificationTolerance != 0 &&
-      oldWidget.simplificationTolerance == widget.simplificationTolerance;
-
-  @override
-  bool canReuseProjectionCache(PolygonLayer oldWidget) =>
-      listEquals(oldWidget.polygons, widget.polygons);
 
   static List<_ProjectedPolygon> _computeZoomLevelSimplification({
     required MapCamera camera,

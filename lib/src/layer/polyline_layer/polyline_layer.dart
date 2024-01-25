@@ -5,7 +5,6 @@ import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/general/ps_caching_layer_state.dart';
 import 'package:flutter_map/src/misc/offsets.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart';
@@ -73,13 +72,30 @@ class PolylineLayer<R extends Object> extends StatefulWidget {
   State<PolylineLayer<R>> createState() => _PolylineLayerState<R>();
 }
 
-class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
-    with PSCachingLayerState<_ProjectedPolyline, PolylineLayer<R>> {
+class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
+  List<_ProjectedPolyline<R>>? _cachedProjectedPolylines;
+  final _cachedSimplifiedPolylines = <int, List<_ProjectedPolyline<R>>>{};
+
+  double? _devicePixelRatio;
+
+  @override
+  void didUpdateWidget(PolylineLayer<R> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (!listEquals(oldWidget.polylines, widget.polylines)) {
+      _cachedProjectedPolylines = null;
+      _cachedSimplifiedPolylines.clear();
+    } else if (!(widget.simplificationTolerance != 0 &&
+        oldWidget.simplificationTolerance == widget.simplificationTolerance)) {
+      _cachedSimplifiedPolylines.clear();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final camera = MapCamera.of(context);
 
-    final projected = cachedProjected ??= List.generate(
+    final projected = _cachedProjectedPolylines ??= List.generate(
       widget.polylines.length,
       (i) => _ProjectedPolyline._fromPolyline(
         camera.crs.projection,
@@ -88,15 +104,24 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
       growable: false,
     );
 
-    final simplified = widget.simplificationTolerance == 0
-        ? projected
-        : cachedSimplified[camera.zoom.floor()] ??=
-            _computeZoomLevelSimplification(
-            camera: camera,
-            polylines: projected,
-            pixelTolerance: widget.simplificationTolerance,
-            devicePixelRatio: MediaQuery.devicePixelRatioOf(context),
-          );
+    late final List<_ProjectedPolyline<R>> simplified;
+    if (widget.simplificationTolerance == 0) {
+      simplified = projected;
+    } else {
+      final newDPR = MediaQuery.devicePixelRatioOf(context);
+      if (newDPR != _devicePixelRatio) {
+        _devicePixelRatio = newDPR;
+        _cachedSimplifiedPolylines.clear();
+      }
+
+      simplified = _cachedSimplifiedPolylines[camera.zoom.floor()] ??=
+          _computeZoomLevelSimplification(
+        camera: camera,
+        polylines: projected,
+        pixelTolerance: widget.simplificationTolerance,
+        devicePixelRatio: newDPR,
+      );
+    }
 
     final culled = widget.cullingMargin == null
         ? simplified
@@ -119,15 +144,6 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
       ),
     );
   }
-
-  @override
-  bool canReuseSimplificationCache(PolylineLayer<R> oldWidget) =>
-      widget.simplificationTolerance != 0 &&
-      oldWidget.simplificationTolerance == widget.simplificationTolerance;
-
-  @override
-  bool canReuseProjectionCache(PolylineLayer<R> oldWidget) =>
-      listEquals(oldWidget.polylines, widget.polylines);
 
   static List<_ProjectedPolyline> _aggressivelyCullPolylines({
     required Projection projection,
@@ -215,9 +231,10 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
     return culledPolylines;
   }
 
-  static List<_ProjectedPolyline> _computeZoomLevelSimplification({
+  static List<_ProjectedPolyline<R>>
+      _computeZoomLevelSimplification<R extends Object>({
     required MapCamera camera,
-    required List<_ProjectedPolyline> polylines,
+    required List<_ProjectedPolyline<R>> polylines,
     required double pixelTolerance,
     required double devicePixelRatio,
   }) {
@@ -228,7 +245,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
       devicePixelRatio: devicePixelRatio,
     );
 
-    return List<_ProjectedPolyline>.generate(
+    return List<_ProjectedPolyline<R>>.generate(
       polylines.length,
       (i) {
         final polyline = polylines[i];
