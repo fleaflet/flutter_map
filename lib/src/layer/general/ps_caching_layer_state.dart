@@ -50,11 +50,26 @@ mixin PSCachingLayerState<P extends Object, W extends StatefulWidget>
   void didUpdateWidget(W oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (canReuseCache(oldWidget)) return;
-    cachedSimplified.clear();
-    cachedProjected = null;
+    if (!canReuseProjectionCache(oldWidget)) {
+      cachedProjected = null;
+      cachedSimplified.clear();
+    } else if (!canReuseSimplificationCache(oldWidget)) {
+      cachedSimplified.clear();
+    }
   }
 
-  /// Whether the currently cached projections and simplifications can be reused
-  bool canReuseCache(W oldWidget);
+  /// Whether the currently cached projections can be reused
+  ///
+  /// Ignore device pixel ratio changes, this is handled automatically
+  /// internally.
+  ///
+  /// If this is `false`, [canReuseSimplificationCache] will be treated as
+  /// `false` without execution.
+  bool canReuseProjectionCache(W oldWidget);
+
+  /// Whether the currently cached simplifications can be reused
+  ///
+  /// Ignore device pixel ratio changes, this is handled automatically
+  /// internally.
+  bool canReuseSimplificationCache(W oldWidget);
 }

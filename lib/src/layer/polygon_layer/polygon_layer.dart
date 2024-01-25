@@ -109,9 +109,12 @@ class _PolygonLayerState extends State<PolygonLayer>
   }
 
   @override
-  bool canReuseCache(PolygonLayer oldWidget) =>
+  bool canReuseSimplificationCache(PolygonLayer oldWidget) =>
       widget.simplificationTolerance != 0 &&
-      oldWidget.simplificationTolerance == widget.simplificationTolerance &&
+      oldWidget.simplificationTolerance == widget.simplificationTolerance;
+
+  @override
+  bool canReuseProjectionCache(PolygonLayer oldWidget) =>
       listEquals(oldWidget.polygons, widget.polygons);
 
   static List<_ProjectedPolygon> _computeZoomLevelSimplification({
