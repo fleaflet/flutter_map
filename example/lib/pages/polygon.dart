@@ -19,12 +19,6 @@ class PolygonPage extends StatelessWidget {
     LatLng(54.3498, -6.2603),
     LatLng(52.8566, 2.3522),
   ];
-  final _notFilledDotedPoints = const [
-    LatLng(49.29, -2.57),
-    LatLng(51.46, -6.43),
-    LatLng(49.86, -8.17),
-    LatLng(48.39, -3.49),
-  ];
   final _filledDotedPoints = const [
     LatLng(46.35, 4.94),
     LatLng(46.22, -0.11),
@@ -43,19 +37,36 @@ class PolygonPage extends StatelessWidget {
     LatLng(59.77, -7.01),
     LatLng(60.77, -6.01),
   ];
-  final _holeOuterPoints = const [
+  final _normalHoleOuterPoints = const [
     LatLng(50, -18),
     LatLng(50, -14),
     LatLng(51.5, -12.5),
     LatLng(54, -14),
     LatLng(54, -18),
   ];
+  final _brokenHoleOuterPoints = const [
+    LatLng(50, -18),
+    LatLng(53, -16),
+    LatLng(51.5, -12.5),
+    LatLng(54, -14),
+    LatLng(54, -18),
+  ];
   final _holeInnerPoints = const [
-    LatLng(52, -17),
-    LatLng(52, -16),
-    LatLng(51.5, -15.5),
-    LatLng(51, -16),
-    LatLng(51, -17),
+    [
+      LatLng(52, -17),
+      LatLng(52, -16),
+      LatLng(51.5, -15.5),
+      LatLng(51, -16),
+      LatLng(51, -17),
+    ],
+    [
+      LatLng(53.5, -17),
+      LatLng(53.5, -16),
+      LatLng(53, -15),
+      LatLng(52.25, -15),
+      LatLng(52.25, -16),
+      LatLng(52.75, -17),
+    ],
   ];
 
   @override
@@ -87,12 +98,6 @@ class PolygonPage extends StatelessWidget {
                     borderStrokeWidth: 4,
                   ),
                   Polygon(
-                    points: _notFilledDotedPoints,
-                    isDotted: true,
-                    borderColor: Colors.green,
-                    borderStrokeWidth: 4,
-                  ),
-                  Polygon(
                     points: _filledDotedPoints,
                     isDotted: true,
                     borderStrokeWidth: 4,
@@ -114,39 +119,74 @@ class PolygonPage extends StatelessWidget {
                     labelPlacement: PolygonLabelPlacement.polylabel,
                   ),
                   Polygon(
-                    points: _holeOuterPoints,
-                    holePointsList: [
-                      _holeInnerPoints,
-                      const [
-                        LatLng(53.5, -17),
-                        LatLng(53.5, -16),
-                        LatLng(53, -15),
-                        LatLng(52.25, -15),
-                        LatLng(52.25, -16),
-                        LatLng(52.75, -17),
-                      ]
-                    ],
+                    points: _normalHoleOuterPoints,
+                    holePointsList: _holeInnerPoints,
                     borderStrokeWidth: 4,
                     borderColor: Colors.black,
                     color: Colors.green,
-                    label: 'Rotated!',
-                    rotateLabel: true,
-                    labelPlacement: PolygonLabelPlacement.polylabel,
                   ),
                   Polygon(
-                    points: _holeOuterPoints
+                    points: _normalHoleOuterPoints
                         .map((latlng) =>
                             LatLng(latlng.latitude, latlng.longitude + 8))
                         .toList(),
                     isDotted: true,
-                    holePointsList: [
-                      _holeInnerPoints
-                          .map((latlng) =>
-                              LatLng(latlng.latitude, latlng.longitude + 8))
-                          .toList()
-                    ],
+                    holePointsList: _holeInnerPoints
+                        .map(
+                          (latlngs) => latlngs
+                              .map((latlng) =>
+                                  LatLng(latlng.latitude, latlng.longitude + 8))
+                              .toList(),
+                        )
+                        .toList(),
                     borderStrokeWidth: 4,
                     borderColor: Colors.orange,
+                    color: Colors.orange.withOpacity(0.5),
+                    performantRendering: false,
+                    label: 'This one is not\nperformantly rendered',
+                    rotateLabel: true,
+                    labelPlacement: PolygonLabelPlacement.centroid,
+                    labelStyle: const TextStyle(color: Colors.black),
+                  ),
+                  Polygon(
+                    points: _brokenHoleOuterPoints
+                        .map((latlng) =>
+                            LatLng(latlng.latitude - 6, latlng.longitude))
+                        .toList(),
+                    holePointsList: _holeInnerPoints
+                        .map(
+                          (latlngs) => latlngs
+                              .map((latlng) =>
+                                  LatLng(latlng.latitude - 6, latlng.longitude))
+                              .toList(),
+                        )
+                        .toList(),
+                    borderStrokeWidth: 4,
+                    borderColor: Colors.black,
+                    color: Colors.green,
+                  ),
+                  Polygon(
+                    points: _brokenHoleOuterPoints
+                        .map((latlng) =>
+                            LatLng(latlng.latitude - 6, latlng.longitude + 8))
+                        .toList(),
+                    isDotted: true,
+                    holePointsList: _holeInnerPoints
+                        .map(
+                          (latlngs) => latlngs
+                              .map((latlng) => LatLng(
+                                  latlng.latitude - 6, latlng.longitude + 8))
+                              .toList(),
+                        )
+                        .toList(),
+                    borderStrokeWidth: 4,
+                    borderColor: Colors.orange,
+                    color: Colors.orange.withOpacity(0.5),
+                    performantRendering: false,
+                    label: 'This one is not\nperformantly rendered',
+                    rotateLabel: true,
+                    labelPlacement: PolygonLabelPlacement.centroid,
+                    labelStyle: const TextStyle(color: Colors.black),
                   ),
                 ],
               ),

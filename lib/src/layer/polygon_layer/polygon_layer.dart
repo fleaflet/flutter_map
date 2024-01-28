@@ -27,17 +27,16 @@ class PolygonLayer extends StatefulWidget {
   /// When enabled, this internally:
   /// * triangulates each polygon using the
   /// ['dart_earcut' package](https://github.com/JaffaKetchup/dart_earcut)
-  /// * uses [`drawVertices`](https://www.youtube.com/watch?v=pD38Yyz7N2E) to
-  /// draw the triangles to the underlying canvas
+  /// * then uses [`drawVertices`](https://www.youtube.com/watch?v=pD38Yyz7N2E)
+  /// to draw the triangles to the underlying canvas
   ///
-  /// In some cases, such as when input polygons are self intersecting,
+  /// In some cases, such as when input polygons are complex/self-intersecting,
   /// the triangulation step can yield poor results, which will appear as
   /// malformed polygons on the canvas. Disable this argument to use standard
   /// canvas drawing methods which don't suffer this issue.
   ///
-  /// Defaults to `true`.
-  // TODO: Toggle triangulation per polygon
-  // TODO: Detect self intersections?
+  /// Defaults to `true`. Will respect feature level
+  /// [Polygon.performantRendering] when this is `true`.
   final bool performantRendering;
 
   /// Whether to cull polygons and polygon sections that are outside of the
@@ -128,13 +127,14 @@ class _PolygonLayerState extends State<PolygonLayer> {
             )
             .toList();
 
-    // TODO: Check deviation if possible (https://github.com/mapbox/earcut/blob/afb5797dbf9272661ca4d49ee2e08bd0cd96e1ed/src/earcut.js#L629C4-L629C18)
     final triangles = !widget.performantRendering
         ? null
         : List.generate(
             culled.length,
             (i) {
               final culledPolygon = culled[i];
+              if (!culledPolygon.polygon.performantRendering) return null;
+
               return Earcut.triangulateRaw(
                 (culledPolygon.holePoints.isNotEmpty
                         ? culledPolygon.points.followedBy(

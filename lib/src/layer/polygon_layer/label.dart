@@ -85,7 +85,7 @@ LatLng _computePolylabel(List<LatLng> points) {
     // point with more distance to the polygon's outline. It's given in
     // point-units, i.e. degrees here. A bigger number means less precision,
     // i.e. cheaper at the expense off less optimal label placement.
-    precision: 0.000001,
+    precision: 0.0001,
   );
   return LatLng(
     labelPosition.point.y.toDouble(),

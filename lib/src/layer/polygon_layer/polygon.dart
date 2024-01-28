@@ -49,10 +49,33 @@ class Polygon {
   /// The [TextStyle] of the [Polygon.label].
   final TextStyle labelStyle;
 
-  /// The placement logic of the [Polygon.label].
+  /// The placement logic of the [Polygon.label]
+  ///
+  /// [PolygonLabelPlacement.polylabel] can be expensive for some polygons. If
+  /// there is a large lag spike, try using [PolygonLabelPlacement.centroid].
   final PolygonLabelPlacement labelPlacement;
 
+  /// Whether to rotate the label counter to the camera's rotation, to ensure
+  /// it remains upright
   final bool rotateLabel;
+
+  /// Whether to use more performant methods to draw this polygon
+  ///
+  /// When enabled, this internally:
+  /// * triangulates each polygon using the
+  /// ['dart_earcut' package](https://github.com/JaffaKetchup/dart_earcut)
+  /// * then uses [`drawVertices`](https://www.youtube.com/watch?v=pD38Yyz7N2E)
+  /// to draw the triangles to the underlying canvas
+  ///
+  /// In some cases, such as when this polygon is complex/self-intersecting,
+  /// the triangulation step can yield poor results, which will appear as
+  /// malformed polygons on the canvas. Disable this argument to use standard
+  /// canvas drawing methods which don't suffer this issue.
+  ///
+  /// Defaults to `true`. Will be ignored if the layer level
+  /// [PolygonLayer.performantRendering] argument is `false`.
+  // TODO: Detect self intersections?
+  final bool performantRendering;
 
   /// Designates whether the given polygon points follow a clock or
   /// anti-clockwise direction.
@@ -112,6 +135,7 @@ class Polygon {
     this.labelStyle = const TextStyle(),
     this.labelPlacement = PolygonLabelPlacement.centroid,
     this.rotateLabel = false,
+    this.performantRendering = true,
   }) : _filledAndClockwise =
             (isFilled ?? (color != null)) && isClockwise(points);
 

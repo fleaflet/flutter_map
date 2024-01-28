@@ -6,11 +6,14 @@ class _PolygonPainter extends CustomPainter {
   /// Reference to the list of [_ProjectedPolygon]s
   final List<_ProjectedPolygon> polygons;
 
-  /// Triangulated [polygons]
+  /// Triangulated [polygons] if available
   ///
-  /// Expected to be in same/corresponding order as [polygons]
-  final List<List<int>>? triangles;
-  final bool useDrawVertices;
+  /// Expected to be in same/corresponding order as [polygons].
+  ///
+  /// Outer will be `null` when [PolygonLayer.performantRendering] is `false`.
+  /// Inner will be `null` when [Polygon.performantRendering] is `false`.
+  /// Lists *should* never be empty.
+  final List<List<int>?>? triangles;
 
   /// Reference to the [MapCamera].
   final MapCamera camera;
@@ -31,8 +34,7 @@ class _PolygonPainter extends CustomPainter {
     required this.camera,
     required this.polygonLabels,
     required this.drawLabelsLast,
-  })  : bounds = camera.visibleBounds,
-        useDrawVertices = triangles != null;
+  }) : bounds = camera.visibleBounds;
 
   ({Offset min, Offset max}) getBounds(Offset origin, Polygon polygon) {
     final bbox = polygon.boundingBox;
@@ -64,7 +66,7 @@ class _PolygonPainter extends CustomPainter {
             ..style = PaintingStyle.fill
             ..color = color;
 
-          if (useDrawVertices) {
+          if (trianglePoints.isNotEmpty) {
             final points = Float32List(trianglePoints.length * 2);
             for (int i = 0; i < trianglePoints.length; ++i) {
               points[i * 2] = trianglePoints[i].dx;
@@ -83,11 +85,8 @@ class _PolygonPainter extends CustomPainter {
         canvas.drawPath(borderPath, _getBorderPaint(polygon));
       }
 
-      if (useDrawVertices) {
-        trianglePoints.clear();
-      } else {
-        filledPath = Path();
-      }
+      trianglePoints.clear();
+      filledPath = Path();
 
       borderPath = Path();
 
@@ -104,13 +103,13 @@ class _PolygonPainter extends CustomPainter {
       final polygon = projectedPolygon.polygon;
 
       final polygonTriangles = triangles?[i];
-      final useEfficientMethods = polygonTriangles != null;
 
       final fillOffsets = getOffsetsXY(
         camera: camera,
         origin: origin,
         points: projectedPolygon.points,
-        holePoints: useEfficientMethods ? projectedPolygon.holePoints : null,
+        holePoints:
+            polygonTriangles != null ? projectedPolygon.holePoints : null,
       );
 
       // The hash is based on the polygons visual properties. If the hash from
@@ -127,7 +126,7 @@ class _PolygonPainter extends CustomPainter {
       // ignore: deprecated_member_use_from_same_package
       if (polygon.isFilled ?? true) {
         if (polygon.color != null) {
-          if (useEfficientMethods) {
+          if (polygonTriangles != null) {
             final len = polygonTriangles.length;
             for (int i = 0; i < len; ++i) {
               trianglePoints.add(fillOffsets[polygonTriangles[i]]);
