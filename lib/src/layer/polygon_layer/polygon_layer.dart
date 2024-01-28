@@ -35,8 +35,8 @@ class PolygonLayer extends StatefulWidget {
   /// malformed polygons on the canvas. Disable this argument to use standard
   /// canvas drawing methods which don't suffer this issue.
   ///
-  /// Defaults to `true`. Will respect feature level
-  /// [Polygon.performantRendering] when this is `true`.
+  /// Defaults to `true`. Individual polygons may be overriden using
+  /// [Polygon.performantRendering].
   final bool performantRendering;
 
   /// Whether to cull polygons and polygon sections that are outside of the
@@ -127,30 +127,29 @@ class _PolygonLayerState extends State<PolygonLayer> {
             )
             .toList();
 
-    final triangles = !widget.performantRendering
-        ? null
-        : List.generate(
-            culled.length,
-            (i) {
-              final culledPolygon = culled[i];
-              if (!culledPolygon.polygon.performantRendering) return null;
+    final triangles = List.generate(
+      culled.length,
+      (i) {
+        final culledPolygon = culled[i];
+        if (!(culledPolygon.polygon.performantRendering ??
+            widget.performantRendering)) return null;
 
-              return Earcut.triangulateRaw(
-                (culledPolygon.holePoints.isNotEmpty
-                        ? culledPolygon.points.followedBy(
-                            culledPolygon.holePoints.expand((e) => e))
-                        : culledPolygon.points)
-                    .map((e) => [e.x, e.y])
-                    .expand((e) => e)
-                    .toList(growable: false),
-                // Not sure how just this works but it seems to :D
-                holeIndices: culledPolygon.holePoints.isNotEmpty
-                    ? [culledPolygon.points.length]
-                    : null,
-              );
-            },
-            growable: false,
-          );
+        return Earcut.triangulateRaw(
+          (culledPolygon.holePoints.isEmpty
+                  ? culledPolygon.points
+                  : (culledPolygon.points
+                      .followedBy(culledPolygon.holePoints.expand((e) => e))))
+              .map((e) => [e.x, e.y])
+              .expand((e) => e)
+              .toList(growable: false),
+          // Not sure how just this works but it seems to :D
+          holeIndices: culledPolygon.holePoints.isEmpty
+              ? null
+              : [culledPolygon.points.length],
+        );
+      },
+      growable: false,
+    );
 
     return MobileLayerTransformer(
       child: CustomPaint(

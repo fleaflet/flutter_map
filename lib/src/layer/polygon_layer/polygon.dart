@@ -72,10 +72,10 @@ class Polygon {
   /// malformed polygons on the canvas. Disable this argument to use standard
   /// canvas drawing methods which don't suffer this issue.
   ///
-  /// Defaults to `true`. Will be ignored if the layer level
-  /// [PolygonLayer.performantRendering] argument is `false`.
-  // TODO: Detect self intersections?
-  final bool performantRendering;
+  /// Defaults to `null` - respect layer level
+  /// [PolygonLayer.performantRendering].
+  // TODO: Detect self intersections (Shamos-Hoey algorithm) and self-set?
+  final bool? performantRendering;
 
   /// Designates whether the given polygon points follow a clock or
   /// anti-clockwise direction.
@@ -135,7 +135,7 @@ class Polygon {
     this.labelStyle = const TextStyle(),
     this.labelPlacement = PolygonLabelPlacement.centroid,
     this.rotateLabel = false,
-    this.performantRendering = true,
+    this.performantRendering,
   }) : _filledAndClockwise =
             (isFilled ?? (color != null)) && isClockwise(points);
 

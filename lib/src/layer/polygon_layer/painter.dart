@@ -9,11 +9,7 @@ class _PolygonPainter extends CustomPainter {
   /// Triangulated [polygons] if available
   ///
   /// Expected to be in same/corresponding order as [polygons].
-  ///
-  /// Outer will be `null` when [PolygonLayer.performantRendering] is `false`.
-  /// Inner will be `null` when [Polygon.performantRendering] is `false`.
-  /// Lists *should* never be empty.
-  final List<List<int>?>? triangles;
+  final List<List<int>?> triangles;
 
   /// Reference to the [MapCamera].
   final MapCamera camera;
@@ -102,7 +98,7 @@ class _PolygonPainter extends CustomPainter {
       if (projectedPolygon.points.isEmpty) continue;
       final polygon = projectedPolygon.polygon;
 
-      final polygonTriangles = triangles?[i];
+      final polygonTriangles = triangles[i];
 
       final fillOffsets = getOffsetsXY(
         camera: camera,
