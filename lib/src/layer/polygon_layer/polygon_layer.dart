@@ -128,26 +128,33 @@ class _PolygonLayerState extends State<PolygonLayer> {
             )
             .toList();
 
-    // TODO: Check deviation if possible (https://github.com/mapbox/earcut/blob/afb5797dbf9272661ca4d49ee2e08bd0cd96e1ed/src/earcut.js#L629C4-L629C18)
     final triangles = !widget.performantRendering
         ? null
         : List.generate(
             culled.length,
             (i) {
               final culledPolygon = culled[i];
-              return Earcut.triangulateRaw(
-                (culledPolygon.holePoints.isNotEmpty
-                        ? culledPolygon.points.followedBy(
-                            culledPolygon.holePoints.expand((e) => e))
-                        : culledPolygon.points)
-                    .map((e) => [e.x, e.y])
-                    .expand((e) => e)
-                    .toList(growable: false),
-                // Not sure how just this works but it seems to :D
-                holeIndices: culledPolygon.holePoints.isNotEmpty
-                    ? [culledPolygon.points.length]
-                    : null,
+
+              final vertices = (culledPolygon.holePoints.isNotEmpty
+                      ? culledPolygon.points
+                          .followedBy(culledPolygon.holePoints.expand((e) => e))
+                      : culledPolygon.points)
+                  .map((e) => [e.x, e.y])
+                  .expand((e) => e)
+                  .toList(growable: false);
+              // Not sure how just this works but it seems to :D
+              final holeIndices = culledPolygon.holePoints.isNotEmpty
+                  ? [culledPolygon.points.length]
+                  : null;
+
+              final triangulated = Earcut.triangulateRaw(
+                vertices,
+                holeIndices: holeIndices,
               );
+
+              print(deviation(vertices, holeIndices, 2, triangulated));
+
+              return triangulated;
             },
             growable: false,
           );
@@ -205,5 +212,52 @@ class _PolygonLayerState extends State<PolygonLayer> {
       },
       growable: false,
     );
+  }
+
+  double deviation(
+    List<double> data,
+    List<int>? holeIndices,
+    int dim,
+    List<int> triangles,
+  ) {
+    final hasHoles = holeIndices?.isNotEmpty ?? false;
+    final outerLen = hasHoles ? holeIndices![0] * dim : data.length;
+
+    var polygonArea = signedArea(data, 0, outerLen, dim).abs();
+    if (hasHoles) {
+      for (var i = 0, len = holeIndices!.length; i < len; i++) {
+        final start = holeIndices[i] * dim;
+        final end = i < len - 1 ? holeIndices[i + 1] * dim : data.length;
+        polygonArea -= signedArea(data, start, end, dim).abs();
+      }
+    }
+
+    double trianglesArea = 0;
+    for (int i = 0; i < triangles.length; i += 3) {
+      final a = triangles[i] * dim;
+      final b = triangles[i + 1] * dim;
+      final c = triangles[i + 2] * dim;
+      trianglesArea += ((data[a] - data[c]) * (data[b + 1] - data[a + 1]) -
+              (data[a] - data[b]) * (data[c + 1] - data[a + 1]))
+          .abs();
+    }
+
+    return polygonArea == 0 && trianglesArea == 0
+        ? 0
+        : ((trianglesArea - polygonArea) / polygonArea).abs();
+  }
+
+  double signedArea(
+    List<double> data,
+    int start,
+    int end,
+    int dim,
+  ) {
+    double sum = 0;
+    for (var i = start, j = end - dim; i < end; i += dim) {
+      sum += (data[j] - data[i]) * (data[i + 1] + data[j + 1]);
+      j = i;
+    }
+    return sum;
   }
 }
