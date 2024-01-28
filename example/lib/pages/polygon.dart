@@ -46,14 +46,16 @@ class PolygonPage extends StatelessWidget {
   final _holeOuterPoints = const [
     LatLng(50, -18),
     LatLng(50, -14),
+    LatLng(51.5, -12.5),
     LatLng(54, -14),
     LatLng(54, -18),
   ];
   final _holeInnerPoints = const [
-    LatLng(51, -17),
-    LatLng(51, -16),
-    LatLng(52, -16),
     LatLng(52, -17),
+    LatLng(52, -16),
+    LatLng(51.5, -15.5),
+    LatLng(51, -16),
+    LatLng(51, -17),
   ];
 
   @override
@@ -113,9 +115,23 @@ class PolygonPage extends StatelessWidget {
                   ),
                   Polygon(
                     points: _holeOuterPoints,
-                    holePointsList: [_holeInnerPoints],
+                    holePointsList: [
+                      _holeInnerPoints,
+                      const [
+                        LatLng(53.5, -17),
+                        LatLng(53.5, -16),
+                        LatLng(53, -15),
+                        LatLng(52.25, -15),
+                        LatLng(52.25, -16),
+                        LatLng(52.75, -17),
+                      ]
+                    ],
                     borderStrokeWidth: 4,
-                    borderColor: Colors.green,
+                    borderColor: Colors.black,
+                    color: Colors.green,
+                    label: 'Rotated!',
+                    rotateLabel: true,
+                    labelPlacement: PolygonLabelPlacement.polylabel,
                   ),
                   Polygon(
                     points: _holeOuterPoints

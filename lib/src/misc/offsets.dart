@@ -40,18 +40,24 @@ List<Offset> getOffsets(MapCamera camera, Offset origin, List<LatLng> points) {
   return v;
 }
 
-List<Offset> getOffsetsXY(
-  MapCamera camera,
-  Offset origin,
-  List<DoublePoint> points,
-) {
+/// Suitable for both lines, filled polygons, and holed polygons
+List<Offset> getOffsetsXY({
+  required MapCamera camera,
+  required Offset origin,
+  required List<DoublePoint> points,
+  List<List<DoublePoint>>? holePoints,
+}) {
   // Critically create as little garbage as possible. This is called on every frame.
   final crs = camera.crs;
   final zoomScale = crs.scale(camera.zoom);
 
+  final realPoints = holePoints == null || holePoints.isEmpty
+      ? points
+      : [...points, ...holePoints.expand((e) => e)];
+
   final ox = -origin.dx;
   final oy = -origin.dy;
-  final len = points.length;
+  final len = realPoints.length;
 
   // Optimization: monomorphize the CrsWithStaticTransformation-case to avoid
   // the virtual function overhead.
@@ -59,7 +65,7 @@ List<Offset> getOffsetsXY(
     final CrsWithStaticTransformation mcrs = crs;
     final v = List<Offset>.filled(len, Offset.zero);
     for (int i = 0; i < len; ++i) {
-      final p = points[i];
+      final p = realPoints[i];
       final (x, y) = mcrs.transform(p.x, p.y, zoomScale);
       v[i] = Offset(x + ox, y + oy);
     }
@@ -68,7 +74,7 @@ List<Offset> getOffsetsXY(
 
   final v = List<Offset>.filled(len, Offset.zero);
   for (int i = 0; i < len; ++i) {
-    final p = points[i];
+    final p = realPoints[i];
     final (x, y) = crs.transform(p.x, p.y, zoomScale);
     v[i] = Offset(x + ox, y + oy);
   }

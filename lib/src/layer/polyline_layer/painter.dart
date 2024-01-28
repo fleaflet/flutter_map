@@ -42,7 +42,11 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
       //   continue;
       // }
 
-      final offsets = getOffsetsXY(camera, origin, projectedPolyline.points);
+      final offsets = getOffsetsXY(
+        camera: camera,
+        origin: origin,
+        points: projectedPolyline.points,
+      );
       final strokeWidth = polyline.useStrokeWidthInMeter
           ? _metersToStrokeWidth(
               origin,
@@ -134,7 +138,11 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
 
     for (final projectedPolyline in polylines) {
       final polyline = projectedPolyline.polyline;
-      final offsets = getOffsetsXY(camera, origin, projectedPolyline.points);
+      final offsets = getOffsetsXY(
+        camera: camera,
+        origin: origin,
+        points: projectedPolyline.points,
+      );
       if (offsets.isEmpty) {
         continue;
       }
@@ -280,6 +288,9 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
   LatLng _unproject(DoublePoint p0) =>
       camera.crs.projection.unprojectXY(p0.x, p0.y);
 
+  // TODO: Fix bug where wrapping layer in some widgets (eg. opacity) causes the
+  // features to not move unless this is `true`, but `true` significantly impacts
+  // performance
   @override
   bool shouldRepaint(_PolylinePainter<R> oldDelegate) => false;
 }

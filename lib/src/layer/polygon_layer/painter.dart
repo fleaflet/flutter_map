@@ -106,7 +106,12 @@ class _PolygonPainter extends CustomPainter {
       final polygonTriangles = triangles?[i];
       final useEfficientMethods = polygonTriangles != null;
 
-      final offsets = getOffsetsXY(camera, origin, projectedPolygon.points);
+      final fillOffsets = getOffsetsXY(
+        camera: camera,
+        origin: origin,
+        points: projectedPolygon.points,
+        holePoints: useEfficientMethods ? projectedPolygon.holePoints : null,
+      );
 
       // The hash is based on the polygons visual properties. If the hash from
       // the current and the previous polygon no longer match, we need to flush
@@ -125,21 +130,28 @@ class _PolygonPainter extends CustomPainter {
           if (useEfficientMethods) {
             final len = polygonTriangles.length;
             for (int i = 0; i < len; ++i) {
-              trianglePoints.add(offsets[polygonTriangles[i]]);
+              trianglePoints.add(fillOffsets[polygonTriangles[i]]);
             }
           } else {
-            filledPath.addPolygon(offsets, true);
+            filledPath.addPolygon(fillOffsets, true);
           }
         }
       }
 
       if (polygon.borderStrokeWidth > 0.0) {
-        _addBorderToPath(borderPath, polygon, offsets);
+        _addBorderToPath(
+          borderPath,
+          polygon,
+          getOffsetsXY(
+            camera: camera,
+            origin: origin,
+            points: projectedPolygon.points,
+          ),
+        );
       }
 
       // Afterwards deal with more complicated holes.
-      // TODO: Handle holes
-      /*final holePointsList = polygon.holePointsList;
+      final holePointsList = polygon.holePointsList;
       if (holePointsList != null && holePointsList.isNotEmpty) {
         // Ideally we'd use `Path.combine(PathOperation.difference, ...)`
         // instead of evenOdd fill-type, however it creates visual artifacts
@@ -159,7 +171,7 @@ class _PolygonPainter extends CustomPainter {
         if (!polygon.disableHolesBorder && polygon.borderStrokeWidth > 0.0) {
           _addHoleBordersToPath(borderPath, polygon, holeOffsetsList);
         }
-      }*/
+      }
 
       if (!drawLabelsLast && polygonLabels && polygon.textPainter != null) {
         // Labels are expensive because:
@@ -299,6 +311,9 @@ class _PolygonPainter extends CustomPainter {
     path.addPolygon(offsets, true);
   }
 
+  // TODO: Fix bug where wrapping layer in some widgets (eg. opacity) causes the
+  // features to not move unless this is `true`, but `true` significantly impacts
+  // performance
   @override
   bool shouldRepaint(_PolygonPainter oldDelegate) => false;
 }

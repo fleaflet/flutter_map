@@ -38,8 +38,6 @@ class PolygonLayer extends StatefulWidget {
   /// Defaults to `true`.
   // TODO: Toggle triangulation per polygon
   // TODO: Detect self intersections?
-  // TODO: Detect holes (if support not added)
-  // TODO: Add argument per polygon
   final bool performantRendering;
 
   /// Whether to cull polygons and polygon sections that are outside of the
@@ -130,19 +128,27 @@ class _PolygonLayerState extends State<PolygonLayer> {
             )
             .toList();
 
-    // TODO: Handle holes
     // TODO: Check deviation if possible (https://github.com/mapbox/earcut/blob/afb5797dbf9272661ca4d49ee2e08bd0cd96e1ed/src/earcut.js#L629C4-L629C18)
     final triangles = !widget.performantRendering
         ? null
         : List.generate(
             culled.length,
-            (i) => Earcut.triangulateRaw(
-              culled[i]
-                  .points
-                  .map((e) => [e.x, e.y])
-                  .expand((e) => e)
-                  .toList(growable: false),
-            ),
+            (i) {
+              final culledPolygon = culled[i];
+              return Earcut.triangulateRaw(
+                (culledPolygon.holePoints.isNotEmpty
+                        ? culledPolygon.points.followedBy(
+                            culledPolygon.holePoints.expand((e) => e))
+                        : culledPolygon.points)
+                    .map((e) => [e.x, e.y])
+                    .expand((e) => e)
+                    .toList(growable: false),
+                // Not sure how just this works but it seems to :D
+                holeIndices: culledPolygon.holePoints.isNotEmpty
+                    ? [culledPolygon.points.length]
+                    : null,
+              );
+            },
             growable: false,
           );
 
