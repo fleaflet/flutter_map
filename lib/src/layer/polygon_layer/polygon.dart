@@ -59,23 +59,15 @@ class Polygon {
   /// it remains upright
   final bool rotateLabel;
 
-  /// Whether to use more performant methods to draw this polygon
+  /// {@macro fm.PolygonLayer.performantRendering}
   ///
-  /// When enabled, this internally:
-  /// * triangulates each polygon using the
-  /// ['dart_earcut' package](https://github.com/JaffaKetchup/dart_earcut)
-  /// * then uses [`drawVertices`](https://www.youtube.com/watch?v=pD38Yyz7N2E)
-  /// to draw the triangles to the underlying canvas
+  /// Value meanings (defaults to `true`):
   ///
-  /// In some cases, such as when this polygon is complex/self-intersecting,
-  /// the triangulation step can yield poor results, which will appear as
-  /// malformed polygons on the canvas. Disable this argument to use standard
-  /// canvas drawing methods which don't suffer this issue.
+  /// - `true` : respect layer-level value (disabled by default)
+  /// - `false`: disabled, ignore layer-level value
   ///
-  /// Defaults to `null` - respect layer level
-  /// [PolygonLayer.performantRendering].
-  // TODO: Detect self intersections (Shamos-Hoey algorithm) and self-set?
-  final bool? performantRendering;
+  /// Also see [PolygonLayer.performantRendering].
+  final bool performantRendering;
 
   /// Designates whether the given polygon points follow a clock or
   /// anti-clockwise direction.
@@ -135,7 +127,7 @@ class Polygon {
     this.labelStyle = const TextStyle(),
     this.labelPlacement = PolygonLabelPlacement.centroid,
     this.rotateLabel = false,
-    this.performantRendering,
+    this.performantRendering = true,
   }) : _filledAndClockwise =
             (isFilled ?? (color != null)) && isClockwise(points);
 

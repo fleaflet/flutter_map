@@ -22,21 +22,28 @@ class PolygonLayer extends StatefulWidget {
   /// [Polygon]s to draw
   final List<Polygon> polygons;
 
-  /// Whether to use more performant methods to draw polygons
+  /// {@template fm.PolygonLayer.performantRendering}
+  /// Whether to use an alternative, specialised, rendering pathway to draw
+  /// polygons, which can be more performant in some circumstances
   ///
-  /// When enabled, this internally:
-  /// * triangulates each polygon using the
-  /// ['dart_earcut' package](https://github.com/JaffaKetchup/dart_earcut)
-  /// * then uses [`drawVertices`](https://www.youtube.com/watch?v=pD38Yyz7N2E)
-  /// to draw the triangles to the underlying canvas
+  /// This will not always improve performance, and there are other important
+  /// considerations before enabling it. It is intended for use when prior
+  /// profiling indicates more performance is required after other methods are
+  /// already in use.
   ///
-  /// In some cases, such as when input polygons are complex/self-intersecting,
-  /// the triangulation step can yield poor results, which will appear as
-  /// malformed polygons on the canvas. Disable this argument to use standard
-  /// canvas drawing methods which don't suffer this issue.
+  /// For more information about usage (and the rendering pathway), see the
+  /// [online documentation](https://docs.fleaflet.dev/layers/polygon-layer#performant-rendering-drawvertices).
+  /// {@endtemplate}
   ///
-  /// Defaults to `true`. Individual polygons may be overriden using
-  /// [Polygon.performantRendering].
+  /// Value meanings (defaults to `false`):
+  ///
+  /// - `true` : enabled, but respect individual feature-level overrides
+  /// - `false`: disabled, ignore feature-level overrides
+  /// - (no option is provided to disable by default but respect feature-level
+  /// overrides, as this will likely not be useful for this option's intended
+  /// purpose)
+  ///
+  /// Also see [Polygon.performantRendering].
   final bool performantRendering;
 
   /// Whether to cull polygons and polygon sections that are outside of the
@@ -69,7 +76,7 @@ class PolygonLayer extends StatefulWidget {
   const PolygonLayer({
     super.key,
     required this.polygons,
-    this.performantRendering = true,
+    this.performantRendering = false,
     this.polygonCulling = true,
     this.simplificationTolerance = 0.5,
     this.polygonLabels = true,
@@ -127,29 +134,30 @@ class _PolygonLayerState extends State<PolygonLayer> {
             )
             .toList();
 
-    final triangles = List.generate(
-      culled.length,
-      (i) {
-        final culledPolygon = culled[i];
-        if (!(culledPolygon.polygon.performantRendering ??
-            widget.performantRendering)) return null;
-
-        return Earcut.triangulateRaw(
-          (culledPolygon.holePoints.isEmpty
-                  ? culledPolygon.points
-                  : (culledPolygon.points
-                      .followedBy(culledPolygon.holePoints.expand((e) => e))))
-              .map((e) => [e.x, e.y])
-              .expand((e) => e)
-              .toList(growable: false),
-          // Not sure how just this works but it seems to :D
-          holeIndices: culledPolygon.holePoints.isEmpty
-              ? null
-              : [culledPolygon.points.length],
-        );
-      },
-      growable: false,
-    );
+    final triangles = !widget.performantRendering
+        ? null
+        : List.generate(
+            culled.length,
+            (i) {
+              final culledPolygon = culled[i];
+              return culledPolygon.polygon.performantRendering
+                  ? Earcut.triangulateRaw(
+                      (culledPolygon.holePoints.isEmpty
+                              ? culledPolygon.points
+                              : (culledPolygon.points.followedBy(
+                                  culledPolygon.holePoints.expand((e) => e))))
+                          .map((e) => [e.x, e.y])
+                          .expand((e) => e)
+                          .toList(growable: false),
+                      // Not sure how just this works but it seems to :D
+                      holeIndices: culledPolygon.holePoints.isEmpty
+                          ? null
+                          : [culledPolygon.points.length],
+                    )
+                  : null;
+            },
+            growable: false,
+          );
 
     return MobileLayerTransformer(
       child: CustomPaint(
