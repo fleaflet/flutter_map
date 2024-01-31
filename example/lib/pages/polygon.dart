@@ -119,13 +119,6 @@ class PolygonPage extends StatelessWidget {
                     labelPlacement: PolygonLabelPlacement.polylabel,
                   ),
                   Polygon(
-                    points: _normalHoleOuterPoints,
-                    holePointsList: _holeInnerPoints,
-                    borderStrokeWidth: 4,
-                    borderColor: Colors.black,
-                    color: Colors.green,
-                  ),
-                  Polygon(
                     points: _normalHoleOuterPoints
                         .map((latlng) =>
                             LatLng(latlng.latitude, latlng.longitude + 8))
@@ -151,23 +144,6 @@ class PolygonPage extends StatelessWidget {
                   Polygon(
                     points: _brokenHoleOuterPoints
                         .map((latlng) =>
-                            LatLng(latlng.latitude - 6, latlng.longitude))
-                        .toList(),
-                    holePointsList: _holeInnerPoints
-                        .map(
-                          (latlngs) => latlngs
-                              .map((latlng) =>
-                                  LatLng(latlng.latitude - 6, latlng.longitude))
-                              .toList(),
-                        )
-                        .toList(),
-                    borderStrokeWidth: 4,
-                    borderColor: Colors.black,
-                    color: Colors.green,
-                  ),
-                  Polygon(
-                    points: _brokenHoleOuterPoints
-                        .map((latlng) =>
                             LatLng(latlng.latitude - 6, latlng.longitude + 8))
                         .toList(),
                     isDotted: true,
@@ -187,6 +163,36 @@ class PolygonPage extends StatelessWidget {
                     rotateLabel: true,
                     labelPlacement: PolygonLabelPlacement.centroid,
                     labelStyle: const TextStyle(color: Colors.black),
+                  ),
+                ],
+              ),
+              PolygonLayer(
+                simplificationTolerance: 0,
+                performantRendering: true,
+                polygons: [
+                  Polygon(
+                    points: _normalHoleOuterPoints,
+                    holePointsList: _holeInnerPoints,
+                    borderStrokeWidth: 4,
+                    borderColor: Colors.black,
+                    color: Colors.green,
+                  ),
+                  Polygon(
+                    points: _brokenHoleOuterPoints
+                        .map((latlng) =>
+                            LatLng(latlng.latitude - 6, latlng.longitude))
+                        .toList(),
+                    holePointsList: _holeInnerPoints
+                        .map(
+                          (latlngs) => latlngs
+                              .map((latlng) =>
+                                  LatLng(latlng.latitude - 6, latlng.longitude))
+                              .toList(),
+                        )
+                        .toList(),
+                    borderStrokeWidth: 4,
+                    borderColor: Colors.black,
+                    color: Colors.green,
                   ),
                 ],
               ),
