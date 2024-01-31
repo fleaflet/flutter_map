@@ -22,6 +22,10 @@ PolygonLayer(
 
 ## Performance Optimizations
 
+{% hint style="success" %}
+The example application includes a stress test which loads multiple `Polygon`s from a GeoJson file, with a total of 138,000 points.
+{% endhint %}
+
 ### Culling
 
 To improve performance, polygons that are entirely offscreen are effectively removed - they are not processed or painted/rendered. This is enabled by default, and may be disabled using the `polygonCulling` parameter.
@@ -43,11 +47,30 @@ On layers with (many) only small polygons (those with few points), disabling sim
 {% endhint %}
 
 {% hint style="warning" %}
-The outline points of holes are not simplified.
+Polygons may overlap after simplification when they did not before, and vice versa.
+{% endhint %}
+
+### Performant Rendering (`drawVertices`)
+
+Polygons (and similar other features) are usually drawn directly onto a `Canvas`, using built-in methods such as `drawPolygon` and `drawLine`. However, these can be relatively slow, and will slow the raster thread when used at a large scale.
+
+Therefore, to improve performance, it's possible to optionally set the `performantRendering` flag (either on the `Polygon` feature itself, or the `PolygonLayer`). This will use a more specialised rendering pathway which slightly extends the duration of the UI thread, but can massively reduce the duration of the raster thread, usually leading to an overall performance improvement, particularly at a large scale.
+
+> There's two main steps to this alternative rendering algorithm:
+>
+> 1. Cut each `Polygon` into multiple triangles through a process known as [triangulation](https://en.wikipedia.org/wiki/Polygon\_triangulation). flutter\_map uses an earcutting algorithm through [dart\_earcut](https://pub.dev/packages/dart\_earcut) (a port of an algorithm initially developed at Mapbox intended for super-large scale triangulation).
+> 2. Draw each triangle onto the canvas via the lower-level, faster [`drawVertices`](https://api.flutter.dev/flutter/dart-ui/Canvas/drawVertices.html) method. Borders are then drawn as normal.
+
+{% hint style="warning" %}
+Self-intersecting (complex) `Polygon`s are not supported by the triangulation algorithm, and could cause errors. Holes are supported.
 {% endhint %}
 
 {% hint style="warning" %}
-Seperate polygons that are usually very close/adjacent/connected to each other on their borders may overlap after simplification, when they did not prior to that.
+Rarely, some visible artefacts may be introduced by the triangulation algorithm.
+{% endhint %}
+
+{% hint style="warning" %}
+This pathway may be slower than the standard pathway at a small scale.
 {% endhint %}
 
 ## Polygon Manipulation

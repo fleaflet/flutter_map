@@ -35,6 +35,10 @@ The `minimumHitbox` argument adjusts the minimum size of the hitbox - the size o
 
 ## Performance Optimizations
 
+{% hint style="success" %}
+The example application includes a stress test which generates a `Polyline` with 200,000 points.
+{% endhint %}
+
 ### Culling
 
 To improve performance, line segments that are entirely offscreen are effectively removed - they are not processed or painted/rendered. This is enabled by default and disabling it is not recommended.
@@ -65,7 +69,7 @@ To improve performance, polylines are 'simplified' before being culled and paint
 In combination with culling, `PolylineLayer`s with hundreds of thousands of points can be rendered at over 60fps.
 {% endhint %}
 
-To adjust the quality and performance of the simplification, the maximum distance between removable points can be adjusted through the `simplificationTolerance` parameter. Increasing this value (from its default of 0.5) results in a more jagged, less accurate (lower quality) simplification, with improved performance; and vice versa. Many applications use a value in the range 1 - 1.5.
+To adjust the quality and performance of the simplification, the maximum distance between removable points can be adjusted through the `simplificationTolerance` parameter. Increasing this value (from its default of 0.4) results in a more jagged, less accurate (lower quality) simplification, with improved performance; and vice versa. Many applications use a value in the range 1 - 1.5.
 
 To disable simplification, set `simplificationTolerance` to 0.&#x20;
 
