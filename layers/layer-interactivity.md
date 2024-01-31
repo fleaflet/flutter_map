@@ -7,7 +7,7 @@ To detect hits/interactions on `Markers` in a `MarkerLayer`, simply use a `Gestu
 {% endhint %}
 
 {% hint style="info" %}
-We don't provide direct callbacks on layers or features for interactivity, in order to maximize flexibility.
+Direct callbacks on layers or features aren't provided, to maximize flexibility.
 {% endhint %}
 
 ## 1. Attach A Hit Notifier

@@ -54,7 +54,7 @@ Polygons may overlap after simplification when they did not before, and vice ver
 
 Polygons (and similar other features) are usually drawn directly onto a `Canvas`, using built-in methods such as `drawPolygon` and `drawLine`. However, these can be relatively slow, and will slow the raster thread when used at a large scale.
 
-Therefore, to improve performance, it's possible to optionally set the `performantRendering` flag (either on the `Polygon` feature itself, or the `PolygonLayer`). This will use a more specialised rendering pathway which slightly extends the duration of the UI thread, but can massively reduce the duration of the raster thread, usually leading to an overall performance improvement, particularly at a large scale.
+Therefore, to improve performance, it's possible to optionally set the `performantRendering` flag (either on the `Polygon` feature itself, or the `PolygonLayer`). This will use an alternative, specialised, rendering pathway, which can lead to an overall performance improvement, particularly at a large scale.
 
 > There's two main steps to this alternative rendering algorithm:
 >
@@ -62,15 +62,21 @@ Therefore, to improve performance, it's possible to optionally set the `performa
 > 2. Draw each triangle onto the canvas via the lower-level, faster [`drawVertices`](https://api.flutter.dev/flutter/dart-ui/Canvas/drawVertices.html) method. Borders are then drawn as normal.
 
 {% hint style="warning" %}
-Self-intersecting (complex) `Polygon`s are not supported by the triangulation algorithm, and could cause errors. Holes are supported.
+Self-intersecting (complex) `Polygon`s are not supported by the triangulation algorithm, and could cause errors.
+
+The Shamos-Hoey algorithm could be used to automatically detect self-intersections, and set the feature-level flag correspondingly. If doing this, remember that the simplification step (which runs prior to this) could either add or remove a self-intersection.
+
+Holes are supported.
+{% endhint %}
+
+{% hint style="warning" %}
+This pathway may be slower than the standard pathway, especially when used on a large scale but with simplification disabled, or used on an especially small scale.
+
+It is intended for use when prior profiling indicates more performance is required after other methods are already in use.
 {% endhint %}
 
 {% hint style="warning" %}
 Rarely, some visible artefacts may be introduced by the triangulation algorithm.
-{% endhint %}
-
-{% hint style="warning" %}
-This pathway may be slower than the standard pathway at a small scale.
 {% endhint %}
 
 ## Polygon Manipulation
