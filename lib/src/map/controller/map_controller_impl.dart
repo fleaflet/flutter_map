@@ -441,7 +441,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
       );
       return;
     }
-    stopAnimation();
+    stopAnimationRaw();
 
     if (newCenter == camera.center && newZoom == camera.zoom) return;
 
@@ -479,7 +479,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     AnimationEndedCallback? onAnimatedEnded,
     AnimationCancelledCallback? onAnimationCancelled,
   }) {
-    stopAnimation();
+    stopAnimationRaw();
     if (newRotation == camera.rotation) return;
 
     // create the new animation
@@ -502,19 +502,9 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   /// This is commonly used by other gestures that should stop all
   /// ongoing movement.
   void stopAnimationRaw({bool canceled = true}) {
-    if (isAnimating) _animationController.stop(canceled: canceled);
-  }
-
-  /// Getter that returns true if the [MapControllerImpl] performs a zoom,
-  /// drag or rotate animation.
-  bool get isAnimating => _animationController.isAnimating;
-
-  /// cancel all ongoing animation
-  void stopAnimation() {
-    if (_animationController.isAnimating) {
-      // cancel animation
+    if (isAnimating) {
       _animatedCancelledCallback?.call(camera, _animationSource);
-      _animationController.stop();
+      _animationController.stop(canceled: canceled);
     }
     _moveAnimation = null;
     _rotationAnimation = null;
@@ -523,6 +513,10 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     _animatedEndedCallback = null;
     _animatedCancelledCallback = null;
   }
+
+  /// Getter that returns true if the [MapControllerImpl] performs a zoom,
+  /// drag or rotate animation.
+  bool get isAnimating => _animationController.isAnimating;
 
   /// Fling animation for the map.
   /// The raw method allows to set all parameters.
@@ -536,7 +530,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     double ratio = 5,
     required bool hasGesture,
   }) {
-    stopAnimation();
+    stopAnimationRaw();
 
     _animationHasGesture = hasGesture;
     _animationOffset = offset;
@@ -576,7 +570,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     AnimationEndedCallback? onAnimatedEnded,
     AnimationCancelledCallback? onAnimationCancelled,
   }) {
-    stopAnimation();
+    stopAnimationRaw();
     if (newCenter == camera.center && newZoom == camera.zoom) return;
 
     // create the new animation
