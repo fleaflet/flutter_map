@@ -228,6 +228,7 @@ class MapGestures {
           doubleTapDragZoom == other.doubleTapDragZoom &&
           scrollWheelZoom == other.scrollWheelZoom &&
           twoFingerRotate == other.twoFingerRotate &&
+          keyTriggerClickRotate == other.keyTriggerClickRotate &&
           keyTriggerDragRotate == other.keyTriggerDragRotate;
 
   @override
@@ -240,6 +241,7 @@ class MapGestures {
         doubleTapDragZoom,
         scrollWheelZoom,
         twoFingerRotate,
+        keyTriggerClickRotate,
         keyTriggerDragRotate,
       );
 }
