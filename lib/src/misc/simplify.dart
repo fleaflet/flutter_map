@@ -4,7 +4,6 @@
 import 'dart:math' as math;
 
 import 'package:flutter_map/src/geo/crs.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 
 /// Internal double-precision point/vector implementation not to be used in publicly.
@@ -123,29 +122,6 @@ List<DoublePoint> simplifyDouglasPeucker(
   _simplifyDPStep(points, 0, last, sqTolerance, simplified);
   simplified.add(points[last]);
   return simplified;
-}
-
-List<LatLng> simplify({
-  required List<LatLng> points,
-  required double tolerance,
-  required bool highQuality,
-}) {
-  // Don't simplify anything less than a square
-  if (points.length <= 4) return points;
-
-  List<DoublePoint> nextPoints = List<DoublePoint>.generate(
-    points.length,
-    (i) => DoublePoint(points[i].longitude, points[i].latitude),
-  );
-  final double sqTolerance = tolerance * tolerance;
-  nextPoints = highQuality
-      ? simplifyDouglasPeucker(nextPoints, sqTolerance)
-      : simplifyRadialDist(nextPoints, sqTolerance);
-
-  return List<LatLng>.generate(
-    nextPoints.length,
-    (i) => LatLng(nextPoints[i].y, nextPoints[i].x),
-  );
 }
 
 List<DoublePoint> simplifyPoints({
