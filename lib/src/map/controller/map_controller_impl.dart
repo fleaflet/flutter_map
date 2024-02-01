@@ -669,6 +669,10 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
             camera: camera,
             source: _animationSource,
           ),
+        MapEventSource.flingAnimationController => MapEventFlingAnimationEnd(
+            camera: camera,
+            source: _animationSource,
+          ),
         _ => MapEventMoveEnd(
             camera: camera,
             source: _animationSource,
