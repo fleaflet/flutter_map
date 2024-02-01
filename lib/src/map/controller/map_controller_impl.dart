@@ -39,7 +39,9 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
                 vsync == null ? null : AnimationController(vsync: vsync),
           ),
         ) {
-    value.animationController?.addListener(_handleAnimation);
+    value.animationController
+      ?..addListener(_handleAnimation)
+      ..addStatusListener(_handleAnimationStatus);
   }
 
   /// Link the viewer state with the controller. This should be done once when
@@ -422,8 +424,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     required Curve curve,
     required bool hasGesture,
     required MapEventSource source,
-    required AnimationEndedCallback? onAnimatedEnded,
-    required AnimationCancelledCallback? onAnimationCancelled,
+    AnimationEndedCallback? onAnimatedEnded,
+    AnimationCancelledCallback? onAnimationCancelled,
   }) {
     if (newRotation == camera.rotation) {
       // if the rotation is the same we just need to move the MapCamera
@@ -439,7 +441,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
       );
       return;
     }
-    stopAnimations();
+    stopAnimation();
 
     if (newCenter == camera.center && newZoom == camera.zoom) return;
 
@@ -474,10 +476,10 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     required Curve curve,
     required bool hasGesture,
     required MapEventSource source,
-    required AnimationEndedCallback? onAnimatedEnded,
-    required AnimationCancelledCallback? onAnimationCancelled,
+    AnimationEndedCallback? onAnimatedEnded,
+    AnimationCancelledCallback? onAnimationCancelled,
   }) {
-    stopAnimations();
+    stopAnimation();
     if (newRotation == camera.rotation) return;
 
     // create the new animation
@@ -508,8 +510,12 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   bool get isAnimating => _animationController.isAnimating;
 
   /// cancel all ongoing animation
-  void stopAnimations({bool cancelled = true}) {
-    _animationController.stop(canceled: cancelled);
+  void stopAnimation() {
+    if (_animationController.isAnimating) {
+      // cancel animation
+      _animatedCancelledCallback?.call(camera, _animationSource);
+      _animationController.stop();
+    }
     _moveAnimation = null;
     _rotationAnimation = null;
     _zoomAnimation = null;
@@ -530,7 +536,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     double ratio = 5,
     required bool hasGesture,
   }) {
-    stopAnimations();
+    stopAnimation();
 
     _animationHasGesture = hasGesture;
     _animationOffset = offset;
@@ -567,10 +573,10 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     required Curve curve,
     required bool hasGesture,
     required MapEventSource source,
-    required AnimationEndedCallback? onAnimatedEnded,
-    required AnimationCancelledCallback? onAnimationCancelled,
+    AnimationEndedCallback? onAnimatedEnded,
+    AnimationCancelledCallback? onAnimationCancelled,
   }) {
-    stopAnimations();
+    stopAnimation();
     if (newCenter == camera.center && newZoom == camera.zoom) return;
 
     // create the new animation
@@ -623,7 +629,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
           _zoomAnimation?.value ?? camera.zoom,
           _rotationAnimation!.value,
           hasGesture: _animationHasGesture,
-          source: MapEventSource.mapController,
+          source: _animationSource,
           offset: _animationOffset,
         );
       } else {
@@ -631,7 +637,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
           _moveAnimation!.value,
           _zoomAnimation?.value ?? camera.zoom,
           hasGesture: _animationHasGesture,
-          source: MapEventSource.mapController,
+          source: _animationSource,
           offset: _animationOffset,
         );
       }
@@ -643,7 +649,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
       rotateRaw(
         _rotationAnimation!.value,
         hasGesture: _animationHasGesture,
-        source: MapEventSource.mapController,
+        source: _animationSource,
       );
     }
   }
@@ -657,6 +663,18 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
 
   void _handleAnimationStatus(AnimationStatus status) {
     if (status == AnimationStatus.completed) {
+      final event = switch (_animationSource) {
+        MapEventSource.doubleTapZoomAnimationController =>
+          MapEventDoubleTapZoomEnd(
+            camera: camera,
+            source: _animationSource,
+          ),
+        _ => MapEventMoveEnd(
+            camera: camera,
+            source: _animationSource,
+          ),
+      };
+      emitMapEvent(event);
       _animatedEndedCallback?.call(camera, _animationSource);
     }
   }
@@ -684,5 +702,10 @@ class _MapControllerState {
 }
 
 typedef AnimationEndedCallback = void Function(
-    MapCamera camera, MapEventSource eventSource);
-typedef AnimationCancelledCallback = void Function(MapCamera camera);
+  MapCamera camera,
+  MapEventSource eventSource,
+);
+typedef AnimationCancelledCallback = void Function(
+  MapCamera camera,
+  MapEventSource eventSource,
+);
