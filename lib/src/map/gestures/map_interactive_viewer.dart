@@ -198,10 +198,6 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
                   _keyTriggerClickRotate!.submit(screenSize);
                   return;
                 }
-                if (_keyTriggerClickRotate?.isActive ?? false) {
-                  // gesture already submitted in `onTapDown`.
-                  return;
-                }
                 _tap?.submit();
               }
             : null,
