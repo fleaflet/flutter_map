@@ -508,8 +508,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   bool get isAnimating => _animationController.isAnimating;
 
   /// cancel all ongoing animation
-  void stopAnimations() {
-    _animationController.stop();
+  void stopAnimations({bool cancelled = true}) {
+    _animationController.stop(canceled: cancelled);
     _moveAnimation = null;
     _rotationAnimation = null;
     _zoomAnimation = null;
