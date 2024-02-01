@@ -439,9 +439,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
       );
       return;
     }
-    // cancel all ongoing animation
-    _animationController.stop();
-    _resetAnimations();
+    stopAnimations();
 
     if (newCenter == camera.center && newZoom == camera.zoom) return;
 
@@ -479,10 +477,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     required AnimationEndedCallback? onAnimatedEnded,
     required AnimationCancelledCallback? onAnimationCancelled,
   }) {
-    // cancel all ongoing animation
-    _animationController.stop();
-    _resetAnimations();
-
+    stopAnimations();
     if (newRotation == camera.rotation) return;
 
     // create the new animation
@@ -512,11 +507,15 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   /// drag or rotate animation.
   bool get isAnimating => _animationController.isAnimating;
 
-  void _resetAnimations() {
+  /// cancel all ongoing animation
+  void stopAnimations() {
+    _animationController.stop();
     _moveAnimation = null;
     _rotationAnimation = null;
     _zoomAnimation = null;
     _flingAnimation = null;
+    _animatedEndedCallback = null;
+    _animatedCancelledCallback = null;
   }
 
   /// Fling animation for the map.
@@ -531,9 +530,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     double ratio = 5,
     required bool hasGesture,
   }) {
-    // cancel all ongoing animation
-    _animationController.stop();
-    _resetAnimations();
+    stopAnimations();
 
     _animationHasGesture = hasGesture;
     _animationOffset = offset;
@@ -573,10 +570,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     required AnimationEndedCallback? onAnimatedEnded,
     required AnimationCancelledCallback? onAnimationCancelled,
   }) {
-    // cancel all ongoing animation
-    _animationController.stop();
-    _resetAnimations();
-
+    stopAnimations();
     if (newCenter == camera.center && newZoom == camera.zoom) return;
 
     // create the new animation
