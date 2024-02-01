@@ -17,7 +17,6 @@ class _GesturesPageState extends State<GesturesPage> {
   static const availableFlags = {
     'Movement': {
       InteractiveFlag.drag: 'Drag',
-      InteractiveFlag.flingAnimation: 'Fling',
       InteractiveFlag.twoFingerMove: 'Two finger drag',
     },
     'Zooming': {

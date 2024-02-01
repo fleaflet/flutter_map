@@ -19,6 +19,11 @@ final class InteractionOptions {
   /// For more information see the documentation on [InteractiveFlag].
   final MapGestures gestures;
 
+  /// Enable fling animation after panning if velocity is great enough.
+  ///
+  /// Defaults to true, this requires the `drag` gesture to be enabled.
+  final bool dragFlingAnimation;
+
   /// Map starts to rotate when [twoFingerRotateThreshold] has been achieved
   /// or another multi finger gesture wins.
   /// Default is 0.1
@@ -74,6 +79,7 @@ final class InteractionOptions {
     this.twoFingerMoveThreshold = 3.0,
     this.scrollWheelVelocity = 0.01,
     this.trackpadZoomVelocity = 0.5,
+    this.dragFlingAnimation = true,
     this.keyTriggerDragRotateKeys = defaultKeyTriggerDragRotateKeys,
   })  : assert(
           twoFingerRotateThreshold >= 0.0,
