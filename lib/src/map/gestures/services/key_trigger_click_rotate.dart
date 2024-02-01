@@ -45,7 +45,8 @@ class KeyTriggerClickRotateGestureService extends _BaseGestureService {
   /// By clicking at the top of the map the map gets set to 0°-ish, by clicking
   /// on the left side of the map the rotation is set to 270°-ish.
   ///
-  /// Calculation thanks to https://stackoverflow.com/questions/48916517/javascript-click-and-drag-to-rotate
+  /// Calculation thanks to
+  /// https://stackoverflow.com/questions/48916517/javascript-click-and-drag-to-rotate
   static double _getCursorRotationDegrees(
       Size screenSize, Offset cursorOffset) {
     const correctionTerm = 180; // North = cursor
