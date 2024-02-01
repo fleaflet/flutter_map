@@ -172,13 +172,6 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
             ? (details) {
                 if (_keyTriggerClickRotate?.keyPressed ?? false) {
                   _keyTriggerClickRotate!.setDetails(details);
-                  // Normally we would wait until the tap gesture is confirmed.
-                  // For this gesture however we call it directly for faster
-                  // response time. (Note that `onTap` still has a small delay)
-                  // This however has the trade-off that the gesture could turn
-                  // out to be a double click and both gesture would fire.
-                  final screenSize = MediaQuery.sizeOf(context);
-                  _keyTriggerClickRotate!.submit(screenSize);
                   return;
                 }
                 _tap?.setDetails(details);
@@ -195,6 +188,16 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
             : null,
         onTap: useTapCallback
             ? () {
+                if (_keyTriggerClickRotate?.keyPressed ?? false) {
+                  // Normally we would wait until the tap gesture is confirmed.
+                  // For this gesture however we call it directly for faster
+                  // response time. (Note that `onTap` still has a small delay)
+                  // This however has the trade-off that the gesture could turn
+                  // out to be a double click and both gesture would fire.
+                  final screenSize = MediaQuery.sizeOf(context);
+                  _keyTriggerClickRotate!.submit(screenSize);
+                  return;
+                }
                 if (_keyTriggerClickRotate?.isActive ?? false) {
                   // gesture already submitted in `onTapDown`.
                   return;
