@@ -22,6 +22,9 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   Animation<double>? _rotationAnimation;
   Animation<Offset>? _flingAnimation;
   late bool _animationHasGesture;
+  late MapEventSource _animationSource;
+  AnimationEndedCallback? _animatedEndedCallback;
+  AnimationCancelledCallback? _animatedCancelledCallback;
   late Offset _animationOffset;
   late Point _flingMapCenterStartPoint;
 
@@ -385,7 +388,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
         options: value.options,
         camera: value.camera,
         animationController: AnimationController(vsync: tickerProvider)
-          ..addListener(_handleAnimation),
+          ..addListener(_handleAnimation)
+          ..addStatusListener(_handleAnimationStatus),
       );
     } else {
       _animationController.resync(tickerProvider);
@@ -418,8 +422,11 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     required Curve curve,
     required bool hasGesture,
     required MapEventSource source,
+    required AnimationEndedCallback? onAnimatedEnded,
+    required AnimationCancelledCallback? onAnimationCancelled,
   }) {
     if (newRotation == camera.rotation) {
+      // if the rotation is the same we just need to move the MapCamera
       moveAnimatedRaw(
         newCenter,
         newZoom,
@@ -427,6 +434,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
         curve: curve,
         hasGesture: hasGesture,
         source: source,
+        onAnimatedEnded: onAnimatedEnded,
+        onAnimationCancelled: onAnimationCancelled,
       );
       return;
     }
@@ -450,6 +459,9 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     _animationController.duration = duration;
     _animationHasGesture = hasGesture;
     _animationOffset = offset;
+    _animationSource = source;
+    _animatedCancelledCallback = onAnimationCancelled;
+    _animatedEndedCallback = onAnimatedEnded;
 
     // start the animation from its start
     _animationController.forward(from: 0);
@@ -464,6 +476,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     required Curve curve,
     required bool hasGesture,
     required MapEventSource source,
+    required AnimationEndedCallback? onAnimatedEnded,
+    required AnimationCancelledCallback? onAnimationCancelled,
   }) {
     // cancel all ongoing animation
     _animationController.stop();
@@ -479,6 +493,9 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     _animationController.duration = duration;
     _animationHasGesture = hasGesture;
     _animationOffset = offset;
+    _animationSource = source;
+    _animatedCancelledCallback = onAnimationCancelled;
+    _animatedEndedCallback = onAnimatedEnded;
 
     // start the animation from its start
     _animationController.forward(from: 0);
@@ -521,6 +538,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     _animationHasGesture = hasGesture;
     _animationOffset = offset;
     _flingMapCenterStartPoint = camera.project(camera.center);
+    _animationSource = MapEventSource.flingAnimationController;
 
     final distance =
         (Offset.zero & Size(camera.nonRotatedSize.x, camera.nonRotatedSize.y))
@@ -552,6 +570,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     required Curve curve,
     required bool hasGesture,
     required MapEventSource source,
+    required AnimationEndedCallback? onAnimatedEnded,
+    required AnimationCancelledCallback? onAnimationCancelled,
   }) {
     // cancel all ongoing animation
     _animationController.stop();
@@ -570,6 +590,9 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     _animationController.duration = duration;
     _animationHasGesture = hasGesture;
     _animationOffset = offset;
+    _animationSource = source;
+    _animatedCancelledCallback = onAnimationCancelled;
+    _animatedEndedCallback = onAnimatedEnded;
 
     // start the animation from its start
     _animationController.forward(from: 0);
@@ -592,7 +615,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
         camera.unproject(newCenterPoint),
         camera.zoom,
         hasGesture: _animationHasGesture,
-        source: MapEventSource.flingAnimationController,
+        source: _animationSource,
         offset: _animationOffset,
       );
       return;
@@ -637,6 +660,12 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     value.animationController?.dispose();
     super.dispose();
   }
+
+  void _handleAnimationStatus(AnimationStatus status) {
+    if (status == AnimationStatus.completed) {
+      _animatedEndedCallback?.call(camera, _animationSource);
+    }
+  }
 }
 
 /// The state for the [MapControllerImpl] [ValueNotifier].
@@ -659,3 +688,7 @@ class _MapControllerState {
         animationController: animationController,
       );
 }
+
+typedef AnimationEndedCallback = void Function(
+    MapCamera camera, MapEventSource eventSource);
+typedef AnimationCancelledCallback = void Function(MapCamera camera);
