@@ -12,12 +12,10 @@ import 'package:vector_math/vector_math_64.dart';
 /// should not be visible to the user (e.g. for setting the current camera).
 /// This controller is for internal use. All updates to the state should be done
 /// by calling methods of this class to ensure consistency.
-class MapControllerImpl extends ValueNotifier<_MapControllerState>
-    implements MapController {
+class MapControllerImpl extends ValueNotifier<_MapControllerState> implements MapController {
   final _mapEventStreamController = StreamController<MapEvent>.broadcast();
 
-  late final MapInteractiveViewerState _interactiveViewerState;
-
+  MapInteractiveViewerState? _interactiveViewerState;
   Animation<LatLng>? _moveAnimation;
   Animation<double>? _zoomAnimation;
   Animation<double>? _rotationAnimation;
@@ -32,8 +30,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
           _MapControllerState(
             options: options,
             camera: options == null ? null : MapCamera.initialCamera(options),
-            animationController:
-                vsync == null ? null : AnimationController(vsync: vsync),
+            animationController: vsync == null ? null : AnimationController(vsync: vsync),
           ),
         ) {
     value.animationController?.addListener(_handleAnimation);
@@ -167,8 +164,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     );
 
     newCamera = options.cameraConstraint.constrain(newCamera);
-    if (newCamera == null ||
-        (newCamera.center == camera.center && newCamera.zoom == camera.zoom)) {
+    if (newCamera == null || (newCamera.center == camera.center && newCamera.zoom == camera.zoom)) {
       return false;
     }
 
@@ -253,18 +249,13 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     }
 
     final rotationDiff = degree - camera.rotation;
-    final rotationCenter = camera.project(camera.center) +
-        (point != null
-                ? (point - (camera.nonRotatedSize / 2.0))
-                : Point(offset!.dx, offset.dy))
-            .rotate(camera.rotationRad);
+    final rotationCenter =
+        camera.project(camera.center) + (point != null ? (point - (camera.nonRotatedSize / 2.0)) : Point(offset!.dx, offset.dy)).rotate(camera.rotationRad);
 
     return (
       moveSuccess: moveRaw(
         camera.unproject(
-          rotationCenter +
-              (camera.project(camera.center) - rotationCenter)
-                  .rotate(degrees2Radians * rotationDiff),
+          rotationCenter + (camera.project(camera.center) - rotationCenter).rotate(degrees2Radians * rotationDiff),
         ),
         camera.zoom,
         hasGesture: hasGesture,
@@ -326,8 +317,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   bool setNonRotatedSizeWithoutEmittingEvent(
     Point<double> nonRotatedSize,
   ) {
-    if (nonRotatedSize != MapCamera.kImpossibleSize &&
-        nonRotatedSize != camera.nonRotatedSize) {
+    if (nonRotatedSize != MapCamera.kImpossibleSize && nonRotatedSize != camera.nonRotatedSize) {
       value = value.withMapCamera(camera.withNonRotatedSize(nonRotatedSize));
       return true;
     }
@@ -341,17 +331,15 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
       'Should not update options unless they change',
     );
 
-    final newCamera = value.camera?.withOptions(newOptions) ??
-        MapCamera.initialCamera(newOptions);
+    final newCamera = value.camera?.withOptions(newOptions) ?? MapCamera.initialCamera(newOptions);
 
     assert(
       newOptions.cameraConstraint.constrain(newCamera) == newCamera,
       'MapCamera is no longer within the cameraConstraint after an option change.',
     );
 
-    if (value.options != null &&
-        value.options!.interactionOptions != newOptions.interactionOptions) {
-      _interactiveViewerState.updateGestures(
+    if (value.options != null && value.options!.interactionOptions != newOptions.interactionOptions) {
+      _interactiveViewerState?.updateGestures(
         value.options!.interactionOptions,
         newOptions.interactionOptions,
       );
@@ -369,8 +357,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
       value = _MapControllerState(
         options: value.options,
         camera: value.camera,
-        animationController: AnimationController(vsync: tickerProvider)
-          ..addListener(_handleAnimation),
+        animationController: AnimationController(vsync: tickerProvider)..addListener(_handleAnimation),
       );
     } else {
       _animationController.resync(tickerProvider);
@@ -579,15 +566,9 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     if (newCenter == camera.center && newZoom == camera.zoom) return;
 
     // create the new animation
-    _moveAnimation = LatLngTween(begin: camera.center, end: newCenter)
-        .chain(CurveTween(curve: curve))
-        .animate(_animationController);
-    _zoomAnimation = Tween<double>(begin: camera.zoom, end: newZoom)
-        .chain(CurveTween(curve: curve))
-        .animate(_animationController);
-    _rotationAnimation = Tween<double>(begin: camera.rotation, end: newRotation)
-        .chain(CurveTween(curve: curve))
-        .animate(_animationController);
+    _moveAnimation = LatLngTween(begin: camera.center, end: newCenter).chain(CurveTween(curve: curve)).animate(_animationController);
+    _zoomAnimation = Tween<double>(begin: camera.zoom, end: newZoom).chain(CurveTween(curve: curve)).animate(_animationController);
+    _rotationAnimation = Tween<double>(begin: camera.rotation, end: newRotation).chain(CurveTween(curve: curve)).animate(_animationController);
 
     _animationController.duration = duration;
     _animationHasGesture = hasGesture;
@@ -614,9 +595,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     if (newRotation == camera.rotation) return;
 
     // create the new animation
-    _rotationAnimation = Tween<double>(begin: camera.rotation, end: newRotation)
-        .chain(CurveTween(curve: curve))
-        .animate(_animationController);
+    _rotationAnimation = Tween<double>(begin: camera.rotation, end: newRotation).chain(CurveTween(curve: curve)).animate(_animationController);
 
     _animationController.duration = duration;
     _animationHasGesture = hasGesture;
@@ -664,9 +643,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     _animationOffset = offset;
     _flingMapCenterStartPoint = camera.project(camera.center);
 
-    final distance =
-        (Offset.zero & Size(camera.nonRotatedSize.x, camera.nonRotatedSize.y))
-            .shortestSide;
+    final distance = (Offset.zero & Size(camera.nonRotatedSize.x, camera.nonRotatedSize.y)).shortestSide;
 
     _flingAnimation = Tween<Offset>(
       begin: begin,
@@ -702,12 +679,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     if (newCenter == camera.center && newZoom == camera.zoom) return;
 
     // create the new animation
-    _moveAnimation = LatLngTween(begin: camera.center, end: newCenter)
-        .chain(CurveTween(curve: curve))
-        .animate(_animationController);
-    _zoomAnimation = Tween<double>(begin: camera.zoom, end: newZoom)
-        .chain(CurveTween(curve: curve))
-        .animate(_animationController);
+    _moveAnimation = LatLngTween(begin: camera.center, end: newCenter).chain(CurveTween(curve: curve)).animate(_animationController);
+    _zoomAnimation = Tween<double>(begin: camera.zoom, end: newZoom).chain(CurveTween(curve: curve)).animate(_animationController);
 
     _animationController.duration = duration;
     _animationHasGesture = hasGesture;
@@ -719,7 +692,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
 
   void _emitMapEvent(MapEvent event) {
     if (event.source == MapEventSource.mapController && event is MapEventMove) {
-      _interactiveViewerState.interruptAnimatedMovement(event);
+      _interactiveViewerState?.interruptAnimatedMovement(event);
     }
 
     options.onMapEvent?.call(event);
@@ -730,8 +703,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   void _handleAnimation() {
     // fling animation
     if (_flingAnimation != null) {
-      final newCenterPoint = _flingMapCenterStartPoint +
-          _flingAnimation!.value.toPoint().rotate(camera.rotationRad);
+      final newCenterPoint = _flingMapCenterStartPoint + _flingAnimation!.value.toPoint().rotate(camera.rotationRad);
       moveRaw(
         camera.unproject(newCenterPoint),
         camera.zoom,
