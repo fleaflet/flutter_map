@@ -78,3 +78,22 @@ Offset _rotateOffset(MapCamera camera, Offset offset) {
 
   return Offset(nx, ny);
 }
+
+/// Get the Rotation in degrees in relation to the cursor position.
+///
+/// By clicking at the top of the map the map gets set to 0°-ish, by clicking
+/// on the left side of the map the rotation is set to 270°-ish.
+///
+/// Calculation thanks to
+/// https://stackoverflow.com/questions/48916517/javascript-click-and-drag-to-rotate
+double _getCursorRotationDegrees(
+  Size screenSize,
+  Offset cursorOffset,
+) {
+  const degreesCorrection = 180;
+  final degrees = -math.atan2(cursorOffset.dx - screenSize.width / 2,
+          cursorOffset.dy - screenSize.height / 2) *
+      radians2Degrees;
+
+  return degrees + degreesCorrection;
+}

@@ -240,7 +240,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
         onScaleStart: useScaleCallback
             ? (details) {
                 if (_keyTriggerDragRotate?.keyPressed ?? false) {
-                  _keyTriggerDragRotate!.start();
+                  final screenSize = MediaQuery.sizeOf(context);
+                  _keyTriggerDragRotate!.start(screenSize);
                 } else if (_doubleTapDragZoom?.isActive ?? false) {
                   _doubleTapDragZoom!.start(details);
                 } else if (details.pointerCount == 1) {

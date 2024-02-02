@@ -10,6 +10,17 @@ class KeyTriggerDragRotateGestureService extends _BaseGestureService {
   /// drag updates.
   bool isActive = false;
 
+  /// The size of the screen when the gesture starts. Because it is very
+  /// unlikely that the size of the screen changes during the gesture we use the
+  /// screen size of when the gesture starts.
+  Size? _screenSize;
+
+  /// The rotation to the start on the gesture
+  double? _degreeCorrection;
+
+  /// Start rotation
+  double? _startRotation;
+
   /// Getter for the keyboard keys that trigger the drag to rotate gesture.
   List<LogicalKeyboardKey> get keys =>
       _options.interactionOptions.keyTriggerDragRotateKeys;
@@ -19,7 +30,9 @@ class KeyTriggerDragRotateGestureService extends _BaseGestureService {
   KeyTriggerDragRotateGestureService({required super.controller});
 
   /// Called when the gesture is started, stores important values.
-  void start() {
+  void start(Size screenSize) {
+    _screenSize = screenSize;
+    _startRotation = _camera.rotation;
     controller.emitMapEvent(
       MapEventRotateStart(
         camera: _camera,
@@ -30,8 +43,16 @@ class KeyTriggerDragRotateGestureService extends _BaseGestureService {
 
   /// Called when the gesture receives an update, updates the [MapCamera].
   void update(ScaleUpdateDetails details) {
+    if (_screenSize == null || _startRotation == null) return;
+
+    final rotation = _getCursorRotationDegrees(
+      _screenSize!,
+      details.localFocalPoint,
+    );
+    _degreeCorrection ??= rotation;
+
     controller.rotateRaw(
-      _camera.rotation - (details.focalPointDelta.dy * 0.5),
+      rotation - _degreeCorrection! + _startRotation!,
       hasGesture: true,
       source: MapEventSource.keyTriggerDragRotate,
     );
@@ -39,6 +60,8 @@ class KeyTriggerDragRotateGestureService extends _BaseGestureService {
 
   /// Called when the gesture ends, cleans up the previously stored values.
   void end() {
+    _screenSize = null;
+    _degreeCorrection = null;
     controller.emitMapEvent(
       MapEventRotateEnd(
         camera: _camera,
