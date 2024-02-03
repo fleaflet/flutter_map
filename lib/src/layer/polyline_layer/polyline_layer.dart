@@ -83,10 +83,15 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
     super.didUpdateWidget(oldWidget);
 
     if (!listEquals(oldWidget.polylines, widget.polylines)) {
+      // If the polylines have changed, then both the projections and the
+      // projection-dependendent simplifications must be invalidated
       _cachedProjectedPolylines = null;
       _cachedSimplifiedPolylines.clear();
-    } else if (!(widget.simplificationTolerance != 0 &&
-        oldWidget.simplificationTolerance == widget.simplificationTolerance)) {
+    } else if (oldWidget.simplificationTolerance !=
+        widget.simplificationTolerance) {
+      // If only the simplification tolerance has changed, this does not affect
+      // the projections (as that is done before simplification), so only
+      // invalidate the simplifications
       _cachedSimplifiedPolylines.clear();
     }
   }
@@ -108,6 +113,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
     if (widget.simplificationTolerance == 0) {
       simplified = projected;
     } else {
+      // If the DPR has changed, invalidate the simplification cache
       final newDPR = MediaQuery.devicePixelRatioOf(context);
       if (newDPR != _devicePixelRatio) {
         _devicePixelRatio = newDPR;
