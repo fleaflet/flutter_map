@@ -21,7 +21,7 @@ class DoubleTapGestureService extends _SingleShotGestureService {
     controller.emitMapEvent(
       MapEventDoubleTapZoomStart(
         camera: _camera,
-        source: MapEventSource.doubleTap,
+        source: MapEventSource.doubleTapZoomAnimationController,
       ),
     );
 
@@ -29,7 +29,7 @@ class DoubleTapGestureService extends _SingleShotGestureService {
       newCenter,
       newZoom,
       hasGesture: true,
-      source: MapEventSource.doubleTap,
+      source: MapEventSource.doubleTapZoomAnimationController,
       curve: Curves.fastOutSlowIn,
       duration: const Duration(milliseconds: 200),
     );
@@ -37,7 +37,7 @@ class DoubleTapGestureService extends _SingleShotGestureService {
     controller.emitMapEvent(
       MapEventDoubleTapZoomEnd(
         camera: _camera,
-        source: MapEventSource.doubleTap,
+        source: MapEventSource.doubleTapZoomAnimationController,
       ),
     );
 

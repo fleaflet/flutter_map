@@ -13,7 +13,6 @@ class MapGestures {
   /// use [InteractiveFlags.bitfield] instead.
   const MapGestures({
     required this.drag,
-    required this.flingAnimation,
     required this.twoFingerMove,
     required this.twoFingerZoom,
     required this.doubleTapZoomIn,
@@ -32,7 +31,6 @@ class MapGestures {
   /// [InteractiveFlags.none] constructor instead.
   const MapGestures.all({
     this.drag = true,
-    this.flingAnimation = true,
     this.twoFingerMove = true,
     this.twoFingerZoom = true,
     this.doubleTapZoomIn = true,
@@ -51,7 +49,6 @@ class MapGestures {
   /// [InteractiveFlags.all] constructor instead.
   const MapGestures.none({
     this.drag = false,
-    this.flingAnimation = false,
     this.twoFingerMove = false,
     this.twoFingerZoom = false,
     this.doubleTapZoomIn = false,
@@ -77,7 +74,6 @@ class MapGestures {
   }) : this(
           drag: move,
           twoFingerMove: move,
-          flingAnimation: move,
           doubleTapDragZoom: zoom,
           doubleTapZoomIn: zoom,
           scrollWheelZoom: zoom,
@@ -121,8 +117,6 @@ class MapGestures {
   factory MapGestures.bitfield(int flags) {
     return MapGestures(
       drag: InteractiveFlag.hasFlag(flags, InteractiveFlag.drag),
-      flingAnimation:
-          InteractiveFlag.hasFlag(flags, InteractiveFlag.flingAnimation),
       twoFingerMove:
           InteractiveFlag.hasFlag(flags, InteractiveFlag.twoFingerMove),
       twoFingerZoom:
@@ -146,9 +140,6 @@ class MapGestures {
 
   /// Enable panning with a single finger or cursor
   final bool drag;
-
-  /// Enable fling animation after panning if velocity is great enough.
-  final bool flingAnimation;
 
   /// Enable panning with multiple fingers
   final bool twoFingerMove;
@@ -202,7 +193,6 @@ class MapGestures {
   }) =>
       MapGestures(
         drag: drag ?? this.drag,
-        flingAnimation: flingAnimation ?? this.flingAnimation,
         twoFingerZoom: twoFingerZoom ?? this.twoFingerZoom,
         twoFingerMove: twoFingerMove ?? this.twoFingerMove,
         doubleTapZoomIn: doubleTapZoomIn ?? this.doubleTapZoomIn,
@@ -221,7 +211,6 @@ class MapGestures {
       other is MapGestures &&
           runtimeType == other.runtimeType &&
           drag == other.drag &&
-          flingAnimation == other.flingAnimation &&
           twoFingerMove == other.twoFingerMove &&
           twoFingerZoom == other.twoFingerZoom &&
           doubleTapZoomIn == other.doubleTapZoomIn &&
@@ -234,7 +223,6 @@ class MapGestures {
   @override
   int get hashCode => Object.hash(
         drag,
-        flingAnimation,
         twoFingerMove,
         twoFingerZoom,
         doubleTapZoomIn,
@@ -266,7 +254,6 @@ abstract class InteractiveFlag {
   /// All available interactive flags, use as `flags: InteractiveFlag.all` to
   /// enable all gestures.
   static const int all = drag |
-      flingAnimation |
       twoFingerMove |
       twoFingerZoom |
       doubleTapZoomIn |
@@ -283,9 +270,6 @@ abstract class InteractiveFlag {
 
   /// Enable panning with a single finger or cursor
   static const int drag = 1 << 0;
-
-  /// Enable fling animation after panning if velocity is great enough.
-  static const int flingAnimation = 1 << 1;
 
   /// Enable panning with multiple fingers
   static const int twoFingerMove = 1 << 2;

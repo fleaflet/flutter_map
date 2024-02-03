@@ -22,6 +22,9 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   Animation<double>? _rotationAnimation;
   Animation<Offset>? _flingAnimation;
   late bool _animationHasGesture;
+  late MapEventSource _animationSource;
+  AnimationEndedCallback? _animatedEndedCallback;
+  AnimationCancelledCallback? _animatedCancelledCallback;
   late Offset _animationOffset;
   late Point _flingMapCenterStartPoint;
 
@@ -36,7 +39,9 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
                 vsync == null ? null : AnimationController(vsync: vsync),
           ),
         ) {
-    value.animationController?.addListener(_handleAnimation);
+    value.animationController
+      ?..addListener(_handleAnimation)
+      ..addStatusListener(_handleAnimationStatus);
   }
 
   /// Link the viewer state with the controller. This should be done once when
@@ -385,7 +390,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
         options: value.options,
         camera: value.camera,
         animationController: AnimationController(vsync: tickerProvider)
-          ..addListener(_handleAnimation),
+          ..addListener(_handleAnimation)
+          ..addStatusListener(_handleAnimationStatus),
       );
     } else {
       _animationController.resync(tickerProvider);
@@ -418,8 +424,11 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     required Curve curve,
     required bool hasGesture,
     required MapEventSource source,
+    AnimationEndedCallback? onAnimatedEnded,
+    AnimationCancelledCallback? onAnimationCancelled,
   }) {
     if (newRotation == camera.rotation) {
+      // if the rotation is the same we just need to move the MapCamera
       moveAnimatedRaw(
         newCenter,
         newZoom,
@@ -427,12 +436,12 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
         curve: curve,
         hasGesture: hasGesture,
         source: source,
+        onAnimatedEnded: onAnimatedEnded,
+        onAnimationCancelled: onAnimationCancelled,
       );
       return;
     }
-    // cancel all ongoing animation
-    _animationController.stop();
-    _resetAnimations();
+    stopAnimationRaw();
 
     if (newCenter == camera.center && newZoom == camera.zoom) return;
 
@@ -450,6 +459,9 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     _animationController.duration = duration;
     _animationHasGesture = hasGesture;
     _animationOffset = offset;
+    _animationSource = source;
+    _animatedCancelledCallback = onAnimationCancelled;
+    _animatedEndedCallback = onAnimatedEnded;
 
     // start the animation from its start
     _animationController.forward(from: 0);
@@ -464,11 +476,10 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     required Curve curve,
     required bool hasGesture,
     required MapEventSource source,
+    AnimationEndedCallback? onAnimatedEnded,
+    AnimationCancelledCallback? onAnimationCancelled,
   }) {
-    // cancel all ongoing animation
-    _animationController.stop();
-    _resetAnimations();
-
+    stopAnimationRaw();
     if (newRotation == camera.rotation) return;
 
     // create the new animation
@@ -479,6 +490,9 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     _animationController.duration = duration;
     _animationHasGesture = hasGesture;
     _animationOffset = offset;
+    _animationSource = source;
+    _animatedCancelledCallback = onAnimationCancelled;
+    _animatedEndedCallback = onAnimatedEnded;
 
     // start the animation from its start
     _animationController.forward(from: 0);
@@ -488,19 +502,21 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   /// This is commonly used by other gestures that should stop all
   /// ongoing movement.
   void stopAnimationRaw({bool canceled = true}) {
-    if (isAnimating) _animationController.stop(canceled: canceled);
+    if (isAnimating) {
+      _animatedCancelledCallback?.call(camera, _animationSource);
+      _animationController.stop(canceled: canceled);
+    }
+    _moveAnimation = null;
+    _rotationAnimation = null;
+    _zoomAnimation = null;
+    _flingAnimation = null;
+    _animatedEndedCallback = null;
+    _animatedCancelledCallback = null;
   }
 
   /// Getter that returns true if the [MapControllerImpl] performs a zoom,
   /// drag or rotate animation.
   bool get isAnimating => _animationController.isAnimating;
-
-  void _resetAnimations() {
-    _moveAnimation = null;
-    _rotationAnimation = null;
-    _zoomAnimation = null;
-    _flingAnimation = null;
-  }
 
   /// Fling animation for the map.
   /// The raw method allows to set all parameters.
@@ -514,13 +530,12 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     double ratio = 5,
     required bool hasGesture,
   }) {
-    // cancel all ongoing animation
-    _animationController.stop();
-    _resetAnimations();
+    stopAnimationRaw();
 
     _animationHasGesture = hasGesture;
     _animationOffset = offset;
     _flingMapCenterStartPoint = camera.project(camera.center);
+    _animationSource = MapEventSource.flingAnimationController;
 
     final distance =
         (Offset.zero & Size(camera.nonRotatedSize.x, camera.nonRotatedSize.y))
@@ -552,11 +567,10 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     required Curve curve,
     required bool hasGesture,
     required MapEventSource source,
+    AnimationEndedCallback? onAnimatedEnded,
+    AnimationCancelledCallback? onAnimationCancelled,
   }) {
-    // cancel all ongoing animation
-    _animationController.stop();
-    _resetAnimations();
-
+    stopAnimationRaw();
     if (newCenter == camera.center && newZoom == camera.zoom) return;
 
     // create the new animation
@@ -570,6 +584,9 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     _animationController.duration = duration;
     _animationHasGesture = hasGesture;
     _animationOffset = offset;
+    _animationSource = source;
+    _animatedCancelledCallback = onAnimationCancelled;
+    _animatedEndedCallback = onAnimatedEnded;
 
     // start the animation from its start
     _animationController.forward(from: 0);
@@ -592,7 +609,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
         camera.unproject(newCenterPoint),
         camera.zoom,
         hasGesture: _animationHasGesture,
-        source: MapEventSource.flingAnimationController,
+        source: _animationSource,
         offset: _animationOffset,
       );
       return;
@@ -606,7 +623,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
           _zoomAnimation?.value ?? camera.zoom,
           _rotationAnimation!.value,
           hasGesture: _animationHasGesture,
-          source: MapEventSource.mapController,
+          source: _animationSource,
           offset: _animationOffset,
         );
       } else {
@@ -614,7 +631,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
           _moveAnimation!.value,
           _zoomAnimation?.value ?? camera.zoom,
           hasGesture: _animationHasGesture,
-          source: MapEventSource.mapController,
+          source: _animationSource,
           offset: _animationOffset,
         );
       }
@@ -626,7 +643,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
       rotateRaw(
         _rotationAnimation!.value,
         hasGesture: _animationHasGesture,
-        source: MapEventSource.mapController,
+        source: _animationSource,
       );
     }
   }
@@ -636,6 +653,28 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     _mapEventStreamController.close();
     value.animationController?.dispose();
     super.dispose();
+  }
+
+  void _handleAnimationStatus(AnimationStatus status) {
+    if (status == AnimationStatus.completed) {
+      final event = switch (_animationSource) {
+        MapEventSource.doubleTapZoomAnimationController =>
+          MapEventDoubleTapZoomEnd(
+            camera: camera,
+            source: _animationSource,
+          ),
+        MapEventSource.flingAnimationController => MapEventFlingAnimationEnd(
+            camera: camera,
+            source: _animationSource,
+          ),
+        _ => MapEventMoveEnd(
+            camera: camera,
+            source: _animationSource,
+          ),
+      };
+      emitMapEvent(event);
+      _animatedEndedCallback?.call(camera, _animationSource);
+    }
   }
 }
 
@@ -659,3 +698,12 @@ class _MapControllerState {
         animationController: animationController,
       );
 }
+
+typedef AnimationEndedCallback = void Function(
+  MapCamera camera,
+  MapEventSource eventSource,
+);
+typedef AnimationCancelledCallback = void Function(
+  MapCamera camera,
+  MapEventSource eventSource,
+);

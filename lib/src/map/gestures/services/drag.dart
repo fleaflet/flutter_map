@@ -7,7 +7,7 @@ class DragGestureService extends _BaseGestureService
   Offset? _lastLocalFocal;
   Offset? _focalStartLocal;
 
-  bool get _flingEnabled => _options.interactionOptions.gestures.flingAnimation;
+  bool get _flingEnabled => _options.interactionOptions.dragFlingAnimation;
 
   /// Create a new service to handle drag gestures.
   DragGestureService({required super.controller});
@@ -65,6 +65,14 @@ class DragGestureService extends _BaseGestureService
     _lastLocalFocal = null;
     _focalStartLocal = null;
 
+    flingAnimation(details, focalStartLocal, lastLocalFocal);
+  }
+
+  void flingAnimation(
+    ScaleEndDetails details,
+    Offset focalStartLocal,
+    Offset lastLocalFocal,
+  ) {
     if (!_flingEnabled) return;
 
     final magnitude = details.velocity.pixelsPerSecond.distance;
