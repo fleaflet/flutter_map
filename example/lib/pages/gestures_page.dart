@@ -105,7 +105,7 @@ class _GesturesPageState extends State<GesturesPage> {
             Expanded(
               child: FlutterMap(
                 options: MapOptions(
-                  onMapEvent: (evt) => setState(() => _latestEvent = evt),
+                  onMapEvent: (event) => setState(() => _latestEvent = event),
                   initialCenter: const LatLng(51.5, -0.09),
                   initialZoom: 11,
                   interactionOptions: InteractionOptions(
