@@ -159,6 +159,7 @@ class Polygon {
           labelStyle == other.labelStyle &&
           labelPlacement == other.labelPlacement &&
           rotateLabel == other.rotateLabel &&
+          performantRendering == other.performantRendering &&
           // Expensive computations last to take advantage of lazy logic gates
           listEquals(holePointsList, other.holePointsList) &&
           listEquals(points, other.points));
@@ -190,6 +191,7 @@ class Polygon {
         labelStyle,
         labelPlacement,
         rotateLabel,
+        performantRendering,
         renderHashCode,
       ]);
 }
