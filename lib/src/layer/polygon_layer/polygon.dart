@@ -169,7 +169,6 @@ class Polygon {
 
   /// An optimized hash code dedicated to be used inside the [PolygonPainter].
   int get renderHashCode => _renderHashCode ??= Object.hash(
-        holePointsList,
         color,
         borderStrokeWidth,
         borderColor,
