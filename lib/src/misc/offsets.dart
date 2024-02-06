@@ -22,8 +22,7 @@ List<Offset> getOffsets(MapCamera camera, Offset origin, List<LatLng> points) {
   final len = points.length;
 
   // Optimization: monomorphize the Epsg3857-case to avoid the virtual function overhead.
-  if (crs is Epsg3857) {
-    final Epsg3857 epsg3857 = crs;
+  if (crs case final Epsg3857 epsg3857) {
     final v = List<Offset>.filled(len, Offset.zero);
     for (int i = 0; i < len; ++i) {
       final (x, y) = epsg3857.latLngToXY(points[i], zoomScale);
@@ -53,7 +52,7 @@ List<Offset> getOffsetsXY({
 
   final realPoints = holePoints == null || holePoints.isEmpty
       ? points
-      : [...points, ...holePoints.expand((e) => e)];
+      : points.followedBy(holePoints.expand((e) => e));
 
   final ox = -origin.dx;
   final oy = -origin.dy;
@@ -61,12 +60,11 @@ List<Offset> getOffsetsXY({
 
   // Optimization: monomorphize the CrsWithStaticTransformation-case to avoid
   // the virtual function overhead.
-  if (crs is CrsWithStaticTransformation) {
-    final CrsWithStaticTransformation mcrs = crs;
+  if (crs case final CrsWithStaticTransformation crs) {
     final v = List<Offset>.filled(len, Offset.zero);
     for (int i = 0; i < len; ++i) {
-      final p = realPoints[i];
-      final (x, y) = mcrs.transform(p.x, p.y, zoomScale);
+      final p = realPoints.elementAt(i);
+      final (x, y) = crs.transform(p.x, p.y, zoomScale);
       v[i] = Offset(x + ox, y + oy);
     }
     return v;
@@ -74,7 +72,7 @@ List<Offset> getOffsetsXY({
 
   final v = List<Offset>.filled(len, Offset.zero);
   for (int i = 0; i < len; ++i) {
-    final p = realPoints[i];
+    final p = realPoints.elementAt(i);
     final (x, y) = crs.transform(p.x, p.y, zoomScale);
     v[i] = Offset(x + ox, y + oy);
   }
