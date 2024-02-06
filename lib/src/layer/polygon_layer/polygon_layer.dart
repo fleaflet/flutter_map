@@ -65,17 +65,24 @@ class _PolygonLayerState extends State<PolygonLayer> {
   List<_ProjectedPolygon>? _cachedProjectedPolygons;
   final _cachedSimplifiedPolygons = <int, List<_ProjectedPolygon>>{};
 
+  double? _devicePixelRatio;
+
   @override
   void didUpdateWidget(PolygonLayer oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // Reuse cache
-    if (widget.simplificationTolerance != 0 &&
-        oldWidget.simplificationTolerance == widget.simplificationTolerance &&
-        listEquals(oldWidget.polygons, widget.polygons)) return;
-
-    _cachedSimplifiedPolygons.clear();
-    _cachedProjectedPolygons = null;
+    if (!listEquals(oldWidget.polygons, widget.polygons)) {
+      // If the polylines have changed, then both the projections and the
+      // projection-dependendent simplifications must be invalidated
+      _cachedProjectedPolygons = null;
+      _cachedSimplifiedPolygons.clear();
+    } else if (oldWidget.simplificationTolerance !=
+        widget.simplificationTolerance) {
+      // If only the simplification tolerance has changed, this does not affect
+      // the projections (as that is done before simplification), so only
+      // invalidate the simplifications
+      _cachedSimplifiedPolygons.clear();
+    }
   }
 
   @override
@@ -91,14 +98,25 @@ class _PolygonLayerState extends State<PolygonLayer> {
       growable: false,
     );
 
-    final simplified = widget.simplificationTolerance <= 0
-        ? projected
-        : _cachedSimplifiedPolygons[camera.zoom.floor()] ??=
-            _computeZoomLevelSimplification(
-            polygons: projected,
-            pixelTolerance: widget.simplificationTolerance,
-            camera: camera,
-          );
+    late final List<_ProjectedPolygon> simplified;
+    if (widget.simplificationTolerance == 0) {
+      simplified = projected;
+    } else {
+      // If the DPR has changed, invalidate the simplification cache
+      final newDPR = MediaQuery.devicePixelRatioOf(context);
+      if (newDPR != _devicePixelRatio) {
+        _devicePixelRatio = newDPR;
+        _cachedSimplifiedPolygons.clear();
+      }
+
+      simplified = _cachedSimplifiedPolygons[camera.zoom.floor()] ??=
+          _computeZoomLevelSimplification(
+        camera: camera,
+        polygons: projected,
+        pixelTolerance: widget.simplificationTolerance,
+        devicePixelRatio: newDPR,
+      );
+    }
 
     final culled = !widget.polygonCulling
         ? simplified
@@ -122,14 +140,16 @@ class _PolygonLayerState extends State<PolygonLayer> {
   }
 
   static List<_ProjectedPolygon> _computeZoomLevelSimplification({
+    required MapCamera camera,
     required List<_ProjectedPolygon> polygons,
     required double pixelTolerance,
-    required MapCamera camera,
+    required double devicePixelRatio,
   }) {
     final tolerance = getEffectiveSimplificationTolerance(
       crs: camera.crs,
       zoom: camera.zoom.floor(),
       pixelTolerance: pixelTolerance,
+      devicePixelRatio: devicePixelRatio,
     );
 
     return List<_ProjectedPolygon>.generate(
