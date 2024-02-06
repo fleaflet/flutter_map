@@ -32,7 +32,7 @@ class PolygonLayer extends StatefulWidget {
   /// already in use.
   ///
   /// For more information about usage (and the rendering pathway), see the
-  /// [online documentation](https://docs.fleaflet.dev/layers/polygon-layer#performant-rendering-drawvertices).
+  /// [online documentation](https://docs.fleaflet.dev/layers/polygon-layer#performant-rendering-with-drawvertices-internal-disabled).
   /// {@endtemplate}
   ///
   /// Value meanings (defaults to `false`):
