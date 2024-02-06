@@ -158,21 +158,26 @@ class _PolygonLayerState extends State<PolygonLayer> {
             culled.length,
             (i) {
               final culledPolygon = culled[i];
-              return culledPolygon.polygon.performantRendering
-                  ? Earcut.triangulateRaw(
-                      (culledPolygon.holePoints.isEmpty
-                              ? culledPolygon.points
-                              : (culledPolygon.points.followedBy(
-                                  culledPolygon.holePoints.expand((e) => e))))
-                          .map((e) => [e.x, e.y])
-                          .expand((e) => e)
-                          .toList(growable: false),
-                      // Not sure how just this works but it seems to :D
-                      holeIndices: culledPolygon.holePoints.isEmpty
-                          ? null
-                          : [culledPolygon.points.length],
-                    )
-                  : null;
+              if (!culledPolygon.polygon.performantRendering) return null;
+
+              final points = culledPolygon.holePoints.isEmpty
+                  ? culledPolygon.points
+                  : culledPolygon.points
+                      .followedBy(culledPolygon.holePoints.expand((e) => e));
+
+              return Earcut.triangulateRaw(
+                List.generate(
+                  points.length * 2,
+                  (ii) => ii % 2 == 0
+                      ? points.elementAt(ii ~/ 2).x
+                      : points.elementAt(ii ~/ 2).y,
+                  growable: false,
+                ),
+                // Not sure how just this works but it seems to :D
+                holeIndices: culledPolygon.holePoints.isEmpty
+                    ? null
+                    : [culledPolygon.points.length],
+              );
             },
             growable: false,
           );
