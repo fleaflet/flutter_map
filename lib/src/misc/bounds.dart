@@ -111,7 +111,7 @@ class Bounds<T extends num> {
         (b.max.y >= min.y);
   }
 
-  bool aabbContainsLine(num x1, num y1, num x2, num y2) {
+  bool aabbContainsLine(double x1, double y1, double x2, double y2) {
     // Completely outside.
     if ((x1 <= min.x && x2 <= min.x) ||
         (y1 <= min.y && y2 <= min.y) ||
@@ -122,13 +122,13 @@ class Bounds<T extends num> {
 
     final m = (y2 - y1) / (x2 - x1);
 
-    num y = m * (min.x - x1) + y1;
+    double y = m * (min.x - x1) + y1;
     if (y > min.y && y < max.y) return true;
 
     y = m * (max.x - x1) + y1;
     if (y > min.y && y < max.y) return true;
 
-    num x = (min.y - y1) / m + x1;
+    double x = (min.y - y1) / m + x1;
     if (x > min.x && x < max.x) return true;
 
     x = (max.y - y1) / m + x1;

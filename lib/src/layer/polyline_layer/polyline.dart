@@ -52,21 +52,6 @@ class Polyline<R extends Object> {
     this.hitValue,
   });
 
-  Polyline<R> copyWithNewPoints(List<LatLng> points) => Polyline<R>(
-        points: points,
-        strokeWidth: strokeWidth,
-        color: color,
-        borderStrokeWidth: borderStrokeWidth,
-        borderColor: borderColor,
-        gradientColors: gradientColors,
-        colorsStop: colorsStop,
-        isDotted: isDotted,
-        strokeCap: strokeCap,
-        strokeJoin: strokeJoin,
-        useStrokeWidthInMeter: useStrokeWidthInMeter,
-        hitValue: hitValue,
-      );
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
