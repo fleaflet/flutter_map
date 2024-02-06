@@ -1,4 +1,4 @@
-name: Remove `waiting for user response` label
+name: "Issue Comment"
 on:
   issue_comment:
     types: [ created ]
