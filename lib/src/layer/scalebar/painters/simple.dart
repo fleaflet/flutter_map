@@ -51,7 +51,7 @@ base class SimpleScalebarPainter extends ScalebarPainter {
     textPainter.paint(
       canvas,
       Offset(
-        x,
+        x < paddingLeft ? paddingLeft : x,
         paddingTop,
       ),
     );
