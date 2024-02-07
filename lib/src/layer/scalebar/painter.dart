@@ -40,10 +40,11 @@ class ScalebarPainter extends CustomPainter {
       text: textSpan,
       textDirection: TextDirection.ltr,
     )..layout();
+    final x = width / 2 - textPainter.width / 2 + paddingLeft + halfStrokeWidth;
     textPainter.paint(
       canvas,
       Offset(
-        width / 2 - textPainter.width / 2 + paddingLeft + halfStrokeWidth,
+        x < paddingLeft ? paddingLeft : x,
         paddingTop,
       ),
     );
