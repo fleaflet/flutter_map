@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/misc/tile_providers.dart';
-import 'package:flutter_map_example/plugins/scale_layer_plugin_option.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:latlong2/latlong.dart';
 
-class PluginScaleBar extends StatelessWidget {
-  static const String route = '/plugin_scalebar';
+class ScaleBarPage extends StatelessWidget {
+  static const String route = '/scalebar';
 
-  const PluginScaleBar({super.key});
+  const ScaleBarPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Scale Bar Plugin')),
-      drawer: const MenuDrawer(PluginScaleBar.route),
+      appBar: AppBar(title: const Text('Scale Bar Layer')),
+      drawer: const MenuDrawer(ScaleBarPage.route),
       body: FlutterMap(
         options: const MapOptions(
           initialCenter: LatLng(51.5, -0.09),
@@ -22,9 +21,8 @@ class PluginScaleBar extends StatelessWidget {
         ),
         children: [
           openStreetMapTileLayer,
-          const FlutterMapScaleLayer(
-            lineColor: Colors.black,
-            lineWidth: 3,
+          const Scalebar(
+            strokeWidth: 3,
             textStyle: TextStyle(color: Colors.black, fontSize: 14),
             padding: EdgeInsets.all(10),
           ),

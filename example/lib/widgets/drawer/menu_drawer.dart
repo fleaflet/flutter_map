@@ -17,7 +17,6 @@ import 'package:flutter_map_example/pages/map_inside_listview.dart';
 import 'package:flutter_map_example/pages/markers.dart';
 import 'package:flutter_map_example/pages/moving_markers.dart';
 import 'package:flutter_map_example/pages/overlay_image.dart';
-import 'package:flutter_map_example/pages/plugin_scalebar.dart';
 import 'package:flutter_map_example/pages/plugin_zoombuttons.dart';
 import 'package:flutter_map_example/pages/polygon.dart';
 import 'package:flutter_map_example/pages/polygon_perf_stress.dart';
@@ -25,6 +24,7 @@ import 'package:flutter_map_example/pages/polyline.dart';
 import 'package:flutter_map_example/pages/polyline_perf_stress.dart';
 import 'package:flutter_map_example/pages/reset_tile_layer.dart';
 import 'package:flutter_map_example/pages/retina.dart';
+import 'package:flutter_map_example/pages/scalebar.dart';
 import 'package:flutter_map_example/pages/screen_point_to_latlng.dart';
 import 'package:flutter_map_example/pages/secondary_tap.dart';
 import 'package:flutter_map_example/pages/sliding_map.dart';
@@ -97,6 +97,11 @@ class MenuDrawer extends StatelessWidget {
             routeName: OverlayImagePage.route,
             currentRoute: currentRoute,
           ),
+          MenuItemWidget(
+            caption: 'Scale Bar Layer',
+            routeName: ScaleBarPage.route,
+            currentRoute: currentRoute,
+          ),
           const Divider(),
           MenuItemWidget(
             caption: 'Map Controller',
@@ -167,11 +172,6 @@ class MenuDrawer extends StatelessWidget {
             currentRoute: currentRoute,
           ),
           const Divider(),
-          MenuItemWidget(
-            caption: 'Scale Bar Plugin',
-            routeName: PluginScaleBar.route,
-            currentRoute: currentRoute,
-          ),
           MenuItemWidget(
             caption: 'Zoom Buttons Plugin',
             routeName: PluginZoomButtons.route,
