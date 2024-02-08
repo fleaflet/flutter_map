@@ -44,7 +44,7 @@ To help choose between one of these plugins or a DIY solution, see:
 
 
 
-<table data-card-size="large" data-view="cards"><thead><tr><th></th><th></th><th data-hidden data-card-target data-type="content-ref"></th></tr></thead><tbody><tr><td><strong>flutter_map_tile_caching (JaffaKetchup)</strong></td><td>Advanced, performant, highly configurable caching &#x26; bulk downloading (under a GPL license)</td><td><a href="https://github.com/JaffaKetchup/flutter_map_tile_caching">https://github.com/JaffaKetchup/flutter_map_tile_caching</a></td></tr><tr><td><strong>flutter_map_cache (josxha)</strong></td><td>Lightweight caching with support for multiple backends</td><td><a href="https://github.com/josxha/flutter_map_cache">https://github.com/josxha/flutter_map_cache</a></td></tr></tbody></table>
+<table data-card-size="large" data-view="cards"><thead><tr><th></th><th></th><th data-hidden data-card-target data-type="content-ref"></th></tr></thead><tbody><tr><td><strong>flutter_map_tile_caching (JaffaKetchup)</strong></td><td>Advanced, performant, highly configurable caching &#x26; bulk downloading (under a GPL license)</td><td><a href="https://github.com/JaffaKetchup/flutter_map_tile_caching">https://github.com/JaffaKetchup/flutter_map_tile_caching</a></td></tr><tr><td><strong>flutter_map_cache (josxha)</strong></td><td>Lightweight tile caching with support for most storage backends and request cancellation.</td><td><a href="https://github.com/josxha/flutter_map_plugins/tree/main/flutter_map_cache">https://github.com/josxha/flutter_map_plugins/tree/main/flutter_map_cache</a></td></tr></tbody></table>
 
 ## Better `Marker`s
 
