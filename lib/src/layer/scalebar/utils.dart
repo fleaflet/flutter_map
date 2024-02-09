@@ -1,7 +1,7 @@
 part of 'scalebar.dart';
 
 /// Calculates the length of the scalebar
-LatLng calculateEndingGlobalCoordinates({
+LatLng _calculateEndingGlobalCoordinates({
   required LatLng start,
   required double startBearing,
   required double distance,

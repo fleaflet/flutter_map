@@ -47,7 +47,7 @@ class Scalebar extends StatelessWidget {
     final distance = _scale[index];
     final center = camera.center;
     final start = camera.project(center);
-    final targetPoint = calculateEndingGlobalCoordinates(
+    final targetPoint = _calculateEndingGlobalCoordinates(
       start: center,
       startBearing: 90,
       distance: distance.toDouble(),
