@@ -20,7 +20,7 @@ class FlutterMap extends StatefulWidget {
   const FlutterMap({
     super.key,
     this.mapController,
-    required this.options,
+    this.options = const MapOptions(),
     required this.children,
   });
 
