@@ -1,13 +1,13 @@
 # Layer Interactivity
 
-Some layers, (currently only the [polyline-layer.md](polyline-layer.md "mention")), support hit detection and interactivity. These all follow roughly the same pattern, and there's three or four easy steps to setting it up.
+The [polyline-layer.md](polyline-layer.md "mention") & [polygon-layer.md](polygon-layer.md "mention") support hit detection and interactivity. These follow roughly the same pattern, and there's three or four easy steps to setting it up.
 
 {% hint style="info" %}
 To detect hits/interactions on `Markers` in a `MarkerLayer`, simply use a `GestureDetector` or similar widget in the `Marker.child`.
 {% endhint %}
 
 {% hint style="info" %}
-Direct callbacks on layers or features aren't provided, to maximize flexibility.
+Direct callbacks, such as `onTap,`aren't provided on layers or features, to maximize flexibility.
 {% endhint %}
 
 ## 1. Attach A Hit Notifier
@@ -64,7 +64,8 @@ MouseRegion(
 Once a `LayerHitResult` object is obtained, through the hit notifier (either from `.value` inside a gesture detecting widget callback, or from a registered notifier listener callback), you can retrieve:
 
 * `hitValues`: the `hitValue`s of all the features that were hit, ordered by their corresponding feature, first-to-last, visually top-to-bottom
-* `point`: the geographic coordinate of the hit location (which may not lie on any feature)
+* `coordinate`: the geographic coordinate of the hit location (which may not lie on any feature)
+* `point`: the screen point of the hit location
 
 {% hint style="success" %}
 If all the `hitValue`s in a layer are of the same type, and the created hit notifier specifies that type in the type argument, typing is preserved all the way to retrieval.
