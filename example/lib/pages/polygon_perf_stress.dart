@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -155,7 +153,7 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
                               ...List.generate(
                                 4,
                                 (i) {
-                                  final thickness = pow(i, 2);
+                                  final thickness = i * i;
                                   return ChoiceChip(
                                     label: Text(
                                       thickness == 0
