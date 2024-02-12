@@ -21,12 +21,9 @@ class PolygonPerfStressPage extends StatefulWidget {
 }
 
 class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
-  static const double _initialSimplificationTolerance = 0.5;
-  double simplificationTolerance = _initialSimplificationTolerance;
-  static const bool _initialUsePerformantDrawing = true;
-  bool usePerformantRendering = _initialUsePerformantDrawing;
-  static const double _initialBorderThickness = 1;
-  double borderThickness = _initialBorderThickness;
+  double simplificationTolerance = 0.5;
+  bool useAltRendering = true;
+  double borderThickness = 1;
 
   late Future<GeoJsonParser> geoJsonParser = loadPolygonsFromGeoJson();
 
@@ -59,8 +56,8 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
                 padding: const EdgeInsets.only(
                   left: 16,
                   right: 16,
-                  top: 88,
-                  bottom: 192,
+                  top: 145,
+                  bottom: 175,
                 ),
               ),
             ),
@@ -74,7 +71,7 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
                         ? const SizedBox.shrink()
                         : PolygonLayer(
                             polygons: geoJsonParser.data!.polygons,
-                            performantRendering: usePerformantRendering,
+                            useAltRendering: useAltRendering,
                             simplificationTolerance: simplificationTolerance,
                           ),
               ),
@@ -88,8 +85,8 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
               child: Column(
                 children: [
                   SimplificationToleranceSlider(
-                    initialTolerance: _initialSimplificationTolerance,
-                    onChangedTolerance: (v) =>
+                    tolerance: simplificationTolerance,
+                    onChanged: (v) =>
                         setState(() => simplificationTolerance = v),
                   ),
                   const SizedBox(height: 12),
@@ -99,33 +96,28 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
                     runSpacing: 12,
                     children: [
                       UnconstrainedBox(
-                        child: DecoratedBox(
+                        child: Container(
                           decoration: BoxDecoration(
                             color: Theme.of(context).colorScheme.background,
                             borderRadius: BorderRadius.circular(32),
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                              left: 16,
-                              right: 16,
-                              top: 4,
-                              bottom: 4,
-                            ),
-                            child: Row(
-                              children: [
-                                const Tooltip(
-                                  message: 'Use Performant Rendering',
-                                  child: Icon(Icons.speed_rounded),
-                                ),
-                                const SizedBox(width: 8),
-                                Switch.adaptive(
-                                  value: usePerformantRendering,
-                                  onChanged: (v) => setState(
-                                    () => usePerformantRendering = v,
-                                  ),
-                                ),
-                              ],
-                            ),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 4,
+                            horizontal: 16,
+                          ),
+                          child: Row(
+                            children: [
+                              const Tooltip(
+                                message: 'Use Alternative Rendering Pathway',
+                                child: Icon(Icons.speed_rounded),
+                              ),
+                              const SizedBox(width: 8),
+                              Switch.adaptive(
+                                value: useAltRendering,
+                                onChanged: (v) =>
+                                    setState(() => useAltRendering = v),
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -133,90 +125,54 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
                       // time this is changed, but the library gives no easy
                       // way to change it after
                       UnconstrainedBox(
-                        child: DecoratedBox(
+                        child: Container(
                           decoration: BoxDecoration(
                             color: Theme.of(context).colorScheme.background,
                             borderRadius: BorderRadius.circular(32),
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                              left: 16,
-                              right: 16,
-                              top: 8,
-                              bottom: 8,
-                            ),
-                            child: Wrap(
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              spacing: 6,
-                              children: [
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 16,
+                          ),
+                          child: Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 6,
+                            children: [
+                              const Tooltip(
+                                message: 'Border Thickness',
+                                child: Icon(Icons.line_weight_rounded),
+                              ),
+                              if (MediaQuery.devicePixelRatioOf(context) > 1 &&
+                                  borderThickness == 1)
                                 const Tooltip(
-                                  message: 'Border Thickness',
-                                  child: Icon(Icons.line_weight_rounded),
-                                ),
-                                if (MediaQuery.devicePixelRatioOf(context) >
-                                        1 &&
-                                    borderThickness == 1)
-                                  const Tooltip(
-                                    message:
-                                        'Screen has a high DPR: 1px border may be more than 1px.',
-                                    child: Icon(
-                                      Icons.warning,
-                                      color: Colors.amber,
-                                    ),
+                                  message: 'Screen has a high DPR: 1lp > 1dp',
+                                  child: Icon(
+                                    Icons.warning,
+                                    color: Colors.amber,
                                   ),
-                                const SizedBox.shrink(),
-                                ...List.generate(
-                                  4,
-                                  (i) {
-                                    final thickness = pow(i, 2);
-                                    return ChoiceChip(
-                                      label: Text(
-                                        thickness == 0
-                                            ? 'None'
-                                            : '${thickness}px',
-                                      ),
-                                      selected: borderThickness == thickness,
-                                      shape: const StadiumBorder(),
-                                      onSelected: (selected) async {
-                                        if (!selected) return;
-                                        setState(() => borderThickness =
-                                            thickness.toDouble());
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                            content: Row(
-                                              children: [
-                                                SizedBox.square(
-                                                  dimension: 16,
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                    strokeWidth: 3,
-                                                    valueColor:
-                                                        AlwaysStoppedAnimation(
-                                                      Colors.white,
-                                                    ),
-                                                  ),
-                                                ),
-                                                SizedBox(width: 12),
-                                                Text(
-                                                  'Loading GeoJson polygons...',
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        );
-                                        await (geoJsonParser =
-                                            loadPolygonsFromGeoJson());
-                                        if (!context.mounted) return;
-                                        ScaffoldMessenger.of(context)
-                                            .clearSnackBars();
-                                        setState(() {});
-                                      },
-                                    );
-                                  },
                                 ),
-                              ],
-                            ),
+                              const SizedBox.shrink(),
+                              ...List.generate(
+                                4,
+                                (i) {
+                                  final thickness = pow(i, 2);
+                                  return ChoiceChip(
+                                    label: Text(
+                                      thickness == 0
+                                          ? 'None'
+                                          : '${thickness}px',
+                                    ),
+                                    selected: borderThickness == thickness,
+                                    shape: const StadiumBorder(),
+                                    onSelected: (selected) => reloadGeoJson(
+                                      context: context,
+                                      selected: selected,
+                                      thickness: thickness,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -236,6 +192,38 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
         ],
       ),
     );
+  }
+
+  Future<void> reloadGeoJson({
+    required BuildContext context,
+    required bool selected,
+    required num thickness,
+  }) async {
+    if (!selected) return;
+    setState(() => borderThickness = thickness.toDouble());
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Row(
+          children: [
+            SizedBox.square(
+              dimension: 16,
+              child: CircularProgressIndicator(
+                strokeWidth: 3,
+                valueColor: AlwaysStoppedAnimation(
+                  Colors.white,
+                ),
+              ),
+            ),
+            SizedBox(width: 12),
+            Text('Loading GeoJson polygons...'),
+          ],
+        ),
+      ),
+    );
+    await (geoJsonParser = loadPolygonsFromGeoJson());
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).clearSnackBars();
+    setState(() {});
   }
 
   Future<GeoJsonParser> loadPolygonsFromGeoJson() async {

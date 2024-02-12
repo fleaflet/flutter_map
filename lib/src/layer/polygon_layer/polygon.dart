@@ -59,16 +59,6 @@ class Polygon {
   /// it remains upright
   final bool rotateLabel;
 
-  /// {@macro fm.PolygonLayer.performantRendering}
-  ///
-  /// Value meanings (defaults to `true`):
-  ///
-  /// - `true` : respect layer-level value (disabled by default)
-  /// - `false`: disabled, ignore layer-level value
-  ///
-  /// Also see [PolygonLayer.performantRendering].
-  final bool performantRendering;
-
   /// Designates whether the given polygon points follow a clock or
   /// anti-clockwise direction.
   /// This is respected during draw call batching for filled polygons.
@@ -127,7 +117,6 @@ class Polygon {
     this.labelStyle = const TextStyle(),
     this.labelPlacement = PolygonLabelPlacement.centroid,
     this.rotateLabel = false,
-    this.performantRendering = true,
   }) : _filledAndClockwise =
             (isFilled ?? (color != null)) && isClockwise(points);
 
@@ -159,7 +148,6 @@ class Polygon {
           labelStyle == other.labelStyle &&
           labelPlacement == other.labelPlacement &&
           rotateLabel == other.rotateLabel &&
-          performantRendering == other.performantRendering &&
           // Expensive computations last to take advantage of lazy logic gates
           listEquals(holePointsList, other.holePointsList) &&
           listEquals(points, other.points));
@@ -190,7 +178,6 @@ class Polygon {
         labelStyle,
         labelPlacement,
         rotateLabel,
-        performantRendering,
         renderHashCode,
       ]);
 }

@@ -22,29 +22,22 @@ class PolygonLayer extends StatefulWidget {
   /// [Polygon]s to draw
   final List<Polygon> polygons;
 
-  /// {@template fm.PolygonLayer.performantRendering}
-  /// Whether to use an alternative, specialised, rendering pathway to draw
-  /// polygons, which can be more performant in some circumstances
+  /// Whether to use an alternative rendering pathway to draw polygons onto the
+  /// underlying `Canvas`, which can be more performant in *some* circumstances
   ///
   /// This will not always improve performance, and there are other important
   /// considerations before enabling it. It is intended for use when prior
   /// profiling indicates more performance is required after other methods are
-  /// already in use.
+  /// already in use. For example, it may worsen performance when there are a
+  /// huge number of polygons to triangulate - and so this is best used in
+  /// conjunction with simplification, not as a replacement.
   ///
-  /// For more information about usage (and the rendering pathway), see the
+  /// For more information about usage and pitfalls, see the
   /// [online documentation](https://docs.fleaflet.dev/layers/polygon-layer#performant-rendering-with-drawvertices-internal-disabled).
-  /// {@endtemplate}
   ///
-  /// Value meanings (defaults to `false`):
-  ///
-  /// - `true` : enabled, but respect individual feature-level overrides
-  /// - `false`: disabled, ignore feature-level overrides
-  /// - (no option is provided to disable by default but respect feature-level
-  /// overrides, as this will likely not be useful for this option's intended
-  /// purpose)
-  ///
-  /// Also see [Polygon.performantRendering].
-  final bool performantRendering;
+  /// Defaults to `false`. Ensure you have read and understood the documentation
+  /// above before enabling.
+  final bool useAltRendering;
 
   /// Whether to cull polygons and polygon sections that are outside of the
   /// viewport
@@ -76,7 +69,7 @@ class PolygonLayer extends StatefulWidget {
   const PolygonLayer({
     super.key,
     required this.polygons,
-    this.performantRendering = false,
+    this.useAltRendering = false,
     this.polygonCulling = true,
     this.simplificationTolerance = 0.5,
     this.polygonLabels = true,
@@ -152,13 +145,12 @@ class _PolygonLayerState extends State<PolygonLayer> {
             )
             .toList();
 
-    final triangles = !widget.performantRendering
+    final triangles = !widget.useAltRendering
         ? null
         : List.generate(
             culled.length,
             (i) {
               final culledPolygon = culled[i];
-              if (!culledPolygon.polygon.performantRendering) return null;
 
               final points = culledPolygon.holePoints.isEmpty
                   ? culledPolygon.points
@@ -222,17 +214,15 @@ class _PolygonLayerState extends State<PolygonLayer> {
             tolerance: tolerance,
             highQuality: true,
           ),
-          holePoints: holes.isEmpty
-              ? []
-              : List.generate(
-                  holes.length,
-                  (j) => simplifyPoints(
-                    points: holes[j],
-                    tolerance: tolerance,
-                    highQuality: true,
-                  ),
-                  growable: false,
-                ),
+          holePoints: List.generate(
+            holes.length,
+            (j) => simplifyPoints(
+              points: holes[j],
+              tolerance: tolerance,
+              highQuality: true,
+            ),
+            growable: false,
+          ),
         );
       },
       growable: false,

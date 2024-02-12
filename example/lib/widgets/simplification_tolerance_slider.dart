@@ -1,23 +1,14 @@
 import 'package:flutter/material.dart';
 
-class SimplificationToleranceSlider extends StatefulWidget {
+class SimplificationToleranceSlider extends StatelessWidget {
   const SimplificationToleranceSlider({
     super.key,
-    required this.initialTolerance,
-    required this.onChangedTolerance,
+    required this.tolerance,
+    required this.onChanged,
   });
 
-  final double initialTolerance;
-  final void Function(double) onChangedTolerance;
-
-  @override
-  State<SimplificationToleranceSlider> createState() =>
-      _SimplificationToleranceSliderState();
-}
-
-class _SimplificationToleranceSliderState
-    extends State<SimplificationToleranceSlider> {
-  late double _simplificationTolerance = widget.initialTolerance;
+  final double tolerance;
+  final void Function(double) onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -42,20 +33,13 @@ class _SimplificationToleranceSliderState
             ),
             Expanded(
               child: Slider.adaptive(
-                value: _simplificationTolerance,
-                onChanged: (v) {
-                  if (_simplificationTolerance == 0 && v != 0) {
-                    widget.onChangedTolerance(v);
-                  }
-                  setState(() => _simplificationTolerance = v);
-                },
-                onChangeEnd: widget.onChangedTolerance,
+                value: tolerance,
+                onChanged: onChanged,
                 min: 0,
                 max: 2,
                 divisions: 100,
-                label: _simplificationTolerance == 0
-                    ? 'Disabled'
-                    : _simplificationTolerance.toStringAsFixed(2),
+                label:
+                    tolerance == 0 ? 'Disabled' : tolerance.toStringAsFixed(2),
               ),
             ),
           ],

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class NumberOfItemsSlider extends StatefulWidget {
+class NumberOfItemsSlider extends StatelessWidget {
   const NumberOfItemsSlider({
     super.key,
-    required this.initialNumber,
-    required this.onChangedNumber,
+    required this.number,
+    required this.onChanged,
     required this.maxNumber,
     this.itemDescription = 'Item',
     int itemsPerDivision = 1000,
@@ -14,18 +14,11 @@ class NumberOfItemsSlider extends StatefulWidget {
         ),
         divisions = maxNumber ~/ itemsPerDivision;
 
-  final int initialNumber;
-  final void Function(int) onChangedNumber;
+  final int number;
+  final void Function(int) onChanged;
   final String itemDescription;
   final int maxNumber;
   final int divisions;
-
-  @override
-  State<NumberOfItemsSlider> createState() => _NumberOfItemsSliderState();
-}
-
-class _NumberOfItemsSliderState extends State<NumberOfItemsSlider> {
-  late int _number = widget.initialNumber;
 
   @override
   Widget build(BuildContext context) {
@@ -39,23 +32,17 @@ class _NumberOfItemsSliderState extends State<NumberOfItemsSlider> {
         child: Row(
           children: [
             Tooltip(
-              message: 'Adjust Number of ${widget.itemDescription}s',
+              message: 'Adjust Number of ${itemDescription}s',
               child: const Icon(Icons.numbers),
             ),
             Expanded(
               child: Slider.adaptive(
-                value: _number.toDouble(),
-                onChanged: (v) {
-                  if (_number == 0 && v != 0) {
-                    widget.onChangedNumber(v.toInt());
-                  }
-                  setState(() => _number = v.toInt());
-                },
-                onChangeEnd: (v) => widget.onChangedNumber(v.toInt()),
+                value: number.toDouble(),
+                onChanged: (v) => onChanged(v.toInt()),
                 min: 0,
-                max: widget.maxNumber.toDouble(),
-                divisions: widget.divisions,
-                label: _number.toString(),
+                max: maxNumber.toDouble(),
+                divisions: divisions,
+                label: number.toString(),
               ),
             ),
           ],

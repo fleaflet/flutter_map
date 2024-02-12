@@ -135,7 +135,6 @@ class PolygonPage extends StatelessWidget {
                     borderStrokeWidth: 4,
                     borderColor: Colors.orange,
                     color: Colors.orange.withOpacity(0.5),
-                    performantRendering: false,
                     label: 'This one is not\nperformantly rendered',
                     rotateLabel: true,
                     labelPlacement: PolygonLabelPlacement.centroid,
@@ -158,7 +157,6 @@ class PolygonPage extends StatelessWidget {
                     borderStrokeWidth: 4,
                     borderColor: Colors.orange,
                     color: Colors.orange.withOpacity(0.5),
-                    performantRendering: false,
                     label: 'This one is not\nperformantly rendered',
                     rotateLabel: true,
                     labelPlacement: PolygonLabelPlacement.centroid,
@@ -168,7 +166,7 @@ class PolygonPage extends StatelessWidget {
               ),
               PolygonLayer(
                 simplificationTolerance: 0,
-                performantRendering: true,
+                useAltRendering: true,
                 polygons: [
                   Polygon(
                     points: _normalHoleOuterPoints,
