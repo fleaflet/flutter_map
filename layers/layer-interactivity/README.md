@@ -1,19 +1,31 @@
 # Layer Interactivity
 
-The [polyline-layer.md](polyline-layer.md "mention") & [polygon-layer.md](polygon-layer.md "mention") support hit detection and interactivity. These follow roughly the same pattern, and there's three or four easy steps to setting it up.
+{% hint style="info" %}
+Layer interactivity is different to map interactivity. See [interaction-options.md](../../usage/options/interaction-options.md "mention") to control map interactivity.
+{% endhint %}
 
 {% hint style="info" %}
-To detect hits/interactions on `Markers` in a `MarkerLayer`, simply use a `GestureDetector` or similar widget in the `Marker.child`.
+For information about how hit testing behaves in flutter\_map, see [hit-testing-behaviour.md](hit-testing-behaviour.md "mention").
+
+It is important to note that hit testing != interactivity, and hit testing is always executed on interactable layers by default.
 {% endhint %}
+
+The following layers are interactable - they have specialised `hitTest`ers and support external hit detection:
+
+* [polyline-layer.md](../polyline-layer.md "mention")
+* [polygon-layer.md](../polygon-layer.md "mention")
+
+These all follow roughly the same pattern to setup hit detection/interactivity, and there's three or four easy steps to setting it up.&#x20;
+
+## 1. Attach A Hit Notifier
 
 {% hint style="info" %}
 Direct callbacks, such as `onTap,`aren't provided on layers or features, to maximize flexibility.
 {% endhint %}
 
-## 1. Attach A Hit Notifier
+Pass a `LayerHitNotifier` to the `hitNotifier` parameter of the layer. The `LayerHitNotifier` should be created as a `ValueNotifier` defaulting to `null`, but strongly typed to `LayerHitNotifier`.
 
-Hit detection is achieved by passing a `LayerHitNotifier` to the `hitNotifier` parameter of the layer.\
-This will be notified with a `LayerHit` result when a hit is detected on a feature within the layer, and with `null` when a hit is detected on the layer but not on a feature.
+This notifier will be notified whenever a hit test occurs on the layer, with a  `LayerHitResult` when a feature within the layer is hit, and with `null` when a feature is not hit (but the layer is).
 
 {% code title="hit_notifier.dart" %}
 ```dart
@@ -27,11 +39,13 @@ PolylineLayer( // Or any other supported layer
 ```
 {% endcode %}
 
-It is possible to listen to the notifier directly with `addListener` - don't forget to remove the listener once you no longer need it! Alternatively, you can use another [#id-3.-gesture-detection](layer-interactivity.md#id-3.-gesture-detection "mention") widget to filter the events appropriately.
+It is possible to listen to the notifier directly with `addListener` - don't forget to remove the listener once you no longer need it! Alternatively, you can use another [#id-3.-gesture-detection](./#id-3.-gesture-detection "mention") widget to filter the events appropriately.
 
 ## 2. Add `hitValue` To Features
 
-Hits on features will only be detected on features that have a `hitValue` assigned. This can be used to hold any custom object, but these objects should have a valid and useful equality method to avoid breaking the equality of the feature.
+Although this step is technically optional, it's not very useful if you have multiple features if you can't detect which feature has been hit!
+
+To identify features, pass a `hitValue`. This can be any object, but if one layer contains all the same type, type casting can be avoided (if the type is also specified in the `LayerHitNotifier`'s type argument). These objects should have a valid and useful equality method to avoid breaking the equality of the feature.
 
 ## 3. Gesture Detection
 

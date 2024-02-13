@@ -23,8 +23,8 @@ PolylineLayer(
 
 `PolylineLayer`s and `Polyline`s support hit detection and interactivity.
 
-{% content-ref url="layer-interactivity.md" %}
-[layer-interactivity.md](layer-interactivity.md)
+{% content-ref url="layer-interactivity/" %}
+[layer-interactivity](layer-interactivity/)
 {% endcontent-ref %}
 
 {% hint style="info" %}

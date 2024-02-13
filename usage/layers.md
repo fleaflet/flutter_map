@@ -20,11 +20,15 @@ To display a widget in a sized and positioned box, similar to [overlay-image-lay
 
 Each layer is isolated from the other layers, and so handles its own independent logic and handling. However, they can access and modify the internal state of the map, as well as respond to changes.
 
-## Per-Layer Gesture Handling
+## Hit Testing & Interacitivity
 
-By default, each layer acts translucently to gestures, meaning they can handle gestures themselves, but they also allow gestures to bubble down to other layers beneath them.
+{% content-ref url="../layers/layer-interactivity/" %}
+[layer-interactivity](../layers/layer-interactivity/)
+{% endcontent-ref %}
 
-This behaviour can be disabled in the [`MapOptions`](options/), by setting `.applyPointerTranslucencyToLayers` false. Optionally, then, the `TranslucentPointer` widget can be wrapped around individal layers to achieve the desired effect.
+{% content-ref url="../layers/layer-interactivity/hit-testing-behaviour.md" %}
+[hit-testing-behaviour.md](../layers/layer-interactivity/hit-testing-behaviour.md)
+{% endcontent-ref %}
 
 ## Mobile vs Static Layers
 
