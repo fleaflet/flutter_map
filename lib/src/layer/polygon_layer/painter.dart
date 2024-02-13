@@ -40,81 +40,59 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
 
   @override
   bool? hitTest(Offset position) {
-    const eps = 1e-7; // Ensures polygons have non-zero size
-
     if (hitNotifier == null) return null;
 
     _hits.clear();
 
     final origin =
         camera.project(camera.center).toOffset() - camera.size.toOffset() / 2;
+    final point = position.toPoint();
+    final coordinate = camera.pointToLatLng(point);
 
     for (final projectedPolygon in polygons.reversed) {
       final polygon = projectedPolygon.polygon;
-      if (polygon.hitValue == null) continue;
-
-      // TODO: For efficiency we'd ideally filter by bounding box here. However
-      // we'd need to compute an extended bounding box that accounts account for
-      // the `borderStrokeWidth`
-      // if (!polygon.boundingBox.contains(touch)) {
-      //   continue;
-      // }
+      if (polygon.hitValue == null ||
+          !polygon.boundingBox.contains(coordinate)) {
+        continue;
+      }
 
       final projectedCoords = getOffsetsXY(
         camera: camera,
         origin: origin,
         points: projectedPolygon.points,
-      ).map((c) => polybool.Coordinate(c.dx, c.dy)).toList();
+      ).toList();
 
-      // 'polybool' requires polygons to be closed loops
       if (projectedCoords.first != projectedCoords.last) {
         projectedCoords.add(projectedCoords.first);
       }
 
       final hasHoles = projectedPolygon.holePoints.isNotEmpty;
-      late final List<List<polybool.Coordinate>> projectedHoleCoords;
+      late final List<List<Offset>> projectedHoleCoords;
       if (hasHoles) {
         projectedHoleCoords = projectedPolygon.holePoints
             .map(
-              (p) => getOffsetsXY(
+              (points) => getOffsetsXY(
                 camera: camera,
                 origin: origin,
-                points: p,
-              ).map((c) => polybool.Coordinate(c.dx, c.dy)).toList(),
+                points: points,
+              ).toList(),
             )
             .toList();
 
-        // 'polybool' requires polygons to be closed loops
         if (projectedHoleCoords.firstOrNull != projectedHoleCoords.lastOrNull) {
           projectedHoleCoords.add(projectedHoleCoords.first);
         }
       }
 
-      final touch = polybool.Polygon(
-        regions: [
-          [
-            polybool.Coordinate(position.dx, position.dy),
-            polybool.Coordinate(position.dx + eps, position.dy),
-            polybool.Coordinate(position.dx + eps, position.dy + eps),
-            polybool.Coordinate(position.dx, position.dy + eps),
-            polybool.Coordinate(position.dx, position.dy),
-          ],
-        ],
-      );
+      final isInPolygon = _isPointInPolygon(position, projectedCoords);
+      late final isInHole = hasHoles &&
+          projectedHoleCoords
+              .map((c) => _isPointInPolygon(position, c))
+              .any((e) => e);
 
-      if (polybool.Polygon(regions: [projectedCoords])
-              .intersect(touch)
-              .regions
-              .isNotEmpty &&
-          ((!hasHoles) ||
-              projectedHoleCoords
-                  .map(
-                    (c) => polybool.Polygon(regions: [c])
-                        .intersect(touch)
-                        .regions
-                        .isEmpty,
-                  )
-                  .every((e) => e))) {
+      // Second check handles case where polygon outline intersects a hole,
+      // ensuring that the hit matches with the visual representation
+      if ((isInPolygon && !isInHole) || (!isInPolygon && isInHole)) {
         _hits.add(polygon.hitValue!);
       }
     }
@@ -124,10 +102,9 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
       return false;
     }
 
-    final point = position.toPoint();
     hitNotifier!.value = LayerHitResult(
       hitValues: _hits,
-      coordinate: camera.pointToLatLng(point),
+      coordinate: coordinate,
       point: point,
     );
     return true;
@@ -274,7 +251,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
         final painter = _buildLabelTextPainter(
           mapSize: camera.size,
           placementPoint: getOffset(camera, origin, polygon.labelPosition),
-          bounds: getBounds(origin, polygon),
+          bounds: _getBounds(origin, polygon),
           textPainter: polygon.textPainter!,
           rotationRad: camera.rotationRad,
           rotate: polygon.rotateLabel,
@@ -303,7 +280,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
           final painter = _buildLabelTextPainter(
             mapSize: camera.size,
             placementPoint: getOffset(camera, origin, polygon.labelPosition),
-            bounds: getBounds(origin, polygon),
+            bounds: _getBounds(origin, polygon),
             textPainter: textPainter,
             rotationRad: camera.rotationRad,
             rotate: polygon.rotateLabel,
@@ -399,12 +376,30 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
     path.addPolygon(offsets, true);
   }
 
-  ({Offset min, Offset max}) getBounds(Offset origin, Polygon polygon) {
+  ({Offset min, Offset max}) _getBounds(Offset origin, Polygon polygon) {
     final bbox = polygon.boundingBox;
     return (
       min: getOffset(camera, origin, bbox.southWest),
       max: getOffset(camera, origin, bbox.northEast),
     );
+  }
+
+  /// Checks whether point [p] is within the specified closed [polygon]
+  ///
+  /// Uses the even-odd algorithm.
+  static bool _isPointInPolygon(Offset p, List<Offset> polygon) {
+    bool isInPolygon = false;
+
+    for (int i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      if ((((polygon[i].dy <= p.dy) && (p.dy < polygon[j].dy)) ||
+              ((polygon[j].dy <= p.dy) && (p.dy < polygon[i].dy))) &&
+          (p.dx <
+              (polygon[j].dx - polygon[i].dx) *
+                      (p.dy - polygon[i].dy) /
+                      (polygon[j].dy - polygon[i].dy) +
+                  polygon[i].dx)) isInPolygon = !isInPolygon;
+    }
+    return isInPolygon;
   }
 
   // TODO: Fix bug where wrapping layer in some widgets (eg. opacity) causes the

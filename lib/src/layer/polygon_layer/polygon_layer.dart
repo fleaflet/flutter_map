@@ -9,7 +9,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/misc/offsets.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart' hide Path;
-import 'package:polybool/polybool.dart' as polybool;
 import 'package:polylabel/polylabel.dart';
 
 part 'label.dart';
