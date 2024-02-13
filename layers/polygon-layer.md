@@ -90,7 +90,7 @@ Polygons may overlap after simplification when they did not before, and vice ver
 
 Polygons (and similar other features) are usually drawn directly onto a `Canvas`, using built-in methods such as `drawPolygon` and `drawLine`. However, these can be relatively slow, and will slow the raster thread when used at a large scale.
 
-Therefore, to improve performance, it's possible to optionally set the `performantRendering` flag (either on the `Polygon` feature itself, or the `PolygonLayer`). This will use an alternative, specialised, rendering pathway, which can lead to an overall performance improvement, particularly at a large scale.
+Therefore, to improve performance, it's possible to optionally set the `useAltRendering` flag on the `PolygonLayer`. This will use an alternative, specialised, rendering pathway, which _may_ lead to an overall performance improvement, particularly at a large scale.
 
 ***
 
