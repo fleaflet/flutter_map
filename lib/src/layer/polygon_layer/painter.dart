@@ -44,8 +44,8 @@ class _PolygonPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final trianglePoints = <Offset>[];
 
-    var filledPath = Path();
-    var borderPath = Path();
+    final filledPath = Path();
+    final borderPath = Path();
     Polygon? lastPolygon;
     int? lastHash;
 
@@ -82,9 +82,9 @@ class _PolygonPainter extends CustomPainter {
       }
 
       trianglePoints.clear();
-      filledPath = Path();
+      filledPath.reset();
 
-      borderPath = Path();
+      borderPath.reset();
 
       lastPolygon = null;
       lastHash = null;
