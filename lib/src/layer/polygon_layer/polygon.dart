@@ -32,12 +32,26 @@ class Polygon<R extends Object> {
   /// as dotted line.
   final bool isDotted;
 
+  /// **DEPRECATED**
+  ///
+  /// Prefer setting `color` to null to disable filling, or a `Color` to enable
+  /// filling of that color.
+  ///
+  /// This parameter will be removed to simplify the API, as this was a remnant of pre-null-safety.
+  ///
+  /// The default of this parameter is now `null` and will use the rules above -
+  /// the option is retained so as not to break APIs.
+  ///
+  /// This feature was deprecated (and the default changed) after v7.
+  ///
+  /// ---
+  ///
   /// Set to true if the [Polygon] should be filled with a color.
   @Deprecated(
     'Prefer setting `color` to null to disable filling, or a `Color` to enable filling of that color. '
     'This parameter will be removed to simplify the API, as this was a remnant of pre-null-safety. '
     'The default of this parameter is now `null` and will use the rules above - the option is retained so as not to break APIs. '
-    'This feature was deprecated after v7.',
+    'This feature was deprecated (and the default changed) after v7.',
   )
   final bool? isFilled;
   final StrokeCap strokeCap;
@@ -116,7 +130,7 @@ class Polygon<R extends Object> {
       'Prefer setting `color` to null to disable filling, or a `Color` to enable filling of that color. '
       'This parameter will be removed to simplify the API, as this was a remnant of pre-null-safety. '
       'The default of this parameter is now `null` and will use the rules above - the option is retained so as not to break APIs. '
-      'This feature was deprecated after v7.',
+      'This feature was deprecated (and the default changed) after v7.',
     )
     this.isFilled,
     this.strokeCap = StrokeCap.round,

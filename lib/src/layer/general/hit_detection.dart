@@ -13,6 +13,7 @@ class LayerHitResult<R extends Object> {
   /// `hitValue`s from all features hit (which have `hitValue`s defined)
   ///
   /// If a feature is hit but has no `hitValue` defined, it will not be included.
+  /// May be empty.
   ///
   /// Ordered by their corresponding feature, first-to-last, visually
   /// top-to-bottom.

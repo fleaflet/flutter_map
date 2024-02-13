@@ -40,9 +40,8 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
 
   @override
   bool? hitTest(Offset position) {
-    if (hitNotifier == null) return null;
-
     _hits.clear();
+    bool hasHit = false;
 
     final origin =
         camera.project(camera.center).toOffset() - camera.size.toOffset() / 2;
@@ -51,7 +50,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
 
     for (final projectedPolygon in polygons.reversed) {
       final polygon = projectedPolygon.polygon;
-      if (polygon.hitValue == null ||
+      if ((hasHit && polygon.hitValue == null) ||
           !polygon.boundingBox.contains(coordinate)) {
         continue;
       }
@@ -94,15 +93,16 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
       // ensuring that the hit matches with the visual representation
       if ((isInPolygon && !isInHole) || (!isInPolygon && isInHole)) {
         _hits.add(polygon.hitValue!);
+        hasHit = true;
       }
     }
 
-    if (_hits.isEmpty) {
-      hitNotifier!.value = null;
+    if (!hasHit) {
+      hitNotifier?.value = null;
       return false;
     }
 
-    hitNotifier!.value = LayerHitResult(
+    hitNotifier?.value = LayerHitResult(
       hitValues: _hits,
       coordinate: coordinate,
       point: point,
