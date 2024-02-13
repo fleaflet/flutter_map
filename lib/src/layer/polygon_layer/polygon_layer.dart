@@ -9,7 +9,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/misc/offsets.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart' hide Path;
-import 'package:polylabel/polylabel.dart'; // conflict with Path from UI
+import 'package:polybool/polybool.dart' as polybool;
+import 'package:polylabel/polylabel.dart';
 
 part 'label.dart';
 part 'painter.dart';
@@ -18,9 +19,9 @@ part 'projected_polygon.dart';
 
 /// A polygon layer for [FlutterMap].
 @immutable
-class PolygonLayer extends StatefulWidget {
+class PolygonLayer<R extends Object> extends StatefulWidget {
   /// [Polygon]s to draw
-  final List<Polygon> polygons;
+  final List<Polygon<R>> polygons;
 
   /// Whether to use an alternative rendering pathway to draw polygons onto the
   /// underlying `Canvas`, which can be more performant in *some* circumstances
@@ -65,6 +66,17 @@ class PolygonLayer extends StatefulWidget {
   /// Defaults to `false`.
   final bool drawLabelsLast;
 
+  /// A notifier to be notified when a hit test occurs on the layer
+  ///
+  /// If a notifier is not provided, hit testing is not performed.
+  ///
+  /// Notified with a [LayerHitResult] if any polylines are hit, otherwise
+  /// notified with `null`.
+  ///
+  /// See online documentation for more detailed usage instructions. See the
+  /// example project for an example implementation.
+  final LayerHitNotifier<R>? hitNotifier;
+
   /// Create a new [PolygonLayer] for the [FlutterMap] widget.
   const PolygonLayer({
     super.key,
@@ -74,20 +86,21 @@ class PolygonLayer extends StatefulWidget {
     this.simplificationTolerance = 0.5,
     this.polygonLabels = true,
     this.drawLabelsLast = false,
+    this.hitNotifier,
   });
 
   @override
-  State<PolygonLayer> createState() => _PolygonLayerState();
+  State<PolygonLayer<R>> createState() => _PolygonLayerState<R>();
 }
 
-class _PolygonLayerState extends State<PolygonLayer> {
-  List<_ProjectedPolygon>? _cachedProjectedPolygons;
-  final _cachedSimplifiedPolygons = <int, List<_ProjectedPolygon>>{};
+class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>> {
+  List<_ProjectedPolygon<R>>? _cachedProjectedPolygons;
+  final _cachedSimplifiedPolygons = <int, List<_ProjectedPolygon<R>>>{};
 
   double? _devicePixelRatio;
 
   @override
-  void didUpdateWidget(PolygonLayer oldWidget) {
+  void didUpdateWidget(PolygonLayer<R> oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     if (!listEquals(oldWidget.polygons, widget.polygons)) {
@@ -117,7 +130,7 @@ class _PolygonLayerState extends State<PolygonLayer> {
       growable: false,
     );
 
-    late final List<_ProjectedPolygon> simplified;
+    late final List<_ProjectedPolygon<R>> simplified;
     if (widget.simplificationTolerance == 0) {
       simplified = projected;
     } else {
@@ -182,15 +195,16 @@ class _PolygonLayerState extends State<PolygonLayer> {
           camera: camera,
           polygonLabels: widget.polygonLabels,
           drawLabelsLast: widget.drawLabelsLast,
+          hitNotifier: widget.hitNotifier,
         ),
         size: Size(camera.size.x, camera.size.y),
       ),
     );
   }
 
-  static List<_ProjectedPolygon> _computeZoomLevelSimplification({
+  List<_ProjectedPolygon<R>> _computeZoomLevelSimplification({
     required MapCamera camera,
-    required List<_ProjectedPolygon> polygons,
+    required List<_ProjectedPolygon<R>> polygons,
     required double pixelTolerance,
     required double devicePixelRatio,
   }) {
@@ -201,7 +215,7 @@ class _PolygonLayerState extends State<PolygonLayer> {
       devicePixelRatio: devicePixelRatio,
     );
 
-    return List<_ProjectedPolygon>.generate(
+    return List<_ProjectedPolygon<R>>.generate(
       polygons.length,
       (i) {
         final polygon = polygons[i];

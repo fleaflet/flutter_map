@@ -10,7 +10,7 @@ enum PolygonLabelPlacement {
 }
 
 /// [Polygon] class, to be used for the [PolygonLayer].
-class Polygon {
+class Polygon<R extends Object> {
   /// The points for the outline of the [Polygon].
   final List<LatLng> points;
 
@@ -58,6 +58,14 @@ class Polygon {
   /// Whether to rotate the label counter to the camera's rotation, to ensure
   /// it remains upright
   final bool rotateLabel;
+
+  /// Value notified in [PolygonLayer.hitNotifier]
+  ///
+  /// Polylines without a defined [hitValue] are still hit tested, but are not
+  /// notified about.
+  ///
+  /// Should implement an equality operator to avoid breaking [Polygon.==].
+  final R? hitValue;
 
   /// Designates whether the given polygon points follow a clock or
   /// anti-clockwise direction.
@@ -117,6 +125,7 @@ class Polygon {
     this.labelStyle = const TextStyle(),
     this.labelPlacement = PolygonLabelPlacement.centroid,
     this.rotateLabel = false,
+    this.hitValue,
   }) : _filledAndClockwise =
             (isFilled ?? (color != null)) && isClockwise(points);
 
@@ -148,6 +157,7 @@ class Polygon {
           labelStyle == other.labelStyle &&
           labelPlacement == other.labelPlacement &&
           rotateLabel == other.rotateLabel &&
+          hitValue == other.hitValue &&
           // Expensive computations last to take advantage of lazy logic gates
           listEquals(holePointsList, other.holePointsList) &&
           listEquals(points, other.points));

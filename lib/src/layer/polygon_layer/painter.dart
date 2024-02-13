@@ -2,9 +2,9 @@ part of 'polygon_layer.dart';
 
 /// The [_PolygonPainter] class is used to render [Polygon]s for
 /// the [PolygonLayer].
-class _PolygonPainter extends CustomPainter {
+class _PolygonPainter<R extends Object> extends CustomPainter {
   /// Reference to the list of [_ProjectedPolygon]s
-  final List<_ProjectedPolygon> polygons;
+  final List<_ProjectedPolygon<R>> polygons;
 
   /// Triangulated [polygons] if available
   ///
@@ -23,6 +23,11 @@ class _PolygonPainter extends CustomPainter {
   /// Whether to draw labels last and thus over all the polygons
   final bool drawLabelsLast;
 
+  /// See [PolylineLayer.hitNotifier]
+  final LayerHitNotifier<R>? hitNotifier;
+
+  final _hits = <R>[]; // Avoids repetitive memory reallocation
+
   /// Create a new [_PolygonPainter] instance.
   _PolygonPainter({
     required this.polygons,
@@ -30,14 +35,102 @@ class _PolygonPainter extends CustomPainter {
     required this.camera,
     required this.polygonLabels,
     required this.drawLabelsLast,
+    required this.hitNotifier,
   }) : bounds = camera.visibleBounds;
 
-  ({Offset min, Offset max}) getBounds(Offset origin, Polygon polygon) {
-    final bbox = polygon.boundingBox;
-    return (
-      min: getOffset(camera, origin, bbox.southWest),
-      max: getOffset(camera, origin, bbox.northEast),
+  @override
+  bool? hitTest(Offset position) {
+    const eps = 1e-7; // Ensures polygons have non-zero size
+
+    if (hitNotifier == null) return null;
+
+    _hits.clear();
+
+    final origin =
+        camera.project(camera.center).toOffset() - camera.size.toOffset() / 2;
+
+    for (final projectedPolygon in polygons.reversed) {
+      final polygon = projectedPolygon.polygon;
+      if (polygon.hitValue == null) continue;
+
+      // TODO: For efficiency we'd ideally filter by bounding box here. However
+      // we'd need to compute an extended bounding box that accounts account for
+      // the `borderStrokeWidth`
+      // if (!polygon.boundingBox.contains(touch)) {
+      //   continue;
+      // }
+
+      final projectedCoords = getOffsetsXY(
+        camera: camera,
+        origin: origin,
+        points: projectedPolygon.points,
+      ).map((c) => polybool.Coordinate(c.dx, c.dy)).toList();
+
+      // 'polybool' requires polygons to be closed loops
+      if (projectedCoords.first != projectedCoords.last) {
+        projectedCoords.add(projectedCoords.first);
+      }
+
+      final hasHoles = projectedPolygon.holePoints.isNotEmpty;
+      late final List<List<polybool.Coordinate>> projectedHoleCoords;
+      if (hasHoles) {
+        projectedHoleCoords = projectedPolygon.holePoints
+            .map(
+              (p) => getOffsetsXY(
+                camera: camera,
+                origin: origin,
+                points: p,
+              ).map((c) => polybool.Coordinate(c.dx, c.dy)).toList(),
+            )
+            .toList();
+
+        // 'polybool' requires polygons to be closed loops
+        if (projectedHoleCoords.firstOrNull != projectedHoleCoords.lastOrNull) {
+          projectedHoleCoords.add(projectedHoleCoords.first);
+        }
+      }
+
+      final touch = polybool.Polygon(
+        regions: [
+          [
+            polybool.Coordinate(position.dx, position.dy),
+            polybool.Coordinate(position.dx + eps, position.dy),
+            polybool.Coordinate(position.dx + eps, position.dy + eps),
+            polybool.Coordinate(position.dx, position.dy + eps),
+            polybool.Coordinate(position.dx, position.dy),
+          ],
+        ],
+      );
+
+      if (polybool.Polygon(regions: [projectedCoords])
+              .intersect(touch)
+              .regions
+              .isNotEmpty &&
+          ((!hasHoles) ||
+              projectedHoleCoords
+                  .map(
+                    (c) => polybool.Polygon(regions: [c])
+                        .intersect(touch)
+                        .regions
+                        .isEmpty,
+                  )
+                  .every((e) => e))) {
+        _hits.add(polygon.hitValue!);
+      }
+    }
+
+    if (_hits.isEmpty) {
+      hitNotifier!.value = null;
+      return false;
+    }
+
+    final point = position.toPoint();
+    hitNotifier!.value = LayerHitResult(
+      hitValues: _hits,
+      coordinate: camera.pointToLatLng(point),
+      point: point,
     );
+    return true;
   }
 
   @override
@@ -306,9 +399,17 @@ class _PolygonPainter extends CustomPainter {
     path.addPolygon(offsets, true);
   }
 
+  ({Offset min, Offset max}) getBounds(Offset origin, Polygon polygon) {
+    final bbox = polygon.boundingBox;
+    return (
+      min: getOffset(camera, origin, bbox.southWest),
+      max: getOffset(camera, origin, bbox.northEast),
+    );
+  }
+
   // TODO: Fix bug where wrapping layer in some widgets (eg. opacity) causes the
   // features to not move unless this is `true`, but `true` significantly impacts
   // performance
   @override
-  bool shouldRepaint(_PolygonPainter oldDelegate) => false;
+  bool shouldRepaint(_PolygonPainter<R> oldDelegate) => false;
 }

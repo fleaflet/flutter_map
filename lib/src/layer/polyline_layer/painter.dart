@@ -3,7 +3,7 @@ part of 'polyline_layer.dart';
 /// [CustomPainter] for [Polygon]s.
 class _PolylinePainter<R extends Object> extends CustomPainter {
   /// Reference to the list of [Polyline]s.
-  final List<_ProjectedPolyline> polylines;
+  final List<_ProjectedPolyline<R>> polylines;
 
   /// Reference to the [MapCamera].
   final MapCamera camera;
@@ -30,15 +30,13 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
         camera.project(camera.center).toOffset() - camera.size.toOffset() / 2;
 
     for (final projectedPolyline in polylines.reversed) {
-      final polyline = projectedPolyline.polyline as Polyline<R>;
-      if (polyline.hitValue == null) {
-        continue;
-      }
+      final polyline = projectedPolyline.polyline;
+      if (polyline.hitValue == null) continue;
 
       // TODO: For efficiency we'd ideally filter by bounding box here. However
       // we'd need to compute an extended bounding box that accounts account for
-      // the stroke width.
-      // if (!p.boundingBox.contains(touch)) {
+      // the `borderStrokeWidth` & the `minimumHitbox`
+      // if (!polyline.boundingBox.contains(touch)) {
       //   continue;
       // }
 
@@ -87,9 +85,11 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
       return false;
     }
 
+    final point = position.toPoint();
     hitNotifier!.value = LayerHitResult(
       hitValues: _hits,
-      point: camera.pointToLatLng(math.Point(position.dx, position.dy)),
+      coordinate: camera.pointToLatLng(point),
+      point: point,
     );
     return true;
   }

@@ -1,8 +1,8 @@
 part of 'polygon_layer.dart';
 
 @immutable
-class _ProjectedPolygon {
-  final Polygon polygon;
+class _ProjectedPolygon<R extends Object> {
+  final Polygon<R> polygon;
   final List<DoublePoint> points;
   final List<List<DoublePoint>> holePoints;
 
@@ -12,7 +12,7 @@ class _ProjectedPolygon {
     required this.holePoints,
   });
 
-  _ProjectedPolygon._fromPolygon(Projection projection, Polygon polygon)
+  _ProjectedPolygon._fromPolygon(Projection projection, Polygon<R> polygon)
       : this._(
           polygon: polygon,
           points: List<DoublePoint>.generate(
