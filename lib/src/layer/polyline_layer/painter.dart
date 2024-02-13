@@ -288,11 +288,12 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
   LatLng _unproject(DoublePoint p0) =>
       camera.crs.projection.unprojectXY(p0.x, p0.y);
 
-  // TODO: Fix bug where wrapping layer in some widgets (eg. opacity) causes the
-  // features to not move unless this is `true`, but `true` significantly impacts
-  // performance
   @override
-  bool shouldRepaint(_PolylinePainter<R> oldDelegate) => false;
+  bool shouldRepaint(_PolylinePainter<R> oldDelegate) =>
+      polylines != oldDelegate.polylines ||
+      camera != oldDelegate.camera ||
+      hitNotifier != oldDelegate.hitNotifier ||
+      minimumHitbox != oldDelegate.minimumHitbox;
 }
 
 const _distance = Distance();
