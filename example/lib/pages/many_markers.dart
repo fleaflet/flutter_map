@@ -29,8 +29,7 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
       source.nextDouble() * (end - start) + start;
   List<Marker> allMarkers = [];
 
-  static const int _initialNumOfMarkers = _maxMarkersCount ~/ 10;
-  int numOfMarkers = _initialNumOfMarkers;
+  int numOfMarkers = _maxMarkersCount ~/ 10;
 
   @override
   void initState() {
@@ -86,10 +85,10 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
             top: 16,
             right: 16,
             child: NumberOfItemsSlider(
-              itemDescription: 'Marker',
+              number: numOfMarkers,
+              onChanged: (v) => setState(() => numOfMarkers = v),
               maxNumber: _maxMarkersCount,
-              initialNumber: _initialNumOfMarkers,
-              onChangedNumber: (v) => setState(() => numOfMarkers = v),
+              itemDescription: 'Marker',
             ),
           ),
           if (!kIsWeb)
