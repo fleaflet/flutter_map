@@ -402,9 +402,13 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
     return isInPolygon;
   }
 
-  // TODO: Fix bug where wrapping layer in some widgets (eg. opacity) causes the
-  // features to not move unless this is `true`, but `true` significantly impacts
-  // performance
   @override
-  bool shouldRepaint(_PolygonPainter<R> oldDelegate) => false;
+  bool shouldRepaint(_PolygonPainter<R> oldDelegate) =>
+      polygons != oldDelegate.polygons ||
+      triangles != oldDelegate.triangles ||
+      camera != oldDelegate.camera ||
+      bounds != oldDelegate.bounds ||
+      drawLabelsLast != oldDelegate.drawLabelsLast ||
+      polygonLabels != oldDelegate.polygonLabels ||
+      hitNotifier != oldDelegate.hitNotifier;
 }
