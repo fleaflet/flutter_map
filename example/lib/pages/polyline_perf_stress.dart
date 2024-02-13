@@ -19,8 +19,7 @@ class PolylinePerfStressPage extends StatefulWidget {
 }
 
 class _PolylinePerfStressPageState extends State<PolylinePerfStressPage> {
-  static const double _initialSimplificationTolerance = 0.5;
-  double simplificationTolerance = _initialSimplificationTolerance;
+  double simplificationTolerance = 0.5;
 
   final _randomWalk = [const LatLng(44.861294, 13.845086)];
 
@@ -81,9 +80,8 @@ class _PolylinePerfStressPageState extends State<PolylinePerfStressPage> {
             top: 16,
             right: 16,
             child: SimplificationToleranceSlider(
-              initialTolerance: _initialSimplificationTolerance,
-              onChangedTolerance: (v) =>
-                  setState(() => simplificationTolerance = v),
+              tolerance: simplificationTolerance,
+              onChanged: (v) => setState(() => simplificationTolerance = v),
             ),
           ),
           if (!kIsWeb)

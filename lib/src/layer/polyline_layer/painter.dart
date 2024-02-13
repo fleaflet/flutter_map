@@ -42,7 +42,11 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
       //   continue;
       // }
 
-      final offsets = getOffsetsXY(camera, origin, projectedPolyline.points);
+      final offsets = getOffsetsXY(
+        camera: camera,
+        origin: origin,
+        points: projectedPolyline.points,
+      );
       final strokeWidth = polyline.useStrokeWidthInMeter
           ? _metersToStrokeWidth(
               origin,
@@ -134,7 +138,11 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
 
     for (final projectedPolyline in polylines) {
       final polyline = projectedPolyline.polyline;
-      final offsets = getOffsetsXY(camera, origin, projectedPolyline.points);
+      final offsets = getOffsetsXY(
+        camera: camera,
+        origin: origin,
+        points: projectedPolyline.points,
+      );
       if (offsets.isEmpty) {
         continue;
       }
@@ -281,7 +289,11 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
       camera.crs.projection.unprojectXY(p0.x, p0.y);
 
   @override
-  bool shouldRepaint(_PolylinePainter<R> oldDelegate) => false;
+  bool shouldRepaint(_PolylinePainter<R> oldDelegate) =>
+      polylines != oldDelegate.polylines ||
+      camera != oldDelegate.camera ||
+      hitNotifier != oldDelegate.hitNotifier ||
+      minimumHitbox != oldDelegate.minimumHitbox;
 }
 
 const _distance = Distance();

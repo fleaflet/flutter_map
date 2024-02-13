@@ -19,16 +19,11 @@ class PolygonPerfStressPage extends StatefulWidget {
 }
 
 class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
-  static const double _initialSimplificationTolerance = 0.5;
-  double simplificationTolerance = _initialSimplificationTolerance;
+  double simplificationTolerance = 0.5;
+  bool useAltRendering = true;
+  double borderThickness = 1;
 
-  late final geoJsonLoader =
-      rootBundle.loadString('assets/138k-polygon-points.geojson.noformat').then(
-            (geoJson) => compute(
-              (geoJson) => GeoJsonParser()..parseGeoJsonAsString(geoJson),
-              geoJson,
-            ),
-          );
+  late Future<GeoJsonParser> geoJsonParser = loadPolygonsFromGeoJson();
 
   @override
   void initState() {
@@ -38,7 +33,7 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
 
   @override
   void dispose() {
-    geoJsonLoader.ignore();
+    geoJsonParser.ignore();
     super.dispose();
   }
 
@@ -59,22 +54,23 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
                 padding: const EdgeInsets.only(
                   left: 16,
                   right: 16,
-                  top: 88,
-                  bottom: 192,
+                  top: 145,
+                  bottom: 175,
                 ),
               ),
             ),
             children: [
               openStreetMapTileLayer,
               FutureBuilder(
-                future: geoJsonLoader,
+                future: geoJsonParser,
                 builder: (context, geoJsonParser) =>
                     geoJsonParser.connectionState != ConnectionState.done ||
                             geoJsonParser.data == null
                         ? const SizedBox.shrink()
                         : PolygonLayer(
-                            simplificationTolerance: simplificationTolerance,
                             polygons: geoJsonParser.data!.polygons,
+                            useAltRendering: useAltRendering,
+                            simplificationTolerance: simplificationTolerance,
                           ),
               ),
             ],
@@ -83,10 +79,105 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
             left: 16,
             top: 16,
             right: 16,
-            child: SimplificationToleranceSlider(
-              initialTolerance: _initialSimplificationTolerance,
-              onChangedTolerance: (v) =>
-                  setState(() => simplificationTolerance = v),
+            child: RepaintBoundary(
+              child: Column(
+                children: [
+                  SimplificationToleranceSlider(
+                    tolerance: simplificationTolerance,
+                    onChanged: (v) =>
+                        setState(() => simplificationTolerance = v),
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: [
+                      UnconstrainedBox(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.background,
+                            borderRadius: BorderRadius.circular(32),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 4,
+                            horizontal: 16,
+                          ),
+                          child: Row(
+                            children: [
+                              const Tooltip(
+                                message: 'Use Alternative Rendering Pathway',
+                                child: Icon(Icons.speed_rounded),
+                              ),
+                              const SizedBox(width: 8),
+                              Switch.adaptive(
+                                value: useAltRendering,
+                                onChanged: (v) =>
+                                    setState(() => useAltRendering = v),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      // Not ideal that we have to re-parse the GeoJson every
+                      // time this is changed, but the library gives no easy
+                      // way to change it after
+                      UnconstrainedBox(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.background,
+                            borderRadius: BorderRadius.circular(32),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 16,
+                          ),
+                          child: Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 6,
+                            children: [
+                              const Tooltip(
+                                message: 'Border Thickness',
+                                child: Icon(Icons.line_weight_rounded),
+                              ),
+                              if (MediaQuery.devicePixelRatioOf(context) > 1 &&
+                                  borderThickness == 1)
+                                const Tooltip(
+                                  message: 'Screen has a high DPR: 1lp > 1dp',
+                                  child: Icon(
+                                    Icons.warning,
+                                    color: Colors.amber,
+                                  ),
+                                ),
+                              const SizedBox.shrink(),
+                              ...List.generate(
+                                4,
+                                (i) {
+                                  final thickness = i * i;
+                                  return ChoiceChip(
+                                    label: Text(
+                                      thickness == 0
+                                          ? 'None'
+                                          : '${thickness}px',
+                                    ),
+                                    selected: borderThickness == thickness,
+                                    shape: const StadiumBorder(),
+                                    onSelected: (selected) => reloadGeoJson(
+                                      context: context,
+                                      selected: selected,
+                                      thickness: thickness,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
           if (!kIsWeb)
@@ -99,5 +190,52 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
         ],
       ),
     );
+  }
+
+  Future<void> reloadGeoJson({
+    required BuildContext context,
+    required bool selected,
+    required num thickness,
+  }) async {
+    if (!selected) return;
+    setState(() => borderThickness = thickness.toDouble());
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Row(
+          children: [
+            SizedBox.square(
+              dimension: 16,
+              child: CircularProgressIndicator(
+                strokeWidth: 3,
+                valueColor: AlwaysStoppedAnimation(
+                  Colors.white,
+                ),
+              ),
+            ),
+            SizedBox(width: 12),
+            Text('Loading GeoJson polygons...'),
+          ],
+        ),
+      ),
+    );
+    await (geoJsonParser = loadPolygonsFromGeoJson());
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).clearSnackBars();
+    setState(() {});
+  }
+
+  Future<GeoJsonParser> loadPolygonsFromGeoJson() async {
+    const filePath = 'assets/138k-polygon-points.geojson.noformat';
+
+    return rootBundle.loadString(filePath).then(
+          (geoJson) => compute(
+            (msg) => GeoJsonParser(
+              defaultPolygonBorderStroke: msg.borderThickness,
+              defaultPolygonBorderColor: Colors.black.withOpacity(0.5),
+              defaultPolygonFillColor: Colors.orange[700]!.withOpacity(0.75),
+            )..parseGeoJsonAsString(msg.geoJson),
+            (geoJson: geoJson, borderThickness: borderThickness),
+          ),
+        );
   }
 }

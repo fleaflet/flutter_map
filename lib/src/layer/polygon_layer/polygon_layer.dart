@@ -1,7 +1,8 @@
 import 'dart:math' as math;
-import 'dart:ui' as ui;
+import 'dart:ui';
 
 import 'package:collection/collection.dart';
+import 'package:dart_earcut/dart_earcut.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -21,14 +22,31 @@ class PolygonLayer extends StatefulWidget {
   /// [Polygon]s to draw
   final List<Polygon> polygons;
 
+  /// Whether to use an alternative rendering pathway to draw polygons onto the
+  /// underlying `Canvas`, which can be more performant in *some* circumstances
+  ///
+  /// This will not always improve performance, and there are other important
+  /// considerations before enabling it. It is intended for use when prior
+  /// profiling indicates more performance is required after other methods are
+  /// already in use. For example, it may worsen performance when there are a
+  /// huge number of polygons to triangulate - and so this is best used in
+  /// conjunction with simplification, not as a replacement.
+  ///
+  /// For more information about usage and pitfalls, see the
+  /// [online documentation](https://docs.fleaflet.dev/layers/polygon-layer#performant-rendering-with-drawvertices-internal-disabled).
+  ///
+  /// Defaults to `false`. Ensure you have read and understood the documentation
+  /// above before enabling.
+  final bool useAltRendering;
+
   /// Whether to cull polygons and polygon sections that are outside of the
   /// viewport
   ///
-  /// Defaults to `true`.
+  /// Defaults to `true`. Disabling is not recommended.
   final bool polygonCulling;
 
   /// Distance between two neighboring polygon points, in logical pixels scaled
-  /// to floored zoom.
+  /// to floored zoom
   ///
   /// Increasing this value results in points further apart being collapsed and
   /// thus more simplified polygons. Higher values improve performance at the
@@ -51,6 +69,7 @@ class PolygonLayer extends StatefulWidget {
   const PolygonLayer({
     super.key,
     required this.polygons,
+    this.useAltRendering = false,
     this.polygonCulling = true,
     this.simplificationTolerance = 0.5,
     this.polygonLabels = true,
@@ -126,10 +145,40 @@ class _PolygonLayerState extends State<PolygonLayer> {
             )
             .toList();
 
+    final triangles = !widget.useAltRendering
+        ? null
+        : List.generate(
+            culled.length,
+            (i) {
+              final culledPolygon = culled[i];
+
+              final points = culledPolygon.holePoints.isEmpty
+                  ? culledPolygon.points
+                  : culledPolygon.points
+                      .followedBy(culledPolygon.holePoints.expand((e) => e));
+
+              return Earcut.triangulateRaw(
+                List.generate(
+                  points.length * 2,
+                  (ii) => ii % 2 == 0
+                      ? points.elementAt(ii ~/ 2).x
+                      : points.elementAt(ii ~/ 2).y,
+                  growable: false,
+                ),
+                // Not sure how just this works but it seems to :D
+                holeIndices: culledPolygon.holePoints.isEmpty
+                    ? null
+                    : [culledPolygon.points.length],
+              );
+            },
+            growable: false,
+          );
+
     return MobileLayerTransformer(
       child: CustomPaint(
         painter: _PolygonPainter(
           polygons: culled,
+          triangles: triangles,
           camera: camera,
           polygonLabels: widget.polygonLabels,
           drawLabelsLast: widget.drawLabelsLast,
@@ -165,17 +214,15 @@ class _PolygonLayerState extends State<PolygonLayer> {
             tolerance: tolerance,
             highQuality: true,
           ),
-          holePoints: holes == null
-              ? null
-              : List<List<DoublePoint>>.generate(
-                  holes.length,
-                  (j) => simplifyPoints(
-                    points: holes[j],
-                    tolerance: tolerance,
-                    highQuality: true,
-                  ),
-                  growable: false,
-                ),
+          holePoints: List.generate(
+            holes.length,
+            (j) => simplifyPoints(
+              points: holes[j],
+              tolerance: tolerance,
+              highQuality: true,
+            ),
+            growable: false,
+          ),
         );
       },
       growable: false,

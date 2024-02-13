@@ -6,18 +6,27 @@ class _PolygonPainter extends CustomPainter {
   /// Reference to the list of [_ProjectedPolygon]s
   final List<_ProjectedPolygon> polygons;
 
+  /// Triangulated [polygons] if available
+  ///
+  /// Expected to be in same/corresponding order as [polygons].
+  final List<List<int>?>? triangles;
+
   /// Reference to the [MapCamera].
   final MapCamera camera;
 
   /// Reference to the bounding box of the [Polygon].
   final LatLngBounds bounds;
 
+  /// Whether to draw per-polygon labels
   final bool polygonLabels;
+
+  /// Whether to draw labels last and thus over all the polygons
   final bool drawLabelsLast;
 
   /// Create a new [_PolygonPainter] instance.
   _PolygonPainter({
     required this.polygons,
+    required this.triangles,
     required this.camera,
     required this.polygonLabels,
     required this.drawLabelsLast,
@@ -33,8 +42,10 @@ class _PolygonPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    var filledPath = ui.Path();
-    var borderPath = ui.Path();
+    final trianglePoints = <Offset>[];
+
+    final filledPath = Path();
+    final borderPath = Path();
     Polygon? lastPolygon;
     int? lastHash;
 
@@ -51,18 +62,30 @@ class _PolygonPainter extends CustomPainter {
             ..style = PaintingStyle.fill
             ..color = color;
 
-          canvas.drawPath(filledPath, paint);
+          if (trianglePoints.isNotEmpty) {
+            final points = Float32List(trianglePoints.length * 2);
+            for (int i = 0; i < trianglePoints.length; ++i) {
+              points[i * 2] = trianglePoints[i].dx;
+              points[i * 2 + 1] = trianglePoints[i].dy;
+            }
+            final vertices = Vertices.raw(VertexMode.triangles, points);
+            canvas.drawVertices(vertices, BlendMode.src, paint);
+          } else {
+            canvas.drawPath(filledPath, paint);
+          }
         }
       }
 
       // Draw polygon outline
       if (polygon.borderStrokeWidth > 0) {
-        final borderPaint = _getBorderPaint(polygon);
-        canvas.drawPath(borderPath, borderPaint);
+        canvas.drawPath(borderPath, _getBorderPaint(polygon));
       }
 
-      filledPath = ui.Path();
-      borderPath = ui.Path();
+      trianglePoints.clear();
+      filledPath.reset();
+
+      borderPath.reset();
+
       lastPolygon = null;
       lastHash = null;
     }
@@ -70,12 +93,20 @@ class _PolygonPainter extends CustomPainter {
     final origin = (camera.project(camera.center) - camera.size / 2).toOffset();
 
     // Main loop constructing batched fill and border paths from given polygons.
-    for (final projectedPolygon in polygons) {
-      if (projectedPolygon.points.isEmpty) {
-        continue;
-      }
+    for (int i = 0; i <= polygons.length - 1; i++) {
+      final projectedPolygon = polygons[i];
+      if (projectedPolygon.points.isEmpty) continue;
       final polygon = projectedPolygon.polygon;
-      final offsets = getOffsetsXY(camera, origin, projectedPolygon.points);
+
+      final polygonTriangles = triangles?[i];
+
+      final fillOffsets = getOffsetsXY(
+        camera: camera,
+        origin: origin,
+        points: projectedPolygon.points,
+        holePoints:
+            polygonTriangles != null ? projectedPolygon.holePoints : null,
+      );
 
       // The hash is based on the polygons visual properties. If the hash from
       // the current and the previous polygon no longer match, we need to flush
@@ -91,11 +122,27 @@ class _PolygonPainter extends CustomPainter {
       // ignore: deprecated_member_use_from_same_package
       if (polygon.isFilled ?? true) {
         if (polygon.color != null) {
-          filledPath.addPolygon(offsets, true);
+          if (polygonTriangles != null) {
+            final len = polygonTriangles.length;
+            for (int i = 0; i < len; ++i) {
+              trianglePoints.add(fillOffsets[polygonTriangles[i]]);
+            }
+          } else {
+            filledPath.addPolygon(fillOffsets, true);
+          }
         }
       }
+
       if (polygon.borderStrokeWidth > 0.0) {
-        _addBorderToPath(borderPath, polygon, offsets);
+        _addBorderToPath(
+          borderPath,
+          polygon,
+          getOffsetsXY(
+            camera: camera,
+            origin: origin,
+            points: projectedPolygon.points,
+          ),
+        );
       }
 
       // Afterwards deal with more complicated holes.
@@ -133,7 +180,7 @@ class _PolygonPainter extends CustomPainter {
         // there isn't enough space.
         final painter = _buildLabelTextPainter(
           mapSize: camera.size,
-          placementPoint: camera.getOffsetFromOrigin(polygon.labelPosition),
+          placementPoint: getOffset(camera, origin, polygon.labelPosition),
           bounds: getBounds(origin, polygon),
           textPainter: polygon.textPainter!,
           rotationRad: camera.rotationRad,
@@ -162,8 +209,7 @@ class _PolygonPainter extends CustomPainter {
         if (textPainter != null) {
           final painter = _buildLabelTextPainter(
             mapSize: camera.size,
-            placementPoint:
-                camera.project(polygon.labelPosition).toOffset() - origin,
+            placementPoint: getOffset(camera, origin, polygon.labelPosition),
             bounds: getBounds(origin, polygon),
             textPainter: textPainter,
             rotationRad: camera.rotationRad,
@@ -188,7 +234,7 @@ class _PolygonPainter extends CustomPainter {
   }
 
   void _addBorderToPath(
-    ui.Path path,
+    Path path,
     Polygon polygon,
     List<Offset> offsets,
   ) {
@@ -202,7 +248,7 @@ class _PolygonPainter extends CustomPainter {
   }
 
   void _addHoleBordersToPath(
-    ui.Path path,
+    Path path,
     Polygon polygon,
     List<List<Offset>> holeOffsetsList,
   ) {
@@ -220,7 +266,7 @@ class _PolygonPainter extends CustomPainter {
   }
 
   void _addDottedLineToPath(
-    ui.Path path,
+    Path path,
     List<Offset> offsets,
     double radius,
     double stepLength,
@@ -256,10 +302,16 @@ class _PolygonPainter extends CustomPainter {
     path.addOval(Rect.fromCircle(center: offsets.last, radius: radius));
   }
 
-  void _addLineToPath(ui.Path path, List<Offset> offsets) {
+  void _addLineToPath(Path path, List<Offset> offsets) {
     path.addPolygon(offsets, true);
   }
 
   @override
-  bool shouldRepaint(_PolygonPainter oldDelegate) => false;
+  bool shouldRepaint(_PolygonPainter oldDelegate) =>
+      polygons != oldDelegate.polygons ||
+      triangles != oldDelegate.triangles ||
+      camera != oldDelegate.camera ||
+      bounds != oldDelegate.bounds ||
+      drawLabelsLast != oldDelegate.drawLabelsLast ||
+      polygonLabels != oldDelegate.polygonLabels;
 }
