@@ -31,9 +31,6 @@ class FlutterMap extends StatefulWidget {
   /// [Align] or another method to position themselves). Widgets/layers may or
   /// may not identify which type they are in their documentation, but it should
   /// be relatively self-explanatory from their purpose.
-  ///
-  /// [TranslucentPointer] will be wrapped around each child by default, unless
-  /// [MapOptions.applyPointerTranslucencyToLayers] is `false`.
   final List<Widget> children;
 
   /// Configure this map's permanent rules and initial state
@@ -103,12 +100,10 @@ class _FlutterMapStateContainer extends State<FlutterMap>
           Positioned.fill(
             child: ColoredBox(color: widget.options.backgroundColor),
           ),
-          ...widget.children.map(
-            (child) => TranslucentPointer(
-              translucent: widget.options.applyPointerTranslucencyToLayers,
-              child: child,
-            ),
-          ),
+          // ignore: deprecated_member_use_from_same_package
+          ...widget.options.applyPointerTranslucencyToLayers
+              ? widget.children.map((child) => TranslucentPointer(child: child))
+              : widget.children,
         ],
       ),
     );
