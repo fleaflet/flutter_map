@@ -36,9 +36,18 @@ class _MarkerPageState extends State<MarkerPage> {
 
   Marker buildPin(LatLng point) => Marker(
         point: point,
-        child: const Icon(Icons.location_pin, size: 60, color: Colors.black),
         width: 60,
         height: 60,
+        child: GestureDetector(
+          onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Tapped existing marker'),
+              duration: Duration(seconds: 1),
+              showCloseIcon: true,
+            ),
+          ),
+          child: const Icon(Icons.location_pin, size: 60, color: Colors.black),
+        ),
       );
 
   @override

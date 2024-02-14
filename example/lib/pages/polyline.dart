@@ -5,7 +5,7 @@ import 'package:flutter_map_example/misc/tile_providers.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:latlong2/latlong.dart';
 
-typedef PolylineHitValue = ({String title, String subtitle});
+typedef HitValue = ({String title, String subtitle});
 
 class PolylinePage extends StatefulWidget {
   static const String route = '/polyline';
@@ -17,11 +17,11 @@ class PolylinePage extends StatefulWidget {
 }
 
 class _PolylinePageState extends State<PolylinePage> {
-  final LayerHitNotifier<PolylineHitValue> _hitNotifier = ValueNotifier(null);
-  List<PolylineHitValue>? _prevHitValues;
-  List<Polyline<PolylineHitValue>>? _hoverLines;
+  final LayerHitNotifier<HitValue> _hitNotifier = ValueNotifier(null);
+  List<HitValue>? _prevHitValues;
+  List<Polyline<HitValue>>? _hoverLines;
 
-  final _polylinesRaw = <Polyline<PolylineHitValue>>[
+  final _polylinesRaw = <Polyline<HitValue>>[
     Polyline(
       points: [
         const LatLng(51.5, -0.09),
@@ -142,7 +142,7 @@ class _PolylinePageState extends State<PolylinePage> {
                   final hoverLines = hitValues.map((v) {
                     final original = _polylines[v]!;
 
-                    return Polyline<PolylineHitValue>(
+                    return Polyline<HitValue>(
                       points: original.points,
                       strokeWidth:
                           original.strokeWidth + original.borderStrokeWidth,
@@ -162,17 +162,17 @@ class _PolylinePageState extends State<PolylinePage> {
                   onTap: () => _openTouchedLinesModal(
                     'Tapped',
                     _hitNotifier.value!.hitValues,
-                    _hitNotifier.value!.point,
+                    _hitNotifier.value!.coordinate,
                   ),
                   onLongPress: () => _openTouchedLinesModal(
                     'Long pressed',
                     _hitNotifier.value!.hitValues,
-                    _hitNotifier.value!.point,
+                    _hitNotifier.value!.coordinate,
                   ),
                   onSecondaryTap: () => _openTouchedLinesModal(
                     'Secondary tapped',
                     _hitNotifier.value!.hitValues,
-                    _hitNotifier.value!.point,
+                    _hitNotifier.value!.coordinate,
                   ),
                   child: PolylineLayer(
                     hitNotifier: _hitNotifier,
@@ -190,7 +190,7 @@ class _PolylinePageState extends State<PolylinePage> {
 
   void _openTouchedLinesModal(
     String eventType,
-    List<PolylineHitValue> tappedLines,
+    List<HitValue> tappedLines,
     LatLng coords,
   ) {
     showModalBottomSheet<void>(

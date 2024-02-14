@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use_from_same_package
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -117,6 +119,23 @@ class MapOptions {
   /// widget from rebuilding.
   final bool keepAlive;
 
+  /// **DEPRECATED**
+  ///
+  /// If necessary, manually wrap layers with `TransulcentPointer` widgets.
+  ///
+  /// This parameter will be removed as proper hit detection has now been
+  /// incorporated into both `PolygonLayer` & `PolylineLayer`, which reduces the
+  /// need for this workaround, and because it caused issues in some cases. More
+  /// information about hit detection & interactivity rules can be found in the
+  /// online documentation.
+  ///
+  /// The default of this parameter is now `false` and will use the rules above;
+  /// the option is retained so as not to break APIs.
+  ///
+  /// This feature was deprecated (and the default changed) after v7.
+  ///
+  /// ---
+  ///
   /// Whether to apply pointer translucency to all layers automatically
   ///
   /// This will mean that each layer can handle all the gestures that enter the
@@ -129,8 +148,14 @@ class MapOptions {
   /// testing (and thus `Stack` will keep bubbling gestures down all layers), but
   /// will still allow their subtree to receive pointer events.
   ///
-  /// If this is `false` (defaults to `true`), then [TranslucentPointer] may be
+  /// If this is `false` (defaults to `false`), then [TranslucentPointer] may be
   /// manually applied to individual layers.
+  @Deprecated(
+    'If necessary, manually wrap layers with `TransulcentPointer` widgets. '
+    'This parameter will be removed as proper hit detection has now been incorporated into both `PolygonLayer` & `PolylineLayer`, which reduces the need for this workaround, and because it caused issues in some cases. More information about hit detection & interactivity rules can be found in the online documentation. '
+    'The default of this parameter is now `false` and will use the rules above - the option is retained so as not to break APIs. '
+    'This feature was deprecated (and the default changed) after v7.',
+  )
   final bool applyPointerTranslucencyToLayers;
 
   /// Gesture and input options for the map widget.
@@ -163,7 +188,13 @@ class MapOptions {
     this.onMapEvent,
     this.onMapReady,
     this.keepAlive = false,
-    this.applyPointerTranslucencyToLayers = true,
+    @Deprecated(
+      'If necessary, manually wrap layers with `TransulcentPointer` widgets. '
+      'This parameter will be removed as proper hit detection has now been incorporated into both `PolygonLayer` & `PolylineLayer`, which reduces the need for this workaround, and because it caused issues in some cases. More information about hit detection & interactivity rules can be found in the online documentation. '
+      'The default of this parameter is now `false` and will use the rules above - the option is retained so as not to break APIs. '
+      'This feature was deprecated (and the default changed) after v7.',
+    )
+    this.applyPointerTranslucencyToLayers = false,
   });
 
   /// The options of the closest [FlutterMap] ancestor. If this is called from a

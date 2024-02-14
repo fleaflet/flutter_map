@@ -1,0 +1,40 @@
+name: "Issue Comment"
+on:
+  issue_comment:
+    types: [ created ]
+
+jobs:
+  remove-waiting-for-user-reponse:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Check labels of issue
+        id: check_labels
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+            const isStale = issue.labels.some(label => label.name === 'stale');
+            const waitingResponse = issue.labels.some(label => label.name === 'waiting for user response');
+            return !isStale && waitingResponse;
+      # only remove the label if the issue is not stale, this prevents that this
+      # action removes the label when the automatic reminder message gets sent.
+      - name: Remove `waiting for user response` label if exists
+        if: steps.check_labels.outputs.result == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.issues.removeLabel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              name: ["waiting for user response"]
+            });

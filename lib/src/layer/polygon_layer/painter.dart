@@ -2,9 +2,14 @@ part of 'polygon_layer.dart';
 
 /// The [_PolygonPainter] class is used to render [Polygon]s for
 /// the [PolygonLayer].
-class _PolygonPainter extends CustomPainter {
+class _PolygonPainter<R extends Object> extends CustomPainter {
   /// Reference to the list of [_ProjectedPolygon]s
-  final List<_ProjectedPolygon> polygons;
+  final List<_ProjectedPolygon<R>> polygons;
+
+  /// Triangulated [polygons] if available
+  ///
+  /// Expected to be in same/corresponding order as [polygons].
+  final List<List<int>?>? triangles;
 
   /// Reference to the [MapCamera].
   final MapCamera camera;
@@ -12,29 +17,105 @@ class _PolygonPainter extends CustomPainter {
   /// Reference to the bounding box of the [Polygon].
   final LatLngBounds bounds;
 
+  /// Whether to draw per-polygon labels
   final bool polygonLabels;
+
+  /// Whether to draw labels last and thus over all the polygons
   final bool drawLabelsLast;
+
+  /// See [PolylineLayer.hitNotifier]
+  final LayerHitNotifier<R>? hitNotifier;
+
+  final _hits = <R>[]; // Avoids repetitive memory reallocation
 
   /// Create a new [_PolygonPainter] instance.
   _PolygonPainter({
     required this.polygons,
+    required this.triangles,
     required this.camera,
     required this.polygonLabels,
     required this.drawLabelsLast,
+    required this.hitNotifier,
   }) : bounds = camera.visibleBounds;
 
-  ({Offset min, Offset max}) getBounds(Offset origin, Polygon polygon) {
-    final bbox = polygon.boundingBox;
-    return (
-      min: getOffset(camera, origin, bbox.southWest),
-      max: getOffset(camera, origin, bbox.northEast),
+  @override
+  bool? hitTest(Offset position) {
+    _hits.clear();
+    bool hasHit = false;
+
+    final origin =
+        camera.project(camera.center).toOffset() - camera.size.toOffset() / 2;
+    final point = position.toPoint();
+    final coordinate = camera.pointToLatLng(point);
+
+    for (final projectedPolygon in polygons.reversed) {
+      final polygon = projectedPolygon.polygon;
+      if ((hasHit && polygon.hitValue == null) ||
+          !polygon.boundingBox.contains(coordinate)) {
+        continue;
+      }
+
+      final projectedCoords = getOffsetsXY(
+        camera: camera,
+        origin: origin,
+        points: projectedPolygon.points,
+      ).toList();
+
+      if (projectedCoords.first != projectedCoords.last) {
+        projectedCoords.add(projectedCoords.first);
+      }
+
+      final hasHoles = projectedPolygon.holePoints.isNotEmpty;
+      late final List<List<Offset>> projectedHoleCoords;
+      if (hasHoles) {
+        projectedHoleCoords = projectedPolygon.holePoints
+            .map(
+              (points) => getOffsetsXY(
+                camera: camera,
+                origin: origin,
+                points: points,
+              ).toList(),
+            )
+            .toList();
+
+        if (projectedHoleCoords.firstOrNull != projectedHoleCoords.lastOrNull) {
+          projectedHoleCoords.add(projectedHoleCoords.first);
+        }
+      }
+
+      final isInPolygon = _isPointInPolygon(position, projectedCoords);
+      late final isInHole = hasHoles &&
+          projectedHoleCoords
+              .map((c) => _isPointInPolygon(position, c))
+              .any((e) => e);
+
+      // Second check handles case where polygon outline intersects a hole,
+      // ensuring that the hit matches with the visual representation
+      if ((isInPolygon && !isInHole) || (!isInPolygon && isInHole)) {
+        if (polygon.hitValue != null) _hits.add(polygon.hitValue!);
+        hasHit = true;
+      }
+    }
+
+    if (!hasHit) {
+      hitNotifier?.value = null;
+      return false;
+    }
+
+    hitNotifier?.value = LayerHitResult(
+      hitValues: _hits,
+      coordinate: coordinate,
+      point: point,
     );
+    return true;
   }
 
   @override
   void paint(Canvas canvas, Size size) {
-    var filledPath = ui.Path();
-    var borderPath = ui.Path();
+    final trianglePoints = <Offset>[];
+
+    final filledPath = Path();
+    final borderPath = Path();
     Polygon? lastPolygon;
     int? lastHash;
 
@@ -51,18 +132,30 @@ class _PolygonPainter extends CustomPainter {
             ..style = PaintingStyle.fill
             ..color = color;
 
-          canvas.drawPath(filledPath, paint);
+          if (trianglePoints.isNotEmpty) {
+            final points = Float32List(trianglePoints.length * 2);
+            for (int i = 0; i < trianglePoints.length; ++i) {
+              points[i * 2] = trianglePoints[i].dx;
+              points[i * 2 + 1] = trianglePoints[i].dy;
+            }
+            final vertices = Vertices.raw(VertexMode.triangles, points);
+            canvas.drawVertices(vertices, BlendMode.src, paint);
+          } else {
+            canvas.drawPath(filledPath, paint);
+          }
         }
       }
 
       // Draw polygon outline
       if (polygon.borderStrokeWidth > 0) {
-        final borderPaint = _getBorderPaint(polygon);
-        canvas.drawPath(borderPath, borderPaint);
+        canvas.drawPath(borderPath, _getBorderPaint(polygon));
       }
 
-      filledPath = ui.Path();
-      borderPath = ui.Path();
+      trianglePoints.clear();
+      filledPath.reset();
+
+      borderPath.reset();
+
       lastPolygon = null;
       lastHash = null;
     }
@@ -70,12 +163,20 @@ class _PolygonPainter extends CustomPainter {
     final origin = (camera.project(camera.center) - camera.size / 2).toOffset();
 
     // Main loop constructing batched fill and border paths from given polygons.
-    for (final projectedPolygon in polygons) {
-      if (projectedPolygon.points.isEmpty) {
-        continue;
-      }
+    for (int i = 0; i <= polygons.length - 1; i++) {
+      final projectedPolygon = polygons[i];
+      if (projectedPolygon.points.isEmpty) continue;
       final polygon = projectedPolygon.polygon;
-      final offsets = getOffsetsXY(camera, origin, projectedPolygon.points);
+
+      final polygonTriangles = triangles?[i];
+
+      final fillOffsets = getOffsetsXY(
+        camera: camera,
+        origin: origin,
+        points: projectedPolygon.points,
+        holePoints:
+            polygonTriangles != null ? projectedPolygon.holePoints : null,
+      );
 
       // The hash is based on the polygons visual properties. If the hash from
       // the current and the previous polygon no longer match, we need to flush
@@ -91,11 +192,27 @@ class _PolygonPainter extends CustomPainter {
       // ignore: deprecated_member_use_from_same_package
       if (polygon.isFilled ?? true) {
         if (polygon.color != null) {
-          filledPath.addPolygon(offsets, true);
+          if (polygonTriangles != null) {
+            final len = polygonTriangles.length;
+            for (int i = 0; i < len; ++i) {
+              trianglePoints.add(fillOffsets[polygonTriangles[i]]);
+            }
+          } else {
+            filledPath.addPolygon(fillOffsets, true);
+          }
         }
       }
+
       if (polygon.borderStrokeWidth > 0.0) {
-        _addBorderToPath(borderPath, polygon, offsets);
+        _addBorderToPath(
+          borderPath,
+          polygon,
+          getOffsetsXY(
+            camera: camera,
+            origin: origin,
+            points: projectedPolygon.points,
+          ),
+        );
       }
 
       // Afterwards deal with more complicated holes.
@@ -133,8 +250,8 @@ class _PolygonPainter extends CustomPainter {
         // there isn't enough space.
         final painter = _buildLabelTextPainter(
           mapSize: camera.size,
-          placementPoint: camera.getOffsetFromOrigin(polygon.labelPosition),
-          bounds: getBounds(origin, polygon),
+          placementPoint: getOffset(camera, origin, polygon.labelPosition),
+          bounds: _getBounds(origin, polygon),
           textPainter: polygon.textPainter!,
           rotationRad: camera.rotationRad,
           rotate: polygon.rotateLabel,
@@ -162,9 +279,8 @@ class _PolygonPainter extends CustomPainter {
         if (textPainter != null) {
           final painter = _buildLabelTextPainter(
             mapSize: camera.size,
-            placementPoint:
-                camera.project(polygon.labelPosition).toOffset() - origin,
-            bounds: getBounds(origin, polygon),
+            placementPoint: getOffset(camera, origin, polygon.labelPosition),
+            bounds: _getBounds(origin, polygon),
             textPainter: textPainter,
             rotationRad: camera.rotationRad,
             rotate: polygon.rotateLabel,
@@ -188,7 +304,7 @@ class _PolygonPainter extends CustomPainter {
   }
 
   void _addBorderToPath(
-    ui.Path path,
+    Path path,
     Polygon polygon,
     List<Offset> offsets,
   ) {
@@ -202,7 +318,7 @@ class _PolygonPainter extends CustomPainter {
   }
 
   void _addHoleBordersToPath(
-    ui.Path path,
+    Path path,
     Polygon polygon,
     List<List<Offset>> holeOffsetsList,
   ) {
@@ -220,7 +336,7 @@ class _PolygonPainter extends CustomPainter {
   }
 
   void _addDottedLineToPath(
-    ui.Path path,
+    Path path,
     List<Offset> offsets,
     double radius,
     double stepLength,
@@ -256,10 +372,43 @@ class _PolygonPainter extends CustomPainter {
     path.addOval(Rect.fromCircle(center: offsets.last, radius: radius));
   }
 
-  void _addLineToPath(ui.Path path, List<Offset> offsets) {
+  void _addLineToPath(Path path, List<Offset> offsets) {
     path.addPolygon(offsets, true);
   }
 
+  ({Offset min, Offset max}) _getBounds(Offset origin, Polygon polygon) {
+    final bbox = polygon.boundingBox;
+    return (
+      min: getOffset(camera, origin, bbox.southWest),
+      max: getOffset(camera, origin, bbox.northEast),
+    );
+  }
+
+  /// Checks whether point [p] is within the specified closed [polygon]
+  ///
+  /// Uses the even-odd algorithm.
+  static bool _isPointInPolygon(Offset p, List<Offset> polygon) {
+    bool isInPolygon = false;
+
+    for (int i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      if ((((polygon[i].dy <= p.dy) && (p.dy < polygon[j].dy)) ||
+              ((polygon[j].dy <= p.dy) && (p.dy < polygon[i].dy))) &&
+          (p.dx <
+              (polygon[j].dx - polygon[i].dx) *
+                      (p.dy - polygon[i].dy) /
+                      (polygon[j].dy - polygon[i].dy) +
+                  polygon[i].dx)) isInPolygon = !isInPolygon;
+    }
+    return isInPolygon;
+  }
+
   @override
-  bool shouldRepaint(_PolygonPainter oldDelegate) => false;
+  bool shouldRepaint(_PolygonPainter<R> oldDelegate) =>
+      polygons != oldDelegate.polygons ||
+      triangles != oldDelegate.triangles ||
+      camera != oldDelegate.camera ||
+      bounds != oldDelegate.bounds ||
+      drawLabelsLast != oldDelegate.drawLabelsLast ||
+      polygonLabels != oldDelegate.polygonLabels ||
+      hitNotifier != oldDelegate.hitNotifier;
 }

@@ -27,6 +27,9 @@ final class DoublePoint {
     final double dy = y - rhs.y;
     return dx * dx + dy * dy;
   }
+
+  @override
+  String toString() => 'DoublePoint($x, $y)';
 }
 
 /// square distance from a point to a segment
@@ -142,14 +145,16 @@ double getEffectiveSimplificationTolerance({
   required Crs crs,
   required int zoom,
   required double pixelTolerance,
+  required double devicePixelRatio,
 }) {
   if (pixelTolerance <= 0) return 0;
 
-  final (x0, y0) = crs.untransform(0, 0, crs.scale(zoom.toDouble()));
+  final scale = crs.scale(zoom.toDouble());
+  final (x0, y0) = crs.untransform(0, 0, scale);
   final (x1, y1) = crs.untransform(
-    pixelTolerance,
-    pixelTolerance,
-    crs.scale(zoom.toDouble()),
+    pixelTolerance * devicePixelRatio,
+    pixelTolerance * devicePixelRatio,
+    scale,
   );
 
   final dx = x1 - x0;
