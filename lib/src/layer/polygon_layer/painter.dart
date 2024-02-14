@@ -92,7 +92,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
       // Second check handles case where polygon outline intersects a hole,
       // ensuring that the hit matches with the visual representation
       if ((isInPolygon && !isInHole) || (!isInPolygon && isInHole)) {
-        _hits.add(polygon.hitValue!);
+        if (polygon.hitValue != null) _hits.add(polygon.hitValue!);
         hasHit = true;
       }
     }
