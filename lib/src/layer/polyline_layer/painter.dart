@@ -30,7 +30,7 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
 
     for (final projectedPolyline in polylines.reversed) {
       final polyline = projectedPolyline.polyline;
-      if (hasHit && polyline.hitValue == null) continue;
+      if (polyline.hitValue == null) continue;
 
       // TODO: For efficiency we'd ideally filter by bounding box here. However
       // we'd need to compute an extended bounding box that accounts account for

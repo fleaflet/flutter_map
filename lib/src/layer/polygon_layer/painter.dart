@@ -50,7 +50,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
 
     for (final projectedPolygon in polygons.reversed) {
       final polygon = projectedPolygon.polygon;
-      if ((hasHit && polygon.hitValue == null) ||
+      if (polygon.hitValue == null ||
           !polygon.boundingBox.contains(coordinate)) {
         continue;
       }
