@@ -10,7 +10,7 @@ enum PolygonLabelPlacement {
 }
 
 /// [Polygon] class, to be used for the [PolygonLayer].
-class Polygon {
+class Polygon<R extends Object> {
   /// The points for the outline of the [Polygon].
   final List<LatLng> points;
 
@@ -32,12 +32,26 @@ class Polygon {
   /// as dotted line.
   final bool isDotted;
 
+  /// **DEPRECATED**
+  ///
+  /// Prefer setting `color` to null to disable filling, or a `Color` to enable
+  /// filling of that color.
+  ///
+  /// This parameter will be removed to simplify the API, as this was a remnant of pre-null-safety.
+  ///
+  /// The default of this parameter is now `null` and will use the rules above -
+  /// the option is retained so as not to break APIs.
+  ///
+  /// This feature was deprecated (and the default changed) after v7.
+  ///
+  /// ---
+  ///
   /// Set to true if the [Polygon] should be filled with a color.
   @Deprecated(
     'Prefer setting `color` to null to disable filling, or a `Color` to enable filling of that color. '
     'This parameter will be removed to simplify the API, as this was a remnant of pre-null-safety. '
     'The default of this parameter is now `null` and will use the rules above - the option is retained so as not to break APIs. '
-    'This feature was deprecated after v7.',
+    'This feature was deprecated (and the default changed) after v7.',
   )
   final bool? isFilled;
   final StrokeCap strokeCap;
@@ -58,6 +72,14 @@ class Polygon {
   /// Whether to rotate the label counter to the camera's rotation, to ensure
   /// it remains upright
   final bool rotateLabel;
+
+  /// Value notified in [PolygonLayer.hitNotifier]
+  ///
+  /// Polylines without a defined [hitValue] are still hit tested, but are not
+  /// notified about.
+  ///
+  /// Should implement an equality operator to avoid breaking [Polygon.==].
+  final R? hitValue;
 
   /// Designates whether the given polygon points follow a clock or
   /// anti-clockwise direction.
@@ -108,7 +130,7 @@ class Polygon {
       'Prefer setting `color` to null to disable filling, or a `Color` to enable filling of that color. '
       'This parameter will be removed to simplify the API, as this was a remnant of pre-null-safety. '
       'The default of this parameter is now `null` and will use the rules above - the option is retained so as not to break APIs. '
-      'This feature was deprecated after v7.',
+      'This feature was deprecated (and the default changed) after v7.',
     )
     this.isFilled,
     this.strokeCap = StrokeCap.round,
@@ -117,6 +139,7 @@ class Polygon {
     this.labelStyle = const TextStyle(),
     this.labelPlacement = PolygonLabelPlacement.centroid,
     this.rotateLabel = false,
+    this.hitValue,
   }) : _filledAndClockwise =
             (isFilled ?? (color != null)) && isClockwise(points);
 
@@ -148,6 +171,7 @@ class Polygon {
           labelStyle == other.labelStyle &&
           labelPlacement == other.labelPlacement &&
           rotateLabel == other.rotateLabel &&
+          hitValue == other.hitValue &&
           // Expensive computations last to take advantage of lazy logic gates
           listEquals(holePointsList, other.holePointsList) &&
           listEquals(points, other.points));
