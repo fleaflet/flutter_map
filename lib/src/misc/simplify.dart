@@ -27,6 +27,9 @@ final class DoublePoint {
     final double dy = y - rhs.y;
     return dx * dx + dy * dy;
   }
+
+  @override
+  String toString() => 'DoublePoint($x, $y)';
 }
 
 /// square distance from a point to a segment

@@ -49,9 +49,14 @@ class Polygon {
   /// The [TextStyle] of the [Polygon.label].
   final TextStyle labelStyle;
 
-  /// The placement logic of the [Polygon.label].
+  /// The placement logic of the [Polygon.label]
+  ///
+  /// [PolygonLabelPlacement.polylabel] can be expensive for some polygons. If
+  /// there is a large lag spike, try using [PolygonLabelPlacement.centroid].
   final PolygonLabelPlacement labelPlacement;
 
+  /// Whether to rotate the label counter to the camera's rotation, to ensure
+  /// it remains upright
   final bool rotateLabel;
 
   /// Designates whether the given polygon points follow a clock or
@@ -152,7 +157,6 @@ class Polygon {
 
   /// An optimized hash code dedicated to be used inside the [PolygonPainter].
   int get renderHashCode => _renderHashCode ??= Object.hash(
-        holePointsList,
         color,
         borderStrokeWidth,
         borderColor,
