@@ -1,17 +1,16 @@
 name: flutter_map
 description: A versatile mapping package for Flutter, that's simple and easy to learn, yet completely customizable and configurable
 version: 6.1.0
-
 repository: https://github.com/fleaflet/flutter_map
 issue_tracker: https://github.com/fleaflet/flutter_map/issues
 documentation: https://docs.fleaflet.dev
 
-funding:
-  - https://docs.fleaflet.dev/supporters#support-us
+funding: [ https://docs.fleaflet.dev/supporters#support-us ]
+topics: [ flutter-map, map ]
 
-topics:
-  - flutter-map
-  - map
+screenshots:
+  - description: 'flutter_map logo'
+    path: images/logo.png
 
 platforms:
   android:
