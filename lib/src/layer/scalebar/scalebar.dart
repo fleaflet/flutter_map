@@ -43,8 +43,8 @@ class Scalebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final camera = MapCamera.of(context);
-    final distance =
-        _scale[(camera.zoom.round() - _relWidth).clamp(0, _scale.length - 1)];
+    final metricDst = _metricScale[
+        (camera.zoom.round() - _relWidth).clamp(0, _metricScale.length - 1)];
 
     // calculate the scalebar width in pixels
     final latLngCenter = camera.center;
@@ -53,15 +53,15 @@ class Scalebar extends StatelessWidget {
     final latLngDistance = _calculateLatLngInDistance(
       start: latLngCenter,
       bearing: 90,
-      distance: distance.toDouble(),
+      distance: metricDst.toDouble(),
     );
     final offsetDistance = camera.project(latLngDistance);
 
     final ScalebarPainter scalebarPainter = _SimpleScalebarPainter(
       scalebarLength: offsetDistance.x - offsetCenter.x,
-      label: distance < 1000
-          ? '$distance m'
-          : '${(distance / 1000.0).toStringAsFixed(0)} km',
+      label: metricDst < 1000
+          ? '$metricDst m'
+          : '${(metricDst / 1000.0).toStringAsFixed(0)} km',
       lineColor: lineColor,
       strokeWidth: strokeWidth,
       lineHeight: lineHeight,
@@ -81,7 +81,7 @@ class Scalebar extends StatelessWidget {
   }
 }
 
-const _scale = <int>[
+const _metricScale = <int>[
   15000000,
   8000000,
   4000000,
