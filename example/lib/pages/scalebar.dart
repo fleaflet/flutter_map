@@ -23,11 +23,6 @@ class ScaleBarPage extends StatelessWidget {
           openStreetMapTileLayer,
           const Scalebar(
             textStyle: TextStyle(color: Colors.black, fontSize: 14),
-            alignment: Alignment.bottomLeft,
-            length: ScalebarLength.xxl,
-          ),
-          const Scalebar(
-            textStyle: TextStyle(color: Colors.black, fontSize: 14),
             padding: EdgeInsets.only(right: 10, left: 10, bottom: 40),
             alignment: Alignment.bottomLeft,
           ),
@@ -35,6 +30,11 @@ class ScaleBarPage extends StatelessWidget {
             textStyle: TextStyle(color: Colors.black, fontSize: 14),
             padding: EdgeInsets.only(right: 10, left: 10, bottom: 80),
             alignment: Alignment.bottomLeft,
+            length: ScalebarLength.s,
+          ),
+          const Scalebar(
+            textStyle: TextStyle(color: Colors.black, fontSize: 14),
+            alignment: Alignment.bottomCenter,
             length: ScalebarLength.s,
           ),
           const Scalebar(

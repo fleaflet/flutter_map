@@ -62,8 +62,9 @@ class _SimpleScalebarPainter extends ScalebarPainter {
 
     final paddingTop = _topPaddingCorr + _textPainter.height;
     final lineBottomY = lineHeight + paddingTop;
-    final lineRightX = scalebarLength + _halfStrokeWidth;
-    final lineMiddleX = _halfStrokeWidth + lineRightX / 2;
+    final lineLeftX = _halfStrokeWidth;
+    final lineRightX = scalebarLength + lineLeftX;
+    final lineMiddleX = lineLeftX + scalebarLength / 2;
 
     // 4 lines * 2 offsets * 2 coordinates
     final linePoints = Float32List.fromList(<double>[
@@ -71,7 +72,7 @@ class _SimpleScalebarPainter extends ScalebarPainter {
       _halfStrokeWidth,
       paddingTop,
       _halfStrokeWidth,
-      lineHeight + paddingTop,
+      lineBottomY,
       // right vertical line
       lineRightX,
       paddingTop,
@@ -81,10 +82,10 @@ class _SimpleScalebarPainter extends ScalebarPainter {
       lineMiddleX,
       paddingTop + lineHeight / 2,
       lineMiddleX,
-      lineHeight + paddingTop,
+      lineBottomY,
       // bottom horizontal line
       _halfStrokeWidth,
-      lineHeight + paddingTop,
+      lineBottomY,
       lineRightX,
       lineBottomY,
     ]);
