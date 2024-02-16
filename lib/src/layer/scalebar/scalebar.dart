@@ -57,11 +57,12 @@ class Scalebar extends StatelessWidget {
     );
     final offsetDistance = camera.project(latLngDistance);
 
+    final label = metricDst < 1000
+        ? '$metricDst m'
+        : '${(metricDst / 1000.0).toStringAsFixed(0)} km';
     final ScalebarPainter scalebarPainter = _SimpleScalebarPainter(
       scalebarLength: offsetDistance.x - offsetCenter.x,
-      label: metricDst < 1000
-          ? '$metricDst m'
-          : '${(metricDst / 1000.0).toStringAsFixed(0)} km',
+      text: TextSpan(style: textStyle, text: label),
       lineColor: lineColor,
       strokeWidth: strokeWidth,
       lineHeight: lineHeight,

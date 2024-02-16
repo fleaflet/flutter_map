@@ -5,7 +5,6 @@ part of '../scalebar.dart';
 class _SimpleScalebarPainter extends ScalebarPainter {
   static const _topPaddingCorr = -5.0;
   final double scalebarLength;
-  final String label;
   final double strokeWidth;
   final double lineHeight;
   final TextStyle? textStyle;
@@ -16,13 +15,13 @@ class _SimpleScalebarPainter extends ScalebarPainter {
   /// Create a new [Scalebar], internally used in the [Scalebar].
   _SimpleScalebarPainter({
     required this.scalebarLength,
-    required this.label,
+    required TextSpan text,
     required this.textStyle,
     required this.strokeWidth,
     required this.lineHeight,
     required Color lineColor,
   }) : _textPainter = TextPainter(
-          text: TextSpan(style: textStyle, text: label),
+          text: text,
           textDirection: TextDirection.ltr,
         ) {
     _linePaint
