@@ -5,21 +5,44 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:vector_math/vector_math_64.dart';
 
 part 'painter/base.dart';
 part 'painter/simple.dart';
-part 'utils.dart';
 
 /// The [Scalebar] widget is a map layer for [FlutterMap].
 class Scalebar extends StatelessWidget {
+  /// The [Alignment] of the Scalebar.
+  ///
+  /// Defaults to [Alignment.topLeft]
   final Alignment alignment;
+
+  /// The [TextStyle] for the scale bar label.
+  ///
+  /// Defaults to a black color and font size 14.
   final TextStyle? textStyle;
+
+  /// The color of the lines.
+  ///
+  /// Defaults to black.
   final Color lineColor;
+
+  /// The width of the line strokes in pixel.
+  ///
+  /// Defaults to 2px.
   final double strokeWidth;
+
+  /// The height of the line strokes in pixel.
+  ///
+  /// Defaults to 5px.
   final double lineHeight;
+
+  /// The padding of the scale bar.
+  ///
+  /// Defaults to 10px on all sides.
   final EdgeInsets padding;
-  final int _relWidth;
+
+  /// Internal relative width, calculated of the relativeLength parameter.
+  final int _relLength;
 
   /// Create a new [Scalebar].
   ///
@@ -32,28 +55,32 @@ class Scalebar extends StatelessWidget {
     this.strokeWidth = 2,
     this.lineHeight = 5,
     this.padding = const EdgeInsets.all(10),
-    int relativeWidth = 3,
+
+    /// The relative length of the scalebar where 0 is minimal and 6 is maximal.
+    ///
+    /// Defaults to 3.
+    int relativeLength = 3,
   })  : assert(
-          relativeWidth >= 1 && relativeWidth <= 6,
+          relativeLength >= 1 && relativeLength <= 6,
           'The Scalebar `relativeWidth` parameter value is not allowed. '
           'The min is 0 and the max value 6.',
         ),
-        _relWidth = relativeWidth - 4;
+        _relLength = relativeLength - 4;
 
   @override
   Widget build(BuildContext context) {
     final camera = MapCamera.of(context);
     final metricDst = _metricScale[
-        (camera.zoom.round() - _relWidth).clamp(0, _metricScale.length - 1)];
+        (camera.zoom.round() - _relLength).clamp(0, _metricScale.length - 1)];
 
     // calculate the scalebar width in pixels
     final latLngCenter = camera.center;
     final offsetCenter = camera.project(latLngCenter);
 
-    final latLngDistance = _calculateLatLngInDistance(
-      start: latLngCenter,
-      bearing: 90,
-      distance: metricDst.toDouble(),
+    final latLngDistance = const Distance().offset(
+      latLngCenter,
+      metricDst.toDouble(),
+      90,
     );
     final offsetDistance = camera.project(latLngDistance);
 
