@@ -7,7 +7,6 @@ class _SimpleScalebarPainter extends ScalebarPainter {
   final double scalebarLength;
   final double strokeWidth;
   final double lineHeight;
-  final TextStyle? textStyle;
 
   final Paint _linePaint = Paint();
   final TextPainter _textPainter;
@@ -16,13 +15,13 @@ class _SimpleScalebarPainter extends ScalebarPainter {
   _SimpleScalebarPainter({
     required this.scalebarLength,
     required TextSpan text,
-    required this.textStyle,
     required this.strokeWidth,
     required this.lineHeight,
     required Color lineColor,
   }) : _textPainter = TextPainter(
           text: text,
           textDirection: TextDirection.ltr,
+          maxLines: 1,
         ) {
     _linePaint
       ..color = lineColor
@@ -33,7 +32,7 @@ class _SimpleScalebarPainter extends ScalebarPainter {
 
   @override
   Size get widgetSize => Size(
-        scalebarLength + strokeWidth,
+        max(scalebarLength + strokeWidth, _textPainter.width),
         _textPainter.height + _topPaddingCorr + lineHeight,
       );
 
@@ -44,7 +43,10 @@ class _SimpleScalebarPainter extends ScalebarPainter {
     // draw text label
     final labelX =
         scalebarLength / 2 - _textPainter.width / 2 + halfStrokeWidth;
-    _textPainter.paint(canvas, Offset(max(0, labelX), _topPaddingCorr));
+    _textPainter.paint(
+      canvas,
+      Offset(max(0, labelX), _topPaddingCorr),
+    );
 
     final paddingTop = _topPaddingCorr + _textPainter.height;
     final lineBottomY = lineHeight + paddingTop;

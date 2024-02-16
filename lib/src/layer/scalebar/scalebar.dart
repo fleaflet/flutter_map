@@ -89,12 +89,12 @@ class Scalebar extends StatelessWidget {
         ? '$metricDst m'
         : '${(metricDst / 1000.0).toStringAsFixed(0)} km';
     final ScalebarPainter scalebarPainter = _SimpleScalebarPainter(
-      scalebarLength: offsetDistance.x - offsetCenter.x,
+      // use .abs() to avoid wrong placements on the right map border
+      scalebarLength: (offsetDistance.x - offsetCenter.x).abs(),
       text: TextSpan(style: textStyle, text: label),
       lineColor: lineColor,
       strokeWidth: strokeWidth,
       lineHeight: lineHeight,
-      textStyle: textStyle,
     );
 
     return Align(
@@ -139,9 +139,6 @@ const _metricScale = <int>[
 ];
 
 enum ScalebarLength {
-  /// Smallest scalebar
-  xs(-3),
-
   /// Small scalebar
   s(-2),
 
