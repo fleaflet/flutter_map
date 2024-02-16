@@ -63,6 +63,7 @@ class Scalebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final camera = MapCamera.of(context);
+    const dst = Distance();
 
     // calculate the scalebar width in pixels
     final latLngCenter = camera.center;
@@ -77,12 +78,12 @@ class Scalebar extends StatelessWidget {
 
     final metricDst =
         _metricScale[index.round().clamp(0, _metricScale.length - 1)];
-    final latLngDistance = const Distance().offset(
-      latLngCenter,
-      metricDst.toDouble(),
-      90,
-    );
-    final offsetDistance = camera.project(latLngDistance);
+
+    LatLng latLngOffset = dst.offset(latLngCenter, metricDst.toDouble(), 90);
+    if (latLngOffset.longitude < latLngCenter.longitude) {
+      latLngOffset = dst.offset(latLngCenter, metricDst.toDouble(), -90);
+    }
+    final offsetDistance = camera.project(latLngOffset);
 
     final label = metricDst < 1000
         ? '$metricDst m'
