@@ -22,9 +22,9 @@ class ScaleBarPage extends StatelessWidget {
         children: [
           openStreetMapTileLayer,
           const Scalebar(
-            strokeWidth: 3,
+            strokeWidth: 2,
             textStyle: TextStyle(color: Colors.black, fontSize: 14),
-            padding: EdgeInsets.all(10),
+            padding: EdgeInsets.zero,
           ),
         ],
       ),

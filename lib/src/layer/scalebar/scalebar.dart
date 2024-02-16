@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -6,11 +7,12 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:vector_math/vector_math_64.dart';
 
-part 'painter.dart';
+part 'painter/simple.dart';
 part 'utils.dart';
 
 /// The [Scalebar] widget is a map layer for [FlutterMap].
 class Scalebar extends StatelessWidget {
+  final Alignment alignment;
   final TextStyle? textStyle;
   final Color lineColor;
   final double strokeWidth;
@@ -23,6 +25,7 @@ class Scalebar extends StatelessWidget {
   /// This widget needs to be placed in the [FlutterMap.children] list.
   const Scalebar({
     super.key,
+    this.alignment = Alignment.topRight,
     this.textStyle = const TextStyle(color: Color(0xFF000000), fontSize: 14),
     this.lineColor = const Color(0xFF000000),
     this.strokeWidth = 2,
@@ -39,29 +42,36 @@ class Scalebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final camera = MapCamera.of(context);
-    final index =
-        max(0, min(_scale.length - 1, camera.zoom.round() - _relWidth));
+    final index = max(
+      0,
+      min(_scale.length - 1, camera.zoom.round() - _relWidth),
+    );
     final distance = _scale[index];
-    final center = camera.center;
-    final start = camera.project(center);
+    final start = camera.project(camera.center);
     final targetPoint = _calculateEndingGlobalCoordinates(
-      start: center,
+      start: camera.center,
       startBearing: 90,
       distance: distance.toDouble(),
     );
     final end = camera.project(targetPoint);
 
-    return CustomPaint(
-      painter: ScalebarPainter(
-        width: end.x - start.x,
-        text: distance > 999
-            ? '${(distance / 1000.0).toStringAsFixed(0)} km'
-            : '$distance m',
-        lineColor: lineColor,
-        strokeWidth: strokeWidth,
+    return Align(
+      alignment: alignment,
+      child: Padding(
         padding: padding,
-        lineHeight: lineHeight,
-        textStyle: textStyle,
+        child: CustomPaint(
+          size: Size(end.x - start.x, 0),
+          painter: _ScalebarPainter(
+            width: end.x - start.x,
+            text: distance < 1000
+                ? '$distance m'
+                : '${(distance / 1000.0).toStringAsFixed(0)} km',
+            lineColor: lineColor,
+            strokeWidth: strokeWidth,
+            lineHeight: lineHeight,
+            textStyle: textStyle,
+          ),
+        ),
       ),
     );
   }
