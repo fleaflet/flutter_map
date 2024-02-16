@@ -4,13 +4,22 @@ part of '../scalebar.dart';
 /// onto the canvas.
 class _SimpleScalebarPainter extends ScalebarPainter {
   static const _topPaddingCorr = -5.0;
+
+  /// length of the scalebar
   final double scalebarLength;
+
+  /// width of the scalebar line stroke
   final double strokeWidth;
+
+  /// scalebar line height
   final double lineHeight;
 
   /// The alignment is used to align the scalebar if it is smaller than the
   /// text label.
   final Alignment alignment;
+
+  /// The cached half of the line stroke width
+  late final _halfStrokeWidth = strokeWidth / 2;
 
   final Paint _linePaint = Paint();
   final TextPainter _textPainter;
@@ -43,11 +52,9 @@ class _SimpleScalebarPainter extends ScalebarPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final halfStrokeWidth = strokeWidth / 2;
-
     // draw text label
     final labelX =
-        widgetSize.width / 2 - _textPainter.width / 2 + halfStrokeWidth;
+        widgetSize.width / 2 - _textPainter.width / 2 + _halfStrokeWidth;
     _textPainter.paint(
       canvas,
       Offset(max(0, labelX), _topPaddingCorr),
@@ -55,15 +62,15 @@ class _SimpleScalebarPainter extends ScalebarPainter {
 
     final paddingTop = _topPaddingCorr + _textPainter.height;
     final lineBottomY = lineHeight + paddingTop;
-    final lineRightX = scalebarLength + halfStrokeWidth;
-    final lineMiddleX = halfStrokeWidth + lineRightX / 2;
+    final lineRightX = scalebarLength + _halfStrokeWidth;
+    final lineMiddleX = _halfStrokeWidth + lineRightX / 2;
 
     // 4 lines * 2 offsets * 2 coordinates
     final linePoints = Float32List.fromList(<double>[
       // left vertical line
-      halfStrokeWidth,
+      _halfStrokeWidth,
       paddingTop,
-      halfStrokeWidth,
+      _halfStrokeWidth,
       lineHeight + paddingTop,
       // right vertical line
       lineRightX,
@@ -76,7 +83,7 @@ class _SimpleScalebarPainter extends ScalebarPainter {
       lineMiddleX,
       lineHeight + paddingTop,
       // bottom horizontal line
-      halfStrokeWidth,
+      _halfStrokeWidth,
       lineHeight + paddingTop,
       lineRightX,
       lineBottomY,
