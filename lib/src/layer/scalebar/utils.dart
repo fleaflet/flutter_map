@@ -1,9 +1,10 @@
 part of 'scalebar.dart';
 
-/// Calculates the length of the scalebar
-LatLng _calculateEndingGlobalCoordinates({
+/// Calculates a [LatLng] that has the metric [distance] between the [start]
+/// in the direction of the [bearing].
+LatLng _calculateLatLngInDistance({
   required LatLng start,
-  required double startBearing,
+  required double bearing,
   required double distance,
 }) {
   const mSemiMajorAxis = 6378137.0; //WGS84 major axis
@@ -17,7 +18,7 @@ LatLng _calculateEndingGlobalCoordinates({
   const bSquared = b * b;
   const f = mFlattening;
   final phi1 = degrees2Radians * start.latitude;
-  final alpha1 = degrees2Radians * startBearing;
+  final alpha1 = degrees2Radians * bearing;
   final cosAlpha1 = cos(alpha1);
   final sinAlpha1 = sin(alpha1);
   final s = distance;

@@ -24,7 +24,6 @@ class ScaleBarPage extends StatelessWidget {
           const Scalebar(
             strokeWidth: 2,
             textStyle: TextStyle(color: Colors.black, fontSize: 14),
-            padding: EdgeInsets.zero,
           ),
         ],
       ),

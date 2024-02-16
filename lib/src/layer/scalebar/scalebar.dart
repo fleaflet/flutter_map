@@ -7,6 +7,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:vector_math/vector_math_64.dart';
 
+part 'painter/base.dart';
 part 'painter/simple.dart';
 part 'utils.dart';
 
@@ -42,35 +43,38 @@ class Scalebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final camera = MapCamera.of(context);
-    final index = max(
-      0,
-      min(_scale.length - 1, camera.zoom.round() - _relWidth),
-    );
-    final distance = _scale[index];
-    final start = camera.project(camera.center);
-    final targetPoint = _calculateEndingGlobalCoordinates(
-      start: camera.center,
-      startBearing: 90,
+    final distance =
+        _scale[(camera.zoom.round() - _relWidth).clamp(0, _scale.length - 1)];
+
+    // calculate the scalebar width in pixels
+    final latLngCenter = camera.center;
+    final offsetCenter = camera.project(latLngCenter);
+
+    final latLngDistance = _calculateLatLngInDistance(
+      start: latLngCenter,
+      bearing: 90,
       distance: distance.toDouble(),
     );
-    final end = camera.project(targetPoint);
+    final offsetDistance = camera.project(latLngDistance);
+
+    final ScalebarPainter scalebarPainter = _SimpleScalebarPainter(
+      scalebarLength: offsetDistance.x - offsetCenter.x,
+      label: distance < 1000
+          ? '$distance m'
+          : '${(distance / 1000.0).toStringAsFixed(0)} km',
+      lineColor: lineColor,
+      strokeWidth: strokeWidth,
+      lineHeight: lineHeight,
+      textStyle: textStyle,
+    );
 
     return Align(
       alignment: alignment,
       child: Padding(
         padding: padding,
         child: CustomPaint(
-          size: Size(end.x - start.x, 0),
-          painter: _ScalebarPainter(
-            width: end.x - start.x,
-            text: distance < 1000
-                ? '$distance m'
-                : '${(distance / 1000.0).toStringAsFixed(0)} km',
-            lineColor: lineColor,
-            strokeWidth: strokeWidth,
-            lineHeight: lineHeight,
-            textStyle: textStyle,
-          ),
+          size: scalebarPainter.widgetSize,
+          painter: scalebarPainter,
         ),
       ),
     );

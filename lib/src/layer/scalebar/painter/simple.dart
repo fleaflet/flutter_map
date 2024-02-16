@@ -2,51 +2,58 @@ part of '../scalebar.dart';
 
 /// This is the [CustomPainter] that draws the scalebar label and lines
 /// onto the canvas.
-class _ScalebarPainter extends CustomPainter {
-  final double width;
-  final String text;
+class _SimpleScalebarPainter extends ScalebarPainter {
+  static const _topPaddingCorr = -5.0;
+  final double scalebarLength;
+  final String label;
   final double strokeWidth;
   final double lineHeight;
   final TextStyle? textStyle;
 
-  final Paint _linePaint;
+  final Paint _linePaint = Paint();
+  final TextPainter _textPainter;
 
   /// Create a new [Scalebar], internally used in the [Scalebar].
-  _ScalebarPainter({
-    required this.width,
-    required this.text,
+  _SimpleScalebarPainter({
+    required this.scalebarLength,
+    required this.label,
     required this.textStyle,
     required this.strokeWidth,
     required this.lineHeight,
     required Color lineColor,
-  }) : _linePaint = Paint()
-          ..color = lineColor
-          ..strokeCap = StrokeCap.square
-          ..strokeWidth = strokeWidth;
+  }) : _textPainter = TextPainter(
+          text: TextSpan(style: textStyle, text: label),
+          textDirection: TextDirection.ltr,
+        ) {
+    _linePaint
+      ..color = lineColor
+      ..strokeCap = StrokeCap.square
+      ..strokeWidth = strokeWidth;
+    _textPainter.layout();
+  }
+
+  @override
+  Size get widgetSize => Size(
+        scalebarLength + strokeWidth,
+        _textPainter.height + _topPaddingCorr + lineHeight,
+      );
 
   @override
   void paint(Canvas canvas, Size size) {
-    const topPaddingCorr = -5.0;
     final halfStrokeWidth = strokeWidth / 2;
 
     // draw text label
-    final textPainter = TextPainter(
-      text: TextSpan(style: textStyle, text: text),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    final x = width / 2 - textPainter.width / 2 + halfStrokeWidth;
-    textPainter.paint(
-      canvas,
-      Offset(max(0, x), topPaddingCorr),
-    );
+    final labelX =
+        scalebarLength / 2 - _textPainter.width / 2 + halfStrokeWidth;
+    _textPainter.paint(canvas, Offset(max(0, labelX), _topPaddingCorr));
 
-    final paddingTop = topPaddingCorr + textPainter.height;
+    final paddingTop = _topPaddingCorr + _textPainter.height;
     final leftLineBottom = Offset(
       halfStrokeWidth,
       lineHeight + paddingTop,
     );
     final rightLineBottom = Offset(
-      width + halfStrokeWidth,
+      scalebarLength + halfStrokeWidth,
       lineHeight + paddingTop,
     );
 
