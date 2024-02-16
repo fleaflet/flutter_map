@@ -75,7 +75,8 @@ class Scalebar extends StatelessWidget {
     double index = camera.zoom - length.value;
     // The following adjustments help to make the length of the scalebar
     // more equal if the map center is near the equator or the poles.
-    if (camera.crs is Epsg4326) {
+    if (camera.crs is Epsg3857) {
+      if (absLat > 85) return const SizedBox.shrink();
       if (absLat > 60) index++;
       if (absLat > 80) index++;
     }
