@@ -10,6 +10,8 @@ part 'painter/base.dart';
 part 'painter/simple.dart';
 
 /// The [Scalebar] widget is a map layer for [FlutterMap].
+///
+/// Not every CRS is currently supported!
 class Scalebar extends StatelessWidget {
   /// The [Alignment] of the Scalebar.
   ///
@@ -69,19 +71,21 @@ class Scalebar extends StatelessWidget {
     final latLngCenter = camera.center;
     final offsetCenter = camera.project(latLngCenter);
 
+    final absLat = latLngCenter.latitude.abs();
+    double index = camera.zoom - length.value;
     // The following adjustments help to make the length of the scalebar
     // more equal if the map center is near the equator or the poles.
-    double index = camera.zoom - length.value;
-    final absLat = latLngCenter.latitude.abs();
-    if (absLat > 60) index++;
-    if (absLat > 80) index++;
+    if (camera.crs is Epsg4326) {
+      if (absLat > 60) index++;
+      if (absLat > 80) index++;
+    }
 
     final metricDst =
         _metricScale[index.round().clamp(0, _metricScale.length - 1)];
 
     LatLng latLngOffset = dst.offset(latLngCenter, metricDst.toDouble(), 90);
     if (latLngOffset.longitude < latLngCenter.longitude) {
-      latLngOffset = dst.offset(latLngCenter, metricDst.toDouble(), -90);
+      latLngOffset = dst.offset(latLngCenter, metricDst.toDouble(), 270);
     }
     final offsetDistance = camera.project(latLngOffset);
 
@@ -91,7 +95,11 @@ class Scalebar extends StatelessWidget {
     final ScalebarPainter scalebarPainter = _SimpleScalebarPainter(
       // use .abs() to avoid wrong placements on the right map border
       scalebarLength: (offsetDistance.x - offsetCenter.x).abs(),
-      text: TextSpan(style: textStyle, text: label),
+      text: TextSpan(
+        style: textStyle,
+        text: label,
+      ),
+      alignment: alignment,
       lineColor: lineColor,
       strokeWidth: strokeWidth,
       lineHeight: lineHeight,

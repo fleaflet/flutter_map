@@ -8,8 +8,18 @@ class _SimpleScalebarPainter extends ScalebarPainter {
   final double strokeWidth;
   final double lineHeight;
 
+  /// The alignment is used to align the scalebar if it is smaller than the
+  /// text label.
+  final Alignment alignment;
+
   final Paint _linePaint = Paint();
   final TextPainter _textPainter;
+
+  @override
+  late final Size widgetSize = Size(
+    max(scalebarLength + strokeWidth, _textPainter.width),
+    _textPainter.height + _topPaddingCorr + lineHeight,
+  );
 
   /// Create a new [Scalebar], internally used in the [Scalebar].
   _SimpleScalebarPainter({
@@ -18,6 +28,7 @@ class _SimpleScalebarPainter extends ScalebarPainter {
     required this.strokeWidth,
     required this.lineHeight,
     required Color lineColor,
+    required this.alignment,
   }) : _textPainter = TextPainter(
           text: text,
           textDirection: TextDirection.ltr,
@@ -31,18 +42,12 @@ class _SimpleScalebarPainter extends ScalebarPainter {
   }
 
   @override
-  Size get widgetSize => Size(
-        max(scalebarLength + strokeWidth, _textPainter.width),
-        _textPainter.height + _topPaddingCorr + lineHeight,
-      );
-
-  @override
   void paint(Canvas canvas, Size size) {
     final halfStrokeWidth = strokeWidth / 2;
 
     // draw text label
     final labelX =
-        scalebarLength / 2 - _textPainter.width / 2 + halfStrokeWidth;
+        widgetSize.width / 2 - _textPainter.width / 2 + halfStrokeWidth;
     _textPainter.paint(
       canvas,
       Offset(max(0, labelX), _topPaddingCorr),

@@ -164,7 +164,6 @@ class EPSG3413PageState extends State<EPSG3413Page> {
                     ],
                   ),
                   CircleLayer(circles: circles),
-                  const Scalebar(),
                   RichAttributionWidget(
                     popupInitialDisplayDuration: const Duration(seconds: 5),
                     attributions: [
