@@ -49,7 +49,7 @@ class Scalebar extends StatelessWidget {
   /// This widget needs to be placed in the [FlutterMap.children] list.
   const Scalebar({
     super.key,
-    this.alignment = Alignment.topRight,
+    this.alignment = Alignment.topLeft,
     this.textStyle = const TextStyle(color: Color(0xFF000000), fontSize: 14),
     this.lineColor = const Color(0xFF000000),
     this.strokeWidth = 2,
