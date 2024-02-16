@@ -21,8 +21,10 @@ class ScaleBarPage extends StatelessWidget {
         ),
         children: [
           openStreetMapTileLayer,
-          Scalebar(
-            painter: SimpleScalebarPainter(padding: const EdgeInsets.all(12)),
+          const Scalebar(
+            strokeWidth: 3,
+            textStyle: TextStyle(color: Colors.black, fontSize: 14),
+            padding: EdgeInsets.all(10),
           ),
         ],
       ),

@@ -6,33 +6,30 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:vector_math/vector_math_64.dart';
 
-part 'painters/simple.dart';
-part 'painters/base.dart';
+part 'painter.dart';
 part 'utils.dart';
 
-/// Layer for [FlutterMap] which calculates the scale between screen distance
-/// and real distance, and displays it as a scale bar
+/// The [Scalebar] widget is a map layer for [FlutterMap].
 class Scalebar extends StatelessWidget {
-  /// The painter for the scalebar
-  ///
-  /// It is the [Scalebar]'s responsibility to calculate the scale and visual
-  /// sizing of the scale bar. It is the painter's responsibility to create the
-  /// visual information.
-  ///
-  /// Defaults to [SimpleScalebarPainter].
-  final ScalebarPainter painter;
-
+  final TextStyle? textStyle;
+  final Color lineColor;
+  final double strokeWidth;
+  final double lineHeight;
+  final EdgeInsets padding;
   final int _relWidth;
 
-  /// Create a new [Scalebar]
+  /// Create a new [Scalebar].
   ///
-  /// This widget must be placed in the [FlutterMap.children] list.
-  Scalebar({
+  /// This widget needs to be placed in the [FlutterMap.children] list.
+  const Scalebar({
     super.key,
-    ScalebarPainter? painter,
+    this.textStyle = const TextStyle(color: Color(0xFF000000), fontSize: 14),
+    this.lineColor = const Color(0xFF000000),
+    this.strokeWidth = 2,
+    this.lineHeight = 5,
+    this.padding = const EdgeInsets.all(10),
     int relativeWidth = 3,
-  })  : painter = painter ??= SimpleScalebarPainter(),
-        assert(
+  })  : assert(
           relativeWidth >= 1 && relativeWidth <= 6,
           'The Scalebar `relativeWidth` parameter value is not allowed. '
           'The min is 0 and the max value 6.',
@@ -55,9 +52,17 @@ class Scalebar extends StatelessWidget {
     final end = camera.project(targetPoint);
 
     return CustomPaint(
-      painter: painter
-        ..scaleWidth = end.x - start.x
-        ..scaleDistance = distance,
+      painter: ScalebarPainter(
+        width: end.x - start.x,
+        text: distance > 999
+            ? '${(distance / 1000.0).toStringAsFixed(0)} km'
+            : '$distance m',
+        lineColor: lineColor,
+        strokeWidth: strokeWidth,
+        padding: padding,
+        lineHeight: lineHeight,
+        textStyle: textStyle,
+      ),
     );
   }
 }
