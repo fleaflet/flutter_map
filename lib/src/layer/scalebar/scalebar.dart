@@ -44,7 +44,7 @@ class Scalebar extends StatelessWidget {
   /// The relative length of the scalebar.
   ///
   /// Defaults to [ScalebarLength.m] for a medium length.
-  final ScalebarLength relativeLength;
+  final ScalebarLength length;
 
   /// Create a new [Scalebar].
   ///
@@ -57,19 +57,26 @@ class Scalebar extends StatelessWidget {
     this.strokeWidth = 2,
     this.lineHeight = 5,
     this.padding = const EdgeInsets.all(10),
-    this.relativeLength = ScalebarLength.m,
+    this.length = ScalebarLength.m,
   });
 
   @override
   Widget build(BuildContext context) {
     final camera = MapCamera.of(context);
-    final metricDst = _metricScale[(camera.zoom.round() - relativeLength.value)
-        .clamp(0, _metricScale.length - 1)];
 
     // calculate the scalebar width in pixels
     final latLngCenter = camera.center;
     final offsetCenter = camera.project(latLngCenter);
 
+    // The following adjustments help to make the length of the scalebar
+    // more equal if the map center is near the equator or the poles.
+    double index = camera.zoom - length.value;
+    final absLat = latLngCenter.latitude.abs();
+    if (absLat > 60) index++;
+    if (absLat > 80) index++;
+
+    final metricDst =
+        _metricScale[index.round().clamp(0, _metricScale.length - 1)];
     final latLngDistance = const Distance().offset(
       latLngCenter,
       metricDst.toDouble(),
@@ -102,6 +109,7 @@ class Scalebar extends StatelessWidget {
   }
 }
 
+/// Stop points for the scalebar label.
 const _metricScale = <int>[
   15000000,
   8000000,
