@@ -13,7 +13,7 @@ part 'painter/simple.dart';
 class Scalebar extends StatelessWidget {
   /// The [Alignment] of the Scalebar.
   ///
-  /// Defaults to [Alignment.topLeft]
+  /// Defaults to [Alignment.topRight]
   final Alignment alignment;
 
   /// The [TextStyle] for the scale bar label.
@@ -41,37 +41,30 @@ class Scalebar extends StatelessWidget {
   /// Defaults to 10px on all sides.
   final EdgeInsets padding;
 
-  /// Internal relative width, calculated of the relativeLength parameter.
-  final int _relLength;
+  /// The relative length of the scalebar.
+  ///
+  /// Defaults to [ScalebarLength.m] for a medium length.
+  final ScalebarLength relativeLength;
 
   /// Create a new [Scalebar].
   ///
   /// This widget needs to be placed in the [FlutterMap.children] list.
   const Scalebar({
     super.key,
-    this.alignment = Alignment.topLeft,
+    this.alignment = Alignment.topRight,
     this.textStyle = const TextStyle(color: Color(0xFF000000), fontSize: 14),
     this.lineColor = const Color(0xFF000000),
     this.strokeWidth = 2,
     this.lineHeight = 5,
     this.padding = const EdgeInsets.all(10),
-
-    /// The relative length of the scalebar where 0 is minimal and 6 is maximal.
-    ///
-    /// Defaults to 3.
-    int relativeLength = 3,
-  })  : assert(
-          relativeLength >= 1 && relativeLength <= 6,
-          'The Scalebar `relativeWidth` parameter value is not allowed. '
-          'The min is 0 and the max value 6.',
-        ),
-        _relLength = relativeLength - 4;
+    this.relativeLength = ScalebarLength.m,
+  });
 
   @override
   Widget build(BuildContext context) {
     final camera = MapCamera.of(context);
-    final metricDst = _metricScale[
-        (camera.zoom.round() - _relLength).clamp(0, _metricScale.length - 1)];
+    final metricDst = _metricScale[(camera.zoom.round() - relativeLength.value)
+        .clamp(0, _metricScale.length - 1)];
 
     // calculate the scalebar width in pixels
     final latLngCenter = camera.center;
@@ -135,3 +128,33 @@ const _metricScale = <int>[
   2,
   1,
 ];
+
+enum ScalebarLength {
+  /// Smallest scalebar
+  xs(-3),
+
+  /// Small scalebar
+  s(-2),
+
+  /// Medium scalebar
+  m(-1),
+
+  /// large scalebar
+  l(0),
+
+  /// very large scalebar
+  ///
+  /// This length potentially overflows the screen width near the north or
+  /// south pole.
+  xl(1),
+
+  /// very very large scalebar
+  ///
+  /// This length potentially overflows the screen width near the north or
+  /// south pole.
+  xxl(2);
+
+  final int value;
+
+  const ScalebarLength(this.value);
+}
