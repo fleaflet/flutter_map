@@ -20,6 +20,8 @@ class _SimpleScalebarPainter extends ScalebarPainter {
 
   /// The cached half of the line stroke width
   late final _halfStrokeWidth = strokeWidth / 2;
+  late final _halfScalebarLength = scalebarLength / 2;
+  late final _halfWidgetWidth = widgetSize.width / 2;
 
   final Paint _linePaint = Paint();
   final TextPainter _textPainter;
@@ -62,16 +64,30 @@ class _SimpleScalebarPainter extends ScalebarPainter {
 
     final paddingTop = _topPaddingCorr + _textPainter.height;
     final lineBottomY = lineHeight + paddingTop;
-    final lineLeftX = _halfStrokeWidth;
-    final lineRightX = scalebarLength + lineLeftX;
-    final lineMiddleX = lineLeftX + scalebarLength / 2;
+    final double lineLeftX;
+    final double lineRightX;
+    final double lineMiddleX;
+    switch (alignment.x) {
+      case -1: // aligned left
+        lineLeftX = _halfStrokeWidth;
+        lineRightX = lineLeftX + scalebarLength;
+        lineMiddleX = lineLeftX + _halfScalebarLength;
+      case 1: // aligned right
+        lineRightX = widgetSize.width - _halfStrokeWidth;
+        lineLeftX = lineRightX - scalebarLength;
+        lineMiddleX = lineRightX - _halfScalebarLength;
+      default: // aligned middle or custom
+        lineMiddleX = _halfWidgetWidth;
+        lineLeftX = lineMiddleX - _halfScalebarLength;
+        lineRightX = lineMiddleX + _halfScalebarLength;
+    }
 
     // 4 lines * 2 offsets * 2 coordinates
     final linePoints = Float32List.fromList(<double>[
       // left vertical line
-      _halfStrokeWidth,
+      lineLeftX,
       paddingTop,
-      _halfStrokeWidth,
+      lineLeftX,
       lineBottomY,
       // right vertical line
       lineRightX,
@@ -84,7 +100,7 @@ class _SimpleScalebarPainter extends ScalebarPainter {
       lineMiddleX,
       lineBottomY,
       // bottom horizontal line
-      _halfStrokeWidth,
+      lineLeftX,
       lineBottomY,
       lineRightX,
       lineBottomY,
