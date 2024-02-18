@@ -3,13 +3,21 @@
 Using maps without an Internet connection is common requirement. Luckily, there are a few options available to you to implement offline mapping in your app.
 
 * [Caching](offline-mapping.md#caching)\
-  Automatically store tiles as the user loads them through interacting with the map
+  Automatically store tiles as the user loads them through interacting with the map, usually on a temporary basis
 * [Bulk downloading](offline-mapping.md#bulk-downloading)\
   Download an entire area/region of tiles in one shot, ready for a known no-Internet situation
 * [Bundling](offline-mapping.md#bundled-map-tiles)\
-  Provide a set of tiles to all users through assets or the filesystem
+  Provide a set of pre-determined tiles to all users through app assets or the filesystem
 
 ## Caching
+
+{% hint style="info" %}
+flutter\_map only provides caching in-memory. All cached tiles will be cleared after the app session is ended.
+
+You must comply with the appropriate restrictions and terms of service set by your tile server. Always read the ToS before using a tile server. Failure to do so may lead to any punishment, at the tile server's discretion. Some tile servers may require longer-term caching to be implemented.
+{% endhint %}
+
+Caching is used usually to improve user experience by reducing network waiting times, not necessarily to prepare for no-Internet situations. Caching can be more temporary (eg. in-memory/session-only, where the cache is cleared after the app is closed), or more long-term (eg. app cache, where the OS takes responsibility for clearing the app cache when necessary/when requested).
 
 There's 3 methods that basic caching can be implemented in your app, two of which rely on community maintained plugins:
 
@@ -19,7 +27,13 @@ There's 3 methods that basic caching can be implemented in your app, two of whic
 
 ## Bulk Downloading
 
-When it comes to bulk downloading, this is much more complex than [#caching](offline-mapping.md#caching "mention"), especially for regions that are a non-rectangular shape. Implementing this can be very time consuming and prone to issues.
+{% hint style="warning" %}
+You must comply with the appropriate restrictions and terms of service set by your tile server. Always read the ToS before using a tile server. Failure to do so may lead to any punishment, at the tile server's discretion. Many tile servers will forbid or restrict bulk downloading, as it places additional strain on their servers.
+{% endhint %}
+
+Bulk downloading is used to prepare for known no-Internet situations by downloading map tiles, then serving these from local storage.
+
+Bulk downloading is more complex than [#caching](offline-mapping.md#caching "mention"), especially for regions that are a non-rectangular shape. Implementing this can be very time consuming and prone to issues.
 
 The [community maintained plugin 'flutter\_map\_tile\_caching'](https://github.com/JaffaKetchup/flutter\_map\_tile\_caching) includes advanced bulk downloading functionality, of multiple different region shapes, and other functionality. It is however GPL licensed. To help choose whether FMTC or DIY is more appropriate for your use case, please see:
 
@@ -27,13 +41,20 @@ The [community maintained plugin 'flutter\_map\_tile\_caching'](https://github.c
 
 ## Bundled Map Tiles
 
-If you have a set of custom raster tiles that you need to provide to all your users, you may want to consider bundling them together, to make a them easier to deploy to your users.
+If you have a set of custom raster tiles that you need to provide to all your users, you may want to consider bundling them together, to make a them easier to deploy to your users. Bundles can be provided in two formats.
 
-There is essentially two options for doing this:
+### Contained
+
+Container formats, such as the traditional MBTiles, or the more recent PMTiles, store tiles usually in a database or binary internal format.
+
+These require a special parser to read/unpack on demand, usually provided as a `TileProvider` by a plugin. The following 3rd party plugins are available to read these formats:
+
+* [MBTiles](https://wiki.openstreetmap.org/wiki/MBTiles): [flutter\_map\_mbtiles](https://github.com/josxha/flutter\_map\_plugins/tree/main/flutter\_map\_mbtiles) ([vector\_map\_tiles\_mbtiles ](https://github.com/josxha/flutter\_map\_plugins/tree/main/vector\_map\_tiles\_mbtiles)when using vector tiles)
+* [PMTiles](https://github.com/protomaps/PMTiles): [flutter\_map\_pmtiles](https://github.com/josxha/flutter\_map\_plugins/tree/main/flutter\_map\_pmtiles) ([vector\_map\_tiles\_pmtiles](https://github.com/josxha/flutter\_map\_plugins/tree/main/vector\_map\_tiles\_pmtiles) when using vector tiles)
+
+### Uncontained
+
+When uncontained, tiles are usually in a directory/file structure, usually a 'zoom/x/y.png' layout. These don't require special parsing, and can be provided directly to the `TileLayer` using one of these built in `TileProviders`:
 
 * Using `AssetTileProvider`, you can bundle a set of map tiles and register them as an asset within your app's pubspec.yaml. This means that they will be downloaded together with your application, keeping setup simple, but at the expense of a larger application bundle size.
 * Using `FileTileProvider`, you can bundle a set of map tiles and store them on a remote web server, that can be downloaded from later. This means that the setup may be more complicated for users, but the application's bundle size will be much smaller.
-
-Either way, the filesystem should be structured like this: 'offlineMap/{z}/{x}/{y}.png', where every .png image is a tile.
-
-If you have a raster-format .mbtiles file, for example from TileMill, you should use [mbtilesToPngs](https://github.com/alfanhui/mbtilesToPngs) to convert it to the correct structure first. Alternatively, you can use an external package such as '[flutter\_mbtiles\_extractor](https://pub.dev/packages/flutter\_mbtiles\_extractor)' to extract during runtime.

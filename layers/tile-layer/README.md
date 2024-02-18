@@ -15,7 +15,7 @@ TileLayer(
 ```
 
 {% hint style="warning" %}
-You must comply with the appropriate restrictions and terms of service set by your tile server. Failure to do so may lead to any punishment, at the tile server's discretion.
+You must comply with the appropriate restrictions and terms of service set by your tile server. Always read the ToS before using a tile server. Failure to do so may lead to any punishment, at the tile server's discretion.
 
 This library and/or the creator(s) are not responsible for any violations you make using this package.
 
