@@ -47,14 +47,27 @@ If you have a set of custom raster tiles that you need to provide to all your us
 
 Container formats, such as the traditional MBTiles, or the more recent PMTiles, store tiles usually in a database or binary internal format.
 
-These require a special parser to read/unpack on demand, usually provided as a `TileProvider` by a plugin. The following 3rd party plugins are available to read these formats:
+These require a special parser to read on demand, usually provided as a `TileProvider` by a plugin. The following community-maintained plugins are available to read these formats:
 
 * [MBTiles](https://wiki.openstreetmap.org/wiki/MBTiles): [flutter\_map\_mbtiles](https://github.com/josxha/flutter\_map\_plugins/tree/main/flutter\_map\_mbtiles) ([vector\_map\_tiles\_mbtiles ](https://github.com/josxha/flutter\_map\_plugins/tree/main/vector\_map\_tiles\_mbtiles)when using vector tiles)
-* [PMTiles](https://github.com/protomaps/PMTiles): [flutter\_map\_pmtiles](https://github.com/josxha/flutter\_map\_plugins/tree/main/flutter\_map\_pmtiles) ([vector\_map\_tiles\_pmtiles](https://github.com/josxha/flutter\_map\_plugins/tree/main/vector\_map\_tiles\_pmtiles) when using vector tiles)
+* [PMTiles](https://github.com/protomaps/PMTiles): [flutter\_map\_pmtiles](https://github.com/josxha/flutter\_map\_plugins/tree/main/flutter\_map\_pmtiles) ([vector\_map\_tiles\_pmtiles](https://github.com/josxha/flutter\_map\_plugins/tree/main/vector\_map\_tiles\_pmtiles) when using vector tiles, also works in online contexts)
 
 ### Uncontained
 
-When uncontained, tiles are usually in a directory/file structure, usually a 'zoom/x/y.png' layout. These don't require special parsing, and can be provided directly to the `TileLayer` using one of these built in `TileProviders`:
+When uncontained, tiles are usually in a tree structure formed by directories, usually 'zoom/x/y.png'. These don't require special parsing, and can be provided directly to the `TileLayer` using one of the built-in local `TileProvider`s.
 
-* Using `AssetTileProvider`, you can bundle a set of map tiles and register them as an asset within your app's pubspec.yaml. This means that they will be downloaded together with your application, keeping setup simple, but at the expense of a larger application bundle size.
-* Using `FileTileProvider`, you can bundle a set of map tiles and store them on a remote web server, that can be downloaded from later. This means that the setup may be more complicated for users, but the application's bundle size will be much smaller.
+#### `AssetTileProvider`
+
+You can ship an entire tile tree as part of your application bundle, and register it as assets in your app's pubspec.yaml.
+
+This means that they will be downloaded together with your application, keeping setup simple, but at the expense of a larger application bundle size.
+
+{% hint style="warning" %}
+If using `AssetTileProvider`, every sub-directory of the tree must be listed seperately. See the example application's 'pubspec.yaml' for an example.
+{% endhint %}
+
+#### `FileTileProvider`
+
+This allows for more flexibility: you could store a tile tree on a remote server, then download the entire tree later to the device's filesystem, perhaps after intial setup, or just an area that the user has selected.
+
+This means that the setup may be more complicated for users, and it introduces a potentially long-running blocking action, but the application's bundle size will be much smaller.
