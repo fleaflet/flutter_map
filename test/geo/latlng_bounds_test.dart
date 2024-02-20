@@ -10,7 +10,7 @@ void main() {
 
     group('LatLngBounds constructor', () {
       test('with dublin, paris', () {
-        final bounds = LatLngBounds(dublin, paris);
+        final bounds = LatLngBounds.fromCorners(dublin, paris);
 
         expect(bounds, LatLngBounds.fromPoints([dublin, paris]));
       });
@@ -40,8 +40,8 @@ void main() {
 
     group('hashCode', () {
       test('with dublin, paris', () {
-        final bounds1 = LatLngBounds(dublin, paris);
-        final bounds2 = LatLngBounds(dublin, paris);
+        final bounds1 = LatLngBounds.fromCorners(dublin, paris);
+        final bounds2 = LatLngBounds.fromCorners(dublin, paris);
 
         expect(bounds1 == bounds2, isTrue);
         expect(bounds1.hashCode, bounds2.hashCode);
