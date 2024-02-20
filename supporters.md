@@ -25,4 +25,5 @@ Huge thanks to all our past supporters, you help keep this project going. In no 
 * Roundtrip
 * corepuncher
 * Maxi
+* V3ntus
 * ... and everyone else who donated anonymously
