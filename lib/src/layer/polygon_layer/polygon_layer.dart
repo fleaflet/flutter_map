@@ -86,7 +86,10 @@ class PolygonLayer<R extends Object> extends StatefulWidget {
     this.polygonLabels = true,
     this.drawLabelsLast = false,
     this.hitNotifier,
-  });
+  }) : assert(
+          simplificationTolerance >= 0,
+          'simplificationTolerance cannot be negative: $simplificationTolerance',
+        );
 
   @override
   State<PolygonLayer<R>> createState() => _PolygonLayerState<R>();
