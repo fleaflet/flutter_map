@@ -31,7 +31,7 @@ jobs:
                 repo: context.repo.repo,
                 issue_number: context.issue.number
             });
-            const labelAddedEvent = events.find(event => event.event === 'labeled' && event.label.name === 'waiting for user response');
+            const labelAddedEvent = events.findLast(event => event.event === 'labeled' && event.label.name === 'waiting for user response');
             if (!labelAddedEvent) return false;
             const labelAddedDate = new Date(labelAddedEvent.created_at);
             const now = new Date();
