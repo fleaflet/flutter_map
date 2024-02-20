@@ -40,10 +40,10 @@ class PolylineLayer<R extends Object> extends StatefulWidget {
 
   /// A notifier to be notified when a hit test occurs on the layer
   ///
-  /// If a notifier is not provided, hit testing is not performed.
-  ///
   /// Notified with a [LayerHitResult] if any polylines are hit, otherwise
   /// notified with `null`.
+  ///
+  /// Hit testing still occurs even if this is `null`.
   ///
   /// See online documentation for more detailed usage instructions. See the
   /// example project for an example implementation.
@@ -66,7 +66,10 @@ class PolylineLayer<R extends Object> extends StatefulWidget {
     this.simplificationTolerance = 0.4,
     this.hitNotifier,
     this.minimumHitbox = 10,
-  });
+  }) : assert(
+          simplificationTolerance >= 0,
+          'simplificationTolerance cannot be negative: $simplificationTolerance',
+        );
 
   @override
   State<PolylineLayer<R>> createState() => _PolylineLayerState<R>();
@@ -151,13 +154,13 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
     );
   }
 
-  static List<_ProjectedPolyline> _aggressivelyCullPolylines({
+  List<_ProjectedPolyline<R>> _aggressivelyCullPolylines({
     required Projection projection,
-    required List<_ProjectedPolyline> polylines,
+    required List<_ProjectedPolyline<R>> polylines,
     required MapCamera camera,
     required double cullingMargin,
   }) {
-    final culledPolylines = <_ProjectedPolyline>[];
+    final culledPolylines = <_ProjectedPolyline<R>>[];
 
     final bounds = camera.visibleBounds;
     final margin = cullingMargin / math.pow(2, camera.zoom);
@@ -237,8 +240,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
     return culledPolylines;
   }
 
-  static List<_ProjectedPolyline<R>>
-      _computeZoomLevelSimplification<R extends Object>({
+  List<_ProjectedPolyline<R>> _computeZoomLevelSimplification({
     required MapCamera camera,
     required List<_ProjectedPolyline<R>> polylines,
     required double pixelTolerance,

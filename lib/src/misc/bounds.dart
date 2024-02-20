@@ -30,14 +30,12 @@ class Bounds<T extends num> {
       minY = a.y;
       maxY = b.y;
     }
-    return Bounds._(Point<T>(minX, minY), Point<T>(maxX, maxY));
+    return Bounds.unsafe(Point<T>(minX, minY), Point<T>(maxX, maxY));
   }
 
   /// Create a [Bounds] instance **without** checking if [min] is actually the
   /// minimum and [max] is actually the maximum.
   const Bounds.unsafe(this.min, this.max);
-
-  const Bounds._(this.min, this.max);
 
   /// Create a [Bounds] as bounding box of a list of points.
   static Bounds<double> containing(Iterable<Point<double>> points) {
@@ -53,13 +51,13 @@ class Bounds<T extends num> {
       minY = math.min(point.y, minY);
     }
 
-    return Bounds._(Point(minX, minY), Point(maxX, maxY));
+    return Bounds.unsafe(Point(minX, minY), Point(maxX, maxY));
   }
 
   /// Creates a new [Bounds] obtained by expanding the current ones with a new
   /// point.
   Bounds<T> extend(Point<T> point) {
-    return Bounds._(
+    return Bounds.unsafe(
       Point(math.min(point.x, min.x), math.min(point.y, min.y)),
       Point(math.max(point.x, max.x), math.max(point.y, max.y)),
     );
@@ -147,7 +145,7 @@ class Bounds<T extends num> {
     final bottomY = math.min(max.y, b.max.y);
 
     if (leftX <= rightX && topY <= bottomY) {
-      return Bounds._(Point(leftX, topY), Point(rightX, bottomY));
+      return Bounds.unsafe(Point(leftX, topY), Point(rightX, bottomY));
     }
 
     return null;

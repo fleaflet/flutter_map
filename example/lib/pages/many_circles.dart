@@ -29,8 +29,7 @@ class ManyCirclesPageState extends State<ManyCirclesPage> {
       source.nextDouble() * (end - start) + start;
   List<CircleMarker> allCircles = [];
 
-  static const int _initialNumOfCircles = _maxCirclesCount ~/ 10;
-  int numOfCircles = _initialNumOfCircles;
+  int numOfCircles = _maxCirclesCount ~/ 10;
 
   @override
   void initState() {
@@ -85,10 +84,10 @@ class ManyCirclesPageState extends State<ManyCirclesPage> {
             top: 16,
             right: 16,
             child: NumberOfItemsSlider(
-              itemDescription: 'Circle',
+              number: numOfCircles,
+              onChanged: (v) => setState(() => numOfCircles = v),
               maxNumber: _maxCirclesCount,
-              initialNumber: _initialNumOfCircles,
-              onChangedNumber: (v) => setState(() => numOfCircles = v),
+              itemDescription: 'Circle',
             ),
           ),
           if (!kIsWeb)

@@ -167,7 +167,7 @@ class _RetinaPageState extends State<RetinaPage> {
                 maxZoom: 19,
               ),
               children: [
-                if (accessToken?.isNotEmpty ?? false) tileLayer,
+                if (accessToken?.isNotEmpty ?? true) tileLayer,
                 RichAttributionWidget(
                   attributions: [
                     LogoSourceAttribution(
