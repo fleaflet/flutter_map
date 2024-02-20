@@ -39,8 +39,10 @@ jobs:
             const lastComment = comments[comments.length - 1];
             console.log("lastComment: " + lastComment);
             if (!lastComment.user) return false;
-            
-            return lastComment.user.login !== waitingResponseLabel.user.login;
+
+            console.log(lastComment.user?.login);
+            console.log(waitingResponseLabel.user?.login);
+            return lastComment.user?.login !== waitingResponseLabel.user?.login;
       # only remove the label if the issue is not stale, this prevents that this
       # action removes the label when the automatic reminder message gets sent.
       - name: Remove `waiting for user response` label if exists
