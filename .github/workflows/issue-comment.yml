@@ -27,7 +27,7 @@ jobs:
             if (isStale) return false;
             
             const waitingResponseLabel = issue.labels.find(label => label.name === 'waiting for user response');
-            console.log("waitingResponseLabel: " + waitingResponseLabel);
+            console.log("waitingResponseLabel: " + JSON.stringify(waitingResponseLabel));
             if (!waitingResponseLabel) return false;
             
             const { data: comments } = await github.rest.issues.listComments({
