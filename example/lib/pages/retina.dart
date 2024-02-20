@@ -32,8 +32,6 @@ class _RetinaPageState extends State<RetinaPage> {
 
   @override
   Widget build(BuildContext context) {
-    print(urlTemplate);
-
     final tileLayer = TileLayer(
       urlTemplate: urlTemplate,
       userAgentPackageName: 'dev.fleaflet.flutter_map.example',
