@@ -35,7 +35,7 @@ jobs:
             if (!labelAddedEvent) return false;
             const labelAddedDate = new Date(labelAddedEvent.created_at);
             const now = new Date();
-            const secondsSinceLabelAdded = (now - labelAddedDate) / 1000000;
+            const secondsSinceLabelAdded = (now - labelAddedDate) / 1000;
             console.log(secondsSinceLabelAdded + "s")
             return secondsSinceLabelAdded > 30;
       # only remove the label if the issue is not stale, this prevents that this
