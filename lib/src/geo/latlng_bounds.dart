@@ -1,4 +1,4 @@
-import 'dart:math' as math;
+import 'dart:math';
 
 import 'package:latlong2/latlong.dart';
 import 'package:vector_math/vector_math_64.dart';
@@ -28,14 +28,22 @@ class LatLngBounds {
     required this.south,
     required this.east,
     required this.west,
-  })  : assert(north <= 90, "The north latitude can't be bigger than 90."),
-        assert(north >= -90, "The north latitude can't be smaller than -90."),
-        assert(south <= 90, "The south latitude can't be bigger than 90."),
-        assert(south >= -90, "The south latitude can't be smaller than -90."),
-        assert(east <= 180, "The east longitude can't be bigger than 180."),
-        assert(east >= -180, "The east longitude can't be smaller than -180."),
-        assert(west <= 180, "The west longitude can't be bigger than 180."),
-        assert(west >= -180, "The west longitude can't be smaller than -180."),
+  })  : assert(
+            north <= 90, "The north latitude can't be bigger than 90: $north"),
+        assert(north >= -90,
+            "The north latitude can't be smaller than -90: $north"),
+        assert(
+            south <= 90, "The south latitude can't be bigger than 90: $south"),
+        assert(south >= -90,
+            "The south latitude can't be smaller than -90: $south"),
+        assert(
+            east <= 180, "The east longitude can't be bigger than 180: $east"),
+        assert(east >= -180,
+            "The east longitude can't be smaller than -180: $east"),
+        assert(
+            west <= 180, "The west longitude can't be bigger than 180: $west"),
+        assert(west >= -180,
+            "The west longitude can't be smaller than -180: $west"),
         assert(north >= south,
             "The north latitude can't be smaller than the south latitude"),
         assert(east >= west,
@@ -91,20 +99,20 @@ class LatLngBounds {
   /// Expands bounding box by [latLng] coordinate point. This method mutates
   /// the bounds object on which it is called.
   void extend(LatLng latLng) {
-    north = math.max(north, latLng.latitude);
-    south = math.min(south, latLng.latitude);
-    east = math.max(east, latLng.longitude);
-    west = math.min(west, latLng.longitude);
+    north = min(90, max(north, latLng.latitude));
+    south = max(-90, min(south, latLng.latitude));
+    east = min(180, max(east, latLng.longitude));
+    west = max(-180, min(west, latLng.longitude));
   }
 
   /// Expands bounding box by other [bounds] object. If provided [bounds] object
   /// is smaller than current one, it is not shrunk. This method mutates
   /// the bounds object on which it is called.
   void extendBounds(LatLngBounds bounds) {
-    north = math.max(north, bounds.north);
-    south = math.min(south, bounds.south);
-    east = math.max(east, bounds.east);
-    west = math.min(west, bounds.west);
+    north = min(90, max(north, bounds.north));
+    south = max(-90, min(south, bounds.south));
+    east = min(180, max(east, bounds.east));
+    west = max(-180, min(west, bounds.west));
   }
 
   /// Obtain coordinates of southwest corner of the bounds
@@ -135,11 +143,11 @@ class LatLngBounds {
     // delta lambda = lambda2-lambda1
     final dLambda = degrees2Radians * (east - west);
 
-    final bx = math.cos(phi2) * math.cos(dLambda);
-    final by = math.cos(phi2) * math.sin(dLambda);
-    final phi3 = math.atan2(math.sin(phi1) + math.sin(phi2),
-        math.sqrt((math.cos(phi1) + bx) * (math.cos(phi1) + bx) + by * by));
-    final lambda3 = lambda1 + math.atan2(by, math.cos(phi1) + bx);
+    final bx = cos(phi2) * cos(dLambda);
+    final by = cos(phi2) * sin(dLambda);
+    final phi3 = atan2(sin(phi1) + sin(phi2),
+        sqrt((cos(phi1) + bx) * (cos(phi1) + bx) + by * by));
+    final lambda3 = lambda1 + atan2(by, cos(phi1) + bx);
 
     // phi3 and lambda3 are actually in radians and LatLng wants degrees
     return LatLng(phi3 * radians2Degrees, lambda3 * radians2Degrees);
