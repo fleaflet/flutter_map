@@ -19,6 +19,10 @@ class LatLngBounds {
   double west;
 
   /// Create a [LatLngBounds] instance from raw edge values.
+  ///
+  /// Potentially throws assertion errors if the coordinates exceed their max
+  /// or min values or if coordinates are meant to be smaller / bigger
+  /// but aren't.
   LatLngBounds({
     required this.north,
     required this.south,
