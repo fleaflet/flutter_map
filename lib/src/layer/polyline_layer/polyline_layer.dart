@@ -66,7 +66,10 @@ class PolylineLayer<R extends Object> extends StatefulWidget {
     this.simplificationTolerance = 0.4,
     this.hitNotifier,
     this.minimumHitbox = 10,
-  });
+  }) : assert(
+          simplificationTolerance >= 0,
+          'simplificationTolerance cannot be negative: $simplificationTolerance',
+        );
 
   @override
   State<PolylineLayer<R>> createState() => _PolylineLayerState<R>();

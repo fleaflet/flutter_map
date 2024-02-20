@@ -7,19 +7,19 @@ import 'package:meta/meta.dart';
 /// Extended by [TextSourceAttribution] & [LogoSourceAttribution].
 @immutable
 sealed class SourceAttribution extends StatelessWidget {
-  const SourceAttribution._({super.key, VoidCallback? onTap}) : _onTap = onTap;
+  const SourceAttribution._({super.key, this.onTap});
 
-  final VoidCallback? _onTap;
+  final VoidCallback? onTap;
 
   Widget _render(BuildContext context);
 
   @override
   @nonVirtual
   Widget build(BuildContext context) {
-    if (_onTap == null) return _render(context);
+    if (onTap == null) return _render(context);
 
     return GestureDetector(
-      onTap: _onTap,
+      onTap: onTap,
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: _render(context),
@@ -33,7 +33,7 @@ sealed class SourceAttribution extends StatelessWidget {
 @immutable
 class TextSourceAttribution extends SourceAttribution {
   /// Default style used to display the [text], only when
-  /// [SourceAttribution._onTap] is not `null`
+  /// [SourceAttribution.onTap] is not `null`
   static const defaultLinkTextStyle =
       TextStyle(decoration: TextDecoration.underline);
 
