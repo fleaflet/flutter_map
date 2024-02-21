@@ -42,5 +42,14 @@ linter:
     use_if_null_to_convert_nulls_to_bools: true
     matching_super_parameters: true
     prefer_const_constructors: true
+    use_decorated_box: true
+    use_is_even_rather_than_modulo: true
+    unnecessary_lambdas: true
+    sort_pub_dependencies: true
+    prefer_void_to_null: true
+    unnecessary_raw_strings: true
+    comment_references: true
+    parameter_assignments: true
+    avoid_unused_constructor_parameters: true
     # TODO: enable the following lint when all public APIs are documented
     # public_member_api_docs: true

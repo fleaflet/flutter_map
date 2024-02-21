@@ -183,7 +183,6 @@ class MockTileImage extends TileImage {
     void Function(TileCoordinates coordinates)? onLoadComplete,
     void Function(TileImage tile, Object error, StackTrace? stackTrace)?
         onLoadError,
-    TileDisplay? tileDisplay,
     super.errorImage,
   }) : super(
           coordinates: TileCoordinates(x, y, zoom),

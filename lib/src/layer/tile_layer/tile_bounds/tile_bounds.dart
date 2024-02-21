@@ -12,7 +12,7 @@ abstract class TileBounds {
   final LatLngBounds? _latLngBounds;
 
   /// Constructor that creates an instance of a subclass of [TileBounds]:
-  /// [InfiniteTileBounds] if the CRS is [infinite].
+  /// [InfiniteTileBounds] if the CRS is infinite.
   /// [DiscreteTileBounds] if the CRS has hard borders.
   /// [WrappedTileBounds] if the CRS is wrapped.
   factory TileBounds({
