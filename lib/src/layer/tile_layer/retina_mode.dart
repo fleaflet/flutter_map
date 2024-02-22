@@ -55,6 +55,7 @@ enum RetinaMode {
   /// plugin use by [TileLayer.resolvedRetinaMode].
   simulation('Simulation');
 
+  /// The readable name of the [RetinaMode]
   final String friendlyName;
 
   const RetinaMode(this.friendlyName);

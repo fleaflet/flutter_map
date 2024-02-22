@@ -136,8 +136,10 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     super.dispose();
   }
 
+  /// Rebuilds the map widget
   void onMapStateChange() => setState(() {});
 
+  /// Handles key down events to detect if one of the trigger keys got pressed.
   bool cursorKeyboardRotationTriggerHandler(KeyEvent event) {
     _ckrTriggered.value = (event is KeyRepeatEvent || event is KeyDownEvent) &&
         (_interactionOptions.cursorKeyboardRotationOptions.isKeyTrigger ??

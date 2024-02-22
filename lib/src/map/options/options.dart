@@ -39,6 +39,8 @@ typedef PointerHoverCallback = void Function(
   PointerHoverEvent event,
   LatLng point,
 );
+
+/// Callback that gets called when the viewport of the map changes.
 typedef PositionCallback = void Function(MapCamera camera, bool hasGesture);
 
 /// All options for the [FlutterMap] widget.

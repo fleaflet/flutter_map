@@ -15,8 +15,10 @@ class TileUpdateEvent {
   /// Set to true if the tiles should get pruned.
   final bool prune;
 
+  /// An optional overridden center value while loading.
   final LatLng? loadCenterOverride;
 
+  /// An optional overridden zoom value while loading.
   final double? loadZoomOverride;
 
   /// Create a new [TileUpdateEvent].

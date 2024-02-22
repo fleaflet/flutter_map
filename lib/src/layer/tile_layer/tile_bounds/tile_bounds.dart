@@ -4,6 +4,7 @@ import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 
+/// The bounding box of a tile.
 @immutable
 abstract class TileBounds {
   /// Reference to the coordinate reference system.
@@ -35,6 +36,7 @@ abstract class TileBounds {
     this._latLngBounds,
   );
 
+  /// Create a [TileBoundsAtZoom] for a given [zoom] level.
   TileBoundsAtZoom atZoom(int zoom);
 
   /// Returns true if these bounds may no longer be valid for the given
@@ -60,6 +62,7 @@ class InfiniteTileBounds extends TileBounds {
   TileBoundsAtZoom atZoom(int zoom) => const InfiniteTileBoundsAtZoom();
 }
 
+/// [TileBounds] that have a discrete [LatLngBounds].
 @immutable
 class DiscreteTileBounds extends TileBounds {
   final Map<int, TileBoundsAtZoom> _tileBoundsAtZoomCache = {};
@@ -101,6 +104,7 @@ class DiscreteTileBounds extends TileBounds {
   }
 }
 
+/// [TileBounds] that get wrapped.
 @immutable
 class WrappedTileBounds extends TileBounds {
   final Map<int, WrappedTileBoundsAtZoom> _tileBoundsAtZoomCache = {};

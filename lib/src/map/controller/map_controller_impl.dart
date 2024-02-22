@@ -323,6 +323,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     );
   }
 
+  /// Set the widget size but don't emit a event to the event system.
   bool setNonRotatedSizeWithoutEmittingEvent(
     Point<double> nonRotatedSize,
   ) {

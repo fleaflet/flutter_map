@@ -25,6 +25,7 @@ abstract class InteractiveFlag {
       scrollWheelZoom |
       rotate;
 
+  /// Use this flag if you want to disable all gesture interactions.
   static const int none = 0;
 
   /// Enable panning with a single finger or cursor

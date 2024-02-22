@@ -3,8 +3,10 @@ import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 
+/// The [TileRangeCalculator] helps to calculate the bounds in pixel.
 @immutable
 class TileRangeCalculator {
+  /// The tile size in pixels.
   final double tileSize;
 
   /// Create a new [TileRangeCalculator] instance.

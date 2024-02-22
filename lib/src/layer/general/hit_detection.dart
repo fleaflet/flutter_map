@@ -31,6 +31,7 @@ class LayerHitResult<R extends Object> {
   /// See [coordinate] for the geographical coordinate which was hit.
   final Point<double> point;
 
+  /// Construct a new [LayerHitResult] by providing the values.
   @internal
   const LayerHitResult({
     required this.hitValues,

@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:meta/meta.dart';
 
+/// The tile coordinates are based on maths' [Point] class but extended with
+/// the zoom level.
 @immutable
 class TileCoordinates extends Point<int> {
   /// The zoom level of the tile coordinates.

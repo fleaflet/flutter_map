@@ -147,6 +147,7 @@ const _metricScale = <int>[
   1,
 ];
 
+/// The relative length of the scalebar.
 enum ScalebarLength {
   /// Small scalebar
   s(-2),
@@ -169,6 +170,7 @@ enum ScalebarLength {
   /// south pole.
   xxl(2);
 
+  /// The relative value of the size that gets used for internal calculations.
   final int value;
 
   const ScalebarLength(this.value);

@@ -1,6 +1,7 @@
 import 'package:flutter_map/flutter_map.dart';
 import 'package:meta/meta.dart';
 
+/// Defines how the tile should get displayed on the map.
 @immutable
 sealed class TileDisplay {
   const TileDisplay();
@@ -57,8 +58,12 @@ sealed class TileDisplay {
   }
 }
 
+/// Display the tile instantaneous.
 @immutable
 class InstantaneousTileDisplay extends TileDisplay {
+  /// The optional opacity of the tile.
+  ///
+  /// Defaults to 1.0
   final double opacity;
 
   const InstantaneousTileDisplay._({this.opacity = 1.0})

@@ -2,16 +2,21 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:meta/meta.dart';
 
+/// A bounding box with zoom level.
 @immutable
 abstract class TileBoundsAtZoom {
   /// Create a new [TileBoundsAtZoom] object.
   const TileBoundsAtZoom();
 
+  /// Wrap [TileCoordinates] for the tile bounds.
   TileCoordinates wrap(TileCoordinates coordinates);
 
+  /// Returns a list of [TileCoordinates] that are valid because they are within
+  /// the [TileRange].
   Iterable<TileCoordinates> validCoordinatesIn(DiscreteTileRange tileRange);
 }
 
+/// A infinite tile bounding box.
 @immutable
 class InfiniteTileBoundsAtZoom extends TileBoundsAtZoom {
   /// Create a new [InfiniteTileBoundsAtZoom] object.
@@ -28,8 +33,10 @@ class InfiniteTileBoundsAtZoom extends TileBoundsAtZoom {
   String toString() => 'InfiniteTileBoundsAtZoom()';
 }
 
+/// [TileBoundsAtZoom] that have discrete coordinate bounds.
 @immutable
 class DiscreteTileBoundsAtZoom extends TileBoundsAtZoom {
+  /// The [TileRange] of the [TileBoundsAtZoom].
   final DiscreteTileRange tileRange;
 
   /// Create a new [DiscreteTileBoundsAtZoom] object.
@@ -51,8 +58,10 @@ class DiscreteTileBoundsAtZoom extends TileBoundsAtZoom {
   String toString() => 'DiscreteTileBoundsAtZoom($tileRange)';
 }
 
+/// A bounding box with zoom level that gets wrapped
 @immutable
 class WrappedTileBoundsAtZoom extends TileBoundsAtZoom {
+  /// The range of tiles for the bounding box.
   final DiscreteTileRange tileRange;
 
   /// If true the wrapped axis will not be checked when calling

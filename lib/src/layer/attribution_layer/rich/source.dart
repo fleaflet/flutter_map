@@ -9,6 +9,9 @@ import 'package:meta/meta.dart';
 sealed class SourceAttribution extends StatelessWidget {
   const SourceAttribution._({super.key, this.onTap});
 
+  /// This callback gets called if the user clicks or taps on the attribution
+  /// source. Most of the time you would want to open a website with the terms
+  /// of service of the tile provider.
   final VoidCallback? onTap;
 
   Widget _render(BuildContext context);

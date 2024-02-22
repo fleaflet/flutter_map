@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 
+/// The tile image class
 class TileImage extends ChangeNotifier {
   bool _disposed = false;
 
