@@ -26,7 +26,7 @@ class Polygon<R extends Object> {
   /// The color of the [Polygon] outline.
   final Color borderColor;
 
-  /// Weather holes on the [Polygon] should have a border too or not.
+  /// Whether holes should have borders
   ///
   /// Defaults to false (enabled).
   final bool disableHolesBorder;
