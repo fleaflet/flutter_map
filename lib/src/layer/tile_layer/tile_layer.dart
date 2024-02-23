@@ -363,9 +363,11 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   
 
+// Delay Timer for loadingDelay
 Timer? _delayTimer;
-int _lastUpdateTime = 0;
 
+// This method is used to delay the execution of a function by the specified [loadingDelay].
+// This is useful to prevent frequent reloading of tile layers in response to rapid, successive events (e.g., zooming or panning).
 void _loadingDelay(void Function() action) {
   //execute immediately if delay is 0.
   if(widget.loadingDelay == 0) {
@@ -373,24 +375,15 @@ void _loadingDelay(void Function() action) {
     return;
   }
 
-  final int now = DateTime.now().millisecondsSinceEpoch;
-
-  // Cancel the existing timer if there's one
-  _delayTimer?.cancel();
-
-  // Calculate the time since the last update
-  final int timeSinceLastUpdate = now - _lastUpdateTime;
+  // Cancel the previous timer if it is still active
+  if(_delayTimer != null && _delayTimer!.isActive) {
+    _delayTimer!.cancel();
+  }
 
   // Reset the timer to wait for the debounce duration
   _delayTimer = Timer(Duration(milliseconds: widget.loadingDelay), () {
-  _lastUpdateTime = DateTime.now().millisecondsSinceEpoch; 
     action(); 
   });
-
-  // Update the last update time if it's the first event or if the debounce duration has already passed
-  if (timeSinceLastUpdate >= widget.loadingDelay) {
-    _lastUpdateTime = now;
-  }
 }
 
   // This is called on every map movement so we should avoid expensive logic
