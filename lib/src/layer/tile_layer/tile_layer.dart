@@ -207,6 +207,19 @@ class TileLayer extends StatefulWidget {
   /// no affect.
   final TileUpdateTransformer tileUpdateTransformer;
 
+  /// Defines the minimum time delay (in milliseconds) before map layers are allowed to rebuild.
+  ///
+  /// This delay acts as a debounce period to prevent frequent reloading of tile layers in response to rapid, successive events (e.g., zooming or panning).
+  ///
+  /// By setting this delay, we ensure that map layer updates are performed only after a period of inactivity, enhancing performance and user experience.
+  ///
+  /// - If multiple events occur within this delay period, only the last event triggers the tile layer update, reducing unnecessary processing and network requests.
+  ///
+  /// - This is particularly useful for events that are triggered often and rapidly, such as map movements or viewport changes.
+  ///
+  /// - The delay is measured from the last received event. Once the specified time has passed without any new events, the tile layers are updated to reflect the latest state.
+  final int loadingDelay;
+
   /// Create a new [TileLayer] for the [FlutterMap] widget.
   TileLayer({
     super.key,
@@ -229,6 +242,7 @@ class TileLayer extends StatefulWidget {
     this.wmsOptions,
     this.tileDisplay = const TileDisplay.fadeIn(),
 
+
     /// See [RetinaMode] for more information
     ///
     /// Defaults to `false` when `null`.
@@ -238,6 +252,7 @@ class TileLayer extends StatefulWidget {
     this.evictErrorTileStrategy = EvictErrorTileStrategy.none,
     this.reset,
     this.tileBounds,
+    this.loadingDelay = 50,
     TileUpdateTransformer? tileUpdateTransformer,
     String userAgentPackageName = 'unknown',
   })  : assert(
@@ -346,6 +361,38 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     _loadAndPruneInVisibleBounds(MapCamera.of(context));
   });
 
+  
+
+Timer? _delayTimer;
+int _lastUpdateTime = 0;
+
+void _loadingDelay(void Function() action) {
+  //execute immediately if delay is 0.
+  if(widget.loadingDelay == 0) {
+    action();
+    return;
+  }
+
+  final int now = DateTime.now().millisecondsSinceEpoch;
+
+  // Cancel the existing timer if there's one
+  _delayTimer?.cancel();
+
+  // Calculate the time since the last update
+  final int timeSinceLastUpdate = now - _lastUpdateTime;
+
+  // Reset the timer to wait for the debounce duration
+  _delayTimer = Timer(Duration(milliseconds: widget.loadingDelay), () {
+  _lastUpdateTime = DateTime.now().millisecondsSinceEpoch; 
+    action(); 
+  });
+
+  // Update the last update time if it's the first event or if the debounce duration has already passed
+  if (timeSinceLastUpdate >= widget.loadingDelay) {
+    _lastUpdateTime = now;
+  }
+}
+
   // This is called on every map movement so we should avoid expensive logic
   // where possible.
   @override
@@ -362,7 +409,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       _tileUpdateSubscription = mapController.mapEventStream
           .map((mapEvent) => TileUpdateEvent(mapEvent: mapEvent))
           .transform(widget.tileUpdateTransformer)
-          .listen((event) => _onTileUpdateEvent(event));
+          .listen((event) => _loadingDelay(() => _onTileUpdateEvent(event)));
     }
 
     var reloadTiles = false;
@@ -457,7 +504,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     _resetSub?.cancel();
     _pruneLater?.cancel();
     widget.tileProvider.dispose();
-
+    _delayTimer?.cancel();
     super.dispose();
   }
 
