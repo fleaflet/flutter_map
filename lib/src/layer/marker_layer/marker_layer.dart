@@ -29,7 +29,7 @@ class MarkerLayer extends StatelessWidget {
   /// user's perspective. Defaults to `false`. Overriden by [Marker.rotate].
   ///
   /// Note that this is not used to apply a custom rotation in degrees to the
-  /// markers. Use a widget inside [Marker.builder] to perform this.
+  /// markers. Use a widget inside [Marker.child] to perform this.
   final bool rotate;
 
   /// Create a new [MarkerLayer] to use inside of [FlutterMap.children].

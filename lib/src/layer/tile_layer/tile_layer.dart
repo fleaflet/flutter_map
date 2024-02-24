@@ -12,6 +12,7 @@ import 'package:flutter_map/src/layer/tile_layer/tile_image_manager.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
+import 'package:http/http.dart';
 import 'package:http/retry.dart';
 import 'package:logger/logger.dart';
 
@@ -666,13 +667,13 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     required bool pruneAfterLoad,
   }) {
     final tileZoom = tileLoadRange.zoom;
-    tileLoadRange = tileLoadRange.expand(widget.panBuffer);
+    final expandedTileLoadRange = tileLoadRange.expand(widget.panBuffer);
 
     // Build the queue of tiles to load. Marks all tiles with valid coordinates
     // in the tileLoadRange as current.
     final tileBoundsAtZoom = _tileBounds.atZoom(tileZoom);
     final tilesToLoad = _tileImageManager.createMissingTiles(
-      tileLoadRange,
+      expandedTileLoadRange,
       tileBoundsAtZoom,
       createTile: (coordinates) => _createTileImage(
         coordinates: coordinates,
@@ -682,7 +683,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     );
 
     // Re-order the tiles by their distance to the center of the range.
-    final tileCenter = tileLoadRange.center;
+    final tileCenter = expandedTileLoadRange.center;
     tilesToLoad.sort(
       (a, b) => _distanceSq(a.coordinates, tileCenter)
           .compareTo(_distanceSq(b.coordinates, tileCenter)),
@@ -718,7 +719,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       _pruneLater?.cancel();
       _pruneLater = Timer(
         fadeIn.duration + const Duration(milliseconds: 50),
-        () => _pruneWithCurrentCamera(),
+        _pruneWithCurrentCamera,
       );
     });
   }
