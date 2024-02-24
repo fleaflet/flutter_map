@@ -242,7 +242,6 @@ class TileLayer extends StatefulWidget {
     this.wmsOptions,
     this.tileDisplay = const TileDisplay.fadeIn(),
 
-
     /// See [RetinaMode] for more information
     ///
     /// Defaults to `false` when `null`.
@@ -361,30 +360,28 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     _loadAndPruneInVisibleBounds(MapCamera.of(context));
   });
 
-  
-
 // Delay Timer for loadingDelay
-Timer? _delayTimer;
+  Timer? _delayTimer;
 
 // This method is used to delay the execution of a function by the specified [loadingDelay].
 // This is useful to prevent frequent reloading of tile layers in response to rapid, successive events (e.g., zooming or panning).
-void _loadingDelay(void Function() action) {
-  //execute immediately if delay is 0.
-  if(widget.loadingDelay == 0) {
-    action();
-    return;
-  }
+  void _loadingDelay(void Function() action) {
+    //execute immediately if delay is 0.
+    if (widget.loadingDelay == 0) {
+      action();
+      return;
+    }
 
-  // Cancel the previous timer if it is still active
-  if(_delayTimer != null && _delayTimer!.isActive) {
-    _delayTimer!.cancel();
-  }
+    // Cancel the previous timer if it is still active
+    if (_delayTimer != null && _delayTimer!.isActive) {
+      _delayTimer!.cancel();
+    }
 
-  // Reset the timer to wait for the debounce duration
-  _delayTimer = Timer(Duration(milliseconds: widget.loadingDelay), () {
-    action(); 
-  });
-}
+    // Reset the timer to wait for the debounce duration
+    _delayTimer = Timer(Duration(milliseconds: widget.loadingDelay), () {
+      action();
+    });
+  }
 
   // This is called on every map movement so we should avoid expensive logic
   // where possible.
