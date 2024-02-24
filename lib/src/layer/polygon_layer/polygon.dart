@@ -179,7 +179,7 @@ class Polygon<R extends Object> {
   // Used to batch draw calls to the canvas
   int? _renderHashCode;
 
-  /// An optimized hash code dedicated to be used inside the [PolygonPainter].
+  /// An optimized hash code dedicated to be used inside the [_PolygonPainter].
   int get renderHashCode => _renderHashCode ??= Object.hash(
         color,
         borderStrokeWidth,

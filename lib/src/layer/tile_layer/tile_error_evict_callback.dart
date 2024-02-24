@@ -11,7 +11,7 @@ enum EvictErrorTileStrategy {
   /// Evict images for tiles which failed to load and:
   ///   - do not belong to the current zoom level AND/OR
   ///   - are not visible, respecting the pruning buffer (the maximum of the
-  ///     [keepBuffer] and [panBuffer].
+  ///     keepBuffer and panBuffer.
   notVisibleRespectMargin,
 
   /// Evict images for tiles which failed to load and:

@@ -43,7 +43,7 @@ class NetworkTileProvider extends TileProvider {
   final bool silenceExceptions;
 
   /// Long living client used to make all tile requests by
-  /// [FlutterMapNetworkImageProvider] for the duration that this provider is
+  /// [MapNetworkImageProvider] for the duration that this provider is
   /// alive
   final BaseClient _httpClient;
 
