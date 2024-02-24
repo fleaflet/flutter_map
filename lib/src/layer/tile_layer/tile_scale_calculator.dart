@@ -15,7 +15,7 @@ class TileScaleCalculator {
     required this.tileSize,
   });
 
-  /// If [true] indicates that the TileSizeCache should be replaced.
+  /// If true it indicates that the TileSizeCache should be replaced.
   bool shouldReplace(Crs crs, double tileSize) =>
       this.crs != crs || this.tileSize != tileSize;
 

@@ -16,8 +16,13 @@ class MovingMarkersPage extends StatefulWidget {
 }
 
 class MovingMarkersPageState extends State<MovingMarkersPage> {
-  Marker? _marker;
-  late final Timer _timer;
+  late Marker _marker = _markers[_markerIndex];
+  late final Timer _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+    setState(() {
+      _marker = _markers[_markerIndex];
+      _markerIndex = (_markerIndex + 1) % _markers.length;
+    });
+  });
   int _markerIndex = 0;
 
   static const _markers = [
@@ -42,18 +47,6 @@ class MovingMarkersPageState extends State<MovingMarkersPage> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    _marker = _markers[_markerIndex];
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      setState(() {
-        _marker = _markers[_markerIndex];
-        _markerIndex = (_markerIndex + 1) % _markers.length;
-      });
-    });
-  }
-
-  @override
   void dispose() {
     super.dispose();
     _timer.cancel();
@@ -71,7 +64,7 @@ class MovingMarkersPageState extends State<MovingMarkersPage> {
         ),
         children: [
           openStreetMapTileLayer,
-          MarkerLayer(markers: [_marker!]),
+          MarkerLayer(markers: [_marker]),
         ],
       ),
     );

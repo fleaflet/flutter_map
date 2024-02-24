@@ -86,7 +86,7 @@ void main() {
       expect(img, isNotNull);
       expect(img!.image.width, equals(256));
       expect(img.image.height, equals(256));
-      expect(tester.takeException(), isInstanceOf<Null>());
+      expect(tester.takeException(), isInstanceOf<void>());
 
       verify(() => mockClient.readBytes(url, headers: headers)).called(1);
     },
@@ -158,7 +158,7 @@ void main() {
       expect(finishedLoadingTriggered, true);
 
       expect(img, isNotNull);
-      expect(tester.takeException(), isInstanceOf<Null>());
+      expect(tester.takeException(), isInstanceOf<void>());
 
       verify(() => mockClient.readBytes(url, headers: headers)).called(1);
     },
@@ -203,7 +203,7 @@ void main() {
       expect(img, isNotNull);
       expect(img!.image.width, equals(256));
       expect(img.image.height, equals(256));
-      expect(tester.takeException(), isInstanceOf<Null>());
+      expect(tester.takeException(), isInstanceOf<void>());
 
       verify(() => mockClient.readBytes(url, headers: headers)).called(1);
       verify(() => mockClient.readBytes(fallbackUrl, headers: headers))
@@ -247,7 +247,7 @@ void main() {
       expect(finishedLoadingTriggered, true);
 
       expect(img, isNotNull);
-      expect(tester.takeException(), isInstanceOf<Null>());
+      expect(tester.takeException(), isInstanceOf<void>());
 
       verify(() => mockClient.readBytes(url, headers: headers)).called(1);
       verify(() => mockClient.readBytes(fallbackUrl, headers: headers))
@@ -323,7 +323,7 @@ void main() {
       expect(finishedLoadingTriggered, true);
 
       expect(img, isNotNull);
-      expect(tester.takeException(), isInstanceOf<Null>());
+      expect(tester.takeException(), isInstanceOf<void>());
 
       verify(() => mockClient.readBytes(url, headers: headers)).called(1);
       verify(() => mockClient.readBytes(fallbackUrl, headers: headers))
@@ -406,7 +406,7 @@ void main() {
       expect(finishedLoadingTriggered, true);
 
       expect(img, isNotNull);
-      expect(tester.takeException(), isInstanceOf<Null>());
+      expect(tester.takeException(), isInstanceOf<void>());
 
       verify(() => mockClient.readBytes(url, headers: headers)).called(1);
     },
@@ -453,7 +453,7 @@ void main() {
       expect(img, isNotNull);
       expect(img!.image.width, equals(256));
       expect(img.image.height, equals(256));
-      expect(tester.takeException(), isInstanceOf<Null>());
+      expect(tester.takeException(), isInstanceOf<void>());
 
       verify(() => mockClient.readBytes(url, headers: headers)).called(1);
       verify(() => mockClient.readBytes(fallbackUrl, headers: headers))
@@ -500,7 +500,7 @@ void main() {
       expect(finishedLoadingTriggered, true);
 
       expect(img, isNotNull);
-      expect(tester.takeException(), isInstanceOf<Null>());
+      expect(tester.takeException(), isInstanceOf<void>());
 
       verify(() => mockClient.readBytes(url, headers: headers)).called(1);
       verify(() => mockClient.readBytes(fallbackUrl, headers: headers))
@@ -587,7 +587,7 @@ void main() {
       expect(finishedLoadingTriggered, true);
 
       expect(img, isNotNull);
-      expect(tester.takeException(), isInstanceOf<Null>());
+      expect(tester.takeException(), isInstanceOf<void>());
 
       verify(() => mockClient.readBytes(url, headers: headers)).called(1);
       verify(() => mockClient.readBytes(fallbackUrl, headers: headers))
@@ -596,5 +596,5 @@ void main() {
     timeout: defaultTimeout,
   );
 
-  tearDownAll(() => mockClient.close());
+  tearDownAll(mockClient.close);
 }
