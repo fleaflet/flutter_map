@@ -1,7 +1,15 @@
 import 'dart:math';
 
+import 'package:flutter_map/flutter_map.dart';
 import 'package:meta/meta.dart';
 
+/// Tile coordinates identify the position of the tile position for
+/// slippy map tiles. The z coordinate represents the zoom level where the
+/// zoom level of 0 fits the complete world while bigger z values are using
+/// accordingly to the zoom level of the [MapCamera].
+///
+/// For more information see the docs https://docs.fleaflet.dev/getting-started/explanation#slippy-map-convention.
+///
 /// The tile coordinates are based on maths' [Point] class but extended with
 /// the zoom level.
 @immutable

@@ -3,7 +3,8 @@ import 'dart:collection';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 
-/// A
+/// The [TileImageView] stores all loaded [TileImage]s with their
+/// [TileCoordinates].
 final class TileImageView {
   final Map<TileCoordinates, TileImage> _tileImages;
   final DiscreteTileRange _visibleRange;
