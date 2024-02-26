@@ -17,12 +17,20 @@ class Polyline<R extends Object> {
 
   /// The [Color] of the [Polyline] border.
   final Color borderColor;
+
+  /// The List of colors in case a gradient should get used.
   final List<Color>? gradientColors;
+
+  /// The stops for the gradient colors.
   final List<double>? colorsStop;
 
   /// Set to true if the line stroke should be rendered as a dotted line.
   final bool isDotted;
+
+  /// Styles to use for line endings.
   final StrokeCap strokeCap;
+
+  /// Styles to use for line segment joins.
   final StrokeJoin strokeJoin;
 
   /// Set to true if the width of the stroke should have meters as unit.
@@ -73,6 +81,7 @@ class Polyline<R extends Object> {
   // Used to batch draw calls to the canvas
   int? _renderHashCode;
 
+  /// A for rendering purposes optimized hashCode function.
   int get renderHashCode => _renderHashCode ??= Object.hash(
         strokeWidth,
         color,

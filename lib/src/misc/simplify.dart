@@ -62,7 +62,9 @@ double getSqSegDist(
   return dx * dx + dy * dy;
 }
 
-//! Might actually be more expensive than DP, which is also better
+/// Alternative algorithm to the Douglas Peucker simplification algorithm.
+///
+/// Might actually be more expensive than DP, which is also better
 List<DoublePoint> simplifyRadialDist(
   List<DoublePoint> points,
   double sqTolerance,
@@ -127,6 +129,7 @@ List<DoublePoint> simplifyDouglasPeucker(
   return simplified;
 }
 
+/// Simplify the list of points for better performance.
 List<DoublePoint> simplifyPoints({
   required final List<DoublePoint> points,
   required double tolerance,
@@ -141,6 +144,7 @@ List<DoublePoint> simplifyPoints({
       : simplifyRadialDist(points, sqTolerance);
 }
 
+/// Calculates the tolerance for the simplification.
 double getEffectiveSimplificationTolerance({
   required Crs crs,
   required int zoom,

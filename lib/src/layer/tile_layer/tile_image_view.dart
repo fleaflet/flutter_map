@@ -3,6 +3,8 @@ import 'dart:collection';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 
+/// The [TileImageView] stores all loaded [TileImage]s with their
+/// [TileCoordinates].
 final class TileImageView {
   final Map<TileCoordinates, TileImage> _tileImages;
   final DiscreteTileRange _visibleRange;
@@ -17,11 +19,15 @@ final class TileImageView {
         _visibleRange = visibleRange,
         _keepRange = keepRange;
 
+  /// Get a list with all tiles that have an error and are outside of the
+  /// margin that should get kept.
   List<TileImage> errorTilesOutsideOfKeepMargin() => _tileImages.values
       .where((tileImage) =>
           tileImage.loadError && !_keepRange.contains(tileImage.coordinates))
       .toList();
 
+  /// Get a list with all tiles that are not visible on the current map
+  /// viewport.
   List<TileImage> errorTilesNotVisible() => _tileImages.values
       .where((tileImage) =>
           tileImage.loadError && !_visibleRange.contains(tileImage.coordinates))

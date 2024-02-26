@@ -274,6 +274,7 @@ class MapCamera {
     return point - nonRotatedPixelOrigin;
   }
 
+  /// Calculate the [LatLng] coordinates for a [localPoint].
   LatLng pointToLatLng(Point localPoint) {
     final localPointCenterDistance = Point(
       (nonRotatedSize.x / 2) - localPoint.x,
@@ -318,6 +319,9 @@ class MapCamera {
         maxZoom ?? double.infinity,
       );
 
+  /// Calculate the [LatLng] coordinates for a given [Offset] and an optional
+  /// zoom level. If [zoom] is not provided the current zoom level of the
+  /// [MapCamera] gets used.
   LatLng offsetToCrs(Offset offset, [double? zoom]) {
     final focalStartPt = project(center, zoom ?? this.zoom);
     final point =

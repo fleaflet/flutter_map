@@ -8,6 +8,9 @@ sealed class BaseOverlayImage extends StatelessWidget {
 
   /// The opacity in which the image should get rendered on the map.
   final double opacity;
+
+  /// Whether to continue showing the old image (true), or briefly show nothing
+  /// (false), when the image provider changes. The default value is false.
   final bool gaplessPlayback;
 
   const BaseOverlayImage({
@@ -44,6 +47,7 @@ sealed class BaseOverlayImage extends StatelessWidget {
 /// bounding box to minimize distortion.
 @immutable
 class OverlayImage extends BaseOverlayImage {
+  /// The latitude / longitude corners of the image.
   final LatLngBounds bounds;
 
   /// Create a new [OverlayImage] used for the [OverlayImageLayer].

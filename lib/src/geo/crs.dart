@@ -20,8 +20,12 @@ abstract class Crs {
   /// Set to true if the CRS has no bounds.
   @nonVirtual
   final bool infinite;
+
+  /// Wrap the longitude to fit inside the bounds of the [Crs].
   @nonVirtual
   final (double, double)? wrapLng;
+
+  /// Wrap the latitude to fit inside the bounds of the [Crs].
   @nonVirtual
   final (double, double)? wrapLat;
 
@@ -38,6 +42,8 @@ abstract class Crs {
 
   /// Scale planar coordinate to scaled map point.
   (double, double) transform(double x, double y, double scale);
+
+  /// Scale map point to planar coordinate.
   (double, double) untransform(double x, double y, double scale);
 
   /// Converts a point on the sphere surface (with a certain zoom) to a
@@ -86,6 +92,7 @@ abstract class CrsWithStaticTransformation extends Crs {
   @override
   (double, double) transform(double x, double y, double scale) =>
       _transformation.transform(x, y, scale);
+
   @override
   (double, double) untransform(double x, double y, double scale) =>
       _transformation.untransform(x, y, scale);
@@ -124,6 +131,7 @@ abstract class CrsWithStaticTransformation extends Crs {
 /// Custom CRS for non geographical maps
 @immutable
 class CrsSimple extends CrsWithStaticTransformation {
+  /// Create a new [CrsSimple].
   const CrsSimple()
       : super._(
           code: 'CRS.SIMPLE',
@@ -202,6 +210,7 @@ class Proj4Crs extends Crs {
         _scales = scales,
         super(wrapLat: null, wrapLng: null);
 
+  /// Create a new [Crs] that has projection.
   factory Proj4Crs.fromFactory({
     required String code,
     required proj4.Projection proj4Projection,
@@ -250,6 +259,7 @@ class Proj4Crs extends Crs {
   @override
   (double, double) transform(double x, double y, double scale) =>
       _getTransformationByZoom(zoom(scale)).transform(x, y, scale);
+
   @override
   (double, double) untransform(double x, double y, double scale) =>
       _getTransformationByZoom(zoom(scale)).untransform(x, y, scale);
@@ -371,10 +381,12 @@ abstract class Projection {
   /// Converts a [LatLng] to geometry coordinates.
   (double, double) projectXY(LatLng latlng);
 
+  /// unproject a cartesian Point to [LatLng].
   @nonVirtual
   LatLng unproject(Point point) =>
       unprojectXY(point.x.toDouble(), point.y.toDouble());
 
+  /// unproject cartesian x,y coordinates to [LatLng].
   LatLng unprojectXY(double x, double y);
 }
 
@@ -395,6 +407,7 @@ class _LonLat extends Projection {
       LatLng(_inclusiveLat(y), _inclusiveLng(x));
 }
 
+/// Spherical mercator projection
 @immutable
 class SphericalMercator extends Projection {
   /// The radius
@@ -414,6 +427,7 @@ class SphericalMercator extends Projection {
   /// Constant constructor for the [SphericalMercator] projection.
   const SphericalMercator() : super(_bounds);
 
+  /// Project the latitude for this [Crs]
   static double projectLat(double latitude) {
     final lat = _clampSym(latitude, maxLatitude);
     final sin = math.sin(lat * math.pi / 180);
@@ -421,6 +435,7 @@ class SphericalMercator extends Projection {
     return r / 2 * math.log((1 + sin) / (1 - sin));
   }
 
+  /// Project the longitude for this [Crs]
   static double projectLng(double longitude) {
     return r * math.pi / 180 * longitude;
   }

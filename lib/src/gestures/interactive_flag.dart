@@ -27,6 +27,7 @@ abstract class InteractiveFlag {
       scrollWheelZoom |
       rotate;
 
+  /// Disable all gesture interactions
   static const int none = 0;
 
   /// Enable panning with a single finger or cursor
