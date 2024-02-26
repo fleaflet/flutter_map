@@ -44,7 +44,7 @@ class Marker {
   /// user's perspective. Defaults to `false` if also unset by [MarkerLayer].
   ///
   /// Note that this is not used to apply a custom rotation in degrees to the
-  /// marker. Use a widget inside [builder] to perform this.
+  /// marker. Use a widget inside [child] to perform this.
   final bool? rotate;
 
   /// Creates a container for a [child] widget located at a geographic coordinate

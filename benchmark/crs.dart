@@ -30,8 +30,8 @@ Future<Result> timedRun(String name, dynamic Function() body) async {
 // If you run in JIT mode, the resulting execution times will be a lot more similar.
 Future<void> main() async {
   Logger.level = Level.all;
-  Logger.defaultFilter = () => NoFilter();
-  Logger.defaultPrinter = () => SimplePrinter();
+  Logger.defaultFilter = NoFilter.new;
+  Logger.defaultPrinter = SimplePrinter.new;
 
   final results = <Result>[];
   const N = 100000000;

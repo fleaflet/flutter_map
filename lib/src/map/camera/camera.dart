@@ -207,7 +207,7 @@ class MapCamera {
   /// The current rotation value in radians
   double get rotationRad => rotation * degrees2Radians;
 
-  /// Calculates point value for the given [latLng] using this camera's
+  /// Calculates point value for the given [latlng] using this camera's
   /// [crs] and [zoom] (or the provided [zoom]).
   Point<double> project(LatLng latlng, [double? zoom]) =>
       crs.latLngToPoint(latlng, zoom ?? this.zoom);

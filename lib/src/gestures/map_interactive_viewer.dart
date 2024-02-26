@@ -143,8 +143,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   bool cursorKeyboardRotationTriggerHandler(KeyEvent event) {
     _ckrTriggered.value = (event is KeyRepeatEvent || event is KeyDownEvent) &&
         (_interactionOptions.cursorKeyboardRotationOptions.isKeyTrigger ??
-            (key) => CursorKeyboardRotationOptions.defaultTriggerKeys
-                .contains(key))(event.logicalKey);
+            CursorKeyboardRotationOptions
+                .defaultTriggerKeys.contains)(event.logicalKey);
     return false;
   }
 

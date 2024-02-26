@@ -14,7 +14,7 @@ class TileRangeCalculator {
 
   /// Calculates the visible pixel bounds at the [tileZoom] zoom level when
   /// viewing the map from the [viewingZoom] centered at the [center]. The
-  /// resulting tile range is expanded by [panBuffer].
+  /// resulting tile range is expanded by panBuffer.
   DiscreteTileRange calculate({
     // The map camera used to calculate the bounds.
     required MapCamera camera,

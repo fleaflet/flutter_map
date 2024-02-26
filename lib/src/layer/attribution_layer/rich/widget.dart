@@ -152,7 +152,7 @@ class _RichAttributionWidgetState extends State<RichAttributionWidget> {
 
   @override
   void dispose() {
-    mapEventSubscription?.cancel();
+    unawaited(mapEventSubscription?.cancel());
     super.dispose();
   }
 
@@ -204,10 +204,11 @@ class _RichAttributionWidgetState extends State<RichAttributionWidget> {
                 context,
                 () {
                   setState(() => popupExpanded = true);
-                  mapEventSubscription =
-                      MapController.of(context).mapEventStream.listen((e) {
+                  mapEventSubscription = MapController.of(context)
+                      .mapEventStream
+                      .listen((e) async {
                     setState(() => popupExpanded = false);
-                    mapEventSubscription?.cancel();
+                    await mapEventSubscription?.cancel();
                   });
                 },
               ),
@@ -225,7 +226,7 @@ class _RichAttributionWidgetState extends State<RichAttributionWidget> {
               context: context,
               isExpanded: popupExpanded,
               config: widget,
-              child: Container(
+              child: DecoratedBox(
                 decoration: BoxDecoration(
                   color: widget.popupBackgroundColor ??
                       Theme.of(context).colorScheme.background,

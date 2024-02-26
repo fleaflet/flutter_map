@@ -140,7 +140,7 @@ abstract class TileProvider {
   /// [70339807ed6b](https://github.com/Leaflet/Leaflet/commit/70339807ed6bec630ee9c2e96a9cb8356fa6bd86).
   /// It is never mentioned why this regex was used or changed in Leaflet.
   /// This regex is more permissive of the characters it allows.
-  static final templatePlaceholderElement = RegExp(r'{([^{}]*)}');
+  static final templatePlaceholderElement = RegExp('{([^{}]*)}');
 
   /// Replaces placeholders in the form [templatePlaceholderElement] with their
   /// corresponding values
