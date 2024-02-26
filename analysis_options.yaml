@@ -51,5 +51,4 @@ linter:
     comment_references: true
     parameter_assignments: true
     avoid_unused_constructor_parameters: true
-    # TODO: enable the following lint when all public APIs are documented
-    # public_member_api_docs: true
+    public_member_api_docs: true

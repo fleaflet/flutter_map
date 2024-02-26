@@ -66,6 +66,7 @@ class UnconstrainedCamera extends CameraConstraint {
 class ContainCameraCenter extends CameraConstraint {
   const ContainCameraCenter._({required this.bounds});
 
+  /// The bounding box
   final LatLngBounds bounds;
 
   @override
@@ -101,6 +102,7 @@ class ContainCameraCenter extends CameraConstraint {
 class ContainCamera extends CameraConstraint {
   const ContainCamera._({required this.bounds});
 
+  /// The bounding box
   final LatLngBounds bounds;
 
   @override

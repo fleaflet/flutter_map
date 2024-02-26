@@ -64,6 +64,7 @@ class TileImageManager {
     return notLoaded;
   }
 
+  /// Set the new [TileDisplay] for all [_tiles].
   void updateTileDisplay(TileDisplay tileDisplay) {
     for (final tile in _tiles.values) {
       tile.tileDisplay = tileDisplay;
@@ -131,6 +132,7 @@ class TileImageManager {
     }
   }
 
+  /// evict tiles that have an error and prune tiles that are no longer needed.
   void evictAndPrune({
     required DiscreteTileRange visibleRange,
     required int pruneBuffer,
@@ -166,6 +168,7 @@ class TileImageManager {
     }
   }
 
+  /// Prune tiles from the [TileImageManager].
   void prune({
     required DiscreteTileRange visibleRange,
     required int pruneBuffer,
@@ -181,6 +184,7 @@ class TileImageManager {
     );
   }
 
+  /// Prune tiles from the [TileImageManager].
   void _prune(
     TileImageView tileRemovalState,
     EvictErrorTileStrategy evictStrategy,
