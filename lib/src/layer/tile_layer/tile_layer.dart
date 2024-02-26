@@ -223,8 +223,8 @@ class TileLayer extends StatefulWidget {
   /// - If multiple events occur within this delay period, only the last event
   ///   triggers the tile layer update, reducing unnecessary processing and
   ///   network requests.
-  /// - If the [loadingDelay] is `null`, the tile layers will update as soon
-  ///   as possible.
+  /// - If the [loadingDelay] is `Duration.zero`, the delay is completely
+  /// disabled and the tile layer will update as soon as possible.
   final Duration loadingDelay;
 
   /// Create a new [TileLayer] for the [FlutterMap] widget.
