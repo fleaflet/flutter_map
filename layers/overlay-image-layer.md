@@ -11,7 +11,7 @@ You can overlay images on the map (for example, town or floor plans) using `Over
 ```dart
 OverlayImageLayer(
   overlayImages: [
-    OverlayImage(
+    OverlayImage( // Unrotated
       bounds: LatLngBounds(
         LatLng(45.3367881884556, 14.159452282322459),
         LatLng(45.264129635422826, 14.252585831779033),
@@ -27,3 +27,9 @@ There have been issues in the past where these images failed to appear properly,
 
 If this issue occurs to you, and you're using Impeller, try disabling Impeller at launch/build time to see if the issue rectifies itself. If it does, this is an Impeller issue, and should be reported to the Flutter team.
 {% endhint %}
+
+## Rotation & Skewing
+
+`RotatedOverlayImage` supports rotation and parallelogram skewing, by accepting 3 points instead of 2.
+
+To calculate a rotation without skewing, given a center and a 3rd corner, see [https://stackoverflow.com/a/78064659/11846040](https://stackoverflow.com/a/78064659/11846040).
