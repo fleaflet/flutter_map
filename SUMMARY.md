@@ -1,9 +1,9 @@
 # Table of contents
 
 * [flutter\_map](README.md)
-* [🏗 Showcase](showcase.md)
+* [🏗️ Showcase](showcase.md)
 * [💝 Supporters](supporters.md)
-* [✏ Credits & Contributing](credits.md)
+* [✏️ Credits & Contributing](credits.md)
 
 ## Getting Started
 
