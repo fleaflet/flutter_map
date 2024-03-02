@@ -20,6 +20,14 @@ PolygonLayer(
 ),
 ```
 
+## Interactivity
+
+`PolygonLayer`s and `Polygons`s support hit detection and interactivity.
+
+{% content-ref url="layer-interactivity/" %}
+[layer-interactivity](layer-interactivity/)
+{% endcontent-ref %}
+
 ## Performance Optimizations
 
 flutter\_map includes many performance optimizations built in, especially as of v7. Some are enabled by default, but may be only 'weakly' applied, and others must be enabled manually. There are also some other actions that can be taken externally to improve performance
@@ -34,7 +42,7 @@ The example application includes a stress test which loads multiple `Polygon`s f
 
 <details>
 
-<summary>Culling <em>(internal, enabled)</em></summary>
+<summary>Culling <em>(enabled by default)</em></summary>
 
 To improve performance, polygons that are entirely offscreen are effectively removed - they are not processed or painted/rendered. This is enabled by default, and may be disabled using the `polygonCulling` parameter, although this is not recommended.
 
@@ -44,7 +52,7 @@ To improve performance, polygons that are entirely offscreen are effectively rem
 
 <details>
 
-<summary>Batching <em>(internal, weakly enabled)</em></summary>
+<summary>Batching <em>(enabled by default, but improvable with effort)</em></summary>
 
 To improve performance, polygons that are similar in appearance, and borders that are similar in appearance, are drawn to the underlying canvas in batches, to reduce the number of draw calls. This cannot be disabled.
 
@@ -60,7 +68,7 @@ Overlapping colors that are not completely opaque will not recieve the 'darkenin
 
 <details>
 
-<summary>Simplification <em>(internal, weakly enabled)</em></summary>
+<summary>Simplification <em>(enabled by default, adjustable)</em></summary>
 
 To improve performance, polygon outlines (`points`) are 'simplified' before the polygons are culled and painted/rendered. The well-known [Ramer–Douglas–Peucker algorithm](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker\_algorithm) is used to perform this, and is enabled by default.
 
@@ -86,7 +94,7 @@ Polygons may overlap after simplification when they did not before, and vice ver
 
 <details>
 
-<summary>Performant Rendering, with <code>drawVertices</code> <em>(internal, disabled)</em></summary>
+<summary>Performant Rendering, with <code>drawVertices</code> <em>(disabled by default)</em></summary>
 
 Polygons (and similar other features) are usually drawn directly onto a `Canvas`, using built-in methods such as `drawPolygon` and `drawLine`. However, these can be relatively slow, and will slow the raster thread when used at a large scale.
 
@@ -135,11 +143,3 @@ These are much cheaper for the rendering engine (particularly Skia), as it does 
 'flutter\_map' doesn't provide any public methods to manipulate polygons, as these would be deemed out of scope.
 
 However, some useful methods can be found in libraries such as 'latlong2' and ['poly\_bool\_dart'](https://github.com/mohammedX6/poly\_bool\_dart). These can be applied to the input of `Polygon`'s `points` argument, and the map will do it's best to try to render them. However, more complex polygons - such as those with holes - may be painted inaccurately, and may therefore require manual adjustment (of `holePointsList`, for example).
-
-## ~~`onTap` Support~~
-
-{% hint style="warning" %}
-There is no support for handling taps on polygons, due to multiple technical challenges. To stay up to date with this existing feature request, see the linked issue.
-{% endhint %}
-
-{% embed url="https://github.com/fleaflet/flutter_map/issues/385" %}
