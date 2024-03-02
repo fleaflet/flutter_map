@@ -43,7 +43,7 @@ However, alternatives may win on:
 
 </details>
 
-## Demonstration
+## Code Demo
 
 Setting up an interactive and compliant[^1] map is simpler than making your lunch-time coffee! It can be accomplished in just under 30 lines and a minute or two to install.
 

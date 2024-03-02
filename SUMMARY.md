@@ -9,7 +9,6 @@
 
 * [How Does It Work?](getting-started/explanation/README.md)
   * [Raster vs Vector Tiles](getting-started/explanation/raster-vs-vector-tiles.md)
-* [Demonstration](README.md#demonstration)
 * [Installation](getting-started/installation.md)
 * [Examples](getting-started/examples.md)
 * [Migrating To v6](getting-started/migrating-to-v6.md)

@@ -32,7 +32,7 @@ dependency_overrides:
     flutter_map:
         git:
             url: https://github.com/fleaflet/flutter_map.git
-            # ref: main (custom branch/commit)
+            # ref: master (or commit hash, branch, or tag)
 ```
 {% endcode %}
 

@@ -2,7 +2,7 @@
 
 The behaviour of hit testing can be confusing at first. These rules define how hit testing usually behaves:
 
-1. Gesture callbacks in `MapOptions` are always invoked, no matter what is within the layers or the result of `hitTest`s in those layers, with the exception of custom defined hit test behaviours (not those layers that support interactivity, see [#enabling-layer-interactivity](hit-testing-behaviour.md#enabling-layer-interactivity "mention")), such as applying `GestureDetector`s around `Marker.child`ren
+1. Gesture callbacks in `MapOptions` are always invoked, no matter what is within the layers or the result of `hitTest`s in those layers, with the exception of custom defined hit test behaviours (not those layers that support interactivity, see [.](./ "mention")), such as applying `GestureDetector`s around `Marker.child`ren
 
 {% hint style="warning" %}
 `GestureDetector`s absorb hit tests, and so corresponding callbacks in `MapOptions` will not be invoked if they are defined/invoked in the `GestureDetector`.
@@ -10,7 +10,7 @@ The behaviour of hit testing can be confusing at first. These rules define how h
 Workarounds to resolve this are discussed below.
 {% endhint %}
 
-2. Hit testing is always\* performed on the interactable layers (see [#enabling-layer-interactivity](hit-testing-behaviour.md#enabling-layer-interactivity "mention")) even if they have not been set-up for interactivity: hit testing != interactivity
+2. Hit testing is always\* performed on the interactable layers (see [.](./ "mention")) even if they have not been set-up for interactivity: hit testing != interactivity
 3. Non-interactable layers (such as [overlay-image-layer.md](../overlay-image-layer.md "mention")) have no defined `hitTest`, and behaviour is situation dependent
 4. A successful hit test (`true`) from an interactable layer will prevent hit testing on layers below it in the `children` stack
 
