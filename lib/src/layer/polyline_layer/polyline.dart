@@ -8,6 +8,16 @@ class Polyline<R extends Object> {
   /// The width of the stroke
   final double strokeWidth;
 
+  /// The multiplier used to calculate the spacing between dots in a dotted polyline.
+  ///
+  /// This value is applied to the [strokeWidth] to determine the final spacing between dots.
+  ///
+  /// A value of 1.0 will result in spacing equal to the `strokeWidth`. Increasing the value increases the spacing,
+  /// making the dots appear further apart. Decreasing the value reduces the spacing, making the dots appear closer together.
+  ///
+  /// Defaults to 1.5.
+  final double dottedSpacingFactor;
+
   /// The color of the line stroke.
   final Color color;
 
@@ -58,6 +68,7 @@ class Polyline<R extends Object> {
     this.strokeJoin = StrokeJoin.round,
     this.useStrokeWidthInMeter = false,
     this.hitValue,
+    this.dottedSpacingFactor = 1.5
   });
 
   @override

@@ -200,7 +200,7 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
       final borderRadius = (borderPaint?.strokeWidth ?? 0) / 2;
 
       if (isDotted) {
-        final spacing = strokeWidth * 1.5;
+        final spacing = strokeWidth * polyline.dottedSpacingFactor;
         if (borderPaint != null && filterPaint != null) {
           _paintDottedLine(borderPath, offsets, borderRadius, spacing);
           _paintDottedLine(filterPath, offsets, radius, spacing);
