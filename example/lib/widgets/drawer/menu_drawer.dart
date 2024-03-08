@@ -15,7 +15,6 @@ import 'package:flutter_map_example/pages/many_markers.dart';
 import 'package:flutter_map_example/pages/map_controller.dart';
 import 'package:flutter_map_example/pages/map_inside_listview.dart';
 import 'package:flutter_map_example/pages/markers.dart';
-import 'package:flutter_map_example/pages/moving_markers.dart';
 import 'package:flutter_map_example/pages/overlay_image.dart';
 import 'package:flutter_map_example/pages/plugin_zoombuttons.dart';
 import 'package:flutter_map_example/pages/polygon.dart';
@@ -28,7 +27,6 @@ import 'package:flutter_map_example/pages/scalebar.dart';
 import 'package:flutter_map_example/pages/screen_point_to_latlng.dart';
 import 'package:flutter_map_example/pages/secondary_tap.dart';
 import 'package:flutter_map_example/pages/sliding_map.dart';
-import 'package:flutter_map_example/pages/stateful_markers.dart';
 import 'package:flutter_map_example/pages/tile_builder.dart';
 import 'package:flutter_map_example/pages/tile_loading_error_handle.dart';
 import 'package:flutter_map_example/pages/wms_tile_layer.dart';
@@ -158,17 +156,6 @@ class MenuDrawer extends StatelessWidget {
           MenuItemWidget(
             caption: 'Many Circles',
             routeName: ManyCirclesPage.route,
-            currentRoute: currentRoute,
-          ),
-          const Divider(),
-          MenuItemWidget(
-            caption: 'Stateful Markers',
-            routeName: StatefulMarkersPage.route,
-            currentRoute: currentRoute,
-          ),
-          MenuItemWidget(
-            caption: 'Moving Marker',
-            routeName: MovingMarkersPage.route,
             currentRoute: currentRoute,
           ),
           const Divider(),
