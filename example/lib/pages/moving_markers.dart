@@ -17,13 +17,20 @@ class MovingMarkersPage extends StatefulWidget {
 
 class MovingMarkersPageState extends State<MovingMarkersPage> {
   late Marker _marker = _markers[_markerIndex];
-  late final Timer _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-    setState(() {
-      _marker = _markers[_markerIndex];
-      _markerIndex = (_markerIndex + 1) % _markers.length;
-    });
-  });
+  late final Timer _timer;
   int _markerIndex = 0;
+
+  @override
+  void initState() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      debugPrint('update marker');
+      setState(() {
+        _marker = _markers[_markerIndex];
+        _markerIndex = (_markerIndex + 1) % _markers.length;
+      });
+    });
+    super.initState();
+  }
 
   static const _markers = [
     Marker(
@@ -48,8 +55,8 @@ class MovingMarkersPageState extends State<MovingMarkersPage> {
 
   @override
   void dispose() {
-    super.dispose();
     _timer.cancel();
+    super.dispose();
   }
 
   @override
