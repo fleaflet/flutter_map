@@ -61,4 +61,46 @@ class Marker {
     this.alignment,
     this.rotate,
   });
+
+  /// Creates a [Marker] with a precise alignment.
+  ///
+  /// For instance
+  /// * left = top = 0 => top left alignment.
+  /// * left = width/2, top = height/2 => center alignment.
+  factory Marker.withPixelAlignment({
+    final Key? key,
+    required final LatLng point,
+    required final Widget child,
+    required final double width,
+    required final double height,
+    final bool? rotate,
+    required final double left,
+    required final double top,
+  }) =>
+      Marker(
+        key: key,
+        point: point,
+        child: child,
+        width: width,
+        height: height,
+        rotate: rotate,
+        alignment: _computeAlignment(
+          width: width,
+          height: height,
+          left: left,
+          top: top,
+        ),
+      );
+
+  /// Returns the alignment of a [width]x[height] rectangle by [left]x[top] pixels.
+  static Alignment _computeAlignment({
+    required final double width,
+    required final double height,
+    required final double left,
+    required final double top,
+  }) =>
+      Alignment(
+        1.0 - 2 * left / width,
+        1.0 - 2 * top / height,
+      );
 }
