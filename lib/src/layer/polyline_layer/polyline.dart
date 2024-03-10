@@ -8,12 +8,11 @@ class Polyline<R extends Object> {
   /// The width of the stroke
   final double strokeWidth;
 
-  /// The multiplier used to calculate the spacing between dots in a dotted polyline.
+  /// The multiplier used to calculate the spacing between segments in a dotted/
+  /// dashed polyline
   ///
-  /// This value is applied to the [strokeWidth] to determine the final spacing between dots.
-  ///
-  /// A value of 1.0 will result in spacing equal to the `strokeWidth`. Increasing the value increases the spacing,
-  /// making the dots appear further apart. Decreasing the value reduces the spacing, making the dots appear closer together.
+  /// A value of 1.0 will result in spacing equal to the `strokeWidth`.
+  /// Increasing the value increases the spacing with respect to `strokeWidth`.
   ///
   /// Defaults to 1.5.
   final double segmentSpacingFactor;
@@ -55,20 +54,21 @@ class Polyline<R extends Object> {
   final R? hitValue;
 
   /// Create a new [Polyline] used for the [PolylineLayer].
-  Polyline(
-      {required this.points,
-      this.strokeWidth = 1.0,
-      this.color = const Color(0xFF00FF00),
-      this.borderStrokeWidth = 0.0,
-      this.borderColor = const Color(0xFFFFFF00),
-      this.gradientColors,
-      this.colorsStop,
-      this.isDotted = false,
-      this.strokeCap = StrokeCap.round,
-      this.strokeJoin = StrokeJoin.round,
-      this.useStrokeWidthInMeter = false,
-      this.hitValue,
-      this.segmentSpacingFactor = 1.5});
+  Polyline({
+    required this.points,
+    this.strokeWidth = 1.0,
+    this.color = const Color(0xFF00FF00),
+    this.borderStrokeWidth = 0.0,
+    this.borderColor = const Color(0xFFFFFF00),
+    this.gradientColors,
+    this.colorsStop,
+    this.isDotted = false,
+    this.strokeCap = StrokeCap.round,
+    this.strokeJoin = StrokeJoin.round,
+    this.useStrokeWidthInMeter = false,
+    this.hitValue,
+    this.segmentSpacingFactor = 1.5,
+  });
 
   @override
   bool operator ==(Object other) =>
