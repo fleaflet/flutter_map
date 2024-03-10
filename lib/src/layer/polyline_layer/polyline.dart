@@ -79,6 +79,7 @@ class Polyline<R extends Object> {
           borderStrokeWidth == other.borderStrokeWidth &&
           borderColor == other.borderColor &&
           isDotted == other.isDotted &&
+          segmentSpacingFactor == other.segmentSpacingFactor &&
           strokeCap == other.strokeCap &&
           strokeJoin == other.strokeJoin &&
           useStrokeWidthInMeter == other.useStrokeWidthInMeter &&
@@ -100,6 +101,7 @@ class Polyline<R extends Object> {
         gradientColors,
         colorsStop,
         isDotted,
+        segmentSpacingFactor,
         strokeCap,
         strokeJoin,
         useStrokeWidthInMeter,
