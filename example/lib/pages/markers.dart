@@ -54,13 +54,17 @@ class _MarkerPageState extends State<MarkerPage> {
       return Marker(point: point, width: 60, height: 60, child: child);
     }
     // Will use left/top alignment specific to the U-turn left icon.
-    return Marker.withPixelAlignment(
+    return Marker(
       point: point,
       width: 60,
       height: 60,
       child: child,
-      left: 19,
-      top: 44,
+      alignment: Marker.computePixelAlignment(
+        width: 60,
+        height: 60,
+        left: 19,
+        top: 44,
+      ),
     );
   }
 
