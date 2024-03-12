@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'tile_placeholder_painter.dart';
+import 'package:flutter_map/src/layer/tile_layer/placeholder/tile_placeholder_painter.dart';
 
+/// A placeholder widget for unloaded tile images.
 class TilePlaceholder extends StatelessWidget {
+  /// A placeholder widget for unloaded tile images.
   const TilePlaceholder({super.key});
 
   @override
