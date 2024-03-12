@@ -17,6 +17,7 @@ class TilePlaceholderPainter extends CustomPainter {
   ///The width of the grid lines
   final double strokeWidth;
 
+  ///Draws grid lines on the tile. First and last lines are drawn with a thicker stroke width to better visualize the tile boundaries.
   void _drawGrid(Canvas canvas, Size size) {
     final Paint paint = Paint()
       ..color = color.withOpacity(0.1)
@@ -48,8 +49,8 @@ class TilePlaceholderPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(TilePlaceholderPainter oldPainter) {
-    return oldPainter.color != color || oldPainter.strokeWidth != strokeWidth;
+  bool shouldRepaint(TilePlaceholderPainter oldDelegate) {
+    return oldDelegate.color != color || oldDelegate.strokeWidth != strokeWidth;
   }
 
   @override
