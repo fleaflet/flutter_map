@@ -111,6 +111,24 @@ class _PolylinePageState extends State<PolylinePage> {
         subtitle: 'Solid translucent color fill, with different color outline',
       ),
     ),
+    Polyline(
+      points: const [
+        LatLng(43.864797, 11.7112939),
+        LatLng(36.7948545, 10.2256785),
+        LatLng(35.566530, 5.584283),
+      ],
+      strokeWidth: 10,
+      color: Colors.blueAccent,
+      isDotted: true,
+      segmentSpacingFactor: 3,
+      borderStrokeWidth: 8,
+      borderColor: Colors.blue.withOpacity(0.5),
+      hitValue: (
+        title: 'Blue Dotted Line with Custom Spacing',
+        subtitle:
+            'Dotted line with segment spacing controlled by `segmentSpacingFactor`',
+      ),
+    ),
   ];
   late final _polylines =
       Map.fromEntries(_polylinesRaw.map((e) => MapEntry(e.hitValue, e)));
