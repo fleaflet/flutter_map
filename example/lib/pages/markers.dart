@@ -34,39 +34,21 @@ class _MarkerPageState extends State<MarkerPage> {
     buildPin(const LatLng(53.33360293799854, -6.284001062079881)),
   ];
 
-  Marker buildPin(LatLng point, {bool init = true}) {
-    final icon = Icon(
-      init ? Icons.location_pin : Icons.u_turn_left,
-      size: 60,
-      color: init ? Colors.black : Colors.red,
-    );
-    final child = GestureDetector(
-      onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Tapped existing marker'),
-          duration: Duration(seconds: 1),
-          showCloseIcon: true,
-        ),
-      ),
-      child: icon,
-    );
-    if (init) {
-      return Marker(point: point, width: 60, height: 60, child: child);
-    }
-    // Will use left/top alignment specific to the U-turn left icon.
-    return Marker(
-      point: point,
-      width: 60,
-      height: 60,
-      child: child,
-      alignment: Marker.computePixelAlignment(
+  Marker buildPin(LatLng point) => Marker(
+        point: point,
         width: 60,
         height: 60,
-        left: 19,
-        top: 44,
-      ),
-    );
-  }
+        child: GestureDetector(
+          onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Tapped existing marker'),
+              duration: Duration(seconds: 1),
+              showCloseIcon: true,
+            ),
+          ),
+          child: const Icon(Icons.location_pin, size: 60, color: Colors.black),
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +97,7 @@ class _MarkerPageState extends State<MarkerPage> {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('Tap the map to add U-turn markers!'),
+                    const Text('Tap the map to add markers!'),
                     const SizedBox(height: 10),
                     Row(
                       children: [
@@ -137,9 +119,7 @@ class _MarkerPageState extends State<MarkerPage> {
               options: MapOptions(
                 initialCenter: const LatLng(51.5, -0.09),
                 initialZoom: 5,
-                onTap: (_, p) => setState(
-                  () => customMarkers.add(buildPin(p, init: false)),
-                ),
+                onTap: (_, p) => setState(() => customMarkers.add(buildPin(p))),
                 interactionOptions: const InteractionOptions(
                   flags: ~InteractiveFlag.doubleTapZoom,
                 ),
