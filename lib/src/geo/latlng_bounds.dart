@@ -134,23 +134,23 @@ class LatLngBounds {
   /// [west] instead!
   LatLng get southWest => LatLng(south, west);
 
-  /// Obtain coordinates of northeast corner of the bounds
+  /// Obtain coordinates of northeast corner of the bounds.
   ///
   /// Instead of using latitude or longitude of the corner, use [north] or
   /// [east] instead!
   LatLng get northEast => LatLng(north, east);
 
-  /// Obtain coordinates of northwest corner of the bounds
+  /// Obtain coordinates of northwest corner of the bounds.
   ///
   /// Instead of using latitude or longitude of the corner, use [north] or
   /// [west] instead!
   LatLng get northWest => LatLng(north, west);
 
-  /// Obtain coordinates of southeast corner of the bounds
+  /// Obtain coordinates of southeast corner of the bounds.
   ///
   /// Instead of using latitude or longitude of the corner, use [south] or
-  /// [west] instead!
-  LatLng get southEast => LatLng(south, west);
+  /// [east] instead!
+  LatLng get southEast => LatLng(south, east);
 
   /// Obtain coordinates of the bounds center
   LatLng get center {
