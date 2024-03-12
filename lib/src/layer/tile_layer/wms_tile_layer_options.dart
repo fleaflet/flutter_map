@@ -3,9 +3,6 @@ part of 'tile_layer.dart';
 /// Options for the []
 @immutable
 class WMSTileLayerOptions {
-  static const service = 'WMS';
-  static const request = 'GetMap';
-
   /// WMS service's URL, for example 'http://ows.mundialis.de/services/service?'
   final String baseUrl;
 
@@ -56,8 +53,8 @@ class WMSTileLayerOptions {
   String _buildEncodedBaseUrl() {
     final projectionKey = _versionNumber >= 1.3 ? 'crs' : 'srs';
     final buffer = StringBuffer(baseUrl)
-      ..write('&service=$service')
-      ..write('&request=$request')
+      ..write('&service=WMS')
+      ..write('&request=GetMap')
       ..write('&layers=${layers.map(Uri.encodeComponent).join(',')}')
       ..write('&styles=${styles.map(Uri.encodeComponent).join(',')}')
       ..write('&format=${Uri.encodeComponent(format)}')

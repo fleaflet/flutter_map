@@ -26,6 +26,9 @@ class Polygon<R extends Object> {
   /// The color of the [Polygon] outline.
   final Color borderColor;
 
+  /// Whether holes should have borders
+  ///
+  /// Defaults to false (enabled).
   final bool disableHolesBorder;
 
   /// Set to true if the border of the [Polygon] should be rendered
@@ -54,7 +57,11 @@ class Polygon<R extends Object> {
     'This feature was deprecated (and the default changed) after v7.',
   )
   final bool? isFilled;
+
+  /// Styles to use for line endings.
   final StrokeCap strokeCap;
+
+  /// Styles to use for line segment joins.
   final StrokeJoin strokeJoin;
 
   /// The optional label of the [Polygon].
@@ -143,6 +150,7 @@ class Polygon<R extends Object> {
   }) : _filledAndClockwise =
             (isFilled ?? (color != null)) && isClockwise(points);
 
+  /// Checks if the [Polygon] points are ordered clockwise in the list.
   static bool isClockwise(List<LatLng> points) {
     double sum = 0;
     for (int i = 0; i < points.length; ++i) {
@@ -179,7 +187,7 @@ class Polygon<R extends Object> {
   // Used to batch draw calls to the canvas
   int? _renderHashCode;
 
-  /// An optimized hash code dedicated to be used inside the [PolygonPainter].
+  /// An optimized hash code dedicated to be used inside the [_PolygonPainter].
   int get renderHashCode => _renderHashCode ??= Object.hash(
         color,
         borderStrokeWidth,

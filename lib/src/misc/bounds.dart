@@ -7,7 +7,10 @@ import 'package:meta/meta.dart';
 /// points.
 @immutable
 class Bounds<T extends num> {
+  /// The edge of the bounds with the minimum x and y coordinate
   final Point<T> min;
+
+  /// The edge of the bounds with the maximum x and y coordinate
   final Point<T> max;
 
   /// Create a [Bounds] instance in a safe way.
@@ -102,6 +105,7 @@ class Bounds<T extends num> {
         (b.max.y <= max.y);
   }
 
+  /// Checks if a part of the other [Bounds] is contained in this [Bounds].
   bool containsPartialBounds(Bounds<T> b) {
     return (b.min.x <= max.x) &&
         (b.max.x >= min.x) &&
@@ -109,6 +113,8 @@ class Bounds<T extends num> {
         (b.max.y >= min.y);
   }
 
+  /// Checks if the line between the two coordinates is contained within the
+  /// [Bounds].
   bool aabbContainsLine(double x1, double y1, double x2, double y2) {
     // Completely outside.
     if ((x1 <= min.x && x2 <= min.x) ||

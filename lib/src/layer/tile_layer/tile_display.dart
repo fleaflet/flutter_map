@@ -1,6 +1,7 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:meta/meta.dart';
 
+/// Defines how the tile should get displayed on the map.
 @immutable
 sealed class TileDisplay {
   const TileDisplay();
@@ -37,14 +38,12 @@ sealed class TileDisplay {
     /// range is (0.0 - 1.0).
     double startOpacity,
 
-    /// Opacity start value when a tile is reloaded, default 1.0. A tile reload
-    /// will occur when the provider tile url changes and
-    /// [TileLayer.overrideTilesWhenUrlChanges] is true. Valid range is
+    /// Opacity start value when a tile is reloaded, default 1.0. Valid range is
     /// (0.0 - 1.0).
     double reloadStartOpacity,
   }) = FadeInTileDisplay._;
 
-  /// Output a value of type [T] dependent on [this] and its type
+  /// Output a value of type [T] dependent on this and its type
   T? when<T>({
     T? Function(InstantaneousTileDisplay instantaneous)? instantaneous,
     T? Function(FadeInTileDisplay fadeIn)? fadeIn,
@@ -57,8 +56,12 @@ sealed class TileDisplay {
   }
 }
 
+/// Display the tile instantaneous.
 @immutable
 class InstantaneousTileDisplay extends TileDisplay {
+  /// The optional opacity of the tile.
+  ///
+  /// Defaults to 1.0
   final double opacity;
 
   const InstantaneousTileDisplay._({this.opacity = 1.0})

@@ -4,6 +4,8 @@ import 'package:flutter_map/flutter_map.dart';
 class TileScaleCalculator {
   /// Reference to the used coordinate reference system.
   final Crs crs;
+
+  /// The size in pixel of tiles.
   final double tileSize;
 
   double? _cachedCurrentZoom;
@@ -15,7 +17,7 @@ class TileScaleCalculator {
     required this.tileSize,
   });
 
-  /// If [true] indicates that the TileSizeCache should be replaced.
+  /// Returns true to indicate that the TileSizeCache should get replaced.
   bool shouldReplace(Crs crs, double tileSize) =>
       this.crs != crs || this.tileSize != tileSize;
 
@@ -28,7 +30,7 @@ class TileScaleCalculator {
     _cachedCurrentZoom = currentZoom;
   }
 
-  /// Returns a scale value to transform a Tile coordainte to a Tile position.
+  /// Returns a scale value to transform a Tile coordinate to a Tile position.
   double scaledTileSize(double currentZoom, int tileZoom) {
     assert(
       _cachedCurrentZoom == currentZoom,

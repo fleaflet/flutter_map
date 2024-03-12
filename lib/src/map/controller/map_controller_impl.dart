@@ -150,9 +150,10 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     String? id,
   }) {
     // Algorithm thanks to https://github.com/tlserver/flutter_map_location_marker
+    LatLng center = newCenter;
     if (offset != Offset.zero) {
       final newPoint = camera.project(newCenter, newZoom);
-      newCenter = camera.unproject(
+      center = camera.unproject(
         camera.rotatePoint(
           newPoint,
           newPoint - Point(offset.dx, offset.dy),
@@ -162,7 +163,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     }
 
     MapCamera? newCamera = camera.withPosition(
-      center: newCenter,
+      center: center,
       zoom: camera.clampZoom(newZoom),
     );
 
@@ -323,6 +324,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     );
   }
 
+  /// Set the widget size but don't emit a event to the event system.
   bool setNonRotatedSizeWithoutEmittingEvent(
     Point<double> nonRotatedSize,
   ) {

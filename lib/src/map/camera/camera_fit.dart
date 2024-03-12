@@ -47,7 +47,7 @@ abstract class CameraFit {
   /// Allows for more fine grained boundaries when the camera is rotated. See
   /// https://github.com/fleaflet/flutter_map/pull/1549 for more information.
   ///
-  /// [inside] is not supported due to lack of implementation.
+  /// `inside` is not supported due to lack of implementation.
   const factory CameraFit.coordinates({
     required List<LatLng> coordinates,
     EdgeInsets padding,
@@ -60,6 +60,7 @@ abstract class CameraFit {
   MapCamera fit(MapCamera camera);
 }
 
+/// The [CameraFit] should fit inside a given [LatLngBounds].
 @immutable
 class FitBounds extends CameraFit {
   /// The bounds which the camera should contain once it is fitted.
@@ -382,6 +383,8 @@ class FitInsideBounds extends CameraFit {
   }
 }
 
+/// Use this [CameraFit] if the [MapCamera] should fit a list of [LatLng]
+/// coordinates.
 @immutable
 class FitCoordinates extends CameraFit {
   /// The coordinates which the camera should contain once it is fitted.

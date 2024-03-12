@@ -4,16 +4,22 @@ import 'dart:math' show Point;
 import 'package:flutter_map/flutter_map.dart';
 import 'package:meta/meta.dart';
 
+/// A range of tiles, this is normally a [DiscreteTileRange] and sometimes
+/// a [EmptyTileRange].
 @immutable
 abstract class TileRange {
+  /// The zoom level
   final int zoom;
 
   /// The base constructor the the abstract [TileRange] class.
   const TileRange(this.zoom);
 
+  /// Get the list of coordinates for the range of tiles.
   Iterable<TileCoordinates> get coordinates;
 }
 
+/// A subclass of [TileRange] that just returns an empty [Iterable] if the
+/// [coordinates] getter gets used.
 @immutable
 class EmptyTileRange extends TileRange {
   const EmptyTileRange._(super.zoom);
@@ -23,6 +29,7 @@ class EmptyTileRange extends TileRange {
       const Iterable<TileCoordinates>.empty();
 }
 
+/// Every [TileRange] is a [DiscreteTileRange] if it's not an [EmptyTileRange].
 @immutable
 class DiscreteTileRange extends TileRange {
   /// Bounds are inclusive
@@ -63,6 +70,8 @@ class DiscreteTileRange extends TileRange {
     );
   }
 
+  /// return the [TileRange] after this tile range got intersected with an
+  /// [other] tile range.
   TileRange intersect(DiscreteTileRange other) {
     final boundsIntersection = _bounds.intersect(other._bounds);
 

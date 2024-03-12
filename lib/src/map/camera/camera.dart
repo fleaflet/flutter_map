@@ -207,7 +207,7 @@ class MapCamera {
   /// The current rotation value in radians
   double get rotationRad => rotation * degrees2Radians;
 
-  /// Calculates point value for the given [latLng] using this camera's
+  /// Calculates point value for the given [latlng] using this camera's
   /// [crs] and [zoom] (or the provided [zoom]).
   Point<double> project(LatLng latlng, [double? zoom]) =>
       crs.latLngToPoint(latlng, zoom ?? this.zoom);
@@ -274,6 +274,7 @@ class MapCamera {
     return point - nonRotatedPixelOrigin;
   }
 
+  /// Calculate the [LatLng] coordinates for a [localPoint].
   LatLng pointToLatLng(Point localPoint) {
     final localPointCenterDistance = Point(
       (nonRotatedSize.x / 2) - localPoint.x,
@@ -318,6 +319,9 @@ class MapCamera {
         maxZoom ?? double.infinity,
       );
 
+  /// Calculate the [LatLng] coordinates for a given [Offset] and an optional
+  /// zoom level. If [zoom] is not provided the current zoom level of the
+  /// [MapCamera] gets used.
   LatLng offsetToCrs(Offset offset, [double? zoom]) {
     final focalStartPt = project(center, zoom ?? this.zoom);
     final point =

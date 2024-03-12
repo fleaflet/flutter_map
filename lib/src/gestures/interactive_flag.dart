@@ -1,3 +1,5 @@
+import 'package:flutter_map/flutter_map.dart';
+
 /// Use [InteractiveFlag] to disable / enable certain events Use
 /// [InteractiveFlag.all] to enable all events, use [InteractiveFlag.none] to
 /// disable all events
@@ -25,6 +27,7 @@ abstract class InteractiveFlag {
       scrollWheelZoom |
       rotate;
 
+  /// Disable all gesture interactions
   static const int none = 0;
 
   /// Enable panning with a single finger or cursor

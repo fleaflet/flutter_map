@@ -175,7 +175,7 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>> {
               return Earcut.triangulateRaw(
                 List.generate(
                   points.length * 2,
-                  (ii) => ii % 2 == 0
+                  (ii) => ii.isEven
                       ? points.elementAt(ii ~/ 2).x
                       : points.elementAt(ii ~/ 2).y,
                   growable: false,

@@ -52,7 +52,7 @@ class _HomePageState extends State<HomePage> {
                 attributions: [
                   TextSourceAttribution(
                     'OpenStreetMap contributors',
-                    onTap: () => launchUrl(
+                    onTap: () async => launchUrl(
                       Uri.parse('https://openstreetmap.org/copyright'),
                     ),
                   ),

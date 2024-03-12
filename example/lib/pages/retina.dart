@@ -210,8 +210,7 @@ class InputFieldStylizer extends TextEditingController {
   final Pattern pattern;
 
   InputFieldStylizer(this.mapping, {String? initialValue})
-      : pattern =
-            RegExp(mapping.keys.map((key) => RegExp.escape(key)).join('|')),
+      : pattern = RegExp(mapping.keys.map(RegExp.escape).join('|')),
         super(text: initialValue);
 
   @override

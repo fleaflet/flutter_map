@@ -5,6 +5,7 @@ import 'package:flutter_map/src/geo/crs.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart';
 
+/// Calculate the [Offset] for the [LatLng] point.
 Offset getOffset(MapCamera camera, Offset origin, LatLng point) {
   final crs = camera.crs;
   final zoomScale = crs.scale(camera.zoom);
@@ -12,6 +13,7 @@ Offset getOffset(MapCamera camera, Offset origin, LatLng point) {
   return Offset(x - origin.dx, y - origin.dy);
 }
 
+/// Calculate the [Offset]s for the list of [LatLng] points.
 List<Offset> getOffsets(MapCamera camera, Offset origin, List<LatLng> points) {
   // Critically create as little garbage as possible. This is called on every frame.
   final crs = camera.crs;
