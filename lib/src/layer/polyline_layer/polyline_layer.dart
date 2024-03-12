@@ -167,15 +167,11 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
 
     // The min(-90), max(180), ... are used to get around the limits of LatLng
     // the value cannot be greater or smaller than that
-    final boundsAdjusted = LatLngBounds(
-      LatLng(
-        math.max(-90, bounds.southWest.latitude - margin),
-        math.max(-180, bounds.southWest.longitude - margin),
-      ),
-      LatLng(
-        math.min(90, bounds.northEast.latitude + margin),
-        math.min(180, bounds.northEast.longitude + margin),
-      ),
+    final boundsAdjusted = LatLngBounds.unsafe(
+      west: math.max(-180, bounds.west - margin),
+      east: math.min(90, bounds.east + margin),
+      south: math.max(-90, bounds.south - margin),
+      north: math.min(180, bounds.north + margin),
     );
 
     // segment is visible
