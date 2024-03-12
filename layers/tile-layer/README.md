@@ -120,4 +120,14 @@ Need more control over how the URL template is interpreted and/or tiles are fetc
 
 ## Tile Update Transformers
 
-\<blank>
+{% hint style="info" %}
+`TileUpdateTransformer`(`s`) is a power-user feature. Most applications won't require it.
+{% endhint %}
+
+A `TileUpdateTransformer` restricts and limits `TileUpdateEvent`s (which are emitted 'by' `MapEvent`s), which cause tiles to update (see below).
+
+For example, a transformer can delay (throttle or debounce) updates through one of the built-in transformers, or pause updates during an animation, or force updates even when a `MapEvent` wasn't emitted.
+
+For more information, see:
+
+\<link>
