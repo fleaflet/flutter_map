@@ -213,4 +213,8 @@ class LatLngBounds {
           other.south == south &&
           other.east == east &&
           other.west == west);
+
+  @override
+  String toString() =>
+      'LatLngBounds(north: $north, south: $south, east: $east, west: $west)';
 }
