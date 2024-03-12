@@ -21,6 +21,9 @@ class Tile extends StatefulWidget {
   /// visible pixel when the map is rotated.
   final Point<double> currentPixelOrigin;
 
+  ///A placeholder widget to be shown while the tile is loading
+  final Widget? placeholder;
+
   /// Creates a new instance of [Tile].
   const Tile({
     super.key,
@@ -28,6 +31,7 @@ class Tile extends StatefulWidget {
     required this.currentPixelOrigin,
     required this.tileImage,
     required this.tileBuilder,
+    this.placeholder,
   });
 
   @override
@@ -81,6 +85,9 @@ class _TileState extends State<Tile> {
             ? null
             : AlwaysStoppedAnimation(widget.tileImage.opacity),
       );
+    } else if (widget.tileImage.imageInfo == null &&
+        widget.placeholder != null) {
+      return widget.placeholder!;
     } else {
       return AnimatedBuilder(
         animation: widget.tileImage.animation!,
