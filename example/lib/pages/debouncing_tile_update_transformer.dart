@@ -32,7 +32,7 @@ class _DebouncingTileUpdateTransformerPageState
                 "don't occur too frequently, which can improve performance and "
                 'reduce tile requests',
             url:
-                'https://docs.fleaflet.dev/layers/tile-layer/tile-providers#cancellablenetworktileprovider',
+                'https://docs.fleaflet.dev/layers/tile-layer#tile-update-transformers',
             sizeTransition: 1200,
           ),
           const NoticeBanner.warning(
@@ -40,7 +40,7 @@ class _DebouncingTileUpdateTransformerPageState
                 'loaded during long movements or animations, resulting in the '
                 'background grey breaking the illusion of a seamless map.',
             url:
-                'https://docs.fleaflet.dev/layers/tile-layer/tile-providers#cancellablenetworktileprovider',
+                'https://docs.fleaflet.dev/layers/tile-layer#tile-update-transformers',
             sizeTransition: 1360,
           ),
           Expanded(
@@ -95,7 +95,7 @@ class _DebouncingTileUpdateTransformerPageState
                               onChangeEnd: (v) =>
                                   setState(() => changeEndKeyRefresher++),
                               min: 0,
-                              max: 1000,
+                              max: 500,
                               divisions: 100,
                               label: durationInMilliseconds == 0
                                   ? 'Instant/No Debounce'
