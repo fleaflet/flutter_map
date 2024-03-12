@@ -4,6 +4,7 @@ part of 'marker_layer.dart';
 ///
 /// Some properties defaults will absorb the values from the parent
 /// [MarkerLayer], if the reflected properties are defined there.
+/// [alignment] may be computed using [computePixelAlignment].
 @immutable
 class Marker {
   /// Provide an optional [Key] for the [Marker].
