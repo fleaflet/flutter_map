@@ -33,10 +33,7 @@ class NoticeBanner extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         return Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: 8,
-            vertical: constraints.maxWidth <= sizeTransition ? 8 : 0,
-          ),
+          padding: const EdgeInsets.all(12),
           width: double.infinity,
           color: backgroundColor,
           child: Flex(
@@ -46,14 +43,14 @@ class NoticeBanner extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(icon, color: foregroundColor, size: 32),
-              const SizedBox(height: 12, width: 16),
+              const SizedBox(height: 8, width: 12),
               Text(
                 text,
                 style: TextStyle(color: foregroundColor),
                 textAlign: TextAlign.center,
               ),
               if (url != null) ...[
-                const SizedBox(height: 0, width: 16),
+                const SizedBox(height: 8, width: 12),
                 TextButton.icon(
                   icon: const Icon(Icons.open_in_new),
                   label: const Text('Learn more'),
