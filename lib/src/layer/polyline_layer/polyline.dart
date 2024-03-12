@@ -8,6 +8,15 @@ class Polyline<R extends Object> {
   /// The width of the stroke
   final double strokeWidth;
 
+  /// The multiplier used to calculate the spacing between segments in a dotted/
+  /// dashed polyline
+  ///
+  /// A value of 1.0 will result in spacing equal to the `strokeWidth`.
+  /// Increasing the value increases the spacing with respect to `strokeWidth`.
+  ///
+  /// Defaults to 1.5.
+  final double segmentSpacingFactor;
+
   /// The color of the line stroke.
   final Color color;
 
@@ -58,6 +67,7 @@ class Polyline<R extends Object> {
     this.strokeJoin = StrokeJoin.round,
     this.useStrokeWidthInMeter = false,
     this.hitValue,
+    this.segmentSpacingFactor = 1.5,
   });
 
   @override
@@ -69,6 +79,7 @@ class Polyline<R extends Object> {
           borderStrokeWidth == other.borderStrokeWidth &&
           borderColor == other.borderColor &&
           isDotted == other.isDotted &&
+          segmentSpacingFactor == other.segmentSpacingFactor &&
           strokeCap == other.strokeCap &&
           strokeJoin == other.strokeJoin &&
           useStrokeWidthInMeter == other.useStrokeWidthInMeter &&
@@ -90,6 +101,7 @@ class Polyline<R extends Object> {
         gradientColors,
         colorsStop,
         isDotted,
+        segmentSpacingFactor,
         strokeCap,
         strokeJoin,
         useStrokeWidthInMeter,
