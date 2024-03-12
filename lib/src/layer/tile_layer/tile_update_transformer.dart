@@ -109,8 +109,7 @@ abstract class TileUpdateTransformers {
   /// optimization.
   ///
   /// Implementation follows that in
-  /// ['package:stream_transform'](https://pub.dev/documentation/stream_transform/latest/stream_transform/RateLimit/debounce.html),
-  /// with `leading` and `trailing` set `true`.
+  /// ['package:stream_transform'](https://pub.dev/documentation/stream_transform/latest/stream_transform/RateLimit/debounce.html).
   ///
   /// Also see [throttle].
   ///
@@ -118,9 +117,6 @@ abstract class TileUpdateTransformers {
   ///
   /// {@macro tut-ignore_tap}
   static TileUpdateTransformer debounce(Duration duration) {
-    const leading = true;
-    const trailing = true;
-
     Timer? timer;
     TileUpdateEvent? soFar;
     var hasPending = false;
@@ -140,20 +136,16 @@ abstract class TileUpdateTransformers {
         timer?.cancel();
         soFar = event;
         hasPending = true;
-        if (timer == null && leading) {
-          emittedLatestAsLeading = true;
-          emit();
-        } else {
-          emittedLatestAsLeading = false;
-        }
+        emittedLatestAsLeading = false;
+
         timer = Timer(duration, () {
-          if (trailing && !emittedLatestAsLeading) emit();
+          if (!emittedLatestAsLeading) emit();
           if (shouldClose) sink.close();
           timer = null;
         });
       },
       handleDone: (sink) {
-        if (hasPending && trailing) {
+        if (hasPending) {
           shouldClose = true;
         } else {
           timer?.cancel();
