@@ -18,12 +18,45 @@ class LatLngBounds {
   /// The longitude west edge of the bounds
   double west;
 
+  /// Create new [LatLngBounds] by providing two corners. Both corners have to
+  /// be on opposite sites but it doesn't matter which opposite corners or in
+  /// what order the corners are provided.
+  ///
+  /// If you want to create [LatLngBounds] with raw values, use the
+  /// [LatLngBounds.unsafe] constructor instead.
+  factory LatLngBounds(LatLng corner1, LatLng corner2) {
+    final double minX;
+    final double maxX;
+    final double minY;
+    final double maxY;
+    if (corner1.longitude >= corner2.longitude) {
+      maxX = corner1.longitude;
+      minX = corner2.longitude;
+    } else {
+      maxX = corner2.longitude;
+      minX = corner1.longitude;
+    }
+    if (corner1.latitude >= corner2.latitude) {
+      maxY = corner1.latitude;
+      minY = corner2.latitude;
+    } else {
+      maxY = corner2.latitude;
+      minY = corner1.latitude;
+    }
+    return LatLngBounds.unsafe(
+      north: maxY,
+      south: minY,
+      east: maxX,
+      west: minX,
+    );
+  }
+
   /// Create a [LatLngBounds] instance from raw edge values.
   ///
   /// Potentially throws assertion errors if the coordinates exceed their max
   /// or min values or if coordinates are meant to be smaller / bigger
   /// but aren't.
-  LatLngBounds({
+  LatLngBounds.unsafe({
     required this.north,
     required this.south,
     required this.east,
@@ -49,31 +82,6 @@ class LatLngBounds {
         assert(east >= west,
             "The west longitude can't be smaller than the east longitude");
 
-  /// Create new [LatLngBounds] by providing two corners. Both corners have to
-  /// be on opposite sites but it doesn't matter which opposite corners or in
-  /// what order the corners are provided.
-  factory LatLngBounds.fromCorners(LatLng corner1, LatLng corner2) {
-    final double minX;
-    final double maxX;
-    final double minY;
-    final double maxY;
-    if (corner1.longitude >= corner2.longitude) {
-      maxX = corner1.longitude;
-      minX = corner2.longitude;
-    } else {
-      maxX = corner2.longitude;
-      minX = corner1.longitude;
-    }
-    if (corner1.latitude >= corner2.latitude) {
-      maxY = corner1.latitude;
-      minY = corner2.latitude;
-    } else {
-      maxY = corner2.latitude;
-      minY = corner1.latitude;
-    }
-    return LatLngBounds(north: maxY, south: minY, east: maxX, west: minX);
-  }
-
   /// Create a new [LatLngBounds] from a list of [LatLng] points. This
   /// calculates the bounding box of the provided points.
   factory LatLngBounds.fromPoints(List<LatLng> points) {
@@ -93,7 +101,12 @@ class LatLngBounds {
       if (point.latitude < minY) minY = point.latitude;
       if (point.latitude > maxY) maxY = point.latitude;
     }
-    return LatLngBounds(north: maxY, south: minY, east: maxX, west: minX);
+    return LatLngBounds.unsafe(
+      north: maxY,
+      south: minY,
+      east: maxX,
+      west: minX,
+    );
   }
 
   /// Expands bounding box by [latLng] coordinate point. This method mutates

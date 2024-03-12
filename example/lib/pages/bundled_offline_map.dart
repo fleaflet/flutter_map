@@ -19,7 +19,7 @@ class BundledOfflineMapPage extends StatelessWidget {
           minZoom: 12,
           maxZoom: 14,
           cameraConstraint: CameraConstraint.containCenter(
-            bounds: LatLngBounds.fromCorners(
+            bounds: LatLngBounds(
               const LatLng(56.7378, 11.6644),
               const LatLng(56.6877, 11.5089),
             ),

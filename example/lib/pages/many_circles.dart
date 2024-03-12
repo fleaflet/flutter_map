@@ -62,7 +62,7 @@ class ManyCirclesPageState extends State<ManyCirclesPage> {
           FlutterMap(
             options: MapOptions(
               initialCameraFit: CameraFit.bounds(
-                bounds: LatLngBounds.fromCorners(
+                bounds: LatLngBounds(
                   const LatLng(55, -9),
                   const LatLng(37, 30),
                 ),

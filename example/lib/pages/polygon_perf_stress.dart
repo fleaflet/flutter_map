@@ -47,7 +47,7 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
           FlutterMap(
             options: MapOptions(
               initialCameraFit: CameraFit.bounds(
-                bounds: LatLngBounds.fromCorners(
+                bounds: LatLngBounds(
                   const LatLng(58.93864, 47.757597),
                   const LatLng(58.806666, 47.848959),
                 ),

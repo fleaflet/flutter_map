@@ -57,7 +57,7 @@ class MapCamera {
 
   /// This is the [LatLngBounds] corresponding to four corners of this camera.
   /// This takes rotation in to account.
-  LatLngBounds get visibleBounds => _bounds ??= LatLngBounds.fromCorners(
+  LatLngBounds get visibleBounds => _bounds ??= LatLngBounds(
         unproject(pixelBounds.bottomLeft, zoom),
         unproject(pixelBounds.topRight, zoom),
       );

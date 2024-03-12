@@ -32,7 +32,7 @@ class SlidingMapPage extends StatelessWidget {
                 maxZoom: 14,
                 initialZoom: 13,
                 cameraConstraint: CameraConstraint.containCenter(
-                  bounds: LatLngBounds.fromCorners(northEast, southWest),
+                  bounds: LatLngBounds(northEast, southWest),
                 ),
               ),
               children: [

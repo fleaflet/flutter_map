@@ -50,7 +50,7 @@ class _CancellableTileProviderPageState
                 initialCenter: const LatLng(51.5, -0.09),
                 initialZoom: 5,
                 cameraConstraint: CameraConstraint.contain(
-                  bounds: LatLngBounds.fromCorners(
+                  bounds: LatLngBounds(
                     const LatLng(-90, -180),
                     const LatLng(90, 180),
                   ),

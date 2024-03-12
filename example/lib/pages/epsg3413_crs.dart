@@ -153,7 +153,7 @@ class EPSG3413PageState extends State<EPSG3413Page> {
                   OverlayImageLayer(
                     overlayImages: [
                       OverlayImage(
-                        bounds: LatLngBounds.fromCorners(
+                        bounds: LatLngBounds(
                           const LatLng(72.7911372, 162.6196478),
                           const LatLng(85.2802493, 79.794166),
                         ),

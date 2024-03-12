@@ -24,7 +24,7 @@ class OverlayImagePage extends StatelessWidget {
           OverlayImageLayer(
             overlayImages: [
               OverlayImage(
-                bounds: LatLngBounds.fromCorners(
+                bounds: LatLngBounds(
                   const LatLng(51.5, -0.09),
                   const LatLng(48.8566, 2.3522),
                 ),
