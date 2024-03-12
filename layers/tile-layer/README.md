@@ -117,3 +117,7 @@ Need more control over how the URL template is interpreted and/or tiles are fetc
 {% content-ref url="tile-providers.md" %}
 [tile-providers.md](tile-providers.md)
 {% endcontent-ref %}
+
+## Tile Update Transformers
+
+\<blank>
