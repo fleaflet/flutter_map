@@ -13,15 +13,15 @@ class TilePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     for (final tile in tiles) {
-      //Simplify tile positions and sizes
-      final double left = tile.tileImage.coordinates.x * tile.scaledTileSize -
-          tile.currentPixelOrigin.x;
-      final double top = tile.tileImage.coordinates.y * tile.scaledTileSize -
-          tile.currentPixelOrigin.y;
-      final double width = tile.scaledTileSize;
-      final double height = tile.scaledTileSize;
       //Draw tiles if they have an image
       if (tile.tileImage.imageInfo != null) {
+        //Simplify tile positions and sizes
+        final double left = tile.tileImage.coordinates.x * tile.scaledTileSize -
+            tile.currentPixelOrigin.x;
+        final double top = tile.tileImage.coordinates.y * tile.scaledTileSize -
+            tile.currentPixelOrigin.y;
+        final double width = tile.scaledTileSize;
+        final double height = tile.scaledTileSize;
         final ui.Image image = tile.tileImage.imageInfo!.image;
         final Paint paint = Paint();
         paint.isAntiAlias = true;
