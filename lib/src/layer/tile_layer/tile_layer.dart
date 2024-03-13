@@ -579,9 +579,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       child: CustomPaint(
         size: Size.infinite,
         willChange: true,
-        painter: TilePainter(
-          tiles: tiles..sort(renderOrder)
-          ),
+        painter: TilePainter(tiles: tiles..sort(renderOrder)),
       ),
     );
   }
