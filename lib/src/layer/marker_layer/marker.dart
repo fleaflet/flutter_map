@@ -4,6 +4,7 @@ part of 'marker_layer.dart';
 ///
 /// Some properties defaults will absorb the values from the parent
 /// [MarkerLayer], if the reflected properties are defined there.
+/// [alignment] may be computed using [computePixelAlignment].
 @immutable
 class Marker {
   /// Provide an optional [Key] for the [Marker].
@@ -61,4 +62,16 @@ class Marker {
     this.alignment,
     this.rotate,
   });
+
+  /// Returns the alignment of a [width]x[height] rectangle by [left]x[top] pixels.
+  static Alignment computePixelAlignment({
+    required final double width,
+    required final double height,
+    required final double left,
+    required final double top,
+  }) =>
+      Alignment(
+        1.0 - 2 * left / width,
+        1.0 - 2 * top / height,
+      );
 }
