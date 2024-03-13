@@ -17,7 +17,7 @@ class TilePainter extends CustomPainter {
 
   /// The default paint object.
   Paint get _defaultPaint => Paint()
-    ..isAntiAlias = true
+    ..isAntiAlias = false
     ..filterQuality = FilterQuality.high;
 
   @override

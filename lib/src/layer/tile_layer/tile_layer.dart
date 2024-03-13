@@ -231,7 +231,7 @@ class TileLayer extends StatefulWidget {
   final Duration loadingDelay;
 
   ///Allows to set different paint parameters that are used in CustomPainter to draw tiles.
-  ///If provided, it is recommended to set filterQuality to high.
+  ///If provided, it is recommended to set filterQuality to high. Setting isAntiAlias to true is not recommended as it may introduce ghost lines between tiles.
   ///
   ///Example: Setting a color filter to draw tiles in grayscale.
   ///```dart
@@ -258,7 +258,7 @@ class TileLayer extends StatefulWidget {
   /// If not specified, the default paint parameters are:
   /// ```dart
   /// Paint()
-  ///  ..isAntiAlias = true
+  ///  ..isAntiAlias = false
   ///  ..filterQuality = FilterQuality.high;
   /// ```
   final Paint? paint;
