@@ -230,6 +230,39 @@ class TileLayer extends StatefulWidget {
   /// disabled and the tile layer will update as soon as possible.
   final Duration loadingDelay;
 
+  ///Allows to set different paint parameters that are used in CustomPainter to draw tiles.
+  ///If provided, it is recommended to set filterQuality to high.
+  ///
+  ///Example: Setting a color filter to draw tiles in grayscale.
+  ///```dart
+  /// paint: Paint()..colorFilter = const ColorFilter.mode(Colors.grey, BlendMode.saturation)..filterQuality = FilterQuality.high,
+  /// ```
+  ///
+  /// Example: Inverting the colors of the tiles.
+  /// ```dart
+  /// paint: Paint()..invertColors = true ..filterQuality = FilterQuality.high,
+  /// ```
+  ///
+  /// It is possible to change map colors in various ways using the ColorFilter.matrix.
+  ///
+  /// Example: Toning map with sepia color.
+  /// ```dart
+  /// paint: Paint()..colorFilter = const ColorFilter.matrix([
+  ///          0.393, 0.769, 0.189, 0, 0,
+  ///          0.349, 0.686, 0.168, 0, 0,
+  ///          0.272, 0.534, 0.131, 0, 0,
+  ///          0,     0,     0,     1, 0,
+  ///    ])..filterQuality = FilterQuality.high,
+  /// ```
+  ///
+  /// If not specified, the default paint parameters are:
+  /// ```dart
+  /// Paint()
+  ///  ..isAntiAlias = true
+  ///  ..filterQuality = FilterQuality.high;
+  /// ```
+  final Paint? paint;
+
   /// Create a new [TileLayer] for the [FlutterMap] widget.
   TileLayer({
     super.key,
@@ -262,6 +295,7 @@ class TileLayer extends StatefulWidget {
     this.reset,
     this.tileBounds,
     this.loadingDelay = Duration.zero,
+    this.paint,
     TileUpdateTransformer? tileUpdateTransformer,
     String userAgentPackageName = 'unknown',
   })  : assert(
@@ -579,7 +613,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       child: CustomPaint(
         size: Size.infinite,
         willChange: true,
-        painter: TilePainter(tiles: tiles..sort(renderOrder)),
+        painter: TilePainter(
+            tiles: tiles..sort(renderOrder), tilePaint: widget.paint),
       ),
     );
   }

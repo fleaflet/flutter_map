@@ -1,4 +1,6 @@
 import 'dart:ui' as ui;
+
+import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_model.dart';
 
@@ -7,8 +9,16 @@ class TilePainter extends CustomPainter {
   /// The list of tile models.
   List<TileModel> tiles;
 
+  ///Allows user to pass a custom paint object to the canvas.
+  final Paint? tilePaint;
+
   /// Constructs a `TilePainter` with the given list of `TileModel` objects.
-  TilePainter({required this.tiles});
+  TilePainter({required this.tiles, this.tilePaint});
+
+  /// The default paint object.
+  Paint get _defaultPaint => Paint()
+    ..isAntiAlias = true
+    ..filterQuality = FilterQuality.high;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -23,10 +33,7 @@ class TilePainter extends CustomPainter {
         final double width = tile.scaledTileSize;
         final double height = tile.scaledTileSize;
         final ui.Image image = tile.tileImage.imageInfo!.image;
-        final Paint paint = Paint();
-        paint.isAntiAlias = true;
-        paint.filterQuality = FilterQuality
-            .high; //Can be made configurable to reduce quality and get more performance.
+        final Paint paint = tilePaint ?? _defaultPaint;
         canvas.drawImageRect(
           image,
           Rect.fromLTWH(0, 0, image.width.toDouble(),
