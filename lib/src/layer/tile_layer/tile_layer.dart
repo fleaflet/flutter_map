@@ -9,12 +9,15 @@ import 'package:flutter_map/src/layer/tile_layer/tile.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image_manager.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_model.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
 import 'package:http/http.dart';
 import 'package:http/retry.dart';
 import 'package:logger/logger.dart';
+
+import 'tile_painter.dart';
 
 part 'retina_mode.dart';
 part 'tile_error_evict_callback.dart';
@@ -543,7 +546,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     // cycles saved later on in the render pipeline.
     final tiles = _tileImageManager
         .getTilesToRender(visibleRange: visibleTileRange)
-        .map((tileImage) => Tile(
+        .map((tileImage) => TileModel(
               // Must be an ObjectKey, not a ValueKey using the coordinates, in
               // case we remove and replace the TileImage with a different one.
               key: ObjectKey(tileImage),
@@ -562,7 +565,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     //   2. Tiles at the current zoom +/- 1.
     //   3. Tiles at the current zoom +/- 2.
     //   4. ...etc
-    int renderOrder(Tile a, Tile b) {
+    int renderOrder(TileModel a, TileModel b) {
       final (za, zb) = (a.tileImage.coordinates.z, b.tileImage.coordinates.z);
       final cmp = (zb - tileZoom).abs().compareTo((za - tileZoom).abs());
       if (cmp == 0) {
@@ -573,7 +576,13 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     }
 
     return MobileLayerTransformer(
-      child: Stack(children: tiles..sort(renderOrder)),
+      child: CustomPaint(
+        size: Size.infinite,
+        willChange: true,
+        painter: TilePainter(
+          tiles: tiles..sort(renderOrder)
+          ),
+      ),
     );
   }
 
@@ -602,6 +611,9 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       onLoadError: _onTileLoadError,
       onLoadComplete: (coordinates) {
         if (pruneAfterLoad) _pruneIfAllTilesLoaded(coordinates);
+        setState(() {
+          //Refresh the widget to display the loaded tile
+        });
       },
       tileDisplay: widget.tileDisplay,
       errorImage: widget.errorImage,
