@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 
 /// The widget for a single tile used for the [TileLayer].
-@Deprecated('Use TileModel instead')
+/// If proceed with the implementation of the CustomPainter and the TileModel this Widget should be removed.
 @immutable
 class Tile extends StatefulWidget {
   /// [TileImage] is the model class that contains meta data for the Tile image.
