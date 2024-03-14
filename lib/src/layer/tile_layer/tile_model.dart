@@ -1,9 +1,8 @@
 import 'dart:math';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_builder.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
+import 'package:flutter_map/flutter_map.dart';
 
-/// The widget for a single tile used for the [TileLayer].
+/// The model for a single tile used for the [TileLayer].
 /// This replaces the `Tile` widget in the `flutter_map` package making it deprecated.
 /// Previously the `Tile` widget was a `StatefulWidget`. That is not needed with rendering tiles in Canvas.
 class TileModel {
@@ -26,7 +25,7 @@ class TileModel {
   /// I think this is needed to keep track of the tiles and prune them when they are not needed.
   final ObjectKey key;
 
-  /// Creates a new instance of [Tile].
+  /// Creates a new instance of TileModel.
   const TileModel(
       {required this.scaledTileSize,
       required this.currentPixelOrigin,
