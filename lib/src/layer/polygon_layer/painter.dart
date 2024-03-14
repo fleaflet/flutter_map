@@ -447,7 +447,6 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
     if (offsets.isEmpty) {
       return;
     }
-    int x = 0; // Counter for diagnostics
 
     // Calculate for all segments, including closing the loop from the last to the first point
     final int totalOffsets = offsets.length;
@@ -474,13 +473,12 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
       while (traveledDistance < lineLength) {
         // Draw the circle if within the canvas bounds (additional check now redundant)
         canvas.drawCircle(currentPoint, radius, paint);
-        x++;
+
         // Move to the next point
         currentPoint = currentPoint + stepVector;
         traveledDistance += stepLength;
       }
     }
-   // print("Dots calculated: $x");
   }
 
   void _addLineToPath(Path path, List<Offset> offsets) {
