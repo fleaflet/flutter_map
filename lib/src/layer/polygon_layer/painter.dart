@@ -212,6 +212,9 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
             origin: origin,
             points: projectedPolygon.points,
           ),
+          size,
+          _getBorderPaint(polygon),
+          canvas,
         );
       }
 
@@ -234,7 +237,8 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
         }
 
         if (!polygon.disableHolesBorder && polygon.borderStrokeWidth > 0.0) {
-          _addHoleBordersToPath(borderPath, polygon, holeOffsetsList);
+          _addHoleBordersToPath(borderPath, polygon, holeOffsetsList, size,
+              canvas, _getBorderPaint(polygon));
         }
       }
 
@@ -246,7 +250,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
         //    ensure polygons and labels are stacked correctly, i.e.:
         //    p1, p1_label, p2, p2_label, ... .
 
-        // The painter will be null if the layouting algorithm determined that
+        // The painter will be null if the layOuting algorithm determined that
         // there isn't enough space.
         final painter = _buildLabelTextPainter(
           mapSize: camera.size,
@@ -303,30 +307,34 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
       ..style = isDotted ? PaintingStyle.fill : PaintingStyle.stroke;
   }
 
-  void _addBorderToPath(
-    Path path,
-    Polygon polygon,
-    List<Offset> offsets,
-  ) {
+  void _addBorderToPath(Path path, Polygon polygon, List<Offset> offsets,
+      Size canvasSize, Paint paint, Canvas canvas) {
     if (polygon.isDotted) {
       final borderRadius = polygon.borderStrokeWidth / 2;
       final spacing = polygon.borderStrokeWidth * 1.5;
-      _addDottedLineToPath(path, offsets, borderRadius, spacing);
+      _addDottedLineToPath(
+          canvas, paint, offsets, borderRadius, spacing, canvasSize);
+      // final Float32List points = Float32List.fromList(offsets.expand((o) => [o.dx, o.dy]).toList());
+      // final vertices = Vertices.raw(VertexMode.triangleFan, points);
+      // canvas.drawVertices(vertices, BlendMode.src, _getBorderPaint(polygon));
     } else {
       _addLineToPath(path, offsets);
     }
   }
 
   void _addHoleBordersToPath(
-    Path path,
-    Polygon polygon,
-    List<List<Offset>> holeOffsetsList,
-  ) {
+      Path path,
+      Polygon polygon,
+      List<List<Offset>> holeOffsetsList,
+      Size canvasSize,
+      Canvas canvas,
+      Paint paint) {
     if (polygon.isDotted) {
       final borderRadius = polygon.borderStrokeWidth / 2;
       final spacing = polygon.borderStrokeWidth * 1.5;
       for (final offsets in holeOffsetsList) {
-        _addDottedLineToPath(path, offsets, borderRadius, spacing);
+        _addDottedLineToPath(
+            canvas, paint, offsets, borderRadius, spacing, canvasSize);
       }
     } else {
       for (final offsets in holeOffsetsList) {
@@ -335,41 +343,144 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
     }
   }
 
+// OutCodes for the Cohen-Sutherland algorithm
+  int inside = 0; // 0000
+  int left = 1; // 0001
+  int right = 2; // 0010
+  int bottom = 4; // 0100
+  int top = 8; // 1000
+
+// Function to compute the outCode for a point relative to the canvas
+  int _computeOutCode(
+      double x, double y, double xMin, double yMin, double xMax, double yMax) {
+    int code = inside;
+
+    if (x < xMin) {
+      code |= left;
+    } else if (x > xMax) {
+      code |= right;
+    }
+    if (y < yMin) {
+      code |= bottom;
+    } else if (y > yMax) {
+      code |= top;
+    }
+
+    return code;
+  }
+
+// Function to clip a line segment to a rectangular area (canvas)
+  List<Offset>? _getVisibleSegment(Offset p0, Offset p1, Size canvasSize) {
+    const double xMin = 0;
+    const double yMin = 0;
+    final double xMax = canvasSize.width;
+    final double yMax = canvasSize.height;
+
+    double x0 = p0.dx;
+    double y0 = p0.dy;
+    double x1 = p1.dx;
+    double y1 = p1.dy;
+
+    int outCode0 = _computeOutCode(x0, y0, xMin, yMin, xMax, yMax);
+    int outCode1 = _computeOutCode(x1, y1, xMin, yMin, xMax, yMax);
+    bool accept = false;
+
+    while (true) {
+      if ((outCode0 | outCode1) == 0) {
+        // Both points inside; trivially accept
+        accept = true;
+        break;
+      } else if ((outCode0 & outCode1) != 0) {
+        // Both points share an outside zone; trivially reject
+        break;
+      } else {
+        // Could be partially inside; calculate intersection
+        double x;
+        double y;
+        final int outCodeOut = outCode0 != 0 ? outCode0 : outCode1;
+
+        if ((outCodeOut & top) != 0) {
+          x = x0 + (x1 - x0) * (yMax - y0) / (y1 - y0);
+          y = yMax;
+        } else if ((outCodeOut & bottom) != 0) {
+          x = x0 + (x1 - x0) * (yMin - y0) / (y1 - y0);
+          y = yMin;
+        } else if ((outCodeOut & right) != 0) {
+          y = y0 + (y1 - y0) * (xMax - x0) / (x1 - x0);
+          x = xMax;
+        } else if ((outCodeOut & left) != 0) {
+          y = y0 + (y1 - y0) * (xMin - x0) / (x1 - x0);
+          x = xMin;
+        } else {
+          // This else block should never be reached.
+          break;
+        }
+
+        // Update the point and outCode
+        if (outCodeOut == outCode0) {
+          x0 = x;
+          y0 = y;
+          outCode0 = _computeOutCode(x0, y0, xMin, yMin, xMax, yMax);
+        } else {
+          x1 = x;
+          y1 = y;
+          outCode1 = _computeOutCode(x1, y1, xMin, yMin, xMax, yMax);
+        }
+      }
+    }
+
+    if (accept) {
+      // Make sure we return the points within the canvas
+      return [Offset(x0, y0), Offset(x1, y1)];
+    }
+    return null;
+  }
+
   void _addDottedLineToPath(
-    Path path,
+    Canvas canvas,
+    Paint paint,
     List<Offset> offsets,
     double radius,
     double stepLength,
+    Size canvasSize,
   ) {
     if (offsets.isEmpty) {
       return;
     }
+    int x = 0; // Counter for diagnostics
 
-    double startDistance = 0;
-    for (int i = 0; i < offsets.length; i++) {
-      final o0 = offsets[i % offsets.length];
-      final o1 = offsets[(i + 1) % offsets.length];
-      final totalDistance = (o0 - o1).distance;
+    // Calculate for all segments, including closing the loop from the last to the first point
+    final int totalOffsets = offsets.length;
+    for (int i = 0; i < totalOffsets; i++) {
+      final Offset start = offsets[i % totalOffsets];
+      final Offset end =
+          offsets[(i + 1) % totalOffsets]; // Wrap around to the first point
 
-      double distance = startDistance;
-      while (distance < totalDistance) {
-        final done = distance / totalDistance;
-        final remain = 1.0 - done;
-        final offset = Offset(
-          o0.dx * remain + o1.dx * done,
-          o0.dy * remain + o1.dy * done,
-        );
-        path.addOval(Rect.fromCircle(center: offset, radius: radius));
-
-        distance += stepLength;
+      // Attempt to adjust the segment to the visible part of the canvas
+      final List<Offset>? visibleSegment =
+          _getVisibleSegment(start, end, canvasSize);
+      if (visibleSegment == null) {
+        continue; // Skip if the segment is completely outside
       }
 
-      startDistance = distance < totalDistance
-          ? stepLength - (totalDistance - distance)
-          : distance - totalDistance;
-    }
+      final Offset adjustedStart = visibleSegment[0];
+      final Offset adjustedEnd = visibleSegment[1];
+      final double lineLength = (adjustedStart - adjustedEnd).distance;
+      final Offset stepVector =
+          (adjustedEnd - adjustedStart) / lineLength * stepLength;
+      double traveledDistance = 0;
 
-    path.addOval(Rect.fromCircle(center: offsets.last, radius: radius));
+      Offset currentPoint = adjustedStart;
+      while (traveledDistance < lineLength) {
+        // Draw the circle if within the canvas bounds (additional check now redundant)
+        canvas.drawCircle(currentPoint, radius, paint);
+        x++;
+        // Move to the next point
+        currentPoint = currentPoint + stepVector;
+        traveledDistance += stepLength;
+      }
+    }
+   // print("Dots calculated: $x");
   }
 
   void _addLineToPath(Path path, List<Offset> offsets) {
@@ -377,10 +488,10 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
   }
 
   ({Offset min, Offset max}) _getBounds(Offset origin, Polygon polygon) {
-    final bbox = polygon.boundingBox;
+    final bBox = polygon.boundingBox;
     return (
-      min: getOffset(camera, origin, bbox.southWest),
-      max: getOffset(camera, origin, bbox.northEast),
+      min: getOffset(camera, origin, bBox.southWest),
+      max: getOffset(camera, origin, bBox.northEast),
     );
   }
 
