@@ -159,7 +159,8 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
         strokeWidth = polyline.strokeWidth;
       }
 
-      final isDotted = polyline.isDotted;
+      final isDashed = polyline.dashValues.isNotEmpty;
+      final isDotted = polyline.isDotted && !isDashed;
       paint = Paint()
         ..strokeWidth = strokeWidth
         ..strokeCap = polyline.strokeCap
@@ -206,6 +207,13 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
           _paintDottedLine(filterPath, offsets, radius, spacing);
         }
         _paintDottedLine(path, offsets, radius, spacing);
+      } else if (isDashed) {
+        if (borderPaint != null && filterPaint != null) {
+          _paintDashedLine(borderPath, offsets, polyline.dashValues);
+          _paintDashedLine(filterPath, offsets, polyline.dashValues);
+        }
+        _paintDashedLine(path, offsets, polyline.dashValues);
+        // TODO check the returned value and display the last point if relevant.
       } else {
         if (borderPaint != null && filterPaint != null) {
           _paintLine(borderPath, offsets);
@@ -238,6 +246,76 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
           : distance - totalDistance;
     }
     path.addOval(Rect.fromCircle(center: offsets.last, radius: radius));
+  }
+
+  /// Returns true if the last point was a space.
+  ///
+  /// We may need that info if we want to do something special when the last
+  /// point was not displayed, like putting artificially a dot at this location.
+  bool? _paintDashedLine(
+    ui.Path path,
+    List<Offset> offsets,
+    List<double> dashValues,
+  ) {
+    if (offsets.length < 2) {
+      return null;
+    }
+    if (dashValues.isEmpty) {
+      return null;
+    }
+    if (dashValues.length.isOdd) {
+      return null;
+    }
+
+    int dashValueIndex = 0;
+    int offsetIndex = 0;
+
+    double remaining = dashValues[dashValueIndex];
+    Offset offset0 = offsets[offsetIndex++];
+    Offset offset1 = offsets[offsetIndex++];
+    bool nextIndexPlease = false;
+
+    /// Returns the offset on segment [A,B] that matches the remaining distance.
+    Offset getDistanceOffset(final Offset offsetA, final Offset offsetB) {
+      final segmentDistance = (offsetA - offsetB).distance;
+      if (remaining >= segmentDistance) {
+        remaining -= segmentDistance;
+        nextIndexPlease = true;
+        return offsetB;
+      }
+      final fB = remaining / segmentDistance;
+      final fA = 1.0 - fB;
+      remaining = 0;
+      return Offset(
+        offsetA.dx * fA + offsetB.dx * fB,
+        offsetA.dy * fA + offsetB.dy * fB,
+      );
+    }
+
+    path.moveTo(offset0.dx, offset0.dy);
+    while (true) {
+      final Offset newOffset = getDistanceOffset(offset0, offset1);
+      if (dashValueIndex.isEven) {
+        path.lineTo(newOffset.dx, newOffset.dy);
+      } else {
+        // TODO optim: remove useless `moveTo`s, potentially many of them
+        path.moveTo(newOffset.dx, newOffset.dy);
+      }
+      if (nextIndexPlease) {
+        nextIndexPlease = false;
+        if (offsetIndex >= offsets.length) {
+          return dashValueIndex.isEven;
+        }
+        offset0 = offset1;
+        offset1 = offsets[offsetIndex++];
+      } else {
+        offset0 = newOffset;
+      }
+      if (remaining == 0) {
+        dashValueIndex++;
+        remaining = dashValues[dashValueIndex % dashValues.length];
+      }
+    }
   }
 
   void _paintLine(ui.Path path, List<Offset> offsets) {

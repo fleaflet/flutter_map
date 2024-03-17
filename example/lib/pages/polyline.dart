@@ -129,6 +129,38 @@ class _PolylinePageState extends State<PolylinePage> {
             'Dotted line with segment spacing controlled by `segmentSpacingFactor`',
       ),
     ),
+    // Paris-Nice TGV
+    Polyline(
+      points: const [
+        // Paris
+        LatLng(48.8567, 2.3519),
+        // Lyon
+        LatLng(45.7256, 5.0811),
+        // Avignon
+        LatLng(43.95, 4.8169),
+        // Aix-en-Provence
+        LatLng(43.5311, 5.4539),
+        // Marseille
+        LatLng(43.2964, 5.37),
+        // Toulon
+        LatLng(43.1222, 5.93),
+        // Cannes
+        LatLng(43.5514, 7.0128),
+        // Antibes
+        LatLng(43.5808, 7.1239),
+        // Nice
+        LatLng(43.6958, 7.2714),
+      ],
+      strokeWidth: 6,
+      color: Colors.red,
+      dashValues: [50, 20, 30, 20],
+      borderStrokeWidth: 6,
+      borderColor: Colors.blue.withOpacity(0.8),
+      hitValue: (
+        title: 'RedBlue Line',
+        subtitle: 'Dashed line',
+      ),
+    ),
   ];
   late final _polylines =
       Map.fromEntries(_polylinesRaw.map((e) => MapEntry(e.hitValue, e)));

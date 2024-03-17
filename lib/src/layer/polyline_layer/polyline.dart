@@ -17,6 +17,21 @@ class Polyline<R extends Object> {
   /// Defaults to 1.5.
   final double segmentSpacingFactor;
 
+  /// List of lengths in pixels of the dash segments.
+  ///
+  /// All items must be strictly positive.
+  /// List length must be even:
+  /// * even index for displayed segments
+  /// * odd index for spaces between segments
+  /// If the list is empty (default behavior), it means no dash in place.
+  ///
+  /// E.g. [50, 10] will
+  /// * display a segment on 50 pixels
+  /// * then pause for 10 pixels
+  /// * then again display a segment on 50 pixels
+  /// * and so on
+  final List<double> dashValues;
+
   /// The color of the line stroke.
   final Color color;
 
@@ -68,6 +83,7 @@ class Polyline<R extends Object> {
     this.useStrokeWidthInMeter = false,
     this.hitValue,
     this.segmentSpacingFactor = 1.5,
+    this.dashValues = const [],
   });
 
   @override
@@ -87,7 +103,8 @@ class Polyline<R extends Object> {
           // Expensive computations last to take advantage of lazy logic gates
           listEquals(colorsStop, other.colorsStop) &&
           listEquals(gradientColors, other.gradientColors) &&
-          listEquals(points, other.points));
+          listEquals(points, other.points) &&
+          listEquals(dashValues, other.dashValues));
 
   // Used to batch draw calls to the canvas
   int? _renderHashCode;
@@ -106,6 +123,7 @@ class Polyline<R extends Object> {
         strokeJoin,
         useStrokeWidthInMeter,
         hitValue,
+        dashValues,
       );
 
   int? _hashCode;
