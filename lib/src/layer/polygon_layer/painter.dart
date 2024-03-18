@@ -314,9 +314,6 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
       final spacing = polygon.borderStrokeWidth * 1.5;
       _addDottedLineToPath(
           canvas, paint, offsets, borderRadius, spacing, canvasSize);
-      // final Float32List points = Float32List.fromList(offsets.expand((o) => [o.dx, o.dy]).toList());
-      // final vertices = Vertices.raw(VertexMode.triangleFan, points);
-      // canvas.drawVertices(vertices, BlendMode.src, _getBorderPaint(polygon));
     } else {
       _addLineToPath(path, offsets);
     }
