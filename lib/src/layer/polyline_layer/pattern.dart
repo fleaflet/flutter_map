@@ -77,7 +77,8 @@ class PolylinePattern {
       identical(this, other) ||
       (other is PolylinePattern &&
           spacingFactor == other.spacingFactor &&
-          listEquals(segments, other.segments));
+          ((segments == null && other.segments == null) ||
+              listEquals(segments, other.segments)));
 
   @override
   int get hashCode => Object.hash(spacingFactor, segments);

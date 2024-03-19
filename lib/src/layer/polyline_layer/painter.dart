@@ -160,9 +160,7 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
       }
 
       final isDashed = polyline.pattern.segments != null;
-      final isDotted =
-          // ignore: deprecated_member_use_from_same_package
-          polyline.pattern.spacingFactor != null || polyline.isDotted;
+      final isDotted = polyline.pattern.spacingFactor != null;
 
       paint = Paint()
         ..strokeWidth = strokeWidth
@@ -204,8 +202,7 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
       final borderRadius = (borderPaint?.strokeWidth ?? 0) / 2;
 
       if (isDotted) {
-        // TODO: Remove fallback to 1.5 after removal of deprecated `isDotted`
-        final spacing = strokeWidth * (polyline.pattern.spacingFactor ?? 1.5);
+        final spacing = strokeWidth * polyline.pattern.spacingFactor!;
         if (borderPaint != null && filterPaint != null) {
           _paintDottedLine(borderPath, offsets, borderRadius, spacing);
           _paintDottedLine(filterPath, offsets, radius, spacing);

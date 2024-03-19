@@ -30,17 +30,6 @@ class Polyline<R extends Object> {
   /// The stops for the gradient colors.
   final List<double>? colorsStop;
 
-  /// Deprecated: use [Polyline.pattern], which also supports dashed lines
-  ///
-  /// See deprecation message for more info.
-  @Deprecated(
-    'Prefer setting `pattern` to toggle dotting. '
-    'This parameter will be replaced by `pattern`, which supports further '
-    'customization & dashed lines through a single, less complex, external API. '
-    'This feature was deprecated after v7.',
-  )
-  final bool isDotted;
-
   /// Styles to use for line endings.
   final StrokeCap strokeCap;
 
@@ -62,7 +51,7 @@ class Polyline<R extends Object> {
   Polyline({
     required this.points,
     this.strokeWidth = 1.0,
-    this.pattern = const PolylinePattern.solid(),
+    PolylinePattern pattern = const PolylinePattern.solid(),
     this.color = const Color(0xFF00FF00),
     this.borderStrokeWidth = 0.0,
     this.borderColor = const Color(0xFFFFFF00),
@@ -76,10 +65,11 @@ class Polyline<R extends Object> {
       'Prefer setting `pattern` to toggle dotting. '
       'This parameter will be replaced by `pattern`, which supports further '
       'customization & dashed lines through a single, less complex, external API. '
+      'Enabling this parameter will override `pattern` with `dotted(1.5)`. '
       'This feature was deprecated after v7.',
     )
-    this.isDotted = false,
-  });
+    bool isDotted = false,
+  }) : pattern = isDotted ? const PolylinePattern.dotted() : pattern;
 
   @override
   bool operator ==(Object other) =>
