@@ -159,8 +159,11 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
         strokeWidth = polyline.strokeWidth;
       }
 
-      final isDashed = polyline.dashValues.isNotEmpty;
-      final isDotted = polyline.isDotted && !isDashed;
+      final isDashed = polyline.pattern.segments != null;
+      final isDotted =
+          // ignore: deprecated_member_use_from_same_package
+          polyline.pattern.spacingFactor != null || polyline.isDotted;
+
       paint = Paint()
         ..strokeWidth = strokeWidth
         ..strokeCap = polyline.strokeCap
@@ -201,7 +204,8 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
       final borderRadius = (borderPaint?.strokeWidth ?? 0) / 2;
 
       if (isDotted) {
-        final spacing = strokeWidth * polyline.segmentSpacingFactor;
+        // TODO: Remove fallback to 1.5 after removal of deprecated `isDotted`
+        final spacing = strokeWidth * (polyline.pattern.spacingFactor ?? 1.5);
         if (borderPaint != null && filterPaint != null) {
           _paintDottedLine(borderPath, offsets, borderRadius, spacing);
           _paintDottedLine(filterPath, offsets, radius, spacing);
@@ -209,11 +213,11 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
         _paintDottedLine(path, offsets, radius, spacing);
       } else if (isDashed) {
         if (borderPaint != null && filterPaint != null) {
-          _paintDashedLine(borderPath, offsets, polyline.dashValues);
-          _paintDashedLine(filterPath, offsets, polyline.dashValues);
+          _paintDashedLine(borderPath, offsets, polyline.pattern.segments!);
+          _paintDashedLine(filterPath, offsets, polyline.pattern.segments!);
         }
-        _paintDashedLine(path, offsets, polyline.dashValues);
-        // TODO check the returned value and display the last point if relevant.
+        _paintDashedLine(path, offsets, polyline.pattern.segments!);
+        // TODO: Check the returned value and display the last point if relevant
       } else {
         if (borderPaint != null && filterPaint != null) {
           _paintLine(borderPath, offsets);
