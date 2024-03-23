@@ -249,6 +249,41 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
     path.addOval(Rect.fromCircle(center: offsets.last, radius: radius));
   }
 
+  /// Returns the factor for offset distances so that the dash pattern fits.
+  ///
+  /// The idea is that we need to be able to display the dash pattern completely
+  /// n times (at least once), plus once the initial dash segment. That's the
+  /// way we deal with the "ending" side-effect.
+  double _getDashFactor(List<Offset> offsets, List<double> dashValues) {
+    double getTotalOffsetDistance(List<Offset> offsets) {
+      double result = 0;
+      if (offsets.length < 2) {
+        return result;
+      }
+      for (int i = 1; i < offsets.length; i++) {
+        final Offset offsetA = offsets[i - 1];
+        final Offset offsetB = offsets[i];
+        result += (offsetA - offsetB).distance;
+      }
+      return result;
+    }
+
+    double getTotalDashDistance(List<double> dashValues) {
+      double result = 0;
+      for (final double value in dashValues) {
+        result += value;
+      }
+      return result;
+    }
+
+    final double totalOffsetDistance = getTotalOffsetDistance(offsets);
+    final double totalDashDistance = getTotalDashDistance(dashValues);
+    final double firstDashDistance = dashValues.first;
+    final int times = (totalOffsetDistance / totalDashDistance).ceil();
+    return (times * totalDashDistance + firstDashDistance) /
+        totalOffsetDistance;
+  }
+
   /// Returns true if the last point was a space.
   ///
   /// We may need that info if we want to do something special when the last
@@ -261,7 +296,7 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
     if (offsets.length < 2) {
       return null;
     }
-    if (dashValues.isEmpty) {
+    if (dashValues.length < 2) {
       return null;
     }
     if (dashValues.length.isOdd) {
@@ -275,10 +310,11 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
     Offset offset0 = offsets[offsetIndex++];
     Offset offset1 = offsets[offsetIndex++];
     bool nextIndexPlease = false;
+    final double factor = _getDashFactor(offsets, dashValues);
 
     /// Returns the offset on segment [A,B] that matches the remaining distance.
     Offset getDistanceOffset(final Offset offsetA, final Offset offsetB) {
-      final segmentDistance = (offsetA - offsetB).distance;
+      final segmentDistance = factor * (offsetA - offsetB).distance;
       if (remaining >= segmentDistance) {
         remaining -= segmentDistance;
         nextIndexPlease = true;
