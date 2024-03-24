@@ -5,13 +5,6 @@ import 'package:flutter_map/src/layer/tile_layer/tile_painter.dart';
 
 /// Model for tiles displayed by [TileLayer] and [TilePainter]
 class TileModel {
-  /// Controls how this tile is replaced by another tile
-  ///
-  /// See also:
-  ///
-  ///  * [Widget.key]
-  ///  * The discussions at [Key] and [GlobalKey].
-  final ObjectKey key;
 
   /// [TileImage] is the model class that contains meta data for the Tile image.
   final TileImage tileImage;
@@ -30,10 +23,29 @@ class TileModel {
 
   /// Creates a new instance of TileModel.
   const TileModel({
-    required this.key,
     required this.scaledTileSize,
     required this.currentPixelOrigin,
     required this.tileImage,
     required this.tileBuilder,
   });
+
+  ///Equality operator for TileModel
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! TileModel) return false;
+    final TileModel otherTile = other;
+    return tileImage == otherTile.tileImage &&
+        tileBuilder == otherTile.tileBuilder &&
+        scaledTileSize == otherTile.scaledTileSize &&
+        currentPixelOrigin == otherTile.currentPixelOrigin;
+  }
+
+  ///HashCode for TileModel
+  @override
+  int get hashCode =>
+      tileImage.hashCode ^
+      tileBuilder.hashCode ^
+      scaledTileSize.hashCode ^
+      currentPixelOrigin.hashCode;
 }
