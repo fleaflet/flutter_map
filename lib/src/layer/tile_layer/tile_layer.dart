@@ -578,18 +578,20 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     // cycles saved later on in the render pipeline.
     final tiles = _tileImageManager
         .getTilesToRender(visibleRange: visibleTileRange)
-        .map((tileImage) => TileModel(
-              // Must be an ObjectKey, not a ValueKey using the coordinates, in
-              // case we remove and replace the TileImage with a different one.
-              key: ObjectKey(tileImage),
-              scaledTileSize: _tileScaleCalculator.scaledTileSize(
-                map.zoom,
-                tileImage.coordinates.z,
-              ),
-              currentPixelOrigin: map.pixelOrigin,
-              tileImage: tileImage,
-              tileBuilder: widget.tileBuilder,
-            ))
+        .map(
+          (tileImage) => TileModel(
+            // Must be an ObjectKey, not a ValueKey using the coordinates, in
+            // case we remove and replace the TileImage with a different one.
+            key: ObjectKey(tileImage),
+            scaledTileSize: _tileScaleCalculator.scaledTileSize(
+              map.zoom,
+              tileImage.coordinates.z,
+            ),
+            currentPixelOrigin: map.pixelOrigin,
+            tileImage: tileImage,
+            tileBuilder: widget.tileBuilder,
+          ),
+        )
         .toList();
 
     // Sort in render order. In reverse:

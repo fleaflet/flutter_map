@@ -1,11 +1,18 @@
 import 'dart:math';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_painter.dart';
 
-/// The model for a single tile used for the [TileLayer].
-/// This replaces the `Tile` widget in the `flutter_map` package making it deprecated.
-/// Previously the `Tile` widget was a `StatefulWidget`. That is not needed with rendering tiles in Canvas.
+/// Model for tiles displayed by [TileLayer] and [TilePainter]
 class TileModel {
+  /// Controls how this tile is replaced by another tile
+  ///
+  /// See also:
+  ///
+  ///  * [Widget.key]
+  ///  * The discussions at [Key] and [GlobalKey].
+  final ObjectKey key;
+
   /// [TileImage] is the model class that contains meta data for the Tile image.
   final TileImage tileImage;
 
@@ -21,15 +28,12 @@ class TileModel {
   /// visible pixel when the map is rotated.
   final Point<double> currentPixelOrigin;
 
-  /// The key for the tile.
-  /// I think this is needed to keep track of the tiles and prune them when they are not needed.
-  final ObjectKey key;
-
   /// Creates a new instance of TileModel.
-  const TileModel(
-      {required this.scaledTileSize,
-      required this.currentPixelOrigin,
-      required this.tileImage,
-      required this.tileBuilder,
-      required this.key});
+  const TileModel({
+    required this.key,
+    required this.scaledTileSize,
+    required this.currentPixelOrigin,
+    required this.tileImage,
+    required this.tileBuilder,
+  });
 }

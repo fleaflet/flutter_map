@@ -1,45 +1,55 @@
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_model.dart';
 
-///Draws the tile images on the canvas.
+/// Draws [TileModel]s onto a canvas at the correct position
 class TilePainter extends CustomPainter {
-  /// The list of tile models.
+  /// List of [TileModel]s to draw to the canvas
   List<TileModel> tiles;
 
-  ///Allows user to pass a custom paint object to the canvas.
+  /// Paint to use when drawing each tile
+  ///
+  /// Defaults to [defaultTilePaint].
   final Paint? tilePaint;
 
-  /// Constructs a `TilePainter` with the given list of `TileModel` objects.
-  TilePainter({required this.tiles, this.tilePaint});
-
-  /// The default paint object.
-  Paint get _defaultPaint => Paint()
+  /// Default [tilePaint]er
+  static Paint get defaultTilePaint => Paint()
     ..isAntiAlias = false
     ..filterQuality = FilterQuality.high;
+
+  /// Create a painter with the specified [TileModel]s and paint
+  ///
+  /// [tilePaint] indirectly defaults to [defaultTilePaint].
+  TilePainter({
+    required this.tiles,
+    this.tilePaint,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
     for (final tile in tiles) {
-      //Draw tiles if they have an image
+      // Draw tiles if they have an image
       if (tile.tileImage.imageInfo != null) {
-        //Simplify tile positions and sizes
-        final double left = tile.tileImage.coordinates.x * tile.scaledTileSize -
+        // Simplify tile positions and sizes
+        final left = tile.tileImage.coordinates.x * tile.scaledTileSize -
             tile.currentPixelOrigin.x;
-        final double top = tile.tileImage.coordinates.y * tile.scaledTileSize -
+        final top = tile.tileImage.coordinates.y * tile.scaledTileSize -
             tile.currentPixelOrigin.y;
-        final double width = tile.scaledTileSize;
-        final double height = tile.scaledTileSize;
-        final ui.Image image = tile.tileImage.imageInfo!.image;
-        final Paint paint = tilePaint ?? _defaultPaint;
+        final width = tile.scaledTileSize;
+        final height = tile.scaledTileSize;
+        final image = tile.tileImage.imageInfo!.image;
+
         canvas.drawImageRect(
           image,
-          Rect.fromLTWH(0, 0, image.width.toDouble(),
-              image.height.toDouble()), // Source rectangle
+          // Source rectangle
+          Rect.fromLTWH(
+            0,
+            0,
+            image.width.toDouble(),
+            image.height.toDouble(),
+          ),
           Rect.fromLTWH(left, top, width, height), // Destination rectangle
-          paint,
+          tilePaint ?? defaultTilePaint,
         );
       }
     }
