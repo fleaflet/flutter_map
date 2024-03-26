@@ -228,11 +228,17 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
     drawPaths();
   }
 
-  void _paintDottedLine(ui.Path path, List<Offset> offsets, double radius,
-      double stepLength, PolylinePattern pattern) {
-    if (offsets.isEmpty) {
-      return;
-    }
+  void _paintDottedLine(
+    ui.Path path,
+    List<Offset> offsets,
+    double radius,
+    double stepLength,
+    PolylinePattern pattern,
+  ) {
+    final PatternFit patternFit = pattern.patternFit!;
+
+    if (offsets.isEmpty) return;
+
     if (offsets.length == 1) {
       path.addOval(Rect.fromCircle(center: offsets.last, radius: radius));
       return;
@@ -254,9 +260,12 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
     path.addOval(Rect.fromCircle(center: offsets.first, radius: radius));
     while (true) {
       final Offset newOffset = manager.getDistanceOffset(offset0, offset1);
+
       if (manager.goToNewOffsetIndex) {
         if (offsetIndex >= offsets.length) {
-          path.addOval(Rect.fromCircle(center: newOffset, radius: radius));
+          if (patternFit != PatternFit.none) {
+            path.addOval(Rect.fromCircle(center: newOffset, radius: radius));
+          }
           return;
         }
         offset0 = offset1;
@@ -282,13 +291,10 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
   ) {
     final List<double> dashValues = pattern.segments!;
     final PatternFit patternFit = pattern.patternFit!;
-    if (offsets.length < 2) {
-      return;
-    }
-    if (dashValues.length < 2) {
-      return;
-    }
-    if (dashValues.length.isOdd) {
+
+    if (offsets.length < 2 ||
+        dashValues.length < 2 ||
+        dashValues.length.isOdd) {
       return;
     }
 
@@ -309,20 +315,34 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
     path.moveTo(offset0.dx, offset0.dy);
     while (true) {
       final Offset newOffset = manager.getDistanceOffset(offset0, offset1);
+
       if (dashValueIndex.isEven) {
         path.lineTo(newOffset.dx, newOffset.dy);
       } else {
         // TODO optim: remove useless `moveTo`s, potentially many of them
         path.moveTo(newOffset.dx, newOffset.dy);
       }
+
       if (manager.goToNewOffsetIndex) {
         // was it the last point?
         if (offsetIndex >= offsets.length) {
-          if (!dashValueIndex.isEven) {
-            // were we on a "space-dash"?
-            if (patternFit == PatternFit.lastDotIfNeeded) {
-              // so let's emulate a dot for the last point
-              path.moveTo(newOffset.dx, newOffset.dy);
+          if (dashValueIndex.isOdd) {
+            // Were we on a "space-dash"?
+            if (patternFit == PatternFit.appendDot) {
+              // Add a dot at the new point.
+              // No requirement to move to the new point before painting,
+              // because that already occurs above.
+              // path.moveTo(newOffset.dx, newOffset.dy);
+              path.lineTo(newOffset.dx, newOffset.dy);
+            } else if (patternFit == PatternFit.extendFinalDash) {
+              // Move back to the end of the last dash, and extend it to the
+              // new point.
+              // Because there is no `saveLayer` operation between the painting
+              // of the previous dash and this segment, correct opacity rules
+              // are preserved, despite this being a new segment which
+              // technically overlaps with the previous one, and so the visual
+              // appearance is correct.
+              path.moveTo(offset0.dx, offset0.dy);
               path.lineTo(newOffset.dx, newOffset.dy);
             }
           }
@@ -444,17 +464,16 @@ class _MyDistanceManager {
     double stepLength,
     PatternFit patternFit,
   ) {
-    switch (patternFit) {
-      case PatternFit.lastDotIfNeeded:
-        return 1;
-      case PatternFit.resize:
-        final double polylinePixelDistance = _getPolylinePixelDistance(offsets);
-        if (polylinePixelDistance == 0) {
-          return 0;
-        }
-        final int times = (polylinePixelDistance / stepLength).ceil();
-        return (times * stepLength) / polylinePixelDistance;
+    if (patternFit == PatternFit.scale) {
+      final double polylinePixelDistance = _getPolylinePixelDistance(offsets);
+      if (polylinePixelDistance == 0) {
+        return 0;
+      }
+      final int times = (polylinePixelDistance / stepLength).ceil();
+      return (times * stepLength) / polylinePixelDistance;
     }
+
+    return 1;
   }
 
   /// Returns the factor for offset distances so that the dash pattern fits.
@@ -475,19 +494,18 @@ class _MyDistanceManager {
       return result;
     }
 
-    switch (patternFit) {
-      case PatternFit.lastDotIfNeeded:
-        return 1;
-      case PatternFit.resize:
-        final double polylinePixelDistance = _getPolylinePixelDistance(offsets);
-        if (polylinePixelDistance == 0) {
-          return 0;
-        }
-        final double totalDashDistance = getTotalDashDistance(dashValues);
-        final double firstDashDistance = dashValues.first;
-        final int times = (polylinePixelDistance / totalDashDistance).ceil();
-        return (times * totalDashDistance + firstDashDistance) /
-            polylinePixelDistance;
+    if (patternFit == PatternFit.scale) {
+      final double polylinePixelDistance = _getPolylinePixelDistance(offsets);
+      if (polylinePixelDistance == 0) {
+        return 0;
+      }
+      final double totalDashDistance = getTotalDashDistance(dashValues);
+      final double firstDashDistance = dashValues.first;
+      final int times = (polylinePixelDistance / totalDashDistance).ceil();
+      return (times * totalDashDistance + firstDashDistance) /
+          polylinePixelDistance;
     }
+
+    return 1;
   }
 }

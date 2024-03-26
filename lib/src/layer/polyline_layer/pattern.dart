@@ -1,16 +1,7 @@
 part of 'polyline_layer.dart';
 
-/// Determines how a dashed or dotted [Polyline] will be displayed
-enum PatternFit {
-  /// Resize so that the pattern fits exactly the polyline.
-  resize,
-
-  /// End with a dot if relevant.
-  lastDotIfNeeded;
-}
-
-/// Determines whether a [Polyline] should be solid, dotted, or dashed, and
-/// the exact characteristics of each
+/// Determines whether a [Polyline] should be solid, dotted, or dashed, and the
+/// exact characteristics of each
 @immutable
 class PolylinePattern {
   /// Solid/unbroken
@@ -21,11 +12,12 @@ class PolylinePattern {
 
   /// Circular dots, spaced with [spacingFactor]
   ///
-  /// [spacingFactor] is
-  /// {@macro fm.polylinePattern.spacingFactor}
+  /// See [spacingFactor] and [PatternFit] for more information about parameters.
+  /// [spacingFactor] defaults to 1.5, and [patternFit] defaults to
+  /// [PatternFit.scale].
   const PolylinePattern.dotted({
     double this.spacingFactor = 1.5,
-    required PatternFit this.patternFit,
+    PatternFit this.patternFit = PatternFit.scale,
   }) : segments = null;
 
   /// Elongated dashes, with length and spacing set by [segments]
@@ -33,13 +25,11 @@ class PolylinePattern {
   /// Dashes may not be linear: they may pass through different [Polyline.points]
   /// without regard to their relative bearing/direction.
   ///
-  /// ---
-  ///
-  /// [segments] is
-  /// {@macro fm.polylinePattern.segments}
+  /// See [segments] and [PatternFit] for more information about parameters.
+  /// [patternFit] defaults to [PatternFit.scale].
   const PolylinePattern.dashed({
     required List<double> this.segments,
-    required PatternFit this.patternFit,
+    PatternFit this.patternFit = PatternFit.scale,
   })  : assert(
           segments.length >= 2,
           '`segments` must contain at least two items',
@@ -51,19 +41,24 @@ class PolylinePattern {
         ),
         spacingFactor = null;
 
-  /// {@template fm.polylinePattern.spacingFactor}
-  /// The multiplier used to calculate the spacing between segments in a
-  /// dotted/dashed polyline, with respect to [Polyline.strokeWidth]. A value of
-  /// 1.0 will result in spacing equal to the `strokeWidth`. Increasing the value
-  /// increases the spacing with the same scaling. It defaults to 1.5.
-  /// {@endtemplate}
+  /// The multiplier used to calculate the spacing between dots in a dotted
+  /// polyline, with respect to [Polyline.strokeWidth]
+  ///
+  /// A value of 1.0 will result in spacing equal to the `strokeWidth`.
+  /// Increasing the value increases the spacing with the same scaling.
+  ///
+  /// May also be scaled by the use of [PatternFit.scale].
+  ///
+  /// Defaults to 1.5.
   final double? spacingFactor;
 
-  /// {@template fm.polylinePattern.segments}
   /// A list of even length with a minimum of 2, in the form of
   /// `[a₁, b₁, (a₂, b₂, ...)]`, where `a` should be the length of segments in
-  /// pixels, and `b` the length of the space after each segment in pixels. Both
+  /// 'units', and `b` the length of the space after each segment in units. Both
   /// values must be strictly positive.
+  ///
+  /// 'Units' refers to pixels, unless the pattern has been scaled due to the
+  /// use of [PatternFit.scale].
   ///
   /// If more than two items are specified, then each segments will
   /// alternate/iterate through the values.
@@ -83,10 +78,12 @@ class PolylinePattern {
   ///  * followed by a segment of length of 50px
   ///  * followed by a space of 10px
   ///  * etc...
-  /// {@endtemplate}
   final List<double>? segments;
 
-  /// For dotted and dashed style.
+  /// Determines how a non-solid [PolylinePattern] should be fit to a [Polyline]
+  /// when their lengths are not equal or multiples
+  ///
+  /// Defaults to [PatternFit.scale].
   final PatternFit? patternFit;
 
   @override
@@ -99,5 +96,35 @@ class PolylinePattern {
               listEquals(segments, other.segments)));
 
   @override
-  int get hashCode => Object.hash(spacingFactor, segments);
+  int get hashCode => Object.hash(spacingFactor, segments, patternFit);
+}
+
+/// Determines how a non-solid [PolylinePattern] should be fit to a [Polyline]
+/// when their lengths are not equal or multiples
+///
+/// [PolylinePattern.solid]s do not require fitting.
+enum PatternFit {
+  /// Don't apply any specific fit to the pattern - repeat exactly as specified,
+  /// and stop when the last point is reached
+  ///
+  /// Not recommended. May leave a gap between the final segment and the last
+  /// point, making it unclear where the line ends.
+  none,
+
+  /// Scale the pattern to ensure it fits an integer number of times into the
+  /// polyline
+  scale,
+
+  /// Uses the pattern exactly, truncating the final dash if it does not fit, or
+  /// adding a single dot at the last point if the final dash does not reach the
+  /// last point (there is a gap at that location)
+  appendDot,
+
+  /// (Only valid for [PolylinePattern.dashed], equal to [appendDot] for
+  /// [PolylinePattern.dotted])
+  ///
+  /// Uses the pattern exactly, truncating the final dash if it does not fit, or
+  /// extending the final dash to the last point if it would not normally reach
+  /// that point (there is a gap at that location).
+  extendFinalDash;
 }
