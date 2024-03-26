@@ -51,7 +51,7 @@ class Polyline<R extends Object> {
   Polyline({
     required this.points,
     this.strokeWidth = 1.0,
-    PolylinePattern pattern = const PolylinePattern.solid(),
+    this.pattern = const PolylinePattern.solid(),
     this.color = const Color(0xFF00FF00),
     this.borderStrokeWidth = 0.0,
     this.borderColor = const Color(0xFFFFFF00),
@@ -61,15 +61,7 @@ class Polyline<R extends Object> {
     this.strokeJoin = StrokeJoin.round,
     this.useStrokeWidthInMeter = false,
     this.hitValue,
-    @Deprecated(
-      'Prefer setting `pattern` to toggle dotting. '
-      'This parameter will be replaced by `pattern`, which supports further '
-      'customization & dashed lines through a single, less complex, external API. '
-      'Enabling this parameter will override `pattern` with `dotted(1.5)`. '
-      'This feature was deprecated after v7.',
-    )
-    bool isDotted = false,
-  }) : pattern = isDotted ? const PolylinePattern.dotted() : pattern;
+  });
 
   @override
   bool operator ==(Object other) =>

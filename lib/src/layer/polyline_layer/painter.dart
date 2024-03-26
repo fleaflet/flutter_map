@@ -204,17 +204,18 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
       if (isDotted) {
         final spacing = strokeWidth * polyline.pattern.spacingFactor!;
         if (borderPaint != null && filterPaint != null) {
-          _paintDottedLine(borderPath, offsets, borderRadius, spacing);
-          _paintDottedLine(filterPath, offsets, radius, spacing);
+          _paintDottedLine(
+              borderPath, offsets, borderRadius, spacing, polyline.pattern);
+          _paintDottedLine(
+              filterPath, offsets, radius, spacing, polyline.pattern);
         }
-        _paintDottedLine(path, offsets, radius, spacing);
+        _paintDottedLine(path, offsets, radius, spacing, polyline.pattern);
       } else if (isDashed) {
         if (borderPaint != null && filterPaint != null) {
-          _paintDashedLine(borderPath, offsets, polyline.pattern.segments!);
-          _paintDashedLine(filterPath, offsets, polyline.pattern.segments!);
+          _paintDashedLine(borderPath, offsets, polyline.pattern);
+          _paintDashedLine(filterPath, offsets, polyline.pattern);
         }
-        _paintDashedLine(path, offsets, polyline.pattern.segments!);
-        // TODO: Check the returned value and display the last point if relevant
+        _paintDashedLine(path, offsets, polyline.pattern);
       } else {
         if (borderPaint != null && filterPaint != null) {
           _paintLine(borderPath, offsets);
@@ -227,130 +228,114 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
     drawPaths();
   }
 
-  void _paintDottedLine(
-      ui.Path path, List<Offset> offsets, double radius, double stepLength) {
-    var startDistance = 0.0;
-    for (var i = 0; i < offsets.length - 1; i++) {
-      final o0 = offsets[i];
-      final o1 = offsets[i + 1];
-      final totalDistance = (o0 - o1).distance;
-      var distance = startDistance;
-      while (distance < totalDistance) {
-        final f1 = distance / totalDistance;
-        final f0 = 1.0 - f1;
-        final offset = Offset(o0.dx * f0 + o1.dx * f1, o0.dy * f0 + o1.dy * f1);
-        path.addOval(Rect.fromCircle(center: offset, radius: radius));
-        distance += stepLength;
-      }
-      startDistance = distance < totalDistance
-          ? stepLength - (totalDistance - distance)
-          : distance - totalDistance;
+  void _paintDottedLine(ui.Path path, List<Offset> offsets, double radius,
+      double stepLength, PolylinePattern pattern) {
+    if (offsets.isEmpty) {
+      return;
     }
-    path.addOval(Rect.fromCircle(center: offsets.last, radius: radius));
-  }
-
-  /// Returns the factor for offset distances so that the dash pattern fits.
-  ///
-  /// The idea is that we need to be able to display the dash pattern completely
-  /// n times (at least once), plus once the initial dash segment. That's the
-  /// way we deal with the "ending" side-effect.
-  double _getDashFactor(List<Offset> offsets, List<double> dashValues) {
-    double getTotalOffsetDistance(List<Offset> offsets) {
-      double result = 0;
-      if (offsets.length < 2) {
-        return result;
-      }
-      for (int i = 1; i < offsets.length; i++) {
-        final Offset offsetA = offsets[i - 1];
-        final Offset offsetB = offsets[i];
-        result += (offsetA - offsetB).distance;
-      }
-      return result;
+    if (offsets.length == 1) {
+      path.addOval(Rect.fromCircle(center: offsets.last, radius: radius));
+      return;
     }
 
-    double getTotalDashDistance(List<double> dashValues) {
-      double result = 0;
-      for (final double value in dashValues) {
-        result += value;
-      }
-      return result;
-    }
-
-    final double totalOffsetDistance = getTotalOffsetDistance(offsets);
-    final double totalDashDistance = getTotalDashDistance(dashValues);
-    final double firstDashDistance = dashValues.first;
-    final int times = (totalOffsetDistance / totalDashDistance).ceil();
-    return (times * totalDashDistance + firstDashDistance) /
-        totalOffsetDistance;
-  }
-
-  /// Returns true if the last point was a space.
-  ///
-  /// We may need that info if we want to do something special when the last
-  /// point was not displayed, like putting artificially a dot at this location.
-  bool? _paintDashedLine(
-    ui.Path path,
-    List<Offset> offsets,
-    List<double> dashValues,
-  ) {
-    if (offsets.length < 2) {
-      return null;
-    }
-    if (dashValues.length < 2) {
-      return null;
-    }
-    if (dashValues.length.isOdd) {
-      return null;
-    }
-
-    int dashValueIndex = 0;
     int offsetIndex = 0;
 
-    double remaining = dashValues[dashValueIndex];
     Offset offset0 = offsets[offsetIndex++];
     Offset offset1 = offsets[offsetIndex++];
-    bool nextIndexPlease = false;
-    final double factor = _getDashFactor(offsets, dashValues);
 
-    /// Returns the offset on segment [A,B] that matches the remaining distance.
-    Offset getDistanceOffset(final Offset offsetA, final Offset offsetB) {
-      final segmentDistance = factor * (offsetA - offsetB).distance;
-      if (remaining >= segmentDistance) {
-        remaining -= segmentDistance;
-        nextIndexPlease = true;
-        return offsetB;
-      }
-      final fB = remaining / segmentDistance;
-      final fA = 1.0 - fB;
-      remaining = 0;
-      return Offset(
-        offsetA.dx * fA + offsetB.dx * fB,
-        offsetA.dy * fA + offsetB.dy * fB,
-      );
-    }
+    final double factor = _MyDistanceManager.getDottedFactor(
+      offsets,
+      stepLength,
+      pattern.patternFit!,
+    );
 
-    path.moveTo(offset0.dx, offset0.dy);
+    final _MyDistanceManager manager = _MyDistanceManager(factor: factor);
+    manager.remaining = stepLength;
+    path.addOval(Rect.fromCircle(center: offsets.first, radius: radius));
     while (true) {
-      final Offset newOffset = getDistanceOffset(offset0, offset1);
-      if (dashValueIndex.isEven) {
-        path.lineTo(newOffset.dx, newOffset.dy);
-      } else {
-        // TODO optim: remove useless `moveTo`s, potentially many of them
-        path.moveTo(newOffset.dx, newOffset.dy);
-      }
-      if (nextIndexPlease) {
-        nextIndexPlease = false;
+      final Offset newOffset = manager.getDistanceOffset(offset0, offset1);
+      if (manager.goToNewOffsetIndex) {
         if (offsetIndex >= offsets.length) {
-          return dashValueIndex.isEven;
+          path.addOval(Rect.fromCircle(center: newOffset, radius: radius));
+          return;
         }
         offset0 = offset1;
         offset1 = offsets[offsetIndex++];
       } else {
         offset0 = newOffset;
       }
-      if (remaining == 0) {
+      if (manager.remaining == 0) {
+        path.addOval(Rect.fromCircle(center: newOffset, radius: radius));
+        manager.remaining = stepLength;
+      }
+    }
+  }
+
+  /// Returns true if the last point was a space.
+  ///
+  /// We may need that info if we want to do something special when the last
+  /// point was not displayed, like putting artificially a dot at this location.
+  void _paintDashedLine(
+    ui.Path path,
+    List<Offset> offsets,
+    PolylinePattern pattern,
+  ) {
+    final List<double> dashValues = pattern.segments!;
+    final PatternFit patternFit = pattern.patternFit!;
+    if (offsets.length < 2) {
+      return;
+    }
+    if (dashValues.length < 2) {
+      return;
+    }
+    if (dashValues.length.isOdd) {
+      return;
+    }
+
+    int dashValueIndex = 0;
+    int offsetIndex = 0;
+
+    Offset offset0 = offsets[offsetIndex++];
+    Offset offset1 = offsets[offsetIndex++];
+
+    final double factor = _MyDistanceManager.getDashFactor(
+      offsets,
+      dashValues,
+      patternFit,
+    );
+
+    final _MyDistanceManager manager = _MyDistanceManager(factor: factor);
+    manager.remaining = dashValues[dashValueIndex];
+    path.moveTo(offset0.dx, offset0.dy);
+    while (true) {
+      final Offset newOffset = manager.getDistanceOffset(offset0, offset1);
+      if (dashValueIndex.isEven) {
+        path.lineTo(newOffset.dx, newOffset.dy);
+      } else {
+        // TODO optim: remove useless `moveTo`s, potentially many of them
+        path.moveTo(newOffset.dx, newOffset.dy);
+      }
+      if (manager.goToNewOffsetIndex) {
+        // was it the last point?
+        if (offsetIndex >= offsets.length) {
+          if (!dashValueIndex.isEven) {
+            // were we on a "space-dash"?
+            if (patternFit == PatternFit.lastDotIfNeeded) {
+              // so let's emulate a dot for the last point
+              path.moveTo(newOffset.dx, newOffset.dy);
+              path.lineTo(newOffset.dx, newOffset.dy);
+            }
+          }
+          return;
+        }
+        offset0 = offset1;
+        offset1 = offsets[offsetIndex++];
+      } else {
+        offset0 = newOffset;
+      }
+      if (manager.remaining == 0) {
         dashValueIndex++;
-        remaining = dashValues[dashValueIndex % dashValues.length];
+        manager.remaining = dashValues[dashValueIndex % dashValues.length];
       }
     }
   }
@@ -404,3 +389,105 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
 }
 
 const _distance = Distance();
+
+class _MyDistanceManager {
+  /// Factor to be used on offset distances.
+  final double factor;
+
+  _MyDistanceManager({required this.factor});
+
+  /// Pixel length remaining.
+  late double remaining;
+
+  bool _nextOffsetPlease = false;
+
+  bool get goToNewOffsetIndex {
+    if (_nextOffsetPlease) {
+      _nextOffsetPlease = false;
+      return true;
+    }
+    return false;
+  }
+
+  /// Returns the offset on segment [A,B] that matches the remaining distance.
+  Offset getDistanceOffset(final Offset offsetA, final Offset offsetB) {
+    final segmentDistance = factor * (offsetA - offsetB).distance;
+    if (remaining >= segmentDistance) {
+      remaining -= segmentDistance;
+      _nextOffsetPlease = true;
+      return offsetB;
+    }
+    final fB = remaining / segmentDistance;
+    final fA = 1.0 - fB;
+    remaining = 0;
+    return Offset(
+      offsetA.dx * fA + offsetB.dx * fB,
+      offsetA.dy * fA + offsetB.dy * fB,
+    );
+  }
+
+  static double _getPolylinePixelDistance(List<Offset> offsets) {
+    double result = 0;
+    if (offsets.length < 2) {
+      return result;
+    }
+    for (int i = 1; i < offsets.length; i++) {
+      final Offset offsetA = offsets[i - 1];
+      final Offset offsetB = offsets[i];
+      result += (offsetA - offsetB).distance;
+    }
+    return result;
+  }
+
+  static double getDottedFactor(
+    List<Offset> offsets,
+    double stepLength,
+    PatternFit patternFit,
+  ) {
+    switch (patternFit) {
+      case PatternFit.lastDotIfNeeded:
+        return 1;
+      case PatternFit.resize:
+        final double polylinePixelDistance = _getPolylinePixelDistance(offsets);
+        if (polylinePixelDistance == 0) {
+          return 0;
+        }
+        final int times = (polylinePixelDistance / stepLength).ceil();
+        return (times * stepLength) / polylinePixelDistance;
+    }
+  }
+
+  /// Returns the factor for offset distances so that the dash pattern fits.
+  ///
+  /// The idea is that we need to be able to display the dash pattern completely
+  /// n times (at least once), plus once the initial dash segment. That's the
+  /// way we deal with the "ending" side-effect.
+  static double getDashFactor(
+    List<Offset> offsets,
+    List<double> dashValues,
+    PatternFit patternFit,
+  ) {
+    double getTotalDashDistance(List<double> dashValues) {
+      double result = 0;
+      for (final double value in dashValues) {
+        result += value;
+      }
+      return result;
+    }
+
+    switch (patternFit) {
+      case PatternFit.lastDotIfNeeded:
+        return 1;
+      case PatternFit.resize:
+        final double polylinePixelDistance = _getPolylinePixelDistance(offsets);
+        if (polylinePixelDistance == 0) {
+          return 0;
+        }
+        final double totalDashDistance = getTotalDashDistance(dashValues);
+        final double firstDashDistance = dashValues.first;
+        final int times = (polylinePixelDistance / totalDashDistance).ceil();
+        return (times * totalDashDistance + firstDashDistance) /
+            polylinePixelDistance;
+    }
+  }
+}

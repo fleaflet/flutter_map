@@ -1,5 +1,14 @@
 part of 'polyline_layer.dart';
 
+/// Determines how a dashed or dotted [Polyline] will be displayed
+enum PatternFit {
+  /// Resize so that the pattern fits exactly the polyline.
+  resize,
+
+  /// End with a dot if relevant.
+  lastDotIfNeeded;
+}
+
 /// Determines whether a [Polyline] should be solid, dotted, or dashed, and
 /// the exact characteristics of each
 @immutable
@@ -7,14 +16,17 @@ class PolylinePattern {
   /// Solid/unbroken
   const PolylinePattern.solid()
       : spacingFactor = null,
-        segments = null;
+        segments = null,
+        patternFit = null;
 
   /// Circular dots, spaced with [spacingFactor]
   ///
   /// [spacingFactor] is
   /// {@macro fm.polylinePattern.spacingFactor}
-  const PolylinePattern.dotted({double this.spacingFactor = 1.5})
-      : segments = null;
+  const PolylinePattern.dotted({
+    double this.spacingFactor = 1.5,
+    required PatternFit this.patternFit,
+  }) : segments = null;
 
   /// Elongated dashes, with length and spacing set by [segments]
   ///
@@ -25,8 +37,10 @@ class PolylinePattern {
   ///
   /// [segments] is
   /// {@macro fm.polylinePattern.segments}
-  const PolylinePattern.dashed({required List<double> this.segments})
-      : assert(
+  const PolylinePattern.dashed({
+    required List<double> this.segments,
+    required PatternFit this.patternFit,
+  })  : assert(
           segments.length >= 2,
           '`segments` must contain at least two items',
         ),
@@ -72,11 +86,15 @@ class PolylinePattern {
   /// {@endtemplate}
   final List<double>? segments;
 
+  /// For dotted and dashed style.
+  final PatternFit? patternFit;
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is PolylinePattern &&
           spacingFactor == other.spacingFactor &&
+          patternFit == other.patternFit &&
           ((segments == null && other.segments == null) ||
               listEquals(segments, other.segments)));
 
