@@ -175,8 +175,14 @@ class LatLngBounds {
     final lambda3 = lambda1 + atan2(by, cos(phi1) + bx);
 
     // phi3 and lambda3 are actually in radians and LatLng wants degrees
-    return LatLng(phi3 * radians2Degrees, lambda3 * radians2Degrees);
+    return LatLng(
+      phi3 * radians2Degrees,
+      (lambda3 * radians2Degrees + 540) % 360 - 180,
+    );
   }
+
+  /// Obtain simple coordinates of the bounds center
+  LatLng get simpleCenter => LatLng((south + north) / 2, (east + west) / 2);
 
   /// Checks whether [point] is inside bounds
   bool contains(LatLng point) =>

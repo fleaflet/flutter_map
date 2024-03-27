@@ -47,5 +47,52 @@ void main() {
         expect(bounds1.hashCode, bounds2.hashCode);
       });
     });
+
+    group('center', () {
+      // cf. https://github.com/fleaflet/flutter_map/issues/1689
+      test('should calculate center point #1', () async {
+        final bounds = LatLngBounds(
+          const LatLng(-77.45, -171.16),
+          const LatLng(46.64, 25.88),
+        );
+        final center = bounds.center;
+        expect(center.latitude, greaterThanOrEqualTo(-90));
+        expect(center.latitude, lessThanOrEqualTo(90));
+        expect(center.longitude, greaterThanOrEqualTo(-180));
+        expect(center.longitude, lessThanOrEqualTo(180));
+      });
+      test('should calculate center point #2', () async {
+        final bounds = LatLngBounds(
+          const LatLng(-0.87, -179.86),
+          const LatLng(84.92, 23.86),
+        );
+        final center = bounds.center;
+        expect(center.latitude, greaterThanOrEqualTo(-90));
+        expect(center.latitude, lessThanOrEqualTo(90));
+        expect(center.longitude, greaterThanOrEqualTo(-180));
+        expect(center.longitude, lessThanOrEqualTo(180));
+      });
+    });
+
+    group('simpleCenter', () {
+      test('should calculate center point #1', () async {
+        final bounds = LatLngBounds(
+          const LatLng(-77.45, -171.16),
+          const LatLng(46.64, 25.88),
+        );
+        final center = bounds.simpleCenter;
+        expect(center.latitude, (-77.45 + 46.64) / 2);
+        expect(center.longitude, (-171.16 + 25.88) / 2);
+      });
+      test('should calculate center point #2', () async {
+        final bounds = LatLngBounds(
+          const LatLng(-0.87, -179.86),
+          const LatLng(84.92, 23.86),
+        );
+        final center = bounds.simpleCenter;
+        expect(center.latitude, (-0.87 + 84.92) / 2);
+        expect(center.longitude, (-179.86 + 23.86) / 2);
+      });
+    });
   });
 }
