@@ -19,6 +19,14 @@ PolylineLayer(
 ),
 ```
 
+## Pattern
+
+`Polyline`s support a `solid`, `dotted`, and `dashed` style, through `PolylinePattern`/`Polyline.pattern`. These are flexible, and spacing and sizing may be customized.
+
+`dotted` and `dashed` patterns should 'fit' the `Polyline` they are applied to, otherwise the final point in that line may not be visually clear. The fit can be adjusted when defining the pattern through the `PatternFit` enum.
+
+<figure><img src="../.gitbook/assets/PatternFit.png" alt="" width="375"><figcaption><p>Illustration of the 5 types of <code>PatternFit</code> applied to a <code>dashed</code> <code>Polyline</code><br>From left to right: <code>none</code>, <code>appendDot</code>, <code>extendFinalDash</code>, <code>scaleUp</code> (default), <code>scaleDown</code></p></figcaption></figure>
+
 ## Interactivity
 
 `PolylineLayer`s and `Polyline`s support hit detection and interactivity.
