@@ -14,10 +14,10 @@ class PolylinePattern {
   ///
   /// See [spacingFactor] and [PatternFit] for more information about parameters.
   /// [spacingFactor] defaults to 1.5, and [patternFit] defaults to
-  /// [PatternFit.scale].
+  /// [PatternFit.scaleUp].
   const PolylinePattern.dotted({
     double this.spacingFactor = 1.5,
-    PatternFit this.patternFit = PatternFit.scale,
+    PatternFit this.patternFit = PatternFit.scaleUp,
   }) : segments = null;
 
   /// Elongated dashes, with length and spacing set by [segments]
@@ -26,10 +26,10 @@ class PolylinePattern {
   /// without regard to their relative bearing/direction.
   ///
   /// See [segments] and [PatternFit] for more information about parameters.
-  /// [patternFit] defaults to [PatternFit.scale].
+  /// [patternFit] defaults to [PatternFit.scaleUp].
   const PolylinePattern.dashed({
     required List<double> this.segments,
-    PatternFit this.patternFit = PatternFit.scale,
+    PatternFit this.patternFit = PatternFit.scaleUp,
   })  : assert(
           segments.length >= 2,
           '`segments` must contain at least two items',
@@ -47,7 +47,7 @@ class PolylinePattern {
   /// A value of 1.0 will result in spacing equal to the `strokeWidth`.
   /// Increasing the value increases the spacing with the same scaling.
   ///
-  /// May also be scaled by the use of [PatternFit.scale].
+  /// May also be scaled by the use of [PatternFit.scaleUp].
   ///
   /// Defaults to 1.5.
   final double? spacingFactor;
@@ -58,7 +58,7 @@ class PolylinePattern {
   /// values must be strictly positive.
   ///
   /// 'Units' refers to pixels, unless the pattern has been scaled due to the
-  /// use of [PatternFit.scale].
+  /// use of [PatternFit.scaleUp].
   ///
   /// If more than two items are specified, then each segments will
   /// alternate/iterate through the values.
@@ -83,7 +83,7 @@ class PolylinePattern {
   /// Determines how a non-solid [PolylinePattern] should be fit to a [Polyline]
   /// when their lengths are not equal or multiples
   ///
-  /// Defaults to [PatternFit.scale].
+  /// Defaults to [PatternFit.scaleUp].
   final PatternFit? patternFit;
 
   @override
@@ -112,8 +112,12 @@ enum PatternFit {
   none,
 
   /// Scale the pattern to ensure it fits an integer number of times into the
-  /// polyline
-  scale,
+  /// polyline (smaller version regarding rounding, cf. [scaleUp])
+  scaleDown,
+
+  /// Scale the pattern to ensure it fits an integer number of times into the
+  /// polyline (bigger version regarding rounding, cf. [scaleDown])
+  scaleUp,
 
   /// Uses the pattern exactly, truncating the final dash if it does not fit, or
   /// adding a single dot at the last point if the final dash does not reach the
