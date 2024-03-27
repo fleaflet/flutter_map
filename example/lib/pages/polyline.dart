@@ -31,7 +31,7 @@ class _PolylinePageState extends State<PolylinePage> {
       strokeWidth: 8,
       color: const Color(0xFF60399E),
       hitValue: (
-        title: 'Elizabeth Line',
+        title: 'Purple Line',
         subtitle: 'Nothing really special here...',
       ),
     ),
@@ -77,22 +77,7 @@ class _PolylinePageState extends State<PolylinePage> {
       borderStrokeWidth: 20,
       borderColor: Colors.red.withOpacity(0.4),
       hitValue: (
-        title: 'BlueRed Line',
-        subtitle: 'Solid translucent color fill, with different color outline',
-      ),
-    ),
-    Polyline(
-      points: const [
-        LatLng(50.2, -0.08),
-        LatLng(51.2498, -10.2603),
-        LatLng(54.8566, -9.3522),
-      ],
-      strokeWidth: 20,
-      color: Colors.black.withOpacity(0.2),
-      borderStrokeWidth: 20,
-      borderColor: Colors.white30,
-      hitValue: (
-        title: 'BlackWhite Line',
+        title: 'Bordered Line',
         subtitle: 'Solid translucent color fill, with different color outline',
       ),
     ),
@@ -107,7 +92,7 @@ class _PolylinePageState extends State<PolylinePage> {
       borderStrokeWidth: 10,
       borderColor: Colors.blue.withOpacity(0.5),
       hitValue: (
-        title: 'YellowBlue Line',
+        title: 'BorderedLine 2',
         subtitle: 'Solid translucent color fill, with different color outline',
       ),
     ),
@@ -118,15 +103,48 @@ class _PolylinePageState extends State<PolylinePage> {
         LatLng(35.566530, 5.584283),
       ],
       strokeWidth: 10,
-      color: Colors.blueAccent,
-      isDotted: true,
-      segmentSpacingFactor: 3,
+      color: Colors.orange,
+      pattern: const PolylinePattern.dotted(
+        spacingFactor: 3,
+      ),
       borderStrokeWidth: 8,
       borderColor: Colors.blue.withOpacity(0.5),
       hitValue: (
-        title: 'Blue Dotted Line with Custom Spacing',
-        subtitle:
-            'Dotted line with segment spacing controlled by `segmentSpacingFactor`',
+        title: 'Orange line',
+        subtitle: 'Dotted pattern',
+      ),
+    ),
+    // Paris-Nice TGV
+    Polyline(
+      points: const [
+        // Paris
+        LatLng(48.8567, 2.3519),
+        // Lyon
+        LatLng(45.7256, 5.0811),
+        // Avignon
+        LatLng(43.95, 4.8169),
+        // Aix-en-Provence
+        LatLng(43.5311, 5.4539),
+        // Marseille
+        LatLng(43.2964, 5.37),
+        // Toulon
+        LatLng(43.1222, 5.93),
+        // Cannes
+        LatLng(43.5514, 7.0128),
+        // Antibes
+        LatLng(43.5808, 7.1239),
+        // Nice
+        LatLng(43.6958, 7.2714),
+      ],
+      strokeWidth: 6,
+      color: Colors.green[900]!,
+      pattern: PolylinePattern.dashed(
+        segments: const [50, 20, 30, 20],
+      ),
+      borderStrokeWidth: 6,
+      hitValue: (
+        title: 'Green Line',
+        subtitle: 'Dashed line',
       ),
     ),
   ];
