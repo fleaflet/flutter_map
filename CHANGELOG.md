@@ -2,6 +2,11 @@
 
 Please consider [donating](https://docs.fleaflet.dev/supporters#support-us) or [contributing](https://docs.fleaflet.dev/credits#contributing) if you're a fan of what we're doing and you'd like to support future releases!
 
+## [7.0.0-dev.1] - 2024/03/13
+
+We've changed the format of the CHANGELOG, to make releases faster!  
+**Check the [latest GitHub release](https://github.com/fleaflet/flutter_map/releases/tag/v7.0.0-dev.1), where you can find an auto-generated list of all the latest commits.**
+
 ## [6.1.0] - 2023/12/02
 
 Contains the following user-affecting changes:
