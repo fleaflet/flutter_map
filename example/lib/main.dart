@@ -4,6 +4,7 @@ import 'package:flutter_map_example/pages/bundled_offline_map.dart';
 import 'package:flutter_map_example/pages/cancellable_tile_provider.dart';
 import 'package:flutter_map_example/pages/circle.dart';
 import 'package:flutter_map_example/pages/custom_crs/custom_crs.dart';
+import 'package:flutter_map_example/pages/debouncing_tile_update_transformer.dart';
 import 'package:flutter_map_example/pages/epsg3413_crs.dart';
 import 'package:flutter_map_example/pages/epsg4326_crs.dart';
 import 'package:flutter_map_example/pages/fallback_url_page.dart';
@@ -86,6 +87,8 @@ class MyApp extends StatelessWidget {
         FallbackUrlPage.route: (context) => const FallbackUrlPage(),
         SecondaryTapPage.route: (context) => const SecondaryTapPage(),
         RetinaPage.route: (context) => const RetinaPage(),
+        DebouncingTileUpdateTransformerPage.route: (context) =>
+            const DebouncingTileUpdateTransformerPage(),
       },
     );
   }
