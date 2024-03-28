@@ -5,10 +5,11 @@ import 'package:collection/collection.dart' show MapEquality;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image_manager.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_model.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_painter.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
@@ -227,6 +228,39 @@ class TileLayer extends StatefulWidget {
   /// disabled and the tile layer will update as soon as possible.
   final Duration loadingDelay;
 
+  ///Allows to set different paint parameters that are used in CustomPainter to draw tiles.
+  ///If provided, it is recommended to set filterQuality to high. Setting isAntiAlias to true is not recommended as it may introduce ghost lines between tiles.
+  ///
+  ///Example: Setting a color filter to draw tiles in grayscale.
+  ///```dart
+  /// paint: Paint()..colorFilter = const ColorFilter.mode(Colors.grey, BlendMode.saturation)..filterQuality = FilterQuality.high,
+  /// ```
+  ///
+  /// Example: Inverting the colors of the tiles.
+  /// ```dart
+  /// paint: Paint()..invertColors = true ..filterQuality = FilterQuality.high,
+  /// ```
+  ///
+  /// It is possible to change map colors in various ways using the ColorFilter.matrix.
+  ///
+  /// Example: Toning map with sepia color.
+  /// ```dart
+  /// paint: Paint()..colorFilter = const ColorFilter.matrix([
+  ///          0.393, 0.769, 0.189, 0, 0,
+  ///          0.349, 0.686, 0.168, 0, 0,
+  ///          0.272, 0.534, 0.131, 0, 0,
+  ///          0,     0,     0,     1, 0,
+  ///    ])..filterQuality = FilterQuality.high,
+  /// ```
+  ///
+  /// If not specified, the default paint parameters are:
+  /// ```dart
+  /// Paint()
+  ///  ..isAntiAlias = false
+  ///  ..filterQuality = FilterQuality.high;
+  /// ```
+  final Paint? paint;
+
   /// Create a new [TileLayer] for the [FlutterMap] widget.
   TileLayer({
     super.key,
@@ -259,6 +293,7 @@ class TileLayer extends StatefulWidget {
     this.reset,
     this.tileBounds,
     this.loadingDelay = Duration.zero,
+    this.paint,
     TileUpdateTransformer? tileUpdateTransformer,
     String userAgentPackageName = 'unknown',
   })  : assert(
@@ -543,18 +578,17 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     // cycles saved later on in the render pipeline.
     final tiles = _tileImageManager
         .getTilesToRender(visibleRange: visibleTileRange)
-        .map((tileImage) => Tile(
-              // Must be an ObjectKey, not a ValueKey using the coordinates, in
-              // case we remove and replace the TileImage with a different one.
-              key: ObjectKey(tileImage),
-              scaledTileSize: _tileScaleCalculator.scaledTileSize(
-                map.zoom,
-                tileImage.coordinates.z,
-              ),
-              currentPixelOrigin: map.pixelOrigin,
-              tileImage: tileImage,
-              tileBuilder: widget.tileBuilder,
-            ))
+        .map(
+          (tileImage) => TileModel(
+            scaledTileSize: _tileScaleCalculator.scaledTileSize(
+              map.zoom,
+              tileImage.coordinates.z,
+            ),
+            currentPixelOrigin: map.pixelOrigin,
+            tileImage: tileImage,
+            tileBuilder: widget.tileBuilder,
+          ),
+        )
         .toList();
 
     // Sort in render order. In reverse:
@@ -562,7 +596,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     //   2. Tiles at the current zoom +/- 1.
     //   3. Tiles at the current zoom +/- 2.
     //   4. ...etc
-    int renderOrder(Tile a, Tile b) {
+    int renderOrder(TileModel a, TileModel b) {
       final (za, zb) = (a.tileImage.coordinates.z, b.tileImage.coordinates.z);
       final cmp = (zb - tileZoom).abs().compareTo((za - tileZoom).abs());
       if (cmp == 0) {
@@ -573,7 +607,12 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     }
 
     return MobileLayerTransformer(
-      child: Stack(children: tiles..sort(renderOrder)),
+      child: CustomPaint(
+        size: Size.infinite,
+        willChange: true,
+        painter: TilePainter(
+            tiles: tiles..sort(renderOrder), tilePaint: widget.paint),
+      ),
     );
   }
 
@@ -602,6 +641,9 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       onLoadError: _onTileLoadError,
       onLoadComplete: (coordinates) {
         if (pruneAfterLoad) _pruneIfAllTilesLoaded(coordinates);
+        setState(() {
+          //Refresh the widget to display the loaded tile
+        });
       },
       tileDisplay: widget.tileDisplay,
       errorImage: widget.errorImage,
