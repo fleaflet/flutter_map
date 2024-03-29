@@ -28,6 +28,13 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
 
   final _hits = <R>[]; // Avoids repetitive memory reallocation
 
+  // OutCodes for the Cohen-Sutherland algorithm
+  static const _csInside = 0; // 0000
+  static const _csLeft = 1; // 0001
+  static const _csRight = 2; // 0010
+  static const _csBottom = 4; // 0100
+  static const _csTop = 8; // 1000
+
   /// Create a new [_PolygonPainter] instance.
   _PolygonPainter({
     required this.polygons,
@@ -307,8 +314,14 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
       ..style = isDotted ? PaintingStyle.fill : PaintingStyle.stroke;
   }
 
-  void _addBorderToPath(Path path, Polygon polygon, List<Offset> offsets,
-      Size canvasSize, Paint paint, Canvas canvas) {
+  void _addBorderToPath(
+    Path path,
+    Polygon polygon,
+    List<Offset> offsets,
+    Size canvasSize,
+    Paint paint,
+    Canvas canvas,
+  ) {
     if (polygon.isDotted) {
       final borderRadius = polygon.borderStrokeWidth / 2;
       final spacing = polygon.borderStrokeWidth * 1.5;
@@ -320,12 +333,13 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
   }
 
   void _addHoleBordersToPath(
-      Path path,
-      Polygon polygon,
-      List<List<Offset>> holeOffsetsList,
-      Size canvasSize,
-      Canvas canvas,
-      Paint paint) {
+    Path path,
+    Polygon polygon,
+    List<List<Offset>> holeOffsetsList,
+    Size canvasSize,
+    Canvas canvas,
+    Paint paint,
+  ) {
     if (polygon.isDotted) {
       final borderRadius = polygon.borderStrokeWidth / 2;
       final spacing = polygon.borderStrokeWidth * 1.5;
@@ -340,34 +354,33 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
     }
   }
 
-// OutCodes for the Cohen-Sutherland algorithm
-  int inside = 0; // 0000
-  int left = 1; // 0001
-  int right = 2; // 0010
-  int bottom = 4; // 0100
-  int top = 8; // 1000
-
-// Function to compute the outCode for a point relative to the canvas
-  int _computeOutCode(
-      double x, double y, double xMin, double yMin, double xMax, double yMax) {
-    int code = inside;
-
-    if (x < xMin) {
-      code |= left;
-    } else if (x > xMax) {
-      code |= right;
-    }
-    if (y < yMin) {
-      code |= bottom;
-    } else if (y > yMax) {
-      code |= top;
-    }
-
-    return code;
-  }
-
-// Function to clip a line segment to a rectangular area (canvas)
+  // Function to clip a line segment to a rectangular area (canvas)
   List<Offset>? _getVisibleSegment(Offset p0, Offset p1, Size canvasSize) {
+    // Function to compute the outCode for a point relative to the canvas
+    int computeOutCode(
+      double x,
+      double y,
+      double xMin,
+      double yMin,
+      double xMax,
+      double yMax,
+    ) {
+      int code = _csInside;
+
+      if (x < xMin) {
+        code |= _csLeft;
+      } else if (x > xMax) {
+        code |= _csRight;
+      }
+      if (y < yMin) {
+        code |= _csBottom;
+      } else if (y > yMax) {
+        code |= _csTop;
+      }
+
+      return code;
+    }
+
     const double xMin = 0;
     const double yMin = 0;
     final double xMax = canvasSize.width;
@@ -378,8 +391,8 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
     double x1 = p1.dx;
     double y1 = p1.dy;
 
-    int outCode0 = _computeOutCode(x0, y0, xMin, yMin, xMax, yMax);
-    int outCode1 = _computeOutCode(x1, y1, xMin, yMin, xMax, yMax);
+    int outCode0 = computeOutCode(x0, y0, xMin, yMin, xMax, yMax);
+    int outCode1 = computeOutCode(x1, y1, xMin, yMin, xMax, yMax);
     bool accept = false;
 
     while (true) {
@@ -396,16 +409,16 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
         double y;
         final int outCodeOut = outCode0 != 0 ? outCode0 : outCode1;
 
-        if ((outCodeOut & top) != 0) {
+        if ((outCodeOut & _csTop) != 0) {
           x = x0 + (x1 - x0) * (yMax - y0) / (y1 - y0);
           y = yMax;
-        } else if ((outCodeOut & bottom) != 0) {
+        } else if ((outCodeOut & _csBottom) != 0) {
           x = x0 + (x1 - x0) * (yMin - y0) / (y1 - y0);
           y = yMin;
-        } else if ((outCodeOut & right) != 0) {
+        } else if ((outCodeOut & _csRight) != 0) {
           y = y0 + (y1 - y0) * (xMax - x0) / (x1 - x0);
           x = xMax;
-        } else if ((outCodeOut & left) != 0) {
+        } else if ((outCodeOut & _csLeft) != 0) {
           y = y0 + (y1 - y0) * (xMin - x0) / (x1 - x0);
           x = xMin;
         } else {
@@ -417,11 +430,11 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
         if (outCodeOut == outCode0) {
           x0 = x;
           y0 = y;
-          outCode0 = _computeOutCode(x0, y0, xMin, yMin, xMax, yMax);
+          outCode0 = computeOutCode(x0, y0, xMin, yMin, xMax, yMax);
         } else {
           x1 = x;
           y1 = y;
-          outCode1 = _computeOutCode(x1, y1, xMin, yMin, xMax, yMax);
+          outCode1 = computeOutCode(x1, y1, xMin, yMin, xMax, yMax);
         }
       }
     }
