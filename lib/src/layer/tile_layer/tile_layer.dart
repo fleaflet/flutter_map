@@ -634,7 +634,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
             widget,
           );
 
-    return TileImage(
+    final TileImage tileImage = TileImage(
       vsync: this,
       coordinates: coordinates,
       imageProvider: imageProvider,
@@ -642,13 +642,20 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       onLoadComplete: (coordinates) {
         if (pruneAfterLoad) _pruneIfAllTilesLoaded(coordinates);
         setState(() {
-          //Refresh the widget to display the loaded tile
+          // Refresh the widget to display the loaded tile.
         });
       },
       tileDisplay: widget.tileDisplay,
       errorImage: widget.errorImage,
       cancelLoading: cancelLoading,
     );
+
+    tileImage.animation?.addListener(() {
+      setState(() {
+        //Update with fade in animation if TileDisplay.fadeIn() is used.
+      });
+    });
+    return tileImage;
   }
 
   /// Load and/or prune tiles according to the visible bounds of the [event]
