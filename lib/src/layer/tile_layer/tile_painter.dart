@@ -49,7 +49,8 @@ class TilePainter extends CustomPainter {
             image.height.toDouble(),
           ),
           Rect.fromLTWH(left, top, width, height), // Destination rectangle
-          tilePaint ?? defaultTilePaint,
+          (tilePaint ?? defaultTilePaint)..color = 
+          (tilePaint ?? defaultTilePaint).color.withOpacity(tile.tileImage.opacity),
         );
       }
     }
