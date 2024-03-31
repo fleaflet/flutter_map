@@ -4,7 +4,6 @@ import 'package:flutter_map/src/layer/tile_layer/tile_painter.dart';
 
 /// Model for tiles displayed by [TileLayer] and [TilePainter]
 class TileModel {
-
   /// [TileImage] is the model class that contains meta data for the Tile image.
   final TileImage tileImage;
 
