@@ -27,7 +27,7 @@ class NoticeBanner extends StatelessWidget {
     required this.sizeTransition,
   })  : icon = Icons.info_outline,
         foregroundColor = const Color(0xFF072100),
-        backgroundColor = Colors.lightBlue;
+        backgroundColor = Colors.lightBlueAccent;
 
   final String text;
   final String? url;
