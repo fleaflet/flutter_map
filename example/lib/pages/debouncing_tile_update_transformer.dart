@@ -16,8 +16,8 @@ class DebouncingTileUpdateTransformerPage extends StatefulWidget {
 
 class _DebouncingTileUpdateTransformerPageState
     extends State<DebouncingTileUpdateTransformerPage> {
-  int changeEndKeyRefresher = 0;
-  double durationInMilliseconds = 20;
+  int _changeEndKeyRefresher = 0;
+  double _durationInMilliseconds = 20;
 
   @override
   Widget build(BuildContext context) {
@@ -59,12 +59,12 @@ class _DebouncingTileUpdateTransformerPageState
                   ),
                   children: [
                     TileLayer(
-                      key: ValueKey(changeEndKeyRefresher),
+                      key: ValueKey(_changeEndKeyRefresher),
                       urlTemplate:
                           'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                       userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                       tileUpdateTransformer: TileUpdateTransformers.debounce(
-                        Duration(milliseconds: durationInMilliseconds.toInt()),
+                        Duration(milliseconds: _durationInMilliseconds.toInt()),
                       ),
                     ),
                   ],
@@ -89,17 +89,17 @@ class _DebouncingTileUpdateTransformerPageState
                           ),
                           Expanded(
                             child: Slider.adaptive(
-                              value: durationInMilliseconds,
+                              value: _durationInMilliseconds,
                               onChanged: (v) =>
-                                  setState(() => durationInMilliseconds = v),
+                                  setState(() => _durationInMilliseconds = v),
                               onChangeEnd: (v) =>
-                                  setState(() => changeEndKeyRefresher++),
+                                  setState(() => _changeEndKeyRefresher++),
                               min: 0,
                               max: 500,
                               divisions: 100,
-                              label: durationInMilliseconds == 0
+                              label: _durationInMilliseconds == 0
                                   ? 'Instant/No Debounce'
-                                  : '${durationInMilliseconds.toInt()} ms',
+                                  : '${_durationInMilliseconds.toInt()} ms',
                             ),
                           ),
                         ],

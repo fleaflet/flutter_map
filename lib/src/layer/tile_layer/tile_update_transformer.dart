@@ -121,7 +121,6 @@ abstract class TileUpdateTransformers {
     TileUpdateEvent? soFar;
     var hasPending = false;
     var shouldClose = false;
-    var emittedLatestAsLeading = false;
 
     return StreamTransformer.fromHandlers(
       handleData: (event, sink) {
@@ -136,10 +135,9 @@ abstract class TileUpdateTransformers {
         timer?.cancel();
         soFar = event;
         hasPending = true;
-        emittedLatestAsLeading = false;
 
         timer = Timer(duration, () {
-          if (!emittedLatestAsLeading) emit();
+          emit();
           if (shouldClose) sink.close();
           timer = null;
         });
