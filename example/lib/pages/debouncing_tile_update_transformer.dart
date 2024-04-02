@@ -54,7 +54,7 @@ class _DebouncingTileUpdateTransformerPageState
                   ),
                   children: [
                     TileLayer(
-                      key: ValueKey(_changeEndKeyRefresher),
+                      key: ValueKey('TileLayer-$_changeEndKeyRefresher'),
                       urlTemplate:
                           'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                       userAgentPackageName: 'dev.fleaflet.flutter_map.example',
