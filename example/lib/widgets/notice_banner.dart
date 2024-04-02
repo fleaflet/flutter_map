@@ -20,6 +20,15 @@ class NoticeBanner extends StatelessWidget {
         foregroundColor = const Color(0xFF072100),
         backgroundColor = const Color(0xFFB8F397);
 
+  const NoticeBanner.informational({
+    super.key,
+    required this.text,
+    required this.url,
+    required this.sizeTransition,
+  })  : icon = Icons.info_outline,
+        foregroundColor = const Color(0xFF072100),
+        backgroundColor = Colors.lightBlue;
+
   final String text;
   final String? url;
   final double sizeTransition;

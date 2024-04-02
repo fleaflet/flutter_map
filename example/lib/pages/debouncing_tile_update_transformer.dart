@@ -26,19 +26,14 @@ class _DebouncingTileUpdateTransformerPageState
       drawer: const MenuDrawer(DebouncingTileUpdateTransformerPage.route),
       body: Column(
         children: [
-          const NoticeBanner.recommendation(
+          const NoticeBanner.informational(
             text:
                 'This TileUpdateTransformer debounces TileUpdateEvents so they '
                 "don't occur too frequently, which can improve performance and "
-                'reduce tile requests',
-            url:
-                'https://docs.fleaflet.dev/layers/tile-layer#tile-update-transformers',
-            sizeTransition: 1200,
-          ),
-          const NoticeBanner.warning(
-            text: 'However, this does lead to reduced UX, as tiles will not be '
-                'loaded during long movements or animations, resulting in the '
-                'background grey breaking the illusion of a seamless map.',
+                'reduce tile requests.\nHowever, this does lead to reduced UX, '
+                'as tiles will not be loaded during long movements or '
+                'animations, resulting in the background grey breaking the '
+                'illusion of a seamless map.',
             url:
                 'https://docs.fleaflet.dev/layers/tile-layer#tile-update-transformers',
             sizeTransition: 1360,
