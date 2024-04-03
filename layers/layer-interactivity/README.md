@@ -20,7 +20,7 @@ These all follow roughly the same pattern to setup hit detection/interactivity, 
 ## 1. Attach A Hit Notifier
 
 {% hint style="info" %}
-Direct callbacks, such as `onTap,`aren't provided on layers or features, to maximize flexibility.
+Direct callbacks, such as `onTap,`aren't provided on layers or individual elements, to maximize flexibility.
 {% endhint %}
 
 Pass a `LayerHitNotifier` to the `hitNotifier` parameter of the layer. The `LayerHitNotifier` should be created as a `ValueNotifier` defaulting to `null`, but strongly typed to `LayerHitNotifier`.
@@ -34,18 +34,18 @@ final LayerHitNotifier hitNotifier = ValueNotifier(null);
 // Inside the map build...
 PolylineLayer( // Or any other supported layer
   hitNotifier: hitNotifier,
-  polylines: [], // Or any other supported feature
+  polylines: [], // Or any other supported elements
 );
 ```
 {% endcode %}
 
 It is possible to listen to the notifier directly with `addListener` - don't forget to remove the listener once you no longer need it! Alternatively, you can use another [#id-3.-gesture-detection](./#id-3.-gesture-detection "mention") widget to filter the events appropriately.
 
-## 2. Add `hitValue` To Features
+## 2. Add `hitValue` To Elements
 
-Although this step is technically optional, it's not very useful if you have multiple features if you can't detect which feature has been hit!
+Although this step is technically optional, it's not very useful if you have multiple elements (such as `Polyline` or `Polygon`) if you can't detect which feature has been hit!
 
-To identify features, pass a `hitValue`. This can be any object, but if one layer contains all the same type, type casting can be avoided (if the type is also specified in the `LayerHitNotifier`'s type argument). These objects should have a valid and useful equality method to avoid breaking the equality of the feature.
+To identify individual elements in a layer, pass a `hitValue`. This can be any object, but if one layer contains all the same type, type casting can be avoided (if the type is also specified in the `LayerHitNotifier`'s type argument). These objects should have a valid and useful equality method to avoid breaking the equality of the feature.
 
 ## 3. Gesture Detection
 
@@ -77,7 +77,7 @@ MouseRegion(
 
 Once a `LayerHitResult` object is obtained, through the hit notifier (either from `.value` inside a gesture detecting widget callback, or from a registered notifier listener callback), you can retrieve:
 
-* `hitValues`: the `hitValue`s of all the features that were hit, ordered by their corresponding feature, first-to-last, visually top-to-bottom
+* `hitValues`: the `hitValue`s of all elements that were hit, ordered by their corresponding feature, first-to-last, visually top-to-bottom
 * `coordinate`: the geographic coordinate of the hit location (which may not lie on any feature)
 * `point`: the screen point of the hit location
 
