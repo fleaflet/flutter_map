@@ -27,31 +27,39 @@ Pass a `LayerHitNotifier` to the `hitNotifier` parameter of the layer. The `Laye
 
 This notifier will be notified whenever a hit test occurs on the layer, with a  `LayerHitResult` when a feature within the layer is hit, and with `null` when a feature is not hit (but the layer is).
 
-{% code title="hit_notifier.dart" %}
-```dart
-final LayerHitNotifier hitNotifier = ValueNotifier(null);
+<pre class="language-dart"><code class="lang-dart">final LayerHitNotifier hitNotifier = ValueNotifier(null);
 
 // Inside the map build...
 PolylineLayer( // Or any other supported layer
-  hitNotifier: hitNotifier,
-  polylines: [], // Or any other supported elements
+<strong>  hitNotifier: hitNotifier,
+</strong>  polylines: [], // Or any other supported elements
 );
-```
-{% endcode %}
+</code></pre>
 
-It is possible to listen to the notifier directly with `addListener` - don't forget to remove the listener once you no longer need it! Alternatively, you can use another [#id-3.-gesture-detection](./#id-3.-gesture-detection "mention") widget to filter the events appropriately.
+It is possible to listen to the notifier directly with `addListener`, if you want to handle all hit events (including, for example, hover events).\
+However, most use cases just need to handle particular gestures (such as taps). This can be done with a wrapper widget to 'filter' the events appropriately: [#id-3.-gesture-detection](./#id-3.-gesture-detection "mention").
 
 ## 2. Add `hitValue` To Elements
 
-Although this step is technically optional, it's not very useful if you have multiple elements (such as `Polyline` or `Polygon`) if you can't detect which feature has been hit!
+To identify which particular element (such as a `Polyline` or `Polygon`) was hit (which will be useful when handling the hit events in later steps), supported elements have a `hitValue` property.
 
-To identify individual elements in a layer, pass a `hitValue`. This can be any object, but if one layer contains all the same type, type casting can be avoided (if the type is also specified in the `LayerHitNotifier`'s type argument). These objects should have a valid and useful equality method to avoid breaking the equality of the feature.
+This can be set to any object, but if one layer contains all the same type, type casting can be avoided (if the type is also specified in the `LayerHitNotifier`'s type argument).
+
+{% hint style="warning" %}
+The equality of the element depends on the equality of the `hitValue`.
+
+Therefore, any object passed to the `hitValue` should have a valid and useful equality method.\
+Objects such as [records](https://dart.dev/language/records) do this behind the scenes, and can be a good choice to store small amounts of uncomplicated data alongside the element.
+{% endhint %}
 
 ## 3. Gesture Detection
 
-Events can be 'filtered', to only detect taps or long presses for example, using another gesture/hit responsive widget such as `GestureDetector` or `MouseRegion`. In this case, wrap the layer with other hit detection widgets as you would do normally to detect taps.
+To only handle certain hits based on the type of gesture the user performed (such as a tap), wrap the layer with a gesture/hit responsive widget, such as `GestureDetector` or `MouseRegion`.&#x20;
 
-{% code title="tappable_polyline.dart" %}
+These widgets are smart enough to delegate whether they detect a hit (and therefore whether they can detect a gesture) to the child - although `HitTestBehavior.deferToChild` may be required for some widgets to enable this functionality.
+
+This means the layer can report whether it had any form of hit, and the handler widget can detect whether the gesture performed on it actually triggered a hit on the layer below.
+
 ```dart
 // Inside the map build...
 MouseRegion(
@@ -59,11 +67,10 @@ MouseRegion(
   cursor: SystemMouseCursors.click, // Use a special cursor to indicate interactivity
   child: GestureDetector(
     onTap: () {
-      // Handle the hit, which in this case is a tap, as below
+      // Handle the hit, which in this case is a tap
+      // For example, see the example in Hit Handling (below)
     },
-    onLongPress: () {
-      // Handle the hit, which in this case is a long press, as below
-    },
+    // And/or any other gesture callback
     child: PolylineLayer(
       hitNotifier: hitNotifier,
       // ...
@@ -71,11 +78,10 @@ MouseRegion(
   ),
 ),
 ```
-{% endcode %}
 
 ## 4. Hit Handling
 
-Once a `LayerHitResult` object is obtained, through the hit notifier (either from `.value` inside a gesture detecting widget callback, or from a registered notifier listener callback), you can retrieve:
+Once a `LayerHitResult` object is obtained, through the hit notifier, you can retrieve:
 
 * `hitValues`: the `hitValue`s of all elements that were hit, ordered by their corresponding feature, first-to-last, visually top-to-bottom
 * `coordinate`: the geographic coordinate of the hit location (which may not lie on any feature)
@@ -85,13 +91,20 @@ Once a `LayerHitResult` object is obtained, through the hit notifier (either fro
 If all the `hitValue`s in a layer are of the same type, and the created hit notifier specifies that type in the type argument, typing is preserved all the way to retrieval.
 {% endhint %}
 
-{% code title="layer_hit_result.dart" overflow="wrap" %}
-```dart
-final LayerHitResult? hitResult = hitHandler.value;
-if (hitResult == null) return;
+Because the `HitNotifier` is a special type of `ValueNotifier`, it can be both listened to (like a `Stream`), and its value instantly retrieved (like a normal variable).\
+Therefore, there are two ways to retrieve a `LayerHitResult` (or `null`) from the notifier:
+
+* Using `.value` to instantly retrieve the value\
+  This is usually done within a gesture handler, such as `GestureDetector.onTap`, as demonstrated below.
+* Adding a listener (`.addListener`) to retrieve all hit results\
+  This is useful where you want to apply some custom/advanced filtering to the values, and is not a typical usecase.
+
+<pre class="language-dart" data-overflow="wrap"><code class="lang-dart">// Inside a gesture detector/handler
+
+<strong>final LayerHitResult? hitResult = hitNotifier.value;
+</strong>if (hitResult == null) return;
 
 // If running frequently (such as on a hover handler), and heavy work or state changes are performed here, store each result so it can be compared to the newest result, then avoid work if they are equal 
 
 for (final hitValue in hitResult.hitValues) {}
-```
-{% endcode %}
+</code></pre>
