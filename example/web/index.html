@@ -1,6 +1,5 @@
-<!DOCTYPE html>
-<html>
-
+<!DOCTYPE HTML>
+<html lang="en">
 <head>
     <!--
     If you are serving your web app in a path other than the root, change the
@@ -19,45 +18,26 @@
 
     <meta charset="UTF-8">
     <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-    <meta name="description"
-        content="A versatile mapping package for Flutter, based off leaflet.js, that's simple and easy to learn, yet completely customizable and configurable.">
+    <meta content="A versatile mapping package for Flutter, based off leaflet.js, that's simple and easy to learn, yet completely customizable and configurable."
+          name="description">
 
     <!-- iOS meta tags & icons -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="flutter_map Demo">
-    <link rel="apple-touch-icon" href="icons/Icon-192.png">
+    <meta content="yes" name="apple-mobile-web-app-capable">
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta content="flutter_map Demo" name="apple-mobile-web-app-title">
+    <link href="icons/Icon-192.png" rel="apple-touch-icon">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="favicon.png" />
+    <link href="favicon.png" rel="icon" type="image/png"/>
 
     <title>flutter_map Demo</title>
-    <link rel="manifest" href="manifest.json">
-
-    <script>
-        // The value below is injected by flutter build, do not touch.
-        var serviceWorkerVersion = null;
-    </script>
-    <!-- This script adds the flutter initialization JS code -->
-    <script src="flutter.js" defer></script>
+    <link href="manifest.json" rel="manifest">
+    <script src="flutter.js"></script>
 </head>
-
 <body>
-    <script>
-        window.addEventListener('load', function (ev) {
-            // Download main.dart.js
-            _flutter.loader.loadEntrypoint({
-                serviceWorker: {
-                    serviceWorkerVersion: serviceWorkerVersion,
-                },
-                onEntrypointLoaded: function (engineInitializer) {
-                    engineInitializer.initializeEngine().then(function (appRunner) {
-                        appRunner.runApp();
-                    });
-                }
-            });
-        });
-    </script>
+<script>
+    {{flutter_build_config}}
+    _flutter.loader.load();
+</script>
 </body>
-
 </html>
