@@ -6,7 +6,7 @@ import 'package:dart_earcut/dart_earcut.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/pixel_hiker.dart';
+import 'package:flutter_map/src/layer/general/line_patterns/pixel_hiker.dart';
 import 'package:flutter_map/src/misc/offsets.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart' hide Path;

@@ -55,7 +55,7 @@ class _PolygonPageState extends State<PolygonPage> {
         LatLng(46.22, -0.11),
         LatLng(44.399, 1.76),
       ],
-      pattern: PolylinePattern.dashed(segments: const [50, 20]),
+      pattern: StrokePattern.dashed(segments: const [50, 20]),
       borderStrokeWidth: 4,
       borderColor: Colors.lightBlue,
       color: Colors.yellow,
@@ -105,7 +105,7 @@ class _PolygonPageState extends State<PolygonPage> {
         LatLng(54, -14),
         LatLng(54, -18),
       ].map((latlng) => LatLng(latlng.latitude, latlng.longitude + 8)).toList(),
-      pattern: const PolylinePattern.dotted(),
+      pattern: const StrokePattern.dotted(),
       holePointsList: [
         const [
           LatLng(52, -17),
@@ -151,7 +151,7 @@ class _PolygonPageState extends State<PolygonPage> {
       ]
           .map((latlng) => LatLng(latlng.latitude - 6, latlng.longitude + 8))
           .toList(),
-      pattern: const PolylinePattern.dotted(),
+      pattern: const StrokePattern.dotted(),
       holePointsList: [
         const [
           LatLng(52, -17),

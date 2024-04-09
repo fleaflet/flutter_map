@@ -31,11 +31,13 @@ class Polygon<R extends Object> {
   /// Defaults to false (enabled).
   final bool disableHolesBorder;
 
-  /// Determines whether this should be solid, dotted, or dashed, and the exact
-  /// characteristics of each
+  /// Determines whether the border (if visible) should be solid, dotted, or
+  /// dashed, and the exact characteristics of each
   ///
-  /// Defaults to being a solid/unbroken line ([PolylinePattern.solid]).
-  final PolylinePattern pattern;
+  /// Defaults to being a solid/unbroken line ([StrokePattern.solid]).
+  /// Note that there is no border by default: increase [borderStrokeWidth] to
+  /// display it.
+  final StrokePattern pattern;
 
   /// **DEPRECATED**
   ///
@@ -134,7 +136,7 @@ class Polygon<R extends Object> {
     this.borderStrokeWidth = 0,
     this.borderColor = const Color(0xFFFFFF00),
     this.disableHolesBorder = false,
-    this.pattern = const PolylinePattern.solid(),
+    this.pattern = const StrokePattern.solid(),
     @Deprecated(
       'Prefer setting `color` to null to disable filling, or a `Color` to enable filling of that color. '
       'This parameter will be removed to simplify the API, as this was a remnant of pre-null-safety. '

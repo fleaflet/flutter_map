@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/src/layer/polyline_layer/polyline_layer.dart';
-import 'package:flutter_map/src/layer/visible_segment.dart';
+import 'package:flutter_map/src/layer/general/line_patterns/stroke_pattern.dart';
+import 'package:meta/meta.dart';
+
+part 'package:flutter_map/src/layer/general/line_patterns/visible_segment.dart';
 
 /// Pixel hiker that lists the visible dots to display on the way.
+@internal
 class DottedPixelHiker extends _PixelHiker {
   /// Standard Dotted Pixel Hiker constructor.
   DottedPixelHiker({
@@ -115,6 +118,7 @@ class DottedPixelHiker extends _PixelHiker {
 }
 
 /// Pixel hiker that lists the visible dashed segments to display on the way.
+@internal
 class DashedPixelHiker extends _PixelHiker {
   /// Standard Dashed Pixel Hiker constructor.
   DashedPixelHiker({
@@ -234,7 +238,7 @@ class DashedPixelHiker extends _PixelHiker {
 }
 
 /// Pixel hiker that lists the visible items on the way.
-abstract class _PixelHiker {
+sealed class _PixelHiker {
   _PixelHiker({
     required this.offsets,
     required this.segmentValues,

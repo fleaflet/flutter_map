@@ -1,4 +1,4 @@
-import 'dart:ui';
+part of 'pixel_hiker.dart';
 
 /// Cohen-Sutherland algorithm to clip segments as visible into a canvas.
 class VisibleSegment {
