@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_map/src/layer/polygon_layer/polygon_layer.dart';
-import 'package:flutter_map/src/layer/polyline_layer/polyline_layer.dart';
+import 'package:flutter_map/flutter_map.dart';
 
 /// Determines whether a stroke should be solid, dotted, or dashed, and the
 /// exact characteristics of each
