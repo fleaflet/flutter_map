@@ -1,6 +1,6 @@
 part of 'polyline_layer.dart';
 
-/// [CustomPainter] for [Polygon]s.
+/// [CustomPainter] for [Polyline]s.
 class _PolylinePainter<R extends Object> extends CustomPainter {
   /// Reference to the list of [Polyline]s.
   final List<_ProjectedPolyline<R>> polylines;
@@ -201,162 +201,59 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
       final radius = paint.strokeWidth / 2;
       final borderRadius = (borderPaint?.strokeWidth ?? 0) / 2;
 
+      final List<ui.Path> paths = [];
+      if (borderPaint != null && filterPaint != null) {
+        paths.add(borderPath);
+        paths.add(filterPath);
+      }
+      paths.add(path);
       if (isDotted) {
-        final spacing = strokeWidth * polyline.pattern.spacingFactor!;
+        final DottedPixelHiker hiker = DottedPixelHiker(
+          offsets: offsets,
+          stepLength: strokeWidth * polyline.pattern.spacingFactor!,
+          patternFit: polyline.pattern.patternFit!,
+          closePath: false,
+          canvasSize: size,
+        );
+
+        final List<double> radii = [];
         if (borderPaint != null && filterPaint != null) {
-          _paintDottedLine(
-              borderPath, offsets, borderRadius, spacing, polyline.pattern);
-          _paintDottedLine(
-              filterPath, offsets, radius, spacing, polyline.pattern);
+          radii.add(borderRadius);
+          radii.add(radius);
         }
-        _paintDottedLine(path, offsets, radius, spacing, polyline.pattern);
+        radii.add(radius);
+
+        for (final visibleDot in hiker.getAllVisibleDots()) {
+          for (int i = 0; i < paths.length; i++) {
+            paths[i]
+                .addOval(Rect.fromCircle(center: visibleDot, radius: radii[i]));
+          }
+        }
       } else if (isDashed) {
-        if (borderPaint != null && filterPaint != null) {
-          _paintDashedLine(borderPath, offsets, polyline.pattern);
-          _paintDashedLine(filterPath, offsets, polyline.pattern);
+        final DashedPixelHiker hiker = DashedPixelHiker(
+          offsets: offsets,
+          segmentValues: polyline.pattern.segments!,
+          patternFit: polyline.pattern.patternFit!,
+          closePath: false,
+          canvasSize: size,
+        );
+
+        for (final visibleSegment in hiker.getAllVisibleSegments()) {
+          for (final path in paths) {
+            path.moveTo(visibleSegment.begin.dx, visibleSegment.begin.dy);
+            path.lineTo(visibleSegment.end.dx, visibleSegment.end.dy);
+          }
         }
-        _paintDashedLine(path, offsets, polyline.pattern);
       } else {
-        if (borderPaint != null && filterPaint != null) {
-          _paintLine(borderPath, offsets);
-          _paintLine(filterPath, offsets);
+        if (offsets.isNotEmpty) {
+          for (final path in paths) {
+            path.addPolygon(offsets, false);
+          }
         }
-        _paintLine(path, offsets);
       }
     }
 
     drawPaths();
-  }
-
-  void _paintDottedLine(
-    ui.Path path,
-    List<Offset> offsets,
-    double radius,
-    double stepLength,
-    PolylinePattern pattern,
-  ) {
-    final PatternFit patternFit = pattern.patternFit!;
-
-    if (offsets.isEmpty) return;
-
-    if (offsets.length == 1) {
-      path.addOval(Rect.fromCircle(center: offsets.last, radius: radius));
-      return;
-    }
-
-    int offsetIndex = 0;
-
-    Offset offset0 = offsets[offsetIndex++];
-    Offset offset1 = offsets[offsetIndex++];
-
-    final _PixelHiker hiker = _PixelHiker.dotted(
-      offsets: offsets,
-      stepLength: stepLength,
-      patternFit: patternFit,
-    );
-    path.addOval(Rect.fromCircle(center: offsets.first, radius: radius));
-    while (true) {
-      final Offset newOffset = hiker.getIntermediateOffset(offset0, offset1);
-
-      if (hiker.goToNextOffsetIfNeeded()) {
-        if (offsetIndex >= offsets.length) {
-          if (patternFit != PatternFit.none) {
-            path.addOval(Rect.fromCircle(center: newOffset, radius: radius));
-          }
-          return;
-        }
-        offset0 = offset1;
-        offset1 = offsets[offsetIndex++];
-      } else {
-        offset0 = newOffset;
-      }
-
-      if (hiker.goToNextSegmentIfNeeded()) {
-        path.addOval(Rect.fromCircle(center: newOffset, radius: radius));
-      }
-    }
-  }
-
-  void _paintDashedLine(
-    ui.Path path,
-    List<Offset> offsets,
-    PolylinePattern pattern,
-  ) {
-    final List<double> segmentValues = pattern.segments!;
-    final PatternFit patternFit = pattern.patternFit!;
-
-    if (offsets.length < 2 ||
-        segmentValues.length < 2 ||
-        segmentValues.length.isOdd) {
-      return;
-    }
-
-    int offsetIndex = 0;
-
-    Offset offset0 = offsets[offsetIndex++];
-    Offset offset1 = offsets[offsetIndex++];
-
-    Offset? latestMoveTo;
-
-    void moveTo(final Offset offset) {
-      latestMoveTo = offset;
-    }
-
-    void lineTo(final Offset offset) {
-      if (latestMoveTo != null) {
-        path.moveTo(latestMoveTo!.dx, latestMoveTo!.dy);
-        latestMoveTo = null;
-      }
-      path.lineTo(offset.dx, offset.dy);
-    }
-
-    final _PixelHiker hiker = _PixelHiker.dashed(
-      offsets: offsets,
-      segmentValues: segmentValues,
-      patternFit: patternFit,
-    );
-    moveTo(offset0);
-    while (true) {
-      final Offset newOffset = hiker.getIntermediateOffset(offset0, offset1);
-
-      if (hiker.segmentIndex.isOdd) {
-        if (hiker.isLastSegment && patternFit == PatternFit.extendFinalDash) {
-          lineTo(newOffset);
-        } else {
-          moveTo(newOffset);
-        }
-      } else {
-        lineTo(newOffset);
-      }
-
-      if (hiker.goToNextOffsetIfNeeded()) {
-        // was it the last point?
-        if (offsetIndex >= offsets.length) {
-          if (hiker.segmentIndex.isOdd) {
-            // Were we on a "space-dash"?
-            if (patternFit == PatternFit.appendDot) {
-              // Add a dot at the new point.
-              moveTo(newOffset);
-              lineTo(newOffset);
-            }
-          }
-          return;
-        }
-        offset0 = offset1;
-        offset1 = offsets[offsetIndex++];
-      } else {
-        offset0 = newOffset;
-      }
-
-      hiker.goToNextSegmentIfNeeded();
-    }
-  }
-
-  void _paintLine(ui.Path path, List<Offset> offsets) {
-    if (offsets.isEmpty) {
-      return;
-    }
-    path.addPolygon(offsets, false);
   }
 
   ui.Gradient _paintGradient(Polyline polyline, List<Offset> offsets) =>
@@ -401,146 +298,3 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
 }
 
 const _distance = Distance();
-
-class _PixelHiker {
-  final double _polylinePixelDistance;
-  final List<double> _segmentValues;
-
-  /// Factor to be used on offset distances.
-  late final double _factor;
-
-  double _distanceSoFar = 0;
-  int _segmentIndex = 0;
-
-  _PixelHiker.dotted({
-    required List<Offset> offsets,
-    required double stepLength,
-    required PatternFit patternFit,
-  })  : _polylinePixelDistance = _getPolylinePixelDistance(offsets),
-        _segmentValues = [stepLength] {
-    _factor = _getDottedFactor(patternFit);
-    _setRemaining(_segmentValues[_segmentIndex]);
-  }
-
-  _PixelHiker.dashed({
-    required List<Offset> offsets,
-    required List<double> segmentValues,
-    required PatternFit patternFit,
-  })  : _polylinePixelDistance = _getPolylinePixelDistance(offsets),
-        _segmentValues = segmentValues {
-    _factor = _getDashedFactor(patternFit);
-    _setRemaining(_segmentValues[_segmentIndex]);
-  }
-
-  /// Segment pixel length remaining.
-  late double _remaining;
-  void _setRemaining(double value) {
-    _remaining = value;
-    _distanceSoFar += value;
-  }
-
-  int get segmentIndex => _segmentIndex;
-
-  bool get isLastSegment => _polylinePixelDistance - _distanceSoFar < 0;
-  bool _doneWithCurrentOffset = false;
-
-  bool goToNextOffsetIfNeeded() {
-    if (_doneWithCurrentOffset) {
-      _doneWithCurrentOffset = false;
-      return true;
-    }
-    return false;
-  }
-
-  bool goToNextSegmentIfNeeded() {
-    if (_remaining == 0) {
-      _segmentIndex++;
-      _setRemaining(_segmentValues[_segmentIndex % _segmentValues.length]);
-      return true;
-    }
-    return false;
-  }
-
-  /// Returns the offset on segment [A,B] that matches the remaining distance.
-  Offset getIntermediateOffset(final Offset offsetA, final Offset offsetB) {
-    final segmentDistance = _factor * (offsetA - offsetB).distance;
-    if (_remaining >= segmentDistance) {
-      _remaining -= segmentDistance;
-      _doneWithCurrentOffset = true;
-      return offsetB;
-    }
-    final fB = _remaining / segmentDistance;
-    final fA = 1.0 - fB;
-    _setRemaining(0);
-    return Offset(
-      offsetA.dx * fA + offsetB.dx * fB,
-      offsetA.dy * fA + offsetB.dy * fB,
-    );
-  }
-
-  static double _getPolylinePixelDistance(List<Offset> offsets) {
-    double result = 0;
-    if (offsets.length < 2) {
-      return result;
-    }
-    for (int i = 1; i < offsets.length; i++) {
-      final Offset offsetA = offsets[i - 1];
-      final Offset offsetB = offsets[i];
-      result += (offsetA - offsetB).distance;
-    }
-    return result;
-  }
-
-  double _getDottedFactor(PatternFit patternFit) {
-    if (patternFit != PatternFit.scaleDown &&
-        patternFit != PatternFit.scaleUp) {
-      return 1;
-    }
-
-    if (_polylinePixelDistance == 0) {
-      return 0;
-    }
-
-    final double stepLength = _segmentValues.first;
-    final double factor = _polylinePixelDistance / stepLength;
-
-    if (patternFit == PatternFit.scaleDown) {
-      return (factor.ceil() * stepLength + stepLength) / _polylinePixelDistance;
-    }
-    return (factor.floor() * stepLength + stepLength) / _polylinePixelDistance;
-  }
-
-  /// Returns the factor for offset distances so that the dash pattern fits.
-  ///
-  /// The idea is that we need to be able to display the dash pattern completely
-  /// n times (at least once), plus once the initial dash segment. That's the
-  /// way we deal with the "ending" side-effect.
-  double _getDashedFactor(PatternFit patternFit) {
-    if (patternFit != PatternFit.scaleDown &&
-        patternFit != PatternFit.scaleUp) {
-      return 1;
-    }
-
-    if (_polylinePixelDistance == 0) {
-      return 0;
-    }
-
-    double getTotalSegmentDistance(List<double> segmentValues) {
-      double result = 0;
-      for (final double value in segmentValues) {
-        result += value;
-      }
-      return result;
-    }
-
-    final double totalDashDistance = getTotalSegmentDistance(_segmentValues);
-    final double firstDashDistance = _segmentValues.first;
-    final double factor = _polylinePixelDistance / totalDashDistance;
-    if (patternFit == PatternFit.scaleDown) {
-      return (factor.ceil() * totalDashDistance + firstDashDistance) /
-          _polylinePixelDistance;
-    }
-    return (factor.floor() * totalDashDistance + firstDashDistance) /
-        _polylinePixelDistance;
-  }
-}
