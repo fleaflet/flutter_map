@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/src/layer/general/line_patterns/stroke_pattern.dart';
 import 'package:meta/meta.dart';
 
-part 'package:flutter_map/src/layer/general/line_patterns/visible_segment.dart';
+part 'visible_segment.dart';
 
 /// Pixel hiker that lists the visible dots to display on the way.
 @internal
