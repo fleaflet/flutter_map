@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/src/layer/general/line_patterns/stroke_pattern.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:meta/meta.dart';
 
 part 'visible_segment.dart';
