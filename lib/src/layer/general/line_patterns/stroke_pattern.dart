@@ -21,7 +21,8 @@ class StrokePattern {
   const StrokePattern.dotted({
     double this.spacingFactor = 1.5,
     PatternFit this.patternFit = PatternFit.scaleUp,
-  }) : segments = null;
+  })  : segments = null,
+        assert(spacingFactor > 0, 'spacingFactor must be > 0');
 
   /// Elongated dashes, with length and spacing set by [segments]
   ///
