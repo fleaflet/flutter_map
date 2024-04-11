@@ -73,6 +73,7 @@ class CirclePainter extends CustomPainter {
       for (final borderWidth in pointsBorder[color]!.keys) {
         final pointsByRadius = pointsBorder[color]![borderWidth]!;
         final radiusPaint = paint..strokeWidth = borderWidth;
+        radiusPaint.blendMode = BlendMode.src;
         for (final radius in pointsByRadius.keys) {
           final pointsByRadiusColor = pointsByRadius[radius]!;
           for (final offset in pointsByRadiusColor) {
@@ -92,6 +93,7 @@ class CirclePainter extends CustomPainter {
       for (final radius in pointsByRadius.keys) {
         final pointsByRadiusColor = pointsByRadius[radius]!;
         final radiusPaint = paint..strokeWidth = radius * 2;
+        radiusPaint.blendMode = BlendMode.src;
         _paintPoints(canvas, pointsByRadiusColor, radiusPaint);
       }
     }
@@ -103,7 +105,7 @@ class CirclePainter extends CustomPainter {
       for (final radius in pointsByRadius.keys) {
         final pointsByRadiusColor = pointsByRadius[radius]!;
         final radiusPaint = paint..strokeWidth = radius * 2;
-        radiusPaint.blendMode = BlendMode.luminosity;
+        radiusPaint.blendMode = BlendMode.src;
         _paintPoints(canvas, pointsByRadiusColor, radiusPaint);
       }
     }
