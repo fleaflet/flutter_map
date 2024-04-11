@@ -103,6 +103,7 @@ class CirclePainter extends CustomPainter {
       for (final radius in pointsByRadius.keys) {
         final pointsByRadiusColor = pointsByRadius[radius]!;
         final radiusPaint = paint..strokeWidth = radius * 2;
+        radiusPaint.blendMode = BlendMode.luminosity;
         _paintPoints(canvas, pointsByRadiusColor, radiusPaint);
       }
     }
