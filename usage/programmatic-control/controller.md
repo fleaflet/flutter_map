@@ -1,66 +1,70 @@
-# Control Camera
+# Controllers & Cameras
 
-To control the map (such as moving it to a new position and zoom level), you'll need a `MapController`. The controller does not provide access to the current viewport/camera: that is the responsibility of [`MapCamera`](get-camera.md).
+flutter\_map makes use of `InheritedModel` to share 3 'aspects' with its built children:
 
-{% embed url="https://pub.dev/documentation/flutter_map/latest/flutter_map/MapController-class.html" %}
-
-## Usage Inside Of A `FlutterMap` Child
-
-To control the map from within the context of a `FlutterMap` widget, use `MapController.of(context)`.
+* `MapController`: use to programatically control the map camera & access some helper functionality - **control camera**
+* `MapCamera`: use to read the current state/position of the map camera & access some helper functionality that depends on the camera (such as `latlngToPoint`) - **read camera**
 
 {% hint style="info" %}
-Calling this method in a `build` method will cause the widget to automatically rebuild if the `MapController` changes. See [#2.-hooking-into-inherited-state](../../plugins/making-a-plugin/creating-new-layers.md#2.-hooking-into-inherited-state "mention") for more information.
+`MapOptions` is also an aspect, which reflects the `MapOptions` defined on the `FlutterMap.options` parameter.
+
+However, it is mostly irrelevant, except for when [creating-new-layers.md](../../plugins/making-a-plugin/creating-new-layers.md "mention").
 {% endhint %}
 
-If this throws a `StateError`, try wrapping the concerned widget in a `Builder`, to ensure the `FlutterMap` widget is parenting the `BuildContext`. If this has no effect, use [#usage-outside-of-fluttermap](controller.md#usage-outside-of-fluttermap "mention") instead.
+## Accessing Aspects Within Descendants
 
-## Usage Outside Of `FlutterMap`
+All 3 aspects can be retrieved from within the context of a `FlutterMap`, which all _built_ descendants should have access to. This usually means from within a layer: anywhere where there is at least one 'visible' builder method between the `FlutterMap` and the invocation.
 
-### Initialisation
-
-To use a `MapController`, it must initialised like any other object and then passed to the `FlutterMap`. This attaches them until the map is disposed.
+Use the static `of` (or null-safe `maybeOf`) method to access the inherited aspect. For example, to access the `MapCamera`:
 
 ```dart
-final mapController = MapController();
-
-@override
-Widget build(BuildContext context) =>
-    FlutterMap(
-        mapController: mapController,
-        // ...
-    );
+final inheritedCamera = MapCamera.of(context);
 ```
 
-### Usage Inside `initState()`
-
-Sometimes, it is necessary `MapController` in `initState()` before the map has been built, for example to attach an event listener ([listen-to-events.md](listen-to-events.md "mention")). This is not directly possible, as the map must be built for the controller to be attached.
-
-Instead, use the `MapOptions.onMapReady` callback. The initialised `MapController` can be used freely within it.
-
-```dart
-final mapController = MapController();
-
-@override
-Widget build(BuildContext context) =>
-    FlutterMap(
-        mapController: mapController,
-        options: MapOptions(
-            onMapReady: () {
-                mapController.mapEventStream.listen((evt) {});
-                // And any other `MapController` dependent non-movement methods
-            },
-        ),
-    );
-```
+This will attach the widget to the state of the map, causing it to rebuild whenever the depended-on aspects change. See [#id-2.-hooking-into-inherited-state](../../plugins/making-a-plugin/creating-new-layers.md#id-2.-hooking-into-inherited-state "mention") for more information.
 
 {% hint style="warning" %}
-`MapController` methods that change the position of the map should not be used instantly in `onMapReady` - see [issue #1507](https://github.com/fleaflet/flutter\_map/issues/1507).
+Using this method directly in the `children` list (not inside another widget), and in any `MapOptions` callback, is not possible: there is no\* builder method between the `FlutterMap` and the `children` or callback.
 
-Using them as a reaction to a map event is still fine.
+Instead, follow [#accessing-aspects-elsewhere](controller.md#accessing-aspects-elsewhere "mention"), or, wrap the necessary layers with a `Builder` widget.\
+For example, the code snippet below hides a `TileLayer` when above zoom level 13:
+
+```dart
+children: [
+    Builder(
+        builder: (context) {
+            if (MapCamera.of(context).zoom < 13) return SizedBox.shrink();
+            return TileLayer();
+        },
+    ),
+],
+```
 {% endhint %}
 
-## Animated Movements
+## Accessing Aspects Elsewhere
 
-Whilst animated movements through `MapController`s aren't built-in, the [community maintained plugin `flutter_map_animations`](https://github.com/TesteurManiak/flutter\_map\_animations) provides this, and much more!
+### `MapCamera`
 
-The example application also includes a page demonstrating a custom animated map movement without the plugin.
+To access the `MapCamera` outside of a `FlutterMap` descendant, first [setup an external `MapController`, as guided below](controller.md#mapcontroller).
+
+Then use the `camera` getter on the `MapController` instance.
+
+{% hint style="warning" %}
+Avoid using this method to access the camera when `MapCamera.of()` is available.
+{% endhint %}
+
+### `MapController`
+
+For more information about correctly setting up an external(ly accessible) `MapController`, see:
+
+{% content-ref url="external-custom-controllers.md" %}
+[external-custom-controllers.md](external-custom-controllers.md)
+{% endcontent-ref %}
+
+### `MapOptions`
+
+{% hint style="info" %}
+It is not possible to access the `MapOptions` in this way outside of `FlutterMap` descendants.
+
+This is because it is not changed by `FlutterMap`, and so that would be unnecessary.
+{% endhint %}

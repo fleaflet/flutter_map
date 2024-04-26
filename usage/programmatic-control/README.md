@@ -1,4 +1,4 @@
-# Programmatic Control
+# Programmatic Interaction
 
 There's two ways to interact with the map - that is to control it, as well as receive data from it - and it's current viewport, aka. 'camera'.
 
@@ -8,20 +8,16 @@ The first way is through user interaction, where they perform gestures (such as 
 
 These are usually restricted by [options](../options/ "mention"). It is possible to disable all input, either by disabling all gestures, or by wrapping the map with something like `IgnorePointer`.
 
-## via Programmatic Means
+## via Programmatic Interation
 
-When using programmatic means, there's two methods to most things, dependent on whether the context is within a `FlutterMap` (ie. usually a layer) or not.
+However, the map camera can also be controlled by calling methods on a controller, and its state read by getting values from an exposed camera.
 
-If within `FlutterMap`'s context, the methods usually cause automatic rebuilding. As well as the pages below, also see [#2.-hooking-into-inherited-state](../../plugins/making-a-plugin/creating-new-layers.md#2.-hooking-into-inherited-state "mention").
+{% hint style="warning" %}
+Changing the state of `MapOptions.initial*` will not update the map camera. It may only be updated through a `MapController`.
+{% endhint %}
+
+For more information, see:
 
 {% content-ref url="controller.md" %}
 [controller.md](controller.md)
-{% endcontent-ref %}
-
-{% content-ref url="get-camera.md" %}
-[get-camera.md](get-camera.md)
-{% endcontent-ref %}
-
-{% content-ref url="listen-to-events.md" %}
-[listen-to-events.md](listen-to-events.md)
 {% endcontent-ref %}

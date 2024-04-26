@@ -19,9 +19,9 @@
 * [Options](usage/options/README.md)
   * [Interaction Options](usage/options/interaction-options.md)
 * [Layers](usage/layers.md)
-* [Programmatic Control](usage/programmatic-control/README.md)
-  * [Control Camera](usage/programmatic-control/controller.md)
-  * [Get Camera](usage/programmatic-control/get-camera.md)
+* [Programmatic Interaction](usage/programmatic-control/README.md)
+  * [Controllers & Cameras](usage/programmatic-control/controller.md)
+  * [External Custom Controllers](usage/programmatic-control/external-custom-controllers.md)
   * [Listen To Events](usage/programmatic-control/listen-to-events.md)
 * [Full API Reference](https://pub.dev/documentation/flutter\_map/latest/flutter\_map/flutter\_map-library.html)
 
