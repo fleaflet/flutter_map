@@ -5,12 +5,12 @@ import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/layer/misc/line_patterns/pixel_hiker.dart';
 import 'package:flutter_map/src/misc/offsets.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart';
 
 part 'painter.dart';
-part 'pattern.dart';
 part 'polyline.dart';
 part 'projected_polyline.dart';
 
