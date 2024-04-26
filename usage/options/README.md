@@ -8,7 +8,7 @@ It provides options that can be categorized into three main parts:
   Defines the location of the map when it is first loaded
 * [Permanent rules](./#permanent-rules)\
   Defines restrictions that last throughout the map's lifetime
-* [Event handling](../programmatic-control/listen-to-events.md)\
+* [Event handling](../programmatic-interaction/listen-to-events.md)\
   Defines methods that are called on specific map events
 
 {% embed url="https://pub.dev/documentation/flutter_map/latest/flutter_map/MapOptions-class.html" %}
@@ -18,7 +18,7 @@ It provides options that can be categorized into three main parts:
 {% hint style="info" %}
 Changing these properties after the map has already been built for the first time will have no effect: they only apply on initialisation.
 
-To control the map programatically, use a `MapController`: [controller.md](../programmatic-control/controller.md "mention").
+To control the map programatically, use a `MapController`: [controllers-and-cameras.md](../programmatic-interaction/controllers-and-cameras.md "mention").
 {% endhint %}
 
 One part of `MapOptions` responsibilities is to define how the map should be positioned when first loaded. There's two ways to do this (that are incompatible):

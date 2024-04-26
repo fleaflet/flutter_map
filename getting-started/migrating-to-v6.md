@@ -78,7 +78,7 @@ All features that need to be exposed are now exposed through the primary import,
 
 In most cases, migrating will entail replacing `FlutterMapState` with `MapCamera`, but another aspect may be required.
 
-See [#2.-hooking-into-inherited-state](../plugins/making-a-plugin/creating-new-layers.md#2.-hooking-into-inherited-state "mention") and [programmatic-control](../usage/programmatic-control/ "mention") for more information.
+See [#2.-hooking-into-inherited-state](../plugins/making-a-plugin/creating-new-layers.md#2.-hooking-into-inherited-state "mention") and [programmatic-interaction](../usage/programmatic-interaction/ "mention") for more information.
 
 </details>
 
@@ -95,7 +95,7 @@ There are multiple possibilities for migration:
 1. If inside the `FlutterMap` context, prefer using `MapCamera.of(context)`
 2. Otherwise, use `MapController` in the same way, but use the `.camera` getter to retrieve the `MapCamera`.
 
-See [programmatic-control](../usage/programmatic-control/ "mention") for more information.
+See [programmatic-interaction](../usage/programmatic-interaction/ "mention") for more information.
 
 </details>
 

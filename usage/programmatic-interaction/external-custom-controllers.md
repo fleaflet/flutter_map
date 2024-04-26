@@ -2,8 +2,8 @@
 
 For more information about what a `MapController` is, and when it is necessary to set one up in this way, see:
 
-{% content-ref url="controller.md" %}
-[controller.md](controller.md)
+{% content-ref url="controllers-and-cameras.md" %}
+[controllers-and-cameras.md](controllers-and-cameras.md)
 {% endcontent-ref %}
 
 ***

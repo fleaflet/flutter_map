@@ -8,7 +8,7 @@ FlutterMap(
 );
 ```
 
-Start by adding some [Broken link](broken-reference "mention") to `children`, then configure the map in [options](options/ "mention"). Additionally, if required, add a `MapController`: [controller.md](programmatic-control/controller.md "mention").
+Start by adding some [Broken link](broken-reference "mention") to `children`, then configure the map in [options](options/ "mention"). Additionally, if required, add a `MapController`: [controllers-and-cameras.md](programmatic-interaction/controllers-and-cameras.md "mention").
 
 ## Placement Recommendations
 

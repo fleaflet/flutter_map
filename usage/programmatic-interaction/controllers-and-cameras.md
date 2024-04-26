@@ -26,7 +26,7 @@ This will attach the widget to the state of the map, causing it to rebuild whene
 {% hint style="warning" %}
 Using this method directly in the `children` list (not inside another widget), and in any `MapOptions` callback, is not possible: there is no\* builder method between the `FlutterMap` and the `children` or callback.
 
-Instead, follow [#accessing-aspects-elsewhere](controller.md#accessing-aspects-elsewhere "mention"), or, wrap the necessary layers with a `Builder` widget.\
+Instead, follow [#accessing-aspects-elsewhere](controllers-and-cameras.md#accessing-aspects-elsewhere "mention"), or, wrap the necessary layers with a `Builder` widget.\
 For example, the code snippet below hides a `TileLayer` when above zoom level 13:
 
 ```dart
@@ -45,7 +45,7 @@ children: [
 
 ### `MapCamera`
 
-To access the `MapCamera` outside of a `FlutterMap` descendant, first [setup an external `MapController`, as guided below](controller.md#mapcontroller).
+To access the `MapCamera` outside of a `FlutterMap` descendant, first [setup an external `MapController`, as guided below](controllers-and-cameras.md#mapcontroller).
 
 Then use the `camera` getter on the `MapController` instance.
 

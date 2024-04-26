@@ -18,6 +18,6 @@ Changing the state of `MapOptions.initial*` will not update the map camera. It m
 
 For more information, see:
 
-{% content-ref url="controller.md" %}
-[controller.md](controller.md)
+{% content-ref url="controllers-and-cameras.md" %}
+[controllers-and-cameras.md](controllers-and-cameras.md)
 {% endcontent-ref %}
