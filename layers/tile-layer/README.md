@@ -1,8 +1,16 @@
 # Tile Layer
 
+{% hint style="warning" %}
+You must comply with the appropriate restrictions and terms of service set by your tile server. Always read the ToS before using a tile server. Failure to do so may lead to any punishment, at the tile server's discretion.
+
+This library and/or the creator(s) are not responsible for any violations you make using this package.
+
+_The OpenStreetMap Tile Server (as used below) ToS can be_ [_found here_](https://operations.osmfoundation.org/policies/tiles)_. Other servers may have different terms._
+{% endhint %}
+
 The basis of any map is a `TileLayer`, which displays square raster images in a continuous grid, sourced from the Internet or a local file system.
 
-flutter\_map supports [wms-usage.md](wms-usage.md "mention"), but most map tiles are accessed through Slippy Map/CARTO/XYZ URLs.
+flutter\_map supports [wms-usage.md](wms-usage.md "mention"), but most map tiles are accessed through Slippy Map/CARTO/XYZ URLs, as described here.
 
 {% embed url="https://pub.dev/documentation/flutter_map/latest/flutter_map/TileLayer-class.html" %}
 
@@ -14,12 +22,21 @@ TileLayer(
 ),
 ```
 
-{% hint style="warning" %}
-You must comply with the appropriate restrictions and terms of service set by your tile server. Always read the ToS before using a tile server. Failure to do so may lead to any punishment, at the tile server's discretion.
+{% hint style="success" %}
+Although setting up a basic tile layer couldn't be simpler, it helps to spend a little bit more time fine-tuning it! We recommend covering this list at least, for every tile layer.
 
-This library and/or the creator(s) are not responsible for any violations you make using this package.
-
-_The OpenStreetMap Tile Server (as used above) ToS can be_ [_found here_](https://operations.osmfoundation.org/policies/tiles)_. Other servers may have different terms._
+* [#url-template](./#url-template "mention")\
+  Choose a suitable tile server for your app
+* [#useragentpackagename](./#useragentpackagename "mention")\
+  Always set `userAgentPackageName`, even though it is technically optional
+* [#subdomains](./#subdomains "mention")\
+  Consider whether you should set subdomains for your template URL
+* [#retina-mode](./#retina-mode "mention")\
+  If your tile server supports retina tiles natively, set up the `retinaMode` property
+* [#cancellablenetworktileprovider](tile-providers.md#cancellablenetworktileprovider "mention")\
+  Especially on web, consider using this more advanced `TileProvider` to improve performance
+* [`maxNativeZoom`](https://pub.dev/documentation/flutter\_map/latest/flutter\_map/TileLayer/maxNativeZoom.html)\
+  Set the maximum zoom level that the tile server supports to prevent flutter\_map from trying to exceed this (especially when not set appropriately in `MapOptions.maxZoom`)
 {% endhint %}
 
 ## URL Template
@@ -63,19 +80,28 @@ If the server supports HTTP/2 or HTTP/3 ([how to check](https://stackoverflow.co
 
 ### Retina Mode
 
-Retina mode improves the resolution of map tiles, an effect particularly visible on high density displays.
+Retina mode improves the resolution of map tiles, an effect particularly visible on high density (aka. retina) displays.
 
-Raster map tiles can look pixelated (especially on high density displays), so some servers support [high-resolution "@2x" tiles](https://wiki.openstreetmap.org/wiki/High-resolution\_tiles), which are tiles at twice the resolution of normal tiles. However, not all tile servers support this, so flutter\_map can  simulate retina behaviour.
+Raster map tiles can look especially pixelated on retina displays, so some servers support [high-resolution "@2x" tiles](https://wiki.openstreetmap.org/wiki/High-resolution\_tiles), which are tiles at twice the resolution of normal tiles.
 
-It is recommended to enable retina mode on high density displays (especially where the server natively supports retina tiles). This can be done by calling `RetinaMode.isHighDensity` with the current `BuildContext`, and passing the result to `TileLayer.retinaMode`.
+Where the display is high density, and the server supports retina tiles - usually indicated by an `{r}` placeholder in the URL template - it is recommended to enable retina mode.
 
-If the `{r}` placeholder is present in the the `urlTemplate`, and `retinaMode` is enabled, then it will be filled with "@2x".\
-If it is not present, but `retinaMode` is enabled, then flutter\_map will simulate retina behaviour by requesting four tiles at a larger zoom level and combining them together in place of one.&#x20;
+{% hint style="success" %}
+Therefore, where `{r}` is available, it is recommended to call the method `RetinaMode.isHighDensity` with the current `BuildContext`, and pass the result to `TileLayer.retinaMode`. This will enable retina mode on retina displays by filling the `{r}` placeholder with "@2x".
+{% endhint %}
+
+#### Emulation
+
+It is also possible to emulate retina mode, even when the server does not natively support it. If `retinaMode` is `true`, and no `{r}` placeholder is present, flutter\_map will emulate it by requesting four tiles at a larger zoom level and combining them together in place of one.
 
 {% hint style="warning" %}
-Note that simulating retina mode will increase tile requests, decrease the effective maximum zoom by 1, and may cause unusual scaling of tiles and their relative contents.
+Emulating retina mode has multiple negative effects:
 
-Always prefer the server's native retina tiles where available.
+* it increases tile requests
+* it likely causes text/labels and POI markers embedded in the tiles to become smaller and unreadable
+* it decreases the effective maximum zoom by 1
+
+Therefore, carefully consider whether emulating retina mode is appropriate for your application, and disable it if necessary. Always prefer native retina tiles if they are available.
 {% endhint %}
 
 ### Fallback URL Template
@@ -89,7 +115,7 @@ See in-code documentation and [tile-providers.md](tile-providers.md "mention") f
 {% endhint %}
 
 {% hint style="warning" %}
-Certain `TileProvider`s may not support/provide any functionality for `fallbackUrl` template.
+Some `TileProvider`s may not support/provide any functionality for `fallbackUrl` template.
 {% endhint %}
 
 ## `userAgentPackageName`
@@ -124,10 +150,10 @@ Need more control over how the URL template is interpreted and/or tiles are fetc
 `TileUpdateTransformer`(`s`) is a power-user feature. Most applications won't require it.
 {% endhint %}
 
-A `TileUpdateTransformer` restricts and limits `TileUpdateEvent`s (which are emitted 'by' `MapEvent`s), which cause tiles to update (see below).
+A `TileUpdateTransformer` restricts and limits `TileUpdateEvent`s (which are emitted 'by' `MapEvent`s), which cause tiles to update.
 
 For example, a transformer can delay (throttle or debounce) updates through one of the built-in transformers, or pause updates during an animation, or force updates even when a `MapEvent` wasn't emitted.
 
 For more information, see:
 
-\<link>
+{% embed url="https://pub.dev/documentation/flutter_map/7.0.0-dev.1/flutter_map/TileUpdateTransformer.html" %}
