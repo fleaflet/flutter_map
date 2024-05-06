@@ -159,6 +159,7 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
         strokeWidth = polyline.strokeWidth;
       }
 
+      final isSolid = polyline.pattern == const StrokePattern.solid();
       final isDashed = polyline.pattern.segments != null;
       final isDotted = polyline.pattern.spacingFactor != null;
 
@@ -207,7 +208,19 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
         paths.add(filterPath);
       }
       paths.add(path);
-      if (isDotted) {
+      if (isSolid) {
+        final SolidPixelHiker hiker = SolidPixelHiker(
+          offsets: offsets,
+          closePath: false,
+          canvasSize: size,
+        );
+        for (final visibleSegment in hiker.getAllVisibleSegments()) {
+          for (final path in paths) {
+            path.moveTo(visibleSegment.begin.dx, visibleSegment.begin.dy);
+            path.lineTo(visibleSegment.end.dx, visibleSegment.end.dy);
+          }
+        }
+      } else if (isDotted) {
         final DottedPixelHiker hiker = DottedPixelHiker(
           offsets: offsets,
           stepLength: strokeWidth * polyline.pattern.spacingFactor!,
@@ -242,12 +255,6 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
           for (final path in paths) {
             path.moveTo(visibleSegment.begin.dx, visibleSegment.begin.dy);
             path.lineTo(visibleSegment.end.dx, visibleSegment.end.dy);
-          }
-        }
-      } else {
-        if (offsets.isNotEmpty) {
-          for (final path in paths) {
-            path.addPolygon(offsets, false);
           }
         }
       }
