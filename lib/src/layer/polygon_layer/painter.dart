@@ -324,10 +324,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
         closePath: true,
         canvasSize: canvasSize,
       );
-      for (final visibleSegment in hiker.getAllVisibleSegments()) {
-        path.moveTo(visibleSegment.begin.dx, visibleSegment.begin.dy);
-        path.lineTo(visibleSegment.end.dx, visibleSegment.end.dy);
-      }
+      hiker.addAllVisibleSegments([path]);
     } else if (isDotted) {
       final DottedPixelHiker hiker = DottedPixelHiker(
         offsets: offsets,

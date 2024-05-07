@@ -214,12 +214,7 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
           closePath: false,
           canvasSize: size,
         );
-        for (final visibleSegment in hiker.getAllVisibleSegments()) {
-          for (final path in paths) {
-            path.moveTo(visibleSegment.begin.dx, visibleSegment.begin.dy);
-            path.lineTo(visibleSegment.end.dx, visibleSegment.end.dy);
-          }
-        }
+        hiker.addAllVisibleSegments(paths);
       } else if (isDotted) {
         final DottedPixelHiker hiker = DottedPixelHiker(
           offsets: offsets,

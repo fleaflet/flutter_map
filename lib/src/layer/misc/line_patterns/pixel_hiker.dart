@@ -250,12 +250,24 @@ class SolidPixelHiker extends _PixelHiker {
           patternFit: PatternFit.none,
         );
 
-  /// Returns all visible segments.
-  List<VisibleSegment> getAllVisibleSegments() {
-    final List<VisibleSegment> result = [];
-
+  /// Adds all visible segments to [paths].
+  void addAllVisibleSegments(final List<Path> paths) {
     if (offsets.length < 2) {
-      return result;
+      return;
+    }
+
+    double? latestX;
+    double? latestY;
+    List<Offset> polygons = [];
+
+    void addPolygons() {
+      if (polygons.isEmpty) {
+        return;
+      }
+      for (final path in paths) {
+        path.addPolygon(polygons, false);
+      }
+      polygons = [];
     }
 
     for (int i = 0; i < offsets.length - 1 + (closePath ? 1 : 0); i++) {
@@ -264,12 +276,19 @@ class SolidPixelHiker extends _PixelHiker {
         offsets[(i + 1) % offsets.length],
         canvasSize,
       );
-      if (visibleSegment != null) {
-        result.add(visibleSegment);
+      if (visibleSegment == null) {
+        continue;
       }
+      if (latestX != visibleSegment.begin.dx ||
+          latestY != visibleSegment.begin.dy) {
+        addPolygons();
+        polygons.add(visibleSegment.begin);
+      }
+      polygons.add(visibleSegment.end);
+      latestX = visibleSegment.end.dx;
+      latestY = visibleSegment.end.dy;
     }
-
-    return result;
+    addPolygons();
   }
 
   @override
