@@ -52,9 +52,13 @@ class DottedPixelHiker extends _PixelHiker {
     // side-effect of the last dot
     if (!closePath) {
       if (patternFit != PatternFit.none) {
-        final last = result.last;
-        if (last != offsets.last) {
+        if (result.isEmpty) {
           addVisibleOffset(offsets.last);
+        } else {
+          final last = result.last;
+          if (last != offsets.last) {
+            addVisibleOffset(offsets.last);
+          }
         }
       }
     }
@@ -157,9 +161,17 @@ class DashedPixelHiker extends _PixelHiker {
         }
       } else if (patternFit == PatternFit.extendFinalDash) {
         final lastOffset = closePath ? offsets.first : offsets.last;
-        final lastVisible = result.last.end;
-        if (lastOffset != lastVisible) {
-          result.add(VisibleSegment(lastVisible, lastOffset));
+        if (result.isEmpty) {
+          if (offsets.length >= 2) {
+            final beforeLastOffset =
+                offsets[closePath ? offsets.length - 1 : offsets.length - 2];
+            result.add(VisibleSegment(beforeLastOffset, lastOffset));
+          }
+        } else {
+          final lastVisible = result.last.end;
+          if (lastOffset != lastVisible) {
+            result.add(VisibleSegment(lastVisible, lastOffset));
+          }
         }
       }
     }
