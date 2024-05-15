@@ -39,7 +39,7 @@ class SimpleAttributionWidget extends StatelessWidget {
   Widget build(BuildContext context) => Align(
         alignment: alignment,
         child: ColoredBox(
-          color: backgroundColor ?? Theme.of(context).colorScheme.background,
+          color: backgroundColor ?? Theme.of(context).colorScheme.surface,
           child: GestureDetector(
             onTap: onTap,
             child: Padding(

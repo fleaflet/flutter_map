@@ -11,7 +11,7 @@ class FloatingMenuButton extends StatelessWidget {
       child: SafeArea(
         child: Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.background,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(999),
           ),
           padding: const EdgeInsets.all(8),
