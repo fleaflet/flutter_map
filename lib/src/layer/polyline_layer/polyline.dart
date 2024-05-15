@@ -8,11 +8,11 @@ class Polyline<R extends Object> {
   /// The width of the stroke
   final double strokeWidth;
 
-  /// Determines whether this should be solid, dotted, or dashed, and the exact
-  /// characteristics of each
+  /// Determines whether the line should be solid, dotted, or dashed, and the
+  /// exact characteristics of each
   ///
-  /// Defaults to being a solid/unbroken line ([PolylinePattern.solid]).
-  final PolylinePattern pattern;
+  /// Defaults to being a solid/unbroken line ([StrokePattern.solid]).
+  final StrokePattern pattern;
 
   /// The color of the line stroke.
   final Color color;
@@ -51,7 +51,7 @@ class Polyline<R extends Object> {
   Polyline({
     required this.points,
     this.strokeWidth = 1.0,
-    this.pattern = const PolylinePattern.solid(),
+    this.pattern = const StrokePattern.solid(),
     this.color = const Color(0xFF00FF00),
     this.borderStrokeWidth = 0.0,
     this.borderColor = const Color(0xFFFFFF00),

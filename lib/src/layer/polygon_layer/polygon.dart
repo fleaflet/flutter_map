@@ -20,7 +20,7 @@ class Polygon<R extends Object> {
   /// The fill color of the [Polygon].
   final Color? color;
 
-  /// The stroke with of the [Polygon] outline.
+  /// The stroke width of the [Polygon] outline.
   final double borderStrokeWidth;
 
   /// The color of the [Polygon] outline.
@@ -31,9 +31,13 @@ class Polygon<R extends Object> {
   /// Defaults to false (enabled).
   final bool disableHolesBorder;
 
-  /// Set to true if the border of the [Polygon] should be rendered
-  /// as dotted line.
-  final bool isDotted;
+  /// Determines whether the border (if visible) should be solid, dotted, or
+  /// dashed, and the exact characteristics of each
+  ///
+  /// Defaults to being a solid/unbroken line ([StrokePattern.solid]).
+  /// Note that there is no border by default: increase [borderStrokeWidth] to
+  /// display it.
+  final StrokePattern pattern;
 
   /// **DEPRECATED**
   ///
@@ -132,7 +136,7 @@ class Polygon<R extends Object> {
     this.borderStrokeWidth = 0,
     this.borderColor = const Color(0xFFFFFF00),
     this.disableHolesBorder = false,
-    this.isDotted = false,
+    this.pattern = const StrokePattern.solid(),
     @Deprecated(
       'Prefer setting `color` to null to disable filling, or a `Color` to enable filling of that color. '
       'This parameter will be removed to simplify the API, as this was a remnant of pre-null-safety. '
@@ -170,7 +174,7 @@ class Polygon<R extends Object> {
           borderStrokeWidth == other.borderStrokeWidth &&
           borderColor == other.borderColor &&
           disableHolesBorder == other.disableHolesBorder &&
-          isDotted == other.isDotted &&
+          pattern == other.pattern &&
           // ignore: deprecated_member_use_from_same_package
           isFilled == other.isFilled &&
           strokeCap == other.strokeCap &&
@@ -193,7 +197,7 @@ class Polygon<R extends Object> {
         borderStrokeWidth,
         borderColor,
         disableHolesBorder,
-        isDotted,
+        pattern,
         // ignore: deprecated_member_use_from_same_package
         isFilled,
         strokeCap,

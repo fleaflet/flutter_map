@@ -104,7 +104,7 @@ class _PolylinePageState extends State<PolylinePage> {
       ],
       strokeWidth: 10,
       color: Colors.orange,
-      pattern: const PolylinePattern.dotted(
+      pattern: const StrokePattern.dotted(
         spacingFactor: 3,
       ),
       borderStrokeWidth: 8,
@@ -138,7 +138,7 @@ class _PolylinePageState extends State<PolylinePage> {
       ],
       strokeWidth: 6,
       color: Colors.green[900]!,
-      pattern: PolylinePattern.dashed(
+      pattern: StrokePattern.dashed(
         segments: const [50, 20, 30, 20],
       ),
       borderStrokeWidth: 6,
