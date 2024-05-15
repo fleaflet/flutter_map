@@ -96,7 +96,7 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
                       UnconstrainedBox(
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.background,
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(32),
                           ),
                           padding: const EdgeInsets.symmetric(
@@ -125,7 +125,7 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
                       UnconstrainedBox(
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.background,
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(32),
                           ),
                           padding: const EdgeInsets.symmetric(
