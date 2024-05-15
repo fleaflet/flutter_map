@@ -43,6 +43,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: "stable"
+          cache: true
       - name: Get All Dependencies
         run: flutter pub get
       - name: Check Formatting
@@ -60,6 +61,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: "stable"
+          cache: true
       - name: Run Tests with Coverage
         run: flutter test -r expanded --coverage
       - name: Run Codecov
@@ -82,10 +84,12 @@ jobs:
         with:
           distribution: "temurin"
           java-version: "17"
+          cache: 'gradle'
       - name: Setup Flutter Environment
         uses: subosito/flutter-action@v2
         with:
           channel: "stable"
+          cache: true
       - name: Build Android Application
         run: flutter build apk
       - name: Archive Artifact
@@ -109,6 +113,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: "stable"
+          cache: true
       - name: Build Windows Application
         run: flutter build windows
       - name: Create Windows Application Installer
@@ -135,6 +140,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: "stable"
+          cache: true
       - name: Build Web Application
         run: flutter build web --web-renderer canvaskit
       - name: Archive Artifact
