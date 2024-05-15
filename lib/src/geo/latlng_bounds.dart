@@ -74,25 +74,31 @@ class LatLngBounds {
     required this.east,
     required this.west,
   })  : assert(north <= maxLatitude,
-            "The north latitude can't be bigger than 90: $north"),
+            "The north latitude can't be bigger than $maxLatitude: $north"),
         assert(north >= minLatitude,
-            "The north latitude can't be smaller than -90: $north"),
+            "The north latitude can't be smaller than $minLatitude: $north"),
         assert(south <= maxLatitude,
-            "The south latitude can't be bigger than 90: $south"),
+            "The south latitude can't be bigger than $maxLatitude: $south"),
         assert(south >= minLatitude,
-            "The south latitude can't be smaller than -90: $south"),
+            "The south latitude can't be smaller than $minLatitude: $south"),
         assert(east <= maxLongitude,
-            "The east longitude can't be bigger than 180: $east"),
+            "The east longitude can't be bigger than $maxLongitude: $east"),
         assert(east >= minLongitude,
-            "The east longitude can't be smaller than -180: $east"),
+            "The east longitude can't be smaller than $minLongitude: $east"),
         assert(west <= maxLongitude,
-            "The west longitude can't be bigger than 180: $west"),
+            "The west longitude can't be bigger than $maxLongitude: $west"),
         assert(west >= minLongitude,
-            "The west longitude can't be smaller than -180: $west"),
-        assert(north >= south,
-            "The north latitude can't be smaller than the south latitude"),
-        assert(east >= west,
-            "The west longitude can't be smaller than the east longitude");
+            "The west longitude can't be smaller than $minLongitude: $west"),
+        assert(
+          north >= south,
+          "The north latitude ($north) can't be smaller than the "
+          'south latitude ($south)',
+        ),
+        assert(
+          east >= west,
+          "The west longitude ($west) can't be smaller than the "
+          'east longitude ($east)',
+        );
 
   /// Create a new [LatLngBounds] from a list of [LatLng] points. This
   /// calculates the bounding box of the provided points.
