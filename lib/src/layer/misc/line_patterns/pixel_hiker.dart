@@ -52,9 +52,13 @@ class DottedPixelHiker extends _PixelHiker {
     // side-effect of the last dot
     if (!closePath) {
       if (patternFit != PatternFit.none) {
-        final last = result.last;
-        if (last != offsets.last) {
+        if (result.isEmpty) {
           addVisibleOffset(offsets.last);
+        } else {
+          final last = result.last;
+          if (last != offsets.last) {
+            addVisibleOffset(offsets.last);
+          }
         }
       }
     }
@@ -157,9 +161,17 @@ class DashedPixelHiker extends _PixelHiker {
         }
       } else if (patternFit == PatternFit.extendFinalDash) {
         final lastOffset = closePath ? offsets.first : offsets.last;
-        final lastVisible = result.last.end;
-        if (lastOffset != lastVisible) {
-          result.add(VisibleSegment(lastVisible, lastOffset));
+        if (result.isEmpty) {
+          if (offsets.length >= 2) {
+            final beforeLastOffset =
+                offsets[closePath ? offsets.length - 1 : offsets.length - 2];
+            result.add(VisibleSegment(beforeLastOffset, lastOffset));
+          }
+        } else {
+          final lastVisible = result.last.end;
+          if (lastOffset != lastVisible) {
+            result.add(VisibleSegment(lastVisible, lastOffset));
+          }
         }
       }
     }
@@ -237,6 +249,45 @@ class DashedPixelHiker extends _PixelHiker {
   }
 }
 
+/// Pixel hiker that lists the visible solid segments to display on the way.
+@internal
+class SolidPixelHiker extends _PixelHiker {
+  /// Standard Solid Pixel Hiker constructor.
+  SolidPixelHiker({
+    required super.offsets,
+    required super.closePath,
+    required super.canvasSize,
+  }) : super(
+          segmentValues: [],
+          patternFit: PatternFit.none,
+        );
+
+  /// Returns all visible segments.
+  List<VisibleSegment> getAllVisibleSegments() {
+    final List<VisibleSegment> result = [];
+
+    if (offsets.length < 2) {
+      return result;
+    }
+
+    for (int i = 0; i < offsets.length - 1 + (closePath ? 1 : 0); i++) {
+      final VisibleSegment? visibleSegment = VisibleSegment.getVisibleSegment(
+        offsets[i],
+        offsets[(i + 1) % offsets.length],
+        canvasSize,
+      );
+      if (visibleSegment != null) {
+        result.add(visibleSegment);
+      }
+    }
+
+    return result;
+  }
+
+  @override
+  double getFactor() => 1;
+}
+
 /// Pixel hiker that lists the visible items on the way.
 sealed class _PixelHiker {
   _PixelHiker({
@@ -253,6 +304,13 @@ sealed class _PixelHiker {
 
   final List<Offset> offsets;
   final bool closePath;
+
+  /// List of segments' lengths.
+  ///
+  /// Expected number of items:
+  /// * empty for "solid"
+  /// * > 0 and even for "dashed": (dash size _ space size) * n
+  /// * only 1 item for "dotted": the size of the space
   final List<double> segmentValues;
   final Size canvasSize;
   final PatternFit patternFit;
@@ -290,6 +348,9 @@ sealed class _PixelHiker {
 
   @protected
   void nextSegment() {
+    if (segmentValues.isEmpty) {
+      return;
+    }
     _segmentIndex = (_segmentIndex + 1) % segmentValues.length;
     _remaining = segmentValues[_segmentIndex];
   }
@@ -305,7 +366,7 @@ sealed class _PixelHiker {
   @protected
   Offset getIntermediateOffset(final Offset offsetA, final Offset offsetB) {
     final segmentDistance = getDistance(offsetA, offsetB);
-    if (_remaining >= segmentDistance) {
+    if (segmentValues.isEmpty || _remaining >= segmentDistance) {
       _used = segmentDistance;
       return offsetB;
     }
