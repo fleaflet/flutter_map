@@ -39,11 +39,11 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-      - name: Setup Java 17 Environment
+      - name: Setup Java 21 Environment
         uses: actions/setup-java@v4
         with:
           distribution: "temurin"
-          java-version: "17"
+          java-version: "21"
           cache: 'gradle'
       - name: Setup Flutter Environment
         uses: subosito/flutter-action@v2
