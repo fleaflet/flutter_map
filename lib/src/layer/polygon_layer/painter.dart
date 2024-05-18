@@ -315,9 +315,20 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
     Canvas canvas,
     Paint paint,
   ) {
+    final isSolid = polygon.pattern == const StrokePattern.solid();
     final isDashed = polygon.pattern.segments != null;
     final isDotted = polygon.pattern.spacingFactor != null;
-    if (isDotted) {
+    if (isSolid) {
+      final SolidPixelHiker hiker = SolidPixelHiker(
+        offsets: offsets,
+        closePath: true,
+        canvasSize: canvasSize,
+      );
+      for (final visibleSegment in hiker.getAllVisibleSegments()) {
+        path.moveTo(visibleSegment.begin.dx, visibleSegment.begin.dy);
+        path.lineTo(visibleSegment.end.dx, visibleSegment.end.dy);
+      }
+    } else if (isDotted) {
       final DottedPixelHiker hiker = DottedPixelHiker(
         offsets: offsets,
         stepLength: polygon.borderStrokeWidth * polygon.pattern.spacingFactor!,
@@ -341,8 +352,6 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
         path.moveTo(visibleSegment.begin.dx, visibleSegment.begin.dy);
         path.lineTo(visibleSegment.end.dx, visibleSegment.end.dy);
       }
-    } else {
-      _addLineToPath(path, offsets);
     }
   }
 
@@ -364,10 +373,6 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
         paint,
       );
     }
-  }
-
-  void _addLineToPath(Path path, List<Offset> offsets) {
-    path.addPolygon(offsets, true);
   }
 
   ({Offset min, Offset max}) _getBounds(Offset origin, Polygon polygon) {

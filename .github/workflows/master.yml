@@ -20,6 +20,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: "stable"
+          cache: true
       - name: Run Tests with Coverage
         run: flutter test -r expanded --coverage
       - name: Run Codecov
@@ -38,15 +39,17 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-      - name: Setup Java 17 Environment
+      - name: Setup Java 21 Environment
         uses: actions/setup-java@v4
         with:
           distribution: "temurin"
-          java-version: "17"
+          java-version: "21"
+          cache: 'gradle'
       - name: Setup Flutter Environment
         uses: subosito/flutter-action@v2
         with:
           channel: "stable"
+          cache: true
       - name: Build Android Application
         run: flutter build apk
       - name: Archive Artifact
@@ -71,6 +74,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: "stable"
+          cache: true
       - name: Build Windows Application
         run: flutter build windows
       - name: Create Windows Application Installer
@@ -98,6 +102,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: "stable"
+          cache: true
       - name: Build Web Application
         run: flutter build web --web-renderer canvaskit
       - name: Archive Artifact
