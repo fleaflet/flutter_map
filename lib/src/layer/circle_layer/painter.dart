@@ -2,20 +2,72 @@ part of 'circle_layer.dart';
 
 /// The [CustomPainter] used to draw [CircleMarker] for the [CircleLayer].
 @immutable
-class CirclePainter extends CustomPainter {
+class CirclePainter<R extends Object> extends CustomPainter {
   /// Reference to the list of [CircleMarker]s of the [CircleLayer].
-  final List<CircleMarker> circles;
+  final List<CircleMarker<R>> circles;
 
   /// Reference to the [MapCamera].
   final MapCamera camera;
 
+  /// See [PolylineLayer.hitNotifier]
+  final LayerHitNotifier<R>? hitNotifier;
+
   /// Create a [CirclePainter] instance by providing the required
   /// reference objects.
-  const CirclePainter(this.circles, this.camera);
+  CirclePainter({
+    required this.circles,
+    required this.camera,
+    required this.hitNotifier,
+  });
+
+  final _hits = <R>[]; // Avoids repetitive memory reallocation
+
+  static const _distance = Distance();
+
+  @override
+  bool? hitTest(Offset position) {
+    _hits.clear();
+    bool hasHit = false;
+
+    final point = position.toPoint();
+    final coordinate = camera.pointToLatLng(point);
+
+    for (final circle in circles) {
+      if (hasHit && circle.hitValue == null) continue;
+
+      final center = camera.getOffsetFromOrigin(circle.point);
+      final radius = circle.useRadiusInMeter
+          ? (center -
+                  camera.getOffsetFromOrigin(
+                      _distance.offset(circle.point, circle.radius, 180)))
+              .distance
+          : circle.radius;
+
+      final isInCircle =
+          pow(point.x - center.dx, 2) + pow(point.y - center.dy, 2) <=
+              radius * radius;
+
+      if (isInCircle) {
+        if (circle.hitValue != null) _hits.add(circle.hitValue!);
+        hasHit = true;
+      }
+    }
+
+    if (!hasHit) {
+      hitNotifier?.value = null;
+      return false;
+    }
+
+    hitNotifier?.value = LayerHitResult(
+      hitValues: _hits,
+      coordinate: coordinate,
+      point: point,
+    );
+    return true;
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
-    const distance = Distance();
     final rect = Offset.zero & size;
     canvas.clipRect(rect);
 
@@ -24,16 +76,16 @@ class CirclePainter extends CustomPainter {
     final pointsFilledBorder = <Color, Map<double, List<Offset>>>{};
     final pointsBorder = <Color, Map<double, Map<double, List<Offset>>>>{};
     for (final circle in circles) {
-      final offset = camera.getOffsetFromOrigin(circle.point);
-      double radius = circle.radius;
-      if (circle.useRadiusInMeter) {
-        final r = distance.offset(circle.point, circle.radius, 180);
-        final delta = offset - camera.getOffsetFromOrigin(r);
-        radius = delta.distance;
-      }
+      final center = camera.getOffsetFromOrigin(circle.point);
+      final radius = circle.useRadiusInMeter
+          ? (center -
+                  camera.getOffsetFromOrigin(
+                      _distance.offset(circle.point, circle.radius, 180)))
+              .distance
+          : circle.radius;
       points[circle.color] ??= {};
       points[circle.color]![radius] ??= [];
-      points[circle.color]![radius]!.add(offset);
+      points[circle.color]![radius]!.add(center);
 
       if (circle.borderStrokeWidth > 0) {
         // Check if color have some transparency or not
@@ -41,18 +93,18 @@ class CirclePainter extends CustomPainter {
         if (circle.color.alpha == 0xFF) {
           double radiusBorder = circle.radius + circle.borderStrokeWidth;
           if (circle.useRadiusInMeter) {
-            final rBorder = distance.offset(circle.point, radiusBorder, 180);
-            final deltaBorder = offset - camera.getOffsetFromOrigin(rBorder);
+            final rBorder = _distance.offset(circle.point, radiusBorder, 180);
+            final deltaBorder = center - camera.getOffsetFromOrigin(rBorder);
             radiusBorder = deltaBorder.distance;
           }
           pointsFilledBorder[circle.borderColor] ??= {};
           pointsFilledBorder[circle.borderColor]![radiusBorder] ??= [];
-          pointsFilledBorder[circle.borderColor]![radiusBorder]!.add(offset);
+          pointsFilledBorder[circle.borderColor]![radiusBorder]!.add(center);
         } else {
           double realRadius = circle.radius;
           if (circle.useRadiusInMeter) {
-            final rBorder = distance.offset(circle.point, realRadius, 180);
-            final deltaBorder = offset - camera.getOffsetFromOrigin(rBorder);
+            final rBorder = _distance.offset(circle.point, realRadius, 180);
+            final deltaBorder = center - camera.getOffsetFromOrigin(rBorder);
             realRadius = deltaBorder.distance;
           }
           pointsBorder[circle.borderColor] ??= {};
@@ -61,7 +113,7 @@ class CirclePainter extends CustomPainter {
               realRadius] ??= [];
           pointsBorder[circle.borderColor]![circle.borderStrokeWidth]![
                   realRadius]!
-              .add(offset);
+              .add(center);
         }
       }
     }
