@@ -1,8 +1,7 @@
 name: "Branch & Fork CI/CD"
 on:
   push:
-    branches:
-      - '!master'
+    branches: [ '!master' ]
   pull_request:
   workflow_dispatch:
 
@@ -72,18 +71,17 @@ jobs:
   build-android:
     name: "Build Android Example App"
     runs-on: ubuntu-latest
-    needs: [ run-tests, analyse-code, score-package ]
     defaults:
       run:
         working-directory: ./example
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-      - name: Setup Java 17 Environment
+      - name: Setup Java 21 Environment
         uses: actions/setup-java@v4
         with:
           distribution: "temurin"
-          java-version: "17"
+          java-version: "21"
           cache: 'gradle'
       - name: Setup Flutter Environment
         uses: subosito/flutter-action@v2
@@ -102,7 +100,6 @@ jobs:
   build-windows:
     name: "Build Windows Example App"
     runs-on: windows-latest
-    needs: [ run-tests, analyse-code, score-package ]
     defaults:
       run:
         working-directory: ./example
@@ -129,7 +126,6 @@ jobs:
   build-web:
     name: "Build Web Example App"
     runs-on: ubuntu-latest
-    needs: [ run-tests, analyse-code, score-package ]
     defaults:
       run:
         working-directory: ./example
