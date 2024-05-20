@@ -215,6 +215,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
           size,
           canvas,
           _getBorderPaint(polygon),
+          polygon.borderStrokeWidth,
         );
       }
 
@@ -238,7 +239,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
 
         if (!polygon.disableHolesBorder && polygon.borderStrokeWidth > 0.0) {
           _addHoleBordersToPath(borderPath, polygon, holeOffsetsList, size,
-              canvas, _getBorderPaint(polygon));
+              canvas, _getBorderPaint(polygon), polygon.borderStrokeWidth);
         }
       }
 
@@ -314,6 +315,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
     Size canvasSize,
     Canvas canvas,
     Paint paint,
+    double strokeWidth,
   ) {
     final isSolid = polygon.pattern == const StrokePattern.solid();
     final isDashed = polygon.pattern.segments != null;
@@ -323,6 +325,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
         offsets: offsets,
         closePath: true,
         canvasSize: canvasSize,
+        strokeWidth: strokeWidth,
       );
       hiker.addAllVisibleSegments([path]);
     } else if (isDotted) {
@@ -332,6 +335,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
         patternFit: polygon.pattern.patternFit!,
         closePath: true,
         canvasSize: canvasSize,
+        strokeWidth: strokeWidth,
       );
       for (final visibleDot in hiker.getAllVisibleDots()) {
         canvas.drawCircle(visibleDot, polygon.borderStrokeWidth / 2, paint);
@@ -343,6 +347,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
         patternFit: polygon.pattern.patternFit!,
         closePath: true,
         canvasSize: canvasSize,
+        strokeWidth: strokeWidth,
       );
 
       for (final visibleSegment in hiker.getAllVisibleSegments()) {
@@ -359,6 +364,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
     Size canvasSize,
     Canvas canvas,
     Paint paint,
+    double strokeWidth,
   ) {
     for (final offsets in holeOffsetsList) {
       _addBorderToPath(
@@ -368,6 +374,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
         canvasSize,
         canvas,
         paint,
+        strokeWidth,
       );
     }
   }

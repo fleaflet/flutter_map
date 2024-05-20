@@ -13,6 +13,7 @@ class DottedPixelHiker extends _PixelHiker {
     required super.closePath,
     required super.canvasSize,
     required super.patternFit,
+    required super.strokeWidth,
     required double stepLength,
   }) : super(segmentValues: [stepLength]);
 
@@ -25,7 +26,7 @@ class DottedPixelHiker extends _PixelHiker {
     }
 
     void addVisibleOffset(final Offset offset) {
-      if (VisibleSegment.isVisible(offset, canvasSize)) {
+      if (VisibleSegment.isVisible(offset, canvasSize, strokeWidth)) {
         result.add(offset);
       }
     }
@@ -69,8 +70,8 @@ class DottedPixelHiker extends _PixelHiker {
   ///
   /// Most important method of the class.
   List<Offset>? _getVisibleDotList(Offset offset0, Offset offset1) {
-    final VisibleSegment? visibleSegment =
-        VisibleSegment.getVisibleSegment(offset0, offset1, canvasSize);
+    final VisibleSegment? visibleSegment = VisibleSegment.getVisibleSegment(
+        offset0, offset1, canvasSize, strokeWidth);
     if (visibleSegment == null) {
       addDistance(getDistance(offset0, offset1));
       return null;
@@ -131,6 +132,7 @@ class DashedPixelHiker extends _PixelHiker {
     required super.canvasSize,
     required super.segmentValues,
     required super.patternFit,
+    required super.strokeWidth,
   });
 
   /// Returns all visible segments.
@@ -155,7 +157,7 @@ class DashedPixelHiker extends _PixelHiker {
     if (_segmentIndex.isOdd) {
       if (patternFit == PatternFit.appendDot) {
         if (!closePath) {
-          if (VisibleSegment.isVisible(offsets.last, canvasSize)) {
+          if (VisibleSegment.isVisible(offsets.last, canvasSize, strokeWidth)) {
             result.add(VisibleSegment(offsets.last, offsets.last));
           }
         }
@@ -187,10 +189,7 @@ class DashedPixelHiker extends _PixelHiker {
     final Offset offset1,
   ) {
     final VisibleSegment? visibleSegment = VisibleSegment.getVisibleSegment(
-      offset0,
-      offset1,
-      canvasSize,
-    );
+        offset0, offset1, canvasSize, strokeWidth);
     if (visibleSegment == null) {
       addDistance(getDistance(offset0, offset1));
       return null;
@@ -257,6 +256,7 @@ class SolidPixelHiker extends _PixelHiker {
     required super.offsets,
     required super.closePath,
     required super.canvasSize,
+    required super.strokeWidth,
   }) : super(
           segmentValues: [],
           patternFit: PatternFit.none,
@@ -287,6 +287,7 @@ class SolidPixelHiker extends _PixelHiker {
         offsets[i],
         offsets[(i + 1) % offsets.length],
         canvasSize,
+        strokeWidth,
       );
       if (visibleSegment == null) {
         continue;
@@ -315,6 +316,7 @@ sealed class _PixelHiker {
     required this.closePath,
     required this.canvasSize,
     required this.patternFit,
+    required this.strokeWidth,
   }) {
     _polylinePixelDistance = _getPolylinePixelDistance();
     _init();
@@ -333,6 +335,7 @@ sealed class _PixelHiker {
   final List<double> segmentValues;
   final Size canvasSize;
   final PatternFit patternFit;
+  final double strokeWidth;
 
   /// Factor to be used on offset distances.
   late final double _factor;
