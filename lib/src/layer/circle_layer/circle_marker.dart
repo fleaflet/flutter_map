@@ -3,7 +3,7 @@ part of 'circle_layer.dart';
 /// Immutable marker options for [CircleMarker]. Circle markers are a more
 /// simple and performant way to draw markers as the regular [Marker]
 @immutable
-class CircleMarker {
+base class CircleMarker<R extends Object> extends HitDetectableElement<R> {
   /// An optional [Key] for the [CircleMarker].
   /// This key is not used internally.
   final Key? key;
@@ -36,5 +36,6 @@ class CircleMarker {
     this.color = const Color(0xFF00FF00),
     this.borderStrokeWidth = 0.0,
     this.borderColor = const Color(0xFFFFFF00),
+    super.hitValue,
   });
 }

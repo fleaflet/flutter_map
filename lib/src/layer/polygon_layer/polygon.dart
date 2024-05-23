@@ -84,12 +84,7 @@ class Polygon<R extends Object> {
   /// it remains upright
   final bool rotateLabel;
 
-  /// Value notified in [PolygonLayer.hitNotifier]
-  ///
-  /// Polylines without a defined [hitValue] are still hit tested, but are not
-  /// notified about.
-  ///
-  /// Should implement an equality operator to avoid breaking [Polygon.==].
+  /// {@macro fm.hde.hitValue}
   final R? hitValue;
 
   /// Designates whether the given polygon points follow a clock or
