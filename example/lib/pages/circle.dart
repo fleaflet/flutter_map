@@ -87,7 +87,7 @@ class _CirclePageState extends State<CirclePage> {
 
                 return CircleMarker<HitValue>(
                   point: original.point,
-                  radius: original.radius + (15 / 2) - 1,
+                  radius: original.radius + 6.5,
                   useRadiusInMeter: original.useRadiusInMeter,
                   color: Colors.transparent,
                   borderStrokeWidth: 15,
