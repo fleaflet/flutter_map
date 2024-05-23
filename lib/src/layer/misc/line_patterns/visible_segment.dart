@@ -39,23 +39,28 @@ class VisibleSegment {
     return code;
   }
 
-  /// Returns true if the [offset] is inside the [canvasSize].
-  static bool isVisible(Offset offset, Size canvasSize) =>
+  /// Returns true if the [offset] is inside the [canvasSize] + [strokeWidth].
+  static bool isVisible(Offset offset, Size canvasSize, double strokeWidth) =>
       _computeOutCode(
-          offset.dx, offset.dy, 0, 0, canvasSize.width, canvasSize.height) ==
+          offset.dx,
+          offset.dy,
+          -strokeWidth / 2,
+          -strokeWidth / 2,
+          canvasSize.width + strokeWidth / 2,
+          canvasSize.height + strokeWidth / 2) ==
       _inside;
 
   /// Clips a line segment to a rectangular area (canvas).
   ///
   /// Returns null if the segment is invisible.
   static VisibleSegment? getVisibleSegment(
-      Offset p0, Offset p1, Size canvasSize) {
+      Offset p0, Offset p1, Size canvasSize, double strokeWidth) {
     // Function to compute the outCode for a point relative to the canvas
 
-    const double xMin = 0;
-    const double yMin = 0;
-    final double xMax = canvasSize.width;
-    final double yMax = canvasSize.height;
+    final double xMin = -strokeWidth / 2;
+    final double yMin = -strokeWidth / 2;
+    final double xMax = canvasSize.width + strokeWidth / 2;
+    final double yMax = canvasSize.height + strokeWidth / 2;
 
     double x0 = p0.dx;
     double y0 = p0.dy;

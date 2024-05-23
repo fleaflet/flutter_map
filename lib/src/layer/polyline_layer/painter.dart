@@ -147,6 +147,9 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
       needsLayerSaving = polyline.color.opacity < 1.0 ||
           (polyline.gradientColors?.any((c) => c.opacity < 1.0) ?? false);
 
+      // strokeWidth, or strokeWidth + borderWidth if relevant.
+      late double largestStrokeWidth;
+
       late final double strokeWidth;
       if (polyline.useStrokeWidthInMeter) {
         strokeWidth = _metersToStrokeWidth(
@@ -158,6 +161,7 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
       } else {
         strokeWidth = polyline.strokeWidth;
       }
+      largestStrokeWidth = strokeWidth;
 
       final isSolid = polyline.pattern == const StrokePattern.solid();
       final isDashed = polyline.pattern.segments != null;
@@ -182,6 +186,7 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
         // Outlined lines are drawn by drawing a thicker path underneath, then
         // stenciling the middle (in case the line fill is transparent), and
         // finally drawing the line fill.
+        largestStrokeWidth = strokeWidth + polyline.borderStrokeWidth;
         borderPaint = Paint()
           ..color = polyline.borderColor
           ..strokeWidth = strokeWidth + polyline.borderStrokeWidth
@@ -213,13 +218,9 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
           offsets: offsets,
           closePath: false,
           canvasSize: size,
+          strokeWidth: largestStrokeWidth,
         );
-        for (final visibleSegment in hiker.getAllVisibleSegments()) {
-          for (final path in paths) {
-            path.moveTo(visibleSegment.begin.dx, visibleSegment.begin.dy);
-            path.lineTo(visibleSegment.end.dx, visibleSegment.end.dy);
-          }
-        }
+        hiker.addAllVisibleSegments(paths);
       } else if (isDotted) {
         final DottedPixelHiker hiker = DottedPixelHiker(
           offsets: offsets,
@@ -227,6 +228,7 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
           patternFit: polyline.pattern.patternFit!,
           closePath: false,
           canvasSize: size,
+          strokeWidth: largestStrokeWidth,
         );
 
         final List<double> radii = [];
@@ -249,6 +251,7 @@ class _PolylinePainter<R extends Object> extends CustomPainter {
           patternFit: polyline.pattern.patternFit!,
           closePath: false,
           canvasSize: size,
+          strokeWidth: largestStrokeWidth,
         );
 
         for (final visibleSegment in hiker.getAllVisibleSegments()) {
