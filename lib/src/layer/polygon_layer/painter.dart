@@ -189,6 +189,7 @@ base class _PolygonPainter<R extends Object>
           size,
           canvas,
           _getBorderPaint(polygon),
+          polygon.borderStrokeWidth,
         );
       }
 
@@ -212,7 +213,7 @@ base class _PolygonPainter<R extends Object>
 
         if (!polygon.disableHolesBorder && polygon.borderStrokeWidth > 0.0) {
           _addHoleBordersToPath(borderPath, polygon, holeOffsetsList, size,
-              canvas, _getBorderPaint(polygon));
+              canvas, _getBorderPaint(polygon), polygon.borderStrokeWidth);
         }
       }
 
@@ -288,6 +289,7 @@ base class _PolygonPainter<R extends Object>
     Size canvasSize,
     Canvas canvas,
     Paint paint,
+    double strokeWidth,
   ) {
     final isSolid = polygon.pattern == const StrokePattern.solid();
     final isDashed = polygon.pattern.segments != null;
@@ -297,11 +299,9 @@ base class _PolygonPainter<R extends Object>
         offsets: offsets,
         closePath: true,
         canvasSize: canvasSize,
+        strokeWidth: strokeWidth,
       );
-      for (final visibleSegment in hiker.getAllVisibleSegments()) {
-        path.moveTo(visibleSegment.begin.dx, visibleSegment.begin.dy);
-        path.lineTo(visibleSegment.end.dx, visibleSegment.end.dy);
-      }
+      hiker.addAllVisibleSegments([path]);
     } else if (isDotted) {
       final DottedPixelHiker hiker = DottedPixelHiker(
         offsets: offsets,
@@ -309,6 +309,7 @@ base class _PolygonPainter<R extends Object>
         patternFit: polygon.pattern.patternFit!,
         closePath: true,
         canvasSize: canvasSize,
+        strokeWidth: strokeWidth,
       );
       for (final visibleDot in hiker.getAllVisibleDots()) {
         canvas.drawCircle(visibleDot, polygon.borderStrokeWidth / 2, paint);
@@ -320,6 +321,7 @@ base class _PolygonPainter<R extends Object>
         patternFit: polygon.pattern.patternFit!,
         closePath: true,
         canvasSize: canvasSize,
+        strokeWidth: strokeWidth,
       );
 
       for (final visibleSegment in hiker.getAllVisibleSegments()) {
@@ -336,6 +338,7 @@ base class _PolygonPainter<R extends Object>
     Size canvasSize,
     Canvas canvas,
     Paint paint,
+    double strokeWidth,
   ) {
     for (final offsets in holeOffsetsList) {
       _addBorderToPath(
@@ -345,6 +348,7 @@ base class _PolygonPainter<R extends Object>
         canvasSize,
         canvas,
         paint,
+        strokeWidth,
       );
     }
   }
