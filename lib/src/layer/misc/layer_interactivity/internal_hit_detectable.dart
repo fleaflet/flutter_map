@@ -32,6 +32,8 @@ abstract base class HitDetectablePainter<R extends Object,
 
   /// Elements that should be possibly be hit tested by [elementHitTest]
   /// ([hitTest])
+  ///
+  /// See [elementHitTest] for more information.
   Iterable<E> get elements;
 
   /// Method invoked by [hitTest] for every element (each of [elements] in
@@ -50,6 +52,8 @@ abstract base class HitDetectablePainter<R extends Object,
   /// end. To calculate the camera origin in this way, instead mix in
   /// [HitTestRequiresCameraOrigin], which makes the origin available through
   /// the `hitTestCameraOrigin` member.
+  ///
+  /// Should return whether an element has been hit.
   bool elementHitTest(
     E element, {
     required Point<double> point,
