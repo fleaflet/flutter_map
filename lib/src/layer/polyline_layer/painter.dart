@@ -1,90 +1,70 @@
 part of 'polyline_layer.dart';
 
 /// [CustomPainter] for [Polyline]s.
-class _PolylinePainter<R extends Object> extends CustomPainter {
+base class _PolylinePainter<R extends Object>
+    extends HitDetectablePainter<R, _ProjectedPolyline<R>>
+    with HitTestRequiresCameraOrigin {
   /// Reference to the list of [Polyline]s.
   final List<_ProjectedPolyline<R>> polylines;
 
-  /// Reference to the [MapCamera].
-  final MapCamera camera;
-  final LayerHitNotifier<R>? hitNotifier;
   final double minimumHitbox;
-
-  final _hits = <R>[]; // Avoids repetitive memory reallocation
 
   /// Create a new [_PolylinePainter] instance
   _PolylinePainter({
     required this.polylines,
-    required this.camera,
-    required this.hitNotifier,
     required this.minimumHitbox,
+    required super.camera,
+    required super.hitNotifier,
   });
 
   @override
-  bool? hitTest(Offset position) {
-    _hits.clear();
-    bool hasHit = false;
+  bool elementHitTest(
+    _ProjectedPolyline<R> projectedPolyline, {
+    required math.Point<double> point,
+    required LatLng coordinate,
+  }) {
+    final polyline = projectedPolyline.polyline;
 
-    final origin =
-        camera.project(camera.center).toOffset() - camera.size.toOffset() / 2;
+    // TODO: For efficiency we'd ideally filter by bounding box here. However
+    // we'd need to compute an extended bounding box that accounts account for
+    // the `borderStrokeWidth` & the `minimumHitbox`
+    // if (!polyline.boundingBox.contains(touch)) {
+    //   continue;
+    // }
 
-    for (final projectedPolyline in polylines.reversed) {
-      final polyline = projectedPolyline.polyline;
-      if (hasHit && polyline.hitValue == null) continue;
-
-      // TODO: For efficiency we'd ideally filter by bounding box here. However
-      // we'd need to compute an extended bounding box that accounts account for
-      // the `borderStrokeWidth` & the `minimumHitbox`
-      // if (!polyline.boundingBox.contains(touch)) {
-      //   continue;
-      // }
-
-      final offsets = getOffsetsXY(
-        camera: camera,
-        origin: origin,
-        points: projectedPolyline.points,
-      );
-      final strokeWidth = polyline.useStrokeWidthInMeter
-          ? _metersToStrokeWidth(
-              origin,
-              _unproject(projectedPolyline.points.first),
-              offsets.first,
-              polyline.strokeWidth,
-            )
-          : polyline.strokeWidth;
-      final hittableDistance = math.max(
-        strokeWidth / 2 + polyline.borderStrokeWidth / 2,
-        minimumHitbox,
-      );
-
-      for (int i = 0; i < offsets.length - 1; i++) {
-        final o1 = offsets[i];
-        final o2 = offsets[i + 1];
-
-        final distanceSq =
-            getSqSegDist(position.dx, position.dy, o1.dx, o1.dy, o2.dx, o2.dy);
-
-        if (distanceSq <= hittableDistance * hittableDistance) {
-          if (polyline.hitValue != null) _hits.add(polyline.hitValue!);
-          hasHit = true;
-          break;
-        }
-      }
-    }
-
-    if (!hasHit) {
-      hitNotifier?.value = null;
-      return false;
-    }
-
-    final point = position.toPoint();
-    hitNotifier?.value = LayerHitResult(
-      hitValues: _hits,
-      coordinate: camera.pointToLatLng(point),
-      point: point,
+    final offsets = getOffsetsXY(
+      camera: camera,
+      origin: hitTestCameraOrigin,
+      points: projectedPolyline.points,
     );
-    return true;
+    final strokeWidth = polyline.useStrokeWidthInMeter
+        ? _metersToStrokeWidth(
+            hitTestCameraOrigin,
+            _unproject(projectedPolyline.points.first),
+            offsets.first,
+            polyline.strokeWidth,
+          )
+        : polyline.strokeWidth;
+    final hittableDistance = math.max(
+      strokeWidth / 2 + polyline.borderStrokeWidth / 2,
+      minimumHitbox,
+    );
+
+    for (int i = 0; i < offsets.length - 1; i++) {
+      final o1 = offsets[i];
+      final o2 = offsets[i + 1];
+
+      final distanceSq =
+          getSqSegDist(point.x, point.y, o1.dx, o1.dy, o2.dx, o2.dy);
+
+      if (distanceSq <= hittableDistance * hittableDistance) return true;
+    }
+
+    return false;
   }
+
+  @override
+  Iterable<_ProjectedPolyline<R>> get elements => polylines;
 
   @override
   void paint(Canvas canvas, Size size) {

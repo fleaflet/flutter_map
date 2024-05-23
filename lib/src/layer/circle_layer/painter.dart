@@ -2,69 +2,43 @@ part of 'circle_layer.dart';
 
 /// The [CustomPainter] used to draw [CircleMarker] for the [CircleLayer].
 @immutable
-class CirclePainter<R extends Object> extends CustomPainter {
+base class CirclePainter<R extends Object>
+    extends HitDetectablePainter<R, CircleMarker<R>> {
   /// Reference to the list of [CircleMarker]s of the [CircleLayer].
   final List<CircleMarker<R>> circles;
-
-  /// Reference to the [MapCamera].
-  final MapCamera camera;
-
-  /// See [PolylineLayer.hitNotifier]
-  final LayerHitNotifier<R>? hitNotifier;
 
   /// Create a [CirclePainter] instance by providing the required
   /// reference objects.
   CirclePainter({
     required this.circles,
-    required this.camera,
-    required this.hitNotifier,
+    required super.camera,
+    required super.hitNotifier,
   });
-
-  final _hits = <R>[]; // Avoids repetitive memory reallocation
 
   static const _distance = Distance();
 
   @override
-  bool? hitTest(Offset position) {
-    _hits.clear();
-    bool hasHit = false;
+  bool elementHitTest(
+    CircleMarker<R> element, {
+    required Point<double> point,
+    required LatLng coordinate,
+  }) {
+    final circle = element; // Should be optimized out by compiler, avoids lint
 
-    final point = position.toPoint();
-    final coordinate = camera.pointToLatLng(point);
+    final center = camera.getOffsetFromOrigin(circle.point);
+    final radius = circle.useRadiusInMeter
+        ? (center -
+                camera.getOffsetFromOrigin(
+                    _distance.offset(circle.point, circle.radius, 180)))
+            .distance
+        : circle.radius;
 
-    for (final circle in circles) {
-      if (hasHit && circle.hitValue == null) continue;
-
-      final center = camera.getOffsetFromOrigin(circle.point);
-      final radius = circle.useRadiusInMeter
-          ? (center -
-                  camera.getOffsetFromOrigin(
-                      _distance.offset(circle.point, circle.radius, 180)))
-              .distance
-          : circle.radius;
-
-      final isInCircle =
-          pow(point.x - center.dx, 2) + pow(point.y - center.dy, 2) <=
-              radius * radius;
-
-      if (isInCircle) {
-        if (circle.hitValue != null) _hits.add(circle.hitValue!);
-        hasHit = true;
-      }
-    }
-
-    if (!hasHit) {
-      hitNotifier?.value = null;
-      return false;
-    }
-
-    hitNotifier?.value = LayerHitResult(
-      hitValues: _hits,
-      coordinate: coordinate,
-      point: point,
-    );
-    return true;
+    return pow(point.x - center.dx, 2) + pow(point.y - center.dy, 2) <=
+        radius * radius;
   }
+
+  @override
+  Iterable<CircleMarker<R>> get elements => circles;
 
   @override
   void paint(Canvas canvas, Size size) {

@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/layer/misc/layer_interactivity/internal_hit_detectable.dart';
 import 'package:flutter_map/src/layer/misc/line_patterns/pixel_hiker.dart';
 import 'package:flutter_map/src/misc/offsets.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
@@ -39,15 +40,7 @@ class PolylineLayer<R extends Object> extends StatefulWidget {
   /// Defaults to 0.4. Set to 0 to disable simplification.
   final double simplificationTolerance;
 
-  /// A notifier to be notified when a hit test occurs on the layer
-  ///
-  /// Notified with a [LayerHitResult] if any polylines are hit, otherwise
-  /// notified with `null`.
-  ///
-  /// Hit testing still occurs even if this is `null`.
-  ///
-  /// See online documentation for more detailed usage instructions. See the
-  /// example project for an example implementation.
+  /// {@macro fm.lhn.layerHitNotifier.usage}
   final LayerHitNotifier<R>? hitNotifier;
 
   /// The minimum radius of the hittable area around each [Polyline] in logical

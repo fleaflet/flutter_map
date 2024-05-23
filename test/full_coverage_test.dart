@@ -14,7 +14,7 @@ import 'package:flutter_map/src/layer/attribution_layer/rich/widget.dart';
 import 'package:flutter_map/src/layer/attribution_layer/simple.dart';
 import 'package:flutter_map/src/layer/circle_layer/circle_layer.dart';
 import 'package:flutter_map/src/layer/marker_layer/marker_layer.dart';
-import 'package:flutter_map/src/layer/misc/hit_detection.dart';
+import 'package:flutter_map/src/layer/misc/layer_interactivity/internal_hit_detectable.dart';
 import 'package:flutter_map/src/layer/misc/mobile_layer_transformer.dart';
 import 'package:flutter_map/src/layer/misc/translucent_pointer.dart';
 import 'package:flutter_map/src/layer/overlay_image_layer/overlay_image_layer.dart';

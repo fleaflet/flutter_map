@@ -1,10 +1,13 @@
 part of 'polygon_layer.dart';
 
 @immutable
-class _ProjectedPolygon<R extends Object> {
+base class _ProjectedPolygon<R extends Object> extends HitDetectableElement<R> {
   final Polygon<R> polygon;
   final List<DoublePoint> points;
   final List<List<DoublePoint>> holePoints;
+
+  @override
+  R? get hitValue => polygon.hitValue;
 
   const _ProjectedPolygon._({
     required this.polygon,

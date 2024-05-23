@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/layer/misc/layer_interactivity/internal_hit_detectable.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 
 part 'circle_marker.dart';
@@ -14,18 +15,10 @@ class CircleLayer<R extends Object> extends StatelessWidget {
   /// The list of [CircleMarker]s.
   final List<CircleMarker<R>> circles;
 
-  /// A notifier to be notified when a hit test occurs on the layer
-  ///
-  /// Notified with a [LayerHitResult] if any polylines are hit, otherwise
-  /// notified with `null`.
-  ///
-  /// Hit testing still occurs even if this is `null`.
-  ///
-  /// See online documentation for more detailed usage instructions. See the
-  /// example project for an example implementation.
+  /// {@macro fm.lhn.layerHitNotifier.usage}
   final LayerHitNotifier<R>? hitNotifier;
 
-  /// Create a new [CircleLayer] as a child for flutter map
+  /// Create a new [CircleLayer] as a child for [FlutterMap]
   const CircleLayer({
     super.key,
     required this.circles,
@@ -35,6 +28,7 @@ class CircleLayer<R extends Object> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final camera = MapCamera.of(context);
+
     return MobileLayerTransformer(
       child: CustomPaint(
         painter: CirclePainter(
