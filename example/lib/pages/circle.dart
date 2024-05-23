@@ -24,12 +24,24 @@ class _CirclePageState extends State<CirclePage> {
   final _circlesRaw = <CircleMarker<HitValue>>[
     CircleMarker(
       point: const LatLng(51.5, -0.09),
-      color: Colors.blue.withOpacity(0.7),
+      color: Colors.white.withOpacity(0.7),
       borderColor: Colors.black,
       borderStrokeWidth: 2,
       useRadiusInMeter: false,
       radius: 100,
-      hitValue: (title: 'Blue', subtitle: 'Radius in logical pixels'),
+      hitValue: (title: 'White', subtitle: 'Radius in logical pixels'),
+    ),
+    CircleMarker(
+      point: const LatLng(51.5, -0.09),
+      color: Colors.black.withOpacity(0.7),
+      borderColor: Colors.black,
+      borderStrokeWidth: 2,
+      useRadiusInMeter: false,
+      radius: 50,
+      hitValue: (
+        title: 'Black',
+        subtitle: 'Radius in logical pixels, should be above white.',
+      ),
     ),
     CircleMarker(
       point: const LatLng(51.4937, -0.6638),
@@ -75,7 +87,7 @@ class _CirclePageState extends State<CirclePage> {
 
                 return CircleMarker<HitValue>(
                   point: original.point,
-                  radius: original.radius,
+                  radius: original.radius + (15 / 2) - 1,
                   useRadiusInMeter: original.useRadiusInMeter,
                   color: Colors.transparent,
                   borderStrokeWidth: 15,
@@ -106,7 +118,10 @@ class _CirclePageState extends State<CirclePage> {
               ),
               child: CircleLayer(
                 hitNotifier: _hitNotifier,
-                circles: [..._circlesRaw, ...?_hoverCircles],
+                circles: [
+                  ..._circlesRaw,
+                  ...?_hoverCircles,
+                ],
               ),
             ),
           ),
