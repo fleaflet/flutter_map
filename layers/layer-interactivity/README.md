@@ -14,6 +14,7 @@ The following layers are interactable - they have specialised `hitTest`ers and s
 
 * [polyline-layer.md](../polyline-layer.md "mention")
 * [polygon-layer.md](../polygon-layer.md "mention")
+* [circle-layer.md](../circle-layer.md "mention")
 
 These all follow roughly the same pattern to setup hit detection/interactivity, and there's three or four easy steps to setting it up.&#x20;
 
@@ -25,7 +26,7 @@ Direct callbacks, such as `onTap,`aren't provided on layers or individual elemen
 
 Pass a `LayerHitNotifier` to the `hitNotifier` parameter of the layer. The `LayerHitNotifier` should be created as a `ValueNotifier` defaulting to `null`, but strongly typed to `LayerHitNotifier`.
 
-This notifier will be notified whenever a hit test occurs on the layer, with a  `LayerHitResult` when a feature within the layer is hit, and with `null` when a feature is not hit (but the layer is).
+This notifier will be notified whenever a hit test occurs on the layer, with a  `LayerHitResult` when an element (such as a `Polyline` or `Polygon`) within the layer is hit, and with `null` when an element is not hit (but the layer is).
 
 <pre class="language-dart"><code class="lang-dart">final LayerHitNotifier hitNotifier = ValueNotifier(null);
 
@@ -41,7 +42,7 @@ However, most use cases just need to handle particular gestures (such as taps). 
 
 ## 2. Add `hitValue` To Elements
 
-To identify which particular element (such as a `Polyline` or `Polygon`) was hit (which will be useful when handling the hit events in later steps), supported elements have a `hitValue` property.
+To identify which particular element was hit (which will be useful when handling the hit events in later steps), supported elements have a `hitValue` property.
 
 This can be set to any object, but if one layer contains all the same type, type casting can be avoided (if the type is also specified in the `LayerHitNotifier`'s type argument).
 
@@ -83,8 +84,8 @@ MouseRegion(
 
 Once a `LayerHitResult` object is obtained, through the hit notifier, you can retrieve:
 
-* `hitValues`: the `hitValue`s of all elements that were hit, ordered by their corresponding feature, first-to-last, visually top-to-bottom
-* `coordinate`: the geographic coordinate of the hit location (which may not lie on any feature)
+* `hitValues`: the `hitValue`s of all elements that were hit, ordered by their corresponding element, first-to-last, visually top-to-bottom
+* `coordinate`: the geographic coordinate of the hit location (which may not lie on any element)
 * `point`: the screen point of the hit location
 
 {% hint style="success" %}

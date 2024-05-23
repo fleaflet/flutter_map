@@ -23,3 +23,11 @@ CircleLayer(
 {% hint style="warning" %}
 Excessive use of circles may create performance issues.
 {% endhint %}
+
+## Interactivity
+
+`CircleLayer`s and `CircleMarker`s support hit detection and interactivity.
+
+{% content-ref url="layer-interactivity/" %}
+[layer-interactivity](layer-interactivity/)
+{% endcontent-ref %}
