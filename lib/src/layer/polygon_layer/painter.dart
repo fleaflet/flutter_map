@@ -2,7 +2,9 @@ part of 'polygon_layer.dart';
 
 /// The [_PolygonPainter] class is used to render [Polygon]s for
 /// the [PolygonLayer].
-class _PolygonPainter<R extends Object> extends CustomPainter {
+base class _PolygonPainter<R extends Object>
+    extends HitDetectablePainter<R, _ProjectedPolygon<R>>
+    with HitTestRequiresCameraOrigin {
   /// Reference to the list of [_ProjectedPolygon]s
   final List<_ProjectedPolygon<R>> polygons;
 
@@ -10,9 +12,6 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
   ///
   /// Expected to be in same/corresponding order as [polygons].
   final List<List<int>?>? triangles;
-
-  /// Reference to the [MapCamera].
-  final MapCamera camera;
 
   /// Reference to the bounding box of the [Polygon].
   final LatLngBounds bounds;
@@ -23,92 +22,67 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
   /// Whether to draw labels last and thus over all the polygons
   final bool drawLabelsLast;
 
-  /// See [PolylineLayer.hitNotifier]
-  final LayerHitNotifier<R>? hitNotifier;
-
-  final _hits = <R>[]; // Avoids repetitive memory reallocation
-
   /// Create a new [_PolygonPainter] instance.
   _PolygonPainter({
     required this.polygons,
     required this.triangles,
-    required this.camera,
+    required super.camera,
     required this.polygonLabels,
     required this.drawLabelsLast,
-    required this.hitNotifier,
+    required super.hitNotifier,
   }) : bounds = camera.visibleBounds;
 
   @override
-  bool? hitTest(Offset position) {
-    _hits.clear();
-    bool hasHit = false;
+  bool elementHitTest(
+    _ProjectedPolygon<R> projectedPolygon, {
+    required math.Point<double> point,
+    required LatLng coordinate,
+  }) {
+    final polygon = projectedPolygon.polygon;
 
-    final origin =
-        camera.project(camera.center).toOffset() - camera.size.toOffset() / 2;
-    final point = position.toPoint();
-    final coordinate = camera.pointToLatLng(point);
+    if (!polygon.boundingBox.contains(coordinate)) return false;
 
-    for (final projectedPolygon in polygons.reversed) {
-      final polygon = projectedPolygon.polygon;
-      if ((hasHit && polygon.hitValue == null) ||
-          !polygon.boundingBox.contains(coordinate)) {
-        continue;
-      }
+    final projectedCoords = getOffsetsXY(
+      camera: camera,
+      origin: hitTestCameraOrigin,
+      points: projectedPolygon.points,
+    ).toList();
 
-      final projectedCoords = getOffsetsXY(
-        camera: camera,
-        origin: origin,
-        points: projectedPolygon.points,
-      ).toList();
+    if (projectedCoords.first != projectedCoords.last) {
+      projectedCoords.add(projectedCoords.first);
+    }
 
-      if (projectedCoords.first != projectedCoords.last) {
-        projectedCoords.add(projectedCoords.first);
-      }
+    final hasHoles = projectedPolygon.holePoints.isNotEmpty;
+    late final List<List<Offset>> projectedHoleCoords;
+    if (hasHoles) {
+      projectedHoleCoords = projectedPolygon.holePoints
+          .map(
+            (points) => getOffsetsXY(
+              camera: camera,
+              origin: hitTestCameraOrigin,
+              points: points,
+            ).toList(),
+          )
+          .toList();
 
-      final hasHoles = projectedPolygon.holePoints.isNotEmpty;
-      late final List<List<Offset>> projectedHoleCoords;
-      if (hasHoles) {
-        projectedHoleCoords = projectedPolygon.holePoints
-            .map(
-              (points) => getOffsetsXY(
-                camera: camera,
-                origin: origin,
-                points: points,
-              ).toList(),
-            )
-            .toList();
-
-        if (projectedHoleCoords.firstOrNull != projectedHoleCoords.lastOrNull) {
-          projectedHoleCoords.add(projectedHoleCoords.first);
-        }
-      }
-
-      final isInPolygon = _isPointInPolygon(position, projectedCoords);
-      late final isInHole = hasHoles &&
-          projectedHoleCoords
-              .map((c) => _isPointInPolygon(position, c))
-              .any((e) => e);
-
-      // Second check handles case where polygon outline intersects a hole,
-      // ensuring that the hit matches with the visual representation
-      if ((isInPolygon && !isInHole) || (!isInPolygon && isInHole)) {
-        if (polygon.hitValue != null) _hits.add(polygon.hitValue!);
-        hasHit = true;
+      if (projectedHoleCoords.firstOrNull != projectedHoleCoords.lastOrNull) {
+        projectedHoleCoords.add(projectedHoleCoords.first);
       }
     }
 
-    if (!hasHit) {
-      hitNotifier?.value = null;
-      return false;
-    }
+    final isInPolygon = _isPointInPolygon(point, projectedCoords);
+    final isInHole = hasHoles &&
+        projectedHoleCoords
+            .map((c) => _isPointInPolygon(point, c))
+            .any((e) => e);
 
-    hitNotifier?.value = LayerHitResult(
-      hitValues: _hits,
-      coordinate: coordinate,
-      point: point,
-    );
-    return true;
+    // Second check handles case where polygon outline intersects a hole,
+    // ensuring that the hit matches with the visual representation
+    return (isInPolygon && !isInHole) || (!isInPolygon && isInHole);
   }
+
+  @override
+  Iterable<_ProjectedPolygon<R>> get elements => polygons;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -390,15 +364,15 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
   /// Checks whether point [p] is within the specified closed [polygon]
   ///
   /// Uses the even-odd algorithm.
-  static bool _isPointInPolygon(Offset p, List<Offset> polygon) {
+  static bool _isPointInPolygon(math.Point p, List<Offset> polygon) {
     bool isInPolygon = false;
 
     for (int i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-      if ((((polygon[i].dy <= p.dy) && (p.dy < polygon[j].dy)) ||
-              ((polygon[j].dy <= p.dy) && (p.dy < polygon[i].dy))) &&
-          (p.dx <
+      if ((((polygon[i].dy <= p.y) && (p.y < polygon[j].dy)) ||
+              ((polygon[j].dy <= p.y) && (p.y < polygon[i].dy))) &&
+          (p.x <
               (polygon[j].dx - polygon[i].dx) *
-                      (p.dy - polygon[i].dy) /
+                      (p.y - polygon[i].dy) /
                       (polygon[j].dy - polygon[i].dy) +
                   polygon[i].dx)) isInPolygon = !isInPolygon;
     }

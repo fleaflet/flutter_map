@@ -1,9 +1,13 @@
 part of 'polyline_layer.dart';
 
 @immutable
-class _ProjectedPolyline<R extends Object> {
+base class _ProjectedPolyline<R extends Object>
+    extends HitDetectableElement<R> {
   final Polyline<R> polyline;
   final List<DoublePoint> points;
+
+  @override
+  R? get hitValue => polyline.hitValue;
 
   const _ProjectedPolyline._({
     required this.polyline,
