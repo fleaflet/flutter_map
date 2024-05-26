@@ -11,7 +11,7 @@
   * [Raster vs Vector Tiles](getting-started/explanation/raster-vs-vector-tiles.md)
 * [Installation](getting-started/installation.md)
 * [Examples](getting-started/examples.md)
-* [Migrating To v6](getting-started/migrating-to-v6.md)
+* [v7 Information](getting-started/v7-information.md)
 
 ## Usage
 
