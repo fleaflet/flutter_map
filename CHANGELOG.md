@@ -2,6 +2,16 @@
 
 Please consider [donating](https://docs.fleaflet.dev/supporters#support-us) or [contributing](https://docs.fleaflet.dev/credits#contributing) if you're a fan of what we're doing and you'd like to support future releases!
 
+This CHANGELOG does not include every commit and/or PR - it is a hand picked selection of the most important ones. For a full list of changes, please check the GitHub repository releases/tags.
+
+## [6.2.0] - 2024/05/26
+
+> If possible, prefer to update directly to v7. This version is provided only to enable Flutter 3.22 compatibility without requiring a breaking change.
+
+Contains the following user-affecting changes:
+
+- Added support for Flutter 2.22 - [#1883](https://github.com/fleaflet/flutter_map/pull/1883)
+
 ## [6.1.0] - 2023/12/02
 
 Contains the following user-affecting changes:
