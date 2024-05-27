@@ -17,9 +17,11 @@ For a curated list of changes, check out our changelog. Alternatively, for a ful
 {% endhint %}
 
 {% hint style="warning" %}
-v7 supports Flutter 3.22. However, if performing the upgrade to v7 is prohibitive for whatever reason (such as waiting for dependencies to upgrade), but you would like to use Flutter 3.22, we've also released v6.2.0.
+v7 supports Flutter 3.22. However, if performing the upgrade to v7 is prohibitive for whatever reason (such as waiting for dependencies to upgrade), but you would like to use Flutter 3.22, we've also released v6.2.1.
 
-v6.2.0 only contains the necessary changes on top of v6.1.0 to support Flutter 3.22, and so we recommend upgrading to v7 to experience all the new functionality and fixes!
+v6.2.1 only contains the necessary changes on top of v6.1.0 to support Flutter 3.22, and so we recommend upgrading to v7 to experience all the new functionality and fixes!
+
+_Version 6.2.0 has been retracted from pub.dev. For more information, please see_ [_https://github.com/fleaflet/flutter\_map/pull/1891#issuecomment-2134069848_](https://github.com/fleaflet/flutter\_map/pull/1891#issuecomment-2134069848)_._
 {% endhint %}
 
 {% embed url="https://github.com/fleaflet/flutter_map/blob/master/CHANGELOG.md" %}
