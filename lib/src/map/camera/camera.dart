@@ -111,12 +111,17 @@ class MapCamera {
 
   /// Initializes [MapCamera] from the given [options] and with the
   /// [nonRotatedSize] set to [kImpossibleSize].
+  ///
+  /// Use caution! If the [MapOptions.initialCenter] & [MapOptions.initialZoom]
+  /// are unavailable (because [MapOptions.initialCameraFit] was used instead),
+  /// `LatLng(0, 0)` and zoom `0` will be used instead. The [FlutterMap] build
+  /// process is relied upon to set the camera position accurately.
   MapCamera.initialCamera(MapOptions options)
       : crs = options.crs,
         minZoom = options.minZoom,
         maxZoom = options.maxZoom,
         center = options.initialCenter ?? const LatLng(0, 0),
-        zoom = options.initialZoom ?? 0,
+        zoom = options.initialZoom ?? -1,
         rotation = options.initialRotation,
         nonRotatedSize = kImpossibleSize;
 

@@ -38,6 +38,7 @@ void main() {
     final map = FlutterMap(
       options: const MapOptions(
         initialCenter: LatLng(45.5231, -122.6765),
+        initialZoom: 13,
       ),
       children: [
         Builder(

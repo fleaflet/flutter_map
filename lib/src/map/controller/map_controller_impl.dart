@@ -176,6 +176,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     final oldCamera = camera;
     value = value.withMapCamera(newCamera);
 
+    if (source == MapEventSource.initialCameraSetup) return true;
+
     final movementEvent = MapEventWithMove.fromSource(
       oldCamera: oldCamera,
       camera: camera,
@@ -183,11 +185,9 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
       source: source,
       id: id,
     );
-    if (movementEvent != null) _emitMapEvent(movementEvent);
 
-    if (source != MapEventSource.nonRotatedSizeChange) {
-      options.onPositionChanged?.call(newCamera, hasGesture);
-    }
+    if (movementEvent != null) _emitMapEvent(movementEvent);
+    options.onPositionChanged?.call(newCamera, hasGesture);
 
     return true;
   }
@@ -339,22 +339,34 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     return false;
   }
 
+  void setCameraRaw({
+    required Point<double> nonRotatedSize,
+    required LatLng center,
+    required double zoom,
+  }) {
+    value = value.withMapCamera(MapCamera(
+      crs: camera.crs,
+      center: center,
+      zoom: zoom,
+      rotation: camera.rotation,
+      nonRotatedSize: nonRotatedSize,
+    ));
+  }
+
   set options(MapOptions newOptions) {
     assert(
       newOptions != value.options,
       'Should not update options unless they change',
     );
 
-    final newCamera = value.camera?.withOptions(newOptions);
+    final newCamera = value.camera?.withOptions(newOptions) ??
+        MapCamera.initialCamera(newOptions);
 
-    if (newCamera != null) {
-      print(newCamera.center);
-      print(newOptions.cameraConstraint.constrain(newCamera));
+    if (newCamera.zoom != -1)
       assert(
         newOptions.cameraConstraint.constrain(newCamera) == newCamera,
         'MapCamera is no longer within the cameraConstraint after an option change.',
       );
-    }
 
     if (value.options != null &&
         value.options!.interactionOptions != newOptions.interactionOptions) {
@@ -549,7 +561,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   ) {
     _emitMapEvent(
       MapEventNonRotatedSizeChange(
-        source: MapEventSource.nonRotatedSizeChange,
+        source: MapEventSource.initialCameraSetup,
         oldCamera: oldCamera,
         camera: newCamera,
       ),

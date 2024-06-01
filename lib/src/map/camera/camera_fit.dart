@@ -108,6 +108,9 @@ class FitBounds extends CameraFit {
     final paddingTotalXY = paddingTL + paddingBR;
 
     var newZoom = _getBoundsZoom(camera, paddingTotalXY);
+
+    print(newZoom);
+    print(maxZoom);
     if (maxZoom != null) newZoom = math.min(maxZoom!, newZoom);
 
     final paddingOffset = (paddingBR - paddingTL) / 2;

@@ -61,8 +61,11 @@ enum MapEventSource {
   /// The [MapEvent] is caused by a scroll wheel zoom gesture.
   scrollWheel,
 
-  /// The [MapEvent] is caused by a size change of the [FlutterMap] constraints.
-  nonRotatedSizeChange,
+  /// The [MapEvent] is caused by the initial setup of the camera in
+  /// [FlutterMap]'s build process
+  ///
+  /// This event should not cause notifications.
+  initialCameraSetup,
 
   /// The [MapEvent] is caused by a CTRL + drag rotation gesture.
   cursorKeyboardRotation,

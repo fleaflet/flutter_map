@@ -55,8 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final camConstraint = cnt >= 0
         ? CameraConstraint.contain(bounds: bounds)
         : const CameraConstraint.unconstrained();
-    print(cnt);
-    print(camConstraint);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -64,23 +63,15 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: FlutterMap(
         options: MapOptions(
-          interactionOptions: InteractionOptions(
-              flags: InteractiveFlag.pinchZoom |
-                  InteractiveFlag.drag |
-                  InteractiveFlag.doubleTapZoom |
-                  InteractiveFlag.scrollWheelZoom,
-              rotationWinGestures: MultiFingerGesture.none,
-              rotationThreshold: double.infinity,
-              cursorKeyboardRotationOptions:
-                  CursorKeyboardRotationOptions.disabled()),
           minZoom: 1,
           maxZoom: 20,
-          //initialZoom: 5.9,
-          //initialCenter: const LatLng(45.80565, 24.937853),
-          //cameraConstraint: camConstraint,
-          initialCameraFit: CameraFit.bounds(
-            bounds: bounds,
-          ),
+          initialZoom: 5.9,
+
+          initialCenter: const LatLng(45.80565, 24.937853),
+          cameraConstraint: camConstraint,
+          //initialCameraFit: CameraFit.insideBounds(
+          //  bounds: bounds,
+          //),
         ),
         children: [
           TileLayer(
@@ -95,7 +86,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   bounds.southEast,
                   bounds.southWest,
                 ],
-                color: Colors.red,
+                color: Colors.red.withOpacity(0.5),
               ),
             ],
           ),
