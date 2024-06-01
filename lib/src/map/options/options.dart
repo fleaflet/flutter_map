@@ -51,11 +51,11 @@ class MapOptions {
 
   /// The center when the map is first loaded. If [initialCameraFit] is defined
   /// this has no effect.
-  final LatLng initialCenter;
+  final LatLng? initialCenter;
 
   /// The zoom when the map is first loaded. If [initialCameraFit] is defined
   /// this has no effect.
-  final double initialZoom;
+  final double? initialZoom;
 
   /// The rotation when the map is first loaded.
   final double initialRotation;
@@ -179,9 +179,9 @@ class MapOptions {
   /// Create the map options for [FlutterMap].
   const MapOptions({
     this.crs = const Epsg3857(),
-    this.initialCenter = const LatLng(50.5, 30.51),
-    this.initialZoom = 13.0,
-    this.initialRotation = 0.0,
+    this.initialCenter,
+    this.initialZoom,
+    this.initialRotation = 0,
     this.initialCameraFit,
     this.cameraConstraint = const CameraConstraint.unconstrained(),
     this.interactionOptions = const InteractionOptions(),
@@ -206,7 +206,15 @@ class MapOptions {
       'This feature was deprecated (and the default changed) after v7.',
     )
     this.applyPointerTranslucencyToLayers = false,
-  });
+  }) : assert(
+          (initialCenter != null &&
+                  initialZoom != null &&
+                  initialCameraFit == null) ||
+              (initialCenter == null &&
+                  initialZoom == null &&
+                  initialCameraFit != null),
+          'Exactly one of the initial positioning strategies must be specified',
+        );
 
   /// The options of the closest [FlutterMap] ancestor. If this is called from a
   /// context with no [FlutterMap] ancestor, null is returned.

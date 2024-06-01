@@ -115,8 +115,8 @@ class MapCamera {
       : crs = options.crs,
         minZoom = options.minZoom,
         maxZoom = options.maxZoom,
-        center = options.initialCenter,
-        zoom = options.initialZoom,
+        center = options.initialCenter ?? const LatLng(0, 0),
+        zoom = options.initialZoom ?? 0,
         rotation = options.initialRotation,
         nonRotatedSize = kImpossibleSize;
 

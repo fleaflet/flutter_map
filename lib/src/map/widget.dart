@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/gestures/map_interactive_viewer.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:logger/logger.dart';
 
 /// An interactive geographical map
@@ -20,7 +21,8 @@ class FlutterMap extends StatefulWidget {
   const FlutterMap({
     super.key,
     this.mapController,
-    this.options = const MapOptions(),
+    this.options =
+        const MapOptions(initialCenter: LatLng(0, 0), initialZoom: 0),
     required this.children,
   });
 
@@ -50,6 +52,7 @@ class FlutterMap extends StatefulWidget {
 class _FlutterMapStateContainer extends State<FlutterMap>
     with AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
   bool _initialCameraFitApplied = false;
+  bool _hasSetInitialController = false;
 
   late MapControllerImpl _mapController;
 
@@ -58,10 +61,6 @@ class _FlutterMapStateContainer extends State<FlutterMap>
   @override
   void initState() {
     super.initState();
-    _setMapController();
-
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => widget.options.onMapReady?.call());
 
     if (kDebugMode && kIsWeb && !isCanvasKit) {
       Logger(printer: PrettyPrinter(methodCount: 0)).w(
@@ -90,81 +89,86 @@ class _FlutterMapStateContainer extends State<FlutterMap>
     super.dispose();
   }
 
+  Widget get _child => MapInteractiveViewer(
+        controller: _mapController,
+        builder: (context, options, camera) {
+          return MapInheritedModel(
+            controller: _mapController,
+            options: options,
+            camera: camera,
+            child: ClipRect(
+              child: Stack(
+                children: <Widget>[
+                  Positioned.fill(
+                    child: ColoredBox(color: widget.options.backgroundColor),
+                  ),
+                  // ignore: deprecated_member_use_from_same_package
+                  ...widget.options.applyPointerTranslucencyToLayers
+                      ? widget.children
+                          .map((child) => TranslucentPointer(child: child))
+                      : widget.children,
+                ],
+              ),
+            ),
+          );
+        },
+      );
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
 
-    final widgets = ClipRect(
-      child: Stack(
-        children: <Widget>[
-          Positioned.fill(
-            child: ColoredBox(color: widget.options.backgroundColor),
-          ),
-          // ignore: deprecated_member_use_from_same_package
-          ...widget.options.applyPointerTranslucencyToLayers
-              ? widget.children.map((child) => TranslucentPointer(child: child))
-              : widget.children,
-        ],
-      ),
-    );
-
     return RepaintBoundary(
       child: LayoutBuilder(
         builder: (context, constraints) {
-          _updateAndEmitSizeIfConstraintsChanged(constraints);
+          if (!_hasValidConstraints(context, constraints)) {
+            return ColoredBox(
+              color: widget.options.backgroundColor,
+              child: const Center(
+                child: Text('Awaiting constraints from Flutter...'),
+              ),
+            );
+          }
 
-          return MapInteractiveViewer(
-            controller: _mapController,
-            builder: (context, options, camera) {
-              return MapInheritedModel(
-                controller: _mapController,
-                options: options,
-                camera: camera,
-                child: widgets,
+          _setMapController(initialSet: true, constraints: constraints);
+
+          if (!_initialCameraFitApplied) {
+            if (widget.options.initialCameraFit != null) {
+              final fitted = widget.options.initialCameraFit!.fit(
+                MapCamera(
+                  crs: widget.options.crs,
+                  center: const LatLng(0, 0),
+                  zoom: 0,
+                  rotation: 0,
+                  nonRotatedSize: Point<double>(
+                    constraints.maxWidth,
+                    constraints.maxHeight,
+                  ),
+                ),
               );
-            },
-          );
+
+              _mapController.moveRaw(
+                fitted.center,
+                fitted.zoom,
+                hasGesture: false,
+                source: MapEventSource.nonRotatedSizeChange,
+              );
+            } else {
+              _mapController.moveRaw(
+                widget.options.initialCenter!,
+                widget.options.initialZoom!,
+                hasGesture: false,
+                source: MapEventSource.nonRotatedSizeChange,
+              );
+            }
+
+            _initialCameraFitApplied = true;
+          }
+
+          return _child;
         },
       ),
     );
-  }
-
-  void _applyInitialCameraFit(BoxConstraints constraints) {
-    // If an initial camera fit was provided apply it to the map state once the
-    // the parent constraints are available.
-
-    if (!_initialCameraFitApplied &&
-        widget.options.initialCameraFit != null &&
-        _parentConstraintsAreSet(context, constraints)) {
-      _initialCameraFitApplied = true;
-
-      _mapController.fitCamera(widget.options.initialCameraFit!);
-    }
-  }
-
-  void _updateAndEmitSizeIfConstraintsChanged(BoxConstraints constraints) {
-    final nonRotatedSize = Point<double>(
-      constraints.maxWidth,
-      constraints.maxHeight,
-    );
-    final oldCamera = _mapController.camera;
-    if (_mapController.setNonRotatedSizeWithoutEmittingEvent(nonRotatedSize)) {
-      final newMapCamera = _mapController.camera;
-
-      // Avoid emitting the event during build otherwise if the user calls
-      // setState in the onMapEvent callback it will throw.
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          _mapController.nonRotatedSizeChange(
-            MapEventSource.nonRotatedSizeChange,
-            oldCamera,
-            newMapCamera,
-          );
-
-          _applyInitialCameraFit(constraints);
-        }
-      });
-    }
   }
 
   /// During Flutter startup the native platform resolution is not immediately
@@ -172,14 +176,16 @@ class _FlutterMapStateContainer extends State<FlutterMap>
   /// in a subsequent build to the actual constraints. This check allows us to
   /// differentiate zero constraints caused by missing platform resolution vs
   /// zero constraints which were actually provided by the parent widget.
-  bool _parentConstraintsAreSet(
-          BuildContext context, BoxConstraints constraints) =>
-      constraints.maxWidth != 0 || MediaQuery.sizeOf(context) != Size.zero;
+  bool _hasValidConstraints(
+    BuildContext context,
+    BoxConstraints constraints,
+  ) =>
+      constraints.maxWidth > 0 || MediaQuery.sizeOf(context) != Size.zero;
 
-  @override
-  bool get wantKeepAlive => widget.options.keepAlive;
+  void _setMapController(
+      {BoxConstraints? constraints, bool initialSet = false}) {
+    if (initialSet && _hasSetInitialController) return;
 
-  void _setMapController() {
     if (_controllerCreatedInternally) {
       _mapController = MapControllerImpl(options: widget.options, vsync: this);
     } else {
@@ -187,5 +193,23 @@ class _FlutterMapStateContainer extends State<FlutterMap>
       _mapController.vsync = this;
       _mapController.options = widget.options;
     }
+
+    if (constraints != null) {
+      _mapController.setNonRotatedSizeWithoutEmittingEvent(
+        Point<double>(
+          constraints.maxWidth,
+          constraints.maxHeight,
+        ),
+      );
+    }
+
+    if (!_hasSetInitialController) {
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => widget.options.onMapReady?.call());
+      _hasSetInitialController = true;
+    }
   }
+
+  @override
+  bool get wantKeepAlive => widget.options.keepAlive;
 }

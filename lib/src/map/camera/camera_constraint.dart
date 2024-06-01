@@ -110,8 +110,14 @@ class ContainCamera extends CameraConstraint {
     final testZoom = camera.zoom;
     final testCenter = camera.center;
 
+    print(testZoom);
+    print(testCenter);
+
     final nePixel = camera.project(bounds.northEast, testZoom);
     final swPixel = camera.project(bounds.southWest, testZoom);
+
+    print(nePixel);
+    print(swPixel);
 
     final halfSize = camera.size / 2;
 
@@ -121,6 +127,11 @@ class ContainCamera extends CameraConstraint {
     final rightOkCenter = math.max(swPixel.x, nePixel.x) - halfSize.x;
     final topOkCenter = math.min(swPixel.y, nePixel.y) + halfSize.y;
     final botOkCenter = math.max(swPixel.y, nePixel.y) - halfSize.y;
+
+    print(leftOkCenter);
+    print(rightOkCenter);
+    print(topOkCenter);
+    print(botOkCenter);
 
     // Stop if we are zoomed out so far that the camera cannot be translated to
     // stay within [latLngBounds].

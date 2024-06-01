@@ -185,7 +185,9 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     );
     if (movementEvent != null) _emitMapEvent(movementEvent);
 
-    options.onPositionChanged?.call(newCamera, hasGesture);
+    if (source != MapEventSource.nonRotatedSizeChange) {
+      options.onPositionChanged?.call(newCamera, hasGesture);
+    }
 
     return true;
   }
@@ -343,13 +345,16 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
       'Should not update options unless they change',
     );
 
-    final newCamera = value.camera?.withOptions(newOptions) ??
-        MapCamera.initialCamera(newOptions);
+    final newCamera = value.camera?.withOptions(newOptions);
 
-    assert(
-      newOptions.cameraConstraint.constrain(newCamera) == newCamera,
-      'MapCamera is no longer within the cameraConstraint after an option change.',
-    );
+    if (newCamera != null) {
+      print(newCamera.center);
+      print(newOptions.cameraConstraint.constrain(newCamera));
+      assert(
+        newOptions.cameraConstraint.constrain(newCamera) == newCamera,
+        'MapCamera is no longer within the cameraConstraint after an option change.',
+      );
+    }
 
     if (value.options != null &&
         value.options!.interactionOptions != newOptions.interactionOptions) {
