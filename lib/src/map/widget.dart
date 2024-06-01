@@ -134,18 +134,8 @@ class _FlutterMapStateContainer extends State<FlutterMap>
 
           if (!_initialCameraFitApplied) {
             if (widget.options.initialCameraFit != null) {
-              final fitted = widget.options.initialCameraFit!.fit(
-                MapCamera(
-                  crs: widget.options.crs,
-                  center: const LatLng(0, 0),
-                  zoom: 0,
-                  rotation: 0,
-                  nonRotatedSize: Point<double>(
-                    constraints.maxWidth,
-                    constraints.maxHeight,
-                  ),
-                ),
-              );
+              final fitted =
+                  widget.options.initialCameraFit!.fit(_mapController.camera);
 
               _mapController.moveRaw(
                 fitted.center,
