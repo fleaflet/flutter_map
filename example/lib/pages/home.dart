@@ -52,7 +52,7 @@ class _HomePageState extends State<HomePage> {
                 polygons: [
                   if (_points.length >= 3)
                     Polygon(
-                      points: List.from(_points),
+                      points: _points,
                       color: Colors.red,
                     ),
                   Polygon(
@@ -62,6 +62,14 @@ class _HomePageState extends State<HomePage> {
                       LatLng(51.382785157810176, -0.5524552832866705),
                     ],
                     color: Colors.blue,
+                  ),
+                  Polygon(
+                    points: [
+                      LatLng(51.43527063287209, -0.6749922034878753),
+                      LatLng(51.489148544830705, -0.668754861138558),
+                      LatLng(51.382785157810176, -0.5524552832866705),
+                    ],
+                    color: Colors.red,
                   ),
                 ],
               ),

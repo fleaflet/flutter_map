@@ -91,9 +91,9 @@ class PolygonLayer<R extends Object> extends StatefulWidget {
 }
 
 class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>> {
-  HashMap<Polygon<R>, _ProjectedPolygon<R>>? _cachedProjectedPolygons;
+  final _cachedProjectedPolygons = SplayTreeMap<int, _ProjectedPolygon<R>>();
   final _cachedSimplifiedPolygons =
-      <int, HashMap<Polygon<R>, _ProjectedPolygon<R>>>{};
+      <int, SplayTreeMap<int, _ProjectedPolygon<R>>>{};
 
   double? _devicePixelRatio;
 
@@ -103,15 +103,31 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>> {
 
     final camera = MapCamera.of(context);
 
+    // If the simplification tolerance has changed, then clear all
+    // simplifications to allow `build` to re-simplify.
     final hasSimplficationToleranceChanged =
         oldWidget.simplificationTolerance != widget.simplificationTolerance;
     if (hasSimplficationToleranceChanged) _cachedSimplifiedPolygons.clear();
 
-    for (final polygon in widget.polygons) {
-      final existing = _cachedProjectedPolygons![polygon]?.polygon;
+    // We specifically only use basic equality here, and not deep, since deep
+    // will always be equal.
+    if (oldWidget.polygons == widget.polygons) return;
 
-      if (existing == null || existing != polygon) {
-        _cachedProjectedPolygons![polygon] =
+    // Loop through all polygons in the new widget
+    // If not in the projection cache, then re-project. Also, do the same for
+    // the simplification cache, across all zoom levels for each polygon.
+    // Then, remove all polygons no longer in the new widget from each cache.
+    //
+    // This is an O(n^3) operation, assuming n is the number of polygons
+    // (assuming they are all similar, otherwise exact runtime will depend on
+    // existing cache lengths, etc.). However, compared to previous versions, it
+    // takes approximately the same duration, as it relieves the work from the
+    // `build` method.
+    for (final polygon in widget.polygons) {
+      final existingProjection = _cachedProjectedPolygons[polygon.hashCode];
+
+      if (existingProjection == null) {
+        _cachedProjectedPolygons[polygon.hashCode] =
             _ProjectedPolygon._fromPolygon(camera.crs.projection, polygon);
 
         if (hasSimplficationToleranceChanged) continue;
@@ -127,44 +143,56 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>> {
             devicePixelRatio: MediaQuery.devicePixelRatioOf(context),
           );
 
-          final existingSimplified = simplifiedPolygons[polygon]?.polygon;
+          final existingSimplification = simplifiedPolygons[polygon.hashCode];
 
-          if (existingSimplified == null || existingSimplified != polygon) {
-            _cachedSimplifiedPolygons[zoomLvl]![polygon] = _simplifyPolygon(
-              projectedPolygon: _cachedProjectedPolygons![polygon]!,
+          if (existingSimplification == null) {
+            _cachedSimplifiedPolygons[zoomLvl]![polygon.hashCode] =
+                _simplifyPolygon(
+              projectedPolygon: _cachedProjectedPolygons[polygon.hashCode]!,
               tolerance: simplificationTolerance,
             );
           }
-
-          simplifiedPolygons
-              .removeWhere((k, v) => !widget.polygons.contains(k));
         }
       }
     }
 
-    _cachedProjectedPolygons!
-        .removeWhere((k, v) => !widget.polygons.contains(k));
+    _cachedProjectedPolygons.removeWhere(
+        (k, v) => !widget.polygons.map((p) => p.hashCode).contains(k));
+
+    for (final s in _cachedSimplifiedPolygons.values) {
+      s.removeWhere(
+          (k, v) => !widget.polygons.map((p) => p.hashCode).contains(k));
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Performed once only, at load - projects all initial polygons
+    if (_cachedProjectedPolygons.isEmpty) {
+      final camera = MapCamera.of(context);
+
+      for (final polygon in widget.polygons) {
+        _cachedProjectedPolygons[polygon.hashCode] =
+            _ProjectedPolygon._fromPolygon(
+          camera.crs.projection,
+          polygon,
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final camera = MapCamera.of(context);
 
-    final projected = _cachedProjectedPolygons ??= HashMap.fromIterables(
-      widget.polygons,
-      List.generate(
-        widget.polygons.length,
-        (i) => _ProjectedPolygon._fromPolygon(
-          camera.crs.projection,
-          widget.polygons[i],
-        ),
-        growable: false,
-      ),
-    );
-
-    late final HashMap<Polygon<R>, _ProjectedPolygon<R>> simplified;
+    // The `build` method handles initial simplification, re-simplification only
+    // when the DPR has changed, and re-simplification implicitly when the
+    // tolerance is changed (and the cache is emptied by `didUpdateWidget`.
+    late final Iterable<_ProjectedPolygon<R>> simplified;
     if (widget.simplificationTolerance == 0) {
-      simplified = projected;
+      simplified = _cachedProjectedPolygons.values;
     } else {
       // If the DPR has changed, invalidate the simplification cache
       final newDPR = MediaQuery.devicePixelRatioOf(context);
@@ -173,21 +201,22 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>> {
         _cachedSimplifiedPolygons.clear();
       }
 
-      simplified = _cachedSimplifiedPolygons[camera.zoom.floor()] ??=
-          HashMap.fromIterables(
-        widget.polygons,
+      simplified = (_cachedSimplifiedPolygons[camera.zoom.floor()] ??=
+              SplayTreeMap.fromIterables(
+        _cachedProjectedPolygons.keys,
         _simplifyPolygons(
           camera: camera,
-          projectedPolygons: projected.values,
+          projectedPolygons: _cachedProjectedPolygons.values,
           pixelTolerance: widget.simplificationTolerance,
           devicePixelRatio: newDPR,
         ),
-      );
+      ))
+          .values;
     }
 
     final culled = !widget.polygonCulling
-        ? simplified.values.toList()
-        : simplified.values
+        ? simplified.toList()
+        : simplified
             .where(
               (p) => p.polygon.boundingBox.isOverlapping(camera.visibleBounds),
             )
