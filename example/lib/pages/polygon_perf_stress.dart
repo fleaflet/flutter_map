@@ -19,7 +19,7 @@ class PolygonPerfStressPage extends StatefulWidget {
 }
 
 class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
-  double simplificationTolerance = 0.5;
+  double simplificationTolerance = 0.3;
   bool useAltRendering = true;
   double borderThickness = 1;
 

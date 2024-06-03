@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'dart:math' as math;
 import 'dart:ui';
 
@@ -8,6 +7,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/shared/layer_interactivity/internal_hit_detectable.dart';
+import 'package:flutter_map/src/layer/shared/layer_projection_simplification/state.dart';
+import 'package:flutter_map/src/layer/shared/layer_projection_simplification/widget.dart';
 import 'package:flutter_map/src/layer/shared/line_patterns/pixel_hiker.dart';
 import 'package:flutter_map/src/misc/offsets.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
@@ -21,7 +22,7 @@ part 'projected_polygon.dart';
 
 /// A polygon layer for [FlutterMap].
 @immutable
-class PolygonLayer<R extends Object> extends StatefulWidget {
+base class PolygonLayer<R extends Object> extends PSSupportedWidget {
   /// [Polygon]s to draw
   final List<Polygon<R>> polygons;
 
@@ -48,16 +49,6 @@ class PolygonLayer<R extends Object> extends StatefulWidget {
   /// Defaults to `true`. Disabling is not recommended.
   final bool polygonCulling;
 
-  /// Distance between two neighboring polygon points, in logical pixels scaled
-  /// to floored zoom
-  ///
-  /// Increasing this value results in points further apart being collapsed and
-  /// thus more simplified polygons. Higher values improve performance at the
-  /// cost of visual fidelity and vice versa.
-  ///
-  /// Defaults to 0.5. Set to 0 to disable simplification.
-  final double simplificationTolerance;
-
   /// Whether to draw per-polygon labels
   ///
   /// Defaults to `true`.
@@ -71,171 +62,69 @@ class PolygonLayer<R extends Object> extends StatefulWidget {
   /// {@macro fm.lhn.layerHitNotifier.usage}
   final LayerHitNotifier<R>? hitNotifier;
 
-  /// Whether to apply the auto-update algorithm to re-paint the necessary
-  /// [Polygon]s when they change
-  ///
-  /// It is recommended to leave this `true`, as default, otherwise changes to
-  /// child polygons may not update. It will detect which polygons have changed,
-  /// and only 'update' (re-project and re-simplify) those that are necessary.
-  ///
-  /// However, where there are a large number of polygons, the majority (or more)
-  /// of which change at the same time, then it is recommended to set this
-  /// `false`. This will avoid a large unnecessary loop to detect changes, and
-  /// is likely to improve performance on state changes. If `false`, then the
-  /// layer will need to be manually rebuilt from scratch using new [Key]s
-  /// whenever necessary. Do not use a [UniqueKey] : this will cause the entire
-  /// widget to reset and rebuild every time the map camera changes.
-  final bool useDynamicUpdate;
-
   /// Create a new [PolygonLayer] for the [FlutterMap] widget.
   const PolygonLayer({
     super.key,
     required this.polygons,
     this.useAltRendering = false,
     this.polygonCulling = true,
-    this.simplificationTolerance = 0.5,
     this.polygonLabels = true,
     this.drawLabelsLast = false,
     this.hitNotifier,
-    this.useDynamicUpdate = true,
-  }) : assert(
-          simplificationTolerance >= 0,
-          'simplificationTolerance cannot be negative: $simplificationTolerance',
-        );
+    super.simplificationTolerance,
+    super.useDynamicUpdate,
+  }) : super();
 
   @override
   State<PolygonLayer<R>> createState() => _PolygonLayerState<R>();
 }
 
-class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>> {
-  final _cachedProjectedPolygons = SplayTreeMap<int, _ProjectedPolygon<R>>();
-  final _cachedSimplifiedPolygons =
-      <int, SplayTreeMap<int, _ProjectedPolygon<R>>>{};
-
-  double? _devicePixelRatio;
+class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
+    with
+        ProjectionSimplificationManagement<_ProjectedPolygon<R>, Polygon<R>,
+            PolygonLayer<R>> {
+  @override
+  _ProjectedPolygon<R> projectElement({
+    required Projection projection,
+    required Polygon<R> element,
+  }) =>
+      _ProjectedPolygon._fromPolygon(projection, element);
 
   @override
-  void didUpdateWidget(PolygonLayer<R> oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (!widget.useDynamicUpdate) return;
-
-    final camera = MapCamera.of(context);
-
-    // If the simplification tolerance has changed, then clear all
-    // simplifications to allow `build` to re-simplify.
-    final hasSimplficationToleranceChanged =
-        oldWidget.simplificationTolerance != widget.simplificationTolerance;
-    if (hasSimplficationToleranceChanged) _cachedSimplifiedPolygons.clear();
-
-    // We specifically only use basic equality here, and not deep, since deep
-    // will always be equal.
-    if (oldWidget.polygons == widget.polygons) return;
-
-    // Loop through all polygons in the new widget
-    // If not in the projection cache, then re-project. Also, do the same for
-    // the simplification cache, across all zoom levels for each polygon.
-    // Then, remove all polygons no longer in the new widget from each cache.
-    //
-    // This is an O(n^3) operation, assuming n is the number of polygons
-    // (assuming they are all similar, otherwise exact runtime will depend on
-    // existing cache lengths, etc.). However, compared to previous versions, it
-    // takes approximately the same duration, as it relieves the work from the
-    // `build` method.
-    for (final polygon in widget.polygons) {
-      final existingProjection = _cachedProjectedPolygons[polygon.hashCode];
-
-      if (existingProjection == null) {
-        _cachedProjectedPolygons[polygon.hashCode] =
-            _ProjectedPolygon._fromPolygon(camera.crs.projection, polygon);
-
-        if (hasSimplficationToleranceChanged) continue;
-
-        for (final MapEntry(key: zoomLvl, value: simplifiedPolygons)
-            in _cachedSimplifiedPolygons.entries) {
-          final simplificationTolerance = getEffectiveSimplificationTolerance(
-            crs: camera.crs,
-            zoom: zoomLvl,
-            // When the tolerance changes, this method handles resetting and filling
-            pixelTolerance: widget.simplificationTolerance,
-            // When the DPR changes, the `build` method handles resetting and filling
-            devicePixelRatio: MediaQuery.devicePixelRatioOf(context),
-          );
-
-          final existingSimplification = simplifiedPolygons[polygon.hashCode];
-
-          if (existingSimplification == null) {
-            _cachedSimplifiedPolygons[zoomLvl]![polygon.hashCode] =
-                _simplifyPolygon(
-              projectedPolygon: _cachedProjectedPolygons[polygon.hashCode]!,
-              tolerance: simplificationTolerance,
-            );
-          }
-        }
-      }
-    }
-
-    _cachedProjectedPolygons.removeWhere(
-        (k, v) => !widget.polygons.map((p) => p.hashCode).contains(k));
-
-    for (final s in _cachedSimplifiedPolygons.values) {
-      s.removeWhere(
-          (k, v) => !widget.polygons.map((p) => p.hashCode).contains(k));
-    }
-  }
+  _ProjectedPolygon<R> simplifyProjectedElement({
+    required _ProjectedPolygon<R> projectedElement,
+    required double tolerance,
+  }) =>
+      _ProjectedPolygon._(
+        polygon: projectedElement.polygon,
+        points: simplifyPoints(
+          points: projectedElement.points,
+          tolerance: tolerance,
+          highQuality: true,
+        ),
+        holePoints: List.generate(
+          projectedElement.holePoints.length,
+          (j) => simplifyPoints(
+            points: projectedElement.holePoints[j],
+            tolerance: tolerance,
+            highQuality: true,
+          ),
+          growable: false,
+        ),
+      );
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    // Performed once only, at load - projects all initial polygons
-    if (_cachedProjectedPolygons.isEmpty) {
-      final camera = MapCamera.of(context);
-
-      for (final polygon in widget.polygons) {
-        _cachedProjectedPolygons[polygon.hashCode] =
-            _ProjectedPolygon._fromPolygon(
-          camera.crs.projection,
-          polygon,
-        );
-      }
-    }
-  }
+  Iterable<Polygon<R>> getElements(PolygonLayer<R> widget) => widget.polygons;
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     final camera = MapCamera.of(context);
 
-    // The `build` method handles initial simplification, re-simplification only
-    // when the DPR has changed, and re-simplification implicitly when the
-    // tolerance is changed (and the cache is emptied by `didUpdateWidget`.
-    late final Iterable<_ProjectedPolygon<R>> simplified;
-    if (widget.simplificationTolerance == 0) {
-      simplified = _cachedProjectedPolygons.values;
-    } else {
-      // If the DPR has changed, invalidate the simplification cache
-      final newDPR = MediaQuery.devicePixelRatioOf(context);
-      if (newDPR != _devicePixelRatio) {
-        _devicePixelRatio = newDPR;
-        _cachedSimplifiedPolygons.clear();
-      }
-
-      simplified = (_cachedSimplifiedPolygons[camera.zoom.floor()] ??=
-              SplayTreeMap.fromIterables(
-        _cachedProjectedPolygons.keys,
-        _simplifyPolygons(
-          camera: camera,
-          projectedPolygons: _cachedProjectedPolygons.values,
-          pixelTolerance: widget.simplificationTolerance,
-          devicePixelRatio: newDPR,
-        ),
-      ))
-          .values;
-    }
-
     final culled = !widget.polygonCulling
-        ? simplified.toList()
-        : simplified
+        ? simplifiedElements.toList()
+        : simplifiedElements
             .where(
               (p) => p.polygon.boundingBox.isOverlapping(camera.visibleBounds),
             )
@@ -281,50 +170,6 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>> {
           hitNotifier: widget.hitNotifier,
         ),
         size: Size(camera.size.x, camera.size.y),
-      ),
-    );
-  }
-
-  Iterable<_ProjectedPolygon<R>> _simplifyPolygons({
-    required Iterable<_ProjectedPolygon<R>> projectedPolygons,
-    required MapCamera camera,
-    required double pixelTolerance,
-    required double devicePixelRatio,
-  }) sync* {
-    final tolerance = getEffectiveSimplificationTolerance(
-      crs: camera.crs,
-      zoom: camera.zoom.floor(),
-      pixelTolerance: pixelTolerance,
-      devicePixelRatio: devicePixelRatio,
-    );
-
-    for (final projectedPolygon in projectedPolygons) {
-      yield _simplifyPolygon(
-        tolerance: tolerance,
-        projectedPolygon: projectedPolygon,
-      );
-    }
-  }
-
-  _ProjectedPolygon<R> _simplifyPolygon({
-    required _ProjectedPolygon<R> projectedPolygon,
-    required double tolerance,
-  }) {
-    return _ProjectedPolygon._(
-      polygon: projectedPolygon.polygon,
-      points: simplifyPoints(
-        points: projectedPolygon.points,
-        tolerance: tolerance,
-        highQuality: true,
-      ),
-      holePoints: List.generate(
-        projectedPolygon.holePoints.length,
-        (j) => simplifyPoints(
-          points: projectedPolygon.holePoints[j],
-          tolerance: tolerance,
-          highQuality: true,
-        ),
-        growable: false,
       ),
     );
   }
