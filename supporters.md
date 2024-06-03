@@ -26,4 +26,5 @@ Huge thanks to all our past supporters, you help keep this project going. In no 
 * corepuncher
 * Maxi
 * V3ntus
+* OCELL
 * ... and everyone else who donated anonymously
