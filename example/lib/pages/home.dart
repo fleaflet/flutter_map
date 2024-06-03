@@ -20,6 +20,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final _points = <LatLng>[];
+
   @override
   void initState() {
     super.initState();
@@ -42,9 +44,27 @@ class _HomePageState extends State<HomePage> {
                   const LatLng(90, 180),
                 ),
               ),
+              onTap: (_, pos) => setState(() => _points.add(pos)),
             ),
             children: [
               openStreetMapTileLayer,
+              PolygonLayer(
+                polygons: [
+                  if (_points.length >= 3)
+                    Polygon(
+                      points: List.from(_points),
+                      color: Colors.red,
+                    ),
+                  Polygon(
+                    points: [
+                      LatLng(51.43527063287209, -0.6749922034878753),
+                      LatLng(51.489148544830705, -0.668754861138558),
+                      LatLng(51.382785157810176, -0.5524552832866705),
+                    ],
+                    color: Colors.blue,
+                  ),
+                ],
+              ),
               RichAttributionWidget(
                 popupInitialDisplayDuration: const Duration(seconds: 5),
                 animationConfig: const ScaleRAWA(),
