@@ -63,15 +63,13 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
               openStreetMapTileLayer,
               FutureBuilder(
                 future: geoJsonParser,
-                builder: (context, geoJsonParser) =>
-                    geoJsonParser.connectionState != ConnectionState.done ||
-                            geoJsonParser.data == null
-                        ? const SizedBox.shrink()
-                        : PolygonLayer(
-                            polygons: geoJsonParser.data!.polygons,
-                            useAltRendering: useAltRendering,
-                            simplificationTolerance: simplificationTolerance,
-                          ),
+                builder: (context, geoJsonParser) => geoJsonParser.data == null
+                    ? const SizedBox.shrink()
+                    : PolygonLayer(
+                        polygons: geoJsonParser.data!.polygons,
+                        useAltRendering: useAltRendering,
+                        simplificationTolerance: simplificationTolerance,
+                      ),
               ),
             ],
           ),

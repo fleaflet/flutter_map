@@ -71,6 +71,22 @@ class PolygonLayer<R extends Object> extends StatefulWidget {
   /// {@macro fm.lhn.layerHitNotifier.usage}
   final LayerHitNotifier<R>? hitNotifier;
 
+  /// Whether to apply the auto-update algorithm to re-paint the necessary
+  /// [Polygon]s when they change
+  ///
+  /// It is recommended to leave this `true`, as default, otherwise changes to
+  /// child polygons may not update. It will detect which polygons have changed,
+  /// and only 'update' (re-project and re-simplify) those that are necessary.
+  ///
+  /// However, where there are a large number of polygons, the majority (or more)
+  /// of which change at the same time, then it is recommended to set this
+  /// `false`. This will avoid a large unnecessary loop to detect changes, and
+  /// is likely to improve performance on state changes. If `false`, then the
+  /// layer will need to be manually rebuilt from scratch using new [Key]s
+  /// whenever necessary. Do not use a [UniqueKey] : this will cause the entire
+  /// widget to reset and rebuild every time the map camera changes.
+  final bool useDynamicUpdate;
+
   /// Create a new [PolygonLayer] for the [FlutterMap] widget.
   const PolygonLayer({
     super.key,
@@ -81,6 +97,7 @@ class PolygonLayer<R extends Object> extends StatefulWidget {
     this.polygonLabels = true,
     this.drawLabelsLast = false,
     this.hitNotifier,
+    this.useDynamicUpdate = true,
   }) : assert(
           simplificationTolerance >= 0,
           'simplificationTolerance cannot be negative: $simplificationTolerance',
@@ -100,6 +117,8 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>> {
   @override
   void didUpdateWidget(PolygonLayer<R> oldWidget) {
     super.didUpdateWidget(oldWidget);
+
+    if (!widget.useDynamicUpdate) return;
 
     final camera = MapCamera.of(context);
 
