@@ -22,6 +22,9 @@ base class _PolygonPainter<R extends Object>
   /// Whether to draw labels last and thus over all the polygons
   final bool drawLabelsLast;
 
+  /// See [PolygonLayer.debugAltRenderer]
+  final bool debugAltRenderer;
+
   /// Create a new [_PolygonPainter] instance.
   _PolygonPainter({
     required this.polygons,
@@ -29,6 +32,7 @@ base class _PolygonPainter<R extends Object>
     required super.camera,
     required this.polygonLabels,
     required this.drawLabelsLast,
+    required this.debugAltRenderer,
     required super.hitNotifier,
   }) : bounds = camera.visibleBounds;
 
@@ -114,6 +118,50 @@ base class _PolygonPainter<R extends Object>
             }
             final vertices = Vertices.raw(VertexMode.triangles, points);
             canvas.drawVertices(vertices, BlendMode.src, paint);
+
+            if (debugAltRenderer) {
+              for (int i = 0; i < trianglePoints.length; i += 3) {
+                canvas.drawCircle(
+                  trianglePoints[i],
+                  5,
+                  Paint()..color = const Color(0x7EFF0000),
+                );
+                canvas.drawCircle(
+                  trianglePoints[i + 1],
+                  5,
+                  Paint()..color = const Color(0x7E00FF00),
+                );
+                canvas.drawCircle(
+                  trianglePoints[i + 2],
+                  5,
+                  Paint()..color = const Color(0x7E0000FF),
+                );
+
+                final path = Path()
+                  ..addPolygon(
+                    [
+                      trianglePoints[i],
+                      trianglePoints[i + 1],
+                      trianglePoints[i + 2],
+                    ],
+                    true,
+                  );
+
+                canvas.drawPath(
+                  path,
+                  Paint()
+                    ..color = const Color(0x7EFFFFFF)
+                    ..style = PaintingStyle.fill,
+                );
+
+                canvas.drawPath(
+                  path,
+                  Paint()
+                    ..color = const Color(0xFF000000)
+                    ..style = PaintingStyle.stroke,
+                );
+              }
+            }
           } else {
             canvas.drawPath(filledPath, paint);
           }
@@ -151,6 +199,25 @@ base class _PolygonPainter<R extends Object>
         holePoints:
             polygonTriangles != null ? projectedPolygon.holePoints : null,
       );
+
+      if (debugAltRenderer) {
+        const offsetsLabelStyle = TextStyle(
+          color: Color(0xFF000000),
+          fontSize: 16,
+        );
+
+        for (int i = 0; i < fillOffsets.length; i++) {
+          TextPainter(
+            text: TextSpan(
+              text: i.toString(),
+              style: offsetsLabelStyle,
+            ),
+            textDirection: TextDirection.ltr,
+          )
+            ..layout(maxWidth: 100)
+            ..paint(canvas, fillOffsets[i]);
+        }
+      }
 
       // The hash is based on the polygons visual properties. If the hash from
       // the current and the previous polygon no longer match, we need to flush
@@ -294,6 +361,7 @@ base class _PolygonPainter<R extends Object>
     final isSolid = polygon.pattern == const StrokePattern.solid();
     final isDashed = polygon.pattern.segments != null;
     final isDotted = polygon.pattern.spacingFactor != null;
+
     if (isSolid) {
       final SolidPixelHiker hiker = SolidPixelHiker(
         offsets: offsets,

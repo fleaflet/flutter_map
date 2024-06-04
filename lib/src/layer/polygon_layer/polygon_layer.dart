@@ -41,6 +41,12 @@ class PolygonLayer<R extends Object> extends StatefulWidget {
   /// above before enabling.
   final bool useAltRendering;
 
+  /// Whether to overlay a debugging tool when [useAltRendering] is enabled to
+  /// display triangulation results
+  ///
+  /// Ignored when not in debug mode.
+  final bool debugAltRenderer;
+
   /// Whether to cull polygons and polygon sections that are outside of the
   /// viewport
   ///
@@ -75,15 +81,17 @@ class PolygonLayer<R extends Object> extends StatefulWidget {
     super.key,
     required this.polygons,
     this.useAltRendering = false,
+    bool debugAltRenderer = false,
     this.polygonCulling = true,
     this.simplificationTolerance = 0.5,
     this.polygonLabels = true,
     this.drawLabelsLast = false,
     this.hitNotifier,
-  }) : assert(
+  })  : assert(
           simplificationTolerance >= 0,
           'simplificationTolerance cannot be negative: $simplificationTolerance',
-        );
+        ),
+        debugAltRenderer = kDebugMode && debugAltRenderer;
 
   @override
   State<PolygonLayer<R>> createState() => _PolygonLayerState<R>();
@@ -174,10 +182,10 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>> {
                       : points.elementAt(ii ~/ 2).y,
                   growable: false,
                 ),
-                // Not sure how just this works but it seems to :D
                 holeIndices: culledPolygon.holePoints.isEmpty
                     ? null
-                    : [culledPolygon.points.length],
+                    : _generateHolesIndices(culledPolygon)
+                        .toList(growable: false),
               );
             },
             growable: false,
@@ -191,11 +199,21 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>> {
           camera: camera,
           polygonLabels: widget.polygonLabels,
           drawLabelsLast: widget.drawLabelsLast,
+          debugAltRenderer: widget.debugAltRenderer,
           hitNotifier: widget.hitNotifier,
         ),
         size: Size(camera.size.x, camera.size.y),
       ),
     );
+  }
+
+  Iterable<int> _generateHolesIndices(_ProjectedPolygon<R> polygon) sync* {
+    var prevValue = polygon.points.length;
+    yield prevValue;
+
+    for (int i = 0; i < polygon.holePoints.length - 1; i++) {
+      yield prevValue += polygon.holePoints[i].length;
+    }
   }
 
   List<_ProjectedPolygon<R>> _computeZoomLevelSimplification({
