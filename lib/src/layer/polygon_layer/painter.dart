@@ -70,11 +70,9 @@ base class _PolygonPainter<R extends Object>
       }
     }
 
-    final isInPolygon = _isPointInPolygon(point, projectedCoords);
+    final isInPolygon = pointInPolygon(point, projectedCoords);
     final isInHole = hasHoles &&
-        projectedHoleCoords
-            .map((c) => _isPointInPolygon(point, c))
-            .any((e) => e);
+        projectedHoleCoords.map((c) => pointInPolygon(point, c)).any((e) => e);
 
     // Second check handles case where polygon outline intersects a hole,
     // ensuring that the hit matches with the visual representation
@@ -359,24 +357,6 @@ base class _PolygonPainter<R extends Object>
       min: getOffset(camera, origin, bBox.southWest),
       max: getOffset(camera, origin, bBox.northEast),
     );
-  }
-
-  /// Checks whether point [p] is within the specified closed [polygon]
-  ///
-  /// Uses the even-odd algorithm.
-  static bool _isPointInPolygon(math.Point p, List<Offset> polygon) {
-    bool isInPolygon = false;
-
-    for (int i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-      if ((((polygon[i].dy <= p.y) && (p.y < polygon[j].dy)) ||
-              ((polygon[j].dy <= p.y) && (p.y < polygon[i].dy))) &&
-          (p.x <
-              (polygon[j].dx - polygon[i].dx) *
-                      (p.y - polygon[i].dy) /
-                      (polygon[j].dy - polygon[i].dy) +
-                  polygon[i].dx)) isInPolygon = !isInPolygon;
-    }
-    return isInPolygon;
   }
 
   @override
