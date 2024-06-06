@@ -59,6 +59,7 @@ Sometimes, they also include:
 
 * `{s}`: [#subdomains](./#subdomains "mention")
 * `{r}`: [#retina-mode](./#retina-mode "mention")
+* `{d}`: [#tilesize](./#tilesize "mention")
 
 Additional placeholders can also be added freely to the template, and are filled in with the specified values in `additionalOptions`. This can be used to easier add switchable styles or access tokens, for example.
 
@@ -89,6 +90,8 @@ Where the display is high density, and the server supports retina tiles - usuall
 {% hint style="success" %}
 Therefore, where `{r}` is available, it is recommended to call the method `RetinaMode.isHighDensity` with the current `BuildContext`, and pass the result to `TileLayer.retinaMode`. This will enable retina mode on retina displays by filling the `{r}` placeholder with "@2x".
 {% endhint %}
+
+Note that where tiles are larger than the standard x256px (such as x512px), retina mode can help make them appear very similar to x256px tiles, but still retain the other benefits of larger tiles. In this case, consider fixing `retinaMode` to `true`, depending on your own tests. See [#tilesize](./#tilesize "mention") for more information.
 
 #### Emulation
 
@@ -143,6 +146,14 @@ Need more control over how the URL template is interpreted and/or tiles are fetc
 {% content-ref url="tile-providers.md" %}
 [tile-providers.md](tile-providers.md)
 {% endcontent-ref %}
+
+## `tileSize`
+
+Some tile servers will use 512x512px tiles instead of 256x256px, such as Mapbox. Using these larger tiles can help reduce tile requests, and when combined with [Retina Mode](./#retina-mode), it can give the same resolution.
+
+To use these tiles, set `tileSize` to the actual dimensions of the tiles (otherwise they will appear to small), such as `512`. Also set `zoomOffset` to the result of `-((d/256) - 1)` - ie. `-1` for x512px tiles (otherwise they will appear at the wrong geographical locations).
+
+The `{d}` placeholder/parameter may also be used in the URL to pass through the value of `tileSize`.
 
 ## Tile Update Transformers
 
