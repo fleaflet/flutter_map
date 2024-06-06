@@ -24,6 +24,16 @@ Future<Result> timedRun(String name, dynamic Function() body) async {
   return (name: name, duration: watch.elapsed);
 }
 
+List<Offset> makeCircle(int points, double radius, double phase) {
+  final slice = math.pi * 2 / (points - 1);
+  return List.generate(points, (i) {
+    // Note the modulo is only there to deal with floating point imprecision
+    // and ensure first == last.
+    final angle = slice * (i % (points - 1)) + phase;
+    return Offset(radius * math.cos(angle), radius * math.sin(angle));
+  }, growable: false);
+}
+
 // NOTE: to have a more prod like comparison, run with:
 //     $ dart compile exe benchmark/crs.dart && ./benchmark/crs.exe
 //
@@ -35,19 +45,15 @@ Future<void> main() async {
 
   final results = <Result>[];
   const N = 3000000;
-  const points = 1000;
+
+  final circle = makeCircle(1000, 1, 0);
 
   results.add(await timedRun('In circle', () {
-    final polygon = List.generate(points, (i) {
-      final angle = math.pi * 2 / points * i;
-      return Offset(math.cos(angle), math.sin(angle));
-    });
-
     const point = math.Point(0, 0);
 
     bool yesPlease = true;
     for (int i = 0; i < N; ++i) {
-      yesPlease = yesPlease && isPointInPolygon(point, polygon);
+      yesPlease = yesPlease && isPointInPolygon(point, circle);
     }
 
     assert(yesPlease, 'should be in circle');
@@ -55,16 +61,11 @@ Future<void> main() async {
   }));
 
   results.add(await timedRun('Not in circle', () {
-    final polygon = List.generate(points, (i) {
-      final angle = math.pi * 2 / points * i;
-      return Offset(math.cos(angle), math.sin(angle));
-    });
-
     const point = math.Point(4, 4);
 
     bool noSir = false;
     for (int i = 0; i < N; ++i) {
-      noSir = noSir || isPointInPolygon(point, polygon);
+      noSir = noSir || isPointInPolygon(point, circle);
     }
 
     assert(!noSir, 'should not be in circle');

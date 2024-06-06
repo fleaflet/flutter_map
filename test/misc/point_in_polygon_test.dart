@@ -4,8 +4,11 @@ import 'package:flutter_map/src/misc/point_in_polygon.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 List<Offset> makeCircle(int points, double radius, double phase) {
+  final slice = math.pi * 2 / (points - 1);
   return List.generate(points, (i) {
-    final angle = math.pi * 2 / points * i + phase;
+    // Note the modulo is only there to deal with floating point imprecision
+    // and ensure first == last.
+    final angle = slice * (i % (points - 1)) + phase;
     return Offset(radius * math.cos(angle), radius * math.sin(angle));
   }, growable: false);
 }
