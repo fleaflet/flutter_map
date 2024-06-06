@@ -5,10 +5,11 @@ import 'package:collection/collection.dart' show MapEquality;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image_manager.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_model.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_painter.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
@@ -179,10 +180,6 @@ class TileLayer extends StatefulWidget {
   /// This callback will be executed if an error occurs when fetching tiles.
   final ErrorTileCallBack? errorTileCallback;
 
-  /// Function which may Wrap Tile with custom Widget
-  /// There are predefined examples in 'tile_builder.dart'
-  final TileBuilder? tileBuilder;
-
   /// If a Tile was loaded with error and if strategy isn't `none` then TileProvider
   /// will be asked to evict Image based on current strategy
   /// (see #576 - even Error Images are cached in flutter)
@@ -211,6 +208,67 @@ class TileLayer extends StatefulWidget {
   /// the [key].
   final TileUpdateTransformer tileUpdateTransformer;
 
+  /// The style to use when rendering each tile's image on the internal canvas
+  ///
+  /// Note that [Paint.filterQuality] is forced [FilterQuality.high] to maintain
+  /// quality when zooming, and [Paint.isAntiAlias] to `false` to prevent 'ghost
+  /// lines' from being introduced. The opacity of any specified [Paint.color]
+  /// may also be modified to provide an animation.
+  ///
+  /// Example: setting a color filter to draw tiles in grayscale:
+  /// ```dart
+  ///   tilePaint: Paint()
+  ///     ..colorFilter = const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+  /// ```
+  ///
+  /// Example: inverting the colors of the tiles:
+  /// ```dart
+  ///   tilePaint: Paint()
+  ///     ..invertColors = true,
+  /// ```
+  ///
+  /// Example: toning map with sepia color:
+  /// ```dart
+  ///   tilePaint: Paint()
+  ///     ..colorFilter = const ColorFilter.matrix([
+  ///       0.393, 0.769, 0.189, 0, 0,
+  ///       0.349, 0.686, 0.168, 0, 0,
+  ///       0.272, 0.534, 0.131, 0, 0,
+  ///       0,     0,     0,     1, 0,
+  ///     ]),
+  /// ```
+  ///
+  /// See also:
+  /// * [tileOverlayPainter]: to paint over the tile onto the canvas directly
+  final Paint? tilePaint;
+
+  /// Callback invoked for every tile, which enables painting over it, directly
+  /// onto the canvas
+  ///
+  /// All draw methods should be called offsetted/relative to the supplied
+  /// `origin`, and should remain within the constraints given by `size`. A
+  /// helpful tip is to construct a [Rect] using the following snippet:
+  /// ```dart
+  ///   final rect = offset & size;
+  /// ```
+  ///
+  /// Example: overlay a black border around each tile:
+  /// ```dart
+  ///   tileOverlayPainter: ({
+  ///     required canvas,
+  ///     required origin,
+  ///     required size,
+  ///     required tile,
+  ///   }) =>
+  ///     canvas.drawRect(
+  ///       origin & size,
+  ///       Paint()
+  ///         ..color = Colors.black
+  ///         ..style = PaintingStyle.stroke,
+  ///     ),
+  /// ```
+  final TileOverlayPainter tileOverlayPainter;
+
   /// Create a new [TileLayer] for the [FlutterMap] widget.
   TileLayer({
     super.key,
@@ -238,10 +296,11 @@ class TileLayer extends StatefulWidget {
     /// Defaults to `false` when `null`.
     final bool? retinaMode,
     this.errorTileCallback,
-    this.tileBuilder,
     this.evictErrorTileStrategy = EvictErrorTileStrategy.none,
     this.reset,
     this.tileBounds,
+    this.tilePaint,
+    this.tileOverlayPainter,
     TileUpdateTransformer? tileUpdateTransformer,
     String userAgentPackageName = 'unknown',
   })  : assert(
@@ -504,26 +563,24 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     // cycles saved later on in the render pipeline.
     final tiles = _tileImageManager
         .getTilesToRender(visibleRange: visibleTileRange)
-        .map((tileImage) => Tile(
-              // Must be an ObjectKey, not a ValueKey using the coordinates, in
-              // case we remove and replace the TileImage with a different one.
-              key: ObjectKey(tileImage),
-              scaledTileSize: _tileScaleCalculator.scaledTileSize(
-                map.zoom,
-                tileImage.coordinates.z,
-              ),
-              currentPixelOrigin: map.pixelOrigin,
-              tileImage: tileImage,
-              tileBuilder: widget.tileBuilder,
-            ))
+        .map(
+          (tileImage) => TileModel(
+            scaledTileSize: _tileScaleCalculator.scaledTileSize(
+              map.zoom,
+              tileImage.coordinates.z,
+            ),
+            currentPixelOrigin: map.pixelOrigin,
+            tileImage: tileImage,
+          ),
+        )
         .toList();
 
-    // Sort in render order. In reverse:
-    //   1. Tiles at the current zoom.
-    //   2. Tiles at the current zoom +/- 1.
-    //   3. Tiles at the current zoom +/- 2.
-    //   4. ...etc
-    int renderOrder(Tile a, Tile b) {
+    /// Sort in render order. In reverse:
+    ///   1. Tiles at the current zoom.
+    ///   2. Tiles at the current zoom +/- 1.
+    ///   3. Tiles at the current zoom +/- 2.
+    ///   4. ...etc
+    int renderOrder(TileModel a, TileModel b) {
       final (za, zb) = (a.tileImage.coordinates.z, b.tileImage.coordinates.z);
       final cmp = (zb - tileZoom).abs().compareTo((za - tileZoom).abs());
       if (cmp == 0) {
@@ -534,7 +591,15 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     }
 
     return MobileLayerTransformer(
-      child: Stack(children: tiles..sort(renderOrder)),
+      child: CustomPaint(
+        size: Size.infinite,
+        willChange: true,
+        painter: TilePainter(
+          tiles: tiles..sort(renderOrder),
+          tilePaint: widget.tilePaint,
+          tileOverlayPainter: widget.tileOverlayPainter,
+        ),
+      ),
     );
   }
 
