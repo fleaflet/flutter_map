@@ -4,7 +4,7 @@ import 'dart:ui';
 /// Checks whether point [p] is within the specified closed [polygon]
 ///
 /// Uses the even-odd algorithm.
-bool pointInPolygon(math.Point p, List<Offset> polygon) {
+bool isPointInPolygon(math.Point p, List<Offset> polygon) {
   final double px = p.x.toDouble();
   final double py = p.y.toDouble();
 

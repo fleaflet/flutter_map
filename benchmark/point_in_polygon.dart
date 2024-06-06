@@ -47,7 +47,7 @@ Future<void> main() async {
 
     bool yesPlease = true;
     for (int i = 0; i < N; ++i) {
-      yesPlease = yesPlease && pointInPolygon(point, polygon);
+      yesPlease = yesPlease && isPointInPolygon(point, polygon);
     }
 
     assert(yesPlease, 'should be in circle');
@@ -64,7 +64,7 @@ Future<void> main() async {
 
     bool noSir = false;
     for (int i = 0; i < N; ++i) {
-      noSir = noSir || pointInPolygon(point, polygon);
+      noSir = noSir || isPointInPolygon(point, polygon);
     }
 
     assert(!noSir, 'should not be in circle');

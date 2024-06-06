@@ -39,40 +39,41 @@ base class _PolygonPainter<R extends Object>
     required LatLng coordinate,
   }) {
     final polygon = projectedPolygon.polygon;
-
-    if (!polygon.boundingBox.contains(coordinate)) return false;
+    if (!polygon.boundingBox.contains(coordinate)) {
+      return false;
+    }
 
     final projectedCoords = getOffsetsXY(
       camera: camera,
       origin: hitTestCameraOrigin,
       points: projectedPolygon.points,
-    ).toList();
+    );
 
     if (projectedCoords.first != projectedCoords.last) {
       projectedCoords.add(projectedCoords.first);
     }
+    final isInPolygon = isPointInPolygon(point, projectedCoords);
 
     final hasHoles = projectedPolygon.holePoints.isNotEmpty;
-    late final List<List<Offset>> projectedHoleCoords;
-    if (hasHoles) {
-      projectedHoleCoords = projectedPolygon.holePoints
-          .map(
-            (points) => getOffsetsXY(
+    final isInHole = hasHoles &&
+        () {
+          for (final points in projectedPolygon.holePoints) {
+            final projectedHoleCoords = getOffsetsXY(
               camera: camera,
               origin: hitTestCameraOrigin,
               points: points,
-            ).toList(),
-          )
-          .toList();
+            );
 
-      if (projectedHoleCoords.firstOrNull != projectedHoleCoords.lastOrNull) {
-        projectedHoleCoords.add(projectedHoleCoords.first);
-      }
-    }
+            if (projectedHoleCoords.first != projectedHoleCoords.last) {
+              projectedHoleCoords.add(projectedHoleCoords.first);
+            }
 
-    final isInPolygon = pointInPolygon(point, projectedCoords);
-    final isInHole = hasHoles &&
-        projectedHoleCoords.map((c) => pointInPolygon(point, c)).any((e) => e);
+            if (isPointInPolygon(point, projectedHoleCoords)) {
+              return true;
+            }
+          }
+          return false;
+        }();
 
     // Second check handles case where polygon outline intersects a hole,
     // ensuring that the hit matches with the visual representation
