@@ -11,6 +11,7 @@ import 'package:flutter_map/src/layer/shared/layer_projection_simplification/sta
 import 'package:flutter_map/src/layer/shared/layer_projection_simplification/widget.dart';
 import 'package:flutter_map/src/layer/shared/line_patterns/pixel_hiker.dart';
 import 'package:flutter_map/src/misc/offsets.dart';
+import 'package:flutter_map/src/misc/point_in_polygon.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 import 'package:polylabel/polylabel.dart';

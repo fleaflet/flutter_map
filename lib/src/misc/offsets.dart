@@ -25,7 +25,7 @@ List<Offset> getOffsets(MapCamera camera, Offset origin, List<LatLng> points) {
 
   // Optimization: monomorphize the Epsg3857-case to avoid the virtual function overhead.
   if (crs case final Epsg3857 epsg3857) {
-    final v = List<Offset>.filled(len, Offset.zero);
+    final v = List<Offset>.filled(len, Offset.zero, growable: true);
     for (int i = 0; i < len; ++i) {
       final (x, y) = epsg3857.latLngToXY(points[i], zoomScale);
       v[i] = Offset(x + ox, y + oy);
@@ -33,7 +33,7 @@ List<Offset> getOffsets(MapCamera camera, Offset origin, List<LatLng> points) {
     return v;
   }
 
-  final v = List<Offset>.filled(len, Offset.zero);
+  final v = List<Offset>.filled(len, Offset.zero, growable: true);
   for (int i = 0; i < len; ++i) {
     final (x, y) = crs.latLngToXY(points[i], zoomScale);
     v[i] = Offset(x + ox, y + oy);
@@ -63,7 +63,7 @@ List<Offset> getOffsetsXY({
   // Optimization: monomorphize the CrsWithStaticTransformation-case to avoid
   // the virtual function overhead.
   if (crs case final CrsWithStaticTransformation crs) {
-    final v = List<Offset>.filled(len, Offset.zero);
+    final v = List<Offset>.filled(len, Offset.zero, growable: true);
     for (int i = 0; i < len; ++i) {
       final p = realPoints.elementAt(i);
       final (x, y) = crs.transform(p.x, p.y, zoomScale);
@@ -72,7 +72,7 @@ List<Offset> getOffsetsXY({
     return v;
   }
 
-  final v = List<Offset>.filled(len, Offset.zero);
+  final v = List<Offset>.filled(len, Offset.zero, growable: true);
   for (int i = 0; i < len; ++i) {
     final p = realPoints.elementAt(i);
     final (x, y) = crs.transform(p.x, p.y, zoomScale);
