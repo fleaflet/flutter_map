@@ -9,6 +9,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/shared/layer_interactivity/internal_hit_detectable.dart';
 import 'package:flutter_map/src/layer/shared/line_patterns/pixel_hiker.dart';
 import 'package:flutter_map/src/misc/offsets.dart';
+import 'package:flutter_map/src/misc/point_in_polygon.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 import 'package:polylabel/polylabel.dart';
