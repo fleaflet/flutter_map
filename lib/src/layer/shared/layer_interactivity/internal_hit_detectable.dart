@@ -6,9 +6,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 
 @internal
-abstract base class HitDetectableElement<R extends Object> {
-  const HitDetectableElement({this.hitValue});
-
+mixin HitDetectableElement<R extends Object> {
   /// {@template fm.hde.hitValue}
   /// Value to notify layer's `hitNotifier` with (such as
   /// [PolygonLayer.hitNotifier])
@@ -19,7 +17,7 @@ abstract base class HitDetectableElement<R extends Object> {
   /// The object should have a valid & useful equality, as it may be used
   /// by FM internals.
   /// {@endtemplate}
-  final R? hitValue;
+  R? get hitValue;
 }
 
 @internal
