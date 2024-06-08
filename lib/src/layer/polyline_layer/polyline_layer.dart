@@ -19,7 +19,8 @@ part 'projected_polyline.dart';
 
 /// A [Polyline] (aka. LineString) layer for [FlutterMap].
 @immutable
-base class PolylineLayer<R extends Object> extends PSSupportedWidget {
+base class PolylineLayer<R extends Object>
+    extends ProjectionSimplificationManagementSupportedWidget {
   /// [Polyline]s to draw
   final List<Polyline<R>> polylines;
 

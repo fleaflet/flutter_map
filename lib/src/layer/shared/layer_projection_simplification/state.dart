@@ -6,16 +6,19 @@ import 'package:flutter_map/src/layer/shared/layer_projection_simplification/wid
 import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:meta/meta.dart';
 
-/// A mixin to be applied on the [State] of a [PSSupportedWidget], which
-/// provides pre-projection and pre-simplification support for layers that paint
-/// elements (particularly [PolylineLayer] and [PolygonLayer]), and updates them
-/// as necessary
+/// A mixin to be applied on the [State] of a
+/// [ProjectionSimplificationManagementSupportedWidget], which provides
+/// pre-projection and pre-simplification support for layers that paint elements
+/// (particularly [PolylineLayer] and [PolygonLayer]), and updates them as
+/// necessary
 ///
 /// Subclasses must implement [build], and invoke `super.build()` (but ignore
 /// the result) at the start. The `build` method should/can then use
 /// [simplifiedElements].
-mixin ProjectionSimplificationManagement<ProjectedElement extends Object,
-    Element extends Object, W extends PSSupportedWidget> on State<W> {
+mixin ProjectionSimplificationManagement<
+    ProjectedElement extends Object,
+    Element extends Object,
+    W extends ProjectionSimplificationManagementSupportedWidget> on State<W> {
   /// Project [Element] to [ProjectedElement] using the specified [projection]
   ProjectedElement projectElement({
     required Projection projection,
@@ -24,13 +27,15 @@ mixin ProjectionSimplificationManagement<ProjectedElement extends Object,
 
   /// Simplify the points of [ProjectedElement] with the given [tolerance]
   ///
-  /// Does not need to call [getEffectiveSimplificationTolerance] internally.
+  /// Should not call [getEffectiveSimplificationTolerance]; [tolerance] has
+  /// already been processed.
   ProjectedElement simplifyProjectedElement({
     required ProjectedElement projectedElement,
     required double tolerance,
   });
 
-  /// Return the individual elements given the [PSSupportedWidget]
+  /// Return the individual elements given the
+  /// [ProjectionSimplificationManagementSupportedWidget]
   Iterable<Element> getElements(W widget);
 
   /// An iterable of simplified [ProjectedElement]s, which is always ready
@@ -114,8 +119,9 @@ mixin ProjectionSimplificationManagement<ProjectedElement extends Object,
     _cachedProjectedElements
         .removeWhere((k, v) => !elements.map((p) => p.hashCode).contains(k));
 
-    for (final s in _cachedSimplifiedElements.values) {
-      s.removeWhere((k, v) => !elements.map((p) => p.hashCode).contains(k));
+    for (final simplifiedElement in _cachedSimplifiedElements.values) {
+      simplifiedElement
+          .removeWhere((k, v) => !elements.map((p) => p.hashCode).contains(k));
     }
   }
 
@@ -143,7 +149,7 @@ mixin ProjectionSimplificationManagement<ProjectedElement extends Object,
 
     // The `build` method handles initial simplification, re-simplification only
     // when the DPR has changed, and re-simplification implicitly when the
-    // tolerance is changed (and the cache is emptied by `didUpdateWidget`.
+    // tolerance is changed (and the cache is emptied by `didUpdateWidget`).
     if (widget.simplificationTolerance == 0) {
       simplifiedElements = _cachedProjectedElements.values;
     } else {
@@ -189,9 +195,9 @@ mixin ProjectionSimplificationManagement<ProjectedElement extends Object,
       devicePixelRatio: devicePixelRatio,
     );
 
-    for (final pe in projectedElements) {
+    for (final projectedElement in projectedElements) {
       yield simplifyProjectedElement(
-        projectedElement: pe,
+        projectedElement: projectedElement,
         tolerance: tolerance,
       );
     }

@@ -5,7 +5,8 @@ import 'package:flutter_map/src/layer/shared/layer_projection_simplification/sta
 /// A [StatefulWidget] that includes the properties used by the [State] component
 /// which mixes [ProjectionSimplificationManagement] in
 @immutable
-abstract base class PSSupportedWidget extends StatefulWidget {
+abstract base class ProjectionSimplificationManagementSupportedWidget
+    extends StatefulWidget {
   /// Whether to apply the auto-update algorithm to re-paint the necessary
   /// [Polygon]s when they change
   ///
@@ -37,7 +38,7 @@ abstract base class PSSupportedWidget extends StatefulWidget {
   ///
   /// Constructors should call `super()` (the super constructor) to ensure the
   /// necessary assertions are made.
-  const PSSupportedWidget({
+  const ProjectionSimplificationManagementSupportedWidget({
     super.key,
     this.useDynamicUpdate = true,
     this.simplificationTolerance = 0.3,

@@ -23,7 +23,8 @@ part 'projected_polygon.dart';
 
 /// A polygon layer for [FlutterMap].
 @immutable
-base class PolygonLayer<R extends Object> extends PSSupportedWidget {
+base class PolygonLayer<R extends Object>
+    extends ProjectionSimplificationManagementSupportedWidget {
   /// [Polygon]s to draw
   final List<Polygon<R>> polygons;
 
