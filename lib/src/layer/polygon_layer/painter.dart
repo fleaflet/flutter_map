@@ -223,8 +223,10 @@ base class _PolygonPainter<R extends Object>
         for (final holeOffsets in holeOffsetsList) {
           filledPath.addPolygon(holeOffsets, true);
 
-          /* https://github.com/flutter/flutter/issues/44572          
-          filledPath = Path.combine(
+          // TODO: Potentially more efficient and may change the need to do
+          // opacity checking - needs testing. However,
+          // https://github.com/flutter/flutter/issues/44572 prevents this.
+          /*filledPath = Path.combine(
             PathOperation.difference,
             filledPath,
             Path()..addPolygon(holeOffsets, true),
