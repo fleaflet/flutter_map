@@ -44,6 +44,10 @@ base class PolygonLayer<R extends Object> extends PSSupportedWidget {
   /// above before enabling.
   final bool useAltRendering;
 
+  /// Whether to overlay a debugging tool when [useAltRendering] is enabled to
+  /// display triangulation results
+  final bool debugAltRenderer;
+
   /// Whether to cull polygons and polygon sections that are outside of the
   /// viewport
   ///
@@ -68,6 +72,7 @@ base class PolygonLayer<R extends Object> extends PSSupportedWidget {
     super.key,
     required this.polygons,
     this.useAltRendering = false,
+    this.debugAltRenderer = false,
     this.polygonCulling = true,
     this.polygonLabels = true,
     this.drawLabelsLast = false,
@@ -151,10 +156,10 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
                       : points.elementAt(ii ~/ 2).y,
                   growable: false,
                 ),
-                // Not sure how just this works but it seems to :D
                 holeIndices: culledPolygon.holePoints.isEmpty
                     ? null
-                    : [culledPolygon.points.length],
+                    : _generateHolesIndices(culledPolygon)
+                        .toList(growable: false),
               );
             },
             growable: false,
@@ -168,10 +173,20 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
           camera: camera,
           polygonLabels: widget.polygonLabels,
           drawLabelsLast: widget.drawLabelsLast,
+          debugAltRenderer: widget.debugAltRenderer,
           hitNotifier: widget.hitNotifier,
         ),
         size: Size(camera.size.x, camera.size.y),
       ),
     );
+  }
+
+  Iterable<int> _generateHolesIndices(_ProjectedPolygon<R> polygon) sync* {
+    var prevValue = polygon.points.length;
+    yield prevValue;
+
+    for (int i = 0; i < polygon.holePoints.length - 1; i++) {
+      yield prevValue += polygon.holePoints[i].length;
+    }
   }
 }
