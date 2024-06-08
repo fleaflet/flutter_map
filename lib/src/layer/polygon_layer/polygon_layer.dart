@@ -44,8 +44,6 @@ class PolygonLayer<R extends Object> extends StatefulWidget {
 
   /// Whether to overlay a debugging tool when [useAltRendering] is enabled to
   /// display triangulation results
-  ///
-  /// Ignored when not in debug mode.
   final bool debugAltRenderer;
 
   /// Whether to cull polygons and polygon sections that are outside of the
@@ -82,17 +80,16 @@ class PolygonLayer<R extends Object> extends StatefulWidget {
     super.key,
     required this.polygons,
     this.useAltRendering = false,
-    bool debugAltRenderer = false,
+    this.debugAltRenderer = false,
     this.polygonCulling = true,
     this.simplificationTolerance = 0.5,
     this.polygonLabels = true,
     this.drawLabelsLast = false,
     this.hitNotifier,
-  })  : assert(
+  }) : assert(
           simplificationTolerance >= 0,
           'simplificationTolerance cannot be negative: $simplificationTolerance',
-        ),
-        debugAltRenderer = kDebugMode && debugAltRenderer;
+        );
 
   @override
   State<PolygonLayer<R>> createState() => _PolygonLayerState<R>();
