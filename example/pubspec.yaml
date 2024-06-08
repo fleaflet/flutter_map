@@ -11,20 +11,19 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_map:
-  flutter_map_cancellable_tile_provider:
+  flutter_map_cancellable_tile_provider: ^3.0.0
   flutter_map_geojson: ^1.0.8
   http: ^1.2.1
   latlong2: ^0.9.1
   proj4dart: ^2.1.0
   shared_preferences: ^2.2.3
-  url_launcher: ^6.2.6
+  url_launcher: ^6.3.0
   url_strategy: ^0.2.0
   vector_math: ^2.1.4
 
 dependency_overrides:
   flutter_map:
     path: ../
-  flutter_map_cancellable_tile_provider:
 
 dev_dependencies:
   flutter_lints: ^4.0.0
