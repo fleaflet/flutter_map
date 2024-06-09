@@ -4,7 +4,7 @@ Please consider [donating](https://docs.fleaflet.dev/supporters#support-us) or [
 
 This CHANGELOG does not include every commit and/or PR - it is a hand picked selection of the most important ones. For a full list of changes, please check the GitHub repository releases/tags.
 
-## [7.0.1] - 2024/06/XX
+## [7.0.1] - 2024/06/09
 
 Contains the following user-affecting bug fixes:
 
