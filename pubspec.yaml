@@ -1,6 +1,6 @@
 name: flutter_map
 description: A versatile mapping package for Flutter, that's simple and easy to learn, yet completely customizable and configurable
-version: 7.0.0
+version: 7.0.1
 
 repository: https://github.com/fleaflet/flutter_map
 issue_tracker: https://github.com/fleaflet/flutter_map/issues
