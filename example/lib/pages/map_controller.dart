@@ -14,7 +14,10 @@ class MapControllerPage extends StatefulWidget {
 }
 
 class MapControllerPageState extends State<MapControllerPage> {
-  late final MapController _mapController;
+  /// This example uses a global MapController instance to test if the
+  /// controller can get applied to the map multiple times.
+  static final MapController _mapController = MapController();
+
   double _rotation = 0;
 
   static const _london = LatLng(51.5, -0.09);
@@ -41,12 +44,6 @@ class MapControllerPageState extends State<MapControllerPage> {
       child: FlutterLogo(key: ValueKey('purple')),
     ),
   ];
-
-  @override
-  void initState() {
-    super.initState();
-    _mapController = MapController();
-  }
 
   @override
   Widget build(BuildContext context) {
