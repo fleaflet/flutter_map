@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/shared/layer_projection_simplification/widget.dart';
@@ -46,9 +44,8 @@ mixin ProjectionSimplificationManagement<
   /// after [build] has been invoked.
   late Iterable<ProjectedElement> simplifiedElements;
 
-  final _cachedProjectedElements = SplayTreeMap<int, ProjectedElement>();
-  final _cachedSimplifiedElements =
-      <int, SplayTreeMap<int, ProjectedElement>>{};
+  Iterable<ProjectedElement>? _cachedProjectedElements;
+  final _cachedSimplifiedElements = <int, Iterable<ProjectedElement>>{};
 
   double? _devicePixelRatio;
 
@@ -57,88 +54,8 @@ mixin ProjectionSimplificationManagement<
   void didUpdateWidget(W oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (!widget.useDynamicUpdate) return;
-
-    final camera = MapCamera.of(context);
-
-    // If the simplification tolerance has changed, then clear all
-    // simplifications to allow `build` to re-simplify.
-    final hasSimplficationToleranceChanged =
-        oldWidget.simplificationTolerance != widget.simplificationTolerance;
-    if (hasSimplficationToleranceChanged) _cachedSimplifiedElements.clear();
-
-    final elements = getElements(widget);
-
-    // We specifically only use basic equality here, and not deep, since deep
-    // will always be equal.
-    if (getElements(oldWidget) == elements) return;
-
-    // Loop through all polygons in the new widget
-    // If not in the projection cache, then re-project. Also, do the same for
-    // the simplification cache, across all zoom levels for each polygon.
-    // Then, remove all polygons no longer in the new widget from each cache.
-    //
-    // This is an O(n^3) operation, assuming n is the number of polygons
-    // (assuming they are all similar, otherwise exact runtime will depend on
-    // existing cache lengths, etc.). However, compared to previous versions, it
-    // takes approximately the same duration, as it relieves the work from the
-    // `build` method.
-    for (final element in getElements(widget)) {
-      final existingProjection = _cachedProjectedElements[element.hashCode];
-
-      if (existingProjection == null) {
-        _cachedProjectedElements[element.hashCode] =
-            projectElement(projection: camera.crs.projection, element: element);
-
-        if (hasSimplficationToleranceChanged) continue;
-
-        for (final MapEntry(key: zoomLvl, value: simplifiedElements)
-            in _cachedSimplifiedElements.entries) {
-          final simplificationTolerance = getEffectiveSimplificationTolerance(
-            crs: camera.crs,
-            zoom: zoomLvl,
-            // When the tolerance changes, this method handles resetting and filling
-            pixelTolerance: widget.simplificationTolerance,
-            // When the DPR changes, the `build` method handles resetting and filling
-            devicePixelRatio: MediaQuery.devicePixelRatioOf(context),
-          );
-
-          final existingSimplification = simplifiedElements[element.hashCode];
-
-          if (existingSimplification == null) {
-            _cachedSimplifiedElements[zoomLvl]![element.hashCode] =
-                simplifyProjectedElement(
-              projectedElement: _cachedProjectedElements[element.hashCode]!,
-              tolerance: simplificationTolerance,
-            );
-          }
-        }
-      }
-    }
-
-    _cachedProjectedElements
-        .removeWhere((k, v) => !elements.map((p) => p.hashCode).contains(k));
-
-    for (final simplifiedElement in _cachedSimplifiedElements.values) {
-      simplifiedElement
-          .removeWhere((k, v) => !elements.map((p) => p.hashCode).contains(k));
-    }
-  }
-
-  @mustCallSuper
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    // Performed once only, at load - projects all initial polygons
-    if (_cachedProjectedElements.isEmpty) {
-      final camera = MapCamera.of(context);
-
-      for (final element in getElements(widget)) {
-        _cachedProjectedElements[element.hashCode] =
-            projectElement(projection: camera.crs.projection, element: element);
-      }
-    }
+    _cachedProjectedElements = null;
+    _cachedSimplifiedElements.clear();
   }
 
   @mustBeOverridden
@@ -147,11 +64,22 @@ mixin ProjectionSimplificationManagement<
   Widget build(BuildContext context) {
     final camera = MapCamera.of(context);
 
+    final elements = getElements(widget);
+
+    final projected = _cachedProjectedElements ??= List.generate(
+      elements.length,
+      (i) => projectElement(
+        projection: camera.crs.projection,
+        element: elements.elementAt(i),
+      ),
+      growable: false,
+    );
+
     // The `build` method handles initial simplification, re-simplification only
     // when the DPR has changed, and re-simplification implicitly when the
     // tolerance is changed (and the cache is emptied by `didUpdateWidget`).
     if (widget.simplificationTolerance == 0) {
-      simplifiedElements = _cachedProjectedElements.values;
+      simplifiedElements = projected;
     } else {
       // If the DPR has changed, invalidate the simplification cache
       final newDPR = MediaQuery.devicePixelRatioOf(context);
@@ -160,17 +88,13 @@ mixin ProjectionSimplificationManagement<
         _cachedSimplifiedElements.clear();
       }
 
-      simplifiedElements = (_cachedSimplifiedElements[camera.zoom.floor()] ??=
-              SplayTreeMap.fromIterables(
-        _cachedProjectedElements.keys,
-        _simplifyElements(
-          camera: camera,
-          projectedElements: _cachedProjectedElements.values,
-          pixelTolerance: widget.simplificationTolerance,
-          devicePixelRatio: newDPR,
-        ),
-      ))
-          .values;
+      simplifiedElements =
+          (_cachedSimplifiedElements[camera.zoom.floor()] ??= _simplifyElements(
+        camera: camera,
+        projectedElements: projected,
+        pixelTolerance: widget.simplificationTolerance,
+        devicePixelRatio: newDPR,
+      ));
     }
 
     return Builder(

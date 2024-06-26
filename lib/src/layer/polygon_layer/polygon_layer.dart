@@ -79,7 +79,6 @@ base class PolygonLayer<R extends Object>
     this.drawLabelsLast = false,
     this.hitNotifier,
     super.simplificationTolerance,
-    super.useDynamicUpdate,
   }) : super();
 
   @override
