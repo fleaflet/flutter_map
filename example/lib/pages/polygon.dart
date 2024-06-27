@@ -173,6 +173,8 @@ class _PolygonPageState extends State<PolygonPage> {
             (latlngs) => latlngs
                 .map((latlng) =>
                     LatLng(latlng.latitude - 6, latlng.longitude + 8))
+                .toList()
+                .reversed // Test that holes are always cut, no matter winding
                 .toList(),
           )
           .toList(),
