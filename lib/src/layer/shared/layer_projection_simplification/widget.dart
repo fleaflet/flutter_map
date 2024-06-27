@@ -16,6 +16,17 @@ abstract base class ProjectionSimplificationManagementSupportedWidget
   /// Defaults to 0.3. Set to 0 to disable simplification.
   final double simplificationTolerance;
 
+  /// `useDynamicUpdate` no longer has any effect, and did not perform its
+  /// intended purpose, which is no longer necessary.
+  ///
+  /// It will be removed in the next major release.
+  @Deprecated(
+    '`useDynamicUpdate` no longer has any effect, and did not perform its '
+    'intended purpose, which is no longer necessary. '
+    'It will be removed in the next major release.',
+  )
+  final bool useDynamicUpdate;
+
   /// A [StatefulWidget] that includes the properties used by the [State]
   /// component which mixes [ProjectionSimplificationManagement] in
   ///
@@ -24,6 +35,7 @@ abstract base class ProjectionSimplificationManagementSupportedWidget
   const ProjectionSimplificationManagementSupportedWidget({
     super.key,
     this.simplificationTolerance = 0.3,
+    this.useDynamicUpdate = false,
   }) : assert(
           simplificationTolerance >= 0,
           'simplificationTolerance cannot be negative: $simplificationTolerance',
