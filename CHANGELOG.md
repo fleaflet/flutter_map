@@ -4,7 +4,7 @@ Please consider [donating](https://docs.fleaflet.dev/supporters#support-us) or [
 
 This CHANGELOG does not include every commit and/or PR - it is a hand picked selection of the most important ones. For a full list of changes, please check the GitHub repository releases/tags.
 
-## [7.0.2] - 2024/07/XX
+## [7.0.2] - 2024/07/02
 
 > Note that this version causes a technically breaking change by removing `PolygonLayer.useDynamicUpdate` & `PolylineLayer.useDynamicUpdate`, introduced in v7.0.1. However, the implementations for these was broken on introduction, and their intended purpose no longer exists. Therefore, these should not have been used in any capacity, and should not affect any projects.
 
@@ -13,6 +13,7 @@ Contains the following user-affecting bug fixes:
 - Fixed significant performance issues with `PolygonLayer` & `PolylineLayer` inadvertently introduced by v7.0.1 - [#1925](https://github.com/fleaflet/flutter_map/pull/1925) for [#1921](https://github.com/fleaflet/flutter_map/issues/1921)
 - Fixed bug where the holes of a `Polygon` would only appear if their winding direction was opposite to the direction of the `Polygon.points` - [#1925](https://github.com/fleaflet/flutter_map/pull/1925) for [#1924](https://github.com/fleaflet/flutter_map/issues/1924)
 - Relaxed constraint on 'package:logger' dependency - [#1922](https://github.com/fleaflet/flutter_map/pull/1922) for [#1916](https://github.com/fleaflet/flutter_map/issues/1916)
+- Allowed re-assignment of a `MapController` to a `FlutterMap` multiple times - [#1915](https://github.com/fleaflet/flutter_map/pull/1915) for [#1892](https://github.com/fleaflet/flutter_map/issues/1892)
 
 ## [7.0.1] - 2024/06/09
 
