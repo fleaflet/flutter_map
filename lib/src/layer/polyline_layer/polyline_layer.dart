@@ -53,7 +53,6 @@ base class PolylineLayer<R extends Object>
     this.hitNotifier,
     this.minimumHitbox = 10,
     super.simplificationTolerance,
-    super.useDynamicUpdate,
   }) : super();
 
   @override
