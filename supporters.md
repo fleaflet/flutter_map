@@ -21,16 +21,13 @@ If you live in the EU/Eurozone:
 
 * If you live in the Netherlands and have an iDEAL compatible bank account, please select the EUR link and use iDEAL to pay if that suits you
 * If you don't mind using SEPA Direct Debit, please use the EUR link
-* Otherwise, please consider paying in GBP - note that your bank may apply currency conversion fees, so no worries if this is too much: we really do appriciate any method
+* Otherwise, please consider paying in GBP
 
-If you live in the US:
+If you live in the US, please consider using ACH/bank account methods via the USD link, otherwise, please consider paying in GBP.
 
-* Please consider using ACH/bank account methods via the USD link
-* Otherwise, please consider paying in GBP - note that your bank may apply currency conversion fees, so no worries if this is too much: we really do appriciate any method
+If you live elsewhere, please consider paying in GBP.
 
-If you live elsewhere:
-
-* Please consider paying in GBP - note that your bank may apply currency conversion fees, so no worries if this is too much: we really do appriciate any method
+Note that paying in a currency different to your own may incur conversion fees and international transaction fees set by your banking provider.
 
 If you would like to donate a larger amount, offer a bounty, or setup recurring donations, please get in touch! Also check out [showcase.md](showcase.md "mention") if you'd like to get some advertising space for your project.
 {% endhint %}
