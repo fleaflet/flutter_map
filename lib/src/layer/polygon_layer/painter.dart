@@ -281,6 +281,11 @@ base class _PolygonPainter<R extends Object>
       // https://github.com/fleaflet/flutter_map/issues/1898.
       final holePointsList = polygon.holePointsList;
       if (holePointsList != null && holePointsList.isNotEmpty) {
+        // See `Path.combine` comments below
+        // Avoids failing to cut holes if the winding directions of the holes
+        // and the normal points are the same
+        filledPath.fillType = PathFillType.evenOdd;
+
         final holeOffsetsList = List<List<Offset>>.generate(
           holePointsList.length,
           (i) => getOffsets(camera, origin, holePointsList[i]),
@@ -293,8 +298,9 @@ base class _PolygonPainter<R extends Object>
           // TODO: Potentially more efficient and may change the need to do
           // opacity checking - needs testing. However,
           // https://github.com/flutter/flutter/issues/44572 prevents this.
+          // Also need to verify if `xor` or `difference` is preferred.
           /*filledPath = Path.combine(
-            PathOperation.difference,
+            PathOperation.xor,
             filledPath,
             Path()..addPolygon(holeOffsets, true),
           );*/
