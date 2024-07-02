@@ -52,7 +52,6 @@ base class PolylineLayer<R extends Object>
     this.cullingMargin = 10,
     this.hitNotifier,
     this.minimumHitbox = 10,
-    super.useDynamicUpdate,
     super.simplificationTolerance,
   }) : super();
 
