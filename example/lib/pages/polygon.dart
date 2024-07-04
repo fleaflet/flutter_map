@@ -173,6 +173,8 @@ class _PolygonPageState extends State<PolygonPage> {
             (latlngs) => latlngs
                 .map((latlng) =>
                     LatLng(latlng.latitude - 6, latlng.longitude + 8))
+                .toList()
+                .reversed // Test that holes are always cut, no matter winding
                 .toList(),
           )
           .toList(),
@@ -186,6 +188,71 @@ class _PolygonPageState extends State<PolygonPage> {
       hitValue: (
         title: 'Polygon With Hole & Self Intersection',
         subtitle: 'This one still works with performant rendering',
+      ),
+    ),
+    Polygon(
+      points: const [
+        LatLng(61.861042, 0.946502),
+        LatLng(61.861458, 0.949468),
+        LatLng(61.861427, 0.949626),
+        LatLng(61.859015, 0.951513),
+        LatLng(61.858129, 0.952652)
+      ],
+      holePointsList: [],
+      color: Colors.lightGreen.withOpacity(0.5),
+      borderColor: Colors.lightGreen.withOpacity(0.5),
+      borderStrokeWidth: 10,
+      hitValue: (
+        title: 'Testing opacity treatment (small)',
+        subtitle:
+            "Holes shouldn't be cut, and colors should be mixed correctly",
+      ),
+    ),
+    Polygon(
+      points: const [
+        LatLng(61.861042, 0.946502),
+        LatLng(61.861458, 0.949468),
+        LatLng(61.861427, 0.949626),
+        LatLng(61.859015, 0.951513),
+        LatLng(61.858129, 0.952652),
+        LatLng(61.857633, 0.953214),
+        LatLng(61.855842, 0.954683),
+        LatLng(61.855769, 0.954692),
+        LatLng(61.855679, 0.954565),
+        LatLng(61.855417, 0.953926),
+        LatLng(61.855268, 0.953431),
+        LatLng(61.855173, 0.952443),
+        LatLng(61.855161, 0.951147),
+        LatLng(61.855222, 0.950822),
+        LatLng(61.855928, 0.948422),
+        LatLng(61.856365, 0.946638),
+        LatLng(61.856456, 0.946586),
+        LatLng(61.856787, 0.946656),
+        LatLng(61.857578, 0.946675),
+        LatLng(61.859338, 0.946453),
+        LatLng(61.861042, 0.946502)
+      ],
+      holePointsList: const [
+        [
+          LatLng(61.858881, 0.947234),
+          LatLng(61.858728, 0.947126),
+          LatLng(61.858562, 0.947132),
+          LatLng(61.858458, 0.947192),
+          LatLng(61.85844, 0.947716),
+          LatLng(61.858488, 0.947819),
+          LatLng(61.858766, 0.947818),
+          LatLng(61.858893, 0.947779),
+          LatLng(61.858975, 0.947542),
+          LatLng(61.858881, 0.947234)
+        ]
+      ],
+      color: Colors.lightGreen.withOpacity(0.5),
+      borderColor: Colors.lightGreen.withOpacity(0.5),
+      borderStrokeWidth: 10,
+      hitValue: (
+        title: 'Testing opacity treatment (large)',
+        subtitle:
+            "Holes shouldn't be cut, and colors should be mixed correctly",
       ),
     ),
   ];

@@ -6,6 +6,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/shared/layer_interactivity/internal_hit_detectable.dart';
+import 'package:flutter_map/src/layer/shared/layer_projection_simplification/state.dart';
+import 'package:flutter_map/src/layer/shared/layer_projection_simplification/widget.dart';
 import 'package:flutter_map/src/layer/shared/line_patterns/pixel_hiker.dart';
 import 'package:flutter_map/src/misc/offsets.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
@@ -17,7 +19,8 @@ part 'projected_polyline.dart';
 
 /// A [Polyline] (aka. LineString) layer for [FlutterMap].
 @immutable
-class PolylineLayer<R extends Object> extends StatefulWidget {
+base class PolylineLayer<R extends Object>
+    extends ProjectionSimplificationManagementSupportedWidget {
   /// [Polyline]s to draw
   final List<Polyline<R>> polylines;
 
@@ -29,16 +32,6 @@ class PolylineLayer<R extends Object> extends StatefulWidget {
   ///
   /// Defaults to 10. Set to `null` to disable culling.
   final double? cullingMargin;
-
-  /// Distance between two neighboring polyline points, in logical pixels scaled
-  /// to floored zoom
-  ///
-  /// Increasing this value results in points further apart being collapsed and
-  /// thus more simplified polylines. Higher values improve performance at the
-  /// cost of visual fidelity and vice versa.
-  ///
-  /// Defaults to 0.4. Set to 0 to disable simplification.
-  final double simplificationTolerance;
 
   /// {@macro fm.lhn.layerHitNotifier.usage}
   final LayerHitNotifier<R>? hitNotifier;
@@ -57,83 +50,58 @@ class PolylineLayer<R extends Object> extends StatefulWidget {
     super.key,
     required this.polylines,
     this.cullingMargin = 10,
-    this.simplificationTolerance = 0.4,
     this.hitNotifier,
     this.minimumHitbox = 10,
-  }) : assert(
-          simplificationTolerance >= 0,
-          'simplificationTolerance cannot be negative: $simplificationTolerance',
-        );
+    super.simplificationTolerance,
+  }) : super();
 
   @override
   State<PolylineLayer<R>> createState() => _PolylineLayerState<R>();
 }
 
-class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
-  List<_ProjectedPolyline<R>>? _cachedProjectedPolylines;
-  final _cachedSimplifiedPolylines = <int, List<_ProjectedPolyline<R>>>{};
-
-  double? _devicePixelRatio;
+class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
+    with
+        ProjectionSimplificationManagement<_ProjectedPolyline<R>, Polyline<R>,
+            PolylineLayer<R>> {
+  @override
+  _ProjectedPolyline<R> projectElement({
+    required Projection projection,
+    required Polyline<R> element,
+  }) =>
+      _ProjectedPolyline._fromPolyline(projection, element);
 
   @override
-  void didUpdateWidget(PolylineLayer<R> oldWidget) {
-    super.didUpdateWidget(oldWidget);
+  _ProjectedPolyline<R> simplifyProjectedElement({
+    required _ProjectedPolyline<R> projectedElement,
+    required double tolerance,
+  }) =>
+      _ProjectedPolyline._(
+        polyline: projectedElement.polyline,
+        points: simplifyPoints(
+          points: projectedElement.points,
+          tolerance: tolerance,
+          highQuality: true,
+        ),
+      );
 
-    if (!listEquals(oldWidget.polylines, widget.polylines)) {
-      // If the polylines have changed, then both the projections and the
-      // projection-dependendent simplifications must be invalidated
-      _cachedProjectedPolylines = null;
-      _cachedSimplifiedPolylines.clear();
-    } else if (oldWidget.simplificationTolerance !=
-        widget.simplificationTolerance) {
-      // If only the simplification tolerance has changed, this does not affect
-      // the projections (as that is done before simplification), so only
-      // invalidate the simplifications
-      _cachedSimplifiedPolylines.clear();
-    }
-  }
+  @override
+  Iterable<Polyline<R>> getElements(PolylineLayer<R> widget) =>
+      widget.polylines;
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     final camera = MapCamera.of(context);
 
-    final projected = _cachedProjectedPolylines ??= List.generate(
-      widget.polylines.length,
-      (i) => _ProjectedPolyline._fromPolyline(
-        camera.crs.projection,
-        widget.polylines[i],
-      ),
-      growable: false,
-    );
-
-    late final List<_ProjectedPolyline<R>> simplified;
-    if (widget.simplificationTolerance == 0) {
-      simplified = projected;
-    } else {
-      // If the DPR has changed, invalidate the simplification cache
-      final newDPR = MediaQuery.devicePixelRatioOf(context);
-      if (newDPR != _devicePixelRatio) {
-        _devicePixelRatio = newDPR;
-        _cachedSimplifiedPolylines.clear();
-      }
-
-      simplified = _cachedSimplifiedPolylines[camera.zoom.floor()] ??=
-          _computeZoomLevelSimplification(
-        camera: camera,
-        polylines: projected,
-        pixelTolerance: widget.simplificationTolerance,
-        devicePixelRatio: newDPR,
-      );
-    }
-
     final culled = widget.cullingMargin == null
-        ? simplified
+        ? simplifiedElements.toList()
         : _aggressivelyCullPolylines(
             projection: camera.crs.projection,
-            polylines: simplified,
+            polylines: simplifiedElements,
             camera: camera,
             cullingMargin: widget.cullingMargin!,
-          );
+          ).toList();
 
     return MobileLayerTransformer(
       child: CustomPaint(
@@ -148,14 +116,12 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
     );
   }
 
-  List<_ProjectedPolyline<R>> _aggressivelyCullPolylines({
+  Iterable<_ProjectedPolyline<R>> _aggressivelyCullPolylines({
     required Projection projection,
-    required List<_ProjectedPolyline<R>> polylines,
+    required Iterable<_ProjectedPolyline<R>> polylines,
     required MapCamera camera,
     required double cullingMargin,
-  }) {
-    final culledPolylines = <_ProjectedPolyline<R>>[];
-
+  }) sync* {
     final bounds = camera.visibleBounds;
     final margin = cullingMargin / math.pow(2, camera.zoom);
 
@@ -179,7 +145,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
 
       // Gradient poylines cannot be easily segmented
       if (polyline.gradientColors != null) {
-        culledPolylines.add(projectedPolyline);
+        yield projectedPolyline;
         continue;
       }
 
@@ -199,11 +165,9 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
         } else {
           // If we cannot see this segment but have seen previous ones, flush the last polyline fragment.
           if (start != -1) {
-            culledPolylines.add(
-              _ProjectedPolyline._(
-                polyline: polyline,
-                points: projectedPolyline.points.sublist(start, i + 1),
-              ),
+            yield _ProjectedPolyline._(
+              polyline: polyline,
+              points: projectedPolyline.points.sublist(start, i + 1),
             );
 
             // Reset start.
@@ -215,49 +179,14 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>> {
       // If the last segment was visible push that last visible polyline
       // fragment, which may also be the entire polyline if `start == 0`.
       if (containsSegment) {
-        culledPolylines.add(
-          start == 0
-              ? projectedPolyline
-              : _ProjectedPolyline._(
-                  polyline: polyline,
-                  // Special case: the entire polyline is visible
-                  points: projectedPolyline.points.sublist(start),
-                ),
-        );
+        yield start == 0
+            ? projectedPolyline
+            : _ProjectedPolyline._(
+                polyline: polyline,
+                // Special case: the entire polyline is visible
+                points: projectedPolyline.points.sublist(start),
+              );
       }
     }
-
-    return culledPolylines;
-  }
-
-  List<_ProjectedPolyline<R>> _computeZoomLevelSimplification({
-    required MapCamera camera,
-    required List<_ProjectedPolyline<R>> polylines,
-    required double pixelTolerance,
-    required double devicePixelRatio,
-  }) {
-    final tolerance = getEffectiveSimplificationTolerance(
-      crs: camera.crs,
-      zoom: camera.zoom.floor(),
-      pixelTolerance: pixelTolerance,
-      devicePixelRatio: devicePixelRatio,
-    );
-
-    return List<_ProjectedPolyline<R>>.generate(
-      polylines.length,
-      (i) {
-        final polyline = polylines[i];
-
-        return _ProjectedPolyline._(
-          polyline: polyline.polyline,
-          points: simplifyPoints(
-            points: polyline.points,
-            tolerance: tolerance,
-            highQuality: true,
-          ),
-        );
-      },
-      growable: false,
-    );
   }
 }

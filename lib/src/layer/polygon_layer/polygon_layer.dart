@@ -7,6 +7,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/shared/layer_interactivity/internal_hit_detectable.dart';
+import 'package:flutter_map/src/layer/shared/layer_projection_simplification/state.dart';
+import 'package:flutter_map/src/layer/shared/layer_projection_simplification/widget.dart';
 import 'package:flutter_map/src/layer/shared/line_patterns/pixel_hiker.dart';
 import 'package:flutter_map/src/misc/offsets.dart';
 import 'package:flutter_map/src/misc/point_in_polygon.dart';
@@ -21,7 +23,8 @@ part 'projected_polygon.dart';
 
 /// A polygon layer for [FlutterMap].
 @immutable
-class PolygonLayer<R extends Object> extends StatefulWidget {
+base class PolygonLayer<R extends Object>
+    extends ProjectionSimplificationManagementSupportedWidget {
   /// [Polygon]s to draw
   final List<Polygon<R>> polygons;
 
@@ -42,21 +45,15 @@ class PolygonLayer<R extends Object> extends StatefulWidget {
   /// above before enabling.
   final bool useAltRendering;
 
+  /// Whether to overlay a debugging tool when [useAltRendering] is enabled to
+  /// display triangulation results
+  final bool debugAltRenderer;
+
   /// Whether to cull polygons and polygon sections that are outside of the
   /// viewport
   ///
   /// Defaults to `true`. Disabling is not recommended.
   final bool polygonCulling;
-
-  /// Distance between two neighboring polygon points, in logical pixels scaled
-  /// to floored zoom
-  ///
-  /// Increasing this value results in points further apart being collapsed and
-  /// thus more simplified polygons. Higher values improve performance at the
-  /// cost of visual fidelity and vice versa.
-  ///
-  /// Defaults to 0.5. Set to 0 to disable simplification.
-  final double simplificationTolerance;
 
   /// Whether to draw per-polygon labels
   ///
@@ -76,80 +73,64 @@ class PolygonLayer<R extends Object> extends StatefulWidget {
     super.key,
     required this.polygons,
     this.useAltRendering = false,
+    this.debugAltRenderer = false,
     this.polygonCulling = true,
-    this.simplificationTolerance = 0.5,
     this.polygonLabels = true,
     this.drawLabelsLast = false,
     this.hitNotifier,
-  }) : assert(
-          simplificationTolerance >= 0,
-          'simplificationTolerance cannot be negative: $simplificationTolerance',
-        );
+    super.simplificationTolerance,
+  }) : super();
 
   @override
   State<PolygonLayer<R>> createState() => _PolygonLayerState<R>();
 }
 
-class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>> {
-  List<_ProjectedPolygon<R>>? _cachedProjectedPolygons;
-  final _cachedSimplifiedPolygons = <int, List<_ProjectedPolygon<R>>>{};
-
-  double? _devicePixelRatio;
+class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
+    with
+        ProjectionSimplificationManagement<_ProjectedPolygon<R>, Polygon<R>,
+            PolygonLayer<R>> {
+  @override
+  _ProjectedPolygon<R> projectElement({
+    required Projection projection,
+    required Polygon<R> element,
+  }) =>
+      _ProjectedPolygon._fromPolygon(projection, element);
 
   @override
-  void didUpdateWidget(PolygonLayer<R> oldWidget) {
-    super.didUpdateWidget(oldWidget);
+  _ProjectedPolygon<R> simplifyProjectedElement({
+    required _ProjectedPolygon<R> projectedElement,
+    required double tolerance,
+  }) =>
+      _ProjectedPolygon._(
+        polygon: projectedElement.polygon,
+        points: simplifyPoints(
+          points: projectedElement.points,
+          tolerance: tolerance,
+          highQuality: true,
+        ),
+        holePoints: List.generate(
+          projectedElement.holePoints.length,
+          (j) => simplifyPoints(
+            points: projectedElement.holePoints[j],
+            tolerance: tolerance,
+            highQuality: true,
+          ),
+          growable: false,
+        ),
+      );
 
-    if (!listEquals(oldWidget.polygons, widget.polygons)) {
-      // If the polylines have changed, then both the projections and the
-      // projection-dependendent simplifications must be invalidated
-      _cachedProjectedPolygons = null;
-      _cachedSimplifiedPolygons.clear();
-    } else if (oldWidget.simplificationTolerance !=
-        widget.simplificationTolerance) {
-      // If only the simplification tolerance has changed, this does not affect
-      // the projections (as that is done before simplification), so only
-      // invalidate the simplifications
-      _cachedSimplifiedPolygons.clear();
-    }
-  }
+  @override
+  Iterable<Polygon<R>> getElements(PolygonLayer<R> widget) => widget.polygons;
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     final camera = MapCamera.of(context);
 
-    final projected = _cachedProjectedPolygons ??= List.generate(
-      widget.polygons.length,
-      (i) => _ProjectedPolygon._fromPolygon(
-        camera.crs.projection,
-        widget.polygons[i],
-      ),
-      growable: false,
-    );
-
-    late final List<_ProjectedPolygon<R>> simplified;
-    if (widget.simplificationTolerance == 0) {
-      simplified = projected;
-    } else {
-      // If the DPR has changed, invalidate the simplification cache
-      final newDPR = MediaQuery.devicePixelRatioOf(context);
-      if (newDPR != _devicePixelRatio) {
-        _devicePixelRatio = newDPR;
-        _cachedSimplifiedPolygons.clear();
-      }
-
-      simplified = _cachedSimplifiedPolygons[camera.zoom.floor()] ??=
-          _computeZoomLevelSimplification(
-        camera: camera,
-        polygons: projected,
-        pixelTolerance: widget.simplificationTolerance,
-        devicePixelRatio: newDPR,
-      );
-    }
-
     final culled = !widget.polygonCulling
-        ? simplified
-        : simplified
+        ? simplifiedElements.toList()
+        : simplifiedElements
             .where(
               (p) => p.polygon.boundingBox.isOverlapping(camera.visibleBounds),
             )
@@ -175,10 +156,10 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>> {
                       : points.elementAt(ii ~/ 2).y,
                   growable: false,
                 ),
-                // Not sure how just this works but it seems to :D
                 holeIndices: culledPolygon.holePoints.isEmpty
                     ? null
-                    : [culledPolygon.points.length],
+                    : _generateHolesIndices(culledPolygon)
+                        .toList(growable: false),
               );
             },
             growable: false,
@@ -192,6 +173,7 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>> {
           camera: camera,
           polygonLabels: widget.polygonLabels,
           drawLabelsLast: widget.drawLabelsLast,
+          debugAltRenderer: widget.debugAltRenderer,
           hitNotifier: widget.hitNotifier,
         ),
         size: Size(camera.size.x, camera.size.y),
@@ -199,44 +181,12 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>> {
     );
   }
 
-  List<_ProjectedPolygon<R>> _computeZoomLevelSimplification({
-    required MapCamera camera,
-    required List<_ProjectedPolygon<R>> polygons,
-    required double pixelTolerance,
-    required double devicePixelRatio,
-  }) {
-    final tolerance = getEffectiveSimplificationTolerance(
-      crs: camera.crs,
-      zoom: camera.zoom.floor(),
-      pixelTolerance: pixelTolerance,
-      devicePixelRatio: devicePixelRatio,
-    );
+  Iterable<int> _generateHolesIndices(_ProjectedPolygon<R> polygon) sync* {
+    var prevValue = polygon.points.length;
+    yield prevValue;
 
-    return List<_ProjectedPolygon<R>>.generate(
-      polygons.length,
-      (i) {
-        final polygon = polygons[i];
-        final holes = polygon.holePoints;
-
-        return _ProjectedPolygon._(
-          polygon: polygon.polygon,
-          points: simplifyPoints(
-            points: polygon.points,
-            tolerance: tolerance,
-            highQuality: true,
-          ),
-          holePoints: List.generate(
-            holes.length,
-            (j) => simplifyPoints(
-              points: holes[j],
-              tolerance: tolerance,
-              highQuality: true,
-            ),
-            growable: false,
-          ),
-        );
-      },
-      growable: false,
-    );
+    for (int i = 0; i < polygon.holePoints.length - 1; i++) {
+      yield prevValue += polygon.holePoints[i].length;
+    }
   }
 }

@@ -16,11 +16,24 @@ base class _PolygonPainter<R extends Object>
   /// Reference to the bounding box of the [Polygon].
   final LatLngBounds bounds;
 
-  /// Whether to draw per-polygon labels
+  /// Whether to draw per-polygon labels ([Polygon.label])
+  ///
+  /// Note that drawing labels will reduce performance, as the internal
+  /// canvas must be drawn to and 'saved' more frequently to ensure the proper
+  /// stacking order is maintained. This can be avoided, potentially at the
+  /// expense of appearance, by setting [PolygonLayer.drawLabelsLast].
+  ///
+  /// It is safe to ignore this property, and the performance pitfalls described
+  /// above, if no [Polygon]s have labels specified.
   final bool polygonLabels;
 
   /// Whether to draw labels last and thus over all the polygons
+  ///
+  /// This may improve performance: see [polygonLabels] for more information.
   final bool drawLabelsLast;
+
+  /// See [PolygonLayer.debugAltRenderer]
+  final bool debugAltRenderer;
 
   /// Create a new [_PolygonPainter] instance.
   _PolygonPainter({
@@ -29,6 +42,7 @@ base class _PolygonPainter<R extends Object>
     required super.camera,
     required this.polygonLabels,
     required this.drawLabelsLast,
+    required this.debugAltRenderer,
     required super.hitNotifier,
   }) : bounds = camera.visibleBounds;
 
@@ -85,6 +99,8 @@ base class _PolygonPainter<R extends Object>
 
   @override
   void paint(Canvas canvas, Size size) {
+    const checkOpacity = true; // for debugging purposes only, should be true
+
     final trianglePoints = <Offset>[];
 
     final filledPath = Path();
@@ -113,6 +129,50 @@ base class _PolygonPainter<R extends Object>
             }
             final vertices = Vertices.raw(VertexMode.triangles, points);
             canvas.drawVertices(vertices, BlendMode.src, paint);
+
+            if (debugAltRenderer) {
+              for (int i = 0; i < trianglePoints.length; i += 3) {
+                canvas.drawCircle(
+                  trianglePoints[i],
+                  5,
+                  Paint()..color = const Color(0x7EFF0000),
+                );
+                canvas.drawCircle(
+                  trianglePoints[i + 1],
+                  5,
+                  Paint()..color = const Color(0x7E00FF00),
+                );
+                canvas.drawCircle(
+                  trianglePoints[i + 2],
+                  5,
+                  Paint()..color = const Color(0x7E0000FF),
+                );
+
+                final path = Path()
+                  ..addPolygon(
+                    [
+                      trianglePoints[i],
+                      trianglePoints[i + 1],
+                      trianglePoints[i + 2],
+                    ],
+                    true,
+                  );
+
+                canvas.drawPath(
+                  path,
+                  Paint()
+                    ..color = const Color(0x7EFFFFFF)
+                    ..style = PaintingStyle.fill,
+                );
+
+                canvas.drawPath(
+                  path,
+                  Paint()
+                    ..color = const Color(0xFF000000)
+                    ..style = PaintingStyle.stroke,
+                );
+              }
+            }
           } else {
             canvas.drawPath(filledPath, paint);
           }
@@ -151,11 +211,34 @@ base class _PolygonPainter<R extends Object>
             polygonTriangles != null ? projectedPolygon.holePoints : null,
       );
 
+      if (debugAltRenderer) {
+        const offsetsLabelStyle = TextStyle(
+          color: Color(0xFF000000),
+          fontSize: 16,
+        );
+
+        for (int i = 0; i < fillOffsets.length; i++) {
+          TextPainter(
+            text: TextSpan(
+              text: i.toString(),
+              style: offsetsLabelStyle,
+            ),
+            textDirection: TextDirection.ltr,
+          )
+            ..layout(maxWidth: 100)
+            ..paint(canvas, fillOffsets[i]);
+        }
+      }
+
       // The hash is based on the polygons visual properties. If the hash from
       // the current and the previous polygon no longer match, we need to flush
       // the batch previous polygons.
+      // We also need to flush if the opacity is not 1 or 0, so that they get
+      // mixed properly. Otherwise, holes get cut, or colors aren't mixed,
+      // depending on the holes handler.
       final hash = polygon.renderHashCode;
-      if (lastHash != hash) {
+      final opacity = polygon.color?.opacity ?? 0;
+      if (lastHash != hash || (checkOpacity && opacity > 0 && opacity < 1)) {
         drawPaths();
       }
       lastPolygon = polygon;
@@ -193,11 +276,14 @@ base class _PolygonPainter<R extends Object>
       }
 
       // Afterwards deal with more complicated holes.
+      // Improper handling of opacity and fill methods may result in normal
+      // polygons cutting holes into other polygons, when they should be mixing:
+      // https://github.com/fleaflet/flutter_map/issues/1898.
       final holePointsList = polygon.holePointsList;
       if (holePointsList != null && holePointsList.isNotEmpty) {
-        // Ideally we'd use `Path.combine(PathOperation.difference, ...)`
-        // instead of evenOdd fill-type, however it creates visual artifacts
-        // using the web renderer.
+        // See `Path.combine` comments below
+        // Avoids failing to cut holes if the winding directions of the holes
+        // and the normal points are the same
         filledPath.fillType = PathFillType.evenOdd;
 
         final holeOffsetsList = List<List<Offset>>.generate(
@@ -208,11 +294,28 @@ base class _PolygonPainter<R extends Object>
 
         for (final holeOffsets in holeOffsetsList) {
           filledPath.addPolygon(holeOffsets, true);
+
+          // TODO: Potentially more efficient and may change the need to do
+          // opacity checking - needs testing. However,
+          // https://github.com/flutter/flutter/issues/44572 prevents this.
+          // Also need to verify if `xor` or `difference` is preferred.
+          /*filledPath = Path.combine(
+            PathOperation.xor,
+            filledPath,
+            Path()..addPolygon(holeOffsets, true),
+          );*/
         }
 
         if (!polygon.disableHolesBorder && polygon.borderStrokeWidth > 0.0) {
-          _addHoleBordersToPath(borderPath, polygon, holeOffsetsList, size,
-              canvas, _getBorderPaint(polygon), polygon.borderStrokeWidth);
+          _addHoleBordersToPath(
+            borderPath,
+            polygon,
+            holeOffsetsList,
+            size,
+            canvas,
+            _getBorderPaint(polygon),
+            polygon.borderStrokeWidth,
+          );
         }
       }
 
@@ -293,6 +396,7 @@ base class _PolygonPainter<R extends Object>
     final isSolid = polygon.pattern == const StrokePattern.solid();
     final isDashed = polygon.pattern.segments != null;
     final isDotted = polygon.pattern.spacingFactor != null;
+
     if (isSolid) {
       final SolidPixelHiker hiker = SolidPixelHiker(
         offsets: offsets,
