@@ -176,6 +176,11 @@ class MapOptions {
   /// Gesture and input options for the map widget.
   final InteractionOptions interactionOptions;
 
+  ///Allows infinite horizontal pan.
+  ///Must not set cameraConstraint if this is set to true.
+  ///This will jump cameera to opposite side of the world when it reaches 180 or -180 longitude.
+  final bool? seamlessPanning;
+
   /// Create the map options for [FlutterMap].
   const MapOptions({
     this.crs = const Epsg3857(),
@@ -199,6 +204,7 @@ class MapOptions {
     this.onMapEvent,
     this.onMapReady,
     this.keepAlive = false,
+    this.seamlessPanning,
     @Deprecated(
       'If necessary, manually wrap layers with `TransulcentPointer` widgets. '
       'This parameter will be removed as proper hit detection has now been incorporated into both `PolygonLayer` & `PolylineLayer`, which reduces the need for this workaround, and because it caused issues in some cases. More information about hit detection & interactivity rules can be found in the online documentation. '
@@ -243,6 +249,7 @@ class MapOptions {
       cameraConstraint == other.cameraConstraint &&
       onMapReady == other.onMapReady &&
       keepAlive == other.keepAlive &&
+      seamlessPanning == other.seamlessPanning &&
       interactionOptions == other.interactionOptions &&
       backgroundColor == other.backgroundColor &&
       applyPointerTranslucencyToLayers ==
@@ -270,6 +277,7 @@ class MapOptions {
         cameraConstraint,
         onMapReady,
         keepAlive,
+        seamlessPanning,
         interactionOptions,
         backgroundColor,
         applyPointerTranslucencyToLayers,

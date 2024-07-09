@@ -55,6 +55,11 @@ class MapCamera {
   /// Lazily calculated field
   Point<double>? _pixelOrigin;
 
+  ///Allows infinite horizontal pan.
+  ///Must not set cameraConstraint if this is set to true.
+  ///This will jump cameera to opposite side of the world when it reaches 180 or -180 longitude.
+  bool? seamlessPanning;
+
   /// This is the [LatLngBounds] corresponding to four corners of this camera.
   /// This takes rotation in to account.
   LatLngBounds get visibleBounds => _bounds ??= LatLngBounds(
@@ -104,6 +109,7 @@ class MapCamera {
     Bounds<double>? pixelBounds,
     LatLngBounds? bounds,
     Point<double>? pixelOrigin,
+    this.seamlessPanning,
   })  : _cameraSize = size,
         _pixelBounds = pixelBounds,
         _bounds = bounds,
@@ -118,6 +124,7 @@ class MapCamera {
         center = options.initialCenter,
         zoom = options.initialZoom,
         rotation = options.initialRotation,
+        seamlessPanning = options.seamlessPanning,
         nonRotatedSize = kImpossibleSize;
 
   /// Returns a new instance of [MapCamera] with the given [nonRotatedSize].
@@ -132,6 +139,7 @@ class MapCamera {
       nonRotatedSize: nonRotatedSize,
       minZoom: minZoom,
       maxZoom: maxZoom,
+      seamlessPanning: seamlessPanning,
     );
   }
 
@@ -147,6 +155,7 @@ class MapCamera {
       rotation: rotation,
       minZoom: minZoom,
       maxZoom: maxZoom,
+      seamlessPanning: seamlessPanning,
     );
   }
 
@@ -167,6 +176,7 @@ class MapCamera {
       rotation: rotation,
       nonRotatedSize: nonRotatedSize,
       size: _cameraSize,
+      seamlessPanning: options.seamlessPanning,
     );
   }
 
@@ -174,17 +184,22 @@ class MapCamera {
   MapCamera withPosition({
     LatLng? center,
     double? zoom,
-  }) =>
-      MapCamera(
-        crs: crs,
-        minZoom: minZoom,
-        maxZoom: maxZoom,
-        center: center ?? this.center,
-        zoom: zoom ?? this.zoom,
-        rotation: rotation,
-        nonRotatedSize: nonRotatedSize,
-        size: _cameraSize,
-      );
+  }) {
+    final adjustedCenter = center != null
+        ? adjustPositionForSeamlessScrolling(center)
+        : this.center;
+    return MapCamera(
+      crs: crs,
+      minZoom: minZoom,
+      maxZoom: maxZoom,
+      center: adjustedCenter,
+      zoom: zoom ?? this.zoom,
+      rotation: rotation,
+      nonRotatedSize: nonRotatedSize,
+      size: _cameraSize,
+      seamlessPanning: seamlessPanning,
+    );
+  }
 
   /// Calculates the size of a bounding box which surrounds a box of size
   /// [nonRotatedSize] which is rotated by [rotation].
@@ -202,6 +217,21 @@ class MapCamera {
         (nonRotatedSize.y * cosAngle) + (nonRotatedSize.x * sinAngle);
 
     return Point<double>(width, height);
+  }
+
+  /// Jumps camera to opposite side of the world to enable seamless scrolling
+  /// between 180 and -180 longitude.
+  LatLng adjustPositionForSeamlessScrolling(LatLng position) {
+    double adjustedLongitude = position.longitude;
+    if (seamlessPanning != null && seamlessPanning!) {
+      if (adjustedLongitude >= 180.0) {
+        adjustedLongitude = adjustedLongitude - 360.0;
+      } else if (adjustedLongitude <= -180.0) {
+        adjustedLongitude = adjustedLongitude + 360.0;
+      }
+    }
+
+    return LatLng(position.latitude, adjustedLongitude);
   }
 
   /// The current rotation value in radians
