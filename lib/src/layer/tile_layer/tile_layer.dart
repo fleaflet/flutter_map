@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:collection/collection.dart' show MapEquality;
 import 'package:flutter/foundation.dart';
@@ -330,6 +331,9 @@ class TileLayer extends StatefulWidget {
 class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   bool _initializedFromMapCamera = false;
 
+  ///Saves already loaded tiles in Map where key is (x:y:z) and value is tile image as bytes list
+  final Map<String, Uint8List> _cachedTiles = {};
+
   final _tileImageManager = TileImageManager();
   late TileBounds _tileBounds;
   late var _tileRangeCalculator =
@@ -633,28 +637,53 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   }) {
     final tileZoom = tileLoadRange.zoom;
     final expandedTileLoadRange = tileLoadRange.expand(widget.panBuffer);
-
-    // Build the queue of tiles to load. Marks all tiles with valid coordinates
-    // in the tileLoadRange as current.
     final tileBoundsAtZoom = _tileBounds.atZoom(tileZoom);
     final tilesToLoad = _tileImageManager.createMissingTiles(
-      expandedTileLoadRange,
-      tileBoundsAtZoom,
-      createTile: (coordinates) => _createTileImage(
+        expandedTileLoadRange, tileBoundsAtZoom, createTile: (coordinates) {
+      final String key = '${coordinates.x}:${coordinates.y}:${coordinates.z}';
+      if (_cachedTiles.containsKey(key)) {
+        return TileImage(
+          vsync: this,
+          coordinates: coordinates,
+          imageProvider: MemoryImage(_cachedTiles[key]!),
+          onLoadError: _onTileLoadError,
+          onLoadComplete: (coordinates) {
+            if (pruneAfterLoad) _pruneIfAllTilesLoaded(coordinates);
+          },
+          tileDisplay: widget.tileDisplay,
+          errorImage: widget.errorImage,
+          cancelLoading: Completer<void>(),
+        );
+      }
+      final TileImage img = _createTileImage(
         coordinates: coordinates,
         tileBoundsAtZoom: tileBoundsAtZoom,
         pruneAfterLoad: pruneAfterLoad,
-      ),
-    );
+      );
 
-    // Re-order the tiles by their distance to the center of the range.
+      img.imageProvider.resolve(ImageConfiguration()).addListener(
+        ImageStreamListener((ImageInfo info, bool _) async {
+          final ByteData? byteData =
+              await info.image.toByteData(format: ImageByteFormat.png);
+
+          //Currently workaround to skip adding tiles that are not loaded fully.
+          //Looks like was adding record to map even if loading was canceled resulting in empty tiles.
+          if (byteData!.lengthInBytes <= 97) {
+            return;
+          }
+          _cachedTiles[key] = byteData.buffer.asUint8List();
+        }),
+      );
+
+      return img;
+    });
+
     final tileCenter = expandedTileLoadRange.center;
     tilesToLoad.sort(
       (a, b) => _distanceSq(a.coordinates, tileCenter)
           .compareTo(_distanceSq(b.coordinates, tileCenter)),
     );
 
-    // Create the new Tiles.
     for (final tile in tilesToLoad) {
       tile.load();
     }
