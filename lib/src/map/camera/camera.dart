@@ -223,7 +223,7 @@ class MapCamera {
   /// between 180 and -180 longitude.
   LatLng adjustPositionForSeamlessScrolling(LatLng position) {
     double adjustedLongitude = position.longitude;
-    if (seamlessPanning != null && seamlessPanning!) {
+    if (seamlessPanning == true) {
       if (adjustedLongitude >= 180.0) {
         adjustedLongitude = adjustedLongitude - 360.0;
       } else if (adjustedLongitude <= -180.0) {
