@@ -231,7 +231,7 @@ class MapCamera {
       }
     }
 
-    return LatLng(position.latitude, adjustedLongitude);
+    return adjustedLongitude == position.longitude ? position : LatLng(position.latitude, adjustedLongitude);
   }
 
   /// The current rotation value in radians
