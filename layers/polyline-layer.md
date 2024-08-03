@@ -21,7 +21,7 @@ PolylineLayer(
 
 ## Pattern
 
-`Polyline`s support a `solid`, `dotted`, and `dashed` style, through `PolylinePattern`/`Polyline.pattern`. These are flexible, and spacing and sizing may be customized.
+`Polyline`s support a `solid`, `dotted`, and `dashed` style, through a `StrokePattern`passed as an argument to`Polyline.pattern`. These are flexible, and spacing and sizing may be customized.
 
 `dotted` and `dashed` patterns should 'fit' the `Polyline` they are applied to, otherwise the final point in that line may not be visually clear. The fit can be adjusted when defining the pattern through the `PatternFit` enum.
 

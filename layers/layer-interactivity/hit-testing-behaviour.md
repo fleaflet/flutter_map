@@ -18,7 +18,7 @@ To change this behviour, make use of these three widgets, wrapping them around l
 
 * [`IgnorePointer`](https://api.flutter.dev/flutter/widgets/IgnorePointer-class.html)
 * [`AbsorbPointer`](https://api.flutter.dev/flutter/widgets/AbsorbPointer-class.html)
-* `TransulcentPointer`: a general purpose 'widget' included with flutter\_map that allows the child to hit test as normal, but also allows widgets beneath it to hit test as normal, both seperately
+* `TranslucentPointer`: a general purpose 'widget' included with flutter\_map that allows the child to hit test as normal, but also allows widgets beneath it to hit test as normal, both seperately
 
 ***
 
