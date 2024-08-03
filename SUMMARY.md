@@ -45,6 +45,7 @@
 * [Using Thunderforest](tile-servers/using-thunderforest.md)
 * [Using Stadia Maps](tile-servers/using-stadia-maps.md)
 * [Using Bing Maps](tile-servers/using-bing-maps.md)
+* [Using Google Maps](tile-servers/using-google-maps.md)
 * [Offline Mapping](tile-servers/offline-mapping.md)
 * [Other Options](tile-servers/other-options.md)
 

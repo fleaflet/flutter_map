@@ -12,12 +12,6 @@ A good catalogue of servers (usually called Providers elsewhere) can be found at
 
 {% embed url="https://switch2osm.org/providers/" %}
 
-{% hint style="info" %}
-Google Maps does not document a static raster tile server. Therefore, flutter\_map is unable to show Google Maps.
-
-_There is an undocumented endpoint available, however it violates the Google Maps Platform ToS._
-{% endhint %}
-
 ## Serving Your Own Tiles
 
 Switch2OSM also provides detailed instructions on how to serve your own tiles: this can be surprisingly economical and enjoyable if you don't mind a few hours in a Linux console.
