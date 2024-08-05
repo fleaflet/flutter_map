@@ -31,6 +31,8 @@ base class _PolylinePainter<R extends Object>
     // if (!polyline.boundingBox.contains(touch)) {
     //   continue;
     // }
+    // Be careful with map orientation, though, and try to code similar things
+    // for polygons.
 
     final offsets = getOffsetsXY(
       camera: camera,

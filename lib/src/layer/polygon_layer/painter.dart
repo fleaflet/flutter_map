@@ -53,9 +53,6 @@ base class _PolygonPainter<R extends Object>
     required LatLng coordinate,
   }) {
     final polygon = projectedPolygon.polygon;
-    if (!polygon.boundingBox.contains(coordinate)) {
-      return false;
-    }
 
     final projectedCoords = getOffsetsXY(
       camera: camera,
