@@ -41,7 +41,7 @@ class DiscreteTileRange extends TileRange {
   /// Calculate a [DiscreteTileRange] by using the pixel bounds.
   factory DiscreteTileRange.fromPixelBounds({
     required int zoom,
-    required double tileSize,
+    required int tileSize,
     required Bounds<double> pixelBounds,
   }) {
     final Bounds<int> bounds;

@@ -9,7 +9,7 @@ import 'package:meta/meta.dart';
 abstract class TileBounds {
   /// Reference to the coordinate reference system.
   final Crs crs;
-  final double _tileSize;
+  final int _tileSize;
   final LatLngBounds? _latLngBounds;
 
   /// Constructor that creates an instance of a subclass of [TileBounds]:
@@ -18,7 +18,7 @@ abstract class TileBounds {
   /// [WrappedTileBounds] if the CRS is wrapped.
   factory TileBounds({
     required Crs crs,
-    required double tileSize,
+    required int tileSize,
     LatLngBounds? latLngBounds,
   }) {
     if (crs.infinite && latLngBounds == null) {
@@ -43,7 +43,7 @@ abstract class TileBounds {
   /// parameters.
   bool shouldReplace(
     Crs crs,
-    double tileSize,
+    int tileSize,
     LatLngBounds? latLngBounds,
   ) =>
       crs != this.crs || tileSize != _tileSize || latLngBounds != _latLngBounds;
