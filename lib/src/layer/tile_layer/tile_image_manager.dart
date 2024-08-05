@@ -118,16 +118,18 @@ class TileImageManager {
     final tilesToReload = List<TileImage>.from(_tiles.values);
 
     for (final tile in tilesToReload) {
-      tile.imageProvider = layer.tileProvider.supportsCancelLoading
-          ? layer.tileProvider.getImageWithCancelLoadingSupport(
-              tileBounds.atZoom(tile.coordinates.z).wrap(tile.coordinates),
-              layer,
-              tile.cancelLoading.future,
-            )
-          : layer.tileProvider.getImage(
-              tileBounds.atZoom(tile.coordinates.z).wrap(tile.coordinates),
-              layer,
-            );
+      if (layer.tileProvider case final CancellableTileLoadingSupport tp) {
+        tile.imageProvider = tp.getImageWithCancelLoadingSupport(
+          tileBounds.atZoom(tile.coordinates.z).wrap(tile.coordinates),
+          layer,
+          tile.cancelLoading.future,
+        );
+      } else {
+        tile.imageProvider = layer.tileProvider.getImage(
+          tileBounds.atZoom(tile.coordinates.z).wrap(tile.coordinates),
+          layer,
+        );
+      }
       tile.load();
     }
   }
