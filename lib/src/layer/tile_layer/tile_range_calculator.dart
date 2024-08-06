@@ -7,7 +7,7 @@ import 'package:meta/meta.dart';
 @immutable
 class TileRangeCalculator {
   /// The tile size in pixels.
-  final double tileSize;
+  final int tileSize;
 
   /// Create a new [TileRangeCalculator] instance.
   const TileRangeCalculator({required this.tileSize});

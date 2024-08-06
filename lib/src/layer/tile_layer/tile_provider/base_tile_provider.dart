@@ -213,8 +213,9 @@ abstract class TileProvider {
   /// When creating a specialized [TileProvider], prefer overriding URL
   /// generation related methods in the following order:
   ///
-  /// 1. [populateTemplatePlaceholders]
-  /// 2. [generateReplacementMap]
+  /// 1. [TileLayer.additionalOptions] (or [generateReplacementMap] for more
+  /// advanced usage)
+  /// 2. [populateTemplatePlaceholders]
   /// 3. [getTileUrl] and/or [getTileFallbackUrl]
   ///
   /// Note to implementors: it is not safe to assume that at least one of
@@ -224,7 +225,7 @@ abstract class TileProvider {
       populateTemplatePlaceholders(
         options.wmsOptions?.getUrl(
               coordinates,
-              options.tileSize.toInt(),
+              options.tileSize,
               options.resolvedRetinaMode == RetinaMode.simulation,
             ) ??
             options.urlTemplate ??
