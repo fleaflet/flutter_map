@@ -38,11 +38,11 @@ export 'package:flutter_map/src/layer/shared/layer_interactivity/layer_hit_resul
 export 'package:flutter_map/src/layer/shared/line_patterns/stroke_pattern.dart';
 export 'package:flutter_map/src/layer/shared/mobile_layer_transformer.dart';
 export 'package:flutter_map/src/layer/shared/translucent_pointer.dart';
-export 'package:flutter_map/src/layer/tile_layer/tile_builder.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_display.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
+export 'package:flutter_map/src/layer/tile_layer/tile_overlay_painter.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_provider/asset_tile_provider.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provider.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_provider/file_providers/tile_provider_stub.dart'

@@ -10,51 +10,37 @@ class TileBuilderPage extends StatefulWidget {
   const TileBuilderPage({super.key});
 
   @override
-  TileBuilderPageState createState() => TileBuilderPageState();
+  State<TileBuilderPage> createState() => _TileBuilderPageState();
 }
 
-class TileBuilderPageState extends State<TileBuilderPage> {
+class _TileBuilderPageState extends State<TileBuilderPage> {
   bool enableGrid = true;
   bool showCoordinates = true;
   bool showLoadingTime = true;
-  bool darkMode = true;
+  bool enableDarkMode = true;
 
-  // mix of [coordinateDebugTileBuilder] and [loadingTimeDebugTileBuilder] from tile_builder.dart
-  Widget tileBuilder(BuildContext context, Widget tileWidget, TileImage tile) {
-    final coords = tile.coordinates;
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        border: enableGrid ? Border.all(width: 2, color: Colors.white) : null,
-      ),
-      position: DecorationPosition.foreground,
-      child: Stack(
-        fit: StackFit.passthrough,
-        children: [
-          tileWidget,
-          if (showLoadingTime || showCoordinates)
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (showCoordinates)
-                  Text(
-                    '${coords.x} : ${coords.y} : ${coords.z}',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                if (showLoadingTime)
-                  Text(
-                    tile.loadFinishedAt == null
-                        ? 'Loading'
-                        // sometimes result is negative which shouldn't happen, abs() corrects it
-                        : '${(tile.loadFinishedAt!.millisecond - tile.loadStarted!.millisecond).abs()} ms',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-              ],
-            ),
-        ],
-      ),
-    );
-  }
+  final _darkModeColorFilter = const ColorFilter.matrix([
+    -1,
+    0,
+    0,
+    0,
+    255,
+    0,
+    -1,
+    0,
+    0,
+    255,
+    0,
+    0,
+    -1,
+    0,
+    255,
+    0,
+    0,
+    0,
+    1,
+    0,
+  ]);
 
   @override
   Widget build(BuildContext context) {
@@ -101,8 +87,8 @@ class TileBuilderPageState extends State<TileBuilderPage> {
                     child: Icon(Icons.dark_mode),
                   ),
                   Switch.adaptive(
-                    value: darkMode,
-                    onChanged: (v) => setState(() => darkMode = v),
+                    value: enableDarkMode,
+                    onChanged: (v) => setState(() => enableDarkMode = v),
                   ),
                 ],
               ),
@@ -115,14 +101,14 @@ class TileBuilderPageState extends State<TileBuilderPage> {
                 initialZoom: 5,
               ),
               children: [
-                _darkModeContainerIfEnabled(
-                  TileLayer(
-                    urlTemplate:
-                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                    tileProvider: CancellableNetworkTileProvider(),
-                    tileBuilder: tileBuilder,
-                  ),
+                TileLayer(
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+                  tileProvider: CancellableNetworkTileProvider(),
+                  tilePaint: enableDarkMode
+                      ? (Paint()..colorFilter = _darkModeColorFilter)
+                      : null,
+                  tileOverlayPainter: tileOverlayPainter,
                 ),
                 const MarkerLayer(
                   markers: [
@@ -144,9 +130,53 @@ class TileBuilderPageState extends State<TileBuilderPage> {
     );
   }
 
-  Widget _darkModeContainerIfEnabled(Widget child) {
-    if (!darkMode) return child;
+  void tileOverlayPainter({
+    required Canvas canvas,
+    required Offset origin,
+    required Size size,
+    required TileImage tile,
+  }) {
+    final rect = origin & size;
 
-    return darkModeTilesContainerBuilder(context, child);
+    if (enableGrid) {
+      canvas.drawRect(
+        rect,
+        Paint()
+          ..color = enableDarkMode ? Colors.white : Colors.black
+          ..style = PaintingStyle.stroke,
+      );
+    }
+
+    if (showCoordinates || showLoadingTime) {
+      final textStyle = TextStyle(
+        color: enableDarkMode ? Colors.white : Colors.black,
+        fontSize: 18,
+      );
+
+      final textSpan = TextSpan(
+        text: (showCoordinates ? tile.coordinates.toString() : '') +
+            (showCoordinates && showLoadingTime ? '\n' : '') +
+            (showLoadingTime
+                ? tile.loadFinishedAt == null
+                    ? 'Loading'
+                    // sometimes result is negative which shouldn't happen, abs() corrects it
+                    : '${(tile.loadFinishedAt!.millisecond - tile.loadStarted!.millisecond).abs()} ms'
+                : ''),
+        style: textStyle,
+      );
+      final textPainter = TextPainter(
+        text: textSpan,
+        textDirection: TextDirection.ltr,
+        textAlign: TextAlign.center,
+      );
+      textPainter.layout(
+        minWidth: 0,
+        maxWidth: size.width,
+      );
+      final xCenter = (size.width - textPainter.width) / 2;
+      final yCenter = (size.height - textPainter.height) / 2;
+
+      textPainter.paint(canvas, origin + Offset(xCenter, yCenter));
+    }
   }
 }
