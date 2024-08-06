@@ -545,16 +545,19 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   }) {
     final cancelLoading = Completer<void>();
 
-    final imageProvider = widget.tileProvider.supportsCancelLoading
-        ? widget.tileProvider.getImageWithCancelLoadingSupport(
-            tileBoundsAtZoom.wrap(coordinates),
-            widget,
-            cancelLoading.future,
-          )
-        : widget.tileProvider.getImage(
-            tileBoundsAtZoom.wrap(coordinates),
-            widget,
-          );
+    late final ImageProvider imageProvider;
+    if (widget.tileProvider case final CancellableTileLoadingSupport tp) {
+      imageProvider = tp.getImageWithCancelLoadingSupport(
+        tileBoundsAtZoom.wrap(coordinates),
+        widget,
+        cancelLoading.future,
+      );
+    } else {
+      imageProvider = widget.tileProvider.getImage(
+        tileBoundsAtZoom.wrap(coordinates),
+        widget,
+      );
+    }
 
     return TileImage(
       vsync: this,
