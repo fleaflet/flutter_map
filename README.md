@@ -13,35 +13,18 @@ coverY: -35
 
 ## Feature Highlights
 
-<table data-card-size="large" data-view="cards" data-full-width="false"><thead><tr><th align="center"></th><th align="center"></th><th data-hidden data-card-cover data-type="files"></th></tr></thead><tbody><tr><td align="center">🗺️ <strong>Supports any* map style</strong></td><td align="center">We natively support any static raster tile server, including from a web server or even from the local file system or app asset store.<br>No more vendor lock-in!</td><td></td></tr><tr><td align="center">💪 <strong>Stress-free setup and use</strong></td><td align="center">Migrating from a commercial library such as Google Maps has never been easier! No more complex platform-specific setup, no more API keys: just add a widget and you're done.</td><td></td></tr><tr><td align="center">🧩 <strong>Wide ecosystem of plugins</strong></td><td align="center">In the unlikely event that flutter_map doesn't natively contain something you need, just check to see if there's a community maintained plugin that does what you need!</td><td></td></tr><tr><td align="center">➕ <strong>Add other map features easily</strong></td><td align="center">Add polygons, polylines, and markers/pins to your map easily and quickly. Markers support displaying any widget you might want.</td><td></td></tr></tbody></table>
+<table data-card-size="large" data-view="cards" data-full-width="true"><thead><tr><th align="center"></th><th align="center"></th><th data-hidden data-card-cover data-type="files"></th></tr></thead><tbody><tr><td align="center">🗺️ <strong>No more vendor lock-in</strong></td><td align="center">We natively support any static raster* tile server, including from a web server or even from the local file system or app asset store.<br>Use any service, or your own, but always be free to change!<br><em>*Vector tiles are supported with a community-maintained plugin.</em></td><td></td></tr><tr><td align="center">💪 <strong>Stress free setup &#x26; easy to use</strong></td><td align="center">Migrating from a commercial library (such as Google Maps) has never been easier! No more complex platform-specific setup, no more difficult API keys: just add a widget and you're done.<br>Our documentation and 3 layers of support are here to get your app using the best mapping library for Flutter.</td><td></td></tr><tr><td align="center">🧩 <strong>Wide ecosystem of plugins</strong></td><td align="center">In the event that flutter_map doesn't natively contain something you need, just check to see if there's a community maintained plugin that does what you need!</td><td></td></tr><tr><td align="center">➕ <strong>Customize and expand endlessly</strong></td><td align="center">Add interactive and highly customizable polygons, polylines, and markers (which support widget children) to your map easily and quickly. And because we're 100% Flutter, it's easy to add your own stuff on top without messing around in platform views.</td><td></td></tr></tbody></table>
 
+{% hint style="success" %}
+Don't just take it from us - we really are the best mapping library available for Flutter!
 
+Check out this independent thesis by Sergey Ushakov, which compares us to `google_maps_flutter` & `mapbox_maps_flutter`. Guess who's the winner ;)
 
-<details>
-
-<summary>How does flutter_map compare to other mapping libraries?</summary>
-
-This usually refers to libraries such as 'mapbox\_gl' and 'google\_maps\_flutter'. In most ways, it is better, in some it is worse.
-
-flutter\_map wins on:
-
-* Less vendor lock-in (and potentially reduced costs)\
-  You're not locked into a particular tile server with us - choose from hundreds of options, or build your own!
-* Customizability & extensibility\
-  Add all sorts of layers to display custom widgets and data on top of your map, and choose from flutter\_map's many community maintained plugins to add even more functionality!
-* Ease of use/setup\
-  We don't require any API keys or platform specific setup (other than enabling the Internet permission!), so you can get started quicker, and make changes without fear of breaking your release application.
-* Support quality and frequency\
-  Most questions are answered and resolved within 12-24 hours, thanks to our dedicated maintainers and community.&#x20;
-
-However, alternatives may win on:
-
-* Performance\*\
-  flutter\_map's performance is very adequate for the vast majority of applications, and many big businesses use FM to provide maps in their Flutter app.\
-  However, if you're using high-thousands of `Markers` or `Polygons` and such like, alternatives may win, purely because they use platform views and GL, and so can do calculations outside of Dart.
-* ... and that's pretty much it 😉
-
-</details>
+{% embed url="https://archive.org/details/incorporating-maps-into-flutter-a-study-of-mapping-sdks-and-their-integration-in" %}
+Original: [https://www.theseus.fi/bitstream/handle/10024/820026/Ushakov\_Sergey.pdf](https://www.theseus.fi/bitstream/handle/10024/820026/Ushakov\_Sergey.pdf)\
+Archive: [https://archive.org/details/incorporating-maps-into-flutter-a-study-of-mapping-sdks-and-their-integration-in](https://archive.org/details/incorporating-maps-into-flutter-a-study-of-mapping-sdks-and-their-integration-in)
+{% endembed %}
+{% endhint %}
 
 ## Code Demo
 
@@ -49,45 +32,51 @@ Setting up an interactive and compliant[^1] map is simpler than making your lunc
 
 This code snippet demonstrates **everything** you need for a simple map (in just over 20 lines!), but of course, FM is capable of much more than just this, and you could find yourself lost in the many options available and possibilities opened!
 
-<pre class="language-dart" data-line-numbers><code class="lang-dart">import 'package:flutter_map/flutter_map.dart';
+{% code lineNumbers="true" fullWidth="true" %}
+```dart
+import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 @override
 Widget build(BuildContext context) {
-  return <a data-footnote-ref href="#user-content-fn-2">FlutterMap</a>(
-    <a data-footnote-ref href="#user-content-fn-3">options</a>: MapOptions(
-      initialCenter: LatLng(51.509364, -0.128928),
+  return FlutterMap(
+    options: MapOptions(
+      initialCenter: LatLng(51.509364, -0.128928), // Center the map over London
       initialZoom: 9.2,
     ),
-    <a data-footnote-ref href="#user-content-fn-4">children</a>: [
-      TileLayer(
-        <a data-footnote-ref href="#user-content-fn-5">urlTemplate</a>: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    children: [
+      TileLayer( // Display map tiles from any source
+        urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', // OSMF's Tile Server
         userAgentPackageName: 'com.example.app',
+        maxNativeZoom: 19, // Scale tiles when the server doesn't support higher zoom levels
       ),
-      <a data-footnote-ref href="#user-content-fn-6">RichAttributionWidget</a>(
+      RichAttributionWidget( // Include a stylish prebuilt attribution widget that meets all requirments
         attributions: [
           TextSourceAttribution(
             'OpenStreetMap contributors',
-            onTap: () => <a data-footnote-ref href="#user-content-fn-7">launchUrl</a>(Uri.parse('https://openstreetmap.org/copyright')),
+            onTap: () => launchUrl(Uri.parse('https://openstreetmap.org/copyright')), // (external)
           ),
+          // Also add images...
         ],
       ),
     ],
   );
 }
-</code></pre>
+```
+{% endcode %}
 
 ## Get Help
 
-Not quite sure about something? No problem. Please get in touch via any of these methods, and we'll be with you as soon as possible. Please remember that we are volunteers, so we cannot guarantee (fast) support.
+Not quite sure about something? No worries, we're here to help!
 
-* For bug reports & feature requests: check the [#faqs](./#faqs "mention") then [GitHub Issues](https://github.com/fleaflet/flutter\_map/issues)
-* For support & everything else: check the [#faqs](./#faqs "mention") then [flutter\_map Discord server](https://discord.gg/BwpEsjqMAH)
+* Check the [#faqs](./#faqs "mention") below, and double check the documentation
+* Then, for bug reports & feature requests: check for previous issues, then ask in [GitHub Issues](https://github.com/fleaflet/flutter\_map/issues)
+* Then, for support & everything else: ask in [flutter\_map Discord server](https://discord.gg/BwpEsjqMAH) or [GitHub Discussions](https://github.com/fleaflet/flutter\_map/discussions)
 
 {% hint style="info" %}
-Due to time shortages, wait times for feature request implementations are currently extremely long and may not happen at all.
+We're a community maintained project and the maintainers would greatly appriciate any help in implementing features and fixing bugs! Feel free to jump in: [https://github.com/fleaflet/flutter\_map/blob/master/CONTRIBUTING.md](https://github.com/fleaflet/flutter\_map/blob/master/CONTRIBUTING.md).
 
-We'd love to have your contributions to add your own or others' pull requests!
+Please remember that we are volunteers and cannot gurantee support. The standard Code of Conduct is here to keep our community a safe and friendly place for everyone: [https://github.com/fleaflet/flutter\_map/blob/master/CODE\_OF\_CONDUCT.md](https://github.com/fleaflet/flutter\_map/blob/master/CODE\_OF\_CONDUCT.md).
 {% endhint %}
 
 ### FAQs
@@ -166,15 +155,3 @@ Unfortunately, this isn't supported, partially due to lack of time on the mainta
 </details>
 
 [^1]: (includes necessary attribution)
-
-[^2]: As simple as just another widget...
-
-[^3]: Plenty of customisable options available
-
-[^4]: Choose from a variety of features to display on your map
-
-[^5]: Connect to any\* map server/provider
-
-[^6]: Stylish attribution required? No problem!
-
-[^7]: _Requires url\_launcher to be installed separately_
