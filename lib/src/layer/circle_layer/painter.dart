@@ -99,6 +99,7 @@ base class CirclePainter<R extends Object>
       for (final borderWidth in pointsBorder[color]!.keys) {
         final pointsByRadius = pointsBorder[color]![borderWidth]!;
         final radiusPaint = paint..strokeWidth = borderWidth;
+        radiusPaint.blendMode = BlendMode.src;
         for (final radius in pointsByRadius.keys) {
           final pointsByRadiusColor = pointsByRadius[radius]!;
           for (final offset in pointsByRadiusColor) {
@@ -118,6 +119,7 @@ base class CirclePainter<R extends Object>
       for (final radius in pointsByRadius.keys) {
         final pointsByRadiusColor = pointsByRadius[radius]!;
         final radiusPaint = paint..strokeWidth = radius * 2;
+        radiusPaint.blendMode = BlendMode.src;
         _paintPoints(canvas, pointsByRadiusColor, radiusPaint);
       }
     }
@@ -129,6 +131,7 @@ base class CirclePainter<R extends Object>
       for (final radius in pointsByRadius.keys) {
         final pointsByRadiusColor = pointsByRadius[radius]!;
         final radiusPaint = paint..strokeWidth = radius * 2;
+        radiusPaint.blendMode = BlendMode.src;
         _paintPoints(canvas, pointsByRadiusColor, radiusPaint);
       }
     }
