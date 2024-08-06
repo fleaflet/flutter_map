@@ -52,7 +52,12 @@ base class _PolygonPainter<R extends Object>
     required math.Point<double> point,
     required LatLng coordinate,
   }) {
-    final polygon = projectedPolygon.polygon;
+    // TODO: We should check the bounding box here, for efficiency
+    // However, we need to account for map rotation
+    //
+    // if (!polygon.boundingBox.contains(touch)) {
+    //   continue;
+    // }
 
     final projectedCoords = getOffsetsXY(
       camera: camera,
