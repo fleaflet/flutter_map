@@ -332,8 +332,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   final _tileImageManager = TileImageManager();
   late TileBounds _tileBounds;
-  late var _tileRangeCalculator =
-      TileRangeCalculator(tileSize: widget.tileSize);
+  late TileRangeCalculator _tileRangeCalculator;
   late TileScaleCalculator _tileScaleCalculator;
 
   // We have to hold on to the mapController hashCode to determine whether we
@@ -345,10 +344,14 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   StreamSubscription<TileUpdateEvent>? _tileUpdateSubscription;
   Timer? _pruneLater;
 
-  late final _resetSub = widget.reset?.listen((_) {
-    _tileImageManager.removeAll(widget.evictErrorTileStrategy);
-    if (mounted) _loadAndPruneInVisibleBounds(MapCamera.of(context));
-  });
+  StreamSubscription<void>? _resetSub;
+
+  @override
+  void initState() {
+    super.initState();
+    _resetSub = widget.reset?.listen(_resetStreamHandler);
+    _tileRangeCalculator = TileRangeCalculator(tileSize: widget.tileSize);
+  }
 
   // This is called on every map movement so we should avoid expensive logic
   // where possible, or filter as necessary
@@ -451,6 +454,11 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       _loadAndPruneInVisibleBounds(MapCamera.maybeOf(context)!);
     } else if (oldWidget.tileDisplay != widget.tileDisplay) {
       _tileImageManager.updateTileDisplay(widget.tileDisplay);
+    }
+
+    if (widget.reset != oldWidget.reset) {
+      _resetSub?.cancel();
+      _resetSub = widget.reset?.listen(_resetStreamHandler);
     }
   }
 
@@ -706,6 +714,11 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   bool _outsideZoomLimits(num zoom) =>
       zoom < widget.minZoom || zoom > widget.maxZoom;
+
+  void _resetStreamHandler(void _) {
+    _tileImageManager.removeAll(widget.evictErrorTileStrategy);
+    if (mounted) _loadAndPruneInVisibleBounds(MapCamera.of(context));
+  }
 }
 
 double _distanceSq(TileCoordinates coord, Point<double> center) {
