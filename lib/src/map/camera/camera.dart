@@ -179,12 +179,30 @@ class MapCamera {
         crs: crs,
         minZoom: minZoom,
         maxZoom: maxZoom,
-        center: center ?? this.center,
+        center: _adjustPositionForSeamlessScrolling(center),
         zoom: zoom ?? this.zoom,
         rotation: rotation,
         nonRotatedSize: nonRotatedSize,
         size: _cameraSize,
       );
+
+  /// Jumps camera to opposite side of the world to enable seamless scrolling
+  /// between 180 and -180 longitude.
+  LatLng _adjustPositionForSeamlessScrolling(LatLng? position) {
+    if (position == null) {
+      return center;
+    }
+    double adjustedLongitude = position.longitude;
+    while (adjustedLongitude > 180) {
+      adjustedLongitude -= 360;
+    }
+    while (adjustedLongitude < -180) {
+      adjustedLongitude += 360;
+    }
+    return adjustedLongitude == position.longitude
+        ? position
+        : LatLng(position.latitude, adjustedLongitude);
+  }
 
   /// Calculates the size of a bounding box which surrounds a box of size
   /// [nonRotatedSize] which is rotated by [rotation].

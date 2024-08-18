@@ -21,6 +21,13 @@ class Tile extends StatefulWidget {
   /// visible pixel when the map is rotated.
   final Point<double> currentPixelOrigin;
 
+  /// Position Coordinates.
+  ///
+  /// Most of the time, they are the same as in [tileImage].
+  /// Except for multi-world maps.
+  /// TODO replace tileImage + positionCoordinates with tileRenderer?
+  final TileCoordinates positionCoordinates;
+
   /// Creates a new instance of [Tile].
   const Tile({
     super.key,
@@ -28,6 +35,7 @@ class Tile extends StatefulWidget {
     required this.currentPixelOrigin,
     required this.tileImage,
     required this.tileBuilder,
+    required this.positionCoordinates,
   });
 
   @override
@@ -54,9 +62,9 @@ class _TileState extends State<Tile> {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      left: widget.tileImage.coordinates.x * widget.scaledTileSize -
+      left: widget.positionCoordinates.x * widget.scaledTileSize -
           widget.currentPixelOrigin.x,
-      top: widget.tileImage.coordinates.y * widget.scaledTileSize -
+      top: widget.positionCoordinates.y * widget.scaledTileSize -
           widget.currentPixelOrigin.y,
       width: widget.scaledTileSize,
       height: widget.scaledTileSize,
