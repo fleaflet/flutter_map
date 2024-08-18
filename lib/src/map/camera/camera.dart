@@ -193,11 +193,10 @@ class MapCamera {
       return center;
     }
     double adjustedLongitude = position.longitude;
-    while (adjustedLongitude > 180) {
-      adjustedLongitude -= 360;
-    }
-    while (adjustedLongitude < -180) {
-      adjustedLongitude += 360;
+    if (adjustedLongitude >= 180.0) {
+      adjustedLongitude -= 360.0;
+    } else if (adjustedLongitude <= -180.0) {
+      adjustedLongitude += 360.0;
     }
     return adjustedLongitude == position.longitude
         ? position
