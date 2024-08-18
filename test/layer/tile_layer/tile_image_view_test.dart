@@ -47,6 +47,7 @@ void main() {
 
       final removalState = TileImageView(
         tileImages: tileImages,
+        positionCoordinates: Set<TileCoordinates>.from(tileImages.keys),
         visibleRange: discreteTileRange(2, 1, 3, 3, zoom: 1),
         keepRange: discreteTileRange(2, 1, 3, 3, zoom: 1),
       );
@@ -63,6 +64,7 @@ void main() {
       ]);
       final removalState = TileImageView(
         tileImages: tileImages,
+        positionCoordinates: Set<TileCoordinates>.from(tileImages.keys),
         visibleRange: discreteTileRange(0, 0, 0, 0, zoom: 1),
         keepRange: discreteTileRange(0, 0, 0, 0, zoom: 1),
       );
@@ -81,6 +83,7 @@ void main() {
       ]);
       final removalState = TileImageView(
         tileImages: tileImages,
+        positionCoordinates: Set<TileCoordinates>.from(tileImages.keys),
         visibleRange: discreteTileRange(0, 0, 0, 0, zoom: 1),
         keepRange: discreteTileRange(0, 0, 0, 0, zoom: 1),
       );
@@ -99,6 +102,7 @@ void main() {
 
       final removalState = TileImageView(
         tileImages: tileImages,
+        positionCoordinates: Set<TileCoordinates>.from(tileImages.keys),
         visibleRange: discreteTileRange(2, 1, 3, 3, zoom: 1),
         keepRange: discreteTileRange(2, 1, 3, 3, zoom: 1),
       );
@@ -111,7 +115,7 @@ void main() {
       // a concurrent modification exception is thrown. This ensures that the
       // returned collection is not an iterable over the original collection.
       for (final staleTile in removalState.staleTiles) {
-        tileImages.remove(staleTile.coordinates)!;
+        tileImages.remove(staleTile)!;
       }
     });
   });
@@ -125,11 +129,12 @@ void main() {
     ]);
     final tileImageView = TileImageView(
       tileImages: tileImages,
+      positionCoordinates: Set<TileCoordinates>.from(tileImages.keys),
       visibleRange: discreteTileRange(1, 2, 1, 2, zoom: 1),
       keepRange: discreteTileRange(1, 2, 2, 2, zoom: 1),
     );
     expect(
-      tileImageView.errorTilesOutsideOfKeepMargin().map((e) => e.coordinates),
+      tileImageView.errorTilesOutsideOfKeepMargin(),
       [const TileCoordinates(1, 1, 1)],
     );
 
@@ -137,8 +142,8 @@ void main() {
     // looping over that iterator and removing from the original collection
     // a concurrent modification exception is thrown. This ensures that the
     // returned collection is not an iterable over the original collection.
-    for (final tileImage in tileImageView.errorTilesOutsideOfKeepMargin()) {
-      tileImages.remove(tileImage.coordinates)!;
+    for (final coordinates in tileImageView.errorTilesOutsideOfKeepMargin()) {
+      tileImages.remove(coordinates)!;
     }
   });
 
@@ -151,11 +156,12 @@ void main() {
     ]);
     final tileImageView = TileImageView(
       tileImages: tileImages,
+      positionCoordinates: Set<TileCoordinates>.from(tileImages.keys),
       visibleRange: discreteTileRange(1, 2, 1, 2, zoom: 1),
       keepRange: discreteTileRange(1, 2, 2, 2, zoom: 1),
     );
     expect(
-      tileImageView.errorTilesNotVisible().map((e) => e.coordinates),
+      tileImageView.errorTilesNotVisible(),
       [const TileCoordinates(1, 1, 1), const TileCoordinates(2, 2, 1)],
     );
 
@@ -163,8 +169,8 @@ void main() {
     // looping over that iterator and removing from the original collection
     // a concurrent modification exception is thrown. This ensures that the
     // returned collection is not an iterable over the original collection.
-    for (final tileImage in tileImageView.errorTilesOutsideOfKeepMargin()) {
-      tileImages.remove(tileImage.coordinates)!;
+    for (final coordinates in tileImageView.errorTilesOutsideOfKeepMargin()) {
+      tileImages.remove(coordinates)!;
     }
   });
 }

@@ -13,6 +13,7 @@ class TileRenderer {
   /// Position where to display [tileImage].
   final TileCoordinates positionCoordinates;
 
+  /// Create an instance of [TileRenderer].
   const TileRenderer(this.tileImage, this.positionCoordinates);
 
   @override
