@@ -18,7 +18,7 @@ coverY: -35
 {% hint style="success" %}
 Don't just take it from us - we really are the best mapping library available for Flutter!
 
-Check out this independent thesis by Sergey Ushakov, which compares us to `google_maps_flutter` & `mapbox_maps_flutter`. Guess who's the winner ;)
+Check out this independent thesis by Sergey Ushakov, which compares us to `google_maps_flutter` & `mapbox_maps_flutter`. Guess who's the winner[^1]\* ;)
 
 {% embed url="https://archive.org/details/incorporating-maps-into-flutter-a-study-of-mapping-sdks-and-their-integration-in" %}
 Original: [https://www.theseus.fi/bitstream/handle/10024/820026/Ushakov\_Sergey.pdf](https://www.theseus.fi/bitstream/handle/10024/820026/Ushakov\_Sergey.pdf)\
@@ -28,7 +28,7 @@ Archive: [https://archive.org/details/incorporating-maps-into-flutter-a-study-of
 
 ## Code Demo
 
-Setting up an interactive and compliant[^1] map is simpler than making your lunch-time coffee! It can be accomplished in just under 30 lines and a minute or two to install.
+Setting up an interactive and compliant[^2] map is simpler than making your lunch-time coffee! It can be accomplished in just under 30 lines and a minute or two to install.
 
 This code snippet demonstrates **everything** you need for a simple map (in just over 20 lines!), but of course, FM is capable of much more than just this, and you could find yourself lost in the many options available and possibilities opened!
 
@@ -49,6 +49,7 @@ Widget build(BuildContext context) {
         urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', // OSMF's Tile Server
         userAgentPackageName: 'com.example.app',
         maxNativeZoom: 19, // Scale tiles when the server doesn't support higher zoom levels
+        // And many more recommended properties!
       ),
       RichAttributionWidget( // Include a stylish prebuilt attribution widget that meets all requirments
         attributions: [
@@ -154,4 +155,7 @@ Unfortunately, this isn't supported, partially due to lack of time on the mainta
 
 </details>
 
-[^1]: (includes necessary attribution)
+[^1]: Note that some of the results are subjective and some of the non-subjective test results cannot be guaranteed and may vary more than other libraries.\
+    Additionally, flutter\_map does have downsides: like the vector map mentioned at the bottom! We're working on it :D
+
+[^2]: (includes necessary attribution)
