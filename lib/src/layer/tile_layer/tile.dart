@@ -24,8 +24,16 @@ class Tile extends StatefulWidget {
   /// Position Coordinates.
   ///
   /// Most of the time, they are the same as in [tileImage].
-  /// Except for multi-world maps.
-  /// TODO replace tileImage + positionCoordinates with tileRenderer?
+  /// Except for multi-world or scrolled maps, for instance, scrolling from
+  /// Europe to Alaska on zoom level 3 (i.e. tile coordinates between 0 and 7):
+  /// * Alaska is first considered as from the next world (tile X: 8)
+  /// * Scrolling again, Alaska is considered as part of the current world, as
+  /// the center of the map is now in America (tile X: 0)
+  /// In both cases, we reuse the same [tileImage] (tile X: 0) for different
+  /// [positionCoordinates] (tile X: 0 and 8). This prevents a "flash" effect
+  /// when scrolling beyond the end of the world: we skip the part where we
+  /// create a new tileImage (for tile X: 0) as we've already downloaded it
+  /// (for tile X: 8).
   final TileCoordinates positionCoordinates;
 
   /// Creates a new instance of [Tile].

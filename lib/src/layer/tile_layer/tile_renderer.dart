@@ -18,7 +18,9 @@ class TileRenderer {
 
   @override
   bool operator ==(Object other) {
-    // TODO may not be good enough with the ObjectKey
+    if (identical(this, other)) {
+      return true;
+    }
     return other is TileRenderer &&
         other.positionCoordinates == positionCoordinates;
   }
