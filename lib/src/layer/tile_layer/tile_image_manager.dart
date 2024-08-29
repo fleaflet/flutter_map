@@ -99,18 +99,11 @@ class TileImageManager {
     _positionCoordinates.remove(key);
     final cleanKey = TileCoordinates.key(key);
 
-    /// True if there are other positionCoordinates with the same tileImage.
-    bool findCleanKey() {
-      for (final positionCoordinates in _positionCoordinates) {
-        if (TileCoordinates.key(positionCoordinates) == cleanKey) {
-          return true;
-        }
+    // guard if positionCoordinates with the same tileImage.
+    for (final positionCoordinates in _positionCoordinates) {
+      if (TileCoordinates.key(positionCoordinates) == cleanKey) {
+        return;
       }
-      return false;
-    }
-
-    if (findCleanKey()) {
-      return;
     }
 
     final removed = _tiles.remove(cleanKey);
