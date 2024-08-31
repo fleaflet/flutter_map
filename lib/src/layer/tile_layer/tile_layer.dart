@@ -406,7 +406,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   late final _resetSub = widget.reset?.listen((_) {
     _tileImageManager.removeAll(widget.evictErrorTileStrategy);
-    _loadAndPruneInVisibleBounds(MapCamera.of(context));
+    if (mounted) _loadAndPruneInVisibleBounds(MapCamera.of(context));
   });
 
   // This is called on every map movement so we should avoid expensive logic
