@@ -54,15 +54,27 @@ final class TileImageView {
     final stale = HashSet<TileCoordinates>();
     final retain = HashSet<TileCoordinates>();
 
-    for (final c in _positionCoordinates) {
-      if (!_keepRange.contains(c)) {
-        stale.add(c);
+    for (final positionCoordinates in _positionCoordinates) {
+      if (!_keepRange.contains(positionCoordinates)) {
+        stale.add(positionCoordinates);
         continue;
       }
 
-      final retainedAncestor = _retainAncestor(retain, c.x, c.y, c.z, c.z - 5);
+      final retainedAncestor = _retainAncestor(
+        retain,
+        positionCoordinates.x,
+        positionCoordinates.y,
+        positionCoordinates.z,
+        positionCoordinates.z - 5,
+      );
       if (!retainedAncestor) {
-        _retainChildren(retain, c.x, c.y, c.z, c.z + 2);
+        _retainChildren(
+          retain,
+          positionCoordinates.x,
+          positionCoordinates.y,
+          positionCoordinates.z,
+          positionCoordinates.z + 2,
+        );
       }
     }
 
@@ -73,19 +85,31 @@ final class TileImageView {
   Iterable<TileCoordinates> get renderTiles {
     final retain = HashSet<TileCoordinates>();
 
-    for (final c in _positionCoordinates) {
-      if (!_visibleRange.contains(c)) {
+    for (final positionCoordinates in _positionCoordinates) {
+      if (!_visibleRange.contains(positionCoordinates)) {
         continue;
       }
 
-      retain.add(c);
+      retain.add(positionCoordinates);
 
-      final TileImage? tile = _tileImages[TileCoordinates.key(c)];
+      final TileImage? tile =
+          _tileImages[TileCoordinates.key(positionCoordinates)];
       if (tile == null || !tile.readyToDisplay) {
-        final retainedAncestor =
-            _retainAncestor(retain, c.x, c.y, c.z, c.z - 5);
+        final retainedAncestor = _retainAncestor(
+          retain,
+          positionCoordinates.x,
+          positionCoordinates.y,
+          positionCoordinates.z,
+          positionCoordinates.z - 5,
+        );
         if (!retainedAncestor) {
-          _retainChildren(retain, c.x, c.y, c.z, c.z + 2);
+          _retainChildren(
+            retain,
+            positionCoordinates.x,
+            positionCoordinates.y,
+            positionCoordinates.z,
+            positionCoordinates.z + 2,
+          );
         }
       }
     }
