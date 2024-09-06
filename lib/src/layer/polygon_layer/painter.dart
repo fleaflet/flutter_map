@@ -2,7 +2,9 @@ part of 'polygon_layer.dart';
 
 /// The [_PolygonPainter] class is used to render [Polygon]s for
 /// the [PolygonLayer].
-class _PolygonPainter<R extends Object> extends CustomPainter {
+base class _PolygonPainter<R extends Object>
+    extends HitDetectablePainter<R, _ProjectedPolygon<R>>
+    with HitTestRequiresCameraOrigin {
   /// Reference to the list of [_ProjectedPolygon]s
   final List<_ProjectedPolygon<R>> polygons;
 
@@ -11,107 +13,96 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
   /// Expected to be in same/corresponding order as [polygons].
   final List<List<int>?>? triangles;
 
-  /// Reference to the [MapCamera].
-  final MapCamera camera;
-
   /// Reference to the bounding box of the [Polygon].
   final LatLngBounds bounds;
 
-  /// Whether to draw per-polygon labels
+  /// Whether to draw per-polygon labels ([Polygon.label])
+  ///
+  /// Note that drawing labels will reduce performance, as the internal
+  /// canvas must be drawn to and 'saved' more frequently to ensure the proper
+  /// stacking order is maintained. This can be avoided, potentially at the
+  /// expense of appearance, by setting [PolygonLayer.drawLabelsLast].
+  ///
+  /// It is safe to ignore this property, and the performance pitfalls described
+  /// above, if no [Polygon]s have labels specified.
   final bool polygonLabels;
 
   /// Whether to draw labels last and thus over all the polygons
+  ///
+  /// This may improve performance: see [polygonLabels] for more information.
   final bool drawLabelsLast;
 
-  /// See [PolylineLayer.hitNotifier]
-  final LayerHitNotifier<R>? hitNotifier;
-
-  final _hits = <R>[]; // Avoids repetitive memory reallocation
+  /// See [PolygonLayer.debugAltRenderer]
+  final bool debugAltRenderer;
 
   /// Create a new [_PolygonPainter] instance.
   _PolygonPainter({
     required this.polygons,
     required this.triangles,
-    required this.camera,
+    required super.camera,
     required this.polygonLabels,
     required this.drawLabelsLast,
-    required this.hitNotifier,
+    required this.debugAltRenderer,
+    required super.hitNotifier,
   }) : bounds = camera.visibleBounds;
 
   @override
-  bool? hitTest(Offset position) {
-    _hits.clear();
-    bool hasHit = false;
+  bool elementHitTest(
+    _ProjectedPolygon<R> projectedPolygon, {
+    required math.Point<double> point,
+    required LatLng coordinate,
+  }) {
+    // TODO: We should check the bounding box here, for efficiency
+    // However, we need to account for map rotation
+    //
+    // if (!polygon.boundingBox.contains(touch)) {
+    //   continue;
+    // }
 
-    final origin =
-        camera.project(camera.center).toOffset() - camera.size.toOffset() / 2;
-    final point = position.toPoint();
-    final coordinate = camera.pointToLatLng(point);
-
-    for (final projectedPolygon in polygons.reversed) {
-      final polygon = projectedPolygon.polygon;
-      if ((hasHit && polygon.hitValue == null) ||
-          !polygon.boundingBox.contains(coordinate)) {
-        continue;
-      }
-
-      final projectedCoords = getOffsetsXY(
-        camera: camera,
-        origin: origin,
-        points: projectedPolygon.points,
-      ).toList();
-
-      if (projectedCoords.first != projectedCoords.last) {
-        projectedCoords.add(projectedCoords.first);
-      }
-
-      final hasHoles = projectedPolygon.holePoints.isNotEmpty;
-      late final List<List<Offset>> projectedHoleCoords;
-      if (hasHoles) {
-        projectedHoleCoords = projectedPolygon.holePoints
-            .map(
-              (points) => getOffsetsXY(
-                camera: camera,
-                origin: origin,
-                points: points,
-              ).toList(),
-            )
-            .toList();
-
-        if (projectedHoleCoords.firstOrNull != projectedHoleCoords.lastOrNull) {
-          projectedHoleCoords.add(projectedHoleCoords.first);
-        }
-      }
-
-      final isInPolygon = _isPointInPolygon(position, projectedCoords);
-      late final isInHole = hasHoles &&
-          projectedHoleCoords
-              .map((c) => _isPointInPolygon(position, c))
-              .any((e) => e);
-
-      // Second check handles case where polygon outline intersects a hole,
-      // ensuring that the hit matches with the visual representation
-      if ((isInPolygon && !isInHole) || (!isInPolygon && isInHole)) {
-        if (polygon.hitValue != null) _hits.add(polygon.hitValue!);
-        hasHit = true;
-      }
-    }
-
-    if (!hasHit) {
-      hitNotifier?.value = null;
-      return false;
-    }
-
-    hitNotifier?.value = LayerHitResult(
-      hitValues: _hits,
-      coordinate: coordinate,
-      point: point,
+    final projectedCoords = getOffsetsXY(
+      camera: camera,
+      origin: hitTestCameraOrigin,
+      points: projectedPolygon.points,
     );
-    return true;
+
+    if (projectedCoords.first != projectedCoords.last) {
+      projectedCoords.add(projectedCoords.first);
+    }
+    final isInPolygon = isPointInPolygon(point, projectedCoords);
+
+    final hasHoles = projectedPolygon.holePoints.isNotEmpty;
+    final isInHole = hasHoles &&
+        () {
+          for (final points in projectedPolygon.holePoints) {
+            final projectedHoleCoords = getOffsetsXY(
+              camera: camera,
+              origin: hitTestCameraOrigin,
+              points: points,
+            );
+
+            if (projectedHoleCoords.first != projectedHoleCoords.last) {
+              projectedHoleCoords.add(projectedHoleCoords.first);
+            }
+
+            if (isPointInPolygon(point, projectedHoleCoords)) {
+              return true;
+            }
+          }
+          return false;
+        }();
+
+    // Second check handles case where polygon outline intersects a hole,
+    // ensuring that the hit matches with the visual representation
+    return (isInPolygon && !isInHole) || (!isInPolygon && isInHole);
   }
 
   @override
+  Iterable<_ProjectedPolygon<R>> get elements => polygons;
+
+  @override
   void paint(Canvas canvas, Size size) {
+    const checkOpacity = true; // for debugging purposes only, should be true
+
     final trianglePoints = <Offset>[];
 
     final filledPath = Path();
@@ -140,6 +131,50 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
             }
             final vertices = Vertices.raw(VertexMode.triangles, points);
             canvas.drawVertices(vertices, BlendMode.src, paint);
+
+            if (debugAltRenderer) {
+              for (int i = 0; i < trianglePoints.length; i += 3) {
+                canvas.drawCircle(
+                  trianglePoints[i],
+                  5,
+                  Paint()..color = const Color(0x7EFF0000),
+                );
+                canvas.drawCircle(
+                  trianglePoints[i + 1],
+                  5,
+                  Paint()..color = const Color(0x7E00FF00),
+                );
+                canvas.drawCircle(
+                  trianglePoints[i + 2],
+                  5,
+                  Paint()..color = const Color(0x7E0000FF),
+                );
+
+                final path = Path()
+                  ..addPolygon(
+                    [
+                      trianglePoints[i],
+                      trianglePoints[i + 1],
+                      trianglePoints[i + 2],
+                    ],
+                    true,
+                  );
+
+                canvas.drawPath(
+                  path,
+                  Paint()
+                    ..color = const Color(0x7EFFFFFF)
+                    ..style = PaintingStyle.fill,
+                );
+
+                canvas.drawPath(
+                  path,
+                  Paint()
+                    ..color = const Color(0xFF000000)
+                    ..style = PaintingStyle.stroke,
+                );
+              }
+            }
           } else {
             canvas.drawPath(filledPath, paint);
           }
@@ -178,11 +213,34 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
             polygonTriangles != null ? projectedPolygon.holePoints : null,
       );
 
+      if (debugAltRenderer) {
+        const offsetsLabelStyle = TextStyle(
+          color: Color(0xFF000000),
+          fontSize: 16,
+        );
+
+        for (int i = 0; i < fillOffsets.length; i++) {
+          TextPainter(
+            text: TextSpan(
+              text: i.toString(),
+              style: offsetsLabelStyle,
+            ),
+            textDirection: TextDirection.ltr,
+          )
+            ..layout(maxWidth: 100)
+            ..paint(canvas, fillOffsets[i]);
+        }
+      }
+
       // The hash is based on the polygons visual properties. If the hash from
       // the current and the previous polygon no longer match, we need to flush
       // the batch previous polygons.
+      // We also need to flush if the opacity is not 1 or 0, so that they get
+      // mixed properly. Otherwise, holes get cut, or colors aren't mixed,
+      // depending on the holes handler.
       final hash = polygon.renderHashCode;
-      if (lastHash != hash) {
+      final opacity = polygon.color?.opacity ?? 0;
+      if (lastHash != hash || (checkOpacity && opacity > 0 && opacity < 1)) {
         drawPaths();
       }
       lastPolygon = polygon;
@@ -215,15 +273,19 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
           size,
           canvas,
           _getBorderPaint(polygon),
+          polygon.borderStrokeWidth,
         );
       }
 
       // Afterwards deal with more complicated holes.
+      // Improper handling of opacity and fill methods may result in normal
+      // polygons cutting holes into other polygons, when they should be mixing:
+      // https://github.com/fleaflet/flutter_map/issues/1898.
       final holePointsList = polygon.holePointsList;
       if (holePointsList != null && holePointsList.isNotEmpty) {
-        // Ideally we'd use `Path.combine(PathOperation.difference, ...)`
-        // instead of evenOdd fill-type, however it creates visual artifacts
-        // using the web renderer.
+        // See `Path.combine` comments below
+        // Avoids failing to cut holes if the winding directions of the holes
+        // and the normal points are the same
         filledPath.fillType = PathFillType.evenOdd;
 
         final holeOffsetsList = List<List<Offset>>.generate(
@@ -234,11 +296,28 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
 
         for (final holeOffsets in holeOffsetsList) {
           filledPath.addPolygon(holeOffsets, true);
+
+          // TODO: Potentially more efficient and may change the need to do
+          // opacity checking - needs testing. However,
+          // https://github.com/flutter/flutter/issues/44572 prevents this.
+          // Also need to verify if `xor` or `difference` is preferred.
+          /*filledPath = Path.combine(
+            PathOperation.xor,
+            filledPath,
+            Path()..addPolygon(holeOffsets, true),
+          );*/
         }
 
         if (!polygon.disableHolesBorder && polygon.borderStrokeWidth > 0.0) {
-          _addHoleBordersToPath(borderPath, polygon, holeOffsetsList, size,
-              canvas, _getBorderPaint(polygon));
+          _addHoleBordersToPath(
+            borderPath,
+            polygon,
+            holeOffsetsList,
+            size,
+            canvas,
+            _getBorderPaint(polygon),
+            polygon.borderStrokeWidth,
+          );
         }
       }
 
@@ -314,20 +393,20 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
     Size canvasSize,
     Canvas canvas,
     Paint paint,
+    double strokeWidth,
   ) {
     final isSolid = polygon.pattern == const StrokePattern.solid();
     final isDashed = polygon.pattern.segments != null;
     final isDotted = polygon.pattern.spacingFactor != null;
+
     if (isSolid) {
       final SolidPixelHiker hiker = SolidPixelHiker(
         offsets: offsets,
         closePath: true,
         canvasSize: canvasSize,
+        strokeWidth: strokeWidth,
       );
-      for (final visibleSegment in hiker.getAllVisibleSegments()) {
-        path.moveTo(visibleSegment.begin.dx, visibleSegment.begin.dy);
-        path.lineTo(visibleSegment.end.dx, visibleSegment.end.dy);
-      }
+      hiker.addAllVisibleSegments([path]);
     } else if (isDotted) {
       final DottedPixelHiker hiker = DottedPixelHiker(
         offsets: offsets,
@@ -335,6 +414,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
         patternFit: polygon.pattern.patternFit!,
         closePath: true,
         canvasSize: canvasSize,
+        strokeWidth: strokeWidth,
       );
       for (final visibleDot in hiker.getAllVisibleDots()) {
         canvas.drawCircle(visibleDot, polygon.borderStrokeWidth / 2, paint);
@@ -346,6 +426,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
         patternFit: polygon.pattern.patternFit!,
         closePath: true,
         canvasSize: canvasSize,
+        strokeWidth: strokeWidth,
       );
 
       for (final visibleSegment in hiker.getAllVisibleSegments()) {
@@ -362,6 +443,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
     Size canvasSize,
     Canvas canvas,
     Paint paint,
+    double strokeWidth,
   ) {
     for (final offsets in holeOffsetsList) {
       _addBorderToPath(
@@ -371,6 +453,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
         canvasSize,
         canvas,
         paint,
+        strokeWidth,
       );
     }
   }
@@ -381,24 +464,6 @@ class _PolygonPainter<R extends Object> extends CustomPainter {
       min: getOffset(camera, origin, bBox.southWest),
       max: getOffset(camera, origin, bBox.northEast),
     );
-  }
-
-  /// Checks whether point [p] is within the specified closed [polygon]
-  ///
-  /// Uses the even-odd algorithm.
-  static bool _isPointInPolygon(Offset p, List<Offset> polygon) {
-    bool isInPolygon = false;
-
-    for (int i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-      if ((((polygon[i].dy <= p.dy) && (p.dy < polygon[j].dy)) ||
-              ((polygon[j].dy <= p.dy) && (p.dy < polygon[i].dy))) &&
-          (p.dx <
-              (polygon[j].dx - polygon[i].dx) *
-                      (p.dy - polygon[i].dy) /
-                      (polygon[j].dy - polygon[i].dy) +
-                  polygon[i].dx)) isInPolygon = !isInPolygon;
-    }
-    return isInPolygon;
   }
 
   @override

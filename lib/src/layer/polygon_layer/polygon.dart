@@ -18,6 +18,11 @@ class Polygon<R extends Object> {
   final List<List<LatLng>>? holePointsList;
 
   /// The fill color of the [Polygon].
+  ///
+  /// Note that translucent (opacity is not 1 or 0) colors will reduce
+  /// performance, as the internal canvas must be drawn to and 'saved' more
+  /// frequently to ensure the colors of overlapping polygons are mixed
+  /// correctly.
   final Color? color;
 
   /// The stroke width of the [Polygon] outline.
@@ -69,6 +74,11 @@ class Polygon<R extends Object> {
   final StrokeJoin strokeJoin;
 
   /// The optional label of the [Polygon].
+  ///
+  /// Note that specifying a label will reduce performance, as the internal
+  /// canvas must be drawn to and 'saved' more frequently to ensure the proper
+  /// stacking order is maintained. This can be avoided, potentially at the
+  /// expense of appearance, by setting [PolygonLayer.drawLabelsLast].
   final String? label;
 
   /// The [TextStyle] of the [Polygon.label].
@@ -78,18 +88,15 @@ class Polygon<R extends Object> {
   ///
   /// [PolygonLabelPlacement.polylabel] can be expensive for some polygons. If
   /// there is a large lag spike, try using [PolygonLabelPlacement.centroid].
+  ///
+  /// Labels will not be drawn if there is not enough space.
   final PolygonLabelPlacement labelPlacement;
 
   /// Whether to rotate the label counter to the camera's rotation, to ensure
   /// it remains upright
   final bool rotateLabel;
 
-  /// Value notified in [PolygonLayer.hitNotifier]
-  ///
-  /// Polylines without a defined [hitValue] are still hit tested, but are not
-  /// notified about.
-  ///
-  /// Should implement an equality operator to avoid breaking [Polygon.==].
+  /// {@macro fm.hde.hitValue}
   final R? hitValue;
 
   /// Designates whether the given polygon points follow a clock or
@@ -192,6 +199,8 @@ class Polygon<R extends Object> {
   int? _renderHashCode;
 
   /// An optimized hash code dedicated to be used inside the [_PolygonPainter].
+  ///
+  /// Note that opacity is handled in the painter.
   int get renderHashCode => _renderHashCode ??= Object.hash(
         color,
         borderStrokeWidth,

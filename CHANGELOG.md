@@ -2,10 +2,86 @@
 
 Please consider [donating](https://docs.fleaflet.dev/supporters#support-us) or [contributing](https://docs.fleaflet.dev/credits#contributing) if you're a fan of what we're doing and you'd like to support future releases!
 
-## [7.0.0-dev.1] - 2024/03/13
+This CHANGELOG does not include every commit and/or PR - it is a hand picked selection of the most important ones. For a full list of changes, please check the GitHub repository releases/tags.
 
-We've changed the format of the CHANGELOG, to make releases faster!  
-**Check the [latest GitHub release](https://github.com/fleaflet/flutter_map/releases/tag/v7.0.0-dev.1), where you can find an auto-generated list of all the latest commits.**
+## [7.0.2] - 2024/07/02
+
+> Note that this version causes a technically breaking change by removing `PolygonLayer.useDynamicUpdate` & `PolylineLayer.useDynamicUpdate`, introduced in v7.0.1. However, the implementations for these was broken on introduction, and their intended purpose no longer exists. Therefore, these should not have been used in any capacity, and should not affect any projects.
+
+Contains the following user-affecting bug fixes:
+
+- Fixed significant performance issues with `PolygonLayer` & `PolylineLayer` inadvertently introduced by v7.0.1 - [#1925](https://github.com/fleaflet/flutter_map/pull/1925) for [#1921](https://github.com/fleaflet/flutter_map/issues/1921)
+- Fixed bug where the holes of a `Polygon` would only appear if their winding direction was opposite to the direction of the `Polygon.points` - [#1925](https://github.com/fleaflet/flutter_map/pull/1925) for [#1924](https://github.com/fleaflet/flutter_map/issues/1924)
+- Relaxed constraint on 'package:logger' dependency - [#1922](https://github.com/fleaflet/flutter_map/pull/1922) for [#1916](https://github.com/fleaflet/flutter_map/issues/1916)
+- Allowed re-assignment of a `MapController` to a `FlutterMap` multiple times - [#1915](https://github.com/fleaflet/flutter_map/pull/1915) for [#1892](https://github.com/fleaflet/flutter_map/issues/1892)
+
+## [7.0.1] - 2024/06/09
+
+Contains the following user-affecting bug fixes:
+
+- Implemented internal efficient(-ish) change detection for `PolygonLayer` & `PolylineLayer` - [#1904](https://github.com/fleaflet/flutter_map/pull/1904)
+- Fixed `PolygonLayer.useAltRenderer` renderer when `Polygon`s have multiple holes - [#1906](https://github.com/fleaflet/flutter_map/pull/1906)
+- Fixed overlapping `Polygon` cutting & color/translucency mixing - [#1901](https://github.com/fleaflet/flutter_map/pull/1901)
+- Downgraded dependencies to support Flutter 3.19 - [#1897](https://github.com/fleaflet/flutter_map/pull/1897)
+
+Contains the following user-affecting performance improvements:
+
+- Improved speed of `isPointInPolygon` method up to 40% - [#1907](https://github.com/fleaflet/flutter_map/pull/1907)
+
+## [7.0.0] - 2024/05/26
+
+**"`onTap`-ish At Last!"**
+
+Contains the following user-affecting changes:
+
+- 🟢 Added interactivity & hit detection to `Polyline(Layer)`, `Polygon(Layer)`, and `Circle(Layer)` - [#1822](https://github.com/fleaflet/flutter_map/pull/1822) (for [#1740](https://github.com/fleaflet/flutter_map/issues/1740) and [#385](https://github.com/fleaflet/flutter_map/issues/385)), [#1728](https://github.com/fleaflet/flutter_map/pull/1728), [#1886](https://github.com/fleaflet/flutter_map/pull/1886)
+- 🟢 Made `FlutterMap.options` an optional parameter - [#1816](https://github.com/fleaflet/flutter_map/pull/1816)
+- 🟢 Added alternative (`Canvas.drawVertices`) render pathway for `PolygonLayer` - [#1800](https://github.com/fleaflet/flutter_map/pull/1800)
+- 🟢 Added `Scalebar` layer - [#1821](https://github.com/fleaflet/flutter_map/pull/1821)
+- 🟢 Added `TileUpdateTransformers.debounce` to debounce tile requests - [#1850](https://github.com/fleaflet/flutter_map/pull/1850) (replaces [#1840](https://github.com/fleaflet/flutter_map/pull/1840))
+- 🟢 Added static `Marker.computePixelAlignment` method to calculate absolute alignment - [#1847](https://github.com/fleaflet/flutter_map/pull/1847)
+- 🟢 Added `StrokePattern`, which supports `solid`, `dotted`, and `dashed` styles for `Polyline`s and the border of `Polygon`s - [#1855](https://github.com/fleaflet/flutter_map/pull/1855) (replaces [#1845](https://github.com/fleaflet/flutter_map/pull/1845)), [#1865](https://github.com/fleaflet/flutter_map/pull/1865), [#1871](https://github.com/fleaflet/flutter_map/pull/1871), [#1875](https://github.com/fleaflet/flutter_map/pull/1875), [#1876](https://github.com/fleaflet/flutter_map/pull/1876)
+- 🔴 Deprecated `MapOptions.applyPointerTranslucencyToLayers` - [#1822](https://github.com/fleaflet/flutter_map/pull/1822) for [#1740](https://github.com/fleaflet/flutter_map/issues/1740)
+
+Contains the following user-affecting bug fixes:
+
+- Fixed `NetworkTileProvider` poor performance and `ClientException`s/`SocketException`s on disposal - [#1742](https://github.com/fleaflet/flutter_map/pull/1742) for [#1761](https://github.com/fleaflet/flutter_map/issues/1761), [#1703](https://github.com/fleaflet/flutter_map/issues/1703), [#1698](https://github.com/fleaflet/flutter_map/issues/1698)
+- Fixed `Polygon/PolylineLayer` failing to move on changes - [#1825](https://github.com/fleaflet/flutter_map/pull/1825)
+- Prevented fatal crash due to infinite loop/memory leak at high zoom levels over some types of `Polygon` - [#1854](https://github.com/fleaflet/flutter_map/pull/1854) for [#1829](https://github.com/fleaflet/flutter_map/issues/1829)
+- Fixed `PolylineLayer` exception: "The west longitude can't be smaller than the east longitude" - [#1879](https://github.com/fleaflet/flutter_map/pull/1879)
+- Fixed `LatLngBounds.center` to work across world bounds - [#1860](https://github.com/fleaflet/flutter_map/pull/1860)
+
+Contains the following user-affecting performance improvements:
+
+- Added `Polyline` and `Polygon` simplification, and enhanced `Polyline` culling algorithm to work within the same `Polyline` - [#1704](https://github.com/fleaflet/flutter_map/pull/1704), [#1795](https://github.com/fleaflet/flutter_map/pull/1795), [#1805](https://github.com/fleaflet/flutter_map/pull/1805), [#1812](https://github.com/fleaflet/flutter_map/pull/1812)
+- Cached projection of `Polygon` points & improved CRS internals - [#1801](https://github.com/fleaflet/flutter_map/pull/1801)
+- Fixed `PolygonLayer` bundled drawing system - [#1800](https://github.com/fleaflet/flutter_map/pull/1800)
+- Other miscellaneous generic performance enhancements across the board, and addition of stress tests to example application
+
+Contains the following important internal changes (does not include changes to the example app, meta changes to the repo/org configuration, or minor changes):
+
+- Merged `MapInternalController` & `MapControllerImpl`, and removed "FlutterMap" prefix from some members - [#1738](https://github.com/fleaflet/flutter_map/pull/1738)
+- Made `LatLngBounds` mutable - [#1834](https://github.com/fleaflet/flutter_map/pull/1834)
+
+Many thanks to these contributors (in no particular order):
+
+- @androidseb
+- @ignatz
+- @Alexays
+- @ReinisSprogis
+- @gnassro
+- @monsieurtanuki
+- ... and all the maintainers
+
+## [6.2.1] - 2024/05/27
+
+> If possible, prefer to update directly to v7. This version is provided only to enable Flutter 3.22 compatibility without requiring a breaking change.
+
+> v6.2.0 was retracted from pub.dev due to a mistake in the release preparation. For more information, see [this comment](https://github.com/fleaflet/flutter_map/pull/1891#issuecomment-2134069848). v6.2.1 is the replacement without the issues.
+
+Contains the following user-affecting changes:
+
+- Added support for Flutter 2.22 - [#1883](https://github.com/fleaflet/flutter_map/pull/1883)
 
 ## [6.1.0] - 2023/12/02
 
@@ -34,6 +110,7 @@ Many thanks to these contributors (in no particular order):
 - @ignatz
 - @amal-stack
 - @Robbendebiene
+- @leiflinse-trivector
 - ... and all the maintainers
 
 And an additional special thanks to @ignatz for investing so much of their time into this project recently - we appreciate it!

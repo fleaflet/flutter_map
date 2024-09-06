@@ -39,12 +39,7 @@ class Polyline<R extends Object> {
   /// Set to true if the width of the stroke should have meters as unit.
   final bool useStrokeWidthInMeter;
 
-  /// Value notified in [PolylineLayer.hitNotifier]
-  ///
-  /// Polylines without a defined [hitValue] are still hit tested, but are not
-  /// notified about.
-  ///
-  /// Should implement an equality operator to avoid breaking [Polyline.==].
+  /// {@macro fm.hde.hitValue}
   final R? hitValue;
 
   /// Create a new [Polyline] used for the [PolylineLayer].

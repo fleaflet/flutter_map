@@ -16,7 +16,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     implements MapController {
   final _mapEventStreamController = StreamController<MapEvent>.broadcast();
 
-  late final MapInteractiveViewerState _interactiveViewerState;
+  late MapInteractiveViewerState _interactiveViewerState;
 
   Animation<LatLng>? _moveAnimation;
   Animation<double>? _zoomAnimation;
@@ -338,11 +338,6 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   }
 
   set options(MapOptions newOptions) {
-    assert(
-      newOptions != value.options,
-      'Should not update options unless they change',
-    );
-
     final newCamera = value.camera?.withOptions(newOptions) ??
         MapCamera.initialCamera(newOptions);
 

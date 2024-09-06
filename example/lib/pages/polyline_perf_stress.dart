@@ -19,7 +19,7 @@ class PolylinePerfStressPage extends StatefulWidget {
 }
 
 class _PolylinePerfStressPageState extends State<PolylinePerfStressPage> {
-  double simplificationTolerance = 0.5;
+  double simplificationTolerance = 0.3;
 
   final _randomWalk = [const LatLng(44.861294, 13.845086)];
 
