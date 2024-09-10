@@ -21,7 +21,7 @@ class TileImage extends ChangeNotifier {
   /// indicate the position of the tile at that zoom level.
   final TileCoordinates coordinates;
 
-  /// Callback fired when loading finishes with or withut an error. This
+  /// Callback fired when loading finishes with or without an error. This
   /// callback is not triggered after this TileImage is disposed.
   final void Function(TileCoordinates coordinates) onLoadComplete;
 
