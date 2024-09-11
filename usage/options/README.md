@@ -52,6 +52,12 @@ Some of the options are described elsewhere in this documentation, in context. I
 Instead of `maxZoom` (or in addition to), consider setting `maxNativeZoom` per `TileLayer` instead, to allow tiles to scale (and lose quality) on the final zoom level, instead of setting a hard limit.
 {% endhint %}
 
+## Custom CRS
+
+FM does have some support for using alternative CRSs. See the following documentation for more info:
+
+{% embed url="https://github.com/fleaflet/flutter_map/blob/master/example/lib/pages/custom_crs/Readme.md" %}
+
 [^1]: Bounds inside camera
 
 [^2]: Camera inside bounds

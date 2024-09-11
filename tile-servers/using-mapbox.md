@@ -24,6 +24,14 @@ Consider using the [#richattributionwidget](../layers/attribution-layer.md#richa
 
 Mapbox supports creating and using custom styled maps through Studio.
 
+{% hint style="warning" %}
+Before attempting to use your style, ensure it actually has layers, and not just a Basemap, which will not appear in the tiles. The image below shows a style which will not work. If you only see blank tiles, but no errors, this is likely the cause.
+
+To create a new style based on the Standard style, choose a template when creating the new style.
+
+<img src="../.gitbook/assets/image.png" alt="" data-size="original"> &#x20;
+{% endhint %}
+
 1. Create a custom style using the editor
 2. Click "Share...", or the share icon
 3. Choose between Draft or Production
