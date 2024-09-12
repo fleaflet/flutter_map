@@ -34,7 +34,6 @@ import 'package:flutter_map_example/pages/wms_tile_layer.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_item.dart';
 
 const _isWASM = bool.fromEnvironment('dart.tool.dart2wasm');
-const _isJS = bool.fromEnvironment('dart.tool.dart2js');
 
 class MenuDrawer extends StatelessWidget {
   final String currentRoute;
@@ -50,10 +49,10 @@ class MenuDrawer extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                //Image.asset(
-                //  'assets/ProjectIcon.png',
-                //  height: 48,
-                //),
+                Image.asset(
+                  'assets/ProjectIcon.png',
+                  height: 48,
+                ),
                 const SizedBox(height: 16),
                 const Text(
                   'flutter_map Demo',
@@ -66,16 +65,6 @@ class MenuDrawer extends StatelessWidget {
                 ),
                 const Text(
                   _isWASM ? 'Running with WASM' : 'Running without WASM',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14),
-                ),
-                const Text(
-                  _isJS ? 'Running with JS' : 'Running without JS',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14),
-                ),
-                Text(
-                  identical(double.nan, double.nan).toString(),
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 14),
                 ),
