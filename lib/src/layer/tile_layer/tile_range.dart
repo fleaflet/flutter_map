@@ -111,8 +111,24 @@ class DiscreteTileRange extends TileRange {
   }
 
   /// Check if a [Point] is inside of the bounds of the [DiscreteTileRange].
+  ///
+  /// We use a modulo in order to prevent side-effects at the end of the world.
   bool contains(Point<int> point) {
-    return _bounds.contains(point);
+    final int modulo = 1 << zoom;
+
+    bool containsCoordinate(int value, int min, int max) {
+      int tmp = value;
+      while (tmp < min) {
+        tmp += modulo;
+      }
+      while (tmp > max) {
+        tmp -= modulo;
+      }
+      return tmp >= min && tmp <= max;
+    }
+
+    return containsCoordinate(point.x, min.x, max.x) &&
+        containsCoordinate(point.y, min.y, max.y);
   }
 
   /// The minimum [Point] of the [DiscreteTileRange]
