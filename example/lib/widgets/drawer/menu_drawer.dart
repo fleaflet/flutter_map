@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map_example/pages/animated_map_controller.dart';
 import 'package:flutter_map_example/pages/bundled_offline_map.dart';
@@ -63,11 +64,12 @@ class MenuDrawer extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 14),
                 ),
-                const Text(
-                  _isWASM ? 'Running with WASM' : 'Running without WASM',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14),
-                ),
+                if (kIsWeb)
+                  const Text(
+                    _isWASM ? 'Running with WASM' : 'Running without WASM',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 14),
+                  ),
               ],
             ),
           ),
