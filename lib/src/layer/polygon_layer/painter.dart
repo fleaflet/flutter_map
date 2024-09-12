@@ -68,7 +68,9 @@ base class _PolygonPainter<R extends Object>
     if (projectedCoords.first != projectedCoords.last) {
       projectedCoords.add(projectedCoords.first);
     }
-    final isInPolygon = isPointInPolygon(point, projectedCoords);
+    final isValidPolygon = projectedCoords.length >= 3;
+    final isInPolygon =
+        isValidPolygon && isPointInPolygon(point, projectedCoords);
 
     final hasHoles = projectedPolygon.holePoints.isNotEmpty;
     final isInHole = hasHoles &&
@@ -84,7 +86,9 @@ base class _PolygonPainter<R extends Object>
               projectedHoleCoords.add(projectedHoleCoords.first);
             }
 
-            if (isPointInPolygon(point, projectedHoleCoords)) {
+            final isValidHolePolygon = projectedHoleCoords.length >= 3;
+            if (isValidHolePolygon &&
+                isPointInPolygon(point, projectedHoleCoords)) {
               return true;
             }
           }
