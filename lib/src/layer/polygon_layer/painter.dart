@@ -64,36 +64,30 @@ base class _PolygonPainter<R extends Object>
       origin: hitTestCameraOrigin,
       points: projectedPolygon.points,
     );
-
     if (projectedCoords.first != projectedCoords.last) {
       projectedCoords.add(projectedCoords.first);
     }
+
     final isValidPolygon = projectedCoords.length >= 3;
     final isInPolygon =
         isValidPolygon && isPointInPolygon(point, projectedCoords);
 
-    final hasHoles = projectedPolygon.holePoints.isNotEmpty;
-    final isInHole = hasHoles &&
-        () {
-          for (final points in projectedPolygon.holePoints) {
-            final projectedHoleCoords = getOffsetsXY(
-              camera: camera,
-              origin: hitTestCameraOrigin,
-              points: points,
-            );
+    final isInHole = projectedPolygon.holePoints.any(
+      (points) {
+        final projectedHoleCoords = getOffsetsXY(
+          camera: camera,
+          origin: hitTestCameraOrigin,
+          points: points,
+        );
+        if (projectedHoleCoords.first != projectedHoleCoords.last) {
+          projectedHoleCoords.add(projectedHoleCoords.first);
+        }
 
-            if (projectedHoleCoords.first != projectedHoleCoords.last) {
-              projectedHoleCoords.add(projectedHoleCoords.first);
-            }
-
-            final isValidHolePolygon = projectedHoleCoords.length >= 3;
-            if (isValidHolePolygon &&
-                isPointInPolygon(point, projectedHoleCoords)) {
-              return true;
-            }
-          }
-          return false;
-        }();
+        final isValidHolePolygon = projectedHoleCoords.length >= 3;
+        return isValidHolePolygon &&
+            isPointInPolygon(point, projectedHoleCoords);
+      },
+    );
 
     // Second check handles case where polygon outline intersects a hole,
     // ensuring that the hit matches with the visual representation
