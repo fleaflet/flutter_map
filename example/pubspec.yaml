@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_map:
-  flutter_map_cancellable_tile_provider: ^3.0.1
+  flutter_map_cancellable_tile_provider: ^3.0.2
   flutter_map_geojson: ^1.0.8
   http: ^1.2.2
   latlong2: ^0.9.1
