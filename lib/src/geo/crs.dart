@@ -407,7 +407,7 @@ abstract class Projection {
   /// displayed close to the polygon, not on the other side of the world.
   List<DoublePoint> projectList(List<LatLng> points, {LatLng? referencePoint}) {
     late double previousX;
-    final halfWorldWith = getHalfWorldWidth();
+    final halfWorldWidth = getHalfWorldWidth();
     return List<DoublePoint>.generate(
       points.length,
       (j) {
@@ -416,10 +416,10 @@ abstract class Projection {
         }
         var (x, y) = projectXY(points[j]);
         if (j > 0 || referencePoint != null) {
-          if (x - previousX > halfWorldWith) {
-            x -= 2 * halfWorldWith;
-          } else if (x - previousX < -halfWorldWith) {
-            x += 2 * halfWorldWith;
+          if (x - previousX > halfWorldWidth) {
+            x -= 2 * halfWorldWidth;
+          } else if (x - previousX < -halfWorldWidth) {
+            x += 2 * halfWorldWidth;
           }
         }
         previousX = x;
