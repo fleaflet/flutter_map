@@ -2,6 +2,7 @@ import 'dart:math' as math hide Point;
 import 'dart:math' show Point;
 
 import 'package:flutter_map/src/misc/bounds.dart';
+import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 import 'package:proj4dart/proj4dart.dart' as proj4;
@@ -388,6 +389,45 @@ abstract class Projection {
 
   /// unproject cartesian x,y coordinates to [LatLng].
   LatLng unprojectXY(double x, double y);
+
+  /// Returns half the width of the world in geometry coordinates.
+  double getHalfWorldWidth() {
+    final (x0, _) = projectXY(const LatLng(0, 0));
+    final (x180, _) = projectXY(const LatLng(0, 180));
+    return x0 > x180 ? x0 - x180 : x180 - x0;
+  }
+
+  /// Projects a list of [LatLng]s into geometry coordinates.
+  ///
+  /// All resulting points gather somehow around the first point, or the
+  /// optional [referencePoint] if provided.
+  /// The typical use-case is when you display the whole world: you don't want
+  /// longitudes -179 and 179 to be projected each on one side.
+  /// [referencePoint] is used for polygon holes: we want the holes to be
+  /// displayed close to the polygon, not on the other side of the world.
+  List<DoublePoint> projectList(List<LatLng> points, {LatLng? referencePoint}) {
+    late double previousX;
+    final halfWorldWith = getHalfWorldWidth();
+    return List<DoublePoint>.generate(
+      points.length,
+      (j) {
+        if (j == 0 && referencePoint != null) {
+          (previousX, _) = projectXY(referencePoint);
+        }
+        var (x, y) = projectXY(points[j]);
+        if (j > 0 || referencePoint != null) {
+          if (x - previousX > halfWorldWith) {
+            x -= 2 * halfWorldWith;
+          } else if (x - previousX < -halfWorldWith) {
+            x += 2 * halfWorldWith;
+          }
+        }
+        previousX = x;
+        return DoublePoint(x, y);
+      },
+      growable: false,
+    );
+  }
 }
 
 class _LonLat extends Projection {

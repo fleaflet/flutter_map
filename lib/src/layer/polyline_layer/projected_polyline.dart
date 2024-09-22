@@ -16,13 +16,16 @@ class _ProjectedPolyline<R extends Object> with HitDetectableElement<R> {
   _ProjectedPolyline._fromPolyline(Projection projection, Polyline<R> polyline)
       : this._(
           polyline: polyline,
-          points: List<DoublePoint>.generate(
-            polyline.points.length,
-            (j) {
-              final (x, y) = projection.projectXY(polyline.points[j]);
-              return DoublePoint(x, y);
-            },
-            growable: false,
-          ),
+          points: projection.projectList(polyline.points),
         );
+
+  /// Returns true if the points stretch on different versions of the world.
+  bool goesBeyondTheUniverse(double halfWorldWidth) {
+    for (final point in points) {
+      if (point.x > halfWorldWidth || point.x < -halfWorldWidth) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

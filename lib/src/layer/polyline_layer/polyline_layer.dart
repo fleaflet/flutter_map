@@ -140,11 +140,19 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
       projection.project(boundsAdjusted.northEast),
     );
 
+    final halfWorldWidth = projection.getHalfWorldWidth();
+
     for (final projectedPolyline in polylines) {
       final polyline = projectedPolyline.polyline;
 
       // Gradient poylines cannot be easily segmented
       if (polyline.gradientColors != null) {
+        yield projectedPolyline;
+        continue;
+      }
+
+      // TODO: think about how to cull polylines that go beyond the universe.
+      if (projectedPolyline.goesBeyondTheUniverse(halfWorldWidth)) {
         yield projectedPolyline;
         continue;
       }
