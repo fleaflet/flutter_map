@@ -12,6 +12,10 @@ Google Maps' documentation page: [https://developers.google.com/maps/documentati
 Raster 2D tiles from Google Maps is a relatively new offering, which makes Google Maps directly compatible with flutter\_map, whilst abiding by the Google Maps' ToS (which the previous method did not).
 {% endhint %}
 
+{% hint style="warning" %}
+Tile providers that also provide their own SDK solution to display tiles will often charge a higher price to use 3rd party libraries like flutter\_map to display their tiles. Just another reason to switch to an alternative provider.
+{% endhint %}
+
 To display map tiles from Google Maps, a little more effort is needed, as they require a complex session token system.
 
 Therefore, we haven't yet constructed a full guide, so please read the Google Developers documentation for more info:

@@ -8,15 +8,11 @@ Mapbox's Maps pricing page: [mapbox.com/pricing#maps](https://www.mapbox.com/pri
 Mapbox's Maps documentation: [docs.mapbox.com/api/maps/static-tiles](https://docs.mapbox.com/api/maps/static-tiles)
 {% endhint %}
 
-To display their map tiles, Mapbox usually provides a 'Style URL' for map styles. However, to integrate with 3rd-party APIs, they also provide a 'CARTO Integration URL', and tiles requested through this endpoint consume the 'Static Tiles API' quota. This URL needs no extra configuration to integrate with flutter\_map.
-
-The maximum zoom level that Mapbox supports is 22, so it is recommended to set `maxNativeZoom` or `maxZoom` as such.
-
 {% hint style="warning" %}
-Attribution is required, see [docs.mapbox.com/help/getting-started/attribution](https://docs.mapbox.com/help/getting-started/attribution/).
-
-Consider using the [#richattributionwidget](../layers/attribution-layer.md#richattributionwidget "mention"), which meets the requirements by supporting both logo and text attribution.
+Tile providers that also provide their own SDK solution to display tiles will often charge a higher price to use 3rd party libraries like flutter\_map to display their tiles. Just another reason to switch to an alternative provider.
 {% endhint %}
+
+To display their map tiles, Mapbox usually provides a 'Style URL' for map styles. However, to integrate with 3rd-party APIs, they also provide a 'CARTO Integration URL', and tiles requested through this endpoint consume the 'Static Tiles API' quota. This URL needs no extra configuration to integrate with flutter\_map.
 
 ## Integration
 
@@ -37,7 +33,7 @@ To create a new style based on the Standard style, choose a template when creati
 3. Choose between Draft or Production
 4. Scroll to the bottom of the dialog, and choose Third Party
 5. Select "CARTO" from the dropdown menu
-6. Click the copy button to copy the template URL
+6. Click the copy button to copy the template URL, then paste it into your `TileLayer`
 
 <figure><img src="../.gitbook/assets/Tile Provider Integration - Mapbox" alt="" width="563"><figcaption></figcaption></figure>
 
@@ -46,6 +42,18 @@ To create a new style based on the Standard style, choose a template when creati
 The URL includes an '@2x' string, which forces usage of high-definition tiles on all displays, without extra setup.
 
 Should you need to let flutter\_map interfere, and only use retina tiles on retina/high-density displays, replace it with the '{r}' placeholder, then see [#retina-mode](../layers/tile-layer/#retina-mode "mention") for more information.
+
+#### Other configurations
+
+The maximum zoom level that Mapbox supports is 22, so it is recommended to set `maxNativeZoom` or `maxZoom` as such.
+
+#### Adding Attribution
+
+{% hint style="warning" %}
+Attribution is required, and quite extensive compared to some alternatives: see [docs.mapbox.com/help/getting-started/attribution](https://docs.mapbox.com/help/getting-started/attribution/).
+
+Consider using the [#richattributionwidget](../layers/attribution-layer.md#richattributionwidget "mention"), which meets the requirements by supporting both logo and text attribution.
+{% endhint %}
 
 ### Prebuilt Styles
 

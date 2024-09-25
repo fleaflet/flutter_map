@@ -29,7 +29,7 @@ If you live elsewhere, please consider paying in GBP.
 
 Note that paying in a currency different to your own may incur conversion fees and international transaction fees set by your banking provider.
 
-If you would like to donate a larger amount, offer a bounty, or setup recurring donations, please get in touch! Also check out [showcase.md](showcase.md "mention") if you'd like to get some advertising space for your project.
+If you would like to donate a larger amount, offer a bounty, or setup recurring donations, please get in touch! Also check out [choose.md](choose.md "mention") if you'd like to get some advertising space for your project.
 {% endhint %}
 
 {% hint style="info" %}

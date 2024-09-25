@@ -11,26 +11,21 @@ coverY: -35
 
 [![pub.dev](https://camo.githubusercontent.com/dcdb87d5d32ce7d0a83302ccccd6e5c70c55894e7c7920c6417b13761c8c773c/68747470733a2f2f696d672e736869656c64732e696f2f7075622f762f666c75747465725f6d61702e7376673f6c6162656c3d4c61746573742b56657273696f6e)](https://pub.dev/packages/flutter\_map) [![stars](https://camo.githubusercontent.com/e3069fba0ddc64303cf9a1a60be83b6f789cfee3b3b39c2c062e63cece4d26f7/68747470733a2f2f62616467656e2e6e65742f6769746875622f73746172732f666c6561666c65742f666c75747465725f6d61703f6c6162656c3d737461727326636f6c6f723d677265656e2669636f6e3d676974687562)](https://github.com/fleaflet/flutter\_map/stargazers) [![likes](https://camo.githubusercontent.com/102d04f1c16aad975caa6d413d84ab27b815a53910e72b41b81146b03b71f75a/68747470733a2f2f696d672e736869656c64732e696f2f7075622f6c696b65732f666c75747465725f6d61703f6c6f676f3d666c7574746572)](https://pub.dev/packages/flutter\_map/score)        [![codecov](https://camo.githubusercontent.com/2e49ab046582d625b4559b04b726e596f6f0492d9ed6aef49d7cea3a3c3036d7/68747470733a2f2f636f6465636f762e696f2f67682f666c6561666c65742f666c75747465725f6d61702f67726170682f62616467652e7376673f746f6b656e3d4c6759675a5130596a6a)](https://codecov.io/gh/fleaflet/flutter\_map) [![Open Issues](https://camo.githubusercontent.com/2237656d711e52f75b8c088f51236d5e2c910bd19d38131dc47aefe07a68c5af/68747470733a2f2f62616467656e2e6e65742f6769746875622f6f70656e2d6973737565732f666c6561666c65742f666c75747465725f6d61703f6c6162656c3d4f70656e2b49737375657326636f6c6f723d677265656e)](https://github.com/fleaflet/flutter\_map/issues?q=sort%3Aupdated-desc+is%3Aissue+is%3Aopen) [![Open PRs](https://camo.githubusercontent.com/30fb50b9f4b92e66c01fd6fce5fe3fb7dec5419de1492953772c635bb1ef2886/68747470733a2f2f62616467656e2e6e65742f6769746875622f6f70656e2d7072732f666c6561666c65742f666c75747465725f6d61703f6c6162656c3d4f70656e2b50527326636f6c6f723d677265656e)](https://github.com/fleaflet/flutter\_map/pulls?q=sort%3Aupdated-desc+is%3Apr+is%3Aopen)
 
-## Feature Highlights
-
-<table data-card-size="large" data-view="cards" data-full-width="true"><thead><tr><th align="center"></th><th align="center"></th><th data-hidden data-card-cover data-type="files"></th></tr></thead><tbody><tr><td align="center">🗺️ <strong>No more vendor lock-in</strong></td><td align="center">We natively support any static raster* tile server, including from a web server or even from the local file system or app asset store.<br>Use any service, or your own, but always be free to change!<br><em>*Vector tiles are supported with a community-maintained plugin.</em></td><td></td></tr><tr><td align="center">💪 <strong>Stress free setup &#x26; easy to use</strong></td><td align="center">Migrating from a commercial library (such as Google Maps) has never been easier! No more complex platform-specific setup, no more difficult API keys: just add a widget and you're done.<br>Our documentation and 3 layers of support are here to get your app using the best mapping library for Flutter.</td><td></td></tr><tr><td align="center">🧩 <strong>Wide ecosystem of plugins</strong></td><td align="center">In the event that flutter_map doesn't natively contain something you need, just check to see if there's a community maintained plugin that does what you need!</td><td></td></tr><tr><td align="center">➕ <strong>Customize and expand endlessly</strong></td><td align="center">Add interactive and highly customizable polygons, polylines, and markers (which support widget children) to your map easily and quickly. And because we're 100% Flutter, it's easy to add your own stuff on top without messing around in platform views.</td><td></td></tr></tbody></table>
+## Why Choose flutter\_map?
 
 {% hint style="success" %}
-Don't just take it from us - we really are the best mapping library available for Flutter!
-
-Check out this independent thesis by Sergey Ushakov, which compares us to `google_maps_flutter` & `mapbox_maps_flutter`. Guess who's the winner[^1]\* ;)
-
-{% embed url="https://archive.org/details/incorporating-maps-into-flutter-a-study-of-mapping-sdks-and-their-integration-in" %}
-Original: [https://www.theseus.fi/bitstream/handle/10024/820026/Ushakov\_Sergey.pdf](https://www.theseus.fi/bitstream/handle/10024/820026/Ushakov\_Sergey.pdf)\
-Archive: [https://archive.org/details/incorporating-maps-into-flutter-a-study-of-mapping-sdks-and-their-integration-in](https://archive.org/details/incorporating-maps-into-flutter-a-study-of-mapping-sdks-and-their-integration-in)
-{% endembed %}
+See why you should use flutter\_map for your project:
 {% endhint %}
+
+{% content-ref url="choose.md" %}
+[choose.md](choose.md)
+{% endcontent-ref %}
 
 ## Code Demo
 
-Setting up an interactive and compliant[^2] map is simpler than making your lunch-time coffee! It can be accomplished in just under 30 lines and a minute or two to install.
+Setting up an interactive and compliant[^1] map is simpler than making your lunch-time coffee! It can be accomplished in just under 30 lines and a minute or two to install.
 
-This code snippet demonstrates **everything** you need for a simple map (in just over 20 lines!), but of course, FM is capable of much more than just this, and you could find yourself lost in the many options available and possibilities opened!
+This code snippet demonstrates **everything** you need for a simple map (in under 30 lines!), but of course, FM is capable of much more than just this, and you could find yourself lost in the many options available and possibilities opened!
 
 {% code lineNumbers="true" fullWidth="true" %}
 ```dart
@@ -48,7 +43,6 @@ Widget build(BuildContext context) {
       TileLayer( // Display map tiles from any source
         urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', // OSMF's Tile Server
         userAgentPackageName: 'com.example.app',
-        maxNativeZoom: 19, // Scale tiles when the server doesn't support higher zoom levels
         // And many more recommended properties!
       ),
       RichAttributionWidget( // Include a stylish prebuilt attribution widget that meets all requirments
@@ -155,7 +149,4 @@ Unfortunately, this isn't supported, partially due to lack of time on the mainta
 
 </details>
 
-[^1]: Note that some of the results are subjective and some of the non-subjective test results cannot be guaranteed and may vary more than other libraries.\
-    Additionally, flutter\_map does have downsides: like the vector map mentioned at the bottom! We're working on it :D
-
-[^2]: (includes necessary attribution)
+[^1]: (includes necessary attribution)

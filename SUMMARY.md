@@ -1,7 +1,7 @@
 # Table of contents
 
 * [flutter\_map](README.md)
-* [🏗️ Showcase](showcase.md)
+* [🏗️ Why Choose flutter\_map?](choose.md)
 * [💝 Supporters](supporters.md)
 * [✏️ Credits & Contributing](credits.md)
 
@@ -41,11 +41,13 @@
 
 ## Tile Servers
 
+* [Using Google Maps](tile-servers/using-google-maps.md)
 * [Using Mapbox](tile-servers/using-mapbox.md)
 * [Using Thunderforest](tile-servers/using-thunderforest.md)
-* [Using Stadia Maps](tile-servers/using-stadia-maps.md)
+* [Using Tracestrack](tile-servers/using-stadia-maps.md)
+* [Using Stadia Maps](tile-servers/using-stadia-maps-1.md)
+* [Using Lima Labs](tile-servers/using-lima-labs.md)
 * [Using Bing Maps](tile-servers/using-bing-maps.md)
-* [Using Google Maps](tile-servers/using-google-maps.md)
 * [Offline Mapping](tile-servers/offline-mapping.md)
 * [Other Options](tile-servers/other-options.md)
 

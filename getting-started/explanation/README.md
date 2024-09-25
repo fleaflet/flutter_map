@@ -50,6 +50,10 @@ The Z value represents the current zoom level, where one tile ([0/0/0](https://t
 
 Tiles, especially raster tiles, take a lot of computing power and time to generate, because of the massive scale of all the input and output data. Therefore, most tiles are sourced externally, from an online tile server (either publicly or by users holding an API key), or sometimes from the local filesystem or asset store of the app.
 
+{% hint style="success" %}
+Unlike commercial SDKs you may be more familiar with, we don't have an opinion on which tiles you should use, and you'll need to bring your own instead :)
+{% endhint %}
+
 {% content-ref url="../../tile-servers/other-options.md" %}
 [other-options.md](../../tile-servers/other-options.md)
 {% endcontent-ref %}
