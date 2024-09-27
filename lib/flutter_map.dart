@@ -14,7 +14,7 @@
 /// * github.com: <https://github.com/fleaflet/flutter_map>
 /// * pub.dev: <https://pub.dev/packages/flutter_map>
 /// * discord.gg: <https://discord.gg/BwpEsjqMAH>
-library flutter_map;
+library;
 
 export 'package:flutter_map/src/geo/crs.dart' hide CrsWithStaticTransformation;
 export 'package:flutter_map/src/geo/latlng_bounds.dart';
