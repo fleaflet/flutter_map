@@ -274,7 +274,10 @@ base class _PolylinePainter<R extends Object>
     double strokeWidthInMeters,
   ) {
     final r = _distance.offset(p0, strokeWidthInMeters, 180);
-    final delta = o0 - getOffset(camera, origin, r);
+    var delta = o0 - getOffset(camera, origin, r);
+    if (delta.dx < 0) {
+      delta = delta.translate(camera.crs.scale(camera.zoom), 0);
+    }
     return delta.distance;
   }
 

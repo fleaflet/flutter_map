@@ -60,13 +60,41 @@ List<Offset> getOffsetsXY({
   final oy = -origin.dy;
   final len = realPoints.length;
 
+  /// Returns additional world width in order to have visible points.
+  double getAddedWorldWidth() {
+    final List<double> addedWidths = [
+      0,
+      2 * crs.projection.getHalfWorldWidth(),
+      -2 * crs.projection.getHalfWorldWidth(),
+    ];
+    final p = realPoints.elementAt(0);
+    late double result;
+    late double bestX;
+    for (int i = 0; i < addedWidths.length; i++) {
+      final addedWidth = addedWidths[i];
+      final (x, _) = crs.transform(p.x + addedWidth, p.y, zoomScale);
+      if (i == 0) {
+        result = addedWidth;
+        bestX = x;
+        continue;
+      }
+      if ((bestX + ox).abs() > (x + ox).abs()) {
+        result = addedWidth;
+        bestX = x;
+      }
+    }
+    return result;
+  }
+
+  final double addedWorldWidth = getAddedWorldWidth();
+
   // Optimization: monomorphize the CrsWithStaticTransformation-case to avoid
   // the virtual function overhead.
   if (crs case final CrsWithStaticTransformation crs) {
     final v = List<Offset>.filled(len, Offset.zero, growable: true);
     for (int i = 0; i < len; ++i) {
       final p = realPoints.elementAt(i);
-      final (x, y) = crs.transform(p.x, p.y, zoomScale);
+      final (x, y) = crs.transform(p.x + addedWorldWidth, p.y, zoomScale);
       v[i] = Offset(x + ox, y + oy);
     }
     return v;
@@ -75,7 +103,7 @@ List<Offset> getOffsetsXY({
   final v = List<Offset>.filled(len, Offset.zero, growable: true);
   for (int i = 0; i < len; ++i) {
     final p = realPoints.elementAt(i);
-    final (x, y) = crs.transform(p.x, p.y, zoomScale);
+    final (x, y) = crs.transform(p.x + addedWorldWidth, p.y, zoomScale);
     v[i] = Offset(x + ox, y + oy);
   }
   return v;
