@@ -6,6 +6,7 @@ import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image_view.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_renderer.dart';
 import 'package:meta/meta.dart';
 
 /// Callback definition to crete a [TileImage] for [TileCoordinates].
@@ -14,12 +15,14 @@ typedef TileCreator = TileImage Function(TileCoordinates coordinates);
 /// The [TileImageManager] orchestrates the loading and pruning of tiles.
 @immutable
 class TileImageManager {
+  final Set<TileCoordinates> _positionCoordinates = HashSet<TileCoordinates>();
+
   final Map<TileCoordinates, TileImage> _tiles =
       HashMap<TileCoordinates, TileImage>();
 
-  /// Check if the [TileImageManager] has the tile for a given tile cooridantes.
+  /// Check if the [TileImageManager] has the tile for a given tile coordinates.
   bool containsTileAt(TileCoordinates coordinates) =>
-      _tiles.containsKey(coordinates);
+      _positionCoordinates.contains(coordinates);
 
   /// Check if all tile images are loaded
   bool get allLoaded =>
@@ -29,16 +32,26 @@ class TileImageManager {
   ///   1. Tiles in the visible range at the target zoom level.
   ///   2. Tiles at non-target zoom level that would cover up holes that would
   ///      be left by tiles in #1, which are not ready yet.
-  Iterable<TileImage> getTilesToRender({
+  Iterable<TileRenderer> getTilesToRender({
     required DiscreteTileRange visibleRange,
-  }) =>
-      TileImageView(
-        tileImages: _tiles,
-        visibleRange: visibleRange,
-        // `keepRange` is irrelevant here since we're not using the output for
-        // pruning storage but rather to decide on what to put on screen.
-        keepRange: visibleRange,
-      ).renderTiles;
+  }) {
+    final Iterable<TileCoordinates> positionCoordinates = TileImageView(
+      tileImages: _tiles,
+      positionCoordinates: _positionCoordinates,
+      visibleRange: visibleRange,
+      // `keepRange` is irrelevant here since we're not using the output for
+      // pruning storage but rather to decide on what to put on screen.
+      keepRange: visibleRange,
+    ).renderTiles;
+    final List<TileRenderer> tileRenderers = <TileRenderer>[];
+    for (final position in positionCoordinates) {
+      final TileImage? tileImage = _tiles[TileCoordinates.key(position)];
+      if (tileImage != null) {
+        tileRenderers.add(TileRenderer(tileImage, position));
+      }
+    }
+    return tileRenderers;
+  }
 
   /// Check if all loaded tiles are within the [minZoom] and [maxZoom] level.
   bool allWithinZoom(double minZoom, double maxZoom) => _tiles.values
@@ -55,7 +68,13 @@ class TileImageManager {
     final notLoaded = <TileImage>[];
 
     for (final coordinates in tileBoundsAtZoom.validCoordinatesIn(tileRange)) {
-      final tile = _tiles[coordinates] ??= createTile(coordinates);
+      final cleanCoordinates = TileCoordinates.key(coordinates);
+      TileImage? tile = _tiles[cleanCoordinates];
+      if (tile == null) {
+        tile = createTile(cleanCoordinates);
+        _tiles[cleanCoordinates] = tile;
+      }
+      _positionCoordinates.add(coordinates);
       if (tile.loadStarted == null) {
         notLoaded.add(tile);
       }
@@ -77,7 +96,17 @@ class TileImageManager {
     TileCoordinates key, {
     required bool Function(TileImage tileImage) evictImageFromCache,
   }) {
-    final removed = _tiles.remove(key);
+    _positionCoordinates.remove(key);
+    final cleanKey = TileCoordinates.key(key);
+
+    // guard if positionCoordinates with the same tileImage.
+    for (final positionCoordinates in _positionCoordinates) {
+      if (TileCoordinates.key(positionCoordinates) == cleanKey) {
+        return;
+      }
+    }
+
+    final removed = _tiles.remove(cleanKey);
 
     if (removed != null) {
       removed.dispose(evictImageFromCache: evictImageFromCache(removed));
@@ -97,7 +126,7 @@ class TileImageManager {
 
   /// Remove all tiles with a given [EvictErrorTileStrategy].
   void removeAll(EvictErrorTileStrategy evictStrategy) {
-    final keysToRemove = List<TileCoordinates>.from(_tiles.keys);
+    final keysToRemove = List<TileCoordinates>.from(_positionCoordinates);
 
     for (final key in keysToRemove) {
       _removeWithEvictionStrategy(key, evictStrategy);
@@ -140,6 +169,7 @@ class TileImageManager {
   }) {
     final pruningState = TileImageView(
       tileImages: _tiles,
+      positionCoordinates: _positionCoordinates,
       visibleRange: visibleRange,
       keepRange: visibleRange.expand(pruneBuffer),
     );
@@ -154,13 +184,13 @@ class TileImageManager {
   ) {
     switch (evictStrategy) {
       case EvictErrorTileStrategy.notVisibleRespectMargin:
-        for (final tileImage
+        for (final coordinates
             in tileRemovalState.errorTilesOutsideOfKeepMargin()) {
-          _remove(tileImage.coordinates, evictImageFromCache: (_) => true);
+          _remove(coordinates, evictImageFromCache: (_) => true);
         }
       case EvictErrorTileStrategy.notVisible:
-        for (final tileImage in tileRemovalState.errorTilesNotVisible()) {
-          _remove(tileImage.coordinates, evictImageFromCache: (_) => true);
+        for (final coordinates in tileRemovalState.errorTilesNotVisible()) {
+          _remove(coordinates, evictImageFromCache: (_) => true);
         }
       case EvictErrorTileStrategy.dispose:
       case EvictErrorTileStrategy.none:
@@ -177,6 +207,7 @@ class TileImageManager {
     _prune(
       TileImageView(
         tileImages: _tiles,
+        positionCoordinates: _positionCoordinates,
         visibleRange: visibleRange,
         keepRange: visibleRange.expand(pruneBuffer),
       ),
@@ -189,8 +220,8 @@ class TileImageManager {
     TileImageView tileRemovalState,
     EvictErrorTileStrategy evictStrategy,
   ) {
-    for (final tileImage in tileRemovalState.staleTiles) {
-      _removeWithEvictionStrategy(tileImage.coordinates, evictStrategy);
+    for (final coordinates in tileRemovalState.staleTiles) {
+      _removeWithEvictionStrategy(coordinates, evictStrategy);
     }
   }
 }

@@ -22,7 +22,7 @@ class WMSLayerPage extends StatelessWidget {
         children: [
           TileLayer(
             wmsOptions: WMSTileLayerOptions(
-              baseUrl: 'https://{s}.s2maps-tiles.eu/wms/?',
+              baseUrl: 'https://tiles.maps.eox.at/wms?',
               layers: const ['s2cloudless-2021_3857'],
             ),
             subdomains: const ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'],
@@ -32,15 +32,90 @@ class WMSLayerPage extends StatelessWidget {
             popupInitialDisplayDuration: const Duration(seconds: 5),
             attributions: [
               TextSourceAttribution(
-                'Sentinel-2 cloudless - https://s2maps.eu by EOX IT Services GmbH',
-                onTap: () => launchUrl(Uri.parse('https://s2maps.eu')),
-              ),
-              const TextSourceAttribution(
-                'Modified Copernicus Sentinel data 2021',
+                'Sentinel-2 provided by the European Commission (free, full '
+                'and open access) [Sentinel-2 cloudless 2016, 2018, 2019, '
+                '2020, 2021, 2022 & 2023]',
+                onTap: () => launchUrl(Uri.parse(
+                  'https://sentinel.esa.int/documents/247904/690755/Sentinel_Data_Legal_Notice',
+                )),
+                prependCopyright: false,
               ),
               TextSourceAttribution(
-                'Rendering: EOX::Maps',
-                onTap: () => launchUrl(Uri.parse('https://maps.eox.at/')),
+                'OpenStreetMap © OpenStreetMap contributors [Terrain Light, '
+                'Terrain, OpenStreetMap, Overlay]',
+                onTap: () => launchUrl(Uri.parse(
+                  'http://www.openstreetmap.org/copyright',
+                )),
+                prependCopyright: false,
+              ),
+              TextSourceAttribution(
+                'NaturalEarth public domain [Terrain Light, Terrain, Overlay]',
+                onTap: () => launchUrl(Uri.parse(
+                  'http://www.naturalearthdata.com/about/terms-of-use/',
+                )),
+                prependCopyright: false,
+              ),
+              const TextSourceAttribution(
+                'EUDEM © Produced using Copernicus data and information funded '
+                'by the European Union [Terrain]',
+                prependCopyright: false,
+              ),
+              TextSourceAttribution(
+                'ASTER GDEM is a product of METI and NASA [Terrain Light]',
+                onTap: () => launchUrl(Uri.parse(
+                  'https://lpdaac.usgs.gov/products/aster_policies',
+                )),
+                prependCopyright: false,
+              ),
+              TextSourceAttribution(
+                'SRTM © NASA [Terrain]',
+                onTap: () => launchUrl(Uri.parse('http://www.nasa.gov/')),
+                prependCopyright: false,
+              ),
+              TextSourceAttribution(
+                'GTOPO30 Data available from the U.S. Geological Survey '
+                '[Terrain Light, Terrain]',
+                onTap: () => launchUrl(Uri.parse(
+                  'https://lta.cr.usgs.gov/GTOPO30',
+                )),
+                prependCopyright: false,
+              ),
+              const TextSourceAttribution(
+                'CleanTOPO2 public domain [Terrain]',
+                prependCopyright: false,
+              ),
+              TextSourceAttribution(
+                'GEBCO © GEBCO [Terrain Light]',
+                onTap: () => launchUrl(Uri.parse('http://www.gebco.net/')),
+                prependCopyright: false,
+              ),
+              TextSourceAttribution(
+                'GlobCover © ESA [Terrain]',
+                onTap: () => launchUrl(Uri.parse(
+                  'http://due.esrin.esa.int/page_globcover.php',
+                )),
+                prependCopyright: false,
+              ),
+              const TextSourceAttribution(
+                "Blue Marble © NASA's Earth Observatory [Blue Marble]",
+                prependCopyright: false,
+              ),
+              const TextSourceAttribution(
+                "Black Marble © NASA's Earth Observatory [Black Marble]",
+                prependCopyright: false,
+              ),
+              TextSourceAttribution(
+                'Rendering: © EOX [Terrain Light, Terrain, OpenStreetMap, '
+                'Overlay]',
+                onTap: () => launchUrl(Uri.parse('http://eox.at/')),
+                prependCopyright: false,
+              ),
+              TextSourceAttribution(
+                'Rendering: © MapServer [OpenStreetMap, Overlay]',
+                onTap: () => launchUrl(Uri.parse(
+                  'https://github.com/mapserver/basemaps',
+                )),
+                prependCopyright: false,
               ),
             ],
           ),
