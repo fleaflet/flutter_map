@@ -138,7 +138,7 @@ jobs:
           channel: "stable"
           cache: true
       - name: Build Web Application
-        run: flutter build web --web-renderer canvaskit
+        run: flutter build web --wasm
       - name: Archive Artifact
         uses: actions/upload-artifact@v4
         with:

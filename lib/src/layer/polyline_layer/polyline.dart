@@ -91,7 +91,6 @@ class Polyline<R extends Object> {
         strokeCap,
         strokeJoin,
         useStrokeWidthInMeter,
-        hitValue,
       );
 
   int? _hashCode;
