@@ -14,7 +14,8 @@ class MapPosition {
   /// [hasGesture] determines if the change was caused by a user gesture (interaction with the map) or not.
   ///
   /// For example, if the map's position was changed using the map's controller, then [hasGesture] would be false
-  /// because the change was not caused by a user gesture, but programmatically.
+  /// because the change was not caused by a user gesture, but programmatically. On the other hand, if the user
+  /// panned out the map, then [hasGesture] would be true because the change was caused by a user gesture.
   /// {@endtemplate}
   final bool hasGesture;
 
