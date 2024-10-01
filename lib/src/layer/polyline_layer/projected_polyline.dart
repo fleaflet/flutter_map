@@ -18,14 +18,4 @@ class _ProjectedPolyline<R extends Object> with HitDetectableElement<R> {
           polyline: polyline,
           points: projection.projectList(polyline.points),
         );
-
-  /// Returns true if the points stretch on different versions of the world.
-  bool goesBeyondTheUniverse(double halfWorldWidth) {
-    for (final point in points) {
-      if (point.x > halfWorldWidth || point.x < -halfWorldWidth) {
-        return true;
-      }
-    }
-    return false;
-  }
 }

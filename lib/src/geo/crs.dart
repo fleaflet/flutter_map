@@ -390,11 +390,18 @@ abstract class Projection {
   /// unproject cartesian x,y coordinates to [LatLng].
   LatLng unprojectXY(double x, double y);
 
-  /// Returns half the width of the world in geometry coordinates.
-  double getHalfWorldWidth() {
+  /// Returns the width of the world in geometry coordinates.
+  ///
+  /// Is used at least in 2 cases:
+  /// * my polyline crosses longitude 180, and I somehow need to "add a world"
+  /// to the coordinates in order to display a continuous polyline
+  /// * when my map scrolls around longitude 180 and I have a marker in this
+  /// area, the marker may be projected a world away, depending on the map being
+  /// centered either in the 179 or the -179 part - again, we can "add a world"
+  double getWorldWidth() {
     final (x0, _) = projectXY(const LatLng(0, 0));
     final (x180, _) = projectXY(const LatLng(0, 180));
-    return x0 > x180 ? x0 - x180 : x180 - x0;
+    return 2 * (x0 > x180 ? x0 - x180 : x180 - x0);
   }
 
   /// Projects a list of [LatLng]s into geometry coordinates.
@@ -407,7 +414,7 @@ abstract class Projection {
   /// displayed close to the polygon, not on the other side of the world.
   List<DoublePoint> projectList(List<LatLng> points, {LatLng? referencePoint}) {
     late double previousX;
-    final halfWorldWidth = getHalfWorldWidth();
+    final worldWidth = getWorldWidth();
     return List<DoublePoint>.generate(
       points.length,
       (j) {
@@ -416,10 +423,10 @@ abstract class Projection {
         }
         var (x, y) = projectXY(points[j]);
         if (j > 0 || referencePoint != null) {
-          if (x - previousX > halfWorldWidth) {
-            x -= 2 * halfWorldWidth;
-          } else if (x - previousX < -halfWorldWidth) {
-            x += 2 * halfWorldWidth;
+          if (x - previousX > worldWidth / 2) {
+            x -= worldWidth;
+          } else if (x - previousX < -worldWidth / 2) {
+            x += worldWidth;
           }
         }
         previousX = x;

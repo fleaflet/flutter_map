@@ -62,11 +62,13 @@ List<Offset> getOffsetsXY({
 
   /// Returns additional world width in order to have visible points.
   double getAddedWorldWidth() {
+    final worldWidth = crs.projection.getWorldWidth();
     final List<double> addedWidths = [
       0,
-      2 * crs.projection.getHalfWorldWidth(),
-      -2 * crs.projection.getHalfWorldWidth(),
+      worldWidth,
+      -worldWidth,
     ];
+    final halfScreenWidth = camera.size.x / 2;
     final p = realPoints.elementAt(0);
     late double result;
     late double bestX;
@@ -78,7 +80,8 @@ List<Offset> getOffsetsXY({
         bestX = x;
         continue;
       }
-      if ((bestX + ox).abs() > (x + ox).abs()) {
+      if ((bestX + ox - halfScreenWidth).abs() >
+          (x + ox - halfScreenWidth).abs()) {
         result = addedWidth;
         bestX = x;
       }
