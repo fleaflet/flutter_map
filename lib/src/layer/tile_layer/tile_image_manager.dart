@@ -28,6 +28,10 @@ class TileImageManager {
   bool get allLoaded =>
       _tiles.values.none((tile) => tile.loadFinishedAt == null);
 
+  /// Coordinates simplifier.
+  final TileCoordinatesSimplifier tileCoordinatesSimplifier =
+      TileCoordinatesSimplifier();
+
   /// Filter tiles to only tiles that would be visible on screen. Specifically:
   ///   1. Tiles in the visible range at the target zoom level.
   ///   2. Tiles at non-target zoom level that would cover up holes that would
@@ -42,10 +46,12 @@ class TileImageManager {
       // `keepRange` is irrelevant here since we're not using the output for
       // pruning storage but rather to decide on what to put on screen.
       keepRange: visibleRange,
+      tileCoordinatesSimplifier: tileCoordinatesSimplifier,
     ).renderTiles;
     final List<TileRenderer> tileRenderers = <TileRenderer>[];
     for (final position in positionCoordinates) {
-      final TileImage? tileImage = _tiles[TileCoordinates.key(position)];
+      final TileImage? tileImage =
+          _tiles[tileCoordinatesSimplifier.get(position)];
       if (tileImage != null) {
         tileRenderers.add(TileRenderer(tileImage, position));
       }
@@ -68,7 +74,7 @@ class TileImageManager {
     final notLoaded = <TileImage>[];
 
     for (final coordinates in tileBoundsAtZoom.validCoordinatesIn(tileRange)) {
-      final cleanCoordinates = TileCoordinates.key(coordinates);
+      final cleanCoordinates = tileCoordinatesSimplifier.get(coordinates);
       TileImage? tile = _tiles[cleanCoordinates];
       if (tile == null) {
         tile = createTile(cleanCoordinates);
@@ -97,11 +103,11 @@ class TileImageManager {
     required bool Function(TileImage tileImage) evictImageFromCache,
   }) {
     _positionCoordinates.remove(key);
-    final cleanKey = TileCoordinates.key(key);
+    final cleanKey = tileCoordinatesSimplifier.get(key);
 
     // guard if positionCoordinates with the same tileImage.
     for (final positionCoordinates in _positionCoordinates) {
-      if (TileCoordinates.key(positionCoordinates) == cleanKey) {
+      if (tileCoordinatesSimplifier.get(positionCoordinates) == cleanKey) {
         return;
       }
     }
@@ -172,6 +178,7 @@ class TileImageManager {
       positionCoordinates: _positionCoordinates,
       visibleRange: visibleRange,
       keepRange: visibleRange.expand(pruneBuffer),
+      tileCoordinatesSimplifier: tileCoordinatesSimplifier,
     );
 
     _evictErrorTiles(pruningState, evictStrategy);
@@ -210,6 +217,7 @@ class TileImageManager {
         positionCoordinates: _positionCoordinates,
         visibleRange: visibleRange,
         keepRange: visibleRange.expand(pruneBuffer),
+        tileCoordinatesSimplifier: tileCoordinatesSimplifier,
       ),
       evictStrategy,
     );

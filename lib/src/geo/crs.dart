@@ -67,6 +67,10 @@ abstract class Crs {
 
   /// Rescales the bounds to a given zoom value.
   Bounds<double>? getProjectedBounds(double zoom);
+
+  /// Returns true if we want the world to be replicated, longitude-wise.
+  bool get replicatesWorldLongitude =>
+      wrapLng != null && wrapLng!.$1 == -180 && wrapLng!.$2 == 180;
 }
 
 /// Internal base class for CRS with a single zoom-level independent transformation.

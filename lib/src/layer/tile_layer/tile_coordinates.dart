@@ -20,29 +20,6 @@ class TileCoordinates extends Point<int> {
   /// Create a new [TileCoordinates] instance.
   const TileCoordinates(super.x, super.y, this.z);
 
-  /// Returns a unique value for the same tile on all world replications.
-  factory TileCoordinates.key(TileCoordinates coordinates) {
-    if (coordinates.z < 0) {
-      return coordinates;
-    }
-    final modulo = 1 << coordinates.z;
-    int x = coordinates.x;
-    while (x < 0) {
-      x += modulo;
-    }
-    while (x >= modulo) {
-      x -= modulo;
-    }
-    int y = coordinates.y;
-    while (y < 0) {
-      y += modulo;
-    }
-    while (y >= modulo) {
-      y -= modulo;
-    }
-    return TileCoordinates(x, y, coordinates.z);
-  }
-
   @override
   String toString() => 'TileCoordinate($x, $y, $z)';
 
@@ -68,5 +45,47 @@ class TileCoordinates extends Point<int> {
   int get hashCode {
     // NOTE: the odd numbers are due to JavaScript's integer precision of 53 bits.
     return x ^ y << 24 ^ z << 48;
+  }
+}
+
+/// Simplifies coordinates in the context of world replications.
+///
+/// On maps with world replications, different tile coordinates may actually
+/// refer to the same "simplified" tile coordinate - the coordinate that starts
+/// from 0.
+/// For instance, on zoom level 0, all tile coordinates can be simplified to
+/// (0,0), which is the only tile.
+/// On zoom level 1, (0, 1) and (2, 1) can be simplified to (0, 1), as they both
+/// mean the top left tile.
+/// And when we're not in the context of world replications, we don't have to
+/// simplify the tile coordinates: we just return the same value.
+class TileCoordinatesSimplifier {
+  /// True if we simplify the coordinates according to the world replications.
+  bool replicatesWorldLongitude = false;
+
+  /// Returns the simplification of the coordinates.
+  TileCoordinates get(TileCoordinates positionCoordinates) {
+    if (!replicatesWorldLongitude) {
+      return positionCoordinates;
+    }
+    if (positionCoordinates.z < 0) {
+      return positionCoordinates;
+    }
+    final modulo = 1 << positionCoordinates.z;
+    int x = positionCoordinates.x;
+    while (x < 0) {
+      x += modulo;
+    }
+    while (x >= modulo) {
+      x -= modulo;
+    }
+    int y = positionCoordinates.y;
+    while (y < 0) {
+      y += modulo;
+    }
+    while (y >= modulo) {
+      y -= modulo;
+    }
+    return TileCoordinates(x, y, positionCoordinates.z);
   }
 }

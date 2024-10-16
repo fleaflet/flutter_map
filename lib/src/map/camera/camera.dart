@@ -189,6 +189,9 @@ class MapCamera {
   /// Jumps camera to opposite side of the world to enable seamless scrolling
   /// between 180 and -180 longitude.
   LatLng _adjustPositionForSeamlessScrolling(LatLng? position) {
+    if (!crs.replicatesWorldLongitude) {
+      return position ?? center;
+    }
     if (position == null) {
       return center;
     }
