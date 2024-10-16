@@ -56,7 +56,7 @@ class TileCoordinates extends Point<int> {
 /// For instance, on zoom level 0, all tile coordinates can be simplified to
 /// (0,0), which is the only tile.
 /// On zoom level 1, (0, 1) and (2, 1) can be simplified to (0, 1), as they both
-/// mean the top left tile.
+/// mean the bottom left tile.
 /// And when we're not in the context of world replications, we don't have to
 /// simplify the tile coordinates: we just return the same value.
 class TileCoordinatesSimplifier {
