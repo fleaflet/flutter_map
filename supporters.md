@@ -54,4 +54,5 @@ Huge thanks to all our past supporters, you help keep this project going. In no 
 * Maxi
 * V3ntus
 * OCELL
+* ishcherbina
 * ... and everyone else who donated anonymously
