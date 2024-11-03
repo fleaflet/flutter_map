@@ -20,6 +20,29 @@ class TileCoordinates extends Point<int> {
   /// Create a new [TileCoordinates] instance.
   const TileCoordinates(super.x, super.y, this.z);
 
+  /// Returns a unique value for the same tile on all world replications.
+  factory TileCoordinates.key(TileCoordinates coordinates) {
+    if (coordinates.z < 0) {
+      return coordinates;
+    }
+    final modulo = 1 << coordinates.z;
+    int x = coordinates.x;
+    while (x < 0) {
+      x += modulo;
+    }
+    while (x >= modulo) {
+      x -= modulo;
+    }
+    int y = coordinates.y;
+    while (y < 0) {
+      y += modulo;
+    }
+    while (y >= modulo) {
+      y -= modulo;
+    }
+    return TileCoordinates(x, y, coordinates.z);
+  }
+
   @override
   String toString() => 'TileCoordinate($x, $y, $z)';
 

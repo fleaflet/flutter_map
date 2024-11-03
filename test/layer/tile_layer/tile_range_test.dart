@@ -263,7 +263,7 @@ void main() {
 
     test('contains', () {
       final tileRange = DiscreteTileRange.fromPixelBounds(
-        zoom: 0,
+        zoom: 10,
         tileSize: 10,
         pixelBounds: Bounds(
           const Point(35, 35),

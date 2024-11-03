@@ -25,9 +25,11 @@ base class _PolylinePainter<R extends Object>
   }) {
     final polyline = projectedPolyline.polyline;
 
-    // TODO: For efficiency we'd ideally filter by bounding box here. However
-    // we'd need to compute an extended bounding box that accounts account for
-    // the `borderStrokeWidth` & the `minimumHitbox`
+    // TODO: We should check the bounding box here, for efficiency
+    // However, we need to account for:
+    //  * map rotation
+    //  * extended bbox that accounts for `minimumHitbox`
+    //
     // if (!polyline.boundingBox.contains(touch)) {
     //   continue;
     // }

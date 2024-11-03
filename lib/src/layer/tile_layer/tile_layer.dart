@@ -335,8 +335,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   final _tileImageManager = TileImageManager();
   late TileBounds _tileBounds;
-  late var _tileRangeCalculator =
-      TileRangeCalculator(tileSize: widget.tileSize);
+  late TileRangeCalculator _tileRangeCalculator;
   late TileScaleCalculator _tileScaleCalculator;
 
   // We have to hold on to the mapController hashCode to determine whether we
@@ -348,10 +347,14 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   StreamSubscription<TileUpdateEvent>? _tileUpdateSubscription;
   Timer? _pruneLater;
 
-  late final _resetSub = widget.reset?.listen((_) {
-    _tileImageManager.removeAll(widget.evictErrorTileStrategy);
-    _loadAndPruneInVisibleBounds(MapCamera.of(context));
-  });
+  StreamSubscription<void>? _resetSub;
+
+  @override
+  void initState() {
+    super.initState();
+    _resetSub = widget.reset?.listen(_resetStreamHandler);
+    _tileRangeCalculator = TileRangeCalculator(tileSize: widget.tileSize);
+  }
 
   // This is called on every map movement so we should avoid expensive logic
   // where possible, or filter as necessary
@@ -455,6 +458,11 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     } else if (oldWidget.tileDisplay != widget.tileDisplay) {
       _tileImageManager.updateTileDisplay(widget.tileDisplay);
     }
+
+    if (widget.reset != oldWidget.reset) {
+      _resetSub?.cancel();
+      _resetSub = widget.reset?.listen(_resetStreamHandler);
+    }
   }
 
   @override
@@ -507,16 +515,17 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     // cycles saved later on in the render pipeline.
     final tiles = _tileImageManager
         .getTilesToRender(visibleRange: visibleTileRange)
-        .map((tileImage) => Tile(
+        .map((tileRenderer) => Tile(
               // Must be an ObjectKey, not a ValueKey using the coordinates, in
               // case we remove and replace the TileImage with a different one.
-              key: ObjectKey(tileImage),
+              key: ObjectKey(tileRenderer),
               scaledTileSize: _tileScaleCalculator.scaledTileSize(
                 map.zoom,
-                tileImage.coordinates.z,
+                tileRenderer.positionCoordinates.z,
               ),
               currentPixelOrigin: map.pixelOrigin,
-              tileImage: tileImage,
+              tileImage: tileRenderer.tileImage,
+              positionCoordinates: tileRenderer.positionCoordinates,
               tileBuilder: widget.tileBuilder,
             ))
         .toList();
@@ -709,6 +718,11 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   bool _outsideZoomLimits(num zoom) =>
       zoom < widget.minZoom || zoom > widget.maxZoom;
+
+  void _resetStreamHandler(void _) {
+    _tileImageManager.removeAll(widget.evictErrorTileStrategy);
+    if (mounted) _loadAndPruneInVisibleBounds(MapCamera.of(context));
+  }
 }
 
 double _distanceSq(TileCoordinates coord, Point<double> center) {

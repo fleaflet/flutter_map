@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map_example/pages/animated_map_controller.dart';
 import 'package:flutter_map_example/pages/bundled_offline_map.dart';
@@ -33,6 +34,8 @@ import 'package:flutter_map_example/pages/tile_loading_error_handle.dart';
 import 'package:flutter_map_example/pages/wms_tile_layer.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_item.dart';
 
+const _isWASM = bool.fromEnvironment('dart.tool.dart2wasm');
+
 class MenuDrawer extends StatelessWidget {
   final String currentRoute;
 
@@ -61,6 +64,12 @@ class MenuDrawer extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 14),
                 ),
+                if (kIsWeb)
+                  const Text(
+                    _isWASM ? 'Running with WASM' : 'Running without WASM',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 14),
+                  ),
               ],
             ),
           ),

@@ -9,6 +9,15 @@ class MapPosition {
   final LatLng? center;
   final LatLngBounds? bounds;
   final double? zoom;
+
+  /// {@template map_position.has_gesture}
+  /// [hasGesture] determines if the change was caused by a user gesture (interaction with the map) or not.
+  ///
+  /// For example, if the user panned out the map, then [hasGesture] would be true because the change was
+  /// caused by a user gesture. On the other hand, if the map's position was changed using the map's
+  /// controller, then [hasGesture] would be false because the change was not caused by a user gesture,
+  /// but programmatically.
+  /// {@endtemplate}
   final bool hasGesture;
 
   const MapPosition({
@@ -29,4 +38,7 @@ class MapPosition {
       other.zoom == zoom;
 }
 
+/// Callback that gets called when the map's position changes.
+///
+/// {@macro map_position.has_gesture}
 typedef PositionCallback = void Function(MapPosition position, bool hasGesture);
