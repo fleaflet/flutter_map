@@ -48,10 +48,10 @@ class TileCoordinates extends Point<int> {
   }
 }
 
-/// Simplifies coordinates in the context of world replications.
+/// Resolves coordinates in the context of world replications.
 ///
 /// On maps with world replications, different tile coordinates may actually
-/// refer to the same "simplified" tile coordinate - the coordinate that starts
+/// refer to the same "resolved" tile coordinate - the coordinate that starts
 /// from 0.
 /// For instance, on zoom level 0, all tile coordinates can be simplified to
 /// (0,0), which is the only tile.
@@ -59,9 +59,12 @@ class TileCoordinates extends Point<int> {
 /// mean the bottom left tile.
 /// And when we're not in the context of world replications, we don't have to
 /// simplify the tile coordinates: we just return the same value.
-class TileCoordinatesSimplifier {
+class TileCoordinatesResolver {
+  /// Resolves coordinates in the context of world replications.
+  const TileCoordinatesResolver(this.replicatesWorldLongitude);
+
   /// True if we simplify the coordinates according to the world replications.
-  bool replicatesWorldLongitude = false;
+  final bool replicatesWorldLongitude;
 
   /// Returns the simplification of the coordinates.
   TileCoordinates get(TileCoordinates positionCoordinates) {

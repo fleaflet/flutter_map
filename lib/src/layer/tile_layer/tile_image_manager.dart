@@ -7,13 +7,11 @@ import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom
 import 'package:flutter_map/src/layer/tile_layer/tile_image_view.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_renderer.dart';
-import 'package:meta/meta.dart';
 
-/// Callback definition to crete a [TileImage] for [TileCoordinates].
+/// Callback definition to create a [TileImage] for [TileCoordinates].
 typedef TileCreator = TileImage Function(TileCoordinates coordinates);
 
 /// The [TileImageManager] orchestrates the loading and pruning of tiles.
-@immutable
 class TileImageManager {
   final Set<TileCoordinates> _positionCoordinates = HashSet<TileCoordinates>();
 
@@ -28,9 +26,16 @@ class TileImageManager {
   bool get allLoaded =>
       _tiles.values.none((tile) => tile.loadFinishedAt == null);
 
-  /// Coordinates simplifier.
-  final TileCoordinatesSimplifier tileCoordinatesSimplifier =
-      TileCoordinatesSimplifier();
+  /// Coordinates resolver.
+  TileCoordinatesResolver _resolver = const TileCoordinatesResolver(false);
+
+  /// Sets if we replicate the world longitude in several worlds.
+  void setReplicatesWorldLongitude(bool replicatesWorldLongitude) {
+    if (_resolver.replicatesWorldLongitude == replicatesWorldLongitude) {
+      return;
+    }
+    _resolver = TileCoordinatesResolver(replicatesWorldLongitude);
+  }
 
   /// Filter tiles to only tiles that would be visible on screen. Specifically:
   ///   1. Tiles in the visible range at the target zoom level.
@@ -39,25 +44,33 @@ class TileImageManager {
   Iterable<TileRenderer> getTilesToRender({
     required DiscreteTileRange visibleRange,
   }) {
-    final Iterable<TileCoordinates> positionCoordinates = TileImageView(
-      tileImages: _tiles,
-      positionCoordinates: _positionCoordinates,
+    final Iterable<TileCoordinates> positionCoordinates = _getTileImageView(
       visibleRange: visibleRange,
       // `keepRange` is irrelevant here since we're not using the output for
       // pruning storage but rather to decide on what to put on screen.
       keepRange: visibleRange,
-      tileCoordinatesSimplifier: tileCoordinatesSimplifier,
     ).renderTiles;
     final List<TileRenderer> tileRenderers = <TileRenderer>[];
     for (final position in positionCoordinates) {
-      final TileImage? tileImage =
-          _tiles[tileCoordinatesSimplifier.get(position)];
+      final TileImage? tileImage = _tiles[_resolver.get(position)];
       if (tileImage != null) {
         tileRenderers.add(TileRenderer(tileImage, position));
       }
     }
     return tileRenderers;
   }
+
+  TileImageView _getTileImageView({
+    required DiscreteTileRange visibleRange,
+    required DiscreteTileRange keepRange,
+  }) =>
+      TileImageView(
+        tileImages: _tiles,
+        positionCoordinates: _positionCoordinates,
+        visibleRange: visibleRange,
+        keepRange: keepRange,
+        resolver: _resolver,
+      );
 
   /// Check if all loaded tiles are within the [minZoom] and [maxZoom] level.
   bool allWithinZoom(double minZoom, double maxZoom) => _tiles.values
@@ -74,7 +87,7 @@ class TileImageManager {
     final notLoaded = <TileImage>[];
 
     for (final coordinates in tileBoundsAtZoom.validCoordinatesIn(tileRange)) {
-      final cleanCoordinates = tileCoordinatesSimplifier.get(coordinates);
+      final cleanCoordinates = _resolver.get(coordinates);
       TileImage? tile = _tiles[cleanCoordinates];
       if (tile == null) {
         tile = createTile(cleanCoordinates);
@@ -103,11 +116,11 @@ class TileImageManager {
     required bool Function(TileImage tileImage) evictImageFromCache,
   }) {
     _positionCoordinates.remove(key);
-    final cleanKey = tileCoordinatesSimplifier.get(key);
+    final cleanKey = _resolver.get(key);
 
     // guard if positionCoordinates with the same tileImage.
     for (final positionCoordinates in _positionCoordinates) {
-      if (tileCoordinatesSimplifier.get(positionCoordinates) == cleanKey) {
+      if (_resolver.get(positionCoordinates) == cleanKey) {
         return;
       }
     }
@@ -173,12 +186,9 @@ class TileImageManager {
     required int pruneBuffer,
     required EvictErrorTileStrategy evictStrategy,
   }) {
-    final pruningState = TileImageView(
-      tileImages: _tiles,
-      positionCoordinates: _positionCoordinates,
+    final pruningState = _getTileImageView(
       visibleRange: visibleRange,
       keepRange: visibleRange.expand(pruneBuffer),
-      tileCoordinatesSimplifier: tileCoordinatesSimplifier,
     );
 
     _evictErrorTiles(pruningState, evictStrategy);
@@ -212,12 +222,9 @@ class TileImageManager {
     required EvictErrorTileStrategy evictStrategy,
   }) {
     _prune(
-      TileImageView(
-        tileImages: _tiles,
-        positionCoordinates: _positionCoordinates,
+      _getTileImageView(
         visibleRange: visibleRange,
         keepRange: visibleRange.expand(pruneBuffer),
-        tileCoordinatesSimplifier: tileCoordinatesSimplifier,
       ),
       evictStrategy,
     );
