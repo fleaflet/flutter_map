@@ -10,6 +10,7 @@ final class TileImageView {
   final Set<TileCoordinates> _positionCoordinates;
   final DiscreteTileRange _visibleRange;
   final DiscreteTileRange _keepRange;
+  final TileCoordinatesResolver _resolver;
 
   /// Create a new [TileImageView] instance.
   const TileImageView({
@@ -17,10 +18,13 @@ final class TileImageView {
     required Set<TileCoordinates> positionCoordinates,
     required DiscreteTileRange visibleRange,
     required DiscreteTileRange keepRange,
+    final TileCoordinatesResolver resolver =
+        const TileCoordinatesResolver(false),
   })  : _tileImages = tileImages,
         _positionCoordinates = positionCoordinates,
         _visibleRange = visibleRange,
-        _keepRange = keepRange;
+        _keepRange = keepRange,
+        _resolver = resolver;
 
   /// Get a list with all tiles that have an error and are outside of the
   /// margin that should get kept.
@@ -37,11 +41,14 @@ final class TileImageView {
   List<TileCoordinates> _errorTilesWithinRange(DiscreteTileRange range) {
     final List<TileCoordinates> result = <TileCoordinates>[];
     for (final positionCoordinates in _positionCoordinates) {
-      if (range.contains(positionCoordinates)) {
+      if (range.contains(
+        positionCoordinates,
+        replicatesWorldLongitude: _resolver.replicatesWorldLongitude,
+      )) {
         continue;
       }
       final TileImage? tileImage =
-          _tileImages[TileCoordinates.key(positionCoordinates)];
+          _tileImages[_resolver.get(positionCoordinates)];
       if (tileImage?.loadError ?? false) {
         result.add(positionCoordinates);
       }
@@ -55,7 +62,10 @@ final class TileImageView {
     final retain = HashSet<TileCoordinates>();
 
     for (final positionCoordinates in _positionCoordinates) {
-      if (!_keepRange.contains(positionCoordinates)) {
+      if (!_keepRange.contains(
+        positionCoordinates,
+        replicatesWorldLongitude: _resolver.replicatesWorldLongitude,
+      )) {
         stale.add(positionCoordinates);
         continue;
       }
@@ -86,14 +96,16 @@ final class TileImageView {
     final retain = HashSet<TileCoordinates>();
 
     for (final positionCoordinates in _positionCoordinates) {
-      if (!_visibleRange.contains(positionCoordinates)) {
+      if (!_visibleRange.contains(
+        positionCoordinates,
+        replicatesWorldLongitude: _resolver.replicatesWorldLongitude,
+      )) {
         continue;
       }
 
       retain.add(positionCoordinates);
 
-      final TileImage? tile =
-          _tileImages[TileCoordinates.key(positionCoordinates)];
+      final TileImage? tile = _tileImages[_resolver.get(positionCoordinates)];
       if (tile == null || !tile.readyToDisplay) {
         final retainedAncestor = _retainAncestor(
           retain,
@@ -131,7 +143,7 @@ final class TileImageView {
     final z2 = z - 1;
     final coords2 = TileCoordinates(x2, y2, z2);
 
-    final tile = _tileImages[TileCoordinates.key(coords2)];
+    final tile = _tileImages[_resolver.get(coords2)];
     if (tile != null) {
       if (tile.readyToDisplay) {
         retain.add(coords2);
@@ -160,7 +172,7 @@ final class TileImageView {
     for (final (i, j) in const [(0, 0), (0, 1), (1, 0), (1, 1)]) {
       final coords = TileCoordinates(2 * x + i, 2 * y + j, z + 1);
 
-      final tile = _tileImages[TileCoordinates.key(coords)];
+      final tile = _tileImages[_resolver.get(coords)];
       if (tile != null) {
         if (tile.readyToDisplay || tile.loadFinishedAt != null) {
           retain.add(coords);
