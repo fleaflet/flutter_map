@@ -68,9 +68,9 @@ class WMSTileLayerOptions {
   }
 
   /// Build the URL for a tile
-  String getUrl(TileCoordinates coords, int tileSize, bool retinaMode) {
-    final nwPoint = coords * tileSize;
-    final sePoint = nwPoint + Point<int>(tileSize, tileSize);
+  String getUrl(TileCoordinates coords, int tileDimension, bool retinaMode) {
+    final nwPoint = coords * tileDimension;
+    final sePoint = nwPoint + Point<int>(tileDimension, tileDimension);
     final nwCoords = crs.pointToLatLng(nwPoint, coords.z.toDouble());
     final seCoords = crs.pointToLatLng(sePoint, coords.z.toDouble());
     final nw = crs.projection.project(nwCoords);
@@ -81,8 +81,8 @@ class WMSTileLayerOptions {
         : [bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y];
 
     final buffer = StringBuffer(_encodedBaseUrl);
-    buffer.write('&width=${retinaMode ? tileSize * 2 : tileSize}');
-    buffer.write('&height=${retinaMode ? tileSize * 2 : tileSize}');
+    buffer.write('&width=${retinaMode ? tileDimension * 2 : tileDimension}');
+    buffer.write('&height=${retinaMode ? tileDimension * 2 : tileDimension}');
     buffer.write('&bbox=${bbox.join(',')}');
     return buffer.toString();
   }

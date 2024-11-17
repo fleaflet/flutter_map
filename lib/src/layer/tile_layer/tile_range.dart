@@ -41,17 +41,17 @@ class DiscreteTileRange extends TileRange {
   /// Calculate a [DiscreteTileRange] by using the pixel bounds.
   factory DiscreteTileRange.fromPixelBounds({
     required int zoom,
-    required double tileSize,
+    required int tileDimension,
     required Bounds<double> pixelBounds,
   }) {
     final Bounds<int> bounds;
     if (pixelBounds.min == pixelBounds.max) {
-      final minAndMax = (pixelBounds.min / tileSize).floor();
+      final minAndMax = (pixelBounds.min / tileDimension).floor();
       bounds = Bounds<int>(minAndMax, minAndMax);
     } else {
       bounds = Bounds<int>(
-        (pixelBounds.min / tileSize).floor(),
-        (pixelBounds.max / tileSize).ceil() - const Point(1, 1),
+        (pixelBounds.min / tileDimension).floor(),
+        (pixelBounds.max / tileDimension).ceil() - const Point(1, 1),
       );
     }
 

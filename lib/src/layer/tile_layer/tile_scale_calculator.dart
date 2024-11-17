@@ -6,7 +6,7 @@ class TileScaleCalculator {
   final Crs crs;
 
   /// The size in pixel of tiles.
-  final double tileSize;
+  final int tileDimension;
 
   double? _cachedCurrentZoom;
   final Map<int, double> _cache = {};
@@ -14,35 +14,37 @@ class TileScaleCalculator {
   /// Create a new [TileScaleCalculator] instance.
   TileScaleCalculator({
     required this.crs,
-    required this.tileSize,
+    required this.tileDimension,
   });
 
-  /// Returns true to indicate that the TileSizeCache should get replaced.
-  bool shouldReplace(Crs crs, double tileSize) =>
-      this.crs != crs || this.tileSize != tileSize;
+  /// Returns true to indicate that the TileDimensionCache should get replaced.
+  bool shouldReplace(Crs crs, int tileDimension) =>
+      this.crs != crs || this.tileDimension != tileDimension;
 
   /// Clears the cache if the zoom level does not match the current cached one
-  /// and sets [currentZoom] as the new zoom to cache for. Must be called
-  /// before calling scaledTileSize with a [currentZoom] different than the
-  /// last time scaledTileSize was called.
+  /// and sets [currentZoom] as the new zoom to cache for.
+  ///
+  /// Must be called before calling [scaledTileDimension] with a [currentZoom]
+  /// different than the last time [scaledTileDimension] was called.
   void clearCacheUnlessZoomMatches(double currentZoom) {
     if (_cachedCurrentZoom != currentZoom) _cache.clear();
     _cachedCurrentZoom = currentZoom;
   }
 
   /// Returns a scale value to transform a Tile coordinate to a Tile position.
-  double scaledTileSize(double currentZoom, int tileZoom) {
+  double scaledTileDimension(double currentZoom, int tileZoom) {
     assert(
       _cachedCurrentZoom == currentZoom,
       'The cachedCurrentZoom value and the provided currentZoom need to be equal',
     );
     return _cache.putIfAbsent(
       tileZoom,
-      () => _scaledTileSizeImpl(currentZoom, tileZoom),
+      () => _scaledTileDimensionImpl(currentZoom, tileZoom),
     );
   }
 
-  double _scaledTileSizeImpl(double currentZoom, int tileZoom) {
-    return tileSize * (crs.scale(currentZoom) / crs.scale(tileZoom.toDouble()));
+  double _scaledTileDimensionImpl(double currentZoom, int tileZoom) {
+    return tileDimension *
+        (crs.scale(currentZoom) / crs.scale(tileZoom.toDouble()));
   }
 }

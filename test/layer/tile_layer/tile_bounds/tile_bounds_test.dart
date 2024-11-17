@@ -14,7 +14,7 @@ void main() {
     test('crs is infinite, latLngBounds null', () {
       final tileBounds = TileBounds(
         crs: const FakeInfiniteCrs(),
-        tileSize: 256,
+        tileDimension: 256,
       );
 
       expect(tileBounds, isA<InfiniteTileBounds>());
@@ -24,7 +24,7 @@ void main() {
     test('crs is infinite, latLngBounds provided', () {
       final tileBounds = TileBounds(
         crs: const FakeInfiniteCrs(),
-        tileSize: 256,
+        tileDimension: 256,
         latLngBounds: LatLngBounds.fromPoints(
           [const LatLng(-44, -55), const LatLng(44, 55)],
         ),
@@ -46,7 +46,7 @@ void main() {
     test('crs is finite non-wrapping', () {
       final tileBounds = TileBounds(
         crs: const CrsSimple(),
-        tileSize: 256,
+        tileDimension: 256,
       );
 
       expect(tileBounds, isA<DiscreteTileBounds>());
@@ -65,7 +65,7 @@ void main() {
     test('crs is finite wrapping', () {
       final tileBounds = TileBounds(
         crs: const Epsg3857(),
-        tileSize: 256,
+        tileDimension: 256,
       );
 
       expect(tileBounds, isA<WrappedTileBounds>());
@@ -90,7 +90,7 @@ void main() {
       const crs = Epsg3857();
       final tileBounds = TileBounds(
         crs: crs,
-        tileSize: 256,
+        tileDimension: 256,
         latLngBounds: LatLngBounds(
           const LatLng(0, 0),
           crs.pointToLatLng(crs.getProjectedBounds(0)!.max, 0),
@@ -144,7 +144,7 @@ void main() {
 
       final tileBounds = TileBounds(
         crs: const Epsg3857(),
-        tileSize: 256,
+        tileDimension: 256,
       );
 
       for (final entry in expectedTileCounts.entries) {
@@ -176,7 +176,7 @@ void main() {
 
       final tileBounds = TileBounds(
         crs: const Epsg3857(),
-        tileSize: 256,
+        tileDimension: 256,
       );
 
       for (final entry in expectedTileRanges.entries) {
@@ -210,7 +210,7 @@ void main() {
 
       final tileBounds = TileBounds(
         crs: const Epsg3857(),
-        tileSize: 256,
+        tileDimension: 256,
       );
 
       for (final entry in expectedTileRanges.entries) {

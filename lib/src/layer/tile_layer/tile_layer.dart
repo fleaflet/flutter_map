@@ -56,9 +56,25 @@ class TileLayer extends StatefulWidget {
   /// If not `null`, then tiles will pull's WMS protocol requests
   final WMSTileLayerOptions? wmsOptions;
 
-  /// Size for the tile.
-  /// Default is 256
-  late final double tileSize;
+  /// Size in pixels of each tile image
+  ///
+  /// Should be a positive integer power of 2. If not an integer, it may be
+  /// truncated to the nearest integer.
+  ///
+  /// If increasing past 256(px) (default), adjust [zoomOffset] as necessary,
+  /// for example 512px: -1.
+  ///
+  /// Prefer [tileDimension]. If `null` (default), [tileDimension] is used.
+  @Deprecated('`tileSize` is deprecated. Use `tileDimension` instead.')
+  late final double? tileSize;
+
+  /// Size in pixels of each tile image
+  ///
+  /// Should be a positive power of 2. Defaults to 256px.
+  ///
+  /// If increasing past 256(px) (default), adjust [zoomOffset] as necessary,
+  /// for example 512px: -1.
+  late final int tileDimension;
 
   /// The minimum zoom level down to which this layer will be displayed
   /// (inclusive)
@@ -216,7 +232,9 @@ class TileLayer extends StatefulWidget {
     super.key,
     this.urlTemplate,
     this.fallbackUrl,
-    double tileSize = 256,
+    @Deprecated('`tileSize` is deprecated. Use `tileDimension` instead.')
+    double? tileSize,
+    int tileDimension = 256,
     double minZoom = 0,
     double maxZoom = double.infinity,
     int minNativeZoom = 0,
@@ -319,8 +337,14 @@ class TileLayer extends StatefulWidget {
     this.zoomOffset = useSimulatedRetina
         ? (zoomReverse ? zoomOffset - 1.0 : zoomOffset + 1.0)
         : zoomOffset;
-    this.tileSize =
-        useSimulatedRetina ? (tileSize / 2.0).floorToDouble() : tileSize;
+    // Deprecated assignment
+    if (tileSize case final tileSize?) {
+      // ignore: deprecated_member_use_from_same_package
+      this.tileSize =
+          useSimulatedRetina ? (tileSize / 2.0).floorToDouble() : tileSize;
+    }
+    this.tileDimension =
+        useSimulatedRetina ? tileDimension ~/ 2 : tileDimension;
   }
 
   @override
@@ -346,11 +370,16 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   StreamSubscription<void>? _resetSub;
 
+  // REMOVE once `tileSize` is removed, and replace references with
+  // `widget.tileDimension`
+  // ignore: deprecated_member_use_from_same_package
+  int get _tileDimension => widget.tileSize?.toInt() ?? widget.tileDimension;
+
   @override
   void initState() {
     super.initState();
     _resetSub = widget.reset?.listen(_resetStreamHandler);
-    _tileRangeCalculator = TileRangeCalculator(tileSize: widget.tileSize);
+    _tileRangeCalculator = TileRangeCalculator(tileDimension: _tileDimension);
   }
 
   // This is called on every map movement so we should avoid expensive logic
@@ -379,21 +408,21 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     var reloadTiles = false;
     if (!_initializedFromMapCamera ||
         _tileBounds.shouldReplace(
-            camera.crs, widget.tileSize, widget.tileBounds)) {
+            camera.crs, _tileDimension, widget.tileBounds)) {
       reloadTiles = true;
       _tileBounds = TileBounds(
         crs: camera.crs,
-        tileSize: widget.tileSize,
+        tileDimension: _tileDimension,
         latLngBounds: widget.tileBounds,
       );
     }
 
     if (!_initializedFromMapCamera ||
-        _tileScaleCalculator.shouldReplace(camera.crs, widget.tileSize)) {
+        _tileScaleCalculator.shouldReplace(camera.crs, _tileDimension)) {
       reloadTiles = true;
       _tileScaleCalculator = TileScaleCalculator(
         crs: camera.crs,
-        tileSize: widget.tileSize,
+        tileDimension: _tileDimension,
       );
     }
 
@@ -408,23 +437,25 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     var reloadTiles = false;
 
     // There is no caching in TileRangeCalculator so we can just replace it.
-    _tileRangeCalculator = TileRangeCalculator(tileSize: widget.tileSize);
+    _tileRangeCalculator = TileRangeCalculator(tileDimension: _tileDimension);
 
     if (_tileBounds.shouldReplace(
-        _tileBounds.crs, widget.tileSize, widget.tileBounds)) {
+        _tileBounds.crs, _tileDimension, widget.tileBounds)) {
       _tileBounds = TileBounds(
         crs: _tileBounds.crs,
-        tileSize: widget.tileSize,
+        tileDimension: _tileDimension,
         latLngBounds: widget.tileBounds,
       );
       reloadTiles = true;
     }
 
     if (_tileScaleCalculator.shouldReplace(
-        _tileScaleCalculator.crs, widget.tileSize)) {
+      _tileScaleCalculator.crs,
+      _tileDimension,
+    )) {
       _tileScaleCalculator = TileScaleCalculator(
         crs: _tileScaleCalculator.crs,
-        tileSize: widget.tileSize,
+        tileDimension: widget.tileDimension,
       );
     }
 
@@ -520,7 +551,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
               // Must be an ObjectKey, not a ValueKey using the coordinates, in
               // case we remove and replace the TileImage with a different one.
               key: ObjectKey(tileRenderer),
-              scaledTileSize: _tileScaleCalculator.scaledTileSize(
+              scaledTileDimension: _tileScaleCalculator.scaledTileDimension(
                 map.zoom,
                 tileRenderer.positionCoordinates.z,
               ),

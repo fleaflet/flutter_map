@@ -199,7 +199,9 @@ abstract class TileProvider {
           : options.subdomains[
               (coordinates.x + coordinates.y) % options.subdomains.length],
       'r': options.resolvedRetinaMode == RetinaMode.server ? '@2x' : '',
-      'd': options.tileSize.toString(),
+      // ignore: deprecated_member_use_from_same_package
+      'd': options.tileSize?.toInt().toString() ??
+          options.tileDimension.toString(),
       ...options.additionalOptions,
     };
   }
@@ -224,12 +226,15 @@ abstract class TileProvider {
       populateTemplatePlaceholders(
         options.wmsOptions?.getUrl(
               coordinates,
-              options.tileSize.toInt(),
+              // ignore: deprecated_member_use_from_same_package
+              options.tileSize?.toInt() ?? options.tileDimension,
               options.resolvedRetinaMode == RetinaMode.simulation,
             ) ??
             options.urlTemplate ??
             (throw ArgumentError(
-                '`wmsOptions` or `urlTemplate` must be provided to generate a tile URL')),
+              '`wmsOptions` or `urlTemplate` must be provided to generate '
+              'a tile URL',
+            )),
         coordinates,
         options,
       );
