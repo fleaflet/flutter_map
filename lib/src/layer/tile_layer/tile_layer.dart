@@ -56,13 +56,9 @@ class TileLayer extends StatefulWidget {
   /// If not `null`, then tiles will pull's WMS protocol requests
   final WMSTileLayerOptions? wmsOptions;
 
-  /// Size in pixels of each tile image
-  ///
-  /// Should be a positive power of 2.
-  ///
-  /// If increasing past 256(px) (default), adjust [zoomOffset] as necessary,
-  /// for example 512px: -1.
-  late final int tileSize;
+  /// Size for the tile.
+  /// Default is 256
+  late final double tileSize;
 
   /// The minimum zoom level down to which this layer will be displayed
   /// (inclusive)
@@ -220,7 +216,7 @@ class TileLayer extends StatefulWidget {
     super.key,
     this.urlTemplate,
     this.fallbackUrl,
-    int tileSize = 256,
+    double tileSize = 256,
     double minZoom = 0,
     double maxZoom = double.infinity,
     int minNativeZoom = 0,
@@ -323,7 +319,8 @@ class TileLayer extends StatefulWidget {
     this.zoomOffset = useSimulatedRetina
         ? (zoomReverse ? zoomOffset - 1.0 : zoomOffset + 1.0)
         : zoomOffset;
-    this.tileSize = useSimulatedRetina ? (tileSize / 2).floor() : tileSize;
+    this.tileSize =
+        useSimulatedRetina ? (tileSize / 2.0).floorToDouble() : tileSize;
   }
 
   @override

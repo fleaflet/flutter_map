@@ -6,7 +6,7 @@ class TileScaleCalculator {
   final Crs crs;
 
   /// The size in pixel of tiles.
-  final int tileSize;
+  final double tileSize;
 
   double? _cachedCurrentZoom;
   final Map<int, double> _cache = {};
@@ -18,7 +18,7 @@ class TileScaleCalculator {
   });
 
   /// Returns true to indicate that the TileSizeCache should get replaced.
-  bool shouldReplace(Crs crs, int tileSize) =>
+  bool shouldReplace(Crs crs, double tileSize) =>
       this.crs != crs || this.tileSize != tileSize;
 
   /// Clears the cache if the zoom level does not match the current cached one
