@@ -68,6 +68,9 @@ abstract class Crs {
 
   /// Rescales the bounds to a given zoom value.
   Bounds<double>? getProjectedBounds(double zoom);
+
+  /// Returns true if we want the world to be replicated, longitude-wise.
+  bool get replicatesWorldLongitude => false;
 }
 
 /// Internal base class for CRS with a single zoom-level independent transformation.
@@ -176,6 +179,9 @@ class Epsg3857 extends CrsWithStaticTransformation {
     );
     return Point<double>(x, y);
   }
+
+  @override
+  bool get replicatesWorldLongitude => true;
 }
 
 /// EPSG:4326, A common CRS among GIS enthusiasts.

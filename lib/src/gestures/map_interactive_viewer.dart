@@ -883,18 +883,23 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
     final newCenterPoint = _camera.project(_mapCenterStart) +
         _flingAnimation.value.toPoint().rotate(_camera.rotationRad);
-    final math.Point<double> bestCenterPoint;
-    final double worldSize = _camera.crs.scale(_camera.zoom);
-    if (newCenterPoint.x > worldSize) {
-      bestCenterPoint =
-          math.Point(newCenterPoint.x - worldSize, newCenterPoint.y);
-    } else if (newCenterPoint.x < 0) {
-      bestCenterPoint =
-          math.Point(newCenterPoint.x + worldSize, newCenterPoint.y);
+    final LatLng newCenter;
+    if (!_camera.crs.replicatesWorldLongitude) {
+      newCenter = _camera.unproject(newCenterPoint);
     } else {
-      bestCenterPoint = newCenterPoint;
+      final math.Point<double> bestCenterPoint;
+      final double worldSize = _camera.crs.scale(_camera.zoom);
+      if (newCenterPoint.x > worldSize) {
+        bestCenterPoint =
+            math.Point(newCenterPoint.x - worldSize, newCenterPoint.y);
+      } else if (newCenterPoint.x < 0) {
+        bestCenterPoint =
+            math.Point(newCenterPoint.x + worldSize, newCenterPoint.y);
+      } else {
+        bestCenterPoint = newCenterPoint;
+      }
+      newCenter = _camera.unproject(bestCenterPoint);
     }
-    final newCenter = _camera.unproject(bestCenterPoint);
 
     widget.controller.moveRaw(
       newCenter,
