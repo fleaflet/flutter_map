@@ -338,11 +338,12 @@ class TileLayer extends StatefulWidget {
         ? (zoomReverse ? zoomOffset - 1.0 : zoomOffset + 1.0)
         : zoomOffset;
     // Deprecated assignment
-    if (tileSize case final tileSize?) {
-      // ignore: deprecated_member_use_from_same_package
-      this.tileSize =
-          useSimulatedRetina ? (tileSize / 2.0).floorToDouble() : tileSize;
-    }
+    // ignore: deprecated_member_use_from_same_package
+    this.tileSize = tileSize == null
+        ? null
+        : useSimulatedRetina
+            ? (tileSize / 2).floorToDouble()
+            : tileSize;
     this.tileDimension =
         useSimulatedRetina ? tileDimension ~/ 2 : tileDimension;
   }
