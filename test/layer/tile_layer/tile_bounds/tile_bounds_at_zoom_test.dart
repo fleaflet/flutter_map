@@ -12,7 +12,7 @@ void main() {
         Point<double>(hugeCoordinate.x.toDouble(), hugeCoordinate.y.toDouble());
     final tileRangeWithHugeCoordinate = DiscreteTileRange.fromPixelBounds(
       zoom: 0,
-      tileSize: 1,
+      tileDimension: 1,
       pixelBounds: Bounds(hugePoint, hugePoint),
     );
 
