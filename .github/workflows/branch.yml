@@ -64,7 +64,7 @@ jobs:
       - name: Run Tests with Coverage
         run: flutter test -r expanded --coverage
       - name: Run Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
