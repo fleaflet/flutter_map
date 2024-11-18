@@ -14,7 +14,7 @@ class Tile extends StatefulWidget {
   final TileBuilder? tileBuilder;
 
   /// The tile size for the given scale of the map.
-  final double scaledTileSize;
+  final double scaledTileDimension;
 
   /// Reference to the offset of the top-left corner of the bounding rectangle
   /// of the [MapCamera]. The origin will not equal the offset of the top-left
@@ -39,7 +39,7 @@ class Tile extends StatefulWidget {
   /// Creates a new instance of [Tile].
   const Tile({
     super.key,
-    required this.scaledTileSize,
+    required this.scaledTileDimension,
     required this.currentPixelOrigin,
     required this.tileImage,
     required this.tileBuilder,
@@ -70,12 +70,12 @@ class _TileState extends State<Tile> {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      left: widget.positionCoordinates.x * widget.scaledTileSize -
+      left: widget.positionCoordinates.x * widget.scaledTileDimension -
           widget.currentPixelOrigin.x,
-      top: widget.positionCoordinates.y * widget.scaledTileSize -
+      top: widget.positionCoordinates.y * widget.scaledTileDimension -
           widget.currentPixelOrigin.y,
-      width: widget.scaledTileSize,
-      height: widget.scaledTileSize,
+      width: widget.scaledTileDimension,
+      height: widget.scaledTileDimension,
       child: widget.tileBuilder?.call(context, _tileImage, widget.tileImage) ??
           _tileImage,
     );

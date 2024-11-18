@@ -9,7 +9,7 @@ import 'package:meta/meta.dart';
 abstract class TileBounds {
   /// Reference to the coordinate reference system.
   final Crs crs;
-  final double _tileSize;
+  final int _tileDimension;
   final LatLngBounds? _latLngBounds;
 
   /// Constructor that creates an instance of a subclass of [TileBounds]:
@@ -18,21 +18,21 @@ abstract class TileBounds {
   /// [WrappedTileBounds] if the CRS is wrapped.
   factory TileBounds({
     required Crs crs,
-    required double tileSize,
+    required int tileDimension,
     LatLngBounds? latLngBounds,
   }) {
     if (crs.infinite && latLngBounds == null) {
-      return InfiniteTileBounds._(crs, tileSize, latLngBounds);
+      return InfiniteTileBounds._(crs, tileDimension, latLngBounds);
     } else if (crs.wrapLat == null && crs.wrapLng == null) {
-      return DiscreteTileBounds._(crs, tileSize, latLngBounds);
+      return DiscreteTileBounds._(crs, tileDimension, latLngBounds);
     } else {
-      return WrappedTileBounds._(crs, tileSize, latLngBounds);
+      return WrappedTileBounds._(crs, tileDimension, latLngBounds);
     }
   }
 
   const TileBounds._(
     this.crs,
-    this._tileSize,
+    this._tileDimension,
     this._latLngBounds,
   );
 
@@ -43,10 +43,12 @@ abstract class TileBounds {
   /// parameters.
   bool shouldReplace(
     Crs crs,
-    double tileSize,
+    int tileDimension,
     LatLngBounds? latLngBounds,
   ) =>
-      crs != this.crs || tileSize != _tileSize || latLngBounds != _latLngBounds;
+      crs != this.crs ||
+      tileDimension != _tileDimension ||
+      latLngBounds != _latLngBounds;
 }
 
 /// [TileBounds] that have no limits.
@@ -54,7 +56,7 @@ abstract class TileBounds {
 class InfiniteTileBounds extends TileBounds {
   const InfiniteTileBounds._(
     super.crs,
-    super._tileSize,
+    super._tileDimension,
     super._latLngBounds,
   ) : super._();
 
@@ -69,7 +71,7 @@ class DiscreteTileBounds extends TileBounds {
 
   DiscreteTileBounds._(
     super.crs,
-    super._tileSize,
+    super._tileDimension,
     super._latLngBounds,
   ) : super._();
 
@@ -97,7 +99,7 @@ class DiscreteTileBounds extends TileBounds {
     return DiscreteTileBoundsAtZoom(
       DiscreteTileRange.fromPixelBounds(
         zoom: zoom,
-        tileSize: _tileSize,
+        tileDimension: _tileDimension,
         pixelBounds: pixelBounds,
       ),
     );
@@ -111,7 +113,7 @@ class WrappedTileBounds extends TileBounds {
 
   WrappedTileBounds._(
     super.crs,
-    super._tileSize,
+    super._tileDimension,
     super._latLngBounds,
   ) : super._();
 
@@ -136,30 +138,30 @@ class WrappedTileBounds extends TileBounds {
 
     (int, int)? wrapX;
     if (crs.wrapLng case final wrapLng?) {
-      final wrapXMin =
-          (crs.latLngToPoint(LatLng(0, wrapLng.$1), zoomDouble).x / _tileSize)
-              .floor();
-      final wrapXMax =
-          (crs.latLngToPoint(LatLng(0, wrapLng.$2), zoomDouble).x / _tileSize)
-              .ceil();
+      final wrapXMin = (crs.latLngToPoint(LatLng(0, wrapLng.$1), zoomDouble).x /
+              _tileDimension)
+          .floor();
+      final wrapXMax = (crs.latLngToPoint(LatLng(0, wrapLng.$2), zoomDouble).x /
+              _tileDimension)
+          .ceil();
       wrapX = (wrapXMin, wrapXMax - 1);
     }
 
     (int, int)? wrapY;
     if (crs.wrapLat case final wrapLat?) {
-      final wrapYMin =
-          (crs.latLngToPoint(LatLng(wrapLat.$1, 0), zoomDouble).y / _tileSize)
-              .floor();
-      final wrapYMax =
-          (crs.latLngToPoint(LatLng(wrapLat.$2, 0), zoomDouble).y / _tileSize)
-              .ceil();
+      final wrapYMin = (crs.latLngToPoint(LatLng(wrapLat.$1, 0), zoomDouble).y /
+              _tileDimension)
+          .floor();
+      final wrapYMax = (crs.latLngToPoint(LatLng(wrapLat.$2, 0), zoomDouble).y /
+              _tileDimension)
+          .ceil();
       wrapY = (wrapYMin, wrapYMax - 1);
     }
 
     return WrappedTileBoundsAtZoom(
       tileRange: DiscreteTileRange.fromPixelBounds(
         zoom: zoom,
-        tileSize: _tileSize,
+        tileDimension: _tileDimension,
         pixelBounds: pixelBounds,
       ),
       wrappedAxisIsAlwaysInBounds: _latLngBounds == null,

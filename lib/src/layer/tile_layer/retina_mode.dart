@@ -30,7 +30,7 @@ part of 'tile_layer.dart';
 ///
 /// ---
 ///
-/// Caution is advised when mixing retina mode with different `tileSize`s,
+/// Caution is advised when mixing retina mode with different tile dimensions,
 /// especially when simulating retina mode.
 ///
 /// It is expected that [TileLayer.fallbackUrl] follows the same retina support

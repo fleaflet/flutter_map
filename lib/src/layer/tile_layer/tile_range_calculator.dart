@@ -7,10 +7,10 @@ import 'package:meta/meta.dart';
 @immutable
 class TileRangeCalculator {
   /// The tile size in pixels.
-  final double tileSize;
+  final int tileDimension;
 
   /// Create a new [TileRangeCalculator] instance.
-  const TileRangeCalculator({required this.tileSize});
+  const TileRangeCalculator({required this.tileDimension});
 
   /// Calculates the visible pixel bounds at the [tileZoom] zoom level when
   /// viewing the map from the [viewingZoom] centered at the [center]. The
@@ -27,7 +27,7 @@ class TileRangeCalculator {
   }) {
     return DiscreteTileRange.fromPixelBounds(
       zoom: tileZoom,
-      tileSize: tileSize,
+      tileDimension: tileDimension,
       pixelBounds: _calculatePixelBounds(
         camera,
         center ?? camera.center,

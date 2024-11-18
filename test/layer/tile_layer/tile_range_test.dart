@@ -10,12 +10,12 @@ void main() {
       test('behaves as an empty range', () {
         final tileRange1 = DiscreteTileRange.fromPixelBounds(
           zoom: 0,
-          tileSize: 1,
+          tileDimension: 1,
           pixelBounds: Bounds(const Point(1, 1), const Point(2, 2)),
         );
         final tileRange2 = DiscreteTileRange.fromPixelBounds(
           zoom: 0,
-          tileSize: 1,
+          tileDimension: 1,
           pixelBounds: Bounds(const Point(3, 3), const Point(4, 4)),
         );
         final emptyTileRange = tileRange1.intersect(tileRange2);
@@ -33,7 +33,7 @@ void main() {
         test('single tile', () {
           final tileRange = DiscreteTileRange.fromPixelBounds(
             zoom: 0,
-            tileSize: 10,
+            tileDimension: 10,
             pixelBounds: Bounds(
               const Point(25, 25),
               const Point(25, 25),
@@ -47,7 +47,7 @@ void main() {
         test('lower tile edge', () {
           final tileRange = DiscreteTileRange.fromPixelBounds(
             zoom: 0,
-            tileSize: 10,
+            tileDimension: 10,
             pixelBounds: Bounds(
               const Point(0, 0),
               const Point(0.1, 0.1),
@@ -61,7 +61,7 @@ void main() {
         test('upper tile edge', () {
           final tileRange = DiscreteTileRange.fromPixelBounds(
             zoom: 0,
-            tileSize: 10,
+            tileDimension: 10,
             pixelBounds: Bounds(
               const Point(0, 0),
               const Point(9.99, 9.99),
@@ -75,7 +75,7 @@ void main() {
         test('both tile edges', () {
           final tileRange = DiscreteTileRange.fromPixelBounds(
             zoom: 0,
-            tileSize: 10,
+            tileDimension: 10,
             pixelBounds: Bounds(
               const Point(19.99, 19.99),
               const Point(30.1, 30.1),
@@ -99,7 +99,7 @@ void main() {
       test('expand', () {
         final tileRange = DiscreteTileRange.fromPixelBounds(
           zoom: 0,
-          tileSize: 10,
+          tileDimension: 10,
           pixelBounds: Bounds(
             const Point(25, 25),
             const Point(25, 25),
@@ -126,7 +126,7 @@ void main() {
       test('no intersection', () {
         final tileRange1 = DiscreteTileRange.fromPixelBounds(
           zoom: 0,
-          tileSize: 10,
+          tileDimension: 10,
           pixelBounds: Bounds(
             const Point(25, 25),
             const Point(25, 25),
@@ -135,7 +135,7 @@ void main() {
 
         final tileRange2 = DiscreteTileRange.fromPixelBounds(
           zoom: 0,
-          tileSize: 10,
+          tileDimension: 10,
           pixelBounds: Bounds(
             const Point(35, 35),
             const Point(35, 35),
@@ -152,7 +152,7 @@ void main() {
       test('intersects', () {
         final tileRange1 = DiscreteTileRange.fromPixelBounds(
           zoom: 0,
-          tileSize: 10,
+          tileDimension: 10,
           pixelBounds: Bounds(
             const Point(25, 25),
             const Point(35, 35),
@@ -161,7 +161,7 @@ void main() {
 
         final tileRange2 = DiscreteTileRange.fromPixelBounds(
           zoom: 0,
-          tileSize: 10,
+          tileDimension: 10,
           pixelBounds: Bounds(
             const Point(35, 35),
             const Point(45, 45),
@@ -180,7 +180,7 @@ void main() {
       test('range within other range', () {
         final tileRange1 = DiscreteTileRange.fromPixelBounds(
           zoom: 0,
-          tileSize: 10,
+          tileDimension: 10,
           pixelBounds: Bounds(
             const Point(25, 25),
             const Point(35, 35),
@@ -189,7 +189,7 @@ void main() {
 
         final tileRange2 = DiscreteTileRange.fromPixelBounds(
           zoom: 0,
-          tileSize: 10,
+          tileDimension: 10,
           pixelBounds: Bounds(
             const Point(15, 15),
             const Point(45, 45),
@@ -209,7 +209,7 @@ void main() {
     test('min/max', () {
       final tileRange = DiscreteTileRange.fromPixelBounds(
         zoom: 0,
-        tileSize: 10,
+        tileDimension: 10,
         pixelBounds: Bounds(
           const Point(35, 35),
           const Point(45, 45),
@@ -224,7 +224,7 @@ void main() {
       test('one tile', () {
         final tileRange = DiscreteTileRange.fromPixelBounds(
           zoom: 0,
-          tileSize: 10,
+          tileDimension: 10,
           pixelBounds: Bounds(
             const Point(35, 35),
             const Point(35, 35),
@@ -237,7 +237,7 @@ void main() {
       test('multiple tiles, even number of tiles', () {
         final tileRange = DiscreteTileRange.fromPixelBounds(
           zoom: 0,
-          tileSize: 10,
+          tileDimension: 10,
           pixelBounds: Bounds(
             const Point(35, 35),
             const Point(45, 45),
@@ -250,7 +250,7 @@ void main() {
       test('multiple tiles, odd number of tiles', () {
         final tileRange = DiscreteTileRange.fromPixelBounds(
           zoom: 0,
-          tileSize: 10,
+          tileDimension: 10,
           pixelBounds: Bounds(
             const Point(35, 35),
             const Point(55, 55),
@@ -264,7 +264,7 @@ void main() {
     test('contains', () {
       final tileRange = DiscreteTileRange.fromPixelBounds(
         zoom: 10,
-        tileSize: 10,
+        tileDimension: 10,
         pixelBounds: Bounds(
           const Point(35, 35),
           const Point(35, 35),
