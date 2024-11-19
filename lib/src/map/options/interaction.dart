@@ -1,5 +1,4 @@
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/map/options/keyboard.dart';
 import 'package:meta/meta.dart';
 
 /// All interactive options for [FlutterMap]

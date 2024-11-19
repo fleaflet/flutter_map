@@ -42,7 +42,7 @@ class _HomePageState extends State<HomePage> {
                   const LatLng(90, 180),
                 ),
               ),
-              interactionOptions: InteractionOptions(
+              interactionOptions: const InteractionOptions(
                 keyboardOptions: KeyboardOptions(
                   enableArrowKeysPanning: true,
                   enableQERotating: true,
