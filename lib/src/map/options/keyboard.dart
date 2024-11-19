@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:meta/meta.dart';
 
@@ -20,16 +21,31 @@ class KeyboardOptions {
   /// This is enabled by default.
   final bool enableArrowKeysPanning;
 
-  /// Whether to allow the W, A, S, D keys to pan the map (in the directions
+  /// Whether to allow the W, A, S, D keys (*) to pan the map (in the directions
   /// UP, LEFT, DOWN, RIGHT respectively)
+  ///
+  /// WASD are only the physical and logical keys on QWERTY keyboards. On non-
+  /// QWERTY keyboards, such as AZERTY, the keys in the same position as on the
+  /// QWERTY keyboard is used (ie. ZQSD on AZERTY).
+  ///
+  /// If enabled, it is recommended to enable [enableArrowKeysPanning] to
+  /// provide panning functionality easily for left handed users.
   final bool enableWASDPanning;
 
-  /// Whether to allow the Q & E keys to rotate the map (Q rotates COUNTER-
+  /// Whether to allow the Q & E keys (*) to rotate the map (Q rotates COUNTER-
   /// CLOCKWISE, E rotates CLOCKWISE)
+  ///
+  /// QE are only the physical and logical keys on QWERTY keyboards. On non-
+  /// QWERTY keyboards, such as AZERTY, the keys in the same position as on the
+  /// QWERTY keyboard is used (ie. AE on AZERTY).
   final bool enableQERotating;
 
   /// Whether to allow the R & F keys to zoom the map (R zooms IN (increases
   /// zoom level), F zooms OUT (decreases zoom level))
+  ///
+  /// RF are only the physical and logical keys on QWERTY keyboards. On non-
+  /// QWERTY keyboards, such as AZERTY, the keys in the same position as on the
+  /// QWERTY keyboard is used (ie. RF on AZERTY).
   final bool enableRFZooming;
 
   /// Calculates the transformation to apply to the camera's position, where
@@ -56,6 +72,17 @@ class KeyboardOptions {
   /// Defaults to [defaultRotateSpeedCalculator].
   final KeyboardEffectSpeedCalculator? rotateSpeedCalculator;
 
+  /// Custom [FocusNode] to be used instead of internal node
+  ///
+  /// May cause unexpected behaviour.
+  final FocusNode? focusNode;
+
+  /// Whether to request focus as soon as the map widget appears (and to enable
+  /// keyboard controls)
+  ///
+  /// Defaults to `true`.
+  final bool autofocus;
+
   /// Create options which specify how the map may be controlled by keyboard
   /// keys
   ///
@@ -70,13 +97,19 @@ class KeyboardOptions {
     this.panSpeedCalculator,
     this.zoomSpeedCalculator,
     this.rotateSpeedCalculator,
+    this.focusNode,
+    this.autofocus = true,
   });
 
   /// Disable keyboard control of the map
   ///
   /// [CursorKeyboardRotationOptions] may still be active, and is not disabled
   /// if this is disabled.
-  const KeyboardOptions.disabled() : this(enableArrowKeysPanning: false);
+  const KeyboardOptions.disabled()
+      : this(
+          enableArrowKeysPanning: false,
+          autofocus: false,
+        );
 
   /// The default [KeyboardOptions.panSpeedCalculator]
   static double defaultPanSpeedCalculator(int counter) => switch (counter) {
