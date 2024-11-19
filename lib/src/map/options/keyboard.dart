@@ -1,7 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:meta/meta.dart';
 
 /// A callback function which takes as input the number of times the concerned
 /// keyboard key has been pressed down & repeated ([KeyDownEvent] &
