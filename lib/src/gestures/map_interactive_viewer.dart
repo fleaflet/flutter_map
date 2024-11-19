@@ -335,55 +335,24 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   }
 
   KeyEventResult _onKeyEvent(FocusNode _, KeyEvent evt) {
-    late final arrowKeysGate =
-        _options.interactionOptions.keyboardOptions.enableArrowKeysPanning
-            ? (evt.logicalKey != LogicalKeyboardKey.arrowLeft &&
-                evt.logicalKey != LogicalKeyboardKey.arrowRight &&
-                evt.logicalKey != LogicalKeyboardKey.arrowUp &&
-                evt.logicalKey != LogicalKeyboardKey.arrowDown)
-            : true;
-    late final wasdKeysGate =
-        _options.interactionOptions.keyboardOptions.enableWASDPanning
-            ? (evt.logicalKey != LogicalKeyboardKey.keyW &&
-                evt.logicalKey != LogicalKeyboardKey.keyA &&
-                evt.logicalKey != LogicalKeyboardKey.keyS &&
-                evt.logicalKey != LogicalKeyboardKey.keyD)
-            : true;
-    late final qeKeysGate =
-        _options.interactionOptions.keyboardOptions.enableQERotating
-            ? (evt.logicalKey != LogicalKeyboardKey.keyQ &&
-                evt.logicalKey != LogicalKeyboardKey.keyE)
-            : true;
-    late final rfKeysGate =
-        _options.interactionOptions.keyboardOptions.enableRFZooming
-            ? (evt.logicalKey != LogicalKeyboardKey.keyR &&
-                evt.logicalKey != LogicalKeyboardKey.keyF)
-            : true;
+    final keyboardOptions = _interactionOptions.keyboardOptions;
 
-    if (arrowKeysGate && wasdKeysGate && qeKeysGate && rfKeysGate) {
-      return KeyEventResult.ignored;
-    }
-
-    late final arrowKeys =
-        _options.interactionOptions.keyboardOptions.enableArrowKeysPanning &&
-            (evt.physicalKey == PhysicalKeyboardKey.arrowLeft ||
-                evt.physicalKey == PhysicalKeyboardKey.arrowRight ||
-                evt.physicalKey == PhysicalKeyboardKey.arrowUp ||
-                evt.physicalKey == PhysicalKeyboardKey.arrowDown);
-    late final wasdKeys =
-        _options.interactionOptions.keyboardOptions.enableWASDPanning &&
-            (evt.physicalKey == PhysicalKeyboardKey.keyW ||
-                evt.physicalKey == PhysicalKeyboardKey.keyA ||
-                evt.physicalKey == PhysicalKeyboardKey.keyS ||
-                evt.physicalKey == PhysicalKeyboardKey.keyD);
-    late final qeKeys =
-        _options.interactionOptions.keyboardOptions.enableQERotating &&
-            (evt.physicalKey == PhysicalKeyboardKey.keyQ ||
-                evt.physicalKey == PhysicalKeyboardKey.keyE);
-    late final rfKeys =
-        _options.interactionOptions.keyboardOptions.enableRFZooming &&
-            (evt.physicalKey == PhysicalKeyboardKey.keyR ||
-                evt.physicalKey == PhysicalKeyboardKey.keyF);
+    late final arrowKeys = keyboardOptions.enableArrowKeysPanning &&
+        (evt.physicalKey == PhysicalKeyboardKey.arrowLeft ||
+            evt.physicalKey == PhysicalKeyboardKey.arrowRight ||
+            evt.physicalKey == PhysicalKeyboardKey.arrowUp ||
+            evt.physicalKey == PhysicalKeyboardKey.arrowDown);
+    late final wasdKeys = keyboardOptions.enableWASDPanning &&
+        (evt.physicalKey == PhysicalKeyboardKey.keyW ||
+            evt.physicalKey == PhysicalKeyboardKey.keyA ||
+            evt.physicalKey == PhysicalKeyboardKey.keyS ||
+            evt.physicalKey == PhysicalKeyboardKey.keyD);
+    late final qeKeys = keyboardOptions.enableQERotating &&
+        (evt.physicalKey == PhysicalKeyboardKey.keyQ ||
+            evt.physicalKey == PhysicalKeyboardKey.keyE);
+    late final rfKeys = keyboardOptions.enableRFZooming &&
+        (evt.physicalKey == PhysicalKeyboardKey.keyR ||
+            evt.physicalKey == PhysicalKeyboardKey.keyF);
 
     if (evt is KeyDownEvent) {
       if (arrowKeys || wasdKeys) {
@@ -402,24 +371,24 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
         _closeFlingAnimationController(MapEventSource.keyboard);
         _closeDoubleTapController(MapEventSource.keyboard);
       } else {
-        return KeyEventResult.skipRemainingHandlers;
+        return KeyEventResult.ignored;
       }
     }
     if (evt is KeyUpEvent) {
       if (arrowKeys || wasdKeys) {
         _keyboardPanKeyDownSet.remove(evt.physicalKey);
+        return KeyEventResult.handled;
       }
-      return KeyEventResult.skipRemainingHandlers;
+      return KeyEventResult.ignored;
     }
 
     if (arrowKeys || wasdKeys) _keyboardPanEventCounter++;
     if (qeKeys) _keyboardRotateEventCounter++;
     if (rfKeys) _keyboardZoomEventCounter++;
 
-    final panSpeed = _options
-            .interactionOptions.keyboardOptions.panSpeedCalculator
-            ?.call(_keyboardPanEventCounter) ??
-        KeyboardOptions.defaultPanSpeedCalculator(_keyboardPanEventCounter);
+    final panSpeed =
+        keyboardOptions.panSpeedCalculator?.call(_keyboardPanEventCounter) ??
+            KeyboardOptions.defaultPanSpeedCalculator(_keyboardPanEventCounter);
     var newCenter = _camera.latLngToScreenPoint(_camera.center);
     for (final key in _keyboardPanKeyDownSet) {
       newCenter = newCenter +
@@ -442,8 +411,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
           };
     }
 
-    final rotateSpeed = _options
-            .interactionOptions.keyboardOptions.rotateSpeedCalculator
+    final rotateSpeed = keyboardOptions.rotateSpeedCalculator
             ?.call(_keyboardRotateEventCounter) ??
         KeyboardOptions.defaultRotateSpeedCalculator(
             _keyboardRotateEventCounter);
@@ -457,8 +425,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       }
     }
 
-    final zoomSpeed = _options
-            .interactionOptions.keyboardOptions.zoomSpeedCalculator
+    final zoomSpeed = keyboardOptions.zoomSpeedCalculator
             ?.call(_keyboardZoomEventCounter) ??
         KeyboardOptions.defaultZoomSpeedCalculator(_keyboardZoomEventCounter);
     var newZoom = _camera.zoom;
