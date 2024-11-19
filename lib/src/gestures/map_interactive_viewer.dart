@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math' as math;
-import 'dart:math';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -395,16 +394,16 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
           switch (key) {
             PhysicalKeyboardKey.arrowLeft ||
             PhysicalKeyboardKey.keyA =>
-              Point(-panSpeed, 0),
+              math.Point(-panSpeed, 0),
             PhysicalKeyboardKey.arrowRight ||
             PhysicalKeyboardKey.keyD =>
-              Point(panSpeed, 0),
+              math.Point(panSpeed, 0),
             PhysicalKeyboardKey.arrowUp ||
             PhysicalKeyboardKey.keyW =>
-              Point(0, -panSpeed),
+              math.Point(0, -panSpeed),
             PhysicalKeyboardKey.arrowDown ||
             PhysicalKeyboardKey.keyS =>
-              Point(0, panSpeed),
+              math.Point(0, panSpeed),
             _ => throw StateError(
                 '`_keyboardPanKeyDownSet` should only contain arrow & WASD keys',
               ),
