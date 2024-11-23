@@ -1,9 +1,12 @@
 part of 'overlay_image_layer.dart';
 
-/// Base class for all overlay images.
+/// Display an [Image] on the map at a specific coordinate location, within an
+/// [OverlayImageLayer]
+///
+/// Implemented by [OverlayImage] & [RotatedOverlayImage].
 @immutable
-sealed class BaseOverlayImage extends StatelessWidget {
-  /// The [ImageProvider] for the image.
+abstract class BaseOverlayImage extends StatelessWidget {
+  /// The [ImageProvider] to use within the [Image] widget.
   final ImageProvider imageProvider;
 
   /// The opacity in which the image should get rendered on the map.
@@ -17,6 +20,7 @@ sealed class BaseOverlayImage extends StatelessWidget {
   /// overlay image should have on the map.
   final FilterQuality filterQuality;
 
+  /// Display an [Image] on the map at a specific coordinate location
   const BaseOverlayImage({
     super.key,
     required this.imageProvider,
@@ -25,25 +29,29 @@ sealed class BaseOverlayImage extends StatelessWidget {
     this.filterQuality = FilterQuality.medium,
   });
 
-  Widget _render(
+  /// Given the [child] image to display, return the layout (ie. position &
+  /// transformation) of the child
+  ///
+  /// Use [MapCamera.of] to retrieve the ambient [MapCamera] useful for layout.
+  ///
+  /// If more control over the [Image] itself is required, prefer subclassing
+  /// one of the existing subclasses and overriding [build].
+  @protected
+  Widget layout(
     BuildContext context, {
     required Image child,
-    required MapCamera camera,
   });
 
   @override
-  @nonVirtual
-  Widget build(BuildContext context) => _render(
+  Widget build(BuildContext context) => layout(
         context,
         child: Image(
           image: imageProvider,
           fit: BoxFit.fill,
-          color: Color.fromRGBO(255, 255, 255, opacity),
-          colorBlendMode: BlendMode.modulate,
+          opacity: AlwaysStoppedAnimation(opacity),
           gaplessPlayback: gaplessPlayback,
           filterQuality: filterQuality,
         ),
-        camera: MapCamera.of(context),
       );
 }
 
@@ -67,11 +75,12 @@ class OverlayImage extends BaseOverlayImage {
   });
 
   @override
-  Widget _render(
+  Widget layout(
     BuildContext context, {
     required Image child,
-    required MapCamera camera,
   }) {
+    final camera = MapCamera.of(context);
+
     // northWest is not necessarily upperLeft depending on projection
     final bounds = Bounds<double>(
       camera.project(this.bounds.northWest) - camera.pixelOrigin,
@@ -120,11 +129,12 @@ class RotatedOverlayImage extends BaseOverlayImage {
   });
 
   @override
-  Widget _render(
+  Widget layout(
     BuildContext context, {
     required Image child,
-    required MapCamera camera,
   }) {
+    final camera = MapCamera.of(context);
+
     final pxTopLeft = camera.project(topLeftCorner) - camera.pixelOrigin;
     final pxBottomRight =
         camera.project(bottomRightCorner) - camera.pixelOrigin;
