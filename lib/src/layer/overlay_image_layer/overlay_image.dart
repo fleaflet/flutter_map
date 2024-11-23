@@ -13,11 +13,16 @@ sealed class BaseOverlayImage extends StatelessWidget {
   /// (false), when the image provider changes. The default value is false.
   final bool gaplessPlayback;
 
+  /// The [FilterQuality] of the image, used to define how high quality the
+  /// overlay image should have on the map.
+  final FilterQuality filterQuality;
+
   const BaseOverlayImage({
     super.key,
     required this.imageProvider,
     this.opacity = 1,
     this.gaplessPlayback = false,
+    this.filterQuality = FilterQuality.medium,
   });
 
   Widget _render(
@@ -36,6 +41,7 @@ sealed class BaseOverlayImage extends StatelessWidget {
           color: Color.fromRGBO(255, 255, 255, opacity),
           colorBlendMode: BlendMode.modulate,
           gaplessPlayback: gaplessPlayback,
+          filterQuality: filterQuality,
         ),
         camera: MapCamera.of(context),
       );
@@ -57,6 +63,7 @@ class OverlayImage extends BaseOverlayImage {
     required this.bounds,
     super.opacity,
     super.gaplessPlayback,
+    super.filterQuality,
   });
 
   @override
@@ -99,10 +106,6 @@ class RotatedOverlayImage extends BaseOverlayImage {
   /// The coordinates of the bottom right corner of the image.
   final LatLng bottomRightCorner;
 
-  /// The [FilterQuality] of the image, used to define how high quality the
-  /// overlay image should have on the map.
-  final FilterQuality? filterQuality;
-
   /// Create a new [RotatedOverlayImage] instance that can be provided to the
   /// [OverlayImageLayer].
   const RotatedOverlayImage({
@@ -111,7 +114,7 @@ class RotatedOverlayImage extends BaseOverlayImage {
     required this.topLeftCorner,
     required this.bottomLeftCorner,
     required this.bottomRightCorner,
-    this.filterQuality = FilterQuality.medium,
+    super.filterQuality,
     super.opacity,
     super.gaplessPlayback,
   });
