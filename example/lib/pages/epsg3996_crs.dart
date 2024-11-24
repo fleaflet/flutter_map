@@ -7,17 +7,17 @@ import 'package:latlong2/latlong.dart';
 import 'package:proj4dart/proj4dart.dart' as proj4;
 import 'package:url_launcher/url_launcher.dart';
 
-class EPSG3413Page extends StatefulWidget {
-  static const String route = '/crs_epsg3413';
+class EPSG3996Page extends StatefulWidget {
+  static const String route = '/crs_epsg3996';
 
-  const EPSG3413Page({super.key});
+  const EPSG3996Page({super.key});
 
   @override
-  EPSG3413PageState createState() => EPSG3413PageState();
+  EPSG3996PageState createState() => EPSG3996PageState();
 }
 
-class EPSG3413PageState extends State<EPSG3413Page> {
-  late final Proj4Crs epsg3413CRS;
+class EPSG3996PageState extends State<EPSG3996Page> {
+  late final Proj4Crs epsg3996CRS;
 
   final distancePoleToLat80 =
       const Distance().distance(const LatLng(90, 0), const LatLng(80, 0));
@@ -48,19 +48,19 @@ class EPSG3413PageState extends State<EPSG3413Page> {
 
     maxZoom = resolutions.length - 1;
 
-    // EPSG:3413 is a user-defined projection from a valid Proj4 definition string
-    // From: http://epsg.io/3413, proj definition: http://epsg.io/3413.proj4
+    // EPSG:3996 is a user-defined projection from a valid Proj4 definition string
+    // From: http://epsg.io/3996, proj definition: http://epsg.io/3996.proj4
     // Find Projection by name or define it if not exists
-    final proj4.Projection epsg3413 = proj4.Projection.get('EPSG:3413') ??
+    final proj4.Projection epsg3996 = proj4.Projection.get('EPSG:3996') ??
         proj4.Projection.add(
-          'EPSG:3413',
-          '+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45 +k=1 +x_0=0 +y_0=0 '
-              '+datum=WGS84 +units=m +no_defs',
+          'EPSG:3996',
+          '+proj=stere +lat_0=90 +lat_ts=75 +lon_0=0 +x_0=0 +y_0=0 '
+              '+datum=WGS84 +units=m +no_defs +type=crs',
         );
 
-    epsg3413CRS = Proj4Crs.fromFactory(
-      code: 'EPSG:3413',
-      proj4Projection: epsg3413,
+    epsg3996CRS = Proj4Crs.fromFactory(
+      code: 'EPSG:3996',
+      proj4Projection: epsg3996,
       resolutions: resolutions,
       bounds: epsg3413Bounds,
       origins: const [Point(0, 0)],
@@ -99,8 +99,8 @@ class EPSG3413PageState extends State<EPSG3413Page> {
     ));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('EPSG:3413 CRS')),
-      drawer: const MenuDrawer(EPSG3413Page.route),
+      appBar: AppBar(title: const Text('EPSG:3996 CRS')),
+      drawer: const MenuDrawer(EPSG3996Page.route),
       body: Padding(
         padding: const EdgeInsets.all(8),
         child: Column(
@@ -117,24 +117,26 @@ class EPSG3413PageState extends State<EPSG3413Page> {
               ),
             ),
             const Text(
-                'Details: https://github.com/fleaflet/flutter_map/pull/1295'),
+              'CRS defined manually, not built-in to flutter_map'
+              '\nDetails: https://github.com/fleaflet/flutter_map/pull/1295',
+              textAlign: TextAlign.center,
+            ),
             const Padding(
               padding: EdgeInsets.only(top: 8, bottom: 2),
               child: SizedBox(
                 width: 500,
                 child: Text(
-                    '• Northern and eastern directions are relative to where you are on the map:\n'
-                    '  • A red dot moves north toward the yellow dot (North Pole).\n'
-                    '  • A red dot moves east counter-clockwise along the black latitude line (80°).\n'
-                    '• The lower left and right corners of the overlay image are the northern corners.'
-                    //textAlign: TextAlign.center,
-                    ),
+                  '• Northern and eastern directions are relative to where you are on the map:\n'
+                  '  • A red dot moves north toward the yellow dot (North Pole).\n'
+                  '  • A red dot moves east counter-clockwise along the black latitude line (80°).\n'
+                  '• The lower left and right corners of the overlay image are the northern corners.',
+                ),
               ),
             ),
             Flexible(
               child: FlutterMap(
                 options: MapOptions(
-                  crs: epsg3413CRS,
+                  crs: epsg3996CRS,
                   initialCenter: const LatLng(90, 0),
                   initialZoom: 3,
                   maxZoom: maxZoom,
@@ -142,35 +144,23 @@ class EPSG3413PageState extends State<EPSG3413Page> {
                 children: [
                   TileLayer(
                     wmsOptions: WMSTileLayerOptions(
-                      crs: epsg3413CRS,
+                      crs: epsg3996CRS,
                       transparent: true,
                       format: 'image/jpeg',
                       baseUrl:
-                          'https://www.gebco.net/data_and_products/gebco_web_services/north_polar_view_wms/mapserv?',
-                      layers: const ['gebco_north_polar_view'],
+                          'https://wms.gebco.net/2024/north-polar/mapserv?',
+                      layers: const ['GEBCO_NORTH_POLAR_VIEW_ICE_2024'],
                     ),
-                  ),
-                  OverlayImageLayer(
-                    overlayImages: [
-                      OverlayImage(
-                        bounds: LatLngBounds(
-                          const LatLng(72.7911372, 162.6196478),
-                          const LatLng(85.2802493, 79.794166),
-                        ),
-                        imageProvider: Image.asset(
-                          'assets/map/epsg3413/amsr2.png',
-                        ).image,
-                      )
-                    ],
                   ),
                   CircleLayer(circles: circles),
                   RichAttributionWidget(
                     popupInitialDisplayDuration: const Duration(seconds: 5),
                     attributions: [
                       TextSourceAttribution(
-                        'Imagery reproduced from the GEBCO_2022 Grid, GEBCO '
-                        'Compilation Group (2022) GEBCO 2022 Grid '
-                        '(doi:10.5285/e0f0bb80-ab44-2739-e053-6c86abc0289c)',
+                        'Imagery reproduced from the GEBCO_2024 Grid, GEBCO '
+                        'Compilation Group (2024) GEBCO Compilation Group '
+                        '(2024) GEBCO 2024 Grid '
+                        '(doi:10.5285/1c44ce99-0a0d-5f4f-e063-7086abc0ea0f)',
                         onTap: () => launchUrl(
                           Uri.parse(
                             'https://www.gebco.net/data_and_products/gebco_web_services/web_map_service/#polar',
