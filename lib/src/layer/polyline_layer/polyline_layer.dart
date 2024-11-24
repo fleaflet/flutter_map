@@ -144,7 +144,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
       final polyline = projectedPolyline.polyline;
 
       // Test bounding boxes to avoid potentially expensive aggressive culling
-      // where none of the line is visibles
+      // when none of the line is visible
       if (!boundsAdjusted.isOverlapping(polyline.boundingBox)) continue;
 
       // Gradient poylines cannot be easily segmented
