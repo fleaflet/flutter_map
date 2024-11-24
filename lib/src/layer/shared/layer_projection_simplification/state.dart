@@ -42,10 +42,10 @@ mixin ProjectionSimplificationManagement<
   ///
   /// Do not use before invoking [build]. Only necessarily up to date directly
   /// after [build] has been invoked.
-  late Iterable<ProjectedElement> simplifiedElements;
+  late List<ProjectedElement> simplifiedElements;
 
-  Iterable<ProjectedElement>? _cachedProjectedElements;
-  final _cachedSimplifiedElements = <int, Iterable<ProjectedElement>>{};
+  List<ProjectedElement>? _cachedProjectedElements;
+  final _cachedSimplifiedElements = <int, List<ProjectedElement>>{};
 
   double? _devicePixelRatio;
 
@@ -89,12 +89,12 @@ mixin ProjectionSimplificationManagement<
       }
 
       simplifiedElements =
-          (_cachedSimplifiedElements[camera.zoom.floor()] ??= _simplifyElements(
+          _cachedSimplifiedElements[camera.zoom.floor()] ??= _simplifyElements(
         camera: camera,
         projectedElements: projected,
         pixelTolerance: widget.simplificationTolerance,
         devicePixelRatio: newDPR,
-      ));
+      ).toList(growable: false);
     }
 
     return Builder(
