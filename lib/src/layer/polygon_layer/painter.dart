@@ -237,7 +237,7 @@ base class _PolygonPainter<R extends Object>
       // mixed properly. Otherwise, holes get cut, or colors aren't mixed,
       // depending on the holes handler.
       final hash = polygon.renderHashCode;
-      final opacity = polygon.color?.opacity ?? 0;
+      final opacity = polygon.color?.a ?? 0;
       if (lastHash != hash || (checkOpacity && opacity > 0 && opacity < 1)) {
         drawPaths();
       }
