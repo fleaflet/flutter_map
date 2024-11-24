@@ -5,7 +5,7 @@ import 'package:flutter_map_example/pages/cancellable_tile_provider.dart';
 import 'package:flutter_map_example/pages/circle.dart';
 import 'package:flutter_map_example/pages/custom_crs/custom_crs.dart';
 import 'package:flutter_map_example/pages/debouncing_tile_update_transformer.dart';
-import 'package:flutter_map_example/pages/epsg3413_crs.dart';
+import 'package:flutter_map_example/pages/epsg3996_crs.dart';
 import 'package:flutter_map_example/pages/epsg4326_crs.dart';
 import 'package:flutter_map_example/pages/fallback_url_page.dart';
 import 'package:flutter_map_example/pages/home.dart';
@@ -79,7 +79,7 @@ class MyApp extends StatelessWidget {
         MapInsideListViewPage.route: (context) => const MapInsideListViewPage(),
         ResetTileLayerPage.route: (context) => const ResetTileLayerPage(),
         EPSG4326Page.route: (context) => const EPSG4326Page(),
-        EPSG3413Page.route: (context) => const EPSG3413Page(),
+        EPSG3996Page.route: (context) => const EPSG3996Page(),
         ScreenPointToLatLngPage.route: (context) =>
             const ScreenPointToLatLngPage(),
         LatLngToScreenPointPage.route: (context) =>

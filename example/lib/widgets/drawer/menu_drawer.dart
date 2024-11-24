@@ -6,7 +6,7 @@ import 'package:flutter_map_example/pages/cancellable_tile_provider.dart';
 import 'package:flutter_map_example/pages/circle.dart';
 import 'package:flutter_map_example/pages/custom_crs/custom_crs.dart';
 import 'package:flutter_map_example/pages/debouncing_tile_update_transformer.dart';
-import 'package:flutter_map_example/pages/epsg3413_crs.dart';
+import 'package:flutter_map_example/pages/epsg3996_crs.dart';
 import 'package:flutter_map_example/pages/epsg4326_crs.dart';
 import 'package:flutter_map_example/pages/fallback_url_page.dart';
 import 'package:flutter_map_example/pages/home.dart';
@@ -186,14 +186,14 @@ class MenuDrawer extends StatelessWidget {
             currentRoute: currentRoute,
           ),
           MenuItemWidget(
-            caption: 'EPSG4326 CRS',
+            caption: 'EPSG:4326 CRS',
             currentRoute: currentRoute,
             routeName: EPSG4326Page.route,
           ),
           MenuItemWidget(
-            caption: 'EPSG3413 CRS',
+            caption: 'EPSG:3996 CRS',
             currentRoute: currentRoute,
-            routeName: EPSG3413Page.route,
+            routeName: EPSG3996Page.route,
           ),
           const Divider(),
           MenuItemWidget(
