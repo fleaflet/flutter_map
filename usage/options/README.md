@@ -54,9 +54,11 @@ Instead of `maxZoom` (or in addition to), consider setting `maxNativeZoom` per `
 
 ## Custom CRS
 
-FM does have some support for using alternative CRSs. See the following documentation for more info:
+FM does have some support for using alternative CRSs.&#x20;
 
-{% embed url="https://github.com/fleaflet/flutter_map/blob/master/example/lib/pages/custom_crs/Readme.md" %}
+{% content-ref url="custom-crss.md" %}
+[custom-crss.md](custom-crss.md)
+{% endcontent-ref %}
 
 [^1]: Bounds inside camera
 
