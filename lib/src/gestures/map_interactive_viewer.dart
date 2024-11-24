@@ -91,6 +91,12 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   int _tapUpCounter = 0;
   Timer? _doubleTapHoldMaxDelay;
 
+  late final FocusNode _keyboardListenerFocusNode;
+  int _keyboardPanEventCounter = 0;
+  int _keyboardRotateEventCounter = 0;
+  int _keyboardZoomEventCounter = 0;
+  final _keyboardPanKeyDownSet = <PhysicalKeyboardKey>{};
+
   MapCamera get _camera => widget.controller.camera;
 
   MapOptions get _options => widget.controller.options;
@@ -111,6 +117,10 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
     ServicesBinding.instance.keyboard
         .addHandler(cursorKeyboardRotationTriggerHandler);
+
+    _keyboardListenerFocusNode =
+        _interactionOptions.keyboardOptions.focusNode ??
+            FocusNode(debugLabel: 'FlutterMap');
   }
 
   @override
@@ -132,6 +142,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     _ckrTriggered.dispose();
     ServicesBinding.instance.keyboard
         .removeHandler(cursorKeyboardRotationTriggerHandler);
+
+    _keyboardListenerFocusNode.dispose();
 
     super.dispose();
   }
@@ -286,33 +298,155 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   @override
   Widget build(BuildContext context) {
-    return Listener(
-      onPointerDown: _onPointerDown,
-      onPointerUp: _onPointerUp,
-      onPointerCancel: _onPointerCancel,
-      onPointerHover: _onPointerHover,
-      onPointerMove: _onPointerMove,
-      onPointerSignal: _onPointerSignal,
-      child: PositionedTapDetector2(
-        controller: _positionedTapController,
-        onTap: _handleTap,
-        onSecondaryTap: _handleSecondaryTap,
-        onLongPress: _handleLongPress,
-        onDoubleTap: _handleDoubleTap,
-        doubleTapDelay:
-            InteractiveFlag.hasDoubleTapZoom(_interactionOptions.flags)
-                ? null
-                : Duration.zero,
-        child: RawGestureDetector(
-          gestures: _gestures,
-          child: widget.builder(
-            context,
-            widget.controller.options,
-            widget.controller.camera,
+    return Focus(
+      debugLabel: 'FlutterMap',
+      autofocus: _interactionOptions.keyboardOptions.autofocus,
+      focusNode: _keyboardListenerFocusNode,
+      onKeyEvent: _onKeyEvent,
+      child: Listener(
+        onPointerDown: _onPointerDown,
+        onPointerUp: _onPointerUp,
+        onPointerCancel: _onPointerCancel,
+        onPointerHover: _onPointerHover,
+        onPointerMove: _onPointerMove,
+        onPointerSignal: _onPointerSignal,
+        child: PositionedTapDetector2(
+          controller: _positionedTapController,
+          onTap: _handleTap,
+          onSecondaryTap: _handleSecondaryTap,
+          onLongPress: _handleLongPress,
+          onDoubleTap: _handleDoubleTap,
+          doubleTapDelay:
+              InteractiveFlag.hasDoubleTapZoom(_interactionOptions.flags)
+                  ? null
+                  : Duration.zero,
+          child: RawGestureDetector(
+            gestures: _gestures,
+            child: widget.builder(
+              context,
+              widget.controller.options,
+              widget.controller.camera,
+            ),
           ),
         ),
       ),
     );
+  }
+
+  KeyEventResult _onKeyEvent(FocusNode _, KeyEvent evt) {
+    final keyboardOptions = _interactionOptions.keyboardOptions;
+
+    late final arrowKeys = keyboardOptions.enableArrowKeysPanning &&
+        (evt.physicalKey == PhysicalKeyboardKey.arrowLeft ||
+            evt.physicalKey == PhysicalKeyboardKey.arrowRight ||
+            evt.physicalKey == PhysicalKeyboardKey.arrowUp ||
+            evt.physicalKey == PhysicalKeyboardKey.arrowDown);
+    late final wasdKeys = keyboardOptions.enableWASDPanning &&
+        (evt.physicalKey == PhysicalKeyboardKey.keyW ||
+            evt.physicalKey == PhysicalKeyboardKey.keyA ||
+            evt.physicalKey == PhysicalKeyboardKey.keyS ||
+            evt.physicalKey == PhysicalKeyboardKey.keyD);
+    late final qeKeys = keyboardOptions.enableQERotating &&
+        (evt.physicalKey == PhysicalKeyboardKey.keyQ ||
+            evt.physicalKey == PhysicalKeyboardKey.keyE);
+    late final rfKeys = keyboardOptions.enableRFZooming &&
+        (evt.physicalKey == PhysicalKeyboardKey.keyR ||
+            evt.physicalKey == PhysicalKeyboardKey.keyF);
+
+    if (evt is KeyDownEvent) {
+      if (arrowKeys || wasdKeys) {
+        if (_keyboardPanKeyDownSet.isEmpty) {
+          _keyboardPanEventCounter = 0;
+          _closeFlingAnimationController(MapEventSource.keyboard);
+          _closeDoubleTapController(MapEventSource.keyboard);
+        }
+        _keyboardPanKeyDownSet.add(evt.physicalKey);
+      } else if (qeKeys) {
+        _keyboardRotateEventCounter = 0;
+        _closeFlingAnimationController(MapEventSource.keyboard);
+        _closeDoubleTapController(MapEventSource.keyboard);
+      } else if (rfKeys) {
+        _keyboardZoomEventCounter = 0;
+        _closeFlingAnimationController(MapEventSource.keyboard);
+        _closeDoubleTapController(MapEventSource.keyboard);
+      } else {
+        return KeyEventResult.ignored;
+      }
+    }
+    if (evt is KeyUpEvent) {
+      if (arrowKeys || wasdKeys) {
+        _keyboardPanKeyDownSet.remove(evt.physicalKey);
+        return KeyEventResult.handled;
+      }
+      return KeyEventResult.ignored;
+    }
+
+    if (arrowKeys || wasdKeys) _keyboardPanEventCounter++;
+    if (qeKeys) _keyboardRotateEventCounter++;
+    if (rfKeys) _keyboardZoomEventCounter++;
+
+    final panSpeed =
+        keyboardOptions.panSpeedCalculator?.call(_keyboardPanEventCounter) ??
+            KeyboardOptions.defaultPanSpeedCalculator(_keyboardPanEventCounter);
+    var newCenter = _camera.latLngToScreenPoint(_camera.center);
+    for (final key in _keyboardPanKeyDownSet) {
+      newCenter = newCenter +
+          switch (key) {
+            PhysicalKeyboardKey.arrowLeft ||
+            PhysicalKeyboardKey.keyA =>
+              math.Point(-panSpeed, 0),
+            PhysicalKeyboardKey.arrowRight ||
+            PhysicalKeyboardKey.keyD =>
+              math.Point(panSpeed, 0),
+            PhysicalKeyboardKey.arrowUp ||
+            PhysicalKeyboardKey.keyW =>
+              math.Point(0, -panSpeed),
+            PhysicalKeyboardKey.arrowDown ||
+            PhysicalKeyboardKey.keyS =>
+              math.Point(0, panSpeed),
+            _ => throw StateError(
+                '`_keyboardPanKeyDownSet` should only contain arrow & WASD keys',
+              ),
+          };
+    }
+
+    final rotateSpeed = keyboardOptions.rotateSpeedCalculator
+            ?.call(_keyboardRotateEventCounter) ??
+        KeyboardOptions.defaultRotateSpeedCalculator(
+            _keyboardRotateEventCounter);
+    var newRotation = _camera.rotation;
+    if (qeKeys) {
+      if (evt.physicalKey == PhysicalKeyboardKey.keyQ) {
+        newRotation -= rotateSpeed;
+      }
+      if (evt.physicalKey == PhysicalKeyboardKey.keyE) {
+        newRotation += rotateSpeed;
+      }
+    }
+
+    final zoomSpeed = keyboardOptions.zoomSpeedCalculator
+            ?.call(_keyboardZoomEventCounter) ??
+        KeyboardOptions.defaultZoomSpeedCalculator(_keyboardZoomEventCounter);
+    var newZoom = _camera.zoom;
+    if (rfKeys) {
+      if (evt.physicalKey == PhysicalKeyboardKey.keyR) {
+        newZoom += zoomSpeed;
+      }
+      if (evt.physicalKey == PhysicalKeyboardKey.keyF) {
+        newZoom -= zoomSpeed;
+      }
+    }
+
+    widget.controller.moveAndRotateRaw(
+      _camera.pointToLatLng(newCenter),
+      newZoom,
+      newRotation % 360,
+      offset: Offset.zero,
+      hasGesture: true,
+      source: MapEventSource.keyboard,
+    );
+
+    return KeyEventResult.handled;
   }
 
   void _onPointerDown(PointerDownEvent event) {
