@@ -117,18 +117,20 @@ class EPSG3996PageState extends State<EPSG3996Page> {
               ),
             ),
             const Text(
-                'Details: https://github.com/fleaflet/flutter_map/pull/1295'),
+              'CRS defined manually, not built-in to flutter_map'
+              '\nDetails: https://github.com/fleaflet/flutter_map/pull/1295',
+              textAlign: TextAlign.center,
+            ),
             const Padding(
               padding: EdgeInsets.only(top: 8, bottom: 2),
               child: SizedBox(
                 width: 500,
                 child: Text(
-                    '• Northern and eastern directions are relative to where you are on the map:\n'
-                    '  • A red dot moves north toward the yellow dot (North Pole).\n'
-                    '  • A red dot moves east counter-clockwise along the black latitude line (80°).\n'
-                    '• The lower left and right corners of the overlay image are the northern corners.'
-                    //textAlign: TextAlign.center,
-                    ),
+                  '• Northern and eastern directions are relative to where you are on the map:\n'
+                  '  • A red dot moves north toward the yellow dot (North Pole).\n'
+                  '  • A red dot moves east counter-clockwise along the black latitude line (80°).\n'
+                  '• The lower left and right corners of the overlay image are the northern corners.',
+                ),
               ),
             ),
             Flexible(

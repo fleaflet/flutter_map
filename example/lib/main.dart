@@ -3,7 +3,6 @@ import 'package:flutter_map_example/pages/animated_map_controller.dart';
 import 'package:flutter_map_example/pages/bundled_offline_map.dart';
 import 'package:flutter_map_example/pages/cancellable_tile_provider.dart';
 import 'package:flutter_map_example/pages/circle.dart';
-import 'package:flutter_map_example/pages/custom_crs/custom_crs.dart';
 import 'package:flutter_map_example/pages/debouncing_tile_update_transformer.dart';
 import 'package:flutter_map_example/pages/epsg3996_crs.dart';
 import 'package:flutter_map_example/pages/epsg4326_crs.dart';
@@ -70,7 +69,6 @@ class MyApp extends StatelessWidget {
         PolygonPerfStressPage.route: (context) => const PolygonPerfStressPage(),
         SlidingMapPage.route: (_) => const SlidingMapPage(),
         WMSLayerPage.route: (context) => const WMSLayerPage(),
-        CustomCrsPage.route: (context) => const CustomCrsPage(),
         TileLoadingErrorHandle.route: (context) =>
             const TileLoadingErrorHandle(),
         TileBuilderPage.route: (context) => const TileBuilderPage(),
