@@ -67,7 +67,7 @@ Avoid using these if performance is of importance. Instead, try using multiple p
 
 ### Simplification
 
-To improve performance, polylines are 'simplified' before being culled and painted/rendered. The well-known [Ramer–Douglas–Peucker algorithm](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker\_algorithm) is used to perform this, and is enabled by default.
+To improve performance, polylines are 'simplified' before being culled and painted/rendered. The well-known [Ramer–Douglas–Peucker algorithm](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm) is used to perform this, and is enabled by default.
 
 > Simplification algorithms reduce the number of points in each line by removing unnecessary points that are 'too close' to other points which create tiny line segements invisible to the eye. This reduces the number of draw calls and strain on the raster/render thread. This should have minimal negative visual impact (high quality), but should drastically improve performance.
 >
@@ -76,6 +76,12 @@ To improve performance, polylines are 'simplified' before being culled and paint
 To adjust the quality and performance of the simplification, the maximum distance between removable points can be adjusted through the `simplificationTolerance` parameter. Increasing this value (from its default of 0.4) results in a more jagged, less accurate (lower quality) simplification, with improved performance; and vice versa. Many applications use a value in the range 0 - 1.
 
 To disable simplification, set `simplificationTolerance` to 0.&#x20;
+
+{% hint style="warning" %}
+The simplification step must run before culling, to avoid the polyline appearing to change when interacting with the map (due to the first and last points of the polyline changing, influencing the rest of the simplified points).
+
+Therefore, reducing/disabling simplification will yield better performance on complex polylines that are out of the camera view (and therefore culled without requiring the potentially expensive simplification). However, using simplification will likely improve performance overall - it does this by reducing the load on the raster thread and slightly increasing the load on the UI/build/widget thread.
+{% endhint %}
 
 {% hint style="warning" %}
 On layers with (many) only 'short' polylines (those with few points), disabling simplification may yield better performance.
@@ -91,7 +97,7 @@ Good open source options that can be self-hosted include [OSRM](http://project-o
 
 You may have a polyline with 'Google Polyline Encoding' (which is a lossy compression algorithm to convert coordinates into a string and back). These are often returned from routing engines, for example. In this case, you'll need to decode the polyline to the correct format first, before you can use it in a `Polyline`'s `points` argument.
 
-One way to accomplish this is to use another Flutter library called ['google\_polyline\_algorithm'](https://pub.dev/packages/google\_polyline\_algorithm), together with a custom method. You can use the code snippet below, which can just be pasted into a file and imported whenever needed:
+One way to accomplish this is to use another Flutter library called ['google\_polyline\_algorithm'](https://pub.dev/packages/google_polyline_algorithm), together with a custom method. You can use the code snippet below, which can just be pasted into a file and imported whenever needed:
 
 {% code title="unpack_polyline.dart" %}
 ```dart
