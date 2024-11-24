@@ -229,8 +229,8 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
           (geoJson) => compute(
             (msg) => GeoJsonParser(
               defaultPolygonBorderStroke: msg.borderThickness,
-              defaultPolygonBorderColor: Colors.black.withOpacity(0.5),
-              defaultPolygonFillColor: Colors.orange[700]!.withOpacity(0.75),
+              defaultPolygonBorderColor: Colors.black.withAlpha(128),
+              defaultPolygonFillColor: Colors.orange[700]!.withAlpha(191),
             )..parseGeoJsonAsString(msg.geoJson),
             (geoJson: geoJson, borderThickness: borderThickness),
           ),

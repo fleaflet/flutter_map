@@ -22,9 +22,8 @@ final class InteractionOptions {
   /// [rotationThreshold] has been achieved or another multi finger gesture wins
   /// which allows [MultiFingerGesture.rotate].
   ///
-  /// Note: if [MapOptions.interactiveFlags.flags] doesn't contain
-  /// [InteractiveFlag.rotate] or [enableMultiFingerGestureRace]
-  /// is false then rotate cannot win.
+  /// Note: if [flags] doesn't contain [InteractiveFlag.rotate] or
+  /// [enableMultiFingerGestureRace] is false then rotate cannot win.
   final double rotationThreshold;
 
   /// When [rotationThreshold] wins over [pinchZoomThreshold] and
@@ -35,10 +34,10 @@ final class InteractionOptions {
 
   /// Pinch Zoom threshold default is 0.5 Map starts to zoom when
   /// [pinchZoomThreshold] has been achieved or another multi finger gesture
-  /// wins which allows [MultiFingerGesture.pinchZoom] Note: if
-  /// [MapOptions.interactiveFlags.flags] doesn't contain
-  /// [InteractiveFlag.pinchZoom] or [enableMultiFingerGestureRace] is false
-  /// then zoom cannot win.
+  /// wins which allows [MultiFingerGesture.pinchZoom]
+  ///
+  /// Note: if [flags] doesn't contain [InteractiveFlag.pinchZoom] or
+  /// [enableMultiFingerGestureRace] is false then zoom cannot win.
   final double pinchZoomThreshold;
 
   /// When [pinchZoomThreshold] wins over [rotationThreshold] and
@@ -52,7 +51,7 @@ final class InteractionOptions {
   /// another multi finger gesture wins which allows
   /// [MultiFingerGesture.pinchMove].
   ///
-  /// Note: if [MapOptions.interactiveFlags.flags] doesn't contain
+  /// Note: if [flags] doesn't contain
   /// [InteractiveFlag.pinchMove] or [enableMultiFingerGestureRace] is false
   /// then pinch move cannot win
   final double pinchMoveThreshold;
