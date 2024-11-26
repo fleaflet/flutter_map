@@ -57,6 +57,7 @@ export 'package:flutter_map/src/map/controller/map_controller.dart';
 export 'package:flutter_map/src/map/controller/map_controller_impl.dart';
 export 'package:flutter_map/src/map/options/cursor_keyboard_rotation.dart';
 export 'package:flutter_map/src/map/options/interaction.dart';
+export 'package:flutter_map/src/map/options/keyboard.dart';
 export 'package:flutter_map/src/map/options/options.dart';
 export 'package:flutter_map/src/map/widget.dart';
 export 'package:flutter_map/src/misc/bounds.dart';
