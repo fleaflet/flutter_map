@@ -36,7 +36,7 @@ Although setting up a basic tile layer couldn't be simpler, it helps to spend a 
   If your tile server supports retina tiles natively, set up the `retinaMode` property
 * [#cancellablenetworktileprovider](tile-providers.md#cancellablenetworktileprovider "mention")\
   Especially on web, consider using this more advanced `TileProvider` to improve performance
-* [`maxNativeZoom`](https://pub.dev/documentation/flutter\_map/latest/flutter\_map/TileLayer/maxNativeZoom.html)\
+* [`maxNativeZoom`](https://pub.dev/documentation/flutter_map/latest/flutter_map/TileLayer/maxNativeZoom.html)\
   Set the maximum zoom level that the tile server supports to prevent flutter\_map from trying to exceed this (especially when not set appropriately in `MapOptions.maxZoom`)
 
 If you need to squeeze out as much performance as possible, or you're noticing the tile loading seems a little slow:
@@ -46,7 +46,7 @@ If you need to squeeze out as much performance as possible, or you're noticing t
   Some tile providers may perform more expensive logic when they are constructed, and if the provider is frequently reconstructed, this can add up.
 * If the `TileProvider` supports it (as `NetworkTileProvider` does), construct a single HTTP `Client`/`HttpClient` outside the `build` method and pass it to the tile provider - especially if you're unable to do the tip above\
   Using a single HTTP client allows the underlying socket connection to the tile server to remain open, even when tiles aren't loading. When tiles are loaded again, it's much faster to communicate over an open socket than opening a new one. In some cases, this can take hundreds of milliseconds off tile loading!
-* Reduce [`panBuffer`](https://pub.dev/documentation/flutter\_map/latest/flutter\_map/TileLayer/panBuffer.html) to 0\
+* Reduce [`panBuffer`](https://pub.dev/documentation/flutter_map/latest/flutter_map/TileLayer/panBuffer.html) to 0\
   This reduces the number of network requests made, which may make those requests that are made for more important tiles faster.
 
 ## Main Parameters
@@ -95,7 +95,7 @@ If the server supports HTTP/2 or HTTP/3 ([how to check](https://stackoverflow.co
 
 Retina mode improves the resolution of map tiles, an effect particularly visible on high density (aka. retina) displays.
 
-Raster map tiles can look especially pixelated on retina displays, so some servers support [high-resolution "@2x" tiles](https://wiki.openstreetmap.org/wiki/High-resolution\_tiles), which are tiles at twice the resolution of normal tiles.
+Raster map tiles can look especially pixelated on retina displays, so some servers support [high-resolution "@2x" tiles](https://wiki.openstreetmap.org/wiki/High-resolution_tiles), which are tiles at twice the resolution of normal tiles.
 
 Where the display is high density, and the server supports retina tiles - usually indicated by an `{r}` placeholder in the URL template - it is recommended to enable retina mode.
 
@@ -187,4 +187,4 @@ For example, a transformer can delay (throttle or debounce) updates through one 
 
 For more information, see:
 
-{% embed url="https://pub.dev/documentation/flutter_map/7.0.0-dev.1/flutter_map/TileUpdateTransformer.html" %}
+{% embed url="https://pub.dev/documentation/flutter_map/latest/flutter_map/TileUpdateTransformer.html" %}
