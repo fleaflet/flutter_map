@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/geo/crs.dart';
-import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Calculate the [Offset] for the [LatLng] point.
@@ -66,7 +65,7 @@ List<Offset> getOffsetsXY({
     final v = List<Offset>.filled(len, Offset.zero, growable: true);
     for (int i = 0; i < len; ++i) {
       final p = realPoints.elementAt(i);
-      final (x, y) = crs.transform(p.x, p.y, zoomScale);
+      final (x, y) = crs.transform(p.dx, p.dy, zoomScale);
       v[i] = Offset(x + ox, y + oy);
     }
     return v;
@@ -75,7 +74,7 @@ List<Offset> getOffsetsXY({
   final v = List<Offset>.filled(len, Offset.zero, growable: true);
   for (int i = 0; i < len; ++i) {
     final p = realPoints.elementAt(i);
-    final (x, y) = crs.transform(p.x, p.y, zoomScale);
+    final (x, y) = crs.transform(p.dx, p.dy, zoomScale);
     v[i] = Offset(x + ox, y + oy);
   }
   return v;

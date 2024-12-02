@@ -102,8 +102,8 @@ class FitBounds extends CameraFit {
   /// Returns a new [MapCamera] which fits this classes configuration.
   @override
   MapCamera fit(MapCamera camera) {
-    final paddingTL = Point<double>(padding.left, padding.top);
-    final paddingBR = Point<double>(padding.right, padding.bottom);
+    final paddingTL = Offset(padding.left, padding.top);
+    final paddingBR = Offset(padding.right, padding.bottom);
 
     final paddingTotalXY = paddingTL + paddingBR;
 
@@ -114,7 +114,7 @@ class FitBounds extends CameraFit {
     final swPoint = camera.project(bounds.southWest, newZoom);
     final nePoint = camera.project(bounds.northEast, newZoom);
 
-    final Point<double> projectedCenter;
+    final Offset projectedCenter;
     if (camera.rotation != 0.0) {
       final swPointRotated = swPoint.rotate(-camera.rotationRad);
       final nePointRotated = nePoint.rotate(-camera.rotationRad);
@@ -135,13 +135,13 @@ class FitBounds extends CameraFit {
 
   double _getBoundsZoom(
     MapCamera camera,
-    Point<double> pixelPadding,
+    Offset pixelPadding,
   ) {
     final nw = bounds.northWest;
     final se = bounds.southEast;
     var size = camera.nonRotatedSize - pixelPadding;
     // Prevent negative size which results in NaN zoom value later on in the calculation
-    size = Point(math.max(0, size.x), math.max(0, size.y));
+    size = Offset(math.max(0, size.dx), math.max(0, size.dy));
     var boundsSize = Bounds(
       camera.project(se, camera.zoom),
       camera.project(nw, camera.zoom),
@@ -155,9 +155,7 @@ class FitBounds extends CameraFit {
       );
     }
 
-    final scaleX = size.x / boundsSize.x;
-    final scaleY = size.y / boundsSize.y;
-    final scale = math.min(scaleX, scaleY);
+    final scale = math.min(size.dx / boundsSize.x, size.dy / boundsSize.y);
 
     var boundsZoom = camera.getScaleZoom(scale);
 
@@ -218,8 +216,8 @@ class FitInsideBounds extends CameraFit {
 
   @override
   MapCamera fit(MapCamera camera) {
-    final paddingTL = Point<double>(padding.left, padding.top);
-    final paddingBR = Point<double>(padding.right, padding.bottom);
+    final paddingTL = Offset(padding.left, padding.top);
+    final paddingBR = Offset(padding.right, padding.bottom);
     final paddingTotalXY = paddingTL + paddingBR;
     final paddingOffset = (paddingBR - paddingTL) / 2;
 
@@ -232,8 +230,8 @@ class FitInsideBounds extends CameraFit {
 
     final scale = _rectInRotRectScale(
       angleRad: camera.rotationRad,
-      smallRectHalfWidth: cameraSize.x / 2.0,
-      smallRectHalfHeight: cameraSize.y / 2.0,
+      smallRectHalfWidth: cameraSize.dx / 2.0,
+      smallRectHalfHeight: cameraSize.dy / 2.0,
       bigRectHalfWidth: projectedBoundsSize.x / 2.0,
       bigRectHalfHeight: projectedBoundsSize.y / 2.0,
     );
@@ -269,7 +267,7 @@ class FitInsideBounds extends CameraFit {
   LatLng _getCenter(
     MapCamera camera, {
     required double newZoom,
-    required Point<double> paddingOffset,
+    required Offset paddingOffset,
   }) {
     if (camera.rotation == 0.0) {
       final swPoint = camera.project(bounds.southWest, newZoom);
@@ -447,7 +445,7 @@ class FitCoordinates extends CameraFit {
     final rotatedNewCenter = rotatedBounds.center + paddingOffset;
 
     // Undo the rotation
-    final unrotatedNewCenter = rotatedNewCenter.rotate(camera.rotationRad);
+    final unrotatedNewCenter = rotatedNewCenter.toOffset().rotate(camera.rotationRad);
 
     final newCenter = camera.unproject(unrotatedNewCenter, newZoom);
 
@@ -459,11 +457,11 @@ class FitCoordinates extends CameraFit {
 
   double _getCoordinatesZoom(
     MapCamera camera,
-    Point<double> pixelPadding,
+    Offset pixelPadding,
   ) {
     var size = camera.nonRotatedSize - pixelPadding;
     // Prevent negative size which results in NaN zoom value later on in the calculation
-    size = Point(math.max(0, size.x), math.max(0, size.y));
+    size = Offset(math.max(0, size.dx), math.max(0, size.dy));
 
     final projectedPoints = [
       for (final coord in coordinates) camera.project(coord)
@@ -475,8 +473,8 @@ class FitCoordinates extends CameraFit {
 
     final boundsSize = rotatedBounds.size;
 
-    final scaleX = size.x / boundsSize.x;
-    final scaleY = size.y / boundsSize.y;
+    final scaleX = size.dx / boundsSize.x;
+    final scaleY = size.dy / boundsSize.y;
     final scale = math.min(scaleX, scaleY);
 
     var newZoom = camera.getScaleZoom(scale);

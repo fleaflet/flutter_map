@@ -235,7 +235,7 @@ class MapCamera {
   /// Calculates the [LatLng] for the given [point] using this camera's
   /// [crs] and [zoom] (or the provided [zoom]).
   LatLng unproject(Offset point, [double? zoom]) =>
-      crs.pointToLatLng(point.toPoint(), zoom ?? this.zoom);
+      crs.pointToLatLng(point, zoom ?? this.zoom);
 
   /// Same as the [unproject] function.
   LatLng layerPointToLatLng(Offset point) => unproject(point);
@@ -321,6 +321,8 @@ class MapCamera {
     Offset point, {
     bool counterRotation = true,
   }) {
+
+    //TODO what is the difference between this and the extension method on Offset.rotate?????!?!?!
     final counterRotationFactor = counterRotation ? -1 : 1;
 
     final m = Matrix4.identity()

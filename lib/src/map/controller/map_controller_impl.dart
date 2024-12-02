@@ -24,7 +24,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   Animation<Offset>? _flingAnimation;
   late bool _animationHasGesture;
   late Offset _animationOffset;
-  late Point _flingMapCenterStartPoint;
+  late Offset _flingMapCenterStartPoint;
 
   /// Constructor of the [MapController] implementation for internal usage.
   MapControllerImpl({MapOptions? options, TickerProvider? vsync})
@@ -113,7 +113,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   }) =>
       rotateAroundPointRaw(
         degree,
-        point: point,
+        point: point?.toOffset(),
         offset: offset,
         hasGesture: false,
         source: MapEventSource.mapController,
@@ -156,7 +156,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
       center = camera.unproject(
         camera.rotateOffset(
           newPoint,
-          newPoint - Point(offset.dx, offset.dy),
+          newPoint - offset,
         ),
         newZoom,
       );
@@ -224,7 +224,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   /// the map.
   MoveAndRotateResult rotateAroundPointRaw(
     double degree, {
-    required Point<double>? point,
+    //TODO this looks insanely jank
+    required Offset? point,
     required Offset? offset,
     required bool hasGesture,
     required MapEventSource source,
@@ -255,9 +256,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
 
     final rotationDiff = degree - camera.rotation;
     final rotationCenter = camera.project(camera.center) +
-        (point != null
-                ? (point - (camera.nonRotatedSize / 2.0))
-                : Point(offset!.dx, offset.dy))
+        (point != null ? (point - (camera.nonRotatedSize / 2.0)) : offset)
             .rotate(camera.rotationRad);
 
     return (
@@ -388,7 +387,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   void dragUpdated(MapEventSource source, Offset offset) {
     final oldCenterPt = camera.project(camera.center);
 
-    final newCenterPt = oldCenterPt + offset.toPoint();
+    final newCenterPt = oldCenterPt + offset;
     final newCenter = camera.unproject(newCenterPt);
 
     moveRaw(
@@ -662,7 +661,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     _flingMapCenterStartPoint = camera.project(camera.center);
 
     final distance =
-        (Offset.zero & Size(camera.nonRotatedSize.x, camera.nonRotatedSize.y))
+        (Offset.zero & Size(camera.nonRotatedSize.dx, camera.nonRotatedSize.dy))
             .shortestSide;
 
     _flingAnimation = Tween<Offset>(
@@ -728,7 +727,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     // fling animation
     if (_flingAnimation != null) {
       final newCenterPoint = _flingMapCenterStartPoint +
-          _flingAnimation!.value.toPoint().rotate(camera.rotationRad);
+          _flingAnimation!.value.rotate(camera.rotationRad);
       moveRaw(
         camera.unproject(newCenterPoint),
         camera.zoom,

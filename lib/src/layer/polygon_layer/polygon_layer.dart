@@ -176,7 +176,7 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
           debugAltRenderer: widget.debugAltRenderer,
           hitNotifier: widget.hitNotifier,
         ),
-        size: Size(camera.size.x, camera.size.y),
+        size: Size(camera.size.dx, camera.size.dy),
       ),
     );
   }

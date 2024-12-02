@@ -154,12 +154,12 @@ class RotatedOverlayImage extends BaseOverlayImage {
     final vectorY = (pxBottomLeft - pxTopLeft) / bounds.size.y;
     final offset = pxTopLeft - bounds.topLeft;
 
-    final a = vectorX.x;
-    final b = vectorX.y;
-    final c = vectorY.x;
-    final d = vectorY.y;
-    final tx = offset.x;
-    final ty = offset.y;
+    final a = vectorX.dx;
+    final b = vectorX.dy;
+    final c = vectorY.dx;
+    final d = vectorY.dy;
+    final tx = offset.dx;
+    final ty = offset.dy;
 
     return Positioned(
       left: bounds.topLeft.x,

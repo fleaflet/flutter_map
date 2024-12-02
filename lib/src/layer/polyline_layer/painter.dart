@@ -108,7 +108,7 @@ base class _PolylinePainter<R extends Object>
     }
 
     final origin =
-        camera.project(camera.center) - camera.size.toOffset() / 2;
+        camera.project(camera.center) - camera.size / 2;
 
     for (final projectedPolyline in polylines) {
       final polyline = projectedPolyline.polyline;
@@ -279,7 +279,7 @@ base class _PolylinePainter<R extends Object>
   }
 
   LatLng _unproject(Offset p0) =>
-      camera.crs.projection.unprojectXY(p0.x, p0.y);
+      camera.crs.projection.unprojectXY(p0.dx, p0.dy);
 
   @override
   bool shouldRepaint(_PolylinePainter<R> oldDelegate) =>
