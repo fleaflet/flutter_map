@@ -18,7 +18,7 @@ class MapCamera {
   /// in a subsequent build to the actual constraints. We set the size to this
   /// impossible (negative) value initially and only change it once Flutter
   /// provides real constraints.
-  static const kImpossibleSize = Point<double>(-1, -1);
+  static const kImpossibleSize = Offset(-1, -1);
 
   /// The used coordinate reference system
   final Crs crs;
@@ -41,10 +41,10 @@ class MapCamera {
 
   /// The size of the map view ignoring rotation. This will be the size of the
   /// FlutterMap widget.
-  final Point<double> nonRotatedSize;
+  final Offset nonRotatedSize;
 
   /// Lazily calculated field
-  Point<double>? _cameraSize;
+  Offset? _cameraSize;
 
   /// Lazily calculated field
   Bounds<double>? _pixelBounds;
@@ -53,7 +53,7 @@ class MapCamera {
   LatLngBounds? _bounds;
 
   /// Lazily calculated field
-  Point<double>? _pixelOrigin;
+  Offset? _pixelOrigin;
 
   /// This is the [LatLngBounds] corresponding to four corners of this camera.
   /// This takes rotation in to account.
@@ -66,7 +66,7 @@ class MapCamera {
   /// rotation. When the rotation is zero this will equal [nonRotatedSize],
   /// otherwise it will be the size of the rectangle which contains this
   /// camera.
-  Point<double> get size => _cameraSize ??= calculateRotatedSize(
+  Offset get size => _cameraSize ??= calculateRotatedSize(
         rotation,
         nonRotatedSize,
       );
@@ -74,8 +74,8 @@ class MapCamera {
   /// The offset of the top-left corner of the bounding rectangle of this
   /// camera. This will not equal the offset of the top-left visible pixel when
   /// the map is rotated.
-  Point<double> get pixelOrigin =>
-      _pixelOrigin ??= project(center, zoom) - size / 2.0;
+  Offset get pixelOrigin =>
+      _pixelOrigin ??= project(center, zoom) - (size / 2.0);
 
   /// The camera of the closest [FlutterMap] ancestor. If this is called from a
   /// context with no [FlutterMap] ancestor null, is returned.
@@ -100,10 +100,10 @@ class MapCamera {
     required this.nonRotatedSize,
     this.minZoom,
     this.maxZoom,
-    Point<double>? size,
+    Offset? size,
     Bounds<double>? pixelBounds,
     LatLngBounds? bounds,
-    Point<double>? pixelOrigin,
+    Offset? pixelOrigin,
   })  : _cameraSize = size,
         _pixelBounds = pixelBounds,
         _bounds = bounds,
@@ -121,7 +121,7 @@ class MapCamera {
         nonRotatedSize = kImpossibleSize;
 
   /// Returns a new instance of [MapCamera] with the given [nonRotatedSize].
-  MapCamera withNonRotatedSize(Point<double> nonRotatedSize) {
+  MapCamera withNonRotatedSize(Offset nonRotatedSize) {
     if (nonRotatedSize == this.nonRotatedSize) return this;
 
     return MapCamera(
@@ -208,20 +208,20 @@ class MapCamera {
 
   /// Calculates the size of a bounding box which surrounds a box of size
   /// [nonRotatedSize] which is rotated by [rotation].
-  static Point<double> calculateRotatedSize(
+  static Offset calculateRotatedSize(
     double rotation,
-    Point<double> nonRotatedSize,
+    Offset nonRotatedSize,
   ) {
     if (rotation == 0.0) return nonRotatedSize;
 
     final rotationRad = degrees2Radians * rotation;
     final cosAngle = math.cos(rotationRad).abs();
     final sinAngle = math.sin(rotationRad).abs();
-    final width = (nonRotatedSize.x * cosAngle) + (nonRotatedSize.y * sinAngle);
+    final width = (nonRotatedSize.dx * cosAngle) + (nonRotatedSize.dy * sinAngle);
     final height =
-        (nonRotatedSize.y * cosAngle) + (nonRotatedSize.x * sinAngle);
+        (nonRotatedSize.dy * cosAngle) + (nonRotatedSize.dx * sinAngle);
 
-    return Point<double>(width, height);
+    return Offset(width, height);
   }
 
   /// The current rotation value in radians
@@ -229,16 +229,16 @@ class MapCamera {
 
   /// Calculates point value for the given [latlng] using this camera's
   /// [crs] and [zoom] (or the provided [zoom]).
-  Point<double> project(LatLng latlng, [double? zoom]) =>
+  Offset project(LatLng latlng, [double? zoom]) =>
       crs.latLngToPoint(latlng, zoom ?? this.zoom);
 
   /// Calculates the [LatLng] for the given [point] using this camera's
   /// [crs] and [zoom] (or the provided [zoom]).
-  LatLng unproject(Point point, [double? zoom]) =>
-      crs.pointToLatLng(point, zoom ?? this.zoom);
+  LatLng unproject(Offset point, [double? zoom]) =>
+      crs.pointToLatLng(point.toPoint(), zoom ?? this.zoom);
 
   /// Same as the [unproject] function.
-  LatLng layerPointToLatLng(Point point) => unproject(point);
+  LatLng layerPointToLatLng(Offset point) => unproject(point);
 
   /// Calculates the scale for a zoom from [fromZoom] to [toZoom] using this
   /// camera\s [crs].
@@ -254,13 +254,13 @@ class MapCamera {
 
   /// Calculates the [Offset] from the [pos] to this camera's [pixelOrigin].
   Offset getOffsetFromOrigin(LatLng pos) =>
-      (project(pos) - pixelOrigin).toOffset();
+      project(pos) - pixelOrigin;
 
   /// Calculates the pixel origin of this [MapCamera] at the given
   /// [center]/[zoom].
-  Point<int> getNewPixelOrigin(LatLng center, [double? zoom]) {
-    final halfSize = size / 2.0;
-    return (project(center, zoom) - halfSize).round();
+  Offset getNewPixelOrigin(LatLng center, [double? zoom]) {
+    // TODO was explcitly rounded
+    return project(center, zoom) - (size / 2.0);
   }
 
   /// Calculates the pixel bounds of this [MapCamera]. This value is cached.
@@ -274,13 +274,14 @@ class MapCamera {
       final scale = getZoomScale(this.zoom, zoom);
       halfSize = size / (scale * 2);
     }
-    final pixelCenter = project(center, zoom).floor().toDoublePoint();
+    // TODO was explicitly floored
+    final pixelCenter = project(center, zoom);
     return Bounds(pixelCenter - halfSize, pixelCenter + halfSize);
   }
 
   /// This will convert a latLng to a position that we could use with a widget
   /// outside of FlutterMap layer space. Eg using a Positioned Widget.
-  Point<double> latLngToScreenPoint(LatLng latLng) {
+  Offset latLngToScreenOffset(LatLng latLng) {
     final nonRotatedPixelOrigin = project(center, zoom) - nonRotatedSize / 2.0;
 
     var point = crs.latLngToPoint(latLng, zoom);
@@ -288,7 +289,7 @@ class MapCamera {
     final mapCenter = crs.latLngToPoint(center, zoom);
 
     if (rotation != 0.0) {
-      point = rotatePoint(mapCenter, point, counterRotation: false);
+      point = rotateOffset(mapCenter, point, counterRotation: false);
     }
 
     return point - nonRotatedPixelOrigin;
@@ -296,16 +297,16 @@ class MapCamera {
 
   /// Calculate the [LatLng] coordinates for a [localPoint].
   LatLng pointToLatLng(Point localPoint) {
-    final localPointCenterDistance = Point(
-      (nonRotatedSize.x / 2) - localPoint.x,
-      (nonRotatedSize.y / 2) - localPoint.y,
+    final localPointCenterDistance = Offset(
+      (nonRotatedSize.dx / 2) - localPoint.x,
+      (nonRotatedSize.dy / 2) - localPoint.y,
     );
     final mapCenter = crs.latLngToPoint(center, zoom);
 
     var point = mapCenter - localPointCenterDistance;
 
     if (rotation != 0.0) {
-      point = rotatePoint(mapCenter, point);
+      point = rotateOffset(mapCenter, point);
     }
 
     return crs.pointToLatLng(point, zoom);
@@ -315,21 +316,19 @@ class MapCamera {
   /// it needs to be reversed (pointToLatLng), and sometimes we want to use
   /// the same rotation to create a new position (latLngToScreenpoint).
   /// counterRotation just makes allowances this for this.
-  Point<double> rotatePoint(
-    Point<double> mapCenter,
-    Point<double> point, {
+  Offset rotateOffset(
+    Offset mapCenter,
+    Offset point, {
     bool counterRotation = true,
   }) {
     final counterRotationFactor = counterRotation ? -1 : 1;
 
     final m = Matrix4.identity()
-      ..translate(mapCenter.x, mapCenter.y)
+      ..translate(mapCenter.dx, mapCenter.dy)
       ..rotateZ(rotationRad * counterRotationFactor)
-      ..translate(-mapCenter.x, -mapCenter.y);
+      ..translate(-mapCenter.dx, -mapCenter.dy);
 
-    final tp = MatrixUtils.transformPoint(m, point.toOffset());
-
-    return Point(tp.dx, tp.dy);
+    return MatrixUtils.transformPoint(m, point);
   }
 
   /// Clamps the provided [zoom] to the range specified by [minZoom] and
@@ -345,7 +344,7 @@ class MapCamera {
   LatLng offsetToCrs(Offset offset, [double? zoom]) {
     final focalStartPt = project(center, zoom ?? this.zoom);
     final point =
-        (offset.toPoint() - (nonRotatedSize / 2.0)).rotate(rotationRad);
+        (offset - (nonRotatedSize / 2.0)).rotate(rotationRad);
 
     final newCenterPt = focalStartPt + point;
     return unproject(newCenterPt, zoom ?? this.zoom);
@@ -353,7 +352,7 @@ class MapCamera {
 
   /// Calculate the center point which would keep the same point of the map
   /// visible at the given [cursorPos] with the zoom set to [zoom].
-  LatLng focusedZoomCenter(Point cursorPos, double zoom) {
+  LatLng focusedZoomCenter(Offset cursorPos, double zoom) {
     // Calculate offset of mouse cursor from viewport center
     final viewCenter = nonRotatedSize / 2;
     final offset = (cursorPos - viewCenter).rotate(rotationRad);

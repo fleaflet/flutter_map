@@ -80,6 +80,7 @@ class OverlayImage extends BaseOverlayImage {
     required Image child,
   }) {
     final camera = MapCamera.of(context);
+    
 
     // northWest is not necessarily upperLeft depending on projection
     final bounds = Bounds<double>(

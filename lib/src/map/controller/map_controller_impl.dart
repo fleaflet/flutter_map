@@ -154,7 +154,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     if (offset != Offset.zero) {
       final newPoint = camera.project(newCenter, newZoom);
       center = camera.unproject(
-        camera.rotatePoint(
+        camera.rotateOffset(
           newPoint,
           newPoint - Point(offset.dx, offset.dy),
         ),

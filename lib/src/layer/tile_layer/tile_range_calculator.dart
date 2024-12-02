@@ -46,7 +46,7 @@ class TileRangeCalculator {
     final tileZoomDouble = tileZoom.toDouble();
     final scale = camera.getZoomScale(viewingZoom, tileZoomDouble);
     final pixelCenter =
-        camera.project(center, tileZoomDouble).floor().toDoublePoint();
+        camera.project(center, tileZoomDouble).floor().toOffset();
     final halfSize = camera.size / (scale * 2);
 
     return Bounds(pixelCenter - halfSize, pixelCenter + halfSize);

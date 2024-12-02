@@ -44,14 +44,14 @@ extension PointExtension<T extends num> on Point<T> {
       return Point<double>(nx, ny);
     }
 
-    return toDoublePoint();
+    return toOffset();
   }
 
   /// Cast the object to a [Point] object with integer values
   Point<int> toIntPoint() => Point<int>(x.toInt(), y.toInt());
 
   /// Case the object to a [Point] object with double values
-  Point<double> toDoublePoint() => Point<double>(x.toDouble(), y.toDouble());
+  Point<double> toOffset() => Point<double>(x.toDouble(), y.toDouble());
 
   /// Maps the [Point] to an [Offset].
   Offset toOffset() => Offset(x.toDouble(), y.toDouble());

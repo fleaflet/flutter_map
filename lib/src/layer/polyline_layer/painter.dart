@@ -108,7 +108,7 @@ base class _PolylinePainter<R extends Object>
     }
 
     final origin =
-        camera.project(camera.center).toOffset() - camera.size.toOffset() / 2;
+        camera.project(camera.center) - camera.size.toOffset() / 2;
 
     for (final projectedPolyline in polylines) {
       final polyline = projectedPolyline.polyline;
@@ -278,7 +278,7 @@ base class _PolylinePainter<R extends Object>
     return delta.distance;
   }
 
-  LatLng _unproject(DoublePoint p0) =>
+  LatLng _unproject(Offset p0) =>
       camera.crs.projection.unprojectXY(p0.x, p0.y);
 
   @override

@@ -152,8 +152,8 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
                 List.generate(
                   points.length * 2,
                   (ii) => ii.isEven
-                      ? points.elementAt(ii ~/ 2).x
-                      : points.elementAt(ii ~/ 2).y,
+                      ? points.elementAt(ii ~/ 2).dx
+                      : points.elementAt(ii ~/ 2).dy,
                   growable: false,
                 ),
                 holeIndices: culledPolygon.holePoints.isEmpty

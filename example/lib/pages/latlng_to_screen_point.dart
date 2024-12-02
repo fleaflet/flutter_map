@@ -52,8 +52,8 @@ class _LatLngToScreenPointPageState extends State<LatLngToScreenPointPage> {
               ),
               onTap: (_, latLng) {
                 final point = mapController.camera
-                    .latLngToScreenPoint(tappedCoords = latLng);
-                setState(() => tappedPoint = Point(point.x, point.y));
+                    .latLngToScreenOffset(tappedCoords = latLng);
+                setState(() => tappedPoint = Point(point.dx, point.dy));
               },
             ),
             children: [

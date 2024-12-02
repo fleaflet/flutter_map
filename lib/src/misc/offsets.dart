@@ -45,8 +45,8 @@ List<Offset> getOffsets(MapCamera camera, Offset origin, List<LatLng> points) {
 List<Offset> getOffsetsXY({
   required MapCamera camera,
   required Offset origin,
-  required List<DoublePoint> points,
-  List<List<DoublePoint>>? holePoints,
+  required List<Offset> points,
+  List<List<Offset>>? holePoints,
 }) {
   // Critically create as little garbage as possible. This is called on every frame.
   final crs = camera.crs;

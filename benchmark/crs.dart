@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
+import 'dart:ui';
 
 import 'package:flutter_map/src/geo/crs.dart';
 import 'package:latlong2/latlong.dart';
@@ -55,8 +56,8 @@ Future<void> main() async {
     for (int i = 0; i < N; ++i) {
       final latlng = LatLng((i % 90).toDouble(), (i % 180).toDouble());
       final p = crs.latLngToPoint(latlng, 1);
-      x += p.x;
-      y += p.y;
+      x += p.dx;
+      y += p.dy;
     }
     return x + y;
   }));
@@ -85,8 +86,8 @@ Future<void> main() async {
       for (int i = 0; i < N; ++i) {
         final latlng = LatLng((i % 90).toDouble(), (i % 180).toDouble());
         final point = crs.latLngToPoint(latlng, 1);
-        x += point.x;
-        y += point.y;
+        x += point.dx;
+        y += point.dy;
       }
       return x + y;
     }));
@@ -95,7 +96,7 @@ Future<void> main() async {
       double x = 0;
       double y = 0;
       for (int i = 0; i < N; ++i) {
-        final latlng = crs.pointToLatLng(math.Point<double>(x, y), 1);
+        final latlng = crs.pointToLatLng(Offset(x, y), 1);
         x += latlng.longitude;
         y += latlng.latitude;
       }

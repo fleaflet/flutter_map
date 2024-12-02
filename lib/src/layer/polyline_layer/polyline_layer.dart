@@ -157,7 +157,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
         final p1 = projectedPolyline.points[i];
         final p2 = projectedPolyline.points[i + 1];
 
-        containsSegment = projBounds.aabbContainsLine(p1.x, p1.y, p2.x, p2.y);
+        containsSegment = projBounds.aabbContainsLine(p1.dx, p1.dy, p2.dx, p2.dy);
         if (containsSegment) {
           if (start == -1) {
             start = i;
