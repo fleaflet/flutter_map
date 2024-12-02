@@ -95,7 +95,7 @@ class Scalebar extends StatelessWidget {
         : '${(metricDst / 1000.0).toStringAsFixed(0)} km';
     final ScalebarPainter scalebarPainter = _SimpleScalebarPainter(
       // use .abs() to avoid wrong placements on the right map border
-      scalebarLength: (offsetDistance.x - offsetCenter.x).abs(),
+      scalebarLength: (offsetDistance.dx - offsetCenter.dx).abs(),
       text: TextSpan(
         style: textStyle,
         text: label,

@@ -143,8 +143,8 @@ class FitBounds extends CameraFit {
     // Prevent negative size which results in NaN zoom value later on in the calculation
     size = Offset(math.max(0, size.dx), math.max(0, size.dy));
     var boundsSize = Bounds(
-      camera.project(se, camera.zoom),
-      camera.project(nw, camera.zoom),
+      camera.project(se, camera.zoom).toPoint(),
+      camera.project(nw, camera.zoom).toPoint(),
     ).size;
     if (camera.rotation != 0.0) {
       final cosAngle = math.cos(camera.rotationRad).abs();
@@ -224,8 +224,8 @@ class FitInsideBounds extends CameraFit {
     final cameraSize = camera.nonRotatedSize - paddingTotalXY;
 
     final projectedBoundsSize = Bounds(
-      camera.project(bounds.southEast, camera.zoom),
-      camera.project(bounds.northWest, camera.zoom),
+      camera.project(bounds.southEast, camera.zoom).toPoint(),
+      camera.project(bounds.northWest, camera.zoom).toPoint(),
     ).size;
 
     final scale = _rectInRotRectScale(
@@ -424,8 +424,8 @@ class FitCoordinates extends CameraFit {
   /// Returns a new [MapCamera] which fits this classes configuration.
   @override
   MapCamera fit(MapCamera camera) {
-    final paddingTL = Point<double>(padding.left, padding.top);
-    final paddingBR = Point<double>(padding.right, padding.bottom);
+    final paddingTL = Offset(padding.left, padding.top);
+    final paddingBR = Offset(padding.right, padding.bottom);
 
     final paddingTotalXY = paddingTL + paddingBR;
 
@@ -435,17 +435,17 @@ class FitCoordinates extends CameraFit {
     final projectedPoints =
         coordinates.map((coord) => camera.project(coord, newZoom));
 
-    final rotatedPoints =
-        projectedPoints.map((point) => point.rotate(-camera.rotationRad));
+    final rotatedPoints = projectedPoints
+        .map((point) => point.rotate(-camera.rotationRad).toPoint());
 
     final rotatedBounds = Bounds.containing(rotatedPoints);
 
     // Apply padding
     final paddingOffset = (paddingBR - paddingTL) / 2;
-    final rotatedNewCenter = rotatedBounds.center + paddingOffset;
+    final rotatedNewCenter = rotatedBounds.center.toOffset() + paddingOffset;
 
     // Undo the rotation
-    final unrotatedNewCenter = rotatedNewCenter.toOffset().rotate(camera.rotationRad);
+    final unrotatedNewCenter = rotatedNewCenter.rotate(camera.rotationRad);
 
     final newCenter = camera.unproject(unrotatedNewCenter, newZoom);
 
@@ -467,8 +467,8 @@ class FitCoordinates extends CameraFit {
       for (final coord in coordinates) camera.project(coord)
     ];
 
-    final rotatedPoints =
-        projectedPoints.map((point) => point.rotate(-camera.rotationRad));
+    final rotatedPoints = projectedPoints
+        .map((point) => point.rotate(-camera.rotationRad).toPoint());
     final rotatedBounds = Bounds.containing(rotatedPoints);
 
     final boundsSize = rotatedBounds.size;

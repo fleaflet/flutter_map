@@ -5,13 +5,6 @@ import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flutter_map/src/geo/crs.dart';
-import 'package:meta/meta.dart';
-
-double distanceSq(Offset a, Offset b) {
-    final double dx = a.dx - b.dx;
-    final double dy = a.dy - b.dy;
-    return dx * dx + dy * dy;
-  }
 
 /// square distance from a point to a segment
 double getSqSegDist(
@@ -55,7 +48,7 @@ List<Offset> simplifyRadialDist(
   late Offset point;
   for (int i = 1, len = points.length; i < len; i++) {
     point = points[i];
-    if (distanceSq(point, prevPoint) > sqTolerance) {
+    if ((point - prevPoint).distanceSquared > sqTolerance) {
       newPoints.add(point);
       prevPoint = point;
     }

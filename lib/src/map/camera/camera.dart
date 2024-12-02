@@ -58,8 +58,8 @@ class MapCamera {
   /// This is the [LatLngBounds] corresponding to four corners of this camera.
   /// This takes rotation in to account.
   LatLngBounds get visibleBounds => _bounds ??= LatLngBounds(
-        unproject(pixelBounds.bottomLeft, zoom),
-        unproject(pixelBounds.topRight, zoom),
+        unproject(pixelBounds.bottomLeft.toOffset(), zoom),
+        unproject(pixelBounds.topRight.toOffset(), zoom),
       );
 
   /// The size of bounding box of this camera taking in to account its
@@ -217,7 +217,8 @@ class MapCamera {
     final rotationRad = degrees2Radians * rotation;
     final cosAngle = math.cos(rotationRad).abs();
     final sinAngle = math.sin(rotationRad).abs();
-    final width = (nonRotatedSize.dx * cosAngle) + (nonRotatedSize.dy * sinAngle);
+    final width =
+        (nonRotatedSize.dx * cosAngle) + (nonRotatedSize.dy * sinAngle);
     final height =
         (nonRotatedSize.dy * cosAngle) + (nonRotatedSize.dx * sinAngle);
 
@@ -253,14 +254,12 @@ class MapCamera {
       crs.getProjectedBounds(zoom ?? this.zoom);
 
   /// Calculates the [Offset] from the [pos] to this camera's [pixelOrigin].
-  Offset getOffsetFromOrigin(LatLng pos) =>
-      project(pos) - pixelOrigin;
+  Offset getOffsetFromOrigin(LatLng pos) => project(pos) - pixelOrigin;
 
   /// Calculates the pixel origin of this [MapCamera] at the given
   /// [center]/[zoom].
   Offset getNewPixelOrigin(LatLng center, [double? zoom]) {
-    // TODO was explcitly rounded
-    return project(center, zoom) - (size / 2.0);
+    return (project(center, zoom) - (size / 2.0)).round();
   }
 
   /// Calculates the pixel bounds of this [MapCamera]. This value is cached.
@@ -274,9 +273,9 @@ class MapCamera {
       final scale = getZoomScale(this.zoom, zoom);
       halfSize = size / (scale * 2);
     }
-    // TODO was explicitly floored
-    final pixelCenter = project(center, zoom);
-    return Bounds(pixelCenter - halfSize, pixelCenter + halfSize);
+    final pixelCenter = project(center, zoom).floor();
+    return Bounds(
+        (pixelCenter - halfSize).toPoint(), (pixelCenter + halfSize).toPoint());
   }
 
   /// This will convert a latLng to a position that we could use with a widget
@@ -321,7 +320,6 @@ class MapCamera {
     Offset point, {
     bool counterRotation = true,
   }) {
-
     //TODO what is the difference between this and the extension method on Offset.rotate?????!?!?!
     final counterRotationFactor = counterRotation ? -1 : 1;
 
@@ -345,8 +343,7 @@ class MapCamera {
   /// [MapCamera] gets used.
   LatLng offsetToCrs(Offset offset, [double? zoom]) {
     final focalStartPt = project(center, zoom ?? this.zoom);
-    final point =
-        (offset - (nonRotatedSize / 2.0)).rotate(rotationRad);
+    final point = (offset - (nonRotatedSize / 2.0)).rotate(rotationRad);
 
     final newCenterPt = focalStartPt + point;
     return unproject(newCenterPt, zoom ?? this.zoom);

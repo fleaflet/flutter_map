@@ -256,7 +256,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
 
     final rotationDiff = degree - camera.rotation;
     final rotationCenter = camera.project(camera.center) +
-        (point != null ? (point - (camera.nonRotatedSize / 2.0)) : offset)
+        (point != null ? (point - (camera.nonRotatedSize / 2.0)) : offset!)
             .rotate(camera.rotationRad);
 
     return (
@@ -325,7 +325,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
 
   /// Set the widget size but don't emit a event to the event system.
   bool setNonRotatedSizeWithoutEmittingEvent(
-    Point<double> nonRotatedSize,
+    Offset nonRotatedSize,
   ) {
     if (nonRotatedSize != MapCamera.kImpossibleSize &&
         nonRotatedSize != camera.nonRotatedSize) {

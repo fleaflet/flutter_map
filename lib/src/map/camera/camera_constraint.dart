@@ -1,5 +1,5 @@
-import 'dart:math' as math hide Point;
-import 'dart:math' show Point;
+import 'dart:math' as math;
+import 'dart:ui';
 
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -117,19 +117,19 @@ class ContainCamera extends CameraConstraint {
 
     // Find the limits for the map center which would keep the camera within the
     // [latLngBounds].
-    final leftOkCenter = math.min(swPixel.x, nePixel.x) + halfSize.x;
-    final rightOkCenter = math.max(swPixel.x, nePixel.x) - halfSize.x;
-    final topOkCenter = math.min(swPixel.y, nePixel.y) + halfSize.y;
-    final botOkCenter = math.max(swPixel.y, nePixel.y) - halfSize.y;
+    final leftOkCenter = math.min(swPixel.dx, nePixel.dx) + halfSize.dx;
+    final rightOkCenter = math.max(swPixel.dx, nePixel.dx) - halfSize.dx;
+    final topOkCenter = math.min(swPixel.dy, nePixel.dy) + halfSize.dy;
+    final botOkCenter = math.max(swPixel.dy, nePixel.dy) - halfSize.dy;
 
     // Stop if we are zoomed out so far that the camera cannot be translated to
     // stay within [latLngBounds].
     if (leftOkCenter > rightOkCenter || topOkCenter > botOkCenter) return null;
 
     final centerPix = camera.project(testCenter, testZoom);
-    final newCenterPix = Point(
-      centerPix.x.clamp(leftOkCenter, rightOkCenter),
-      centerPix.y.clamp(topOkCenter, botOkCenter),
+    final newCenterPix = Offset(
+      centerPix.dx.clamp(leftOkCenter, rightOkCenter),
+      centerPix.dy.clamp(topOkCenter, botOkCenter),
     );
 
     if (newCenterPix == centerPix) return camera;

@@ -80,12 +80,11 @@ class OverlayImage extends BaseOverlayImage {
     required Image child,
   }) {
     final camera = MapCamera.of(context);
-    
 
     // northWest is not necessarily upperLeft depending on projection
     final bounds = Bounds<double>(
-      camera.project(this.bounds.northWest) - camera.pixelOrigin,
-      camera.project(this.bounds.southEast) - camera.pixelOrigin,
+      (camera.project(this.bounds.northWest) - camera.pixelOrigin).toPoint(),
+      (camera.project(this.bounds.southEast) - camera.pixelOrigin).toPoint(),
     );
 
     return Positioned(
@@ -146,13 +145,13 @@ class RotatedOverlayImage extends BaseOverlayImage {
     final pxTopRight = pxTopLeft - pxBottomLeft + pxBottomRight;
 
     /// update/enlarge bounds so the new corner points fit within
-    final bounds = Bounds<double>(pxTopLeft, pxBottomRight)
-        .extend(pxTopRight)
-        .extend(pxBottomLeft);
+    final bounds = Bounds<double>(pxTopLeft.toPoint(), pxBottomRight.toPoint())
+        .extend(pxTopRight.toPoint())
+        .extend(pxBottomLeft.toPoint());
 
     final vectorX = (pxTopRight - pxTopLeft) / bounds.size.x;
     final vectorY = (pxBottomLeft - pxTopLeft) / bounds.size.y;
-    final offset = pxTopLeft - bounds.topLeft;
+    final offset = pxTopLeft - bounds.topLeft.toOffset();
 
     final a = vectorX.dx;
     final b = vectorX.dy;
