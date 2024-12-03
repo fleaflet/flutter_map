@@ -14,28 +14,16 @@ class InteractiveFlagsPage extends StatefulWidget {
 }
 
 class _InteractiveFlagsPageState extends State<InteractiveFlagsPage> {
-  static const availableFlags = {
-    'Movement': {
-      InteractiveFlag.drag: 'Drag',
-      InteractiveFlag.flingAnimation: 'Fling',
-      InteractiveFlag.pinchMove: 'Pinch',
-    },
-    'Zooming': {
-      InteractiveFlag.pinchZoom: 'Pinch',
-      InteractiveFlag.scrollWheelZoom: 'Scroll',
-      InteractiveFlag.doubleTapZoom: 'Double tap',
-      InteractiveFlag.doubleTapDragZoom: '+ drag',
-    },
-    'Rotation': {
-      InteractiveFlag.rotate: 'Twist',
-    },
-  };
+  final flagsSet =
+      ValueNotifier(InteractiveFlag.drag | InteractiveFlag.pinchZoom);
 
-  int flags = InteractiveFlag.drag | InteractiveFlag.pinchZoom;
   bool keyboardCursorRotate = false;
+  bool keyboardArrowsMove = false;
+  bool keyboardWASDMove = false;
+  bool keyboardQERotate = false;
+  bool keyboardRFZoom = false;
 
   MapEvent? _latestEvent;
-
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.sizeOf(context).width;
@@ -50,58 +38,181 @@ class _InteractiveFlagsPageState extends State<InteractiveFlagsPage> {
               direction: screenWidth >= 600 ? Axis.horizontal : Axis.vertical,
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: availableFlags.entries
-                  .map<Widget?>(
-                    (category) => Column(
+              children: [
+                Column(
+                  children: [
+                    const Text(
+                      'Move/Pan',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          category.key,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        InteractiveFlagCheckbox(
+                          name: 'Drag',
+                          flag: InteractiveFlag.drag,
+                          flagsSet: flagsSet,
                         ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            ...category.value.entries.map(
-                              (e) => Column(
-                                children: [
-                                  Checkbox.adaptive(
-                                    value:
-                                        InteractiveFlag.hasFlag(e.key, flags),
-                                    onChanged: (enabled) {
-                                      if (!enabled!) {
-                                        setState(() => flags &= ~e.key);
-                                        return;
-                                      }
-                                      setState(() => flags |= e.key);
-                                    },
-                                  ),
-                                  Text(e.value),
-                                ],
+                        const SizedBox(width: 8),
+                        InteractiveFlagCheckbox(
+                          name: 'Fling',
+                          flag: InteractiveFlag.flingAnimation,
+                          flagsSet: flagsSet,
+                        ),
+                        const SizedBox(width: 8),
+                        InteractiveFlagCheckbox(
+                          name: 'Pinch',
+                          flag: InteractiveFlag.pinchMove,
+                          flagsSet: flagsSet,
+                        ),
+                        const SizedBox(width: 8),
+                        Column(
+                          children: [
+                            Checkbox.adaptive(
+                              value: keyboardArrowsMove,
+                              onChanged: (enabled) => setState(
+                                () => keyboardArrowsMove = enabled!,
                               ),
                             ),
-                            if (category.key == 'Rotation') ...[
-                              Column(
-                                children: [
-                                  Checkbox.adaptive(
-                                    value: keyboardCursorRotate,
-                                    onChanged: (enabled) => setState(
-                                        () => keyboardCursorRotate = enabled!),
-                                  ),
-                                  const Text('Cursor & CTRL'),
-                                ],
+                            const Text(
+                              'Keyboard\nArrows',
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(width: 8),
+                        Column(
+                          children: [
+                            Checkbox.adaptive(
+                              value: keyboardWASDMove,
+                              onChanged: (enabled) => setState(
+                                () => keyboardWASDMove = enabled!,
                               ),
-                            ]
-                          ].interleave(const SizedBox(width: 12)).toList()
-                            ..removeLast(),
-                        )
+                            ),
+                            const Text(
+                              'Keyboard\nW/A/S/D',
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
                       ],
+                    )
+                  ],
+                ),
+                const SizedBox(width: 12),
+                Column(
+                  children: [
+                    const Text(
+                      'Zoom',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  )
-                  .interleave(
-                    screenWidth >= 600 ? null : const SizedBox(height: 12),
-                  )
-                  .whereType<Widget>()
-                  .toList(),
+                    const SizedBox(height: 6),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        InteractiveFlagCheckbox(
+                          name: 'Pinch',
+                          flag: InteractiveFlag.pinchZoom,
+                          flagsSet: flagsSet,
+                        ),
+                        const SizedBox(width: 8),
+                        InteractiveFlagCheckbox(
+                          name: 'Scroll',
+                          flag: InteractiveFlag.scrollWheelZoom,
+                          flagsSet: flagsSet,
+                        ),
+                        const SizedBox(width: 8),
+                        InteractiveFlagCheckbox(
+                          name: 'Double tap',
+                          flag: InteractiveFlag.doubleTapZoom,
+                          flagsSet: flagsSet,
+                        ),
+                        const SizedBox(width: 8),
+                        InteractiveFlagCheckbox(
+                          name: '+ drag',
+                          flag: InteractiveFlag.doubleTapDragZoom,
+                          flagsSet: flagsSet,
+                        ),
+                        const SizedBox(width: 8),
+                        Column(
+                          children: [
+                            Checkbox.adaptive(
+                              value: keyboardRFZoom,
+                              onChanged: (enabled) => setState(
+                                () => keyboardRFZoom = enabled!,
+                              ),
+                            ),
+                            const Text(
+                              'Keyboard\nR/F',
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+                const SizedBox(width: 12),
+                Column(
+                  children: [
+                    const Text(
+                      'Rotate',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        InteractiveFlagCheckbox(
+                          name: 'Twist',
+                          flag: InteractiveFlag.rotate,
+                          flagsSet: flagsSet,
+                        ),
+                        const SizedBox(width: 8),
+                        Column(
+                          children: [
+                            Checkbox.adaptive(
+                              value: keyboardCursorRotate,
+                              onChanged: (enabled) => setState(
+                                () => keyboardCursorRotate = enabled!,
+                              ),
+                            ),
+                            const Text(
+                              'Cursor\n& CTRL',
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(width: 8),
+                        Column(
+                          children: [
+                            Checkbox.adaptive(
+                              value: keyboardQERotate,
+                              onChanged: (enabled) => setState(
+                                () => keyboardQERotate = enabled!,
+                              ),
+                            ),
+                            const Text(
+                              'Keyboard\nQ/E',
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ],
             ),
             const Divider(),
             Padding(
@@ -115,23 +226,33 @@ class _InteractiveFlagsPageState extends State<InteractiveFlagsPage> {
               ),
             ),
             Expanded(
-              child: FlutterMap(
-                options: MapOptions(
-                  onMapEvent: (evt) => setState(() => _latestEvent = evt),
-                  initialCenter: const LatLng(51.5, -0.09),
-                  initialZoom: 11,
-                  interactionOptions: InteractionOptions(
-                    flags: flags,
-                    cursorKeyboardRotationOptions:
-                        CursorKeyboardRotationOptions(
-                      isKeyTrigger: (key) =>
-                          keyboardCursorRotate &&
-                          CursorKeyboardRotationOptions.defaultTriggerKeys
-                              .contains(key),
+              child: ValueListenableBuilder(
+                valueListenable: flagsSet,
+                builder: (context, value, child) => FlutterMap(
+                  options: MapOptions(
+                    onMapEvent: (evt) => setState(() => _latestEvent = evt),
+                    initialCenter: const LatLng(51.5, -0.09),
+                    initialZoom: 11,
+                    interactionOptions: InteractionOptions(
+                      flags: value,
+                      cursorKeyboardRotationOptions:
+                          CursorKeyboardRotationOptions(
+                        isKeyTrigger: (key) =>
+                            keyboardCursorRotate &&
+                            CursorKeyboardRotationOptions.defaultTriggerKeys
+                                .contains(key),
+                      ),
+                      keyboardOptions: KeyboardOptions(
+                        enableArrowKeysPanning: keyboardArrowsMove,
+                        enableWASDPanning: keyboardWASDMove,
+                        enableQERotating: keyboardQERotate,
+                        enableRFZooming: keyboardRFZoom,
+                      ),
                     ),
                   ),
+                  children: [child!],
                 ),
-                children: [openStreetMapTileLayer],
+                child: openStreetMapTileLayer,
               ),
             ),
           ],
@@ -186,11 +307,32 @@ class _InteractiveFlagsPageState extends State<InteractiveFlagsPage> {
   }
 }
 
-extension _IterableExt<E> on Iterable<E> {
-  Iterable<E> interleave(E separator) sync* {
-    for (int i = 0; i < length; i++) {
-      yield elementAt(i);
-      if (i < length) yield separator;
-    }
+class InteractiveFlagCheckbox extends StatelessWidget {
+  const InteractiveFlagCheckbox({
+    super.key,
+    required this.name,
+    required this.flag,
+    required this.flagsSet,
+  });
+
+  final String name;
+  final int flag;
+  final ValueNotifier<int> flagsSet;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        ValueListenableBuilder(
+          valueListenable: flagsSet,
+          builder: (context, value, _) => Checkbox.adaptive(
+            value: InteractiveFlag.hasFlag(flag, value),
+            onChanged: (enabled) =>
+                flagsSet.value = !enabled! ? value &= ~flag : value |= flag,
+          ),
+        ),
+        Text(name),
+      ],
+    );
   }
 }

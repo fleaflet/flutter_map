@@ -81,6 +81,14 @@ final class InteractionOptions {
   /// [CursorKeyboardRotationOptions.disabled] constructor.
   final CursorKeyboardRotationOptions cursorKeyboardRotationOptions;
 
+  /// Options to configure how keyboard keys may be used to control the map
+  ///
+  /// See [CursorKeyboardRotationOptions] for options to control the keyboard
+  /// and mouse cursor being used together to rotate the map.
+  ///
+  /// By default, keyboard movement using the arrow keys is enabled.
+  final KeyboardOptions keyboardOptions;
+
   /// Create a new [InteractionOptions] instance to be used
   /// in [MapOptions.interactionOptions].
   const InteractionOptions({
@@ -97,6 +105,7 @@ final class InteractionOptions {
         MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
     this.scrollWheelVelocity = 0.005,
     this.cursorKeyboardRotationOptions = const CursorKeyboardRotationOptions(),
+    this.keyboardOptions = const KeyboardOptions(),
   })  : assert(
           rotationThreshold >= 0.0,
           'rotationThreshold needs to be a positive value',
