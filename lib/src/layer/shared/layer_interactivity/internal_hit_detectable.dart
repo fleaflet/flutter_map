@@ -96,7 +96,7 @@ base mixin HitTestRequiresCameraOrigin<R extends Object,
   /// Calculated [MapCamera] origin, using the following formula:
   ///
   /// ```dart
-  /// camera.project(camera.center) - camera.size. / 2
+  /// camera.project(camera.center) - camera.size / 2
   /// ```
   ///
   /// Only initialised after [hitTest] is invoked. Recalculated every time
