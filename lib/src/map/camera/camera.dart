@@ -17,7 +17,8 @@ class MapCamera {
   /// in a subsequent build to the actual constraints. We set the size to this
   /// impossible (negative) value initially and only change it once Flutter
   /// provides real constraints.
-  static const kImpossibleSize = Offset(-1, -1);
+  static const kImpossibleSize =
+      Offset(double.negativeInfinity, double.negativeInfinity);
 
   /// The used coordinate reference system
   final Crs crs;
