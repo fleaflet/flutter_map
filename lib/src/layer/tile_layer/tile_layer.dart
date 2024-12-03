@@ -695,8 +695,9 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     // Re-order the tiles by their distance to the center of the range.
     final tileCenter = expandedTileLoadRange.center;
     tilesToLoad.sort(
-      (a, b) => _distanceSq(a.coordinates, tileCenter)
-          .compareTo(_distanceSq(b.coordinates, tileCenter)),
+      (a, b) => (a.coordinates.toOffset() - tileCenter)
+          .distanceSquared
+          .compareTo((b.coordinates.toOffset() - tileCenter).distanceSquared),
     );
 
     // Create the new Tiles.
@@ -756,11 +757,4 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     _tileImageManager.removeAll(widget.evictErrorTileStrategy);
     if (mounted) _loadAndPruneInVisibleBounds(MapCamera.of(context));
   }
-}
-
-// TODO replace with simple implementation of (Offset - Offset).distanceSq
-double _distanceSq(TileCoordinates coord, Offset center) {
-  final dx = center.dx - coord.x;
-  final dy = center.dy - coord.y;
-  return dx * dx + dy * dy;
 }
