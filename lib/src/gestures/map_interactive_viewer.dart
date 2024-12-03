@@ -403,7 +403,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
               .clamp(minZoom, maxZoom);
           // Calculate offset of mouse cursor from viewport center
           final newCenter = _camera.focusedZoomCenter(
-            pointerSignal.localPosition.toPoint(),
+            pointerSignal.localPosition,
             newZoom,
           );
           widget.controller.moveRaw(
@@ -636,7 +636,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     final zoomDifference = oldFocalPt - newFocalPt;
     final moveDifference = _rotateOffset(_focalStartLocal - _lastFocalLocal);
 
-    final newCenterPt = oldCenterPt + zoomDifference + moveDifference.toPoint();
+    final newCenterPt = oldCenterPt + zoomDifference + moveDifference;
     return _camera.unproject(newCenterPt, zoomAfterPinchZoom);
   }
 
@@ -728,9 +728,9 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     }
 
     final direction = details.velocity.pixelsPerSecond / magnitude;
-    final distance =
-        (Offset.zero & Size(_camera.nonRotatedSize.x, _camera.nonRotatedSize.y))
-            .shortestSide;
+    final distance = (Offset.zero &
+            Size(_camera.nonRotatedSize.dx, _camera.nonRotatedSize.dy))
+        .shortestSide;
 
     final flingOffset = _focalStartLocal - _lastFocalLocal;
     _flingAnimation = Tween<Offset>(
@@ -803,7 +803,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     if (InteractiveFlag.hasDoubleTapZoom(_interactionOptions.flags)) {
       final newZoom = _getZoomForScale(_camera.zoom, 2);
       final newCenter = _camera.focusedZoomCenter(
-        tapPosition.relative!.toPoint(),
+        tapPosition.relative!,
         newZoom,
       );
       _startDoubleTapAnimation(newZoom, newCenter);
@@ -882,19 +882,20 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     }
 
     final newCenterPoint = _camera.project(_mapCenterStart) +
-        _flingAnimation.value.toPoint().rotate(_camera.rotationRad);
+        _flingAnimation.value.rotate(_camera.rotationRad);
     final LatLng newCenter;
     if (!_camera.crs.replicatesWorldLongitude) {
       newCenter = _camera.unproject(newCenterPoint);
     } else {
-      final math.Point<double> bestCenterPoint;
+      final Offset bestCenterPoint;
       final double worldSize = _camera.crs.scale(_camera.zoom);
-      if (newCenterPoint.x > worldSize) {
+      // TODO there has to be an easier way to write this code...
+      if (newCenterPoint.dx > worldSize) {
         bestCenterPoint =
-            math.Point(newCenterPoint.x - worldSize, newCenterPoint.y);
-      } else if (newCenterPoint.x < 0) {
+            Offset(newCenterPoint.dx - worldSize, newCenterPoint.dy);
+      } else if (newCenterPoint.dx < 0) {
         bestCenterPoint =
-            math.Point(newCenterPoint.x + worldSize, newCenterPoint.y);
+            Offset(newCenterPoint.dx + worldSize, newCenterPoint.dy);
       } else {
         bestCenterPoint = newCenterPoint;
       }

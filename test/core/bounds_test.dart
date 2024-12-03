@@ -47,7 +47,7 @@ void main() {
       expect(
           Bounds(Point(5.5, randomDouble()), Point(3.3, randomDouble()))
               .center
-              .x,
+              .dx,
           equals(4.4));
     });
 
@@ -55,7 +55,7 @@ void main() {
       expect(
           Bounds(Point(randomDouble(), 3.2), Point(randomDouble(), 6.6))
               .center
-              .y,
+              .dy,
           equals(4.9));
     });
 

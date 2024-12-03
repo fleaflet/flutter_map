@@ -1,6 +1,8 @@
 import 'dart:math' as math hide Point;
 import 'dart:math' show Point;
+import 'dart:ui';
 
+import 'package:flutter_map/flutter_map.dart';
 import 'package:meta/meta.dart';
 
 /// Rectangular bound delimited by orthogonal lines passing through two
@@ -41,17 +43,17 @@ class Bounds<T extends num> {
   const Bounds.unsafe(this.min, this.max);
 
   /// Create a [Bounds] as bounding box of a list of points.
-  static Bounds<double> containing(Iterable<Point<double>> points) {
+  static Bounds<double> containing(Iterable<Offset> points) {
     var maxX = double.negativeInfinity;
     var maxY = double.negativeInfinity;
     var minX = double.infinity;
     var minY = double.infinity;
 
     for (final point in points) {
-      maxX = math.max(point.x, maxX);
-      minX = math.min(point.x, minX);
-      maxY = math.max(point.y, maxY);
-      minY = math.min(point.y, minY);
+      maxX = math.max(point.dx, maxX);
+      minX = math.min(point.dx, minX);
+      maxY = math.max(point.dy, maxY);
+      minY = math.min(point.dy, minY);
     }
 
     return Bounds.unsafe(Point(minX, minY), Point(maxX, maxY));
@@ -67,10 +69,7 @@ class Bounds<T extends num> {
   }
 
   /// This [Bounds] central point.
-  Point<double> get center => Point<double>(
-        (min.x + max.x) / 2,
-        (min.y + max.y) / 2,
-      );
+  Offset get center => (min.toOffset() + max.toOffset()) / 2;
 
   /// Bottom-Left corner's point.
   Point<T> get bottomLeft => Point(min.x, max.y);

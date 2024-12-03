@@ -19,22 +19,22 @@ void main() {
 
     // Inside points
     for (final point in makeCircle(32, 0.8, 0.0001)) {
-      final p = math.Point(point.dx, point.dy);
+      final p = Offset(point.dx, point.dy);
       expect(isPointInPolygon(p, circle), isTrue);
     }
 
     // Edge-case: check origin
-    expect(isPointInPolygon(const math.Point(0, 0), circle), isTrue);
+    expect(isPointInPolygon(Offset.zero, circle), isTrue);
 
     // Outside points: small radius
     for (final point in makeCircle(32, 1.1, 0.0001)) {
-      final p = math.Point(point.dx, point.dy);
+      final p = Offset(point.dx, point.dy);
       expect(isPointInPolygon(p, circle), isFalse);
     }
 
     // Outside points: large radius
     for (final point in makeCircle(32, 100000, 0.0001)) {
-      final p = math.Point(point.dx, point.dy);
+      final p = Offset(point.dx, point.dy);
       expect(isPointInPolygon(p, circle), isFalse);
     }
   });

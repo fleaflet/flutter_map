@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 
@@ -19,7 +17,7 @@ class Tile extends StatefulWidget {
   /// Reference to the offset of the top-left corner of the bounding rectangle
   /// of the [MapCamera]. The origin will not equal the offset of the top-left
   /// visible pixel when the map is rotated.
-  final Point<double> currentPixelOrigin;
+  final Offset currentPixelOrigin;
 
   /// Position Coordinates.
   ///
@@ -71,9 +69,9 @@ class _TileState extends State<Tile> {
   Widget build(BuildContext context) {
     return Positioned(
       left: widget.positionCoordinates.x * widget.scaledTileDimension -
-          widget.currentPixelOrigin.x,
+          widget.currentPixelOrigin.dx,
       top: widget.positionCoordinates.y * widget.scaledTileDimension -
-          widget.currentPixelOrigin.y,
+          widget.currentPixelOrigin.dy,
       width: widget.scaledTileDimension,
       height: widget.scaledTileDimension,
       child: widget.tileBuilder?.call(context, _tileImage, widget.tileImage) ??

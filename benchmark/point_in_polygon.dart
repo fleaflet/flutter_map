@@ -49,7 +49,7 @@ Future<void> main() async {
   final circle = makeCircle(1000, 1, 0);
 
   results.add(await timedRun('In circle', () {
-    const point = math.Point(0, 0);
+    const point = Offset.zero;
 
     bool yesPlease = true;
     for (int i = 0; i < N; ++i) {
@@ -61,7 +61,7 @@ Future<void> main() async {
   }));
 
   results.add(await timedRun('Not in circle', () {
-    const point = math.Point(4, 4);
+    const point = Offset(4, 4);
 
     bool noSir = false;
     for (int i = 0; i < N; ++i) {

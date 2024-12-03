@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
@@ -231,7 +232,7 @@ void main() {
           ),
         );
 
-        expect(tileRange.center, const Point(3, 3));
+        expect(tileRange.center, const Offset(3, 3));
       });
 
       test('multiple tiles, even number of tiles', () {
@@ -244,7 +245,7 @@ void main() {
           ),
         );
 
-        expect(tileRange.center, const Point(3.5, 3.5));
+        expect(tileRange.center, const Offset(3.5, 3.5));
       });
 
       test('multiple tiles, odd number of tiles', () {
@@ -257,7 +258,7 @@ void main() {
           ),
         );
 
-        expect(tileRange.center, const Point(4, 4));
+        expect(tileRange.center, const Offset(4, 4));
       });
     });
 

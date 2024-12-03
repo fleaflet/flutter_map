@@ -20,7 +20,7 @@ base class CirclePainter<R extends Object>
   @override
   bool elementHitTest(
     CircleMarker<R> element, {
-    required Point<double> point,
+    required Offset point,
     required LatLng coordinate,
   }) {
     final circle = element; // Should be optimized out by compiler, avoids lint
@@ -33,7 +33,7 @@ base class CirclePainter<R extends Object>
             .distance
         : circle.radius;
 
-    return pow(point.x - center.dx, 2) + pow(point.y - center.dy, 2) <=
+    return pow(point.dx - center.dx, 2) + pow(point.dy - center.dy, 2) <=
         radius * radius;
   }
 
