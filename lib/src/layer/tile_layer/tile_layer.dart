@@ -758,6 +758,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   }
 }
 
+// TODO replace with simple implementation of (Offset - Offset).distanceSq
 double _distanceSq(TileCoordinates coord, Point<double> center) {
   final dx = center.x - coord.x;
   final dy = center.y - coord.y;

@@ -29,6 +29,12 @@ class EmptyTileRange extends TileRange {
       const Iterable<TileCoordinates>.empty();
 }
 
+Point<int> _floor(Point<double> point) =>
+    Point<int>(point.x.floor(), point.y.floor());
+
+Point<int> _ceil(Point<double> point) =>
+    Point<int>(point.x.ceil(), point.y.ceil());
+
 /// Every [TileRange] is a [DiscreteTileRange] if it's not an [EmptyTileRange].
 @immutable
 class DiscreteTileRange extends TileRange {
@@ -46,12 +52,12 @@ class DiscreteTileRange extends TileRange {
   }) {
     final Bounds<int> bounds;
     if (pixelBounds.min == pixelBounds.max) {
-      final minAndMax = (pixelBounds.min / tileDimension).floor();
+      final minAndMax = _floor(pixelBounds.min / tileDimension);
       bounds = Bounds<int>(minAndMax, minAndMax);
     } else {
       bounds = Bounds<int>(
-        (pixelBounds.min / tileDimension).floor(),
-        (pixelBounds.max / tileDimension).ceil() - const Point(1, 1),
+        _floor(pixelBounds.min / tileDimension),
+        _ceil(pixelBounds.max / tileDimension) - const Point(1, 1),
       );
     }
 
