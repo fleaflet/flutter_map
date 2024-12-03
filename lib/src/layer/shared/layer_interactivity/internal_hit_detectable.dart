@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -54,7 +52,7 @@ abstract base class HitDetectablePainter<R extends Object,
   /// Should return whether an element has been hit.
   bool elementHitTest(
     E element, {
-    required Point<double> point,
+    required Offset point,
     required LatLng coordinate,
   });
 
@@ -66,7 +64,7 @@ abstract base class HitDetectablePainter<R extends Object,
     _hits.clear();
     bool hasHit = false;
 
-    final point = position.toPoint();
+    final point = position;
     final coordinate = camera.pointToLatLng(point);
 
     for (int i = elements.length - 1; i >= 0; i--) {

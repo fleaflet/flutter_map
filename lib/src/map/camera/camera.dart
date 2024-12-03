@@ -1,5 +1,4 @@
-import 'dart:math' as math hide Point;
-import 'dart:math' show Point;
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -295,10 +294,10 @@ class MapCamera {
   }
 
   /// Calculate the [LatLng] coordinates for a [localPoint].
-  LatLng pointToLatLng(Point localPoint) {
+  LatLng pointToLatLng(Offset localPoint) {
     final localPointCenterDistance = Offset(
-      (nonRotatedSize.dx / 2) - localPoint.x,
-      (nonRotatedSize.dy / 2) - localPoint.y,
+      (nonRotatedSize.dx / 2) - localPoint.dx,
+      (nonRotatedSize.dy / 2) - localPoint.dy,
     );
     final mapCenter = crs.latLngToPoint(center, zoom);
 

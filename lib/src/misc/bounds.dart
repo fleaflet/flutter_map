@@ -1,5 +1,6 @@
 import 'dart:math' as math hide Point;
 import 'dart:math' show Point;
+import 'dart:ui';
 
 import 'package:meta/meta.dart';
 
@@ -41,17 +42,17 @@ class Bounds<T extends num> {
   const Bounds.unsafe(this.min, this.max);
 
   /// Create a [Bounds] as bounding box of a list of points.
-  static Bounds<double> containing(Iterable<Point<double>> points) {
+  static Bounds<double> containing(Iterable<Offset> points) {
     var maxX = double.negativeInfinity;
     var maxY = double.negativeInfinity;
     var minX = double.infinity;
     var minY = double.infinity;
 
     for (final point in points) {
-      maxX = math.max(point.x, maxX);
-      minX = math.min(point.x, minX);
-      maxY = math.max(point.y, maxY);
-      minY = math.min(point.y, minY);
+      maxX = math.max(point.dx, maxX);
+      minX = math.min(point.dx, minX);
+      maxY = math.max(point.dy, maxY);
+      minY = math.min(point.dy, minY);
     }
 
     return Bounds.unsafe(Point(minX, minY), Point(maxX, maxY));

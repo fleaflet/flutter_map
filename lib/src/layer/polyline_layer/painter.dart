@@ -20,7 +20,7 @@ base class _PolylinePainter<R extends Object>
   @override
   bool elementHitTest(
     _ProjectedPolyline<R> projectedPolyline, {
-    required math.Point<double> point,
+    required Offset point,
     required LatLng coordinate,
   }) {
     final polyline = projectedPolyline.polyline;
@@ -57,7 +57,7 @@ base class _PolylinePainter<R extends Object>
       final o2 = offsets[i + 1];
 
       final distanceSq =
-          getSqSegDist(point.x, point.y, o1.dx, o1.dy, o2.dx, o2.dy);
+          getSqSegDist(point.dx, point.dy, o1.dx, o1.dy, o2.dx, o2.dy);
 
       if (distanceSq <= hittableDistance * hittableDistance) return true;
     }

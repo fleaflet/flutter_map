@@ -49,7 +49,7 @@ base class _PolygonPainter<R extends Object>
   @override
   bool elementHitTest(
     _ProjectedPolygon<R> projectedPolygon, {
-    required math.Point<double> point,
+    required Offset point,
     required LatLng coordinate,
   }) {
     // TODO: We should check the bounding box here, for efficiency

@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'dart:ui';
 
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -29,7 +29,7 @@ class LayerHitResult<R extends Object> {
   /// Screen point of the detected hit
   ///
   /// See [coordinate] for the geographical coordinate which was hit.
-  final Point<double> point;
+  final Offset point;
 
   /// Construct a new [LayerHitResult]
   @internal

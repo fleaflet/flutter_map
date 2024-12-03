@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/misc/tile_providers.dart';
@@ -96,7 +94,7 @@ class PointToLatlngPage extends State<ScreenPointToLatLngPage> {
   }
 
   void updatePoint(BuildContext context) => setState(() => latLng =
-      mapController.camera.pointToLatLng(Point(_getPointX(context), pointY)));
+      mapController.camera.pointToLatLng(Offset(_getPointX(context), pointY)));
 
   double _getPointX(BuildContext context) =>
       MediaQuery.sizeOf(context).width / 2;
