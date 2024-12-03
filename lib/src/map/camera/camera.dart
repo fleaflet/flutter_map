@@ -75,7 +75,7 @@ class MapCamera {
   /// camera. This will not equal the offset of the top-left visible pixel when
   /// the map is rotated.
   Offset get pixelOrigin =>
-      _pixelOrigin ??= project(center, zoom) - (size / 2.0);
+      _pixelOrigin ??= project(center, zoom) - size / 2;
 
   /// The camera of the closest [FlutterMap] ancestor. If this is called from a
   /// context with no [FlutterMap] ancestor null, is returned.
