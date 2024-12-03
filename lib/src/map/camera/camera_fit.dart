@@ -442,7 +442,7 @@ class FitCoordinates extends CameraFit {
 
     // Apply padding
     final paddingOffset = (paddingBR - paddingTL) / 2;
-    final rotatedNewCenter = rotatedBounds.center.toOffset() + paddingOffset;
+    final rotatedNewCenter = rotatedBounds.center + paddingOffset;
 
     // Undo the rotation
     final unrotatedNewCenter = rotatedNewCenter.rotate(camera.rotationRad);

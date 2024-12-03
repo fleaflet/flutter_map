@@ -1,5 +1,6 @@
 import 'dart:math' as math hide Point;
 import 'dart:math' show Point;
+import 'dart:ui';
 
 import 'package:flutter_map/flutter_map.dart';
 import 'package:meta/meta.dart';
@@ -151,7 +152,7 @@ class DiscreteTileRange extends TileRange {
   Point<int> get max => _bounds.max;
 
   /// The center [Point] of the [DiscreteTileRange]
-  Point<double> get center => _bounds.center;
+  Offset get center => _bounds.center;
 
   /// Get a list of [TileCoordinates] for the [DiscreteTileRange].
   @override

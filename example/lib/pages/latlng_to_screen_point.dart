@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -23,7 +21,7 @@ class _LatLngToScreenPointPageState extends State<LatLngToScreenPointPage> {
   final mapController = MapController();
 
   LatLng? tappedCoords;
-  Point<double>? tappedPoint;
+  Offset? tappedPoint;
 
   @override
   void initState() {
@@ -53,7 +51,7 @@ class _LatLngToScreenPointPageState extends State<LatLngToScreenPointPage> {
               onTap: (_, latLng) {
                 final point = mapController.camera
                     .latLngToScreenOffset(tappedCoords = latLng);
-                setState(() => tappedPoint = Point(point.dx, point.dy));
+                setState(() => tappedPoint = Offset(point.dx, point.dy));
               },
             ),
             children: [
@@ -77,8 +75,8 @@ class _LatLngToScreenPointPageState extends State<LatLngToScreenPointPage> {
           ),
           if (tappedPoint != null)
             Positioned(
-              left: tappedPoint!.x - 60 / 2,
-              top: tappedPoint!.y - 60 / 2,
+              left: tappedPoint!.dx - 60 / 2,
+              top: tappedPoint!.dy - 60 / 2,
               child: const IgnorePointer(
                 child: Icon(
                   Icons.center_focus_strong_outlined,

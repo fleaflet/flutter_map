@@ -2,6 +2,7 @@ import 'dart:math' as math hide Point;
 import 'dart:math' show Point;
 import 'dart:ui';
 
+import 'package:flutter_map/flutter_map.dart';
 import 'package:meta/meta.dart';
 
 /// Rectangular bound delimited by orthogonal lines passing through two
@@ -68,10 +69,7 @@ class Bounds<T extends num> {
   }
 
   /// This [Bounds] central point.
-  Point<double> get center => Point<double>(
-        (min.x + max.x) / 2,
-        (min.y + max.y) / 2,
-      );
+  Offset get center => (min.toOffset() + max.toOffset()) / 2;
 
   /// Bottom-Left corner's point.
   Point<T> get bottomLeft => Point(min.x, max.y);
