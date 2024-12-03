@@ -1,7 +1,10 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:meta/meta.dart';
+
 /// Extension methods for the math.[Point] class
+@internal
 extension PointExtension<T extends num> on Point<T> {
   /// Create a new [Point] where the [x] and [y] values are divided by [factor].
   /// REPLACE IN FAVOR OF OFFSET
@@ -14,6 +17,7 @@ extension PointExtension<T extends num> on Point<T> {
 }
 
 /// Extension methods for [Offset]
+@internal
 extension OffsetToPointExtension on Offset {
   /// Creates a [Point] representation of this offset. This is ONLY used for backwards compatibility
   Point<double> toPoint() => Point(dx, dy);

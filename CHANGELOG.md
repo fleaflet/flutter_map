@@ -11,7 +11,7 @@ Migration from `Point` class internally, but this also affects the external API.
 Migration Guide:
 - any methods that previously required `Point<double>` now require `Offset` as return values and parameters
 - `pointToLatLng` -> `offsetToLatLng`
-- `PointExtension` has had methods removed
+- `PointExtension` and `OffsetToPointExtension` marked as internal
 
 
 Contains the following user-affecting bug fixes:
