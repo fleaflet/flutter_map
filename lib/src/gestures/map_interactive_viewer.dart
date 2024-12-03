@@ -889,7 +889,6 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     } else {
       final Offset bestCenterPoint;
       final double worldSize = _camera.crs.scale(_camera.zoom);
-      // TODO there has to be an easier way to write this code...
       if (newCenterPoint.dx > worldSize) {
         bestCenterPoint =
             Offset(newCenterPoint.dx - worldSize, newCenterPoint.dy);
