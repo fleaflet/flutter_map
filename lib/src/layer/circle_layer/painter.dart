@@ -64,7 +64,7 @@ base class CirclePainter<R extends Object>
       if (circle.borderStrokeWidth > 0) {
         // Check if color have some transparency or not
         // As drawPoints is more efficient than drawCircle
-        if (circle.color.alpha == 0xFF) {
+        if (circle.color.a == 1) {
           double radiusBorder = circle.radius + circle.borderStrokeWidth;
           if (circle.useRadiusInMeter) {
             final rBorder = _distance.offset(circle.point, radiusBorder, 180);

@@ -13,7 +13,7 @@ void main() {
       CircleMarker(
         key: key,
         point: const LatLng(51.5, -0.09),
-        color: Colors.blue.withOpacity(0.7),
+        color: Colors.blue.withAlpha(178),
         borderStrokeWidth: 2,
         useRadiusInMeter: true,
         radius: 2000,
