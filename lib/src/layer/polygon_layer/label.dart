@@ -1,7 +1,7 @@
 part of 'polygon_layer.dart';
 
 void Function(Canvas canvas)? _buildLabelTextPainter({
-  required math.Point<double> mapSize,
+  required Offset mapSize,
   required Offset placementPoint,
   required ({Offset min, Offset max}) bounds,
   required TextPainter textPainter,
@@ -18,10 +18,10 @@ void Function(Canvas canvas)? _buildLabelTextPainter({
   // Currently this is only enabled when the map isn't rotated, since the placementOffset
   // is relative to the MobileLayerTransformer rather than in actual screen coordinates.
   if (rotationRad == 0) {
-    if (dx + width / 2 < 0 || dx - width / 2 > mapSize.x) {
+    if (dx + width / 2 < 0 || dx - width / 2 > mapSize.dx) {
       return null;
     }
-    if (dy + height / 2 < 0 || dy - height / 2 > mapSize.y) {
+    if (dy + height / 2 < 0 || dy - height / 2 > mapSize.dy) {
       return null;
     }
   }
@@ -77,8 +77,8 @@ LatLng _computeCentroid(List<LatLng> points) {
 LatLng _computePolylabel(List<LatLng> points) {
   final labelPosition = polylabel(
     [
-      List<math.Point>.generate(points.length,
-          (i) => math.Point(points[i].longitude, points[i].latitude)),
+      List<Offset>.generate(points.length,
+          (i) => Offset(points[i].longitude, points[i].latitude)),
     ],
     // "precision" is a bit of a misnomer. It's a threshold for when to stop
     // dividing-and-conquering the polygon in the hopes of finding a better

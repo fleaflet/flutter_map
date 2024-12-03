@@ -60,10 +60,12 @@ class MarkerLayer extends StatelessWidget {
             // Cull if out of bounds
             if (!map.pixelBounds.containsPartialBounds(
               Bounds(
-                Point(pxPoint.x + left, pxPoint.y - bottom),
-                Point(pxPoint.x - right, pxPoint.y + top),
+                Point(pxPoint.dx + left, pxPoint.dy - bottom),
+                Point(pxPoint.dx - right, pxPoint.dy + top),
               ),
-            )) continue;
+            )) {
+              continue;
+            }
 
             // Apply map camera to marker position
             final pos = pxPoint - map.pixelOrigin;
@@ -72,8 +74,8 @@ class MarkerLayer extends StatelessWidget {
               key: m.key,
               width: m.width,
               height: m.height,
-              left: pos.x - right,
-              top: pos.y - bottom,
+              left: pos.dx - right,
+              top: pos.dy - bottom,
               child: (m.rotate ?? rotate)
                   ? Transform.rotate(
                       angle: -map.rotationRad,

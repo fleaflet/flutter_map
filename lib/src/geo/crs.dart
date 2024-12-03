@@ -1,5 +1,6 @@
 import 'dart:math' as math hide Point;
 import 'dart:math' show Point;
+import 'dart:ui';
 
 import 'package:flutter_map/src/misc/bounds.dart';
 import 'package:latlong2/latlong.dart';
@@ -51,13 +52,13 @@ abstract class Crs {
   (double, double) latLngToXY(LatLng latlng, double scale);
 
   /// Similar to [latLngToXY] but converts the XY coordinates to a [Point].
-  Point<double> latLngToPoint(LatLng latlng, double zoom) {
+  Offset latLngToPoint(LatLng latlng, double zoom) {
     final (x, y) = latLngToXY(latlng, scale(zoom));
-    return Point<double>(x, y);
+    return Offset(x, y);
   }
 
   /// Converts a map point to the sphere coordinate (at a certain zoom).
-  LatLng pointToLatLng(Point point, double zoom);
+  LatLng pointToLatLng(Offset point, double zoom);
 
   /// Zoom to Scale function.
   double scale(double zoom) => 256.0 * math.pow(2, zoom);
@@ -107,10 +108,10 @@ abstract class CrsWithStaticTransformation extends Crs {
   }
 
   @override
-  LatLng pointToLatLng(Point point, double zoom) {
+  LatLng pointToLatLng(Offset point, double zoom) {
     final (x, y) = _transformation.untransform(
-      point.x.toDouble(),
-      point.y.toDouble(),
+      point.dx,
+      point.dy,
       scale(zoom),
     );
     return projection.unprojectXY(x, y);
@@ -170,13 +171,13 @@ class Epsg3857 extends CrsWithStaticTransformation {
       );
 
   @override
-  Point<double> latLngToPoint(LatLng latlng, double zoom) {
+  Offset latLngToPoint(LatLng latlng, double zoom) {
     final (x, y) = _transformation.transform(
       SphericalMercator.projectLng(latlng.longitude),
       SphericalMercator.projectLat(latlng.latitude),
       scale(zoom),
     );
-    return Point<double>(x, y);
+    return Offset(x, y);
   }
 
   @override
@@ -281,10 +282,10 @@ class Proj4Crs extends Crs {
 
   /// Converts a map point to the sphere coordinate (at a certain zoom).
   @override
-  LatLng pointToLatLng(Point point, double zoom) {
+  LatLng pointToLatLng(Offset point, double zoom) {
     final (x, y) = _getTransformationByZoom(zoom).untransform(
-      point.x.toDouble(),
-      point.y.toDouble(),
+      point.dx,
+      point.dy,
       scale(zoom),
     );
     return projection.unprojectXY(x, y);

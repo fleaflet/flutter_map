@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -143,7 +141,7 @@ class _FlutterMapStateContainer extends State<FlutterMap>
   }
 
   void _updateAndEmitSizeIfConstraintsChanged(BoxConstraints constraints) {
-    final nonRotatedSize = Point<double>(
+    final nonRotatedSize = Offset(
       constraints.maxWidth,
       constraints.maxHeight,
     );

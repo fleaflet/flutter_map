@@ -2,35 +2,9 @@
 // https://github.com/mourner/simplify-js/blob/master/simplify.js
 
 import 'dart:math' as math;
+import 'dart:ui';
 
 import 'package:flutter_map/src/geo/crs.dart';
-import 'package:meta/meta.dart';
-
-/// Internal double-precision point/vector implementation not to be used in publicly.
-///
-/// This is an optimization. Vector operations on math.Point tend to incur a 20+x
-/// penalty due to virtual function overhead caused by reified generics.
-///
-/// Further note that unlike math.Point, members are mutable to allow object reuse/pooling
-/// and therefore reduce GC pressure.
-@internal
-final class DoublePoint {
-  double x;
-  double y;
-
-  DoublePoint(this.x, this.y);
-
-  DoublePoint operator -(DoublePoint rhs) => DoublePoint(x - rhs.x, y - rhs.y);
-
-  double distanceSq(DoublePoint rhs) {
-    final double dx = x - rhs.x;
-    final double dy = y - rhs.y;
-    return dx * dx + dy * dy;
-  }
-
-  @override
-  String toString() => 'DoublePoint($x, $y)';
-}
 
 /// square distance from a point to a segment
 double getSqSegDist(
@@ -65,16 +39,16 @@ double getSqSegDist(
 /// Alternative algorithm to the Douglas Peucker simplification algorithm.
 ///
 /// Might actually be more expensive than DP, which is also better
-List<DoublePoint> simplifyRadialDist(
-  List<DoublePoint> points,
+List<Offset> simplifyRadialDist(
+  List<Offset> points,
   double sqTolerance,
 ) {
-  DoublePoint prevPoint = points[0];
-  final List<DoublePoint> newPoints = [prevPoint];
-  late DoublePoint point;
+  Offset prevPoint = points[0];
+  final List<Offset> newPoints = [prevPoint];
+  late Offset point;
   for (int i = 1, len = points.length; i < len; i++) {
     point = points[i];
-    if (point.distanceSq(prevPoint) > sqTolerance) {
+    if ((point - prevPoint).distanceSquared > sqTolerance) {
       newPoints.add(point);
       prevPoint = point;
     }
@@ -86,11 +60,11 @@ List<DoublePoint> simplifyRadialDist(
 }
 
 void _simplifyDPStep(
-  List<DoublePoint> points,
+  List<Offset> points,
   final int first,
   final int last,
   double sqTolerance,
-  List<DoublePoint> simplified,
+  List<Offset> simplified,
 ) {
   double maxSqDist = sqTolerance;
   final p0 = points[first];
@@ -99,7 +73,7 @@ void _simplifyDPStep(
   late int index;
   for (int i = first + 1; i < last; i++) {
     final p = points[i];
-    final double sqDist = getSqSegDist(p.x, p.y, p0.x, p0.y, p1.x, p1.y);
+    final double sqDist = getSqSegDist(p.dx, p.dy, p0.dx, p0.dy, p1.dx, p1.dy);
 
     if (sqDist > maxSqDist) {
       index = i;
@@ -118,20 +92,20 @@ void _simplifyDPStep(
 }
 
 /// simplification using the Ramer-Douglas-Peucker algorithm
-List<DoublePoint> simplifyDouglasPeucker(
-  List<DoublePoint> points,
+List<Offset> simplifyDouglasPeucker(
+  List<Offset> points,
   double sqTolerance,
 ) {
   final int last = points.length - 1;
-  final List<DoublePoint> simplified = [points[0]];
+  final List<Offset> simplified = [points[0]];
   _simplifyDPStep(points, 0, last, sqTolerance, simplified);
   simplified.add(points[last]);
   return simplified;
 }
 
 /// Simplify the list of points for better performance.
-List<DoublePoint> simplifyPoints({
-  required final List<DoublePoint> points,
+List<Offset> simplifyPoints({
+  required final List<Offset> points,
   required double tolerance,
   required bool highQuality,
 }) {
