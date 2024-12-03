@@ -25,7 +25,7 @@ class FakeInfiniteCrs extends Crs {
       const Epsg3857().untransform(x, y, scale);
 
   @override
-  LatLng pointToLatLng(Offset point, double zoom) => throw UnimplementedError();
+  LatLng offsetToLatLng(Offset point, double zoom) => throw UnimplementedError();
 
   @override
   Bounds<double>? getProjectedBounds(double zoom) => throw UnimplementedError();

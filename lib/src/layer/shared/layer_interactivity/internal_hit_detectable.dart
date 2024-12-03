@@ -40,7 +40,7 @@ abstract base class HitDetectablePainter<R extends Object,
   /// [HitDetectableElement.hitValue] is `null` on this element.
   ///
   /// [point] ([OffsetToPointExtension.toPoint]) and [coordinate]
-  /// ([MapCamera.pointToLatLng]) are provided for simplicity.
+  /// ([MapCamera.offsetToLatLng]) are provided for simplicity.
   ///
   /// Avoid performing calculations that are not dependent on [element]. Instead,
   /// override [hitTest], store the necessary calculation results in
@@ -65,7 +65,7 @@ abstract base class HitDetectablePainter<R extends Object,
     bool hasHit = false;
 
     final point = position;
-    final coordinate = camera.pointToLatLng(point);
+    final coordinate = camera.offsetToLatLng(point);
 
     for (int i = elements.length - 1; i >= 0; i--) {
       final element = elements.elementAt(i);

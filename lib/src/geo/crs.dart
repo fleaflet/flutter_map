@@ -58,7 +58,7 @@ abstract class Crs {
   }
 
   /// Converts a map point to the sphere coordinate (at a certain zoom).
-  LatLng pointToLatLng(Offset point, double zoom);
+  LatLng offsetToLatLng(Offset point, double zoom);
 
   /// Zoom to Scale function.
   double scale(double zoom) => 256.0 * math.pow(2, zoom);
@@ -108,7 +108,7 @@ abstract class CrsWithStaticTransformation extends Crs {
   }
 
   @override
-  LatLng pointToLatLng(Offset point, double zoom) {
+  LatLng offsetToLatLng(Offset point, double zoom) {
     final (x, y) = _transformation.untransform(
       point.dx,
       point.dy,
@@ -282,7 +282,7 @@ class Proj4Crs extends Crs {
 
   /// Converts a map point to the sphere coordinate (at a certain zoom).
   @override
-  LatLng pointToLatLng(Offset point, double zoom) {
+  LatLng offsetToLatLng(Offset point, double zoom) {
     final (x, y) = _getTransformationByZoom(zoom).untransform(
       point.dx,
       point.dy,

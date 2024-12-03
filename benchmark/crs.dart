@@ -95,7 +95,7 @@ Future<void> main() async {
       double x = 0;
       double y = 0;
       for (int i = 0; i < N; ++i) {
-        final latlng = crs.pointToLatLng(Offset(x, y), 1);
+        final latlng = crs.offsetToLatLng(Offset(x, y), 1);
         x += latlng.longitude;
         y += latlng.latitude;
       }

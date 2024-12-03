@@ -236,7 +236,7 @@ class MapCamera {
   /// Calculates the [LatLng] for the given [point] using this camera's
   /// [crs] and [zoom] (or the provided [zoom]).
   LatLng unproject(Offset point, [double? zoom]) =>
-      crs.pointToLatLng(point, zoom ?? this.zoom);
+      crs.offsetToLatLng(point, zoom ?? this.zoom);
 
   /// Same as the [unproject] function.
   LatLng layerPointToLatLng(Offset point) => unproject(point);
@@ -295,7 +295,7 @@ class MapCamera {
   }
 
   /// Calculate the [LatLng] coordinates for a [localPoint].
-  LatLng pointToLatLng(Offset localPoint) {
+  LatLng offsetToLatLng(Offset localPoint) {
     final localPointCenterDistance = Offset(
       (nonRotatedSize.dx / 2) - localPoint.dx,
       (nonRotatedSize.dy / 2) - localPoint.dy,
@@ -308,7 +308,7 @@ class MapCamera {
       point = rotateOffset(mapCenter, point);
     }
 
-    return crs.pointToLatLng(point, zoom);
+    return crs.offsetToLatLng(point, zoom);
   }
 
   /// Sometimes we need to make allowances that a rotation already exists, so
