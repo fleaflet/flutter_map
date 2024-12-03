@@ -42,6 +42,12 @@ class Polyline<R extends Object> {
   /// {@macro fm.hde.hitValue}
   final R? hitValue;
 
+  LatLngBounds? _boundingBox;
+
+  /// Get the bounding box of the [points] (cached).
+  LatLngBounds get boundingBox =>
+      _boundingBox ??= LatLngBounds.fromPoints(points);
+
   /// Create a new [Polyline] used for the [PolylineLayer].
   Polyline({
     required this.points,
