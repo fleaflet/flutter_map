@@ -435,8 +435,8 @@ class FitCoordinates extends CameraFit {
     final projectedPoints =
         coordinates.map((coord) => camera.project(coord, newZoom));
 
-    final rotatedPoints = projectedPoints
-        .map((point) => point.rotate(-camera.rotationRad));
+    final rotatedPoints =
+        projectedPoints.map((point) => point.rotate(-camera.rotationRad));
 
     final rotatedBounds = Bounds.containing(rotatedPoints);
 
@@ -467,8 +467,8 @@ class FitCoordinates extends CameraFit {
       for (final coord in coordinates) camera.project(coord)
     ];
 
-    final rotatedPoints = projectedPoints
-        .map((point) => point.rotate(-camera.rotationRad));
+    final rotatedPoints =
+        projectedPoints.map((point) => point.rotate(-camera.rotationRad));
     final rotatedBounds = Bounds.containing(rotatedPoints);
 
     final boundsSize = rotatedBounds.size;

@@ -138,23 +138,27 @@ class WrappedTileBounds extends TileBounds {
 
     (int, int)? wrapX;
     if (crs.wrapLng case final wrapLng?) {
-      final wrapXMin = (crs.latLngToPoint(LatLng(0, wrapLng.$1), zoomDouble).dx /
-              _tileDimension)
-          .floor();
-      final wrapXMax = (crs.latLngToPoint(LatLng(0, wrapLng.$2), zoomDouble).dx /
-              _tileDimension)
-          .ceil();
+      final wrapXMin =
+          (crs.latLngToPoint(LatLng(0, wrapLng.$1), zoomDouble).dx /
+                  _tileDimension)
+              .floor();
+      final wrapXMax =
+          (crs.latLngToPoint(LatLng(0, wrapLng.$2), zoomDouble).dx /
+                  _tileDimension)
+              .ceil();
       wrapX = (wrapXMin, wrapXMax - 1);
     }
 
     (int, int)? wrapY;
     if (crs.wrapLat case final wrapLat?) {
-      final wrapYMin = (crs.latLngToPoint(LatLng(wrapLat.$1, 0), zoomDouble).dy /
-              _tileDimension)
-          .floor();
-      final wrapYMax = (crs.latLngToPoint(LatLng(wrapLat.$2, 0), zoomDouble).dy /
-              _tileDimension)
-          .ceil();
+      final wrapYMin =
+          (crs.latLngToPoint(LatLng(wrapLat.$1, 0), zoomDouble).dy /
+                  _tileDimension)
+              .floor();
+      final wrapYMax =
+          (crs.latLngToPoint(LatLng(wrapLat.$2, 0), zoomDouble).dy /
+                  _tileDimension)
+              .ceil();
       wrapY = (wrapYMin, wrapYMax - 1);
     }
 

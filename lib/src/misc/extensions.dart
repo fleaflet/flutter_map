@@ -24,13 +24,11 @@ extension PointExtension<T extends num> on Point<T> {
   }
 
   /// Converts to offset
-  Offset toOffset () => Offset(x.toDouble(), y.toDouble());
-
+  Offset toOffset() => Offset(x.toDouble(), y.toDouble());
 }
 
 /// Extension methods for [Offset]
 extension OffsetToPointExtension on Offset {
-
   /// Creates a [Point] representation of this offset. This is ONLY used for backwards compatibility
   @Deprecated('Only used for backwards compatibility')
   Point<double> toPoint() => Point(dx, dy);
@@ -50,5 +48,4 @@ extension OffsetToPointExtension on Offset {
 
   /// returns new [Offset] where roundToDouble() is called on [dx] and [dy] independently
   Offset round() => Offset(dx.roundToDouble(), dy.roundToDouble());
-
 }
