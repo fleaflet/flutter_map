@@ -77,8 +77,8 @@ LatLng _computeCentroid(List<LatLng> points) {
 LatLng _computePolylabel(List<LatLng> points) {
   final labelPosition = polylabel(
     [
-      List<Offset>.generate(points.length,
-          (i) => Offset(points[i].longitude, points[i].latitude)),
+      List<Point<double>>.generate(points.length,
+          (i) => Point<double>(points[i].longitude, points[i].latitude)),
     ],
     // "precision" is a bit of a misnomer. It's a threshold for when to stop
     // dividing-and-conquering the polygon in the hopes of finding a better
