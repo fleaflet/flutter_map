@@ -371,7 +371,7 @@ class Proj4Crs extends Crs {
 /// Inherit from this class if you want to create or implement your own CRS.
 @immutable
 abstract class Projection {
-  /// The [Bounds] for the coordinates of this [Projection].
+  /// The [IntegerBounds] for the coordinates of this [Projection].
   final Rect? bounds;
 
   /// Base constructor for the abstract [Projection] class that sets the

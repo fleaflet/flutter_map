@@ -21,7 +21,7 @@ void main() {
             int zoom, int minX, int minY, int maxX, int maxY) =>
         DiscreteTileRange(
           zoom,
-          Bounds(Point(minX, minY), Point(maxX, maxY)),
+          IntegerBounds(Point(minX, minY), Point(maxX, maxY)),
         );
 
     test('InfiniteTileBoundsAtZoom', () {

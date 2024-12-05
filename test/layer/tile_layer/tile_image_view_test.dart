@@ -23,7 +23,7 @@ void main() {
   }) =>
       DiscreteTileRange(
         zoom,
-        Bounds(Point(x1, y1), Point(x2, y2)),
+        IntegerBounds(Point(x1, y1), Point(x2, y2)),
       );
 
   group('staleTiles', () {

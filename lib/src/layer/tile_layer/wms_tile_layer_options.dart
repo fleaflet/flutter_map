@@ -77,10 +77,10 @@ class WMSTileLayerOptions {
         crs.offsetToLatLng(sePoint.toOffset(), coords.z.toDouble());
     final nw = crs.projection.project(nwCoords);
     final se = crs.projection.project(seCoords);
-    final bounds = Bounds(nw.toPoint(), se.toPoint());
+    final bounds = Rect.fromPoints(nw, se);
     final bbox = (_versionNumber >= 1.3 && crs is Epsg4326)
-        ? [bounds.min.y, bounds.min.x, bounds.max.y, bounds.max.x]
-        : [bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y];
+        ? [bounds.min.dy, bounds.min.dx, bounds.max.dy, bounds.max.dx]
+        : [bounds.min.dx, bounds.min.dy, bounds.max.dx, bounds.max.dy];
 
     final buffer = StringBuffer(_encodedBaseUrl);
     buffer.write('&width=${retinaMode ? tileDimension * 2 : tileDimension}');

@@ -40,7 +40,7 @@ Point<int> _ceil(Offset point) => Point<int>(point.dx.ceil(), point.dy.ceil());
 @immutable
 class DiscreteTileRange extends TileRange {
   /// Bounds are inclusive
-  final Bounds<int> _bounds;
+  final IntegerBounds _bounds;
 
   /// Create a new [DiscreteTileRange] by setting it's values.
   const DiscreteTileRange(super.zoom, this._bounds);
@@ -51,12 +51,12 @@ class DiscreteTileRange extends TileRange {
     required int tileDimension,
     required Rect pixelBounds,
   }) {
-    final Bounds<int> bounds;
+    final IntegerBounds bounds;
     if (pixelBounds.isEmpty) {
       final minAndMax = _floor(pixelBounds.min / tileDimension.toDouble());
-      bounds = Bounds<int>(minAndMax, minAndMax);
+      bounds = IntegerBounds(minAndMax, minAndMax);
     } else {
-      bounds = Bounds<int>(
+      bounds = IntegerBounds(
         _floor(pixelBounds.min / tileDimension.toDouble()),
         _ceil(pixelBounds.max / tileDimension.toDouble()) - const Point(1, 1),
       );
@@ -95,7 +95,7 @@ class DiscreteTileRange extends TileRange {
 
     return DiscreteTileRange(
       zoom,
-      Bounds<int>(
+      IntegerBounds(
         Point<int>(math.max(min.x, minX), min.y),
         Point<int>(math.min(max.x, maxX), max.y),
       ),
@@ -110,7 +110,7 @@ class DiscreteTileRange extends TileRange {
 
     return DiscreteTileRange(
       zoom,
-      Bounds<int>(
+      IntegerBounds(
         Point<int>(min.x, math.max(min.y, minY)),
         Point<int>(max.x, math.min(max.y, maxY)),
       ),
