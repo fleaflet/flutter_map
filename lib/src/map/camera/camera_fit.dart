@@ -151,8 +151,8 @@ class FitBounds extends CameraFit {
       final cosAngle = math.cos(camera.rotationRad).abs();
       final sinAngle = math.sin(camera.rotationRad).abs();
       boundsSize = Size(
-        (boundsSize.width * cosAngle) + (boundsSize.width * sinAngle),
-        (boundsSize.height * cosAngle) + (boundsSize.height * sinAngle),
+        (boundsSize.width * cosAngle) + (boundsSize.height * sinAngle),
+        (boundsSize.height * cosAngle) + (boundsSize.width * sinAngle),
       );
     }
 
