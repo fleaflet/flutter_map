@@ -49,12 +49,12 @@ Future<void> main() async {
     return x + y;
   }));
 
-  results.add(await timedRun('Concrete type: ${crs.code}.latLngToPoint()', () {
+  results.add(await timedRun('Concrete type: ${crs.code}.latLngToOffset()', () {
     double x = 0;
     double y = 0;
     for (int i = 0; i < N; ++i) {
       final latlng = LatLng((i % 90).toDouble(), (i % 180).toDouble());
-      final p = crs.latLngToPoint(latlng, 1);
+      final p = crs.latLngToOffset(latlng, 1);
       x += p.dx;
       y += p.dy;
     }
@@ -84,7 +84,7 @@ Future<void> main() async {
       double y = 0;
       for (int i = 0; i < N; ++i) {
         final latlng = LatLng((i % 90).toDouble(), (i % 180).toDouble());
-        final point = crs.latLngToPoint(latlng, 1);
+        final point = crs.latLngToOffset(latlng, 1);
         x += point.dx;
         y += point.dy;
       }

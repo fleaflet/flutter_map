@@ -52,7 +52,7 @@ abstract class Crs {
   (double, double) latLngToXY(LatLng latlng, double scale);
 
   /// Similar to [latLngToXY] but converts the XY coordinates to a [Point].
-  Offset latLngToPoint(LatLng latlng, double zoom) {
+  Offset latLngToOffset(LatLng latlng, double zoom) {
     final (x, y) = latLngToXY(latlng, scale(zoom));
     return Offset(x, y);
   }
@@ -171,7 +171,7 @@ class Epsg3857 extends CrsWithStaticTransformation {
       );
 
   @override
-  Offset latLngToPoint(LatLng latlng, double zoom) {
+  Offset latLngToOffset(LatLng latlng, double zoom) {
     final (x, y) = _transformation.transform(
       SphericalMercator.projectLng(latlng.longitude),
       SphericalMercator.projectLat(latlng.latitude),

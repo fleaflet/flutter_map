@@ -230,7 +230,7 @@ class MapCamera {
   /// Calculates point value for the given [latlng] using this camera's
   /// [crs] and [zoom] (or the provided [zoom]).
   Offset project(LatLng latlng, [double? zoom]) =>
-      crs.latLngToPoint(latlng, zoom ?? this.zoom);
+      crs.latLngToOffset(latlng, zoom ?? this.zoom);
 
   /// Calculates the [LatLng] for the given [point] using this camera's
   /// [crs] and [zoom] (or the provided [zoom]).
@@ -279,9 +279,9 @@ class MapCamera {
   Offset latLngToScreenOffset(LatLng latLng) {
     final nonRotatedPixelOrigin = project(center, zoom) - nonRotatedSize / 2.0;
 
-    var point = crs.latLngToPoint(latLng, zoom);
+    var point = crs.latLngToOffset(latLng, zoom);
 
-    final mapCenter = crs.latLngToPoint(center, zoom);
+    final mapCenter = crs.latLngToOffset(center, zoom);
 
     if (rotation != 0.0) {
       point = rotateOffset(mapCenter, point, counterRotation: false);
@@ -296,7 +296,7 @@ class MapCamera {
       (nonRotatedSize.dx / 2) - localPoint.dx,
       (nonRotatedSize.dy / 2) - localPoint.dy,
     );
-    final mapCenter = crs.latLngToPoint(center, zoom);
+    final mapCenter = crs.latLngToOffset(center, zoom);
 
     var point = mapCenter - localPointCenterDistance;
 
