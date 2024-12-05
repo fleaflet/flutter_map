@@ -33,8 +33,7 @@ class EmptyTileRange extends TileRange {
 Point<int> _floor(Offset point) =>
     Point<int>(point.dx.floor(), point.dy.floor());
 
-Point<int> _ceil(Offset point) =>
-    Point<int>(point.dx.ceil(), point.dy.ceil());
+Point<int> _ceil(Offset point) => Point<int>(point.dx.ceil(), point.dy.ceil());
 
 /// Every [TileRange] is a [DiscreteTileRange] if it's not an [EmptyTileRange].
 @immutable
@@ -58,7 +57,8 @@ class DiscreteTileRange extends TileRange {
     } else {
       bounds = Bounds<int>(
         _floor(pixelBounds.topLeft / tileDimension.toDouble()),
-        _ceil(pixelBounds.bottomRight / tileDimension.toDouble()) - const Point(1, 1),
+        _ceil(pixelBounds.bottomRight / tileDimension.toDouble()) -
+            const Point(1, 1),
       );
     }
 

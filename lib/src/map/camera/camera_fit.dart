@@ -156,8 +156,8 @@ class FitBounds extends CameraFit {
       );
     }
 
-    final scale =
-        math.min(size.width / boundsSize.width, size.height / boundsSize.height);
+    final scale = math.min(
+        size.width / boundsSize.width, size.height / boundsSize.height);
 
     var boundsZoom = camera.getScaleZoom(scale);
 
