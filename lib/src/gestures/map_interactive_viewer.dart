@@ -729,9 +729,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     }
 
     final direction = details.velocity.pixelsPerSecond / magnitude;
-    final distance = (Offset.zero &
-            Size(_camera.nonRotatedSize.dx, _camera.nonRotatedSize.dy))
-        .shortestSide;
+    final distance = (Offset.zero & _camera.nonRotatedSize).shortestSide;
 
     final flingOffset = _focalStartLocal - _lastFocalLocal;
     _flingAnimation = Tween<Offset>(

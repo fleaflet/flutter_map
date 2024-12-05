@@ -67,7 +67,7 @@ List<Offset> getOffsetsXY({
       worldWidth,
       -worldWidth,
     ];
-    final halfScreenWidth = camera.size.dx / 2;
+    final halfScreenWidth = camera.size.width / 2;
     final p = realPoints.elementAt(0);
     late double result;
     late double bestX;

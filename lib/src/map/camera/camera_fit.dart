@@ -140,9 +140,10 @@ class FitBounds extends CameraFit {
   ) {
     final nw = bounds.northWest;
     final se = bounds.southEast;
-    var size = camera.nonRotatedSize - pixelPadding;
+    var size = camera.nonRotatedSize - pixelPadding as Size;
     // Prevent negative size which results in NaN zoom value later on in the calculation
-    size = Offset(math.max(0, size.dx), math.max(0, size.dy));
+
+    size = Size(math.max(0, size.width), math.max(0, size.height));
     var boundsSize = Bounds(
       camera.project(se, camera.zoom).toPoint(),
       camera.project(nw, camera.zoom).toPoint(),
@@ -156,7 +157,8 @@ class FitBounds extends CameraFit {
       );
     }
 
-    final scale = math.min(size.dx / boundsSize.x, size.dy / boundsSize.y);
+    final scale =
+        math.min(size.width / boundsSize.x, size.height / boundsSize.y);
 
     var boundsZoom = camera.getScaleZoom(scale);
 
@@ -222,7 +224,7 @@ class FitInsideBounds extends CameraFit {
     final paddingTotalXY = paddingTL + paddingBR;
     final paddingOffset = (paddingBR - paddingTL) / 2;
 
-    final cameraSize = camera.nonRotatedSize - paddingTotalXY;
+    final cameraSize = camera.nonRotatedSize - paddingTotalXY as Size;
 
     final projectedBoundsSize = Bounds(
       camera.project(bounds.southEast, camera.zoom).toPoint(),
@@ -231,8 +233,8 @@ class FitInsideBounds extends CameraFit {
 
     final scale = _rectInRotRectScale(
       angleRad: camera.rotationRad,
-      smallRectHalfWidth: cameraSize.dx / 2.0,
-      smallRectHalfHeight: cameraSize.dy / 2.0,
+      smallRectHalfWidth: cameraSize.width / 2.0,
+      smallRectHalfHeight: cameraSize.height / 2.0,
       bigRectHalfWidth: projectedBoundsSize.x / 2.0,
       bigRectHalfHeight: projectedBoundsSize.y / 2.0,
     );
@@ -460,9 +462,9 @@ class FitCoordinates extends CameraFit {
     MapCamera camera,
     Offset pixelPadding,
   ) {
-    var size = camera.nonRotatedSize - pixelPadding;
+    var size = camera.nonRotatedSize - pixelPadding as Size;
     // Prevent negative size which results in NaN zoom value later on in the calculation
-    size = Offset(math.max(0, size.dx), math.max(0, size.dy));
+    size = Size(math.max(0, size.width), math.max(0, size.height));
 
     final projectedPoints = [
       for (final coord in coordinates) camera.project(coord)
@@ -474,8 +476,9 @@ class FitCoordinates extends CameraFit {
 
     final boundsSize = rotatedBounds.size;
 
-    final scaleX = size.dx / boundsSize.x;
-    final scaleY = size.dy / boundsSize.y;
+    // TODO this could be replaced with Size.shortestSide
+    final scaleX = size.width / boundsSize.x;
+    final scaleY = size.height / boundsSize.y;
     final scale = math.min(scaleX, scaleY);
 
     var newZoom = camera.getScaleZoom(scale);

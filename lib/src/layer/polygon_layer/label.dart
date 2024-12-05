@@ -1,7 +1,7 @@
 part of 'polygon_layer.dart';
 
 void Function(Canvas canvas)? _buildLabelTextPainter({
-  required Offset mapSize,
+  required Size mapSize,
   required Offset placementPoint,
   required ({Offset min, Offset max}) bounds,
   required TextPainter textPainter,
@@ -18,10 +18,10 @@ void Function(Canvas canvas)? _buildLabelTextPainter({
   // Currently this is only enabled when the map isn't rotated, since the placementOffset
   // is relative to the MobileLayerTransformer rather than in actual screen coordinates.
   if (rotationRad == 0) {
-    if (dx + width / 2 < 0 || dx - width / 2 > mapSize.dx) {
+    if (dx + width / 2 < 0 || dx - width / 2 > mapSize.width) {
       return null;
     }
-    if (dy + height / 2 < 0 || dy - height / 2 > mapSize.dy) {
+    if (dy + height / 2 < 0 || dy - height / 2 > mapSize.height) {
       return null;
     }
   }

@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
@@ -18,7 +20,7 @@ void main() {
           center: const LatLng(-90, -180),
           zoom: 1,
           rotation: 45,
-          nonRotatedSize: const Offset(200, 300),
+          nonRotatedSize: const Size(200, 300),
         );
 
         final clamped = mapConstraint.constrain(camera)!;

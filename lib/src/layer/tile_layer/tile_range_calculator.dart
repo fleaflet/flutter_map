@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:flutter_map/src/misc/extensions.dart';
@@ -49,7 +51,7 @@ class TileRangeCalculator {
     final pixelCenter = camera.project(center, tileZoomDouble).floor();
     final halfSize = camera.size / (scale * 2);
 
-    return Bounds(
-        (pixelCenter - halfSize).toPoint(), (pixelCenter + halfSize).toPoint());
+    return Bounds((pixelCenter - halfSize.bottomRight(Offset.zero)).toPoint(),
+        (pixelCenter + halfSize.bottomRight(Offset.zero)).toPoint());
   }
 }

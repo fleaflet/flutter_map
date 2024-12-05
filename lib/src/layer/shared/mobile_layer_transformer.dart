@@ -17,10 +17,10 @@ class MobileLayerTransformer extends StatelessWidget {
     final camera = MapCamera.of(context);
 
     return OverflowBox(
-      minWidth: camera.size.dx,
-      maxWidth: camera.size.dx,
-      minHeight: camera.size.dy,
-      maxHeight: camera.size.dy,
+      minWidth: camera.size.width,
+      maxWidth: camera.size.width,
+      minHeight: camera.size.height,
+      maxHeight: camera.size.height,
       child: Transform.rotate(angle: camera.rotationRad, child: child),
     );
   }

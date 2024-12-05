@@ -313,7 +313,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
 
   /// Set the widget size but don't emit a event to the event system.
   bool setNonRotatedSizeWithoutEmittingEvent(
-    Offset nonRotatedSize,
+    Size nonRotatedSize,
   ) {
     if (nonRotatedSize != MapCamera.kImpossibleSize &&
         nonRotatedSize != camera.nonRotatedSize) {
@@ -648,9 +648,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     _animationOffset = offset;
     _flingMapCenterStartPoint = camera.project(camera.center);
 
-    final distance =
-        (Offset.zero & Size(camera.nonRotatedSize.dx, camera.nonRotatedSize.dy))
-            .shortestSide;
+    final distance = (Offset.zero & camera.nonRotatedSize).shortestSide;
 
     _flingAnimation = Tween<Offset>(
       begin: begin,

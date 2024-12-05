@@ -193,7 +193,8 @@ base class _PolygonPainter<R extends Object>
       lastHash = null;
     }
 
-    final origin = camera.project(camera.center) - camera.size / 2;
+    final origin =
+        camera.project(camera.center) - camera.size.center(Offset.zero);
 
     // Main loop constructing batched fill and border paths from given polygons.
     for (int i = 0; i <= polygons.length - 1; i++) {

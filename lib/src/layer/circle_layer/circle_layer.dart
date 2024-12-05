@@ -36,7 +36,7 @@ class CircleLayer<R extends Object> extends StatelessWidget {
           camera: camera,
           hitNotifier: hitNotifier,
         ),
-        size: Size(camera.size.dx, camera.size.dy),
+        size: camera.size,
         isComplex: true,
       ),
     );

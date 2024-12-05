@@ -117,10 +117,10 @@ class ContainCamera extends CameraConstraint {
 
     // Find the limits for the map center which would keep the camera within the
     // [latLngBounds].
-    final leftOkCenter = math.min(swPixel.dx, nePixel.dx) + halfSize.dx;
-    final rightOkCenter = math.max(swPixel.dx, nePixel.dx) - halfSize.dx;
-    final topOkCenter = math.min(swPixel.dy, nePixel.dy) + halfSize.dy;
-    final botOkCenter = math.max(swPixel.dy, nePixel.dy) - halfSize.dy;
+    final leftOkCenter = math.min(swPixel.dx, nePixel.dx) + halfSize.width;
+    final rightOkCenter = math.max(swPixel.dx, nePixel.dx) - halfSize.width;
+    final topOkCenter = math.min(swPixel.dy, nePixel.dy) + halfSize.height;
+    final botOkCenter = math.max(swPixel.dy, nePixel.dy) - halfSize.height;
 
     // Stop if we are zoomed out so far that the camera cannot be translated to
     // stay within [latLngBounds].

@@ -105,7 +105,8 @@ base mixin HitTestRequiresCameraOrigin<R extends Object,
 
   @override
   bool? hitTest(Offset position) {
-    hitTestCameraOrigin = camera.project(camera.center) - camera.size / 2;
+    hitTestCameraOrigin =
+        camera.project(camera.center) - camera.size.center(Offset.zero);
     return super.hitTest(position);
   }
 }

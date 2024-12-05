@@ -141,7 +141,7 @@ class _FlutterMapStateContainer extends State<FlutterMap>
   }
 
   void _updateAndEmitSizeIfConstraintsChanged(BoxConstraints constraints) {
-    final nonRotatedSize = Offset(
+    final nonRotatedSize = Size(
       constraints.maxWidth,
       constraints.maxHeight,
     );
