@@ -378,7 +378,7 @@ abstract class Projection {
   /// required fields.
   const Projection(this.bounds);
 
-  /// Converts a [LatLng] to a coordinates and returns them as [Point] object.
+  /// Converts a [LatLng] to a coordinates and returns them as an [Offset].
   @nonVirtual
   Offset project(LatLng latlng) {
     final (x, y) = projectXY(latlng);
