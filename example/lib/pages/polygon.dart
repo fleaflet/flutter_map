@@ -330,6 +330,35 @@ class _PolygonPageState extends State<PolygonPage> {
                 polygons: [
                   Polygon(
                     points: const [
+                      LatLng(40, 150),
+                      LatLng(45, 160),
+                      LatLng(50, 170),
+                      LatLng(55, 180),
+                      LatLng(50, -170),
+                      LatLng(45, -160),
+                      LatLng(40, -150),
+                      LatLng(35, -160),
+                      LatLng(30, -170),
+                      LatLng(25, -180),
+                      LatLng(30, 170),
+                      LatLng(35, 160),
+                    ],
+                    holePointsList: const [
+                      [
+                        LatLng(45, 175),
+                        LatLng(45, -175),
+                        LatLng(35, -175),
+                        LatLng(35, 175),
+                      ],
+                    ],
+                    color: const Color(0xFFFF0000),
+                    hitValue: (
+                      title: 'Red Line',
+                      subtitle: 'Across the universe...',
+                    ),
+                  ),
+                  Polygon(
+                    points: const [
                       LatLng(50, -18),
                       LatLng(50, -14),
                       LatLng(51.5, -12.5),

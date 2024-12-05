@@ -140,11 +140,33 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
       projection.project(boundsAdjusted.northEast),
     );
 
+    final (xWest, _) = projection.projectXY(const LatLng(0, -180));
+    final (xEast, _) = projection.projectXY(const LatLng(0, 180));
     for (final projectedPolyline in polylines) {
       final polyline = projectedPolyline.polyline;
 
+      // Test bounding boxes to avoid potentially expensive aggressive culling
+      // when none of the line is visible
+      if (!boundsAdjusted.isOverlapping(polyline.boundingBox)) continue;
+
       // Gradient poylines cannot be easily segmented
       if (polyline.gradientColors != null) {
+        yield projectedPolyline;
+        continue;
+      }
+
+      /// Returns true if the points stretch on different versions of the world.
+      bool stretchesBeyondTheLimits() {
+        for (final point in projectedPolyline.points) {
+          if (point.x > xEast || point.x < xWest) {
+            return true;
+          }
+        }
+        return false;
+      }
+
+      // TODO: think about how to cull polylines that go beyond -180/180.
+      if (stretchesBeyondTheLimits()) {
         yield projectedPolyline;
         continue;
       }
