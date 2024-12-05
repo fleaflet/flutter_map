@@ -16,13 +16,6 @@ class _ProjectedPolyline<R extends Object> with HitDetectableElement<R> {
   _ProjectedPolyline._fromPolyline(Projection projection, Polyline<R> polyline)
       : this._(
           polyline: polyline,
-          points: List<Offset>.generate(
-            polyline.points.length,
-            (j) {
-              final (x, y) = projection.projectXY(polyline.points[j]);
-              return Offset(x, y);
-            },
-            growable: false,
-          ),
+          points: projection.projectList(polyline.points),
         );
 }
