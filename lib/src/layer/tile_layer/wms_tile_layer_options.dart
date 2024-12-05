@@ -71,8 +71,10 @@ class WMSTileLayerOptions {
   String getUrl(TileCoordinates coords, int tileDimension, bool retinaMode) {
     final nwPoint = coords * tileDimension;
     final sePoint = nwPoint + Point<int>(tileDimension, tileDimension);
-    final nwCoords = crs.offsetToLatLng(nwPoint.toOffset(), coords.z.toDouble());
-    final seCoords = crs.offsetToLatLng(sePoint.toOffset(), coords.z.toDouble());
+    final nwCoords =
+        crs.offsetToLatLng(nwPoint.toOffset(), coords.z.toDouble());
+    final seCoords =
+        crs.offsetToLatLng(sePoint.toOffset(), coords.z.toDouble());
     final nw = crs.projection.project(nwCoords);
     final se = crs.projection.project(seCoords);
     final bounds = Bounds(nw, se);
