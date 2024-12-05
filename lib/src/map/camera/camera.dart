@@ -296,12 +296,10 @@ class MapCamera {
     return point - nonRotatedPixelOrigin;
   }
 
-  /// Calculate the [LatLng] coordinates for a [localPoint].
-  LatLng offsetToLatLng(Offset localPoint) {
-    final localPointCenterDistance = Offset(
-      (nonRotatedSize.width / 2) - localPoint.dx,
-      (nonRotatedSize.height / 2) - localPoint.dy,
-    );
+  /// Calculate the [LatLng] coordinates for a [offset].
+  LatLng screenOffsetToLatLng(Offset offset) {
+    final localPointCenterDistance =
+        nonRotatedSize.center(Offset.zero) - offset;
     final mapCenter = crs.latLngToOffset(center, zoom);
 
     var point = mapCenter - localPointCenterDistance;

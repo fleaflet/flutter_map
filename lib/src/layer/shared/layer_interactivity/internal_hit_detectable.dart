@@ -40,7 +40,7 @@ abstract base class HitDetectablePainter<R extends Object,
   /// [HitDetectableElement.hitValue] is `null` on this element.
   ///
   /// [Offset] and [coordinate]
-  /// ([MapCamera.offsetToLatLng]) are provided for simplicity.
+  /// ([MapCamera.screenOffsetToLatLng]) are provided for simplicity.
   ///
   /// Avoid performing calculations that are not dependent on [element]. Instead,
   /// override [hitTest], store the necessary calculation results in
@@ -65,7 +65,7 @@ abstract base class HitDetectablePainter<R extends Object,
     bool hasHit = false;
 
     final point = position;
-    final coordinate = camera.offsetToLatLng(point);
+    final coordinate = camera.screenOffsetToLatLng(point);
 
     for (int i = elements.length - 1; i >= 0; i--) {
       final element = elements.elementAt(i);
@@ -96,7 +96,7 @@ base mixin HitTestRequiresCameraOrigin<R extends Object,
   /// Calculated [MapCamera] origin, using the following formula:
   ///
   /// ```dart
-  /// camera.project(camera.center) - camera.size / 2
+  /// camera.project(camera.center) - camera.size.center(Offset.zero)
   /// ```
   ///
   /// Only initialised after [hitTest] is invoked. Recalculated every time
