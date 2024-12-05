@@ -12,6 +12,7 @@ import 'package:flutter_map/src/layer/tile_layer/tile_image_manager.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
+import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:http/http.dart';
 import 'package:http/retry.dart';
 import 'package:logger/logger.dart';

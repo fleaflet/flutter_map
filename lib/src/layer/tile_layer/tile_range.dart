@@ -3,6 +3,7 @@ import 'dart:math' show Point;
 import 'dart:ui';
 
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:meta/meta.dart';
 
 /// A range of tiles, this is normally a [DiscreteTileRange] and sometimes

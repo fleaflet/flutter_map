@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/gestures/map_interactive_viewer.dart';
+import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:flutter_map/src/misc/move_and_rotate_result.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:vector_math/vector_math_64.dart';

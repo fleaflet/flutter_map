@@ -2,7 +2,7 @@ import 'dart:math' as math hide Point;
 import 'dart:math' show Point;
 import 'dart:ui';
 
-import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:meta/meta.dart';
 
 /// Rectangular bound delimited by orthogonal lines passing through two
