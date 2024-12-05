@@ -60,27 +60,27 @@ extension RectExtension on Rect {
   /// Checks if the line between the two coordinates is contained within the
   /// [Rect].
   bool aabbContainsLine(double x1, double y1, double x2, double y2) {
-    // // Completely outside.
-    // if ((x1 <= min.x && x2 <= min.x) ||
-    //     (y1 <= min.y && y2 <= min.y) ||
-    //     (x1 >= max.x && x2 >= max.x) ||
-    //     (y1 >= max.y && y2 >= max.y)) {
-    //   return false;
-    // }
+    // Completely outside.
+    if ((x1 <= left && x2 <= left) ||
+        (y1 <= top && y2 <= top) ||
+        (x1 >= right && x2 >= right) ||
+        (y1 >= bottom && y2 >= bottom)) {
+      return false;
+    }
 
-    // final m = (y2 - y1) / (x2 - x1);
+    final m = (y2 - y1) / (x2 - x1);
 
-    // double y = m * (min.x - x1) + y1;
-    // if (y > min.y && y < max.y) return true;
+    double y = m * (left - x1) + y1;
+    if (y > top && y < bottom) return true;
 
-    // y = m * (max.x - x1) + y1;
-    // if (y > min.y && y < max.y) return true;
+    y = m * (right - x1) + y1;
+    if (y > top && y < bottom) return true;
 
-    // double x = (min.y - y1) / m + x1;
-    // if (x > min.x && x < max.x) return true;
+    double x = (top - y1) / m + x1;
+    if (x > left && x < right) return true;
 
-    // x = (max.y - y1) / m + x1;
-    // if (x > min.x && x < max.x) return true;
+    x = (bottom - y1) / m + x1;
+    if (x > left && x < right) return true;
 
     return false;
   }

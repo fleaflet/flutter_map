@@ -136,9 +136,9 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
     );
 
     // segment is visible
-    final projBounds = Bounds(
-      projection.project(boundsAdjusted.southWest).toPoint(),
-      projection.project(boundsAdjusted.northEast).toPoint(),
+    final projBounds = Rect.fromPoints(
+      projection.project(boundsAdjusted.southWest),
+      projection.project(boundsAdjusted.northEast),
     );
 
     final (xWest, _) = projection.projectXY(const LatLng(0, -180));

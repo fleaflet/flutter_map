@@ -3,7 +3,6 @@ import 'dart:math' show Point;
 import 'dart:ui';
 
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:meta/meta.dart';
 
 /// A range of tiles, this is normally a [DiscreteTileRange] and sometimes
@@ -31,11 +30,11 @@ class EmptyTileRange extends TileRange {
       const Iterable<TileCoordinates>.empty();
 }
 
-Point<int> _floor(Point<double> point) =>
-    Point<int>(point.x.floor(), point.y.floor());
+Point<int> _floor(Offset point) =>
+    Point<int>(point.dx.floor(), point.dy.floor());
 
-Point<int> _ceil(Point<double> point) =>
-    Point<int>(point.x.ceil(), point.y.ceil());
+Point<int> _ceil(Offset point) =>
+    Point<int>(point.dx.ceil(), point.dy.ceil());
 
 /// Every [TileRange] is a [DiscreteTileRange] if it's not an [EmptyTileRange].
 @immutable
@@ -50,16 +49,16 @@ class DiscreteTileRange extends TileRange {
   factory DiscreteTileRange.fromPixelBounds({
     required int zoom,
     required int tileDimension,
-    required Bounds<double> pixelBounds,
+    required Rect pixelBounds,
   }) {
     final Bounds<int> bounds;
-    if (pixelBounds.min == pixelBounds.max) {
-      final minAndMax = _floor(pixelBounds.min / tileDimension);
+    if (pixelBounds.isEmpty) {
+      final minAndMax = _floor(pixelBounds.topLeft / tileDimension.toDouble());
       bounds = Bounds<int>(minAndMax, minAndMax);
     } else {
       bounds = Bounds<int>(
-        _floor(pixelBounds.min / tileDimension),
-        _ceil(pixelBounds.max / tileDimension) - const Point(1, 1),
+        _floor(pixelBounds.topLeft / tileDimension.toDouble()),
+        _ceil(pixelBounds.bottomRight / tileDimension.toDouble()) - const Point(1, 1),
       );
     }
 

@@ -1,7 +1,8 @@
+import 'dart:ui';
+
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
-import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 
@@ -87,13 +88,13 @@ class DiscreteTileBounds extends TileBounds {
   TileBoundsAtZoom _tileBoundsAtZoomImpl(int zoom) {
     final zoomDouble = zoom.toDouble();
 
-    final Bounds<double> pixelBounds;
+    final Rect pixelBounds;
     if (_latLngBounds == null) {
       pixelBounds = crs.getProjectedBounds(zoomDouble)!;
     } else {
-      pixelBounds = Bounds<double>(
-        crs.latLngToOffset(_latLngBounds!.southWest, zoomDouble).toPoint(),
-        crs.latLngToOffset(_latLngBounds!.northEast, zoomDouble).toPoint(),
+      pixelBounds = Rect.fromPoints(
+        crs.latLngToOffset(_latLngBounds!.southWest, zoomDouble),
+        crs.latLngToOffset(_latLngBounds!.northEast, zoomDouble),
       );
     }
 
@@ -127,13 +128,13 @@ class WrappedTileBounds extends TileBounds {
   WrappedTileBoundsAtZoom _tileBoundsAtZoomImpl(int zoom) {
     final zoomDouble = zoom.toDouble();
 
-    final Bounds<double> pixelBounds;
+    final Rect pixelBounds;
     if (_latLngBounds == null) {
       pixelBounds = crs.getProjectedBounds(zoomDouble)!;
     } else {
-      pixelBounds = Bounds<double>(
-        crs.latLngToOffset(_latLngBounds!.southWest, zoomDouble).toPoint(),
-        crs.latLngToOffset(_latLngBounds!.northEast, zoomDouble).toPoint(),
+      pixelBounds = Rect.fromPoints(
+        crs.latLngToOffset(_latLngBounds!.southWest, zoomDouble),
+        crs.latLngToOffset(_latLngBounds!.northEast, zoomDouble),
       );
     }
 

@@ -29,5 +29,5 @@ class FakeInfiniteCrs extends Crs {
       throw UnimplementedError();
 
   @override
-  Bounds<double>? getProjectedBounds(double zoom) => throw UnimplementedError();
+  Rect? getProjectedBounds(double zoom) => throw UnimplementedError();
 }

@@ -1,5 +1,4 @@
-import 'dart:math' as math hide Point;
-import 'dart:math' show Point;
+import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -144,21 +143,21 @@ class FitBounds extends CameraFit {
     // Prevent negative size which results in NaN zoom value later on in the calculation
 
     size = Size(math.max(0, size.width), math.max(0, size.height));
-    var boundsSize = Bounds(
-      camera.project(se, camera.zoom).toPoint(),
-      camera.project(nw, camera.zoom).toPoint(),
+    var boundsSize = Rect.fromPoints(
+      camera.project(se, camera.zoom),
+      camera.project(nw, camera.zoom),
     ).size;
     if (camera.rotation != 0.0) {
       final cosAngle = math.cos(camera.rotationRad).abs();
       final sinAngle = math.sin(camera.rotationRad).abs();
-      boundsSize = Point<double>(
-        (boundsSize.x * cosAngle) + (boundsSize.y * sinAngle),
-        (boundsSize.y * cosAngle) + (boundsSize.x * sinAngle),
+      boundsSize = Size(
+        (boundsSize.width * cosAngle) + (boundsSize.width * sinAngle),
+        (boundsSize.height * cosAngle) + (boundsSize.height * sinAngle),
       );
     }
 
     final scale =
-        math.min(size.width / boundsSize.x, size.height / boundsSize.y);
+        math.min(size.width / boundsSize.width, size.height / boundsSize.height);
 
     var boundsZoom = camera.getScaleZoom(scale);
 
@@ -226,17 +225,17 @@ class FitInsideBounds extends CameraFit {
 
     final cameraSize = camera.nonRotatedSize - paddingTotalXY as Size;
 
-    final projectedBoundsSize = Bounds(
-      camera.project(bounds.southEast, camera.zoom).toPoint(),
-      camera.project(bounds.northWest, camera.zoom).toPoint(),
+    final projectedBoundsSize = Rect.fromPoints(
+      camera.project(bounds.southEast, camera.zoom),
+      camera.project(bounds.northWest, camera.zoom),
     ).size;
 
     final scale = _rectInRotRectScale(
       angleRad: camera.rotationRad,
       smallRectHalfWidth: cameraSize.width / 2.0,
       smallRectHalfHeight: cameraSize.height / 2.0,
-      bigRectHalfWidth: projectedBoundsSize.x / 2.0,
-      bigRectHalfHeight: projectedBoundsSize.y / 2.0,
+      bigRectHalfWidth: projectedBoundsSize.width / 2.0,
+      bigRectHalfHeight: projectedBoundsSize.height / 2.0,
     );
 
     var newZoom = camera.getScaleZoom(1.0 / scale);

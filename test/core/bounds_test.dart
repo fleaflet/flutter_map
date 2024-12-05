@@ -237,30 +237,6 @@ void main() {
     });
 
     group('contains', () {
-      test(
-          'should contain compared bounds if they are completely within '
-          'the bounds', () {
-        final bounds =
-            Bounds(const Point(101.1, 88.1), const Point(133.1, 60.3));
-
-        expect(
-            bounds.containsBounds(
-                Bounds(const Point(110.1, 77.3), const Point(128.3, 65.5))),
-            isTrue);
-      });
-
-      test(
-          'should NOT contain compared bounds if they are NOT completely '
-          'within the bounds', () {
-        final bounds =
-            Bounds(const Point(101.1, 88.1), const Point(133.1, 60.3));
-
-        expect(
-            bounds.containsBounds(
-                Bounds(const Point(110.1, 77.3), const Point(133.2, 65.5))),
-            isFalse);
-      });
-
       test('should contain given point within the bounds', () {
         expect(
             Bounds(const Point(0, 50), const Point(50, 0))

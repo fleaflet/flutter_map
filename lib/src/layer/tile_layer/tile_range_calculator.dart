@@ -40,7 +40,7 @@ class TileRangeCalculator {
     );
   }
 
-  Bounds<double> _calculatePixelBounds(
+  Rect _calculatePixelBounds(
     MapCamera camera,
     LatLng center,
     double viewingZoom,
@@ -51,7 +51,9 @@ class TileRangeCalculator {
     final pixelCenter = camera.project(center, tileZoomDouble).floor();
     final halfSize = camera.size / (scale * 2);
 
-    return Bounds((pixelCenter - halfSize.bottomRight(Offset.zero)).toPoint(),
-        (pixelCenter + halfSize.bottomRight(Offset.zero)).toPoint());
+    return Rect.fromPoints(
+      pixelCenter - halfSize.bottomRight(Offset.zero),
+      pixelCenter + halfSize.bottomRight(Offset.zero),
+    );
   }
 }

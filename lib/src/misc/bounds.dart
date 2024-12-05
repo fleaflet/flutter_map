@@ -79,14 +79,6 @@ class Bounds<T extends num> {
         (point.y <= max.y);
   }
 
-  /// Check if an other [Bounds] object is inside of the bounds.
-  bool containsBounds(Bounds<T> b) {
-    return (b.min.x >= min.x) &&
-        (b.max.x <= max.x) &&
-        (b.min.y >= min.y) &&
-        (b.max.y <= max.y);
-  }
-
   /// Calculates the intersection of two Bounds. The return value will be null
   /// if there is no intersection. The returned bounds may be zero size
   /// (bottomLeft == topRight).
@@ -101,34 +93,6 @@ class Bounds<T extends num> {
     }
 
     return null;
-  }
-
-  /// Checks if the line between the two coordinates is contained within the
-  /// [Bounds].
-  bool aabbContainsLine(double x1, double y1, double x2, double y2) {
-    // Completely outside.
-    if ((x1 <= min.x && x2 <= min.x) ||
-        (y1 <= min.y && y2 <= min.y) ||
-        (x1 >= max.x && x2 >= max.x) ||
-        (y1 >= max.y && y2 >= max.y)) {
-      return false;
-    }
-
-    final m = (y2 - y1) / (x2 - x1);
-
-    double y = m * (min.x - x1) + y1;
-    if (y > min.y && y < max.y) return true;
-
-    y = m * (max.x - x1) + y1;
-    if (y > min.y && y < max.y) return true;
-
-    double x = (min.y - y1) / m + x1;
-    if (x > min.x && x < max.x) return true;
-
-    x = (max.y - y1) / m + x1;
-    if (x > min.x && x < max.x) return true;
-
-    return false;
   }
 
   @override

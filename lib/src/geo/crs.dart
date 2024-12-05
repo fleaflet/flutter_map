@@ -67,7 +67,7 @@ abstract class Crs {
   double zoom(double scale) => math.log(scale / 256) / math.ln2;
 
   /// Rescales the bounds to a given zoom value.
-  Bounds<double>? getProjectedBounds(double zoom);
+  Rect? getProjectedBounds(double zoom);
 
   /// Returns true if we want the world to be replicated, longitude-wise.
   bool get replicatesWorldLongitude => false;
@@ -118,16 +118,16 @@ abstract class CrsWithStaticTransformation extends Crs {
   }
 
   @override
-  Bounds<double>? getProjectedBounds(double zoom) {
+  Rect? getProjectedBounds(double zoom) {
     if (infinite) return null;
 
     final b = projection.bounds!;
     final s = scale(zoom);
     final (minx, miny) = _transformation.transform(b.min.x, b.min.y, s);
     final (maxx, maxy) = _transformation.transform(b.max.x, b.max.y, s);
-    return Bounds<double>(
-      Point<double>(minx, miny),
-      Point<double>(maxx, maxy),
+    return Rect.fromPoints(
+      Offset(minx, miny),
+      Offset(maxx, maxy),
     );
   }
 }
@@ -293,7 +293,7 @@ class Proj4Crs extends Crs {
 
   /// Rescales the bounds to a given zoom value.
   @override
-  Bounds<double>? getProjectedBounds(double zoom) {
+  Rect? getProjectedBounds(double zoom) {
     if (infinite) return null;
 
     final b = projection.bounds!;
@@ -302,10 +302,7 @@ class Proj4Crs extends Crs {
     final transformation = _getTransformationByZoom(zoom);
     final (minx, miny) = transformation.transform(b.min.x, b.min.y, zoomScale);
     final (maxx, maxy) = transformation.transform(b.max.x, b.max.y, zoomScale);
-    return Bounds<double>(
-      Point<double>(minx, miny),
-      Point<double>(maxx, maxy),
-    );
+    return Rect.fromPoints(Offset(minx, miny), Offset(maxx, maxy));
   }
 
   /// Zoom to Scale function.

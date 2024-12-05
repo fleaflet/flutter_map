@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
@@ -9,11 +10,11 @@ void main() {
   group('TileBoundsAtZoom', () {
     const hugeCoordinate = TileCoordinates(999999999, 999999999, 0);
     final hugePoint =
-        Point<double>(hugeCoordinate.x.toDouble(), hugeCoordinate.y.toDouble());
+        Offset(hugeCoordinate.x.toDouble(), hugeCoordinate.y.toDouble());
     final tileRangeWithHugeCoordinate = DiscreteTileRange.fromPixelBounds(
       zoom: 0,
       tileDimension: 1,
-      pixelBounds: Bounds(hugePoint, hugePoint),
+      pixelBounds: Rect.fromPoints(hugePoint, hugePoint),
     );
 
     DiscreteTileRange discreteTileRange(

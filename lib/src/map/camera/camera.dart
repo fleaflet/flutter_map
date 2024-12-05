@@ -248,7 +248,7 @@ class MapCamera {
   double getScaleZoom(double scale) => crs.zoom(scale * crs.scale(zoom));
 
   /// Calculates the pixel bounds of this camera's [crs].
-  Bounds? getPixelWorldBounds(double? zoom) =>
+  Rect? getPixelWorldBounds(double? zoom) =>
       crs.getProjectedBounds(zoom ?? this.zoom);
 
   /// Calculates the [Offset] from the [pos] to this camera's [pixelOrigin].

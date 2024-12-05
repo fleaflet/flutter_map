@@ -82,16 +82,16 @@ class OverlayImage extends BaseOverlayImage {
     final camera = MapCamera.of(context);
 
     // northWest is not necessarily upperLeft depending on projection
-    final bounds = Bounds<double>(
-      (camera.project(this.bounds.northWest) - camera.pixelOrigin).toPoint(),
-      (camera.project(this.bounds.southEast) - camera.pixelOrigin).toPoint(),
+    final bounds = Rect.fromPoints(
+      camera.project(this.bounds.northWest) - camera.pixelOrigin,
+      camera.project(this.bounds.southEast) - camera.pixelOrigin,
     );
 
     return Positioned(
-      left: bounds.topLeft.x,
-      top: bounds.topLeft.y,
-      width: bounds.size.x,
-      height: bounds.size.y,
+      left: bounds.topLeft.dx,
+      top: bounds.topLeft.dy,
+      width: bounds.size.width,
+      height: bounds.size.height,
       child: child,
     );
   }
@@ -145,13 +145,12 @@ class RotatedOverlayImage extends BaseOverlayImage {
     final pxTopRight = pxTopLeft - pxBottomLeft + pxBottomRight;
 
     /// update/enlarge bounds so the new corner points fit within
-    final bounds = Bounds<double>(pxTopLeft.toPoint(), pxBottomRight.toPoint())
-        .extend(pxTopRight.toPoint())
-        .extend(pxBottomLeft.toPoint());
+    final bounds = RectExtension.containing(
+        [pxTopLeft, pxBottomRight, pxTopRight, pxBottomLeft]);
 
-    final vectorX = (pxTopRight - pxTopLeft) / bounds.size.x;
-    final vectorY = (pxBottomLeft - pxTopLeft) / bounds.size.y;
-    final offset = pxTopLeft - bounds.topLeft.toOffset();
+    final vectorX = (pxTopRight - pxTopLeft) / bounds.size.width;
+    final vectorY = (pxBottomLeft - pxTopLeft) / bounds.size.height;
+    final offset = pxTopLeft - bounds.topLeft;
 
     final a = vectorX.dx;
     final b = vectorX.dy;
@@ -161,10 +160,10 @@ class RotatedOverlayImage extends BaseOverlayImage {
     final ty = offset.dy;
 
     return Positioned(
-      left: bounds.topLeft.x,
-      top: bounds.topLeft.y,
-      width: bounds.size.x,
-      height: bounds.size.y,
+      left: bounds.topLeft.dx,
+      top: bounds.topLeft.dy,
+      width: bounds.size.width,
+      height: bounds.size.height,
       child: Transform(
         transform: Matrix4(a, b, 0, 0, c, d, 0, 0, 0, 0, 1, 0, tx, ty, 0, 1),
         filterQuality: filterQuality,
