@@ -1,5 +1,8 @@
+import 'dart:ui';
+
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
+import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 
@@ -37,7 +40,7 @@ class TileRangeCalculator {
     );
   }
 
-  Bounds<double> _calculatePixelBounds(
+  Rect _calculatePixelBounds(
     MapCamera camera,
     LatLng center,
     double viewingZoom,
@@ -45,10 +48,12 @@ class TileRangeCalculator {
   ) {
     final tileZoomDouble = tileZoom.toDouble();
     final scale = camera.getZoomScale(viewingZoom, tileZoomDouble);
-    final pixelCenter =
-        camera.project(center, tileZoomDouble).floor().toDoublePoint();
+    final pixelCenter = camera.projectAtZoom(center, tileZoomDouble).floor();
     final halfSize = camera.size / (scale * 2);
 
-    return Bounds(pixelCenter - halfSize, pixelCenter + halfSize);
+    return Rect.fromPoints(
+      pixelCenter - halfSize.bottomRight(Offset.zero),
+      pixelCenter + halfSize.bottomRight(Offset.zero),
+    );
   }
 }

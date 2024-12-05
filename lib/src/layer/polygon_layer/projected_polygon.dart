@@ -3,8 +3,8 @@ part of 'polygon_layer.dart';
 @immutable
 class _ProjectedPolygon<R extends Object> with HitDetectableElement<R> {
   final Polygon<R> polygon;
-  final List<DoublePoint> points;
-  final List<List<DoublePoint>> holePoints;
+  final List<Offset> points;
+  final List<List<Offset>> holePoints;
 
   @override
   R? get hitValue => polygon.hitValue;
@@ -25,10 +25,10 @@ class _ProjectedPolygon<R extends Object> with HitDetectableElement<R> {
                 holes.isEmpty ||
                 polygon.points.isEmpty ||
                 holes.every((e) => e.isEmpty)) {
-              return <List<DoublePoint>>[];
+              return <List<Offset>>[];
             }
 
-            return List<List<DoublePoint>>.generate(
+            return List<List<Offset>>.generate(
               holes.length,
               (j) => projection.projectList(
                 holes[j],

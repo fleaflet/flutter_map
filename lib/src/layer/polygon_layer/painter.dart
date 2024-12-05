@@ -49,7 +49,7 @@ base class _PolygonPainter<R extends Object>
   @override
   bool elementHitTest(
     _ProjectedPolygon<R> projectedPolygon, {
-    required math.Point<double> point,
+    required Offset point,
     required LatLng coordinate,
   }) {
     // TODO: We should check the bounding box here, for efficiency
@@ -193,7 +193,8 @@ base class _PolygonPainter<R extends Object>
       lastHash = null;
     }
 
-    final origin = (camera.project(camera.center) - camera.size / 2).toOffset();
+    final origin =
+        camera.projectAtZoom(camera.center) - camera.size.center(Offset.zero);
 
     // Main loop constructing batched fill and border paths from given polygons.
     for (int i = 0; i <= polygons.length - 1; i++) {

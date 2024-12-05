@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -41,8 +39,8 @@ abstract base class HitDetectablePainter<R extends Object,
   /// a hit has already been found on another element, and the
   /// [HitDetectableElement.hitValue] is `null` on this element.
   ///
-  /// [point] ([OffsetToPointExtension.toPoint]) and [coordinate]
-  /// ([MapCamera.pointToLatLng]) are provided for simplicity.
+  /// [Offset] and [coordinate]
+  /// ([MapCamera.screenOffsetToLatLng]) are provided for simplicity.
   ///
   /// Avoid performing calculations that are not dependent on [element]. Instead,
   /// override [hitTest], store the necessary calculation results in
@@ -54,7 +52,7 @@ abstract base class HitDetectablePainter<R extends Object,
   /// Should return whether an element has been hit.
   bool elementHitTest(
     E element, {
-    required Point<double> point,
+    required Offset point,
     required LatLng coordinate,
   });
 
@@ -66,8 +64,8 @@ abstract base class HitDetectablePainter<R extends Object,
     _hits.clear();
     bool hasHit = false;
 
-    final point = position.toPoint();
-    final coordinate = camera.pointToLatLng(point);
+    final point = position;
+    final coordinate = camera.screenOffsetToLatLng(point);
 
     for (int i = elements.length - 1; i >= 0; i--) {
       final element = elements.elementAt(i);
@@ -98,7 +96,7 @@ base mixin HitTestRequiresCameraOrigin<R extends Object,
   /// Calculated [MapCamera] origin, using the following formula:
   ///
   /// ```dart
-  /// camera.project(camera.center).toOffset() - camera.size.toOffset() / 2
+  /// camera.project(camera.center) - camera.size.center(Offset.zero)
   /// ```
   ///
   /// Only initialised after [hitTest] is invoked. Recalculated every time
@@ -108,7 +106,7 @@ base mixin HitTestRequiresCameraOrigin<R extends Object,
   @override
   bool? hitTest(Offset position) {
     hitTestCameraOrigin =
-        camera.project(camera.center).toOffset() - camera.size.toOffset() / 2;
+        camera.projectAtZoom(camera.center) - camera.size.center(Offset.zero);
     return super.hitTest(position);
   }
 }

@@ -4,6 +4,20 @@ Please consider [donating](https://docs.fleaflet.dev/supporters#support-us) or [
 
 This CHANGELOG does not include every commit and/or PR - it is a hand picked selection of the most important ones. For a full list of changes, please check the GitHub repository releases/tags.
 
+## [8.0.0] - 2024/07/02
+
+Migration from `Point` class internally, but this also affects the external API.
+
+Migration Guide:
+- any methods that previously required `Point<double>` now require `Offset`, `Size`, or `Rect` as return values and parameters
+- `pointToLatLng` -> `offsetToLatLng`
+- `PointExtension` and `OffsetToPointExtension` marked as internal
+- `MapController.rotateAroundPoint` now only accepts an Offset
+
+
+Contains the following user-affecting bug fixes:
+
+
 ## [7.0.2] - 2024/07/02
 
 > Note that this version causes a technically breaking change by removing `PolygonLayer.useDynamicUpdate` & `PolylineLayer.useDynamicUpdate`, introduced in v7.0.1. However, the implementations for these was broken on introduction, and their intended purpose no longer exists. Therefore, these should not have been used in any capacity, and should not affect any projects.

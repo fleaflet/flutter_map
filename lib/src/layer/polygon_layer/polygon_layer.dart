@@ -1,4 +1,4 @@
-import 'dart:math' as math;
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
@@ -152,8 +152,8 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
                 List.generate(
                   points.length * 2,
                   (ii) => ii.isEven
-                      ? points.elementAt(ii ~/ 2).x
-                      : points.elementAt(ii ~/ 2).y,
+                      ? points.elementAt(ii ~/ 2).dx
+                      : points.elementAt(ii ~/ 2).dy,
                   growable: false,
                 ),
                 holeIndices: culledPolygon.holePoints.isEmpty
@@ -176,7 +176,7 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
           debugAltRenderer: widget.debugAltRenderer,
           hitNotifier: widget.hitNotifier,
         ),
-        size: Size(camera.size.x, camera.size.y),
+        size: camera.size,
       ),
     );
   }
