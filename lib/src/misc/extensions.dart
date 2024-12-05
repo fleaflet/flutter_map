@@ -40,7 +40,6 @@ extension OffsetExtension on Offset {
 
 @internal
 extension RectExtension on Rect {
-
   /// Create a [Rect] as bounding box of a list of points.
   static Rect containing(List<Offset> points) {
     var maxX = double.negativeInfinity;
@@ -61,9 +60,6 @@ extension RectExtension on Rect {
   /// Checks if the line between the two coordinates is contained within the
   /// [Rect].
   bool aabbContainsLine(double x1, double y1, double x2, double y2) {
-    
-    
-    
     // // Completely outside.
     // if ((x1 <= min.x && x2 <= min.x) ||
     //     (y1 <= min.y && y2 <= min.y) ||
