@@ -1,7 +1,10 @@
 import 'dart:math' as math hide Point;
 import 'dart:math' show Point;
+import 'dart:ui';
 
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/misc/bounds.dart';
+import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:meta/meta.dart';
 
 /// A range of tiles, this is normally a [DiscreteTileRange] and sometimes
@@ -29,11 +32,16 @@ class EmptyTileRange extends TileRange {
       const Iterable<TileCoordinates>.empty();
 }
 
+Point<int> _floor(Offset point) =>
+    Point<int>(point.dx.floor(), point.dy.floor());
+
+Point<int> _ceil(Offset point) => Point<int>(point.dx.ceil(), point.dy.ceil());
+
 /// Every [TileRange] is a [DiscreteTileRange] if it's not an [EmptyTileRange].
 @immutable
 class DiscreteTileRange extends TileRange {
   /// Bounds are inclusive
-  final Bounds<int> _bounds;
+  final IntegerBounds _bounds;
 
   /// Create a new [DiscreteTileRange] by setting it's values.
   const DiscreteTileRange(super.zoom, this._bounds);
@@ -42,16 +50,16 @@ class DiscreteTileRange extends TileRange {
   factory DiscreteTileRange.fromPixelBounds({
     required int zoom,
     required int tileDimension,
-    required Bounds<double> pixelBounds,
+    required Rect pixelBounds,
   }) {
-    final Bounds<int> bounds;
-    if (pixelBounds.min == pixelBounds.max) {
-      final minAndMax = (pixelBounds.min / tileDimension).floor();
-      bounds = Bounds<int>(minAndMax, minAndMax);
+    final IntegerBounds bounds;
+    if (pixelBounds.isEmpty) {
+      final minAndMax = _floor(pixelBounds.min / tileDimension.toDouble());
+      bounds = IntegerBounds(minAndMax, minAndMax);
     } else {
-      bounds = Bounds<int>(
-        (pixelBounds.min / tileDimension).floor(),
-        (pixelBounds.max / tileDimension).ceil() - const Point(1, 1),
+      bounds = IntegerBounds(
+        _floor(pixelBounds.min / tileDimension.toDouble()),
+        _ceil(pixelBounds.max / tileDimension.toDouble()) - const Point(1, 1),
       );
     }
 
@@ -88,7 +96,7 @@ class DiscreteTileRange extends TileRange {
 
     return DiscreteTileRange(
       zoom,
-      Bounds<int>(
+      IntegerBounds(
         Point<int>(math.max(min.x, minX), min.y),
         Point<int>(math.min(max.x, maxX), max.y),
       ),
@@ -103,7 +111,7 @@ class DiscreteTileRange extends TileRange {
 
     return DiscreteTileRange(
       zoom,
-      Bounds<int>(
+      IntegerBounds(
         Point<int>(min.x, math.max(min.y, minY)),
         Point<int>(max.x, math.min(max.y, maxY)),
       ),
@@ -145,7 +153,7 @@ class DiscreteTileRange extends TileRange {
   Point<int> get max => _bounds.max;
 
   /// The center [Point] of the [DiscreteTileRange]
-  Point<double> get center => _bounds.center;
+  Offset get center => _bounds.center;
 
   /// Get a list of [TileCoordinates] for the [DiscreteTileRange].
   @override

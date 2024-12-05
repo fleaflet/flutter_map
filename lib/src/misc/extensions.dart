@@ -1,64 +1,91 @@
-import 'dart:math';
+import 'dart:math' as math;
 import 'dart:ui';
 
-/// Extension methods for the math.[Point] class
-extension PointExtension<T extends num> on Point<T> {
-  /// Create new [Point] whose [x] and [y] values are divided by the respective
-  /// values in [point].
-  Point<double> unscaleBy(Point<num> point) {
-    return Point<double>(x / point.x, y / point.y);
+import 'package:meta/meta.dart';
+
+/// Extension methods for the [math.Point] class
+@internal
+extension PointExtension<T extends num> on math.Point<T> {
+  /// Create a new [math.Point] where the [x] and [y] values are divided by [factor].
+  math.Point<double> operator /(num factor) {
+    return math.Point<double>(x / factor, y / factor);
   }
 
-  /// Create a new [Point] where the [x] and [y] values are divided by [factor].
-  Point<double> operator /(num factor) {
-    return Point<double>(x / factor, y / factor);
-  }
-
-  /// Create a new [Point] where the [x] and [y] values are rounded to the
-  /// nearest integer.
-  Point<int> round() {
-    return Point<int>(x.round(), y.round());
-  }
-
-  /// Create a new [Point] where the [x] and [y] values are rounded up to the
-  /// nearest integer.
-  Point<int> ceil() {
-    return Point<int>(x.ceil(), y.ceil());
-  }
-
-  /// Create a new [Point] where the [x] and [y] values are rounded down to the
-  /// nearest integer.
-  Point<int> floor() {
-    return Point<int>(x.floor(), y.floor());
-  }
-
-  /// Create a new [Point] whose [x] and [y] values are rotated clockwise by
-  /// [radians].
-  Point<double> rotate(num radians) {
-    if (radians != 0.0) {
-      final cosTheta = cos(radians);
-      final sinTheta = sin(radians);
-      final nx = (cosTheta * x) + (sinTheta * y);
-      final ny = (cosTheta * y) - (sinTheta * x);
-
-      return Point<double>(nx, ny);
-    }
-
-    return toDoublePoint();
-  }
-
-  /// Cast the object to a [Point] object with integer values
-  Point<int> toIntPoint() => Point<int>(x.toInt(), y.toInt());
-
-  /// Case the object to a [Point] object with double values
-  Point<double> toDoublePoint() => Point<double>(x.toDouble(), y.toDouble());
-
-  /// Maps the [Point] to an [Offset].
+  /// Converts to offset
   Offset toOffset() => Offset(x.toDouble(), y.toDouble());
 }
 
 /// Extension methods for [Offset]
-extension OffsetToPointExtension on Offset {
-  /// Creates a [Point] representation of this offset.
-  Point<double> toPoint() => Point(dx, dy);
+@internal
+extension OffsetExtension on Offset {
+  /// Creates a [math.Point] representation of this offset.
+  math.Point<double> toPoint() => math.Point(dx, dy);
+
+  /// Create a new [Offset] whose [dx] and [dy] values are rotated clockwise by
+  /// [radians].
+  Offset rotate(num radians) {
+    final cosTheta = math.cos(radians);
+    final sinTheta = math.sin(radians);
+    final nx = (cosTheta * dx) + (sinTheta * dy);
+    final ny = (cosTheta * dy) - (sinTheta * dx);
+    return Offset(nx, ny);
+  }
+
+  /// returns new [Offset] where floorToDouble() is called on [dx] and [dy] independently
+  Offset floor() => Offset(dx.floorToDouble(), dy.floorToDouble());
+
+  /// returns new [Offset] where roundToDouble() is called on [dx] and [dy] independently
+  Offset round() => Offset(dx.roundToDouble(), dy.roundToDouble());
+}
+
+@internal
+extension RectExtension on Rect {
+  /// Create a [Rect] as bounding box of a list of points.
+  static Rect containing(List<Offset> points) {
+    var maxX = double.negativeInfinity;
+    var maxY = double.negativeInfinity;
+    var minX = double.infinity;
+    var minY = double.infinity;
+
+    for (final point in points) {
+      maxX = math.max(point.dx, maxX);
+      minX = math.min(point.dx, minX);
+      maxY = math.max(point.dy, maxY);
+      minY = math.min(point.dy, minY);
+    }
+
+    return Rect.fromPoints(Offset(minX, minY), Offset(maxX, maxY));
+  }
+
+  /// Checks if the line between the two coordinates is contained within the
+  /// [Rect].
+  bool aabbContainsLine(double x1, double y1, double x2, double y2) {
+    // Completely outside.
+    if ((x1 <= left && x2 <= left) ||
+        (y1 <= top && y2 <= top) ||
+        (x1 >= right && x2 >= right) ||
+        (y1 >= bottom && y2 >= bottom)) {
+      return false;
+    }
+
+    final m = (y2 - y1) / (x2 - x1);
+
+    double y = m * (left - x1) + y1;
+    if (y > top && y < bottom) return true;
+
+    y = m * (right - x1) + y1;
+    if (y > top && y < bottom) return true;
+
+    double x = (top - y1) / m + x1;
+    if (x > left && x < right) return true;
+
+    x = (bottom - y1) / m + x1;
+    if (x > left && x < right) return true;
+
+    return false;
+  }
+
+  Offset get min => topLeft;
+
+  Offset get max => bottomRight;
 }

@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/gestures/map_interactive_viewer.dart';
+import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:flutter_map/src/misc/move_and_rotate_result.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:vector_math/vector_math_64.dart';
@@ -24,7 +24,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   Animation<Offset>? _flingAnimation;
   late bool _animationHasGesture;
   late Offset _animationOffset;
-  late Point _flingMapCenterStartPoint;
+  late Offset _flingMapCenterStartPoint;
 
   /// Constructor of the [MapController] implementation for internal usage.
   MapControllerImpl({MapOptions? options, TickerProvider? vsync})
@@ -107,13 +107,11 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   @override
   MoveAndRotateResult rotateAroundPoint(
     double degree, {
-    Point<double>? point,
     Offset? offset,
     String? id,
   }) =>
       rotateAroundPointRaw(
         degree,
-        point: point,
         offset: offset,
         hasGesture: false,
         source: MapEventSource.mapController,
@@ -152,11 +150,11 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     // Algorithm thanks to https://github.com/tlserver/flutter_map_location_marker
     LatLng center = newCenter;
     if (offset != Offset.zero) {
-      final newPoint = camera.project(newCenter, newZoom);
-      center = camera.unproject(
+      final newPoint = camera.projectAtZoom(newCenter, newZoom);
+      center = camera.unprojectAtZoom(
         camera.rotatePoint(
           newPoint,
-          newPoint - Point(offset.dx, offset.dy),
+          newPoint - offset,
         ),
         newZoom,
       );
@@ -225,19 +223,11 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   /// the map.
   MoveAndRotateResult rotateAroundPointRaw(
     double degree, {
-    required Point<double>? point,
     required Offset? offset,
     required bool hasGesture,
     required MapEventSource source,
     String? id,
   }) {
-    if (point != null && offset != null) {
-      throw ArgumentError('Only one of `point` or `offset` may be non-null');
-    }
-    if (point == null && offset == null) {
-      throw ArgumentError('One of `point` or `offset` must be non-null');
-    }
-
     if (degree == camera.rotation) {
       return const (moveSuccess: false, rotateSuccess: false);
     }
@@ -255,17 +245,14 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     }
 
     final rotationDiff = degree - camera.rotation;
-    final rotationCenter = camera.project(camera.center) +
-        (point != null
-                ? (point - (camera.nonRotatedSize / 2.0))
-                : Point(offset!.dx, offset.dy))
-            .rotate(camera.rotationRad);
+    final rotationCenter = (camera.projectAtZoom(camera.center) + offset!)
+        .rotate(camera.rotationRad);
 
     return (
       moveSuccess: moveRaw(
-        camera.unproject(
+        camera.unprojectAtZoom(
           rotationCenter +
-              (camera.project(camera.center) - rotationCenter)
+              (camera.projectAtZoom(camera.center) - rotationCenter)
                   .rotate(degrees2Radians * rotationDiff),
         ),
         camera.zoom,
@@ -327,7 +314,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
 
   /// Set the widget size but don't emit a event to the event system.
   bool setNonRotatedSizeWithoutEmittingEvent(
-    Point<double> nonRotatedSize,
+    Size nonRotatedSize,
   ) {
     if (nonRotatedSize != MapCamera.kImpossibleSize &&
         nonRotatedSize != camera.nonRotatedSize) {
@@ -387,10 +374,10 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
 
   /// To be called when an ongoing drag movement updates.
   void dragUpdated(MapEventSource source, Offset offset) {
-    final oldCenterPt = camera.project(camera.center);
+    final oldCenterPt = camera.projectAtZoom(camera.center);
 
-    final newCenterPt = oldCenterPt + offset.toPoint();
-    final newCenter = camera.unproject(newCenterPt);
+    final newCenterPt = oldCenterPt + offset;
+    final newCenter = camera.unprojectAtZoom(newCenterPt);
 
     moveRaw(
       newCenter,
@@ -660,11 +647,9 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
 
     _animationHasGesture = hasGesture;
     _animationOffset = offset;
-    _flingMapCenterStartPoint = camera.project(camera.center);
+    _flingMapCenterStartPoint = camera.projectAtZoom(camera.center);
 
-    final distance =
-        (Offset.zero & Size(camera.nonRotatedSize.x, camera.nonRotatedSize.y))
-            .shortestSide;
+    final distance = (Offset.zero & camera.nonRotatedSize).shortestSide;
 
     _flingAnimation = Tween<Offset>(
       begin: begin,
@@ -729,9 +714,9 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     // fling animation
     if (_flingAnimation != null) {
       final newCenterPoint = _flingMapCenterStartPoint +
-          _flingAnimation!.value.toPoint().rotate(camera.rotationRad);
+          _flingAnimation!.value.rotate(camera.rotationRad);
       moveRaw(
-        camera.unproject(newCenterPoint),
+        camera.unprojectAtZoom(newCenterPoint),
         camera.zoom,
         hasGesture: _animationHasGesture,
         source: MapEventSource.flingAnimationController,

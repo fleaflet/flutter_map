@@ -69,7 +69,7 @@ class Scalebar extends StatelessWidget {
 
     // calculate the scalebar width in pixels
     final latLngCenter = camera.center;
-    final offsetCenter = camera.project(latLngCenter);
+    final offsetCenter = camera.projectAtZoom(latLngCenter);
 
     final absLat = latLngCenter.latitude.abs();
     double index = camera.zoom - length.value;
@@ -88,14 +88,14 @@ class Scalebar extends StatelessWidget {
     if (latLngOffset.longitude < latLngCenter.longitude) {
       latLngOffset = dst.offset(latLngCenter, metricDst.toDouble(), 270);
     }
-    final offsetDistance = camera.project(latLngOffset);
+    final offsetDistance = camera.projectAtZoom(latLngOffset);
 
     final label = metricDst < 1000
         ? '$metricDst m'
         : '${(metricDst / 1000.0).toStringAsFixed(0)} km';
     final ScalebarPainter scalebarPainter = _SimpleScalebarPainter(
       // use .abs() to avoid wrong placements on the right map border
-      scalebarLength: (offsetDistance.x - offsetCenter.x).abs(),
+      scalebarLength: (offsetDistance.dx - offsetCenter.dx).abs(),
       text: TextSpan(
         style: textStyle,
         text: label,

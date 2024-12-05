@@ -41,9 +41,9 @@ class EPSG3996PageState extends State<EPSG3996Page> {
       128,
     ];
 
-    final epsg3413Bounds = Bounds<double>(
-      const Point<double>(-4511619, -4511336),
-      const Point<double>(4510883, 4510996),
+    final epsg3413Bounds = Rect.fromPoints(
+      const Offset(-4511619, -4511336),
+      const Offset(4510883, 4510996),
     );
 
     maxZoom = resolutions.length - 1;

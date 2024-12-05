@@ -82,16 +82,16 @@ class OverlayImage extends BaseOverlayImage {
     final camera = MapCamera.of(context);
 
     // northWest is not necessarily upperLeft depending on projection
-    final bounds = Bounds<double>(
-      camera.project(this.bounds.northWest) - camera.pixelOrigin,
-      camera.project(this.bounds.southEast) - camera.pixelOrigin,
+    final bounds = Rect.fromPoints(
+      camera.projectAtZoom(this.bounds.northWest) - camera.pixelOrigin,
+      camera.projectAtZoom(this.bounds.southEast) - camera.pixelOrigin,
     );
 
     return Positioned(
-      left: bounds.topLeft.x,
-      top: bounds.topLeft.y,
-      width: bounds.size.x,
-      height: bounds.size.y,
+      left: bounds.topLeft.dx,
+      top: bounds.topLeft.dy,
+      width: bounds.size.width,
+      height: bounds.size.height,
       child: child,
     );
   }
@@ -135,36 +135,36 @@ class RotatedOverlayImage extends BaseOverlayImage {
   }) {
     final camera = MapCamera.of(context);
 
-    final pxTopLeft = camera.project(topLeftCorner) - camera.pixelOrigin;
+    final pxTopLeft = camera.projectAtZoom(topLeftCorner) - camera.pixelOrigin;
     final pxBottomRight =
-        camera.project(bottomRightCorner) - camera.pixelOrigin;
-    final pxBottomLeft = camera.project(bottomLeftCorner) - camera.pixelOrigin;
+        camera.projectAtZoom(bottomRightCorner) - camera.pixelOrigin;
+    final pxBottomLeft =
+        camera.projectAtZoom(bottomLeftCorner) - camera.pixelOrigin;
 
     /// calculate pixel coordinate of top-right corner by calculating the
     /// vector from bottom-left to top-left and adding it to bottom-right
     final pxTopRight = pxTopLeft - pxBottomLeft + pxBottomRight;
 
     /// update/enlarge bounds so the new corner points fit within
-    final bounds = Bounds<double>(pxTopLeft, pxBottomRight)
-        .extend(pxTopRight)
-        .extend(pxBottomLeft);
+    final bounds = RectExtension.containing(
+        [pxTopLeft, pxBottomRight, pxTopRight, pxBottomLeft]);
 
-    final vectorX = (pxTopRight - pxTopLeft) / bounds.size.x;
-    final vectorY = (pxBottomLeft - pxTopLeft) / bounds.size.y;
+    final vectorX = (pxTopRight - pxTopLeft) / bounds.size.width;
+    final vectorY = (pxBottomLeft - pxTopLeft) / bounds.size.height;
     final offset = pxTopLeft - bounds.topLeft;
 
-    final a = vectorX.x;
-    final b = vectorX.y;
-    final c = vectorY.x;
-    final d = vectorY.y;
-    final tx = offset.x;
-    final ty = offset.y;
+    final a = vectorX.dx;
+    final b = vectorX.dy;
+    final c = vectorY.dx;
+    final d = vectorY.dy;
+    final tx = offset.dx;
+    final ty = offset.dy;
 
     return Positioned(
-      left: bounds.topLeft.x,
-      top: bounds.topLeft.y,
-      width: bounds.size.x,
-      height: bounds.size.y,
+      left: bounds.topLeft.dx,
+      top: bounds.topLeft.dy,
+      width: bounds.size.width,
+      height: bounds.size.height,
       child: Transform(
         transform: Matrix4(a, b, 0, 0, c, d, 0, 0, 0, 0, 1, 0, tx, ty, 0, 1),
         filterQuality: filterQuality,

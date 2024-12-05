@@ -9,6 +9,7 @@ import 'package:flutter_map/src/layer/shared/layer_interactivity/internal_hit_de
 import 'package:flutter_map/src/layer/shared/layer_projection_simplification/state.dart';
 import 'package:flutter_map/src/layer/shared/layer_projection_simplification/widget.dart';
 import 'package:flutter_map/src/layer/shared/line_patterns/pixel_hiker.dart';
+import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:flutter_map/src/misc/offsets.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart';
@@ -111,7 +112,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
           hitNotifier: widget.hitNotifier,
           minimumHitbox: widget.minimumHitbox,
         ),
-        size: Size(camera.size.x, camera.size.y),
+        size: camera.size,
       ),
     );
   }
@@ -135,7 +136,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
     );
 
     // segment is visible
-    final projBounds = Bounds(
+    final projBounds = Rect.fromPoints(
       projection.project(boundsAdjusted.southWest),
       projection.project(boundsAdjusted.northEast),
     );
@@ -158,7 +159,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
       /// Returns true if the points stretch on different versions of the world.
       bool stretchesBeyondTheLimits() {
         for (final point in projectedPolyline.points) {
-          if (point.x > xEast || point.x < xWest) {
+          if (point.dx > xEast || point.dx < xWest) {
             return true;
           }
         }
@@ -179,7 +180,8 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
         final p1 = projectedPolyline.points[i];
         final p2 = projectedPolyline.points[i + 1];
 
-        containsSegment = projBounds.aabbContainsLine(p1.x, p1.y, p2.x, p2.y);
+        containsSegment =
+            projBounds.aabbContainsLine(p1.dx, p1.dy, p2.dx, p2.dy);
         if (containsSegment) {
           if (start == -1) {
             start = i;

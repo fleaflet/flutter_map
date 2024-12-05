@@ -12,6 +12,7 @@ import 'package:flutter_map/src/layer/tile_layer/tile_image_manager.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
+import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:http/http.dart';
 import 'package:http/retry.dart';
 import 'package:logger/logger.dart';
@@ -695,8 +696,9 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     // Re-order the tiles by their distance to the center of the range.
     final tileCenter = expandedTileLoadRange.center;
     tilesToLoad.sort(
-      (a, b) => _distanceSq(a.coordinates, tileCenter)
-          .compareTo(_distanceSq(b.coordinates, tileCenter)),
+      (a, b) => (a.coordinates.toOffset() - tileCenter)
+          .distanceSquared
+          .compareTo((b.coordinates.toOffset() - tileCenter).distanceSquared),
     );
 
     // Create the new Tiles.
@@ -756,10 +758,4 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     _tileImageManager.removeAll(widget.evictErrorTileStrategy);
     if (mounted) _loadAndPruneInVisibleBounds(MapCamera.of(context));
   }
-}
-
-double _distanceSq(TileCoordinates coord, Point<double> center) {
-  final dx = center.x - coord.x;
-  final dy = center.y - coord.y;
-  return dx * dx + dy * dy;
 }

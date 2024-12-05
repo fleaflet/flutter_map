@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/geo/crs.dart';
-import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Calculate the [Offset] for the [LatLng] point.
@@ -45,8 +44,8 @@ List<Offset> getOffsets(MapCamera camera, Offset origin, List<LatLng> points) {
 List<Offset> getOffsetsXY({
   required MapCamera camera,
   required Offset origin,
-  required List<DoublePoint> points,
-  List<List<DoublePoint>>? holePoints,
+  required List<Offset> points,
+  List<List<Offset>>? holePoints,
 }) {
   // Critically create as little garbage as possible. This is called on every frame.
   final crs = camera.crs;
@@ -68,13 +67,13 @@ List<Offset> getOffsetsXY({
       worldWidth,
       -worldWidth,
     ];
-    final halfScreenWidth = camera.size.x / 2;
+    final halfScreenWidth = camera.size.width / 2;
     final p = realPoints.elementAt(0);
     late double result;
     late double bestX;
     for (int i = 0; i < addedWidths.length; i++) {
       final addedWidth = addedWidths[i];
-      final (x, _) = crs.transform(p.x + addedWidth, p.y, zoomScale);
+      final (x, _) = crs.transform(p.dx + addedWidth, p.dy, zoomScale);
       if (i == 0) {
         result = addedWidth;
         bestX = x;
@@ -97,7 +96,7 @@ List<Offset> getOffsetsXY({
     final v = List<Offset>.filled(len, Offset.zero, growable: true);
     for (int i = 0; i < len; ++i) {
       final p = realPoints.elementAt(i);
-      final (x, y) = crs.transform(p.x + addedWorldWidth, p.y, zoomScale);
+      final (x, y) = crs.transform(p.dx + addedWorldWidth, p.dy, zoomScale);
       v[i] = Offset(x + ox, y + oy);
     }
     return v;
@@ -106,7 +105,7 @@ List<Offset> getOffsetsXY({
   final v = List<Offset>.filled(len, Offset.zero, growable: true);
   for (int i = 0; i < len; ++i) {
     final p = realPoints.elementAt(i);
-    final (x, y) = crs.transform(p.x + addedWorldWidth, p.y, zoomScale);
+    final (x, y) = crs.transform(p.dx + addedWorldWidth, p.dy, zoomScale);
     v[i] = Offset(x + ox, y + oy);
   }
   return v;
