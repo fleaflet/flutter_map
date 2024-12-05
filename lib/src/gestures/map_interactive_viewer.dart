@@ -631,16 +631,16 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     ScaleUpdateDetails details,
     double zoomAfterPinchZoom,
   ) {
-    final oldCenterPt = _camera.project(_camera.center, zoomAfterPinchZoom);
+    final oldCenterPt = _camera.projectAtZoom(_camera.center, zoomAfterPinchZoom);
     final newFocalLatLong =
         _camera.offsetToCrs(_focalStartLocal, zoomAfterPinchZoom);
-    final newFocalPt = _camera.project(newFocalLatLong, zoomAfterPinchZoom);
-    final oldFocalPt = _camera.project(_focalStartLatLng, zoomAfterPinchZoom);
+    final newFocalPt = _camera.projectAtZoom(newFocalLatLong, zoomAfterPinchZoom);
+    final oldFocalPt = _camera.projectAtZoom(_focalStartLatLng, zoomAfterPinchZoom);
     final zoomDifference = oldFocalPt - newFocalPt;
     final moveDifference = _rotateOffset(_focalStartLocal - _lastFocalLocal);
 
     final newCenterPt = oldCenterPt + zoomDifference + moveDifference;
-    return _camera.unproject(newCenterPt, zoomAfterPinchZoom);
+    return _camera.unprojectAtZoom(newCenterPt, zoomAfterPinchZoom);
   }
 
   void _handleScalePinchRotate(
@@ -654,15 +654,15 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
     if (_rotationStarted) {
       final rotationDiff = currentRotation - _lastRotation;
-      final oldCenterPt = _camera.project(_camera.center);
+      final oldCenterPt = _camera.projectAtZoom(_camera.center);
       final rotationCenter =
-          _camera.project(_camera.offsetToCrs(_lastFocalLocal));
+          _camera.projectAtZoom(_camera.offsetToCrs(_lastFocalLocal));
       final vector = oldCenterPt - rotationCenter;
       final rotatedVector = vector.rotate(degrees2Radians * rotationDiff);
       final newCenter = rotationCenter + rotatedVector;
 
       widget.controller.moveAndRotateRaw(
-        _camera.unproject(newCenter),
+        _camera.unprojectAtZoom(newCenter),
         _camera.zoom,
         _camera.rotation + rotationDiff,
         offset: Offset.zero,
@@ -882,11 +882,11 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       _startListeningForAnimationInterruptions();
     }
 
-    final newCenterPoint = _camera.project(_mapCenterStart) +
+    final newCenterPoint = _camera.projectAtZoom(_mapCenterStart) +
         _flingAnimation.value.rotate(_camera.rotationRad);
     final LatLng newCenter;
     if (!_camera.crs.replicatesWorldLongitude) {
-      newCenter = _camera.unproject(newCenterPoint);
+      newCenter = _camera.unprojectAtZoom(newCenterPoint);
     } else {
       final Offset bestCenterPoint;
       final double worldSize = _camera.crs.scale(_camera.zoom);
@@ -899,7 +899,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       } else {
         bestCenterPoint = newCenterPoint;
       }
-      newCenter = _camera.unproject(bestCenterPoint);
+      newCenter = _camera.unprojectAtZoom(bestCenterPoint);
     }
 
     widget.controller.moveRaw(

@@ -110,8 +110,8 @@ class ContainCamera extends CameraConstraint {
     final testZoom = camera.zoom;
     final testCenter = camera.center;
 
-    final nePixel = camera.project(bounds.northEast, testZoom);
-    final swPixel = camera.project(bounds.southWest, testZoom);
+    final nePixel = camera.projectAtZoom(bounds.northEast, testZoom);
+    final swPixel = camera.projectAtZoom(bounds.southWest, testZoom);
 
     final halfSize = camera.size / 2;
 
@@ -126,7 +126,7 @@ class ContainCamera extends CameraConstraint {
     // stay within [latLngBounds].
     if (leftOkCenter > rightOkCenter || topOkCenter > botOkCenter) return null;
 
-    final centerPix = camera.project(testCenter, testZoom);
+    final centerPix = camera.projectAtZoom(testCenter, testZoom);
     final newCenterPix = Offset(
       centerPix.dx.clamp(leftOkCenter, rightOkCenter),
       centerPix.dy.clamp(topOkCenter, botOkCenter),
@@ -135,7 +135,7 @@ class ContainCamera extends CameraConstraint {
     if (newCenterPix == centerPix) return camera;
 
     return camera.withPosition(
-      center: camera.unproject(newCenterPix, testZoom),
+      center: camera.unprojectAtZoom(newCenterPix, testZoom),
     );
   }
 

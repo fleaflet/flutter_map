@@ -83,8 +83,8 @@ class OverlayImage extends BaseOverlayImage {
 
     // northWest is not necessarily upperLeft depending on projection
     final bounds = Rect.fromPoints(
-      camera.project(this.bounds.northWest) - camera.pixelOrigin,
-      camera.project(this.bounds.southEast) - camera.pixelOrigin,
+      camera.projectAtZoom(this.bounds.northWest) - camera.pixelOrigin,
+      camera.projectAtZoom(this.bounds.southEast) - camera.pixelOrigin,
     );
 
     return Positioned(
@@ -135,10 +135,10 @@ class RotatedOverlayImage extends BaseOverlayImage {
   }) {
     final camera = MapCamera.of(context);
 
-    final pxTopLeft = camera.project(topLeftCorner) - camera.pixelOrigin;
+    final pxTopLeft = camera.projectAtZoom(topLeftCorner) - camera.pixelOrigin;
     final pxBottomRight =
-        camera.project(bottomRightCorner) - camera.pixelOrigin;
-    final pxBottomLeft = camera.project(bottomLeftCorner) - camera.pixelOrigin;
+        camera.projectAtZoom(bottomRightCorner) - camera.pixelOrigin;
+    final pxBottomLeft = camera.projectAtZoom(bottomLeftCorner) - camera.pixelOrigin;
 
     /// calculate pixel coordinate of top-right corner by calculating the
     /// vector from bottom-left to top-left and adding it to bottom-right

@@ -59,8 +59,8 @@ class MapCamera {
   /// This is the [LatLngBounds] corresponding to four corners of this camera.
   /// This takes rotation in to account.
   LatLngBounds get visibleBounds => _bounds ??= LatLngBounds(
-        unproject(pixelBounds.bottomLeft, zoom),
-        unproject(pixelBounds.topRight, zoom),
+        unprojectAtZoom(pixelBounds.bottomLeft, zoom),
+        unprojectAtZoom(pixelBounds.topRight, zoom),
       );
 
   /// The size of bounding box of this camera taking in to account its
@@ -76,7 +76,7 @@ class MapCamera {
   /// camera. This will not equal the offset of the top-left visible pixel when
   /// the map is rotated.
   Offset get pixelOrigin =>
-      _pixelOrigin ??= project(center, zoom) - size.center(Offset.zero);
+      _pixelOrigin ??= projectAtZoom(center, zoom) - size.center(Offset.zero);
 
   /// The camera of the closest [FlutterMap] ancestor. If this is called from a
   /// context with no [FlutterMap] ancestor null, is returned.
@@ -231,12 +231,12 @@ class MapCamera {
 
   /// Calculates point value for the given [latlng] using this camera's
   /// [crs] and [zoom] (or the provided [zoom]).
-  Offset project(LatLng latlng, [double? zoom]) =>
+  Offset projectAtZoom(LatLng latlng, [double? zoom]) =>
       crs.latLngToOffset(latlng, zoom ?? this.zoom);
 
   /// Calculates the [LatLng] for the given [point] using this camera's
   /// [crs] and [zoom] (or the provided [zoom]).
-  LatLng unproject(Offset point, [double? zoom]) =>
+  LatLng unprojectAtZoom(Offset point, [double? zoom]) =>
       crs.offsetToLatLng(point, zoom ?? this.zoom);
 
   /// Calculates the scale for a zoom from [fromZoom] to [toZoom] using this
@@ -252,12 +252,12 @@ class MapCamera {
       crs.getProjectedBounds(zoom ?? this.zoom);
 
   /// Calculates the [Offset] from the [pos] to this camera's [pixelOrigin].
-  Offset getOffsetFromOrigin(LatLng pos) => project(pos) - pixelOrigin;
+  Offset getOffsetFromOrigin(LatLng pos) => projectAtZoom(pos) - pixelOrigin;
 
   /// Calculates the pixel origin of this [MapCamera] at the given
   /// [center]/[zoom].
   Offset getNewPixelOrigin(LatLng center, [double? zoom]) {
-    return (project(center, zoom) - size.center(Offset.zero)).round();
+    return (projectAtZoom(center, zoom) - size.center(Offset.zero)).round();
   }
 
   /// Calculates the pixel bounds of this [MapCamera]. This value is cached.
@@ -271,7 +271,7 @@ class MapCamera {
       final scale = getZoomScale(this.zoom, zoom);
       cameraSize = size / (scale * 2);
     }
-    final pixelCenter = project(center, zoom).floor();
+    final pixelCenter = projectAtZoom(center, zoom).floor();
 
     return Rect.fromCenter(
         center: pixelCenter,
@@ -283,7 +283,7 @@ class MapCamera {
   /// outside of FlutterMap layer space. Eg using a Positioned Widget.
   Offset latLngToScreenOffset(LatLng latLng) {
     final nonRotatedPixelOrigin =
-        project(center, zoom) - nonRotatedSize.center(Offset.zero);
+        projectAtZoom(center, zoom) - nonRotatedSize.center(Offset.zero);
 
     var point = crs.latLngToOffset(latLng, zoom);
 
@@ -342,12 +342,12 @@ class MapCamera {
   /// zoom level. If [zoom] is not provided the current zoom level of the
   /// [MapCamera] gets used.
   LatLng offsetToCrs(Offset offset, [double? zoom]) {
-    final focalStartPt = project(center, zoom ?? this.zoom);
+    final focalStartPt = projectAtZoom(center, zoom ?? this.zoom);
     final point =
         (offset - nonRotatedSize.center(Offset.zero)).rotate(rotationRad);
 
     final newCenterPt = focalStartPt + point;
-    return unproject(newCenterPt, zoom ?? this.zoom);
+    return unprojectAtZoom(newCenterPt, zoom ?? this.zoom);
   }
 
   /// Calculate the center point which would keep the same point of the map
@@ -359,8 +359,8 @@ class MapCamera {
     // Match new center coordinate to mouse cursor position
     final scale = getZoomScale(zoom, this.zoom);
     final newOffset = offset * (1.0 - 1.0 / scale);
-    final mapCenter = project(center);
-    final newCenter = unproject(mapCenter + newOffset);
+    final mapCenter = projectAtZoom(center);
+    final newCenter = unprojectAtZoom(mapCenter + newOffset);
     return newCenter;
   }
 

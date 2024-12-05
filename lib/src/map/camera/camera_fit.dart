@@ -111,8 +111,8 @@ class FitBounds extends CameraFit {
     if (maxZoom != null) newZoom = math.min(maxZoom!, newZoom);
 
     final paddingOffset = (paddingBR - paddingTL) / 2;
-    final swPoint = camera.project(bounds.southWest, newZoom);
-    final nePoint = camera.project(bounds.northEast, newZoom);
+    final swPoint = camera.projectAtZoom(bounds.southWest, newZoom);
+    final nePoint = camera.projectAtZoom(bounds.northEast, newZoom);
 
     final Offset projectedCenter;
     if (camera.rotation != 0.0) {
@@ -126,7 +126,7 @@ class FitBounds extends CameraFit {
       projectedCenter = (swPoint + nePoint) / 2 + paddingOffset;
     }
 
-    final center = camera.unproject(projectedCenter, newZoom);
+    final center = camera.unprojectAtZoom(projectedCenter, newZoom);
     return camera.withPosition(
       center: center,
       zoom: newZoom,
@@ -144,8 +144,8 @@ class FitBounds extends CameraFit {
 
     size = Size(math.max(0, size.width), math.max(0, size.height));
     var boundsSize = Rect.fromPoints(
-      camera.project(se, camera.zoom),
-      camera.project(nw, camera.zoom),
+      camera.projectAtZoom(se, camera.zoom),
+      camera.projectAtZoom(nw, camera.zoom),
     ).size;
     if (camera.rotation != 0.0) {
       final cosAngle = math.cos(camera.rotationRad).abs();
@@ -226,8 +226,8 @@ class FitInsideBounds extends CameraFit {
     final cameraSize = camera.nonRotatedSize - paddingTotalXY as Size;
 
     final projectedBoundsSize = Rect.fromPoints(
-      camera.project(bounds.southEast, camera.zoom),
-      camera.project(bounds.northWest, camera.zoom),
+      camera.projectAtZoom(bounds.southEast, camera.zoom),
+      camera.projectAtZoom(bounds.northWest, camera.zoom),
     ).size;
 
     final scale = _rectInRotRectScale(
@@ -272,20 +272,20 @@ class FitInsideBounds extends CameraFit {
     required Offset paddingOffset,
   }) {
     if (camera.rotation == 0.0) {
-      final swPoint = camera.project(bounds.southWest, newZoom);
-      final nePoint = camera.project(bounds.northEast, newZoom);
+      final swPoint = camera.projectAtZoom(bounds.southWest, newZoom);
+      final nePoint = camera.projectAtZoom(bounds.northEast, newZoom);
       final projectedCenter = (swPoint + nePoint) / 2 + paddingOffset;
-      final newCenter = camera.unproject(projectedCenter, newZoom);
+      final newCenter = camera.unprojectAtZoom(projectedCenter, newZoom);
 
       return newCenter;
     }
 
     // Handle rotation
-    final projectedCenter = camera.project(bounds.center, newZoom);
+    final projectedCenter = camera.projectAtZoom(bounds.center, newZoom);
     final rotatedCenter = projectedCenter.rotate(-camera.rotationRad);
     final adjustedCenter = rotatedCenter + paddingOffset;
     final derotatedAdjustedCenter = adjustedCenter.rotate(camera.rotationRad);
-    final newCenter = camera.unproject(derotatedAdjustedCenter, newZoom);
+    final newCenter = camera.unprojectAtZoom(derotatedAdjustedCenter, newZoom);
 
     return newCenter;
   }
@@ -435,7 +435,7 @@ class FitCoordinates extends CameraFit {
     if (maxZoom != null) newZoom = math.min(maxZoom!, newZoom);
 
     final projectedPoints =
-        coordinates.map((coord) => camera.project(coord, newZoom));
+        coordinates.map((coord) => camera.projectAtZoom(coord, newZoom));
 
     final rotatedBounds = RectExtension.containing(projectedPoints
         .map((point) => point.rotate(-camera.rotationRad))
@@ -448,7 +448,7 @@ class FitCoordinates extends CameraFit {
     // Undo the rotation
     final unrotatedNewCenter = rotatedNewCenter.rotate(camera.rotationRad);
 
-    final newCenter = camera.unproject(unrotatedNewCenter, newZoom);
+    final newCenter = camera.unprojectAtZoom(unrotatedNewCenter, newZoom);
 
     return camera.withPosition(
       center: newCenter,
@@ -465,7 +465,7 @@ class FitCoordinates extends CameraFit {
     size = Size(math.max(0, size.width), math.max(0, size.height));
 
     final projectedPoints = [
-      for (final coord in coordinates) camera.project(coord)
+      for (final coord in coordinates) camera.projectAtZoom(coord)
     ];
 
     final rotatedBounds = RectExtension.containing(projectedPoints

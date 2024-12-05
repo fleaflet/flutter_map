@@ -108,7 +108,7 @@ base class _PolylinePainter<R extends Object>
     }
 
     final origin =
-        camera.project(camera.center) - camera.size.center(Offset.zero);
+        camera.projectAtZoom(camera.center) - camera.size.center(Offset.zero);
 
     for (final projectedPolyline in polylines) {
       final polyline = projectedPolyline.polyline;

@@ -54,7 +54,7 @@ class MarkerLayer extends StatelessWidget {
             final bottom = m.height - top;
 
             // Perform projection
-            final pxPoint = map.project(m.point);
+            final pxPoint = map.projectAtZoom(m.point);
 
             // Cull if out of bounds
             if (!map.pixelBounds.overlaps(

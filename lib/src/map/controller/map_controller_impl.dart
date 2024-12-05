@@ -150,8 +150,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     // Algorithm thanks to https://github.com/tlserver/flutter_map_location_marker
     LatLng center = newCenter;
     if (offset != Offset.zero) {
-      final newPoint = camera.project(newCenter, newZoom);
-      center = camera.unproject(
+      final newPoint = camera.projectAtZoom(newCenter, newZoom);
+      center = camera.unprojectAtZoom(
         camera.rotatePoint(
           newPoint,
           newPoint - offset,
@@ -245,13 +245,13 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
 
     final rotationDiff = degree - camera.rotation;
     final rotationCenter =
-        (camera.project(camera.center) + offset!).rotate(camera.rotationRad);
+        (camera.projectAtZoom(camera.center) + offset!).rotate(camera.rotationRad);
 
     return (
       moveSuccess: moveRaw(
-        camera.unproject(
+        camera.unprojectAtZoom(
           rotationCenter +
-              (camera.project(camera.center) - rotationCenter)
+              (camera.projectAtZoom(camera.center) - rotationCenter)
                   .rotate(degrees2Radians * rotationDiff),
         ),
         camera.zoom,
@@ -373,10 +373,10 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
 
   /// To be called when an ongoing drag movement updates.
   void dragUpdated(MapEventSource source, Offset offset) {
-    final oldCenterPt = camera.project(camera.center);
+    final oldCenterPt = camera.projectAtZoom(camera.center);
 
     final newCenterPt = oldCenterPt + offset;
-    final newCenter = camera.unproject(newCenterPt);
+    final newCenter = camera.unprojectAtZoom(newCenterPt);
 
     moveRaw(
       newCenter,
@@ -646,7 +646,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
 
     _animationHasGesture = hasGesture;
     _animationOffset = offset;
-    _flingMapCenterStartPoint = camera.project(camera.center);
+    _flingMapCenterStartPoint = camera.projectAtZoom(camera.center);
 
     final distance = (Offset.zero & camera.nonRotatedSize).shortestSide;
 
@@ -715,7 +715,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
       final newCenterPoint = _flingMapCenterStartPoint +
           _flingAnimation!.value.rotate(camera.rotationRad);
       moveRaw(
-        camera.unproject(newCenterPoint),
+        camera.unprojectAtZoom(newCenterPoint),
         camera.zoom,
         hasGesture: _animationHasGesture,
         source: MapEventSource.flingAnimationController,
