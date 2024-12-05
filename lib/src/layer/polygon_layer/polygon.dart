@@ -115,7 +115,7 @@ class Polygon<R extends Object> {
 
   LatLngBounds? _boundingBox;
 
-  /// Get the bounding box of the [Polygon.points] (cached).
+  /// Get the bounding box of the [points] (cached).
   LatLngBounds get boundingBox =>
       _boundingBox ??= LatLngBounds.fromPoints(points);
 
