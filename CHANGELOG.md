@@ -9,7 +9,7 @@ This CHANGELOG does not include every commit and/or PR - it is a hand picked sel
 Migration from `Point` class internally, but this also affects the external API.
 
 Migration Guide:
-- any methods that previously required `Point<double>` now require `Offset` as return values and parameters
+- any methods that previously required `Point<double>` now require `Offset`, `Size`, or `Rect` as return values and parameters
 - `pointToLatLng` -> `offsetToLatLng`
 - `PointExtension` and `OffsetToPointExtension` marked as internal
 - `MapController.rotateAroundPoint` now only accepts an Offset
