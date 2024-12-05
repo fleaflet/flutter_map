@@ -3,10 +3,10 @@ import 'dart:ui';
 
 import 'package:meta/meta.dart';
 
-/// Extension methods for the math.[Point] class
+/// Extension methods for the [math.Point] class
 @internal
 extension PointExtension<T extends num> on math.Point<T> {
-  /// Create a new [Point] where the [x] and [y] values are divided by [factor].
+  /// Create a new [math.Point] where the [x] and [y] values are divided by [factor].
   math.Point<double> operator /(num factor) {
     return math.Point<double>(x / factor, y / factor);
   }
@@ -18,7 +18,7 @@ extension PointExtension<T extends num> on math.Point<T> {
 /// Extension methods for [Offset]
 @internal
 extension OffsetExtension on Offset {
-  /// Creates a [Point] representation of this offset.
+  /// Creates a [math.Point] representation of this offset.
   math.Point<double> toPoint() => math.Point(dx, dy);
 
   /// Create a new [Offset] whose [dx] and [dy] values are rotated clockwise by
