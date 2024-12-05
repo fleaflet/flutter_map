@@ -380,9 +380,9 @@ abstract class Projection {
 
   /// Converts a [LatLng] to a coordinates and returns them as [Point] object.
   @nonVirtual
-  Point<double> project(LatLng latlng) {
+  Offset project(LatLng latlng) {
     final (x, y) = projectXY(latlng);
-    return Point<double>(x, y);
+    return Offset(x, y);
   }
 
   /// Converts a [LatLng] to geometry coordinates.

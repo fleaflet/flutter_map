@@ -9,6 +9,7 @@ import 'package:flutter_map/src/layer/shared/layer_interactivity/internal_hit_de
 import 'package:flutter_map/src/layer/shared/layer_projection_simplification/state.dart';
 import 'package:flutter_map/src/layer/shared/layer_projection_simplification/widget.dart';
 import 'package:flutter_map/src/layer/shared/line_patterns/pixel_hiker.dart';
+import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:flutter_map/src/misc/offsets.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart';
@@ -136,8 +137,8 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
 
     // segment is visible
     final projBounds = Bounds(
-      projection.project(boundsAdjusted.southWest),
-      projection.project(boundsAdjusted.northEast),
+      projection.project(boundsAdjusted.southWest).toPoint(),
+      projection.project(boundsAdjusted.northEast).toPoint(),
     );
 
     final (xWest, _) = projection.projectXY(const LatLng(0, -180));

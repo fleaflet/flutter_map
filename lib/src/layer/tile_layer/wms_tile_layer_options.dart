@@ -77,7 +77,7 @@ class WMSTileLayerOptions {
         crs.offsetToLatLng(sePoint.toOffset(), coords.z.toDouble());
     final nw = crs.projection.project(nwCoords);
     final se = crs.projection.project(seCoords);
-    final bounds = Bounds(nw, se);
+    final bounds = Bounds(nw.toPoint(), se.toPoint());
     final bbox = (_versionNumber >= 1.3 && crs is Epsg4326)
         ? [bounds.min.y, bounds.min.x, bounds.max.y, bounds.max.x]
         : [bounds.min.x, bounds.min.y, bounds.max.x, bounds.max.y];
