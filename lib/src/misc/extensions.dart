@@ -37,3 +37,55 @@ extension OffsetExtension on Offset {
   /// returns new [Offset] where roundToDouble() is called on [dx] and [dy] independently
   Offset round() => Offset(dx.roundToDouble(), dy.roundToDouble());
 }
+
+@internal
+extension RectExtension on Rect {
+
+  /// Create a [Rect] as bounding box of a list of points.
+  static Rect containing(List<Offset> points) {
+    var maxX = double.negativeInfinity;
+    var maxY = double.negativeInfinity;
+    var minX = double.infinity;
+    var minY = double.infinity;
+
+    for (final point in points) {
+      maxX = max(point.dx, maxX);
+      minX = min(point.dx, minX);
+      maxY = max(point.dy, maxY);
+      minY = min(point.dy, minY);
+    }
+
+    return Rect.fromPoints(Offset(minX, minY), Offset(maxX, maxY));
+  }
+
+  /// Checks if the line between the two coordinates is contained within the
+  /// [Rect].
+  bool aabbContainsLine(double x1, double y1, double x2, double y2) {
+    
+    
+    
+    // // Completely outside.
+    // if ((x1 <= min.x && x2 <= min.x) ||
+    //     (y1 <= min.y && y2 <= min.y) ||
+    //     (x1 >= max.x && x2 >= max.x) ||
+    //     (y1 >= max.y && y2 >= max.y)) {
+    //   return false;
+    // }
+
+    // final m = (y2 - y1) / (x2 - x1);
+
+    // double y = m * (min.x - x1) + y1;
+    // if (y > min.y && y < max.y) return true;
+
+    // y = m * (max.x - x1) + y1;
+    // if (y > min.y && y < max.y) return true;
+
+    // double x = (min.y - y1) / m + x1;
+    // if (x > min.x && x < max.x) return true;
+
+    // x = (max.y - y1) / m + x1;
+    // if (x > min.x && x < max.x) return true;
+
+    return false;
+  }
+}

@@ -438,10 +438,9 @@ class FitCoordinates extends CameraFit {
     final projectedPoints =
         coordinates.map((coord) => camera.project(coord, newZoom));
 
-    final rotatedPoints =
-        projectedPoints.map((point) => point.rotate(-camera.rotationRad));
-
-    final rotatedBounds = Bounds.containing(rotatedPoints);
+    final rotatedBounds = RectExtension.containing(projectedPoints
+        .map((point) => point.rotate(-camera.rotationRad))
+        .toList());
 
     // Apply padding
     final paddingOffset = (paddingBR - paddingTL) / 2;
@@ -470,15 +469,15 @@ class FitCoordinates extends CameraFit {
       for (final coord in coordinates) camera.project(coord)
     ];
 
-    final rotatedPoints =
-        projectedPoints.map((point) => point.rotate(-camera.rotationRad));
-    final rotatedBounds = Bounds.containing(rotatedPoints);
+    final rotatedBounds = RectExtension.containing(projectedPoints
+        .map((point) => point.rotate(-camera.rotationRad))
+        .toList());
 
     final boundsSize = rotatedBounds.size;
 
     // TODO this could be replaced with Size.shortestSide
-    final scaleX = size.width / boundsSize.x;
-    final scaleY = size.height / boundsSize.y;
+    final scaleX = size.width / boundsSize.width;
+    final scaleY = size.height / boundsSize.height;
     final scale = math.min(scaleX, scaleY);
 
     var newZoom = camera.getScaleZoom(scale);

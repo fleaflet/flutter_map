@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -49,6 +47,7 @@ class MarkerLayer extends StatelessWidget {
         children: (List<Marker> markers) sync* {
           for (final m in markers) {
             // Resolve real alignment
+            // TODO this can probably just be done with calls to Size, Offset, and Rect
             final left = 0.5 * m.width * ((m.alignment ?? alignment).x + 1);
             final top = 0.5 * m.height * ((m.alignment ?? alignment).y + 1);
             final right = m.width - left;
@@ -58,10 +57,10 @@ class MarkerLayer extends StatelessWidget {
             final pxPoint = map.project(m.point);
 
             // Cull if out of bounds
-            if (!map.pixelBounds.containsPartialBounds(
-              Bounds(
-                Point(pxPoint.dx + left, pxPoint.dy - bottom),
-                Point(pxPoint.dx - right, pxPoint.dy + top),
+            if (!map.pixelBounds.overlaps(
+              Rect.fromPoints(
+                Offset(pxPoint.dx + left, pxPoint.dy - bottom),
+                Offset(pxPoint.dx - right, pxPoint.dy + top),
               ),
             )) {
               continue;

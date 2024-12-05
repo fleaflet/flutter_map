@@ -42,23 +42,6 @@ class Bounds<T extends num> {
   /// minimum and [max] is actually the maximum.
   const Bounds.unsafe(this.min, this.max);
 
-  /// Create a [Bounds] as bounding box of a list of points.
-  static Bounds<double> containing(Iterable<Offset> points) {
-    var maxX = double.negativeInfinity;
-    var maxY = double.negativeInfinity;
-    var minX = double.infinity;
-    var minY = double.infinity;
-
-    for (final point in points) {
-      maxX = math.max(point.dx, maxX);
-      minX = math.min(point.dx, minX);
-      maxY = math.max(point.dy, maxY);
-      minY = math.min(point.dy, minY);
-    }
-
-    return Bounds.unsafe(Point(minX, minY), Point(maxX, maxY));
-  }
-
   /// Creates a new [Bounds] obtained by expanding the current ones with a new
   /// point.
   Bounds<T> extend(Point<T> point) {
@@ -104,12 +87,20 @@ class Bounds<T extends num> {
         (b.max.y <= max.y);
   }
 
-  /// Checks if a part of the other [Bounds] is contained in this [Bounds].
-  bool containsPartialBounds(Bounds<T> b) {
-    return (b.min.x <= max.x) &&
-        (b.max.x >= min.x) &&
-        (b.min.y <= max.y) &&
-        (b.max.y >= min.y);
+  /// Calculates the intersection of two Bounds. The return value will be null
+  /// if there is no intersection. The returned bounds may be zero size
+  /// (bottomLeft == topRight).
+  Bounds<T>? intersect(Bounds<T> b) {
+    final leftX = math.max(min.x, b.min.x);
+    final rightX = math.min(max.x, b.max.x);
+    final topY = math.max(min.y, b.min.y);
+    final bottomY = math.min(max.y, b.max.y);
+
+    if (leftX <= rightX && topY <= bottomY) {
+      return Bounds.unsafe(Point(leftX, topY), Point(rightX, bottomY));
+    }
+
+    return null;
   }
 
   /// Checks if the line between the two coordinates is contained within the
@@ -138,22 +129,6 @@ class Bounds<T extends num> {
     if (x > min.x && x < max.x) return true;
 
     return false;
-  }
-
-  /// Calculates the intersection of two Bounds. The return value will be null
-  /// if there is no intersection. The returned bounds may be zero size
-  /// (bottomLeft == topRight).
-  Bounds<T>? intersect(Bounds<T> b) {
-    final leftX = math.max(min.x, b.min.x);
-    final rightX = math.min(max.x, b.max.x);
-    final topY = math.max(min.y, b.min.y);
-    final bottomY = math.min(max.y, b.max.y);
-
-    if (leftX <= rightX && topY <= bottomY) {
-      return Bounds.unsafe(Point(leftX, topY), Point(rightX, bottomY));
-    }
-
-    return null;
   }
 
   @override

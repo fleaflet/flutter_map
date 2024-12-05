@@ -48,7 +48,7 @@ class MapCamera {
   Size? _cameraSize;
 
   /// Lazily calculated field
-  Bounds<double>? _pixelBounds;
+  Rect? _pixelBounds;
 
   /// Lazily calculated field
   LatLngBounds? _bounds;
@@ -59,8 +59,8 @@ class MapCamera {
   /// This is the [LatLngBounds] corresponding to four corners of this camera.
   /// This takes rotation in to account.
   LatLngBounds get visibleBounds => _bounds ??= LatLngBounds(
-        unproject(pixelBounds.bottomLeft.toOffset(), zoom),
-        unproject(pixelBounds.topRight.toOffset(), zoom),
+        unproject(pixelBounds.bottomLeft, zoom),
+        unproject(pixelBounds.topRight, zoom),
       );
 
   /// The size of bounding box of this camera taking in to account its
@@ -102,7 +102,7 @@ class MapCamera {
     this.minZoom,
     this.maxZoom,
     Size? size,
-    Bounds<double>? pixelBounds,
+    Rect? pixelBounds,
     LatLngBounds? bounds,
     Offset? pixelOrigin,
   })  : _cameraSize = size,
@@ -261,19 +261,22 @@ class MapCamera {
   }
 
   /// Calculates the pixel bounds of this [MapCamera]. This value is cached.
-  Bounds<double> get pixelBounds =>
+  Rect get pixelBounds =>
       _pixelBounds ?? (_pixelBounds = pixelBoundsAtZoom(zoom));
 
   /// Calculates the pixel bounds of this [MapCamera] at the given [zoom].
-  Bounds<double> pixelBoundsAtZoom(double zoom) {
-    var halfSize = size / 2;
+  Rect pixelBoundsAtZoom(double zoom) {
+    Size cameraSize = size;
     if (zoom != this.zoom) {
       final scale = getZoomScale(this.zoom, zoom);
-      halfSize = size / (scale * 2);
+      cameraSize = size / (scale * 2);
     }
     final pixelCenter = project(center, zoom).floor();
-    return Bounds((pixelCenter - halfSize.bottomRight(Offset.zero)).toPoint(),
-        halfSize.bottomRight(pixelCenter).toPoint());
+
+    return Rect.fromCenter(
+        center: pixelCenter,
+        width: cameraSize.width,
+        height: cameraSize.height);
   }
 
   /// This will convert a latLng to a position that we could use with a widget

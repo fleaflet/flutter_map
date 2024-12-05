@@ -261,30 +261,6 @@ void main() {
             isFalse);
       });
 
-      test(
-          'should contain compared bounds partially if at least one edge '
-          'overlaps within the bounds', () {
-        final bounds =
-            Bounds(const Point(101.1, 88.1), const Point(133.1, 60.3));
-
-        expect(
-            bounds.containsPartialBounds(
-                Bounds(const Point(200.22, 60.2), const Point(133.1, 60.3))),
-            isTrue);
-      });
-
-      test(
-          'should NOT contain compared bounds partially if not a single edge '
-          'overlaps within the bounds', () {
-        final bounds =
-            Bounds(const Point(101.1, 88.1), const Point(133.1, 60.3));
-
-        expect(
-            bounds.containsPartialBounds(
-                Bounds(const Point(200.22, 60.2), const Point(133.2, 60.3))),
-            isFalse);
-      });
-
       test('should contain given point within the bounds', () {
         expect(
             Bounds(const Point(0, 50), const Point(50, 0))
