@@ -107,7 +107,6 @@ abstract class MapController {
   /// `true`.
   MoveAndRotateResult rotateAroundPoint(
     double degree, {
-    Point<double>? point,
     Offset? offset,
     String? id,
   });

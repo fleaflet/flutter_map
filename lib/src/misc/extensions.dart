@@ -20,7 +20,7 @@ extension PointExtension<T extends num> on Point<T> {
 extension OffsetExtension on Offset {
 
   /// Creates a [Point] representation of this offset.
-  Point<double> toPoint() => Point(dx, dy);
+Point<double> toPoint() => Point(dx, dy);
 
   /// Create a new [Offset] whose [dx] and [dy] values are rotated clockwise by
   /// [radians].

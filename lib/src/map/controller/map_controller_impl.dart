@@ -107,13 +107,11 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   @override
   MoveAndRotateResult rotateAroundPoint(
     double degree, {
-    Point<double>? point,
     Offset? offset,
     String? id,
   }) =>
       rotateAroundPointRaw(
         degree,
-        point: point?.toOffset(),
         offset: offset,
         hasGesture: false,
         source: MapEventSource.mapController,
@@ -224,20 +222,11 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   /// the map.
   MoveAndRotateResult rotateAroundPointRaw(
     double degree, {
-    //TODO this looks insanely jank
-    required Offset? point,
     required Offset? offset,
     required bool hasGesture,
     required MapEventSource source,
     String? id,
   }) {
-    if (point != null && offset != null) {
-      throw ArgumentError('Only one of `point` or `offset` may be non-null');
-    }
-    if (point == null && offset == null) {
-      throw ArgumentError('One of `point` or `offset` must be non-null');
-    }
-
     if (degree == camera.rotation) {
       return const (moveSuccess: false, rotateSuccess: false);
     }
@@ -255,9 +244,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     }
 
     final rotationDiff = degree - camera.rotation;
-    final rotationCenter = camera.project(camera.center) +
-        (point != null ? (point - (camera.nonRotatedSize / 2.0)) : offset!)
-            .rotate(camera.rotationRad);
+    final rotationCenter =
+        (camera.project(camera.center) + offset!).rotate(camera.rotationRad);
 
     return (
       moveSuccess: moveRaw(

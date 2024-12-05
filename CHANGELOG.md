@@ -12,6 +12,7 @@ Migration Guide:
 - any methods that previously required `Point<double>` now require `Offset` as return values and parameters
 - `pointToLatLng` -> `offsetToLatLng`
 - `PointExtension` and `OffsetToPointExtension` marked as internal
+- `MapController.rotateAroundPoint` now only accepts an Offset
 
 
 Contains the following user-affecting bug fixes:
