@@ -290,7 +290,7 @@ class MapCamera {
     final mapCenter = crs.latLngToOffset(center, zoom);
 
     if (rotation != 0.0) {
-      point = rotateOffset(mapCenter, point, counterRotation: false);
+      point = rotatePoint(mapCenter, point, counterRotation: false);
     }
 
     return point - nonRotatedPixelOrigin;
@@ -307,7 +307,7 @@ class MapCamera {
     var point = mapCenter - localPointCenterDistance;
 
     if (rotation != 0.0) {
-      point = rotateOffset(mapCenter, point);
+      point = rotatePoint(mapCenter, point);
     }
 
     return crs.offsetToLatLng(point, zoom);
@@ -317,7 +317,7 @@ class MapCamera {
   /// it needs to be reversed (pointToLatLng), and sometimes we want to use
   /// the same rotation to create a new position (latLngToScreenpoint).
   /// counterRotation just makes allowances this for this.
-  Offset rotateOffset(
+  Offset rotatePoint(
     Offset mapCenter,
     Offset point, {
     bool counterRotation = true,
