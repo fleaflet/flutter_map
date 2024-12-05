@@ -138,7 +138,8 @@ class RotatedOverlayImage extends BaseOverlayImage {
     final pxTopLeft = camera.projectAtZoom(topLeftCorner) - camera.pixelOrigin;
     final pxBottomRight =
         camera.projectAtZoom(bottomRightCorner) - camera.pixelOrigin;
-    final pxBottomLeft = camera.projectAtZoom(bottomLeftCorner) - camera.pixelOrigin;
+    final pxBottomLeft =
+        camera.projectAtZoom(bottomLeftCorner) - camera.pixelOrigin;
 
     /// calculate pixel coordinate of top-right corner by calculating the
     /// vector from bottom-left to top-left and adding it to bottom-right

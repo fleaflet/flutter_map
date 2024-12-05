@@ -631,11 +631,14 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     ScaleUpdateDetails details,
     double zoomAfterPinchZoom,
   ) {
-    final oldCenterPt = _camera.projectAtZoom(_camera.center, zoomAfterPinchZoom);
+    final oldCenterPt =
+        _camera.projectAtZoom(_camera.center, zoomAfterPinchZoom);
     final newFocalLatLong =
         _camera.offsetToCrs(_focalStartLocal, zoomAfterPinchZoom);
-    final newFocalPt = _camera.projectAtZoom(newFocalLatLong, zoomAfterPinchZoom);
-    final oldFocalPt = _camera.projectAtZoom(_focalStartLatLng, zoomAfterPinchZoom);
+    final newFocalPt =
+        _camera.projectAtZoom(newFocalLatLong, zoomAfterPinchZoom);
+    final oldFocalPt =
+        _camera.projectAtZoom(_focalStartLatLng, zoomAfterPinchZoom);
     final zoomDifference = oldFocalPt - newFocalPt;
     final moveDifference = _rotateOffset(_focalStartLocal - _lastFocalLocal);
 
