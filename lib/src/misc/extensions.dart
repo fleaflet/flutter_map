@@ -7,7 +7,6 @@ import 'package:meta/meta.dart';
 @internal
 extension PointExtension<T extends num> on Point<T> {
   /// Create a new [Point] where the [x] and [y] values are divided by [factor].
-  /// REPLACE IN FAVOR OF OFFSET
   Point<double> operator /(num factor) {
     return Point<double>(x / factor, y / factor);
   }
@@ -18,8 +17,9 @@ extension PointExtension<T extends num> on Point<T> {
 
 /// Extension methods for [Offset]
 @internal
-extension OffsetToPointExtension on Offset {
-  /// Creates a [Point] representation of this offset. This is ONLY used for backwards compatibility
+extension OffsetExtension on Offset {
+
+  /// Creates a [Point] representation of this offset.
   Point<double> toPoint() => Point(dx, dy);
 
   /// Create a new [Offset] whose [dx] and [dy] values are rotated clockwise by
