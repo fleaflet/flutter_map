@@ -53,7 +53,7 @@ class DiscreteTileRange extends TileRange {
   }) {
     final Bounds<int> bounds;
     if (pixelBounds.isEmpty) {
-      final minAndMax = _floor(pixelBounds.topLeft / tileDimension.toDouble());
+      final minAndMax = _floor(pixelBounds.min / tileDimension.toDouble());
       bounds = Bounds<int>(minAndMax, minAndMax);
     } else {
       bounds = Bounds<int>(

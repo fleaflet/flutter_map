@@ -40,7 +40,6 @@ extension OffsetExtension on Offset {
 
 @internal
 extension RectExtension on Rect {
-
   /// Create a [Rect] as bounding box of a list of points.
   static Rect containing(List<Offset> points) {
     var maxX = double.negativeInfinity;

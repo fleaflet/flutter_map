@@ -301,8 +301,10 @@ class Proj4Crs extends Crs {
     final zoomScale = scale(zoom);
 
     final transformation = _getTransformationByZoom(zoom);
-    final (minx, miny) = transformation.transform(b.min.dx, b.min.dy, zoomScale);
-    final (maxx, maxy) = transformation.transform(b.max.dx, b.max.dy, zoomScale);
+    final (minx, miny) =
+        transformation.transform(b.min.dx, b.min.dy, zoomScale);
+    final (maxx, maxy) =
+        transformation.transform(b.max.dx, b.max.dy, zoomScale);
     return Rect.fromPoints(Offset(minx, miny), Offset(maxx, maxy));
   }
 
