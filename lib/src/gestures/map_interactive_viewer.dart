@@ -382,7 +382,9 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     );
 
     if (_interactionOptions.cursorKeyboardRotationOptions.behaviour ==
-        CursorRotationBehaviour.setNorth) _ckrClickDegrees = 0;
+        CursorRotationBehaviour.setNorth) {
+      _ckrClickDegrees = 0;
+    }
   }
 
   void _onPointerSignal(PointerSignalEvent pointerSignal) {

@@ -86,10 +86,6 @@ abstract class MapController {
   ///
   /// See [rotate] to rotate the map around the current map center.
   ///
-  /// One, and only one, of [point] or [offset] must be defined:
-  ///  * [point]: allows rotation around a screen-based point (in normal logical
-  /// pixels), where `Offset(0,0)` is the top-left of the map widget, and the
-  /// bottom right is `Offset(mapWidth, mapHeight)`.
   ///  * [offset]: allows rotation around a screen-based offset (in normal logical
   /// pixels) from the map's center. For example, `Offset(100, 100)` will mean
   /// the point is the 100px down & 100px right from the center.

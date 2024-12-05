@@ -50,7 +50,7 @@ void main() {
             zoom: 0,
             tileDimension: 10,
             pixelBounds: Rect.fromPoints(
-              const Offset(0, 0),
+              Offset.zero,
               const Offset(0.1, 0.1),
             ),
           );
@@ -64,7 +64,7 @@ void main() {
             zoom: 0,
             tileDimension: 10,
             pixelBounds: Rect.fromPoints(
-              const Offset(0, 0),
+              Offset.zero,
               const Offset(9.99, 9.99),
             ),
           );

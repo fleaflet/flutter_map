@@ -3,6 +3,7 @@ import 'dart:math' show Point;
 import 'dart:ui';
 
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/misc/bounds.dart';
 import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:meta/meta.dart';
 
