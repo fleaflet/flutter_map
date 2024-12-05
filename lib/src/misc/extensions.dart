@@ -1,14 +1,14 @@
-import 'dart:math';
+import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:meta/meta.dart';
 
 /// Extension methods for the math.[Point] class
 @internal
-extension PointExtension<T extends num> on Point<T> {
+extension PointExtension<T extends num> on math.Point<T> {
   /// Create a new [Point] where the [x] and [y] values are divided by [factor].
-  Point<double> operator /(num factor) {
-    return Point<double>(x / factor, y / factor);
+  math.Point<double> operator /(num factor) {
+    return math.Point<double>(x / factor, y / factor);
   }
 
   /// Converts to offset
@@ -19,13 +19,13 @@ extension PointExtension<T extends num> on Point<T> {
 @internal
 extension OffsetExtension on Offset {
   /// Creates a [Point] representation of this offset.
-  Point<double> toPoint() => Point(dx, dy);
+  math.Point<double> toPoint() => math.Point(dx, dy);
 
   /// Create a new [Offset] whose [dx] and [dy] values are rotated clockwise by
   /// [radians].
   Offset rotate(num radians) {
-    final cosTheta = cos(radians);
-    final sinTheta = sin(radians);
+    final cosTheta = math.cos(radians);
+    final sinTheta = math.sin(radians);
     final nx = (cosTheta * dx) + (sinTheta * dy);
     final ny = (cosTheta * dy) - (sinTheta * dx);
     return Offset(nx, ny);
@@ -40,6 +40,7 @@ extension OffsetExtension on Offset {
 
 @internal
 extension RectExtension on Rect {
+
   /// Create a [Rect] as bounding box of a list of points.
   static Rect containing(List<Offset> points) {
     var maxX = double.negativeInfinity;
@@ -48,10 +49,10 @@ extension RectExtension on Rect {
     var minY = double.infinity;
 
     for (final point in points) {
-      maxX = max(point.dx, maxX);
-      minX = min(point.dx, minX);
-      maxY = max(point.dy, maxY);
-      minY = min(point.dy, minY);
+      maxX = math.max(point.dx, maxX);
+      minX = math.min(point.dx, minX);
+      maxY = math.max(point.dy, maxY);
+      minY = math.min(point.dy, minY);
     }
 
     return Rect.fromPoints(Offset(minX, minY), Offset(maxX, maxY));
@@ -84,4 +85,8 @@ extension RectExtension on Rect {
 
     return false;
   }
+
+  Offset get min => topLeft;
+
+  Offset get max => bottomRight;
 }

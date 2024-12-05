@@ -3,6 +3,7 @@ import 'dart:math' show Point;
 import 'dart:ui';
 
 import 'package:flutter_map/src/misc/bounds.dart';
+import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 import 'package:proj4dart/proj4dart.dart' as proj4;
@@ -123,8 +124,8 @@ abstract class CrsWithStaticTransformation extends Crs {
 
     final b = projection.bounds!;
     final s = scale(zoom);
-    final (minx, miny) = _transformation.transform(b.min.x, b.min.y, s);
-    final (maxx, maxy) = _transformation.transform(b.max.x, b.max.y, s);
+    final (minx, miny) = _transformation.transform(b.min.dx, b.min.dy, s);
+    final (maxx, maxy) = _transformation.transform(b.max.dx, b.max.dy, s);
     return Rect.fromPoints(
       Offset(minx, miny),
       Offset(maxx, maxy),
@@ -222,7 +223,7 @@ class Proj4Crs extends Crs {
     required String code,
     required proj4.Projection proj4Projection,
     List<Point<double>>? origins,
-    Bounds<double>? bounds,
+    Rect? bounds,
     List<double>? scales,
     List<double>? resolutions,
   }) {
@@ -300,8 +301,8 @@ class Proj4Crs extends Crs {
     final zoomScale = scale(zoom);
 
     final transformation = _getTransformationByZoom(zoom);
-    final (minx, miny) = transformation.transform(b.min.x, b.min.y, zoomScale);
-    final (maxx, maxy) = transformation.transform(b.max.x, b.max.y, zoomScale);
+    final (minx, miny) = transformation.transform(b.min.dx, b.min.dy, zoomScale);
+    final (maxx, maxy) = transformation.transform(b.max.dx, b.max.dy, zoomScale);
     return Rect.fromPoints(Offset(minx, miny), Offset(maxx, maxy));
   }
 
@@ -369,7 +370,7 @@ class Proj4Crs extends Crs {
 @immutable
 abstract class Projection {
   /// The [Bounds] for the coordinates of this [Projection].
-  final Bounds<double>? bounds;
+  final Rect? bounds;
 
   /// Base constructor for the abstract [Projection] class that sets the
   /// required fields.
@@ -441,10 +442,7 @@ abstract class Projection {
 }
 
 class _LonLat extends Projection {
-  static const _bounds = Bounds<double>.unsafe(
-    Point<double>(-180, -90),
-    Point<double>(180, 90),
-  );
+  static const _bounds = Rect.fromLTRB(-180, -90, 180, 90);
 
   const _LonLat() : super(_bounds);
 
@@ -469,9 +467,11 @@ class SphericalMercator extends Projection {
   static const double _boundsD = r * math.pi;
 
   /// The constant Bounds of the [SphericalMercator] projection.
-  static const Bounds<double> _bounds = Bounds<double>.unsafe(
-    Point<double>(-_boundsD, -_boundsD),
-    Point<double>(_boundsD, _boundsD),
+  static const Rect _bounds = Rect.fromLTRB(
+    -_boundsD,
+    -_boundsD,
+    _boundsD,
+    _boundsD,
   );
 
   /// Constant constructor for the [SphericalMercator] projection.
@@ -515,7 +515,7 @@ class _Proj4Projection extends Projection {
 
   _Proj4Projection({
     required this.proj4Projection,
-    required Bounds<double>? bounds,
+    required Rect? bounds,
   })  : epsg4326 = proj4.Projection.WGS84,
         super(bounds);
 
