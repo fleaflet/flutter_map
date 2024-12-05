@@ -52,7 +52,7 @@ abstract class Crs {
   /// scaled map point.
   (double, double) latLngToXY(LatLng latlng, double scale);
 
-  /// Similar to [latLngToXY] but converts the XY coordinates to a [Point].
+  /// Similar to [latLngToXY] but converts the XY coordinates to an [Offset].
   Offset latLngToOffset(LatLng latlng, double zoom) {
     final (x, y) = latLngToXY(latlng, scale(zoom));
     return Offset(x, y);
