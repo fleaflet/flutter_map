@@ -389,22 +389,22 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     final panSpeed =
         keyboardOptions.panSpeedCalculator?.call(_keyboardPanEventCounter) ??
             KeyboardOptions.defaultPanSpeedCalculator(_keyboardPanEventCounter);
-    var newCenter = _camera.latLngToScreenPoint(_camera.center);
+    var newCenter = _camera.latLngToScreenOffset(_camera.center);
     for (final key in _keyboardPanKeyDownSet) {
       newCenter = newCenter +
           switch (key) {
             PhysicalKeyboardKey.arrowLeft ||
             PhysicalKeyboardKey.keyA =>
-              math.Point(-panSpeed, 0),
+              Offset(-panSpeed, 0),
             PhysicalKeyboardKey.arrowRight ||
             PhysicalKeyboardKey.keyD =>
-              math.Point(panSpeed, 0),
+              Offset(panSpeed, 0),
             PhysicalKeyboardKey.arrowUp ||
             PhysicalKeyboardKey.keyW =>
-              math.Point(0, -panSpeed),
+              Offset(0, -panSpeed),
             PhysicalKeyboardKey.arrowDown ||
             PhysicalKeyboardKey.keyS =>
-              math.Point(0, panSpeed),
+              Offset(0, panSpeed),
             _ => throw StateError(
                 '`_keyboardPanKeyDownSet` should only contain arrow & WASD keys',
               ),
@@ -439,7 +439,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     }
 
     widget.controller.moveAndRotateRaw(
-      _camera.pointToLatLng(newCenter),
+      _camera.screenOffsetToLatLng(newCenter),
       newZoom,
       newRotation % 360,
       offset: Offset.zero,
