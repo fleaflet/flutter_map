@@ -3,7 +3,6 @@ import 'dart:math' show Point;
 import 'dart:ui';
 
 import 'package:flutter_map/src/misc/bounds.dart';
-import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 import 'package:proj4dart/proj4dart.dart' as proj4;
@@ -419,10 +418,10 @@ abstract class Projection {
   /// longitudes -179 and 179 to be projected each on one side.
   /// [referencePoint] is used for polygon holes: we want the holes to be
   /// displayed close to the polygon, not on the other side of the world.
-  List<DoublePoint> projectList(List<LatLng> points, {LatLng? referencePoint}) {
+  List<Offset> projectList(List<LatLng> points, {LatLng? referencePoint}) {
     late double previousX;
     final worldWidth = getWorldWidth();
-    return List<DoublePoint>.generate(
+    return List<Offset>.generate(
       points.length,
       (j) {
         if (j == 0 && referencePoint != null) {
@@ -437,7 +436,7 @@ abstract class Projection {
           }
         }
         previousX = x;
-        return DoublePoint(x, y);
+        return Offset(x, y);
       },
       growable: false,
     );

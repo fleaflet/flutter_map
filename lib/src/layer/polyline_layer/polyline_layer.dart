@@ -154,7 +154,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
       /// Returns true if the points stretch on different versions of the world.
       bool stretchesBeyondTheLimits() {
         for (final point in projectedPolyline.points) {
-          if (point.x > xEast || point.x < xWest) {
+          if (point.dx > xEast || point.dx < xWest) {
             return true;
           }
         }
