@@ -39,7 +39,7 @@ abstract base class HitDetectablePainter<R extends Object,
   /// a hit has already been found on another element, and the
   /// [HitDetectableElement.hitValue] is `null` on this element.
   ///
-  /// [point] ([OffsetToPointExtension.toPoint]) and [coordinate]
+  /// [Offset] and [coordinate]
   /// ([MapCamera.offsetToLatLng]) are provided for simplicity.
   ///
   /// Avoid performing calculations that are not dependent on [element]. Instead,
