@@ -2,10 +2,8 @@
 
 ## Install
 
-{% hint style="success" %}
-All users should also [install 'latlong2'](https://pub.dev/packages/latlong2/install) to work with coordinates in 'flutter\_map'.
-
-In the event that the `LatLng` object provided by that library conflicts with another, for example the one provided by Google Maps, you may need to [use the 'as' suffix](https://dart.dev/guides/packages#importing-libraries-from-packages).
+{% hint style="info" %}
+In the event that the `LatLng` object, provided by 'package:[latlong2](https://pub.dev/packages/latlong2)' via flutter\_map, conflicts with another, for example the one provided by Google Maps, you may need to [use the 'as' suffix](https://dart.dev/guides/packages#importing-libraries-from-packages).
 {% endhint %}
 
 ### From [pub.dev](https://pub.dev/packages/flutter_map)

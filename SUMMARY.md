@@ -1,17 +1,18 @@
 # Table of contents
 
 * [flutter\_map](README.md)
-* [🏗️ Why Choose flutter\_map?](choose.md)
-* [💝 Supporters](supporters.md)
-* [✏️ Credits & Contributing](credits.md)
+
+## Why & How
+
+* [🏗️ Why Choose flutter\_map?](why-and-how/choose.md)
+* [How Does It Work?](why-and-how/how-does-it-work/README.md)
+  * [Raster vs Vector Tiles](why-and-how/how-does-it-work/raster-vs-vector-tiles.md)
+* [👀 Demo & Examples](why-and-how/demo-and-examples.md)
 
 ## Getting Started
 
-* [How Does It Work?](getting-started/explanation/README.md)
-  * [Raster vs Vector Tiles](getting-started/explanation/raster-vs-vector-tiles.md)
+* [🚀 What's New In v8?](getting-started/new-in-v8.md)
 * [Installation](getting-started/installation.md)
-* [Examples](getting-started/examples.md)
-* [v7 Information](getting-started/v7-information.md)
 
 ## Usage
 
@@ -58,3 +59,8 @@
 * [Creating A Plugin](plugins/making-a-plugin/README.md)
   * [Creating New Tile Providers](plugins/making-a-plugin/creating-new-tile-providers.md)
   * [Creating New Layers](plugins/making-a-plugin/creating-new-layers.md)
+
+## Thanks
+
+* [💝 Supporters](thanks/supporters.md)
+* [✏️ Credits & Contributing](thanks/credits.md)

@@ -5,7 +5,7 @@ You must comply with the appropriate restrictions and terms of service set by yo
 
 This library and/or the creator(s) are not responsible for any violations you make using this package.
 
-_The OpenStreetMap Tile Server (as used below) ToS can be_ [_found here_](https://operations.osmfoundation.org/policies/tiles)_. Other servers may have different terms._
+_The OpenStreetMap Tile Server (as used below) ToS can be_ [_found here_](https://operations.osmfoundation.org/policies/tiles)_. **It is NOT free to use**. Other servers may have different terms._
 {% endhint %}
 
 The basis of any map is a `TileLayer`, which displays square raster images in a continuous grid, sourced from the Internet or a local file system.
@@ -59,7 +59,7 @@ This parameter must be specified unless [`wmsOptions`](wms-usage.md) is specifie
 
 The URL template is a string that contains placeholders, which, when filled in, create a URL/URI to a specific tile.
 
-Specifically, flutter\_map supports the Slippy Map format, sometimes referred to as CARTO or Raster XYZ. Tiles are referred to by their zoom level, and position on the X & Y axis. For more information, read [explanation](../../getting-started/explanation/ "mention").
+Specifically, flutter\_map supports the Slippy Map format, sometimes referred to as CARTO or Raster XYZ. Tiles are referred to by their zoom level, and position on the X & Y axis. For more information, read [how-does-it-work](../../why-and-how/how-does-it-work/ "mention").
 
 These templates are usually documented by your tile server, and will always include the following placeholders:
 

@@ -24,6 +24,6 @@ Stadia Maps offers a variety of ready-made map styles that don't require customi
 
 ## Vector Usage
 
-Stadia Maps' also provides vector tiles. For more information about using vector tiles, please see [#using-vector-tiles](../getting-started/explanation/raster-vs-vector-tiles.md#using-vector-tiles "mention").&#x20;
+Stadia Maps' also provides vector tiles. For more information about using vector tiles, please see [#using-vector-tiles](../why-and-how/how-does-it-work/raster-vs-vector-tiles.md#using-vector-tiles "mention").&#x20;
 
 However, please note that this method of integration is still experimental. Many of the Stadia Maps styles utilize advanced features of the Mapbox GL JSON style language which are not yet well-supported.

@@ -1,6 +1,10 @@
-# Examples
+# 👀 Demo & Examples
 
 flutter\_map provides an example application showcasing much of its functionality. In some cases, the example app contains undocumented functionality, so it's definitely worth checking out!
+
+{% hint style="success" %}
+For a quick code demo, check out the landing page: [#code-demo](../#code-demo "mention")!
+{% endhint %}
 
 ## Live Web Demo
 
@@ -11,7 +15,7 @@ Note that the web demo is built automatically from the ['master' branch](https:/
 {% hint style="warning" %}
 Please don't abuse the web demo! It runs on limited bandwidth and won't hold up to thousands of loads.
 
-If you're going to be straining the application, please see [#prebuilt-artifacts](examples.md#prebuilt-artifacts "mention"), and serve the application yourself.
+If you're going to be straining the application, please see [#prebuilt-artifacts](demo-and-examples.md#prebuilt-artifacts "mention"), and serve the application yourself.
 {% endhint %}
 
 {% embed url="https://demo.fleaflet.dev" %}

@@ -1,6 +1,6 @@
 # Tile Providers
 
-The `tileProvider` parameter in `TileLayer` takes a `TileProvider` object specifying a [tile provider](../../getting-started/explanation/#tile-providers) to use for that layer.
+The `tileProvider` parameter in `TileLayer` takes a `TileProvider` object specifying a [tile provider](../../why-and-how/how-does-it-work/#tile-providers) to use for that layer.
 
 This has a default of `NetworkTileProvider` which gets tiles from the internet through a dedicated image provider.
 
