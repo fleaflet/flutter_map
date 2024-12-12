@@ -24,15 +24,7 @@ An animated, interactive attribution layer that supports both logos/images (disp
 
 It is heavily customizable (in both animation and contents), and designed to easily meet the needs of most ToSs out of the box.
 
-<div align="center">
-
-<figure><img src="../.gitbook/assets/ClosedRichAttribution.png" alt="An icon and a button displayed over a map, in the bottom right corner"><figcaption><p>Closed <code>RichAttributionWidget</code></p></figcaption></figure>
-
- 
-
-<figure><img src="../.gitbook/assets/OpenedRichAttribution.png" alt="A white box with attribution text displayed over a map"><figcaption><p>Opened <code>RichAttributionWidget</code>, as in the example app</p></figcaption></figure>
-
-</div>
+<div align="center"><figure><img src="../.gitbook/assets/ClosedRichAttribution.png" alt="An icon and a button displayed over a map, in the bottom right corner"><figcaption><p>Closed <code>RichAttributionWidget</code></p></figcaption></figure> <figure><img src="../.gitbook/assets/OpenedRichAttribution.png" alt="A white box with attribution text displayed over a map"><figcaption><p>Opened <code>RichAttributionWidget</code>, as in the example app</p></figcaption></figure></div>
 
 ```dart
 children: [

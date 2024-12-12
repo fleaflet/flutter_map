@@ -2,11 +2,7 @@
 
 To display anything on the map, you'll need to include at least one layer. This is usually a [`TileLayer`](../layers/tile-layer/), which displays the map tiles themselves: without it, the map isn't really a very good map!
 
-<div align="center" data-full-width="false">
-
-<figure><img src="../.gitbook/assets/ExampleMap.jpg" alt="Example FlutterMap widget, containing multiple feature layers, atop a TileLayer" width="563"><figcaption><p>Example <code>FlutterMap</code> widget, containing multiple feature layers, atop a <code>TileLayer</code></p></figcaption></figure>
-
-</div>
+<div align="center" data-full-width="false"><figure><img src="../.gitbook/assets/ExampleMap.jpg" alt="Example FlutterMap widget, containing multiple feature layers, atop a TileLayer" width="563"><figcaption><p>Example <code>FlutterMap</code> widget, containing multiple feature layers, atop a <code>TileLayer</code></p></figcaption></figure></div>
 
 To insert a layer, add it to the `children` property. Other layers (sometimes referred to as 'feature layers', as they are map features) can then be stacked on top, where the last widget in the `children` list is topmost. For example, you might display a [`MarkerLayer`](../layers/marker-layer.md), or any widget as your own custom layer ([creating-new-layers.md](../plugins/making-a-plugin/creating-new-layers.md "mention"))!
 
@@ -15,7 +11,7 @@ It is possible to add more than one `TileLayer`! Transparency in one layer will 
 {% endhint %}
 
 {% hint style="info" %}
-To display a widget in a sized and positioned box, similar to [overlay-image-layer.md](../layers/overlay-image-layer.md "mention"), try the community maintained [flutter\_map\_polywidget plugin](https://github.com/TimBaumgart/flutter\_map\_polywidget)!
+To display a widget in a sized and positioned box, similar to [overlay-image-layer.md](../layers/overlay-image-layer.md "mention"), try the community maintained [flutter\_map\_polywidget plugin](https://github.com/TimBaumgart/flutter_map_polywidget)!
 {% endhint %}
 
 Each layer is isolated from the other layers, and so handles its own independent logic and handling. However, they can access and modify the internal state of the map, as well as respond to changes.

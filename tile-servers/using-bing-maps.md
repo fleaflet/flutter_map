@@ -11,7 +11,7 @@ To display map tiles from Bing Maps, a little more effort is needed, as they use
 Luckily, we've constructed all the code you should need below! Feel free to copy and paste into your projects.
 
 {% hint style="info" %}
-Thanks to [Luka Glušica](https://github.com/luka-glusica) for discovering the [basic initial implementation](https://github.com/fleaflet/flutter\_map/issues/1197#issuecomment-1478763824).
+Thanks to [Luka Glušica](https://github.com/luka-glusica) for discovering the [basic initial implementation](https://github.com/fleaflet/flutter_map/issues/1197#issuecomment-1478763824).
 {% endhint %}
 
 {% hint style="warning" %}

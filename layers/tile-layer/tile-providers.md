@@ -30,10 +30,10 @@ This is the default tile provider, and does nothing particularly special. It tak
 * `headers`: `Map<String, String>`\
   By default, only headers sent by the platform are included with each request, plus an overridden (where possible) 'User-Agent' header based on the [#useragentpackagename](./#useragentpackagename "mention") property
 
-### [`CancellableNetworkTileProvider`](https://github.com/fleaflet/flutter\_map\_cancellable\_tile\_provider)
+### [`CancellableNetworkTileProvider`](https://github.com/fleaflet/flutter_map_cancellable_tile_provider)
 
 {% hint style="info" %}
-This requires the '[flutter\_map\_cancellable\_tile\_provider](https://github.com/fleaflet/flutter\_map\_cancellable\_tile\_provider)' plugin to be installed.
+This requires the '[flutter\_map\_cancellable\_tile\_provider](https://github.com/fleaflet/flutter_map_cancellable_tile_provider)' plugin to be installed.
 
 This plugin is part of the official 'flutter\_map' organisation, and maintained by the same maintainers.
 {% endhint %}
@@ -59,7 +59,7 @@ These tile providers use the `urlTemplate` to get the appropriate tile from the 
 {% hint style="warning" %}
 Specifying any `fallbackUrl` (even if it is not used) in the `TileLayer` will reduce the performance of these providers.
 
-It will cause [23% slower asset tile requests](https://github.com/fleaflet/flutter\_map/issues/1436#issuecomment-1569663004) with `AssetTileProvider`,  and will cause main thread blocking when requesting tiles from `FileTileProvider`.
+It will cause [23% slower asset tile requests](https://github.com/fleaflet/flutter_map/issues/1436#issuecomment-1569663004) with `AssetTileProvider`,  and will cause main thread blocking when requesting tiles from `FileTileProvider`.
 {% endhint %}
 
 ### `AssetTileProvider`

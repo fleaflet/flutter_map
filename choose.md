@@ -21,7 +21,7 @@ These show our many strengths, ~~and some things you may want to stick with the 
 {% endhint %}
 
 {% embed url="https://archive.org/details/incorporating-maps-into-flutter-a-study-of-mapping-sdks-and-their-integration-in" fullWidth="false" %}
-Original: [https://www.theseus.fi/bitstream/handle/10024/820026/Ushakov\_Sergey.pdf](https://www.theseus.fi/bitstream/handle/10024/820026/Ushakov\_Sergey.pdf)\
+Original: [https://www.theseus.fi/bitstream/handle/10024/820026/Ushakov\_Sergey.pdf](https://www.theseus.fi/bitstream/handle/10024/820026/Ushakov_Sergey.pdf)\
 Archive: [https://archive.org/details/incorporating-maps-into-flutter-a-study-of-mapping-sdks-and-their-integration-in](https://archive.org/details/incorporating-maps-into-flutter-a-study-of-mapping-sdks-and-their-integration-in)
 {% endembed %}
 
@@ -35,7 +35,7 @@ Original: [https://www.droidcon.com/2024/09/03/the-quest-to-display-widget-marke
 {% hint style="success" %}
 These great projects all make use of flutter\_map!
 
-But there's more: check out the [dependents list on GitHub](https://github.com/fleaflet/flutter\_map/network/dependents), and the #showcase channel for more projects on our Discord server.
+But there's more: check out the [dependents list on GitHub](https://github.com/fleaflet/flutter_map/network/dependents), and the #showcase channel for more projects on our Discord server.
 {% endhint %}
 
 ### Non-OSS Sponsors

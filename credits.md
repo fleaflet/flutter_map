@@ -18,7 +18,7 @@ In particular, thanks go to:
   * @maRci002
 * The authors of this documentation:
   * @JaffaKetchup
-* Anyone who has contributed to making flutter\_map: [Contributor List](https://github.com/fleaflet/flutter\_map/graphs/contributors)
+* Anyone who has contributed to making flutter\_map: [Contributor List](https://github.com/fleaflet/flutter_map/graphs/contributors)
 * Anyone who has made plugins for flutter\_map: [list.md](plugins/list.md "mention")
 * Anyone who has donated to flutter\_map: [#past-supporters](supporters.md#past-supporters "mention")
 

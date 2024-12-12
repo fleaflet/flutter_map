@@ -21,7 +21,7 @@ Tiles can be referenced/identified in a few different ways, such as:
 * Slippy Map Convention (the most popular/common)
 * [TMS](https://wiki.openstreetmap.org/wiki/TMS) (very similar to the Slippy Map Convention)
 * [WMS](https://wiki.openstreetmap.org/wiki/WMS)&#x20;
-* [WMTS](https://en.wikipedia.org/wiki/Web\_Map\_Tile\_Service)
+* [WMTS](https://en.wikipedia.org/wiki/Web_Map_Tile_Service)
 
 Tiles themselves can be of two types:
 
@@ -37,7 +37,7 @@ This library only supports raster tiles. See [raster-vs-vector-tiles.md](raster-
 ### Slippy Map Convention
 
 {% hint style="info" %}
-For more information about the Slippy Map Convention, visit [the OpenStreetMap Wiki](https://wiki.openstreetmap.org/wiki/Slippy\_map\_tilenames).
+For more information about the Slippy Map Convention, visit [the OpenStreetMap Wiki](https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames).
 {% endhint %}
 
 Slippy map tiles are accessed by 3 coordinates, x/y/z.

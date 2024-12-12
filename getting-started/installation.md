@@ -8,7 +8,7 @@ All users should also [install 'latlong2'](https://pub.dev/packages/latlong2/ins
 In the event that the `LatLng` object provided by that library conflicts with another, for example the one provided by Google Maps, you may need to [use the 'as' suffix](https://dart.dev/guides/packages#importing-libraries-from-packages).
 {% endhint %}
 
-### From [pub.dev](https://pub.dev/packages/flutter\_map)
+### From [pub.dev](https://pub.dev/packages/flutter_map)
 
 Just import the package as you would normally, from the command line:
 
@@ -16,7 +16,7 @@ Just import the package as you would normally, from the command line:
 flutter pub add <a data-footnote-ref href="#user-content-fn-1">flutter_map_cancellable_tile_provider</a> # OPTIONAL
 </code></pre>
 
-### From [github.com](https://github.com/fleaflet/flutter\_map)
+### From [github.com](https://github.com/fleaflet/flutter_map)
 
 {% hint style="warning" %}
 Unreleased commits from Git (GitHub) may not be stable.
@@ -48,7 +48,7 @@ We support Wasm! [Build your app as normal](https://docs.flutter.dev/platform-in
 
 #### CORS
 
-On the web platform, [CORS ](https://en.wikipedia.org/wiki/Cross-origin\_resource\_sharing)restrictions designed to protect resources on websites and control where they can be loaded from. Some tile servers may not be intended for external consumption, or may be incorrectly configured, which could prevent tiles from loading. If tiles load correctly on platforms other than the web, then this is likely the cause.
+On the web platform, [CORS ](https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)restrictions designed to protect resources on websites and control where they can be loaded from. Some tile servers may not be intended for external consumption, or may be incorrectly configured, which could prevent tiles from loading. If tiles load correctly on platforms other than the web, then this is likely the cause.
 
 See the [Flutter documentation](https://docs.flutter.dev/platform-integration/web/web-images#cross-origin-resource-sharing-cors) for more details. We load images using a standard `Image` widget.
 
@@ -64,7 +64,7 @@ flutter\_map needs to access the Internet to load tiles, in most cases. On Andro
 
 ### MacOS
 
-flutter\_map needs to access the Internet to load tiles, in most cases. On MacOS, apps must include a dedicated entitlement. Add the following lines to 'macos/Runner/DebugProfile.entitlements' and 'macos/Runner/Release.entitlements**':**
+flutter\_map needs to access the Internet to load tiles, in most cases. On MacOS, apps must include a dedicated entitlement. Add the following lines to 'macos/Runner/DebugProfile.entitlements' and 'macos/Runner/Release.entitlement&#x73;**':**
 
 {% code title="*.entitlements" %}
 ```xml

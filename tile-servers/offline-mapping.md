@@ -21,9 +21,9 @@ Caching is used usually to improve user experience by reducing network waiting t
 
 There's 3 methods that basic caching can be implemented in your app, two of which rely on community maintained plugins:
 
-1. [flutter\_map\_cache](https://github.com/josxha/flutter\_map\_cache) (lightweight and MIT licensed)
-2. [flutter\_map\_tile\_caching](https://github.com/JaffaKetchup/flutter\_map\_tile\_caching) (also includes [#bulk-downloading](offline-mapping.md#bulk-downloading "mention"), but GPL licensed)
-3. Custom implementation, via a [custom `TileProvider`](../plugins/making-a-plugin/creating-new-tile-providers.md) and `ImageProvider` (either custom or via a package such as [cached\_network\_image](https://pub.dev/packages/cached\_network\_image))
+1. [flutter\_map\_cache](https://github.com/josxha/flutter_map_cache) (lightweight and MIT licensed)
+2. [flutter\_map\_tile\_caching](https://github.com/JaffaKetchup/flutter_map_tile_caching) (also includes [#bulk-downloading](offline-mapping.md#bulk-downloading "mention"), but GPL licensed)
+3. Custom implementation, via a [custom `TileProvider`](../plugins/making-a-plugin/creating-new-tile-providers.md) and `ImageProvider` (either custom or via a package such as [cached\_network\_image](https://pub.dev/packages/cached_network_image))
 
 ## Bulk Downloading
 
@@ -35,7 +35,7 @@ Bulk downloading is used to prepare for known no-Internet situations by download
 
 Bulk downloading is more complex than [#caching](offline-mapping.md#caching "mention"), especially for regions that are a non-rectangular shape. Implementing this can be very time consuming and prone to issues.
 
-The [community maintained plugin 'flutter\_map\_tile\_caching'](https://github.com/JaffaKetchup/flutter\_map\_tile\_caching) includes advanced bulk downloading functionality, of multiple different region shapes, and other functionality. It is however GPL licensed. To help choose whether FMTC or DIY is more appropriate for your use case, please see:
+The [community maintained plugin 'flutter\_map\_tile\_caching'](https://github.com/JaffaKetchup/flutter_map_tile_caching) includes advanced bulk downloading functionality, of multiple different region shapes, and other functionality. It is however GPL licensed. To help choose whether FMTC or DIY is more appropriate for your use case, please see:
 
 {% embed url="https://fmtc.jaffaketchup.dev/is-fmtc-right-for-me" %}
 
@@ -49,8 +49,8 @@ Container formats, such as the traditional MBTiles, or the more recent PMTiles, 
 
 These require a special parser to read on demand, usually provided as a `TileProvider` by a plugin. The following community-maintained plugins are available to read these formats:
 
-* [MBTiles](https://wiki.openstreetmap.org/wiki/MBTiles): [flutter\_map\_mbtiles](https://github.com/josxha/flutter\_map\_plugins/tree/main/flutter\_map\_mbtiles) ([vector\_map\_tiles\_mbtiles ](https://github.com/josxha/flutter\_map\_plugins/tree/main/vector\_map\_tiles\_mbtiles)when using vector tiles)
-* [PMTiles](https://github.com/protomaps/PMTiles): [flutter\_map\_pmtiles](https://github.com/josxha/flutter\_map\_plugins/tree/main/flutter\_map\_pmtiles) ([vector\_map\_tiles\_pmtiles](https://github.com/josxha/flutter\_map\_plugins/tree/main/vector\_map\_tiles\_pmtiles) when using vector tiles, also works in online contexts)
+* [MBTiles](https://wiki.openstreetmap.org/wiki/MBTiles): [flutter\_map\_mbtiles](https://github.com/josxha/flutter_map_plugins/tree/main/flutter_map_mbtiles) ([vector\_map\_tiles\_mbtiles ](https://github.com/josxha/flutter_map_plugins/tree/main/vector_map_tiles_mbtiles)when using vector tiles)
+* [PMTiles](https://github.com/protomaps/PMTiles): [flutter\_map\_pmtiles](https://github.com/josxha/flutter_map_plugins/tree/main/flutter_map_pmtiles) ([vector\_map\_tiles\_pmtiles](https://github.com/josxha/flutter_map_plugins/tree/main/vector_map_tiles_pmtiles) when using vector tiles, also works in online contexts)
 
 ### Uncontained
 

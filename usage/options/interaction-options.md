@@ -6,7 +6,7 @@ The `InteractionOptions` object passed to `MapOptions.interactiveOptions` config
 
 ## Flags
 
-`flags` is a [bitfield](https://en.wikipedia.org/wiki/Bit\_field) that enables and disables the vast majority of gestures. Although technically the type is of `int`, it is usually set with a combination of `InteractiveFlag`s.
+`flags` is a [bitfield](https://en.wikipedia.org/wiki/Bit_field) that enables and disables the vast majority of gestures. Although technically the type is of `int`, it is usually set with a combination of `InteractiveFlag`s.
 
 {% embed url="https://pub.dev/documentation/flutter_map/latest/flutter_map/InteractiveFlag-class.html" %}
 

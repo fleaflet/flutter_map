@@ -9,7 +9,13 @@ coverY: -35
 
 # flutter\_map
 
-[![pub.dev](https://camo.githubusercontent.com/dcdb87d5d32ce7d0a83302ccccd6e5c70c55894e7c7920c6417b13761c8c773c/68747470733a2f2f696d672e736869656c64732e696f2f7075622f762f666c75747465725f6d61702e7376673f6c6162656c3d4c61746573742b56657273696f6e)](https://pub.dev/packages/flutter\_map) [![stars](https://camo.githubusercontent.com/e3069fba0ddc64303cf9a1a60be83b6f789cfee3b3b39c2c062e63cece4d26f7/68747470733a2f2f62616467656e2e6e65742f6769746875622f73746172732f666c6561666c65742f666c75747465725f6d61703f6c6162656c3d737461727326636f6c6f723d677265656e2669636f6e3d676974687562)](https://github.com/fleaflet/flutter\_map/stargazers) [![likes](https://camo.githubusercontent.com/102d04f1c16aad975caa6d413d84ab27b815a53910e72b41b81146b03b71f75a/68747470733a2f2f696d672e736869656c64732e696f2f7075622f6c696b65732f666c75747465725f6d61703f6c6f676f3d666c7574746572)](https://pub.dev/packages/flutter\_map/score)        [![codecov](https://camo.githubusercontent.com/2e49ab046582d625b4559b04b726e596f6f0492d9ed6aef49d7cea3a3c3036d7/68747470733a2f2f636f6465636f762e696f2f67682f666c6561666c65742f666c75747465725f6d61702f67726170682f62616467652e7376673f746f6b656e3d4c6759675a5130596a6a)](https://codecov.io/gh/fleaflet/flutter\_map) [![Open Issues](https://camo.githubusercontent.com/2237656d711e52f75b8c088f51236d5e2c910bd19d38131dc47aefe07a68c5af/68747470733a2f2f62616467656e2e6e65742f6769746875622f6f70656e2d6973737565732f666c6561666c65742f666c75747465725f6d61703f6c6162656c3d4f70656e2b49737375657326636f6c6f723d677265656e)](https://github.com/fleaflet/flutter\_map/issues?q=sort%3Aupdated-desc+is%3Aissue+is%3Aopen) [![Open PRs](https://camo.githubusercontent.com/30fb50b9f4b92e66c01fd6fce5fe3fb7dec5419de1492953772c635bb1ef2886/68747470733a2f2f62616467656e2e6e65742f6769746875622f6f70656e2d7072732f666c6561666c65742f666c75747465725f6d61703f6c6162656c3d4f70656e2b50527326636f6c6f723d677265656e)](https://github.com/fleaflet/flutter\_map/pulls?q=sort%3Aupdated-desc+is%3Apr+is%3Aopen)
+[![pub.dev](https://img.shields.io/pub/v/flutter_map.svg?label=Latest+Version)](https://pub.dev/packages/flutter_map) [![stars](https://badgen.net/github/stars/fleaflet/flutter_map?label=stars\&color=green\&icon=github)](https://github.com/fleaflet/flutter_map/stargazers) [![likes](https://img.shields.io/pub/likes/flutter_map?logo=flutter)](https://pub.dev/packages/flutter_map/score)        [![codecov](https://codecov.io/gh/fleaflet/flutter_map/graph/badge.svg?token=LgYgZQ0Yjj)](https://codecov.io/gh/fleaflet/flutter_map) [![Open Issues](https://badgen.net/github/open-issues/fleaflet/flutter_map?label=Open+Issues\&color=green)](https://github.com/fleaflet/flutter_map/issues) [![Open PRs](https://badgen.net/github/open-prs/fleaflet/flutter_map?label=Open+PRs\&color=green)](https://github.com/fleaflet/flutter_map/pulls)
+
+{% hint style="warning" %}
+This documentation applies to v8, which is currently unreleased.
+
+See [v7](https://app.gitbook.com/o/1aKKbSpe255wyVNDoFYc/s/O2hE9FJb0PVZ0w3qEsM8/ "mention") for v7 documentation.
+{% endhint %}
 
 ## Why Choose flutter\_map?
 
@@ -65,13 +71,13 @@ Widget build(BuildContext context) {
 Not quite sure about something? No worries, we're here to help!
 
 * Check the [#faqs](./#faqs "mention") below, and double check the documentation
-* Then, for bug reports & feature requests: check for previous issues, then ask in [GitHub Issues](https://github.com/fleaflet/flutter\_map/issues)
-* Then, for support & everything else: ask in [flutter\_map Discord server](https://discord.gg/BwpEsjqMAH) or [GitHub Discussions](https://github.com/fleaflet/flutter\_map/discussions)
+* Then, for bug reports & feature requests: check for previous issues, then ask in [GitHub Issues](https://github.com/fleaflet/flutter_map/issues)
+* Then, for support & everything else: ask in [flutter\_map Discord server](https://discord.gg/BwpEsjqMAH) or [GitHub Discussions](https://github.com/fleaflet/flutter_map/discussions)
 
 {% hint style="info" %}
-We're a community maintained project and the maintainers would greatly appriciate any help in implementing features and fixing bugs! Feel free to jump in: [https://github.com/fleaflet/flutter\_map/blob/master/CONTRIBUTING.md](https://github.com/fleaflet/flutter\_map/blob/master/CONTRIBUTING.md).
+We're a community maintained project and the maintainers would greatly appriciate any help in implementing features and fixing bugs! Feel free to jump in: [https://github.com/fleaflet/flutter\_map/blob/master/CONTRIBUTING.md](https://github.com/fleaflet/flutter_map/blob/master/CONTRIBUTING.md).
 
-Please remember that we are volunteers and cannot gurantee support. The standard Code of Conduct is here to keep our community a safe and friendly place for everyone: [https://github.com/fleaflet/flutter\_map/blob/master/CODE\_OF\_CONDUCT.md](https://github.com/fleaflet/flutter\_map/blob/master/CODE\_OF\_CONDUCT.md).
+Please remember that we are volunteers and cannot gurantee support. The standard Code of Conduct is here to keep our community a safe and friendly place for everyone: [https://github.com/fleaflet/flutter\_map/blob/master/CODE\_OF\_CONDUCT.md](https://github.com/fleaflet/flutter_map/blob/master/CODE_OF_CONDUCT.md).
 {% endhint %}
 
 ### FAQs
@@ -110,7 +116,7 @@ See [#routing-navigation](layers/polyline-layer.md#routing-navigation "mention")
 
 <summary>How can I add a <code>Marker</code> where the user's location is?<br>How can I center the map on the user's location?</summary>
 
-This is beyond the scope of flutter\_map. However, you can use the [community maintained plugin 'flutter\_map\_location\_marker'](https://github.com/tlserver/flutter\_map\_location\_marker) to do this.
+This is beyond the scope of flutter\_map. However, you can use the [community maintained plugin 'flutter\_map\_location\_marker'](https://github.com/tlserver/flutter_map_location_marker) to do this.
 
 Alternatively, use the 'location' and 'compass' packages to generate a stream of the user's location and heading, and feed that to a `Marker` using a `StreamBuilder`.
 

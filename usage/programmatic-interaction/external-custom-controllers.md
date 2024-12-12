@@ -75,7 +75,7 @@ Widget build(BuildContext context) {
 ```
 
 {% hint style="warning" %}
-`MapController` methods that change the position of the map should not be used directly (not as a result of another callback) in `onMapReady` - see [issue #1507](https://github.com/fleaflet/flutter\_map/issues/1507). This is an unsupported and usually unnecessary usecase.
+`MapController` methods that change the position of the map should not be used directly (not as a result of another callback) in `onMapReady` - see [issue #1507](https://github.com/fleaflet/flutter_map/issues/1507). This is an unsupported and usually unnecessary usecase.
 {% endhint %}
 
 ## Usage Within A State System/Model
@@ -94,4 +94,4 @@ It may then be beneficial to unset the state model field when the controller is 
 
 ## Animation
 
-Whilst animated movements through `MapController`s aren't built-in, the [community maintained plugin `flutter_map_animations`](https://github.com/TesteurManiak/flutter\_map\_animations) provides this, and much more!
+Whilst animated movements through `MapController`s aren't built-in, the [community maintained plugin `flutter_map_animations`](https://github.com/TesteurManiak/flutter_map_animations) provides this, and much more!

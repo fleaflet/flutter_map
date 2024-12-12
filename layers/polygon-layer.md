@@ -70,7 +70,7 @@ Overlapping colors that are not completely opaque will not recieve the 'darkenin
 
 <summary>Simplification <em>(enabled by default, adjustable)</em></summary>
 
-To improve performance, polygon outlines (`points`) are 'simplified' before the polygons are culled and painted/rendered. The well-known [Ramer–Douglas–Peucker algorithm](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker\_algorithm) is used to perform this, and is enabled by default.
+To improve performance, polygon outlines (`points`) are 'simplified' before the polygons are culled and painted/rendered. The well-known [Ramer–Douglas–Peucker algorithm](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm) is used to perform this, and is enabled by default.
 
 To adjust the quality and performance of the simplification, the maximum distance between removable points can be adjusted through the `simplificationTolerance` parameter. Increasing this value (from its default of 0.5) results in a more jagged, less accurate (lower quality) simplification, with improved performance; and vice versa. Many applications use a value in the range 1 - 1.5. To disable simplification, set `simplificationTolerance` to 0.&#x20;
 
@@ -104,7 +104,7 @@ Therefore, to improve performance, it's possible to optionally set the `useAltRe
 
 There's two main steps to this alternative rendering algorithm:
 
-1. Cut each `Polygon` into multiple triangles through a process known as [triangulation](https://en.wikipedia.org/wiki/Polygon\_triangulation). flutter\_map uses an earcutting algorithm through [dart\_earcut](https://pub.dev/packages/dart\_earcut) (a port of an algorithm initially developed at Mapbox intended for super-large scale triangulation).
+1. Cut each `Polygon` into multiple triangles through a process known as [triangulation](https://en.wikipedia.org/wiki/Polygon_triangulation). flutter\_map uses an earcutting algorithm through [dart\_earcut](https://pub.dev/packages/dart_earcut) (a port of an algorithm initially developed at Mapbox intended for super-large scale triangulation).
 2. Draw each triangle onto the canvas via the lower-level, faster [`drawVertices`](https://api.flutter.dev/flutter/dart-ui/Canvas/drawVertices.html) method. Borders are then drawn as normal.
 
 </details>
@@ -142,4 +142,4 @@ These are much cheaper for the rendering engine (particularly Skia), as it does 
 
 'flutter\_map' doesn't provide any public methods to manipulate polygons, as these would be deemed out of scope.
 
-However, some useful methods can be found in libraries such as 'latlong2' and ['poly\_bool\_dart'](https://github.com/mohammedX6/poly\_bool\_dart). These can be applied to the input of `Polygon`'s `points` argument, and the map will do it's best to try to render them. However, more complex polygons - such as those with holes - may be painted inaccurately, and may therefore require manual adjustment (of `holePointsList`, for example).
+However, some useful methods can be found in libraries such as 'latlong2' and ['poly\_bool\_dart'](https://github.com/mohammedX6/poly_bool_dart). These can be applied to the input of `Polygon`'s `points` argument, and the map will do it's best to try to render them. However, more complex polygons - such as those with holes - may be painted inaccurately, and may therefore require manual adjustment (of `holePointsList`, for example).

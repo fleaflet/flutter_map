@@ -5,7 +5,7 @@ flutter\_map provides an example application showcasing much of its functionalit
 ## Live Web Demo
 
 {% hint style="info" %}
-Note that the web demo is built automatically from the ['master' branch](https://github.com/fleaflet/flutter\_map), so may not reflect the the latest release on pub.dev.
+Note that the web demo is built automatically from the ['master' branch](https://github.com/fleaflet/flutter_map), so may not reflect the the latest release on pub.dev.
 {% endhint %}
 
 {% hint style="warning" %}
@@ -25,7 +25,7 @@ The Windows and Android artifacts just require unzipping and installing the .exe
 The Web artifact requires unzipping and serving, as it contains more than one unbundled file. You may be able to use [dhttpd](https://pub.dev/packages/dhttpd) for this purpose.
 
 {% hint style="info" %}
-Note that these artifacts are built automatically from the ['master' branch](https://github.com/fleaflet/flutter\_map), so may not reflect the the latest release on pub.dev.
+Note that these artifacts are built automatically from the ['master' branch](https://github.com/fleaflet/flutter_map), so may not reflect the the latest release on pub.dev.
 {% endhint %}
 
 {% embed url="https://nightly.link/fleaflet/flutter_map/workflows/master/master" %}
