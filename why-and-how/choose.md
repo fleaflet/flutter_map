@@ -1,8 +1,9 @@
 ---
 description: We think flutter_map hits the spot for many Flutter apps. Find out why!
+icon: highlighter-line
 ---
 
-# 🏗️ Why Choose flutter\_map?
+# Why Choose flutter\_map?
 
 ## Feature Highlights
 

@@ -4,7 +4,7 @@
 
 ## Why & How
 
-* [🏗️ Why Choose flutter\_map?](why-and-how/choose.md)
+* [Why Choose flutter\_map?](why-and-how/choose.md)
 * [How Does It Work?](why-and-how/how-does-it-work/README.md)
   * [Raster vs Vector Tiles](why-and-how/how-does-it-work/raster-vs-vector-tiles.md)
 * [👀 Demo & Examples](why-and-how/demo-and-examples.md)
