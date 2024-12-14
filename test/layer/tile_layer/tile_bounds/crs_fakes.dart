@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'dart:ui';
 
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -25,8 +25,9 @@ class FakeInfiniteCrs extends Crs {
       const Epsg3857().untransform(x, y, scale);
 
   @override
-  LatLng pointToLatLng(Point point, double zoom) => throw UnimplementedError();
+  LatLng offsetToLatLng(Offset point, double zoom) =>
+      throw UnimplementedError();
 
   @override
-  Bounds<double>? getProjectedBounds(double zoom) => throw UnimplementedError();
+  Rect? getProjectedBounds(double zoom) => throw UnimplementedError();
 }

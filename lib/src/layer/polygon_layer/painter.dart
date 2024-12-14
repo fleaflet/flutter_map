@@ -49,7 +49,7 @@ base class _PolygonPainter<R extends Object>
   @override
   bool elementHitTest(
     _ProjectedPolygon<R> projectedPolygon, {
-    required math.Point<double> point,
+    required Offset point,
     required LatLng coordinate,
   }) {
     // TODO: We should check the bounding box here, for efficiency
@@ -193,7 +193,8 @@ base class _PolygonPainter<R extends Object>
       lastHash = null;
     }
 
-    final origin = (camera.project(camera.center) - camera.size / 2).toOffset();
+    final origin =
+        camera.projectAtZoom(camera.center) - camera.size.center(Offset.zero);
 
     // Main loop constructing batched fill and border paths from given polygons.
     for (int i = 0; i <= polygons.length - 1; i++) {
@@ -286,13 +287,12 @@ base class _PolygonPainter<R extends Object>
         // and the normal points are the same
         filledPath.fillType = PathFillType.evenOdd;
 
-        final holeOffsetsList = List<List<Offset>>.generate(
-          holePointsList.length,
-          (i) => getOffsets(camera, origin, holePointsList[i]),
-          growable: false,
-        );
-
-        for (final holeOffsets in holeOffsetsList) {
+        for (final singleHolePoints in projectedPolygon.holePoints) {
+          final holeOffsets = getOffsetsXY(
+            camera: camera,
+            origin: origin,
+            points: singleHolePoints,
+          );
           filledPath.addPolygon(holeOffsets, true);
 
           // TODO: Potentially more efficient and may change the need to do
@@ -307,15 +307,23 @@ base class _PolygonPainter<R extends Object>
         }
 
         if (!polygon.disableHolesBorder && polygon.borderStrokeWidth > 0.0) {
-          _addHoleBordersToPath(
-            borderPath,
-            polygon,
-            holeOffsetsList,
-            size,
-            canvas,
-            _getBorderPaint(polygon),
-            polygon.borderStrokeWidth,
-          );
+          final borderPaint = _getBorderPaint(polygon);
+          for (final singleHolePoints in projectedPolygon.holePoints) {
+            final holeOffsets = getOffsetsXY(
+              camera: camera,
+              origin: origin,
+              points: singleHolePoints,
+            );
+            _addBorderToPath(
+              borderPath,
+              polygon,
+              holeOffsets,
+              size,
+              canvas,
+              borderPaint,
+              polygon.borderStrokeWidth,
+            );
+          }
         }
       }
 
@@ -431,28 +439,6 @@ base class _PolygonPainter<R extends Object>
         path.moveTo(visibleSegment.begin.dx, visibleSegment.begin.dy);
         path.lineTo(visibleSegment.end.dx, visibleSegment.end.dy);
       }
-    }
-  }
-
-  void _addHoleBordersToPath(
-    Path path,
-    Polygon polygon,
-    List<List<Offset>> holeOffsetsList,
-    Size canvasSize,
-    Canvas canvas,
-    Paint paint,
-    double strokeWidth,
-  ) {
-    for (final offsets in holeOffsetsList) {
-      _addBorderToPath(
-        path,
-        polygon,
-        offsets,
-        canvasSize,
-        canvas,
-        paint,
-        strokeWidth,
-      );
     }
   }
 

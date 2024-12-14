@@ -9,6 +9,7 @@ import 'package:flutter_map/src/layer/shared/layer_interactivity/internal_hit_de
 import 'package:flutter_map/src/layer/shared/layer_projection_simplification/state.dart';
 import 'package:flutter_map/src/layer/shared/layer_projection_simplification/widget.dart';
 import 'package:flutter_map/src/layer/shared/line_patterns/pixel_hiker.dart';
+import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:flutter_map/src/misc/offsets.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart';
@@ -111,7 +112,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
           hitNotifier: widget.hitNotifier,
           minimumHitbox: widget.minimumHitbox,
         ),
-        size: Size(camera.size.x, camera.size.y),
+        size: camera.size,
       ),
     );
   }
@@ -135,16 +136,38 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
     );
 
     // segment is visible
-    final projBounds = Bounds(
+    final projBounds = Rect.fromPoints(
       projection.project(boundsAdjusted.southWest),
       projection.project(boundsAdjusted.northEast),
     );
 
+    final (xWest, _) = projection.projectXY(const LatLng(0, -180));
+    final (xEast, _) = projection.projectXY(const LatLng(0, 180));
     for (final projectedPolyline in polylines) {
       final polyline = projectedPolyline.polyline;
 
+      // Test bounding boxes to avoid potentially expensive aggressive culling
+      // when none of the line is visible
+      if (!boundsAdjusted.isOverlapping(polyline.boundingBox)) continue;
+
       // Gradient poylines cannot be easily segmented
       if (polyline.gradientColors != null) {
+        yield projectedPolyline;
+        continue;
+      }
+
+      /// Returns true if the points stretch on different versions of the world.
+      bool stretchesBeyondTheLimits() {
+        for (final point in projectedPolyline.points) {
+          if (point.dx > xEast || point.dx < xWest) {
+            return true;
+          }
+        }
+        return false;
+      }
+
+      // TODO: think about how to cull polylines that go beyond -180/180.
+      if (stretchesBeyondTheLimits()) {
         yield projectedPolyline;
         continue;
       }
@@ -157,7 +180,8 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
         final p1 = projectedPolyline.points[i];
         final p2 = projectedPolyline.points[i + 1];
 
-        containsSegment = projBounds.aabbContainsLine(p1.x, p1.y, p2.x, p2.y);
+        containsSegment =
+            projBounds.aabbContainsLine(p1.dx, p1.dy, p2.dx, p2.dy);
         if (containsSegment) {
           if (start == -1) {
             start = i;

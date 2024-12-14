@@ -3,8 +3,8 @@ part of 'polygon_layer.dart';
 @immutable
 class _ProjectedPolygon<R extends Object> with HitDetectableElement<R> {
   final Polygon<R> polygon;
-  final List<DoublePoint> points;
-  final List<List<DoublePoint>> holePoints;
+  final List<Offset> points;
+  final List<List<Offset>> holePoints;
 
   @override
   R? get hitValue => polygon.hitValue;
@@ -18,35 +18,22 @@ class _ProjectedPolygon<R extends Object> with HitDetectableElement<R> {
   _ProjectedPolygon._fromPolygon(Projection projection, Polygon<R> polygon)
       : this._(
           polygon: polygon,
-          points: List<DoublePoint>.generate(
-            polygon.points.length,
-            (j) {
-              final (x, y) = projection.projectXY(polygon.points[j]);
-              return DoublePoint(x, y);
-            },
-            growable: false,
-          ),
+          points: projection.projectList(polygon.points),
           holePoints: () {
             final holes = polygon.holePointsList;
             if (holes == null ||
                 holes.isEmpty ||
+                polygon.points.isEmpty ||
                 holes.every((e) => e.isEmpty)) {
-              return <List<DoublePoint>>[];
+              return <List<Offset>>[];
             }
 
-            return List<List<DoublePoint>>.generate(
+            return List<List<Offset>>.generate(
               holes.length,
-              (j) {
-                final points = holes[j];
-                return List<DoublePoint>.generate(
-                  points.length,
-                  (k) {
-                    final (x, y) = projection.projectXY(points[k]);
-                    return DoublePoint(x, y);
-                  },
-                  growable: false,
-                );
-              },
+              (j) => projection.projectList(
+                holes[j],
+                referencePoint: polygon.points[0],
+              ),
               growable: false,
             );
           }(),

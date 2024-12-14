@@ -1,7 +1,8 @@
 import 'dart:math' as math hide Point;
 import 'dart:math' show Point;
+import 'dart:ui';
 
-import 'package:flutter_map/src/misc/bounds.dart';
+import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 import 'package:proj4dart/proj4dart.dart' as proj4;
@@ -50,14 +51,14 @@ abstract class Crs {
   /// scaled map point.
   (double, double) latLngToXY(LatLng latlng, double scale);
 
-  /// Similar to [latLngToXY] but converts the XY coordinates to a [Point].
-  Point<double> latLngToPoint(LatLng latlng, double zoom) {
+  /// Similar to [latLngToXY] but converts the XY coordinates to an [Offset].
+  Offset latLngToOffset(LatLng latlng, double zoom) {
     final (x, y) = latLngToXY(latlng, scale(zoom));
-    return Point<double>(x, y);
+    return Offset(x, y);
   }
 
   /// Converts a map point to the sphere coordinate (at a certain zoom).
-  LatLng pointToLatLng(Point point, double zoom);
+  LatLng offsetToLatLng(Offset point, double zoom);
 
   /// Zoom to Scale function.
   double scale(double zoom) => 256.0 * math.pow(2, zoom);
@@ -66,7 +67,7 @@ abstract class Crs {
   double zoom(double scale) => math.log(scale / 256) / math.ln2;
 
   /// Rescales the bounds to a given zoom value.
-  Bounds<double>? getProjectedBounds(double zoom);
+  Rect? getProjectedBounds(double zoom);
 
   /// Returns true if we want the world to be replicated, longitude-wise.
   bool get replicatesWorldLongitude => false;
@@ -107,26 +108,26 @@ abstract class CrsWithStaticTransformation extends Crs {
   }
 
   @override
-  LatLng pointToLatLng(Point point, double zoom) {
+  LatLng offsetToLatLng(Offset point, double zoom) {
     final (x, y) = _transformation.untransform(
-      point.x.toDouble(),
-      point.y.toDouble(),
+      point.dx,
+      point.dy,
       scale(zoom),
     );
     return projection.unprojectXY(x, y);
   }
 
   @override
-  Bounds<double>? getProjectedBounds(double zoom) {
+  Rect? getProjectedBounds(double zoom) {
     if (infinite) return null;
 
     final b = projection.bounds!;
     final s = scale(zoom);
-    final (minx, miny) = _transformation.transform(b.min.x, b.min.y, s);
-    final (maxx, maxy) = _transformation.transform(b.max.x, b.max.y, s);
-    return Bounds<double>(
-      Point<double>(minx, miny),
-      Point<double>(maxx, maxy),
+    final (minx, miny) = _transformation.transform(b.min.dx, b.min.dy, s);
+    final (maxx, maxy) = _transformation.transform(b.max.dx, b.max.dy, s);
+    return Rect.fromPoints(
+      Offset(minx, miny),
+      Offset(maxx, maxy),
     );
   }
 }
@@ -170,13 +171,13 @@ class Epsg3857 extends CrsWithStaticTransformation {
       );
 
   @override
-  Point<double> latLngToPoint(LatLng latlng, double zoom) {
+  Offset latLngToOffset(LatLng latlng, double zoom) {
     final (x, y) = _transformation.transform(
       SphericalMercator.projectLng(latlng.longitude),
       SphericalMercator.projectLat(latlng.latitude),
       scale(zoom),
     );
-    return Point<double>(x, y);
+    return Offset(x, y);
   }
 
   @override
@@ -221,7 +222,7 @@ class Proj4Crs extends Crs {
     required String code,
     required proj4.Projection proj4Projection,
     List<Point<double>>? origins,
-    Bounds<double>? bounds,
+    Rect? bounds,
     List<double>? scales,
     List<double>? resolutions,
   }) {
@@ -281,10 +282,10 @@ class Proj4Crs extends Crs {
 
   /// Converts a map point to the sphere coordinate (at a certain zoom).
   @override
-  LatLng pointToLatLng(Point point, double zoom) {
+  LatLng offsetToLatLng(Offset point, double zoom) {
     final (x, y) = _getTransformationByZoom(zoom).untransform(
-      point.x.toDouble(),
-      point.y.toDouble(),
+      point.dx,
+      point.dy,
       scale(zoom),
     );
     return projection.unprojectXY(x, y);
@@ -292,19 +293,18 @@ class Proj4Crs extends Crs {
 
   /// Rescales the bounds to a given zoom value.
   @override
-  Bounds<double>? getProjectedBounds(double zoom) {
+  Rect? getProjectedBounds(double zoom) {
     if (infinite) return null;
 
     final b = projection.bounds!;
     final zoomScale = scale(zoom);
 
     final transformation = _getTransformationByZoom(zoom);
-    final (minx, miny) = transformation.transform(b.min.x, b.min.y, zoomScale);
-    final (maxx, maxy) = transformation.transform(b.max.x, b.max.y, zoomScale);
-    return Bounds<double>(
-      Point<double>(minx, miny),
-      Point<double>(maxx, maxy),
-    );
+    final (minx, miny) =
+        transformation.transform(b.min.dx, b.min.dy, zoomScale);
+    final (maxx, maxy) =
+        transformation.transform(b.max.dx, b.max.dy, zoomScale);
+    return Rect.fromPoints(Offset(minx, miny), Offset(maxx, maxy));
   }
 
   /// Zoom to Scale function.
@@ -370,18 +370,18 @@ class Proj4Crs extends Crs {
 /// Inherit from this class if you want to create or implement your own CRS.
 @immutable
 abstract class Projection {
-  /// The [Bounds] for the coordinates of this [Projection].
-  final Bounds<double>? bounds;
+  /// The bounds for the coordinates of this [Projection].
+  final Rect? bounds;
 
   /// Base constructor for the abstract [Projection] class that sets the
   /// required fields.
   const Projection(this.bounds);
 
-  /// Converts a [LatLng] to a coordinates and returns them as [Point] object.
+  /// Converts a [LatLng] to a coordinates and returns them as an [Offset].
   @nonVirtual
-  Point<double> project(LatLng latlng) {
+  Offset project(LatLng latlng) {
     final (x, y) = projectXY(latlng);
-    return Point<double>(x, y);
+    return Offset(x, y);
   }
 
   /// Converts a [LatLng] to geometry coordinates.
@@ -394,13 +394,56 @@ abstract class Projection {
 
   /// unproject cartesian x,y coordinates to [LatLng].
   LatLng unprojectXY(double x, double y);
+
+  /// Returns the width of the world in geometry coordinates.
+  ///
+  /// Is used at least in 2 cases:
+  /// * my polyline crosses longitude 180, and I somehow need to "add a world"
+  /// to the coordinates in order to display a continuous polyline
+  /// * when my map scrolls around longitude 180 and I have a marker in this
+  /// area, the marker may be projected a world away, depending on the map being
+  /// centered either in the 179 or the -179 part - again, we can "add a world"
+  double getWorldWidth() {
+    final (x0, _) = projectXY(const LatLng(0, 0));
+    final (x180, _) = projectXY(const LatLng(0, 180));
+    return 2 * (x0 > x180 ? x0 - x180 : x180 - x0);
+  }
+
+  /// Projects a list of [LatLng]s into geometry coordinates.
+  ///
+  /// All resulting points gather somehow around the first point, or the
+  /// optional [referencePoint] if provided.
+  /// The typical use-case is when you display the whole world: you don't want
+  /// longitudes -179 and 179 to be projected each on one side.
+  /// [referencePoint] is used for polygon holes: we want the holes to be
+  /// displayed close to the polygon, not on the other side of the world.
+  List<Offset> projectList(List<LatLng> points, {LatLng? referencePoint}) {
+    late double previousX;
+    final worldWidth = getWorldWidth();
+    return List<Offset>.generate(
+      points.length,
+      (j) {
+        if (j == 0 && referencePoint != null) {
+          (previousX, _) = projectXY(referencePoint);
+        }
+        var (x, y) = projectXY(points[j]);
+        if (j > 0 || referencePoint != null) {
+          if (x - previousX > worldWidth / 2) {
+            x -= worldWidth;
+          } else if (x - previousX < -worldWidth / 2) {
+            x += worldWidth;
+          }
+        }
+        previousX = x;
+        return Offset(x, y);
+      },
+      growable: false,
+    );
+  }
 }
 
 class _LonLat extends Projection {
-  static const _bounds = Bounds<double>.unsafe(
-    Point<double>(-180, -90),
-    Point<double>(180, 90),
-  );
+  static const _bounds = Rect.fromLTRB(-180, -90, 180, 90);
 
   const _LonLat() : super(_bounds);
 
@@ -425,9 +468,11 @@ class SphericalMercator extends Projection {
   static const double _boundsD = r * math.pi;
 
   /// The constant Bounds of the [SphericalMercator] projection.
-  static const Bounds<double> _bounds = Bounds<double>.unsafe(
-    Point<double>(-_boundsD, -_boundsD),
-    Point<double>(_boundsD, _boundsD),
+  static const Rect _bounds = Rect.fromLTRB(
+    -_boundsD,
+    -_boundsD,
+    _boundsD,
+    _boundsD,
   );
 
   /// Constant constructor for the [SphericalMercator] projection.
@@ -471,7 +516,7 @@ class _Proj4Projection extends Projection {
 
   _Proj4Projection({
     required this.proj4Projection,
-    required Bounds<double>? bounds,
+    required Rect? bounds,
   })  : epsg4326 = proj4.Projection.WGS84,
         super(bounds);
 

@@ -1,8 +1,8 @@
-import 'dart:math' as math hide Point;
-import 'dart:math' show Point;
+import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Describes a position for a [MapCamera]
@@ -102,8 +102,8 @@ class FitBounds extends CameraFit {
   /// Returns a new [MapCamera] which fits this classes configuration.
   @override
   MapCamera fit(MapCamera camera) {
-    final paddingTL = Point<double>(padding.left, padding.top);
-    final paddingBR = Point<double>(padding.right, padding.bottom);
+    final paddingTL = Offset(padding.left, padding.top);
+    final paddingBR = Offset(padding.right, padding.bottom);
 
     final paddingTotalXY = paddingTL + paddingBR;
 
@@ -111,10 +111,10 @@ class FitBounds extends CameraFit {
     if (maxZoom != null) newZoom = math.min(maxZoom!, newZoom);
 
     final paddingOffset = (paddingBR - paddingTL) / 2;
-    final swPoint = camera.project(bounds.southWest, newZoom);
-    final nePoint = camera.project(bounds.northEast, newZoom);
+    final swPoint = camera.projectAtZoom(bounds.southWest, newZoom);
+    final nePoint = camera.projectAtZoom(bounds.northEast, newZoom);
 
-    final Point<double> projectedCenter;
+    final Offset projectedCenter;
     if (camera.rotation != 0.0) {
       final swPointRotated = swPoint.rotate(-camera.rotationRad);
       final nePointRotated = nePoint.rotate(-camera.rotationRad);
@@ -126,7 +126,7 @@ class FitBounds extends CameraFit {
       projectedCenter = (swPoint + nePoint) / 2 + paddingOffset;
     }
 
-    final center = camera.unproject(projectedCenter, newZoom);
+    final center = camera.unprojectAtZoom(projectedCenter, newZoom);
     return camera.withPosition(
       center: center,
       zoom: newZoom,
@@ -135,29 +135,29 @@ class FitBounds extends CameraFit {
 
   double _getBoundsZoom(
     MapCamera camera,
-    Point<double> pixelPadding,
+    Offset pixelPadding,
   ) {
     final nw = bounds.northWest;
     final se = bounds.southEast;
-    var size = camera.nonRotatedSize - pixelPadding;
+    var size = camera.nonRotatedSize - pixelPadding as Size;
     // Prevent negative size which results in NaN zoom value later on in the calculation
-    size = Point(math.max(0, size.x), math.max(0, size.y));
-    var boundsSize = Bounds(
-      camera.project(se, camera.zoom),
-      camera.project(nw, camera.zoom),
+
+    size = Size(math.max(0, size.width), math.max(0, size.height));
+    var boundsSize = Rect.fromPoints(
+      camera.projectAtZoom(se, camera.zoom),
+      camera.projectAtZoom(nw, camera.zoom),
     ).size;
     if (camera.rotation != 0.0) {
       final cosAngle = math.cos(camera.rotationRad).abs();
       final sinAngle = math.sin(camera.rotationRad).abs();
-      boundsSize = Point<double>(
-        (boundsSize.x * cosAngle) + (boundsSize.y * sinAngle),
-        (boundsSize.y * cosAngle) + (boundsSize.x * sinAngle),
+      boundsSize = Size(
+        (boundsSize.width * cosAngle) + (boundsSize.height * sinAngle),
+        (boundsSize.height * cosAngle) + (boundsSize.width * sinAngle),
       );
     }
 
-    final scaleX = size.x / boundsSize.x;
-    final scaleY = size.y / boundsSize.y;
-    final scale = math.min(scaleX, scaleY);
+    final scale = math.min(
+        size.width / boundsSize.width, size.height / boundsSize.height);
 
     var boundsZoom = camera.getScaleZoom(scale);
 
@@ -218,24 +218,24 @@ class FitInsideBounds extends CameraFit {
 
   @override
   MapCamera fit(MapCamera camera) {
-    final paddingTL = Point<double>(padding.left, padding.top);
-    final paddingBR = Point<double>(padding.right, padding.bottom);
+    final paddingTL = Offset(padding.left, padding.top);
+    final paddingBR = Offset(padding.right, padding.bottom);
     final paddingTotalXY = paddingTL + paddingBR;
     final paddingOffset = (paddingBR - paddingTL) / 2;
 
-    final cameraSize = camera.nonRotatedSize - paddingTotalXY;
+    final cameraSize = camera.nonRotatedSize - paddingTotalXY as Size;
 
-    final projectedBoundsSize = Bounds(
-      camera.project(bounds.southEast, camera.zoom),
-      camera.project(bounds.northWest, camera.zoom),
+    final projectedBoundsSize = Rect.fromPoints(
+      camera.projectAtZoom(bounds.southEast, camera.zoom),
+      camera.projectAtZoom(bounds.northWest, camera.zoom),
     ).size;
 
     final scale = _rectInRotRectScale(
       angleRad: camera.rotationRad,
-      smallRectHalfWidth: cameraSize.x / 2.0,
-      smallRectHalfHeight: cameraSize.y / 2.0,
-      bigRectHalfWidth: projectedBoundsSize.x / 2.0,
-      bigRectHalfHeight: projectedBoundsSize.y / 2.0,
+      smallRectHalfWidth: cameraSize.width / 2.0,
+      smallRectHalfHeight: cameraSize.height / 2.0,
+      bigRectHalfWidth: projectedBoundsSize.width / 2.0,
+      bigRectHalfHeight: projectedBoundsSize.height / 2.0,
     );
 
     var newZoom = camera.getScaleZoom(1.0 / scale);
@@ -269,23 +269,23 @@ class FitInsideBounds extends CameraFit {
   LatLng _getCenter(
     MapCamera camera, {
     required double newZoom,
-    required Point<double> paddingOffset,
+    required Offset paddingOffset,
   }) {
     if (camera.rotation == 0.0) {
-      final swPoint = camera.project(bounds.southWest, newZoom);
-      final nePoint = camera.project(bounds.northEast, newZoom);
+      final swPoint = camera.projectAtZoom(bounds.southWest, newZoom);
+      final nePoint = camera.projectAtZoom(bounds.northEast, newZoom);
       final projectedCenter = (swPoint + nePoint) / 2 + paddingOffset;
-      final newCenter = camera.unproject(projectedCenter, newZoom);
+      final newCenter = camera.unprojectAtZoom(projectedCenter, newZoom);
 
       return newCenter;
     }
 
     // Handle rotation
-    final projectedCenter = camera.project(bounds.center, newZoom);
+    final projectedCenter = camera.projectAtZoom(bounds.center, newZoom);
     final rotatedCenter = projectedCenter.rotate(-camera.rotationRad);
     final adjustedCenter = rotatedCenter + paddingOffset;
     final derotatedAdjustedCenter = adjustedCenter.rotate(camera.rotationRad);
-    final newCenter = camera.unproject(derotatedAdjustedCenter, newZoom);
+    final newCenter = camera.unprojectAtZoom(derotatedAdjustedCenter, newZoom);
 
     return newCenter;
   }
@@ -426,8 +426,8 @@ class FitCoordinates extends CameraFit {
   /// Returns a new [MapCamera] which fits this classes configuration.
   @override
   MapCamera fit(MapCamera camera) {
-    final paddingTL = Point<double>(padding.left, padding.top);
-    final paddingBR = Point<double>(padding.right, padding.bottom);
+    final paddingTL = Offset(padding.left, padding.top);
+    final paddingBR = Offset(padding.right, padding.bottom);
 
     final paddingTotalXY = paddingTL + paddingBR;
 
@@ -435,12 +435,11 @@ class FitCoordinates extends CameraFit {
     if (maxZoom != null) newZoom = math.min(maxZoom!, newZoom);
 
     final projectedPoints =
-        coordinates.map((coord) => camera.project(coord, newZoom));
+        coordinates.map((coord) => camera.projectAtZoom(coord, newZoom));
 
-    final rotatedPoints =
-        projectedPoints.map((point) => point.rotate(-camera.rotationRad));
-
-    final rotatedBounds = Bounds.containing(rotatedPoints);
+    final rotatedBounds = RectExtension.containing(projectedPoints
+        .map((point) => point.rotate(-camera.rotationRad))
+        .toList());
 
     // Apply padding
     final paddingOffset = (paddingBR - paddingTL) / 2;
@@ -449,7 +448,7 @@ class FitCoordinates extends CameraFit {
     // Undo the rotation
     final unrotatedNewCenter = rotatedNewCenter.rotate(camera.rotationRad);
 
-    final newCenter = camera.unproject(unrotatedNewCenter, newZoom);
+    final newCenter = camera.unprojectAtZoom(unrotatedNewCenter, newZoom);
 
     return camera.withPosition(
       center: newCenter,
@@ -459,24 +458,25 @@ class FitCoordinates extends CameraFit {
 
   double _getCoordinatesZoom(
     MapCamera camera,
-    Point<double> pixelPadding,
+    Offset pixelPadding,
   ) {
-    var size = camera.nonRotatedSize - pixelPadding;
+    var size = camera.nonRotatedSize - pixelPadding as Size;
     // Prevent negative size which results in NaN zoom value later on in the calculation
-    size = Point(math.max(0, size.x), math.max(0, size.y));
+    size = Size(math.max(0, size.width), math.max(0, size.height));
 
     final projectedPoints = [
-      for (final coord in coordinates) camera.project(coord)
+      for (final coord in coordinates) camera.projectAtZoom(coord)
     ];
 
-    final rotatedPoints =
-        projectedPoints.map((point) => point.rotate(-camera.rotationRad));
-    final rotatedBounds = Bounds.containing(rotatedPoints);
+    final rotatedBounds = RectExtension.containing(projectedPoints
+        .map((point) => point.rotate(-camera.rotationRad))
+        .toList());
 
     final boundsSize = rotatedBounds.size;
 
-    final scaleX = size.x / boundsSize.x;
-    final scaleY = size.y / boundsSize.y;
+    // TODO this could be replaced with Size.shortestSide
+    final scaleX = size.width / boundsSize.width;
+    final scaleY = size.height / boundsSize.height;
     final scale = math.min(scaleX, scaleY);
 
     var newZoom = camera.getScaleZoom(scale);

@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
@@ -11,12 +12,12 @@ void main() {
         final tileRange1 = DiscreteTileRange.fromPixelBounds(
           zoom: 0,
           tileDimension: 1,
-          pixelBounds: Bounds(const Point(1, 1), const Point(2, 2)),
+          pixelBounds: Rect.fromPoints(const Offset(1, 1), const Offset(2, 2)),
         );
         final tileRange2 = DiscreteTileRange.fromPixelBounds(
           zoom: 0,
           tileDimension: 1,
-          pixelBounds: Bounds(const Point(3, 3), const Point(4, 4)),
+          pixelBounds: Rect.fromPoints(const Offset(3, 3), const Offset(4, 4)),
         );
         final emptyTileRange = tileRange1.intersect(tileRange2);
 
@@ -34,9 +35,9 @@ void main() {
           final tileRange = DiscreteTileRange.fromPixelBounds(
             zoom: 0,
             tileDimension: 10,
-            pixelBounds: Bounds(
-              const Point(25, 25),
-              const Point(25, 25),
+            pixelBounds: Rect.fromPoints(
+              const Offset(25, 25),
+              const Offset(25, 25),
             ),
           );
 
@@ -48,9 +49,9 @@ void main() {
           final tileRange = DiscreteTileRange.fromPixelBounds(
             zoom: 0,
             tileDimension: 10,
-            pixelBounds: Bounds(
-              const Point(0, 0),
-              const Point(0.1, 0.1),
+            pixelBounds: Rect.fromPoints(
+              Offset.zero,
+              const Offset(0.1, 0.1),
             ),
           );
 
@@ -62,9 +63,9 @@ void main() {
           final tileRange = DiscreteTileRange.fromPixelBounds(
             zoom: 0,
             tileDimension: 10,
-            pixelBounds: Bounds(
-              const Point(0, 0),
-              const Point(9.99, 9.99),
+            pixelBounds: Rect.fromPoints(
+              Offset.zero,
+              const Offset(9.99, 9.99),
             ),
           );
 
@@ -76,9 +77,9 @@ void main() {
           final tileRange = DiscreteTileRange.fromPixelBounds(
             zoom: 0,
             tileDimension: 10,
-            pixelBounds: Bounds(
-              const Point(19.99, 19.99),
-              const Point(30.1, 30.1),
+            pixelBounds: Rect.fromPoints(
+              const Offset(19.99, 19.99),
+              const Offset(30.1, 30.1),
             ),
           );
 
@@ -100,9 +101,9 @@ void main() {
         final tileRange = DiscreteTileRange.fromPixelBounds(
           zoom: 0,
           tileDimension: 10,
-          pixelBounds: Bounds(
-            const Point(25, 25),
-            const Point(25, 25),
+          pixelBounds: Rect.fromPoints(
+            const Offset(25, 25),
+            const Offset(25, 25),
           ),
         );
 
@@ -127,18 +128,18 @@ void main() {
         final tileRange1 = DiscreteTileRange.fromPixelBounds(
           zoom: 0,
           tileDimension: 10,
-          pixelBounds: Bounds(
-            const Point(25, 25),
-            const Point(25, 25),
+          pixelBounds: Rect.fromPoints(
+            const Offset(25, 25),
+            const Offset(25, 25),
           ),
         );
 
         final tileRange2 = DiscreteTileRange.fromPixelBounds(
           zoom: 0,
           tileDimension: 10,
-          pixelBounds: Bounds(
-            const Point(35, 35),
-            const Point(35, 35),
+          pixelBounds: Rect.fromPoints(
+            const Offset(35, 35),
+            const Offset(35, 35),
           ),
         );
 
@@ -153,18 +154,18 @@ void main() {
         final tileRange1 = DiscreteTileRange.fromPixelBounds(
           zoom: 0,
           tileDimension: 10,
-          pixelBounds: Bounds(
-            const Point(25, 25),
-            const Point(35, 35),
+          pixelBounds: Rect.fromPoints(
+            const Offset(25, 25),
+            const Offset(35, 35),
           ),
         );
 
         final tileRange2 = DiscreteTileRange.fromPixelBounds(
           zoom: 0,
           tileDimension: 10,
-          pixelBounds: Bounds(
-            const Point(35, 35),
-            const Point(45, 45),
+          pixelBounds: Rect.fromPoints(
+            const Offset(35, 35),
+            const Offset(45, 45),
           ),
         );
 
@@ -181,18 +182,18 @@ void main() {
         final tileRange1 = DiscreteTileRange.fromPixelBounds(
           zoom: 0,
           tileDimension: 10,
-          pixelBounds: Bounds(
-            const Point(25, 25),
-            const Point(35, 35),
+          pixelBounds: Rect.fromPoints(
+            const Offset(25, 25),
+            const Offset(35, 35),
           ),
         );
 
         final tileRange2 = DiscreteTileRange.fromPixelBounds(
           zoom: 0,
           tileDimension: 10,
-          pixelBounds: Bounds(
-            const Point(15, 15),
-            const Point(45, 45),
+          pixelBounds: Rect.fromPoints(
+            const Offset(15, 15),
+            const Offset(45, 45),
           ),
         );
 
@@ -210,14 +211,14 @@ void main() {
       final tileRange = DiscreteTileRange.fromPixelBounds(
         zoom: 0,
         tileDimension: 10,
-        pixelBounds: Bounds(
-          const Point(35, 35),
-          const Point(45, 45),
+        pixelBounds: Rect.fromPoints(
+          const Offset(35, 35),
+          const Offset(45, 45),
         ),
       );
 
-      expect(tileRange.min, const Point(3, 3));
-      expect(tileRange.max, const Point(4, 4));
+      expect(tileRange.min, const Point<int>(3, 3));
+      expect(tileRange.max, const Point<int>(4, 4));
     });
 
     group('center', () {
@@ -225,39 +226,39 @@ void main() {
         final tileRange = DiscreteTileRange.fromPixelBounds(
           zoom: 0,
           tileDimension: 10,
-          pixelBounds: Bounds(
-            const Point(35, 35),
-            const Point(35, 35),
+          pixelBounds: Rect.fromPoints(
+            const Offset(35, 35),
+            const Offset(35, 35),
           ),
         );
 
-        expect(tileRange.center, const Point(3, 3));
+        expect(tileRange.center, const Offset(3, 3));
       });
 
       test('multiple tiles, even number of tiles', () {
         final tileRange = DiscreteTileRange.fromPixelBounds(
           zoom: 0,
           tileDimension: 10,
-          pixelBounds: Bounds(
-            const Point(35, 35),
-            const Point(45, 45),
+          pixelBounds: Rect.fromPoints(
+            const Offset(35, 35),
+            const Offset(45, 45),
           ),
         );
 
-        expect(tileRange.center, const Point(3.5, 3.5));
+        expect(tileRange.center, const Offset(3.5, 3.5));
       });
 
       test('multiple tiles, odd number of tiles', () {
         final tileRange = DiscreteTileRange.fromPixelBounds(
           zoom: 0,
           tileDimension: 10,
-          pixelBounds: Bounds(
-            const Point(35, 35),
-            const Point(55, 55),
+          pixelBounds: Rect.fromPoints(
+            const Offset(35, 35),
+            const Offset(55, 55),
           ),
         );
 
-        expect(tileRange.center, const Point(4, 4));
+        expect(tileRange.center, const Offset(4, 4));
       });
     });
 
@@ -265,9 +266,9 @@ void main() {
       final tileRange = DiscreteTileRange.fromPixelBounds(
         zoom: 10,
         tileDimension: 10,
-        pixelBounds: Bounds(
-          const Point(35, 35),
-          const Point(35, 35),
+        pixelBounds: Rect.fromPoints(
+          const Offset(35, 35),
+          const Offset(35, 35),
         ),
       );
 

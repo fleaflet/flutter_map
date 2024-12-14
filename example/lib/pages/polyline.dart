@@ -23,6 +23,23 @@ class _PolylinePageState extends State<PolylinePage> {
 
   final _polylinesRaw = <Polyline<HitValue>>[
     Polyline(
+      points: const [
+        LatLng(40, 150),
+        LatLng(45, 160),
+        LatLng(50, 170),
+        LatLng(55, 180),
+        LatLng(50, -170),
+        LatLng(45, -160),
+        LatLng(40, -150),
+      ],
+      strokeWidth: 8,
+      color: const Color(0xFFFF0000),
+      hitValue: (
+        title: 'Red Line',
+        subtitle: 'Across the universe...',
+      ),
+    ),
+    Polyline(
       points: [
         const LatLng(51.5, -0.09),
         const LatLng(53.3498, -6.2603),

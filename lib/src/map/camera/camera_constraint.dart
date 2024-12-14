@@ -1,5 +1,5 @@
-import 'dart:math' as math hide Point;
-import 'dart:math' show Point;
+import 'dart:math' as math;
+import 'dart:ui';
 
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -110,32 +110,32 @@ class ContainCamera extends CameraConstraint {
     final testZoom = camera.zoom;
     final testCenter = camera.center;
 
-    final nePixel = camera.project(bounds.northEast, testZoom);
-    final swPixel = camera.project(bounds.southWest, testZoom);
+    final nePixel = camera.projectAtZoom(bounds.northEast, testZoom);
+    final swPixel = camera.projectAtZoom(bounds.southWest, testZoom);
 
     final halfSize = camera.size / 2;
 
     // Find the limits for the map center which would keep the camera within the
     // [latLngBounds].
-    final leftOkCenter = math.min(swPixel.x, nePixel.x) + halfSize.x;
-    final rightOkCenter = math.max(swPixel.x, nePixel.x) - halfSize.x;
-    final topOkCenter = math.min(swPixel.y, nePixel.y) + halfSize.y;
-    final botOkCenter = math.max(swPixel.y, nePixel.y) - halfSize.y;
+    final leftOkCenter = math.min(swPixel.dx, nePixel.dx) + halfSize.width;
+    final rightOkCenter = math.max(swPixel.dx, nePixel.dx) - halfSize.width;
+    final topOkCenter = math.min(swPixel.dy, nePixel.dy) + halfSize.height;
+    final botOkCenter = math.max(swPixel.dy, nePixel.dy) - halfSize.height;
 
     // Stop if we are zoomed out so far that the camera cannot be translated to
     // stay within [latLngBounds].
     if (leftOkCenter > rightOkCenter || topOkCenter > botOkCenter) return null;
 
-    final centerPix = camera.project(testCenter, testZoom);
-    final newCenterPix = Point(
-      centerPix.x.clamp(leftOkCenter, rightOkCenter),
-      centerPix.y.clamp(topOkCenter, botOkCenter),
+    final centerPix = camera.projectAtZoom(testCenter, testZoom);
+    final newCenterPix = Offset(
+      centerPix.dx.clamp(leftOkCenter, rightOkCenter),
+      centerPix.dy.clamp(topOkCenter, botOkCenter),
     );
 
     if (newCenterPix == centerPix) return camera;
 
     return camera.withPosition(
-      center: camera.unproject(newCenterPix, testZoom),
+      center: camera.unprojectAtZoom(newCenterPix, testZoom),
     );
   }
 
