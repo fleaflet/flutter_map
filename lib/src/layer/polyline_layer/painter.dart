@@ -126,8 +126,8 @@ base class _PolylinePainter<R extends Object>
         drawPaths();
       }
       lastHash = hash;
-      needsLayerSaving = polyline.color.opacity < 1.0 ||
-          (polyline.gradientColors?.any((c) => c.opacity < 1.0) ?? false);
+      needsLayerSaving = polyline.color.a < 1 ||
+          (polyline.gradientColors?.any((c) => c.a < 1) ?? false);
 
       // strokeWidth, or strokeWidth + borderWidth if relevant.
       late double largestStrokeWidth;
