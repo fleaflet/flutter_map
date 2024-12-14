@@ -100,6 +100,7 @@ class MarkerLayer extends StatelessWidget {
               continue;
             }
 
+            // TODO: optimization - we may not even try if the visible world is smaller than a world width.
             const directions = <int>[-1, 1];
             for (final int direction in directions) {
               double shift = 0;
