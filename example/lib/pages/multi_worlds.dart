@@ -59,6 +59,19 @@ class _MultiWorldsPageState extends State<MultiWorldsPage> {
                       child: const Icon(Icons.location_city),
                     ),
                   ),
+                  Marker(
+                    point: const LatLng(35.689444, 139.691666),
+                    child: GestureDetector(
+                      onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Tokyo'),
+                          duration: Duration(seconds: 1),
+                          showCloseIcon: true,
+                        ),
+                      ),
+                      child: const Icon(Icons.backpack_outlined),
+                    ),
+                  ),
                 ],
               ),
             ],

@@ -91,16 +91,15 @@ class MarkerLayer extends StatelessWidget {
             }
 
             final main = getPositioned(null);
-            if (main == null) {
-              continue;
+            if (main != null) {
+              yield main;
             }
-            yield main;
 
             if (worldWidth == 0) {
               continue;
             }
 
-            // TODO: optimization - we may not even try if the visible world is smaller than a world width.
+            // TODO: optimization - find a way to skip these tests in some obvious situations.
             const directions = <int>[-1, 1];
             for (final int direction in directions) {
               double shift = 0;
