@@ -97,6 +97,11 @@ class MarkerLayer extends StatelessWidget {
             // It is unsafe to assume that if the main one is culled, it will
             // also be culled in all other worlds, so we must continue
 
+            // TODO: optimization - find a way to skip these tests in some
+            // obvious situations. Imagine we're in a map smaller than the
+            // world, and west lower than east - in that case we probably don't
+            // need to check eastern and western.
+
             // Repeat over all worlds (<--||-->) until culling determines that
             // that marker is out of view, and therefore all further markers in
             // that direction will also be
