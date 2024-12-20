@@ -92,7 +92,8 @@ class MarkerLayer extends StatelessWidget {
             }
 
             // Create marker in main world, unless culled
-            if (getPositioned(0) case final main?) yield main;
+            final main = getPositioned(0);
+            if (main != null) yield main;
             // It is unsafe to assume that if the main one is culled, it will
             // also be culled in all other worlds, so we must continue
 
