@@ -41,13 +41,14 @@ class MarkerLayer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final map = MapCamera.of(context);
+    final worldWidth = map.getWorldWidthAtZoom();
 
     return MobileLayerTransformer(
       child: Stack(
         children: (List<Marker> markers) sync* {
           for (final m in markers) {
             // Resolve real alignment
-            // TODO this can probably just be done with calls to Size, Offset, and Rect
+            // TODO: maybe just using Size, Offset, and Rect?
             final left = 0.5 * m.width * ((m.alignment ?? alignment).x + 1);
             final top = 0.5 * m.height * ((m.alignment ?? alignment).y + 1);
             final right = m.width - left;
@@ -56,33 +57,65 @@ class MarkerLayer extends StatelessWidget {
             // Perform projection
             final pxPoint = map.projectAtZoom(m.point);
 
-            // Cull if out of bounds
-            if (!map.pixelBounds.overlaps(
-              Rect.fromPoints(
-                Offset(pxPoint.dx + left, pxPoint.dy - bottom),
-                Offset(pxPoint.dx - right, pxPoint.dy + top),
-              ),
-            )) {
-              continue;
+            Positioned? getPositioned(double worldShift) {
+              final shiftedX = pxPoint.dx + worldShift;
+
+              // Cull if out of bounds
+              if (!map.pixelBounds.overlaps(
+                Rect.fromPoints(
+                  Offset(shiftedX + left, pxPoint.dy - bottom),
+                  Offset(shiftedX - right, pxPoint.dy + top),
+                ),
+              )) {
+                return null;
+              }
+
+              // Shift original coordinate along worlds, then move into relative
+              // to origin space
+              final shiftedLocalPoint =
+                  Offset(shiftedX, pxPoint.dy) - map.pixelOrigin;
+
+              return Positioned(
+                key: m.key,
+                width: m.width,
+                height: m.height,
+                left: shiftedLocalPoint.dx - right,
+                top: shiftedLocalPoint.dy - bottom,
+                child: (m.rotate ?? rotate)
+                    ? Transform.rotate(
+                        angle: -map.rotationRad,
+                        alignment: (m.alignment ?? alignment) * -1,
+                        child: m.child,
+                      )
+                    : m.child,
+              );
             }
 
-            // Apply map camera to marker position
-            final pos = pxPoint - map.pixelOrigin;
+            // Create marker in main world, unless culled
+            final main = getPositioned(0);
+            if (main != null) yield main;
+            // It is unsafe to assume that if the main one is culled, it will
+            // also be culled in all other worlds, so we must continue
 
-            yield Positioned(
-              key: m.key,
-              width: m.width,
-              height: m.height,
-              left: pos.dx - right,
-              top: pos.dy - bottom,
-              child: (m.rotate ?? rotate)
-                  ? Transform.rotate(
-                      angle: -map.rotationRad,
-                      alignment: (m.alignment ?? alignment) * -1,
-                      child: m.child,
-                    )
-                  : m.child,
-            );
+            // TODO: optimization - find a way to skip these tests in some
+            // obvious situations. Imagine we're in a map smaller than the
+            // world, and west lower than east - in that case we probably don't
+            // need to check eastern and western.
+
+            // Repeat over all worlds (<--||-->) until culling determines that
+            // that marker is out of view, and therefore all further markers in
+            // that direction will also be
+            if (worldWidth == 0) continue;
+            for (double shift = -worldWidth;; shift -= worldWidth) {
+              final additional = getPositioned(shift);
+              if (additional == null) break;
+              yield additional;
+            }
+            for (double shift = worldWidth;; shift += worldWidth) {
+              final additional = getPositioned(shift);
+              if (additional == null) break;
+              yield additional;
+            }
           }
         }(markers)
             .toList(),

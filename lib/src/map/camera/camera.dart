@@ -239,6 +239,16 @@ class MapCamera {
   LatLng unprojectAtZoom(Offset point, [double? zoom]) =>
       crs.offsetToLatLng(point, zoom ?? this.zoom);
 
+  /// Returns the width of the world at the current zoom, or 0 if irrelevant.
+  double getWorldWidthAtZoom() {
+    if (!crs.replicatesWorldLongitude) {
+      return 0;
+    }
+    final offset0 = projectAtZoom(const LatLng(0, 0));
+    final offset180 = projectAtZoom(const LatLng(0, 180));
+    return 2 * (offset180.dx - offset0.dx).abs();
+  }
+
   /// Calculates the scale for a zoom from [fromZoom] to [toZoom] using this
   /// camera\s [crs].
   double getZoomScale(double toZoom, double fromZoom) =>
