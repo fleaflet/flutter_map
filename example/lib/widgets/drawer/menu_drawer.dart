@@ -16,6 +16,7 @@ import 'package:flutter_map_example/pages/many_markers.dart';
 import 'package:flutter_map_example/pages/map_controller.dart';
 import 'package:flutter_map_example/pages/map_inside_listview.dart';
 import 'package:flutter_map_example/pages/markers.dart';
+import 'package:flutter_map_example/pages/multi_worlds.dart';
 import 'package:flutter_map_example/pages/overlay_image.dart';
 import 'package:flutter_map_example/pages/plugin_zoombuttons.dart';
 import 'package:flutter_map_example/pages/polygon.dart';
@@ -107,6 +108,11 @@ class MenuDrawer extends StatelessWidget {
           MenuItemWidget(
             caption: 'Scale Bar Layer',
             routeName: ScaleBarPage.route,
+            currentRoute: currentRoute,
+          ),
+          MenuItemWidget(
+            caption: 'Multi-world and layers',
+            routeName: MultiWorldsPage.route,
             currentRoute: currentRoute,
           ),
           const Divider(),
