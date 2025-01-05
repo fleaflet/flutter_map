@@ -24,7 +24,7 @@ class _CirclePageState extends State<CirclePage> {
   final _circlesRaw = <CircleMarker<HitValue>>[
     CircleMarker(
       point: const LatLng(51.5, -0.09),
-      color: Colors.white.withOpacity(0.7),
+      color: Colors.white.withAlpha(178),
       borderColor: Colors.black,
       borderStrokeWidth: 2,
       useRadiusInMeter: false,
@@ -33,7 +33,7 @@ class _CirclePageState extends State<CirclePage> {
     ),
     CircleMarker(
       point: const LatLng(51.5, -0.09),
-      color: Colors.black.withOpacity(0.7),
+      color: Colors.black.withAlpha(178),
       borderColor: Colors.black,
       borderStrokeWidth: 2,
       useRadiusInMeter: false,
@@ -46,7 +46,7 @@ class _CirclePageState extends State<CirclePage> {
     CircleMarker(
       point: const LatLng(51.4937, -0.6638),
       // Dorney Lake is ~2km long
-      color: Colors.green.withOpacity(0.9),
+      color: Colors.green.withAlpha(229),
       borderColor: Colors.black,
       borderStrokeWidth: 2,
       useRadiusInMeter: true,

@@ -42,7 +42,7 @@ class FirstStartDialog extends StatelessWidget {
                     color: Theme.of(context)
                         .colorScheme
                         .inverseSurface
-                        .withOpacity(0.5),
+                        .withAlpha(128),
                   ),
                   textAlign: TextAlign.right,
                 ),

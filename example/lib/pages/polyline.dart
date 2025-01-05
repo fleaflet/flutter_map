@@ -90,9 +90,9 @@ class _PolylinePageState extends State<PolylinePage> {
         LatLng(53.8566, 2.3522),
       ],
       strokeWidth: 20,
-      color: Colors.blue.withOpacity(0.6),
+      color: Colors.blue.withAlpha(153),
       borderStrokeWidth: 20,
-      borderColor: Colors.red.withOpacity(0.4),
+      borderColor: Colors.red.withAlpha(102),
       hitValue: (
         title: 'Bordered Line',
         subtitle: 'Solid translucent color fill, with different color outline',
@@ -107,7 +107,7 @@ class _PolylinePageState extends State<PolylinePage> {
       strokeWidth: 10,
       color: Colors.yellow,
       borderStrokeWidth: 10,
-      borderColor: Colors.blue.withOpacity(0.5),
+      borderColor: Colors.blue.withAlpha(128),
       hitValue: (
         title: 'BorderedLine 2',
         subtitle: 'Solid translucent color fill, with different color outline',
@@ -125,7 +125,7 @@ class _PolylinePageState extends State<PolylinePage> {
         spacingFactor: 3,
       ),
       borderStrokeWidth: 8,
-      borderColor: Colors.blue.withOpacity(0.5),
+      borderColor: Colors.blue.withAlpha(128),
       hitValue: (
         title: 'Orange line',
         subtitle: 'Dotted pattern',

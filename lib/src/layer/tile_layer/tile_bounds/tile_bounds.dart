@@ -93,8 +93,8 @@ class DiscreteTileBounds extends TileBounds {
       pixelBounds = crs.getProjectedBounds(zoomDouble)!;
     } else {
       pixelBounds = Rect.fromPoints(
-        crs.latLngToOffset(_latLngBounds!.southWest, zoomDouble),
-        crs.latLngToOffset(_latLngBounds!.northEast, zoomDouble),
+        crs.latLngToOffset(_latLngBounds.southWest, zoomDouble),
+        crs.latLngToOffset(_latLngBounds.northEast, zoomDouble),
       );
     }
 
@@ -133,8 +133,8 @@ class WrappedTileBounds extends TileBounds {
       pixelBounds = crs.getProjectedBounds(zoomDouble)!;
     } else {
       pixelBounds = Rect.fromPoints(
-        crs.latLngToOffset(_latLngBounds!.southWest, zoomDouble),
-        crs.latLngToOffset(_latLngBounds!.northEast, zoomDouble),
+        crs.latLngToOffset(_latLngBounds.southWest, zoomDouble),
+        crs.latLngToOffset(_latLngBounds.northEast, zoomDouble),
       );
     }
 
