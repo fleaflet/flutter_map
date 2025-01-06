@@ -749,6 +749,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       pruneBuffer: max(widget.panBuffer, widget.keepBuffer),
       evictStrategy: widget.evictErrorTileStrategy,
     );
+    setState(() {});
   }
 
   bool _outsideZoomLimits(num zoom) =>
