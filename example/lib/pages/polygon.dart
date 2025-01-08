@@ -131,7 +131,7 @@ class _PolygonPageState extends State<PolygonPage> {
           .toList(),
       borderStrokeWidth: 4,
       borderColor: Colors.orange,
-      color: Colors.orange.withOpacity(0.5),
+      color: Colors.orange.withAlpha(128),
       label: 'This one is not\nperformantly rendered',
       rotateLabel: true,
       labelPlacement: PolygonLabelPlacement.centroid,
@@ -180,7 +180,7 @@ class _PolygonPageState extends State<PolygonPage> {
           .toList(),
       borderStrokeWidth: 4,
       borderColor: Colors.orange,
-      color: Colors.orange.withOpacity(0.5),
+      color: Colors.orange.withAlpha(128),
       label: 'This one is not\nperformantly rendered',
       rotateLabel: true,
       labelPlacement: PolygonLabelPlacement.centroid,
@@ -199,8 +199,8 @@ class _PolygonPageState extends State<PolygonPage> {
         LatLng(61.858129, 0.952652)
       ],
       holePointsList: [],
-      color: Colors.lightGreen.withOpacity(0.5),
-      borderColor: Colors.lightGreen.withOpacity(0.5),
+      color: Colors.lightGreen.withAlpha(128),
+      borderColor: Colors.lightGreen.withAlpha(128),
       borderStrokeWidth: 10,
       hitValue: (
         title: 'Testing opacity treatment (small)',
@@ -246,8 +246,8 @@ class _PolygonPageState extends State<PolygonPage> {
           LatLng(61.858881, 0.947234)
         ]
       ],
-      color: Colors.lightGreen.withOpacity(0.5),
-      borderColor: Colors.lightGreen.withOpacity(0.5),
+      color: Colors.lightGreen.withAlpha(128),
+      borderColor: Colors.lightGreen.withAlpha(128),
       borderStrokeWidth: 10,
       hitValue: (
         title: 'Testing opacity treatment (large)',

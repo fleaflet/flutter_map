@@ -15,6 +15,7 @@ import 'package:flutter_map_example/pages/many_markers.dart';
 import 'package:flutter_map_example/pages/map_controller.dart';
 import 'package:flutter_map_example/pages/map_inside_listview.dart';
 import 'package:flutter_map_example/pages/markers.dart';
+import 'package:flutter_map_example/pages/multi_worlds.dart';
 import 'package:flutter_map_example/pages/overlay_image.dart';
 import 'package:flutter_map_example/pages/plugin_zoombuttons.dart';
 import 'package:flutter_map_example/pages/polygon.dart';
@@ -30,10 +31,10 @@ import 'package:flutter_map_example/pages/sliding_map.dart';
 import 'package:flutter_map_example/pages/tile_builder.dart';
 import 'package:flutter_map_example/pages/tile_loading_error_handle.dart';
 import 'package:flutter_map_example/pages/wms_tile_layer.dart';
-import 'package:url_strategy/url_strategy.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 void main() {
-  setPathUrlStrategy();
+  usePathUrlStrategy();
   runApp(const MyApp());
 }
 
@@ -66,6 +67,7 @@ class MyApp extends StatelessWidget {
         CirclePage.route: (context) => const CirclePage(),
         OverlayImagePage.route: (context) => const OverlayImagePage(),
         PolygonPage.route: (context) => const PolygonPage(),
+        MultiWorldsPage.route: (context) => const MultiWorldsPage(),
         PolygonPerfStressPage.route: (context) => const PolygonPerfStressPage(),
         SlidingMapPage.route: (_) => const SlidingMapPage(),
         WMSLayerPage.route: (context) => const WMSLayerPage(),
