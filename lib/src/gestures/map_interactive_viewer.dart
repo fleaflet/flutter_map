@@ -149,7 +149,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   late var _keyboardAnimationPrevZoomLevel = _camera.zoom;
   double _keyboardPanAnimationMaxVelocityCalculator(double zoom) =>
       _options.interactionOptions.keyboardOptions.maxPanVelocity?.call(zoom) ??
-      10 * math.log(0.1 * zoom + 1) + 1;
+      12 * math.log(0.1 * zoom + 1) + 1;
   late final _initialKeyboardPanAnimationMaxVelocity =
       _keyboardPanAnimationMaxVelocityCalculator(_camera.zoom);
   late var _keyboardPanAnimationManager = _generateKeyboardAnimationManager(

@@ -53,7 +53,7 @@ class KeyboardOptions {
   /// Measured in screen space. It is not required to make use of the camera
   /// zoom level. Negative numbers will flip the standard pan keys.
   ///
-  /// Defaults to `10 * math.log(0.1 * z + 1) + 1`, where `z` is the zoom level.
+  /// Defaults to `12 * math.log(0.1 * z + 1) + 1`, where `z` is the zoom level.
   final double Function(double zoom)? maxPanVelocity;
 
   /// The maximum zoom level difference to apply per frame to the camera's zoom
@@ -78,13 +78,13 @@ class KeyboardOptions {
   /// after a key down event (and after a key up event if
   /// [animationCurveReverseDuration] is `null`)
   ///
-  /// Defaults to 500ms.
+  /// Defaults to 700ms.
   final Duration animationCurveDuration;
 
   /// Duration of the curved (reverse [Curves.easeIn]) portion of the animation
   /// occuring after a key up event
   ///
-  /// Defaults to 300ms. Set to `null` to use [animationCurveDuration].
+  /// Defaults to 500ms. Set to `null` to use [animationCurveDuration].
   final Duration? animationCurveReverseDuration;
 
   /// Curve of the curved portion of the animation occuring after key down and
@@ -131,8 +131,8 @@ class KeyboardOptions {
     this.maxPanVelocity,
     this.maxZoomVelocity = 0.05,
     this.maxRotateVelocity = 3,
-    this.animationCurveDuration = const Duration(milliseconds: 500),
-    this.animationCurveReverseDuration = const Duration(milliseconds: 300),
+    this.animationCurveDuration = const Duration(milliseconds: 700),
+    this.animationCurveReverseDuration = const Duration(milliseconds: 500),
     this.animationCurveCurve = Curves.easeIn,
     this.performLeapTriggerDuration = const Duration(milliseconds: 150),
     this.focusNode,
