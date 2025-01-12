@@ -130,7 +130,8 @@ final class InteractionOptions {
       pinchZoomWinGestures == other.pinchZoomWinGestures &&
       pinchMoveThreshold == other.pinchMoveThreshold &&
       pinchMoveWinGestures == other.pinchMoveWinGestures &&
-      scrollWheelVelocity == other.scrollWheelVelocity;
+      scrollWheelVelocity == other.scrollWheelVelocity &&
+      keyboardOptions == other.keyboardOptions;
 
   @override
   int get hashCode => Object.hash(
@@ -144,5 +145,6 @@ final class InteractionOptions {
         pinchMoveThreshold,
         pinchMoveWinGestures,
         scrollWheelVelocity,
+        keyboardOptions,
       );
 }

@@ -148,4 +148,40 @@ class KeyboardOptions {
           enableArrowKeysPanning: false,
           autofocus: false,
         );
+
+  @override
+  int get hashCode => Object.hash(
+        enableArrowKeysPanning,
+        enableWASDPanning,
+        enableQERotating,
+        enableRFZooming,
+        maxPanVelocity,
+        maxZoomVelocity,
+        maxRotateVelocity,
+        animationCurveDuration,
+        animationCurveReverseDuration,
+        animationCurveCurve,
+        performLeapTriggerDuration,
+        focusNode,
+        autofocus,
+      );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is KeyboardOptions &&
+          enableArrowKeysPanning == other.enableArrowKeysPanning &&
+          enableWASDPanning == other.enableWASDPanning &&
+          enableQERotating == other.enableQERotating &&
+          enableRFZooming == other.enableRFZooming &&
+          maxPanVelocity == other.maxPanVelocity &&
+          maxZoomVelocity == other.maxZoomVelocity &&
+          maxRotateVelocity == other.maxRotateVelocity &&
+          animationCurveDuration == other.animationCurveDuration &&
+          animationCurveReverseDuration ==
+              other.animationCurveReverseDuration &&
+          animationCurveCurve == other.animationCurveCurve &&
+          performLeapTriggerDuration == other.performLeapTriggerDuration &&
+          focusNode == other.focusNode &&
+          autofocus == other.autofocus);
 }

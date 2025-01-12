@@ -97,7 +97,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   //! Keyboard animation
   late final FocusNode _keyboardListenerFocusNode;
-  late final List<void Function()> _keyboardListenersDisposal;
+  late List<void Function()> _keyboardListenersDisposal;
   var _panLeapCancelCompleter = Completer<void>();
   var _zoomLeapCancelCompleter = Completer<void>();
   var _rotateLeapCancelCompleter = Completer<void>();
@@ -153,7 +153,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       10 * math.log(0.1 * zoom + 1) + 1;
   late final _initialKeyboardPanAnimationMaxVelocity =
       _keyboardPanAnimationMaxVelocityCalculator(_camera.zoom);
-  late final _keyboardPanAnimationManager = _generateKeyboardAnimationManager(
+  late var _keyboardPanAnimationManager = _generateKeyboardAnimationManager(
     maxVelocities: [
       Offset(0, -_initialKeyboardPanAnimationMaxVelocity),
       Offset(0, _initialKeyboardPanAnimationMaxVelocity),
@@ -164,25 +164,21 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   );
 
   // Keyboard animation > zoom
-  late final _keyboardZoomAnimationMaxVelocity =
-      _options.interactionOptions.keyboardOptions.maxZoomVelocity;
-  late final _keyboardZoomAnimationManager =
+  late var _keyboardZoomAnimationManager =
       _generateKeyboardAnimationManager<double>(
     maxVelocities: [
-      -_keyboardZoomAnimationMaxVelocity,
-      _keyboardZoomAnimationMaxVelocity,
+      -_options.interactionOptions.keyboardOptions.maxZoomVelocity,
+      _options.interactionOptions.keyboardOptions.maxZoomVelocity,
     ],
     zero: 0,
   );
 
   // Keyboard animation > rotate
-  late final double _keyboardRotateAnimationMaxVelocity =
-      _options.interactionOptions.keyboardOptions.maxRotateVelocity;
-  late final _keyboardRotateAnimationManager =
+  late var _keyboardRotateAnimationManager =
       _generateKeyboardAnimationManager<double>(
     maxVelocities: [
-      -_keyboardRotateAnimationMaxVelocity,
-      _keyboardRotateAnimationMaxVelocity,
+      -_options.interactionOptions.keyboardOptions.maxRotateVelocity,
+      _options.interactionOptions.keyboardOptions.maxRotateVelocity,
     ],
     zero: 0,
   );
@@ -205,15 +201,14 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       ..addListener(_handleDoubleTapZoomAnimation)
       ..addStatusListener(_doubleTapZoomStatusListener);
 
-    _keyboardListenersDisposal =
-        _keyboardAnimationsHandler().toList(growable: false);
-
     ServicesBinding.instance.keyboard
         .addHandler(cursorKeyboardRotationTriggerHandler);
 
     _keyboardListenerFocusNode =
         _interactionOptions.keyboardOptions.focusNode ??
             FocusNode(debugLabel: 'FlutterMap');
+    _keyboardListenersDisposal =
+        _keyboardAnimationsHandler().toList(growable: false);
   }
 
   @override
@@ -236,7 +231,9 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     ServicesBinding.instance.keyboard
         .removeHandler(cursorKeyboardRotationTriggerHandler);
 
-    _keyboardListenerFocusNode.dispose();
+    if (_options.interactionOptions.keyboardOptions.focusNode == null) {
+      _keyboardListenerFocusNode.dispose();
+    }
     for (final e in _keyboardListenersDisposal) {
       e();
     }
@@ -360,6 +357,61 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
         .removeHandler(cursorKeyboardRotationTriggerHandler);
     ServicesBinding.instance.keyboard
         .addHandler(cursorKeyboardRotationTriggerHandler);
+
+    if (oldOptions.keyboardOptions != newOptions.keyboardOptions) {
+      for (final e in _keyboardListenersDisposal) {
+        e();
+      }
+      for (final e in _keyboardPanAnimationManager) {
+        e.curve.stop();
+        e.repeat.stop();
+        e.curve.dispose();
+        e.repeat.dispose();
+      }
+      for (final e in _keyboardZoomAnimationManager) {
+        e.curve.stop();
+        e.repeat.stop();
+        e.curve.dispose();
+        e.repeat.dispose();
+      }
+      for (final e in _keyboardRotateAnimationManager) {
+        e.curve.stop();
+        e.repeat.stop();
+        e.curve.dispose();
+        e.repeat.dispose();
+      }
+
+      final newKeyboardPanAnimationMaxVelocity =
+          _keyboardPanAnimationMaxVelocityCalculator(_camera.zoom);
+      _keyboardPanAnimationManager = _generateKeyboardAnimationManager(
+        maxVelocities: [
+          Offset(0, -newKeyboardPanAnimationMaxVelocity),
+          Offset(0, newKeyboardPanAnimationMaxVelocity),
+          Offset(-newKeyboardPanAnimationMaxVelocity, 0),
+          Offset(newKeyboardPanAnimationMaxVelocity, 0),
+        ],
+        zero: Offset.zero,
+      );
+
+      _keyboardZoomAnimationManager = _generateKeyboardAnimationManager<double>(
+        maxVelocities: [
+          -_options.interactionOptions.keyboardOptions.maxZoomVelocity,
+          _options.interactionOptions.keyboardOptions.maxZoomVelocity,
+        ],
+        zero: 0,
+      );
+      _keyboardRotateAnimationManager =
+          _generateKeyboardAnimationManager<double>(
+        maxVelocities: [
+          -_options.interactionOptions.keyboardOptions.maxRotateVelocity,
+          _options.interactionOptions.keyboardOptions.maxRotateVelocity,
+        ],
+        zero: 0,
+      );
+
+      _keyboardListenersDisposal =
+          _keyboardAnimationsHandler().toList(growable: false);
+    }
   }
 
   Map<Type, GestureRecognizerFactory> _createGestures({
