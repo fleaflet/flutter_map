@@ -1,21 +1,21 @@
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 
-/// A callback function which takes as input the number of times the concerned
-/// keyboard key has been pressed down & repeated ([KeyDownEvent] &
-/// [KeyRepeatEvent]) and outputs the transformation that should be applied
-///
-/// See the specific field in [KeyboardOptions] for the specific output meaning.
-typedef KeyboardEffectSpeedCalculator = double Function(int repetitionCounter);
-
 /// Options to configure how keyboard keys may be used to control the map
+///
+/// When a key is pushed down, an animation starts, consisting of a curved
+/// portion which takes the animation to its maximum velocity, an indefinitely
+/// long animation at maximum velocity, then ended on the key up with another
+/// curved portion. If a key is pressed and released quickly, it might trigger a
+/// short animation called a 'leap', which has the middle indefinite portion
+/// ommitted.
 ///
 /// See [CursorKeyboardRotationOptions] for options to control the keyboard and
 /// mouse cursor being used together to rotate the map.
 @immutable
 class KeyboardOptions {
-  /// Whether to allow arrow keys to pan the map (in their respective directions)
+  /// Whether to allow arrow keys to pan the map (in their respective
+  /// directions)
   ///
   /// This is enabled by default.
   final bool enableArrowKeysPanning;
@@ -31,8 +31,8 @@ class KeyboardOptions {
   /// provide panning functionality easily for left handed users.
   final bool enableWASDPanning;
 
-  /// Whether to allow the Q & E keys (*) to rotate the map (Q rotates COUNTER-
-  /// CLOCKWISE, E rotates CLOCKWISE)
+  /// Whether to allow the Q & E keys (*) to rotate the map (Q rotates
+  /// anticlockwise, E rotates clockwise)
   ///
   /// QE are only the physical and logical keys on QWERTY keyboards. On non-
   /// QWERTY keyboards, such as AZERTY, the keys in the same position as on the
@@ -47,29 +47,64 @@ class KeyboardOptions {
   /// QWERTY keyboard is used (ie. RF on AZERTY).
   final bool enableRFZooming;
 
-  /// Calculates the transformation to apply to the camera's position, where
-  /// the output is in logical pixels (the direction is automatically handled)
+  /// The maximum offset to apply per frame to the camera's center during a pan
+  /// animation, given the current camera zoom level
   ///
-  /// See [KeyboardEffectSpeedCalculator] for information.
+  /// Measured in screen space. It is not required to make use of the camera
+  /// zoom level. Negative numbers will flip the standard pan keys.
   ///
-  /// Defaults to [defaultPanSpeedCalculator].
-  final KeyboardEffectSpeedCalculator? panSpeedCalculator;
+  /// Defaults to `10 * math.log(0.1 * z + 1) + 1`, where `z` is the zoom level.
+  final double Function(double zoom)? maxPanVelocity;
 
-  /// Calculates the transformation to apply to the camera's position, where
-  /// the output is in zoom levels (the direction is automatically handled)
+  /// The maximum zoom level difference to apply per frame to the camera's zoom
+  /// level during a zoom animation
   ///
-  /// See [KeyboardEffectSpeedCalculator] for information.
+  /// Measured in zoom levels. Negative numbers will flip the standard zoom
+  /// keys.
   ///
-  /// Defaults to [defaultZoomSpeedCalculator].
-  final KeyboardEffectSpeedCalculator? zoomSpeedCalculator;
+  /// Defaults to 0.05.
+  final double maxZoomVelocity;
 
-  /// Calculates the transformation to apply to the camera's position, where
-  /// the output is in degrees (the direction is automatically handled)
+  /// The maximum angular difference to apply per frame to the camera's rotation
+  /// during a rotation animation
   ///
-  /// See [KeyboardEffectSpeedCalculator] for information.
+  /// Measured in degrees. Negative numbers will flip the standard rotation
+  /// keys.
   ///
-  /// Defaults to [defaultRotateSpeedCalculator].
-  final KeyboardEffectSpeedCalculator? rotateSpeedCalculator;
+  /// Defaults to 3.
+  final double maxRotateVelocity;
+
+  /// Duration of the curved ([Curves.easeIn]) portion of the animation occuring
+  /// after a key down event (and after a key up event if
+  /// [animationCurveReverseDuration] is `null`)
+  ///
+  /// Defaults to 500ms.
+  final Duration animationCurveDuration;
+
+  /// Duration of the curved (reverse [Curves.easeIn]) portion of the animation
+  /// occuring after a key up event
+  ///
+  /// Defaults to 300ms. Set to `null` to use [animationCurveDuration].
+  final Duration? animationCurveReverseDuration;
+
+  /// Curve of the curved portion of the animation occuring after key down and
+  /// key up events
+  ///
+  /// Defaults to [Curves.easeIn].
+  final Curve animationCurveCurve;
+
+  /// Maximum duration between the key down and key up events of an animation
+  /// which will trigger a 'leap'
+  ///
+  /// 'Leaping' allows the animation to reach its maximum velocity then animate
+  /// back to zero velocity, even when the animation key is not being held.
+  /// In other words, leaping occurs when one of the trigger keys is pressed -
+  /// not held - and pans/zooms/rotates the map a small amount.
+  ///
+  /// The leap lasts for 2 * [animationCurveDuration].
+  ///
+  /// Defaults to 150ms. Set to `null` to disable.
+  final Duration? performLeapTriggerDuration;
 
   /// Custom [FocusNode] to be used instead of internal node
   ///
@@ -93,9 +128,13 @@ class KeyboardOptions {
     this.enableWASDPanning = false,
     this.enableQERotating = false,
     this.enableRFZooming = false,
-    this.panSpeedCalculator,
-    this.zoomSpeedCalculator,
-    this.rotateSpeedCalculator,
+    this.maxPanVelocity,
+    this.maxZoomVelocity = 0.05,
+    this.maxRotateVelocity = 3,
+    this.animationCurveDuration = const Duration(milliseconds: 500),
+    this.animationCurveReverseDuration = const Duration(milliseconds: 300),
+    this.animationCurveCurve = Curves.easeIn,
+    this.performLeapTriggerDuration = const Duration(milliseconds: 150),
     this.focusNode,
     this.autofocus = true,
   });
@@ -109,30 +148,4 @@ class KeyboardOptions {
           enableArrowKeysPanning: false,
           autofocus: false,
         );
-
-  /// The default [KeyboardOptions.panSpeedCalculator]
-  static double defaultPanSpeedCalculator(int counter) => switch (counter) {
-        1 => 2,
-        <= 20 => 5,
-        <= 25 => 10,
-        <= 30 => 20,
-        <= 50 => 30,
-        <= 100 => 40,
-        _ => 50,
-      };
-
-  /// The default [KeyboardOptions.rotateSpeedCalculator]
-  static double defaultRotateSpeedCalculator(int counter) => switch (counter) {
-        1 => 1,
-        <= 20 => 5,
-        _ => 10,
-      };
-
-  /// The default [KeyboardOptions.zoomSpeedCalculator]
-  static double defaultZoomSpeedCalculator(int counter) => switch (counter) {
-        1 => 0.01,
-        <= 10 => 0.1,
-        <= 50 => 0.2,
-        _ => 0.5,
-      };
 }
