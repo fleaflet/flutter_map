@@ -7,7 +7,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:meta/meta.dart';
 import 'package:vector_math/vector_math_64.dart';
 
 part 'package:flutter_map/src/gestures/compound_animations.dart';
@@ -628,21 +627,21 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   Iterable<void Function()> _keyboardAnimationsHandler() sync* {
     final panAnimation = _OffsetInfiniteSumAnimation(
-      InfiniteAnimation(
+      _InfiniteAnimation(
         _keyboardPanAnimationManager[0].repeatAnimation,
         _keyboardPanAnimationManager[0].curveAnimation,
       ),
       _OffsetInfiniteSumAnimation(
-        InfiniteAnimation(
+        _InfiniteAnimation(
           _keyboardPanAnimationManager[1].repeatAnimation,
           _keyboardPanAnimationManager[1].curveAnimation,
         ),
         _OffsetInfiniteSumAnimation(
-          InfiniteAnimation(
+          _InfiniteAnimation(
             _keyboardPanAnimationManager[2].repeatAnimation,
             _keyboardPanAnimationManager[2].curveAnimation,
           ),
-          InfiniteAnimation(
+          _InfiniteAnimation(
             _keyboardPanAnimationManager[3].repeatAnimation,
             _keyboardPanAnimationManager[3].curveAnimation,
           ),
@@ -670,11 +669,11 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     }
 
     final zoomAnimation = _NumInfiniteSumAnimation<double>(
-      InfiniteAnimation(
+      _InfiniteAnimation(
         _keyboardZoomAnimationManager[0].repeatAnimation,
         _keyboardZoomAnimationManager[0].curveAnimation,
       ),
-      InfiniteAnimation(
+      _InfiniteAnimation(
         _keyboardZoomAnimationManager[1].repeatAnimation,
         _keyboardZoomAnimationManager[1].curveAnimation,
       ),
@@ -698,11 +697,11 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     }
 
     final rotateAnimation = _NumInfiniteSumAnimation<double>(
-      InfiniteAnimation(
+      _InfiniteAnimation(
         _keyboardRotateAnimationManager[0].repeatAnimation,
         _keyboardRotateAnimationManager[0].curveAnimation,
       ),
-      InfiniteAnimation(
+      _InfiniteAnimation(
         _keyboardRotateAnimationManager[1].repeatAnimation,
         _keyboardRotateAnimationManager[1].curveAnimation,
       ),

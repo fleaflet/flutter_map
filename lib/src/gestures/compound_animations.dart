@@ -44,9 +44,9 @@ class _OffsetInfiniteSumAnimation extends CompoundAnimation<Offset>
   Offset get value => first.value + next.value;
 }
 
-@internal
-class InfiniteAnimation<T> extends CompoundAnimation<T> with _InfiniteNotifier {
-  InfiniteAnimation(Animation<T> repeat, Animation<T> curve)
+class _InfiniteAnimation<T> extends CompoundAnimation<T>
+    with _InfiniteNotifier {
+  _InfiniteAnimation(Animation<T> repeat, Animation<T> curve)
       : super(first: repeat, next: curve);
 
   @override
