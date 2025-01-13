@@ -101,9 +101,10 @@ class KeyboardOptions {
   /// In other words, leaping occurs when one of the trigger keys is pressed -
   /// not held - and pans/zooms/rotates the map a small amount.
   ///
-  /// The leap lasts for 2 * [animationCurveDuration].
+  /// The leap lasts for [animationCurveDuration] +
+  /// [animationCurveReverseDuration].
   ///
-  /// Defaults to 150ms. Set to `null` to disable.
+  /// Defaults to 100ms. Set to `null` to disable.
   final Duration? performLeapTriggerDuration;
 
   /// Custom [FocusNode] to be used instead of internal node
@@ -134,7 +135,7 @@ class KeyboardOptions {
     this.animationCurveDuration = const Duration(milliseconds: 700),
     this.animationCurveReverseDuration = const Duration(milliseconds: 500),
     this.animationCurveCurve = Curves.easeIn,
-    this.performLeapTriggerDuration = const Duration(milliseconds: 150),
+    this.performLeapTriggerDuration = const Duration(milliseconds: 100),
     this.focusNode,
     this.autofocus = true,
   });
