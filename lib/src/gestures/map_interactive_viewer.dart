@@ -11,7 +11,7 @@ import 'package:vector_math/vector_math_64.dart';
 
 part 'package:flutter_map/src/gestures/compound_animations.dart';
 
-typedef _AnimationManager<T> = Map<
+typedef _KeyboardAnimationManager<T> = Map<
     PhysicalKeyboardKey,
     ({
       AnimationController curveController,
@@ -119,9 +119,9 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       _interactionOptions.keyboardOptions.maxPanVelocity?.call(zoom) ??
       12 * math.log(0.1 * zoom + 1) + 1;
 
-  late _AnimationManager<Offset> _keyboardPanAnimationManager;
-  late _AnimationManager<double> _keyboardZoomAnimationManager;
-  late _AnimationManager<double> _keyboardRotateAnimationManager;
+  late _KeyboardAnimationManager<Offset> _keyboardPanAnimationManager;
+  late _KeyboardAnimationManager<double> _keyboardZoomAnimationManager;
+  late _KeyboardAnimationManager<double> _keyboardRotateAnimationManager;
 
   // Shortcuts
   MapCamera get _camera => widget.controller.camera;
@@ -1157,7 +1157,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   Iterable<VoidCallback> _keyboardAnimationsHandler() sync* {
     Iterable<VoidCallback> initManagerListeners<T>({
-      required _AnimationManager<T> manager,
+      required _KeyboardAnimationManager<T> manager,
       required Animation<T> Function(Animation<T> a, Animation<T> b) sum,
       required void Function(T value) onTick,
     }) sync* {
@@ -1229,7 +1229,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     );
   }
 
-  _AnimationManager<T> _generateKeyboardAnimationManager<T>({
+  _KeyboardAnimationManager<T> _generateKeyboardAnimationManager<T>({
     required Map<PhysicalKeyboardKey, T> maxVelocities,
     required T zero,
   }) =>
