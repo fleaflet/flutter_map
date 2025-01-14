@@ -36,7 +36,8 @@ class NetworkTileProvider extends TileProvider {
     super.headers,
     Client? httpClient,
     this.silenceExceptions = false,
-  }) : _httpClient = httpClient ?? RetryClient(Client());
+  })  : _isInternallyCreatedClient = httpClient == null,
+        _httpClient = httpClient ?? RetryClient(Client());
 
   /// Whether to ignore exceptions and errors that occur whilst fetching tiles
   /// over the network, and just return a transparent tile
@@ -45,7 +46,13 @@ class NetworkTileProvider extends TileProvider {
   /// Long living client used to make all tile requests by
   /// [MapNetworkImageProvider] for the duration that this provider is
   /// alive
+  ///
+  /// Not automatically closed if created externally and passed as an argument
+  /// during construction.
   final Client _httpClient;
+
+  /// Whether [_httpClient] was created on construction (and not passed in)
+  final bool _isInternallyCreatedClient;
 
   /// Each [Completer] is completed once the corresponding tile has finished
   /// loading
@@ -76,7 +83,8 @@ class NetworkTileProvider extends TileProvider {
     if (_tilesInProgress.isNotEmpty) {
       await Future.wait(_tilesInProgress.values.map((c) => c.future));
     }
-    _httpClient.close();
+    if (_isInternallyCreatedClient) _httpClient.close();
+
     super.dispose();
   }
 }
