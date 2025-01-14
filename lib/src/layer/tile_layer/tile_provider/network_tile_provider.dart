@@ -34,7 +34,7 @@ class NetworkTileProvider extends TileProvider {
   /// [not yet supported in Dart](https://github.com/dart-lang/http/issues/424).
   NetworkTileProvider({
     super.headers,
-    BaseClient? httpClient,
+    Client? httpClient,
     this.silenceExceptions = false,
   }) : _httpClient = httpClient ?? RetryClient(Client());
 
@@ -45,7 +45,7 @@ class NetworkTileProvider extends TileProvider {
   /// Long living client used to make all tile requests by
   /// [MapNetworkImageProvider] for the duration that this provider is
   /// alive
-  final BaseClient _httpClient;
+  final Client _httpClient;
 
   /// Each [Completer] is completed once the corresponding tile has finished
   /// loading

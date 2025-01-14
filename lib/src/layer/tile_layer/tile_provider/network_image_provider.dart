@@ -32,7 +32,7 @@ class MapNetworkImageProvider extends ImageProvider<MapNetworkImageProvider> {
   /// The HTTP client to use to make network requests
   ///
   /// Not included in [operator==].
-  final BaseClient httpClient;
+  final Client httpClient;
 
   /// Whether to ignore exceptions and errors that occur whilst fetching tiles
   /// over the network, and just return a transparent tile
