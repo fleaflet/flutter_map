@@ -67,7 +67,7 @@ enum MapEventSource {
   /// The [MapEvent] is caused by a CTRL + drag rotation gesture.
   cursorKeyboardRotation,
 
-  /// The [MapEvent] is caused by an arrow key on the keyboard panning the map.
+  /// The [MapEvent] is caused a keyboard key (see [KeyboardOptions])
   keyboard,
 }
 

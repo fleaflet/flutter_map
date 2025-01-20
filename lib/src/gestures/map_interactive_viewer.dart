@@ -1161,11 +1161,14 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       required Animation<T> Function(Animation<T> a, Animation<T> b) sum,
       required void Function(T value) onTick,
     }) sync* {
-      final animation = manager.values.fold<Animation<T>>(
-        AlwaysStoppedAnimation(manager.values.first.curveTween.begin as T),
-        (v, e) =>
-            sum(v, _InfiniteAnimation(e.repeatAnimation, e.curveAnimation)),
-      );
+      final animation = manager.values.skip(1).fold<Animation<T>>(
+            _InfiniteAnimation(
+              manager.values.first.repeatAnimation,
+              manager.values.first.curveAnimation,
+            ),
+            (v, e) =>
+                sum(v, _InfiniteAnimation(e.repeatAnimation, e.curveAnimation)),
+          );
 
       void animationListener() => onTick(animation.value);
 
