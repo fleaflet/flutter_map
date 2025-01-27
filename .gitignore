@@ -30,7 +30,6 @@
 .pub-cache/
 .pub/
 build/
-# TODO: document why we don't want this file
 pubspec.lock
 
 # Android related
@@ -41,6 +40,7 @@ pubspec.lock
 **/android/gradlew.bat
 **/android/local.properties
 **/android/**/GeneratedPluginRegistrant.java
+**/android/app/.cxx
 
 # iOS/XCode related
 **/ios/**/*.mode1v3
