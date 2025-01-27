@@ -6,7 +6,7 @@
 #define MyAppPublisher "fleaflet"
 #define MyAppURL "https://github.com/fleaflet/flutter_map"
 #define MyAppSupportURL "https://github.com/fleaflet/flutter_map/issues"
-#define MyAppExeName "example.exe"
+#define MyAppExeName "flutter_map_demo.exe"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
@@ -62,7 +62,7 @@ Name: "ukrainian"; MessagesFile: "compiler:Languages\Ukrainian.isl"
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
-; Specify all files within 'build/windows/x64/runner/Release' except 'example.exe'
+; Specify all files within 'build/windows/x64/runner/Release' except 'flutter_map_demo.exe'
 [Files]
 Source: "example\build\windows\x64\runner\Release\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "example\build\windows\x64\runner\Release\flutter_windows.dll"; DestDir: "{app}"; Flags: ignoreversion
