@@ -6,9 +6,11 @@ import 'package:flutter_map/flutter_map.dart';
 /// When a key is pushed down, an animation starts, consisting of a curved
 /// portion which takes the animation to its maximum velocity, an indefinitely
 /// long animation at maximum velocity, then ended on the key up with another
-/// curved portion. If a key is pressed and released quickly, it might trigger a
-/// short animation called a 'leap', which has the middle indefinite portion
-/// ommitted.
+/// curved portion.
+///
+/// If a key is pressed and released quickly, it might trigger a short animation
+/// called a 'leap'. The leap consists of a part of the curved portion, and also
+/// scales the velocity of the concerned gesture.
 ///
 /// See [CursorKeyboardRotationOptions] for options to control the keyboard and
 /// mouse cursor being used together to rotate the map.
@@ -53,13 +55,13 @@ class KeyboardOptions {
   /// Measured in screen space. It is not required to make use of the camera
   /// zoom level. Negative numbers will flip the standard pan keys.
   ///
-  /// Defaults to `12 * math.log(0.1 * z + 1) + 1`, where `z` is the zoom level.
+  /// Defaults to `5 * math.log(0.15 * z + 1) + 1`, where `z` is the zoom level.
   final double Function(double zoom)? maxPanVelocity;
 
   /// The amount to scale the panning offset velocity by during a leap animation
   ///
-  /// The larger the number, the larger the movement during a leap. See
-  /// [performLeapTriggerDuration] for information about leaping.
+  /// The larger the number, the larger the movement during a leap. To change
+  /// the duration of a leap, see [leapMaxOfCurveComponent].
   ///
   /// This may cause the pan velocity to exceed [maxPanVelocity].
   ///
@@ -77,8 +79,8 @@ class KeyboardOptions {
 
   /// The amount to scale the zooming velocity by during a leap animation
   ///
-  /// The larger the number, the larger the zoom difference during a leap. See
-  /// [performLeapTriggerDuration] for information about leaping.
+  /// The larger the number, the larger the zoom difference during a leap. To
+  /// change the duration of a leap, see [leapMaxOfCurveComponent].
   ///
   /// This may cause the pan velocity to exceed [maxZoomVelocity].
   ///
@@ -97,7 +99,7 @@ class KeyboardOptions {
   /// The amount to scale the rotation velocity by during a leap animation
   ///
   /// The larger the number, the larger the rotation difference during a leap.
-  /// See [performLeapTriggerDuration] for information about leaping.
+  /// To change the duration of a leap, see [leapMaxOfCurveComponent].
   ///
   /// This may cause the pan velocity to exceed [maxRotateVelocity].
   ///
@@ -126,16 +128,26 @@ class KeyboardOptions {
   /// Maximum duration between the key down and key up events of an animation
   /// which will trigger a 'leap'
   ///
-  /// 'Leaping' allows the animation to reach its maximum velocity then animate
-  /// back to zero velocity, even when the animation key is not being held.
-  /// In other words, leaping occurs when one of the trigger keys is pressed -
-  /// not held - and pans/zooms/rotates the map a small amount.
-  ///
-  /// The leap lasts for 3/4 * ([animationCurveDuration] +
-  /// [animationCurveReverseDuration]).
+  /// To customize the leap itself, see the [leapMaxOfCurveComponent] &
+  /// `...LeapVelocityMultiplier` properties.
   ///
   /// Defaults to 100ms. Set to `null` to disable leaping.
   final Duration? performLeapTriggerDuration;
+
+  /// The percentage (0.0 - 1.0) of the curve animation component that is driven
+  /// to (from 0), then in reverse from (to 0)
+  ///
+  /// Reducing means the leap occurs quicker (assuming a consistent curve
+  /// animation duration). Also see `...LeapVelocityMultiplier` properties to
+  /// change the distance of the leap assuming a consistent leap duration.
+  ///
+  /// For example, if set to 1, then the leap will take [animationCurveDuration]
+  /// + [animationCurveReverseDuration] to complete.
+  ///
+  /// Defaults to 0.6. Must be greater than 0 and less than or equal to 1. To
+  /// disable leaping, or change the maximum length of the key press that will
+  /// trigger a leap, see [performLeapTriggerDuration].
+  final double leapMaxOfCurveComponent;
 
   /// Custom [FocusNode] to be used instead of internal node
   ///
@@ -169,9 +181,14 @@ class KeyboardOptions {
     this.animationCurveReverseDuration = const Duration(milliseconds: 600),
     this.animationCurveCurve = Curves.easeInOut,
     this.performLeapTriggerDuration = const Duration(milliseconds: 100),
+    this.leapMaxOfCurveComponent = 0.6,
     this.focusNode,
     this.autofocus = true,
-  });
+  }) : assert(
+          leapMaxOfCurveComponent > 0 && leapMaxOfCurveComponent <= 1,
+          '`leapMaxOfCurveComponent` must be between 0 (exclusive) and 1 '
+          '(inclusive)',
+        );
 
   /// Disable keyboard control of the map
   ///
@@ -199,6 +216,7 @@ class KeyboardOptions {
         animationCurveReverseDuration,
         animationCurveCurve,
         performLeapTriggerDuration,
+        leapMaxOfCurveComponent,
         focusNode,
         autofocus,
       );
@@ -222,6 +240,7 @@ class KeyboardOptions {
               other.animationCurveReverseDuration &&
           animationCurveCurve == other.animationCurveCurve &&
           performLeapTriggerDuration == other.performLeapTriggerDuration &&
+          leapMaxOfCurveComponent == other.leapMaxOfCurveComponent &&
           focusNode == other.focusNode &&
           autofocus == other.autofocus);
 }

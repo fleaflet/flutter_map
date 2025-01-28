@@ -112,15 +112,15 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   var _panLeapCancelCompleter = Completer<void>();
   var _zoomLeapCancelCompleter = Completer<void>();
   var _rotateLeapCancelCompleter = Completer<void>();
-  final _panLeaping = ValueNotifier(false);
-  final _zoomLeaping = ValueNotifier(false);
-  final _rotateLeaping = ValueNotifier(false);
+  final _isPanLeaping = ValueNotifier(false);
+  final _isZoomLeaping = ValueNotifier(false);
+  final _isRotateLeaping = ValueNotifier(false);
 
   late var _keyboardPanAnimationPrevZoom = _camera.zoom; // to detect changes
   late double _keyboardPanAnimationMaxVelocity;
   double _keyboardPanAnimationMaxVelocityCalculator(double zoom) =>
       _interactionOptions.keyboardOptions.maxPanVelocity?.call(zoom) ??
-      12 * math.log(0.1 * zoom + 1) + 1;
+      5 * math.log(0.15 * zoom + 1) + 1;
 
   late _KeyboardAnimationManager<Offset> _keyboardPanAnimationManager;
   late _KeyboardAnimationManager<double> _keyboardZoomAnimationManager;
@@ -1068,28 +1068,29 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       required Future<void> cancelLeap,
       required ValueNotifier<bool> leapingIndicator,
     }) {
-      if (keyboardOptions.performLeapTriggerDuration != null &&
-          curve.lastElapsedDuration != null &&
-          curve.lastElapsedDuration! <
+      if (keyboardOptions.performLeapTriggerDuration == null ||
+          curve.lastElapsedDuration == null ||
+          curve.lastElapsedDuration! >
               keyboardOptions.performLeapTriggerDuration!) {
-        void leaper() {
-          if (curve.value >= 0.6) {
-            curve.reverse();
-            curve.removeListener(leaper);
-            leapingIndicator.value = false;
-          }
-        }
-
-        leapingIndicator.value = true;
-
-        curve.addListener(leaper);
-        cancelLeap.then((_) {
-          curve.removeListener(leaper);
-          leapingIndicator.value = false;
-        });
-      } else {
         curve.reverse();
+        return;
       }
+
+      void listenForLeapCompletion() {
+        if (curve.value >= keyboardOptions.leapMaxOfCurveComponent) {
+          curve.reverse();
+          curve.removeListener(listenForLeapCompletion);
+          leapingIndicator.value = false;
+        }
+      }
+
+      curve.addListener(listenForLeapCompletion);
+      leapingIndicator.value = true;
+
+      cancelLeap.then((_) {
+        curve.removeListener(listenForLeapCompletion);
+        leapingIndicator.value = false;
+      });
     }
 
     late final panCurve =
@@ -1128,7 +1129,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
         maybeLeap(
           panCurve,
           cancelLeap: _panLeapCancelCompleter.future,
-          leapingIndicator: _panLeaping,
+          leapingIndicator: _isPanLeaping,
         );
       }
       return KeyEventResult.handled;
@@ -1148,7 +1149,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
         maybeLeap(
           zoomCurve,
           cancelLeap: _zoomLeapCancelCompleter.future,
-          leapingIndicator: _zoomLeaping,
+          leapingIndicator: _isZoomLeaping,
         );
       }
       return KeyEventResult.handled;
@@ -1168,7 +1169,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
         maybeLeap(
           rotateCurve,
           cancelLeap: _rotateLeapCancelCompleter.future,
-          leapingIndicator: _rotateLeaping,
+          leapingIndicator: _isRotateLeaping,
         );
       }
       return KeyEventResult.handled;
@@ -1178,11 +1179,11 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   }
 
   Iterable<VoidCallback> _keyboardAnimationsHandler() sync* {
-    Iterable<VoidCallback> initManagerListeners<T>({
+    VoidCallback initManagerListeners<T>({
       required _KeyboardAnimationManager<T> manager,
       required Animation<T> Function(Animation<T> a, Animation<T> b) sum,
       required void Function(T value) onTick,
-    }) sync* {
+    }) {
       final animation = manager.values.skip(1).fold<Animation<T>>(
             _InfiniteAnimation(
               manager.values.first.repeatAnimation,
@@ -1193,25 +1194,13 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
           );
 
       void animationListener() => onTick(animation.value);
-
       animation.addListener(animationListener);
-      yield () => animation.removeListener(animationListener);
-
-      for (final direction in manager.values) {
-        void curveStatusListener(AnimationStatus status) {
-          if (status.isAnimating) direction.repeatController.stop();
-          if (status.isCompleted) direction.repeatController.repeat();
-        }
-
-        direction.curveController.addStatusListener(curveStatusListener);
-        yield () =>
-            direction.curveController.removeStatusListener(curveStatusListener);
-      }
+      return () => animation.removeListener(animationListener);
     }
 
     final keyboardOptions = _interactionOptions.keyboardOptions;
 
-    yield* initManagerListeners(
+    yield initManagerListeners(
       manager: _keyboardPanAnimationManager,
       sum: _OffsetInfiniteSumAnimation.new,
       onTick: (value) {
@@ -1229,7 +1218,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
               (_keyboardPanAnimationMaxVelocity / math.sqrt(2));
         }
 
-        if (_panLeaping.value) {
+        if (_isPanLeaping.value) {
           correctedOffset *= keyboardOptions.panLeapVelocityMultiplier;
         }
 
@@ -1244,33 +1233,37 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       },
     );
 
-    yield* initManagerListeners(
+    yield initManagerListeners(
       manager: _keyboardZoomAnimationManager,
       sum: _NumInfiniteSumAnimation.new,
-      onTick: (value) => widget.controller.moveRaw(
-        _camera.center,
-        _camera.zoom +
-            (value *
-                (_zoomLeaping.value
-                    ? keyboardOptions.zoomLeapVelocityMultiplier
-                    : 1)),
-        hasGesture: true,
-        source: MapEventSource.keyboard,
-      ),
+      onTick: (value) {
+        if (_isZoomLeaping.value) {
+          value *= keyboardOptions.zoomLeapVelocityMultiplier;
+        }
+
+        widget.controller.moveRaw(
+          _camera.center,
+          _camera.zoom + value,
+          hasGesture: true,
+          source: MapEventSource.keyboard,
+        );
+      },
     );
 
-    yield* initManagerListeners(
+    yield initManagerListeners(
       manager: _keyboardRotateAnimationManager,
       sum: _NumInfiniteSumAnimation.new,
-      onTick: (value) => widget.controller.rotateRaw(
-        _camera.rotation +
-            (value *
-                (_rotateLeaping.value
-                    ? keyboardOptions.rotateLeapVelocityMultiplier
-                    : 1)),
-        hasGesture: true,
-        source: MapEventSource.keyboard,
-      ),
+      onTick: (value) {
+        if (_isRotateLeaping.value) {
+          value *= keyboardOptions.rotateLeapVelocityMultiplier;
+        }
+
+        widget.controller.rotateRaw(
+          _camera.rotation + value,
+          hasGesture: true,
+          source: MapEventSource.keyboard,
+        );
+      },
     );
   }
 
@@ -1293,7 +1286,12 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
                 .interactionOptions.keyboardOptions.animationCurveDuration,
             reverseDuration: _options.interactionOptions.keyboardOptions
                 .animationCurveReverseDuration,
-          );
+          )..addStatusListener((status) {
+              // It's safe to add a listener here, because it is auto disposed
+              // when we dispose the animation controller
+              if (status.isAnimating) repeat.stop();
+              if (status.isCompleted) repeat.repeat();
+            });
 
           // We use a `Tween` here as it allows dynamically changing the `end`,
           // which will cause it to animate to the new `end` implicitly
