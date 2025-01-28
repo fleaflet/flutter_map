@@ -56,6 +56,16 @@ class KeyboardOptions {
   /// Defaults to `12 * math.log(0.1 * z + 1) + 1`, where `z` is the zoom level.
   final double Function(double zoom)? maxPanVelocity;
 
+  /// The amount to scale the panning offset velocity by during a leap animation
+  ///
+  /// The larger the number, the larger the movement during a leap. See
+  /// [performLeapTriggerDuration] for information about leaping.
+  ///
+  /// This may cause the pan velocity to exceed [maxPanVelocity].
+  ///
+  /// Defaults to 3.
+  final double panLeapVelocityMultiplier;
+
   /// The maximum zoom level difference to apply per frame to the camera's zoom
   /// level during a zoom animation
   ///
@@ -65,6 +75,16 @@ class KeyboardOptions {
   /// Defaults to 0.03.
   final double maxZoomVelocity;
 
+  /// The amount to scale the zooming velocity by during a leap animation
+  ///
+  /// The larger the number, the larger the zoom difference during a leap. See
+  /// [performLeapTriggerDuration] for information about leaping.
+  ///
+  /// This may cause the pan velocity to exceed [maxZoomVelocity].
+  ///
+  /// Defaults to 3.
+  final double zoomLeapVelocityMultiplier;
+
   /// The maximum angular difference to apply per frame to the camera's rotation
   /// during a rotation animation
   ///
@@ -73,6 +93,16 @@ class KeyboardOptions {
   ///
   /// Defaults to 3.
   final double maxRotateVelocity;
+
+  /// The amount to scale the rotation velocity by during a leap animation
+  ///
+  /// The larger the number, the larger the rotation difference during a leap.
+  /// See [performLeapTriggerDuration] for information about leaping.
+  ///
+  /// This may cause the pan velocity to exceed [maxRotateVelocity].
+  ///
+  /// Defaults to 3.
+  final double rotateLeapVelocityMultiplier;
 
   /// Duration of the curved ([Curves.easeIn]) portion of the animation occuring
   /// after a key down event (and after a key up event if
@@ -101,10 +131,10 @@ class KeyboardOptions {
   /// In other words, leaping occurs when one of the trigger keys is pressed -
   /// not held - and pans/zooms/rotates the map a small amount.
   ///
-  /// The leap lasts for [animationCurveDuration] +
-  /// [animationCurveReverseDuration].
+  /// The leap lasts for 3/4 * ([animationCurveDuration] +
+  /// [animationCurveReverseDuration]).
   ///
-  /// Defaults to 100ms. Set to `null` to disable.
+  /// Defaults to 100ms. Set to `null` to disable leaping.
   final Duration? performLeapTriggerDuration;
 
   /// Custom [FocusNode] to be used instead of internal node
@@ -130,8 +160,11 @@ class KeyboardOptions {
     this.enableQERotating = false,
     this.enableRFZooming = false,
     this.maxPanVelocity,
+    this.panLeapVelocityMultiplier = 3,
     this.maxZoomVelocity = 0.03,
+    this.zoomLeapVelocityMultiplier = 3,
     this.maxRotateVelocity = 3,
+    this.rotateLeapVelocityMultiplier = 3,
     this.animationCurveDuration = const Duration(milliseconds: 450),
     this.animationCurveReverseDuration = const Duration(milliseconds: 600),
     this.animationCurveCurve = Curves.easeInOut,
@@ -157,8 +190,11 @@ class KeyboardOptions {
         enableQERotating,
         enableRFZooming,
         maxPanVelocity,
+        panLeapVelocityMultiplier,
         maxZoomVelocity,
+        zoomLeapVelocityMultiplier,
         maxRotateVelocity,
+        rotateLeapVelocityMultiplier,
         animationCurveDuration,
         animationCurveReverseDuration,
         animationCurveCurve,
@@ -176,8 +212,11 @@ class KeyboardOptions {
           enableQERotating == other.enableQERotating &&
           enableRFZooming == other.enableRFZooming &&
           maxPanVelocity == other.maxPanVelocity &&
+          panLeapVelocityMultiplier == other.panLeapVelocityMultiplier &&
           maxZoomVelocity == other.maxZoomVelocity &&
+          zoomLeapVelocityMultiplier == other.zoomLeapVelocityMultiplier &&
           maxRotateVelocity == other.maxRotateVelocity &&
+          rotateLeapVelocityMultiplier == other.rotateLeapVelocityMultiplier &&
           animationCurveDuration == other.animationCurveDuration &&
           animationCurveReverseDuration ==
               other.animationCurveReverseDuration &&
