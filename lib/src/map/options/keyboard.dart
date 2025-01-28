@@ -62,7 +62,7 @@ class KeyboardOptions {
   /// Measured in zoom levels. Negative numbers will flip the standard zoom
   /// keys.
   ///
-  /// Defaults to 0.05.
+  /// Defaults to 0.03.
   final double maxZoomVelocity;
 
   /// The maximum angular difference to apply per frame to the camera's rotation
@@ -78,19 +78,19 @@ class KeyboardOptions {
   /// after a key down event (and after a key up event if
   /// [animationCurveReverseDuration] is `null`)
   ///
-  /// Defaults to 700ms.
+  /// Defaults to 450ms.
   final Duration animationCurveDuration;
 
   /// Duration of the curved (reverse [Curves.easeIn]) portion of the animation
   /// occuring after a key up event
   ///
-  /// Defaults to 500ms. Set to `null` to use [animationCurveDuration].
+  /// Defaults to 600ms. Set to `null` to use [animationCurveDuration].
   final Duration? animationCurveReverseDuration;
 
   /// Curve of the curved portion of the animation occuring after key down and
   /// key up events
   ///
-  /// Defaults to [Curves.easeIn].
+  /// Defaults to [Curves.easeInOut].
   final Curve animationCurveCurve;
 
   /// Maximum duration between the key down and key up events of an animation
@@ -130,11 +130,11 @@ class KeyboardOptions {
     this.enableQERotating = false,
     this.enableRFZooming = false,
     this.maxPanVelocity,
-    this.maxZoomVelocity = 0.05,
+    this.maxZoomVelocity = 0.03,
     this.maxRotateVelocity = 3,
-    this.animationCurveDuration = const Duration(milliseconds: 700),
-    this.animationCurveReverseDuration = const Duration(milliseconds: 500),
-    this.animationCurveCurve = Curves.easeIn,
+    this.animationCurveDuration = const Duration(milliseconds: 450),
+    this.animationCurveReverseDuration = const Duration(milliseconds: 600),
+    this.animationCurveCurve = Curves.easeInOut,
     this.performLeapTriggerDuration = const Duration(milliseconds: 100),
     this.focusNode,
     this.autofocus = true,

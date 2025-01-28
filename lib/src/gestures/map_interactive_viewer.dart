@@ -1191,17 +1191,21 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       manager: _keyboardPanAnimationManager,
       sum: _OffsetInfiniteSumAnimation.new,
       onTick: (value) {
-        // Normalise so that the actual magnitude is not greater than max
-        // velocity
-        final offset = value.distanceSquared >
+        // Normalise & clamp so diagonal movement does not appear faster than
+        // axis-aligned movement.
+        // Note that one limitation of this implementation is that this is not
+        // curved. Therefore, it may appear that there is a 'snapping' effect
+        // when animating between axis-aligned and diagonal movement.
+        final correctedOffset = value.distanceSquared >
                 _keyboardPanAnimationMaxVelocity *
                     _keyboardPanAnimationMaxVelocity
-            ? value / (value.distance / _keyboardPanAnimationMaxVelocity)
+            ? (value / value.distance) *
+                (_keyboardPanAnimationMaxVelocity / math.sqrt(2))
             : value;
 
         widget.controller.moveRaw(
           _camera.screenOffsetToLatLng(
-            _camera.latLngToScreenOffset(_camera.center) + offset,
+            _camera.latLngToScreenOffset(_camera.center) + correctedOffset,
           ),
           _camera.zoom,
           hasGesture: true,
