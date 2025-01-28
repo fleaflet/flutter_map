@@ -44,10 +44,10 @@ class _MultiWorldsPageState extends State<MultiWorldsPage> {
                   circles: [
                     const CircleMarker(
                       point: LatLng(-27.466667, 153.033333),
-                      radius: 1_000_000,
+                      radius: 1000000,
                       color: Color.from(alpha: .8, red: 1, green: 1, blue: 0),
                       borderColor: Colors.green,
-                      borderStrokeWidth: 100_000,
+                      borderStrokeWidth: 100000,
                       hitValue: 'Brisbane',
                       useRadiusInMeter: true,
                     ),
