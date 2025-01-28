@@ -65,7 +65,7 @@ class KeyboardOptions {
   ///
   /// This may cause the pan velocity to exceed [maxPanVelocity].
   ///
-  /// Defaults to 3.
+  /// Defaults to 5.
   final double panLeapVelocityMultiplier;
 
   /// The maximum zoom level difference to apply per frame to the camera's zoom
@@ -172,7 +172,7 @@ class KeyboardOptions {
     this.enableQERotating = false,
     this.enableRFZooming = false,
     this.maxPanVelocity,
-    this.panLeapVelocityMultiplier = 3,
+    this.panLeapVelocityMultiplier = 5,
     this.maxZoomVelocity = 0.03,
     this.zoomLeapVelocityMultiplier = 3,
     this.maxRotateVelocity = 3,
@@ -197,6 +197,7 @@ class KeyboardOptions {
   const KeyboardOptions.disabled()
       : this(
           enableArrowKeysPanning: false,
+          performLeapTriggerDuration: null,
           autofocus: false,
         );
 
