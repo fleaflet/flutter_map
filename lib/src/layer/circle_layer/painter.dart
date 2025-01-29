@@ -23,8 +23,7 @@ base class CirclePainter<R extends Object>
     required LatLng coordinate,
   }) {
     final worldWidth = _getWorldWidth();
-    final radius =
-        _getRadiusInPixel(element, element.radius + element.borderStrokeWidth);
+    final radius = _getRadiusInPixel(element, withBorder: true);
     final initialCenter = _getOffset(element.point);
 
     /// Returns null if invisible, true if hit, false if not hit.
@@ -81,9 +80,8 @@ base class CirclePainter<R extends Object>
     final pointsFilledBorder = <Color, Map<double, List<Offset>>>{};
     final pointsBorder = <Color, Map<double, Map<double, List<Offset>>>>{};
     for (final circle in circles) {
-      final radiusWithoutBorder = _getRadiusInPixel(circle, circle.radius);
-      final radiusWithBorder =
-          _getRadiusInPixel(circle, circle.radius + circle.borderStrokeWidth);
+      final radiusWithoutBorder = _getRadiusInPixel(circle, withBorder: false);
+      final radiusWithBorder = _getRadiusInPixel(circle, withBorder: true);
       final initialCenter = _getOffset(circle.point);
 
       bool checkIfVisible(double shift) {
@@ -116,14 +114,12 @@ base class CirclePainter<R extends Object>
             pointsFilledBorder[circle.borderColor]![radiusWithBorder]!
                 .add(center);
           } else {
-            final borderStrokeWidth = radiusWithBorder - radiusWithoutBorder;
-            final radiusForBorder = radiusWithoutBorder + borderStrokeWidth / 2;
             pointsBorder[circle.borderColor] ??= {};
-            pointsBorder[circle.borderColor]![borderStrokeWidth] ??= {};
-            pointsBorder[circle.borderColor]![borderStrokeWidth]![
-                radiusForBorder] ??= [];
-            pointsBorder[circle.borderColor]![borderStrokeWidth]![
-                    radiusForBorder]!
+            pointsBorder[circle.borderColor]![circle.borderStrokeWidth] ??= {};
+            pointsBorder[circle.borderColor]![circle.borderStrokeWidth]![
+                radiusWithoutBorder] ??= [];
+            pointsBorder[circle.borderColor]![circle.borderStrokeWidth]![
+                    radiusWithoutBorder]!
                 .add(center);
           }
         }
@@ -164,7 +160,7 @@ base class CirclePainter<R extends Object>
       }
     }
 
-    // Then the filled border in order to be under the circle
+    // Then the filled border in order to be under the disk
     final paintPoint = Paint()
       ..isAntiAlias = false
       ..strokeCap = StrokeCap.round;
@@ -178,7 +174,7 @@ base class CirclePainter<R extends Object>
       }
     }
 
-    // And then the circle
+    // And then the disk
     for (final color in points.keys) {
       final paint = paintPoint..color = color;
       final pointsByRadius = points[color]!;
@@ -204,12 +200,14 @@ base class CirclePainter<R extends Object>
 
   Offset _getOffset(LatLng pos) => camera.getOffsetFromOrigin(pos);
 
-  double _getRadiusInPixel(CircleMarker circle, double radius) =>
-      circle.useRadiusInMeter
+  double _getRadiusInPixel(CircleMarker circle, {required bool withBorder}) =>
+      (withBorder ? circle.borderStrokeWidth / 2 : 0) +
+      (circle.useRadiusInMeter
           ? (_getOffset(circle.point) -
-                  _getOffset(_distance.offset(circle.point, radius, 180)))
+                  _getOffset(
+                      _distance.offset(circle.point, circle.radius, 180)))
               .distance
-          : radius;
+          : circle.radius);
 
   /// Returns true if a centered circle with this radius is on the screen.
   bool _isVisible({
