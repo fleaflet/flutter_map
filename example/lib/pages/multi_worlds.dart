@@ -47,7 +47,7 @@ class _MultiWorldsPageState extends State<MultiWorldsPage> {
                       radius: 1000000,
                       color: Color.from(alpha: .8, red: 1, green: 1, blue: 0),
                       borderColor: Colors.green,
-                      borderStrokeWidth: 100000,
+                      borderStrokeWidth: 2,
                       hitValue: 'Brisbane',
                       useRadiusInMeter: true,
                     ),
