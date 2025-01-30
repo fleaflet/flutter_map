@@ -1,29 +1,29 @@
 name: Feature Request
 description: Suggest functionality that you'd like to see
-title: "[FEATURE] <title>"
-labels: ["feature", "P3 (low)"]
+labels: ["P3 (low)"]
+type: Feature
 body:
   - type: markdown
     attributes:
       value: "
         # Feature Request
 
-        Thanks for taking the time to let us know what you want to see!  
+        Thanks for taking the time to let us know what you want to see in flutter_map!
         Unfortunately, response times for feature requests are longer than bug reports, as they are lower priority. If you want this functionality implemented quickly, please make a Pull Request to go alongside this feature request.
-        
-        
+
+
         ---
-        
-        
+
+
         Before requesting a feature, please:
 
         * Check if there is already an open or closed issue that is similar to yours
-        
+
         * Ensure that you're using the latest version of flutter_map
-        
+
         * Ensure that you've read the documentation (both the website and API docs) thoroughly
-        
-        
+
+
         ---
         "
   - type: textarea
@@ -46,14 +46,3 @@ body:
     attributes:
       label: Can you provide any other information?
       description: Is there anything else you'd like to say?
-  - type: dropdown
-    id: severity
-    attributes:
-      label: Severity
-      description: How much of a problem is the lack of functionality for you?
-      options:
-        - "Minimum: Not required for my use"
-        - "Annoying: Currently have to use workarounds"
-        - "Obtrusive: No workarounds are available, and this is essential to me"
-    validations:
-      required: true
