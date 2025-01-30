@@ -240,12 +240,12 @@ class MapCamera {
       crs.offsetToLatLng(point, zoom ?? this.zoom);
 
   /// Returns the width of the world at the current zoom, or 0 if irrelevant.
-  double getWorldWidthAtZoom() {
+  double getWorldWidthAtZoom([double? zoom]) {
     if (!crs.replicatesWorldLongitude) {
       return 0;
     }
-    final offset0 = projectAtZoom(const LatLng(0, 0));
-    final offset180 = projectAtZoom(const LatLng(0, 180));
+    final offset0 = projectAtZoom(const LatLng(0, 0), zoom ?? this.zoom);
+    final offset180 = projectAtZoom(const LatLng(0, 180), zoom ?? this.zoom);
     return 2 * (offset180.dx - offset0.dx).abs();
   }
 
@@ -357,7 +357,17 @@ class MapCamera {
         (offset - nonRotatedSize.center(Offset.zero)).rotate(rotationRad);
 
     final newCenterPt = focalStartPt + point;
-    return unprojectAtZoom(newCenterPt, zoom ?? this.zoom);
+    final worldWidth = getWorldWidthAtZoom(zoom ?? this.zoom);
+    double bestX = newCenterPt.dx;
+    if (worldWidth != 0) {
+      while (bestX > worldWidth) {
+        bestX -= worldWidth;
+      }
+      while (bestX < 0) {
+        bestX += worldWidth;
+      }
+    }
+    return unprojectAtZoom(Offset(bestX, newCenterPt.dy), zoom ?? this.zoom);
   }
 
   /// Calculate the center point which would keep the same point of the map
