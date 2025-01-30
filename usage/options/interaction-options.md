@@ -37,6 +37,12 @@ There's many customization options, see the API docs for more information:
 
 {% embed url="https://pub.dev/documentation/flutter_map/latest/flutter_map/CursorKeyboardRotationOptions-class.html" %}
 
+## Keyboard Gestures
+
+Keyboard gestures can be configured through `KeyboardOptions`. By default, the map can be panned via the arrow keys. Additionally, panning using the WASD keys can be enabled, as well as rotation with Q & E, and zooming with R & F. All keys are physical and based on the QWERTY keyboard, so on other keyboards, the positions will be the same, not necessary the characters.
+
+Leaping occurs when the trigger key is pressed momentarily instead of being held down. This can also be customized.
+
 ## "Win" Gestures
 
 {% hint style="warning" %}
