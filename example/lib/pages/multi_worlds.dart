@@ -15,6 +15,8 @@ class MultiWorldsPage extends StatefulWidget {
 }
 
 class _MultiWorldsPageState extends State<MultiWorldsPage> {
+  final LayerHitNotifier<String> _hitNotifier = ValueNotifier(null);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,6 +32,37 @@ class _MultiWorldsPageState extends State<MultiWorldsPage> {
             ),
             children: [
               openStreetMapTileLayer,
+              GestureDetector(
+                onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(_hitNotifier.value!.hitValues.join(', ')),
+                    duration: const Duration(seconds: 1),
+                    showCloseIcon: true,
+                  ),
+                ),
+                child: CircleLayer<String>(
+                  circles: [
+                    const CircleMarker(
+                      point: LatLng(-27.466667, 153.033333),
+                      radius: 1000000,
+                      color: Color.from(alpha: .8, red: 1, green: 1, blue: 0),
+                      borderColor: Colors.green,
+                      borderStrokeWidth: 2,
+                      hitValue: 'Brisbane',
+                      useRadiusInMeter: true,
+                    ),
+                    const CircleMarker(
+                      point: LatLng(45.466667, 9.166667),
+                      radius: 10,
+                      color: Colors.green,
+                      borderColor: Colors.red,
+                      borderStrokeWidth: 2,
+                      hitValue: 'Milan',
+                    ),
+                  ],
+                  hitNotifier: _hitNotifier,
+                ),
+              ),
               MarkerLayer(
                 markers: [
                   Marker(
