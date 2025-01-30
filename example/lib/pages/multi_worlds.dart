@@ -17,6 +17,24 @@ class MultiWorldsPage extends StatefulWidget {
 class _MultiWorldsPageState extends State<MultiWorldsPage> {
   final LayerHitNotifier<String> _hitNotifier = ValueNotifier(null);
 
+  final _customMarkers = <Marker>[];
+
+  Marker _buildPin(LatLng point) => Marker(
+        point: point,
+        width: 60,
+        height: 60,
+        child: GestureDetector(
+          onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Tapped existing marker'),
+              duration: Duration(seconds: 1),
+              showCloseIcon: true,
+            ),
+          ),
+          child: const Icon(Icons.location_pin, color: Colors.red),
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,10 +43,11 @@ class _MultiWorldsPageState extends State<MultiWorldsPage> {
       body: Stack(
         children: [
           FlutterMap(
-            options: const MapOptions(
-              initialCenter: LatLng(51.5, -0.09),
+            options: MapOptions(
+              initialCenter: const LatLng(51.5, -0.09),
               initialZoom: 0,
               initialRotation: 0,
+              onTap: (_, p) => setState(() => _customMarkers.add(_buildPin(p))),
             ),
             children: [
               openStreetMapTileLayer,
@@ -105,6 +124,7 @@ class _MultiWorldsPageState extends State<MultiWorldsPage> {
                       child: const Icon(Icons.backpack_outlined),
                     ),
                   ),
+                  ..._customMarkers,
                 ],
               ),
             ],
