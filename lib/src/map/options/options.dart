@@ -199,8 +199,7 @@ class MapOptions {
       cameraConstraint == other.cameraConstraint &&
       onMapReady == other.onMapReady &&
       keepAlive == other.keepAlive &&
-      interactionOptions == other.interactionOptions &&
-      backgroundColor == other.backgroundColor;
+      interactionOptions == other.interactionOptions;
 
   @override
   int get hashCode => Object.hashAll([
