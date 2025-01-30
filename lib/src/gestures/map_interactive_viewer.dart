@@ -9,6 +9,19 @@ import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:vector_math/vector_math_64.dart';
 
+part 'package:flutter_map/src/gestures/compound_animations.dart';
+
+typedef _KeyboardAnimationManager<T> = Map<
+    PhysicalKeyboardKey,
+    ({
+      AnimationController curveController,
+      Animation<T> curveAnimation,
+      Tween<T> curveTween,
+      AnimationController repeatController,
+      Animation<T> repeatAnimation,
+      Tween<T> repeatTween,
+    })>;
+
 /// The method signature of the builder.
 typedef InteractiveViewerBuilder = Widget Function(
   BuildContext context,
@@ -92,10 +105,30 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   int _tapUpCounter = 0;
   Timer? _doubleTapHoldMaxDelay;
 
+  // Keyboard animation
+  late final FocusNode _keyboardListenerFocusNode;
+  late List<void Function()> _keyboardListenersDisposal;
+
+  var _panLeapCancelCompleter = Completer<void>();
+  var _zoomLeapCancelCompleter = Completer<void>();
+  var _rotateLeapCancelCompleter = Completer<void>();
+  final _isPanLeaping = ValueNotifier(false);
+  final _isZoomLeaping = ValueNotifier(false);
+  final _isRotateLeaping = ValueNotifier(false);
+
+  late var _keyboardPanAnimationPrevZoom = _camera.zoom; // to detect changes
+  late double _keyboardPanAnimationMaxVelocity;
+  double _keyboardPanAnimationMaxVelocityCalculator(double zoom) =>
+      _interactionOptions.keyboardOptions.maxPanVelocity?.call(zoom) ??
+      5 * math.log(0.15 * zoom + 1) + 1;
+
+  late _KeyboardAnimationManager<Offset> _keyboardPanAnimationManager;
+  late _KeyboardAnimationManager<double> _keyboardZoomAnimationManager;
+  late _KeyboardAnimationManager<double> _keyboardRotateAnimationManager;
+
+  // Shortcuts
   MapCamera get _camera => widget.controller.camera;
-
   MapOptions get _options => widget.controller.options;
-
   InteractionOptions get _interactionOptions => _options.interactionOptions;
 
   @override
@@ -112,6 +145,11 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
     ServicesBinding.instance.keyboard
         .addHandler(cursorKeyboardRotationTriggerHandler);
+
+    _keyboardListenerFocusNode =
+        _interactionOptions.keyboardOptions.focusNode ??
+            FocusNode(debugLabel: 'FlutterMap');
+    _initKeyboardAnimations();
   }
 
   @override
@@ -134,11 +172,19 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     ServicesBinding.instance.keyboard
         .removeHandler(cursorKeyboardRotationTriggerHandler);
 
+    if (_interactionOptions.keyboardOptions.focusNode == null) {
+      _keyboardListenerFocusNode.dispose();
+    }
+    _disposeKeyboardAnimations();
+
     super.dispose();
   }
 
   /// Rebuilds the map widget
-  void onMapStateChange() => setState(() {});
+  void onMapStateChange() {
+    _updateKeyboardPanAnimationZoomLevel();
+    setState(() {});
+  }
 
   /// Handles key down events to detect if one of the trigger keys got pressed.
   bool cursorKeyboardRotationTriggerHandler(KeyEvent event) {
@@ -219,6 +265,11 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
         .removeHandler(cursorKeyboardRotationTriggerHandler);
     ServicesBinding.instance.keyboard
         .addHandler(cursorKeyboardRotationTriggerHandler);
+
+    if (oldOptions.keyboardOptions != newOptions.keyboardOptions) {
+      _disposeKeyboardAnimations();
+      _initKeyboardAnimations();
+    }
   }
 
   Map<Type, GestureRecognizerFactory> _createGestures({
@@ -287,29 +338,35 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   @override
   Widget build(BuildContext context) {
-    return Listener(
-      onPointerDown: _onPointerDown,
-      onPointerUp: _onPointerUp,
-      onPointerCancel: _onPointerCancel,
-      onPointerHover: _onPointerHover,
-      onPointerMove: _onPointerMove,
-      onPointerSignal: _onPointerSignal,
-      child: PositionedTapDetector2(
-        controller: _positionedTapController,
-        onTap: _handleTap,
-        onSecondaryTap: _handleSecondaryTap,
-        onLongPress: _handleLongPress,
-        onDoubleTap: _handleDoubleTap,
-        doubleTapDelay:
-            InteractiveFlag.hasDoubleTapZoom(_interactionOptions.flags)
-                ? null
-                : Duration.zero,
-        child: RawGestureDetector(
-          gestures: _gestures,
-          child: widget.builder(
-            context,
-            widget.controller.options,
-            widget.controller.camera,
+    return Focus(
+      debugLabel: 'FlutterMap',
+      autofocus: _interactionOptions.keyboardOptions.autofocus,
+      focusNode: _keyboardListenerFocusNode,
+      onKeyEvent: _onKeyEvent,
+      child: Listener(
+        onPointerDown: _onPointerDown,
+        onPointerUp: _onPointerUp,
+        onPointerCancel: _onPointerCancel,
+        onPointerHover: _onPointerHover,
+        onPointerMove: _onPointerMove,
+        onPointerSignal: _onPointerSignal,
+        child: PositionedTapDetector2(
+          controller: _positionedTapController,
+          onTap: _handleTap,
+          onSecondaryTap: _handleSecondaryTap,
+          onLongPress: _handleLongPress,
+          onDoubleTap: _handleDoubleTap,
+          doubleTapDelay:
+              InteractiveFlag.hasDoubleTapZoom(_interactionOptions.flags)
+                  ? null
+                  : Duration.zero,
+          child: RawGestureDetector(
+            gestures: _gestures,
+            child: widget.builder(
+              context,
+              widget.controller.options,
+              widget.controller.camera,
+            ),
           ),
         ),
       ),
@@ -556,7 +613,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     }
 
     if (!hasGestureRace || _gestureWinner != MultiFingerGesture.none) {
-      final gestures = _getMultiFingerGestureFlags(_options.interactionOptions);
+      final gestures = _getMultiFingerGestureFlags(_interactionOptions);
 
       final hasPinchZoom =
           InteractiveFlag.hasPinchZoom(_interactionOptions.flags) &&
@@ -926,7 +983,6 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     }
   }
 
-  ///
   void _startListeningForAnimationInterruptions() {
     _isListeningForInterruptions = true;
   }
@@ -942,6 +998,359 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       _closeFlingAnimationController(event.source);
     }
   }
+
+  // Keyboard animations
+
+  void _initKeyboardAnimations() {
+    _keyboardPanAnimationMaxVelocity =
+        _keyboardPanAnimationMaxVelocityCalculator(_camera.zoom);
+    _keyboardPanAnimationManager = _generateKeyboardAnimationManager(
+      maxVelocities: {
+        PhysicalKeyboardKey.arrowUp:
+            Offset(0, -_keyboardPanAnimationMaxVelocity),
+        PhysicalKeyboardKey.arrowDown:
+            Offset(0, _keyboardPanAnimationMaxVelocity),
+        PhysicalKeyboardKey.arrowLeft:
+            Offset(-_keyboardPanAnimationMaxVelocity, 0),
+        PhysicalKeyboardKey.arrowRight:
+            Offset(_keyboardPanAnimationMaxVelocity, 0),
+      },
+      zero: Offset.zero,
+    );
+
+    _keyboardZoomAnimationManager = _generateKeyboardAnimationManager<double>(
+      maxVelocities: {
+        PhysicalKeyboardKey.keyF:
+            -_interactionOptions.keyboardOptions.maxZoomVelocity,
+        PhysicalKeyboardKey.keyR:
+            _interactionOptions.keyboardOptions.maxZoomVelocity,
+      },
+      zero: 0,
+    );
+
+    _keyboardRotateAnimationManager = _generateKeyboardAnimationManager<double>(
+      maxVelocities: {
+        PhysicalKeyboardKey.keyQ:
+            -_interactionOptions.keyboardOptions.maxRotateVelocity,
+        PhysicalKeyboardKey.keyE:
+            _interactionOptions.keyboardOptions.maxRotateVelocity,
+      },
+      zero: 0,
+    );
+
+    _keyboardListenersDisposal =
+        _keyboardAnimationsHandler().toList(growable: false);
+  }
+
+  void _disposeKeyboardAnimations() {
+    for (final e in _keyboardListenersDisposal) {
+      e();
+    }
+    for (final e in _keyboardPanAnimationManager.values) {
+      e.curveController.dispose();
+      e.repeatController.dispose();
+    }
+    for (final e in _keyboardZoomAnimationManager.values) {
+      e.curveController.dispose();
+      e.repeatController.dispose();
+    }
+    for (final e in _keyboardRotateAnimationManager.values) {
+      e.curveController.dispose();
+      e.repeatController.dispose();
+    }
+  }
+
+  KeyEventResult _onKeyEvent(FocusNode _, KeyEvent evt) {
+    final keyboardOptions = _interactionOptions.keyboardOptions;
+
+    void maybeLeap(
+      AnimationController curve, {
+      required Future<void> cancelLeap,
+      required ValueNotifier<bool> leapingIndicator,
+    }) {
+      if (keyboardOptions.performLeapTriggerDuration == null ||
+          curve.lastElapsedDuration == null ||
+          curve.lastElapsedDuration! >
+              keyboardOptions.performLeapTriggerDuration!) {
+        curve.reverse();
+        return;
+      }
+
+      void listenForLeapCompletion() {
+        if (curve.value >= keyboardOptions.leapMaxOfCurveComponent) {
+          curve.reverse();
+          curve.removeListener(listenForLeapCompletion);
+          leapingIndicator.value = false;
+        }
+      }
+
+      curve.addListener(listenForLeapCompletion);
+      leapingIndicator.value = true;
+
+      cancelLeap.then((_) {
+        curve.removeListener(listenForLeapCompletion);
+        leapingIndicator.value = false;
+      });
+    }
+
+    late final panCurve =
+        _keyboardPanAnimationManager[switch (evt.physicalKey) {
+      PhysicalKeyboardKey.keyW when keyboardOptions.enableWASDPanning =>
+        PhysicalKeyboardKey.arrowUp,
+      PhysicalKeyboardKey.keyA when keyboardOptions.enableWASDPanning =>
+        PhysicalKeyboardKey.arrowLeft,
+      PhysicalKeyboardKey.keyS when keyboardOptions.enableWASDPanning =>
+        PhysicalKeyboardKey.arrowDown,
+      PhysicalKeyboardKey.keyD when keyboardOptions.enableWASDPanning =>
+        PhysicalKeyboardKey.arrowRight,
+      PhysicalKeyboardKey.arrowUp when keyboardOptions.enableArrowKeysPanning =>
+        PhysicalKeyboardKey.arrowUp,
+      PhysicalKeyboardKey.arrowLeft
+          when keyboardOptions.enableArrowKeysPanning =>
+        PhysicalKeyboardKey.arrowLeft,
+      PhysicalKeyboardKey.arrowDown
+          when keyboardOptions.enableArrowKeysPanning =>
+        PhysicalKeyboardKey.arrowDown,
+      PhysicalKeyboardKey.arrowRight
+          when keyboardOptions.enableArrowKeysPanning =>
+        PhysicalKeyboardKey.arrowRight,
+      _ => null,
+    }]
+            ?.curveController;
+    if (panCurve != null) {
+      if (evt is KeyDownEvent) {
+        if (panCurve.isAnimating) {
+          _panLeapCancelCompleter.complete();
+          _panLeapCancelCompleter = Completer();
+        }
+        panCurve.forward();
+      }
+      if (evt is KeyUpEvent) {
+        maybeLeap(
+          panCurve,
+          cancelLeap: _panLeapCancelCompleter.future,
+          leapingIndicator: _isPanLeaping,
+        );
+      }
+      return KeyEventResult.handled;
+    }
+
+    late final zoomCurve =
+        _keyboardZoomAnimationManager[evt.physicalKey]?.curveController;
+    if (keyboardOptions.enableRFZooming && zoomCurve != null) {
+      if (evt is KeyDownEvent) {
+        if (zoomCurve.isAnimating) {
+          _zoomLeapCancelCompleter.complete();
+          _zoomLeapCancelCompleter = Completer();
+        }
+        zoomCurve.forward();
+      }
+      if (evt is KeyUpEvent) {
+        maybeLeap(
+          zoomCurve,
+          cancelLeap: _zoomLeapCancelCompleter.future,
+          leapingIndicator: _isZoomLeaping,
+        );
+      }
+      return KeyEventResult.handled;
+    }
+
+    late final rotateCurve =
+        _keyboardRotateAnimationManager[evt.physicalKey]?.curveController;
+    if (keyboardOptions.enableQERotating && rotateCurve != null) {
+      if (evt is KeyDownEvent) {
+        if (rotateCurve.isAnimating) {
+          _rotateLeapCancelCompleter.complete();
+          _rotateLeapCancelCompleter = Completer();
+        }
+        rotateCurve.forward();
+      }
+      if (evt is KeyUpEvent) {
+        maybeLeap(
+          rotateCurve,
+          cancelLeap: _rotateLeapCancelCompleter.future,
+          leapingIndicator: _isRotateLeaping,
+        );
+      }
+      return KeyEventResult.handled;
+    }
+
+    return KeyEventResult.ignored;
+  }
+
+  Iterable<VoidCallback> _keyboardAnimationsHandler() sync* {
+    VoidCallback initManagerListeners<T>({
+      required _KeyboardAnimationManager<T> manager,
+      required Animation<T> Function(Animation<T> a, Animation<T> b) sum,
+      required void Function(T value) onTick,
+    }) {
+      final animation = manager.values.skip(1).fold<Animation<T>>(
+            _InfiniteAnimation(
+              manager.values.first.repeatAnimation,
+              manager.values.first.curveAnimation,
+            ),
+            (v, e) =>
+                sum(v, _InfiniteAnimation(e.repeatAnimation, e.curveAnimation)),
+          );
+
+      void animationListener() => onTick(animation.value);
+      animation.addListener(animationListener);
+      return () => animation.removeListener(animationListener);
+    }
+
+    final keyboardOptions = _interactionOptions.keyboardOptions;
+
+    yield initManagerListeners(
+      manager: _keyboardPanAnimationManager,
+      sum: _OffsetInfiniteSumAnimation.new,
+      onTick: (value) {
+        // Normalise & clamp so diagonal movement does not appear faster than
+        // axis-aligned movement.
+        // Note that one limitation of this implementation is that this is not
+        // curved. Therefore, it may appear that there is a 'snapping' effect
+        // when animating between axis-aligned and diagonal movement.
+        var correctedOffset = value;
+
+        if (value.distanceSquared >
+            _keyboardPanAnimationMaxVelocity *
+                _keyboardPanAnimationMaxVelocity) {
+          correctedOffset = (value / value.distance) *
+              (_keyboardPanAnimationMaxVelocity / math.sqrt(2));
+        }
+
+        if (_isPanLeaping.value) {
+          correctedOffset *= keyboardOptions.panLeapVelocityMultiplier;
+        }
+
+        widget.controller.moveRaw(
+          _camera.screenOffsetToLatLng(
+            _camera.latLngToScreenOffset(_camera.center) + correctedOffset,
+          ),
+          _camera.zoom,
+          hasGesture: true,
+          source: MapEventSource.keyboard,
+        );
+      },
+    );
+
+    yield initManagerListeners(
+      manager: _keyboardZoomAnimationManager,
+      sum: _NumInfiniteSumAnimation.new,
+      onTick: (value) {
+        if (_isZoomLeaping.value) {
+          value *= keyboardOptions.zoomLeapVelocityMultiplier;
+        }
+
+        widget.controller.moveRaw(
+          _camera.center,
+          _camera.zoom + value,
+          hasGesture: true,
+          source: MapEventSource.keyboard,
+        );
+      },
+    );
+
+    yield initManagerListeners(
+      manager: _keyboardRotateAnimationManager,
+      sum: _NumInfiniteSumAnimation.new,
+      onTick: (value) {
+        if (_isRotateLeaping.value) {
+          value *= keyboardOptions.rotateLeapVelocityMultiplier;
+        }
+
+        widget.controller.rotateRaw(
+          _camera.rotation + value,
+          hasGesture: true,
+          source: MapEventSource.keyboard,
+        );
+      },
+    );
+  }
+
+  _KeyboardAnimationManager<T> _generateKeyboardAnimationManager<T>({
+    required Map<PhysicalKeyboardKey, T> maxVelocities,
+    required T zero,
+  }) =>
+      Map.fromIterables(
+        maxVelocities.keys,
+        maxVelocities.values.map((end) {
+          final repeat = AnimationController(
+            vsync: this,
+            // We indefinitely repeat this animation, so the duration does not
+            // really matter
+            duration: const Duration(seconds: 1),
+          );
+          final curve = AnimationController(
+            vsync: this,
+            duration: _options
+                .interactionOptions.keyboardOptions.animationCurveDuration,
+            reverseDuration: _options.interactionOptions.keyboardOptions
+                .animationCurveReverseDuration,
+          )..addStatusListener((status) {
+              // It's safe to add a listener here, because it is auto disposed
+              // when we dispose the animation controller
+              if (status.isAnimating) repeat.stop();
+              if (status.isCompleted) repeat.repeat();
+            });
+
+          // We use a `Tween` here as it allows dynamically changing the `end`,
+          // which will cause it to animate to the new `end` implicitly
+          final repeatTween = Tween<T>(begin: end, end: end);
+          final curveTween = Tween<T>(begin: zero, end: end);
+
+          return (
+            repeatController: repeat,
+            curveController: curve,
+            // We expose the tweens so that they can theoretically be dynamically
+            // updated which will implicitly cause them to animate to the new
+            // value - we only actually do this for the pan animation (on zoom
+            // change)
+            repeatTween: repeatTween,
+            curveTween: curveTween,
+            repeatAnimation: repeatTween.animate(repeat),
+            curveAnimation: curveTween
+                .chain(
+                  CurveTween(
+                    curve:
+                        _interactionOptions.keyboardOptions.animationCurveCurve,
+                  ),
+                )
+                .animate(curve),
+          );
+        }),
+      );
+
+  void _updateKeyboardPanAnimationZoomLevel() {
+    if (_keyboardPanAnimationPrevZoom != _camera.zoom) {
+      _keyboardPanAnimationPrevZoom = _camera.zoom;
+
+      _keyboardPanAnimationMaxVelocity =
+          _keyboardPanAnimationMaxVelocityCalculator(_camera.zoom);
+
+      final up = _keyboardPanAnimationManager[PhysicalKeyboardKey.arrowUp]!;
+      up.repeatTween.begin = Offset(0, -_keyboardPanAnimationMaxVelocity);
+      up.repeatTween.end = Offset(0, -_keyboardPanAnimationMaxVelocity);
+      up.curveTween.end = Offset(0, -_keyboardPanAnimationMaxVelocity);
+
+      final down = _keyboardPanAnimationManager[PhysicalKeyboardKey.arrowDown]!;
+      down.repeatTween.begin = Offset(0, _keyboardPanAnimationMaxVelocity);
+      down.repeatTween.end = Offset(0, _keyboardPanAnimationMaxVelocity);
+      down.curveTween.end = Offset(0, _keyboardPanAnimationMaxVelocity);
+
+      final left = _keyboardPanAnimationManager[PhysicalKeyboardKey.arrowLeft]!;
+      left.repeatTween.begin = Offset(-_keyboardPanAnimationMaxVelocity, 0);
+      left.repeatTween.end = Offset(-_keyboardPanAnimationMaxVelocity, 0);
+      left.curveTween.end = Offset(-_keyboardPanAnimationMaxVelocity, 0);
+
+      final right =
+          _keyboardPanAnimationManager[PhysicalKeyboardKey.arrowRight]!;
+      right.repeatTween.begin = Offset(_keyboardPanAnimationMaxVelocity, 0);
+      right.repeatTween.end = Offset(_keyboardPanAnimationMaxVelocity, 0);
+      right.curveTween.end = Offset(_keyboardPanAnimationMaxVelocity, 0);
+    }
+  }
+
+  // Utilities
 
   double _getZoomForScale(double startZoom, double scale) {
     final resultZoom =

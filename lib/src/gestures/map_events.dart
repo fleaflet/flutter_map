@@ -66,6 +66,9 @@ enum MapEventSource {
 
   /// The [MapEvent] is caused by a CTRL + drag rotation gesture.
   cursorKeyboardRotation,
+
+  /// The [MapEvent] is caused a keyboard key (see [KeyboardOptions])
+  keyboard,
 }
 
 /// Base event class which is emitted by MapController instance, the event
@@ -131,6 +134,7 @@ abstract class MapEventWithMove extends MapEvent {
         MapEventSource.onDrag ||
         MapEventSource.onMultiFinger ||
         MapEventSource.mapController ||
+        MapEventSource.keyboard ||
         MapEventSource.custom =>
           MapEventMove(
             id: id,
