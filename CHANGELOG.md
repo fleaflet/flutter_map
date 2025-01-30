@@ -10,7 +10,7 @@ This CHANGELOG does not include every commit and/or PR - it is a hand picked sel
 
 Contains the following user-affecting changes:
 
-- 🟢 Added unbounded horizontal scroll (with the default projection) and support for layers to cross anti-meridian - [#1948 (💰)](https://github.com/fleaflet/flutter_map/pull/1948), [#1969](https://github.com/fleaflet/flutter_map/pull/1969), [#1978](https://github.com/fleaflet/flutter_map/pull/1978), [#2000](https://github.com/fleaflet/flutter_map/pull/2000), [#2018](https://github.com/fleaflet/flutter_map/pull/2018) for [#1582](https://github.com/fleaflet/flutter_map/issues/1582)
+- 🟢 Added unbounded horizontal scroll (with the default projection) and support for layers to cross anti-meridian - [#1948 (💰)](https://github.com/fleaflet/flutter_map/pull/1948), [#1969](https://github.com/fleaflet/flutter_map/pull/1969), [#1978](https://github.com/fleaflet/flutter_map/pull/1978), [#2000](https://github.com/fleaflet/flutter_map/pull/2000), [#2018](https://github.com/fleaflet/flutter_map/pull/2018), [#2025](https://github.com/fleaflet/flutter_map/pull/2025) for [#1582](https://github.com/fleaflet/flutter_map/issues/1582)
 - 🟢 Added animated keyboard controls for gestures - [#1987](https://github.com/fleaflet/flutter_map/pull/1987)
 - 🟢 Added `filterQuality` parameter to `(Base)OverlayImage` - [#1989](https://github.com/fleaflet/flutter_map/pull/1989)
 - 🟢 Exposed `BaseOverlayImage` for external implementation/extension - [#1990](https://github.com/fleaflet/flutter_map/pull/1990)
