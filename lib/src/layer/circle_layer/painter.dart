@@ -1,7 +1,6 @@
 part of 'circle_layer.dart';
 
 /// The [CustomPainter] used to draw [CircleMarker] for the [CircleLayer].
-@immutable
 base class CirclePainter<R extends Object>
     extends HitDetectablePainter<R, CircleMarker<R>> {
   /// Reference to the list of [CircleMarker]s of the [CircleLayer].
@@ -23,76 +22,129 @@ base class CirclePainter<R extends Object>
     required Offset point,
     required LatLng coordinate,
   }) {
-    final circle = element; // Should be optimized out by compiler, avoids lint
+    final worldWidth = _getWorldWidth();
+    final radius = _getRadiusInPixel(element, withBorder: true);
+    final initialCenter = _getOffset(element.point);
 
-    final center = camera.getOffsetFromOrigin(circle.point);
-    final radius = circle.useRadiusInMeter
-        ? (center -
-                camera.getOffsetFromOrigin(
-                    _distance.offset(circle.point, circle.radius, 180)))
-            .distance
-        : circle.radius;
+    /// Returns null if invisible, true if hit, false if not hit.
+    bool? checkIfHit(double shift) {
+      final center = initialCenter + Offset(shift, 0);
+      if (!_isVisible(
+        screenRect: _screenRect,
+        center: center,
+        radiusInPixel: radius,
+      )) {
+        return null;
+      }
 
-    return pow(point.dx - center.dx, 2) + pow(point.dy - center.dy, 2) <=
-        radius * radius;
+      return pow(point.dx - center.dx, 2) + pow(point.dy - center.dy, 2) <=
+          radius * radius;
+    }
+
+    if (checkIfHit(0) ?? false) {
+      return true;
+    }
+
+    // Repeat over all worlds (<--||-->) until culling determines that
+    // that element is out of view, and therefore all further elements in
+    // that direction will also be
+    if (worldWidth == 0) return false;
+    for (double shift = -worldWidth;; shift -= worldWidth) {
+      final isHit = checkIfHit(shift);
+      if (isHit == null) break;
+      if (isHit) return true;
+    }
+    for (double shift = worldWidth;; shift += worldWidth) {
+      final isHit = checkIfHit(shift);
+      if (isHit == null) break;
+      if (isHit) return true;
+    }
+
+    return false;
   }
 
   @override
   Iterable<CircleMarker<R>> get elements => circles;
 
+  late Rect _screenRect;
+
   @override
   void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-    canvas.clipRect(rect);
+    _screenRect = Offset.zero & size;
+    canvas.clipRect(_screenRect);
+
+    final worldWidth = _getWorldWidth();
 
     // Let's calculate all the points grouped by color and radius
     final points = <Color, Map<double, List<Offset>>>{};
     final pointsFilledBorder = <Color, Map<double, List<Offset>>>{};
     final pointsBorder = <Color, Map<double, Map<double, List<Offset>>>>{};
     for (final circle in circles) {
-      final center = camera.getOffsetFromOrigin(circle.point);
-      final radius = circle.useRadiusInMeter
-          ? (center -
-                  camera.getOffsetFromOrigin(
-                      _distance.offset(circle.point, circle.radius, 180)))
-              .distance
-          : circle.radius;
-      points[circle.color] ??= {};
-      points[circle.color]![radius] ??= [];
-      points[circle.color]![radius]!.add(center);
+      final radiusWithoutBorder = _getRadiusInPixel(circle, withBorder: false);
+      final radiusWithBorder = _getRadiusInPixel(circle, withBorder: true);
+      final initialCenter = _getOffset(circle.point);
 
-      if (circle.borderStrokeWidth > 0) {
-        // Check if color have some transparency or not
-        // As drawPoints is more efficient than drawCircle
-        if (circle.color.a == 1) {
-          double radiusBorder = circle.radius + circle.borderStrokeWidth;
-          if (circle.useRadiusInMeter) {
-            final rBorder = _distance.offset(circle.point, radiusBorder, 180);
-            final deltaBorder = center - camera.getOffsetFromOrigin(rBorder);
-            radiusBorder = deltaBorder.distance;
+      bool checkIfVisible(double shift) {
+        bool result = false;
+        final center = initialCenter + Offset(shift, 0);
+
+        bool isVisible(double radius) {
+          if (_isVisible(
+            screenRect: _screenRect,
+            center: center,
+            radiusInPixel: radius,
+          )) {
+            return result = true;
           }
-          pointsFilledBorder[circle.borderColor] ??= {};
-          pointsFilledBorder[circle.borderColor]![radiusBorder] ??= [];
-          pointsFilledBorder[circle.borderColor]![radiusBorder]!.add(center);
-        } else {
-          double realRadius = circle.radius;
-          if (circle.useRadiusInMeter) {
-            final rBorder = _distance.offset(circle.point, realRadius, 180);
-            final deltaBorder = center - camera.getOffsetFromOrigin(rBorder);
-            realRadius = deltaBorder.distance;
-          }
-          pointsBorder[circle.borderColor] ??= {};
-          pointsBorder[circle.borderColor]![circle.borderStrokeWidth] ??= {};
-          pointsBorder[circle.borderColor]![circle.borderStrokeWidth]![
-              realRadius] ??= [];
-          pointsBorder[circle.borderColor]![circle.borderStrokeWidth]![
-                  realRadius]!
-              .add(center);
+          return false;
         }
+
+        if (isVisible(radiusWithoutBorder)) {
+          points[circle.color] ??= {};
+          points[circle.color]![radiusWithoutBorder] ??= [];
+          points[circle.color]![radiusWithoutBorder]!.add(center);
+        }
+
+        if (circle.borderStrokeWidth > 0 && isVisible(radiusWithBorder)) {
+          // Check if color have some transparency or not
+          // As drawPoints is more efficient than drawCircle
+          if (circle.color.a == 1) {
+            pointsFilledBorder[circle.borderColor] ??= {};
+            pointsFilledBorder[circle.borderColor]![radiusWithBorder] ??= [];
+            pointsFilledBorder[circle.borderColor]![radiusWithBorder]!
+                .add(center);
+          } else {
+            pointsBorder[circle.borderColor] ??= {};
+            pointsBorder[circle.borderColor]![circle.borderStrokeWidth] ??= {};
+            pointsBorder[circle.borderColor]![circle.borderStrokeWidth]![
+                radiusWithoutBorder] ??= [];
+            pointsBorder[circle.borderColor]![circle.borderStrokeWidth]![
+                    radiusWithoutBorder]!
+                .add(center);
+          }
+        }
+        return result;
+      }
+
+      checkIfVisible(0);
+
+      // Repeat over all worlds (<--||-->) until culling determines that
+      // that element is out of view, and therefore all further elements in
+      // that direction will also be
+      if (worldWidth == 0) continue;
+      for (double shift = -worldWidth;; shift -= worldWidth) {
+        final isVisible = checkIfVisible(shift);
+        if (!isVisible) break;
+      }
+      for (double shift = worldWidth;; shift += worldWidth) {
+        final isVisible = checkIfVisible(shift);
+        if (!isVisible) break;
       }
     }
 
     // Now that all the points are grouped, let's draw them
+
+    // First, the border when with non opaque disk
     final paintBorder = Paint()..style = PaintingStyle.stroke;
     for (final color in pointsBorder.keys) {
       final paint = paintBorder..color = color;
@@ -108,7 +160,7 @@ base class CirclePainter<R extends Object>
       }
     }
 
-    // Then the filled border in order to be under the circle
+    // Then the filled border in order to be under the disk
     final paintPoint = Paint()
       ..isAntiAlias = false
       ..strokeCap = StrokeCap.round;
@@ -122,7 +174,7 @@ base class CirclePainter<R extends Object>
       }
     }
 
-    // And then the circle
+    // And then the disk
     for (final color in points.keys) {
       final paint = paintPoint..color = color;
       final pointsByRadius = points[color]!;
@@ -145,4 +197,27 @@ base class CirclePainter<R extends Object>
   @override
   bool shouldRepaint(CirclePainter oldDelegate) =>
       circles != oldDelegate.circles || camera != oldDelegate.camera;
+
+  Offset _getOffset(LatLng pos) => camera.getOffsetFromOrigin(pos);
+
+  double _getRadiusInPixel(CircleMarker circle, {required bool withBorder}) =>
+      (withBorder ? circle.borderStrokeWidth / 2 : 0) +
+      (circle.useRadiusInMeter
+          ? (_getOffset(circle.point) -
+                  _getOffset(
+                      _distance.offset(circle.point, circle.radius, 180)))
+              .distance
+          : circle.radius);
+
+  /// Returns true if a centered circle with this radius is on the screen.
+  bool _isVisible({
+    required Rect screenRect,
+    required Offset center,
+    required double radiusInPixel,
+  }) =>
+      screenRect.overlaps(
+        Rect.fromCircle(center: center, radius: radiusInPixel),
+      );
+
+  double _getWorldWidth() => camera.getWorldWidthAtZoom();
 }

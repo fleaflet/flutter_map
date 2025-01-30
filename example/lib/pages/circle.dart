@@ -21,12 +21,15 @@ class _CirclePageState extends State<CirclePage> {
   List<HitValue>? _prevHitValues;
   List<CircleMarker<HitValue>>? _hoverCircles;
 
+  static const double _initialBorderStrokeWidth = 2;
+  static const double _hoverBorderStrokeWidth = 15;
+
   final _circlesRaw = <CircleMarker<HitValue>>[
     CircleMarker(
       point: const LatLng(51.5, -0.09),
       color: Colors.white.withAlpha(178),
       borderColor: Colors.black,
-      borderStrokeWidth: 2,
+      borderStrokeWidth: _initialBorderStrokeWidth,
       useRadiusInMeter: false,
       radius: 100,
       hitValue: (title: 'White', subtitle: 'Radius in logical pixels'),
@@ -35,7 +38,7 @@ class _CirclePageState extends State<CirclePage> {
       point: const LatLng(51.5, -0.09),
       color: Colors.black.withAlpha(178),
       borderColor: Colors.black,
-      borderStrokeWidth: 2,
+      borderStrokeWidth: _initialBorderStrokeWidth,
       useRadiusInMeter: false,
       radius: 50,
       hitValue: (
@@ -48,9 +51,10 @@ class _CirclePageState extends State<CirclePage> {
       // Dorney Lake is ~2km long
       color: Colors.green.withAlpha(229),
       borderColor: Colors.black,
-      borderStrokeWidth: 2,
+      borderStrokeWidth: _initialBorderStrokeWidth,
       useRadiusInMeter: true,
-      radius: 1000, // 1000 meters
+      radius: 1000,
+      // 1000 meters
       hitValue: (
         title: 'Green',
         subtitle: 'Radius in meters, calibrated over ~2km rowing lake'
@@ -87,10 +91,12 @@ class _CirclePageState extends State<CirclePage> {
 
                 return CircleMarker<HitValue>(
                   point: original.point,
-                  radius: original.radius + 6.5,
+                  radius: original.radius +
+                      _initialBorderStrokeWidth / 2 +
+                      _hoverBorderStrokeWidth / 2,
                   useRadiusInMeter: original.useRadiusInMeter,
                   color: Colors.transparent,
-                  borderStrokeWidth: 15,
+                  borderStrokeWidth: _hoverBorderStrokeWidth,
                   borderColor: Colors.green,
                 );
               }).toList();
