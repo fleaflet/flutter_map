@@ -1,7 +1,7 @@
 name: Bug Report
-description: Create a bug report to help us improve
-title: "[BUG] <title>"
-labels: ["bug", "needs triage"]
+description: Let us know about something that isn't working
+labels: ["needs triage"]
+type: Bug
 body:
   - type: markdown
     attributes:
@@ -9,29 +9,27 @@ body:
         # Bug Report
 
         Thanks for taking the time to fill out this bug report! To help us verify the issue quicker, please include as much information as you can.
-        
-        
+
+
         ---
-        
-        
+
+
         Before reporting a bug, please:
 
         * Check if there is already an open or closed issue that is similar to yours
-        
-        * Ensure that you have fully read the documentation (both the website and API docs) that pertains to the function you're having problems with
 
-        * Ensure that your Flutter environment is correctly installed & set-up
+        * Ensure that you have fully read the documentation (both the website and API docs) that relates to the feature(s) you're having problems with
 
         * Remember that we're volunteers trying our best to help, so please be polite
-        
-        
+
+
         ---
         "
   - type: textarea
     id: details
     attributes:
       label: What is the bug?
-      description: What were you implementing when you found this issue? What happens when the bug triggers? What do you think should have happened instead? Please include as much detail as possible, including screenshots and screen-recordings if you can.
+      description: What were you implementing when you found this issue? What happens when the bug triggers? What do you think should have happened instead? Does it only occur on a specific platform? Please include as much detail as possible, including screenshots and screen-recordings if you can.
     validations:
       required: true
   - type: textarea
@@ -47,27 +45,4 @@ body:
     id: solution
     attributes:
       label: Do you have a potential solution?
-      description: "If so, please detail it: it will make it quicker for us to fix the issue."
-  - type: markdown
-    attributes:
-      value: ---
-  - type: input
-    id: platform
-    attributes:
-      label: Platforms
-      description: Please detail the devices and operating systems you can reproduce this bug on, separated by commas.
-      placeholder: eg. Android 13 (Samsung Galaxy S99), Windows 11 (x64)
-    validations:
-      required: true
-  - type: dropdown
-    id: severity
-    attributes:
-      label: Severity
-      description: How much of a problem is this issue, when it does occur?
-      options:
-        - "Minimum: Allows normal functioning"
-        - "Obtrusive: Prevents normal functioning but causes no errors in the console"
-        - "Erroneous: Prevents normal functioning and causes errors in the console"
-        - "Fatal: Causes the application to crash"
-    validations:
-      required: true
+      description: "If so, please detail it: it will make it quicker for us to fix the issue. We also hugely appriciate PRs!"

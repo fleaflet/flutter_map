@@ -114,68 +114,65 @@ base class _PolygonPainter<R extends Object>
       final polygon = lastPolygon!;
 
       // Draw filled polygon
-      // ignore: deprecated_member_use_from_same_package
-      if (polygon.isFilled ?? true) {
-        if (polygon.color case final color?) {
-          final paint = Paint()
-            ..style = PaintingStyle.fill
-            ..color = color;
+      if (polygon.color case final color?) {
+        final paint = Paint()
+          ..style = PaintingStyle.fill
+          ..color = color;
 
-          if (trianglePoints.isNotEmpty) {
-            final points = Float32List(trianglePoints.length * 2);
-            for (int i = 0; i < trianglePoints.length; ++i) {
-              points[i * 2] = trianglePoints[i].dx;
-              points[i * 2 + 1] = trianglePoints[i].dy;
-            }
-            final vertices = Vertices.raw(VertexMode.triangles, points);
-            canvas.drawVertices(vertices, BlendMode.src, paint);
-
-            if (debugAltRenderer) {
-              for (int i = 0; i < trianglePoints.length; i += 3) {
-                canvas.drawCircle(
-                  trianglePoints[i],
-                  5,
-                  Paint()..color = const Color(0x7EFF0000),
-                );
-                canvas.drawCircle(
-                  trianglePoints[i + 1],
-                  5,
-                  Paint()..color = const Color(0x7E00FF00),
-                );
-                canvas.drawCircle(
-                  trianglePoints[i + 2],
-                  5,
-                  Paint()..color = const Color(0x7E0000FF),
-                );
-
-                final path = Path()
-                  ..addPolygon(
-                    [
-                      trianglePoints[i],
-                      trianglePoints[i + 1],
-                      trianglePoints[i + 2],
-                    ],
-                    true,
-                  );
-
-                canvas.drawPath(
-                  path,
-                  Paint()
-                    ..color = const Color(0x7EFFFFFF)
-                    ..style = PaintingStyle.fill,
-                );
-
-                canvas.drawPath(
-                  path,
-                  Paint()
-                    ..color = const Color(0xFF000000)
-                    ..style = PaintingStyle.stroke,
-                );
-              }
-            }
-          } else {
-            canvas.drawPath(filledPath, paint);
+        if (trianglePoints.isNotEmpty) {
+          final points = Float32List(trianglePoints.length * 2);
+          for (int i = 0; i < trianglePoints.length; ++i) {
+            points[i * 2] = trianglePoints[i].dx;
+            points[i * 2 + 1] = trianglePoints[i].dy;
           }
+          final vertices = Vertices.raw(VertexMode.triangles, points);
+          canvas.drawVertices(vertices, BlendMode.src, paint);
+
+          if (debugAltRenderer) {
+            for (int i = 0; i < trianglePoints.length; i += 3) {
+              canvas.drawCircle(
+                trianglePoints[i],
+                5,
+                Paint()..color = const Color(0x7EFF0000),
+              );
+              canvas.drawCircle(
+                trianglePoints[i + 1],
+                5,
+                Paint()..color = const Color(0x7E00FF00),
+              );
+              canvas.drawCircle(
+                trianglePoints[i + 2],
+                5,
+                Paint()..color = const Color(0x7E0000FF),
+              );
+
+              final path = Path()
+                ..addPolygon(
+                  [
+                    trianglePoints[i],
+                    trianglePoints[i + 1],
+                    trianglePoints[i + 2],
+                  ],
+                  true,
+                );
+
+              canvas.drawPath(
+                path,
+                Paint()
+                  ..color = const Color(0x7EFFFFFF)
+                  ..style = PaintingStyle.fill,
+              );
+
+              canvas.drawPath(
+                path,
+                Paint()
+                  ..color = const Color(0xFF000000)
+                  ..style = PaintingStyle.stroke,
+              );
+            }
+          }
+        } else {
+          canvas.drawPath(filledPath, paint);
         }
       }
 
@@ -246,17 +243,14 @@ base class _PolygonPainter<R extends Object>
       lastHash = hash;
 
       // First add fills and borders to path.
-      // ignore: deprecated_member_use_from_same_package
-      if (polygon.isFilled ?? true) {
-        if (polygon.color != null) {
-          if (polygonTriangles != null) {
-            final len = polygonTriangles.length;
-            for (int i = 0; i < len; ++i) {
-              trianglePoints.add(fillOffsets[polygonTriangles[i]]);
-            }
-          } else {
-            filledPath.addPolygon(fillOffsets, true);
+      if (polygon.color != null) {
+        if (polygonTriangles != null) {
+          final len = polygonTriangles.length;
+          for (int i = 0; i < len; ++i) {
+            trianglePoints.add(fillOffsets[polygonTriangles[i]]);
           }
+        } else {
+          filledPath.addPolygon(fillOffsets, true);
         }
       }
 

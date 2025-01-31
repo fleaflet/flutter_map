@@ -1,11 +1,11 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Get Help
+  - name: Get help
     url: https://discord.gg/BwpEsjqMAH
     about: Don't quite understand how to implement something, or just want to talk? Join the Discord server!
-  - name: Frequently Asked Questions
-    url: https://docs.fleaflet.dev/frequently-asked-questions
+  - name: Check the FAQs
+    url: https://docs.fleaflet.dev/#faqs
     about: Before posting an issue or asking for help, please check whether your question has already been answered!
-  - name: Documentation
+  - name: Read the documentation
     url: https://docs.fleaflet.dev/
     about: Before posting an issue or asking for help, please ensure you read the documentation thoroughly

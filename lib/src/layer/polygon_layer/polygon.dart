@@ -44,29 +44,6 @@ class Polygon<R extends Object> {
   /// display it.
   final StrokePattern pattern;
 
-  /// **DEPRECATED**
-  ///
-  /// Prefer setting `color` to null to disable filling, or a `Color` to enable
-  /// filling of that color.
-  ///
-  /// This parameter will be removed to simplify the API, as this was a remnant of pre-null-safety.
-  ///
-  /// The default of this parameter is now `null` and will use the rules above -
-  /// the option is retained so as not to break APIs.
-  ///
-  /// This feature was deprecated (and the default changed) after v7.
-  ///
-  /// ---
-  ///
-  /// Set to true if the [Polygon] should be filled with a color.
-  @Deprecated(
-    'Prefer setting `color` to null to disable filling, or a `Color` to enable filling of that color. '
-    'This parameter will be removed to simplify the API, as this was a remnant of pre-null-safety. '
-    'The default of this parameter is now `null` and will use the rules above - the option is retained so as not to break APIs. '
-    'This feature was deprecated (and the default changed) after v7.',
-  )
-  final bool? isFilled;
-
   /// Styles to use for line endings.
   final StrokeCap strokeCap;
 
@@ -144,13 +121,6 @@ class Polygon<R extends Object> {
     this.borderColor = const Color(0xFFFFFF00),
     this.disableHolesBorder = false,
     this.pattern = const StrokePattern.solid(),
-    @Deprecated(
-      'Prefer setting `color` to null to disable filling, or a `Color` to enable filling of that color. '
-      'This parameter will be removed to simplify the API, as this was a remnant of pre-null-safety. '
-      'The default of this parameter is now `null` and will use the rules above - the option is retained so as not to break APIs. '
-      'This feature was deprecated (and the default changed) after v7.',
-    )
-    this.isFilled,
     this.strokeCap = StrokeCap.round,
     this.strokeJoin = StrokeJoin.round,
     this.label,
@@ -158,8 +128,7 @@ class Polygon<R extends Object> {
     this.labelPlacement = PolygonLabelPlacement.centroid,
     this.rotateLabel = false,
     this.hitValue,
-  }) : _filledAndClockwise =
-            (isFilled ?? (color != null)) && isClockwise(points);
+  }) : _filledAndClockwise = color != null && isClockwise(points);
 
   /// Checks if the [Polygon] points are ordered clockwise in the list.
   static bool isClockwise(List<LatLng> points) {
@@ -182,8 +151,6 @@ class Polygon<R extends Object> {
           borderColor == other.borderColor &&
           disableHolesBorder == other.disableHolesBorder &&
           pattern == other.pattern &&
-          // ignore: deprecated_member_use_from_same_package
-          isFilled == other.isFilled &&
           strokeCap == other.strokeCap &&
           strokeJoin == other.strokeJoin &&
           label == other.label &&
@@ -207,8 +174,6 @@ class Polygon<R extends Object> {
         borderColor,
         disableHolesBorder,
         pattern,
-        // ignore: deprecated_member_use_from_same_package
-        isFilled,
         strokeCap,
         strokeJoin,
         _filledAndClockwise,

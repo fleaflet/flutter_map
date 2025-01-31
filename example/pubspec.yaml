@@ -1,7 +1,7 @@
 name: flutter_map_example
 description: Example application for 'flutter_map' package
 publish_to: "none"
-version: 7.0.1
+version: 8.0.0
 
 environment:
   sdk: ">=3.6.0 <4.0.0"
@@ -25,6 +25,10 @@ dependencies:
 dependency_overrides:
   flutter_map:
     path: ../
+  flutter_map_geojson:
+    git:
+      url: https://github.com/JaffaKetchup/flutter_map_geojson.git
+      ref: fm-v8
 
 dev_dependencies:
   flutter_lints: ">=4.0.0 <6.0.0"

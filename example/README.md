@@ -1,4 +1,4 @@
-# Example Application For '[flutter_map](https://github.com/fleaflet/flutter_map)'
+# Demo app for '[flutter_map](https://github.com/fleaflet/flutter_map)'
 
 Showcases functionality of the library in a neat and useful format that can be used for further API references, and just to see if you want this library for your app.
 

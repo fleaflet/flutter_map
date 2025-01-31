@@ -98,10 +98,7 @@ class _FlutterMapStateContainer extends State<FlutterMap>
           Positioned.fill(
             child: ColoredBox(color: widget.options.backgroundColor),
           ),
-          // ignore: deprecated_member_use_from_same_package
-          ...widget.options.applyPointerTranslucencyToLayers
-              ? widget.children.map((child) => TranslucentPointer(child: child))
-              : widget.children,
+          ...widget.children,
         ],
       ),
     );
