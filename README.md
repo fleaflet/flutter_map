@@ -11,17 +11,15 @@ coverY: -35
 
 [![pub.dev](https://img.shields.io/pub/v/flutter_map.svg?label=Latest+Version)](https://pub.dev/packages/flutter_map) [![stars](https://badgen.net/github/stars/fleaflet/flutter_map?label=stars\&color=green\&icon=github)](https://github.com/fleaflet/flutter_map/stargazers) [![likes](https://img.shields.io/pub/likes/flutter_map?logo=flutter)](https://pub.dev/packages/flutter_map/score)        [![codecov](https://codecov.io/gh/fleaflet/flutter_map/graph/badge.svg?token=LgYgZQ0Yjj)](https://codecov.io/gh/fleaflet/flutter_map) [![Open Issues](https://badgen.net/github/open-issues/fleaflet/flutter_map?label=Open+Issues\&color=green)](https://github.com/fleaflet/flutter_map/issues) [![Open PRs](https://badgen.net/github/open-prs/fleaflet/flutter_map?label=Open+PRs\&color=green)](https://github.com/fleaflet/flutter_map/pulls)
 
-{% hint style="warning" %}
-This documentation applies to v8, which is currently unreleased.
+{% hint style="success" %}
+Welcome to v8! Find out [new-in-v8.md](getting-started/new-in-v8.md "mention"), or if you're new here, check out the [#code-demo](./#code-demo "mention") & [installation.md](getting-started/installation.md "mention") instructions to get started.&#x20;
 
-See [v7](https://app.gitbook.com/o/1aKKbSpe255wyVNDoFYc/s/O2hE9FJb0PVZ0w3qEsM8/ "mention") for v7 documentation.
+v7 documentation is still available: [v7](https://app.gitbook.com/o/1aKKbSpe255wyVNDoFYc/s/O2hE9FJb0PVZ0w3qEsM8/ "mention"). Some plugins may require some time to update to support v8.
 {% endhint %}
 
 ## Why & How?
 
-{% hint style="success" %}
 See why you should use flutter\_map for your project, and see how you can use flutter\_map for your project. It's a great idea and takes no more time than other libraries!
-{% endhint %}
 
 {% content-ref url="why-and-how/choose.md" %}
 [choose.md](why-and-how/choose.md)
