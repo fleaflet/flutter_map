@@ -181,6 +181,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
       source: source,
       id: id,
     );
+    //! PREVENTS TILE LOADING IF SOURCE NOT CONFIGURED IN CONSTRUCTOR
     if (movementEvent != null) _emitMapEvent(movementEvent);
 
     options.onPositionChanged?.call(newCamera, hasGesture);
