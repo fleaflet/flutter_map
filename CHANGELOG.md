@@ -2,21 +2,44 @@
 
 Please consider [donating](https://docs.fleaflet.dev/supporters#support-us) or [contributing](https://docs.fleaflet.dev/credits#contributing) if you're a fan of what we're doing and you'd like to support future releases!
 
-This CHANGELOG does not include every commit and/or PR - it is a hand picked selection of the most important ones. For a full list of changes, please check the GitHub repository releases/tags.
+This CHANGELOG does not include every commit and/or PR - it is a hand picked selection of the ones that have an effect on you. For a full list of changes, please check the GitHub repository releases/tags.
 
-## [8.0.0] - 2024/07/02
+## [8.0.0] - 2025/XX/XX
 
-Migration from `Point` class internally, but this also affects the external API.
+**"Infinite Worlds**
 
-Migration Guide:
-- any methods that previously required `Point<double>` now require `Offset`, `Size`, or `Rect` as return values and parameters
-- `pointToLatLng` -> `offsetToLatLng`
-- `PointExtension` and `OffsetToPointExtension` marked as internal
-- `MapController.rotateAroundPoint` now only accepts an Offset
+Contains the following user-affecting changes:
 
+- 🟢 Added unbounded horizontal scroll (with the default projection) and support for layers to cross anti-meridian - [#1948 (💰)](https://github.com/fleaflet/flutter_map/pull/1948), [#1969](https://github.com/fleaflet/flutter_map/pull/1969), [#1978](https://github.com/fleaflet/flutter_map/pull/1978), [#2000](https://github.com/fleaflet/flutter_map/pull/2000), [#2018](https://github.com/fleaflet/flutter_map/pull/2018), [#2025](https://github.com/fleaflet/flutter_map/pull/2025) for [#1582](https://github.com/fleaflet/flutter_map/issues/1582)
+- 🟢 Added animated keyboard controls for gestures - [#1987](https://github.com/fleaflet/flutter_map/pull/1987)
+- 🟢 Added `filterQuality` parameter to `(Base)OverlayImage` - [#1989](https://github.com/fleaflet/flutter_map/pull/1989)
+- 🟢 Exposed `BaseOverlayImage` for external implementation/extension - [#1990](https://github.com/fleaflet/flutter_map/pull/1990)
+- 🟡 Changed the majority of references to `Point` to `Offset`, and method names accordingly - [#1996](https://github.com/fleaflet/flutter_map/pull/1996)
+- 🟡 Added integer `tileDimension` & deprecated `TileLayer.tileSize` - [#1940](https://github.com/fleaflet/flutter_map/pull/1940)
 
 Contains the following user-affecting bug fixes:
 
+- Fixed polygon hit detection when map rotated - [#1942](https://github.com/fleaflet/flutter_map/pull/1942) for [#1934](https://github.com/fleaflet/flutter_map/issues/1934)
+- Fixed polygon hit detection when polygon invalid - [#1964](https://github.com/fleaflet/flutter_map/pull/1964) for [#1933](https://github.com/fleaflet/flutter_map/issues/1933)
+- Eagerly listen to `TileLayer.reset` stream internally to ensure handler is fired - [#1943](https://github.com/fleaflet/flutter_map/pull/1943) for [#1808](https://github.com/fleaflet/flutter_map/issues/1808)
+- Fixed some tile loading/pruning state issues - [#2007](https://github.com/fleaflet/flutter_map/pull/2007) for partially [#1837](https://github.com/fleaflet/flutter_map/issues/1837)
+- Use `Client` instead of `BaseClient` in network tile/image provider - [#2011](https://github.com/fleaflet/flutter_map/pull/2011) for [#2010](https://github.com/fleaflet/flutter_map/issues/2010)
+- Avoid closing externally created `http.Client` in `NetworkTileProvider` - [#2012](https://github.com/fleaflet/flutter_map/pull/2012) for [#2009](https://github.com/fleaflet/flutter_map/issues/2009)
+
+Contains the following user-affecting performance improvements:
+
+- Fixed performance-related bug where `Polyline.renderHashCode` included `hashCode` unnecessarily causing internal draw batching to fail - [#1967](https://github.com/fleaflet/flutter_map/pull/1967)
+- Fixed massive performance-related bug where the simplification cache for the `Polyline/gonLayer`s was incorrectly used - [#1991](https://github.com/fleaflet/flutter_map/pull/1991)
+- Perform bounding-box culling prior to aggressive culling for `Polyline`s - [#1993](https://github.com/fleaflet/flutter_map/pull/1993)
+
+Many thanks to these contributors (in no particular order):
+
+- @monsieurtanuki
+- @alestiago
+- @RBT22
+- @TechnicJelle
+- @slightfoot
+- ... and all the maintainers
 
 ## [7.0.2] - 2024/07/02
 
@@ -90,7 +113,7 @@ Many thanks to these contributors (in no particular order):
 ## [6.2.1] - 2024/05/27
 
 > If possible, prefer to update directly to v7. This version is provided only to enable Flutter 3.22 compatibility without requiring a breaking change.
-
+>
 > v6.2.0 was retracted from pub.dev due to a mistake in the release preparation. For more information, see [this comment](https://github.com/fleaflet/flutter_map/pull/1891#issuecomment-2134069848). v6.2.1 is the replacement without the issues.
 
 Contains the following user-affecting changes:

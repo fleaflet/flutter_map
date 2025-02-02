@@ -17,7 +17,6 @@ linter:
     cancel_subscriptions: true
     close_sinks: true
     directives_ordering: true
-    package_api_docs: true
     prefer_constructors_over_static_methods: true
     prefer_final_in_for_each: true
     prefer_final_locals: true

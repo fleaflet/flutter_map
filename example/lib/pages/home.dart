@@ -33,15 +33,9 @@ class _HomePageState extends State<HomePage> {
       body: Stack(
         children: [
           FlutterMap(
-            options: MapOptions(
-              initialCenter: const LatLng(51.5, -0.09),
+            options: const MapOptions(
+              initialCenter: LatLng(51.5, -0.09),
               initialZoom: 5,
-              cameraConstraint: CameraConstraint.contain(
-                bounds: LatLngBounds(
-                  const LatLng(-90, -180),
-                  const LatLng(90, 180),
-                ),
-              ),
             ),
             children: [
               openStreetMapTileLayer,
