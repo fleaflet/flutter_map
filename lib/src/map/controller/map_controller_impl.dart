@@ -245,8 +245,8 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     }
 
     final rotationDiff = degree - camera.rotation;
-    final rotationCenter = (camera.projectAtZoom(camera.center) + offset!)
-        .rotate(camera.rotationRad);
+    final rotationCenter = camera.projectAtZoom(camera.center) +
+        offset!.rotate(camera.rotationRad);
 
     return (
       moveSuccess: moveRaw(
