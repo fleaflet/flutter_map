@@ -4,7 +4,17 @@ Please consider [donating](https://docs.fleaflet.dev/supporters#support-us) or [
 
 This CHANGELOG does not include every commit and/or PR - it is a hand picked selection of the ones that have an effect on you. For a full list of changes, please check the GitHub repository releases/tags.
 
-## [8.0.0] - 2025/XX/XX
+## [8.0.1] - 2025/02/XX
+
+Contains the following user-affecting bug fixes:
+
+- Ensure `MapController.rotateAroundPoint` does not move map when already rotated - [#2029](https://github.com/fleaflet/flutter_map/pull/2029)
+
+Many thanks to these contributors (in no particular order):
+
+- @tlserver
+
+## [8.0.0] - 2025/02/02
 
 **"Infinite Worlds**
 
