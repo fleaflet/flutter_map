@@ -14,26 +14,19 @@ base class CirclePainter<R extends Object>
     required super.hitNotifier,
   });
 
-  static const _distance = Distance();
-
   @override
   bool elementHitTest(
     CircleMarker<R> element, {
     required Offset point,
     required LatLng coordinate,
   }) {
-    final worldWidth = _getWorldWidth();
     final radius = _getRadiusInPixel(element, withBorder: true);
     final initialCenter = _getOffset(element.point);
 
     /// Returns null if invisible, true if hit, false if not hit.
     bool? checkIfHit(double shift) {
       final center = initialCenter + Offset(shift, 0);
-      if (!_isVisible(
-        screenRect: _screenRect,
-        center: center,
-        radiusInPixel: radius,
-      )) {
+      if (!_isVisible(center: center, radiusInPixel: radius)) {
         return null;
       }
 
@@ -41,39 +34,16 @@ base class CirclePainter<R extends Object>
           radius * radius;
     }
 
-    if (checkIfHit(0) ?? false) {
-      return true;
-    }
-
-    // Repeat over all worlds (<--||-->) until culling determines that
-    // that element is out of view, and therefore all further elements in
-    // that direction will also be
-    if (worldWidth == 0) return false;
-    for (double shift = -worldWidth;; shift -= worldWidth) {
-      final isHit = checkIfHit(shift);
-      if (isHit == null) break;
-      if (isHit) return true;
-    }
-    for (double shift = worldWidth;; shift += worldWidth) {
-      final isHit = checkIfHit(shift);
-      if (isHit == null) break;
-      if (isHit) return true;
-    }
-
-    return false;
+    return helper.checkIfHitInTheWorlds(checkIfHit);
   }
 
   @override
   Iterable<CircleMarker<R>> get elements => circles;
 
-  late Rect _screenRect;
-
   @override
   void paint(Canvas canvas, Size size) {
-    _screenRect = Offset.zero & size;
-    canvas.clipRect(_screenRect);
-
-    final worldWidth = _getWorldWidth();
+    helper.setSize(size);
+    canvas.clipRect(helper.screenRect);
 
     // Let's calculate all the points grouped by color and radius
     final points = <Color, Map<double, List<Offset>>>{};
@@ -84,16 +54,13 @@ base class CirclePainter<R extends Object>
       final radiusWithBorder = _getRadiusInPixel(circle, withBorder: true);
       final initialCenter = _getOffset(circle.point);
 
-      bool checkIfVisible(double shift) {
+      /// Draws on a "single-world". Returns true if visible.
+      bool drawIfVisible(double shift) {
         bool result = false;
         final center = initialCenter + Offset(shift, 0);
 
         bool isVisible(double radius) {
-          if (_isVisible(
-            screenRect: _screenRect,
-            center: center,
-            radiusInPixel: radius,
-          )) {
+          if (_isVisible(center: center, radiusInPixel: radius)) {
             return result = true;
           }
           return false;
@@ -126,20 +93,7 @@ base class CirclePainter<R extends Object>
         return result;
       }
 
-      checkIfVisible(0);
-
-      // Repeat over all worlds (<--||-->) until culling determines that
-      // that element is out of view, and therefore all further elements in
-      // that direction will also be
-      if (worldWidth == 0) continue;
-      for (double shift = -worldWidth;; shift -= worldWidth) {
-        final isVisible = checkIfVisible(shift);
-        if (!isVisible) break;
-      }
-      for (double shift = worldWidth;; shift += worldWidth) {
-        final isVisible = checkIfVisible(shift);
-        if (!isVisible) break;
-      }
+      helper.drawInTheWorlds(drawIfVisible);
     }
 
     // Now that all the points are grouped, let's draw them
@@ -203,21 +157,15 @@ base class CirclePainter<R extends Object>
   double _getRadiusInPixel(CircleMarker circle, {required bool withBorder}) =>
       (withBorder ? circle.borderStrokeWidth / 2 : 0) +
       (circle.useRadiusInMeter
-          ? (_getOffset(circle.point) -
-                  _getOffset(
-                      _distance.offset(circle.point, circle.radius, 180)))
-              .distance
+          ? helper.getPixelWidthFromMeters(circle.point, circle.radius)
           : circle.radius);
 
   /// Returns true if a centered circle with this radius is on the screen.
   bool _isVisible({
-    required Rect screenRect,
     required Offset center,
     required double radiusInPixel,
   }) =>
-      screenRect.overlaps(
+      helper.screenRect.overlaps(
         Rect.fromCircle(center: center, radius: radiusInPixel),
       );
-
-  double _getWorldWidth() => camera.getWorldWidthAtZoom();
 }

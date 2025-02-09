@@ -5,6 +5,9 @@ enum PolygonLabelPlacement {
   /// Use the centroid of the [Polygon] outline as position for the label.
   centroid,
 
+  /// Use the centroid in a multi-world as position for the label.
+  centroidWithMultiWorld,
+
   /// Use the Mapbox Polylabel algorithm as position for the label.
   polylabel,
 }

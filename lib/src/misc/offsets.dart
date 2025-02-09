@@ -5,13 +5,19 @@ import 'package:flutter_map/src/geo/crs.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Calculate the [Offset] for the [LatLng] point.
-Offset getOffset(MapCamera camera, Offset origin, LatLng point) {
+Offset getOffset(
+  MapCamera camera,
+  Offset origin,
+  LatLng point, {
+  double shift = 0,
+}) {
   final crs = camera.crs;
   final zoomScale = crs.scale(camera.zoom);
   final (x, y) = crs.latLngToXY(point, zoomScale);
-  return Offset(x - origin.dx, y - origin.dy);
+  return Offset(x - origin.dx + shift, y - origin.dy);
 }
 
+// TODO not sure if still relevant
 /// Calculate the [Offset]s for the list of [LatLng] points.
 List<Offset> getOffsets(MapCamera camera, Offset origin, List<LatLng> points) {
   // Critically create as little garbage as possible. This is called on every frame.
@@ -46,6 +52,7 @@ List<Offset> getOffsetsXY({
   required Offset origin,
   required List<Offset> points,
   List<List<Offset>>? holePoints,
+  double shift = 0,
 }) {
   // Critically create as little garbage as possible. This is called on every frame.
   final crs = camera.crs;
@@ -97,7 +104,7 @@ List<Offset> getOffsetsXY({
     for (int i = 0; i < len; ++i) {
       final p = realPoints.elementAt(i);
       final (x, y) = crs.transform(p.dx + addedWorldWidth, p.dy, zoomScale);
-      v[i] = Offset(x + ox, y + oy);
+      v[i] = Offset(x + ox + shift, y + oy);
     }
     return v;
   }
@@ -106,7 +113,7 @@ List<Offset> getOffsetsXY({
   for (int i = 0; i < len; ++i) {
     final p = realPoints.elementAt(i);
     final (x, y) = crs.transform(p.dx + addedWorldWidth, p.dy, zoomScale);
-    v[i] = Offset(x + ox, y + oy);
+    v[i] = Offset(x + ox + shift, y + oy);
   }
   return v;
 }

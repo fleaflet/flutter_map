@@ -59,39 +59,49 @@ base class _PolygonPainter<R extends Object>
     //   continue;
     // }
 
-    final projectedCoords = getOffsetsXY(
-      camera: camera,
-      origin: hitTestCameraOrigin,
-      points: projectedPolygon.points,
-    );
-    if (projectedCoords.first != projectedCoords.last) {
-      projectedCoords.add(projectedCoords.first);
+    /// Returns null if invisible, true if hit, false if not hit.
+    bool? checkIfHit(double shift) {
+      final projectedCoords = getOffsetsXY(
+        camera: camera,
+        origin: hitTestCameraOrigin,
+        points: projectedPolygon.points,
+        shift: shift,
+      );
+      if (!helper.isVisible(projectedCoords)) {
+        return null;
+      }
+      if (projectedCoords.first != projectedCoords.last) {
+        projectedCoords.add(projectedCoords.first);
+      }
+
+      final isValidPolygon = projectedCoords.length >= 3;
+      final isInPolygon =
+          isValidPolygon && isPointInPolygon(point, projectedCoords);
+
+      final isInHole = projectedPolygon.holePoints.any(
+        (points) {
+          final projectedHoleCoords = getOffsetsXY(
+            camera: camera,
+            origin: hitTestCameraOrigin,
+            points: points,
+            shift: shift,
+          );
+          if (projectedHoleCoords.first != projectedHoleCoords.last) {
+            projectedHoleCoords.add(projectedHoleCoords.first);
+          }
+
+          final isValidHolePolygon = projectedHoleCoords.length >= 3;
+          return isValidHolePolygon &&
+              isPointInPolygon(point, projectedHoleCoords);
+        },
+      );
+
+      // Second check handles case where polygon outline intersects a hole,
+      // ensuring that the hit matches with the visual representation
+      return (isInPolygon && !isInHole) || (!isInPolygon && isInHole);
     }
 
-    final isValidPolygon = projectedCoords.length >= 3;
-    final isInPolygon =
-        isValidPolygon && isPointInPolygon(point, projectedCoords);
-
-    final isInHole = projectedPolygon.holePoints.any(
-      (points) {
-        final projectedHoleCoords = getOffsetsXY(
-          camera: camera,
-          origin: hitTestCameraOrigin,
-          points: points,
-        );
-        if (projectedHoleCoords.first != projectedHoleCoords.last) {
-          projectedHoleCoords.add(projectedHoleCoords.first);
-        }
-
-        final isValidHolePolygon = projectedHoleCoords.length >= 3;
-        return isValidHolePolygon &&
-            isPointInPolygon(point, projectedHoleCoords);
-      },
-    );
-
-    // Second check handles case where polygon outline intersects a hole,
-    // ensuring that the hit matches with the visual representation
-    return (isInPolygon && !isInHole) || (!isInPolygon && isInHole);
+    return helper.checkIfHitInTheWorlds(checkIfHit);
   }
 
   @override
@@ -100,6 +110,7 @@ base class _PolygonPainter<R extends Object>
   @override
   void paint(Canvas canvas, Size size) {
     const checkOpacity = true; // for debugging purposes only, should be true
+    helper.setSize(size);
 
     final trianglePoints = <Offset>[];
 
@@ -190,8 +201,38 @@ base class _PolygonPainter<R extends Object>
       lastHash = null;
     }
 
-    final origin =
-        camera.projectAtZoom(camera.center) - camera.size.center(Offset.zero);
+    final origin = helper.origin;
+
+    /// Draws labels on a "single-world". Returns true if visible.
+    bool drawLabelIfVisible(
+      double shift,
+      _ProjectedPolygon<R> projectedPolygon,
+    ) {
+      final polygon = projectedPolygon.polygon;
+      final painter = _buildLabelTextPainter(
+        mapSize: camera.size,
+        placementPoint: getOffset(
+          camera,
+          origin,
+          polygon.labelPosition,
+          shift: shift,
+        ),
+        bounds: _getBounds(origin, polygon),
+        textPainter: polygon.textPainter!,
+        rotationRad: camera.rotationRad,
+        rotate: polygon.rotateLabel,
+        padding: 20,
+      );
+      if (painter == null) {
+        return false;
+      }
+
+      // Flush the batch before painting to preserve stacking.
+      drawPaths();
+
+      painter(canvas);
+      return true;
+    }
 
     // Main loop constructing batched fill and border paths from given polygons.
     for (int i = 0; i <= polygons.length - 1; i++) {
@@ -201,125 +242,140 @@ base class _PolygonPainter<R extends Object>
 
       final polygonTriangles = triangles?[i];
 
-      final fillOffsets = getOffsetsXY(
-        camera: camera,
-        origin: origin,
-        points: projectedPolygon.points,
-        holePoints:
-            polygonTriangles != null ? projectedPolygon.holePoints : null,
-      );
-
-      if (debugAltRenderer) {
-        const offsetsLabelStyle = TextStyle(
-          color: Color(0xFF000000),
-          fontSize: 16,
+      /// Draws on a "single-world". Returns true if visible.
+      bool drawIfVisible(double shift) {
+        final fillOffsets = getOffsetsXY(
+          camera: camera,
+          origin: origin,
+          points: projectedPolygon.points,
+          holePoints:
+              polygonTriangles != null ? projectedPolygon.holePoints : null,
+          shift: shift,
         );
 
-        for (int i = 0; i < fillOffsets.length; i++) {
-          TextPainter(
-            text: TextSpan(
-              text: i.toString(),
-              style: offsetsLabelStyle,
-            ),
-            textDirection: TextDirection.ltr,
-          )
-            ..layout(maxWidth: 100)
-            ..paint(canvas, fillOffsets[i]);
+        if (!helper.isVisible(fillOffsets)) {
+          return false;
         }
-      }
 
-      // The hash is based on the polygons visual properties. If the hash from
-      // the current and the previous polygon no longer match, we need to flush
-      // the batch previous polygons.
-      // We also need to flush if the opacity is not 1 or 0, so that they get
-      // mixed properly. Otherwise, holes get cut, or colors aren't mixed,
-      // depending on the holes handler.
-      final hash = polygon.renderHashCode;
-      final opacity = polygon.color?.a ?? 0;
-      if (lastHash != hash || (checkOpacity && opacity > 0 && opacity < 1)) {
-        drawPaths();
-      }
-      lastPolygon = polygon;
-      lastHash = hash;
-
-      // First add fills and borders to path.
-      if (polygon.color != null) {
-        if (polygonTriangles != null) {
-          final len = polygonTriangles.length;
-          for (int i = 0; i < len; ++i) {
-            trianglePoints.add(fillOffsets[polygonTriangles[i]]);
-          }
-        } else {
-          filledPath.addPolygon(fillOffsets, true);
-        }
-      }
-
-      if (polygon.borderStrokeWidth > 0.0) {
-        _addBorderToPath(
-          borderPath,
-          polygon,
-          getOffsetsXY(
-            camera: camera,
-            origin: origin,
-            points: projectedPolygon.points,
-          ),
-          size,
-          canvas,
-          _getBorderPaint(polygon),
-          polygon.borderStrokeWidth,
-        );
-      }
-
-      // Afterwards deal with more complicated holes.
-      // Improper handling of opacity and fill methods may result in normal
-      // polygons cutting holes into other polygons, when they should be mixing:
-      // https://github.com/fleaflet/flutter_map/issues/1898.
-      final holePointsList = polygon.holePointsList;
-      if (holePointsList != null && holePointsList.isNotEmpty) {
-        // See `Path.combine` comments below
-        // Avoids failing to cut holes if the winding directions of the holes
-        // and the normal points are the same
-        filledPath.fillType = PathFillType.evenOdd;
-
-        for (final singleHolePoints in projectedPolygon.holePoints) {
-          final holeOffsets = getOffsetsXY(
-            camera: camera,
-            origin: origin,
-            points: singleHolePoints,
+        if (debugAltRenderer) {
+          const offsetsLabelStyle = TextStyle(
+            color: Color(0xFF000000),
+            fontSize: 16,
           );
-          filledPath.addPolygon(holeOffsets, true);
 
-          // TODO: Potentially more efficient and may change the need to do
-          // opacity checking - needs testing. However,
-          // https://github.com/flutter/flutter/issues/44572 prevents this.
-          // Also need to verify if `xor` or `difference` is preferred.
-          /*filledPath = Path.combine(
-            PathOperation.xor,
-            filledPath,
-            Path()..addPolygon(holeOffsets, true),
-          );*/
+          for (int i = 0; i < fillOffsets.length; i++) {
+            TextPainter(
+              text: TextSpan(
+                text: i.toString(),
+                style: offsetsLabelStyle,
+              ),
+              textDirection: TextDirection.ltr,
+            )
+              ..layout(maxWidth: 100)
+              ..paint(canvas, fillOffsets[i]);
+          }
         }
 
-        if (!polygon.disableHolesBorder && polygon.borderStrokeWidth > 0.0) {
-          final borderPaint = _getBorderPaint(polygon);
+        // The hash is based on the polygons visual properties. If the hash from
+        // the current and the previous polygon no longer match, we need to flush
+        // the batch previous polygons.
+        // We also need to flush if the opacity is not 1 or 0, so that they get
+        // mixed properly. Otherwise, holes get cut, or colors aren't mixed,
+        // depending on the holes handler.
+        final hash = polygon.renderHashCode;
+        final opacity = polygon.color?.a ?? 0;
+        if (lastHash != hash || (checkOpacity && opacity > 0 && opacity < 1)) {
+          drawPaths();
+        }
+        lastPolygon = polygon;
+        lastHash = hash;
+
+        // First add fills and borders to path.
+        if (polygon.color != null) {
+          if (polygonTriangles != null) {
+            final len = polygonTriangles.length;
+            for (int i = 0; i < len; ++i) {
+              trianglePoints.add(fillOffsets[polygonTriangles[i]]);
+            }
+          } else {
+            filledPath.addPolygon(fillOffsets, true);
+          }
+        }
+
+        if (polygon.borderStrokeWidth > 0.0) {
+          _addBorderToPath(
+            borderPath,
+            polygon,
+            getOffsetsXY(
+              camera: camera,
+              origin: origin,
+              points: projectedPolygon.points,
+              shift: shift,
+            ),
+            size,
+            canvas,
+            _getBorderPaint(polygon),
+            polygon.borderStrokeWidth,
+          );
+        }
+
+        // Afterwards deal with more complicated holes.
+        // Improper handling of opacity and fill methods may result in normal
+        // polygons cutting holes into other polygons, when they should be mixing:
+        // https://github.com/fleaflet/flutter_map/issues/1898.
+        final holePointsList = polygon.holePointsList;
+        if (holePointsList != null && holePointsList.isNotEmpty) {
+          // See `Path.combine` comments below
+          // Avoids failing to cut holes if the winding directions of the holes
+          // and the normal points are the same
+          filledPath.fillType = PathFillType.evenOdd;
+
           for (final singleHolePoints in projectedPolygon.holePoints) {
             final holeOffsets = getOffsetsXY(
               camera: camera,
               origin: origin,
               points: singleHolePoints,
+              shift: shift,
             );
-            _addBorderToPath(
-              borderPath,
-              polygon,
-              holeOffsets,
-              size,
-              canvas,
-              borderPaint,
-              polygon.borderStrokeWidth,
-            );
+            filledPath.addPolygon(holeOffsets, true);
+
+            // TODO: Potentially more efficient and may change the need to do
+            // opacity checking - needs testing. However,
+            // https://github.com/flutter/flutter/issues/44572 prevents this.
+            // Also need to verify if `xor` or `difference` is preferred.
+            /*filledPath = Path.combine(
+            PathOperation.xor,
+            filledPath,
+            Path()..addPolygon(holeOffsets, true),
+          );*/
+          }
+
+          if (!polygon.disableHolesBorder && polygon.borderStrokeWidth > 0.0) {
+            final borderPaint = _getBorderPaint(polygon);
+            for (final singleHolePoints in projectedPolygon.holePoints) {
+              final holeOffsets = getOffsetsXY(
+                camera: camera,
+                origin: origin,
+                points: singleHolePoints,
+                shift: shift,
+              );
+              _addBorderToPath(
+                borderPath,
+                polygon,
+                holeOffsets,
+                size,
+                canvas,
+                borderPaint,
+                polygon.borderStrokeWidth,
+              );
+            }
           }
         }
+
+        return true;
       }
+
+      helper.drawInTheWorlds(drawIfVisible);
 
       if (!drawLabelsLast && polygonLabels && polygon.textPainter != null) {
         // Labels are expensive because:
@@ -331,22 +387,9 @@ base class _PolygonPainter<R extends Object>
 
         // The painter will be null if the layOuting algorithm determined that
         // there isn't enough space.
-        final painter = _buildLabelTextPainter(
-          mapSize: camera.size,
-          placementPoint: getOffset(camera, origin, polygon.labelPosition),
-          bounds: _getBounds(origin, polygon),
-          textPainter: polygon.textPainter!,
-          rotationRad: camera.rotationRad,
-          rotate: polygon.rotateLabel,
-          padding: 20,
+        helper.drawInTheWorlds(
+          (double shift) => drawLabelIfVisible(shift, projectedPolygon),
         );
-
-        if (painter != null) {
-          // Flush the batch before painting to preserve stacking.
-          drawPaths();
-
-          painter(canvas);
-        }
       }
     }
 
@@ -357,21 +400,12 @@ base class _PolygonPainter<R extends Object>
         if (projectedPolygon.points.isEmpty) {
           continue;
         }
-        final polygon = projectedPolygon.polygon;
-        final textPainter = polygon.textPainter;
-        if (textPainter != null) {
-          final painter = _buildLabelTextPainter(
-            mapSize: camera.size,
-            placementPoint: getOffset(camera, origin, polygon.labelPosition),
-            bounds: _getBounds(origin, polygon),
-            textPainter: textPainter,
-            rotationRad: camera.rotationRad,
-            rotate: polygon.rotateLabel,
-            padding: 20,
-          );
-
-          painter?.call(canvas);
+        if (projectedPolygon.polygon.textPainter == null) {
+          continue;
         }
+        helper.drawInTheWorlds(
+          (double shift) => drawLabelIfVisible(shift, projectedPolygon),
+        );
       }
     }
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/layer/shared/multi_world_layer_helper.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 
@@ -21,10 +22,15 @@ mixin HitDetectableElement<R extends Object> {
 @internal
 abstract base class HitDetectablePainter<R extends Object,
     E extends HitDetectableElement<R>> extends CustomPainter {
-  HitDetectablePainter({required this.camera, required this.hitNotifier});
+  HitDetectablePainter({
+    required this.camera,
+    required this.hitNotifier,
+  }) : helper = MultiWorldLayerHelper(camera);
 
   final MapCamera camera;
   final LayerHitNotifier<R>? hitNotifier;
+
+  final MultiWorldLayerHelper helper;
 
   /// Elements that should be possibly be hit tested by [elementHitTest]
   /// ([hitTest])

@@ -60,6 +60,7 @@ LatLng _computeLabelPosition(
 ) {
   return switch (labelPlacement) {
     PolygonLabelPlacement.centroid => _computeCentroid(points),
+    PolygonLabelPlacement.centroidWithMultiWorld => _computeCentroidWithMultiWorld(points),
     PolygonLabelPlacement.polylabel => _computePolylabel(points),
   };
 }
@@ -70,6 +71,29 @@ LatLng _computeCentroid(List<LatLng> points) {
     points.map((e) => e.latitude).average,
     points.map((e) => e.longitude).average,
   );
+}
+
+/// Calculate the centroid of a given list of [LatLng] points with multiple worlds.
+LatLng _computeCentroidWithMultiWorld(List<LatLng> points) {
+  if (points.isEmpty) return _computeCentroid(points);
+  const halfWorld = 180;
+  int count = 0;
+  double sum = 0;
+  late double lastLng;
+  for (final LatLng point in points) {
+    double lng = point.longitude;
+    count ++;
+    if (count > 1) {
+      if (lng - lastLng > halfWorld) {
+        lng -= 2 * halfWorld;
+      } else if (lng - lastLng < -halfWorld) {
+        lng += 2 * halfWorld;
+      }
+    }
+    lastLng = lng;
+    sum += lastLng;
+  }
+  return LatLng(points.map((e) => e.latitude).average, sum / count);
 }
 
 /// Use the Maxbox Polylabel algorithm to calculate the [LatLng] position for
