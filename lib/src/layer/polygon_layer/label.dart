@@ -60,7 +60,8 @@ LatLng _computeLabelPosition(
 ) {
   return switch (labelPlacement) {
     PolygonLabelPlacement.centroid => _computeCentroid(points),
-    PolygonLabelPlacement.centroidWithMultiWorld => _computeCentroidWithMultiWorld(points),
+    PolygonLabelPlacement.centroidWithMultiWorld =>
+      _computeCentroidWithMultiWorld(points),
     PolygonLabelPlacement.polylabel => _computePolylabel(points),
   };
 }
@@ -82,7 +83,7 @@ LatLng _computeCentroidWithMultiWorld(List<LatLng> points) {
   late double lastLng;
   for (final LatLng point in points) {
     double lng = point.longitude;
-    count ++;
+    count++;
     if (count > 1) {
       if (lng - lastLng > halfWorld) {
         lng -= 2 * halfWorld;
