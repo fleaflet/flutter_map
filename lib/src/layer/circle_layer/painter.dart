@@ -61,10 +61,11 @@ base class CirclePainter<R extends Object>
 
         bool isVisible(double radius) {
           if (_isVisible(center: center, radiusInPixel: radius)) {
-            result = false;
+            result = false; // Stop iteration in current direction
             return true;
           }
-          return true;
+          // Leave `result` null to continue iteration
+          return false;
         }
 
         if (isVisible(radiusWithoutBorder)) {
