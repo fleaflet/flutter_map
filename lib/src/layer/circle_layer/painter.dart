@@ -1,18 +1,23 @@
 part of 'circle_layer.dart';
 
-/// The [CustomPainter] used to draw [CircleMarker] for the [CircleLayer].
-base class CirclePainter<R extends Object>
-    extends HitDetectablePainter<R, CircleMarker<R>>
-    with MultiWorldLayerHelper {
+/// The [CustomPainter] used to draw [CircleMarker]s for the [CircleLayer].
+class CirclePainter<R extends Object> extends CustomPainter
+    with HitDetectablePainter<R, CircleMarker<R>>, FeatureLayerUtils {
   /// Reference to the list of [CircleMarker]s of the [CircleLayer].
   final List<CircleMarker<R>> circles;
+
+  @override
+  final MapCamera camera;
+
+  @override
+  final LayerHitNotifier<R>? hitNotifier;
 
   /// Create a [CirclePainter] instance by providing the required
   /// reference objects.
   CirclePainter({
     required this.circles,
-    required super.camera,
-    required super.hitNotifier,
+    required this.camera,
+    required this.hitNotifier,
   });
 
   @override

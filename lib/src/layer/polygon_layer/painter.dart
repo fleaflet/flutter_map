@@ -1,10 +1,10 @@
 part of 'polygon_layer.dart';
 
-/// The [_PolygonPainter] class is used to render [Polygon]s for
-/// the [PolygonLayer].
-base class _PolygonPainter<R extends Object>
-    extends HitDetectablePainter<R, _ProjectedPolygon<R>>
-    with HitTestRequiresCameraOrigin, MultiWorldLayerHelper {
+/// The [CustomPainter] used to draw [Polygon]s for the [PolygonLayer].
+// TODO: We should consider exposing this publicly, as with [CirclePainter] -
+// but the projected objects are private at the moment.
+class _PolygonPainter<R extends Object> extends CustomPainter
+    with HitDetectablePainter<R, _ProjectedPolygon<R>>, FeatureLayerUtils {
   /// Reference to the list of [_ProjectedPolygon]s
   final List<_ProjectedPolygon<R>> polygons;
 
@@ -35,15 +35,21 @@ base class _PolygonPainter<R extends Object>
   /// See [PolygonLayer.debugAltRenderer]
   final bool debugAltRenderer;
 
+  @override
+  final MapCamera camera;
+
+  @override
+  final LayerHitNotifier<R>? hitNotifier;
+
   /// Create a new [_PolygonPainter] instance.
   _PolygonPainter({
     required this.polygons,
     required this.triangles,
-    required super.camera,
     required this.polygonLabels,
     required this.drawLabelsLast,
     required this.debugAltRenderer,
-    required super.hitNotifier,
+    required this.camera,
+    required this.hitNotifier,
   }) : bounds = camera.visibleBounds;
 
   @override
@@ -62,7 +68,7 @@ base class _PolygonPainter<R extends Object>
     bool? checkIfHit(double shift) {
       final projectedCoords = getOffsetsXY(
         camera: camera,
-        origin: hitTestCameraOrigin,
+        origin: origin,
         points: projectedPolygon.points,
         shift: shift,
       );
@@ -81,7 +87,7 @@ base class _PolygonPainter<R extends Object>
         (points) {
           final projectedHoleCoords = getOffsetsXY(
             camera: camera,
-            origin: hitTestCameraOrigin,
+            origin: origin,
             points: points,
             shift: shift,
           );

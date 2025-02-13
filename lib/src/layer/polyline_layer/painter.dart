@@ -1,20 +1,25 @@
 part of 'polyline_layer.dart';
 
-/// [CustomPainter] for [Polyline]s.
-base class _PolylinePainter<R extends Object>
-    extends HitDetectablePainter<R, _ProjectedPolyline<R>>
-    with HitTestRequiresCameraOrigin, MultiWorldLayerHelper {
-  /// Reference to the list of [Polyline]s.
+/// The [CustomPainter] used to draw [Polyline]s for the [PolylineLayer].
+// TODO: We should consider exposing this publicly, as with [CirclePainter] -
+// but the projected objects are private at the moment.
+class _PolylinePainter<R extends Object> extends CustomPainter
+    with HitDetectablePainter<R, _ProjectedPolyline<R>>, FeatureLayerUtils {
   final List<_ProjectedPolyline<R>> polylines;
-
   final double minimumHitbox;
+
+  @override
+  final MapCamera camera;
+
+  @override
+  final LayerHitNotifier<R>? hitNotifier;
 
   /// Create a new [_PolylinePainter] instance
   _PolylinePainter({
     required this.polylines,
     required this.minimumHitbox,
-    required super.camera,
-    required super.hitNotifier,
+    required this.camera,
+    required this.hitNotifier,
   });
 
   @override
@@ -37,7 +42,7 @@ base class _PolylinePainter<R extends Object>
     bool? checkIfHit(double shift) {
       final offsets = getOffsetsXY(
         camera: camera,
-        origin: hitTestCameraOrigin,
+        origin: origin,
         points: projectedPolyline.points,
         shift: shift,
       );

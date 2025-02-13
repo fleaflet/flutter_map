@@ -3,10 +3,10 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 
-/// Provides utilities for painters and hit testers, especially those which have
-/// multi-world support
+/// Provides utilities for 'feature layers' implemented with canvas painters and
+/// hit testers, especially those which have multi-world support
 @internal
-mixin MultiWorldLayerHelper on CustomPainter {
+mixin FeatureLayerUtils on CustomPainter {
   abstract final MapCamera camera;
   static const _distance = Distance();
 
