@@ -3,7 +3,7 @@ part of 'polyline_layer.dart';
 /// [CustomPainter] for [Polyline]s.
 base class _PolylinePainter<R extends Object>
     extends HitDetectablePainter<R, _ProjectedPolyline<R>>
-    with HitTestRequiresCameraOrigin {
+    with HitTestRequiresCameraOrigin, MultiWorldLayerHelper {
   /// Reference to the list of [Polyline]s.
   final List<_ProjectedPolyline<R>> polylines;
 
@@ -34,7 +34,6 @@ base class _PolylinePainter<R extends Object>
     //   continue;
     // }
 
-    /// Returns null if invisible, true if hit, false if not hit.
     bool? checkIfHit(double shift) {
       final offsets = getOffsetsXY(
         camera: camera,
@@ -42,11 +41,11 @@ base class _PolylinePainter<R extends Object>
         points: projectedPolyline.points,
         shift: shift,
       );
-      if (!helper.isVisible(offsets)) {
+      if (!areOffsetsVisible(offsets)) {
         return null;
       }
       final strokeWidth = polyline.useStrokeWidthInMeter
-          ? helper.getPixelWidthFromMeters(
+          ? metersToScreenPixels(
               projectedPolyline.polyline.points.first,
               polyline.strokeWidth,
             )
@@ -69,7 +68,7 @@ base class _PolylinePainter<R extends Object>
       return false;
     }
 
-    return helper.checkIfHitInTheWorlds(checkIfHit);
+    return workAcrossWorlds(checkIfHit);
   }
 
   @override
@@ -77,7 +76,7 @@ base class _PolylinePainter<R extends Object>
 
   @override
   void paint(Canvas canvas, Size size) {
-    helper.setSize(size);
+    super.paint(canvas, size);
 
     var path = ui.Path();
     var borderPath = ui.Path();
@@ -93,7 +92,7 @@ base class _PolylinePainter<R extends Object>
       final hasBorder = borderPaint != null && filterPaint != null;
       if (hasBorder) {
         if (needsLayerSaving) {
-          canvas.saveLayer(helper.screenRect, Paint());
+          canvas.saveLayer(viewportRect, Paint());
         }
 
         canvas.drawPath(borderPath, borderPaint!);
@@ -114,24 +113,22 @@ base class _PolylinePainter<R extends Object>
       paint = Paint();
     }
 
-    final origin = helper.origin;
-
     for (final projectedPolyline in polylines) {
       final polyline = projectedPolyline.polyline;
       if (polyline.points.isEmpty) {
         continue;
       }
 
-      /// Draws on a "single-world". Returns true if visible.
-      bool drawIfVisible(double shift) {
+      /// Draws on a "single-world"
+      bool? drawIfVisible(double shift) {
         final offsets = getOffsetsXY(
           camera: camera,
           origin: origin,
           points: projectedPolyline.points,
           shift: shift,
         );
-        if (!helper.isVisible(offsets)) {
-          return false;
+        if (!areOffsetsVisible(offsets)) {
+          return null;
         }
 
         final hash = polyline.renderHashCode;
@@ -147,7 +144,7 @@ base class _PolylinePainter<R extends Object>
 
         late final double strokeWidth;
         if (polyline.useStrokeWidthInMeter) {
-          strokeWidth = helper.getPixelWidthFromMeters(
+          strokeWidth = metersToScreenPixels(
             projectedPolyline.polyline.points.first,
             polyline.strokeWidth,
           );
@@ -254,10 +251,11 @@ base class _PolylinePainter<R extends Object>
             }
           }
         }
-        return true;
+
+        return false;
       }
 
-      helper.drawInTheWorlds(drawIfVisible);
+      workAcrossWorlds(drawIfVisible);
     }
 
     drawPaths();

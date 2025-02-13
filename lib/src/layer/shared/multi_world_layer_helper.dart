@@ -1,70 +1,78 @@
-import 'dart:ui';
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:meta/meta.dart';
 
-/// Helper for multi world: e.g. draw and hitTest on all world copies.
-class MultiWorldLayerHelper {
-  /// Helper for multi world.
-  MultiWorldLayerHelper(this.camera);
-
+/// Provides utilities for painters and hit testers, especially those which have
+/// multi-world support
+@internal
+mixin MultiWorldLayerHelper on CustomPainter {
+  abstract final MapCamera camera;
   static const _distance = Distance();
 
-  /// Sets the screen size. To be called immediately after `paint`.
-  void setSize(Size size) => _screenRect = Offset.zero & size;
+  /// The rectangle of the canvas on its last paint
+  ///
+  /// Must not be retrieved before [paint] has been called.
+  Rect get viewportRect => _viewportRect;
+  late Rect _viewportRect;
 
-  late Rect _screenRect;
+  @mustCallSuper
+  @mustBeOverridden
+  @override
+  void paint(Canvas canvas, Size size) {
+    _viewportRect = Offset.zero & size;
+  }
 
-  /// Screen rect.
-  Rect get screenRect => _screenRect;
-
-  /// Camera.
-  final MapCamera camera;
-
-  /// Returns true if the points are visible on the screen.
-  bool isVisible(List<Offset> points) {
-    if (points.isEmpty) {
+  /// Determine whether the specified offsets are visible within the viewport
+  ///
+  /// Always returns `false` if the specified list is empty.
+  bool areOffsetsVisible(Iterable<Offset> offsets) {
+    if (offsets.isEmpty) {
       return false;
     }
     double minX;
     double maxX;
     double minY;
     double maxY;
-    minX = maxX = points.first.dx;
-    minY = maxY = points.first.dy;
-    for (final Offset offset in points) {
-      if (screenRect.contains(offset)) return true;
+    minX = maxX = offsets.first.dx;
+    minY = maxY = offsets.first.dy;
+    for (final Offset offset in offsets) {
+      if (viewportRect.contains(offset)) return true;
       if (minX > offset.dx) minX = offset.dx;
       if (minY > offset.dy) minY = offset.dy;
       if (maxX < offset.dx) maxX = offset.dx;
       if (maxY < offset.dy) maxY = offset.dy;
     }
-    return screenRect.overlaps(Rect.fromLTRB(minX, minY, maxX, maxY));
+    return viewportRect.overlaps(Rect.fromLTRB(minX, minY, maxX, maxY));
   }
 
-  /// Returns true if hit in all world copies.
+  /// Perform the callback in all world copies (until stopped)
   ///
-  /// Uses a "single-world" method that returns*
-  /// * null if invisible
-  /// * true if hit
-  /// * false if not hit
-  bool checkIfHitInTheWorlds(bool? Function(double) checkIfHit) {
-    if (checkIfHit(0) ?? false) {
+  /// If the worker returns:
+  ///  * `true`: no more worlds will be tested, and this will return `true`
+  ///  * `false`: more worlds will be tested
+  ///  * `null`: no more worlds will be tested in the current working direction;
+  /// if both directions have been finished, this will return `false`
+  ///
+  /// The worker must return `true` or `null` in some case to prevent an
+  /// infinite loop.
+  ///
+  /// Internally, the worker is invoked in the 'negative' worlds (worlds to the
+  /// left of the 'primary' world) until repetition is stopped, then in the
+  /// 'positive' world: <--||-->.
+  bool workAcrossWorlds(bool? Function(double shift) work) {
+    if (work(0) ?? false) {
       return true;
     }
 
-    // Repeat over all worlds (<--||-->) until culling determines that
-    // that element is out of view, and therefore all further elements in
-    // that direction will also be
     if (worldWidth == 0) return false;
     for (double shift = -worldWidth;; shift -= worldWidth) {
-      final isHit = checkIfHit(shift);
+      final isHit = work(shift);
       if (isHit == null) break;
       if (isHit) return true;
     }
     for (double shift = worldWidth;; shift += worldWidth) {
-      final isHit = checkIfHit(shift);
+      final isHit = work(shift);
       if (isHit == null) break;
       if (isHit) return true;
     }
@@ -72,34 +80,18 @@ class MultiWorldLayerHelper {
     return false;
   }
 
-  /// Draws in all world copies.
-  ///
-  /// Uses a "single-world" method that returns*
-  /// * true if visible
-  /// * false if not visible
-  void drawInTheWorlds(bool Function(double) drawIfVisible) {
-    drawIfVisible(0);
-
-    if (worldWidth == 0) return;
-    for (double shift = -worldWidth;; shift -= worldWidth) {
-      final isVisible = drawIfVisible(shift);
-      if (!isVisible) break;
-    }
-    for (double shift = worldWidth;; shift += worldWidth) {
-      final isVisible = drawIfVisible(shift);
-      if (!isVisible) break;
-    }
-  }
-
   /// Returns the origin of the camera.
   Offset get origin =>
       camera.projectAtZoom(camera.center) - camera.size.center(Offset.zero);
 
   /// Returns the world size in pixels.
+  ///
+  /// Equivalent to [MapCamera.getWorldWidthAtZoom].
   double get worldWidth => camera.getWorldWidthAtZoom();
 
-  /// Returns the width in pixel of a width in meters, for a given [point].
-  double getPixelWidthFromMeters(LatLng point, double meters) =>
+  /// Converts a distance in meters to the equivalent distance in screen pixels,
+  /// at the geographic coordinates specified.
+  double metersToScreenPixels(LatLng point, double meters) =>
       (camera.getOffsetFromOrigin(point) -
               camera.getOffsetFromOrigin(_distance.offset(point, meters, 180)))
           .distance;

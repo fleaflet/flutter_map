@@ -4,7 +4,7 @@ part of 'polygon_layer.dart';
 /// the [PolygonLayer].
 base class _PolygonPainter<R extends Object>
     extends HitDetectablePainter<R, _ProjectedPolygon<R>>
-    with HitTestRequiresCameraOrigin {
+    with HitTestRequiresCameraOrigin, MultiWorldLayerHelper {
   /// Reference to the list of [_ProjectedPolygon]s
   final List<_ProjectedPolygon<R>> polygons;
 
@@ -59,7 +59,6 @@ base class _PolygonPainter<R extends Object>
     //   continue;
     // }
 
-    /// Returns null if invisible, true if hit, false if not hit.
     bool? checkIfHit(double shift) {
       final projectedCoords = getOffsetsXY(
         camera: camera,
@@ -67,7 +66,7 @@ base class _PolygonPainter<R extends Object>
         points: projectedPolygon.points,
         shift: shift,
       );
-      if (!helper.isVisible(projectedCoords)) {
+      if (!areOffsetsVisible(projectedCoords)) {
         return null;
       }
       if (projectedCoords.first != projectedCoords.last) {
@@ -101,7 +100,7 @@ base class _PolygonPainter<R extends Object>
       return (isInPolygon && !isInHole) || (!isInPolygon && isInHole);
     }
 
-    return helper.checkIfHitInTheWorlds(checkIfHit);
+    return workAcrossWorlds(checkIfHit);
   }
 
   @override
@@ -110,7 +109,7 @@ base class _PolygonPainter<R extends Object>
   @override
   void paint(Canvas canvas, Size size) {
     const checkOpacity = true; // for debugging purposes only, should be true
-    helper.setSize(size);
+    super.paint(canvas, size);
 
     final trianglePoints = <Offset>[];
 
@@ -201,10 +200,8 @@ base class _PolygonPainter<R extends Object>
       lastHash = null;
     }
 
-    final origin = helper.origin;
-
-    /// Draws labels on a "single-world". Returns true if visible.
-    bool drawLabelIfVisible(
+    /// Draws labels on a "single-world"
+    bool? drawLabelIfVisible(
       double shift,
       _ProjectedPolygon<R> projectedPolygon,
     ) {
@@ -224,14 +221,14 @@ base class _PolygonPainter<R extends Object>
         padding: 20,
       );
       if (painter == null) {
-        return false;
+        return null;
       }
 
       // Flush the batch before painting to preserve stacking.
       drawPaths();
 
       painter(canvas);
-      return true;
+      return false;
     }
 
     // Main loop constructing batched fill and border paths from given polygons.
@@ -242,8 +239,8 @@ base class _PolygonPainter<R extends Object>
 
       final polygonTriangles = triangles?[i];
 
-      /// Draws on a "single-world". Returns true if visible.
-      bool drawIfVisible(double shift) {
+      /// Draws on a "single-world"
+      bool? drawIfVisible(double shift) {
         final fillOffsets = getOffsetsXY(
           camera: camera,
           origin: origin,
@@ -253,8 +250,8 @@ base class _PolygonPainter<R extends Object>
           shift: shift,
         );
 
-        if (!helper.isVisible(fillOffsets)) {
-          return false;
+        if (!areOffsetsVisible(fillOffsets)) {
+          return null;
         }
 
         if (debugAltRenderer) {
@@ -340,14 +337,14 @@ base class _PolygonPainter<R extends Object>
             filledPath.addPolygon(holeOffsets, true);
 
             // TODO: Potentially more efficient and may change the need to do
-            // opacity checking - needs testing. However,
-            // https://github.com/flutter/flutter/issues/44572 prevents this.
-            // Also need to verify if `xor` or `difference` is preferred.
+            // opacity checking - needs testing. Also need to verify if `xor` or
+            // `difference` is preferred.
+            // No longer blocked by lack of HTML support in Flutter 3.29
             /*filledPath = Path.combine(
-            PathOperation.xor,
-            filledPath,
-            Path()..addPolygon(holeOffsets, true),
-          );*/
+              PathOperation.xor,
+              filledPath,
+              Path()..addPolygon(holeOffsets, true),
+            );*/
           }
 
           if (!polygon.disableHolesBorder && polygon.borderStrokeWidth > 0.0) {
@@ -372,10 +369,10 @@ base class _PolygonPainter<R extends Object>
           }
         }
 
-        return true;
+        return false;
       }
 
-      helper.drawInTheWorlds(drawIfVisible);
+      workAcrossWorlds(drawIfVisible);
 
       if (!drawLabelsLast && polygonLabels && polygon.textPainter != null) {
         // Labels are expensive because:
@@ -387,7 +384,7 @@ base class _PolygonPainter<R extends Object>
 
         // The painter will be null if the layOuting algorithm determined that
         // there isn't enough space.
-        helper.drawInTheWorlds(
+        workAcrossWorlds(
           (double shift) => drawLabelIfVisible(shift, projectedPolygon),
         );
       }
@@ -403,7 +400,7 @@ base class _PolygonPainter<R extends Object>
         if (projectedPolygon.polygon.textPainter == null) {
           continue;
         }
-        helper.drawInTheWorlds(
+        workAcrossWorlds(
           (double shift) => drawLabelIfVisible(shift, projectedPolygon),
         );
       }
