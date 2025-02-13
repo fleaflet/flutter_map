@@ -118,3 +118,20 @@ LatLng _computePolylabel(List<LatLng> points) {
     labelPosition.point.x.toDouble(),
   );
 }
+
+/// Defines the algorithm used to calculate the position of the [Polygon] label.
+///
+/// > [!IMPORTANT]
+/// > If your project allows users to browse across multiple worlds, and your
+/// > polygons may be over the anti-meridan boundary, [centroidWithMultiWorld]
+/// > must be used - other algorithms will produce unexpected results.
+enum PolygonLabelPlacement {
+  /// Use the centroid of the [Polygon] outline as position for the label.
+  centroid,
+
+  /// Use the centroid in a multi-world as position for the label.
+  centroidWithMultiWorld,
+
+  /// Use the Mapbox Polylabel algorithm as position for the label.
+  polylabel,
+}

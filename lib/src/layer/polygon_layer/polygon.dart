@@ -1,17 +1,5 @@
 part of 'polygon_layer.dart';
 
-/// Defines the algorithm used to calculate the position of the [Polygon] label.
-enum PolygonLabelPlacement {
-  /// Use the centroid of the [Polygon] outline as position for the label.
-  centroid,
-
-  /// Use the centroid in a multi-world as position for the label.
-  centroidWithMultiWorld,
-
-  /// Use the Mapbox Polylabel algorithm as position for the label.
-  polylabel,
-}
-
 /// [Polygon] class, to be used for the [PolygonLayer].
 class Polygon<R extends Object> {
   /// The points for the outline of the [Polygon].
@@ -68,6 +56,12 @@ class Polygon<R extends Object> {
   ///
   /// [PolygonLabelPlacement.polylabel] can be expensive for some polygons. If
   /// there is a large lag spike, try using [PolygonLabelPlacement.centroid].
+  ///
+  /// > [!IMPORTANT]
+  /// > If your project allows users to browse across multiple worlds, and your
+  /// > polygons may be over the anti-meridan boundary,
+  /// > [PolygonLabelPlacement.centroidWithMultiWorld] must be used - other
+  /// > algorithms will produce unexpected results.
   ///
   /// Labels will not be drawn if there is not enough space.
   final PolygonLabelPlacement labelPlacement;
