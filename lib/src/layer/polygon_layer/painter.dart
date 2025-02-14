@@ -65,7 +65,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     //   continue;
     // }
 
-    bool? checkIfHit(double shift) {
+    WorldWorkControl checkIfHit(double shift) {
       final projectedCoords = getOffsetsXY(
         camera: camera,
         origin: origin,
@@ -73,8 +73,9 @@ class _PolygonPainter<R extends Object> extends CustomPainter
         shift: shift,
       );
       if (!areOffsetsVisible(projectedCoords)) {
-        return null;
+        return WorldWorkControl.invisible;
       }
+
       if (projectedCoords.first != projectedCoords.last) {
         projectedCoords.add(projectedCoords.first);
       }
@@ -103,7 +104,9 @@ class _PolygonPainter<R extends Object> extends CustomPainter
 
       // Second check handles case where polygon outline intersects a hole,
       // ensuring that the hit matches with the visual representation
-      return (isInPolygon && !isInHole) || (!isInPolygon && isInHole);
+      return (isInPolygon && !isInHole) || (!isInPolygon && isInHole)
+          ? WorldWorkControl.hit
+          : WorldWorkControl.visible;
     }
 
     return workAcrossWorlds(checkIfHit);
@@ -207,7 +210,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     }
 
     /// Draws labels on a "single-world"
-    bool? drawLabelIfVisible(
+    WorldWorkControl drawLabelIfVisible(
       double shift,
       _ProjectedPolygon<R> projectedPolygon,
     ) {
@@ -226,15 +229,13 @@ class _PolygonPainter<R extends Object> extends CustomPainter
         rotate: polygon.rotateLabel,
         padding: 20,
       );
-      if (painter == null) {
-        return null;
-      }
+      if (painter == null) return WorldWorkControl.invisible;
 
       // Flush the batch before painting to preserve stacking.
       drawPaths();
 
       painter(canvas);
-      return false;
+      return WorldWorkControl.visible;
     }
 
     // Main loop constructing batched fill and border paths from given polygons.
@@ -246,7 +247,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
       final polygonTriangles = triangles?[i];
 
       /// Draws on a "single-world"
-      bool? drawIfVisible(double shift) {
+      WorldWorkControl drawIfVisible(double shift) {
         final fillOffsets = getOffsetsXY(
           camera: camera,
           origin: origin,
@@ -255,10 +256,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
               polygonTriangles != null ? projectedPolygon.holePoints : null,
           shift: shift,
         );
-
-        if (!areOffsetsVisible(fillOffsets)) {
-          return null;
-        }
+        if (!areOffsetsVisible(fillOffsets)) return WorldWorkControl.invisible;
 
         if (debugAltRenderer) {
           const offsetsLabelStyle = TextStyle(
@@ -375,7 +373,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
           }
         }
 
-        return false;
+        return WorldWorkControl.visible;
       }
 
       workAcrossWorlds(drawIfVisible);

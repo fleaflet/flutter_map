@@ -39,16 +39,15 @@ class _PolylinePainter<R extends Object> extends CustomPainter
     //   continue;
     // }
 
-    bool? checkIfHit(double shift) {
+    WorldWorkControl checkIfHit(double shift) {
       final offsets = getOffsetsXY(
         camera: camera,
         origin: origin,
         points: projectedPolyline.points,
         shift: shift,
       );
-      if (!areOffsetsVisible(offsets)) {
-        return null;
-      }
+      if (!areOffsetsVisible(offsets)) return WorldWorkControl.invisible;
+
       final strokeWidth = polyline.useStrokeWidthInMeter
           ? metersToScreenPixels(
               projectedPolyline.polyline.points.first,
@@ -67,10 +66,12 @@ class _PolylinePainter<R extends Object> extends CustomPainter
         final distanceSq =
             getSqSegDist(point.dx, point.dy, o1.dx, o1.dy, o2.dx, o2.dy);
 
-        if (distanceSq <= hittableDistance * hittableDistance) return true;
+        if (distanceSq <= hittableDistance * hittableDistance) {
+          return WorldWorkControl.hit;
+        }
       }
 
-      return false;
+      return WorldWorkControl.visible;
     }
 
     return workAcrossWorlds(checkIfHit);
@@ -125,16 +126,14 @@ class _PolylinePainter<R extends Object> extends CustomPainter
       }
 
       /// Draws on a "single-world"
-      bool? drawIfVisible(double shift) {
+      WorldWorkControl drawIfVisible(double shift) {
         final offsets = getOffsetsXY(
           camera: camera,
           origin: origin,
           points: projectedPolyline.points,
           shift: shift,
         );
-        if (!areOffsetsVisible(offsets)) {
-          return null;
-        }
+        if (!areOffsetsVisible(offsets)) return WorldWorkControl.invisible;
 
         final hash = polyline.renderHashCode;
         if (needsLayerSaving || (lastHash != null && lastHash != hash)) {
@@ -257,7 +256,7 @@ class _PolylinePainter<R extends Object> extends CustomPainter
           }
         }
 
-        return false;
+        return WorldWorkControl.visible;
       }
 
       workAcrossWorlds(drawIfVisible);

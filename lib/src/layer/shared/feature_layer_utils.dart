@@ -48,36 +48,37 @@ mixin FeatureLayerUtils on CustomPainter {
 
   /// Perform the callback in all world copies (until stopped)
   ///
-  /// If the worker returns:
-  ///  * `true`: no more worlds will be tested, and this will return `true`
-  ///  * `false`: more worlds will be tested
-  ///  * `null`: no more worlds will be tested in the current working direction;
-  /// if both directions have been finished, this will return `false`
-  ///
-  /// The worker must return `true` or `null` in some case to prevent an
-  /// infinite loop.
+  /// See [WorldWorkControl] for information about the callback return types.
+  /// Returns `true` if any result is [WorldWorkControl.hit].
   ///
   /// Internally, the worker is invoked in the 'negative' worlds (worlds to the
   /// left of the 'primary' world) until repetition is stopped, then in the
-  /// 'positive' world: <--||-->.
-  bool workAcrossWorlds(bool? Function(double shift) work) {
-    if (work(0) ?? false) {
-      return true;
-    }
+  /// 'positive' worlds: <--||-->.
+  bool workAcrossWorlds(WorldWorkControl Function(double shift) work) {
+    if (work(0) == WorldWorkControl.hit) return true;
 
     if (worldWidth == 0) return false;
+
+    negativeWorldsLoop:
     for (double shift = -worldWidth;; shift -= worldWidth) {
-      final isHit = work(shift);
-      if (isHit == null) break;
-      if (isHit) return true;
-    }
-    for (double shift = worldWidth;; shift += worldWidth) {
-      final isHit = work(shift);
-      if (isHit == null) break;
-      if (isHit) return true;
+      switch (work(shift)) {
+        case WorldWorkControl.hit:
+          return true;
+        case WorldWorkControl.invisible:
+          break negativeWorldsLoop;
+        case WorldWorkControl.visible:
+      }
     }
 
-    return false;
+    for (double shift = worldWidth;; shift += worldWidth) {
+      switch (work(shift)) {
+        case WorldWorkControl.hit:
+          return true;
+        case WorldWorkControl.invisible:
+          return false;
+        case WorldWorkControl.visible:
+      }
+    }
   }
 
   /// Returns the origin of the camera.
@@ -95,4 +96,26 @@ mixin FeatureLayerUtils on CustomPainter {
       (camera.getOffsetFromOrigin(point) -
               camera.getOffsetFromOrigin(_distance.offset(point, meters, 180)))
           .distance;
+}
+
+/// Return type for the callback argument of
+/// [FeatureLayerUtils.workAcrossWorlds], which indicates how to control the
+/// iteration across worlds & how to return from the method
+///
+/// The callback must return [hit] or [invisible] in some case to prevent an
+/// infinite loop.
+@internal
+enum WorldWorkControl {
+  /// Immediately stop iteration across all further worlds, and return `true`
+  ///
+  /// This is useful for hit testing for efficiency purposes, where hitting any
+  /// one element is enough to determine a hit testing result.
+  hit,
+
+  /// Keep iterating across worlds in the current direction
+  visible,
+
+  /// Stop iterating across worlds in the current direction; if both directions
+  /// have been completed without a [hit], returns `false`
+  invisible,
 }

@@ -29,14 +29,16 @@ class CirclePainter<R extends Object> extends CustomPainter
     final radius = _getRadiusInPixel(element, withBorder: true);
     final initialCenter = _getOffset(element.point);
 
-    bool? checkIfHit(double shift) {
+    WorldWorkControl checkIfHit(double shift) {
       final center = initialCenter + Offset(shift, 0);
       if (!_isVisible(center: center, radiusInPixel: radius)) {
-        return null;
+        return WorldWorkControl.invisible;
       }
 
       return pow(point.dx - center.dx, 2) + pow(point.dy - center.dy, 2) <=
-          radius * radius;
+              radius * radius
+          ? WorldWorkControl.hit
+          : WorldWorkControl.visible;
     }
 
     return workAcrossWorlds(checkIfHit);
@@ -60,16 +62,15 @@ class CirclePainter<R extends Object> extends CustomPainter
       final initialCenter = _getOffset(circle.point);
 
       /// Draws on a "single-world"
-      bool? drawIfVisible(double shift) {
-        bool? result;
+      WorldWorkControl drawIfVisible(double shift) {
+        WorldWorkControl result = WorldWorkControl.invisible;
         final center = initialCenter + Offset(shift, 0);
 
         bool isVisible(double radius) {
           if (_isVisible(center: center, radiusInPixel: radius)) {
-            result = false; // Stop iteration in current direction
+            result = WorldWorkControl.visible;
             return true;
           }
-          // Leave `result` null to continue iteration
           return false;
         }
 
