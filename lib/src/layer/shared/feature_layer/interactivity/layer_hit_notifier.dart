@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import 'package:flutter_map/src/layer/shared/layer_interactivity/layer_hit_result.dart';
+import 'package:flutter_map/src/layer/shared/feature_layer/interactivity/layer_hit_result.dart';
 
 /// A [ValueNotifier] that notifies:
 ///

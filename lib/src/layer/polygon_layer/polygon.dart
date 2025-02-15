@@ -1,7 +1,7 @@
 part of 'polygon_layer.dart';
 
 /// [Polygon] class, to be used for the [PolygonLayer].
-class Polygon<R extends Object> {
+class Polygon<R extends Object> with HitDetectableElement<R> {
   /// The points for the outline of the [Polygon].
   final List<LatLng> points;
 
@@ -70,7 +70,7 @@ class Polygon<R extends Object> {
   /// it remains upright
   final bool rotateLabel;
 
-  /// {@macro fm.hde.hitValue}
+  @override
   final R? hitValue;
 
   /// Designates whether the given polygon points follow a clock or

@@ -1,80 +1,50 @@
 part of 'polyline_layer.dart';
 
 /// The [CustomPainter] used to draw [Polyline]s for the [PolylineLayer].
-// TODO: We should consider exposing this publicly, as with [CirclePainter] -
-// but the projected objects are private at the moment.
-class _PolylinePainter<R extends Object> extends CustomPainter
-    with HitDetectablePainter<R, _ProjectedPolyline<R>>, FeatureLayerUtils {
+// TODO: Consider exposing this publicly, as with [CirclePainter] - but the
+// projected objects are private at the moment.
+base class _PolylinePainter<R extends Object>
+    extends InteractiveMultiWorldProjectableFeatureLayerPainter<R,
+        _ProjectedPolyline<R>> {
   final List<_ProjectedPolyline<R>> polylines;
   final double minimumHitbox;
-
-  @override
-  final MapCamera camera;
-
-  @override
-  final LayerHitNotifier<R>? hitNotifier;
 
   /// Create a new [_PolylinePainter] instance
   _PolylinePainter({
     required this.polylines,
     required this.minimumHitbox,
-    required this.camera,
-    required this.hitNotifier,
+    required super.camera,
+    required super.hitNotifier,
   });
 
   @override
-  bool elementHitTest(
-    _ProjectedPolyline<R> projectedPolyline, {
-    required Offset point,
-    required LatLng coordinate,
+  bool elementHitTestInWorld(
+    _ProjectedPolyline<R> element, {
+    required List<Offset> coords,
+    required Offset offset,
+    required double shift,
   }) {
-    final polyline = projectedPolyline.polyline;
+    final polyline = element.polyline;
 
-    // TODO: We should check the bounding box here, for efficiency
-    // However, we need to account for:
-    //  * map rotation
-    //  * extended bbox that accounts for `minimumHitbox`
-    //
-    // if (!polyline.boundingBox.contains(touch)) {
-    //   continue;
-    // }
+    final strokeWidth = polyline.useStrokeWidthInMeter
+        ? metersToScreenPixels(polyline.points.first, polyline.strokeWidth)
+        : polyline.strokeWidth;
+    final hittableDistance = math.max(
+      strokeWidth / 2 + polyline.borderStrokeWidth / 2,
+      minimumHitbox,
+    );
 
-    WorldWorkControl checkIfHit(double shift) {
-      final offsets = getOffsetsXY(
-        camera: camera,
-        origin: origin,
-        points: projectedPolyline.points,
-        shift: shift,
-      );
-      if (!areOffsetsVisible(offsets)) return WorldWorkControl.invisible;
+    for (int i = 0; i < coords.length - 1; i++) {
+      final o1 = coords[i];
+      final o2 = coords[i + 1];
 
-      final strokeWidth = polyline.useStrokeWidthInMeter
-          ? metersToScreenPixels(
-              projectedPolyline.polyline.points.first,
-              polyline.strokeWidth,
-            )
-          : polyline.strokeWidth;
-      final hittableDistance = math.max(
-        strokeWidth / 2 + polyline.borderStrokeWidth / 2,
-        minimumHitbox,
-      );
+      final distanceSq =
+          getSqSegDist(offset.dx, offset.dy, o1.dx, o1.dy, o2.dx, o2.dy);
 
-      for (int i = 0; i < offsets.length - 1; i++) {
-        final o1 = offsets[i];
-        final o2 = offsets[i + 1];
-
-        final distanceSq =
-            getSqSegDist(point.dx, point.dy, o1.dx, o1.dy, o2.dx, o2.dy);
-
-        if (distanceSq <= hittableDistance * hittableDistance) {
-          return WorldWorkControl.hit;
-        }
-      }
-
-      return WorldWorkControl.visible;
+      if (distanceSq <= hittableDistance * hittableDistance) return true;
     }
 
-    return workAcrossWorlds(checkIfHit);
+    return false;
   }
 
   @override

@@ -1,10 +1,11 @@
 part of 'polygon_layer.dart';
 
 /// The [CustomPainter] used to draw [Polygon]s for the [PolygonLayer].
-// TODO: We should consider exposing this publicly, as with [CirclePainter] -
-// but the projected objects are private at the moment.
-class _PolygonPainter<R extends Object> extends CustomPainter
-    with HitDetectablePainter<R, _ProjectedPolygon<R>>, FeatureLayerUtils {
+// TODO: Consider exposing this publicly, as with [CirclePainter] - but the
+// projected objects are private at the moment.
+base class _PolygonPainter<R extends Object>
+    extends InteractiveMultiWorldProjectableFeatureLayerPainter<R,
+        _ProjectedPolygon<R>> {
   /// Reference to the list of [_ProjectedPolygon]s
   final List<_ProjectedPolygon<R>> polygons;
 
@@ -35,12 +36,6 @@ class _PolygonPainter<R extends Object> extends CustomPainter
   /// See [PolygonLayer.debugAltRenderer]
   final bool debugAltRenderer;
 
-  @override
-  final MapCamera camera;
-
-  @override
-  final LayerHitNotifier<R>? hitNotifier;
-
   /// Create a new [_PolygonPainter] instance.
   _PolygonPainter({
     required this.polygons,
@@ -48,68 +43,44 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     required this.polygonLabels,
     required this.drawLabelsLast,
     required this.debugAltRenderer,
-    required this.camera,
-    required this.hitNotifier,
+    required super.camera,
+    required super.hitNotifier,
   }) : bounds = camera.visibleBounds;
 
   @override
-  bool elementHitTest(
-    _ProjectedPolygon<R> projectedPolygon, {
-    required Offset point,
-    required LatLng coordinate,
+  bool elementHitTestInWorld(
+    _ProjectedPolygon<R> element, {
+    required List<Offset> coords,
+    required Offset offset,
+    required double shift,
   }) {
-    // TODO: We should check the bounding box here, for efficiency
-    // However, we need to account for map rotation
-    //
-    // if (!polygon.boundingBox.contains(touch)) {
-    //   continue;
-    // }
+    // Ensure closed polygon
+    if (coords.first != coords.last) coords.add(coords.first);
 
-    WorldWorkControl checkIfHit(double shift) {
-      final projectedCoords = getOffsetsXY(
-        camera: camera,
-        origin: origin,
-        points: projectedPolygon.points,
-        shift: shift,
-      );
-      if (!areOffsetsVisible(projectedCoords)) {
-        return WorldWorkControl.invisible;
-      }
+    final isValidPolygon = coords.length >= 3;
+    final isInPolygon = isValidPolygon && isPointInPolygon(offset, coords);
 
-      if (projectedCoords.first != projectedCoords.last) {
-        projectedCoords.add(projectedCoords.first);
-      }
+    final isInHole = element.holePoints.any(
+      (points) {
+        final projectedHoleCoords = getOffsetsXY(
+          camera: camera,
+          origin: origin,
+          points: points,
+          shift: shift,
+        );
+        if (projectedHoleCoords.first != projectedHoleCoords.last) {
+          projectedHoleCoords.add(projectedHoleCoords.first);
+        }
 
-      final isValidPolygon = projectedCoords.length >= 3;
-      final isInPolygon =
-          isValidPolygon && isPointInPolygon(point, projectedCoords);
+        final isValidHolePolygon = projectedHoleCoords.length >= 3;
+        return isValidHolePolygon &&
+            isPointInPolygon(offset, projectedHoleCoords);
+      },
+    );
 
-      final isInHole = projectedPolygon.holePoints.any(
-        (points) {
-          final projectedHoleCoords = getOffsetsXY(
-            camera: camera,
-            origin: origin,
-            points: points,
-            shift: shift,
-          );
-          if (projectedHoleCoords.first != projectedHoleCoords.last) {
-            projectedHoleCoords.add(projectedHoleCoords.first);
-          }
-
-          final isValidHolePolygon = projectedHoleCoords.length >= 3;
-          return isValidHolePolygon &&
-              isPointInPolygon(point, projectedHoleCoords);
-        },
-      );
-
-      // Second check handles case where polygon outline intersects a hole,
-      // ensuring that the hit matches with the visual representation
-      return (isInPolygon && !isInHole) || (!isInPolygon && isInHole)
-          ? WorldWorkControl.hit
-          : WorldWorkControl.visible;
-    }
-
-    return workAcrossWorlds(checkIfHit);
+    // Second check handles case where polygon outline intersects a hole,
+    // ensuring that the hit matches with the visual representation
+    return (isInPolygon && !isInHole) || (!isInPolygon && isInHole);
   }
 
   @override

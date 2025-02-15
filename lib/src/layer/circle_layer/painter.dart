@@ -23,8 +23,7 @@ class CirclePainter<R extends Object> extends CustomPainter
   @override
   bool elementHitTest(
     CircleMarker<R> element, {
-    required Offset point,
-    required LatLng coordinate,
+    required Offset offset,
   }) {
     final radius = _getRadiusInPixel(element, withBorder: true);
     final initialCenter = _getOffset(element.point);
@@ -35,7 +34,7 @@ class CirclePainter<R extends Object> extends CustomPainter
         return WorldWorkControl.invisible;
       }
 
-      return pow(point.dx - center.dx, 2) + pow(point.dy - center.dy, 2) <=
+      return pow(offset.dx - center.dx, 2) + pow(offset.dy - center.dy, 2) <=
               radius * radius
           ? WorldWorkControl.hit
           : WorldWorkControl.visible;

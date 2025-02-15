@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/shared/layer_projection_simplification/widget.dart';
+import 'package:flutter_map/src/layer/shared/feature_layer/projection_simplification/widget.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:meta/meta.dart';
 
@@ -34,7 +34,7 @@ mixin ProjectionSimplificationManagement<
 
   /// Return the individual elements given the
   /// [ProjectionSimplificationManagementSupportedWidget]
-  Iterable<Element> getElements(W widget);
+  Iterable<Element> get elements;
 
   /// An iterable of simplified [ProjectedElement]s, which is always ready
   /// after the [build] method has been invoked, and should then be used in the
@@ -63,8 +63,6 @@ mixin ProjectionSimplificationManagement<
   @override
   Widget build(BuildContext context) {
     final camera = MapCamera.of(context);
-
-    final elements = getElements(widget);
 
     final projected = _cachedProjectedElements ??= List.generate(
       elements.length,
