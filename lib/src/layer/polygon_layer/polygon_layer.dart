@@ -121,7 +121,7 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
       );
 
   @override
-  Iterable<Polygon<R>> getElements(PolygonLayer<R> widget) => widget.polygons;
+  List<Polygon<R>> get elements => widget.polygons;
 
   @override
   Widget build(BuildContext context) {

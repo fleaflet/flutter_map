@@ -87,8 +87,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
       );
 
   @override
-  Iterable<Polyline<R>> getElements(PolylineLayer<R> widget) =>
-      widget.polylines;
+  List<Polyline<R>> get elements => widget.polylines;
 
   @override
   Widget build(BuildContext context) {
