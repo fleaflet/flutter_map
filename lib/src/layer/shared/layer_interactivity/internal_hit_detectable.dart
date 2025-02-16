@@ -6,7 +6,6 @@ import 'package:meta/meta.dart';
 
 @internal
 mixin HitDetectableElement<R extends Object> {
-  /// {@template fm.hde.hitValue}
   /// Value to notify layer's `hitNotifier` with (such as
   /// [PolygonLayer.hitNotifier])
   ///
@@ -15,7 +14,6 @@ mixin HitDetectableElement<R extends Object> {
   ///
   /// The object should have a valid & useful equality, as it may be used
   /// by FM internals.
-  /// {@endtemplate}
   R? get hitValue;
 }
 
