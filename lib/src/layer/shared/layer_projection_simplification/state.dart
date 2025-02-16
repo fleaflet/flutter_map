@@ -34,7 +34,7 @@ mixin ProjectionSimplificationManagement<
 
   /// Return the individual elements given the
   /// [ProjectionSimplificationManagementSupportedWidget]
-  Iterable<Element> getElements(W widget);
+  List<Element> get elements;
 
   /// An iterable of simplified [ProjectedElement]s, which is always ready
   /// after the [build] method has been invoked, and should then be used in the
@@ -63,8 +63,6 @@ mixin ProjectionSimplificationManagement<
   @override
   Widget build(BuildContext context) {
     final camera = MapCamera.of(context);
-
-    final elements = getElements(widget);
 
     final projected = _cachedProjectedElements ??= List.generate(
       elements.length,
