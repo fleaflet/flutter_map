@@ -528,6 +528,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   void _handleScaleStart(ScaleStartDetails details) {
     _dragMode = _pointerCounter == 1;
 
+    // This is not always emitted publicly - see #1939!
     final eventSource = _dragMode
         ? MapEventSource.dragStart
         : MapEventSource.multiFingerGestureStart;
@@ -572,8 +573,6 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   void _handleScaleDragUpdate(ScaleUpdateDetails details) {
     if (_ckrTriggered.value) return;
 
-    const eventSource = MapEventSource.onDrag;
-
     if (InteractiveFlag.hasDrag(_interactionOptions.flags)) {
       if (!_dragStarted) {
         // We could emit start event at [handleScaleStart], however it is
@@ -581,14 +580,14 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
         // [didUpdateWidget] will emit MapEventMoveEnd and if drag is enabled
         // again then this will emit the start event again.
         _dragStarted = true;
-        widget.controller.moveStarted(eventSource);
+        widget.controller.moveStarted(MapEventSource.dragStart);
       }
 
       final localDistanceOffset = _rotateOffset(
         _lastFocalLocal - details.localFocalPoint,
       );
 
-      widget.controller.dragUpdated(eventSource, localDistanceOffset);
+      widget.controller.dragUpdated(MapEventSource.onDrag, localDistanceOffset);
     }
   }
 
@@ -654,7 +653,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
         if (!_pinchMoveStarted) {
           // We want to call moveStart only once for a movement so don't call
           // it if a pinch move is already underway.
-          widget.controller.moveStarted(MapEventSource.onMultiFinger);
+          widget.controller.moveStarted(MapEventSource.multiFingerGestureStart);
         }
       }
     }
@@ -669,7 +668,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
         if (!_pinchZoomStarted) {
           // We want to call moveStart only once for a movement so don't call
           // it if a pinch zoom is already underway.
-          widget.controller.moveStarted(MapEventSource.onMultiFinger);
+          widget.controller.moveStarted(MapEventSource.multiFingerGestureStart);
         }
       }
     }
