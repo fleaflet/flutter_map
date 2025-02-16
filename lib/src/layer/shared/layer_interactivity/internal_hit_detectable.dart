@@ -1,10 +1,12 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/shared/feature_layer/utils.dart';
+import 'package:flutter_map/src/layer/shared/feature_layer_utils.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 
 @internal
 mixin HitDetectableElement<R extends Object> {
+  /// {@template fm.hde.hitValue}
   /// Value to notify layer's `hitNotifier` with (such as
   /// [PolygonLayer.hitNotifier])
   ///
@@ -13,6 +15,7 @@ mixin HitDetectableElement<R extends Object> {
   ///
   /// The object should have a valid & useful equality, as it may be used
   /// by FM internals.
+  /// {@endtemplate}
   R? get hitValue;
 }
 
@@ -35,6 +38,9 @@ mixin HitDetectablePainter<R extends Object, E extends HitDetectableElement<R>>
   /// a hit has already been found on another element, and the
   /// [HitDetectableElement.hitValue] is `null` on this element.
   ///
+  /// [Offset] and [coordinate]
+  /// ([MapCamera.screenOffsetToLatLng]) are provided for simplicity.
+  ///
   /// Avoid performing calculations that are not dependent on [element]. Instead,
   /// override [hitTest], store the necessary calculation results in
   /// (`late` non-`null`able) members, and call `super.hitTest(position)` at the
@@ -44,7 +50,8 @@ mixin HitDetectablePainter<R extends Object, E extends HitDetectableElement<R>>
   /// Should return whether an element has been hit.
   bool elementHitTest(
     E element, {
-    required Offset offset,
+    required Offset point,
+    required LatLng coordinate,
   });
 
   final _hits = <R>[]; // Avoids repetitive memory reallocation
@@ -55,12 +62,13 @@ mixin HitDetectablePainter<R extends Object, E extends HitDetectableElement<R>>
     _hits.clear();
     bool hasHit = false;
 
-    final coordinate = camera.screenOffsetToLatLng(position);
+    final point = position;
+    final coordinate = camera.screenOffsetToLatLng(point);
 
     for (int i = elements.length - 1; i >= 0; i--) {
       final element = elements.elementAt(i);
       if (hasHit && element.hitValue == null) continue;
-      if (elementHitTest(element, offset: position)) {
+      if (elementHitTest(element, point: point, coordinate: coordinate)) {
         if (element.hitValue != null) _hits.add(element.hitValue!);
         hasHit = true;
       }
@@ -74,7 +82,7 @@ mixin HitDetectablePainter<R extends Object, E extends HitDetectableElement<R>>
     hitNotifier?.value = LayerHitResult(
       hitValues: _hits,
       coordinate: coordinate,
-      point: position,
+      point: point,
     );
     return true;
   }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/src/layer/shared/feature_layer/projection_simplification/state.dart';
+import 'package:flutter_map/src/layer/shared/layer_projection_simplification/state.dart';
 
 /// A [StatefulWidget] that includes the properties used by the [State] component
 /// which mixes [ProjectionSimplificationManagement] in

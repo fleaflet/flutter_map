@@ -1,20 +1,20 @@
 part of 'polyline_layer.dart';
 
 @immutable
-final class _ProjectedPolyline<R extends Object>
-    extends ProjectedHittableElement<R> {
+class _ProjectedPolyline<R extends Object> with HitDetectableElement<R> {
   final Polyline<R> polyline;
+  final List<Offset> points;
 
   @override
   R? get hitValue => polyline.hitValue;
 
-  const _ProjectedPolyline({
+  const _ProjectedPolyline._({
     required this.polyline,
-    required super.points,
+    required this.points,
   });
 
-  _ProjectedPolyline.fromPolyline(Projection projection, Polyline<R> polyline)
-      : this(
+  _ProjectedPolyline._fromPolyline(Projection projection, Polyline<R> polyline)
+      : this._(
           polyline: polyline,
           points: projection.projectList(polyline.points),
         );

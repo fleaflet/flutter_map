@@ -5,12 +5,10 @@ import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/shared/feature_layer/interactive_multi_world_projectable_feature_layer_painter.dart';
-import 'package:flutter_map/src/layer/shared/feature_layer/interactivity/internal_hit_detectable.dart';
-import 'package:flutter_map/src/layer/shared/feature_layer/interactivity/projected_hittable_element.dart';
-import 'package:flutter_map/src/layer/shared/feature_layer/projection_simplification/state.dart';
-import 'package:flutter_map/src/layer/shared/feature_layer/projection_simplification/widget.dart';
-import 'package:flutter_map/src/layer/shared/feature_layer/utils.dart';
+import 'package:flutter_map/src/layer/shared/feature_layer_utils.dart';
+import 'package:flutter_map/src/layer/shared/layer_interactivity/internal_hit_detectable.dart';
+import 'package:flutter_map/src/layer/shared/layer_projection_simplification/state.dart';
+import 'package:flutter_map/src/layer/shared/layer_projection_simplification/widget.dart';
 import 'package:flutter_map/src/layer/shared/line_patterns/pixel_hiker.dart';
 import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:flutter_map/src/misc/offsets.dart';
@@ -72,14 +70,14 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
     required Projection projection,
     required Polyline<R> element,
   }) =>
-      _ProjectedPolyline.fromPolyline(projection, element);
+      _ProjectedPolyline._fromPolyline(projection, element);
 
   @override
   _ProjectedPolyline<R> simplifyProjectedElement({
     required _ProjectedPolyline<R> projectedElement,
     required double tolerance,
   }) =>
-      _ProjectedPolyline(
+      _ProjectedPolyline._(
         polyline: projectedElement.polyline,
         points: simplifyPoints(
           points: projectedElement.points,
@@ -89,7 +87,8 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
       );
 
   @override
-  Iterable<Polyline<R>> get elements => widget.polylines;
+  Iterable<Polyline<R>> getElements(PolylineLayer<R> widget) =>
+      widget.polylines;
 
   @override
   Widget build(BuildContext context) {
@@ -191,7 +190,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
         } else {
           // If we cannot see this segment but have seen previous ones, flush the last polyline fragment.
           if (start != -1) {
-            yield _ProjectedPolyline(
+            yield _ProjectedPolyline._(
               polyline: polyline,
               points: projectedPolyline.points.sublist(start, i + 1),
             );
@@ -207,7 +206,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
       if (containsSegment) {
         yield start == 0
             ? projectedPolyline
-            : _ProjectedPolyline(
+            : _ProjectedPolyline._(
                 polyline: polyline,
                 // Special case: the entire polyline is visible
                 points: projectedPolyline.points.sublist(start),

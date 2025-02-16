@@ -6,12 +6,10 @@ import 'package:dart_earcut/dart_earcut.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/shared/feature_layer/interactive_multi_world_projectable_feature_layer_painter.dart';
-import 'package:flutter_map/src/layer/shared/feature_layer/interactivity/internal_hit_detectable.dart';
-import 'package:flutter_map/src/layer/shared/feature_layer/interactivity/projected_hittable_element.dart';
-import 'package:flutter_map/src/layer/shared/feature_layer/projection_simplification/state.dart';
-import 'package:flutter_map/src/layer/shared/feature_layer/projection_simplification/widget.dart';
-import 'package:flutter_map/src/layer/shared/feature_layer/utils.dart';
+import 'package:flutter_map/src/layer/shared/feature_layer_utils.dart';
+import 'package:flutter_map/src/layer/shared/layer_interactivity/internal_hit_detectable.dart';
+import 'package:flutter_map/src/layer/shared/layer_projection_simplification/state.dart';
+import 'package:flutter_map/src/layer/shared/layer_projection_simplification/widget.dart';
 import 'package:flutter_map/src/layer/shared/line_patterns/pixel_hiker.dart';
 import 'package:flutter_map/src/misc/offsets.dart';
 import 'package:flutter_map/src/misc/point_in_polygon.dart';
@@ -97,14 +95,14 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
     required Projection projection,
     required Polygon<R> element,
   }) =>
-      _ProjectedPolygon.fromPolygon(projection, element);
+      _ProjectedPolygon._fromPolygon(projection, element);
 
   @override
   _ProjectedPolygon<R> simplifyProjectedElement({
     required _ProjectedPolygon<R> projectedElement,
     required double tolerance,
   }) =>
-      _ProjectedPolygon(
+      _ProjectedPolygon._(
         polygon: projectedElement.polygon,
         points: simplifyPoints(
           points: projectedElement.points,
@@ -123,7 +121,7 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
       );
 
   @override
-  Iterable<Polygon<R>> get elements => widget.polygons;
+  Iterable<Polygon<R>> getElements(PolygonLayer<R> widget) => widget.polygons;
 
   @override
   Widget build(BuildContext context) {

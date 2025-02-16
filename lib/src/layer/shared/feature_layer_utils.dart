@@ -5,10 +5,9 @@ import 'package:meta/meta.dart';
 
 /// Provides utilities for 'feature layers' implemented with canvas painters and
 /// hit testers, especially those which have multi-world support
+@internal
 mixin FeatureLayerUtils on CustomPainter {
-  /// [MapCamera] reference
   abstract final MapCamera camera;
-
   static const _distance = Distance();
 
   /// The rectangle of the canvas on its last paint
@@ -105,6 +104,7 @@ mixin FeatureLayerUtils on CustomPainter {
 ///
 /// The callback must return [hit] or [invisible] in some case to prevent an
 /// infinite loop.
+@internal
 enum WorldWorkControl {
   /// Immediately stop iteration across all further worlds, and return `true`
   ///
