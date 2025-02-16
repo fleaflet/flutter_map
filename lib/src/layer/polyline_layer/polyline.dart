@@ -1,7 +1,7 @@
 part of 'polyline_layer.dart';
 
 /// [Polyline] (aka. LineString) class, to be used for the [PolylineLayer].
-class Polyline<R extends Object> {
+class Polyline<R extends Object> with HitDetectableElement<R> {
   /// The list of coordinates for the [Polyline].
   final List<LatLng> points;
 
@@ -39,7 +39,7 @@ class Polyline<R extends Object> {
   /// Set to true if the width of the stroke should have meters as unit.
   final bool useStrokeWidthInMeter;
 
-  /// {@macro fm.hde.hitValue}
+  @override
   final R? hitValue;
 
   LatLngBounds? _boundingBox;

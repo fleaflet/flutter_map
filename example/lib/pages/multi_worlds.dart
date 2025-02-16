@@ -127,6 +127,87 @@ class _MultiWorldsPageState extends State<MultiWorldsPage> {
                   ..._customMarkers,
                 ],
               ),
+              GestureDetector(
+                onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(_hitNotifier.value!.hitValues.join(', ')),
+                    duration: const Duration(seconds: 1),
+                    showCloseIcon: true,
+                  ),
+                ),
+                child: PolygonLayer<String>(
+                  hitNotifier: _hitNotifier,
+                  simplificationTolerance: 0,
+                  useAltRendering: true,
+                  drawLabelsLast: false,
+                  polygons: [
+                    Polygon<String>(
+                      label: 'Aloha!',
+                      labelStyle:
+                          const TextStyle(color: Colors.green, fontSize: 40),
+                      labelPlacement:
+                          PolygonLabelPlacement.centroidWithMultiWorld,
+                      rotateLabel: false,
+                      points: const [
+                        LatLng(40, 149),
+                        LatLng(45, 159),
+                        LatLng(50, 169),
+                        LatLng(55, 179),
+                        LatLng(50, -170),
+                        LatLng(45, -160),
+                        LatLng(40, -150),
+                        LatLng(35, -160),
+                        LatLng(30, -170),
+                        LatLng(25, -180),
+                        LatLng(30, 169),
+                        LatLng(35, 159),
+                      ],
+                      holePointsList: const [
+                        [
+                          LatLng(45, 175),
+                          LatLng(45, -175),
+                          LatLng(35, -175),
+                          LatLng(35, 175),
+                        ],
+                      ],
+                      color: const Color(0xFFFF0000),
+                      hitValue: 'Red Line, Across the universe...',
+                    ),
+                  ],
+                ),
+              ),
+              GestureDetector(
+                onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(_hitNotifier.value!.hitValues.join(', ')),
+                    duration: const Duration(seconds: 1),
+                    showCloseIcon: true,
+                  ),
+                ),
+                child: PolylineLayer<String>(
+                  hitNotifier: _hitNotifier,
+                  simplificationTolerance: 0,
+                  polylines: [
+                    Polyline<String>(
+                      points: const [
+                        LatLng(-40, 150),
+                        LatLng(-45, 160),
+                        LatLng(-50, 170),
+                        LatLng(-55, 180),
+                        LatLng(-50, -170),
+                        LatLng(-45, -160),
+                        LatLng(-40, -150),
+                        LatLng(-45, -140),
+                        LatLng(-50, -130),
+                      ],
+                      useStrokeWidthInMeter: true,
+                      strokeWidth: 500000,
+                      color: const Color(0xFF0000FF),
+                      hitValue: 'Blue Line',
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ],

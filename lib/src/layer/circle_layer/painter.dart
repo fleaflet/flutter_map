@@ -1,20 +1,24 @@
 part of 'circle_layer.dart';
 
-/// The [CustomPainter] used to draw [CircleMarker] for the [CircleLayer].
-base class CirclePainter<R extends Object>
-    extends HitDetectablePainter<R, CircleMarker<R>> {
+/// The [CustomPainter] used to draw [CircleMarker]s for the [CircleLayer].
+class CirclePainter<R extends Object> extends CustomPainter
+    with HitDetectablePainter<R, CircleMarker<R>>, FeatureLayerUtils {
   /// Reference to the list of [CircleMarker]s of the [CircleLayer].
   final List<CircleMarker<R>> circles;
+
+  @override
+  final MapCamera camera;
+
+  @override
+  final LayerHitNotifier<R>? hitNotifier;
 
   /// Create a [CirclePainter] instance by providing the required
   /// reference objects.
   CirclePainter({
     required this.circles,
-    required super.camera,
-    required super.hitNotifier,
+    required this.camera,
+    required this.hitNotifier,
   });
-
-  static const _distance = Distance();
 
   @override
   bool elementHitTest(
@@ -22,58 +26,31 @@ base class CirclePainter<R extends Object>
     required Offset point,
     required LatLng coordinate,
   }) {
-    final worldWidth = _getWorldWidth();
     final radius = _getRadiusInPixel(element, withBorder: true);
     final initialCenter = _getOffset(element.point);
 
-    /// Returns null if invisible, true if hit, false if not hit.
-    bool? checkIfHit(double shift) {
+    WorldWorkControl checkIfHit(double shift) {
       final center = initialCenter + Offset(shift, 0);
-      if (!_isVisible(
-        screenRect: _screenRect,
-        center: center,
-        radiusInPixel: radius,
-      )) {
-        return null;
+      if (!_isVisible(center: center, radiusInPixel: radius)) {
+        return WorldWorkControl.invisible;
       }
 
       return pow(point.dx - center.dx, 2) + pow(point.dy - center.dy, 2) <=
-          radius * radius;
+              radius * radius
+          ? WorldWorkControl.hit
+          : WorldWorkControl.visible;
     }
 
-    if (checkIfHit(0) ?? false) {
-      return true;
-    }
-
-    // Repeat over all worlds (<--||-->) until culling determines that
-    // that element is out of view, and therefore all further elements in
-    // that direction will also be
-    if (worldWidth == 0) return false;
-    for (double shift = -worldWidth;; shift -= worldWidth) {
-      final isHit = checkIfHit(shift);
-      if (isHit == null) break;
-      if (isHit) return true;
-    }
-    for (double shift = worldWidth;; shift += worldWidth) {
-      final isHit = checkIfHit(shift);
-      if (isHit == null) break;
-      if (isHit) return true;
-    }
-
-    return false;
+    return workAcrossWorlds(checkIfHit);
   }
 
   @override
   Iterable<CircleMarker<R>> get elements => circles;
 
-  late Rect _screenRect;
-
   @override
   void paint(Canvas canvas, Size size) {
-    _screenRect = Offset.zero & size;
-    canvas.clipRect(_screenRect);
-
-    final worldWidth = _getWorldWidth();
+    super.paint(canvas, size);
+    canvas.clipRect(viewportRect);
 
     // Let's calculate all the points grouped by color and radius
     final points = <Color, Map<double, List<Offset>>>{};
@@ -84,17 +61,15 @@ base class CirclePainter<R extends Object>
       final radiusWithBorder = _getRadiusInPixel(circle, withBorder: true);
       final initialCenter = _getOffset(circle.point);
 
-      bool checkIfVisible(double shift) {
-        bool result = false;
+      /// Draws on a "single-world"
+      WorldWorkControl drawIfVisible(double shift) {
+        WorldWorkControl result = WorldWorkControl.invisible;
         final center = initialCenter + Offset(shift, 0);
 
         bool isVisible(double radius) {
-          if (_isVisible(
-            screenRect: _screenRect,
-            center: center,
-            radiusInPixel: radius,
-          )) {
-            return result = true;
+          if (_isVisible(center: center, radiusInPixel: radius)) {
+            result = WorldWorkControl.visible;
+            return true;
           }
           return false;
         }
@@ -123,23 +98,11 @@ base class CirclePainter<R extends Object>
                 .add(center);
           }
         }
+
         return result;
       }
 
-      checkIfVisible(0);
-
-      // Repeat over all worlds (<--||-->) until culling determines that
-      // that element is out of view, and therefore all further elements in
-      // that direction will also be
-      if (worldWidth == 0) continue;
-      for (double shift = -worldWidth;; shift -= worldWidth) {
-        final isVisible = checkIfVisible(shift);
-        if (!isVisible) break;
-      }
-      for (double shift = worldWidth;; shift += worldWidth) {
-        final isVisible = checkIfVisible(shift);
-        if (!isVisible) break;
-      }
+      workAcrossWorlds(drawIfVisible);
     }
 
     // Now that all the points are grouped, let's draw them
@@ -203,21 +166,14 @@ base class CirclePainter<R extends Object>
   double _getRadiusInPixel(CircleMarker circle, {required bool withBorder}) =>
       (withBorder ? circle.borderStrokeWidth / 2 : 0) +
       (circle.useRadiusInMeter
-          ? (_getOffset(circle.point) -
-                  _getOffset(
-                      _distance.offset(circle.point, circle.radius, 180)))
-              .distance
+          ? metersToScreenPixels(circle.point, circle.radius)
           : circle.radius);
 
   /// Returns true if a centered circle with this radius is on the screen.
   bool _isVisible({
-    required Rect screenRect,
     required Offset center,
     required double radiusInPixel,
   }) =>
-      screenRect.overlaps(
-        Rect.fromCircle(center: center, radius: radiusInPixel),
-      );
-
-  double _getWorldWidth() => camera.getWorldWidthAtZoom();
+      viewportRect
+          .overlaps(Rect.fromCircle(center: center, radius: radiusInPixel));
 }

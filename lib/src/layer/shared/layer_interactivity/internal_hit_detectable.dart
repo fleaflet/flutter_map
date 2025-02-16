@@ -1,11 +1,11 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/layer/shared/feature_layer_utils.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 
 @internal
 mixin HitDetectableElement<R extends Object> {
-  /// {@template fm.hde.hitValue}
   /// Value to notify layer's `hitNotifier` with (such as
   /// [PolygonLayer.hitNotifier])
   ///
@@ -14,17 +14,14 @@ mixin HitDetectableElement<R extends Object> {
   ///
   /// The object should have a valid & useful equality, as it may be used
   /// by FM internals.
-  /// {@endtemplate}
   R? get hitValue;
 }
 
 @internal
-abstract base class HitDetectablePainter<R extends Object,
-    E extends HitDetectableElement<R>> extends CustomPainter {
-  HitDetectablePainter({required this.camera, required this.hitNotifier});
-
-  final MapCamera camera;
-  final LayerHitNotifier<R>? hitNotifier;
+mixin HitDetectablePainter<R extends Object, E extends HitDetectableElement<R>>
+    on CustomPainter {
+  abstract final MapCamera camera;
+  abstract final LayerHitNotifier<R>? hitNotifier;
 
   /// Elements that should be possibly be hit tested by [elementHitTest]
   /// ([hitTest])
@@ -45,9 +42,8 @@ abstract base class HitDetectablePainter<R extends Object,
   /// Avoid performing calculations that are not dependent on [element]. Instead,
   /// override [hitTest], store the necessary calculation results in
   /// (`late` non-`null`able) members, and call `super.hitTest(position)` at the
-  /// end. To calculate the camera origin in this way, instead mix in
-  /// [HitTestRequiresCameraOrigin], which makes the origin available through
-  /// the `hitTestCameraOrigin` member.
+  /// end. To calculate the camera origin in this way, instead mix in and use
+  /// [FeatureLayerUtils.origin].
   ///
   /// Should return whether an element has been hit.
   bool elementHitTest(
@@ -87,26 +83,5 @@ abstract base class HitDetectablePainter<R extends Object,
       point: point,
     );
     return true;
-  }
-}
-
-@internal
-base mixin HitTestRequiresCameraOrigin<R extends Object,
-    E extends HitDetectableElement<R>> on HitDetectablePainter<R, E> {
-  /// Calculated [MapCamera] origin, using the following formula:
-  ///
-  /// ```dart
-  /// camera.project(camera.center) - camera.size.center(Offset.zero)
-  /// ```
-  ///
-  /// Only initialised after [hitTest] is invoked. Recalculated every time
-  /// [hitTest] is invoked.
-  late Offset hitTestCameraOrigin;
-
-  @override
-  bool? hitTest(Offset position) {
-    hitTestCameraOrigin =
-        camera.projectAtZoom(camera.center) - camera.size.center(Offset.zero);
-    return super.hitTest(position);
   }
 }

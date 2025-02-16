@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/layer/shared/feature_layer_utils.dart';
 import 'package:flutter_map/src/layer/shared/layer_interactivity/internal_hit_detectable.dart';
 import 'package:flutter_map/src/layer/shared/layer_projection_simplification/state.dart';
 import 'package:flutter_map/src/layer/shared/layer_projection_simplification/widget.dart';
@@ -86,8 +87,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
       );
 
   @override
-  Iterable<Polyline<R>> getElements(PolylineLayer<R> widget) =>
-      widget.polylines;
+  List<Polyline<R>> get elements => widget.polylines;
 
   @override
   Widget build(BuildContext context) {
