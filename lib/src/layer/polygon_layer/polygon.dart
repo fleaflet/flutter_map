@@ -70,6 +70,9 @@ class Polygon<R extends Object> with HitDetectableElement<R> {
   /// it remains upright
   final bool rotateLabel;
 
+  /// True if we want to consider the whole map as the full polygon.
+  final bool justHoles;
+
   @override
   final R? hitValue;
 
@@ -125,6 +128,7 @@ class Polygon<R extends Object> with HitDetectableElement<R> {
     this.labelPlacement = PolygonLabelPlacement.centroid,
     this.rotateLabel = false,
     this.hitValue,
+    this.justHoles = false,
   }) : _filledAndClockwise = color != null && isClockwise(points);
 
   /// Checks if the [Polygon] points are ordered clockwise in the list.

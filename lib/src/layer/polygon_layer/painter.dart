@@ -66,6 +66,41 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     // }
 
     WorldWorkControl checkIfHit(double shift) {
+      bool isInHole = false;
+      bool isHoleVisible = false;
+      for (final points in projectedPolygon.holePoints) {
+        final projectedHoleCoords = getOffsetsXY(
+          camera: camera,
+          origin: origin,
+          points: points,
+          shift: shift,
+        );
+        if (projectedHoleCoords.first != projectedHoleCoords.last) {
+          projectedHoleCoords.add(projectedHoleCoords.first);
+        }
+        final isValidHolePolygon = projectedHoleCoords.length >= 3;
+        if (!isValidHolePolygon) continue;
+
+        if (isPointInPolygon(point, projectedHoleCoords)) {
+          if (projectedPolygon.polygon.justHoles) {
+            return WorldWorkControl.hit;
+          }
+          isInHole = true;
+          break;
+        }
+        if (!isHoleVisible) {
+          if (areOffsetsVisible(projectedHoleCoords)) {
+            isHoleVisible = true;
+          }
+        }
+      }
+
+      if (projectedPolygon.polygon.justHoles) {
+        return isHoleVisible
+            ? WorldWorkControl.visible
+            : WorldWorkControl.invisible;
+      }
+
       final projectedCoords = getOffsetsXY(
         camera: camera,
         origin: origin,
@@ -84,24 +119,6 @@ class _PolygonPainter<R extends Object> extends CustomPainter
       final isInPolygon =
           isValidPolygon && isPointInPolygon(point, projectedCoords);
 
-      final isInHole = projectedPolygon.holePoints.any(
-        (points) {
-          final projectedHoleCoords = getOffsetsXY(
-            camera: camera,
-            origin: origin,
-            points: points,
-            shift: shift,
-          );
-          if (projectedHoleCoords.first != projectedHoleCoords.last) {
-            projectedHoleCoords.add(projectedHoleCoords.first);
-          }
-
-          final isValidHolePolygon = projectedHoleCoords.length >= 3;
-          return isValidHolePolygon &&
-              isPointInPolygon(point, projectedHoleCoords);
-        },
-      );
-
       // Second check handles case where polygon outline intersects a hole,
       // ensuring that the hit matches with the visual representation
       return (isInPolygon && !isInHole) || (!isInPolygon && isInHole)
@@ -115,6 +132,8 @@ class _PolygonPainter<R extends Object> extends CustomPainter
   @override
   Iterable<_ProjectedPolygon<R>> get elements => polygons;
 
+  static const _minMaxLatitude = [LatLng(90, 0), LatLng(-90, 0)];
+
   @override
   void paint(Canvas canvas, Size size) {
     const checkOpacity = true; // for debugging purposes only, should be true
@@ -126,6 +145,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     final borderPath = Path();
     Polygon? lastPolygon;
     int? lastHash;
+    Paint? borderPaint;
 
     // This functions flushes the batched fill and border paths constructed below
     void drawPaths() {
@@ -138,7 +158,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
           ..style = PaintingStyle.fill
           ..color = color;
 
-        if (trianglePoints.isNotEmpty) {
+        if (trianglePoints.isNotEmpty && !polygon.justHoles) {
           final points = Float32List(trianglePoints.length * 2);
           for (int i = 0; i < trianglePoints.length; ++i) {
             points[i * 2] = trianglePoints[i].dx;
@@ -196,8 +216,8 @@ class _PolygonPainter<R extends Object> extends CustomPainter
       }
 
       // Draw polygon outline
-      if (polygon.borderStrokeWidth > 0) {
-        canvas.drawPath(borderPath, _getBorderPaint(polygon));
+      if (borderPaint != null) {
+        canvas.drawPath(borderPath, borderPaint);
       }
 
       trianglePoints.clear();
@@ -241,22 +261,30 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     // Main loop constructing batched fill and border paths from given polygons.
     for (int i = 0; i <= polygons.length - 1; i++) {
       final projectedPolygon = polygons[i];
-      if (projectedPolygon.points.isEmpty) continue;
       final polygon = projectedPolygon.polygon;
+      if (projectedPolygon.points.isEmpty && !polygon.justHoles) continue;
+      borderPaint = _getBorderPaint(polygon);
 
       final polygonTriangles = triangles?[i];
 
       /// Draws on a "single-world"
       WorldWorkControl drawIfVisible(double shift) {
-        final fillOffsets = getOffsetsXY(
-          camera: camera,
-          origin: origin,
-          points: projectedPolygon.points,
-          holePoints:
-              polygonTriangles != null ? projectedPolygon.holePoints : null,
-          shift: shift,
-        );
-        if (!areOffsetsVisible(fillOffsets)) return WorldWorkControl.invisible;
+        final fillOffsets = polygon.justHoles
+            ? null
+            : getOffsetsXY(
+                camera: camera,
+                origin: origin,
+                points: projectedPolygon.points,
+                holePoints: polygonTriangles != null
+                    ? projectedPolygon.holePoints
+                    : null,
+                shift: shift,
+              );
+        if (fillOffsets != null) {
+          if (!areOffsetsVisible(fillOffsets)) {
+            return WorldWorkControl.invisible;
+          }
+        }
 
         if (debugAltRenderer) {
           const offsetsLabelStyle = TextStyle(
@@ -264,16 +292,18 @@ class _PolygonPainter<R extends Object> extends CustomPainter
             fontSize: 16,
           );
 
-          for (int i = 0; i < fillOffsets.length; i++) {
-            TextPainter(
-              text: TextSpan(
-                text: i.toString(),
-                style: offsetsLabelStyle,
-              ),
-              textDirection: TextDirection.ltr,
-            )
-              ..layout(maxWidth: 100)
-              ..paint(canvas, fillOffsets[i]);
+          if (fillOffsets != null) {
+            for (int i = 0; i < fillOffsets.length; i++) {
+              TextPainter(
+                text: TextSpan(
+                  text: i.toString(),
+                  style: offsetsLabelStyle,
+                ),
+                textDirection: TextDirection.ltr,
+              )
+                ..layout(maxWidth: 100)
+                ..paint(canvas, fillOffsets[i]);
+            }
           }
         }
 
@@ -286,38 +316,66 @@ class _PolygonPainter<R extends Object> extends CustomPainter
         final hash = polygon.renderHashCode;
         final opacity = polygon.color?.a ?? 0;
         if (lastHash != hash || (checkOpacity && opacity > 0 && opacity < 1)) {
-          drawPaths();
+          // we need all holes to be connected with the same full map.
+          if (!polygon.justHoles) {
+            drawPaths();
+          }
         }
         lastPolygon = polygon;
         lastHash = hash;
 
         // First add fills and borders to path.
         if (polygon.color != null) {
-          if (polygonTriangles != null) {
-            final len = polygonTriangles.length;
-            for (int i = 0; i < len; ++i) {
-              trianglePoints.add(fillOffsets[polygonTriangles[i]]);
+          if (fillOffsets != null) {
+            if (polygonTriangles != null) {
+              final len = polygonTriangles.length;
+              for (int i = 0; i < len; ++i) {
+                trianglePoints.add(fillOffsets[polygonTriangles[i]]);
+              }
+            } else {
+              filledPath.addPolygon(fillOffsets, true);
             }
-          } else {
-            filledPath.addPolygon(fillOffsets, true);
+          } else if (shift == 0) {
+            // we display once the full map.
+            final minMaxProjected =
+                camera.crs.projection.projectList(_minMaxLatitude);
+            final minMaxY = getOffsetsXY(
+              camera: camera,
+              origin: origin,
+              points: minMaxProjected,
+              shift: shift,
+            );
+            final maxX = viewportRect.right;
+            final minX = viewportRect.left;
+            final maxY = minMaxY[0].dy;
+            final minY = minMaxY[1].dy;
+            final rect = Rect.fromLTRB(minX, minY, maxX, maxY);
+            filledPath.addRect(rect);
           }
         }
 
+        void addBorderToPath(List<Offset> offsets) => _addBorderToPath(
+              borderPath,
+              polygon,
+              offsets,
+              size,
+              canvas,
+              borderPaint!,
+            );
+
         if (polygon.borderStrokeWidth > 0.0) {
-          _addBorderToPath(
-            borderPath,
-            polygon,
-            getOffsetsXY(
-              camera: camera,
-              origin: origin,
-              points: projectedPolygon.points,
-              shift: shift,
-            ),
-            size,
-            canvas,
-            _getBorderPaint(polygon),
-            polygon.borderStrokeWidth,
-          );
+          if (!polygon.justHoles) {
+            if (borderPaint != null) {
+              addBorderToPath(
+                getOffsetsXY(
+                  camera: camera,
+                  origin: origin,
+                  points: projectedPolygon.points,
+                  shift: shift,
+                ),
+              );
+            }
+          }
         }
 
         // Afterwards deal with more complicated holes.
@@ -325,6 +383,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
         // polygons cutting holes into other polygons, when they should be mixing:
         // https://github.com/fleaflet/flutter_map/issues/1898.
         final holePointsList = polygon.holePointsList;
+        bool oneVisibleHole = false;
         if (holePointsList != null && holePointsList.isNotEmpty) {
           // See `Path.combine` comments below
           // Avoids failing to cut holes if the winding directions of the holes
@@ -338,6 +397,9 @@ class _PolygonPainter<R extends Object> extends CustomPainter
               points: singleHolePoints,
               shift: shift,
             );
+            if (areOffsetsVisible(holeOffsets)) {
+              oneVisibleHole = true;
+            }
             filledPath.addPolygon(holeOffsets, true);
 
             // TODO: Potentially more efficient and may change the need to do
@@ -351,8 +413,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
             );*/
           }
 
-          if (!polygon.disableHolesBorder && polygon.borderStrokeWidth > 0.0) {
-            final borderPaint = _getBorderPaint(polygon);
+          if (!polygon.disableHolesBorder && borderPaint != null) {
             for (final singleHolePoints in projectedPolygon.holePoints) {
               final holeOffsets = getOffsetsXY(
                 camera: camera,
@@ -360,23 +421,23 @@ class _PolygonPainter<R extends Object> extends CustomPainter
                 points: singleHolePoints,
                 shift: shift,
               );
-              _addBorderToPath(
-                borderPath,
-                polygon,
-                holeOffsets,
-                size,
-                canvas,
-                borderPaint,
-                polygon.borderStrokeWidth,
-              );
+              addBorderToPath(holeOffsets);
             }
           }
         }
 
+        if (polygon.justHoles) {
+          return oneVisibleHole
+              ? WorldWorkControl.visible
+              : WorldWorkControl.invisible;
+        }
         return WorldWorkControl.visible;
       }
 
       workAcrossWorlds(drawIfVisible);
+
+      // specifically for "justHoles": we need to draw the holes at the end.
+      drawPaths();
 
       if (!drawLabelsLast && polygonLabels && polygon.textPainter != null) {
         // Labels are expensive because:
@@ -411,7 +472,10 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     }
   }
 
-  Paint _getBorderPaint(Polygon polygon) {
+  Paint? _getBorderPaint(Polygon polygon) {
+    if (polygon.borderStrokeWidth <= 0) {
+      return null;
+    }
     final isDotted = polygon.pattern.spacingFactor != null;
     return Paint()
       ..color = polygon.borderColor
@@ -428,11 +492,11 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     Size canvasSize,
     Canvas canvas,
     Paint paint,
-    double strokeWidth,
   ) {
     final isSolid = polygon.pattern == const StrokePattern.solid();
     final isDashed = polygon.pattern.segments != null;
     final isDotted = polygon.pattern.spacingFactor != null;
+    final strokeWidth = polygon.borderStrokeWidth;
 
     if (isSolid) {
       final SolidPixelHiker hiker = SolidPixelHiker(
@@ -445,7 +509,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     } else if (isDotted) {
       final DottedPixelHiker hiker = DottedPixelHiker(
         offsets: offsets,
-        stepLength: polygon.borderStrokeWidth * polygon.pattern.spacingFactor!,
+        stepLength: strokeWidth * polygon.pattern.spacingFactor!,
         patternFit: polygon.pattern.patternFit!,
         closePath: true,
         canvasSize: canvasSize,

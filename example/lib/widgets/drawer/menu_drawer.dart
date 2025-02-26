@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map_example/pages/advanced_polygons.dart';
 import 'package:flutter_map_example/pages/animated_map_controller.dart';
 import 'package:flutter_map_example/pages/bundled_offline_map.dart';
 import 'package:flutter_map_example/pages/cancellable_tile_provider.dart';
@@ -113,6 +114,11 @@ class MenuDrawer extends StatelessWidget {
           MenuItemWidget(
             caption: 'Multi-world and layers',
             routeName: MultiWorldsPage.route,
+            currentRoute: currentRoute,
+          ),
+          MenuItemWidget(
+            caption: 'Advanced polygons',
+            routeName: AdvancedPolygonsPage.route,
             currentRoute: currentRoute,
           ),
           const Divider(),

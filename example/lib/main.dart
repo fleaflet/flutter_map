@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map_example/pages/advanced_polygons.dart';
 import 'package:flutter_map_example/pages/animated_map_controller.dart';
 import 'package:flutter_map_example/pages/bundled_offline_map.dart';
 import 'package:flutter_map_example/pages/cancellable_tile_provider.dart';
@@ -68,6 +69,7 @@ class MyApp extends StatelessWidget {
         OverlayImagePage.route: (context) => const OverlayImagePage(),
         PolygonPage.route: (context) => const PolygonPage(),
         MultiWorldsPage.route: (context) => const MultiWorldsPage(),
+        AdvancedPolygonsPage.route: (context) => const AdvancedPolygonsPage(),
         PolygonPerfStressPage.route: (context) => const PolygonPerfStressPage(),
         SlidingMapPage.route: (_) => const SlidingMapPage(),
         WMSLayerPage.route: (context) => const WMSLayerPage(),
