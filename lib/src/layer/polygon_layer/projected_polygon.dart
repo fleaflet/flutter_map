@@ -23,7 +23,7 @@ class _ProjectedPolygon<R extends Object> with HitDetectableElement<R> {
             final holes = polygon.holePointsList;
             if (holes == null ||
                 holes.isEmpty ||
-                (polygon.points.isEmpty && !polygon.justHoles) ||
+                (polygon.points.isEmpty && !polygon.inverted) ||
                 holes.every((e) => e.isEmpty)) {
               return <List<Offset>>[];
             }
@@ -32,7 +32,7 @@ class _ProjectedPolygon<R extends Object> with HitDetectableElement<R> {
               holes.length,
               (j) => projection.projectList(
                 holes[j],
-                referencePoint: polygon.justHoles ? null : polygon.points[0],
+                referencePoint: polygon.inverted ? null : polygon.points[0],
               ),
               growable: false,
             );

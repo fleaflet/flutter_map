@@ -4,17 +4,17 @@ import 'package:flutter_map_example/misc/tile_providers.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:latlong2/latlong.dart';
 
-/// Example dedicated to polygons with advanced features.
-class AdvancedPolygonsPage extends StatefulWidget {
-  static const String route = '/advanced_polygons';
+/// Example dedicated to [Polygon.inverted]
+class InvertedPolygonsPage extends StatefulWidget {
+  static const String route = '/inverted_polygons';
 
-  const AdvancedPolygonsPage({super.key});
+  const InvertedPolygonsPage({super.key});
 
   @override
-  State<AdvancedPolygonsPage> createState() => _AdvancedPolygonsPageState();
+  State<InvertedPolygonsPage> createState() => _InvertedPolygonsPageState();
 }
 
-class _AdvancedPolygonsPageState extends State<AdvancedPolygonsPage> {
+class _InvertedPolygonsPageState extends State<InvertedPolygonsPage> {
   final LayerHitNotifier<String> _hitNotifier = ValueNotifier(null);
 
   final _customMarkers = <Marker>[];
@@ -39,7 +39,7 @@ class _AdvancedPolygonsPageState extends State<AdvancedPolygonsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Advanced polygons')),
-      drawer: const MenuDrawer(AdvancedPolygonsPage.route),
+      drawer: const MenuDrawer(InvertedPolygonsPage.route),
       body: Stack(
         children: [
           FlutterMap(
@@ -65,12 +65,10 @@ class _AdvancedPolygonsPageState extends State<AdvancedPolygonsPage> {
                   useAltRendering: false,
                   drawLabelsLast: false,
                   polygons: [
-                    Polygon<String>(
+                    Polygon<String>.inverted(
                       rotateLabel: false,
                       borderColor: Colors.blue,
                       borderStrokeWidth: 3,
-                      justHoles: true,
-                      points: const [],
                       holePointsList: const [
                         [
                           // France
@@ -109,9 +107,16 @@ class _AdvancedPolygonsPageState extends State<AdvancedPolygonsPage> {
                           // Quito 0° 14′ 18″ sud, 78° 31′ 02″ ouest
                           LatLng(-0.238333, -78.517222),
                         ],
+                        [
+                          // Across the border
+                          LatLng(26.69, -137.39),
+                          LatLng(37.91, 150.65),
+                          LatLng(-7.67, 151.20),
+                          LatLng(-7.32, -140.78),
+                        ],
                       ],
                       color: const Color(0x80FF0000),
-                      hitValue: 'South America or France',
+                      hitValue: 'Hit within hole',
                     ),
                   ],
                 ),

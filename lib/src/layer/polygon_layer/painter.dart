@@ -82,20 +82,19 @@ class _PolygonPainter<R extends Object> extends CustomPainter
         if (!isValidHolePolygon) continue;
 
         if (isPointInPolygon(point, projectedHoleCoords)) {
-          if (projectedPolygon.polygon.justHoles) {
+          if (projectedPolygon.polygon.inverted) {
             return WorldWorkControl.hit;
           }
           isInHole = true;
           break;
         }
-        if (!isHoleVisible) {
-          if (areOffsetsVisible(projectedHoleCoords)) {
-            isHoleVisible = true;
-          }
+        if (!isHoleVisible && areOffsetsVisible(projectedHoleCoords)) {
+          // ^ Expensive condition gated & last (lazy logic gates)
+          isHoleVisible = true;
         }
       }
 
-      if (projectedPolygon.polygon.justHoles) {
+      if (projectedPolygon.polygon.inverted) {
         return isHoleVisible
             ? WorldWorkControl.visible
             : WorldWorkControl.invisible;
@@ -158,7 +157,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
           ..style = PaintingStyle.fill
           ..color = color;
 
-        if (trianglePoints.isNotEmpty && !polygon.justHoles) {
+        if (trianglePoints.isNotEmpty && !polygon.inverted) {
           final points = Float32List(trianglePoints.length * 2);
           for (int i = 0; i < trianglePoints.length; ++i) {
             points[i * 2] = trianglePoints[i].dx;
@@ -262,14 +261,14 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     for (int i = 0; i <= polygons.length - 1; i++) {
       final projectedPolygon = polygons[i];
       final polygon = projectedPolygon.polygon;
-      if (projectedPolygon.points.isEmpty && !polygon.justHoles) continue;
+      if (projectedPolygon.points.isEmpty && !polygon.inverted) continue;
       borderPaint = _getBorderPaint(polygon);
 
       final polygonTriangles = triangles?[i];
 
       /// Draws on a "single-world"
       WorldWorkControl drawIfVisible(double shift) {
-        final fillOffsets = polygon.justHoles
+        final fillOffsets = polygon.inverted
             ? null
             : getOffsetsXY(
                 camera: camera,
@@ -317,7 +316,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
         final opacity = polygon.color?.a ?? 0;
         if (lastHash != hash || (checkOpacity && opacity > 0 && opacity < 1)) {
           // we need all holes to be connected with the same full map.
-          if (!polygon.justHoles) {
+          if (!polygon.inverted) {
             drawPaths();
           }
         }
@@ -364,7 +363,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
             );
 
         if (polygon.borderStrokeWidth > 0.0) {
-          if (!polygon.justHoles) {
+          if (!polygon.inverted) {
             if (borderPaint != null) {
               addBorderToPath(
                 getOffsetsXY(
@@ -426,7 +425,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
           }
         }
 
-        if (polygon.justHoles) {
+        if (polygon.inverted) {
           return oneVisibleHole
               ? WorldWorkControl.visible
               : WorldWorkControl.invisible;

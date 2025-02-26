@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map_example/pages/advanced_polygons.dart';
 import 'package:flutter_map_example/pages/animated_map_controller.dart';
 import 'package:flutter_map_example/pages/bundled_offline_map.dart';
 import 'package:flutter_map_example/pages/cancellable_tile_provider.dart';
@@ -11,6 +10,7 @@ import 'package:flutter_map_example/pages/epsg4326_crs.dart';
 import 'package:flutter_map_example/pages/fallback_url_page.dart';
 import 'package:flutter_map_example/pages/home.dart';
 import 'package:flutter_map_example/pages/interactive_test_page.dart';
+import 'package:flutter_map_example/pages/inverted_polygons.dart';
 import 'package:flutter_map_example/pages/latlng_to_screen_point.dart';
 import 'package:flutter_map_example/pages/many_circles.dart';
 import 'package:flutter_map_example/pages/many_markers.dart';
@@ -116,11 +116,6 @@ class MenuDrawer extends StatelessWidget {
             routeName: MultiWorldsPage.route,
             currentRoute: currentRoute,
           ),
-          MenuItemWidget(
-            caption: 'Advanced polygons',
-            routeName: AdvancedPolygonsPage.route,
-            currentRoute: currentRoute,
-          ),
           const Divider(),
           MenuItemWidget(
             caption: 'Map Controller',
@@ -182,6 +177,11 @@ class MenuDrawer extends StatelessWidget {
           MenuItemWidget(
             caption: 'Many Circles',
             routeName: ManyCirclesPage.route,
+            currentRoute: currentRoute,
+          ),
+          MenuItemWidget(
+            caption: 'Inverted Polygons',
+            routeName: InvertedPolygonsPage.route,
             currentRoute: currentRoute,
           ),
           const Divider(),

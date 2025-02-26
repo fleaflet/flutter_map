@@ -18,11 +18,8 @@ import 'package:latlong2/latlong.dart' hide Path;
 import 'package:polylabel/polylabel.dart';
 
 part 'label.dart';
-
 part 'painter.dart';
-
 part 'polygon.dart';
-
 part 'projected_polygon.dart';
 
 /// A polygon layer for [FlutterMap].
@@ -137,7 +134,7 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
         : simplifiedElements
             .where(
               (p) =>
-                  p.polygon.justHoles ||
+                  p.polygon.inverted ||
                   p.polygon.boundingBox.isOverlapping(camera.visibleBounds),
             )
             .toList();
