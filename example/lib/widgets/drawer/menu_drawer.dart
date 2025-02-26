@@ -10,6 +10,7 @@ import 'package:flutter_map_example/pages/epsg4326_crs.dart';
 import 'package:flutter_map_example/pages/fallback_url_page.dart';
 import 'package:flutter_map_example/pages/home.dart';
 import 'package:flutter_map_example/pages/interactive_test_page.dart';
+import 'package:flutter_map_example/pages/inverted_polygons.dart';
 import 'package:flutter_map_example/pages/latlng_to_screen_point.dart';
 import 'package:flutter_map_example/pages/many_circles.dart';
 import 'package:flutter_map_example/pages/many_markers.dart';
@@ -176,6 +177,11 @@ class MenuDrawer extends StatelessWidget {
           MenuItemWidget(
             caption: 'Many Circles',
             routeName: ManyCirclesPage.route,
+            currentRoute: currentRoute,
+          ),
+          MenuItemWidget(
+            caption: 'Inverted Polygons',
+            routeName: InvertedPolygonsPage.route,
             currentRoute: currentRoute,
           ),
           const Divider(),

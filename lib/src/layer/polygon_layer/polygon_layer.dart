@@ -133,7 +133,9 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
         ? simplifiedElements.toList()
         : simplifiedElements
             .where(
-              (p) => p.polygon.boundingBox.isOverlapping(camera.visibleBounds),
+              (p) =>
+                  p.polygon.inverted ||
+                  p.polygon.boundingBox.isOverlapping(camera.visibleBounds),
             )
             .toList();
 
