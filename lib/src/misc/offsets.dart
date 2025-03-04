@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flutter_map/flutter_map.dart';
@@ -76,22 +77,38 @@ List<Offset> getOffsetsXY({
     ];
     final halfScreenWidth = camera.size.width / 2;
     final p = realPoints.elementAt(0);
+    
+    // Define hysteresis threshold - this prevents oscillation
+    // The threshold value is approximately 5% of the screen width,
+    // which should provide enough stability without affecting usability
+    // Adjust hysteresis based on zoom level - tighter at high zoom, looser at low zoom
+    final double hysteresisThreshold = camera.size.width * (0.05 / math.max(1, camera.zoom / 10));
+    
     late double result;
     late double bestX;
+    late double bestError;
+    
     for (int i = 0; i < addedWidths.length; i++) {
       final addedWidth = addedWidths[i];
       final (x, _) = crs.transform(p.dx + addedWidth, p.dy, zoomScale);
+      final error = (x + ox - halfScreenWidth).abs();
+      
       if (i == 0) {
         result = addedWidth;
         bestX = x;
+        bestError = error;
         continue;
       }
-      if ((bestX + ox - halfScreenWidth).abs() >
-          (x + ox - halfScreenWidth).abs()) {
+      
+      // Only switch worlds if there's a significant improvement
+      // This prevents oscillation near the boundary
+      if (error < bestError - hysteresisThreshold) {
         result = addedWidth;
         bestX = x;
+        bestError = error;
       }
     }
+    
     return result;
   }
 

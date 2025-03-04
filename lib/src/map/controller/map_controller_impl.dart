@@ -377,7 +377,30 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     final oldCenterPt = camera.projectAtZoom(camera.center);
 
     final newCenterPt = oldCenterPt + offset;
-    final newCenter = camera.unprojectAtZoom(newCenterPt);
+    
+    // Account for world wrapping at 180/-180 boundary
+    final LatLng newCenter;
+    if (camera.crs.replicatesWorldLongitude) {
+      final worldWidth = camera.getWorldWidthAtZoom();
+      
+      // If worldWidth is 0, it means world replication is irrelevant
+      if (worldWidth > 0) {
+        // Apply the same logic used in fling animation for consistency
+        final Offset bestCenterPoint;
+        if (newCenterPt.dx > worldWidth) {
+          bestCenterPoint = Offset(newCenterPt.dx - worldWidth, newCenterPt.dy);
+        } else if (newCenterPt.dx < 0) {
+          bestCenterPoint = Offset(newCenterPt.dx + worldWidth, newCenterPt.dy);
+        } else {
+          bestCenterPoint = newCenterPt;
+        }
+        newCenter = camera.unprojectAtZoom(bestCenterPoint);
+      } else {
+        newCenter = camera.unprojectAtZoom(newCenterPt);
+      }
+    } else {
+      newCenter = camera.unprojectAtZoom(newCenterPt);
+    }
 
     moveRaw(
       newCenter,

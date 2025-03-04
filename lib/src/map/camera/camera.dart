@@ -190,21 +190,27 @@ class MapCamera {
   /// Jumps camera to opposite side of the world to enable seamless scrolling
   /// between 180 and -180 longitude.
   LatLng _adjustPositionForSeamlessScrolling(LatLng? position) {
-    if (!crs.replicatesWorldLongitude) {
-      return position ?? center;
+    if (!crs.replicatesWorldLongitude) return position ?? center;
+    
+    LatLng safePosition = position ?? center;
+
+    const double bufferZoneSize = 10.0;
+    const double worldWrap = 360.0;
+    const double epsilon = 1e-6;
+    double lon = safePosition.longitude;
+
+    // Wrap longitude to [-180, 180] range efficiently
+    lon = ((lon + 180) % worldWrap + worldWrap) % worldWrap - 180;
+
+    // Adjust position when crossing boundaries
+    if (center.longitude > 0 && lon < -180.0 + bufferZoneSize) {
+      lon += worldWrap;
+    } else if (center.longitude < 0 && lon > 180.0 - bufferZoneSize) {
+      lon -= worldWrap;
     }
-    if (position == null) {
-      return center;
-    }
-    double adjustedLongitude = position.longitude;
-    if (adjustedLongitude >= 180.0) {
-      adjustedLongitude -= 360.0;
-    } else if (adjustedLongitude <= -180.0) {
-      adjustedLongitude += 360.0;
-    }
-    return adjustedLongitude == position.longitude
-        ? position
-        : LatLng(position.latitude, adjustedLongitude);
+    return (lon - safePosition.longitude).abs() < epsilon
+        ? safePosition
+        : LatLng(safePosition.latitude, lon);
   }
 
   /// Calculates the size of a bounding box which surrounds a box of size
@@ -241,12 +247,13 @@ class MapCamera {
 
   /// Returns the width of the world at the current zoom, or 0 if irrelevant.
   double getWorldWidthAtZoom([double? zoom]) {
-    if (!crs.replicatesWorldLongitude) {
-      return 0;
-    }
-    final offset0 = projectAtZoom(const LatLng(0, 0), zoom ?? this.zoom);
-    final offset180 = projectAtZoom(const LatLng(0, 180), zoom ?? this.zoom);
-    return 2 * (offset180.dx - offset0.dx).abs();
+    if (!crs.replicatesWorldLongitude) return 0;
+
+    final double effectiveZoom = zoom ?? this.zoom;
+    final Offset offset0 = projectAtZoom(const LatLng(0, 0), effectiveZoom);
+    final Offset offset180 = projectAtZoom(const LatLng(0, 180), effectiveZoom);
+
+    return 2.0 * (offset180.dx - offset0.dx).abs();
   }
 
   /// Calculates the scale for a zoom from [fromZoom] to [toZoom] using this
@@ -307,18 +314,34 @@ class MapCamera {
   }
 
   /// Calculate the [LatLng] coordinates for a [offset].
-  LatLng screenOffsetToLatLng(Offset offset) {
-    final localPointCenterDistance =
-        nonRotatedSize.center(Offset.zero) - offset;
-    final mapCenter = crs.latLngToOffset(center, zoom);
+  LatLng screenOffsetToLatLng(Offset screenOffset) {
+    // 1) Compute the 'nonRotatedPixelOrigin' — the same as latLngToScreenOffset does.
+    final nonRotatedPixelOrigin =
+        projectAtZoom(center, zoom) - nonRotatedSize.center(Offset.zero);
 
-    var point = mapCenter - localPointCenterDistance;
+    // 2) Convert the screen offset into projected coordinates:
+    //    If screenOffset is (100, 200), we add that to the "origin" in projection space.
+    var projectedPoint = screenOffset + nonRotatedPixelOrigin;
 
+    // 3) Rotate the projectedPoint “back” (counter-rotate) around the mapCenter
+    //    so that we’re aligned with the CRS’s x-axis before applying world-wrap logic.
     if (rotation != 0.0) {
-      point = rotatePoint(mapCenter, point);
+      final mapCenter = crs.latLngToOffset(center, zoom);
+      projectedPoint = rotatePoint(mapCenter, projectedPoint, counterRotation: true);
     }
 
-    return crs.offsetToLatLng(point, zoom);
+    // 4) Apply the usual world-wrap check if needed, but now in unrotated space.
+    if (crs.replicatesWorldLongitude) {
+      final worldWidth = getWorldWidthAtZoom();
+      if (projectedPoint.dx < 0) {
+        projectedPoint = Offset(projectedPoint.dx + worldWidth, projectedPoint.dy);
+      } else if (projectedPoint.dx > worldWidth) {
+        projectedPoint = Offset(projectedPoint.dx - worldWidth, projectedPoint.dy);
+      }
+    }
+
+    // 5) Finally, convert from projected coordinates to lat/lng.
+    return crs.offsetToLatLng(projectedPoint, zoom);
   }
 
   /// Sometimes we need to make allowances that a rotation already exists, so
