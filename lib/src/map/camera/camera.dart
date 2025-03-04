@@ -190,13 +190,13 @@ class MapCamera {
   /// Jumps camera to opposite side of the world to enable seamless scrolling
   /// between 180 and -180 longitude.
   LatLng _adjustPositionForSeamlessScrolling(LatLng? position) {
-    if (!crs.replicatesWorldLongitude) return position ?? center;
-
-    final safePosition = position ?? center;
-
     const bufferZoneSize = 10;
     const worldWrap = 360;
     const epsilon = 1e-6;
+
+    final safePosition = position ?? center;
+    if (!crs.replicatesWorldLongitude) return safePosition;
+
     double lon = safePosition.longitude;
 
     // Wrap longitude to [-180, 180] range efficiently
