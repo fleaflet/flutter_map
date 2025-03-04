@@ -190,27 +190,21 @@ class MapCamera {
   /// Jumps camera to opposite side of the world to enable seamless scrolling
   /// between 180 and -180 longitude.
   LatLng _adjustPositionForSeamlessScrolling(LatLng? position) {
-    const bufferZoneSize = 10;
-    const worldWrap = 360;
-    const epsilon = 1e-6;
-
-    final safePosition = position ?? center;
-    if (!crs.replicatesWorldLongitude) return safePosition;
-
-    double lon = safePosition.longitude;
-
-    // Wrap longitude to [-180, 180] range efficiently
-    lon = ((lon + 180) % worldWrap + worldWrap) % worldWrap - 180;
-
-    // Adjust position when crossing boundaries
-    if (center.longitude > 0 && lon < -180 + bufferZoneSize) {
-      lon += worldWrap;
-    } else if (center.longitude < 0 && lon > 180 - bufferZoneSize) {
-      lon -= worldWrap;
+    if (!crs.replicatesWorldLongitude) {
+      return position ?? center;
     }
-    return (lon - safePosition.longitude).abs() < epsilon
-        ? safePosition
-        : LatLng(safePosition.latitude, lon);
+    if (position == null) {
+      return center;
+    }
+    double adjustedLongitude = position.longitude;
+    if (adjustedLongitude >= 180.0) {
+      adjustedLongitude -= 360.0;
+    } else if (adjustedLongitude <= -180.0) {
+      adjustedLongitude += 360.0;
+    }
+    return adjustedLongitude == position.longitude
+        ? position
+        : LatLng(position.latitude, adjustedLongitude);
   }
 
   /// Calculates the size of a bounding box which surrounds a box of size
@@ -247,12 +241,11 @@ class MapCamera {
 
   /// Returns the width of the world at the current zoom, or 0 if irrelevant.
   double getWorldWidthAtZoom([double? zoom]) {
-    if (!crs.replicatesWorldLongitude) return 0;
-
-    final effectiveZoom = zoom ?? this.zoom;
-    final offset0 = projectAtZoom(const LatLng(0, 0), effectiveZoom);
-    final offset180 = projectAtZoom(const LatLng(0, 180), effectiveZoom);
-
+    if (!crs.replicatesWorldLongitude) {
+      return 0;
+    }
+    final offset0 = projectAtZoom(const LatLng(0, 0), zoom ?? this.zoom);
+    final offset180 = projectAtZoom(const LatLng(0, 180), zoom ?? this.zoom);
     return 2 * (offset180.dx - offset0.dx).abs();
   }
 

@@ -375,31 +375,9 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
   /// To be called when an ongoing drag movement updates.
   void dragUpdated(MapEventSource source, Offset offset) {
     final oldCenterPt = camera.projectAtZoom(camera.center);
+
     final newCenterPt = oldCenterPt + offset;
-
-    // Account for world wrapping at 180/-180 boundary
-    final LatLng newCenter;
-    if (camera.crs.replicatesWorldLongitude) {
-      final worldWidth = camera.getWorldWidthAtZoom();
-
-      // If worldWidth is 0, it means world replication is irrelevant
-      if (worldWidth > 0) {
-        // Apply the same logic used in fling animation for consistency
-        final Offset bestCenterPoint;
-        if (newCenterPt.dx > worldWidth) {
-          bestCenterPoint = Offset(newCenterPt.dx - worldWidth, newCenterPt.dy);
-        } else if (newCenterPt.dx < 0) {
-          bestCenterPoint = Offset(newCenterPt.dx + worldWidth, newCenterPt.dy);
-        } else {
-          bestCenterPoint = newCenterPt;
-        }
-        newCenter = camera.unprojectAtZoom(bestCenterPoint);
-      } else {
-        newCenter = camera.unprojectAtZoom(newCenterPt);
-      }
-    } else {
-      newCenter = camera.unprojectAtZoom(newCenterPt);
-    }
+    final newCenter = camera.unprojectAtZoom(newCenterPt);
 
     moveRaw(
       newCenter,
