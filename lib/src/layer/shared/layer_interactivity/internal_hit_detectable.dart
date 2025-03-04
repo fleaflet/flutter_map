@@ -12,6 +12,10 @@ mixin HitDetectableElement<R extends Object> {
   /// Elements without a defined [hitValue] are still hit tested, but are not
   /// notified about.
   ///
+  /// When a [hitValue] is defined on a layer, that layer will always capture a
+  /// hit, and the value will always appear in the list of hits in
+  /// [LayerHitResult.hitValues] (if a notifier is defined).
+  ///
   /// The object should have a valid & useful equality, as it may be used
   /// by FM internals.
   R? get hitValue;
@@ -22,12 +26,13 @@ mixin HitDetectablePainter<R extends Object, E extends HitDetectableElement<R>>
     on CustomPainter {
   abstract final MapCamera camera;
   abstract final LayerHitNotifier<R>? hitNotifier;
+  abstract final LayerHitTestStrategy hitTestStrategy;
 
   /// Elements that should be possibly be hit tested by [elementHitTest]
   /// ([hitTest])
   ///
   /// See [elementHitTest] for more information.
-  Iterable<E> get elements;
+  List<E> get elements;
 
   /// Method invoked by [hitTest] for every element (each of [elements] in
   /// reverse order) that requires testing
@@ -57,31 +62,50 @@ mixin HitDetectablePainter<R extends Object, E extends HitDetectableElement<R>>
   @override
   @mustCallSuper
   bool? hitTest(Offset position) {
-    _hits.clear();
-    bool hasHit = false;
+    final coordinate = camera.screenOffsetToLatLng(position);
+    bool? hitResult;
 
-    final point = position;
-    final coordinate = camera.screenOffsetToLatLng(point);
+    _hits.clear();
 
     for (int i = elements.length - 1; i >= 0; i--) {
-      final element = elements.elementAt(i);
-      if (hasHit && element.hitValue == null) continue;
-      if (elementHitTest(element, point: point, coordinate: coordinate)) {
-        if (element.hitValue != null) _hits.add(element.hitValue!);
-        hasHit = true;
+      final element = elements[i];
+
+      // If we're not going to change anything even if we hit, don't bother
+      // testing for a hit
+      late final addsToHitsList = element.hitValue != null;
+      late final setsHitResult =
+          hitTestStrategy == LayerHitTestStrategy.allElements &&
+              hitResult != true;
+      late final unsetsHitResult =
+          hitTestStrategy == LayerHitTestStrategy.inverted && hitResult == null;
+
+      if ((addsToHitsList || setsHitResult || unsetsHitResult) &&
+          elementHitTest(element, point: position, coordinate: coordinate)) {
+        if (element.hitValue != null) {
+          _hits.add(element.hitValue!);
+          hitResult = true;
+          continue;
+        }
+        if (hitTestStrategy == LayerHitTestStrategy.allElements) {
+          hitResult = true;
+        }
+        if (hitTestStrategy == LayerHitTestStrategy.inverted) {
+          hitResult ??= false;
+        }
       }
     }
 
-    if (!hasHit) {
-      hitNotifier?.value = null;
-      return false;
+    if (hitResult ?? false) {
+      hitNotifier?.value = LayerHitResult(
+        hitValues: _hits,
+        coordinate: coordinate,
+        point: position,
+      );
+      return true;
     }
 
-    hitNotifier?.value = LayerHitResult(
-      hitValues: _hits,
-      coordinate: coordinate,
-      point: point,
-    );
-    return true;
+    hitNotifier?.value = null;
+    return hitTestStrategy == LayerHitTestStrategy.inverted &&
+        hitResult == null;
   }
 }

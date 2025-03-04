@@ -35,6 +35,7 @@ export 'package:flutter_map/src/layer/polyline_layer/polyline_layer.dart';
 export 'package:flutter_map/src/layer/scalebar/scalebar.dart';
 export 'package:flutter_map/src/layer/shared/layer_interactivity/layer_hit_notifier.dart';
 export 'package:flutter_map/src/layer/shared/layer_interactivity/layer_hit_result.dart';
+export 'package:flutter_map/src/layer/shared/layer_interactivity/layer_hit_test_strategy.dart';
 export 'package:flutter_map/src/layer/shared/line_patterns/stroke_pattern.dart';
 export 'package:flutter_map/src/layer/shared/mobile_layer_transformer.dart';
 export 'package:flutter_map/src/layer/shared/translucent_pointer.dart';

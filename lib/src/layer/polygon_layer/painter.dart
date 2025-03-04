@@ -41,6 +41,9 @@ class _PolygonPainter<R extends Object> extends CustomPainter
   @override
   final LayerHitNotifier<R>? hitNotifier;
 
+  @override
+  final LayerHitTestStrategy hitTestStrategy;
+
   /// Create a new [_PolygonPainter] instance.
   _PolygonPainter({
     required this.polygons,
@@ -50,6 +53,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     required this.debugAltRenderer,
     required this.camera,
     required this.hitNotifier,
+    required this.hitTestStrategy,
   }) : bounds = camera.visibleBounds;
 
   @override
@@ -113,7 +117,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
   }
 
   @override
-  Iterable<_ProjectedPolygon<R>> get elements => polygons;
+  List<_ProjectedPolygon<R>> get elements => polygons;
 
   @override
   void paint(Canvas canvas, Size size) {

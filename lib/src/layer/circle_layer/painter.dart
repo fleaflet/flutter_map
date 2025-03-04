@@ -12,12 +12,16 @@ class CirclePainter<R extends Object> extends CustomPainter
   @override
   final LayerHitNotifier<R>? hitNotifier;
 
+  @override
+  final LayerHitTestStrategy hitTestStrategy;
+
   /// Create a [CirclePainter] instance by providing the required
   /// reference objects.
   CirclePainter({
     required this.circles,
     required this.camera,
     required this.hitNotifier,
+    required this.hitTestStrategy,
   });
 
   @override
@@ -45,7 +49,7 @@ class CirclePainter<R extends Object> extends CustomPainter
   }
 
   @override
-  Iterable<CircleMarker<R>> get elements => circles;
+  List<CircleMarker<R>> get elements => circles;
 
   @override
   void paint(Canvas canvas, Size size) {

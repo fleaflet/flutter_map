@@ -66,8 +66,11 @@ base class PolygonLayer<R extends Object>
   /// Defaults to `false`.
   final bool drawLabelsLast;
 
-  /// {@macro fm.lhn.layerHitNotifier.usage}
+  /// {@macro fm.layerHitNotifier.usage}
   final LayerHitNotifier<R>? hitNotifier;
+
+  /// {@macro fm.layerHitTestStrategy.usage}
+  final LayerHitTestStrategy hitTestStrategy;
 
   /// Create a new [PolygonLayer] for the [FlutterMap] widget.
   const PolygonLayer({
@@ -79,6 +82,7 @@ base class PolygonLayer<R extends Object>
     this.polygonLabels = true,
     this.drawLabelsLast = false,
     this.hitNotifier,
+    this.hitTestStrategy = LayerHitTestStrategy.allElements,
     super.simplificationTolerance,
   }) : super();
 
@@ -176,6 +180,7 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
           drawLabelsLast: widget.drawLabelsLast,
           debugAltRenderer: widget.debugAltRenderer,
           hitNotifier: widget.hitNotifier,
+          hitTestStrategy: widget.hitTestStrategy,
         ),
         size: camera.size,
       ),
