@@ -109,7 +109,7 @@ class _InvertedPolygonsPageState extends State<InvertedPolygonsPage> {
                     ),
                     Polygon<String>(
                       rotateLabel: false,
-                      borderColor: const Color(0xFFFF0000),
+                      borderColor: const Color(0xFF00FF00),
                       borderStrokeWidth: 3,
                       pattern: const StrokePattern.dotted(spacingFactor: 3),
                       color: const Color(0x20000000),
