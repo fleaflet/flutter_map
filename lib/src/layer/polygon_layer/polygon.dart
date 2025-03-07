@@ -70,12 +70,6 @@ class Polygon<R extends Object> with HitDetectableElement<R> {
   /// it remains upright
   final bool rotateLabel;
 
-  /// Whether this polygon is inverted: the entire world is filled with polygon
-  /// except the [holePointsList]
-  ///
-  /// Construct inverted polygons using the [Polygon.inverted] constructor.
-  final bool inverted;
-
   @override
   final R? hitValue;
 
@@ -131,32 +125,7 @@ class Polygon<R extends Object> with HitDetectableElement<R> {
     this.labelPlacement = PolygonLabelPlacement.centroid,
     this.rotateLabel = false,
     this.hitValue,
-  })  : inverted = false,
-        _filledAndClockwise = color != null && isClockwise(points);
-
-  /// Create a new inverted [Polygon]
-  ///
-  /// Inverted polygons cover the entire world surface across all visible worlds
-  /// (with no border), except for the [holePointsList]
-  ///
-  /// Hitting and interaction is also inverted: [hitValue] is returned for holes
-  Polygon.inverted({
-    required List<List<LatLng>> this.holePointsList,
-    this.color,
-    this.borderStrokeWidth = 0,
-    this.borderColor = const Color(0xFFFFFF00),
-    this.pattern = const StrokePattern.solid(),
-    this.strokeCap = StrokeCap.round,
-    this.strokeJoin = StrokeJoin.round,
-    this.label,
-    this.labelStyle = const TextStyle(),
-    this.labelPlacement = PolygonLabelPlacement.centroid,
-    this.rotateLabel = false,
-    this.hitValue,
-  })  : points = const [],
-        inverted = true,
-        disableHolesBorder = false,
-        _filledAndClockwise = color != null;
+  }) : _filledAndClockwise = color != null && isClockwise(points);
 
   /// Checks if the [Polygon] points are ordered clockwise in the list.
   static bool isClockwise(List<LatLng> points) {

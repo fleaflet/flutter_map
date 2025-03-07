@@ -18,8 +18,11 @@ import 'package:latlong2/latlong.dart' hide Path;
 import 'package:polylabel/polylabel.dart';
 
 part 'label.dart';
+
 part 'painter.dart';
+
 part 'polygon.dart';
+
 part 'projected_polygon.dart';
 
 /// A polygon layer for [FlutterMap].
@@ -66,6 +69,9 @@ base class PolygonLayer<R extends Object>
   /// Defaults to `false`.
   final bool drawLabelsLast;
 
+  /// Color to apply to the whole map - except for polygons
+  final Color? invertedFill;
+
   /// {@macro fm.lhn.layerHitNotifier.usage}
   final LayerHitNotifier<R>? hitNotifier;
 
@@ -78,6 +84,7 @@ base class PolygonLayer<R extends Object>
     this.polygonCulling = true,
     this.polygonLabels = true,
     this.drawLabelsLast = false,
+    this.invertedFill,
     this.hitNotifier,
     super.simplificationTolerance,
   }) : super();
@@ -133,9 +140,7 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
         ? simplifiedElements.toList()
         : simplifiedElements
             .where(
-              (p) =>
-                  p.polygon.inverted ||
-                  p.polygon.boundingBox.isOverlapping(camera.visibleBounds),
+              (p) => p.polygon.boundingBox.isOverlapping(camera.visibleBounds),
             )
             .toList();
 
@@ -176,6 +181,7 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
           camera: camera,
           polygonLabels: widget.polygonLabels,
           drawLabelsLast: widget.drawLabelsLast,
+          invertedFill: widget.invertedFill,
           debugAltRenderer: widget.debugAltRenderer,
           hitNotifier: widget.hitNotifier,
         ),
