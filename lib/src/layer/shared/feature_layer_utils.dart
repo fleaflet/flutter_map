@@ -54,13 +54,29 @@ mixin FeatureLayerUtils on CustomPainter {
   /// Internally, the worker is invoked in the 'negative' worlds (worlds to the
   /// left of the 'primary' world) until repetition is stopped, then in the
   /// 'positive' worlds: <--||-->.
-  bool workAcrossWorlds(WorldWorkControl Function(double shift) work) {
+  ///
+  /// In order to avoid potential forever loops (if the `work` method somehow
+  /// fails to return `invisible`), we set an arbitrary limit to the number of
+  /// world replications, and throw an `Exception` when necessary.
+  /// e.g. https://github.com/fleaflet/flutter_map/issues/2052
+  bool workAcrossWorlds(
+    WorldWorkControl Function(double shift) work, {
+    int maxOccurrences = 10,
+  }) {
+    int count = 0;
+
+    void checkCount() {
+      if (++count > maxOccurrences) throw Exception('Too many world loops');
+    }
+
+    checkCount();
     if (work(0) == WorldWorkControl.hit) return true;
 
     if (worldWidth == 0) return false;
 
     negativeWorldsLoop:
     for (double shift = -worldWidth;; shift -= worldWidth) {
+      checkCount();
       switch (work(shift)) {
         case WorldWorkControl.hit:
           return true;
@@ -71,6 +87,7 @@ mixin FeatureLayerUtils on CustomPainter {
     }
 
     for (double shift = worldWidth;; shift += worldWidth) {
+      checkCount();
       switch (work(shift)) {
         case WorldWorkControl.hit:
           return true;

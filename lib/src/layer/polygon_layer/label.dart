@@ -17,13 +17,26 @@ void Function(Canvas canvas)? _buildLabelTextPainter({
   // Cull labels where the polygon is still on the map but the label would not be.
   // Currently this is only enabled when the map isn't rotated, since the placementOffset
   // is relative to the MobileLayerTransformer rather than in actual screen coordinates.
+  final double textWidth;
+  final double textHeight;
+  final double mapWidth;
+  final double mapHeight;
   if (rotationRad == 0) {
-    if (dx + width / 2 < 0 || dx - width / 2 > mapSize.width) {
-      return null;
-    }
-    if (dy + height / 2 < 0 || dy - height / 2 > mapSize.height) {
-      return null;
-    }
+    textWidth = width;
+    textHeight = height;
+    mapWidth = mapSize.width;
+    mapHeight = mapSize.height;
+  } else {
+    // lazily we imagine the worst case scenario regarding sizes, instead of
+    // computing the angles
+   textWidth = textHeight = max(width, height);
+   mapWidth = mapHeight = max(mapSize.width, mapSize.height);
+  }
+  if (dx + textWidth / 2 < 0 || dx - textWidth / 2 > mapWidth) {
+    return null;
+  }
+  if (dy + textHeight / 2 < 0 || dy - textHeight / 2 > mapHeight) {
+    return null;
   }
 
   // Note: I'm pretty sure this doesn't work for concave shapes. It would be more
