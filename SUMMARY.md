@@ -31,7 +31,6 @@
 
 * [Tile Layer](layers/tile-layer/README.md)
   * [Tile Providers](layers/tile-layer/tile-providers.md)
-  * [WMS Usage](layers/tile-layer/wms-usage.md)
 * [Marker Layer](layers/marker-layer.md)
 * [Polygon Layer](layers/polygon-layer.md)
 * [Polyline Layer](layers/polyline-layer.md)

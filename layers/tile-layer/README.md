@@ -10,8 +10,6 @@ _The OpenStreetMap Tile Server (as used below) ToS can be_ [_found here_](https:
 
 The basis of any map is a `TileLayer`, which displays square raster images in a continuous grid, sourced from the Internet or a local file system.
 
-flutter\_map supports [wms-usage.md](wms-usage.md "mention"), but most map tiles are accessed through Slippy Map/CARTO/XYZ URLs, as described here.
-
 {% embed url="https://pub.dev/documentation/flutter_map/latest/flutter_map/TileLayer-class.html" %}
 
 ```dart
@@ -25,63 +23,54 @@ TileLayer(
 ## Recommended Setup
 
 {% hint style="success" %}
-Although setting up a basic tile layer couldn't be simpler, it helps to spend a little bit more time fine-tuning it! We recommend covering this list at least, for every tile layer.
+Although setting up a basic tile layer couldn't be simpler, it helps to spend a little bit more time fine-tuning it! We recommend following these steps for every tile layer.
 {% endhint %}
 
-* [#url-template](./#url-template "mention") (required, except when using WMS)\
-  Choose a suitable tile server for your app
-* [#useragentpackagename](./#useragentpackagename "mention")\
-  Always set `userAgentPackageName`, even though it is technically optional
-* [#retina-mode](./#retina-mode "mention")\
-  If your tile server supports retina tiles natively, set up the `retinaMode` property
-* [#cancellablenetworktileprovider](tile-providers.md#cancellablenetworktileprovider "mention")\
-  Especially on web, consider using this more advanced `TileProvider` to improve performance
-* [`maxNativeZoom`](https://pub.dev/documentation/flutter_map/latest/flutter_map/TileLayer/maxNativeZoom.html)\
-  Set the maximum zoom level that the tile server supports to prevent flutter\_map from trying to exceed this (especially when not set appropriately in `MapOptions.maxZoom`)
+{% stepper %}
+{% step %}
+### Choose a map source
 
-If you need to squeeze out as much performance as possible, or you're noticing the tile loading seems a little slow:
+flutter\_map doesn't provide tiles, so you'll need to bring your own raster tiles! There's multiple different supported sources.
 
-* Make sure the `FlutterMap` is rebuilt as few times as possible
-* Construct the `TileProvider` yourself, outside of the `build` method if possible, so it is reconstructed as few times as possible\
-  Some tile providers may perform more expensive logic when they are constructed, and if the provider is frequently reconstructed, this can add up.
-* If the `TileProvider` supports it (as `NetworkTileProvider` does), construct a single HTTP `Client`/`HttpClient` outside the `build` method and pass it to the tile provider - especially if you're unable to do the tip above\
-  Using a single HTTP client allows the underlying socket connection to the tile server to remain open, even when tiles aren't loading. When tiles are loaded again, it's much faster to communicate over an open socket than opening a new one. In some cases, this can take hundreds of milliseconds off tile loading!
-* Reduce [`panBuffer`](https://pub.dev/documentation/flutter_map/latest/flutter_map/TileLayer/panBuffer.html) to 0\
-  This reduces the number of network requests made, which may make those requests that are made for more important tiles faster.
+{% tabs %}
+{% tab title="Slippy Map/CARTO (XYZ)" %}
+If you have a URL with placeholders for X, Y, and Z values, this is probably what you need to set up. This is the most common format for raster tiles, although many satellite tiles will instead use WMS.
 
-## Main Parameters
+{% tabs %}
+{% tab title="From a network tile server" %}
+Set the `urlTemplate` parameter to the template provided by the tile server - usually it can be copied directly from an account portal or documentation. You may also need to copy an API/access key.
 
-### URL Template
+<details>
 
-{% hint style="success" %}
-This parameter must be specified unless [`wmsOptions`](wms-usage.md) is specified.
+<summary>(Advanced) Fallback URL Template</summary>
+
+It's also possible to specify a `fallbackUrl` template, used if fetching a tile from the primary `urlTemplate` fails (which has the same format as this). It follows the same format, and supports the same placeholders.
+
+{% hint style="warning" %}
+Specifying a `fallbackUrl` does have negative effects on performance and efficiency. Avoid specifying `fallbackUrl` unless necessary.
+
+See in-code documentation and [tile-providers.md](tile-providers.md "mention") for more information.
 {% endhint %}
 
-The URL template is a string that contains placeholders, which, when filled in, create a URL/URI to a specific tile.
+{% hint style="info" %}
+Some `TileProvider`s may not support/provide any functionality for `fallbackUrl` template.
+{% endhint %}
 
-Specifically, flutter\_map supports the Slippy Map format, sometimes referred to as CARTO or Raster XYZ. Tiles are referred to by their zoom level, and position on the X & Y axis. For more information, read [how-does-it-work](../../why-and-how/how-does-it-work/ "mention").
+</details>
 
-These templates are usually documented by your tile server, and will always include the following placeholders:
+#### Placeholders
 
-* `{x}`: x axis coordinate
-* `{y}`: y axis coordinate
-* `{z}`: zoom level
+As well as the standard XYZ placeholders in the template, the following placeholders may also be used:
 
-Sometimes, they also include:
-
-* `{s}`: [#subdomains](./#subdomains "mention")
-* `{r}`: [#retina-mode](./#retina-mode "mention")
-* `{d}`: [#tilesize](./#tilesize "mention")
+* `{s}`: subdomains (see below)
+* `{r}`: native retina mode - see step 4 for more information
+* `{d}`: reflects the `tileDimension` property (see below)
 
 Additional placeholders can also be added freely to the template, and are filled in with the specified values in `additionalOptions`. This can be used to easier add switchable styles or access tokens, for example.
 
-#### Subdomains
+<details>
 
-Some tile servers provide mirrors/redirects of the main tile server on/via subdomains, such as 'a', 'b', 'c'.
-
-These were necessary to bypass browsers' limitations on simultaneous HTTP connections, thus increasing the number of tiles that can load at once.
-
-To use subdomains, add the `{s}` placeholder, and specify the available subdomains in `TileLayer.subdomains`. flutter\_map will then fill the placeholder with one of these values based on internal logic.
+<summary>Subdomains</summary>
 
 {% hint style="warning" %}
 Subdomains are now usually [considered redundant](https://github.com/openstreetmap/operations/issues/737) due to the usage of HTTP/2 & HTTP/3 which don't have the same restrictions.
@@ -91,7 +80,92 @@ Usage of subdomains will also hinder Flutter's ability to cache tiles, potential
 If the server supports HTTP/2 or HTTP/3 ([how to check](https://stackoverflow.com/a/71288871/11846040)), avoid using subdomains.
 {% endhint %}
 
-#### Retina Mode
+Some tile servers provide mirrors/redirects of the main tile server on/via subdomains, such as 'a', 'b', 'c'.
+
+These were necessary to bypass browsers' limitations on simultaneous HTTP connections, thus increasing the number of tiles that can load at once.
+
+To use subdomains, add the `{s}` placeholder, and specify the available subdomains in `TileLayer.subdomains`. flutter\_map will then fill the placeholder with one of these values based on internal logic.
+
+</details>
+
+<details>
+
+<summary>Tile Dimension</summary>
+
+Some tile servers will use 512x512px tiles instead of 256x256px, such as Mapbox. Using these larger tiles can help reduce tile requests, and when combined with [Retina Mode](./#retina-mode), it can give the same resolution.
+
+To use these tiles, set `tileDimension` to the actual dimensions of the tiles (otherwise they will appear to small), such as `512`. Also set `zoomOffset` to the result of `-((d/256) - 1)` - ie. `-1` for x512px tiles (otherwise they will appear at the wrong geographical locations).
+
+The `{d}` placeholder/parameter may also be used in the URL to pass through the value of `tileDimension`.
+
+</details>
+{% endtab %}
+
+{% tab title="From offline/on-device sources" %}
+See [offline-mapping.md](../../tile-servers/offline-mapping.md "mention") for detailed info and potential approaches to supporting offline users.
+
+#### From the app's assets (bundled offline)
+
+1. Set the `tileProvider` to `AssetTileProvider()`
+2.  Set the `urlTemplate` to the path to each tile from the assets directory, using the placeholders as necessary. For example:
+
+    ```
+    assets/map/{z}/{x}/{y}.png
+    ```
+3. Add each lowest level directory to the pubspec's assets listing.&#x20;
+
+#### From the filesystem (filesystem/dynamic offline)
+
+1. Set the `tileProvider` to `FileTileProvider()`
+2. Set the `urlTemplate` to the path to each tile within the filesystem, using the placeholders as necessary
+3. Ensure the app has any necessary permissions to read from the filesystem
+{% endtab %}
+{% endtabs %}
+{% endtab %}
+
+{% tab title="WMS" %}
+WMS tile servers have a base URL and a number of layers. flutter\_map can automatically put these together to fetch the correct tiles.
+
+Create a `WMSTileLayerOptions` and pass it to the `wmsOptions` parameter. Define the `baseUrl` as needed, and for each layer string, add it as an item of a list passed to `layers`. You may also need to change other options, check the [full API documentation](https://pub.dev/documentation/flutter_map/latest/flutter_map/WMSTileLayerOptions-class.html), or follow the [example app](https://github.com/fleaflet/flutter_map/blob/master/example/lib/pages/wms_tile_layer.dart).
+
+{% embed url="https://pub.dev/documentation/flutter_map/latest/flutter_map/WMSTileLayerOptions-class.html" %}
+{% endtab %}
+{% endtabs %}
+{% endstep %}
+
+{% step %}
+### Identify your client
+
+It's important to identify your app to tile servers using the HTTP 'User-Agent' header (if they're not your own, and especially if their free or their ToS specifies to do so). This avoids potential issues with the tile server blocking your app because they do not know why so many tiles are being requested by unidentified clients - this can escalate to flutter\_map being blocked as a whole if too many apps do not identify themselves
+
+Set the `userAgentPackageName` parameter to your app's package name (such as `com.example.app` or any other unique identifying information). flutter\_map will identify your client to the server via the header as:
+
+`flutter_map (<packageName or 'unknown'>)`
+
+{% hint style="info" %}
+In some cases, you may be able to skip this step:
+
+* Your app runs solely on the web: the 'User-Agent' header cannot be changed, and will always identify your users' browsers
+* The tile server is your own, or you are using entirely offline mapping
+{% endhint %}
+{% endstep %}
+
+{% step %}
+### Manually set up a tile provider to optimize tile loading
+
+The `TileProvider` is responsible for fetching tiles for the `TileLayer`. By default, the `TileLayer` creates a `NetworkTileProvider` every time it is constructed. `TileProvider`s are attached to the lifecycle of the `TileLayer` they are used within, and automatically disposed when their `TileLayer` is disposed.
+
+However, this can cause performance issues or glitches for many apps. For example, the HTTP client can be manually constructed to be long-living, which will keep connections to a tile server open, increasing tile loading speeds.
+
+<figure><img src="../../.gitbook/assets/Tile Provider Optimization.svg" alt="Flowchart describing the best method to optimize a tile layer &#x26; tile provider setup. Is your &#x60;FlutterMap&#x60; or &#x60;TileLayer&#x60; rebuilt (frequently)? Or, are you using a different tile provider to the default? If not, don&#x27;t worry about it, the &#x60;TileLayer&#x60; will do it for you. Otherwise, does your tile provider (or its properties) change frequently, or depend on the build method? If it does, construct a tile provider within the build method if necessary, but manually create a HTTP client outside of the build method and pass it in. Otherwise, do you need to reuse your tile provider across multiple different (volatile) tile layers? If you do, construct a tile provider outside of the build method, but also manually create a HTTP client and pass it in. Otherwise, just construct a tile provider as normal, but outside of the build method."><figcaption></figcaption></figure>
+
+If you're not using a different tile provider, such as one provided by a plugin or one for offline mapping, then installing and using the official `CancellableNetworkTileProvider` plugin may be beneficial, especially on the web. See [#cancellablenetworktileprovider](tile-providers.md#cancellablenetworktileprovider "mention") for more information.
+
+See [tile-providers.md](tile-providers.md "mention") for more information about tile providers generally.
+{% endstep %}
+
+{% step %}
+### Enable retina mode (if supported by your tiles)
 
 Retina mode improves the resolution of map tiles, an effect particularly visible on high density (aka. retina) displays.
 
@@ -99,13 +173,22 @@ Raster map tiles can look especially pixelated on retina displays, so some serve
 
 Where the display is high density, and the server supports retina tiles - usually indicated by an `{r}` placeholder in the URL template - it is recommended to enable retina mode.
 
-{% hint style="success" %}
-Therefore, where `{r}` is available, it is recommended to call the method `RetinaMode.isHighDensity` with the current `BuildContext`, and pass the result to `TileLayer.retinaMode`. This will enable retina mode on retina displays by filling the `{r}` placeholder with "@2x".
+To enable retina mode in these circumstances, use the following:
+
+```dart
+    retinaMode: RetinaMode.isHighDensity(context),
+```
+
+Note that where tiles are larger than the standard x256px (such as x512px), retina mode can help make them appear very similar to x256px tiles, but still retain the other benefits of larger tiles. In this case, consider fixing `retinaMode` to `true`, depending on your own tests.
+
+<details>
+
+<summary>Emulating retina mode</summary>
+
+{% hint style="danger" %}
+Emulated retina mode is currently (as of v8.0.1) broken. Follow [https://github.com/fleaflet/flutter\_map/issues/2042](https://github.com/fleaflet/flutter_map/issues/2042) for more information.
 {% endhint %}
 
-Note that where tiles are larger than the standard x256px (such as x512px), retina mode can help make them appear very similar to x256px tiles, but still retain the other benefits of larger tiles. In this case, consider fixing `retinaMode` to `true`, depending on your own tests. See [#tilesize](./#tilesize "mention") for more information.
-
-{% hint style="warning" %}
 It is also possible to emulate retina mode, even when the server does not natively support it. If `retinaMode` is `true`, and no `{r}` placeholder is present, flutter\_map will emulate it by requesting four tiles at a larger zoom level and combining them together in place of one.
 
 Emulating retina mode has multiple negative effects:
@@ -115,55 +198,20 @@ Emulating retina mode has multiple negative effects:
 * it decreases the effective maximum zoom by 1
 
 Therefore, carefully consider whether emulating retina mode is appropriate for your application, and disable it if necessary. Always prefer native retina tiles if they are available.
-{% endhint %}
 
-#### Fallback URL Template
+</details>
+{% endstep %}
 
-It's also possible to specify a `fallbackUrl` template, used if fetching a tile from the primary `urlTemplate` fails (which has the same format as this).
+{% step %}
+### Set the maximum zoom level covered by your tiles
 
-{% hint style="warning" %}
-Specifying a `fallbackUrl` does have negative effects on performance and efficiency. Avoid specifying `fallbackUrl` unless necessary.
+Set the `maxNativeZoom` parameter to the maximum zoom level covered by your tile source. This will make flutter\_map scale the tiles at this level when zooming in further, instead of attempting to load new tiles at the higher zoom level (which will fail).
 
-See in-code documentation and [tile-providers.md](tile-providers.md "mention") for more information.
-{% endhint %}
+You can also set `MapOptions.maxZoom`, which is an absolute zoom limit for users. It is recommended to set this to a few levels greater than the maximum zoom level covered by any of your tile layers.
+{% endstep %}
+{% endstepper %}
 
-{% hint style="warning" %}
-Some `TileProvider`s may not support/provide any functionality for `fallbackUrl` template.
-{% endhint %}
-
-### `userAgentPackageName`
-
-{% hint style="success" %}
-Although it is programatically optional, always specify the `userAgentPackageName` argument to avoid being blocked by your tile server.
-{% endhint %}
-
-This parameter should be passed the application's package name, such as 'com.example.app'. This is important to avoid blocking by tile servers due to high-levels of unidentified traffic. If no value is passed, it defaults to 'unknown'.
-
-This is then formatted into a 'User-Agent' header, and appended to the `TileProvider`'s `headers` map, if it is not already present.
-
-This is ignored on the web, where the 'User-Agent' header cannot be changed due to a limitation of Dart/browsers.
-
-### Tile Providers
-
-{% hint style="success" %}
-If a large proportion of your users use the web platform, it is preferable to use `CancellableNetworkTileProvider`, instead of the default `NetworkTileProvider`. It may also be beneficial to use this tile provider on other platforms as well.
-
-See [#cancellablenetworktileprovider](tile-providers.md#cancellablenetworktileprovider "mention") for more information.
-{% endhint %}
-
-Need more control over how the URL template is interpreted and/or tiles are fetched? You'll need to change the `TileProvider`.
-
-{% content-ref url="tile-providers.md" %}
-[tile-providers.md](tile-providers.md)
-{% endcontent-ref %}
-
-### `tileSize`
-
-Some tile servers will use 512x512px tiles instead of 256x256px, such as Mapbox. Using these larger tiles can help reduce tile requests, and when combined with [Retina Mode](./#retina-mode), it can give the same resolution.
-
-To use these tiles, set `tileSize` to the actual dimensions of the tiles (otherwise they will appear to small), such as `512`. Also set `zoomOffset` to the result of `-((d/256) - 1)` - ie. `-1` for x512px tiles (otherwise they will appear at the wrong geographical locations).
-
-The `{d}` placeholder/parameter may also be used in the URL to pass through the value of `tileSize`.
+## Other Properties
 
 ### `panBuffer`
 
@@ -172,7 +220,7 @@ To make a more seamless experience, tiles outside the current viewable area can 
 `panBuffer` sets the number of surrounding rows and columns around the viewable tiles that should be loaded, and defaults to 1.
 
 {% hint style="warning" %}
-Specifying a `panBuffer` too high may result in slower tile requests for all tiles (including those that are visible), and a higher load on the tile sever. The effect is amplified on larger map dimensions/screen sizes.
+Specifying a `panBuffer` too high may result in slower tile requests for all tiles (including those that are visible), and a higher load on the tile server. The effect is amplified on larger map dimensions/screen sizes.
 {% endhint %}
 
 ### Tile Update Transformers
