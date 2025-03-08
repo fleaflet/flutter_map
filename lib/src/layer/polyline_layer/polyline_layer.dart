@@ -35,8 +35,11 @@ base class PolylineLayer<R extends Object>
   /// Defaults to 10. Set to `null` to disable culling.
   final double? cullingMargin;
 
-  /// {@macro fm.lhn.layerHitNotifier.usage}
+  /// {@macro fm.layerHitNotifier.usage}
   final LayerHitNotifier<R>? hitNotifier;
+
+  /// {@macro fm.layerHitTestStrategy.usage}
+  final LayerHitTestStrategy hitTestStrategy;
 
   /// The minimum radius of the hittable area around each [Polyline] in logical
   /// pixels
@@ -53,6 +56,7 @@ base class PolylineLayer<R extends Object>
     required this.polylines,
     this.cullingMargin = 10,
     this.hitNotifier,
+    this.hitTestStrategy = LayerHitTestStrategy.allElements,
     this.minimumHitbox = 10,
     super.simplificationTolerance,
   }) : super();
@@ -110,6 +114,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
           polylines: culled,
           camera: camera,
           hitNotifier: widget.hitNotifier,
+          hitTestStrategy: widget.hitTestStrategy,
           minimumHitbox: widget.minimumHitbox,
         ),
         size: camera.size,

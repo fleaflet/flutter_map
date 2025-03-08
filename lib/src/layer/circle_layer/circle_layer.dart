@@ -16,14 +16,18 @@ class CircleLayer<R extends Object> extends StatelessWidget {
   /// The list of [CircleMarker]s.
   final List<CircleMarker<R>> circles;
 
-  /// {@macro fm.lhn.layerHitNotifier.usage}
+  /// {@macro fm.layerHitNotifier.usage}
   final LayerHitNotifier<R>? hitNotifier;
+
+  /// {@macro fm.layerHitTestStrategy.usage}
+  final LayerHitTestStrategy hitTestStrategy;
 
   /// Create a new [CircleLayer] as a child for [FlutterMap]
   const CircleLayer({
     super.key,
     required this.circles,
     this.hitNotifier,
+    this.hitTestStrategy = LayerHitTestStrategy.allElements,
   });
 
   @override
@@ -36,6 +40,7 @@ class CircleLayer<R extends Object> extends StatelessWidget {
           circles: circles,
           camera: camera,
           hitNotifier: hitNotifier,
+          hitTestStrategy: hitTestStrategy,
         ),
         size: camera.size,
         isComplex: true,
