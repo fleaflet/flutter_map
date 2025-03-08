@@ -29,8 +29,8 @@ void Function(Canvas canvas)? _buildLabelTextPainter({
   } else {
     // lazily we imagine the worst case scenario regarding sizes, instead of
     // computing the angles
-   textWidth = textHeight = max(width, height);
-   mapWidth = mapHeight = max(mapSize.width, mapSize.height);
+    textWidth = textHeight = max(width, height);
+    mapWidth = mapHeight = max(mapSize.width, mapSize.height);
   }
   if (dx + textWidth / 2 < 0 || dx - textWidth / 2 > mapWidth) {
     return null;
