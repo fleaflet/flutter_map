@@ -308,17 +308,35 @@ class MapCamera {
 
   /// Calculate the [LatLng] coordinates for a [offset].
   LatLng screenOffsetToLatLng(Offset offset) {
-    final localPointCenterDistance =
-        nonRotatedSize.center(Offset.zero) - offset;
-    final mapCenter = crs.latLngToOffset(center, zoom);
+    // 1) Compute the 'nonRotatedPixelOrigin' — the same as latLngToScreenOffset does.
+    final nonRotatedPixelOrigin =
+        projectAtZoom(center, zoom) - nonRotatedSize.center(Offset.zero);
 
-    var point = mapCenter - localPointCenterDistance;
+    // 2) Convert the screen offset into projected coordinates:
+    //    If screenOffset is (100, 200), we add that to the "origin" in projection space.
+    var projectedPoint = offset + nonRotatedPixelOrigin;
 
+    // 3) Rotate the projectedPoint “back” (counter-rotate) around the mapCenter
+    //    so that we’re aligned with the CRS’s x-axis before applying world-wrap logic.
     if (rotation != 0.0) {
-      point = rotatePoint(mapCenter, point);
+      final mapCenter = crs.latLngToOffset(center, zoom);
+      projectedPoint = rotatePoint(mapCenter, projectedPoint);
     }
 
-    return crs.offsetToLatLng(point, zoom);
+    // 4) Apply the usual world-wrap check if needed, but now in unrotated space.
+    if (crs.replicatesWorldLongitude) {
+      final worldWidth = getWorldWidthAtZoom();
+      if (projectedPoint.dx < 0) {
+        projectedPoint =
+            Offset(projectedPoint.dx + worldWidth, projectedPoint.dy);
+      } else if (projectedPoint.dx > worldWidth) {
+        projectedPoint =
+            Offset(projectedPoint.dx - worldWidth, projectedPoint.dy);
+      }
+    }
+
+    // 5) Finally, convert from projected coordinates to lat/lng.
+    return crs.offsetToLatLng(projectedPoint, zoom);
   }
 
   /// Sometimes we need to make allowances that a rotation already exists, so
