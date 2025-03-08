@@ -35,6 +35,9 @@ class _PolygonPainter<R extends Object> extends CustomPainter
   /// See [PolygonLayer.debugAltRenderer]
   final bool debugAltRenderer;
 
+  /// See [PolygonLayer.invertedFill]
+  final Color? invertedFill;
+
   @override
   final MapCamera camera;
 
@@ -49,6 +52,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     required this.drawLabelsLast,
     required this.debugAltRenderer,
     required this.camera,
+    required this.invertedFill,
     required this.hitNotifier,
   }) : bounds = camera.visibleBounds;
 
@@ -115,6 +119,8 @@ class _PolygonPainter<R extends Object> extends CustomPainter
   @override
   Iterable<_ProjectedPolygon<R>> get elements => polygons;
 
+  static const _minMaxLatitude = [LatLng(90, 0), LatLng(-90, 0)];
+
   @override
   void paint(Canvas canvas, Size size) {
     const checkOpacity = true; // for debugging purposes only, should be true
@@ -124,89 +130,95 @@ class _PolygonPainter<R extends Object> extends CustomPainter
 
     final filledPath = Path();
     final borderPath = Path();
-    Polygon? lastPolygon;
+    Color? lastColor;
     int? lastHash;
+    Paint? borderPaint;
+    late bool currentlyInvertedFill;
+
+    // Draw polygon outline
+    void drawBorders() {
+      if (!currentlyInvertedFill && borderPaint != null) {
+        canvas.drawPath(borderPath, borderPaint);
+      }
+      borderPath.reset();
+      lastHash = null;
+    }
 
     // This functions flushes the batched fill and border paths constructed below
     void drawPaths() {
-      if (lastPolygon == null) return;
-      final polygon = lastPolygon!;
-
-      // Draw filled polygon
-      if (polygon.color case final color?) {
-        final paint = Paint()
-          ..style = PaintingStyle.fill
-          ..color = color;
-
-        if (trianglePoints.isNotEmpty) {
-          final points = Float32List(trianglePoints.length * 2);
-          for (int i = 0; i < trianglePoints.length; ++i) {
-            points[i * 2] = trianglePoints[i].dx;
-            points[i * 2 + 1] = trianglePoints[i].dy;
-          }
-          final vertices = Vertices.raw(VertexMode.triangles, points);
-          canvas.drawVertices(vertices, BlendMode.src, paint);
-
-          if (debugAltRenderer) {
-            for (int i = 0; i < trianglePoints.length; i += 3) {
-              canvas.drawCircle(
-                trianglePoints[i],
-                5,
-                Paint()..color = const Color(0x7EFF0000),
-              );
-              canvas.drawCircle(
-                trianglePoints[i + 1],
-                5,
-                Paint()..color = const Color(0x7E00FF00),
-              );
-              canvas.drawCircle(
-                trianglePoints[i + 2],
-                5,
-                Paint()..color = const Color(0x7E0000FF),
-              );
-
-              final path = Path()
-                ..addPolygon(
-                  [
-                    trianglePoints[i],
-                    trianglePoints[i + 1],
-                    trianglePoints[i + 2],
-                  ],
-                  true,
-                );
-
-              canvas.drawPath(
-                path,
-                Paint()
-                  ..color = const Color(0x7EFFFFFF)
-                  ..style = PaintingStyle.fill,
-              );
-
-              canvas.drawPath(
-                path,
-                Paint()
-                  ..color = const Color(0xFF000000)
-                  ..style = PaintingStyle.stroke,
-              );
-            }
-          }
-        } else {
-          canvas.drawPath(filledPath, paint);
-        }
+      final Color? color = currentlyInvertedFill ? invertedFill! : lastColor;
+      if (color == null) {
+        drawBorders();
+        return;
       }
 
-      // Draw polygon outline
-      if (polygon.borderStrokeWidth > 0) {
-        canvas.drawPath(borderPath, _getBorderPaint(polygon));
+      // Draw filled polygon
+      final paint = Paint()
+        ..style = PaintingStyle.fill
+        ..color = color;
+
+      if (trianglePoints.isNotEmpty && !currentlyInvertedFill) {
+        final points = Float32List(trianglePoints.length * 2);
+        for (int i = 0; i < trianglePoints.length; ++i) {
+          points[i * 2] = trianglePoints[i].dx;
+          points[i * 2 + 1] = trianglePoints[i].dy;
+        }
+        final vertices = Vertices.raw(VertexMode.triangles, points);
+        canvas.drawVertices(vertices, BlendMode.src, paint);
+
+        if (debugAltRenderer) {
+          for (int i = 0; i < trianglePoints.length; i += 3) {
+            canvas.drawCircle(
+              trianglePoints[i],
+              5,
+              Paint()..color = const Color(0x7EFF0000),
+            );
+            canvas.drawCircle(
+              trianglePoints[i + 1],
+              5,
+              Paint()..color = const Color(0x7E00FF00),
+            );
+            canvas.drawCircle(
+              trianglePoints[i + 2],
+              5,
+              Paint()..color = const Color(0x7E0000FF),
+            );
+
+            final path = Path()
+              ..addPolygon(
+                [
+                  trianglePoints[i],
+                  trianglePoints[i + 1],
+                  trianglePoints[i + 2],
+                ],
+                true,
+              );
+
+            canvas.drawPath(
+              path,
+              Paint()
+                ..color = const Color(0x7EFFFFFF)
+                ..style = PaintingStyle.fill,
+            );
+
+            canvas.drawPath(
+              path,
+              Paint()
+                ..color = const Color(0xFF000000)
+                ..style = PaintingStyle.stroke,
+            );
+          }
+        }
+      } else {
+        canvas.drawPath(filledPath, paint);
       }
 
       trianglePoints.clear();
       filledPath.reset();
 
-      borderPath.reset();
+      lastColor = null;
 
-      lastPolygon = null;
-      lastHash = null;
+      drawBorders();
     }
 
     /// Draws labels on a "single-world"
@@ -239,120 +251,134 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     }
 
     // Main loop constructing batched fill and border paths from given polygons.
-    for (int i = 0; i <= polygons.length - 1; i++) {
-      final projectedPolygon = polygons[i];
-      if (projectedPolygon.points.isEmpty) continue;
-      final polygon = projectedPolygon.polygon;
+    final List<bool> currentlyInvertedFills = <bool>[
+      if (invertedFill != null) true,
+      false,
+    ];
+    for (final item in currentlyInvertedFills) {
+      currentlyInvertedFill = item;
 
-      final polygonTriangles = triangles?[i];
-
-      /// Draws on a "single-world"
-      WorldWorkControl drawIfVisible(double shift) {
-        final fillOffsets = getOffsetsXY(
+      if (currentlyInvertedFill) {
+        // we display once the full map.
+        final minMaxProjected =
+            camera.crs.projection.projectList(_minMaxLatitude);
+        final minMaxY = getOffsetsXY(
           camera: camera,
           origin: origin,
-          points: projectedPolygon.points,
-          holePoints:
-              polygonTriangles != null ? projectedPolygon.holePoints : null,
-          shift: shift,
+          points: minMaxProjected,
         );
-        if (!areOffsetsVisible(fillOffsets)) return WorldWorkControl.invisible;
+        final maxX = viewportRect.right;
+        final minX = viewportRect.left;
+        final maxY = minMaxY[0].dy;
+        final minY = minMaxY[1].dy;
+        final rect = Rect.fromLTRB(minX, minY, maxX, maxY);
+        filledPath.addRect(rect);
+        filledPath.fillType = PathFillType.evenOdd;
+      }
 
-        if (debugAltRenderer) {
-          const offsetsLabelStyle = TextStyle(
-            color: Color(0xFF000000),
-            fontSize: 16,
+      for (int i = 0; i <= polygons.length - 1; i++) {
+        final projectedPolygon = polygons[i];
+        final polygon = projectedPolygon.polygon;
+        if (projectedPolygon.points.isEmpty) continue;
+        borderPaint = _getBorderPaint(polygon);
+
+        final polygonTriangles = triangles?[i];
+
+        /// Draws on a "single-world"
+        WorldWorkControl drawIfVisible(double shift) {
+          final fillOffsets = getOffsetsXY(
+            camera: camera,
+            origin: origin,
+            points: projectedPolygon.points,
+            holePoints:
+                polygonTriangles != null ? projectedPolygon.holePoints : null,
+            shift: shift,
           );
-
-          for (int i = 0; i < fillOffsets.length; i++) {
-            TextPainter(
-              text: TextSpan(
-                text: i.toString(),
-                style: offsetsLabelStyle,
-              ),
-              textDirection: TextDirection.ltr,
-            )
-              ..layout(maxWidth: 100)
-              ..paint(canvas, fillOffsets[i]);
+          if (!areOffsetsVisible(fillOffsets)) {
+            return WorldWorkControl.invisible;
           }
-        }
 
-        // The hash is based on the polygons visual properties. If the hash from
-        // the current and the previous polygon no longer match, we need to flush
-        // the batch previous polygons.
-        // We also need to flush if the opacity is not 1 or 0, so that they get
-        // mixed properly. Otherwise, holes get cut, or colors aren't mixed,
-        // depending on the holes handler.
-        final hash = polygon.renderHashCode;
-        final opacity = polygon.color?.a ?? 0;
-        if (lastHash != hash || (checkOpacity && opacity > 0 && opacity < 1)) {
-          drawPaths();
-        }
-        lastPolygon = polygon;
-        lastHash = hash;
-
-        // First add fills and borders to path.
-        if (polygon.color != null) {
-          if (polygonTriangles != null) {
-            final len = polygonTriangles.length;
-            for (int i = 0; i < len; ++i) {
-              trianglePoints.add(fillOffsets[polygonTriangles[i]]);
-            }
-          } else {
-            filledPath.addPolygon(fillOffsets, true);
-          }
-        }
-
-        if (polygon.borderStrokeWidth > 0.0) {
-          _addBorderToPath(
-            borderPath,
-            polygon,
-            getOffsetsXY(
-              camera: camera,
-              origin: origin,
-              points: projectedPolygon.points,
-              shift: shift,
-            ),
-            size,
-            canvas,
-            _getBorderPaint(polygon),
-            polygon.borderStrokeWidth,
-          );
-        }
-
-        // Afterwards deal with more complicated holes.
-        // Improper handling of opacity and fill methods may result in normal
-        // polygons cutting holes into other polygons, when they should be mixing:
-        // https://github.com/fleaflet/flutter_map/issues/1898.
-        final holePointsList = polygon.holePointsList;
-        if (holePointsList != null && holePointsList.isNotEmpty) {
-          // See `Path.combine` comments below
-          // Avoids failing to cut holes if the winding directions of the holes
-          // and the normal points are the same
-          filledPath.fillType = PathFillType.evenOdd;
-
-          for (final singleHolePoints in projectedPolygon.holePoints) {
-            final holeOffsets = getOffsetsXY(
-              camera: camera,
-              origin: origin,
-              points: singleHolePoints,
-              shift: shift,
+          if (debugAltRenderer && !currentlyInvertedFill) {
+            const offsetsLabelStyle = TextStyle(
+              color: Color(0xFF000000),
+              fontSize: 16,
             );
-            filledPath.addPolygon(holeOffsets, true);
 
-            // TODO: Potentially more efficient and may change the need to do
-            // opacity checking - needs testing. Also need to verify if `xor` or
-            // `difference` is preferred.
-            // No longer blocked by lack of HTML support in Flutter 3.29
-            /*filledPath = Path.combine(
-              PathOperation.xor,
-              filledPath,
-              Path()..addPolygon(holeOffsets, true),
-            );*/
+            for (int i = 0; i < fillOffsets.length; i++) {
+              TextPainter(
+                text: TextSpan(
+                  text: i.toString(),
+                  style: offsetsLabelStyle,
+                ),
+                textDirection: TextDirection.ltr,
+              )
+                ..layout(maxWidth: 100)
+                ..paint(canvas, fillOffsets[i]);
+            }
           }
 
-          if (!polygon.disableHolesBorder && polygon.borderStrokeWidth > 0.0) {
-            final borderPaint = _getBorderPaint(polygon);
+          // The hash is based on the polygons visual properties. If the hash from
+          // the current and the previous polygon no longer match, we need to flush
+          // the batch previous polygons.
+          // We also need to flush if the opacity is not 1 or 0, so that they get
+          // mixed properly. Otherwise, holes get cut, or colors aren't mixed,
+          // depending on the holes handler.
+          if (!currentlyInvertedFill) {
+            final hash = polygon.renderHashCode;
+            final opacity = polygon.color?.a ?? 0;
+            if (lastHash != hash ||
+                (checkOpacity && opacity > 0 && opacity < 1)) {
+              drawPaths();
+            }
+            lastColor = polygon.color;
+            lastHash = hash;
+          } else {
+            lastColor = invertedFill;
+          }
+
+          // First add fills and borders to path.
+          if (polygon.color != null || currentlyInvertedFill) {
+            if (polygonTriangles != null) {
+              final len = polygonTriangles.length;
+              for (int i = 0; i < len; ++i) {
+                trianglePoints.add(fillOffsets[polygonTriangles[i]]);
+              }
+            } else {
+              filledPath.addPolygon(fillOffsets, true);
+            }
+          }
+
+          void addBorderToPath(List<Offset> offsets) => _addBorderToPath(
+                borderPath,
+                polygon,
+                offsets,
+                size,
+                canvas,
+                borderPaint!,
+              );
+
+          if (borderPaint != null && !currentlyInvertedFill) {
+            addBorderToPath(
+              getOffsetsXY(
+                camera: camera,
+                origin: origin,
+                points: projectedPolygon.points,
+                shift: shift,
+              ),
+            );
+          }
+
+          // Afterwards deal with more complicated holes.
+          // Improper handling of opacity and fill methods may result in normal
+          // polygons cutting holes into other polygons, when they should be mixing:
+          // https://github.com/fleaflet/flutter_map/issues/1898.
+          final holePointsList = polygon.holePointsList;
+          if (holePointsList != null && holePointsList.isNotEmpty) {
+            // See `Path.combine` comments below
+            // Avoids failing to cut holes if the winding directions of the holes
+            // and the normal points are the same
+            filledPath.fillType = PathFillType.evenOdd;
+
             for (final singleHolePoints in projectedPolygon.holePoints) {
               final holeOffsets = getOffsetsXY(
                 camera: camera,
@@ -360,43 +386,63 @@ class _PolygonPainter<R extends Object> extends CustomPainter
                 points: singleHolePoints,
                 shift: shift,
               );
-              _addBorderToPath(
-                borderPath,
-                polygon,
-                holeOffsets,
-                size,
-                canvas,
-                borderPaint,
-                polygon.borderStrokeWidth,
-              );
+              filledPath.addPolygon(holeOffsets, true);
+
+              // TODO: Potentially more efficient and may change the need to do
+              // opacity checking - needs testing. Also need to verify if `xor` or
+              // `difference` is preferred.
+              // No longer blocked by lack of HTML support in Flutter 3.29
+              /*filledPath = Path.combine(
+              PathOperation.xor,
+              filledPath,
+              Path()..addPolygon(holeOffsets, true),
+            );*/
+            }
+
+            if (!polygon.disableHolesBorder && borderPaint != null) {
+              for (final singleHolePoints in projectedPolygon.holePoints) {
+                final holeOffsets = getOffsetsXY(
+                  camera: camera,
+                  origin: origin,
+                  points: singleHolePoints,
+                  shift: shift,
+                );
+                addBorderToPath(holeOffsets);
+              }
             }
           }
+
+          return WorldWorkControl.visible;
         }
 
-        return WorldWorkControl.visible;
+        workAcrossWorlds(drawIfVisible);
+
+        if (!currentlyInvertedFill &&
+            !drawLabelsLast &&
+            polygonLabels &&
+            polygon.textPainter != null) {
+          // Labels are expensive because:
+          //  * they themselves cannot easily be pulled into our batched path
+          //    painting with the given text APIs
+          //  * therefore, they require us to flush the batch of polygon draws to
+          //    ensure polygons and labels are stacked correctly, i.e.:
+          //    p1, p1_label, p2, p2_label, ... .
+
+          // The painter will be null if the layOuting algorithm determined that
+          // there isn't enough space.
+          workAcrossWorlds(
+            (double shift) => drawLabelIfVisible(shift, projectedPolygon),
+          );
+        }
+        if (!currentlyInvertedFill) {
+          drawPaths();
+        }
       }
 
-      workAcrossWorlds(drawIfVisible);
-
-      if (!drawLabelsLast && polygonLabels && polygon.textPainter != null) {
-        // Labels are expensive because:
-        //  * they themselves cannot easily be pulled into our batched path
-        //    painting with the given text APIs
-        //  * therefore, they require us to flush the batch of polygon draws to
-        //    ensure polygons and labels are stacked correctly, i.e.:
-        //    p1, p1_label, p2, p2_label, ... .
-
-        // The painter will be null if the layOuting algorithm determined that
-        // there isn't enough space.
-        workAcrossWorlds(
-          (double shift) => drawLabelIfVisible(shift, projectedPolygon),
-        );
-      }
+      drawPaths();
     }
 
-    drawPaths();
-
-    if (polygonLabels && drawLabelsLast) {
+    if (!currentlyInvertedFill && polygonLabels && drawLabelsLast) {
       for (final projectedPolygon in polygons) {
         if (projectedPolygon.points.isEmpty) {
           continue;
@@ -411,7 +457,10 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     }
   }
 
-  Paint _getBorderPaint(Polygon polygon) {
+  Paint? _getBorderPaint(Polygon polygon) {
+    if (polygon.borderStrokeWidth <= 0) {
+      return null;
+    }
     final isDotted = polygon.pattern.spacingFactor != null;
     return Paint()
       ..color = polygon.borderColor
@@ -428,11 +477,11 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     Size canvasSize,
     Canvas canvas,
     Paint paint,
-    double strokeWidth,
   ) {
     final isSolid = polygon.pattern == const StrokePattern.solid();
     final isDashed = polygon.pattern.segments != null;
     final isDotted = polygon.pattern.spacingFactor != null;
+    final strokeWidth = polygon.borderStrokeWidth;
 
     if (isSolid) {
       final SolidPixelHiker hiker = SolidPixelHiker(
@@ -445,7 +494,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     } else if (isDotted) {
       final DottedPixelHiker hiker = DottedPixelHiker(
         offsets: offsets,
-        stepLength: polygon.borderStrokeWidth * polygon.pattern.spacingFactor!,
+        stepLength: strokeWidth * polygon.pattern.spacingFactor!,
         patternFit: polygon.pattern.patternFit!,
         closePath: true,
         canvasSize: canvasSize,
@@ -485,6 +534,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
       triangles != oldDelegate.triangles ||
       camera != oldDelegate.camera ||
       bounds != oldDelegate.bounds ||
+      invertedFill != oldDelegate.invertedFill ||
       drawLabelsLast != oldDelegate.drawLabelsLast ||
       polygonLabels != oldDelegate.polygonLabels ||
       hitNotifier != oldDelegate.hitNotifier;
