@@ -128,7 +128,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
 
     final trianglePoints = <Offset>[];
 
-    final filledPath = Path();
+    Path filledPath = Path();
     final borderPath = Path();
     Color? lastColor;
     int? lastHash;
@@ -265,7 +265,6 @@ class _PolygonPainter<R extends Object> extends CustomPainter
       final minY = minMaxY[1].dy;
       final rect = Rect.fromLTRB(minX, minY, maxX, maxY);
       filledPath.addRect(rect);
-      filledPath.fillType = PathFillType.evenOdd;
 
       for (int i = 0; i <= polygons.length - 1; i++) {
         final projectedPolygon = polygons[i];
@@ -282,7 +281,12 @@ class _PolygonPainter<R extends Object> extends CustomPainter
           if (!areOffsetsVisible(fillOffsets)) {
             return WorldWorkControl.invisible;
           }
-          filledPath.addPolygon(fillOffsets, true);
+
+          filledPath = Path.combine(
+            PathOperation.difference,
+            filledPath,
+            Path()..addPolygon(fillOffsets, true),
+          );
           return WorldWorkControl.visible;
         }
 
@@ -392,11 +396,6 @@ class _PolygonPainter<R extends Object> extends CustomPainter
         // https://github.com/fleaflet/flutter_map/issues/1898.
         final holePointsList = polygon.holePointsList;
         if (holePointsList != null && holePointsList.isNotEmpty) {
-          // See `Path.combine` comments below
-          // Avoids failing to cut holes if the winding directions of the holes
-          // and the normal points are the same
-          filledPath.fillType = PathFillType.evenOdd;
-
           for (final singleHolePoints in projectedPolygon.holePoints) {
             final holeOffsets = getOffsetsXY(
               camera: camera,
@@ -404,17 +403,12 @@ class _PolygonPainter<R extends Object> extends CustomPainter
               points: singleHolePoints,
               shift: shift,
             );
-            filledPath.addPolygon(holeOffsets, true);
 
-            // TODO: Potentially more efficient and may change the need to do
-            // opacity checking - needs testing. Also need to verify if `xor` or
-            // `difference` is preferred.
-            // No longer blocked by lack of HTML support in Flutter 3.29
-            /*filledPath = Path.combine(
-              PathOperation.xor,
+            filledPath = Path.combine(
+              PathOperation.difference,
               filledPath,
               Path()..addPolygon(holeOffsets, true),
-            );*/
+            );
           }
 
           if (!polygon.disableHolesBorder && borderPaint != null) {
