@@ -108,27 +108,26 @@ class _PolygonPageState extends State<PolygonPage> {
       pattern: const StrokePattern.dotted(),
       holePointsList: [
         const [
-          LatLng(52, -17),
-          LatLng(52, -16),
-          LatLng(51.5, -15.5),
-          LatLng(51, -16),
-          LatLng(51, -17),
+          LatLng(52, -9),
+          LatLng(52, -8),
+          LatLng(51.5, -7.5),
+          LatLng(51, -8),
+          LatLng(51, -9),
         ],
         const [
-          LatLng(53.5, -17),
-          LatLng(53.5, -16),
-          LatLng(53, -15),
-          LatLng(52.25, -15),
-          LatLng(52.25, -16),
-          LatLng(52.75, -17),
+          LatLng(53.5, -9),
+          LatLng(53.5, -8),
+          LatLng(53, -7),
+          LatLng(52.25, -7),
+          LatLng(52.25, -8),
+          LatLng(52.75, -9),
         ],
-      ]
-          .map(
-            (latlngs) => latlngs
-                .map((latlng) => LatLng(latlng.latitude, latlng.longitude + 8))
-                .toList(),
-          )
-          .toList(),
+        const [
+          LatLng(52.683614, -8.141285),
+          LatLng(51.663083, -8.684529),
+          LatLng(51.913924, -7.2193),
+        ],
+      ],
       borderStrokeWidth: 4,
       borderColor: Colors.orange,
       color: Colors.orange.withAlpha(128),
@@ -154,30 +153,26 @@ class _PolygonPageState extends State<PolygonPage> {
       pattern: const StrokePattern.dotted(),
       holePointsList: [
         const [
-          LatLng(52, -17),
-          LatLng(52, -16),
-          LatLng(51.5, -15.5),
-          LatLng(51, -16),
-          LatLng(51, -17),
-        ],
+          LatLng(46, -9),
+          LatLng(46, -8),
+          LatLng(45.5, -7.5),
+          LatLng(45, -8),
+          LatLng(45, -9),
+        ].reversed.toList(growable: false), // Testing winding consitency
         const [
-          LatLng(53.5, -17),
-          LatLng(53.5, -16),
-          LatLng(53, -15),
-          LatLng(52.25, -15),
-          LatLng(52.25, -16),
-          LatLng(52.75, -17),
-        ],
-      ]
-          .map(
-            (latlngs) => latlngs
-                .map((latlng) =>
-                    LatLng(latlng.latitude - 6, latlng.longitude + 8))
-                .toList()
-                .reversed // Test that holes are always cut, no matter winding
-                .toList(),
-          )
-          .toList(),
+          LatLng(47.5, -9),
+          LatLng(47.5, -8),
+          LatLng(47, -7),
+          LatLng(46.25, -7),
+          LatLng(46.25, -8),
+          LatLng(46.75, -9),
+        ].reversed.toList(growable: false),
+        const [
+          LatLng(46.683614, -8.141285),
+          LatLng(45.663083, -8.684529),
+          LatLng(45.913924, -7.2193),
+        ].reversed.toList(growable: false),
+      ],
       borderStrokeWidth: 4,
       borderColor: Colors.orange,
       color: Colors.orange.withAlpha(128),
@@ -253,6 +248,35 @@ class _PolygonPageState extends State<PolygonPage> {
         title: 'Testing opacity treatment (large)',
         subtitle:
             "Holes shouldn't be cut, and colors should be mixed correctly",
+      ),
+    ),
+    Polygon(
+      points: const [
+        LatLng(40, 150),
+        LatLng(45, 160),
+        LatLng(50, 170),
+        LatLng(55, 180),
+        LatLng(50, -170),
+        LatLng(45, -160),
+        LatLng(40, -150),
+        LatLng(35, -160),
+        LatLng(30, -170),
+        LatLng(25, -180),
+        LatLng(30, 170),
+        LatLng(35, 160),
+      ],
+      holePointsList: const [
+        [
+          LatLng(45, 175),
+          LatLng(45, -175),
+          LatLng(35, -175),
+          LatLng(35, 175),
+        ],
+      ],
+      color: const Color(0xFFFF0000),
+      hitValue: (
+        title: 'Red Line',
+        subtitle: 'Across the universe...',
       ),
     ),
   ];
@@ -332,35 +356,6 @@ class _PolygonPageState extends State<PolygonPage> {
                 polygons: [
                   Polygon(
                     points: const [
-                      LatLng(40, 150),
-                      LatLng(45, 160),
-                      LatLng(50, 170),
-                      LatLng(55, 180),
-                      LatLng(50, -170),
-                      LatLng(45, -160),
-                      LatLng(40, -150),
-                      LatLng(35, -160),
-                      LatLng(30, -170),
-                      LatLng(25, -180),
-                      LatLng(30, 170),
-                      LatLng(35, 160),
-                    ],
-                    holePointsList: const [
-                      [
-                        LatLng(45, 175),
-                        LatLng(45, -175),
-                        LatLng(35, -175),
-                        LatLng(35, 175),
-                      ],
-                    ],
-                    color: const Color(0xFFFF0000),
-                    hitValue: (
-                      title: 'Red Line',
-                      subtitle: 'Across the universe...',
-                    ),
-                  ),
-                  Polygon(
-                    points: const [
                       LatLng(50, -18),
                       LatLng(50, -14),
                       LatLng(51.5, -12.5),
@@ -387,45 +382,44 @@ class _PolygonPageState extends State<PolygonPage> {
                     borderStrokeWidth: 4,
                     borderColor: Colors.black,
                     color: Colors.green,
+                    label:
+                        'This one is performantly rendered\n& non-interactive',
                   ),
                   Polygon(
                     points: const [
-                      LatLng(50, -18),
-                      LatLng(53, -16),
-                      LatLng(51.5, -12.5),
-                      LatLng(54, -14),
-                      LatLng(54, -18),
-                    ]
-                        .map((latlng) =>
-                            LatLng(latlng.latitude - 6, latlng.longitude))
-                        .toList(),
+                      LatLng(44, -18),
+                      LatLng(47, -16),
+                      LatLng(45.5, -12.5),
+                      LatLng(48, -14),
+                      LatLng(48, -18),
+                    ],
                     holePointsList: [
                       const [
-                        LatLng(52, -17),
-                        LatLng(52, -16),
-                        LatLng(51.5, -15.5),
-                        LatLng(51, -16),
-                        LatLng(51, -17),
+                        LatLng(46, -17),
+                        LatLng(46, -16),
+                        LatLng(45.5, -15.5),
+                        LatLng(45, -16),
+                        LatLng(45, -17),
                       ],
                       const [
-                        LatLng(53.5, -17),
-                        LatLng(53.5, -16),
-                        LatLng(53, -15),
-                        LatLng(52.25, -15),
-                        LatLng(52.25, -16),
-                        LatLng(52.75, -17),
+                        LatLng(47.5, -17),
+                        LatLng(47.5, -16),
+                        LatLng(47, -15),
+                        LatLng(46.25, -15),
+                        LatLng(46.25, -16),
+                        LatLng(46.75, -17),
                       ],
-                    ]
-                        .map(
-                          (latlngs) => latlngs
-                              .map((latlng) =>
-                                  LatLng(latlng.latitude - 6, latlng.longitude))
-                              .toList(),
-                        )
-                        .toList(),
+                      const [
+                        LatLng(46.683614, -16.141285),
+                        LatLng(45.663083, -16.684529),
+                        LatLng(45.913924, -15.2193),
+                      ].reversed.toList(growable: false),
+                    ],
                     borderStrokeWidth: 4,
                     borderColor: Colors.black,
                     color: Colors.green,
+                    label:
+                        "Performant-rendering doesn't\nhandle malformed polygons",
                   ),
                 ],
               ),
