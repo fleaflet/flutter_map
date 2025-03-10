@@ -320,6 +320,8 @@ class _PolygonPageState extends State<PolygonPage> {
                   child: PolygonLayer(
                     hitNotifier: _hitNotifier,
                     simplificationTolerance: 0,
+                    // TODO temporarily, just for the tests
+                    invertedFill: Colors.orangeAccent.withAlpha(64),
                     polygons: [..._polygonsRaw, ...?_hoverGons],
                   ),
                 ),

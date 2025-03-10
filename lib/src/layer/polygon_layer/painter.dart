@@ -35,6 +35,9 @@ class _PolygonPainter<R extends Object> extends CustomPainter
   /// See [PolygonLayer.debugAltRenderer]
   final bool debugAltRenderer;
 
+  /// See [PolygonLayer.invertedFill]
+  final Color? invertedFill;
+
   @override
   final MapCamera camera;
 
@@ -49,6 +52,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     required this.drawLabelsLast,
     required this.debugAltRenderer,
     required this.camera,
+    required this.invertedFill,
     required this.hitNotifier,
   }) : bounds = camera.visibleBounds;
 
@@ -115,6 +119,8 @@ class _PolygonPainter<R extends Object> extends CustomPainter
   @override
   Iterable<_ProjectedPolygon<R>> get elements => polygons;
 
+  static const _minMaxLatitude = [LatLng(90, 0), LatLng(-90, 0)];
+
   @override
   void paint(Canvas canvas, Size size) {
     const checkOpacity = true; // for debugging purposes only, should be true
@@ -124,89 +130,94 @@ class _PolygonPainter<R extends Object> extends CustomPainter
 
     final filledPath = Path();
     final borderPath = Path();
-    Polygon? lastPolygon;
+    Color? lastColor;
     int? lastHash;
+    Paint? borderPaint;
+
+    // Draw polygon outline
+    void drawBorders() {
+      if (borderPaint != null) {
+        canvas.drawPath(borderPath, borderPaint);
+      }
+      borderPath.reset();
+      lastHash = null;
+    }
 
     // This functions flushes the batched fill and border paths constructed below
     void drawPaths() {
-      if (lastPolygon == null) return;
-      final polygon = lastPolygon!;
-
-      // Draw filled polygon
-      if (polygon.color case final color?) {
-        final paint = Paint()
-          ..style = PaintingStyle.fill
-          ..color = color;
-
-        if (trianglePoints.isNotEmpty) {
-          final points = Float32List(trianglePoints.length * 2);
-          for (int i = 0; i < trianglePoints.length; ++i) {
-            points[i * 2] = trianglePoints[i].dx;
-            points[i * 2 + 1] = trianglePoints[i].dy;
-          }
-          final vertices = Vertices.raw(VertexMode.triangles, points);
-          canvas.drawVertices(vertices, BlendMode.src, paint);
-
-          if (debugAltRenderer) {
-            for (int i = 0; i < trianglePoints.length; i += 3) {
-              canvas.drawCircle(
-                trianglePoints[i],
-                5,
-                Paint()..color = const Color(0x7EFF0000),
-              );
-              canvas.drawCircle(
-                trianglePoints[i + 1],
-                5,
-                Paint()..color = const Color(0x7E00FF00),
-              );
-              canvas.drawCircle(
-                trianglePoints[i + 2],
-                5,
-                Paint()..color = const Color(0x7E0000FF),
-              );
-
-              final path = Path()
-                ..addPolygon(
-                  [
-                    trianglePoints[i],
-                    trianglePoints[i + 1],
-                    trianglePoints[i + 2],
-                  ],
-                  true,
-                );
-
-              canvas.drawPath(
-                path,
-                Paint()
-                  ..color = const Color(0x7EFFFFFF)
-                  ..style = PaintingStyle.fill,
-              );
-
-              canvas.drawPath(
-                path,
-                Paint()
-                  ..color = const Color(0xFF000000)
-                  ..style = PaintingStyle.stroke,
-              );
-            }
-          }
-        } else {
-          canvas.drawPath(filledPath, paint);
-        }
+      final Color? color = lastColor;
+      if (color == null) {
+        drawBorders();
+        return;
       }
 
-      // Draw polygon outline
-      if (polygon.borderStrokeWidth > 0) {
-        canvas.drawPath(borderPath, _getBorderPaint(polygon));
+      // Draw filled polygon
+      final paint = Paint()
+        ..style = PaintingStyle.fill
+        ..color = color;
+
+      if (trianglePoints.isNotEmpty) {
+        final points = Float32List(trianglePoints.length * 2);
+        for (int i = 0; i < trianglePoints.length; ++i) {
+          points[i * 2] = trianglePoints[i].dx;
+          points[i * 2 + 1] = trianglePoints[i].dy;
+        }
+        final vertices = Vertices.raw(VertexMode.triangles, points);
+        canvas.drawVertices(vertices, BlendMode.src, paint);
+
+        if (debugAltRenderer) {
+          for (int i = 0; i < trianglePoints.length; i += 3) {
+            canvas.drawCircle(
+              trianglePoints[i],
+              5,
+              Paint()..color = const Color(0x7EFF0000),
+            );
+            canvas.drawCircle(
+              trianglePoints[i + 1],
+              5,
+              Paint()..color = const Color(0x7E00FF00),
+            );
+            canvas.drawCircle(
+              trianglePoints[i + 2],
+              5,
+              Paint()..color = const Color(0x7E0000FF),
+            );
+
+            final path = Path()
+              ..addPolygon(
+                [
+                  trianglePoints[i],
+                  trianglePoints[i + 1],
+                  trianglePoints[i + 2],
+                ],
+                true,
+              );
+
+            canvas.drawPath(
+              path,
+              Paint()
+                ..color = const Color(0x7EFFFFFF)
+                ..style = PaintingStyle.fill,
+            );
+
+            canvas.drawPath(
+              path,
+              Paint()
+                ..color = const Color(0xFF000000)
+                ..style = PaintingStyle.stroke,
+            );
+          }
+        }
+      } else {
+        canvas.drawPath(filledPath, paint);
       }
 
       trianglePoints.clear();
       filledPath.reset();
 
-      borderPath.reset();
+      lastColor = null;
 
-      lastPolygon = null;
-      lastHash = null;
+      drawBorders();
     }
 
     /// Draws labels on a "single-world"
@@ -238,11 +249,61 @@ class _PolygonPainter<R extends Object> extends CustomPainter
       return WorldWorkControl.visible;
     }
 
-    // Main loop constructing batched fill and border paths from given polygons.
+    // Specific map treatment with `invertFill`.
+    if (invertedFill != null) {
+      filledPath.reset();
+      final minMaxProjected =
+          camera.crs.projection.projectList(_minMaxLatitude);
+      final minMaxY = getOffsetsXY(
+        camera: camera,
+        origin: origin,
+        points: minMaxProjected,
+      );
+      final maxX = viewportRect.right;
+      final minX = viewportRect.left;
+      final maxY = minMaxY[0].dy;
+      final minY = minMaxY[1].dy;
+      final rect = Rect.fromLTRB(minX, minY, maxX, maxY);
+      filledPath.addRect(rect);
+      filledPath.fillType = PathFillType.evenOdd;
+
+      for (int i = 0; i <= polygons.length - 1; i++) {
+        final projectedPolygon = polygons[i];
+        if (projectedPolygon.points.isEmpty) continue;
+
+        /// Draws each full polygon as a hole on a "single-world"
+        WorldWorkControl drawPolygonAsHole(double shift) {
+          final fillOffsets = getOffsetsXY(
+            camera: camera,
+            origin: origin,
+            points: projectedPolygon.points,
+            shift: shift,
+          );
+          if (!areOffsetsVisible(fillOffsets)) {
+            return WorldWorkControl.invisible;
+          }
+          filledPath.addPolygon(fillOffsets, true);
+          return WorldWorkControl.visible;
+        }
+
+        workAcrossWorlds(drawPolygonAsHole);
+      }
+
+      // Draw filled map with polygons as holes
+      final paint = Paint()
+        ..style = PaintingStyle.fill
+        ..color = invertedFill!;
+
+      canvas.drawPath(filledPath, paint);
+
+      filledPath.reset();
+    }
+
     for (int i = 0; i <= polygons.length - 1; i++) {
       final projectedPolygon = polygons[i];
-      if (projectedPolygon.points.isEmpty) continue;
       final polygon = projectedPolygon.polygon;
+      if (projectedPolygon.points.isEmpty) continue;
+      borderPaint = _getBorderPaint(polygon);
 
       final polygonTriangles = triangles?[i];
 
@@ -256,7 +317,9 @@ class _PolygonPainter<R extends Object> extends CustomPainter
               polygonTriangles != null ? projectedPolygon.holePoints : null,
           shift: shift,
         );
-        if (!areOffsetsVisible(fillOffsets)) return WorldWorkControl.invisible;
+        if (!areOffsetsVisible(fillOffsets)) {
+          return WorldWorkControl.invisible;
+        }
 
         if (debugAltRenderer) {
           const offsetsLabelStyle = TextStyle(
@@ -288,7 +351,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
         if (lastHash != hash || (checkOpacity && opacity > 0 && opacity < 1)) {
           drawPaths();
         }
-        lastPolygon = polygon;
+        lastColor = polygon.color;
         lastHash = hash;
 
         // First add fills and borders to path.
@@ -303,20 +366,23 @@ class _PolygonPainter<R extends Object> extends CustomPainter
           }
         }
 
-        if (polygon.borderStrokeWidth > 0.0) {
-          _addBorderToPath(
-            borderPath,
-            polygon,
+        void addBorderToPath(List<Offset> offsets) => _addBorderToPath(
+              borderPath,
+              polygon,
+              offsets,
+              size,
+              canvas,
+              borderPaint!,
+            );
+
+        if (borderPaint != null) {
+          addBorderToPath(
             getOffsetsXY(
               camera: camera,
               origin: origin,
               points: projectedPolygon.points,
               shift: shift,
             ),
-            size,
-            canvas,
-            _getBorderPaint(polygon),
-            polygon.borderStrokeWidth,
           );
         }
 
@@ -351,8 +417,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
             );*/
           }
 
-          if (!polygon.disableHolesBorder && polygon.borderStrokeWidth > 0.0) {
-            final borderPaint = _getBorderPaint(polygon);
+          if (!polygon.disableHolesBorder && borderPaint != null) {
             for (final singleHolePoints in projectedPolygon.holePoints) {
               final holeOffsets = getOffsetsXY(
                 camera: camera,
@@ -360,15 +425,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
                 points: singleHolePoints,
                 shift: shift,
               );
-              _addBorderToPath(
-                borderPath,
-                polygon,
-                holeOffsets,
-                size,
-                canvas,
-                borderPaint,
-                polygon.borderStrokeWidth,
-              );
+              addBorderToPath(holeOffsets);
             }
           }
         }
@@ -392,9 +449,8 @@ class _PolygonPainter<R extends Object> extends CustomPainter
           (double shift) => drawLabelIfVisible(shift, projectedPolygon),
         );
       }
+      drawPaths();
     }
-
-    drawPaths();
 
     if (polygonLabels && drawLabelsLast) {
       for (final projectedPolygon in polygons) {
@@ -411,7 +467,10 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     }
   }
 
-  Paint _getBorderPaint(Polygon polygon) {
+  Paint? _getBorderPaint(Polygon polygon) {
+    if (polygon.borderStrokeWidth <= 0) {
+      return null;
+    }
     final isDotted = polygon.pattern.spacingFactor != null;
     return Paint()
       ..color = polygon.borderColor
@@ -428,11 +487,11 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     Size canvasSize,
     Canvas canvas,
     Paint paint,
-    double strokeWidth,
   ) {
     final isSolid = polygon.pattern == const StrokePattern.solid();
     final isDashed = polygon.pattern.segments != null;
     final isDotted = polygon.pattern.spacingFactor != null;
+    final strokeWidth = polygon.borderStrokeWidth;
 
     if (isSolid) {
       final SolidPixelHiker hiker = SolidPixelHiker(
@@ -445,7 +504,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     } else if (isDotted) {
       final DottedPixelHiker hiker = DottedPixelHiker(
         offsets: offsets,
-        stepLength: polygon.borderStrokeWidth * polygon.pattern.spacingFactor!,
+        stepLength: strokeWidth * polygon.pattern.spacingFactor!,
         patternFit: polygon.pattern.patternFit!,
         closePath: true,
         canvasSize: canvasSize,
@@ -485,6 +544,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
       triangles != oldDelegate.triangles ||
       camera != oldDelegate.camera ||
       bounds != oldDelegate.bounds ||
+      invertedFill != oldDelegate.invertedFill ||
       drawLabelsLast != oldDelegate.drawLabelsLast ||
       polygonLabels != oldDelegate.polygonLabels ||
       hitNotifier != oldDelegate.hitNotifier;
