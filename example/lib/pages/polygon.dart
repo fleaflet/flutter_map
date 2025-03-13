@@ -292,7 +292,7 @@ class _PolygonPageState extends State<PolygonPage> {
         children: [
           FlutterMap(
             options: const MapOptions(
-              initialCenter: LatLng(51.5, -0.09),
+              initialCenter: LatLng(51.5, -2),
               initialZoom: 5,
             ),
             children: [

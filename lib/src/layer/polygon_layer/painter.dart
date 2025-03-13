@@ -249,6 +249,30 @@ class _PolygonPainter<R extends Object> extends CustomPainter
       return WorldWorkControl.visible;
     }
 
+    // Use evenOdd (true) or Path.combine (false)
+    // unfortunately Path.combine isn't stable on web
+    // TODO decide when to use what
+    bool useEvenOdd = true;
+
+    // Do we also remove the holes from the inverted map?
+    // TODO probably should always be true
+    bool invertedHoles = true;
+
+    print('path parameters: evenOdd $useEvenOdd, invertedHoles $invertedHoles');
+
+    void removePolygon(List<Offset> offsets) {
+      if (useEvenOdd) {
+        filledPath.fillType = PathFillType.evenOdd;
+        filledPath.addPolygon(offsets, true);
+        return;
+      }
+      filledPath = Path.combine(
+        PathOperation.difference,
+        filledPath,
+        Path()..addPolygon(offsets, true),
+      );
+    }
+
     // Specific map treatment with `invertFill`.
     if (invertedFill != null) {
       filledPath.reset();
@@ -282,11 +306,19 @@ class _PolygonPainter<R extends Object> extends CustomPainter
             return WorldWorkControl.invisible;
           }
 
-          filledPath = Path.combine(
-            PathOperation.difference,
-            filledPath,
-            Path()..addPolygon(fillOffsets, true),
-          );
+          removePolygon(fillOffsets);
+
+          if (invertedHoles) {
+            for (final singleHolePoints in projectedPolygon.holePoints) {
+              final holeOffsets = getOffsetsXY(
+                camera: camera,
+                origin: origin,
+                points: singleHolePoints,
+                shift: shift,
+              );
+              removePolygon(holeOffsets);
+            }
+          }
           return WorldWorkControl.visible;
         }
 
@@ -394,33 +426,16 @@ class _PolygonPainter<R extends Object> extends CustomPainter
         // Improper handling of opacity and fill methods may result in normal
         // polygons cutting holes into other polygons, when they should be mixing:
         // https://github.com/fleaflet/flutter_map/issues/1898.
-        final holePointsList = polygon.holePointsList;
-        if (holePointsList != null && holePointsList.isNotEmpty) {
-          for (final singleHolePoints in projectedPolygon.holePoints) {
-            final holeOffsets = getOffsetsXY(
-              camera: camera,
-              origin: origin,
-              points: singleHolePoints,
-              shift: shift,
-            );
-
-            filledPath = Path.combine(
-              PathOperation.difference,
-              filledPath,
-              Path()..addPolygon(holeOffsets, true),
-            );
-          }
-
+        for (final singleHolePoints in projectedPolygon.holePoints) {
+          final holeOffsets = getOffsetsXY(
+            camera: camera,
+            origin: origin,
+            points: singleHolePoints,
+            shift: shift,
+          );
+          removePolygon(holeOffsets);
           if (!polygon.disableHolesBorder && borderPaint != null) {
-            for (final singleHolePoints in projectedPolygon.holePoints) {
-              final holeOffsets = getOffsetsXY(
-                camera: camera,
-                origin: origin,
-                points: singleHolePoints,
-                shift: shift,
-              );
-              addBorderToPath(holeOffsets);
-            }
+            addBorderToPath(holeOffsets);
           }
         }
 
