@@ -252,13 +252,35 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     // Use evenOdd (true) or Path.combine (false)
     // unfortunately Path.combine isn't stable on web
     // TODO decide when to use what
-    bool useEvenOdd = true;
+    bool useEvenOdd = false;
 
     // Do we also remove the holes from the inverted map?
     // TODO probably should always be true
     bool invertedHoles = true;
 
-    print('path parameters: evenOdd $useEvenOdd, invertedHoles $invertedHoles');
+    // Do we also fill the holes with inverted fill?
+    // TODO probably should always be true
+    bool fillInvertedHoles = true;
+
+    print(
+        'path parameters: evenOdd $useEvenOdd, invertedHoles $invertedHoles, fillInvertedHoles $fillInvertedHoles');
+
+    Path holePaths = Path();
+
+    void addPolygon(List<Offset> offsets) {
+      if (!fillInvertedHoles) {
+        return;
+      }
+      if (useEvenOdd) {
+        holePaths.addPolygon(offsets, true);
+        return;
+      }
+      holePaths = Path.combine(
+        PathOperation.union,
+        holePaths,
+        Path()..addPolygon(offsets, true),
+      );
+    }
 
     void removePolygon(List<Offset> offsets) {
       if (useEvenOdd) {
@@ -317,6 +339,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
                 shift: shift,
               );
               removePolygon(holeOffsets);
+              addPolygon(holeOffsets);
             }
           }
           return WorldWorkControl.visible;
@@ -331,6 +354,9 @@ class _PolygonPainter<R extends Object> extends CustomPainter
         ..color = invertedFill!;
 
       canvas.drawPath(filledPath, paint);
+      if (fillInvertedHoles) {
+        canvas.drawPath(holePaths, paint);
+      }
 
       filledPath.reset();
     }
