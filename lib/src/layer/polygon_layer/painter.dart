@@ -121,6 +121,26 @@ class _PolygonPainter<R extends Object> extends CustomPainter
 
   static const _minMaxLatitude = [LatLng(90, 0), LatLng(-90, 0)];
 
+  /// Whether to use `PathFillType.evenOdd` (true) or `Path.combine` (false)
+  ///
+  ///  * `Path.combine` doesn't work & isn't stable/consistent on web
+  ///  * `evenOdd` gives broken results when polygons intersect when inverted
+  ///
+  /// The best option is to use `evenOdd` on web, as it at least works
+  /// sometimes, and `Path.combine` otherwise, as it gives correct results on
+  /// native platforms.
+  ///
+  /// See https://github.com/fleaflet/flutter_map/pull/2046.
+  static const _useEvenOdd = kIsWeb;
+
+  // Do we also remove the holes from the inverted map?
+  // Should be `true`
+  static const _invertedHoles = true;
+
+  // Do we also fill the holes with inverted fill?
+  // Should be `true`
+  static const _fillInvertedHoles = true;
+
   @override
   void paint(Canvas canvas, Size size) {
     const checkOpacity = true; // for debugging purposes only, should be true
@@ -249,29 +269,13 @@ class _PolygonPainter<R extends Object> extends CustomPainter
       return WorldWorkControl.visible;
     }
 
-    // Use evenOdd (true) or Path.combine (false)
-    // unfortunately Path.combine isn't stable on web
-    // TODO decide when to use what
-    bool useEvenOdd = false;
-
-    // Do we also remove the holes from the inverted map?
-    // TODO probably should always be true
-    bool invertedHoles = true;
-
-    // Do we also fill the holes with inverted fill?
-    // TODO probably should always be true
-    bool fillInvertedHoles = true;
-
-    print(
-        'path parameters: evenOdd $useEvenOdd, invertedHoles $invertedHoles, fillInvertedHoles $fillInvertedHoles');
-
     Path holePaths = Path();
 
     void addPolygon(List<Offset> offsets) {
-      if (!fillInvertedHoles) {
-        return;
-      }
-      if (useEvenOdd) {
+      // ignore: dead_code
+      if (!_fillInvertedHoles) return;
+
+      if (_useEvenOdd) {
         holePaths.addPolygon(offsets, true);
         return;
       }
@@ -283,7 +287,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     }
 
     void removePolygon(List<Offset> offsets) {
-      if (useEvenOdd) {
+      if (_useEvenOdd) {
         filledPath.fillType = PathFillType.evenOdd;
         filledPath.addPolygon(offsets, true);
         return;
@@ -330,7 +334,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
 
           removePolygon(fillOffsets);
 
-          if (invertedHoles) {
+          if (_invertedHoles) {
             for (final singleHolePoints in projectedPolygon.holePoints) {
               final holeOffsets = getOffsetsXY(
                 camera: camera,
@@ -354,7 +358,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
         ..color = invertedFill!;
 
       canvas.drawPath(filledPath, paint);
-      if (fillInvertedHoles) {
+      if (_fillInvertedHoles) {
         canvas.drawPath(holePaths, paint);
       }
 

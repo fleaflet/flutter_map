@@ -15,6 +15,7 @@ import 'package:flutter_map/src/misc/offsets.dart';
 import 'package:flutter_map/src/misc/point_in_polygon.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart' hide Path;
+import 'package:logger/logger.dart';
 import 'package:polylabel/polylabel.dart';
 
 part 'label.dart';
@@ -69,7 +70,14 @@ base class PolygonLayer<R extends Object>
   /// Defaults to `false`.
   final bool drawLabelsLast;
 
-  /// Color to apply to the whole map - except for polygons
+  /// Color to apply to the map where not covered by a polygon
+  ///
+  /// > [!WARNING]
+  /// > On the web, inverted filling may not work as expected in some cases.
+  /// > It will not match the behaviour seen on native platforms. Avoid allowing
+  /// > polygons to intersect, and avoid using holes within polygons.
+  /// > This is due to multiple limitations/bugs within Flutter. See online
+  /// > documentation for more info.
   final Color? invertedFill;
 
   /// {@macro fm.lhn.layerHitNotifier.usage}
@@ -97,6 +105,21 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
     with
         ProjectionSimplificationManagement<_ProjectedPolygon<R>, Polygon<R>,
             PolygonLayer<R>> {
+  @override
+  void initState() {
+    if (kDebugMode && kIsWeb && widget.invertedFill != null) {
+      Logger(printer: PrettyPrinter(methodCount: 0)).w(
+        '\x1B[1m\x1B[3mflutter_map\x1B[0m\nOn the web, inverted filling may '
+        'not work as expected in some cases. It will not match the behaviour\n'
+        'seen on native platforms.\nAvoid allowing polygons to intersect, and '
+        'avoid using holes within polygons.\nThis is due to multiple '
+        'limitations/bugs within Flutter. See online documentation for more '
+        'info.',
+      );
+    }
+    super.initState();
+  }
+
   @override
   _ProjectedPolygon<R> projectElement({
     required Projection projection,
