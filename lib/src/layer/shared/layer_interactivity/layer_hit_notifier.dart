@@ -21,7 +21,7 @@ typedef LayerHitNotifier<R extends Object> = ValueNotifier<LayerHitResult<R>?>;
 ///
 /// Hit testing still occurs even if this is `null`.
 ///
-/// See online documentation for more detailed usage instructions. See the
+/// See the online documentation for more detailed usage instructions. See the
 /// example project for an example implementation.
 /// {@endtemplate}
 // ignore: unused_element, constant_identifier_names

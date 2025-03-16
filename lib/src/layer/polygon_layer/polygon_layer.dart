@@ -73,8 +73,9 @@ base class PolygonLayer<R extends Object>
   /// > On the web, inverted filling may not work as expected in some cases.
   /// > It will not match the behaviour seen on native platforms. Avoid allowing
   /// > polygons to intersect, and avoid using holes within polygons.
-  /// > This is due to multiple limitations/bugs within Flutter. See online
-  /// > documentation for more info.
+  /// > This is due to multiple limitations/bugs within Flutter. See the
+  /// > [online documentation](docs.fleaflet.dev/layers/polygon-layer#inverted-filling)
+  /// > for more info.
   final Color? invertedFill;
 
   /// {@macro fm.lhn.layerHitNotifier.usage}
@@ -103,18 +104,22 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
         ProjectionSimplificationManagement<_ProjectedPolygon<R>, Polygon<R>,
             PolygonLayer<R>> {
   @override
-  void initState() {
-    if (kDebugMode && kIsWeb && widget.invertedFill != null) {
+  void didUpdateWidget(covariant PolygonLayer<R> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (kDebugMode &&
+        kIsWeb &&
+        oldWidget.invertedFill == null &&
+        widget.invertedFill != null) {
       Logger(printer: PrettyPrinter(methodCount: 0)).w(
         '\x1B[1m\x1B[3mflutter_map\x1B[0m\nOn the web, inverted filling may '
         'not work as expected in some cases. It will not match the behaviour\n'
         'seen on native platforms.\nAvoid allowing polygons to intersect, and '
         'avoid using holes within polygons.\nThis is due to multiple '
-        'limitations/bugs within Flutter. See online documentation for more '
-        'info.',
+        'limitations/bugs within Flutter.\nSee '
+        'https://docs.fleaflet.dev/layers/polyline-layer#culling for more info.',
       );
     }
-    super.initState();
   }
 
   @override
