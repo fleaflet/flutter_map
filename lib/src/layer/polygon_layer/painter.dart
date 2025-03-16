@@ -157,6 +157,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     final trianglePoints = <Offset>[];
 
     Path filledPath = Path();
+    Path invertedHolePaths = Path();
     final borderPath = Path();
     Color? lastColor;
     int? lastHash;
@@ -277,25 +278,23 @@ class _PolygonPainter<R extends Object> extends CustomPainter
       return WorldWorkControl.visible;
     }
 
-    Path holePaths = Path();
-
-    void addPolygon(List<Offset> offsets) {
+    void invertFillPolygonHole(List<Offset> offsets) {
       // For debugging purposes, should be compiled out
       // ignore: dead_code
       if (!_fillInvertedHoles) return;
 
       if (_useEvenOdd) {
-        holePaths.addPolygon(offsets, true);
+        invertedHolePaths.addPolygon(offsets, true);
         return;
       }
-      holePaths = Path.combine(
+      invertedHolePaths = Path.combine(
         PathOperation.union,
-        holePaths,
+        invertedHolePaths,
         Path()..addPolygon(offsets, true),
       );
     }
 
-    void removePolygon(List<Offset> offsets) {
+    void unfillPolygon(List<Offset> offsets) {
       if (_useEvenOdd) {
         filledPath.fillType = PathFillType.evenOdd;
         filledPath.addPolygon(offsets, true);
@@ -341,7 +340,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
             return WorldWorkControl.invisible;
           }
 
-          removePolygon(fillOffsets);
+          unfillPolygon(fillOffsets);
 
           if (_invertedHoles) {
             for (final singleHolePoints in projectedPolygon.holePoints) {
@@ -351,8 +350,8 @@ class _PolygonPainter<R extends Object> extends CustomPainter
                 points: singleHolePoints,
                 shift: shift,
               );
-              removePolygon(holeOffsets);
-              addPolygon(holeOffsets);
+              unfillPolygon(holeOffsets);
+              invertFillPolygonHole(holeOffsets);
             }
           }
           return WorldWorkControl.visible;
@@ -368,7 +367,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
 
       canvas.drawPath(filledPath, paint);
       if (_fillInvertedHoles) {
-        canvas.drawPath(holePaths, paint);
+        canvas.drawPath(invertedHolePaths, paint);
       }
 
       filledPath.reset();
@@ -473,7 +472,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
             points: singleHolePoints,
             shift: shift,
           );
-          removePolygon(holeOffsets);
+          unfillPolygon(holeOffsets);
           if (!polygon.disableHolesBorder && borderPaint != null) {
             addBorderToPath(holeOffsets);
           }
