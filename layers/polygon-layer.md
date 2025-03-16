@@ -138,6 +138,18 @@ These are much cheaper for the rendering engine (particularly Skia), as it does 
 
 </details>
 
+## Inverted Filling
+
+{% hint style="warning" %}
+On the web, inverted filling may not work as expected in some cases. It will not match the behaviour seen on native platforms.
+
+Avoid allowing polygons to intersect, and avoid using holes within polygons.&#x20;
+
+This is due to multiple limitations/bugs within Flutter.
+{% endhint %}
+
+Inverted filling (`invertedFill`) allows a color to be applied to all parts of the map outside a polygon.
+
 ## Polygon Manipulation
 
 'flutter\_map' doesn't provide any public methods to manipulate polygons, as these would be deemed out of scope.
