@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/misc/tile_providers.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 typedef HitValue = ({String title, String subtitle});
 
@@ -20,6 +21,8 @@ class _PolygonPageState extends State<PolygonPage> {
   final LayerHitNotifier<HitValue> _hitNotifier = ValueNotifier(null);
   List<HitValue>? _prevHitValues;
   List<Polygon<HitValue>>? _hoverGons;
+
+  bool _useInvertedFill = false;
 
   final _polygonsRaw = <Polygon<HitValue>>[
     Polygon(
@@ -344,8 +347,8 @@ class _PolygonPageState extends State<PolygonPage> {
                   child: PolygonLayer(
                     hitNotifier: _hitNotifier,
                     simplificationTolerance: 0,
-                    // TODO temporarily, just for the tests
-                    invertedFill: Colors.pink.withAlpha(255 ~/ 3 * 2),
+                    invertedFill:
+                        _useInvertedFill ? Colors.pink.withAlpha(170) : null,
                     polygons: [..._polygonsRaw, ...?_hoverGons],
                   ),
                 ),
@@ -424,6 +427,74 @@ class _PolygonPageState extends State<PolygonPage> {
                 ],
               ),
             ],
+          ),
+          Positioned(
+            top: 16,
+            right: 16,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(kIsWeb ? 16 : 32),
+              child: ColoredBox(
+                color: Theme.of(context).colorScheme.surface,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        left: 12,
+                        right: 8,
+                        top: 4,
+                        bottom: 4,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        spacing: 8,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Tooltip(
+                            message: 'Use Inverted Fill',
+                            child: Icon(Icons.invert_colors),
+                          ),
+                          Switch.adaptive(
+                            value: _useInvertedFill,
+                            onChanged: (v) =>
+                                setState(() => _useInvertedFill = v),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (kIsWeb)
+                      ColoredBox(
+                        color: Colors.amber,
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                            left: 16,
+                            right: 16,
+                            top: 6,
+                            bottom: 6,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            spacing: 8,
+                            children: [
+                              const Icon(Icons.warning),
+                              const Icon(Icons.web_asset_off),
+                              IconButton(
+                                onPressed: () => launchUrl(Uri.parse(
+                                  'https://docs.fleaflet.dev/layers/polygon-layer#inverted-filling',
+                                )),
+                                style: ButtonStyle(
+                                  backgroundColor:
+                                      WidgetStatePropertyAll(Colors.amber[100]),
+                                ),
+                                icon: const Icon(Icons.open_in_new),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ],
       ),

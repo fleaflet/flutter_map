@@ -8,6 +8,9 @@ class _PolygonPainter<R extends Object> extends CustomPainter
   /// Reference to the list of [_ProjectedPolygon]s
   final List<_ProjectedPolygon<R>> polygons;
 
+  @override
+  Iterable<_ProjectedPolygon<R>> get elements => polygons;
+
   /// Triangulated [polygons] if available
   ///
   /// Expected to be in same/corresponding order as [polygons].
@@ -55,6 +58,36 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     required this.invertedFill,
     required this.hitNotifier,
   }) : bounds = camera.visibleBounds;
+
+  // Corner coordinates of the polygon painted onto the entire world when using
+  // inverted fill.
+  static const _minMaxLatitude = [LatLng(90, 0), LatLng(-90, 0)];
+
+  // Whether to use `PathFillType.evenOdd` (true) or `Path.combine` (false).
+  //
+  //  * `Path.combine` doesn't work & isn't stable/consistent on web
+  //  * `evenOdd` gives broken results when polygons intersect when inverted
+  //
+  // The best option is to use `evenOdd` on web, as it at least works sometimes,
+  // and `Path.combine` otherwise, as it gives correct results on native
+  // platforms.
+  //
+  // See https://github.com/fleaflet/flutter_map/pull/2046.
+  static const _useEvenOdd = kIsWeb;
+
+  // Do we also remove the holes from the inverted map?
+  // Should be `true`.
+  static const _invertedHoles = true;
+
+  // Do we also fill the holes with inverted fill?
+  // Should be `true`.
+  static const _fillInvertedHoles = true;
+
+  // Whether to draw the batch of polygons when a polygon with translucency is
+  // encountered.
+  // Should be `true`.
+  // TODO: Verify if still necessary.
+  static const _flushBatchOnTranslucency = true;
 
   @override
   bool elementHitTest(
@@ -117,33 +150,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
   }
 
   @override
-  Iterable<_ProjectedPolygon<R>> get elements => polygons;
-
-  static const _minMaxLatitude = [LatLng(90, 0), LatLng(-90, 0)];
-
-  /// Whether to use `PathFillType.evenOdd` (true) or `Path.combine` (false)
-  ///
-  ///  * `Path.combine` doesn't work & isn't stable/consistent on web
-  ///  * `evenOdd` gives broken results when polygons intersect when inverted
-  ///
-  /// The best option is to use `evenOdd` on web, as it at least works
-  /// sometimes, and `Path.combine` otherwise, as it gives correct results on
-  /// native platforms.
-  ///
-  /// See https://github.com/fleaflet/flutter_map/pull/2046.
-  static const _useEvenOdd = kIsWeb;
-
-  // Do we also remove the holes from the inverted map?
-  // Should be `true`
-  static const _invertedHoles = true;
-
-  // Do we also fill the holes with inverted fill?
-  // Should be `true`
-  static const _fillInvertedHoles = true;
-
-  @override
   void paint(Canvas canvas, Size size) {
-    const checkOpacity = true; // for debugging purposes only, should be true
     super.paint(canvas, size);
 
     final trianglePoints = <Offset>[];
@@ -414,7 +421,8 @@ class _PolygonPainter<R extends Object> extends CustomPainter
         // depending on the holes handler.
         final hash = polygon.renderHashCode;
         final opacity = polygon.color?.a ?? 0;
-        if (lastHash != hash || (checkOpacity && opacity > 0 && opacity < 1)) {
+        if (lastHash != hash ||
+            (_flushBatchOnTranslucency && opacity > 0 && opacity < 1)) {
           drawPaths();
         }
         lastColor = polygon.color;
