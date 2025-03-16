@@ -19,11 +19,8 @@ import 'package:logger/logger.dart';
 import 'package:polylabel/polylabel.dart';
 
 part 'label.dart';
-
 part 'painter.dart';
-
 part 'polygon.dart';
-
 part 'projected_polygon.dart';
 
 /// A polygon layer for [FlutterMap].
