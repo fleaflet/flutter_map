@@ -59,33 +59,34 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     required this.hitNotifier,
   }) : bounds = camera.visibleBounds;
 
-  // Corner coordinates of the polygon painted onto the entire world when using
-  // inverted fill.
+  /// Corner coordinates of the polygon painted onto the entire world when using
+  /// inverted fill.
   static const _minMaxLatitude = [LatLng(90, 0), LatLng(-90, 0)];
 
-  // Whether to use `PathFillType.evenOdd` (true) or `Path.combine` (false).
-  //
-  //  * `Path.combine` doesn't work & isn't stable/consistent on web
-  //  * `evenOdd` gives broken results when polygons intersect when inverted
-  //
-  // The best option is to use `evenOdd` on web, as it at least works sometimes,
-  // and `Path.combine` otherwise, as it gives correct results on native
-  // platforms.
-  //
-  // See https://github.com/fleaflet/flutter_map/pull/2046.
-  static const _useEvenOdd = kIsWeb;
+  /// Whether to use `PathFillType.evenOdd` (true) or `Path.combine` (false).
+  ///
+  ///  * `Path.combine` doesn't work & isn't stable/consistent on web
+  ///  * `evenOdd` gives broken results when polygons intersect when inverted
+  ///  * `Path.combine` has slightly worse performance than `evenOdd`
+  ///
+  /// The best option is to use `evenOdd` on web, as it at least works
+  /// sometimes. On native, we use `Path.combine` when inverted filling, or
+  /// `evenOdd` otherwise.
+  ///
+  /// See https://github.com/fleaflet/flutter_map/pull/2046.
+  late final _useEvenOdd = kIsWeb || invertedFill == null;
 
-  // Do we also remove the holes from the inverted map?
-  // Should be `true`.
+  /// Do we also remove the holes from the inverted map?
+  /// Should be `true`.
   static const _invertedHoles = true;
 
-  // Do we also fill the holes with inverted fill?
-  // Should be `true`.
+  /// Do we also fill the holes with inverted fill?
+  /// Should be `true`.
   static const _fillInvertedHoles = true;
 
-  // Whether to draw the batch of polygons when a polygon with translucency is
-  // encountered.
-  // Should be `true`.
+  /// Whether to draw the batch of polygons when a polygon with translucency is
+  /// encountered.
+  /// Should be `true`.
   // TODO: Verify if still necessary.
   static const _flushBatchOnTranslucency = true;
 
@@ -161,7 +162,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     int? lastHash;
     Paint? borderPaint;
 
-    // Draw polygon outline
+    /// Draw polygon outline
     void drawBorders() {
       if (borderPaint != null) {
         canvas.drawPath(borderPath, borderPaint);
@@ -279,6 +280,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     Path holePaths = Path();
 
     void addPolygon(List<Offset> offsets) {
+      // For debugging purposes, should be compiled out
       // ignore: dead_code
       if (!_fillInvertedHoles) return;
 
