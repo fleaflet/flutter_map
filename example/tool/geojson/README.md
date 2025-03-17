@@ -35,6 +35,8 @@ The purpose of the binary format is to:
   These often go without maintainence. Additonally, these can depend on FM
   itself, or have transitive dependencies on other packages FM or the example
   uses. This simplifies FM releases, avoiding needing to override dependencies.
+  It also makes it easier to provide flexibility and to allow the example app
+  to change polygon properties without reparsing the GeoJSON.
 
 Packing is done by the algortithm in 'pack.dart'. It's easy to follow. Every
 decimal coordinate component is scaled to be stored as an integer in 4 bytes.
