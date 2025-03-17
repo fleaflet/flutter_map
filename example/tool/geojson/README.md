@@ -24,7 +24,8 @@ The purpose of the binary format is to:
   The format is simple to pack and very simple to unpack. This is more
   important than size efficiency, and therefore, compression (such as an
   adapted form of RLE, which may be very effective on the data) is not
-  implemented.
+  implemented. The unpacking/parsing of the binary format is significantly
+  faster than the same for the GeoJSON.
 
 * Exclude unnecessary information  
   We are only interested in the raw geometry, regardless of name or CRS. This
