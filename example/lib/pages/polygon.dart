@@ -18,9 +18,10 @@ class PolygonPage extends StatefulWidget {
 }
 
 class _PolygonPageState extends State<PolygonPage> {
+  LayerHitTestStrategy _hitTestStrategy = LayerHitTestStrategy.allElements;
+
   final LayerHitNotifier<HitValue> _hitNotifier = ValueNotifier(null);
-  List<HitValue>? _prevHitValues;
-  List<Polygon<HitValue>>? _hoverGons;
+  final _hoverGons = <Polygon<HitValue>>[];
 
   bool _useInvertedFill = false;
 
@@ -29,14 +30,13 @@ class _PolygonPageState extends State<PolygonPage> {
       points: const [
         LatLng(51.5, -0.09),
         LatLng(53.3498, -6.2603),
+        LatLng(52.230366, -5.767677),
         LatLng(48.8566, 2.3522),
       ],
       borderColor: Colors.red,
       borderStrokeWidth: 4,
-      hitValue: (
-        title: 'Basic Unfilled Polygon',
-        subtitle: 'Nothing really special here...',
-      ),
+      label: 'Non-interactive',
+      labelStyle: const TextStyle(color: Colors.black),
     ),
     Polygon(
       points: const [
@@ -54,6 +54,20 @@ class _PolygonPageState extends State<PolygonPage> {
     ),
     Polygon(
       points: const [
+        LatLng(53.688428, 0.842058),
+        LatLng(51.962732, 1.589128),
+        LatLng(53.844279, 3.91823),
+      ],
+      color: Colors.purple.withAlpha(255 ~/ 2),
+      borderColor: Colors.orange,
+      borderStrokeWidth: 4,
+      hitValue: (
+        title: 'Interactive Overlap',
+        subtitle: 'Both polygons appear, this should be on top',
+      ),
+    ),
+    Polygon(
+      points: const [
         LatLng(46.35, 4.94),
         LatLng(46.22, -0.11),
         LatLng(44.399, 1.76),
@@ -62,10 +76,6 @@ class _PolygonPageState extends State<PolygonPage> {
       borderStrokeWidth: 4,
       borderColor: Colors.lightBlue,
       color: Colors.yellow,
-      hitValue: (
-        title: 'Polygon With Dashed Borders',
-        subtitle: '...',
-      ),
     ),
     Polygon(
       points: const [
@@ -77,10 +87,7 @@ class _PolygonPageState extends State<PolygonPage> {
       borderStrokeWidth: 4,
       borderColor: Colors.purple,
       label: 'Label!',
-      hitValue: (
-        title: 'Polygon With Label',
-        subtitle: 'This is a very descriptive label!',
-      ),
+      labelStyle: const TextStyle(color: Colors.black),
     ),
     Polygon(
       points: const [
@@ -95,6 +102,7 @@ class _PolygonPageState extends State<PolygonPage> {
       label: 'Rotated!',
       rotateLabel: true,
       labelPlacement: PolygonLabelPlacement.polylabel,
+      labelStyle: const TextStyle(color: Colors.black),
       hitValue: (
         title: 'Polygon With Rotated Label',
         subtitle: "Now you don't have to turn your head so much",
@@ -140,7 +148,8 @@ class _PolygonPageState extends State<PolygonPage> {
       labelStyle: const TextStyle(color: Colors.black),
       hitValue: (
         title: 'Polygon With Hole',
-        subtitle: 'A bit like Swiss cheese maybe?',
+        subtitle: 'A bit like Swiss cheese maybe? Also overlaps a '
+            'non-interactive polygon.',
       ),
     ),
     Polygon(
@@ -183,10 +192,6 @@ class _PolygonPageState extends State<PolygonPage> {
       rotateLabel: true,
       labelPlacement: PolygonLabelPlacement.centroid,
       labelStyle: const TextStyle(color: Colors.black),
-      hitValue: (
-        title: 'Polygon With Hole & Self Intersection',
-        subtitle: 'This one still works with performant rendering',
-      ),
     ),
     Polygon(
       points: const [
@@ -304,15 +309,13 @@ class _PolygonPageState extends State<PolygonPage> {
                 hitTestBehavior: HitTestBehavior.deferToChild,
                 cursor: SystemMouseCursors.click,
                 onHover: (_) {
+                  _hoverGons.clear();
+
                   final hitValues = _hitNotifier.value?.hitValues.toList();
-                  if (hitValues == null) return;
+                  if (hitValues == null) return setState(() {});
 
-                  if (listEquals(hitValues, _prevHitValues)) return;
-                  _prevHitValues = hitValues;
-
-                  final hoverLines = hitValues.map((v) {
+                  _hoverGons.addAll(hitValues.map((v) {
                     final original = _polygons[v]!;
-
                     return Polygon<HitValue>(
                       points: original.points,
                       holePointsList: original.holePointsList,
@@ -321,35 +324,30 @@ class _PolygonPageState extends State<PolygonPage> {
                       borderColor: Colors.green,
                       disableHolesBorder: original.disableHolesBorder,
                     );
-                  }).toList();
-                  setState(() => _hoverGons = hoverLines);
+                  }));
+                  setState(() {});
                 },
-                onExit: (_) {
-                  _prevHitValues = null;
-                  setState(() => _hoverGons = null);
-                },
+                onExit: (_) => setState(_hoverGons.clear),
                 child: GestureDetector(
                   onTap: () => _openTouchedGonsModal(
                     'Tapped',
-                    _hitNotifier.value!.hitValues,
-                    _hitNotifier.value!.coordinate,
+                    _hitNotifier.value,
                   ),
                   onLongPress: () => _openTouchedGonsModal(
                     'Long pressed',
-                    _hitNotifier.value!.hitValues,
-                    _hitNotifier.value!.coordinate,
+                    _hitNotifier.value,
                   ),
                   onSecondaryTap: () => _openTouchedGonsModal(
                     'Secondary tapped',
-                    _hitNotifier.value!.hitValues,
-                    _hitNotifier.value!.coordinate,
+                    _hitNotifier.value,
                   ),
                   child: PolygonLayer(
                     hitNotifier: _hitNotifier,
                     simplificationTolerance: 0,
+                    hitTestStrategy: _hitTestStrategy,
                     invertedFill:
                         _useInvertedFill ? Colors.pink.withAlpha(170) : null,
-                    polygons: [..._polygonsRaw, ...?_hoverGons],
+                    polygons: [..._polygonsRaw, ..._hoverGons],
                   ),
                 ),
               ),
@@ -431,69 +429,119 @@ class _PolygonPageState extends State<PolygonPage> {
           Positioned(
             top: 16,
             right: 16,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(kIsWeb ? 16 : 32),
-              child: ColoredBox(
-                color: Theme.of(context).colorScheme.surface,
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: 12,
-                        right: 8,
-                        top: 4,
-                        bottom: 4,
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        spacing: 8,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Tooltip(
-                            message: 'Use Inverted Fill',
-                            child: Icon(Icons.invert_colors),
-                          ),
-                          Switch.adaptive(
-                            value: _useInvertedFill,
-                            onChanged: (v) =>
-                                setState(() => _useInvertedFill = v),
-                          ),
-                        ],
-                      ),
+            child: Column(
+              spacing: 8,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(32),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      top: 4,
+                      bottom: 4,
                     ),
-                    if (kIsWeb)
-                      ColoredBox(
-                        color: Colors.amber,
-                        child: Padding(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: 16,
+                      children: [
+                        const Tooltip(
+                          message: 'Adjust Hit Test Strategy',
+                          child: Icon(Icons.ads_click),
+                        ),
+                        DropdownButton(
+                          value: _hitTestStrategy,
+                          items: const [
+                            DropdownMenuItem(
+                              value: LayerHitTestStrategy.allElements,
+                              child: Text('All Elements'),
+                            ),
+                            DropdownMenuItem(
+                              value:
+                                  LayerHitTestStrategy.onlyInteractiveElements,
+                              child: Text('Only Interactive Elements'),
+                            ),
+                            DropdownMenuItem(
+                              value: LayerHitTestStrategy.inverted,
+                              child: Text('Inverted'),
+                            ),
+                          ],
+                          onChanged: (v) =>
+                              setState(() => _hitTestStrategy = v!),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(kIsWeb ? 16 : 32),
+                  child: ColoredBox(
+                    color: Theme.of(context).colorScheme.surface,
+                    child: Column(
+                      children: [
+                        Padding(
                           padding: const EdgeInsets.only(
-                            left: 16,
-                            right: 16,
-                            top: 6,
-                            bottom: 6,
+                            left: 12,
+                            right: 8,
+                            top: 4,
+                            bottom: 4,
                           ),
                           child: Row(
-                            mainAxisSize: MainAxisSize.min,
+                            mainAxisSize: MainAxisSize.max,
                             spacing: 8,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.warning),
-                              const Icon(Icons.web_asset_off),
-                              IconButton(
-                                onPressed: () => launchUrl(Uri.parse(
-                                  'https://docs.fleaflet.dev/layers/polygon-layer#inverted-filling',
-                                )),
-                                style: ButtonStyle(
-                                  backgroundColor:
-                                      WidgetStatePropertyAll(Colors.amber[100]),
-                                ),
-                                icon: const Icon(Icons.open_in_new),
+                              const Tooltip(
+                                message: 'Use Inverted Fill',
+                                child: Icon(Icons.invert_colors),
+                              ),
+                              Switch.adaptive(
+                                value: _useInvertedFill,
+                                onChanged: (v) =>
+                                    setState(() => _useInvertedFill = v),
                               ),
                             ],
                           ),
                         ),
-                      ),
-                  ],
+                        if (kIsWeb)
+                          ColoredBox(
+                            color: Colors.amber,
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                left: 16,
+                                right: 16,
+                                top: 6,
+                                bottom: 6,
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                spacing: 8,
+                                children: [
+                                  const Icon(Icons.warning),
+                                  const Icon(Icons.web_asset_off),
+                                  IconButton(
+                                    onPressed: () => launchUrl(Uri.parse(
+                                      'https://docs.fleaflet.dev/layers/polygon-layer#inverted-filling',
+                                    )),
+                                    style: ButtonStyle(
+                                      backgroundColor: WidgetStatePropertyAll(
+                                          Colors.amber[100]),
+                                    ),
+                                    icon: const Icon(Icons.open_in_new),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
         ],
@@ -503,9 +551,17 @@ class _PolygonPageState extends State<PolygonPage> {
 
   void _openTouchedGonsModal(
     String eventType,
-    List<HitValue> tappedLines,
-    LatLng coords,
+    LayerHitResult<HitValue>? hitResult,
   ) {
+    if (hitResult == null) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(content: Text('Hit detected outside of polygons')),
+        );
+      return;
+    }
+
     showModalBottomSheet<void>(
       context: context,
       builder: (context) => Padding(
@@ -514,31 +570,58 @@ class _PolygonPageState extends State<PolygonPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Tapped Polygon(s)',
+              'Hit Polygon(s)',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             Text(
-              '$eventType at point: (${coords.latitude.toStringAsFixed(6)}, ${coords.longitude.toStringAsFixed(6)})',
+              '$eventType at coords: ('
+              '${hitResult.coordinate.latitude.toStringAsFixed(4)}, '
+              '${hitResult.coordinate.longitude.toStringAsFixed(4)})',
             ),
             const SizedBox(height: 8),
-            Expanded(
-              child: ListView.builder(
-                itemBuilder: (context, index) {
-                  final tappedLineData = tappedLines[index];
-                  return ListTile(
-                    leading: index == 0
-                        ? const Icon(Icons.vertical_align_top)
-                        : index == tappedLines.length - 1
-                            ? const Icon(Icons.vertical_align_bottom)
-                            : const SizedBox.shrink(),
-                    title: Text(tappedLineData.title),
-                    subtitle: Text(tappedLineData.subtitle),
-                    dense: true,
-                  );
-                },
-                itemCount: tappedLines.length,
+            if (hitResult.hitValues.isNotEmpty)
+              Expanded(
+                child: ListView.builder(
+                  itemBuilder: (context, index) {
+                    if (index == hitResult.hitValues.length) {
+                      return const ListTile(
+                        leading: Icon(Icons.highlight_alt_rounded),
+                        title:
+                            Text('Potentially other non-`hitValue` polygons'),
+                        dense: true,
+                      );
+                    }
+
+                    final hitValue = hitResult.hitValues[index];
+                    return ListTile(
+                      leading: index == 0
+                          ? const Icon(Icons.vertical_align_top)
+                          : index == hitResult.hitValues.length - 1
+                              ? const Icon(Icons.vertical_align_bottom)
+                              : const SizedBox.shrink(),
+                      title: Text(hitValue.title),
+                      subtitle: Text(hitValue.subtitle),
+                      dense: true,
+                    );
+                  },
+                  itemCount: hitResult.hitValues.length + 1,
+                ),
+              )
+            else
+              const Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.highlight_alt_rounded, size: 42),
+                      Text(
+                        'Polygon(s) were hit, but none had `hitValues`',
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
             const SizedBox(height: 8),
             Align(
               alignment: Alignment.bottomCenter,

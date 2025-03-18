@@ -9,7 +9,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
   final List<_ProjectedPolygon<R>> polygons;
 
   @override
-  Iterable<_ProjectedPolygon<R>> get elements => polygons;
+  List<_ProjectedPolygon<R>> get elements => polygons;
 
   /// Triangulated [polygons] if available
   ///
@@ -47,6 +47,9 @@ class _PolygonPainter<R extends Object> extends CustomPainter
   @override
   final LayerHitNotifier<R>? hitNotifier;
 
+  @override
+  final LayerHitTestStrategy hitTestStrategy;
+
   /// Create a new [_PolygonPainter] instance.
   _PolygonPainter({
     required this.polygons,
@@ -57,6 +60,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     required this.camera,
     required this.invertedFill,
     required this.hitNotifier,
+    required this.hitTestStrategy,
   }) : bounds = camera.visibleBounds;
 
   /// Corner coordinates of the polygon painted onto the entire world when using

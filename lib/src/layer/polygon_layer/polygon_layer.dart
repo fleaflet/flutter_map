@@ -78,8 +78,11 @@ base class PolygonLayer<R extends Object>
   /// > for more info.
   final Color? invertedFill;
 
-  /// {@macro fm.lhn.layerHitNotifier.usage}
+  /// {@macro fm.layerHitNotifier.usage}
   final LayerHitNotifier<R>? hitNotifier;
+
+  /// {@macro fm.layerHitTestStrategy.usage}
+  final LayerHitTestStrategy hitTestStrategy;
 
   /// Create a new [PolygonLayer] for the [FlutterMap] widget.
   const PolygonLayer({
@@ -92,6 +95,7 @@ base class PolygonLayer<R extends Object>
     this.drawLabelsLast = false,
     this.invertedFill,
     this.hitNotifier,
+    this.hitTestStrategy = LayerHitTestStrategy.allElements,
     super.simplificationTolerance,
   }) : super();
 
@@ -209,6 +213,7 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
           invertedFill: widget.invertedFill,
           debugAltRenderer: widget.debugAltRenderer,
           hitNotifier: widget.hitNotifier,
+          hitTestStrategy: widget.hitTestStrategy,
         ),
         size: camera.size,
       ),

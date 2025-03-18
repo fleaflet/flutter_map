@@ -14,12 +14,16 @@ class _PolylinePainter<R extends Object> extends CustomPainter
   @override
   final LayerHitNotifier<R>? hitNotifier;
 
+  @override
+  final LayerHitTestStrategy hitTestStrategy;
+
   /// Create a new [_PolylinePainter] instance
   _PolylinePainter({
     required this.polylines,
     required this.minimumHitbox,
     required this.camera,
     required this.hitNotifier,
+    required this.hitTestStrategy,
   });
 
   @override
@@ -78,7 +82,7 @@ class _PolylinePainter<R extends Object> extends CustomPainter
   }
 
   @override
-  Iterable<_ProjectedPolyline<R>> get elements => polylines;
+  List<_ProjectedPolyline<R>> get elements => polylines;
 
   @override
   void paint(Canvas canvas, Size size) {
