@@ -277,21 +277,11 @@ class TileLayer extends StatefulWidget {
         tileProvider = tileProvider ?? NetworkTileProvider(),
         tileUpdateTransformer =
             tileUpdateTransformer ?? TileUpdateTransformers.ignoreTapEvents {
-    // Debug Logging
-    if (kDebugMode &&
-        urlTemplate != null &&
-        urlTemplate!.contains('{s}.tile.openstreetmap.org')) {
-      Logger(printer: PrettyPrinter(methodCount: 0)).w(
-        '\x1B[1m\x1B[3mflutter_map\x1B[0m\nAvoid using subdomains with OSM\'s tile '
-        'server. Support may be become slow or be removed in future.\nSee '
-        'https://github.com/openstreetmap/operations/issues/737 for more info.',
-      );
-    }
     if (kDebugMode &&
         retinaMode == null &&
         urlTemplate != null &&
         urlTemplate!.contains('{r}')) {
-      Logger(printer: PrettyPrinter(methodCount: 0)).w(
+      Logger(printer: PrettyPrinter(methodCount: 0)).i(
         '\x1B[1m\x1B[3mflutter_map\x1B[0m\nThe URL template includes a retina '
         "mode placeholder ('{r}') to retrieve native high-resolution\ntiles, "
         'which improve appearance especially on high-density displays.\n'
@@ -299,8 +289,7 @@ class TileLayer extends StatefulWidget {
         'will never retrieve these tiles.\nConsider using '
         '`RetinaMode.isHighDensity` to toggle this property automatically, '
         'otherwise ensure\nit is set appropriately.\n'
-        'See https://docs.fleaflet.dev/layers/tile-layer#retina-mode for '
-        'more info.',
+        'See https://docs.fleaflet.dev/layers/tile-layer for more info.',
       );
     }
     if (kDebugMode && kIsWeb && tileProvider is NetworkTileProvider?) {
