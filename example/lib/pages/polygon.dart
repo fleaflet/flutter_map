@@ -431,6 +431,7 @@ class _PolygonPageState extends State<PolygonPage> {
             right: 16,
             child: Column(
               spacing: 8,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 DecoratedBox(
                   decoration: BoxDecoration(
