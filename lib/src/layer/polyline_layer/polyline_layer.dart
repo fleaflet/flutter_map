@@ -29,8 +29,9 @@ base class PolylineLayer<R extends Object>
   /// Acceptable extent outside of viewport before culling polyline segments
   ///
   /// May need to be increased if the [Polyline.strokeWidth] +
-  /// [Polyline.borderStrokeWidth] is large. See online documentation for more
-  /// information.
+  /// [Polyline.borderStrokeWidth] is large. See the
+  /// [online documentation](https://docs.fleaflet.dev/layers/polyline-layer#culling)
+  /// for more info.
   ///
   /// Defaults to 10. Set to `null` to disable culling.
   final double? cullingMargin;

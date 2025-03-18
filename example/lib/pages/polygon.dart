@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/misc/tile_providers.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 typedef HitValue = ({String title, String subtitle});
 
@@ -20,6 +22,8 @@ class _PolygonPageState extends State<PolygonPage> {
 
   final LayerHitNotifier<HitValue> _hitNotifier = ValueNotifier(null);
   final _hoverGons = <Polygon<HitValue>>[];
+
+  bool _useInvertedFill = false;
 
   final _polygonsRaw = <Polygon<HitValue>>[
     Polygon(
@@ -115,27 +119,26 @@ class _PolygonPageState extends State<PolygonPage> {
       pattern: const StrokePattern.dotted(),
       holePointsList: [
         const [
-          LatLng(52, -17),
-          LatLng(52, -16),
-          LatLng(51.5, -15.5),
-          LatLng(51, -16),
-          LatLng(51, -17),
+          LatLng(52, -9),
+          LatLng(52, -8),
+          LatLng(51.5, -7.5),
+          LatLng(51, -8),
+          LatLng(51, -9),
         ],
         const [
-          LatLng(53.5, -17),
-          LatLng(53.5, -16),
-          LatLng(53, -15),
-          LatLng(52.25, -15),
-          LatLng(52.25, -16),
-          LatLng(52.75, -17),
+          LatLng(53.5, -9),
+          LatLng(53.5, -8),
+          LatLng(53, -7),
+          LatLng(52.25, -7),
+          LatLng(52.25, -8),
+          LatLng(52.75, -9),
         ],
-      ]
-          .map(
-            (latlngs) => latlngs
-                .map((latlng) => LatLng(latlng.latitude, latlng.longitude + 8))
-                .toList(),
-          )
-          .toList(),
+        const [
+          LatLng(52.683614, -8.141285),
+          LatLng(51.663083, -8.684529),
+          LatLng(51.913924, -7.2193),
+        ],
+      ],
       borderStrokeWidth: 4,
       borderColor: Colors.orange,
       color: Colors.orange.withAlpha(128),
@@ -162,30 +165,26 @@ class _PolygonPageState extends State<PolygonPage> {
       pattern: const StrokePattern.dotted(),
       holePointsList: [
         const [
-          LatLng(52, -17),
-          LatLng(52, -16),
-          LatLng(51.5, -15.5),
-          LatLng(51, -16),
-          LatLng(51, -17),
-        ],
+          LatLng(46, -9),
+          LatLng(46, -8),
+          LatLng(45.5, -7.5),
+          LatLng(45, -8),
+          LatLng(45, -9),
+        ].reversed.toList(growable: false), // Testing winding consitency
         const [
-          LatLng(53.5, -17),
-          LatLng(53.5, -16),
-          LatLng(53, -15),
-          LatLng(52.25, -15),
-          LatLng(52.25, -16),
-          LatLng(52.75, -17),
-        ],
-      ]
-          .map(
-            (latlngs) => latlngs
-                .map((latlng) =>
-                    LatLng(latlng.latitude - 6, latlng.longitude + 8))
-                .toList()
-                .reversed // Test that holes are always cut, no matter winding
-                .toList(),
-          )
-          .toList(),
+          LatLng(47.5, -9),
+          LatLng(47.5, -8),
+          LatLng(47, -7),
+          LatLng(46.25, -7),
+          LatLng(46.25, -8),
+          LatLng(46.75, -9),
+        ].reversed.toList(growable: false),
+        const [
+          LatLng(46.683614, -8.141285),
+          LatLng(45.663083, -8.684529),
+          LatLng(45.913924, -7.2193),
+        ].reversed.toList(growable: false),
+      ],
       borderStrokeWidth: 4,
       borderColor: Colors.orange,
       color: Colors.orange.withAlpha(128),
@@ -259,6 +258,35 @@ class _PolygonPageState extends State<PolygonPage> {
             "Holes shouldn't be cut, and colors should be mixed correctly",
       ),
     ),
+    Polygon(
+      points: const [
+        LatLng(40, 150),
+        LatLng(45, 160),
+        LatLng(50, 170),
+        LatLng(55, 180),
+        LatLng(50, -170),
+        LatLng(45, -160),
+        LatLng(40, -150),
+        LatLng(35, -160),
+        LatLng(30, -170),
+        LatLng(25, -180),
+        LatLng(30, 170),
+        LatLng(35, 160),
+      ],
+      holePointsList: const [
+        [
+          LatLng(45, 175),
+          LatLng(45, -175),
+          LatLng(35, -175),
+          LatLng(35, 175),
+        ],
+      ],
+      color: const Color(0xFFFF0000),
+      hitValue: (
+        title: 'Red Line',
+        subtitle: 'Across the universe...',
+      ),
+    ),
   ];
   late final _polygons =
       Map.fromEntries(_polygonsRaw.map((e) => MapEntry(e.hitValue, e)));
@@ -272,7 +300,7 @@ class _PolygonPageState extends State<PolygonPage> {
         children: [
           FlutterMap(
             options: const MapOptions(
-              initialCenter: LatLng(51.5, -0.09),
+              initialCenter: LatLng(51.5, -2),
               initialZoom: 5,
             ),
             children: [
@@ -317,6 +345,8 @@ class _PolygonPageState extends State<PolygonPage> {
                     hitNotifier: _hitNotifier,
                     simplificationTolerance: 0,
                     hitTestStrategy: _hitTestStrategy,
+                    invertedFill:
+                        _useInvertedFill ? Colors.pink.withAlpha(170) : null,
                     polygons: [..._polygonsRaw, ..._hoverGons],
                   ),
                 ),
@@ -325,35 +355,6 @@ class _PolygonPageState extends State<PolygonPage> {
                 simplificationTolerance: 0,
                 useAltRendering: true,
                 polygons: [
-                  Polygon(
-                    points: const [
-                      LatLng(40, 150),
-                      LatLng(45, 160),
-                      LatLng(50, 170),
-                      LatLng(55, 180),
-                      LatLng(50, -170),
-                      LatLng(45, -160),
-                      LatLng(40, -150),
-                      LatLng(35, -160),
-                      LatLng(30, -170),
-                      LatLng(25, -180),
-                      LatLng(30, 170),
-                      LatLng(35, 160),
-                    ],
-                    holePointsList: const [
-                      [
-                        LatLng(45, 175),
-                        LatLng(45, -175),
-                        LatLng(35, -175),
-                        LatLng(35, 175),
-                      ],
-                    ],
-                    color: const Color(0xFFFF0000),
-                    hitValue: (
-                      title: 'Red Line',
-                      subtitle: 'Across the universe...',
-                    ),
-                  ),
                   Polygon(
                     points: const [
                       LatLng(50, -18),
@@ -382,45 +383,44 @@ class _PolygonPageState extends State<PolygonPage> {
                     borderStrokeWidth: 4,
                     borderColor: Colors.black,
                     color: Colors.green,
+                    label:
+                        'This one is performantly rendered\n& non-interactive',
                   ),
                   Polygon(
                     points: const [
-                      LatLng(50, -18),
-                      LatLng(53, -16),
-                      LatLng(51.5, -12.5),
-                      LatLng(54, -14),
-                      LatLng(54, -18),
-                    ]
-                        .map((latlng) =>
-                            LatLng(latlng.latitude - 6, latlng.longitude))
-                        .toList(),
+                      LatLng(44, -18),
+                      LatLng(47, -16),
+                      LatLng(45.5, -12.5),
+                      LatLng(48, -14),
+                      LatLng(48, -18),
+                    ],
                     holePointsList: [
                       const [
-                        LatLng(52, -17),
-                        LatLng(52, -16),
-                        LatLng(51.5, -15.5),
-                        LatLng(51, -16),
-                        LatLng(51, -17),
+                        LatLng(46, -17),
+                        LatLng(46, -16),
+                        LatLng(45.5, -15.5),
+                        LatLng(45, -16),
+                        LatLng(45, -17),
                       ],
                       const [
-                        LatLng(53.5, -17),
-                        LatLng(53.5, -16),
-                        LatLng(53, -15),
-                        LatLng(52.25, -15),
-                        LatLng(52.25, -16),
-                        LatLng(52.75, -17),
+                        LatLng(47.5, -17),
+                        LatLng(47.5, -16),
+                        LatLng(47, -15),
+                        LatLng(46.25, -15),
+                        LatLng(46.25, -16),
+                        LatLng(46.75, -17),
                       ],
-                    ]
-                        .map(
-                          (latlngs) => latlngs
-                              .map((latlng) =>
-                                  LatLng(latlng.latitude - 6, latlng.longitude))
-                              .toList(),
-                        )
-                        .toList(),
+                      const [
+                        LatLng(46.683614, -16.141285),
+                        LatLng(45.663083, -16.684529),
+                        LatLng(45.913924, -15.2193),
+                      ].reversed.toList(growable: false),
+                    ],
                     borderStrokeWidth: 4,
                     borderColor: Colors.black,
                     color: Colors.green,
+                    label:
+                        "Performant-rendering doesn't\nhandle malformed polygons",
                   ),
                 ],
               ),
@@ -429,47 +429,118 @@ class _PolygonPageState extends State<PolygonPage> {
           Positioned(
             top: 16,
             right: 16,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(32),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  left: 16,
-                  right: 16,
-                  top: 4,
-                  bottom: 4,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  spacing: 16,
-                  children: [
-                    const Tooltip(
-                      message: 'Adjust Hit Test Strategy',
-                      child: Icon(Icons.ads_click),
+            child: Column(
+              spacing: 8,
+              children: [
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(32),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      top: 4,
+                      bottom: 4,
                     ),
-                    DropdownButton(
-                      value: _hitTestStrategy,
-                      items: const [
-                        DropdownMenuItem(
-                          value: LayerHitTestStrategy.allElements,
-                          child: Text('All Elements'),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: 16,
+                      children: [
+                        const Tooltip(
+                          message: 'Adjust Hit Test Strategy',
+                          child: Icon(Icons.ads_click),
                         ),
-                        DropdownMenuItem(
-                          value: LayerHitTestStrategy.onlyInteractiveElements,
-                          child: Text('Only Interactive Elements'),
-                        ),
-                        DropdownMenuItem(
-                          value: LayerHitTestStrategy.inverted,
-                          child: Text('Inverted'),
+                        DropdownButton(
+                          value: _hitTestStrategy,
+                          items: const [
+                            DropdownMenuItem(
+                              value: LayerHitTestStrategy.allElements,
+                              child: Text('All Elements'),
+                            ),
+                            DropdownMenuItem(
+                              value:
+                                  LayerHitTestStrategy.onlyInteractiveElements,
+                              child: Text('Only Interactive Elements'),
+                            ),
+                            DropdownMenuItem(
+                              value: LayerHitTestStrategy.inverted,
+                              child: Text('Inverted'),
+                            ),
+                          ],
+                          onChanged: (v) =>
+                              setState(() => _hitTestStrategy = v!),
                         ),
                       ],
-                      onChanged: (v) => setState(() => _hitTestStrategy = v!),
                     ),
-                  ],
+                  ),
                 ),
-              ),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(kIsWeb ? 16 : 32),
+                  child: ColoredBox(
+                    color: Theme.of(context).colorScheme.surface,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 12,
+                            right: 8,
+                            top: 4,
+                            bottom: 4,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            spacing: 8,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Tooltip(
+                                message: 'Use Inverted Fill',
+                                child: Icon(Icons.invert_colors),
+                              ),
+                              Switch.adaptive(
+                                value: _useInvertedFill,
+                                onChanged: (v) =>
+                                    setState(() => _useInvertedFill = v),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (kIsWeb)
+                          ColoredBox(
+                            color: Colors.amber,
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                left: 16,
+                                right: 16,
+                                top: 6,
+                                bottom: 6,
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                spacing: 8,
+                                children: [
+                                  const Icon(Icons.warning),
+                                  const Icon(Icons.web_asset_off),
+                                  IconButton(
+                                    onPressed: () => launchUrl(Uri.parse(
+                                      'https://docs.fleaflet.dev/layers/polygon-layer#inverted-filling',
+                                    )),
+                                    style: ButtonStyle(
+                                      backgroundColor: WidgetStatePropertyAll(
+                                          Colors.amber[100]),
+                                    ),
+                                    icon: const Icon(Icons.open_in_new),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
