@@ -7,6 +7,7 @@ on:
 
 jobs:
   publish:
+    name: "Publish To pub.dev"
     permissions:
       id-token: write
     uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
