@@ -4,7 +4,17 @@ Please consider [donating](https://docs.fleaflet.dev/supporters#support-us) or [
 
 This CHANGELOG does not include every commit and/or PR - it is a hand picked selection of the ones that have an effect on you. For a full list of changes, please check the GitHub repository releases/tags.
 
-## [8.1.0] - 2025/02/XX
+## [8.1.1] - 2025/03/08
+
+Contains the following user-affecting bug fixes:
+
+- Prevent infinite looping when polygon labels displayed on rotated map - [#2054](https://github.com/fleaflet/flutter_map/pull/2054) for [#2052](https://github.com/fleaflet/flutter_map/issues/2052)
+
+Many thanks to these contributors (in no particular order):
+
+- @monsieurtanuki
+
+## [8.1.0] - 2025/02/25
 
 Contains the following user-affecting changes:
 
@@ -12,8 +22,8 @@ Contains the following user-affecting changes:
 
 Contains the following user-affecting bug fixes:
 
-- Ensure movement gestures emit events when starting - [#2035](https://github.com/fleaflet/flutter_map/pull/2035)
-- Ensure `MapController.rotateAroundPoint` does not move map when already rotated - [#2029](https://github.com/fleaflet/flutter_map/pull/2029)
+- Ensure movement gestures emit events when starting - [#2035](https://github.com/fleaflet/flutter_map/pull/2035) for [#1939](https://github.com/fleaflet/flutter_map/issues/1939)
+- Ensure `MapController.rotateAroundPoint` does not move map when already rotated - [#2029](https://github.com/fleaflet/flutter_map/pull/2029) for [#2028](https://github.com/fleaflet/flutter_map/issues/2028)
 
 Many thanks to these contributors (in no particular order):
 
