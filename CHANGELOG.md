@@ -4,6 +4,28 @@ Please consider [donating](https://docs.fleaflet.dev/supporters#support-us) or [
 
 This CHANGELOG does not include every commit and/or PR - it is a hand picked selection of the ones that have an effect on you. For a full list of changes, please check the GitHub repository releases/tags.
 
+## [8.2.0] - 2025/XX/XX
+
+Contains the following user-affecting changes:
+
+- Added inverted fill option to `PolygonLayer` - [#2046](https://github.com/fleaflet/flutter_map/pull/2046) for [#2034](https://github.com/fleaflet/flutter_map/issues/2034)
+
+Contains the following user-affecting bug fixes:
+
+- Consider `zoomOffset` & emulated retina mode when generating tile coordinates - [#2060](https://github.com/fleaflet/flutter_map/pull/2060) for [#2042](https://github.com/fleaflet/flutter_map/issues/2042)
+- Raise attribution widgets above screen insets - [#2058](https://github.com/fleaflet/flutter_map/pull/2058)
+
+Contains the following meta changes to the package:
+
+- Reduced final package size to ~900KB from >3MB - [#2056](https://github.com/fleaflet/flutter_map/pull/2056)
+- Improved build integrity: publishing now occurs directly from the Git(Hub) repo - [#2059](https://github.com/fleaflet/flutter_map/pull/2059)
+
+Many thanks to these contributors (in no particular order):
+
+- @monsieurtanuki
+
+And an additional special thanks to @monsieurtanuki for investing so much of their time into this project recently - we appreciate it!
+
 ## [8.1.1] - 2025/03/08
 
 Contains the following user-affecting bug fixes:

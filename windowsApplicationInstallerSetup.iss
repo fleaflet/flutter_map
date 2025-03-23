@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "flutter_map Demo"
-#define MyAppVersion "for 8.1.1"
+#define MyAppVersion "for 8.2.0"
 #define MyAppPublisher "fleaflet"
 #define MyAppURL "https://github.com/fleaflet/flutter_map"
 #define MyAppSupportURL "https://github.com/fleaflet/flutter_map/issues"
