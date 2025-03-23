@@ -384,6 +384,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     _tileImageManager.setReplicatesWorldLongitude(
       camera.crs.replicatesWorldLongitude,
+      widget.zoomOffset.round(),
     );
 
     if (_mapControllerHashCode != mapController.hashCode) {

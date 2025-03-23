@@ -61,10 +61,16 @@ class TileCoordinates extends Point<int> {
 /// simplify the tile coordinates: we just return the same value.
 class TileCoordinatesResolver {
   /// Resolves coordinates in the context of world replications.
-  const TileCoordinatesResolver(this.replicatesWorldLongitude);
+  const TileCoordinatesResolver(
+    this.replicatesWorldLongitude, {
+    this.zoomOffset = 0,
+  });
 
   /// True if we simplify the coordinates according to the world replications.
   final bool replicatesWorldLongitude;
+
+  /// The zoom number used for modulus will be offset with this value.
+  final int zoomOffset;
 
   /// Returns the simplification of the coordinates.
   TileCoordinates get(TileCoordinates positionCoordinates) {
@@ -74,7 +80,7 @@ class TileCoordinatesResolver {
     if (positionCoordinates.z < 0) {
       return positionCoordinates;
     }
-    final modulo = 1 << positionCoordinates.z;
+    final modulo = 1 << (positionCoordinates.z + zoomOffset);
     int x = positionCoordinates.x;
     while (x < 0) {
       x += modulo;

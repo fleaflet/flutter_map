@@ -30,11 +30,17 @@ class TileImageManager {
   TileCoordinatesResolver _resolver = const TileCoordinatesResolver(false);
 
   /// Sets if we replicate the world longitude in several worlds.
-  void setReplicatesWorldLongitude(bool replicatesWorldLongitude) {
-    if (_resolver.replicatesWorldLongitude == replicatesWorldLongitude) {
-      return;
+  void setReplicatesWorldLongitude(
+    bool replicatesWorldLongitude,
+    int zoomOffset,
+  ) {
+    if (_resolver.replicatesWorldLongitude != replicatesWorldLongitude ||
+        _resolver.zoomOffset != zoomOffset) {
+      _resolver = TileCoordinatesResolver(
+        replicatesWorldLongitude,
+        zoomOffset: zoomOffset,
+      );
     }
-    _resolver = TileCoordinatesResolver(replicatesWorldLongitude);
   }
 
   /// Filter tiles to only tiles that would be visible on screen. Specifically:
