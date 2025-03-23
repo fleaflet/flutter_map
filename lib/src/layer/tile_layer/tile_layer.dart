@@ -18,9 +18,7 @@ import 'package:http/retry.dart';
 import 'package:logger/logger.dart';
 
 part 'retina_mode.dart';
-
 part 'tile_error_evict_callback.dart';
-
 part 'wms_tile_layer_options.dart';
 
 /// Describes the needed properties to create a tile-based layer. A tile is an
