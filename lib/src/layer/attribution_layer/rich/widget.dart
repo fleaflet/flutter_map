@@ -215,79 +215,71 @@ class _RichAttributionWidgetState extends State<RichAttributionWidget> {
       ),
     ];
 
-    return Align(
-      alignment: widget.alignment.real,
-      child: Stack(
+    return SafeArea(
+      child: Align(
         alignment: widget.alignment.real,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(6),
-            child: widget.animationConfig.popupAnimationBuilder(
-              context: context,
-              isExpanded: popupExpanded,
-              config: widget,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: widget.popupBackgroundColor ??
-                      Theme.of(context).colorScheme.surface,
-                  border: Border.all(width: 0, style: BorderStyle.none),
-                  borderRadius: widget.popupBorderRadius ??
-                      BorderRadius.only(
-                        topLeft: const Radius.circular(10),
-                        topRight: const Radius.circular(10),
-                        bottomLeft:
-                            widget.alignment == AttributionAlignment.bottomLeft
-                                ? Radius.zero
-                                : const Radius.circular(10),
-                        bottomRight:
-                            widget.alignment == AttributionAlignment.bottomRight
-                                ? Radius.zero
-                                : const Radius.circular(10),
-                      ),
+        child: Stack(
+          alignment: widget.alignment.real,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(6),
+              child: widget.animationConfig.popupAnimationBuilder(
+                context: context,
+                isExpanded: popupExpanded,
+                config: widget,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: widget.popupBackgroundColor ??
+                        Theme.of(context).colorScheme.surface,
+                    border: Border.all(width: 0, style: BorderStyle.none),
+                    borderRadius:
+                        widget.popupBorderRadius ?? BorderRadius.circular(10),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ...widget.attributions
+                            .whereType<TextSourceAttribution>(),
+                        if (widget.showFlutterMapAttribution)
+                          const TextSourceAttribution(
+                            "Made with 'flutter_map'",
+                            prependCopyright: false,
+                            textStyle: TextStyle(fontStyle: FontStyle.italic),
+                          ),
+                        SizedBox(height: (widget.permanentHeight - 24) + 32),
+                      ],
+                    ),
+                  ),
                 ),
+              ),
+            ),
+            MouseRegion(
+              onEnter: (_) => setState(() => persistentHovered = true),
+              onExit: (_) => setState(() => persistentHovered = false),
+              cursor: SystemMouseCursors.click,
+              child: AnimatedOpacity(
+                opacity: persistentHovered || popupExpanded ? 1 : 0.5,
+                curve: widget.animationConfig.buttonCurve,
+                duration: widget.animationConfig.buttonDuration,
                 child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ...widget.attributions.whereType<TextSourceAttribution>(),
-                      if (widget.showFlutterMapAttribution)
-                        const TextSourceAttribution(
-                          "Made with 'flutter_map'",
-                          prependCopyright: false,
-                          textStyle: TextStyle(fontStyle: FontStyle.italic),
-                        ),
-                      SizedBox(height: (widget.permanentHeight - 24) + 32),
-                    ],
+                  padding: const EdgeInsets.all(4),
+                  child: FittedBox(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children:
+                          widget.alignment == AttributionAlignment.bottomLeft
+                              ? persistentAttributionItems.reversed.toList()
+                              : persistentAttributionItems,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          MouseRegion(
-            onEnter: (_) => setState(() => persistentHovered = true),
-            onExit: (_) => setState(() => persistentHovered = false),
-            cursor: SystemMouseCursors.click,
-            child: AnimatedOpacity(
-              opacity: persistentHovered || popupExpanded ? 1 : 0.5,
-              curve: widget.animationConfig.buttonCurve,
-              duration: widget.animationConfig.buttonDuration,
-              child: Padding(
-                padding: const EdgeInsets.all(4),
-                child: FittedBox(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children:
-                        widget.alignment == AttributionAlignment.bottomLeft
-                            ? persistentAttributionItems.reversed.toList()
-                            : persistentAttributionItems,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
