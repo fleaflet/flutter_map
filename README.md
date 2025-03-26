@@ -1,6 +1,6 @@
 # flutter_map&nbsp;&nbsp;&nbsp;&nbsp;[![pub.dev](https://img.shields.io/pub/v/flutter_map.svg?label=&style=for-the-badge)](https://pub.dev/packages/flutter_map)
 
-A versatile mapping package for Flutter. Simple and easy to learn, yet completely customizable and configurable, it's the best choice for mapping in your Flutter app.
+Flutter's №1 non-commercially aimed map client: it's easy-to-use, versatile, vendor-free, and 100% pure-Flutter
 
 * ### [📖 **Read the docs**](https://docs.fleaflet.dev/)
 
