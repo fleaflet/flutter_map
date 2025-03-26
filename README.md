@@ -1,15 +1,12 @@
 ---
 description: >-
-  A versatile mapping package for Flutter. Simple and easy to learn, yet
-  completely customizable and configurable, it's the best choice for mapping in
-  your Flutter app.
-cover: .gitbook/assets/Cover.jpg
-coverY: -35
+  Flutter's №1 non-commercially aimed map client: it's easy-to-use, versatile,
+  vendor-free, and 100% pure-Flutter
+cover: .gitbook/assets/Main Hero.png
+coverY: 0
 ---
 
 # flutter\_map
-
-[![pub.dev](https://img.shields.io/pub/v/flutter_map.svg?label=Latest+Version)](https://pub.dev/packages/flutter_map) [![stars](https://badgen.net/github/stars/fleaflet/flutter_map?label=stars\&color=green\&icon=github)](https://github.com/fleaflet/flutter_map/stargazers) [![likes](https://img.shields.io/pub/likes/flutter_map?logo=flutter)](https://pub.dev/packages/flutter_map/score)        [![codecov](https://codecov.io/gh/fleaflet/flutter_map/graph/badge.svg?token=LgYgZQ0Yjj)](https://codecov.io/gh/fleaflet/flutter_map) [![Open Issues](https://badgen.net/github/open-issues/fleaflet/flutter_map?label=Open+Issues\&color=green)](https://github.com/fleaflet/flutter_map/issues) [![Open PRs](https://badgen.net/github/open-prs/fleaflet/flutter_map?label=Open+PRs\&color=green)](https://github.com/fleaflet/flutter_map/pulls)
 
 {% hint style="success" %}
 Welcome to v8! Find out [new-in-v8.md](getting-started/new-in-v8.md "mention"), or if you're new here, check out the [#code-demo](./#code-demo "mention") & [installation.md](getting-started/installation.md "mention") instructions to get started.&#x20;
@@ -17,25 +14,28 @@ Welcome to v8! Find out [new-in-v8.md](getting-started/new-in-v8.md "mention"), 
 v7 documentation is still available: [v7](https://app.gitbook.com/o/1aKKbSpe255wyVNDoFYc/s/O2hE9FJb0PVZ0w3qEsM8/ "mention"). Some plugins may require some time to update to support v8.
 {% endhint %}
 
-## Why & How?
+| [![GitHub source](https://gist.github.com/cxmeel/0dbc95191f239b631c3874f4ccf114e2/raw/github.svg)](https://github.com/fleaflet/flutter_map) [![pub.dev package](https://gist.github.com/cxmeel/0dbc95191f239b631c3874f4ccf114e2/raw/download.svg)](https://pub.dev/packages/flutter_map)    [![Join our Discord](https://gist.github.com/cxmeel/0dbc95191f239b631c3874f4ccf114e2/raw/discord.svg)](https://discord.gg/BwpEsjqMAH) [![Support us](https://gist.github.com/cxmeel/0dbc95191f239b631c3874f4ccf114e2/raw/github_sponsor.svg)](https://github.com/sponsors/fleaflet) |
+| :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
 
-See why you should use flutter\_map for your project, and see how you can use flutter\_map for your project. It's a great idea and takes no more time than other libraries!
+{% embed url="https://demo.fleaflet.dev" %}
 
-{% content-ref url="why-and-how/choose.md" %}
-[choose.md](why-and-how/choose.md)
+## Why choose flutter\_map?
+
+<table data-card-size="large" data-view="cards" data-full-width="false"><thead><tr><th align="center"></th><th align="center"></th></tr></thead><tbody><tr><td align="center">🗺️ <strong>No more vendor lock-in: better flexibility, quality, and price</strong></td><td align="center"><p>We natively support any static <a data-footnote-ref href="#user-content-fn-1">raster*</a> tiles! <strong>Bring your own tiles</strong> from your own server, the user's device, a tile container, or another externally-operated tile server. Use any service, but always be free to change to get the best fit, quality, and price.<br></p><p>Still want to use those familiar maps? Consider great quality and better priced alternatives, or use the more mainstream Google Maps or Mapbox Maps with flutter_map<a data-footnote-ref href="#user-content-fn-2">*</a>.</p></td></tr><tr><td align="center">🚀 <strong>Stress free setup &#x26; easy-to-use</strong></td><td align="center">Migrating from a commercial library (such as Google Maps) has never been easier! No more complex platform-specific setup, no more buggy &#x26; limited platform views (we're 100% pure-Flutter), and no more lacking-documentation &#x26; support. Just setup a simple widget, grab a string from your tile server, and you're done!<br><br>Check out our <a data-mention href="./#code-demo">#code-demo</a> to see just how simple it is.</td></tr><tr><td align="center">🧩 <strong>Customize and expand endlessly</strong></td><td align="center">Add interactive and highly customizable polygons, polylines, and markers (which support widget children) to your map easily and quickly. And because we're 100% Flutter, it's easy to add your own stuff on top without messing around in platform views.<br><br>A huge community of developers maintain an ecosystem of plugins for you to supercharge flutter_map with.</td></tr><tr><td align="center">👋 <strong>But don't just take it from us...</strong></td><td align="center">Hundreds of thousands of apps and users choose flutter_map for mapping in their Flutter app, making us Flutter's №1 non-commercially aimed map client on pub.dev.<br><br>Check out some independent reviews, comparisons, and studies, and see who's using flutter_map right now: <a data-mention href="why-and-how/showcase.md">showcase.md</a></td></tr></tbody></table>
+
+{% content-ref url="why-and-how/showcase.md" %}
+[showcase.md](why-and-how/showcase.md)
 {% endcontent-ref %}
 
-{% content-ref url="why-and-how/how-does-it-work/" %}
-[how-does-it-work](why-and-how/how-does-it-work/)
-{% endcontent-ref %}
+{% hint style="warning" %}
+If you're looking for [vector tiles](why-and-how/how-does-it-work/raster-vs-vector-tiles.md#raster-tiles), we don't currently support them natively. We only support raster tiles at the moment.
 
-{% content-ref url="why-and-how/demo-and-examples.md" %}
-[demo-and-examples.md](why-and-how/demo-and-examples.md)
-{% endcontent-ref %}
+However, [options are available](why-and-how/how-does-it-work/raster-vs-vector-tiles.md#using-vector-tiles), and the we and the community are actively exploring & developing future support!
+{% endhint %}
 
 ## Code Demo
 
-Setting up an interactive and compliant[^1] map is simpler than making your lunch-time coffee! It can be accomplished in just under 30 lines and a minute or two to install.
+Setting up an interactive and compliant[^3] map is simpler than making your lunch-time coffee! It can be accomplished in just under 30 lines and a minute or two to install.
 
 This code snippet demonstrates **everything** you need for a simple map (in under 30 lines!), but of course, FM is capable of much more than just this, and you could find yourself lost in the many options available and possibilities opened!
 
@@ -161,4 +161,8 @@ Unfortunately, this isn't supported, partially due to lack of time on the mainta
 
 </details>
 
-[^1]: (includes necessary attribution)
+[^1]: See below for information about vector tile support.
+
+[^2]: It may cost more to use services which provide their own SDKs through flutter\_map, but there's a reason they do that ;)
+
+[^3]: (includes necessary attribution)

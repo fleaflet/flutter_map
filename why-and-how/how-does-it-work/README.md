@@ -1,9 +1,8 @@
 ---
 description: A high level overview for those new to 'web' maps
-icon: question
 ---
 
-# How Does It Work?
+# ❔ How Does It Work?
 
 {% hint style="success" %}
 Unlike other popular mapping solutions, flutter\_map doesn't come with an opinion on the best map style/tiles to use, so you'll need to **bring your own tiles** - either using a service, such as those listed in Tile Servers, or by creating and using your own custom ones!
