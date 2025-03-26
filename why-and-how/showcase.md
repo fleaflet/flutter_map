@@ -1,7 +1,3 @@
----
-description: We think flutter_map hits the spot for many Flutter apps. Find out why!
----
-
 # 🌟 Showcase & Case Studies
 
 We think flutter\_map hits the spot for many Flutter apps: [#why-choose-flutter\_map](../#why-choose-flutter_map "mention"). But don't just take it from us - check out who else is using flutter\_map, and what they think of it!
