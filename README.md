@@ -1,9 +1,23 @@
 ---
 description: >-
   Flutter's №1 non-commercially aimed map client: it's easy-to-use, versatile,
-  vendor-free, and 100% pure-Flutter
+  vendor-free, fully cross-platform, and 100% pure-Flutter
 cover: .gitbook/assets/Main Hero.png
 coverY: 0
+layout:
+  cover:
+    visible: true
+    size: full
+  title:
+    visible: true
+  description:
+    visible: true
+  tableOfContents:
+    visible: true
+  outline:
+    visible: true
+  pagination:
+    visible: true
 ---
 
 # flutter\_map
@@ -21,7 +35,7 @@ v7 documentation is still available: [v7](https://app.gitbook.com/o/1aKKbSpe255w
 
 ## Why choose flutter\_map?
 
-<table data-card-size="large" data-view="cards" data-full-width="false"><thead><tr><th align="center"></th><th align="center"></th></tr></thead><tbody><tr><td align="center">🗺️ <strong>No more vendor lock-in: better flexibility, quality, and price</strong></td><td align="center"><p>We natively support any static <a data-footnote-ref href="#user-content-fn-1">raster*</a> tiles! <strong>Bring your own tiles</strong> from your own server, the user's device, a tile container, or another externally-operated tile server. Use any service, but always be free to change to get the best fit, quality, and price.<br></p><p>Still want to use those familiar maps? Consider great quality and better priced alternatives, or use the more mainstream Google Maps or Mapbox Maps with flutter_map<a data-footnote-ref href="#user-content-fn-2">*</a>.</p></td></tr><tr><td align="center">🚀 <strong>Stress free setup &#x26; easy-to-use</strong></td><td align="center">Migrating from a commercial library (such as Google Maps) has never been easier! No more complex platform-specific setup, no more buggy &#x26; limited platform views (we're 100% pure-Flutter), and no more lacking-documentation &#x26; support. Just setup a simple widget, grab a string from your tile server, and you're done!<br><br>Check out our <a data-mention href="./#code-demo">#code-demo</a> to see just how simple it is.</td></tr><tr><td align="center">🧩 <strong>Customize and expand endlessly</strong></td><td align="center">Add interactive and highly customizable polygons, polylines, and markers (which support widget children) to your map easily and quickly. And because we're 100% Flutter, it's easy to add your own stuff on top without messing around in platform views.<br><br>A huge community of developers maintain an ecosystem of plugins for you to supercharge flutter_map with.</td></tr><tr><td align="center">👋 <strong>But don't just take it from us...</strong></td><td align="center">Hundreds of thousands of apps and users choose flutter_map for mapping in their Flutter app, making us Flutter's №1 non-commercially aimed map client on pub.dev.<br><br>Check out some independent reviews, comparisons, and studies, and see who's using flutter_map right now: <a data-mention href="why-and-how/showcase.md">showcase.md</a></td></tr></tbody></table>
+<table data-card-size="large" data-view="cards" data-full-width="false"><thead><tr><th align="center"></th><th align="center"></th></tr></thead><tbody><tr><td align="center">🗺️ <strong>No more vendor lock-in: better flexibility, quality, and price</strong></td><td align="center"><p>We natively support any static <a data-footnote-ref href="#user-content-fn-1">raster*</a> tiles! <strong>Bring your own tiles</strong> from your own server, the user's device, a tile container, or another externally-operated tile server. Use any service, but always be free to change to get the best fit, quality, and price.<br></p><p>Still want to use those familiar maps? Consider great quality and better priced alternatives, or use the more mainstream Google Maps or Mapbox Maps with flutter_map<a data-footnote-ref href="#user-content-fn-2">*</a>.</p></td></tr><tr><td align="center">🚀 <strong>Stress-free setup &#x26; easy-to-use</strong></td><td align="center">Migrating from a commercial library (such as Google Maps) has never been easier. No more complex platform-specific setup, no more buggy &#x26; limited platform views (we're 100% pure-Flutter), and no more lacking-documentation &#x26; support. Just setup a simple widget, grab a string from your tile server, and you're done! And, it'll work across all the platforms Flutter supports.<br><br>Check out our <a data-mention href="./#code-demo">#code-demo</a> to see just how simple it is.</td></tr><tr><td align="center">🧩 <strong>Customize and expand endlessly</strong></td><td align="center">Add interactive and highly customizable polygons, polylines, and markers (which support widget children) to your map easily and quickly. And because we're 100% Flutter, it's easy to add your own stuff on top without messing around in platform views.<br><br>A huge community of developers maintain an ecosystem of plugins for you to supercharge flutter_map with.</td></tr><tr><td align="center">👋 <strong>But don't just take it from us...</strong></td><td align="center">Hundreds of thousands of apps and users choose flutter_map for mapping in their Flutter app, making us Flutter's №1 non-commercially aimed map client on pub.dev.<br><br>Check out some independent reviews, comparisons, and studies, and see who's using flutter_map right now: <a data-mention href="why-and-how/showcase.md">showcase.md</a></td></tr></tbody></table>
 
 {% content-ref url="why-and-how/showcase.md" %}
 [showcase.md](why-and-how/showcase.md)
