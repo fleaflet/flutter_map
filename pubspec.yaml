@@ -1,5 +1,5 @@
 name: flutter_map
-description: "Flutter's №1 non-commercially aimed map client: it's easy-to-use, versatile, vendor-free, and 100% pure-Flutter"
+description: "Flutter's №1 non-commercially aimed map client: it's easy-to-use, versatile, vendor-free, fully cross-platform, and 100% pure-Flutter"
 version: 8.2.0
 
 repository: https://github.com/fleaflet/flutter_map

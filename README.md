@@ -1,6 +1,6 @@
 # flutter_map&nbsp;&nbsp;&nbsp;&nbsp;[![pub.dev](https://img.shields.io/pub/v/flutter_map.svg?label=&style=for-the-badge)](https://pub.dev/packages/flutter_map)
 
-Flutter's №1 non-commercially aimed map client: it's easy-to-use, versatile, vendor-free, and 100% pure-Flutter
+Flutter's №1 non-commercially aimed map client: it's easy-to-use, versatile, vendor-free, fully cross-platform, and 100% pure-Flutter
 
 * ### [📖 **Read the docs**](https://docs.fleaflet.dev/)
 
