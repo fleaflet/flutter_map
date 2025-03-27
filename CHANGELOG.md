@@ -14,6 +14,7 @@ Contains the following user-affecting bug fixes:
 
 - Consider `zoomOffset` & emulated retina mode when generating tile coordinates - [#2060](https://github.com/fleaflet/flutter_map/pull/2060) for [#2042](https://github.com/fleaflet/flutter_map/issues/2042)
 - Raise attribution widgets above screen insets - [#2058](https://github.com/fleaflet/flutter_map/pull/2058)
+- Stop ongoing fling and zoom animations when scroll zooming - [#2066](https://github.com/fleaflet/flutter_map/pull/2066) for [#1767](https://github.com/fleaflet/flutter_map/issues/1767)
 
 Contains the following meta changes to the package:
 
