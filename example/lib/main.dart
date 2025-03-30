@@ -9,7 +9,6 @@ import 'package:flutter_map_example/pages/epsg4326_crs.dart';
 import 'package:flutter_map_example/pages/fallback_url_page.dart';
 import 'package:flutter_map_example/pages/home.dart';
 import 'package:flutter_map_example/pages/interactive_test_page.dart';
-import 'package:flutter_map_example/pages/inverted_polygons.dart';
 import 'package:flutter_map_example/pages/latlng_to_screen_point.dart';
 import 'package:flutter_map_example/pages/many_circles.dart';
 import 'package:flutter_map_example/pages/many_markers.dart';
@@ -69,7 +68,6 @@ class MyApp extends StatelessWidget {
         OverlayImagePage.route: (context) => const OverlayImagePage(),
         PolygonPage.route: (context) => const PolygonPage(),
         MultiWorldsPage.route: (context) => const MultiWorldsPage(),
-        InvertedPolygonsPage.route: (context) => const InvertedPolygonsPage(),
         PolygonPerfStressPage.route: (context) => const PolygonPerfStressPage(),
         SlidingMapPage.route: (_) => const SlidingMapPage(),
         WMSLayerPage.route: (context) => const WMSLayerPage(),

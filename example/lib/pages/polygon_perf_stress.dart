@@ -6,7 +6,6 @@ import 'package:flutter_map_example/misc/tile_providers.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:flutter_map_example/widgets/show_no_web_perf_overlay_snackbar.dart';
 import 'package:flutter_map_example/widgets/simplification_tolerance_slider.dart';
-import 'package:flutter_map_geojson/flutter_map_geojson.dart';
 import 'package:latlong2/latlong.dart';
 
 class PolygonPerfStressPage extends StatefulWidget {
@@ -23,7 +22,20 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
   bool useAltRendering = true;
   double borderThickness = 1;
 
-  late Future<GeoJsonParser> geoJsonParser = loadPolygonsFromGeoJson();
+  late final polygonsPoints = unpackPolygonGeometries().toList();
+  late Future<List<Polygon>> polygons = generatePolygonsFromPoints();
+
+  Future<List<Polygon>> generatePolygonsFromPoints() async =>
+      (await polygonsPoints)
+          .map(
+            (points) => Polygon(
+              points: points,
+              borderStrokeWidth: borderThickness,
+              borderColor: Colors.black.withAlpha(128),
+              color: Colors.orange[700]!.withAlpha(191),
+            ),
+          )
+          .toList(growable: false);
 
   @override
   void initState() {
@@ -33,7 +45,7 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
 
   @override
   void dispose() {
-    geoJsonParser.ignore();
+    polygonsPoints.ignore();
     super.dispose();
   }
 
@@ -62,11 +74,11 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
             children: [
               openStreetMapTileLayer,
               FutureBuilder(
-                future: geoJsonParser,
-                builder: (context, geoJsonParser) => geoJsonParser.data == null
+                future: polygons,
+                builder: (context, polygons) => polygons.data == null
                     ? const SizedBox.shrink()
                     : PolygonLayer(
-                        polygons: geoJsonParser.data!.polygons,
+                        polygons: polygons.data!,
                         useAltRendering: useAltRendering,
                         simplificationTolerance: simplificationTolerance,
                       ),
@@ -160,11 +172,13 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
                                     ),
                                     selected: borderThickness == thickness,
                                     shape: const StadiumBorder(),
-                                    onSelected: (selected) => reloadGeoJson(
-                                      context: context,
-                                      selected: selected,
-                                      thickness: thickness,
-                                    ),
+                                    onSelected: (selected) {
+                                      if (!selected) return;
+                                      setState(() {
+                                        borderThickness = thickness.toDouble();
+                                        polygons = generatePolygonsFromPoints();
+                                      });
+                                    },
                                   );
                                 },
                               ),
@@ -190,50 +204,30 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
     );
   }
 
-  Future<void> reloadGeoJson({
-    required BuildContext context,
-    required bool selected,
-    required num thickness,
-  }) async {
-    if (!selected) return;
-    setState(() => borderThickness = thickness.toDouble());
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Row(
-          children: [
-            SizedBox.square(
-              dimension: 16,
-              child: CircularProgressIndicator(
-                strokeWidth: 3,
-                valueColor: AlwaysStoppedAnimation(
-                  Colors.white,
-                ),
-              ),
-            ),
-            SizedBox(width: 12),
-            Text('Loading GeoJson polygons...'),
-          ],
+  Stream<List<LatLng>> unpackPolygonGeometries() async* {
+    const filePath = 'assets/polygon-stress-test-data.bin';
+
+    // See packing algorithm & README for details. Determined when packing.
+    const scaleFactor = 8388608;
+    const bytesPerNum = 4;
+
+    final bytes = await rootBundle.load(filePath);
+
+    int ptr = 0;
+    while (ptr < bytes.lengthInBytes) {
+      final numBytesToRead = bytes.getUint32(ptr);
+      ptr += 4;
+
+      yield List.generate(
+        numBytesToRead ~/ 2 ~/ bytesPerNum,
+        (i) => LatLng(
+          bytes.getInt32(ptr + (i * 8)) / scaleFactor,
+          bytes.getInt32(ptr + (i * 8) + 4) / scaleFactor,
         ),
-      ),
-    );
-    await (geoJsonParser = loadPolygonsFromGeoJson());
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(context).clearSnackBars();
-    setState(() {});
-  }
+        growable: false,
+      );
 
-  Future<GeoJsonParser> loadPolygonsFromGeoJson() async {
-    const filePath = 'assets/138k-polygon-points.geojson.noformat';
-
-    return rootBundle.loadString(filePath).then(
-          (geoJson) => compute(
-            (msg) => GeoJsonParser(
-              defaultPolygonBorderStroke: msg.borderThickness,
-              defaultPolygonBorderColor: Colors.black.withAlpha(128),
-              defaultPolygonFillColor: Colors.orange[700]!.withAlpha(191),
-            )..parseGeoJsonAsString(msg.geoJson),
-            (geoJson: geoJson, borderThickness: borderThickness),
-          ),
-        );
+      ptr += numBytesToRead;
+    }
   }
 }
