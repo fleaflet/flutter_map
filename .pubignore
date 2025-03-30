@@ -1,3 +1,9 @@
+firebase.json
+.firebaserc
+codecov.yml
+
+# From gitignore. See https://github.com/dart-lang/pub/issues/4545.
+
 # Miscellaneous
 *.class
 *.log
@@ -5,12 +11,13 @@
 *.swp
 .DS_Store
 .atom/
-.build/
 .buildlog/
 .history
 .svn/
-.swiftpm/
 migrate_working_dir/
+
+# For contributors using FVM
+.fvm/ 
 
 # IntelliJ related
 *.iml
@@ -24,22 +31,10 @@ migrate_working_dir/
 #.vscode/
 
 # Flutter/Dart/Pub related
+# Libraries should not include pubspec.lock, per https://dart.dev/guides/libraries/private-files#pubspeclock.
+/pubspec.lock
 **/doc/api/
-**/ios/Flutter/.last_build_id
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
-.pub-cache/
-.pub/
-/build/
-
-# Symbolication related
-app.*.symbols
-
-# Obfuscation related
-app.*.map.json
-
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
+build/
