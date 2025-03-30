@@ -1,4 +1,4 @@
-name: "'fleaflet/flutter_map' 'master' CI/CD"
+name: "Master (Test & Build)"
 on:
   push:
     branches:
