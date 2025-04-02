@@ -78,6 +78,9 @@ class MapOptions {
   /// yellow grey-ish color.
   final Color backgroundColor;
 
+  /// The specificity with which the zoom happens. A higher value means slower zooming.
+  final double doubleTapZoomSpecificity;
+
   /// Callback that fires when the map gets tapped or clicked with the
   /// primary mouse button. This is normally the left mouse button. This
   /// callback does not fire if the gesture is recognized as a double click.
@@ -151,6 +154,7 @@ class MapOptions {
     this.minZoom,
     this.maxZoom,
     this.backgroundColor = const Color(0xFFE0E0E0),
+    this.doubleTapZoomSpecificity = 360.0,
     this.onTap,
     this.onSecondaryTap,
     this.onLongPress,
@@ -162,7 +166,7 @@ class MapOptions {
     this.onMapEvent,
     this.onMapReady,
     this.keepAlive = false,
-  });
+  }) : assert(doubleTapZoomSpecificity != 0, 'This value cannot be zero.');
 
   /// The options of the closest [FlutterMap] ancestor. If this is called from a
   /// context with no [FlutterMap] ancestor, null is returned.
@@ -187,6 +191,7 @@ class MapOptions {
       minZoom == other.minZoom &&
       maxZoom == other.maxZoom &&
       backgroundColor == other.backgroundColor &&
+      doubleTapZoomSpecificity == other.doubleTapZoomSpecificity &&
       onTap == other.onTap &&
       onSecondaryTap == other.onSecondaryTap &&
       onLongPress == other.onLongPress &&
@@ -211,6 +216,7 @@ class MapOptions {
         minZoom,
         maxZoom,
         backgroundColor,
+        doubleTapZoomSpecificity,
         onTap,
         onSecondaryTap,
         onLongPress,

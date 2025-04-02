@@ -919,7 +919,9 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     final flags = _interactionOptions.flags;
     if (InteractiveFlag.hasDoubleTapDragZoom(flags)) {
       final verticalOffset = (_focalStartLocal - details.localFocalPoint).dy;
-      final newZoom = _mapZoomStart - verticalOffset / 360 * _camera.zoom;
+      final zoomSpeed = 1 / _options.doubleTapZoomSpecificity;
+
+      final newZoom = _mapZoomStart - verticalOffset * zoomSpeed * _camera.zoom;
 
       final min = _options.minZoom ?? 0.0;
       final max = _options.maxZoom ?? double.infinity;
