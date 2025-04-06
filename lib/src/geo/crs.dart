@@ -417,7 +417,11 @@ abstract class Projection {
   /// longitudes -179 and 179 to be projected each on one side.
   /// [referencePoint] is used for polygon holes: we want the holes to be
   /// displayed close to the polygon, not on the other side of the world.
-  List<Offset> projectList(List<LatLng> points, {LatLng? referencePoint}) {
+  List<Offset> projectList(
+    List<LatLng> points, {
+    LatLng? referencePoint,
+    required bool oneWorld,
+  }) {
     late double previousX;
     final worldWidth = getWorldWidth();
     return List<Offset>.generate(
@@ -427,6 +431,9 @@ abstract class Projection {
           (previousX, _) = projectXY(referencePoint);
         }
         var (x, y) = projectXY(points[j]);
+        if (oneWorld) {
+          return Offset(x, y);
+        }
         if (j > 0 || referencePoint != null) {
           if (x - previousX > worldWidth / 2) {
             x -= worldWidth;

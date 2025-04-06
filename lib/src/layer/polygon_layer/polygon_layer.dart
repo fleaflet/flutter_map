@@ -19,8 +19,11 @@ import 'package:logger/logger.dart';
 import 'package:polylabel/polylabel.dart';
 
 part 'label.dart';
+
 part 'painter.dart';
+
 part 'polygon.dart';
+
 part 'projected_polygon.dart';
 
 /// A polygon layer for [FlutterMap].
@@ -81,6 +84,9 @@ base class PolygonLayer<R extends Object>
   /// {@macro fm.lhn.layerHitNotifier.usage}
   final LayerHitNotifier<R>? hitNotifier;
 
+  /// Should all the coordinates be projected on a single world?
+  final bool oneWorld;
+
   /// Create a new [PolygonLayer] for the [FlutterMap] widget.
   const PolygonLayer({
     super.key,
@@ -92,6 +98,7 @@ base class PolygonLayer<R extends Object>
     this.drawLabelsLast = false,
     this.invertedFill,
     this.hitNotifier,
+    this.oneWorld = false,
     super.simplificationTolerance,
   }) : super();
 
@@ -127,7 +134,11 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
     required Projection projection,
     required Polygon<R> element,
   }) =>
-      _ProjectedPolygon._fromPolygon(projection, element);
+      _ProjectedPolygon._fromPolygon(
+        projection,
+        element,
+        widget.oneWorld,
+      );
 
   @override
   _ProjectedPolygon<R> simplifyProjectedElement({
@@ -209,6 +220,7 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
           invertedFill: widget.invertedFill,
           debugAltRenderer: widget.debugAltRenderer,
           hitNotifier: widget.hitNotifier,
+          oneWorld: widget.oneWorld,
         ),
         size: camera.size,
       ),

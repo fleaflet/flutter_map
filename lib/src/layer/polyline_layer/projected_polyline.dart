@@ -13,9 +13,15 @@ class _ProjectedPolyline<R extends Object> with HitDetectableElement<R> {
     required this.points,
   });
 
-  _ProjectedPolyline._fromPolyline(Projection projection, Polyline<R> polyline)
-      : this._(
+  _ProjectedPolyline._fromPolyline(
+    Projection projection,
+    Polyline<R> polyline,
+    bool oneWorld,
+  ) : this._(
           polyline: polyline,
-          points: projection.projectList(polyline.points),
+          points: projection.projectList(
+            polyline.points,
+            oneWorld: oneWorld,
+          ),
         );
 }

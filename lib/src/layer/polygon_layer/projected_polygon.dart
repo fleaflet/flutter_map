@@ -15,10 +15,16 @@ class _ProjectedPolygon<R extends Object> with HitDetectableElement<R> {
     required this.holePoints,
   });
 
-  _ProjectedPolygon._fromPolygon(Projection projection, Polygon<R> polygon)
-      : this._(
+  _ProjectedPolygon._fromPolygon(
+    Projection projection,
+    Polygon<R> polygon,
+    bool oneWorld,
+  ) : this._(
           polygon: polygon,
-          points: projection.projectList(polygon.points),
+          points: projection.projectList(
+            polygon.points,
+            oneWorld: oneWorld,
+          ),
           holePoints: () {
             final holes = polygon.holePointsList;
             if (holes == null ||
@@ -33,6 +39,7 @@ class _ProjectedPolygon<R extends Object> with HitDetectableElement<R> {
               (j) => projection.projectList(
                 holes[j],
                 referencePoint: polygon.points[0],
+                oneWorld: oneWorld,
               ),
               growable: false,
             );

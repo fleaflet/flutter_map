@@ -41,6 +41,9 @@ class _PolygonPainter<R extends Object> extends CustomPainter
   /// See [PolygonLayer.invertedFill]
   final Color? invertedFill;
 
+  /// See [PolygonLayer.oneWorld]
+  final bool oneWorld;
+
   @override
   final MapCamera camera;
 
@@ -57,6 +60,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     required this.camera,
     required this.invertedFill,
     required this.hitNotifier,
+    required this.oneWorld,
   }) : bounds = camera.visibleBounds;
 
   /// Corner coordinates of the polygon painted onto the entire world when using
@@ -310,8 +314,10 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     // Specific map treatment with `invertFill`.
     if (invertedFill != null) {
       filledPath.reset();
-      final minMaxProjected =
-          camera.crs.projection.projectList(_minMaxLatitude);
+      final minMaxProjected = camera.crs.projection.projectList(
+        _minMaxLatitude,
+        oneWorld: oneWorld,
+      );
       final minMaxY = getOffsetsXY(
         camera: camera,
         origin: origin,

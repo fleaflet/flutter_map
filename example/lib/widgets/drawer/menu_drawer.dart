@@ -17,6 +17,7 @@ import 'package:flutter_map_example/pages/map_controller.dart';
 import 'package:flutter_map_example/pages/map_inside_listview.dart';
 import 'package:flutter_map_example/pages/markers.dart';
 import 'package:flutter_map_example/pages/multi_worlds.dart';
+import 'package:flutter_map_example/pages/one_world_or_not.dart';
 import 'package:flutter_map_example/pages/overlay_image.dart';
 import 'package:flutter_map_example/pages/plugin_zoombuttons.dart';
 import 'package:flutter_map_example/pages/polygon.dart';
@@ -93,6 +94,11 @@ class MenuDrawer extends StatelessWidget {
           MenuItemWidget(
             caption: 'Polyline Layer',
             routeName: PolylinePage.route,
+            currentRoute: currentRoute,
+          ),
+          MenuItemWidget(
+            caption: 'One World - or not - Layers',
+            routeName: OneWorldOrNotPage.route,
             currentRoute: currentRoute,
           ),
           MenuItemWidget(

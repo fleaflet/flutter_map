@@ -16,7 +16,9 @@ import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart';
 
 part 'painter.dart';
+
 part 'polyline.dart';
+
 part 'projected_polyline.dart';
 
 /// A [Polyline] (aka. LineString) layer for [FlutterMap].
@@ -48,6 +50,9 @@ base class PolylineLayer<R extends Object>
   /// Defaults to 10.
   final double minimumHitbox;
 
+  /// Should all the coordinates be projected on a single world?
+  final bool oneWorld;
+
   /// Create a new [PolylineLayer] to use as child inside [FlutterMap.children].
   const PolylineLayer({
     super.key,
@@ -55,6 +60,7 @@ base class PolylineLayer<R extends Object>
     this.cullingMargin = 10,
     this.hitNotifier,
     this.minimumHitbox = 10,
+    this.oneWorld = false,
     super.simplificationTolerance,
   }) : super();
 
@@ -71,7 +77,11 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
     required Projection projection,
     required Polyline<R> element,
   }) =>
-      _ProjectedPolyline._fromPolyline(projection, element);
+      _ProjectedPolyline._fromPolyline(
+        projection,
+        element,
+        widget.oneWorld,
+      );
 
   @override
   _ProjectedPolyline<R> simplifyProjectedElement({
