@@ -1,3 +1,4 @@
+import 'package:flutter/animation.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:meta/meta.dart';
 
@@ -66,6 +67,27 @@ final class InteractionOptions {
   /// with the scroll wheel of a mouse.
   final double scrollWheelVelocity;
 
+  /// The reciprocal coefficient to apply to the vertical offset between the
+  /// user's initial tap position and their current dragged position to
+  /// calculate the zoom level change
+  ///
+  /// A larger value results in less of a zoom per unit moved by the drag. A
+  /// negative value flips the gesture.
+  ///
+  /// Defaults to 360, where a downwards drag results in an increasing zoom
+  /// level. Must not be 0.
+  final double doubleTapDragZoomFactor;
+
+  /// The duration of the animation played when double-tap zooming
+  ///
+  /// Defaults to 200ms.
+  final Duration doubleTapZoomDuration;
+
+  /// The curve of the animation played when double-tap zooming
+  ///
+  /// Defaults to [Curves.fastOutSlowIn].
+  final Curve doubleTapZoomCurve;
+
   /// Options to configure cursor/keyboard rotation
   ///
   /// Cursor/keyboard rotation is designed for desktop platforms, and allows the
@@ -103,19 +125,26 @@ final class InteractionOptions {
     this.pinchMoveWinGestures =
         MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
     this.scrollWheelVelocity = 0.005,
+    this.doubleTapDragZoomFactor = 360,
+    this.doubleTapZoomDuration = const Duration(milliseconds: 200),
+    this.doubleTapZoomCurve = Curves.fastOutSlowIn,
     this.cursorKeyboardRotationOptions = const CursorKeyboardRotationOptions(),
     this.keyboardOptions = const KeyboardOptions(),
   })  : assert(
           rotationThreshold >= 0.0,
-          'rotationThreshold needs to be a positive value',
+          '`rotationThreshold` must be positive',
         ),
         assert(
           pinchZoomThreshold >= 0.0,
-          'pinchZoomThreshold needs to be a positive value',
+          '`pinchZoomThreshold` must be positive',
         ),
         assert(
           pinchMoveThreshold >= 0.0,
-          'pinchMoveThreshold needs to be a positive value',
+          '`pinchMoveThreshold` must be positive',
+        ),
+        assert(
+          doubleTapDragZoomFactor != 0,
+          '`doubleTapDragZoomScalar` must be non-zero',
         );
 
   @override
@@ -131,6 +160,9 @@ final class InteractionOptions {
       pinchMoveThreshold == other.pinchMoveThreshold &&
       pinchMoveWinGestures == other.pinchMoveWinGestures &&
       scrollWheelVelocity == other.scrollWheelVelocity &&
+      doubleTapDragZoomFactor == other.doubleTapDragZoomFactor &&
+      doubleTapZoomDuration == other.doubleTapZoomDuration &&
+      doubleTapZoomCurve == other.doubleTapZoomCurve &&
       keyboardOptions == other.keyboardOptions;
 
   @override
@@ -145,6 +177,9 @@ final class InteractionOptions {
         pinchMoveThreshold,
         pinchMoveWinGestures,
         scrollWheelVelocity,
+        doubleTapDragZoomFactor,
+        doubleTapZoomDuration,
+        doubleTapZoomCurve,
         keyboardOptions,
       );
 }

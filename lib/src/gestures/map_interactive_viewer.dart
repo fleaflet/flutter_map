@@ -53,7 +53,6 @@ class MapInteractiveViewer extends StatefulWidget {
 class MapInteractiveViewerState extends State<MapInteractiveViewer>
     with TickerProviderStateMixin {
   static const int _kMinFlingVelocity = 800;
-  static const _kDoubleTapZoomDuration = 200;
 
   /// The maximum delay between to taps to be counted as a double tap.
   static const doubleTapDelay = Duration(milliseconds: 250);
@@ -84,15 +83,12 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   late Offset _focalStartLocal;
   late LatLng _focalStartLatLng;
 
-  late final AnimationController _flingController =
-      AnimationController(vsync: this);
+  late final _flingController = AnimationController(vsync: this);
   late Animation<Offset> _flingAnimation;
 
-  late final AnimationController _doubleTapController = AnimationController(
+  late final _doubleTapController = AnimationController(
     vsync: this,
-    duration: const Duration(
-      milliseconds: _kDoubleTapZoomDuration,
-    ),
+    duration: _interactionOptions.doubleTapZoomDuration,
   );
   late Animation<double> _doubleTapZoomAnimation;
   late Animation<LatLng> _doubleTapCenterAnimation;
@@ -872,11 +868,11 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   void _startDoubleTapAnimation(double newZoom, LatLng newCenter) {
     _doubleTapZoomAnimation = Tween<double>(begin: _camera.zoom, end: newZoom)
-        .chain(CurveTween(curve: Curves.linear))
+        .chain(CurveTween(curve: _interactionOptions.doubleTapZoomCurve))
         .animate(_doubleTapController);
     _doubleTapCenterAnimation =
         LatLngTween(begin: _camera.center, end: newCenter)
-            .chain(CurveTween(curve: Curves.linear))
+            .chain(CurveTween(curve: _interactionOptions.doubleTapZoomCurve))
             .animate(_doubleTapController);
     _doubleTapController.forward(from: 0);
   }
@@ -919,7 +915,9 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     final flags = _interactionOptions.flags;
     if (InteractiveFlag.hasDoubleTapDragZoom(flags)) {
       final verticalOffset = (_focalStartLocal - details.localFocalPoint).dy;
-      final newZoom = _mapZoomStart - verticalOffset / 360 * _camera.zoom;
+      final zoomFactor = 1 / _interactionOptions.doubleTapDragZoomFactor;
+      final newZoom =
+          _mapZoomStart - verticalOffset * zoomFactor * _camera.zoom;
 
       final min = _options.minZoom ?? 0.0;
       final max = _options.maxZoom ?? double.infinity;
