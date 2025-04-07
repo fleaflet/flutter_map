@@ -14,12 +14,16 @@ class _PolylinePainter<R extends Object> extends CustomPainter
   @override
   final LayerHitNotifier<R>? hitNotifier;
 
+  /// See [PolylineLayer.oneWorld]
+  final bool oneWorld;
+
   /// Create a new [_PolylinePainter] instance
   _PolylinePainter({
     required this.polylines,
     required this.minimumHitbox,
     required this.camera,
     required this.hitNotifier,
+    required this.oneWorld,
   });
 
   @override
@@ -45,6 +49,7 @@ class _PolylinePainter<R extends Object> extends CustomPainter
         origin: origin,
         points: projectedPolyline.points,
         shift: shift,
+        forcedAddedWorldWidth: oneWorld ? 0 : null,
       );
       if (!areOffsetsVisible(offsets)) return WorldWorkControl.invisible;
 
@@ -132,6 +137,7 @@ class _PolylinePainter<R extends Object> extends CustomPainter
           origin: origin,
           points: projectedPolyline.points,
           shift: shift,
+          forcedAddedWorldWidth: oneWorld ? 0 : null,
         );
         if (!areOffsetsVisible(offsets)) return WorldWorkControl.invisible;
 

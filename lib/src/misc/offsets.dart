@@ -46,6 +46,11 @@ List<Offset> getOffsets(MapCamera camera, Offset origin, List<LatLng> points) {
   return v;
 }
 
+// TODO find something more elegant
+class MyLousyDouble {
+  late double value;
+}
+
 /// Suitable for both lines, filled polygons, and holed polygons
 List<Offset> getOffsetsXY({
   required MapCamera camera,
@@ -53,6 +58,12 @@ List<Offset> getOffsetsXY({
   required List<Offset> points,
   List<List<Offset>>? holePoints,
   double shift = 0,
+  // most of the time will be null, except for polygon holes
+  required double? forcedAddedWorldWidth,
+  // the point of this lousy class is to return an additional value:
+  // the actually computed "added world width" value.
+  // useful for polygon holes that need to match their polygon fulls
+  MyLousyDouble? computedAddedWorldWidth,
 }) {
   // Critically create as little garbage as possible. This is called on every frame.
   final crs = camera.crs;
@@ -68,6 +79,9 @@ List<Offset> getOffsetsXY({
 
   /// Returns additional world width in order to have visible points.
   double getAddedWorldWidth() {
+    if (forcedAddedWorldWidth != null) {
+      return forcedAddedWorldWidth;
+    }
     final worldWidth = crs.projection.getWorldWidth();
     final List<double> addedWidths = [
       0,
@@ -96,6 +110,7 @@ List<Offset> getOffsetsXY({
   }
 
   final double addedWorldWidth = getAddedWorldWidth();
+  computedAddedWorldWidth?.value = addedWorldWidth;
 
   // Optimization: monomorphize the CrsWithStaticTransformation-case to avoid
   // the virtual function overhead.

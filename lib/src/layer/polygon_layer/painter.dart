@@ -113,6 +113,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
         origin: origin,
         points: projectedPolygon.points,
         shift: shift,
+        forcedAddedWorldWidth: oneWorld ? 0 : null,
       );
       if (!areOffsetsVisible(projectedCoords)) {
         return WorldWorkControl.invisible;
@@ -133,6 +134,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
             origin: origin,
             points: points,
             shift: shift,
+            forcedAddedWorldWidth: oneWorld ? 0 : null,
           );
           if (projectedHoleCoords.first != projectedHoleCoords.last) {
             projectedHoleCoords.add(projectedHoleCoords.first);
@@ -322,6 +324,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
         camera: camera,
         origin: origin,
         points: minMaxProjected,
+        forcedAddedWorldWidth: oneWorld ? 0 : null,
       );
       final maxX = viewportRect.right;
       final minX = viewportRect.left;
@@ -341,6 +344,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
             origin: origin,
             points: projectedPolygon.points,
             shift: shift,
+            forcedAddedWorldWidth: oneWorld ? 0 : null,
           );
           if (!areOffsetsVisible(fillOffsets)) {
             return WorldWorkControl.invisible;
@@ -355,6 +359,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
                 origin: origin,
                 points: singleHolePoints,
                 shift: shift,
+                forcedAddedWorldWidth: oneWorld ? 0 : null,
               );
               unfillPolygon(holeOffsets);
               invertFillPolygonHole(holeOffsets);
@@ -389,6 +394,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
 
       /// Draws on a "single-world"
       WorldWorkControl drawIfVisible(double shift) {
+        final MyLousyDouble computedAddedWorldWidth = MyLousyDouble();
         final fillOffsets = getOffsetsXY(
           camera: camera,
           origin: origin,
@@ -396,6 +402,8 @@ class _PolygonPainter<R extends Object> extends CustomPainter
           holePoints:
               polygonTriangles != null ? projectedPolygon.holePoints : null,
           shift: shift,
+          forcedAddedWorldWidth: oneWorld ? 0 : null,
+          computedAddedWorldWidth: computedAddedWorldWidth,
         );
         if (!areOffsetsVisible(fillOffsets)) {
           return WorldWorkControl.invisible;
@@ -463,6 +471,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
               origin: origin,
               points: projectedPolygon.points,
               shift: shift,
+              forcedAddedWorldWidth: oneWorld ? 0 : null,
             ),
           );
         }
@@ -477,6 +486,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
             origin: origin,
             points: singleHolePoints,
             shift: shift,
+            forcedAddedWorldWidth: computedAddedWorldWidth.value,
           );
           unfillPolygon(holeOffsets);
           if (!polygon.disableHolesBorder && borderPaint != null) {
