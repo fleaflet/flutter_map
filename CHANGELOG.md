@@ -1,14 +1,16 @@
 # Changelog
 
-Please consider [donating](https://docs.fleaflet.dev/supporters#support-us) or [contributing](https://docs.fleaflet.dev/credits#contributing) if you're a fan of what we're doing and you'd like to support future releases!
+Please consider [donating](https://github.com/sponsors/fleaflet) or [contributing](https://github.com/fleaflet/flutter_map/blob/master/CONTRIBUTING.md) if you're a fan of what we're doing and you'd like to support future releases!
 
 This CHANGELOG does not include every commit and/or PR - it is a hand picked selection of the ones that have an effect on you. For a full list of changes, please check the GitHub repository releases/tags.
 
-## [8.2.0] - 2025/XX/XX
+## [8.2.0] - 2025/04/XX
 
 Contains the following user-affecting changes:
 
-- Added inverted fill option to `PolygonLayer` - [#2046](https://github.com/fleaflet/flutter_map/pull/2046) for [#2034](https://github.com/fleaflet/flutter_map/issues/2034)
+- Added inverted fill option to `PolygonLayer` - [#2046 (💰)](https://github.com/fleaflet/flutter_map/pull/2046) for [#2034](https://github.com/fleaflet/flutter_map/issues/2034)
+- Added options to customize double-tap (drag) zoom gestures - [#2070](https://github.com/fleaflet/flutter_map/pull/2070)
+- Added `Polyline/gonLayer.oneWorld` parameter - [#2069](https://github.com/fleaflet/flutter_map/pull/2069)
 
 Contains the following user-affecting bug fixes:
 
@@ -19,11 +21,13 @@ Contains the following user-affecting bug fixes:
 Contains the following meta changes to the package:
 
 - Reduced final package size to ~900KB from >3MB - [#2056](https://github.com/fleaflet/flutter_map/pull/2056)
-- Improved build integrity: publishing now occurs directly from the Git(Hub) repo - [#2059](https://github.com/fleaflet/flutter_map/pull/2059)
+- Improved build integrity: publishing now occurs directly from the GitHub repo - [#2059](https://github.com/fleaflet/flutter_map/pull/2059)
 
 Many thanks to these contributors (in no particular order):
 
 - @monsieurtanuki
+- @Quirille
+- @freekvandeven
 
 And an additional special thanks to @monsieurtanuki for investing so much of their time into this project recently - we appreciate it!
 
