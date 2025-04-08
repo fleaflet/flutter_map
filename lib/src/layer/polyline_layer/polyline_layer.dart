@@ -122,7 +122,6 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
           camera: camera,
           hitNotifier: widget.hitNotifier,
           minimumHitbox: widget.minimumHitbox,
-          oneWorld: widget.oneWorld,
         ),
         size: camera.size,
       ),

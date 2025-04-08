@@ -220,7 +220,6 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
           invertedFill: widget.invertedFill,
           debugAltRenderer: widget.debugAltRenderer,
           hitNotifier: widget.hitNotifier,
-          oneWorld: widget.oneWorld,
         ),
         size: camera.size,
       ),

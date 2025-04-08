@@ -74,44 +74,6 @@ class _OneWorldOrNotPageState extends State<OneWorldOrNotPage> {
             ),
             children: [
               openStreetMapTileLayer,
-              PolylineLayer(
-                hitNotifier: _hitNotifier,
-                simplificationTolerance: 0,
-                oneWorld: false,
-                polylines: <Polyline<HitValue>>[
-                  Polyline(
-                    points: _polylinePoints
-                        .map((latLng) =>
-                            LatLng(latLng.latitude + 25, latLng.longitude))
-                        .toList(),
-                    strokeWidth: 8,
-                    color: const Color(0xFFFF0000),
-                    hitValue: (
-                      title: 'Red Line',
-                      subtitle: 'Across the universe...',
-                    ),
-                  ),
-                ],
-              ),
-              PolylineLayer(
-                hitNotifier: _hitNotifier,
-                simplificationTolerance: 0,
-                oneWorld: true,
-                polylines: <Polyline<HitValue>>[
-                  Polyline(
-                    points: _polylinePoints
-                        .map((latLng) =>
-                            LatLng(latLng.latitude + 0, latLng.longitude))
-                        .toList(),
-                    strokeWidth: 8,
-                    color: const Color(0xFF00FF00),
-                    hitValue: (
-                      title: 'Green Line',
-                      subtitle: 'Across the universe...',
-                    ),
-                  ),
-                ],
-              ),
               PolygonLayer(
                 hitNotifier: _hitNotifier,
                 simplificationTolerance: 0,
@@ -177,6 +139,74 @@ class _OneWorldOrNotPageState extends State<OneWorldOrNotPage> {
                     color: const Color(0xFFFFFF00),
                     hitValue: (
                       title: 'Yellow Line',
+                      subtitle: 'Across the universe...',
+                    ),
+                  ),
+                ],
+              ),
+              PolylineLayer(
+                hitNotifier: _hitNotifier,
+                simplificationTolerance: 0,
+                oneWorld: false,
+                polylines: <Polyline<HitValue>>[
+                  Polyline(
+                    points: _polylinePoints
+                        .map((latLng) =>
+                            LatLng(latLng.latitude + 25, latLng.longitude))
+                        .toList(),
+                    strokeWidth: 8,
+                    color: const Color(0xFFFF0000),
+                    hitValue: (
+                      title: 'Red Line',
+                      subtitle: 'Across the universe...',
+                    ),
+                  ),
+                  Polyline(
+                    points: const [
+                      LatLng(-80, 150),
+                      LatLng(-80, -170),
+                      LatLng(-75, -170),
+                      LatLng(-75, 150),
+                      LatLng(-80, 150),
+                    ],
+                    strokeWidth: 8,
+                    color: Colors.grey,
+                    hitValue: (
+                      title: 'Grey Line',
+                      subtitle: 'Across the universe...',
+                    ),
+                  ),
+                ],
+              ),
+              PolylineLayer(
+                hitNotifier: _hitNotifier,
+                simplificationTolerance: 0,
+                oneWorld: true,
+                polylines: <Polyline<HitValue>>[
+                  Polyline(
+                    points: _polylinePoints
+                        .map((latLng) =>
+                            LatLng(latLng.latitude + 0, latLng.longitude))
+                        .toList(),
+                    strokeWidth: 8,
+                    color: const Color(0xFF00FF00),
+                    hitValue: (
+                      title: 'Green Line',
+                      subtitle: 'Across the universe...',
+                    ),
+                  ),
+                  Polyline(
+                    points: const [
+                      LatLng(80, 150),
+                      LatLng(80, -170),
+                      LatLng(75, -170),
+                      LatLng(75, 150),
+                      LatLng(80, 150),
+                    ],
+                    strokeWidth: 8,
+                    color: Colors.cyan,
+                    hitValue: (
+                      title: 'Cyan Line',
                       subtitle: 'Across the universe...',
                     ),
                   ),
