@@ -60,15 +60,6 @@ class _FlutterMapStateContainer extends State<FlutterMap>
 
     WidgetsBinding.instance
         .addPostFrameCallback((_) => widget.options.onMapReady?.call());
-
-    if (kDebugMode && kIsWeb && !isCanvasKit) {
-      Logger(printer: PrettyPrinter(methodCount: 0)).w(
-        '\x1B[1m\x1B[3mflutter_map\x1B[0m\nAvoid using HTML rendering on the web '
-        'platform. Prefer CanvasKit.\nSee '
-        'https://docs.fleaflet.dev/getting-started/installation#web for more '
-        'info.',
-      );
-    }
   }
 
   @override
