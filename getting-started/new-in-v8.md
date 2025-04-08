@@ -5,33 +5,39 @@
 Here's some highlights:
 
 {% hint style="success" %}
-**🎉 Unbounded horizontal scrolling -** [**#1948**](https://github.com/fleaflet/flutter_map/pull/1948) **&** [**#1969**](https://github.com/fleaflet/flutter_map/pull/1969) **by monsieurtanuki**
+## &#x20;**Unbounded horizontal scrolling (by monsieurtanuki)**
 
-We're repeating the trend from v7, and introducing yet another feature that's been continuously requested for longer than we can remember 😂.
+We're repeating the trend from v7, and introducing yet another feature that's been continuously requested for longer than we can remember 😂!
 
-Thanks to the hard work of external contributors, you can now pan and fling across the anti-meridian as much as you want (when using the default map projection only). Polygons and polylines also cross the boundary without issues as well, and, alongside markers, will appear on all 'worlds'.
+Thanks to the hard work of external contributors, you can now pan and fling across the anti-meridian as much as you want (when using the default map projection only).
 
-This is the first bounty-funded pull request to flutter\_map, thanks to our generous [supporters.md](../thanks/supporters.md "mention")! We hope to open more bounties in future, but you can also add a bounty on a PR as well (just contact us).
+Feature layers (such as polygons) also work across all 'worlds'. Improvements to this are still ongoing as of v8.1.1.
+
+_This feature was bounty-funded, thanks to our generous_ [supporters.md](../thanks/supporters.md "mention")_! We hope to open more bounties in future._
 {% endhint %}
 
 {% hint style="success" %}
-**Keyboard controls for map gestures -** [**#1987**](https://github.com/fleaflet/flutter_map/pull/1987)
+## **Keyboard controls for map gestures**
 
-Maybe not quite as highly requested as horizontal scrolling, but we think keyboard controls were missing, a fairly obvious hole on desktop and web platforms. So we've added them!
+Maybe not quite as highly requested as horizontal scrolling, we've now also added buttery-smooth keyboard controls! On web and desktop platforms, these are important for accessibility and general usability.
 
 Supports arrow & `WASD` keys for panning, `QE` keys for rotation, and `RF` keys for zoom. All key handlers are based on the physical layout of the QWERTY keyboard, so users using other keyboards will be able to use whichever keys are physically located in the same position. These are all optionally controllable via `KeyboardOptions` for `MapOptions` - only arrow keys are enabled by default.
-
-(If you were using flutter\_map for developing a game for some reason, this might also be useful 😂)
 {% endhint %}
 
-{% hint style="info" %}
+{% hint style="success" %}
+## Performance improvements
+
 We've also fixed a major performance bug with simplification on `Polygon/lineLayer`s. If you previously disabled simplification to workaround the bug and improve performance, we recommend considering re-enabling it.
+
+Also thanks to the community, we've reworked some internals to reduce overheads and reduce the number of different objects.
 {% endhint %}
 
 We've also made other changes to improve the experience for your users. Checkout the CHANGELOG for the curated changes, and the full commit listing for all the small details.&#x20;
 
-{% embed url="https://github.com/fleaflet/flutter_map/blob/master/CHANGELOG.md" %}
-Curated CHANGELOG
+
+
+{% embed url="https://pub.dev/packages/flutter_map/changelog" %}
+CHANGELOG
 {% endembed %}
 
 {% embed url="https://github.com/fleaflet/flutter_map/compare/v7.0.2...master" %}

@@ -1,11 +1,11 @@
 # Tile Layer
 
-{% hint style="warning" %}
-You must comply with the appropriate restrictions and terms of service set by your tile server. Always read the ToS before using a tile server. Failure to do so may lead to any punishment, at the tile server's discretion.
+{% hint style="danger" %}
+## Complying with tile server terms
 
-This library and/or the creator(s) are not responsible for any violations you make using this package.
+It is your own responsibility to comply with any appropriate restrictions and requirements set by your chosen tile server/provider. Always read their Terms of Service. Failure to do so may lead to any punishment, at the tile server's discretion.
 
-_The OpenStreetMap Tile Server (as used below) ToS can be_ [_found here_](https://operations.osmfoundation.org/policies/tiles)_. **It is NOT free to use**. Other servers may have different terms._
+The OpenStreetMap Tile Server, as is used for demonstration throughout this project, is **NOT FREE TO USE**. Their terms of service can be [found here](https://operations.osmfoundation.org/policies/tiles). **Production apps should be extremely cautious about using this tile server**; other projects, libraries, and packages suggesting that OpenStreetMap provides free-to-use map tiles are incorrect.
 {% endhint %}
 
 The basis of any map is a `TileLayer`, which displays square raster images in a continuous grid, sourced from the Internet or a local file system.
@@ -184,10 +184,6 @@ Note that where tiles are larger than the standard x256px (such as x512px), reti
 <details>
 
 <summary>Emulating retina mode</summary>
-
-{% hint style="danger" %}
-Emulated retina mode is currently (as of v8.0.1) broken. Follow [https://github.com/fleaflet/flutter\_map/issues/2042](https://github.com/fleaflet/flutter_map/issues/2042) for more information.
-{% endhint %}
 
 It is also possible to emulate retina mode, even when the server does not natively support it. If `retinaMode` is `true`, and no `{r}` placeholder is present, flutter\_map will emulate it by requesting four tiles at a larger zoom level and combining them together in place of one.
 

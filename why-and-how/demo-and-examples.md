@@ -6,7 +6,7 @@ flutter\_map provides an example application showcasing much of its functionalit
 For a quick code demo, check out the landing page: [#code-demo](../#code-demo "mention")!
 {% endhint %}
 
-## Live Web Demo
+## Web Demo
 
 {% hint style="info" %}
 Note that the web demo is built automatically from the ['master' branch](https://github.com/fleaflet/flutter_map), so may not reflect the the latest release on pub.dev.

@@ -11,19 +11,12 @@ import 'package:proj4dart/proj4dart.dart' as proj4;
 You can create and register your custom projection in multiple ways, but the recommended is to use a **Proj4 definition string** from [epsg.io](https://epsg.io). For example for `EPSG:3413` (_WGS 84 / NSIDC Sea Ice Polar Stereographic North_) you can find it [here](https://epsg.io/3413.proj4). This is how a Proj4 definition string looks like:
 
 ```dart
-+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45 +k=1 +x_0=0 +y_0=0 +datum=WGS84
-+
-units
-=
-m
-+
-no_defs
++proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m + no_defs
 ```
 
 With this **Proj4 definition string** and a **string identifier** register your `proj4.Projection` like this:
 
 ```dart
-
 var customProjection = proj4.Projection.add('EPSG:3413',
     '+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs');
 ```
@@ -46,7 +39,6 @@ You can use your previously registered `proj4.Projection` to create a custom CRS
 An example:
 
 ```dart
-
 var epsg3413 = proj4.Projection.add('EPSG:3413',
     '+proj=stere +lat_0=90 +lat_ts=70 +lon_0=-45 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs');
 
@@ -101,9 +93,7 @@ Proj4Crs has multiple uses:
 *   Set a WMS layer's CRS
 
     ```dart
-      TileLayerOptions(
-        opacity: 1.0,
-        backgroundColor: Colors.transparent,
+      TileLayer(
         wmsOptions: WMSTileLayerOptions(
           // Set the WMS layer's CRS
           crs: epsg3413CRS,
