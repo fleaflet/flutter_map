@@ -5,7 +5,7 @@
 
 It is your own responsibility to comply with any appropriate restrictions and requirements set by your chosen tile server/provider. Always read their Terms of Service. Failure to do so may lead to any punishment, at the tile server's discretion.
 
-The OpenStreetMap Tile Server, as is used for demonstration throughout this project, is **NOT FREE TO USE**. Their terms of service can be [found here](https://operations.osmfoundation.org/policies/tiles). **Production apps should be extremely cautious about using this tile server**; other projects, libraries, and packages suggesting that OpenStreetMap provides free-to-use map tiles are incorrect.
+The OpenStreetMap Tile Server, as is used for demonstration throughout this project, is **NOT free to use by everyone**. Their terms of service can be [found here](https://operations.osmfoundation.org/policies/tiles). **Production apps should be extremely cautious about using this tile server**; other projects, libraries, and packages suggesting that OpenStreetMap provides free-to-use map tiles are incorrect.
 {% endhint %}
 
 The basis of any map is a `TileLayer`, which displays square raster images in a continuous grid, sourced from the Internet or a local file system.

@@ -42,6 +42,7 @@
 
 ## Tile Servers
 
+* [⚠️ Using OpenStreetMap (direct)](tile-servers/using-openstreetmap-direct.md)
 * [Using Google Maps](tile-servers/using-google-maps.md)
 * [Using Mapbox](tile-servers/using-mapbox.md)
 * [Using Thunderforest](tile-servers/using-thunderforest.md)
