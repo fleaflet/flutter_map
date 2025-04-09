@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:collection/collection.dart' show MapEquality;
+import 'package:collection/collection.dart' show MapEquality, ListEquality;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -12,6 +12,7 @@ import 'package:flutter_map/src/layer/tile_layer/tile_image_manager.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
+import 'package:flutter_map/src/layer/tile_layer/unblock_osm.dart';
 import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:http/http.dart';
 import 'package:http/retry.dart';
@@ -343,6 +344,40 @@ class TileLayer extends StatefulWidget {
 }
 
 class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
+  static const _openStreetMapUrls = {
+    'tile.openstreetmap.org',
+    'tile.osm.org',
+  };
+  bool get _isOpenStreetMapUrl =>
+      widget.urlTemplate != null &&
+      _openStreetMapUrls.any((target) => widget.urlTemplate!.contains(target));
+
+  static const _unblockOpenStreetMapUrlEnv =
+      String.fromEnvironment('flutter.flutter_map.unblockOSM');
+  static bool get _unblockOpenStreetMapUrl => const ListEquality<int>()
+      .equals(_unblockOpenStreetMapUrlEnv.codeUnits, unblockOSM);
+
+  static final _blockOpenStreetMapUrl =
+      // ignore: dead_code
+      false && (kReleaseMode || kProfileMode) && !_unblockOpenStreetMapUrl;
+  void _warnOpenStreetMapUrl() {
+    if (!_isOpenStreetMapUrl || !kDebugMode || _unblockOpenStreetMapUrl) return;
+    Logger(printer: PrettyPrinter(methodCount: 0)).e(
+      '''\x1B[1m\x1B[3mflutter_map\x1B[0m
+flutter_map wants to help keep map data available for everyone.
+We use the public OpenStreetMap tile servers in our code examples & demo app,
+but they are NOT free to use by everyone.
+In an upcoming non-major release, requests to 'tile.openstreetmap.org' or
+'tile.osm.org' will be blocked by default in release mode.
+Please review https://operations.osmfoundation.org/policies/tiles/ to see if
+your use-case is allowed under their Tile Usage Policy.
+For more information, see https://docs.fleaflet.dev/_____. It describes in
+additional detail why we feel it is important to do this, how you can unblock
+the tile servers if your use-case is acceptable, and the timeframes for this
+new policy.''',
+    );
+  }
+
   bool _initializedFromMapCamera = false;
 
   final _tileImageManager = TileImageManager();
@@ -371,6 +406,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     super.initState();
     _resetSub = widget.reset?.listen(_resetStreamHandler);
     _tileRangeCalculator = TileRangeCalculator(tileDimension: _tileDimension);
+    _warnOpenStreetMapUrl();
   }
 
   // This is called on every map movement so we should avoid expensive logic
@@ -427,6 +463,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   void didUpdateWidget(TileLayer oldWidget) {
     super.didUpdateWidget(oldWidget);
     var reloadTiles = false;
+
+    _warnOpenStreetMapUrl();
 
     // There is no caching in TileRangeCalculator so we can just replace it.
     _tileRangeCalculator = TileRangeCalculator(tileDimension: _tileDimension);
@@ -504,6 +542,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     final map = MapCamera.of(context);
 
     if (_outsideZoomLimits(map.zoom.round())) return const SizedBox.shrink();
+
+    if (_isOpenStreetMapUrl && _blockOpenStreetMapUrl) {
+      return const SizedBox.shrink();
+    }
 
     final tileZoom = _clampToNativeZoom(map.zoom);
     final tileBoundsAtZoom = _tileBounds.atZoom(tileZoom);
@@ -667,6 +709,10 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
     DiscreteTileRange tileLoadRange, {
     required bool pruneAfterLoad,
   }) {
+    if (_isOpenStreetMapUrl && _blockOpenStreetMapUrl) {
+      return;
+    }
+
     final tileZoom = tileLoadRange.zoom;
     final expandedTileLoadRange = tileLoadRange.expand(widget.panBuffer);
 
