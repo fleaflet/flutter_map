@@ -167,6 +167,13 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
         continue;
       }
 
+      // TODO: think about how to cull polylines in a forced "oneWorld".
+      // As what may be culled in a world may not be culled in a next world.
+      if (widget.oneWorld) {
+        yield projectedPolyline;
+        continue;
+      }
+
       /// Returns true if the points stretch on different versions of the world.
       bool stretchesBeyondTheLimits() {
         for (final point in projectedPolyline.points) {
@@ -178,6 +185,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
       }
 
       // TODO: think about how to cull polylines that go beyond -180/180.
+      // As the notions of projected west/east as min/max are not reliable.
       if (stretchesBeyondTheLimits()) {
         yield projectedPolyline;
         continue;
