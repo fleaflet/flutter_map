@@ -53,7 +53,7 @@ However, [options are available](why-and-how/how-does-it-work/raster-vs-vector-t
 
 ## Code Demo
 
-Setting up an interactive and compliant[^3] map is simpler than making your lunch-time coffee! It can be accomplished in just under 30 lines and a minute or two to install.
+Setting up a map is simpler than making your lunch-time coffee! It can be accomplished in just under 30 lines and a minute or two to install.
 
 This code snippet demonstrates **everything** you need for a simple map (in under 30 lines!), but of course, FM is capable of much more than just this, and you could find yourself lost in the many options available and possibilities opened!
 
@@ -89,6 +89,10 @@ Widget build(BuildContext context) {
 }
 ```
 {% endcode %}
+
+{% hint style="warning" %}
+This map uses the OpenStreetMap public tile servers, which are NOT free to use by everyone. A setup such as this, especially in production, would not be compliant with its requirements.
+{% endhint %}
 
 ## Get Help
 
@@ -185,5 +189,3 @@ Unfortunately, this isn't supported, partially due to lack of time on the mainta
 [^1]: See below for information about vector tile support.
 
 [^2]: It may cost more to use services which provide their own SDKs through flutter\_map, but there's a reason they do that ;)
-
-[^3]: (includes necessary attribution)
