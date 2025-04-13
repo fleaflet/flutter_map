@@ -156,12 +156,47 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
     final (xEast, _) = projection.projectXY(const LatLng(0, 180));
     for (final projectedPolyline in polylines) {
       final polyline = projectedPolyline.polyline;
+      final boundingBox = polyline.boundingBox;
+
+      /// Check if the camera and the polyline overlap, latitude-wise.
+      bool isOverlappingLatitude() {
+        if (boundsAdjusted.north < boundingBox.south) {
+          return false;
+        }
+        if (boundsAdjusted.south > boundingBox.north) {
+          return false;
+        }
+        return true;
+      }
+
+      /// Check if the camera and the polyline overlap, longitude-wise.
+      bool isOverlappingLongitude() {
+        if (boundsAdjusted.east < boundingBox.west) {
+          return false;
+        }
+        if (boundsAdjusted.west > boundingBox.east) {
+          return false;
+        }
+        return true;
+      }
+
+      /// Check if the camera longitude bounds are reliable, world-wise.
+      bool areLongitudeBoundsReliable() {
+        if (boundsAdjusted.east == LatLngBounds.maxLongitude) {
+          return false;
+        }
+        if (boundsAdjusted.west == LatLngBounds.minLongitude) {
+          return false;
+        }
+        return true;
+      }
 
       // Test bounding boxes to avoid potentially expensive aggressive culling
       // when none of the line is visible
-      if (!boundsAdjusted.isOverlapping(polyline.boundingBox)) continue;
+      // First check, bullet-proof, focusing on latitudes.
+      if (!isOverlappingLatitude()) continue;
 
-      // Gradient poylines cannot be easily segmented
+      // Gradient polylines cannot be easily segmented
       if (polyline.gradientColors != null) {
         yield projectedPolyline;
         continue;
@@ -190,6 +225,16 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
         yield projectedPolyline;
         continue;
       }
+
+      // TODO: think about how to cull when the camera bounds go beyond -180/180.
+      if (!areLongitudeBoundsReliable()) {
+        yield projectedPolyline;
+        continue;
+      }
+
+      // Test bounding boxes to avoid potentially expensive aggressive culling
+      // when none of the line is visible. Here, focusing on longitudes.
+      if (!isOverlappingLongitude()) continue;
 
       // pointer that indicates the start of the visible polyline segment
       int start = -1;
