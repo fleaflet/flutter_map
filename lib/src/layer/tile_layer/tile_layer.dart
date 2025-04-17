@@ -359,7 +359,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
   static final _blockOpenStreetMapUrl =
       // ignore: dead_code
-      true && (kReleaseMode || kProfileMode) && !_unblockOpenStreetMapUrl;
+      false && (kReleaseMode || kProfileMode) && !_unblockOpenStreetMapUrl;
   void _warnOpenStreetMapUrl() {
     if (!_isOpenStreetMapUrl || !kDebugMode || _unblockOpenStreetMapUrl) return;
     Logger(printer: PrettyPrinter(methodCount: 0)).e(
