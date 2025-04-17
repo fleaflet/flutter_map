@@ -9,7 +9,7 @@ noIndex: true
 This does not apply to users using OpenStreetMap data through other tile servers, only to users using the public OpenStreetMap tile servers directly.
 {% endhint %}
 
-.flutter\_map wants to help keep map data available for everyone. One of the largest sources of this data is OpenStreetMap. OpenStreetMap data powers the majority of non-proprietary maps - from actual map tiles/images to navigation data - in existence today. The data itself is free for everyone under the [ODbL](https://opendatacommons.org/licenses/odbl/).
+flutter\_map wants to help keep map data available for everyone. One of the largest sources of this data is OpenStreetMap. OpenStreetMap data powers the majority of non-proprietary maps - from actual map tiles/images to navigation data - in existence today. The data itself is free for everyone under the [ODbL](https://opendatacommons.org/licenses/odbl/).
 
 The OpenStreetMap Foundation run OpenStreetMap as a not-for-profit. They also provide a public tile server at [https://tile.openstreetmap.org](https://tile.openstreetmap.org). This server is used throughout this documentation for code examples, and in our demo app.
 
@@ -44,7 +44,7 @@ The maintainers and community are also actively looking into ways to improve com
 * Checking for adequate and stable HTTP/2 & HTTP/3 support (HTTP/2 is already used on web)
 * Making an attribution to OpenStreetMap the default
 
-## Why are we doing this?
+## Why is flutter\_map doing this?
 
 The OpenStreetMap tile server is NOT free to use by everyone.
 
@@ -54,21 +54,17 @@ The top 10 user-agents are shown below, in order.
 
 <table><thead><tr><th width="575">User-Agent</th><th data-type="number">Tiles/second</th></tr></thead><tbody><tr><td>Mozilla/5.0 QGIS/*</td><td>1958.78</td></tr><tr><td><mark style="background-color:green;"><strong>flutter_map (*)</strong></mark><br><em>This represents the</em> <a data-footnote-ref href="#user-content-fn-1"><em>majority</em></a> <em>of FM users on non-web platforms. <code>*</code> represents the <code>TileLayer.userAgentPackageName</code>.</em></td><td>1414.97413</td></tr><tr><td>Mozilla/5.0 ...</td><td>375.2936227</td></tr><tr><td>Mozilla/5.0 ...</td><td>302.7196412</td></tr><tr><td><mark style="background-color:green;"><strong>Dart/* (dart:io)</strong></mark><br><em>This represents FM users on older versions &#x26; other Flutter mapping libraries not using FM.</em></td><td>209.9140856</td></tr><tr><td>Mozilla/5.0 ...</td><td>203.3502431</td></tr><tr><td>Mozilla/5.0 ...</td><td>175.8431366</td></tr><tr><td>Mozilla/5.0 ...</td><td>162.7784028</td></tr><tr><td>Mozilla/5.0 ...</td><td>126.3630556</td></tr><tr><td>com.facebook.katana</td><td>99.72585648</td></tr></tbody></table>
 
-We are extremely proud to see flutter\_map being used so much! At the same time, we are aware that there are many users placing a potential strain on OpenStreetMap.
+We are extremely proud to see flutter\_map being used so much! At the same time, we are aware that there are many users placing a potential strain on OpenStreetMap, which we want to minimize:
 
-> We do not want to discourage legitimate use-cases from using the OpenStreetMap tile servers.
->
-> We want to help users who may be accidentally or unknowingly breaking the OpenStreetMap usage policies adjust their project so they can continue to benefit from cost-free tiles.
->
-> However, we do wish to discourage illegitimate use-cases or users who are intentionally breaking the OpenStreetMap usage policies.
+* We do not want to discourage legitimate use-cases from using the OpenStreetMap tile servers
+* We want to help users who may be accidentally or unknowingly breaking the OpenStreetMap usage policies adjust their project so they can continue to benefit from cost-free tiles
+* However, we do wish to discourage illegitimate use-cases or users who are intentionally breaking the OpenStreetMap usage policies
 
-Therefore, we are introducing measures to force users to read the OpenStreetMap Tile Usage Policy before allowing them to use the servers in release builds.&#x20;
+Therefore, we are introducing measures to force users to read the OpenStreetMap Tile Usage Policy before allowing them to use the servers in release builds:
 
-> This is easy for legitimate users who have already read the policy and follow it.
->
-> It helps users accidentally breaking the policies to see why it's so important to follow them, and what they can do to fix any issues.
->
-> It adds friction to users intentionally breaking the policies.
+* This is easy for legitimate users who have already read the policy and follow it
+* It helps users accidentally breaking the policies to see why it's so important to follow them, and what they can do to fix any issues
+* It adds friction for users intentionally breaking the policies
 
 {% hint style="warning" %}
 Ultimately however, it is your own responsibility to comply with any appropriate restrictions and requirements set by your chosen tile server/provider. Always read their Terms of Service. Failure to do so may lead to any punishment, at the tile server's discretion.
@@ -98,21 +94,25 @@ If you still want to use OpenStreetMap, you must read the policy and comply with
 OpenStreetMap Tile Usage Policy
 {% endembed %}
 
-To note,
+To note:
 
 > Should any users or patterns of usage nevertheless cause problems to the service, access may still be blocked without prior notice.
 
 If your project uses a very large number of tiles, even if it would otherwise meet the requirements, consider switching to a different server.
+
+Also note all the other requirements, which may require you to make adjustments to your project...
 {% endstep %}
 
 {% step %}
 ### Make all necessary adjustments
 
 {% hint style="warning" %}
-By default, flutter\_map does NOT meet all of the requirements. We are actively looking into ways to improve compliance without further action from users.
+By default, flutter\_map does NOT meet all of the requirements. The examples in this documentation may also not meet the requirements.
+
+We are actively looking into ways to improve compliance without further action from users.
 {% endhint %}
 
-One common adjustment on non-web platform is to introduce caching. This step alone reduces the number of requests massively. There are currently 2 plugins designed to offer the functionality, and it's easy to create your own. See [#caching](offline-mapping.md#caching "mention") for more info.
+One common adjustment on non-web platform is to introduce caching. This step alone reduces the number of requests massively. We've got several recommendations to make it quick and easy to add caching to your project: [#caching](offline-mapping.md#caching "mention").
 
 Another is attribution. There are built-in attribution widgets to make this easy: see [attribution-layer.md](../layers/attribution-layer.md "mention") for more info.
 
