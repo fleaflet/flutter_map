@@ -18,15 +18,12 @@ The basis of any map is a `TileLayer`, which displays square raster images in a 
 TileLayer(
   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
   userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+  // caching
   // + many other options
 ),
 ```
 
 ## Recommended Setup
-
-{% hint style="success" %}
-Although setting up a basic tile layer couldn't be simpler, it helps to spend a little bit more time fine-tuning it! We recommend following these steps for every tile layer.
-{% endhint %}
 
 {% stepper %}
 {% step %}
