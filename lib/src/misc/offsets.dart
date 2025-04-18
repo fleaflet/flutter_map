@@ -3,19 +3,17 @@ import 'dart:ui';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/geo/crs.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:meta/meta.dart';
 
-/// Helper around offsets, projection and multi-worlds.
+@internal
 class OffsetHelper {
-  /// Standard constructor for [OffsetHelper].
   OffsetHelper({
     required this.camera,
     required this.origin,
   }) : _replicatesWorldLongitude = camera.crs.replicatesWorldLongitude;
 
-  /// Camera.
   final MapCamera camera;
 
-  /// Origin.
   final Offset origin;
 
   final bool _replicatesWorldLongitude;
@@ -138,35 +136,3 @@ class OffsetHelper {
     return (v, addedWorldWidth);
   }
 }
-
-/// Calculate the [Offset] for the [LatLng] point.
-@Deprecated('Use OffsetHelper.getOffset instead')
-Offset getOffset(
-  MapCamera camera,
-  Offset origin,
-  LatLng point, {
-  double shift = 0,
-}) =>
-    OffsetHelper(camera: camera, origin: origin).getOffset(point, shift: shift);
-
-/// Calculate the [Offset]s for the list of [LatLng] points.
-@Deprecated('Use OffsetHelper.getOffsets instead')
-List<Offset> getOffsets(MapCamera camera, Offset origin, List<LatLng> points) =>
-    OffsetHelper(camera: camera, origin: origin).getOffsets(points);
-
-/// Suitable for both lines, filled polygons, and holed polygons
-@Deprecated('Use OffsetHelper.getOffsetsXY instead')
-List<Offset> getOffsetsXY({
-  required MapCamera camera,
-  required Offset origin,
-  required List<Offset> points,
-  List<List<Offset>>? holePoints,
-  double shift = 0,
-}) =>
-    OffsetHelper(camera: camera, origin: origin)
-        .getOffsetsXY(
-          points: points,
-          holePoints: holePoints,
-          shift: shift,
-        )
-        .$1;

@@ -420,7 +420,7 @@ abstract class Projection {
   List<Offset> projectList(
     List<LatLng> points, {
     LatLng? referencePoint,
-    required bool oneWorld,
+    bool oneWorld = false,
   }) {
     late double previousX;
     final worldWidth = getWorldWidth();
