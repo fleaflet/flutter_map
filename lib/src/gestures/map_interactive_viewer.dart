@@ -462,6 +462,10 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
             pointerSignal.localPosition,
             newZoom,
           );
+
+          _closeFlingAnimationController(MapEventSource.scrollWheel);
+          _closeDoubleTapController(MapEventSource.scrollWheel);
+
           widget.controller.moveRaw(
             newCenter,
             newZoom,
