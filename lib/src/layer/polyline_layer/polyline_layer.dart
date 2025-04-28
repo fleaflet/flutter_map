@@ -16,9 +16,7 @@ import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart';
 
 part 'painter.dart';
-
 part 'polyline.dart';
-
 part 'projected_polyline.dart';
 
 /// A [Polyline] (aka. LineString) layer for [FlutterMap].
@@ -50,8 +48,19 @@ base class PolylineLayer<R extends Object>
   /// Defaults to 10.
   final double minimumHitbox;
 
-  /// Should all the coordinates be projected on a single world?
-  final bool oneWorld;
+  /// Whether polylines should only be drawn/projected onto a single world
+  /// instead of potentially being drawn onto adjacent worlds (based on the
+  /// shortest distance)
+  ///
+  /// When set `true` with a CRS which does support
+  /// [Crs.replicatesWorldLongitude], polylines will still be repeated across
+  /// worlds, but each polyline will only be drawn within one world.
+  ///
+  /// Enabling this may impact performance by reducing the effectiveness of
+  /// culling.
+  ///
+  /// Defaults to `false`.
+  final bool drawInSingleWorld;
 
   /// Create a new [PolylineLayer] to use as child inside [FlutterMap.children].
   const PolylineLayer({
@@ -60,7 +69,7 @@ base class PolylineLayer<R extends Object>
     this.cullingMargin = 10,
     this.hitNotifier,
     this.minimumHitbox = 10,
-    this.oneWorld = false,
+    this.drawInSingleWorld = false,
     super.simplificationTolerance,
   }) : super();
 
@@ -80,7 +89,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
       _ProjectedPolyline._fromPolyline(
         projection,
         element,
-        widget.oneWorld,
+        widget.drawInSingleWorld,
       );
 
   @override
@@ -202,9 +211,9 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
         continue;
       }
 
-      // TODO: think about how to cull polylines in a forced "oneWorld".
+      // TODO: think about how to cull polylines in a forced "drawInSingleWorld".
       // As what may be culled in a world may not be culled in a next world.
-      if (widget.oneWorld) {
+      if (widget.drawInSingleWorld) {
         yield projectedPolyline;
         continue;
       }

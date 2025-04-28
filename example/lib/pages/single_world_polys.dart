@@ -6,26 +6,26 @@ import 'package:latlong2/latlong.dart';
 
 @immutable
 class Epsg3857NoRepeat extends Epsg3857 {
+  const Epsg3857NoRepeat();
+
   @override
   bool get replicatesWorldLongitude => false;
 }
 
-typedef HitValue = ({String title, String subtitle});
-
-/// Demo of how the new `oneWorld` parameter works on Poly*Layer's.
+/// Demo of how the new `drawInSingleWorld` parameter works on Poly*Layer's.
 ///
 /// cf. https://github.com/fleaflet/flutter_map/issues/2067
-class OneWorldOrNotPage extends StatefulWidget {
-  static const String route = '/one_world';
+class SingleWorldPolysPage extends StatefulWidget {
+  static const String route = '/single_world_polys';
 
-  const OneWorldOrNotPage({super.key});
+  const SingleWorldPolysPage({super.key});
 
   @override
-  State<OneWorldOrNotPage> createState() => _OneWorldOrNotPageState();
+  State<SingleWorldPolysPage> createState() => _SingleWorldPolysPageState();
 }
 
-class _OneWorldOrNotPageState extends State<OneWorldOrNotPage> {
-  final LayerHitNotifier<HitValue> _hitNotifier = ValueNotifier(null);
+class _SingleWorldPolysPageState extends State<SingleWorldPolysPage> {
+  bool _repeatLongitudes = false;
 
   static const _polylinePoints = [
     LatLng(40, 150),
@@ -62,23 +62,24 @@ class _OneWorldOrNotPageState extends State<OneWorldOrNotPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('One World - or not')),
-      drawer: const MenuDrawer(OneWorldOrNotPage.route),
+      appBar: AppBar(title: const Text('Single World Polys')),
+      drawer: const MenuDrawer(SingleWorldPolysPage.route),
       body: Stack(
         children: [
           FlutterMap(
             options: MapOptions(
               initialCenter: const LatLng(0, 0),
               initialZoom: 0,
-              crs: Epsg3857NoRepeat(),
+              crs: _repeatLongitudes
+                  ? const Epsg3857()
+                  : const Epsg3857NoRepeat(),
             ),
             children: [
               openStreetMapTileLayer,
               PolygonLayer(
-                hitNotifier: _hitNotifier,
                 simplificationTolerance: 0,
-                oneWorld: false,
-                polygons: <Polygon<HitValue>>[
+                drawInSingleWorld: false,
+                polygons: [
                   Polygon(
                     points: _polygonPoints
                         .map((latLng) =>
@@ -91,10 +92,9 @@ class _OneWorldOrNotPageState extends State<OneWorldOrNotPage> {
                           .toList(),
                     ],
                     color: const Color(0xFF0000FF),
-                    hitValue: (
-                      title: 'Blue Line',
-                      subtitle: 'Across the universe...',
-                    ),
+                    borderColor: Colors.purple,
+                    borderStrokeWidth: 6,
+                    pattern: const StrokePattern.dotted(),
                   ),
                   Polygon(
                     points: _polygonPoints
@@ -102,18 +102,13 @@ class _OneWorldOrNotPageState extends State<OneWorldOrNotPage> {
                             LatLng(latLng.latitude - 80, latLng.longitude))
                         .toList(),
                     color: const Color(0xFF000000),
-                    hitValue: (
-                      title: 'Black Line',
-                      subtitle: 'Across the universe...',
-                    ),
                   ),
                 ],
               ),
               PolygonLayer(
-                hitNotifier: _hitNotifier,
                 simplificationTolerance: 0,
-                oneWorld: true,
-                polygons: <Polygon<HitValue>>[
+                drawInSingleWorld: true,
+                polygons: [
                   Polygon(
                     points: _polygonPoints
                         .map((latLng) =>
@@ -125,30 +120,24 @@ class _OneWorldOrNotPageState extends State<OneWorldOrNotPage> {
                               LatLng(latLng.latitude - 55, latLng.longitude))
                           .toList(),
                     ],
-                    color: const Color(0xFF00FFFF),
-                    hitValue: (
-                      title: 'Teal Line',
-                      subtitle: 'Across the universe...',
-                    ),
+                    color: const Color(0xFF0000FF),
+                    borderColor: Colors.purple,
+                    borderStrokeWidth: 6,
+                    pattern: const StrokePattern.dotted(),
                   ),
                   Polygon(
                     points: _polygonPoints
                         .map((latLng) =>
                             LatLng(latLng.latitude - 110, latLng.longitude))
                         .toList(),
-                    color: const Color(0xFFFFFF00),
-                    hitValue: (
-                      title: 'Yellow Line',
-                      subtitle: 'Across the universe...',
-                    ),
+                    color: const Color(0xFF000000),
                   ),
                 ],
               ),
               PolylineLayer(
-                hitNotifier: _hitNotifier,
                 simplificationTolerance: 0,
-                oneWorld: false,
-                polylines: <Polyline<HitValue>>[
+                drawInSingleWorld: false,
+                polylines: [
                   Polyline(
                     points: _polylinePoints
                         .map((latLng) =>
@@ -156,10 +145,7 @@ class _OneWorldOrNotPageState extends State<OneWorldOrNotPage> {
                         .toList(),
                     strokeWidth: 8,
                     color: const Color(0xFFFF0000),
-                    hitValue: (
-                      title: 'Red Line',
-                      subtitle: 'Across the universe...',
-                    ),
+                    pattern: const StrokePattern.dotted(),
                   ),
                   Polyline(
                     points: const [
@@ -170,30 +156,22 @@ class _OneWorldOrNotPageState extends State<OneWorldOrNotPage> {
                       LatLng(-80, 150),
                     ],
                     strokeWidth: 8,
-                    color: Colors.grey,
-                    hitValue: (
-                      title: 'Grey Line',
-                      subtitle: 'Across the universe...',
-                    ),
+                    color: Colors.yellow,
                   ),
                 ],
               ),
               PolylineLayer(
-                hitNotifier: _hitNotifier,
                 simplificationTolerance: 0,
-                oneWorld: true,
-                polylines: <Polyline<HitValue>>[
+                drawInSingleWorld: true,
+                polylines: [
                   Polyline(
                     points: _polylinePoints
                         .map((latLng) =>
                             LatLng(latLng.latitude + 0, latLng.longitude))
                         .toList(),
                     strokeWidth: 8,
-                    color: const Color(0xFF00FF00),
-                    hitValue: (
-                      title: 'Green Line',
-                      subtitle: 'Across the universe...',
-                    ),
+                    color: Colors.red,
+                    pattern: StrokePattern.dashed(segments: [50, 20]),
                   ),
                   Polyline(
                     points: const [
@@ -204,15 +182,66 @@ class _OneWorldOrNotPageState extends State<OneWorldOrNotPage> {
                       LatLng(80, 150),
                     ],
                     strokeWidth: 8,
-                    color: Colors.cyan,
-                    hitValue: (
-                      title: 'Cyan Line',
-                      subtitle: 'Across the universe...',
+                    color: Colors.yellow,
+                  ),
+                ],
+              ), /*PolygonLayer(
+                drawInSingleWorld: true,
+                polygons: [
+                  Polygon(
+                    points: [
+                      const LatLng(90, -180),
+                      const LatLng(90, 180),
+                      const LatLng(-90, 180),
+                      const LatLng(-90, -180),
+                    ],
+                    color: Colors.amber,
+                    borderColor: Colors.black,
+                    borderStrokeWidth: 5,
+                    holePointsList: [
+                      [
+                        LatLng(46, -9),
+                        LatLng(46, -8),
+                        LatLng(45.5, -7.5),
+                        LatLng(45, -8),
+                        LatLng(45, -9),
+                      ]
+                    ],
+                  ),
+                ],
+              ),*/
+            ],
+          ),
+          Align(
+            alignment: Alignment.topRight,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(32),
+              ),
+              padding: const EdgeInsets.symmetric(
+                vertical: 8,
+                horizontal: 16,
+              ),
+              margin: const EdgeInsets.all(16),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 16,
+                children: [
+                  const Tooltip(
+                    message: 'Prevent unbounded horizontal scrolling',
+                    child: Icon(
+                      Icons.screen_lock_landscape,
+                      size: 32,
                     ),
+                  ),
+                  Switch.adaptive(
+                    value: !_repeatLongitudes,
+                    onChanged: (v) => setState(() => _repeatLongitudes = !v),
                   ),
                 ],
               ),
-            ],
+            ),
           ),
         ],
       ),

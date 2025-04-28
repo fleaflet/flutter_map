@@ -5,16 +5,16 @@ import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Example dedicated to replicated worlds and related objects (e.g. Markers).
-class MultiWorldsPage extends StatefulWidget {
-  static const String route = '/multi_worlds';
+class RepeatedWorldsPage extends StatefulWidget {
+  static const String route = '/repeated_worlds';
 
-  const MultiWorldsPage({super.key});
+  const RepeatedWorldsPage({super.key});
 
   @override
-  State<MultiWorldsPage> createState() => _MultiWorldsPageState();
+  State<RepeatedWorldsPage> createState() => _RepeatedWorldsPageState();
 }
 
-class _MultiWorldsPageState extends State<MultiWorldsPage> {
+class _RepeatedWorldsPageState extends State<RepeatedWorldsPage> {
   final LayerHitNotifier<String> _hitNotifier = ValueNotifier(null);
 
   final _customMarkers = <Marker>[];
@@ -38,15 +38,16 @@ class _MultiWorldsPageState extends State<MultiWorldsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Multi-worlds')),
-      drawer: const MenuDrawer(MultiWorldsPage.route),
+      appBar: AppBar(
+        title: const Text('Repeated Worlds/Longitudes'),
+      ),
+      drawer: const MenuDrawer(RepeatedWorldsPage.route),
       body: Stack(
         children: [
           FlutterMap(
             options: MapOptions(
-              initialCenter: const LatLng(51.5, -0.09),
-              initialZoom: 0,
-              initialRotation: 0,
+              initialCenter: const LatLng(0, 0),
+              initialZoom: 2,
               onTap: (_, p) => setState(() => _customMarkers.add(_buildPin(p))),
             ),
             children: [

@@ -314,7 +314,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
       final minMaxProjected = camera.crs.projection.projectList(
         _minMaxLatitude,
         // ignore: avoid_redundant_argument_values
-        oneWorld: false,
+        projectToSingleWorld: false,
       );
       final (minMaxY, _) = _helper.getOffsetsXY(
         points: minMaxProjected,

@@ -16,12 +16,12 @@ class _ProjectedPolyline<R extends Object> with HitDetectableElement<R> {
   _ProjectedPolyline._fromPolyline(
     Projection projection,
     Polyline<R> polyline,
-    bool oneWorld,
+    bool drawInSingleWorld,
   ) : this._(
           polyline: polyline,
           points: projection.projectList(
             polyline.points,
-            oneWorld: oneWorld,
+            projectToSingleWorld: drawInSingleWorld,
           ),
         );
 }

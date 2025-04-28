@@ -19,11 +19,8 @@ import 'package:logger/logger.dart';
 import 'package:polylabel/polylabel.dart';
 
 part 'label.dart';
-
 part 'painter.dart';
-
 part 'polygon.dart';
-
 part 'projected_polygon.dart';
 
 /// A polygon layer for [FlutterMap].
@@ -70,6 +67,17 @@ base class PolygonLayer<R extends Object>
   /// Defaults to `false`.
   final bool drawLabelsLast;
 
+  /// Whether polygons should only be drawn/projected onto a single world
+  /// instead of potentially being drawn onto adjacent worlds (based on the
+  /// shortest distance)
+  ///
+  /// When set `true` with a CRS which does support
+  /// [Crs.replicatesWorldLongitude], polygons will still be repeated across
+  /// worlds, but each polygon will only be drawn within one world.
+  ///
+  /// Defaults to `false`.
+  final bool drawInSingleWorld;
+
   /// Color to apply to the map where not covered by a polygon
   ///
   /// > [!WARNING]
@@ -84,9 +92,6 @@ base class PolygonLayer<R extends Object>
   /// {@macro fm.lhn.layerHitNotifier.usage}
   final LayerHitNotifier<R>? hitNotifier;
 
-  /// Should all the coordinates be projected on a single world?
-  final bool oneWorld;
-
   /// Create a new [PolygonLayer] for the [FlutterMap] widget.
   const PolygonLayer({
     super.key,
@@ -98,7 +103,7 @@ base class PolygonLayer<R extends Object>
     this.drawLabelsLast = false,
     this.invertedFill,
     this.hitNotifier,
-    this.oneWorld = false,
+    this.drawInSingleWorld = false,
     super.simplificationTolerance,
   }) : super();
 
@@ -137,7 +142,7 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
       _ProjectedPolygon._fromPolygon(
         projection,
         element,
-        widget.oneWorld,
+        widget.drawInSingleWorld,
       );
 
   @override

@@ -18,12 +18,12 @@ class _ProjectedPolygon<R extends Object> with HitDetectableElement<R> {
   _ProjectedPolygon._fromPolygon(
     Projection projection,
     Polygon<R> polygon,
-    bool oneWorld,
+    bool drawInSingleWorld,
   ) : this._(
           polygon: polygon,
           points: projection.projectList(
             polygon.points,
-            oneWorld: oneWorld,
+            projectToSingleWorld: drawInSingleWorld,
           ),
           holePoints: () {
             final holes = polygon.holePointsList;
@@ -39,7 +39,7 @@ class _ProjectedPolygon<R extends Object> with HitDetectableElement<R> {
               (j) => projection.projectList(
                 holes[j],
                 referencePoint: polygon.points[0],
-                oneWorld: oneWorld,
+                projectToSingleWorld: drawInSingleWorld,
               ),
               growable: false,
             );
