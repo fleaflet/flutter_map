@@ -67,15 +67,19 @@ final class InteractionOptions {
   /// with the scroll wheel of a mouse.
   final double scrollWheelVelocity;
 
-  /// The reciprocal coefficient to apply to the vertical offset between the
-  /// user's initial tap position and their current dragged position to
+  /// The coefficient to apply to the vertical distance between the user's
+  /// initial pointer-down position and their current dragged position to
   /// calculate the zoom level change
   ///
-  /// A larger value results in less of a zoom per unit moved by the drag. A
-  /// negative value flips the gesture.
+  /// The zoom level change also depends on the current zoom level: the lower
+  /// the zoom level, the longer the drag distance required to change a zoom
+  /// level.
   ///
-  /// Defaults to 360, where a downwards drag results in an increasing zoom
-  /// level. Must not be 0.
+  /// A larger value results in more of a zoom per distance unit moved by the
+  /// drag. A negative value flips the gesture.
+  ///
+  /// Defaults to 1/360, where a downwards drag results in an increasing zoom
+  /// level. Must not be 0 (but usable values are close to 0).
   final double doubleTapDragZoomFactor;
 
   /// The duration of the animation played when double-tap zooming
@@ -125,7 +129,7 @@ final class InteractionOptions {
     this.pinchMoveWinGestures =
         MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
     this.scrollWheelVelocity = 0.005,
-    this.doubleTapDragZoomFactor = 360,
+    this.doubleTapDragZoomFactor = 1 / 360,
     this.doubleTapZoomDuration = const Duration(milliseconds: 200),
     this.doubleTapZoomCurve = Curves.fastOutSlowIn,
     this.cursorKeyboardRotationOptions = const CursorKeyboardRotationOptions(),
