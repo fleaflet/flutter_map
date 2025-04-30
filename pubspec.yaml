@@ -37,7 +37,6 @@ dependencies:
   meta: ^1.11.0
   polylabel: ^1.0.1
   proj4dart: ^2.1.0
-  vector_math: ^2.1.4
 
 dev_dependencies:
   flutter_lints: ">=4.0.0 <6.0.0"

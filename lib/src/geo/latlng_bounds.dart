@@ -1,7 +1,7 @@
 import 'dart:math';
 
+import 'package:flutter_map/src/misc/deg_rad_conversions.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:vector_math/vector_math_64.dart';
 
 /// Data structure representing rectangular bounding box constrained by its
 /// northwest and southeast corners

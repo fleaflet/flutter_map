@@ -19,7 +19,6 @@ dependencies:
   proj4dart: ^2.1.0
   shared_preferences: ^2.3.4
   url_launcher: ^6.3.1
-  vector_math: ^2.1.4
 
 dependency_overrides:
   flutter_map:
