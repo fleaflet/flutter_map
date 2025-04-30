@@ -56,9 +56,6 @@ base class PolylineLayer<R extends Object>
   /// [Crs.replicatesWorldLongitude], polylines will still be repeated across
   /// worlds, but each polyline will only be drawn within one world.
   ///
-  /// Enabling this may impact performance by reducing the effectiveness of
-  /// culling.
-  ///
   /// Defaults to `false`.
   final bool drawInSingleWorld;
 
@@ -207,13 +204,6 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
 
       // Gradient polylines cannot be easily segmented
       if (polyline.gradientColors != null) {
-        yield projectedPolyline;
-        continue;
-      }
-
-      // TODO: think about how to cull polylines in a forced "drawInSingleWorld".
-      // As what may be culled in a world may not be culled in a next world.
-      if (widget.drawInSingleWorld) {
         yield projectedPolyline;
         continue;
       }
