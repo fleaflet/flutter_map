@@ -15,18 +15,19 @@ import 'package:flutter_map_example/pages/many_markers.dart';
 import 'package:flutter_map_example/pages/map_controller.dart';
 import 'package:flutter_map_example/pages/map_inside_listview.dart';
 import 'package:flutter_map_example/pages/markers.dart';
-import 'package:flutter_map_example/pages/multi_worlds.dart';
 import 'package:flutter_map_example/pages/overlay_image.dart';
 import 'package:flutter_map_example/pages/plugin_zoombuttons.dart';
 import 'package:flutter_map_example/pages/polygon.dart';
 import 'package:flutter_map_example/pages/polygon_perf_stress.dart';
 import 'package:flutter_map_example/pages/polyline.dart';
 import 'package:flutter_map_example/pages/polyline_perf_stress.dart';
+import 'package:flutter_map_example/pages/repeated_worlds.dart';
 import 'package:flutter_map_example/pages/reset_tile_layer.dart';
 import 'package:flutter_map_example/pages/retina.dart';
 import 'package:flutter_map_example/pages/scalebar.dart';
 import 'package:flutter_map_example/pages/screen_point_to_latlng.dart';
 import 'package:flutter_map_example/pages/secondary_tap.dart';
+import 'package:flutter_map_example/pages/single_world_polys.dart';
 import 'package:flutter_map_example/pages/sliding_map.dart';
 import 'package:flutter_map_example/pages/tile_builder.dart';
 import 'package:flutter_map_example/pages/tile_loading_error_handle.dart';
@@ -54,6 +55,7 @@ class MyApp extends StatelessWidget {
         CancellableTileProviderPage.route: (context) =>
             const CancellableTileProviderPage(),
         PolylinePage.route: (context) => const PolylinePage(),
+        SingleWorldPolysPage.route: (context) => const SingleWorldPolysPage(),
         PolylinePerfStressPage.route: (context) =>
             const PolylinePerfStressPage(),
         MapControllerPage.route: (context) => const MapControllerPage(),
@@ -67,7 +69,7 @@ class MyApp extends StatelessWidget {
         CirclePage.route: (context) => const CirclePage(),
         OverlayImagePage.route: (context) => const OverlayImagePage(),
         PolygonPage.route: (context) => const PolygonPage(),
-        MultiWorldsPage.route: (context) => const MultiWorldsPage(),
+        RepeatedWorldsPage.route: (context) => const RepeatedWorldsPage(),
         PolygonPerfStressPage.route: (context) => const PolygonPerfStressPage(),
         SlidingMapPage.route: (_) => const SlidingMapPage(),
         WMSLayerPage.route: (context) => const WMSLayerPage(),

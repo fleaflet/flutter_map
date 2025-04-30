@@ -67,6 +67,17 @@ base class PolygonLayer<R extends Object>
   /// Defaults to `false`.
   final bool drawLabelsLast;
 
+  /// Whether polygons should only be drawn/projected onto a single world
+  /// instead of potentially being drawn onto adjacent worlds (based on the
+  /// shortest distance)
+  ///
+  /// When set `true` with a CRS which does support
+  /// [Crs.replicatesWorldLongitude], polygons will still be repeated across
+  /// worlds, but each polygon will only be drawn within one world.
+  ///
+  /// Defaults to `false`.
+  final bool drawInSingleWorld;
+
   /// Color to apply to the map where not covered by a polygon
   ///
   /// > [!WARNING]
@@ -92,6 +103,7 @@ base class PolygonLayer<R extends Object>
     this.drawLabelsLast = false,
     this.invertedFill,
     this.hitNotifier,
+    this.drawInSingleWorld = false,
     super.simplificationTolerance,
   }) : super();
 
@@ -127,7 +139,11 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
     required Projection projection,
     required Polygon<R> element,
   }) =>
-      _ProjectedPolygon._fromPolygon(projection, element);
+      _ProjectedPolygon._fromPolygon(
+        projection,
+        element,
+        widget.drawInSingleWorld,
+      );
 
   @override
   _ProjectedPolygon<R> simplifyProjectedElement({

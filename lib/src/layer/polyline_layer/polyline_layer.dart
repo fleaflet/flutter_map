@@ -48,6 +48,17 @@ base class PolylineLayer<R extends Object>
   /// Defaults to 10.
   final double minimumHitbox;
 
+  /// Whether polylines should only be drawn/projected onto a single world
+  /// instead of potentially being drawn onto adjacent worlds (based on the
+  /// shortest distance)
+  ///
+  /// When set `true` with a CRS which does support
+  /// [Crs.replicatesWorldLongitude], polylines will still be repeated across
+  /// worlds, but each polyline will only be drawn within one world.
+  ///
+  /// Defaults to `false`.
+  final bool drawInSingleWorld;
+
   /// Create a new [PolylineLayer] to use as child inside [FlutterMap.children].
   const PolylineLayer({
     super.key,
@@ -55,6 +66,7 @@ base class PolylineLayer<R extends Object>
     this.cullingMargin = 10,
     this.hitNotifier,
     this.minimumHitbox = 10,
+    this.drawInSingleWorld = false,
     super.simplificationTolerance,
   }) : super();
 
@@ -71,7 +83,11 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
     required Projection projection,
     required Polyline<R> element,
   }) =>
-      _ProjectedPolyline._fromPolyline(projection, element);
+      _ProjectedPolyline._fromPolyline(
+        projection,
+        element,
+        widget.drawInSingleWorld,
+      );
 
   @override
   _ProjectedPolyline<R> simplifyProjectedElement({
@@ -146,12 +162,47 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
     final (xEast, _) = projection.projectXY(const LatLng(0, 180));
     for (final projectedPolyline in polylines) {
       final polyline = projectedPolyline.polyline;
+      final boundingBox = polyline.boundingBox;
+
+      /// Check if the camera and the polyline overlap, latitude-wise.
+      bool isOverlappingLatitude() {
+        if (boundsAdjusted.north < boundingBox.south) {
+          return false;
+        }
+        if (boundsAdjusted.south > boundingBox.north) {
+          return false;
+        }
+        return true;
+      }
+
+      /// Check if the camera and the polyline overlap, longitude-wise.
+      bool isOverlappingLongitude() {
+        if (boundsAdjusted.east < boundingBox.west) {
+          return false;
+        }
+        if (boundsAdjusted.west > boundingBox.east) {
+          return false;
+        }
+        return true;
+      }
+
+      /// Check if the camera longitude bounds are reliable, world-wise.
+      bool areLongitudeBoundsReliable() {
+        if (boundsAdjusted.east == LatLngBounds.maxLongitude) {
+          return false;
+        }
+        if (boundsAdjusted.west == LatLngBounds.minLongitude) {
+          return false;
+        }
+        return true;
+      }
 
       // Test bounding boxes to avoid potentially expensive aggressive culling
       // when none of the line is visible
-      if (!boundsAdjusted.isOverlapping(polyline.boundingBox)) continue;
+      // First check, bullet-proof, focusing on latitudes.
+      if (!isOverlappingLatitude()) continue;
 
-      // Gradient poylines cannot be easily segmented
+      // Gradient polylines cannot be easily segmented
       if (polyline.gradientColors != null) {
         yield projectedPolyline;
         continue;
@@ -168,10 +219,21 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
       }
 
       // TODO: think about how to cull polylines that go beyond -180/180.
+      // As the notions of projected west/east as min/max are not reliable.
       if (stretchesBeyondTheLimits()) {
         yield projectedPolyline;
         continue;
       }
+
+      // TODO: think about how to cull when the camera bounds go beyond -180/180.
+      if (!areLongitudeBoundsReliable()) {
+        yield projectedPolyline;
+        continue;
+      }
+
+      // Test bounding boxes to avoid potentially expensive aggressive culling
+      // when none of the line is visible. Here, focusing on longitudes.
+      if (!isOverlappingLongitude()) continue;
 
       // pointer that indicates the start of the visible polyline segment
       int start = -1;
