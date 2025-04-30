@@ -38,11 +38,14 @@ abstract class CameraConstraint {
     required LatLngBounds bounds,
   }) = ContainCamera._;
 
-  /// Vertically constrains the edges of the camera to within [a] and [b] bounds
-  const factory CameraConstraint.containVertically(
+  /// Constrains the edges of the camera to within latitudes [a] and [b]
+  ///
+  /// Defaults to 90 & -90, to prevent the background color from appearing
+  /// at the 'top' and 'bottom' of the typical map.
+  const factory CameraConstraint.containLatitude([
     double a,
     double b,
-  ) = ContainCameraVertically._;
+  ]) = ContainCameraLatitude._;
 
   /// Create a new constrained camera based off the current [camera]
   ///
@@ -102,7 +105,7 @@ class ContainCameraCenter extends CameraConstraint {
 ///
 /// To instead constrain the center coordinate of the camera to these bounds,
 /// use [ContainCameraCenter]. If only latitude needs to be constrained,
-/// use [ContainCameraVertically].
+/// use [ContainCameraLatitude].
 ///
 /// See [CameraConstraint] for more information.
 @immutable
@@ -155,14 +158,24 @@ class ContainCamera extends CameraConstraint {
   int get hashCode => bounds.hashCode;
 }
 
-/// Vertically constrains the edges of the camera to within [a] and [b] bounds
+/// Constrains the edges of the camera to within latitudes [a] and [b]
 ///
 /// See [CameraConstraint] for more information.
 @immutable
-class ContainCameraVertically extends CameraConstraint {
-  const ContainCameraVertically._(this.a, this.b);
+class ContainCameraLatitude extends CameraConstraint {
+  const ContainCameraLatitude._([
+    this.a = 90,
+    this.b = -90,
+  ]);
 
+  /// One edge latitude
+  ///
+  /// [a] & [b] are not ordered.
   final double a;
+
+  /// Other edge latitude
+  ///
+  /// [a] & [b] are not ordered.
   final double b;
 
   @override
@@ -203,7 +216,7 @@ class ContainCameraVertically extends CameraConstraint {
 
   @override
   bool operator ==(Object other) {
-    return other is ContainCameraVertically && other.a == a && other.b == b;
+    return other is ContainCameraLatitude && other.a == a && other.b == b;
   }
 
   @override

@@ -33,7 +33,7 @@ void main() {
 
     group('containVertically', () {
       test('western longitude', () {
-        final mapConstraint = const CameraConstraint.containVertically(-90, 90);
+        const mapConstraint = CameraConstraint.containLatitude();
 
         final camera = MapCamera(
           crs: const Epsg3857(),
@@ -52,7 +52,7 @@ void main() {
     });
 
     test('top right corner', () {
-      final mapConstraint = const CameraConstraint.containVertically(-90, 90);
+      const mapConstraint = CameraConstraint.containLatitude();
 
       final camera = MapCamera(
         crs: const Epsg3857(),
@@ -70,7 +70,7 @@ void main() {
     });
 
     test('northern hemisphere', () {
-      final mapConstraint = const CameraConstraint.containVertically(0, 90);
+      const mapConstraint = CameraConstraint.containLatitude(0, 90);
 
       final camera = MapCamera(
         crs: const Epsg3857(),
@@ -88,7 +88,7 @@ void main() {
     });
 
     test('can not translate camera within bounds', () {
-      final mapConstraint = const CameraConstraint.containVertically(0, 90);
+      const mapConstraint = CameraConstraint.containLatitude(0, 90);
 
       final camera = MapCamera(
         crs: const Epsg3857(),
