@@ -4,7 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/painting.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network_image_provider.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/network_image_provider.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart';
 import 'package:mocktail/mocktail.dart';

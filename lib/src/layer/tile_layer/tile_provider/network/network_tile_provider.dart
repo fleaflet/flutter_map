@@ -3,7 +3,7 @@ import 'dart:collection';
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network_image_provider.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/network_image_provider.dart';
 import 'package:http/http.dart';
 import 'package:http/retry.dart';
 
