@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/native/caching/manager.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/native/caching/options.dart';
 import 'package:http/http.dart';
 import 'package:uuid/data.dart';
 import 'package:uuid/rng.dart';
@@ -18,8 +19,8 @@ import 'package:uuid/uuid.dart';
 /// Note that specifying a [fallbackUrl] will prevent this image provider from
 /// being cached.
 @immutable
-class MapNetworkImageProviderv2
-    extends ImageProvider<MapNetworkImageProviderv2> {
+class CachingNetworkTileImageProvider
+    extends ImageProvider<CachingNetworkTileImageProvider> {
   /// The URL to fetch the tile from (GET request)
   final String url;
 
@@ -45,6 +46,13 @@ class MapNetworkImageProviderv2
   /// over the network, and just return a transparent tile
   final bool silenceExceptions;
 
+  /// Configuration of built-in caching
+  ///
+  /// See online documentation for more information about built-in caching.
+  ///
+  /// Set to `null` to disable. See [MapCachingOptions] for defaults.
+  final MapCachingOptions? cachingOptions;
+
   /// Function invoked when the image starts loading (not from cache)
   ///
   /// Used with [finishedLoadingBytes] to safely dispose of the [httpClient] only
@@ -62,12 +70,13 @@ class MapNetworkImageProviderv2
   /// Supports falling back to a secondary URL, if the primary URL fetch fails.
   /// Note that specifying a [fallbackUrl] will prevent this image provider from
   /// being cached.
-  const MapNetworkImageProviderv2({
+  const CachingNetworkTileImageProvider({
     required this.url,
     required this.fallbackUrl,
     required this.headers,
     required this.httpClient,
     required this.silenceExceptions,
+    required this.cachingOptions,
     required this.startedLoading,
     required this.finishedLoadingBytes,
   });
@@ -76,7 +85,7 @@ class MapNetworkImageProviderv2
 
   @override
   ImageStreamCompleter loadImage(
-    MapNetworkImageProviderv2 key,
+    CachingNetworkTileImageProvider key,
     ImageDecoderCallback decode,
   ) =>
       MultiFrameImageStreamCompleter(
@@ -91,7 +100,7 @@ class MapNetworkImageProviderv2
       );
 
   Future<Codec> _load(
-    MapNetworkImageProviderv2 key,
+    CachingNetworkTileImageProvider key,
     ImageDecoderCallback decode, {
     bool useFallback = false,
   }) async {
@@ -101,7 +110,9 @@ class MapNetworkImageProviderv2
     final uuid = _uuid.v5(Namespace.url.value, resolvedUrl);
 
     // TODO: Allow disabling caching
-    final cachingManager = (await TileCachingManager.getInstanceOrCreate())!;
+    final cachingManager = (await MapTileCachingManager.getInstanceOrCreate(
+      options: cachingOptions,
+    ))!;
     // TODO: Remove force null check, then fallback to non-caching
 
     final cachedTile = await cachingManager.getTile(uuid);
@@ -166,6 +177,7 @@ class MapNetworkImageProviderv2
     if (cachedTile != null) {
       // If we have a cached tile that's not stale, return it
       if (!cachedTile.tileInfo.isStale) {
+        print('from ache');
         finishedLoadingBytes();
         return ImmutableBuffer.fromUint8List(cachedTile.bytes).then(decode);
       }
@@ -258,7 +270,7 @@ class MapNetworkImageProviderv2
   }
 
   @override
-  SynchronousFuture<MapNetworkImageProviderv2> obtainKey(
+  SynchronousFuture<CachingNetworkTileImageProvider> obtainKey(
     ImageConfiguration configuration,
   ) =>
       SynchronousFuture(this);
@@ -266,7 +278,7 @@ class MapNetworkImageProviderv2
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is MapNetworkImageProviderv2 &&
+      (other is CachingNetworkTileImageProvider &&
           fallbackUrl == null &&
           url == other.url);
 

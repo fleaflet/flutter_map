@@ -5,6 +5,8 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/native/caching/options.dart';
+import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
@@ -72,8 +74,9 @@ part 'tile_information.dart';
 /// registry must be flushed.
 // TODO: Expose for other providers?
 @immutable
-class TileCachingManager {
-  const TileCachingManager._({
+@internal
+class MapTileCachingManager {
+  const MapTileCachingManager._({
     required String cacheDirectory,
     required void Function(String uuid, CachedTileInformation? tileInfo)
         persistentRegistryWriter,
@@ -82,13 +85,15 @@ class TileCachingManager {
         _writeToPersistentRegistry = persistentRegistryWriter,
         _registry = registry;
 
+  static const _persistentRegistryFileName = 'manager.json';
+
   /// Current instance of singleton
   ///
   /// Completer pattern used to obtain a lock - the first tile loaded takes
   /// slightly longer, as it has to create the first instance, so other tiles
   /// loaded simultaneously must wait instead of all attempting to create
   /// multiple singletons.
-  static Completer<TileCachingManager>? _instance;
+  static Completer<MapTileCachingManager>? _instance;
 
   final String _cacheDirectory;
   final void Function(String uuid, CachedTileInformation? tileInfo)
@@ -101,19 +106,24 @@ class TileCachingManager {
   /// If an instance is already being created, this will wait until that
   /// instance is available instead of creating a new one.
   ///
+  /// [options] is only used to configure a new instance. If [options] changes,
+  /// a new instance will not be created.
+  ///
   /// Returns `null` if an instance does not exist and one could not be created.
-  static Future<TileCachingManager?> getInstanceOrCreate({
-    String? cacheDirectory,
+  static Future<MapTileCachingManager?> getInstanceOrCreate({
+    MapCachingOptions? options,
   }) async {
     if (_instance != null) return await _instance!.future;
 
     _instance = Completer();
 
+    options ??= const MapCachingOptions();
+
     final Directory resolvedCacheDirectory;
     try {
       resolvedCacheDirectory = Directory(
         p.join(
-          cacheDirectory ??
+          options.cacheDirectory ??
               (await getApplicationCacheDirectory()).absolute.path,
           'fm_cache',
         ),
@@ -128,8 +138,10 @@ class TileCachingManager {
       return null;
     }
 
-    final persistentRegistryFilePath =
-        p.join(resolvedCacheDirectory.absolute.path, 'manager.json');
+    final persistentRegistryFilePath = p.join(
+      resolvedCacheDirectory.absolute.path,
+      _persistentRegistryFileName,
+    );
     final persistentRegistryFile = File(persistentRegistryFilePath);
 
     final Map<String, CachedTileInformation> registry;
@@ -146,9 +158,21 @@ class TileCachingManager {
           registry = HashMap();
         } else {
           registry = parsedCacheManager;
-        }
 
-        //for (final MapEntry(key: uuid, value: tileInfo) in registry.entries) {}
+          if (options.maxCacheSize case final sizeLimit?) {
+            // This can cause some delay when creating
+            // But it's much better than lagging or inconsistent registries
+            (await compute(
+              _limitCacheSizeWorker,
+              (
+                cacheDirectoryPath: resolvedCacheDirectory.absolute.path,
+                persistentRegistryFileName: _persistentRegistryFileName,
+                sizeLimit: sizeLimit,
+              ),
+            ))
+                .forEach(registry.remove);
+          }
+        }
       } else {
         await persistentRegistryFile.create(recursive: true);
         registry = HashMap();
@@ -172,7 +196,7 @@ class TileCachingManager {
     }
     final workerSendPort = await receivePort.first as SendPort;
 
-    final instance = TileCachingManager._(
+    final instance = MapTileCachingManager._(
       cacheDirectory: resolvedCacheDirectory.absolute.path,
       persistentRegistryWriter: (uuid, tileInfo) =>
           workerSendPort.send((uuid: uuid, tileInfo: tileInfo)),
@@ -192,7 +216,7 @@ class TileCachingManager {
     String uuid,
   ) async {
     if (!_registry.containsKey(uuid)) {
-      unawaited(removeTile(uuid));
+      unawaited(_removeTile(uuid));
       return null;
     }
 
@@ -201,7 +225,7 @@ class TileCachingManager {
     try {
       return (bytes: await tileFile.readAsBytes(), tileInfo: _registry[uuid]!);
     } on FileSystemException {
-      unawaited(removeTile(uuid));
+      unawaited(_removeTile(uuid));
       return null;
     }
   }
@@ -240,7 +264,7 @@ class TileCachingManager {
   }
 
   /// Remove a tile from the cache
-  Future<void> removeTile(String uuid) async {
+  Future<void> _removeTile(String uuid) async {
     final tileFile = File(p.join(_cacheDirectory, uuid));
     if (await tileFile.exists()) await tileFile.delete();
 

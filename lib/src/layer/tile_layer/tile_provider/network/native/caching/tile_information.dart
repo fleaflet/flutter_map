@@ -1,7 +1,8 @@
 part of 'manager.dart';
 
-/// Metadata about a tile cached with the [TileCachingManager]
+/// Metadata about a tile cached with the [MapTileCachingManager]
 @immutable
+@internal
 class CachedTileInformation {
   /// Create a new metadata container
   ///
@@ -19,10 +20,13 @@ class CachedTileInformation {
       : lastModifiedLocally =
             HttpDate.parse(json['lastModifiedLocally'] as String),
         staleAt = HttpDate.parse(json['staleAt'] as String),
-        lastModified = json['lastModified'] as String == ''
-            ? null
-            : HttpDate.parse(json['lastModified'] as String),
-        etag = json['etag'] as String == '' ? null : json['etag'] as String;
+        lastModified = json.containsKey('lastModified') &&
+                (json['lastModified'] as String).isNotEmpty
+            ? HttpDate.parse(json['lastModified'] as String)
+            : null,
+        etag = json.containsKey('etag') && (json['etag'] as String).isNotEmpty
+            ? json['etag'] as String
+            : null;
 
   /// Used to efficiently allow updates to already cached tiles
   ///
@@ -46,9 +50,9 @@ class CachedTileInformation {
   Map<String, String> toJson() => {
         'lastModifiedLocally': HttpDate.format(lastModifiedLocally),
         'staleAt': HttpDate.format(staleAt),
-        'lastModified':
-            lastModified == null ? '' : HttpDate.format(lastModified!),
-        'etag': etag == null ? '' : etag!,
+        if (lastModified != null)
+          'lastModified': HttpDate.format(lastModified!),
+        if (etag != null) 'etag': etag!,
       };
 
   @override
