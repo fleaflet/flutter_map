@@ -66,6 +66,18 @@ Future<void> _persistentRegistryWorkerIsolate(
   }
 }
 
+/// Isolate worker which writes bytes to files synchronously
+Future<void> _tileFileWriterWorkerIsolate(SendPort port) async {
+  final receivePort = ReceivePort();
+  port.send(receivePort.sendPort);
+
+  await for (final val in receivePort) {
+    final (:tileFilePath, :bytes) =
+        val as ({String tileFilePath, Uint8List bytes});
+    File(tileFilePath).writeAsBytesSync(bytes);
+  }
+}
+
 /// Decode the JSON within the persistent registry into a mapping of tile
 /// UUIDs to their [CachedTileInformation]s
 ///

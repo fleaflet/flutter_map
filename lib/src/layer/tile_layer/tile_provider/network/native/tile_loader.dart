@@ -31,18 +31,18 @@ Future<Codec> _ioLoadTileImage(
 }) async {
   key.startedLoading();
 
-  final resolvedUrl = useFallback ? key.fallbackUrl ?? '' : key.url;
-  final uuid = _uuid.v5(Namespace.url.value, resolvedUrl);
-
   if (key.cachingOptions == null) {
     return simpleLoadTileImage(key, decode, useFallback: useFallback);
   }
-  final cachingManager = await MapTileCachingManager.getInstanceOrCreate(
+  final cachingManager = MapTileCachingManager.getInstanceOrCreate(
     options: key.cachingOptions!,
   );
   if (cachingManager == null) {
     return simpleLoadTileImage(key, decode, useFallback: useFallback);
   }
+
+  final resolvedUrl = useFallback ? key.fallbackUrl ?? '' : key.url;
+  final uuid = _uuid.v5(Namespace.url.value, resolvedUrl);
 
   final cachedTile = await cachingManager.getTile(uuid);
 
@@ -65,40 +65,34 @@ Future<Codec> _ioLoadTileImage(
       response.bodyBytes,
     ));
 
-    key.finishedLoadingBytes();
     return ImmutableBuffer.fromUint8List(response.bodyBytes).then(decode);
   }
 
   Future<Codec> handleNotOk(Response response) async {
     // Optimistically try to decode the response anyway
     try {
-      key.finishedLoadingBytes();
       return await decode(
         await ImmutableBuffer.fromUint8List(response.bodyBytes),
       );
     } catch (err) {
       // Otherwise fallback to a cached tile if we have one
       if (cachedTile != null) {
-        key.finishedLoadingBytes();
         return ImmutableBuffer.fromUint8List(cachedTile.bytes).then(decode);
       }
 
       // Otherwise fallback to the fallback URL
       if (!useFallback && key.fallbackUrl != null) {
-        key.finishedLoadingBytes();
         return _ioLoadTileImage(key, decode, useFallback: true);
       }
 
       // Otherwise throw an exception/silently fail
       if (!key.silenceExceptions) {
-        key.finishedLoadingBytes();
         throw HttpException(
           'Recieved ${response.statusCode}, and body was not a decodable image',
           uri: Uri.parse(resolvedUrl),
         );
       }
 
-      key.finishedLoadingBytes();
       return ImmutableBuffer.fromUint8List(TileProvider.transparentImage)
           .then(decode);
     } finally {
@@ -124,6 +118,7 @@ Future<Codec> _ioLoadTileImage(
           HttpHeaders.ifNoneMatchHeader: etag,
       },
     );
+    key.finishedLoadingBytes();
 
     // Server says nothing's changed - but might return new useful headers
     if (response.statusCode == HttpStatus.notModified) {
@@ -145,7 +140,6 @@ Future<Codec> _ioLoadTileImage(
         ),
       ));
 
-      key.finishedLoadingBytes();
       return ImmutableBuffer.fromUint8List(cachedTile.bytes).then(decode);
     }
 
@@ -159,6 +153,7 @@ Future<Codec> _ioLoadTileImage(
     Uri.parse(resolvedUrl),
     headers: key.headers,
   );
+  key.finishedLoadingBytes();
 
   if (response.statusCode == HttpStatus.ok) {
     return await handleOk(response);
@@ -185,27 +180,24 @@ DateTime _calculateStaleAt(
           case final expires?) {
         return HttpDate.parse(expires);
       }
-      return addToNow(const Duration(days: 7));
-    } else {
-      if (response.headers[HttpHeaders.ageHeader] case final currentAge?) {
-        return addToNow(
-          Duration(seconds: int.parse(maxAge) - int.parse(currentAge)),
-        );
-      }
 
-      final estimatedAge = max(
-        0,
-        DateTime.timestamp()
-            .difference(
-              HttpDate.parse(response.headers[HttpHeaders.dateHeader]!),
-            )
-            .inSeconds,
-      );
+      return addToNow(const Duration(days: 7));
+    }
+
+    if (response.headers[HttpHeaders.ageHeader] case final currentAge?) {
       return addToNow(
-        Duration(seconds: int.parse(maxAge) - estimatedAge),
+        Duration(seconds: int.parse(maxAge) - int.parse(currentAge)),
       );
     }
-  } else {
-    return addToNow(const Duration(days: 7));
+
+    final estimatedAge = max(
+      0,
+      DateTime.timestamp()
+          .difference(HttpDate.parse(response.headers[HttpHeaders.dateHeader]!))
+          .inSeconds,
+    );
+    return addToNow(Duration(seconds: int.parse(maxAge) - estimatedAge));
   }
+
+  return addToNow(const Duration(days: 7));
 }
