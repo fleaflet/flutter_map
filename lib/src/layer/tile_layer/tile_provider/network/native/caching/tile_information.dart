@@ -2,7 +2,6 @@ part of 'manager.dart';
 
 /// Metadata about a tile cached with the [MapTileCachingManager]
 @immutable
-@internal
 class CachedTileInformation {
   /// Create a new metadata container
   ///

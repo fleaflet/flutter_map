@@ -5,8 +5,7 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/native/caching/options.dart';
-import 'package:meta/meta.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/independent/caching/options.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
@@ -72,17 +71,16 @@ part 'tile_information.dart';
 /// the new instance from working correctly. It is assumed the OS closes the
 /// open file handles, but that does mean every write to the persistent
 /// registry must be flushed.
-// TODO: Expose for other providers?
+// TODO: Expose for other providers? How to expose without breaking IO boundary?
 @immutable
-@internal
 class MapTileCachingManager {
   const MapTileCachingManager._({
     required String cacheDirectory,
     required void Function(String uuid, CachedTileInformation? tileInfo)
-        persistentRegistryWriter,
+        writeToPersistentRegistry,
     required Map<String, CachedTileInformation> registry,
   })  : _cacheDirectory = cacheDirectory,
-        _writeToPersistentRegistry = persistentRegistryWriter,
+        _writeToPersistentRegistry = writeToPersistentRegistry,
         _registry = registry;
 
   static const _persistentRegistryFileName = 'manager.json';
@@ -111,13 +109,11 @@ class MapTileCachingManager {
   ///
   /// Returns `null` if an instance does not exist and one could not be created.
   static Future<MapTileCachingManager?> getInstanceOrCreate({
-    MapCachingOptions? options,
+    required MapCachingOptions options,
   }) async {
     if (_instance != null) return await _instance!.future;
 
     _instance = Completer();
-
-    options ??= const MapCachingOptions();
 
     final Directory resolvedCacheDirectory;
     try {
@@ -198,7 +194,7 @@ class MapTileCachingManager {
 
     final instance = MapTileCachingManager._(
       cacheDirectory: resolvedCacheDirectory.absolute.path,
-      persistentRegistryWriter: (uuid, tileInfo) =>
+      writeToPersistentRegistry: (uuid, tileInfo) =>
           workerSendPort.send((uuid: uuid, tileInfo: tileInfo)),
       registry: registry,
     );

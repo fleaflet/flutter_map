@@ -4,6 +4,9 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/independent/tile_loader.dart'
+    if (dart.library.io) 'package:flutter_map/src/layer/tile_layer/tile_provider/network/native/tile_loader.dart'
+    if (dart.library.js_interop) 'package:flutter_map/src/layer/tile_layer/tile_provider/network/web/tile_loader.dart';
 import 'package:http/http.dart';
 
 /// Dedicated [ImageProvider] to fetch tiles from the network
@@ -12,7 +15,7 @@ import 'package:http/http.dart';
 /// Note that specifying a [fallbackUrl] will prevent this image provider from
 /// being cached.
 @immutable
-class MapNetworkImageProvider extends ImageProvider<MapNetworkImageProvider> {
+class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
   /// The URL to fetch the tile from (GET request)
   final String url;
 
@@ -36,7 +39,19 @@ class MapNetworkImageProvider extends ImageProvider<MapNetworkImageProvider> {
 
   /// Whether to ignore exceptions and errors that occur whilst fetching tiles
   /// over the network, and just return a transparent tile
+  ///
+  /// Not included in [operator==].
   final bool silenceExceptions;
+
+  /// Configuration of built-in caching on native platforms
+  ///
+  /// See online documentation for more information about built-in caching.
+  ///
+  /// Set to `null` to disable. See [MapCachingOptions] for defaults. Caching
+  /// is always disabled on the web.
+  ///
+  /// Not included in [operator==].
+  final MapCachingOptions? cachingOptions;
 
   /// Function invoked when the image starts loading (not from cache)
   ///
@@ -55,19 +70,20 @@ class MapNetworkImageProvider extends ImageProvider<MapNetworkImageProvider> {
   /// Supports falling back to a secondary URL, if the primary URL fetch fails.
   /// Note that specifying a [fallbackUrl] will prevent this image provider from
   /// being cached.
-  const MapNetworkImageProvider({
+  const NetworkTileImageProvider({
     required this.url,
     required this.fallbackUrl,
     required this.headers,
     required this.httpClient,
     required this.silenceExceptions,
+    required this.cachingOptions,
     required this.startedLoading,
     required this.finishedLoadingBytes,
   });
 
   @override
   ImageStreamCompleter loadImage(
-    MapNetworkImageProvider key,
+    NetworkTileImageProvider key,
     ImageDecoderCallback decode,
   ) =>
       MultiFrameImageStreamCompleter(
@@ -82,33 +98,14 @@ class MapNetworkImageProvider extends ImageProvider<MapNetworkImageProvider> {
       );
 
   Future<Codec> _load(
-    MapNetworkImageProvider key,
+    NetworkTileImageProvider key,
     ImageDecoderCallback decode, {
     bool useFallback = false,
-  }) {
-    startedLoading();
-
-    return httpClient
-        .readBytes(
-          Uri.parse(useFallback ? fallbackUrl ?? '' : url),
-          headers: headers,
-        )
-        .whenComplete(finishedLoadingBytes)
-        .then(ImmutableBuffer.fromUint8List)
-        .then(decode)
-        .onError<Exception>((err, stack) {
-      scheduleMicrotask(() => PaintingBinding.instance.imageCache.evict(key));
-      if (useFallback || fallbackUrl == null) {
-        if (!silenceExceptions) throw err;
-        return ImmutableBuffer.fromUint8List(TileProvider.transparentImage)
-            .then(decode);
-      }
-      return _load(key, decode, useFallback: true);
-    });
-  }
+  }) =>
+      loadTileImage(key, decode, useFallback: useFallback);
 
   @override
-  SynchronousFuture<MapNetworkImageProvider> obtainKey(
+  SynchronousFuture<NetworkTileImageProvider> obtainKey(
     ImageConfiguration configuration,
   ) =>
       SynchronousFuture(this);
@@ -116,7 +113,7 @@ class MapNetworkImageProvider extends ImageProvider<MapNetworkImageProvider> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is MapNetworkImageProvider &&
+      (other is NetworkTileImageProvider &&
           fallbackUrl == null &&
           url == other.url);
 

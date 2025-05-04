@@ -24,11 +24,24 @@ class MapCachingOptions {
   /// Defaults to 1GB. Set to `null` to disable.
   final int? maxCacheSize;
 
+  /// Override the duration of time a tile is considered fresh for
+  ///
+  /// Defaults to `null`: use duration calculated from each tile's HTTP headers.
+  final Duration? overrideFreshAge;
+
   /// Create a configuration for caching
   const MapCachingOptions({
     this.cacheDirectory,
     this.maxCacheSize = 1000000000,
-  });
+    this.overrideFreshAge,
+  })  : assert(
+          maxCacheSize == null || maxCacheSize > 0,
+          '`maxCacheSize` must be greater than 0 or disabled',
+        ),
+        assert(
+          overrideFreshAge == null || overrideFreshAge > Duration.zero,
+          '`overrideFreshAge` must be greater than 0 or disabled',
+        );
 
   @override
   int get hashCode => Object.hash(cacheDirectory, maxCacheSize);
@@ -38,5 +51,6 @@ class MapCachingOptions {
       identical(this, other) ||
       (other is MapCachingOptions &&
           cacheDirectory == other.cacheDirectory &&
-          maxCacheSize == other.maxCacheSize);
+          maxCacheSize == other.maxCacheSize &&
+          overrideFreshAge == other.overrideFreshAge);
 }

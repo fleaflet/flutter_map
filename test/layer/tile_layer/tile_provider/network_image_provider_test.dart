@@ -4,7 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/painting.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/network_image_provider.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/independent/image_provider.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart';
 import 'package:mocktail/mocktail.dart';
@@ -66,12 +66,13 @@ void main() {
       bool startedLoadingTriggered = false;
       bool finishedLoadingTriggered = false;
 
-      final provider = MapNetworkImageProvider(
+      final provider = NetworkTileImageProvider(
         url: url.toString(),
         fallbackUrl: null,
         headers: headers,
         httpClient: mockClient,
         silenceExceptions: false,
+        cachingOptions: null,
         startedLoading: () => startedLoadingTriggered = true,
         finishedLoadingBytes: () => finishedLoadingTriggered = true,
       );
@@ -105,12 +106,13 @@ void main() {
       bool startedLoadingTriggered = false;
       bool finishedLoadingTriggered = false;
 
-      final provider = MapNetworkImageProvider(
+      final provider = NetworkTileImageProvider(
         url: url.toString(),
         fallbackUrl: null,
         headers: headers,
         httpClient: mockClient,
         silenceExceptions: false,
+        cachingOptions: null,
         startedLoading: () => startedLoadingTriggered = true,
         finishedLoadingBytes: () => finishedLoadingTriggered = true,
       );
@@ -140,12 +142,13 @@ void main() {
       bool startedLoadingTriggered = false;
       bool finishedLoadingTriggered = false;
 
-      final provider = MapNetworkImageProvider(
+      final provider = NetworkTileImageProvider(
         url: url.toString(),
         fallbackUrl: null,
         headers: headers,
         httpClient: mockClient,
         silenceExceptions: true,
+        cachingOptions: null,
         startedLoading: () => startedLoadingTriggered = true,
         finishedLoadingBytes: () => finishedLoadingTriggered = true,
       );
@@ -183,12 +186,13 @@ void main() {
       bool startedLoadingTriggered = false;
       bool finishedLoadingTriggered = false;
 
-      final provider = MapNetworkImageProvider(
+      final provider = NetworkTileImageProvider(
         url: url.toString(),
         fallbackUrl: fallbackUrl.toString(),
         headers: headers,
         httpClient: mockClient,
         silenceExceptions: false,
+        cachingOptions: null,
         startedLoading: () => startedLoadingTriggered = true,
         finishedLoadingBytes: () => finishedLoadingTriggered = true,
       );
@@ -229,12 +233,13 @@ void main() {
       bool startedLoadingTriggered = false;
       bool finishedLoadingTriggered = false;
 
-      final provider = MapNetworkImageProvider(
+      final provider = NetworkTileImageProvider(
         url: url.toString(),
         fallbackUrl: fallbackUrl.toString(),
         headers: headers,
         httpClient: mockClient,
         silenceExceptions: true,
+        cachingOptions: null,
         startedLoading: () => startedLoadingTriggered = true,
         finishedLoadingBytes: () => finishedLoadingTriggered = true,
       );
@@ -267,12 +272,13 @@ void main() {
       bool startedLoadingTriggered = false;
       bool finishedLoadingTriggered = false;
 
-      final provider = MapNetworkImageProvider(
+      final provider = NetworkTileImageProvider(
         url: url.toString(),
         fallbackUrl: fallbackUrl.toString(),
         headers: headers,
         httpClient: mockClient,
         silenceExceptions: false,
+        cachingOptions: null,
         startedLoading: () => startedLoadingTriggered = true,
         finishedLoadingBytes: () => finishedLoadingTriggered = true,
       );
@@ -305,12 +311,13 @@ void main() {
       bool startedLoadingTriggered = false;
       bool finishedLoadingTriggered = false;
 
-      final provider = MapNetworkImageProvider(
+      final provider = NetworkTileImageProvider(
         url: url.toString(),
         fallbackUrl: fallbackUrl.toString(),
         headers: headers,
         httpClient: mockClient,
         silenceExceptions: true,
+        cachingOptions: null,
         startedLoading: () => startedLoadingTriggered = true,
         finishedLoadingBytes: () => finishedLoadingTriggered = true,
       );
@@ -345,12 +352,13 @@ void main() {
       bool startedLoadingTriggered = false;
       bool finishedLoadingTriggered = false;
 
-      final provider = MapNetworkImageProvider(
+      final provider = NetworkTileImageProvider(
         url: url.toString(),
         fallbackUrl: null,
         headers: headers,
         httpClient: mockClient,
         silenceExceptions: false,
+        cachingOptions: null,
         startedLoading: () => startedLoadingTriggered = true,
         finishedLoadingBytes: () => finishedLoadingTriggered = true,
       );
@@ -388,12 +396,13 @@ void main() {
       bool startedLoadingTriggered = false;
       bool finishedLoadingTriggered = false;
 
-      final provider = MapNetworkImageProvider(
+      final provider = NetworkTileImageProvider(
         url: url.toString(),
         fallbackUrl: null,
         headers: headers,
         httpClient: mockClient,
         silenceExceptions: true,
+        cachingOptions: null,
         startedLoading: () => startedLoadingTriggered = true,
         finishedLoadingBytes: () => finishedLoadingTriggered = true,
       );
@@ -433,12 +442,13 @@ void main() {
       bool startedLoadingTriggered = false;
       bool finishedLoadingTriggered = false;
 
-      final provider = MapNetworkImageProvider(
+      final provider = NetworkTileImageProvider(
         url: url.toString(),
         fallbackUrl: fallbackUrl.toString(),
         headers: headers,
         httpClient: mockClient,
         silenceExceptions: false,
+        cachingOptions: null,
         startedLoading: () => startedLoadingTriggered = true,
         finishedLoadingBytes: () => finishedLoadingTriggered = true,
       );
@@ -482,12 +492,13 @@ void main() {
       bool startedLoadingTriggered = false;
       bool finishedLoadingTriggered = false;
 
-      final provider = MapNetworkImageProvider(
+      final provider = NetworkTileImageProvider(
         url: url.toString(),
         fallbackUrl: fallbackUrl.toString(),
         headers: headers,
         httpClient: mockClient,
         silenceExceptions: false,
+        cachingOptions: null,
         startedLoading: () => startedLoadingTriggered = true,
         finishedLoadingBytes: () => finishedLoadingTriggered = true,
       );
@@ -523,12 +534,13 @@ void main() {
       bool startedLoadingTriggered = false;
       bool finishedLoadingTriggered = false;
 
-      final provider = MapNetworkImageProvider(
+      final provider = NetworkTileImageProvider(
         url: url.toString(),
         fallbackUrl: fallbackUrl.toString(),
         headers: headers,
         httpClient: mockClient,
         silenceExceptions: false,
+        cachingOptions: null,
         startedLoading: () => startedLoadingTriggered = true,
         finishedLoadingBytes: () => finishedLoadingTriggered = true,
       );
@@ -569,12 +581,13 @@ void main() {
       bool startedLoadingTriggered = false;
       bool finishedLoadingTriggered = false;
 
-      final provider = MapNetworkImageProvider(
+      final provider = NetworkTileImageProvider(
         url: url.toString(),
         fallbackUrl: fallbackUrl.toString(),
         headers: headers,
         httpClient: mockClient,
         silenceExceptions: true,
+        cachingOptions: null,
         startedLoading: () => startedLoadingTriggered = true,
         finishedLoadingBytes: () => finishedLoadingTriggered = true,
       );

@@ -3,7 +3,7 @@ import 'dart:collection';
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/network_image_provider.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/independent/image_provider.dart';
 import 'package:http/http.dart';
 import 'package:http/retry.dart';
 
@@ -36,6 +36,7 @@ class NetworkTileProvider extends TileProvider {
     super.headers,
     Client? httpClient,
     this.silenceExceptions = false,
+    this.cachingOptions = const MapCachingOptions(),
   })  : _isInternallyCreatedClient = httpClient == null,
         _httpClient = httpClient ?? RetryClient(Client());
 
@@ -43,8 +44,15 @@ class NetworkTileProvider extends TileProvider {
   /// over the network, and just return a transparent tile
   final bool silenceExceptions;
 
+  /// Configuration of built-in caching
+  ///
+  /// See online documentation for more information about built-in caching.
+  ///
+  /// Set to `null` to disable. See [MapCachingOptions] for defaults.
+  final MapCachingOptions? cachingOptions;
+
   /// Long living client used to make all tile requests by
-  /// [MapNetworkImageProvider] for the duration that this provider is
+  /// [NetworkTileImageProvider] for the duration that this provider is
   /// alive
   ///
   /// Not automatically closed if created externally and passed as an argument
@@ -65,12 +73,13 @@ class NetworkTileProvider extends TileProvider {
 
   @override
   ImageProvider getImage(TileCoordinates coordinates, TileLayer options) =>
-      MapNetworkImageProvider(
+      NetworkTileImageProvider(
         url: getTileUrl(coordinates, options),
         fallbackUrl: getTileFallbackUrl(coordinates, options),
         headers: headers,
         httpClient: _httpClient,
         silenceExceptions: silenceExceptions,
+        cachingOptions: cachingOptions,
         startedLoading: () => _tilesInProgress[coordinates] = Completer(),
         finishedLoadingBytes: () {
           _tilesInProgress[coordinates]?.complete();
