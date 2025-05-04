@@ -59,7 +59,8 @@ mixin FeatureLayerUtils on CustomPainter {
   ) {
     // Protection in case of unexpected infinite loop if `work` never returns
     // `invisible`. e.g. https://github.com/fleaflet/flutter_map/issues/2052.
-    const maxShiftsCount = 10;
+    //! This can produce false positives - but it's better than a crash.
+    const maxShiftsCount = 30;
     int shiftsCount = 0;
 
     void protectInfiniteLoop() {
