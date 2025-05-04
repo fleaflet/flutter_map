@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map_example/pages/animated_map_controller.dart';
 import 'package:flutter_map_example/pages/bundled_offline_map.dart';
@@ -34,8 +35,10 @@ import 'package:flutter_map_example/pages/tile_builder.dart';
 import 'package:flutter_map_example/pages/tile_loading_error_handle.dart';
 import 'package:flutter_map_example/pages/wms_tile_layer.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_item.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 const _isWASM = bool.fromEnvironment('dart.tool.dart2wasm');
+const _commitSHA = String.fromEnvironment('COMMIT_SHA');
 
 class MenuDrawer extends StatelessWidget {
   final String currentRoute;
@@ -47,7 +50,13 @@ class MenuDrawer extends StatelessWidget {
     return Drawer(
       child: ListView(
         children: <Widget>[
-          DrawerHeader(
+          Container(
+            padding: const EdgeInsets.fromLTRB(16, 32, 16, 16)
+                .add(EdgeInsets.only(top: MediaQuery.paddingOf(context).top)),
+            margin: const EdgeInsets.only(bottom: 8),
+            decoration: BoxDecoration(
+              border: Border(bottom: Divider.createBorderSide(context)),
+            ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -70,6 +79,27 @@ class MenuDrawer extends StatelessWidget {
                     _isWASM ? 'Running with WASM' : 'Running without WASM',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 14),
+                  ),
+                if (_commitSHA != '')
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        const TextSpan(text: 'Built from: '),
+                        TextSpan(
+                          text: _commitSHA.substring(0, 7),
+                          style: const TextStyle(
+                            color: Colors.blue,
+                            decoration: TextDecoration.underline,
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () => launchUrl(
+                                  Uri.parse(
+                                    'https://github.com/fleaflet/flutter_map/commit/$_commitSHA',
+                                  ),
+                                ),
+                        ),
+                      ],
+                    ),
                   ),
               ],
             ),

@@ -277,6 +277,18 @@ class TileLayer extends StatefulWidget {
         tileProvider = tileProvider ?? NetworkTileProvider(),
         tileUpdateTransformer =
             tileUpdateTransformer ?? TileUpdateTransformers.ignoreTapEvents {
+    // These log strong hints in debug mode, which is more visible to users than
+    // just documentation - they should only be used where there is a specific
+    // and large risk of the user doing something wrong.
+    if (kDebugMode &&
+        urlTemplate != null &&
+        urlTemplate!.contains('{s}.tile.openstreetmap.org')) {
+      Logger(printer: PrettyPrinter(methodCount: 0)).w(
+        '\x1B[1m\x1B[3mflutter_map\x1B[0m\nAvoid using subdomains with OSM\'s tile '
+        'server. Support may be become slow or be removed in future.\nSee '
+        'https://github.com/openstreetmap/operations/issues/737 for more info.',
+      );
+    }
     if (kDebugMode &&
         retinaMode == null &&
         urlTemplate != null &&
@@ -302,7 +314,9 @@ class TileLayer extends StatefulWidget {
       );
     }
 
-    // Tile Provider Setup
+    // If the tile provider doesn't define a User-Agent, we define it here.
+    // This is so there's a convienient way for users to specifiy the agent
+    // without always having to manually specify a tile provider and headers.
     if (!kIsWeb) {
       this.tileProvider.headers.putIfAbsent(
           'User-Agent', () => 'flutter_map ($userAgentPackageName)');
