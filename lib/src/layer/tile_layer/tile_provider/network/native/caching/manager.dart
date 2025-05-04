@@ -6,39 +6,13 @@ import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/independent/caching/options.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/independent/caching/tile_metadata.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 part 'persistent_registry_workers.dart';
-part 'tile_information.dart';
 
-/// Singleton class which manages built-in tile caching on native platforms
-///
-/// Built-in tile caching is simple and based on the tile's HTTP headers.
-///
-/// > [!IMPORTANT]
-/// > Built-in tile caching is not a replacement for caching which can better
-/// > guarantee resilience. It should not solely be used where not having
-/// > cached tiles may lead to a dangerous situation - for example, offline
-/// > mapping. This provides no guarantees as to the safety of cached tiles.
-///
-/// By default, caching is performed in a caching directory set by the OS, which
-/// may be cleared at any time.
-///
-/// The registry used to manage tiles is in JSON. There is no guarantee that the
-/// registry will remain valid (not corrupt). A corrupt registry will result in
-/// all cached tiles being lost.
-///
-/// Tile server URLs which use (for example) API keys create tiles with UUIDs
-/// including the volatile part of the URL. If this part of the URL is changed,
-/// all tiles previously stored will become in-accessible.
-///
-/// The cache does not peristently monitor usage (eg. hits) of the cache.
-///
-/// The primary purpose of this caching is to reduce the number of requests
-/// to tile servers.
-///
-/// ---
+/// {@macro fm.mtcm}
 ///
 /// The singleton is not disposed of. The only time it would make sense to
 /// close the singleton is when either:
@@ -74,15 +48,14 @@ part 'tile_information.dart';
 ///
 /// A long-lasting isolate is also for writing tile files to reduce the
 /// overheads of async file operations.
-// TODO: Expose for other providers? How to expose without breaking IO boundary?
 @immutable
 class MapTileCachingManager {
   const MapTileCachingManager._({
     required String cacheDirectory,
-    required void Function(String uuid, CachedTileInformation? tileInfo)
+    required void Function(String uuid, CachedMapTileMetadata? tileInfo)
         writeToPersistentRegistry,
     required void Function(String tileFilePath, Uint8List bytes) writeTileFile,
-    required Map<String, CachedTileInformation> registry,
+    required Map<String, CachedMapTileMetadata> registry,
   })  : _cacheDirectory = cacheDirectory,
         _writeToPersistentRegistry = writeToPersistentRegistry,
         _writeTileFile = writeTileFile,
@@ -94,10 +67,10 @@ class MapTileCachingManager {
   static bool _instanceBeingCreated = false;
 
   final String _cacheDirectory;
-  final void Function(String uuid, CachedTileInformation? tileInfo)
+  final void Function(String uuid, CachedMapTileMetadata? tileInfo)
       _writeToPersistentRegistry;
   final void Function(String tileFilePath, Uint8List bytes) _writeTileFile;
-  final Map<String, CachedTileInformation> _registry;
+  final Map<String, CachedMapTileMetadata> _registry;
 
   /// Returns the current instance if one is already available; otherwise, start
   /// creating a new instance in the background and return `null`
@@ -142,7 +115,7 @@ class MapTileCachingManager {
       );
       final persistentRegistryFile = File(persistentRegistryFilePath);
 
-      final Map<String, CachedTileInformation> registry;
+      final Map<String, CachedMapTileMetadata> registry;
       try {
         if (await persistentRegistryFile.exists()) {
           final parsedCacheManager = await compute(
@@ -228,7 +201,7 @@ class MapTileCachingManager {
   Future<
       ({
         Uint8List bytes,
-        CachedTileInformation tileInfo,
+        CachedMapTileMetadata tileInfo,
       })?> getTile(
     String uuid,
   ) async {
@@ -252,7 +225,7 @@ class MapTileCachingManager {
   /// [bytes] is required if the tile is not already cached.
   Future<void> putTile(
     String uuid,
-    CachedTileInformation tileInfo, [
+    CachedMapTileMetadata tileInfo, [
     Uint8List? bytes,
   ]) async {
     if (_registry[uuid] case final existingTileInfo?

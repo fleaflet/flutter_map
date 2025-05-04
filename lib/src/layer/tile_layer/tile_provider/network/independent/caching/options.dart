@@ -7,7 +7,8 @@ class MapCachingOptions {
   ///
   /// This must be accessible to the program.
   ///
-  /// Defaults to a platform provided temporary directory.
+  /// Defaults to a platform provided cache directory, which may be cleared by
+  /// the OS at any time.
   final String? cacheDirectory;
 
   /// Preferred maximum size (in bytes) of the cache

@@ -18,7 +18,7 @@ Future<void> _persistentRegistryWorkerIsolate(
   ({
     SendPort port,
     String persistentRegistryFilePath,
-    Map<String, CachedTileInformation> initialRegistry,
+    Map<String, CachedMapTileMetadata> initialRegistry,
   }) input,
 ) async {
   final registry = input.initialRegistry;
@@ -53,7 +53,7 @@ Future<void> _persistentRegistryWorkerIsolate(
 
   await for (final val in receivePort) {
     final (:uuid, :tileInfo) =
-        val as ({String uuid, CachedTileInformation? tileInfo});
+        val as ({String uuid, CachedMapTileMetadata? tileInfo});
 
     if (tileInfo == null) {
       registry.remove(uuid);
@@ -79,12 +79,12 @@ Future<void> _tileFileWriterWorkerIsolate(SendPort port) async {
 }
 
 /// Decode the JSON within the persistent registry into a mapping of tile
-/// UUIDs to their [CachedTileInformation]s
+/// UUIDs to their [CachedMapTileMetadata]s
 ///
 /// Should be used within an isolate/[compute]r.
 ///
 /// If the JSON is invalid or the file cannot be read, this returns null.
-HashMap<String, CachedTileInformation>? _parsePersistentRegistryWorker(
+HashMap<String, CachedMapTileMetadata>? _parsePersistentRegistryWorker(
   String persistentRegistryFilePath,
 ) {
   final String json;
@@ -105,7 +105,7 @@ HashMap<String, CachedTileInformation>? _parsePersistentRegistryWorker(
     parsed.map(
       (key, value) => MapEntry(
         key,
-        CachedTileInformation.fromJson(value as Map<String, dynamic>),
+        CachedMapTileMetadata.fromJson(value as Map<String, dynamic>),
       ),
     ),
   );

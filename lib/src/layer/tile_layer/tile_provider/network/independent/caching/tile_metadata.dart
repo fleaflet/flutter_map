@@ -1,13 +1,20 @@
-part of 'manager.dart';
+import 'dart:io' show HttpDate; // this is web safe!
+
+import 'package:flutter_map/flutter_map.dart';
+import 'package:meta/meta.dart';
 
 /// Metadata about a tile cached with the [MapTileCachingManager]
+///
+/// Direct usage of this class is not usually necessary. It is visible so other
+/// tile providers may make use of it.
 @immutable
-class CachedTileInformation {
-  /// Create a new metadata container
+class CachedMapTileMetadata {
+  /// Create new metadata
   ///
-  /// [lastModifiedLocally] should be set to [DateTime.timestamp]. Other
-  /// properties should be set based on the tile's HTTP response headers.
-  const CachedTileInformation({
+  /// [lastModifiedLocally] must be set to [DateTime.timestamp]. Other
+  /// properties should usually be set based on the tile's HTTP response
+  /// headers.
+  const CachedMapTileMetadata({
     required this.lastModifiedLocally,
     required this.staleAt,
     required this.lastModified,
@@ -15,7 +22,7 @@ class CachedTileInformation {
   });
 
   /// Decode metadata from JSON
-  CachedTileInformation.fromJson(Map<String, dynamic> json)
+  CachedMapTileMetadata.fromJson(Map<String, dynamic> json)
       : lastModifiedLocally =
             HttpDate.parse(json['lastModifiedLocally'] as String),
         staleAt = HttpDate.parse(json['staleAt'] as String),
@@ -36,16 +43,16 @@ class CachedTileInformation {
   /// The date/time at which the tile becomes stale according to the HTTP spec
   final DateTime staleAt;
 
-  /// The tile's [HttpHeaders.lastModifiedHeader]
+  /// The tile's last modified HTTP header
   final DateTime? lastModified;
 
-  /// The tile's [HttpHeaders.etagHeader]
+  /// The tile's etag HTTP header
   final String? etag;
 
   /// Whether the tile is currently stale
   bool get isStale => DateTime.timestamp().isAfter(staleAt);
 
-  /// Convert the metadata to JSON
+  /// Encode the metadata to JSON
   Map<String, String> toJson() => {
         'lastModifiedLocally': HttpDate.format(lastModifiedLocally),
         'staleAt': HttpDate.format(staleAt),
@@ -61,7 +68,7 @@ class CachedTileInformation {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is CachedTileInformation &&
+      (other is CachedMapTileMetadata &&
           lastModifiedLocally == other.lastModifiedLocally &&
           staleAt == other.staleAt &&
           lastModified == other.lastModified &&

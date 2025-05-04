@@ -5,6 +5,7 @@ import 'dart:ui';
 
 import 'package:flutter/painting.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provider.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/independent/caching/tile_metadata.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/independent/image_provider.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/native/caching/manager.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/web/tile_loader.dart';
@@ -52,7 +53,7 @@ Future<Codec> _ioLoadTileImage(
 
     unawaited(cachingManager.putTile(
       uuid,
-      CachedTileInformation(
+      CachedMapTileMetadata(
         lastModifiedLocally: DateTime.timestamp(),
         staleAt: _calculateStaleAt(
           response,
@@ -127,7 +128,7 @@ Future<Codec> _ioLoadTileImage(
 
       unawaited(cachingManager.putTile(
         uuid,
-        CachedTileInformation(
+        CachedMapTileMetadata(
           lastModifiedLocally: DateTime.timestamp(),
           staleAt: _calculateStaleAt(
             response,
