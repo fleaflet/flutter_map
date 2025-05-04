@@ -30,11 +30,22 @@ class MapCachingOptions {
   /// Defaults to `null`: use duration calculated from each tile's HTTP headers.
   final Duration? overrideFreshAge;
 
+  /// Function to convert a tile URL to a key used in the cache
+  ///
+  /// This may be useful where parts of the URL are volatile or do not represent
+  /// the tile image, for example, API keys contained with the query parameters.
+  ///
+  /// The resulting key should be unique to that tile URL.
+  ///
+  /// Defaults to generating a UUID from the entire URL string.
+  final String Function(String url)? cacheKeyGenerator;
+
   /// Create a configuration for caching
   const MapCachingOptions({
     this.cacheDirectory,
     this.maxCacheSize = 1000000000,
     this.overrideFreshAge,
+    this.cacheKeyGenerator,
   })  : assert(
           maxCacheSize == null || maxCacheSize > 0,
           '`maxCacheSize` must be greater than 0 or disabled',
@@ -45,7 +56,12 @@ class MapCachingOptions {
         );
 
   @override
-  int get hashCode => Object.hash(cacheDirectory, maxCacheSize);
+  int get hashCode => Object.hash(
+        cacheDirectory,
+        maxCacheSize,
+        overrideFreshAge,
+        cacheKeyGenerator,
+      );
 
   @override
   bool operator ==(Object other) =>
@@ -53,5 +69,6 @@ class MapCachingOptions {
       (other is MapCachingOptions &&
           cacheDirectory == other.cacheDirectory &&
           maxCacheSize == other.maxCacheSize &&
-          overrideFreshAge == other.overrideFreshAge);
+          overrideFreshAge == other.overrideFreshAge &&
+          cacheKeyGenerator == other.cacheKeyGenerator);
 }

@@ -43,7 +43,8 @@ Future<Codec> _ioLoadTileImage(
   }
 
   final resolvedUrl = useFallback ? key.fallbackUrl ?? '' : key.url;
-  final uuid = _uuid.v5(Namespace.url.value, resolvedUrl);
+  final uuid = key.cachingOptions!.cacheKeyGenerator?.call(resolvedUrl) ??
+      _uuid.v5(Namespace.url.value, resolvedUrl);
 
   final cachedTile = await cachingManager.getTile(uuid);
 
