@@ -49,6 +49,7 @@ class _RepeatedWorldsPageState extends State<RepeatedWorldsPage> {
               initialCenter: const LatLng(0, 0),
               initialZoom: 2,
               onTap: (_, p) => setState(() => _customMarkers.add(_buildPin(p))),
+              cameraConstraint: const CameraConstraint.containLatitude(),
             ),
             children: [
               openStreetMapTileLayer,
