@@ -16,7 +16,8 @@
 
 ## Usage
 
-* [Base Widget](usage/basics.md)
+* [Base Widget](usage/basics/README.md)
+  * [Unbounded Horizontal Scrolling](usage/basics/unbounded-horizontal-scrolling.md)
 * [Options](usage/options/README.md)
   * [Interaction Options](usage/options/interaction-options.md)
   * [Custom CRSs](usage/options/custom-crss.md)
@@ -31,6 +32,7 @@
 
 * [Tile Layer](layers/tile-layer/README.md)
   * [Tile Providers](layers/tile-layer/tile-providers.md)
+  * [Built-In Caching](layers/tile-layer/built-in-caching.md)
 * [Marker Layer](layers/marker-layer.md)
 * [Polygon Layer](layers/polygon-layer.md)
 * [Polyline Layer](layers/polyline-layer.md)
@@ -42,11 +44,11 @@
 
 ## Tile Servers
 
-* [⚠️ Using OpenStreetMap (direct)](tile-servers/using-openstreetmap-direct.md)
-* [Using Google Maps](tile-servers/using-google-maps.md)
+* [Using OpenStreetMap (direct)](tile-servers/using-openstreetmap-direct.md)
 * [Using Mapbox](tile-servers/using-mapbox.md)
-* [Using Thunderforest](tile-servers/using-thunderforest.md)
+* [Using Google Maps](tile-servers/using-google-maps.md)
 * [Using Tracestrack](tile-servers/using-stadia-maps.md)
+* [Using Thunderforest](tile-servers/using-thunderforest.md)
 * [Using Stadia Maps](tile-servers/using-stadia-maps-1.md)
 * [Using Lima Labs](tile-servers/using-lima-labs.md)
 * [Using Bing Maps](tile-servers/using-bing-maps.md)

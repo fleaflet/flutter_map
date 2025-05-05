@@ -24,7 +24,7 @@ However, some layers are 'static', such as the [`AttributionLayer`](../layers/at
 
 Both of these layer types are defined in the same `children` list. Most of the time, static layers go atop mobile layers, so should be at the end of the list.
 
-## Layers With Elements
+## Layers With Elements: "Feature Layers"
 
 Some layers - such as `PolygonLayer` - take 'elements' - such as `Polygon`s - as an argument, which are then displayed by the layer. They are usually displayed bottom-to-top in the order of the list (like a `Stack`).
 

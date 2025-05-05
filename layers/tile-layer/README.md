@@ -1,13 +1,13 @@
 # Tile Layer
 
-{% hint style="danger" %}
-## Complying with tile server terms
+{% hint style="warning" %}
+## You must comply with all the terms set by your tile server
 
-It is your own responsibility to comply with any appropriate restrictions and requirements set by your chosen tile server/provider. Always read their Terms of Service. Failure to do so may lead to any punishment, at the tile server's discretion.
+It is your own responsibility to comply with any appropriate restrictions and requirements set by your chosen tile server/provider. Always read their terms of service. Failure to do so may lead to any punishment, at the tile server's discretion.
 
-The OpenStreetMap Tile Server, as is used for demonstration throughout this project, is **NOT free to use by everyone**. Their terms of service can be [found here](https://operations.osmfoundation.org/policies/tiles).
-
-**Production apps should be extremely cautious about using this tile server**; other projects, libraries, and packages suggesting that OpenStreetMap provides free-to-use map tiles are incorrect. **The examples in this documentation do not necessarily create fully compliant maps.**
+The OpenStreetMap public tile server, as is used for demonstration throughout this project, is **NOT free to use by everyone**. Their terms of service can be [found here](https://operations.osmfoundation.org/policies/tiles).\
+**Production apps should be extremely cautious about using this tile server**; other projects, libraries, and packages suggesting that OpenStreetMap provides free-to-use map tiles are incorrect. **The examples in this documentation do not necessarily create fully compliant maps**.\
+See [using-openstreetmap-direct.md](../../tile-servers/using-openstreetmap-direct.md "mention") for more info.
 {% endhint %}
 
 The basis of any map is a `TileLayer`, which displays square raster images in a continuous grid, sourced from the Internet or a local file system.
@@ -18,7 +18,6 @@ The basis of any map is a `TileLayer`, which displays square raster images in a 
 TileLayer(
   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
   userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-  // caching
   // + many other options
 ),
 ```
@@ -203,18 +202,6 @@ Therefore, carefully consider whether emulating retina mode is appropriate for y
 Set the `maxNativeZoom` parameter to the maximum zoom level covered by your tile source. This will make flutter\_map scale the tiles at this level when zooming in further, instead of attempting to load new tiles at the higher zoom level (which will fail).
 
 You can also set `MapOptions.maxZoom`, which is an absolute zoom limit for users. It is recommended to set this to a few levels greater than the maximum zoom level covered by any of your tile layers.
-{% endstep %}
-
-{% step %}
-### Add caching
-
-Caching makes your app faster and cheaper! Some tile servers, such as the OpenStreetMap tile server, will require you to use caching.
-
-{% hint style="info" %}
-The flutter\_map team is looking into implementing automatic caching into the core in the near-future. However, at the current time, you will need to add caching yourself.
-{% endhint %}
-
-There's multiple good options to add caching. See [#caching](../../tile-servers/offline-mapping.md#caching "mention") for more information.
 {% endstep %}
 {% endstepper %}
 

@@ -28,6 +28,14 @@ PolygonLayer(
 [layer-interactivity](layer-interactivity/)
 {% endcontent-ref %}
 
+## Multi-Worlds
+
+The `PolygonLayer` paints its `Polygon`s across all visible worlds by default. This can be changed.
+
+{% content-ref url="../usage/basics/unbounded-horizontal-scrolling.md" %}
+[unbounded-horizontal-scrolling.md](../usage/basics/unbounded-horizontal-scrolling.md)
+{% endcontent-ref %}
+
 ## Performance Optimizations
 
 flutter\_map includes many performance optimizations built in, especially as of v7. Some are enabled by default, but may be only 'weakly' applied, and others must be enabled manually. There are also some other actions that can be taken externally to improve performance
@@ -82,6 +90,14 @@ For this reason, polygons can be more simplified at lower zoom levels (more zoom
 
 <details>
 
+<summary>Painter Fill Method</summary>
+
+See [#painter-fill-method-1](polygon-layer.md#painter-fill-method-1 "mention") for more information. `evenOdd` is more performant, but at the expense of potential visual glitches.
+
+</details>
+
+<details>
+
 <summary>Performant Rendering, with <code>drawVertices</code> <em>(disabled by default)</em></summary>
 
 {% hint style="warning" %}
@@ -122,7 +138,45 @@ These are much cheaper for the rendering engine (particularly Skia), as it does 
 
 </details>
 
+## Painter Fill Method
+
+{% hint style="info" %}
+This section contains references to as-of-yet unreleased versions.
+{% endhint %}
+
+The default renderer supports two painter fill methods using different Flutter APIs. These fill methods change the way Flutter decides what is considered within a polygon (and should be filled), and what is outside. This can change the way particularly intersections and overlaps appear visually.
+
+This can be set using the `painterFillMethod` property and the `PolygonPainterFillMethod` enum.&#x20;
+
+Many apps will not need to change from the default method. Before changing the method, profile and test for visual glitches thouroughly.
+
+{% tabs %}
+{% tab title="Path.combine" %}
+The `PolygonPainterFillMethod.pathCombine` option uses lesser-used Flutter APIs: the [`Path.combine`](https://api.flutter.dev/flutter/dart-ui/Path/combine.html) constructor. This allows for more intricate [`PathOperation`](https://api.flutter.dev/flutter/dart-ui/PathOperation.html)s, such as `difference` and `union`.
+
+This gives the correct/intended/best visual results on native platforms. It's the default on native (non-web) platforms.
+
+However, on the web, it causes major visual glitches due to a [Flutter issue](https://github.com/flutter/flutter/issues/124675).
+
+Additionally, it has slightly worse performance (especially at scale) than [#even-odd](polygon-layer.md#even-odd "mention"). The hit to performance is unlikely to be significant or even noticeable in many applications, but applications drawing many polygons may see a slow of about 2ms (as tested in the example app's stress test).
+{% endtab %}
+
+{% tab title="Even/Odd" %}
+The `PolygonPainterFillMethod.evenOdd` option uses more simple Flutter APIs: the [`PathFillType`](https://api.flutter.dev/flutter/dart-ui/PathFillType.html)`.evenOdd` [rule](https://en.wikipedia.org/wiki/Even%E2%80%93odd_rule).
+
+This gives the best performance, and works on the web. This is the default when targeting the web.
+
+However, it yields unintended results in certain edge cases when polygons intersect when [#inverted-filling](polygon-layer.md#inverted-filling "mention") is used, or when polygon holes can intersect with other holes.
+
+<div align="center"><figure><img src="../.gitbook/assets/evenOdd Filling Issue.png" alt="" width="301"><figcaption><p>An example of a visual defect caused by using the <code>.evenOdd</code> setting</p></figcaption></figure></div>
+{% endtab %}
+{% endtabs %}
+
 ## Inverted Filling
+
+{% hint style="info" %}
+This section contains references to as-of-yet unreleased versions.
+{% endhint %}
 
 {% hint style="warning" %}
 On the web, inverted filling may not work as expected in some cases. It will not match the behaviour seen on native platforms.
@@ -134,7 +188,7 @@ This is due to multiple limitations/bugs within Flutter. See [https://github.com
 
 Inverted filling (`invertedFill`) allows a color to be applied to all parts of the map outside a polygon. Transparently filled polygons will reveal the layers beneath without the inverted fill color.
 
-<div align="center"><figure><img src="../.gitbook/assets/Inverted Fill Polygons (Valid).png" alt=""><figcaption><p>Inverted filling working correctly (native)</p></figcaption></figure> <figure><img src="../.gitbook/assets/Inverted Fill Polygons (Invalid).png" alt="" width="563"><figcaption><p>Inverted filling broken on web</p></figcaption></figure></div>
+<div align="center" data-full-width="false"><figure><img src="../.gitbook/assets/Inverted Fill Polygons (Valid).png" alt="" width="375"><figcaption><p>Inverted filling working correctly (native)</p></figcaption></figure> <figure><img src="../.gitbook/assets/Inverted Fill Polygons (Invalid).png" alt="" width="375"><figcaption><p>Inverted filling broken on web</p></figcaption></figure></div>
 
 ## Polygon Manipulation
 

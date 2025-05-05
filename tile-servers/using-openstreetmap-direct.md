@@ -1,9 +1,8 @@
 ---
-hidden: true
-noIndex: true
+noRobotsIndex: true
 ---
 
-# ⚠️ Using OpenStreetMap (direct)
+# Using OpenStreetMap (direct)
 
 {% hint style="info" %}
 This does not apply to users using OpenStreetMap data through other tile servers, only to users using the public OpenStreetMap tile servers directly.
@@ -11,38 +10,31 @@ This does not apply to users using OpenStreetMap data through other tile servers
 
 flutter\_map wants to help keep map data available for everyone. One of the largest sources of this data is OpenStreetMap. OpenStreetMap data powers the majority of non-proprietary maps - from actual map tiles/images to navigation data - in existence today. The data itself is free for everyone under the [ODbL](https://opendatacommons.org/licenses/odbl/).
 
-The OpenStreetMap Foundation run OpenStreetMap as a not-for-profit. They also provide a public tile server at [https://tile.openstreetmap.org](https://tile.openstreetmap.org). This server is used throughout this documentation for code examples, and in our demo app.
+The OpenStreetMap Foundation run OpenStreetMap as a not-for-profit. They also provide a public tile server at [https://tile.openstreetmap.org](https://tile.openstreetmap.org), which is run on donations and volunteering time. This server is used throughout this documentation for code examples, and in our demo app.
 
 {% hint style="warning" %}
-The OpenStreetMap tile server is NOT free to use by everyone.
-{% endhint %}
+## The OpenStreetMap public tile server is NOT free to use by everyone
 
 {% embed url="https://operations.osmfoundation.org/policies/tiles/" %}
-OpenStreetMap Tile Usage Policy
+OpenStreetMap public tile server usage policy
 {% endembed %}
 
-Tile servers require complex management and expensive hardware. OpenStreetMap's tile servers are run entirely on donations.
+flutter\_map can be setup to conform to these requirements - but it may not conform by default.
+{% endhint %}
+
+The OpenStreetMap public tile server is without cost (for users), but, "without cost" ≠ "without restriction" ≠ "open".
 
 ## What is flutter\_map doing?
 
 {% hint style="warning" %}
-From v8.2.0, warnings will appear in console when a `TileLayer` is loaded using one of the OpenStreetMap tile servers.
+From v8.2.0 onwards, warnings will appear in console when a `TileLayer` is loaded using one of the OpenStreetMap tile servers.
 {% endhint %}
 
-{% hint style="danger" %}
-## A near-future non-major version of flutter\_map will block all tiles from these servers in release/profile builds by default
+Additionally from v8.2.0, flutter\_map will provide automatically enabled [built-in-caching.md](../layers/tile-layer/built-in-caching.md "mention"). This aims to reduce the number of tile requests.
 
-In debug mode, the console warning will be changed.
+We will continue to monitor the strain that flutter\_map places on the OSM servers. If these measures do not reduce the request rates, we may impose stricter policies - such as blocking all OSM tiles in release mode builds by default.
 
-_The exact date of this version's release is to-be-confirmed, but will be a minimum of 30 days from the release of v8.2.0._
-{% endhint %}
-
-The maintainers and community are also actively looking into ways to improve compliance by default:
-
-* Introducing automatic basic caching into the core\
-  This will likely massively reduce the number of tile requests and improve app performance (at the expense of consuming storage space)
-* Checking for adequate and stable HTTP/2 & HTTP/3 support (HTTP/2 is already used on web)
-* Making an attribution to OpenStreetMap the default
+We will also continue to look into other ways to improve compliance automatically.
 
 ## Why is flutter\_map doing this?
 
@@ -91,7 +83,7 @@ If you're a commercial user and want the best balance of flexibility and afforda
 If you still want to use OpenStreetMap, you must read the policy and comply with its restrictions and requirements. It also contains some background info as to why this is important.
 
 {% embed url="https://operations.osmfoundation.org/policies/tiles/" %}
-OpenStreetMap Tile Usage Policy
+OpenStreetMap public tile server usage policy
 {% endembed %}
 
 To note:
@@ -106,21 +98,31 @@ Also note all the other requirements, which may require you to make adjustments 
 {% step %}
 ### Make all necessary adjustments
 
-{% hint style="warning" %}
-By default, flutter\_map does NOT meet all of the requirements. The examples in this documentation may also not meet the requirements.
+Check the OSM policy for all the adjustments you might need to make. Here's some common ones:
 
-We are actively looking into ways to improve compliance without further action from users.
-{% endhint %}
+*   **Enable conforming caching**
 
-One common adjustment on non-web platform is to introduce caching. This step alone reduces the number of requests massively. We've got several recommendations to make it quick and easy to add caching to your project: [#caching](offline-mapping.md#caching "mention").
+    {% hint style="success" %}
+    v8.2.0 introduces automatically-enabled [built-in-caching.md](../layers/tile-layer/built-in-caching.md "mention")! This is designed to meet the caching requirements of the usage policy. Check the link for more info.
+    {% endhint %}
 
-Another is attribution. There are built-in attribution widgets to make this easy: see [attribution-layer.md](../layers/attribution-layer.md "mention") for more info.
+    There's also other options to implement [#caching](offline-mapping.md#caching "mention") to meet the requirements, and go beyond the capabilities of the built-in caching.
+*   **Add sufficient attribution**
 
-You should also check you've set `TileLayer.userAgentPackageName`.
+    {% hint style="success" %}
+    The `RichAttributionWidget` or `SimpleAttributionWidget` can both be used to setup attribution which looks great, is unintrusive, and is conforming - provided you add the necessary sources. See [attribution-layer.md](../layers/attribution-layer.md "mention") for more info and a simple code snippet you can add to meet the attribution requirement.
+    {% endhint %}
+
+    You can also add attribution in any other way that meets the requirements.
+*   **Set a more specific user-agent to identify your client**
+
+    {% hint style="success" %}
+    flutter\_map provides its own user-agent on native platforms, but this isn't enough to meet the requirements. You should set `TileLayer.userAgentPackageName`: see the [#recommended-setup](../layers/tile-layer/#recommended-setup "mention") for the `TileLayer`.
+    {% endhint %}
 {% endstep %}
 
 {% step %}
-### Re-enable the OpenStreetMap tile servers
+### Disable the console warnings
 
 If you're eligible to use the servers, you can re-enable them in release mode and disable the console warnings in debug mode.
 

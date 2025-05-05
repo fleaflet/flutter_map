@@ -41,6 +41,14 @@ If any polylines are very thin, it is recommended for accessibility reasons to i
 The `minimumHitbox` argument adjusts the minimum size of the hitbox - the size of the hitbox will usually be the entire visual area/thickness of the polyline (and border), but will be no less than this value. It defaults to 10.
 {% endhint %}
 
+## Multi-Worlds
+
+The `PolylineLayer` paints its `Polyline`s across all visible worlds by default. This can be changed.
+
+{% content-ref url="../usage/basics/unbounded-horizontal-scrolling.md" %}
+[unbounded-horizontal-scrolling.md](../usage/basics/unbounded-horizontal-scrolling.md)
+{% endcontent-ref %}
+
 ## Performance Optimizations
 
 {% hint style="success" %}
