@@ -1,9 +1,10 @@
+import 'package:flutter/animation.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:meta/meta.dart';
 
 /// All interactive options for [FlutterMap]
 @immutable
-final class InteractionOptions {
+class InteractionOptions {
   /// See [InteractiveFlag] for custom settings
   final int flags;
 
@@ -66,6 +67,27 @@ final class InteractionOptions {
   /// with the scroll wheel of a mouse.
   final double scrollWheelVelocity;
 
+  /// Calculates the zoom difference to apply to the initial zoom level when a
+  /// user is performing a double-tap drag zoom gesture
+  ///
+  /// `verticalOffset` is the vertical distance between the user's initial
+  /// pointer-down position and their current dragged position. `camera` may be
+  /// used, for example, to factor in the current zoom level.
+  ///
+  /// The default calculator is [defaultDoubleTapDragZoomChangeCalculator].
+  final double Function(double verticalOffset, MapCamera camera)
+      doubleTapDragZoomChangeCalculator;
+
+  /// The duration of the animation played when double-tap zooming
+  ///
+  /// Defaults to 200ms.
+  final Duration doubleTapZoomDuration;
+
+  /// The curve of the animation played when double-tap zooming
+  ///
+  /// Defaults to [Curves.fastOutSlowIn].
+  final Curve doubleTapZoomCurve;
+
   /// Options to configure cursor/keyboard rotation
   ///
   /// Cursor/keyboard rotation is designed for desktop platforms, and allows the
@@ -103,20 +125,34 @@ final class InteractionOptions {
     this.pinchMoveWinGestures =
         MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
     this.scrollWheelVelocity = 0.005,
+    this.doubleTapDragZoomChangeCalculator =
+        defaultDoubleTapDragZoomChangeCalculator,
+    this.doubleTapZoomDuration = const Duration(milliseconds: 200),
+    this.doubleTapZoomCurve = Curves.fastOutSlowIn,
     this.cursorKeyboardRotationOptions = const CursorKeyboardRotationOptions(),
     this.keyboardOptions = const KeyboardOptions(),
   })  : assert(
           rotationThreshold >= 0.0,
-          'rotationThreshold needs to be a positive value',
+          '`rotationThreshold` must be positive',
         ),
         assert(
           pinchZoomThreshold >= 0.0,
-          'pinchZoomThreshold needs to be a positive value',
+          '`pinchZoomThreshold` must be positive',
         ),
         assert(
           pinchMoveThreshold >= 0.0,
-          'pinchMoveThreshold needs to be a positive value',
+          '`pinchMoveThreshold` must be positive',
         );
+
+  /// Default calculator function for [doubleTapDragZoomChangeCalculator]
+  ///
+  /// Uses a constant of 1/360, and changes the zoom speed based on the current
+  /// zoom level.
+  static double defaultDoubleTapDragZoomChangeCalculator(
+    double verticalOffset,
+    MapCamera camera,
+  ) =>
+      (1 / 360) * camera.zoom * verticalOffset;
 
   @override
   bool operator ==(Object other) =>
@@ -131,6 +167,10 @@ final class InteractionOptions {
       pinchMoveThreshold == other.pinchMoveThreshold &&
       pinchMoveWinGestures == other.pinchMoveWinGestures &&
       scrollWheelVelocity == other.scrollWheelVelocity &&
+      doubleTapDragZoomChangeCalculator ==
+          other.doubleTapDragZoomChangeCalculator &&
+      doubleTapZoomDuration == other.doubleTapZoomDuration &&
+      doubleTapZoomCurve == other.doubleTapZoomCurve &&
       keyboardOptions == other.keyboardOptions;
 
   @override
@@ -145,6 +185,9 @@ final class InteractionOptions {
         pinchMoveThreshold,
         pinchMoveWinGestures,
         scrollWheelVelocity,
+        doubleTapDragZoomChangeCalculator,
+        doubleTapZoomDuration,
+        doubleTapZoomCurve,
         keyboardOptions,
       );
 }
