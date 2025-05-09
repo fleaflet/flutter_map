@@ -3,9 +3,9 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
+import 'package:flutter_map/src/misc/deg_rad_conversions.dart';
 import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:vector_math/vector_math_64.dart';
 
 /// Describes the view of a map. This includes the size/zoom/position/crs as
 /// well as the minimum/maximum zoom. This class is mostly immutable but has

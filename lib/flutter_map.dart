@@ -43,11 +43,15 @@ export 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_display.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_image.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_layer.dart';
-export 'package:flutter_map/src/layer/tile_layer/tile_provider/asset_tile_provider.dart';
+export 'package:flutter_map/src/layer/tile_layer/tile_provider/asset/provider.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provider.dart';
-export 'package:flutter_map/src/layer/tile_layer/tile_provider/file_providers/tile_provider_stub.dart'
-    if (dart.library.io) 'package:flutter_map/src/layer/tile_layer/tile_provider/file_providers/tile_provider_io.dart';
-export 'package:flutter_map/src/layer/tile_layer/tile_provider/network_tile_provider.dart';
+export 'package:flutter_map/src/layer/tile_layer/tile_provider/file/stub_tile_provider.dart'
+    if (dart.library.io) 'package:flutter_map/src/layer/tile_layer/tile_provider/file/native_tile_provider.dart';
+export 'package:flutter_map/src/layer/tile_layer/tile_provider/network/independent/caching/manager.dart'
+    if (dart.library.io) 'package:flutter_map/src/layer/tile_layer/tile_provider/network/native/caching/manager.dart';
+export 'package:flutter_map/src/layer/tile_layer/tile_provider/network/independent/caching/options.dart';
+export 'package:flutter_map/src/layer/tile_layer/tile_provider/network/independent/caching/tile_metadata.dart';
+export 'package:flutter_map/src/layer/tile_layer/tile_provider/network/independent/tile_provider.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_update_event.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_update_transformer.dart';
 export 'package:flutter_map/src/map/camera/camera.dart';
