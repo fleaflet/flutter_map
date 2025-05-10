@@ -26,17 +26,19 @@ import 'package:meta/meta.dart';
 class MapTileCachingManager {
   const MapTileCachingManager._();
 
-  /// Returns the current instance if one is already available; otherwise, start
-  /// creating a new instance in the background and return `null`
+  /// Returns an existing instance if available, else creates one and returns
+  /// once ready
   ///
-  /// This will also return null if an instance is already being created in the
-  /// background but is not ready yet, or if one could not be created (for
-  /// example due to an error when attempting to create the instance).
+  /// If this is called multiple times simultanously, they will lock so that
+  /// only one instance is created.
   ///
-  /// [options] is only used to configure a new instance. If [options] changes,
-  /// a new instance will not be created.
-  static MapTileCachingManager? getInstanceOrCreate({
-    required MapCachingOptions options,
+  /// Throws if an instance did not exist and could not be created. In this
+  /// case, tile provider users should fallback to a non-caching implementation.
+  ///
+  /// If an instance is not already available, [options] is used to configure
+  /// the new instance.
+  static Future<MapTileCachingManager> getInstance({
+    MapCachingOptions options = const MapCachingOptions(),
   }) =>
       throw UnsupportedError(
         '`MapTileCachingManager` is only implemented on I/O platforms',

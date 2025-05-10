@@ -63,8 +63,7 @@ class MapTileCachingManager {
 
   static const _persistentRegistryFileName = 'manager.json';
 
-  static MapTileCachingManager? _instance;
-  static bool _instanceBeingCreated = false;
+  static Completer<MapTileCachingManager>? _instance;
 
   final String _cacheDirectory;
   final void Function(String uuid, CachedMapTileMetadata? tileInfo)
@@ -72,42 +71,34 @@ class MapTileCachingManager {
   final void Function(String tileFilePath, Uint8List bytes) _writeTileFile;
   final Map<String, CachedMapTileMetadata> _registry;
 
-  /// Returns the current instance if one is already available; otherwise, start
-  /// creating a new instance in the background and return `null`
+  /// Returns an existing instance if available, else creates one and returns
+  /// once ready
   ///
-  /// This will also return null if an instance is already being created in the
-  /// background but is not ready yet, or if one could not be created (for
-  /// example due to an error when attempting to create the instance).
+  /// If this is called multiple times simultanously, they will lock so that
+  /// only one instance is created.
   ///
-  /// [options] is only used to configure a new instance. If [options] changes,
-  /// a new instance will not be created.
-  static MapTileCachingManager? getInstanceOrCreate({
-    required MapCachingOptions options,
-  }) {
-    if (_instance != null) return _instance!;
+  /// Throws if an instance did not exist and could not be created. In this
+  /// case, tile provider users should fallback to a non-caching implementation.
+  ///
+  /// If an instance is not already available, [options] is used to configure
+  /// the new instance.
+  static Future<MapTileCachingManager> getInstance({
+    MapCachingOptions options = const MapCachingOptions(),
+  }) async {
+    if (_instance != null) return await _instance!.future;
 
-    if (_instanceBeingCreated) return null;
-    _instanceBeingCreated = true;
+    _instance = Completer();
+    final MapTileCachingManager instance;
 
-    () async {
-      final Directory resolvedCacheDirectory;
-      try {
-        resolvedCacheDirectory = Directory(
-          p.join(
-            options.cacheDirectory ??
-                (await getApplicationCacheDirectory()).absolute.path,
-            'fm_cache',
-          ),
-        );
-      } on MissingPlatformDirectoryException {
-        return null;
-      }
-
-      try {
-        await resolvedCacheDirectory.create(recursive: true);
-      } on FileSystemException {
-        return null;
-      }
+    try {
+      final resolvedCacheDirectory = Directory(
+        p.join(
+          options.cacheDirectory ??
+              (await getApplicationCacheDirectory()).absolute.path,
+          'fm_cache',
+        ),
+      );
+      await resolvedCacheDirectory.create(recursive: true);
 
       final persistentRegistryFilePath = p.join(
         resolvedCacheDirectory.absolute.path,
@@ -116,75 +107,63 @@ class MapTileCachingManager {
       final persistentRegistryFile = File(persistentRegistryFilePath);
 
       final Map<String, CachedMapTileMetadata> registry;
-      try {
-        if (await persistentRegistryFile.exists()) {
-          final parsedCacheManager = await compute(
-            _parsePersistentRegistryWorker,
-            persistentRegistryFilePath,
-            debugLabel: '[flutter_map: cache] Persistent Registry Parser',
-          );
-          if (parsedCacheManager == null) {
-            await resolvedCacheDirectory.delete(recursive: true);
-            await resolvedCacheDirectory.create(recursive: true);
-            await persistentRegistryFile.create(recursive: true);
-            registry = HashMap();
-          } else {
-            registry = parsedCacheManager;
-
-            if (options.maxCacheSize case final sizeLimit?) {
-              // This can cause some delay when creating
-              // But it's much better than lagging or inconsistent registries
-              (await compute(
-                _limitCacheSizeWorker,
-                (
-                  cacheDirectoryPath: resolvedCacheDirectory.absolute.path,
-                  persistentRegistryFileName: _persistentRegistryFileName,
-                  sizeLimit: sizeLimit,
-                ),
-                debugLabel: '[flutter_map: cache] Size Limiter',
-              ))
-                  .forEach(registry.remove);
-            }
-          }
-        } else {
+      if (await persistentRegistryFile.exists()) {
+        final parsedCacheManager = await compute(
+          _parsePersistentRegistryWorker,
+          persistentRegistryFilePath,
+          debugLabel: '[flutter_map: cache] Persistent Registry Parser',
+        );
+        if (parsedCacheManager == null) {
+          await resolvedCacheDirectory.delete(recursive: true);
+          await resolvedCacheDirectory.create(recursive: true);
           await persistentRegistryFile.create(recursive: true);
           registry = HashMap();
+        } else {
+          registry = parsedCacheManager;
+
+          if (options.maxCacheSize case final sizeLimit?) {
+            // This can cause some delay when creating
+            // But it's much better than lagging or inconsistent registries
+            (await compute(
+              _limitCacheSizeWorker,
+              (
+                cacheDirectoryPath: resolvedCacheDirectory.absolute.path,
+                persistentRegistryFileName: _persistentRegistryFileName,
+                sizeLimit: sizeLimit,
+              ),
+              debugLabel: '[flutter_map: cache] Size Limiter',
+            ))
+                .forEach(registry.remove);
+          }
         }
-      } on FileSystemException {
-        return null;
+      } else {
+        await persistentRegistryFile.create(recursive: true);
+        registry = HashMap();
       }
 
       final registryWorkerReceivePort = ReceivePort();
-      try {
-        await Isolate.spawn(
-          _persistentRegistryWorkerIsolate,
-          (
-            port: registryWorkerReceivePort.sendPort,
-            persistentRegistryFilePath: persistentRegistryFilePath,
-            initialRegistry: registry,
-          ),
-          debugName: '[flutter_map: cache] Persistent Registry Worker',
-        );
-      } catch (e) {
-        return null;
-      }
+      await Isolate.spawn(
+        _persistentRegistryWorkerIsolate,
+        (
+          port: registryWorkerReceivePort.sendPort,
+          persistentRegistryFilePath: persistentRegistryFilePath,
+          initialRegistry: registry,
+        ),
+        debugName: '[flutter_map: cache] Persistent Registry Worker',
+      );
       final registryWorkerSendPort =
           await registryWorkerReceivePort.first as SendPort;
 
       final tileFileWriterWorkerReceivePort = ReceivePort();
-      try {
-        await Isolate.spawn(
-          _tileFileWriterWorkerIsolate,
-          tileFileWriterWorkerReceivePort.sendPort,
-          debugName: '[flutter_map: cache] Tile File Writer',
-        );
-      } catch (e) {
-        return null;
-      }
+      await Isolate.spawn(
+        _tileFileWriterWorkerIsolate,
+        tileFileWriterWorkerReceivePort.sendPort,
+        debugName: '[flutter_map: cache] Tile File Writer',
+      );
       final tileFileWriterWorkerSendPort =
           await tileFileWriterWorkerReceivePort.first as SendPort;
 
-      _instance = MapTileCachingManager._(
+      instance = MapTileCachingManager._(
         cacheDirectory: resolvedCacheDirectory.absolute.path,
         writeToPersistentRegistry: (uuid, tileInfo) =>
             registryWorkerSendPort.send((uuid: uuid, tileInfo: tileInfo)),
@@ -192,9 +171,13 @@ class MapTileCachingManager {
             .send((tileFilePath: tileFilePath, bytes: bytes)),
         registry: registry,
       );
-    }();
+    } catch (error, stackTrace) {
+      _instance!.completeError(error, stackTrace);
+      rethrow;
+    }
 
-    return null;
+    _instance!.complete(instance);
+    return instance;
   }
 
   /// Retrieve a tile from the cache, if it exists
@@ -205,19 +188,14 @@ class MapTileCachingManager {
       })?> getTile(
     String uuid,
   ) async {
-    if (!_registry.containsKey(uuid)) {
-      unawaited(_removeTile(uuid));
-      return null;
-    }
-
     final tileFile = File(p.join(_cacheDirectory, uuid));
 
-    try {
-      return (bytes: await tileFile.readAsBytes(), tileInfo: _registry[uuid]!);
-    } on FileSystemException {
-      unawaited(_removeTile(uuid));
-      return null;
+    if (_registry[uuid] case final tileInfo? when await tileFile.exists()) {
+      return (bytes: await tileFile.readAsBytes(), tileInfo: tileInfo);
     }
+
+    unawaited(removeTile(uuid));
+    return null;
   }
 
   /// Add or update a tile in the cache
@@ -243,7 +221,7 @@ class MapTileCachingManager {
   }
 
   /// Remove a tile from the cache
-  Future<void> _removeTile(String uuid) async {
+  Future<void> removeTile(String uuid) async {
     final tileFile = File(p.join(_cacheDirectory, uuid));
     if (await tileFile.exists()) await tileFile.delete();
 

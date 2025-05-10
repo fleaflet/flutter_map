@@ -35,10 +35,12 @@ Future<Codec> _ioLoadTileImage(
   if (key.cachingOptions == null) {
     return simpleLoadTileImage(key, decode, useFallback: useFallback);
   }
-  final cachingManager = MapTileCachingManager.getInstanceOrCreate(
-    options: key.cachingOptions!,
-  );
-  if (cachingManager == null) {
+  final MapTileCachingManager cachingManager;
+  try {
+    cachingManager = await MapTileCachingManager.getInstance(
+      options: key.cachingOptions!,
+    );
+  } catch (_) {
     return simpleLoadTileImage(key, decode, useFallback: useFallback);
   }
 
