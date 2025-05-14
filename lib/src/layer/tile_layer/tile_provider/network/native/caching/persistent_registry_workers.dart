@@ -66,15 +66,50 @@ Future<void> _persistentRegistryWorkerIsolate(
   }
 }
 
-/// Isolate worker which writes bytes to files synchronously
-Future<void> _tileFileWriterWorkerIsolate(SendPort port) async {
+/// Isolate worker which writes & deletes tile files, and updates the size
+/// monitor, synchronously
+Future<void> _tileFileWriterWorkerIsolate(
+  ({
+    SendPort port,
+    String sizeMonitorFilePath,
+  }) input,
+) async {
+  final sizeMonitorWriter = File(input.sizeMonitorFilePath)
+      .openSync(mode: FileMode.append)
+    ..setPositionSync(0);
+  int currentSize =
+      sizeMonitorWriter.readSync(8).buffer.asInt64List().elementAtOrNull(0) ??
+          0;
+  final allocatedWriteBinBuffer = Uint8List(8);
+
   final receivePort = ReceivePort();
-  port.send(receivePort.sendPort);
+  input.port.send(receivePort.sendPort);
 
   await for (final val in receivePort) {
     final (:tileFilePath, :bytes) =
-        val as ({String tileFilePath, Uint8List bytes});
-    File(tileFilePath).writeAsBytesSync(bytes);
+        val as ({String tileFilePath, Uint8List? bytes});
+
+    final tileFile = File(tileFilePath);
+    final tileFileExists = tileFile.existsSync();
+
+    final existingTileSize = tileFileExists ? tileFile.lengthSync() : 0;
+    final newTileSize = bytes?.lengthInBytes ?? 0;
+    if (newTileSize - existingTileSize case final deltaSize
+        when deltaSize != 0) {
+      currentSize += deltaSize;
+      sizeMonitorWriter
+        ..setPositionSync(0)
+        ..writeFromSync(
+          allocatedWriteBinBuffer..buffer.asInt64List()[0] = currentSize,
+        )
+        ..flushSync();
+    }
+
+    if (bytes != null) {
+      tileFile.writeAsBytesSync(bytes);
+    } else if (tileFileExists) {
+      tileFile.deleteSync();
+    }
   }
 }
 

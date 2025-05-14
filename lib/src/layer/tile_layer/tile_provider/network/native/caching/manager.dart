@@ -54,22 +54,23 @@ class MapTileCachingManager {
     required String cacheDirectory,
     required void Function(String uuid, CachedMapTileMetadata? tileInfo)
         writeToPersistentRegistry,
-    required void Function(String tileFilePath, Uint8List bytes) writeTileFile,
-    required Map<String, CachedMapTileMetadata> registry,
+    required void Function(String tileFilePath, Uint8List? bytes) writeTileFile,
+    required HashMap<String, CachedMapTileMetadata> registry,
   })  : _cacheDirectory = cacheDirectory,
         _writeToPersistentRegistry = writeToPersistentRegistry,
         _writeTileFile = writeTileFile,
         _registry = registry;
 
-  static const _persistentRegistryFileName = 'manager.json';
+  static const _persistentRegistryFileName = 'registry.json';
+  static const _sizeMonitorFileName = 'sizeMonitor';
 
   static Completer<MapTileCachingManager>? _instance;
 
   final String _cacheDirectory;
   final void Function(String uuid, CachedMapTileMetadata? tileInfo)
       _writeToPersistentRegistry;
-  final void Function(String tileFilePath, Uint8List bytes) _writeTileFile;
-  final Map<String, CachedMapTileMetadata> _registry;
+  final void Function(String tileFilePath, Uint8List? bytes) _writeTileFile;
+  final HashMap<String, CachedMapTileMetadata> _registry;
 
   /// Returns an existing instance if available, else creates one and returns
   /// once ready
@@ -106,17 +107,22 @@ class MapTileCachingManager {
       );
       final persistentRegistryFile = File(persistentRegistryFilePath);
 
-      final Map<String, CachedMapTileMetadata> registry;
+      final sizeMonitorFilePath = p.join(
+        resolvedCacheDirectory.absolute.path,
+        _sizeMonitorFileName,
+      );
+
+      final HashMap<String, CachedMapTileMetadata> registry;
       if (await persistentRegistryFile.exists()) {
         final parsedCacheManager = await compute(
           _parsePersistentRegistryWorker,
           persistentRegistryFilePath,
           debugLabel: '[flutter_map: cache] Persistent Registry Parser',
         );
+
         if (parsedCacheManager == null) {
           await resolvedCacheDirectory.delete(recursive: true);
           await resolvedCacheDirectory.create(recursive: true);
-          await persistentRegistryFile.create(recursive: true);
           registry = HashMap();
         } else {
           registry = parsedCacheManager;
@@ -137,7 +143,6 @@ class MapTileCachingManager {
           }
         }
       } else {
-        await persistentRegistryFile.create(recursive: true);
         registry = HashMap();
       }
 
@@ -157,7 +162,10 @@ class MapTileCachingManager {
       final tileFileWriterWorkerReceivePort = ReceivePort();
       await Isolate.spawn(
         _tileFileWriterWorkerIsolate,
-        tileFileWriterWorkerReceivePort.sendPort,
+        (
+          port: tileFileWriterWorkerReceivePort.sendPort,
+          sizeMonitorFilePath: sizeMonitorFilePath,
+        ),
         debugName: '[flutter_map: cache] Tile File Writer',
       );
       final tileFileWriterWorkerSendPort =
@@ -222,8 +230,8 @@ class MapTileCachingManager {
 
   /// Remove a tile from the cache
   Future<void> removeTile(String uuid) async {
-    final tileFile = File(p.join(_cacheDirectory, uuid));
-    if (await tileFile.exists()) await tileFile.delete();
+    final tileFilePath = p.join(_cacheDirectory, uuid);
+    _writeTileFile(tileFilePath, null);
 
     if (_registry.remove(uuid) == null) return;
     _writeToPersistentRegistry(uuid, null);
