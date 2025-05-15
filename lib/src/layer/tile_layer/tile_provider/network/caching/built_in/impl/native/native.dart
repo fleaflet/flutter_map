@@ -1,16 +1,17 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/persistent_registry_parser.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/persistent_registry_writer.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/size_limiter.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/tile_writer_size_monitor.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-
-part 'persistent_registry_workers.dart';
 
 @internal
 class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
@@ -18,6 +19,7 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
   final int? maxCacheSize;
   final Duration? overrideFreshAge;
   final String Function(String url) cacheKeyGenerator;
+  final bool readOnly;
 
   @internal
   BuiltInMapCachingProviderImpl.createAndInitialise({
@@ -25,6 +27,7 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
     required this.maxCacheSize,
     required this.overrideFreshAge,
     required this.cacheKeyGenerator,
+    required this.readOnly,
   }) {
     _initialise();
   }
@@ -50,6 +53,7 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
   Future<void> _initialise() async {
     if (_isInitialised != null) return await _isInitialised!.future;
 
+    final stopwatch = Stopwatch()..start();
     _isInitialised = Completer<void>();
 
     try {
@@ -73,7 +77,7 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
 
       if (await persistentRegistryFile.exists()) {
         final parsedCacheManager = await compute(
-          _parsePersistentRegistryWorker,
+          persistentRegistryParserWorker,
           persistentRegistryFilePath,
           debugLabel: '[flutter_map: cache] Persistent Registry Parser',
         );
@@ -89,7 +93,7 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
             // This can cause some delay when creating
             // But it's much better than lagging or inconsistent registries
             (await compute(
-              _limitCacheSizeWorker,
+              sizeLimiterWorker,
               (
                 cacheDirectoryPath: _cacheDirectory,
                 persistentRegistryFileName: _persistentRegistryFileName,
@@ -108,7 +112,7 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
 
       final registryWorkerReceivePort = ReceivePort();
       await Isolate.spawn(
-        _persistentRegistryWorkerIsolate,
+        persistentRegistryWriterWorker,
         (
           port: registryWorkerReceivePort.sendPort,
           persistentRegistryFilePath: persistentRegistryFilePath,
@@ -121,10 +125,13 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
 
       final tileFileWriterWorkerReceivePort = ReceivePort();
       await Isolate.spawn(
-        _tileFileWriterWorkerIsolate,
+        tileWriterSizeMonitorWorker,
         (
           port: tileFileWriterWorkerReceivePort.sendPort,
+          cacheDirectoryPath: _cacheDirectory,
+          persistentRegistryFileName: _persistentRegistryFileName,
           sizeMonitorFilePath: sizeMonitorFilePath,
+          sizeMonitorFileName: _sizeMonitorFileName,
         ),
         debugName: '[flutter_map: cache] Tile File Writer',
       );
@@ -139,6 +146,9 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
       _isInitialised!.completeError(error, stackTrace);
       rethrow;
     }
+
+    stopwatch.stop();
+    print(stopwatch.elapsedMilliseconds);
 
     _isInitialised!.complete();
   }
@@ -167,6 +177,8 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
     required CachedMapTileMetadata tileInfo,
     Uint8List? bytes,
   }) async {
+    if (readOnly) return;
+
     await isInitialised;
 
     final uuid = cacheKeyGenerator(url);

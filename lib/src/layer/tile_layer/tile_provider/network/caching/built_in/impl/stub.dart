@@ -13,6 +13,7 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
   final int? maxCacheSize;
   final Duration? overrideFreshAge;
   final String Function(String url) cacheKeyGenerator;
+  final bool readOnly;
 
   @internal
   const BuiltInMapCachingProviderImpl.createAndInitialise({
@@ -20,6 +21,7 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
     required this.maxCacheSize,
     required this.overrideFreshAge,
     required this.cacheKeyGenerator,
+    required this.readOnly,
   });
 
   @override

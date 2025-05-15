@@ -46,18 +46,28 @@ abstract interface class BuiltInMapCachingProvider
 
     /// Override the duration of time a tile is considered fresh for
     ///
-    /// Defaults to `null`: use duration calculated from each tile's HTTP headers.
+    /// Defaults to `null`: use duration calculated from each tile's HTTP
+    /// headers.
     Duration? overrideFreshAge,
 
     /// Function to convert a tile URL to a key used in the cache
     ///
-    /// This may be useful where parts of the URL are volatile or do not represent
-    /// the tile image, for example, API keys contained with the query parameters.
+    /// This may be useful where parts of the URL are volatile or do not
+    /// represent the tile image, for example, API keys contained with the query
+    /// parameters.
     ///
     /// The resulting key should be unique to that tile URL.
     ///
     /// Defaults to generating a UUID from the entire URL string.
     String Function(String url)? cacheKeyGenerator,
+
+    /// Prevent any tiles from being added or updated
+    ///
+    /// Does not disable the size limiter if the cache size is larger than
+    /// `maxCacheSize`.
+    ///
+    /// Defaults to `false`.
+    bool readOnly = false,
   }) {
     assert(
       maxCacheSize == null || maxCacheSize > 0,
@@ -73,6 +83,7 @@ abstract interface class BuiltInMapCachingProvider
       overrideFreshAge: overrideFreshAge,
       cacheKeyGenerator:
           cacheKeyGenerator ?? (url) => _uuid.v5(Namespace.url.value, url),
+      readOnly: readOnly,
     );
   }
 

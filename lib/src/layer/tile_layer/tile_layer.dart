@@ -362,20 +362,17 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
       false && (kReleaseMode || kProfileMode) && !_unblockOpenStreetMapUrl;
   void _warnOpenStreetMapUrl() {
     if (!_isOpenStreetMapUrl || !kDebugMode || _unblockOpenStreetMapUrl) return;
-    Logger(printer: PrettyPrinter(methodCount: 0)).e(
+    Logger(printer: PrettyPrinter(methodCount: 0)).w(
       '''\x1B[1m\x1B[3mflutter_map\x1B[0m
 flutter_map wants to help keep map data available for everyone.
 We use the public OpenStreetMap tile servers in our code examples & demo app,
 but they are NOT free to use by everyone.
-In an upcoming non-major release, requests to 'tile.openstreetmap.org' or
-'tile.osm.org' will be blocked by default in release mode.
 Please review https://operations.osmfoundation.org/policies/tiles/ to see if
 your project is compliant with their Tile Usage Policy.
 For more information, see https://docs.fleaflet.dev/tile-servers/using-openstreetmap-direct.
 It describes in additional detail why we feel it is important to do this, how
-you can unblock the tile servers if your use-case is acceptable, the timeframes
-for this new policy, and how we're working to reduce requests without any extra
-work from you.''',
+you can disable this warning, the timeframes for this new policy, and how we're
+working to reduce requests without any extra work from you.''',
     );
   }
 
