@@ -298,6 +298,7 @@ class LatLngBounds {
     if (longitudeWidth >= 360 || other.longitudeWidth >= 360) {
       return true;
     }
+    // TODO may not be relevant for projections without world replication
     var delta = longitudeCenter - other.longitudeCenter;
     while (delta >= 180) {
       delta -= 360;
