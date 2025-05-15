@@ -53,7 +53,6 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
   Future<void> _initialise() async {
     if (_isInitialised != null) return await _isInitialised!.future;
 
-    final stopwatch = Stopwatch()..start();
     _isInitialised = Completer<void>();
 
     try {
@@ -146,9 +145,6 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
       _isInitialised!.completeError(error, stackTrace);
       rethrow;
     }
-
-    stopwatch.stop();
-    print(stopwatch.elapsedMilliseconds);
 
     _isInitialised!.complete();
   }
