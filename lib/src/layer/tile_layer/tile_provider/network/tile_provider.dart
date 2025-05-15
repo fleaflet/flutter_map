@@ -3,7 +3,7 @@ import 'dart:collection';
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/independent/image_provider.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/image_provider/image_provider.dart';
 import 'package:http/http.dart';
 import 'package:http/retry.dart';
 
@@ -36,7 +36,7 @@ class NetworkTileProvider extends TileProvider {
     super.headers,
     Client? httpClient,
     this.silenceExceptions = false,
-    this.cachingOptions = const MapCachingOptions(),
+    this.cachingProvider,
   })  : _isInternallyCreatedClient = httpClient == null,
         _httpClient = httpClient ?? RetryClient(Client());
 
@@ -44,12 +44,13 @@ class NetworkTileProvider extends TileProvider {
   /// over the network, and just return a transparent tile
   final bool silenceExceptions;
 
-  /// Configuration of built-in caching
+  /// Caching provider used to get cached tiles
   ///
   /// See online documentation for more information about built-in caching.
   ///
-  /// Set to `null` to disable. See [MapCachingOptions] for defaults.
-  final MapCachingOptions? cachingOptions;
+  /// Defaults to [BuiltInMapCachingProvider]. Set to
+  /// [DisabledMapCachingProvider] to disable.
+  final MapCachingProvider? cachingProvider;
 
   /// Long living client used to make all tile requests by
   /// [NetworkTileImageProvider] for the duration that this provider is
@@ -79,7 +80,7 @@ class NetworkTileProvider extends TileProvider {
         headers: headers,
         httpClient: _httpClient,
         silenceExceptions: silenceExceptions,
-        cachingOptions: cachingOptions,
+        cachingProvider: cachingProvider,
         startedLoading: () => _tilesInProgress[coordinates] = Completer(),
         finishedLoadingBytes: () {
           _tilesInProgress[coordinates]?.complete();

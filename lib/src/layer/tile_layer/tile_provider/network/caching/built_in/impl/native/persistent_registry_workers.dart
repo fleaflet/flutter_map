@@ -1,4 +1,4 @@
-part of 'manager.dart';
+part of 'native.dart';
 
 /// Isolate worker which maintains its own registry and sequences writes to
 /// the persistent registry
@@ -12,8 +12,6 @@ part of 'manager.dart';
 /// that the user should not usually terminate the isolate very close to loading
 /// tiles, but also small enough to group adjacent tile loads), so manual
 /// sequencing and locking is required.
-///
-/// See documentation on [MapTileCachingManager] for more info.
 Future<void> _persistentRegistryWorkerIsolate(
   ({
     SendPort port,
@@ -156,24 +154,36 @@ Future<List<String>> _limitCacheSizeWorker(
   ({
     String cacheDirectoryPath,
     String persistentRegistryFileName,
+    String sizeMonitorFilePath,
+    String sizeMonitorFileName,
     int sizeLimit
   }) input,
 ) async {
   final cacheDirectory = Directory(input.cacheDirectoryPath);
 
-  final currentCacheSize = await cacheDirectory
-      .list()
-      .fold(0, (sum, file) => sum + file.statSync().size);
+  final sizeMonitorReader = File(input.sizeMonitorFilePath).openSync()
+    ..setPositionSync(0);
+  final currentCacheSize =
+      sizeMonitorReader.readSync(8).buffer.asInt64List().elementAtOrNull(0) ??
+          0;
+  sizeMonitorReader.closeSync();
+
   if (currentCacheSize <= input.sizeLimit) return [];
 
   final mapping =
       SplayTreeMap<DateTime, List<({File file, String uuid, int size})>>();
   bool foundManager = false;
+  bool foundSizeMonitor = false;
   await for (final file in cacheDirectory.list()) {
     if (file is! File) continue;
     if (!foundManager &&
         p.basename(file.absolute.path) == input.persistentRegistryFileName) {
       foundManager = true;
+      continue;
+    }
+    if (!foundSizeMonitor &&
+        p.basename(file.absolute.path) == input.sizeMonitorFileName) {
+      foundSizeMonitor = true;
       continue;
     }
 

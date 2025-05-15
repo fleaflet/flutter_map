@@ -3,10 +3,13 @@ import 'dart:io' show HttpDate; // this is web safe!
 import 'package:flutter_map/flutter_map.dart';
 import 'package:meta/meta.dart';
 
-/// Metadata about a tile cached with the [MapTileCachingManager]
+/// Metadata about a tile cached with a [MapCachingProvider]
 ///
-/// Direct usage of this class is not usually necessary. It is visible so other
-/// tile providers may make use of it.
+/// Map caching is based on HTTP headers, which this class contains and can
+/// encode/decode to/from JSON.
+///
+/// External usage of this class is not usually necessary. It is visible so
+/// other tile providers may make use of it.
 @immutable
 class CachedMapTileMetadata {
   /// Create new metadata

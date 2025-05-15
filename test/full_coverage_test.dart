@@ -34,8 +34,8 @@ import 'package:flutter_map/src/layer/tile_layer/tile_provider/asset/provider.da
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provider.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/file/native_tile_provider.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/file/stub_tile_provider.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/independent/image_provider.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/independent/tile_provider.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/image_provider/image_provider.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/tile_provider.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';

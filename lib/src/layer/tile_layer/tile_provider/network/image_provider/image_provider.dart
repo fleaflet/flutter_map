@@ -1,13 +1,16 @@
 import 'dart:async';
+import 'dart:io'
+    show HttpHeaders, HttpDate, HttpException, HttpStatus; // this is web safe!
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/independent/tile_loader.dart'
-    if (dart.library.io) 'package:flutter_map/src/layer/tile_layer/tile_provider/network/native/tile_loader.dart'
-    if (dart.library.js_interop) 'package:flutter_map/src/layer/tile_layer/tile_provider/network/web/tile_loader.dart';
 import 'package:http/http.dart';
+
+part 'tile_loader_simple.dart';
+part 'tile_loader_with_caching.dart';
 
 /// Dedicated [ImageProvider] to fetch tiles from the network
 ///
@@ -43,15 +46,15 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
   /// Not included in [operator==].
   final bool silenceExceptions;
 
-  /// Configuration of built-in caching on native platforms
+  /// Caching provider used to get cached tiles
   ///
   /// See online documentation for more information about built-in caching.
   ///
-  /// Set to `null` to disable. See [MapCachingOptions] for defaults. Caching
-  /// is always disabled on the web.
+  /// Defaults to [BuiltInMapCachingProvider]. Set to
+  /// [DisabledMapCachingProvider] to disable.
   ///
   /// Not included in [operator==].
-  final MapCachingOptions? cachingOptions;
+  final MapCachingProvider? cachingProvider;
 
   /// Function invoked when the image starts loading (not from cache)
   ///
@@ -76,7 +79,7 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
     required this.headers,
     required this.httpClient,
     required this.silenceExceptions,
-    required this.cachingOptions,
+    required this.cachingProvider,
     required this.startedLoading,
     required this.finishedLoadingBytes,
   });
@@ -102,7 +105,7 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
     ImageDecoderCallback decode, {
     bool useFallback = false,
   }) =>
-      loadTileImage(key, decode, useFallback: useFallback);
+      _loadTileImageWithCaching(key, decode, useFallback: useFallback);
 
   @override
   SynchronousFuture<NetworkTileImageProvider> obtainKey(

@@ -1,73 +1,45 @@
-import 'dart:async';
-import 'dart:io';
-import 'dart:math';
-import 'dart:ui';
+part of 'image_provider.dart';
 
-import 'package:flutter/painting.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provider.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/independent/caching/tile_metadata.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/independent/image_provider.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/native/caching/manager.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/web/tile_loader.dart';
-import 'package:http/http.dart';
-import 'package:meta/meta.dart';
-import 'package:uuid/data.dart';
-import 'package:uuid/rng.dart';
-import 'package:uuid/uuid.dart';
-
-final _uuid = Uuid(goptions: GlobalOptions(MathRNG()));
-
-@internal
-Future<Codec> loadTileImage(
-  NetworkTileImageProvider key,
-  ImageDecoderCallback decode, {
-  bool useFallback = false,
-}) =>
-    _ioLoadTileImage(key, decode, useFallback: useFallback);
-
-Future<Codec> _ioLoadTileImage(
+Future<Codec> _loadTileImageWithCaching(
   NetworkTileImageProvider key,
   ImageDecoderCallback decode, {
   bool useFallback = false,
 }) async {
   key.startedLoading();
 
-  if (key.cachingOptions == null) {
-    return simpleLoadTileImage(key, decode, useFallback: useFallback);
-  }
-  final MapTileCachingManager cachingManager;
-  try {
-    cachingManager = await MapTileCachingManager.getInstance(
-      options: key.cachingOptions!,
-    );
-  } catch (_) {
-    return simpleLoadTileImage(key, decode, useFallback: useFallback);
-  }
-
   final resolvedUrl = useFallback ? key.fallbackUrl ?? '' : key.url;
-  final uuid = key.cachingOptions!.cacheKeyGenerator?.call(resolvedUrl) ??
-      _uuid.v5(Namespace.url.value, resolvedUrl);
 
-  final cachedTile = await cachingManager.getTile(uuid);
+  final cachingProvider =
+      key.cachingProvider ?? BuiltInMapCachingProvider.getOrCreateInstance();
+
+  if (!cachingProvider.isSupported) {
+    return _loadTileImageSimple(key, decode, useFallback: useFallback);
+  }
+
+  final ({Uint8List bytes, CachedMapTileMetadata tileInfo})? cachedTile;
+  try {
+    cachedTile = await cachingProvider.getTile(resolvedUrl);
+  } catch (_) {
+    return _loadTileImageSimple(key, decode, useFallback: useFallback);
+  }
 
   Future<Codec> handleOk(Response response) async {
     final lastModified = response.headers[HttpHeaders.lastModifiedHeader];
     final etag = response.headers[HttpHeaders.etagHeader];
 
-    unawaited(cachingManager.putTile(
-      uuid,
-      CachedMapTileMetadata(
-        lastModifiedLocally: DateTime.timestamp(),
-        staleAt: _calculateStaleAt(
-          response,
-          overrideFreshAge: key.cachingOptions!.overrideFreshAge,
+    unawaited(
+      cachingProvider.putTile(
+        url: resolvedUrl,
+        tileInfo: CachedMapTileMetadata(
+          lastModifiedLocally: DateTime.timestamp(),
+          staleAt: _calculateStaleAt(response),
+          lastModified:
+              lastModified != null ? HttpDate.parse(lastModified) : null,
+          etag: etag,
         ),
-        lastModified:
-            lastModified != null ? HttpDate.parse(lastModified) : null,
-        etag: etag,
+        bytes: response.bodyBytes,
       ),
-      response.bodyBytes,
-    ));
+    );
 
     return ImmutableBuffer.fromUint8List(response.bodyBytes).then(decode);
   }
@@ -86,7 +58,7 @@ Future<Codec> _ioLoadTileImage(
 
       // Otherwise fallback to the fallback URL
       if (!useFallback && key.fallbackUrl != null) {
-        return _ioLoadTileImage(key, decode, useFallback: true);
+        return _loadTileImageWithCaching(key, decode, useFallback: true);
       }
 
       // Otherwise throw an exception/silently fail
@@ -129,20 +101,19 @@ Future<Codec> _ioLoadTileImage(
       final lastModified = response.headers[HttpHeaders.lastModifiedHeader];
       final etag = response.headers[HttpHeaders.etagHeader];
 
-      unawaited(cachingManager.putTile(
-        uuid,
-        CachedMapTileMetadata(
-          lastModifiedLocally: DateTime.timestamp(),
-          staleAt: _calculateStaleAt(
-            response,
-            overrideFreshAge: key.cachingOptions!.overrideFreshAge,
+      unawaited(
+        cachingProvider.putTile(
+          url: resolvedUrl,
+          tileInfo: CachedMapTileMetadata(
+            lastModifiedLocally: DateTime.timestamp(),
+            staleAt: _calculateStaleAt(response),
+            lastModified: lastModified != null
+                ? HttpDate.parse(lastModified)
+                : cachedTile.tileInfo.lastModified,
+            etag: etag ?? cachedTile.tileInfo.etag,
           ),
-          lastModified: lastModified != null
-              ? HttpDate.parse(lastModified)
-              : cachedTile.tileInfo.lastModified,
-          etag: etag ?? cachedTile.tileInfo.etag,
         ),
-      ));
+      );
 
       return ImmutableBuffer.fromUint8List(cachedTile.bytes).then(decode);
     }
@@ -165,15 +136,8 @@ Future<Codec> _ioLoadTileImage(
   return await handleNotOk(response);
 }
 
-DateTime _calculateStaleAt(
-  Response response, {
-  required Duration? overrideFreshAge,
-}) {
+DateTime _calculateStaleAt(Response response) {
   final addToNow = DateTime.timestamp().add;
-
-  if (overrideFreshAge case final overrideFreshAge?) {
-    return addToNow(overrideFreshAge);
-  }
 
   if (response.headers[HttpHeaders.cacheControlHeader]?.toLowerCase()
       case final cacheControl?) {

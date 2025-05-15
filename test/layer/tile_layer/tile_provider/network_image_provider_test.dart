@@ -4,7 +4,8 @@ import 'dart:typed_data';
 
 import 'package:flutter/painting.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/independent/image_provider.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/image_provider/image_provider.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart';
 import 'package:mocktail/mocktail.dart';
@@ -72,7 +73,7 @@ void main() {
         headers: headers,
         httpClient: mockClient,
         silenceExceptions: false,
-        cachingOptions: null,
+        cachingProvider: const DisabledMapCachingProvider(),
         startedLoading: () => startedLoadingTriggered = true,
         finishedLoadingBytes: () => finishedLoadingTriggered = true,
       );
@@ -112,7 +113,7 @@ void main() {
         headers: headers,
         httpClient: mockClient,
         silenceExceptions: false,
-        cachingOptions: null,
+        cachingProvider: const DisabledMapCachingProvider(),
         startedLoading: () => startedLoadingTriggered = true,
         finishedLoadingBytes: () => finishedLoadingTriggered = true,
       );
@@ -148,7 +149,7 @@ void main() {
         headers: headers,
         httpClient: mockClient,
         silenceExceptions: true,
-        cachingOptions: null,
+        cachingProvider: const DisabledMapCachingProvider(),
         startedLoading: () => startedLoadingTriggered = true,
         finishedLoadingBytes: () => finishedLoadingTriggered = true,
       );
@@ -192,7 +193,7 @@ void main() {
         headers: headers,
         httpClient: mockClient,
         silenceExceptions: false,
-        cachingOptions: null,
+        cachingProvider: const DisabledMapCachingProvider(),
         startedLoading: () => startedLoadingTriggered = true,
         finishedLoadingBytes: () => finishedLoadingTriggered = true,
       );
@@ -239,7 +240,7 @@ void main() {
         headers: headers,
         httpClient: mockClient,
         silenceExceptions: true,
-        cachingOptions: null,
+        cachingProvider: const DisabledMapCachingProvider(),
         startedLoading: () => startedLoadingTriggered = true,
         finishedLoadingBytes: () => finishedLoadingTriggered = true,
       );
@@ -278,7 +279,7 @@ void main() {
         headers: headers,
         httpClient: mockClient,
         silenceExceptions: false,
-        cachingOptions: null,
+        cachingProvider: const DisabledMapCachingProvider(),
         startedLoading: () => startedLoadingTriggered = true,
         finishedLoadingBytes: () => finishedLoadingTriggered = true,
       );
@@ -317,7 +318,7 @@ void main() {
         headers: headers,
         httpClient: mockClient,
         silenceExceptions: true,
-        cachingOptions: null,
+        cachingProvider: const DisabledMapCachingProvider(),
         startedLoading: () => startedLoadingTriggered = true,
         finishedLoadingBytes: () => finishedLoadingTriggered = true,
       );
@@ -358,7 +359,7 @@ void main() {
         headers: headers,
         httpClient: mockClient,
         silenceExceptions: false,
-        cachingOptions: null,
+        cachingProvider: const DisabledMapCachingProvider(),
         startedLoading: () => startedLoadingTriggered = true,
         finishedLoadingBytes: () => finishedLoadingTriggered = true,
       );
@@ -402,7 +403,7 @@ void main() {
         headers: headers,
         httpClient: mockClient,
         silenceExceptions: true,
-        cachingOptions: null,
+        cachingProvider: const DisabledMapCachingProvider(),
         startedLoading: () => startedLoadingTriggered = true,
         finishedLoadingBytes: () => finishedLoadingTriggered = true,
       );
@@ -448,7 +449,7 @@ void main() {
         headers: headers,
         httpClient: mockClient,
         silenceExceptions: false,
-        cachingOptions: null,
+        cachingProvider: const DisabledMapCachingProvider(),
         startedLoading: () => startedLoadingTriggered = true,
         finishedLoadingBytes: () => finishedLoadingTriggered = true,
       );
@@ -498,7 +499,7 @@ void main() {
         headers: headers,
         httpClient: mockClient,
         silenceExceptions: false,
-        cachingOptions: null,
+        cachingProvider: const DisabledMapCachingProvider(),
         startedLoading: () => startedLoadingTriggered = true,
         finishedLoadingBytes: () => finishedLoadingTriggered = true,
       );
@@ -540,7 +541,7 @@ void main() {
         headers: headers,
         httpClient: mockClient,
         silenceExceptions: false,
-        cachingOptions: null,
+        cachingProvider: const DisabledMapCachingProvider(),
         startedLoading: () => startedLoadingTriggered = true,
         finishedLoadingBytes: () => finishedLoadingTriggered = true,
       );
@@ -587,7 +588,7 @@ void main() {
         headers: headers,
         httpClient: mockClient,
         silenceExceptions: true,
-        cachingOptions: null,
+        cachingProvider: const DisabledMapCachingProvider(),
         startedLoading: () => startedLoadingTriggered = true,
         finishedLoadingBytes: () => finishedLoadingTriggered = true,
       );
