@@ -296,10 +296,28 @@ class _PolygonPageState extends State<PolygonPage> {
           FlutterMap(
             options: const MapOptions(
               initialCenter: LatLng(51.5, -2),
-              initialZoom: 5,
+              initialZoom: 1,
             ),
             children: [
               openStreetMapTileLayer,
+              Builder(
+                builder: (context) => PolygonLayer(
+                  drawInSingleWorld: true,
+                  polygons: [
+                    Polygon(
+                      points: [
+                        MapCamera.of(context).visibleBounds.northWest,
+                        MapCamera.of(context).visibleBounds.northEast,
+                        MapCamera.of(context).visibleBounds.southEast,
+                        MapCamera.of(context).visibleBounds.southWest,
+                      ],
+                      color: Colors.orange.withAlpha(255 ~/ 3),
+                      borderColor: Colors.black,
+                      borderStrokeWidth: 10,
+                    ),
+                  ],
+                ),
+              ),
               MouseRegion(
                 hitTestBehavior: HitTestBehavior.deferToChild,
                 cursor: SystemMouseCursors.click,
@@ -357,6 +375,16 @@ class _PolygonPageState extends State<PolygonPage> {
                 simplificationTolerance: 0,
                 useAltRendering: true,
                 polygons: [
+                  Polygon(
+                    points: const [
+                      LatLng(51.5, -122),
+                      LatLng(50, -123),
+                      LatLng(50, -121),
+                    ],
+                    borderStrokeWidth: 4,
+                    borderColor: Colors.red,
+                    color: Colors.red,
+                  ),
                   Polygon(
                     points: const [
                       LatLng(50, -18),
