@@ -96,10 +96,6 @@ mixin FeatureLayerUtils on CustomPainter {
     }
   }
 
-  /// Returns the origin of the camera.
-  Offset get origin =>
-      camera.projectAtZoom(camera.center) - camera.size.center(Offset.zero);
-
   /// Returns the world size in pixels.
   ///
   /// Equivalent to [MapCamera.getWorldWidthAtZoom].
