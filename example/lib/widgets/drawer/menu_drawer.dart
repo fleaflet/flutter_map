@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -81,22 +83,40 @@ class MenuDrawer extends StatelessWidget {
                     style: TextStyle(fontSize: 14),
                   ),
                 if (_commitSHA != '')
-                  RichText(
-                    text: TextSpan(
+                  SelectableText.rich(
+                    TextSpan(
+                      style: DefaultTextStyle.of(context).style,
                       children: [
                         const TextSpan(text: 'Built from: '),
                         TextSpan(
-                          text: _commitSHA.substring(0, 7),
+                          children: [
+                            TextSpan(
+                              text: '${_commitSHA.substring(
+                                0,
+                                min(_commitSHA.length, 7),
+                              )} ',
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = _openCommit,
+                            ),
+                            WidgetSpan(
+                              child: MouseRegion(
+                                cursor: SystemMouseCursors.click,
+                                child: GestureDetector(
+                                  onTap: _openCommit,
+                                  child: const Icon(
+                                    Icons.open_in_new,
+                                    size: 14,
+                                    color: Colors.blue,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                           style: const TextStyle(
                             color: Colors.blue,
                             decoration: TextDecoration.underline,
+                            decorationColor: Colors.blue,
                           ),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () => launchUrl(
-                                  Uri.parse(
-                                    'https://github.com/fleaflet/flutter_map/commit/$_commitSHA',
-                                  ),
-                                ),
                         ),
                       ],
                     ),
@@ -284,4 +304,8 @@ class MenuDrawer extends StatelessWidget {
       ),
     );
   }
+
+  void _openCommit() => launchUrl(
+        Uri.parse('https://github.com/fleaflet/flutter_map/commit/$_commitSHA'),
+      );
 }
