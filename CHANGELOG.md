@@ -4,30 +4,37 @@ Please consider [donating](https://github.com/sponsors/fleaflet) or [contributin
 
 This CHANGELOG does not include every commit and/or PR - it is a hand picked selection of the ones that have an effect on you. For a full list of changes, please check the GitHub repository releases/tags.
 
-## [8.2.0] - 2025/04/XX
+## [8.2.0] - 2025/05/XX
 
 Contains the following user-affecting changes:
 
 - Added inverted fill option to `PolygonLayer` - [#2046 (💰)](https://github.com/fleaflet/flutter_map/pull/2046) for [#2034](https://github.com/fleaflet/flutter_map/issues/2034)
+- Added `Polyline/gonLayer.oneWorld` parameter - [#2069](https://github.com/fleaflet/flutter_map/pull/2069) for [#2067](https://github.com/fleaflet/flutter_map/issues/2067)
+- Added `ContainCameraLatitude` camera constraint - [#2073](https://github.com/fleaflet/flutter_map/pull/2073) for [#2071](https://github.com/fleaflet/flutter_map/issues/2071)
 - Added options to customize double-tap (drag) zoom gestures - [#2070](https://github.com/fleaflet/flutter_map/pull/2070)
-- Added `Polyline/gonLayer.oneWorld` parameter - [#2069](https://github.com/fleaflet/flutter_map/pull/2069)
+- Added warning on usage of OpenStreetMap public tile servers with `TileLayer` - [#2074](https://github.com/fleaflet/flutter_map/pull/2074)
+- Added `PolygonLayer.painterFillMethod` parameter & changed default fill methods - [#2081](https://github.com/fleaflet/flutter_map/pull/2081)
+- Added simple built-in (but extendable) caching to `NetworkTileProvider` - [#2082](https://github.com/fleaflet/flutter_map/pull/2082)
 
 Contains the following user-affecting bug fixes:
 
 - Consider `zoomOffset` & emulated retina mode when generating tile coordinates - [#2060](https://github.com/fleaflet/flutter_map/pull/2060) for [#2042](https://github.com/fleaflet/flutter_map/issues/2042)
 - Raise attribution widgets above screen insets - [#2058](https://github.com/fleaflet/flutter_map/pull/2058)
 - Stop ongoing fling and zoom animations when scroll zooming - [#2066](https://github.com/fleaflet/flutter_map/pull/2066) for [#1767](https://github.com/fleaflet/flutter_map/issues/1767)
+- Calculate `LayerHitResult.coordinate` correctly - [#2093](https://github.com/fleaflet/flutter_map/pull/2093) for [#2092](https://github.com/fleaflet/flutter_map/issues/2092)
+- Consider that the camera may be over the anti-meridian when creating `LatLngBounds` in `MapCamera.visibleBounds` for polygon culling - [#2091](https://github.com/fleaflet/flutter_map/pull/2091) for [#2080](https://github.com/fleaflet/flutter_map/issues/2080)
 
 Contains the following meta changes to the package:
 
 - Reduced final package size to ~900KB from >3MB - [#2056](https://github.com/fleaflet/flutter_map/pull/2056)
-- Improved build integrity: publishing now occurs directly from the GitHub repo - [#2059](https://github.com/fleaflet/flutter_map/pull/2059)
+- Improved build & publish integrity: publishing to pub.dev now occurs directly from the GitHub repo - [#2059](https://github.com/fleaflet/flutter_map/pull/2059)
 
 Many thanks to these contributors (in no particular order):
 
 - @monsieurtanuki
 - @Quirille
 - @freekvandeven
+- @mbenoukaiss
 
 And an additional special thanks to @monsieurtanuki for investing so much of their time into this project recently - we appreciate it!
 
