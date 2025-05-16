@@ -38,6 +38,9 @@ class _PolygonPainter<R extends Object> extends CustomPainter
   /// See [PolygonLayer.debugAltRenderer]
   final bool debugAltRenderer;
 
+  /// See [PolygonLayer.painterFillMethod]
+  final PolygonPainterFillMethod painterFillMethod;
+
   /// See [PolygonLayer.invertedFill]
   final Color? invertedFill;
 
@@ -55,28 +58,23 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     required this.drawLabelsLast,
     required this.debugAltRenderer,
     required this.camera,
+    required this.painterFillMethod,
     required this.invertedFill,
     required this.hitNotifier,
-  }) : bounds = camera.visibleBounds;
+  }) : bounds = camera.visibleBounds {
+    _helper = OffsetHelper(
+      camera: camera,
+      origin: origin,
+    );
+  }
+
+  late final OffsetHelper _helper;
 
   /// Corner coordinates of the polygon painted onto the entire world when using
   /// inverted fill.
   static const _minMaxLatitude = [LatLng(90, 0), LatLng(-90, 0)];
 
-  /// Whether to use `PathFillType.evenOdd` (true) or `Path.combine` (false).
-  ///
-  ///  * `Path.combine` doesn't work & isn't stable/consistent on web
-  ///  * `evenOdd` gives broken results when polygons intersect when inverted
-  ///  * `Path.combine` has slightly worse performance than `evenOdd`
-  ///
-  /// The best option is to use `evenOdd` on web, as it at least works
-  /// sometimes. On native, we use `Path.combine` when inverted filling, or
-  /// `evenOdd` otherwise.
-  ///
-  /// See https://github.com/fleaflet/flutter_map/pull/2046.
-  late final _useEvenOdd = kIsWeb || invertedFill == null;
-
-  /// Do we also remove the holes from the inverted map?
+  /// Do we remove the holes from the inverted map?
   /// Should be `true`.
   static const _invertedHoles = true;
 
@@ -104,9 +102,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     // }
 
     WorldWorkControl checkIfHit(double shift) {
-      final projectedCoords = getOffsetsXY(
-        camera: camera,
-        origin: origin,
+      final (projectedCoords, _) = _helper.getOffsetsXY(
         points: projectedPolygon.points,
         shift: shift,
       );
@@ -124,9 +120,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
 
       final isInHole = projectedPolygon.holePoints.any(
         (points) {
-          final projectedHoleCoords = getOffsetsXY(
-            camera: camera,
-            origin: origin,
+          final (projectedHoleCoords, _) = _helper.getOffsetsXY(
             points: points,
             shift: shift,
           );
@@ -257,9 +251,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
       final polygon = projectedPolygon.polygon;
       final painter = _buildLabelTextPainter(
         mapSize: camera.size,
-        placementPoint: getOffset(
-          camera,
-          origin,
+        placementPoint: _helper.getOffset(
           polygon.labelPosition,
           shift: shift,
         ),
@@ -283,7 +275,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
       // ignore: dead_code
       if (!_fillInvertedHoles) return;
 
-      if (_useEvenOdd) {
+      if (painterFillMethod == PolygonPainterFillMethod.evenOdd) {
         invertedHolePaths.addPolygon(offsets, true);
         return;
       }
@@ -295,7 +287,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     }
 
     void unfillPolygon(List<Offset> offsets) {
-      if (_useEvenOdd) {
+      if (painterFillMethod == PolygonPainterFillMethod.evenOdd) {
         filledPath.fillType = PathFillType.evenOdd;
         filledPath.addPolygon(offsets, true);
         return;
@@ -310,11 +302,12 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     // Specific map treatment with `invertFill`.
     if (invertedFill != null) {
       filledPath.reset();
-      final minMaxProjected =
-          camera.crs.projection.projectList(_minMaxLatitude);
-      final minMaxY = getOffsetsXY(
-        camera: camera,
-        origin: origin,
+      final minMaxProjected = camera.crs.projection.projectList(
+        _minMaxLatitude,
+        // ignore: avoid_redundant_argument_values
+        projectToSingleWorld: false,
+      );
+      final (minMaxY, _) = _helper.getOffsetsXY(
         points: minMaxProjected,
       );
       final maxX = viewportRect.right;
@@ -330,9 +323,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
 
         /// Draws each full polygon as a hole on a "single-world"
         WorldWorkControl drawPolygonAsHole(double shift) {
-          final fillOffsets = getOffsetsXY(
-            camera: camera,
-            origin: origin,
+          final (fillOffsets, _) = _helper.getOffsetsXY(
             points: projectedPolygon.points,
             shift: shift,
           );
@@ -344,9 +335,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
 
           if (_invertedHoles) {
             for (final singleHolePoints in projectedPolygon.holePoints) {
-              final holeOffsets = getOffsetsXY(
-                camera: camera,
-                origin: origin,
+              final (holeOffsets, _) = _helper.getOffsetsXY(
                 points: singleHolePoints,
                 shift: shift,
               );
@@ -383,9 +372,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
 
       /// Draws on a "single-world"
       WorldWorkControl drawIfVisible(double shift) {
-        final fillOffsets = getOffsetsXY(
-          camera: camera,
-          origin: origin,
+        final (fillOffsets, addedWorldWidthForHoles) = _helper.getOffsetsXY(
           points: projectedPolygon.points,
           holePoints:
               polygonTriangles != null ? projectedPolygon.holePoints : null,
@@ -451,14 +438,12 @@ class _PolygonPainter<R extends Object> extends CustomPainter
             );
 
         if (borderPaint != null) {
-          addBorderToPath(
-            getOffsetsXY(
-              camera: camera,
-              origin: origin,
-              points: projectedPolygon.points,
-              shift: shift,
-            ),
-          );
+          addBorderToPath(_helper
+              .getOffsetsXY(
+                points: projectedPolygon.points,
+                shift: shift,
+              )
+              .$1);
         }
 
         // Afterwards deal with more complicated holes.
@@ -466,11 +451,10 @@ class _PolygonPainter<R extends Object> extends CustomPainter
         // polygons cutting holes into other polygons, when they should be mixing:
         // https://github.com/fleaflet/flutter_map/issues/1898.
         for (final singleHolePoints in projectedPolygon.holePoints) {
-          final holeOffsets = getOffsetsXY(
-            camera: camera,
-            origin: origin,
+          final (holeOffsets, _) = _helper.getOffsetsXY(
             points: singleHolePoints,
             shift: shift,
+            forcedAddedWorldWidth: addedWorldWidthForHoles,
           );
           unfillPolygon(holeOffsets);
           if (!polygon.disableHolesBorder && borderPaint != null) {
@@ -581,8 +565,8 @@ class _PolygonPainter<R extends Object> extends CustomPainter
   ({Offset min, Offset max}) _getBounds(Offset origin, Polygon polygon) {
     final bBox = polygon.boundingBox;
     return (
-      min: getOffset(camera, origin, bBox.southWest),
-      max: getOffset(camera, origin, bBox.northEast),
+      min: _helper.getOffset(bBox.southWest),
+      max: _helper.getOffset(bBox.northEast),
     );
   }
 
@@ -592,7 +576,9 @@ class _PolygonPainter<R extends Object> extends CustomPainter
       triangles != oldDelegate.triangles ||
       camera != oldDelegate.camera ||
       bounds != oldDelegate.bounds ||
+      painterFillMethod != oldDelegate.painterFillMethod ||
       invertedFill != oldDelegate.invertedFill ||
+      debugAltRenderer != oldDelegate.debugAltRenderer ||
       drawLabelsLast != oldDelegate.drawLabelsLast ||
       polygonLabels != oldDelegate.polygonLabels ||
       hitNotifier != oldDelegate.hitNotifier;

@@ -69,7 +69,8 @@ abstract class Crs {
   /// Rescales the bounds to a given zoom value.
   Rect? getProjectedBounds(double zoom);
 
-  /// Returns true if we want the world to be replicated, longitude-wise.
+  /// Whether this CRS supports repeating worlds: repeated (feature) layers and
+  /// unbounded horizontal scrolling along the longitude axis
   bool get replicatesWorldLongitude => false;
 }
 
@@ -417,7 +418,11 @@ abstract class Projection {
   /// longitudes -179 and 179 to be projected each on one side.
   /// [referencePoint] is used for polygon holes: we want the holes to be
   /// displayed close to the polygon, not on the other side of the world.
-  List<Offset> projectList(List<LatLng> points, {LatLng? referencePoint}) {
+  List<Offset> projectList(
+    List<LatLng> points, {
+    LatLng? referencePoint,
+    bool projectToSingleWorld = false,
+  }) {
     late double previousX;
     final worldWidth = getWorldWidth();
     return List<Offset>.generate(
@@ -427,6 +432,9 @@ abstract class Projection {
           (previousX, _) = projectXY(referencePoint);
         }
         var (x, y) = projectXY(points[j]);
+        if (projectToSingleWorld) {
+          return Offset(x, y);
+        }
         if (j > 0 || referencePoint != null) {
           if (x - previousX > worldWidth / 2) {
             x -= worldWidth;

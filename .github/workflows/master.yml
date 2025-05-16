@@ -51,7 +51,7 @@ jobs:
           channel: "stable"
           cache: true
       - name: Build Android Application
-        run: flutter build apk --dart-define=COMMIT_SHA=${{ github.sha }}
+        run: flutter build apk --dart-define=COMMIT_SHA=${{ github.sha }} --dart-define=flutter.flutter_map.unblockOSM="${{ secrets.UNBLOCK_OSM }}"
       - name: Archive Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -76,7 +76,7 @@ jobs:
           channel: "stable"
           cache: true
       - name: Build Windows Application
-        run: flutter build windows --dart-define=COMMIT_SHA=${{ github.sha }}
+        run: flutter build windows --dart-define=COMMIT_SHA=${{ github.sha }} --dart-define=flutter.flutter_map.unblockOSM="${{ secrets.UNBLOCK_OSM }}"
       - name: Create Windows Application Installer
         run: iscc "windowsApplicationInstallerSetup.iss"
         working-directory: .
@@ -104,7 +104,7 @@ jobs:
           channel: "stable"
           cache: true
       - name: Build Web Application
-        run: flutter build web --wasm --dart-define=COMMIT_SHA=${{ github.sha }}
+        run: flutter build web --wasm --dart-define=COMMIT_SHA=${{ github.sha }} --dart-define=flutter.flutter_map.unblockOSM="${{ secrets.UNBLOCK_OSM }}"
       - name: Archive Artifact
         uses: actions/upload-artifact@v4
         with:
