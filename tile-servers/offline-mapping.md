@@ -11,26 +11,36 @@ Using maps without an Internet connection is common requirement. Luckily, there 
 
 ## Caching
 
-{% hint style="info" %}
-flutter\_map only provides caching in-memory. All cached tiles will be cleared after the app session is ended.
+{% hint style="warning" %}
+This section contains references to as-of-yet unreleased versions and unconfirmed features.
+{% endhint %}
 
-The flutter\_map team is looking into implementing automatic caching into the core in the near-future. However, at the current time, you will need to add caching yourself.
+{% hint style="info" %}
+Prior to v8.2.0, flutter\_map only provided caching in-memory. All cached tiles will be cleared after the app session is ended.
+
+Since v8.2.0, this is no longer the case.
 {% endhint %}
 
 Caching is used usually to improve user experience by reducing network waiting times, not necessarily to prepare for no-Internet situations. Caching can be more temporary (eg. in-memory/session-only, where the cache is cleared after the app is closed), or more long-term (eg. app cache, where the OS takes responsibility for clearing the app cache when necessary/when requested).
 
 Many tile servers, such as the OpenStreetMap tile server, will require you to implement longer-term caching!
 
-There's 3 methods that basic caching can be implemented in your app, two of which rely on community maintained plugins:
+Since v8.2.0, flutter\_map provides [built-in-caching.md](../layers/tile-layer/built-in-caching.md "mention"). This satisfies many requirements of both users and tile servers automatically.
 
-1. [flutter\_map\_cache](https://github.com/josxha/flutter_map_cache) (lightweight and MIT licensed)\
-   &#xNAN;_&#x52;ecommended for projects that want plug-and-play simple long-term caching_
-2. Custom implementation
-   1. using a caching HTTP client passed to `NetworkTileProvider.httpClient` (using a package such as [http\_cache\_client](https://pub.dev/packages/http_cache_client))\
-      &#xNAN;_&#x52;ecommended for projects that might already be using a caching HTTP client elsewhere and want to minimize dependencies_
-   2. using a [custom `TileProvider`](../plugins/making-a-plugin/creating-new-tile-providers.md) with a caching `ImageProvider` (either custom or using a package such as [cached\_network\_image](https://pub.dev/packages/cached_network_image))
-3. [flutter\_map\_tile\_caching](https://github.com/JaffaKetchup/flutter_map_tile_caching)\
-   &#xNAN;_&#x52;ecommended for projects that want advanced caching and potentially_ [#bulk-downloading](offline-mapping.md#bulk-downloading "mention")_, but GPL licensed_
+If you'd prefer not to use built-in caching, you can:
+
+* **Try another `MapCachingProvider` implementation if you still only need simple caching**\
+  These are compatible with the standard `NetworkTileProvider` (and cancellable version), as with built-in caching, but use a different storage mechanism.\
+  You can create an implementation yourself, or use one provided by a 3rd-party/plugin. See [#using-other-mapcachingproviders](../layers/tile-layer/built-in-caching.md#using-other-mapcachingproviders "mention") for more info.
+* **Use a caching HTTP client**\
+  `NetworkTileProvider.httpClient` can be used to set a custom HTTP client. Some packages, such as '[package:http\_cache\_client](https://pub.dev/packages/http_cache_client)', offer clients which perform HTTP caching, similar to built-in caching.
+* **Use a different `TileProvider`**\
+  Tile providers have full control over how a tile is generated to be displayed, and so there are many possibilities to integrate caching.
+  * Create a [custom `TileProvider`](../plugins/making-a-plugin/creating-new-tile-providers.md) with a caching `ImageProvider` (either custom or using a package such as '[package:cached\_network\_image](https://pub.dev/packages/cached_network_image)')
+  * Use [flutter\_map\_cache](https://github.com/josxha/flutter_map_cache)\
+    Caching created prior to built-in caching, lightweight and MIT licensed, but with more pre-provided options than built-in caching through 3rd-party storage implementations
+  * Use [flutter\_map\_tile\_caching](https://github.com/JaffaKetchup/flutter_map_tile_caching)\
+    Supports very advanced caching use-cases and [#bulk-downloading](offline-mapping.md#bulk-downloading "mention"), but GPL licensed
 
 ## Bulk Downloading
 

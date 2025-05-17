@@ -6,7 +6,7 @@ This page contains references to as-of-yet unconfirmed features, which may chang
 See [https://github.com/fleaflet/flutter\_map/pull/2082](https://github.com/fleaflet/flutter_map/pull/2082) for progress.
 {% endhint %}
 
-From v8.2.0, flutter\_map provides simple automatically-enabled built-in caching (based on the HTTP headers sent with tile responses) for the `NetworkTileProvider` (and `CancellableNetworkTileProvider` in the near-future) on non-web platforms.
+From v8.2.0, flutter\_map provides simple automatically-enabled built-in caching for the `NetworkTileProvider` (and `CancellableNetworkTileProvider` in the near-future) on non-web platforms.
 
 {% hint style="warning" %}
 Built-in caching is not a replacement for caching which can better guarantee resilience. It provides no guarantees as to the safety of cached tiles, which may become unexpectedly lost/inaccessible at any time.
@@ -59,6 +59,8 @@ By default, the `BuiltInMapCachingProvider` is used, which has multiple options 
 To configure the `BuiltInMapCachingProvider`, we recommend following the [#recommended-setup](built-in-caching.md#recommended-setup "mention") above. Then, you can supply arguments to the `getOrCreateInstance` factory constructor, which will be automatically used.
 
 By default, caching occurs in a platform provided cache directory. The operating system may clear this at any time. By default, a 1GB preferred (soft) limit is applied to the built-in caching.
+
+HTTP headers are used to determine how long a tile is considered 'fresh' - this fulfills the requirements of many tile servers. However, setting `overrideFreshAge` allows the HTTP headers to be overridden, and the tile to be stored and used for a set duration.
 
 ### Using Other `MapCachingProvider`s
 
