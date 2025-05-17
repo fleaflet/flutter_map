@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/pages/animated_map_controller.dart';
 import 'package:flutter_map_example/pages/bundled_offline_map.dart';
 import 'package:flutter_map_example/pages/cancellable_tile_provider.dart';
@@ -34,8 +35,9 @@ import 'package:flutter_map_example/pages/tile_loading_error_handle.dart';
 import 'package:flutter_map_example/pages/wms_tile_layer.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 
-void main() {
+Future<void> main() async {
   usePathUrlStrategy();
+  await BuiltInMapCachingProvider.getOrCreateInstance().isInitialised;
   runApp(const MyApp());
 }
 
