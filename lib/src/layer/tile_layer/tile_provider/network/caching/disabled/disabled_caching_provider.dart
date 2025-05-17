@@ -2,9 +2,9 @@ import 'dart:typed_data';
 
 import 'package:flutter_map/flutter_map.dart';
 
-/// Map caching provider which disables caching
+/// Map caching provider which disables built-in caching
 class DisabledMapCachingProvider implements MapCachingProvider {
-  /// Disable map caching through the [NetworkTileProvider.cachingProvider]
+  /// Disable map caching through [NetworkTileProvider.cachingProvider]
   const DisabledMapCachingProvider();
 
   @override

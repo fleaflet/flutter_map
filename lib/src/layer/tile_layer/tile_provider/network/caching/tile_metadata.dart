@@ -5,8 +5,9 @@ import 'package:meta/meta.dart';
 
 /// Metadata about a tile cached with a [MapCachingProvider]
 ///
-/// Map caching is based on HTTP headers, which this class contains and can
-/// encode/decode to/from JSON.
+/// Caching is usually determined with HTTP headers. However, if a specific
+/// implementation chooses to, it can solely use [staleAt] and set the other
+/// properties to a dummy value.
 ///
 /// External usage of this class is not usually necessary. It is visible so
 /// other tile providers may make use of it.

@@ -8,11 +8,16 @@ import 'package:uuid/data.dart';
 import 'package:uuid/rng.dart';
 import 'package:uuid/uuid.dart';
 
-/// Simple built-in map caching respecting HTTP headers using the filesystem
-/// and a JSON registry, on native (non-web) platforms only
+/// Simple built-in map caching using a JSON + I/O storage mechanism, on native
+/// (non-web) platforms only
 ///
-/// This is enabled by default. For more information, see the online
-/// documentation.
+/// Usually uses HTTP headers to determine tile freshness, although
+/// `overrideFreshAge` can override this.
+///
+/// This is enabled by default in flutter_map, when using the
+/// [NetworkTileProvider] (or cancellable version).
+///
+/// For more information, see the online documentation.
 abstract interface class BuiltInMapCachingProvider
     implements MapCachingProvider {
   /// if a singleton instance exists, return it, otherwise create a new
