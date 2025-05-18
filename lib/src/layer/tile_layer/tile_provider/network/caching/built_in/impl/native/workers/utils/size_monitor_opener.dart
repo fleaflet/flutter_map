@@ -5,6 +5,22 @@ import 'dart:typed_data';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 
+/// Asynchronously read the existing size monitor if available,
+/// returning `null` if unavailable
+@internal
+Future<int?> asyncGetOnlySizeMonitor(String sizeMonitorFilePath) async {
+  final sizeMonitorFile = File(sizeMonitorFilePath);
+
+  final sizeMonitor = await sizeMonitorFile.open(mode: FileMode.append);
+  await sizeMonitor.setPosition(0);
+  final bytes = await sizeMonitor.read(8);
+
+  await sizeMonitor.close();
+
+  if (bytes.length == 8) return bytes.buffer.asInt64List()[0];
+  return null;
+}
+
 /// Opens and reads the existing size monitor if available
 ///
 /// If one does not exist, it calculates the current cache size and writes it

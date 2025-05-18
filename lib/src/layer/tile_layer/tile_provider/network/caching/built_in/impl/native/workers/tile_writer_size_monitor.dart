@@ -17,6 +17,9 @@ Future<void> tileWriterSizeMonitorWorker(
     String sizeMonitorFileName,
   }) input,
 ) async {
+  final receivePort = ReceivePort();
+  input.port.send(receivePort.sendPort);
+
   int currentSize;
   final RandomAccessFile sizeMonitor;
   (:currentSize, :sizeMonitor) = await getOrCreateSizeMonitor(
@@ -27,9 +30,6 @@ Future<void> tileWriterSizeMonitorWorker(
   );
 
   final allocatedWriteBinBuffer = Uint8List(8);
-
-  final receivePort = ReceivePort();
-  input.port.send(receivePort.sendPort);
 
   await for (final val in receivePort) {
     final (:tileFilePath, :bytes) =

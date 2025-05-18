@@ -8,8 +8,12 @@ import 'package:uuid/data.dart';
 import 'package:uuid/rng.dart';
 import 'package:uuid/uuid.dart';
 
-/// Simple built-in map caching using a JSON + I/O storage mechanism, on native
+/// Simple built-in map caching using an I/O storage mechanism, for native
 /// (non-web) platforms only
+///
+/// Uses FlatBuffers to store a centralised registry which is operated on as
+/// a map in memory to maximise performance, with tile blobs stored raw as
+/// files and a second file used to track the size of the cache.
 ///
 /// Usually uses HTTP headers to determine tile freshness, although
 /// `overrideFreshAge` can override this.

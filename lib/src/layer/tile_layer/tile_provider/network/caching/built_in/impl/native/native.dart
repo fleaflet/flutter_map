@@ -9,6 +9,7 @@ import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/b
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/persistent_registry_writer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/size_limiter.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/tile_writer_size_monitor.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/utils/size_monitor_opener.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -32,8 +33,8 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
     _initialise();
   }
 
-  static const _persistentRegistryFileName = 'registry.json';
-  static const _sizeMonitorFileName = 'sizeMonitor';
+  static const _persistentRegistryFileName = 'registry.bin';
+  static const _sizeMonitorFileName = 'sizeMonitor.bin';
 
   late final String _cacheDirectory;
   late final void Function(String uuid, CachedMapTileMetadata? tileInfo)
@@ -89,20 +90,25 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
           _registry = parsedCacheManager;
 
           if (maxCacheSize case final sizeLimit?) {
-            // This can cause some delay when creating
-            // But it's much better than lagging or inconsistent registries
-            (await compute(
-              sizeLimiterWorker,
-              (
-                cacheDirectoryPath: _cacheDirectory,
-                persistentRegistryFileName: _persistentRegistryFileName,
-                sizeMonitorFilePath: sizeMonitorFilePath,
-                sizeMonitorFileName: _sizeMonitorFileName,
-                sizeLimit: sizeLimit,
-              ),
-              debugLabel: '[flutter_map: cache] Size Limiter',
-            ))
-                .forEach(_registry.remove);
+            final currentSize =
+                await asyncGetOnlySizeMonitor(sizeMonitorFilePath);
+
+            if (currentSize == null || currentSize > sizeLimit) {
+              // This can cause some delay when creating
+              // But it's much better than lagging or inconsistent registries
+              (await compute(
+                sizeLimiterWorker,
+                (
+                  cacheDirectoryPath: _cacheDirectory,
+                  persistentRegistryFileName: _persistentRegistryFileName,
+                  sizeMonitorFilePath: sizeMonitorFilePath,
+                  sizeMonitorFileName: _sizeMonitorFileName,
+                  sizeLimit: sizeLimit,
+                ),
+                debugLabel: '[flutter_map: cache] Size Limiter',
+              ))
+                  .forEach(_registry.remove);
+            }
           }
         }
       } else {

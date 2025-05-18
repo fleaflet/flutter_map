@@ -1,0 +1,19 @@
+namespace FMCache;
+
+table TileMetadata {
+  last_modified_locally: int64;
+  stale_at: int64;
+  last_modified: int64;
+  etag: string;
+}
+
+table TileMetadataEntry {
+  id: string; 
+  metadata: TileMetadata;
+}
+
+table TileMetadataMap {
+  entries: [TileMetadataEntry];
+}
+
+root_type TileMetadataMap;

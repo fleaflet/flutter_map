@@ -1,5 +1,3 @@
-import 'dart:io' show HttpDate; // this is web safe!
-
 import 'package:flutter_map/flutter_map.dart';
 import 'package:meta/meta.dart';
 
@@ -25,19 +23,6 @@ class CachedMapTileMetadata {
     required this.etag,
   });
 
-  /// Decode metadata from JSON
-  CachedMapTileMetadata.fromJson(Map<String, dynamic> json)
-      : lastModifiedLocally =
-            HttpDate.parse(json['lastModifiedLocally'] as String),
-        staleAt = HttpDate.parse(json['staleAt'] as String),
-        lastModified = json.containsKey('lastModified') &&
-                (json['lastModified'] as String).isNotEmpty
-            ? HttpDate.parse(json['lastModified'] as String)
-            : null,
-        etag = json.containsKey('etag') && (json['etag'] as String).isNotEmpty
-            ? json['etag'] as String
-            : null;
-
   /// Used to efficiently allow updates to already cached tiles
   ///
   /// Must be set to [DateTime.timestamp] when a new tile is cached or a tile
@@ -55,15 +40,6 @@ class CachedMapTileMetadata {
 
   /// Whether the tile is currently stale
   bool get isStale => DateTime.timestamp().isAfter(staleAt);
-
-  /// Encode the metadata to JSON
-  Map<String, String> toJson() => {
-        'lastModifiedLocally': HttpDate.format(lastModifiedLocally),
-        'staleAt': HttpDate.format(staleAt),
-        if (lastModified != null)
-          'lastModified': HttpDate.format(lastModified!),
-        if (etag != null) 'etag': etag!,
-      };
 
   @override
   int get hashCode =>
