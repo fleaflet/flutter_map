@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/persistent_registry_unpacker.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/persistent_registry_writer.dart';
@@ -54,6 +55,7 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
   Future<int> _initialise() async {
     if (_isInitialised != null) return isInitialised;
 
+    WidgetsFlutterBinding.ensureInitialized();
     _isInitialised = Completer();
 
     try {
