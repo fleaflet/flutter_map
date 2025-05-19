@@ -68,7 +68,7 @@ To configure the `BuiltInMapCachingProvider`, we recommend following the [#recom
 
 By default, caching occurs in a platform provided cache directory. The operating system may clear this at any time.
 
-By default, a 1GB preferred (soft) limit is applied to the built-in caching. This limit is only applied when the cache provider is initialised (the first tiles are loaded), and so may increase the duration of the initialisation (considerably depending on the size of the cache and the target size).
+By default, an 800 MB preferred (soft) limit is applied to the built-in caching. This limit is only applied when the cache provider is initialised (the first tiles are loaded), and so may increase the duration of the initialisation (considerably depending on the size of the cache and the target size).
 
 HTTP headers are used to determine how long a tile is considered 'fresh' - this fulfills the requirements of many tile servers. However, setting `overrideFreshAge` allows the HTTP headers to be overridden, and the tile to be stored and used for a set duration.
 
