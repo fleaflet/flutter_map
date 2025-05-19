@@ -24,15 +24,25 @@ Built-in caching aims to:
 
 It does, however, come at the expense of usage of on-device storage capacity.
 
+{% hint style="info" %}
+Some plugins which perform caching or offline mapping may instead provide a dedicated `TileProvider`.
+
+In this case, built-in caching is not applicable, and will not be used (unless the provider explicitly supports usage of built-in caching).&#x20;
+{% endhint %}
+
 ## Recommended Setup
 
 {% hint style="success" %}
 Built-in caching is enabled by default.
 
-However, you/users may notice a small delay before tiles are initially loaded. Usually, this delay is \~50ms to \~800ms, depending on the size of the cache. With a single extra line, this delay can be 'moved'.
+However, you/users may notice a small delay before tiles are initially loaded.&#x20;
 {% endhint %}
 
-This delay can be 'moved'. We recommend moving the delay for all production apps.
+This delay occurs whilst the central cache file stored on the filesystem is opened and loaded into memory, which ensures that cache reads are superfast.
+
+As a rough estimate, 10k cached tiles adds \~100ms to the delay and a little over 1MB to the central cache file (plus the size of the tiles themselves).
+
+This delay can be 'moved', so that tile loading is not delayed. We recommend moving the delay for all production apps.
 
 If you have a loading screen, you could move the delay to be included within that. Otherwise, we recommend moving it to the `main` method prior to calling `runApp`:
 
@@ -42,17 +52,15 @@ If you have a loading screen, you could move the delay to be included within tha
 }
 </code></pre>
 
-{% hint style="info" %}
-Some plugins which perform caching or offline mapping may instead provide a dedicated `TileProvider`.
+If you're not using built-in caching (for example, because you've disabled it, or because you're using a different tile provider which does not support it), you should remove this line.
 
-In this case, built-in caching is not applicable, and will not be used (unless the provider explicitly supports usage of built-in caching). You should not await the caching provider's initialisation as above, as it will not be used.
-{% endhint %}
+Other built-in caching providers may provide their own similar method to await initialisation elsewhere if necessary.
 
 ## Configuration
 
 Built-in caching supports extendability and customizability.
 
-By default, the `BuiltInMapCachingProvider` is used, which has multiple options to adjust its basic behaviour. It's backed by a simple (yet performant) JSON + I/O cache.
+By default, the `BuiltInMapCachingProvider` is used, which has multiple options to adjust its basic behaviour. It's backed by a simple (yet performant) filesystem cache, where tiles are stored as raw files and a central 'registry' file coordinates the metadata for cached tiles in a FlatBuffer format.
 
 <mark style="background-color:yellow;">insert link</mark>
 
@@ -68,7 +76,7 @@ You can also use any other `MapCachingProvider` implementation, such as provided
 
 If you're using built-in caching through a `MapCachingProvider`, but not using the default `BuiltInMapCachingProvider`, you should check that provider's documentation if available.
 
-You will always need to - regardless of if that provider has an initialisation delay, and you've moved it (such as in [#recommended-setup](built-in-caching.md#recommended-setup "mention")) - pass it to the `NetworkTileProvider` (or whichever other tile provider you are using):
+You will always need to - regardless of if that provider has an initialisation delay, and you've moved it (similarly to [#recommended-setup](built-in-caching.md#recommended-setup "mention")) - pass it to the `NetworkTileProvider` (or whichever other tile provider you are using):
 
 <pre class="language-dart"><code class="lang-dart">TileLayer(
     urlTemplate: '...',
@@ -101,6 +109,8 @@ TileLayer(
     ),
 );
 ```
+
+Also ensure you remove the line in [#recommended-setup](built-in-caching.md#recommended-setup "mention").
 
 ## Managing The Cache
 
