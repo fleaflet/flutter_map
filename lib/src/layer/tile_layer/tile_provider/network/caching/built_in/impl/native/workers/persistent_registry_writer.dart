@@ -43,7 +43,7 @@ Future<void> persistentRegistryWriterWorker(
     writeLocker = Completer();
     alreadyWaitingToWrite = false;
 
-    _writeFlatbuf(registry, writer);
+    _writeFlatbuffer(registry, writer);
 
     writeLocker.complete();
   }
@@ -69,7 +69,7 @@ Future<void> persistentRegistryWriterWorker(
   }
 }
 
-void _writeFlatbuf(
+void _writeFlatbuffer(
   Map<String, CachedMapTileMetadata> registry,
   RandomAccessFile fileWriter,
 ) {

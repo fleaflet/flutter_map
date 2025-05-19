@@ -5,7 +5,7 @@ import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/persistent_registry_parser.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/persistent_registry_unpacker.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/persistent_registry_writer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/size_limiter.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/tile_writer_size_monitor.dart';
@@ -43,18 +43,18 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
       _writeTileFile;
   late final HashMap<String, CachedMapTileMetadata> _registry;
 
-  Completer<void>? _isInitialised;
+  Completer<int>? _isInitialised;
 
   @override
   bool get isSupported => true;
 
   @override
-  Future<void> get isInitialised => _isInitialised!.future;
+  Future<int> get isInitialised => _isInitialised!.future;
 
-  Future<void> _initialise() async {
-    if (_isInitialised != null) return await _isInitialised!.future;
+  Future<int> _initialise() async {
+    if (_isInitialised != null) return isInitialised;
 
-    _isInitialised = Completer<void>();
+    _isInitialised = Completer();
 
     try {
       _cacheDirectory = p.join(
@@ -77,7 +77,7 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
 
       if (await persistentRegistryFile.exists()) {
         final parsedCacheManager = await compute(
-          persistentRegistryParserWorker,
+          persistentRegistryUnpackerWorker,
           persistentRegistryFilePath,
           debugLabel: '[flutter_map: cache] Persistent Registry Parser',
         );
@@ -152,7 +152,8 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
       rethrow;
     }
 
-    _isInitialised!.complete();
+    _isInitialised!.complete(_registry.length);
+    return _registry.length;
   }
 
   @override

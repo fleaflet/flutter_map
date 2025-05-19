@@ -23,7 +23,8 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
   bool get isSupported => false;
 
   @override
-  Future<void> get isInitialised => SynchronousFuture(null);
+  // ignore: prefer_void_to_null
+  Future<Null> get isInitialised => SynchronousFuture(null);
 
   @override
   Future<({Uint8List bytes, CachedMapTileMetadata tileInfo})?> getTile(

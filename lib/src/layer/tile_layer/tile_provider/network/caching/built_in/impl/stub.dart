@@ -25,7 +25,7 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
   });
 
   @override
-  external Future<void> get isInitialised;
+  external Future<int?> get isInitialised;
 
   @override
   external bool get isSupported;

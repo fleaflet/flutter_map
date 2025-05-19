@@ -106,9 +106,10 @@ abstract interface class BuiltInMapCachingProvider
   /// See online documentation to see how to use this to preload caching to
   /// remove the initial delay before loading tiles.
   ///
-  /// May complete with an error if initialisation failed.
-  ///
-  /// On the web, this will always complete successfully immediately in the same
-  /// event loop. Caching will not be available.
-  Future<void> get isInitialised;
+  /// Completes with:
+  ///  * on native platforms, the number of cached tiles (at initialisation)
+  ///    * or an error if initialisation fails and could not be recovered
+  ///  * on web platforms, `null` (synchronously & immediately), and caching
+  /// will not be available
+  Future<int?> get isInitialised;
 }

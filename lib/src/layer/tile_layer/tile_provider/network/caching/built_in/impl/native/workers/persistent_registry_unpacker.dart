@@ -12,7 +12,7 @@ import 'package:meta/meta.dart';
 /// If the FlatBuffer file is invalid or the file cannot be read, this returns
 /// null.
 @internal
-HashMap<String, CachedMapTileMetadata>? persistentRegistryParserWorker(
+HashMap<String, CachedMapTileMetadata>? persistentRegistryUnpackerWorker(
   String persistentRegistryFilePath,
 ) {
   final Uint8List bin;
@@ -22,10 +22,10 @@ HashMap<String, CachedMapTileMetadata>? persistentRegistryParserWorker(
     return null;
   }
 
-  final tileMetadataMap = TileMetadataMap(bin);
-  if (tileMetadataMap.entries == null) return null;
-
   try {
+    final tileMetadataMap = TileMetadataMap(bin);
+    if (tileMetadataMap.entries == null) return null;
+
     return HashMap.fromIterable(
       tileMetadataMap.entries!,
       key: (e) => (e as TileMetadataEntry).id!,

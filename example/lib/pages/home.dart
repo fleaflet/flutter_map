@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/misc/tile_providers.dart';
+import 'package:flutter_map_example/misc/timed_future.dart';
 import 'package:flutter_map_example/widgets/drawer/floating_menu_button.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:flutter_map_example/widgets/first_start_dialog.dart';
@@ -13,7 +14,12 @@ import 'package:url_launcher/url_launcher.dart';
 class HomePage extends StatefulWidget {
   static const String route = '/';
 
-  const HomePage({super.key});
+  const HomePage({
+    super.key,
+    required this.cacheInitComplete,
+  });
+
+  final TimedFuture<int?>? cacheInitComplete;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -32,10 +38,33 @@ class _HomePageState extends State<HomePage> {
       drawer: const MenuDrawer(HomePage.route),
       body: Stack(
         children: [
+          if (widget.cacheInitComplete case final cacheInitComplete?)
+            FutureBuilder(
+              future: cacheInitComplete.result,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  return const ColoredBox(color: Color(0xFFE0E0E0));
+                }
+                return const Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: 16,
+                    children: [
+                      SizedBox.square(
+                        dimension: 24,
+                        child: CircularProgressIndicator.adaptive(),
+                      ),
+                      Text('Awaiting cache initialisation'),
+                    ],
+                  ),
+                );
+              },
+            ),
           FlutterMap(
             options: const MapOptions(
               initialCenter: LatLng(51.5, -0.09),
               initialZoom: 5,
+              backgroundColor: Colors.transparent,
             ),
             children: [
               openStreetMapTileLayer,
