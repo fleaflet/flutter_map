@@ -47,8 +47,10 @@ This delay can be 'moved', so that tile loading is not delayed. We recommend mov
 If you have a loading screen, you could move the delay to be included within that. Otherwise, we recommend moving it to the `main` method prior to calling `runApp`:
 
 <pre class="language-dart"><code class="lang-dart">Future&#x3C;void> main() async {
-<strong>  await BuiltInMapCachingProvider.getOrCreateInstance().isInitialised;
-</strong>  runApp(const MyApp());
+<strong>  WidgetsFlutterBinding.ensureInitialized(); // required only if before `runApp`
+</strong><strong>  await BuiltInMapCachingProvider.getOrCreateInstance().isInitialised;
+</strong>  
+  runApp(const MyApp());
 }
 </code></pre>
 
