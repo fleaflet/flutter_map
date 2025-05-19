@@ -42,7 +42,7 @@ HashMap<String, CachedMapTileMetadata>? persistentRegistryUnpackerWorker(
         );
       },
     );
-  } catch (_) {
+  } on Exception {
     return null;
   }
 }

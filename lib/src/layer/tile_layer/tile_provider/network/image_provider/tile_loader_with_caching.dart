@@ -19,7 +19,7 @@ Future<Codec> _loadTileImageWithCaching(
   final ({Uint8List bytes, CachedMapTileMetadata tileInfo})? cachedTile;
   try {
     cachedTile = await cachingProvider.getTile(resolvedUrl);
-  } catch (_) {
+  } on Exception {
     return _loadTileImageSimple(key, decode, useFallback: useFallback);
   }
 
@@ -50,7 +50,7 @@ Future<Codec> _loadTileImageWithCaching(
       return await decode(
         await ImmutableBuffer.fromUint8List(response.bodyBytes),
       );
-    } catch (err) {
+    } on Exception {
       // Otherwise fallback to a cached tile if we have one
       if (cachedTile != null) {
         return ImmutableBuffer.fromUint8List(cachedTile.bytes).then(decode);
