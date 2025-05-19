@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/native.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 
@@ -32,9 +33,7 @@ Future<int?> asyncGetOnlySizeMonitor(String sizeMonitorFilePath) async {
 Future<({int currentSize, RandomAccessFile sizeMonitor})>
     getOrCreateSizeMonitor({
   required String cacheDirectoryPath,
-  required String persistentRegistryFileName,
   required String sizeMonitorFilePath,
-  required String sizeMonitorFileName,
 }) async {
   final sizeMonitorFile = File(sizeMonitorFilePath);
 
@@ -55,8 +54,9 @@ Future<({int currentSize, RandomAccessFile sizeMonitor})>
       .where(
         (f) {
           final uuid = p.basename(f.absolute.path);
-          return uuid != persistentRegistryFileName &&
-              uuid != sizeMonitorFileName;
+          return uuid !=
+                  BuiltInMapCachingProviderImpl.persistentRegistryFileName &&
+              uuid != BuiltInMapCachingProviderImpl.sizeMonitorFileName;
         },
       )
       .map((f) => f.length())

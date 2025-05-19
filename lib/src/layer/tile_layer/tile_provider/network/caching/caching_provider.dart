@@ -12,32 +12,30 @@ import 'package:flutter_map/flutter_map.dart';
 /// cached tiles. Its intended purpose is primarily for caching based on HTTP
 /// headers - however, this is not a requirement.
 abstract interface class MapCachingProvider {
-  /// Whether this caching provider is "currently supported"
+  /// Whether this caching provider is "currently supported": whether the
+  /// tile provider should attempt to use it, or fallback to a non-caching
+  /// alternative
   ///
-  /// This can mean multiple things depending on the implementation's choice.
-  /// However, it is used the same in the [NetworkTileProvider] implementaiton.
+  /// Tile providers must not call [getTile] or [putTile] if this is `false`.
+  /// [getTile] and [putTile] should gracefully throw if this is `false`.
+  /// This should not throw.
   ///
-  /// In some implementations, such as [BuiltInMapCachingProvider], this is set
-  /// constantly to indicate whether the implementation supports the current
-  /// platform. [getTile] and other implementation specific methods are used
-  /// to automatically wait for the internal initialisation to be complete
-  /// before returning a tile. In this case, the provider delays the loading of
-  /// tiles until initialisation is complete.
-  ///
-  /// In other implementations, [isSupported] may be set to indicate the
-  /// internal initialisation status. In this case, the provider does not delay
-  /// loading of tiles until initialisation is complete, and instead
-  /// automatically switches to using cached tiles once ready.
+  /// If this is always `false`, consider mixing in or using
+  /// [DisabledMapCachingProvider] directly.
   bool get isSupported;
 
   /// Retrieve a tile from the cache, if it exists
+  ///
+  /// This may throw. Tile providers should anticipate this and fallback to a
+  /// non-caching alternative.
   Future<({Uint8List bytes, CachedMapTileMetadata tileInfo})?> getTile(
     String url,
   );
 
   /// Add or update a tile in the cache
   ///
-  /// [bytes] is required if the tile is not already cached.
+  /// [bytes] is required if the tile is not already cached. The behaviour is
+  /// implementation specific if bytes are not supplied when required.
   Future<void> putTile({
     required String url,
     required CachedMapTileMetadata tileInfo,

@@ -3,7 +3,9 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:meta/meta.dart';
 
 @internal
-class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
+class BuiltInMapCachingProviderImpl
+    with DisabledMapCachingProvider
+    implements BuiltInMapCachingProvider {
   final String? cacheDirectory;
   final int? maxCacheSize;
   final Duration? overrideFreshAge;
@@ -20,23 +22,7 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
   });
 
   @override
-  bool get isSupported => false;
-
-  @override
+  // False positive lint
   // ignore: prefer_void_to_null
   Future<Null> get isInitialised => SynchronousFuture(null);
-
-  @override
-  Future<({Uint8List bytes, CachedMapTileMetadata tileInfo})?> getTile(
-    String url,
-  ) =>
-      throw UnsupportedError('Built-in map caching is not supported on web');
-
-  @override
-  Future<void> putTile({
-    required String url,
-    required CachedMapTileMetadata tileInfo,
-    Uint8List? bytes,
-  }) =>
-      throw UnsupportedError('Built-in map caching is not supported on web');
 }

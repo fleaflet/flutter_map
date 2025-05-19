@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/native.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/utils/size_monitor_opener.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
@@ -21,18 +22,14 @@ typedef _SizeLimiterTile = ({String path, int size, DateTime sortKey});
 Future<List<String>> sizeLimiterWorker(
   ({
     String cacheDirectoryPath,
-    String persistentRegistryFileName,
     String sizeMonitorFilePath,
-    String sizeMonitorFileName,
-    int sizeLimit
+    int sizeLimit,
   }) input,
 ) async {
   final cacheDirectory = Directory(input.cacheDirectoryPath);
 
   final (:currentSize, :sizeMonitor) = await getOrCreateSizeMonitor(
     cacheDirectoryPath: input.cacheDirectoryPath,
-    persistentRegistryFileName: input.persistentRegistryFileName,
-    sizeMonitorFileName: input.sizeMonitorFileName,
     sizeMonitorFilePath: input.sizeMonitorFilePath,
   );
 
@@ -44,8 +41,8 @@ Future<List<String>> sizeLimiterWorker(
   final tiles = await Future.wait<_SizeLimiterTile>(
     cacheDirectory.listSync().whereType<File>().where((f) {
       final uuid = p.basename(f.absolute.path);
-      return uuid != input.persistentRegistryFileName &&
-          uuid != input.sizeMonitorFileName;
+      return uuid != BuiltInMapCachingProviderImpl.persistentRegistryFileName &&
+          uuid != BuiltInMapCachingProviderImpl.sizeMonitorFileName;
     }).map((f) async {
       final stat = await f.stat();
       // `stat.accessed` may be unstable on some OSs, but seems to work enough?

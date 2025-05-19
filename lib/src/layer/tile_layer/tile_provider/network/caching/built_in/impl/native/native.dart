@@ -4,7 +4,6 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/persistent_registry_unpacker.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/persistent_registry_writer.dart';
@@ -17,6 +16,9 @@ import 'package:path_provider/path_provider.dart';
 
 @internal
 class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
+  static const persistentRegistryFileName = 'registry.bin';
+  static const sizeMonitorFileName = 'sizeMonitor.bin';
+
   final String? cacheDirectory;
   final int? maxCacheSize;
   final Duration? overrideFreshAge;
@@ -31,132 +33,109 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
     required this.cacheKeyGenerator,
     required this.readOnly,
   }) {
-    _initialise();
+    // This should only be called/constructed once
+    _isInitialised.complete(
+      () async {
+        _cacheDirectoryPath = p.join(
+          this.cacheDirectory ??
+              (await getApplicationCacheDirectory()).absolute.path,
+          'fm_cache',
+        );
+        final cacheDirectory = Directory(_cacheDirectoryPath);
+        await cacheDirectory.create(recursive: true);
+
+        final persistentRegistryFilePath =
+            p.join(_cacheDirectoryPath, persistentRegistryFileName);
+        final persistentRegistryFile = File(persistentRegistryFilePath);
+
+        final sizeMonitorFilePath =
+            p.join(_cacheDirectoryPath, sizeMonitorFileName);
+
+        if (await persistentRegistryFile.exists()) {
+          final parsedCacheManager = await compute(
+            persistentRegistryUnpackerWorker,
+            persistentRegistryFilePath,
+            debugLabel: '[flutter_map: cache] Persistent Registry Unpacker',
+          );
+
+          if (parsedCacheManager == null) {
+            await cacheDirectory.delete(recursive: true);
+            await cacheDirectory.create(recursive: true);
+            _registry = HashMap();
+          } else {
+            _registry = parsedCacheManager;
+
+            if (maxCacheSize case final sizeLimit?) {
+              final currentSize =
+                  await asyncGetOnlySizeMonitor(sizeMonitorFilePath);
+
+              if (currentSize == null || currentSize > sizeLimit) {
+                (await compute(
+                  sizeLimiterWorker,
+                  (
+                    cacheDirectoryPath: _cacheDirectoryPath,
+                    sizeMonitorFilePath: sizeMonitorFilePath,
+                    sizeLimit: sizeLimit,
+                  ),
+                  debugLabel: '[flutter_map: cache] Size Limiter',
+                ))
+                    .forEach(_registry.remove);
+              }
+            }
+          }
+        } else {
+          _registry = HashMap();
+        }
+
+        final registryWorkerReceivePort = ReceivePort();
+        await Isolate.spawn(
+          persistentRegistryWriterWorker,
+          (
+            port: registryWorkerReceivePort.sendPort,
+            persistentRegistryFilePath: persistentRegistryFilePath,
+            initialRegistry: _registry,
+          ),
+          debugName: '[flutter_map: cache] Persistent Registry Writer',
+        );
+        final registryWorkerSendPort =
+            await registryWorkerReceivePort.first as SendPort;
+
+        final tileFileWriterWorkerReceivePort = ReceivePort();
+        await Isolate.spawn(
+          tileWriterSizeMonitorWorker,
+          (
+            port: tileFileWriterWorkerReceivePort.sendPort,
+            cacheDirectoryPath: _cacheDirectoryPath,
+            sizeMonitorFilePath: sizeMonitorFilePath,
+          ),
+          debugName: '[flutter_map: cache] Tile File & Size Monitor Writer',
+        );
+        final tileFileWriterWorkerSendPort =
+            await tileFileWriterWorkerReceivePort.first as SendPort;
+
+        _writeToPersistentRegistry = (uuid, tileInfo) =>
+            registryWorkerSendPort.send((uuid: uuid, tileInfo: tileInfo));
+        _writeTileFile = (tileFilePath, bytes) => tileFileWriterWorkerSendPort
+            .send((tileFilePath: tileFilePath, bytes: bytes));
+
+        return _registry.length;
+      }(),
+    );
   }
 
-  static const _persistentRegistryFileName = 'registry.bin';
-  static const _sizeMonitorFileName = 'sizeMonitor.bin';
-
-  late final String _cacheDirectory;
+  late final String _cacheDirectoryPath;
   late final void Function(String uuid, CachedMapTileMetadata? tileInfo)
       _writeToPersistentRegistry;
   late final void Function(String tileFilePath, Uint8List? bytes)
       _writeTileFile;
   late final HashMap<String, CachedMapTileMetadata> _registry;
 
-  Completer<int>? _isInitialised;
+  final _isInitialised = Completer<int>();
+  @override
+  Future<int> get isInitialised => _isInitialised.future;
 
   @override
   bool get isSupported => true;
-
-  @override
-  Future<int> get isInitialised => _isInitialised!.future;
-
-  Future<int> _initialise() async {
-    if (_isInitialised != null) return isInitialised;
-
-    WidgetsFlutterBinding.ensureInitialized();
-    _isInitialised = Completer();
-
-    try {
-      _cacheDirectory = p.join(
-        cacheDirectory ?? (await getApplicationCacheDirectory()).absolute.path,
-        'fm_cache',
-      );
-      final cacheDirectoryIO = Directory(_cacheDirectory);
-      await cacheDirectoryIO.create(recursive: true);
-
-      final persistentRegistryFilePath = p.join(
-        _cacheDirectory,
-        _persistentRegistryFileName,
-      );
-      final persistentRegistryFile = File(persistentRegistryFilePath);
-
-      final sizeMonitorFilePath = p.join(
-        _cacheDirectory,
-        _sizeMonitorFileName,
-      );
-
-      if (await persistentRegistryFile.exists()) {
-        final parsedCacheManager = await compute(
-          persistentRegistryUnpackerWorker,
-          persistentRegistryFilePath,
-          debugLabel: '[flutter_map: cache] Persistent Registry Parser',
-        );
-
-        if (parsedCacheManager == null) {
-          await cacheDirectoryIO.delete(recursive: true);
-          await cacheDirectoryIO.create(recursive: true);
-          _registry = HashMap();
-        } else {
-          _registry = parsedCacheManager;
-
-          if (maxCacheSize case final sizeLimit?) {
-            final currentSize =
-                await asyncGetOnlySizeMonitor(sizeMonitorFilePath);
-
-            if (currentSize == null || currentSize > sizeLimit) {
-              // This can cause some delay when creating
-              // But it's much better than lagging or inconsistent registries
-              (await compute(
-                sizeLimiterWorker,
-                (
-                  cacheDirectoryPath: _cacheDirectory,
-                  persistentRegistryFileName: _persistentRegistryFileName,
-                  sizeMonitorFilePath: sizeMonitorFilePath,
-                  sizeMonitorFileName: _sizeMonitorFileName,
-                  sizeLimit: sizeLimit,
-                ),
-                debugLabel: '[flutter_map: cache] Size Limiter',
-              ))
-                  .forEach(_registry.remove);
-            }
-          }
-        }
-      } else {
-        _registry = HashMap();
-      }
-
-      final registryWorkerReceivePort = ReceivePort();
-      await Isolate.spawn(
-        persistentRegistryWriterWorker,
-        (
-          port: registryWorkerReceivePort.sendPort,
-          persistentRegistryFilePath: persistentRegistryFilePath,
-          initialRegistry: _registry,
-        ),
-        debugName: '[flutter_map: cache] Persistent Registry Worker',
-      );
-      final registryWorkerSendPort =
-          await registryWorkerReceivePort.first as SendPort;
-
-      final tileFileWriterWorkerReceivePort = ReceivePort();
-      await Isolate.spawn(
-        tileWriterSizeMonitorWorker,
-        (
-          port: tileFileWriterWorkerReceivePort.sendPort,
-          cacheDirectoryPath: _cacheDirectory,
-          persistentRegistryFileName: _persistentRegistryFileName,
-          sizeMonitorFilePath: sizeMonitorFilePath,
-          sizeMonitorFileName: _sizeMonitorFileName,
-        ),
-        debugName: '[flutter_map: cache] Tile File Writer',
-      );
-      final tileFileWriterWorkerSendPort =
-          await tileFileWriterWorkerReceivePort.first as SendPort;
-
-      _writeToPersistentRegistry = (uuid, tileInfo) =>
-          registryWorkerSendPort.send((uuid: uuid, tileInfo: tileInfo));
-      _writeTileFile = (tileFilePath, bytes) => tileFileWriterWorkerSendPort
-          .send((tileFilePath: tileFilePath, bytes: bytes));
-    } catch (error, stackTrace) {
-      _isInitialised!.completeError(error, stackTrace);
-      rethrow;
-    }
-
-    _isInitialised!.complete(_registry.length);
-    return _registry.length;
-  }
 
   @override
   Future<({Uint8List bytes, CachedMapTileMetadata tileInfo})?> getTile(
@@ -165,8 +144,7 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
     await isInitialised;
 
     final uuid = cacheKeyGenerator(url);
-
-    final tileFile = File(p.join(_cacheDirectory, uuid));
+    final tileFile = File(p.join(_cacheDirectoryPath, uuid));
 
     if (_registry[uuid] case final tileInfo? when await tileFile.exists()) {
       return (bytes: await tileFile.readAsBytes(), tileInfo: tileInfo);
@@ -202,7 +180,7 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
     }
 
     if (bytes != null) {
-      final tileFilePath = p.join(_cacheDirectory, uuid);
+      final tileFilePath = p.join(_cacheDirectoryPath, uuid);
       _writeTileFile(tileFilePath, bytes);
     }
 
@@ -213,7 +191,7 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
   Future<void> _removeTile(String uuid) async {
     await isInitialised;
 
-    final tileFilePath = p.join(_cacheDirectory, uuid);
+    final tileFilePath = p.join(_cacheDirectoryPath, uuid);
     _writeTileFile(tileFilePath, null);
 
     if (_registry.remove(uuid) == null) return;

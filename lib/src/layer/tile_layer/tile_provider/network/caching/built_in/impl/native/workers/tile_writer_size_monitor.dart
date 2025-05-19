@@ -12,9 +12,7 @@ Future<void> tileWriterSizeMonitorWorker(
   ({
     SendPort port,
     String cacheDirectoryPath,
-    String persistentRegistryFileName,
     String sizeMonitorFilePath,
-    String sizeMonitorFileName,
   }) input,
 ) async {
   final receivePort = ReceivePort();
@@ -24,8 +22,6 @@ Future<void> tileWriterSizeMonitorWorker(
   final RandomAccessFile sizeMonitor;
   (:currentSize, :sizeMonitor) = await getOrCreateSizeMonitor(
     cacheDirectoryPath: input.cacheDirectoryPath,
-    persistentRegistryFileName: input.persistentRegistryFileName,
-    sizeMonitorFileName: input.sizeMonitorFileName,
     sizeMonitorFilePath: input.sizeMonitorFilePath,
   );
 

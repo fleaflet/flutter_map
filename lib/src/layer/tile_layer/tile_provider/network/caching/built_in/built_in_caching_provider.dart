@@ -1,5 +1,4 @@
 import 'package:flutter_map/flutter_map.dart';
-// TODO: On Dart 3.8 min, update to remove `@internal`s, switch to privates and conditional parts
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/stub.dart'
     if (dart.library.io) 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/native.dart'
     if (dart.library.js_interop) 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/web/web.dart';
@@ -111,5 +110,7 @@ abstract interface class BuiltInMapCachingProvider
   ///    * or an error if initialisation fails and could not be recovered
   ///  * on web platforms, `null` (synchronously & immediately), and caching
   /// will not be available
+  ///
+  /// [isSupported] will be set to determine the current platform's support.
   Future<int?> get isInitialised;
 }
