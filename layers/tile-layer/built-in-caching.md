@@ -40,7 +40,11 @@ However, you/users may notice a small delay before tiles are initially loaded.&#
 
 This delay occurs whilst the central cache file stored on the filesystem is opened and loaded into memory, which ensures that cache reads are superfast.
 
-As a rough estimate, 10k cached tiles adds \~100ms to the delay and a little over 1MB to the central cache file (plus the size of the tiles themselves).
+As a rough estimate, 10k cached tiles adds a little over \~100ms to the delay and a little over 1MB to the central cache file (plus the size of the tiles themselves).
+
+{% hint style="warning" %}
+Debug mode performance is not indicative of release mode performance.
+{% endhint %}
 
 This delay can be 'moved', so that tile loading is not delayed. We recommend moving the delay for most production apps - although where the delay is less than 500ms it's not usually noticeable compared to the time it takes to load tiles from the network initially.
 
@@ -115,6 +119,8 @@ TileLayer(
 ```
 
 Also ensure you remove the line in [#recommended-setup](built-in-caching.md#recommended-setup "mention").
+
+This is not necessary on the web. On the web, ignoring or following [#recommended-setup](built-in-caching.md#recommended-setup "mention") and leaving `cachingProvider` at its default is exactly equivalent to using `DisabledMapCachingProvider`.
 
 ## Managing The Cache
 
