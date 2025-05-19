@@ -50,8 +50,8 @@ abstract interface class BuiltInMapCachingProvider
     /// the visible delay becomes too large, disable this and manage the cache
     /// size manually if necessary.
     ///
-    /// Defaults to 1GB. Set to `null` to disable.
-    int? maxCacheSize = 1000000000,
+    /// Defaults to 800 MB. Set to `null` to disable.
+    int? maxCacheSize = 800000000,
 
     /// Override the duration of time a tile is considered fresh for
     ///
