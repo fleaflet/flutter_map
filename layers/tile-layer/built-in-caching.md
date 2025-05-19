@@ -42,7 +42,7 @@ This delay occurs whilst the central cache file stored on the filesystem is open
 
 As a rough estimate, 10k cached tiles adds \~100ms to the delay and a little over 1MB to the central cache file (plus the size of the tiles themselves).
 
-This delay can be 'moved', so that tile loading is not delayed. We recommend moving the delay for all production apps.
+This delay can be 'moved', so that tile loading is not delayed. We recommend moving the delay for most production apps - although where the delay is less than 500ms it's not usually noticeable compared to the time it takes to load tiles from the network initially.
 
 If you have a loading screen, you could move the delay to be included within that. Otherwise, we recommend moving it to the `main` method prior to calling `runApp`:
 
@@ -66,7 +66,9 @@ By default, the `BuiltInMapCachingProvider` is used, which has multiple options 
 
 To configure the `BuiltInMapCachingProvider`, we recommend following the [#recommended-setup](built-in-caching.md#recommended-setup "mention") above. Then, you can supply arguments to the `getOrCreateInstance` factory constructor, which will be automatically used.
 
-By default, caching occurs in a platform provided cache directory. The operating system may clear this at any time. By default, a 1GB preferred (soft) limit is applied to the built-in caching.
+By default, caching occurs in a platform provided cache directory. The operating system may clear this at any time.
+
+By default, a 1GB preferred (soft) limit is applied to the built-in caching. This limit is only applied when the cache provider is initialised (the first tiles are loaded), and so may increase the duration of the initialisation (considerably depending on the size of the cache and the target size).
 
 HTTP headers are used to determine how long a tile is considered 'fresh' - this fulfills the requirements of many tile servers. However, setting `overrideFreshAge` allows the HTTP headers to be overridden, and the tile to be stored and used for a set duration.
 
