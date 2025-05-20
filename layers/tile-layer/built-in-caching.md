@@ -30,25 +30,23 @@ Some plugins which perform caching or offline mapping may instead provide a dedi
 In this case, built-in caching is not applicable, and will not be used (unless the provider explicitly supports usage of built-in caching).&#x20;
 {% endhint %}
 
-## Recommended Setup
+## Pre-Initialisation
 
 {% hint style="success" %}
 Built-in caching is enabled by default.
 
-However, you/users may notice a small delay before tiles are initially loaded.&#x20;
+However, you/users may notice a small delay (usually less than a few hundred milliseconds) before the initial tiles (in the camera view when the map is created) load.
 {% endhint %}
 
-This delay occurs whilst the central cache file stored on the filesystem is opened and loaded into memory, which ensures that cache reads are superfast.
+This delay occurs whilst the central cache file stored on the filesystem is opened and unpacked into memory, which ensures that cache reads are superfast - this is known as initialisation.
 
-As a rough estimate, 10k cached tiles adds a little over \~100ms to the delay and a little over 1MB to the central cache file (plus the size of the tiles themselves).
+As a rough estimate, 40k cached tiles adds \~100ms to the initialisation time, and 10k tiles adds a little under 1 MB to the central cache file (plus the size of the tiles themselves).
 
 {% hint style="warning" %}
-Debug mode performance is not indicative of release mode performance.
+Debug mode performance is not indicative of release mode performance. The time to initialise in debug mode may be up to 10x greater.
 {% endhint %}
 
-This delay can be 'moved', so that tile loading is not delayed. We recommend moving the delay for most production apps - although where the delay is less than 500ms it's not usually noticeable compared to the time it takes to load tiles from the network initially.
-
-If you have a loading screen, you could move the delay to be included within that. Otherwise, we recommend moving it to the `main` method prior to calling `runApp`:
+If the delay becomes significant, this delay can be 'moved', so that tile loading is not delayed. If you have a loading screen, you could move the delay to be included within that. Otherwise, we recommend moving it to the `main` method prior to calling `runApp`:
 
 <pre class="language-dart"><code class="lang-dart">Future&#x3C;void> main() async {
 <strong>  WidgetsFlutterBinding.ensureInitialized(); // required only if before `runApp`
