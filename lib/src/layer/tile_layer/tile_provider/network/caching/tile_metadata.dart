@@ -1,56 +1,64 @@
+import 'dart:io' show HttpHeaders; // web safe!
+
 import 'package:flutter_map/flutter_map.dart';
 import 'package:meta/meta.dart';
 
 /// Metadata about a tile cached with a [MapCachingProvider]
 ///
 /// Caching is usually determined with HTTP headers. However, if a specific
-/// implementation chooses to, it can solely use [staleAt] and set the other
-/// properties to a dummy value.
+/// implementation chooses to, it can solely use [isStale] and set the other
+/// properties to `null`.
 ///
 /// External usage of this class is not usually necessary. It is visible so
 /// other tile providers may make use of it.
 @immutable
 class CachedMapTileMetadata {
   /// Create new metadata
-  ///
-  /// [lastModifiedLocally] must be set to [DateTime.timestamp]. Other
-  /// properties should usually be set based on the tile's HTTP response
-  /// headers.
-  const CachedMapTileMetadata({
-    required this.lastModifiedLocally,
-    required this.staleAt,
-    required this.lastModified,
+  CachedMapTileMetadata({
+    required DateTime staleAt,
+    required DateTime? lastModified,
     required this.etag,
-  });
+  })  : _staleAt = staleAt.millisecondsSinceEpoch,
+        _lastModified = lastModified?.millisecondsSinceEpoch;
 
-  /// Used to efficiently allow updates to already cached tiles
-  ///
-  /// Must be set to [DateTime.timestamp] when a new tile is cached or a tile
-  /// is updated.
-  final DateTime lastModifiedLocally;
+  /// Decode metadata from JSON
+  CachedMapTileMetadata.fromJson(Map<String, dynamic> json)
+      : _staleAt = json['a'] as int,
+        _lastModified = json.containsKey('b') ? json['b'] as int : null,
+        etag = json.containsKey('c') ? json['c'] as String : null;
 
-  /// The date/time at which the tile becomes stale according to the HTTP spec
-  final DateTime staleAt;
+  final int _staleAt;
 
-  /// The tile's last modified HTTP header
-  final DateTime? lastModified;
+  /// If available, the value in [HttpHeaders.lastModifiedHeader]
+  DateTime? get lastModified => _lastModified == null
+      ? null
+      : DateTime.fromMillisecondsSinceEpoch(_lastModified);
+  final int? _lastModified;
 
-  /// The tile's etag HTTP header
+  /// If available, the value in [HttpHeaders.etagHeader]
   final String? etag;
 
-  /// Whether the tile is currently stale
-  bool get isStale => DateTime.timestamp().isAfter(staleAt);
+  /// Whether this tile should be considered stale
+  ///
+  /// Usually this is implemented by storing the timestamp at which the tile
+  /// becomes stale, and comparing that to the current timestamp.
+  bool get isStale => DateTime.timestamp().millisecondsSinceEpoch > _staleAt;
+
+  /// Encode the metadata to JSON
+  Map<String, dynamic> toJson() => {
+        'a': _staleAt,
+        if (_lastModified != null) 'b': _lastModified,
+        if (etag != null) 'c': etag,
+      };
 
   @override
-  int get hashCode =>
-      Object.hash(lastModifiedLocally, staleAt, lastModified, etag);
+  int get hashCode => Object.hash(_staleAt, lastModified, etag);
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is CachedMapTileMetadata &&
-          lastModifiedLocally == other.lastModifiedLocally &&
-          staleAt == other.staleAt &&
+          _staleAt == other._staleAt &&
           lastModified == other.lastModified &&
           etag == other.etag);
 }

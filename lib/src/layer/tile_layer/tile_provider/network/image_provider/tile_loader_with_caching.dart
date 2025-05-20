@@ -31,7 +31,6 @@ Future<Codec> _loadTileImageWithCaching(
       cachingProvider.putTile(
         url: resolvedUrl,
         tileInfo: CachedMapTileMetadata(
-          lastModifiedLocally: DateTime.timestamp(),
           staleAt: _calculateStaleAt(response),
           lastModified:
               lastModified != null ? HttpDate.parse(lastModified) : null,
@@ -105,7 +104,6 @@ Future<Codec> _loadTileImageWithCaching(
         cachingProvider.putTile(
           url: resolvedUrl,
           tileInfo: CachedMapTileMetadata(
-            lastModifiedLocally: DateTime.timestamp(),
             staleAt: _calculateStaleAt(response),
             lastModified: lastModified != null
                 ? HttpDate.parse(lastModified)

@@ -1,10 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 
-import 'package:flat_buffers/flat_buffers.dart' as fb;
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/flatbufs/registry.g.dart';
 import 'package:meta/meta.dart';
 
 /// Isolate worker which maintains its own registry and sequences writes to
@@ -43,16 +42,21 @@ Future<void> persistentRegistryWriterWorker(
     writeLocker = Completer();
     alreadyWaitingToWrite = false;
 
-    _writeFlatbuffer(registry, writer);
+    final encoded = jsonEncode(registry);
+    writer
+      ..setPositionSync(0)
+      ..writeStringSync(encoded)
+      ..truncateSync(writer.positionSync())
+      ..flushSync();
 
     writeLocker.complete();
   }
 
+  write();
+
   Timer createWriteDebouncer() =>
       Timer(const Duration(milliseconds: 50), write);
   Timer? writeDebouncer;
-
-  write();
 
   await for (final val in receivePort) {
     final (:uuid, :tileInfo) =
@@ -67,59 +71,4 @@ Future<void> persistentRegistryWriterWorker(
     writeDebouncer?.cancel();
     writeDebouncer = createWriteDebouncer();
   }
-}
-
-void _writeFlatbuffer(
-  Map<String, CachedMapTileMetadata> registry,
-  RandomAccessFile fileWriter,
-) {
-  final registryIds = registry.keys.toList(growable: false);
-  final registryMetadatas = registry.values.toList(growable: false);
-
-  final builder = fb.Builder(initialSize: 1048576);
-
-  final entriesOffset = builder.writeList(
-    List.generate(
-      registry.length,
-      (i) {
-        final id = registryIds[i];
-        final metadata = registryMetadatas[i];
-
-        final fbId = builder.writeString(id, asciiOptimization: true);
-        final fbEtag = metadata.etag == null
-            ? null
-            : builder.writeString(metadata.etag!, asciiOptimization: true);
-
-        final fbTileMetadata = (TileMetadataBuilder(builder)
-              ..begin()
-              ..addLastModifiedLocally(
-                metadata.lastModifiedLocally.millisecondsSinceEpoch,
-              )
-              ..addStaleAt(metadata.staleAt.millisecondsSinceEpoch)
-              ..addEtagOffset(fbEtag)
-              ..addLastModified(metadata.lastModified?.millisecondsSinceEpoch))
-            .finish();
-
-        return (TileMetadataEntryBuilder(builder)
-              ..begin()
-              ..addIdOffset(fbId)
-              ..addMetadataOffset(fbTileMetadata))
-            .finish();
-      },
-      growable: false,
-    ),
-  );
-
-  final metadataMapOffset = (TileMetadataMapBuilder(builder)
-        ..begin()
-        ..addEntriesOffset(entriesOffset))
-      .finish();
-
-  builder.finish(metadataMapOffset);
-
-  fileWriter
-    ..setPositionSync(0)
-    ..writeFromSync(builder.buffer)
-    ..truncateSync(fileWriter.positionSync())
-    ..flushSync();
 }

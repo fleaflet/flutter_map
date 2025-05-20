@@ -16,7 +16,7 @@ import 'package:path_provider/path_provider.dart';
 
 @internal
 class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
-  static const persistentRegistryFileName = 'registry.bin';
+  static const persistentRegistryFileName = 'registry.json';
   static const sizeMonitorFileName = 'sizeMonitor.bin';
 
   final String? cacheDirectory;
@@ -167,17 +167,11 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
     final uuid = cacheKeyGenerator(url);
     final resolvedTileInfo = overrideFreshAge != null
         ? CachedMapTileMetadata(
-            lastModifiedLocally: tileInfo.lastModifiedLocally,
             staleAt: DateTime.timestamp().add(overrideFreshAge!),
             lastModified: tileInfo.lastModified,
             etag: tileInfo.etag,
           )
         : tileInfo;
-
-    if (_registry[uuid] case final existingTileInfo?
-        when resolvedTileInfo == existingTileInfo) {
-      return;
-    }
 
     if (bytes != null) {
       final tileFilePath = p.join(_cacheDirectoryPath, uuid);
