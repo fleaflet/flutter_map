@@ -58,16 +58,18 @@ Future<List<String>> sizeLimiterWorker(
 
   int i = 0;
   int deletedSize = 0;
-  final deletedTiles = () sync* {
+  final deletedFiles = <Future<void>>[];
+  final deletedUuids = () sync* {
     while (currentSize - deletedSize > input.sizeLimit && i < tiles.length) {
       final tile = tiles[i++];
       final uuid = p.basename(tile.path);
 
       deletedSize += tile.size;
+      deletedFiles.add(File(tile.path).delete());
       yield uuid;
-      yield File(tile.path).delete();
     }
-  }();
+  }()
+      .toList(growable: false);
 
   sizeMonitor
     ..setPositionSync(0)
@@ -77,7 +79,7 @@ Future<List<String>> sizeLimiterWorker(
     ..flushSync()
     ..closeSync();
 
-  await Future.wait(deletedTiles.whereType<Future<FileSystemEntity>>());
+  await Future.wait(deletedFiles);
 
-  return deletedTiles.whereType<String>().toList(growable: false);
+  return deletedUuids;
 }
