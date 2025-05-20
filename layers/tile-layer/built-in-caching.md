@@ -30,10 +30,10 @@ Some plugins which perform caching or offline mapping may instead provide a dedi
 In this case, built-in caching is not applicable, and will not be used (unless the provider explicitly supports usage of built-in caching).&#x20;
 {% endhint %}
 
-## Pre-Initialisation
+## Initialisation
 
 {% hint style="success" %}
-Built-in caching is enabled by default.
+Built-in caching is enabled by default and initialises automatically.
 
 However, you/users may notice a small delay (usually less than a few hundred milliseconds) before the initial tiles (in the camera view when the map is created) load.
 {% endhint %}
@@ -45,13 +45,17 @@ As a rough estimate:
 * On more powerful systems (such as desktops), 40k cached tiles adds \~100ms to the initialisation time
 * On less powerful systems (such as lower-mid end smartphones), it's \~10k:100ms - although this is much more variable and improves efficiency with a larger number of stored tiles
 * 10k tiles adds a little under 1 MB to the central cache file (plus the size of the tiles themselves)
-* Running the size limiter adds a larger amount of time (seconds), but is harder to quantify and more dependent on I/O
+* Running the size limiter (see below) adds a larger amount of time (seconds), but is harder to quantify and more dependent on I/O
 
 {% hint style="warning" %}
 Debug mode performance is not indicative of release mode performance. The time to initialise in debug mode may be up to 10x greater.
 {% endhint %}
 
-If the delay becomes significant, this delay can be 'moved', so that tile loading is not delayed directly. If you have a loading screen, you could move the delay to be included within that. Otherwise, we recommend moving it to the `main` method prior to calling `runApp`:
+### Pre-Initialising
+
+If the delay becomes significant, this delay can be 'moved', so that tile loading is not delayed directly.
+
+If you have a loading screen, you could move the initialisation to run within that. Otherwise, we recommend moving it to the `main` method prior to calling `runApp`:
 
 <pre class="language-dart"><code class="lang-dart">Future&#x3C;void> main() async {
 <strong>  WidgetsFlutterBinding.ensureInitialized(); // required only if before `runApp`
@@ -69,15 +73,15 @@ Other built-in caching providers may provide their own similar method to await i
 
 Built-in caching supports extendability and customizability.
 
-By default, the `BuiltInMapCachingProvider` is used, which has multiple options to adjust its basic behaviour. It's backed by a simple (yet performant) filesystem cache, where tiles are stored as raw files and a central 'registry' file coordinates the metadata for cached tiles in a FlatBuffer format.
+By default, the `BuiltInMapCachingProvider` is used, which has multiple options to adjust its basic behaviour. It's backed by a filesystem cache, where tiles are stored as raw files, a central 'registry' file coordinates the metadata for cached tiles in a JSON format, and another file tracks the size of the cache.
 
 <mark style="background-color:yellow;">insert link</mark>
 
-To configure the `BuiltInMapCachingProvider`, we recommend following the [#recommended-setup](built-in-caching.md#recommended-setup "mention") above. Then, you can supply arguments to the `getOrCreateInstance` factory constructor, which will be automatically used.
+To configure the `BuiltInMapCachingProvider`, we recommend following the [#pre-initialising](built-in-caching.md#pre-initialising "mention") above. Then, you can supply arguments to the `getOrCreateInstance` factory constructor.\
+Alternatively, you can pass the same arguments without pre-initialisation by passing the caching provider to the tile provider manually, as in [#using-other-mapcachingproviders](built-in-caching.md#using-other-mapcachingproviders "mention") below.
 
-By default, caching occurs in a platform provided cache directory. The operating system may clear this at any time.
-
-By default, an 800 MB preferred (soft) limit is applied to the built-in caching. This limit is only applied when the cache provider is initialised (the first tiles are loaded), and so may increase the duration of the initialisation (considerably depending on the size of the cache and the target size).
+By default, caching occurs in a platform provided cache directory. The operating system may clear this at any time.\
+By default, an 800 MB preferred (soft) limit is applied to the built-in caching. This limit is only applied when the cache provider is initialised, and so may increase the duration of the initialisation (considerably depending on the size of the cache and the target size).
 
 HTTP headers are used to determine how long a tile is considered 'fresh' - this fulfills the requirements of many tile servers. However, setting `overrideFreshAge` allows the HTTP headers to be overridden, and the tile to be stored and used for a set duration.
 
@@ -87,7 +91,7 @@ You can also use any other `MapCachingProvider` implementation, such as provided
 
 If you're using built-in caching through a `MapCachingProvider`, but not using the default `BuiltInMapCachingProvider`, you should check that provider's documentation if available.
 
-You will always need to - regardless of if that provider has an initialisation delay, and you've moved it (similarly to [#recommended-setup](built-in-caching.md#recommended-setup "mention")) - pass it to the `NetworkTileProvider` (or whichever other tile provider you are using):
+You will always need to - regardless of if that provider has an initialisation or whether you've moved it (similarly to [#pre-initialising](built-in-caching.md#pre-initialising "mention")) - pass it to the `NetworkTileProvider` (or whichever other tile provider you are using):
 
 <pre class="language-dart"><code class="lang-dart">TileLayer(
     urlTemplate: '...',
@@ -121,9 +125,9 @@ TileLayer(
 );
 ```
 
-Also ensure you remove the line in [#recommended-setup](built-in-caching.md#recommended-setup "mention").
+Also ensure you remove the line in [#pre-initialising](built-in-caching.md#pre-initialising "mention").
 
-This is not necessary on the web. On the web, ignoring or following [#recommended-setup](built-in-caching.md#recommended-setup "mention") and leaving `cachingProvider` at its default is exactly equivalent to using `DisabledMapCachingProvider`.
+This is not necessary on the web. On the web, ignoring or following [#pre-initialising](built-in-caching.md#pre-initialising "mention") and leaving `cachingProvider` at its default is exactly equivalent to using `DisabledMapCachingProvider`.
 
 ## Managing The Cache
 
