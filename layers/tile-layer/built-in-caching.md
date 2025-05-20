@@ -40,13 +40,18 @@ However, you/users may notice a small delay (usually less than a few hundred mil
 
 This delay occurs whilst the central cache file stored on the filesystem is opened and unpacked into memory, which ensures that cache reads are superfast - this is known as initialisation.
 
-As a rough estimate, 40k cached tiles adds \~100ms to the initialisation time, and 10k tiles adds a little under 1 MB to the central cache file (plus the size of the tiles themselves).
+As a rough estimate:
+
+* On more powerful systems (such as desktops), 40k cached tiles adds \~100ms to the initialisation time
+* On less powerful systems (such as lower-mid end smartphones), it's \~10k:100ms - although this is much more variable and improves efficiency with a larger number of stored tiles
+* 10k tiles adds a little under 1 MB to the central cache file (plus the size of the tiles themselves)
+* Running the size limiter adds a larger amount of time (seconds), but is harder to quantify and more dependent on I/O
 
 {% hint style="warning" %}
 Debug mode performance is not indicative of release mode performance. The time to initialise in debug mode may be up to 10x greater.
 {% endhint %}
 
-If the delay becomes significant, this delay can be 'moved', so that tile loading is not delayed. If you have a loading screen, you could move the delay to be included within that. Otherwise, we recommend moving it to the `main` method prior to calling `runApp`:
+If the delay becomes significant, this delay can be 'moved', so that tile loading is not delayed directly. If you have a loading screen, you could move the delay to be included within that. Otherwise, we recommend moving it to the `main` method prior to calling `runApp`:
 
 <pre class="language-dart"><code class="lang-dart">Future&#x3C;void> main() async {
 <strong>  WidgetsFlutterBinding.ensureInitialized(); // required only if before `runApp`
