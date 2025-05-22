@@ -39,26 +39,28 @@ class _HomePageState extends State<HomePage> {
       body: Stack(
         children: [
           if (widget.cacheInitComplete case final cacheInitComplete?)
-            FutureBuilder(
-              future: cacheInitComplete.result,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  return const ColoredBox(color: Color(0xFFE0E0E0));
-                }
-                return const Center(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    spacing: 16,
-                    children: [
-                      SizedBox.square(
-                        dimension: 24,
-                        child: CircularProgressIndicator.adaptive(),
-                      ),
-                      Text('Awaiting cache initialisation'),
-                    ],
-                  ),
-                );
-              },
+            Positioned.fill(
+              child: FutureBuilder(
+                future: cacheInitComplete.result,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    return const ColoredBox(color: Color(0xFFE0E0E0));
+                  }
+                  return const Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: 16,
+                      children: [
+                        SizedBox.square(
+                          dimension: 24,
+                          child: CircularProgressIndicator.adaptive(),
+                        ),
+                        Text('Awaiting cache initialisation'),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
           FlutterMap(
             options: const MapOptions(
