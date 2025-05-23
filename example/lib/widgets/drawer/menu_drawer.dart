@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map_example/misc/timed_future.dart';
 import 'package:flutter_map_example/pages/animated_map_controller.dart';
 import 'package:flutter_map_example/pages/bundled_offline_map.dart';
 import 'package:flutter_map_example/pages/cancellable_tile_provider.dart';
@@ -42,12 +43,21 @@ class MenuDrawer extends StatelessWidget {
 
   const MenuDrawer(this.currentRoute, {super.key});
 
+  static final ValueNotifier<TimedFuture<int?>?> cacheInitComplete =
+      ValueNotifier(null);
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
       child: ListView(
         children: <Widget>[
-          DrawerHeader(
+          Container(
+            padding: const EdgeInsets.fromLTRB(16, 32, 16, 16)
+                .add(EdgeInsets.only(top: MediaQuery.paddingOf(context).top)),
+            margin: const EdgeInsets.only(bottom: 8),
+            decoration: BoxDecoration(
+              border: Border(bottom: Divider.createBorderSide(context)),
+            ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -65,12 +75,49 @@ class MenuDrawer extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 14),
                 ),
+                const SizedBox(height: 8),
                 if (kIsWeb)
-                  const Text(
+                  Text(
                     _isWASM ? 'Running with WASM' : 'Running without WASM',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14),
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
+                ValueListenableBuilder(
+                  valueListenable: cacheInitComplete,
+                  builder: (context, value, _) {
+                    if (value == null) {
+                      return Text(
+                        'No map cache in use',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      );
+                    }
+                    return FutureBuilder(
+                      future: value.future,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasError) {
+                          return Text(
+                            'Failed to load or recover map cache',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          );
+                        }
+                        if (snapshot.hasData) {
+                          return Text(
+                            'Loaded map cache of '
+                            '${snapshot.requireData.result!} tiles in '
+                            '${snapshot.requireData.duration.inMilliseconds}'
+                            '\u00a0ms${kDebugMode ? ' (debug\u00a0mode)' : ''}',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          );
+                        }
+                        return Text(
+                          'Loading map cache...',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        );
+                      },
+                    );
+                  },
+                ),
               ],
             ),
           ),
