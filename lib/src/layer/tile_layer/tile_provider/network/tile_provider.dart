@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:collection';
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -36,13 +35,25 @@ class NetworkTileProvider extends TileProvider {
     super.headers,
     Client? httpClient,
     this.silenceExceptions = false,
+    this.attemptDecodeOfHttpErrorResponses = true,
     this.cachingProvider,
   })  : _isInternallyCreatedClient = httpClient == null,
         _httpClient = httpClient ?? RetryClient(Client());
 
   /// Whether to ignore exceptions and errors that occur whilst fetching tiles
   /// over the network, and just return a transparent tile
+  ///
+  /// Defaults to `false`.
   final bool silenceExceptions;
+
+  /// Whether to optimistically attempt to decode HTTP responses that have a
+  /// non-successful status code as an image
+  ///
+  /// If the decode is unnsuccessful, the behaviour depends on
+  /// [silenceExceptions].
+  ///
+  /// Defaults to `true`.
+  final bool attemptDecodeOfHttpErrorResponses;
 
   /// Caching provider used to get cached tiles
   ///
@@ -63,38 +74,46 @@ class NetworkTileProvider extends TileProvider {
   /// Whether [_httpClient] was created on construction (and not passed in)
   final bool _isInternallyCreatedClient;
 
-  /// Each [Completer] is completed once the corresponding tile has finished
-  /// loading
-  ///
-  /// Used to avoid disposing of [_httpClient] whilst HTTP requests are still
-  /// underway.
-  ///
-  /// Does not include tiles loaded from session cache.
-  final _tilesInProgress = HashMap<TileCoordinates, Completer<void>>();
+  @override
+  // TODO: True when abortable
+  bool get supportsCancelLoading => false;
 
   @override
-  ImageProvider getImage(TileCoordinates coordinates, TileLayer options) =>
+  ImageProvider<Object> getImage(
+    TileCoordinates coordinates,
+    TileLayer options,
+  ) =>
       NetworkTileImageProvider(
         url: getTileUrl(coordinates, options),
         fallbackUrl: getTileFallbackUrl(coordinates, options),
         headers: headers,
         httpClient: _httpClient,
+        abortTrigger: null,
         silenceExceptions: silenceExceptions,
+        attemptDecodeOfHttpErrorResponses: attemptDecodeOfHttpErrorResponses,
         cachingProvider: cachingProvider,
-        startedLoading: () => _tilesInProgress[coordinates] = Completer(),
-        finishedLoadingBytes: () {
-          _tilesInProgress[coordinates]?.complete();
-          _tilesInProgress.remove(coordinates);
-        },
       );
+
+  /*@override
+  ImageProvider getImageWithCancelLoadingSupport(
+    TileCoordinates coordinates,
+    TileLayer options,
+    Future<void> cancelLoading,
+  ) =>
+      NetworkTileImageProvider(
+        url: getTileUrl(coordinates, options),
+        fallbackUrl: getTileFallbackUrl(coordinates, options),
+        headers: headers,
+        httpClient: _httpClient,
+        abortTrigger: cancelLoading,
+        silenceExceptions: silenceExceptions,
+        attemptDecodeOfHttpErrorResponses: attemptDecodeOfHttpErrorResponses,
+        cachingProvider: cachingProvider,
+      );*/
 
   @override
   Future<void> dispose() async {
-    if (_tilesInProgress.isNotEmpty) {
-      await Future.wait(_tilesInProgress.values.map((c) => c.future));
-    }
     if (_isInternallyCreatedClient) _httpClient.close();
-
     super.dispose();
   }
 }
