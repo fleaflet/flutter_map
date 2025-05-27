@@ -30,7 +30,7 @@ See [tile-layer](../../layers/tile-layer/ "mention")for more information.
 {% step %}
 ### 🤩 More Layers... More... More...
 
-You can put any other kind of layer (or `Widget`) on top of your `TileLayer`. You can even put another `TileLayer` in! See our [Layers](./#layers) catalogue, [make your own layers](../../plugins/making-a-plugin/creating-new-layers.md) directly in Flutter, or use one of the excellent [community-maintained plugins](../../plugins/list.md)!
+You can put any other kind of layer (or `Widget`) on top of your `TileLayer`. You can even put another `TileLayer` in! See our [Layers](./#layers) catalogue, [make your own layers](../../plugins/create/layers.md) directly in Flutter, or use one of the excellent [community-maintained plugins](../../plugins/list.md)!
 {% endstep %}
 
 {% step %}

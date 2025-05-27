@@ -1,16 +1,16 @@
 # Marker Layer
 
-You can add single point features - such as pins, labels, or markers - to maps using `MarkerLayer` and `Marker`s.
+You can add single point features - including arbitrary widgets - to maps using `MarkerLayer` and `Marker`s.
 
 {% hint style="success" %}
 No more image only markers! [Unlike _other_ ](https://github.com/flutter/flutter/issues/24213)😉[^1][ popular mapping libraries](https://github.com/flutter/flutter/issues/24213), we allow usage of any widget as the marker.
 {% endhint %}
 
+<div data-full-width="true"><figure><img src="../.gitbook/assets/Markers Example.png" alt=""><figcaption><p>A variety of <code>Marker</code>s on a rotated map</p></figcaption></figure></div>
+
 {% embed url="https://pub.dev/documentation/flutter_map/latest/flutter_map/MarkerLayer-class.html" %}
 
 {% embed url="https://pub.dev/documentation/flutter_map/latest/flutter_map/Marker-class.html" %}
-
-<figure><img src="../.gitbook/assets/ExampleMarker.png" alt=""><figcaption><p>An example <code>Marker</code>, using <code>FlutterLogo</code> as the child</p></figcaption></figure>
 
 ```dart
 MarkerLayer(

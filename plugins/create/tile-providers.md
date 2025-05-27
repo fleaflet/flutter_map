@@ -1,4 +1,4 @@
-# Creating New Tile Providers
+# Tile Providers
 
 One common requirement is a custom `TileProvider`, and potentially a custom `ImageProvider` inside. This will allow your plugin to intercept all tile requests made by a map, and take your own action(s), before finally returning a tile.
 
@@ -78,6 +78,8 @@ For an example of this, see [#cancellablenetworktileprovider](../../layers/tile-
 {% hint style="info" %}
 If developing a plugin, you may wish to adjust the 'User-Agent' header has been to further differentiate your plugin's traffic from vanilla 'flutter\_map' traffic.
 {% endhint %}
+
+Tile providers can support the `MapCachingProvider` contract/interface to support built-in caching. See [caching-providers.md](caching-providers.md "mention").
 
 ## (Optionally) Override URL Generation
 

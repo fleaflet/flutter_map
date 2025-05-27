@@ -36,7 +36,7 @@ If you'd prefer not to use built-in caching, you can:
   `NetworkTileProvider.httpClient` can be used to set a custom HTTP client. Some packages, such as '[package:http\_cache\_client](https://pub.dev/packages/http_cache_client)', offer clients which perform HTTP caching, similar to built-in caching.
 * **Use a different `TileProvider`**\
   Tile providers have full control over how a tile is generated to be displayed, and so there are many possibilities to integrate caching.
-  * Create a [custom `TileProvider`](../plugins/making-a-plugin/creating-new-tile-providers.md) with a caching `ImageProvider` (either custom or using a package such as '[package:cached\_network\_image](https://pub.dev/packages/cached_network_image)')
+  * Create a [custom `TileProvider`](../plugins/create/tile-providers.md) with a caching `ImageProvider` (either custom or using a package such as '[package:cached\_network\_image](https://pub.dev/packages/cached_network_image)')
   * Use [flutter\_map\_cache](https://github.com/josxha/flutter_map_cache)\
     Caching created prior to built-in caching, lightweight and MIT licensed, but with more pre-provided options than built-in caching through 3rd-party storage implementations
   * Use [flutter\_map\_tile\_caching](https://github.com/JaffaKetchup/flutter_map_tile_caching)\

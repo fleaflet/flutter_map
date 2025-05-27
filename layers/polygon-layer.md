@@ -1,12 +1,12 @@
 # Polygon Layer
 
-You can add areas/shapes to maps by making them out of individual coordinates using `PolygonLayer` and `Polygon`s.
+You can add areas/shapes formed from coordinates to maps using `PolygonLayer` and `Polygon`s.
+
+<div data-full-width="true"><figure><img src="../.gitbook/assets/Polygons Example.png" alt=""><figcaption><p>A variety of <code>Polygon</code>s including labels, holes, mixed colors &#x26; opacities, and dotted borders</p></figcaption></figure></div>
 
 {% embed url="https://pub.dev/documentation/flutter_map/latest/flutter_map/PolygonLayer-class.html" %}
 
 {% embed url="https://pub.dev/documentation/flutter_map/latest/flutter_map/Polygon-class.html" %}
-
-<figure><img src="../.gitbook/assets/ExamplePolygon.png" alt=""><figcaption><p>An example <code>Polygon</code></p></figcaption></figure>
 
 ```dart
 PolygonLayer(
@@ -14,7 +14,6 @@ PolygonLayer(
     Polygon(
       points: [LatLng(30, 40), LatLng(20, 50), LatLng(25, 45)],
       color: Colors.blue,
-      isFilled: true,
     ),
   ],
 ),

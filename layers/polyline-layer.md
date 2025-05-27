@@ -1,12 +1,12 @@
 # Polyline Layer
 
-You can add lines to maps by making them out of individual coordinates using `PolylineLayer` and `Polyline`s.
+You can add lines formed from coordinates to maps using `PolylineLayer` and `Polyline`s.
+
+<div data-full-width="true"><figure><img src="../.gitbook/assets/Polylines Example.png" alt=""><figcaption><p>A variety of <code>Polyline</code>s, including gradients, mixed opacity and colors including borders, and dashes</p></figcaption></figure></div>
 
 {% embed url="https://pub.dev/documentation/flutter_map/latest/flutter_map/PolylineLayer-class.html" %}
 
 {% embed url="https://pub.dev/documentation/flutter_map/latest/flutter_map/Polyline-class.html" %}
-
-<figure><img src="../.gitbook/assets/ExamplePolyline.png" alt=""><figcaption><p>An example <code>Polyline</code></p></figcaption></figure>
 
 ```dart
 PolylineLayer(
@@ -25,7 +25,7 @@ PolylineLayer(
 
 `dotted` and `dashed` patterns should 'fit' the `Polyline` they are applied to, otherwise the final point in that line may not be visually clear. The fit can be adjusted when defining the pattern through the `PatternFit` enum.
 
-<figure><img src="../.gitbook/assets/PatternFit.png" alt="" width="375"><figcaption><p>Illustration of the 5 types of <code>PatternFit</code> applied to a <code>dashed</code> <code>Polyline</code><br>From left to right: <code>none</code>, <code>appendDot</code>, <code>extendFinalDash</code>, <code>scaleUp</code> (default), <code>scaleDown</code></p></figcaption></figure>
+<div align="center" data-full-width="false"><figure><img src="../.gitbook/assets/PatternFit.png" alt="" width="375"><figcaption><p>Illustration of the 5 types of <code>PatternFit</code> applied to a <code>dashed</code> <code>Polyline</code><br>From left to right: <code>none</code>, <code>appendDot</code>, <code>extendFinalDash</code>, <code>scaleUp</code> (default), <code>scaleDown</code></p></figcaption></figure></div>
 
 ## Interactivity
 

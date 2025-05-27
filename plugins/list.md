@@ -36,8 +36,6 @@ To help choose between one of these plugins or a DIY solution, see:
 [offline-mapping.md](../tile-servers/offline-mapping.md)
 {% endcontent-ref %}
 
-
-
 <table data-card-size="large" data-view="cards"><thead><tr><th></th><th></th><th data-hidden data-card-target data-type="content-ref"></th></tr></thead><tbody><tr><td><strong>flutter_map_tile_caching (JaffaKetchup)</strong></td><td>Advanced, performant, highly configurable caching &#x26; bulk downloading (under a GPL license)</td><td><a href="https://github.com/JaffaKetchup/flutter_map_tile_caching">https://github.com/JaffaKetchup/flutter_map_tile_caching</a></td></tr><tr><td><strong>flutter_map_cache (josxha)</strong></td><td>Lightweight mid-term tile caching with support for most storage backends and request cancellation</td><td><a href="https://github.com/josxha/flutter_map_plugins/tree/main/flutter_map_cache">https://github.com/josxha/flutter_map_plugins/tree/main/flutter_map_cache</a></td></tr></tbody></table>
 
 ## Tile Container Parsers/Providers
@@ -55,3 +53,7 @@ To help choose between one of these plugins or a DIY solution, see:
 ## Better `Polyline`s & `Polygon`s
 
 <table data-card-size="large" data-view="cards"><thead><tr><th></th><th></th><th data-hidden data-card-target data-type="content-ref"></th></tr></thead><tbody><tr><td><strong>flutter_map_line_editor (ibrierley)</strong></td><td>Enables better dynamic editing of <code>Polyline</code>s and <code>Polygon</code>s</td><td><a href="https://github.com/ibrierley/flutter_map_line_editor">https://github.com/ibrierley/flutter_map_line_editor</a></td></tr><tr><td><strong>line_animator (ibrierley)</strong></td><td>Interpolates along a set of points, allowing gradual drawing of lines and animating moving markers</td><td><a href="https://github.com/ibrierley/line_animator">https://github.com/ibrierley/line_animator</a></td></tr></tbody></table>
+
+## Miscellaneous
+
+<table data-card-size="large" data-view="cards"><thead><tr><th></th><th></th><th data-hidden data-card-target data-type="content-ref"></th></tr></thead><tbody><tr><td><strong>flutter_map_rastercoords (jeremejazz)</strong></td><td>Basic utilities to make working with non-geographical tiled large images easier</td><td><a href="https://github.com/jeremejazz/flutter_map_rastercoords">https://github.com/jeremejazz/flutter_map_rastercoords</a></td></tr><tr><td></td><td></td><td></td></tr></tbody></table>

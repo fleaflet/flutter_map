@@ -58,9 +58,10 @@
 ## Plugins
 
 * [Plugins List](plugins/list.md)
-* [Creating A Plugin](plugins/making-a-plugin/README.md)
-  * [Creating New Tile Providers](plugins/making-a-plugin/creating-new-tile-providers.md)
-  * [Creating New Layers](plugins/making-a-plugin/creating-new-layers.md)
+* [Creating Plugins](plugins/create/README.md)
+  * [Tile Providers](plugins/create/tile-providers.md)
+  * [Layers](plugins/create/layers.md)
+  * [Caching Providers](plugins/create/caching-providers.md)
 
 ## Thanks
 

@@ -1,7 +1,7 @@
 # Listen To Events
 
 {% hint style="info" %}
-To cause a widget inside `FlutterMap`'s context to rebuild when an [aspect](controllers-and-cameras.md) changes, see [#id-2.-hooking-into-inherited-state](../../plugins/making-a-plugin/creating-new-layers.md#id-2.-hooking-into-inherited-state "mention").
+To cause a widget inside `FlutterMap`'s context to rebuild when an [aspect](controllers-and-cameras.md) changes, see [#id-2.-hooking-into-inherited-state](../../plugins/create/layers.md#id-2.-hooking-into-inherited-state "mention").
 {% endhint %}
 
 When the state of a `MapCamera` changes, because of an update to its position or zoom, for example, a `MapEvent`, which can be handled by you.

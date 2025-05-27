@@ -1,10 +1,6 @@
-# Creating New Layers
+# Layers
 
 Creating a new map layer is a great way to achieve a more custom, performant, map design. For example, it might be used to display a scale bar, or overlay a grid.
-
-{% hint style="info" %}
-Check the [list.md](../list.md "mention") for layers that already implement the behaviour you wish to replicate.
-{% endhint %}
 
 ## 1. Creating A Layer Widget
 

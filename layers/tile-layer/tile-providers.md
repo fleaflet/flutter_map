@@ -7,7 +7,7 @@ This has a default of `NetworkTileProvider` which gets tiles from the internet t
 There's two situations in which you'll need to change the tile provider:
 
 * Sourcing tiles from the filesystem or asset store: [#local-tile-providers](tile-providers.md#local-tile-providers "mention")
-* Using a [plugin](../../plugins/list.md) that instructs you to do so ([creating-new-tile-providers.md](../../plugins/making-a-plugin/creating-new-tile-providers.md "mention"))
+* Using a [plugin](../../plugins/list.md) that instructs you to do so ([tile-providers.md](../../plugins/create/tile-providers.md "mention"))
 
 ## Network Tile Providers
 

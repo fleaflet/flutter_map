@@ -4,7 +4,7 @@ To display anything on the map, you'll need to include at least one layer. This 
 
 <div align="center" data-full-width="false"><figure><img src="../.gitbook/assets/ExampleMap.jpg" alt="Example FlutterMap widget, containing multiple feature layers, atop a TileLayer" width="563"><figcaption><p>Example <code>FlutterMap</code> widget, containing multiple feature layers, atop a <code>TileLayer</code></p></figcaption></figure></div>
 
-To insert a layer, add it to the `children` property. Other layers (sometimes referred to as 'feature layers', as they are map features) can then be stacked on top, where the last widget in the `children` list is topmost. For example, you might display a [`MarkerLayer`](../layers/marker-layer.md), or any widget as your own custom layer ([creating-new-layers.md](../plugins/making-a-plugin/creating-new-layers.md "mention"))!
+To insert a layer, add it to the `children` property. Other layers (sometimes referred to as 'feature layers', as they are map features) can then be stacked on top, where the last widget in the `children` list is topmost. For example, you might display a [`MarkerLayer`](../layers/marker-layer.md), or any widget as your own custom layer ([layers.md](../plugins/create/layers.md "mention"))!
 
 {% hint style="info" %}
 It is possible to add more than one `TileLayer`! Transparency in one layer will reveal the layers underneath.

@@ -8,7 +8,7 @@ flutter\_map makes use of `InheritedModel` to share 3 'aspects' with its built c
 {% hint style="info" %}
 `MapOptions` is also an aspect, which reflects the `MapOptions` defined on the `FlutterMap.options` parameter.
 
-However, it is mostly irrelevant, except for when [creating-new-layers.md](../../plugins/making-a-plugin/creating-new-layers.md "mention").
+However, it is mostly irrelevant, except for when [layers.md](../../plugins/create/layers.md "mention").
 {% endhint %}
 
 ## Accessing Aspects Within Descendants
@@ -21,7 +21,7 @@ Use the static `of` (or null-safe `maybeOf`) method to access the inherited aspe
 final inheritedCamera = MapCamera.of(context);
 ```
 
-This will attach the widget to the state of the map, causing it to rebuild whenever the depended-on aspects change. See [#id-2.-hooking-into-inherited-state](../../plugins/making-a-plugin/creating-new-layers.md#id-2.-hooking-into-inherited-state "mention") for more information.
+This will attach the widget to the state of the map, causing it to rebuild whenever the depended-on aspects change. See [#id-2.-hooking-into-inherited-state](../../plugins/create/layers.md#id-2.-hooking-into-inherited-state "mention") for more information.
 
 {% hint style="warning" %}
 Using this method directly in the `children` list (not inside another widget), and in any `MapOptions` callback, is not possible: there is no\* builder method between the `FlutterMap` and the `children` or callback.
