@@ -91,6 +91,7 @@ Future<void> tileAndSizeMonitorWriterWorker(
 
     final initialEtagLength =
         initialTileFileExists ? ram.readSync(2).buffer.asUint16List()[0] : null;
+    ram.setPositionSync(16); // we need to go back to the start of the length
     final int etagLength;
     late final Uint8List etagBytes; // left unset if etagLength = 0
     if (metadata.etag == null) {
@@ -117,7 +118,7 @@ Future<void> tileAndSizeMonitorWriterWorker(
       // the etag as it has not yet changed, and make it as if they were new
       // bytes
       ram.setPositionSync(18 + initialEtagLength!);
-      tileBytes ??= ram.readSync(9223372036854775807);
+      tileBytes = ram.readSync(9223372036854775807); // to the end of the file
       ram.setPositionSync(18);
     }
 
