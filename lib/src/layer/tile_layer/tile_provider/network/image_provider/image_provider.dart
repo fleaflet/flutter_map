@@ -126,7 +126,7 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
     }
 
     // Prepare caching provider & load cached tile if available
-    ({Uint8List bytes, CachedMapTileMetadata tileInfo})? cachedTile;
+    ({Uint8List bytes, CachedMapTileMetadata metadata})? cachedTile;
     final cachingProvider =
         this.cachingProvider ?? BuiltInMapCachingProvider.getOrCreateInstance();
     if (cachingProvider.isSupported) {
@@ -209,7 +209,7 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
 
       cachingProvider.putTile(
         url: resolvedUrl,
-        tileInfo: CachedMapTileMetadata(
+        metadata: CachedMapTileMetadata(
           staleAt: calculateStaleAt(),
           lastModified:
               lastModified != null ? HttpDate.parse(lastModified) : null,
@@ -222,7 +222,7 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
     // Main logic
     // All `decodeBytes` calls should be awaited so errors may be handled
     try {
-      if (cachedTile != null && !cachedTile.tileInfo.isStale) {
+      if (cachedTile != null && !cachedTile.metadata.isStale) {
         // If we have a cached tile that's not stale, return it
         return await decodeBytes(cachedTile.bytes);
       }
@@ -230,9 +230,9 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
       // Otherwise, ask the server what's going on - supply any details we have
       final (:bytes, :response) = await get(
         additionalHeaders: {
-          if (cachedTile?.tileInfo.lastModified case final lastModified?)
+          if (cachedTile?.metadata.lastModified case final lastModified?)
             HttpHeaders.ifModifiedSinceHeader: HttpDate.format(lastModified),
-          if (cachedTile?.tileInfo.etag case final etag?)
+          if (cachedTile?.metadata.etag case final etag?)
             HttpHeaders.ifNoneMatchHeader: etag,
         },
       );

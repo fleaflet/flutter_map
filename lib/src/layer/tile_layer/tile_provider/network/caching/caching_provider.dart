@@ -28,7 +28,7 @@ abstract interface class MapCachingProvider {
   ///
   /// This may throw. Tile providers should anticipate this and fallback to a
   /// non-caching alternative.
-  Future<({Uint8List bytes, CachedMapTileMetadata tileInfo})?> getTile(
+  Future<({Uint8List bytes, CachedMapTileMetadata metadata})?> getTile(
     String url,
   );
 
@@ -38,7 +38,7 @@ abstract interface class MapCachingProvider {
   /// implementation specific if bytes are not supplied when required.
   Future<void> putTile({
     required String url,
-    required CachedMapTileMetadata tileInfo,
+    required CachedMapTileMetadata metadata,
     Uint8List? bytes,
   });
 }

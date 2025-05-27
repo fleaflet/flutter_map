@@ -11,13 +11,8 @@ import 'package:path/path.dart' as p;
 @internal
 Future<int?> asyncGetOnlySizeMonitor(String sizeMonitorFilePath) async {
   final sizeMonitorFile = File(sizeMonitorFilePath);
-
-  final sizeMonitor = await sizeMonitorFile.open(mode: FileMode.append);
-  await sizeMonitor.setPosition(0);
-  final bytes = await sizeMonitor.read(8);
-
-  await sizeMonitor.close();
-
+  if (!await sizeMonitorFile.exists()) return null;
+  final bytes = await sizeMonitorFile.readAsBytes();
   if (bytes.length == 8) return bytes.buffer.asInt64List()[0];
   return null;
 }
@@ -54,9 +49,7 @@ Future<({int currentSize, RandomAccessFile sizeMonitor})>
       .where(
         (f) {
           final uuid = p.basename(f.absolute.path);
-          return uuid !=
-                  BuiltInMapCachingProviderImpl.persistentRegistryFileName &&
-              uuid != BuiltInMapCachingProviderImpl.sizeMonitorFileName;
+          return uuid != BuiltInMapCachingProviderImpl.sizeMonitorFileName;
         },
       )
       .map((f) => f.length())

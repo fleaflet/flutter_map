@@ -3,16 +3,12 @@ import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/b
     if (dart.library.io) 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/native.dart'
     if (dart.library.js_interop) 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/web/web.dart';
 
-import 'package:uuid/data.dart';
-import 'package:uuid/rng.dart';
-import 'package:uuid/uuid.dart';
-
 /// Simple built-in map caching using an I/O storage mechanism, for native
 /// (non-web) platforms only
 ///
-/// Uses JSON to store a centralised registry which is operated on as a map in
-/// memory to maximise performance, with tile blobs stored raw as files and a
-/// second file used to track the size of the cache.
+/// Stores tiles as files identified with keys, containing some metadata headers
+/// followed by the tile bytes, alongside a file used to track the size of the
+/// cache.
 ///
 /// Usually uses HTTP headers to determine tile freshness, although
 /// `overrideFreshAge` can override this.
@@ -44,13 +40,8 @@ abstract interface class BuiltInMapCachingProvider
     /// first tile load in the main memory space for the app). It is not an
     /// absolute limit.
     ///
-    /// This may cause some slight delay to the loading of the first tiles,
-    /// especially if the size is large and the cache does exceed the size. If
-    /// the visible delay becomes too large, disable this and manage the cache
-    /// size manually if necessary.
-    ///
-    /// Defaults to 800 MB. Set to `null` to disable.
-    int? maxCacheSize = 800_000_000,
+    /// Defaults to 1 GB. Set to `null` to disable.
+    int? maxCacheSize = 1_000_000_000,
 
     /// Override the duration of time a tile is considered fresh for
     ///
@@ -64,7 +55,8 @@ abstract interface class BuiltInMapCachingProvider
     /// represent the tile image, for example, API keys contained with the query
     /// parameters.
     ///
-    /// The resulting key should be unique to that tile URL.
+    /// The resulting key should be unique to that tile URL. Keys must be usable
+    /// as filenames on all intended platform filesystems.
     ///
     /// Defaults to generating a UUID from the entire URL string.
     String Function(String url)? cacheKeyGenerator,
@@ -89,28 +81,19 @@ abstract interface class BuiltInMapCachingProvider
       cacheDirectory: cacheDirectory,
       maxCacheSize: maxCacheSize,
       overrideFreshAge: overrideFreshAge,
-      cacheKeyGenerator:
-          cacheKeyGenerator ?? (url) => _uuid.v5(Namespace.url.value, url),
+      cacheKeyGenerator: cacheKeyGenerator,
       readOnly: readOnly,
     );
   }
 
   static BuiltInMapCachingProviderImpl? _instance;
 
-  static final _uuid = Uuid(goptions: GlobalOptions(MathRNG()));
-
   /// Completes when the current instance has initialised and is ready to load
   /// and write tiles
   ///
-  /// See online documentation to see how to use this to preload caching to
-  /// remove the initial delay before loading tiles.
-  ///
-  /// Completes with:
-  ///  * on native platforms, the number of cached tiles (at initialisation)
-  ///    * or an error if initialisation fails and could not be recovered
-  ///  * on web platforms, `null` (synchronously & immediately), and caching
-  /// will not be available
+  /// Completes with `null` (synchronously & immediately) on web platforms,
+  /// where caching is unavailable.
   ///
   /// [isSupported] will be set to determine the current platform's support.
-  Future<int?> get isInitialised;
+  Future<void> get isInitialised;
 }

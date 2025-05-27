@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/misc/timed_future.dart';
 import 'package:flutter_map_example/pages/animated_map_controller.dart';
 import 'package:flutter_map_example/pages/bundled_offline_map.dart';
 import 'package:flutter_map_example/pages/cancellable_tile_provider.dart';
@@ -34,30 +32,15 @@ import 'package:flutter_map_example/pages/sliding_map.dart';
 import 'package:flutter_map_example/pages/tile_builder.dart';
 import 'package:flutter_map_example/pages/tile_loading_error_handle.dart';
 import 'package:flutter_map_example/pages/wms_tile_layer.dart';
-import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
   usePathUrlStrategy();
-
-  final cachingInstance = BuiltInMapCachingProvider.getOrCreateInstance();
-  final cacheInitComplete = cachingInstance.isSupported
-      ? cachingInstance.isInitialised.timed()
-      : null;
-  MenuDrawer.cacheInitComplete.value = cacheInitComplete;
-
-  runApp(MyApp(cacheInitComplete: cacheInitComplete));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({
-    super.key,
-    required this.cacheInitComplete,
-  });
-
-  final TimedFuture<int?>? cacheInitComplete;
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -67,9 +50,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         colorSchemeSeed: const Color(0xFF8dea88),
       ),
-      home: HomePage(
-        cacheInitComplete: cacheInitComplete,
-      ),
+      home: const HomePage(),
       routes: <String, WidgetBuilder>{
         CancellableTileProviderPage.route: (context) =>
             const CancellableTileProviderPage(),

@@ -1,28 +1,28 @@
 import 'dart:async';
-import 'dart:collection';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/persistent_registry_unpacker.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/persistent_registry_writer.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/size_limiter.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/tile_writer_size_monitor.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/size_reducer.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/tile_and_size_monitor_writer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/utils/size_monitor_opener.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:uuid/data.dart';
+import 'package:uuid/rng.dart';
+import 'package:uuid/uuid.dart';
 
 @internal
 class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
-  static const persistentRegistryFileName = 'registry.json';
   static const sizeMonitorFileName = 'sizeMonitor.bin';
 
   final String? cacheDirectory;
   final int? maxCacheSize;
   final Duration? overrideFreshAge;
-  final String Function(String url) cacheKeyGenerator;
+  final String Function(String url)? cacheKeyGenerator;
   final bool readOnly;
 
   @internal
@@ -36,6 +36,10 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
     // This should only be called/constructed once
     _isInitialised.complete(
       () async {
+        if (cacheKeyGenerator == null) {
+          _uuid = Uuid(goptions: GlobalOptions(MathRNG()));
+        }
+
         _cacheDirectoryPath = p.join(
           this.cacheDirectory ??
               (await getApplicationCacheDirectory()).absolute.path,
@@ -44,151 +48,130 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
         final cacheDirectory = Directory(_cacheDirectoryPath);
         await cacheDirectory.create(recursive: true);
 
-        final persistentRegistryFilePath =
-            p.join(_cacheDirectoryPath, persistentRegistryFileName);
-        final persistentRegistryFile = File(persistentRegistryFilePath);
-
         final sizeMonitorFilePath =
             p.join(_cacheDirectoryPath, sizeMonitorFileName);
 
-        if (await persistentRegistryFile.exists()) {
-          final parsedCacheManager = await compute(
-            persistentRegistryUnpackerWorker,
-            persistentRegistryFilePath,
-            debugLabel: '[flutter_map: cache] Persistent Registry Unpacker',
-          );
-
-          if (parsedCacheManager == null) {
-            await cacheDirectory.delete(recursive: true);
-            await cacheDirectory.create(recursive: true);
-            _registry = HashMap();
-          } else {
-            _registry = parsedCacheManager;
-
-            if (maxCacheSize case final sizeLimit?) {
-              final currentSize =
-                  await asyncGetOnlySizeMonitor(sizeMonitorFilePath);
-
-              if (currentSize == null || currentSize > sizeLimit) {
-                (await compute(
-                  sizeLimiterWorker,
-                  (
-                    cacheDirectoryPath: _cacheDirectoryPath,
-                    sizeMonitorFilePath: sizeMonitorFilePath,
-                    sizeLimit: sizeLimit,
-                  ),
-                  debugLabel: '[flutter_map: cache] Size Limiter',
-                ))
-                    .forEach(_registry.remove);
-              }
-            }
-          }
-        } else {
-          _registry = HashMap();
-        }
-
-        final registryWorkerReceivePort = ReceivePort();
+        final tileAndSizeMonitorWriterWorkerReceivePort = ReceivePort();
         await Isolate.spawn(
-          persistentRegistryWriterWorker,
+          tileAndSizeMonitorWriterWorker,
           (
-            port: registryWorkerReceivePort.sendPort,
-            persistentRegistryFilePath: persistentRegistryFilePath,
-            initialRegistry: _registry,
-          ),
-          debugName: '[flutter_map: cache] Persistent Registry Writer',
-        );
-        final registryWorkerSendPort =
-            await registryWorkerReceivePort.first as SendPort;
-
-        final tileFileWriterWorkerReceivePort = ReceivePort();
-        await Isolate.spawn(
-          tileWriterSizeMonitorWorker,
-          (
-            port: tileFileWriterWorkerReceivePort.sendPort,
+            port: tileAndSizeMonitorWriterWorkerReceivePort.sendPort,
             cacheDirectoryPath: _cacheDirectoryPath,
             sizeMonitorFilePath: sizeMonitorFilePath,
           ),
-          debugName: '[flutter_map: cache] Tile File & Size Monitor Writer',
+          debugName: '[flutter_map: cache] Tile & Size Monitor Writer',
         );
-        final tileFileWriterWorkerSendPort =
-            await tileFileWriterWorkerReceivePort.first as SendPort;
+        final tileAndSizeMonitorWriterWorkerReceivePortSendPort =
+            await tileAndSizeMonitorWriterWorkerReceivePort.first as SendPort;
+        _writeTileFile = ({required path, required metadata, tileBytes}) =>
+            tileAndSizeMonitorWriterWorkerReceivePortSendPort
+                .send((path: path, metadata: metadata, tileBytes: tileBytes));
 
-        _writeToPersistentRegistry = (uuid, tileInfo) =>
-            registryWorkerSendPort.send((uuid: uuid, tileInfo: tileInfo));
-        _writeTileFile = (tileFilePath, bytes) => tileFileWriterWorkerSendPort
-            .send((tileFilePath: tileFilePath, bytes: bytes));
+        if (maxCacheSize case final sizeLimit?) {
+          () async {
+            final currentSize =
+                await asyncGetOnlySizeMonitor(sizeMonitorFilePath);
 
-        return _registry.length;
+            if (currentSize == null || currentSize > sizeLimit) {
+              final deletedSize = await compute(
+                sizeReducerWorker,
+                (
+                  cacheDirectoryPath: _cacheDirectoryPath,
+                  sizeMonitorFilePath: sizeMonitorFilePath,
+                  sizeLimit: sizeLimit,
+                ),
+                debugLabel: '[flutter_map: cache] Size Reducer',
+              );
+
+              if (deletedSize == 0) return;
+              tileAndSizeMonitorWriterWorkerReceivePortSendPort
+                  .send(deletedSize);
+            }
+          }();
+        }
       }(),
     );
   }
 
   late final String _cacheDirectoryPath;
-  late final void Function(String uuid, CachedMapTileMetadata? tileInfo)
-      _writeToPersistentRegistry;
-  late final void Function(String tileFilePath, Uint8List? bytes)
-      _writeTileFile;
-  late final HashMap<String, CachedMapTileMetadata> _registry;
+  late final Uuid _uuid; // left un-inited if provided generator
+  late final void Function({
+    required String path,
+    required CachedMapTileMetadata metadata,
+    Uint8List? tileBytes,
+  }) _writeTileFile;
 
-  final _isInitialised = Completer<int>();
+  final _isInitialised = Completer<void>();
   @override
-  Future<int> get isInitialised => _isInitialised.future;
+  Future<void> get isInitialised => _isInitialised.future;
 
   @override
   bool get isSupported => true;
 
   @override
-  Future<({Uint8List bytes, CachedMapTileMetadata tileInfo})?> getTile(
+  Future<({Uint8List bytes, CachedMapTileMetadata metadata})?> getTile(
     String url,
   ) async {
     await isInitialised;
 
-    final uuid = cacheKeyGenerator(url);
-    final tileFile = File(p.join(_cacheDirectoryPath, uuid));
+    final key =
+        cacheKeyGenerator?.call(url) ?? _uuid.v5(Namespace.url.value, url);
+    final tileFile = File(p.join(_cacheDirectoryPath, key));
 
-    if (_registry[uuid] case final tileInfo? when await tileFile.exists()) {
-      return (bytes: await tileFile.readAsBytes(), tileInfo: tileInfo);
+    if (!await tileFile.exists()) return null;
+
+    final bytes = await tileFile.readAsBytes();
+
+    final firstTwoNums = bytes.buffer.asInt64List(0, 2);
+    final staleAt =
+        DateTime.fromMillisecondsSinceEpoch(firstTwoNums[0], isUtc: true);
+    final lastModified = firstTwoNums[1] == 0
+        ? null
+        : DateTime.fromMillisecondsSinceEpoch(firstTwoNums[1], isUtc: true);
+
+    final etagLength = bytes.buffer.asUint16List(16, 1)[0];
+    final String? etag;
+    if (etagLength == 0) {
+      etag = null;
+    } else {
+      final etagBytes = Uint8List.sublistView(bytes, 18, 18 + etagLength);
+      etag = const AsciiDecoder().convert(etagBytes);
     }
 
-    unawaited(_removeTile(uuid));
-    return null;
+    final tileBytes = Uint8List.sublistView(bytes, 18 + etagLength);
+
+    return (
+      metadata: CachedMapTileMetadata(
+        staleAt: staleAt,
+        lastModified: lastModified,
+        etag: etag,
+      ),
+      bytes: tileBytes,
+    );
   }
 
   @override
   Future<void> putTile({
     required String url,
-    required CachedMapTileMetadata tileInfo,
+    required CachedMapTileMetadata metadata,
     Uint8List? bytes,
   }) async {
     if (readOnly) return;
 
     await isInitialised;
 
-    final uuid = cacheKeyGenerator(url);
-    final resolvedTileInfo = overrideFreshAge != null
+    final key =
+        cacheKeyGenerator?.call(url) ?? _uuid.v5(Namespace.url.value, url);
+    final path = p.join(_cacheDirectoryPath, key);
+
+    final resolvedMetadata = overrideFreshAge != null
         ? CachedMapTileMetadata(
             staleAt: DateTime.timestamp().add(overrideFreshAge!),
-            lastModified: tileInfo.lastModified,
-            etag: tileInfo.etag,
+            lastModified: metadata.lastModified,
+            etag: metadata.etag,
           )
-        : tileInfo;
+        : metadata;
 
-    if (bytes != null) {
-      final tileFilePath = p.join(_cacheDirectoryPath, uuid);
-      _writeTileFile(tileFilePath, bytes);
-    }
-
-    _registry[uuid] = resolvedTileInfo;
-    _writeToPersistentRegistry(uuid, resolvedTileInfo);
-  }
-
-  Future<void> _removeTile(String uuid) async {
-    await isInitialised;
-
-    final tileFilePath = p.join(_cacheDirectoryPath, uuid);
-    _writeTileFile(tileFilePath, null);
-
-    if (_registry.remove(uuid) == null) return;
-    _writeToPersistentRegistry(uuid, null);
+    _writeTileFile(path: path, metadata: resolvedMetadata, tileBytes: bytes);
   }
 }

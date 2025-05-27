@@ -15,25 +15,25 @@ import 'package:meta/meta.dart';
 class CachedMapTileMetadata {
   /// Create new metadata
   CachedMapTileMetadata({
-    required DateTime staleAt,
-    required DateTime? lastModified,
+    required this.staleAt,
+    required this.lastModified,
     required this.etag,
-  })  : _staleAt = staleAt.millisecondsSinceEpoch,
-        _lastModified = lastModified?.millisecondsSinceEpoch;
+  })  : staleAtMilliseconds = staleAt.millisecondsSinceEpoch,
+        lastModifiedMilliseconds = lastModified?.millisecondsSinceEpoch;
 
-  /// Decode metadata from JSON
-  CachedMapTileMetadata.fromJson(Map<String, dynamic> json)
-      : _staleAt = json['a'] as int,
-        _lastModified = json.containsKey('b') ? json['b'] as int : null,
-        etag = json.containsKey('c') ? json['c'] as String : null;
+  /// The calculated time at which this tile becomes stale
+  final DateTime staleAt;
 
-  final int _staleAt;
+  /// The calculated time at which this tile becomes stale, represented in
+  /// [DateTime.millisecondsSinceEpoch]
+  final int staleAtMilliseconds;
 
   /// If available, the value in [HttpHeaders.lastModifiedHeader]
-  DateTime? get lastModified => _lastModified == null
-      ? null
-      : DateTime.fromMillisecondsSinceEpoch(_lastModified);
-  final int? _lastModified;
+  final DateTime? lastModified;
+
+  /// If available, the value in [HttpHeaders.lastModifiedHeader], represented
+  /// in [DateTime.millisecondsSinceEpoch]
+  final int? lastModifiedMilliseconds;
 
   /// If available, the value in [HttpHeaders.etagHeader]
   final String? etag;
@@ -42,23 +42,17 @@ class CachedMapTileMetadata {
   ///
   /// Usually this is implemented by storing the timestamp at which the tile
   /// becomes stale, and comparing that to the current timestamp.
-  bool get isStale => DateTime.timestamp().millisecondsSinceEpoch > _staleAt;
-
-  /// Encode the metadata to JSON
-  Map<String, dynamic> toJson() => {
-        'a': _staleAt,
-        if (_lastModified != null) 'b': _lastModified,
-        if (etag != null) 'c': etag,
-      };
+  bool get isStale => DateTime.timestamp().isAfter(staleAt);
 
   @override
-  int get hashCode => Object.hash(_staleAt, lastModified, etag);
+  int get hashCode =>
+      Object.hash(staleAtMilliseconds, lastModifiedMilliseconds, etag);
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is CachedMapTileMetadata &&
-          _staleAt == other._staleAt &&
-          lastModified == other.lastModified &&
+          staleAtMilliseconds == other.staleAtMilliseconds &&
+          lastModifiedMilliseconds == other.lastModifiedMilliseconds &&
           etag == other.etag);
 }

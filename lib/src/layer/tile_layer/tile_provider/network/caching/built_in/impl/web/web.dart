@@ -9,7 +9,7 @@ class BuiltInMapCachingProviderImpl
   final String? cacheDirectory;
   final int? maxCacheSize;
   final Duration? overrideFreshAge;
-  final String Function(String url) cacheKeyGenerator;
+  final String Function(String url)? cacheKeyGenerator;
   final bool readOnly;
 
   @internal
@@ -22,7 +22,5 @@ class BuiltInMapCachingProviderImpl
   });
 
   @override
-  // False positive lint
-  // ignore: prefer_void_to_null
-  Future<Null> get isInitialised => SynchronousFuture(null);
+  Future<void> get isInitialised => SynchronousFuture(null);
 }

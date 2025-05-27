@@ -17,7 +17,7 @@ mixin class DisabledMapCachingProvider implements MapCachingProvider {
   @override
   Never putTile({
     required String url,
-    required CachedMapTileMetadata tileInfo,
+    required CachedMapTileMetadata metadata,
     Uint8List? bytes,
   }) =>
       throw UnsupportedError('Must not be called if `isSupported` is `false`');

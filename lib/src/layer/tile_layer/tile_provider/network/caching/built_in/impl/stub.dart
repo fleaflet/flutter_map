@@ -12,7 +12,7 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
   final String? cacheDirectory;
   final int? maxCacheSize;
   final Duration? overrideFreshAge;
-  final String Function(String url) cacheKeyGenerator;
+  final String Function(String url)? cacheKeyGenerator;
   final bool readOnly;
 
   @internal
@@ -31,14 +31,14 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
   external bool get isSupported;
 
   @override
-  external Future<({Uint8List bytes, CachedMapTileMetadata tileInfo})?> getTile(
+  external Future<({Uint8List bytes, CachedMapTileMetadata metadata})?> getTile(
     String url,
   );
 
   @override
   external Future<void> putTile({
     required String url,
-    required CachedMapTileMetadata tileInfo,
+    required CachedMapTileMetadata metadata,
     Uint8List? bytes,
   });
 }
