@@ -27,6 +27,9 @@ Future<void> tileAndSizeMonitorWriterWorker(
     sizeMonitorFilePath: input.sizeMonitorFilePath,
   );
 
+  final allocatedInt64Buffer = Uint8List(8);
+  final allocatedUint16Buffer = Uint8List(2);
+
   void updateSizeMonitor(int deltaSize) {
     currentSize += deltaSize;
     sizeMonitor
@@ -35,23 +38,17 @@ Future<void> tileAndSizeMonitorWriterWorker(
       ..flushSync();
   }
 
-  final allocatedInt64Buffer = Uint8List(8);
-  final allocatedUint16Buffer = Uint8List(2);
-
-  await for (final val in receivePort) {
-    if (val is int) {
-      updateSizeMonitor(-val);
-      continue;
-    }
-
+  void writeTile(
+    ({
+      Uint8List? tileBytes,
+      CachedMapTileMetadata metadata,
+      String path,
+    }) tileInfo,
+  ) {
     Uint8List? tileBytes;
     final CachedMapTileMetadata metadata;
     final String path;
-    (:tileBytes, :metadata, :path) = val as ({
-      Uint8List? tileBytes,
-      CachedMapTileMetadata metadata,
-      String path
-    });
+    (:tileBytes, :metadata, :path) = tileInfo;
 
     final tileFile = File(path);
     final initialTileFileExists = tileFile.existsSync();
@@ -59,19 +56,16 @@ Future<void> tileAndSizeMonitorWriterWorker(
         initialTileFileExists ? tileFile.lengthSync() : 0;
 
     if (!initialTileFileExists && tileBytes == null) {
-      // This could be caused by:
-      //  * the tile server responding with a Not Modified status code
-      //    incorrectly
-      //  * the size reducer deleting the tile after we sent it's info to the
-      //    server, and it returned Not Modified correctly
-      continue;
+      // This should only be caused by the size reducer deleting the tile after
+      // we sent it's info to the server, and it returned Not Modified correctly
+      return;
     }
 
     final RandomAccessFile ram;
     try {
       ram = tileFile.openSync(mode: FileMode.append);
     } on FileSystemException {
-      continue;
+      return;
     }
 
     ram
@@ -132,14 +126,14 @@ Future<void> tileAndSizeMonitorWriterWorker(
       // were no changes to the length of the etag, so we don't need to do
       // any size updates
       ram.closeSync();
-      continue;
+      return;
     }
 
     // We write the new tile bytes to the file and truncate it to the end
     ram.writeFromSync(tileBytes);
     final finalPos = ram.positionSync();
     ram
-      ..truncateSync(ram.positionSync())
+      ..truncateSync(finalPos)
       ..closeSync();
 
     // Then update the size monitor
@@ -147,5 +141,20 @@ Future<void> tileAndSizeMonitorWriterWorker(
         when deltaSize != 0) {
       updateSizeMonitor(deltaSize);
     }
+  }
+
+  await for (final val in receivePort) {
+    if (val is int) {
+      updateSizeMonitor(-val);
+      continue;
+    }
+
+    writeTile(
+      val as ({
+        Uint8List? tileBytes,
+        CachedMapTileMetadata metadata,
+        String path,
+      }),
+    );
   }
 }

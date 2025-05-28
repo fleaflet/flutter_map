@@ -132,7 +132,9 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
     if (cachingProvider.isSupported) {
       try {
         cachedTile = await cachingProvider.getTile(resolvedUrl);
-      } on Exception {
+      } catch (_) {
+        // This could occur due to a corrupt tile - we just try to overwrite it
+        // with fresh data
         cachedTile = null;
       }
     }
@@ -222,25 +224,47 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
     // Main logic
     // All `decodeBytes` calls should be awaited so errors may be handled
     try {
+      bool forceFromServer = false;
       if (cachedTile != null && !cachedTile.metadata.isStale) {
-        // If we have a cached tile that's not stale, return it
-        return await decodeBytes(cachedTile.bytes);
+        try {
+          // If we have a cached tile that's not stale, return it
+          return await decodeBytes(cachedTile.bytes);
+        } catch (e) {
+          // If the cached tile is corrupt, we proceed and get from the server
+          forceFromServer = true;
+        }
       }
 
       // Otherwise, ask the server what's going on - supply any details we have
-      final (:bytes, :response) = await get(
-        additionalHeaders: {
-          if (cachedTile?.metadata.lastModified case final lastModified?)
-            HttpHeaders.ifModifiedSinceHeader: HttpDate.format(lastModified),
-          if (cachedTile?.metadata.etag case final etag?)
-            HttpHeaders.ifNoneMatchHeader: etag,
-        },
+      var (:bytes, :response) = await get(
+        additionalHeaders: forceFromServer
+            ? null
+            : {
+                if (cachedTile?.metadata.lastModified case final lastModified?)
+                  HttpHeaders.ifModifiedSinceHeader:
+                      HttpDate.format(lastModified),
+                if (cachedTile?.metadata.etag case final etag?)
+                  HttpHeaders.ifNoneMatchHeader: etag,
+              },
       );
 
       // Server says nothing's changed - but might return new useful headers
-      if (cachedTile != null && response.statusCode == HttpStatus.notModified) {
-        cachePut(bytes: null, headers: response.headers);
-        return await decodeBytes(cachedTile.bytes);
+      if (!forceFromServer &&
+          cachedTile != null &&
+          response.statusCode == HttpStatus.notModified) {
+        late final Codec decodedCacheBytes;
+        try {
+          decodedCacheBytes = await decodeBytes(cachedTile.bytes);
+        } catch (e) {
+          // If the cached tile is corrupt, we get fresh from the server without
+          // caching, then continue
+          forceFromServer = true;
+          (:bytes, :response) = await get();
+        }
+        if (!forceFromServer) {
+          cachePut(bytes: null, headers: response.headers);
+          return decodedCacheBytes;
+        }
       }
 
       // Server says the image has changed - store it new
@@ -262,7 +286,7 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
       evict();
       try {
         return await decodeBytes(bytes);
-      } catch (err, stackTrace) {
+      } catch (_, stackTrace) {
         // If it throws, we don't want to throw the decode error, as that's not
         // useful for users
         // Instead, we throw an exception reporting the failed HTTP request,
