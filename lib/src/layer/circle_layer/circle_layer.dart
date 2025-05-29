@@ -8,6 +8,7 @@ import 'package:flutter_map/src/layer/shared/layer_interactivity/internal_hit_de
 import 'package:latlong2/latlong.dart' hide Path;
 
 part 'circle_marker.dart';
+
 part 'painter.dart';
 
 /// A layer that displays a list of [CircleMarker] on the map
@@ -19,11 +20,15 @@ class CircleLayer<R extends Object> extends StatelessWidget {
   /// {@macro fm.lhn.layerHitNotifier.usage}
   final LayerHitNotifier<R>? hitNotifier;
 
+  /// If true, we reuse the same "meter in pixels" computation for all circles.
+  final bool optimizeRadiusInMeters;
+
   /// Create a new [CircleLayer] as a child for [FlutterMap]
   const CircleLayer({
     super.key,
     required this.circles,
     this.hitNotifier,
+    this.optimizeRadiusInMeters = false,
   });
 
   @override
@@ -36,6 +41,7 @@ class CircleLayer<R extends Object> extends StatelessWidget {
           circles: circles,
           camera: camera,
           hitNotifier: hitNotifier,
+          optimizeRadiusInMeters: optimizeRadiusInMeters,
         ),
         size: camera.size,
         isComplex: true,

@@ -44,7 +44,8 @@ class ManyCirclesPageState extends State<ManyCirclesPage> {
           CircleMarker(
             point: LatLng(doubleInRange(r, 37, 55), doubleInRange(r, -9, 30)),
             color: Colors.red,
-            radius: 5,
+            radius: 100000,
+            useRadiusInMeter: true,
           ),
         );
       }
@@ -76,7 +77,10 @@ class ManyCirclesPageState extends State<ManyCirclesPage> {
             ),
             children: [
               openStreetMapTileLayer,
-              CircleLayer(circles: allCircles.take(numOfCircles).toList()),
+              CircleLayer(
+                circles: allCircles.take(numOfCircles).toList(),
+                optimizeRadiusInMeters: true,
+              ),
             ],
           ),
           Positioned(
