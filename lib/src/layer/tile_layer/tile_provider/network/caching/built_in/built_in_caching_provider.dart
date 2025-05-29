@@ -41,7 +41,7 @@ abstract interface class BuiltInMapCachingProvider
     /// absolute limit.
     ///
     /// Defaults to 1 GB. Set to `null` to disable.
-    int? maxCacheSize = 1_000_000_000,
+    int? maxCacheSize = 1_000_000,
 
     /// Override the duration of time a tile is considered fresh for
     ///
@@ -59,6 +59,8 @@ abstract interface class BuiltInMapCachingProvider
     /// as filenames on all intended platform filesystems.
     ///
     /// Defaults to generating a UUID from the entire URL string.
+    ///
+    /// The callback should not throw.
     String Function(String url)? cacheKeyGenerator,
 
     /// Prevent any tiles from being added or updated
@@ -87,13 +89,4 @@ abstract interface class BuiltInMapCachingProvider
   }
 
   static BuiltInMapCachingProviderImpl? _instance;
-
-  /// Completes when the current instance has initialised and is ready to load
-  /// and write tiles
-  ///
-  /// Completes with `null` (synchronously & immediately) on web platforms,
-  /// where caching is unavailable.
-  ///
-  /// [isSupported] will be set to determine the current platform's support.
-  Future<void> get isInitialised;
 }

@@ -2,12 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
+import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/size_reducer.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/tile_and_size_monitor_writer.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/utils/size_monitor_opener.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -34,76 +33,74 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
     required this.readOnly,
   }) {
     // This should only be called/constructed once
-    _isInitialised.complete(
-      () async {
-        if (cacheKeyGenerator == null) {
-          _uuid = Uuid(goptions: GlobalOptions(MathRNG()));
+    () async {
+      if (cacheKeyGenerator == null) {
+        _uuid = Uuid(goptions: GlobalOptions(MathRNG()));
+      }
+
+      _cacheDirectoryPath = p.join(
+        this.cacheDirectory ??
+            (await getApplicationCacheDirectory()).absolute.path,
+        'fm_cache',
+      );
+      final cacheDirectory = Directory(_cacheDirectoryPath!);
+      await cacheDirectory.create(recursive: true);
+
+      final sizeMonitorFilePath =
+          p.join(_cacheDirectoryPath!, sizeMonitorFileName);
+
+      _cacheDirectoryPathReady.complete(_cacheDirectoryPath!);
+
+      final tileAndSizeMonitorWriterWorkerReceivePort = ReceivePort();
+      SendPort? writerPort;
+      final writerPortReady = Completer<SendPort>();
+
+      // We can't send messages until the worker has set-up all the size
+      // monitoring (and potentially run the reducer) if necessary
+      // Reading does not depend on this.
+      void sendMessageToWriter(Object message) {
+        if (writerPort != null) {
+          writerPort.send(message);
+        } else {
+          writerPortReady.future.then((port) => port.send(message));
         }
+      }
 
-        _cacheDirectoryPath = p.join(
-          this.cacheDirectory ??
-              (await getApplicationCacheDirectory()).absolute.path,
-          'fm_cache',
-        );
-        final cacheDirectory = Directory(_cacheDirectoryPath);
-        await cacheDirectory.create(recursive: true);
+      _writeTileFile = ({required path, required metadata, tileBytes}) =>
+          sendMessageToWriter(
+              (path: path, metadata: metadata, tileBytes: tileBytes));
+      _reportReadFailure = () => sendMessageToWriter(false);
 
-        final sizeMonitorFilePath =
-            p.join(_cacheDirectoryPath, sizeMonitorFileName);
+      await Isolate.spawn(
+        tileAndSizeMonitorWriterWorker,
+        (
+          port: tileAndSizeMonitorWriterWorkerReceivePort.sendPort,
+          cacheDirectoryPath: _cacheDirectoryPath!,
+          sizeMonitorFilePath: sizeMonitorFilePath,
+          sizeLimit: maxCacheSize,
+        ),
+        debugName: '[flutter_map: cache] Tile & Size Monitor Writer',
+      );
 
-        final tileAndSizeMonitorWriterWorkerReceivePort = ReceivePort();
-        await Isolate.spawn(
-          tileAndSizeMonitorWriterWorker,
-          (
-            port: tileAndSizeMonitorWriterWorkerReceivePort.sendPort,
-            cacheDirectoryPath: _cacheDirectoryPath,
-            sizeMonitorFilePath: sizeMonitorFilePath,
-          ),
-          debugName: '[flutter_map: cache] Tile & Size Monitor Writer',
-        );
-        final tileAndSizeMonitorWriterWorkerReceivePortSendPort =
-            await tileAndSizeMonitorWriterWorkerReceivePort.first as SendPort;
-        _writeTileFile = ({required path, required metadata, tileBytes}) =>
-            tileAndSizeMonitorWriterWorkerReceivePortSendPort
-                .send((path: path, metadata: metadata, tileBytes: tileBytes));
-
-        if (maxCacheSize case final sizeLimit?) {
-          () async {
-            final currentSize =
-                await asyncGetOnlySizeMonitor(sizeMonitorFilePath);
-
-            if (currentSize == null || currentSize > sizeLimit) {
-              final deletedSize = await compute(
-                sizeReducerWorker,
-                (
-                  cacheDirectoryPath: _cacheDirectoryPath,
-                  sizeMonitorFilePath: sizeMonitorFilePath,
-                  sizeLimit: sizeLimit,
-                ),
-                debugLabel: '[flutter_map: cache] Size Reducer',
-              );
-
-              if (deletedSize == 0) return;
-              tileAndSizeMonitorWriterWorkerReceivePortSendPort
-                  .send(deletedSize);
-            }
-          }();
-        }
-      }(),
-    );
+      writerPort =
+          await tileAndSizeMonitorWriterWorkerReceivePort.first as SendPort;
+      writerPortReady.complete(writerPort);
+    }();
   }
 
-  late final String _cacheDirectoryPath;
+  String? _cacheDirectoryPath; // ~cached version of below for instant access
+  final _cacheDirectoryPathReady = Completer<String>();
+
   late final Uuid _uuid; // left un-inited if provided generator
+
   late final void Function({
     required String path,
     required CachedMapTileMetadata metadata,
     Uint8List? tileBytes,
   }) _writeTileFile;
 
-  final _isInitialised = Completer<void>();
-  @override
-  Future<void> get isInitialised => _isInitialised.future;
+  /// See `disableSizeMonitor` in worker
+  late final void Function() _reportReadFailure;
 
   @override
   bool get isSupported => true;
@@ -112,42 +109,75 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
   Future<({Uint8List bytes, CachedMapTileMetadata metadata})?> getTile(
     String url,
   ) async {
-    await isInitialised;
-
     final key =
         cacheKeyGenerator?.call(url) ?? _uuid.v5(Namespace.url.value, url);
-    final tileFile = File(p.join(_cacheDirectoryPath, key));
+    final tileFile = File(
+      p.join(_cacheDirectoryPath ?? await _cacheDirectoryPathReady.future, key),
+    );
 
     if (!await tileFile.exists()) return null;
 
-    final bytes = await tileFile.readAsBytes();
+    try {
+      final bytes = await tileFile.readAsBytes();
 
-    final firstTwoNums = bytes.buffer.asInt64List(0, 2);
-    final staleAt =
-        DateTime.fromMillisecondsSinceEpoch(firstTwoNums[0], isUtc: true);
-    final lastModified = firstTwoNums[1] == 0
-        ? null
-        : DateTime.fromMillisecondsSinceEpoch(firstTwoNums[1], isUtc: true);
+      if (bytes.lengthInBytes < 22) {
+        throw CachedMapTileReadFailureException(
+          url: url,
+          description:
+              'cache file (${bytes.lengthInBytes}) was shorter than the '
+              'minimum expected size',
+        );
+      }
 
-    final etagLength = bytes.buffer.asUint16List(16, 1)[0];
-    final String? etag;
-    if (etagLength == 0) {
-      etag = null;
-    } else {
-      final etagBytes = Uint8List.sublistView(bytes, 18, 18 + etagLength);
-      etag = const AsciiDecoder().convert(etagBytes);
+      final firstTwoNums = bytes.buffer.asInt64List(0, 2);
+      final staleAt =
+          DateTime.fromMillisecondsSinceEpoch(firstTwoNums[0], isUtc: true);
+      final lastModified = firstTwoNums[1] == 0
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(firstTwoNums[1], isUtc: true);
+
+      final etagLength = bytes.buffer.asUint16List(16, 1)[0];
+      final String? etag;
+      if (etagLength == 0) {
+        etag = null;
+      } else {
+        final etagBytes = Uint8List.sublistView(bytes, 18, 18 + etagLength);
+        etag = const AsciiDecoder().convert(etagBytes);
+      }
+
+      // Performing an unaligned read is a hassle
+      final tileBytesExpectedLength =
+          bytes.buffer.asByteData(18 + etagLength, 4).getUint32(0, Endian.host);
+
+      final tileBytes = Uint8List.sublistView(bytes, 18 + etagLength + 4);
+
+      if (tileBytes.lengthInBytes != tileBytesExpectedLength) {
+        throw CachedMapTileReadFailureException(
+          url: url,
+          description:
+              'tile image bytes (${tileBytes.lengthInBytes}) were not of '
+              'expected length ($tileBytesExpectedLength)',
+        );
+      }
+
+      return (
+        metadata: CachedMapTileMetadata(
+          staleAt: staleAt,
+          lastModified: lastModified,
+          etag: etag,
+        ),
+        bytes: tileBytes,
+      );
+    } on CachedMapTileReadFailureException {
+      _reportReadFailure();
+      rethrow;
+    } catch (error, stackTrace) {
+      _reportReadFailure();
+      Error.throwWithStackTrace(
+        CachedMapTileReadFailureException(url: url, originalError: error),
+        stackTrace,
+      );
     }
-
-    final tileBytes = Uint8List.sublistView(bytes, 18 + etagLength);
-
-    return (
-      metadata: CachedMapTileMetadata(
-        staleAt: staleAt,
-        lastModified: lastModified,
-        etag: etag,
-      ),
-      bytes: tileBytes,
-    );
   }
 
   @override
@@ -158,11 +188,12 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
   }) async {
     if (readOnly) return;
 
-    await isInitialised;
-
     final key =
         cacheKeyGenerator?.call(url) ?? _uuid.v5(Namespace.url.value, url);
-    final path = p.join(_cacheDirectoryPath, key);
+    final path = p.join(
+      _cacheDirectoryPath ?? await _cacheDirectoryPathReady.future,
+      key,
+    );
 
     final resolvedMetadata = overrideFreshAge != null
         ? CachedMapTileMetadata(

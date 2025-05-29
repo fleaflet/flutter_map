@@ -26,12 +26,16 @@ abstract interface class MapCachingProvider {
 
   /// Retrieve a tile from the cache, if it exists
   ///
-  /// This may throw, for example due to an error decoding/unpacking an existing
-  /// cached tile. Additionally, the returned bytes are not guaranteed to form
-  /// a valid image - attempting to decode the bytes may throw.
-  /// Tile providers should anticipate this and fallback to a non-caching
-  /// alternative, wherever possible repairing the cache by overwriting the
-  /// damaged tile or removing it from the cache.
+  /// Returns `null` if the tile was not present in the cache.
+  ///
+  /// If the tile was present, but could not be correctly read (for example, due
+  /// to an unexpected corruption), this may throw
+  /// [CachedMapTileReadFailureException]. Additionally, any returned tile image
+  /// `bytes` are not guaranteed to form a valid image - attempting to decode
+  /// the bytes may also throw.
+  /// Tile providers should anticipate these exceptions and fallback to a
+  /// non-caching alternative, wherever possible repairing or replacing the tile
+  /// with a fresh & valid one.
   Future<({Uint8List bytes, CachedMapTileMetadata metadata})?> getTile(
     String url,
   );

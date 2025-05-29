@@ -51,6 +51,7 @@ export 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/b
 export 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/caching_provider.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/disabled/disabled_caching_provider.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/tile_metadata.dart';
+export 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/tile_read_failure_exception.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_provider/network/tile_provider.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_update_event.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_update_transformer.dart';

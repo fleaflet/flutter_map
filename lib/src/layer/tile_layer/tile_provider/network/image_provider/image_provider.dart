@@ -132,7 +132,7 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
     if (cachingProvider.isSupported) {
       try {
         cachedTile = await cachingProvider.getTile(resolvedUrl);
-      } catch (_) {
+      } on CachedMapTileReadFailureException {
         // This could occur due to a corrupt tile - we just try to overwrite it
         // with fresh data
         cachedTile = null;

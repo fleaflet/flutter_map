@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:meta/meta.dart';
 
@@ -20,7 +19,4 @@ class BuiltInMapCachingProviderImpl
     required this.cacheKeyGenerator,
     required this.readOnly,
   });
-
-  @override
-  Future<void> get isInitialised => SynchronousFuture(null);
 }

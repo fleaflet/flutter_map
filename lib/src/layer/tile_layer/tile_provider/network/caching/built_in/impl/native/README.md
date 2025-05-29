@@ -17,7 +17,7 @@ Also stored alongside tiles is metadata used to perform caching, namely:
 The file format is as follows:
 
 1. The header containing the tile metadata
-2. The tile image bytes (as responded by the server)
+2. The tile image bytes (as responded by the server), no longer than 4,294,967,295 bytes
 
 The format of the header is as follows:
 
@@ -31,6 +31,7 @@ The format of the header is as follows:
 4. Variable number of bytes
    * Where provided, the ASCII encoded `etag` (where each character is 7 bits but stored as 1 byte) with no greater than 65535 bytes
    * Where not provided, no bytes
+5. 4-byte unsigned integer (Uint32): the length of the tile image bytes
 
 ## Size monitor
 
