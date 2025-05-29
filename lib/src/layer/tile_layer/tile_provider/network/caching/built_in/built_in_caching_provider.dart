@@ -41,7 +41,7 @@ abstract interface class BuiltInMapCachingProvider
     /// absolute limit.
     ///
     /// Defaults to 1 GB. Set to `null` to disable.
-    int? maxCacheSize = 1_000_000,
+    int? maxCacheSize = 1_000_000_000,
 
     /// Override the duration of time a tile is considered fresh for
     ///
