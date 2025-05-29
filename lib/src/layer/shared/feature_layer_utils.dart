@@ -12,9 +12,9 @@ mixin FeatureLayerUtils on CustomPainter {
 
   /// The rectangle of the canvas on its last paint
   ///
-  /// Must not be retrieved before [paint] has been called.
-  Rect get viewportRect => _viewportRect;
-  late Rect _viewportRect;
+  /// Returns [Rect.zero] if [paint] has not yet been called.
+  Rect get viewportRect => _viewportRect ?? Rect.zero;
+  Rect? _viewportRect;
 
   @mustCallSuper
   @mustBeOverridden
