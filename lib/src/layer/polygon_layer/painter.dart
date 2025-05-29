@@ -62,10 +62,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     required this.invertedFill,
     required this.hitNotifier,
   }) : bounds = camera.visibleBounds {
-    _helper = OffsetHelper(
-      camera: camera,
-      origin: origin,
-    );
+    _helper = OffsetHelper(camera: camera);
   }
 
   late final OffsetHelper _helper;
@@ -255,7 +252,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
           polygon.labelPosition,
           shift: shift,
         ),
-        bounds: _getBounds(origin, polygon),
+        bounds: _getBounds(camera.pixelOrigin, polygon),
         textPainter: polygon.textPainter!,
         rotationRad: camera.rotationRad,
         rotate: polygon.rotateLabel,

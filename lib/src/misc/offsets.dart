@@ -9,13 +9,12 @@ import 'package:meta/meta.dart';
 class OffsetHelper {
   OffsetHelper({
     required this.camera,
-    required this.origin,
-  }) : _replicatesWorldLongitude = camera.crs.replicatesWorldLongitude;
+  })  : _replicatesWorldLongitude = camera.crs.replicatesWorldLongitude,
+        _origin = camera.pixelOrigin;
 
   final MapCamera camera;
 
-  final Offset origin;
-
+  final Offset _origin;
   final bool _replicatesWorldLongitude;
 
   /// Calculate the [Offset] for the [LatLng] point.
@@ -26,18 +25,18 @@ class OffsetHelper {
     final crs = camera.crs;
     final zoomScale = crs.scale(camera.zoom);
     final (x, y) = crs.latLngToXY(point, zoomScale);
-    return Offset(x - origin.dx + shift, y - origin.dy);
+    return Offset(x - _origin.dx + shift, y - _origin.dy);
   }
 
-// TODO not sure if still relevant
+  // TODO not sure if still relevant
   /// Calculate the [Offset]s for the list of [LatLng] points.
   List<Offset> getOffsets(List<LatLng> points) {
     // Critically create as little garbage as possible. This is called on every frame.
     final crs = camera.crs;
     final zoomScale = crs.scale(camera.zoom);
 
-    final ox = -origin.dx;
-    final oy = -origin.dy;
+    final ox = -_origin.dx;
+    final oy = -_origin.dy;
     final len = points.length;
 
     // Optimization: monomorphize the Epsg3857-case to avoid the virtual function overhead.
@@ -74,8 +73,8 @@ class OffsetHelper {
         ? points
         : points.followedBy(holePoints.expand((e) => e));
 
-    final ox = -origin.dx;
-    final oy = -origin.dy;
+    final ox = -_origin.dx;
+    final oy = -_origin.dy;
     final len = realPoints.length;
 
     /// Returns additional world width in order to have visible points.
