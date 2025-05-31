@@ -38,20 +38,20 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
         _uuid = Uuid(goptions: GlobalOptions(MathRNG()));
       }
 
-      _cacheDirectoryPath = p.join(
+      final cacheDirectoryPath = p.join(
         this.cacheDirectory ??
             (await getApplicationCacheDirectory()).absolute.path,
         'fm_cache',
       );
-      final cacheDirectory = Directory(_cacheDirectoryPath!);
+      final cacheDirectory = Directory(cacheDirectoryPath);
       await cacheDirectory.create(recursive: true);
 
       final sizeMonitorFilePath =
-          p.join(_cacheDirectoryPath!, sizeMonitorFileName);
+          p.join(cacheDirectoryPath, sizeMonitorFileName);
 
-      _cacheDirectoryPathReady.complete(_cacheDirectoryPath!);
+      _cacheDirectoryPath = cacheDirectoryPath;
+      _cacheDirectoryPathReady.complete(cacheDirectoryPath);
 
-      final tileAndSizeMonitorWriterWorkerReceivePort = ReceivePort();
       SendPort? writerPort;
       final writerPortReady = Completer<SendPort>();
 
@@ -71,19 +71,19 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
               (path: path, metadata: metadata, tileBytes: tileBytes));
       _reportReadFailure = () => sendMessageToWriter(false);
 
+      final writerReceivePort = ReceivePort();
       await Isolate.spawn(
         tileAndSizeMonitorWriterWorker,
         (
-          port: tileAndSizeMonitorWriterWorkerReceivePort.sendPort,
-          cacheDirectoryPath: _cacheDirectoryPath!,
+          port: writerReceivePort.sendPort,
+          cacheDirectoryPath: cacheDirectoryPath,
           sizeMonitorFilePath: sizeMonitorFilePath,
           sizeLimit: maxCacheSize,
         ),
         debugName: '[flutter_map: cache] Tile & Size Monitor Writer',
       );
 
-      writerPort =
-          await tileAndSizeMonitorWriterWorkerReceivePort.first as SendPort;
+      writerPort = await writerReceivePort.first as SendPort;
       writerPortReady.complete(writerPort);
     }();
   }
