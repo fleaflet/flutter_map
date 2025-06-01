@@ -20,8 +20,8 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
 
   final String? cacheDirectory;
   final int? maxCacheSize;
+  final String Function(String url)? tileKeyGenerator;
   final Duration? overrideFreshAge;
-  final String Function(String url)? cacheKeyGenerator;
   final bool readOnly;
 
   @internal
@@ -29,22 +29,20 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
     required this.cacheDirectory,
     required this.maxCacheSize,
     required this.overrideFreshAge,
-    required this.cacheKeyGenerator,
+    required this.tileKeyGenerator,
     required this.readOnly,
   }) {
     // This should only be called/constructed once
     () async {
-      if (cacheKeyGenerator == null) {
+      if (tileKeyGenerator == null) {
         _uuid = Uuid(goptions: GlobalOptions(MathRNG()));
       }
 
       final cacheDirectoryPath = p.join(
-        this.cacheDirectory ??
-            (await getApplicationCacheDirectory()).absolute.path,
+        cacheDirectory ?? (await getApplicationCacheDirectory()).absolute.path,
         'fm_cache',
       );
-      final cacheDirectory = Directory(cacheDirectoryPath);
-      await cacheDirectory.create(recursive: true);
+      await Directory(cacheDirectoryPath).create(recursive: true);
 
       final sizeMonitorFilePath =
           p.join(cacheDirectoryPath, sizeMonitorFileName);
@@ -59,16 +57,13 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
       // monitoring (and potentially run the reducer) if necessary
       // Reading does not depend on this.
       void sendMessageToWriter(Object message) {
-        if (writerPort != null) {
-          writerPort.send(message);
-        } else {
-          writerPortReady.future.then((port) => port.send(message));
-        }
+        if (writerPort != null) return writerPort.send(message);
+        writerPortReady.future.then((port) => port.send(message));
       }
 
-      _writeTileFile = ({required path, required metadata, tileBytes}) =>
-          sendMessageToWriter(
-              (path: path, metadata: metadata, tileBytes: tileBytes));
+      _writeTileFile = (path, metadata, tileBytes) => sendMessageToWriter(
+            (path: path, metadata: metadata, tileBytes: tileBytes),
+          );
       _reportReadFailure = () => sendMessageToWriter(false);
 
       final writerReceivePort = ReceivePort();
@@ -78,7 +73,7 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
           port: writerReceivePort.sendPort,
           cacheDirectoryPath: cacheDirectoryPath,
           sizeMonitorFilePath: sizeMonitorFilePath,
-          sizeLimit: maxCacheSize,
+          maxCacheSize: maxCacheSize,
         ),
         debugName: '[flutter_map: cache] Tile & Size Monitor Writer',
       );
@@ -93,14 +88,14 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
 
   late final Uuid _uuid; // left un-inited if provided generator
 
-  late final void Function({
-    required String path,
-    required CachedMapTileMetadata metadata,
+  late final void Function(
+    String path,
+    CachedMapTileMetadata metadata,
     Uint8List? tileBytes,
-  }) _writeTileFile;
+  ) _writeTileFile;
 
-  /// See `disableSizeMonitor` in worker
-  late final void Function() _reportReadFailure;
+  late final void Function()
+      _reportReadFailure; // See `disableSizeMonitor` in worker
 
   @override
   bool get isSupported => true;
@@ -110,7 +105,7 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
     String url,
   ) async {
     final key =
-        cacheKeyGenerator?.call(url) ?? _uuid.v5(Namespace.url.value, url);
+        tileKeyGenerator?.call(url) ?? _uuid.v5(Namespace.url.value, url);
     final tileFile = File(
       p.join(_cacheDirectoryPath ?? await _cacheDirectoryPathReady.future, key),
     );
@@ -121,7 +116,7 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
       final bytes = await tileFile.readAsBytes();
 
       if (bytes.lengthInBytes < 22) {
-        throw CachedMapTileReadFailureException(
+        throw CachedMapTileReadFailure(
           url: url,
           description:
               'cache file (${bytes.lengthInBytes}) was shorter than the '
@@ -145,14 +140,13 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
         etag = const AsciiDecoder().convert(etagBytes);
       }
 
-      // Performing an unaligned read is a hassle
-      final tileBytesExpectedLength =
+      final tileBytesExpectedLength = // Perform an unaligned read
           bytes.buffer.asByteData(18 + etagLength, 4).getUint32(0, Endian.host);
 
       final tileBytes = Uint8List.sublistView(bytes, 18 + etagLength + 4);
 
       if (tileBytes.lengthInBytes != tileBytesExpectedLength) {
-        throw CachedMapTileReadFailureException(
+        throw CachedMapTileReadFailure(
           url: url,
           description:
               'tile image bytes (${tileBytes.lengthInBytes}) were not of '
@@ -168,13 +162,13 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
         ),
         bytes: tileBytes,
       );
-    } on CachedMapTileReadFailureException {
+    } on CachedMapTileReadFailure {
       _reportReadFailure();
       rethrow;
     } catch (error, stackTrace) {
       _reportReadFailure();
       Error.throwWithStackTrace(
-        CachedMapTileReadFailureException(url: url, originalError: error),
+        CachedMapTileReadFailure(url: url, originalError: error),
         stackTrace,
       );
     }
@@ -189,20 +183,22 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
     if (readOnly) return;
 
     final key =
-        cacheKeyGenerator?.call(url) ?? _uuid.v5(Namespace.url.value, url);
+        tileKeyGenerator?.call(url) ?? _uuid.v5(Namespace.url.value, url);
     final path = p.join(
       _cacheDirectoryPath ?? await _cacheDirectoryPathReady.future,
       key,
     );
 
-    final resolvedMetadata = overrideFreshAge != null
-        ? CachedMapTileMetadata(
-            staleAt: DateTime.timestamp().add(overrideFreshAge!),
-            lastModified: metadata.lastModified,
-            etag: metadata.etag,
-          )
-        : metadata;
-
-    _writeTileFile(path: path, metadata: resolvedMetadata, tileBytes: bytes);
+    _writeTileFile(
+      path,
+      overrideFreshAge != null
+          ? CachedMapTileMetadata(
+              staleAt: DateTime.timestamp().add(overrideFreshAge!),
+              lastModified: metadata.lastModified,
+              etag: metadata.etag,
+            )
+          : metadata,
+      bytes,
+    );
   }
 }

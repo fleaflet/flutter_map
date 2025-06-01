@@ -11,8 +11,8 @@ import 'package:meta/meta.dart';
 class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
   final String? cacheDirectory;
   final int? maxCacheSize;
+  final String Function(String url)? tileKeyGenerator;
   final Duration? overrideFreshAge;
-  final String Function(String url)? cacheKeyGenerator;
   final bool readOnly;
 
   @internal
@@ -20,7 +20,7 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
     required this.cacheDirectory,
     required this.maxCacheSize,
     required this.overrideFreshAge,
-    required this.cacheKeyGenerator,
+    required this.tileKeyGenerator,
     required this.readOnly,
   });
 

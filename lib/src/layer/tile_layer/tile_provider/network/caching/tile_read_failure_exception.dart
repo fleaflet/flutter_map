@@ -13,12 +13,12 @@
 ///
 /// This exception is not usually for external consumption, except for tile
 /// provider implementations.
-class CachedMapTileReadFailureException implements Exception {
+class CachedMapTileReadFailure implements Exception {
   /// Create an exception which indicates the tile with the given URL was
   /// present in the cache, but could not be correctly read
   ///
   /// Usually, one of [description] or [originalError] should be provided.
-  const CachedMapTileReadFailureException({
+  const CachedMapTileReadFailure({
     required this.url,
     this.description,
     this.originalError,

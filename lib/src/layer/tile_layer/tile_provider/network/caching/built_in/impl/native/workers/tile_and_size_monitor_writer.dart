@@ -10,31 +10,33 @@ import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/t
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 
-/// Isolate worker which writes tile files, and updates the size monitor,
-/// synchronously
+/// Isolate worker which writes tile files, maintains the size monitor, and
+/// (if necessary) starts the size reducer
+///
+/// Follows the storage spec described in README.md.
 @internal
 Future<void> tileAndSizeMonitorWriterWorker(
   ({
     SendPort port,
     String cacheDirectoryPath,
     String sizeMonitorFilePath,
-    int? sizeLimit,
+    int? maxCacheSize,
   }) input,
 ) async {
+  //! SIZE MONITOR HANDLING
+
   final sizeMonitorFile = File(input.sizeMonitorFilePath);
   RandomAccessFile? sizeMonitor;
   late int currentSize;
 
-  final allocatedInt64BufferForSizeMonitor = Uint8List(8);
+  final allocUint64BufferSizeMonitor = Uint8List(8);
   void updateSizeMonitor(int deltaSize) {
     if (sizeMonitor == null) return;
-
     currentSize += deltaSize;
     sizeMonitor!
       ..setPositionSync(0)
       ..writeFromSync(
-        allocatedInt64BufferForSizeMonitor
-          ..buffer.asInt64List()[0] = currentSize,
+        allocUint64BufferSizeMonitor..buffer.asUint64List()[0] = currentSize,
       )
       ..flushSync();
   }
@@ -48,7 +50,6 @@ Future<void> tileAndSizeMonitorWriterWorker(
   // run the size reducer, however - so we just delete it and forget about it.
   void disableSizeMonitor() {
     if (sizeMonitor == null) return;
-
     sizeMonitor!.closeSync();
     sizeMonitorFile.deleteSync();
     sizeMonitor = null;
@@ -58,13 +59,13 @@ Future<void> tileAndSizeMonitorWriterWorker(
   // If it's available, we can begin writing immediately.
   // Otherwise, we need to wait for it to be regenerated, which takes some time.
   // This is only neccessary for a brand new cache, an existing cache with a
-  // newly imposed `sizeLimit` when there was previously none, or a corrupted
+  // newly imposed `maxCacheSize` when there was previously none, or a corrupted
   // cache (where the size monitor is missing, potentially due to a read
   // failure).
   // We can run the size reducer in another isolate afterwards, as it returns a
   // relative change to the current cache size. Writes don't need to wait for
   // that expensive process.
-  if (input.sizeLimit case final sizeLimit?) {
+  if (input.maxCacheSize case final maxCacheSize?) {
     Future<void> regenerateSizeMonitor() async {
       int calculatedSize = 0;
       int waitingForSize = 0;
@@ -92,7 +93,7 @@ Future<void> tileAndSizeMonitorWriterWorker(
 
       sizeMonitor!
         ..setPositionSync(0)
-        ..writeFromSync(Uint8List(8)..buffer.asInt64List()[0] = calculatedSize)
+        ..writeFromSync(Uint8List(8)..buffer.asUint64List()[0] = calculatedSize)
         ..flushSync();
 
       currentSize = calculatedSize;
@@ -103,16 +104,16 @@ Future<void> tileAndSizeMonitorWriterWorker(
       ..setPositionSync(0);
     if (sizeMonitorInitiallyExists) {
       try {
-        currentSize = sizeMonitor!.readSync(8).buffer.asInt64List()[0];
-      } catch (e) {
+        currentSize = sizeMonitor!.readSync(8).buffer.asUint64List()[0];
+      } catch (_) {
         await regenerateSizeMonitor();
       }
     } else {
       await regenerateSizeMonitor();
     }
 
-    if (currentSize > sizeLimit) {
-      Future<int> runSizeLimiter({
+    if (currentSize > maxCacheSize) {
+      Future<int> runSizeReducer({
         required String cacheDirectoryPath,
         required String sizeMonitorFilePath,
         required int minSizeToDelete,
@@ -123,24 +124,26 @@ Future<void> tileAndSizeMonitorWriterWorker(
               sizeMonitorFilePath: sizeMonitorFilePath,
               minSizeToDelete: minSizeToDelete,
             ),
+            debugName: '[flutter_map: cache] Size Reducer',
           );
 
-      runSizeLimiter(
+      runSizeReducer(
         cacheDirectoryPath: input.cacheDirectoryPath,
         sizeMonitorFilePath: input.sizeMonitorFilePath,
-        minSizeToDelete: currentSize - sizeLimit,
+        minSizeToDelete: currentSize - maxCacheSize,
       ).then((deletedSize) => updateSizeMonitor(-deletedSize));
     }
   }
 
-  final allocatedInt64Buffer = Uint8List(8);
-  final allocatedUint32Buffer = Uint8List(4);
-  final allocatedUint16Buffer = Uint8List(2);
+  //! TILE WRITING
 
+  final allocInt64BufferTileWrite = Uint8List(8);
+  final allocUint32BufferTileWrite = Uint8List(4);
+  final allocUint16BufferTileWrite = Uint8List(2);
   void writeTile({
-    Uint8List? tileBytes,
-    required final CachedMapTileMetadata metadata,
     required final String path,
+    required final CachedMapTileMetadata metadata,
+    Uint8List? tileBytes,
   }) {
     final tileFile = File(path);
     final initialTileFileExists = tileFile.existsSync();
@@ -170,14 +173,15 @@ Future<void> tileAndSizeMonitorWriterWorker(
       // We start reading from the start of the file, where we store our header
       // info
       ..setPositionSync(0)
-      // We store the stale-at header in 8 bytes...
+      // We store the stale-at header in 8 signed bytes...
       ..writeFromSync(
-        allocatedInt64Buffer
+        allocInt64BufferTileWrite
           ..buffer.asInt64List()[0] = metadata.staleAtMilliseconds,
       )
-      // ...followed by the last-modified header in 8 bytes, or '0' if null
+      // ...followed by the last-modified header in 8 signed bytes, or '0' if
+      // null
       ..writeFromSync(
-        allocatedInt64Buffer
+        allocInt64BufferTileWrite
           ..buffer.asInt64List()[0] = metadata.lastModifiedMilliseconds ?? 0,
       );
 
@@ -186,7 +190,7 @@ Future<void> tileAndSizeMonitorWriterWorker(
     if (initialTileFileExists) {
       try {
         initialEtagLength = ram.readSync(2).buffer.asUint16List()[0];
-      } catch (e) {
+      } catch (_) {
         // This implies the tile was corrupted on the previous write (the
         // write was terminated unexpectedly)
         // However, this shouldn't be possible in practise, since that should've
@@ -206,17 +210,16 @@ Future<void> tileAndSizeMonitorWriterWorker(
     final int etagLength;
     late final Uint8List etagBytes; // left unset if etagLength = 0
     if (metadata.etag == null) {
-      // We don't have an etag, so we write 2 bytes indicating the etag length
-      // is 0
+      // We don't have an etag, so we write 2 unsigned bytes indicating the etag
+      // length is 0
       ram.writeFromSync(
-        allocatedUint16Buffer..buffer.asUint16List()[0] = etagLength = 0,
+        allocUint16BufferTileWrite..buffer.asUint16List()[0] = etagLength = 0,
       );
     } else {
       etagBytes = const AsciiEncoder().convert(metadata.etag!);
-      // We store the etag length in 2 bytes...
-      // (unless it is too large)
+      // We store the etag length in 2 signed bytes (unless it is too large)...
       ram.writeFromSync(
-        allocatedUint16Buffer
+        allocUint16BufferTileWrite
           ..buffer.asUint16List()[0] = etagLength =
               (etagBytes.lengthInBytes > 0xFFFF ? 0 : etagBytes.lengthInBytes),
       );
@@ -233,7 +236,7 @@ Future<void> tileAndSizeMonitorWriterWorker(
       final int initialTileBytesLength;
       try {
         initialTileBytesLength = ram.readSync(4).buffer.asUint32List()[0];
-      } catch (e) {
+      } catch (_) {
         // This implies the tile was corrupted on the previous write (the
         // write was terminated unexpectedly)
         ram.truncateSync(0);
@@ -268,9 +271,10 @@ Future<void> tileAndSizeMonitorWriterWorker(
       return;
     }
 
-    // We store the length of the tile bytes in 4 bytes...
+    // We store the length of the tile bytes in 4 unsigned bytes...
     ram.writeFromSync(
-      allocatedUint32Buffer..buffer.asUint32List()[0] = tileBytes.lengthInBytes,
+      allocUint32BufferTileWrite
+        ..buffer.asUint32List()[0] = tileBytes.lengthInBytes,
     );
 
     // ...followed by the tile bytes
@@ -289,16 +293,18 @@ Future<void> tileAndSizeMonitorWriterWorker(
     }
   }
 
-  // Now we're ready to recieve write messages
+  //! COMMS HANDLING
+
+  // Now we're ready to recieve commands
   final receivePort = ReceivePort();
   input.port.send(receivePort.sendPort);
 
   await for (final val in receivePort) {
     if (val
         case (
-          :final Uint8List? tileBytes,
-          :final CachedMapTileMetadata metadata,
           :final String path,
+          :final CachedMapTileMetadata metadata,
+          :final Uint8List? tileBytes,
         )) {
       writeTile(path: path, metadata: metadata, tileBytes: tileBytes);
       continue;
@@ -307,8 +313,6 @@ Future<void> tileAndSizeMonitorWriterWorker(
       disableSizeMonitor();
       continue;
     }
-    throw UnsupportedError(
-      'Message was not in the correct format for a tile write',
-    );
+    throw UnsupportedError('Command was in unknown format');
   }
 }

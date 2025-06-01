@@ -29,10 +29,9 @@ abstract interface class MapCachingProvider {
   /// Returns `null` if the tile was not present in the cache.
   ///
   /// If the tile was present, but could not be correctly read (for example, due
-  /// to an unexpected corruption), this may throw
-  /// [CachedMapTileReadFailureException]. Additionally, any returned tile image
-  /// `bytes` are not guaranteed to form a valid image - attempting to decode
-  /// the bytes may also throw.
+  /// to an unexpected corruption), this may throw [CachedMapTileReadFailure].
+  /// Additionally, any returned tile image `bytes` are not guaranteed to form a
+  /// valid image - attempting to decode the bytes may also throw.
   /// Tile providers should anticipate these exceptions and fallback to a
   /// non-caching alternative, wherever possible repairing or replacing the tile
   /// with a fresh & valid one.

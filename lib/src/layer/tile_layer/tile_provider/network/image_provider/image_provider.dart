@@ -132,7 +132,7 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
     if (cachingProvider.isSupported) {
       try {
         cachedTile = await cachingProvider.getTile(resolvedUrl);
-      } on CachedMapTileReadFailureException {
+      } on CachedMapTileReadFailure {
         // This could occur due to a corrupt tile - we just try to overwrite it
         // with fresh data
         cachedTile = null;
@@ -229,7 +229,7 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
         try {
           // If we have a cached tile that's not stale, return it
           return await decodeBytes(cachedTile.bytes);
-        } catch (e) {
+        } catch (_) {
           // If the cached tile is corrupt, we proceed and get from the server
           forceFromServer = true;
         }
@@ -255,7 +255,7 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
         late final Codec decodedCacheBytes;
         try {
           decodedCacheBytes = await decodeBytes(cachedTile.bytes);
-        } catch (e) {
+        } catch (_) {
           // If the cached tile is corrupt, we get fresh from the server without
           // caching, then continue
           forceFromServer = true;
@@ -313,7 +313,7 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
       chunkEvents.close();
       return await decodeBytes(TileProvider.transparentImage);
     } */
-    on ClientException catch (e) {
+    on ClientException catch (err) {
       // This could be a wide range of issues, potentially ours, potentially
       // network, etc.
 
@@ -324,7 +324,7 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
       // This can occur when the map/tile layer is disposed early - in older
       // versions, we used manual tracking to avoid disposing too early, but now
       // we just attempt to catch (it's cleaner & easier)
-      if (e.message.contains('closed') || e.message.contains('cancel')) {
+      if (err.message.contains('closed') || err.message.contains('cancel')) {
         return await decodeBytes(TileProvider.transparentImage);
       }
 
@@ -334,7 +334,7 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
         return await decodeBytes(TileProvider.transparentImage);
       }
       return _loadImage(key, chunkEvents, decode, useFallback: true);
-    } catch (e) {
+    } catch (_) {
       // Non-specific catch to catch decoding errors, the manually thrown HTTP
       // exception, etc.
 
