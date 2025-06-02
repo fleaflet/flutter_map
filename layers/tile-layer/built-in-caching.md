@@ -36,9 +36,9 @@ In this case, built-in caching is not applicable, and will not be used (unless t
 Built-in caching is enabled by default.
 {% endhint %}
 
-Built-in caching supports extendability and customizability.
+Built-in caching is extensible and customisable.
 
-By default, the `BuiltInMapCachingProvider` is used, which has multiple options to adjust its basic behaviour. It's backed by an efficient filesystem cache, where tiles are stored alongside their metadata (necessary to perform caching) in the same file.
+By default, the `BuiltInMapCachingProvider` is used, which has multiple options to adjust its behaviour.
 
 <mark style="background-color:yellow;">insert link</mark>
 
@@ -55,23 +55,47 @@ To configure the `BuiltInMapCachingProvider`,  supply arguments to the `getOrCre
 );
 </code></pre>
 
+{% hint style="info" %}
+It is not possible to change the configuration after the provider instance has been created.
+
+This means if you configure the provider in the first tile provider/tile layer used (or indeed outside of the map context, such as in the `main` method), the configuration does not need to be manually specified in each tile provider.
+
+***
+
+It is possible to change the configuration after a cache on the filesystem has already been created.
+{% endhint %}
+
 By default, caching occurs in a platform provided cache directory. The operating system may clear this at any time.
 
 By default, a 1 GB (soft) limit is applied to the built-in caching. This limit is only applied when the cache provider is initialised (usually when the first tiles are loaded on each app session).
 
 HTTP headers are used to determine how long a tile is considered 'fresh' - this fulfills the requirements of many tile servers. However, setting `overrideFreshAge` allows the HTTP headers to be overridden, and the tile to be stored and used for a set duration.
 
-{% hint style="info" %}
-It is not possible to change the configuration after the provider instance has been created.
+The `tileKeyGenerator` can be customized. The callback accepts the tile's URL, and converts it to a key used to uniquely identify the tile. By default, it generates a UUID from the entire URL string. However, in some cases, the default behaviour should be changed:
 
-It is possible to change the configuration when an existing cache exists, but the provider has not yet been initialised (in the app session).
-{% endhint %}
+<details>
 
-It is also possible to create the provider instance elsewhere in the app, as long as it occurs before the first tile provider uses it. With the default provider, configuration will automatically occur for all tile providers, and you won't need to specify it on each one, as above.
+<summary>Using a custom <code>tileKeyGenerator</code></summary>
+
+Where parts of the URL are volatile or do not represent the tile's&#x20;contents/image - for example, API keys contained with the query&#x20;parameters - this should be modified to remove the volatile portions.
+
+Otherwise, tiles stored with an old/rejected volatile portion will not be utilised by the cache, and will waste storage space.
+
+Keys must be usable as filenames on all intended platform filesystems.
+
+***
+
+Implementations may use the static utility method `uuidTileKeyGenerator` if they just wish to modify the input URL.
+
+Convenient methods to modify URLs can be found by first parsing it to a [`Uri`](https://api.flutter.dev/flutter/dart-core/Uri-class.html) using `Uri.parse`, working on it (such as with [`replace`](https://api.flutter.dev/flutter/dart-core/Uri/replace.html)), then converting it back to a string.
+
+Alternatively, the raw URL string could be worked on manually, such as by using regular expression to extract certain parts.
+
+</details>
 
 ### Using Other `MapCachingProvider`s
 
-You can also use any other `MapCachingProvider` implementation, such as provided by plugins, or create one yourself! They may support the web platform, unlike the built-in cache.
+You can also use any other `MapCachingProvider` implementation, such as provided by plugins, or [create one yourself](../../plugins/create/caching-providers.md)! They may support the web platform, unlike the built-in cache.
 
 You should check that plugin's documentation for information about initialisation & configuration. You will always need to pass it to the `cachingProvider` argument of a compatible `TileProvider`, as above.
 

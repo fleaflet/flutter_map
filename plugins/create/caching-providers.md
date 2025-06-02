@@ -27,9 +27,11 @@ class CustomCachingProvider implements MapCachingProvider {
 }
 ```
 
-Compatible tile providers check `isSupported` before using `getTile` or `putTile`.
+Compatible tile providers must check `isSupported` before using `getTile` or `putTile`.
 
 Check in-code documentation for more detail on requirements and expectations.
+
+***
 
 Many providers may only work on certain platforms. In this case, implementations can mix-in `DisabledMapCachingProvider` on unsupported platforms:
 
@@ -38,3 +40,15 @@ class CustomCachingProvider
     with DisabledMapCachingProvider
     implements MapCachingProvider {}
 ```
+
+***
+
+If a provider cannot read a tile from the cache, but the tile is present, the provider should:
+
+* throw `CachedMapTileReadFailure` with as much information as possible from `readTile`
+* repair or replace the tile with a fresh & valid one
+* ensure other mechanisms are resilient to corruption
+
+This could occur due to corruption, for example a power cut, a sudden storage issue, or an intentional modification that did not comply with the expected specification.
+
+It is not the provider's responsibility to check that stored tile bytes are valid. Providers may return invalid or undecodable bytes to tile providers, which they should handle gracefully by falling back to a non-caching alternative to retrieve a tile, and safely updating the invalid stored tile.
