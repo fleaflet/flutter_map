@@ -47,7 +47,13 @@ class MenuDrawer extends StatelessWidget {
     return Drawer(
       child: ListView(
         children: <Widget>[
-          DrawerHeader(
+          Container(
+            padding: const EdgeInsets.fromLTRB(16, 32, 16, 16)
+                .add(EdgeInsets.only(top: MediaQuery.paddingOf(context).top)),
+            margin: const EdgeInsets.only(bottom: 8),
+            decoration: BoxDecoration(
+              border: Border(bottom: Divider.createBorderSide(context)),
+            ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -65,11 +71,12 @@ class MenuDrawer extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 14),
                 ),
+                const SizedBox(height: 8),
                 if (kIsWeb)
-                  const Text(
+                  Text(
                     _isWASM ? 'Running with WASM' : 'Running without WASM',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14),
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
               ],
             ),
