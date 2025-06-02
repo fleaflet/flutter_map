@@ -7,7 +7,7 @@ class BuiltInMapCachingProviderImpl
     implements BuiltInMapCachingProvider {
   final String? cacheDirectory;
   final int? maxCacheSize;
-  final String Function(String url)? tileKeyGenerator;
+  final String Function(String url) tileKeyGenerator;
   final Duration? overrideFreshAge;
   final bool readOnly;
 

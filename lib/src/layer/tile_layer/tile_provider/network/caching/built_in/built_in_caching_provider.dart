@@ -2,6 +2,9 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/stub.dart'
     if (dart.library.io) 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/native.dart'
     if (dart.library.js_interop) 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/web/web.dart';
+import 'package:uuid/data.dart';
+import 'package:uuid/rng.dart';
+import 'package:uuid/uuid.dart';
 
 /// Simple built-in map caching using an I/O storage mechanism, for native
 /// (non-web) platforms only
@@ -65,7 +68,8 @@ abstract interface class BuiltInMapCachingProvider
     /// Keys must be usable as filenames on all intended platform filesystems.
     /// The callback should not throw.
     ///
-    /// Defaults to generating a UUID from the entire URL string.
+    /// Defaults to using [uuidTileKeyGenerator], which custom implementations
+    /// may utilise.
     String Function(String url)? tileKeyGenerator,
 
     /// Override the duration of time a tile is considered fresh for
@@ -94,10 +98,20 @@ abstract interface class BuiltInMapCachingProvider
       cacheDirectory: cacheDirectory,
       maxCacheSize: maxCacheSize,
       overrideFreshAge: overrideFreshAge,
-      tileKeyGenerator: tileKeyGenerator,
+      tileKeyGenerator: tileKeyGenerator ?? uuidTileKeyGenerator,
       readOnly: readOnly,
     );
   }
 
   static BuiltInMapCachingProviderImpl? _instance;
+
+  /// Default `tileKeyGenerator` which generates v5 UUIDs from input strings
+  ///
+  /// May be utilised in custom `tileKeyGenerator` implementations.
+  ///
+  /// See [BuiltInMapCachingProvider.getOrCreateInstance]'s parameter for more
+  /// info.
+  static String uuidTileKeyGenerator(String url) =>
+      _uuid.v5(Namespace.url.value, url);
+  static final _uuid = Uuid(goptions: GlobalOptions(MathRNG()));
 }

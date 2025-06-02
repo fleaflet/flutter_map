@@ -10,9 +10,6 @@ import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/b
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:uuid/data.dart';
-import 'package:uuid/rng.dart';
-import 'package:uuid/uuid.dart';
 
 @internal
 class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
@@ -20,7 +17,7 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
 
   final String? cacheDirectory;
   final int? maxCacheSize;
-  final String Function(String url)? tileKeyGenerator;
+  final String Function(String url) tileKeyGenerator;
   final Duration? overrideFreshAge;
   final bool readOnly;
 
@@ -34,10 +31,6 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
   }) {
     // This should only be called/constructed once
     () async {
-      if (tileKeyGenerator == null) {
-        _uuid = Uuid(goptions: GlobalOptions(MathRNG()));
-      }
-
       final cacheDirectoryPath = p.join(
         cacheDirectory ?? (await getApplicationCacheDirectory()).absolute.path,
         'fm_cache',
@@ -86,14 +79,11 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
   String? _cacheDirectoryPath; // ~cached version of below for instant access
   final _cacheDirectoryPathReady = Completer<String>();
 
-  late final Uuid _uuid; // left un-inited if provided generator
-
   late final void Function(
     String path,
     CachedMapTileMetadata metadata,
     Uint8List? tileBytes,
   ) _writeTileFile;
-
   late final void Function()
       _reportReadFailure; // See `disableSizeMonitor` in worker
 
@@ -104,8 +94,7 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
   Future<({Uint8List bytes, CachedMapTileMetadata metadata})?> getTile(
     String url,
   ) async {
-    final key =
-        tileKeyGenerator?.call(url) ?? _uuid.v5(Namespace.url.value, url);
+    final key = tileKeyGenerator(url);
     final tileFile = File(
       p.join(_cacheDirectoryPath ?? await _cacheDirectoryPathReady.future, key),
     );
@@ -182,8 +171,7 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
   }) async {
     if (readOnly) return;
 
-    final key =
-        tileKeyGenerator?.call(url) ?? _uuid.v5(Namespace.url.value, url);
+    final key = tileKeyGenerator(url);
     final path = p.join(
       _cacheDirectoryPath ?? await _cacheDirectoryPathReady.future,
       key,
