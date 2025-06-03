@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/misc/tile_providers.dart';
@@ -117,8 +119,11 @@ class _MarkerPageState extends State<MarkerPage> {
           Flexible(
             child: FlutterMap(
               options: MapOptions(
-                initialCenter: const LatLng(51.5, -0.09),
-                initialZoom: 5,
+                initialCenter: const LatLng(
+                  51.51868093513547,
+                  -0.12835376940892318,
+                ),
+                initialZoom: 15,
                 onTap: (_, p) => setState(() => customMarkers.add(buildPin(p))),
                 interactionOptions: const InteractionOptions(
                   flags: ~InteractiveFlag.doubleTapZoom,
@@ -166,6 +171,41 @@ class _MarkerPageState extends State<MarkerPage> {
                   markers: customMarkers,
                   rotate: counterRotate,
                   alignment: selectedAlignment,
+                ),
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      point: const LatLng(
+                        51.51868093513547,
+                        -0.12835376940892318,
+                      ),
+                      height: 20,
+                      width: 20,
+                      maxHeightUsingMetersPixels: 200,
+                      maxWidthUsingMetersPixels: 200,
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final minDimension = min(
+                            constraints.maxHeight,
+                            constraints.maxWidth,
+                          );
+
+                          return Transform.scale(
+                            scale: minDimension / 30,
+                            child: const SizedBox(
+                              width: 30,
+                              height: 30,
+                              child: Icon(
+                                Icons.map,
+                                color: Colors.amber,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      useSizeInMeters: true,
+                    ),
+                  ],
                 ),
               ],
             ),

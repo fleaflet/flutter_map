@@ -48,6 +48,18 @@ class Marker {
   /// marker. Use a widget inside [child] to perform this.
   final bool? rotate;
 
+  /// Parameter to enable or not the feature to use markers dimensions in meters.
+  ///
+  /// A good way to use that feature is using a LayoutBuilder and building according the
+  /// maxHeight and minWidth values.
+  final bool useSizeInMeters;
+
+  /// TODO: Documentation
+  final double? maxWidthUsingMetersPixels;
+  final double? maxHeightUsingMetersPixels;
+  final double? minWidthUsingMetersPixels;
+  final double? minHeightUsingMetersPixels;
+
   /// Creates a container for a [child] widget located at a geographic coordinate
   /// [point]
   ///
@@ -61,6 +73,11 @@ class Marker {
     this.height = 30,
     this.alignment,
     this.rotate,
+    this.useSizeInMeters = false,
+    this.maxWidthUsingMetersPixels,
+    this.maxHeightUsingMetersPixels,
+    this.minHeightUsingMetersPixels,
+    this.minWidthUsingMetersPixels,
   });
 
   /// Returns the alignment of a [width]x[height] rectangle by [left]x[top] pixels.
