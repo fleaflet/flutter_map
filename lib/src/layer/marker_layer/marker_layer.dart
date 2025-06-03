@@ -53,12 +53,51 @@ class MarkerLayer extends StatelessWidget {
             Positioned? getPositioned(double worldShift) {
               final shiftedX = pxPoint.dx + worldShift;
 
+              double height = m.height;
+              double width = m.width;
+
+              if (m.useSizeInMeters) {
+                final basePoint = m.point;
+                final baseOffset = map.getOffsetFromOrigin(basePoint);
+                final rHeight =
+                    const Distance().offset(basePoint, height / 2, 0);
+                final rWidth = const Distance().offset(basePoint, width / 2, 0);
+
+                height =
+                    (baseOffset - map.getOffsetFromOrigin(rHeight)).distance *
+                        2;
+                width =
+                    (baseOffset - map.getOffsetFromOrigin(rWidth)).distance * 2;
+
+                final maxHeightUsingMetersPixels = m.maxHeightUsingMetersPixels;
+                final maxWidthUsingMetersPixels = m.maxWidthUsingMetersPixels;
+                if (maxHeightUsingMetersPixels != null &&
+                    height > maxHeightUsingMetersPixels) {
+                  height = maxHeightUsingMetersPixels;
+                }
+                if (maxWidthUsingMetersPixels != null &&
+                    width > maxWidthUsingMetersPixels) {
+                  width = maxWidthUsingMetersPixels;
+                }
+
+                final minHeightUsingMetersPixels = m.minHeightUsingMetersPixels;
+                final minWidthUsingMetersPixels = m.minWidthUsingMetersPixels;
+                if (minHeightUsingMetersPixels != null &&
+                    height < minHeightUsingMetersPixels) {
+                  height = minHeightUsingMetersPixels;
+                }
+                if (minWidthUsingMetersPixels != null &&
+                    width < minWidthUsingMetersPixels) {
+                  width = minWidthUsingMetersPixels;
+                }
+              }
+
               // Resolve real alignment
               // TODO: maybe just using Size, Offset, and Rect?
-              final left = 0.5 * m.width * ((m.alignment ?? alignment).x + 1);
-              final top = 0.5 * m.height * ((m.alignment ?? alignment).y + 1);
-              final right = m.width - left;
-              final bottom = m.height - top;
+              final left = 0.5 * width * ((m.alignment ?? alignment).x + 1);
+              final top = 0.5 * height * ((m.alignment ?? alignment).y + 1);
+              final right = width - left;
+              final bottom = height - top;
 
               // Cull if out of bounds
               if (!map.pixelBounds.overlaps(
@@ -77,8 +116,8 @@ class MarkerLayer extends StatelessWidget {
 
               return Positioned(
                 key: m.key,
-                width: m.width,
-                height: m.height,
+                width: width,
+                height: height,
                 left: shiftedLocalPoint.dx - right,
                 top: shiftedLocalPoint.dy - bottom,
                 child: (m.rotate ?? rotate)
