@@ -48,6 +48,32 @@ class Marker {
   /// marker. Use a widget inside [child] to perform this.
   final bool? rotate;
 
+  /// Parameter to enable or not the feature to use markers dimensions in meters.
+  ///
+  /// A good way to use that feature is using a LayoutBuilder and building according the
+  /// maxHeight and minWidth values.
+  final bool useSizeInMeters;
+
+  /// Parameter to control the max width in pixels of the marker region when the parameter
+  /// [useSizeInMeters] is enabled. That size is optional and when existent will limited
+  /// the marker size pixel width
+  final double? maxWidthUsingMetersPixels;
+
+  /// Parameter to control the max height in pixels of the marker region when the parameter
+  /// [useSizeInMeters] is enabled. That size is optional and when existent will limited
+  /// the marker size pixel height
+  final double? maxHeightUsingMetersPixels;
+
+  /// Parameter to control the min width in pixels of the marker region when the parameter
+  /// [useSizeInMeters] is enabled. That size is optional and when existent will be the
+  /// minimal width for the marker pixel region
+  final double? minWidthUsingMetersPixels;
+
+  /// Parameter to control the min height in pixels of the marker region when the parameter
+  /// [useSizeInMeters] is enabled. That size is optional and when existent will be the
+  /// minimal height for the marker pixel region
+  final double? minHeightUsingMetersPixels;
+
   /// Creates a container for a [child] widget located at a geographic coordinate
   /// [point]
   ///
@@ -61,6 +87,11 @@ class Marker {
     this.height = 30,
     this.alignment,
     this.rotate,
+    this.useSizeInMeters = false,
+    this.maxWidthUsingMetersPixels,
+    this.maxHeightUsingMetersPixels,
+    this.minHeightUsingMetersPixels,
+    this.minWidthUsingMetersPixels,
   });
 
   /// Returns the alignment of a [width]x[height] rectangle by [left]x[top] pixels.
