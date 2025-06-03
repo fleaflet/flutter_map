@@ -38,6 +38,9 @@ class _PolygonPainter<R extends Object> extends CustomPainter
   /// See [PolygonLayer.debugAltRenderer]
   final bool debugAltRenderer;
 
+  /// See [PolygonLayer.painterFillMethod]
+  final PolygonPainterFillMethod painterFillMethod;
+
   /// See [PolygonLayer.invertedFill]
   final Color? invertedFill;
 
@@ -55,6 +58,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     required this.drawLabelsLast,
     required this.debugAltRenderer,
     required this.camera,
+    required this.painterFillMethod,
     required this.invertedFill,
     required this.hitNotifier,
   }) : bounds = camera.visibleBounds {
@@ -70,20 +74,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
   /// inverted fill.
   static const _minMaxLatitude = [LatLng(90, 0), LatLng(-90, 0)];
 
-  /// Whether to use `PathFillType.evenOdd` (true) or `Path.combine` (false).
-  ///
-  ///  * `Path.combine` doesn't work & isn't stable/consistent on web
-  ///  * `evenOdd` gives broken results when polygons intersect when inverted
-  ///  * `Path.combine` has slightly worse performance than `evenOdd`
-  ///
-  /// The best option is to use `evenOdd` on web, as it at least works
-  /// sometimes. On native, we use `Path.combine` when inverted filling, or
-  /// `evenOdd` otherwise.
-  ///
-  /// See https://github.com/fleaflet/flutter_map/pull/2046.
-  late final _useEvenOdd = kIsWeb || invertedFill == null;
-
-  /// Do we also remove the holes from the inverted map?
+  /// Do we remove the holes from the inverted map?
   /// Should be `true`.
   static const _invertedHoles = true;
 
@@ -284,7 +275,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
       // ignore: dead_code
       if (!_fillInvertedHoles) return;
 
-      if (_useEvenOdd) {
+      if (painterFillMethod == PolygonPainterFillMethod.evenOdd) {
         invertedHolePaths.addPolygon(offsets, true);
         return;
       }
@@ -296,7 +287,7 @@ class _PolygonPainter<R extends Object> extends CustomPainter
     }
 
     void unfillPolygon(List<Offset> offsets) {
-      if (_useEvenOdd) {
+      if (painterFillMethod == PolygonPainterFillMethod.evenOdd) {
         filledPath.fillType = PathFillType.evenOdd;
         filledPath.addPolygon(offsets, true);
         return;
@@ -585,7 +576,9 @@ class _PolygonPainter<R extends Object> extends CustomPainter
       triangles != oldDelegate.triangles ||
       camera != oldDelegate.camera ||
       bounds != oldDelegate.bounds ||
+      painterFillMethod != oldDelegate.painterFillMethod ||
       invertedFill != oldDelegate.invertedFill ||
+      debugAltRenderer != oldDelegate.debugAltRenderer ||
       drawLabelsLast != oldDelegate.drawLabelsLast ||
       polygonLabels != oldDelegate.polygonLabels ||
       hitNotifier != oldDelegate.hitNotifier;
