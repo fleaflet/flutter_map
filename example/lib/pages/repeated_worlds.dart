@@ -147,8 +147,9 @@ class _RepeatedWorldsPageState extends State<RepeatedWorldsPage> {
                       label: 'Aloha!',
                       labelStyle:
                           const TextStyle(color: Colors.green, fontSize: 40),
-                      labelPlacement:
-                          PolygonLabelPlacement.centroidWithMultiWorld,
+                      labelPlacementCalculator:
+                          const PolygonLabelPlacementCalculator
+                              .simpleMultiWorldCentroid(),
                       rotateLabel: false,
                       points: const [
                         LatLng(40, 149),
