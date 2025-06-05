@@ -30,6 +30,12 @@ class LatLngBounds {
   /// The longitude west edge of the bounds
   double west;
 
+  /// Longitude center.
+  final double longitudeCenter;
+
+  /// Longitude width. Can be more than one world, e.g. more than 360.
+  final double longitudeWidth;
+
   /// Create new [LatLngBounds] by providing two corners. Both corners have to
   /// be on opposite sites but it doesn't matter which opposite corners or in
   /// what order the corners are provided.
@@ -62,6 +68,33 @@ class LatLngBounds {
       west: minX,
     );
   }
+
+  /// Creates bounds that can be larger than the world, longitude-wise.
+  LatLngBounds.worldSafe({
+    required this.north,
+    required this.south,
+    required this.longitudeCenter,
+    required this.longitudeWidth,
+  })  : assert(north <= maxLatitude,
+            "The north latitude can't be bigger than $maxLatitude: $north"),
+        assert(north >= minLatitude,
+            "The north latitude can't be smaller than $minLatitude: $north"),
+        assert(south <= maxLatitude,
+            "The south latitude can't be bigger than $maxLatitude: $south"),
+        assert(south >= minLatitude,
+            "The south latitude can't be smaller than $minLatitude: $south"),
+        assert(longitudeCenter <= maxLongitude,
+            "The longitude center can't be bigger than $maxLongitude: $longitudeCenter"),
+        assert(longitudeCenter >= minLongitude,
+            "The longitude center can't be smaller than $minLongitude: $longitudeCenter"),
+        assert(longitudeWidth >= 0, 'The longitude width must be positive'),
+        assert(
+          north >= south,
+          "The north latitude ($north) can't be smaller than the "
+          'south latitude ($south)',
+        ),
+        east = min(longitudeCenter + longitudeWidth / 2, maxLongitude),
+        west = max(longitudeCenter - longitudeWidth / 2, minLongitude);
 
   /// Create a [LatLngBounds] instance from raw edge values.
   ///
@@ -98,15 +131,52 @@ class LatLngBounds {
           east >= west,
           "The west longitude ($west) can't be smaller than the "
           'east longitude ($east)',
-        );
+        ),
+        longitudeCenter = (east + west) / 2,
+        longitudeWidth = (east - west).abs();
 
   /// Create a new [LatLngBounds] from a list of [LatLng] points. This
   /// calculates the bounding box of the provided points.
-  factory LatLngBounds.fromPoints(List<LatLng> points) {
+  factory LatLngBounds.fromPoints(
+    List<LatLng> points, {
+    bool drawInSingleWorld = false,
+  }) {
     assert(
       points.isNotEmpty,
       'LatLngBounds cannot be created with an empty List of LatLng',
     );
+    if (drawInSingleWorld) {
+      const double halfWorld = 180;
+      double previousLongitude = points.first.longitude;
+      double minX = previousLongitude;
+      double maxX = minX;
+      double minY = maxLatitude;
+      double maxY = minLatitude;
+      for (final point in points) {
+        double longitude = point.longitude;
+        while (longitude - previousLongitude >= halfWorld) {
+          longitude -= 2 * halfWorld;
+        }
+        while (longitude - previousLongitude <= -halfWorld) {
+          longitude += 2 * halfWorld;
+        }
+        if (minX > longitude) {
+          minX = longitude;
+        }
+        if (maxX < longitude) {
+          maxX = longitude;
+        }
+        if (point.latitude < minY) minY = point.latitude;
+        if (point.latitude > maxY) maxY = point.latitude;
+        previousLongitude = longitude;
+      }
+      return LatLngBounds.worldSafe(
+        north: maxY,
+        south: minY,
+        longitudeCenter: (maxX + minX) / 2,
+        longitudeWidth: maxX - minX,
+      );
+    }
     // initialize bounds with max values.
     double minX = maxLongitude;
     double maxX = minLongitude;
@@ -200,7 +270,7 @@ class LatLngBounds {
   }
 
   /// Obtain simple coordinates of the bounds center
-  LatLng get simpleCenter => LatLng((south + north) / 2, (east + west) / 2);
+  LatLng get simpleCenter => LatLng((south + north) / 2, longitudeCenter);
 
   /// Checks whether [point] is inside bounds
   bool contains(LatLng point) =>
@@ -221,10 +291,24 @@ class LatLngBounds {
   ///
   /// Bounding boxes that touch each other but don't overlap are counted as
   /// not overlapping.
-  bool isOverlapping(LatLngBounds other) => !(south > other.north ||
-      north < other.south ||
-      east < other.west ||
-      west > other.east);
+  bool isOverlapping(LatLngBounds other) {
+    if (south > other.north || north < other.south) {
+      return false;
+    }
+    if (longitudeWidth >= 360 || other.longitudeWidth >= 360) {
+      return true;
+    }
+    // TODO may not be relevant for projections without world replication
+    var delta = longitudeCenter - other.longitudeCenter;
+    while (delta >= 180) {
+      delta -= 360;
+    }
+    while (delta <= -180) {
+      delta += 360;
+    }
+    delta = delta.abs();
+    return delta < longitudeWidth || delta < other.longitudeWidth;
+  }
 
   @override
   int get hashCode => Object.hash(south, north, east, west);
@@ -240,5 +324,7 @@ class LatLngBounds {
 
   @override
   String toString() =>
-      'LatLngBounds(north: $north, south: $south, east: $east, west: $west)';
+      'LatLngBounds(north: $north, south: $south, east: $east, west: $west)'
+      ' (longitude center: $longitudeCenter)'
+      ' (longitude width: $longitudeWidth)';
 }

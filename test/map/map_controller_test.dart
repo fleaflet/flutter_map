@@ -19,8 +19,8 @@ void main() {
     {
       final cameraConstraint = CameraFit.bounds(bounds: bounds);
       final expectedBounds = LatLngBounds(
-        const LatLng(51.00145915187144, -0.3079873797085076),
-        const LatLng(52.001427481787005, 1.298485398623206),
+        const LatLng(51.00145915187144, -0.3079873797085072),
+        const LatLng(52.001427481787005, 1.2984853986231855),
       );
       const expectedZoom = 7.451812751543818;
 
@@ -39,8 +39,8 @@ void main() {
       );
 
       final expectedBounds = LatLngBounds(
-        const LatLng(50.819818262156545, -0.6042480468750001),
-        const LatLng(52.1874047455997, 1.5930175781250002),
+        const LatLng(50.819818262156545, -0.604248046875),
+        const LatLng(52.1874047455997, 1.593017578125),
       );
       const expectedZoom = 7;
 
@@ -58,7 +58,7 @@ void main() {
       );
 
       final expectedBounds = LatLngBounds(
-        const LatLng(51.19148727133182, -6.195044477408375e-13),
+        const LatLng(51.19148727133182, -5.995204332975845e-13),
         const LatLng(51.8139520195805, 0.999999999999397),
       );
       const expectedZoom = 8.135709286104404;
@@ -79,7 +79,7 @@ void main() {
       );
 
       final expectedBounds = LatLngBounds(
-        const LatLng(51.33232774035881, 0.22521972656250003),
+        const LatLng(51.33232774035881, 0.22521972656250006),
         const LatLng(51.67425842259517, 0.7745361328125),
       );
       const expectedZoom = 9;
