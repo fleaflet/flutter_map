@@ -61,20 +61,18 @@ class MapCamera {
   LatLngBounds get visibleBounds => _bounds ??= _computeVisibleBounds();
 
   LatLngBounds _computeVisibleBounds() {
+    final bottomLeft = unprojectAtZoom(pixelBounds.bottomLeft, zoom);
+    final topRight = unprojectAtZoom(pixelBounds.topRight, zoom);
     final worldWidth = getWorldWidthAtZoom(zoom);
     if (worldWidth == 0) {
-      return LatLngBounds(
-        unprojectAtZoom(pixelBounds.bottomLeft, zoom),
-        unprojectAtZoom(pixelBounds.topRight, zoom),
-      );
+      return LatLngBounds(bottomLeft, topRight);
     }
-    final LatLng southCenter = unprojectAtZoom(pixelBounds.bottomCenter, zoom);
-    final LatLng northCenter = unprojectAtZoom(pixelBounds.topCenter, zoom);
+    final center = unprojectAtZoom(pixelBounds.center, zoom);
     return LatLngBounds.worldSafe(
-      south: southCenter.latitude,
-      north: northCenter.latitude,
+      south: bottomLeft.latitude,
+      north: topRight.latitude,
       longitudeWidth: pixelBounds.width * 360 / worldWidth,
-      longitudeCenter: southCenter.longitude,
+      longitudeCenter: center.longitude,
     );
   }
 
