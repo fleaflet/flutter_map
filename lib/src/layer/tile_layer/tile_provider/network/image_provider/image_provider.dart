@@ -14,7 +14,7 @@ import 'package:meta/meta.dart';
 ///
 /// Supports falling back to a secondary URL, if the primary URL fetch fails.
 /// Note that specifying a [fallbackUrl] will prevent this image provider from
-/// being cached.
+/// being cached in memory.
 @immutable
 @internal
 class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
@@ -27,6 +27,8 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
   /// If this is non-null, [operator==] will always return `false` (except if
   /// the two objects are [identical]). Therefore, if this is non-null, this
   /// image provider will not be cached in memory.
+  ///
+  /// If the fallback is used, it will not be cached with the [cachingProvider].
   final String? fallbackUrl;
 
   /// The headers to include with the tile fetch request
@@ -90,7 +92,11 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
     final chunkEvents = StreamController<ImageChunkEvent>();
 
     return MultiFrameImageStreamCompleter(
-      codec: _loadImage(key, chunkEvents, decode),
+      codec: _loadImage(key, chunkEvents.sink, decode)
+        ..then(
+          (_) => unawaited(chunkEvents.close()),
+          onError: (_) => unawaited(chunkEvents.close()),
+        ),
       chunkEvents: chunkEvents.stream,
       scale: 1,
       debugLabel: key.url,
@@ -102,9 +108,10 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
     );
   }
 
+  // TODO: Support cancellation
   Future<Codec> _loadImage(
     NetworkTileImageProvider key,
-    StreamController<ImageChunkEvent> chunkEvents,
+    StreamSink<ImageChunkEvent> chunkEvents,
     ImageDecoderCallback decode, {
     bool useFallback = false,
   }) async {
@@ -125,25 +132,10 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
       rethrow;
     }
 
-    // Prepare caching provider & load cached tile if available
-    ({Uint8List bytes, CachedMapTileMetadata metadata})? cachedTile;
-    final cachingProvider =
-        this.cachingProvider ?? BuiltInMapCachingProvider.getOrCreateInstance();
-    if (cachingProvider.isSupported) {
-      try {
-        cachedTile = await cachingProvider.getTile(resolvedUrl);
-      } on CachedMapTileReadFailure {
-        // This could occur due to a corrupt tile - we just try to overwrite it
-        // with fresh data
-        cachedTile = null;
-      }
-    }
-
     // Create method to get bytes from server
     Future<({Uint8List bytes, StreamedResponse response})> get({
       Map<String, String>? additionalHeaders,
     }) async {
-      // TODO: Support cancellation
       // final request = AbortableRequest('GET', uri, abortTrigger: abortTrigger);
       final request = Request('GET', uri);
 
@@ -165,12 +157,26 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
       return (bytes: bytes, response: response);
     }
 
+    // Prepare caching provider & load cached tile if available
+    ({Uint8List bytes, CachedMapTileMetadata metadata})? cachedTile;
+    final cachingProvider =
+        this.cachingProvider ?? BuiltInMapCachingProvider.getOrCreateInstance();
+    if (cachingProvider.isSupported) {
+      try {
+        cachedTile = await cachingProvider.getTile(resolvedUrl);
+      } on CachedMapTileReadFailure {
+        // This could occur due to a corrupt tile - we just try to overwrite it
+        // with fresh data
+        cachedTile = null;
+      }
+    }
+
     // Create method to interact with cache
     void cachePut({
       required Uint8List? bytes,
       required Map<String, String> headers,
     }) {
-      if (!cachingProvider.isSupported) return;
+      if (useFallback || !cachingProvider.isSupported) return;
 
       final lastModified = headers[HttpHeaders.lastModifiedHeader];
       final etag = headers[HttpHeaders.etagHeader];
@@ -274,10 +280,13 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
       }
 
       // It's likely an error at this point
-      // If the user has disabled attempted-decode, we just throw and catch
-      // below
-      // Otherwise we try to decode it anyway, without memory caching
-      if (!attemptDecodeOfHttpErrorResponses) {
+      // However, some servers may produce error responses with useful bodies,
+      // perhaps intentionally (such as an "API Key Required" message)
+      // Therefore, if there is a body, and the user allows it, we attempt to
+      // decode the body bytes as an image (although we don't cache if
+      // successful)
+      // Otherwise, we just throw early
+      if (!attemptDecodeOfHttpErrorResponses || bytes.isEmpty) {
         throw NetworkImageLoadException(
           statusCode: response.statusCode,
           uri: uri,
@@ -305,7 +314,6 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
         );
       }
     }
-    // TODO: Support cancellation
     /* on AbortedRequest {
       // This is a planned exception, we just quit silently
 
@@ -329,7 +337,6 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
       }
 
       if (useFallback || fallbackUrl == null) {
-        chunkEvents.close();
         if (!silenceExceptions) rethrow;
         return await decodeBytes(TileProvider.transparentImage);
       }
@@ -341,7 +348,6 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
       evict();
 
       if (useFallback || fallbackUrl == null) {
-        chunkEvents.close();
         if (!silenceExceptions) rethrow;
         return await decodeBytes(TileProvider.transparentImage);
       }

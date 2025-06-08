@@ -49,7 +49,7 @@ class NetworkTileProvider extends TileProvider {
   /// Whether to optimistically attempt to decode HTTP responses that have a
   /// non-successful status code as an image
   ///
-  /// If the decode is unnsuccessful, the behaviour depends on
+  /// If the decode is unsuccessful, the behaviour depends on
   /// [silenceExceptions].
   ///
   /// Defaults to `true`.
@@ -75,7 +75,6 @@ class NetworkTileProvider extends TileProvider {
   final bool _isInternallyCreatedClient;
 
   @override
-  // TODO: True when abortable
   bool get supportsCancelLoading => false;
 
   @override
@@ -93,23 +92,6 @@ class NetworkTileProvider extends TileProvider {
         attemptDecodeOfHttpErrorResponses: attemptDecodeOfHttpErrorResponses,
         cachingProvider: cachingProvider,
       );
-
-  /*@override
-  ImageProvider getImageWithCancelLoadingSupport(
-    TileCoordinates coordinates,
-    TileLayer options,
-    Future<void> cancelLoading,
-  ) =>
-      NetworkTileImageProvider(
-        url: getTileUrl(coordinates, options),
-        fallbackUrl: getTileFallbackUrl(coordinates, options),
-        headers: headers,
-        httpClient: _httpClient,
-        abortTrigger: cancelLoading,
-        silenceExceptions: silenceExceptions,
-        attemptDecodeOfHttpErrorResponses: attemptDecodeOfHttpErrorResponses,
-        cachingProvider: cachingProvider,
-      );*/
 
   @override
   Future<void> dispose() async {
