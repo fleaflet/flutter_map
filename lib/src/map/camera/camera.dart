@@ -57,11 +57,24 @@ class MapCamera {
   Offset? _pixelOrigin;
 
   /// This is the [LatLngBounds] corresponding to four corners of this camera.
-  /// This takes rotation in to account.
-  LatLngBounds get visibleBounds => _bounds ??= LatLngBounds(
-        unprojectAtZoom(pixelBounds.bottomLeft, zoom),
-        unprojectAtZoom(pixelBounds.topRight, zoom),
-      );
+  /// This takes rotation into account.
+  LatLngBounds get visibleBounds => _bounds ??= _computeVisibleBounds();
+
+  LatLngBounds _computeVisibleBounds() {
+    final bottomLeft = unprojectAtZoom(pixelBounds.bottomLeft, zoom);
+    final topRight = unprojectAtZoom(pixelBounds.topRight, zoom);
+    final worldWidth = getWorldWidthAtZoom(zoom);
+    if (worldWidth == 0) {
+      return LatLngBounds(bottomLeft, topRight);
+    }
+    final center = unprojectAtZoom(pixelBounds.center, zoom);
+    return LatLngBounds.worldSafe(
+      south: bottomLeft.latitude,
+      north: topRight.latitude,
+      longitudeWidth: pixelBounds.width * 360 / worldWidth,
+      longitudeCenter: center.longitude,
+    );
+  }
 
   /// The size of bounding box of this camera taking in to account its
   /// rotation. When the rotation is zero this will equal [nonRotatedSize],

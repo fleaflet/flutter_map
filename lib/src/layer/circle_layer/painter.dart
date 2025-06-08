@@ -12,12 +12,16 @@ class CirclePainter<R extends Object> extends CustomPainter
   @override
   final LayerHitNotifier<R>? hitNotifier;
 
+  /// If true, we reuse the same "meter in pixels" computation for all circles.
+  final bool optimizeRadiusInMeters;
+
   /// Create a [CirclePainter] instance by providing the required
   /// reference objects.
   CirclePainter({
     required this.circles,
     required this.camera,
     required this.hitNotifier,
+    required this.optimizeRadiusInMeters,
   });
 
   @override
@@ -26,7 +30,7 @@ class CirclePainter<R extends Object> extends CustomPainter
     required Offset point,
     required LatLng coordinate,
   }) {
-    final radius = _getRadiusInPixel(element, withBorder: true);
+    final radius = _getRadiusInPixel(element) + element.borderStrokeWidth / 2;
     final initialCenter = _getOffset(element.point);
 
     WorldWorkControl checkIfHit(double shift) {
@@ -56,9 +60,11 @@ class CirclePainter<R extends Object> extends CustomPainter
     final points = <Color, Map<double, List<Offset>>>{};
     final pointsFilledBorder = <Color, Map<double, List<Offset>>>{};
     final pointsBorder = <Color, Map<double, Map<double, List<Offset>>>>{};
+    _pixelsPerMeter = null;
     for (final circle in circles) {
-      final radiusWithoutBorder = _getRadiusInPixel(circle, withBorder: false);
-      final radiusWithBorder = _getRadiusInPixel(circle, withBorder: true);
+      final radiusWithoutBorder = _getRadiusInPixel(circle);
+      final radiusWithBorder =
+          radiusWithoutBorder + circle.borderStrokeWidth / 2;
       final initialCenter = _getOffset(circle.point);
 
       /// Draws on a "single-world"
@@ -163,11 +169,22 @@ class CirclePainter<R extends Object> extends CustomPainter
 
   Offset _getOffset(LatLng pos) => camera.getOffsetFromOrigin(pos);
 
-  double _getRadiusInPixel(CircleMarker circle, {required bool withBorder}) =>
-      (withBorder ? circle.borderStrokeWidth / 2 : 0) +
-      (circle.useRadiusInMeter
-          ? metersToScreenPixels(circle.point, circle.radius)
-          : circle.radius);
+  // Cached number of pixels per meter.
+  double? _pixelsPerMeter;
+
+  double _getRadiusInPixel(CircleMarker circle) {
+    if (!circle.useRadiusInMeter) {
+      return circle.radius;
+    }
+    if (!optimizeRadiusInMeters) {
+      return metersToScreenPixels(circle.point, circle.radius);
+    }
+    if (_pixelsPerMeter == null) {
+      final result = metersToScreenPixels(circle.point, circle.radius);
+      _pixelsPerMeter = result / circle.radius;
+    }
+    return _pixelsPerMeter! * circle.radius;
+  }
 
   /// Returns true if a centered circle with this radius is on the screen.
   bool _isVisible({
