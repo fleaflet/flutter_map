@@ -300,24 +300,6 @@ class _PolygonPageState extends State<PolygonPage> {
             ),
             children: [
               openStreetMapTileLayer,
-              Builder(
-                builder: (context) => PolygonLayer(
-                  drawInSingleWorld: true,
-                  polygons: [
-                    Polygon(
-                      points: [
-                        MapCamera.of(context).visibleBounds.northWest,
-                        MapCamera.of(context).visibleBounds.northEast,
-                        MapCamera.of(context).visibleBounds.southEast,
-                        MapCamera.of(context).visibleBounds.southWest,
-                      ],
-                      color: Colors.orange.withAlpha(255 ~/ 3),
-                      borderColor: Colors.black,
-                      borderStrokeWidth: 10,
-                    ),
-                  ],
-                ),
-              ),
               MouseRegion(
                 hitTestBehavior: HitTestBehavior.deferToChild,
                 cursor: SystemMouseCursors.click,
@@ -381,9 +363,10 @@ class _PolygonPageState extends State<PolygonPage> {
                       LatLng(50, -123),
                       LatLng(50, -121),
                     ],
-                    borderStrokeWidth: 4,
+                    borderStrokeWidth: 3,
                     borderColor: Colors.red,
-                    color: Colors.red,
+                    color: Colors.orange,
+                    label: 'Culling tester',
                   ),
                   Polygon(
                     points: const [
