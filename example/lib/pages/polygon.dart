@@ -278,8 +278,8 @@ class _PolygonPageState extends State<PolygonPage> {
       ],
       color: const Color(0xFFFF0000),
       hitValue: (
-        title: 'Red Line',
-        subtitle: 'Across the universe...',
+        title: 'Big Red Diamond',
+        subtitle: 'Across the anti-meridian boundary',
       ),
     ),
   ];
@@ -295,8 +295,8 @@ class _PolygonPageState extends State<PolygonPage> {
         children: [
           FlutterMap(
             options: const MapOptions(
-              initialCenter: LatLng(51.5, -2),
-              initialZoom: 1,
+              initialCenter: LatLng(51.5, -7),
+              initialZoom: 4,
             ),
             children: [
               openStreetMapTileLayer,
