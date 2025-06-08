@@ -31,6 +31,7 @@ class _ManyCirclesPageState extends State<ManyCirclesPage> {
   int numOfCircles = _maxCirclesCount ~/ 10;
   List<CircleMarker> allCircles = [];
 
+  bool useBorders = false;
   bool useRadiusInMeters = false;
   bool optimizeRadiusInMeters = true;
 
@@ -49,7 +50,9 @@ class _ManyCirclesPageState extends State<ManyCirclesPage> {
             color: HSLColor.fromAHSL(1, x % 360, 1, doubleInRange(r, 0.3, 0.7))
                 .toColor(),
             radius: 5,
-            useRadiusInMeter: useRadiusInMeters,
+            useRadiusInMeter: false,
+            borderStrokeWidth: 0,
+            borderColor: Colors.black,
           ),
         );
       }
@@ -114,6 +117,31 @@ class _ManyCirclesPageState extends State<ManyCirclesPage> {
                       child: Row(
                         children: [
                           const Tooltip(
+                            message: 'Use Borders',
+                            child: Icon(Icons.circle_outlined),
+                          ),
+                          const SizedBox(width: 8),
+                          Switch.adaptive(
+                            value: useBorders,
+                            onChanged: (v) {
+                              allCircles = allCircles
+                                  .map(
+                                    (c) => CircleMarker(
+                                      point: c.point,
+                                      radius: c.radius,
+                                      color: c.color,
+                                      useRadiusInMeter: c.useRadiusInMeter,
+                                      borderColor: c.borderColor,
+                                      borderStrokeWidth: v ? 5 : 0,
+                                    ),
+                                  )
+                                  .toList(growable: false);
+                              useBorders = v;
+                              setState(() {});
+                            },
+                          ),
+                          const SizedBox(width: 16),
+                          const Tooltip(
                             message: 'Use Radius In Meters',
                             child: Icon(Icons.straighten),
                           ),
@@ -122,12 +150,16 @@ class _ManyCirclesPageState extends State<ManyCirclesPage> {
                             value: useRadiusInMeters,
                             onChanged: (v) {
                               allCircles = allCircles
-                                  .map((c) => CircleMarker(
-                                        point: c.point,
-                                        radius: v ? 25000 : 5,
-                                        color: c.color,
-                                        useRadiusInMeter: v,
-                                      ))
+                                  .map(
+                                    (c) => CircleMarker(
+                                      point: c.point,
+                                      radius: v ? 25000 : 5,
+                                      color: c.color,
+                                      useRadiusInMeter: v,
+                                      borderColor: c.borderColor,
+                                      borderStrokeWidth: c.borderStrokeWidth,
+                                    ),
+                                  )
                                   .toList(growable: false);
                               useRadiusInMeters = v;
                               setState(() {});
