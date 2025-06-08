@@ -12,9 +12,10 @@ Contains the following user-affecting changes:
 - Added `Polyline/gonLayer.oneWorld` parameter - [#2069](https://github.com/fleaflet/flutter_map/pull/2069) for [#2067](https://github.com/fleaflet/flutter_map/issues/2067)
 - Added `ContainCameraLatitude` camera constraint - [#2073](https://github.com/fleaflet/flutter_map/pull/2073) for [#2071](https://github.com/fleaflet/flutter_map/issues/2071)
 - Added options to customize double-tap (drag) zoom gestures - [#2070](https://github.com/fleaflet/flutter_map/pull/2070)
-- Added warning on usage of OpenStreetMap public tile servers with `TileLayer` - [#2074](https://github.com/fleaflet/flutter_map/pull/2074)
+- Added warning on usage of OpenStreetMap public tile servers with `TileLayer` - [#2074](https://github.com/fleaflet/flutter_map/pull/2074) and [#2109](https://github.com/fleaflet/flutter_map/pull/2109)
 - Added `PolygonLayer.painterFillMethod` parameter & changed default fill methods - [#2081](https://github.com/fleaflet/flutter_map/pull/2081)
-- Added simple built-in (but extendable) caching to `NetworkTileProvider` - [#2082](https://github.com/fleaflet/flutter_map/pull/2082)
+- Added simple built-in (but extensible) caching to `NetworkTileProvider` - [#2082](https://github.com/fleaflet/flutter_map/pull/2082)
+- Added `CircleLayer.optimizeRadiusInMeters` option to improve performance in some cases - [#2101](https://github.com/fleaflet/flutter_map/pull/2101)
 
 Contains the following user-affecting bug fixes:
 
