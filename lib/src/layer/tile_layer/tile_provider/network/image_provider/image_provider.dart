@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io' show HttpHeaders, HttpDate, HttpStatus; // this is web safe!
-import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
@@ -171,58 +170,15 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
       }
     }
 
-    // Create method to interact with cache
+    // Create method to write response to cache when applicable
     void cachePut({
       required Uint8List? bytes,
       required Map<String, String> headers,
     }) {
       if (useFallback || !cachingProvider.isSupported) return;
-
-      final lastModified = headers[HttpHeaders.lastModifiedHeader];
-      final etag = headers[HttpHeaders.etagHeader];
-
-      DateTime calculateStaleAt() {
-        final addToNow = DateTime.timestamp().add;
-
-        if (headers[HttpHeaders.cacheControlHeader]?.toLowerCase()
-            case final cacheControl?) {
-          final maxAge = RegExp(r'max-age=(\d+)').firstMatch(cacheControl)?[1];
-
-          if (maxAge == null) {
-            if (headers[HttpHeaders.expiresHeader]?.toLowerCase()
-                case final expires?) {
-              return HttpDate.parse(expires);
-            }
-
-            return addToNow(const Duration(days: 7));
-          }
-
-          if (headers[HttpHeaders.ageHeader] case final currentAge?) {
-            return addToNow(
-              Duration(seconds: int.parse(maxAge) - int.parse(currentAge)),
-            );
-          }
-
-          final estimatedAge = max(
-            0,
-            DateTime.timestamp()
-                .difference(HttpDate.parse(headers[HttpHeaders.dateHeader]!))
-                .inSeconds,
-          );
-          return addToNow(Duration(seconds: int.parse(maxAge) - estimatedAge));
-        }
-
-        return addToNow(const Duration(days: 7));
-      }
-
       cachingProvider.putTile(
         url: resolvedUrl,
-        metadata: CachedMapTileMetadata(
-          staleAt: calculateStaleAt(),
-          lastModified:
-              lastModified != null ? HttpDate.parse(lastModified) : null,
-          etag: etag,
-        ),
+        metadata: CachedMapTileMetadata.fromHttpHeaders(headers),
         bytes: bytes,
       );
     }

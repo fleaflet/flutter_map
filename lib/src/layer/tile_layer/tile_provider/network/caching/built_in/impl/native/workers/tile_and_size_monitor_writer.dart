@@ -176,13 +176,14 @@ Future<void> tileAndSizeMonitorWriterWorker(
       // We store the stale-at header in 8 signed bytes...
       ..writeFromSync(
         allocInt64BufferTileWrite
-          ..buffer.asInt64List()[0] = metadata.staleAtMilliseconds,
+          ..buffer.asInt64List()[0] = metadata.staleAt.millisecondsSinceEpoch,
       )
       // ...followed by the last-modified header in 8 signed bytes, or '0' if
       // null
       ..writeFromSync(
         allocInt64BufferTileWrite
-          ..buffer.asInt64List()[0] = metadata.lastModifiedMilliseconds ?? 0,
+          ..buffer.asInt64List()[0] =
+              metadata.lastModified?.millisecondsSinceEpoch ?? 0,
       );
 
     // We need to read the old etag length to compare their lengths
