@@ -181,8 +181,10 @@ class _MarkerPageState extends State<MarkerPage> {
                       ),
                       height: 20,
                       width: 20,
-                      maxHeightUsingMetersPixels: 200,
-                      maxWidthUsingMetersPixels: 200,
+                      boxConstraintsUsingMetersInPixels: const BoxConstraints(
+                        maxHeight: 200,
+                        maxWidth: 200,
+                      ),
                       child: LayoutBuilder(
                         builder: (context, constraints) {
                           final minDimension = min(

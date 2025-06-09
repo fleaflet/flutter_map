@@ -69,26 +69,21 @@ class MarkerLayer extends StatelessWidget {
                 width =
                     (baseOffset - map.getOffsetFromOrigin(rWidth)).distance * 2;
 
-                final maxHeightUsingMetersPixels = m.maxHeightUsingMetersPixels;
-                final maxWidthUsingMetersPixels = m.maxWidthUsingMetersPixels;
-                if (maxHeightUsingMetersPixels != null &&
-                    height > maxHeightUsingMetersPixels) {
-                  height = maxHeightUsingMetersPixels;
-                }
-                if (maxWidthUsingMetersPixels != null &&
-                    width > maxWidthUsingMetersPixels) {
-                  width = maxWidthUsingMetersPixels;
-                }
-
-                final minHeightUsingMetersPixels = m.minHeightUsingMetersPixels;
-                final minWidthUsingMetersPixels = m.minWidthUsingMetersPixels;
-                if (minHeightUsingMetersPixels != null &&
-                    height < minHeightUsingMetersPixels) {
-                  height = minHeightUsingMetersPixels;
-                }
-                if (minWidthUsingMetersPixels != null &&
-                    width < minWidthUsingMetersPixels) {
-                  width = minWidthUsingMetersPixels;
+                final boxConstraintsUsingMetersInPixels =
+                    m.boxConstraintsUsingMetersInPixels;
+                if (boxConstraintsUsingMetersInPixels != null) {
+                  if (height > boxConstraintsUsingMetersInPixels.maxHeight) {
+                    height = boxConstraintsUsingMetersInPixels.maxHeight;
+                  }
+                  if (width > boxConstraintsUsingMetersInPixels.maxWidth) {
+                    width = boxConstraintsUsingMetersInPixels.maxWidth;
+                  }
+                  if (height < boxConstraintsUsingMetersInPixels.minHeight) {
+                    height = boxConstraintsUsingMetersInPixels.minHeight;
+                  }
+                  if (width < boxConstraintsUsingMetersInPixels.minWidth) {
+                    width = boxConstraintsUsingMetersInPixels.minWidth;
+                  }
                 }
               }
 

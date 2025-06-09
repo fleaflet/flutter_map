@@ -54,25 +54,10 @@ class Marker {
   /// maxHeight and minWidth values.
   final bool useSizeInMeters;
 
-  /// Parameter to control the max width in pixels of the marker region when the parameter
-  /// [useSizeInMeters] is enabled. That size is optional and when existent will limited
-  /// the marker size pixel width
-  final double? maxWidthUsingMetersPixels;
-
-  /// Parameter to control the max height in pixels of the marker region when the parameter
-  /// [useSizeInMeters] is enabled. That size is optional and when existent will limited
-  /// the marker size pixel height
-  final double? maxHeightUsingMetersPixels;
-
-  /// Parameter to control the min width in pixels of the marker region when the parameter
-  /// [useSizeInMeters] is enabled. That size is optional and when existent will be the
-  /// minimal width for the marker pixel region
-  final double? minWidthUsingMetersPixels;
-
-  /// Parameter to control the min height in pixels of the marker region when the parameter
-  /// [useSizeInMeters] is enabled. That size is optional and when existent will be the
-  /// minimal height for the marker pixel region
-  final double? minHeightUsingMetersPixels;
+  /// Parameter to control the box size when the parameter [useSizeInMeters] is enabled.
+  /// That BoxConstraints is optional and when exists control the minimal and maximal size
+  /// in pixels of that region created by the map visible region in meters.
+  final BoxConstraints? boxConstraintsUsingMetersInPixels;
 
   /// Creates a container for a [child] widget located at a geographic coordinate
   /// [point]
@@ -88,10 +73,7 @@ class Marker {
     this.alignment,
     this.rotate,
     this.useSizeInMeters = false,
-    this.maxWidthUsingMetersPixels,
-    this.maxHeightUsingMetersPixels,
-    this.minHeightUsingMetersPixels,
-    this.minWidthUsingMetersPixels,
+    this.boxConstraintsUsingMetersInPixels,
   });
 
   /// Returns the alignment of a [width]x[height] rectangle by [left]x[top] pixels.
