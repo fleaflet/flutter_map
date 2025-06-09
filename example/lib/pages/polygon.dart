@@ -278,8 +278,8 @@ class _PolygonPageState extends State<PolygonPage> {
       ],
       color: const Color(0xFFFF0000),
       hitValue: (
-        title: 'Red Line',
-        subtitle: 'Across the universe...',
+        title: 'Big Red Diamond',
+        subtitle: 'Across the anti-meridian boundary',
       ),
     ),
   ];
@@ -295,8 +295,8 @@ class _PolygonPageState extends State<PolygonPage> {
         children: [
           FlutterMap(
             options: const MapOptions(
-              initialCenter: LatLng(51.5, -2),
-              initialZoom: 5,
+              initialCenter: LatLng(51.5, -7),
+              initialZoom: 4,
             ),
             children: [
               openStreetMapTileLayer,
@@ -357,6 +357,17 @@ class _PolygonPageState extends State<PolygonPage> {
                 simplificationTolerance: 0,
                 useAltRendering: true,
                 polygons: [
+                  Polygon(
+                    points: const [
+                      LatLng(51.5, -122),
+                      LatLng(50, -123),
+                      LatLng(50, -121),
+                    ],
+                    borderStrokeWidth: 3,
+                    borderColor: Colors.red,
+                    color: Colors.orange,
+                    label: 'Culling tester',
+                  ),
                   Polygon(
                     points: const [
                       LatLng(50, -18),
