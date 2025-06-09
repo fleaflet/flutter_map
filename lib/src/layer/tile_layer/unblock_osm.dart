@@ -1,5 +1,5 @@
 /// @nodoc
-final unblockOSM = [
+final osmUnblockingString = [
   79,
   117,
   114,
