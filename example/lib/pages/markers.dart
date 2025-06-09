@@ -36,17 +36,30 @@ class _MarkerPageState extends State<MarkerPage> {
 
   Marker buildPin(LatLng point) => Marker(
         point: point,
-        width: 60,
-        height: 60,
-        child: GestureDetector(
-          onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Tapped existing marker'),
-              duration: Duration(seconds: 1),
-              showCloseIcon: true,
-            ),
-          ),
-          child: const Icon(Icons.location_pin, size: 60, color: Colors.black),
+        //width: 60,
+        //height: 60,
+        child: Builder(
+          builder: (context) {
+            final e = MapCamera.of(context);
+            print('sdsd');
+            return DecoratedBox(
+              decoration: BoxDecoration(border: Border.all()),
+              child: GestureDetector(
+                onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Tapped existing marker'),
+                    duration: Duration(seconds: 1),
+                    showCloseIcon: true,
+                  ),
+                ),
+                child: const Icon(
+                  Icons.location_pin,
+                  size: 60,
+                  color: Colors.black,
+                ),
+              ),
+            );
+          },
         ),
       );
 
@@ -128,37 +141,46 @@ class _MarkerPageState extends State<MarkerPage> {
                 openStreetMapTileLayer,
                 MarkerLayer(
                   rotate: counterRotate,
-                  markers: const [
+                  markers: [
                     Marker(
                       point: LatLng(47.18664724067855, -1.5436768515939427),
-                      width: 64,
-                      height: 64,
+                      //width: 64,
+                      //height: 64,
                       alignment: Alignment.centerLeft,
-                      child: ColoredBox(
-                        color: Colors.lightBlue,
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: Text('-->'),
+                      child: SizedBox.square(
+                        dimension: 64,
+                        child: ColoredBox(
+                          color: Colors.lightBlue,
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: Text('-->'),
+                          ),
                         ),
                       ),
                     ),
                     Marker(
                       point: LatLng(47.18664724067855, -1.5436768515939427),
-                      width: 64,
-                      height: 64,
+                      //width: 64,
+                      //height: 64,
                       alignment: Alignment.centerRight,
-                      child: ColoredBox(
-                        color: Colors.pink,
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text('<--'),
+                      child: SizedBox.square(
+                        dimension: 64,
+                        child: ColoredBox(
+                          color: Colors.pink,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text('<--'),
+                          ),
                         ),
                       ),
                     ),
                     Marker(
                       point: LatLng(47.18664724067855, -1.5436768515939427),
                       rotate: false,
-                      child: ColoredBox(color: Colors.black),
+                      child: SizedBox.square(
+                        dimension: 24,
+                        child: ColoredBox(color: Colors.black),
+                      ),
                     ),
                   ],
                 ),

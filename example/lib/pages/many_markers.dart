@@ -45,7 +45,10 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
             point: LatLng(doubleInRange(r, 37, 55), doubleInRange(r, -9, 30)),
             height: 12,
             width: 12,
-            child: ColoredBox(color: Colors.blue[900]!),
+            child: SizedBox.square(
+              dimension: 12,
+              child: ColoredBox(color: Colors.blue[900]!),
+            ),
           ),
         );
       }

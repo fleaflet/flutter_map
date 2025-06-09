@@ -310,9 +310,8 @@ class MapCamera {
 
     var point = crs.latLngToOffset(latLng, zoom);
 
-    final mapCenter = crs.latLngToOffset(center, zoom);
-
     if (rotation != 0.0) {
+      final mapCenter = crs.latLngToOffset(center, zoom);
       point = rotatePoint(mapCenter, point, counterRotation: false);
     }
 
