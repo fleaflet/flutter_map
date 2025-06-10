@@ -2,8 +2,8 @@ part of 'placement_calculator.dart';
 
 /// {@template fm.polygonLabelPlacementCalculator.polylabel}
 /// Places the [Polygon.label] at the point furthest away from the outline,
-/// calculated using the
-/// ['polylabel' Mapbox algorithm](https://github.com/beroso/dart_polylabel)
+/// calculated using a Dart implementation of
+/// [Mapbox's 'polylabel' algorithm](https://github.com/JaffaKetchup/dart_polylabel2)
 ///
 /// This is more computationally expensive than other calculators but may yield
 /// better results.
@@ -26,30 +26,26 @@ class PolylabelCalculator implements PolygonLabelPlacementCalculator {
   ///
   /// Specifying a number too small may result in program hangs.
   ///
-  /// Specified in geographical space, i.e. degrees.
+  /// Specified in geographical space, i.e. degrees. Therefore, as the polygon
+  /// gets larger, this should also get larger.
   ///
   /// Defaults to 0.0001.
   final double precision;
 
   @override
   LatLng call(Polygon polygon) {
-    final labelPosition = mapbox_polylabel.polylabel(
+    final (point: (:x, :y), distance: _) = dart_polylabel2.polylabel(
       [
-        List<Point<double>>.generate(
+        List<dart_polylabel2.Point>.generate(
           polygon.points.length,
-          (i) => Point<double>(
-            polygon.points[i].longitude,
-            polygon.points[i].latitude,
-          ),
+          (i) =>
+              (x: polygon.points[i].latitude, y: polygon.points[i].longitude),
           growable: false,
         ),
       ],
       precision: precision,
     );
-    return LatLng(
-      labelPosition.point.y.toDouble(),
-      labelPosition.point.x.toDouble(),
-    );
+    return LatLng(x, y);
   }
 
   @override

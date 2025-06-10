@@ -83,6 +83,7 @@ class _PolygonPageState extends State<PolygonPage> {
           borderColor: Colors.purple,
           label: 'Label!',
           labelPlacementCalculator: _labelPlacementCalculator,
+          labelStyle: const TextStyle(color: Colors.black),
           hitValue: (
             title: 'Polygon With Label',
             subtitle: 'This is a very descriptive label!',
@@ -101,6 +102,7 @@ class _PolygonPageState extends State<PolygonPage> {
           label: 'Rotated!',
           rotateLabel: true,
           labelPlacementCalculator: _labelPlacementCalculator,
+          labelStyle: const TextStyle(color: Colors.black),
           hitValue: (
             title: 'Polygon With Rotated Label',
             subtitle: "Now you don't have to turn your head so much",

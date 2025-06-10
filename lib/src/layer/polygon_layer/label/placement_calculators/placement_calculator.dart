@@ -1,10 +1,8 @@
-import 'dart:math';
-
 import 'package:collection/collection.dart';
+import 'package:dart_polylabel2/dart_polylabel2.dart' as dart_polylabel2;
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
-import 'package:polylabel/polylabel.dart' as mapbox_polylabel;
 
 part 'centroid.dart';
 part 'polylabel.dart';
