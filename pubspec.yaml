@@ -29,13 +29,13 @@ dependencies:
   async: ^2.11.0
   collection: ^1.18.0
   dart_earcut: ^1.1.0
+  dart_polylabel2: ^1.0.0
   flutter:
     sdk: flutter
   http: ^1.2.1
   latlong2: ^0.9.1
   logger: ^2.0.0
   meta: ^1.11.0
-  polylabel: ^1.0.1
   proj4dart: ^2.1.0
   vector_math: ^2.1.4
 

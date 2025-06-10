@@ -129,9 +129,6 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
                           ),
                         ),
                       ),
-                      // Not ideal that we have to re-parse the GeoJson every
-                      // time this is changed, but the library gives no easy
-                      // way to change it after
                       UnconstrainedBox(
                         child: Container(
                           decoration: BoxDecoration(

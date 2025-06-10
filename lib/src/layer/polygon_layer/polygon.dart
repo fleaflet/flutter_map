@@ -54,17 +54,36 @@ class Polygon<R extends Object> with HitDetectableElement<R> {
 
   /// The placement logic of the [Polygon.label]
   ///
-  /// [PolygonLabelPlacement.polylabel] can be expensive for some polygons. If
-  /// there is a large lag spike, try using [PolygonLabelPlacement.centroid].
+  /// > [!IMPORTANT]
+  /// > If polygons may be over the anti-meridan boundary,
+  /// > [SimpleMultiWorldCentroidCalculator] must be used - other
+  /// > calculators will produce unexpected results.
+  ///
+  /// See [labelPlacementCalculator] for more information.
+  @Deprecated(
+    'Use `labelPlacementCalculator` with the equivalent calculator instead. '
+    'Then, remove any arguments to this parameter and allow it to default. '
+    'This enables more flexibility and extensibility. '
+    'This was deprecated after v8.2.0, and will be removed in a future version.',
+  )
+  final PolygonLabelPlacement labelPlacement;
+
+  /// The calculator to use to determine the position of the [Polygon.label]
+  ///
+  /// Labels are not drawn if there is not enough space.
   ///
   /// > [!IMPORTANT]
-  /// > If your project allows users to browse across multiple worlds, and your
-  /// > polygons may be over the anti-meridan boundary,
-  /// > [PolygonLabelPlacement.centroidWithMultiWorld] must be used - other
-  /// > algorithms will produce unexpected results.
+  /// > If polygons may be over the anti-meridan boundary,
+  /// > [PolygonLabelPlacementCalculator.simpleMultiWorldCentroid] must be
+  /// > used - other calculators will produce unexpected results.
   ///
-  /// Labels will not be drawn if there is not enough space.
-  final PolygonLabelPlacement labelPlacement;
+  /// Pre-provided calculators are available as constructors on
+  /// [PolygonLabelPlacementCalculator]. See the documentation on each for
+  /// advantages & disadvantages of each implementation.
+  ///
+  /// Defaults to [PolygonLabelPlacementCalculator.centroid]
+  /// ([CentroidCalculator]).
+  final PolygonLabelPlacementCalculator labelPlacementCalculator;
 
   /// Whether to rotate the label counter to the camera's rotation, to ensure
   /// it remains upright
@@ -84,8 +103,7 @@ class Polygon<R extends Object> with HitDetectableElement<R> {
   LatLng? _labelPosition;
 
   /// Get the coordinates of the label position (cached).
-  LatLng get labelPosition =>
-      _labelPosition ??= _computeLabelPosition(labelPlacement, points);
+  LatLng get labelPosition => _labelPosition ??= labelPlacementCalculator(this);
 
   LatLngBounds? _boundingBox;
 
@@ -122,10 +140,35 @@ class Polygon<R extends Object> with HitDetectableElement<R> {
     this.strokeJoin = StrokeJoin.round,
     this.label,
     this.labelStyle = const TextStyle(),
+    // TODO: Remove `labelPlacement`, and make `labelPlacementCalculator`
+    // `this.` with default, then remove initialiser list
+    @Deprecated(
+      'Use `labelPlacementCalculator` with the equivalent calculator instead. '
+      'Then, remove any arguments to this parameter and allow it to default. '
+      'This enables more flexibility and extensibility. '
+      'This was deprecated after v8.2.0, and will be removed in a future '
+      'version.',
+    )
     this.labelPlacement = PolygonLabelPlacement.centroid,
+
+    /// See [labelPlacementCalculator]
+    PolygonLabelPlacementCalculator? labelPlacementCalculator,
     this.rotateLabel = false,
     this.hitValue,
-  }) : _filledAndClockwise = color != null && isClockwise(points);
+  })  : _filledAndClockwise = color != null && isClockwise(points),
+        labelPlacementCalculator = labelPlacementCalculator ??
+            switch (labelPlacement) {
+              // ignore: deprecated_member_use_from_same_package
+              PolygonLabelPlacement.centroid =>
+                const PolygonLabelPlacementCalculator.centroid(),
+              // ignore: deprecated_member_use_from_same_package
+              PolygonLabelPlacement.centroidWithMultiWorld =>
+                const PolygonLabelPlacementCalculator
+                    .simpleMultiWorldCentroid(),
+              // ignore: deprecated_member_use_from_same_package
+              PolygonLabelPlacement.polylabel =>
+                const PolygonLabelPlacementCalculator.polylabel(),
+            };
 
   /// Checks if the [Polygon] points are ordered clockwise in the list.
   static bool isClockwise(List<LatLng> points) {
@@ -152,7 +195,7 @@ class Polygon<R extends Object> with HitDetectableElement<R> {
           strokeJoin == other.strokeJoin &&
           label == other.label &&
           labelStyle == other.labelStyle &&
-          labelPlacement == other.labelPlacement &&
+          labelPlacementCalculator == other.labelPlacementCalculator &&
           rotateLabel == other.rotateLabel &&
           hitValue == other.hitValue &&
           // Expensive computations last to take advantage of lazy logic gates
@@ -183,7 +226,7 @@ class Polygon<R extends Object> with HitDetectableElement<R> {
         ...points,
         label,
         labelStyle,
-        labelPlacement,
+        labelPlacementCalculator,
         rotateLabel,
         renderHashCode,
       ]);
