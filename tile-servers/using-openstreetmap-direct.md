@@ -26,15 +26,21 @@ The OpenStreetMap public tile server is without cost (for users), but, "without 
 
 ## What is flutter\_map doing?
 
-{% hint style="warning" %}
-From v8.2.0 onwards, warnings will appear in console when a `TileLayer` is loaded using one of the OpenStreetMap tile servers.
+{% hint style="success" %}
+## We're adding automatically enabled [built-in-caching.md](../layers/tile-layer/built-in-caching.md "mention"), available from v8.2.0 with compatible tile providers
+
+This reduces the strain on tile servers, improves compliance with their policies, and has numerous other benefits for your app!
 {% endhint %}
 
-Additionally from v8.2.0, flutter\_map will provide automatically enabled [built-in-caching.md](../layers/tile-layer/built-in-caching.md "mention"). This aims to reduce the number of tile requests.
+{% hint style="warning" %}
+## From v8.2.0, information will appear in console when a `TileLayer` is loaded using one of the OpenStreetMap tile servers (in debug mode)
 
-We will continue to monitor the strain that flutter\_map places on the OSM servers. If these measures do not reduce the request rates, we may impose stricter policies - such as blocking all OSM tiles in release mode builds by default.
+Additionally, where an appropriate User-Agent header (which identifies your app to the server) is not set - for example, through `TileLayer.userAgentPackageName`, or directly through the tile provider's HTTP headers configuration - a warning will appear in console (in debug mode), advising you to set a UA.
+{% endhint %}
 
-We will also continue to look into other ways to improve compliance automatically.
+{% hint style="danger" %}
+## A future non-major version may prevent tile layers from being used with these servers (in release builds) if an appropriate User-Agent is not set
+{% endhint %}
 
 ## Why is flutter\_map doing this?
 
@@ -103,7 +109,7 @@ Check the OSM policy for all the adjustments you might need to make. Here's some
 *   **Enable conforming caching**
 
     {% hint style="success" %}
-    v8.2.0 introduces automatically-enabled [built-in-caching.md](../layers/tile-layer/built-in-caching.md "mention")! This is designed to meet the caching requirements of the usage policy. Check the link for more info.
+    v8.2.0 introduces automatically enabled [built-in-caching.md](../layers/tile-layer/built-in-caching.md "mention")! This is designed to meet the caching requirements of the usage policy. Upgrade to v8.2.0 to enable this functionality.
     {% endhint %}
 
     There's also other options to implement [#caching](offline-mapping.md#caching "mention") to meet the requirements, and go beyond the capabilities of the built-in caching.
@@ -124,7 +130,7 @@ Check the OSM policy for all the adjustments you might need to make. Here's some
 {% step %}
 ### Disable the console warnings
 
-If you're eligible to use the servers, you can re-enable them in release mode and disable the console warnings in debug mode.
+If you're appropriately using the servers, you can disable the console warnings. This will also disable any future blocks.
 
 To do this, set the <kbd>flutter.flutter\_map.unblockOSM</kbd> environment variable when building/running/compiling. Use the `dart-define` flag to do this.
 
