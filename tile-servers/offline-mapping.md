@@ -21,17 +21,19 @@ Prior to v8.2.0, flutter\_map only provided caching in-memory. All cached tiles 
 Since v8.2.0, this is no longer the case.
 {% endhint %}
 
-Caching is used usually to improve user experience by reducing network waiting times, not necessarily to prepare for no-Internet situations. Caching can be more temporary (eg. in-memory/session-only, where the cache is cleared after the app is closed), or more long-term (eg. app cache, where the OS takes responsibility for clearing the app cache when necessary/when requested).
+Caching is used usually to improve user experience by reducing network waiting times, not necessarily to prepare for no-Internet situations. Caching can be temporary (eg. in-memory/session-only, where the cache is cleared after the app is closed), or longer-term (eg. app cache, where the OS takes responsibility for clearing the app cache when necessary/when requested).
 
-Many tile servers, such as the OpenStreetMap tile server, will require you to implement longer-term caching!
+Temporary caching is automatically implemented by Flutter's `ImageCache` when using tile providers backed by `ImageProvider`s (such as the `NetworkTileProvider`).
 
-Since v8.2.0, flutter\_map provides [built-in-caching.md](../layers/tile-layer/built-in-caching.md "mention"). This satisfies many requirements of both users and tile servers automatically.
+However, many tile servers, such as the OpenStreetMap tile server, will require you to implement longer-term caching!&#x20;
+
+Since v8.2.0, flutter\_map provides [caching.md](../layers/tile-layer/caching.md "mention") functionality built-in - this automatically enables long-term caching, and is extensible to allow other caching providers to be used. The default built-in provider satisfies many requirements of both users and tile servers automatically.
 
 If you'd prefer not to use built-in caching, you can:
 
 * **Try another `MapCachingProvider` implementation if you still only need simple caching**\
   These are compatible with the standard `NetworkTileProvider` (and cancellable version), as with built-in caching, but use a different storage mechanism.\
-  You can create an implementation yourself, or use one provided by a 3rd-party/plugin. See [#using-other-mapcachingproviders](../layers/tile-layer/built-in-caching.md#using-other-mapcachingproviders "mention") for more info.
+  You can create an implementation yourself, or use one provided by a 3rd-party/plugin. See [#using-other-providers](../layers/tile-layer/caching.md#using-other-providers "mention") for more info.
 * **Use a caching HTTP client**\
   `NetworkTileProvider.httpClient` can be used to set a custom HTTP client. Some packages, such as '[package:http\_cache\_client](https://pub.dev/packages/http_cache_client)', offer clients which perform HTTP caching, similar to built-in caching.
 * **Use a different `TileProvider`**\

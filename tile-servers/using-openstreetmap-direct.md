@@ -27,7 +27,7 @@ The OpenStreetMap public tile server is without cost (for users), but, "without 
 ## What is flutter\_map doing?
 
 {% hint style="success" %}
-## We're adding automatically enabled [built-in-caching.md](../layers/tile-layer/built-in-caching.md "mention"), available from v8.2.0 with compatible tile providers
+## We're adding automatically enabled [caching.md](../layers/tile-layer/caching.md "mention"), available from v8.2.0 with compatible tile providers
 
 This reduces the strain on tile servers, improves compliance with their policies, and has numerous other benefits for your app!
 {% endhint %}
@@ -113,7 +113,7 @@ Check the OSM policy for all the adjustments you might need to make. Here's some
 *   **Enable conforming caching**
 
     {% hint style="success" %}
-    v8.2.0 introduces automatically enabled [built-in-caching.md](../layers/tile-layer/built-in-caching.md "mention")! This is designed to meet the caching requirements of the usage policy. Upgrade to v8.2.0 to enable this functionality.
+    v8.2.0 introduces automatically enabled [caching.md](../layers/tile-layer/caching.md "mention")! This is designed to meet the caching requirements of the usage policy. Upgrade to v8.2.0 to enable this functionality.
     {% endhint %}
 
     There's also other options to implement [#caching](offline-mapping.md#caching "mention") to meet the requirements, and go beyond the capabilities of the built-in caching.

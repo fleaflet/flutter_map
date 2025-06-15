@@ -32,7 +32,7 @@
 
 * [Tile Layer](layers/tile-layer/README.md)
   * [Tile Providers](layers/tile-layer/tile-providers.md)
-  * [Built-In Caching](layers/tile-layer/built-in-caching.md)
+  * [Caching](layers/tile-layer/caching.md)
 * [Marker Layer](layers/marker-layer.md)
 * [Polygon Layer](layers/polygon-layer.md)
 * [Polyline Layer](layers/polyline-layer.md)

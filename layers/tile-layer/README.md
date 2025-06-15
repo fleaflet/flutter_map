@@ -128,6 +128,10 @@ Create a `WMSTileLayerOptions` and pass it to the `wmsOptions` parameter. Define
 
 {% embed url="https://pub.dev/documentation/flutter_map/latest/flutter_map/WMSTileLayerOptions-class.html" %}
 {% endtab %}
+
+{% tab title="TMS" %}
+TMS is also supported. Follow the instructions for the XYZ source, and enable the `TileLayer.tms` setting.
+{% endtab %}
 {% endtabs %}
 {% endstep %}
 

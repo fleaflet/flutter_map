@@ -1,4 +1,4 @@
-# Built-In Caching
+# Caching
 
 {% hint style="danger" %}
 This page contains references to as-of-yet unconfirmed features, which may change without warning. The information on this page is likely to change frequently, and potentially significantly, or may be removed completely.
@@ -6,7 +6,7 @@ This page contains references to as-of-yet unconfirmed features, which may chang
 See [https://github.com/fleaflet/flutter\_map/pull/2082](https://github.com/fleaflet/flutter_map/pull/2082) for progress.
 {% endhint %}
 
-From v8.2.0, flutter\_map provides simple automatically-enabled built-in caching for compatible tile providers (such as `NetworkTileProvider`) on non-web platforms.
+From v8.2.0, flutter\_map supports integration of basic map tile caching (with compatible tile providers) through caching providers & provides an automatically-enabled implementation on non-web platforms, known as built-in caching.
 
 {% hint style="warning" %}
 Built-in caching is not a replacement for caching which can better guarantee resilience. It provides no guarantees as to the safety of cached tiles, which may become unexpectedly lost/inaccessible at any time.
@@ -14,7 +14,7 @@ Built-in caching is not a replacement for caching which can better guarantee res
 It should not be relied upon where not having cached tiles may lead to a dangerous situation - for example, offline mapping. See [offline-mapping.md](../../tile-servers/offline-mapping.md "mention") for information about implementing more appropriate solutions.
 {% endhint %}
 
-Built-in caching aims to:
+Caching aims to:
 
 * Reduce the strain on tile servers (particularly the [OpenStreetMap public tile servers](../../tile-servers/using-openstreetmap-direct.md))
 * Improve compliance with tile server terms/requirements
@@ -25,16 +25,22 @@ Built-in caching aims to:
 
 It does, however, come at the expense of usage of on-device storage capacity.
 
+***
+
+Offline mapping and caching can also be implemented in other ways. See [offline-mapping.md](../../tile-servers/offline-mapping.md "mention")for more information.
+
 {% hint style="info" %}
 Some plugins which perform caching or offline mapping may instead provide a dedicated `TileProvider`.
 
-In this case, built-in caching is not applicable, and will not be used (unless the provider explicitly supports usage of built-in caching).&#x20;
+In this case, built-in caching & caching providers are not applicable, and will not be used (unless the provider explicitly supports usage of caching providers).&#x20;
 {% endhint %}
 
-## Configuring the default provider
+## Configuring the built-in provider
 
 {% hint style="success" %}
-Built-in caching is enabled by default, using the `BuiltInMapCachingProvider` implementation.
+Built-in caching is enabled by default on non-web platforms, using the `BuiltInMapCachingProvider` implementation.
+
+On web platforms, the browser usually performs caching automatically.
 {% endhint %}
 
 <mark style="background-color:yellow;">insert link</mark>
@@ -98,7 +104,7 @@ With the default `BuiltInMapCachingProvider`, it is possible to delete the cache
 * When the app is not running, users may delete the storage directory
   * If the default cache directory is used, users may do this by 'clearing the app cache' through their operating system, for example. On some platforms, this may need to be done manually (which may be difficult for less technical users), whilst on others, it may be a simple action.
 
-## Using other implementations
+## Using other providers
 
 You can also use any other `MapCachingProvider` implementation, such as provided by plugins, or [create one yourself](../../plugins/create/caching-providers.md)! They may support the web platform, unlike the built-in cache.
 

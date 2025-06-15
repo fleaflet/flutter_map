@@ -1,17 +1,14 @@
 # Tile Providers
 
-The `tileProvider` parameter in `TileLayer` takes a `TileProvider` object specifying a [tile provider](../../why-and-how/how-does-it-work/#tile-providers) to use for that layer.
+A `TileProvider` works with a `TileLayer` to supply tiles (usually images) when given tile coordinates.
 
-This has a default of `NetworkTileProvider` which gets tiles from the internet through a dedicated image provider.
+Tile providers may support compatible [caching providers](caching.md) (including built-in caching), or may implement caching themselves.
 
-There's two situations in which you'll need to change the tile provider:
-
-* Sourcing tiles from the filesystem or asset store: [#local-tile-providers](tile-providers.md#local-tile-providers "mention")
-* Using a [plugin](../../plugins/list.md) that instructs you to do so ([tile-providers.md](../../plugins/create/tile-providers.md "mention"))
+Tiles are usually dynamically requested from the network/Internet, using the default `NetworkTileProvider`. Tiles can also come from the app's assets, the filesystem, a container/bundle, or any other source.
 
 ## Network Tile Providers
 
-These tile providers use the `urlTemplate` to get the appropriate tile from the a network, usually the World Wide Web.
+These tile providers use the `TileLayer.urlTemplate` to get the appropriate tile from the a network, usually the Internet.
 
 The underlying custom `ImageProvider`s will cache tiles in memory, so that they do not require another request to the tile server if they are pruned then re-loaded. This should result in them being loaded quicker, as well as enabling already loaded tiles to appear even without Internet connection (at least in the same session).
 
