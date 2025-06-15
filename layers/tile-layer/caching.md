@@ -1,3 +1,7 @@
+---
+description: since v8.2
+---
+
 # Caching
 
 {% hint style="danger" %}
@@ -6,7 +10,7 @@ This page contains references to as-of-yet unconfirmed features, which may chang
 See [https://github.com/fleaflet/flutter\_map/pull/2082](https://github.com/fleaflet/flutter_map/pull/2082) for progress.
 {% endhint %}
 
-From v8.2.0, flutter\_map supports integration of basic map tile caching (with compatible tile providers) through caching providers & provides an automatically-enabled implementation on non-web platforms, known as built-in caching.
+flutter\_map supports integration of basic map tile caching (with compatible tile providers) through caching providers & provides an automatically-enabled implementation on non-web platforms, known as built-in caching.
 
 {% hint style="warning" %}
 Built-in caching is not a replacement for caching which can better guarantee resilience. It provides no guarantees as to the safety of cached tiles, which may become unexpectedly lost/inaccessible at any time.
@@ -27,7 +31,7 @@ It does, however, come at the expense of usage of on-device storage capacity.
 
 ***
 
-Offline mapping and caching can also be implemented in other ways. See [offline-mapping.md](../../tile-servers/offline-mapping.md "mention")for more information.
+Offline mapping and caching can also be implemented in other ways. See [offline-mapping.md](../../tile-servers/offline-mapping.md "mention") for more information.
 
 {% hint style="info" %}
 Some plugins which perform caching or offline mapping may instead provide a dedicated `TileProvider`.
