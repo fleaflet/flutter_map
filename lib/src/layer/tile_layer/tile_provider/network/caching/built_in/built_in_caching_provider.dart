@@ -19,6 +19,8 @@ import 'package:uuid/uuid.dart';
 /// This is enabled by default in flutter_map, when using the
 /// [NetworkTileProvider] (or cancellable version).
 ///
+/// It is safe to use all public methods when running on web - they will noop.
+///
 /// For more information, see the online documentation.
 abstract interface class BuiltInMapCachingProvider
     implements MapCachingProvider {
@@ -94,16 +96,48 @@ abstract interface class BuiltInMapCachingProvider
       overrideFreshAge == null || overrideFreshAge > Duration.zero,
       '`overrideFreshAge` must be greater than 0 or disabled',
     );
-    return _instance ??= BuiltInMapCachingProviderImpl.createAndInitialise(
+    return _instance ??= BuiltInMapCachingProviderImpl.create(
       cacheDirectory: cacheDirectory,
       maxCacheSize: maxCacheSize,
       overrideFreshAge: overrideFreshAge,
       tileKeyGenerator: tileKeyGenerator ?? uuidTileKeyGenerator,
       readOnly: readOnly,
+      resetSingleton: () => _instance = null,
     );
   }
 
   static BuiltInMapCachingProviderImpl? _instance;
+
+  /// Destroy this caching provider instance
+  ///
+  /// This means that all workers will be terminated and caching will be
+  /// unavailable until the next time
+  /// [BuiltInMapCachingProvider.getOrCreateInstance] is called (which may be
+  /// on the next tile load by default).
+  ///
+  /// If [deleteCache] is `true` (defaults to `false`), then the entire
+  /// `cacheDirectory` and its contents will be deleted.
+  ///
+  /// Completes when fully uninitialised. It is not necessary to wait for this
+  /// to complete before calling [BuiltInMapCachingProvider.getOrCreateInstance]
+  /// again (to create a new instance).
+  ///
+  /// ---
+  ///
+  /// It is usually safe to let the caching provider 'naturally' terminate with
+  /// the program when the system terminates the program after the app is
+  /// closed. Therefore, this method is not required to be called at the end of
+  /// the app's lifecycle.
+  ///
+  /// This method is provided to:
+  ///  * allow cache provider's configuration to be changed
+  ///  * allow the cache to be deleted from within the app
+  ///  * facilitate testing
+  ///
+  /// Note that the cache may also be deleted when the program is not running
+  /// by deleteting the `cacheDirectory` - for example, by the user choosing to
+  /// clear the app's cache through the operating system (by default).
+  Future<void> destroy({bool deleteCache = false});
 
   /// Default `tileKeyGenerator` which generates v5 UUIDs from input strings
   ///

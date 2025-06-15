@@ -308,12 +308,15 @@ Future<void> tileAndSizeMonitorWriterWorker(
           :final Uint8List? tileBytes,
         )) {
       writeTile(path: path, metadata: metadata, tileBytes: tileBytes);
-      continue;
-    }
-    if (val is bool && !val) {
+    } else if (val == false) {
       disableSizeMonitor();
-      continue;
+    } else if (val == null) {
+      receivePort.close();
+    } else {
+      throw UnsupportedError('Command was in unknown format');
     }
-    throw UnsupportedError('Command was in unknown format');
   }
+
+  sizeMonitor?.closeSync();
+  Isolate.exit(input.port);
 }

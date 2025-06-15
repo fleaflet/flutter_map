@@ -15,14 +15,20 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
   final Duration? overrideFreshAge;
   final bool readOnly;
 
+  final void Function() resetSingleton;
+
   @internal
-  const BuiltInMapCachingProviderImpl.createAndInitialise({
+  const BuiltInMapCachingProviderImpl.create({
     required this.cacheDirectory,
     required this.maxCacheSize,
     required this.overrideFreshAge,
     required this.tileKeyGenerator,
     required this.readOnly,
+    required this.resetSingleton,
   });
+
+  @override
+  external Future<void> destroy({bool deleteCache = false});
 
   @override
   external bool get isSupported;

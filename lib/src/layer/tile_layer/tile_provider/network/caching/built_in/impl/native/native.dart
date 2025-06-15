@@ -21,15 +21,25 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
   final Duration? overrideFreshAge;
   final bool readOnly;
 
+  final void Function() resetSingleton;
+
   @internal
-  BuiltInMapCachingProviderImpl.createAndInitialise({
+  BuiltInMapCachingProviderImpl.create({
     required this.cacheDirectory,
     required this.maxCacheSize,
     required this.overrideFreshAge,
     required this.tileKeyGenerator,
     required this.readOnly,
+    required this.resetSingleton,
   }) {
-    // This should only be called/constructed once
+    Future<void> Function()? killWorker;
+    bool earlyUninitialiseRequested = false;
+    _killWorker = () {
+      if (killWorker != null) return killWorker!();
+      earlyUninitialiseRequested = true;
+      return _cacheDirectoryPathReady.future;
+    };
+
     () async {
       final cacheDirectoryPath = p.join(
         cacheDirectory ?? (await getApplicationCacheDirectory()).absolute.path,
@@ -43,27 +53,31 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
       _cacheDirectoryPath = cacheDirectoryPath;
       _cacheDirectoryPathReady.complete(cacheDirectoryPath);
 
-      SendPort? writerPort;
-      final writerPortReady = Completer<SendPort>();
+      if (earlyUninitialiseRequested) return;
+
+      SendPort? workerPort;
+      final workerPortReady = Completer<SendPort>();
 
       // We can't send messages until the worker has set-up all the size
       // monitoring (and potentially run the reducer) if necessary
       // Reading does not depend on this.
-      void sendMessageToWriter(Object message) {
-        if (writerPort != null) return writerPort.send(message);
-        writerPortReady.future.then((port) => port.send(message));
+      void sendMessageToWorker(Object? message) {
+        if (workerPort != null) return workerPort!.send(message);
+        workerPortReady.future.then((port) => port.send(message));
       }
 
-      _writeTileFile = (path, metadata, tileBytes) => sendMessageToWriter(
+      _writeTileFile = (path, metadata, tileBytes) => sendMessageToWorker(
             (path: path, metadata: metadata, tileBytes: tileBytes),
           );
-      _reportReadFailure = () => sendMessageToWriter(false);
+      _reportReadFailure = () => sendMessageToWorker(false);
 
-      final writerReceivePort = ReceivePort();
+      final workerReceivePort = ReceivePort();
+      final workerExited = Completer<void>();
+
       await Isolate.spawn(
         tileAndSizeMonitorWriterWorker,
         (
-          port: writerReceivePort.sendPort,
+          port: workerReceivePort.sendPort,
           cacheDirectoryPath: cacheDirectoryPath,
           sizeMonitorFilePath: sizeMonitorFilePath,
           maxCacheSize: maxCacheSize,
@@ -71,8 +85,23 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
         debugName: '[flutter_map: cache] Tile & Size Monitor Writer',
       );
 
-      writerPort = await writerReceivePort.first as SendPort;
-      writerPortReady.complete(writerPort);
+      workerReceivePort.listen(
+        (response) {
+          if (response is SendPort && workerPort == null) {
+            return workerPortReady.complete(workerPort = response);
+          }
+          if (response == null) {
+            return workerReceivePort.close();
+          }
+
+          throw UnsupportedError('Response was in unknown format');
+        },
+        onDone: workerExited.complete,
+      );
+      killWorker = () {
+        sendMessageToWorker(null);
+        return workerExited.future;
+      };
     }();
   }
 
@@ -86,9 +115,19 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
   ) _writeTileFile;
   late final void Function()
       _reportReadFailure; // See `disableSizeMonitor` in worker
+  late final Future<void> Function() _killWorker;
 
   @override
   bool get isSupported => true;
+
+  @override
+  Future<void> destroy({bool deleteCache = false}) async {
+    resetSingleton();
+    await _killWorker();
+    if (deleteCache) {
+      await Directory(_cacheDirectoryPath!).delete(recursive: true);
+    }
+  }
 
   @override
   Future<({Uint8List bytes, CachedMapTileMetadata metadata})?> getTile(
