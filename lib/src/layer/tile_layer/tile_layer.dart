@@ -344,39 +344,50 @@ class TileLayer extends StatefulWidget {
 }
 
 class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
-  static const _openStreetMapUrls = {
-    'tile.openstreetmap.org',
-    'tile.osm.org',
-  };
+  static const _openStreetMapUrls = {'tile.openstreetmap.org', 'tile.osm.org'};
   bool get _isOpenStreetMapUrl =>
       widget.urlTemplate != null &&
-      _openStreetMapUrls.any((target) => widget.urlTemplate!.contains(target));
+      _openStreetMapUrls.any(widget.urlTemplate!.contains);
 
-  static const _unblockOpenStreetMapUrlEnv =
+  static const _unblockOSMEnvVar =
       String.fromEnvironment('flutter.flutter_map.unblockOSM');
-  static bool get _unblockOpenStreetMapUrl => const ListEquality<int>()
-      .equals(_unblockOpenStreetMapUrlEnv.codeUnits, unblockOSM);
+  static bool get _shouldUnblockOSM => const ListEquality<int>()
+      .equals(_unblockOSMEnvVar.codeUnits, osmUnblockingString);
 
-  static final _blockOpenStreetMapUrl =
-      // ignore: dead_code
-      false && (kReleaseMode || kProfileMode) && !_unblockOpenStreetMapUrl;
+  late final hasSetGoodUserAgent =
+      widget.tileProvider.headers['User-Agent'] != 'flutter_map (unknown)';
+  late final _blockOpenStreetMapUrl =
+      false /*&&
+      _isOpenStreetMapUrl &&
+      !hasSetGoodUserAgent &&
+      !kDebugMode &&
+      !_shouldUnblockOSM*/
+      ;
   void _warnOpenStreetMapUrl() {
-    if (!_isOpenStreetMapUrl || !kDebugMode || _unblockOpenStreetMapUrl) return;
-    Logger(printer: PrettyPrinter(methodCount: 0)).e(
-      '''\x1B[1m\x1B[3mflutter_map\x1B[0m
+    if (_isOpenStreetMapUrl && kDebugMode && !_shouldUnblockOSM) {
+      final uaWarning = hasSetGoodUserAgent
+          ? ''
+          : '''
+
+When using the OSM tile servers, you must set an HTTP User-Agent which
+adequately identifies your application to the servers.
+Set `TileLayer.userAgentPackageName` appropriately, or set a UA header manually.
+In a future flutter_map release, usage of the OpenStreetMap public tile servers
+without an adequate User-Agent may be blocked in release mode without warning.
+''';
+
+      final warning = '''\x1B[1m\x1B[3mflutter_map\x1B[0m$uaWarning
 flutter_map wants to help keep map data available for everyone.
-We use the public OpenStreetMap tile servers in our code examples & demo app,
-but they are NOT free to use by everyone.
-In an upcoming non-major release, requests to 'tile.openstreetmap.org' or
-'tile.osm.org' will be blocked by default in release mode.
-Please review https://operations.osmfoundation.org/policies/tiles/ to see if
-your project is compliant with their Tile Usage Policy.
-For more information, see https://docs.fleaflet.dev/tile-servers/using-openstreetmap-direct.
-It describes in additional detail why we feel it is important to do this, how
-you can unblock the tile servers if your use-case is acceptable, the timeframes
-for this new policy, and how we're working to reduce requests without any extra
-work from you.''',
-    );
+We use the OpenStreetMap public tile servers in our code examples & demo app,
+but they are NOT free to use by everyone. Please review whether OSM's tile
+servers are appropriate and the best choice for your app.
+See:
+ * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)
+ * https://docs.fleaflet.dev/osm-warn for more information about this warning''';
+
+      Logger(printer: PrettyPrinter(methodCount: 0))
+          .log(hasSetGoodUserAgent ? Level.info : Level.warning, warning);
+    }
   }
 
   bool _initializedFromMapCamera = false;
@@ -465,8 +476,6 @@ work from you.''',
     super.didUpdateWidget(oldWidget);
     var reloadTiles = false;
 
-    _warnOpenStreetMapUrl();
-
     // There is no caching in TileRangeCalculator so we can just replace it.
     _tileRangeCalculator = TileRangeCalculator(tileDimension: _tileDimension);
 
@@ -544,7 +553,7 @@ work from you.''',
 
     if (_outsideZoomLimits(map.zoom.round())) return const SizedBox.shrink();
 
-    if (_isOpenStreetMapUrl && _blockOpenStreetMapUrl) {
+    if (_blockOpenStreetMapUrl) {
       return const SizedBox.shrink();
     }
 

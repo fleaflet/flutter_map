@@ -25,7 +25,7 @@ dependency_overrides:
     path: ../
 
 dev_dependencies:
-  flutter_lints: ">=4.0.0 <6.0.0"
+  flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
   geojson_vi: ^2.2.5
