@@ -21,6 +21,7 @@ Built-in caching aims to:
 * Reduce the costs of using tile servers by reducing unnecessary tile requests
 * Improve map tile loading speeds, especially on slower networks
 * Keep your app lightweight - it doesn't require a database
+* Be extensible, customizable, and integrate with multiple tile providers
 
 It does, however, come at the expense of usage of on-device storage capacity.
 
@@ -30,21 +31,17 @@ Some plugins which perform caching or offline mapping may instead provide a dedi
 In this case, built-in caching is not applicable, and will not be used (unless the provider explicitly supports usage of built-in caching).&#x20;
 {% endhint %}
 
-## Configuration
+## Configuring the default provider
 
 {% hint style="success" %}
-Built-in caching is enabled by default.
+Built-in caching is enabled by default, using the `BuiltInMapCachingProvider` implementation.
 {% endhint %}
-
-Built-in caching is extensible and customisable.
-
-By default, the `BuiltInMapCachingProvider` is used, which has multiple options to adjust its behaviour.
 
 <mark style="background-color:yellow;">insert link</mark>
 
-To configure the `BuiltInMapCachingProvider`,  supply arguments to the `getOrCreateInstance` factory constructor. Usually this is done when constructing the `TileLayer`/`TileProvider`:
+To configure the default provider, provide arguments to the `getOrCreateInstance` factory constructor. Usually this is done when constructing the `TileLayer`/`TileProvider`:
 
-<pre class="language-dart"><code class="lang-dart">TileLayer(
+<pre class="language-dart" data-title="configured_built_in.dart"><code class="lang-dart">TileLayer(
     urlTemplate: '...',
     userAgentPackageName: '...',
     tileProvider: NetworkTileProvider(
@@ -56,7 +53,7 @@ To configure the `BuiltInMapCachingProvider`,  supply arguments to the `getOrCre
 </code></pre>
 
 {% hint style="info" %}
-It is not possible to change the configuration after the provider instance has been created.
+It is not possible to change the configuration after the provider instance has been created (without first `destroy`ing it).
 
 This means if you configure the provider in the first tile provider/tile layer used (or indeed outside of the map context, such as in the `main` method), the configuration does not need to be manually specified in each tile provider.
 
@@ -93,13 +90,30 @@ Alternatively, the raw URL string could be worked on manually, such as by using 
 
 </details>
 
-### Using Other `MapCachingProvider`s
+### Deleting the cache
+
+With the default `BuiltInMapCachingProvider`, it is possible to delete the cache contents in two ways:
+
+* When the app is running, `destroy` the current instance and set the `deleteCache` argument to `true` (then optionally create a new instance if required, which happens automatically on the next tile load by default)
+* When the app is not running, users may delete the storage directory
+  * If the default cache directory is used, users may do this by 'clearing the app cache' through their operating system, for example. On some platforms, this may need to be done manually (which may be difficult for less technical users), whilst on others, it may be a simple action.
+
+## Using other implementations
 
 You can also use any other `MapCachingProvider` implementation, such as provided by plugins, or [create one yourself](../../plugins/create/caching-providers.md)! They may support the web platform, unlike the built-in cache.
 
-You should check that plugin's documentation for information about initialisation & configuration. You will always need to pass it to the `cachingProvider` argument of a compatible `TileProvider`, as above.
+You should check that plugin's documentation for information about initialisation & configuration. You will always need to pass it to the `cachingProvider` argument of a compatible `TileProvider`.
 
-### Disabling Built-In Caching
+<pre class="language-dart" data-title="custom.dart"><code class="lang-dart">TileLayer(
+    urlTemplate: '...',
+    userAgentPackageName: '...',
+    tileProvider: NetworkTileProvider(
+<strong>        cachingProvider: CustomMapCachingProvider(),
+</strong>    ),
+);
+</code></pre>
+
+## Disabling built-in caching
 
 {% hint style="warning" %}
 Before disabling built-in caching, you should check that you can still be compliant with any requirements imposed by your tile server.
@@ -109,8 +123,13 @@ It is your own responsibility to comply with any appropriate restrictions and re
 The built-in caching is designed to be compliant with the caching requirement for the [OpenStreetMap public tile server](../../tile-servers/using-openstreetmap-direct.md). Disabling it may make your project non-compliant.
 {% endhint %}
 
+{% hint style="info" %}
+This is not necessary when running on the web.
+{% endhint %}
+
 If you prefer to disable built-in caching, use the `DisabledMapCachingProvider` on each tile provider:&#x20;
 
+{% code title="disabled.dart" %}
 ```dart
 TileLayer(
     urlTemplate: '...',
@@ -120,13 +139,4 @@ TileLayer(
     ),
 );
 ```
-
-This is not necessary on the web.
-
-## Managing The Cache
-
-It is not directly possible to reset/empty/delete the cache (when using the `BuiltInMapCachingProvider`).
-
-On many systems, users can delete the entire app cache through the app's settings. Alternatively, it can be cleared out manually on desktop platforms.
-
-You may also delete the cache directory yourself. This is only possible before the cache has been used for the first time by the process - for example, before the first map tile is loaded - otherwise, some files will be locked by flutter\_map. If you're using a custom directory, delete that - otherwise, use '[package:path\_provider](https://pub.dev/packages/path_provider)'s `getApplicationCacheDirectory()`.
+{% endcode %}
