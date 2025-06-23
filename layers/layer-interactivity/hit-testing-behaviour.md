@@ -10,11 +10,11 @@ The behaviour of hit testing can be confusing at first. These rules define how h
 Workarounds to resolve this are discussed below.
 {% endhint %}
 
-2. Hit testing is always\* performed on the interactable layers (see [.](./ "mention")) even if they have not been set-up for interactivity: hit testing != interactivity
+2. Hit testing is always\* performed on interactive-capable layers (see [.](./ "mention")) even if they have not been set-up for interactivity: hit testing != interactivity
 3. Non-interactable layers (such as [overlay-image-layer.md](../overlay-image-layer.md "mention")) have no defined `hitTest`, and behaviour is situation dependent
 4. A successful hit test (`true`) from an interactable layer will prevent hit testing on layers below it in the `children` stack
 
-To change this behviour, make use of these three widgets, wrapping them around layers when and as necessary:
+To change this behaviour, make use of these three widgets, wrapping them around layers when and as necessary:
 
 * [`IgnorePointer`](https://api.flutter.dev/flutter/widgets/IgnorePointer-class.html)
 * [`AbsorbPointer`](https://api.flutter.dev/flutter/widgets/AbsorbPointer-class.html)

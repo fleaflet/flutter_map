@@ -4,108 +4,223 @@
 Layer interactivity is different to map interactivity. See [interaction-options.md](../../usage/options/interaction-options.md "mention") to control map interactivity.
 {% endhint %}
 
-{% hint style="info" %}
-For information about how hit testing behaves in flutter\_map, see [hit-testing-behaviour.md](hit-testing-behaviour.md "mention").
-
-It is important to note that hit testing != interactivity, and hit testing is always executed on interactable layers by default.
-{% endhint %}
-
-The following layers are interactable - they have specialised `hitTest`ers and support external hit detection:
+The following layers support 'interactivity':
 
 * [polyline-layer.md](../polyline-layer.md "mention")
 * [polygon-layer.md](../polygon-layer.md "mention")
 * [circle-layer.md](../circle-layer.md "mention")
 
-These all follow roughly the same pattern to setup hit detection/interactivity, and there's three or four easy steps to setting it up.&#x20;
+***
 
-## 1. Attach A Hit Notifier
+* These layers don't provide their own 'gesture' callbacks, such as `onTap`
+* These layers automatically perform [hit testing](#user-content-fn-1)[^1] with Flutter APIs
+  * This means layers report hit on elements through the standard Flutter hit system, and can therefore be detected & handled externally through standard widgets: see [#detecting-hits-and-gestures](./#detecting-hits-and-gestures "mention")
+  * For advanced information about how flutter\_map hit tests, see [hit-testing-behaviour.md](hit-testing-behaviour.md "mention")
+* This may optionally be combined with flutter\_map APIs
+  * This allows individual hit elements to be identified externally, through a mechanism of a notifier and element metadata: see [#identifying-hit-elements](./#identifying-hit-elements "mention")
 
-{% hint style="info" %}
-Direct callbacks, such as `onTap,`aren't provided on layers or individual elements, to maximize flexibility.
-{% endhint %}
+## Detecting hits & gestures
 
-Pass a `LayerHitNotifier` to the `hitNotifier` parameter of the layer. The `LayerHitNotifier` should be created as a `ValueNotifier` defaulting to `null`, but strongly typed to `LayerHitNotifier`.
+You may be used to using widgets such as `GestureDetector` or `MouseRegion` to detect gestures on other normal widgets. These widgets ask the child to decide whether they were hit, before doing their own logic - e.g. converting the hit to the appropriate callback depending on the gesture.
 
-This notifier will be notified whenever a hit test occurs on the layer, with a  `LayerHitResult` when an element (such as a `Polyline` or `Polygon`) within the layer is hit, and with `null` when an element is not hit (but the layer is).
+Because flutter\_map's layers are just widgets, they can also be wrapped with other widgets and inserted into the map's `children`.
 
-<pre class="language-dart"><code class="lang-dart">final LayerHitNotifier hitNotifier = ValueNotifier(null);
+This means you can simply wrap layers with `GestureDetector`s (for example) which will execute callbacks when the layer is hit. Layers tell Flutter they were hit _only_ if at least one of their elements (such as a `Polygon`) were hit.
 
-// Inside the map build...
-PolylineLayer( // Or any other supported layer
-<strong>  hitNotifier: hitNotifier,
-</strong>  polylines: [], // Or any other supported elements
+Here's an example of how you would detect taps/clicks on polygons, and convert a cursor to a click indicator when hovering over a polygon:
+
+<pre class="language-dart"><code class="lang-dart">class _InteractivityDemoState extends State&#x3C;InteractivityDemo> {
+    Widget build(BuildContext context) {
+        return FlutterMap(
+            // ...
+            children: [
+                // ...
+<strong>                MouseRegion(
+</strong><strong>                    hitTestBehavior: HitTestBehavior.deferToChild,
+</strong><strong>                    cursor: SystemMouseCursors.click,
+</strong><strong>                    child: GestureDetector(
+</strong><strong>                        onTap: () {
+</strong><strong>                            // ...
+</strong><strong>                        },
+</strong>                        child: PolygonLayer(
+                            // ...
+                        ),
+                    ),
+                ),
+            ],
+        );
+    }
 );
 </code></pre>
 
-It is possible to listen to the notifier directly with `addListener`, if you want to handle all hit events (including, for example, hover events).\
-However, most use cases just need to handle particular gestures (such as taps). This can be done with a wrapper widget to 'filter' the events appropriately: [#id-3.-gesture-detection](./#id-3.-gesture-detection "mention").
+## Identifying hit elements
 
-## 2. Add `hitValue` To Elements
+To identify which elements (such as `Polygon`s) were hit, flutter\_map APIs are required:
 
-To identify which particular element was hit (which will be useful when handling the hit events in later steps), supported elements have a `hitValue` property.
+* A `LayerHitNotifier` exposes results of hit tests
+* Elements may have metadata known as `hitValue`s attached, which identify that specific element - these are then exposed by the hit notifier's events/values.
+* The entire system may be strongly typed through type parameters on various parts, if all the `hitValue`s within a layer share the same type
 
-This can be set to any object, but if one layer contains all the same type, type casting can be avoided (if the type is also specified in the `LayerHitNotifier`'s type argument).
+{% stepper %}
+{% step %}
+### Create a hit notifier
 
-{% hint style="warning" %}
-The equality of the element depends on the equality of the `hitValue`.
+In your widget, define a new field to hold the notifier:
 
-Therefore, any object passed to the `hitValue` should have a valid and useful equality method.\
-Objects such as [records](https://dart.dev/language/records) do this behind the scenes, and can be a good choice to store small amounts of uncomplicated data alongside the element.
-{% endhint %}
+<pre class="language-dart"><code class="lang-dart">class _InteractivityDemoState extends State&#x3C;InteractivityDemo> {
+<strong>    final LayerHitNotifier&#x3C;String> hitNotifier = ValueNotifier(null);
+</strong>}
+</code></pre>
 
-## 3. Gesture Detection
+In this example, the types of the `hitValue` identifiers will be `String`s.
 
-To only handle certain hits based on the type of gesture the user performed (such as a tap), wrap the layer with a gesture/hit responsive widget, such as `GestureDetector` or `MouseRegion`.&#x20;
+<details>
 
-These widgets are smart enough to delegate whether they detect a hit (and therefore whether they can detect a gesture) to the child - although `HitTestBehavior.deferToChild` may be required for some widgets to enable this functionality.
+<summary>(Advanced) Listening to the notifier directly</summary>
 
-This means the layer can report whether it had any form of hit, and the handler widget can detect whether the gesture performed on it actually triggered a hit on the layer below.
+If you wish to be notified about all\* hit testing events, you could use the `Listener` widget.
+
+If you need to identify hit elements and don't necessarily need the output of a `Listener`, it's possible to listen to the notifier directly:
+
+<pre class="language-dart"><code class="lang-dart">class _InteractivityDemoState extends State&#x3C;InteractivityDemo> {
+    final LayerHitNotifier&#x3C;String> hitNotifier = ValueNotifier(null)
+<strong>        ..addListener(() {
+</strong><strong>            final LayerHitResult&#x3C;String>? result = hitNotifier.value;
+</strong><strong>            // ...
+</strong><strong>        });
+</strong>}
+</code></pre>
+
+This also allows handling of `null` notifier `value`s (results). A `null` result means that the last hit test executed determined there was no hit on the layer at all. Note that the listener's callback is only executed if the previous value was not `null` (i.e. it will not be repeatedly executed for every missed hit).
+
+</details>
+{% endstep %}
+
+{% step %}
+### Attach the hit notifier to a layer
+
+Pass the notifier to the `hitNotifier` parameter of supported layers. You'll also need to set the type parameter of the layer.
+
+For example, for the `PolygonLayer`:
+
+<pre class="language-dart"><code class="lang-dart">class _InteractivityDemoState extends State&#x3C;InteractivityDemo> {
+    Widget build(BuildContext context) {
+        return FlutterMap(
+            // ...
+            children: [
+                // ...
+<strong>                PolygonLayer&#x3C;String>(
+</strong><strong>                    hitNotifier: hitNotifier,
+</strong>                    polygons: [
+                        // ...
+                    ],
+                ),
+            ],
+        );
+    }
+}
+</code></pre>
+{% endstep %}
+
+{% step %}
+### Add hit values to elements
+
+These can be anything useful, and are exposed when their element is hit. Remember to set the element's type parameter.
+
+<pre class="language-dart"><code class="lang-dart">polygons: [
+<strong>    Polygon&#x3C;String>(
+</strong>        points: [],
+        label: "Horse Field",
+<strong>        hitValue: "Horse",
+</strong>    ),
+<strong>    Polygon&#x3C;String>(
+</strong>        points: [],
+        label: "Hedgehog House",
+<strong>        hitValue: "Hedgehog",
+</strong>    ),
+    // ...
+],
+</code></pre>
+{% endstep %}
+
+{% step %}
+### Detect hits
+
+Follow  <a href="./#detecting-hits-and-gestures" class="button primary" data-icon="arrow-progress">Detecting hits &#x26; gestures</a>.
+{% endstep %}
+
+{% step %}
+### Handle hits
+
+Once you have a callback (such as the callback to `GestureDetector.onTap`), you can handle individual hit events.
+
+To do this, the notifier exposes events of type `LayerHitResult` when the layer is hit. These results can be retrieved through the notifier's `value` getter:
 
 ```dart
-// Inside the map build...
-MouseRegion(
-  hitTestBehavior: HitTestBehavior.deferToChild,
-  cursor: SystemMouseCursors.click, // Use a special cursor to indicate interactivity
-  child: GestureDetector(
-    onTap: () {
-      // Handle the hit, which in this case is a tap
-      // For example, see the example in Hit Handling (below)
-    },
-    // And/or any other gesture callback
-    child: PolylineLayer(
-      hitNotifier: hitNotifier,
-      // ...
-    ),
-  ),
-),
+final LayerHitResult<String>? result = hitNotifier.value;
 ```
 
-## 4. Hit Handling
+{% hint style="info" %}
+Most users can ignore results which are `null` (when getting the result within a gesture callback, for example).
+{% endhint %}
 
-Once a `LayerHitResult` object is obtained, through the hit notifier, you can retrieve:
+The result exposes 3 properties:
 
-* `hitValues`: the `hitValue`s of all elements that were hit, ordered by their corresponding element, first-to-last, visually top-to-bottom
+* `hitValues`: the hit values of all elements that were hit, ordered by their corresponding element, first-to-last, visually top-to-bottom
 * `coordinate`: the geographic coordinate of the hit location (which may not lie on any element)
 * `point`: the screen point of the hit location
 
-{% hint style="success" %}
-If all the `hitValue`s in a layer are of the same type, and the created hit notifier specifies that type in the type argument, typing is preserved all the way to retrieval.
-{% endhint %}
+Therefore, it's unnecessary to use `MapOptions.on...` in combination with layer interactivity to detect the position of a tap.
 
-Because the `HitNotifier` is a special type of `ValueNotifier`, it can be both listened to (like a `Stream`), and its value instantly retrieved (like a normal variable).\
-Therefore, there are two ways to retrieve a `LayerHitResult` (or `null`) from the notifier:
+Elements without a hit value are not included in `hitValues`. Therefore, it may be empty if elements were hit but no `hitValue`s were defined.
+{% endstep %}
+{% endstepper %}
 
-* Using `.value` to instantly retrieve the value\
-  This is usually done within a gesture handler, such as `GestureDetector.onTap`, as demonstrated below.
-* Adding a listener (`.addListener`) to retrieve all hit results\
-  This is useful where you want to apply some custom/advanced filtering to the values, and is not a typical usecase.
+## Example
 
-<pre class="language-dart" data-overflow="wrap"><code class="lang-dart">// Inside a gesture detector/handler
+```dart
+class _InteractivityDemoState extends State<InteractivityDemo> {
+    final LayerHitNotifier<String> hitNotifier = ValueNotifier(null);
 
-<strong>final LayerHitResult? hitResult = hitNotifier.value;
-</strong>if (hitResult == null) return;
+    Widget build(BuildContext context) {
+        return FlutterMap(
+            // ...
+            children: [
+                // ...
+                MouseRegion(
+                    hitTestBehavior: HitTestBehavior.deferToChild,
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                        onTap: () {
+                            final LayerHitResult<String>? result = hitNotifier.value;
+                            if (result == null) return;
+                            
+                            for (final hitValue in result.hitValues) {
+                                print('Tapped on a $hitValue');
+                            }
+                            print('Eating the grass at ${result.coordinate}');
+                        },
+                        child: PolygonLayer<String>(
+                            hitNotifier: hitNotifier,
+                            polygons: [
+                                Polygon<String>(
+                                    points: [], // overlapping coordinates with 2nd
+                                    label: "Horse Field",
+                                    hitValue: "Horse",
+                                ),
+                                Polygon<String>(
+                                    points: [], // overlapping coordinates with 1st
+                                    label: "Hedgehog House",
+                                    hitValue: "Hedgehog",
+                                ),
+                            ],
+                        ),
+                    ),
+                ),
+            ],
+        );
+    }
+);
+```
 
-// If running frequently (such as on a hover handler), and heavy work or state changes are performed here, store each result so it can be compared to the newest result, then avoid work if they are equal 
-
-for (final hitValue in hitResult.hitValues) {}
-</code></pre>
+[^1]: Determining whether the position resulting from a pointer event is within one or more elements of the layer, or within the layer at all.
