@@ -144,13 +144,11 @@ These can be anything useful, and are exposed when their element is hit. Remembe
 {% endstep %}
 
 {% step %}
-### Detect hits
-
-Follow  <a href="./#detecting-hits-and-gestures" class="button primary" data-icon="arrow-progress">Detecting hits &#x26; gestures</a>.
+&#x20; <a href="./#detecting-hits-and-gestures" class="button primary" data-icon="arrow-progress">Detecting hits &#x26; gestures</a>
 {% endstep %}
 
 {% step %}
-### Handle hits
+### Handle hits on elements
 
 Once you have a callback (such as the callback to `GestureDetector.onTap`), you can handle individual hit events.
 
