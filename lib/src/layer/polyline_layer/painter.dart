@@ -21,10 +21,7 @@ class _PolylinePainter<R extends Object> extends CustomPainter
     required this.camera,
     required this.hitNotifier,
   }) {
-    _helper = OffsetHelper(
-      camera: camera,
-      origin: origin,
-    );
+    _helper = OffsetHelper(camera: camera);
   }
 
   late final OffsetHelper _helper;
