@@ -173,68 +173,64 @@ class _PolylinePageState extends State<PolylinePage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Polylines')),
       drawer: const MenuDrawer(PolylinePage.route),
-      body: Stack(
+      body: FlutterMap(
+        options: const MapOptions(
+          initialCenter: LatLng(51.5, -0.09),
+          initialZoom: 5,
+        ),
         children: [
-          FlutterMap(
-            options: const MapOptions(
-              initialCenter: LatLng(51.5, -0.09),
-              initialZoom: 5,
-            ),
-            children: [
-              openStreetMapTileLayer,
-              MouseRegion(
-                hitTestBehavior: HitTestBehavior.deferToChild,
-                cursor: SystemMouseCursors.click,
-                onHover: (_) {
-                  final hitValues = _hitNotifier.value?.hitValues.toList();
-                  if (hitValues == null) return;
+          openStreetMapTileLayer,
+          MouseRegion(
+            hitTestBehavior: HitTestBehavior.deferToChild,
+            cursor: SystemMouseCursors.click,
+            onHover: (_) {
+              final hitValues = _hitNotifier.value?.hitValues.toList();
+              if (hitValues == null) return;
 
-                  if (listEquals(hitValues, _prevHitValues)) return;
-                  _prevHitValues = hitValues;
+              if (listEquals(hitValues, _prevHitValues)) return;
+              _prevHitValues = hitValues;
 
-                  final hoverLines = hitValues.map((v) {
-                    final original = _polylines[v]!;
+              final hoverLines = hitValues.map((v) {
+                final original = _polylines[v]!;
 
-                    return Polyline<HitValue>(
-                      points: original.points,
-                      strokeWidth:
-                          original.strokeWidth + original.borderStrokeWidth,
-                      color: Colors.transparent,
-                      borderStrokeWidth: 15,
-                      borderColor: Colors.green,
-                      useStrokeWidthInMeter: original.useStrokeWidthInMeter,
-                    );
-                  }).toList();
-                  setState(() => _hoverLines = hoverLines);
-                },
-                onExit: (_) {
-                  _prevHitValues = null;
-                  setState(() => _hoverLines = null);
-                },
-                child: GestureDetector(
-                  onTap: () => _openTouchedLinesModal(
-                    'Tapped',
-                    _hitNotifier.value!.hitValues,
-                    _hitNotifier.value!.coordinate,
-                  ),
-                  onLongPress: () => _openTouchedLinesModal(
-                    'Long pressed',
-                    _hitNotifier.value!.hitValues,
-                    _hitNotifier.value!.coordinate,
-                  ),
-                  onSecondaryTap: () => _openTouchedLinesModal(
-                    'Secondary tapped',
-                    _hitNotifier.value!.hitValues,
-                    _hitNotifier.value!.coordinate,
-                  ),
-                  child: PolylineLayer(
-                    hitNotifier: _hitNotifier,
-                    simplificationTolerance: 0,
-                    polylines: [..._polylinesRaw, ...?_hoverLines],
-                  ),
-                ),
+                return Polyline<HitValue>(
+                  points: original.points,
+                  strokeWidth:
+                      original.strokeWidth + original.borderStrokeWidth,
+                  color: Colors.transparent,
+                  borderStrokeWidth: 15,
+                  borderColor: Colors.green,
+                  useStrokeWidthInMeter: original.useStrokeWidthInMeter,
+                );
+              }).toList();
+              setState(() => _hoverLines = hoverLines);
+            },
+            onExit: (_) {
+              _prevHitValues = null;
+              setState(() => _hoverLines = null);
+            },
+            child: GestureDetector(
+              onTap: () => _openTouchedLinesModal(
+                'Tapped',
+                _hitNotifier.value!.hitValues,
+                _hitNotifier.value!.coordinate,
               ),
-            ],
+              onLongPress: () => _openTouchedLinesModal(
+                'Long pressed',
+                _hitNotifier.value!.hitValues,
+                _hitNotifier.value!.coordinate,
+              ),
+              onSecondaryTap: () => _openTouchedLinesModal(
+                'Secondary tapped',
+                _hitNotifier.value!.hitValues,
+                _hitNotifier.value!.coordinate,
+              ),
+              child: PolylineLayer(
+                hitNotifier: _hitNotifier,
+                simplificationTolerance: 0,
+                polylines: [..._polylinesRaw, ...?_hoverLines],
+              ),
+            ),
           ),
         ],
       ),
