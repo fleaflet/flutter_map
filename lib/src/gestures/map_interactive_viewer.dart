@@ -5,9 +5,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/misc/deg_rad_conversions.dart';
 import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:vector_math/vector_math_64.dart';
 
 part 'package:flutter_map/src/gestures/compound_animations.dart';
 
