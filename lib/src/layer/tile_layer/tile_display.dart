@@ -34,11 +34,11 @@ sealed class TileDisplay {
     /// Duration of the fade. Defaults to 100ms.
     Duration duration,
 
-    /// Opacity start value when a tile is faded in, default 1.0. The allowed
+    /// Opacity start value when a tile is faded in, default 0.0. The allowed
     /// range is (0.0 - 1.0).
     double startOpacity,
 
-    /// Opacity start value when a tile is reloaded, default 1.0. Valid range is
+    /// Opacity start value when a tile is reloaded, default 0.0. Valid range is
     /// (0.0 - 1.0).
     double reloadStartOpacity,
   }) = FadeInTileDisplay._;
