@@ -63,8 +63,14 @@ mixin FeatureLayerUtils on CustomPainter {
     const maxShiftsCount = 30;
     int shiftsCount = 0;
 
+    final worldWidth = this.worldWidth;
+
     void protectInfiniteLoop() {
-      if (++shiftsCount > maxShiftsCount) throw const StackOverflowError();
+      if (++shiftsCount > maxShiftsCount) {
+        throw AssertionError(
+          'Infinite loop going beyond $maxShiftsCount for world width $worldWidth',
+        );
+      }
     }
 
     protectInfiniteLoop();
