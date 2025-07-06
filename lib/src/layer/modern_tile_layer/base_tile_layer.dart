@@ -1,0 +1,234 @@
+import 'dart:collection';
+
+import 'package:flutter/widgets.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/base_tile_loader.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/options.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_data.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:meta/meta.dart';
+
+/// A map layer formed from adjacent square tiles loaded individually on demand
+///
+/// This widget provides the tile management logic, giving responsibility for
+/// tile loading and tile rendering to the [tileLoader] & [renderer] delegates
+/// respectively.
+///
+/// This layer is often used to draw the map itself, for example as raster image
+/// tiles. However, it may be used for any reasonable purpose where the contract
+/// is met.
+class BaseTileLayer<D extends Object?> extends StatefulWidget {
+  final TileLayerOptions options;
+  final TileLoaderBase<D> tileLoader;
+  final Widget Function(
+    BuildContext context,
+    Map<({TileCoordinates coordinates, Object layerKey}), TileData<D>>
+        visibleTiles,
+    TileLayerOptions options,
+  ) renderer;
+
+  const BaseTileLayer({
+    super.key,
+    required this.options,
+    required this.tileLoader,
+    required this.renderer,
+  });
+
+  Object get layerKey => Object.hash(tileLoader.hashCode, renderer.hashCode);
+
+  @override
+  State<BaseTileLayer<D>> createState() => _BaseTileLayerState<D>();
+}
+
+class _BaseTileLayerState<D extends Object?> extends State<BaseTileLayer<D>> {
+  final tiles = _TilesTracker<D>();
+
+  @override
+  Widget build(BuildContext context) {
+    final camera = MapCamera.of(context);
+    final zoom = camera.zoom.round();
+    final visibleTileCoordinates = _getVisibleTiles(camera);
+
+    // Load new tiles
+    for (final coordinates in visibleTileCoordinates) {
+      final key = (coordinates: coordinates, layerKey: widget.layerKey);
+      tiles.putIfAbsent(
+        key,
+        () => widget.tileLoader.load(coordinates, widget.options)
+          ..whenLoaded.then((_) => _pruneOnLoadedTile(key)),
+      );
+    }
+
+    // Prune tiles that are at the same zoom level, but not visible to the camera
+    // These tiles are NEVER visible to the camera regardless of their loading
+    // status
+    tiles.removeWhere(
+      (key, _) =>
+          key.coordinates.z == zoom &&
+          !visibleTileCoordinates.contains(key.coordinates),
+    );
+
+    // If all visible tiles are loaded correctly, prune ALL other tiles
+    // This is mostly a catch-all, as there is likely some weird edge case
+    // that keeps old tiles loaded when they shouldn't be
+    final allLoaded = tiles.entries
+        .where(
+          (tile) =>
+              visibleTileCoordinates.contains(tile.key.coordinates) &&
+              tile.key.layerKey == widget.layerKey,
+        )
+        .every((tile) => tile.value.isLoaded);
+    if (allLoaded) {
+      tiles.removeWhere(
+        (key, _) => !visibleTileCoordinates.contains(key.coordinates),
+      );
+    }
+
+    return widget.renderer(context, Map.unmodifiable(tiles), widget.options);
+  }
+
+  /// Eventually pruning could be restricted to tiles if there is an animation
+  /// phase that needs to be waited for, quite easily!
+  void _pruneOnLoadedTile(_TileKey key) {
+    /// PRUNE PHASE
+    // Remove all identical tiles of other (old) keys. aka replace my ancestor
+    tiles.removeWhere(
+      (otherKey, otherData) =>
+          otherData.isLoaded &&
+          otherKey.coordinates == key.coordinates &&
+          otherKey.layerKey != key.layerKey,
+    );
+
+    for (final childCoordinates in key.coordinates.children()) {
+      // Prune all children
+      // TODO decide if children of different keys should be pruned
+      // or not
+      tiles.removeWhere(
+        (otherKey, otherData) =>
+            otherData.isLoaded && otherKey.coordinates == childCoordinates,
+      );
+    }
+
+    // TODO there is still some minor flickering when zooming quickly
+    // This appears to be caused by pruning tiles that are loaded but
+    // then getting replaced with tiles that get loaded but then pruned.
+    // It seems to only happen when zooming more than 1 level at a time
+
+    if (key.coordinates.z != 0) {
+      // Ensure that this is not called on the z = 0 tile
+      final siblingCoordinates = key.coordinates.parent().children();
+      siblingCoordinates.remove(key.coordinates);
+
+      // True when all tiles are loaded with the latest key
+      final allLoaded = tiles.entries
+          .where(
+            (other) =>
+                siblingCoordinates.contains(other.key.coordinates) &&
+                other.key.layerKey == key.layerKey,
+          )
+          .every((other) => other.value.isLoaded);
+
+      if (allLoaded) {
+        // Prune parent if me and my siblings are all loaded
+        // Key does not matter as the tile is getting replaced by
+        // tiles with the correct key
+        tiles.removeWhere(
+          (otherKey, _) => otherKey.coordinates == key.coordinates.parent(),
+        );
+      }
+    }
+
+    /// PRUNE COMPLETE
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  Offset _floor(Offset point) =>
+      Offset(point.dx.floorToDouble(), point.dy.floorToDouble());
+
+  Offset _ceil(Offset point) =>
+      Offset(point.dx.ceilToDouble(), point.dy.ceilToDouble());
+
+  Rect _calculatePixelBounds(
+    MapCamera camera,
+    LatLng center,
+    double viewingZoom,
+    int tileZoom,
+  ) {
+    final tileZoomDouble = tileZoom.toDouble();
+    final scale = camera.getZoomScale(viewingZoom, tileZoomDouble);
+    final pixelCenter = camera.projectAtZoom(center, tileZoomDouble);
+    final halfSize = camera.size / (scale * 2);
+
+    return Rect.fromPoints(
+      pixelCenter - halfSize.bottomRight(Offset.zero),
+      pixelCenter + halfSize.bottomRight(Offset.zero),
+    );
+  }
+
+  List<TileCoordinates> _getVisibleTiles(MapCamera camera) {
+    final pixelBounds = _calculatePixelBounds(
+      camera,
+      camera.center,
+      camera.zoom,
+      camera.zoom.round(), // TODO: `maxZoom`?
+    );
+
+    final tileBounds = Rect.fromPoints(
+      _floor(pixelBounds.topLeft / widget.options.tileDimension.toDouble()),
+      _ceil(pixelBounds.bottomRight / widget.options.tileDimension.toDouble()) -
+          const Offset(1, 1),
+    );
+
+    return [
+      for (int x = tileBounds.left.round(); x <= tileBounds.right; x++)
+        for (int y = tileBounds.top.round(); y <= tileBounds.bottom; y++)
+          TileCoordinates(x, y, camera.zoom.round()),
+    ];
+  }
+}
+
+extension _ParentChildTraversal on TileCoordinates {
+  /// This tile coordinate zoomed out by one
+  TileCoordinates parent() => z == 0
+      ? throw RangeError.range(
+          0,
+          0,
+          null,
+          null,
+          'Tiles at zoom level 0 are orphans',
+        )
+      : TileCoordinates(x ~/ 2, y ~/ 2, z - 1);
+
+  /// This tile coordinate but zoomed in by 1
+  Set<TileCoordinates> children() {
+    final topLeftChild = TileCoordinates(x * 2, y * 2, z + 1);
+
+    return {
+      topLeftChild,
+      TileCoordinates(topLeftChild.x + 1, topLeftChild.y, topLeftChild.z),
+      TileCoordinates(topLeftChild.x, topLeftChild.y + 1, topLeftChild.z),
+      TileCoordinates(topLeftChild.x + 1, topLeftChild.y + 1, topLeftChild.z),
+    };
+  }
+}
+
+typedef _TileKey = ({TileCoordinates coordinates, Object layerKey});
+
+extension type _TilesTracker<D extends Object?>._(
+        SplayTreeMap<_TileKey, TileData<D>> map)
+    implements SplayTreeMap<_TileKey, TileData<D>> {
+  _TilesTracker()
+      : this._(
+          SplayTreeMap<_TileKey, TileData<D>>(
+            (a, b) =>
+                a.coordinates.z.compareTo(b.coordinates.z) |
+                a.coordinates.x.compareTo(b.coordinates.x) |
+                a.coordinates.y.compareTo(b.coordinates.y),
+          ),
+        );
+
+  @redeclare
+  TileData<D>? remove(Object? key) => map.remove(key)?..abort();
+}
