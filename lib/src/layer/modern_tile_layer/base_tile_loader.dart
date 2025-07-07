@@ -4,10 +4,10 @@ import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:meta/meta.dart';
 
 @immutable
-abstract interface class TileLoaderBase<D extends Object?> {
-  const TileLoaderBase();
+abstract interface class BaseTileLoader<D extends TileData> {
+  const BaseTileLoader();
 
-  TileData<D> load(TileCoordinates coordinates, TileLayerOptions options);
+  D load(TileCoordinates coordinates, TileLayerOptions options);
 
   @override
   @mustBeOverridden

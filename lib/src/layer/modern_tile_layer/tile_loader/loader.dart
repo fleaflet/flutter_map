@@ -1,11 +1,9 @@
-import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter_map/src/layer/modern_tile_layer/base_tile_loader.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/options.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_data.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_generator_fetcher.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loaders/source.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:meta/meta.dart';
 
@@ -14,16 +12,13 @@ import 'package:meta/meta.dart';
 ///
 ///  1. The [sourceGenerator] uses a tile's [TileCoordinates] & the ambient
 ///     [TileLayerOptions] to generate an object, describing the tile's 'source'
+///     ([S])
 ///
-///  2. The [sourceFetcher] uses this 'source' to generate an output data (which
-///     is held within a [TileData] for the renderer's benefit)
-///
-/// The data ([D]) may be of any shape - but is commonly raw bytes for the
-/// renderer to process. The 'source' ([S]) may be of any shape, such as
-/// [TileSource].
+///  2. The [sourceFetcher] uses this 'source' to generate an output [TileData]
+///     ([D])
 @immutable
-final class TileLoader<S extends Object?, D extends Object?>
-    implements TileLoaderBase<D> {
+final class TileLoader<S extends Object?, D extends TileData>
+    implements BaseTileLoader<D> {
   /// Tile source generator
   ///
   /// See documentation on [TileLoader] & [TileSourceGenerator] for information.
@@ -34,11 +29,6 @@ final class TileLoader<S extends Object?, D extends Object?>
   /// See documentation on [TileLoader] & [TileSourceFetcher] for information.
   final TileSourceFetcher<S, D> sourceFetcher;
 
-  // TODO: Consider whether a 3rd step is useful (for converting bytes ->
-  // resource), which would add better typing guarantees (tie to specific
-  // renderers) - but creates more types & may be able to be best handled by the
-  // renderer
-
   /// Create a tile loader from a source generator & fetcher
   const TileLoader({
     required this.sourceGenerator,
@@ -46,16 +36,8 @@ final class TileLoader<S extends Object?, D extends Object?>
   });
 
   @override
-  TileData<D> load(TileCoordinates coordinates, TileLayerOptions options) {
-    final abortTrigger = Completer<void>();
-    return TileData(
-      abort: abortTrigger.complete,
-      data: sourceFetcher(
-        sourceGenerator(coordinates, options),
-        abortTrigger.future,
-      ),
-    );
-  }
+  D load(TileCoordinates coordinates, TileLayerOptions options) =>
+      sourceFetcher(sourceGenerator(coordinates, options));
 
   @override
   bool operator ==(Object other) =>
@@ -68,7 +50,6 @@ final class TileLoader<S extends Object?, D extends Object?>
   int get hashCode => Object.hash(sourceGenerator, sourceFetcher);
 
   /// [Uint8List] that forms a fully transparent image
-  @deprecated
   static final transparentImage = Uint8List.fromList([
     0x89,
     0x50,

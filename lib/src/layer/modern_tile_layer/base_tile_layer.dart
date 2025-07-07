@@ -17,31 +17,42 @@ import 'package:meta/meta.dart';
 /// This layer is often used to draw the map itself, for example as raster image
 /// tiles. However, it may be used for any reasonable purpose where the contract
 /// is met.
-class BaseTileLayer<D extends Object?> extends StatefulWidget {
+class BaseTileLayer<D extends TileData> extends StatefulWidget {
   final TileLayerOptions options;
-  final TileLoaderBase<D> tileLoader;
+  final BaseTileLoader<D> tileLoader;
   final Widget Function(
     BuildContext context,
-    Map<({TileCoordinates coordinates, Object layerKey}), TileData<D>>
-        visibleTiles,
+    Object layerKey,
     TileLayerOptions options,
+    Map<({TileCoordinates coordinates, Object layerKey}), D> visibleTiles,
   ) renderer;
 
   const BaseTileLayer({
     super.key,
-    required this.options,
+    this.options = const TileLayerOptions(),
     required this.tileLoader,
     required this.renderer,
   });
-
-  Object get layerKey => Object.hash(tileLoader.hashCode, renderer.hashCode);
 
   @override
   State<BaseTileLayer<D>> createState() => _BaseTileLayerState<D>();
 }
 
-class _BaseTileLayerState<D extends Object?> extends State<BaseTileLayer<D>> {
+class _BaseTileLayerState<D extends TileData> extends State<BaseTileLayer<D>> {
+  late Object layerKey = UniqueKey();
+
   final tiles = _TilesTracker<D>();
+
+  @override
+  void didUpdateWidget(covariant BaseTileLayer<D> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.options != widget.options ||
+        oldWidget.tileLoader != widget.tileLoader ||
+        oldWidget.renderer != widget.renderer) {
+      layerKey = UniqueKey();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +62,7 @@ class _BaseTileLayerState<D extends Object?> extends State<BaseTileLayer<D>> {
 
     // Load new tiles
     for (final coordinates in visibleTileCoordinates) {
-      final key = (coordinates: coordinates, layerKey: widget.layerKey);
+      final key = (coordinates: coordinates, layerKey: layerKey);
       tiles.putIfAbsent(
         key,
         () => widget.tileLoader.load(coordinates, widget.options)
@@ -75,7 +86,7 @@ class _BaseTileLayerState<D extends Object?> extends State<BaseTileLayer<D>> {
         .where(
           (tile) =>
               visibleTileCoordinates.contains(tile.key.coordinates) &&
-              tile.key.layerKey == widget.layerKey,
+              tile.key.layerKey == layerKey,
         )
         .every((tile) => tile.value.isLoaded);
     if (allLoaded) {
@@ -84,7 +95,12 @@ class _BaseTileLayerState<D extends Object?> extends State<BaseTileLayer<D>> {
       );
     }
 
-    return widget.renderer(context, Map.unmodifiable(tiles), widget.options);
+    return widget.renderer(
+      context,
+      layerKey,
+      widget.options,
+      Map.unmodifiable(tiles),
+    );
   }
 
   /// Eventually pruning could be restricted to tiles if there is an animation
@@ -216,12 +232,11 @@ extension _ParentChildTraversal on TileCoordinates {
 
 typedef _TileKey = ({TileCoordinates coordinates, Object layerKey});
 
-extension type _TilesTracker<D extends Object?>._(
-        SplayTreeMap<_TileKey, TileData<D>> map)
-    implements SplayTreeMap<_TileKey, TileData<D>> {
+extension type _TilesTracker<D extends TileData>._(
+    SplayTreeMap<_TileKey, D> map) implements SplayTreeMap<_TileKey, D> {
   _TilesTracker()
       : this._(
-          SplayTreeMap<_TileKey, TileData<D>>(
+          SplayTreeMap<_TileKey, D>(
             (a, b) =>
                 a.coordinates.z.compareTo(b.coordinates.z) |
                 a.coordinates.x.compareTo(b.coordinates.x) |
@@ -230,5 +245,5 @@ extension type _TilesTracker<D extends Object?>._(
         );
 
   @redeclare
-  TileData<D>? remove(Object? key) => map.remove(key)?..abort();
+  D? remove(Object? key) => map.remove(key)?..dispose();
 }

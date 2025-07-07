@@ -2,10 +2,11 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_generator_fetcher.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/bytes_fetcher.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_source.dart';
 
-class FileBytesFetcher implements TileSourceFetcher<TileSource, Uint8List> {
+@immutable
+class FileBytesFetcher implements TileBytesFetcher<TileSource> {
   const FileBytesFetcher();
 
   @override

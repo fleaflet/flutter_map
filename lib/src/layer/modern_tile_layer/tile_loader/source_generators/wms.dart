@@ -1,12 +1,14 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_map/src/geo/crs.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/options.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_generator_fetcher.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_source.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:meta/meta.dart';
 
+/// A tile source generator which generates tiles for the
+/// [WMS](https://en.wikipedia.org/wiki/Web_Map_Service) referencing system
 @immutable
 class WMSGenerator implements TileSourceGenerator<TileSource> {
   /// WMS service's URL, for example 'http://ows.mundialis.de/services/service?'
