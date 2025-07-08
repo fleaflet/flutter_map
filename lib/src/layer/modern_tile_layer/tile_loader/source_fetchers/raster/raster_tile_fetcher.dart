@@ -31,6 +31,7 @@ class RasterTileFetcher<S extends Object>
 
     return RasterTileData(
       image: KeyedGeneratedBytesImage(
+        // TODO: Include properties of bytes fetcher (hashcode of source + bytesFetcher)?
         key: source,
         bytesGetter: (chunkEvents) {
           if (bytesFetcher case final ImageChunkEventsSupport bytesFetcher) {
