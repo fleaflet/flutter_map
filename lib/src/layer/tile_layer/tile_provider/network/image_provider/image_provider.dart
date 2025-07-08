@@ -322,5 +322,5 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
 
   @override
   int get hashCode =>
-      Object.hashAll([url, if (fallbackUrl != null) fallbackUrl]);
+      Object.hash(url, fallbackUrl);
 }
