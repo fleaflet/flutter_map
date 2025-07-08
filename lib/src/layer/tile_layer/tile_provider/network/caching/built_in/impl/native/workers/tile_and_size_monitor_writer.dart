@@ -204,8 +204,9 @@ Future<void> tileAndSizeMonitorWriterWorker(
         // a fresh overwrite with new bytes
         // We try to handle it anyway by emptying the tile completely so it is
         // auto-repaired on the next read
-        ram.truncateSync(0);
-        ram.closeSync();
+        ram
+          ..truncateSync(0)
+          ..closeSync();
         disableSizeMonitor();
         return;
       }
@@ -245,8 +246,9 @@ Future<void> tileAndSizeMonitorWriterWorker(
       } catch (_) {
         // This implies the tile was corrupted on the previous write (the
         // write was terminated unexpectedly)
-        ram.truncateSync(0);
-        ram.closeSync();
+        ram
+          ..truncateSync(0)
+          ..closeSync();
         disableSizeMonitor();
         return;
       }
@@ -255,8 +257,9 @@ Future<void> tileAndSizeMonitorWriterWorker(
       if (tileBytes.lengthInBytes != initialTileBytesLength) {
         // This implies the tile was corrupted on the previous write (the
         // write was terminated unexpectedly whilst writing tile bytes)
-        ram.truncateSync(0);
-        ram.closeSync();
+        ram
+          ..truncateSync(0)
+          ..closeSync();
         disableSizeMonitor();
         return;
       }
@@ -285,15 +288,15 @@ Future<void> tileAndSizeMonitorWriterWorker(
 
     // ...followed by the tile bytes
     ram.writeFromSync(tileBytes);
-    final finalPos = ram.positionSync();
+    final finalPosition = ram.positionSync();
     ram
       // We truncate the tile in case the bytes have been moved forward or are
       // shorter than previously
-      ..truncateSync(finalPos)
+      ..truncateSync(finalPosition)
       ..closeSync();
 
     // Then update the size monitor
-    if (finalPos - initialTileFileLength case final deltaSize
+    if (finalPosition - initialTileFileLength case final deltaSize
         when deltaSize != 0) {
       updateSizeMonitor(deltaSize);
     }
