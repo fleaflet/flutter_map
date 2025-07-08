@@ -105,7 +105,9 @@ class _RasterPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     for (final MapEntry(key: (:coordinates, layerKey: _), value: tile)
-        in visibleTiles.entries) {}
+        in visibleTiles.entries) {
+      //final image = tile.imageInfo.
+    }
   }
 
   @override

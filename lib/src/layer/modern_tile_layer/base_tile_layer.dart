@@ -67,6 +67,7 @@ class _BaseTileLayerState<D extends TileData> extends State<BaseTileLayer<D>> {
         key,
         () => widget.tileLoader.load(coordinates, widget.options)
           ..whenLoaded.then((_) => _pruneOnLoadedTile(key)),
+        // TODO: Consider how to handle errors
       );
     }
 
