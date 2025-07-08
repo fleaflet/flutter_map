@@ -25,7 +25,6 @@ class ManyMarkersPage extends StatefulWidget {
 }
 
 class ManyMarkersPageState extends State<ManyMarkersPage> {
-  double doubleInRange(Random source, num start, num end) => source.nextDouble() * (end - start) + start;
   List<Marker> allMarkers = [];
 
   int numOfMarkers = _maxMarkersCount ~/ 10;
