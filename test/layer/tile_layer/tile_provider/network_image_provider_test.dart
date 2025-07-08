@@ -41,6 +41,8 @@ Uri randomUrl({bool fallback = false}) {
   }
 }
 
+// TODO: Write tests to test aborting?
+
 void main() {
   const headers = {
     'user-agent': 'flutter_map',
@@ -70,7 +72,7 @@ void main() {
   setUpAll(() {
     // Ensure the Mock library has example values for Uri.
     registerFallbackValue(Uri());
-    registerFallbackValue(Request('GET', Uri())); // TODO: Abortable?
+    registerFallbackValue(Request('GET', Uri()));
   });
 
   // We expect a request to be made to the correct URL with the appropriate headers.

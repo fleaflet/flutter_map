@@ -37,4 +37,8 @@ The format of the header is as follows:
 
 Contains an 8-byte unsigned integer (Uint64), representing the size of all tiles (including metadata) stored in the cache in bytes.
 
-Named as 'sizeMonitor.bin'.
+This size monitor should stay in sync with the actual size of the cache - as calculating the cache size using I/O operations is expensive and slow. Therefore, if it might go out of sync with reality for any reason (such as a detected read failure, indicating a corrupted tile likely of a different length to what is accounted for in the size monitor), then it must be disabled. Since it is only used on startup, it is recalculated using the expensive method on the next startup.
+
+Whilst it is being calculated (which should happen on the first initialisation of the cache, or when required as above), writes must be delayed. Reads can still occur.
+
+Named 'sizeMonitor.bin'.

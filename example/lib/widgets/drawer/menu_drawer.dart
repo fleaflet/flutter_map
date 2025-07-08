@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map_example/pages/abort_unnecessary_requests.dart';
 import 'package:flutter_map_example/pages/animated_map_controller.dart';
 import 'package:flutter_map_example/pages/bundled_offline_map.dart';
-import 'package:flutter_map_example/pages/cancellable_tile_provider.dart';
 import 'package:flutter_map_example/pages/circle.dart';
 import 'package:flutter_map_example/pages/debouncing_tile_update_transformer.dart';
 import 'package:flutter_map_example/pages/epsg3996_crs.dart';
@@ -162,8 +162,8 @@ class MenuDrawer extends StatelessWidget {
             currentRoute: currentRoute,
           ),
           MenuItemWidget(
-            caption: 'Cancellable Tile Provider',
-            routeName: CancellableTileProviderPage.route,
+            caption: 'Abort Unnecessary Requests',
+            routeName: AbortUnnecessaryRequestsPage.route,
             currentRoute: currentRoute,
           ),
           MenuItemWidget(

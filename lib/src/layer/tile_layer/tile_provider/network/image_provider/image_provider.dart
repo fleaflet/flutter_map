@@ -107,7 +107,6 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
     );
   }
 
-  // TODO: Support cancellation
   Future<Codec> _loadImage(
     NetworkTileImageProvider key,
     StreamSink<ImageChunkEvent> chunkEvents,
@@ -135,8 +134,7 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
     Future<({Uint8List bytes, StreamedResponse response})> get({
       Map<String, String>? additionalHeaders,
     }) async {
-      // final request = AbortableRequest('GET', uri, abortTrigger: abortTrigger);
-      final request = Request('GET', uri);
+      final request = AbortableRequest('GET', uri, abortTrigger: abortTrigger);
 
       request.headers.addAll(headers);
       if (additionalHeaders != null) request.headers.addAll(additionalHeaders);
@@ -269,15 +267,12 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
           stackTrace,
         );
       }
-    }
-    /* on AbortedRequest {
+    } on RequestAbortedException {
       // This is a planned exception, we just quit silently
 
       evict();
-      chunkEvents.close();
       return await decodeBytes(TileProvider.transparentImage);
-    } */
-    on ClientException catch (err) {
+    } on ClientException catch (err) {
       // This could be a wide range of issues, potentially ours, potentially
       // network, etc.
 

@@ -36,6 +36,7 @@ class NetworkTileProvider extends TileProvider {
     Client? httpClient,
     this.silenceExceptions = false,
     this.attemptDecodeOfHttpErrorResponses = true,
+    this.abortUnneededRequests = true,
     this.cachingProvider,
   })  : _isInternallyCreatedClient = httpClient == null,
         _httpClient = httpClient ?? RetryClient(Client());
@@ -54,6 +55,36 @@ class NetworkTileProvider extends TileProvider {
   ///
   /// Defaults to `true`.
   final bool attemptDecodeOfHttpErrorResponses;
+
+  /// Whether to abort HTTP requests for tiles that are no longer needed
+  ///
+  /// For example, tiles may be pruned from an intermediate zoom level during a
+  /// user's fast zoom. When disabled, the request for each tile that has been
+  /// pruned still needs to complete and be processed. When enabled, those
+  /// tiles' requests can be aborted before they are fully loaded.
+  ///
+  /// > [!TIP]
+  /// > This functionality replaces the 'flutter_map_cancellable_tile_provider'
+  /// > package.
+  ///
+  /// This may have multiple advantages:
+  ///  * It may improve tile loading speeds
+  ///  * It may reduce the user's consumption of a metered network connection
+  ///  * It may reduce the user's consumption of storage capacity in the
+  ///    [cachingProvider]
+  ///  * It may reduce unnecessary tile requests, reducing tile server costs
+  ///  * It may negligibly improve app performance in general
+  ///
+  /// This is likely to be more effective on web platforms (where
+  /// `BrowserClient` is used) and with clients or servers with limited numbers
+  /// of simultaneous connections or slow traffic speeds, but is also likely to
+  /// have a positive effect everywhere. If an HTTP client is used which does
+  /// not support the standard method of request aborting, this has no effect.
+  ///
+  /// Defaults to `true`. It is recommended to enable this functionality, unless
+  /// you suspect it is causing problems; in this case, please report the issue
+  /// to flutter_map.
+  final bool abortUnneededRequests;
 
   /// Caching provider used to get cached tiles
   ///
@@ -75,19 +106,20 @@ class NetworkTileProvider extends TileProvider {
   final bool _isInternallyCreatedClient;
 
   @override
-  bool get supportsCancelLoading => false;
+  bool get supportsCancelLoading => true;
 
   @override
-  ImageProvider<Object> getImage(
+  ImageProvider getImageWithCancelLoadingSupport(
     TileCoordinates coordinates,
     TileLayer options,
+    Future<void> cancelLoading,
   ) =>
       NetworkTileImageProvider(
         url: getTileUrl(coordinates, options),
         fallbackUrl: getTileFallbackUrl(coordinates, options),
         headers: headers,
         httpClient: _httpClient,
-        abortTrigger: null,
+        abortTrigger: abortUnneededRequests ? cancelLoading : null,
         silenceExceptions: silenceExceptions,
         attemptDecodeOfHttpErrorResponses: attemptDecodeOfHttpErrorResponses,
         cachingProvider: cachingProvider,
