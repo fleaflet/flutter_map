@@ -11,7 +11,7 @@ The filesystem is used over alternatives such as databases because:
 
 Cached tiles & their metadata are stored as individual keyed files. An additional file is used to improve the efficiency of tracking and reducing the cache size, called the 'size monitor'.
 
-## Tiles
+## Tiles (format v1)
 
 Tiles are stored in files, where the filename is the output of the supplied `cacheKeyGenerator` given the tile's URL. This defaults to a v5 UUID. Files have no extension.
 
@@ -28,17 +28,19 @@ The file format is as follows:
 
 The format of the header is as follows:
 
-1. 8-byte signed integer (Int64): the `staleAt` timestamp, represented in milliseconds since the Unix epoch in the UTC timezone
-2. 8-byte signed integer (Int64)  
+1. (position  0) 6-byte ASCII encoded string: file format identifier "FMBICT" ("FlutterMapBuiltInCacheTile")
+2. (position  6) 2-byte unsigned integer (Uint16): the format version (1)
+3. (position  8) 8-byte signed integer (Int64): the `staleAt` timestamp, represented in milliseconds since the Unix epoch in the UTC timezone
+4. (position 16) 8-byte signed integer (Int64)  
    * Where provided, the `lastModified` timestamp, represented in milliseconds since the Unix epoch in the UTC timezone, which must not be 0
    * Where not provided, the integer '0'
-3. 2-byte unsigned integer (Uint16)  
+5. (position 24) 2-byte unsigned integer (Uint16)  
    * Where provided, the length of the ASCII encoded `etag` in bytes
    * Where not provided, the integer '0'
-4. Variable number of bytes
+6. (position 26) Variable number of bytes
    * Where provided, the ASCII encoded `etag` (where each character is 7 bits but stored as 1 byte) with no greater than 65535 bytes
    * Where not provided, no bytes
-5. 4-byte unsigned integer (Uint32): the length of the tile image bytes
+7. (position 26 + 2-byte value read from position 24) 4-byte unsigned integer (Uint32): the length of the tile image bytes
 
 ## Size monitor
 
@@ -48,4 +50,4 @@ This size monitor should stay in sync with the actual size of the cache - as cal
 
 Whilst it is being calculated (which should happen on the first initialisation of the cache, or when required as above), writes must be delayed. Reads can still occur.
 
-Named 'sizeMonitor.bin'.
+Named 'sizeMonitor.bin'. Does not contain an indentifier/signature.

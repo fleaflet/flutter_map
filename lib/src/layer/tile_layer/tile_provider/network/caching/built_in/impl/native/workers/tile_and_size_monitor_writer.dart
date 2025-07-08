@@ -140,6 +140,7 @@ Future<void> tileAndSizeMonitorWriterWorker(
   final allocInt64BufferTileWrite = Uint8List(8);
   final allocUint32BufferTileWrite = Uint8List(4);
   final allocUint16BufferTileWrite = Uint8List(2);
+  final asciiEncoder = const AsciiEncoder();
   void writeTile({
     required final String path,
     required final CachedMapTileMetadata metadata,
@@ -170,9 +171,13 @@ Future<void> tileAndSizeMonitorWriterWorker(
     }
 
     ram
-      // We start reading from the start of the file, where we store our header
+      // We start writing to the start of the file, where we store our header
       // info
       ..setPositionSync(0)
+      // Identify the file format in 6 bytes
+      ..writeFromSync(BuiltInMapCachingProviderImpl.tileFileFormatSignature)
+      // Identify the format version (v1) in 2 bytes
+      ..writeFromSync(allocUint16BufferTileWrite..buffer.asUint16List()[0] = 1)
       // We store the stale-at header in 8 signed bytes...
       ..writeFromSync(
         allocInt64BufferTileWrite
@@ -205,7 +210,7 @@ Future<void> tileAndSizeMonitorWriterWorker(
         return;
       }
 
-      ram.setPositionSync(16); // we need to go back to the start of the length
+      ram.setPositionSync(24); // we need to go back to the start of the length
     }
 
     final int etagLength;
@@ -217,7 +222,7 @@ Future<void> tileAndSizeMonitorWriterWorker(
         allocUint16BufferTileWrite..buffer.asUint16List()[0] = etagLength = 0,
       );
     } else {
-      etagBytes = const AsciiEncoder().convert(metadata.etag!);
+      etagBytes = asciiEncoder.convert(metadata.etag!);
       // We store the etag length in 2 signed bytes (unless it is too large)...
       ram.writeFromSync(
         allocUint16BufferTileWrite
@@ -232,7 +237,7 @@ Future<void> tileAndSizeMonitorWriterWorker(
       // To do this, we have to read the remainder of the file, skipping over
       // the etag as it has not yet changed, and make it as if they were new
       // bytes
-      ram.setPositionSync(18 + initialEtagLength!);
+      ram.setPositionSync(26 + initialEtagLength!);
 
       final int initialTileBytesLength;
       try {
@@ -256,7 +261,7 @@ Future<void> tileAndSizeMonitorWriterWorker(
         return;
       }
 
-      ram.setPositionSync(18);
+      ram.setPositionSync(26);
     }
 
     if (etagLength != 0) {

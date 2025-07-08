@@ -14,6 +14,7 @@ import 'package:path_provider/path_provider.dart';
 @internal
 class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
   static const sizeMonitorFileName = 'sizeMonitor.bin';
+  static const tileFileFormatSignature = [70, 77, 66, 73, 67, 84];
 
   final String? cacheDirectory;
   final int? maxCacheSize;
@@ -117,6 +118,8 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
       _reportReadFailure; // See `disableSizeMonitor` in worker
   late final Future<void> Function() _killWorker;
 
+  final _asciiDecoder = const AsciiDecoder();
+
   @override
   bool get isSupported => true;
 
@@ -143,42 +146,68 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
     try {
       final bytes = await tileFile.readAsBytes();
 
-      if (bytes.lengthInBytes < 22) {
+      if (bytes.lengthInBytes < 30) {
         throw CachedMapTileReadFailure(
           url: url,
-          description:
-              'cache file (${bytes.lengthInBytes}) was shorter than the '
-              'minimum expected size',
+          description: 'file was shorter than the min. expected size (found '
+              '${bytes.lengthInBytes} bytes, expected >= 30 bytes)',
         );
       }
 
-      final firstTwoNums = bytes.buffer.asInt64List(0, 2);
-      final staleAt =
-          DateTime.fromMillisecondsSinceEpoch(firstTwoNums[0], isUtc: true);
-      final lastModified = firstTwoNums[1] == 0
-          ? null
-          : DateTime.fromMillisecondsSinceEpoch(firstTwoNums[1], isUtc: true);
+      final formatSignature = bytes.buffer.asUint8List(0, 6);
 
-      final etagLength = bytes.buffer.asUint16List(16, 1)[0];
+      if (formatSignature[0] != tileFileFormatSignature[0] ||
+          formatSignature[1] != tileFileFormatSignature[1] ||
+          formatSignature[2] != tileFileFormatSignature[2] ||
+          formatSignature[3] != tileFileFormatSignature[3] ||
+          formatSignature[4] != tileFileFormatSignature[4] ||
+          formatSignature[5] != tileFileFormatSignature[5]) {
+        throw CachedMapTileReadFailure(
+          url: url,
+          description:
+              'file did not contain expected format signature at start (found '
+              '$formatSignature, expected $tileFileFormatSignature)',
+        );
+      }
+
+      final version = bytes.buffer.asUint16List(6, 1)[0];
+
+      if (version != 1) {
+        throw CachedMapTileReadFailure(
+          url: url,
+          description:
+              'cache file was of a different version (found v$version, '
+              'expected v1)',
+        );
+      }
+
+      final timestamps = bytes.buffer.asInt64List(8, 2);
+      final staleAt =
+          DateTime.fromMillisecondsSinceEpoch(timestamps[0], isUtc: true);
+      final lastModified = timestamps[1] == 0
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(timestamps[1], isUtc: true);
+
+      final etagLength = bytes.buffer.asUint16List(24, 1)[0];
       final String? etag;
       if (etagLength == 0) {
         etag = null;
       } else {
-        final etagBytes = Uint8List.sublistView(bytes, 18, 18 + etagLength);
-        etag = const AsciiDecoder().convert(etagBytes);
+        final etagBytes = Uint8List.sublistView(bytes, 26, 26 + etagLength);
+        etag = _asciiDecoder.convert(etagBytes);
       }
 
       final tileBytesExpectedLength = // Perform an unaligned read
-          bytes.buffer.asByteData(18 + etagLength, 4).getUint32(0, Endian.host);
-
-      final tileBytes = Uint8List.sublistView(bytes, 18 + etagLength + 4);
-
+          bytes.buffer.asByteData(26 + etagLength, 4).getUint32(0, Endian.host);
+      // We read the remainder of the file, rather than just reading the
+      // specified number of bytes
+      final tileBytes = Uint8List.sublistView(bytes, 26 + etagLength + 4);
       if (tileBytes.lengthInBytes != tileBytesExpectedLength) {
         throw CachedMapTileReadFailure(
           url: url,
-          description:
-              'tile image bytes (${tileBytes.lengthInBytes}) were not of '
-              'expected length ($tileBytesExpectedLength)',
+          description: 'tile image bytes were not of expected length (found '
+              '${tileBytes.lengthInBytes} bytes, expected '
+              '$tileBytesExpectedLength bytes)',
         );
       }
 
