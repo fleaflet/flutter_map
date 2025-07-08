@@ -12,7 +12,7 @@ import 'package:latlong2/latlong.dart';
 const _maxMarkersCount = 20000;
 
 /// On this page, [_maxMarkersCount] markers are randomly generated
-/// across europe, and then you can limit them with a slider
+/// across London, and then you can limit them with a slider
 ///
 /// This way, you can test how map performs under a lot of markers
 class ManyMarkersPage extends StatefulWidget {
@@ -25,11 +25,11 @@ class ManyMarkersPage extends StatefulWidget {
 }
 
 class ManyMarkersPageState extends State<ManyMarkersPage> {
-  double doubleInRange(Random source, num start, num end) =>
-      source.nextDouble() * (end - start) + start;
+  double doubleInRange(Random source, num start, num end) => source.nextDouble() * (end - start) + start;
   List<Marker> allMarkers = [];
 
   int numOfMarkers = _maxMarkersCount ~/ 10;
+  final LatLng london = const LatLng(51.5074, -0.1278);
 
   @override
   void initState() {
@@ -39,18 +39,43 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
 
     Future.microtask(() {
       final r = Random();
+
       for (var x = 0; x < _maxMarkersCount; x++) {
-        allMarkers.add(
-          Marker(
-            point: LatLng(doubleInRange(r, 37, 55), doubleInRange(r, -9, 30)),
-            height: 12,
-            width: 12,
-            child: ColoredBox(color: Colors.blue[900]!),
-          ),
-        );
+        final double angle = r.nextDouble() * 2 * pi;
+        final double distance = r.nextDouble() * 0.5;
+        final double latOffset = distance * sin(angle) * (0.7 + r.nextDouble() * 0.6);
+        final double lonOffset = distance * cos(angle) * (0.7 + r.nextDouble() * 0.6);
+        final double lat = london.latitude + latOffset;
+        final double lon = london.longitude + lonOffset;
+        final LatLng position = LatLng(lat, lon);
+
+        allMarkers.add(Marker(
+            point: position,
+            width: 30,
+            height: 30,
+            child: GestureDetector(
+              onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Tapped existing marker: Location Lat: ${position.latitude}, Lon: ${position.longitude}'),
+                  duration: const Duration(seconds: 1),
+                  showCloseIcon: true,
+                ),
+              ),
+              child: Icon(Icons.location_pin, size: 30, color: getRandomColor()),
+            )));
       }
       setState(() {});
     });
+  }
+
+  Color getRandomColor() {
+    final source = Random();
+    return Color.fromARGB(
+      255,
+      source.nextInt(256),
+      source.nextInt(256),
+      source.nextInt(256),
+    );
   }
 
   @override
@@ -62,18 +87,8 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
         children: [
           FlutterMap(
             options: MapOptions(
-              initialCameraFit: CameraFit.bounds(
-                bounds: LatLngBounds(
-                  const LatLng(55, -9),
-                  const LatLng(37, 30),
-                ),
-                padding: const EdgeInsets.only(
-                  left: 16,
-                  right: 16,
-                  top: 88,
-                  bottom: 192,
-                ),
-              ),
+              initialCenter: london,
+              initialZoom: 10,
             ),
             children: [
               openStreetMapTileLayer,
