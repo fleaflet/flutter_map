@@ -130,8 +130,8 @@ These can be anything useful, and are exposed when their element is hit. Remembe
 <pre class="language-dart"><code class="lang-dart">polygons: [
 <strong>    Polygon&#x3C;String>(
 </strong>        points: [],
-        label: "Horse Field",
-<strong>        hitValue: "Horse",
+        label: "Flamingo Fields",
+<strong>        hitValue: "Flamingo",
 </strong>    ),
 <strong>    Polygon&#x3C;String>(
 </strong>        points: [],
@@ -196,15 +196,15 @@ class _InteractivityDemoState extends State<InteractivityDemo> {
                             for (final hitValue in result.hitValues) {
                                 print('Tapped on a $hitValue');
                             }
-                            print('Eating the grass at ${result.coordinate}');
+                            print('Living at ${result.coordinate}');
                         },
                         child: PolygonLayer<String>(
                             hitNotifier: hitNotifier,
                             polygons: [
                                 Polygon<String>(
                                     points: [], // overlapping coordinates with 2nd
-                                    label: "Horse Field",
-                                    hitValue: "Horse",
+                                    label: "Flamingo Fields",
+                                    hitValue: "Flamingo",
                                 ),
                                 Polygon<String>(
                                     points: [], // overlapping coordinates with 1st
