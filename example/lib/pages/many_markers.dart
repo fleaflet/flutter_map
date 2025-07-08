@@ -60,15 +60,14 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
                   showCloseIcon: true,
                 ),
               ),
-              child: Icon(Icons.location_pin, size: 30, color: getRandomColor()),
+              child: Icon(Icons.location_pin, size: 30, color: getRandomColor(r)),
             )));
       }
       setState(() {});
     });
   }
 
-  Color getRandomColor() {
-    final source = Random();
+  Color getRandomColor(Random source) {
     return Color.fromARGB(
       255,
       source.nextInt(256),
@@ -86,8 +85,12 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
         children: [
           FlutterMap(
             options: MapOptions(
-              initialCenter: london,
-              initialZoom: 10,
+              initialCameraFit: CameraFit.bounds(
+                bounds: LatLngBounds(
+                  const LatLng(50, -0.5),
+                  const LatLng(53, 0.3),
+                ),
+              ),
             ),
             children: [
               openStreetMapTileLayer,
