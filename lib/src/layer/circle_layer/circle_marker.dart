@@ -12,6 +12,8 @@ class CircleMarker<R extends Object> with HitDetectableElement<R> {
   final LatLng point;
 
   /// The radius of the circle
+  ///
+  /// Measured in pixels, unless [useRadiusInMeter] is set.
   final double radius;
 
   /// The color of the circle area.
@@ -24,7 +26,7 @@ class CircleMarker<R extends Object> with HitDetectableElement<R> {
   /// to be visible.
   final Color borderColor;
 
-  /// Set to true if the radius should use the unit meters.
+  /// Whether to treat [radius] as a measurement in meters instead of pixels.
   final bool useRadiusInMeter;
 
   @override

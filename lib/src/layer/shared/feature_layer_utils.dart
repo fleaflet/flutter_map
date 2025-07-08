@@ -12,9 +12,9 @@ mixin FeatureLayerUtils on CustomPainter {
 
   /// The rectangle of the canvas on its last paint
   ///
-  /// Must not be retrieved before [paint] has been called.
-  Rect get viewportRect => _viewportRect;
-  late Rect _viewportRect;
+  /// Returns [Rect.zero] if [paint] has not yet been called.
+  Rect get viewportRect => _viewportRect ?? Rect.zero;
+  Rect? _viewportRect;
 
   @mustCallSuper
   @mustBeOverridden
@@ -63,8 +63,14 @@ mixin FeatureLayerUtils on CustomPainter {
     const maxShiftsCount = 30;
     int shiftsCount = 0;
 
+    final worldWidth = this.worldWidth;
+
     void protectInfiniteLoop() {
-      if (++shiftsCount > maxShiftsCount) throw const StackOverflowError();
+      if (++shiftsCount > maxShiftsCount) {
+        throw AssertionError(
+          'Infinite loop going beyond $maxShiftsCount for world width $worldWidth',
+        );
+      }
     }
 
     protectInfiniteLoop();
@@ -95,10 +101,6 @@ mixin FeatureLayerUtils on CustomPainter {
       }
     }
   }
-
-  /// Returns the origin of the camera.
-  Offset get origin =>
-      camera.projectAtZoom(camera.center) - camera.size.center(Offset.zero);
 
   /// Returns the world size in pixels.
   ///
