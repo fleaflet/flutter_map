@@ -88,6 +88,28 @@ class MapCamera {
   /// The offset of the top-left corner of the bounding rectangle of this
   /// camera. This will not equal the offset of the top-left visible pixel when
   /// the map is rotated.
+  /* (jaffaketchup) This is used for painters & hit testing extensively. We want
+     to convert [position], which is in the canvas' coordinate space to a
+     [coordinate]. See `screenOffsetToLatLng` - it uses `nonRotatedSize` then
+     does more rotations after. We don't want to do this. So we copy the
+     implementation, and replace/remove the necessary parts, resulting in the
+     code below.
+
+      final pointCenterDistance = camera.size.center(Offset.zero) - position;
+      final a = camera.crs.latLngToOffset(camera.center, camera.zoom);
+      final coordinate = camera.crs.offsetToLatLng(
+        a - pointCenterDistance,
+        camera.zoom,
+      );
+     
+     `camera.crs.latLngToOffset` is longhand for `projectAtZoom`. So we have
+     `a - (b - c)`, where `c` is [position]. This is equivalent to `(a - b) + c`.
+     `(a - b)` is this.
+
+     This was provided in [FeatureLayerUtils.origin] for a few versions. It has
+     been removed, because this exists, so I'm not sure why it needed to be
+     duplicated. See [HitDetectablePainter.hitTest] for an easy usage example.
+  */
   Offset get pixelOrigin =>
       _pixelOrigin ??= projectAtZoom(center, zoom) - size.center(Offset.zero);
 

@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/shared/feature_layer_utils.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 
@@ -42,8 +41,7 @@ mixin HitDetectablePainter<R extends Object, E extends HitDetectableElement<R>>
   /// Avoid performing calculations that are not dependent on [element]. Instead,
   /// override [hitTest], store the necessary calculation results in
   /// (`late` non-`null`able) members, and call `super.hitTest(position)` at the
-  /// end. To calculate the camera origin in this way, instead mix in and use
-  /// [FeatureLayerUtils.origin].
+  /// end. The camera origin may be retrieved with [MapCamera.pixelOrigin].
   ///
   /// Should return whether an element has been hit.
   bool elementHitTest(
@@ -60,13 +58,12 @@ mixin HitDetectablePainter<R extends Object, E extends HitDetectableElement<R>>
     _hits.clear();
     bool hasHit = false;
 
-    final point = position;
-    final coordinate = camera.screenOffsetToLatLng(point);
+    final coordinate = camera.unprojectAtZoom(camera.pixelOrigin + position);
 
     for (int i = elements.length - 1; i >= 0; i--) {
       final element = elements.elementAt(i);
       if (hasHit && element.hitValue == null) continue;
-      if (elementHitTest(element, point: point, coordinate: coordinate)) {
+      if (elementHitTest(element, point: position, coordinate: coordinate)) {
         if (element.hitValue != null) _hits.add(element.hitValue!);
         hasHit = true;
       }
@@ -80,7 +77,7 @@ mixin HitDetectablePainter<R extends Object, E extends HitDetectableElement<R>>
     hitNotifier?.value = LayerHitResult(
       hitValues: _hits,
       coordinate: coordinate,
-      point: point,
+      point: position,
     );
     return true;
   }
