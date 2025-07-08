@@ -36,7 +36,7 @@ class NetworkTileProvider extends TileProvider {
     Client? httpClient,
     this.silenceExceptions = false,
     this.attemptDecodeOfHttpErrorResponses = true,
-    this.abortUnneededRequests = true,
+    this.abortObsoleteRequests = true,
     this.cachingProvider,
   })  : _isInternallyCreatedClient = httpClient == null,
         _httpClient = httpClient ?? RetryClient(Client());
@@ -56,7 +56,7 @@ class NetworkTileProvider extends TileProvider {
   /// Defaults to `true`.
   final bool attemptDecodeOfHttpErrorResponses;
 
-  /// Whether to abort HTTP requests for tiles that are no longer needed.
+  /// Whether to abort HTTP requests for tiles that will no longer be displayed.
   ///
   /// For example, tiles may be pruned from an intermediate zoom level during a
   /// user's fast zoom. When disabled, the request for each tile that has been
@@ -65,7 +65,7 @@ class NetworkTileProvider extends TileProvider {
   ///
   /// > [!TIP]
   /// > This functionality replaces the 'flutter_map_cancellable_tile_provider'
-  /// > package.
+  /// > plugin package.
   ///
   /// This may have multiple advantages:
   ///  * It may improve tile loading speeds
@@ -84,7 +84,7 @@ class NetworkTileProvider extends TileProvider {
   /// Defaults to `true`. It is recommended to enable this functionality, unless
   /// you suspect it is causing problems; in this case, please report the issue
   /// to flutter_map.
-  final bool abortUnneededRequests;
+  final bool abortObsoleteRequests;
 
   /// Caching provider used to get cached tiles.
   ///
@@ -119,7 +119,7 @@ class NetworkTileProvider extends TileProvider {
         fallbackUrl: getTileFallbackUrl(coordinates, options),
         headers: headers,
         httpClient: _httpClient,
-        abortTrigger: abortUnneededRequests ? cancelLoading : null,
+        abortTrigger: abortObsoleteRequests ? cancelLoading : null,
         silenceExceptions: silenceExceptions,
         attemptDecodeOfHttpErrorResponses: attemptDecodeOfHttpErrorResponses,
         cachingProvider: cachingProvider,

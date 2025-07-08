@@ -4,25 +4,24 @@ import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:flutter_map_example/widgets/notice_banner.dart';
 import 'package:latlong2/latlong.dart';
 
-class AbortUnnecessaryRequestsPage extends StatefulWidget {
-  static const String route = '/abort_unnecessary_requests_page';
+class AbortObsoleteRequestsPage extends StatefulWidget {
+  static const String route = '/abort_obsolete_requests_page';
 
-  const AbortUnnecessaryRequestsPage({super.key});
+  const AbortObsoleteRequestsPage({super.key});
 
   @override
-  State<AbortUnnecessaryRequestsPage> createState() =>
+  State<AbortObsoleteRequestsPage> createState() =>
       _AbortUnnecessaryRequestsPage();
 }
 
-class _AbortUnnecessaryRequestsPage
-    extends State<AbortUnnecessaryRequestsPage> {
+class _AbortUnnecessaryRequestsPage extends State<AbortObsoleteRequestsPage> {
   bool _abortingEnabled = true;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Abort Unnecessary Requests')),
-      drawer: const MenuDrawer(AbortUnnecessaryRequestsPage.route),
+      appBar: AppBar(title: const Text('Abort Obsolete Requests')),
+      drawer: const MenuDrawer(AbortObsoleteRequestsPage.route),
       body: Column(
         children: [
           Padding(
@@ -36,7 +35,7 @@ class _AbortUnnecessaryRequestsPage
           ),
           const NoticeBanner.recommendation(
             text: 'Since v8.2.0, in-flight HTTP requests for tiles which are '
-                'no longer displayed are cancelled by default.',
+                'no longer displayed are aborted by default.',
             url: 'https://docs.fleaflet.dev/layers/tile-layer/tile-providers',
             sizeTransition: 870,
           ),
@@ -58,7 +57,7 @@ class _AbortUnnecessaryRequestsPage
                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   userAgentPackageName: 'dev.fleaflet.flutter_map.example',
                   tileProvider: NetworkTileProvider(
-                    abortUnneededRequests: _abortingEnabled,
+                    abortObsoleteRequests: _abortingEnabled,
                   ),
                 ),
               ],

@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map_example/pages/abort_unnecessary_requests.dart';
+import 'package:flutter_map_example/pages/abort_obsolete_requests.dart';
 import 'package:flutter_map_example/pages/animated_map_controller.dart';
 import 'package:flutter_map_example/pages/bundled_offline_map.dart';
 import 'package:flutter_map_example/pages/circle.dart';
@@ -162,8 +162,8 @@ class MenuDrawer extends StatelessWidget {
             currentRoute: currentRoute,
           ),
           MenuItemWidget(
-            caption: 'Abort Unnecessary Requests',
-            routeName: AbortUnnecessaryRequestsPage.route,
+            caption: 'Abort Obsolete Requests',
+            routeName: AbortObsoleteRequestsPage.route,
             currentRoute: currentRoute,
           ),
           MenuItemWidget(

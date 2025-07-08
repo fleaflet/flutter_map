@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map_example/pages/abort_unnecessary_requests.dart';
+import 'package:flutter_map_example/pages/abort_obsolete_requests.dart';
 import 'package:flutter_map_example/pages/animated_map_controller.dart';
 import 'package:flutter_map_example/pages/bundled_offline_map.dart';
 import 'package:flutter_map_example/pages/circle.dart';
@@ -52,8 +52,8 @@ class MyApp extends StatelessWidget {
       ),
       home: const HomePage(),
       routes: <String, WidgetBuilder>{
-        AbortUnnecessaryRequestsPage.route: (context) =>
-            const AbortUnnecessaryRequestsPage(),
+        AbortObsoleteRequestsPage.route: (context) =>
+            const AbortObsoleteRequestsPage(),
         PolylinePage.route: (context) => const PolylinePage(),
         SingleWorldPolysPage.route: (context) => const SingleWorldPolysPage(),
         PolylinePerfStressPage.route: (context) =>
