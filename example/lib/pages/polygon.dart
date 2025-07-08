@@ -438,6 +438,8 @@ class _PolygonPageState extends State<PolygonPage> {
                 ],
               ),
               IgnorePointer(
+                // Ignore the marker so it doesn't capture the pointer
+                // (as the marker is over the pointer)
                 child: ValueListenableBuilder(
                   valueListenable: _hitNotifier,
                   builder: (context, value, _) => MarkerLayer(
