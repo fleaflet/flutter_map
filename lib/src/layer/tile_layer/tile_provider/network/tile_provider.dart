@@ -6,7 +6,7 @@ import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/image_pro
 import 'package:http/http.dart';
 import 'package:http/retry.dart';
 
-/// [TileProvider] to fetch tiles from the network
+/// [TileProvider] to fetch tiles from the network.
 ///
 /// By default, a [RetryClient] is used to retry failed requests. 'dart:http'
 /// or 'dart:io' might be needed to override this.
@@ -19,7 +19,7 @@ import 'package:http/retry.dart';
 /// HTTP requests on the web is
 /// [not yet supported in Dart](https://github.com/dart-lang/http/issues/424).
 class NetworkTileProvider extends TileProvider {
-  /// [TileProvider] to fetch tiles from the network
+  /// [TileProvider] to fetch tiles from the network.
   ///
   /// By default, a [RetryClient] is used to retry failed requests. 'dart:http'
   /// or 'dart:io' might be needed to override this.
@@ -42,7 +42,7 @@ class NetworkTileProvider extends TileProvider {
         _httpClient = httpClient ?? RetryClient(Client());
 
   /// Whether to ignore exceptions and errors that occur whilst fetching tiles
-  /// over the network, and just return a transparent tile
+  /// over the network, and just return a transparent tile.
   ///
   /// Defaults to `false`.
   final bool silenceExceptions;
@@ -56,7 +56,7 @@ class NetworkTileProvider extends TileProvider {
   /// Defaults to `true`.
   final bool attemptDecodeOfHttpErrorResponses;
 
-  /// Whether to abort HTTP requests for tiles that are no longer needed
+  /// Whether to abort HTTP requests for tiles that are no longer needed.
   ///
   /// For example, tiles may be pruned from an intermediate zoom level during a
   /// user's fast zoom. When disabled, the request for each tile that has been
@@ -86,7 +86,7 @@ class NetworkTileProvider extends TileProvider {
   /// to flutter_map.
   final bool abortUnneededRequests;
 
-  /// Caching provider used to get cached tiles
+  /// Caching provider used to get cached tiles.
   ///
   /// See online documentation for more information about built-in caching.
   ///

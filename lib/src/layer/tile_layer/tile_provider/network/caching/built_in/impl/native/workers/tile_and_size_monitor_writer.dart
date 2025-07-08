@@ -11,7 +11,7 @@ import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 
 /// Isolate worker which writes tile files, maintains the size monitor, and
-/// (if necessary) starts the size reducer
+/// (if necessary) starts the size reducer.
 ///
 /// Follows the storage spec described in README.md.
 @internal
