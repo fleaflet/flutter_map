@@ -155,7 +155,7 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
     }
 
     // Prepare caching provider & load cached tile if available
-    ({Uint8List bytes, CachedMapTileMetadata metadata})? cachedTile;
+    CachedMapTile? cachedTile;
     final cachingProvider =
         this.cachingProvider ?? BuiltInMapCachingProvider.getOrCreateInstance();
     if (cachingProvider.isSupported) {

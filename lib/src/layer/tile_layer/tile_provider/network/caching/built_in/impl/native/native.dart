@@ -133,9 +133,7 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
   }
 
   @override
-  Future<({Uint8List bytes, CachedMapTileMetadata metadata})?> getTile(
-    String url,
-  ) async {
+  Future<CachedMapTile?> getTile(String url) async {
     final key = tileKeyGenerator(url);
     final tileFile = File(
       p.join(_cacheDirectoryPath ?? await _cacheDirectoryPathReady.future, key),

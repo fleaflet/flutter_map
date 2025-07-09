@@ -34,9 +34,7 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
   external bool get isSupported;
 
   @override
-  external Future<({Uint8List bytes, CachedMapTileMetadata metadata})?> getTile(
-    String url,
-  );
+  external Future<CachedMapTile?> getTile(String url);
 
   @override
   external Future<void> putTile({

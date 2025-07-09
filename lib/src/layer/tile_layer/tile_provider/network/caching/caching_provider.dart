@@ -35,9 +35,7 @@ abstract interface class MapCachingProvider {
   /// Tile providers should anticipate these exceptions and fallback to a
   /// non-caching alternative, wherever possible repairing or replacing the tile
   /// with a fresh & valid one.
-  Future<({Uint8List bytes, CachedMapTileMetadata metadata})?> getTile(
-    String url,
-  );
+  Future<CachedMapTile?> getTile(String url);
 
   /// Add or update a tile in the cache
   ///
@@ -49,3 +47,6 @@ abstract interface class MapCachingProvider {
     Uint8List? bytes,
   });
 }
+
+/// A tile's bytes and metadata returned from [MapCachingProvider.getTile]
+typedef CachedMapTile = ({Uint8List bytes, CachedMapTileMetadata metadata});
