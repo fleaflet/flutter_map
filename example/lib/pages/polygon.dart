@@ -447,6 +447,42 @@ class _PolygonPageState extends State<PolygonPage> {
                   ),
                 ],
               ),
+              IgnorePointer(
+                // Ignore the marker so it doesn't capture the pointer
+                // (as the marker is over the pointer)
+                child: ValueListenableBuilder(
+                  valueListenable: _hitNotifier,
+                  builder: (context, value, _) => MarkerLayer(
+                    rotate: true,
+                    markers: [
+                      if (value != null)
+                        Marker(
+                          height: 22,
+                          width: 24,
+                          alignment: Alignment.topCenter,
+                          point: value.coordinate,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  blurRadius: 15,
+                                  spreadRadius: 5,
+                                  color: Colors.black.withAlpha(255 ~/ 3),
+                                  offset: const Offset(0, 11),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.location_on,
+                              color: Colors.green,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
           Positioned(

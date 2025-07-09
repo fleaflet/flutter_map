@@ -3,9 +3,9 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/map/inherited_model.dart';
+import 'package:flutter_map/src/misc/deg_rad_conversions.dart';
 import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:vector_math/vector_math_64.dart';
 
 /// Describes the view of a map. This includes the size/zoom/position/crs as
 /// well as the minimum/maximum zoom. This class is mostly immutable but has
@@ -88,6 +88,28 @@ class MapCamera {
   /// The offset of the top-left corner of the bounding rectangle of this
   /// camera. This will not equal the offset of the top-left visible pixel when
   /// the map is rotated.
+  /* (jaffaketchup) This is used for painters & hit testing extensively. We want
+     to convert [position], which is in the canvas' coordinate space to a
+     [coordinate]. See `screenOffsetToLatLng` - it uses `nonRotatedSize` then
+     does more rotations after. We don't want to do this. So we copy the
+     implementation, and replace/remove the necessary parts, resulting in the
+     code below.
+
+      final pointCenterDistance = camera.size.center(Offset.zero) - position;
+      final a = camera.crs.latLngToOffset(camera.center, camera.zoom);
+      final coordinate = camera.crs.offsetToLatLng(
+        a - pointCenterDistance,
+        camera.zoom,
+      );
+     
+     `camera.crs.latLngToOffset` is longhand for `projectAtZoom`. So we have
+     `a - (b - c)`, where `c` is [position]. This is equivalent to `(a - b) + c`.
+     `(a - b)` is this.
+
+     This was provided in [FeatureLayerUtils.origin] for a few versions. It has
+     been removed, because this exists, so I'm not sure why it needed to be
+     duplicated. See [HitDetectablePainter.hitTest] for an easy usage example.
+  */
   Offset get pixelOrigin =>
       _pixelOrigin ??= projectAtZoom(center, zoom) - size.center(Offset.zero);
 
