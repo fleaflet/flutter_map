@@ -6,7 +6,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/misc/tile_providers.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:flutter_map_example/widgets/number_of_items_slider.dart';
-import 'package:flutter_map_example/widgets/show_no_web_perf_overlay_snackbar.dart';
+import 'package:flutter_map_example/widgets/perf_overlay.dart';
 import 'package:latlong2/latlong.dart';
 
 const _maxCirclesCount = 30000;
@@ -28,8 +28,28 @@ class _ManyCirclesPageState extends State<ManyCirclesPage> {
   static double doubleInRange(Random source, num start, num end) =>
       source.nextDouble() * (end - start) + start;
 
-  int numOfCircles = _maxCirclesCount ~/ 10;
-  List<CircleMarker> allCircles = [];
+  final randomGenerator = Random();
+  late List<CircleMarker> allCircles = List.generate(
+    _maxCirclesCount,
+    (i) => CircleMarker(
+      point: LatLng(
+        doubleInRange(randomGenerator, 37, 55),
+        doubleInRange(randomGenerator, -9, 30),
+      ),
+      color: HSLColor.fromAHSL(
+        1,
+        i % 360,
+        1,
+        doubleInRange(randomGenerator, 0.3, 0.7),
+      ).toColor(),
+      radius: 5,
+      useRadiusInMeter: false,
+      borderStrokeWidth: 0,
+      borderColor: Colors.black,
+    ),
+    growable: false,
+  );
+  int displayedCirclesCount = _maxCirclesCount ~/ 10;
 
   bool useBorders = false;
   bool useRadiusInMeters = false;
@@ -38,26 +58,7 @@ class _ManyCirclesPageState extends State<ManyCirclesPage> {
   @override
   void initState() {
     super.initState();
-
-    showNoWebPerfOverlaySnackbar(context);
-
-    Future.microtask(() {
-      final r = Random();
-      for (double x = 0; x < _maxCirclesCount; x++) {
-        allCircles.add(
-          CircleMarker(
-            point: LatLng(doubleInRange(r, 37, 55), doubleInRange(r, -9, 30)),
-            color: HSLColor.fromAHSL(1, x % 360, 1, doubleInRange(r, 0.3, 0.7))
-                .toColor(),
-            radius: 5,
-            useRadiusInMeter: false,
-            borderStrokeWidth: 0,
-            borderColor: Colors.black,
-          ),
-        );
-      }
-      setState(() {});
-    });
+    PerfOverlay.showWebUnavailable(context);
   }
 
   @override
@@ -85,7 +86,9 @@ class _ManyCirclesPageState extends State<ManyCirclesPage> {
             children: [
               openStreetMapTileLayer,
               CircleLayer(
-                circles: allCircles.take(numOfCircles).toList(growable: false),
+                circles: allCircles
+                    .take(displayedCirclesCount)
+                    .toList(growable: false),
                 optimizeRadiusInMeters: optimizeRadiusInMeters,
               ),
             ],
@@ -98,8 +101,8 @@ class _ManyCirclesPageState extends State<ManyCirclesPage> {
               child: Column(
                 children: [
                   NumberOfItemsSlider(
-                    number: numOfCircles,
-                    onChanged: (v) => setState(() => numOfCircles = v),
+                    number: displayedCirclesCount,
+                    onChanged: (v) => setState(() => displayedCirclesCount = v),
                     maxNumber: _maxCirclesCount,
                     itemDescription: 'Circle',
                   ),
@@ -187,11 +190,11 @@ class _ManyCirclesPageState extends State<ManyCirclesPage> {
             ),
           ),
           if (!kIsWeb)
-            Positioned(
-              bottom: 16,
+            const Positioned(
+              bottom: 8,
               left: 0,
               right: 0,
-              child: PerformanceOverlay.allEnabled(),
+              child: PerfOverlay(),
             ),
         ],
       ),

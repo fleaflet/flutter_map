@@ -6,15 +6,19 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/misc/tile_providers.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:flutter_map_example/widgets/number_of_items_slider.dart';
-import 'package:flutter_map_example/widgets/show_no_web_perf_overlay_snackbar.dart';
+import 'package:flutter_map_example/widgets/perf_overlay.dart';
 import 'package:latlong2/latlong.dart';
 
 const _maxMarkersCount = 20000;
+const _londonOrigin = LatLng(51.5074, -0.1278);
 
 /// On this page, [_maxMarkersCount] markers are randomly generated
 /// across London, and then you can limit them with a slider
 ///
 /// This way, you can test how map performs under a lot of markers
+///
+/// The markers are quite expensive - an `Icon` is expensive itself, and adding
+/// a `GestureDetector` makes things much slower.
 class ManyMarkersPage extends StatefulWidget {
   static const String route = '/many_markers';
 
@@ -25,59 +29,56 @@ class ManyMarkersPage extends StatefulWidget {
 }
 
 class ManyMarkersPageState extends State<ManyMarkersPage> {
-  List<Marker> allMarkers = [];
+  final randomGenerator = Random(10);
+  late final allMarkers = List.generate(
+    _maxMarkersCount,
+    (_) {
+      final angle = randomGenerator.nextDouble() * 2 * pi;
+      final distance = randomGenerator.nextDouble() * 0.5;
+      final latOffset =
+          distance * sin(angle) * (0.7 + randomGenerator.nextDouble() * 0.6);
+      final lngOffset =
+          distance * cos(angle) * (0.7 + randomGenerator.nextDouble() * 0.6);
+      final position = LatLng(
+        _londonOrigin.latitude + latOffset,
+        _londonOrigin.longitude + lngOffset,
+      );
 
-  int numOfMarkers = _maxMarkersCount ~/ 10;
-  final LatLng london = const LatLng(51.5074, -0.1278);
+      return Marker(
+        point: position,
+        width: 30,
+        height: 30,
+        child: GestureDetector(
+          onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Tapped existing marker (${position.latitude}, '
+                '${position.longitude})',
+              ),
+              duration: const Duration(seconds: 1),
+              showCloseIcon: true,
+            ),
+          ),
+          child: Icon(
+            Icons.location_pin,
+            size: 30,
+            color: Color.fromARGB(
+              255,
+              randomGenerator.nextInt(256),
+              randomGenerator.nextInt(256),
+              randomGenerator.nextInt(256),
+            ),
+          ),
+        ),
+      );
+    },
+  );
+  int displayedMarkersCount = _maxMarkersCount ~/ 10;
 
   @override
   void initState() {
     super.initState();
-
-    showNoWebPerfOverlaySnackbar(context);
-
-    Future.microtask(() {
-      final r = Random(10);
-
-      for (var x = 0; x < _maxMarkersCount; x++) {
-        final double angle = r.nextDouble() * 2 * pi;
-        final double distance = r.nextDouble() * 0.5;
-        final double latOffset =
-            distance * sin(angle) * (0.7 + r.nextDouble() * 0.6);
-        final double lonOffset =
-            distance * cos(angle) * (0.7 + r.nextDouble() * 0.6);
-        final double lat = london.latitude + latOffset;
-        final double lon = london.longitude + lonOffset;
-        final LatLng position = LatLng(lat, lon);
-
-        allMarkers.add(Marker(
-            point: position,
-            width: 30,
-            height: 30,
-            child: GestureDetector(
-              onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                      'Tapped existing marker: Location Lat: ${position.latitude}, Lon: ${position.longitude}'),
-                  duration: const Duration(seconds: 1),
-                  showCloseIcon: true,
-                ),
-              ),
-              child:
-                  Icon(Icons.location_pin, size: 30, color: getRandomColor(r)),
-            )));
-      }
-      setState(() {});
-    });
-  }
-
-  Color getRandomColor(Random source) {
-    return Color.fromARGB(
-      255,
-      source.nextInt(256),
-      source.nextInt(256),
-      source.nextInt(256),
-    );
+    PerfOverlay.showWebUnavailable(context);
   }
 
   @override
@@ -98,7 +99,11 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
             ),
             children: [
               openStreetMapTileLayer,
-              MarkerLayer(markers: allMarkers.take(numOfMarkers).toList()),
+              MarkerLayer(
+                markers: allMarkers
+                    .take(displayedMarkersCount)
+                    .toList(growable: false),
+              ),
             ],
           ),
           Positioned(
@@ -106,18 +111,18 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
             top: 16,
             right: 16,
             child: NumberOfItemsSlider(
-              number: numOfMarkers,
-              onChanged: (v) => setState(() => numOfMarkers = v),
+              number: displayedMarkersCount,
+              onChanged: (v) => setState(() => displayedMarkersCount = v),
               maxNumber: _maxMarkersCount,
               itemDescription: 'Marker',
             ),
           ),
           if (!kIsWeb)
-            Positioned(
-              bottom: 16,
+            const Positioned(
+              bottom: 8,
               left: 0,
               right: 0,
-              child: PerformanceOverlay.allEnabled(),
+              child: PerfOverlay(),
             ),
         ],
       ),
