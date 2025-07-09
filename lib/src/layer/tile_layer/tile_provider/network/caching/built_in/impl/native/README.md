@@ -6,8 +6,6 @@ The filesystem is used over alternatives such as databases because:
 
 * Cached tiles can be read immediately without any preprocessing step; writing to the cache does need to potentially wait for an 'initialisation'
 * It is lightweight and adds only additional packages to a shipped app, not binaries
-* It is likely to be more resilient across platforms than trying to ship a binary
-* The capabilities of a database in terms of relationships are not required
 
 Cached tiles & their metadata are stored as individual keyed files. An additional file is used to improve the efficiency of tracking and reducing the cache size, called the 'size monitor'.
 
