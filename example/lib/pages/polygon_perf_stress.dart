@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/misc/tile_providers.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
-import 'package:flutter_map_example/widgets/show_no_web_perf_overlay_snackbar.dart';
+import 'package:flutter_map_example/widgets/perf_overlay.dart';
 import 'package:flutter_map_example/widgets/simplification_tolerance_slider.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -40,7 +40,7 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
   @override
   void initState() {
     super.initState();
-    showNoWebPerfOverlaySnackbar(context);
+    PerfOverlay.showWebUnavailable(context);
   }
 
   @override
@@ -193,11 +193,11 @@ class _PolygonPerfStressPageState extends State<PolygonPerfStressPage> {
             ),
           ),
           if (!kIsWeb)
-            Positioned(
-              bottom: 16,
+            const Positioned(
+              bottom: 8,
               left: 0,
               right: 0,
-              child: PerformanceOverlay.allEnabled(),
+              child: PerfOverlay(),
             ),
         ],
       ),
