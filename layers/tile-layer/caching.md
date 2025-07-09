@@ -24,7 +24,7 @@ Caching aims to:
 * Improve compliance with tile server terms/requirements
 * Reduce the costs of using tile servers by reducing unnecessary tile requests
 * Improve map tile loading speeds, especially on slower networks
-* Keep your app lightweight - it doesn't require a database
+* Keep your app lightweight - the built-in cache doesn't ship any binaries or databases, just a couple extra libraries you probably already use
 * Be extensible, customizable, and integrate with multiple tile providers
 
 It does, however, come at the expense of usage of on-device storage capacity.

@@ -1,40 +1,76 @@
-# 🚀 What's New In v8?
+# 🚀 What's New In v8.2?
+
+{% hint style="warning" %}
+## v8.2 is not yet released to pub.dev - but it shouldn't be long now!
+
+This information is still subject to change without notice.
+{% endhint %}
 
 ## Overview
 
-Here's some highlights:
+Here's some highlights since v8.0:
 
-{% hint style="success" %}
-## &#x20;**Unbounded horizontal scrolling (by monsieurtanuki)**
+{% hint style="warning" %}
+## Information will appear in console when a `TileLayer` is loaded using one of the OpenStreetMap tile servers (in debug mode)
 
-We're repeating the trend from v7, and introducing yet another feature that's been continuously requested for longer than we can remember 😂!
+Additionally, where an appropriate User-Agent header (which identifies your app to the server) is not set - for example, through `TileLayer.userAgentPackageName`, or directly through the tile provider's HTTP headers configuration - a warning will appear in console (in debug mode), advising you to set a UA.
 
-Thanks to the hard work of external contributors, you can now pan and fling across the anti-meridian as much as you want (when using the default map projection only).
+In future, we may block users which do not set a valid UA identifier for this server.
 
-Feature layers (such as polygons) also work across all 'worlds'. Improvements to this are still ongoing as of v8.1.1.
-
-_This feature was bounty-funded, thanks to our generous_ [supporters.md](../thanks/supporters.md "mention")_! We hope to open more bounties in future._
+For more information, see [using-openstreetmap-direct.md](../tile-servers/using-openstreetmap-direct.md "mention").
 {% endhint %}
 
 {% hint style="success" %}
-## **Keyboard controls for map gestures**
+## **Automatically enabled lightweight built-in caching & aborting of in-flight HTTP requests for obsolete tiles**
 
-Maybe not quite as highly requested as horizontal scrolling, we've now also added buttery-smooth keyboard controls! On web and desktop platforms, these are important for accessibility and general usability.
+The `NetworkTileProvider` has had a massive functionality boost!
 
-Supports arrow & `WASD` keys for panning, `QE` keys for rotation, and `RF` keys for zoom. All key handlers are based on the physical layout of the QWERTY keyboard, so users using other keyboards will be able to use whichever keys are physically located in the same position. These are all optionally controllable via `KeyboardOptions` for `MapOptions` - only arrow keys are enabled by default.
+Built-in caching helps you, your users, and the tile server, and is enabled by default for maximum ease. You could also switch it out with a custom implementation, or disable it altogether if you prefer. Find out more in [caching.md](../layers/tile-layer/caching.md "mention").
+
+You may be using the `CancellableNetworkTileProvider`, which allowed in-flight HTTP requests to be aborted when the tiles would no longer be displayed, helping to improve performance and usability. Unfortunately, it isn't compatible with built-in caching. Fortunately, it's also been deprecated - its functionality is now available in the core! 'package:http' v1.5.0-beta ([#1773](https://github.com/dart-lang/http/pull/1773)) supports aborting requests with the 3 default clients natively, so Dio is no longer required. This makes it easier for you and for us!
 {% endhint %}
 
 {% hint style="success" %}
-## Performance improvements
+## &#x20;**Inverted filling for `PolygonLayer` & multi-yet-single world support for `Poly*Layer`**
 
-We've also fixed a major performance bug with simplification on `Polygon/lineLayer`s. If you previously disabled simplification to workaround the bug and improve performance, we recommend considering re-enabling it.
+This continues the work on multi-world support (thanks monsieurtanuki), and fixes an issue that occured where users used a `Polygon` covering the entire world, with holes as cut outs.
 
-Also thanks to the community, we've reworked some internals to reduce overheads and reduce the number of different objects.
+_This feature was bounty-funded, thanks to our generous_ [supporters.md](../thanks/supporters.md "mention")_, and the community! We hope to open more bounties in future._
 {% endhint %}
 
-We've also made other changes to improve the experience for your users. Checkout the CHANGELOG for the curated changes, and the full commit listing for all the small details.&#x20;
+{% hint style="success" %}
+## No more grey background at the North and South edges of your map (optionally)
 
+Thanks to the community, a new `ContainCameraLatitude` `CameraConstraint` is available, which keeps just the world in view at all times. At the moment, it still needs enabling manually.
 
+Check out the effect in our demo for [multi-world functionality](https://demo.fleaflet.dev/repeated_worlds). You can enable it in your project just by passing the object to the `MapOptions.cameraConstraint` option.
+{% endhint %}
+
+{% hint style="success" %}
+## Polygon label placement improvements
+
+This is split into 3 parts:
+
+* The old method of picking a placement algorithm has been deprecated and been replaced with a new, extensible system - it's still just as easy to use as the old one
+* Thanks to the community, a new placement algorithm has been added: an improved centroid algorithm using the 'signed area centroid' algorithm - this is the new default, but the old algorithm is still available
+* The polylabel placement algorithm has been given a fresh lick of paint and uses a more modern Dart implementation to improve performance and customizability
+
+See how to migrate to the new system below.
+{% endhint %}
+
+{% hint style="success" %}
+## Documentation improvements
+
+This documentation has also had a bit of a renewal!
+
+* Follow the new guide to setup a `TileLayer` as we recommend: [#recommended-setup](../layers/tile-layer/#recommended-setup "mention"). More to come soon!
+* The guide for interactive layers has been simplified, reworked, and example added. Check it out: [layer-interactivity](../layers/layer-interactivity/ "mention").
+* We've added some information about using flutter\_map with the OpenStreetMap public tile servers: [using-openstreetmap-direct.md](../tile-servers/using-openstreetmap-direct.md "mention").
+{% endhint %}
+
+That's already a lot, but it's only scratching the surface. Alongside the community, we've improved our example app, [reduced the size of our demo & package](https://github.com/fleaflet/flutter_map/pull/2056), [added even more customizability and fine-grained control](#user-content-fn-1)[^1] - not even to mention the multiple bug fixes and other performance improvements.
+
+Why not check out the CHANGELOG for the full list of curated changes, and the full commit and contributor listing if you like all the details:
 
 {% embed url="https://pub.dev/packages/flutter_map/changelog" %}
 CHANGELOG
@@ -44,7 +80,56 @@ CHANGELOG
 Full Commit Listing
 {% endembed %}
 
+{% hint style="info" %}
+For completeness, here were the highlights from v8.0:
+
+* Unbounded horizontal scrolling
+* Keyboard controls for map gestures
+* Performance improvements (particularly with `Polygon/lineLayer`)
+{% endhint %}
+
 ## Migration
+
+### To v8.2
+
+{% hint style="success" %}
+v8.2 doesn't contain any API breaking changes, but it does contain deprecations and a small change in potential display output - we suggest preparing for the next breaking release whenever you can
+{% endhint %}
+
+<details>
+
+<summary>Changes to <code>Polygon</code> label placement</summary>
+
+It's usually simple to follow the deprecation messages/warnings in your IDE. The changes are described here for completeness.
+
+There's two main changes:
+
+* The default placement algorithm has been changed\
+  The new default algorithm adopts the old name (`centroid`), with the old name becoming `simpleCentroid` - it's an improvement over the old algorithm
+* The `Polygon.labelPlacement` property & `PolygonLabelPlacement` enum have been deprecated, replaced with `Polygon.labelPlacementCalculator` and `PolygonLabelPlacementCalculator`  respectively
+
+Here's the mapping of old enum values to new objects:
+
+* old default / `.centroid` -> `.centroid()` (new algorithm)
+* `.centroidWithMultiWorld` -> `.simpleMultiWorldCentroid()`
+* `.polylabel` -> `.polylabel()`
+* (new) `.simpleCentroid()`
+
+{% hint style="warning" %}
+Note that only the `simpleMultiWorldCentroid` calculator supports polygons which may lie across the anti-meridian.
+{% endhint %}
+
+</details>
+
+<details>
+
+<summary>Deprecation of official <code>CancellableNetworkTileProvider</code> plugin</summary>
+
+As described above, its primary purpose is now fulfilled by default in the `NetworkTileProvider`. You can switch back to that and remove the dependency from your project.
+
+</details>
+
+### To v8.0
 
 {% hint style="success" %}
 **Migrating to v8 should be pain-free for most apps, but some major changes are likely for plugins.**
@@ -79,3 +164,5 @@ Just changing the argument identifier should be enough - we've just restricted t
 This renaming is also persisted throughout the internals.
 
 </details>
+
+[^1]: such as [#2070](https://github.com/fleaflet/flutter_map/pull/2070) & [#2101](https://github.com/fleaflet/flutter_map/pull/2101)

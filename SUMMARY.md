@@ -11,7 +11,7 @@
 
 ## Getting Started
 
-* [🚀 What's New In v8?](getting-started/new-in-v8.md)
+* [🚀 What's New In v8.2?](getting-started/new-in-v8.md)
 * [Installation](getting-started/installation.md)
 
 ## Usage
