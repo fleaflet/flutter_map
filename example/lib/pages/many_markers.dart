@@ -37,7 +37,7 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
     showNoWebPerfOverlaySnackbar(context);
 
     Future.microtask(() {
-      final r = Random();
+      final r = Random(10);
 
       for (var x = 0; x < _maxMarkersCount; x++) {
         final double angle = r.nextDouble() * 2 * pi;
