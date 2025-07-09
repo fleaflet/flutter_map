@@ -3,9 +3,9 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map_example/pages/abort_obsolete_requests.dart';
 import 'package:flutter_map_example/pages/animated_map_controller.dart';
 import 'package:flutter_map_example/pages/bundled_offline_map.dart';
-import 'package:flutter_map_example/pages/cancellable_tile_provider.dart';
 import 'package:flutter_map_example/pages/circle.dart';
 import 'package:flutter_map_example/pages/debouncing_tile_update_transformer.dart';
 import 'package:flutter_map_example/pages/epsg3996_crs.dart';
@@ -76,11 +76,12 @@ class MenuDrawer extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 14),
                 ),
+                const SizedBox(height: 8),
                 if (kIsWeb)
-                  const Text(
+                  Text(
                     _isWASM ? 'Running with WASM' : 'Running without WASM',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14),
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
                 if (_commitSHA != '')
                   SelectableText.rich(
@@ -205,8 +206,8 @@ class MenuDrawer extends StatelessWidget {
             currentRoute: currentRoute,
           ),
           MenuItemWidget(
-            caption: 'Cancellable Tile Provider',
-            routeName: CancellableTileProviderPage.route,
+            caption: 'Abort Obsolete Requests',
+            routeName: AbortObsoleteRequestsPage.route,
             currentRoute: currentRoute,
           ),
           MenuItemWidget(
