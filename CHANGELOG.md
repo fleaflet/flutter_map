@@ -4,7 +4,7 @@ Please consider [donating](https://github.com/sponsors/fleaflet) or [contributin
 
 This CHANGELOG does not include every commit and/or PR - it is a hand picked selection of the ones that have an effect on you. For a full list of changes, please check the GitHub repository releases/tags.
 
-## [8.2.0] - 2025/05/XX
+## [8.2.0] - 2025/07/XX
 
 Contains the following user-affecting changes:
 
@@ -15,7 +15,10 @@ Contains the following user-affecting changes:
 - Added warning on usage of OpenStreetMap public tile servers with `TileLayer` - [#2074](https://github.com/fleaflet/flutter_map/pull/2074) and [#2109](https://github.com/fleaflet/flutter_map/pull/2109)
 - Added `PolygonLayer.painterFillMethod` parameter & changed default fill methods - [#2081](https://github.com/fleaflet/flutter_map/pull/2081)
 - Added simple built-in (but extensible) caching to `NetworkTileProvider` - [#2082](https://github.com/fleaflet/flutter_map/pull/2082)
+- Added aborting of obsolete in-flight HTTP requests to `NetworkTileProvider` - [#2082](https://github.com/fleaflet/flutter_map/pull/2082)
 - Added `CircleLayer.optimizeRadiusInMeters` option to improve performance in some cases - [#2101](https://github.com/fleaflet/flutter_map/pull/2101)
+- Replace (with deprecation) `Polygon.labelPlacement` with more flexible and extensible `Polygon.labelPlacementCalculator`/`PolygonLabelPlacementCalculator` system - [#2102](https://github.com/fleaflet/flutter_map/pull/2102)
+- Added new 'signed area centroid' algorithm, and switch polylabel label placement implementation to use new external library - [#2102](https://github.com/fleaflet/flutter_map/pull/2102)
 
 Contains the following user-affecting bug fixes:
 
@@ -24,6 +27,8 @@ Contains the following user-affecting bug fixes:
 - Stop ongoing fling and zoom animations when scroll zooming - [#2066](https://github.com/fleaflet/flutter_map/pull/2066) for [#1767](https://github.com/fleaflet/flutter_map/issues/1767)
 - Calculate `LayerHitResult.coordinate` correctly - [#2093](https://github.com/fleaflet/flutter_map/pull/2093) for [#2092](https://github.com/fleaflet/flutter_map/issues/2092)
 - Consider that the camera may be over the anti-meridian when creating `LatLngBounds` in `MapCamera.visibleBounds` for polygon culling - [#2091](https://github.com/fleaflet/flutter_map/pull/2091) for [#2080](https://github.com/fleaflet/flutter_map/issues/2080)
+- Adjust infinite loop protection in internals which allow multi-world functionality to improve performance and add more debug info on error - [#2113](https://github.com/fleaflet/flutter_map/pull/2113)
+- Minor API docs fix on `TileDisplay.fadeIn` arguments - [#2114](https://github.com/fleaflet/flutter_map/pull/2114) for [#2098](https://github.com/fleaflet/flutter_map/issues/2098)
 
 Contains the following meta changes to the package:
 
@@ -36,6 +41,8 @@ Many thanks to these contributors (in no particular order):
 - @Quirille
 - @freekvandeven
 - @mbenoukaiss
+- @ReinisSprogis
+- ... and all the maintainers
 
 And an additional special thanks to @monsieurtanuki for investing so much of their time into this project recently - we appreciate it!
 
@@ -48,6 +55,7 @@ Contains the following user-affecting bug fixes:
 Many thanks to these contributors (in no particular order):
 
 - @monsieurtanuki
+- ... and all the maintainers
 
 ## [8.1.0] - 2025/02/25
 
@@ -64,6 +72,7 @@ Many thanks to these contributors (in no particular order):
 
 - @tlserver
 - @monsieurtanuki
+- ... and all the maintainers
 
 ## [8.0.0] - 2025/02/02
 
