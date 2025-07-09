@@ -42,8 +42,10 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
       for (var x = 0; x < _maxMarkersCount; x++) {
         final double angle = r.nextDouble() * 2 * pi;
         final double distance = r.nextDouble() * 0.5;
-        final double latOffset = distance * sin(angle) * (0.7 + r.nextDouble() * 0.6);
-        final double lonOffset = distance * cos(angle) * (0.7 + r.nextDouble() * 0.6);
+        final double latOffset =
+            distance * sin(angle) * (0.7 + r.nextDouble() * 0.6);
+        final double lonOffset =
+            distance * cos(angle) * (0.7 + r.nextDouble() * 0.6);
         final double lat = london.latitude + latOffset;
         final double lon = london.longitude + lonOffset;
         final LatLng position = LatLng(lat, lon);
@@ -55,12 +57,14 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
             child: GestureDetector(
               onTap: () => ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Tapped existing marker: Location Lat: ${position.latitude}, Lon: ${position.longitude}'),
+                  content: Text(
+                      'Tapped existing marker: Location Lat: ${position.latitude}, Lon: ${position.longitude}'),
                   duration: const Duration(seconds: 1),
                   showCloseIcon: true,
                 ),
               ),
-              child: Icon(Icons.location_pin, size: 30, color: getRandomColor(r)),
+              child:
+                  Icon(Icons.location_pin, size: 30, color: getRandomColor(r)),
             )));
       }
       setState(() {});
