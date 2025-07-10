@@ -195,6 +195,8 @@ class Polygon<R extends Object> with HitDetectableElement<R> {
           strokeJoin == other.strokeJoin &&
           label == other.label &&
           labelStyle == other.labelStyle &&
+          // ignore: deprecated_member_use_from_same_package
+          labelPlacement == other.labelPlacement &&
           labelPlacementCalculator == other.labelPlacementCalculator &&
           rotateLabel == other.rotateLabel &&
           hitValue == other.hitValue &&
@@ -226,6 +228,8 @@ class Polygon<R extends Object> with HitDetectableElement<R> {
         ...points,
         label,
         labelStyle,
+        // ignore: deprecated_member_use_from_same_package
+        labelPlacement,
         labelPlacementCalculator,
         rotateLabel,
         renderHashCode,
