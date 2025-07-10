@@ -29,6 +29,7 @@ dependencies:
   async: ^2.11.0
   collection: ^1.18.0
   dart_earcut: ^1.1.0
+  dart_polylabel2: ^1.0.0
   flutter:
     sdk: flutter
   http: ^1.5.0-beta
@@ -37,7 +38,6 @@ dependencies:
   meta: ^1.11.0
   path: ^1.9.1
   path_provider: ^2.1.5
-  polylabel: ^1.0.1
   proj4dart: ^2.1.0
   uuid: ^4.5.1
 
