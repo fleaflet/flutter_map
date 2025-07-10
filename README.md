@@ -4,26 +4,14 @@ description: >-
   vendor-free, fully cross-platform, and 100% pure-Flutter
 cover: .gitbook/assets/Main Hero.png
 coverY: 0
-layout:
-  cover:
-    visible: true
-    size: full
-  title:
-    visible: true
-  description:
-    visible: true
-  tableOfContents:
-    visible: true
-  outline:
-    visible: true
-  pagination:
-    visible: true
 ---
 
 # flutter\_map
 
 {% hint style="success" %}
 ## Welcome to v8 🎉
+
+Only ⅓ of our users are using v8 & benefiting from heaps of major new features and fixes. Consider upgrading!&#x20;
 
 * If you're upgrading, find out [new-in-v8.md](getting-started/new-in-v8.md "mention")
 * If you're new here, welcome! Feel free to look around and experiment, and check out [installation.md](getting-started/installation.md "mention") when you're ready.
