@@ -4,9 +4,9 @@
 
 Depend on flutter\_map from [pub.dev](https://pub.dev/packages/flutter_map/install) as normal! Use the command line or add the dependency manually to your pubspec.yaml.
 
-<pre class="language-sh"><code class="lang-sh"><strong>flutter pub add flutter_map latlong2
-</strong>flutter pub add <a data-footnote-ref href="#user-content-fn-1">flutter_map_cancellable_tile_provider</a> # OPTIONAL
-</code></pre>
+```sh
+flutter pub add flutter_map latlong2
+```
 
 <details>
 
@@ -105,5 +105,3 @@ If this resolves the issue, unfortunately there's nothing flutter\_map can do. W
 
 If you're running on the web, some features may not work as expected due to limitations or bugs within Flutter. For example, check the [polygon-layer.md](../layers/polygon-layer.md "mention") documentation.
 {% endhint %}
-
-[^1]: [#cancellablenetworktileprovider](../layers/tile-layer/tile-providers.md#cancellablenetworktileprovider "mention")

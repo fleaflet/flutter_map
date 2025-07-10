@@ -1,24 +1,8 @@
 # 🚀 What's New In v8.2?
 
-{% hint style="warning" %}
-## v8.2 is not yet released to pub.dev - but it shouldn't be long now!
-
-This information is still subject to change without notice.
-{% endhint %}
-
 ## Overview
 
 Here's some highlights since v8.0:
-
-{% hint style="warning" %}
-## Information will appear in console when a `TileLayer` is loaded using one of the OpenStreetMap tile servers (in debug mode)
-
-Additionally, where an appropriate User-Agent header (which identifies your app to the server) is not set - for example, through `TileLayer.userAgentPackageName`, or directly through the tile provider's HTTP headers configuration - a warning will appear in console (in debug mode), advising you to set a UA.
-
-In future, we may block users which do not set a valid UA identifier for this server.
-
-For more information, see [using-openstreetmap-direct.md](../tile-servers/using-openstreetmap-direct.md "mention").
-{% endhint %}
 
 {% hint style="success" %}
 ## **Automatically enabled lightweight built-in caching & aborting of in-flight HTTP requests for obsolete tiles**
@@ -68,6 +52,16 @@ This documentation has also had a bit of a renewal!
 * We've added some information about using flutter\_map with the OpenStreetMap public tile servers: [using-openstreetmap-direct.md](../tile-servers/using-openstreetmap-direct.md "mention").
 {% endhint %}
 
+{% hint style="warning" %}
+## Information will appear in console when a `TileLayer` is loaded using one of the OpenStreetMap tile servers (in debug mode)
+
+Additionally, where an appropriate User-Agent header (which identifies your app to the server) is not set - for example, through `TileLayer.userAgentPackageName`, or directly through the tile provider's HTTP headers configuration - a warning will appear in console (in debug mode), advising you to set a UA.
+
+In future, we may block users which do not set a valid UA identifier for this server.
+
+For more information, see [using-openstreetmap-direct.md](../tile-servers/using-openstreetmap-direct.md "mention").
+{% endhint %}
+
 That's already a lot, but it's only scratching the surface. Alongside the community, we've improved our example app, [reduced the size of our demo & package](https://github.com/fleaflet/flutter_map/pull/2056), [added even more customizability and fine-grained control](#user-content-fn-1)[^1] - not even to mention the multiple bug fixes and other performance improvements.
 
 Why not check out the CHANGELOG for the full list of curated changes, and the full commit and contributor listing if you like all the details:
@@ -76,9 +70,7 @@ Why not check out the CHANGELOG for the full list of curated changes, and the fu
 CHANGELOG
 {% endembed %}
 
-{% embed url="https://github.com/fleaflet/flutter_map/compare/v7.0.2...master" %}
-Full Commit Listing
-{% endembed %}
+{% embed url="https://github.com/fleaflet/flutter_map/compare/v8.1.1...v8.2.0" %}
 
 {% hint style="info" %}
 For completeness, here were the highlights from v8.0:

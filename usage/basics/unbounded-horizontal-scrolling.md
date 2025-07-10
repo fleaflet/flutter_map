@@ -1,10 +1,6 @@
 # Unbounded Horizontal Scrolling
 
-{% hint style="info" %}
-This page contains references to as-of-yet unreleased versions.
-{% endhint %}
-
-Since v8 & v8.2.0, flutter\_map supports unbounded horizontal (longitudinally) scrolling for the default map projection. This means users can keep scrolling left and right (when North is up) and never hit an edge! Feature layers, such as the `PolygonLayer`, can also take advantage of this functionality.
+Since v8 & v8.2, flutter\_map supports unbounded horizontal (longitudinally) scrolling for the default map projection. This means users can keep scrolling left and right (when North is up) and never hit an edge! Feature layers, such as the `PolygonLayer`, can also take advantage of this functionality.
 
 <div data-full-width="true"><figure><img src="../../.gitbook/assets/Basic Multi-World Screenshot.png" alt=""><figcaption></figcaption></figure></div>
 

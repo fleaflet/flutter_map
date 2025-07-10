@@ -139,10 +139,6 @@ These are much cheaper for the rendering engine (particularly Skia), as it does 
 
 ## Painter Fill Method
 
-{% hint style="info" %}
-This section contains references to as-of-yet unreleased versions.
-{% endhint %}
-
 The default renderer supports two painter fill methods using different Flutter APIs. These fill methods change the way Flutter decides what is considered within a polygon (and should be filled), and what is outside. This can change the way particularly intersections and overlaps appear visually.
 
 This can be set using the `painterFillMethod` property and the `PolygonPainterFillMethod` enum.&#x20;
@@ -172,10 +168,6 @@ However, it yields unintended results in certain edge cases when polygons inters
 {% endtabs %}
 
 ## Inverted Filling
-
-{% hint style="info" %}
-This section contains references to as-of-yet unreleased versions.
-{% endhint %}
 
 {% hint style="warning" %}
 On the web, inverted filling may not work as expected in some cases. It will not match the behaviour seen on native platforms.

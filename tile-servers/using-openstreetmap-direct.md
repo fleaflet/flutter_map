@@ -27,13 +27,13 @@ The OpenStreetMap public tile server is without cost (for users), but, "without 
 ## What is flutter\_map doing?
 
 {% hint style="success" %}
-## We're adding automatically enabled [caching.md](../layers/tile-layer/caching.md "mention"), available from v8.2.0 with compatible tile providers
+## We're adding automatically enabled [caching.md](../layers/tile-layer/caching.md "mention"), available from v8.2 with compatible tile providers
 
 This reduces the strain on tile servers, improves compliance with their policies, and has numerous other benefits for your app!
 {% endhint %}
 
 {% hint style="warning" %}
-## From v8.2.0, information will appear in console when a `TileLayer` is loaded using one of the OpenStreetMap tile servers (in debug mode)
+## From v8.2, information will appear in console when a `TileLayer` is loaded using one of the OpenStreetMap tile servers (in debug mode)
 
 Additionally, where an appropriate User-Agent header (which identifies your app to the server) is not set - for example, through `TileLayer.userAgentPackageName`, or directly through the tile provider's HTTP headers configuration - a warning will appear in console (in debug mode), advising you to set a UA.
 {% endhint %}

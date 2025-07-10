@@ -11,14 +11,10 @@ Using maps without an Internet connection is common requirement. Luckily, there 
 
 ## Caching
 
-{% hint style="warning" %}
-This section contains references to as-of-yet unreleased versions and unconfirmed features.
-{% endhint %}
-
 {% hint style="info" %}
-Prior to v8.2.0, flutter\_map only provided caching in-memory. All cached tiles will be cleared after the app session is ended.
+Prior to v8.2, flutter\_map only provided caching in-memory. All cached tiles will be cleared after the app session is ended.
 
-Since v8.2.0, this is no longer the case.
+Since v8.2, this is no longer the case.
 {% endhint %}
 
 Caching is used usually to improve user experience by reducing network waiting times, not necessarily to prepare for no-Internet situations. Caching can be temporary (eg. in-memory/session-only, where the cache is cleared after the app is closed), or longer-term (eg. app cache, where the OS takes responsibility for clearing the app cache when necessary/when requested).

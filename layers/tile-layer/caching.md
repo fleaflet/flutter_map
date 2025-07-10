@@ -4,12 +4,6 @@ description: since v8.2
 
 # Caching
 
-{% hint style="danger" %}
-This page contains references to as-of-yet unconfirmed features, which may change without warning. The information on this page is likely to change frequently, and potentially significantly, or may be removed completely.
-
-See [https://github.com/fleaflet/flutter\_map/pull/2082](https://github.com/fleaflet/flutter_map/pull/2082) for progress.
-{% endhint %}
-
 flutter\_map supports integration of basic map tile caching (with compatible tile providers) through caching providers & provides an automatically-enabled implementation on non-web platforms, known as built-in caching.
 
 {% hint style="warning" %}
@@ -47,7 +41,7 @@ Built-in caching is enabled by default on non-web platforms, using the `BuiltInM
 On web platforms, the browser usually performs caching automatically.
 {% endhint %}
 
-<mark style="background-color:yellow;">insert link</mark>
+{% embed url="https://pub.dev/documentation/flutter_map/latest/flutter_map/BuiltInMapCachingProvider-class.html" %}
 
 To configure the default provider, provide arguments to the `getOrCreateInstance` factory constructor. Usually this is done when constructing the `TileLayer`/`TileProvider`:
 
