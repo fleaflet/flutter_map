@@ -409,21 +409,6 @@ See:
         'https://github.com/openstreetmap/operations/issues/737 for more info.',
       );
     }
-    if (kDebugMode &&
-        widget.resolvedRetinaMode == RetinaMode.disabled &&
-        widget.urlTemplate != null &&
-        widget.urlTemplate!.contains('{r}')) {
-      Logger(printer: PrettyPrinter(methodCount: 0)).i(
-        '\x1B[1m\x1B[3mflutter_map\x1B[0m\nThe URL template includes a retina '
-        "mode placeholder ('{r}') to retrieve native high-resolution\ntiles, "
-        'which improve appearance especially on high-density displays.\n'
-        'However, `TileLayer.retinaMode` was left unset, meaning flutter_map '
-        'will never retrieve these tiles.\nConsider using '
-        '`RetinaMode.isHighDensity` to toggle this property automatically, '
-        'otherwise ensure\nit is set appropriately.\n'
-        'See https://docs.fleaflet.dev/layers/tile-layer for more info.',
-      );
-    }
   }
 
   // This is called on every map movement so we should avoid expensive logic
