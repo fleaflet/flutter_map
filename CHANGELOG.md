@@ -4,7 +4,7 @@ Please consider [donating](https://github.com/sponsors/fleaflet) or [contributin
 
 This CHANGELOG does not include every commit and/or PR - it is a hand picked selection of the ones that have an effect on you. For a full list of changes, please check the GitHub repository releases/tags.
 
-## [8.2.0] - 2025/07/XX
+## [8.2.0] - 2025/07/10
 
 Contains the following user-affecting changes:
 
@@ -42,6 +42,7 @@ Many thanks to these contributors (in no particular order):
 - @freekvandeven
 - @mbenoukaiss
 - @ReinisSprogis
+- @tidu090
 - ... and all the maintainers
 
 And an additional special thanks to @monsieurtanuki for investing so much of their time into this project recently - we appreciate it!
