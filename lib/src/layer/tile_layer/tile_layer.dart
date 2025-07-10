@@ -278,43 +278,6 @@ class TileLayer extends StatefulWidget {
         tileProvider = tileProvider ?? NetworkTileProvider(),
         tileUpdateTransformer =
             tileUpdateTransformer ?? TileUpdateTransformers.ignoreTapEvents {
-    // These log strong hints in debug mode, which is more visible to users than
-    // just documentation - they should only be used where there is a specific
-    // and large risk of the user doing something wrong.
-    if (kDebugMode &&
-        urlTemplate != null &&
-        urlTemplate!.contains('{s}.tile.openstreetmap.org')) {
-      Logger(printer: PrettyPrinter(methodCount: 0)).w(
-        '\x1B[1m\x1B[3mflutter_map\x1B[0m\nAvoid using subdomains with OSM\'s tile '
-        'server. Support may be become slow or be removed in future.\nSee '
-        'https://github.com/openstreetmap/operations/issues/737 for more info.',
-      );
-    }
-    if (kDebugMode &&
-        retinaMode == null &&
-        urlTemplate != null &&
-        urlTemplate!.contains('{r}')) {
-      Logger(printer: PrettyPrinter(methodCount: 0)).i(
-        '\x1B[1m\x1B[3mflutter_map\x1B[0m\nThe URL template includes a retina '
-        "mode placeholder ('{r}') to retrieve native high-resolution\ntiles, "
-        'which improve appearance especially on high-density displays.\n'
-        'However, `TileLayer.retinaMode` was left unset, meaning flutter_map '
-        'will never retrieve these tiles.\nConsider using '
-        '`RetinaMode.isHighDensity` to toggle this property automatically, '
-        'otherwise ensure\nit is set appropriately.\n'
-        'See https://docs.fleaflet.dev/layers/tile-layer for more info.',
-      );
-    }
-    if (kDebugMode && kIsWeb && tileProvider is NetworkTileProvider?) {
-      Logger(printer: PrettyPrinter(methodCount: 0)).i(
-        '\x1B[1m\x1B[3mflutter_map\x1B[0m\nConsider installing the official '
-        "'flutter_map_cancellable_tile_provider' plugin for improved\n"
-        'performance on the web.\nSee '
-        'https://pub.dev/packages/flutter_map_cancellable_tile_provider for '
-        'more info.',
-      );
-    }
-
     // If the tile provider doesn't define a User-Agent, we define it here.
     // This is so there's a convienient way for users to specifiy the agent
     // without always having to manually specify a tile provider and headers.
@@ -433,6 +396,34 @@ See:
     _resetSub = widget.reset?.listen(_resetStreamHandler);
     _tileRangeCalculator = TileRangeCalculator(tileDimension: _tileDimension);
     _warnOpenStreetMapUrl();
+
+    // These log strong hints in debug mode, which is more visible to users than
+    // just documentation - they should only be used where there is a specific
+    // and large risk of the user doing something wrong.
+    if (kDebugMode &&
+        widget.urlTemplate != null &&
+        widget.urlTemplate!.contains('{s}.tile.openstreetmap.org')) {
+      Logger(printer: PrettyPrinter(methodCount: 0)).w(
+        '\x1B[1m\x1B[3mflutter_map\x1B[0m\nAvoid using subdomains with OSM\'s tile '
+        'server. Support may be become slow or be removed in future.\nSee '
+        'https://github.com/openstreetmap/operations/issues/737 for more info.',
+      );
+    }
+    if (kDebugMode &&
+        widget.resolvedRetinaMode == RetinaMode.disabled &&
+        widget.urlTemplate != null &&
+        widget.urlTemplate!.contains('{r}')) {
+      Logger(printer: PrettyPrinter(methodCount: 0)).i(
+        '\x1B[1m\x1B[3mflutter_map\x1B[0m\nThe URL template includes a retina '
+        "mode placeholder ('{r}') to retrieve native high-resolution\ntiles, "
+        'which improve appearance especially on high-density displays.\n'
+        'However, `TileLayer.retinaMode` was left unset, meaning flutter_map '
+        'will never retrieve these tiles.\nConsider using '
+        '`RetinaMode.isHighDensity` to toggle this property automatically, '
+        'otherwise ensure\nit is set appropriately.\n'
+        'See https://docs.fleaflet.dev/layers/tile-layer for more info.',
+      );
+    }
   }
 
   // This is called on every map movement so we should avoid expensive logic
