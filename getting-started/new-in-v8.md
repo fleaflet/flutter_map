@@ -27,7 +27,7 @@ _This feature was bounty-funded, thanks to our generous_ [supporters.md](../than
 
 Thanks to the community, a new `ContainCameraLatitude` `CameraConstraint` is available, which keeps just the world in view at all times. At the moment, it still needs enabling manually.
 
-Check out the effect in our demo for [multi-world functionality](https://demo.fleaflet.dev/repeated_worlds). You can enable it in your project just by passing the object to the `MapOptions.cameraConstraint` option.
+Check out the effect in our demo for [multi-world functionality](https://demo.fleaflet.dev/repeated_worlds). You can enable it in your project just by passing `CameraConstraint.containLatitude()` to the `MapOptions.cameraConstraint` option.
 {% endhint %}
 
 {% hint style="success" %}
