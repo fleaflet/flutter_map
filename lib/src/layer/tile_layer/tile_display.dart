@@ -34,12 +34,14 @@ sealed class TileDisplay {
     /// Duration of the fade. Defaults to 100ms.
     Duration duration,
 
-    /// Opacity start value when a tile is faded in, default 0.0. The allowed
-    /// range is (0.0 - 1.0).
+    /// Opacity start value when a tile is faded in.
+    ///
+    /// Defaults to 0. Must be in the range (inclusive) 0 - 1.
     double startOpacity,
 
-    /// Opacity start value when a tile is reloaded, default 0.0. Valid range is
-    /// (0.0 - 1.0).
+    /// Opacity start value when a tile is reloaded.
+    ///
+    /// Defaults to 0. Must be in the range (inclusive) 0 - 1.
     double reloadStartOpacity,
   }) = FadeInTileDisplay._;
 
@@ -56,7 +58,7 @@ sealed class TileDisplay {
   }
 }
 
-/// Display the tile instantaneous.
+/// Displays a tile instantaneously
 @immutable
 class InstantaneousTileDisplay extends TileDisplay {
   /// The optional opacity of the tile.
@@ -80,7 +82,7 @@ class InstantaneousTileDisplay extends TileDisplay {
   int get hashCode => opacity.hashCode;
 }
 
-/// A [TileDisplay] that should get faded in.
+/// Displays a tile with a fade-in animation
 @immutable
 class FadeInTileDisplay extends TileDisplay {
   /// The duration of the fade in animation.

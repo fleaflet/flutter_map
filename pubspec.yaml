@@ -1,13 +1,13 @@
 name: flutter_map
-description: A versatile mapping package for Flutter, that's simple and easy to learn, yet completely customizable and configurable
-version: 8.1.1
+description: "Flutter's №1 non-commercially aimed map client: it's easy-to-use, versatile, vendor-free, fully cross-platform, and 100% pure-Flutter"
+version: 8.2.0
 
 repository: https://github.com/fleaflet/flutter_map
 issue_tracker: https://github.com/fleaflet/flutter_map/issues
 documentation: https://docs.fleaflet.dev
 
 funding:
-  - https://docs.fleaflet.dev/supporters#support-us
+  - https://github.com/sponsors/fleaflet
 
 topics:
   - flutter-map
