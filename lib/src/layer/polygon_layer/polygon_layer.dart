@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:collection/collection.dart';
 import 'package:dart_earcut/dart_earcut.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -16,9 +15,8 @@ import 'package:flutter_map/src/misc/point_in_polygon.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 import 'package:logger/logger.dart';
-import 'package:polylabel/polylabel.dart';
 
-part 'label.dart';
+part 'label/build_text_painter.dart';
 part 'painter.dart';
 part 'polygon.dart';
 part 'projected_polygon.dart';
