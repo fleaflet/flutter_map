@@ -8,6 +8,12 @@ noRobotsIndex: true
 This does not apply to users using OpenStreetMap data through other tile servers, only to users using the public OpenStreetMap tile servers directly.
 {% endhint %}
 
+{% hint style="danger" %}
+## The OpenStreetMap Foundation have blocked requests to their servers for tiles from users who have not set adequate identification.
+
+Read below for more information.
+{% endhint %}
+
 flutter\_map wants to help keep map data available for everyone. One of the largest sources of this data is OpenStreetMap. OpenStreetMap data powers the majority of non-proprietary maps - from actual map tiles/images to navigation data - in existence today. The data itself is free for everyone under the [ODbL](https://opendatacommons.org/licenses/odbl/).
 
 The OpenStreetMap Foundation run OpenStreetMap as a not-for-profit. They also provide a public tile server at [https://tile.openstreetmap.org](https://tile.openstreetmap.org), which is run on donations and volunteering time. This server is used throughout this documentation for code examples, and in our demo app.
@@ -38,11 +44,19 @@ This reduces the strain on tile servers, improves compliance with their policies
 Additionally, where an appropriate User-Agent header (which identifies your app to the server) is not set - for example, through `TileLayer.userAgentPackageName`, or directly through the tile provider's HTTP headers configuration - a warning will appear in console (in debug mode), advising you to set a UA.
 {% endhint %}
 
+## What has OSMF done?
+
 {% hint style="danger" %}
-## A future non-major version may prevent tile layers from being used with these servers (in release builds) if an appropriate User-Agent is not set
+## The OpenStreetMap Foundation have blocked requests to their servers for tiles from users who have not set adequate identification
+
+Due to excessive usage, OSMF have blocked requests from users who do not set a "User-Agent", or who use `userAgentPackageName: 'com.example.app'` in their `TileLayer`.
+
+See [https://github.com/fleaflet/flutter\_map/issues/2123#issuecomment-3062197581](https://github.com/fleaflet/flutter_map/issues/2123#issuecomment-3062197581) for more information.
+
+To restore access, follow [#what-should-i-do](using-openstreetmap-direct.md#what-should-i-do "mention").
 {% endhint %}
 
-## Why is flutter\_map doing this?
+## Why?
 
 The OpenStreetMap tile server is NOT free to use by everyone.
 
@@ -71,8 +85,6 @@ Therefore, we are introducing measures to force users to read the OpenStreetMap 
 {% hint style="warning" %}
 Ultimately however, it is your own responsibility to comply with any appropriate restrictions and requirements set by your chosen tile server/provider. Always read their Terms of Service. Failure to do so may lead to any punishment, at the tile server's discretion.
 {% endhint %}
-
-This policy is completely unrelated to the OpenStreetMap Foundation, and was the sole collective decision of the maintainers.
 
 ## What should I do?
 
@@ -134,7 +146,11 @@ Check the OSM policy for all the adjustments you might need to make. Here's some
 {% step %}
 ### Disable the console warnings
 
-If you're appropriately using the servers, you can disable the console warnings. This will also disable any future blocks.
+If you're appropriately using the servers, you can disable the console information. This will also disable any future blocks implemented on flutter\_map's side.
+
+{% hint style="warning" %}
+This will not disable any blocks enforced by the OpenStreetMap foundation.
+{% endhint %}
 
 To do this, set the <kbd>flutter.flutter\_map.unblockOSM</kbd> environment variable when building/running/compiling. Use the `dart-define` flag to do this.
 
