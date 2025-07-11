@@ -51,6 +51,8 @@ Additionally, where an appropriate User-Agent header (which identifies your app 
 
 Due to excessive usage, OSMF have blocked requests from users who do not set a "User-Agent", or who use `userAgentPackageName: 'com.example.app'` in their `TileLayer`.
 
+This does not apply to web users, who cannot set a User-Agent manually.
+
 See [https://github.com/fleaflet/flutter\_map/issues/2123#issuecomment-3062197581](https://github.com/fleaflet/flutter_map/issues/2123#issuecomment-3062197581) for more information.
 
 To restore access, follow [#what-should-i-do](using-openstreetmap-direct.md#what-should-i-do "mention").
@@ -139,7 +141,8 @@ Check the OSM policy for all the adjustments you might need to make. Here's some
 *   **Set a more specific user-agent to identify your client**
 
     {% hint style="success" %}
-    flutter\_map provides its own user-agent on native platforms, but this isn't enough to meet the requirements. You should set `TileLayer.userAgentPackageName`: see the [#recommended-setup](../layers/tile-layer/#recommended-setup "mention") for the `TileLayer`.
+    flutter\_map provides its own user-agent on native platforms, but this isn't enough to meet the requirements. You should set `TileLayer.userAgentPackageName`: see the [#recommended-setup](../layers/tile-layer/#recommended-setup "mention") for the `TileLayer`.\
+    This is not necessary when running solely on the web, where it is not possible to set a User-Agent manually.
     {% endhint %}
 {% endstep %}
 
