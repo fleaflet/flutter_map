@@ -7,6 +7,7 @@ import 'package:flutter/painting.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/image_provider/consolidate_response.dart';
 import 'package:http/http.dart';
+import 'package:logger/logger.dart';
 import 'package:meta/meta.dart';
 
 /// Dedicated [ImageProvider] to fetch tiles from the network
@@ -47,6 +48,9 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
 
   /// Whether to ignore exceptions and errors that occur whilst fetching tiles
   /// over the network, and just return a transparent tile
+  ///
+  /// Also silences any exceptions generated when attempting to write tiles to
+  /// the cache.
   ///
   /// Not included in [operator==].
   final bool silenceExceptions;
@@ -174,9 +178,26 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
       required Map<String, String> headers,
     }) {
       if (useFallback || !cachingProvider.isSupported) return;
+
+      late final CachedMapTileMetadata metadata;
+      try {
+        metadata = CachedMapTileMetadata.fromHttpHeaders(
+          headers,
+          warnOnFallbackUsage: silenceExceptions ? null : uri,
+        );
+      } catch (e) {
+        if (kDebugMode && !silenceExceptions) {
+          Logger(printer: SimplePrinter()).w(
+            '[flutter_map cache] Failed to cache ${uri.path}: $e\n\tThis may '
+            'indicate a HTTP spec non-conformance issue with the tile server. ',
+          );
+        }
+        return;
+      }
+
       cachingProvider.putTile(
         url: resolvedUrl,
-        metadata: CachedMapTileMetadata.fromHttpHeaders(headers),
+        metadata: metadata,
         bytes: bytes,
       );
     }
