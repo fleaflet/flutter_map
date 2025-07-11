@@ -3,7 +3,7 @@ import 'package:flutter_map/src/layer/modern_tile_layer/base_tile_layer.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/options.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/loader.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/bytes_fetcher.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/network/network.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/network/fetcher/network.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/raster/raster_tile_fetcher.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/raster/tile_data.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_generator_fetcher.dart';
@@ -29,7 +29,7 @@ class RasterTileLayer extends StatefulWidget {
 
   final TileLayerOptions options;
   final TileSourceGenerator<TileSource> sourceGenerator;
-  final TileBytesFetcher<TileSource> bytesFetcher;
+  final SourceBytesFetcher<TileSource> bytesFetcher;
 
   @override
   State<RasterTileLayer> createState() => _RasterTileLayerState();
@@ -105,9 +105,7 @@ class _RasterPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     for (final MapEntry(key: (:coordinates, layerKey: _), value: tile)
-        in visibleTiles.entries) {
-      //final image = tile.imageInfo.
-    }
+        in visibleTiles.entries) {}
   }
 
   @override

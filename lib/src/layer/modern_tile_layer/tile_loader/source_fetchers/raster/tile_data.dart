@@ -74,17 +74,22 @@ class RasterTileData implements TileData {
   void _onImageLoadSuccess(ImageInfo imageInfo, bool synchronousCall) {
     if (_isDisposed) return;
 
+    final isPreviouslyLoaded = loaded != null;
+
     loaded = (
       time: DateTime.now(),
       successfulImageInfo: imageInfo,
       failureInfo: null
     );
     _loadedTracker.complete();
-    _display();
+
+    _display(isPreviouslyLoaded);
   }
 
   void _onImageLoadError(Object exception, StackTrace? stackTrace) {
     if (_isDisposed) return;
+
+    final isPreviouslyLoaded = loaded != null;
 
     loaded = (
       time: DateTime.now(),
@@ -94,6 +99,41 @@ class RasterTileData implements TileData {
     _loadedTracker.completeError(exception, stackTrace);
 
     // TODO: Was `if (errorImage != null) _display();`?
-    _display();
+    _display(isPreviouslyLoaded);
+  }
+
+  void _display(bool isPreviouslyLoaded) {
+    /*if (loadError) {
+      assert(
+        errorImage != null,
+        'A TileImage should not be displayed if loading errors and there is no '
+        'errorImage to show.',
+      );
+      _readyToDisplay = true;
+      if (!_disposed) notifyListeners();
+      return;
+    }*/
+
+    /*_tileDisplay.when(
+      instantaneous: (_) {
+        _readyToDisplay = true;
+        if (!_disposed) notifyListeners();
+      },
+      fadeIn: (fadeIn) {
+        final fadeStartOpacity =
+            previouslyLoaded ? fadeIn.reloadStartOpacity : fadeIn.startOpacity;
+
+        if (fadeStartOpacity == 1.0) {
+          _readyToDisplay = true;
+          if (!_disposed) notifyListeners();
+        } else {
+          _animationController!.reset();
+          _animationController!.forward(from: fadeStartOpacity).then((_) {
+            _readyToDisplay = true;
+            if (!_disposed) notifyListeners();
+          });
+        }
+      },
+    );*/
   }
 }
