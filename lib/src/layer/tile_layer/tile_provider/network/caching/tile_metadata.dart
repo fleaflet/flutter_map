@@ -1,8 +1,9 @@
 import 'dart:io' show HttpHeaders, HttpDate; // web safe!
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:meta/meta.dart';
+import 'package:logger/logger.dart';
 
 /// Metadata about a tile cached with a [MapCachingProvider]
 ///
@@ -24,11 +25,27 @@ class CachedMapTileMetadata {
   /// Create new metadata based off an HTTP response's headers
   ///
   /// Where a response does not include enough information to calculate the
-  /// freshness age, [fallbackFreshnessAge] is used.
+  /// freshness age, [fallbackFreshnessAge] is used. This will emit a console
+  /// log in debug mode if [warnOnFallbackUsage] is is set.
+  ///
+  /// This may throw if the required headers were in an unexpected format.
   factory CachedMapTileMetadata.fromHttpHeaders(
     Map<String, String> headers, {
+    Uri? warnOnFallbackUsage,
     Duration fallbackFreshnessAge = const Duration(days: 7),
   }) {
+    void warnFallbackUsage() {
+      if (kDebugMode && warnOnFallbackUsage != null) {
+        Logger(printer: SimplePrinter()).w(
+          '[flutter_map cache] Using fallback freshness age '
+          '($fallbackFreshnessAge) for ${warnOnFallbackUsage.path}\n'
+          '\tThis indicates the tile server did not send enough '
+          'information to calculate a freshness age. Optionally override '
+          "in the caching provider's config.",
+        );
+      }
+    }
+
     // There is no guarantee that this meets the HTTP specification - however,
     // it was designed with it in mind
     DateTime calculateStaleAt() {
@@ -44,6 +61,7 @@ class CachedMapTileMetadata {
             return HttpDate.parse(expires);
           }
 
+          warnFallbackUsage();
           return addToNow(fallbackFreshnessAge);
         }
 
@@ -62,6 +80,7 @@ class CachedMapTileMetadata {
         return addToNow(Duration(seconds: int.parse(maxAge) - estimatedAge));
       }
 
+      warnFallbackUsage();
       return addToNow(fallbackFreshnessAge);
     }
 
