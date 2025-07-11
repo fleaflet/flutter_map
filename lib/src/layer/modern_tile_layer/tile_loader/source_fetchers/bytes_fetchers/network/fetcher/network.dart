@@ -13,6 +13,7 @@ import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetch
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_source.dart';
 import 'package:http/http.dart';
 import 'package:http/retry.dart';
+import 'package:logger/logger.dart';
 
 /// A [SourceBytesFetcher] which fetches from the network using HTTP, based on
 /// their [TileSource]
@@ -172,9 +173,28 @@ class NetworkBytesFetcher
       required Map<String, String> headers,
     }) {
       if (useFallback || !cachingProvider.isSupported) return;
+
+      // TODO: Consider best way to silence these 2 logs
+      late final CachedMapTileMetadata metadata;
+      try {
+        metadata = CachedMapTileMetadata.fromHttpHeaders(
+          headers,
+          warnOnFallbackUsage: parsedUri,
+        );
+      } on Exception catch (e) {
+        if (kDebugMode) {
+          Logger(printer: SimplePrinter()).w(
+            '[flutter_map cache] Failed to cache ${parsedUri.path}: $e\n\tThis '
+            'may indicate a HTTP spec non-conformance issue with the tile '
+            'server. ',
+          );
+        }
+        return;
+      }
+
       cachingProvider.putTile(
         url: resolvedUri,
-        metadata: CachedMapTileMetadata.fromHttpHeaders(headers),
+        metadata: metadata,
         bytes: bytes,
       );
     }
