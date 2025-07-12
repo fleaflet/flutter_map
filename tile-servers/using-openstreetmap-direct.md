@@ -1,7 +1,3 @@
----
-noRobotsIndex: true
----
-
 # Using OpenStreetMap (direct)
 
 {% hint style="info" %}

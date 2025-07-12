@@ -14,11 +14,13 @@ It should not be relied upon where not having cached tiles may lead to a dangero
 
 Caching aims to:
 
-* Reduce the strain on tile servers (particularly the [OpenStreetMap public tile servers](../../tile-servers/using-openstreetmap-direct.md))
-* Improve compliance with tile server terms/requirements
-* Reduce the costs of using tile servers by reducing unnecessary tile requests
-* Improve map tile loading speeds, especially on slower networks
-* Keep your app lightweight - the built-in cache doesn't ship any binaries or databases, just a couple extra libraries you probably already use
+* Improve developer experience by:
+  * **Reducing the costs** of using tile servers, by reducing duplicate tile requests
+  * **Keep your app lightweight** - the built-in cache doesn't ship any binaries or databases, just a couple extra libraries you probably already use
+* Improve user experience by:
+  * **Reducing tile loading durations**, as fetching from the cache is very quick
+  * **Reducing network/Internet usage**, which may be limited or metered/expensive (eg. mobile broadband)
+* **Improve compliance** with tile server requirements, by reducing the strain on them
 * Be extensible, customizable, and integrate with multiple tile providers
 
 It does, however, come at the expense of usage of on-device storage capacity.
