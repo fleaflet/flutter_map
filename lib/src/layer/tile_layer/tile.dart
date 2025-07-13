@@ -55,7 +55,6 @@ class _TileState extends State<Tile> {
   void initState() {
     super.initState();
     tileKey = '${widget.positionCoordinates}:${widget.tileImage.coordinates}';
-    print('Tile initState: ${widget.tileImage.coordinates} with key: $tileKey');
   }
 
   @override
