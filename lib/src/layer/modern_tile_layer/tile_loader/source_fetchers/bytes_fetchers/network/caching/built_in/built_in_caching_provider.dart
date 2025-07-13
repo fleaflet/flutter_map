@@ -1,7 +1,8 @@
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/stub.dart'
-    if (dart.library.io) 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/native.dart'
-    if (dart.library.js_interop) 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/web/web.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/network/caching/built_in/impl/stub.dart'
+    if (dart.library.io) 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/network/caching/built_in/impl/native/native.dart'
+    if (dart.library.js_interop) 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/network/caching/built_in/impl/web/web.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/network/fetcher/network.dart';
 import 'package:uuid/data.dart';
 import 'package:uuid/rng.dart';
 import 'package:uuid/uuid.dart';
@@ -17,7 +18,7 @@ import 'package:uuid/uuid.dart';
 /// `overrideFreshAge` can override this.
 ///
 /// This is enabled by default in flutter_map, when using the
-/// [NetworkTileProvider] (or cancellable version).
+/// [NetworkBytesFetcher].
 ///
 /// It is safe to use all public methods when running on web - they will noop.
 ///
