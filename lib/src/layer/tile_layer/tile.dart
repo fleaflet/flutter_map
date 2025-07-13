@@ -49,6 +49,74 @@ class Tile extends StatefulWidget {
 }
 
 class _TileState extends State<Tile> {
+  late final String tileKey;
+
+  @override
+  void initState() {
+    super.initState();
+    tileKey = '${widget.positionCoordinates}:${widget.tileImage.coordinates}';
+    print('Tile initState: ${widget.tileImage.coordinates} with key: $tileKey');
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  // Used to prevent unnecessary rebuilds
+  @override
+  void didUpdateWidget(Tile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // We only care about position changes for rebuilds, not image content changes
+    // as those are handled by the TileImageWidget
+    if (oldWidget.currentPixelOrigin != widget.currentPixelOrigin ||
+        oldWidget.scaledTileDimension != widget.scaledTileDimension) {
+      setState(() {});
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tileImageWidget = RepaintBoundary(
+      child: TileImageWidget(
+        key: ValueKey(widget.tileImage.coordinates.toString()),
+        tileImage: widget.tileImage,
+      ),
+    );
+
+    return Positioned(
+      left: widget.positionCoordinates.x * widget.scaledTileDimension -
+          widget.currentPixelOrigin.dx,
+      top: widget.positionCoordinates.y * widget.scaledTileDimension -
+          widget.currentPixelOrigin.dy,
+      width: widget.scaledTileDimension,
+      height: widget.scaledTileDimension,
+      child: widget.tileBuilder
+              ?.call(context, tileImageWidget, widget.tileImage) ??
+          tileImageWidget,
+    );
+  }
+}
+
+/// A widget that displays a tile image.
+///
+/// This widget is separated from the [Tile] class to prevent unnecessary rebuilds.
+@immutable
+class TileImageWidget extends StatefulWidget {
+  /// The tile image data.
+  final TileImage tileImage;
+
+  /// Creates a new instance of [TileImageWidget].
+  const TileImageWidget({
+    super.key,
+    required this.tileImage,
+  });
+
+  @override
+  State<TileImageWidget> createState() => _TileImageWidgetState();
+}
+
+class _TileImageWidgetState extends State<TileImageWidget> {
   @override
   void initState() {
     super.initState();
@@ -67,19 +135,6 @@ class _TileState extends State<Tile> {
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
-      left: widget.positionCoordinates.x * widget.scaledTileDimension -
-          widget.currentPixelOrigin.dx,
-      top: widget.positionCoordinates.y * widget.scaledTileDimension -
-          widget.currentPixelOrigin.dy,
-      width: widget.scaledTileDimension,
-      height: widget.scaledTileDimension,
-      child: widget.tileBuilder?.call(context, _tileImage, widget.tileImage) ??
-          _tileImage,
-    );
-  }
-
-  Widget get _tileImage {
     if (widget.tileImage.loadError && widget.tileImage.errorImage != null) {
       return Image(
         image: widget.tileImage.errorImage!,
