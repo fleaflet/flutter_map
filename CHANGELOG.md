@@ -4,6 +4,17 @@ Please consider [donating](https://github.com/sponsors/fleaflet) or [contributin
 
 This CHANGELOG does not include every commit and/or PR - it is a hand picked selection of the ones that have an effect on you. For a full list of changes, please check the GitHub repository releases/tags.
 
+## [8.2.1] - 2025/07/11
+
+Contains the following user-affecting changes:
+
+- Ensure tiles still load when failing to cache them due to HTTP spec non-compliance - [#2125](https://github.com/fleaflet/flutter_map/pull/2125) for [#2124](https://github.com/fleaflet/flutter_map/issues/2124)
+- Log informational warnings to console when a tile fails to cache due to HTTP spec non-compliance or a shortage of information to calculate an accurate freshness age - [#2125](https://github.com/fleaflet/flutter_map/pull/2125) for [#2124](https://github.com/fleaflet/flutter_map/issues/2124)
+
+Many thanks to these contributors (in no particular order):
+
+- ... and all the maintainers
+
 ## [8.2.0] - 2025/07/10
 
 Contains the following user-affecting changes:
