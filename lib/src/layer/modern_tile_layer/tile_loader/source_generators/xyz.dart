@@ -1,6 +1,8 @@
 import 'package:flutter_map/src/layer/modern_tile_layer/options.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/bytes_fetcher.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/file/file_stub.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/network/fetcher/network.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_generator_fetcher.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_source.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:meta/meta.dart';
 
@@ -16,29 +18,34 @@ import 'package:meta/meta.dart';
 /// [TMS](https://en.wikipedia.org/wiki/Tile_Map_Service) standard by flipping
 /// the Y axis.
 @immutable
-class XYZGenerator implements TileSourceGenerator<TileSource> {
-  /// Template string for tile resources (containing placeholders)
+class XYZGenerator implements TileSourceGenerator<Iterable<String>> {
+  /// List of endpoints for tile resources, in XYZ template format
+  ///
+  /// Endpoints are used by the [TileSourceFetcher] in use, and so their meaning
+  /// is context dependent. For example, a HTTP URL would likely be used with
+  /// the [NetworkBytesFetcher], whilst a file URI would be used with the
+  /// [FileBytesFetcher].
+  ///
+  /// In all 3 default [SourceBytesFetcher]s, the first endpoint is used for
+  /// requests, unless it fails, in which case following endpoints are used as
+  /// fallbacks.
+  ///
+  /// > [!WARNING]
+  /// > Using fallbacks may incur a (potentially significant) performance
+  /// > penalty, and may not be understood by all [TileSourceFetcher]s.
+  /// > Note that failing each endpoint may take some time (such as a HTTP
+  /// > timeout elapsing).
   ///
   /// The following placeholders are supported, in addition to any described in
   /// [additionalPlaceholders] :
   ///
-  ///  * `{z}`, `{x}`, `{z}`: tile coordinates
+  ///  * `{z}`, `{x}`, `{y}`: tile coordinates
   ///  * `{s}`: subdomain chosen from [subdomains]
   ///  * `{r}`: retina mode (filled with "@2x" when enabled)
   ///  * `{d}`: current [TileLayerOptions.tileDimension]
-  final String uriTemplate;
+  final List<String> uriTemplates;
 
-  /// Template string for tile resources used by some [TileSourceFetcher]s if
-  /// the request/response to/from the primary [uriTemplate] fails
-  ///
-  /// > [!WARNING]
-  /// > Not all fetchers support falling-back. Note that failing the primary
-  /// > template may take some time (such as a HTTP timeout elapsing).
-  /// > Additionally, using fallbacks may have negative performance and tile
-  /// > usage consequences. See online documentation for more information.
-  final String? fallbackUriTemplate;
-
-  /// List of subdomains for the [uriTemplate] (to replace the `{s}`
+  /// List of subdomains for the [uriTemplates] (to replace the `{s}`
   /// placeholder)
   ///
   /// > [!NOTE]
@@ -47,7 +54,7 @@ class XYZGenerator implements TileSourceGenerator<TileSource> {
   final List<String> subdomains;
 
   /// Static information that should replace associated placeholders in the
-  /// [uriTemplate]
+  /// [uriTemplates]
   ///
   /// For example, this could be used to more easily apply API keys to
   /// templates.
@@ -61,15 +68,17 @@ class XYZGenerator implements TileSourceGenerator<TileSource> {
   /// A tile source generator which generates tiles for slippy map tile servers
   /// following the standard XYZ tile referencing system
   const XYZGenerator({
-    required this.uriTemplate,
-    this.fallbackUriTemplate,
+    required this.uriTemplates,
     this.subdomains = const [],
     this.additionalPlaceholders = const {},
     this.tms = false,
   });
 
   @override
-  TileSource call(TileCoordinates coordinates, TileLayerOptions options) {
+  Iterable<String> call(
+    TileCoordinates coordinates,
+    TileLayerOptions options,
+  ) {
     final replacementMap = generateReplacementMap(coordinates, options);
 
     String replacer(Match match) {
@@ -78,19 +87,12 @@ class XYZGenerator implements TileSourceGenerator<TileSource> {
       throw ArgumentError('Missing value for placeholder: {${match.group(1)}}');
     }
 
-    final uri = uriTemplate.replaceAllMapped(
-      templatePlaceholderElement,
-      replacer,
-    );
-    final fallbackUri = fallbackUriTemplate?.replaceAllMapped(
-      templatePlaceholderElement,
-      replacer,
-    );
-
-    return TileSource(uri: uri, fallbackUri: fallbackUri);
+    // Lazily generate URIs as required
+    return uriTemplates
+        .map((t) => t.replaceAllMapped(templatePlaceholderElement, replacer));
   }
 
-  /// Generates the mapping of [uriTemplate] placeholders to replacements
+  /// Generates the mapping of [uriTemplates] placeholders to replacements
   @visibleForOverriding
   Map<String, String> generateReplacementMap(
     TileCoordinates coordinates,
@@ -130,8 +132,7 @@ class XYZGenerator implements TileSourceGenerator<TileSource> {
 
   @override
   int get hashCode => Object.hash(
-        uriTemplate,
-        fallbackUriTemplate,
+        uriTemplates,
         subdomains,
         additionalPlaceholders,
         tms,
@@ -141,8 +142,7 @@ class XYZGenerator implements TileSourceGenerator<TileSource> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is XYZGenerator &&
-          other.uriTemplate == uriTemplate &&
-          other.fallbackUriTemplate == fallbackUriTemplate &&
+          other.uriTemplates == uriTemplates &&
           other.subdomains == subdomains &&
           other.additionalPlaceholders == additionalPlaceholders &&
           other.tms == tms);

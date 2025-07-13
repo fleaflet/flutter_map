@@ -2,7 +2,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_map/src/geo/crs.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/options.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_generator_fetcher.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_source.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:meta/meta.dart';
@@ -10,7 +9,7 @@ import 'package:meta/meta.dart';
 /// A tile source generator which generates tiles for the
 /// [WMS](https://en.wikipedia.org/wiki/Web_Map_Service) referencing system
 @immutable
-class WMSGenerator implements TileSourceGenerator<TileSource> {
+class WMSGenerator implements TileSourceGenerator<List<String>> {
   /// WMS service's URL, for example 'http://ows.mundialis.de/services/service?'
   final String baseUrl;
 
@@ -85,7 +84,7 @@ class WMSGenerator implements TileSourceGenerator<TileSource> {
   }
 
   @override
-  TileSource call(TileCoordinates coordinates, TileLayerOptions options) {
+  List<String> call(TileCoordinates coordinates, TileLayerOptions options) {
     final nwPoint = Offset(
       (coordinates.x * options.tileDimension).toDouble(),
       (coordinates.y * options.tileDimension).toDouble(),
@@ -104,12 +103,12 @@ class WMSGenerator implements TileSourceGenerator<TileSource> {
         ? [bounds.min.dy, bounds.min.dx, bounds.max.dy, bounds.max.dx]
         : [bounds.min.dx, bounds.min.dy, bounds.max.dx, bounds.max.dy];
 
-    return TileSource(
-      uri: (StringBuffer(_encodedBaseUrl)
+    return [
+      (StringBuffer(_encodedBaseUrl)
             ..write('&width=${options.tileDimension * dimensionsMultiplier}')
             ..write('&height=${options.tileDimension * dimensionsMultiplier}')
             ..write('&bbox=${bbox.join(',')}'))
           .toString(),
-    );
+    ];
   }
 }

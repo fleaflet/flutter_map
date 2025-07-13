@@ -1,14 +1,13 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/base_tile_layer.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/options.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/loader.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_loader.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/bytes_fetcher.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/network/fetcher/network.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/raster/raster_tile_fetcher.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/raster/tile_data.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_generator_fetcher.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_generators/xyz.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_source.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 
 class RasterTileLayer extends StatefulWidget {
@@ -24,12 +23,12 @@ class RasterTileLayer extends StatefulWidget {
     this.options = const TileLayerOptions(),
     required String urlTemplate,
     required String uaIdentifier,
-  })  : sourceGenerator = XYZGenerator(uriTemplate: urlTemplate),
+  })  : sourceGenerator = XYZGenerator(uriTemplates: [urlTemplate]),
         bytesFetcher = NetworkBytesFetcher(uaIdentifier: uaIdentifier);
 
   final TileLayerOptions options;
-  final TileSourceGenerator<TileSource> sourceGenerator;
-  final SourceBytesFetcher<TileSource> bytesFetcher;
+  final TileSourceGenerator<Iterable<String>> sourceGenerator;
+  final SourceBytesFetcher<Iterable<String>> bytesFetcher;
 
   @override
   State<RasterTileLayer> createState() => _RasterTileLayerState();

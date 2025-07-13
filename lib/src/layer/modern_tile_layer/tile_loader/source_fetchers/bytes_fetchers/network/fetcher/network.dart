@@ -10,7 +10,6 @@ import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetch
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/network/caching/tile_metadata.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/network/caching/tile_read_failure_exception.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/network/fetcher/consolidate_response.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_source.dart';
 import 'package:http/http.dart';
 import 'package:http/retry.dart';
 import 'package:logger/logger.dart';
@@ -19,8 +18,8 @@ import 'package:logger/logger.dart';
 /// their [TileSource]
 @immutable
 class NetworkBytesFetcher
-    with ImageChunkEventsSupport<TileSource>
-    implements SourceBytesFetcher<TileSource> {
+    with ImageChunkEventsSupport<Iterable<String>>
+    implements SourceBytesFetcher<Iterable<String>> {
   /// HTTP headers to send with each request
   final Map<String, String> headers;
 
@@ -113,15 +112,52 @@ class NetworkBytesFetcher
 
   @override
   Future<R> withImageChunkEventsSink<R>({
-    required TileSource source,
+    required Iterable<String> source,
     required Future<void> abortSignal,
     required BytesToResourceTransformer<R> transformer,
     StreamSink<ImageChunkEvent>? chunkEvents,
-    bool useFallback = false,
   }) async {
-    // Resolve URIs
-    final resolvedUri = useFallback ? source.fallbackUri ?? '' : source.uri;
-    final parsedUri = Uri.parse(resolvedUri);
+    final iterator = source.iterator;
+
+    if (!iterator.moveNext()) {
+      throw ArgumentError('At least one URI must be provided', 'source');
+    }
+
+    for (bool isPrimary = true;; isPrimary = false) {
+      try {
+        return await _fetch(
+          uri: iterator.current,
+          abortSignal: abortSignal,
+          transformer: isPrimary
+              ? transformer
+              : (bytes, {allowReuse = true}) =>
+                  // In fallback scenarios, we never allow reuse of bytes in the
+                  // short-term cache (or long-term cache)
+                  transformer(bytes, allowReuse: false),
+          chunkEvents: chunkEvents,
+          performLongTermCaching: !isPrimary,
+        );
+      } on TileAbortedException {
+        rethrow; // Never try fallbacks on abortion
+      } on Exception {
+        if (iterator.moveNext()) {
+          // Attempt fallbacks
+          // TODO: Consider logging
+          continue;
+        }
+        rethrow; // No more fallbacks available
+      }
+    }
+  }
+
+  Future<R> _fetch<R>({
+    required String uri,
+    required Future<void> abortSignal,
+    required BytesToResourceTransformer<R> transformer,
+    required StreamSink<ImageChunkEvent>? chunkEvents,
+    required bool performLongTermCaching,
+  }) async {
+    final parsedUri = Uri.parse(uri);
 
     // Create method to get bytes from server
     Future<({Uint8List bytes, StreamedResponse response})> get({
@@ -159,7 +195,7 @@ class NetworkBytesFetcher
         this.cachingProvider ?? BuiltInMapCachingProvider.getOrCreateInstance();
     if (cachingProvider.isSupported) {
       try {
-        cachedTile = await cachingProvider.getTile(resolvedUri);
+        cachedTile = await cachingProvider.getTile(uri);
       } on CachedMapTileReadFailure {
         // This could occur due to a corrupt tile - we just try to overwrite it
         // with fresh data
@@ -172,7 +208,7 @@ class NetworkBytesFetcher
       required Uint8List? bytes,
       required Map<String, String> headers,
     }) {
-      if (useFallback || !cachingProvider.isSupported) return;
+      if (performLongTermCaching || !cachingProvider.isSupported) return;
 
       // TODO: Consider best way to silence these 2 logs
       late final CachedMapTileMetadata metadata;
@@ -192,11 +228,7 @@ class NetworkBytesFetcher
         return;
       }
 
-      cachingProvider.putTile(
-        url: resolvedUri,
-        metadata: metadata,
-        bytes: bytes,
-      );
+      cachingProvider.putTile(url: uri, metadata: metadata, bytes: bytes);
     }
 
     // Main logic
@@ -289,7 +321,7 @@ class NetworkBytesFetcher
       // This is a planned exception, we convert the error
 
       Error.throwWithStackTrace(
-        TileAbortedException(source: source),
+        TileAbortedException(source: parsedUri),
         stackTrace,
       );
     } on ClientException catch (err, stackTrace) {
@@ -303,35 +335,15 @@ class NetworkBytesFetcher
       // we just attempt to catch (it's cleaner & easier)
       if (err.message.contains('closed') || err.message.contains('cancel')) {
         Error.throwWithStackTrace(
-          TileAbortedException(source: source),
+          TileAbortedException(source: parsedUri),
           stackTrace,
         );
       }
 
-      if (useFallback || source.fallbackUri == null) rethrow;
-      return withImageChunkEventsSink(
-        source: source,
-        abortSignal: abortSignal,
-        // In fallback scenarios, we never reuse bytes
-        transformer: (bytes, {allowReuse = true}) =>
-            transformer(bytes, allowReuse: false),
-        chunkEvents: chunkEvents,
-        useFallback: true,
-      );
-    } on Exception {
-      // Non-specific catch to catch decoding errors, the manually thrown HTTP
-      // exception, etc.
-
-      if (useFallback || source.fallbackUri == null) rethrow;
-      return withImageChunkEventsSink(
-        source: source,
-        abortSignal: abortSignal,
-        // In fallback scenarios, we never reuse bytes
-        transformer: (bytes, {allowReuse = true}) =>
-            transformer(bytes, allowReuse: false),
-        chunkEvents: chunkEvents,
-        useFallback: true,
-      );
+      rethrow; // Otherwise, attempt fallbacks
     }
+    // We may also get exceptions otherwise, for example from failing to
+    // transform/decode bytes or `NetworkImageLoadException` - we pass these
+    // through to the caller to allow attempting of fallbacks implicitly
   }
 }
