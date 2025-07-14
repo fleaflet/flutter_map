@@ -32,23 +32,27 @@ class TileBuilderPageState extends State<TileBuilderPage> {
         children: [
           tileWidget,
           if (showLoadingTime || showCoordinates)
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (showCoordinates)
-                  Text(
-                    '${coords.x} : ${coords.y} : ${coords.z}',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                if (showLoadingTime)
-                  Text(
-                    tile.loadFinishedAt == null
-                        ? 'Loading'
-                        // sometimes result is negative which shouldn't happen, abs() corrects it
-                        : '${(tile.loadFinishedAt!.millisecond - tile.loadStarted!.millisecond).abs()} ms',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-              ],
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.center,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (showCoordinates)
+                    Text(
+                      '${coords.x} : ${coords.y} : ${coords.z}',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                  if (showLoadingTime)
+                    Text(
+                      tile.loadFinishedAt == null
+                          ? 'Loading'
+                          // sometimes result is negative which shouldn't happen, abs() corrects it
+                          : '${(tile.loadFinishedAt!.millisecond - tile.loadStarted!.millisecond).abs()} ms',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                ],
+              ),
             ),
         ],
       ),
