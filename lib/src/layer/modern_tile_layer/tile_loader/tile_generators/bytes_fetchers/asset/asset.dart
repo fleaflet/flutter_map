@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/bytes_fetcher.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/bytes_fetcher.dart';
 
-/// A [SourceBytesFetcher] which fetches from the app's shipped assets.
+/// A [SourceBytesFetcher] which fetches a URI from the app's shipped assets.
 ///
 /// {@macro fm.sbf.default.sourceConsumption}
 ///
@@ -35,30 +35,13 @@ class AssetBytesFetcher implements SourceBytesFetcher<Iterable<String>> {
     required Iterable<String> source,
     required Future<void> abortSignal,
     required BytesToResourceTransformer<R> transformer,
-  }) async {
+  }) {
     final bundle = assetBundle ?? rootBundle;
-
-    final iterator = source.iterator;
-
-    if (!iterator.moveNext()) {
-      throw ArgumentError('At least one URI must be provided', 'source');
-    }
-
-    for (bool isPrimary = true;; isPrimary = false) {
-      try {
-        return await transformer(
-          Uint8List.sublistView(await bundle.load(iterator.current)),
-          // In fallback scenarios, we never allow reuse of bytes in the
-          // short-term cache (or long-term cache)
-          allowReuse: isPrimary,
-        );
-      } on Exception {
-        if (!iterator.moveNext()) rethrow; // No (more) fallbacks available
-
-        // Attempt fallbacks
-        // TODO: Consider logging
-        continue;
-      }
-    }
+    return fetchFromSourceIterable(
+      (uri, transformer, isFirst) =>
+          bundle.load(uri).then(Uint8List.sublistView).then(transformer),
+      source: source,
+      transformer: transformer,
+    );
   }
 }

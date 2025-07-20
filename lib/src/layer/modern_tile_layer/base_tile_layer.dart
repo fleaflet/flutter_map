@@ -2,9 +2,9 @@ import 'dart:collection';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/base_tile_data.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/base_tile_loader.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/options.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_data.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 
@@ -17,7 +17,7 @@ import 'package:meta/meta.dart';
 /// This layer is often used to draw the map itself, for example as raster image
 /// tiles. However, it may be used for any reasonable purpose where the contract
 /// is met.
-class BaseTileLayer<D extends TileData> extends StatefulWidget {
+class BaseTileLayer<D extends BaseTileData> extends StatefulWidget {
   final TileLayerOptions options;
   final BaseTileLoader<D> tileLoader;
   final Widget Function(
@@ -38,7 +38,8 @@ class BaseTileLayer<D extends TileData> extends StatefulWidget {
   State<BaseTileLayer<D>> createState() => _BaseTileLayerState<D>();
 }
 
-class _BaseTileLayerState<D extends TileData> extends State<BaseTileLayer<D>> {
+class _BaseTileLayerState<D extends BaseTileData>
+    extends State<BaseTileLayer<D>> {
   late Object layerKey = UniqueKey();
 
   final tiles = _TilesTracker<D>();
@@ -65,7 +66,7 @@ class _BaseTileLayerState<D extends TileData> extends State<BaseTileLayer<D>> {
       final key = (coordinates: coordinates, layerKey: layerKey);
       tiles.putIfAbsent(
         key,
-        () => widget.tileLoader.load(coordinates, widget.options)
+        () => widget.tileLoader(coordinates, widget.options)
           ..whenLoaded.then((_) => _pruneOnLoadedTile(key)),
         // TODO: Consider how to handle errors
       );
@@ -233,7 +234,7 @@ extension _ParentChildTraversal on TileCoordinates {
 
 typedef _TileKey = ({TileCoordinates coordinates, Object layerKey});
 
-extension type _TilesTracker<D extends TileData>._(
+extension type _TilesTracker<D extends BaseTileData>._(
     SplayTreeMap<_TileKey, D> map) implements SplayTreeMap<_TileKey, D> {
   _TilesTracker()
       : this._(

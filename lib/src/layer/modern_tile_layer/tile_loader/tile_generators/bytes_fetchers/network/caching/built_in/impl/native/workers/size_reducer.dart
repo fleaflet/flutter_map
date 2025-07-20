@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:collection/collection.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/network/caching/built_in/impl/native/native.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/network/caching/built_in/impl/native/native.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 

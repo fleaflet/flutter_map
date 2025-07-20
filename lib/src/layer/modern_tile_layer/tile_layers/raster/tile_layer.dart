@@ -1,13 +1,14 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/base_tile_layer.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/options.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_loader.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/bytes_fetcher.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/network/fetcher/network.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/raster/raster_tile_fetcher.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/raster/tile_data.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_generator_fetcher.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_generators/xyz.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_tile_generators.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/bytes_fetcher.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/network/fetcher/network.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/raster/generator.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/raster/tile_data.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_loader.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_source.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 
 class RasterTileLayer extends StatefulWidget {
@@ -23,11 +24,11 @@ class RasterTileLayer extends StatefulWidget {
     this.options = const TileLayerOptions(),
     required String urlTemplate,
     required String uaIdentifier,
-  })  : sourceGenerator = XYZGenerator(uriTemplates: [urlTemplate]),
+  })  : sourceGenerator = XYZSourceGenerator(uriTemplates: [urlTemplate]),
         bytesFetcher = NetworkBytesFetcher(uaIdentifier: uaIdentifier);
 
   final TileLayerOptions options;
-  final TileSourceGenerator<Iterable<String>> sourceGenerator;
+  final SourceGenerator<TileSource> sourceGenerator;
   final SourceBytesFetcher<Iterable<String>> bytesFetcher;
 
   @override
@@ -40,7 +41,7 @@ class _RasterTileLayerState extends State<RasterTileLayer> {
         options: widget.options,
         tileLoader: TileLoader(
           sourceGenerator: widget.sourceGenerator,
-          sourceFetcher: RasterTileFetcher(bytesFetcher: widget.bytesFetcher),
+          tileGenerator: RasterTileGenerator(bytesFetcher: widget.bytesFetcher),
         ),
         renderer: (context, layerKey, options, visibleTiles) => _RasterRenderer(
           layerKey: layerKey,

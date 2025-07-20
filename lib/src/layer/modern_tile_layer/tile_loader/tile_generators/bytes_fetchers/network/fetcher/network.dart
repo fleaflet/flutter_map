@@ -3,18 +3,19 @@ import 'dart:io' show HttpHeaders, HttpDate, HttpStatus; // web safe!
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/bytes_fetcher.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/network/caching/built_in/built_in_caching_provider.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/network/caching/caching_provider.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/network/caching/disabled/disabled_caching_provider.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/network/caching/tile_metadata.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/network/caching/tile_read_failure_exception.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/network/fetcher/consolidate_response.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/bytes_fetcher.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/network/caching/built_in/built_in_caching_provider.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/network/caching/caching_provider.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/network/caching/disabled/disabled_caching_provider.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/network/caching/tile_metadata.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/network/caching/tile_read_failure_exception.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/network/fetcher/consolidate_response.dart';
 import 'package:http/http.dart';
 import 'package:http/retry.dart';
 import 'package:logger/logger.dart';
 
-/// A [SourceBytesFetcher] which fetches from the network using HTTP.
+/// A [SourceBytesFetcher] which fetches a URI from the network using HTTP &
+/// supports caching via a [MapCachingProvider].
 ///
 /// {@template fm.sbf.default.sourceConsumption}
 /// Consumes an [Iterable] of [String] URIs, which must not be empty and
@@ -120,45 +121,29 @@ class NetworkBytesFetcher
     required Future<void> abortSignal,
     required BytesToResourceTransformer<R> transformer,
     StreamSink<ImageChunkEvent>? chunkEvents,
-  }) async {
-    final iterator = source.iterator;
-
-    if (!iterator.moveNext()) {
-      throw ArgumentError('At least one URI must be provided', 'source');
-    }
-
-    for (bool isPrimary = true;; isPrimary = false) {
-      try {
-        return await _fetch(
-          uri: iterator.current,
+  }) =>
+      fetchFromSourceIterable(
+        (uri, transformer, isFirst) => fetchSingle(
+          uri: uri,
           abortSignal: abortSignal,
-          transformer: isPrimary
-              ? transformer
-              : (bytes, {allowReuse = true}) =>
-                  // In fallback scenarios, we never allow reuse of bytes in the
-                  // short-term cache (or long-term cache)
-                  transformer(bytes, allowReuse: false),
+          transformer: transformer,
           chunkEvents: chunkEvents,
-          performLongTermCaching: !isPrimary,
-        );
-      } on TileAbortedException {
-        rethrow; // Never try fallbacks on abortion
-      } on Exception {
-        if (!iterator.moveNext()) rethrow; // No (more) fallbacks available
+        ),
+        source: source,
+        transformer: transformer,
+      );
 
-        // Attempt fallbacks
-        // TODO: Consider logging
-        continue;
-      }
-    }
-  }
-
-  Future<R> _fetch<R>({
+  /// Fetch a single URI's resource
+  ///
+  /// This is used internally but exposed for convenience.
+  ///
+  /// This throws when an error is encountered attempting to access the
+  /// resource.
+  Future<R> fetchSingle<R>({
     required String uri,
     required Future<void> abortSignal,
     required BytesToResourceTransformer<R> transformer,
-    required StreamSink<ImageChunkEvent>? chunkEvents,
-    required bool performLongTermCaching,
+    StreamSink<ImageChunkEvent>? chunkEvents,
   }) async {
     final parsedUri = Uri.parse(uri);
 
@@ -207,13 +192,16 @@ class NetworkBytesFetcher
     }
 
     // Create method to write response to cache when applicable
+    // Even when fetching a fallback, we can still use the long-term cache, as
+    // it safely associates it with the resolved URI. This is not possible for
+    // the short-term cache, as it would require the I/O work to occur before
+    // the short-term cache key could be resolved.
     void cachePut({
       required Uint8List? bytes,
       required Map<String, String> headers,
     }) {
-      if (performLongTermCaching || !cachingProvider.isSupported) return;
+      if (!cachingProvider.isSupported) return;
 
-      // TODO: Consider best way to silence these 2 logs
       late final CachedMapTileMetadata metadata;
       try {
         metadata = CachedMapTileMetadata.fromHttpHeaders(
@@ -302,7 +290,7 @@ class NetworkBytesFetcher
 
       try {
         return await transformer(bytes, allowReuse: false);
-      } catch (_, stackTrace) {
+      } on Exception catch (_, stackTrace) {
         // If it throws, we don't want to throw the decode error, as that's not
         // useful for users
         // Instead, we throw an exception reporting the failed HTTP request,

@@ -1,8 +1,8 @@
 import 'package:flutter_map/src/layer/modern_tile_layer/options.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/bytes_fetcher.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/file/file_stub.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/network/fetcher/network.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_generator_fetcher.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_tile_generators.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/bytes_fetcher.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/file/file_stub.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/network/fetcher/network.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_source.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:meta/meta.dart';
@@ -19,10 +19,10 @@ import 'package:meta/meta.dart';
 /// [TMS](https://en.wikipedia.org/wiki/Tile_Map_Service) standard by flipping
 /// the Y axis.
 @immutable
-class XYZGenerator implements TileSourceGenerator<TileSource> {
+class XYZSourceGenerator implements SourceGenerator<TileSource> {
   /// List of endpoints for tile resources, in XYZ template format.
   ///
-  /// Endpoints are used by the [TileSourceFetcher] in use, and so their meaning
+  /// Endpoints are used by the [TileGenerator] in use, and so their meaning
   /// is context dependent. For example, a HTTP URL would likely be used with
   /// the [NetworkBytesFetcher], whilst a file URI would be used with the
   /// [FileBytesFetcher].
@@ -33,7 +33,7 @@ class XYZGenerator implements TileSourceGenerator<TileSource> {
   ///
   /// > [!WARNING]
   /// > Using fallbacks may incur a (potentially significant) performance
-  /// > penalty, and may not be understood by all [TileSourceFetcher]s.
+  /// > penalty, and may not be understood by all [TileGenerator]s.
   /// > Note that failing each endpoint may take some time (such as a HTTP
   /// > timeout elapsing).
   ///
@@ -68,7 +68,7 @@ class XYZGenerator implements TileSourceGenerator<TileSource> {
 
   /// A tile source generator which generates tiles for slippy map tile servers
   /// following the standard XYZ tile referencing system.
-  const XYZGenerator({
+  const XYZSourceGenerator({
     required this.uriTemplates,
     this.subdomains = const [],
     this.additionalPlaceholders = const {},
@@ -145,7 +145,7 @@ class XYZGenerator implements TileSourceGenerator<TileSource> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is XYZGenerator &&
+      (other is XYZSourceGenerator &&
           other.uriTemplates == uriTemplates &&
           other.subdomains == subdomains &&
           other.additionalPlaceholders == additionalPlaceholders &&

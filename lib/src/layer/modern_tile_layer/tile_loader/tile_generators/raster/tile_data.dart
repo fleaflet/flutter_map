@@ -1,17 +1,17 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_data.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/raster/raster_tile_fetcher.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/base_tile_data.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/raster/generator.dart';
 import 'package:meta/meta.dart';
 
 /// Raster tile data associated with a particular tile coordinate
 ///
-/// This is used for communication between the [RasterTileFetcher] and the
+/// This is used for communication between the [RasterTileGenerator] and the
 /// raster tile renderer.
 ///
 /// It is not usually necessary to consume this externally.
-class RasterTileData implements TileData {
+class RasterTileData implements BaseTileData {
   /// Actual raster [ImageProvider]
   final ImageProvider image;
 

@@ -14,7 +14,7 @@ import 'package:meta/meta.dart';
 /// It is up to the implementation as to what 'loads' means. However, the
 /// [BaseTileLayer] will use [whenLoaded], [isLoaded], and [dispose] to manage
 /// (such as pruning) the tile for the renderer.
-abstract interface class TileData {
+abstract interface class BaseTileData {
   /// Completes when the underlying resource is 'loaded'
   Future<void> get whenLoaded;
 
@@ -32,13 +32,13 @@ abstract interface class TileData {
   void dispose();
 }
 
-/// Wrapper for custom-shape data as a [TileData]
+/// Wrapper for custom-shape data as a [BaseTileData]
 ///
 /// The data carried is usually made available asynchronously, for example as
 /// the result of an I/O operation or HTTP request. Alternatively, data may be
 /// available synchronously if the data is loaded from prepared memory. This
 /// container supports either form of data.
-class WrapperTileData<D extends Object?> implements TileData {
+class WrapperTileData<D extends Object?> implements BaseTileData {
   D? _data;
 
   /// Data resource
