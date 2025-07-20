@@ -3,29 +3,27 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/bytes_fetcher.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_source.dart';
 
-/// A [SourceBytesFetcher] which fetches from the app's shipped assets, based on
-/// their [TileSource]
+/// A [SourceBytesFetcher] which fetches from the app's shipped assets.
+///
+/// {@macro fm.sbf.default.sourceConsumption}
 ///
 /// In normal usage, all tiles (or at least each individual lowest-level
 /// directory) must be listed as normal in the pubspec.
 // TODO: This a considerably different implementation - check performance
 @immutable
-class AssetBytesFetcher implements SourceBytesFetcher<TileSource> {
-  /// Asset bundle to retrieve tiles from
+class AssetBytesFetcher implements SourceBytesFetcher<Iterable<String>> {
+  /// Asset bundle to retrieve tiles from.
   final AssetBundle? assetBundle;
 
-  /// A [SourceBytesFetcher] which fetches from the app's shipped assets, based
-  /// on their [TileSource]
+  /// A [SourceBytesFetcher] which fetches from the app's shipped assets.
   ///
   /// By default, this uses the default [rootBundle]. If a different bundle is
   /// required, either specify it manually, or use the
   /// [AssetBytesFetcher.fromContext] constructor.
   const AssetBytesFetcher({this.assetBundle});
 
-  /// A [SourceBytesFetcher] which fetches from the app's shipped assets, based
-  /// on their [TileSource]
+  /// A [SourceBytesFetcher] which fetches from the app's shipped assets.
   ///
   /// Gets the asset bundle from the [DefaultAssetBundle] depending on the
   /// provided context.
@@ -34,27 +32,33 @@ class AssetBytesFetcher implements SourceBytesFetcher<TileSource> {
 
   @override
   Future<R> call<R>({
-    required TileSource source,
+    required Iterable<String> source,
     required Future<void> abortSignal,
     required BytesToResourceTransformer<R> transformer,
-    bool useFallback = false,
   }) async {
     final bundle = assetBundle ?? rootBundle;
-    final resolvedUri = useFallback ? source.fallbackUri ?? '' : source.uri;
 
-    try {
-      final bytes = await bundle.load(resolvedUri);
-      return await transformer(Uint8List.sublistView(bytes));
-    } on Exception {
-      if (useFallback || source.fallbackUri == null) rethrow;
-      return this(
-        source: source,
-        abortSignal: abortSignal,
-        // In fallback scenarios, we never reuse bytes
-        transformer: (bytes, {allowReuse = true}) =>
-            transformer(bytes, allowReuse: false),
-        useFallback: useFallback,
-      );
+    final iterator = source.iterator;
+
+    if (!iterator.moveNext()) {
+      throw ArgumentError('At least one URI must be provided', 'source');
+    }
+
+    for (bool isPrimary = true;; isPrimary = false) {
+      try {
+        return await transformer(
+          Uint8List.sublistView(await bundle.load(iterator.current)),
+          // In fallback scenarios, we never allow reuse of bytes in the
+          // short-term cache (or long-term cache)
+          allowReuse: isPrimary,
+        );
+      } on Exception {
+        if (!iterator.moveNext()) rethrow; // No (more) fallbacks available
+
+        // Attempt fallbacks
+        // TODO: Consider logging
+        continue;
+      }
     }
   }
 }

@@ -14,16 +14,21 @@ import 'package:http/http.dart';
 import 'package:http/retry.dart';
 import 'package:logger/logger.dart';
 
-/// A [SourceBytesFetcher] which fetches from the network using HTTP, based on
-/// their [TileSource]
+/// A [SourceBytesFetcher] which fetches from the network using HTTP.
+///
+/// {@template fm.sbf.default.sourceConsumption}
+/// Consumes an [Iterable] of [String] URIs, which must not be empty and
+/// iterates in an order. If the first URI cannot be used to fetch bytes, the
+/// next URI is used as a fallback if available, and so on.
+/// {@endtemplate}
 @immutable
 class NetworkBytesFetcher
     with ImageChunkEventsSupport<Iterable<String>>
     implements SourceBytesFetcher<Iterable<String>> {
-  /// HTTP headers to send with each request
+  /// HTTP headers to send with each request.
   final Map<String, String> headers;
 
-  /// HTTP client used to make each request
+  /// HTTP client used to make each request.
   ///
   /// It is much more efficient if a single client is used repeatedly, as it
   /// can maintain an open socket connection to the server.
@@ -41,7 +46,7 @@ class NetworkBytesFetcher
   final MapCachingProvider? cachingProvider;
 
   /// Whether to optimistically attempt to decode HTTP responses that have a
-  /// non-successful status code as an image
+  /// non-successful status code as an image.
   ///
   /// Defaults to `true`.
   final bool attemptDecodeOfHttpErrorResponses;
@@ -76,8 +81,7 @@ class NetworkBytesFetcher
   /// to flutter_map.
   final bool abortObsoleteRequests;
 
-  /// A tile bytes fetcher which fetches from the network using HTTP, based on
-  /// their [TileSource]
+  /// A [SourceBytesFetcher] which fetches from the network using HTTP.
   ///
   /// The string "flutter_map ([uaIdentifier])" is set as the 'User-Agent' HTTP
   /// header on non-web platforms, if the UA header is not specified manually.
@@ -140,12 +144,11 @@ class NetworkBytesFetcher
       } on TileAbortedException {
         rethrow; // Never try fallbacks on abortion
       } on Exception {
-        if (iterator.moveNext()) {
-          // Attempt fallbacks
-          // TODO: Consider logging
-          continue;
-        }
-        rethrow; // No more fallbacks available
+        if (!iterator.moveNext()) rethrow; // No (more) fallbacks available
+
+        // Attempt fallbacks
+        // TODO: Consider logging
+        continue;
       }
     }
   }

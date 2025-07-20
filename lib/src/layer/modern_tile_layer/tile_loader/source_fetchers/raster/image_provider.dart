@@ -5,10 +5,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 /// Similar to [MemoryImage], but requires a [key] to identify and cache the
-/// image, and supports lazily getting the image bytes with chunk support
+/// image, and supports lazily getting the image bytes with chunk support.
 class KeyedDelegatedImage extends ImageProvider<KeyedDelegatedImage> {
   /// Similar to [MemoryImage], but requires a [key] to identify and cache the
-  /// image, and supports lazily getting the image bytes with chunk support
+  /// image, and supports lazily getting the image bytes with chunk support.
   const KeyedDelegatedImage({
     required this.key,
     required this.delegate,

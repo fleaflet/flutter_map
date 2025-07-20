@@ -2,14 +2,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_map/src/geo/crs.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/options.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_generator_fetcher.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_source.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:meta/meta.dart';
 
 /// A tile source generator which generates tiles for the
-/// [WMS](https://en.wikipedia.org/wiki/Web_Map_Service) referencing system
+/// [WMS](https://en.wikipedia.org/wiki/Web_Map_Service) referencing system.
 @immutable
-class WMSGenerator implements TileSourceGenerator<List<String>> {
+class WMSGenerator implements TileSourceGenerator<TileSource> {
   /// WMS service's URL, for example 'http://ows.mundialis.de/services/service?'
   final String baseUrl;
 
@@ -34,7 +35,7 @@ class WMSGenerator implements TileSourceGenerator<List<String>> {
   /// Sets map projection standard
   final Crs crs;
 
-  /// The scalar to multiply the calculated width & height for each request by
+  /// The scalar to multiply the calculated width & height for each request by.
   ///
   /// This may be used to simulate retina mode, for example, by setting to 2.
   ///
@@ -49,7 +50,7 @@ class WMSGenerator implements TileSourceGenerator<List<String>> {
 
   late final double _versionNumber;
 
-  /// Create a new [WMSGenerator] instance
+  /// Create a new [WMSGenerator] instance.
   WMSGenerator({
     required this.baseUrl,
     this.layers = const [],
@@ -84,7 +85,7 @@ class WMSGenerator implements TileSourceGenerator<List<String>> {
   }
 
   @override
-  List<String> call(TileCoordinates coordinates, TileLayerOptions options) {
+  TileSource call(TileCoordinates coordinates, TileLayerOptions options) {
     final nwPoint = Offset(
       (coordinates.x * options.tileDimension).toDouble(),
       (coordinates.y * options.tileDimension).toDouble(),
@@ -103,12 +104,12 @@ class WMSGenerator implements TileSourceGenerator<List<String>> {
         ? [bounds.min.dy, bounds.min.dx, bounds.max.dy, bounds.max.dx]
         : [bounds.min.dx, bounds.min.dy, bounds.max.dx, bounds.max.dy];
 
-    return [
+    return TileSource(
       (StringBuffer(_encodedBaseUrl)
             ..write('&width=${options.tileDimension * dimensionsMultiplier}')
             ..write('&height=${options.tileDimension * dimensionsMultiplier}')
             ..write('&bbox=${bbox.join(',')}'))
           .toString(),
-    ];
+    );
   }
 }

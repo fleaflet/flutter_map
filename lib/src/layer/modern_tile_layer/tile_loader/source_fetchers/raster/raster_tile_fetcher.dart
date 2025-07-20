@@ -1,24 +1,49 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_loader.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/bytes_fetcher.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/network/fetcher/network.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/raster/image_provider.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/raster/tile_data.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_generator_fetcher.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_generators/xyz.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_loader.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_source.dart';
 
 /// A tile source fetcher which delgates fetching of a raster image's bytes to
-/// a [SourceBytesFetcher], then creates an [ImageProvider] by decoding the bytes
+/// a [SourceBytesFetcher], then creates an [ImageProvider] by decoding the
+/// bytes.
+///
+/// The source ([S]) is used as the short-term caching key for the
+/// [ImageProvider] (and Flutter's [ImageCache]) - therefore, it must meet the
+/// necessary conditions as described by [ImageProvider.obtainKey]
+/// (particularly, it must be an object with a useful equality defined).
 ///
 /// This is used instead of directly sending the bytes to the renderer, as it
 /// hooks into the Flutter image cache, meaning that tiles are cached in memory.
 /// Additionally, it is easier for the renderer canvas to work with.
+///
+/// ---
+///
+/// The pre-provided [SourceBytesFetcher]s (such as [NetworkBytesFetcher])
+/// consume [Iterable]s of [String]s as a source ([S]), and use the transformer
+/// provided by this object to output a [RasterTileData]. This is so that they
+/// may be used outside of the context of [TileSource] & [RasterTileFetcher]
+/// (for example, in a different stack).
+///
+/// It is not suitable to use an [Iterable] directly, as it does not meet the
+/// criteria for a key. Instead, the pre-provided [TileSourceGenerator]s (such
+/// as [XYZGenerator]) output a [TileSource], which meets all necessary
+/// requirements.
+///
+/// However, this fetcher could be used with any source. For example, if a
+/// different [SourceBytesFetcher] is used, it doesn't necessarily need to use
+/// [TileSource] or any other contract described above.
 class RasterTileFetcher<S extends Object>
     implements TileSourceFetcher<S, RasterTileData> {
-  /// The delegate which provides the bytes for the this tile
+  /// The delegate which provides the bytes for the this tile.
   ///
   /// This may not be called for every tile, if the tile was already present in
   /// the ambient [ImageCache].
@@ -26,64 +51,59 @@ class RasterTileFetcher<S extends Object>
 
   /// A tile source fetcher which delgates fetching of a raster image's bytes
   /// to a [SourceBytesFetcher], then creates an [ImageProvider] by decoding the
-  /// bytes
+  /// bytes.
   const RasterTileFetcher({required this.bytesFetcher});
 
   @override
   RasterTileData call(S source) {
-    final abortTrigger = Completer<void>.sync();
+    final abortTrigger = Completer<void>();
 
-    // PaintingBinding.instance.imageCache.containsKey(key)
+    Future<Codec> imageDelegate(
+      KeyedDelegatedImage key, {
+      required StreamSink<ImageChunkEvent> chunkEvents,
+      required ImageDecoderCallback decode,
+    }) async {
+      void evict() => scheduleMicrotask(
+            () => PaintingBinding.instance.imageCache.evict(key),
+          );
+
+      Future<Codec> transformer(Uint8List bytes, {bool allowReuse = true}) {
+        if (!allowReuse) evict();
+        return ImmutableBuffer.fromUint8List(bytes).then(decode);
+      }
+
+      try {
+        // Must await to handle errors
+        if (bytesFetcher
+            case ImageChunkEventsSupport(
+              withImageChunkEventsSink: final bytesFetcher
+            )) {
+          return await bytesFetcher(
+            source: source,
+            abortSignal: abortTrigger.future,
+            transformer: transformer,
+            chunkEvents: chunkEvents,
+          );
+        }
+        return await bytesFetcher(
+          source: source,
+          abortSignal: abortTrigger.future,
+          transformer: transformer,
+        );
+      } on TileAbortedException {
+        evict();
+        return ImmutableBuffer.fromUint8List(TileLoader.transparentImage)
+            .then(decode);
+      } on Exception {
+        evict();
+        rethrow;
+      }
+    }
 
     return RasterTileData(
       image: KeyedDelegatedImage(
-        key: (
-          source, // TODO: This cannot be used. Maybe .first somehow if we only
-          // want to cache primary target (or evict otherwise). Otherwise more
-          // complex system required.
-          bytesFetcher
-        ),
-        // TODO: Ideal if we can return a key from the delegate - but need to
-        // ensure that key can be looked up in cache without async or waiting
-        // for bytes. But then need to make a decision about traversing source
-        // with `imageCache.containsKey` vs getting bytes. And, we check cache
-        // for primary -> not present, try to fetch primary -> fail, might as
-        // well check cache for secondary - but that requires looping outside
-        // this constructor!
-        delegate: (key, {required chunkEvents, required decode}) async {
-          void evict() => scheduleMicrotask(
-                () => PaintingBinding.instance.imageCache.evict(key),
-              );
-
-          Future<Codec> transformer(Uint8List bytes, {bool allowReuse = true}) {
-            if (!allowReuse) evict();
-            return ImmutableBuffer.fromUint8List(bytes).then(decode);
-          }
-
-          try {
-            // await to handle errors
-            if (bytesFetcher case final ImageChunkEventsSupport bytesFetcher) {
-              return await bytesFetcher.withImageChunkEventsSink(
-                source: source,
-                abortSignal: abortTrigger.future,
-                transformer: transformer,
-                chunkEvents: chunkEvents,
-              );
-            }
-            return await bytesFetcher(
-              source: source,
-              abortSignal: abortTrigger.future,
-              transformer: transformer,
-            );
-          } on TileAbortedException {
-            evict();
-            return ImmutableBuffer.fromUint8List(TileLoader.transparentImage)
-                .then(decode);
-          } catch (e) {
-            evict();
-            rethrow;
-          }
-        },
+        key: source,
+        delegate: imageDelegate,
       ),
       dispose: abortTrigger.complete,
     )..load();

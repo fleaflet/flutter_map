@@ -3,11 +3,12 @@ import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetch
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/file/file_stub.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/network/fetcher/network.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_generator_fetcher.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_source.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:meta/meta.dart';
 
 /// A tile source generator which generates tiles for slippy map tile servers
-/// following the standard XYZ tile referencing system
+/// following the standard XYZ tile referencing system.
 ///
 /// [Slippy maps](https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames) are
 /// also known as [tiled web maps](https://en.wikipedia.org/wiki/Tiled_web_map)
@@ -18,8 +19,8 @@ import 'package:meta/meta.dart';
 /// [TMS](https://en.wikipedia.org/wiki/Tile_Map_Service) standard by flipping
 /// the Y axis.
 @immutable
-class XYZGenerator implements TileSourceGenerator<Iterable<String>> {
-  /// List of endpoints for tile resources, in XYZ template format
+class XYZGenerator implements TileSourceGenerator<TileSource> {
+  /// List of endpoints for tile resources, in XYZ template format.
   ///
   /// Endpoints are used by the [TileSourceFetcher] in use, and so their meaning
   /// is context dependent. For example, a HTTP URL would likely be used with
@@ -46,7 +47,7 @@ class XYZGenerator implements TileSourceGenerator<Iterable<String>> {
   final List<String> uriTemplates;
 
   /// List of subdomains for the [uriTemplates] (to replace the `{s}`
-  /// placeholder)
+  /// placeholder).
   ///
   /// > [!NOTE]
   /// > This may no longer be necessary for many tile servers in many cases.
@@ -54,7 +55,7 @@ class XYZGenerator implements TileSourceGenerator<Iterable<String>> {
   final List<String> subdomains;
 
   /// Static information that should replace associated placeholders in the
-  /// [uriTemplates]
+  /// [uriTemplates].
   ///
   /// For example, this could be used to more easily apply API keys to
   /// templates.
@@ -62,11 +63,11 @@ class XYZGenerator implements TileSourceGenerator<Iterable<String>> {
   /// Override [generateReplacementMap] to dynamically generate placeholders.
   final Map<String, String> additionalPlaceholders;
 
-  /// Whether to invert Y axis numbering for tiles
+  /// Whether to invert Y axis numbering for tiles.
   final bool tms;
 
   /// A tile source generator which generates tiles for slippy map tile servers
-  /// following the standard XYZ tile referencing system
+  /// following the standard XYZ tile referencing system.
   const XYZGenerator({
     required this.uriTemplates,
     this.subdomains = const [],
@@ -75,10 +76,9 @@ class XYZGenerator implements TileSourceGenerator<Iterable<String>> {
   });
 
   @override
-  Iterable<String> call(
-    TileCoordinates coordinates,
-    TileLayerOptions options,
-  ) {
+  TileSource call(TileCoordinates coordinates, TileLayerOptions options) {
+    assert(uriTemplates.isNotEmpty, '`uriTemplates` must not be empty');
+
     final replacementMap = generateReplacementMap(coordinates, options);
 
     String replacer(Match match) {
@@ -87,12 +87,16 @@ class XYZGenerator implements TileSourceGenerator<Iterable<String>> {
       throw ArgumentError('Missing value for placeholder: {${match.group(1)}}');
     }
 
-    // Lazily generate URIs as required
-    return uriTemplates
-        .map((t) => t.replaceAllMapped(templatePlaceholderElement, replacer));
+    return TileSource(
+      uriTemplates[0].replaceAllMapped(templatePlaceholderElement, replacer),
+      fallbackUris: uriTemplates
+          .skip(1)
+          // Lazily generate fallback URIs as required
+          .map((t) => t.replaceAllMapped(templatePlaceholderElement, replacer)),
+    );
   }
 
-  /// Generates the mapping of [uriTemplates] placeholders to replacements
+  /// Generates the mapping of [uriTemplates] placeholders to replacements.
   @visibleForOverriding
   Map<String, String> generateReplacementMap(
     TileCoordinates coordinates,
@@ -120,7 +124,7 @@ class XYZGenerator implements TileSourceGenerator<Iterable<String>> {
     };
   }
 
-  /// Regex that describes the format of placeholders in a `uriTemplate`
+  /// Regex that describes the format of placeholders in a `uriTemplate`.
   ///
   /// The regex used prior to v6 originated from leaflet.js, specifically from
   /// commit [dc79b10683d2](https://github.com/Leaflet/Leaflet/commit/dc79b10683d232b9637cbe4d65567631f4fa5a0b).

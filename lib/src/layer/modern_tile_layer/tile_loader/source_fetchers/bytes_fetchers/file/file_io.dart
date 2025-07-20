@@ -2,38 +2,43 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_fetchers/bytes_fetchers/bytes_fetcher.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_source.dart';
 
-/// A [SourceBytesFetcher] which fetches from the local filesystem, based on
-/// their [TileSource]
+/// A [SourceBytesFetcher] which fetches from the local filesystem.
+///
+/// {@macro fm.sbf.default.sourceConsumption}
 @immutable
-class FileBytesFetcher implements SourceBytesFetcher<TileSource> {
-  /// A [SourceBytesFetcher] which fetches from the local filesystem, based on
-  /// their [TileSource]
+class FileBytesFetcher implements SourceBytesFetcher<Iterable<String>> {
+  /// A [SourceBytesFetcher] which fetches from the local filesystem.
   const FileBytesFetcher();
 
   @override
   Future<R> call<R>({
-    required TileSource source,
+    required Iterable<String> source,
     required Future<void> abortSignal,
     required BytesToResourceTransformer<R> transformer,
-    bool useFallback = false,
   }) async {
-    final resolvedUri = useFallback ? source.fallbackUri ?? '' : source.uri;
+    final iterator = source.iterator;
 
-    try {
-      final bytes = await File(resolvedUri).readAsBytes();
-      return await transformer(bytes);
-    } on Exception {
-      if (useFallback || source.fallbackUri == null) rethrow;
-      return this(
-        source: source,
-        abortSignal: abortSignal,
-        // In fallback scenarios, we never reuse bytes
-        transformer: (bytes, {allowReuse = true}) =>
-            transformer(bytes, allowReuse: false),
-        useFallback: useFallback,
-      );
+    if (!iterator.moveNext()) {
+      throw ArgumentError('At least one URI must be provided', 'source');
+    }
+
+    for (bool isPrimary = true;; isPrimary = false) {
+      // TODO: Consider abortable streaming of bytes
+      try {
+        return await transformer(
+          await File(iterator.current).readAsBytes(),
+          // In fallback scenarios, we never allow reuse of bytes in the
+          // short-term cache (or long-term cache)
+          allowReuse: isPrimary,
+        );
+      } on Exception {
+        if (!iterator.moveNext()) rethrow; // No (more) fallbacks available
+
+        // Attempt fallbacks
+        // TODO: Consider logging
+        continue;
+      }
     }
   }
 }

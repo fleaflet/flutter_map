@@ -19,17 +19,17 @@ import 'package:meta/meta.dart';
 @immutable
 final class TileLoader<S extends Object?, D extends TileData>
     implements BaseTileLoader<D> {
-  /// Tile source generator
+  /// Tile source generator.
   ///
   /// See documentation on [TileLoader] & [TileSourceGenerator] for information.
   final TileSourceGenerator<S> sourceGenerator;
 
-  /// Tile source fetcher
+  /// Tile source fetcher.
   ///
   /// See documentation on [TileLoader] & [TileSourceFetcher] for information.
   final TileSourceFetcher<S, D> sourceFetcher;
 
-  /// Create a tile loader from a source generator & fetcher
+  /// Create a tile loader from a source generator & fetcher.
   const TileLoader({
     required this.sourceGenerator,
     required this.sourceFetcher,
@@ -49,7 +49,7 @@ final class TileLoader<S extends Object?, D extends TileData>
   @override
   int get hashCode => Object.hash(sourceGenerator, sourceFetcher);
 
-  /// [Uint8List] that forms a fully transparent image
+  /// [Uint8List] that forms a fully transparent image.
   static final transparentImage = Uint8List.fromList([
     0x89,
     0x50,

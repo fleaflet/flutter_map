@@ -7,7 +7,7 @@ import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_gener
 import 'package:meta/meta.dart';
 
 /// Fetches a tile's bytes based on its source ([S]), transforming it into a
-/// desired resource using a supplied [BytesToResourceTransformer]
+/// desired resource using a supplied [BytesToResourceTransformer].
 ///
 /// Implementers should implement longer-term caching where necessary, or
 /// delegate to a cacher. Note that [TileSourceFetcher]s may also perform
@@ -19,7 +19,7 @@ import 'package:meta/meta.dart';
 abstract interface class SourceBytesFetcher<S extends Object?> {
   /// {@template fm.tilelayer.tilebytesfetcher.call}
   /// Fetches a tile's bytes based on its source ([S]), transforming it into a
-  /// desired resource ([R]) using a supplied transformer
+  /// desired resource ([R]) using a supplied transformer.
   ///
   /// The [abortSignal] completes when the tile is no longer required. If
   /// possible, any ongoing work (such as an HTTP request) should be aborted.
@@ -37,10 +37,10 @@ abstract interface class SourceBytesFetcher<S extends Object?> {
 }
 
 /// Allows a [SourceBytesFetcher] to integrate more closely with the raster tile
-/// stack by reporting progress events to the underlying [ImageProvider]
+/// stack by reporting progress events to the underlying [ImageProvider].
 abstract mixin class ImageChunkEventsSupport<S extends Object?>
     implements SourceBytesFetcher<S> {
-  /// Redirects to [withImageChunkEventsSink]
+  /// Redirects to [withImageChunkEventsSink].
   @override
   @nonVirtual
   FutureOr<R> call<R>({
@@ -67,13 +67,13 @@ abstract mixin class ImageChunkEventsSupport<S extends Object?>
 }
 
 /// Exception thrown when a tile was loading but aborted early as it was no
-/// longer required
+/// longer required.
 class TileAbortedException<S extends Object?> implements Exception {
-  /// Optional description of the tile
+  /// Optional description of the tile.
   final Object? source;
 
   /// Exception thrown when a tile was loading but aborted early as it was no
-  /// longer required
+  /// longer required.
   const TileAbortedException({this.source});
 
   @override
@@ -81,7 +81,7 @@ class TileAbortedException<S extends Object?> implements Exception {
 }
 
 /// Callback provided to a [SourceBytesFetcher] by a root [TileSourceFetcher],
-/// which converts fetched bytes into the desired [Resource]
+/// which converts fetched bytes into the desired [Resource].
 ///
 /// This may throw if the bytes could not be correctly transformed, for example
 /// because they were corrupted or otherwise undecodable. In this case, it is
@@ -101,7 +101,4 @@ class TileAbortedException<S extends Object?> implements Exception {
 /// the bytes create a resource different to what is desired (for example, a
 /// fallback resource), then `allowReuse` should be set `false`.
 typedef BytesToResourceTransformer<Resource extends Object?>
-    = FutureOr<Resource> Function(
-  Uint8List bytes, {
-  bool allowReuse,
-});
+    = FutureOr<Resource> Function(Uint8List bytes, {bool allowReuse});
