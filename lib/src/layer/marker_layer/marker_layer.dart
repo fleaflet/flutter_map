@@ -72,23 +72,22 @@ class MarkerLayer extends StatelessWidget {
 
               // Shift original coordinate along worlds, then move into relative
               // to origin space
-              final shiftedLocalPoint =
-                  Offset(shiftedX, pxPoint.dy) - map.pixelOrigin;
-
+              final shiftedLocalPoint = Offset(shiftedX, pxPoint.dy) - map.pixelOrigin;
+             
+              final markerKey = m.key ?? '${m.point.latitude}:${m.point.longitude}';
               return Positioned(
-                key: m.key,
-                width: m.width,
-                height: m.height,
-                left: shiftedLocalPoint.dx - right,
-                top: shiftedLocalPoint.dy - bottom,
-                child: (m.rotate ?? rotate)
-                    ? Transform.rotate(
-                        angle: -map.rotationRad,
-                        alignment: (m.alignment ?? alignment) * -1,
-                        child: m.child,
-                      )
-                    : m.child,
-              );
+                  key: ValueKey('$markerKey@$shiftedX'),
+                  width: m.width,
+                  height: m.height,
+                  left: shiftedLocalPoint.dx - right,
+                  top: shiftedLocalPoint.dy - bottom,
+                  child: RepaintBoundary(child: (m.rotate ?? rotate)
+                      ? Transform.rotate(
+                          angle: -map.rotationRad,
+                          alignment: (m.alignment ?? alignment) * -1,
+                          child: m.child,
+                        )
+                      : m.child));
             }
 
             // Create marker in main world, unless culled
