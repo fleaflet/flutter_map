@@ -74,7 +74,7 @@ class MarkerLayer extends StatelessWidget {
               // to origin space
               final shiftedLocalPoint = Offset(shiftedX, pxPoint.dy) - map.pixelOrigin;
              
-              final markerKey = m.key ?? '${m.point.latitude}:${m.point.longitude}';
+              final markerKey = m.key ?? ObjectKey(m);
               return Positioned(
                   key: ValueKey('$markerKey@$shiftedX'),
                   width: m.width,
