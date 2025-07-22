@@ -1,8 +1,11 @@
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map_example/pages/abort_obsolete_requests.dart';
 import 'package:flutter_map_example/pages/animated_map_controller.dart';
 import 'package:flutter_map_example/pages/bundled_offline_map.dart';
-import 'package:flutter_map_example/pages/cancellable_tile_provider.dart';
 import 'package:flutter_map_example/pages/circle.dart';
 import 'package:flutter_map_example/pages/debouncing_tile_update_transformer.dart';
 import 'package:flutter_map_example/pages/epsg3996_crs.dart';
@@ -34,8 +37,10 @@ import 'package:flutter_map_example/pages/tile_builder.dart';
 import 'package:flutter_map_example/pages/tile_loading_error_handle.dart';
 import 'package:flutter_map_example/pages/wms_tile_layer.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_item.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 const _isWASM = bool.fromEnvironment('dart.tool.dart2wasm');
+const _commitSHA = String.fromEnvironment('COMMIT_SHA');
 
 class MenuDrawer extends StatelessWidget {
   final String currentRoute;
@@ -47,7 +52,13 @@ class MenuDrawer extends StatelessWidget {
     return Drawer(
       child: ListView(
         children: <Widget>[
-          DrawerHeader(
+          Container(
+            padding: const EdgeInsets.fromLTRB(16, 32, 16, 16)
+                .add(EdgeInsets.only(top: MediaQuery.paddingOf(context).top)),
+            margin: const EdgeInsets.only(bottom: 8),
+            decoration: BoxDecoration(
+              border: Border(bottom: Divider.createBorderSide(context)),
+            ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -65,11 +76,51 @@ class MenuDrawer extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 14),
                 ),
+                const SizedBox(height: 8),
                 if (kIsWeb)
-                  const Text(
+                  Text(
                     _isWASM ? 'Running with WASM' : 'Running without WASM',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                if (_commitSHA != '')
+                  SelectableText.rich(
+                    TextSpan(
+                      style: DefaultTextStyle.of(context).style,
+                      children: [
+                        const TextSpan(text: 'Built from: '),
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: '${_commitSHA.substring(
+                                0,
+                                min(_commitSHA.length, 7),
+                              )} ',
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = _openCommit,
+                            ),
+                            WidgetSpan(
+                              child: MouseRegion(
+                                cursor: SystemMouseCursors.click,
+                                child: GestureDetector(
+                                  onTap: _openCommit,
+                                  child: const Icon(
+                                    Icons.open_in_new,
+                                    size: 14,
+                                    color: Colors.blue,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                          style: const TextStyle(
+                            color: Colors.blue,
+                            decoration: TextDecoration.underline,
+                            decorationColor: Colors.blue,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
               ],
             ),
@@ -155,8 +206,8 @@ class MenuDrawer extends StatelessWidget {
             currentRoute: currentRoute,
           ),
           MenuItemWidget(
-            caption: 'Cancellable Tile Provider',
-            routeName: CancellableTileProviderPage.route,
+            caption: 'Abort Obsolete Requests',
+            routeName: AbortObsoleteRequestsPage.route,
             currentRoute: currentRoute,
           ),
           MenuItemWidget(
@@ -254,4 +305,8 @@ class MenuDrawer extends StatelessWidget {
       ),
     );
   }
+
+  void _openCommit() => launchUrl(
+        Uri.parse('https://github.com/fleaflet/flutter_map/commit/$_commitSHA'),
+      );
 }

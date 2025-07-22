@@ -1,13 +1,13 @@
 name: flutter_map
-description: A versatile mapping package for Flutter, that's simple and easy to learn, yet completely customizable and configurable
-version: 8.1.1
+description: "Flutter's №1 non-commercially aimed map client: it's easy-to-use, versatile, vendor-free, fully cross-platform, and 100% pure-Flutter"
+version: 8.2.1
 
 repository: https://github.com/fleaflet/flutter_map
 issue_tracker: https://github.com/fleaflet/flutter_map/issues
 documentation: https://docs.fleaflet.dev
 
 funding:
-  - https://docs.fleaflet.dev/supporters#support-us
+  - https://github.com/sponsors/fleaflet
 
 topics:
   - flutter-map
@@ -29,18 +29,20 @@ dependencies:
   async: ^2.11.0
   collection: ^1.18.0
   dart_earcut: ^1.1.0
+  dart_polylabel2: ^1.0.0
   flutter:
     sdk: flutter
-  http: ^1.2.1
+  http: ^1.5.0-beta
   latlong2: ^0.9.1
   logger: ^2.0.0
   meta: ^1.11.0
-  polylabel: ^1.0.1
+  path: ^1.9.1
+  path_provider: ^2.1.5
   proj4dart: ^2.1.0
-  vector_math: ^2.1.4
+  uuid: ^4.5.1
 
 dev_dependencies:
-  flutter_lints: ">=4.0.0 <6.0.0"
+  flutter_lints: ">=4.0.0 <7.0.0"
   flutter_test:
     sdk: flutter
   mocktail: ^1.0.3

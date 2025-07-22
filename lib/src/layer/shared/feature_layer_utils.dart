@@ -63,8 +63,14 @@ mixin FeatureLayerUtils on CustomPainter {
     const maxShiftsCount = 30;
     int shiftsCount = 0;
 
+    final worldWidth = this.worldWidth;
+
     void protectInfiniteLoop() {
-      if (++shiftsCount > maxShiftsCount) throw const StackOverflowError();
+      if (++shiftsCount > maxShiftsCount) {
+        throw AssertionError(
+          'Infinite loop going beyond $maxShiftsCount for world width $worldWidth',
+        );
+      }
     }
 
     protectInfiniteLoop();
@@ -95,10 +101,6 @@ mixin FeatureLayerUtils on CustomPainter {
       }
     }
   }
-
-  /// Returns the origin of the camera.
-  Offset get origin =>
-      camera.projectAtZoom(camera.center) - camera.size.center(Offset.zero);
 
   /// Returns the world size in pixels.
   ///
