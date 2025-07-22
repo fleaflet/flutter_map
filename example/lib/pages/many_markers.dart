@@ -48,28 +48,31 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
         point: position,
         width: 30,
         height: 30,
-        child: GestureDetector(
-          onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Tapped existing marker (${position.latitude}, '
-                '${position.longitude})',
+        child: Builder(builder: (context) {
+          print('built $position');
+          return GestureDetector(
+            onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Tapped existing marker (${position.latitude}, '
+                  '${position.longitude})',
+                ),
+                duration: const Duration(seconds: 1),
+                showCloseIcon: true,
               ),
-              duration: const Duration(seconds: 1),
-              showCloseIcon: true,
             ),
-          ),
-          child: Icon(
-            Icons.location_pin,
-            size: 30,
-            color: Color.fromARGB(
-              255,
-              randomGenerator.nextInt(256),
-              randomGenerator.nextInt(256),
-              randomGenerator.nextInt(256),
+            child: Icon(
+              Icons.location_pin,
+              size: 30,
+              color: Color.fromARGB(
+                255,
+                randomGenerator.nextInt(256),
+                randomGenerator.nextInt(256),
+                randomGenerator.nextInt(256),
+              ),
             ),
-          ),
-        ),
+          );
+        }),
       );
     },
   );

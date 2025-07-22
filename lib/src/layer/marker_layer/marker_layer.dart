@@ -75,6 +75,8 @@ class _MarkerWidget extends ParentDataWidget<_MarkerParentData> {
 
   final Marker marker;
 
+  // TODO: I think?? this means the `Marker` must be constructed `const` or have
+  // a key set?
   @override
   Key? get key => marker.key ?? ObjectKey(marker);
 
