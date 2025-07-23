@@ -579,22 +579,28 @@ See:
     // tiles that are *ready* and at the target zoom level.
     // We're happy to do a bit of diligent work here, since tiles not rendered are
     // cycles saved later on in the render pipeline.
-    final tiles = _tileImageManager
+    final tileRenderers = _tileImageManager
         .getTilesToRender(visibleRange: visibleTileRange)
-        .map((tileRenderer) => Tile(
-              // Must be an ObjectKey, not a ValueKey using the coordinates, in
-              // case we remove and replace the TileImage with a different one.
-              key: ObjectKey(tileRenderer),
-              scaledTileDimension: _tileScaleCalculator.scaledTileDimension(
-                map.zoom,
-                tileRenderer.positionCoordinates.z,
-              ),
-              currentPixelOrigin: map.pixelOrigin,
-              tileImage: tileRenderer.tileImage,
-              positionCoordinates: tileRenderer.positionCoordinates,
-              tileBuilder: widget.tileBuilder,
-            ))
         .toList();
+
+    // Create a map of TileRenderer to Tile widgets with a stable key to prevent rebuilding
+    final tiles = tileRenderers.map((tileRenderer) {
+      // Use the coordinates as a unique identifier for the tile
+      final tileKey = ValueKey(
+          '${tileRenderer.positionCoordinates}:${tileRenderer.tileImage.coordinates}');
+
+      return Tile(
+        key: tileKey,
+        scaledTileDimension: _tileScaleCalculator.scaledTileDimension(
+          map.zoom,
+          tileRenderer.positionCoordinates.z,
+        ),
+        currentPixelOrigin: map.pixelOrigin,
+        tileImage: tileRenderer.tileImage,
+        positionCoordinates: tileRenderer.positionCoordinates,
+        tileBuilder: widget.tileBuilder,
+      );
+    }).toList();
 
     // Sort in render order. In reverse:
     //   1. Tiles at the current zoom.
