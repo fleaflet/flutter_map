@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_example/misc/test_marker.dart';
 import 'package:flutter_map_example/misc/tile_providers.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:latlong2/latlong.dart';
@@ -30,24 +31,18 @@ class _MarkerPageState extends State<MarkerPage> {
   };
 
   late final customMarkers = <Marker>[
-    buildPin(const LatLng(51.51868093513547, -0.12835376940892318)),
-    buildPin(const LatLng(53.33360293799854, -6.284001062079881)),
+    buildPin(const LatLng(51.5186809, -0.1283537)),
+    buildPin(const LatLng(53.3336029, -6.2840010)),
   ];
 
   Marker buildPin(LatLng point) => Marker(
         point: point,
-        width: 60,
-        height: 60,
-        child: GestureDetector(
-          onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Tapped existing marker'),
-              duration: Duration(seconds: 1),
-              showCloseIcon: true,
-            ),
-          ),
-          child: const Icon(Icons.location_pin, size: 60, color: Colors.black),
-        ),
+        // TODO: Part of what's being tested is removing these w/h. But we can't
+        // perform culling before build without - but maybe that's not too
+        // necessary now?
+        // width: 60,
+        // height: 60,
+        child: TestMarker(point: point),
       );
 
   @override
@@ -128,37 +123,46 @@ class _MarkerPageState extends State<MarkerPage> {
                 openStreetMapTileLayer,
                 MarkerLayer(
                   rotate: counterRotate,
-                  markers: const [
+                  markers: [
                     Marker(
                       point: LatLng(47.18664724067855, -1.5436768515939427),
-                      width: 64,
-                      height: 64,
+                      //width: 64,
+                      //height: 64,
                       alignment: Alignment.centerLeft,
-                      child: ColoredBox(
-                        color: Colors.lightBlue,
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: Text('-->'),
+                      child: SizedBox.square(
+                        dimension: 64,
+                        child: ColoredBox(
+                          color: Colors.lightBlue,
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: Text('-->'),
+                          ),
                         ),
                       ),
                     ),
                     Marker(
                       point: LatLng(47.18664724067855, -1.5436768515939427),
-                      width: 64,
-                      height: 64,
+                      //width: 64,
+                      //height: 64,
                       alignment: Alignment.centerRight,
-                      child: ColoredBox(
-                        color: Colors.pink,
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text('<--'),
+                      child: SizedBox.square(
+                        dimension: 64,
+                        child: ColoredBox(
+                          color: Colors.pink,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text('<--'),
+                          ),
                         ),
                       ),
                     ),
                     Marker(
                       point: LatLng(47.18664724067855, -1.5436768515939427),
                       rotate: false,
-                      child: ColoredBox(color: Colors.black),
+                      child: SizedBox.square(
+                        dimension: 24,
+                        child: ColoredBox(color: Colors.black),
+                      ),
                     ),
                   ],
                 ),
