@@ -2,11 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter_map/flutter_map.dart';
 
-/// Provides tile caching facilities to [TileProvider]s
-///
-/// Some caching plugins may choose instead to provide a dedicated
-/// [TileProvider], in which case the flutter_map-provided caching facilities
-/// are irrelevant.
+/// Provides tile caching facilities
 ///
 /// The [CachedMapTileMetadata] object is used to store metadata alongside
 /// cached tiles. Its intended purpose is primarily for caching based on HTTP
