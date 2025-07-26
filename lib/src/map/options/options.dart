@@ -40,6 +40,12 @@ typedef PointerHoverCallback = void Function(
   LatLng point,
 );
 
+/// Callback to notify when the map registers a pointer move event.
+typedef PointerMoveCallback = void Function(
+  PointerMoveEvent event,
+  LatLng point,
+);
+
 /// Callback that gets called when the viewport of the map changes.
 ///
 /// {@macro map_position.has_gesture}
@@ -109,6 +115,11 @@ class MapOptions {
   /// down (e.g. mouse pointers, but not most touch pointers)
   final PointerHoverCallback? onPointerHover;
 
+  /// Called when a pointer is down and moves.
+  /// If used while dragging the map, this should return the same location, but it might not due to map pixel snapping.
+  /// It is more useful to obtain pointer position while map camera position is not changing.
+  final PointerMoveCallback? onPointerMove;
+
   /// This callback fires when the [MapCamera] data has changed. This gets
   /// called if the zoom level, or map center changes.
   final PositionCallback? onPositionChanged;
@@ -158,6 +169,7 @@ class MapOptions {
     this.onPointerUp,
     this.onPointerCancel,
     this.onPointerHover,
+    this.onPointerMove,
     this.onPositionChanged,
     this.onMapEvent,
     this.onMapReady,
