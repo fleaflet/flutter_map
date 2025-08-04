@@ -13,7 +13,7 @@ In particular, thanks go to:
   * @TesteurManiak
   * @josxha
 * All the previous maintainers:
-  * John P Ryan - the original founder of this project, over at AppTree Software
+  * @johnpryan - the original founder of this project
   * @kengu
   * @maRci002
 * The authors of this documentation:
