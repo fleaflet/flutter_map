@@ -9,6 +9,7 @@ This CHANGELOG does not include every commit and/or PR - it is a hand picked sel
 Contains the following user-affecting bug fixes:
 
 - Prevent crash caused by usage of negative `TileLayer.zoomOffset` - [#2133](https://github.com/fleaflet/flutter_map/pull/2133) for [#2127](https://github.com/fleaflet/flutter_map/issues/2127)
+- Assert that `MapCamera.zoom` is finite (to prevent confusing errors within layers) - [#2141](https://github.com/fleaflet/flutter_map/pull/2141) for [#2135](https://github.com/fleaflet/flutter_map/issues/2135)
 
 Many thanks to these contributors (in no particular order):
 
