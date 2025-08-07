@@ -2,13 +2,27 @@
 
 Please consider [donating](https://github.com/sponsors/fleaflet) or [contributing](https://github.com/fleaflet/flutter_map/blob/master/CONTRIBUTING.md) if you're a fan of what we're doing and you'd like to support future releases!
 
-This CHANGELOG does not include every commit and/or PR - it is a hand picked selection of the ones that have an effect on you. For a full list of changes, please check the GitHub repository releases/tags.
+This CHANGELOG does not include every commit and/or PR - it is a hand picked selection of the ones that have an effect on most users. For a full list of changes, please check the GitHub repository releases/tags. We also release highlights for some releases on the docs site.
+
+## [8.2.2] - 2025/08/XX
+
+Contains the following user-affecting bug fixes:
+
+- Prevent crash caused by usage of negative `TileLayer.zoomOffset` - [#2133](https://github.com/fleaflet/flutter_map/pull/2133) for [#2127](https://github.com/fleaflet/flutter_map/issues/2127)
+
+Many thanks to these contributors (in no particular order):
+
+- @monsieurtanuki
+- ... and all the maintainers
 
 ## [8.2.1] - 2025/07/11
 
-Contains the following user-affecting changes:
+Contains the following user-affecting bug fixes:
 
 - Ensure tiles still load when failing to cache them due to HTTP spec non-compliance - [#2125](https://github.com/fleaflet/flutter_map/pull/2125) for [#2124](https://github.com/fleaflet/flutter_map/issues/2124)
+
+Contains the following user-affecting changes:
+
 - Log informational warnings to console when a tile fails to cache due to HTTP spec non-compliance or a shortage of information to calculate an accurate freshness age - [#2125](https://github.com/fleaflet/flutter_map/pull/2125) for [#2124](https://github.com/fleaflet/flutter_map/issues/2124)
 
 Many thanks to these contributors (in no particular order):
