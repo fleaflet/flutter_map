@@ -99,9 +99,11 @@ Ultimately however, it is your own responsibility to comply with any appropriate
 
 Our docs list multiple alternatives, many of which have free tiers suitable for hobbyists, affordable pricing for commercial usage, and one which is extremely flexible.
 
-Most of these are built off the same data, so the actual information contained within the map won't change (although a change in style may not show some data).
+Most of these are built off the same OpenStreetMap data, so the actual information contained within the map won't change (although a change in style may not show some data).
 
-If you're a commercial user and want the best balance of flexibility and affordability, consider setting up your own private tile server! In any case, the OpenStreetMap tile server doesn't offer uptime guarantees, which may be important to your business.
+If you're a commercial user and want the best balance of flexibility and affordability, consider setting up your own private tile server, based on the OpenStreetMap data! In any case, the OpenStreetMap tile server doesn't offer uptime guarantees, which may be important to your business.
+
+If you're sticking with OpenStreetMap's server, consider preparing a backup.
 {% endstep %}
 
 {% step %}
@@ -113,11 +115,11 @@ If you still want to use OpenStreetMap, you must read the policy and comply with
 OpenStreetMap public tile server usage policy
 {% endembed %}
 
-To note:
+To note two important general terms:
 
 > Should any users or patterns of usage nevertheless cause problems to the service, access may still be blocked without prior notice.
 
-If your project uses a very large number of tiles, even if it would otherwise meet the requirements, consider switching to a different server.
+> This policy may change at any time subject to the needs and constraints of the project. Commercial services, or those that seek donations, should be especially aware that access may be withdrawn at any point: you may no longer be able to serve your paying customers if access is withdrawn.
 
 Also note all the other requirements, which may require you to make adjustments to your project...
 {% endstep %}
