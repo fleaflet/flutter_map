@@ -5,14 +5,18 @@ This does not apply to users using OpenStreetMap data through other tile servers
 {% endhint %}
 
 {% hint style="danger" %}
-## The OpenStreetMap Foundation have blocked requests to their servers for tiles from users who have not set adequate identification.
+## The OSMF[^1] have blocked inadequately identified requests to the public OpenStreetMap tile servers
 
-Read below for more information.
+See [#what-has-osmf-done](using-openstreetmap-direct.md#what-has-osmf-done "mention") & [#what-should-i-do](using-openstreetmap-direct.md#what-should-i-do "mention") if your app has suddenly stopped working.
 {% endhint %}
 
 flutter\_map wants to help keep map data available for everyone. One of the largest sources of this data is OpenStreetMap. OpenStreetMap data powers the majority of non-proprietary maps - from actual map tiles/images to navigation data - in existence today. The data itself is free for everyone under the [ODbL](https://opendatacommons.org/licenses/odbl/).
 
-The OpenStreetMap Foundation run OpenStreetMap as a not-for-profit. They also provide a public tile server at [https://tile.openstreetmap.org](https://tile.openstreetmap.org), which is run on donations and volunteering time. This server is used throughout this documentation for code examples, and in our demo app.
+The OpenStreetMap Foundation run OpenStreetMap as a not-for-profit. They also provide a public tile server at [https://tile.openstreetmap.org](https://tile.openstreetmap.org), which is run on donations and volunteering time. This server is used throughout this documentation for code examples, and in our demo app, and is available at the following template URL:
+
+```
+https://tile.openstreetmap.org/{z}/{x}/{y}.png
+```
 
 {% hint style="warning" %}
 ## The OpenStreetMap public tile server is NOT free to use by everyone
@@ -43,11 +47,14 @@ Additionally, where an appropriate User-Agent header (which identifies your app 
 ## What has OSMF done?
 
 {% hint style="danger" %}
-## The OpenStreetMap Foundation have blocked requests to their servers for tiles from users who have not set adequate identification
+## Requests to the public OpenStreetMap tile servers from User-Agents which are not properly set have been blocked
 
-Due to excessive usage, OSMF have blocked requests from users who do not set a "User-Agent", or who use `userAgentPackageName: 'com.example.app'` in their `TileLayer`.
+Due to excessive usage, the OpenStreetMap Foundation have blocked requests with one of the following configurations:
 
-This does not apply to web users, who cannot set a User-Agent manually.
+* No specified `TileLayer.userAgentPackageName` (recommended setup) & no manually specified "User-Agent" header
+* `userAgentPackageName` set to <kbd>'com.example.app'</kbd> (or equivalent manual config)
+
+This does not apply to web users, who cannot set a User-Agent different to what is provided by the browser.
 
 See [https://github.com/fleaflet/flutter\_map/issues/2123#issuecomment-3062197581](https://github.com/fleaflet/flutter_map/issues/2123#issuecomment-3062197581) for more information.
 
@@ -62,7 +69,7 @@ The OpenStreetMap tile server is NOT free to use by everyone.
 
 The top 7 user-agents are shown below, in order (with traffic rounded to the nearest whole tile). ('Missed' tiles are those which required fresh rendering, and are more expensive than most other requests.)
 
-<table><thead><tr><th width="518">User-Agent</th><th width="120">tiles/second</th><th width="110">"missed" t/s</th></tr></thead><tbody><tr><td><mark style="background-color:green;"><strong>flutter_map (*)</strong></mark><br><em>This represents the</em> <a data-footnote-ref href="#user-content-fn-1"><em>majority</em></a> <em>of FM users on non-web platforms.</em></td><td>1610</td><td>53</td></tr><tr><td>Mozilla/5.0 QGIS/*</td><td>1155</td><td>358</td></tr><tr><td>Mozilla/5.0 ...</td><td>476</td><td>33</td></tr><tr><td>com.facebook.katana</td><td>263</td><td>3</td></tr><tr><td><mark style="background-color:green;"><strong>Dart/* (dart:io)</strong></mark><br><em>This represents FM users on older versions (not on web) &#x26; other Flutter mapping libraries not using FM (not on web).</em></td><td>182</td><td>17</td></tr><tr><td>Mozilla/5.0 ...</td><td>175</td><td>6</td></tr><tr><td>Mozilla/5.0 ...</td><td>171</td><td>14</td></tr></tbody></table>
+<table><thead><tr><th width="518">User-Agent</th><th width="120">tiles/second</th><th width="110">"missed" t/s</th></tr></thead><tbody><tr><td><mark style="background-color:green;"><strong>flutter_map (*)</strong></mark><br><em>This represents the</em> <a data-footnote-ref href="#user-content-fn-2"><em>majority</em></a> <em>of FM users on non-web platforms.</em></td><td>1610</td><td>53</td></tr><tr><td>Mozilla/5.0 QGIS/*</td><td>1155</td><td>358</td></tr><tr><td>Mozilla/5.0 ...</td><td>476</td><td>33</td></tr><tr><td>com.facebook.katana</td><td>263</td><td>3</td></tr><tr><td><mark style="background-color:green;"><strong>Dart/* (dart:io)</strong></mark><br><em>This represents FM users on older versions (not on web) &#x26; other Flutter mapping libraries not using FM (not on web).</em></td><td>182</td><td>17</td></tr><tr><td>Mozilla/5.0 ...</td><td>175</td><td>6</td></tr><tr><td>Mozilla/5.0 ...</td><td>171</td><td>14</td></tr></tbody></table>
 
 And looking in more detail at the User-Agent's making up the primary 'flutter\_map (\*)' agent, on 2025/05/28:
 
@@ -143,17 +150,17 @@ Check the OSM policy for all the adjustments you might need to make. Here's some
 {% endstep %}
 
 {% step %}
-### Disable the console warnings
+### Disable the console messages
 
-If you're appropriately using the servers, you can disable the console information. This will also disable any future blocks implemented on flutter\_map's side.
+We show a console message as a reminder and reference if you're using the servers, even if you're in compliance. You can disable this info - if flutter\_map implements further blocks in future, this may also disable those.
 
 {% hint style="warning" %}
 This will not disable any blocks enforced by the OpenStreetMap foundation.
 {% endhint %}
 
-To do this, set the <kbd>flutter.flutter\_map.unblockOSM</kbd> environment variable when building/running/compiling. Use the `dart-define` flag to do this.
+To do this, set the `flutter.flutter_map.unblockOSM` environment variable when building/running/compiling. Use the `dart-define` flag to do this.
 
-To evidence that you've read and understood the tile policy, you should set it to the exact string (excluding any leading or trailing whitespace, including all other punctuation) following the phrase from the policy:
+To evidence that you've read and understood the tile policy, you should set it to the exact string (excluding any surrounding whitespace, including all other punctuation) following the phrase from the policy:
 
 > OpenStreetMap data is free for everyone to use. **\_\_\_\_\_**
 
@@ -163,14 +170,33 @@ For example, to run the project:
 flutter run --dart-define=flutter.flutter_map.unblockOSM="_____"
 ```
 
-You can also add this to your IDE's configuration to automatically pass this argument when running from your IDE.
+You can also add this to your IDE's configuration to automatically pass this argument when running from your IDE. For example, in VS Code:
+
+{% code title=".vscode/launch.json" %}
+```json
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "app",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "--dart-define",
+                "flutter.flutter_map.unblockOSM=_____" // no inner quotes
+            ]
+        }
+    ]
+}
+```
+{% endcode %}
 {% endstep %}
 {% endstepper %}
 
 ## I have more questions
 
-If you've got a question or comment regarding this new policy, or if you think we've missed something, please reach out to us.&#x20;
+If you've got a question or comment regarding this new policy, or if you think we've missed something, please reach out to us on Discord (or via GitHub Discussions).
 
-The best way to do this is on the dedicated GitHub issue, or on the Discord server.
+[^1]: OpenStreetMap Foundation (the operators of the tile server)
 
-[^1]: Some users may use an entirely custom User-Agent. Most users using FMTC are not included.
+[^2]: Some users may use an entirely custom User-Agent. Most users using FMTC are not included.
