@@ -349,8 +349,8 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 When using the OSM tile servers, you must set an HTTP User-Agent which
 adequately identifies your application to the servers.
 Set `TileLayer.userAgentPackageName` appropriately, or set a UA header manually.
-In a future flutter_map release, usage of the OpenStreetMap public tile servers
-without an adequate User-Agent may be blocked in release mode without warning.
+OSMF (the tile server operators), and/or flutter_map in future, may block usage
+if inadequately identified.
 ''';
 
       final warning = '''\x1B[1m\x1B[3mflutter_map\x1B[0m$uaWarning
