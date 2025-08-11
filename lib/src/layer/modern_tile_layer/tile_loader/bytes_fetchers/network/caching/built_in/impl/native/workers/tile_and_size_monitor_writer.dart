@@ -5,8 +5,8 @@ import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/network/caching/built_in/impl/native/native.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/network/caching/built_in/impl/native/workers/size_reducer.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetchers/network/caching/built_in/impl/native/native.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetchers/network/caching/built_in/impl/native/workers/size_reducer.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 

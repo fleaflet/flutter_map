@@ -1,27 +1,25 @@
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_generators/xyz.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_tile_generators.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/bytes_fetcher.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/network/fetcher/network.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/raster/generator.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/source_generators/source_generator.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/source_generators/xyz.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetchers/bytes_fetcher.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetchers/network/fetcher/network.dart';
 import 'package:meta/meta.dart';
 
-/// Data class for communicating URIs between [SourceGenerator]s
-/// (such as [XYZSourceGenerator]) and [TileGenerator]s (such as
-/// [RasterTileGenerator]), with ability to be used directly as a short-term
-/// cache key* and by [SourceBytesFetcher]s (such as [NetworkBytesFetcher]).
+/// Data class for communicating URIs returned by some [SourceGenerator]
+/// implementations (such as [XYZSourceGenerator]).
 ///
-/// This carries a [primaryUri] and potentially multiple ordered [fallbackUris].
+/// Carries a [primaryUri] and potentially multiple ordered [fallbackUris].
 /// When iterated, this will first yield the [primaryUri], followed by any
 /// [fallbackUris] in order.
+///
+/// This is suitable to be used directly as a short-term cache key*. This may be
+/// consumed directly by some [SourceBytesFetcher] implementations (such as
+/// [NetworkBytesFetcher]).
 ///
 /// > [!WARNING]
 /// > The equality of these objects depends only on [primaryUri].
 /// > Therefore, where used as a short-term cache key, resources at
-/// > [fallbackUris] must not automatically be re-used/cached under the
+/// > [fallbackUris] **must not** automatically be re-used/cached under the
 /// > [primaryUri].
-///
-/// This is provided as it is used internally and may be used externally by
-/// layer implementations for convienience, however it is not required.
 @immutable
 class TileSource extends Iterable<String> {
   /// Primary URI of the tile.
@@ -36,8 +34,8 @@ class TileSource extends Iterable<String> {
   /// This may be empty or not provided.
   final Iterable<String>? fallbackUris;
 
-  /// Construct a data class for communicating URIs between [SourceGenerator]s
-  /// and [TileGenerator]s.
+  /// Construct a data class for communicating URIs returned by some
+  /// [SourceGenerator] implementations.
   const TileSource(this.primaryUri, {this.fallbackUris});
 
   @override

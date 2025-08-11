@@ -3,8 +3,8 @@ import 'dart:collection';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/base_tile_data.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/base_tile_loader.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/options.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_loader.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 
@@ -19,7 +19,7 @@ import 'package:meta/meta.dart';
 /// is met.
 class BaseTileLayer<D extends BaseTileData> extends StatefulWidget {
   final TileLayerOptions options;
-  final BaseTileLoader<D> tileLoader;
+  final TileLoader<D> tileLoader;
   final Widget Function(
     BuildContext context,
     Object layerKey,

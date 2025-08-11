@@ -1,8 +1,8 @@
 import 'package:flutter_map/src/layer/modern_tile_layer/options.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_tile_generators.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/bytes_fetcher.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/file/file_stub.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/network/fetcher/network.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/source_generators/source_generator.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetchers/bytes_fetcher.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetchers/file/file_stub.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetchers/network/fetcher/network.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_source.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:meta/meta.dart';

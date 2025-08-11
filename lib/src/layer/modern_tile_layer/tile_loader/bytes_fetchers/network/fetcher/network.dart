@@ -3,13 +3,13 @@ import 'dart:io' show HttpHeaders, HttpDate, HttpStatus; // web safe!
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/bytes_fetcher.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/network/caching/built_in/built_in_caching_provider.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/network/caching/caching_provider.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/network/caching/disabled/disabled_caching_provider.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/network/caching/tile_metadata.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/network/caching/tile_read_failure_exception.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/network/fetcher/consolidate_response.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetchers/bytes_fetcher.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetchers/network/caching/built_in/built_in_caching_provider.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetchers/network/caching/caching_provider.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetchers/network/caching/disabled/disabled_caching_provider.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetchers/network/caching/tile_metadata.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetchers/network/caching/tile_read_failure_exception.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetchers/network/fetcher/consolidate_response.dart';
 import 'package:http/http.dart';
 import 'package:http/retry.dart';
 import 'package:logger/logger.dart';
@@ -23,9 +23,7 @@ import 'package:logger/logger.dart';
 /// next URI is used as a fallback if available, and so on.
 /// {@endtemplate}
 @immutable
-class NetworkBytesFetcher
-    with ImageChunkEventsSupport<Iterable<String>>
-    implements SourceBytesFetcher<Iterable<String>> {
+class NetworkBytesFetcher implements SourceBytesFetcher<Iterable<String>> {
   /// HTTP headers to send with each request.
   final Map<String, String> headers;
 
@@ -116,18 +114,18 @@ class NetworkBytesFetcher
   }
 
   @override
-  Future<R> withImageChunkEventsSink<R>({
+  Future<R> call<R>({
     required Iterable<String> source,
     required Future<void> abortSignal,
     required BytesToResourceTransformer<R> transformer,
-    StreamSink<ImageChunkEvent>? chunkEvents,
+    BytesReceivedCallback? bytesLoadedCallback,
   }) =>
       fetchFromSourceIterable(
         (uri, transformer, isFirst) => fetchSingle(
           uri: uri,
           abortSignal: abortSignal,
           transformer: transformer,
-          chunkEvents: chunkEvents,
+          bytesLoadedCallback: bytesLoadedCallback,
         ),
         source: source,
         transformer: transformer,
@@ -143,7 +141,7 @@ class NetworkBytesFetcher
     required String uri,
     required Future<void> abortSignal,
     required BytesToResourceTransformer<R> transformer,
-    StreamSink<ImageChunkEvent>? chunkEvents,
+    BytesReceivedCallback? bytesLoadedCallback,
   }) async {
     final parsedUri = Uri.parse(uri);
 
@@ -164,14 +162,7 @@ class NetworkBytesFetcher
 
       final bytes = await consolidateStreamedResponseBytes(
         response,
-        onBytesReceived: chunkEvents == null
-            ? null
-            : (cumulative, total) => chunkEvents.add(
-                  ImageChunkEvent(
-                    cumulativeBytesLoaded: cumulative,
-                    expectedTotalBytes: total,
-                  ),
-                ),
+        onBytesReceived: bytesLoadedCallback,
       );
 
       return (bytes: bytes, response: response);

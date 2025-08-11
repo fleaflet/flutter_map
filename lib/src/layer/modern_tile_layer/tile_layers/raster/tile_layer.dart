@@ -1,13 +1,12 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/base_tile_layer.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/options.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_generators/xyz.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_tile_generators.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/bytes_fetcher.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/network/fetcher/network.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/raster/generator.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/raster/tile_data.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_loader.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/source_generators/source_generator.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/source_generators/xyz.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetchers/bytes_fetcher.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetchers/network/fetcher/network.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/raster/tile_data.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/raster/tile_loader.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_source.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 
@@ -39,9 +38,9 @@ class _RasterTileLayerState extends State<RasterTileLayer> {
   @override
   Widget build(BuildContext context) => BaseTileLayer(
         options: widget.options,
-        tileLoader: TileLoader(
-          sourceGenerator: widget.sourceGenerator,
-          tileGenerator: RasterTileGenerator(bytesFetcher: widget.bytesFetcher),
+        tileLoader: RasterTileLoader(
+          sourceGenerator: const XYZSourceGenerator(uriTemplates: ['']),
+          bytesFetcher: widget.bytesFetcher,
         ),
         renderer: (context, layerKey, options, visibleTiles) => _RasterRenderer(
           layerKey: layerKey,

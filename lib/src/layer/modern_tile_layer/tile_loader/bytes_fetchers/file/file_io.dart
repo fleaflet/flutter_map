@@ -1,9 +1,9 @@
-import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/bytes_fetchers/bytes_fetcher.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetchers/bytes_fetcher.dart';
 
-/// A [SourceBytesFetcher] which fetches from the local filesystem.
+/// A [SourceBytesFetcher] which fetches a URI from the local filesystem.
 ///
 /// {@macro fm.sbf.default.sourceConsumption}
 @immutable
@@ -16,9 +16,12 @@ class FileBytesFetcher implements SourceBytesFetcher<Iterable<String>> {
     required Iterable<String> source,
     required Future<void> abortSignal,
     required BytesToResourceTransformer<R> transformer,
-  }) {
-    throw UnsupportedError(
-      '`FileBytesFetcher` is unsupported on non-native platforms',
-    );
-  }
+    BytesReceivedCallback? bytesLoadedCallback,
+  }) =>
+      fetchFromSourceIterable(
+        (uri, transformer, isFirst) =>
+            File(uri).readAsBytes().then(transformer),
+        source: source,
+        transformer: transformer,
+      );
 }

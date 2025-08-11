@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_tile_generators.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_generators/raster/generator.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/raster/tile_loader.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_loader.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_source.dart';
 import 'package:logger/logger.dart';
 
@@ -11,16 +11,12 @@ import 'package:logger/logger.dart';
 /// desired resource using a supplied [BytesToResourceTransformer].
 ///
 /// Implementers should implement longer-term caching where necessary, or
-/// delegate to a cacher. Note that [TileGenerator]s may also perform caching of
+/// delegate to a cacher. Note that [TileLoader]s may also perform caching of
 /// the resulting resource, often in the short-term - such as the
-/// [RasterTileGenerator] using the Flutter [ImageCache].
-///
-/// Implementations which work with the [RasterTileGenerator] should consider
-/// mixing-in [ImageChunkEventsSupport].
+/// [RasterTileLoader] using the Flutter [ImageCache].
 abstract interface class SourceBytesFetcher<S extends Object?> {
-  /// {@template fm.tilelayer.tilebytesfetcher.call}
   /// Fetches a tile's bytes based on its source ([S]), transforming it into a
-  /// desired resource ([R]) using a supplied transformer.
+  /// desired resource ([R]) using a supplied [transformer].
   ///
   /// The [abortSignal] completes when the tile is no longer required. If
   /// possible, any ongoing work (such as an HTTP request) should be aborted.
@@ -29,41 +25,15 @@ abstract interface class SourceBytesFetcher<S extends Object?> {
   ///
   /// See [BytesToResourceTransformer] for more information about handling the
   /// [transformer].
-  /// {@endtemplate}
-  FutureOr<R> call<R>({
-    required S source,
-    required Future<void> abortSignal,
-    required BytesToResourceTransformer<R> transformer,
-  });
-}
-
-/// Allows a [SourceBytesFetcher] to integrate more closely with the raster tile
-/// stack by reporting progress events to the underlying [ImageProvider].
-abstract mixin class ImageChunkEventsSupport<S extends Object?>
-    implements SourceBytesFetcher<S> {
-  /// Redirects to [withImageChunkEventsSink].
-  @override
-  @nonVirtual
-  FutureOr<R> call<R>({
-    required S source,
-    required Future<void> abortSignal,
-    required BytesToResourceTransformer<R> transformer,
-  }) =>
-      withImageChunkEventsSink<R>(
-        source: source,
-        abortSignal: abortSignal,
-        transformer: transformer,
-      );
-
-  /// {@macro fm.tilelayer.tilebytesfetcher.call}
   ///
-  /// [chunkEvents] should be used when consolidating a stream of bytes to
-  /// report progress notifications to the underlying [ImageProvider].
-  FutureOr<R> withImageChunkEventsSink<R>({
+  /// [bytesLoadedCallback] (if provided), may be called as/when bytes are
+  /// loaded (before [transformer] is called). See [BytesReceivedCallback] for
+  /// more information.
+  FutureOr<R> call<R>({
     required S source,
     required Future<void> abortSignal,
     required BytesToResourceTransformer<R> transformer,
-    StreamSink<ImageChunkEvent>? chunkEvents,
+    BytesReceivedCallback? bytesLoadedCallback,
   });
 }
 
@@ -81,8 +51,8 @@ class TileAbortedException<S extends Object?> implements Exception {
   String toString() => 'TileAbortedException: $source';
 }
 
-/// Callback provided to a [SourceBytesFetcher] by a root [TileGenerator],
-/// which converts fetched bytes into the desired [Resource].
+/// Callback provided to a [SourceBytesFetcher] by a [TileLoader], which
+/// converts fetched bytes into the desired [Resource].
 ///
 /// This may throw if the bytes could not be correctly transformed, for example
 /// because they were corrupted or otherwise undecodable. In this case, it is
@@ -92,16 +62,18 @@ class TileAbortedException<S extends Object?> implements Exception {
 ///
 /// ---
 ///
-/// Whilst it is the [SourceBytesFetcher]s or [TileGenerator]s responsibility to
-/// implement long-term caching where necessary, other parts of the stack (such
-/// as the [TileGenerator]) may also perform short-term caching, which requires
-/// a key.
+/// Whilst it is the [SourceBytesFetcher]s responsibility to implement long-term
+/// caching where necessary, other parts of the stack (such as the [TileLoader])
+/// may also perform short-term caching, which requires a key.
 ///
 /// If the resulting resource differs to what is expected and used as the key
 /// - for example, in the case of a fallback being used whilst the only stable
 /// key is the primary endpoint - then this must indicate that the resource may
 /// not be reused under the key (i.e. not cached). This is done by setting
 /// [allowReuse] `false`.
+///
+/// For example, the [TileSource] object is suitable as a key - but where one
+/// of its [TileSource.fallbackUris] was used, [allowReuse] must be set `false`.
 ///
 /// Implementers should make the default of [allowReuse] `true`.
 typedef BytesToResourceTransformer<Resource extends Object?>

@@ -2,14 +2,14 @@ import 'package:flutter_map/src/layer/modern_tile_layer/base_tile_layer.dart';
 import 'package:meta/meta.dart';
 
 /// Configuration of a [BaseTileLayer], which can be used by all parts of the
-/// tile layer
+/// tile layer.
 @immutable
 class TileLayerOptions {
   final double maxZoom; // TODO: Is this the same as the old `nativeMaxZoom`?
   final double zoomOffset;
   final bool zoomReverse;
 
-  /// Size in pixels of each tile image
+  /// Size in pixels of each tile image.
   ///
   /// Should be a positive power of 2. Defaults to 256px.
   ///
@@ -18,7 +18,7 @@ class TileLayerOptions {
   final int tileDimension;
 
   /// Configuration of a [BaseTileLayer], which can be used by all parts of the
-  /// tile layer
+  /// tile layer.
   const TileLayerOptions({
     this.maxZoom = double.infinity,
     this.zoomOffset = 0,
