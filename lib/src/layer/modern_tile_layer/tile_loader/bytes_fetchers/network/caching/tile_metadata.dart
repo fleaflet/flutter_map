@@ -27,11 +27,7 @@ import 'package:logger/logger.dart';
 ///    implementation
 @immutable
 interface class CachedTileMetadata {
-  /// Create new non-specific metadata.
-  ///
-  /// This method is likely only to be useful for [MapCachingProvider]
-  /// implementations as an output.
-  const CachedTileMetadata({required this.isStale});
+  const CachedTileMetadata._({required this.isStale});
 
   /// Whether to consider this tile as stale.
   ///
@@ -45,6 +41,18 @@ interface class CachedTileMetadata {
   /// the network may still be attempted anyway - and this may be set on either
   /// implementation.
   final bool isStale;
+
+  /// Non-specific metadata indicating a stale tile.
+  ///
+  /// This method is likely only to be useful for [MapCachingProvider]
+  /// implementations as an output.
+  static const stale = CachedTileMetadata._(isStale: true);
+
+  /// Non-specific metadata indicating a non-stale tile.
+  ///
+  /// This method is likely only to be useful for [MapCachingProvider]
+  /// implementations as an output.
+  static const fresh = CachedTileMetadata._(isStale: false);
 }
 
 /// Implementation of [CachedTileMetadata] which uses properties commonly found
