@@ -14,14 +14,18 @@ import 'package:http/http.dart';
 import 'package:http/retry.dart';
 import 'package:logger/logger.dart';
 
-/// A [SourceBytesFetcher] which fetches a URI from the network using HTTP &
-/// supports caching via a [MapCachingProvider].
+/// A [SourceBytesFetcher] which fetches a URI from the network using HTTP.
 ///
 /// {@template fm.sbf.default.sourceConsumption}
 /// Consumes an [Iterable] of [String] URIs, which must not be empty and
 /// iterates in an order. If the first URI cannot be used to fetch bytes, the
 /// next URI is used as a fallback if available, and so on.
 /// {@endtemplate}
+///
+/// Supports caching, delegating to a [MapCachingProvider].
+///  * If a non-stale tile is available, it is used without using the network
+///  * If a stale tile is available, it is updated if possible, otherwise the
+///    behaviour depends on [fallbackToStaleCachedTiles]
 @immutable
 class NetworkBytesFetcher implements SourceBytesFetcher<Iterable<String>> {
   /// HTTP headers to send with each request.
@@ -40,14 +44,29 @@ class NetworkBytesFetcher implements SourceBytesFetcher<Iterable<String>> {
   ///
   /// See online documentation for more information about built-in caching.
   ///
+  /// If a cached tile is available and not stale, it will be used without
+  /// attempting the network.
+  ///
   /// Defaults to [BuiltInMapCachingProvider]. Set to
   /// [DisabledMapCachingProvider] to disable.
   final MapCachingProvider? cachingProvider;
 
+  /// Whether to use a potentially stale cached tile if it could not be
+  /// retrieved from the network.
+  ///
+  /// Only applicable if [cachingProvider] is in use.
+  ///
+  /// Defaults to `true`.
+  final bool fallbackToStaleCachedTiles;
+
   /// Whether to optimistically attempt to decode HTTP responses that have a
   /// non-successful status code as an image.
   ///
-  /// Defaults to `true`.
+  /// Some servers return useful information embedded in an image returned in
+  /// the HTTP body of a non-successful response, such as an instruction to use
+  /// an API key. This can make it easier to debug issues.
+  ///
+  /// Defaults to `true` in debug mode, `false` otherwise.
   final bool attemptDecodeOfHttpErrorResponses;
 
   /// Whether to abort HTTP requests for tiles that will no longer be displayed.
@@ -101,7 +120,8 @@ class NetworkBytesFetcher implements SourceBytesFetcher<Iterable<String>> {
     Map<String, String>? headers,
     Client? httpClient,
     this.cachingProvider,
-    this.attemptDecodeOfHttpErrorResponses = true,
+    this.fallbackToStaleCachedTiles = true,
+    this.attemptDecodeOfHttpErrorResponses = kDebugMode,
     this.abortObsoleteRequests = true,
   })  : headers = headers ?? {},
         httpClient = httpClient ?? RetryClient(Client()) {
@@ -180,6 +200,7 @@ class NetworkBytesFetcher implements SourceBytesFetcher<Iterable<String>> {
         // with fresh data
         cachedTile = null;
       }
+      // If any other error is thrown, fetching is stopped & rethrown
     }
 
     // Create method to write response to cache when applicable
@@ -193,24 +214,64 @@ class NetworkBytesFetcher implements SourceBytesFetcher<Iterable<String>> {
     }) {
       if (!cachingProvider.isSupported) return;
 
-      late final CachedMapTileMetadata metadata;
-      try {
-        metadata = CachedMapTileMetadata.fromHttpHeaders(
-          headers,
-          warnOnFallbackUsage: parsedUri,
+      if (cachingProvider
+          case final PutTileAndMetadataCapability<
+              HttpControlledCachedTileMetadata> cachingProvider) {
+        late final HttpControlledCachedTileMetadata metadata;
+        try {
+          metadata = HttpControlledCachedTileMetadata.fromHttpHeaders(
+            headers,
+            warnOnFallbackUsage: parsedUri,
+          );
+        } on Exception catch (e) {
+          if (kDebugMode) {
+            Logger(printer: SimplePrinter()).w(
+              '[flutter_map] Failed to cache ${parsedUri.path}: $e\n\tThis '
+              'may indicate a HTTP spec non-conformance issue with the tile '
+              'server. ',
+            );
+          }
+          return;
+        }
+
+        cachingProvider.putTileWithMetadata(
+          url: uri,
+          metadata: metadata,
+          bytes: bytes,
         );
-      } on Exception catch (e) {
+      } else if (cachingProvider case final PutTileCapability cachingProvider) {
+        cachingProvider.putTile(url: uri, bytes: bytes);
+      } else if (kDebugMode) {
+        Logger(printer: SimplePrinter()).w(
+          '[flutter_map] Caching provider incompatible with '
+          '`NetworkBytesFetcher` for put operations',
+        );
+      }
+    }
+
+    // Create the exception exit method
+    // In the event that a tile cannot be fetched from the network, and a
+    // (stale) cached tile is available, and the behaviour is allowed, attempt
+    // to use the cached resource. This method is used on exit when a
+    // non-abortion exception occurs. Otherwise, it rethrows the original
+    // exception to the caller, which may attempt fallbacks.
+    Future<R> fallbackToCachedTile(Object err, StackTrace stackTrace) async {
+      if (cachedTile == null || !fallbackToStaleCachedTiles) {
+        Error.throwWithStackTrace(err, stackTrace);
+      }
+      try {
+        final cachedResource =
+            await transformer(cachedTile.bytes, allowReuse: false);
         if (kDebugMode) {
           Logger(printer: SimplePrinter()).w(
-            '[flutter_map cache] Failed to cache ${parsedUri.path}: $e\n\tThis '
-            'may indicate a HTTP spec non-conformance issue with the tile '
-            'server. ',
+            '[flutter_map] Failed to fetch ${parsedUri.path} from network; '
+            'using (stale) cached tile',
           );
         }
-        return;
+        return cachedResource;
+      } on Exception {
+        Error.throwWithStackTrace(err, stackTrace);
       }
-
-      cachingProvider.putTile(url: uri, metadata: metadata, bytes: bytes);
     }
 
     // Main logic
@@ -232,10 +293,12 @@ class NetworkBytesFetcher implements SourceBytesFetcher<Iterable<String>> {
         additionalHeaders: forceFromServer
             ? null
             : {
-                if (cachedTile?.metadata.lastModified case final lastModified?)
+                if (cachedTile?.metadata
+                    case HttpControlledCachedTileMetadata(:final lastModified?))
                   HttpHeaders.ifModifiedSinceHeader:
                       HttpDate.format(lastModified),
-                if (cachedTile?.metadata.etag case final etag?)
+                if (cachedTile?.metadata
+                    case HttpControlledCachedTileMetadata(:final etag?))
                   HttpHeaders.ifNoneMatchHeader: etag,
               },
       );
@@ -322,10 +385,12 @@ class NetworkBytesFetcher implements SourceBytesFetcher<Iterable<String>> {
         );
       }
 
-      rethrow; // Otherwise, attempt fallbacks
+      return await fallbackToCachedTile(err, stackTrace);
+    } on Exception catch (err, stackTrace) {
+      // We may also get exceptions otherwise, for example from failing to
+      // transform/decode bytes or `NetworkImageLoadException`
+
+      return await fallbackToCachedTile(err, stackTrace);
     }
-    // We may also get exceptions otherwise, for example from failing to
-    // transform/decode bytes or `NetworkImageLoadException` - we pass these
-    // through to the caller to allow attempting of fallbacks implicitly
   }
 }

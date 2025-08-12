@@ -124,7 +124,7 @@ Future<void> tileAndSizeMonitorWriterWorker(
               sizeMonitorFilePath: sizeMonitorFilePath,
               minSizeToDelete: minSizeToDelete,
             ),
-            debugName: '[flutter_map: cache] Size Reducer',
+            debugName: '[flutter_map: BIC] Size Reducer',
           );
 
       runSizeReducer(
@@ -140,10 +140,10 @@ Future<void> tileAndSizeMonitorWriterWorker(
   final allocInt64BufferTileWrite = Uint8List(8);
   final allocUint32BufferTileWrite = Uint8List(4);
   final allocUint16BufferTileWrite = Uint8List(2);
-  final asciiEncoder = const AsciiEncoder();
+  const asciiEncoder = AsciiEncoder();
   void writeTile({
     required final String path,
-    required final CachedMapTileMetadata metadata,
+    required final HttpControlledCachedTileMetadata metadata,
     Uint8List? tileBytes,
   }) {
     final tileFile = File(path);
@@ -312,7 +312,7 @@ Future<void> tileAndSizeMonitorWriterWorker(
     if (val
         case (
           :final String path,
-          :final CachedMapTileMetadata metadata,
+          :final HttpControlledCachedTileMetadata metadata,
           :final Uint8List? tileBytes,
         )) {
       writeTile(path: path, metadata: metadata, tileBytes: tileBytes);
