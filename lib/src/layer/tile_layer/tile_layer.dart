@@ -29,22 +29,21 @@ part 'wms_tile_layer_options.dart';
 /// https://docs.fleaflet.dev/usage/layers/tile-layer. Some are important to
 /// avoid issues.
 
-/// Strategy for selecting native zoom level when the target zoom is equidistant 
+/// Strategy for selecting native zoom level when the target zoom is equidistant
 /// from two available native zoom levels.
 enum NativeZoomStrategy {
   /// Prefer lower zoom level (better performance, lower quality)
   preferLower,
-  
+
   /// Prefer higher zoom level (better quality, more bandwidth)
   preferHigher,
-  
+
   /// Always round down to the nearest native zoom
   alwaysLower,
-  
+
   /// Always round up to the nearest native zoom
   alwaysHigher,
 }
-
 
 @immutable
 class TileLayer extends StatefulWidget {
@@ -135,7 +134,7 @@ class TileLayer extends StatefulWidget {
   /// If specified, only these zoom levels will be used for fetching tiles.
   /// For example: [4, 6, 8, 10] for JMA weather tiles.
   late final List<int>? nativeZooms;
- 
+
   /// Strategy for selecting native zoom level when equidistant.
   /// Defaults to [NativeZoomStrategy.preferLower] for better performance.
   final NativeZoomStrategy nativeZoomStrategy;
@@ -778,16 +777,16 @@ See:
     if (widget.nativeZooms != null && widget.nativeZooms!.isNotEmpty) {
       final targetZoom = zoom.round();
       final sortedZooms = List<int>.from(widget.nativeZooms!)..sort();
-      
+
       // Return as-is if exact match is found
       if (sortedZooms.contains(targetZoom)) {
         return targetZoom;
       }
-      
+
       // Find the maximum value <= targetZoom and minimum value >= targetZoom
       int? lowerZoom;
       int? upperZoom;
-      
+
       for (final z in sortedZooms) {
         if (z < targetZoom) {
           lowerZoom = z;
@@ -796,32 +795,32 @@ See:
           break;
         }
       }
-      
+
       // Handle boundary cases
       if (lowerZoom == null) {
         return sortedZooms.first;
       } else if (upperZoom == null) {
         return sortedZooms.last;
       }
-      
+
       // Calculate distances
       final lowerDiff = targetZoom - lowerZoom;
       final upperDiff = upperZoom - targetZoom;
-      
+
       // Select based on strategy
       switch (widget.nativeZoomStrategy) {
         case NativeZoomStrategy.preferLower:
           // Choose lower when distances are equal (default)
           return lowerDiff <= upperDiff ? lowerZoom : upperZoom;
-          
+
         case NativeZoomStrategy.preferHigher:
           // Choose higher when distances are equal
           return lowerDiff < upperDiff ? lowerZoom : upperZoom;
-          
+
         case NativeZoomStrategy.alwaysLower:
           // Always choose lower
           return lowerZoom;
-          
+
         case NativeZoomStrategy.alwaysHigher:
           // Always choose higher
           return upperZoom;
