@@ -687,19 +687,31 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     ScaleUpdateDetails details,
     double zoomAfterPinchZoom,
   ) {
-    final oldCenterPt =
-        _camera.projectAtZoom(_camera.center, zoomAfterPinchZoom);
-    final newFocalLatLong =
-        _camera.offsetToCrs(_focalStartLocal, zoomAfterPinchZoom);
-    final newFocalPt =
-        _camera.projectAtZoom(newFocalLatLong, zoomAfterPinchZoom);
-    final oldFocalPt =
-        _camera.projectAtZoom(_focalStartLatLng, zoomAfterPinchZoom);
-    final zoomDifference = oldFocalPt - newFocalPt;
-    final moveDifference = _rotateOffset(_focalStartLocal - _lastFocalLocal);
+    // There appears to be a bug in the Flutter engine, which means that the
+    // zoom gesture drifts (the focal point drifts during zoom) when both
+    // pan and zoom are handled together. This temporary workaround disables
+    // the ability to do both at the same time, even on devices which do support
+    // it, and may also impact touchscreen devices which use this code block.
 
-    final newCenterPt = oldCenterPt + zoomDifference + moveDifference;
-    return _camera.unprojectAtZoom(newCenterPt, zoomAfterPinchZoom);
+    late final isPanning = (details.scale - 1).abs() <= details.rotation.abs();
+
+    if (!_interactionOptions.forceOnlySinglePinchGesture || isPanning) {
+      final oldCenterPt =
+          _camera.projectAtZoom(_camera.center, zoomAfterPinchZoom);
+      final newFocalLatLong =
+          _camera.offsetToCrs(_focalStartLocal, zoomAfterPinchZoom);
+      final newFocalPt =
+          _camera.projectAtZoom(newFocalLatLong, zoomAfterPinchZoom);
+      final oldFocalPt =
+          _camera.projectAtZoom(_focalStartLatLng, zoomAfterPinchZoom);
+      final zoomDifference = oldFocalPt - newFocalPt;
+      final moveDifference = _rotateOffset(_focalStartLocal - _lastFocalLocal);
+
+      final newCenterPt = oldCenterPt + zoomDifference + moveDifference;
+      return _camera.unprojectAtZoom(newCenterPt, zoomAfterPinchZoom);
+    } else {
+      return _camera.center;
+    }
   }
 
   void _handleScalePinchRotate(

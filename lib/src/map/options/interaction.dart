@@ -63,6 +63,16 @@ class InteractionOptions {
   /// gestures will take effect see [MultiFingerGesture] for custom settings
   final int pinchMoveWinGestures;
 
+  /// A workaround intended for trackpad devices, which, due to a Flutter engine
+  /// bug, do not accurately report their change in focal point during a zoom.
+  ///
+  /// When enabled, only a pinch zoom or a pinch move can take place in one
+  /// gesture.
+  ///
+  /// This may affect the behaviour of other device inputs, such as touchscreens,
+  /// which use the same gesture.
+  final bool forceOnlySinglePinchGesture;
+
   /// The used velocity how fast the map should zoom in or out by scrolling
   /// with the scroll wheel of a mouse.
   final double scrollWheelVelocity;
@@ -124,6 +134,7 @@ class InteractionOptions {
     this.pinchMoveThreshold = 40.0,
     this.pinchMoveWinGestures =
         MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
+    this.forceOnlySinglePinchGesture = false,
     this.scrollWheelVelocity = 0.005,
     this.doubleTapDragZoomChangeCalculator =
         defaultDoubleTapDragZoomChangeCalculator,
