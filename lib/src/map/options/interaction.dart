@@ -177,6 +177,7 @@ class InteractionOptions {
       pinchZoomWinGestures == other.pinchZoomWinGestures &&
       pinchMoveThreshold == other.pinchMoveThreshold &&
       pinchMoveWinGestures == other.pinchMoveWinGestures &&
+      forceOnlySinglePinchGesture == other.forceOnlySinglePinchGesture &&
       scrollWheelVelocity == other.scrollWheelVelocity &&
       doubleTapDragZoomChangeCalculator ==
           other.doubleTapDragZoomChangeCalculator &&
@@ -196,6 +197,7 @@ class InteractionOptions {
         pinchMoveThreshold,
         pinchMoveWinGestures,
         scrollWheelVelocity,
+        forceOnlySinglePinchGesture,
         doubleTapDragZoomChangeCalculator,
         doubleTapZoomDuration,
         doubleTapZoomCurve,
