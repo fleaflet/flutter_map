@@ -695,23 +695,22 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
     late final isPanning = (details.scale - 1).abs() <= details.rotation.abs();
 
-    if (!_interactionOptions.forceOnlySinglePinchGesture || isPanning) {
-      final oldCenterPt =
-          _camera.projectAtZoom(_camera.center, zoomAfterPinchZoom);
-      final newFocalLatLong =
-          _camera.offsetToCrs(_focalStartLocal, zoomAfterPinchZoom);
-      final newFocalPt =
-          _camera.projectAtZoom(newFocalLatLong, zoomAfterPinchZoom);
-      final oldFocalPt =
-          _camera.projectAtZoom(_focalStartLatLng, zoomAfterPinchZoom);
-      final zoomDifference = oldFocalPt - newFocalPt;
-      final moveDifference = _rotateOffset(_focalStartLocal - _lastFocalLocal);
+    final oldCenterPt =
+        _camera.projectAtZoom(_camera.center, zoomAfterPinchZoom);
+    final newFocalLatLong =
+        _camera.offsetToCrs(_focalStartLocal, zoomAfterPinchZoom);
+    final newFocalPt =
+        _camera.projectAtZoom(newFocalLatLong, zoomAfterPinchZoom);
+    final oldFocalPt =
+        _camera.projectAtZoom(_focalStartLatLng, zoomAfterPinchZoom);
+    final zoomDifference = oldFocalPt - newFocalPt;
+    final moveDifference =
+        !_interactionOptions.forceOnlySinglePinchGesture || isPanning
+            ? _rotateOffset(_focalStartLocal - _lastFocalLocal)
+            : Offset.zero;
 
-      final newCenterPt = oldCenterPt + zoomDifference + moveDifference;
-      return _camera.unprojectAtZoom(newCenterPt, zoomAfterPinchZoom);
-    } else {
-      return _camera.center;
-    }
+    final newCenterPt = oldCenterPt + zoomDifference + moveDifference;
+    return _camera.unprojectAtZoom(newCenterPt, zoomAfterPinchZoom);
   }
 
   void _handleScalePinchRotate(
