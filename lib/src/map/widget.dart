@@ -66,7 +66,9 @@ class _FlutterMapStateContainer extends State<FlutterMap>
       _setMapController();
     }
     if (oldWidget.options != widget.options) {
-      _mapController.options = widget.options;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _mapController.options = widget.options;
+      });
     }
     super.didUpdateWidget(oldWidget);
   }
