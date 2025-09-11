@@ -3,7 +3,7 @@ import 'package:meta/meta.dart';
 
 @internal
 class BuiltInMapCachingProviderImpl
-    with DisabledMapCachingProvider
+    with DisabledMapCachingProvider<HttpControlledCachedTileMetadata>
     implements BuiltInMapCachingProvider {
   final String? cacheDirectory;
   final int? maxCacheSize;
