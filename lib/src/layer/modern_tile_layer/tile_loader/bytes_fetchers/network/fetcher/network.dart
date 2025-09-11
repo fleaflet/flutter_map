@@ -304,9 +304,8 @@ class NetworkBytesFetcher implements SourceBytesFetcher<Iterable<String>> {
       );
 
       // Server says nothing's changed - but might return new useful headers
-      if (!forceFromServer &&
-          cachedTile != null &&
-          response.statusCode == HttpStatus.notModified) {
+      // This should usually only happen when `!forceFromServer`
+      if (cachedTile != null && response.statusCode == HttpStatus.notModified) {
         late final R transformedCacheBytes;
         try {
           transformedCacheBytes = await transformer(cachedTile.bytes);
@@ -322,10 +321,13 @@ class NetworkBytesFetcher implements SourceBytesFetcher<Iterable<String>> {
         }
       }
 
-      // Server says the image has changed - store it new
+      // Server says the image has changed
       if (response.statusCode == HttpStatus.ok) {
+        final resource = await transformer(bytes);
+        // If the transformer fails, the error will be caught by an outer
+        // try/catch block, and the bytes won't be put to the cache
         cachePut(bytes: bytes, headers: response.headers);
-        return await transformer(bytes);
+        return resource;
       }
 
       // It's likely an error at this point
