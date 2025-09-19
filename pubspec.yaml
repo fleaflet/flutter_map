@@ -32,7 +32,7 @@ dependencies:
   dart_polylabel2: ^1.0.0
   flutter:
     sdk: flutter
-  http: ^1.5.0-beta
+  http: ^1.5.0
   latlong2: ^0.9.1
   logger: ^2.0.0
   meta: ^1.11.0
