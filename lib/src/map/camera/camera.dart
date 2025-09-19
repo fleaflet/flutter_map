@@ -377,8 +377,10 @@ class MapCamera {
     final counterRotationFactor = counterRotation ? -1 : 1;
 
     final m = Matrix4.identity()
+      // ignore: deprecated_member_use
       ..translate(mapCenter.dx, mapCenter.dy)
       ..rotateZ(rotationRad * counterRotationFactor)
+      // ignore: deprecated_member_use
       ..translate(-mapCenter.dx, -mapCenter.dy);
 
     return MatrixUtils.transformPoint(m, point);
