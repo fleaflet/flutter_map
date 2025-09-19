@@ -4,7 +4,7 @@ Please consider [donating](https://github.com/sponsors/fleaflet) or [contributin
 
 This CHANGELOG does not include every commit and/or PR - it is a hand picked selection of the ones that have an effect on most users. For a full list of changes, please check the GitHub repository releases/tags. We also release highlights for some releases on the docs site.
 
-## [8.2.2] - 2025/08/XX
+## [8.2.2] - 2025/09/19
 
 Contains the following user-affecting bug fixes:
 
@@ -14,6 +14,7 @@ Contains the following user-affecting bug fixes:
 Many thanks to these contributors (in no particular order):
 
 - @monsieurtanuki
+- @ReinisSprogis
 - ... and all the maintainers
 
 ## [8.2.1] - 2025/07/11
