@@ -61,6 +61,7 @@ jobs:
       - name: Run Tests with Coverage
         run: flutter test -r expanded --coverage
       - name: Run Codecov
+        if: ${{ matrix.sdk == '' }}
         uses: codecov/codecov-action@v5
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -92,6 +93,7 @@ jobs:
       - name: Build Android Application
         run: flutter build apk --dart-define=COMMIT_SHA=${{ github.sha }} --dart-define=flutter.flutter_map.unblockOSM="${{ secrets.UNBLOCK_OSM }}"
       - name: Archive Artifact
+        if: ${{ matrix.sdk == '' }}
         uses: actions/upload-artifact@v4
         with:
           name: apk-build
@@ -119,9 +121,11 @@ jobs:
       - name: Build Windows Application
         run: flutter build windows --dart-define=COMMIT_SHA=${{ github.sha }} --dart-define=flutter.flutter_map.unblockOSM="${{ secrets.UNBLOCK_OSM }}"
       - name: Create Windows Application Installer
+        if: ${{ matrix.sdk == '' }}
         run: iscc "windowsApplicationInstallerSetup.iss"
         working-directory: .
       - name: Archive Artifact
+        if: ${{ matrix.sdk == '' }}
         uses: actions/upload-artifact@v4
         with:
           name: exe-build
@@ -150,6 +154,7 @@ jobs:
         run: flutter build web --wasm --dart-define=COMMIT_SHA=${{ github.sha }} --dart-define=flutter.flutter_map.unblockOSM="${{ secrets.UNBLOCK_OSM }}"
       - name: Archive Artifact
         uses: actions/upload-artifact@v4
+        if: ${{ matrix.sdk == '' }}
         with:
           name: web-build
           path: example/build/web
