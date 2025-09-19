@@ -46,6 +46,10 @@ jobs:
   run-tests:
     name: "Run Tests"
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sdk: [ '3.27.0', '' ]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
@@ -64,6 +68,10 @@ jobs:
   build-android:
     name: "Build Android Example App"
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sdk: [ '3.27.0', '' ]
     defaults:
       run:
         working-directory: ./example
@@ -93,6 +101,10 @@ jobs:
   build-windows:
     name: "Build Windows Example App"
     runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sdk: [ '3.27.0', '' ]
     defaults:
       run:
         working-directory: ./example
@@ -119,6 +131,10 @@ jobs:
   build-web:
     name: "Build Web Example App"
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sdk: [ '3.27.0', '' ]
     defaults:
       run:
         working-directory: ./example
