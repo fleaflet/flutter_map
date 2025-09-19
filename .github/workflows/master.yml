@@ -77,6 +77,9 @@ jobs:
           cache: true
       - name: Build Windows Application
         run: flutter build windows --dart-define=COMMIT_SHA=${{ github.sha }} --dart-define=flutter.flutter_map.unblockOSM="${{ secrets.UNBLOCK_OSM }}"
+      - name: Install Inno Setup
+        if: ${{ matrix.sdk == '' }}
+        run: choco install innosetup --yes --no-progress
       - name: Create Windows Application Installer
         run: iscc "windowsApplicationInstallerSetup.iss"
         working-directory: .
