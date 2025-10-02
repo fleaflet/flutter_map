@@ -110,16 +110,21 @@ class Polyline<R extends Object> with HitDetectableElement<R> {
 class MulticolorPolyline<R extends Object> extends Polyline<R> {
   /// The color applied at each vertex in [points].
   ///
-  /// The list length must match the number of [points].
-  final List<Color> vertexColors;
+  /// When `null` or empty, [defaultColor] is used instead.
+  final List<Color>? vertexColors;
+
+  /// The fallback color used when no [vertexColors] are provided.
+  final Color defaultColor;
 
   int? _multicolorRenderHashCode;
+  List<Color>? _resolvedColors;
 
   /// Create a multicolor polyline that interpolates between the supplied
   /// [vertexColors].
   MulticolorPolyline({
     required List<LatLng> points,
-    required this.vertexColors,
+    List<Color>? vertexColors,
+    this.defaultColor = const Color(0xFF00FF00),
     double strokeWidth = 1.0,
     StrokePattern pattern = const StrokePattern.solid(),
     double borderStrokeWidth = 0.0,
@@ -128,19 +133,28 @@ class MulticolorPolyline<R extends Object> extends Polyline<R> {
     StrokeJoin strokeJoin = StrokeJoin.round,
     bool useStrokeWidthInMeter = false,
     R? hitValue,
-  })  : assert(points.length == vertexColors.length,
-            'vertexColors length must match points length'),
+  })  : assert(
+          vertexColors == null ||
+              vertexColors.isEmpty ||
+              points.length == vertexColors.length,
+          'vertexColors length must match points length',
+        ),
         assert(points.length >= 2,
             'MulticolorPolyline requires at least two points'),
         assert(
           pattern == const StrokePattern.solid(),
           'MulticolorPolyline currently supports only solid stroke patterns.',
         ),
+        vertexColors = vertexColors != null && vertexColors.isNotEmpty
+            ? vertexColors
+            : null,
         super(
           points: points,
           strokeWidth: strokeWidth,
           pattern: pattern,
-          color: vertexColors.first,
+          color: (vertexColors != null && vertexColors.isNotEmpty)
+              ? vertexColors.first
+              : defaultColor,
           borderStrokeWidth: borderStrokeWidth,
           borderColor: borderColor,
           gradientColors: null,
@@ -151,18 +165,39 @@ class MulticolorPolyline<R extends Object> extends Polyline<R> {
           hitValue: hitValue,
         );
 
-  /// Returns `true` when any vertex color is translucent.
+  /// Returns `true` when any effective vertex color is translucent.
   bool get hasTransparentVertices =>
-      vertexColors.any((color) => color.alpha < 0xFF);
+      resolvedVertexColors.any((color) => color.a < 1);
+
+  /// Returns `true` when at least two distinct vertex colors were provided.
+  bool get hasGradientStops =>
+      vertexColors != null && vertexColors!.length >= 2;
+
+  /// Returns the colors used for painting, falling back to [defaultColor] when
+  /// custom [vertexColors] are not provided.
+  List<Color> get resolvedVertexColors => _resolvedColors ??= vertexColors ??
+      List<Color>.filled(points.length, defaultColor);
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is MulticolorPolyline<R> &&
           super == other &&
-          listEquals(vertexColors, other.vertexColors));
+          defaultColor == other.defaultColor &&
+          _listEqualsNullable(vertexColors, other.vertexColors));
 
   @override
-  int get renderHashCode => _multicolorRenderHashCode ??=
-      Object.hash(super.renderHashCode, Object.hashAll(vertexColors));
+  int get renderHashCode => _multicolorRenderHashCode ??= Object.hash(
+      super.renderHashCode,
+      defaultColor,
+      vertexColors == null ? null : Object.hashAll(vertexColors!));
+
+  @override
+  int get hashCode => renderHashCode;
+}
+
+bool _listEqualsNullable<T>(List<T>? a, List<T>? b) {
+  if (identical(a, b)) return true;
+  if (a == null || b == null) return a == null && b == null;
+  return listEquals(a, b);
 }

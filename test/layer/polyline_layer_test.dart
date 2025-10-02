@@ -55,4 +55,29 @@ void main() {
     expect(find.byType(PolylineLayer), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('multicolor polyline falls back to defaultColor', (tester) async {
+    final polylines = <Polyline>[
+      MulticolorPolyline(
+        points: const [
+          LatLng(52.5, -0.09),
+          LatLng(53.3498, -6.2603),
+          LatLng(55.8566, 2.3522),
+        ],
+        defaultColor: Colors.purple,
+        strokeWidth: 5,
+      ),
+    ];
+
+    await tester.pumpWidget(TestApp(polylines: polylines));
+
+    expect(find.byType(FlutterMap), findsOneWidget);
+    expect(find.byType(PolylineLayer), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    final polyline = polylines.first as MulticolorPolyline;
+    expect(polyline.vertexColors, isNull);
+    expect(polyline.color, equals(Colors.purple));
+    expect(polyline.resolvedVertexColors, everyElement(equals(Colors.purple)));
+  });
 }

@@ -177,17 +177,6 @@ class _PolylinePainter<R extends Object> extends CustomPainter
           return WorldWorkControl.invisible;
         }
 
-        final hash = polyline.renderHashCode;
-        if (needsLayerSaving || (lastHash != null && lastHash != hash)) {
-          drawPaths();
-        }
-        lastHash = hash;
-        needsLayerSaving = polyline.color.a < 1 ||
-            (polyline.gradientColors?.any((c) => c.a < 1) ?? false);
-
-        // strokeWidth, or strokeWidth + borderWidth if relevant.
-        double largestStrokeWidth = strokeWidth;
-
         final isSolid = polyline.pattern == const StrokePattern.solid();
         final isDashed = polyline.pattern.segments != null;
         final isDotted = polyline.pattern.spacingFactor != null;
@@ -304,7 +293,7 @@ class _PolylinePainter<R extends Object> extends CustomPainter
   }) {
     final polyline = projectedPolyline.polyline as MulticolorPolyline<R>;
 
-    final colors = polyline.vertexColors;
+    final colors = polyline.resolvedVertexColors;
     final vertexCount = math.min(offsets.length, colors.length);
     if (vertexCount < 2) {
       return;
