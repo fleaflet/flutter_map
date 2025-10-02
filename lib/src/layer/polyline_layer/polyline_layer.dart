@@ -93,15 +93,21 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
   _ProjectedPolyline<R> simplifyProjectedElement({
     required _ProjectedPolyline<R> projectedElement,
     required double tolerance,
-  }) =>
-      _ProjectedPolyline._(
-        polyline: projectedElement.polyline,
-        points: simplifyPoints(
-          points: projectedElement.points,
-          tolerance: tolerance,
-          highQuality: true,
-        ),
-      );
+  }) {
+    final polyline = projectedElement.polyline;
+    if (polyline is MulticolorPolyline<R>) {
+      return projectedElement;
+    }
+
+    return _ProjectedPolyline._(
+      polyline: polyline,
+      points: simplifyPoints(
+        points: projectedElement.points,
+        tolerance: tolerance,
+        highQuality: true,
+      ),
+    );
+  }
 
   @override
   List<Polyline<R>> get elements => widget.polylines;
@@ -202,8 +208,9 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
       // First check, bullet-proof, focusing on latitudes.
       if (!isOverlappingLatitude()) continue;
 
-      // Gradient polylines cannot be easily segmented
-      if (polyline.gradientColors != null) {
+      // Gradient or multicolor polylines cannot be easily segmented
+      if (polyline.gradientColors != null ||
+          polyline is MulticolorPolyline<R>) {
         yield projectedPolyline;
         continue;
       }

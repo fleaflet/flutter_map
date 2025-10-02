@@ -104,3 +104,65 @@ class Polyline<R extends Object> with HitDetectableElement<R> {
   @override
   int get hashCode => _hashCode ??= Object.hashAll([...points, renderHashCode]);
 }
+
+/// A [Polyline] variant that can display a different color at each vertex and
+/// paints a smooth gradient between consecutive vertices.
+class MulticolorPolyline<R extends Object> extends Polyline<R> {
+  /// The color applied at each vertex in [points].
+  ///
+  /// The list length must match the number of [points].
+  final List<Color> vertexColors;
+
+  int? _multicolorRenderHashCode;
+
+  /// Create a multicolor polyline that interpolates between the supplied
+  /// [vertexColors].
+  MulticolorPolyline({
+    required List<LatLng> points,
+    required this.vertexColors,
+    double strokeWidth = 1.0,
+    StrokePattern pattern = const StrokePattern.solid(),
+    double borderStrokeWidth = 0.0,
+    Color borderColor = const Color(0xFFFFFF00),
+    StrokeCap strokeCap = StrokeCap.round,
+    StrokeJoin strokeJoin = StrokeJoin.round,
+    bool useStrokeWidthInMeter = false,
+    R? hitValue,
+  })  : assert(points.length == vertexColors.length,
+            'vertexColors length must match points length'),
+        assert(points.length >= 2,
+            'MulticolorPolyline requires at least two points'),
+        assert(
+          pattern == const StrokePattern.solid(),
+          'MulticolorPolyline currently supports only solid stroke patterns.',
+        ),
+        super(
+          points: points,
+          strokeWidth: strokeWidth,
+          pattern: pattern,
+          color: vertexColors.first,
+          borderStrokeWidth: borderStrokeWidth,
+          borderColor: borderColor,
+          gradientColors: null,
+          colorsStop: null,
+          strokeCap: strokeCap,
+          strokeJoin: strokeJoin,
+          useStrokeWidthInMeter: useStrokeWidthInMeter,
+          hitValue: hitValue,
+        );
+
+  /// Returns `true` when any vertex color is translucent.
+  bool get hasTransparentVertices =>
+      vertexColors.any((color) => color.alpha < 0xFF);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MulticolorPolyline<R> &&
+          super == other &&
+          listEquals(vertexColors, other.vertexColors));
+
+  @override
+  int get renderHashCode => _multicolorRenderHashCode ??=
+      Object.hash(super.renderHashCode, Object.hashAll(vertexColors));
+}

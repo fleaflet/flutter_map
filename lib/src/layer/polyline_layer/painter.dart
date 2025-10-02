@@ -137,6 +137,31 @@ class _PolylinePainter<R extends Object> extends CustomPainter
           points: projectedPolyline.points,
           shift: shift,
         );
+        if (!areOffsetsVisible(offsets)) return WorldWorkControl.invisible;
+
+        if (polyline is MulticolorPolyline<R>) {
+          drawPaths();
+          lastHash = null;
+          needsLayerSaving = false;
+          _drawMulticolorPolyline(
+            canvas: canvas,
+            size: size,
+            projectedPolyline: projectedPolyline,
+            offsets: offsets,
+          );
+          return WorldWorkControl.visible;
+        }
+
+        final hash = polyline.renderHashCode;
+        if (needsLayerSaving || (lastHash != null && lastHash != hash)) {
+          drawPaths();
+        }
+        lastHash = hash;
+        needsLayerSaving = polyline.color.a < 1 ||
+            (polyline.gradientColors?.any((c) => c.a < 1) ?? false);
+
+        // strokeWidth, or strokeWidth + borderWidth if relevant.
+        late double largestStrokeWidth;
 
         late final double strokeWidth;
         if (polyline.useStrokeWidthInMeter) {
@@ -269,6 +294,102 @@ class _PolylinePainter<R extends Object> extends CustomPainter
     }
 
     drawPaths();
+  }
+
+  void _drawMulticolorPolyline({
+    required Canvas canvas,
+    required Size size,
+    required _ProjectedPolyline<R> projectedPolyline,
+    required List<Offset> offsets,
+  }) {
+    final polyline = projectedPolyline.polyline as MulticolorPolyline<R>;
+
+    final colors = polyline.vertexColors;
+    final vertexCount = math.min(offsets.length, colors.length);
+    if (vertexCount < 2) {
+      return;
+    }
+
+    final strokeWidth = polyline.useStrokeWidthInMeter
+        ? metersToScreenPixels(
+            projectedPolyline.polyline.points.first,
+            polyline.strokeWidth,
+          )
+        : polyline.strokeWidth;
+
+    final hasBorder = polyline.borderStrokeWidth > 0.0;
+    final requiresLayerSaving = polyline.hasTransparentVertices;
+
+    if (hasBorder) {
+      final borderPath = ui.Path();
+      final filterPath = ui.Path();
+      final paths = <ui.Path>[borderPath];
+      if (requiresLayerSaving) {
+        paths.add(filterPath);
+      }
+
+      final SolidPixelHiker borderHiker = SolidPixelHiker(
+        offsets: offsets,
+        closePath: false,
+        canvasSize: size,
+        strokeWidth: strokeWidth + polyline.borderStrokeWidth,
+      );
+      borderHiker.addAllVisibleSegments(paths);
+
+      final borderPaint = Paint()
+        ..color = polyline.borderColor
+        ..strokeWidth = strokeWidth + polyline.borderStrokeWidth
+        ..strokeCap = polyline.strokeCap
+        ..strokeJoin = polyline.strokeJoin
+        ..style = PaintingStyle.stroke
+        ..blendMode = BlendMode.srcOver;
+
+      final filterPaint = Paint()
+        ..color = polyline.borderColor.withAlpha(255)
+        ..strokeWidth = strokeWidth
+        ..strokeCap = polyline.strokeCap
+        ..strokeJoin = polyline.strokeJoin
+        ..style = PaintingStyle.stroke
+        ..blendMode = BlendMode.dstOut;
+
+      if (requiresLayerSaving) {
+        canvas.saveLayer(viewportRect, Paint());
+      }
+
+      canvas.drawPath(borderPath, borderPaint);
+
+      if (requiresLayerSaving) {
+        canvas.drawPath(filterPath, filterPaint);
+        canvas.restore();
+      }
+    }
+
+    final strokePaint = Paint()
+      ..strokeWidth = strokeWidth
+      ..strokeCap = polyline.strokeCap
+      ..strokeJoin = polyline.strokeJoin
+      ..style = PaintingStyle.stroke
+      ..blendMode = BlendMode.srcOver;
+
+    final segmentPath = ui.Path();
+
+    for (int i = 0; i < vertexCount - 1; i++) {
+      final start = offsets[i];
+      final end = offsets[i + 1];
+      if (start == end) continue;
+
+      strokePaint.shader = ui.Gradient.linear(
+        start,
+        end,
+        [colors[i], colors[i + 1]],
+      );
+      segmentPath.moveTo(start.dx, start.dy);
+      segmentPath.lineTo(end.dx, end.dy);
+      canvas.drawPath(segmentPath, strokePaint);
+      segmentPath.reset();
+    }
+
+    strokePaint.shader = null;
   }
 
   ui.Gradient _paintGradient(Polyline polyline, List<Offset> offsets) =>
