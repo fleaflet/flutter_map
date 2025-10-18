@@ -789,13 +789,24 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       return;
     }
 
-    final direction = details.velocity.pixelsPerSecond / magnitude;
+    // Use the actual tracked offset to determine direction instead of the
+    // velocity direction, which can be incorrect on web when the pointer
+    // leaves the window.
+    final flingOffset = _focalStartLocal - _lastFocalLocal;
+    final flingDistance = flingOffset.distance;
+
+    // If there's no meaningful drag distance, don't start a fling
+    if (flingDistance < 1.0) {
+      widget.controller.flingNotStarted(eventSource);
+      return;
+    }
+
+    final direction = flingOffset / flingDistance;
     final distance = (Offset.zero & _camera.nonRotatedSize).shortestSide;
 
-    final flingOffset = _focalStartLocal - _lastFocalLocal;
     _flingAnimation = Tween<Offset>(
       begin: flingOffset,
-      end: flingOffset - direction * distance,
+      end: flingOffset + direction * distance,
     ).animate(_flingController);
 
     _flingController
