@@ -795,12 +795,6 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     final flingOffset = _focalStartLocal - _lastFocalLocal;
     final flingDistance = flingOffset.distance;
 
-    // If there's no meaningful drag distance, don't start a fling
-    if (flingDistance < 1.0) {
-      widget.controller.flingNotStarted(eventSource);
-      return;
-    }
-
     final direction = flingOffset / flingDistance;
     final distance = (Offset.zero & _camera.nonRotatedSize).shortestSide;
 
@@ -816,7 +810,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
           springDescription: SpringDescription.withDampingRatio(
             mass: 1,
             stiffness: 1000,
-            ratio: 5,
+            ratio: _interactionOptions.flingAnimationDampingRatio,
           ));
   }
 
