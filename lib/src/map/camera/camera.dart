@@ -143,18 +143,26 @@ class MapCamera {
   })  : _cameraSize = size,
         _pixelBounds = pixelBounds,
         _bounds = bounds,
-        _pixelOrigin = pixelOrigin;
+        _pixelOrigin = pixelOrigin,
+        assert(
+          zoom.isFinite,
+          'Camera `zoom` must be finite (and usually positive).\n'
+          '(This may occur if the map tried to fit to a zero-area bounds, such '
+          'as a bounds defined by only a single point.)',
+        );
 
   /// Initializes [MapCamera] from the given [options] and with the
   /// [nonRotatedSize] set to [kImpossibleSize].
   MapCamera.initialCamera(MapOptions options)
-      : crs = options.crs,
-        minZoom = options.minZoom,
-        maxZoom = options.maxZoom,
-        center = options.initialCenter,
-        zoom = options.initialZoom,
-        rotation = options.initialRotation,
-        nonRotatedSize = kImpossibleSize;
+      : this(
+          crs: options.crs,
+          minZoom: options.minZoom,
+          maxZoom: options.maxZoom,
+          center: options.initialCenter,
+          zoom: options.initialZoom,
+          rotation: options.initialRotation,
+          nonRotatedSize: kImpossibleSize,
+        );
 
   /// Returns a new instance of [MapCamera] with the given [nonRotatedSize].
   MapCamera withNonRotatedSize(Size nonRotatedSize) {
@@ -369,8 +377,10 @@ class MapCamera {
     final counterRotationFactor = counterRotation ? -1 : 1;
 
     final m = Matrix4.identity()
+      // ignore: deprecated_member_use
       ..translate(mapCenter.dx, mapCenter.dy)
       ..rotateZ(rotationRad * counterRotationFactor)
+      // ignore: deprecated_member_use
       ..translate(-mapCenter.dx, -mapCenter.dy);
 
     return MatrixUtils.transformPoint(m, point);
