@@ -38,7 +38,7 @@ dependencies:
   meta: ^1.11.0
   path: ^1.9.0
   path_provider: ^2.1.5
-  proj4dart: ^2.1.0
+  proj4dart: ">=2.1.0 <4.0.0"
   uuid: ^4.5.1
 
 dev_dependencies:
