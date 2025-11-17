@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Check labels of issue
         id: check_labels
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -42,7 +42,7 @@ jobs:
       # action removes the label when the automatic reminder message gets sent.
       - name: Remove `waiting for user response` label if exists
         if: steps.check_labels.outputs.result == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
