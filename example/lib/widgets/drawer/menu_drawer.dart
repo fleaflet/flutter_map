@@ -86,7 +86,7 @@ class MenuDrawer extends StatelessWidget {
                 if (_commitSHA != '')
                   SelectableText.rich(
                     TextSpan(
-                      style: Theme.of(context).textTheme.bodySmall,
+                      style: DefaultTextStyle.of(context).style,
                       children: [
                         const TextSpan(text: 'Built from: '),
                         TextSpan(
