@@ -8,6 +8,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/image_provider/consolidate_response.dart';
 import 'package:http/http.dart';
 import 'package:logger/logger.dart';
+// ignore: unnecessary_import
 import 'package:meta/meta.dart';
 
 // TODO: This does not match the modern implementation in fetcher/network.dart,

@@ -1,7 +1,7 @@
 name: flutter_map_example
 description: Example application for 'flutter_map' package
 publish_to: "none"
-version: 8.2.1
+version: 8.2.2
 
 environment:
   sdk: ">=3.6.0 <4.0.0"
@@ -13,18 +13,18 @@ dependencies:
   flutter_map:
   flutter_web_plugins:
     sdk: flutter
-  http: ^1.3.0
+  http: ^1.6.0
   latlong2: ^0.9.1
-  proj4dart: ^2.1.0
+  proj4dart: ^3.0.0
   shared_preferences: ^2.5.3
-  url_launcher: ^6.3.1
+  url_launcher: ^6.3.2
 
 dependency_overrides:
   flutter_map:
     path: ../
 
 dev_dependencies:
-  flutter_lints: ^6.0.0
+  flutter_lints: ">=5.0.0 <7.0.0"
   flutter_test:
     sdk: flutter
   geojson_vi: ^2.2.5
