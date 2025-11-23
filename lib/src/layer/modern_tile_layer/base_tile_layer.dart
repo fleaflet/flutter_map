@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 
 import 'package:flutter/widgets.dart';
@@ -66,8 +67,9 @@ class _BaseTileLayerState<D extends BaseTileData>
       final key = (coordinates: coordinates, layerKey: layerKey);
       tiles.putIfAbsent(
         key,
-        () => widget.tileLoader(coordinates, widget.options)
-          ..whenLoaded.then((_) => _pruneOnLoadedTile(key)),
+        () => _TileDataWithPrunableIndicator(
+          widget.tileLoader(coordinates, widget.options),
+        )..triggerPrune.then((_) => _pruneOnLoadedTile(key)),
         // TODO: Consider how to handle errors
       );
     }
@@ -90,7 +92,7 @@ class _BaseTileLayerState<D extends BaseTileData>
               visibleTileCoordinates.contains(tile.key.coordinates) &&
               tile.key.layerKey == layerKey,
         )
-        .every((tile) => tile.value.isLoaded);
+        .every((tile) => tile.value.isPrunable);
     if (allLoaded) {
       tiles.removeWhere(
         (key, _) => !visibleTileCoordinates.contains(key.coordinates),
@@ -101,7 +103,7 @@ class _BaseTileLayerState<D extends BaseTileData>
       context,
       layerKey,
       widget.options,
-      Map.unmodifiable(tiles),
+      Map.unmodifiable(tiles.map((k, v) => MapEntry(k, v._data))),
     );
   }
 
@@ -112,7 +114,7 @@ class _BaseTileLayerState<D extends BaseTileData>
     // Remove all identical tiles of other (old) keys. aka replace my ancestor
     tiles.removeWhere(
       (otherKey, otherData) =>
-          otherData.isLoaded &&
+          otherData.isPrunable &&
           otherKey.coordinates == key.coordinates &&
           otherKey.layerKey != key.layerKey,
     );
@@ -123,7 +125,7 @@ class _BaseTileLayerState<D extends BaseTileData>
       // or not
       tiles.removeWhere(
         (otherKey, otherData) =>
-            otherData.isLoaded && otherKey.coordinates == childCoordinates,
+            otherData.isPrunable && otherKey.coordinates == childCoordinates,
       );
     }
 
@@ -144,7 +146,7 @@ class _BaseTileLayerState<D extends BaseTileData>
                 siblingCoordinates.contains(other.key.coordinates) &&
                 other.key.layerKey == key.layerKey,
           )
-          .every((other) => other.value.isLoaded);
+          .every((other) => other.value.isPrunable);
 
       if (allLoaded) {
         // Prune parent if me and my siblings are all loaded
@@ -235,17 +237,34 @@ extension _ParentChildTraversal on TileCoordinates {
 typedef _TileKey = ({TileCoordinates coordinates, Object layerKey});
 
 extension type _TilesTracker<D extends BaseTileData>._(
-    SplayTreeMap<_TileKey, D> map) implements SplayTreeMap<_TileKey, D> {
+        Map<_TileKey, _TileDataWithPrunableIndicator<D>> _map)
+    implements Map<_TileKey, _TileDataWithPrunableIndicator<D>> {
   _TilesTracker()
       : this._(
-          SplayTreeMap<_TileKey, D>(
-            (a, b) =>
+          Map<_TileKey, _TileDataWithPrunableIndicator<D>>(
+              /*(a, b) =>
                 a.coordinates.z.compareTo(b.coordinates.z) |
                 a.coordinates.x.compareTo(b.coordinates.x) |
-                a.coordinates.y.compareTo(b.coordinates.y),
-          ),
+                a.coordinates.y.compareTo(b.coordinates.y),*/
+              ),
         );
 
   @redeclare
-  D? remove(Object? key) => map.remove(key)?..dispose();
+  D? remove(Object? key) => (_map.remove(key)?..dispose())?._data;
+}
+
+class _TileDataWithPrunableIndicator<D extends BaseTileData> {
+  _TileDataWithPrunableIndicator(D data) : _data = data {
+    _data.triggerPrune.then((_) => isPrunable = true);
+  }
+
+  final D _data;
+  Future<void> get triggerPrune => _data.triggerPrune;
+  void dispose() => _data.dispose();
+
+  /// `true` when [BaseTileData.triggerPrune] has completed.
+  ///
+  /// Triggering pruning implies being fully loaded and therefore ready for self
+  /// pruning.
+  bool isPrunable = false;
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/base_tile_layer.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/options.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/source_generators/source_generator.dart';
@@ -9,6 +10,7 @@ import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/raster/tile_
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/raster/tile_loader.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_source.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
 
 class RasterTileLayer extends StatefulWidget {
   const RasterTileLayer({
@@ -39,7 +41,7 @@ class _RasterTileLayerState extends State<RasterTileLayer> {
   Widget build(BuildContext context) => BaseTileLayer(
         options: widget.options,
         tileLoader: RasterTileLoader(
-          sourceGenerator: const XYZSourceGenerator(uriTemplates: ['']),
+          sourceGenerator: widget.sourceGenerator,
           bytesFetcher: widget.bytesFetcher,
         ),
         renderer: (context, layerKey, options, visibleTiles) => _RasterRenderer(
@@ -69,6 +71,9 @@ class __RasterRendererState extends State<_RasterRenderer> {
   //final Map<({TileCoordinates coordinates, Object layerKey}),
   //    TileData<Uint8List>> visibleTiles = {};
 
+  final _tileScaleCalculator =
+      TileScaleCalculator(crs: Epsg3857(), tileDimension: 256);
+
   @override
   void didUpdateWidget(covariant _RasterRenderer oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -76,12 +81,26 @@ class __RasterRendererState extends State<_RasterRenderer> {
 
   @override
   Widget build(BuildContext context) {
+    final map = MapCamera.of(context);
+
+    _tileScaleCalculator.clearCacheUnlessZoomMatches(map.zoom);
+
     return CustomPaint(
       size: Size.infinite,
       willChange: true,
       painter: _RasterPainter(
         options: widget.options,
-        visibleTiles: widget.visibleTiles,
+        visibleTiles: widget.visibleTiles.entries.map(
+          (tile) => (
+            coordinates: tile.key.coordinates,
+            scaledTileDimension: _tileScaleCalculator.scaledTileDimension(
+              map.zoom,
+              tile.key.coordinates.z,
+            ),
+            currentPixelOrigin: map.pixelOrigin,
+            data: tile.value,
+          ),
+        ),
         //tiles: tiles..sort(renderOrder),
         //tilePaint: widget.tilePaint,
         //tileOverlayPainter: widget.tileOverlayPainter,
@@ -92,8 +111,13 @@ class __RasterRendererState extends State<_RasterRenderer> {
 
 class _RasterPainter extends CustomPainter {
   final TileLayerOptions options;
-  final Map<({TileCoordinates coordinates, Object layerKey}), RasterTileData>
-      visibleTiles;
+  final Iterable<
+      ({
+        TileCoordinates coordinates,
+        double scaledTileDimension,
+        Offset currentPixelOrigin,
+        RasterTileData data
+      })> visibleTiles;
 
   _RasterPainter({
     super.repaint,
@@ -101,15 +125,39 @@ class _RasterPainter extends CustomPainter {
     required this.visibleTiles,
   });
 
+  final Paint _basePaint = (null ?? Paint())
+    ..filterQuality = FilterQuality.high
+    ..isAntiAlias = true;
+
   @override
   void paint(Canvas canvas, Size size) {
-    for (final MapEntry(key: (:coordinates, layerKey: _), value: tile)
-        in visibleTiles.entries) {}
+    for (final tile in visibleTiles) {
+      if (tile.data.loaded?.successfulImageInfo?.image case final image?) {
+        final origin = Offset(
+          tile.coordinates.x * tile.scaledTileDimension -
+              tile.currentPixelOrigin.dx,
+          tile.coordinates.y * tile.scaledTileDimension -
+              tile.currentPixelOrigin.dy,
+        );
+        final destSize = Size.square(tile.scaledTileDimension);
+
+        //final paint = _basePaint
+        //  ..color = (null?.color.withOpacity(tile.tileImage.opacity) ??
+        //      Color.fromRGBO(0, 0, 0, tile.tileImage.opacity));
+
+        canvas.drawImageRect(
+          image,
+          Offset.zero &
+              Size(image.width.toDouble(), image.height.toDouble()), // src
+          origin & destSize, // dest
+          _basePaint,
+        );
+      }
+    }
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    // TODO: implement shouldRepaint
-    throw UnimplementedError();
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return true;
   }
 }

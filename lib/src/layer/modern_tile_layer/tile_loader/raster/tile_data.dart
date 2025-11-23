@@ -31,10 +31,8 @@ class RasterTileData implements BaseTileData {
 
   final _loadedTracker = Completer<void>();
   @override
-  Future<void> get whenLoaded => _loadedTracker.future;
+  Future<void> get triggerPrune => _loadedTracker.future;
 
-  @override
-  bool get isLoaded => loaded != null;
   ({
     DateTime time,
     ImageInfo? successfulImageInfo,
