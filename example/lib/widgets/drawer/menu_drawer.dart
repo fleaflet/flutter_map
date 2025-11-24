@@ -34,6 +34,7 @@ import 'package:flutter_map_example/pages/secondary_tap.dart';
 import 'package:flutter_map_example/pages/single_world_polys.dart';
 import 'package:flutter_map_example/pages/sliding_map.dart';
 import 'package:flutter_map_example/pages/tile_builder.dart';
+import 'package:flutter_map_example/pages/tile_error.dart';
 import 'package:flutter_map_example/pages/tile_loading_error_handle.dart';
 import 'package:flutter_map_example/pages/wms_tile_layer.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_item.dart';
@@ -160,6 +161,11 @@ class MenuDrawer extends StatelessWidget {
           MenuItemWidget(
             caption: 'Scale Bar Layer',
             routeName: ScaleBarPage.route,
+            currentRoute: currentRoute,
+          ),
+          MenuItemWidget(
+            caption: 'Tile error',
+            routeName: TileErrorPage.route,
             currentRoute: currentRoute,
           ),
           const Divider(),
