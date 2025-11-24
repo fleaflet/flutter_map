@@ -7,7 +7,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetchers/network/caching/built_in/impl/native/workers/tile_and_size_monitor_writer.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetcher/network/caching/built_in/impl/native/workers/tile_and_size_monitor_writer.dart';
 // ignore: unnecessary_import
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;

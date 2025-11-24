@@ -57,7 +57,6 @@ class WrapperTileData<D extends Object?> implements BaseTileData {
   Future<D> get triggerPrune => _loadedTracker.future;
 
   /// Whether [data] represents the loaded data
-  @override
   bool get isLoaded => _loadedTracker.isCompleted;
 
   @internal

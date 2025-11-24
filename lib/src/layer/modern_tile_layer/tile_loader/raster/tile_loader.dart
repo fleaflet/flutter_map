@@ -4,16 +4,8 @@ import 'dart:ui';
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/options.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/source_generators/source_generator.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/source_generators/wms.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/source_generators/xyz.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetchers/bytes_fetcher.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetchers/network/fetcher/network.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/raster/image_provider.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/raster/tile_data.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_loader.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_source.dart';
 import 'package:meta/meta.dart';
 
 /// A tile loader implementation which:

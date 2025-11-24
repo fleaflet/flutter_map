@@ -1,163 +1,126 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/base_tile_layer.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/options.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/source_generators/source_generator.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/source_generators/xyz.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetchers/bytes_fetcher.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetchers/network/fetcher/network.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/raster/tile_data.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/raster/tile_loader.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_source.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
 
+part 'renderer.dart';
+
+/// A specialised [BaseTileLayer] where the tiles' contents are raster images.
 class RasterTileLayer extends StatefulWidget {
+  /// Construct a raster tile layer.
+  ///
+  /// Using this constructor instead of [RasterTileLayer.simple] allows more
+  /// flexibility, but comes with additional responsibilities.
+  ///
+  /// [RasterTileLayer.simple] allows the internals to manage the
+  /// [RasterTileLoader], [XYZSourceGenerator], and particularly the
+  /// [NetworkBytesFetcher]. This reduces unnecessary rebuilding of the map and
+  /// maximises the lifespan of certain objects to improve performance.
+  ///
+  /// When using this constructor, construct these objects (or the equivalents
+  /// for your use-case) outside of your widget's `build` method wherever
+  /// possible, then pass them to the [loader] argument. Where a part of the
+  /// loader depends on the `build` method (such as inheriting via the
+  /// `BuildContext`), construct as many non-dependent components outside
+  /// as possible. This is particularly important when using the
+  /// [NetworkBytesFetcher] - constructing the HTTP client once is much cheaper
+  /// and allows connections to remain open, improving performance.
   const RasterTileLayer({
     super.key,
     this.options = const TileLayerOptions(),
-    required this.sourceGenerator,
-    required this.bytesFetcher,
-  });
+    this.rasterOptions = const RasterTileLayerOptions(),
+    required this.loader,
+  }) : _simpleLoaderParams = null;
 
-  RasterTileLayer.simple({
+  /// Construct a raster tile layer which loads tiles from a network URL which
+  /// uses the XYZ format for referencing tiles.
+  ///
+  /// If more control over the [SourceGenerator] or [SourceBytesFetcher] is
+  /// required, use [RasterTileLayer.new].
+  ///
+  /// [urlTemplate] is an endpoint for tile resources, in XYZ template format.
+  /// See [XYZSourceGenerator.uriTemplates] for more info.
+  ///
+  /// [uaIdentifier] is the 'User-Agent' unique identifier for your project,
+  /// which tile servers can use to monitor traffic. See
+  /// [NetworkBytesFetcher.new] for more info.
+  const RasterTileLayer.simple({
     super.key,
     this.options = const TileLayerOptions(),
+    this.rasterOptions = const RasterTileLayerOptions(),
     required String urlTemplate,
     required String uaIdentifier,
-  })  : sourceGenerator = XYZSourceGenerator(uriTemplates: [urlTemplate]),
-        bytesFetcher = NetworkBytesFetcher(uaIdentifier: uaIdentifier);
+  })  : _simpleLoaderParams =
+            (urlTemplate: urlTemplate, uaIdentifier: uaIdentifier),
+        loader = null;
 
+  /// Configuration of the base [BaseTileLayer].
   final TileLayerOptions options;
-  final SourceGenerator<TileSource> sourceGenerator;
-  final SourceBytesFetcher<Iterable<String>> bytesFetcher;
+
+  /// Configuration of options specific to the [RasterTileLayer].
+  final RasterTileLayerOptions rasterOptions;
+
+  /// [RasterTileLoader] defined by the [RasterTileLayer.new] constructor.
+  ///
+  /// `null` if the [RasterTileLayer.simple] constructor was used.
+  final RasterTileLoader? loader;
+
+  /// Immutable parameters for the internally-managed [RasterTileLoader] defined
+  /// by the [RasterTileLayer.simple] constructor.
+  ///
+  /// `null` if the [RasterTileLayer.new] constructor was used.
+  final ({String urlTemplate, String uaIdentifier})? _simpleLoaderParams;
 
   @override
   State<RasterTileLayer> createState() => _RasterTileLayerState();
 }
 
 class _RasterTileLayerState extends State<RasterTileLayer> {
-  @override
-  Widget build(BuildContext context) => BaseTileLayer(
-        options: widget.options,
-        tileLoader: RasterTileLoader(
-          sourceGenerator: widget.sourceGenerator,
-          bytesFetcher: widget.bytesFetcher,
-        ),
-        renderer: (context, layerKey, options, visibleTiles) => _RasterRenderer(
-          layerKey: layerKey,
-          options: options,
-          visibleTiles: visibleTiles,
-        ),
-      );
-}
-
-class _RasterRenderer extends StatefulWidget {
-  _RasterRenderer({
-    required Object layerKey,
-    required this.options,
-    required this.visibleTiles,
-  }) : super(key: ValueKey(layerKey));
-
-  final TileLayerOptions options;
-  final Map<({TileCoordinates coordinates, Object layerKey}), RasterTileData>
-      visibleTiles;
-
-  @override
-  State<_RasterRenderer> createState() => __RasterRendererState();
-}
-
-class __RasterRendererState extends State<_RasterRenderer> {
-  //final Map<({TileCoordinates coordinates, Object layerKey}),
-  //    TileData<Uint8List>> visibleTiles = {};
-
-  final _tileScaleCalculator =
-      TileScaleCalculator(crs: Epsg3857(), tileDimension: 256);
-
-  @override
-  void didUpdateWidget(covariant _RasterRenderer oldWidget) {
-    super.didUpdateWidget(oldWidget);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final map = MapCamera.of(context);
-
-    _tileScaleCalculator.clearCacheUnlessZoomMatches(map.zoom);
-
-    return CustomPaint(
-      size: Size.infinite,
-      willChange: true,
-      painter: _RasterPainter(
-        options: widget.options,
-        visibleTiles: widget.visibleTiles.entries.map(
-          (tile) => (
-            coordinates: tile.key.coordinates,
-            scaledTileDimension: _tileScaleCalculator.scaledTileDimension(
-              map.zoom,
-              tile.key.coordinates.z,
-            ),
-            currentPixelOrigin: map.pixelOrigin,
-            data: tile.value,
-          ),
-        ),
-        //tiles: tiles..sort(renderOrder),
-        //tilePaint: widget.tilePaint,
-        //tileOverlayPainter: widget.tileOverlayPainter,
+  // When the user is using the `.simple` constructor, we try to minimise
+  // rebuilding, new `layerKey`s, and new HTTP clients.
+  late RasterTileLoader _loader = widget.loader ?? _generateLoaderFromSimple();
+  RasterTileLoader _generateLoaderFromSimple() {
+    assert(
+      widget.loader == null,
+      'May only be called when using `.simple` constructor',
+    );
+    return RasterTileLoader(
+      sourceGenerator: XYZSourceGenerator(
+        uriTemplates: [widget._simpleLoaderParams!.urlTemplate],
+      ),
+      bytesFetcher: NetworkBytesFetcher(
+        uaIdentifier: widget._simpleLoaderParams!.uaIdentifier,
       ),
     );
   }
-}
-
-class _RasterPainter extends CustomPainter {
-  final TileLayerOptions options;
-  final Iterable<
-      ({
-        TileCoordinates coordinates,
-        double scaledTileDimension,
-        Offset currentPixelOrigin,
-        RasterTileData data
-      })> visibleTiles;
-
-  _RasterPainter({
-    super.repaint,
-    required this.options,
-    required this.visibleTiles,
-  });
-
-  final Paint _basePaint = (null ?? Paint())
-    ..filterQuality = FilterQuality.high
-    ..isAntiAlias = true;
 
   @override
-  void paint(Canvas canvas, Size size) {
-    for (final tile in visibleTiles) {
-      if (tile.data.loaded?.successfulImageInfo?.image case final image?) {
-        final origin = Offset(
-          tile.coordinates.x * tile.scaledTileDimension -
-              tile.currentPixelOrigin.dx,
-          tile.coordinates.y * tile.scaledTileDimension -
-              tile.currentPixelOrigin.dy,
-        );
-        final destSize = Size.square(tile.scaledTileDimension);
+  void didUpdateWidget(covariant RasterTileLayer oldWidget) {
+    super.didUpdateWidget(oldWidget);
 
-        //final paint = _basePaint
-        //  ..color = (null?.color.withOpacity(tile.tileImage.opacity) ??
-        //      Color.fromRGBO(0, 0, 0, tile.tileImage.opacity));
-
-        canvas.drawImageRect(
-          image,
-          Offset.zero &
-              Size(image.width.toDouble(), image.height.toDouble()), // src
-          origin & destSize, // dest
-          _basePaint,
-        );
-      }
+    if (widget.loader != oldWidget.loader ||
+        widget._simpleLoaderParams != oldWidget._simpleLoaderParams) {
+      _loader = widget.loader ?? _generateLoaderFromSimple();
     }
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return true;
-  }
+  Widget build(BuildContext context) => BaseTileLayer(
+        options: widget.options,
+        tileLoader: _loader,
+        renderer: _renderer,
+      );
+
+  Widget _renderer(
+    BuildContext context,
+    Object layerKey,
+    Map<({TileCoordinates coordinates, Object layerKey}), RasterTileData>
+        visibleTiles,
+  ) =>
+      _RasterRenderer(
+        layerKey: layerKey,
+        visibleTiles: visibleTiles,
+        options: widget.options,
+        rasterOptions: widget.rasterOptions,
+      );
 }

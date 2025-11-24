@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/raster/tile_loader.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_loader.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_source.dart';
 import 'package:logger/logger.dart';
+
+export 'asset/asset.dart';
+export 'file/file.dart';
+export 'network/network.dart';
 
 /// Fetches a tile's bytes based on its source ([S]), transforming it into a
 /// desired resource using a supplied [BytesToResourceTransformer].

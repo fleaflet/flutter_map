@@ -1,7 +1,5 @@
-import 'package:flutter_map/src/layer/modern_tile_layer/source_generators/source_generator.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/source_generators/xyz.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetchers/bytes_fetcher.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetchers/network/fetcher/network.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetcher/bytes_fetcher.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_generator/source_generator.dart';
 import 'package:meta/meta.dart';
 
 /// Data class for communicating URIs returned by some [SourceGenerator]

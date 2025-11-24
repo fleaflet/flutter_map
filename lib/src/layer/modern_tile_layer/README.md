@@ -22,7 +22,7 @@ It does this by:
 
 * using a canvas implementation for the default raster tile layer
 
-Significant uestions remaining:
+Significant questions remaining:
 
 * Is the default tile loader setup (with two stages) too much frameworking/overly-complicated?
 * Simulating retina mode affects all parts of the system - but only (conceptually/for reasoning) applies to raster tiles (although technically it's no different to a top layer option). How should this be represented?

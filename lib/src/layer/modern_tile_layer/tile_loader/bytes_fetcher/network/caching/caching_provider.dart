@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetchers/network/fetcher/network.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetcher/network/fetcher/network.dart';
 import 'package:meta/meta.dart';
 
 /// Provides tile caching facilities.

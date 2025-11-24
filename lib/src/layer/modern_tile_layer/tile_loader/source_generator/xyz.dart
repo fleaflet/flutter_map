@@ -1,8 +1,6 @@
 import 'package:flutter_map/src/layer/modern_tile_layer/options.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/source_generators/source_generator.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetchers/bytes_fetcher.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetchers/file/file_stub.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetchers/network/fetcher/network.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetcher/bytes_fetcher.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_generator/source_generator.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_source.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:meta/meta.dart';
@@ -22,9 +20,9 @@ import 'package:meta/meta.dart';
 class XYZSourceGenerator implements SourceGenerator<TileSource> {
   /// List of endpoints for tile resources, in XYZ template format.
   ///
-  /// Endpoints are used by the [TileGenerator] in use, and so their meaning
-  /// is context dependent. For example, a HTTP URL would likely be used with
-  /// the [NetworkBytesFetcher], whilst a file URI would be used with the
+  /// Endpoints are used by the [SourceBytesFetcher] in use, and so their
+  /// meaning is context dependent. For example, a HTTP URL would likely be used
+  /// with the [NetworkBytesFetcher], whilst a file URI would be used with the
   /// [FileBytesFetcher].
   ///
   /// In all 3 default [SourceBytesFetcher]s, the first endpoint is used for
@@ -33,7 +31,7 @@ class XYZSourceGenerator implements SourceGenerator<TileSource> {
   ///
   /// > [!WARNING]
   /// > Using fallbacks may incur a (potentially significant) performance
-  /// > penalty, and may not be understood by all [TileGenerator]s.
+  /// > penalty, and may not be understood by all [SourceBytesFetcher]s.
   /// > Note that failing each endpoint may take some time (such as a HTTP
   /// > timeout elapsing).
   ///

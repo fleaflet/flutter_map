@@ -1,12 +1,9 @@
 import 'dart:async';
-import 'dart:collection';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/base_tile_data.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/options.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_loader.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:logger/logger.dart';
 import 'package:meta/meta.dart';
 
 /// A map layer formed from adjacent square tiles loaded individually on demand
@@ -24,7 +21,6 @@ class BaseTileLayer<D extends BaseTileData> extends StatefulWidget {
   final Widget Function(
     BuildContext context,
     Object layerKey,
-    TileLayerOptions options,
     Map<({TileCoordinates coordinates, Object layerKey}), D> visibleTiles,
   ) renderer;
 
@@ -52,6 +48,8 @@ class _BaseTileLayerState<D extends BaseTileData>
     if (oldWidget.options != widget.options ||
         oldWidget.tileLoader != widget.tileLoader ||
         oldWidget.renderer != widget.renderer) {
+      // TODO: Remove
+      Logger(printer: SimplePrinter()).d('Generating new `layerKey`');
       layerKey = UniqueKey();
     }
   }
@@ -102,8 +100,7 @@ class _BaseTileLayerState<D extends BaseTileData>
     return widget.renderer(
       context,
       layerKey,
-      widget.options,
-      Map.unmodifiable(tiles.map((k, v) => MapEntry(k, v._data))),
+      Map.unmodifiable(tiles.map((k, v) => MapEntry(k, v.data))),
     );
   }
 
@@ -239,28 +236,39 @@ typedef _TileKey = ({TileCoordinates coordinates, Object layerKey});
 extension type _TilesTracker<D extends BaseTileData>._(
         Map<_TileKey, _TileDataWithPrunableIndicator<D>> _map)
     implements Map<_TileKey, _TileDataWithPrunableIndicator<D>> {
-  _TilesTracker()
-      : this._(
-          Map<_TileKey, _TileDataWithPrunableIndicator<D>>(
-              /*(a, b) =>
-                a.coordinates.z.compareTo(b.coordinates.z) |
-                a.coordinates.x.compareTo(b.coordinates.x) |
-                a.coordinates.y.compareTo(b.coordinates.y),*/
-              ),
-        );
+  _TilesTracker() : this._(<_TileKey, _TileDataWithPrunableIndicator<D>>{});
 
+  // ignore: experimental_member_use
   @redeclare
-  D? remove(Object? key) => (_map.remove(key)?..dispose())?._data;
+  void removeWhere(
+    bool Function(_TileKey key, _TileDataWithPrunableIndicator<D> value) test,
+  ) {
+    final keysToRemove = <_TileKey>[];
+    for (final MapEntry(:key, :value) in _map.entries) {
+      if (test(key, value)) keysToRemove.add(key);
+    }
+    for (final key in keysToRemove) {
+      remove(key);
+    }
+  }
+
+  // ignore: experimental_member_use
+  @redeclare
+  D? remove(Object? key) {
+    //print(StackTrace.current);
+    return (_map.remove(key)?..dispose())?.data;
+  }
 }
 
 class _TileDataWithPrunableIndicator<D extends BaseTileData> {
-  _TileDataWithPrunableIndicator(D data) : _data = data {
-    _data.triggerPrune.then((_) => isPrunable = true);
+  _TileDataWithPrunableIndicator(this.data) {
+    data.triggerPrune.then((_) => isPrunable = true);
   }
 
-  final D _data;
-  Future<void> get triggerPrune => _data.triggerPrune;
-  void dispose() => _data.dispose();
+  final D data;
+
+  Future<void> get triggerPrune => data.triggerPrune;
+  void dispose() => data.dispose();
 
   /// `true` when [BaseTileData.triggerPrune] has completed.
   ///

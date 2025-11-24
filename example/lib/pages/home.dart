@@ -38,7 +38,7 @@ class _HomePageState extends State<HomePage> {
               initialZoom: 5,
             ),
             children: [
-              RasterTileLayer.simple(
+              const RasterTileLayer.simple(
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 uaIdentifier: 'dev.fleaflet.flutter_map.demo',
               ),

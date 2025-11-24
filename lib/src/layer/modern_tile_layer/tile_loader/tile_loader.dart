@@ -4,6 +4,11 @@ import 'package:flutter_map/src/layer/modern_tile_layer/options.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:meta/meta.dart';
 
+export 'bytes_fetcher/bytes_fetcher.dart';
+export 'raster/raster.dart';
+export 'source_generator/source_generator.dart';
+export 'tile_source.dart';
+
 /// Responsible for generating a tile's data ([D]), given the [TileCoordinates]
 /// and ambient [TileLayerOptions].
 ///

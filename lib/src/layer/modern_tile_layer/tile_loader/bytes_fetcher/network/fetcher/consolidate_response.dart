@@ -6,7 +6,6 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
-import 'package:meta/meta.dart';
 
 /// Efficiently converts the response body of an [Response] into a
 /// [Uint8List].
