@@ -79,18 +79,18 @@ class ContainCameraCenter extends CameraConstraint {
   final LatLngBounds bounds;
 
   @override
-  MapCamera constrain(MapCamera camera) => camera.withPosition(
-        center: LatLng(
-          camera.center.latitude.clamp(
-            bounds.south,
-            bounds.north,
-          ),
-          camera.center.longitude.clamp(
-            bounds.west,
-            bounds.east,
-          ),
-        ),
-      );
+  MapCamera constrain(MapCamera camera) {
+    final latitude = camera.center.latitude.clamp(bounds.south, bounds.north);
+    final longitude = camera.center.longitude.clamp(bounds.west, bounds.east);
+    if (latitude == camera.center.latitude &&
+        longitude == camera.center.longitude) {
+      return camera;
+    }
+    return camera.withPosition(
+      center: LatLng(latitude, longitude),
+      constrained: true,
+    );
+  }
 
   @override
   bool operator ==(Object other) {
@@ -146,17 +146,9 @@ class ContainCamera extends CameraConstraint {
       return camera;
     }
 
-    // Special case when the world is the limit: we want to stop at
-    // antimeridian lines.
-    // The standard test cannot work, as we'll always be in [-180,180].
-    // If the center changed, that means that the clamp did have an action.
-    // Therefore we went beyond the world.
-    if (bounds.west == -180 && bounds.east == 180) {
-      return null;
-    }
-
     return camera.withPosition(
       center: camera.unprojectAtZoom(newCenterPix, testZoom),
+      constrained: true,
     );
   }
 
@@ -222,6 +214,7 @@ class ContainCameraLatitude extends CameraConstraint {
 
     return camera.withPosition(
       center: camera.unprojectAtZoom(newCenterPix, testZoom),
+      constrained: true,
     );
   }
 

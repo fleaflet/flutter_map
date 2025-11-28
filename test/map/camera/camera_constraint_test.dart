@@ -28,6 +28,7 @@ void main() {
         expect(clamped.zoom, 1);
         expect(clamped.center.latitude, closeTo(-48.562, 0.001));
         expect(clamped.center.longitude, closeTo(-55.703, 0.001));
+        expect(clamped.constrained, isTrue);
       });
     });
 
@@ -48,6 +49,7 @@ void main() {
         expect(clamped.zoom, 1);
         expect(clamped.center.latitude, closeTo(0, 0.001));
         expect(clamped.center.longitude, closeTo(-179.9, 0.001));
+        expect(clamped.constrained, isFalse);
       });
     });
 
@@ -67,6 +69,7 @@ void main() {
       expect(clamped.zoom, 1);
       expect(clamped.center.latitude, closeTo(-59.534, 0.001));
       expect(clamped.center.longitude, closeTo(179, 0.001));
+      expect(clamped.constrained, isFalse);
     });
 
     test('northern hemisphere', () {
@@ -85,6 +88,7 @@ void main() {
       expect(clamped.zoom, 2);
       expect(clamped.center.latitude, closeTo(46.558, 0.001));
       expect(clamped.center.longitude, closeTo(179, 0.001));
+      expect(clamped.constrained, isFalse);
     });
 
     test('can not translate camera within bounds', () {
