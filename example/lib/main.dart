@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map_example/pages/abort_obsolete_requests.dart';
 import 'package:flutter_map_example/pages/animated_map_controller.dart';
+import 'package:flutter_map_example/pages/antimeridian.dart';
 import 'package:flutter_map_example/pages/bundled_offline_map.dart';
 import 'package:flutter_map_example/pages/circle.dart';
 import 'package:flutter_map_example/pages/debouncing_tile_update_transformer.dart';
@@ -55,6 +56,7 @@ class MyApp extends StatelessWidget {
         AbortObsoleteRequestsPage.route: (context) =>
             const AbortObsoleteRequestsPage(),
         PolylinePage.route: (context) => const PolylinePage(),
+        AntimeridianPage.route: (context) => const AntimeridianPage(),
         SingleWorldPolysPage.route: (context) => const SingleWorldPolysPage(),
         PolylinePerfStressPage.route: (context) =>
             const PolylinePerfStressPage(),

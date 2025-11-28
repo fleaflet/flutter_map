@@ -142,7 +142,18 @@ class ContainCamera extends CameraConstraint {
       centerPix.dy.clamp(topOkCenter, botOkCenter),
     );
 
-    if (newCenterPix == centerPix) return camera;
+    if (newCenterPix == centerPix) {
+      return camera;
+    }
+
+    // Special case when the world is the limit: we want to stop at
+    // antimeridian lines.
+    // The standard test cannot work, as we'll always be in [-180,180].
+    // If the center changed, that means that the clamp did have an action.
+    // Therefore we went beyond the world.
+    if (bounds.west == -180 && bounds.east == 180) {
+      return null;
+    }
 
     return camera.withPosition(
       center: camera.unprojectAtZoom(newCenterPix, testZoom),

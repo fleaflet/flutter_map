@@ -5,6 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map_example/pages/abort_obsolete_requests.dart';
 import 'package:flutter_map_example/pages/animated_map_controller.dart';
+import 'package:flutter_map_example/pages/antimeridian.dart';
 import 'package:flutter_map_example/pages/bundled_offline_map.dart';
 import 'package:flutter_map_example/pages/circle.dart';
 import 'package:flutter_map_example/pages/debouncing_tile_update_transformer.dart';
@@ -145,6 +146,11 @@ class MenuDrawer extends StatelessWidget {
           MenuItemWidget(
             caption: 'Polyline Layer',
             routeName: PolylinePage.route,
+            currentRoute: currentRoute,
+          ),
+          MenuItemWidget(
+            caption: 'Antimeridian test',
+            routeName: AntimeridianPage.route,
             currentRoute: currentRoute,
           ),
           MenuItemWidget(
