@@ -69,7 +69,7 @@ void main() {
       expect(clamped.zoom, 1);
       expect(clamped.center.latitude, closeTo(-59.534, 0.001));
       expect(clamped.center.longitude, closeTo(179, 0.001));
-      expect(clamped.constrained, isFalse);
+      expect(clamped.constrained, isTrue);
     });
 
     test('northern hemisphere', () {
@@ -88,7 +88,7 @@ void main() {
       expect(clamped.zoom, 2);
       expect(clamped.center.latitude, closeTo(46.558, 0.001));
       expect(clamped.center.longitude, closeTo(179, 0.001));
-      expect(clamped.constrained, isFalse);
+      expect(clamped.constrained, isTrue);
     });
 
     test('can not translate camera within bounds', () {
