@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Setup Flutter Environment
         uses: subosito/flutter-action@v2
         with:
@@ -52,7 +52,7 @@ jobs:
         sdk: [ '3.27.0', '' ]
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Setup Flutter Environment
         uses: subosito/flutter-action@v2
         with:
@@ -78,7 +78,7 @@ jobs:
         working-directory: ./example
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Setup Java 21 Environment
         uses: actions/setup-java@v5
         with:
@@ -112,7 +112,7 @@ jobs:
         working-directory: ./example
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Setup Flutter Environment
         uses: subosito/flutter-action@v2
         with:
@@ -147,7 +147,7 @@ jobs:
         working-directory: ./example
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Setup Flutter Environment
         uses: subosito/flutter-action@v2
         with:
