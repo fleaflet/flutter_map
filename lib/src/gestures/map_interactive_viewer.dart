@@ -114,6 +114,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   late var _keyboardPanAnimationPrevZoom = _camera.zoom; // to detect changes
   late double _keyboardPanAnimationMaxVelocity;
+
   double _keyboardPanAnimationMaxVelocityCalculator(double zoom) =>
       _interactionOptions.keyboardOptions.maxPanVelocity?.call(zoom) ??
       5 * math.log(0.15 * zoom + 1) + 1;
@@ -124,7 +125,9 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   // Shortcuts
   MapCamera get _camera => widget.controller.camera;
+
   MapOptions get _options => widget.controller.options;
+
   InteractionOptions get _interactionOptions => _options.interactionOptions;
 
   @override
@@ -965,12 +968,15 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       newCenter = _camera.unprojectAtZoom(bestCenterPoint);
     }
 
-    widget.controller.moveRaw(
+    final moved = widget.controller.moveRaw(
       newCenter,
       _camera.zoom,
       hasGesture: true,
       source: MapEventSource.flingAnimationController,
     );
+    if (!moved) {
+      _closeFlingAnimationController(MapEventSource.flingAnimationController);
+    }
   }
 
   void _resetDoubleTapHold() {
