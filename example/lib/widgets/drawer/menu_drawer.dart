@@ -163,11 +163,6 @@ class MenuDrawer extends StatelessWidget {
             routeName: ScaleBarPage.route,
             currentRoute: currentRoute,
           ),
-          MenuItemWidget(
-            caption: 'Tile error',
-            routeName: TileErrorPage.route,
-            currentRoute: currentRoute,
-          ),
           const Divider(),
           MenuItemWidget(
             caption: 'Repeated Worlds/Longitudes',
@@ -284,6 +279,11 @@ class MenuDrawer extends StatelessWidget {
           MenuItemWidget(
             caption: 'Custom Tile Builder',
             routeName: TileBuilderPage.route,
+            currentRoute: currentRoute,
+          ),
+          MenuItemWidget(
+            caption: 'Custom Error Tile Builder',
+            routeName: ErrorTileBuilder.route,
             currentRoute: currentRoute,
           ),
           MenuItemWidget(

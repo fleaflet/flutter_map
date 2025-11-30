@@ -56,7 +56,6 @@ class MyApp extends StatelessWidget {
         AbortObsoleteRequestsPage.route: (context) =>
             const AbortObsoleteRequestsPage(),
         PolylinePage.route: (context) => const PolylinePage(),
-        TileErrorPage.route: (context) => const TileErrorPage(),
         SingleWorldPolysPage.route: (context) => const SingleWorldPolysPage(),
         PolylinePerfStressPage.route: (context) =>
             const PolylinePerfStressPage(),
@@ -78,6 +77,7 @@ class MyApp extends StatelessWidget {
         TileLoadingErrorHandle.route: (context) =>
             const TileLoadingErrorHandle(),
         TileBuilderPage.route: (context) => const TileBuilderPage(),
+        ErrorTileBuilder.route: (context) => const ErrorTileBuilder(),
         InteractiveFlagsPage.route: (context) => const InteractiveFlagsPage(),
         ManyMarkersPage.route: (context) => const ManyMarkersPage(),
         MapInsideListViewPage.route: (context) => const MapInsideListViewPage(),

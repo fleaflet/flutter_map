@@ -3,16 +3,16 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 
 /// Example of tile loading systematically failing.
-class TileErrorPage extends StatelessWidget {
-  static const String route = '/tile_error';
+class ErrorTileBuilder extends StatelessWidget {
+  static const String route = '/error_tile_builder';
 
-  const TileErrorPage({super.key});
+  const ErrorTileBuilder({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Tile Error')),
-      drawer: const MenuDrawer(TileErrorPage.route),
+      appBar: AppBar(title: const Text('Error Tile Builder')),
+      drawer: const MenuDrawer(ErrorTileBuilder.route),
       body: FlutterMap(
         options: const MapOptions(
           initialZoom: 3,
