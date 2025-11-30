@@ -34,6 +34,7 @@ import 'package:flutter_map_example/pages/secondary_tap.dart';
 import 'package:flutter_map_example/pages/single_world_polys.dart';
 import 'package:flutter_map_example/pages/sliding_map.dart';
 import 'package:flutter_map_example/pages/tile_builder.dart';
+import 'package:flutter_map_example/pages/tile_error.dart';
 import 'package:flutter_map_example/pages/tile_loading_error_handle.dart';
 import 'package:flutter_map_example/pages/wms_tile_layer.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_item.dart';
@@ -86,7 +87,7 @@ class MenuDrawer extends StatelessWidget {
                 if (_commitSHA != '')
                   SelectableText.rich(
                     TextSpan(
-                      style: DefaultTextStyle.of(context).style,
+                      style: Theme.of(context).textTheme.bodySmall,
                       children: [
                         const TextSpan(text: 'Built from: '),
                         TextSpan(
@@ -278,6 +279,11 @@ class MenuDrawer extends StatelessWidget {
           MenuItemWidget(
             caption: 'Custom Tile Builder',
             routeName: TileBuilderPage.route,
+            currentRoute: currentRoute,
+          ),
+          MenuItemWidget(
+            caption: 'Custom Error Tile Builder',
+            routeName: ErrorTileBuilder.route,
             currentRoute: currentRoute,
           ),
           MenuItemWidget(
