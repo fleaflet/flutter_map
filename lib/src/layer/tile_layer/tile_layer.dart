@@ -28,6 +28,23 @@ part 'wms_tile_layer_options.dart';
 /// You should read up about the options by exploring each one, or visiting
 /// https://docs.fleaflet.dev/usage/layers/tile-layer. Some are important to
 /// avoid issues.
+
+/// Strategy for selecting native zoom level when the target zoom is equidistant
+/// from two available native zoom levels.
+enum NativeZoomStrategy {
+  /// Prefer lower zoom level (better performance, lower quality)
+  preferLower,
+
+  /// Prefer higher zoom level (better quality, more bandwidth)
+  preferHigher,
+
+  /// Always round down to the nearest native zoom
+  alwaysLower,
+
+  /// Always round up to the nearest native zoom
+  alwaysHigher,
+}
+
 @immutable
 class TileLayer extends StatefulWidget {
   /// The URL template is a string that contains placeholders, which, when filled
@@ -112,6 +129,15 @@ class TileLayer extends StatefulWidget {
   /// Most tile servers support up to zoom level 19, which is the default.
   /// Otherwise, this should be specified.
   late final int maxNativeZoom;
+
+  /// Native zoom levels (optional).
+  /// If specified, only these zoom levels will be used for fetching tiles.
+  /// For example: [4, 6, 8, 10] for JMA weather tiles.
+  late final List<int>? nativeZooms;
+
+  /// Strategy for selecting native zoom level when equidistant.
+  /// Defaults to [NativeZoomStrategy.preferLower] for better performance.
+  final NativeZoomStrategy nativeZoomStrategy;
 
   /// If set to true, the zoom number used in tile URLs will be reversed
   /// (`maxZoom - zoom` instead of `zoom`)
@@ -241,6 +267,8 @@ class TileLayer extends StatefulWidget {
     double maxZoom = double.infinity,
     int minNativeZoom = 0,
     int maxNativeZoom = 19,
+    this.nativeZooms,
+    this.nativeZoomStrategy = NativeZoomStrategy.preferLower,
     this.zoomReverse = false,
     double zoomOffset = 0.0,
     this.additionalOptions = const {},
@@ -745,8 +773,61 @@ See:
 
   /// Rounds the zoom to the nearest int and clamps it to the native zoom limits
   /// if there are any.
-  int _clampToNativeZoom(double zoom) =>
-      zoom.round().clamp(widget.minNativeZoom, widget.maxNativeZoom);
+  int _clampToNativeZoom(double zoom) {
+    if (widget.nativeZooms != null && widget.nativeZooms!.isNotEmpty) {
+      final targetZoom = zoom.round();
+      final sortedZooms = List<int>.from(widget.nativeZooms!)..sort();
+
+      // Return as-is if exact match is found
+      if (sortedZooms.contains(targetZoom)) {
+        return targetZoom;
+      }
+
+      // Find the maximum value <= targetZoom and minimum value >= targetZoom
+      int? lowerZoom;
+      int? upperZoom;
+
+      for (final z in sortedZooms) {
+        if (z < targetZoom) {
+          lowerZoom = z;
+        } else if (z > targetZoom) {
+          upperZoom = z;
+          break;
+        }
+      }
+
+      // Handle boundary cases
+      if (lowerZoom == null) {
+        return sortedZooms.first;
+      } else if (upperZoom == null) {
+        return sortedZooms.last;
+      }
+
+      // Calculate distances
+      final lowerDiff = targetZoom - lowerZoom;
+      final upperDiff = upperZoom - targetZoom;
+
+      // Select based on strategy
+      switch (widget.nativeZoomStrategy) {
+        case NativeZoomStrategy.preferLower:
+          // Choose lower when distances are equal (default)
+          return lowerDiff <= upperDiff ? lowerZoom : upperZoom;
+
+        case NativeZoomStrategy.preferHigher:
+          // Choose higher when distances are equal
+          return lowerDiff < upperDiff ? lowerZoom : upperZoom;
+
+        case NativeZoomStrategy.alwaysLower:
+          // Always choose lower
+          return lowerZoom;
+
+        case NativeZoomStrategy.alwaysHigher:
+          // Always choose higher
+          return upperZoom;
+      }
+    }
+    return zoom.round().clamp(widget.minNativeZoom, widget.maxNativeZoom);
+  }
 
   void _onTileLoadError(TileImage tile, Object error, StackTrace? stackTrace) {
     debugPrint(error.toString());
