@@ -8,8 +8,8 @@ class _RasterRenderer extends StatefulWidget {
     required this.rasterOptions,
   }) : super(key: ValueKey(layerKey));
 
-  final Map<({TileCoordinates coordinates, Object layerKey}), RasterTileData>
-      visibleTiles;
+  final Map<({TileCoordinates coordinates, Object layerKey}),
+      InternalRasterTileData> visibleTiles;
   final TileLayerOptions options;
   final RasterTileLayerOptions rasterOptions;
 
@@ -46,6 +46,7 @@ class __RasterRendererState extends State<_RasterRenderer> {
         willChange: true,
         painter: _RasterPainter(
           options: widget.options,
+          rasterOptions: widget.rasterOptions,
           visibleTiles: widget.visibleTiles.entries.map(
             (tile) => (
               coordinates: tile.key.coordinates,
@@ -57,9 +58,7 @@ class __RasterRendererState extends State<_RasterRenderer> {
               data: tile.value,
             ),
           ),
-          //tiles: tiles..sort(renderOrder),
-          //tilePaint: widget.tilePaint,
-          //tileOverlayPainter: widget.tileOverlayPainter,
+          // TODO: Really? No sorting?
         ),
       ),
     );
@@ -68,52 +67,87 @@ class __RasterRendererState extends State<_RasterRenderer> {
 
 class _RasterPainter extends CustomPainter {
   final TileLayerOptions options;
+  final RasterTileLayerOptions rasterOptions;
   final Iterable<
       ({
         TileCoordinates coordinates,
         double scaledTileDimension,
         Offset currentPixelOrigin,
-        RasterTileData data
+        InternalRasterTileData data
       })> visibleTiles;
 
   _RasterPainter({
     super.repaint,
     required this.options,
+    required this.rasterOptions,
     required this.visibleTiles,
   });
 
-  final Paint _basePaint = (null ?? Paint())
-    ..filterQuality = FilterQuality.high
-    ..isAntiAlias = true;
+  late final _paint = rasterOptions.basePaint ??
+      (Paint()
+        ..filterQuality = FilterQuality.high
+        ..isAntiAlias = false);
 
   @override
   void paint(Canvas canvas, Size size) {
     for (final tile in visibleTiles) {
-      if (tile.data.loaded?.successfulImageInfo?.image case final image?) {
-        final origin = Offset(
-          tile.coordinates.x * tile.scaledTileDimension -
-              tile.currentPixelOrigin.dx,
-          tile.coordinates.y * tile.scaledTileDimension -
-              tile.currentPixelOrigin.dy,
-        );
+      final tileSize = Size.square(tile.scaledTileDimension);
+      final originDx = tile.coordinates.x * tile.scaledTileDimension -
+          tile.currentPixelOrigin.dx;
+      final originDy = tile.coordinates.y * tile.scaledTileDimension -
+          tile.currentPixelOrigin.dy;
 
-        //final paint = _basePaint
-        //  ..color = (null?.color.withOpacity(tile.tileImage.opacity) ??
-        //      Color.fromRGBO(0, 0, 0, tile.tileImage.opacity));
+      if (rasterOptions.paintTile == null) {
+        if (tile.data.imageInfo?.image case final image?) {
+          //_basePaint..color = _basePaint.color.withAlpha(tile.data.opacity);
 
-        canvas.drawImageRect(
-          image,
-          Offset.zero &
-              Size(image.width.toDouble(), image.height.toDouble()), // src
-          origin & Size.square(tile.scaledTileDimension), // dest
-          _basePaint,
-        );
+          canvas.drawImageRect(
+            image,
+            Offset.zero &
+                Size(image.width.toDouble(), image.height.toDouble()), // src
+            Offset(originDx, originDy) & tileSize, // dest
+            _paint,
+          );
+        }
+
+        continue;
       }
+
+      final subCanvasPictureRecorder = PictureRecorder();
+      final subCanvas = Canvas(subCanvasPictureRecorder);
+
+      rasterOptions.paintTile!(
+        subCanvas,
+        tileSize,
+        tile.coordinates,
+        tile.data.currentPublicData,
+        _paint,
+        ({destRect}) {
+          if (tile.data.imageInfo?.image case final image?) {
+            //_paint.color = _paint.color.withAlpha(255 ~/ 2);
+
+            subCanvas.drawImageRect(
+              image,
+              Offset.zero &
+                  Size(image.width.toDouble(), image.height.toDouble()), // src
+              destRect ?? (Offset.zero & tileSize), // dest
+              _paint,
+            );
+          }
+        },
+      );
+
+      canvas
+        ..save()
+        ..translate(originDx, originDy)
+        ..drawPicture(subCanvasPictureRecorder.endRecording())
+        ..restore();
     }
   }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    // TODO
     return true;
   }
 }

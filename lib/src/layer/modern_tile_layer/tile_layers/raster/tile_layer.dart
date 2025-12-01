@@ -1,6 +1,8 @@
+import 'dart:ui';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/raster/tile_data.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/raster/internal_tile_data.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
 
 part 'renderer.dart';
@@ -114,7 +116,8 @@ class _RasterTileLayerState extends State<RasterTileLayer> {
   Widget _renderer(
     BuildContext context,
     Object layerKey,
-    Map<({TileCoordinates coordinates, Object layerKey}), RasterTileData>
+    Map<({TileCoordinates coordinates, Object layerKey}),
+            InternalRasterTileData>
         visibleTiles,
   ) =>
       _RasterRenderer(
