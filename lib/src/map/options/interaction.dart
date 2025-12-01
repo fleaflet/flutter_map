@@ -94,7 +94,7 @@ class InteractionOptions {
   /// Lower values result in less damping (more momentum, bouncier).
   /// Higher values result in more damping (stops quicker, less bouncy).
   ///
-  /// Defaults to 2.0.
+  /// Defaults to 5.0.
   final double flingAnimationDampingRatio;
 
   /// Options to configure cursor/keyboard rotation
