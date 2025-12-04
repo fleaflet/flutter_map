@@ -130,7 +130,7 @@ class RotatedOverlayImage extends BaseOverlayImage {
     required this.topLeftCorner,
     required this.bottomLeftCorner,
     required this.bottomRightCorner,
-    this.transformFilterQuality = null,
+    this.transformFilterQuality,
     super.filterQuality,
     super.opacity,
     super.gaplessPlayback,
