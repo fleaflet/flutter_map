@@ -115,6 +115,13 @@ class RotatedOverlayImage extends BaseOverlayImage {
   /// The coordinates of the bottom right corner of the image.
   final LatLng bottomRightCorner;
 
+  /// The filter quality of the transformed image.
+  /// If this is other than null the transformed widget will be raster cached.
+  /// This may improve performance on panning but can cause flickering on zooming when the raster cache is at its limits.
+  ///
+  /// For some more details see: https://api.flutter.dev/flutter/widgets/Transform/filterQuality.html
+  final FilterQuality? transformFilterQuality;
+
   /// Create a new [RotatedOverlayImage] instance that can be provided to the
   /// [OverlayImageLayer].
   const RotatedOverlayImage({
@@ -123,6 +130,7 @@ class RotatedOverlayImage extends BaseOverlayImage {
     required this.topLeftCorner,
     required this.bottomLeftCorner,
     required this.bottomRightCorner,
+    this.transformFilterQuality = null,
     super.filterQuality,
     super.opacity,
     super.gaplessPlayback,
@@ -167,7 +175,7 @@ class RotatedOverlayImage extends BaseOverlayImage {
       height: bounds.size.height,
       child: Transform(
         transform: Matrix4(a, b, 0, 0, c, d, 0, 0, 0, 0, 1, 0, tx, ty, 0, 1),
-        filterQuality: filterQuality,
+        filterQuality: transformFilterQuality,
         child: child,
       ),
     );
