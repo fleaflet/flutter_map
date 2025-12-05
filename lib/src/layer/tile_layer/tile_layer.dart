@@ -26,7 +26,7 @@ part 'wms_tile_layer_options.dart';
 /// image bound to a specific geographical position.
 ///
 /// You should read up about the options by exploring each one, or visiting
-/// https://docs.fleaflet.dev/usage/layers/tile-layer. Some are important to
+/// https://docs.fleaflet.dev/layers/tile-layer. Some are important to
 /// avoid issues.
 @immutable
 class TileLayer extends StatefulWidget {
