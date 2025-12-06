@@ -170,7 +170,7 @@ class TileImage extends ChangeNotifier {
     loadError = true;
 
     if (!_disposed) {
-      if (errorImage != null) _display();
+      _display();
       onLoadError(this, exception, stackTrace);
       onLoadComplete(coordinates);
     }
@@ -184,11 +184,6 @@ class TileImage extends ChangeNotifier {
     loadFinishedAt = DateTime.now();
 
     if (loadError) {
-      assert(
-        errorImage != null,
-        'A TileImage should not be displayed if loading errors and there is no '
-        'errorImage to show.',
-      );
       _readyToDisplay = true;
       if (!_disposed) notifyListeners();
       return;
