@@ -7,6 +7,7 @@ import 'package:flutter_map_example/pages/debouncing_tile_update_transformer.dar
 import 'package:flutter_map_example/pages/epsg3996_crs.dart';
 import 'package:flutter_map_example/pages/epsg4326_crs.dart';
 import 'package:flutter_map_example/pages/fallback_url_page.dart';
+import 'package:flutter_map_example/pages/fling_animation_damping.dart';
 import 'package:flutter_map_example/pages/home.dart';
 import 'package:flutter_map_example/pages/interactive_test_page.dart';
 import 'package:flutter_map_example/pages/latlng_to_screen_point.dart';
@@ -79,6 +80,8 @@ class MyApp extends StatelessWidget {
         TileBuilderPage.route: (context) => const TileBuilderPage(),
         ErrorTileBuilder.route: (context) => const ErrorTileBuilder(),
         InteractiveFlagsPage.route: (context) => const InteractiveFlagsPage(),
+        FlingAnimationDampingPage.route: (context) =>
+            const FlingAnimationDampingPage(),
         ManyMarkersPage.route: (context) => const ManyMarkersPage(),
         MapInsideListViewPage.route: (context) => const MapInsideListViewPage(),
         ResetTileLayerPage.route: (context) => const ResetTileLayerPage(),

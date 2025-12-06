@@ -88,6 +88,15 @@ class InteractionOptions {
   /// Defaults to [Curves.fastOutSlowIn].
   final Curve doubleTapZoomCurve;
 
+  /// The damping ratio for the fling animation spring simulation
+  ///
+  /// This controls how the fling animation decelerates after a drag gesture.
+  /// Lower values result in less damping (more momentum, bouncier).
+  /// Higher values result in more damping (stops quicker, less bouncy).
+  ///
+  /// Defaults to 5.0.
+  final double flingAnimationDampingRatio;
+
   /// Options to configure cursor/keyboard rotation
   ///
   /// Cursor/keyboard rotation is designed for desktop platforms, and allows the
@@ -129,6 +138,7 @@ class InteractionOptions {
         defaultDoubleTapDragZoomChangeCalculator,
     this.doubleTapZoomDuration = const Duration(milliseconds: 200),
     this.doubleTapZoomCurve = Curves.fastOutSlowIn,
+    this.flingAnimationDampingRatio = 5.0,
     this.cursorKeyboardRotationOptions = const CursorKeyboardRotationOptions(),
     this.keyboardOptions = const KeyboardOptions(),
   })  : assert(
@@ -142,6 +152,10 @@ class InteractionOptions {
         assert(
           pinchMoveThreshold >= 0.0,
           '`pinchMoveThreshold` must be positive',
+        ),
+        assert(
+          flingAnimationDampingRatio > 0.0,
+          '`flingAnimationDampingRatio` must be positive',
         );
 
   /// Default calculator function for [doubleTapDragZoomChangeCalculator]
@@ -171,6 +185,7 @@ class InteractionOptions {
           other.doubleTapDragZoomChangeCalculator &&
       doubleTapZoomDuration == other.doubleTapZoomDuration &&
       doubleTapZoomCurve == other.doubleTapZoomCurve &&
+      flingAnimationDampingRatio == other.flingAnimationDampingRatio &&
       keyboardOptions == other.keyboardOptions;
 
   @override
@@ -188,6 +203,7 @@ class InteractionOptions {
         doubleTapDragZoomChangeCalculator,
         doubleTapZoomDuration,
         doubleTapZoomCurve,
+        flingAnimationDampingRatio,
         keyboardOptions,
       );
 }
