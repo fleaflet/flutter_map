@@ -11,7 +11,7 @@ coverY: 0
 {% hint style="success" %}
 ## Welcome to v8 🎉
 
-Only ⅓ of our users are using v8 & benefiting from heaps of major new features and fixes. Consider upgrading!&#x20;
+Less than a half of our users are using v8 & benefiting from heaps of major new features and fixes. Consider upgrading!&#x20;
 
 * If you're upgrading, find out [new-in-v8.md](getting-started/new-in-v8.md "mention")
 * If you're new here, welcome! Feel free to look around and experiment, and check out [installation.md](getting-started/installation.md "mention") when you're ready.
@@ -54,13 +54,13 @@ import 'package:latlong2/latlong.dart';
 Widget build(BuildContext context) {
   return FlutterMap(
     options: MapOptions(
-      initialCenter: LatLng(51.509364, -0.128928), // Center the map over London
+      initialCenter: LatLng(51.509364, -0.128928), // Center the map over London, UK
       initialZoom: 9.2,
     ),
     children: [
       TileLayer( // Bring your own tiles
         urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', // For demonstration only
-        userAgentPackageName: 'com.example.app', // Add your app identifier
+        userAgentPackageName: /*'com.example.app'*/, // Add your app identifier
         // And many more recommended properties!
       ),
       RichAttributionWidget( // Include a stylish prebuilt attribution widget that meets all requirments
@@ -79,7 +79,7 @@ Widget build(BuildContext context) {
 {% endcode %}
 
 {% hint style="warning" %}
-This map uses the OpenStreetMap public tile servers, which are NOT free to use by everyone. A setup such as this, especially in production, would not be compliant with its requirements.
+This map uses the OpenStreetMap public tile servers, which are NOT free to use by everyone.
 {% endhint %}
 
 ## Get Help
