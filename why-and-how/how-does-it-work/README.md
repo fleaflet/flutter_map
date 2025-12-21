@@ -42,7 +42,7 @@ Once it looks how you imagined, you need it to act like you imagined. flutter\_m
 {% step %}
 ### 🎮 Control The Map
 
-You can also control the map programmatically using a simple controller pattern. See [programmatic-interaction](../../usage/programmatic-interaction/ "mention") for more info.
+You can also control the map programmatically using a simple controller pattern. See [programmatic-interaction.md](../../usage/programmatic-interaction.md "mention") for more info.
 {% endstep %}
 {% endstepper %}
 

@@ -22,10 +22,20 @@ The recommended way to create an entirely non-interactive map is to wrap the `Fl
 
 Otherwise, to set flags, there's two methods:
 
-* Add flags, with the bitwise 'OR' (`|`) operator in-between\
-  For example, `InteractiveFlag.drag | InteractiveFlag.rotate`
-* Remove flags from `all`, using the `&` and `~` operators in-between\
-  For example, `InteractiveFlag.all & ~InteractiveFlag.rotate`
+* Allow ONLY specified interactions, with the bitwise 'OR' (`|`) operator\
+  For example, `InteractiveFlag.drag | InteractiveFlag.rotate`, allows the map to ONLY be dragged or rotated (by the touchscreen), except any other options configured separately (such as keyboard options)
+* Disable specified interactions, using the `&` and `~` operators\
+  For example, `~InteractiveFlag.rotate` (which is equivalent to `InteractiveFlag.all & ~InteractiveFlag.rotate`)&#x20;
+
+For example, to disable flinging:
+
+```dart
+options: MapOptions(
+    interactionOptions: InteractionOptions(
+        flags: ~InteractiveFlag.flingAnimation,
+    ),
+),
+```
 
 ## Cursor/Keyboard Rotation
 

@@ -22,10 +22,7 @@
   * [Interaction Options](usage/options/interaction-options.md)
   * [Custom CRSs](usage/options/custom-crss.md)
 * [Layers](usage/layers.md)
-* [Programmatic Interaction](usage/programmatic-interaction/README.md)
-  * [Controllers & Cameras](usage/programmatic-interaction/controllers-and-cameras.md)
-  * [External Custom Controllers](usage/programmatic-interaction/external-custom-controllers.md)
-  * [Listen To Events](usage/programmatic-interaction/listen-to-events.md)
+* [Programmatic Interaction](usage/programmatic-interaction.md)
 * [Full API Reference](https://pub.dev/documentation/flutter_map/latest/flutter_map/flutter_map-library.html)
 
 ## Layers
