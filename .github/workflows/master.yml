@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Setup Flutter Environment
         uses: subosito/flutter-action@v2
         with:
@@ -38,9 +38,9 @@ jobs:
         working-directory: ./example
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Setup Java 21 Environment
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: "temurin"
           java-version: "21"
@@ -53,7 +53,7 @@ jobs:
       - name: Build Android Application
         run: flutter build apk --dart-define=COMMIT_SHA=${{ github.sha }} --dart-define=flutter.flutter_map.unblockOSM="${{ secrets.UNBLOCK_OSM }}"
       - name: Archive Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: apk-build
           path: example/build/app/outputs/apk/release
@@ -69,19 +69,20 @@ jobs:
         working-directory: ./example
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Setup Flutter Environment
         uses: subosito/flutter-action@v2
         with:
-          channel: "stable"
           cache: true
       - name: Build Windows Application
         run: flutter build windows --dart-define=COMMIT_SHA=${{ github.sha }} --dart-define=flutter.flutter_map.unblockOSM="${{ secrets.UNBLOCK_OSM }}"
+      - name: Install Inno Setup
+        run: choco install innosetup --yes --no-progress
       - name: Create Windows Application Installer
         run: iscc "windowsApplicationInstallerSetup.iss"
         working-directory: .
       - name: Archive Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: exe-build
           path: windowsTemp/WindowsApplication.exe
@@ -97,7 +98,7 @@ jobs:
         working-directory: ./example
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Setup Flutter Environment
         uses: subosito/flutter-action@v2
         with:
@@ -106,7 +107,7 @@ jobs:
       - name: Build Web Application
         run: flutter build web --wasm --dart-define=COMMIT_SHA=${{ github.sha }} --dart-define=flutter.flutter_map.unblockOSM="${{ secrets.UNBLOCK_OSM }}"
       - name: Archive Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: web-build
           path: example/build/web
