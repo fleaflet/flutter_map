@@ -18,6 +18,8 @@ abstract class BaseOverlayImage extends StatelessWidget {
 
   /// The [FilterQuality] of the image, used to define how high quality the
   /// overlay image should have on the map.
+  ///
+  /// Defaults to [FilterQuality.medium].
   final FilterQuality filterQuality;
 
   /// Display an [Image] on the map at a specific coordinate location
@@ -115,11 +117,17 @@ class RotatedOverlayImage extends BaseOverlayImage {
   /// The coordinates of the bottom right corner of the image.
   final LatLng bottomRightCorner;
 
-  /// The filter quality of the transformed image.
-  /// If this is other than null the transformed widget will be raster cached.
-  /// This may improve performance on panning but can cause flickering on zooming when the raster cache is at its limits.
+  /// The [FilterQuality] of the transformed image.
   ///
-  /// For some more details see: https://api.flutter.dev/flutter/widgets/Transform/filterQuality.html
+  /// See [Transform.filterQuality] for more information.
+  ///
+  /// See [filterQuality] for the quality of the image before transformation.
+  ///
+  /// When non-null (as by default), the bitmap render result of the
+  /// transformation is cached by Flutter. This may improve performance, but can
+  /// cause flickering on zooming when the raster cache is at its limits.
+  ///
+  /// Defaults to [FilterQuality.medium].
   final FilterQuality? transformFilterQuality;
 
   /// Create a new [RotatedOverlayImage] instance that can be provided to the
@@ -130,7 +138,7 @@ class RotatedOverlayImage extends BaseOverlayImage {
     required this.topLeftCorner,
     required this.bottomLeftCorner,
     required this.bottomRightCorner,
-    this.transformFilterQuality,
+    this.transformFilterQuality = FilterQuality.medium,
     super.filterQuality,
     super.opacity,
     super.gaplessPlayback,
