@@ -138,6 +138,37 @@ void main() {
     }
   });
 
+  group('renderTiles', () {
+    test('%.retainChildren uses correct coordinates for z+2 fallback', () {
+      // This test verifies that _retainChildren correctly calculates
+      // descendant coordinates when recursing to z+2 level.
+      // Using large coordinates (100, 200) to catch the bug where
+      // i,j (0-1) was passed instead of 2*x+i, 2*y+j.
+      const baseZoom = 10;
+      final tileImages = tileImagesMappingFrom([
+        // z=10 tile not ready
+        MockTileImage(100, 200, baseZoom,
+            loadFinished: false, readyToDisplay: false),
+        // z=11 tiles don't exist
+        // z=12 tile exists and is ready (this is what we want to fall back to)
+        MockTileImage(400, 800, baseZoom + 2),
+      ]);
+
+      final tileImageView = TileImageView(
+        tileImages: tileImages,
+        positionCoordinates: Set<TileCoordinates>.from(tileImages.keys),
+        visibleRange: discreteTileRange(100, 200, 100, 200, zoom: baseZoom),
+        keepRange: discreteTileRange(100, 200, 100, 200, zoom: baseZoom),
+      );
+
+      final renderTiles = tileImageView.renderTiles.toList();
+      expect(
+        renderTiles,
+        contains(const TileCoordinates(400, 800, baseZoom + 2)),
+      );
+    });
+  });
+
   test('errorTilesNotVisible', () {
     const zoom = 10;
     final tileImages = tileImagesMappingFrom([
