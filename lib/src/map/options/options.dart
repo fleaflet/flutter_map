@@ -116,8 +116,13 @@ class MapOptions {
   final PointerHoverCallback? onPointerHover;
 
   /// Called when a pointer is down and moves.
-  /// If used while dragging the map, this should return the same location, but it might not due to map pixel snapping.
-  /// It is more useful to obtain pointer position while map camera position is not changing.
+  ///
+  /// If used while dragging the map, this may emit the same point as by
+  /// [onPositionChanged], but might not due to map pixel snapping or a slight
+  /// delay, or any other disconnect between the pointer and map camera.
+  ///
+  /// Prefer using [onPositionChanged], unless this is specifically required,
+  /// such as obtaining the pointer position while the map camera is 'locked'.
   final PointerMoveCallback? onPointerMove;
 
   /// This callback fires when the [MapCamera] data has changed. This gets
