@@ -809,7 +809,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
           springDescription: SpringDescription.withDampingRatio(
             mass: 1,
             stiffness: 1000,
-            ratio: 5,
+            ratio: _interactionOptions.flingAnimationDampingRatio,
           ));
   }
 
