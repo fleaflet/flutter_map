@@ -421,6 +421,10 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   }
 
   void _onPointerMove(PointerMoveEvent event) {
+    if (_options.onPointerMove != null) {
+      final latLng = _camera.offsetToCrs(event.localPosition);
+      _options.onPointerMove!(event, latLng);
+    }
     if (!_ckrTriggered.value) return;
 
     final baseSetNorth =

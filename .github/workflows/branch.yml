@@ -94,7 +94,7 @@ jobs:
         run: flutter build apk --dart-define=COMMIT_SHA=${{ github.sha }} --dart-define=flutter.flutter_map.unblockOSM="${{ secrets.UNBLOCK_OSM }}"
       - name: Archive Artifact
         if: ${{ matrix.sdk == '' }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: apk-build
           path: example/build/app/outputs/apk/release
@@ -129,7 +129,7 @@ jobs:
         working-directory: .
       - name: Archive Artifact
         if: ${{ matrix.sdk == '' }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: exe-build
           path: windowsTemp/WindowsApplication.exe
@@ -156,7 +156,7 @@ jobs:
       - name: Build Web Application
         run: flutter build web --wasm --dart-define=COMMIT_SHA=${{ github.sha }} --dart-define=flutter.flutter_map.unblockOSM="${{ secrets.UNBLOCK_OSM }}"
       - name: Archive Artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: ${{ matrix.sdk == '' }}
         with:
           name: web-build
