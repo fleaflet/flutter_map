@@ -7,7 +7,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/tile_and_size_monitor_writer.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetcher/network/caching/built_in/impl/native/workers/tile_and_size_monitor_writer.dart';
 // ignore: unnecessary_import
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
@@ -85,7 +85,7 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
           sizeMonitorFilePath: sizeMonitorFilePath,
           maxCacheSize: maxCacheSize,
         ),
-        debugName: '[flutter_map: cache] Tile & Size Monitor Writer',
+        debugName: '[flutter_map: BIC] Tile & Size Monitor Writer',
       );
 
       workerReceivePort.listen(
@@ -113,7 +113,7 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
 
   late final void Function(
     String path,
-    CachedMapTileMetadata metadata,
+    HttpControlledCachedTileMetadata metadata,
     Uint8List? tileBytes,
   ) _writeTileFile;
   late final void Function()
@@ -135,7 +135,9 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
   }
 
   @override
-  Future<CachedMapTile?> getTile(String url) async {
+  Future<CachedMapTile<HttpControlledCachedTileMetadata>?> getTile(
+    String url,
+  ) async {
     final key = tileKeyGenerator(url);
     final tileFile = File(
       p.join(_cacheDirectoryPath ?? await _cacheDirectoryPathReady.future, key),
@@ -212,7 +214,7 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
       }
 
       return (
-        metadata: CachedMapTileMetadata(
+        metadata: HttpControlledCachedTileMetadata(
           staleAt: staleAt,
           lastModified: lastModified,
           etag: etag,
@@ -232,9 +234,9 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
   }
 
   @override
-  Future<void> putTile({
+  Future<void> putTileWithMetadata({
     required String url,
-    required CachedMapTileMetadata metadata,
+    required HttpControlledCachedTileMetadata metadata,
     Uint8List? bytes,
   }) async {
     if (readOnly) return;
@@ -248,7 +250,7 @@ class BuiltInMapCachingProviderImpl implements BuiltInMapCachingProvider {
     _writeTileFile(
       path,
       overrideFreshAge != null
-          ? CachedMapTileMetadata(
+          ? HttpControlledCachedTileMetadata(
               staleAt: DateTime.timestamp().add(overrideFreshAge!),
               lastModified: metadata.lastModified,
               etag: metadata.etag,

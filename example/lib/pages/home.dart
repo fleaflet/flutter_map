@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_example/misc/tile_providers.dart';
 import 'package:flutter_map_example/widgets/drawer/floating_menu_button.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:flutter_map_example/widgets/first_start_dialog.dart';
@@ -38,7 +37,16 @@ class _HomePageState extends State<HomePage> {
               initialZoom: 5,
             ),
             children: [
-              openStreetMapTileLayer,
+              RasterTileLayer.simple(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                uaIdentifier: 'dev.fleaflet.flutter_map.demo',
+                rasterOptions: RasterTileLayerOptions(
+                  paintTile: (canvas, size, tileCoordinates, tileData,
+                      tilePaint, drawImage) {
+                    drawImage();
+                  },
+                ),
+              ),
               RichAttributionWidget(
                 popupInitialDisplayDuration: const Duration(seconds: 5),
                 animationConfig: const ScaleRAWA(),

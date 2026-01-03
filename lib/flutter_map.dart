@@ -29,6 +29,7 @@ export 'package:flutter_map/src/layer/attribution_layer/rich/widget.dart';
 export 'package:flutter_map/src/layer/attribution_layer/simple.dart';
 export 'package:flutter_map/src/layer/circle_layer/circle_layer.dart';
 export 'package:flutter_map/src/layer/marker_layer/marker_layer.dart';
+export 'package:flutter_map/src/layer/modern_tile_layer/modern_tile_layer.dart';
 export 'package:flutter_map/src/layer/overlay_image_layer/overlay_image_layer.dart';
 export 'package:flutter_map/src/layer/polygon_layer/label/deprecated_placements.dart';
 export 'package:flutter_map/src/layer/polygon_layer/label/placement_calculators/placement_calculator.dart';
@@ -49,11 +50,6 @@ export 'package:flutter_map/src/layer/tile_layer/tile_provider/asset/provider.da
 export 'package:flutter_map/src/layer/tile_layer/tile_provider/base_tile_provider.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_provider/file/stub_tile_provider.dart'
     if (dart.library.io) 'package:flutter_map/src/layer/tile_layer/tile_provider/file/native_tile_provider.dart';
-export 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/built_in_caching_provider.dart';
-export 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/caching_provider.dart';
-export 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/disabled/disabled_caching_provider.dart';
-export 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/tile_metadata.dart';
-export 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/tile_read_failure_exception.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_provider/network/tile_provider.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_update_event.dart';
 export 'package:flutter_map/src/layer/tile_layer/tile_update_transformer.dart';

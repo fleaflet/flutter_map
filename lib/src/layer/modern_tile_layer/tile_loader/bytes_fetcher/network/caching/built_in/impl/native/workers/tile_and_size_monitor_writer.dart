@@ -4,9 +4,9 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:typed_data';
 
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/native.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/workers/size_reducer.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/tile_metadata.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetcher/network/caching/built_in/impl/native/native.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetcher/network/caching/built_in/impl/native/workers/size_reducer.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 
@@ -124,7 +124,7 @@ Future<void> tileAndSizeMonitorWriterWorker(
               sizeMonitorFilePath: sizeMonitorFilePath,
               minSizeToDelete: minSizeToDelete,
             ),
-            debugName: '[flutter_map: cache] Size Reducer',
+            debugName: '[flutter_map: BIC] Size Reducer',
           );
 
       runSizeReducer(
@@ -140,10 +140,10 @@ Future<void> tileAndSizeMonitorWriterWorker(
   final allocInt64BufferTileWrite = Uint8List(8);
   final allocUint32BufferTileWrite = Uint8List(4);
   final allocUint16BufferTileWrite = Uint8List(2);
-  final asciiEncoder = const AsciiEncoder();
+  const asciiEncoder = AsciiEncoder();
   void writeTile({
     required final String path,
-    required final CachedMapTileMetadata metadata,
+    required final HttpControlledCachedTileMetadata metadata,
     Uint8List? tileBytes,
   }) {
     final tileFile = File(path);
@@ -312,7 +312,7 @@ Future<void> tileAndSizeMonitorWriterWorker(
     if (val
         case (
           :final String path,
-          :final CachedMapTileMetadata metadata,
+          :final HttpControlledCachedTileMetadata metadata,
           :final Uint8List? tileBytes,
         )) {
       writeTile(path: path, metadata: metadata, tileBytes: tileBytes);

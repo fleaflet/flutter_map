@@ -11,6 +11,9 @@ import 'package:logger/logger.dart';
 // ignore: unnecessary_import
 import 'package:meta/meta.dart';
 
+// TODO: This does not match the modern implementation in fetcher/network.dart,
+// and may be broken.
+
 /// Dedicated [ImageProvider] to fetch tiles from the network
 ///
 /// Supports falling back to a secondary URL, if the primary URL fetch fails.
@@ -180,28 +183,64 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
     }) {
       if (useFallback || !cachingProvider.isSupported) return;
 
-      late final CachedMapTileMetadata metadata;
-      try {
-        metadata = CachedMapTileMetadata.fromHttpHeaders(
-          headers,
-          warnOnFallbackUsage: silenceExceptions ? null : uri,
+      if (cachingProvider
+          case final PutTileAndMetadataCapability<
+              HttpControlledCachedTileMetadata> cachingProvider) {
+        late final HttpControlledCachedTileMetadata metadata;
+        try {
+          metadata = HttpControlledCachedTileMetadata.fromHttpHeaders(
+            headers,
+            warnOnFallbackUsage: silenceExceptions ? null : uri,
+          );
+        } on Exception catch (e) {
+          if (kDebugMode) {
+            Logger(printer: SimplePrinter()).w(
+              '[flutter_map] Failed to cache ${uri.path}: $e\n\tThis '
+              'may indicate a HTTP spec non-conformance issue with the tile '
+              'server. ',
+            );
+          }
+          return;
+        }
+
+        cachingProvider.putTileWithMetadata(
+          url: resolvedUrl,
+          metadata: metadata,
+          bytes: bytes,
         );
-      } catch (e) {
-        if (kDebugMode && !silenceExceptions) {
+      } else if (cachingProvider case final PutTileCapability cachingProvider) {
+        cachingProvider.putTile(url: resolvedUrl, bytes: bytes);
+      } else if (kDebugMode && !silenceExceptions) {
+        Logger(printer: SimplePrinter()).w(
+          '[flutter_map] Caching provider incompatible with '
+          '`NetworkBytesFetcher` for put operations',
+        );
+      }
+    }
+
+    // Create the exception exit method
+    // In the event that a tile cannot be fetched from the network, and a
+    // (stale) cached tile is available, and the behaviour is allowed, attempt
+    // to use the cached resource. This method is used on exit when a
+    // non-abortion exception occurs. Otherwise, it rethrows the original
+    // exception to the caller, which may attempt fallbacks.
+    /*Future<Codec> fallbackToCachedTile(Object err, StackTrace stackTrace) async {
+      if (cachedTile == null) {
+        Error.throwWithStackTrace(err, stackTrace);
+      }
+      try {
+        final cachedResource = await decodeBytes(cachedTile.bytes);
+        if (kDebugMode) {
           Logger(printer: SimplePrinter()).w(
-            '[flutter_map cache] Failed to cache ${uri.path}: $e\n\tThis may '
-            'indicate a HTTP spec non-conformance issue with the tile server. ',
+            '[flutter_map] Failed to fetch ${uri.path} from network; '
+            'using (stale) cached tile',
           );
         }
-        return;
+        return cachedResource;
+      } on Exception {
+        Error.throwWithStackTrace(err, stackTrace);
       }
-
-      cachingProvider.putTile(
-        url: resolvedUrl,
-        metadata: metadata,
-        bytes: bytes,
-      );
-    }
+    }*/
 
     // Main logic
     // All `decodeBytes` calls should be awaited so errors may be handled
@@ -222,10 +261,12 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
         additionalHeaders: forceFromServer
             ? null
             : {
-                if (cachedTile?.metadata.lastModified case final lastModified?)
+                if (cachedTile?.metadata
+                    case HttpControlledCachedTileMetadata(:final lastModified?))
                   HttpHeaders.ifModifiedSinceHeader:
                       HttpDate.format(lastModified),
-                if (cachedTile?.metadata.etag case final etag?)
+                if (cachedTile?.metadata
+                    case HttpControlledCachedTileMetadata(:final etag?))
                   HttpHeaders.ifNoneMatchHeader: etag,
               },
       );
