@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_example/misc/test_marker.dart';
 import 'package:flutter_map_example/misc/tile_providers.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:flutter_map_example/widgets/number_of_items_slider.dart';
@@ -39,37 +40,19 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
           distance * sin(angle) * (0.7 + randomGenerator.nextDouble() * 0.6);
       final lngOffset =
           distance * cos(angle) * (0.7 + randomGenerator.nextDouble() * 0.6);
-      final position = LatLng(
+      final point = LatLng(
         _londonOrigin.latitude + latOffset,
         _londonOrigin.longitude + lngOffset,
       );
 
       return Marker(
-        point: position,
-        width: 30,
-        height: 30,
-        child: GestureDetector(
-          onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Tapped existing marker (${position.latitude}, '
-                '${position.longitude})',
-              ),
-              duration: const Duration(seconds: 1),
-              showCloseIcon: true,
-            ),
-          ),
-          child: Icon(
-            Icons.location_pin,
-            size: 30,
-            color: Color.fromARGB(
-              255,
-              randomGenerator.nextInt(256),
-              randomGenerator.nextInt(256),
-              randomGenerator.nextInt(256),
-            ),
-          ),
-        ),
+        point: point,
+        // TODO: Part of what's being tested is removing these w/h. But we can't
+        // perform culling before build without - but maybe that's not too
+        // necessary now?
+        // width: 30,
+        // height: 30,
+        child: TestMarker(point: point),
       );
     },
   );
@@ -100,6 +83,7 @@ class ManyMarkersPageState extends State<ManyMarkersPage> {
             children: [
               openStreetMapTileLayer,
               MarkerLayer(
+                alignment: Alignment.topCenter,
                 markers: allMarkers
                     .take(displayedMarkersCount)
                     .toList(growable: false),
