@@ -4,6 +4,30 @@ Please consider [donating](https://github.com/sponsors/fleaflet) or [contributin
 
 This CHANGELOG does not include every commit and/or PR - it is a hand picked selection of the ones that have an effect on most users. For a full list of changes, please check the GitHub repository releases/tags. We also release highlights for some releases on the docs site.
 
+## [8.3.0] - 2026/01/xx
+
+Contains the following user-affecting changes:
+
+- Added `MapOptions.onPointerMove` callback - [#2137](https://github.com/fleaflet/flutter_map/pull/2137)
+- Added `InteractionOptions.flingAnimationDampingRatio` parameter - [#2177](https://github.com/fleaflet/flutter_map/pull/2177)
+- Added separate `RotatedOverlayImage.transformFilterQuality` parameter - [#2169](https://github.com/fleaflet/flutter_map/pull/2169)
+
+Contains the following user-affecting bug fixes:
+
+- Use `TileLayer.tileBuilder` for errored tiles - [#2166](https://github.com/fleaflet/flutter_map/pull/2166) for [#2154](https://github.com/fleaflet/flutter_map/issues/2154)
+- Fixed bug in `TileLayer`'s tile visibility calculation - [#2174](https://github.com/fleaflet/flutter_map/pull/2174) for [#2175](https://github.com/fleaflet/flutter_map/issues/2175)
+
+Many thanks to these contributors (in no particular order):
+
+- @monsieurtanuki
+- @ReinisSprogis
+- @shindonghwi
+- @ben-milanko
+- @Robbendebiene
+- ... and all the maintainers
+
+And Happy New Year 🎉
+
 ## [8.2.2] - 2025/09/19
 
 Contains the following user-affecting bug fixes:
