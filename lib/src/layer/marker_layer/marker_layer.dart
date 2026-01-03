@@ -47,18 +47,52 @@ class MarkerLayer extends StatelessWidget {
       child: Stack(
         children: (List<Marker> markers) sync* {
           for (final m in markers) {
-            // Resolve real alignment
-            // TODO: maybe just using Size, Offset, and Rect?
-            final left = 0.5 * m.width * ((m.alignment ?? alignment).x + 1);
-            final top = 0.5 * m.height * ((m.alignment ?? alignment).y + 1);
-            final right = m.width - left;
-            final bottom = m.height - top;
-
             // Perform projection
             final pxPoint = map.projectAtZoom(m.point);
 
             Positioned? getPositioned(double worldShift) {
               final shiftedX = pxPoint.dx + worldShift;
+
+              double height = m.height;
+              double width = m.width;
+
+              if (m.useSizeInMeters) {
+                final basePoint = m.point;
+                final baseOffset = map.getOffsetFromOrigin(basePoint);
+                final rHeight =
+                    const Distance().offset(basePoint, height / 2, 0);
+                final rWidth = const Distance().offset(basePoint, width / 2, 0);
+
+                height =
+                    (baseOffset - map.getOffsetFromOrigin(rHeight)).distance *
+                        2;
+                width =
+                    (baseOffset - map.getOffsetFromOrigin(rWidth)).distance * 2;
+
+                final boxConstraintsUsingMetersInPixels =
+                    m.boxConstraintsUsingMetersInPixels;
+                if (boxConstraintsUsingMetersInPixels != null) {
+                  if (height > boxConstraintsUsingMetersInPixels.maxHeight) {
+                    height = boxConstraintsUsingMetersInPixels.maxHeight;
+                  }
+                  if (width > boxConstraintsUsingMetersInPixels.maxWidth) {
+                    width = boxConstraintsUsingMetersInPixels.maxWidth;
+                  }
+                  if (height < boxConstraintsUsingMetersInPixels.minHeight) {
+                    height = boxConstraintsUsingMetersInPixels.minHeight;
+                  }
+                  if (width < boxConstraintsUsingMetersInPixels.minWidth) {
+                    width = boxConstraintsUsingMetersInPixels.minWidth;
+                  }
+                }
+              }
+
+              // Resolve real alignment
+              // TODO: maybe just using Size, Offset, and Rect?
+              final left = 0.5 * width * ((m.alignment ?? alignment).x + 1);
+              final top = 0.5 * height * ((m.alignment ?? alignment).y + 1);
+              final right = width - left;
+              final bottom = height - top;
 
               // Cull if out of bounds
               if (!map.pixelBounds.overlaps(
@@ -77,8 +111,8 @@ class MarkerLayer extends StatelessWidget {
 
               return Positioned(
                 key: m.key,
-                width: m.width,
-                height: m.height,
+                width: width,
+                height: height,
                 left: shiftedLocalPoint.dx - right,
                 top: shiftedLocalPoint.dy - bottom,
                 child: (m.rotate ?? rotate)
