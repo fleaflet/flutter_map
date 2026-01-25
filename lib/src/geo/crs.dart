@@ -53,7 +53,7 @@ abstract class Crs {
 
   /// Similar to [latLngToXY] but converts the XY coordinates to an [Offset].
   Offset latLngToOffset(LatLng latlng, double zoom) {
-    final (x, y) = latLngToXY(latlng, scale(zoom));
+    final (x, y) = latLngToXY(checkLatLng(latlng), scale(zoom));
     return Offset(x, y);
   }
 
@@ -72,6 +72,16 @@ abstract class Crs {
   /// Whether this CRS supports repeating worlds: repeated (feature) layers and
   /// unbounded horizontal scrolling along the longitude axis
   bool get replicatesWorldLongitude => false;
+
+  /// Throws if [latlng] is NaN, which may cause memory leak.
+  /// cf. https://github.com/fleaflet/flutter_map/issues/2178
+  @protected
+  LatLng checkLatLng(LatLng latlng) {
+    if (latlng.latitude.isNaN || latlng.longitude.isNaN) {
+      throw Exception('LatLng is Nan: $latlng');
+    }
+    return latlng;
+  }
 }
 
 /// Internal base class for CRS with a single zoom-level independent transformation.
@@ -104,7 +114,7 @@ abstract class CrsWithStaticTransformation extends Crs {
 
   @override
   (double, double) latLngToXY(LatLng latlng, double scale) {
-    final (x, y) = projection.projectXY(latlng);
+    final (x, y) = projection.projectXY(checkLatLng(latlng));
     return _transformation.transform(x, y, scale);
   }
 
@@ -164,15 +174,18 @@ class Epsg3857 extends CrsWithStaticTransformation {
         );
 
   @override
-  (double, double) latLngToXY(LatLng latlng, double scale) =>
-      _transformation.transform(
-        SphericalMercator.projectLng(latlng.longitude),
-        SphericalMercator.projectLat(latlng.latitude),
-        scale,
-      );
+  (double, double) latLngToXY(LatLng latlng, double scale) {
+    checkLatLng(latlng);
+    return _transformation.transform(
+      SphericalMercator.projectLng(latlng.longitude),
+      SphericalMercator.projectLat(latlng.latitude),
+      scale,
+    );
+  }
 
   @override
   Offset latLngToOffset(LatLng latlng, double zoom) {
+    checkLatLng(latlng);
     final (x, y) = _transformation.transform(
       SphericalMercator.projectLng(latlng.longitude),
       SphericalMercator.projectLat(latlng.latitude),
@@ -276,7 +289,7 @@ class Proj4Crs extends Crs {
   /// map point.
   @override
   (double, double) latLngToXY(LatLng latlng, double scale) {
-    final (x, y) = projection.projectXY(latlng);
+    final (x, y) = projection.projectXY(checkLatLng(latlng));
     final transformation = _getTransformationByZoom(zoom(scale));
     return transformation.transform(x, y, scale);
   }
