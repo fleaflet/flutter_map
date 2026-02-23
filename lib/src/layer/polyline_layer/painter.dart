@@ -51,12 +51,14 @@ class _PolylinePainter<R extends Object> extends CustomPainter
 
       final strokeWidth = polyline.useStrokeWidthInMeter
           ? metersToScreenPixels(
-        projectedPolyline.polyline.points.first,
-        polyline.strokeWidth,
-      )
+              projectedPolyline.polyline.points.first,
+              polyline.strokeWidth,
+            )
           : polyline.strokeWidth;
 
-      if (!areOffsetsVisible(offsets, strokeWidth)) return WorldWorkControl.invisible;
+      if (!areOffsetsVisible(offsets, strokeWidth)) {
+        return WorldWorkControl.invisible;
+      }
 
       final hittableDistance = math.max(
         strokeWidth / 2 + polyline.borderStrokeWidth / 2,
@@ -146,7 +148,8 @@ class _PolylinePainter<R extends Object> extends CustomPainter
           strokeWidth = polyline.strokeWidth;
         }
 
-        if (!areOffsetsVisible(offsets, strokeWidth)) return WorldWorkControl.invisible;
+        if (!areOffsetsVisible(offsets, strokeWidth))
+          return WorldWorkControl.invisible;
 
         final hash = polyline.renderHashCode;
         if (needsLayerSaving || (lastHash != null && lastHash != hash)) {
