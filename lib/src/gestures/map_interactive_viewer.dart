@@ -114,6 +114,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   late var _keyboardPanAnimationPrevZoom = _camera.zoom; // to detect changes
   late double _keyboardPanAnimationMaxVelocity;
+
   double _keyboardPanAnimationMaxVelocityCalculator(double zoom) =>
       _interactionOptions.keyboardOptions.maxPanVelocity?.call(zoom) ??
       5 * math.log(0.15 * zoom + 1) + 1;
@@ -124,7 +125,9 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   // Shortcuts
   MapCamera get _camera => widget.controller.camera;
+
   MapOptions get _options => widget.controller.options;
+
   InteractionOptions get _interactionOptions => _options.interactionOptions;
 
   @override
@@ -1243,7 +1246,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     yield initManagerListeners(
       manager: _keyboardZoomAnimationManager,
       sum: _NumInfiniteSumAnimation.new,
-      onTick: (value) {
+      onTick: (valueParameter) {
+        num value = valueParameter;
         if (_isZoomLeaping.value) {
           value *= keyboardOptions.zoomLeapVelocityMultiplier;
         }
@@ -1260,7 +1264,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     yield initManagerListeners(
       manager: _keyboardRotateAnimationManager,
       sum: _NumInfiniteSumAnimation.new,
-      onTick: (value) {
+      onTick: (valueParameter) {
+        num value = valueParameter;
         if (_isRotateLeaping.value) {
           value *= keyboardOptions.rotateLeapVelocityMultiplier;
         }
