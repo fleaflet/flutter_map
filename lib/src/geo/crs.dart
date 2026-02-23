@@ -73,12 +73,13 @@ abstract class Crs {
   /// unbounded horizontal scrolling along the longitude axis
   bool get replicatesWorldLongitude => false;
 
-  /// Throws if [latlng] is NaN, which may cause memory leak.
+  /// Throws if [latlng] is not finite (e.g. either NaN or infinite), which may
+  /// cause memory leak.
   /// cf. https://github.com/fleaflet/flutter_map/issues/2178
   @protected
   LatLng checkLatLng(LatLng latlng) {
-    if (latlng.latitude.isNaN || latlng.longitude.isNaN) {
-      throw Exception('LatLng is Nan: $latlng');
+    if (!(latlng.latitude.isFinite && latlng.longitude.isFinite)) {
+      throw Exception('LatLng is not finite: $latlng');
     }
     return latlng;
   }
