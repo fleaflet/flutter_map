@@ -23,7 +23,8 @@ jobs:
       - name: Install pana
         run: dart pub global activate pana
       - name: Check package score
-        run: pana --exit-code-threshold 0 .
+        # we cannot reach the top score: we use logger that doesn't support wasm, so -10
+        run: pana --exit-code-threshold 10 .
 
   analyse-code:
     name: "Analyse Code"
