@@ -7,7 +7,7 @@ import 'package:meta/meta.dart';
 /// Object used to communicate a tile and its raster [image] between the
 /// [RasterTileLoader] and the raster tile renderer.
 ///
-/// Only [RasterTileData] should be exposed to users via the tile layer widget.
+/// Only [TileLoadStatus] should be exposed to users via the tile layer widget.
 // TODO: Consider whether to export this. It might be useful for more advanced
 // usecases or where overriding the renderer.
 @internal
@@ -28,13 +28,14 @@ class InternalRasterTileData implements BaseTileData {
     _load();
   }
 
-  /// The [RasterTileData] which represents this object but is suitable for
-  /// public exposure.
-  RasterTileData get currentPublicData => _currentPublicData;
-  late RasterTileData _currentPublicData;
+  @override
+  TileLoadStatus get loadStatus => _loadStatus;
+  late TileLoadStatus _loadStatus;
 
   /// Available if an image is available (success or error)
   ImageInfo? imageInfo;
+  ImageStream? _imageStream;
+  late ImageStreamListener _imageStreamListener;
 
   @override
   Future<void> get triggerPrune => _loadedTracker.future;
@@ -42,14 +43,11 @@ class InternalRasterTileData implements BaseTileData {
 
   bool _isDisposed = false;
 
-  ImageStream? _imageStream;
-  late ImageStreamListener _imageStreamListener;
-
   void _load() {
     // TODO: Consider whether `load` can be called multiple times
     if (_isDisposed) return;
 
-    _currentPublicData = RasterTileData.loading(loadingStarted: DateTime.now());
+    _loadStatus = TileLoadStatus.loading(loadingStarted: DateTime.now());
 
     try {
       final oldImageStream = _imageStream;
@@ -73,10 +71,9 @@ class InternalRasterTileData implements BaseTileData {
   void _onImageLoadSuccess(ImageInfo imageInfo, bool synchronousCall) {
     if (_isDisposed) return;
 
-    final isPreviouslyLoaded = _currentPublicData is LoadedRasterTileData;
+    final isPreviouslyLoaded = _loadStatus is LoadedTileStatus;
 
-    _currentPublicData =
-        _currentPublicData.toSuccess(loadingFinished: DateTime.now());
+    _loadStatus = _loadStatus.toSuccess(loadingFinished: DateTime.now());
     this.imageInfo = imageInfo;
     _loadedTracker.complete();
 
@@ -86,9 +83,9 @@ class InternalRasterTileData implements BaseTileData {
   void _onImageLoadError(Object exception, StackTrace? stackTrace) {
     if (_isDisposed) return;
 
-    final isPreviouslyLoaded = _currentPublicData is LoadedRasterTileData;
+    final isPreviouslyLoaded = _loadStatus is LoadedTileStatus;
 
-    _currentPublicData = _currentPublicData.toError(
+    _loadStatus = _loadStatus.toError(
       loadingFinished: DateTime.now(),
       exception: exception,
       stackTrace: stackTrace,

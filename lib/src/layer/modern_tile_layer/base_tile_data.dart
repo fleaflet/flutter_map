@@ -19,6 +19,11 @@ abstract interface class BaseTileData {
   /// be completed.
   Future<void> get triggerPrune;
 
+  /// Describes what status in the loading process this tile is in.
+  ///
+  /// Implementers should keep this up-to-date. It may be a specific subtype.
+  TileLoadStatus get loadStatus;
+
   /// Called when a tile is removed from the map of visible tiles passed to the
   /// renderer.
   ///
@@ -64,6 +69,10 @@ class WrapperTileData<D extends Object?> implements BaseTileData {
   void dispose() => _dispose?.call();
   final void Function()? _dispose;
 
+  @override
+  TileLoadStatus get loadStatus => _loadStatus;
+  late TileLoadStatus _loadStatus;
+
   /// Create a container with the specified data (or the data result of the
   /// specified future)
   WrapperTileData({
@@ -71,8 +80,22 @@ class WrapperTileData<D extends Object?> implements BaseTileData {
     void Function()? dispose,
   }) : _dispose = dispose {
     if (data is Future<D>) {
-      data.then((data) => _loadedTracker.complete(_data = data));
+      _loadStatus = TileLoadStatus.loading(loadingStarted: DateTime.now());
+      data.then((data) {
+        _loadStatus.toSuccess(loadingFinished: DateTime.now());
+        _loadedTracker.complete(_data = data);
+      }, onError: (Object error, StackTrace? stackTrace) {
+        _loadStatus.toError(
+          loadingFinished: DateTime.now(),
+          exception: error,
+          stackTrace: stackTrace,
+        );
+        _loadedTracker.completeError(error, stackTrace);
+      });
     } else {
+      final timestamp = DateTime.now();
+      _loadStatus = TileLoadStatus.loading(loadingStarted: timestamp)
+          .toSuccess(loadingFinished: timestamp);
       _loadedTracker.complete(_data = data);
     }
   }

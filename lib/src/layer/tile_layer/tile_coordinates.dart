@@ -20,9 +20,6 @@ class TileCoordinates extends Point<int> {
   /// Create a new [TileCoordinates] instance.
   const TileCoordinates(super.x, super.y, this.z);
 
-  @override
-  String toString() => 'TileCoordinate($x, $y, $z)';
-
   // Overridden because Point's distanceTo does not allow comparing with a point
   // of a different type.
   @override
@@ -31,6 +28,9 @@ class TileCoordinates extends Point<int> {
     final dy = y - other.y;
     return sqrt(dx * dx + dy * dy);
   }
+
+  @override
+  String toString() => 'TileCoordinate($x, $y, $z)';
 
   @override
   bool operator ==(Object other) {

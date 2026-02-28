@@ -1,7 +1,7 @@
 import 'package:flutter_map/src/layer/modern_tile_layer/options.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetcher/bytes_fetcher.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/shared/tile_source.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/source_generator/source_generator.dart';
-import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/tile_source.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_coordinates.dart';
 import 'package:meta/meta.dart';
 

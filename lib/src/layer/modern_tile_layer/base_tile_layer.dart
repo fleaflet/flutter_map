@@ -97,10 +97,12 @@ class _BaseTileLayerState<D extends BaseTileData>
       );
     }
 
-    return widget.renderer(
-      context,
-      layerKey,
-      Map.unmodifiable(tiles.map((k, v) => MapEntry(k, v.data))),
+    return MobileLayerTransformer(
+      child: widget.renderer(
+        context,
+        layerKey,
+        Map.unmodifiable(tiles.map((k, v) => MapEntry(k, v.data))),
+      ),
     );
   }
 

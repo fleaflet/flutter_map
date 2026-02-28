@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui';
-
 import 'package:flutter/rendering.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/raster/image_provider.dart';
@@ -80,7 +79,7 @@ class RasterTileLoader<S extends Object>
       } on TileAbortedException {
         evict();
         return ImmutableBuffer.fromUint8List(transparentImage).then(decode);
-      } on Exception {
+      } catch (_) {
         evict();
         rethrow;
       }
