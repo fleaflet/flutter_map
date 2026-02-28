@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:logger/logger.dart';
 
 /// Metadata about a tile cached with a [MapCachingProvider]
 ///
@@ -36,12 +35,10 @@ class CachedMapTileMetadata {
   }) {
     void warnFallbackUsage() {
       if (kDebugMode && warnOnFallbackUsage != null) {
-        Logger(printer: SimplePrinter()).w(
-          '[flutter_map cache] Using fallback freshness age '
-          '($fallbackFreshnessAge) for ${warnOnFallbackUsage.path}\n'
-          '\tThis indicates the tile server did not send enough '
-          'information to calculate a freshness age. Optionally override '
-          "in the caching provider's config.",
+        // ignore: avoid_print
+        print(
+          '''  \x1B[1;33m[flutter_map]\x1B[0;33m Using fallback freshness age ($fallbackFreshnessAge) to cache ${warnOnFallbackUsage.path}
+    \x1B[0;33mThis indicates the tile server did not send enough information to calculate a freshness age. Optionally override in the caching provider's config.''',
         );
       }
     }
