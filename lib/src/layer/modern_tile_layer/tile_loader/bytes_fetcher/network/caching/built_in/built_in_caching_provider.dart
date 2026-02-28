@@ -1,29 +1,33 @@
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/stub.dart'
-    if (dart.library.io) 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/native/native.dart'
-    if (dart.library.js_interop) 'package:flutter_map/src/layer/tile_layer/tile_provider/network/caching/built_in/impl/web/web.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetcher/network/caching/built_in/impl/stub.dart'
+    if (dart.library.io) 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetcher/network/caching/built_in/impl/native/native.dart'
+    if (dart.library.js_interop) 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetcher/network/caching/built_in/impl/web/web.dart';
+import 'package:flutter_map/src/layer/modern_tile_layer/tile_loader/bytes_fetcher/network/network.dart';
 import 'package:uuid/data.dart';
 import 'package:uuid/rng.dart';
 import 'package:uuid/uuid.dart';
 
-/// Simple built-in map caching using an I/O storage mechanism, for native
-/// (non-web) platforms only
+/// Simple HTTP-based built-in map caching using an I/O storage mechanism, for
+/// native (non-web) platforms only
 ///
 /// Stores tiles as files identified with keys, containing some metadata headers
 /// followed by the tile bytes, alongside a file used to track the size of the
 /// cache.
 ///
+/// This is enabled by default in flutter_map, when using the
+/// [NetworkBytesFetcher]. Consumers must support putting
+/// [HttpControlledCachedTileMetadata] to use this provider.
+///
 /// Usually uses HTTP headers to determine tile freshness, although
 /// `overrideFreshAge` can override this.
-///
-/// This is enabled by default in flutter_map, when using the
-/// [NetworkTileProvider] (or cancellable version).
 ///
 /// It is safe to use all public methods when running on web - they will noop.
 ///
 /// For more information, see the online documentation.
 abstract interface class BuiltInMapCachingProvider
-    implements MapCachingProvider {
+    implements
+        MapCachingProvider,
+        PutTileAndMetadataCapability<HttpControlledCachedTileMetadata> {
   /// If an instance exists, return it, otherwise create a new instance
   ///
   /// The provided configuration will only be respected if an instance does not
@@ -148,4 +152,7 @@ abstract interface class BuiltInMapCachingProvider
   static String uuidTileKeyGenerator(String url) =>
       _uuid.v5(Namespace.url.value, url);
   static final _uuid = Uuid(goptions: GlobalOptions(MathRNG()));
+
+  @override
+  Future<CachedMapTile<HttpControlledCachedTileMetadata>?> getTile(String url);
 }

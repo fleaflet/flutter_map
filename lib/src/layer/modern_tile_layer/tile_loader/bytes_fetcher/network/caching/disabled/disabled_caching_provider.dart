@@ -3,7 +3,11 @@ import 'dart:typed_data';
 import 'package:flutter_map/flutter_map.dart';
 
 /// Caching provider which disables built-in caching
-mixin class DisabledMapCachingProvider implements MapCachingProvider {
+mixin class DisabledMapCachingProvider<IM extends Object?>
+    implements
+        MapCachingProvider,
+        PutTileCapability,
+        PutTileAndMetadataCapability<IM> {
   /// Disable built-in map caching
   const DisabledMapCachingProvider();
 
@@ -17,7 +21,14 @@ mixin class DisabledMapCachingProvider implements MapCachingProvider {
   @override
   Never putTile({
     required String url,
-    required CachedMapTileMetadata metadata,
+    Uint8List? bytes,
+  }) =>
+      throw UnsupportedError('Must not be called if `isSupported` is `false`');
+
+  @override
+  Never putTileWithMetadata({
+    required String url,
+    required IM metadata,
     Uint8List? bytes,
   }) =>
       throw UnsupportedError('Must not be called if `isSupported` is `false`');
