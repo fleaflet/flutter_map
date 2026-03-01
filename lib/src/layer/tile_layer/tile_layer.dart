@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:collection/collection.dart' show MapEquality, ListEquality;
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -12,11 +12,9 @@ import 'package:flutter_map/src/layer/tile_layer/tile_image_manager.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
-import 'package:flutter_map/src/layer/tile_layer/unblock_osm.dart';
 import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:http/http.dart';
 import 'package:http/retry.dart';
-import 'package:logger/logger.dart';
 
 part 'retina_mode.dart';
 part 'tile_error_evict_callback.dart';
@@ -322,48 +320,44 @@ class TileLayer extends StatefulWidget {
 
 class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
   static const _openStreetMapUrls = {'tile.openstreetmap.org', 'tile.osm.org'};
-  bool get _isOpenStreetMapUrl =>
-      widget.urlTemplate != null &&
-      _openStreetMapUrls.any(widget.urlTemplate!.contains);
 
-  static const _unblockOSMEnvVar =
-      String.fromEnvironment('flutter.flutter_map.unblockOSM');
-  static bool get _shouldUnblockOSM => const ListEquality<int>()
-      .equals(_unblockOSMEnvVar.codeUnits, osmUnblockingString);
-
-  late final hasSetGoodUserAgent =
-      widget.tileProvider.headers['User-Agent'] != 'flutter_map (unknown)';
-  late final _blockOpenStreetMapUrl =
-      false /*&&
-      _isOpenStreetMapUrl &&
-      !hasSetGoodUserAgent &&
-      !kDebugMode &&
-      !_shouldUnblockOSM*/
-      ;
   void _warnOpenStreetMapUrl() {
-    if (_isOpenStreetMapUrl && kDebugMode && !_shouldUnblockOSM) {
-      final uaWarning = hasSetGoodUserAgent
-          ? ''
-          : '''
+    if (!kDebugMode) return;
 
-When using the OSM tile servers, you must set an HTTP User-Agent which
-adequately identifies your application to the servers.
-Set `TileLayer.userAgentPackageName` appropriately, or set a UA header manually.
-OSMF (the tile server operators), and/or flutter_map in future, may block usage
-if inadequately identified.
-''';
+    final isOSMUrl = widget.urlTemplate != null &&
+        _openStreetMapUrls.any(widget.urlTemplate!.contains);
 
-      final warning = '''\x1B[1m\x1B[3mflutter_map\x1B[0m$uaWarning
-flutter_map wants to help keep map data available for everyone.
-We use the OpenStreetMap public tile servers in our code examples & demo app,
-but they are NOT free to use by everyone. Please review whether OSM's tile
-servers are appropriate and the best choice for your app.
-See:
- * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)
- * https://docs.fleaflet.dev/osm-warn for more information about this warning''';
+    if (!isOSMUrl) return;
 
-      Logger(printer: PrettyPrinter(methodCount: 0))
-          .log(hasSetGoodUserAgent ? Level.info : Level.warning, warning);
+    final hasSetGoodUserAgent =
+        widget.tileProvider.headers['User-Agent'] != 'flutter_map (unknown)';
+
+    final hasSubdomainPart = widget.urlTemplate!.contains('{s}');
+
+    // ignore: avoid_print
+    print('''  \x1B[1m[flutter_map]\x1B[0m
+    We want to help keep OpenStreetMap available for everyone. Our examples
+    and demo app use the public tile servers, but they are NOT free to use by
+    everyone! Please review whether the OpenStreetMap tile servers are suitable
+    for your project.
+    See:
+      * https://operations.osmfoundation.org/policies/tiles (OSM Tile Usage Policy)
+      * https://docs.fleaflet.dev/osm-warn for more information about this warning''');
+
+    if (!hasSetGoodUserAgent) {
+      // ignore: avoid_print
+      print('''\x1B[0;33m    ---
+    \x1B[0;33mIt looks like you haven't set an adequate HTTP User-Agent, for example through
+    \x1B[0;33mthe `TileLayer.userAgentPackageName` argument. This may lead to your project
+    \x1B[0;33mbeing blocked.''');
+    }
+
+    if (hasSubdomainPart) {
+      // ignore: avoid_print
+      print('''\x1B[0;33m    ---
+    \x1B[0;33mAvoid using subdomains with the OpenStreetMap public tile server. Support may
+    \x1B[0;33mbecome slow or be removed in future.
+    \x1B[0;33mSee https://github.com/openstreetmap/operations/issues/737 for more info.''');
     }
   }
 
@@ -396,19 +390,6 @@ See:
     _resetSub = widget.reset?.listen(_resetStreamHandler);
     _tileRangeCalculator = TileRangeCalculator(tileDimension: _tileDimension);
     _warnOpenStreetMapUrl();
-
-    // These log strong hints in debug mode, which is more visible to users than
-    // just documentation - they should only be used where there is a specific
-    // and large risk of the user doing something wrong.
-    if (kDebugMode &&
-        widget.urlTemplate != null &&
-        widget.urlTemplate!.contains('{s}.tile.openstreetmap.org')) {
-      Logger(printer: PrettyPrinter(methodCount: 0)).w(
-        '\x1B[1m\x1B[3mflutter_map\x1B[0m\nAvoid using subdomains with OSM\'s tile '
-        'server. Support may be become slow or be removed in future.\nSee '
-        'https://github.com/openstreetmap/operations/issues/737 for more info.',
-      );
-    }
   }
 
   // This is called on every map movement so we should avoid expensive logic
@@ -542,10 +523,6 @@ See:
     final map = MapCamera.of(context);
 
     if (_outsideZoomLimits(map.zoom.round())) return const SizedBox.shrink();
-
-    if (_blockOpenStreetMapUrl) {
-      return const SizedBox.shrink();
-    }
 
     final tileZoom = _clampToNativeZoom(map.zoom);
     final tileBoundsAtZoom = _tileBounds.atZoom(tileZoom);
@@ -709,10 +686,6 @@ See:
     DiscreteTileRange tileLoadRange, {
     required bool pruneAfterLoad,
   }) {
-    if (_isOpenStreetMapUrl && _blockOpenStreetMapUrl) {
-      return;
-    }
-
     final tileZoom = tileLoadRange.zoom;
     final expandedTileLoadRange = tileLoadRange.expand(widget.panBuffer);
 
