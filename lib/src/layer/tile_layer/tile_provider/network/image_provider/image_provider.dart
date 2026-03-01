@@ -187,6 +187,7 @@ class NetworkTileImageProvider extends ImageProvider<NetworkTileImageProvider> {
         );
       } catch (e) {
         if (kDebugMode && !silenceExceptions) {
+          // ignore: avoid_print
           print(
             '''  \x1B[1;33m[flutter_map]\x1B[0;33m Failed to cache ${uri.path}: $e
     \x1B[0;33mThis may indicate a HTTP spec non-conformance issue with the tile server. ''',
