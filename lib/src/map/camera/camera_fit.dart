@@ -311,16 +311,17 @@ class FitInsideBounds extends CameraFit {
     required double bigRectHalfWidth,
     required double bigRectHalfHeight,
   }) {
-    angleRad = _normalize(angleRad, 0, 2.0 * math.pi);
+    final normalizedAngleRad = _normalize(angleRad, 0, 2.0 * math.pi);
+
     var kmin = double.infinity;
-    final quadrant = (2.0 * angleRad / math.pi).floor();
+    final quadrant = (2.0 * normalizedAngleRad / math.pi).floor();
     if (quadrant.isOdd) {
-      final px = bigRectHalfWidth * math.cos(angleRad) +
-          bigRectHalfHeight * math.sin(angleRad);
-      final py = bigRectHalfWidth * math.sin(angleRad) -
-          bigRectHalfHeight * math.cos(angleRad);
-      final dx = -math.cos(angleRad);
-      final dy = -math.sin(angleRad);
+      final px = bigRectHalfWidth * math.cos(normalizedAngleRad) +
+          bigRectHalfHeight * math.sin(normalizedAngleRad);
+      final py = bigRectHalfWidth * math.sin(normalizedAngleRad) -
+          bigRectHalfHeight * math.cos(normalizedAngleRad);
+      final dx = -math.cos(normalizedAngleRad);
+      final dy = -math.sin(normalizedAngleRad);
 
       if (smallRectHalfWidth * dy - smallRectHalfHeight * dx != 0) {
         var k = (px * dy - py * dx) /
@@ -348,12 +349,12 @@ class FitInsideBounds extends CameraFit {
 
       return kmin;
     } else {
-      final px = bigRectHalfWidth * math.cos(angleRad) -
-          bigRectHalfHeight * math.sin(angleRad);
-      final py = bigRectHalfWidth * math.sin(angleRad) +
-          bigRectHalfHeight * math.cos(angleRad);
-      final dx = math.sin(angleRad);
-      final dy = -math.cos(angleRad);
+      final px = bigRectHalfWidth * math.cos(normalizedAngleRad) -
+          bigRectHalfHeight * math.sin(normalizedAngleRad);
+      final py = bigRectHalfWidth * math.sin(normalizedAngleRad) +
+          bigRectHalfHeight * math.cos(normalizedAngleRad);
+      final dx = math.sin(normalizedAngleRad);
+      final dy = -math.cos(normalizedAngleRad);
       if (smallRectHalfWidth * dy - smallRectHalfHeight * dx != 0) {
         var k = (px * dy - py * dx) /
             (smallRectHalfWidth * dy - smallRectHalfHeight * dx);
