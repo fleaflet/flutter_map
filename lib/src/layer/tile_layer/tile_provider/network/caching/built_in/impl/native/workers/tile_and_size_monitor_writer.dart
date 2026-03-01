@@ -144,9 +144,8 @@ Future<void> tileAndSizeMonitorWriterWorker(
   void writeTile({
     required final String path,
     required final CachedMapTileMetadata metadata,
-    Uint8List? tileBytesParameter,
+    Uint8List? tileBytes,
   }) {
-    Uint8List? tileBytes = tileBytesParameter;
     final tileFile = File(path);
     final initialTileFileExists = tileFile.existsSync();
     final initialTileFileLength =
@@ -316,7 +315,7 @@ Future<void> tileAndSizeMonitorWriterWorker(
           :final CachedMapTileMetadata metadata,
           :final Uint8List? tileBytes,
         )) {
-      writeTile(path: path, metadata: metadata, tileBytesParameter: tileBytes);
+      writeTile(path: path, metadata: metadata, tileBytes: tileBytes);
     } else if (val == false) {
       disableSizeMonitor();
     } else if (val == null) {

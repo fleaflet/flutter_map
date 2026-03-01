@@ -231,7 +231,7 @@ class FitInsideBounds extends CameraFit {
     ).size;
 
     final scale = _rectInRotRectScale(
-      angleRadParameter: camera.rotationRad,
+      angleRad: camera.rotationRad,
       smallRectHalfWidth: cameraSize.width / 2.0,
       smallRectHalfHeight: cameraSize.height / 2.0,
       bigRectHalfWidth: projectedBoundsSize.width / 2.0,
@@ -305,13 +305,13 @@ class FitInsideBounds extends CameraFit {
   ///
   /// This algorithm has been adapted from https://stackoverflow.com/a/75907251
   static double _rectInRotRectScale({
-    required double angleRadParameter,
+    required double angleRad,
     required double smallRectHalfWidth,
     required double smallRectHalfHeight,
     required double bigRectHalfWidth,
     required double bigRectHalfHeight,
   }) {
-    final angleRad = _normalize(angleRadParameter, 0, 2.0 * math.pi);
+    angleRad = _normalize(angleRad, 0, 2.0 * math.pi);
     var kmin = double.infinity;
     final quadrant = (2.0 * angleRad / math.pi).floor();
     if (quadrant.isOdd) {
