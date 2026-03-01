@@ -79,18 +79,18 @@ class ContainCameraCenter extends CameraConstraint {
   final LatLngBounds bounds;
 
   @override
-  MapCamera constrain(MapCamera camera) => camera.withPosition(
-        center: LatLng(
-          camera.center.latitude.clamp(
-            bounds.south,
-            bounds.north,
-          ),
-          camera.center.longitude.clamp(
-            bounds.west,
-            bounds.east,
-          ),
-        ),
-      );
+  MapCamera constrain(MapCamera camera) {
+    final latitude = camera.center.latitude.clamp(bounds.south, bounds.north);
+    final longitude = camera.center.longitude.clamp(bounds.west, bounds.east);
+    if (latitude == camera.center.latitude &&
+        longitude == camera.center.longitude) {
+      return camera;
+    }
+    return camera.withPosition(
+      center: LatLng(latitude, longitude),
+      constrained: true,
+    );
+  }
 
   @override
   bool operator ==(Object other) {
@@ -142,10 +142,13 @@ class ContainCamera extends CameraConstraint {
       centerPix.dy.clamp(topOkCenter, botOkCenter),
     );
 
-    if (newCenterPix == centerPix) return camera;
+    if (newCenterPix == centerPix) {
+      return camera;
+    }
 
     return camera.withPosition(
       center: camera.unprojectAtZoom(newCenterPix, testZoom),
+      constrained: true,
     );
   }
 
@@ -211,6 +214,7 @@ class ContainCameraLatitude extends CameraConstraint {
 
     return camera.withPosition(
       center: camera.unprojectAtZoom(newCenterPix, testZoom),
+      constrained: true,
     );
   }
 
