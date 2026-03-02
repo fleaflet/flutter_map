@@ -1,12 +1,15 @@
 import 'dart:async';
-import 'dart:io' show HttpHeaders, HttpDate, HttpStatus; // this is web safe!
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/dart_io/http_date.dart';
+import 'package:flutter_map/src/dart_io/http_headers.dart';
+import 'package:flutter_map/src/dart_io/http_status.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_provider/network/image_provider/consolidate_response.dart';
 import 'package:http/http.dart';
+
 // ignore: unnecessary_import
 import 'package:meta/meta.dart';
 
