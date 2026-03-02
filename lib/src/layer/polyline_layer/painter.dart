@@ -48,7 +48,6 @@ class _PolylinePainter<R extends Object> extends CustomPainter
         points: projectedPolyline.points,
         shift: shift,
       );
-      if (!areOffsetsVisible(offsets)) return WorldWorkControl.invisible;
 
       final strokeWidth = polyline.useStrokeWidthInMeter
           ? metersToScreenPixels(
@@ -56,6 +55,11 @@ class _PolylinePainter<R extends Object> extends CustomPainter
               polyline.strokeWidth,
             )
           : polyline.strokeWidth;
+
+      if (!areOffsetsVisible(offsets, strokeWidth)) {
+        return WorldWorkControl.invisible;
+      }
+
       final hittableDistance = math.max(
         strokeWidth / 2 + polyline.borderStrokeWidth / 2,
         minimumHitbox,
@@ -133,18 +137,6 @@ class _PolylinePainter<R extends Object> extends CustomPainter
           points: projectedPolyline.points,
           shift: shift,
         );
-        if (!areOffsetsVisible(offsets)) return WorldWorkControl.invisible;
-
-        final hash = polyline.renderHashCode;
-        if (needsLayerSaving || (lastHash != null && lastHash != hash)) {
-          drawPaths();
-        }
-        lastHash = hash;
-        needsLayerSaving = polyline.color.a < 1 ||
-            (polyline.gradientColors?.any((c) => c.a < 1) ?? false);
-
-        // strokeWidth, or strokeWidth + borderWidth if relevant.
-        late double largestStrokeWidth;
 
         late final double strokeWidth;
         if (polyline.useStrokeWidthInMeter) {
@@ -155,7 +147,20 @@ class _PolylinePainter<R extends Object> extends CustomPainter
         } else {
           strokeWidth = polyline.strokeWidth;
         }
-        largestStrokeWidth = strokeWidth;
+
+        if (!areOffsetsVisible(offsets, strokeWidth))
+          return WorldWorkControl.invisible;
+
+        final hash = polyline.renderHashCode;
+        if (needsLayerSaving || (lastHash != null && lastHash != hash)) {
+          drawPaths();
+        }
+        lastHash = hash;
+        needsLayerSaving = polyline.color.a < 1 ||
+            (polyline.gradientColors?.any((c) => c.a < 1) ?? false);
+
+        // strokeWidth, or strokeWidth + borderWidth if relevant.
+        double largestStrokeWidth = strokeWidth;
 
         final isSolid = polyline.pattern == const StrokePattern.solid();
         final isDashed = polyline.pattern.segments != null;
