@@ -1243,7 +1243,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     yield initManagerListeners(
       manager: _keyboardZoomAnimationManager,
       sum: _NumInfiniteSumAnimation.new,
-      onTick: (value) {
+      onTick: (valueParameter) {
+        num value = valueParameter;
         if (_isZoomLeaping.value) {
           value *= keyboardOptions.zoomLeapVelocityMultiplier;
         }
@@ -1260,7 +1261,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     yield initManagerListeners(
       manager: _keyboardRotateAnimationManager,
       sum: _NumInfiniteSumAnimation.new,
-      onTick: (value) {
+      onTick: (valueParameter) {
+        num value = valueParameter;
         if (_isRotateLeaping.value) {
           value *= keyboardOptions.rotateLeapVelocityMultiplier;
         }
