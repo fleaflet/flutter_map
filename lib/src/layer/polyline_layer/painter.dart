@@ -148,8 +148,9 @@ class _PolylinePainter<R extends Object> extends CustomPainter
           strokeWidth = polyline.strokeWidth;
         }
 
-        if (!areOffsetsVisible(offsets, strokeWidth))
+        if (!areOffsetsVisible(offsets, strokeWidth)) {
           return WorldWorkControl.invisible;
+        }
 
         final hash = polyline.renderHashCode;
         if (needsLayerSaving || (lastHash != null && lastHash != hash)) {
