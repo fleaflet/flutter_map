@@ -1,12 +1,15 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/layer/shared/feature_layer_utils.dart';
 import 'package:latlong2/latlong.dart';
 
 part 'marker.dart';
 
-/// A [Marker] layer for [FlutterMap].
+/// A layer for [FlutterMap] which displays custom widgets at specified
+/// coordinates ([Marker]s).
 @immutable
-class MarkerLayer extends StatelessWidget {
+class MarkerLayer extends MultiChildRenderObjectWidget {
   /// The list of [Marker]s.
   final List<Marker> markers;
 
@@ -38,88 +41,311 @@ class MarkerLayer extends StatelessWidget {
     this.rotate = false,
   });
 
+  // TODO: Consider whether culling before build is still necessary
   @override
-  Widget build(BuildContext context) {
-    final map = MapCamera.of(context);
-    final worldWidth = map.getWorldWidthAtZoom();
+  List<Widget> get children =>
+      markers.map((m) => _MarkerWidget(marker: m)).toList(growable: false);
 
-    return MobileLayerTransformer(
-      child: Stack(
-        children: (List<Marker> markers) sync* {
-          for (final m in markers) {
-            // Resolve real alignment
-            // TODO: maybe just using Size, Offset, and Rect?
-            final left = 0.5 * m.width * ((m.alignment ?? alignment).x + 1);
-            final top = 0.5 * m.height * ((m.alignment ?? alignment).y + 1);
-            final right = m.width - left;
-            final bottom = m.height - top;
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _MarkerLayerRenderBox(
+        camera: MapCamera.of(context),
+        alignment: alignment,
+        rotate: rotate,
+      );
 
-            // Perform projection
-            final pxPoint = map.projectAtZoom(m.point);
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    // ignore: library_private_types_in_public_api
+    covariant _MarkerLayerRenderBox renderObject,
+  ) {
+    final latestCamera = MapCamera.of(context);
+    if (latestCamera != renderObject.camera) {
+      renderObject.camera = latestCamera;
+    }
 
-            Positioned? getPositioned(double worldShift) {
-              final shiftedX = pxPoint.dx + worldShift;
+    if (alignment != renderObject.alignment) {
+      renderObject.alignment = alignment;
+    }
 
-              // Cull if out of bounds
-              if (!map.pixelBounds.overlaps(
-                Rect.fromPoints(
-                  Offset(shiftedX + left, pxPoint.dy - bottom),
-                  Offset(shiftedX - right, pxPoint.dy + top),
-                ),
-              )) {
-                return null;
-              }
+    if (rotate != renderObject.rotate) {
+      renderObject.rotate = rotate;
+    }
+  }
+}
 
-              // Shift original coordinate along worlds, then move into relative
-              // to origin space
-              final shiftedLocalPoint =
-                  Offset(shiftedX, pxPoint.dy) - map.pixelOrigin;
+class _MarkerWidget extends ParentDataWidget<_MarkerParentData> {
+  _MarkerWidget({required this.marker}) : super(child: marker.child);
 
-              return Positioned(
-                key: m.key,
-                width: m.width,
-                height: m.height,
-                left: shiftedLocalPoint.dx - right,
-                top: shiftedLocalPoint.dy - bottom,
-                child: (m.rotate ?? rotate)
-                    ? Transform.rotate(
-                        angle: -map.rotationRad,
-                        alignment: (m.alignment ?? alignment) * -1,
-                        child: m.child,
-                      )
-                    : m.child,
-              );
+  final Marker marker;
+
+  // TODO: I think? this means the `Marker` must be constructed `const` or have
+  // a key set?
+  @override
+  Key? get key => marker.key ?? ObjectKey(marker);
+
+  @override
+  void applyParentData(RenderObject renderObject) {
+    final parentData = renderObject.parentData! as _MarkerParentData;
+    bool needsLayout = false;
+
+    if (parentData.point != marker.point) {
+      parentData.point = marker.point;
+      needsLayout = true;
+    }
+    if (parentData.alignment != marker.alignment) {
+      parentData.alignment = marker.alignment;
+      needsLayout = true;
+    }
+    if (parentData.rotate != marker.rotate) {
+      parentData.rotate = marker.rotate;
+      needsLayout = true;
+    }
+
+    if (needsLayout) renderObject.parent?.markNeedsLayout();
+  }
+
+  @override
+  Type get debugTypicalAncestorWidgetClass => MarkerLayer;
+}
+
+class _MarkerParentData extends ParentData
+    with ContainerParentDataMixin<RenderBox> {
+  LatLng? point;
+  Alignment? alignment;
+  bool? rotate;
+}
+
+/// See also [RenderStack] & [RenderTransform]
+class _MarkerLayerRenderBox extends RenderBox
+    with ContainerRenderObjectMixin<RenderBox, _MarkerParentData> {
+  _MarkerLayerRenderBox({
+    required MapCamera camera,
+    required Alignment alignment,
+    required bool rotate,
+  })  : _camera = camera,
+        _alignment = alignment,
+        _rotate = rotate;
+
+  MapCamera get camera => _camera;
+  MapCamera _camera;
+  set camera(MapCamera value) {
+    if (value == _camera) return;
+    _camera = value;
+    markNeedsPaint();
+  }
+
+  Alignment get alignment => _alignment;
+  Alignment _alignment;
+  set alignment(Alignment value) {
+    if (value == _alignment) return;
+    _alignment = value;
+    markNeedsPaint();
+  }
+
+  bool get rotate => _rotate;
+  bool _rotate;
+  set rotate(bool value) {
+    if (value == _rotate) return;
+    _rotate = value;
+    markNeedsPaint();
+  }
+
+  @override
+  void setupParentData(RenderObject child) {
+    if (child.parentData is! _MarkerParentData) {
+      child.parentData = _MarkerParentData();
+    }
+  }
+
+  @override
+  void performLayout() {
+    size = constraints.biggest;
+
+    var child = firstChild;
+    while (child != null) {
+      child.layout(const BoxConstraints(), parentUsesSize: true);
+      child = (child.parentData! as _MarkerParentData).nextSibling;
+    }
+  }
+
+// TODO: This is in `RenderTransform`, but I can't figure out what it
+// necessarily does or whether we can take advantage of it
+/*
+    @override
+  void applyPaintTransform(RenderBox child, Matrix4 transform) {
+    transform.multiply(_effectiveTransform);
+  }
+*/
+
+  ({Offset markerOffset, Offset alignmentOffset}) _getChildOffsets(
+    _MarkerParentData childParentData,
+    Size childSize,
+  ) =>
+      (
+        markerOffset: camera.latLngToScreenOffset(childParentData.point!),
+        alignmentOffset:
+            ((childParentData.alignment ?? alignment) * -1).alongSize(childSize)
+      );
+
+  bool _isChildInvisible(Offset shiftedChildOffset, Size childSize) =>
+      size.width <= shiftedChildOffset.dx ||
+      shiftedChildOffset.dx + childSize.width <= 0 ||
+      size.height <= shiftedChildOffset.dy ||
+      shiftedChildOffset.dy + childSize.height <= 0;
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
+    var child = lastChild;
+    while (child != null) {
+      final childParentData = child.parentData! as _MarkerParentData;
+
+      final (:markerOffset, :alignmentOffset) =
+          _getChildOffsets(childParentData, child.size);
+
+      if (childParentData.rotate ?? rotate
+          ?
+          // TODO: Repeat across worlds
+          result.addWithPaintTransform(
+              transform: Matrix4.identity()
+                ..leftTranslateByDouble(markerOffset.dx, markerOffset.dy, 0, 1)
+                ..rotateZ(camera.rotationRad),
+              position: position,
+              hitTest: (result, transformed) {
+                return child!
+                    .hitTest(result, position: transformed + alignmentOffset);
+              },
+            )
+          :
+          // TODO: Fix issue of not rotating across worlds
+          result.addWithPaintOffset(
+              offset: markerOffset - alignmentOffset,
+              position: position,
+              hitTest: (result, transformed) => _workAcrossWorlds(
+                camera,
+                (shift) {
+                  final childOffset =
+                      Offset(transformed.dx + shift, transformed.dy);
+
+                  if (_isChildInvisible(childOffset, child!.size)) {
+                    return WorldWorkControl.invisible;
+                  }
+
+                  return child.hitTest(result, position: childOffset)
+                      ? WorldWorkControl.hit
+                      : WorldWorkControl.visible;
+                },
+              ),
+            )) {
+        return true;
+      }
+
+      child = childParentData.previousSibling;
+    }
+    return false;
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    var child = firstChild;
+    while (child != null) {
+      final childParentData = child.parentData! as _MarkerParentData;
+
+      final (:markerOffset, :alignmentOffset) =
+          _getChildOffsets(childParentData, child.size);
+
+      if (childParentData.rotate ?? rotate) {
+        // TODO: Repeat across worlds
+        layer = context.pushTransform(
+          needsCompositing,
+          offset + markerOffset,
+          Matrix4.identity()..rotateZ(camera.rotationRad),
+          (context, offset) =>
+              context.paintChild(child!, offset - alignmentOffset),
+          oldLayer: layer is TransformLayer ? layer as TransformLayer? : null,
+        );
+      } else {
+        // TODO: Fix issue of not rotating across worlds
+        final unshiftedChildOffset = offset + markerOffset - alignmentOffset;
+
+        _workAcrossWorlds(
+          camera,
+          (shift) {
+            final childOffset = Offset(
+              unshiftedChildOffset.dx + shift,
+              unshiftedChildOffset.dy,
+            );
+
+            if (_isChildInvisible(childOffset, child!.size)) {
+              return WorldWorkControl.invisible;
             }
 
-            // Create marker in main world, unless culled
-            final main = getPositioned(0);
-            if (main != null) yield main;
-            // It is unsafe to assume that if the main one is culled, it will
-            // also be culled in all other worlds, so we must continue
+            context.paintChild(child, childOffset);
+            return WorldWorkControl.visible;
+          },
+        );
+      }
 
-            // TODO: optimization - find a way to skip these tests in some
-            // obvious situations. Imagine we're in a map smaller than the
-            // world, and west lower than east - in that case we probably don't
-            // need to check eastern and western.
+      child = childParentData.nextSibling;
+    }
+  }
+}
 
-            // Repeat over all worlds (<--||-->) until culling determines that
-            // that marker is out of view, and therefore all further markers in
-            // that direction will also be
-            if (worldWidth == 0) continue;
-            for (double shift = -worldWidth;; shift -= worldWidth) {
-              final additional = getPositioned(shift);
-              if (additional == null) break;
-              yield additional;
-            }
-            for (double shift = worldWidth;; shift += worldWidth) {
-              final additional = getPositioned(shift);
-              if (additional == null) break;
-              yield additional;
-            }
-          }
-        }(markers)
-            .toList(),
-      ),
-    );
+/// Perform the callback in all world copies (until stopped)
+///
+/// See [WorldWorkControl] for information about the callback return types.
+/// Returns `true` if any result is [WorldWorkControl.hit].
+///
+/// Internally, the worker is invoked in the 'negative' worlds (worlds to the
+/// left of the 'primary' world) until repetition is stopped, then in the
+/// 'positive' worlds: <--||-->.
+// TODO: Remove duplication - consider how to refactor `FeatureLayerUtils`
+bool _workAcrossWorlds(
+  MapCamera camera,
+  WorldWorkControl Function(double shift) work,
+) {
+  // Protection in case of unexpected infinite loop if `work` never returns
+  // `invisible`. e.g. https://github.com/fleaflet/flutter_map/issues/2052.
+  //! This can produce false positives - but it's better than a crash.
+  const maxShiftsCount = 30;
+  int shiftsCount = 0;
+
+  final worldWidth = camera.getWorldWidthAtZoom();
+
+  void protectInfiniteLoop() {
+    if (++shiftsCount > maxShiftsCount) {
+      throw AssertionError(
+        'Infinite loop going beyond $maxShiftsCount for world width $worldWidth',
+      );
+    }
+  }
+
+  protectInfiniteLoop();
+  if (work(0) == WorldWorkControl.hit) return true;
+
+  if (worldWidth == 0) return false;
+
+  negativeWorldsLoop:
+  for (double shift = -worldWidth;; shift -= worldWidth) {
+    protectInfiniteLoop();
+    switch (work(shift)) {
+      case WorldWorkControl.hit:
+        return true;
+      case WorldWorkControl.invisible:
+        break negativeWorldsLoop;
+      case WorldWorkControl.visible:
+    }
+  }
+
+  for (double shift = worldWidth;; shift += worldWidth) {
+    protectInfiniteLoop();
+    switch (work(shift)) {
+      case WorldWorkControl.hit:
+        return true;
+      case WorldWorkControl.invisible:
+        return false;
+      case WorldWorkControl.visible:
+    }
   }
 }
