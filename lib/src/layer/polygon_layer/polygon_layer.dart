@@ -14,7 +14,6 @@ import 'package:flutter_map/src/misc/offsets.dart';
 import 'package:flutter_map/src/misc/point_in_polygon.dart';
 import 'package:flutter_map/src/misc/simplify.dart';
 import 'package:latlong2/latlong.dart' hide Path;
-import 'package:logger/logger.dart';
 
 part 'label/build_text_painter.dart';
 part 'painter.dart';
@@ -164,13 +163,9 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
         kIsWeb &&
         oldWidget.invertedFill == null &&
         widget.invertedFill != null) {
-      Logger(printer: PrettyPrinter(methodCount: 0)).w(
-        '\x1B[1m\x1B[3mflutter_map\x1B[0m\nOn the web, inverted filling may '
-        'not work as expected in some cases. It will not match the behaviour\n'
-        'seen on native platforms.\nAvoid allowing polygons to intersect, and '
-        'avoid using holes within polygons.\nThis is due to multiple '
-        'limitations/bugs within Flutter.\nSee '
-        'https://docs.fleaflet.dev/layers/polyline-layer#culling for more info.',
+      // ignore: avoid_print
+      print(
+        '''  \x1B[1;33m[flutter_map]\x1B[0;33m Inverting filling may not work correctly on web: https://docs.fleaflet.dev/layers/polygon-layer#inverted-filling''',
       );
     }
   }
