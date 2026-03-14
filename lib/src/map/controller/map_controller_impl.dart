@@ -170,6 +170,16 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
         (newCamera.center == camera.center && newCamera.zoom == camera.zoom)) {
       return false;
     }
+    if (newCamera.constrained) {
+      if (options.cameraConstraint is ContainCamera) {
+        final ContainCamera containCamera =
+            options.cameraConstraint as ContainCamera;
+        if (containCamera.bounds.west == -180 &&
+            containCamera.bounds.east == 180) {
+          return false;
+        }
+      }
+    }
 
     final oldCamera = camera;
     value = value.withMapCamera(newCamera);
