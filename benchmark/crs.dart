@@ -1,14 +1,10 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter_map/src/geo/crs.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:logger/logger.dart';
-
-class NoFilter extends LogFilter {
-  @override
-  bool shouldLog(LogEvent event) => true;
-}
 
 typedef Result = ({
   String name,
@@ -16,7 +12,7 @@ typedef Result = ({
 });
 
 Future<Result> timedRun(String name, dynamic Function() body) async {
-  Logger().i('running $name...');
+  print('running $name...');
   final watch = Stopwatch()..start();
   await body();
   watch.stop();
@@ -29,10 +25,6 @@ Future<Result> timedRun(String name, dynamic Function() body) async {
 //
 // If you run in JIT mode, the resulting execution times will be a lot more similar.
 Future<void> main() async {
-  Logger.level = Level.all;
-  Logger.defaultFilter = NoFilter.new;
-  Logger.defaultPrinter = SimplePrinter.new;
-
   final results = <Result>[];
   const N = 100000000;
 
@@ -103,5 +95,5 @@ Future<void> main() async {
     }));
   }
 
-  Logger().i('Results:\n${results.map((r) => r.toString()).join('\n')}');
+  print('Results:\n${results.map((r) => r.toString()).join('\n')}');
 }

@@ -34,7 +34,6 @@ dependencies:
     sdk: flutter
   http: ^1.5.0
   latlong2: ^0.9.1
-  logger: ^2.0.0
   meta: ^1.11.0
   path: ^1.9.0
   path_provider: ^2.1.5

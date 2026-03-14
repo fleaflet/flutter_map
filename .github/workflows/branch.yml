@@ -1,7 +1,7 @@
 name: "Branch & PR"
 on:
   push:
-    branches: [ '!master' ]
+    branches: [ "!master" ]
   pull_request:
   workflow_dispatch:
 
@@ -49,7 +49,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: [ '3.27.0', '' ]
+        sdk: [ "3.27.0", "" ]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
@@ -72,7 +72,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: [ '3.27.0', '' ]
+        sdk: [ "3.27.0", "" ]
     defaults:
       run:
         working-directory: ./example
@@ -84,7 +84,7 @@ jobs:
         with:
           distribution: "temurin"
           java-version: "21"
-          cache: 'gradle'
+          cache: "gradle"
       - name: Setup Flutter Environment
         uses: subosito/flutter-action@v2
         with:
@@ -106,7 +106,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: [ '3.27.0', '' ]
+        sdk: [ "3.27.0", "" ]
     defaults:
       run:
         working-directory: ./example
@@ -141,7 +141,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: [ '3.27.0', '' ]
+        sdk: [ "3.27.0", "" ]
     defaults:
       run:
         working-directory: ./example
