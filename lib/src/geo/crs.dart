@@ -61,10 +61,10 @@ abstract class Crs {
   LatLng offsetToLatLng(Offset point, double zoom);
 
   /// Zoom to Scale function.
-  double scale(double zoom) => 256.0 * math.pow(2, zoom);
+  double scale(double zoom) => 256.0 * math.pow(2.0, zoom);
 
   /// Scale to Zoom function.
-  double zoom(double scale) => math.log(scale / 256) / math.ln2;
+  double zoom(double scale) => math.log(scale / 256.0) / math.ln2;
 
   /// Rescales the bounds to a given zoom value.
   Rect? getProjectedBounds(double zoom);
@@ -82,6 +82,31 @@ abstract class Crs {
       throw Exception('LatLng is not finite: $latlng');
     }
     return latlng;
+  }
+}
+
+mixin _ScaleCacheMixin on Crs {
+  double _lastScaleZoom = double.nan;
+  double _lastScaleValue = double.nan;
+  double _lastZoomScale = double.nan;
+  double _lastZoomValue = double.nan;
+
+  @override
+  double scale(double zoom) {
+    if (zoom == _lastScaleZoom) return _lastScaleValue;
+    final value = super.scale(zoom);
+    _lastScaleZoom = zoom;
+    _lastScaleValue = value;
+    return value;
+  }
+
+  @override
+  double zoom(double scale) {
+    if (scale == _lastZoomScale) return _lastZoomValue;
+    final value = super.zoom(scale);
+    _lastZoomScale = scale;
+    _lastZoomValue = value;
+    return value;
   }
 }
 
@@ -159,6 +184,11 @@ class CrsSimple extends CrsWithStaticTransformation {
         );
 }
 
+/// Non-const CRS with cached scale/zoom.
+class CrsSimpleCached extends CrsSimple with _ScaleCacheMixin {
+  CrsSimpleCached() : super();
+}
+
 /// EPSG:3857, The most common CRS used for rendering maps.
 @immutable
 class Epsg3857 extends CrsWithStaticTransformation {
@@ -199,6 +229,11 @@ class Epsg3857 extends CrsWithStaticTransformation {
   bool get replicatesWorldLongitude => true;
 }
 
+/// Non-const CRS with cached scale/zoom.
+class Epsg3857Cached extends Epsg3857 with _ScaleCacheMixin {
+  Epsg3857Cached() : super();
+}
+
 /// EPSG:4326, A common CRS among GIS enthusiasts.
 /// Uses simple Equirectangular projection.
 @immutable
@@ -212,6 +247,11 @@ class Epsg4326 extends CrsWithStaticTransformation {
           infinite: false,
           wrapLng: const (-180, 180),
         );
+}
+
+/// Non-const CRS with cached scale/zoom.
+class Epsg4326Cached extends Epsg4326 with _ScaleCacheMixin {
+  Epsg4326Cached() : super();
 }
 
 /// Custom CRS
