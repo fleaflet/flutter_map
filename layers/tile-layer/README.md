@@ -5,19 +5,17 @@
 
 It is your own responsibility to comply with any appropriate restrictions and requirements set by your chosen tile server/provider. Always read their terms of service. Failure to do so may lead to any punishment, at the tile server's discretion.
 
-The OpenStreetMap public tile server, as is used for demonstration throughout this project, is **NOT free to use by everyone**. Their terms of service can be [found here](https://operations.osmfoundation.org/policies/tiles).\
-**Production apps should be extremely cautious about using this tile server**; other projects, libraries, and packages suggesting that OpenStreetMap provides free-to-use map tiles are incorrect. **The examples in this documentation do not necessarily create fully compliant maps**.\
-See [using-openstreetmap-direct.md](../../tile-servers/using-openstreetmap-direct.md "mention") for more info.
+Using the OpenStreetMap public tile server? Check [using-openstreetmap-direct.md](../../tile-servers/using-openstreetmap-direct.md "mention").
 {% endhint %}
 
-The basis of any map is a `TileLayer`, which displays square raster images in a continuous grid, sourced from the Internet or a local file system.
+The base layer of most maps is a `TileLayer`, which displays square raster images in a 2D continuously-pannable grid, where each image is loaded as/just before it comes into view.
 
 {% embed url="https://pub.dev/documentation/flutter_map/latest/flutter_map/TileLayer-class.html" %}
 
 ```dart
 TileLayer(
   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-  userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+  userAgentPackageName: /*'com.example.app'*/, // Add your app identifier
   // + many other options
 ),
 ```
