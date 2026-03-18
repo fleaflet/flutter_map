@@ -9,12 +9,9 @@ This does not apply to users using OpenStreetMap data through other tile servers
 
 Due to excessive usage, requests where the 'User-Agent' header is inadequately set have been blocked by the OpenStreetMap Foundation (who operate the tile servers).
 
-The UA can be set through the `TileLayer.userAgentPackageName` argument (or manually). If this is either:
+The UA can be set through the `TileLayer.userAgentPackageName` argument (or manually).
 
-* not specified, or
-* set to a generic string (such as the example seen throughout our documentation),
-
-then requests will return a [blocked tile](https://wiki.openstreetmap.org/wiki/Blocked_tiles).
+**If this is either unspecified or set to a generic string (like 'com.example.app'), then requests will return a** [**blocked tile**](https://wiki.openstreetmap.org/wiki/Blocked_tiles)**.**
 
 This does not apply to the web, where the UA cannot be set differently to what is provided by the browser.
 
@@ -43,19 +40,21 @@ It is your own responsibility to comply with any appropriate restrictions and re
 
 The OpenStreetMap public tile server is without cost (for users), but, "without cost" ≠ "without restriction" ≠ "open".
 
-## Why has unidentified traffic been blocked?
+<details>
 
-[Data collected by OSM](https://planet.openstreetmap.org/tile_logs/) on 2025/06/09 shows flutter\_map as the largest single user-agent in terms of the average number of tile requests made per second over the day. Whilst it is true that there are multiple user agents smaller who make up an overall much larger portion of total usage - for example, leaflet.js's usage is split across the browsers' user-agents, as is flutter\_map usage on the web - the usage of flutter\_map cannot be ignored.
+<summary>Why has unidentified traffic been blocked?</summary>
+
+[Data collected by OSM](https://planet.openstreetmap.org/tile_logs/) on 2025-06-09 shows flutter\_map as the largest single user-agent in terms of the average number of tile requests made per second over the day.
+
+Whilst it is true that there are multiple user agents smaller who make up an overall much larger portion of total usage - for example, leaflet.js's usage is split across the browsers' user-agents, as is flutter\_map usage on the web - the usage of flutter\_map cannot be ignored.
 
 The top 7 user-agents are shown below, in order (with traffic rounded to the nearest whole tile). ('Missed' tiles are those which required fresh rendering, and are more expensive than most other requests.)
 
-<table><thead><tr><th width="518">User-Agent</th><th width="120">tiles/second</th><th width="110">"missed" t/s</th></tr></thead><tbody><tr><td><mark style="background-color:green;"><strong>flutter_map (*)</strong></mark><br><em>This represents the</em> <a data-footnote-ref href="#user-content-fn-1"><em>majority</em></a> <em>of FM users on non-web platforms.</em></td><td>1610</td><td>53</td></tr><tr><td>Mozilla/5.0 QGIS/*</td><td>1155</td><td>358</td></tr><tr><td>Mozilla/5.0 ...</td><td>476</td><td>33</td></tr><tr><td>com.facebook.katana</td><td>263</td><td>3</td></tr><tr><td><mark style="background-color:green;"><strong>Dart/* (dart:io)</strong></mark><br><em>This represents FM users on older versions (not on web) &#x26; other Flutter mapping libraries not using FM (not on web).</em></td><td>182</td><td>17</td></tr><tr><td>Mozilla/5.0 ...</td><td>175</td><td>6</td></tr><tr><td>Mozilla/5.0 ...</td><td>171</td><td>14</td></tr></tbody></table>
+<table><thead><tr><th width="453.3333740234375">User-Agent</th><th width="120">tiles/second</th><th width="110">"missed" t/s</th></tr></thead><tbody><tr><td><mark style="background-color:green;"><strong>flutter_map (*)</strong></mark><br><em>This represents the</em> <a data-footnote-ref href="#user-content-fn-1"><em>majority</em></a> <em>of FM users on non-web platforms.</em></td><td>1610</td><td>53</td></tr><tr><td>Mozilla/5.0 QGIS/*</td><td>1155</td><td>358</td></tr><tr><td>Mozilla/5.0 ...</td><td>476</td><td>33</td></tr><tr><td>com.facebook.katana</td><td>263</td><td>3</td></tr><tr><td><mark style="background-color:green;"><strong>Dart/* (dart:io)</strong></mark><br><em>This represents FM users on older versions (not on web) &#x26; other Flutter mapping libraries not using FM (not on web).</em></td><td>182</td><td>17</td></tr><tr><td>Mozilla/5.0 ...</td><td>175</td><td>6</td></tr><tr><td>Mozilla/5.0 ...</td><td>171</td><td>14</td></tr></tbody></table>
 
-And looking in more detail at the User-Agent's making up the primary 'flutter\_map (\*)' agent, on 2025/05/28:
+Looking at data revealed on 2025-05-28, the vast majority of daily tile requests (more than 99 million) came from unidentified apps using flutter\_map. Nearly 8 million came from apps using the 'com.example.app' identifier (which is inadequate), and around 6.5 million came from apps copying the example app's identifier (which caused OSM to block that identifier as well).
 
-<table><thead><tr><th width="580">Specific User-Agent</th><th>Daily tile requests</th></tr></thead><tbody><tr><td>flutter_map (<strong>unknown</strong>)<br><em>This represents users failing to use <code>TileLayer.userAgentPackageName</code>.</em> </td><td>99,258,371</td></tr><tr><td>flutter_map (<strong>com.example.app</strong>)<br><em>This is likely a combination of users copy-pasting from the docs &#x26; personal projects.</em></td><td>7,808,777</td></tr><tr><td>flutter_map (<strong>dev.fleaflet.flutter_map.example</strong>)<br><em>This is likely a combination of users using the Demo app (primarily), and users copy-pasting from the example app.</em></td><td>6,402,576</td></tr><tr><td><em>Next largest User-Agent is an adequately identified app</em></td><td><em>3,953,312</em></td></tr></tbody></table>
-
-We are extremely proud to see flutter\_map being used so much! At the same time, we are aware that there are many users placing a potential strain on OpenStreetMap, which needs to be minimised.
+</details>
 
 ## What should I do?
 

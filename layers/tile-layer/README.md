@@ -136,11 +136,11 @@ TMS is also supported. Follow the instructions for the XYZ source, and enable th
 {% step %}
 ### Identify your client
 
-It's important to identify your app to tile servers using the HTTP 'User-Agent' header (if they're not your own, and especially if their free or their ToS specifies to do so). This avoids potential issues with the tile server blocking your app because they do not know why so many tiles are being requested by unidentified clients - this can escalate to flutter\_map being blocked as a whole if too many apps do not identify themselves
+It's important to identify your app to tile servers using the HTTP 'User-Agent' header (if they're not your own, and especially if their free or their ToS specifies to do so). This avoids potential issues with the tile server blocking your app because they do not know why so many tiles are being requested by unidentified clients - this can escalate to flutter\_map being blocked as a whole if too many apps do not identify themselves (which has happened in the past!).
 
-Set the `userAgentPackageName` parameter to your app's package name (such as `com.example.app` or any other unique identifying information). flutter\_map will identify your client to the server via the header as:
+Set the `userAgentPackageName` parameter to your app's package name (often in the format `com.example.app`), or another unique identifier. flutter\_map will identify your client to the server via the header as:
 
-`flutter_map (<packageName or 'unknown'>)`
+`flutter_map (<userAgentPackageName>)`
 
 {% hint style="info" %}
 In some cases, you may be able to skip this step:
