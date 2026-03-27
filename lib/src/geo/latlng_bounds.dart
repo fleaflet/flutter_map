@@ -307,7 +307,7 @@ class LatLngBounds {
       delta += 360;
     }
     delta = delta.abs();
-    return delta < longitudeWidth || delta < other.longitudeWidth;
+    return delta < (longitudeWidth + other.longitudeWidth) / 2;
   }
 
   @override
