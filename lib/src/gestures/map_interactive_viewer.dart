@@ -5,6 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/src/gestures/scroll_zoom.dart';
 import 'package:flutter_map/src/misc/deg_rad_conversions.dart';
 import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:latlong2/latlong.dart';
@@ -94,6 +95,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   late Animation<double> _doubleTapZoomAnimation;
   late Animation<LatLng> _doubleTapCenterAnimation;
 
+  late final ScrollZoomHandler _scrollZoomHandler;
+
   // 'ckr' = cursor/keyboard rotation
   final _ckrTriggered = ValueNotifier(false);
   double _ckrClickDegrees = 0;
@@ -140,6 +143,11 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       ..addListener(_handleDoubleTapZoomAnimation)
       ..addStatusListener(_doubleTapZoomStatusListener);
 
+    _scrollZoomHandler = ScrollZoomHandler(
+      controller: widget.controller,
+      vsync: this,
+    );
+
     ServicesBinding.instance.keyboard
         .addHandler(cursorKeyboardRotationTriggerHandler);
 
@@ -164,6 +172,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     widget.controller.removeListener(onMapStateChange);
     _flingController.dispose();
     _doubleTapController.dispose();
+    _scrollZoomHandler.dispose();
 
     _ckrTriggered.dispose();
     ServicesBinding.instance.keyboard
@@ -455,28 +464,10 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       GestureBinding.instance.pointerSignalResolver.register(
         pointerSignal,
         (pointerSignal) {
-          pointerSignal as PointerScrollEvent;
-          final minZoom = _options.minZoom ?? 0.0;
-          final maxZoom = _options.maxZoom ?? double.infinity;
-          final newZoom = (_camera.zoom -
-                  pointerSignal.scrollDelta.dy *
-                      _interactionOptions.scrollWheelVelocity)
-              .clamp(minZoom, maxZoom);
-          // Calculate offset of mouse cursor from viewport center
-          final newCenter = _camera.focusedZoomCenter(
-            pointerSignal.localPosition,
-            newZoom,
-          );
-
           _closeFlingAnimationController(MapEventSource.scrollWheel);
           _closeDoubleTapController(MapEventSource.scrollWheel);
-
-          widget.controller.moveRaw(
-            newCenter,
-            newZoom,
-            hasGesture: true,
-            source: MapEventSource.scrollWheel,
-          );
+          _scrollZoomHandler
+              .onPointerSignal(pointerSignal as PointerScrollEvent);
         },
       );
     }
