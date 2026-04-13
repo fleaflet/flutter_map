@@ -4,7 +4,7 @@ Please consider [donating](https://github.com/sponsors/fleaflet) or [contributin
 
 This CHANGELOG does not include every commit and/or PR - it is a hand picked selection of the ones that have an effect on most users. For a full list of changes, please check the GitHub repository releases/tags. We also release highlights for some releases on the docs site.
 
-## [8.3.0] - 2026/04/xx
+## [8.3.0] - 2026/04/14
 
 Contains the following user-affecting changes:
 
