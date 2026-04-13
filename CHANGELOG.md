@@ -11,11 +11,19 @@ Contains the following user-affecting changes:
 - Added `MapOptions.onPointerMove` callback - [#2137](https://github.com/fleaflet/flutter_map/pull/2137)
 - Added `InteractionOptions.flingAnimationDampingRatio` parameter - [#2177](https://github.com/fleaflet/flutter_map/pull/2177)
 - Added separate `RotatedOverlayImage.transformFilterQuality` parameter - [#2169](https://github.com/fleaflet/flutter_map/pull/2169)
+- Improved fling behaviour when pointer leaves window - [#2158](https://github.com/fleaflet/flutter_map/pull/2158)
 
 Contains the following user-affecting bug fixes:
 
 - Use `TileLayer.tileBuilder` for errored tiles - [#2166](https://github.com/fleaflet/flutter_map/pull/2166) for [#2154](https://github.com/fleaflet/flutter_map/issues/2154)
 - Fixed bug in `TileLayer`'s tile visibility calculation - [#2174](https://github.com/fleaflet/flutter_map/pull/2174) for [#2175](https://github.com/fleaflet/flutter_map/issues/2175)
+- Prevent memory leak by throwing when `LatLng` is non-finite during projection - [#2182](https://github.com/fleaflet/flutter_map/pull/2182) for [#2178](https://github.com/fleaflet/flutter_map/issues/2178)
+
+Contains the following other notable changes:
+
+- Removed 'package:logger' dependency - [#2185](https://github.com/fleaflet/flutter_map/pull/2185)
+- Removed OSM unblocking flow - [#2185](https://github.com/fleaflet/flutter_map/pull/2185)
+- Absorb necessary 'dart:io' components to remove references and allow pana to recognise flutter_map as WASM compatible - [#2186](https://github.com/fleaflet/flutter_map/pull/2186)
 
 Many thanks to these contributors (in no particular order):
 
