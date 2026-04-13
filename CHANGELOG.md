@@ -4,7 +4,7 @@ Please consider [donating](https://github.com/sponsors/fleaflet) or [contributin
 
 This CHANGELOG does not include every commit and/or PR - it is a hand picked selection of the ones that have an effect on most users. For a full list of changes, please check the GitHub repository releases/tags. We also release highlights for some releases on the docs site.
 
-## [8.3.0] - 2026/01/xx
+## [8.3.0] - 2026/04/xx
 
 Contains the following user-affecting changes:
 
@@ -19,6 +19,10 @@ Contains the following user-affecting bug fixes:
 - Fixed bug in `TileLayer`'s tile visibility calculation - [#2174](https://github.com/fleaflet/flutter_map/pull/2174) for [#2175](https://github.com/fleaflet/flutter_map/issues/2175)
 - Prevent memory leak by throwing when `LatLng` is non-finite during projection - [#2182](https://github.com/fleaflet/flutter_map/pull/2182) for [#2178](https://github.com/fleaflet/flutter_map/issues/2178)
 
+Contains the following user-affecting performance improvements:
+
+- Reduce large amounts of unnecessary rebuilding by replacing unstable widget key with dedicated stable `TileKey` - [#2195](https://github.com/fleaflet/flutter_map/pull/2195)
+
 Contains the following other notable changes:
 
 - Removed 'package:logger' dependency - [#2185](https://github.com/fleaflet/flutter_map/pull/2185)
@@ -32,9 +36,8 @@ Many thanks to these contributors (in no particular order):
 - @shindonghwi
 - @ben-milanko
 - @Robbendebiene
+- @braindamagedman
 - ... and all the maintainers
-
-And Happy New Year 🎉
 
 ## [8.2.2] - 2025/09/19
 
