@@ -18,6 +18,7 @@ Contains the following user-affecting bug fixes:
 - Use `TileLayer.tileBuilder` for errored tiles - [#2166](https://github.com/fleaflet/flutter_map/pull/2166) for [#2154](https://github.com/fleaflet/flutter_map/issues/2154)
 - Fixed bug in `TileLayer`'s tile visibility calculation - [#2174](https://github.com/fleaflet/flutter_map/pull/2174) for [#2175](https://github.com/fleaflet/flutter_map/issues/2175)
 - Prevent memory leak by throwing when `LatLng` is non-finite during projection - [#2182](https://github.com/fleaflet/flutter_map/pull/2182) for [#2178](https://github.com/fleaflet/flutter_map/issues/2178)
+- Consider `strokeWidth` when calculating polyline visibility during non-aggressive culling - [#2184](https://github.com/fleaflet/flutter_map/pull/2184)
 
 Contains the following user-affecting performance improvements:
 
