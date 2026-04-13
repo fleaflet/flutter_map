@@ -21,5 +21,7 @@ class FileTileProvider extends TileProvider {
   @override
   ImageProvider getImage(TileCoordinates coordinates, TileLayer options) =>
       throw UnsupportedError(
-          'The current platform does not have access to IO (the local filesystem), and therefore does not support `FileTileProvider`');
+        'The current platform does not have access to IO (the local '
+        'filesystem), and therefore does not support `FileTileProvider`',
+      );
 }

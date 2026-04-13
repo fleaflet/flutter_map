@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
 import 'package:flutter_map_example/widgets/drawer/menu_drawer.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -33,23 +32,27 @@ class TileBuilderPageState extends State<TileBuilderPage> {
         children: [
           tileWidget,
           if (showLoadingTime || showCoordinates)
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (showCoordinates)
-                  Text(
-                    '${coords.x} : ${coords.y} : ${coords.z}',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                if (showLoadingTime)
-                  Text(
-                    tile.loadFinishedAt == null
-                        ? 'Loading'
-                        // sometimes result is negative which shouldn't happen, abs() corrects it
-                        : '${(tile.loadFinishedAt!.millisecond - tile.loadStarted!.millisecond).abs()} ms',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-              ],
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.center,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (showCoordinates)
+                    Text(
+                      '${coords.x} : ${coords.y} : ${coords.z}',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                  if (showLoadingTime)
+                    Text(
+                      tile.loadFinishedAt == null
+                          ? 'Loading'
+                          // sometimes result is negative which shouldn't happen, abs() corrects it
+                          : '${(tile.loadFinishedAt!.millisecond - tile.loadStarted!.millisecond).abs()} ms',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                ],
+              ),
             ),
         ],
       ),
@@ -120,7 +123,6 @@ class TileBuilderPageState extends State<TileBuilderPage> {
                     urlTemplate:
                         'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                     userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-                    tileProvider: CancellableNetworkTileProvider(),
                     tileBuilder: tileBuilder,
                   ),
                 ),

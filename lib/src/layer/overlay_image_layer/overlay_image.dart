@@ -18,6 +18,8 @@ abstract class BaseOverlayImage extends StatelessWidget {
 
   /// The [FilterQuality] of the image, used to define how high quality the
   /// overlay image should have on the map.
+  ///
+  /// Defaults to [FilterQuality.medium].
   final FilterQuality filterQuality;
 
   /// Display an [Image] on the map at a specific coordinate location
@@ -115,6 +117,19 @@ class RotatedOverlayImage extends BaseOverlayImage {
   /// The coordinates of the bottom right corner of the image.
   final LatLng bottomRightCorner;
 
+  /// The [FilterQuality] of the transformed image.
+  ///
+  /// See [Transform.filterQuality] for more information.
+  ///
+  /// See [filterQuality] for the quality of the image before transformation.
+  ///
+  /// When non-null (as by default), the bitmap render result of the
+  /// transformation is cached by Flutter. This may improve performance, but can
+  /// cause flickering on zooming when the raster cache is at its limits.
+  ///
+  /// Defaults to [FilterQuality.medium].
+  final FilterQuality? transformFilterQuality;
+
   /// Create a new [RotatedOverlayImage] instance that can be provided to the
   /// [OverlayImageLayer].
   const RotatedOverlayImage({
@@ -123,6 +138,7 @@ class RotatedOverlayImage extends BaseOverlayImage {
     required this.topLeftCorner,
     required this.bottomLeftCorner,
     required this.bottomRightCorner,
+    this.transformFilterQuality = FilterQuality.medium,
     super.filterQuality,
     super.opacity,
     super.gaplessPlayback,
@@ -167,7 +183,7 @@ class RotatedOverlayImage extends BaseOverlayImage {
       height: bounds.size.height,
       child: Transform(
         transform: Matrix4(a, b, 0, 0, c, d, 0, 0, 0, 0, 1, 0, tx, ty, 0, 1),
-        filterQuality: filterQuality,
+        filterQuality: transformFilterQuality,
         child: child,
       ),
     );

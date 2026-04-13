@@ -77,10 +77,11 @@ class TileCoordinatesResolver {
     if (!replicatesWorldLongitude) {
       return positionCoordinates;
     }
-    if (positionCoordinates.z < 0) {
+    final z = positionCoordinates.z + zoomOffset;
+    if (z < 0) {
       return positionCoordinates;
     }
-    final modulo = 1 << (positionCoordinates.z + zoomOffset);
+    final modulo = 1 << z;
     int x = positionCoordinates.x;
     while (x < 0) {
       x += modulo;

@@ -26,7 +26,7 @@ mixin FeatureLayerUtils on CustomPainter {
   /// Determine whether the specified offsets are visible within the viewport
   ///
   /// Always returns `false` if the specified list is empty.
-  bool areOffsetsVisible(Iterable<Offset> offsets) {
+  bool areOffsetsVisible(Iterable<Offset> offsets, [double margin = 0]) {
     if (offsets.isEmpty) {
       return false;
     }
@@ -43,7 +43,12 @@ mixin FeatureLayerUtils on CustomPainter {
       if (maxX < offset.dx) maxX = offset.dx;
       if (maxY < offset.dy) maxY = offset.dy;
     }
-    return viewportRect.overlaps(Rect.fromLTRB(minX, minY, maxX, maxY));
+    return viewportRect.overlaps(Rect.fromLTRB(
+      minX - margin,
+      minY - margin,
+      maxX + margin,
+      maxY + margin,
+    ));
   }
 
   /// Perform the callback in all world copies (until stopped)
@@ -63,8 +68,14 @@ mixin FeatureLayerUtils on CustomPainter {
     const maxShiftsCount = 30;
     int shiftsCount = 0;
 
+    final worldWidth = this.worldWidth;
+
     void protectInfiniteLoop() {
-      if (++shiftsCount > maxShiftsCount) throw const StackOverflowError();
+      if (++shiftsCount > maxShiftsCount) {
+        throw AssertionError(
+          'Infinite loop going beyond $maxShiftsCount for world width $worldWidth',
+        );
+      }
     }
 
     protectInfiniteLoop();
@@ -95,10 +106,6 @@ mixin FeatureLayerUtils on CustomPainter {
       }
     }
   }
-
-  /// Returns the origin of the camera.
-  Offset get origin =>
-      camera.projectAtZoom(camera.center) - camera.size.center(Offset.zero);
 
   /// Returns the world size in pixels.
   ///

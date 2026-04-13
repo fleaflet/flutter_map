@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map_example/pages/abort_obsolete_requests.dart';
 import 'package:flutter_map_example/pages/animated_map_controller.dart';
 import 'package:flutter_map_example/pages/bundled_offline_map.dart';
-import 'package:flutter_map_example/pages/cancellable_tile_provider.dart';
 import 'package:flutter_map_example/pages/circle.dart';
 import 'package:flutter_map_example/pages/debouncing_tile_update_transformer.dart';
 import 'package:flutter_map_example/pages/epsg3996_crs.dart';
 import 'package:flutter_map_example/pages/epsg4326_crs.dart';
 import 'package:flutter_map_example/pages/fallback_url_page.dart';
+import 'package:flutter_map_example/pages/fling_animation_damping.dart';
 import 'package:flutter_map_example/pages/home.dart';
 import 'package:flutter_map_example/pages/interactive_test_page.dart';
 import 'package:flutter_map_example/pages/latlng_to_screen_point.dart';
@@ -30,6 +31,7 @@ import 'package:flutter_map_example/pages/secondary_tap.dart';
 import 'package:flutter_map_example/pages/single_world_polys.dart';
 import 'package:flutter_map_example/pages/sliding_map.dart';
 import 'package:flutter_map_example/pages/tile_builder.dart';
+import 'package:flutter_map_example/pages/tile_error.dart';
 import 'package:flutter_map_example/pages/tile_loading_error_handle.dart';
 import 'package:flutter_map_example/pages/wms_tile_layer.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
@@ -52,8 +54,8 @@ class MyApp extends StatelessWidget {
       ),
       home: const HomePage(),
       routes: <String, WidgetBuilder>{
-        CancellableTileProviderPage.route: (context) =>
-            const CancellableTileProviderPage(),
+        AbortObsoleteRequestsPage.route: (context) =>
+            const AbortObsoleteRequestsPage(),
         PolylinePage.route: (context) => const PolylinePage(),
         SingleWorldPolysPage.route: (context) => const SingleWorldPolysPage(),
         PolylinePerfStressPage.route: (context) =>
@@ -76,7 +78,10 @@ class MyApp extends StatelessWidget {
         TileLoadingErrorHandle.route: (context) =>
             const TileLoadingErrorHandle(),
         TileBuilderPage.route: (context) => const TileBuilderPage(),
+        ErrorTileBuilder.route: (context) => const ErrorTileBuilder(),
         InteractiveFlagsPage.route: (context) => const InteractiveFlagsPage(),
+        FlingAnimationDampingPage.route: (context) =>
+            const FlingAnimationDampingPage(),
         ManyMarkersPage.route: (context) => const ManyMarkersPage(),
         MapInsideListViewPage.route: (context) => const MapInsideListViewPage(),
         ResetTileLayerPage.route: (context) => const ResetTileLayerPage(),

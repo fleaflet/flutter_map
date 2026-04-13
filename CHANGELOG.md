@@ -1,8 +1,116 @@
 # Changelog
 
-Please consider [donating](https://docs.fleaflet.dev/supporters#support-us) or [contributing](https://docs.fleaflet.dev/credits#contributing) if you're a fan of what we're doing and you'd like to support future releases!
+Please consider [donating](https://github.com/sponsors/fleaflet) or [contributing](https://github.com/fleaflet/flutter_map/blob/master/CONTRIBUTING.md) if you're a fan of what we're doing and you'd like to support future releases!
 
-This CHANGELOG does not include every commit and/or PR - it is a hand picked selection of the ones that have an effect on you. For a full list of changes, please check the GitHub repository releases/tags.
+This CHANGELOG does not include every commit and/or PR - it is a hand picked selection of the ones that have an effect on most users. For a full list of changes, please check the GitHub repository releases/tags. We also release highlights for some releases on the docs site.
+
+## [8.3.0] - 2026/04/14
+
+Contains the following user-affecting changes:
+
+- Added `MapOptions.onPointerMove` callback - [#2137](https://github.com/fleaflet/flutter_map/pull/2137)
+- Added `InteractionOptions.flingAnimationDampingRatio` parameter - [#2177](https://github.com/fleaflet/flutter_map/pull/2177)
+- Added separate `RotatedOverlayImage.transformFilterQuality` parameter - [#2169](https://github.com/fleaflet/flutter_map/pull/2169)
+- Improved fling behaviour when pointer leaves window - [#2158](https://github.com/fleaflet/flutter_map/pull/2158)
+
+Contains the following user-affecting bug fixes:
+
+- Use `TileLayer.tileBuilder` for errored tiles - [#2166](https://github.com/fleaflet/flutter_map/pull/2166) for [#2154](https://github.com/fleaflet/flutter_map/issues/2154)
+- Correct `TileLayer`'s tile visibility calculation - [#2174](https://github.com/fleaflet/flutter_map/pull/2174) for [#2175](https://github.com/fleaflet/flutter_map/issues/2175)
+- Prevent memory leak by throwing when `LatLng` is non-finite during projection - [#2182](https://github.com/fleaflet/flutter_map/pull/2182) for [#2178](https://github.com/fleaflet/flutter_map/issues/2178)
+- Consider `strokeWidth` when calculating polyline visibility during non-aggressive culling - [#2184](https://github.com/fleaflet/flutter_map/pull/2184)
+- Correct `LatLngBounds.isOverlapping` calculation - [#2190](https://github.com/fleaflet/flutter_map/pull/2190)
+
+Contains the following user-affecting performance improvements:
+
+- Reduce large amounts of unnecessary rebuilding by replacing unstable widget key with dedicated stable `TileKey` - [#2195](https://github.com/fleaflet/flutter_map/pull/2195)
+
+Contains the following other notable changes:
+
+- Removed 'package:logger' dependency - [#2185](https://github.com/fleaflet/flutter_map/pull/2185)
+- Removed OSM unblocking flow - [#2185](https://github.com/fleaflet/flutter_map/pull/2185)
+- Absorb necessary 'dart:io' components to remove references and allow pana to recognise flutter_map as WASM compatible - [#2186](https://github.com/fleaflet/flutter_map/pull/2186)
+
+Many thanks to these contributors (in no particular order):
+
+- @monsieurtanuki
+- @ReinisSprogis
+- @shindonghwi
+- @ben-milanko
+- @Robbendebiene
+- @braindamagedman
+- @stani-m
+- ... and all the maintainers
+
+## [8.2.2] - 2025/09/19
+
+Contains the following user-affecting bug fixes:
+
+- Prevent crash caused by usage of negative `TileLayer.zoomOffset` - [#2133](https://github.com/fleaflet/flutter_map/pull/2133) for [#2127](https://github.com/fleaflet/flutter_map/issues/2127)
+- Assert that `MapCamera.zoom` is finite (to prevent confusing errors within layers) - [#2141](https://github.com/fleaflet/flutter_map/pull/2141) for [#2135](https://github.com/fleaflet/flutter_map/issues/2135)
+
+Many thanks to these contributors (in no particular order):
+
+- @monsieurtanuki
+- @ReinisSprogis
+- ... and all the maintainers
+
+## [8.2.1] - 2025/07/11
+
+Contains the following user-affecting bug fixes:
+
+- Ensure tiles still load when failing to cache them due to HTTP spec non-compliance - [#2125](https://github.com/fleaflet/flutter_map/pull/2125) for [#2124](https://github.com/fleaflet/flutter_map/issues/2124)
+
+Contains the following user-affecting changes:
+
+- Log informational warnings to console when a tile fails to cache due to HTTP spec non-compliance or a shortage of information to calculate an accurate freshness age - [#2125](https://github.com/fleaflet/flutter_map/pull/2125) for [#2124](https://github.com/fleaflet/flutter_map/issues/2124)
+
+Many thanks to these contributors (in no particular order):
+
+- ... and all the maintainers
+
+## [8.2.0] - 2025/07/10
+
+Contains the following user-affecting changes:
+
+- Added inverted fill option to `PolygonLayer` - [#2046 (💰)](https://github.com/fleaflet/flutter_map/pull/2046) for [#2034](https://github.com/fleaflet/flutter_map/issues/2034)
+- Added `Polyline/gonLayer.oneWorld` parameter - [#2069](https://github.com/fleaflet/flutter_map/pull/2069) for [#2067](https://github.com/fleaflet/flutter_map/issues/2067)
+- Added `ContainCameraLatitude` camera constraint - [#2073](https://github.com/fleaflet/flutter_map/pull/2073) for [#2071](https://github.com/fleaflet/flutter_map/issues/2071)
+- Added options to customize double-tap (drag) zoom gestures - [#2070](https://github.com/fleaflet/flutter_map/pull/2070)
+- Added warning on usage of OpenStreetMap public tile servers with `TileLayer` - [#2074](https://github.com/fleaflet/flutter_map/pull/2074) and [#2109](https://github.com/fleaflet/flutter_map/pull/2109)
+- Added `PolygonLayer.painterFillMethod` parameter & changed default fill methods - [#2081](https://github.com/fleaflet/flutter_map/pull/2081)
+- Added simple built-in (but extensible) caching to `NetworkTileProvider` - [#2082](https://github.com/fleaflet/flutter_map/pull/2082)
+- Added aborting of obsolete in-flight HTTP requests to `NetworkTileProvider` - [#2082](https://github.com/fleaflet/flutter_map/pull/2082)
+- Added `CircleLayer.optimizeRadiusInMeters` option to improve performance in some cases - [#2101](https://github.com/fleaflet/flutter_map/pull/2101)
+- Replace (with deprecation) `Polygon.labelPlacement` with more flexible and extensible `Polygon.labelPlacementCalculator`/`PolygonLabelPlacementCalculator` system - [#2102](https://github.com/fleaflet/flutter_map/pull/2102)
+- Added new 'signed area centroid' algorithm, and switch polylabel label placement implementation to use new external library - [#2102](https://github.com/fleaflet/flutter_map/pull/2102)
+
+Contains the following user-affecting bug fixes:
+
+- Consider `zoomOffset` & emulated retina mode when generating tile coordinates - [#2060](https://github.com/fleaflet/flutter_map/pull/2060) for [#2042](https://github.com/fleaflet/flutter_map/issues/2042)
+- Raise attribution widgets above screen insets - [#2058](https://github.com/fleaflet/flutter_map/pull/2058)
+- Stop ongoing fling and zoom animations when scroll zooming - [#2066](https://github.com/fleaflet/flutter_map/pull/2066) for [#1767](https://github.com/fleaflet/flutter_map/issues/1767)
+- Calculate `LayerHitResult.coordinate` correctly - [#2093](https://github.com/fleaflet/flutter_map/pull/2093) for [#2092](https://github.com/fleaflet/flutter_map/issues/2092)
+- Consider that the camera may be over the anti-meridian when creating `LatLngBounds` in `MapCamera.visibleBounds` for polygon culling - [#2091](https://github.com/fleaflet/flutter_map/pull/2091) for [#2080](https://github.com/fleaflet/flutter_map/issues/2080)
+- Adjust infinite loop protection in internals which allow multi-world functionality to improve performance and add more debug info on error - [#2113](https://github.com/fleaflet/flutter_map/pull/2113)
+- Minor API docs fix on `TileDisplay.fadeIn` arguments - [#2114](https://github.com/fleaflet/flutter_map/pull/2114) for [#2098](https://github.com/fleaflet/flutter_map/issues/2098)
+
+Contains the following meta changes to the package:
+
+- Reduced final package size to ~900KB from >3MB - [#2056](https://github.com/fleaflet/flutter_map/pull/2056)
+- Improved build & publish integrity: publishing to pub.dev now occurs directly from the GitHub repo - [#2059](https://github.com/fleaflet/flutter_map/pull/2059)
+
+Many thanks to these contributors (in no particular order):
+
+- @monsieurtanuki
+- @Quirille
+- @freekvandeven
+- @mbenoukaiss
+- @ReinisSprogis
+- @tidu090
+- ... and all the maintainers
+
+And an additional special thanks to @monsieurtanuki for investing so much of their time into this project recently - we appreciate it!
 
 ## [8.1.1] - 2025/03/08
 
@@ -13,6 +121,7 @@ Contains the following user-affecting bug fixes:
 Many thanks to these contributors (in no particular order):
 
 - @monsieurtanuki
+- ... and all the maintainers
 
 ## [8.1.0] - 2025/02/25
 
@@ -29,6 +138,7 @@ Many thanks to these contributors (in no particular order):
 
 - @tlserver
 - @monsieurtanuki
+- ... and all the maintainers
 
 ## [8.0.0] - 2025/02/02
 
