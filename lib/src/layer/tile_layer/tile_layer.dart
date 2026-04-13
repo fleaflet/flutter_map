@@ -9,6 +9,7 @@ import 'package:flutter_map/src/layer/tile_layer/tile.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_bounds/tile_bounds_at_zoom.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_image_manager.dart';
+import 'package:flutter_map/src/layer/tile_layer/tile_key.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_range_calculator.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile_scale_calculator.dart';
@@ -20,12 +21,11 @@ part 'retina_mode.dart';
 part 'tile_error_evict_callback.dart';
 part 'wms_tile_layer_options.dart';
 
-/// Describes the needed properties to create a tile-based layer. A tile is an
+/// Describes the needed properties to create a raster tile layer. A tile is an
 /// image bound to a specific geographical position.
 ///
-/// You should read up about the options by exploring each one, or visiting
-/// https://docs.fleaflet.dev/usage/layers/tile-layer. Some are important to
-/// avoid issues.
+/// Read the [online documentation](https://docs.fleaflet.dev/layers/tile-layer)
+/// to get started by following the recommended setup.
 @immutable
 class TileLayer extends StatefulWidget {
   /// The URL template is a string that contains placeholders, which, when filled
@@ -561,7 +561,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
         .map((tileRenderer) => Tile(
               // Must be an ObjectKey, not a ValueKey using the coordinates, in
               // case we remove and replace the TileImage with a different one.
-              key: ObjectKey(tileRenderer),
+              key: TileKey(tileRenderer),
               scaledTileDimension: _tileScaleCalculator.scaledTileDimension(
                 map.zoom,
                 tileRenderer.positionCoordinates.z,
