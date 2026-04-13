@@ -94,5 +94,35 @@ void main() {
         expect(center.longitude, (-179.86 + 23.86) / 2);
       });
     });
+
+    group('isOverlapping', () {
+      test('should not overlap', () {
+        final bounds1 = LatLngBounds(
+          const LatLng(49.622376, 18.286332),
+          const LatLng(48.721399, 20.122905),
+        );
+        final bounds2 = LatLngBounds(
+          const LatLng(49.33295874620594, 20.58826958952466),
+          const LatLng(49.22512969150049, 20.676160214524646),
+        );
+
+        expect(bounds1.isOverlapping(bounds2), isFalse);
+        expect(bounds2.isOverlapping(bounds1), isFalse);
+      });
+
+      test('should overlap', () {
+        final bounds1 = LatLngBounds(
+          const LatLng(50, 20),
+          const LatLng(51, 21),
+        );
+        final bounds2 = LatLngBounds(
+          const LatLng(50.5, 20.5),
+          const LatLng(51.5, 21.5),
+        );
+
+        expect(bounds1.isOverlapping(bounds2), isTrue);
+        expect(bounds2.isOverlapping(bounds1), isTrue);
+      });
+    });
   });
 }
