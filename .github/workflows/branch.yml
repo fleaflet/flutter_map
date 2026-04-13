@@ -62,7 +62,7 @@ jobs:
         run: flutter test -r expanded --coverage
       - name: Run Codecov
         if: ${{ matrix.sdk == '' }}
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
