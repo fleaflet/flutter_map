@@ -20,12 +20,11 @@ part 'retina_mode.dart';
 part 'tile_error_evict_callback.dart';
 part 'wms_tile_layer_options.dart';
 
-/// Describes the needed properties to create a tile-based layer. A tile is an
+/// Describes the needed properties to create a raster tile layer. A tile is an
 /// image bound to a specific geographical position.
 ///
-/// You should read up about the options by exploring each one, or visiting
-/// https://docs.fleaflet.dev/usage/layers/tile-layer. Some are important to
-/// avoid issues.
+/// Read the [online documentation](https://docs.fleaflet.dev/layers/tile-layer)
+/// to get started by following the recommended setup.
 @immutable
 class TileLayer extends StatefulWidget {
   /// The URL template is a string that contains placeholders, which, when filled
