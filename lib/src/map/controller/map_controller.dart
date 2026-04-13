@@ -6,18 +6,15 @@ import 'package:flutter_map/src/map/inherited_model.dart';
 import 'package:flutter_map/src/misc/move_and_rotate_result.dart';
 import 'package:latlong2/latlong.dart';
 
-/// Controller to programmatically interact with [FlutterMap], such as
-/// controlling it and accessing some of its properties.
+/// Controller to programmatically interact with a [FlutterMap].
 ///
-/// See https://docs.fleaflet.dev/usage/controller#initialisation for information
-/// on how to set-up and connect a controller to a map widget instance.
+/// Read the [online documentation](https://docs.fleaflet.dev/usage/programmatic-interaction)
+/// to get started.
 abstract class MapController {
-  /// Controller to programmatically interact with [FlutterMap], such as
-  /// controlling it and accessing some of its properties.
+  /// Controller to programmatically interact with a [FlutterMap].
   ///
-  /// See https://docs.fleaflet.dev/usage/controller#initialisation for
-  /// information how to set-up and connect a controller to a map widget
-  /// instance.
+  /// Read the [online documentation](https://docs.fleaflet.dev/usage/programmatic-interaction)
+  /// to get started.
   ///
   /// Factory constructor redirects to underlying implementation's constructor.
   factory MapController() = MapControllerImpl;
