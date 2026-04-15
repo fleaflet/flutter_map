@@ -1380,6 +1380,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   // Utilities
 
   double _getZoomForScale(double startZoom, double scale) {
+    if (scale <= 0) return _camera.clampZoom(startZoom);
     final resultZoom =
         scale == 1.0 ? startZoom : startZoom + math.log(scale) / math.ln2;
     return _camera.clampZoom(resultZoom);
