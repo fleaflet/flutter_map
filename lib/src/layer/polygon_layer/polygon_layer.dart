@@ -201,7 +201,7 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
             highQuality: true,
           ),
           growable: false,
-        ),
+        ).where((h) => h.length >= 3).toList(),
       );
 
   @override
