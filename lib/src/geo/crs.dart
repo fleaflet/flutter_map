@@ -85,27 +85,43 @@ abstract class Crs {
   }
 }
 
+final class _ScaleZoomCache {
+  double lastScaleZoom = double.nan;
+  double lastScaleValue = double.nan;
+  double lastZoomScale = double.nan;
+  double lastZoomValue = double.nan;
+}
+
 mixin _ScaleCacheMixin on Crs {
-  double _lastScaleZoom = double.nan;
-  double _lastScaleValue = double.nan;
-  double _lastZoomScale = double.nan;
-  double _lastZoomValue = double.nan;
+  static final Expando<_ScaleZoomCache> _caches = Expando<_ScaleZoomCache>(
+    '_scaleZoomCache',
+  );
+
+  _ScaleZoomCache get _cache {
+    final existing = _caches[this];
+    if (existing != null) return existing;
+    final created = _ScaleZoomCache();
+    _caches[this] = created;
+    return created;
+  }
 
   @override
   double scale(double zoom) {
-    if (zoom == _lastScaleZoom) return _lastScaleValue;
+    final cache = _cache;
+    if (zoom == cache.lastScaleZoom) return cache.lastScaleValue;
     final value = super.scale(zoom);
-    _lastScaleZoom = zoom;
-    _lastScaleValue = value;
+    cache.lastScaleZoom = zoom;
+    cache.lastScaleValue = value;
     return value;
   }
 
   @override
   double zoom(double scale) {
-    if (scale == _lastZoomScale) return _lastZoomValue;
+    final cache = _cache;
+    if (scale == cache.lastZoomScale) return cache.lastZoomValue;
     final value = super.zoom(scale);
-    _lastZoomScale = scale;
-    _lastZoomValue = value;
+    cache.lastZoomScale = scale;
+    cache.lastZoomValue = value;
     return value;
   }
 }
