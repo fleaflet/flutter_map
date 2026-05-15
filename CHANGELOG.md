@@ -4,6 +4,44 @@ Please consider [donating](https://github.com/sponsors/fleaflet) or [contributin
 
 This CHANGELOG does not include every commit and/or PR - it is a hand picked selection of the ones that have an effect on most users. For a full list of changes, please check the GitHub repository releases/tags. We also release highlights for some releases on the docs site.
 
+## [8.3.0] - 2026/04/14
+
+Contains the following user-affecting changes:
+
+- Added `MapOptions.onPointerMove` callback - [#2137](https://github.com/fleaflet/flutter_map/pull/2137)
+- Added `InteractionOptions.flingAnimationDampingRatio` parameter - [#2177](https://github.com/fleaflet/flutter_map/pull/2177)
+- Added separate `RotatedOverlayImage.transformFilterQuality` parameter - [#2169](https://github.com/fleaflet/flutter_map/pull/2169)
+- Improved fling behaviour when pointer leaves window - [#2158](https://github.com/fleaflet/flutter_map/pull/2158)
+
+Contains the following user-affecting bug fixes:
+
+- Use `TileLayer.tileBuilder` for errored tiles - [#2166](https://github.com/fleaflet/flutter_map/pull/2166) for [#2154](https://github.com/fleaflet/flutter_map/issues/2154)
+- Correct `TileLayer`'s tile visibility calculation - [#2174](https://github.com/fleaflet/flutter_map/pull/2174) for [#2175](https://github.com/fleaflet/flutter_map/issues/2175)
+- Prevent memory leak by throwing when `LatLng` is non-finite during projection - [#2182](https://github.com/fleaflet/flutter_map/pull/2182) for [#2178](https://github.com/fleaflet/flutter_map/issues/2178)
+- Consider `strokeWidth` when calculating polyline visibility during non-aggressive culling - [#2184](https://github.com/fleaflet/flutter_map/pull/2184)
+- Correct `LatLngBounds.isOverlapping` calculation - [#2190](https://github.com/fleaflet/flutter_map/pull/2190)
+
+Contains the following user-affecting performance improvements:
+
+- Reduce large amounts of unnecessary rebuilding by replacing unstable widget key with dedicated stable `TileKey` - [#2195](https://github.com/fleaflet/flutter_map/pull/2195)
+
+Contains the following other notable changes:
+
+- Removed 'package:logger' dependency - [#2185](https://github.com/fleaflet/flutter_map/pull/2185)
+- Removed OSM unblocking flow - [#2185](https://github.com/fleaflet/flutter_map/pull/2185)
+- Absorb necessary 'dart:io' components to remove references and allow pana to recognise flutter_map as WASM compatible - [#2186](https://github.com/fleaflet/flutter_map/pull/2186)
+
+Many thanks to these contributors (in no particular order):
+
+- @monsieurtanuki
+- @ReinisSprogis
+- @shindonghwi
+- @ben-milanko
+- @Robbendebiene
+- @braindamagedman
+- @stani-m
+- ... and all the maintainers
+
 ## [8.2.2] - 2025/09/19
 
 Contains the following user-affecting bug fixes:

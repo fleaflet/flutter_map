@@ -146,18 +146,20 @@ Future<void> tileAndSizeMonitorWriterWorker(
     required final CachedMapTileMetadata metadata,
     Uint8List? tileBytes,
   }) {
+    Uint8List? mTileBytes = tileBytes;
+
     final tileFile = File(path);
     final initialTileFileExists = tileFile.existsSync();
     final initialTileFileLength =
         initialTileFileExists ? tileFile.lengthSync() : 0;
 
-    if (!initialTileFileExists && tileBytes == null) {
+    if (!initialTileFileExists && mTileBytes == null) {
       // This should only be caused by the size reducer deleting the tile after
       // we sent it's info to the server, and it returned Not Modified correctly
       return;
     }
 
-    if (tileBytes != null && tileBytes.lengthInBytes > 0xFFFFFFFF) {
+    if (mTileBytes != null && mTileBytes.lengthInBytes > 0xFFFFFFFF) {
       // These bytes are too big to have a length stored in a Uint32
       // In reality, this is unlikely
       return;
@@ -232,7 +234,7 @@ Future<void> tileAndSizeMonitorWriterWorker(
       );
     }
 
-    if (initialEtagLength != etagLength && tileBytes == null) {
+    if (initialEtagLength != etagLength && mTileBytes == null) {
       // This is annoying - even if the tile bytes haven't changed, we need to
       // rewrite them so they are in the right place
       // To do this, we have to read the remainder of the file, skipping over
@@ -253,8 +255,8 @@ Future<void> tileAndSizeMonitorWriterWorker(
         return;
       }
 
-      tileBytes = ram.readSync(initialTileBytesLength);
-      if (tileBytes.lengthInBytes != initialTileBytesLength) {
+      mTileBytes = ram.readSync(initialTileBytesLength);
+      if (mTileBytes.lengthInBytes != initialTileBytesLength) {
         // This implies the tile was corrupted on the previous write (the
         // write was terminated unexpectedly whilst writing tile bytes)
         ram
@@ -272,7 +274,7 @@ Future<void> tileAndSizeMonitorWriterWorker(
       ram.writeFromSync(etagBytes);
     }
 
-    if (tileBytes == null) {
+    if (mTileBytes == null) {
       // If there were no updates to the tile bytes, that also implies there
       // were no changes to the length of the etag, so we don't need to do
       // any size updates
@@ -283,11 +285,11 @@ Future<void> tileAndSizeMonitorWriterWorker(
     // We store the length of the tile bytes in 4 unsigned bytes...
     ram.writeFromSync(
       allocUint32BufferTileWrite
-        ..buffer.asUint32List()[0] = tileBytes.lengthInBytes,
+        ..buffer.asUint32List()[0] = mTileBytes.lengthInBytes,
     );
 
     // ...followed by the tile bytes
-    ram.writeFromSync(tileBytes);
+    ram.writeFromSync(mTileBytes);
     final finalPosition = ram.positionSync();
     ram
       // We truncate the tile in case the bytes have been moved forward or are

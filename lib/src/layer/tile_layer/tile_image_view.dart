@@ -183,7 +183,7 @@ final class TileImageView {
       }
 
       if (z + 1 < maxZoom) {
-        _retainChildren(retain, i, j, z + 1, maxZoom);
+        _retainChildren(retain, 2 * x + i, 2 * y + j, z + 1, maxZoom);
       }
     }
   }

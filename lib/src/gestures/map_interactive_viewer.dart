@@ -78,6 +78,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   late double _lastRotation;
   late double _lastScale;
   late Offset _lastFocalLocal;
+  late Offset _prevFocalLocal;
   late LatLng _mapCenterStart;
   late double _mapZoomStart;
   late Offset _focalStartLocal;
@@ -423,6 +424,10 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
   }
 
   void _onPointerMove(PointerMoveEvent event) {
+    if (_options.onPointerMove != null) {
+      final latLng = _camera.offsetToCrs(event.localPosition);
+      _options.onPointerMove!(event, latLng);
+    }
     if (!_ckrTriggered.value) return;
 
     final baseSetNorth =
@@ -542,7 +547,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
     _mapZoomStart = _camera.zoom;
     _mapCenterStart = _camera.center;
-    _focalStartLocal = _lastFocalLocal = details.localFocalPoint;
+    _focalStartLocal =
+        _lastFocalLocal = _prevFocalLocal = details.localFocalPoint;
     _focalStartLatLng = _camera.offsetToCrs(_focalStartLocal);
 
     _dragStarted = false;
@@ -570,6 +576,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
     _lastRotation = currentRotation;
     _lastScale = details.scale;
+    _prevFocalLocal = _lastFocalLocal;
     _lastFocalLocal = details.localFocalPoint;
   }
 
@@ -792,13 +799,28 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
       return;
     }
 
-    final direction = details.velocity.pixelsPerSecond / magnitude;
+    // Use the tracked offset to determine direction instead of the velocity
+    // direction, which can be incorrect on web when the pointer leaves the
+    // window. Use the final segment direction to correctly handle curved
+    // gestures where the user changes direction during the drag.
+    final flingOffset = _focalStartLocal - _lastFocalLocal;
+    final finalSegment = _prevFocalLocal - _lastFocalLocal;
+    final finalSegmentDistance = finalSegment.distance;
+
+    // Use final segment direction if available, otherwise fall back to overall
+    // direction for edge cases where the final segment has no movement.
+    final Offset direction;
+    if (finalSegmentDistance > 0) {
+      direction = finalSegment / finalSegmentDistance;
+    } else {
+      final flingDistance = flingOffset.distance;
+      direction = flingOffset / flingDistance;
+    }
     final distance = (Offset.zero & _camera.nonRotatedSize).shortestSide;
 
-    final flingOffset = _focalStartLocal - _lastFocalLocal;
     _flingAnimation = Tween<Offset>(
       begin: flingOffset,
-      end: flingOffset - direction * distance,
+      end: flingOffset + direction * distance,
     ).animate(_flingController);
 
     _flingController
@@ -808,7 +830,7 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
           springDescription: SpringDescription.withDampingRatio(
             mass: 1,
             stiffness: 1000,
-            ratio: 5,
+            ratio: _interactionOptions.flingAnimationDampingRatio,
           ));
   }
 
@@ -1245,7 +1267,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     yield initManagerListeners(
       manager: _keyboardZoomAnimationManager,
       sum: _NumInfiniteSumAnimation.new,
-      onTick: (value) {
+      onTick: (valueParameter) {
+        num value = valueParameter;
         if (_isZoomLeaping.value) {
           value *= keyboardOptions.zoomLeapVelocityMultiplier;
         }
@@ -1262,7 +1285,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     yield initManagerListeners(
       manager: _keyboardRotateAnimationManager,
       sum: _NumInfiniteSumAnimation.new,
-      onTick: (value) {
+      onTick: (valueParameter) {
+        num value = valueParameter;
         if (_isRotateLeaping.value) {
           value *= keyboardOptions.rotateLeapVelocityMultiplier;
         }
