@@ -44,6 +44,9 @@ class MapCamera {
   /// FlutterMap widget.
   final Size nonRotatedSize;
 
+  /// Is it the result of a constraint?
+  final bool constrained;
+
   /// Lazily calculated field
   Size? _cameraSize;
 
@@ -136,6 +139,7 @@ class MapCamera {
     required this.nonRotatedSize,
     this.minZoom,
     this.maxZoom,
+    this.constrained = false,
     Size? size,
     Rect? pixelBounds,
     LatLngBounds? bounds,
@@ -218,6 +222,7 @@ class MapCamera {
   MapCamera withPosition({
     LatLng? center,
     double? zoom,
+    bool constrained = false,
   }) =>
       MapCamera(
         crs: crs,
@@ -228,6 +233,7 @@ class MapCamera {
         rotation: rotation,
         nonRotatedSize: nonRotatedSize,
         size: _cameraSize,
+        constrained: constrained,
       );
 
   /// Jumps camera to opposite side of the world to enable seamless scrolling
