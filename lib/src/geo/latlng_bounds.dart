@@ -96,6 +96,40 @@ class LatLngBounds {
         east = min(longitudeCenter + longitudeWidth / 2, maxLongitude),
         west = max(longitudeCenter - longitudeWidth / 2, minLongitude);
 
+  /// Creates bounds that can span the antimeridian. If this is the case,
+  /// [west] will be larger than [east].
+  LatLngBounds.unconstrainedLng({
+    required this.north,
+    required this.south,
+    required this.longitudeCenter,
+    required this.longitudeWidth,
+  })  : assert(north <= maxLatitude,
+            "The north latitude can't be bigger than $maxLatitude: $north"),
+        assert(north >= minLatitude,
+            "The north latitude can't be smaller than $minLatitude: $north"),
+        assert(south <= maxLatitude,
+            "The south latitude can't be bigger than $maxLatitude: $south"),
+        assert(south >= minLatitude,
+            "The south latitude can't be smaller than $minLatitude: $south"),
+        assert(longitudeCenter <= maxLongitude,
+            "The longitude center can't be bigger than $maxLongitude: $longitudeCenter"),
+        assert(longitudeCenter >= minLongitude,
+            "The longitude center can't be smaller than $minLongitude: $longitudeCenter"),
+        assert(longitudeWidth >= 0, 'The longitude width must be positive'),
+        assert(
+          north >= south,
+          "The north latitude ($north) can't be smaller than the "
+          'south latitude ($south)',
+        ),
+        east = _wrapLng(longitudeCenter + longitudeWidth / 2),
+        west = _wrapLng(longitudeCenter - longitudeWidth / 2);
+
+  static double _wrapLng(double longitude) => longitude > maxLongitude
+      ? longitude - 360
+      : longitude < minLongitude
+          ? longitude + 360
+          : longitude;
+
   /// Create a [LatLngBounds] instance from raw edge values.
   ///
   /// Potentially throws assertion errors if the coordinates exceed their max
