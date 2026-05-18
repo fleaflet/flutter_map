@@ -33,7 +33,7 @@ dependencies:
   flutter:
     sdk: flutter
   http: ^1.5.0
-  latlong2: ^0.9.1
+  latlong2: ">=0.9.1 <0.11.0"
   meta: ^1.11.0
   path: ^1.9.0
   path_provider: ^2.1.5
