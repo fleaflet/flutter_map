@@ -706,7 +706,8 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     final moveDifference = _rotateOffset(_focalStartLocal - _lastFocalLocal);
 
     final newCenterPt = oldCenterPt + zoomDifference + moveDifference;
-    return _camera.unprojectAtZoom(newCenterPt, zoomAfterPinchZoom);
+    final newCenter = _camera.unprojectAtZoom(newCenterPt, zoomAfterPinchZoom);
+    return isFiniteMapLatLng(newCenter) ? newCenter : _camera.center;
   }
 
   void _handleScalePinchRotate(

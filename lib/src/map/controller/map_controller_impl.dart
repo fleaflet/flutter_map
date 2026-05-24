@@ -147,6 +147,10 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
     required MapEventSource source,
     String? id,
   }) {
+    if (!newZoom.isFinite || !isFiniteMapLatLng(newCenter)) {
+      return false;
+    }
+
     // Algorithm thanks to https://github.com/tlserver/flutter_map_location_marker
     LatLng center = newCenter;
     if (offset != Offset.zero) {
@@ -160,6 +164,10 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
       );
     }
 
+    if (!isFiniteMapLatLng(center)) {
+      return false;
+    }
+
     MapCamera? newCamera = camera.withPosition(
       center: center,
       zoom: camera.clampZoom(newZoom),
@@ -167,6 +175,7 @@ class MapControllerImpl extends ValueNotifier<_MapControllerState>
 
     newCamera = options.cameraConstraint.constrain(newCamera);
     if (newCamera == null ||
+        !isFiniteMapLatLng(newCamera.center) ||
         (newCamera.center == camera.center && newCamera.zoom == camera.zoom)) {
       return false;
     }

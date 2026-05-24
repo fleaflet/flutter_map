@@ -6,6 +6,12 @@ import 'package:flutter_map/src/map/inherited_model.dart';
 import 'package:flutter_map/src/misc/deg_rad_conversions.dart';
 import 'package:flutter_map/src/misc/extensions.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:meta/meta.dart';
+
+/// Whether [latLng] has finite coordinates (not NaN or ±infinity).
+@internal
+bool isFiniteMapLatLng(LatLng latLng) =>
+    latLng.latitude.isFinite && latLng.longitude.isFinite;
 
 /// Describes the view of a map. This includes the size/zoom/position/crs as
 /// well as the minimum/maximum zoom. This class is mostly immutable but has
@@ -418,15 +424,43 @@ class MapCamera {
   /// Calculate the center point which would keep the same point of the map
   /// visible at the given [cursorPos] with the zoom set to [zoom].
   LatLng focusedZoomCenter(Offset cursorPos, double zoom) {
+    if (!zoom.isFinite ||
+        !this.zoom.isFinite ||
+        !nonRotatedSize.width.isFinite ||
+        !nonRotatedSize.height.isFinite ||
+        nonRotatedSize.width <= 0 ||
+        nonRotatedSize.height <= 0) {
+      return center;
+    }
+
     // Calculate offset of mouse cursor from viewport center
     final offset =
         (cursorPos - nonRotatedSize.center(Offset.zero)).rotate(rotationRad);
     // Match new center coordinate to mouse cursor position
     final scale = getZoomScale(zoom, this.zoom);
-    final newOffset = offset * (1.0 - 1.0 / scale);
+    // scale == 0 makes (1 - 1/scale) non-finite; 0 * infinity => NaN offset
+    if (!scale.isFinite || scale <= 0) {
+      return center;
+    }
+
+    final zoomMultiplier = 1.0 - 1.0 / scale;
+    if (!zoomMultiplier.isFinite) {
+      return center;
+    }
+
+    final newOffset = offset * zoomMultiplier;
+    if (!newOffset.dx.isFinite || !newOffset.dy.isFinite) {
+      return center;
+    }
+
     final mapCenter = projectAtZoom(center);
-    final newCenter = unprojectAtZoom(mapCenter + newOffset);
-    return newCenter;
+    final projected = mapCenter + newOffset;
+    if (!projected.dx.isFinite || !projected.dy.isFinite) {
+      return center;
+    }
+
+    final newCenter = unprojectAtZoom(projected);
+    return isFiniteMapLatLng(newCenter) ? newCenter : center;
   }
 
   @override
