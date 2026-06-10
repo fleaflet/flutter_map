@@ -208,15 +208,11 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
         continue;
       }
 
+      final projectedBounds = projectedPolyline.boundingBox;
+
       /// Returns true if the points stretch on different versions of the world.
-      bool stretchesBeyondTheLimits() {
-        for (final point in projectedPolyline.points) {
-          if (point.dx > xEast || point.dx < xWest) {
-            return true;
-          }
-        }
-        return false;
-      }
+      bool stretchesBeyondTheLimits() =>
+          projectedBounds.right > xEast || projectedBounds.left < xWest;
 
       // TODO: think about how to cull polylines that go beyond -180/180.
       // As the notions of projected west/east as min/max are not reliable.
@@ -234,6 +230,16 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
       // Test bounding boxes to avoid potentially expensive aggressive culling
       // when none of the line is visible. Here, focusing on longitudes.
       if (!isOverlappingLongitude()) continue;
+
+      // Fast path: when the whole polyline is visible there is nothing to
+      // cull, so skip the per-segment scan (and its sublist allocations).
+      if (projBounds.left <= projectedBounds.left &&
+          projBounds.top <= projectedBounds.top &&
+          projBounds.right >= projectedBounds.right &&
+          projBounds.bottom >= projectedBounds.bottom) {
+        yield projectedPolyline;
+        continue;
+      }
 
       // pointer that indicates the start of the visible polyline segment
       int start = -1;
