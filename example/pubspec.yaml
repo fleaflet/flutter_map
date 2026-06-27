@@ -14,7 +14,7 @@ dependencies:
   flutter_web_plugins:
     sdk: flutter
   http: ^1.3.0
-  latlong2: ^0.9.1
+  latlong2: ^0.10.1
   proj4dart: ^2.1.0
   shared_preferences: ^2.5.3
   url_launcher: ^6.3.1
