@@ -160,8 +160,6 @@ class _PolylinePainter<R extends Object> extends CustomPainter
         needsLayerSaving = polyline.color.a < 1 ||
             (polyline.gradientColors?.any((c) => c.a < 1) ?? false);
 
-        // strokeWidth, or strokeWidth + borderWidth if relevant.
-        late double largestStrokeWidth;
 
         late final double strokeWidth;
         if (polyline.useStrokeWidthInMeter) {
@@ -172,6 +170,9 @@ class _PolylinePainter<R extends Object> extends CustomPainter
         } else {
           strokeWidth = polyline.strokeWidth;
         }
+
+        // strokeWidth, or strokeWidth + borderWidth if relevant.
+        double largestStrokeWidth = strokeWidth;
 
         if (!areOffsetsVisible(offsets, strokeWidth)) {
           return WorldWorkControl.invisible;
