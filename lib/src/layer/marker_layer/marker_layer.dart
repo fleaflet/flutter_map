@@ -70,10 +70,10 @@ class _MarkerLayerState extends State<MarkerLayer> {
       widget.markers.length,
       (i) {
         final point = widget.markers[i].point;
-        // Same finiteness guard as `Crs.latLngToXY`, which was previously on
-        // this path. cf. https://github.com/fleaflet/flutter_map/issues/2178
+        // Guard against memory leaks (see
+        // https://github.com/fleaflet/flutter_map/issues/2178)
         if (!(point.latitude.isFinite && point.longitude.isFinite)) {
-          throw Exception('LatLng is not finite: $point');
+          throw RangeError('All markers must have finite `point`s');
         }
         return projection.project(point);
       },
