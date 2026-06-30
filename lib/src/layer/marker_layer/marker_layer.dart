@@ -6,7 +6,7 @@ part 'marker.dart';
 
 /// A [Marker] layer for [FlutterMap].
 @immutable
-class MarkerLayer extends StatelessWidget {
+class MarkerLayer extends StatefulWidget {
   /// The list of [Marker]s.
   final List<Marker> markers;
 
@@ -39,29 +39,91 @@ class MarkerLayer extends StatelessWidget {
   });
 
   @override
+  State<MarkerLayer> createState() => _MarkerLayerState();
+}
+
+class _MarkerLayerState extends State<MarkerLayer> {
+  /// Projected (zoom-independent) coordinates of every [Marker.point], in the
+  /// same order as the markers list
+  ///
+  /// Projecting a point is relatively expensive (it involves trigonometry),
+  /// but only depends on the CRS - not on the camera position or zoom. Caching
+  /// it means each camera movement only costs the cheap linear
+  /// projected -> screen transformation per marker, instead of a full
+  /// re-projection.
+  List<Offset>? _projectedPoints;
+  Crs? _projectionCrs;
+
+  @override
+  void didUpdateWidget(MarkerLayer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Matches the invalidation convention of the polyline/polygon layers: any
+    // new widget instance re-projects, so in-place mutations of the markers
+    // list keep working as they did when projection was performed per-frame.
+    _projectedPoints = null;
+  }
+
+  List<Offset> _projectPoints(Crs crs) {
+    final projection = crs.projection;
+    return List<Offset>.generate(
+      widget.markers.length,
+      (i) {
+        final point = widget.markers[i].point;
+        // Guard against memory leaks (see
+        // https://github.com/fleaflet/flutter_map/issues/2178)
+        if (!(point.latitude.isFinite && point.longitude.isFinite)) {
+          throw RangeError('All markers must have finite `point`s');
+        }
+        return projection.project(point);
+      },
+      growable: false,
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     final map = MapCamera.of(context);
+    final crs = map.crs;
+
+    if (_projectedPoints == null || _projectionCrs != crs) {
+      _projectionCrs = crs;
+      _projectedPoints = _projectPoints(crs);
+    }
+    final projectedPoints = _projectedPoints!;
+
     final worldWidth = map.getWorldWidthAtZoom();
+    final zoomScale = crs.scale(map.zoom);
+    final pixelBounds = map.pixelBounds;
+    final pixelOrigin = map.pixelOrigin;
+    final markers = widget.markers;
 
     return MobileLayerTransformer(
       child: Stack(
-        children: (List<Marker> markers) sync* {
-          for (final m in markers) {
+        children: () sync* {
+          for (var i = 0; i < markers.length; i++) {
+            final m = markers[i];
+
             // Resolve real alignment
             // TODO: maybe just using Size, Offset, and Rect?
-            final left = 0.5 * m.width * ((m.alignment ?? alignment).x + 1);
-            final top = 0.5 * m.height * ((m.alignment ?? alignment).y + 1);
+            final left =
+                0.5 * m.width * ((m.alignment ?? widget.alignment).x + 1);
+            final top =
+                0.5 * m.height * ((m.alignment ?? widget.alignment).y + 1);
             final right = m.width - left;
             final bottom = m.height - top;
 
-            // Perform projection
-            final pxPoint = map.projectAtZoom(m.point);
+            // Scale the cached projection to the current zoom
+            final projected = projectedPoints[i];
+            final (px, py) =
+                crs.transform(projected.dx, projected.dy, zoomScale);
+            final pxPoint = Offset(px, py);
 
             Positioned? getPositioned(double worldShift) {
               final shiftedX = pxPoint.dx + worldShift;
 
               // Cull if out of bounds
-              if (!map.pixelBounds.overlaps(
+              if (!pixelBounds.overlaps(
                 Rect.fromPoints(
                   Offset(shiftedX + left, pxPoint.dy - bottom),
                   Offset(shiftedX - right, pxPoint.dy + top),
@@ -73,7 +135,7 @@ class MarkerLayer extends StatelessWidget {
               // Shift original coordinate along worlds, then move into relative
               // to origin space
               final shiftedLocalPoint =
-                  Offset(shiftedX, pxPoint.dy) - map.pixelOrigin;
+                  Offset(shiftedX, pxPoint.dy) - pixelOrigin;
 
               return Positioned(
                 key: m.key,
@@ -81,10 +143,10 @@ class MarkerLayer extends StatelessWidget {
                 height: m.height,
                 left: shiftedLocalPoint.dx - right,
                 top: shiftedLocalPoint.dy - bottom,
-                child: (m.rotate ?? rotate)
+                child: (m.rotate ?? widget.rotate)
                     ? Transform.rotate(
                         angle: -map.rotationRad,
-                        alignment: (m.alignment ?? alignment) * -1,
+                        alignment: (m.alignment ?? widget.alignment) * -1,
                         child: m.child,
                       )
                     : m.child,
@@ -117,7 +179,7 @@ class MarkerLayer extends StatelessWidget {
               yield additional;
             }
           }
-        }(markers)
+        }()
             .toList(),
       ),
     );
