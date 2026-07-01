@@ -1,86 +1,106 @@
+import 'package:flutter_map/src/map/options/interaction.dart';
 import 'package:meta/meta.dart';
 
 /// Options to configure scroll zoom behavior.
 ///
-/// By default, scroll zoom uses smooth animated zooming inspired by
-/// MapLibre GL JS. This can be disabled by setting [smoothZooming] to `false`,
-/// which reverts to the old behavior of snapping immediately to the new
-/// zoom level.
+/// Two behaviours are available:
+///  * Smooth (default, available since v8.4)
+///  * Snap
+///
+/// When smooth zooming (inspired by MapLibre GL JS), each mouse wheel tick
+/// triggers a short eased animation to the new zoom level. Rapid successive
+/// wheel ticks chain smoothly with velocity-continuous bezier curves.
+///
+/// When snapping, each mouse wheel tick jumps immediately to the new zoom level
+/// on each wheel event.
+///
+/// Trackpad events are always applied directly regardless of this setting,
+/// since trackpad hardware already provides fine-grained continuous input.
+///
+/// To use snapping, set [wheelSmoothZoomRate] to `null`: then, [snapZoomRate]
+/// is the sensitivity used for both mouse and trackpad scroll events (since the
+/// two methods are not differentiated when snapping). Otherwise,
+/// [wheelSmoothZoomRate] and [trackpadSmoothZoomRate] are used seperately for
+/// their respective devices.
+///
+/// Note that on some platforms, the trackpad behaves differently - for example,
+/// scrolling may scroll on some, or pan on others.
 @immutable
 class ScrollZoomOptions {
-  /// Whether to use smooth animated zooming for mouse wheel events.
+  /// The multipler applied to the scroll offset to calculate the zoom offset,
+  /// when smooth zooming is disabled.
   ///
-  /// When `true` (default), each mouse wheel tick triggers a short eased
-  /// animation to the new zoom level. Rapid successive wheel ticks chain
-  /// smoothly with velocity-continuous bezier curves.
+  /// Closer to zero = lower zoom offset per scroll event.
   ///
-  /// When `false`, zooming snaps immediately to the new zoom level on each
-  /// wheel event, matching the pre-v8.4 behavior.
+  /// Smooth zooming is enabled by default. To disable, and use snapping zoom,
+  /// set [wheelSmoothZoomRate] to `null`.
   ///
-  /// Trackpad events are always applied directly regardless of this setting,
-  /// since trackpad hardware already provides fine-grained continuous input.
-  final bool smoothZooming;
+  /// Defaults to [InteractionOptions.scrollWheelVelocity], which defaults
+  /// to `1 / 200`.
+  ///
+  /// Should not be explicitly set to `null`.
+  final double? snapZoomRate;
 
-  /// Controls zoom sensitivity for mouse wheel events in smooth mode.
+  /// Controls zoom sensitivity for mouse wheel events, when smooth zooming
+  /// is enabled (as by default).
   ///
-  /// Lower values = slower zoom per wheel tick. Higher values = faster.
+  /// Closer to zero = lower zoom offset per wheel tick.
   ///
-  /// Only used when [smoothZooming] is `true`.
+  /// When `null`, smooth scrolling is disabled, and snapping zooming (old
+  /// behaviour) is used instead.
   ///
   /// Defaults to `1 / 350`.
-  final double wheelZoomRate;
+  final double? wheelSmoothZoomRate;
 
-  /// Controls zoom sensitivity for trackpad events.
+  /// Controls zoom sensitivity for trackpad events, when smooth zooming is
+  /// enabled (as by default).
   ///
-  /// Lower values = slower zoom per trackpad gesture unit. Higher values =
-  /// faster.
-  ///
-  /// Only used when [smoothZooming] is `true`.
+  /// Closer to zero = lower zoom offset per trackpad gesture unit.
   ///
   /// Defaults to `1 / 100`.
-  final double trackpadZoomRate;
+  final double trackpadSmoothZoomRate;
 
-  /// Duration of the easing animation for each mouse wheel tick.
+  /// Duration of the easing animation for each mouse wheel tick, when smooth
+  /// zooming is enabled (as by default).
   ///
   /// Each wheel tick triggers an animation of this duration. When multiple
   /// ticks arrive before the animation completes, the animations chain
   /// smoothly.
   ///
-  /// Only used when [smoothZooming] is `true`.
-  ///
   /// Defaults to 200ms.
   final Duration animationDuration;
 
-  /// Create scroll zoom options.
-  const ScrollZoomOptions({
-    this.smoothZooming = true,
-    this.wheelZoomRate = 1 / 350,
-    this.trackpadZoomRate = 1 / 100,
+  /// Use smooth zooming, as by default.
+  ///
+  /// For more information, see [ScrollZoomOptions].
+  const ScrollZoomOptions.smooth({
+    this.wheelSmoothZoomRate = 1 / 350,
+    this.trackpadSmoothZoomRate = 1 / 100,
     this.animationDuration = const Duration(milliseconds: 200),
-  })  : assert(wheelZoomRate > 0, '`wheelZoomRate` must be positive'),
-        assert(trackpadZoomRate > 0, '`trackpadZoomRate` must be positive');
+  }) : snapZoomRate = 0.005;
 
-  /// Options that disable smooth zooming, reverting to the legacy snap
-  /// behavior.
-  const ScrollZoomOptions.snapping()
-      : smoothZooming = false,
-        wheelZoomRate = 1 / 450,
-        trackpadZoomRate = 1 / 100,
+  /// Use snap zooming.
+  ///
+  /// For more information, see [ScrollZoomOptions].
+  const ScrollZoomOptions.snapping({
+    this.snapZoomRate,
+  })  : wheelSmoothZoomRate = null,
+        trackpadSmoothZoomRate = 1 / 100,
         animationDuration = const Duration(milliseconds: 200);
 
   @override
   bool operator ==(Object other) =>
       other is ScrollZoomOptions &&
-      smoothZooming == other.smoothZooming &&
-      wheelZoomRate == other.wheelZoomRate &&
-      trackpadZoomRate == other.trackpadZoomRate &&
+      snapZoomRate == other.snapZoomRate &&
+      wheelSmoothZoomRate == other.wheelSmoothZoomRate &&
+      trackpadSmoothZoomRate == other.trackpadSmoothZoomRate &&
       animationDuration == other.animationDuration;
 
   @override
   int get hashCode => Object.hash(
-        smoothZooming,
-        wheelZoomRate,
-        trackpadZoomRate,
+        snapZoomRate,
+        wheelSmoothZoomRate,
+        trackpadSmoothZoomRate,
         animationDuration,
       );
 }

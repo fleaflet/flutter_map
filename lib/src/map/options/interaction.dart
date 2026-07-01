@@ -63,13 +63,19 @@ class InteractionOptions {
   /// gestures will take effect see [MultiFingerGesture] for custom settings
   final int pinchMoveWinGestures;
 
-  /// The used velocity how fast the map should zoom in or out by scrolling
-  /// with the scroll wheel of a mouse.
+  /// The multipler applied to the scroll offset to calculate the zoom offset,
+  /// when smooth zooming is disabled.
   ///
-  /// Only used when [scrollZoomOptions] has
-  /// [ScrollZoomOptions.smoothZooming] set to `false`. In smooth zoom
-  /// mode, use [ScrollZoomOptions.wheelZoomRate] and
-  /// [ScrollZoomOptions.trackpadZoomRate] instead.
+  /// This has been deprecated in favour of
+  /// [ScrollZoomOptions.snapZoomRate]. See documentation on that property
+  /// for more information.
+  ///
+  /// Defaults to `1 / 200`. Overriden by [ScrollZoomOptions.snapZoomRate]
+  /// if set.
+  @Deprecated(
+    'Prefer `ScrollZoomOptions.snappingZoomRate` (and disabling smooth '
+    'zooming). Will be removed in an upcoming major release.',
+  )
   final double scrollWheelVelocity;
 
   /// Options to configure scroll wheel/trackpad zoom behavior.
@@ -143,8 +149,12 @@ class InteractionOptions {
     this.pinchMoveThreshold = 40.0,
     this.pinchMoveWinGestures =
         MultiFingerGesture.pinchZoom | MultiFingerGesture.pinchMove,
+    @Deprecated(
+      'Prefer `ScrollZoomOptions.snappingZoomRate` (and disabling smooth '
+      'zooming). Will be removed in an upcoming major release.',
+    )
     this.scrollWheelVelocity = 0.005,
-    this.scrollZoomOptions = const ScrollZoomOptions(),
+    this.scrollZoomOptions = const ScrollZoomOptions.smooth(),
     this.doubleTapDragZoomChangeCalculator =
         defaultDoubleTapDragZoomChangeCalculator,
     this.doubleTapZoomDuration = const Duration(milliseconds: 200),

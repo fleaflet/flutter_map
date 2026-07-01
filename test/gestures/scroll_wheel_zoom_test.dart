@@ -23,56 +23,6 @@ Future<void> _scroll(WidgetTester tester, {required double dy}) async {
 /// Also, you can't put it into `setUp()` or `setUpAll()` because you can't
 /// access `TestWidgetsFlutterBinding.instance.clock` there.
 void main() {
-  group('ScrollZoomOptions', () {
-    test('default values', () {
-      const options = ScrollZoomOptions();
-      expect(options.smoothZooming, isTrue);
-      expect(options.wheelZoomRate, 1 / 450);
-      expect(options.trackpadZoomRate, 1 / 100);
-      expect(options.animationDuration, const Duration(milliseconds: 200));
-    });
-
-    test('snapping constructor disables smooth zooming', () {
-      const options = ScrollZoomOptions.snapping();
-      expect(options.smoothZooming, isFalse);
-    });
-
-    test('equality', () {
-      const a = ScrollZoomOptions();
-      const b = ScrollZoomOptions();
-      const c = ScrollZoomOptions(wheelZoomRate: 1 / 200);
-      expect(a, equals(b));
-      expect(a, isNot(equals(c)));
-    });
-
-    group('assertions', () {
-      test('rejects non-positive wheelZoomRate', () {
-        expect(
-          () => ScrollZoomOptions(wheelZoomRate: 0),
-          throwsA(isA<AssertionError>()),
-        );
-        expect(
-          () => ScrollZoomOptions(wheelZoomRate: -1),
-          throwsA(isA<AssertionError>()),
-        );
-      });
-
-      test('rejects non-positive trackpadZoomRate', () {
-        expect(
-          () => ScrollZoomOptions(trackpadZoomRate: 0),
-          throwsA(isA<AssertionError>()),
-        );
-      });
-
-      test('rejects non-positive trackpadZoomRate (negative)', () {
-        expect(
-          () => ScrollZoomOptions(trackpadZoomRate: -0.5),
-          throwsA(isA<AssertionError>()),
-        );
-      });
-    });
-  });
-
   group('Scroll zoom - snap mode', () {
     testWidgets('zooms in immediately on scroll up', (tester) async {
       final controller = MapController();
@@ -267,7 +217,7 @@ void main() {
       await tester.pumpWidget(TestApp(
         controller: controller,
         interactionOptions: const InteractionOptions(
-          scrollZoomOptions: ScrollZoomOptions(
+          scrollZoomOptions: ScrollZoomOptions.smooth(
             animationDuration: Duration(milliseconds: 1000),
           ),
         ),

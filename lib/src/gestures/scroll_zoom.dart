@@ -102,8 +102,8 @@ enum _ScrollType { wheel, trackpad }
 /// C¹-continuous bezier easing curves. Trackpad events are applied directly
 /// since the hardware already provides fine-grained continuous input.
 ///
-/// When [ScrollZoomOptions.smoothZooming] is `false`, falls back to
-/// snapping immediately to the new zoom level.
+/// When smooth zooming is disabled, falls back to snapping immediately to the
+/// new zoom level.
 class ScrollZoomHandler {
   final MapControllerImpl _controller;
   final TickerProvider _vsync;
@@ -164,7 +164,7 @@ class ScrollZoomHandler {
     }
     if (event.scrollDelta.dy == 0) return;
 
-    if (_zoomOptions.smoothZooming) {
+    if (_zoomOptions.wheelSmoothZoomRate != null) {
       _doSmoothZoom(event);
     } else {
       _doSnapZoom(event);
@@ -176,7 +176,9 @@ class ScrollZoomHandler {
     final minZoom = _options.minZoom ?? 0.0;
     final maxZoom = _options.maxZoom ?? double.infinity;
     final newZoom = (_camera.zoom -
-            event.scrollDelta.dy * _interactionOptions.scrollWheelVelocity)
+            event.scrollDelta.dy *
+                (_zoomOptions.snapZoomRate ??
+                    _interactionOptions.scrollWheelVelocity))
         .clamp(minZoom, maxZoom);
     final newCenter = _camera.focusedZoomCenter(
       event.localPosition,
@@ -272,8 +274,8 @@ class ScrollZoomHandler {
       // For trackpad events and single mouse wheel ticks, use the default zoom rate
       final zoomRate =
           (_type == _ScrollType.wheel && _delta.abs() > _wheelZoomDelta)
-              ? _zoomOptions.wheelZoomRate
-              : _zoomOptions.trackpadZoomRate;
+              ? _zoomOptions.wheelSmoothZoomRate!
+              : _zoomOptions.trackpadSmoothZoomRate;
 
       // Scale by sigmoid of scroll wheel delta so the map responds to small scrolls and compresses large scrolls
       var scale =
