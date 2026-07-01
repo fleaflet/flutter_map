@@ -17,3 +17,7 @@ We rely on a standardized process and procedure to ensure top-quality releases.
 
 * **Use a clear (preferably [Conventional](https://www.conventionalcommits.org/)) PR title.**  
 This makes it easier for us to group commits for release and write correct CHANGELOGs.
+
+* **Using AI?**  
+If you're using AI in any way to write code or otherwise assist you, please let us know in the PR description.
+If the code is of insufficient quality, it will be rejected. Human submitters take all responsibility for their code.

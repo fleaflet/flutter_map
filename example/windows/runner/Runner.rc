@@ -89,11 +89,11 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "dev.fleaflet.flutter_map" "\0"
+            VALUE "CompanyName", "fleaflet" "\0"
             VALUE "FileDescription", "flutter_map Demo" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "flutter_map Demo" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2025 dev.fleaflet.flutter_map. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 flutter_map Authors & Maintainers. All rights reserved." "\0"
             VALUE "OriginalFilename", "flutter_map_demo.exe" "\0"
             VALUE "ProductName", "flutter_map Demo" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
