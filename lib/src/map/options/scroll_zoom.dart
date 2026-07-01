@@ -15,7 +15,7 @@ class ScrollZoomOptions {
   /// smoothly with velocity-continuous bezier curves.
   ///
   /// When `false`, zooming snaps immediately to the new zoom level on each
-  /// wheel event, matching the pre-v8 behavior.
+  /// wheel event, matching the pre-v8.4 behavior.
   ///
   /// Trackpad events are always applied directly regardless of this setting,
   /// since trackpad hardware already provides fine-grained continuous input.
@@ -27,7 +27,7 @@ class ScrollZoomOptions {
   ///
   /// Only used when [smoothZooming] is `true`.
   ///
-  /// Defaults to `1 / 450`.
+  /// Defaults to `1 / 350`.
   final double wheelZoomRate;
 
   /// Controls zoom sensitivity for trackpad events.
@@ -54,7 +54,7 @@ class ScrollZoomOptions {
   /// Create scroll zoom options.
   const ScrollZoomOptions({
     this.smoothZooming = true,
-    this.wheelZoomRate = 1 / 450,
+    this.wheelZoomRate = 1 / 350,
     this.trackpadZoomRate = 1 / 100,
     this.animationDuration = const Duration(milliseconds: 200),
   })  : assert(wheelZoomRate > 0, '`wheelZoomRate` must be positive'),
