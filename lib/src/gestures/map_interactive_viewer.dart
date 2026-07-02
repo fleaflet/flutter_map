@@ -802,17 +802,14 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     // gestures where the user changes direction during the drag.
     final flingOffset = _focalStartLocal - _lastFocalLocal;
     final finalSegment = _prevFocalLocal - _lastFocalLocal;
-    final finalSegmentDistance = finalSegment.distance;
 
-    // Use final segment direction if available, otherwise fall back to overall
-    // direction for edge cases where the final segment has no movement.
-    final Offset direction;
-    if (finalSegmentDistance > 0) {
-      direction = finalSegment / finalSegmentDistance;
-    } else {
-      final flingDistance = flingOffset.distance;
-      direction = flingOffset / flingDistance;
-    }
+    final direction = flingDirection(
+      finalSegment: finalSegment,
+      flingOffset: flingOffset,
+      // `magnitude` is checked to be non-zero above, so this is always a
+      // finite, non-zero-length direction and is a safe final fallback.
+      velocityDirection: details.velocity.pixelsPerSecond / magnitude,
+    );
     final distance = (Offset.zero & _camera.nonRotatedSize).shortestSide;
 
     _flingAnimation = Tween<Offset>(
@@ -829,6 +826,31 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
             stiffness: 1000,
             ratio: _interactionOptions.flingAnimationDampingRatio,
           ));
+  }
+
+  /// Calculates the direction a fling gesture should continue in.
+  ///
+  /// Prefers the direction of the final tracked pointer segment, falling
+  /// back to the overall drag direction. If both [finalSegment] and
+  /// [flingOffset] have zero length - which can happen even when the
+  /// gesture recognizer reports a velocity above the fling threshold, since
+  /// the velocity is fitted over multiple recent samples and is not
+  /// necessarily proportional to the last tracked position deltas - falls
+  /// back to [velocityDirection] to avoid a division by zero (which would
+  /// otherwise produce a `NaN` direction and corrupt the camera position).
+  @visibleForTesting
+  static Offset flingDirection({
+    required Offset finalSegment,
+    required Offset flingOffset,
+    required Offset velocityDirection,
+  }) {
+    final finalSegmentDistance = finalSegment.distance;
+    if (finalSegmentDistance > 0) return finalSegment / finalSegmentDistance;
+
+    final flingDistance = flingOffset.distance;
+    if (flingDistance > 0) return flingOffset / flingDistance;
+
+    return velocityDirection;
   }
 
   void _handleTap(TapPosition position) {
