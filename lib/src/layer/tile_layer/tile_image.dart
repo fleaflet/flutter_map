@@ -59,6 +59,8 @@ class TileImage extends ChangeNotifier {
   ImageStream? _imageStream;
   late ImageStreamListener _listener;
 
+  Timer? _loadDelayTimer;
+
   /// Create a new object for a tile image.
   TileImage({
     required this.vsync,
@@ -133,9 +135,9 @@ class TileImage extends ChangeNotifier {
 
   /// Initiate loading of the image.
   Future<void> load({Duration delay = Duration.zero}) async {
-    if (cancelLoading.isCompleted) return;
-
     void startLoad() {
+      if (cancelLoading.isCompleted) return;
+
       loadStarted = DateTime.now();
 
       try {
@@ -158,10 +160,7 @@ class TileImage extends ChangeNotifier {
     }
 
     if (delay <= Duration.zero) return startLoad();
-    Future<void>.delayed(delay).then((_) {
-      if (cancelLoading.isCompleted) return; // Double check
-      startLoad();
-    });
+    _loadDelayTimer = Timer(delay, startLoad);
   }
 
   void _onImageLoadSuccess(ImageInfo imageInfo, bool synchronousCall) {
@@ -241,6 +240,7 @@ class TileImage extends ChangeNotifier {
       }
     }
 
+    _loadDelayTimer?.cancel();
     cancelLoading.complete();
 
     _readyToDisplay = false;
