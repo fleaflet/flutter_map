@@ -4,6 +4,29 @@ Please consider [donating](https://github.com/sponsors/fleaflet) or [contributin
 
 This CHANGELOG does not include every commit and/or PR - it is a hand picked selection of the ones that have an effect on most users. For a full list of changes, please check the GitHub repository releases/tags. We also release highlights for some releases on the docs site.
 
+## [8.3.1] - 2026/07/xx
+
+Contains the following user-affecting bug fixes:
+
+- Revert [#2182](https://github.com/fleaflet/flutter_map/pull/2182) to fix multiple internal errors - [#2218](https://github.com/fleaflet/flutter_map/pull/2218) for [#2199](https://github.com/fleaflet/flutter_map/issues/2199)
+- Prevent memory leak and crash when `Marker`s with NaN coordinates provided - [#2213](https://github.com/fleaflet/flutter_map/pull/2213) for [#2178](https://github.com/fleaflet/flutter_map/issues/2178)
+
+Contains the following user-affecting performance improvements:
+
+- Improve `MarkerLayer` performance by caching projections - [#2213](https://github.com/fleaflet/flutter_map/pull/2213)
+- Improve `PolygonLayer` performance, particularly for polygons with holes - [#2211](https://github.com/fleaflet/flutter_map/pull/2211)
+- Improve `PolylineLayer` performance by improving culling algorithm - [#2212](https://github.com/fleaflet/flutter_map/pull/2212)
+
+Contains the following other notable changes:
+
+- Support 'pkg:latlong2' v0.10.x dependency - [#2207](https://github.com/fleaflet/flutter_map/pull/2207)
+
+Many thanks to these contributors (in no particular order):
+
+- @ThexXTURBOXx
+- @ben-milanko
+- ... and all the maintainers
+
 ## [8.3.0] - 2026/04/14
 
 Contains the following user-affecting changes:

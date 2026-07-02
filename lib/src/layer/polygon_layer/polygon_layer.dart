@@ -228,19 +228,28 @@ class _PolygonLayerState<R extends Object> extends State<PolygonLayer<R>>
             (i) {
               final culledPolygon = culled[i];
 
-              final points = culledPolygon.holePoints.isEmpty
-                  ? culledPolygon.points
-                  : culledPolygon.points
-                      .followedBy(culledPolygon.holePoints.expand((e) => e));
+              // Flatten the points and hole points into the coordinate list
+              // directly, avoiding quadratic `elementAt` calls on a lazy
+              // concatenated iterable.
+              var totalLength = culledPolygon.points.length;
+              for (final hole in culledPolygon.holePoints) {
+                totalLength += hole.length;
+              }
+              final coords = Float64List(totalLength * 2);
+              var ii = 0;
+              for (final point in culledPolygon.points) {
+                coords[ii++] = point.dx;
+                coords[ii++] = point.dy;
+              }
+              for (final hole in culledPolygon.holePoints) {
+                for (final point in hole) {
+                  coords[ii++] = point.dx;
+                  coords[ii++] = point.dy;
+                }
+              }
 
               return Earcut.triangulateRaw(
-                List.generate(
-                  points.length * 2,
-                  (ii) => ii.isEven
-                      ? points.elementAt(ii ~/ 2).dx
-                      : points.elementAt(ii ~/ 2).dy,
-                  growable: false,
-                ),
+                coords,
                 holeIndices: culledPolygon.holePoints.isEmpty
                     ? null
                     : _generateHolesIndices(culledPolygon)

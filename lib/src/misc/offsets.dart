@@ -69,9 +69,26 @@ class OffsetHelper {
     final crs = camera.crs;
     final zoomScale = crs.scale(camera.zoom);
 
-    final realPoints = holePoints == null || holePoints.isEmpty
-        ? points
-        : points.followedBy(holePoints.expand((e) => e));
+    // Flatten the points and hole points into a single list, so that the
+    // loops below can use constant-time indexing. Using a lazy concatenated
+    // iterable here makes `elementAt` walk from the start on every call,
+    // which is quadratic in the total number of points.
+    final List<Offset> realPoints;
+    if (holePoints == null || holePoints.isEmpty) {
+      realPoints = points;
+    } else {
+      var totalLength = points.length;
+      for (final hole in holePoints) {
+        totalLength += hole.length;
+      }
+      realPoints = List<Offset>.filled(totalLength, Offset.zero)
+        ..setRange(0, points.length, points);
+      var start = points.length;
+      for (final hole in holePoints) {
+        realPoints.setRange(start, start + hole.length, hole);
+        start += hole.length;
+      }
+    }
 
     final ox = -_origin.dx;
     final oy = -_origin.dy;
@@ -92,7 +109,7 @@ class OffsetHelper {
         -worldWidth,
       ];
       final halfScreenWidth = camera.size.width / 2;
-      final p = realPoints.elementAt(0);
+      final p = realPoints[0];
       late double result;
       late double bestX;
       for (int i = 0; i < addedWidths.length; i++) {
@@ -119,7 +136,7 @@ class OffsetHelper {
     if (crs case final CrsWithStaticTransformation crs) {
       final v = List<Offset>.filled(len, Offset.zero, growable: true);
       for (int i = 0; i < len; ++i) {
-        final p = realPoints.elementAt(i);
+        final p = realPoints[i];
         final (x, y) = crs.transform(p.dx + addedWorldWidth, p.dy, zoomScale);
         v[i] = Offset(x + ox + shift, y + oy);
       }
@@ -128,7 +145,7 @@ class OffsetHelper {
 
     final v = List<Offset>.filled(len, Offset.zero, growable: true);
     for (int i = 0; i < len; ++i) {
-      final p = realPoints.elementAt(i);
+      final p = realPoints[i];
       final (x, y) = crs.transform(p.dx + addedWorldWidth, p.dy, zoomScale);
       v[i] = Offset(x + ox + shift, y + oy);
     }

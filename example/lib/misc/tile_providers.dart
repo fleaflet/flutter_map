@@ -7,6 +7,6 @@ final httpClient = RetryClient(Client());
 // TODO: This causes unneccessary rebuilding
 TileLayer get openStreetMapTileLayer => TileLayer(
       urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-      userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+      userAgentPackageName: 'dev.fleaflet.flutter_map.demo',
       tileProvider: NetworkTileProvider(httpClient: httpClient),
     );
