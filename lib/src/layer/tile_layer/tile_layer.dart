@@ -227,6 +227,24 @@ class TileLayer extends StatefulWidget {
   /// the [key].
   final TileUpdateTransformer tileUpdateTransformer;
 
+  /// Duration between a tile becoming 'alive' (built/viewed) and it beginning
+  /// to load its resource image.
+  ///
+  /// This allows tiles which are visible only very briefly (for example, during
+  /// fast gestures) to be destroyed (unviewed) without wasting resources (such
+  /// as network usage and metered tile loads) trying to load its image. This
+  /// may speed up loading of other images.
+  ///
+  /// Note that destroyed tiles always stop loading if they are - but this
+  /// prevents even the start of their loading.
+  ///
+  /// To change how map events and gestures influence how tiles load, such as
+  /// to delay all tile loading until a gesture has paused, see
+  /// [tileUpdateTransformer].
+  ///
+  /// Defaults to 30ms. Set to `Duration.zero` to disable delay.
+  final Duration tileLoadDelay;
+
   /// Create a new [TileLayer] for the [FlutterMap] widget.
   TileLayer({
     super.key,
@@ -261,6 +279,7 @@ class TileLayer extends StatefulWidget {
     this.reset,
     this.tileBounds,
     TileUpdateTransformer? tileUpdateTransformer,
+    this.tileLoadDelay = const Duration(milliseconds: 30),
     String userAgentPackageName = 'unknown',
   })  : assert(
           tileDisplay.when(
@@ -712,7 +731,7 @@ class _TileLayerState extends State<TileLayer> with TickerProviderStateMixin {
 
     // Create the new Tiles.
     for (final tile in tilesToLoad) {
-      tile.load();
+      tile.load(delay: widget.tileLoadDelay);
     }
   }
 

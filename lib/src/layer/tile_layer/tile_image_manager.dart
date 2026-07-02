@@ -182,7 +182,7 @@ class TileImageManager {
               tileBounds.atZoom(tile.coordinates.z).wrap(tile.coordinates),
               layer,
             );
-      tile.load();
+      tile.load(delay: layer.tileLoadDelay);
     }
   }
 

@@ -104,9 +104,9 @@ abstract class TileUpdateTransformers {
   /// This may improve performance, and reduce the number of tile requests, but
   /// at the expense of UX: new tiles will not be loaded until [duration] after
   /// the final tile load event in a series. For example, a fling gesture will
-  /// not load new tiles during its animation, only at the end. Best used in
-  /// combination with the cancellable tile provider, for even more fine-tuned
-  /// optimization.
+  /// not load new tiles during its animation, only at the end.
+  ///
+  /// A more balanced tradeoff is the setting of [TileLayer.tileLoadDelay].
   ///
   /// Implementation follows that in
   /// ['package:stream_transform'](https://pub.dev/documentation/stream_transform/latest/stream_transform/RateLimit/debounce.html).

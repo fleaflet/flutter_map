@@ -132,28 +132,36 @@ class TileImage extends ChangeNotifier {
   }
 
   /// Initiate loading of the image.
-  void load() {
+  Future<void> load({Duration delay = Duration.zero}) async {
     if (cancelLoading.isCompleted) return;
 
-    loadStarted = DateTime.now();
+    void startLoad() {
+      loadStarted = DateTime.now();
 
-    try {
-      final oldImageStream = _imageStream;
-      _imageStream = imageProvider.resolve(ImageConfiguration.empty);
+      try {
+        final oldImageStream = _imageStream;
+        _imageStream = imageProvider.resolve(ImageConfiguration.empty);
 
-      if (_imageStream!.key != oldImageStream?.key) {
-        oldImageStream?.removeListener(_listener);
+        if (_imageStream!.key != oldImageStream?.key) {
+          oldImageStream?.removeListener(_listener);
 
-        _listener = ImageStreamListener(
-          _onImageLoadSuccess,
-          onError: _onImageLoadError,
-        );
-        _imageStream!.addListener(_listener);
+          _listener = ImageStreamListener(
+            _onImageLoadSuccess,
+            onError: _onImageLoadError,
+          );
+          _imageStream!.addListener(_listener);
+        }
+      } catch (e, s) {
+        // Make sure all exceptions are handled - #444 / #536
+        _onImageLoadError(e, s);
       }
-    } catch (e, s) {
-      // Make sure all exceptions are handled - #444 / #536
-      _onImageLoadError(e, s);
     }
+
+    if (delay <= Duration.zero) return startLoad();
+    Future<void>.delayed(delay).then((_) {
+      if (cancelLoading.isCompleted) return; // Double check
+      startLoad();
+    });
   }
 
   void _onImageLoadSuccess(ImageInfo imageInfo, bool synchronousCall) {
