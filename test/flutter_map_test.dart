@@ -28,6 +28,11 @@ void main() {
     expect(find.byType(RawImage), findsWidgets);
     expect(find.byType(MarkerLayer), findsWidgets);
     expect(find.byType(FlutterLogo), findsOneWidget);
+    await tester.pumpAndSettle(
+      const Duration(milliseconds: 30),
+      EnginePhase.build,
+      const Duration(minutes: 1),
+    );
   });
 
   testWidgets(

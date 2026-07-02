@@ -91,6 +91,12 @@ void main() {
       expect(camera.center, equals(expectedCenter));
       expect(camera.zoom, equals(expectedZoom));
     }
+
+    await tester.pumpAndSettle(
+      const Duration(milliseconds: 30),
+      EnginePhase.build,
+      const Duration(minutes: 1),
+    );
   });
 
   testWidgets('test fit bounds methods with rotation', (tester) async {
@@ -620,6 +626,12 @@ void main() {
       expectedCenter: const LatLng(1.2239447514276816, 31.954672909718134),
       expectedZoom: 5.368867444131886,
     );
+
+    await tester.pumpAndSettle(
+      const Duration(milliseconds: 30),
+      EnginePhase.build,
+      const Duration(minutes: 1),
+    );
   });
 
   testWidgets('test fit coordinates methods', (tester) async {
@@ -817,6 +829,12 @@ void main() {
       fitCoordinates: fitCoordinates(padding: asymmetricPadding),
       expectedCenter: const LatLng(1.223944751427707, 31.954672909718177),
       expectedZoom: 5.368867444131889,
+    );
+
+    await tester.pumpAndSettle(
+      const Duration(milliseconds: 30),
+      EnginePhase.build,
+      const Duration(minutes: 1),
     );
   });
 
@@ -1372,6 +1390,12 @@ void main() {
       ),
       expectedCenter: const LatLng(1.2682880092901039, 31.90701622809375),
       expectedZoom: 5.728195363812886,
+    );
+
+    await tester.pumpAndSettle(
+      const Duration(milliseconds: 30),
+      EnginePhase.build,
+      const Duration(minutes: 1),
     );
   });
 }

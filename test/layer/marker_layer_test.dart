@@ -23,5 +23,10 @@ void main() {
     expect(find.byType(FlutterMap), findsOneWidget);
     expect(find.byType(MarkerLayer), findsWidgets);
     expect(find.byKey(key), findsOneWidget);
+    await tester.pumpAndSettle(
+      const Duration(milliseconds: 30),
+      EnginePhase.build,
+      const Duration(minutes: 1),
+    );
   });
 }

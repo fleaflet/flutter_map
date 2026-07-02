@@ -32,6 +32,12 @@ void main() {
         find.descendant(
             of: find.byType(PolygonLayer), matching: find.byType(CustomPaint)),
         findsOneWidget);
+
+    await tester.pumpAndSettle(
+      const Duration(milliseconds: 30),
+      EnginePhase.build,
+      const Duration(minutes: 1),
+    );
   });
 
   test('polygon normal/rotation', () {

@@ -30,5 +30,11 @@ void main() {
         find.descendant(
             of: find.byType(CircleLayer), matching: find.byType(CustomPaint)),
         findsOneWidget);
+
+    await tester.pumpAndSettle(
+      const Duration(milliseconds: 30),
+      EnginePhase.build,
+      const Duration(minutes: 1),
+    );
   });
 }
