@@ -388,10 +388,22 @@ class MapCamera {
 
   /// Clamps the provided [zoom] to the range specified by [minZoom] and
   /// [maxZoom], if set.
-  double clampZoom(double zoom) => zoom.clamp(
-        minZoom ?? double.negativeInfinity,
-        maxZoom ?? double.infinity,
-      );
+  ///
+  /// A non-finite [zoom] (`NaN`/`Infinity`) is treated as an invalid update and
+  /// the current [zoom] is returned unchanged. Without this guard such a value
+  /// would flow into the camera and crash the tile range and marker cluster
+  /// layers — `num.clamp` returns `NaN` for a `NaN` input, so it cannot sanitise
+  /// it. This happens in practice during a rapid pinch zoom-out, where
+  /// `math.log` is fed a non-positive scale and produces a non-finite zoom.
+  double clampZoom(double zoom) {
+    if (!zoom.isFinite) {
+      return this.zoom;
+    }
+    return zoom.clamp(
+      minZoom ?? double.negativeInfinity,
+      maxZoom ?? double.infinity,
+    );
+  }
 
   /// Calculate the [LatLng] coordinates for a given [Offset] and an optional
   /// zoom level. If [zoom] is not provided the current zoom level of the
