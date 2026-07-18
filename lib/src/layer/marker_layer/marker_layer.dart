@@ -138,7 +138,13 @@ class _MarkerLayerState extends State<MarkerLayer> {
                   Offset(shiftedX, pxPoint.dy) - pixelOrigin;
 
               return Positioned(
-                key: m.key,
+                // Keep the caller's key on the main world so find.byKey and
+                // per-marker identity are unchanged; derive a distinct key for
+                // each repeated world so a keyed marker does not produce
+                // duplicate sibling keys in the Stack (#2229).
+                key: m.key == null || worldShift == 0
+                    ? m.key
+                    : ValueKey((m.key, worldShift)),
                 width: m.width,
                 height: m.height,
                 left: shiftedLocalPoint.dx - right,
