@@ -299,6 +299,10 @@ class _PolylinePainter<R extends Object> extends CustomPainter
     if (vertexCount < 2) {
       return;
     }
+    assert(
+      projectedPolyline.sourceStartIndex + vertexCount <= colors.length,
+      'Projected points must retain their source color indices',
+    );
 
     final hasBorder = polyline.borderStrokeWidth > 0.0;
     final requiresLayerSaving = polyline._hasTransparentVertices;
@@ -360,11 +364,22 @@ class _PolylinePainter<R extends Object> extends CustomPainter
       final start = offsets[i];
       final end = offsets[i + 1];
       if (start == end) continue;
+      if (VisibleSegment.getVisibleSegment(
+            start,
+            end,
+            size,
+            strokeWidth + polyline.borderStrokeWidth,
+          ) ==
+          null) {
+        continue;
+      }
+
+      final colorIndex = projectedPolyline.sourceStartIndex + i;
 
       strokePaint.shader = ui.Gradient.linear(
         start,
         end,
-        [colors[i], colors[i + 1]],
+        [colors[colorIndex], colors[colorIndex + 1]],
       );
       segmentPath.moveTo(start.dx, start.dy);
       segmentPath.lineTo(end.dx, end.dy);

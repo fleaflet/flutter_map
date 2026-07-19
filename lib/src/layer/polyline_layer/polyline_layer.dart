@@ -208,9 +208,8 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
       // First check, bullet-proof, focusing on latitudes.
       if (!isOverlappingLatitude()) continue;
 
-      // Gradient or multicolor polylines cannot be easily segmented
-      if (polyline.gradientColors != null ||
-          polyline is MulticolorPolyline<R>) {
+      // Global gradients cannot be segmented without changing their shader.
+      if (polyline.gradientColors != null) {
         yield projectedPolyline;
         continue;
       }
@@ -268,6 +267,7 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
             yield _ProjectedPolyline._(
               polyline: polyline,
               points: projectedPolyline.points.sublist(start, i + 1),
+              sourceStartIndex: projectedPolyline.sourceStartIndex + start,
             );
 
             // Reset start.
@@ -283,8 +283,8 @@ class _PolylineLayerState<R extends Object> extends State<PolylineLayer<R>>
             ? projectedPolyline
             : _ProjectedPolyline._(
                 polyline: polyline,
-                // Special case: the entire polyline is visible
                 points: projectedPolyline.points.sublist(start),
+                sourceStartIndex: projectedPolyline.sourceStartIndex + start,
               );
       }
     }
