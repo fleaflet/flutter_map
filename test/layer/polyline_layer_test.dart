@@ -78,6 +78,5 @@ void main() {
     final polyline = polylines.first as MulticolorPolyline;
     expect(polyline.vertexColors, isNull);
     expect(polyline.color, equals(Colors.purple));
-    expect(polyline.resolvedVertexColors, everyElement(equals(Colors.purple)));
   });
 }

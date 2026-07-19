@@ -137,7 +137,20 @@ class _PolylinePainter<R extends Object> extends CustomPainter
           points: projectedPolyline.points,
           shift: shift,
         );
-        if (!areOffsetsVisible(offsets)) return WorldWorkControl.invisible;
+
+        final strokeWidth = polyline.useStrokeWidthInMeter
+            ? metersToScreenPixels(
+                projectedPolyline.polyline.points.first,
+                polyline.strokeWidth,
+              )
+            : polyline.strokeWidth;
+
+        if (!areOffsetsVisible(
+          offsets,
+          strokeWidth + polyline.borderStrokeWidth,
+        )) {
+          return WorldWorkControl.invisible;
+        }
 
         if (polyline is MulticolorPolyline<R>) {
           drawPaths();
@@ -148,6 +161,7 @@ class _PolylinePainter<R extends Object> extends CustomPainter
             size: size,
             projectedPolyline: projectedPolyline,
             offsets: offsets,
+            strokeWidth: strokeWidth,
           );
           return WorldWorkControl.visible;
         }
@@ -160,23 +174,8 @@ class _PolylinePainter<R extends Object> extends CustomPainter
         needsLayerSaving = polyline.color.a < 1 ||
             (polyline.gradientColors?.any((c) => c.a < 1) ?? false);
 
-
-        late final double strokeWidth;
-        if (polyline.useStrokeWidthInMeter) {
-          strokeWidth = metersToScreenPixels(
-            projectedPolyline.polyline.points.first,
-            polyline.strokeWidth,
-          );
-        } else {
-          strokeWidth = polyline.strokeWidth;
-        }
-
         // strokeWidth, or strokeWidth + borderWidth if relevant.
         double largestStrokeWidth = strokeWidth;
-
-        if (!areOffsetsVisible(offsets, strokeWidth)) {
-          return WorldWorkControl.invisible;
-        }
 
         final isSolid = polyline.pattern == const StrokePattern.solid();
         final isDashed = polyline.pattern.segments != null;
@@ -291,24 +290,18 @@ class _PolylinePainter<R extends Object> extends CustomPainter
     required Size size,
     required _ProjectedPolyline<R> projectedPolyline,
     required List<Offset> offsets,
+    required double strokeWidth,
   }) {
     final polyline = projectedPolyline.polyline as MulticolorPolyline<R>;
 
-    final colors = polyline.resolvedVertexColors;
-    final vertexCount = math.min(offsets.length, colors.length);
+    final colors = polyline._resolvedVertexColors;
+    final vertexCount = offsets.length;
     if (vertexCount < 2) {
       return;
     }
 
-    final strokeWidth = polyline.useStrokeWidthInMeter
-        ? metersToScreenPixels(
-            projectedPolyline.polyline.points.first,
-            polyline.strokeWidth,
-          )
-        : polyline.strokeWidth;
-
     final hasBorder = polyline.borderStrokeWidth > 0.0;
-    final requiresLayerSaving = polyline.hasTransparentVertices;
+    final requiresLayerSaving = polyline._hasTransparentVertices;
 
     if (hasBorder) {
       final borderPath = ui.Path();
