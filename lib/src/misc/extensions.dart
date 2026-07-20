@@ -60,6 +60,10 @@ extension RectExtension on Rect {
   /// Checks if the line between the two coordinates is contained within the
   /// [Rect].
   bool aabbContainsLine(double x1, double y1, double x2, double y2) {
+    if (contains(Offset(x1, y1)) || contains(Offset(x2, y2))) {
+      return true;
+    }
+
     // Completely outside.
     if ((x1 <= left && x2 <= left) ||
         (y1 <= top && y2 <= top) ||
