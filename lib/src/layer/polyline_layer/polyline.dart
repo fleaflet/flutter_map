@@ -105,8 +105,9 @@ class Polyline<R extends Object> with HitDetectableElement<R> {
   int get hashCode => _hashCode ??= Object.hashAll([...points, renderHashCode]);
 }
 
-/// A [Polyline] variant that can display a different color at each vertex and
-/// paints a smooth gradient between consecutive vertices.
+/// A solid [Polyline] that paints a smooth gradient between vertex colors.
+///
+/// Consecutive segments use round joins. Line endings use [strokeCap].
 class MulticolorPolyline<R extends Object> extends Polyline<R> {
   /// The color applied at each vertex in [points].
   ///
@@ -133,20 +134,9 @@ class MulticolorPolyline<R extends Object> extends Polyline<R> {
     double borderStrokeWidth = 0.0,
     Color borderColor = const Color(0xFFFFFF00),
     StrokeCap strokeCap = StrokeCap.round,
-    StrokeJoin strokeJoin = StrokeJoin.round,
     bool useStrokeWidthInMeter = false,
     R? hitValue,
-  })  : assert(
-          vertexColors == null ||
-              vertexColors.isEmpty ||
-              points.length == vertexColors.length,
-          'vertexColors length must match points length',
-        ),
-        assert(points.length >= 2,
-            'MulticolorPolyline requires at least two points'),
-        vertexColors = vertexColors != null && vertexColors.isNotEmpty
-            ? List<Color>.unmodifiable(vertexColors)
-            : null,
+  })  : vertexColors = _validateVertexColors(points, vertexColors),
         super(
           points: points,
           strokeWidth: strokeWidth,
@@ -159,7 +149,7 @@ class MulticolorPolyline<R extends Object> extends Polyline<R> {
           gradientColors: null,
           colorsStop: null,
           strokeCap: strokeCap,
-          strokeJoin: strokeJoin,
+          strokeJoin: StrokeJoin.round,
           useStrokeWidthInMeter: useStrokeWidthInMeter,
           hitValue: hitValue,
         );
@@ -189,4 +179,26 @@ class MulticolorPolyline<R extends Object> extends Polyline<R> {
       super.hashCode,
       defaultColor,
       vertexColors == null ? null : Object.hashAll(vertexColors!));
+}
+
+List<Color>? _validateVertexColors(
+  List<LatLng> points,
+  List<Color>? vertexColors,
+) {
+  if (points.length < 2) {
+    throw ArgumentError.value(
+      points,
+      'points',
+      'MulticolorPolyline requires at least two points',
+    );
+  }
+  if (vertexColors == null || vertexColors.isEmpty) return null;
+  if (points.length != vertexColors.length) {
+    throw ArgumentError.value(
+      vertexColors,
+      'vertexColors',
+      'length must match points length',
+    );
+  }
+  return List<Color>.unmodifiable(vertexColors);
 }
