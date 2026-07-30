@@ -359,6 +359,24 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
                   : Duration.zero,
           child: RawGestureDetector(
             gestures: _gestures,
+            // The map's gestures are pointer gestures, not semantic actions.
+            // Left included, `_gestures`' tap/long-press recognizers publish
+            // `SemanticsAction.tap`/`longPress` on a semantics node covering the
+            // map's whole hit area, which causes two problems once the semantics
+            // tree is enabled:
+            //
+            //  * A semantics-driven tap synthesises its position at the node's
+            //    centre, so `onTap` reports the map centre instead of where the
+            //    user tapped, with `kind: unknown` (#2176).
+            //  * On web, Flutter gives a tappable semantics node
+            //    `pointer-events: all`. A map-sized node therefore covers any
+            //    HtmlElementView layered above the map (`<iframe>`, `<video>`)
+            //    and swallows the mouse events those embeds need, leaving their
+            //    own controls unusable.
+            //
+            // Markers and other children keep their own semantics, so nothing
+            // that is meaningfully activatable loses its node here.
+            excludeFromSemantics: true,
             child: widget.builder(
               context,
               widget.controller.options,
