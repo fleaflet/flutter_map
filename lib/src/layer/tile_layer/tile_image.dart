@@ -158,12 +158,26 @@ class TileImage extends ChangeNotifier {
 
   void _onImageLoadSuccess(ImageInfo imageInfo, bool synchronousCall) {
     loadError = false;
-    this.imageInfo = imageInfo;
 
-    if (!_disposed) {
-      _display();
-      onLoadComplete(coordinates);
+    // A disposed tile is never painted, so it never hands its image to a
+    // `RenderImage` — and `setImage` gives every listener its own handle to
+    // dispose. Keeping it here leaks the decoded image for the process
+    // lifetime.
+    //
+    // `dispose()` removes the listener, but `setImage` dispatches over a copy
+    // of the listener list, so a listener removed from inside that loop is
+    // still called. Tiles resolving equal keys share one completer, and
+    // `onLoadComplete` is where pruning happens (see the note in
+    // `TileImageManager.reloadImages`) — so a tile can be disposed
+    // mid-dispatch and handed an image anyway. See `tile_image_test.dart`.
+    if (_disposed) {
+      imageInfo.dispose();
+      return;
     }
+
+    this.imageInfo = imageInfo;
+    _display();
+    onLoadComplete(coordinates);
   }
 
   void _onImageLoadError(Object exception, StackTrace? stackTrace) {
