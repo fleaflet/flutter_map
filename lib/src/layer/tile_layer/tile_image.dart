@@ -74,7 +74,6 @@ class TileImage extends ChangeNotifier {
   ImageStream? _imageStream;
   late ImageStreamListener _listener;
 
-
   /// Create a new object for a tile image.
   TileImage({
     required this.vsync,
@@ -175,10 +174,9 @@ class TileImage extends ChangeNotifier {
   void _onImageLoadSuccess(ImageInfo imageInfo, bool synchronousCall) {
     loadError = false;
 
-    // A disposed tile is never painted, so it never hands its image to a
-    // `RenderImage` — and `setImage` gives every listener its own handle to
-    // dispose. Keeping it here leaks the decoded image for the process
-    // lifetime.
+    // After dispose() the owner that would free this handle is gone (dispose
+    // ran and nulled the field — see the ownership note on [imageInfo]), so
+    // the handler frees it on the spot.
     //
     // `dispose()` removes the listener, but `setImage` dispatches over a copy
     // of the listener list, so a listener removed from inside that loop is
@@ -191,9 +189,8 @@ class TileImage extends ChangeNotifier {
       return;
     }
 
-    // The previous frame's handle is ours — `RawImage` clones for the render
-    // object, so nothing downstream frees this one. Without this line every
-    // PAINTED frame leaks its handle for the lifetime of the process.
+    // The previous frame's handle is ours to free — see the ownership note
+    // on [imageInfo].
     this.imageInfo?.dispose();
     this.imageInfo = imageInfo;
     _display();
@@ -276,10 +273,9 @@ class TileImage extends ChangeNotifier {
 
     _animationController?.dispose();
     _imageStream?.removeListener(_listener);
-    // Same ownership rule as on frame replacement: the handle is the tile's
-    // own, so the tile frees it. Nulling the field keeps a straggler build
-    // (dispose can race the layer rebuild) from cloning a disposed image —
-    // `RawImage` treats null as "paint nothing".
+    // Same ownership rule as on frame replacement (see [imageInfo]). Nulling
+    // the field keeps a straggler build — dispose can race the layer rebuild —
+    // from cloning a disposed image; `RawImage` treats null as "paint nothing".
     imageInfo?.dispose();
     imageInfo = null;
     super.dispose();

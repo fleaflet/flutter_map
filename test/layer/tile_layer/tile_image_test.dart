@@ -1,48 +1,10 @@
-import 'dart:async';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// An [ImageProvider] whose image is delivered only when the test says so, and
-/// whose key is itself, so that two [TileImage]s resolve to the SAME
-/// [ImageStreamCompleter] (which is what [ImageCache] does for equal keys).
-class _SharedManualImageProvider
-    extends ImageProvider<_SharedManualImageProvider> {
-  _SharedManualImageProvider(this.completer);
+import '../../test_utils/test_frame_driver.dart';
 
-  final Completer<ImageInfo> completer;
 
-  @override
-  Future<_SharedManualImageProvider> obtainKey(
-    ImageConfiguration configuration,
-  ) =>
-      SynchronousFuture<_SharedManualImageProvider>(this);
-
-  @override
-  ImageStreamCompleter loadImage(
-    _SharedManualImageProvider key,
-    ImageDecoderCallback decode,
-  ) =>
-      OneFrameImageStreamCompleter(completer.future);
-}
-
-TileImage _tile({
-  required int x,
-  required ImageProvider provider,
-  void Function(TileCoordinates)? onLoadComplete,
-}) =>
-    TileImage(
-      vsync: const TestVSync(),
-      coordinates: TileCoordinates(x, 0, 0),
-      imageProvider: provider,
-      onLoadComplete: onLoadComplete ?? (_) {},
-      onLoadError: (_, __, ___) {},
-      tileDisplay: const TileDisplay.instantaneous(),
-      errorImage: null,
-      cancelLoading: Completer<void>(),
-    );
 
 void main() {
   testWidgets(
@@ -56,8 +18,8 @@ void main() {
       // already has more than one handle open.
       final baseline = image.debugGetOpenHandleStackTraces()!.length;
 
-      final completer = Completer<ImageInfo>();
-      final provider = _SharedManualImageProvider(completer);
+      final completer = DrivenCompleter();
+      final provider = DrivenProvider(completer);
 
       late final TileImage second;
       var secondDisposed = false;
@@ -71,8 +33,7 @@ void main() {
       // a listener from inside that loop does not stop it from being called.
       // The first tile's completion runs `onLoadComplete` — which is where
       // flutter_map prunes tiles — disposing the second tile mid-dispatch.
-      final first = _tile(
-        x: 0,
+      final first = testTileImage(
         provider: provider,
         onLoadComplete: (_) {
           if (secondDisposed) return;
@@ -80,12 +41,12 @@ void main() {
           second.dispose();
         },
       );
-      second = _tile(x: 1, provider: provider);
+      second = testTileImage(x: 1, provider: provider);
 
       first.load();
       second.load();
 
-      completer.complete(ImageInfo(image: image));
+      completer.emit(ImageInfo(image: image));
       await tester.pump();
 
       expect(
@@ -126,8 +87,8 @@ void main() {
           (await tester.runAsync(() => createTestImage(width: 9, height: 9, cache: false)))!;
       final base1 = first.debugGetOpenHandleStackTraces()!.length;
 
-      final completer = _MultiFrameCompleter();
-      final tile = _tile(x: 0, provider: _MultiFrameProvider(completer));
+      final completer = DrivenCompleter();
+      final tile = testTileImage(provider: DrivenProvider(completer));
       tile.load();
 
       completer.emit(ImageInfo(image: first));
@@ -158,8 +119,8 @@ void main() {
           (await tester.runAsync(() => createTestImage(width: 8, height: 8, cache: false)))!;
       final baseline = image.debugGetOpenHandleStackTraces()!.length;
 
-      final completer = _MultiFrameCompleter();
-      final tile = _tile(x: 0, provider: _MultiFrameProvider(completer));
+      final completer = DrivenCompleter();
+      final tile = testTileImage(provider: DrivenProvider(completer));
       tile.load();
       completer.emit(ImageInfo(image: image));
 
@@ -179,27 +140,4 @@ void main() {
       );
     },
   );
-}
-
-/// A completer the test drives frame by frame — progressive tiles (a base
-/// frame followed by a composed one) emit more than once.
-class _MultiFrameCompleter extends ImageStreamCompleter {
-  void emit(ImageInfo info) => setImage(info);
-}
-
-class _MultiFrameProvider extends ImageProvider<_MultiFrameProvider> {
-  _MultiFrameProvider(this.completer);
-
-  final _MultiFrameCompleter completer;
-
-  @override
-  Future<_MultiFrameProvider> obtainKey(ImageConfiguration configuration) =>
-      SynchronousFuture<_MultiFrameProvider>(this);
-
-  @override
-  ImageStreamCompleter loadImage(
-    _MultiFrameProvider key,
-    ImageDecoderCallback decode,
-  ) =>
-      completer;
 }

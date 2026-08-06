@@ -1,10 +1,9 @@
-import 'dart:async';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/src/layer/tile_layer/tile.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../../test_utils/test_frame_driver.dart';
 
 /// Handle accounting through the FULL widget cycle: TileImage → Tile →
 /// RawImage → RenderImage.
@@ -22,37 +21,7 @@ import 'package:flutter_test/flutter_test.dart';
 /// ⚠️ `cache: false` and DIFFERENT sizes are load-bearing: `createTestImage`
 /// caches by size and returns clones of one shared image, which makes two
 /// "independent" counters move in lockstep and hides per-frame attribution.
-class _DrivenCompleter extends ImageStreamCompleter {
-  void emit(ImageInfo info) => setImage(info);
-}
 
-class _DrivenProvider extends ImageProvider<_DrivenProvider> {
-  _DrivenProvider(this.completer);
-
-  final _DrivenCompleter completer;
-
-  @override
-  Future<_DrivenProvider> obtainKey(ImageConfiguration configuration) =>
-      SynchronousFuture<_DrivenProvider>(this);
-
-  @override
-  ImageStreamCompleter loadImage(
-    _DrivenProvider key,
-    ImageDecoderCallback decode,
-  ) =>
-      completer;
-}
-
-TileImage _tileImage(ImageProvider provider) => TileImage(
-      vsync: const TestVSync(),
-      coordinates: const TileCoordinates(0, 0, 0),
-      imageProvider: provider,
-      onLoadComplete: (_) {},
-      onLoadError: (_, __, ___) {},
-      tileDisplay: const TileDisplay.instantaneous(),
-      errorImage: null,
-      cancelLoading: Completer<void>(),
-    );
 
 Widget _host(TileImage tileImage) => Directionality(
       textDirection: TextDirection.ltr,
@@ -80,8 +49,8 @@ void main() {
       final base1 = images[0].debugGetOpenHandleStackTraces()!.length;
       final base2 = images[1].debugGetOpenHandleStackTraces()!.length;
 
-      final completer = _DrivenCompleter();
-      final tileImage = _tileImage(_DrivenProvider(completer));
+      final completer = DrivenCompleter();
+      final tileImage = testTileImage(provider: DrivenProvider(completer));
       tileImage.load();
 
       await tester.pumpWidget(_host(tileImage));
@@ -127,8 +96,8 @@ void main() {
       final base1 = images[0].debugGetOpenHandleStackTraces()!.length;
       final base2 = images[1].debugGetOpenHandleStackTraces()!.length;
 
-      final completer = _DrivenCompleter();
-      final tileImage = _tileImage(_DrivenProvider(completer));
+      final completer = DrivenCompleter();
+      final tileImage = testTileImage(provider: DrivenProvider(completer));
       tileImage.load();
       await tester.pumpWidget(_host(tileImage));
 
@@ -164,8 +133,8 @@ void main() {
       final base1 = images[0].debugGetOpenHandleStackTraces()!.length;
       final base2 = images[1].debugGetOpenHandleStackTraces()!.length;
 
-      final completer = _DrivenCompleter();
-      final tileImage = _tileImage(_DrivenProvider(completer));
+      final completer = DrivenCompleter();
+      final tileImage = testTileImage(provider: DrivenProvider(completer));
       tileImage.load();
       await tester.pumpWidget(_host(tileImage));
 
