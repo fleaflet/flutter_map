@@ -110,21 +110,21 @@ void main() {
   );
 
   testWidgets(
-    'frees the first frame when a second frame replaces it before any build',
+    'replacing a frame frees the previous handle — painted or not',
     (tester) async {
-      // Ownership of a tile's decoded image transfers at BUILD time: `RawImage`
-      // hands the handle to `RenderImage`, which frees it. With one frame per
-      // tile that always holds. A completer emitting a second frame can
-      // overwrite the first before any build happened — and then nobody frees
-      // the first handle. Measured on device: ~0.9 leaked handles per tile,
-      // invisible to `ImageCache`.
-      final images = (await tester.runAsync(() async => [
-            await createTestImage(width: 8, height: 8),
-            await createTestImage(width: 8, height: 8),
-          ]))!;
-      final first = images[0];
-      final second = images[1];
-      final baseline = first.debugGetOpenHandleStackTraces()!.length;
+      // Ownership truth (checked against Flutter sources, not assumed):
+      // `RawImage` CLONES the image for its `RenderImage` — both
+      // `createRenderObject` and `updateRenderObject` pass `image?.clone()`.
+      // So the render object only ever frees its own clone, and the tile's
+      // handle stays the tile's forever. The earlier model ("the render
+      // object takes over at build time") was wrong and leaked one handle
+      // per painted frame — measured on device as ~0.3/tile after the
+      // flag-based fix, because the flag exempted exactly the painted frames.
+      final first =
+          (await tester.runAsync(() => createTestImage(width: 8, height: 8, cache: false)))!;
+      final second =
+          (await tester.runAsync(() => createTestImage(width: 9, height: 9, cache: false)))!;
+      final base1 = first.debugGetOpenHandleStackTraces()!.length;
 
       final completer = _MultiFrameCompleter();
       final tile = _tile(x: 0, provider: _MultiFrameProvider(completer));
@@ -132,20 +132,19 @@ void main() {
 
       completer.emit(ImageInfo(image: first));
       expect(
-        first.debugGetOpenHandleStackTraces(),
-        hasLength(baseline + 1),
-        reason: 'the tile holds the first frame — the scenario needs that',
+        first.debugGetOpenHandleStackTraces()!.length,
+        greaterThan(base1),
+        reason: 'the tile must hold the first frame — the scenario needs that',
       );
 
-      // No pump: the second frame lands within the same frame budget, which is
-      // the common case on a fast device.
       completer.emit(ImageInfo(image: second));
 
       expect(
         first.debugGetOpenHandleStackTraces(),
-        hasLength(baseline),
-        reason: 'no build ever passed the first frame to a RenderImage, so the '
-            'tile still owned it and must free it on replacement',
+        hasLength(base1 - 1),
+        reason: 'on replacement the tile must free its own handle to the '
+            'previous frame; the completer freed the original at setImage, '
+            'hence one below baseline',
       );
 
       tile.dispose();
@@ -153,34 +152,31 @@ void main() {
   );
 
   testWidgets(
-    'keeps a frame the widget already handed to the render object',
+    'dispose frees the current handle and nulls the field',
     (tester) async {
-      // The mirror case: freeing a handle a `RenderImage` owns would be a
-      // double free. This is what makes the fix above safe rather than lucky.
-      final images = (await tester.runAsync(() async => [
-            await createTestImage(width: 8, height: 8),
-            await createTestImage(width: 8, height: 8),
-          ]))!;
-      final first = images[0];
-      final baseline = first.debugGetOpenHandleStackTraces()!.length;
+      final image =
+          (await tester.runAsync(() => createTestImage(width: 8, height: 8, cache: false)))!;
+      final baseline = image.debugGetOpenHandleStackTraces()!.length;
 
       final completer = _MultiFrameCompleter();
       final tile = _tile(x: 0, provider: _MultiFrameProvider(completer));
       tile.load();
-
-      completer.emit(ImageInfo(image: first));
-      // A build happened: `Tile` passed the handle on.
-      tile.markImageHandedToRenderObject();
-      completer.emit(ImageInfo(image: images[1]));
-
-      expect(
-        first.debugGetOpenHandleStackTraces(),
-        hasLength(baseline + 1),
-        reason: 'the render object owns this handle now and disposes it when '
-            'it is replaced — the tile must keep its hands off',
-      );
+      completer.emit(ImageInfo(image: image));
 
       tile.dispose();
+
+      expect(
+        image.debugGetOpenHandleStackTraces(),
+        hasLength(baseline),
+        reason: 'the tile owned its handle to the very end — dispose must '
+            'free it (the completer still holds the original it was given)',
+      );
+      expect(
+        tile.imageInfo,
+        isNull,
+        reason: 'dispose can race the layer rebuild; a straggler build must '
+            'see null (paint nothing), not a disposed image it would clone',
+      );
     },
   );
 }

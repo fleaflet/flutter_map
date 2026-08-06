@@ -55,42 +55,25 @@ class TileImage extends ChangeNotifier {
   DateTime? loadFinishedAt;
 
   /// Some meta data of the image.
+  ///
+  /// Ownership: this handle is ALWAYS the tile's own. `RawImage` clones the
+  /// image for its `RenderImage` (`createRenderObject`/`updateRenderObject`
+  /// both pass `image?.clone()`), so handing it to the widget tree never
+  /// transfers ownership — the render object frees its own clone, and this
+  /// one stays with the tile until the tile frees it: on frame replacement
+  /// and on [dispose].
+  ///
+  /// The previous model ("the render object takes over at build time") was
+  /// wrong and leaked exactly one handle per painted frame: measured on an
+  /// iPhone with 768x768 tiles as ~0.3-0.9 leaked handles per tile, invisible
+  /// to `ImageCache`, with the process eventually killed by jetsam. GC
+  /// finalizers reclaim such handles EVENTUALLY, which is why small default
+  /// tiles get away with it — 2.25 MB tiles do not.
   ImageInfo? imageInfo;
-
-  /// Whether [imageInfo]'s handle was passed to a `RawImage`.
-  ///
-  /// Ownership of the decoded image is transferred at build time: `RawImage`
-  /// hands the raw `ui.Image` to `RenderImage`, which disposes it when it is
-  /// replaced or unmounted. That is why [dispose] does not free [imageInfo] —
-  /// by then it belongs to the render object.
-  ///
-  /// The model assumes ONE frame per tile, which holds for static tiles. A
-  /// completer that emits a second frame (progressive tiles: a base frame
-  /// followed by a composed one) overwrites [imageInfo] before any build has
-  /// to happen. When both frames land within the same frame budget — the
-  /// common case on a fast device — the first handle is never handed to a
-  /// `RenderImage`, so nothing disposes it.
-  ///
-  /// Measured on an iPhone with 768x768 composed tiles: ~0.9 leaked handles
-  /// per tile, growing linearly with the number of tiles browsed and invisible
-  /// to `ImageCache` (which reported ~25 live images against 3336 alive
-  /// `ui.Image` objects).
-  bool _imageHandedToRenderObject = false;
 
   ImageStream? _imageStream;
   late ImageStreamListener _listener;
 
-  /// Records that [imageInfo]'s handle reached a `RawImage`, so the render
-  /// object owns it from now on and this class must not free it.
-  void markImageHandedToRenderObject() => _imageHandedToRenderObject = true;
-
-  /// Frees [imageInfo] only while it is still ours — i.e. no build has passed
-  /// it on. Disposing a handle already owned by a `RenderImage` would be a
-  /// double free.
-  void _disposeUnhandedImage() {
-    if (!_imageHandedToRenderObject) imageInfo?.dispose();
-    _imageHandedToRenderObject = false;
-  }
 
   /// Create a new object for a tile image.
   TileImage({
@@ -208,10 +191,10 @@ class TileImage extends ChangeNotifier {
       return;
     }
 
-    // A previous frame whose handle never reached a `RawImage` is ours to
-    // free — see [_imageHandedToRenderObject]. Without this, every tile that
-    // emits two frames within one frame budget leaks its first handle.
-    _disposeUnhandedImage();
+    // The previous frame's handle is ours — `RawImage` clones for the render
+    // object, so nothing downstream frees this one. Without this line every
+    // PAINTED frame leaks its handle for the lifetime of the process.
+    this.imageInfo?.dispose();
     this.imageInfo = imageInfo;
     _display();
     onLoadComplete(coordinates);
@@ -293,10 +276,12 @@ class TileImage extends ChangeNotifier {
 
     _animationController?.dispose();
     _imageStream?.removeListener(_listener);
-    // Same ownership rule as on frame replacement: a handle that no build ever
-    // passed to a `RenderImage` would otherwise never be freed. Tiles pruned
-    // between load and paint hit this path.
-    _disposeUnhandedImage();
+    // Same ownership rule as on frame replacement: the handle is the tile's
+    // own, so the tile frees it. Nulling the field keeps a straggler build
+    // (dispose can race the layer rebuild) from cloning a disposed image —
+    // `RawImage` treats null as "paint nothing".
+    imageInfo?.dispose();
+    imageInfo = null;
     super.dispose();
   }
 

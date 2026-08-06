@@ -1,5 +1,3 @@
-import 'dart:ui' as ui show Image;
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 
@@ -91,7 +89,7 @@ class _TileState extends State<Tile> {
       );
     } else if (widget.tileImage.animation == null) {
       return RawImage(
-        image: _handOff(widget.tileImage),
+        image: widget.tileImage.imageInfo?.image,
         fit: BoxFit.fill,
         opacity: widget.tileImage.opacity == 1
             ? null
@@ -101,7 +99,7 @@ class _TileState extends State<Tile> {
       return AnimatedBuilder(
         animation: widget.tileImage.animation!,
         builder: (context, child) => RawImage(
-          image: _handOff(widget.tileImage),
+          image: widget.tileImage.imageInfo?.image,
           fit: BoxFit.fill,
           opacity: widget.tileImage.animation,
         ),
@@ -110,10 +108,3 @@ class _TileState extends State<Tile> {
   }
 }
 
-/// Passes the tile's decoded handle to `RawImage` and records the ownership
-/// transfer — from here on `RenderImage` disposes it, so [TileImage] must not.
-ui.Image? _handOff(TileImage tileImage) {
-  final image = tileImage.imageInfo?.image;
-  if (image != null) tileImage.markImageHandedToRenderObject();
-  return image;
-}
