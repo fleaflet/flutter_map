@@ -56,8 +56,41 @@ class TileImage extends ChangeNotifier {
 
   /// Some meta data of the image.
   ImageInfo? imageInfo;
+
+  /// Whether [imageInfo]'s handle was passed to a `RawImage`.
+  ///
+  /// Ownership of the decoded image is transferred at build time: `RawImage`
+  /// hands the raw `ui.Image` to `RenderImage`, which disposes it when it is
+  /// replaced or unmounted. That is why [dispose] does not free [imageInfo] —
+  /// by then it belongs to the render object.
+  ///
+  /// The model assumes ONE frame per tile, which holds for static tiles. A
+  /// completer that emits a second frame (progressive tiles: a base frame
+  /// followed by a composed one) overwrites [imageInfo] before any build has
+  /// to happen. When both frames land within the same frame budget — the
+  /// common case on a fast device — the first handle is never handed to a
+  /// `RenderImage`, so nothing disposes it.
+  ///
+  /// Measured on an iPhone with 768x768 composed tiles: ~0.9 leaked handles
+  /// per tile, growing linearly with the number of tiles browsed and invisible
+  /// to `ImageCache` (which reported ~25 live images against 3336 alive
+  /// `ui.Image` objects).
+  bool _imageHandedToRenderObject = false;
+
   ImageStream? _imageStream;
   late ImageStreamListener _listener;
+
+  /// Records that [imageInfo]'s handle reached a `RawImage`, so the render
+  /// object owns it from now on and this class must not free it.
+  void markImageHandedToRenderObject() => _imageHandedToRenderObject = true;
+
+  /// Frees [imageInfo] only while it is still ours — i.e. no build has passed
+  /// it on. Disposing a handle already owned by a `RenderImage` would be a
+  /// double free.
+  void _disposeUnhandedImage() {
+    if (!_imageHandedToRenderObject) imageInfo?.dispose();
+    _imageHandedToRenderObject = false;
+  }
 
   /// Create a new object for a tile image.
   TileImage({
@@ -175,6 +208,10 @@ class TileImage extends ChangeNotifier {
       return;
     }
 
+    // A previous frame whose handle never reached a `RawImage` is ours to
+    // free — see [_imageHandedToRenderObject]. Without this, every tile that
+    // emits two frames within one frame budget leaks its first handle.
+    _disposeUnhandedImage();
     this.imageInfo = imageInfo;
     _display();
     onLoadComplete(coordinates);
@@ -256,6 +293,10 @@ class TileImage extends ChangeNotifier {
 
     _animationController?.dispose();
     _imageStream?.removeListener(_listener);
+    // Same ownership rule as on frame replacement: a handle that no build ever
+    // passed to a `RenderImage` would otherwise never be freed. Tiles pruned
+    // between load and paint hit this path.
+    _disposeUnhandedImage();
     super.dispose();
   }
 
