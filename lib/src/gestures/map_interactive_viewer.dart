@@ -647,10 +647,13 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
     var newZoom = _camera.zoom;
 
     // Handle pinch zoom.
-    if (hasPinchZoom && details.scale > 0.0) {
+    // After a gesture-race win, _scaleCorrector is 1 - lastScale, so this
+    // sum can be <= 0 even when details.scale itself is positive.
+    final scale = details.scale + _scaleCorrector;
+    if (hasPinchZoom && scale > 0.0) {
       newZoom = _getZoomForScale(
         _mapZoomStart,
-        details.scale + _scaleCorrector,
+        scale,
       );
 
       // Handle starting of pinch zoom.
@@ -1401,10 +1404,19 @@ class MapInteractiveViewerState extends State<MapInteractiveViewer>
 
   // Utilities
 
+  /// Converts a pinch [scale] into a zoom level starting from [startZoom].
+  ///
+  /// Returns [startZoom] when [scale] is not a positive finite number.
+  /// `math.log` is undefined for those inputs and would produce `NaN` or
+  /// `-Infinity`, which then poison the camera.
+  @visibleForTesting
+  static double zoomForScale(double startZoom, double scale) {
+    if (scale <= 0.0 || !scale.isFinite) return startZoom;
+    return scale == 1.0 ? startZoom : startZoom + math.log(scale) / math.ln2;
+  }
+
   double _getZoomForScale(double startZoom, double scale) {
-    final resultZoom =
-        scale == 1.0 ? startZoom : startZoom + math.log(scale) / math.ln2;
-    return _camera.clampZoom(resultZoom);
+    return _camera.clampZoom(zoomForScale(startZoom, scale));
   }
 
   Offset _rotateOffset(Offset offset) {

@@ -46,4 +46,42 @@ void main() {
       },
     );
   });
+
+  group('MapInteractiveViewerState.zoomForScale', () {
+    test('adds log2(scale) to the start zoom', () {
+      expect(MapInteractiveViewerState.zoomForScale(13, 2), 14);
+      expect(MapInteractiveViewerState.zoomForScale(13, 1), 13);
+      expect(MapInteractiveViewerState.zoomForScale(13, 0.5), 12);
+    });
+
+    test(
+      'returns the start zoom when the corrected pinch scale is not '
+      'positive (regression: details.scale + _scaleCorrector can be '
+      '<= 0 after a gesture-race win, and math.log of that is NaN - '
+      'https://github.com/fleaflet/flutter_map/issues/2237)',
+      () {
+        // _scaleCorrector = 1.0 - _lastScale, with _lastScale == 2.5
+        const scaleCorrector = 1.0 - 2.5;
+        const detailsScale = 1;
+        final scale = detailsScale + scaleCorrector;
+
+        expect(scale, lessThanOrEqualTo(0));
+
+        final zoom = MapInteractiveViewerState.zoomForScale(13, scale);
+
+        expect(zoom, 13);
+        expect(zoom.isFinite, isTrue);
+        expect(zoom.isNaN, isFalse);
+      },
+    );
+
+    test('returns the start zoom for zero, NaN, and infinite scale', () {
+      expect(MapInteractiveViewerState.zoomForScale(13, 0), 13);
+      expect(MapInteractiveViewerState.zoomForScale(13, double.nan), 13);
+      expect(
+        MapInteractiveViewerState.zoomForScale(13, double.negativeInfinity),
+        13,
+      );
+    });
+  });
 }
