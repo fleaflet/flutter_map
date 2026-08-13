@@ -98,6 +98,16 @@ class _MarkerLayerState extends State<MarkerLayer> {
     final pixelOrigin = map.pixelOrigin;
     final markers = widget.markers;
 
+    // A non-finite camera makes Rect.overlaps return true for every world
+    // copy, so the wrap loops never terminate (OOM/ANR). #2178 only guards
+    // Marker.point. See https://github.com/fleaflet/flutter_map/issues/2240.
+    if (!worldWidth.isFinite ||
+        !pixelBounds.left.isFinite ||
+        !pixelBounds.right.isFinite ||
+        !map.rotation.isFinite) {
+      return const SizedBox.shrink();
+    }
+
     return MobileLayerTransformer(
       child: Stack(
         children: () sync* {
@@ -166,14 +176,37 @@ class _MarkerLayerState extends State<MarkerLayer> {
 
             // Repeat over all worlds (<--||-->) until culling determines that
             // that marker is out of view, and therefore all further markers in
-            // that direction will also be
-            if (worldWidth == 0) continue;
+            // that direction will also be.
+            // Also skip wrapping when the projected point is non-finite; the
+            // camera-level guard above does not cover that case.
+            if (worldWidth == 0 ||
+                !worldWidth.isFinite ||
+                !pxPoint.dx.isFinite ||
+                !pxPoint.dy.isFinite ||
+                !pixelBounds.left.isFinite ||
+                !pixelBounds.right.isFinite) {
+              continue;
+            }
+
+            // Same backstop as FeatureLayerUtils.workAcrossWorlds (#2052/#2111).
+            const maxShiftsCount = 30;
+            var shiftsCount = 0;
             for (double shift = -worldWidth;; shift -= worldWidth) {
+              if (++shiftsCount > maxShiftsCount) {
+                throw AssertionError(
+                  'Infinite loop going beyond $maxShiftsCount for world width $worldWidth',
+                );
+              }
               final additional = getPositioned(shift);
               if (additional == null) break;
               yield additional;
             }
             for (double shift = worldWidth;; shift += worldWidth) {
+              if (++shiftsCount > maxShiftsCount) {
+                throw AssertionError(
+                  'Infinite loop going beyond $maxShiftsCount for world width $worldWidth',
+                );
+              }
               final additional = getPositioned(shift);
               if (additional == null) break;
               yield additional;
