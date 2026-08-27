@@ -4,7 +4,21 @@ Please consider [donating](https://github.com/sponsors/fleaflet) or [contributin
 
 This CHANGELOG does not include every commit and/or PR - it is a hand picked selection of the ones that have an effect on most users. For a full list of changes, please check the GitHub repository releases/tags. We also release highlights for some releases on the docs site.
 
-## [8.3.1] - 2026/07/xx
+## [8.3.2] - 2026/08/27
+
+Contains the following user-affecting bug fixes:
+
+- Prevent NaN fling direction when tracked pointer offsets are zero - [#2220](https://github.com/fleaflet/flutter_map/pull/2220) for [#2221](https://github.com/fleaflet/flutter_map/issues/2221)
+- Don't apply `initialCameraFit` on a zero-sized camera - [#2223](https://github.com/fleaflet/flutter_map/pull/2223) for [#2222](https://github.com/fleaflet/flutter_map/issues/2222)
+- Load tiles during double-tap-drag zoom gesture - [#2217](https://github.com/fleaflet/flutter_map/pull/2217)
+
+Many thanks to these contributors (in no particular order):
+
+- @ProstoSanja
+- @nisenbeck
+- ... and all the maintainers
+
+## [8.3.1] - 2026/07/30
 
 Contains the following user-affecting bug fixes:
 
