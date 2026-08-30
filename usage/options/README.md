@@ -4,9 +4,9 @@ To dictate & restrict what the map can and should do, regardless of its contents
 
 It provides options that can be categorized into three main parts:
 
-* [Initial positioning](./#initial-positioning)\
+* [#initial-positioning](./#initial-positioning "mention")\
   Defines the location of the map when it is first loaded
-* [Permanent rules](./#permanent-rules)\
+* [#permanent-rules](./#permanent-rules "mention")\
   Defines restrictions that last throughout the map's lifetime
 * [Event handling](../programmatic-interaction.md#reacting-to-map-events)\
   Defines methods that are called on specific map events
@@ -18,20 +18,103 @@ It provides options that can be categorized into three main parts:
 {% hint style="info" %}
 Changing these properties after the map has already been built for the first time will have no effect: they only apply on initialisation.
 
-To control the map programatically, use a `MapController`: [Broken link](/broken/pages/UW2gppPcXFfE46FRhWT6 "mention").
+To control the map programatically, use a `MapController`: [#controller](../programmatic-interaction.md#controller "mention").
 {% endhint %}
 
-One part of `MapOptions` responsibilities is to define how the map should be positioned when first loaded. There's two ways to do this (that are incompatible):
+By default, the map's north is up. Set the `initialRotation` in degrees to change this if necessary.
 
-* `initialCenter` (`LatLng`) & `initialZoom`
-* `initialCameraFit`
-  * by bounds (circumscribed[^1]): `CameraFit.bounds`
-  * by bounds (inscribed[^2]): `CameraFit.insideBounds`
-  * by coordinates (circumscribed[^3]): `CameraFit.coordinates`
+To set the geographical location the map should show, choose exactly one of the following options:
 
-It is possible to also set the map's `initialRotation` in degrees, if you don't want it North (0°) facing initially.
+{% tabs %}
+{% tab title="Center + Zoom" %}
+The map places the given coordinates at the centre (`initialCenter`), and shows the specified zoom level (`initialZoom`).
 
-If rotation is enabled/allowed, if using `initialCameraFit`, prefer defining it by coordinates for a more intended/tight fit.
+{% hint style="info" %}
+Not sure what a zoom level is? In short, zoom level 0 usually displays the whole world in world tile, and a higher zoom level means more zoomed in.
+
+For more information, see [how-does-it-work](../../why-and-how/how-does-it-work/ "mention") and [wiki.openstreetmap.org/wiki/Zoom\_levels](https://wiki.openstreetmap.org/wiki/Zoom_levels).
+{% endhint %}
+
+```dart
+MapOptions(
+    initialCenter: LatLng(0, 0),
+    initialZoom: 13,
+    // ...
+),
+```
+{% endtab %}
+
+{% tab title="Fit" %}
+The four corners of the map are defined with 1 of 3 possible fitting methods, through `initialCameraFit`.
+
+When the map is not initially rotated, all 3 work the same. When rotated, [#circumscribed-coordinates](./#circumscribed-coordinates "mention") is usually the best choice.
+
+{% tabs %}
+{% tab title="Circumscribed bbox" %}
+A bounding box is specified, and the map shows the entire area plus any surrounding area necessary (if the map is rotated): `CameraFit.bounds`.
+
+`LatLngBounds` can be constructed with two corners, or automatically constructed from a list of coordinates using the `.fromPoints` constructor.
+
+<div align="center"><figure><img src="../../.gitbook/assets/two-rotated-rectangles.png" alt="" width="220"><figcaption><p>Camera shown in purple<br>Bounding box shown in black<br>North up, camera at an angle</p></figcaption></figure></div>
+
+```dart
+MapOptions(
+    initialCameraFit: CameraFit.bounds(
+        bounds: LatLngBounds(LatLng(10, -10), LatLng(-10, 10)),
+    ),
+    // ...
+),
+```
+{% endtab %}
+
+{% tab title="Inscribed bbox" %}
+A bounding box is specified, and the map shows only areas which fit inside it: `CameraFit.insideBounds`.
+
+`LatLngBounds` can be constructed with two corners, or automatically constructed from a list of coordinates using the `.fromPoints` constructor.
+
+<div align="center"><figure><img src="../../.gitbook/assets/two-rotated-rectangles.png" alt="" width="220"><figcaption><p>Camera shown in black<br>Bounding box shown in purple<br>North at an angle, camera up</p></figcaption></figure></div>
+
+```dart
+MapOptions(
+    initialCameraFit: CameraFit.insideBounds(
+        bounds: LatLngBounds(LatLng(10, -10), LatLng(-10, 10)),
+    ),
+    // ...
+),
+```
+{% endtab %}
+
+{% tab title="Circumscribed coordinates" %}
+A list of coordinates is specified, and the map shows the entire area plus any surrounding area necessary (if the map is rotated): `CameraFit.coordinates`.
+
+Because it is not a bounding box (north-aligned rectangle) being specified unlike the other 2 methods, a rotated map can achieve a tighter fit around the specified coordinates.
+
+```dart
+MapOptions(
+    initialCameraFit: CameraFit.coordinates(
+        coordinates: [
+            // ...
+        ],
+    ),
+    // ...
+),
+```
+{% endtab %}
+{% endtabs %}
+
+`CameraFit` also takes a number of other useful parameters, such as `padding` defined in screen-space logical pixels, and more to ensure the map tiles are at their best visual resolution initially. For example:
+
+```dart
+CameraFit.bounds(
+    // ...
+    padding: const EdgeInsets.all(32),
+    maxZoom: 16,
+    minZoom: 6,
+    forceIntegerZoomLevel: true,
+),
+```
+{% endtab %}
+{% endtabs %}
 
 ## Permanent Rules
 
@@ -65,9 +148,3 @@ FM does have some support for using alternative CRSs.&#x20;
 If the map is built lazily, for example in a `PageView`, loading and unloading the map will cause it to reset.
 
 To prevent this, set `MapOptions.keepAlive` to `true`, which will activate an internal `AutomaticKeepAliveClientMixin`.
-
-[^1]: Bounds inside camera
-
-[^2]: Camera inside bounds
-
-[^3]: Coordinates inside camera, as tightly as possible
